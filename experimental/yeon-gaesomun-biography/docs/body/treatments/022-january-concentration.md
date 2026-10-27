@@ -1,0 +1,31 @@
+# Forces joined, a convoy sets out
+
+## Cavalry kept outside the fortress {#northern-assembly}
+
+<!--
+@evidenceExclude shared/upstream/treatments.md#settings-repair 이 H2 전체와 실제 부모 `settings/050-systems/100-counterattack-concentration.md#counterattack-concentration`; `settings/050-systems/040-goguryeo-661-strength.md#goguryeo-661-strength`; `settings/050-systems/100-counterattack-concentration.md#interior-supply-capacity`; `settings/040-agents/008-namgeon.md#namgeon`; `settings/050-systems/020-goguryeo-force-system.md#goguryeo-force-system`; `instructions/007-warfare-and-campaigns.md#second-war-course`; `instructions/007-warfare-and-campaigns.md#second-war-operations`를 대조했다. 북쪽에 도착한 기동군과 성 보병이 합류한 뒤 개소문은 곧장 총공격 대신 최소 사흘 정돈과 지속 정찰로 어느 적을 먼저 끊을지 준비한다. 1월 초 약 3만 5천+보병 약 1만 5천의 최대 임무 5만 안에 지원 4천이 있다. 남생의 2만과 성 잔류군은 따로 남고 기병은 성 안에 몰아넣지 않는다. 부모의 「집결지의 보급·군장·신호 준비에는 최소3일이 필요하다.」를 본문의 「최소 사흘 동안 군장과 신호를 맞춘 뒤에도 개소문은 곧장 모든 진에 공격하지 않는다.」로 시험한 결과, 이 사건의 원인·권한·지식·재원·공간·결과를 상류에서 새로 만들거나 바꿀 결함은 노출되지 않았다.
+-->
+
+In early January 662, roughly 35,000 mobile troops arrive at the assembly area north of Pyongyang. Namsaeng's 20,000 remaining on the south bank are not brought in and added. Combined with roughly 15,000 infantry that can be released from the Pyongyang garrison, the force totals at most 50,000 people on military duty. Do not count the 4,000 support personnel handling horses and baggage again as combatants ([the limits of concentration](../settings/050-systems/100-counterattack-concentration.md#counterattack-concentration)). Other defenders remain in the fortress, while cavalry prepares in dispersed feeding areas to the north.
+
+Even after at least three days coordinating equipment and signals, Gaesomun does not immediately attack every camp. He continues scouting and interdiction to establish the routes and time by which the enemy can support one another. Namgeon has returned with the mobile force and reorganizes the remaining men and horses of his heavy cavalry. Confidence is high in the troops who actually won in the north, but the father reflects in his orders the fact that the combined force cannot all enter a narrow approach at once. Waiting is not inaction; it prepares the choice of which enemy to cut off first.
+
+## Authority over rewards and punishment beyond the border {#silla-delegation}
+
+<!--
+@evidenceExclude shared/upstream/treatments.md#settings-repair 이 H2 전체와 실제 부모 `settings/040-agents/066-kim-yusin.md#kim-yusin`; `settings/040-agents/070-munmu.md#munmu`; `settings/050-systems/150-transport-column.md#transport-column`; `settings/050-systems/160-grain-and-rations.md#grain-and-rations`; `settings/040-agents/074-chano.md#chano`; `settings/040-agents/077-guidol.md#guidol`; `instructions/007-warfare-and-campaigns.md#yusin-winter-supply`; `instructions/002-style-and-commentary.md#rival-camps`를 대조했다. 문무왕은 동맹과 남방 전쟁을 위해 국경 밖 상벌을 위임한다. 김유신은 전투와 운반 인력, 전달품과 자체 식량을 나누어 출정시키며 생활자의 귀향 목표를 드러낸다. 전투 1만·운반과 길 정리 2만·수레 2천여 대·약 2만 6천 석은 다른 종류의 값이다. 석은 행정 용적이며 자루 단위나 최종 실측이 아니다. 부모의 「지휘자의 굳센 마음이 추위를 없애거나 얼어붙은 몸을 낫게 하지는 않는다.」를 본문의 「김유신은 지휘권만 받는 것이 아니라 사람을 잃을 책임도 받는다」로 시험한 결과, 이 사건의 원인·권한·지식·재원·공간·결과를 상류에서 새로 만들거나 바꿀 결함은 노출되지 않았다.
+-->
+
+In Silla, King Munmu receives Tang's request for provisions and entrusts their transport to Kim Yusin. If the allied army cannot be saved, Silla's relationship for the present war and the struggle against the southern restoration forces will also be shaken. The king gives him a personally written document delegating rewards and punishment beyond the border. Kim Yusin receives responsibility for lost lives along with command ([authority and the march](../settings/040-agents/066-kim-yusin.md#kim-yusin)).
+
+A mixed column of 10,000 fighting personnel, 20,000 transport and road-clearing personnel, and more than 2,000 carts is prepared. Chano and Gwidol enter as people who want to deliver their assigned food and return home, not soldiers seeking a duel with an enemy general. Grain for Tang and their own provisions are packed separately. The target of roughly 26,000 seok is an administrative volume, not the value of one sack or a final measurement of everything delivered ([the column](../settings/050-systems/150-transport-column.md#transport-column), [the provisions](../settings/050-systems/160-grain-and-rations.md#grain-and-rations)).
+
+## Misjudging which roads must be watched {#unwatched-capacity}
+
+<!--
+@evidenceExclude shared/upstream/treatments.md#settings-repair 이 H2 전체와 실제 부모 `settings/050-systems/140-supply-route.md#supply-route`; `settings/050-systems/170-return-and-pursuit.md#return-and-pursuit`; `settings/020-world/030-second-war-calendar.md#second-war-calendar`; `settings/040-agents/066-kim-yusin.md#kim-yusin`; `settings/060-places/180-chiljung.md#chiljung`; `instructions/007-warfare-and-campaigns.md#yusin-winter-supply`; `instructions/007-warfare-and-campaigns.md#battlefield-causality`; `instructions/002-style-and-commentary.md#knowledge-of-the-moment`를 대조했다. 고구려는 큰길과 나루를 지키지만 산길의 대규모 운반을 불가능하다고 본다. 김유신은 강한 감시 돌파 대신 험로와 추위·노동 비용을 택한다. 음력 정월 23일 칠중하 도하 뒤 길을 벗어난다. 경계 7천+3천은 이미 남하한 별도 병력이며 중앙 반격 5만이 아니다. 부모의 「작은 정찰대가 다닐 수 있는 길을 수송대가 실제로 통과하리라고 예상하지 못한 판단이다.」를 본문의 「김유신은 감시가 센 곳을 뚫어 이기는 대신 통과할 수 없다고 여기는 길을 이어 가기로 한다.」로 시험한 결과, 이 사건의 원인·권한·지식·재원·공간·결과를 상류에서 새로 만들거나 바꿀 결함은 노출되지 않았다.
+-->
+
+Goguryeo guards the main roads and crossings, judging that a large food transport cannot move along mountain paths in winter. This is not ignorance that the paths exist, but a judgment about the difference between scouts and a transport column. The 7,000 Liaodong light cavalry sent south earlier and 3,000 southern defenders undertake this watch ([the separate southbound force](../settings/050-systems/170-return-and-pursuit.md#return-and-pursuit)). Do not place Gaesomun's central counterattack army in the south on the same day as well.
+
+Rather than win by breaking through the strongest watch, Kim Yusin chooses to connect routes considered impassable. After crossing the Chiljung River on the twenty-third day of the first lunar month, he leaves the main roads. The choice reduces fighting but increases cold and transport labor. The audience follows a difference in what the two sides calculate can be done, not merely an enemy's carelessness.

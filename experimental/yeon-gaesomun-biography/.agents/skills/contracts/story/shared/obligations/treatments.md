@@ -1,0 +1,15 @@
+# Treatment population obligations
+
+The complete ordered treatment population answers once per question. This compares the event design, not the later script partition.
+
+## Do information, entry, accumulation, and ending work across the whole? {#whole-event-design}
+
+Map what the audience knows, does not know, is led to believe, and is waiting to learn throughout the sequence. Pair every consequential reveal, reversal, and decisive use of a power or object with its earlier establishment, and every setup or promise with its payoff, transformation, or owned unresolved ending. Report unsupported payoffs and abandoned setups in both directions. Identify where questions open and resolve, how long the oldest remain open, and whether all satisfaction is deferred; counts locate the burden, while reading decides its effect.
+
+Set the actual first event, what is first perceived, and the progressive introduction of people, relationships, time, space, and pressure needed for current choices. Sustained middle sections must accumulate costs, narrowed possibilities, changed relationships, or altered expectations rather than repeatedly reset. Where progressions run in parallel, establish how their order, intersections, contrasts, or consequences change the whole rather than merely alternate unrelated summaries. The event sequence must convey its intended emotional movement and tone through what happens and what it means, not a mood label left for scripts to invent. Opposing agents, when present, act from their own priorities instead of waiting for the protagonist. The ending follows from established choices and costs, identifies what closes and remains open, gives its aftermath or changed state, and defines the actual last delivered event and why the work stops there. Chance may begin a crisis; a resolution dropped in from outside requires an explicitly owned work premise. Open endings need grounds and a stopping reason, not total explanation or a compulsory epilogue.
+
+## Is the material sufficient for the declared delivery and script handoff? {#material-and-handoff}
+
+Can a script author understand all essential events, motives, choices, relationship turns, information releases, costs, results, and inherited state without inventing core progression or reassembling settings? Pass necessary canonical facts in usable context while leaving full dialogue, precise blocking, and release partition to scripts. Map ordered event and process material to the declared film, episode, season, or other delivery scale, including substantial turns capable of closing its major units. Treatments supply those turns; scripts choose the actual boundaries.
+
+Report unsupported promised intervals, repetition presented as development, and consequential progression that the next author would have to invent. Text length and scene count are signals, not proof: concise treatments can establish extensive action. Repair event material at its earliest treatment owner, or return an unsupported delivery promise to its authorized settings owner; do not inflate scripts or final screenplay to conceal the gap.

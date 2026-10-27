@@ -1,0 +1,19 @@
+# Narrative population obligations
+
+Each completed treatment, script, and final screenplay population answers once. Compare all units and boundaries, including major delivery spans. In treatments these spans follow their supplied closing turns; scripts and screenplay use the actual partition.
+
+## Are progression, state, and long pursuits continuous? {#continuity-and-progression}
+
+Classify every unit by its actual event, understanding, relationship, emotion, pressure, rhythm, or formal contribution. Identify functionless duplication and independently addressable progressions hidden inside a unit; preserve inseparable montage, continuous action, parallel form, or other owned operations. Connect every exit to its following entry through its causal or declared formal relationship. Test movable units for what the actual order contributes, allowing episodic, nonlinear, fragmented, recurring, and nonhuman forms to establish their own links.
+
+Compare every inherited boundary for story day and time, place, knowledge, injury, appearance, clothing, possession, resource, status, relationship, and promise. Follow recurring agents' drives, beliefs, interpretations, experiences, actions, and relationship states across the whole; identify unsupported reversals and changes that jump a declared threshold without pressure or cost. An unchanged or unreached threshold needs its owned scope or purpose. Cite the earliest contradictory owner, including effects derived across facts rather than only matching neighboring labels.
+
+For a work following a protagonist's pursuit, identify its work-wide desire, the first audience recognition, the actions it drives, and how major-unit goals continue or transform it. Local tasks alone do not establish that center. Ensembles may sustain competing pursuits, and another form may own a different center, but show what actually holds the whole together instead of inventing a shared goal.
+
+## Are promises, rhythm, and variation realized across the whole? {#promises-and-distribution}
+
+Start as an audience with no prior settings knowledge: does the opening give a concrete reason to continue and timely understanding of people, relationships, pressure, time, and space? Follow the actual sequence of introductions and returns, not an author's explanation of intended clarity. Map the declared engine and rewards to all functioning units, each payoff's setup, risk, or cost, and the longest intervals without the promised satisfaction and what sustains them. Report major delivery spans where the engine never operates, unearned or worn-out rewards, and deferrals whose eventual return does not support their delay.
+
+Compare the distribution of scene, compression, pause, omission, simultaneity, habitual time, flashback, anticipation, and retelling against each span's pressure. For every departure from ordinary once-told forward sequence, state what is lost by removing that departure. Compare actual openings and endings, speech frequency and length, who may explain, evade, interrupt or remain silent, the material world occupying attention, and recurring image and sound functions. Treatments compare assigned exchanges; scripts and screenplay compare their realization. Single-speed delivery, mechanical alternation, habitual closing aphorisms, uniform voices, and functionless recurrence can fail even when units pass locally.
+
+Ground classifications in all their actual members, not representative units or character summaries. Counts locate patterns; reading determines whether they work. A deliberately uniform form, refrain, silence, narrow material world, or long frustration needs its owned purpose and realized effect. Develop central concerns through changing events, choices, relationships, places, images, sound, and form rather than appended answers. Repeated motifs must acquire force or change in context rather than merely restate a theme.

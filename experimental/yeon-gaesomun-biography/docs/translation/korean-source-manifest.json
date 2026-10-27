@@ -1,0 +1,1613 @@
+{
+  "role": "Exact Korean translation input; preserved in the baseline commit before English authoring. Historical evidence annotations remain source data and do not approve the English edition.",
+  "sourceWorkspace": "D:\\github\\samchon\\automovie@template",
+  "sourceRevision": "1a6d21537547a285b3fc3a9c497052f5632a8bfc",
+  "currentWorkingTreeSnapshotIncluded": true,
+  "files": [
+    {
+      "path": "docs/body/screenplay/001-the-right-to-command/001-people-to-command.md",
+      "bytes": 30281,
+      "sha256": "5b798a56a791c0e6cc70cde4da88acaa07eab023262de772ffc85e020c171bbf"
+    },
+    {
+      "path": "docs/body/screenplay/001-the-right-to-command/index.md",
+      "bytes": 81,
+      "sha256": "37d5e0f8ab68d9e5aa0fdc3bb2a5b2bdf1fa0cbe6bb6c84c2385a2c4e71dbcad"
+    },
+    {
+      "path": "docs/body/screenplay/002-the-kings-work/001-the-kings-work.md",
+      "bytes": 43151,
+      "sha256": "533f56657a867f8223b9abbeedbdbbd526733594c339e9f09eeae13294a94471"
+    },
+    {
+      "path": "docs/body/screenplay/002-the-kings-work/index.md",
+      "bytes": 66,
+      "sha256": "7c9ac044cca7fb950dad8d024fd0ff0476ef8171642538fd44a11a0a9585458c"
+    },
+    {
+      "path": "docs/body/screenplay/003-the-roads-that-move/001-moving-roads.md",
+      "bytes": 37399,
+      "sha256": "dbb8ef29e635f56b48ef38e7b8e74b85646b4d42d7556f5006698041f29fedf0"
+    },
+    {
+      "path": "docs/body/screenplay/003-the-roads-that-move/index.md",
+      "bytes": 78,
+      "sha256": "651038fdfa99384810d67f4af96ecd989625d544d807989a8f0a2dd59b150162"
+    },
+    {
+      "path": "docs/body/screenplay/004-the-victory-that-remains/001-remaining-victory.md",
+      "bytes": 20104,
+      "sha256": "87412c56d4167f67575745517d473eff0937890226b44b70519936de0cd4be05"
+    },
+    {
+      "path": "docs/body/screenplay/004-the-victory-that-remains/index.md",
+      "bytes": 61,
+      "sha256": "db3ecd15dee2f2e778cd77d9f807ee1453c1805e024afa3ade71c5ccc9934b5d"
+    },
+    {
+      "path": "docs/body/screenplay/005-days-to-sow/001-days-to-sow.md",
+      "bytes": 33957,
+      "sha256": "f6cff6d0d49776976484a3f2ee48d9bed8aa1098e446a8c1bf9f23283649af37"
+    },
+    {
+      "path": "docs/body/screenplay/005-days-to-sow/index.md",
+      "bytes": 63,
+      "sha256": "2e2b0085ccf7df42294fb5f1e449e40d5fa498c5133396b3473e55b552a26e57"
+    },
+    {
+      "path": "docs/body/screenplay/006-the-son-left-living/001-the-son-left-living.md",
+      "bytes": 25776,
+      "sha256": "d14005c649a55b70046845233c50b0b7c0104b93ce96e872f8ff93bbad8ee356"
+    },
+    {
+      "path": "docs/body/screenplay/006-the-son-left-living/index.md",
+      "bytes": 77,
+      "sha256": "d073727764c4c3c4c66b6f0de16af88e3a1711bfe80c7f9622d4294a2e7172df"
+    },
+    {
+      "path": "docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+      "bytes": 21385,
+      "sha256": "7e31f00eae378cd1ee3ecb9beef9f0c0d40ad6612bf159f26adb25857d65b5e8"
+    },
+    {
+      "path": "docs/body/scripts/001-the-right-to-command/index.md",
+      "bytes": 81,
+      "sha256": "37d5e0f8ab68d9e5aa0fdc3bb2a5b2bdf1fa0cbe6bb6c84c2385a2c4e71dbcad"
+    },
+    {
+      "path": "docs/body/scripts/002-the-kings-work/001-the-kings-work.md",
+      "bytes": 28733,
+      "sha256": "0081c4299e3a1458d9ea92f07ac2e51284bf446f6087ecc3ad7a5775e1bd40ad"
+    },
+    {
+      "path": "docs/body/scripts/002-the-kings-work/index.md",
+      "bytes": 66,
+      "sha256": "7c9ac044cca7fb950dad8d024fd0ff0476ef8171642538fd44a11a0a9585458c"
+    },
+    {
+      "path": "docs/body/scripts/003-the-roads-that-move/001-moving-roads.md",
+      "bytes": 24841,
+      "sha256": "fc7191f10e70f59d364f054b697e1d52708751de5c28ea278c8c02a2ec5045d7"
+    },
+    {
+      "path": "docs/body/scripts/003-the-roads-that-move/index.md",
+      "bytes": 78,
+      "sha256": "651038fdfa99384810d67f4af96ecd989625d544d807989a8f0a2dd59b150162"
+    },
+    {
+      "path": "docs/body/scripts/004-the-victory-that-remains/001-remaining-victory.md",
+      "bytes": 15142,
+      "sha256": "f777670287d60b40c29dd6d0208801c623b8727bc1594f64c1ad0a463fa9e2ae"
+    },
+    {
+      "path": "docs/body/scripts/004-the-victory-that-remains/index.md",
+      "bytes": 61,
+      "sha256": "db3ecd15dee2f2e778cd77d9f807ee1453c1805e024afa3ade71c5ccc9934b5d"
+    },
+    {
+      "path": "docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+      "bytes": 23695,
+      "sha256": "b383f5d57c3b12b4869cf90f70e66381c8236084d1a81874c9022408126345ff"
+    },
+    {
+      "path": "docs/body/scripts/005-days-to-sow/index.md",
+      "bytes": 63,
+      "sha256": "2e2b0085ccf7df42294fb5f1e449e40d5fa498c5133396b3473e55b552a26e57"
+    },
+    {
+      "path": "docs/body/scripts/006-the-son-left-living/001-the-son-left-living.md",
+      "bytes": 19766,
+      "sha256": "d35d05c62d0cb638d903ce1144adcb26471fe6996197addc97e6c4c9aa68491a"
+    },
+    {
+      "path": "docs/body/scripts/006-the-son-left-living/index.md",
+      "bytes": 77,
+      "sha256": "d073727764c4c3c4c66b6f0de16af88e3a1711bfe80c7f9622d4294a2e7172df"
+    },
+    {
+      "path": "docs/body/settings/010-work/010-work.md",
+      "bytes": 10098,
+      "sha256": "b7da0617f3fa83cbb642f660915ebca3953905b60117398139368ce654e93024"
+    },
+    {
+      "path": "docs/body/settings/010-work/020-voice-owners.md",
+      "bytes": 2806,
+      "sha256": "8cb2c8bec02414045bdea97df571fc1e64b1122ab7e65935d013ea90389ac3b5"
+    },
+    {
+      "path": "docs/body/settings/020-world/010-family-years.md",
+      "bytes": 2235,
+      "sha256": "480ef49ca3505e66151a01d6f2e2a696e87c6f89e76467a5e800d070a71de97c"
+    },
+    {
+      "path": "docs/body/settings/020-world/020-yeon-death-year.md",
+      "bytes": 1662,
+      "sha256": "d727e778e23c62ce499cb167dab2e9371c1b08ca05ae1907ec5d3130fad59aaf"
+    },
+    {
+      "path": "docs/body/settings/020-world/030-second-war-calendar.md",
+      "bytes": 12387,
+      "sha256": "2bf490eec997c843bfd1725d4412a1bd715e0b931af097f33e568db3a84dcf5d"
+    },
+    {
+      "path": "docs/body/settings/020-world/040-postwar-window.md",
+      "bytes": 2436,
+      "sha256": "ca12ba2bbd36b9f45bc6700512efb857e86e78c46607ee513cd534e4de57c9db"
+    },
+    {
+      "path": "docs/body/settings/020-world/050-information-arrival.md",
+      "bytes": 2799,
+      "sha256": "c06b26f8a3d065d7a791702e446594839d352a50e75cd24cecdc1c6a604d3451"
+    },
+    {
+      "path": "docs/body/settings/020-world/060-earlier-civil-war.md",
+      "bytes": 2710,
+      "sha256": "62e5967ca94493072dcb1a4034fdaf4dd6005483a254a3557c95f76a1b45c0d8"
+    },
+    {
+      "path": "docs/body/settings/020-world/070-first-restoration.md",
+      "bytes": 3187,
+      "sha256": "ef863c122581e3464fa8dd5e4b6f53ef5bc8d5a70b133e9014adac41813ad9e0"
+    },
+    {
+      "path": "docs/body/settings/020-world/080-repeated-sui-wars.md",
+      "bytes": 2765,
+      "sha256": "b9fb43506b79406b50d0dc24456d589fe1139d22ca0aef5c3c1c9fe53aa3a2e9"
+    },
+    {
+      "path": "docs/body/settings/020-world/090-second-restoration-and-tang.md",
+      "bytes": 14240,
+      "sha256": "4ba2a64fdacf5b84ee754f03db1fb180c163ef435f76426b3266f452dc42f754"
+    },
+    {
+      "path": "docs/body/settings/020-world/100-victory-and-future.md",
+      "bytes": 1763,
+      "sha256": "a9907fb541c4c91920dc342ecac0efabc4a115cb5b2b56074b8fb45279f85037"
+    },
+    {
+      "path": "docs/body/settings/020-world/110-tang-and-steppe.md",
+      "bytes": 4030,
+      "sha256": "5bc5caceb4276f47bf0d97cd2c1c8ca6f5a1f244198d8e50bb4d045626c2bf98"
+    },
+    {
+      "path": "docs/body/settings/020-world/120-southern-recoveries.md",
+      "bytes": 2388,
+      "sha256": "73b79e0b6ff5a5a223bb10dac06fea2906670e4ca28ede5d265418b1e4ac66b0"
+    },
+    {
+      "path": "docs/body/settings/020-world/130-655-southern-offensive.md",
+      "bytes": 1109,
+      "sha256": "909ccbaf2eaa83b18ef3027865f883986ea0d4d135dc23bb87375da5d2500c4b"
+    },
+    {
+      "path": "docs/body/settings/020-world/140-khitan-resources.md",
+      "bytes": 2847,
+      "sha256": "40135d548062d6b25b78aeeb212bf146417e1872a9ced541c31982fc33accba9"
+    },
+    {
+      "path": "docs/body/settings/020-world/150-cross-border-ties.md",
+      "bytes": 1953,
+      "sha256": "abe4c3cc04c4ca43d7c2f6ee65a451953fe3c00d0bbc0d2732a3e31ecb4a1ade"
+    },
+    {
+      "path": "docs/body/settings/030-society/010-royal-and-aristocratic-power.md",
+      "bytes": 1997,
+      "sha256": "d27aa0cdca17cac27a914eccc4c47450280dcf228a3655c469c034c95d863ad3"
+    },
+    {
+      "path": "docs/body/settings/030-society/020-martial-status.md",
+      "bytes": 2839,
+      "sha256": "dbf300005debd3ebeb59748e5d9e5d37b352771916c961589451020354b3195c"
+    },
+    {
+      "path": "docs/body/settings/030-society/030-gyeongdang.md",
+      "bytes": 3585,
+      "sha256": "cf045d07f16631425f1eb2aaa1bfac41e3c5bd4b49c9b4f6c75c06a56bae8b6b"
+    },
+    {
+      "path": "docs/body/settings/030-society/040-taehak.md",
+      "bytes": 2413,
+      "sha256": "8b17ff772f2ddc6a83501c446c88af6a99e0b0dad15a12594163ec57bdc444e0"
+    },
+    {
+      "path": "docs/body/settings/030-society/050-regional-authority.md",
+      "bytes": 1870,
+      "sha256": "92cb7aa0b44fb7477a40a14192a9bb82cd94015f5e039b769d6bdb864d30bc42"
+    },
+    {
+      "path": "docs/body/settings/030-society/060-regional-livelihood.md",
+      "bytes": 1963,
+      "sha256": "31355ea7e6696f72ef94d25de0650fa7f0ef5c2fdddcf7c79ff587aabb76f26c"
+    },
+    {
+      "path": "docs/body/settings/030-society/070-household-burdens.md",
+      "bytes": 2303,
+      "sha256": "1889b276be573ffd79aa2783fb26fb26062456c2278a1f416dbc3ccb6e651873"
+    },
+    {
+      "path": "docs/body/settings/030-society/080-private-armament.md",
+      "bytes": 2468,
+      "sha256": "b9c26becc6ea4a77d38fb67c1569c61ae380ada3a079fd8e638f92683cedb5a3"
+    },
+    {
+      "path": "docs/body/settings/030-society/090-evacuation-and-denial.md",
+      "bytes": 1738,
+      "sha256": "885430b06d53f97e4839a687304c2190dba091b7abe1008858e2f8d27698a4e0"
+    },
+    {
+      "path": "docs/body/settings/030-society/100-reconstruction-program.md",
+      "bytes": 1969,
+      "sha256": "a27bf79e45704d2110364b836ac9407c56659281b86c27be35105daadf3a8b46"
+    },
+    {
+      "path": "docs/body/settings/030-society/110-different-malgal-communities.md",
+      "bytes": 1820,
+      "sha256": "84c06a1bafa5145805c28be703b9a0b638c8652c1059e4a8d15fd38f8dcede7c"
+    },
+    {
+      "path": "docs/body/settings/030-society/120-pastoral-malgal.md",
+      "bytes": 2042,
+      "sha256": "9103d1bf45b632548f7621c46a3c908cc0cccaca538d0e77ea3a0abd6f0365bd"
+    },
+    {
+      "path": "docs/body/settings/030-society/130-border-retaliation.md",
+      "bytes": 1522,
+      "sha256": "811a98bae0a02a02a9e473690d33900080ea0fdeabde99a72d4d846fe81fe758"
+    },
+    {
+      "path": "docs/body/settings/030-society/140-eastern-incorporation.md",
+      "bytes": 2457,
+      "sha256": "0f1346324975481fdd5a669f9f27a625503312262b02068540d17c762049def1"
+    },
+    {
+      "path": "docs/body/settings/030-society/150-jupilsan-prisoners.md",
+      "bytes": 2196,
+      "sha256": "c40a76c7d7bc692f5522d001fe7cdffbc357b650f606fbfd2875b99fe1ef56db"
+    },
+    {
+      "path": "docs/body/settings/030-society/160-yeon-protection.md",
+      "bytes": 1992,
+      "sha256": "9dea390a1f5442ff92b084c6907dbae1d23104e801d77669be0f9b4d0ed03923"
+    },
+    {
+      "path": "docs/body/settings/030-society/170-trusted-light-cavalry.md",
+      "bytes": 2234,
+      "sha256": "1fd9479586dceb65f48ebfe6472570f3e5da09533ac37e903f539dd3ad125c80"
+    },
+    {
+      "path": "docs/body/settings/040-agents/001-yeon-gaesomun.md",
+      "bytes": 26535,
+      "sha256": "0ed2b78f1c68c181844600d172f217cefba421d277d9261cc13de116417238f1"
+    },
+    {
+      "path": "docs/body/settings/040-agents/002-taejo.md",
+      "bytes": 4215,
+      "sha256": "db313870c3bf6b8d01b7e886b21d8612d0cb4d91b786ecc9f598796135aa2f6e"
+    },
+    {
+      "path": "docs/body/settings/040-agents/003-jayu.md",
+      "bytes": 938,
+      "sha256": "87ddedffd6757d6aa42da5ea022dba1d994dbab887d3c042c1a31ee468837833"
+    },
+    {
+      "path": "docs/body/settings/040-agents/004-inheritance-opponents.md",
+      "bytes": 3003,
+      "sha256": "64a929adf9663578dd843dfe5dbe436c00c002d27dd27c41ce7b34a5f010332d"
+    },
+    {
+      "path": "docs/body/settings/040-agents/005-taehak-participants.md",
+      "bytes": 1152,
+      "sha256": "fa89f1cf8177592cd83471a2e3492873c38b196d1cb16b1546f010867c2ff100"
+    },
+    {
+      "path": "docs/body/settings/040-agents/006-taehak-pupils.md",
+      "bytes": 1038,
+      "sha256": "a82e52f5f6812ae58034bcc92bafd0da5399068989dfdaedc22ca0eb18a1d7b6"
+    },
+    {
+      "path": "docs/body/settings/040-agents/007-namsaeng.md",
+      "bytes": 6744,
+      "sha256": "97a08168d997e5ea87d14995fbbda7cc2244282035cb91918a002080b8e61b2a"
+    },
+    {
+      "path": "docs/body/settings/040-agents/008-namgeon.md",
+      "bytes": 3375,
+      "sha256": "3a413438a8a7d3b824931045132931bd02bb7b22dc855d8899826dd6e28fca44"
+    },
+    {
+      "path": "docs/body/settings/040-agents/009-namsan.md",
+      "bytes": 3156,
+      "sha256": "6b9f42d81305069934f74a791582a532e4c81abd7c8b81874495e7482b599b1a"
+    },
+    {
+      "path": "docs/body/settings/040-agents/010-heonchung.md",
+      "bytes": 3072,
+      "sha256": "18e8d2c2c4a33fdc9f6efd54fc6f950fd86099e212a57ac64c09a286b81e4523"
+    },
+    {
+      "path": "docs/body/settings/040-agents/011-heonseong.md",
+      "bytes": 2692,
+      "sha256": "d26b509cf3a5f0872504791a4ec49219cfbff8f54538010875a243304408b450"
+    },
+    {
+      "path": "docs/body/settings/040-agents/012-pyeongwon.md",
+      "bytes": 1457,
+      "sha256": "4d15dcd2885908afdfb7feb73b464ed12fbca71f07f3ad165188dbd01be9dfdc"
+    },
+    {
+      "path": "docs/body/settings/040-agents/013-yeongyang.md",
+      "bytes": 2777,
+      "sha256": "8a5cc24a22e3f60d4b4e2e0091cf784a2a592baf0c8a4055a145fd830f588340"
+    },
+    {
+      "path": "docs/body/settings/040-agents/014-daeyang.md",
+      "bytes": 804,
+      "sha256": "eee1bbf648f689a80a3c5e1fda92cf3b668e73f7b4ae1adcb81ef8db136ae0b7"
+    },
+    {
+      "path": "docs/body/settings/040-agents/015-geonmu.md",
+      "bytes": 8216,
+      "sha256": "f3437d11b3efee4b6651793892f6b3aa303044db5ed58db67b7af5d6b153dbb6"
+    },
+    {
+      "path": "docs/body/settings/040-agents/016-bojang.md",
+      "bytes": 3144,
+      "sha256": "7438784c45ae231ba160a4e81fbda5ac9a3aedd599a8e19a947b63560727d80a"
+    },
+    {
+      "path": "docs/body/settings/040-agents/017-royal-house-and-regions.md",
+      "bytes": 2718,
+      "sha256": "b6a0776a5d7ff786219ef431ea549c322aab8e015574a1ce0a4e23237f22379e"
+    },
+    {
+      "path": "docs/body/settings/040-agents/018-namsaeng-messenger.md",
+      "bytes": 1913,
+      "sha256": "072d54c03111fe11d7ad40f6ac3c341adb87c9549b06b5ebb5b7eb9ce06ce2f6"
+    },
+    {
+      "path": "docs/body/settings/040-agents/019-messenger-driver.md",
+      "bytes": 995,
+      "sha256": "c41590447e75f6f33d7496e442ed5676d4620812437c1fc0972c9eab5e423380"
+    },
+    {
+      "path": "docs/body/settings/040-agents/020-coup-receiver.md",
+      "bytes": 1896,
+      "sha256": "cee546f1f1451ff40d9717be6853d4bab33c01b8663594262ed91770f097e2cf"
+    },
+    {
+      "path": "docs/body/settings/040-agents/021-heonchung-attacker.md",
+      "bytes": 1430,
+      "sha256": "29923ea1ebc61d20c140b42b2b84189202569ec0ee39e11b5b3ff0f35a4e0105"
+    },
+    {
+      "path": "docs/body/settings/040-agents/022-household-officer.md",
+      "bytes": 1573,
+      "sha256": "3c3f4e126072d57a37e743636fb8ac5e5b34270e13619381281db30a43096002"
+    },
+    {
+      "path": "docs/body/settings/040-agents/023-wounded-carriers.md",
+      "bytes": 1217,
+      "sha256": "ccbc0c05859a4d40de94a021cb7921c380d923669efec64e887224fafdf19148"
+    },
+    {
+      "path": "docs/body/settings/040-agents/024-heonchung-healer.md",
+      "bytes": 1667,
+      "sha256": "48b862e8d41073899f480970563ef741153663b41df30173202ebd262b54010a"
+    },
+    {
+      "path": "docs/body/settings/040-agents/025-goyeonsu.md",
+      "bytes": 2231,
+      "sha256": "a3a3ecba284fede62d896f3fba116d0b8d47291769cd4be293a07bc02e3bf0db"
+    },
+    {
+      "path": "docs/body/settings/040-agents/026-gohyejin.md",
+      "bytes": 1697,
+      "sha256": "4f2a221096916844fab96dcb55a4d77f64a1db216b1d12dd1ed5dbe31829035a"
+    },
+    {
+      "path": "docs/body/settings/040-agents/027-gojeongui.md",
+      "bytes": 1474,
+      "sha256": "9bc0ad9f8444fdbabbd4ddb20e4dc2d71d6dcca6b4a0c353a2a7e89747761000"
+    },
+    {
+      "path": "docs/body/settings/040-agents/028-ansi-castellan.md",
+      "bytes": 1755,
+      "sha256": "9e0f20bf6b2c1e1f54ebe461828fc32b17ad35de8e6e812834583502d60e9402"
+    },
+    {
+      "path": "docs/body/settings/040-agents/029-sokro.md",
+      "bytes": 2955,
+      "sha256": "a8ef96c5f0a84816add08a4214d16b3739cdea66b704899c7c19f0cc7af72526"
+    },
+    {
+      "path": "docs/body/settings/040-agents/030-miran.md",
+      "bytes": 2287,
+      "sha256": "74dbae63886301e90ffb71eba18f4eb5cb67ef09e8fe8cba420e5159d8ac34b6"
+    },
+    {
+      "path": "docs/body/settings/040-agents/031-seokbu.md",
+      "bytes": 2191,
+      "sha256": "f390f3f0ef1c50d81db2e86db83e6f8c3e09175b501609c27d31dd4b9c45ce12"
+    },
+    {
+      "path": "docs/body/settings/040-agents/032-go-hwi-flight.md",
+      "bytes": 3287,
+      "sha256": "8550165e1e6b9c29d8f2090074535f903d4811603c42159fdd912b5b4e3318dc"
+    },
+    {
+      "path": "docs/body/settings/040-agents/033-east-gate-officer.md",
+      "bytes": 1569,
+      "sha256": "f2ae38cb8ba8204fd0ab8a577cec8d271dc3dbe1338dc91e9c0130b46423cff3"
+    },
+    {
+      "path": "docs/body/settings/040-agents/034-yu-hye-gate-household.md",
+      "bytes": 1844,
+      "sha256": "e4f2b701e2c458904863904af9e669c1b2f1c40f256821eb9927a66bc13c9261"
+    },
+    {
+      "path": "docs/body/settings/040-agents/035-haeeun.md",
+      "bytes": 2251,
+      "sha256": "d5d0f9db02a552b6d36ad7ade380025991412ad62d8ae3c5fc46f27785829aea"
+    },
+    {
+      "path": "docs/body/settings/040-agents/036-eastern-instructor.md",
+      "bytes": 1624,
+      "sha256": "fa5774985cedac8f15716b6cde60e0d942992fe6e76ced98f6ebfacb4152a386"
+    },
+    {
+      "path": "docs/body/settings/040-agents/037-community-head.md",
+      "bytes": 1653,
+      "sha256": "1aa5779569ae56f7d66b6551aabbd870ca687c79de98b48c8cf52eb2529e2b1d"
+    },
+    {
+      "path": "docs/body/settings/040-agents/038-nallo.md",
+      "bytes": 1293,
+      "sha256": "0f133425dc214bcfbd75ecada43d7d30dca87acb1a6ed9a2056400141c7cc7e0"
+    },
+    {
+      "path": "docs/body/settings/040-agents/039-nuri.md",
+      "bytes": 2420,
+      "sha256": "fbc3515d249c9a944a664e51c9f4c65de46cc6620956a7adf5a8250654070442"
+    },
+    {
+      "path": "docs/body/settings/040-agents/040-janggeun.md",
+      "bytes": 1333,
+      "sha256": "64f2809c93e25379b48cd71911023ce66acb1e9ed3b5b170d5b95f84ee490bd8"
+    },
+    {
+      "path": "docs/body/settings/040-agents/041-seou.md",
+      "bytes": 1237,
+      "sha256": "cd9eeacb74cc1de2b56892da06ae7c28adc44194f10ed5ff823f55ea1259f788"
+    },
+    {
+      "path": "docs/body/settings/040-agents/042-chamu.md",
+      "bytes": 1193,
+      "sha256": "6660993abbf1da45afbfb2aec7b060e49089cef1cfcc4be359b3df855e385aba"
+    },
+    {
+      "path": "docs/body/settings/040-agents/043-gubin.md",
+      "bytes": 1288,
+      "sha256": "ed5b111e6d1f5382acd37e70dea745375e66c7a83275ed0fdab1692eb363aa1f"
+    },
+    {
+      "path": "docs/body/settings/040-agents/044-gotak.md",
+      "bytes": 1168,
+      "sha256": "2b8b3ff9d7c3dbe1328885ec675980660c2e362253057ef80f2583659b7dfdfb"
+    },
+    {
+      "path": "docs/body/settings/040-agents/045-nyuil.md",
+      "bytes": 1344,
+      "sha256": "d530bf44bd0f0947061499973115c429fc6dccc20b9fbf38947a012be89e286b"
+    },
+    {
+      "path": "docs/body/settings/040-agents/046-taizong.md",
+      "bytes": 2416,
+      "sha256": "2eddb3708b47f6aa02c68c2b0a0e070311421b9e9b39f9163275c822e49e7825"
+    },
+    {
+      "path": "docs/body/settings/040-agents/047-gaozong.md",
+      "bytes": 2131,
+      "sha256": "30641ef8e8bd050c3fa1fc1f94d3e65cd4dfc116e9e68ff8d711a2eaedbf9b75"
+    },
+    {
+      "path": "docs/body/settings/040-agents/048-li-shiji.md",
+      "bytes": 1977,
+      "sha256": "fb295a470bbe836aa0b061ad97c0ad75c83e6a8c16c9496a6410adbcee51aecc"
+    },
+    {
+      "path": "docs/body/settings/040-agents/049-zhangsun-wuji.md",
+      "bytes": 1561,
+      "sha256": "af68f02e68a83b5a3adcf86ea13ab05267ff896934631d942e5861c52bef190e"
+    },
+    {
+      "path": "docs/body/settings/040-agents/050-su-dingfang.md",
+      "bytes": 1919,
+      "sha256": "05efc89622fa5d43f534316acd394c10d613ce8e9d1173bfa101146e6bab1d6b"
+    },
+    {
+      "path": "docs/body/settings/040-agents/051-pang-xiaotai.md",
+      "bytes": 1498,
+      "sha256": "48561a2aaae51fc5871d7f2e0398c5f12b6a387855fbbff49394ea0eb3eb89bb"
+    },
+    {
+      "path": "docs/body/settings/040-agents/052-pang-sons.md",
+      "bytes": 1236,
+      "sha256": "1697a5e1b63c578ebd345cf81d18cbb260ca1f813133af54a6977798922bae03"
+    },
+    {
+      "path": "docs/body/settings/040-agents/053-ren-yaxiang.md",
+      "bytes": 1491,
+      "sha256": "5a5fdfacf73f51fb1980226dc3b7d45886b7f9552501bd7f64b4f019d54e8940"
+    },
+    {
+      "path": "docs/body/settings/040-agents/054-qibi-heli.md",
+      "bytes": 2741,
+      "sha256": "3e65f8241b7363ee39d28a80f6c594cdd23ead0b5dd3b6c13b882898488bdd12"
+    },
+    {
+      "path": "docs/body/settings/040-agents/055-ashina-sheer.md",
+      "bytes": 1722,
+      "sha256": "73481c7d9cb4f3efc286785e081ff6a6e2c2e92223473786fdf697b4682aae4a"
+    },
+    {
+      "path": "docs/body/settings/040-agents/056-ashina-zhong.md",
+      "bytes": 1298,
+      "sha256": "9b6d1ded0acef39702f03dc2f677bd05a4960e1bd993f83c44626269cc15efbb"
+    },
+    {
+      "path": "docs/body/settings/040-agents/057-zhishi-sili.md",
+      "bytes": 928,
+      "sha256": "8e6d3d69ebbea9dabfefe8764fc09b927b6777e2380fd6f52233261e102e25f3"
+    },
+    {
+      "path": "docs/body/settings/040-agents/058-zheng-mingzhen.md",
+      "bytes": 1575,
+      "sha256": "2bf76b821146bcb709c6e54c7a4174e8657ed7311bf02f61952f013006ea49f1"
+    },
+    {
+      "path": "docs/body/settings/040-agents/059-xiao-siye.md",
+      "bytes": 1418,
+      "sha256": "1c48d8fe4031da58b66f4cc24e7bba5595495df5374d6876fc1f1ed4a8efc190"
+    },
+    {
+      "path": "docs/body/settings/040-agents/060-zhang-liang.md",
+      "bytes": 1441,
+      "sha256": "d3ba3a633725f329c2885a61bb1bb9093826cd9c7f0b224fbb11dbc160e2222f"
+    },
+    {
+      "path": "docs/body/settings/040-agents/061-zhang-jinshu.md",
+      "bytes": 1392,
+      "sha256": "e2eec914bd5a84e124b452f55303db1772054776cd9ffeb2a6832e1a425b4c1b"
+    },
+    {
+      "path": "docs/body/settings/040-agents/062-xue-rengui.md",
+      "bytes": 1923,
+      "sha256": "b1d0ad026c33081070c37e2af602c042508cf0c414a5c6cfaffc1332c39f0639"
+    },
+    {
+      "path": "docs/body/settings/040-agents/063-niu-jinda.md",
+      "bytes": 983,
+      "sha256": "65a596aad41cd630e3f8c3d9658f70805bc6a009980ec0e0ff3039d9daff6d9b"
+    },
+    {
+      "path": "docs/body/settings/040-agents/064-yang-o-receiver.md",
+      "bytes": 1473,
+      "sha256": "bdf9332ebb278b471a0cea0c448e40714ec5515d51078dd66d7b05983fa81472"
+    },
+    {
+      "path": "docs/body/settings/040-agents/065-yang-o-porters.md",
+      "bytes": 1045,
+      "sha256": "b61b6f5b142e26c130891e39abd229dca1a5b4cc9a5c84cc00ad17daf21c4bf7"
+    },
+    {
+      "path": "docs/body/settings/040-agents/066-kim-yusin.md",
+      "bytes": 3249,
+      "sha256": "ecea3a2d9d24a743d206610e3cbae1dbc99454d0ec349c4be9111a59cbcb8a2b"
+    },
+    {
+      "path": "docs/body/settings/040-agents/067-kim-inmun.md",
+      "bytes": 1682,
+      "sha256": "32c0a2dc98ecaca9dc528db254a507a958ca8919e9f4dc2d06234c6a019bba25"
+    },
+    {
+      "path": "docs/body/settings/040-agents/068-kim-yangdo.md",
+      "bytes": 1552,
+      "sha256": "0fad58c67bb4950e622d350c1b31913d3808225ee596e4094e0ae1e0cf6f04ba"
+    },
+    {
+      "path": "docs/body/settings/040-agents/069-kim-chunchu.md",
+      "bytes": 1152,
+      "sha256": "afb68ac082c103e0263b2c148c7a77ca8f07133745e33df255e292f87c7304b9"
+    },
+    {
+      "path": "docs/body/settings/040-agents/070-munmu.md",
+      "bytes": 1698,
+      "sha256": "7f99d75c36e80f2fd680e1865e73df1af5ad1d14464bdc448c95fcc0d61a06fd"
+    },
+    {
+      "path": "docs/body/settings/040-agents/071-boksin.md",
+      "bytes": 2597,
+      "sha256": "770789905e2d3b2ee826075390eca8a636646d384bb9b57c3d49e18e1b5c76f9"
+    },
+    {
+      "path": "docs/body/settings/040-agents/072-buyeo-pung.md",
+      "bytes": 2201,
+      "sha256": "4605267ac208774cd47b8886afab8a3ce7c22ba8ed70f5f064c00ee700da157e"
+    },
+    {
+      "path": "docs/body/settings/040-agents/073-yamato-support.md",
+      "bytes": 2142,
+      "sha256": "93af8cb24eb228e44a71f5513f95dc064e5978a1a687c1f2d89c1fa37f906ad4"
+    },
+    {
+      "path": "docs/body/settings/040-agents/074-chano.md",
+      "bytes": 1992,
+      "sha256": "68643d1b0b6d13b31cc89aa4f85fc8e2196a1fc655a234faf9b62b973df6071c"
+    },
+    {
+      "path": "docs/body/settings/040-agents/075-pung-wife.md",
+      "bytes": 1364,
+      "sha256": "25e0a47c997c8e9cb82587bc20e5da326a4b1729ef19f1e089f1ce0b35d3e9d7"
+    },
+    {
+      "path": "docs/body/settings/040-agents/076-ta-shikibu.md",
+      "bytes": 862,
+      "sha256": "22f654226e67e2b50336eb6e2ad4fcf0a7d654640de32ff997d43325b40b53f3"
+    },
+    {
+      "path": "docs/body/settings/040-agents/077-guidol.md",
+      "bytes": 1448,
+      "sha256": "9c20385bd1d74b54c5c4c991a6ba5579d6265361d6ee469c1033a6304ee19028"
+    },
+    {
+      "path": "docs/body/settings/040-agents/078-ajin.md",
+      "bytes": 1488,
+      "sha256": "eea553f8c401fcec8b21b2ffe742f600d03575bfd36da90d6481b38be961c5dc"
+    },
+    {
+      "path": "docs/body/settings/040-agents/079-yeolgi.md",
+      "bytes": 833,
+      "sha256": "1c8ed041be8b982c6492223d5d86ab76a6e9e8ed2e69e09283d6a09726acca7c"
+    },
+    {
+      "path": "docs/body/settings/040-agents/080-gugeun.md",
+      "bytes": 809,
+      "sha256": "71ade0b3440499fd83fd3aae7d74f86fa872a759bd778f32668b94880133fcd7"
+    },
+    {
+      "path": "docs/body/settings/040-agents/081-pumil.md",
+      "bytes": 825,
+      "sha256": "b9b626f65b04845396a043927ffae0b4ef9aef8c7cfab7bfc76657be35255df0"
+    },
+    {
+      "path": "docs/body/settings/040-agents/082-gungwan.md",
+      "bytes": 740,
+      "sha256": "14d2aa8764fe81d79d7e767c1c677d6e4cedc557722928b736ef1f675313ec22"
+    },
+    {
+      "path": "docs/body/settings/040-agents/083-munyeong.md",
+      "bytes": 796,
+      "sha256": "48612952e112bfb9ac0458a5e48df47977f914c55c0c89b0ff6609704920997e"
+    },
+    {
+      "path": "docs/body/settings/040-agents/084-ondal.md",
+      "bytes": 2538,
+      "sha256": "660298708c0b305f13afe3edd0c1d8a7ca2af294dea7356d7761fb1dddfe70ce"
+    },
+    {
+      "path": "docs/body/settings/040-agents/085-sinseong-monk.md",
+      "bytes": 1996,
+      "sha256": "a3036f57855478404de8ed703ee92215fa4b3925db1f16807fb88f071da2e4dc"
+    },
+    {
+      "path": "docs/body/settings/040-agents/086-osa.md",
+      "bytes": 1965,
+      "sha256": "f0c51b2ab703dc9810ab6a5fddf6932f4de71652bed13444695db3b7d3488bd5"
+    },
+    {
+      "path": "docs/body/settings/040-agents/087-yomyo.md",
+      "bytes": 1760,
+      "sha256": "7949a58e2be41dd31f34a5066482e7f08e7b618a8a8e8b17a524e8667b937d5f"
+    },
+    {
+      "path": "docs/body/settings/040-agents/088-onsamun.md",
+      "bytes": 1388,
+      "sha256": "38a3347eadd8cdaf94243104ffe10fe5b40d2ffd036f4d3b6bc78edac4b4d9d4"
+    },
+    {
+      "path": "docs/body/settings/040-agents/089-chugun.md",
+      "bytes": 961,
+      "sha256": "0e260a1f4f5f07fe45cffe19deb1753522971d4f8cc0ac6e390690487cd13023"
+    },
+    {
+      "path": "docs/body/settings/040-agents/090-segun.md",
+      "bytes": 762,
+      "sha256": "95e62e667aaf9f527b96feb24a4c9a367404c1bcbe2bad2670fd495a023c8f8b"
+    },
+    {
+      "path": "docs/body/settings/040-agents/091-silla-exiles.md",
+      "bytes": 1008,
+      "sha256": "a002c64d61da72d896e3c92a95c6a5d9e7e7be29410987d7113845c5191a21aa"
+    },
+    {
+      "path": "docs/body/settings/040-agents/092-baekje-exiles.md",
+      "bytes": 744,
+      "sha256": "17dcc7629d5ff0076f8f57f115d9f4a9ee699dfe074e9e27b24c490be381d497"
+    },
+    {
+      "path": "docs/body/settings/040-agents/093-zhou-wudi.md",
+      "bytes": 907,
+      "sha256": "2ace47a1585b0e0384066c1c78da185fdd3e003b0a521822cff1a3d7ec26eb91"
+    },
+    {
+      "path": "docs/body/settings/040-agents/094-sui-wendi.md",
+      "bytes": 963,
+      "sha256": "570934335e59d1db581b2f81efc5cb5acfb633affc7bab1e06e3dc01c65c8ab3"
+    },
+    {
+      "path": "docs/body/settings/040-agents/095-zhou-fashang.md",
+      "bytes": 889,
+      "sha256": "3a4471466f4ef310b359463b2c4b2ea3dd75fd1618d383e2975a9115963bcb4a"
+    },
+    {
+      "path": "docs/body/settings/040-agents/096-dolji-gye.md",
+      "bytes": 960,
+      "sha256": "b726eb895f2268028582cc2370e8f5b5e41b367462119874f28805c2e2580b7d"
+    },
+    {
+      "path": "docs/body/settings/040-agents/097-sui-yangdi.md",
+      "bytes": 1070,
+      "sha256": "ac56764c7f22aa3baa7688b9318b09ba41e2a10dc8ced1f39cfe8c6d4c414478"
+    },
+    {
+      "path": "docs/body/settings/040-agents/098-lai-huer.md",
+      "bytes": 1061,
+      "sha256": "455a6020c915db4992b0f7e8ea16a0fb5b9e4a60c229b0340f83c09bacaf801d"
+    },
+    {
+      "path": "docs/body/settings/040-agents/099-husi-zheng.md",
+      "bytes": 825,
+      "sha256": "bebba9158d4c3850a9cb8c0efb3de7ae5643ab99b4a4d5c84e169fe7d5bab229"
+    },
+    {
+      "path": "docs/body/settings/040-agents/100-chen-dade.md",
+      "bytes": 817,
+      "sha256": "c2ab92df10679e523746b22d7f95736308719741438d0d729895aefb8e9b6513"
+    },
+    {
+      "path": "docs/body/settings/040-agents/101-chuluo-khagan.md",
+      "bytes": 868,
+      "sha256": "bb8da70592ef1e4a7d04c90fc1be02b845fea7e3e94e2c26c4f0ad2e28410b51"
+    },
+    {
+      "path": "docs/body/settings/040-agents/102-go-seung.md",
+      "bytes": 822,
+      "sha256": "198b6e43c28737f74413a529c38f300c499c82c43d62b9095fb1a58098bdc5d5"
+    },
+    {
+      "path": "docs/body/settings/040-agents/103-jinpyeong.md",
+      "bytes": 800,
+      "sha256": "38c76d9b7a0c9c88576177877b04c57a0c89794a1f68e892094e2b0f96719fe4"
+    },
+    {
+      "path": "docs/body/settings/040-agents/104-dongtacheon.md",
+      "bytes": 833,
+      "sha256": "cc129c9ca6dbf0d985ab162d2bd274e04da1ddea2bdd9c9db0070a458863d111"
+    },
+    {
+      "path": "docs/body/settings/040-agents/105-noeumsin.md",
+      "bytes": 801,
+      "sha256": "5d126452e5b1298e50d1c8830a659f0a34ec22a7144a20e16c75f466d7913bb3"
+    },
+    {
+      "path": "docs/body/settings/040-agents/106-saenghae.md",
+      "bytes": 769,
+      "sha256": "57d09be4978f769892d2c4ffc5074110403492fc27cc7796ccc1eae9c64dbe9a"
+    },
+    {
+      "path": "docs/body/settings/040-agents/107-seongwang.md",
+      "bytes": 834,
+      "sha256": "31c1edb305ebf44f5a273f5991e52ec7bb83c29673ac0f316ae7c4ba87a7b650"
+    },
+    {
+      "path": "docs/body/settings/040-agents/108-mu-baekje.md",
+      "bytes": 867,
+      "sha256": "9bdfa4d3ecffeef66271ea5c09416f28e0b2dd3cfc523480abd182d23bba39ae"
+    },
+    {
+      "path": "docs/body/settings/040-agents/109-uija.md",
+      "bytes": 962,
+      "sha256": "cc7c6fa1ebdd84f8cfbf269f0370552cdc9f96430ed17f0e40a5b98d95230dbf"
+    },
+    {
+      "path": "docs/body/settings/040-agents/110-go-hwi-wife.md",
+      "bytes": 1250,
+      "sha256": "fafe0a44c78a4e1f58f45919e4920f09173d6df66dc1d3e02811302b1d318f49"
+    },
+    {
+      "path": "docs/body/settings/040-agents/111-go-hwi-daughter.md",
+      "bytes": 1078,
+      "sha256": "13bd07cc9a32d410af9c71c44702feafa9370cf1126981a1a2ba821746c3ea7c"
+    },
+    {
+      "path": "docs/body/settings/040-agents/112-yeon-mother.md",
+      "bytes": 3146,
+      "sha256": "af695d635530a8edc2a136cc83c905057c97db00b01ad571e1b429fca39785da"
+    },
+    {
+      "path": "docs/body/settings/040-agents/113-yeon-jeongto.md",
+      "bytes": 3050,
+      "sha256": "1b18a311eb12b0dd6f1ee59de301fe0abe4cc2751bd67dd0dfcad3d7d8e8c098"
+    },
+    {
+      "path": "docs/body/settings/040-agents/114-gyeongdang-teacher.md",
+      "bytes": 2560,
+      "sha256": "4792d16137e9f5ae57456bea7ac104d1971ae22dd6110861cc69317b5f46bd2d"
+    },
+    {
+      "path": "docs/body/settings/040-agents/115-eulbo.md",
+      "bytes": 4059,
+      "sha256": "3e3d67169f82f1337a489f46a7e0416f07685bb78fb1670e425971fad258d58e"
+    },
+    {
+      "path": "docs/body/settings/040-agents/116-gyeongdang-children.md",
+      "bytes": 1606,
+      "sha256": "7ef1f8125930e7a640067f250678b67fa002b6fe5506ff69d73aee90afe1caba"
+    },
+    {
+      "path": "docs/body/settings/040-agents/117-seogu.md",
+      "bytes": 3615,
+      "sha256": "c9acb7ee107b148695cfb1c9013e252733e8b0c18adbd7df85613a2cc538c89f"
+    },
+    {
+      "path": "docs/body/settings/040-agents/118-yeon-wife.md",
+      "bytes": 3958,
+      "sha256": "a68a242f3d3ca2ac93f28470e20ddb545aa12ec097c233157db00229dd5659f3"
+    },
+    {
+      "path": "docs/body/settings/040-agents/119-yeon-house-soldiers.md",
+      "bytes": 3523,
+      "sha256": "145fead8df8e25a795e0c2620ab992cb63ad2220c8744c24c9d17167328e4e59"
+    },
+    {
+      "path": "docs/body/settings/040-agents/120-taehak-moving-pupil.md",
+      "bytes": 1364,
+      "sha256": "4cd2ea1a751527ec2a2c11505dedb0244b70aad6a96d66d228c330af04e4b382"
+    },
+    {
+      "path": "docs/body/settings/040-agents/121-taehak-receiving-pupil.md",
+      "bytes": 1281,
+      "sha256": "520e4e316a7a259e64e1ce27fcfc14dd4dace1ec3f768a3769751fcb67aa8e9c"
+    },
+    {
+      "path": "docs/body/settings/040-agents/122-first-household-representative.md",
+      "bytes": 1385,
+      "sha256": "a7dc3b697ba211938556ecf6a09043f00fc9897956605fa48976f50ae7ec4f00"
+    },
+    {
+      "path": "docs/body/settings/040-agents/123-second-household-representative.md",
+      "bytes": 1201,
+      "sha256": "f4238254a0500ec064981eaac83486d155b701238480a684e97f465645c5c261"
+    },
+    {
+      "path": "docs/body/settings/040-agents/124-third-household-representative.md",
+      "bytes": 1245,
+      "sha256": "0e5edb268d400e7cbf452956efeb9641ca8229110bf0686f73ff3824dc3435ba"
+    },
+    {
+      "path": "docs/body/settings/050-systems/010-tang-military-confidence.md",
+      "bytes": 6596,
+      "sha256": "36c30eab8e574b7d27d37bdbab32e4ec8b554ae1443e3957febbc27471546029"
+    },
+    {
+      "path": "docs/body/settings/050-systems/020-goguryeo-force-system.md",
+      "bytes": 3776,
+      "sha256": "6484f6900088c8f28a0af0743cbefbef4a14b640f47370cf938b053765aedcec"
+    },
+    {
+      "path": "docs/body/settings/050-systems/030-six-fronts-strength.md",
+      "bytes": 3741,
+      "sha256": "0895d661cbf84fecfc9d0facfaabe9ac4234924768cbbba0651d77ddeb40760d"
+    },
+    {
+      "path": "docs/body/settings/050-systems/035-late-spring-661-decision.md",
+      "bytes": 8709,
+      "sha256": "f54178a6420c7aed11667b619151a62401e28a929f0afe9643d166d4709db3a1"
+    },
+    {
+      "path": "docs/body/settings/050-systems/040-goguryeo-661-strength.md",
+      "bytes": 6419,
+      "sha256": "d12c8b34674024913d2c81a7b76bc6fcb12dff71b90a7a8cc7486f627ec7e7c6"
+    },
+    {
+      "path": "docs/body/settings/050-systems/050-forced-field-war.md",
+      "bytes": 4095,
+      "sha256": "d3b176f4a6b1a68be3f8af9236643ba23b4f1bfa32b295dba5a39b4f308f42cf"
+    },
+    {
+      "path": "docs/body/settings/050-systems/060-tactics-and-operational-defeat.md",
+      "bytes": 1463,
+      "sha256": "e25b766f4f7f1e3565fdb1cea49927a57615985dbe554db321ad387df623626c"
+    },
+    {
+      "path": "docs/body/settings/050-systems/070-pyongyang-isolation.md",
+      "bytes": 1972,
+      "sha256": "bcdc69c3513a5830ca41cf1d49c6786a3341729e3c321688517b036be22015ad"
+    },
+    {
+      "path": "docs/body/settings/050-systems/080-yalu-delay-and-loss.md",
+      "bytes": 1559,
+      "sha256": "ede72bd812156b2fe2faccfbc4998e8dda914b0119404c301f997a183834048c"
+    },
+    {
+      "path": "docs/body/settings/050-systems/090-northern-diversion.md",
+      "bytes": 3117,
+      "sha256": "c10d15c711fa9c51563e769278c1ab29bb3e45bb62725ca406f58852f75b7e26"
+    },
+    {
+      "path": "docs/body/settings/050-systems/100-counterattack-concentration.md",
+      "bytes": 8841,
+      "sha256": "0a71a3d174e7166972a66f153d6f3bc8257dfa0655c320a6ef66116230e45c45"
+    },
+    {
+      "path": "docs/body/settings/050-systems/110-ren-yaxiang-defeat.md",
+      "bytes": 2238,
+      "sha256": "e3e6a216f4aad373215c81f11728c6a1c53c2cbc385db40a0aa64dc44ab4cc96"
+    },
+    {
+      "path": "docs/body/settings/050-systems/120-sasu-battle.md",
+      "bytes": 3127,
+      "sha256": "41c0c85ac6fdbaba5b6b9b97371f147146b872b662765d80f13d4013b171222f"
+    },
+    {
+      "path": "docs/body/settings/050-systems/130-second-war-losses.md",
+      "bytes": 3240,
+      "sha256": "1b1ab5abb902c8fc484ce213fcec0474635a857937590e7cd7972676b8de80d9"
+    },
+    {
+      "path": "docs/body/settings/050-systems/140-supply-route.md",
+      "bytes": 2052,
+      "sha256": "7352b903f6274f026227b18d5932f94724a19fa4a901d424682325ac460c174c"
+    },
+    {
+      "path": "docs/body/settings/050-systems/150-transport-column.md",
+      "bytes": 2270,
+      "sha256": "c398b2769e75ee50e3497e34388cc5b125564114973647327b6b47329a3db677"
+    },
+    {
+      "path": "docs/body/settings/050-systems/160-grain-and-rations.md",
+      "bytes": 2629,
+      "sha256": "9894be80b3806227796a91959109f443475e7e7bebb99a92d0703688603357bc"
+    },
+    {
+      "path": "docs/body/settings/050-systems/170-return-and-pursuit.md",
+      "bytes": 3444,
+      "sha256": "2933d46e9d45dae5f11630c7a4d9d4bb255910c3f11cd0f4b9b1bce3bf71c16b"
+    },
+    {
+      "path": "docs/body/settings/050-systems/180-winter-human-cost.md",
+      "bytes": 2414,
+      "sha256": "91702043cfc253143eae140599443b85ab3e1eaa34cebeb9a4ea7f5eabc20153"
+    },
+    {
+      "path": "docs/body/settings/050-systems/190-645-relief-army.md",
+      "bytes": 1975,
+      "sha256": "9fe6478acae405bc873c3cab811efa1080a0154928324b9cc5fc4d0e3791dc88"
+    },
+    {
+      "path": "docs/body/settings/050-systems/200-jupilsan-defeat.md",
+      "bytes": 3853,
+      "sha256": "9b91cb4950bce927caf6b5cc88ce20a5a42f90dadfae690fe0d5331ad54cff7c"
+    },
+    {
+      "path": "docs/body/settings/050-systems/210-ansi-defence.md",
+      "bytes": 1741,
+      "sha256": "d0a20d18dfadcf66fcaff711f6ed88a304fb7c0892aa2df47a5db28cd3b59424"
+    },
+    {
+      "path": "docs/body/settings/050-systems/220-645-naval-failure.md",
+      "bytes": 1925,
+      "sha256": "a0ba9cf048f97b1917e5e4bbfe2473a397ce93ab1fd44e3d7253abc0f91cf5e2"
+    },
+    {
+      "path": "docs/body/settings/050-systems/230-first-war-outcome.md",
+      "bytes": 3260,
+      "sha256": "263ce55ef19d7a81c3de12adf6f76109b43e342da5dd57fdf2c8676b3f6e233d"
+    },
+    {
+      "path": "docs/body/settings/050-systems/235-field-records-after-645.md",
+      "bytes": 7724,
+      "sha256": "e5d9e83645294ec49c4b000a470149fd16260ecae30b16ceb0c885c03f9f8eec"
+    },
+    {
+      "path": "docs/body/settings/050-systems/240-642-coup.md",
+      "bytes": 2778,
+      "sha256": "da706c751f0686e576a18edf4a3638f58e4379ab6d69ed14c1ed784c68b36049"
+    },
+    {
+      "path": "docs/body/settings/050-systems/250-succession-665.md",
+      "bytes": 1885,
+      "sha256": "dd3765ce3dea0d1c989c68e09aa189126ec68e44b66a880f135fbf2e0645e5f5"
+    },
+    {
+      "path": "docs/body/settings/050-systems/260-666-coup.md",
+      "bytes": 3331,
+      "sha256": "715814384732833a2b119c3362523b0c1f165bd570e584e91881f75876a6ec9f"
+    },
+    {
+      "path": "docs/body/settings/050-systems/270-heonchung-injury.md",
+      "bytes": 2690,
+      "sha256": "0b88ec1d42ccf4e9d0c9144c52c960b20965a1b694548922180152e645a67563"
+    },
+    {
+      "path": "docs/body/settings/050-systems/280-namsaeng-defection.md",
+      "bytes": 1862,
+      "sha256": "5383e12525b1464c32cb968e3bcc465f7a075bf1c81e42f661f6de6d5b1f9781"
+    },
+    {
+      "path": "docs/body/settings/050-systems/290-baekje-restoration-war.md",
+      "bytes": 5209,
+      "sha256": "1d76ea7e85cb0f75ff258d3afe654dfdcbce40891ff8965c6496685aa2ed7ae1"
+    },
+    {
+      "path": "docs/body/settings/050-systems/300-baekgang-battle.md",
+      "bytes": 2063,
+      "sha256": "65989aea42fcc75a2b1f32b2f33e833bb359747aaebeeb4ed1ce21331e127e4f"
+    },
+    {
+      "path": "docs/body/settings/050-systems/310-664-dolsa.md",
+      "bytes": 1437,
+      "sha256": "5f013489e8d76fe24da1b2d2c0a085e0ee87243ffbd5e652e6326a2eb6ab1cb9"
+    },
+    {
+      "path": "docs/body/settings/050-systems/320-southern-power-after-baekgang.md",
+      "bytes": 2326,
+      "sha256": "fd7218f1bb27cc4a9b68b76fdea1da411ed95ef4b92fcb399764c3778953b5b4"
+    },
+    {
+      "path": "docs/body/settings/050-systems/330-third-war.md",
+      "bytes": 1547,
+      "sha256": "c0cb43bc1f579f606adba9fb55c827dcc810c39a61113dbf865589591b19a02c"
+    },
+    {
+      "path": "docs/body/settings/050-systems/340-pyongyang-fall.md",
+      "bytes": 3024,
+      "sha256": "88f32365fe26691fe2f6ba3d6927b2ca48fc4b47f359a5c94dcf9e607e7e5315"
+    },
+    {
+      "path": "docs/body/settings/050-systems/350-forced-migration.md",
+      "bytes": 1892,
+      "sha256": "d60581606a729e2924e5ece863d4f601cf58a52c4b448d860cc75d0fe77ccd33"
+    },
+    {
+      "path": "docs/body/settings/050-systems/360-post-conquest-rule.md",
+      "bytes": 1988,
+      "sha256": "ddba33558a7746d252344fbee4fb68307547ffb62ad17ef7af086376a0155b77"
+    },
+    {
+      "path": "docs/body/settings/050-systems/370-afterlife-of-kingdom.md",
+      "bytes": 2031,
+      "sha256": "954d51ae1e9513b8dec2722d5a6b246be9d4821ebdaf927aa8d5224ecf870282"
+    },
+    {
+      "path": "docs/body/settings/060-places/010-pyeongyang-palace.md",
+      "bytes": 3057,
+      "sha256": "81893f9c1c9ba6eb6ff186679670c1315e5709691b600ccf7d5f281d2e4e46ae"
+    },
+    {
+      "path": "docs/body/settings/060-places/020-yeon-residence.md",
+      "bytes": 4814,
+      "sha256": "7b680ef3673762f1a07683e53098d4a4f572a58b6fede58414a1008ddb01ff3a"
+    },
+    {
+      "path": "docs/body/settings/060-places/030-taehak-place.md",
+      "bytes": 2125,
+      "sha256": "ecea3af6731f426867cd79c6a993d4c2151348cf1bd104c001c13df1d105089b"
+    },
+    {
+      "path": "docs/body/settings/060-places/040-pyongyang-east-route.md",
+      "bytes": 3914,
+      "sha256": "c992684913906c490a1916f9ca22dad58fda3429acecd640026a7c56e39886b4"
+    },
+    {
+      "path": "docs/body/settings/060-places/050-pyongyang-west-gate.md",
+      "bytes": 2292,
+      "sha256": "b0491b265ca22be451e70dfb7ad519fdeaa041cd01de8e2d5c4000d1f43647dd"
+    },
+    {
+      "path": "docs/body/settings/060-places/060-gungnae.md",
+      "bytes": 2081,
+      "sha256": "4536bee133ee992b8efaf8d67f0e6d72ed9e81d20ed137f4005efa39289b328b"
+    },
+    {
+      "path": "docs/body/settings/060-places/070-yodong.md",
+      "bytes": 3233,
+      "sha256": "582df68a6b4a101a898943452e07e833def7f5d679bbdef07068e0fbac41293e"
+    },
+    {
+      "path": "docs/body/settings/060-places/080-regional-travel.md",
+      "bytes": 873,
+      "sha256": "f43391cd5957dc0ad38981a860f468069c83e33b104a622b0c3c4ae6637f4654"
+    },
+    {
+      "path": "docs/body/settings/060-places/090-yalu-crossing.md",
+      "bytes": 2854,
+      "sha256": "bb2ee306a9bb855ae49965219411b9c8938e2ddb42ba40e335b70f9e6203e866"
+    },
+    {
+      "path": "docs/body/settings/060-places/100-sasu-ground.md",
+      "bytes": 3664,
+      "sha256": "71a7d4e19a8db0554e6192e1e5b839a9f2a20ae8a86e6f367df14f9e0173f242"
+    },
+    {
+      "path": "docs/body/settings/060-places/110-ansi.md",
+      "bytes": 2793,
+      "sha256": "98c8deae548757912420631cb37117ae89c2c58c8f2945c9177fcdc1e66f24ee"
+    },
+    {
+      "path": "docs/body/settings/060-places/120-jupilsan-field.md",
+      "bytes": 1972,
+      "sha256": "2e302568bd410f55320e53087a8e84627d743ece7a23622fcc24bcbfc8e87fcb"
+    },
+    {
+      "path": "docs/body/settings/060-places/130-tang-naval-camp.md",
+      "bytes": 1511,
+      "sha256": "7adab981fad5e899a7379a8980c82cb6094f6fc4f6ab6614d9da0c9e24f0ec88"
+    },
+    {
+      "path": "docs/body/settings/060-places/140-eastern-village.md",
+      "bytes": 3160,
+      "sha256": "6246ce83e635ae315acf8254b3350c49adb4ebb1e035de922ee59e05e1db638c"
+    },
+    {
+      "path": "docs/body/settings/060-places/150-samnyeon.md",
+      "bytes": 1796,
+      "sha256": "539d62fd4b1ab5b1057a24819c8787848f1406808628ab23ffabd7ee098e1c87"
+    },
+    {
+      "path": "docs/body/settings/060-places/160-danyang.md",
+      "bytes": 1226,
+      "sha256": "d0c2c001f92adbbf8345e54d8d08e7c2fad1ac792e170edab4caf9a704b0a07d"
+    },
+    {
+      "path": "docs/body/settings/060-places/170-adan.md",
+      "bytes": 2052,
+      "sha256": "9c51b52035b33e57cd2ef748264b35fe0b409cc05181516fbcd10c933378a2fb"
+    },
+    {
+      "path": "docs/body/settings/060-places/180-chiljung.md",
+      "bytes": 3493,
+      "sha256": "874391dbce9797a55f5a8ad213034b12cd48f66ed5db463565f25ca9edc740c6"
+    },
+    {
+      "path": "docs/body/settings/060-places/190-bukhan.md",
+      "bytes": 2126,
+      "sha256": "9b3460813cb3bb6d5581c4e662bcbd352249b745facca44db71627f8e31df869"
+    },
+    {
+      "path": "docs/body/settings/060-places/200-yango.md",
+      "bytes": 2695,
+      "sha256": "34d269271207d39471f7269cc13946c6e25a2c88f2a3a431dee6b9ca552c9c02"
+    },
+    {
+      "path": "docs/body/settings/060-places/210-winter-camp.md",
+      "bytes": 2543,
+      "sha256": "0dc46fe897ca299109f8aad7fab80acc16b8d63a1346ea20d8047c26e01b09ca"
+    },
+    {
+      "path": "docs/body/settings/060-places/220-baekgang.md",
+      "bytes": 2373,
+      "sha256": "6f229d9d7f2d8da49f380a7d92435a15c2892303f1bec525a99ad49197ad26f5"
+    },
+    {
+      "path": "docs/body/settings/060-places/230-haeeun-first-home.md",
+      "bytes": 1795,
+      "sha256": "1b2c7b3b7d57717ff34918eb4e4319143af735c1cfb4cd6d0eff5231489efb7c"
+    },
+    {
+      "path": "docs/body/settings/060-places/240-haeeun-migrant-home.md",
+      "bytes": 2039,
+      "sha256": "ed0926fa464d88713bbc63232e1ba5bb98d4444adbce2f3ac9db58232802b15b"
+    },
+    {
+      "path": "docs/body/settings/060-places/250-namsaeng-last-house.md",
+      "bytes": 2329,
+      "sha256": "21358c1b2ce779c8c91cce4b22b3d13a2d90e926da9b40d75994eb94ee77fc7e"
+    },
+    {
+      "path": "docs/body/settings/060-places/260-pyongyang-gyeongdang.md",
+      "bytes": 3065,
+      "sha256": "9dd3ba1a9017c7c981070f49e5d8aa121eb40ca0fb30fa78f316ae8f07a20579"
+    },
+    {
+      "path": "docs/body/settings/060-places/270-pyongyang-north-woods.md",
+      "bytes": 2002,
+      "sha256": "f9196710f1bd273d9213b526220e9be9edcf6d0aff1948d6b7e393a97adddbf1"
+    },
+    {
+      "path": "docs/body/settings/060-places/280-injured-soldier-home.md",
+      "bytes": 3042,
+      "sha256": "f0610071ce19e9ad5e9faabbccff2161f49e28bc21fc79f45e09c04c1f9b4747"
+    },
+    {
+      "path": "docs/body/settings/070-objects/010-armour.md",
+      "bytes": 3137,
+      "sha256": "12626bf06c19e4208b43d9efde9ac73aeee254d739a05e290f2ae4def5f6ca6e"
+    },
+    {
+      "path": "docs/body/settings/070-objects/020-bow.md",
+      "bytes": 3084,
+      "sha256": "88ff8edf659dd9ca991808a717d3d03a274a4aee0cc86f2d07070fd40cc67e06"
+    },
+    {
+      "path": "docs/body/settings/070-objects/030-combat-blades.md",
+      "bytes": 1188,
+      "sha256": "07645c24ab12427dba13e2f0285994a2ee54fa91a0ec169f4b4f0196d8d48931"
+    },
+    {
+      "path": "docs/body/settings/070-objects/040-spears.md",
+      "bytes": 780,
+      "sha256": "4552d931eb3acda446324c83b8610f9a01b93d4491e47c42eeb0ad7e0d798059"
+    },
+    {
+      "path": "docs/body/settings/070-objects/050-guidol-knife.md",
+      "bytes": 633,
+      "sha256": "33d97126781406c33f71ffbe1b3921c126ffa0a902e625d8d92cf6e785ee3b34"
+    },
+    {
+      "path": "docs/body/settings/070-objects/060-pocha.md",
+      "bytes": 1555,
+      "sha256": "cf9da50bb7400398ae9d14b94116fe672d0a555d8c91e6f7725a8e89281c358b"
+    },
+    {
+      "path": "docs/body/settings/070-objects/070-nopo.md",
+      "bytes": 1307,
+      "sha256": "23edf56fd7821d304f0e239ee4e808df2bf4c339553e905d582e738f158dd25b"
+    },
+    {
+      "path": "docs/body/settings/070-objects/080-caltrops.md",
+      "bytes": 753,
+      "sha256": "7de58e878c89e929156cd181a791d0affad79b087cdebb7ffa1309a0325dfdef"
+    },
+    {
+      "path": "docs/body/settings/070-objects/090-defensive-net.md",
+      "bytes": 1569,
+      "sha256": "adde868680ab109ec35174b39d02a8fcc3ab486aad41d4f665cfcb02624f2e3d"
+    },
+    {
+      "path": "docs/body/settings/070-objects/100-grain-load.md",
+      "bytes": 2452,
+      "sha256": "02ce008f8a95aa8aaa2c5e5f5694f0cd4b257732d3dac1837f815560ad9c4a5a"
+    },
+    {
+      "path": "docs/body/settings/070-objects/110-signals.md",
+      "bytes": 2687,
+      "sha256": "113b54459d8ec367fea7f21b7bdcaf52804b894a701e321f76b06c0b43a6b775"
+    },
+    {
+      "path": "docs/body/settings/070-objects/120-writs.md",
+      "bytes": 1605,
+      "sha256": "4d84f20f5d9ee1f4bfa83047fe937a66161e65a24e9aa5b6c1b49897282335f4"
+    },
+    {
+      "path": "docs/body/settings/070-objects/130-report-map.md",
+      "bytes": 746,
+      "sha256": "ab47485765f401750bdbe6e06b1cab52ddad1d400c07dca493d281cb4e75b357"
+    },
+    {
+      "path": "docs/body/settings/070-objects/140-ships.md",
+      "bytes": 1418,
+      "sha256": "623599d73622af7702ae52862f6cf5dd1db17df5407bdae679e7074ca0aebfb1"
+    },
+    {
+      "path": "docs/body/settings/070-objects/150-horses.md",
+      "bytes": 1998,
+      "sha256": "9d5a0634ed38e8fa2c76b27179ee6c79bf8e957737b391c9f2a117b9aa0fa334"
+    },
+    {
+      "path": "docs/body/settings/070-objects/160-clothing-and-repair.md",
+      "bytes": 2653,
+      "sha256": "633a4ff3caa623ae221cfc22547e312325e2fc26e1e2e13a39a7bfaecad62913"
+    },
+    {
+      "path": "docs/body/settings/070-objects/170-xue-wear.md",
+      "bytes": 1547,
+      "sha256": "e050dabb3a348243aa8160a1e54c71c6ac715103505a326bc67aad46695132a9"
+    },
+    {
+      "path": "docs/body/settings/outline/index.md",
+      "bytes": 67473,
+      "sha256": "e29317fd1a29d5356839cfb27e01eb5dd83fda2c8017586796a4d9f4a81f6b84"
+    },
+    {
+      "path": "docs/body/treatments/001-six-roads.md",
+      "bytes": 12220,
+      "sha256": "41ad0a52dfd70c9f59db48e39c24146d1327975b1dacc631ea799485b8a7fc47"
+    },
+    {
+      "path": "docs/body/treatments/002-child-after-war.md",
+      "bytes": 10074,
+      "sha256": "ce9a3daeaa63fe7015fc75bf56f0b868489e87d255ad7d7637100c030a5a04ad"
+    },
+    {
+      "path": "docs/body/treatments/003-gyeongdang.md",
+      "bytes": 16096,
+      "sha256": "8af83276b693c157f7f0ee560759bb91be67293f23d45a43ec24d1e6c1b47526"
+    },
+    {
+      "path": "docs/body/treatments/004-first-command.md",
+      "bytes": 10107,
+      "sha256": "e095f429471a8a4aede68ec99c65f2c7731af6b18eff188d19549a8a529bb2f5"
+    },
+    {
+      "path": "docs/body/treatments/005-wall-and-frontier.md",
+      "bytes": 5821,
+      "sha256": "95a88e834916b8833c551c027046086618e546f506d4f62cbaed06421b633543"
+    },
+    {
+      "path": "docs/body/treatments/006-inheritance.md",
+      "bytes": 8312,
+      "sha256": "1463c04389abed467765b861d0676d07e22a110f89d94fc4af12afdc44cee8f4"
+    },
+    {
+      "path": "docs/body/treatments/007-threat-and-authority.md",
+      "bytes": 5984,
+      "sha256": "a5fec0e5b7333a26337879cf39cdefee789294fe06e69f1bc677a100ff57a3a9"
+    },
+    {
+      "path": "docs/body/treatments/008-king-killed.md",
+      "bytes": 6355,
+      "sha256": "6b555073c2e603c2a08324c0bb42a68e8de3873127dabded1fb8abf2f544dd0d"
+    },
+    {
+      "path": "docs/body/treatments/009-new-regime.md",
+      "bytes": 7089,
+      "sha256": "defa0f7b1795c4a46ad66a8abcbaf9511c825c759d3764322feb73783f23bc03"
+    },
+    {
+      "path": "docs/body/treatments/010-jupilsan.md",
+      "bytes": 8835,
+      "sha256": "30bebf2ca1c4c261bda2bb2adcff8c490ace01e04e5202c20f693e945031fe08"
+    },
+    {
+      "path": "docs/body/treatments/011-prisoners.md",
+      "bytes": 8677,
+      "sha256": "d7516531584ee6b4a57913e4790a7976720e8ee9e0864ccdbb627ba9c6462a69"
+    },
+    {
+      "path": "docs/body/treatments/012-walls-and-ships.md",
+      "bytes": 10598,
+      "sha256": "708544b22dfece42b37cbd7bd8884346f40497e5d2fdefb8454eda00c4e017c2"
+    },
+    {
+      "path": "docs/body/treatments/013-understanding-the-king.md",
+      "bytes": 8010,
+      "sha256": "27cbf23699180c328001f436b25fb3f2bed88240528655ca642b3997b4d18290"
+    },
+    {
+      "path": "docs/body/treatments/014-promises-delivered.md",
+      "bytes": 13955,
+      "sha256": "d96d6528e0db3e2e3f5f4d6c7e44b6eeb34d66cadc3d9a7535e28ec331fe8acf"
+    },
+    {
+      "path": "docs/body/treatments/015-years-without-rest.md",
+      "bytes": 11668,
+      "sha256": "20408d9fc674ddc6963875ad9d51a2831d76fad019617c1266426efd204f70da"
+    },
+    {
+      "path": "docs/body/treatments/016-frame-closed.md",
+      "bytes": 10570,
+      "sha256": "53c972bcabe93230de03cab5f2820946fcb55cb10b94fa4e154ab983959a369b"
+    },
+    {
+      "path": "docs/body/treatments/017-siege-and-southern-bets.md",
+      "bytes": 14304,
+      "sha256": "46c99390231df468005b576feece5a00e649fe8ca1fca0e0247007817750a189"
+    },
+    {
+      "path": "docs/body/treatments/018-yalu.md",
+      "bytes": 8004,
+      "sha256": "7619c3be866586e1b85febe85d4edaf4a082b0c9888c7190924debfad397151b"
+    },
+    {
+      "path": "docs/body/treatments/019-orders-from-the-north.md",
+      "bytes": 5455,
+      "sha256": "e6e08b594b69866828e9644d52e1431367fbf79597b00dc2daa00bf261da01e4"
+    },
+    {
+      "path": "docs/body/treatments/020-nubang.md",
+      "bytes": 7084,
+      "sha256": "f462e882ec0e0fccf4836249c634c5837dd21e1d437904e5df5ea0f74bfabace"
+    },
+    {
+      "path": "docs/body/treatments/021-winter-reserves.md",
+      "bytes": 7856,
+      "sha256": "21c575507626a64bafcd78e34257d1cd1e9890786f9a40a66904c31dd47ee385"
+    },
+    {
+      "path": "docs/body/treatments/022-january-concentration.md",
+      "bytes": 7387,
+      "sha256": "77e3d91996bcd72d175fff096da0fcf3fc8d96a5bb2fa9c2935cf4c6e7af07f3"
+    },
+    {
+      "path": "docs/body/treatments/023-mountain-column.md",
+      "bytes": 7511,
+      "sha256": "c1662f78aa196a2f1eb06693221867934d1d894d70e2f18b68fefd6ba250a4f4"
+    },
+    {
+      "path": "docs/body/treatments/024-yango.md",
+      "bytes": 5042,
+      "sha256": "e4a248d2f8260ec4f5f140188da03ea974eb3ae883314c8d8ba1c745c350d700"
+    },
+    {
+      "path": "docs/body/treatments/025-way-home.md",
+      "bytes": 6689,
+      "sha256": "e6902d0fb903c128c8ce79380b9d13e13cdbe35420e09f6bee57a0700360bcd2"
+    },
+    {
+      "path": "docs/body/treatments/026-ren-camp.md",
+      "bytes": 7466,
+      "sha256": "7abe7bb42e96e0eb8809302da3c4067235d7dbd5859b0167ae11163dd53dcc48"
+    },
+    {
+      "path": "docs/body/treatments/027-imjin.md",
+      "bytes": 5721,
+      "sha256": "7b36e69e2c1d3f6330fa54b6445ee84c52b6676b0db71f79c3fc22a80e5bbdf5"
+    },
+    {
+      "path": "docs/body/treatments/028-sasu.md",
+      "bytes": 9312,
+      "sha256": "4588872563b70e3501bc701935660f3ecd320b7169a0ca1675de1ff3a8e4ea91"
+    },
+    {
+      "path": "docs/body/treatments/029-bitter-victory.md",
+      "bytes": 7837,
+      "sha256": "602747e58c025805e1f372c2601bc888d703a35d01dc7759df8352a6d89e595b"
+    },
+    {
+      "path": "docs/body/treatments/030-reconstruction-begins.md",
+      "bytes": 6610,
+      "sha256": "5b29f31f9c28f166bc25d6bbe95decc146c50723c716710f7145b14e7b9ecbe4"
+    },
+    {
+      "path": "docs/body/treatments/031-southern-victory-and-loss.md",
+      "bytes": 7365,
+      "sha256": "4f61d8e2132b92dce5b0fa92d71082a7ce939755f7aeecf49bdcf0d75829ee83"
+    },
+    {
+      "path": "docs/body/treatments/032-days-left-for-sowing.md",
+      "bytes": 10318,
+      "sha256": "1d963cdc86c415bff89532aa4b388f6041df0e5aba968e39c4fe58a3f34f744e"
+    },
+    {
+      "path": "docs/body/treatments/033-the-fathers-finished-work.md",
+      "bytes": 7152,
+      "sha256": "88aa34a8ffa5724ab645f624f8b79534fff1b0c294492092b74a60b304c2cc69"
+    },
+    {
+      "path": "docs/body/treatments/034-one-coup-three-ambitions.md",
+      "bytes": 6289,
+      "sha256": "6bc72b32b8206bbba2b78ab004a002d17d0a9f3e2bb301a4f38ed4e6e5d7af9a"
+    },
+    {
+      "path": "docs/body/treatments/035-the-envoy-does-not-return.md",
+      "bytes": 6132,
+      "sha256": "19cb009bf78cd6e794eae3a9587c4759a15e5665d2aea41062df095b38962dda"
+    },
+    {
+      "path": "docs/body/treatments/036-the-seal-and-the-house-guards.md",
+      "bytes": 6047,
+      "sha256": "d76d43b82d88e8a271afed1a6171d9e5b78ffc12a98eb5b91a36a80643d28a97"
+    },
+    {
+      "path": "docs/body/treatments/037-three-days-and-three-reports.md",
+      "bytes": 9821,
+      "sha256": "5189117e9a1a1c96185b8db88e36ec64037ae7511b939165c07ff7f712d42c03"
+    },
+    {
+      "path": "docs/body/treatments/038-the-country-no-longer-decides.md",
+      "bytes": 10064,
+      "sha256": "efd9e5361ff59f51190d864ad5f784807a8298d09ce1ce315f4e5ed089fc0028"
+    },
+    {
+      "path": "docs/body/treatments/039-strong-forts-without-a-whole.md",
+      "bytes": 6205,
+      "sha256": "d9f1498e533677ca5c9c3288a53bf36f14dc16b729ea1ca7cdddc35ebb5ceef1"
+    },
+    {
+      "path": "docs/body/treatments/040-five-days-to-the-west-gate.md",
+      "bytes": 9372,
+      "sha256": "c2ade560b42adae24dd8d98fad087513503c3c38e820fbb114871bcaf2c16033"
+    },
+    {
+      "path": "docs/body/treatments/041-lives-spared-homes-removed.md",
+      "bytes": 7255,
+      "sha256": "0b2a96aaccb5baad2ce89bfed1b89c287fefe630e2285e44319268c83bcd6043"
+    },
+    {
+      "path": "docs/body/treatments/042-the-lives-conquest-did-not-end.md",
+      "bytes": 10443,
+      "sha256": "37b158666910e390b8dd9b87ce91268e542417cfec76b96f45655064408fe4ff"
+    },
+    {
+      "path": "docs/body/treatments/043-the-office-and-the-son-left-behind.md",
+      "bytes": 9861,
+      "sha256": "b0f665a63e88b00a4ebac1e73058dab46b7c8f5dc940cf43f36408c9e389a4f3"
+    },
+    {
+      "path": "docs/instructions/001-work-and-narrative.md",
+      "bytes": 11331,
+      "sha256": "81c6f51f7ea70470facdc8cdb14725b07eeb46e2c6b6c6f88c7aa5d084328b69"
+    },
+    {
+      "path": "docs/instructions/002-style-and-commentary.md",
+      "bytes": 8839,
+      "sha256": "b510500a53b31479b88aa92cebe55ac06f36ada351be335b72124ac06aa0ac0d"
+    },
+    {
+      "path": "docs/instructions/003-era-and-restoration.md",
+      "bytes": 22621,
+      "sha256": "6c424a52cee0b197aa20ee457b29bf32b34ef789029f2e7140fdb555fe9e5c9a"
+    },
+    {
+      "path": "docs/instructions/004-society-and-military-foundation.md",
+      "bytes": 9179,
+      "sha256": "797a33446f29ba3c770ea91d4bdc5d836bc07c275673ed57e83a3a5e6a738901"
+    },
+    {
+      "path": "docs/instructions/005-malgal-and-belonging.md",
+      "bytes": 7802,
+      "sha256": "5ff90df0923e8ed2284b6386a601ac82d0725ac21899b465353771eb75f4fcaa"
+    },
+    {
+      "path": "docs/instructions/006-yeon-and-successors.md",
+      "bytes": 16328,
+      "sha256": "665d5ba8232b66ac2b74c44f5043557c72ab9cbe56c2bfb456682fe1d4dee24b"
+    },
+    {
+      "path": "docs/instructions/007-warfare-and-campaigns.md",
+      "bytes": 27338,
+      "sha256": "659c17bb52e085d27fd05e34a7cf2320346d0bdb0444abc18cf3ad401c878c2b"
+    },
+    {
+      "path": "docs/instructions/008-succession-and-collapse.md",
+      "bytes": 10944,
+      "sha256": "3bff61b8894a9b45fe4e198c71cef9e0a3d1dc455ad557741235416eadd7e971"
+    },
+    {
+      "path": "docs/instructions/009-expression-quality.md",
+      "bytes": 746,
+      "sha256": "00ae06e16fd1825a7258c2b083170272f2eabc5fa4de74e5da51792161064b24"
+    },
+    {
+      "path": "docs/instructions/010-adaptation-and-delivery.md",
+      "bytes": 4170,
+      "sha256": "5aff39bc2bc577c509ca1c3264302c8b837d272fc528988a9fc222ad32678297"
+    },
+    {
+      "path": "docs/instructions/011-inherited-scene-constraints.md",
+      "bytes": 2015,
+      "sha256": "83e13ec48ea32f46522aaaaa2c8193321213b53dccf6cfef0ca1e2ee6fbff2c1"
+    }
+  ]
+}

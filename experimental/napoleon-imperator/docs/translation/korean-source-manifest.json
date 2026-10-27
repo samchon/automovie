@@ -1,0 +1,443 @@
+{
+  "role": "Exact Korean translation input; preserved in the baseline commit before English authoring. Historical evidence annotations remain source data and do not approve the English edition.",
+  "sourceWorkspace": "D:\\github\\samchon\\automovie@template",
+  "sourceRevision": "1a6d21537547a285b3fc3a9c497052f5632a8bfc",
+  "currentWorkingTreeSnapshotIncluded": true,
+  "files": [
+    {
+      "path": "docs/body/screenplay/001-chronicle/001-road.md",
+      "bytes": 12141,
+      "sha256": "6897b7957dc3dc4950653508d2669b510f3e63d5654f2bfd705fe6fc4928825e"
+    },
+    {
+      "path": "docs/body/screenplay/001-chronicle/002-home.md",
+      "bytes": 8780,
+      "sha256": "6b713799b7512379eddae28d90572e35962a247fb6c8ac7f0cb6fe3d08ef8015"
+    },
+    {
+      "path": "docs/body/screenplay/001-chronicle/003-army.md",
+      "bytes": 17196,
+      "sha256": "090eb368fe9358ee76685335c9c97df2e8a9eb34fe316eec08486acac063b84f"
+    },
+    {
+      "path": "docs/body/screenplay/001-chronicle/004-order.md",
+      "bytes": 16744,
+      "sha256": "70e59e3519d4f6e9f9420ba0f48ab18598cac3e928d9f7b1b1af3d2bcc1d0a08"
+    },
+    {
+      "path": "docs/body/screenplay/001-chronicle/005-map.md",
+      "bytes": 13704,
+      "sha256": "b355f8fa0f6707979d69f13878bf6067cd793b89291901d1dafd5873066bf1fd"
+    },
+    {
+      "path": "docs/body/screenplay/001-chronicle/006-name.md",
+      "bytes": 9947,
+      "sha256": "d183f3ea0a1f7e3e5aba0667f2a82621d0b5cc42e1bd0ccc265fd47f9e4f1081"
+    },
+    {
+      "path": "docs/body/screenplay/001-chronicle/007-distance.md",
+      "bytes": 8866,
+      "sha256": "9d1b35a2e36f35776faa5078b66af5214d0961f9708de4b0c30e5577b601b87b"
+    },
+    {
+      "path": "docs/body/screenplay/001-chronicle/008-army-refuses.md",
+      "bytes": 12775,
+      "sha256": "52abdafd2b4791950914f753d5325599ad523da576951870038eebc740eadd7c"
+    },
+    {
+      "path": "docs/body/screenplay/001-chronicle/009-waiting.md",
+      "bytes": 13654,
+      "sha256": "41fbcd14f91c4c2775f082dc4f4e70ea2bdbb1ecb7696987499629dfad9791cd"
+    },
+    {
+      "path": "docs/body/screenplay/001-chronicle/010-coffin.md",
+      "bytes": 15303,
+      "sha256": "feec8af8682f7d9109099e461d7894b738cc6df6eb31ccd1b4a45fd8a927a38c"
+    },
+    {
+      "path": "docs/body/screenplay/001-chronicle/index.md",
+      "bytes": 450,
+      "sha256": "1d19c732f2d6dc1ada5871dbba035c5280e19280c21a3606c6fbbbd24d6a3305"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/001-road.md",
+      "bytes": 10193,
+      "sha256": "732b9a82b4cb4ff875d548e05bfa9392561acad306100fbb587bb7cead35652d"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/002-home.md",
+      "bytes": 8416,
+      "sha256": "c91133821bf7ef4a441875eca917326204acfee9b76b634219bc1fcec83840fa"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/003-army.md",
+      "bytes": 20697,
+      "sha256": "058177207cfe07b8c10614d44a748a467e3decbdfda6847be039e2d3fe68b463"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/004-order.md",
+      "bytes": 16348,
+      "sha256": "a69be6aeb630749ceacfd297a76b987313f3428c7b2b3007be8763477e22c669"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/005-map.md",
+      "bytes": 9506,
+      "sha256": "df982175ac58ce8f32ffee26c012cce946708e9f7b611004a26f5bc655bc6c50"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/006-name.md",
+      "bytes": 8310,
+      "sha256": "9dfb232e909460b2a582edac5e1d8d3a8fc3d640cff68f180b51fc7b1ebe0c06"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/007-distance.md",
+      "bytes": 8152,
+      "sha256": "c9acdd2ffe8eec22d3a89177888b92f1ded7695fe7b36214c5ca853e70e06185"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/008-army-refuses.md",
+      "bytes": 11627,
+      "sha256": "a0a9b46655e89f22554261d2060d4525ac51033a1386bcc432962e6e6751f11c"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/009-waiting.md",
+      "bytes": 11625,
+      "sha256": "b739bd8bdff85a169640b4c4711fd06874bd6490c9e9ed1d445ed719c59b5356"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/010-coffin.md",
+      "bytes": 13308,
+      "sha256": "3090098baff4556b8fe043cfa58ec1faf651d301c7ad0fd353c91a4994c65679"
+    },
+    {
+      "path": "docs/body/scripts/001-chronicle/index.md",
+      "bytes": 440,
+      "sha256": "6d065014cbe4cd5787340c282fb3120778b95076ee865aa9ab969b61fccdcb61"
+    },
+    {
+      "path": "docs/body/settings/010-work/010-identity.md",
+      "bytes": 3477,
+      "sha256": "32582088c243e6a7ccdb8e9dde44016973ad3183b1d2cfc8820aaf2c9dbd0f92"
+    },
+    {
+      "path": "docs/body/settings/010-work/020-periods.md",
+      "bytes": 4780,
+      "sha256": "9a30af5d85a70225b1225dc68377124e162c0e02b98429e9915cdf7092c781f6"
+    },
+    {
+      "path": "docs/body/settings/020-world/010-material-world.md",
+      "bytes": 4842,
+      "sha256": "1d77c09278d97d826ef34a4ca629f2d4b14b97d115357d85ef61148cf5a4ae41"
+    },
+    {
+      "path": "docs/body/settings/030-society/010-power-and-cost.md",
+      "bytes": 9573,
+      "sha256": "6e8ac3f11ecd331c8b810b1c18fd96b7be951bdab1b350c69a8fc7b523ea5fab"
+    },
+    {
+      "path": "docs/body/settings/030-society/020-credit-knowledge-and-industry.md",
+      "bytes": 8009,
+      "sha256": "d30bfc2d02e99e51e2c6593b59c90818ddc4c16bbafb41816c0a45191a0873ca"
+    },
+    {
+      "path": "docs/body/settings/050-people/010-ensemble.md",
+      "bytes": 68396,
+      "sha256": "90beb02e8be541de91db38ce0914afe074ece8866d3be9d8582d3c00d15ec2e4"
+    },
+    {
+      "path": "docs/body/settings/050-people/020-roles-and-last-wishes.md",
+      "bytes": 4664,
+      "sha256": "d5435bf8b96a4671dde39be80cfdca51b86ccfeabb5014823693416dbdedd145"
+    },
+    {
+      "path": "docs/body/settings/100-history/010-austerlitz.md",
+      "bytes": 11057,
+      "sha256": "af3d1e818d75d5c9372588ee87eb2e4fc7bf8e0f5498903e82ae1efbcf98a02a"
+    },
+    {
+      "path": "docs/body/settings/100-history/020-life-and-memory.md",
+      "bytes": 35378,
+      "sha256": "e0f94238708b0f687395bc6d9768dec17bf1c8d80b350675ce4209761e7d7e52"
+    },
+    {
+      "path": "docs/body/settings/100-history/030-decisions-and-results.md",
+      "bytes": 14974,
+      "sha256": "d3d7b7fcd7c666ac127b3e543eb80dec90d77fe38e6a55a43c50f4616f20fb31"
+    },
+    {
+      "path": "docs/body/settings/110-knowledge/010-information.md",
+      "bytes": 3628,
+      "sha256": "c35b27b5d8344f528663d86766bc11d0c6be4e71278ea7fe813c897136955083"
+    },
+    {
+      "path": "docs/body/settings/120-research/010-source-policy.md",
+      "bytes": 8807,
+      "sha256": "6d7dcd657763b96bfcf8bc9c3d3756b3aa88ca7e2ce69c65e8777f2751cb5982"
+    },
+    {
+      "path": "docs/body/settings/120-research/020-source-register.md",
+      "bytes": 8482,
+      "sha256": "bda7b5e31c73fd398c17b16c51a6232cfa9ce988eb39342704a02026126d8f3a"
+    },
+    {
+      "path": "docs/body/settings/outline/index.md",
+      "bytes": 5502,
+      "sha256": "424555b33c63ee5ac1cf77582bdf8ed729a1450eaac40454c6864055c7b5d28d"
+    },
+    {
+      "path": "docs/body/treatments/001-the-road-gives-way.md",
+      "bytes": 3854,
+      "sha256": "1598614413502f7c40589bfaf01382e94ceab90f55d394fceca3ab4363aa9ddc"
+    },
+    {
+      "path": "docs/body/treatments/002-the-open-right.md",
+      "bytes": 3680,
+      "sha256": "9f8e4de68ea3747aff5a11a4df635b21b60aff6ca402fc93d0e6c729d57c1980"
+    },
+    {
+      "path": "docs/body/treatments/003-the-night-before.md",
+      "bytes": 3986,
+      "sha256": "70bf1943a59d0dc38184723e805cb390fd2caf6958e9ab4a8d5b3a653a0d2613"
+    },
+    {
+      "path": "docs/body/treatments/004-the-battle-opens.md",
+      "bytes": 5669,
+      "sha256": "eb27733f3bf14830b5778345afb60d18f82b28d865624d03b741fbb9aa903a73"
+    },
+    {
+      "path": "docs/body/treatments/005-victory-night.md",
+      "bytes": 3341,
+      "sha256": "0d441f1fc9fab0ea979e0a65c9c10057285401f8154dbc81fb7b18144096e478"
+    },
+    {
+      "path": "docs/body/treatments/006-birth-and-school.md",
+      "bytes": 2893,
+      "sha256": "70236e1a6e104d888e75528f0b51e1de43362d593ddf3b4e37a7a90ac757d5dc"
+    },
+    {
+      "path": "docs/body/treatments/007-corsica-and-exile.md",
+      "bytes": 3042,
+      "sha256": "f05104c9d05dd7af30eeed47c74fe5c5eb959aef4a7e363058b50b29d68cc250"
+    },
+    {
+      "path": "docs/body/treatments/008-toulon-and-revolution.md",
+      "bytes": 3619,
+      "sha256": "fb618c6f47fe48bb5062f792a46e24a8ecde1ef35395204e0d004838599b266e"
+    },
+    {
+      "path": "docs/body/treatments/009-paris-and-josephine.md",
+      "bytes": 3646,
+      "sha256": "497d36c78868daf3cd463143d1926d24b79bc2f8ec42b1936c2c87fcd9a22123"
+    },
+    {
+      "path": "docs/body/treatments/010-italy-and-the-image.md",
+      "bytes": 12936,
+      "sha256": "6632fab601148db9d149460a694dbf03f6ed07f0206097b1cf2796c60d8cb98e"
+    },
+    {
+      "path": "docs/body/treatments/011-egypt-and-isolation.md",
+      "bytes": 5675,
+      "sha256": "002e171a1a2bb0e3dbc1e47640e7fcac82050d377d1e5500895eabaff60fbe27"
+    },
+    {
+      "path": "docs/body/treatments/012-brumaire.md",
+      "bytes": 4956,
+      "sha256": "acfccb1e696dea866e87ce83a9f6730fcbe97c0d61db037205da152e982ec149"
+    },
+    {
+      "path": "docs/body/treatments/013-marengo-and-the-two-deaths.md",
+      "bytes": 2590,
+      "sha256": "e8d6dd268f7abfbb4c134e295f6a9e572ac233c31c80de9341b830b74a3f9620"
+    },
+    {
+      "path": "docs/body/treatments/014-order-and-police.md",
+      "bytes": 5477,
+      "sha256": "54cb10ae23690095528ae4569e2ee1ce5f14d8e368c55204ada49a8170e26f62"
+    },
+    {
+      "path": "docs/body/treatments/015-peace-and-service.md",
+      "bytes": 4066,
+      "sha256": "85f5d13acedcb517544698d82d2beaf0c844744f5c522ed34a8118222e3fa47f"
+    },
+    {
+      "path": "docs/body/treatments/016-colonial-freedom.md",
+      "bytes": 7264,
+      "sha256": "0cf904a11b10164c48e2d94659616e48b80ed8456a837fb3da63c960b2e97ab3"
+    },
+    {
+      "path": "docs/body/treatments/017-law-and-crown.md",
+      "bytes": 3540,
+      "sha256": "8c8fa3479cbe9a05e188c5334af5807031f94426b15466c5c6c067e93ee0d7ec"
+    },
+    {
+      "path": "docs/body/treatments/018-the-sea-keeps-its-power.md",
+      "bytes": 4513,
+      "sha256": "99f0c198c6eb264980da616a9cfd2b41810bf1ea441b7a2968e21ba6c51de780"
+    },
+    {
+      "path": "docs/body/treatments/019-the-road-back-to-the-opening.md",
+      "bytes": 5106,
+      "sha256": "d837eba1fe1bd97f9466c3550d2175f65566d734d34e6bbc2f3cb8b0ebcf04d4"
+    },
+    {
+      "path": "docs/body/treatments/020-the-price-of-victory.md",
+      "bytes": 3557,
+      "sha256": "915643e22c61010530771e3f1f30d0d51b41a427cb57cbaca42fe06a5601dd1b"
+    },
+    {
+      "path": "docs/body/treatments/021-two-battles-and-a-report.md",
+      "bytes": 4096,
+      "sha256": "7d29c8b876b4f3cc8a299aefadf1493386cff9c4a832f92f5d4965bbf6013da9"
+    },
+    {
+      "path": "docs/body/treatments/022-blood-and-tilsit.md",
+      "bytes": 4950,
+      "sha256": "4f82bf2c40fdd863da8e1d240a8687e82f72ab2d4cdf2a1b5ea33b4299b7728a"
+    },
+    {
+      "path": "docs/body/treatments/023-the-blockade-enters-homes.md",
+      "bytes": 5146,
+      "sha256": "1b2eb7872cc71d4b91ee852c588bc92d1e943904b2c23fdca72d3479e148d421"
+    },
+    {
+      "path": "docs/body/treatments/024-spain-will-not-close.md",
+      "bytes": 5533,
+      "sha256": "4a3a67dd9501fdb2d03e27b88b61b93b96428090f50c56777fd0c0e9101d334d"
+    },
+    {
+      "path": "docs/body/treatments/025-the-danube-and-lannes.md",
+      "bytes": 7187,
+      "sha256": "a789d6e8f388b21d0c79f5618ea480547a1cbdb1a6b51644b40f0d52eafdb2cf"
+    },
+    {
+      "path": "docs/body/treatments/026-two-marriages.md",
+      "bytes": 3444,
+      "sha256": "037c7ef00d5e05412cf2fa7798223261ae6a364e59faa56a713ee6c656eff4dc"
+    },
+    {
+      "path": "docs/body/treatments/027-heir-and-hunger.md",
+      "bytes": 3809,
+      "sha256": "3e4d09fa7857be3dd941d4beb8337e726dd6910f2dc2accbc43265375a0f813f"
+    },
+    {
+      "path": "docs/body/treatments/028-the-distance-before-winter.md",
+      "bytes": 4565,
+      "sha256": "c23b3e531fc310ced2382d10b9d430f6ec117274905022a0f534b173af1e5d9b"
+    },
+    {
+      "path": "docs/body/treatments/029-a-city-without-peace.md",
+      "bytes": 3544,
+      "sha256": "ee96ecfe29ec9f71b0241d65d3274bda7cbed16454272f2c6a14a2be2cf08408"
+    },
+    {
+      "path": "docs/body/treatments/030-the-death-report.md",
+      "bytes": 5249,
+      "sha256": "3ad2600af715db3cfcfb3d8dfc6ca2a6f0b91dc6f50d791ca7415917f0651b8f"
+    },
+    {
+      "path": "docs/body/treatments/031-the-crossing-and-the-return.md",
+      "bytes": 3410,
+      "sha256": "e91bbb4ca906600b163a8153da620a0be8508b548da56db068608bbc33369e8a"
+    },
+    {
+      "path": "docs/body/treatments/032-the-new-army.md",
+      "bytes": 3780,
+      "sha256": "40d514f0643e709bac99cab933a01b54f936f19d03f78c4b131dabf2d8bc3a21"
+    },
+    {
+      "path": "docs/body/treatments/033-the-opponents-use-the-pause.md",
+      "bytes": 4705,
+      "sha256": "da81c0edd1136db871bc4d3a1f590632fda0936c171cce7e04c29538a386fbe5"
+    },
+    {
+      "path": "docs/body/treatments/034-leipzig-and-the-bridge.md",
+      "bytes": 4560,
+      "sha256": "b91cf46556b2cfed8081c2a358af66cc8088642d2ec160bc55bdf271ed7ef362"
+    },
+    {
+      "path": "docs/body/treatments/035-france-and-paris.md",
+      "bytes": 3977,
+      "sha256": "dc02bf258e5a7b96f37224a6cfe28515f24a8aceb00ca3a9a318151a01fac77b"
+    },
+    {
+      "path": "docs/body/treatments/036-the-first-abdication.md",
+      "bytes": 4461,
+      "sha256": "90a6cc2f9a277e30c32aef650018fbdddeeb6e380889f7b7ba72834a8ad37b9c"
+    },
+    {
+      "path": "docs/body/treatments/037-a-small-state.md",
+      "bytes": 3446,
+      "sha256": "43f8afebd734b7c5e26bbc53920734dd63da86e021259439adf51e18a652f7dc"
+    },
+    {
+      "path": "docs/body/treatments/038-the-road-to-paris.md",
+      "bytes": 3383,
+      "sha256": "27001215e2fd2a6822d7fd1d3d3932558208fa98a77ff7446d2d013d617fc989"
+    },
+    {
+      "path": "docs/body/treatments/039-a-different-returned-emperor.md",
+      "bytes": 3954,
+      "sha256": "ccd63c4f7f78b1276d53916ea38095935dba5be3a1c257bf689e8c77fa4272f8"
+    },
+    {
+      "path": "docs/body/treatments/040-two-fields-in-june.md",
+      "bytes": 4527,
+      "sha256": "04b1ebf6f8603181cc5af54f54d7a82bb3c81e9b75da07cdf58b030b0cdf4c8a"
+    },
+    {
+      "path": "docs/body/treatments/041-waterloo.md",
+      "bytes": 5945,
+      "sha256": "1f5f8ee92d24d955f9371fe99050a5fb4c611beff2dce448b461ed24ccd141a8"
+    },
+    {
+      "path": "docs/body/treatments/042-the-second-abdication.md",
+      "bytes": 5023,
+      "sha256": "4acc063820785866712751289d3986457d0c9b197f6d09e4e89e951a1315e558"
+    },
+    {
+      "path": "docs/body/treatments/043-a-house-under-guard.md",
+      "bytes": 2916,
+      "sha256": "095c48198519fe3408c8fe11364fd03eef6bffd6e6606dae4157fe2bd96751a4"
+    },
+    {
+      "path": "docs/body/treatments/044-the-people-who-write.md",
+      "bytes": 6550,
+      "sha256": "7a36201f4eb1d8714531898d13e1d92ae276b46b4c886a268d3c74656390eac2"
+    },
+    {
+      "path": "docs/body/treatments/045-the-patient-and-the-reports.md",
+      "bytes": 3633,
+      "sha256": "fcf79a0f7b6b19dd7c142aa7ea94c2d971da9f75f9e64256d30f7d852afcf673"
+    },
+    {
+      "path": "docs/body/treatments/046-death-and-burial.md",
+      "bytes": 4029,
+      "sha256": "b76cf3c8eb98130302f789814e2c57722660c03f966c81a905de735c6b142cd8"
+    },
+    {
+      "path": "docs/body/treatments/047-the-name-outlives-the-family.md",
+      "bytes": 6157,
+      "sha256": "3f6e07e1738dbf942f9ac48fc595d6953b9aa61b4daf1935ea1afe5647553e70"
+    },
+    {
+      "path": "docs/body/treatments/048-the-last-return.md",
+      "bytes": 6588,
+      "sha256": "8145b335addbc07a21100d91960057191dddd003afb5efbac1d3a54b32ba0e0a"
+    },
+    {
+      "path": "docs/instructions/001-adaptation.md",
+      "bytes": 4754,
+      "sha256": "6a0b1611e08c5f5db093ade12ad66264905c665d3c347f86d7d9781106ec0f17"
+    },
+    {
+      "path": "docs/instructions/002-viewing-experience.md",
+      "bytes": 5849,
+      "sha256": "9907c25ac8ac912eec311c7323515a2f0f492325a95d080a60b50792686c6050"
+    },
+    {
+      "path": "docs/instructions/003-language-and-records.md",
+      "bytes": 3111,
+      "sha256": "a02adcf0a2c397013c606585ec4b1020fc6fb9547e349d3a5935f780a8ffad66"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# The Citizens' Law and the Emperor's Title
+
+## The shared work of making a lasting law {#code}
+
+Factual parents: [government and law](../settings/030-society/010-power-and-cost.md#government), [the Consulate](../settings/100-history/020-life-and-memory.md#consulate), [Cambacérès](../settings/050-people/010-ensemble.md#cambaceres), [family](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [forms of address](../settings/050-people/010-ensemble.md#registers).
+
+France, 1804. The regime, having already obtained the formal result of approval for a consulship for life, finishes the civil code. Do not add an explanation that affirmative votes prove everyone's free will. Distinguish what jurists wrote from Napoleon's work presiding over and arguing in meetings, and do not make Cambacérès one of the four members of the drafting commission. Authority in a meeting is not authorship by one person. Napoleon seeks to fix his desired order in law; jurists work through his intentions in articles and procedure, and Cambacérès's mediation turns disputes into work that can continue to be deliberated. Rather than ending the matter by immediate command, they spend time arguing over wording and obtaining common rules, completing the code. As the man who demands rapid orders on the battlefield immerses himself in this work, he gains reason to regard the state as his achievement outside military success too.
+
+A society gains protection of property and legal equality, but also receives the subordination of women and children and control of labor within the same order. Do not close the effects of different provisions with a single declaration of equality. Completion of the code is not the result that every individual trial has already ended fairly, but a common framework for exercising rights and authority in future. The audience understands that extended rule did not continue through propaganda alone, while also understanding the framework's exclusions.
+
+## A dynasty is obtained in the name of protection {#emperor}
+<!--
+@evidenceExclude shared/upstream/treatments.md#settings-repair 제위 전환은 `docs/body/settings/050-people/010-ensemble.md#registers`의 1804년 5월 18일 전후 호칭, `docs/body/settings/100-history/020-life-and-memory.md#consulate`의 서로 다른 12월 의례, `docs/body/settings/050-people/010-ensemble.md#letizia`의 실제 부재를 그대로 시험했다. 조제핀의 안전/계승 압력도 `docs/body/settings/030-society/010-power-and-cost.md#dynasty-and-belief` 안에서 변하며 새 참석자나 영구 혼인 보장을 필요로 하지 않았다.
+-->
+A regime marked by threats, repression, and the execution of the Duke of Enghien seeks to exchange a republican office for the security of a hereditary dynasty. An alliance that chose the general as savior must now recognize an emperor. Make the change in address around May 18, 1804, from Citizen First Consul to Your Majesty, an actual threshold in relationships. Those around him must keep a different formal distance even when facing the same person.
+
+For Joséphine, the position of Empress increases the security of her marriage while making the absence of an heir more acute. Preserve Letizia's actual absence, and distinguish the December 2 coronation from the December 5 distribution of eagles. Those who attended the ceremony are not identical to those placed in David's painting. When the historian leaves the painting open as an object of later memory, the audience receives both the wonder of a young scholarship student becoming a symbol of the state and the editing that symbol requires.

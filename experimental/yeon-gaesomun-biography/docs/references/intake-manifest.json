@@ -1,0 +1,1495 @@
+{
+  "repository": "https://github.com/wrtnlabs/novels",
+  "revision": "83da7063b4e7c85204536e3ad231df38e2304960",
+  "adoptedInputFamilies": [
+    "instructions",
+    "settings"
+  ],
+  "excludedCreativeInputFamilies": [
+    "treatments",
+    "scripts",
+    "prose",
+    "evidence",
+    "reviews",
+    "naturalness",
+    "revision"
+  ],
+  "files": [
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/instructions/001-work-and-narrative.md",
+      "retained": "docs/references/novels/instructions/001-work-and-narrative.md",
+      "bytes": 11099,
+      "sha256": "1e2e64b30d6230ef1a203216ddb2ce93cee6567005c5b0680c1837ff0a0fb1ad"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/instructions/002-style-and-commentary.md",
+      "retained": "docs/references/novels/instructions/002-style-and-commentary.md",
+      "bytes": 8634,
+      "sha256": "315fd5b170f4cbccf3cb5438e38e085b97826a3c9fa370f91c59907bc81eb998"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/instructions/003-era-and-restoration.md",
+      "retained": "docs/references/novels/instructions/003-era-and-restoration.md",
+      "bytes": 22441,
+      "sha256": "b06f50a92cf660610301ff8c7ea576d06f45c1c67f6a84c6be7ea4cbaf3d2ee2"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/instructions/004-society-and-military-foundation.md",
+      "retained": "docs/references/novels/instructions/004-society-and-military-foundation.md",
+      "bytes": 9179,
+      "sha256": "797a33446f29ba3c770ea91d4bdc5d836bc07c275673ed57e83a3a5e6a738901"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/instructions/005-malgal-and-belonging.md",
+      "retained": "docs/references/novels/instructions/005-malgal-and-belonging.md",
+      "bytes": 7723,
+      "sha256": "2b1cc581b9c58c76fd46bf5f8a2e30f7d4192ca339daaaa447fb80282fd88b18"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/instructions/006-yeon-and-successors.md",
+      "retained": "docs/references/novels/instructions/006-yeon-and-successors.md",
+      "bytes": 16328,
+      "sha256": "665d5ba8232b66ac2b74c44f5043557c72ab9cbe56c2bfb456682fe1d4dee24b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/instructions/007-warfare-and-campaigns.md",
+      "retained": "docs/references/novels/instructions/007-warfare-and-campaigns.md",
+      "bytes": 27109,
+      "sha256": "d2446e4ae72524cb4279cbd61f6a5f5e73e1fe4d2cdbfc1067213564205eca77"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/instructions/008-succession-and-collapse.md",
+      "retained": "docs/references/novels/instructions/008-succession-and-collapse.md",
+      "bytes": 10823,
+      "sha256": "077ae801a519a9ada5f468a3a3bef3452f99a265fcdaa00fb36ecb7028e52881"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/instructions/009-expression-quality.md",
+      "retained": "docs/references/novels/instructions/009-expression-quality.md",
+      "bytes": 735,
+      "sha256": "98505d619dcd1c994afa09dce399ea7e6f0f93c3295d5851c24883297c42ebab"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/010-work/010-work.md",
+      "retained": "docs/references/novels/settings/010-work/010-work.md",
+      "bytes": 15499,
+      "sha256": "d14b00c5b2b42efac60e63b4ce51771d875c705ea4717c69e4b4d2565d805dff"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/010-work/020-voice-owners.md",
+      "retained": "docs/references/novels/settings/010-work/020-voice-owners.md",
+      "bytes": 3130,
+      "sha256": "708df14e57040fd9cc9f6230320d62650b7f752a08f5d13554820d0f38bc78a7"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/010-family-years.md",
+      "retained": "docs/references/novels/settings/020-world/010-family-years.md",
+      "bytes": 2146,
+      "sha256": "d0e1b7f516be28d9af4ac6d007f52d8188778bf6682e843dc3bb2bfc6ccb2b27"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/020-yeon-death-year.md",
+      "retained": "docs/references/novels/settings/020-world/020-yeon-death-year.md",
+      "bytes": 1570,
+      "sha256": "4184d8a9f3a8828f720a7a21d374168460a898f464ba27d1404c5f86f66737b7"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/030-second-war-calendar.md",
+      "retained": "docs/references/novels/settings/020-world/030-second-war-calendar.md",
+      "bytes": 9129,
+      "sha256": "be5e9b505e6c4af1d7c8d3a2ab9ef7c66e4d868ef81643d4cb7dc70ca3f94914"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/040-postwar-window.md",
+      "retained": "docs/references/novels/settings/020-world/040-postwar-window.md",
+      "bytes": 2345,
+      "sha256": "4ba709655ad2cbfe85453ca50a099c44fad5c8884f683b6c241fac20d84973d3"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/050-information-arrival.md",
+      "retained": "docs/references/novels/settings/020-world/050-information-arrival.md",
+      "bytes": 2703,
+      "sha256": "0f73be7dc25f3fc73bedfd074db2d78fc7ed83f8f92f0266184efbe6fc9dfd6e"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/060-earlier-civil-war.md",
+      "retained": "docs/references/novels/settings/020-world/060-earlier-civil-war.md",
+      "bytes": 2488,
+      "sha256": "fa63e4214d7ef0282fa76eb7368f54a90f06804f46d36cd4a1af780e5ec38703"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/070-first-restoration.md",
+      "retained": "docs/references/novels/settings/020-world/070-first-restoration.md",
+      "bytes": 2921,
+      "sha256": "9b8bd42ff6083850eab5ad522a27f6e1a83df414c9b121de13847bb2b98b5b88"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/080-repeated-sui-wars.md",
+      "retained": "docs/references/novels/settings/020-world/080-repeated-sui-wars.md",
+      "bytes": 2559,
+      "sha256": "79610442ac4292b6f0180f36c0980d0267525998dda5bc2a3938a921b23ee919"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/090-second-restoration-and-tang.md",
+      "retained": "docs/references/novels/settings/020-world/090-second-restoration-and-tang.md",
+      "bytes": 12041,
+      "sha256": "5420e00d6dd66118854941de13b74a0f15d64ef16855de1a1bbaa5c808011d8b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/100-victory-and-future.md",
+      "retained": "docs/references/novels/settings/020-world/100-victory-and-future.md",
+      "bytes": 1668,
+      "sha256": "89226fb303af9df7a8bae387053c35fe8a2e73dcbd4cdd583f0c8ca934c1ca6c"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/110-tang-and-steppe.md",
+      "retained": "docs/references/novels/settings/020-world/110-tang-and-steppe.md",
+      "bytes": 3938,
+      "sha256": "8a8b794d471af6c94850efe6a39231a80597579aa5493f5cf1b9788f0629ea2f"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/120-southern-recoveries.md",
+      "retained": "docs/references/novels/settings/020-world/120-southern-recoveries.md",
+      "bytes": 2292,
+      "sha256": "210466cc8809472215ac38d284a17c32bc2e740956fb84bf5fe34994bc068c14"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/130-655-southern-offensive.md",
+      "retained": "docs/references/novels/settings/020-world/130-655-southern-offensive.md",
+      "bytes": 1010,
+      "sha256": "fb3b705e732ad7d2838535be6f9c7e52a6e5c5aa8bf6ec4de84b0022aff7055b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/140-khitan-resources.md",
+      "retained": "docs/references/novels/settings/020-world/140-khitan-resources.md",
+      "bytes": 2754,
+      "sha256": "c53619134de193d9c004f94fe64f79662a642eba111192a3e05e219e510867b3"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/020-world/150-cross-border-ties.md",
+      "retained": "docs/references/novels/settings/020-world/150-cross-border-ties.md",
+      "bytes": 1859,
+      "sha256": "6d8db54e40a61460df87526cf0f4ce10707be492f80b97bc51fb79aad4342308"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/010-royal-and-aristocratic-power.md",
+      "retained": "docs/references/novels/settings/030-society/010-royal-and-aristocratic-power.md",
+      "bytes": 1891,
+      "sha256": "e6439a33998dd1e300f9a14ac9c266e023fc206213c6fe131244b9a1445f2e49"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/020-martial-status.md",
+      "retained": "docs/references/novels/settings/030-society/020-martial-status.md",
+      "bytes": 2746,
+      "sha256": "a88724fc0486c603bdf3d4c662ffbc12ee850028b2e37879c4df7c277dbc736d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/030-gyeongdang.md",
+      "retained": "docs/references/novels/settings/030-society/030-gyeongdang.md",
+      "bytes": 3360,
+      "sha256": "40fc85a74f75716576c9a567de53dbcd0b42f63a704ebe03f72eb3385d59e884"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/040-taehak.md",
+      "retained": "docs/references/novels/settings/030-society/040-taehak.md",
+      "bytes": 2328,
+      "sha256": "8a236ced3b8d1fd14bd24b921521df9d3a39149031579bc39999c0ae650e45a6"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/050-regional-authority.md",
+      "retained": "docs/references/novels/settings/030-society/050-regional-authority.md",
+      "bytes": 1773,
+      "sha256": "5bafbd901530bc4bb4b809fd60bd998a66e45d3a58bd06a1da4369c38aefd077"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/060-regional-livelihood.md",
+      "retained": "docs/references/novels/settings/030-society/060-regional-livelihood.md",
+      "bytes": 1865,
+      "sha256": "91f56e41d152a1b11057c4366c0dfdc3c6a6b51ed171b51ee1bfb09e7bdb4f7d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/070-household-burdens.md",
+      "retained": "docs/references/novels/settings/030-society/070-household-burdens.md",
+      "bytes": 2207,
+      "sha256": "2b37979abbc1e5c4968990478c78d93aa24a8bb303bb9b398c989d5292a168fa"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/080-private-armament.md",
+      "retained": "docs/references/novels/settings/030-society/080-private-armament.md",
+      "bytes": 2199,
+      "sha256": "c4c911b5d0ba42dca23bfe381fc0cad03e6c3f8f53c061ce09f162158847149d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/090-evacuation-and-denial.md",
+      "retained": "docs/references/novels/settings/030-society/090-evacuation-and-denial.md",
+      "bytes": 1638,
+      "sha256": "f17bf8ad9e84668053cc256f3b1019b070cff17c6b59b12c648de7bd5bea7af4"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/100-reconstruction-program.md",
+      "retained": "docs/references/novels/settings/030-society/100-reconstruction-program.md",
+      "bytes": 1868,
+      "sha256": "2c8294ae0473535f610637e1c91113997272388920425ca9720f0037feb2c32b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/110-different-malgal-communities.md",
+      "retained": "docs/references/novels/settings/030-society/110-different-malgal-communities.md",
+      "bytes": 1713,
+      "sha256": "916c69d131836496b63325c4efec51ec13b81ae96655050a23f3b34f2635018f"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/120-pastoral-malgal.md",
+      "retained": "docs/references/novels/settings/030-society/120-pastoral-malgal.md",
+      "bytes": 1948,
+      "sha256": "5a1a5f20f51bff271e3c6517e3ee17b11559d7fcc9dab8c5682188af506c27ea"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/130-border-retaliation.md",
+      "retained": "docs/references/novels/settings/030-society/130-border-retaliation.md",
+      "bytes": 1425,
+      "sha256": "47c021550111772e4c2a4d2044cf5e1f12b15b0acb65b6c4791b8bf258e8830f"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/140-eastern-incorporation.md",
+      "retained": "docs/references/novels/settings/030-society/140-eastern-incorporation.md",
+      "bytes": 2357,
+      "sha256": "01621229522114cfdaeb857f2884ceb465a14c40fd28f35abf8fcec185e1e637"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/150-jupilsan-prisoners.md",
+      "retained": "docs/references/novels/settings/030-society/150-jupilsan-prisoners.md",
+      "bytes": 2099,
+      "sha256": "5a9e9cfb467d32ecdedd02b3d81327ca6a9aa9c80014e592678b8fac64dd10f1"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/160-yeon-protection.md",
+      "retained": "docs/references/novels/settings/030-society/160-yeon-protection.md",
+      "bytes": 1898,
+      "sha256": "2229d9ecb8ff781656bf27ad754746db462c10be17827862031cbae5e8d50f5e"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/030-society/170-trusted-light-cavalry.md",
+      "retained": "docs/references/novels/settings/030-society/170-trusted-light-cavalry.md",
+      "bytes": 1926,
+      "sha256": "ffb9d88a76ac1dedf034379dbffdf69714a51cf338bc068d1187a2f86dcdb455"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/001-yeon-gaesomun.md",
+      "retained": "docs/references/novels/settings/040-agents/001-yeon-gaesomun.md",
+      "bytes": 25940,
+      "sha256": "62c760badaac1c713886abb90d7e8b2d4bb91ebcbe299f1b78b19e65a9dd0609"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/002-taejo.md",
+      "retained": "docs/references/novels/settings/040-agents/002-taejo.md",
+      "bytes": 4123,
+      "sha256": "20e7add171a1d56410cd7ad192ef79d67f2394acc7d560e55ee02fbb9aaa1ffe"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/003-jayu.md",
+      "retained": "docs/references/novels/settings/040-agents/003-jayu.md",
+      "bytes": 856,
+      "sha256": "ced8888a1eb681629084638184e148dfdf0341a587953c50074dac6cef5e8323"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/004-inheritance-opponents.md",
+      "retained": "docs/references/novels/settings/040-agents/004-inheritance-opponents.md",
+      "bytes": 2624,
+      "sha256": "3a6f34974a3611b1f4510aa0100b3d1bf3e6d68b81f5a060493bec94859692a0"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/005-taehak-participants.md",
+      "retained": "docs/references/novels/settings/040-agents/005-taehak-participants.md",
+      "bytes": 1055,
+      "sha256": "8c9ebf8ae2dc03b9dce0ce7821aa3339e84e83a7fffbb1523b37815f2e1dc31b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/006-taehak-pupils.md",
+      "retained": "docs/references/novels/settings/040-agents/006-taehak-pupils.md",
+      "bytes": 595,
+      "sha256": "cb9646aaac6897d3aba7bf82011474617238c11881924d810a40de90d91b2ad3"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/007-namsaeng.md",
+      "retained": "docs/references/novels/settings/040-agents/007-namsaeng.md",
+      "bytes": 6658,
+      "sha256": "4f3a363d583ba35971e07e5e96ef24794aca33b0418cca67c5f1c23b91d14489"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/008-namgeon.md",
+      "retained": "docs/references/novels/settings/040-agents/008-namgeon.md",
+      "bytes": 3290,
+      "sha256": "8672a34e6d212a405c5fa36a2ce913730c533ee5b6fd5c16a68ba09bc214a750"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/009-namsan.md",
+      "retained": "docs/references/novels/settings/040-agents/009-namsan.md",
+      "bytes": 3072,
+      "sha256": "075f60dbf301e989e233f6f1fbb8859929ff16a417c520a735673b50d03ef8ed"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/010-heonchung.md",
+      "retained": "docs/references/novels/settings/040-agents/010-heonchung.md",
+      "bytes": 2985,
+      "sha256": "f380aa0d308d7ad79d5a1a9e424f4dc10dc1987a45fe70b6bafe31cd69ba92b0"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/011-heonseong.md",
+      "retained": "docs/references/novels/settings/040-agents/011-heonseong.md",
+      "bytes": 2605,
+      "sha256": "e70a5bcd74b27d36ee84ad2bfc4008eca3df3b643ab9e0d255700058daf45891"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/012-pyeongwon.md",
+      "retained": "docs/references/novels/settings/040-agents/012-pyeongwon.md",
+      "bytes": 1370,
+      "sha256": "6866485bddffa4303684a72ea8e9a1cf7f92b9b8dcdddff306ec8ec0edb7457e"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/013-yeongyang.md",
+      "retained": "docs/references/novels/settings/040-agents/013-yeongyang.md",
+      "bytes": 2690,
+      "sha256": "6d927d1c4e9abfa3b0ba8db5ea49eb8514dcfdecb0a1cb923d8302804d13b41a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/014-daeyang.md",
+      "retained": "docs/references/novels/settings/040-agents/014-daeyang.md",
+      "bytes": 719,
+      "sha256": "b73c9a59b8e4126d643f420ef2d5c49ae932ecb1c883c0eb359a60d46694c0e3"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/015-geonmu.md",
+      "retained": "docs/references/novels/settings/040-agents/015-geonmu.md",
+      "bytes": 8132,
+      "sha256": "d45be02ad71c03bf9ad383006611de2bcba5149c1a3b7cb70e35f5c43fb7e71c"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/016-bojang.md",
+      "retained": "docs/references/novels/settings/040-agents/016-bojang.md",
+      "bytes": 3060,
+      "sha256": "742fe12457e93ea434bfc35646bd47138231b045ea2b8d522ae4e971488e56ae"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/017-royal-house-and-regions.md",
+      "retained": "docs/references/novels/settings/040-agents/017-royal-house-and-regions.md",
+      "bytes": 2617,
+      "sha256": "99682c29d111f1a2783a929da34fa7a8cfafa85f2aef58313b8627cf81888cea"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/018-namsaeng-messenger.md",
+      "retained": "docs/references/novels/settings/040-agents/018-namsaeng-messenger.md",
+      "bytes": 1952,
+      "sha256": "2d48c54b8432b6f5d1c6a47a04be841e6c61a8ed566027a7874022b616fe2b0a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/019-messenger-driver.md",
+      "retained": "docs/references/novels/settings/040-agents/019-messenger-driver.md",
+      "bytes": 864,
+      "sha256": "bd430b917aa7148951b2a923e5a81ba6b7dfde78ca8924e43797f810bf26c3e6"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/020-coup-receiver.md",
+      "retained": "docs/references/novels/settings/040-agents/020-coup-receiver.md",
+      "bytes": 1871,
+      "sha256": "d2f60eeadb3307bd7a318d576ba15b489e67e9f506164afe5e098fc061eb16d2"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/021-heonchung-attacker.md",
+      "retained": "docs/references/novels/settings/040-agents/021-heonchung-attacker.md",
+      "bytes": 1221,
+      "sha256": "4a7bef09f80026de7b07a9a2be21a2d1a79671950d9b390f7b060cd4b66a5f2d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/022-household-officer.md",
+      "retained": "docs/references/novels/settings/040-agents/022-household-officer.md",
+      "bytes": 1384,
+      "sha256": "55a1a33cc753732f12ed3fa41ad87f04c05732b7cd1c1d74c30200366aa80aeb"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/023-wounded-carriers.md",
+      "retained": "docs/references/novels/settings/040-agents/023-wounded-carriers.md",
+      "bytes": 1093,
+      "sha256": "8c295b9584df1206d2f70353c3ebb656c500efd77174772d5dbd3d71940cc3dd"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/024-heonchung-healer.md",
+      "retained": "docs/references/novels/settings/040-agents/024-heonchung-healer.md",
+      "bytes": 1411,
+      "sha256": "e7b6eb088d3485b422d3460de7d0ea6ed64277b54b87f1cfd835f1e17ed5c58c"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/025-goyeonsu.md",
+      "retained": "docs/references/novels/settings/040-agents/025-goyeonsu.md",
+      "bytes": 2145,
+      "sha256": "9a7fe57e722c24154af685354eed8634f5b1d0b00c980a4e6b7a9d5db645a7b2"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/026-gohyejin.md",
+      "retained": "docs/references/novels/settings/040-agents/026-gohyejin.md",
+      "bytes": 1611,
+      "sha256": "13733161403d89c187792c20ab1d2d9e0631ee4da5951e07a052359957ec7a37"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/027-gojeongui.md",
+      "retained": "docs/references/novels/settings/040-agents/027-gojeongui.md",
+      "bytes": 1387,
+      "sha256": "d19b94827654e31a12a3bf9f4f2133873901f7fcc5e83fc6bc674ad737c8d18d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/028-ansi-castellan.md",
+      "retained": "docs/references/novels/settings/040-agents/028-ansi-castellan.md",
+      "bytes": 1663,
+      "sha256": "9f1276c01906ca66765364f69cdcdf9acad708efb31aaa179ac173656405181f"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/029-sokro.md",
+      "retained": "docs/references/novels/settings/040-agents/029-sokro.md",
+      "bytes": 2872,
+      "sha256": "f3979d9ca2bd285b5a4c4595906b8b989f255f65081f62b7d263f7810ea0db2a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/030-miran.md",
+      "retained": "docs/references/novels/settings/040-agents/030-miran.md",
+      "bytes": 2204,
+      "sha256": "df72eb0edcec9baa8822ac0d3e7fbddf0d36e83adb2fbbbf0e0812dbb480b3fc"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/031-seokbu.md",
+      "retained": "docs/references/novels/settings/040-agents/031-seokbu.md",
+      "bytes": 2107,
+      "sha256": "25fa718876aaa0826554a6a488e91f33439954157b344163cb7534a6eb30c59b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/032-go-hwi-flight.md",
+      "retained": "docs/references/novels/settings/040-agents/032-go-hwi-flight.md",
+      "bytes": 3181,
+      "sha256": "dd1a624fbb9227e247e378101cd480535cba5362af89a7e368608d4d4c018de2"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/033-east-gate-officer.md",
+      "retained": "docs/references/novels/settings/040-agents/033-east-gate-officer.md",
+      "bytes": 1474,
+      "sha256": "63d564faaf1484f5fed542504e0cd558342e2433b41faf1173a0437f0461d2a4"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/034-yu-hye-gate-household.md",
+      "retained": "docs/references/novels/settings/040-agents/034-yu-hye-gate-household.md",
+      "bytes": 1745,
+      "sha256": "3bdbc6d98c6938738908e2827e5321774b154e9b326f9e3cb3c38dc761fce609"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/035-haeeun.md",
+      "retained": "docs/references/novels/settings/040-agents/035-haeeun.md",
+      "bytes": 2167,
+      "sha256": "a476c02878c8c23e762c22894cfac208c42372b86cd48cf85da13bc1643354c1"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/036-eastern-instructor.md",
+      "retained": "docs/references/novels/settings/040-agents/036-eastern-instructor.md",
+      "bytes": 1528,
+      "sha256": "922a073a799dda1392c2a7f2d628d4d7652cc8b2e3dd6d3bb0ce63e929bd539d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/037-community-head.md",
+      "retained": "docs/references/novels/settings/040-agents/037-community-head.md",
+      "bytes": 1561,
+      "sha256": "794af01fac2066c042006a44d74cb1b7d068bfe087bfa0d1bd4c3ca734489ff5"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/038-nallo.md",
+      "retained": "docs/references/novels/settings/040-agents/038-nallo.md",
+      "bytes": 1210,
+      "sha256": "fb11860b8424d7676ed153715138a9220767446d712a4ce7700759fa6c230588"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/039-nuri.md",
+      "retained": "docs/references/novels/settings/040-agents/039-nuri.md",
+      "bytes": 2338,
+      "sha256": "bb682811a614bccc9bd12396940d9c42e9c00feda9f8b7b78588cde59573ad0e"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/040-janggeun.md",
+      "retained": "docs/references/novels/settings/040-agents/040-janggeun.md",
+      "bytes": 1247,
+      "sha256": "69d07771186ab53f29c5342c96761b876f1264245a4a611082fc2d539135bbc7"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/041-seou.md",
+      "retained": "docs/references/novels/settings/040-agents/041-seou.md",
+      "bytes": 1155,
+      "sha256": "2b1d5b2bdadb09fc219bb9a4cb64504b619e1cc090f284fbaffaf85516449304"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/042-chamu.md",
+      "retained": "docs/references/novels/settings/040-agents/042-chamu.md",
+      "bytes": 1110,
+      "sha256": "4927f7bf094020343d77fbcf0c1331da36c226862a8136b92a0725433cc4e1e3"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/043-gubin.md",
+      "retained": "docs/references/novels/settings/040-agents/043-gubin.md",
+      "bytes": 1205,
+      "sha256": "e655e7b6e5c38af6b8bfd9c6dd603ba6dd8e5eac3f53a469577e8f4db3a16cbb"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/044-gotak.md",
+      "retained": "docs/references/novels/settings/040-agents/044-gotak.md",
+      "bytes": 1085,
+      "sha256": "8bf0dfc13383a2387cf997232bcb1930aa08172678ad30906be4e664ce23c17b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/045-nyuil.md",
+      "retained": "docs/references/novels/settings/040-agents/045-nyuil.md",
+      "bytes": 1262,
+      "sha256": "86230318aaf99e5b5d93bcb1ace3ca3d2844490c417316466d379426ea6fc1fa"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/046-taizong.md",
+      "retained": "docs/references/novels/settings/040-agents/046-taizong.md",
+      "bytes": 2331,
+      "sha256": "476f622007c7d68b18d942bab1c2dd0dbc1c0c1197618d8c545b5f4165a3b4d6"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/047-gaozong.md",
+      "retained": "docs/references/novels/settings/040-agents/047-gaozong.md",
+      "bytes": 2046,
+      "sha256": "efa55e9b56510bb053c1507540ef3fee26bc8b946d7b5e15e38c52d6c30f365d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/048-li-shiji.md",
+      "retained": "docs/references/novels/settings/040-agents/048-li-shiji.md",
+      "bytes": 1891,
+      "sha256": "05d9ad15dd338ceb2668c38bf3170f0611f3b103f8462a887d0b754d3f9fe91c"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/049-zhangsun-wuji.md",
+      "retained": "docs/references/novels/settings/040-agents/049-zhangsun-wuji.md",
+      "bytes": 1470,
+      "sha256": "490df02aacf180f9463d9281b846df7390eddfff4e350f8ff442400d4f973b34"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/050-su-dingfang.md",
+      "retained": "docs/references/novels/settings/040-agents/050-su-dingfang.md",
+      "bytes": 1830,
+      "sha256": "eaf57dcad1eb4d44fe8f96d61bac5223df950c85d1bb4d754b137b04cfe03516"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/051-pang-xiaotai.md",
+      "retained": "docs/references/novels/settings/040-agents/051-pang-xiaotai.md",
+      "bytes": 1408,
+      "sha256": "13fcf0e0552fa7a88fa76e7bff5ad986b97182c6ee49c80ad981d60792f577fb"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/052-pang-sons.md",
+      "retained": "docs/references/novels/settings/040-agents/052-pang-sons.md",
+      "bytes": 1149,
+      "sha256": "53a5437e09712b8af0b06238911d5aefb97aace342c2d5abdf93b3712b088d1c"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/053-ren-yaxiang.md",
+      "retained": "docs/references/novels/settings/040-agents/053-ren-yaxiang.md",
+      "bytes": 1402,
+      "sha256": "b72c6c175973227c1741e98413781c86e64f9130aea39a7aea0ed2e9f18d8929"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/054-qibi-heli.md",
+      "retained": "docs/references/novels/settings/040-agents/054-qibi-heli.md",
+      "bytes": 2654,
+      "sha256": "cd993513b33addca3adf2af05da4ff89ff804f0a13585cdd49827899e389cc09"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/055-ashina-sheer.md",
+      "retained": "docs/references/novels/settings/040-agents/055-ashina-sheer.md",
+      "bytes": 1632,
+      "sha256": "e22889bb559256650f2ebaebcc3db4a1e46b5239be26d7707bcf222a94d6eb95"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/056-ashina-zhong.md",
+      "retained": "docs/references/novels/settings/040-agents/056-ashina-zhong.md",
+      "bytes": 1208,
+      "sha256": "15344c5ae06a5a98b4dd0a3ab1f9c32032137757f47a03dfd507a39f2a8a5e40"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/057-zhishi-sili.md",
+      "retained": "docs/references/novels/settings/040-agents/057-zhishi-sili.md",
+      "bytes": 839,
+      "sha256": "c2b32c971a5668b6e8dc112b5c1e4b0c7709704c29f536128d15ad9b2df8f728"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/058-zheng-mingzhen.md",
+      "retained": "docs/references/novels/settings/040-agents/058-zheng-mingzhen.md",
+      "bytes": 1483,
+      "sha256": "e5b6d766ead0daaccc8cbb51b9975b78696b3f69c986e6af1915d13d670eb694"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/059-xiao-siye.md",
+      "retained": "docs/references/novels/settings/040-agents/059-xiao-siye.md",
+      "bytes": 1329,
+      "sha256": "e52f20615592b1f1e5603b18ec54137e00f84f765b62223e13a43ea3fb80b8c2"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/060-zhang-liang.md",
+      "retained": "docs/references/novels/settings/040-agents/060-zhang-liang.md",
+      "bytes": 1352,
+      "sha256": "92a91fe775e25d9a158bd9bd0d3d7fad7717c568bb1d650b39bad0abbdca91c9"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/061-zhang-jinshu.md",
+      "retained": "docs/references/novels/settings/040-agents/061-zhang-jinshu.md",
+      "bytes": 1302,
+      "sha256": "08a31b8222512e9d117f1553a56ece44fafc63930478ff4f4ffbf0761843f70a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/062-xue-rengui.md",
+      "retained": "docs/references/novels/settings/040-agents/062-xue-rengui.md",
+      "bytes": 1835,
+      "sha256": "9bfad0d0184aa7aca9c7bddd9d3b6acb7df8f9af67557a4164d4f2c318201e6b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/063-niu-jinda.md",
+      "retained": "docs/references/novels/settings/040-agents/063-niu-jinda.md",
+      "bytes": 896,
+      "sha256": "3aeaec351952b001cf521fc72ed1fb9c41ae5787e0d5950f0dc8cbad9da0ec9a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/064-yang-o-receiver.md",
+      "retained": "docs/references/novels/settings/040-agents/064-yang-o-receiver.md",
+      "bytes": 1380,
+      "sha256": "9c359a6c67a49e40902f9eaa80598b37504e27fae40cc3528019aa71857ca750"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/065-yang-o-porters.md",
+      "retained": "docs/references/novels/settings/040-agents/065-yang-o-porters.md",
+      "bytes": 953,
+      "sha256": "99d1239361b9ba37ba23a4db7d1aa2f44e3aed23e4547dbddfb53ff7db323e18"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/066-kim-yusin.md",
+      "retained": "docs/references/novels/settings/040-agents/066-kim-yusin.md",
+      "bytes": 3162,
+      "sha256": "96270a15670177215414412bde8daaa283709b13bd50274b6211e3cc4d2caa15"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/067-kim-inmun.md",
+      "retained": "docs/references/novels/settings/040-agents/067-kim-inmun.md",
+      "bytes": 1595,
+      "sha256": "ebc674d5861d89388ef76dff92b7fb5ade9387d9f014fec1773967cf029ac5f1"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/068-kim-yangdo.md",
+      "retained": "docs/references/novels/settings/040-agents/068-kim-yangdo.md",
+      "bytes": 1464,
+      "sha256": "a922105f0d770f64c748c699c978f404b50ace0f1b424f99daae35724815348f"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/069-kim-chunchu.md",
+      "retained": "docs/references/novels/settings/040-agents/069-kim-chunchu.md",
+      "bytes": 1063,
+      "sha256": "c5eb216dff2631387dc43bc272a1e3b3dda2c613f8d3b72f38b363d54df9ac2c"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/070-munmu.md",
+      "retained": "docs/references/novels/settings/040-agents/070-munmu.md",
+      "bytes": 1615,
+      "sha256": "8895c2b47927fac7e52db6c6ac7f52ab457afaad2c6c8ab3263aa5df8e73d63f"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/071-boksin.md",
+      "retained": "docs/references/novels/settings/040-agents/071-boksin.md",
+      "bytes": 1838,
+      "sha256": "0ec2410d061268d5d5bb98a46dc0848847c7b78da9fed5725d68903c30bbb664"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/072-buyeo-pung.md",
+      "retained": "docs/references/novels/settings/040-agents/072-buyeo-pung.md",
+      "bytes": 1801,
+      "sha256": "93d3fc00c8ec81832f9aea4f35e75b8ba7512fee434c8fa10d882229d44c5172"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/073-yamato-support.md",
+      "retained": "docs/references/novels/settings/040-agents/073-yamato-support.md",
+      "bytes": 2050,
+      "sha256": "22760336bfff9c7ebe0a74ce6c1088c27a55b5962aadd743dfc44d5a2e6af5d1"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/074-chano.md",
+      "retained": "docs/references/novels/settings/040-agents/074-chano.md",
+      "bytes": 1909,
+      "sha256": "1e817294f6ac073272ee1da4034cd6e563071bc69fb14bfecbfd95fdec0b73f0"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/075-pung-wife.md",
+      "retained": "docs/references/novels/settings/040-agents/075-pung-wife.md",
+      "bytes": 1277,
+      "sha256": "543d9d5840f4d53760a0f5885495381c74f45b17f91a55940bd2f197e57c1c03"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/076-ta-shikibu.md",
+      "retained": "docs/references/novels/settings/040-agents/076-ta-shikibu.md",
+      "bytes": 774,
+      "sha256": "9eff4b463d9793d10c297b882109c66139a05c94632a02d36a8fbc115a873d1d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/077-guidol.md",
+      "retained": "docs/references/novels/settings/040-agents/077-guidol.md",
+      "bytes": 1263,
+      "sha256": "7b9779b1db40695d61c927ca9ad9f21cadbed1d940644fce29dd84e1e3233f4b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/078-ajin.md",
+      "retained": "docs/references/novels/settings/040-agents/078-ajin.md",
+      "bytes": 1267,
+      "sha256": "613ce69550fefd5b0540a6d530c78a3f79dcac87a78bd7359cd3bc695bfcddc3"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/079-yeolgi.md",
+      "retained": "docs/references/novels/settings/040-agents/079-yeolgi.md",
+      "bytes": 749,
+      "sha256": "51b305ffd83b21cabc937b770e7d7a20eb8dc70d1ba9a10b909091da3c5d5e62"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/080-gugeun.md",
+      "retained": "docs/references/novels/settings/040-agents/080-gugeun.md",
+      "bytes": 725,
+      "sha256": "47b3b9ec77b58cf67c63ec156550603ccabbd8f472e8da57c20c9088e562b961"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/081-pumil.md",
+      "retained": "docs/references/novels/settings/040-agents/081-pumil.md",
+      "bytes": 742,
+      "sha256": "c27abaac191d6c679c6b5b8a441e642340a75b30a2002d30e5cd17a85370a771"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/082-gungwan.md",
+      "retained": "docs/references/novels/settings/040-agents/082-gungwan.md",
+      "bytes": 655,
+      "sha256": "7304f1bd0a5ba73fe0c30d1003584b15a70604efefe831fd3741de5c7978c9ce"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/083-munyeong.md",
+      "retained": "docs/references/novels/settings/040-agents/083-munyeong.md",
+      "bytes": 710,
+      "sha256": "8004513984cb6434cfd2d949dfc95143749b6c305a463f261e7eac89abbd3add"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/084-ondal.md",
+      "retained": "docs/references/novels/settings/040-agents/084-ondal.md",
+      "bytes": 2455,
+      "sha256": "b5877e932da5de19928d51ca42ecfaf49f679ed4376613b6a617b85dffedc403"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/085-sinseong-monk.md",
+      "retained": "docs/references/novels/settings/040-agents/085-sinseong-monk.md",
+      "bytes": 1905,
+      "sha256": "e8f292efb3dc94fa52013f73e6822d073c0d6ce9871d9b253de03d3dd2868bb1"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/086-osa.md",
+      "retained": "docs/references/novels/settings/040-agents/086-osa.md",
+      "bytes": 1806,
+      "sha256": "a574ffb1a9ab935a51cc5507068376ddf1d0277fd29e443f1b30888ccd069b9a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/087-yomyo.md",
+      "retained": "docs/references/novels/settings/040-agents/087-yomyo.md",
+      "bytes": 1618,
+      "sha256": "f3d3bc46cc1be7b68f6c119d363aef8e46e93d43b6a8df3965bb49db6f936c82"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/088-onsamun.md",
+      "retained": "docs/references/novels/settings/040-agents/088-onsamun.md",
+      "bytes": 1303,
+      "sha256": "1abc89b4377578f1ed443e58886fa6d3c37ebcfc01007eb4461cba1e0047f178"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/089-chugun.md",
+      "retained": "docs/references/novels/settings/040-agents/089-chugun.md",
+      "bytes": 877,
+      "sha256": "2673b26f1ebe279f86e25e2ba18c48e5a18ba20aea90c15d913ae911c21aae31"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/090-segun.md",
+      "retained": "docs/references/novels/settings/040-agents/090-segun.md",
+      "bytes": 679,
+      "sha256": "1200d0d04d45f8732262cff26baf00eca682876b9dfd781f069e93a61cb261f7"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/091-silla-exiles.md",
+      "retained": "docs/references/novels/settings/040-agents/091-silla-exiles.md",
+      "bytes": 918,
+      "sha256": "0467f42789c96b1c9a7732c34d94c30fb76108b37a58abe674c5f061511558f0"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/092-baekje-exiles.md",
+      "retained": "docs/references/novels/settings/040-agents/092-baekje-exiles.md",
+      "bytes": 653,
+      "sha256": "35f3ef6814d4a5f55aa6dcb62eb1fdcb63b5c9e62ee777b8fa5fab9787598443"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/093-zhou-wudi.md",
+      "retained": "docs/references/novels/settings/040-agents/093-zhou-wudi.md",
+      "bytes": 820,
+      "sha256": "537e56e86e1f765f0f398ac7b142de045597b2ba4aa435624959093b767d23f6"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/094-sui-wendi.md",
+      "retained": "docs/references/novels/settings/040-agents/094-sui-wendi.md",
+      "bytes": 876,
+      "sha256": "55415ed0ab6928fe943d34e91aef8bc85be572702201433d9386eea1bf6421f8"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/095-zhou-fashang.md",
+      "retained": "docs/references/novels/settings/040-agents/095-zhou-fashang.md",
+      "bytes": 799,
+      "sha256": "adddd0f18d71392009656ef93cd3dd1d5a59a39ce444d6b15b5cd09e3775c1e9"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/096-dolji-gye.md",
+      "retained": "docs/references/novels/settings/040-agents/096-dolji-gye.md",
+      "bytes": 873,
+      "sha256": "557d6e0d4e072a71c97050cb57674ba2252c5f1323ca7f4210f0aff669e900d9"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/097-sui-yangdi.md",
+      "retained": "docs/references/novels/settings/040-agents/097-sui-yangdi.md",
+      "bytes": 982,
+      "sha256": "4e436b2adba251b67e6c1560036834e5877b3f4c2759e30a3f5442b85dd1e6bb"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/098-lai-huer.md",
+      "retained": "docs/references/novels/settings/040-agents/098-lai-huer.md",
+      "bytes": 975,
+      "sha256": "f29d0190bb292470b8c524dab55c5ec93eeef3a580d1b734df7b9eafc78b8792"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/099-husi-zheng.md",
+      "retained": "docs/references/novels/settings/040-agents/099-husi-zheng.md",
+      "bytes": 737,
+      "sha256": "918e9a6a6b33a4453256bbacad9e1fffb14cef0fce91f0af159cdce29b5426da"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/100-chen-dade.md",
+      "retained": "docs/references/novels/settings/040-agents/100-chen-dade.md",
+      "bytes": 730,
+      "sha256": "bb6af85e4a082f25e226b82a316f44f138026dad0180fbd0bdf1a50911ee8f8e"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/101-chuluo-khagan.md",
+      "retained": "docs/references/novels/settings/040-agents/101-chuluo-khagan.md",
+      "bytes": 777,
+      "sha256": "fa6a671e56fa506d489141e4f4ef60d3db978c6896d9a892626904f2cff91cca"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/102-go-seung.md",
+      "retained": "docs/references/novels/settings/040-agents/102-go-seung.md",
+      "bytes": 736,
+      "sha256": "0091c5f75a8a28bd7608c839b7cee8ad0abd99f907a9e4fd9d3ea62e08fbbe63"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/103-jinpyeong.md",
+      "retained": "docs/references/novels/settings/040-agents/103-jinpyeong.md",
+      "bytes": 713,
+      "sha256": "a2875ef4802cc859a0dbb3a3bc90f7696506c919b8ae8f23ae44874ec1704ba0"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/104-dongtacheon.md",
+      "retained": "docs/references/novels/settings/040-agents/104-dongtacheon.md",
+      "bytes": 744,
+      "sha256": "e741f7cc5adb28b479c999b280b77869980e50bccfb04569c5576c0c365d0b7b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/105-noeumsin.md",
+      "retained": "docs/references/novels/settings/040-agents/105-noeumsin.md",
+      "bytes": 715,
+      "sha256": "aa2bc7088fadebfe1ac1fd26815231a3892944de3e9a18073ec392dd6177b0ed"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/106-saenghae.md",
+      "retained": "docs/references/novels/settings/040-agents/106-saenghae.md",
+      "bytes": 683,
+      "sha256": "39a5f5dd6e02bf240667a4dfc88b30906e9133590e5aa3f3080c3c6e71618423"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/107-seongwang.md",
+      "retained": "docs/references/novels/settings/040-agents/107-seongwang.md",
+      "bytes": 747,
+      "sha256": "3e5594197bc91fb6f96dc8afd6800042a586d02214ffa20a3c77b16060b54607"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/108-mu-baekje.md",
+      "retained": "docs/references/novels/settings/040-agents/108-mu-baekje.md",
+      "bytes": 780,
+      "sha256": "b017b5bcaf43373527af80f44e0619847b30333ad0fe265fbdf85bd3b03c9ef0"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/109-uija.md",
+      "retained": "docs/references/novels/settings/040-agents/109-uija.md",
+      "bytes": 880,
+      "sha256": "ac39b7fe6c3a9bb8d8bde41aea6258b21a47adf3acc51e875c69092571240a8b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/110-go-hwi-wife.md",
+      "retained": "docs/references/novels/settings/040-agents/110-go-hwi-wife.md",
+      "bytes": 1161,
+      "sha256": "857e0b0f0e4e2c5fc8e959f02fab9e18b088b29d3b44c38f25fcdc2a142ee373"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/111-go-hwi-daughter.md",
+      "retained": "docs/references/novels/settings/040-agents/111-go-hwi-daughter.md",
+      "bytes": 986,
+      "sha256": "0db92e8ea921f2ddacd111a170fe21941dda6b9b502a383bd45142ac72a33cf2"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/112-yeon-mother.md",
+      "retained": "docs/references/novels/settings/040-agents/112-yeon-mother.md",
+      "bytes": 3049,
+      "sha256": "1fa68bb2c0b56568c69ef6c822ff3f8d9bd4c6dec16d06528d6e0f8b2793d3a5"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/113-yeon-jeongto.md",
+      "retained": "docs/references/novels/settings/040-agents/113-yeon-jeongto.md",
+      "bytes": 2921,
+      "sha256": "d49ffc2288a07443491159cc632048a07c3049bac37d27c8ad6cc4b202173c2d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/114-gyeongdang-teacher.md",
+      "retained": "docs/references/novels/settings/040-agents/114-gyeongdang-teacher.md",
+      "bytes": 2464,
+      "sha256": "9135ecffbec92c0e7ce0e9921650062fc1229efd371e5af55642f1ebfd375175"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/115-eulbo.md",
+      "retained": "docs/references/novels/settings/040-agents/115-eulbo.md",
+      "bytes": 3222,
+      "sha256": "8becf2b0d727f9b26fabf094a476a4acb5ada406bf82b6848eacbf95c5c26e98"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/116-gyeongdang-children.md",
+      "retained": "docs/references/novels/settings/040-agents/116-gyeongdang-children.md",
+      "bytes": 1509,
+      "sha256": "e1ed181fac5b20ca4d7a63f8c08da6824bb5db9f6c5190815c76891647e7f5dc"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/117-seogu.md",
+      "retained": "docs/references/novels/settings/040-agents/117-seogu.md",
+      "bytes": 3524,
+      "sha256": "c8df06b571fe417b5fc2b3398ad5399bd2cf8243ee105bd96f995c70a6cd7fc8"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/118-yeon-wife.md",
+      "retained": "docs/references/novels/settings/040-agents/118-yeon-wife.md",
+      "bytes": 3808,
+      "sha256": "f2b36dab2b9fb2d3ea85070b223f91f3e437ca4b175c362f4f7865c350b38c93"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/040-agents/119-yeon-house-soldiers.md",
+      "retained": "docs/references/novels/settings/040-agents/119-yeon-house-soldiers.md",
+      "bytes": 3188,
+      "sha256": "605a806ab49655751488fa65314542da6b6fc6a58ffc325eea6c08ce50691f34"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/010-tang-military-confidence.md",
+      "retained": "docs/references/novels/settings/050-systems/010-tang-military-confidence.md",
+      "bytes": 6382,
+      "sha256": "deab4b03512f8f724f5bd5cc19d568698a0696c74f8572a1c00599c7ecaa5b92"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/020-goguryeo-force-system.md",
+      "retained": "docs/references/novels/settings/050-systems/020-goguryeo-force-system.md",
+      "bytes": 3537,
+      "sha256": "05777688fe21a3e0573bb8e13720e83c8a74f7e1afdd9181b17fa1c228ddaa3e"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/030-six-fronts-strength.md",
+      "retained": "docs/references/novels/settings/050-systems/030-six-fronts-strength.md",
+      "bytes": 3518,
+      "sha256": "a24844384530d05bdacddd616f74de2ccf47d0ce1641edc5e546b348969b00b6"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/035-late-spring-661-decision.md",
+      "retained": "docs/references/novels/settings/050-systems/035-late-spring-661-decision.md",
+      "bytes": 8584,
+      "sha256": "116121a4fdb1a9115f04ba3bbe8a575eb3ede7bf2f8c8084c9230e3661516bd7"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/040-goguryeo-661-strength.md",
+      "retained": "docs/references/novels/settings/050-systems/040-goguryeo-661-strength.md",
+      "bytes": 5587,
+      "sha256": "ea33cb410eb83f597fcfd3c6b63500dd37fd6ee62525ec900b5dbeb0ee2ff749"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/050-forced-field-war.md",
+      "retained": "docs/references/novels/settings/050-systems/050-forced-field-war.md",
+      "bytes": 3852,
+      "sha256": "bf6448986f553cc2b73b3ba706a985dfb58e003d0fcb2ca2f4a4463a81cbd04b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/060-tactics-and-operational-defeat.md",
+      "retained": "docs/references/novels/settings/050-systems/060-tactics-and-operational-defeat.md",
+      "bytes": 1354,
+      "sha256": "2afa5b94f1773f4818ed80dd9b30ba70fc1e3543b8a0cf959334f12507d8bdf7"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/070-pyongyang-isolation.md",
+      "retained": "docs/references/novels/settings/050-systems/070-pyongyang-isolation.md",
+      "bytes": 1735,
+      "sha256": "e3540a7d571c76deeefb1930833350667b0c0ff9e639e88adda2d9858b50a320"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/080-yalu-delay-and-loss.md",
+      "retained": "docs/references/novels/settings/050-systems/080-yalu-delay-and-loss.md",
+      "bytes": 1462,
+      "sha256": "dd390278832894ecd3e59ff3756f89bc09c457f8f0c49d7bc217d45e53e67042"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/090-northern-diversion.md",
+      "retained": "docs/references/novels/settings/050-systems/090-northern-diversion.md",
+      "bytes": 2657,
+      "sha256": "f0a20b163d96cfaebc24c33681ebea9b9b24588caef1adbac4f643667eb68428"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/100-counterattack-concentration.md",
+      "retained": "docs/references/novels/settings/050-systems/100-counterattack-concentration.md",
+      "bytes": 2239,
+      "sha256": "20b097f99f86ee1ce5097b80b61b2d60364a2a2ea0ec08be1ac7a6884e7287b0"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/110-ren-yaxiang-defeat.md",
+      "retained": "docs/references/novels/settings/050-systems/110-ren-yaxiang-defeat.md",
+      "bytes": 1825,
+      "sha256": "d17714d38478ca40902e2c5479626720814786a0f6b169ced5b2e013a101471d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/120-sasu-battle.md",
+      "retained": "docs/references/novels/settings/050-systems/120-sasu-battle.md",
+      "bytes": 2899,
+      "sha256": "e331285bbe37292c4935dab015e4ab31fc6ad5cea12ff3314f573f4c593103ff"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/130-second-war-losses.md",
+      "retained": "docs/references/novels/settings/050-systems/130-second-war-losses.md",
+      "bytes": 3142,
+      "sha256": "087c7f01554f61fe53949ab2e3aefe39f0afd590c6a424b40a91cf01dc819a66"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/140-supply-route.md",
+      "retained": "docs/references/novels/settings/050-systems/140-supply-route.md",
+      "bytes": 1961,
+      "sha256": "a62b29bd8c9864706313f922f89a226006bbd0d70d928a526258c6e627a7d979"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/150-transport-column.md",
+      "retained": "docs/references/novels/settings/050-systems/150-transport-column.md",
+      "bytes": 2175,
+      "sha256": "8421ca7889a59dcb2abc908d4b8dae9e59437bca03290156f3fd9d5d36f91f9a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/160-grain-and-rations.md",
+      "retained": "docs/references/novels/settings/050-systems/160-grain-and-rations.md",
+      "bytes": 2320,
+      "sha256": "8ceff6ef8153456caec7d16599550ceff063be7a27e3f7b40d746f32fc2e33cf"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/170-return-and-pursuit.md",
+      "retained": "docs/references/novels/settings/050-systems/170-return-and-pursuit.md",
+      "bytes": 1994,
+      "sha256": "25a69a6c58a3b89368636efe22b536f3ed1fc9ed7d7e7a2dbc3b86cd514f3786"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/180-winter-human-cost.md",
+      "retained": "docs/references/novels/settings/050-systems/180-winter-human-cost.md",
+      "bytes": 2318,
+      "sha256": "028db2e946daeee70761a483d0831f5a9e6e065d298ad3c57ac56aa38cbdfe48"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/190-645-relief-army.md",
+      "retained": "docs/references/novels/settings/050-systems/190-645-relief-army.md",
+      "bytes": 1881,
+      "sha256": "4f886b68776a5ffb91a04b12e23885b60b681ef1e4883d4c82676c45cf3eb54b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/200-jupilsan-defeat.md",
+      "retained": "docs/references/novels/settings/050-systems/200-jupilsan-defeat.md",
+      "bytes": 3587,
+      "sha256": "9561a5d29082b23b4a4ae0ddba1be48f9c96b1948e8b33464ea1d062a5bf0f10"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/210-ansi-defence.md",
+      "retained": "docs/references/novels/settings/050-systems/210-ansi-defence.md",
+      "bytes": 1650,
+      "sha256": "b7af6a9dccc1c5bbebbc6f3bcddd364f30224b46b36a42b22c6c51eea13fa972"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/220-645-naval-failure.md",
+      "retained": "docs/references/novels/settings/050-systems/220-645-naval-failure.md",
+      "bytes": 1829,
+      "sha256": "8b2c6e2a11aca23c5aae77227696d713479c4754fc46d39d620f26bd7139ad97"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/230-first-war-outcome.md",
+      "retained": "docs/references/novels/settings/050-systems/230-first-war-outcome.md",
+      "bytes": 3162,
+      "sha256": "5e9d32a7ae55fefde2211037d348af9cc06f05be0698672e6801a30462ab7315"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/235-field-records-after-645.md",
+      "retained": "docs/references/novels/settings/050-systems/235-field-records-after-645.md",
+      "bytes": 7496,
+      "sha256": "6b255b29f3b8b29166fbca433d894356cbea5627d71eedc0700c6f34bc332c43"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/240-642-coup.md",
+      "retained": "docs/references/novels/settings/050-systems/240-642-coup.md",
+      "bytes": 2691,
+      "sha256": "767dc2c07dbf07fe2a6cb35a0ceb8565beca7233a67e918ea1c94c5834c973f4"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/250-succession-665.md",
+      "retained": "docs/references/novels/settings/050-systems/250-succession-665.md",
+      "bytes": 1792,
+      "sha256": "218fb5fbff1b3517e93ba46164e9efd42103a9abed37ddcf8d2e3a145943f531"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/260-666-coup.md",
+      "retained": "docs/references/novels/settings/050-systems/260-666-coup.md",
+      "bytes": 2323,
+      "sha256": "d32834d028403330c27c2ecf17fc7ebc52f4b86d8f1440873a74c03e436ea65a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/270-heonchung-injury.md",
+      "retained": "docs/references/novels/settings/050-systems/270-heonchung-injury.md",
+      "bytes": 1775,
+      "sha256": "de3d5ac4c5f215a9f3a0515a3b4644713fb2edbd56bf429bf79d5e7e5b35cee0"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/280-namsaeng-defection.md",
+      "retained": "docs/references/novels/settings/050-systems/280-namsaeng-defection.md",
+      "bytes": 1765,
+      "sha256": "98f0c168cbdcb0636f5f52e8ef23f90c56590bdb1df776e8fece91905e2b4a3c"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/290-baekje-restoration-war.md",
+      "retained": "docs/references/novels/settings/050-systems/290-baekje-restoration-war.md",
+      "bytes": 4732,
+      "sha256": "60657c73e0e0c45b9345ebddb53c8fd2c2a436dee33064fafd599d5594244992"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/300-baekgang-battle.md",
+      "retained": "docs/references/novels/settings/050-systems/300-baekgang-battle.md",
+      "bytes": 1739,
+      "sha256": "b6aa8aa414430e403626f6970002aa843fd8e4c534e001347a7332270b128dfc"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/310-664-dolsa.md",
+      "retained": "docs/references/novels/settings/050-systems/310-664-dolsa.md",
+      "bytes": 1349,
+      "sha256": "60c7969f327b5e282a8a9380ebd29a313247542707ca2a5dd4a7de78910ec78d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/320-southern-power-after-baekgang.md",
+      "retained": "docs/references/novels/settings/050-systems/320-southern-power-after-baekgang.md",
+      "bytes": 2218,
+      "sha256": "0c91b1772d38ccddc02746bc786aa38ae7c55fc88526b9a09c4010d9da27fb3b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/330-third-war.md",
+      "retained": "docs/references/novels/settings/050-systems/330-third-war.md",
+      "bytes": 1459,
+      "sha256": "1fac0dcbd807b89179d0602d42f9b424e93e6d50e8159230ef9c5cafad5ce712"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/340-pyongyang-fall.md",
+      "retained": "docs/references/novels/settings/050-systems/340-pyongyang-fall.md",
+      "bytes": 2276,
+      "sha256": "fbefb436eb686e729730b3d76bd6e3e932bbecc89fce3bc6d92a3319bc5772f7"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/350-forced-migration.md",
+      "retained": "docs/references/novels/settings/050-systems/350-forced-migration.md",
+      "bytes": 1797,
+      "sha256": "1a6e386cbc27b34dcc3bb68d37f44c3fb00e7d6927ad6a48f076109f5a0dac63"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/360-post-conquest-rule.md",
+      "retained": "docs/references/novels/settings/050-systems/360-post-conquest-rule.md",
+      "bytes": 1891,
+      "sha256": "9afd1b915299460296dd421acaa3b6db41dd8a14fe95a98fe41979b191ae2507"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/050-systems/370-afterlife-of-kingdom.md",
+      "retained": "docs/references/novels/settings/050-systems/370-afterlife-of-kingdom.md",
+      "bytes": 1932,
+      "sha256": "65db1117a8b10b18fc86de661fdfb5022a2f54df782e653b686b196bd725caff"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/010-pyeongyang-palace.md",
+      "retained": "docs/references/novels/settings/060-places/010-pyeongyang-palace.md",
+      "bytes": 2962,
+      "sha256": "5c7a00414e70c3312e4a2a37914532cc3e4b1217e8226ee937ef28c4275ba6e8"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/020-yeon-residence.md",
+      "retained": "docs/references/novels/settings/060-places/020-yeon-residence.md",
+      "bytes": 4722,
+      "sha256": "0d74acf4ced9155aa764e9f57010403554c626ffedb5b996cfc565e4f1824d7a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/030-taehak-place.md",
+      "retained": "docs/references/novels/settings/060-places/030-taehak-place.md",
+      "bytes": 2035,
+      "sha256": "de19c6e6f342c6f3490908cdc1dda57ccff6fb93dea57ba7d715b70e11ed0b2a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/040-pyongyang-east-route.md",
+      "retained": "docs/references/novels/settings/060-places/040-pyongyang-east-route.md",
+      "bytes": 3734,
+      "sha256": "d5e1b358c5a9ec0b3a044d65e6a066d989509875177e92d4c0b9065cddd26741"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/050-pyongyang-west-gate.md",
+      "retained": "docs/references/novels/settings/060-places/050-pyongyang-west-gate.md",
+      "bytes": 2195,
+      "sha256": "1831d989ff89c8fc835384b5de3694d407a2489fbba270d607996e9b4b44bef0"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/060-gungnae.md",
+      "retained": "docs/references/novels/settings/060-places/060-gungnae.md",
+      "bytes": 1996,
+      "sha256": "2b6c0079004a5ce778d8d44a4f280f5b5232785c561a372e5eef519cbda01a73"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/070-yodong.md",
+      "retained": "docs/references/novels/settings/060-places/070-yodong.md",
+      "bytes": 3150,
+      "sha256": "0d83dd97375927ec6e1806ef6e20f79191321317b05cbe1f7e6d723028cf12ac"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/080-regional-travel.md",
+      "retained": "docs/references/novels/settings/060-places/080-regional-travel.md",
+      "bytes": 780,
+      "sha256": "0babd1bf7a74effe0c96dab549dd491a7bf5f8130c6ecb4ad55188d9daa7bb91"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/090-yalu-crossing.md",
+      "retained": "docs/references/novels/settings/060-places/090-yalu-crossing.md",
+      "bytes": 2764,
+      "sha256": "19a26aecaf66ff961b5a0eb4127903c116355868c87e00a6fb7ca441fd42a724"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/100-sasu-ground.md",
+      "retained": "docs/references/novels/settings/060-places/100-sasu-ground.md",
+      "bytes": 3576,
+      "sha256": "472d717bdd9ab8d47c5ac4d762cdca0054f9353c3829e247e720eb264ec74cfe"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/110-ansi.md",
+      "retained": "docs/references/novels/settings/060-places/110-ansi.md",
+      "bytes": 2711,
+      "sha256": "20cc0afaa1589eb0fe97ab6743d2b94bf8e979c753285411651f1ea5ee633ce2"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/120-jupilsan-field.md",
+      "retained": "docs/references/novels/settings/060-places/120-jupilsan-field.md",
+      "bytes": 1880,
+      "sha256": "4c5088e9930797cab9151ef4cde6cb8ae4d8aaa595e813694a04cef146877a6c"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/130-tang-naval-camp.md",
+      "retained": "docs/references/novels/settings/060-places/130-tang-naval-camp.md",
+      "bytes": 1418,
+      "sha256": "70f5c3de84bacf255c64044966143c14e4583e7f670e8526bdaa8e0eb1a38165"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/140-eastern-village.md",
+      "retained": "docs/references/novels/settings/060-places/140-eastern-village.md",
+      "bytes": 3067,
+      "sha256": "1ff14d05443e69a56e9c4114e803f83704ef4a906c884ecf50b92fa28c4ebb73"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/150-samnyeon.md",
+      "retained": "docs/references/novels/settings/060-places/150-samnyeon.md",
+      "bytes": 1710,
+      "sha256": "d64a6c86e3e12a1c4f3ff9e4e4882a089ceb8bd31ba80077b4dc8ddd54e4688f"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/160-danyang.md",
+      "retained": "docs/references/novels/settings/060-places/160-danyang.md",
+      "bytes": 1141,
+      "sha256": "0f3a9d168a0ffddbdd6dc255771e926190802e39b54b360db30a03d641d96b92"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/170-adan.md",
+      "retained": "docs/references/novels/settings/060-places/170-adan.md",
+      "bytes": 1970,
+      "sha256": "9219ad3c918282f31582c97e5523ae138d2888932704fd7bd7af6e324892f88e"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/180-chiljung.md",
+      "retained": "docs/references/novels/settings/060-places/180-chiljung.md",
+      "bytes": 3408,
+      "sha256": "7b6bcf3e26538fb965ecbce2b0308f44812f6327fd7d1c1a3a4d9d51bb643d5d"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/190-bukhan.md",
+      "retained": "docs/references/novels/settings/060-places/190-bukhan.md",
+      "bytes": 2042,
+      "sha256": "fd56e8aa19d6381f327de825df109e4263a2ab5caa9e0f7d24300b31774dbcdd"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/200-yango.md",
+      "retained": "docs/references/novels/settings/060-places/200-yango.md",
+      "bytes": 2613,
+      "sha256": "93b7fd4fe4dbaf5b1643fbd23b199d1c6e06b9c481c9ad0649ce032cc7e4fe7b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/210-winter-camp.md",
+      "retained": "docs/references/novels/settings/060-places/210-winter-camp.md",
+      "bytes": 2454,
+      "sha256": "5fbd0f4be1fc410e1448d1f661aa570689a1bd6299f56734ea9f59de10dda388"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/220-baekgang.md",
+      "retained": "docs/references/novels/settings/060-places/220-baekgang.md",
+      "bytes": 2287,
+      "sha256": "4801b81acda1de89d13ca678d06d832ab1b79ede2ca99f71d393ccfec2278053"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/230-haeeun-first-home.md",
+      "retained": "docs/references/novels/settings/060-places/230-haeeun-first-home.md",
+      "bytes": 1700,
+      "sha256": "4995366a734a3c858db0c48ae3c9a9ae797c1a6ac6ba9b453840be824577ad21"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/240-haeeun-migrant-home.md",
+      "retained": "docs/references/novels/settings/060-places/240-haeeun-migrant-home.md",
+      "bytes": 1942,
+      "sha256": "418564f0ce631933eb0e480f66b1f1cfca745ed7c17471d6134d7d771a5fcb39"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/250-namsaeng-last-house.md",
+      "retained": "docs/references/novels/settings/060-places/250-namsaeng-last-house.md",
+      "bytes": 2232,
+      "sha256": "9a4ca57d17a8af2665dcc0d8756ca843167e3d07b9a97995fbf992fd60a52111"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/260-pyongyang-gyeongdang.md",
+      "retained": "docs/references/novels/settings/060-places/260-pyongyang-gyeongdang.md",
+      "bytes": 2749,
+      "sha256": "1c723c659cc09cd1c757cf4de8e3be81a435cd0bcc180cf89ae111afade4e9a1"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/060-places/270-pyongyang-north-woods.md",
+      "retained": "docs/references/novels/settings/060-places/270-pyongyang-north-woods.md",
+      "bytes": 1903,
+      "sha256": "c70da1ab137cf5066eee98b1c1d64d98f6d66cd0a3c89252d9c7b66735586e91"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/010-armour.md",
+      "retained": "docs/references/novels/settings/070-objects/010-armour.md",
+      "bytes": 3052,
+      "sha256": "1ef76d5ed2c2b11fac0c457763ed9b26ae995cab8320bcb73905afdabefb010f"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/020-bow.md",
+      "retained": "docs/references/novels/settings/070-objects/020-bow.md",
+      "bytes": 2430,
+      "sha256": "b5065468091a410a092d3adb89f569e78c5dd4d3c91f00a9e380290a9b2f68da"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/030-combat-blades.md",
+      "retained": "docs/references/novels/settings/070-objects/030-combat-blades.md",
+      "bytes": 1096,
+      "sha256": "95ff9c8a58f350cbecdf6c35276d980a843c1da9638edcaa83311c04b04eb30a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/040-spears.md",
+      "retained": "docs/references/novels/settings/070-objects/040-spears.md",
+      "bytes": 695,
+      "sha256": "7afa08d44d5d2cdbdd837b396149b1c1d6afbfec1403e47a188e8bdc740bdc13"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/050-guidol-knife.md",
+      "retained": "docs/references/novels/settings/070-objects/050-guidol-knife.md",
+      "bytes": 542,
+      "sha256": "9b9544bfdedf4cc12a888e62e7afde0753a1d126f84a03a0c20457e4d5e0842e"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/060-pocha.md",
+      "retained": "docs/references/novels/settings/070-objects/060-pocha.md",
+      "bytes": 823,
+      "sha256": "f59714f46d9bd66717659d55161aa631977a351cfab86b029a672cf362478b32"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/070-nopo.md",
+      "retained": "docs/references/novels/settings/070-objects/070-nopo.md",
+      "bytes": 714,
+      "sha256": "707d22562a9e305c3f53fa7bd08f3cce41befa2b2b6e3e94bf6fb4c52b64513a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/080-caltrops.md",
+      "retained": "docs/references/novels/settings/070-objects/080-caltrops.md",
+      "bytes": 666,
+      "sha256": "44fc522f1cc9dd0855c67358c83ccade369c86bb884ba0a91ce03a1e1dba6152"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/090-defensive-net.md",
+      "retained": "docs/references/novels/settings/070-objects/090-defensive-net.md",
+      "bytes": 893,
+      "sha256": "498fdcb8da5449972a195148325ce8d81408493b3159705ac7220c59d16fe2e1"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/100-grain-load.md",
+      "retained": "docs/references/novels/settings/070-objects/100-grain-load.md",
+      "bytes": 2249,
+      "sha256": "bbfb2d251e92cdef02b85b6bbe845e104b68b22ccad3bf092a96a894304f74ec"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/110-signals.md",
+      "retained": "docs/references/novels/settings/070-objects/110-signals.md",
+      "bytes": 2172,
+      "sha256": "aeba655088422d3e9e7dea10c6e9b95ed387788034865fd317a5e5bada8a891a"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/120-writs.md",
+      "retained": "docs/references/novels/settings/070-objects/120-writs.md",
+      "bytes": 1521,
+      "sha256": "a617d50de2b4a867b6d76276c46aa35c3c312484b1966817d878feb8c3c41e1b"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/130-report-map.md",
+      "retained": "docs/references/novels/settings/070-objects/130-report-map.md",
+      "bytes": 657,
+      "sha256": "a184476312f6958fc34f06a7d0e7fe420755bdcd352d86a148f856aa16fd8419"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/140-ships.md",
+      "retained": "docs/references/novels/settings/070-objects/140-ships.md",
+      "bytes": 1334,
+      "sha256": "07fb8e576a66fbf9a5d136476169c473c64361bf2eb17a891ec65124ed543921"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/150-horses.md",
+      "retained": "docs/references/novels/settings/070-objects/150-horses.md",
+      "bytes": 1227,
+      "sha256": "293f2e528d01a9377b98bb5fd0e1703c4107f2ede861ced2b0081ecc38be5cc7"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/160-clothing-and-repair.md",
+      "retained": "docs/references/novels/settings/070-objects/160-clothing-and-repair.md",
+      "bytes": 2555,
+      "sha256": "4fe195b7d479e302a12ad5391ab008cb13779bd7634df05432cd96f480895f09"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/070-objects/170-xue-wear.md",
+      "retained": "docs/references/novels/settings/070-objects/170-xue-wear.md",
+      "bytes": 1460,
+      "sha256": "9a91f7a0bef4fb4def5f3907595d24e0570dd178cc89870ec128784b6067e8f8"
+    },
+    {
+      "source": "novels/yeon-gaesomun-biography/docs/body/settings/outline/index.md",
+      "retained": "docs/references/novels/settings/outline/index.md",
+      "bytes": 76973,
+      "sha256": "548aa0f837c34c5a8629fe33ec8fb34895b86b9ad95de8f2c93b5bdb5f9f6f08"
+    }
+  ]
+}
