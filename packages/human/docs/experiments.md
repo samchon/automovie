@@ -260,6 +260,45 @@ The new private families of the plan's section 4, cut by `observeBodySections.ts
 
 - Trunk, horizontal rows every 2 mm from the crotch (805.1 mm, the Rise course's lowest point) to the cervicale (1470.8 mm, the Neck Base course's highest), 333 rows. The first cut (11:17), from the body mesh alone, kept a loop in 266 rows and none from 1339.1 mm up: there the body mesh's sections are open contours, the head mesh carrying the neck and upper chest. The plan then took the body mesh joined to the head mesh's skin. The second cut (11:22:07 to 11:22:55) kept one loop in 327 rows; of the other six, 805.1 mm is the crotch's single point, and 1345.1, 1347.1, 1385.1, 1391.1 and 1393.1 mm still close no loop (seven open contours in Recovery's diagnostics, where the two meshes' seam vertices do not sit at one position), heights the saved rows cover every 10 mm. The first cut's file was deleted unused.
 
-## Auricle set (f1, 2026-10-27, not yet run)
+## Auricle set (f1, 2026-10-27)
 
 The set waits for the head base's region check (the plan's section 2). Already prepared, outside the live source: the root loops and rims of `fitAuricleSet.ts` and one private rim-normal family, `ear-observations/rim-normal-v1.json`, 73 planes every 3 mm along both outer helices (36 left, 37 right) through the observation program. The family is the one the plan names; making it took three runs, each failing on tooling alone (an extensionless folder import under Node's type stripping, the Recovery package's type-only re-exports needing a typed compile, which `ttsx` gives with a project rooted at the repository and its plugins off), with no value of the set changed. The family was cut before the region check, so the set's root loops are prepared again once the check is settled.
+
+### Run on the settled head base
+
+Both steps read the biweight fit that the settling set chose.
+
+**Root loops.** `fitAuricleSet.ts` prepared them again on that base, 11:25:53 to 11:25:55, exit 0. The rim-normal family already existed, so it was not cut again. An earlier launch at 11:25:09 exited 1 before reading anything: the launcher passed the three paths as one string. That was a tooling fault, and no value of the set changed.
+
+| Auricle | Root loop control points | Deviation (mm) | x (mm) | y (mm) | z (mm) | Rim (mm) |
+| --- | --- | --- | --- | --- | --- | --- |
+| left | 8 | 1.90 | -2.9 to 35.2 | 1542.7 to 1595.7 | 68.8 to 86.3 | 108.0 |
+| right | 8 | 1.89 | -5.7 to 31.5 | 1543.7 to 1595.7 | -84.4 to -69.1 | 111.0 |
+
+**The set.** `runAuricleSet.ts` ran once, 11:26:21 to 11:39:02, exit 0.
+
+- Left: 79,769 region observations, 15 ribbon sections, the implicit variant over 531 thinned points.
+- Right: 112,716 region observations, 23 ribbon sections, the implicit variant over 548 thinned points.
+- The rim-normal family gave 62 loops, read for both sides.
+
+Distances are the region observations' distance to the surface in mm. G0 is in mm, G1 in degrees and G2 in 1/mm, each across the root loop. "Excess signs" counts curvature sign changes beyond the observed sections' own, and "curl" counts self-crossing mismatches.
+
+| Auricle | Variant | p50 | p90 | p99 | G0 | G1 | G2 | Excess signs | Curl |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| left | ribbon | 2.529 | 9.568 | 13.008 | 16.55 | 89.9 | 1.433 | 80 | 0 |
+| left | relief | 1.952 | 5.723 | 8.307 | 8.08 | 90.0 | 1.745 | 73 | 1 |
+| left | implicit | 0.383 | 7.207 | 9.475 | 5.37 | 86.9 | 1.004 | 21 | 0 |
+| right | ribbon | 1.158 | 4.106 | 5.893 | 10.38 | 89.9 | 1.539 | 117 | 0 |
+| right | relief | 1.405 | 3.262 | 7.962 | 9.51 | 89.3 | 1.613 | 151 | 4 |
+| right | implicit | 0.212 | 5.788 | 9.681 | 4.12 | 85.2 | 0.585 | 104 | 0 |
+
+**Choice by the plan's rule.** The rule first asks for a 99th percentile within 0.23 mm and a G1 below 1 degree. No variant meets either test on either side: the 99th percentiles run from 5.9 to 13.0 mm, and the G1 residuals from 85 to 90 degrees. The rule then takes the variant with the lowest 99th percentile. That is the relief on the left (8.31 mm) and the ribbon on the right (5.89 mm).
+
+The rule does not say how the two auricles' results combine into the one representation section 1 names. So it makes no single choice here, and none is made. The set stops for that, with nothing changed.
+
+**Shortfall.** These are the measures as recorded. Their cause is not traced, since tracing it is a diagnosis the plan has not named.
+
+- Every variant's p99 distance is 26 to 57 times the bound.
+- Every variant's G1 is 85 to 90 degrees, the relief's included, though the plan gives the relief no boundary.
+- Every variant's G0 is 4.1 to 16.6 mm, so each variant leaves some point of its root loop at least 4.1 mm from its surface samples.
+- Only 15 of the left's 36 rim-normal planes and 23 of the right's 37 gave a ribbon section: a run of at least 8 points inside the root loop, its nearest point within 3 mm of the plane's rim point.
