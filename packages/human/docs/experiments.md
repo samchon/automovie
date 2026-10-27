@@ -421,3 +421,73 @@ Each finding below is read from the geometry and the identity types' own definit
     - The type's width is alare to alare, the alae's most lateral points.
 
 Nasion, glabella, pronasale, zygion, eurion, the acromia and the remaining fields each lie inside their ranges. Their geometry shows no fault, and they stand as measured.
+
+The commit that recorded this run (896dc0728) called it all four specimens with every value, though m1 and m2 stopped at the buttocks' search.
+
+## Identity measurement, third run (all four, 2026-10-27)
+
+`measureIdentity.ts`, brought to the plan as of commit 333412595, ran on f1, f2, m1 and m2 in turn from 16:57:03 to 16:57:30. The landmark check passed on all four (0.00 mm). f1 and f2 finished. m1 and m2 stopped in the leg's thigh girth: no section closed round the plane's origin, at (26.2, 869.9, 103.4) on m1 and (27.6, 879.0, 105.6) on m2. Values not listed are unchanged from the second run.
+
+f1:
+- Body: hip breadth 383.7; the upper arm length left out.
+- Each arm: hand breadth 77.5.
+- Each leg: foot breadth 93.1; lower thigh 338.1.
+- Head:
+  - height 207.0; face height 112.5; mandibular width 177.0; minimum frontal width 100.0;
+  - nose width 112.0;
+  - vermilion heights 14.2 and 13.8.
+- Sites: gnathion and menton both 1486.2; stomion 1522.2; gonion 1557.5; frontotemporale 1623.0, 2 mm below eurion's 1625.0.
+- Points:
+  - the gonia at (4.2, 1557.0, 88.6) and (5.1, 1558.0, -88.4);
+  - the frontotemporalia at (100.0, 1623.0, 48.0) and (96.5, 1623.0, -52.0);
+  - the alaria at (118.2, 1556.6, 16.7) and (47.0, 1556.6, -69.8);
+  - the upper lip's lowest point at (114.6, 1522.0) and the lower lip's highest at (112.4, 1522.3);
+  - suprapatella and the patella mark both 8.0 mm below the knee joint.
+
+f2:
+- Body: hip breadth 393.3.
+- Each arm: hand breadth 82.4.
+- Each leg: foot breadth 99.1; lower thigh 342.1.
+- Head:
+  - height 203.7; face height 110.9; mandibular width 165.3; minimum frontal width 109.9;
+  - nose width 142.3;
+  - vermilion heights 13.1 and 13.7.
+- Sites: gnathion and menton both 1490.2; stomion 1522.8; gonion 1557.5; frontotemporale 1628.0, 2 mm below eurion's 1630.0.
+- Points:
+  - the gonia at x -0.8 and 0.0, 82.9 and 82.4 mm from the midline;
+  - the alaria at (54.9, 1559.9, 70.9) and (55.3, 1559.9, -71.4);
+  - the lips' points at 1522.6 and 1523.0;
+  - suprapatella and the patella mark both 7.2 mm below the knee joint.
+
+The faults, each read from the geometry and the definitions:
+
+1. **m1's and m2's thigh girth.**
+   - Its plane is the leg's root plane, since the root loop's lowest point lies in it. The root loop search closed a loop round that origin among the triangles within 400 mm of the leg's bone line.
+   - The girth's search, among those within 200 mm, closed none. So the men's root loop runs more than 200 mm from the leg's axis: it is not the thigh's alone.
+   - The root rule tests only that the loop no longer winds round the bind axis's crossing, which a loop joined across the crotch also passes. What the loop holds was not printed, so this cause is traced only that far.
+2. **Suprapatella.**
+   - The walk stopped at its start, the patella mark, on both women (8.0 and 7.2 mm below the knee joint). There the front reach already rises going up the femur.
+   - So the mark lies below the patella's most forward point, the rule's first non-fall is its start, and the girth is still the knee's.
+3. **Menton.**
+   - It is again gnathion's point, now 4 mm higher (1486.2 and 1490.2).
+   - The walk stopped where one 2 mm chord turned back by any amount past straight down. On the faceted mesh the chords' angle is not monotone along the chin's convex turn, so a single jitter ends the walk before gnathion's own tangent is reached.
+4. **Gonion.**
+   - The gonia lie 4 to 5 mm and -0.8 to 0 mm forward, 83 to 89 mm from the midline, at 1557 and 1558 mm. That is behind the zygia (51 to 54 mm forward) and above the mouth corners: on the auricles.
+   - The frontal outline from menton's level up to zygion's takes each cut's most lateral point, and the ears hang lateral of the face below zygion's level.
+5. **Alare.**
+   - f1's left alare lies 16.7 mm from the midline. Its right one and both of f2's walked on over the cheek to 70 to 71 mm, behind the zygia's depth.
+   - In a horizontal cut the alar-facial groove runs mostly backward, so the outline's lateral offset need not fall there, and the walk does not stop.
+   - The creases' height on f1 (1556.6) is also pronasale's own (1556.7), so the cut passes through the nose's tip.
+6. **Subnasale.**
+   - The philtrum curves span only 1532.6 to 1534.0 mm on f1 and 1533.0 to 1534.6 on f2, beginning at labiale superius's own height.
+   - So their upper ends lie 1.4 to 1.6 mm above the vermilion border, not at subnasale, where the columella meets the lip. The nose's height and protrusion read that point.
+   - This was so in both earlier runs and went unseen.
+7. **The second run's nose width.**
+   - The nostril outlines are the openings inside the alae, so their lateral reach does not show that the creases' band took the cheek.
+   - That finding was unproven as written.
+
+Stand as measured:
+- the acromia and the hip breadth;
+- the hand's and the foot's breadths through the second (first) and fifth heads;
+- stomion at the lips' contact (the upper lip's lowest and the lower lip's highest point 0.3 to 0.4 mm apart);
+- the minimum frontal width at the temporal corners, 2 mm inside its range.
