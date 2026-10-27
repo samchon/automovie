@@ -746,6 +746,13 @@ The strips' fitter (`fitStrip.ts`) reads only its parent's and its own base, so 
 - ring_l, from 20:10:16, a root winding once round the palm's pole: its trim's count-up stopped at 128 control points with a worst miss of 6.6e268 mm, the least squares diverging, its trim 8,868.8 mm round and 4,434 columns; on that trim it ran out of its 8 GB heap at 20:13:19 (exit 134, `Ineffective mark-compacts near heap limit`) before its reach was printed, and wrote no file.
 - pinky_l, run 20:13:50 to 20:15:33, a root winding 0: its trim's count-up stopped at 224 control points with a worst miss of 3.9e288 mm, 19,588.8 mm round and 9,794 columns; observed points 5,566 of the palm's and 1,376 of the family's; every reach measured 0.0000 mm^2, the interior rows NaN and every length's score NaN over no offsets, as leg_l's and middle_l's. So the trims break with and without a winding, wherever the count-up does not hold the carried points within a cell before the least squares breaks down.
 
+### Right arm
+
+Run 19:53:41 to 20:18:23, 27,208 observed points.
+
+- Keys (arc length, mm): the left arm's to the tenth of a millimetre, root 0.0 to the wrist 442.9 (the right palm's key), 18 keys from family plane 17 to 129.
+- Cross-validation: the score falls to 1.01 mm, the bracket's lower end; inlier RMS 0.095 mm, tr A 853.2 (the left arm's 0.095 mm and 853.0).
+
 ### Trunk reliefs
 
 Run 19:24:18 to 19:32:50 over the trunk base above, 305,208 observed points; it stopped on the second relief.
