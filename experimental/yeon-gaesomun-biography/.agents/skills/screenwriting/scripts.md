@@ -2,7 +2,7 @@
 
 Recreate reviewed treatments as scenes performers and filmmakers can execute. The [script principles](../contracts/story/shared/principles/scripts.md) judge the complete execution, staging, and view; [population duties](../contracts/story/shared/obligations/scripts.md) judge partition and handoff.
 
-After [discovery](brief.md#discovery), map treatments to their script consumers and settle part, episode, and meaningful-unit partition before bulk scene writing. Merge thin units and divide heavy ones according to their actual viewing material and release form. Report unresolved parents before fixing that partition.
+After [discovery](discovery.md), map treatments to their script consumers and settle part, episode, and meaningful-unit partition before bulk scene writing. Merge thin units and divide heavy ones according to their actual viewing material and release form. Report unresolved parents before fixing that partition.
 
 Use `docs/body/scripts/NNN-part/NNN-episode.md` with one H1 and ordered explicitly anchored H2s. Each part has an `index.md` with its H1 and links to episode files. A continuous film can use one part and a suitable sequence division without pretending it is an episodic release. Hand identities and order to the final screenplay.
 

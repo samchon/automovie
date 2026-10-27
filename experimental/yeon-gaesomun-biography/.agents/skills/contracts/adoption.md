@@ -2,7 +2,7 @@
 
 ## Find the missing responsibility
 
-Compare the adopted instructions, material, and requested deliverable with existing questions before adding a rule. Keep creative user choices with [instructions](../screenwriting/brief.md#requirements), operating scope and choices with [project context](../production/profile.md), facts and constraints with their creative owner, and new production-specific judgment in the matching story work-contract family. [Discovery](../screenwriting/brief.md#discovery) records the investigation and any adequate existing owners when no independent requirement remains.
+Compare the adopted instructions, material, and requested deliverable with existing questions before adding a rule. Keep creative user choices with [instructions](../screenwriting/brief.md#requirements), operating scope and choices with [project context](../production/profile.md), facts and constraints with their creative owner, and new production-specific judgment in the matching story work-contract family. [Discovery](../screenwriting/discovery.md) records the investigation and any adequate existing owners when no independent requirement remains.
 
 For a new duty, identify its distinct requirement, the narrowest honest respondent population, an observable desired difference, a representative failure, and the basis for requiring it. Group requirements judged together rather than copying one rule into several owners or the screenplay. Adopt the question and its actual population, layer, and pass together through [evidence configuration](../evidence-configuration/SKILL.md).
 

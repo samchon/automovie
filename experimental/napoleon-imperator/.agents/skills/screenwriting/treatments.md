@@ -1,6 +1,6 @@
 # Treatments
 
-Turn reviewed settings into decided events: causes, choices, exchanges, costs, results, and the state and information later events inherit. Use clear explanation, lists, or tables so another author can recreate the same storyline. Complete [discovery](brief.md#discovery), read the settings and instructions relevant to each event, and apply treatments questions in [story contracts](../contracts/story/index.md).
+Turn reviewed settings into decided events: causes, choices, exchanges, costs, results, and the state and information later events inherit. Use clear explanation, lists, or tables so another author can recreate the same storyline. Complete [discovery](discovery.md), read the settings and instructions relevant to each event, and apply treatments questions in [story contracts](../contracts/story/index.md).
 
 Write ordered `NNN-event-title.md` files directly under `docs/body/treatments`, with one H1 per file and explicitly anchored H2s for meaningful decisions. Treatments is the event sequence; [scripts](scripts.md) later determines actual part, episode, sequence, and scene partitions. Do not create release directories here.
 
