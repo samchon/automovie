@@ -1,6 +1,6 @@
 # Settings repair exposed by treatments
 
-Each treatment H2 answers about its actual settings parents and inherited instruction choices. This is an audit of parents tested by creation, not permission to invent missing settings inside treatments. Repair follows the [closed-pass boundary](../../../../upstream-repair/closed-passes.md).
+Each treatment H2 answers about its actual settings parents and inherited instruction choices. This is an audit of parents tested by creation, not permission to invent missing settings inside treatments. Repair follows the [closed-pass boundary](../../../../screenwriting/repair.md#closed-passes).
 
 ## What did event design prove missing or unusable upstream? {#settings-repair}
 

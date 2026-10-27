@@ -11,7 +11,7 @@ npm run evidence
 npm test
 ```
 
-The blank project contains instructions, contracts, and configuration, with no story, models, viewer, render host, or media provider selected. Start with [production](.agents/skills/production/SKILL.md) for the requested output and [storytelling](.agents/skills/storytelling/SKILL.md) for creative work. Default lint and evidence check ordinary TypeScript source and tests; [evidence configuration](.agents/skills/evidence-configuration/SKILL.md) adds narrative scope and stages to that same configuration. Checks on an empty harness do not complete a production.
+The blank project contains instructions, contracts, and configuration, with no story, models, viewer, render host, or media provider selected. Start with [production](.agents/skills/production/SKILL.md) for the requested output and [screenwriting](.agents/skills/screenwriting/SKILL.md) for creative work. Default lint and evidence check ordinary TypeScript source and tests; [evidence configuration](.agents/skills/evidence-configuration/SKILL.md) adds narrative scope and stages to that same configuration. Checks on an empty harness do not complete a production.
 
 ## Commands
 
@@ -19,7 +19,7 @@ The blank project contains instructions, contracts, and configuration, with no s
 | --- | --- |
 | `npm run lint` | TypeScript and source correctness |
 | `npm run evidence` | Source/test checklists and the selected path's active evidence obligations |
-| `npm run production:check -- --layer <layer> --pass <pass>` | After narrative opt-in, current pass structure and prerequisites; see [narrative completion](.agents/skills/narrative-completion/SKILL.md) |
+| `npm run production:check -- --layer <layer> --pass <pass>` | After narrative opt-in, current pass structure and prerequisites; see [writing workflow](.agents/skills/screenwriting/workflow.md#completion) |
 | `npm test` | Every exported `test_*` function under `test`; passes when there is none |
 | `npm run format` | Source formatting |
 
@@ -27,7 +27,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 
 ## Project files
 
-- `.agents/skills` holds task overviews, directly linked resources, and contracts; `AGENTS.md` routes their use.
+- `.agents/skills` holds task overviews, directly linked resources, and contracts. `AGENTS.md` routes narrative authoring to one `screenwriting` skill, whose task table selects stages, rewriting, evidence and repair without loading every procedure.
 - `PROJECT.md` holds the project overview, commissioned scope, current choices, constraints and setup authority.
 - `docs/instructions` holds creative writing requirements; other `docs` locations hold bodies, working editions, evidence and reviews when needed. [Layout and intake](.agents/skills/production/layout.md) explains their owners.
 - `src` holds executable source and actual host entries, with optional provider or local-tool code in `src/integrations`; `test` holds tests and their runner; `public` holds retained fixed media.

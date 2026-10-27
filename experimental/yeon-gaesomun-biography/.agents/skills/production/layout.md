@@ -27,11 +27,11 @@ Use this resource when choosing source files, taking over existing work, or adap
 
 A part can be an act, release block, or another division suited to the format. An episode file can hold a suitable sequence in a continuous film; its filename does not force an episodic release. Narrative partition and executable source organization are separate choices. A small program can combine source roles; split them where independent changes or reuse justify it, keeping each shared value with one owner.
 
-Keep scene notation with [scripts](../scripts/notation.md) and creative responsibilities with [composition](../storytelling/composition.md). Implementation may use as many or as few shots as the scenes need; preserve the relationship to the actual screenplay units and delivered edit.
+Keep scene notation with [scripts](../screenwriting/notation.md) and creative responsibilities with [composition](../screenwriting/workflow.md#creative-ownership). Implementation may use as many or as few shots as the scenes need; preserve the relationship to the actual screenplay units and delivered edit.
 
 ## Intake of existing work
 
-Preserve supplied settings, scripts, or completed works separately from new authored bodies, as actual documents or a verifiable source revision. Through [instructions](../instructions/SKILL.md), record their identity, adopted requirements, fixed quotations, and reinterpretation boundaries. Existing finished work supplies material and choices to assess; it does not approve this production's layers. `docs/revision` holds reviewed construction originals for expression passes, not unassessed reference intake.
+Preserve supplied settings, scripts, or completed works separately from new authored bodies, as actual documents or a verifiable source revision. Through [instructions](../screenwriting/brief.md#requirements), record their identity, adopted requirements, fixed quotations, and reinterpretation boundaries. Existing finished work supplies material and choices to assess; it does not approve this production's layers. `docs/revision` holds reviewed construction originals for expression passes, not unassessed reference intake.
 
 ## Representation and execution
 
@@ -51,4 +51,4 @@ Keep executable setup, commands, and nonsecret variable names in the runtime REA
 
 Installed instructions, contracts, configuration, and authored source belong to this production; package upgrades never migrate them. Reusable checking implementation belongs to the installed `@automovie/evidence` package. Adapt language, subject-specific criteria, paths, and tools while preserving the chosen route's responsibilities and evidence relationships.
 
-When changing a layout, keep selectors, imports, commands, links, identities, and actual consumers aligned. Route affected answers and reviews through [upstream repair](../upstream-repair/SKILL.md). Keep global routing in `AGENTS.md`, task goals and boundaries in skill overviews, and conditional detail in sibling resources linked directly from those overviews. Installed APIs own their callable behavior.
+When changing a layout, keep selectors, imports, commands, links, identities, and actual consumers aligned. Route affected answers and reviews through [upstream repair](../screenwriting/repair.md). Keep global routing in `AGENTS.md`, task goals and boundaries in skill overviews, and conditional detail in sibling resources linked directly from those overviews. Installed APIs own their callable behavior.

@@ -9,6 +9,6 @@ Test a promised behavior through its actual consumer or computed output. Take ex
 
 Keep visual and listening judgments in [review](../review/SKILL.md). A source pattern, file inventory, copied output digest, or pixel comparison is not a behavioral test. Add tests where a failure could violate a production promise; do not invent tests for a screenplay or to populate an empty suite.
 
-Put cases in `test/<domain>/test_<name>.ts` as exported `test_*` functions, synchronous or returning `Promise<void>`, with assertions from `node:assert/strict`. [`test/index.ts`](../../../test/index.ts) discovers them. Keep helpers outside those files or unexported. Each exported function answers the [testing checklist](../contracts/testing.md).
+This [document edition](../../../PROJECT.md) has no executable test runner. If executable behavior is commissioned, establish its actual consumer and runner through [development](../development/SKILL.md); each exported test then answers the [testing checklist](../contracts/testing.md).
 
 Cover the decisions and boundaries the test owns, including intended exceptions. Let the complete round finish, group failures by cause, and repair the source with [development](../development/SKILL.md).

@@ -7,7 +7,7 @@ description: Reviews current production work and independently judges narrative 
 
 Read the complete requested scope from the recipient's perspective. For narrative passes, use [independent reading](reading.md), then [review rounds](rounds.md) for findings, author exchange, current unit records and the whole-pass verdict. A self-review does not satisfy an independent pass.
 
-Use the [review principles](../contracts/story/shared/principles/review.md) for narrative judgments. [Narrative completion](../narrative-completion/SKILL.md) owns checker and pass handoff; structural readiness cannot grant semantic acceptance. All corrections follow [complete cause rounds](../upstream-repair/cause-rounds.md).
+Use the [review principles](../contracts/story/shared/principles/review.md) for narrative judgments. [Writing workflow](../screenwriting/workflow.md#completion) owns checker and pass handoff; structural readiness cannot grant semantic acceptance. All corrections follow [complete cause rounds](../screenwriting/repair.md#cause-rounds).
 
 For source and measurable behavior, inspect actual consumers, affected checks and the selected [engineering contracts](../contracts/SKILL.md), using [development](../development/SKILL.md) and [testing](../testing/SKILL.md). Gather the whole round before repairing its causes together.
 
