@@ -709,6 +709,18 @@ Run 19:28:31 to 19:30:23, 1,944 observed points.
 - Keys (arc length, mm): root 0.0, radius 8.0, 16.0 and 20.0, `thumb_03` 25.0, the cap's end key 31.0 (family plane 38); rho 10.00 mm with two cap keys; family planes 22 to 38; 8 keys.
 - Cross-validation: the score falls to 1.01 mm, the bracket's lower end; inlier RMS 0.112 mm, tr A 100.2.
 
+### Left fingers
+
+| | index_l | middle_l |
+| --- | --- | --- |
+| run | 19:30:23 to 19:35:26 | 19:35:26 to 19:40:55 |
+| observed points | 2,872 | 2,968 |
+| keys (arc length, mm) | root 0.0, radius 6.0, 12.0 and 18.0, `index_02` 24.9, radius 30.9, 34.9 and 40.9, `index_03` 45.8, radius 49.8 and 55.8, the cap's end key 59.8 | root 0.0, radius 8.0, 12.0 and 18.0, `middle_02` 26.0, radius 32.0, 36.0, 40.0, 46.0 and 50.0, `middle_03` 53.0, radius 57.0 and 63.0, the cap's end key 67.0 |
+| cap | from family plane 39, rho 6.90 mm, one cap key | from family plane 44, rho 6.00 mm, one cap key |
+| keys in all, family planes | 13, 8 to 39 | 15, 9 to 44 |
+| cross-validated length | 1.01, the bracket's lower end | 1.01, the bracket's lower end |
+| inlier RMS, tr A | 0.074, 168.6 | 0.090, 199.4 |
+
 ### Trunk reliefs
 
 Run 19:24:18 to 19:32:50 over the trunk base above, 305,208 observed points; it stopped on the second relief.
