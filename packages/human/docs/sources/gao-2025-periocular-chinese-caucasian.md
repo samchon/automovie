@@ -1,6 +1,6 @@
 # Gao 2025, brow and eyelid morphology in young Chinese and Caucasians
 
-Gao T, Guo Y, Rokohl AC, Fan W, Lin M, Ju S, Li X, Ju X, Hou X, Rosenkranz TA, Zhang G, et al. "Racial and sexual differences of eyebrow and eyelid morphology: three-dimensional analysis in young Caucasian and Chinese." *Quantitative Imaging in Medicine and Surgery* 15(1):882-897, 2025, doi:10.21037/qims-24-1113. Read as PMC11744102 (NCBI efetch).
+Gao T, Guo Y, Rokohl AC, Fan W, Lin M, Ju S, Li X, Ju X, Hou X, Rosenkranz TA, Zhang G, et al. "Racial and sexual differences of eyebrow and eyelid morphology: three-dimensional analysis in young Caucasian and Chinese." *Quantitative Imaging in Medicine and Surgery* 15(1):882-897, 2025, doi:10.21037/qims-24-1113. PMC11744102.
 
 ## Licence
 

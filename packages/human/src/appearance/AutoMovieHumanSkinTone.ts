@@ -116,6 +116,32 @@ export namespace AutoMovieHumanSkinTone {
   }
 
   /**
+   * The person's chromophores with the feminine shift: a feminine body's
+   * skin reads milky, paler and cooler, so with femininity `w` (the
+   * `masculineFeminine` control clamped to `[0, 1]`) melanin is multiplied
+   * by `1 - 0.3 w`, haemoglobin by `1 - 0.15 w` and the carotenoid band by
+   * `1 - 0.35 w`. The direction follows the lighter constitutive skin
+   * reported for women (Jablonski and Chaplin 2000, J. Hum. Evol. 39,
+   * pp. 57-106); the amounts are appearance conventions.
+   *
+   * @param person The person's chromophores
+   * @param femininity Femininity in `[0, 1]`
+   * @returns Shifted chromophores
+   */
+  export function milky(
+    person: AutoMovieHumanSkinPigment.IChromophores,
+    femininity: number,
+  ): AutoMovieHumanSkinPigment.IChromophores {
+    const w: number = Math.min(1, Math.max(0, femininity));
+    return {
+      ...person,
+      melanin: person.melanin * (1 - 0.3 * w),
+      haemoglobin: person.haemoglobin * (1 - 0.15 * w),
+      carotenoid: (person.carotenoid ?? 1) * (1 - 0.35 * w),
+    };
+  }
+
+  /**
    * Evaluate albedo and relief weight at every vertex.
    *
    * @param input Pieces, eyes, stature, chromophores and seed

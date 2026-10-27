@@ -1,6 +1,6 @@
 # Blender, Surface Deform and Shrinkwrap modifiers
 
-Blender 5.2 LTS Manual, "Surface Deform Modifier", https://docs.blender.org/manual/en/latest/modeling/modifiers/deform/surface_deform.html, and "Shrinkwrap Modifier", https://docs.blender.org/manual/en/latest/modeling/modifiers/deform/shrinkwrap.html. Read 2026-10-23.
+Blender 5.2 LTS Manual, "Surface Deform Modifier", https://docs.blender.org/manual/en/latest/modeling/modifiers/deform/surface_deform.html, and "Shrinkwrap Modifier", https://docs.blender.org/manual/en/latest/modeling/modifiers/deform/shrinkwrap.html.
 
 ## Licence
 

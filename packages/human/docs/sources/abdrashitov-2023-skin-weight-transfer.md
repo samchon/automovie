@@ -1,6 +1,6 @@
 # Abdrashitov et al. 2023, robust skin weight transfer
 
-Abdrashitov R, Raichstat K, Monsen J, Hill D. "Robust Skin Weights Transfer via Weight Inpainting." SIGGRAPH Asia 2023 Technical Communications, doi:10.1145/3610543.3626180. Read from the authors' preprint, https://www.dgp.toronto.edu/~rinat/projects/RobustSkinWeightsTransfer/preprint.pdf (sections 1 to 4). Read 2026-10-23. Unreal Engine's `FTransferBoneWeights` (https://dev.epicgames.com/documentation/unreal-engine/API/Plugins/DynamicMesh/FTransferBoneWeights) exposes the same two methods, closest point and inpainting.
+Abdrashitov R, Raichstat K, Monsen J, Hill D. "Robust Skin Weights Transfer via Weight Inpainting." SIGGRAPH Asia 2023 Technical Communications, doi:10.1145/3610543.3626180. Read from the authors' preprint, https://www.dgp.toronto.edu/~rinat/projects/RobustSkinWeightsTransfer/preprint.pdf (sections 1 to 4). Unreal Engine's `FTransferBoneWeights` (https://dev.epicgames.com/documentation/unreal-engine/API/Plugins/DynamicMesh/FTransferBoneWeights) exposes the same two methods, closest point and inpainting.
 
 ## Licence
 

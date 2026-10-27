@@ -1,6 +1,6 @@
 # Trunk values, jets and physical transport
 
-A residual with zero endpoint value and first derivative cannot correct erroneous endpoint jets. It may turn back inside an interval to approach interior observations. Jointly identify values and jets under the actual shape constraints instead of adding a higher-order bubble.
+A residual with zero endpoint value and first derivative cannot correct erroneous endpoint jets, and it may turn back inside an interval to approach interior observations. Jointly identify values and jets under the actual shape constraints instead of adding a higher-order bubble.
 
 ## Variational channels
 
@@ -14,7 +14,7 @@ For radial Fourier coefficients c0,ak,bk with physical length units,
 A(s) = pi*[c0(s)² + sum_k(ak(s)²+bk(s)²)/2].
 ```
 
-Degree-eight radial channels give degree-sixteen area and degree-fifteen area derivative. Root isolation must distinguish finite sign brackets from certified multiple-root completeness; a shallow or even-multiplicity stationary point can be missed by a simple scan.
+Degree-eight radial channels give degree-sixteen area and degree-fifteen area derivative. Root isolation distinguishes finite sign brackets from certified multiple-root completeness, because a simple scan can miss a shallow or even-multiplicity stationary point.
 
 ## Affine transport
 
@@ -31,10 +31,8 @@ P_phi_phi = P_source_phi_phi
 P_y_phi_phi = P_source_s_phi_phi/a.
 ```
 
-Affine displacement adds no second derivative. A nonlinear transport needs its complete additional chain-rule terms and a distinct admission contract. Every principal centre and shared boundary must consume this same map.
+Affine displacement adds no second derivative. A nonlinear transport needs its complete additional chain-rule terms and a distinct admission contract. Every principal centre and shared boundary consumes this same map.
 
 ## Qualification
 
-A lower in-sample radial RMS can coexist with worse held-out jets, centre placement or local features. Near-unit integrated volume cannot certify those features either. Old candidate comparisons and correlated four-source holdouts do not establish current-cohort reproduction, independent physical responses or unseen-shape prediction.
-
-[Original derivation and experimental record](https://github.com/samchon/automovie/blob/197196b7b/packages/human/docs/techniques/trunk-interval-identification.md). Its source identities, fitted coefficients, paths and reported outcomes are not validated for the current reference cohort.
+A lower in-sample radial RMS can coexist with worse held-out jets, centre placement or local features, and near-unit integrated volume cannot certify those features either. Correlated four-source holdouts do not establish independent physical responses or unseen-shape prediction.

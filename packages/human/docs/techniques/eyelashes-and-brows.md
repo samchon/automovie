@@ -10,11 +10,11 @@ The input `length` is the longest upper lash. Length peaks about 60 percent alon
 
 ## Brows
 
-`AutoMovieHumanEyebrow` lays the brow out in the face plane from the eye's canthi and projects every hair point along the line of sight onto the generated head skin, lifting it by a few tenths of a millimetre along the skin's normal. The middle line passes at the upper-margin heights of Park 2017 (26.4, 31.0, 28.4 and 21.6 mm above the medial canthus at the medial canthus, lateral limbus, lateral canthus and lateral end) less half the width there; the brow runs from 1 mm medial of the medial canthus to 9 mm beyond the lateral canthus, and its width swells from 3.5 mm at the rounded medial start to 9 mm above the medial canthus and falls through 6.5 mm at the peak to 2 mm at the tail.
+`AutoMovieHumanEyebrow` lays the brow out in the face plane from the eye's canthi and projects every hair point along the line of sight onto the generated head skin, lifting it by a few tenths of a millimetre along the skin's normal. The middle line passes at the upper-margin heights of Park 2017 (26.4, 31.0, 28.4 and 21.6 mm above the medial canthus at the medial canthus, lateral limbus, lateral canthus and lateral end) less half the width there. The brow runs from 1 mm medial of the medial canthus to 9 mm beyond the lateral canthus, and its width swells from 3.5 mm at the rounded medial start to 9 mm above the medial canthus and falls through 6.5 mm at the peak to 2 mm at the tail.
 
-About 1100 hairs per brow, 3.5 to 6.5 mm long, thin toward the tail and fade over a noisy border. Direction follows Rajput 2021: head hairs, sparse and fading in over the first fifth of the brow, fan up and out, body hairs converge on the axis from both borders, the tail runs along the axis sloping down. Hairs lie nearly flush, lifted 8 degrees and falling back.
+Each brow has about 1100 hairs, 3.5 to 6.5 mm long, thinning toward the tail and fading over a noisy border. Direction follows Rajput 2021: head hairs, sparse and fading in over the first fifth of the brow, fan up and out; body hairs converge on the axis from both borders; the tail runs along the axis sloping down. Hairs lie nearly flush, lifted 8 degrees and falling back.
 
 ## Limits
 
-- Heights come from young Korean women; brows do not yet respond to sex, age or the femininity control.
+- Heights come from young Korean women; brows do not respond to sex, age or the femininity control.
 - Lashes and brows take only the input colour; there is no grey or density input.

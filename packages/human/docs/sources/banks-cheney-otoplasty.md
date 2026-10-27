@@ -1,6 +1,6 @@
 # Banks and Cheney, otoplasty surgical technique
 
-Banks C, Cheney M. "Otoplasty Surgical Technique." In Fagan J (ed.), *Open Access Atlas of Otolaryngology, Head and Neck Operative Surgery*, chapter 2.15. Read on LibreTexts (med.libretexts.org, Atlas of Otolaryngology, 02 Otology, 2.15) on 2026-10-22.
+Banks C, Cheney M. "Otoplasty Surgical Technique." In Fagan J (ed.), *Open Access Atlas of Otolaryngology, Head and Neck Operative Surgery*, chapter 2.15. Read on LibreTexts (med.libretexts.org, Atlas of Otolaryngology, 02 Otology, 2.15).
 
 ## Licence
 

@@ -4,8 +4,7 @@ Gordon C.C. et al., *2012 Anthropometric Survey of U.S. Army Personnel: Methods 
 
 - Report: https://tools.openlab.psu.edu/publicData/ANSURII-TR15-007.pdf (read: landmarks, chapter IV definitions, sample chapter)
 - Memorandum: https://tools.openlab.psu.edu/publicData/ANSURII-MFR.pdf (read in full)
-- Data: https://tools.openlab.psu.edu/publicData/ANSUR_II_MALE_Public.csv and `..._FEMALE_Public.csv` (downloaded and fitted, see below)
-- Landing page: https://www.openlab.psu.edu/ansur2/
+- Data: https://tools.openlab.psu.edu/publicData/ANSUR_II_MALE_Public.csv and `..._FEMALE_Public.csv`- Landing page: https://www.openlab.psu.edu/ansur2/
 
 ## Licence
 
@@ -15,7 +14,7 @@ The memorandum states the working databases and the memorandum "have been review
 
 The working databases hold 4,082 men and 1,986 women, stratified-random subsamples of 7,435 men and 3,922 women measured October 2010 to April 2012, matched to the 30 September 2011 Army census by age, race and component. Ages 17 to 58 (mean 30.2 men, 28.9 women). Women are 49% White, 33% Black, 12% Hispanic, 3.6% Asian; men 69% White, 16% Black, 11% Hispanic, 2.9% Asian. The memorandum warns the sample is the Army, not the civilian population, and that the sexes must be analysed separately. Military fitness and weight standards narrow the low and high adiposity tails relative to civilians.
 
-Ninety-three directly measured dimensions, right side, in millimetres to the nearest millimetre, standing erect with heels together and measurement at the maximum point of quiet respiration unless stated. Weight is stored as kg x 10 in column `weightkg`. `Heightin` and `Weightlbs` are self-reported and must not be used.
+Ninety-three directly measured dimensions, right side, in millimetres to the nearest millimetre, standing erect with heels together and measurement at the maximum point of quiet respiration unless stated. Weight is stored as kg x 10 in column `weightkg`. `Heightin` and `Weightlbs` are self-reported.
 
 ## Measurement levels and definitions
 
@@ -40,9 +39,9 @@ Ninety-three directly measured dimensions, right side, in millimetres to the nea
 | Heights | Acromion, cervicale, suprasternale, chest point, tenth rib, omphalion, iliocristale, trochanterion, buttock, crotch, midpatella, lateral femoral epicondyle, tibiale, lateral malleolus, axilla, wrist (stylion) |
 | Segment lengths | Acromion-radiale, radiale-stylion, shoulder-elbow (to olecranon bottom, elbow 90 degrees), hand length (stylion to dactylion III), palm length, foot length, ball-of-foot length |
 
-Landmark definitions used across the docs: acromion, the intersection of the lateral border of the acromial process with a line down the middle of the shoulder; radiale, "the superior palpable point on the outside edge of the radius"; stylion, the inferior point of the radius; trochanterion, the superior point of the greater trochanter standing; tibiale, the superior palpable point on the medial condyle of the tibia; iliocristale, the highest palpable point of the iliac crest; tenth rib, its inferior point; crotch, "the level of the lower edge of the pubis bone"; cervicale, the most prominent point of the C7 spine.
+Landmark definitions: acromion, the intersection of the lateral border of the acromial process with a line down the middle of the shoulder; radiale, "the superior palpable point on the outside edge of the radius"; stylion, the inferior point of the radius; trochanterion, the superior point of the greater trochanter standing; tibiale, the superior palpable point on the medial condyle of the tibia; iliocristale, the highest palpable point of the iliac crest; tenth rib, its inferior point; crotch, "the level of the lower edge of the pubis bone"; cervicale, the most prominent point of the C7 spine.
 
-## Fitted values (ours, population-fitted)
+## Fitted values (population-fitted from the working databases)
 
 Ordinary least squares on the public working databases, per sex. Model A: `y = a + b*stature + c*mass`, millimetres and kilograms. Model B: `y = a + b*stature + c*BMI + d*age`. Values are fit within the sample ranges only (stature about 1,400 to 2,000 mm, BMI about 17 to 40, age 17 to 58).
 

@@ -1,6 +1,6 @@
 # Chakraverty et al. 2007, spinal levels of the palpated iliac crests and PSIS
 
-Chakraverty R., Pynsent P., Isaacs K. "Which spinal levels are identified by palpation of the iliac crests and the posterior superior iliac spines?" *Journal of Anatomy* 210(2):232-236, 2007. Read: the abstract, via the Europe PMC API. The full text was not read (PMC returned a browser check).
+Chakraverty R., Pynsent P., Isaacs K. "Which spinal levels are identified by palpation of the iliac crests and the posterior superior iliac spines?" *Journal of Anatomy* 210(2):232-236, 2007. Read: the abstract only.
 
 ## Population and protocol
 

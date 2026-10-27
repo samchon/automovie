@@ -1,12 +1,12 @@
 # Head curves and sheet correspondence
 
-A radial cranial shell can be useful only on a qualified star-shaped domain. Auricle overhang, eyelids, nostrils, oral sheets and contacts can violate that premise. Keep all intersections and selected sheet incidence; a largest-radius choice can mix separate tissue sheets.
+A radial cranial shell applies only on a qualified star-shaped domain. Auricle overhang, eyelids, nostrils, oral sheets and contacts can violate that premise. Keep all intersections and selected sheet incidence, because a largest-radius choice can mix separate tissue sheets.
 
 ## Boundary profiles
 
 An endpoint-constrained profile can use v(1-v)*sum(theta_k*(2v-1)^k). Normalize the original complete physical phase with its signed derivative Jacobian; a chord projection is not interchangeable when the source reverses laterally. A Fourier or polynomial fit is a separate common approximation, not an exact reduction of original Hermite spans.
 
-Lid and lip feature curves must become actual adjacent surface boundaries. Drawing them over a closed shell does not create an aperture. A semantic rim can have incidence two in a closed source mesh; that does not make it an incidence-one mesh boundary.
+Lid and lip feature curves must become actual adjacent surface boundaries; drawing them over a closed shell does not create an aperture. A semantic rim can have incidence two in a closed source mesh, which does not make it an incidence-one mesh boundary.
 
 ## Source topology
 
@@ -26,8 +26,6 @@ A boundary-vanishing residual can fit interior shape without moving boundary val
 
 A zero-radius crown requires a separately qualified pole and tangent-plane condition. Incompatible station and radial endpoint derivatives can force a pointed crown or circumferential shoulder between otherwise well-fitted principal sections.
 
-Both incident surfaces must consume the same discrete boundary sample addresses. Matching continuous curves and sampled normals cannot close a gap between incompatible polygonal chords. Inspect face exterior, internal sheets, posterior scalp and ears with their actual neighbors; local normal signs alone do not prove a flipped surface.
+Both incident surfaces must consume the same discrete boundary sample addresses, because matching continuous curves and sampled normals cannot close a gap between incompatible polygonal chords. Inspect face exterior, internal sheets, posterior scalp and ears with their actual neighbors; local normal signs alone do not prove a flipped surface.
 
-Source-conditioned proxy fits do not establish clinical parameter meanings, independent parameter effects or completed head fidelity. No old frame offsets, coefficient table or fit result is a default for the current cohort.
-
-[Original derivation and experimental record](https://github.com/samchon/automovie/blob/197196b7b/packages/human/docs/techniques/head-curve-identification.md). Its source identities, fitted coefficients, paths and reported outcomes are not validated for the current reference cohort.
+Source-conditioned proxy fits do not establish clinical parameter meanings or independent parameter effects.

@@ -152,4 +152,68 @@ export namespace AutoMovieHumanAperturePocket {
       rings,
     );
   }
+
+  /**
+   * Close an opening's trim loop on its base with the same cubic meridians,
+   * each starting along the base surface's own tangent into the opening
+   * (the reverse of its unit tangent across the loop, away from it), so the
+   * rim continues the skin smoothly instead of a cut triangle's plane.
+   *
+   * @param mesh Mesh buffers to grow.
+   * @param aperture The opening.
+   * @param ring Loop vertices in order.
+   * @param slopes Unit tangent of the base across the loop, away from the
+   *   opening, at each loop vertex.
+   * @param emit Triangle sink.
+   */
+  export function loop(
+    mesh: AutoMovieHumanLoftMesh.IContext,
+    aperture: IAutoMovieHumanLoftAperture,
+    ring: readonly number[],
+    slopes: readonly [number, number, number][],
+    emit: (name: string, ...corners: number[]) => void,
+  ): IAutoMovieHumanConstructionPath[] {
+    const centre: number[] = [0, 1, 2].map(
+      (a: number): number => ring.reduce((sum: number, v: number): number => sum + mesh.positions[3 * v + a]!, 0) / ring.length,
+    );
+    const tip: number[] = centre.map((v: number, a: number): number => v - aperture.forward[a]! * aperture.pocket!);
+    const pole: number = mesh.positions.length / 3;
+    mesh.positions.push(...tip);
+    const rings: Map<number, number[]> = new Map();
+    ring.forEach((v: number, i: number): void => {
+      const p: number[] = [0, 1, 2].map((a: number): number => mesh.positions[3 * v + a]!);
+      const tangent: number[] = slopes[i]!.map((x: number): number => -x);
+      const length: number = Math.hypot(...p.map((value: number, a: number): number => tip[a]! - value));
+      // The pole's tangent plane is across the aperture axis: the last
+      // control lies toward the rim from the tip, in that plane.
+      const towards: number[] = p.map((value: number, a: number): number => value - tip[a]!);
+      const along: number = towards.reduce((s: number, x: number, a: number): number => s + x * aperture.forward[a]!, 0);
+      const radial: number[] = towards.map((x: number, a: number): number => x - along * aperture.forward[a]!);
+      const first: number[] = p.map((value: number, a: number): number => value + (tangent[a]! * length) / 3);
+      const last: number[] = tip.map((value: number, a: number): number => value + radial[a]! / 2);
+      const row: number[] = [v];
+      for (let k: number = 1; k < STEPS; k++) {
+        const t: number = k / STEPS;
+        row.push(mesh.positions.length / 3);
+        mesh.positions.push(
+          ...p.map(
+            (value: number, a: number): number =>
+              (1 - t) ** 3 * value + 3 * (1 - t) ** 2 * t * first[a]! + 3 * (1 - t) * t * t * last[a]! + t ** 3 * tip[a]!,
+          ),
+        );
+      }
+      row.push(pole);
+      rings.set(v, row);
+    });
+    const open: IAutoMovieHumanApertureEdge[] = ring.map(
+      (u: number, i: number): IAutoMovieHumanApertureEdge => ({ u, v: ring[(i + 1) % ring.length]!, inside: -1, name: aperture.name }),
+    );
+    for (const edge of open) {
+      const u: number[] = rings.get(edge.u)!;
+      const v: number[] = rings.get(edge.v)!;
+      for (let k: number = 0; k + 1 < STEPS; k++) emit(edge.name, v[k]!, u[k]!, u[k + 1]!, v[k]!, u[k + 1]!, v[k + 1]!);
+      emit(edge.name, v[STEPS - 1]!, u[STEPS - 1]!, pole);
+    }
+    return AutoMovieHumanApertureConstruction.generate(mesh, aperture.name, open, rings);
+  }
 }

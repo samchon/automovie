@@ -1,6 +1,6 @@
 # Aumond 2018, eyelash follicle review
 
-Aumond S, Bitton E. "The eyelash follicle features and anomalies: A review." *Journal of Optometry* 11(4):211-222, 2018, doi:10.1016/j.optom.2018.05.003. Read as PMC6147748 (NCBI efetch).
+Aumond S, Bitton E. "The eyelash follicle features and anomalies: A review." *Journal of Optometry* 11(4):211-222, 2018, doi:10.1016/j.optom.2018.05.003. PMC6147748.
 
 ## Licence
 

@@ -4,7 +4,7 @@ Weinberg SM, Raffensperger ZD, Kesterke MJ, et al. "The 3D Facial Norms Database
 
 ## Licence
 
-Summary-level data are "non-controlled and open to all users" under the FaceBase Terms of Use and Data Use Certification, with attribution to FaceBase and NIDCR grant U01-DE020078. Individual-level data and the 2,454 surfaces are controlled access and are not used. Means and SDs are facts;
+Summary-level data are "non-controlled and open to all users" under the FaceBase Terms of Use and Data Use Certification, with attribution to FaceBase and NIDCR grant U01-DE020078. Individual-level data and the 2,454 surfaces are controlled access.
 
 ## Population and protocol
 

@@ -1,6 +1,6 @@
 # Chen 2016, axial length and corneal curvature in South China
 
-Chen H, Lin H, Lin Z, Chen J, Chen W. "Distribution of axial length, anterior chamber depth, and corneal curvature in an aged population in South China." *BMC Ophthalmology* 16:47, 2016, doi:10.1186/s12886-016-0221-5. Read as PMC4852406 (NCBI efetch).
+Chen H, Lin H, Lin Z, Chen J, Chen W. "Distribution of axial length, anterior chamber depth, and corneal curvature in an aged population in South China." *BMC Ophthalmology* 16:47, 2016, doi:10.1186/s12886-016-0221-5. PMC4852406.
 
 ## Licence
 

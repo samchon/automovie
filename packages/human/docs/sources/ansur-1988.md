@@ -1,6 +1,6 @@
 # ANSUR 1988 (1987-1988 US Army Anthropometric Survey)
 
-Gordon C.C., Churchill T., Clauser C.E., Bradtmiller B., McConville J.T., Tebbetts I., Walker R.A. *1988 Anthropometric Survey of U.S. Army Personnel: Methods and Summary Statistics*, NATICK/TR-89/044 (1989). Read: the report through the Wayback Machine copy of https://apps.dtic.mil/sti/pdfs/ADA225094.pdf (landmarks, age table, waist definitions and statistics). Data: https://tools.openlab.psu.edu/publicData/ansurWomen.csv and `ansurMen.csv` (downloaded and fitted; no age column).
+Gordon C.C., Churchill T., Clauser C.E., Bradtmiller B., McConville J.T., Tebbetts I., Walker R.A. *1988 Anthropometric Survey of U.S. Army Personnel: Methods and Summary Statistics*, NATICK/TR-89/044 (1989). Report: https://apps.dtic.mil/sti/pdfs/ADA225094.pdf (read: landmarks, age table, waist definitions and statistics). Data: https://tools.openlab.psu.edu/publicData/ansurWomen.csv and `ansurMen.csv` (no age column).
 
 ## Licence
 
@@ -25,7 +25,7 @@ Natural waist landmark: "Level of the greatest indentation on the right side of 
 | Iliocristale height | 988.8 | 1073.4 |
 | BMI (kg/m2) | 23.3 (2.7) | 25.4 (3.0) |
 
-## Fitted values (ours, population-fitted)
+## Fitted values (population-fitted from the data)
 
 - Natural waist over buttock circumference: 0.750 (SD 0.043) women, 0.853 (0.042) men.
 - Natural waist = 83.76 + 0.569 omphalion waist + 0.1978 buttock (women, R2 0.80, RSD 28.1 mm); 106.84 + 0.7868 omphalion + 0.0554 buttock (men, R2 0.92, RSD 21.1 mm).
