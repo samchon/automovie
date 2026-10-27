@@ -1,0 +1,25 @@
+# A World of Horses, Gunpowder, and Paper
+
+[Outline](../outline/index.md#020-world--010-material-world)
+
+## An army on foot and orders that must arrive {#movement}
+
+Armies in this world move on human feet, while horses pull guns and baggage. The ordinary daily march of 20–30 kilometers and messenger distance of 70–100 kilometers adopted by the source as standards for the work are not measurements for every campaign. Forced marches cost sleep, food, shoes, horses, and stragglers. Actual roads, crossings, and arrivals in a campaign take precedence over general speed. Do not calculate marching time or a corps' arrival backward from straight-line distance on a map. Signal towers depend on the government's fixed routes, sight lines, and daylight; they are not universal communication at night or in fog. Source: retained `020-world/001-march-and-roads#march-and-roads`, `040-systems/001-semaphore#semaphore`.
+
+## Gunpowder in action and the body's limits {#weapons-and-medicine}
+
+The infantry's principal weapon is the muzzle-loading flintlock. A soldier tears a paper cartridge with his teeth and loads at the muzzle; it does not eject modern cartridge cases. Volleys, ranks, and squares are techniques binding people together amid inaccurate fire and the threat of cavalry. Solid shot and close-range canister have different uses; bouncing shot from smoothbore guns has different effects on level ground and in mud. Smoke obscures the view of gunners and commanders. Do not stage a nominal rounds-per-minute rate like an automatic weapon sustained for an entire hour. Exact model, caliber, gunners, and disposition follow institutional records for the particular battlefield.
+
+Wounds, fever, dysentery, hunger, and fatigue reduce armies outside combat too. Larrey's rapid amputations and triage are judgments seeking to save lives within medical limits. Do not bring the public demonstration of modern ether anesthesia forward into this era, or expand that into a claim that no contemporary pain relief existed. Distinguish modern interpretations of surgery and infection from contemporary characters' diagnoses. Source: original `040-systems/006-medicine`, `007-infantry-weapon`, `008-artillery-and-cavalry`, `009-tactics`, and personal records of Larrey and Lannes.
+
+## Calendar, units, and the appearance of nature {#calendar-and-units}
+
+Dates on screen and in speech use Gregorian calendar years. Russian records may use the Julian calendar, eleven days behind through the end of February 1800 and twelve days thereafter; if the original record's calendar is unknown, do not fix a converted date. Identify original Revolutionary calendar dates in research; do not place both calendars on screen or insert a calendar explanation. Ages are completed years based on actual birthdays; use approximate ages where birthdays are unknown.
+
+Narration and captions use metric distance and Celsius by default. Contemporary documents and dialogue retain the country's actual units, with only the necessary first explanation. Do not read the old French pied and British foot as the same unit. One degree Réaumur equals 1.25 degrees Celsius, so do not fix “minus 30 degrees” in the Russian winter as Celsius when no scale is given. Distinguish local solar time, ship clocks, calculated sunrise, and the sun actually visible through fog. Source: original `010-work/020-writing-rules#calendar-dates`, `020-world/002-french-units`, `003-foreign-units`, `004-sun-and-clock`, `005-russian-winter`.
+
+## Materials showing period and place {#appearance}
+
+Light comes primarily from candles, oil lamps, hearths, campfires, and daylight. Do not introduce unverified Paris gas streetlights or electricity. Follow records for the relevant year and unit for French infantry headgear in 1805 and later shakos, Guard and ordinary infantry, and each country's clothing colors and equipment. Uniform color alone does not make everyone on the same side the same arm of service. Napoleon's green uniform as colonel of the chasseurs, gray redingote, and plain sideways hat contrast with marshals' ornament. Do not turn his average height of about 1.67 meters into the small body of British caricature. Fading in a surviving uniform is not its original color.
+
+A city or palace's year is also a material condition. Do not paint Schönbrunn in 1805 or 1809 the deeper yellow of a later period. An order to build, starting work, completion, and consecration are different. Les Invalides in 1840 has no completed 1861 tomb, and the Madeleine's consecration in 1845 falls after the work. Letizia appears in David's coronation painting but did not attend the actual ceremony. Do not use the painting's composition as evidence of actual attendance or placement. Source: visual world of the original work declaration and yearly records in `080-places` and `090-objects`. For individual places' dimensions, seating, colors, weather, and props also follow the relevant original records in the [adopted register](../120-research/020-source-register.md#places-and-objects).

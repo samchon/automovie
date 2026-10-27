@@ -1,0 +1,7 @@
+# Physical feedback in performance
+
+Read the installed engine's public contracts for the physical interaction at issue. Use supported kinematics, range-of-motion checks, rigid impacts or other relevant computations to derive consequential action or identify an unworkable performance. A physics API's existence does not make every scene a simulation task; authored timing and dramatic intent still choose what the audience sees.
+
+Keep dimensions, mass or material assumptions, initial state, time sampling, transforms and relevant constraints explicit where the chosen API needs them. Feed returned motion, contacts or violations into the actual performance, and inspect support, impact order, reaction, recoil and subsequent state across the complete affected sequence. Numerical admission alone cannot establish a convincing contact or reaction. Use measurable production requirements for numerical checks and actual playback for their visible consequences.
+
+Use simple collision or control representations where supported, separating them from display tessellation. When detail, proportions or attachments change, verify that the physical assumptions and visible contact still agree. Retain fixed inputs and deterministic replay boundaries; avoid hidden live generation or unrecorded state affecting the rendered performance. Installed APIs own supported solver controls and limits, so keep their syntax and implementation out of this procedure.
