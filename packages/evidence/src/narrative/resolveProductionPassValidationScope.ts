@@ -47,7 +47,7 @@ import { passId } from "./passId";
  * Captured physical aliases and source identities define ownership. Unbound
  * analyses are rejected instead of inferring missing provenance from live files.
  *
- * @evidence contracts/common.md#principled-implementation Original-config provenance and bound path capture precede indexing the complete plan/input/result/report; explicit canon edges and actual captured reference ownership build a pass graph whose DFS closure defines prerequisites. Missing, ambiguous, disabled or cross-owned inputs become issues rather than an execution filter.
+ * @evidence contracts/common.md#principled-implementation Original-config provenance and bound path capture precede indexing the complete plan/input/result/report; explicit canon edges and actual captured reference ownership build a pass graph whose DFS closure defines prerequisites. Complete empty current review/verdict populations may await their first reader; incomplete captures and inactive authored or upstream duties remain issues.
  * @evidence contracts/common.md#clear-and-simple-design The scope resolver owns dependency/readiness boundaries while native Evidence owns evaluation and topology helpers own document/lineage checks; the captured canonical resolver prevents live filesystem reinterpretation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Known route and authored-pass relationships are domain rules; custom claims receive the same materialization/ownership checks, support stays global, and cycles in any active authored boundary remain blocking even outside the current closure.
  * @evidence contracts/common.md#meaningful-documentation The prose states snapshot-only aliases/source identity and unbound-analysis rejection; the returned scope exposes required original indices, input paths and issues without changing native diagnostics.
@@ -241,11 +241,17 @@ export function resolveProductionPassValidationScope(
         issue(`Support claim ${claim.index} is incomplete.`);
       continue;
     }
+    // Empty current review hosts await the reader; their captured references
+    // must still be complete and retain every planned boundary and dependency.
+    const awaitingReview: boolean =
+      passId(owner) === passId(key) &&
+      (owner.kind === "review" || owner.kind === "verdict") &&
+      input.unitIds.length === 0;
     if (
       !input.inventory.complete ||
-      !result.active ||
+      (!result.active && !awaitingReview) ||
       !result.complete ||
-      !report.active ||
+      (!report.active && !awaitingReview) ||
       !report.complete
     )
       issue(`Claim ${claim.index} has incomplete or inactive materialization.`);
@@ -317,14 +323,14 @@ export function resolveProductionPassValidationScope(
       if (
         !reference.inventory.complete ||
         obligation?.complete !== true ||
-        obligation.active !== true ||
+        (obligation.active !== true && !awaitingReview) ||
         obligation.claim !== claim.index ||
         reported?.complete !== true ||
-        reported.active !== true ||
+        (reported.active !== true && !awaitingReview) ||
         reported.claim !== claim.index
       )
         issue(
-          `Claim ${claim.index} reference ${reference.index} is incomplete.`,
+          `Claim ${claim.index} reference ${reference.index} is incomplete or inactive.`,
         );
       for (const resolution of [
         ...reference.resolutions,

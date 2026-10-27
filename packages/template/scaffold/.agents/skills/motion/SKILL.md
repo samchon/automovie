@@ -1,0 +1,16 @@
+---
+name: motion
+description: Programs deterministic scene performance, staging, timing, and physical responses. Use when authoring or changing animated behavior, assembling a motion hint, or upgrading a moving instance's representation.
+---
+
+# Programmed motion
+
+Realize the requested performance through code. Read the adopted [production decisions](../production/profile.md), actual brief or final screenplay, current source and installed engine APIs. A single moving instance needs only its promised behavior; a whole-video commission needs its complete scene progression and assembled timeline. Keep user-fixed choices and uncommissioned work explicit.
+
+1. Establish the scene clock, units, local frames, actor and object identities, attachments, camera and consequential action. Give shared timing and state one owner. Read [frame evaluation and assembly](timeline.md) when choosing sample times, replaying stateful motion, or wiring shots into a render host. Connect required screenplay units to the source that actually executes them.
+2. Start new animated instances with stick figures, coarse frames or another low-cost representation through [3D modeling](../3d-modeling/SKILL.md). Separate performance and meaningful dimensions from surface detail. Expose project-owned detail options and per-instance overrides where needed, using supported package controls rather than inventing a Human mode. Retained assets already meeting the task need no gratuitous rebuild.
+3. Program action, reactions, paths and transitions against the common clock. Use installed engine kinematics, constraints, performance and physical computations where they govern the motion; [physical feedback](physics.md) owns that branch. The actual scene consumes their results and diagnostics rather than merely displaying a calculation beside unrelated animation.
+4. Prove a representative execution and media path before scaling. For a whole-video hint, implement the main scenes and assemble the entire motion video, including joins and ending. Verify the intended action and timing through the actual consumer under [3D inspection](../3d-modeling/inspection.md); poses or isolated successful clips cannot establish the full sequence.
+5. Once low-cost performance works, upgrade selected objects through code options to the commissioned detail within measured budgets. Preserve identities and intended scene decisions, then recheck affected contacts, deformation, visibility, timing and cost; changed proportions or collision shapes can require motion adjustment. A direct 3D film follows the same sequence and finishes at its commissioned visual and sound quality.
+
+Record important representation, physics, provider and budget choices through [production decisions](../production/profile.md), and keep implementation in source. Generated motion or media enters as fixed inputs with provenance; it still needs the same performance inspection. Finish a source change through [development](../development/SKILL.md). [Delivery review](../delivery-review/SKILL.md) judges only the requested asset, hint or finished video.

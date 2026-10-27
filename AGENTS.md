@@ -1,6 +1,6 @@
 # AGENTS.md
 
-`automovie` lets an LLM perform a fixed asset through function calling and a deterministic engine render it, as the cheap, reproducible alternative to diffusion video. The [project skill](.agents/skills/project/SKILL.md) owns the product contract.
+`automovie` lets an LLM write a film screenplay and author deterministic staging and motion as hints for video diffusion. The [project skill](.agents/skills/project/SKILL.md) owns the product contract.
 
 ## Attitude
 
