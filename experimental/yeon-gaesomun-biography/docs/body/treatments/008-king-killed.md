@@ -1,0 +1,17 @@
+# 왕을 죽이고 나라를 남기다
+
+## 기다릴 수 없는 밀의 {#preemptive-coup}
+
+<!-- @evidenceExclude shared/upstream/treatments.md#settings-repair 이 H2 전체와 실제 설정 부모 docs/body/settings/050-systems/240-642-coup.md#642-coup, docs/body/settings/040-agents/001-yeon-gaesomun.md#yeon-and-yeongnyu, docs/body/settings/040-agents/001-yeon-gaesomun.md#yeon-origin, docs/body/settings/030-society/010-royal-and-aristocratic-power.md#royal-and-aristocratic-power 및 채택 지시 instructions/006-yeon-and-successors.md#yeongnyu-and-restoration, instructions/010-adaptation-and-delivery.md#fixed-wording, instructions/002-style-and-commentary.md#knowledge-of-the-moment, instructions/002-style-and-commentary.md#near-and-far, instructions/009-expression-quality.md#fact-preserving-expression, instructions/010-adaptation-and-delivery.md#audiovisual-adaptation를 읽고 선택·권한·시간·정보·자원·결과를 대조했다. 「그냥 돌아가 복종해 안전을 얻을 수 있다고 믿지 않으며」 왕을 남기고 물리는 길도 거부한다. 사열·모임을 이용해 먼저 공격한다. 「고건무가 사로잡힌 사실을 귀족 살해 뒤에 관객에게 준다」. 누설자와 개별 참가자의 영웅담을 열지 않는다. 부모 docs/body/settings/050-systems/240-642-coup.md#642-coup의 「군사력의 장악이 왕명을 받은 정당한 교체와 같다는 서술도 하지 않는다.」를 적용한 실제 경과에 추가 상류 사실이나 권한이 필요하지 않았고 인과·지식 한계를 바꿀 충돌도 드러나지 않았다. 사건의 결정과 scripts에 남긴 발화·실행의 구분까지 확인한 무수선 판단이다. -->
+
+642년 개소문은 자신을 죽이려는 밀의가 샜음을 확인하고 먼저 움직인다. 그냥 돌아가 복종해 안전을 얻을 수 있다고 믿지 않으며, 왕을 남긴 채 자기 병력만 물리는 길도 거부한다. 평양 성 남쪽의 사열과 모임으로 반대 귀족 백여 명을 한곳에 모아 공격하고 자기 병력으로 왕궁의 길목을 잡는다([정변의 고정 경과](../settings/050-systems/240-642-coup.md#642-coup)). 개별 밀의 참가자의 이름이나 누설자의 별도 영웅담을 만들지 않는다.
+
+고건무가 사로잡힌 사실을 귀족 살해 뒤에 관객에게 준다. 개소문의 신속함이 살 길을 만들었으나 왕명에 따른 합법적 교체는 아니다. 그가 사람을 모으고 길목을 잡은 능력은 이전에 얻은 협조와 권한에 기대고, 그 능력이 이제 함께 나라를 지키던 사람을 죽이는 데 쓰인다. 그는 왕과의 대면을 피하지 않기로 한다.
+
+## 가장 높은 자리에서 보일 나라 {#last-encounter}
+
+<!-- @evidenceExclude shared/upstream/treatments.md#settings-repair 이 H2 전체를 실제 부모와 대조했다. settings/040-agents/015-geonmu.md#geonmu-last-defence와 settings/040-agents/001-yeon-gaesomun.md#yeon-and-yeongnyu가 정한 생명을 청하지 않는 변론·당 통일의 불확실성·눈물 속 시해를, 왕의 협력/시간 주장→개소문의 반박→살해·보장왕 옹립으로 시험한다. settings/020-world/070-first-restoration.md#first-restoration의 가문·가구 협력은 settings/040-agents/091-silla-exiles.md#silla-exiles와 settings/040-agents/092-baekje-exiles.md#baekje-exiles의 서로 다른 미귀환 가족을 들어 수습 선언만으로 회복되지 않는 논거가 된다. 왕궁 별실의 대면을 공개 군사 전체의 시야로 넓히지 않고, settings/050-systems/240-642-coup.md#642-coup의 국가 유지와 시해 책임을 함께 남긴다. S080의 승리 뒤 복구 경험도 이 변론에 쓰지만, 연대 양립만으로 위 결정을 면제하지 않는다. 왕의 승인·개소문의 즉시 각성이나 공개 후회, 새 가족 생애를 보충하지 않아도 반박 뒤 시해가 작동하고 훗날의 사적 이해를 남긴다. 따라서 이 실제 사건 시험에서 새 S 사실·권한·관계·공간·지식의 수선은 필요하지 않았다. 같은 host의 parent-differentiation·decided-event와 실제 부모 양성 답변은 그 사용 근거이며, 이 음성은 독립 승인이나 닫힌 S10의 재검토가 아니다. -->
+
+[왕궁 별실](../settings/060-places/010-pyeongyang-palace.md#pyeongyang-palace)에서 고건무는 목숨을 청하지 않는다. 평원왕·영양왕이 가문과 동부 공동체의 협력을 다시 이었기에 수를 막을 수 있었고, 그 수가 패하고도 다시 와 자신에게도 승리 뒤의 복구가 남았다는 경험으로 변론한다. 선대 내전에서 살아남은 가족 중 신라 변경의 친족에게 의지한 가구와 남쪽 교역·혼인 연고를 따라 백제로 간 가구는 여전히 돌아오지 않은 사람의 서로 다른 예다. 왕실이 난리를 수습했다고 말하는 것과, 가족이 살아남으려고 새 나라에 머무는 선택을 되돌리는 것은 같지 않다([신라로 간 가족](../settings/040-agents/091-silla-exiles.md#silla-exiles), [백제로 간 가족](../settings/040-agents/092-baekje-exiles.md#baekje-exiles)). 한 번의 전공보다 그 협력을 유지할 시간이 더 필요했다는 주장이다. 당의 빠른 통일을 미리 알았어야 했다는 비난에는 당시의 불확실성을 답한다. 개소문은 나라가 살아남을 힘을 먼저 보여야 한다고 맞선다. 왕은 그가 최고 자리에 오르면 자기를 이해하게 되리라는 뜻을 남긴다([마지막 변론](../settings/040-agents/015-geonmu.md#geonmu-last-defence)). 완전한 대사의 문구는 여기서 고정하지 않는다.
+
+개소문은 한때 가장 동경한 사람을 죽이는 데 눈물을 머금지만 결정을 바꾸지 않는다. 왕이 이해받았다고 승인하거나, 개소문이 필요성을 확신하지 못한 채 떠밀려 살해한 사건으로 만들지 않는다. 그는 왕을 죽이고 보장왕을 세운다. 관객은 스스로 살아남았다는 결론과 시해의 책임을 함께 가진 주인공을 이어 따른다. 시신 훼손을 확정 장면으로 보여 주지 않는다. 역사가가 필요로 하는 거리는 그를 비난하는 기록이 있다는 사실과 작품이 택한 해석의 구별이며, 죽음을 농담으로 닫지 않는다.
