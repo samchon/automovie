@@ -2,7 +2,7 @@
 
 ## Time spent holding and time spent pressing are different {#pressure}
 
-Factual parents: [Waterloo](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Grouchy](../settings/050-people/010-ensemble.md#grouchy), [Ney](../settings/050-people/010-ensemble.md#ney), [Wellington](../settings/050-people/010-ensemble.md#wellington), [Blücher](../settings/050-people/010-ensemble.md#blucher), [material limits](../settings/020-world/010-material-world.md#weapons-and-medicine).
+Factual parents: [Waterloo](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Grouchy](../settings/050-people/220-grouchy.md#grouchy), [Ney](../settings/050-people/200-ney.md#ney), [Wellington](../settings/050-people/400-wellington.md#wellington), [Blücher](../settings/050-people/410-blucher.md#blucher), [material limits](../settings/020-world/010-material-world.md#weapons-and-medicine).
 
 Waterloo, June 18. First establish mud and farms, ammunition and smoke, and different conditions for infantry and cavalry so movement does not proceed like arrows on a map. The French must gain results that break the opponent, while Wellington's army must hold its line and buy time for support to arrive. Neither side can eliminate exhausted bodies and dwindling ammunition by a commander's will alone.
 

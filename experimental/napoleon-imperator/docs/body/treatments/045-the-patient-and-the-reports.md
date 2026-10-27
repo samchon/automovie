@@ -2,7 +2,7 @@
 
 ## The closeness of treatment conflicts with a duty to inform {#o-meara}
 
-Factual parents: [illness and access](../settings/100-history/020-life-and-memory.md#exile-and-memory), [O'Meara](../settings/050-people/010-ensemble.md#o-meara), [Antommarchi](../settings/050-people/010-ensemble.md#antommarchi), [Hudson Lowe](../settings/050-people/010-ensemble.md#hudson-lowe), [limits of medicine](../settings/020-world/010-material-world.md#weapons-and-medicine).
+Factual parents: [illness and access](../settings/100-history/020-life-and-memory.md#exile-and-memory), [O'Meara](../settings/050-people/570-o-meara.md#o-meara), [Antommarchi](../settings/050-people/580-antommarchi.md#antommarchi), [Hudson Lowe](../settings/050-people/540-hudson-lowe.md#hudson-lowe), [limits of medicine](../settings/020-world/010-material-world.md#weapons-and-medicine).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 상위 부모인 docs/body/settings/050-people/010-ensemble.md#o-meara의 1818년 7월 진료 종료·편향과 docs/body/settings/050-people/010-ensemble.md#hudson-lowe의 정보 책임, docs/body/settings/100-history/020-life-and-memory.md#exile-and-memory의 출입 순서를 적용했다. 해임이 치료 관계를 끊는 결과를 시험했으며 모든 진료자가 사라졌다고 단정하거나 오미라를 1819년까지 연장하지 않아 새 의료 사실 수선이 필요하지 않다.
 -->

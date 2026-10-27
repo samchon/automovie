@@ -2,7 +2,7 @@
 
 ## In the capital false news gains the force of command {#paris}
 
-Factual parents: [retreat and Malet](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [the delay in news](../settings/110-knowledge/010-information.md#malet-waterloo), [Bourgogne](../settings/050-people/010-ensemble.md#bourgogne), [access to information](../settings/110-knowledge/010-information.md#access).
+Factual parents: [retreat and Malet](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [the delay in news](../settings/110-knowledge/010-information.md#malet-waterloo), [Bourgogne](../settings/050-people/300-bourgogne.md#bourgogne), [access to information](../settings/110-knowledge/010-information.md#access).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 말레는 `docs/body/settings/110-knowledge/010-information.md#malet-waterloo`의 10월 22~23일 사건과 황제의 11월 6~7일 수령을 그대로 시험했다. `docs/body/settings/110-knowledge/010-information.md#access`와 `docs/body/settings/050-people/010-ensemble.md#conditional-records`에 따라 역사가/보고 경로로 허위 권한 행사→진압을 전달해 새 개인 공연·정확한 접촉 경로·즉시 황제 반응이 필요하지 않았다.
 -->

@@ -2,7 +2,7 @@
 
 ## The position that gave security intensifies the reason for parting {#divorce}
 
-Factual parents: [the time of the marriages](../settings/100-history/020-life-and-memory.md#expansion), [family power](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [Joséphine](../settings/050-people/010-ensemble.md#josephine), [Marie Louise](../settings/050-people/010-ensemble.md#marie-louise), [Eugène](../settings/050-people/010-ensemble.md#eugene), [Metternich](../settings/050-people/010-ensemble.md#metternich).
+Factual parents: [the time of the marriages](../settings/100-history/020-life-and-memory.md#expansion), [family power](../settings/030-society/010-power-and-cost.md#dynasty-and-belief), [Joséphine](../settings/050-people/050-josephine.md#josephine), [Marie Louise](../settings/050-people/060-marie-louise.md#marie-louise), [Eugène](../settings/050-people/140-eugene.md#eugene), [Metternich](../settings/050-people/370-metternich.md#metternich).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 이혼은 `docs/body/settings/100-history/020-life-and-memory.md#expansion`의 1809년 말과 별개 법적/종교 절차, `docs/body/settings/050-people/010-ensemble.md#josephine`의 혼인 안전, `docs/body/settings/050-people/010-ensemble.md#eugene`의 어머니와 맡은 책임을 그대로 시험했다. 계승 선택이 가족 단절로 성립하며 새 통보 대사·단일 밤·사치 처벌 동기가 필요하지 않았다.
 -->

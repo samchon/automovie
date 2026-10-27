@@ -2,7 +2,7 @@
 
 ## Even a decisive battle does not make the enemy army disappear {#borodino}
 
-Factual parents: [Borodino and Moscow](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Kutuzov](../settings/050-people/010-ensemble.md#kutuzov), [Alexander](../settings/050-people/010-ensemble.md#alexander), [Napoleon](../settings/050-people/010-ensemble.md#napoleon), [layers of the record](../settings/120-research/010-source-policy.md#layers).
+Factual parents: [Borodino and Moscow](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Kutuzov](../settings/050-people/340-kutuzov.md#kutuzov), [Alexander](../settings/050-people/330-alexander.md#alexander), [Napoleon](../settings/050-people/030-napoleon.md#napoleon), [layers of the record](../settings/120-research/010-source-policy.md#layers).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 보로디노는 `docs/body/settings/100-history/020-life-and-memory.md#russia-and-coalition`의 큰 피해/남은 정치 의지와 `docs/body/settings/050-people/010-ensemble.md#napoleon`의 질병 단일원인 금지를 그대로 시험했다. `docs/body/settings/050-people/010-ensemble.md#bourgogne`의 생존/지휘부 평가 차이로 모스크바 기대가 이어져 새 사상자 수·완전 적 소멸·의학적 확정 원인이 필요하지 않았다.
 -->

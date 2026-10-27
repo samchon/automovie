@@ -2,7 +2,7 @@
 
 ## The Emperor at Jena and the Marshal at Auerstädt {#two-fields}
 
-Factual parents: [imperial expansion](../settings/100-history/020-life-and-memory.md#expansion), [news from the two fields](../settings/110-knowledge/010-information.md#news), [Davout](../settings/050-people/010-ensemble.md#davout), [Louise](../settings/050-people/010-ensemble.md#queen-louise), [conditions for rebuilding an army](../settings/030-society/010-power-and-cost.md#recruitment).
+Factual parents: [imperial expansion](../settings/100-history/020-life-and-memory.md#expansion), [news from the two fields](../settings/110-knowledge/010-information.md#news), [Davout](../settings/050-people/190-davout.md#davout), [Louise](../settings/050-people/430-queen-louise.md#queen-louise), [conditions for rebuilding an army](../settings/030-society/010-power-and-cost.md#recruitment).
 
 October 14, 1806. The audience alternates between Napoleon at Jena and Davout at Auerstädt as they face different enemies on two fields. At Jena the French attack breaks the Prussian left and center. A separate corps then counterattacks but cannot reverse the defeat already inflicted. The Emperor's victory on his own field does not substitute for command on the other.
 

@@ -2,7 +2,7 @@
 
 ## The work of victory continues after the commander's death {#trafalgar}
 
-Factual parents: [the road through 1805](../settings/100-history/020-life-and-memory.md#consulate), [Nelson](../settings/050-people/010-ensemble.md#nelson), [Murat](../settings/050-people/010-ensemble.md#murat), [arrival of news](../settings/110-knowledge/010-information.md#news), [movement](../settings/020-world/010-material-world.md#movement).
+Factual parents: [the road through 1805](../settings/100-history/020-life-and-memory.md#consulate), [Nelson](../settings/050-people/380-nelson.md#nelson), [Murat](../settings/050-people/170-murat.md#murat), [arrival of news](../settings/110-knowledge/010-information.md#news), [movement](../settings/020-world/010-material-world.md#movement).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 해전은 `docs/body/settings/050-people/010-ensemble.md#nelson`의 재량·노동 의존과 `docs/body/settings/050-people/010-ensemble.md#collingwood`의 지휘 지속 사실을 그대로 사용하면서 `docs/body/settings/050-people/010-ensemble.md#conditional-records`의 새 개인 공연 금지를 지켰다. `docs/body/settings/110-knowledge/010-information.md#news`의 런던 도착과 황제 미수령으로 정보 순서가 성립해 새 인물·대사·수령일 보수가 없다.
 -->

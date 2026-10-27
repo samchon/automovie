@@ -2,7 +2,7 @@
 
 ## A commander of another empire finds opportunity within constraints {#aspern}
 
-Factual parents: [the war of 1809](../settings/100-history/020-life-and-memory.md#expansion), [Archduke Charles](../settings/050-people/010-ensemble.md#archduke-charles), [Lannes](../settings/050-people/010-ensemble.md#lannes), [medicine](../settings/020-world/010-material-world.md#weapons-and-medicine), [government and Church](../settings/030-society/010-power-and-cost.md#dynasty-and-belief).
+Factual parents: [the war of 1809](../settings/100-history/020-life-and-memory.md#expansion), [Archduke Charles](../settings/050-people/360-archduke-charles.md#archduke-charles), [Lannes](../settings/050-people/150-lannes.md#lannes), [medicine](../settings/020-world/010-material-world.md#weapons-and-medicine), [government and Church](../settings/030-society/010-power-and-cost.md#dynasty-and-belief).
 
 Austria's war of 1809. Archduke Charles is not an opponent to be consumed for the French Emperor's victory, but a commander who moves his army and exploits the limits of the French. His physical weakness and constraints from court and staff do not become caricature erasing his ability in battle. At Aspern-Essling on May 21–22 his army attacks two villages held by French troops who have crossed the river. The French are tied to defending their positions while trying to decide the battle by pressing the center. Because of the enemy's actual attacks, an army with uncertain connections must spend strength both advancing and holding ground already gained.
 

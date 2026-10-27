@@ -2,7 +2,7 @@
 
 ## The last reserves serve the last display of talent {#defense}
 
-Factual parents: [defense of France in 1814](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Caulaincourt](../settings/050-people/010-ensemble.md#caulaincourt), [Talleyrand](../settings/050-people/010-ensemble.md#talleyrand), [Marmont](../settings/050-people/010-ensemble.md#marmont), [conscription](../settings/030-society/010-power-and-cost.md#recruitment).
+Factual parents: [defense of France in 1814](../settings/100-history/020-life-and-memory.md#russia-and-coalition), [Caulaincourt](../settings/050-people/120-caulaincourt.md#caulaincourt), [Talleyrand](../settings/050-people/100-talleyrand.md#talleyrand), [Marmont](../settings/050-people/510-marmont.md#marmont), [conscription](../settings/030-society/010-power-and-cost.md#recruitment).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 상위 부모인 docs/body/settings/100-history/020-life-and-memory.md#russia-and-coalition의 1814년 연속 승리와 수도에 닿는 다른 연합군, docs/body/settings/030-society/010-power-and-cost.md#recruitment의 숙련·말 부족을 함께 시험했다. docs/body/settings/050-people/010-ensemble.md#caulaincourt의 외교적 한계도 유지한다. 새 병력 수·협상 축어·정확한 이동 시간을 정하지 않고도 전장 성공과 정치적 시간의 충돌이 성립하여 추가 설정 수리는 없다.
 -->

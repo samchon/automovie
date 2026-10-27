@@ -2,7 +2,7 @@
 
 ## Choosing not to submit, even in death {#delgres}
 
-Factual parents: [conditions in each colony](../settings/030-society/010-power-and-cost.md#slavery), [Toussaint](../settings/050-people/010-ensemble.md#toussaint), [Delgrès](../settings/050-people/010-ensemble.md#delgres), [the two men's agency](../settings/050-people/010-ensemble.md#colonial-agency), [the breakdown of Amiens](../settings/100-history/020-life-and-memory.md#consulate).
+Factual parents: [conditions in each colony](../settings/030-society/010-power-and-cost.md#slavery), [Toussaint](../settings/050-people/620-toussaint.md#toussaint), [Delgrès](../settings/050-people/630-delgres.md#delgres), [the two men's agency](../settings/050-people/010-ensemble.md#colonial-agency), [the breakdown of Amiens](../settings/100-history/020-life-and-memory.md#consulate).
 
 This file does not reconstruct an actual day on a plantation or the unrecorded last day at Matouba.
 <!--

@@ -2,7 +2,7 @@
 
 ## Success is still unknown when he leaves the island {#departure}
 
-Factual parents: [the return](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Ney](../settings/050-people/010-ensemble.md#ney), [Bertrand](../settings/050-people/010-ensemble.md#bertrand), [the promise of support](../../instructions/002-viewing-experience.md#support-and-cost).
+Factual parents: [the return](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Ney](../settings/050-people/200-ney.md#ney), [Bertrand](../settings/050-people/530-bertrand.md#bertrand), [the promise of support](../../instructions/002-viewing-experience.md#support-and-cost).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 출항일과 돌아선 군이 필요하다는 조건은 docs/body/settings/100-history/020-life-and-memory.md#return-and-waterloo, 베르트랑의 가족/헌신/기록 역할은 docs/body/settings/050-people/010-ensemble.md#bertrand를 따른다. docs/instructions/002-viewing-experience.md#support-and-cost의 응답을 얻는 이유를 출항의 불확실성으로 시험했다. 새 항로·승선자·예언을 필요로 하지 않아 현재 부모의 결손은 드러나지 않았다.
 -->

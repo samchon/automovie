@@ -2,7 +2,7 @@
 
 ## Remaining loyalty demands an end to war {#abdication}
 
-Factual parents: [abdication and family in 1814](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Ney](../settings/050-people/010-ensemble.md#ney), [Marie Louise](../settings/050-people/010-ensemble.md#marie-louise), [the son](../settings/050-people/010-ensemble.md#napoleon-ii), [Joséphine](../settings/050-people/010-ensemble.md#josephine), [corps movement and self-justification](../settings/050-people/010-ensemble.md#marmont).
+Factual parents: [abdication and family in 1814](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Ney](../settings/050-people/200-ney.md#ney), [Marie Louise](../settings/050-people/060-marie-louise.md#marie-louise), [the son](../settings/050-people/590-napoleon-ii.md#napoleon-ii), [Joséphine](../settings/050-people/050-josephine.md#josephine), [corps movement and self-justification](../settings/050-people/510-marmont.md#marmont).
 
 At Fontainebleau, as Napoleon holds to the possibility of fighting further, the need not to consume more of the army and country grows for marshals including Ney. Do not erase their years fighting together and call them traitors from the beginning. Make the difference an actual conflict between a time when loyalty to the Emperor meant continuing to march and this moment when it means refusing to march and demanding a stop.
 

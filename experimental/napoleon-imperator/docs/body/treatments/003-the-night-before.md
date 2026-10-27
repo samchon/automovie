@@ -2,7 +2,7 @@
 
 ## Letters arrive while soldiers still march {#march-and-mail}
 
-Factual parents: [the staff's night](../settings/110-knowledge/010-information.md#staff-night), [the battlefield](../settings/100-history/010-austerlitz.md#battle-state), [light](../settings/100-history/010-austerlitz.md#light-and-loss), [Davout](../settings/050-people/010-ensemble.md#davout), [Berthier](../settings/050-people/010-ensemble.md#berthier).
+Factual parents: [the staff's night](../settings/110-knowledge/010-information.md#staff-night), [the battlefield](../settings/100-history/010-austerlitz.md#battle-state), [light](../settings/100-history/010-austerlitz.md#light-and-loss), [Davout](../settings/050-people/190-davout.md#davout), [Berthier](../settings/050-people/180-berthier.md#berthier).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 현재 `docs/body/settings/110-knowledge/010-information.md#staff-night`의 편지·짚대·잠·후일 회고와 `docs/body/settings/100-history/010-austerlitz.md#battle-state`의 프리앙 도착을 그대로 병치했다. “가까운 소리와 불빛”만 참가자에게 주어 횃불 수·개인 편지·적의 반응을 채우지 않고도 밤의 진행이 성립하므로 해당 미상값의 상류 수리는 필요하지 않았다.
 -->

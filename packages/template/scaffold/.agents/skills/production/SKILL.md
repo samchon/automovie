@@ -1,14 +1,23 @@
 ---
 name: production
-description: Carries a screenplay, film-generation hint, finished video, or standalone asset through its commissioned production path. Use when starting, resuming, organizing, or delivering one.
+description: Coordinates the commissioned asset, screenplay, whole motion hint or finished film from intake through execution and delivery. Use for production scope, setup, video generation, editing, encoding and handoff; specialist skills own writing, assets, motion and sound.
 ---
 
 # Production
 
-Read the request, project-root [PROJECT.md](../../../PROJECT.md), creative instructions, current source, and outputs. Distinguish a separately commissioned screenplay from a movie output: an assembled motion hint, a finished direct 3D video, or a finished video after diffusion. Record fixed choices, available inputs, target environment, and verified scope. Resolve routine decisions within the user's authority.
+Read the request, project-root [PROJECT.md](../../../PROJECT.md), current source and outputs. Record adopted scope, fixed choices, available inputs, target environment and setup authority through [production decisions](profile.md). A screenplay, whole motion hint, finished direct 3D film and post-diffusion film have different delivery boundaries. Resolve routine choices within the user's authority.
 
-AutoMovie primarily turns an LLM-authored complete screenplay into a cheap, reproducible motion video hint for film generation. Use [motion](../motion/SKILL.md) to program performance and staging scene by scene for the main scenes and assemble the whole commissioned video; individual stills or pilot clips do not complete it. Stick figures, block figures, and coarse meshes can carry the intended performance; Human is optional. Choose representation through [3D modeling](../3d-modeling/SKILL.md) and commissioned sound through [audio](../audio/SKILL.md). A motion hint needs no finished diffusion film; an explicitly requested direct 3D film needs no diffusion step.
+Use [screenwriting](../screenwriting/SKILL.md) for narrative planning, writing and revision. An asset-only task has no narrative pipeline. The requested output determines which asset and [delivery questions](../contracts/delivery.md) apply; [contracts](../evidence/SKILL.md) owns their adoption and [evidence configuration](../evidence/configuration.md) owns technical graph changes.
 
-Ordinary coding and standalone assets keep the source/test baseline. Use [evidence configuration](../evidence-configuration/SKILL.md) when selecting narrative mode, stages, or additional duties. [Storytelling](../storytelling/SKILL.md) routes long work through settings, treatments, scripts, and final screenplay, or a short directly into final screenplay. [Instructions](../instructions/SKILL.md) preserve creative requirements; [production decisions](profile.md) records the adopted scope, delivery mode, representation, providers, runtime and setup authority; [discovery](../discovery/SKILL.md) adopts uncovered responsibilities. An asset-only brief uses source controls and asset duties outside the narrative trees.
+For commissioned video, [motion](../motion/SKILL.md) programs the main scenes' performance and staging for the complete edit. Simple figures and coarse objects can carry it; choose representations through [3D modeling](../3d-modeling/SKILL.md) and commissioned sound through [audio](../audio/SKILL.md). A motion hint needs no finished diffusion film, and a requested direct 3D film needs no diffusion step. Stills and pilot clips cannot complete a whole-video commission.
 
-Read [layout and intake](layout.md) when choosing files, adapting supplied work, or customizing the project. Implement through [development](../development/SKILL.md), proving a representative execution and media path before multiplying it. Use [narrative completion](../narrative-completion/SKILL.md) for creative pass handoffs and [upstream repair](../upstream-repair/SKILL.md) for defects in inherited decisions. Finish [review](../review/SKILL.md) of authored work and [delivery review](../delivery-review/SKILL.md) of the actual commissioned artifact.
+Choose the production task directly:
+
+| Task | Read |
+| --- | --- |
+| Establish scope, decisions and setup authority | [Project context](profile.md) |
+| Organize source, supplied material and consumers | [Layout and intake](layout.md) |
+| Use a selected generator and adopt its actual video takes | [Video generation](generation.md) |
+| Assemble shots/takes, wire the real host, encode and hand off | [Editing and finishing](finishing.md) |
+
+Keep specialist work with its owner. Motion delivers programmed performance and its frame-time evaluation; modeling delivers representations and controls; audio delivers accepted sound and measured timing; production consumes them in the actual edit and output. Implement source through [development](../development/SKILL.md), finish its [review](../review/SKILL.md), and submit the commissioned artifact to [delivery review](../review/delivery.md).

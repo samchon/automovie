@@ -2,7 +2,7 @@
 
 ## Support for a comeback is not a blank check for old powers {#constitution}
 
-Factual parents: [constitutional government and isolation](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Davout](../settings/050-people/010-ensemble.md#davout), [Fouché](../settings/050-people/010-ensemble.md#fouche), [Lucien](../settings/050-people/010-ensemble.md#lucien-bonaparte), [government](../settings/030-society/010-power-and-cost.md#government).
+Factual parents: [constitutional government and isolation](../settings/100-history/020-life-and-memory.md#return-and-waterloo), [Davout](../settings/050-people/190-davout.md#davout), [Fouché](../settings/050-people/110-fouche.md#fouche), [Lucien](../settings/050-people/070-lucien-bonaparte.md#lucien-bonaparte), [government](../settings/030-society/010-power-and-cost.md#government).
 <!--
 @evidenceExclude shared/upstream/treatments.md#settings-repair 상위 부모인 docs/body/settings/100-history/020-life-and-memory.md#return-and-waterloo의 헌정 요구와 외교적 고립, docs/body/settings/050-people/010-ensemble.md#lucien-bonaparte·docs/body/settings/050-people/010-ensemble.md#fouche·docs/body/settings/050-people/010-ensemble.md#davout의 다른 이해를 그대로 시험한다. 뤼시앵에게 1799 의장 권한을 1815의 새 관직으로 부여하지 않으며, 미채택 헌정 조문 없이 제한을 받는 통치 상태를 결정한다. 추가 설정 수리는 드러나지 않았다.
 -->
