@@ -625,7 +625,7 @@ One fault remains: **gonion**. On f1's mirror-symmetric mesh the two gonia fall 
 
 ## Step 2 fits on f1 (2026-10-27)
 
-The fitters as of commits `d38a56009` (the area centroid and the length-averaged mean radius, the reliefs' normals by the full offset) and `3d8e4679d` (the plan only) ran on f1 through `fits.ps1`, two jobs side by side from 18:16:37: A the trunk, the head base's refit, then the trunk's and the face's reliefs; B the palms and the feet, then the 24 limbs, digits and toes. Comments in `fitTrunkBase.ts`, `fitBodyBase.ts`, `fitTrunkReliefs.ts` and `HumanModuleFitting.ts`, and the eyes' outlines in `fitHeadReliefs.ts`, were edited at 18:22 while the trunk and the palms already ran; the comments change no run, and the face's relief fitter had not started.
+The fitters as of commits `d38a56009` (the area centroid and the length-averaged mean radius, the reliefs' normals by the full offset) and `3d8e4679d` (the plan only) ran on f1 through `fits.ps1`, two jobs side by side from 18:16:37: A the trunk, the head base's refit, then the trunk's and the face's reliefs; B the palms and the feet, then the 24 limbs, digits and toes. Comments in `fitTrunkBase.ts`, `fitBodyBase.ts`, `fitTrunkReliefs.ts` and `HumanModuleFitting.ts`, and the eyes' outlines in `fitHeadReliefs.ts`, were edited at 18:22 while the trunk and the palms already ran; the comments change no run, and the face's relief fitter had not started. The strips' fitter's header took the trim's count limit (as many control points as the carried points), which its code already applied, at 18:44, before any strip ran.
 
 ### Palms and feet
 
