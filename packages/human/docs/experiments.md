@@ -721,6 +721,24 @@ Run 19:28:31 to 19:30:23, 1,944 observed points.
 | cross-validated length | 1.01, the bracket's lower end | 1.01, the bracket's lower end | 1.01, the bracket's lower end | 1.01, the bracket's lower end |
 | inlier RMS, tr A | 0.074, 168.6 | 0.090, 199.4 | 0.070, 146.9 | 0.101, 116.0 |
 
+### Left toes
+
+| | bigtoe_l | indextoe_l |
+| --- | --- | --- |
+| run | 19:48:44 to 19:50:23 | 19:50:23 to 19:51:33 |
+| observed points | 3,384 | 2,496 |
+| keys (arc length, mm) | root 0.0, radius 6.0, `bigtoe_02` 12.8, radius 20.8, the cap's end key 26.8 | root 0.0, radius 6.0, `indextoe_02` 12.9, the cap's end key 20.9 |
+| cap | from family plane 22, rho 12.00 mm, two cap keys | from family plane 19, rho 10.00 mm, two cap keys |
+| keys in all, family planes | 7, 8 to 22 | 6, 8 to 19 |
+| cross-validated length | 1.01, the bracket's lower end | 1.01, the bracket's lower end |
+| inlier RMS, tr A | 0.251, 114.4 | 0.393, 94.4 |
+
+### Left strips
+
+The strips' fitter (`fitStrip.ts`) reads only its parent's and its own base, so the left limbs' and digits' strips ran from 19:48:47 beside job B, whose right side was still to come, rather than after it; the exporter, which also reads both relief files, waits for them.
+
+- arm_l, run 19:48:47 to 19:49:15: the trim carried onto the trunk's surface with 8 control points, worst 3.294 mm against the chart cell's 3.597 mm, winding 0, 280.2 mm round and 140 columns; observed points 5,932 of the trunk's in the root region and 14,920 of the family's proximal planes. The reach, searched on the mean squared offset, settled at 0.0174 (4.9439 mm^2), a mean width of 8.7 mm against the arm base's mean key spacing of 26.1 mm, so one interior row of 8 control points. The cross-validated length has its least inside the bracket, at 1.05 mm (1.03 and 1.06 mm score higher); inlier RMS 1.085 mm, tr A 10.1 of 1,204 offsets.
+
 ### Trunk reliefs
 
 Run 19:24:18 to 19:32:50 over the trunk base above, 305,208 observed points; it stopped on the second relief.
