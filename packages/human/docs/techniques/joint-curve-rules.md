@@ -1,6 +1,6 @@
 # Joint neighborhoods and physical jets
 
-Incoming, outgoing and bisector observations are different charts. A bisector built from adjacent support directions requires a nondegenerate direction sum and qualified roll; do not average their skin contours into one curve. Use the actual support chain for section selection and retain cavities, ambiguity and source lineage.
+Incoming, outgoing and bisector observations are different charts. A bisector built from adjacent support directions requires a nondegenerate direction sum and qualified roll; their skin contours are not averaged into one curve. Use the actual support chain for section selection and retain cavities, ambiguity and source lineage.
 
 ## Regional derivatives
 
@@ -45,5 +45,3 @@ f_lambdalambda + 2*f_lambdaphi*phi_lambda
 ```
 
 These equations are linear in common coefficients for fixed correspondence. One path does not independently observe every mixed derivative. Preserve source-fit uncertainty, actual physical widths and endpoint jets when solving the full constrained problem.
-
-[Original derivation and experimental record](https://github.com/samchon/automovie/blob/197196b7b/packages/human/docs/techniques/joint-curve-rules.md). Its source identities, fitted coefficients, paths and reported outcomes are not validated for the current reference cohort.

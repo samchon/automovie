@@ -1,6 +1,6 @@
 # Fink 2008, visual attention to facial skin colour distribution
 
-Fink B, Matts PJ, Klingenberg H, Kuntze S, Weege B, Grammer K. "Visual attention to variation in female facial skin color distribution." *Journal of Cosmetic Dermatology*, 2008, doi:10.1111/j.1473-2165.2008.00382.x. Abstract only (Europe PMC REST API).
+Fink B, Matts PJ, Klingenberg H, Kuntze S, Weege B, Grammer K. "Visual attention to variation in female facial skin color distribution." *Journal of Cosmetic Dermatology*, 2008, doi:10.1111/j.1473-2165.2008.00382.x. Read: the abstract only.
 
 ## Findings (abstract)
 

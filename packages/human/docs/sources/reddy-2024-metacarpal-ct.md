@@ -17,7 +17,7 @@ Open access (Thieme, PMC).
 | Men | 47.5 +- 2.7 | 68.8 +- 3.7 | 66.6 +- 4.1 | 59.2 +- 4.2 | 52.8 +- 3.6 |
 | Women | 42.8 +- 3.2 | 63.1 +- 4.3 | 60.4 +- 4.2 | 52.9 +- 4.1 | 48.4 +- 3.6 |
 
-Ratios to MC3 (ours, sexes pooled): MC1 0.711, MC2 1.039, MC4 0.883, MC5 0.797. The second metacarpal is the longest in both sexes. The table's female MC1 articular length (48.4) contradicts its Table 3 (41.6) and is not used.
+Ratios to MC3 (derived, sexes pooled): MC1 0.711, MC2 1.039, MC4 0.883, MC5 0.797. The second metacarpal is the longest in both sexes. The table's female MC1 articular length (48.4) contradicts its Table 3 (41.6) and is not used.
 
 ## Limits
 

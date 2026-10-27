@@ -1,6 +1,6 @@
 # MakeHuman
 
-This survey read the documentation, FAQ, licence statement and target-folder listing linked below; implementation code was not examined.
+Read from the documentation, FAQ, licence statement and target-folder listing in Sources; the implementation code was not read.
 
 ## Base mesh
 

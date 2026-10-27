@@ -1,6 +1,6 @@
 # Bekerman 2014, eyeball diameters of healthy adults
 
-Bekerman I, Gottlieb P, Vaiman M. "Variations in eyeball diameters of the healthy adults." *Journal of Ophthalmology* 2014:503645, doi:10.1155/2014/503645. Read as PMC4238270 (NCBI efetch).
+Bekerman I, Gottlieb P, Vaiman M. "Variations in eyeball diameters of the healthy adults." *Journal of Ophthalmology* 2014:503645, doi:10.1155/2014/503645. PMC4238270.
 
 ## Licence
 

@@ -1,6 +1,6 @@
 # White et al. 2018, passive thumb CMC motion
 
-White J., Coppola L., Skomurski A., Mitchell-Rekrut E. "Influence of age and gender on normative passive range of motion values of the carpometacarpal joint of the thumb." *Journal of Hand Therapy* 31(3):390-397, 2018, doi:10.1016/j.jht.2017.02.011; published online 2017-05-03. [PubMed abstract](https://pubmed.ncbi.nlm.nih.gov/28478845/) read through its indexed text on 2026-10-24; full article was not read.
+White J., Coppola L., Skomurski A., Mitchell-Rekrut E. "Influence of age and gender on normative passive range of motion values of the carpometacarpal joint of the thumb." *Journal of Hand Therapy* 31(3):390-397, 2018, doi:10.1016/j.jht.2017.02.011. Read: the [PubMed abstract](https://pubmed.ncbi.nlm.nih.gov/28478845/) only.
 
 ## Population and protocol
 

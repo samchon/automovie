@@ -1,6 +1,6 @@
 # Ma et al. 2020, CAPE
 
-Ma Q, Yang J, Ranjan A, Pujades S, Pons-Moll G, Tang S, Black MJ. "Learning to Dress 3D People in Generative Clothing." CVPR 2020. Read from arXiv 1907.13615v3, https://arxiv.org/html/1907.13615v3 (method and limitations). Read 2026-10-23.
+Ma Q, Yang J, Ranjan A, Pujades S, Pons-Moll G, Tang S, Black MJ. "Learning to Dress 3D People in Generative Clothing." CVPR 2020. Read from arXiv 1907.13615v3, https://arxiv.org/html/1907.13615v3 (method and limitations).
 
 ## Licence
 

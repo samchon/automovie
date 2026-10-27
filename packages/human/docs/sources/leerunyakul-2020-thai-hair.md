@@ -1,6 +1,6 @@
 # Leerunyakul 2020, hair density and diameter in Thai adults
 
-Leerunyakul K, Suchonwanit P. "Evaluation of Hair Density and Hair Diameter in the Adult Thai Population Using Quantitative Trichoscopic Analysis." *BioMed Research International* 2020:2476890, doi:10.1155/2020/2476890. Read as PMC7035527 (NCBI efetch).
+Leerunyakul K, Suchonwanit P. "Evaluation of Hair Density and Hair Diameter in the Adult Thai Population Using Quantitative Trichoscopic Analysis." *BioMed Research International* 2020:2476890, doi:10.1155/2020/2476890. PMC7035527.
 
 ## Licence
 

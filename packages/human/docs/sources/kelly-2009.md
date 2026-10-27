@@ -1,6 +1,6 @@
 # Kelly et al. 2009, DXA body composition reference values from NHANES
 
-Kelly T.L., Wilson K.E., Heymsfield S.B. "Dual Energy X-Ray Absorptiometry Body Composition Reference Values from NHANES." *PLoS ONE* 4(9):e7038, 2009. Read: the article at https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0007038 and supplementary Tables S2, S3, S4 and S6 (Word files decoded as text; some middle rows were unreadable and are omitted).
+Kelly T.L., Wilson K.E., Heymsfield S.B. "Dual Energy X-Ray Absorptiometry Body Composition Reference Values from NHANES." *PLoS ONE* 4(9):e7038, 2009. Read: the article at https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0007038 and supplementary Tables S2, S3, S4 and S6 (some middle rows were unreadable and are omitted).
 
 ## Licence
 

@@ -1,6 +1,6 @@
 # Mehl 2025, centres of rotation during jaw movement
 
-Mehl AC, Woodford SC, Robinson DL, Abduo J, Lee PVS, Ackland DC. "Location of centers of rotation and existence of terminal hinge axes during jaw movements - a preliminary in vivo clarification." *Clinical Oral Investigations* 29:530, 2025, doi:10.1007/s00784-025-06619-4. Read as PMC12553608 (NCBI efetch).
+Mehl AC, Woodford SC, Robinson DL, Abduo J, Lee PVS, Ackland DC. "Location of centers of rotation and existence of terminal hinge axes during jaw movements - a preliminary in vivo clarification." *Clinical Oral Investigations* 29:530, 2025, doi:10.1007/s00784-025-06619-4. PMC12553608.
 
 ## Licence
 

@@ -1,6 +1,6 @@
 # Farkas 2005, international anthropometric study of facial morphology
 
-Farkas LG, Katic MJ, Forrest CR, et al. "International anthropometric study of facial morphology in various ethnic groups/races." *Journal of Craniofacial Surgery* 16(4):615-646, 2005, doi:10.1097/01.scs.0000171847.58031.9e. Only the abstract was read (Europe PMC REST API). The full text and its tables were not accessible.
+Farkas LG, Katic MJ, Forrest CR, et al. "International anthropometric study of facial morphology in various ethnic groups/races." *Journal of Craniofacial Surgery* 16(4):615-646, 2005, doi:10.1097/01.scs.0000171847.58031.9e. Read: the abstract only; the full text and its tables were not accessible.
 
 ## Population and protocol (abstract)
 

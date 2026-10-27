@@ -10,7 +10,7 @@ A US Government-funded survey published by NIST and the CPSC; the site states th
 
 US children from two weeks to 18 years, measured 1975 to 1977 across the United States by two teams with automated anthropometers; 87 dimensions. Zero means missing. `SEX` 1 is male. Infants under two have supine stature and no standing measures. Definitions used below: erect sitting height, sitting surface to vertex with the head in the Frankfort plane; head height, menton to vertex perpendicular to the Frankfort plane; hand length, wrist crease to the tip of the middle finger; hand breadth, across the knuckles; thumb, index and middle finger lengths, from the skin crease at the finger base to the tip; foot breadth, maximum across the ball.
 
-## Fitted values (ours, population-fitted: means of per-subject ratios by age bin)
+## Derived values (means of per-subject ratios by age bin)
 
 | Age (y) | Sex | Stature (mm) | Sitting height / stature | Stature / head height | Head height (mm) | Biacromial / stature | Bispinous / stature | Acromion-radiale / stature | Radiale-stylion / stature | Tibiale height / stature | Trochanter height / stature | Natural waist / hip circumference |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |

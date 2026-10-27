@@ -4,7 +4,7 @@ de Leva P. "Adjustments to Zatsiorsky-Seluyanov's segment inertia parameters." *
 
 ## Licence
 
-Journal article, copyright Elsevier. Numeric parameters are facts;
+Journal article, copyright Elsevier. Numeric parameters are facts.
 
 ## Population and protocol
 
