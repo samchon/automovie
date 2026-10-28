@@ -9,7 +9,7 @@ An explicit stop overrides every modeling, capture and audit instruction. Termin
 
 ## Supervision
 
-- Never work as a single agent; as the main agent, only supervise, and do no survey, plan, code, fit or capture yourself.
+- Never work as a single agent; as the main agent, only supervise, and do no survey, plan, code or fit yourself.
 - Set each subagent's task, scope and memory cap, and how many run at once.
 - Read every output yourself; a subagent's report is not evidence.
 - Check every join between parts: C2 at shared keys, G2 across strips, and trims.
@@ -27,14 +27,14 @@ An explicit stop overrides every modeling, capture and audit instruction. Termin
 | Arm | arm, arm strip on the trunk | Trunk, Hand |
 | Foot | foot, toes, toe strips, the ankle key | Method |
 | Leg | leg, leg strip on the trunk | Trunk, Foot |
-| Integration | export and render of every part; the viewer, the capture path and compiler and GPU resources | every part; the viewer and capture path at any time |
+| Integration | export and render of every part; the viewer code, the shared viewer server, the compiler and GPU resources | every part; the viewer and its server at any time |
 
 - Have one subagent fit both sides of its part.
 - Run independent subagents in parallel.
 - Give each shared key the one owner named above; the other side copies it.
 - Let each subagent write only its own part's files, and change shared fitting code only through the Method subagent.
 - Allow subagents no git, issue or pull request operation.
-- Let only the Integration subagent touch a server.
+- Have every subagent view its own work in the shared [viewer](screenshot.md) at every stage, from the survey to each fit, not only at the end: close-ups, isolated curves, the lofting curves alone or over the skin, `material=clay`, raking lights and curve diagrams. A capture is an HTTP request to the local server.
 
 ## Work Order
 

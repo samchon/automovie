@@ -1,6 +1,6 @@
 # Screenshots
 
-The Integration subagent starts the viewer from the repository root:
+One shared viewer serves every agent, and every agent captures from it by HTTP. The Integration subagent starts it from the repository root, on another free port with `--strictPort` when 5173 is taken:
 
 ```powershell
 Set-Location packages/playground

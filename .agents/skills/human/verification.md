@@ -14,7 +14,9 @@ Inspect all four people in the [viewer](screenshot.md) under the same camera, li
 
 ## Render Audit
 
-- Capture only after the generated output changes, and show only new frames.
+The audit set below is what the user is shown. Working views are separate: every subagent captures the views its stage needs, whenever it needs them.
+
+- Capture the audit set only after the generated output changes, and show only new frames.
 - By default capture f1 whole front, side, top (`free` with `view=%2By`) and back with `garment=0`, plus construction front, side and back.
 - Save each PNG's exact bytes under `packages/playground/.shots/<round>/`.
 - Check each file's SHA-256 against its `x-human-png-sha256` header.
