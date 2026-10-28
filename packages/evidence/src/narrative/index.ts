@@ -5,7 +5,6 @@ export * from "./IProductionConstruction";
 export * from "./IProductionLayerStages";
 export * from "./NarrativeLayer";
 export * from "./NarrativeScope";
-export * from "./ProductionConstructionStageMixin";
 export * from "./ProductionStage";
 export * from "./ProductionGate";
 export * from "./resolveProductionGateRuntime";

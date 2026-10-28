@@ -1,13 +1,12 @@
-import type { ProductionConstructionStageMixin } from "./ProductionConstructionStageMixin";
 import type { ProductionStage } from "./ProductionStage";
 
 /**
  * Sets each layer's construction stage and upstream approval dependency.
  *
- * @evidence contracts/common.md#principled-implementation The stage object models four construction layers plus independently staged settings outline; the screenplay tuple alone chooses scripts construction versus naturalness as its prerequisite.
- * @evidence contracts/common.md#clear-and-simple-design Documentary stages and the optional outline override remain separate from the one screenplay scripts-source tuple.
+ * @evidence contracts/common.md#principled-implementation The stage object models four construction layers plus independently staged settings outline; screenplay requires scripts and treatments construction, including the scripts expression duties.
+ * @evidence contracts/common.md#clear-and-simple-design Scalar layer stages and the optional outline override express the actual construction chain without an alternate scripts edition.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Runtime source validation rejects invalid stages and unsupported tuples rather than treating the interface as proof of validity.
- * @evidence contracts/common.md#meaningful-documentation Members define outline fallback, documentary prerequisites and bare-stage versus tuple scripts approval behavior.
+ * @evidence contracts/common.md#meaningful-documentation Members define outline fallback and the actual construction prerequisites, distinguishing long inherited screenplay from direct short entry.
  * @evidenceExclude contracts/performance.md#efficient-algorithms Construction stage selection is erased at runtime; producing and consuming functions account for concrete traversal and allocation.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Construction stage selection declares data and coordinates no reusable effects; consumers own equivalence and invalidation.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Construction stage selection acquires no resource or retained state; concrete owners determine instance bytes and lifetimes.
@@ -43,9 +42,8 @@ export interface IProductionConstruction {
   /**
    * Sets the screenplay construction stage.
    *
-   * The tuple is [stage, useFinalScripts]. True requires scripts naturalness,
-   * false scripts construction. Both require treatments construction and read
-   * the current body. A stage string alone means true.
+   * Requires approved scripts and treatments construction in long productions.
+   * Short productions enter directly without invented parents.
    */
-  screenplay: ProductionStage | ProductionConstructionStageMixin;
+  screenplay: ProductionStage;
 }

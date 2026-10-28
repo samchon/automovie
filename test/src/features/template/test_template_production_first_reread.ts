@@ -22,8 +22,8 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * @evidence contracts/testing.md#behavioral-verification Evaluates complete real Markdown graphs through createProductionConfig and analyzeProductionPass before and after moving the current round, creating an empty round, restoring each review owner separately and restoring both. Readiness, missing owner kinds, preserved native success and complete inactive claims distinguish first-reader preparation from approval. Invalid captured bytes and empty current/upstream populations prevent a blanket inactive-claim exemption.
  * @evidence contracts/testing.md#independent-expectations The public contract permits independent reading before current reviews exist while requiring both current review kinds for approval and completed upstream passes. Fixed fixture bytes supply the authored work; the existing native certification helper supplies opaque fingerprints. No graph or report is fabricated and these structural assertions grant no literary approval.
- * @evidence contracts/testing.md#distinguishing-cases Four construction layers and both expression passes exercise the same rule with different factory owners. Review-only and verdict-only populations distinguish the two owner kinds; invalid host and reference captures distinguish complete emptiness from unavailable input. Treatments with empty settings reviews and screenplay naturalness with empty construction reviews distinguish upstream ownership across layers and passes. Existing topology, transfer, support and stale-upstream tests own those additional refusals.
- * @evidence contracts/testing.md#execution-ownership The exported async test owns six temporary productions and all mutations, restores individual inputs between negative controls and removes each root in finally. Public native Markdown evaluation stays in process without installation, external processes, browser or GPU, and no foreign method or global is replaced.
+ * @evidence contracts/testing.md#distinguishing-cases Four construction layers and the screenplay expression pass exercise the same rule with different factory owners. Review-only and verdict-only populations distinguish the two owner kinds; invalid host and reference captures distinguish complete emptiness from unavailable input. Treatments with empty settings reviews and screenplay naturalness with empty construction reviews distinguish upstream ownership across layers and passes. Existing topology, transfer, support and stale-upstream tests own those additional refusals.
+ * @evidence contracts/testing.md#execution-ownership The exported async test owns five temporary productions and all mutations, restores individual inputs between negative controls and removes each root in finally. Public native Markdown evaluation stays in process without installation, external processes, browser or GPU, and no foreign method or global is replaced.
  */
 export async function test_template_production_first_reread(): Promise<void> {
   const keys: IProductionGateKey[] = [
@@ -31,7 +31,6 @@ export async function test_template_production_first_reread(): Promise<void> {
     { layer: "treatments", pass: "construction" },
     { layer: "scripts", pass: "construction" },
     { layer: "screenplay", pass: "construction" },
-    { layer: "scripts", pass: "naturalness" },
     { layer: "screenplay", pass: "naturalness" },
   ];
   for (const key of keys) {

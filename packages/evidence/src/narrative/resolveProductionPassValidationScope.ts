@@ -37,7 +37,6 @@ import { inspectProductionAnalysis } from "./internal/passScope/inspectProductio
 import { inventoryPaths } from "./internal/passScope/inventoryPaths";
 import { productionLayers } from "./internal/productionLayers";
 import { inspectProductionTopology } from "./internal/topology/inspectProductionTopology";
-import { resolveConstruction } from "./internal/utilities/resolveConstruction";
 import { validationOwner } from "./internal/validationOwner";
 import { passId } from "./passId";
 
@@ -51,7 +50,7 @@ import { passId } from "./passId";
  * @evidence contracts/common.md#clear-and-simple-design The scope resolver owns dependency/readiness boundaries while native Evidence owns evaluation and topology helpers own document/lineage checks; the captured canonical resolver prevents live filesystem reinterpretation.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Known route and authored-pass relationships are domain rules; custom claims receive the same materialization/ownership checks, support stays global, and cycles in any active authored boundary remain blocking even outside the current closure.
  * @evidence contracts/common.md#meaningful-documentation The prose states snapshot-only aliases/source identity and unbound-analysis rejection; the returned scope exposes required original indices, input paths and issues without changing native diagnostics.
- * @evidence contracts/performance.md#efficient-algorithms Plan and analysis maps avoid repeated top-level joins, but reference/report finds, expected-index membership, custom review-host source intersections, alias/boundary scans and issue deduplication retain nested costs in claims, references, sources and findings. The pass graph has at most six supported keys; topology validation additionally processes captured document bytes. Maps, sets and scope arrays scale with the complete analyzed graph.
+ * @evidence contracts/performance.md#efficient-algorithms Plan and analysis maps avoid repeated top-level joins, but reference/report finds, expected-index membership, custom review-host source intersections, alias/boundary scans and issue deduplication retain nested costs in claims, references, sources and findings. The pass graph has at most five supported keys; topology validation additionally processes captured document bytes. Maps, sets and scope arrays scale with the complete analyzed graph.
  * @evidence contracts/performance.md#reuse-equivalent-work One indexed plan/analysis and captured path resolver are shared throughout the scope build; physical aliases and input bytes come from the evaluated snapshot. The config is revalidated and scope recomputed for each key rather than caching caller-editable analysis-derived results.
  * @evidence contracts/performance.md#bound-retention-and-release-resources All dependency/index maps and DFS sets are local; the returned scope retains owners, required keys and input-path strings while the weak capture registry owns saved metadata with its analysis. No live filesystem handle or task is acquired.
  */
@@ -80,7 +79,9 @@ export function resolveProductionPassValidationScope(
   )
     throw new Error("Unknown pass validation layer/pass.");
   if (key.pass === "naturalness" && !hasNaturalness(key.layer))
-    throw new Error("Only scripts and screenplay have a naturalness pass.");
+    throw new Error(
+      "Only screenplay has a naturalness pass; scripts finish in construction.",
+    );
   const scope: IProductionPassValidationScope = {
     key: { ...key },
     owners,
@@ -117,8 +118,8 @@ export function resolveProductionPassValidationScope(
     pass: IProductionGateKey,
   ): string =>
     pass.pass === "construction"
-      ? resolveConstruction(props.construction[pass.layer])[0]
-      : props.naturalness[pass.layer as "scripts" | "screenplay"];
+      ? props.construction[pass.layer]
+      : props.naturalness.screenplay;
   const keys: Map<string, IProductionGateKey> = createProductionPassKeys();
   const dependencies: Map<string, Set<string>> = new Map(
     [...keys.keys()].map((id: string): [string, Set<string>] => [
@@ -133,7 +134,7 @@ export function resolveProductionPassValidationScope(
     if (passId(from) !== passId(to))
       dependencies.get(passId(from))!.add(passId(to));
   };
-  // Documentary canon flows through treatments; screenplay alone selects a revised parent.
+  // Canon flows through construction; only screenplay adds its own revision pass.
   for (const layer of AUTHORED_LAYERS) {
     if (hasNaturalness(layer))
       add({ layer, pass: "naturalness" }, { layer, pass: "construction" });
@@ -153,9 +154,7 @@ export function resolveProductionPassValidationScope(
         { layer, pass: "construction" },
         {
           layer: "scripts",
-          pass: resolveConstruction(props.construction.screenplay)[1]
-            ? "naturalness"
-            : "construction",
+          pass: "construction",
         },
       );
   }
@@ -362,10 +361,7 @@ export function resolveProductionPassValidationScope(
         )) {
           if (layer === owner.layer) continue;
           const upstream: "construction" | "naturalness" =
-            hasNaturalness(layer) &&
-            (owner.pass === "naturalness" ||
-              (owner.layer === "screenplay" &&
-                resolveConstruction(props.construction.screenplay)[1]))
+            hasNaturalness(layer) && owner.pass === "naturalness"
               ? "naturalness"
               : "construction";
           add(owner, { layer, pass: upstream });

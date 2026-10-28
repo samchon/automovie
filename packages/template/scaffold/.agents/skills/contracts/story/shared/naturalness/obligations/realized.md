@@ -1,6 +1,6 @@
 # Speech expression population obligation
 
-The completed revised script or final screenplay population answers once from all its actual exchanges. Local plausible lines do not establish distinct voices across a work.
+The completed script construction or revised final screenplay population answers once from all its actual exchanges. Local plausible lines do not establish distinct voices across a work.
 
 ## Do voices and exchange habits remain distinct across the whole? {#voice-distribution}
 

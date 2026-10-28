@@ -4,7 +4,7 @@ Each revised final screenplay H2 answers for the finished image, sound, performa
 
 ## Do audiovisual voice and rhythm belong to this moment? {#audiovisual-voice}
 
-Do the chosen image and sound, distance and access, duration, interruption, transition, and arrangement of performance carry this scene's pressure within the work's adopted voice? Inspect a habitual opening, explanation, montage pattern, musical emphasis, reaction pause, or closing image imposed on different material; frantic moments buried in duration; weight lost to a uniform short beat; and production reading units whose grouping conceals the movement of attention. The same reading can require long duration, flat delivery, a fixed view, or recurrence when its effect is realized. Do not vary forms merely for variety.
+Do the chosen image and sound, distance and access, duration, interruption, transition, and arrangement of performance carry this scene's pressure within the work's adopted voice? Inspect a habitual opening, explanation, montage pattern, musical emphasis, reaction pause, or closing image imposed on different material; frantic moments buried in duration; weight lost to a uniform short beat; and production reading units whose grouping conceals the movement of attention. The same reading can require long duration, flat delivery, a fixed view, or recurrence when its effect is realized. The sequence must convey the present pressure; listing each image or sentence's function cannot excuse delayed continuous experience. Do not vary forms merely for variety.
 
 ## Does the final medium transform the upstream register? {#upstream-transposition}
 

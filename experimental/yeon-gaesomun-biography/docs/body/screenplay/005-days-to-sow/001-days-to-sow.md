@@ -359,7 +359,7 @@ The Yeon residence in Pyongyang. About two hundred of Damseok's men enter throug
 
 **Damseok**　Lord Namgeon has received the royal order and directed us to take this place. First surrender the seal. We will take the young master separately. Guards, withdraw and stand apart from him.
 
-**Heonchung**　Once you have taken all his people away, whose care are you putting him in?
+**Heonchung**　If you take Father's seal and separate me from his guards, who protects this house?
 
 **Damseok**　The order is to secure the seal and the young master separately. The guards cannot go with him.
 

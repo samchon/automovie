@@ -1,6 +1,6 @@
 # Common expression population obligation
 
-Each question compares the completed revised script or final screenplay population and has exactly one answering working file, with its answer in a file-level comment. Inspect the revised population rather than infer its quality from construction drafts or local answers. Record all found convergence candidates with actual passages, repairs, and reasons for preserving a form. Identify the inspected scope when none are found; representative examples and fixed counts cannot prove completeness.
+The scripts construction population and the revised screenplay population each answer once at file level in the edition that settles their expression. Read the whole selected population, recording convergence candidates with actual passages, repairs and reasons for preserving a form. Identify the inspected scope when none are found; representative examples and fixed counts cannot prove completeness.
 
 ## Does recurrent expression follow material rather than a default mold? {#recurrent-frames}
 

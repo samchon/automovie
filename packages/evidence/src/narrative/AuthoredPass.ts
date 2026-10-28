@@ -1,7 +1,7 @@
 /**
  * Names the two logical authored passes of one shared manuscript.
  *
- * `draft` means construction. `final` means scripts/screenplay naturalness. They select
+ * `draft` means construction. `final` means screenplay naturalness. They select
  * `docs/body` and `docs/naturalness` respectively; construction evidence is detached,
  * while naturalness evidence stays inline in the working text.
  *

@@ -16,7 +16,7 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * Authored pass validation follows the selected production route and fails closed.
  *
  * Scenarios:
- * 1. A long screenplay follows settings, treatments, scripts, and scripts revision.
+ * 1. A long screenplay follows settings, treatments, scripts including expression duties.
  * 2. A short screenplay has no invented upstream narrative requirements.
  * 3. Asset work rejects narrative validation; disabled or empty work stays unready.
  * 4. Cloning a factory config or mutating its captured props loses ownership.
@@ -37,7 +37,6 @@ export async function test_template_production_routing(): Promise<void> {
       scripts: "evidence",
       screenplay: "evidence",
     };
-    long.naturalness.scripts = "evidence";
     const longConfig: IEvidenceConfig = createProductionConfig(long);
     const longResult: IProductionPassValidation = await analyzeProductionPass(
       longConfig,
@@ -56,7 +55,6 @@ export async function test_template_production_routing(): Promise<void> {
       [
         "screenplay/construction",
         "scripts/construction",
-        "scripts/naturalness",
         "settings/construction",
         "treatments/construction",
       ],

@@ -10,7 +10,7 @@ For commissioned time-matched controls, establish matching performance, camera/c
 
 When a generator is selected, state its actual observed input compatibility. A finished direct 3D or generated film additionally needs its actual visual and sound result: identity, spatial/temporal continuity, required action and information, intelligibility of included speech/text, and the intended audience effect. Conditioning alone cannot establish it.
 
-Verify the actual delivered file's agreed dimensions/aspect, frame rate, container/codec, picture/color handling, audio and caption tracks where the commission specifies them. Use measured media timing and actual playback through the intended consumer, distinguishing observed results and unverified limits. An encoder exit, preview or successful proxy proves no unobserved final profile.
+Verify the actual delivered file's agreed dimensions/aspect, frame rate, container/codec, picture/color handling, audio and caption tracks where the commission specifies them. Use measured media timing and actual playback through the intended consumer, distinguishing observed results and unverified limits. For converted takes, establish decoded source-to-edit timestamps, actual trim/retiming/frame-conversion behavior and preserved sound/caption offsets; a matching nominal FPS or duration does not establish synchronization or retention of the final action. An encoder exit, preview or successful proxy proves no unobserved final profile.
 
 ## Reproducible handoff
 

@@ -15,7 +15,7 @@ A long film or series retains settings → treatments → scripts → final scre
 
 ## Route and parents
 
-Long work follows settings construction → treatments construction → scripts construction → scripts naturalness → screenplay construction → screenplay naturalness. Short work enters at screenplay construction and retains its expression, evidence and independent review duties. An asset-only task has no narrative passes. Only an explicit user waiver omits an expression pass.
+Long work follows settings construction → treatments construction → scripts construction → screenplay construction → screenplay naturalness. Short work enters at screenplay construction and retains its expression, evidence and independent review duties. Scripts finish dialogue and directions, including their expression contracts, within construction. Freezing content before inspecting content-shaped speech failures made those failures impossible to repair in revision. An asset-only task has no narrative passes. Only an explicit user waiver omits screenplay naturalness.
 
 For an expression pass, use the [rewriting method](rewriting/method.md) for composition and revision cycles, and the [rewriting procedure](rewriting/procedure.md) for freezing, submission, review and exact transfer.
 
@@ -30,7 +30,7 @@ Read current parent bodies and reviews when starting, resuming, or changing a so
 | Settings | Adopted instructions, material and discovered work requirements |
 | Treatments | Completed settings construction |
 | Scripts | Completed treatments construction |
-| Screenplay in long work | Treatments and reviewed, transferred scripts after naturalness; an explicit waiver may use scripts construction |
+| Screenplay in long work | Completed treatments and scripts construction, including scripts expression requirements |
 | Screenplay in short work | The request and adopted constraints directly |
 
 Facts pass through the actual parents. Direct settings evidence cannot repair an incomplete treatment handoff. [Discovery](discovery.md) compares requirements and current owners before bulk settings and at downstream design reviews.
@@ -40,7 +40,7 @@ Facts pass through the actual parents. Direct settings evidence cannot repair an
 3. Submit the whole selected population, including boundaries and global obligations, to independent [review](../review/SKILL.md). Supply scope and actual inputs rather than a conclusion to confirm.
 4. Record reasoned author decisions, repair accepted findings through their owners, and satisfy the [closing-round rule](../review/rounds.md). Keep the current completed review and the pass in its evidence stage.
 
-Settings includes its outline in the same completion. Unit answers cannot establish whole-population coverage, character development, middle accumulation, partition, or complete handoff; use the selected population respondent and compare every member. Settings and treatments correct their documents within construction; scripts and screenplay next receive their separate expression passes.
+Settings includes its outline in the same completion. Unit answers cannot establish whole-population coverage, character development, middle accumulation, partition, or complete handoff; use the selected population respondent and compare every member. Settings and treatments correct their documents within construction. Scripts completes expression there too; only final screenplay receives a separate naturalness pass.
 
 ## Completion
 

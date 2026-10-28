@@ -10,7 +10,7 @@ CAULAINCOURT: You must not believe Russia will give Your Majesty the decisive ba
 
 NAPOLEON: The alliance is breaking away. Am I to watch and do nothing?
 
-CAULAINCOURT: The farther we go, the different the conditions for returning. That is what I mean.
+CAULAINCOURT: The farther we go, the more difficult the journey home may become. That is what I mean.
 
 NAPOLEON: Under pressure they must choose too.
 

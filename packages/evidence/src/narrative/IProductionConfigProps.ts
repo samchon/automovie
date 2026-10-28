@@ -49,11 +49,11 @@ export interface IProductionConfigProps {
   construction: IProductionConstruction;
 
   /**
-   * Sets scripts and screenplay naturalness stages.
+   * Sets the screenplay naturalness stage.
    *
-   * Each revision opens after its construction approval. Screenplay normally uses
-   * approved scripts naturalness; `[stage, false]` explicitly uses scripts
-   * construction. Settings and treatments have no separate expression pass.
+   * Revision opens after screenplay construction approval. Scripts answer their
+   * expression questions inside construction; settings and treatments also
+   * finish within construction.
    */
   naturalness: IProductionLayerStages;
 

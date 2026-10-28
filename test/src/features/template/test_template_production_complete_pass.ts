@@ -21,7 +21,7 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * Complete original graphs can close and cannot inherit stale upstream approval.
  *
  * Scenarios:
- * 1. Four long layers, outline, instructions and both expression passes close.
+ * 1. Four long layers, outline, instructions and screenplay naturalness close.
  * 2. A changed promoted script expires upstream reviews until freshly paired.
  * 3. Disabling or removing that upstream prevents downstream readiness.
  * 4. A short closes directly; a support failure remains globally blocking.
@@ -67,19 +67,17 @@ export async function test_template_production_complete_pass(): Promise<void> {
       /outline/i,
     );
     fs.writeFileSync(outline, originalOutline, "utf8");
-    for (const area of ["body", "naturalness"]) {
-      const file: string = path.join(
-        root,
-        `docs/${area}/scripts/001-part/001-scene.md`,
-      );
-      fs.writeFileSync(
-        file,
-        fs
-          .readFileSync(file, "utf8")
-          .replace("opens the door", "quietly opens the door"),
-        "utf8",
-      );
-    }
+    const script: string = path.join(
+      root,
+      "docs/body/scripts/001-part/001-scene.md",
+    );
+    fs.writeFileSync(
+      script,
+      fs
+        .readFileSync(script, "utf8")
+        .replace("opens the door", "quietly opens the door"),
+      "utf8",
+    );
     const stale: IProductionPassValidation = await analyzeProductionPass(
       createProductionConfig(props),
       path.join(root, "evidence.config.ts"),

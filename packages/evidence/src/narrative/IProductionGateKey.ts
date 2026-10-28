@@ -16,6 +16,6 @@ export interface IProductionGateKey {
   /** Names the authored layer covered by this record. */
   layer: AuthoredLayer;
 
-  /** Naturalness is available only for scripts and screenplay. */
+  /** Naturalness is available only for screenplay. */
   pass: ProductionGatePass;
 }

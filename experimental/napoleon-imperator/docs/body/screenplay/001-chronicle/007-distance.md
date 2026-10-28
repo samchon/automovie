@@ -100,7 +100,7 @@ The Berezina. People reaching the river stop. They can see the other bank but ca
 
 Gunfire carries over the water. Someone holding flinches, then strains again. Show feet of the waiting army, then return to the gap not yet joined. When one member catches, an engineer moves over it to join the next. At last the first troops step onto it to cross.
 
-Bourgogne joins the line and steps onto the bridge. He advances as far as the person ahead moves. Reaching ground across the water, he puts strength on his leg and follows the ranks. A person remaining at the same bank starts to push forward, then stops. See Bourgogne across and people unable to cross separately. Do not close them with a caption of total survivors.
+Bourgogne joins the line and steps onto the bridge. He advances as far as the person ahead moves. Reaching ground across the water, he puts strength on his leg and follows the ranks. On the bank Bourgogne has left, a person starts to push toward the bridge, then stops. See Bourgogne across and people unable to cross separately. Do not close them with a caption of total survivors.
 
 The later road home. Napoleon and Caulaincourt head to the capital before the army. Feet in fur boots, longer beards, tired breathing between conversation. Even as they draw closer to France, the return of troops left behind is not completed all at once.
 

@@ -2,7 +2,7 @@
 
 ## Source and control
 
-Can the production identify and reproduce the actual asset it uses, with the required usage rights, registration, and controls? Record fixed source identity and acquisition provenance where applicable. Explain how authored parameters, recovered coefficients, imported rigging, or direct placement meet the required variation and motion, including any unsupported behavior.
+Can the production identify and reproduce the actual asset it uses, with the required usage rights, registration, and controls? Record fixed source identity and acquisition provenance where applicable. Explain how authored parameters, recovered coefficients, imported rigging, or direct placement meet the required variation and motion, including any unsupported behavior. Distinguish source-DCC evaluation from channels and deformation actually retained by the adopted conversion and runtime, with matched source/import observations for required controls. Enough control serves the promised use; unused rig complexity does not establish fitness, and omitted necessary deformation remains a defect.
 
 ## Observed fitness
 

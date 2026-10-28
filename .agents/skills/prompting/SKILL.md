@@ -13,6 +13,8 @@ Write only facts the code does not show, rules the user set, and mistakes an age
 
 A skill gives a job's goal, order, and boundaries, and points to the checklists it relies on without restating their items.
 
+Design for the actual recipient's needed experience, not the quantity of included elements. Keep enough and too much of one achievement in the same contract question, with an observable failure and the legitimate neighboring form it protects. A later rule must not merely suppress excess caused by an earlier demand. Separate inherited decisions from the next author's own expression; record actual achievement and remaining loss rather than an unsupported claim of balance.
+
 An agent does not reliably follow long, detailed, or conditional prose, so a rule that every declaration must meet belongs in a [contracts](../contracts/SKILL.md) checklist as an H2 question. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete.
 
 ## Layout
