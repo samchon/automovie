@@ -72,8 +72,58 @@ export interface IAutoMovieHumanLoftChain {
     /** The pole, mm. */
     point: [number, number, number];
   };
+
+  /**
+   * The module frame of a composed anchored chain, placed in the world by
+   * `AutoMovieHumanFeatureChain.compose`, so consumers read a module's own
+   * directions and joints instead of world axes. Absent for a chain without
+   * an anchor.
+   */
+  anchor?: IAutoMovieHumanLoftChain.IAnchor;
 }
 export namespace IAutoMovieHumanLoftChain {
+  /** A module's anchor, named axes and declared joints in world millimetres. */
+  export interface IAnchor {
+    /** Source name of the anchor's bind joint; absent for a child frame. */
+    joint?: string;
+
+    /** Parent chain of a child frame; absent for a joint anchor. */
+    parent?: string;
+
+    /**
+     * The anchor's rigid frame in the world: a point `(x, y, z)` of its
+     * coordinates lies at `origin + x u + y (v x u) + z v`.
+     */
+    frame: AutoMovieHumanLoftFrame.IFrame;
+
+    /** The module's named axes, unit world vectors. */
+    axes: {
+      /** Tangent of the module's axis at its anchor. */
+      along: [number, number, number];
+
+      /** The module's front. */
+      front: [number, number, number];
+
+      /** `along x front`. */
+      lateral: [number, number, number];
+    };
+
+    /** Further named frames placed in the world; absent means none. */
+    frames?: Record<string, AutoMovieHumanLoftFrame.IFrame>;
+
+    /** Declared bind joints, their centres in the world. */
+    joints: {
+      /** Source name of the joint. */
+      name: string;
+
+      /** The joint's centre, world mm. */
+      point: [number, number, number];
+
+      /** Station of its centre plane where the module's planes are its plane function's. */
+      station?: number;
+    }[];
+  }
+
   /** One principal layer: a shape event of the chain. */
   export interface ILayer {
     /**

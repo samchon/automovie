@@ -16,6 +16,7 @@ import { ModelPartStyling } from "./ModelPartStyling";
 import { createHumanPartStyle } from "./createHumanPartStyle";
 import { normalizeHumanCurves } from "./normalizeHumanCurves";
 import type { normalizeHumanView } from "./normalizeHumanView";
+import { pickHumanCurves } from "./pickHumanCurves";
 import { resolveHumanCurves } from "./resolveHumanCurves";
 
 /** Part id prefix the generator gives every construction part. */
@@ -84,6 +85,7 @@ export class HumanViewerModel {
    *
    * @param result Generator output to display.
    * @param alias Registered alias of its parameters, or null.
+   * @param modules Module-fit preview it was lofted from, or null.
    * @param milliseconds Generator time, or null for an externally generated result.
    * @param generation Page generation counter assigned to this model.
    * @returns The displayed model, owning its texture cache.
@@ -99,6 +101,7 @@ export class HumanViewerModel {
   public static async create(
     result: IAutoMovieHumanGenerated,
     alias: string | null,
+    modules: string | null,
     milliseconds: number | null,
     generation: number,
   ): Promise<HumanViewerModel> {
@@ -119,9 +122,7 @@ export class HumanViewerModel {
       );
       return new HumanViewerModel(
         result,
-        alias,
-        milliseconds,
-        generation,
+        { alias, modules, milliseconds, generation },
         textures,
       );
     } catch (error) {
@@ -134,16 +135,17 @@ export class HumanViewerModel {
    * Build a result's model with already primed textures; the built resources are released if construction fails.
    *
    * @param result Generator output to display.
-   * @param alias Registered alias of its parameters, or null.
-   * @param milliseconds Generator time, or null for an externally generated result.
-   * @param generation Page generation counter assigned to this model.
+   * @param origin Its alias, preview, generator time and page generation counter, as for {@link create}.
    * @param textures Cache primed with the model's carried images; ownership passes to the model.
    */
   private constructor(
     result: IAutoMovieHumanGenerated,
-    alias: string | null,
-    milliseconds: number | null,
-    generation: number,
+    origin: {
+      alias: string | null;
+      modules: string | null;
+      milliseconds: number | null;
+      generation: number;
+    },
     private readonly textures: AutoMovieTextureCache,
   ) {
     this.result = result;
@@ -168,9 +170,10 @@ export class HumanViewerModel {
       if (this.bounds.isEmpty())
         throw new Error("Generated Human model has no surface geometry");
       this.loaded = {
-        generation,
-        alias,
-        generateMilliseconds: milliseconds,
+        generation: origin.generation,
+        alias: origin.alias,
+        modules: origin.modules,
+        generateMilliseconds: origin.milliseconds,
         parts: result.model.parts.map(count),
         bounds: {
           min: this.bounds.min.toArray(),
@@ -275,65 +278,27 @@ export class HumanViewerModel {
   }
 
   /**
-   * Find the construction curve under or near a normalized device coordinate.
-   *
-   * Tubes are a few pixels wide, so rays are cast at offsets of up to six
-   * pixels in rings of growing radius and the first ring with a hit wins. In
-   * `overlay` a section counts only when it is not behind the skin (within one
-   * centimetre of the first skin hit); axes, drawn through the skin, always count.
+   * Find the curves a click at a normalized device coordinate toggles (see {@link pickHumanCurves}).
    *
    * @param camera Camera the coordinate belongs to.
    * @param pointer Pointer position in normalized device coordinates.
    * @param pixel Size of one pixel in normalized device units, per axis.
-   * @returns The curve id, or null in the surface pass or when nothing is near.
+   * @returns The curve under or near the pointer, or in `overlay` the curves shaping the skin interval under it; null in the surface pass or when nothing is near.
    *
-   * @evidence contracts/common.md#principled-implementation Raycasts the displayed (possibly thickened) curve meshes and applies the same see-through rule the styling uses, so a click picks what is drawn there.
-   * @evidence contracts/common.md#clear-and-simple-design Picking lives with the model that knows its parts; the page only converts pointer coordinates.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No curve id is guessed; a miss returns null.
-   * @evidence contracts/common.md#meaningful-documentation States the tolerance rings and the occlusion rule.
-   * @evidence contracts/performance.md#efficient-algorithms At most 25 rays, each testing bounding spheres before triangles of the construction and, in overlay, the surface parts.
-   * @evidence contracts/performance.md#reuse-equivalent-work One raycaster and one owner map serve every ray of the click.
+   * @evidence contracts/common.md#principled-implementation Passes this model's built parts and displayed pass to pickHumanCurves, which raycasts what is drawn.
+   * @evidence contracts/common.md#clear-and-simple-design Picking is asked of the model that knows its parts; the rule lives in pickHumanCurves and the page only converts pointer coordinates.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Returns only ids the model has; a miss returns null.
+   * @evidence contracts/common.md#meaningful-documentation States both results and the null cases.
+   * @evidence contracts/performance.md#efficient-algorithms At most 26 rays over the built parts.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the built part map.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing after the call.
    */
   public pick(
     camera: THREE.Camera,
     pointer: THREE.Vector2,
     pixel: THREE.Vector2,
-  ): string | null {
-    if (this.pass === "surface") return null;
-    const owners: Map<THREE.Object3D, string> = new Map();
-    for (const [id, object] of this.built.parts)
-      if (id.startsWith(CONSTRUCTION))
-        object.traverse((node: THREE.Object3D): void => {
-          owners.set(node, id.slice(CONSTRUCTION.length));
-        });
-
-    const ray: THREE.Raycaster = new THREE.Raycaster();
-    for (let radius: number = 0; radius <= 6; radius += 2)
-      for (let step: number = 0; step < (radius === 0 ? 1 : 8); ++step) {
-        const angle: number = (step / 8) * Math.PI * 2;
-        ray.setFromCamera(
-          new THREE.Vector2(
-            pointer.x + Math.cos(angle) * radius * pixel.x,
-            pointer.y + Math.sin(angle) * radius * pixel.y,
-          ),
-          camera,
-        );
-        const skin: number =
-          this.pass === "overlay"
-            ? (ray.intersectObjects(this.surface, true)[0]?.distance ??
-              Infinity)
-            : Infinity;
-        const hit: THREE.Intersection | undefined = ray
-          .intersectObjects(this.construction, true)
-          .find(
-            (candidate: THREE.Intersection): boolean =>
-              candidate.distance < skin + 0.01 ||
-              owners.get(candidate.object)?.endsWith("/axis") === true,
-          );
-        if (hit !== undefined) return owners.get(hit.object) ?? null;
-      }
-    return null;
+  ): string[] | null {
+    return pickHumanCurves(this.built.parts, this.pass, camera, pointer, pixel);
   }
 
   /**

@@ -1,3 +1,4 @@
+import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 
@@ -113,6 +114,11 @@ export namespace IAutoMovieHumanBodyCalibration {
    * One eyeball globe, fitted as a sphere to the reference eyeball surface.
    * The generator scales it with the body and hands it to the appearance
    * layer, which builds the eyeball there.
+   *
+   * Without `chain` the centre is in world millimetres. With `chain` and
+   * `frame` a region stores the centre in the eye's own child frame, itself
+   * in that chain's anchor coordinates, and `AutoMovieHumanBodyRegions.merge`
+   * places both in the world.
    */
   export interface IEye {
     /** Anatomical side: left is +Z. */
@@ -123,6 +129,16 @@ export namespace IAutoMovieHumanBodyCalibration {
 
     /** Globe radius in mm. */
     radius: number;
+
+    /** Chain whose anchor the globe hangs from; absent for a world globe. */
+    chain?: string;
+
+    /**
+     * The globe's child frame, a rigid frame (a point `(x, y, z)` lies at
+     * `origin + x u + y (v x u) + z v`): in `chain`'s anchor coordinates in a
+     * region, placed in the world by the merge. Given with `chain` only.
+     */
+    frame?: AutoMovieHumanLoftFrame.IFrame;
   }
 
   /** Split of a parent's end ring into its children's adjacent end rings. */

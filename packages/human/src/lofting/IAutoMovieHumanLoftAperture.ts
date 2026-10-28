@@ -1,7 +1,14 @@
 import type { AutoMovieHumanLoftAperture } from "./AutoMovieHumanLoftAperture";
+import type { AutoMovieHumanLoftFrame } from "./AutoMovieHumanLoftFrame";
 
 /**
- * One skin opening in world millimetres; see {@link AutoMovieHumanLoftAperture}.
+ * One skin opening; see {@link AutoMovieHumanLoftAperture}.
+ *
+ * Without `chain` its values are world millimetres. With `chain` and `frame`
+ * a region stores the margin and `forward` in the opening's own child frame,
+ * itself in that chain's anchor coordinates, and
+ * `AutoMovieHumanBodyRegions.merge` places all of them in the world, so the
+ * merged calibration holds world values and the child frame placed there.
  */
 export interface IAutoMovieHumanLoftAperture {
   /** Name, e.g. `eye.left`. */
@@ -37,4 +44,14 @@ export interface IAutoMovieHumanLoftAperture {
    * Absent, the opening is cut from the finished mesh by position.
    */
   base?: string;
+
+  /** Chain whose anchor the opening hangs from; absent for a world opening. */
+  chain?: string;
+
+  /**
+   * The opening's child frame, a rigid frame (a point `(x, y, z)` lies at
+   * `origin + x u + y (v x u) + z v`): in `chain`'s anchor coordinates in a
+   * region, placed in the world by the merge. Given with `chain` only.
+   */
+  frame?: AutoMovieHumanLoftFrame.IFrame;
 }

@@ -25,31 +25,39 @@ export interface IHumanViewerPage {
    * Generate from a registered alias's typed parameter module.
    *
    * @param alias Registered example name such as `f1`.
+   * @param modules Module-fit preview name (`readHumanModulePreview`) whose calibration `AutoMovieHuman.generateBody` lofts instead of the full generation; null or absent generates normally.
    *
-   * @evidence contracts/common.md#principled-implementation Selects the typed literal by alias and runs AutoMovieHuman.generate on it.
+   * @evidence contracts/common.md#principled-implementation Selects the typed literal by alias and runs AutoMovieHuman.generate on it, or AutoMovieHuman.generateBody on the named preview's merged calibration.
    * @evidence contracts/common.md#clear-and-simple-design The URL `?alias=` path and the alias selector both use it.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown aliases throw; no default person is substituted.
-   * @evidence contracts/common.md#meaningful-documentation States the typed source.
-   * @evidence contracts/performance.md#efficient-algorithms One generation and one model build.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown aliases and previews throw; no default person or calibration is substituted.
+   * @evidence contracts/common.md#meaningful-documentation States the typed source and the preview option.
+   * @evidence contracts/performance.md#efficient-algorithms One generation and one model build, plus one preview import and merge when named.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the module-shared literal.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Retires the previous model before building the next.
    */
-  loadAlias(alias: string): Promise<IHumanViewerPage.ILoaded>;
+  loadAlias(
+    alias: string,
+    modules?: string | null,
+  ): Promise<IHumanViewerPage.ILoaded>;
 
   /**
    * Generate from untrusted JSON admitted only when it equals a registered typed example.
    *
    * @param candidate Parsed JSON, for example the body of `/human-parameters/f1.json`.
+   * @param modules Module-fit preview name, as for {@link loadAlias}.
    *
-   * @evidence contracts/common.md#principled-implementation Admits by byte equality with a registered literal's serialization and generates from the literal.
+   * @evidence contracts/common.md#principled-implementation Admits by byte equality with a registered literal's serialization and generates from the literal, or lofts the named preview's calibration.
    * @evidence contracts/common.md#clear-and-simple-design Used by `?document=` and by the worker's generate command.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Never casts JSON to the parameter type; edited parameters are refused.
-   * @evidence contracts/common.md#meaningful-documentation States the admission rule.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Never casts JSON to the parameter type; edited parameters and unknown previews are refused.
+   * @evidence contracts/common.md#meaningful-documentation States the admission rule and the preview option.
    * @evidence contracts/performance.md#efficient-algorithms One serialization comparison per registered example, then one generation.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the module-shared literal.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Retires the previous model before building the next.
    */
-  load(candidate: unknown): Promise<IHumanViewerPage.ILoaded>;
+  load(
+    candidate: unknown,
+    modules?: string | null,
+  ): Promise<IHumanViewerPage.ILoaded>;
 
   /**
    * Generate from typed parameters supplied by TypeScript code.
@@ -220,9 +228,10 @@ export interface IHumanViewerPage {
    * @param alias Registered alias whose model scale the legend reports.
    * @param curves Canonical curve list: `<chain>/<k>`, `<chain>/axis` with globs, `<chain>@<s>` and `<chain>@<from>:<to>:<step>`.
    * @param format `svg` returns the document; `png` rasterizes it in the page at 1200 x 1200.
+   * @param modules Module-fit preview whose calibration is drawn instead of the alias's; null or absent draws the alias's.
    * @returns The SVG text or a PNG data URL.
    *
-   * @evidence contracts/common.md#principled-implementation Evaluates the calibration the page's generator module uses, so diagrams follow the current source; PNGs are the same SVG drawn onto a canvas.
+   * @evidence contracts/common.md#principled-implementation Evaluates the calibration the page's generator module uses, or the named preview's merged calibration, so diagrams follow the current source; PNGs are the same SVG drawn onto a canvas.
    * @evidence contracts/common.md#clear-and-simple-design The worker serves `/human-curves/` through this one method.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown ids, aliases and stations throw.
    * @evidence contracts/common.md#meaningful-documentation States the id grammar and formats.
@@ -234,6 +243,7 @@ export interface IHumanViewerPage {
     alias: string,
     curves: string,
     format: "svg" | "png",
+    modules?: string | null,
   ): Promise<string>;
 
   /**
@@ -282,6 +292,9 @@ export namespace IHumanViewerPage {
 
     /** Registered alias of the parameters, or null for typed code input. */
     alias: string | null;
+
+    /** Module-fit preview the model was lofted from, or null for the full generation. */
+    modules: string | null;
 
     /** Wall-clock milliseconds spent in `AutoMovieHuman.generate`, or null for `loadGenerated`. */
     generateMilliseconds: number | null;
@@ -356,7 +369,7 @@ export namespace IHumanViewerPage {
       /** Canonical free-view text of this frame, empty for the named camera alone. */
       view: string;
 
-      /** Applied development display conditions; visibleParts states the actual isolation/pass result and camera.light plus hemisphere state the actual illumination. Clay replaces only skin materials, keeping geometry and normals unchanged. */
+      /** Applied development display conditions; visibleParts states the actual isolation/pass result and camera.light plus hemisphere state the actual illumination. Clay replaces only the skin's and the cavities' materials, keeping geometry and normals unchanged. */
       inspection: Pick<
         normalizeHumanView.IView,
         "garment" | "hair" | "material" | "light"

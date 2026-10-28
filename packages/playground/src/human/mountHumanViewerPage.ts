@@ -1,16 +1,15 @@
 import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
 import * as THREE from "three";
 
-import { AutoMovieHuman } from "../../../human/src/AutoMovieHuman";
 import type { IAutoMovieHumanGenerated } from "../../../human/src/structures/IAutoMovieHumanGenerated";
 import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IAutoMovieHumanParameters";
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
 import { HumanViewerCamera } from "./HumanViewerCamera";
 import { HumanViewerModel } from "./HumanViewerModel";
 import type { IHumanViewerPage } from "./IHumanViewerPage";
-import { admitHumanParameters } from "./admitHumanParameters";
 import { captureHumanPageFrame } from "./captureHumanPageFrame";
 import { drawHumanPageCurveDiagram } from "./drawHumanPageCurveDiagram";
+import { generateHumanPageModel } from "./generateHumanPageModel";
 import { layoutHumanViewerPage } from "./layoutHumanViewerPage";
 import { mountHumanViewControls } from "./mountHumanViewControls";
 import { normalizeHumanCurves } from "./normalizeHumanCurves";
@@ -20,24 +19,20 @@ import { resolveHumanCurves } from "./resolveHumanCurves";
 import { syncHumanViewerUrl } from "./syncHumanViewerUrl";
 
 /** What a load produces before display. */
-interface IProduced {
-  result: IAutoMovieHumanGenerated;
-  alias: string | null;
-  milliseconds: number | null;
-}
+type IProduced = generateHumanPageModel.IProduced;
 
 /**
  * Mount the single Human page: generate, display, select and isolate curves, and capture `AutoMovieHuman` results.
  *
  * One scene, renderer and key light serve the interactive view and every PNG. The default profile retains reference background, hemisphere 0.6, key 2.2 and fov 30; clay and raking are explicit development inspection conditions. Captures pin the buffer to 1200 x 1200 at DPR 1 with the shared camera framing rule.
  *
- * Free-view variables include camera overrides, isolation, garments, hair, skin material and lighting. The page draws only when visible state changes. Every load retires the displayed model first, and failures leave an empty viewport. Typed inputs, the current pass, camera, curves and canonical view stay bound to the page URL and PNG link.
+ * Free-view variables include camera overrides, isolation, garments, hair, skin material and lighting. The page draws only when visible state changes. Every load retires the displayed model first, and failures leave an empty viewport. A load may name a module-fit preview, whose calibration `generateHumanPageModel` lofts instead of the full generation; the name is kept for later alias loads. Typed inputs, the preview, the current pass, camera, curves and canonical view stay bound to the page URL and PNG link.
  *
  * @param root Element whose children this page replaces and owns until dispose.
  * @returns The page control surface, also published as `window.__automovieHuman` by the entry.
  *
  * @evidence contracts/common.md#principled-implementation Existing buildModel and mountViewer display the public generator's exact model under the reference scene conditions; captures read the preserved 1200 x 1200 buffer with the reference framing rule and explicit inspection lighting, and the page renders its active perspective or orthographic camera itself.
- * @evidence contracts/common.md#clear-and-simple-design The page owns scene, renderer and load serialization; display state is HumanViewerModel, cameras HumanViewerCamera, Human display rules createHumanPartStyle, framing HumanCaptureCamera, frame application captureHumanPageFrame, diagram encoding drawHumanPageCurveDiagram and DOM layoutHumanViewerPage.
+ * @evidence contracts/common.md#clear-and-simple-design The page owns scene, renderer and load serialization; model production is generateHumanPageModel, display state HumanViewerModel, cameras HumanViewerCamera, Human display rules createHumanPartStyle, framing HumanCaptureCamera, frame application captureHumanPageFrame, diagram encoding drawHumanPageCurveDiagram and DOM layoutHumanViewerPage.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Loads retire the old model first and report failures explicitly; JSON is admitted only by equality with a typed example; no old model or image is shown as current.
  * @evidence contracts/common.md#meaningful-documentation States the shared scene, capture conditions, free view, on-demand drawing, failure rule and URL mirroring.
  * @evidence contracts/performance.md#efficient-algorithms Draws only when visible state changes; a load costs one generation and model build, a capture up to nine restyles including restoration, one draw and one PNG encode.
@@ -77,6 +72,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
   );
 
   let current: HumanViewerModel | undefined;
+  let modules: string | null = null;
   let generation: number = 0;
   let pass: IHumanViewerPage.Pass = "surface";
   let view: string = "whole-oblique-front";
@@ -150,7 +146,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
   /** Mirror the view into the URL and the links, so it can be fetched as a PNG. */
   const sync: () => void = (): void => {
     const alias: string | null = current?.loaded.alias ?? null;
-    syncHumanViewerUrl(alias, pass, view, curves, free.text);
+    syncHumanViewerUrl(alias, pass, view, curves, free.text, modules);
     const selection: IHumanViewerPage.ISelection | undefined =
       current?.selection();
     dom.setLinks(
@@ -160,6 +156,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       normalizeHumanCurves.query(curves),
       free.text,
       selection?.selected[0] ?? null,
+      current?.loaded.modules ?? null,
     );
     if (current !== undefined)
       dom.setLegend(
@@ -189,11 +186,11 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     await previous?.dispose();
   };
 
-  /** Serialize loads: retire, produce, display, and report failure explicitly. */
+  /** Serialize loads: retire, produce (reading a module-fit preview first when named), display, and report failure explicitly. */
   const replace: (
-    produce: () => IProduced,
+    produce: () => IProduced | Promise<IProduced>,
   ) => Promise<IHumanViewerPage.ILoaded> = async (
-    produce: () => IProduced,
+    produce: () => IProduced | Promise<IProduced>,
   ): Promise<IHumanViewerPage.ILoaded> => {
     if (closed || busy) throw new Error("Human viewer is closed or busy");
     busy = true;
@@ -208,10 +205,11 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
         },
       );
       if (closed) throw new Error("Human viewer closed during generation");
-      const produced: IProduced = produce();
+      const produced: IProduced = await produce();
       const model: HumanViewerModel = await HumanViewerModel.create(
         produced.result,
         produced.alias,
+        produced.modules,
         produced.milliseconds,
         generation + 1,
       );
@@ -246,6 +244,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
         {
           generation,
           alias: produced.alias,
+          modules: produced.modules,
           generateMilliseconds,
           bounds,
           parts: model.loaded.parts.length,
@@ -278,21 +277,20 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     }
   };
 
-  /** Run the public generator on admitted typed parameters and time it. */
-  const run: (
-    parameters: IAutoMovieHumanParameters,
-    alias: string | null,
-  ) => () => IProduced =
-    (
-      parameters: IAutoMovieHumanParameters,
-      alias: string | null,
-    ): (() => IProduced) =>
-    (): IProduced => {
-      const start: number = performance.now();
-      const result: IAutoMovieHumanGenerated =
-        AutoMovieHuman.generate(parameters);
-      return { result, alias, milliseconds: performance.now() - start };
-    };
+  /** Load one input with the named module-fit preview, remembered for later alias loads. */
+  const produce: (
+    input: Parameters<typeof generateHumanPageModel>[0],
+    name: string | null | undefined,
+  ) => Promise<IHumanViewerPage.ILoaded> = (
+    input: Parameters<typeof generateHumanPageModel>[0],
+    name: string | null | undefined,
+  ): Promise<IHumanViewerPage.ILoaded> => {
+    modules = name ?? null;
+    const chosen: string | null = modules;
+    return replace(
+      (): Promise<IProduced> => generateHumanPageModel(input, chosen),
+    );
+  };
 
   /** The loaded model, or a thrown error naming the missing load. */
   const loaded: () => HumanViewerModel = (): HumanViewerModel => {
@@ -308,25 +306,28 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
   };
 
   const page: IHumanViewerPage = {
-    loadAlias: (alias: string): Promise<IHumanViewerPage.ILoaded> =>
-      replace((): IProduced => {
-        const admitted: ReturnType<typeof admitHumanParameters> =
-          admitHumanParameters({ alias });
-        return run(admitted.parameters, admitted.alias)();
-      }),
-    load: (candidate: unknown): Promise<IHumanViewerPage.ILoaded> =>
-      replace((): IProduced => {
-        const admitted: ReturnType<typeof admitHumanParameters> =
-          admitHumanParameters({ candidate });
-        return run(admitted.parameters, admitted.alias)();
-      }),
+    loadAlias: (
+      alias: string,
+      name?: string | null,
+    ): Promise<IHumanViewerPage.ILoaded> => produce({ alias }, name),
+    load: (
+      candidate: unknown,
+      name?: string | null,
+    ): Promise<IHumanViewerPage.ILoaded> => produce({ candidate }, name),
     generate: (
       parameters: IAutoMovieHumanParameters,
-    ): Promise<IHumanViewerPage.ILoaded> => replace(run(parameters, null)),
+    ): Promise<IHumanViewerPage.ILoaded> => produce({ parameters }, null),
     loadGenerated: (
       result: IAutoMovieHumanGenerated,
     ): Promise<IHumanViewerPage.ILoaded> =>
-      replace((): IProduced => ({ result, alias: null, milliseconds: null })),
+      replace(
+        (): IProduced => ({
+          result,
+          alias: null,
+          modules: null,
+          milliseconds: null,
+        }),
+      ),
     serialize: (): string => JSON.stringify(loaded().result),
     setPass: (next: IHumanViewerPage.Pass): void => {
       loaded().setPass(next);
@@ -408,7 +409,13 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
         dirty = true;
       }
     },
-    diagram: drawHumanPageCurveDiagram,
+    diagram: (
+      alias: string,
+      curves: string,
+      format: "svg" | "png",
+      name?: string | null,
+    ): Promise<string> =>
+      drawHumanPageCurveDiagram(alias, curves, format, name ?? null),
     snapshot: (): IHumanViewerPage.ISnapshot => ({
       generation: current?.loaded.generation ?? 0,
       alias: current?.loaded.alias ?? null,
@@ -460,7 +467,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     );
   dom.listen({
     alias: (alias: string): void => {
-      void page.loadAlias(alias).catch(console.error);
+      void page.loadAlias(alias, modules).catch(console.error);
     },
     pass: (next: string): void =>
       guard((): void => page.setPass(next as IHumanViewerPage.Pass)),
@@ -473,7 +480,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
           `곡선 ${selection.selected.length}개 선택, 피부 구간 ${selection.shaped.length}개 강조`,
         );
       }),
-    pick: (x: number, y: number): string | null =>
+    pick: (x: number, y: number): string[] | null =>
       current?.pick(
         camera.active,
         new THREE.Vector2(x, y),

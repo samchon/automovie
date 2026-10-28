@@ -79,8 +79,12 @@ export namespace AutoMovieHumanBodySurface {
     );
   }
 
-  /** Chord tolerance of the station bisection in mm. */
-  const TOLERANCE: number = 0.5;
+  /**
+   * Chord tolerance of the station bisection in mm; the exporter sets each
+   * chain's ring phase count to the same chordal tolerance, so one renderer
+   * tolerance governs both directions of the tessellation.
+   */
+  export const TOLERANCE: number = 0.5;
 
   /**
    * Shading normals from the lofted surface itself.

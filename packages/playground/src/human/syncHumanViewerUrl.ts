@@ -10,8 +10,9 @@ import { normalizeHumanCurves } from "./normalizeHumanCurves";
  * @param camera Current named camera.
  * @param curves Canonical curve-selection text.
  * @param view Canonical free-view text from normalizeHumanView.
+ * @param modules Module-fit preview of the page's loads, or null.
  *
- * @evidence contracts/common.md#principled-implementation Removes the prior known display variables, appends the current alias/pass/camera plus canonical curves and view, and replaces only the current browser history entry.
+ * @evidence contracts/common.md#principled-implementation Removes the prior known display variables, appends the current alias/preview/pass/camera plus canonical curves and view, and replaces only the current browser history entry.
  * @evidence contracts/common.md#clear-and-simple-design Owns URL mirroring only; parsing, rendering and link DOM remain with their existing owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not create a new page, endpoint or history entry; unrelated URL variables and the fragment are preserved.
  * @evidence contracts/common.md#meaningful-documentation States canonical-input premises, the shared inspection query and the history replacement effect.
@@ -25,11 +26,13 @@ export function syncHumanViewerUrl(
   camera: string,
   curves: string,
   view: string,
+  modules: string | null,
 ): void {
   const url: URL = new URL(location.href);
   for (const name of [
     "document",
     "alias",
+    "modules",
     "pass",
     "camera",
     "curves",
@@ -49,6 +52,7 @@ export function syncHumanViewerUrl(
     url.searchParams.delete(name);
   for (const [name, value] of [
     ["alias", alias ?? ""],
+    ["modules", modules ?? ""],
     ["pass", pass],
     ["camera", camera],
   ] as const)

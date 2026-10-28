@@ -64,74 +64,22 @@ export class AutoMovieHuman {
   public static generate(
     params: IAutoMovieHumanParameters,
   ): IAutoMovieHumanGenerated {
-    // Stature is required: an unknown height would otherwise be silently
-    // replaced by the calibration specimen's.
-    const height: number | null = params.body.controls.height.value;
-    if (height === null || !(height > 0))
-      throw new Error("Human generation requires a positive height control");
+    const height: number = stature(params);
 
     // The shape law gives this person's calibration in calibration mm; the
     // skin, its construction, the lips, eyes and apertures all read it.
     const law: AutoMovieHumanBodyLaw.IOutput =
       AutoMovieHumanBodyLaw.calibrate(params);
     const calibration: IAutoMovieHumanBodyCalibration = law.body;
-    const lips: IAutoMovieHumanHermiteCurve = law.vermilion;
-
-    // Uniform stature scale about the floor origin, then mm -> m for the
-    // engine, whose model units are metres.
     const scale: number = height / calibration.stature / 1000;
-
-    // The lips' colour boundary is drawn per vertex, so the skin is refined
-    // in a box 3 mm around it.
-    const ends: [number, number, number][] = lips.spans.flatMap(
-      (
-        s: IAutoMovieHumanHermiteCurve["spans"][number],
-      ): [number, number, number][] => [s.start, s.end],
-    );
-    const box: [[number, number, number], [number, number, number]] = [
-      [0, 1, 2].map(
-        (k: number): number =>
-          Math.min(
-            ...ends.map((p: [number, number, number]): number => p[k]!),
-          ) - 3,
-      ) as [number, number, number],
-      [0, 1, 2].map(
-        (k: number): number =>
-          Math.max(
-            ...ends.map((p: [number, number, number]): number => p[k]!),
-          ) + 3,
-      ) as [number, number, number],
-    ];
-    const surface: AutoMovieHumanBodySurface.IOutput =
-      AutoMovieHumanBodySurface.generate(calibration, [box]);
-    const skin: AutoMovieHumanLoftMesh.IPiece[] = AutoMovieHumanLoftMesh.split(
-      surface.mesh,
-      surface.normals,
-    );
-    const curves: AutoMovieHumanBodyConstruction.ICurve[] =
-      AutoMovieHumanBodyConstruction.generate(
-        calibration,
-        surface.construction,
-      );
-
-    const vermilion: AutoMovieHumanVermilion.IBoundary =
-      AutoMovieHumanVermilion.prepare(lips);
-    curves.push(
-      ...AutoMovieHumanBodyConstruction.paths([
-        {
-          id: lips.chain + "/" + lips.name.replaceAll(".", "_"),
-          points: vermilion.points,
-          closed: true,
-        },
-      ]),
-    );
+    const lofted: ILofted = loft(calibration, law.vermilion);
 
     // Skin appearance is computed on the final pieces in calibration mm:
     // texture coordinates, regional albedo and relief weights.
     const dressed: AutoMovieHumanSkin.IOutput = AutoMovieHumanSkin.generate({
-      vermilion,
+      vermilion: lofted.vermilion!,
       params,
-      pieces: skin,
+      pieces: lofted.pieces,
       eyes: calibration.eyes,
       apertures: calibration.apertures,
       stature: calibration.stature,
@@ -140,20 +88,7 @@ export class AutoMovieHuman {
 
     const body: IAutoMovieModelPart[] = [
       ...dressed.parts,
-      ...curves.map(
-        (curve: AutoMovieHumanBodyConstruction.ICurve): IAutoMovieModelPart =>
-          part(
-            "human.construction." + curve.id,
-            curve.kind === "axis"
-              ? "construction.axes"
-              : curve.kind === "guide"
-                ? "construction.guides"
-                : "construction.sections",
-            curve.mesh,
-            AutoMovieHumanLoftMesh.normals(curve.mesh),
-            scale,
-          ),
-      ),
+      ...construction(lofted.curves, scale),
     ];
 
     // Appearance is placed on the generated body. Eye frames are the
@@ -200,11 +135,7 @@ export class AutoMovieHuman {
       body: null,
       materials: [
         ...dressed.materials,
-
-        // Construction colours only separate the two layers on screen.
-        material("construction.sections", [0.1, 0.35, 0.9], true),
-        material("construction.axes", [0.9, 0.15, 0.1], true),
-        material("construction.guides", [0.1, 0.6, 0.25], true),
+        ...CONSTRUCTION_MATERIALS,
         ...appearance.materials,
       ],
       images: [...dressed.images, ...appearance.images],
@@ -212,7 +143,174 @@ export class AutoMovieHuman {
     };
     return { parameters: params, model };
   }
+
+  /**
+   * Loft a given calibration's skin and lofting curves, without skin
+   * dressing or appearance, to inspect a calibration other than the shape
+   * law's, such as the modules fitted so far.
+   *
+   * The skin, its construction curves and the lip path are lofted by the
+   * same stage as {@link generate} and scaled by the height control. The skin
+   * parts `human.skin.<chain>/<k>` share one plain `human.skin` material of
+   * the viewer's clay grey; no `human.cavity.` part, eye, hair or garment is
+   * made, since skin dressing and appearance read the whole body by chain
+   * name and the eye globes, which a partial calibration lacks.
+   *
+   * @param params Complete public input; only the height control is read.
+   * @param calibration Calibration to loft, in calibration mm.
+   * @param lips The lips' colour boundary in the calibration's world, or
+   *   null when the calibration has no lips.
+   * @returns The parameters and the skin-and-curves model in metres.
+   */
+  public static generateBody(
+    params: IAutoMovieHumanParameters,
+    calibration: IAutoMovieHumanBodyCalibration,
+    lips: IAutoMovieHumanHermiteCurve | null,
+  ): IAutoMovieHumanGenerated {
+    const scale: number = stature(params) / calibration.stature / 1000;
+    const lofted: ILofted = loft(calibration, lips);
+    const model: IAutoMovieModel = {
+      id: "automovie-human",
+      name: "Human",
+      origin: "generated",
+      parts: [
+        ...lofted.pieces.map(
+          (piece: AutoMovieHumanLoftMesh.IPiece): IAutoMovieModelPart =>
+            part(
+              "human.skin." + piece.name,
+              "skin",
+              piece,
+              piece.normals,
+              scale,
+            ),
+        ),
+        ...construction(lofted.curves, scale),
+      ],
+      skeleton: null,
+      body: null,
+      materials: [
+        material("skin", [0.5, 0.5, 0.5], false),
+        ...CONSTRUCTION_MATERIALS,
+      ],
+      images: [],
+      asset: null,
+    };
+    return { parameters: params, model };
+  }
 }
+
+/** The skin pieces, construction curves and lip boundary of one calibration. */
+interface ILofted {
+  /** Skin pieces `<chain>/<k>` in calibration mm. */
+  pieces: AutoMovieHumanLoftMesh.IPiece[];
+
+  /** Construction curves, the lip path included, in calibration mm. */
+  curves: AutoMovieHumanBodyConstruction.ICurve[];
+
+  /** The lips' prepared boundary, or null without lips. */
+  vermilion: AutoMovieHumanVermilion.IBoundary | null;
+}
+
+/**
+ * The height control in mm, the uniform stature scale's numerator (scaled
+ * about the floor origin, then mm -> m for the engine, whose model units are
+ * metres). Stature is required, since an unknown height would otherwise be
+ * silently replaced by the calibration specimen's.
+ */
+function stature(params: IAutoMovieHumanParameters): number {
+  const height: number | null = params.body.controls.height.value;
+  if (height === null || !(height > 0))
+    throw new Error("Human generation requires a positive height control");
+  return height;
+}
+
+/**
+ * Loft a calibration: the surface, its pieces by curve interval, the
+ * construction curves and the lip path. The lips' colour boundary is drawn
+ * per vertex, so the skin is refined in a box 3 mm around it.
+ *
+ * @param calibration Calibration to loft, in calibration mm.
+ * @param lips The lips' colour boundary, or null for no lips and no box.
+ */
+function loft(
+  calibration: IAutoMovieHumanBodyCalibration,
+  lips: IAutoMovieHumanHermiteCurve | null,
+): ILofted {
+  const ends: [number, number, number][] = (lips?.spans ?? []).flatMap(
+    (
+      s: IAutoMovieHumanHermiteCurve["spans"][number],
+    ): [number, number, number][] => [s.start, s.end],
+  );
+  const boxes: [[number, number, number], [number, number, number]][] =
+    ends.length === 0
+      ? []
+      : [
+          [
+            [0, 1, 2].map(
+              (k: number): number =>
+                Math.min(
+                  ...ends.map((p: [number, number, number]): number => p[k]!),
+                ) - 3,
+            ) as [number, number, number],
+            [0, 1, 2].map(
+              (k: number): number =>
+                Math.max(
+                  ...ends.map((p: [number, number, number]): number => p[k]!),
+                ) + 3,
+            ) as [number, number, number],
+          ],
+        ];
+  const surface: AutoMovieHumanBodySurface.IOutput =
+    AutoMovieHumanBodySurface.generate(calibration, boxes);
+  const pieces: AutoMovieHumanLoftMesh.IPiece[] = AutoMovieHumanLoftMesh.split(
+    surface.mesh,
+    surface.normals,
+  );
+  const curves: AutoMovieHumanBodyConstruction.ICurve[] =
+    AutoMovieHumanBodyConstruction.generate(calibration, surface.construction);
+  if (lips === null) return { pieces, curves, vermilion: null };
+
+  const vermilion: AutoMovieHumanVermilion.IBoundary =
+    AutoMovieHumanVermilion.prepare(lips);
+  curves.push(
+    ...AutoMovieHumanBodyConstruction.paths([
+      {
+        id: lips.chain + "/" + lips.name.replaceAll(".", "_"),
+        points: vermilion.points,
+        closed: true,
+      },
+    ]),
+  );
+  return { pieces, curves, vermilion };
+}
+
+/** Construction parts of lofting curves, scaled into metres. */
+function construction(
+  curves: readonly AutoMovieHumanBodyConstruction.ICurve[],
+  scale: number,
+): IAutoMovieModelPart[] {
+  return curves.map(
+    (curve: AutoMovieHumanBodyConstruction.ICurve): IAutoMovieModelPart =>
+      part(
+        "human.construction." + curve.id,
+        curve.kind === "axis"
+          ? "construction.axes"
+          : curve.kind === "guide"
+            ? "construction.guides"
+            : "construction.sections",
+        curve.mesh,
+        AutoMovieHumanLoftMesh.normals(curve.mesh),
+        scale,
+      ),
+  );
+}
+
+/** Construction colours; they only separate the two layers on screen. */
+const CONSTRUCTION_MATERIALS: IAutoMovieMaterial[] = [
+  material("construction.sections", [0.1, 0.35, 0.9], true),
+  material("construction.axes", [0.9, 0.15, 0.1], true),
+  material("construction.guides", [0.1, 0.6, 0.25], true),
+];
 
 /**
  * Mesh part from millimetre buffers, scaled into metres.

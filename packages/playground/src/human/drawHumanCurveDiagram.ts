@@ -1,8 +1,19 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../human/src/generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftChain } from "../../../human/src/lofting/AutoMovieHumanLoftChain";
 import type { IAutoMovieHumanLoftChain } from "../../../human/src/lofting/IAutoMovieHumanLoftChain";
+import { HumanDiagramSvg } from "./HumanDiagramSvg";
 import { humanCurveColour } from "./humanCurveColour";
 import { resolveHumanCurves } from "./resolveHumanCurves";
+import { sampleHumanSection } from "./sampleHumanSection";
+
+const fit: typeof HumanDiagramSvg.fit = HumanDiagramSvg.fit;
+const roundLength: typeof HumanDiagramSvg.roundLength =
+  HumanDiagramSvg.roundLength;
+const f: typeof HumanDiagramSvg.f = HumanDiagramSvg.f;
+const line: typeof HumanDiagramSvg.line = HumanDiagramSvg.line;
+const path: typeof HumanDiagramSvg.path = HumanDiagramSvg.path;
+const text: typeof HumanDiagramSvg.text = HumanDiagramSvg.text;
+const svg: typeof HumanDiagramSvg.svg = HumanDiagramSvg.svg;
 
 /**
  * Draw a 1200 x 1200 diagnostic SVG of one or more lofting curves from the generator's calibration.
@@ -12,14 +23,15 @@ import { resolveHumanCurves } from "./resolveHumanCurves";
  * calibration's ids, `<chain>@<s>` (the Hermite section at station s mm, so a
  * station between principal layers can be inspected) and the series
  * `<chain>@<from>:<to>:<step>`. Line i takes `humanCurveColour(i)`. Everything
- * is evaluated by the human package's `AutoMovieHumanLoftChain` and
- * `AutoMovieHumanLoftChain.section`, in calibration millimetres.
+ * is evaluated by the human package's chain functions, in calibration
+ * millimetres; a section is the skin's ring, reliefs included, sampled by
+ * `sampleHumanSection`.
  *
  * Sections share one true-scale frame: each is drawn in its own plane (local
  * x to the right, local z downward, so a horizontal section reads like a top
  * view with +X right), which for horizontal chains is the world X-Z frame.
  * Each carries its own curvature comb: at 720 phases a spike along the normal
- * of length proportional to the signed curvature
+ * of length proportional to the exact signed curvature
  * `k = (x' z'' - z' x'') / |r'|^3`, outward where the curve is convex, with one
  * scale for all lines: the 95th percentile of |k| maps to 8 percent of the plot
  * extent and spikes are clipped at three times that, so a pinch point does
@@ -36,7 +48,7 @@ import { resolveHumanCurves } from "./resolveHumanCurves";
  * @param scale Model scale of the requested alias relative to the calibration, printed in the legend.
  * @returns A standalone SVG document.
  *
- * @evidence contracts/common.md#principled-implementation Curvature uses the analytic first phase derivative and a central difference of it (step 1e-4 rad) for the second; perimeter is the closed polyline length of 512 ring points; all values come from the calibration through the human package's chain functions.
+ * @evidence contracts/common.md#principled-implementation Sections are the skin's rings with their reliefs and their curvature takes exact first and second phase derivatives (sampleHumanSection); perimeter is the closed polyline length of 512 ring points; the axis plot's centroid curvature is a central difference over its 240 sampled stations; all values come from the calibration through the human package's chain functions.
  * @evidence contracts/common.md#clear-and-simple-design One pure function from calibration and list to SVG text; transport and rasterization belong to the page and worker.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown chains, unmatched globs, layer indices or stations outside a chain, empty or oversized series and axis/section mixes throw; no reference file or saved mesh is read.
  * @evidence contracts/common.md#meaningful-documentation States the id grammar, colour order, units, orientation, comb definition and scaling, and the axis plots.
@@ -70,13 +82,7 @@ interface ILine {
 }
 
 /** One point of a drawn section with its unit right normal and signed curvature. */
-interface IPoint {
-  x: number;
-  z: number;
-  nx: number;
-  nz: number;
-  k: number;
-}
+type IPoint = sampleHumanSection.IPoint;
 
 /** Expand the canonical list in order into lines, deduplicated by label. */
 function expand(
@@ -162,10 +168,10 @@ function expand(
 
 /** All sections in one true-scale plot with their combs and a legend per line. */
 function sectionDiagram(lines: ILine[], header: string): string {
-  const drawn: Array<ILine & ReturnType<typeof section>> = lines.map(
-    (line: ILine) => ({
+  const drawn: Array<ILine & sampleHumanSection.ISection> = lines.map(
+    (line: ILine): ILine & sampleHumanSection.ISection => ({
       ...line,
-      ...section(line.chain, line.s!),
+      ...sampleHumanSection(line.chain, line.s!),
     }),
   );
   const xs: number[] = drawn.flatMap((d: (typeof drawn)[number]): number[] =>
@@ -307,90 +313,6 @@ function sectionDiagram(lines: ILine[], header: string): string {
   return svg(out);
 }
 
-/** Sample a section in its plane with normals, curvature and the chain's vertex phases. */
-function section(
-  chain: IAutoMovieHumanLoftChain,
-  s: number,
-): {
-  points: IPoint[];
-  vertices: Array<[number, number]>;
-  perimeter: number;
-  maxCurvature: number;
-  rmsCurvature: number;
-  signChanges: number;
-} {
-  const c: number[] = AutoMovieHumanLoftChain.coefficients(chain, s);
-  const evaluate: (t: number) => [number, number, number, number] = (
-    t: number,
-  ): [number, number, number, number] =>
-    AutoMovieHumanLoftChain.section(chain, c, t);
-
-  // Second derivative by a central difference of the analytic first derivative.
-  const h: number = 1e-4;
-  const points: IPoint[] = Array.from(
-    { length: 720 },
-    (_: unknown, i: number): IPoint => {
-      const t: number = (2 * Math.PI * i) / 720;
-      const [x, z, dx, dz] = evaluate(t);
-      const ahead: [number, number, number, number] = evaluate(t + h);
-      const behind: [number, number, number, number] = evaluate(t - h);
-      const ddx: number = (ahead[2] - behind[2]) / (2 * h);
-      const ddz: number = (ahead[3] - behind[3]) / (2 * h);
-      const speed: number = Math.hypot(dx, dz) || 1e-12;
-      return {
-        x,
-        z,
-        nx: dz / speed,
-        nz: -dx / speed,
-        k: (dx * ddz - dz * ddx) / speed ** 3,
-      };
-    },
-  );
-  const curvatures: number[] = points.map((p: IPoint): number => p.k);
-  const signChanges: number = curvatures.filter(
-    (k: number, i: number): boolean =>
-      Math.sign(k) !== Math.sign(curvatures[(i + 1) % curvatures.length]!),
-  ).length;
-  return {
-    points,
-    vertices: Array.from(
-      { length: chain.samples },
-      (_: unknown, i: number): [number, number] => {
-        const p: [number, number, number, number] = evaluate(
-          (2 * Math.PI * i) / chain.samples,
-        );
-        return [p[0], p[1]];
-      },
-    ),
-    perimeter: perimeter(chain, s),
-    maxCurvature: Math.max(...curvatures.map(Math.abs)),
-    rmsCurvature: Math.sqrt(
-      curvatures.reduce((sum: number, k: number): number => sum + k * k, 0) /
-        curvatures.length,
-    ),
-    signChanges,
-  };
-}
-
-/** Closed polyline length of the world ring at station s, 512 phases. */
-function perimeter(chain: IAutoMovieHumanLoftChain, s: number): number {
-  const ring: [number, number, number][] = AutoMovieHumanLoftChain.ring(
-    chain,
-    s,
-    Array.from(
-      { length: 512 },
-      (_: unknown, i: number): number => (2 * Math.PI * i) / 512,
-    ),
-  );
-  return ring.reduce(
-    (sum: number, p: [number, number, number], i: number): number => {
-      const q: [number, number, number] = ring[(i + 1) % ring.length]!;
-      return sum + Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
-    },
-    0,
-  );
-}
-
 /** Centroid x, centroid z and perimeter against station for every axis line. */
 function axisDiagram(lines: ILine[], header: string): string {
   const series: Array<
@@ -432,7 +354,9 @@ function axisDiagram(lines: ILine[], header: string): string {
       values: [
         axis.map((p: [number, number, number]): number => p[0]),
         axis.map((p: [number, number, number]): number => p[2]),
-        stations.map((s: number): number => perimeter(l.chain, s)),
+        stations.map((s: number): number =>
+          sampleHumanSection.perimeter(l.chain, s),
+        ),
       ],
       curvature,
     };
@@ -522,89 +446,4 @@ function axisDiagram(lines: ILine[], header: string): string {
     );
   });
   return svg(out);
-}
-
-/** Map a data box into a pixel rectangle; `equal` keeps one scale on both axes and flips nothing. */
-function fit(
-  x0: number,
-  x1: number,
-  y0: number,
-  y1: number,
-  [left, top, width, height]: [number, number, number, number],
-  equal: boolean = true,
-): (x: number, y: number) => [number, number] {
-  const kx: number = width / (x1 - x0 || 1);
-  const ky: number = height / (y1 - y0 || 1);
-  if (!equal)
-    return (x: number, y: number): [number, number] => [
-      left + (x - x0) * kx,
-      top + height - (y - y0) * ky * 0.9 - height * 0.05,
-    ];
-  const k: number = Math.min(kx, ky);
-  const ox: number = left + (width - (x1 - x0) * k) / 2;
-  const oy: number = top + (height - (y1 - y0) * k) / 2;
-  return (x: number, y: number): [number, number] => [
-    ox + (x - x0) * k,
-    oy + (y - y0) * k,
-  ];
-}
-
-/** Largest 1, 2 or 5 times a power of ten not above `value`. */
-function roundLength(value: number): number {
-  const power: number = 10 ** Math.floor(Math.log10(value));
-  return (
-    [5, 2, 1]
-      .map((m: number): number => m * power)
-      .find((v: number): boolean => v <= value) ?? power
-  );
-}
-
-/** Fixed two-decimal number text. */
-function f(value: number): string {
-  return Number.isFinite(value) ? value.toFixed(2) : String(value);
-}
-
-/** SVG line element. */
-function line(
-  a: [number, number],
-  b: [number, number],
-  colour: string,
-  width: number,
-  opacity: number,
-): string {
-  return `<line x1="${f(a[0])}" y1="${f(a[1])}" x2="${f(b[0])}" y2="${f(b[1])}" stroke="${colour}" stroke-width="${width}" stroke-opacity="${opacity}"/>`;
-}
-
-/** SVG polyline, closed unless `closed` is false. */
-function path(
-  points: Array<[number, number]>,
-  colour: string,
-  width: number,
-  opacity: number,
-  closed: boolean = true,
-): string {
-  const d: string = points
-    .map(
-      (p: [number, number], i: number): string =>
-        `${i === 0 ? "M" : "L"}${f(p[0])} ${f(p[1])}`,
-    )
-    .join(" ");
-  return `<path d="${d}${closed ? " Z" : ""}" fill="none" stroke="${colour}" stroke-width="${width}" stroke-opacity="${opacity}" stroke-linejoin="round"/>`;
-}
-
-/** SVG text element with escaped content. */
-function text(
-  x: number,
-  y: number,
-  value: string,
-  colour: string,
-  size: number,
-): string {
-  const escaped: string = value.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-  return `<text x="${f(x)}" y="${f(y)}" fill="${colour}" font-size="${size}" font-family="ui-monospace, Consolas, monospace">${escaped}</text>`;
-}
-
-/** Standalone 1200 x 1200 SVG document on a white background. */
-function svg(body: string[]): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200"><rect width="100%" height="100%" fill="#fff"/>${body.join("")}</svg>`;
 }

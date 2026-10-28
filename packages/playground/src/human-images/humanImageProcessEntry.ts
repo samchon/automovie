@@ -14,6 +14,7 @@ interface IResidentModel {
   key: string;
   source: string;
   value: unknown;
+  modules: string | null;
   generation: number;
 }
 
@@ -27,7 +28,8 @@ interface IResidentModel {
  * person opens, with no separate bundle or renderer.
  *
  * - `generate` admits the parameters in-page (exact equality with a registered
- *   typed example), runs `AutoMovieHuman.generate`, and writes the
+ *   typed example), runs `AutoMovieHuman.generate` (or, with a `modules`
+ *   preview name, lofts that module-fit preview's calibration), and writes the
  *   `{ parameters, model }` JSON to `<worker directory>/publication.json` with
  *   its byte count and SHA-256 for `HumanImageProcess.publication`.
  * - `render` captures one named camera, pass, curve selection and free view at
@@ -129,13 +131,15 @@ export async function humanImageProcessEntry(): Promise<void> {
   await page.goto(url, { waitUntil: "load", timeout: 120000 });
   await ready();
 
-  /** Generate one input in-page; a changed source reloads the tab first. */
+  /** Generate one input in-page, from a module-fit preview when named; a changed source reloads the tab first. */
   const generate: (
     source: string,
     value: unknown,
+    modules: string | null,
   ) => Promise<IHumanViewerPage.ILoaded> = async (
     source: string,
     value: unknown,
+    modules: string | null,
   ): Promise<IHumanViewerPage.ILoaded> => {
     if (loadedSource !== undefined && loadedSource !== source) {
       await page.goto(url, { waitUntil: "load", timeout: 120000 });
@@ -143,9 +147,12 @@ export async function humanImageProcessEntry(): Promise<void> {
     }
     loadedSource = source;
     return page.evaluate(
-      (candidate: unknown): Promise<IHumanViewerPage.ILoaded> =>
-        (window as HumanWindow).__automovieHuman!.load(candidate),
-      value,
+      ([candidate, name]: [
+        unknown,
+        string | null,
+      ]): Promise<IHumanViewerPage.ILoaded> =>
+        (window as HumanWindow).__automovieHuman!.load(candidate, name),
+      [value, modules] as [unknown, string | null],
     );
   };
 
@@ -157,6 +164,8 @@ export async function humanImageProcessEntry(): Promise<void> {
   ): Promise<Record<string, unknown>> => {
     const source: string = String(command.source);
     const key: string = String(command.key);
+    const modules: string | null =
+      typeof command.modules === "string" ? command.modules : null;
 
     if (command.kind === "generate") {
       const started: number = performance.now();
@@ -164,6 +173,7 @@ export async function humanImageProcessEntry(): Promise<void> {
       const loaded: IHumanViewerPage.ILoaded = await generate(
         source,
         command.value,
+        modules,
       );
       const json: string = await page.evaluate((): string =>
         (window as HumanWindow).__automovieHuman!.serialize(),
@@ -196,6 +206,7 @@ export async function humanImageProcessEntry(): Promise<void> {
         key,
         source,
         value: command.value,
+        modules,
         generation: loaded.generation,
       };
       return {
@@ -213,6 +224,7 @@ export async function humanImageProcessEntry(): Promise<void> {
           modelSha256,
           constructionSha256,
           alias: loaded.alias,
+          modules: loaded.modules,
           generatedUtc: new Date().toISOString(),
           generateMilliseconds: loaded.generateMilliseconds,
           workerMilliseconds: performance.now() - started,
@@ -247,6 +259,7 @@ export async function humanImageProcessEntry(): Promise<void> {
         const loaded: IHumanViewerPage.ILoaded = await generate(
           source,
           resident.value,
+          resident.modules,
         );
         resident.generation = loaded.generation;
       }
@@ -325,20 +338,23 @@ export async function humanImageProcessEntry(): Promise<void> {
       }
       const format: "svg" | "png" = command.format === "svg" ? "svg" : "png";
       const drawn: string = await page.evaluate(
-        ([alias, curves, kind]: [
+        ([alias, curves, kind, name]: [
           string,
           string,
           "svg" | "png",
+          string | null,
         ]): Promise<string> =>
           (window as HumanWindow).__automovieHuman!.diagram(
             alias,
             curves,
             kind,
+            name,
           ),
-        [String(command.alias), String(command.curves), format] as [
+        [String(command.alias), String(command.curves), format, modules] as [
           string,
           string,
           "svg" | "png",
+          string | null,
         ],
       );
       const bytes: Buffer =

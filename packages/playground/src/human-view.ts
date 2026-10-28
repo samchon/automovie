@@ -5,7 +5,9 @@ import type { IHumanViewerPage } from "./human/IHumanViewerPage";
  *
  * `?alias=f1` generates from the typed module `src/human-parameters/f1.ts`
  * directly; `?document=<url>` fetches JSON and generates only when it equals a
- * registered typed example (see `admitHumanParameters`). With neither, the page
+ * registered typed example (see `admitHumanParameters`); `?modules=<name>` lofts
+ * that module-fit preview's calibration instead (see `readHumanModulePreview`).
+ * With neither alias nor document, the page
  * waits for the alias selector or `window.__automovieHuman`, which the PNG
  * worker's headless Chrome drives. After a load, `?camera=`, `?pass=` and
  * `?curves=` restore the view, then the free-view variables (`az`, `el`, `view`,
@@ -39,9 +41,10 @@ async function bootstrapHumanPage(): Promise<void> {
   const query: URLSearchParams = new URL(location.href).searchParams;
   const alias: string | null = query.get("alias");
   const source: string | null = query.get("document");
+  const modules: string | null = query.get("modules");
   if (alias !== null && source !== null)
     throw new Error("Choose either ?alias or ?document, not both");
-  if (alias !== null) await page.loadAlias(alias);
+  if (alias !== null) await page.loadAlias(alias, modules);
   else if (source !== null) {
     const response: Response = await fetch(source, {
       signal: transport.signal,
@@ -52,7 +55,7 @@ async function bootstrapHumanPage(): Promise<void> {
       );
     const candidate: unknown = await response.json();
     if (disposed) return;
-    await page.load(candidate);
+    await page.load(candidate, modules);
   } else return;
 
   // The view variables were read before the load rewrote the URL.

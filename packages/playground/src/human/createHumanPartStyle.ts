@@ -34,7 +34,7 @@ import type { normalizeHumanView } from "./normalizeHumanView";
  * - `garment` false hides every `human.garment.` part (underwear), so the
  *   bare body can be inspected; the garments are separate shells over the
  *   skin, so hiding them shows the skin unchanged.
- * - `hair` false hides scalp hair, brows and lashes through their shared `human.hair.` prefix. `material=clay` uses a neutral plain skin material without maps or shader effects, retaining the skin geometry and smooth normals. Eye and nail materials remain their own appearance.
+ * - `hair` false hides scalp hair, brows and lashes through their shared `human.hair.` prefix. `material=clay` uses a neutral plain material without maps or shader effects on the skin and on the `human.cavity.` pocket skin, retaining their geometry and smooth normals. Eye and nail materials remain their own appearance.
  *
  * @param pass Pass to display.
  * @param selection Resolved curve selection, possibly empty.
@@ -124,7 +124,10 @@ export function createHumanPartStyle(
     )
       return { visible: false };
     const style: ModelPartStyling.IStyle = {};
-    if (display.material === "clay" && part.id.startsWith("human.skin.")) {
+    if (
+      display.material === "clay" &&
+      (part.id.startsWith("human.skin.") || part.id.startsWith("human.cavity."))
+    ) {
       style.plain = true;
       style.color = { r: 0.5, g: 0.5, b: 0.5 };
     }

@@ -39,13 +39,13 @@ export class HumanImageSourceIdentity {
     return digest.digest("hex");
   }
 
-  /** Hash sorted .ts/.json paths and bytes across five package src trees, the Human page modules and runtime files.
-   * The inventory includes unused files and absolute paths, so relocation or unrelated source edits invalidate it.
+  /** Hash sorted .ts/.json paths and bytes across five package src trees, the Human page modules, the module-fit previews and runtime files.
+   * The inventory includes unused files and absolute paths, so relocation or unrelated source edits invalidate it. An emitted `.js`, `.mjs`, `.cjs`, `.d.ts` or `.js.map` file inside a hashed tree is refused, since Vite could serve it in place of its source under an unchanged key.
    *
-   * @evidence contracts/common.md#principled-implementation Recursive regular-file enumeration and deterministic lexical sorting feed path strings and exact bytes to SHA-256, with read errors propagated.
+   * @evidence contracts/common.md#principled-implementation Recursive regular-file enumeration and deterministic lexical sorting feed path strings and exact bytes to SHA-256, with read errors and emitted files refused.
    * @evidence contracts/common.md#clear-and-simple-design One conservative inventory gives parent and child the same session invalidation policy without another module loader.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts This broader-than-consumed inventory is not an import-closure certificate, a dependency-runtime digest or an atomic filesystem snapshot.
-   * @evidence contracts/common.md#meaningful-documentation Names extensions, package scope, absolute-path sensitivity and conservative invalidation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts This broader-than-consumed inventory is not an import-closure certificate, a dependency-runtime digest or an atomic filesystem snapshot; an emitted JavaScript or declaration file stops the identity instead of being skipped.
+   * @evidence contracts/common.md#meaningful-documentation Names extensions, package scope, the refused emitted files, absolute-path sensitivity and conservative invalidation.
    * @evidence contracts/performance.md#efficient-algorithms For E directory entries, F selected files and B selected bytes, enumeration/hash work is O(E+B), sorting O(F log F), and memory holds selected paths, traversal depth and one file buffer.
    * @evidence contracts/performance.md#reuse-equivalent-work Full rehashing detects byte edits without relying on mtime; completed model/frame reuse is decided separately by the session.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Path arrays, traversal frames and hash state are local to the call; no source snapshot, watcher or persistent cache survives return.
@@ -63,6 +63,14 @@ export class HumanImageSourceIdentity {
       })) {
         const name: string = path.join(directory, entry.name);
         if (entry.isDirectory()) nested.push(visit(name));
+        else if (
+          entry.isFile() &&
+          /\.(?:[mc]?js|d\.ts|js\.map)$/.test(entry.name)
+        )
+          throw new Error(
+            "Emitted file inside a hashed Human source tree; remove it: " +
+              name,
+          );
         else if (entry.isFile() && /\.(?:ts|json)$/.test(entry.name))
           names.push(name);
       }
@@ -74,8 +82,9 @@ export class HumanImageSourceIdentity {
           visit(path.join(root, "packages", pack, "src")),
       ),
 
-      // The worker renders through the Human page, so its modules join the key.
-      ...["human", "human-parameters"].map(
+      // The worker renders through the Human page, so its modules and the
+      // module-fit previews it may loft join the key.
+      ...["human", "human-parameters", "human-preview"].map(
         (directory: string): Promise<void> =>
           visit(path.join(root, "packages/playground/src", directory)),
       ),

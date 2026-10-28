@@ -30,7 +30,11 @@ export interface IAutoMovieHumanRelief {
    */
   phases: [number, number];
 
-  /** Unit world direction the height moves the base point along. */
+  /**
+   * Unit direction the height moves the base point along: in the base
+   * chain's anchor coordinates when the base is anchored, in the world
+   * otherwise.
+   */
   axis: [number, number, number];
 
   /** Number of control points across the station range, at least 7. */

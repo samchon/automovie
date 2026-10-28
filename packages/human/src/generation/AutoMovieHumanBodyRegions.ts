@@ -1,7 +1,9 @@
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanFeatureChain } from "../network/AutoMovieHumanFeatureChain";
+import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import type { IAutoMovieHumanFeatureChain } from "../network/IAutoMovieHumanFeatureChain";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyRegion } from "./IAutoMovieHumanBodyRegion";
 
@@ -12,6 +14,14 @@ import type { IAutoMovieHumanBodyRegion } from "./IAutoMovieHumanBodyRegion";
 export namespace AutoMovieHumanBodyRegions {
   /**
    * Merge regions: concatenate chains, events and poles, then apply trims.
+   *
+   * Every region's networks are composed in one
+   * `AutoMovieHumanFeatureChain.compose`, so a shared key's owner in another
+   * region resolves and every module carries jets and its placed anchor.
+   * Each shared end becomes a continuation event from its owner, so the
+   * sharer inherits the owner's ring instead of closing at a pole.
+   * Apertures and eyes that name a chain are placed in the world by that
+   * chain's anchor through their own child frames.
    *
    * A trim cuts a chain at a station inside it. The layers beyond the cut are
    * dropped and a new end layer is evaluated from the chain's own Hermite
@@ -38,16 +48,44 @@ export namespace AutoMovieHumanBodyRegions {
       throw new Error("Exactly one calibration region must declare stature");
 
     // Chains by unique name; copies, so trims never touch the region data.
+    const networks: IAutoMovieHumanFeatureChain[] = regions.flatMap(
+      (r: IAutoMovieHumanBodyRegion): IAutoMovieHumanFeatureChain[] =>
+        r.networks ?? [],
+    );
+    const composed: IAutoMovieHumanLoftChain[] =
+      AutoMovieHumanFeatureChain.compose(networks);
     const chains: Map<string, IAutoMovieHumanLoftChain> = new Map();
-    for (const region of regions)
-      for (const chain of [
-        ...region.chains,
-        ...(region.networks ?? []).map(AutoMovieHumanFeatureChain.expand),
-      ]) {
-        if (chains.has(chain.name))
-          throw new Error(`Chain ${chain.name} is defined by two regions`);
-        chains.set(chain.name, { ...chain, layers: [...chain.layers] });
-      }
+    for (const chain of [
+      ...regions.flatMap(
+        (r: IAutoMovieHumanBodyRegion): IAutoMovieHumanLoftChain[] => r.chains,
+      ),
+      ...composed,
+    ]) {
+      if (chains.has(chain.name))
+        throw new Error(`Chain ${chain.name} is defined by two regions`);
+      chains.set(chain.name, { ...chain, layers: [...chain.layers] });
+    }
+
+    // A shared end continues its owner's end ring whole.
+    const continuations: IAutoMovieHumanBodyCalibration.IEvent[] =
+      networks.flatMap(
+        (c: IAutoMovieHumanFeatureChain): IAutoMovieHumanBodyCalibration.IEvent[] =>
+          [c.ends?.bottom, c.ends?.top]
+            .filter(
+              (
+                s: IAutoMovieHumanFeatureChain.IShare | undefined,
+              ): s is IAutoMovieHumanFeatureChain.IShare => s !== undefined,
+            )
+            .map(
+              (
+                s: IAutoMovieHumanFeatureChain.IShare,
+              ): IAutoMovieHumanBodyCalibration.IEvent => ({
+                parent: s.owner,
+                direction: s.end === "top" ? "up" : "down",
+                splits: [{ child: c.name, arcs: [[0, 2 * Math.PI]] }],
+              }),
+            ),
+      );
 
     let poles: IAutoMovieHumanBodyCalibration.IPole[] = regions.flatMap(
       (r: IAutoMovieHumanBodyRegion): IAutoMovieHumanBodyCalibration.IPole[] =>
@@ -79,25 +117,117 @@ export namespace AutoMovieHumanBodyRegions {
     return {
       stature: statures[0]!,
       chains: [...chains.values()],
-      events: regions.flatMap(
-        (
-          r: IAutoMovieHumanBodyRegion,
-        ): IAutoMovieHumanBodyCalibration.IEvent[] => r.events,
-      ),
+      events: [
+        ...regions.flatMap(
+          (
+            r: IAutoMovieHumanBodyRegion,
+          ): IAutoMovieHumanBodyCalibration.IEvent[] => r.events,
+        ),
+        ...continuations,
+      ],
       poles,
       apertures: regions.flatMap(
         (r: IAutoMovieHumanBodyRegion): IAutoMovieHumanLoftAperture[] =>
-          r.apertures ?? [],
+          (r.apertures ?? []).map(
+            (a: IAutoMovieHumanLoftAperture): IAutoMovieHumanLoftAperture =>
+              aperture(a, chains),
+          ),
       ),
       eyes: regions.flatMap(
         (r: IAutoMovieHumanBodyRegion): IAutoMovieHumanBodyCalibration.IEye[] =>
-          r.eyes ?? [],
+          (r.eyes ?? []).map(
+            (
+              e: IAutoMovieHumanBodyCalibration.IEye,
+            ): IAutoMovieHumanBodyCalibration.IEye => eye(e, chains),
+          ),
       ),
       appendages: regions.flatMap(
         (
           r: IAutoMovieHumanBodyRegion,
         ): IAutoMovieHumanBodyCalibration.IAppendage[] => r.appendages ?? [],
       ),
+    };
+  }
+
+  /**
+   * World frame of an opening's or a globe's child frame: the frame given in
+   * its chain's anchor coordinates, placed by that chain's composed anchor;
+   * null for a world record.
+   */
+  function childFrame(
+    what: string,
+    chain: string | undefined,
+    frame: AutoMovieHumanLoftFrame.IFrame | undefined,
+    chains: ReadonlyMap<string, IAutoMovieHumanLoftChain>,
+  ): AutoMovieHumanLoftFrame.IFrame | null {
+    if (chain === undefined) {
+      if (frame !== undefined)
+        throw new Error(`${what} has a frame but names no chain`);
+      return null;
+    }
+    const anchor: IAutoMovieHumanLoftChain.IAnchor | undefined =
+      chains.get(chain)?.anchor;
+    if (anchor === undefined)
+      throw new Error(`${what} hangs from ${chain}, which has no anchor`);
+    if (frame === undefined)
+      throw new Error(`${what} names ${chain} but has no frame`);
+    return AutoMovieHumanFeatureChain.placeFrame(anchor.frame, frame);
+  }
+
+  /**
+   * An opening placed in the world through its child frame: each
+   * coordinate series' constant terms form a point, and each harmonic's
+   * cosine or sine coefficients a vector, so the map moves the point and
+   * turns the vectors and the margin keeps its harmonic count.
+   */
+  function aperture(
+    a: IAutoMovieHumanLoftAperture,
+    chains: ReadonlyMap<string, IAutoMovieHumanLoftChain>,
+  ): IAutoMovieHumanLoftAperture {
+    const frame: AutoMovieHumanLoftFrame.IFrame | null = childFrame(
+      `Aperture ${a.name}`,
+      a.chain,
+      a.frame,
+      chains,
+    );
+    if (frame === null) return a;
+    const width: number = 2 * a.order + 1;
+    const coefficients: number[] = new Array<number>(3 * width).fill(0);
+    for (let i: number = 0; i < width; i++) {
+      const local: number[] = [0, 1, 2].map(
+        (k: number): number => a.coefficients[k * width + i]!,
+      );
+      const world: [number, number, number] =
+        i === 0
+          ? AutoMovieHumanFeatureChain.placePoint(frame, local)
+          : AutoMovieHumanFeatureChain.placeDirection(frame, local);
+      for (let k: number = 0; k < 3; k++)
+        coefficients[k * width + i] = world[k]!;
+    }
+    return {
+      ...a,
+      coefficients,
+      forward: AutoMovieHumanFeatureChain.placeDirection(frame, a.forward),
+      frame,
+    };
+  }
+
+  /** A globe placed in the world through its child frame. */
+  function eye(
+    e: IAutoMovieHumanBodyCalibration.IEye,
+    chains: ReadonlyMap<string, IAutoMovieHumanLoftChain>,
+  ): IAutoMovieHumanBodyCalibration.IEye {
+    const frame: AutoMovieHumanLoftFrame.IFrame | null = childFrame(
+      `Eye ${e.side}`,
+      e.chain,
+      e.frame,
+      chains,
+    );
+    if (frame === null) return e;
+    return {
+      ...e,
+      centre: AutoMovieHumanFeatureChain.placePoint(frame, e.centre),
+      frame,
     };
   }
 

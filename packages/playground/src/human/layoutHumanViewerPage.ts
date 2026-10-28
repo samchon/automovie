@@ -225,6 +225,7 @@ export function layoutHumanViewerPage(
       selection: string,
       free: string,
       curve: string | null,
+      modules: string | null,
     ): void => {
       diagram.removeAttribute("href");
       if (name === null) {
@@ -233,7 +234,8 @@ export function layoutHumanViewerPage(
         pngPath.textContent = "";
         return;
       }
-      const query: string = [selection, free]
+      const preview: string = modules === null ? "" : "modules=" + modules;
+      const query: string = [preview, selection, free]
         .filter((part: string): boolean => part !== "")
         .join("&");
       const image: string =
@@ -246,10 +248,20 @@ export function layoutHumanViewerPage(
         ".png" +
         (query === "" ? "" : "?" + query);
       png.href = image;
-      model.href = "/human-images/" + name + ".model.json";
+      model.href =
+        "/human-images/" +
+        name +
+        ".model.json" +
+        (preview === "" ? "" : "?" + preview);
       pngPath.textContent = image;
       if (curve !== null && selection !== "")
-        diagram.href = "/human-curves/" + name + ".png?" + selection;
+        diagram.href =
+          "/human-curves/" +
+          name +
+          ".png?" +
+          [preview, selection]
+            .filter((part: string): boolean => part !== "")
+            .join("&");
     },
     setLegend: (
       colours: { axis: string | null; section: string | null },
@@ -333,7 +345,8 @@ export function layoutHumanViewerPage(
         { signal },
       );
 
-      // A click without a drag toggles the curve under the pointer.
+      // A click without a drag toggles the curves under the pointer: all of
+      // them leave the selection when all are selected, else the missing join.
       let pressed: { x: number; y: number } | undefined;
       canvas.addEventListener(
         "pointerdown",
@@ -351,19 +364,22 @@ export function layoutHumanViewerPage(
           )
             return;
           const box: DOMRect = canvas.getBoundingClientRect();
-          const id: string | null = handlers.pick(
+          const ids: string[] | null = handlers.pick(
             ((event.clientX - box.left) / box.width) * 2 - 1,
             -((event.clientY - box.top) / box.height) * 2 + 1,
           );
-          if (id === null) return;
+          if (ids === null) return;
           const chosen: string[] = curves.value
             .split(",")
             .map((text: string): string => text.trim())
             .filter((text: string): boolean => text !== "");
           handlers.curves(
-            (chosen.includes(id)
-              ? chosen.filter((text: string): boolean => text !== id)
-              : [...chosen, id]
+            (ids.every((id: string): boolean => chosen.includes(id))
+              ? chosen.filter((text: string): boolean => !ids.includes(text))
+              : [
+                  ...chosen,
+                  ...ids.filter((id: string): boolean => !chosen.includes(id)),
+                ]
             ).join(","),
           );
         },
@@ -415,7 +431,7 @@ export namespace layoutHumanViewerPage {
     /** Enable overlay/construction only when the model has construction, and show the pass. */
     setPassAvailability: (construction: boolean, pass: string) => void;
 
-    /** Point the PNG, model and curve-diagram links at the current alias, camera, pass, curves query (`curves=a&curves=b`) and free view; `curve` non-null enables the diagram link. */
+    /** Point the PNG, model and curve-diagram links at the current alias, camera, pass, curves query (`curves=a&curves=b`), free view and module-fit preview (`modules=<name>`, null for none); `curve` non-null enables the diagram link. */
     setLinks: (
       alias: string | null,
       camera: string,
@@ -423,6 +439,7 @@ export namespace layoutHumanViewerPage {
       curves: string,
       free: string,
       curve: string | null,
+      modules: string | null,
     ) => void;
 
     /** Toolbar the page appends its free-view controls to. */
@@ -458,7 +475,7 @@ export namespace layoutHumanViewerPage {
     /** Replace the curve selection with a raw comma list. */
     curves: (curves: string) => void;
 
-    /** Curve id under a normalized device coordinate, or null. */
-    pick: (x: number, y: number) => string | null;
+    /** Curve ids a click at a normalized device coordinate toggles, or null. */
+    pick: (x: number, y: number) => string[] | null;
   }
 }

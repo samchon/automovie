@@ -12,8 +12,11 @@ import { HumanImageSession } from "./HumanImageSession";
 /** Publish typed Human example JSON, generated models and rendered PNGs.
  * Both /human-parameters/f1.json and /human-images/f1.json use the same typed
  * source registry. Model JSON and PNG requests go through HumanImageSession
- * to the resident worker, whose Chrome runs the same /human.html. Historical
- * captures remain historical and never stand in for a current-source render.
+ * to the resident worker, whose Chrome runs the same /human.html. A
+ * `modules=<name>` query on a model, PNG or curve-diagram request names a
+ * module-fit preview the page lofts instead, echoed in `x-human-modules`.
+ * Historical captures remain historical and never stand in for a
+ * current-source render.
  *
  * @evidence contracts/common.md#principled-implementation JSON routes serialize the registered typed parameters; model and PNG requests return worker output whose identity the session verified, and a worker failure propagates as an HTTP error.
  * @evidence contracts/common.md#clear-and-simple-design One existing middleware owns alias JSON and retained image transport.
@@ -77,13 +80,16 @@ export function createHumanImagePlugin(repository: string): Plugin {
       route[1]!,
     );
     const format: "png" | "svg" = route[3] === "svg" ? "svg" : "png";
+    const modules: string | null = url.searchParams.get("modules");
     const result: Awaited<ReturnType<HumanImageSession["diagram"]>> =
       await session!.diagram(
         route[1]!,
         curves,
         format,
         url.searchParams.get("fresh") ?? undefined,
+        modules,
       );
+    response.setHeader("x-human-modules", modules ?? "none");
     response.setHeader("cache-control", "no-store");
     response.setHeader("x-human-captured-utc", result.capturedUtc);
     response.setHeader(
@@ -352,6 +358,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
               return;
             }
             const requested: string = image?.[2] ?? pinned?.[2] ?? "$model";
+            const modules: string | null = url.searchParams.get("modules");
             const result: Awaited<ReturnType<HumanImageSession["image"]>> =
               await session!.image(
                 input,
@@ -359,7 +366,9 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 url.searchParams.get("fresh") ?? undefined,
                 curves,
                 view.text,
+                modules,
               );
+            response.setHeader("x-human-modules", modules ?? "none");
             if (pinned && result.key !== pinned[1]) {
               response.statusCode = 409;
               response.end("Human source changed; reload the model");
@@ -399,6 +408,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
             const event: object = {
               kind: "human-image-response",
               alias: image?.[1],
+              modules,
               image: requested,
               curves,
               view: view.text,

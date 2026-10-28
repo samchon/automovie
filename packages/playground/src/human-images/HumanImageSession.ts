@@ -50,7 +50,7 @@ export class HumanImageSession {
   ) {}
 
   /** Queue one model/frame request; reject invalid nonces, full queues or closed sessions.
-   * The resident child generates and renders in its Chrome page. `curves` is the canonical selection from `normalizeHumanCurves`; it joins the frame identity and the receipt. Input value/SHA consistency is supplied by the caller.
+   * The resident child generates and renders in its Chrome page. `curves` is the canonical selection from `normalizeHumanCurves`; it joins the frame identity and the receipt. `modules` names a module-fit preview whose calibration the page lofts instead of the full generation; it joins the model key and the receipt. Input value/SHA consistency is supplied by the caller.
    *
    * @evidence contracts/common.md#principled-implementation The serialized operation observes source/host hashes, derives a model key, verifies worker commitments and refuses source changes before returning publication or frame bytes.
    * @evidence contracts/common.md#clear-and-simple-design One queue protects a model lease and its frame Map while independent archive HTTP reads need no session operation.
@@ -66,6 +66,7 @@ export class HumanImageSession {
     nonce?: string,
     curves: string = "",
     view: string = "",
+    modules: string | null = null,
   ): Promise<{
     png: Buffer;
     key: string;
@@ -76,6 +77,8 @@ export class HumanImageSession {
   }> {
     if (nonce !== undefined && !/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/.test(nonce))
       throw new Error("Fresh nonce requires one to sixty-four safe characters");
+    if (modules !== null && !/^[a-z][a-z0-9-]{0,31}$/.test(modules))
+      throw new Error("Human module preview name is not [a-z][a-z0-9-]{0,31}");
     if (this.closed || this.admittedRequests >= 16)
       throw new Error("Human image queue is closed or full");
     this.admittedRequests++;
@@ -106,7 +109,11 @@ export class HumanImageSession {
         this.hostIdentity = host;
         const source: string = await HumanImageSourceIdentity.source(this.root);
         const key: string = createHash("sha256")
-          .update(source + input.sha256)
+          .update(
+            source +
+              input.sha256 +
+              (modules === null ? "" : "|modules=" + modules),
+          )
           .digest("hex");
         const previous: { nonce: string | null } | undefined =
           this.cached?.key === key ? this.cached.frames.get(slot) : undefined;
@@ -126,6 +133,7 @@ export class HumanImageSession {
             key,
             inputSha256: input.sha256,
             value: input.value,
+            modules,
           });
           if (
             result.key !== key ||
@@ -222,6 +230,7 @@ export class HumanImageSession {
           receipt: {
             ...this.cached.receipt,
             frame: name,
+            modules,
             curves,
             view,
             capture:
@@ -248,9 +257,9 @@ export class HumanImageSession {
 
   /** Queue one 2D curve diagram; same queue, nonce and source rules as frames.
    * Diagrams need no generated model, so they never disturb the model cache;
-   * up to 32 recent diagrams are kept by source, alias, curve list and format.
+   * up to 32 recent diagrams are kept by source, alias, curve list, format and module-fit preview.
    *
-   * @evidence contracts/common.md#principled-implementation The key commits to the observed source hash, alias, canonical curves and format; a present nonce that differs from the stored one forces a new draw, and the source is rechecked before delivery.
+   * @evidence contracts/common.md#principled-implementation The key commits to the observed source hash, alias, canonical curves, format and preview name; a present nonce that differs from the stored one forces a new draw, and the source is rechecked before delivery.
    * @evidence contracts/common.md#clear-and-simple-design Shares the queue and resident worker with frames; drawing stays in the page.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Worker errors and SHA mismatches reject; no older diagram is returned for a changed source.
    * @evidence contracts/common.md#meaningful-documentation States cache identity, nonce rule and bound.
@@ -263,6 +272,7 @@ export class HumanImageSession {
     curves: string,
     format: "png" | "svg",
     nonce?: string,
+    modules: string | null = null,
   ): Promise<{
     bytes: Buffer;
     key: string;
@@ -273,6 +283,8 @@ export class HumanImageSession {
   }> {
     if (nonce !== undefined && !/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/.test(nonce))
       throw new Error("Fresh nonce requires one to sixty-four safe characters");
+    if (modules !== null && !/^[a-z][a-z0-9-]{0,31}$/.test(modules))
+      throw new Error("Human module preview name is not [a-z][a-z0-9-]{0,31}");
     if (this.closed || this.admittedRequests >= 16)
       throw new Error("Human image queue is closed or full");
     this.admittedRequests++;
@@ -286,7 +298,7 @@ export class HumanImageSession {
             this.root,
           );
           const key: string = createHash("sha256")
-            .update(JSON.stringify([source, alias, curves, format]))
+            .update(JSON.stringify([source, alias, curves, format, modules]))
             .digest("hex");
           const stored:
             | {
@@ -308,6 +320,7 @@ export class HumanImageSession {
               alias,
               curves,
               format,
+              modules,
             });
 
             // Structured clone across the lifecycle thread delivers a Uint8Array.
@@ -358,6 +371,7 @@ export class HumanImageSession {
               alias,
               curves,
               format,
+              modules,
               nonce: entry.nonce,
               capturedUtc: entry.capturedUtc,
               sha256: entry.sha256,
