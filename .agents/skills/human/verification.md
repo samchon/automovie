@@ -2,6 +2,8 @@
 
 Each part owner follows [Visual Debugging](../3d-modeling/visual-debugging.md) throughout development, inspecting its real generated curves and skin in the [viewer](screenshot.md) from the first usable preview through assembly. Do not defer observation until every part or person is complete. Mark missing parts and unverified properties honestly while keeping partial work visible.
 
+Inspect the existing working figure before replacing its overfitting dependencies. Compare the replacement under the same conditions across every affected region and join, including ordinary input changes and supported motion states. Preserve the working path until the replacement passes that comparison; reproducing the baseline alone does not establish a general construction.
+
 ## Inspection Round
 
 Inspect the affected person and all affected parts under matching camera, light, material, resolution and renderer conditions, expanding to other people when the task requires it.
