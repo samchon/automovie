@@ -4,7 +4,7 @@ Construction answers remain detached from creative bodies. Put positive H2 answe
 
 Detached documents do not support exclusion or exclusion-review rows. Put a permitted exclusion in the actual host unit's HTML comment, or use the designated discovery carrier for a discovery negative. State the inspected scope and exact inapplicability; a population exclusion requires the entire population to be inapplicable.
 
-Naturalness answers stay in HTML comments attached to their working unit in `docs/naturalness`. File answers attach before its first heading. Keep them with that edition when reviewed text is transferred; [rewriting procedure](../rewriting/procedure.md#transfer) owns the comment-free transfer and [upstream repair](../repair.md) its closed-proof boundary.
+Script expression answers belong to its detached construction units and population files. Screenplay naturalness answers stay in HTML comments attached to their working unit in `docs/naturalness/screenplay`. File answers attach before its first heading. Keep them with that edition when reviewed text is transferred; [rewriting procedure](../rewriting/procedure.md#transfer) owns the comment-free transfer and [upstream repair](../repair.md) its closed-proof boundary.
 
 Review records mirror the actual units of their declared edition and include a verdict for the whole selected population. They are the reviewer's judgments, not substitutes for the author's evidence. [Review](../../review/SKILL.md) owns their reading and finding exchange.
 

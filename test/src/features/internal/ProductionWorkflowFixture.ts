@@ -52,7 +52,7 @@ export class ProductionWorkflowFixture {
         scripts: "disabled",
         screenplay: "disabled",
       },
-      naturalness: { scripts: "disabled", screenplay: "disabled" },
+      naturalness: { screenplay: "disabled" },
       gate: {
         harnessVersion: "fixture-harness",
         compilerVersion: "fixture-compiler",
@@ -213,6 +213,10 @@ export class ProductionWorkflowFixture {
         units.push("scripts/001-part/001-scene.md#arrival");
         files.push("docs/body/scripts/001-part/001-scene.md");
       }
+      if (layer === "scripts") {
+        units.push("shared/naturalness/common.md#scope");
+        files.push("shared/naturalness/obligations/common.md#scope");
+      }
       ProductionWorkflowFixture.write(
         root,
         `docs/evidence/construction/units/${layer}/${file}`,
@@ -223,8 +227,8 @@ export class ProductionWorkflowFixture {
         `docs/evidence/construction/files/${layer}/${file}`,
         `# docs/body/${layer}/${file}\n\n${files.map((target: string): string => `## @evidence ${target}\n\nThis file owns the fixture duty.\n`).join("\n")}`,
       );
-      if (layer === "scripts" || layer === "screenplay") {
-        props.naturalness[layer] = "evidence";
+      if (layer === "screenplay") {
+        props.naturalness.screenplay = "evidence";
         const working: string = `<!--\n@evidence docs/revision/${layer}/${file} Preserves the frozen file.\n@evidence shared/naturalness/obligations/common.md#scope Compared expression across the selected scene population.\n-->\n# Arrival record\n\n## Arrival {#arrival}\n<!--\n@evidence ${layer}/${file}#arrival Preserves the frozen scene.\n@evidence shared/naturalness/common.md#scope Keeps the same scene decision.\n-->\nThe guest opens the door.\n`;
         ProductionWorkflowFixture.write(
           root,
@@ -242,7 +246,7 @@ export class ProductionWorkflowFixture {
           stripNaturalnessComments(Buffer.from(working)).toString("utf8"),
         );
       }
-      for (const pass of layer === "scripts" || layer === "screenplay"
+      for (const pass of layer === "screenplay"
         ? ["draft", "final"]
         : ["draft"]) {
         ProductionWorkflowFixture.write(

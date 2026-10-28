@@ -3,11 +3,10 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionConstructionStageMixin } from "../../ProductionConstructionStageMixin";
+import type { ProductionStage } from "../../ProductionStage";
 import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { passRoot } from "../utilities/passRoot";
-import { resolveConstruction } from "../utilities/resolveConstruction";
 
 /**
  * Tracks instruction adoption in settings and realization in treatments.
@@ -28,9 +27,7 @@ export function createInstructionCoverageClaim(
   props: IProductionConfigProps,
   layer: "settings" | "treatments" | "screenplay",
 ): IEvidenceClaim | undefined {
-  const [stage]: ProductionConstructionStageMixin = resolveConstruction(
-    props.construction[layer],
-  );
+  const stage: ProductionStage = props.construction[layer];
   const directory: string = path.join(
     props.location,
     PACKAGE_DOCS_ROOT,

@@ -279,11 +279,9 @@ Gaesomun stops. The soldier adjusts his injured leg and finishes telling him wha
 
 Taejo's office, day. Gaesomun stands before him.
 
-GAESOMUN: We did arrive first. I thought the injured man only needed rest. But his household can't work its fields this season, and his wages have stopped.
+GAESOMUN: We did arrive first. I thought the injured man only needed rest. But he can't work the fields this season, and his wages have stopped.
 
 TAEJO: You'll use people again. Next time, know what it costs.
-
-Without compensation or news that the foot has healed, Gaesomun is entrusted with people to train again.
 
 ## The closing chance to attack {#t005-unification-arrives}
 

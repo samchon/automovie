@@ -59,7 +59,7 @@ export function createPackagePopulationContract(
     )
   )
     throw new Error(
-      "Only scripts and screenplay have naturalness obligations.",
+      "Only screenplay has a naturalness pass; adopt scripts obligations in construction.",
     );
   if (
     props.inapplicable === true &&

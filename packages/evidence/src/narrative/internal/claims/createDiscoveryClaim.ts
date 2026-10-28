@@ -1,9 +1,8 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionConstructionStageMixin } from "../../ProductionConstructionStageMixin";
+import type { ProductionStage } from "../../ProductionStage";
 import { createDiscoveryReferences } from "../references/createDiscoveryReferences";
-import { resolveConstruction } from "../utilities/resolveConstruction";
 
 /**
  * Creates the open-world discovery claim for one layer.
@@ -37,9 +36,7 @@ export function createDiscoveryClaim(
   props: IProductionConfigProps,
   layer: "settings" | "treatments" | "scripts" | "screenplay",
 ): IEvidenceClaim {
-  const [stage]: ProductionConstructionStageMixin = resolveConstruction(
-    props.construction[layer],
-  );
+  const stage: ProductionStage = props.construction[layer];
   return {
     name: `the ${layer} work-specific contract accounts for its open-world discovery duties`,
     type: "markdown",

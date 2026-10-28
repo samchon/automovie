@@ -9,6 +9,7 @@ import { createLayerClaims } from "./claims/createLayerClaims";
 import { createOutlineClaims } from "./claims/createOutlineClaims";
 import { createPopulationObligationClaims } from "./claims/createPopulationObligationClaims";
 import { createReviewClaims } from "./claims/createReviewClaims";
+import { hasNaturalness } from "./hasNaturalness";
 import { ownClaim } from "./ownClaim";
 import { ownClaims } from "./ownClaims";
 import { productionLayers } from "./productionLayers";
@@ -66,7 +67,7 @@ export function collectProductionClaims(
         }),
         ...ownClaims(createExpressionObligationClaims(props, layer), {
           layer,
-          pass: "naturalness",
+          pass: hasNaturalness(layer) ? "naturalness" : "construction",
           kind: "generated",
         }),
         ownClaim(createDiscoveryClaim(props, layer), {

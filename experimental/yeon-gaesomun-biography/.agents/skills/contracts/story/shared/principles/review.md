@@ -8,6 +8,8 @@ Before consulting acknowledgments or earlier verdicts, did the reviewer read the
 
 Record fragile achievements with quotations and functions, or explicitly state that none were identified. Protect their function rather than freezing a defective sentence; a named failure without a proven contractual exception is not a protected achievement. Give repair directions rather than prose for adoption; counterfactual sentences belong only to the retention comparison. Review narrative and expressive quality separately from the truth of evidence answers.
 
+Judge the applicable question's defined scope: examples may permit another proven loss, but a named-failure boundary cannot be expanded by reviewer taste. A revised passage requires a clear applicable failure before another yes; unchanged classifications require new body or source evidence to reopen, under [inspection](../../../../screenwriting/inspection.md#verify-changed-work).
+
 ## Were related failures and claimed relationships fully audited? {#literal-and-class-audit}
 
 For each finding class, record the inspected scope, reproducible search or comparison, every discovered member and affected relation, and the earliest owner; reference other review units where they inspected a member. A genuinely isolated finding needs its reason. Audit each acknowledgment against the full target requirement and complete host support, including host kind, family, semantic role, lineage, exact predicate, and actual realization. A claim about checking itself, repeated vocabulary, another event, or partial support cannot prove the relationship. Quotations and locators must match the inspected snapshot; an exclusion needs its entire defined negative scope and inspection method.

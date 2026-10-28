@@ -29,7 +29,7 @@ export async function test_template_production_relationships(): Promise<void> {
   try {
     const props: IProductionConfigProps = ProductionWorkflowFixture.props(root);
     props.construction.scripts = "evidence";
-    props.construction.screenplay = ["evidence", false];
+    props.construction.screenplay = "evidence";
     const claims: IEvidenceClaim[] = createProductionClaims(props);
     const scripts: IEvidenceClaim | undefined = claims.find(
       (claim: IEvidenceClaim): boolean =>

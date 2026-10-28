@@ -6,7 +6,6 @@ import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import { createSharedReference } from "../references/createSharedReference";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { passRoot } from "../utilities/passRoot";
-import { resolveConstruction } from "../utilities/resolveConstruction";
 import { validateSettingsOutline } from "../validateSettingsOutline";
 
 /**
@@ -77,8 +76,7 @@ export function createOutlineClaims(
     ];
   }
 
-  const disabled: boolean =
-    resolveConstruction(props.construction.settings)[0] === "disabled";
+  const disabled: boolean = props.construction.settings === "disabled";
   // The outline's own claims follow `construction.index`, falling back to settings.
   const outlineDisabled: boolean =
     props.construction.index === undefined

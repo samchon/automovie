@@ -29,7 +29,7 @@ export default createEvidenceConfig({
 });
 ```
 
-Choose `mode: "long"` for settings → treatments → scripts → final screenplay. Unspecified construction and expression layers are disabled drafts; an omitted outline stage follows settings. Unspecified scope is the complete work. Compose a complete draft before activating its evidence. Scripts and screenplay each retain construction and expression passes; settings and treatments finish within construction. A disabled stage or passing graph never grants creative approval.
+Choose `mode: "long"` for settings → treatments → scripts → final screenplay. Unspecified construction and expression layers are disabled drafts; an omitted outline stage follows settings. Unspecified scope is the complete work. Compose a complete draft before activating its evidence. Scripts finishes content and expression together in construction; settings and treatments also finish within construction. Only final screenplay retains a separate naturalness pass. Long screenplay requires treatments and scripts construction. A disabled stage or passing graph never grants creative approval.
 
 The factory derives lifecycle and actual implementation/compiler identities. Callers do not supply synthetic gate hashes or parallel ownership arrays. Narrative creation resolves the project's installed `ttsc` and the package's actual Evidence dependency; it rejects `TTSC_BINARY` overrides. Changing project options does not change the library implementation digest.
 
@@ -39,9 +39,11 @@ The [input type](src/IAutoMovieEvidenceConfigProps.ts) and [narrative options](s
 
 Production-owned language and work questions live under `.agents/skills/contracts/story/{language,work}`. The shared graph retains unit principles, population obligations, discovery, upstream repair, expression revision, and independent review. Each extra narrative claim carries its native `claim` with a unique name, plus the exact owning `layer` and `pass`, in one [record](src/IAutoMovieNarrativeClaim.ts). The factory derives the matching claim scope. Inactive owners, duplicate names, and unsupported pass ownership are rejected.
 
-Built-in language discovery uses `language/discovery/questions.md`. Unit questions use `language/principles/` for construction and `language/naturalness/` for expression; population questions use `language/obligations/` and `language/naturalness/obligations/`. Each family discovers installed `common.md`, `narratives.md` for treatments/scripts/screenplay, `realized.md` for scripts/screenplay, and the current `<layer>.md`. Expression families apply only to scripts and screenplay. Other filenames are not discovered automatically.
+Built-in language discovery uses `language/discovery/questions.md`. Unit questions use `language/principles/` for construction and `language/naturalness/` for expression; population questions use `language/obligations/` and `language/naturalness/obligations/`. Each family discovers installed `common.md`, `narratives.md` for treatments/scripts/screenplay, `realized.md` for scripts/screenplay, and the current `<layer>.md`. Expression families apply to scripts construction and screenplay naturalness, including their language-specific unit questions and file-level population duties. Other filenames are not discovered automatically.
 
 The advanced builders [createPackageChecklistClaim](src/narrative/createPackageChecklistClaim.ts) and [createPackagePopulationContract](src/narrative/createPackagePopulationContract.ts) distinguish work-local unit/file duties from obligations answered once per complete layer; attach each returned claim to its actual layer and pass through the same record.
+
+Adopt scripts expression contracts with `pass: "draft"` and scripts construction; screenplay expression contracts use `pass: "final"` and screenplay naturalness. The contract directory does not choose its pass. Migrate legacy `naturalness.scripts` by removing that key and answering script expression in construction; replace a screenplay `[stage, boolean]` source tuple with its scalar stage. Both legacy forms are rejected, as are scripts final-pass contracts and scripts naturalness checks. Keep historical frozen/working scripts and proof at their original identities; they remain protected authored inputs, not active revision populations or new approvals.
 
 Global engineering claims cannot consume authored body, revision, naturalness, evidence, review, instructions, or story-contract inputs. That protection includes physical/logical aliases and regular-file hard links throughout those trees, including inactive layers, disabled descendants, and material outside a selected pilot. Duties consuming protected material belong to explicitly owned narrative claims. Independent copied bytes remain independent files.
 
@@ -57,8 +59,8 @@ Installed `@wrtnlabs/evidence` documentation owns native selectors, annotation s
 | `docs/body/treatments/001-event.md` | Flat event sequence |
 | `docs/body/{scripts,screenplay}/001-part/001-scene.md` | Scene execution and final audiovisual realization |
 | `docs/evidence/construction/{files,units}/<layer>/<relative-file>.md` | Detached construction answers |
-| `docs/revision/{scripts,screenplay}/<relative-file>.md` | Frozen construction |
-| `docs/naturalness/{scripts,screenplay}/<relative-file>.md` | Working expression edition and comment evidence |
+| `docs/revision/screenplay/<relative-file>.md` | Frozen construction |
+| `docs/naturalness/screenplay/<relative-file>.md` | Working expression edition and comment evidence |
 | `docs/review/{draft,final}/<layer>/round-N/<relative-file>.md` | Current unit reviews |
 | `docs/review/{draft,final}/<layer>/round-N/verdict/index.md` | Whole selected population verdict |
 
@@ -81,7 +83,7 @@ process.exitCode = await runProductionCheck({
 });
 ```
 
-Its project command accepts `--layer <settings|treatments|scripts|screenplay>` and `--pass <construction|naturalness>`. The command evaluates the original complete native graph, preserving `packageReport` and `packageSuccess`. `rereadReady` identifies a pass ready for independent reading; `approvalStructureReady` additionally requires current unit reviews, a population verdict, valid topology and lineage, and completed transfers. Neither field issues a creative verdict or proves a rendered film realizes the screenplay.
+Its project command accepts `--layer <settings|treatments|scripts|screenplay>` and `--pass <construction|naturalness>`; naturalness is available only for screenplay. The command evaluates the original complete native graph, preserving `packageReport` and `packageSuccess`. `rereadReady` identifies a pass ready for independent reading; `approvalStructureReady` additionally requires current unit reviews, a population verdict, valid topology and lineage, and completed transfers. Neither field issues a creative verdict or proves a rendered film realizes the screenplay.
 
 `scopeIssues` reports captured-input structural failures. `pendingNaturalnessTransfers` compares working text, with every HTML comment removed, to the corresponding captured body bytes. A pending current promotion can permit a working-text reread but blocks structural readiness for completion and downstream consumption. Exit status 1 can therefore coexist with `rereadReady: true`; inspect the reported prerequisites before choosing review or repair.
 

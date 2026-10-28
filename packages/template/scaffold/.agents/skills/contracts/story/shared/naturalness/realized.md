@@ -1,6 +1,6 @@
 # Realized exchange revision principles
 
-Each revised script and final screenplay H2 answers from actual exchanges with their neighboring action. A settings voice description or treatment plan cannot answer for speech realization.
+Each script construction and revised final screenplay H2 answers from actual exchanges with their neighboring action. A settings voice description or treatment plan cannot answer for speech realization.
 
 ## Does a person say this to this person here? {#speech-yield}
 

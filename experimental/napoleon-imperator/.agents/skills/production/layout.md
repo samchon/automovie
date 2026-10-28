@@ -13,8 +13,8 @@ Use this resource when choosing source files, taking over existing work, or adap
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
 | `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
 | `docs/body/screenplay/NNN-part/NNN-episode.md` | Final audiovisual text preserving script identities and order |
-| `docs/revision/{scripts,screenplay}/...` | Frozen reviewed construction originals for expression revision |
-| `docs/naturalness/{scripts,screenplay}/...` | Expressive working versions and their evidence comments |
+| `docs/revision/screenplay/...` | Frozen reviewed construction originals for expression revision |
+| `docs/naturalness/screenplay/...` | Expressive working versions and their evidence comments |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files |
 | `docs/review/{draft,final}/<layer>/round-N/` | Independent construction and expression reviews, verdicts, and findings |
 | `src/assets/` | Representations, rigs, and reusable authored controls |

@@ -33,5 +33,9 @@ export function parseProductionCheckArgs(args: string[]): IProductionGateKey {
     throw new Error(
       "Usage: npm run production:check -- --layer <settings|treatments|scripts|screenplay> --pass <construction|naturalness>",
     );
+  if (pass === "naturalness" && layer !== "screenplay")
+    throw new Error(
+      "Only screenplay has a naturalness pass; scripts finish in construction.",
+    );
   return { layer: layer as AuthoredLayer, pass: pass as ProductionGatePass };
 }

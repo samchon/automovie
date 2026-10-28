@@ -1,15 +1,12 @@
 # Expressive rewriting
 
-Preserve a reviewed construction while writing its expression anew. Scripts serve performers and filmmakers; screenplay realizes the final audiovisual experience. Neither rewrite changes facts or results. Use the selected naturalness questions in [story contracts](../../contracts/story/index.md).
+Preserve reviewed final screenplay construction while writing its audiovisual expression anew. This separate pass does not change established facts or results. Scripts completes expression inside [scripts construction](../scripts.md). Use the selected naturalness questions in [story contracts](../../contracts/story/index.md).
 
 Before editing, read the annotation-free frozen edition and preceding context as its performer or audience. Record unclear action, awkward speech and lost attention; compare the rewrite with those first-response losses.
 
 Rewrite from the scene's actual people, purpose, pressure, and rhythm. Read dialogue with adjacent action and consecutive replies as if spoken, using [realized exchange](../../contracts/story/shared/naturalness/realized.md#speech-yield) and [common expression](../../contracts/story/shared/naturalness/common.md) to diagnose it. Delete narration that repeats meaning the scene already shows. Where summary or copied realization still carries needed meaning, recompose it as performed action and sound.
 
-| Layer | Rewriting method |
-| --- | --- |
-| Scripts | Follow the order of filming and performance. Read ambiguous directions beside the action they govern and exchanges beside their replies; reshape blocks around the changing pressure. |
-| Screenplay | Follow the audience's attention through image and sound. Rework selected detail, juxtaposition, reaction, silence, and transitions to realize the moment's intended effect. |
+Follow the audience's attention through image and sound. Rework selected detail, juxtaposition, reaction, silence and transitions to realize the moment's intended effect. A detail's individual function does not excuse a sequence that delays the important action or pressure.
 
 Compare the working version with its frozen original in both directions under [expression fidelity](../../contracts/story/shared/naturalness/common.md#expression-fidelity). Repair lost meaning in the working version and report a construction defect to its owner. After each annotation-free whole reading, use the same layer-specific naturalness questions in [story contracts](../../contracts/story/index.md) as independent review with [independent classification](../inspection.md), then complete [cause-based correction](../repair.md#cause-rounds). Keep the same author through its dry correction cycle; record retained candidates beside the passage under the [retention test](../evidence/writing.md#grounds-for-retaining-a-candidate) for independent review.
 

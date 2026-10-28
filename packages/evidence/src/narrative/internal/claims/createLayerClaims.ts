@@ -2,7 +2,6 @@ import type { IEvidenceClaim, IEvidenceReference } from "@wrtnlabs/evidence";
 
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionConstructionStageMixin } from "../../ProductionConstructionStageMixin";
 import type { ProductionStage } from "../../ProductionStage";
 import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
 import { hasNaturalness } from "../hasNaturalness";
@@ -15,7 +14,6 @@ import { createUpstreamReference } from "../references/createUpstreamReference";
 import { createTopologyFiles } from "../topology/createTopologyFiles";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { passRoot } from "../utilities/passRoot";
-import { resolveConstruction } from "../utilities/resolveConstruction";
 import { createSettingCoverageClaim } from "./createSettingCoverageClaim";
 
 /**
@@ -31,24 +29,24 @@ import { createSettingCoverageClaim } from "./createSettingCoverageClaim";
  * Scripts realize the treatments they divide, and screenplay additionally preserves
  * the script partition exactly.
  *
- * Construction hosts body; naturalness hosts the working text, comparing it
- * with the frozen construction snapshot before promotion.
+ * Construction hosts body; screenplay naturalness hosts working text against
+ * frozen construction. Script construction also answers expression questions,
+ * because a frozen content-preserving revision cannot repair content-shaped
+ * speech defects where those questions find them.
  *
  * @evidence contracts/common.md#principled-implementation Construction H2 claims, file inheritance and independent naturalness claims use native reference flags for per-unit checklists, treatment coverage and exact script/frozen lineage; naturalness hosts the working tree and targets its frozen construction.
  * @evidence contracts/common.md#clear-and-simple-design One layer factory centralizes stage/root/parent choices, while population obligations, discovery and review remain separate factories with their distinct respondents.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Short screenplay has no invented upstream parents; settings has no inherited file claim, and only scripts/screenplay receive naturalness claims under the declared pipeline.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Short screenplay has no invented upstream parents; settings has no inherited file claim, and only screenplay receives separate naturalness claims, while scripts construction selects its expression questions.
  * @evidence contracts/common.md#meaningful-documentation The prose distinguishes unit/population duties, layer-specific parents and body versus working hosts; nearby comments explain topology capture and frozen-reference ownership.
  * @evidence contracts/performance.md#efficient-algorithms A fixed number of claims and reference families are constructed per layer; helper existence probes dominate most layers, while treatments also enumerate settings files for coverage, whose scans and sorting scale with the installed canon.
- * @evidence contracts/performance.md#reuse-equivalent-work Unit/topology selectors, parent-reference builders and normalized stages are reused within the construction; each build refreshes filesystem-dependent contract/canon observations instead of retaining stale config results.
+ * @evidence contracts/performance.md#reuse-equivalent-work Unit/topology selectors, parent-reference builders and scalar stages are reused within the construction; each build refreshes filesystem-dependent contract/canon observations instead of retaining stale config results.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned claim graph owns its bounded layer-family objects plus settings-derived references when applicable; ownClaim records ownership weakly, and no filesystem handle or background task remains open.
  */
 export function createLayerClaims(
   props: IProductionConfigProps,
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
-  const [stage, final]: ProductionConstructionStageMixin = resolveConstruction(
-    props.construction[layer],
-  );
+  const stage: ProductionStage = props.construction[layer];
   const disabled: boolean = stage === "disabled";
   const files: string[] = createUnitFiles(layer, props.narrativeScope);
 
@@ -74,24 +72,29 @@ export function createLayerClaims(
       ? []
       : [
           ...(layer === "screenplay"
-            ? [
-                createLineageReference(
-                  scripts,
-                  symbol,
-                  final ? "final" : "draft",
-                ),
-              ]
+            ? [createLineageReference(scripts, symbol, "draft")]
             : []),
           ...(layer === "scripts" || layer === "screenplay"
-            ? [
-                createCoverageReference(
-                  treatments,
-                  symbol,
-                  final ? "final" : "draft",
-                ),
-              ]
+            ? [createCoverageReference(treatments, symbol, "draft")]
             : []),
         ];
+
+  const naturalness: IEvidenceReference[] = [
+    ...createPrincipleReferences({
+      location: props.location,
+      layer,
+      gate: "naturalness",
+    }),
+    ...createLanguagePrincipleReferences({
+      location: props.location,
+      layer,
+      gate: "naturalness",
+    }),
+  ];
+
+  // Script expression must remain repairable in the same construction body.
+  const expression: IEvidenceReference[] =
+    layer === "scripts" ? naturalness : [];
 
   const inherits: string =
     layer === "settings" ? "" : ", and account for the layers they inherit";
@@ -122,6 +125,7 @@ export function createLayerClaims(
         ...(layer === "settings"
           ? []
           : [createUpstreamReference(props.location, layer)]),
+        ...expression,
         ...parents("h2"),
       ],
     },
@@ -130,20 +134,8 @@ export function createLayerClaims(
 
   // The revision snapshot is a reference, not another authored edition.
   const second: ProductionStage = hasNaturalness(layer)
-    ? props.naturalness[layer]
+    ? props.naturalness.screenplay
     : "disabled";
-  const naturalness: IEvidenceReference[] = [
-    ...createPrincipleReferences({
-      location: props.location,
-      layer,
-      gate: "naturalness",
-    }),
-    ...createLanguagePrincipleReferences({
-      location: props.location,
-      layer,
-      gate: "naturalness",
-    }),
-  ];
   const surface: IEvidenceClaim[] = hasNaturalness(layer)
     ? [
         ownClaim(

@@ -57,7 +57,6 @@ export async function test_template_production_support_identity(): Promise<void>
       await ProductionWorkflowFixture.certify(props.location, props);
     disabled.construction.scripts = "disabled";
     disabled.construction.screenplay = "disabled";
-    disabled.naturalness.scripts = "disabled";
     disabled.naturalness.screenplay = "disabled";
     ProductionWorkflowFixture.write(
       external,
@@ -92,6 +91,16 @@ export async function test_template_production_support_identity(): Promise<void>
       { layer: "screenplay", pass: "naturalness" },
     );
     assert.equal(saved.approvalStructureReady, true);
+    for (const directory of [
+      "revision/scripts",
+      "naturalness/scripts",
+      "review/final/scripts/round-1",
+    ])
+      ProductionWorkflowFixture.write(
+        short.location,
+        `docs/${directory}/001-part/001-scene.md`,
+        "# Historical scripts\n\n## Arrival {#arrival}\n\nHistorical inputs remain protected.\n",
+      );
     const cases: {
       name: string;
       props: IProductionConfigProps;
@@ -110,6 +119,25 @@ export async function test_template_production_support_identity(): Promise<void>
         key: { layer: "screenplay", pass: "naturalness" },
         file: "docs/body/scripts/001-part/001-scene.md",
       },
+      ...[
+        "revision/scripts",
+        "naturalness/scripts",
+        "review/final/scripts/round-1",
+      ].map(
+        (
+          directory: string,
+        ): {
+          name: string;
+          props: IProductionConfigProps;
+          key: IProductionGateKey;
+          file: string;
+        } => ({
+          name: `retired ${directory}`,
+          props: short,
+          key: { layer: "screenplay", pass: "naturalness" },
+          file: `docs/${directory}/001-part/001-scene.md`,
+        }),
+      ),
       {
         name: "disabled descendant",
         props: disabled,

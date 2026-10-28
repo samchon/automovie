@@ -4,7 +4,7 @@
 
 Ordinary coding and standalone assets can retain the default engineering configuration. Add actual asset or delivery duties where their respondents can establish them; a blank project needs no narrative mode, stages, or gate.
 
-For narrative work, long form retains settings → treatments → scripts → final screenplay. Scripts and screenplay each have construction and expression-revision passes; settings and treatments finish within construction. Short mode is the authorized direct-screenplay route and retains its expression and review duties. A disabled pass drafts its complete body; it does not waive the route's responsibilities. [Writing workflow](../screenwriting/workflow.md#completion) owns when those stages open and close.
+For narrative work, long form retains settings → treatments → scripts → final screenplay. Scripts finishes content and expression together in construction; settings and treatments also finish within construction. Only final screenplay adds a separate naturalness pass. Short mode is the authorized direct-screenplay route and retains its expression and review duties. A disabled pass drafts its complete body; it does not waive the route's responsibilities. [Writing workflow](../screenwriting/workflow.md#completion) owns when those stages open and close.
 
 Complete work is the default scope. Select a first-part pilot only when the user commissions that slice, preserve work-wide settings and the exact part's inherited lineage, and identify which whole-work obligations it cannot establish. Restore complete scope and complete populations before claiming the whole work complete. Route an expansion or replacement of closed material through [upstream repair](../screenwriting/repair.md).
 

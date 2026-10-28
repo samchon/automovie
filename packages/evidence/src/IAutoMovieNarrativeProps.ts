@@ -21,7 +21,7 @@ export interface IAutoMovieNarrativeProps {
   /** Unspecified layers are disabled drafts; an omitted outline follows settings. */
   construction?: Partial<IProductionConstruction>;
 
-  /** Unspecified scripts/screenplay expression stages are disabled drafts. */
+  /** An unspecified screenplay expression stage is disabled for drafting. */
   naturalness?: Partial<IProductionLayerStages>;
 
   /** Defaults to the complete work; a pilot must identify its exact first part. */

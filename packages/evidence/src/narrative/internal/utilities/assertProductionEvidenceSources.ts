@@ -2,23 +2,20 @@ import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionConstructionStageMixin } from "../../ProductionConstructionStageMixin";
 import type { ProductionGatePass } from "../../ProductionGatePass";
-import type { ProductionStage } from "../../ProductionStage";
 import { AUTHORED_LAYERS } from "../AUTHORED_LAYERS";
 import { assertSupportClaims } from "../assertSupportClaims";
 import { hasNaturalness } from "../hasNaturalness";
-import { resolveConstruction } from "./resolveConstruction";
 
 /**
  * Validates the exact claim scopes and each layer's stage names.
  *
  * @evidence contracts/common.md#principled-implementation Runtime configuration is admitted only when route, lifecycle, stage vocabulary, exact custom-claim scope and support/authored boundaries agree; unsupported tuple shapes, duplicate names and work-owned review requirements throw before claim construction.
  * @evidence contracts/common.md#clear-and-simple-design One admission boundary checks related route/stage/scope invariants before factories materialize claims, while assertSupportClaims owns physical support-tree isolation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Asset routing has no narrative work claims, short routing authors screenplay alone and scripts/screenplay alone have naturalness; these are declared production routes rather than consumer-specific repairs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Asset routing has no narrative work claims, short routing authors screenplay alone and screenplay alone has a separate naturalness pass; these are declared production routes rather than consumer-specific repairs.
  * @evidence contracts/common.md#meaningful-documentation The comment names scope and stage validation, and every throw identifies its invalid route, relation, stage, tuple or ownership condition.
  * @evidence contracts/performance.md#efficient-algorithms For c custom claims, s scope entries and r references, repeated scope/name searches cost O(c*s + r); support validation additionally scans protected directories/aliases and compares selector prefixes against captured boundaries, so filesystem size and path resolution can dominate.
- * @evidence contracts/performance.md#reuse-equivalent-work The fixed layer vocabulary and stage normalizer are shared across checks; live support-tree admission is refreshed for each config build, and no stale acceptance result is cached across contract/filesystem changes.
+ * @evidence contracts/performance.md#reuse-equivalent-work The fixed layer vocabulary and scalar stage vocabulary are shared across checks; live support-tree admission is refreshed for each config build, and no stale acceptance result is cached across contract/filesystem changes.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Names and filtered scope arrays are local and scale with custom configuration; support traversal owns only synchronous observations and temporary visited sets, with no retained handle, task or admission cache.
  */
 export function assertProductionEvidenceSources(
@@ -36,8 +33,8 @@ export function assertProductionEvidenceSources(
   for (const layer of AUTHORED_LAYERS) {
     if (routed.includes(layer)) continue;
     if (
-      resolveConstruction(props.construction[layer])[0] !== "disabled" ||
-      (hasNaturalness(layer) && props.naturalness[layer] !== "disabled")
+      props.construction[layer] !== "disabled" ||
+      (hasNaturalness(layer) && props.naturalness.screenplay !== "disabled")
     )
       throw new Error(
         "Layers outside the production route must stay disabled.",
@@ -84,7 +81,9 @@ export function assertProductionEvidenceSources(
     )
       throw new Error("Unknown work claim layer/pass scope.");
     if (scope.pass === "naturalness" && !hasNaturalness(scope.layer))
-      throw new Error("Only scripts and screenplay have a naturalness pass.");
+      throw new Error(
+        "Only screenplay has a naturalness pass; scripts finish in construction.",
+      );
     if (!routed.includes(scope.layer))
       throw new Error("A work claim cannot own an inactive production layer.");
     if (
@@ -103,25 +102,17 @@ export function assertProductionEvidenceSources(
   for (const layer of AUTHORED_LAYERS)
     for (const pass of ["construction", "naturalness"] as const) {
       if (pass === "naturalness" && !hasNaturalness(layer)) continue;
-      const declaration: ProductionStage | ProductionConstructionStageMixin =
+      const stage: unknown =
         pass === "construction"
           ? props.construction[layer]
-          : props.naturalness[layer as "scripts" | "screenplay"];
-      if (
-        Array.isArray(declaration) &&
-        (pass !== "construction" ||
-          layer !== "screenplay" ||
-          declaration.length !== 2 ||
-          typeof declaration[1] !== "boolean")
-      )
-        throw new Error("Only screenplay accepts a scripts source tuple.");
-      const stage: ProductionStage =
-        pass === "construction"
-          ? resolveConstruction(props.construction[layer])[0]
-          : props.naturalness[layer as "scripts" | "screenplay"];
+          : props.naturalness.screenplay;
       if (stage !== "disabled" && stage !== "evidence")
         throw new Error("Unknown stage: a layer is disabled or evidence.");
     }
+  if ("scripts" in props.naturalness)
+    throw new Error(
+      "Scripts finish in construction; remove naturalness.scripts.",
+    );
   if ("settings" in props.naturalness || "treatments" in props.naturalness)
     throw new Error("Settings and treatments finish in construction.");
 }

@@ -14,7 +14,6 @@ import { createSharedReference } from "../references/createSharedReference";
 import { layerFiles } from "../references/layerFiles";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { passRoot } from "../utilities/passRoot";
-import { resolveConstruction } from "../utilities/resolveConstruction";
 
 /**
  * Creates the population obligation claims for a complete layer.
@@ -41,11 +40,7 @@ export function createPopulationObligationClaims(
   props: IProductionConfigProps,
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
-  return family(
-    props,
-    layer,
-    resolveConstruction(props.construction[layer])[0],
-  );
+  return family(props, layer, props.construction[layer]);
 }
 
 /** Creates the obligation claims for one layer's shared and language duties. */

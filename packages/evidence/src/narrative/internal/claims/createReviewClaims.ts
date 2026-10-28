@@ -16,7 +16,6 @@ import { createSharedReference } from "../references/createSharedReference";
 import { PACKAGE_DOCS_ROOT } from "../utilities/PACKAGE_DOCS_ROOT";
 import { createUnitFiles } from "../utilities/createUnitFiles";
 import { passRoot } from "../utilities/passRoot";
-import { resolveConstruction } from "../utilities/resolveConstruction";
 
 /**
  * Creates the claims that record the evidence-stage reviews in the graph.
@@ -52,9 +51,14 @@ export function createReviewClaims(
   layer: AuthoredLayer,
 ): IEvidenceClaim[] {
   const passes: [AuthoredPass, ProductionStage][] = [
-    ["draft", resolveConstruction(props.construction[layer])[0]],
+    ["draft", props.construction[layer]],
     ...(hasNaturalness(layer)
-      ? [["final", props.naturalness[layer]] as [AuthoredPass, ProductionStage]]
+      ? [
+          ["final", props.naturalness.screenplay] as [
+            AuthoredPass,
+            ProductionStage,
+          ],
+        ]
       : []),
   ];
   const principles: boolean = installed(props.location, "principles/review.md");

@@ -1,6 +1,6 @@
 # Script expression population obligation
 
-The complete revised script population answers once for execution rhythm across scenes and delivery units.
+The complete script construction population answers once for execution rhythm across scenes and delivery units.
 
 ## Does the arrangement of execution follow changing pressure? {#execution-distribution}
 

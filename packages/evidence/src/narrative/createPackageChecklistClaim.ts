@@ -116,8 +116,9 @@ export function createPackageChecklistClaim(
  *
  * `naturalness` is admitted for the same reason the shared and language trees
  * carry one: a work's own observable form is a question its finished text
- * answers. The caller selects `pass: "final"` and the layer's naturalness stage
- * explicitly; the document directory alone never chooses its host population.
+ * answers. Screenplay selects `pass: "final"` and its naturalness stage; scripts
+ * select `pass: "draft"` and scripts construction explicitly. The document
+ * directory alone never chooses its host population.
  */
 function isWorkDocument(document: string): boolean {
   const normalized: string = document.replaceAll("\\", "/");

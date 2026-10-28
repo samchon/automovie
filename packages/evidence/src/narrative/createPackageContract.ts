@@ -35,7 +35,9 @@ export function createPackageContract(
         !hasNaturalness(layer as AuthoredLayer),
     )
   )
-    throw new Error("Only scripts and screenplay have naturalness contracts.");
+    throw new Error(
+      "Only screenplay has a naturalness pass; adopt scripts contracts in construction.",
+    );
 
   return layers.map(
     ([layer, stage]: [string, ProductionStage]): IEvidenceClaim =>
