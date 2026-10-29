@@ -13,6 +13,7 @@
 - Do the work yourself; use subagents only when the user asks.
 - Ship each topic as its own pull request.
 - Delete every scratch file once it has served.
+- Keep video and 3D viewers operational. Restore a broken viewer before other work; fill missing core capabilities at their package owner, verify the real consumer and reconnect it before resuming.
 
 ## Finishing Work
 
@@ -39,6 +40,7 @@ Read the skill whose trigger applies.
 - [human](.agents/skills/human/SKILL.md): working on `packages/human`, a human figure, or the Human viewer.
 - [scaffold](.agents/skills/scaffold/SKILL.md): editing `packages/template`, or reading, authoring, or reviewing production content anywhere.
 - [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md): designing or revising the production skills, contracts and routers shipped by the scaffold.
+- [production-campaign](.agents/skills/production-campaign/SKILL.md): sustained writing and media execution, worker observation, blocked handoffs and production comparisons.
 - [prompting](.agents/skills/prompting/SKILL.md): changing `AGENTS.md`, `CLAUDE.md`, or a skill.
 - [documentation](.agents/skills/documentation/SKILL.md): writing any document or doc comment.
 - [review](.agents/skills/review/SKILL.md): any review or self-review.

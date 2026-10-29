@@ -11,7 +11,7 @@
     ".agents/skills/audio/SKILL.md": "f08a959418d634e9e044628c291a35f3538c50187673a84a97359c2d77e8d8bb",
     ".agents/skills/audio/acquisition.md": "4c260359565cd1163e155544126ae2e7e68d31a221ea23322c068a30fb9362fe",
     ".agents/skills/audio/local-speech.md": "14c8a9029d6c5bb1b3483346f06388847dda3bd7469ec77cfefb2d7f9f0dd230",
-    ".agents/skills/development/SKILL.md": "0e7b60b1fbaa96b9da979e19f0527a7a6ab2e53bf35b160f19cd6c5cea256563",
+    ".agents/skills/development/SKILL.md": "1a44428809dd747c47beacdbf38bc9b1a92ca45cdae49f4b73ac9b02a3454ccf",
     ".agents/skills/development/documentation.md": "779e47d10e6ed9be90dccd1023a95710b8f549a866a995078d9152721b99c1cf",
     ".agents/skills/development/repair.md": "29956badef92fbd8230e6d3d07e0b51f6b85caefa6f2b561c30f06959cc06d2d",
     ".agents/skills/development/testing.md": "d482c042f2348656c2f649d3eb832d0d29faa0e6546377c43531cedb1da9a1aa",
@@ -28,7 +28,7 @@
     ".agents/skills/motion/retargeting.md": "1f3c576747e5b5a634532ff84bb9709a9f29eb19b48dfc3ecb2e846367a3765b",
     ".agents/skills/motion/staging.md": "df678a0d55cfd63d84531c0a6d59ac293bb8dd69d82f673f7c471a75ba341674",
     ".agents/skills/motion/timeline.md": "c2e849bb5f836fecd9a37058ab053b1e0125fb0e29bb6752e717027c991ed37e",
-    ".agents/skills/production/SKILL.md": "4fa561c0b86d0a3e2f6a94725eea5536c75291428743e9e7cf71c7681777c153",
+    ".agents/skills/production/SKILL.md": "2ba2d30abe8838ef414291723abdaaf1d4ebe90530e9a653cf178dccc4aab507",
     ".agents/skills/production/conditioning.md": "e97318df276b84e39f6538ea6851a3a5a2a3cb8ceaf13e4e4ba189516f9d3fb8",
     ".agents/skills/production/finishing.md": "567c1ef2d707c2ec50a959be1458636e732bf4c813ae613ea0169ca3ffb995da",
     ".agents/skills/production/generation.md": "dfa09f93293fa79fe072913cb17cd53ed4e314849be805bb112ffd3d0ec4d59a",
@@ -61,7 +61,8 @@
     ".agents/skills/screenwriting/settings.md": "3e37665b7766287b5d46f5670ae184e02a79a752f2ec1a321ec3602e361d6e89",
     ".agents/skills/screenwriting/treatments.md": "166a6726dad7ce8de326ef70a6c8490891c97c4fe683c9091c76ea47fe027c31",
     ".agents/skills/screenwriting/workflow.md": "3d1bb36466694b78f9bb67ce6bf83f9074c5e7af1cd37a3acdd187a296ab130d",
-    "AGENTS.md": "a2704f63247ba026bfb2e37566d7fe02d1a8eceb24cce23d690f5f5d2268ab4e",
-    "CLAUDE.md": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49"
+    "AGENTS.md": "61a3db4a3b728c76727ddeb85ab6fe5b6c43edf735f152ed36207d3d9f19a87c",
+    "CLAUDE.md": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
+    ".agents/skills/production/campaign.md": "b6b80b1bffb67dbe96c071659188e735bb1c114c87a02fc28af72bf6be587d33"
   }
 }

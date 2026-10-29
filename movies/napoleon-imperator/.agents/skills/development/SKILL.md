@@ -7,6 +7,8 @@ description: Implements, tests and documents production source, integrations, de
 
 Read the production's current source and the installed package APIs before choosing an implementation. Keep authored controls close to the assets, shots, and edit they control, with one owner for shared values. External acquisition produces fixed inputs before playback.
 
+Keep the actual video or model viewer operational; restore a broken viewer before other work. A missing installed capability belongs with its reusable package owner, followed by the production's real source/configuration wiring and affected-consumer verification. Explicit instruction sync updates guidance, not source or contracts; [campaign execution](../production/campaign.md) keeps the blocked handoff and its repair attributable.
+
 - Read [Repair](repair.md) when changing existing behavior or fixing a defect.
 - Answer the [contracts](../evidence/SKILL.md) selected for the declarations you change.
 - Read [testing](testing.md) when choosing behavioral checks.

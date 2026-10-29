@@ -16,6 +16,7 @@ Choose the production task directly:
 | Task | Read |
 | --- | --- |
 | Establish scope, decisions and setup authority | [Project context](profile.md) |
+| Coordinate sustained work, inspect runs or resume a stopped handoff | [Campaign execution](campaign.md) |
 | Organize source, supplied material and consumers | [Layout and intake](layout.md) |
 | Prepare a whole motion hint and aligned control channels | [Conditioning handoff](conditioning.md) |
 | Use a selected generator and adopt its actual video takes | [Video generation](generation.md) |
