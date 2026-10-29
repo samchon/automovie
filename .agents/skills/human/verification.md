@@ -1,6 +1,6 @@
 # Verification
 
-Each part owner follows [Visual Debugging](../3d-modeling/visual-debugging.md) throughout development, inspecting its real generated curves and skin in the [viewer](screenshot.md) from the first usable preview through assembly. Do not defer observation until every part or person is complete. Mark missing parts and unverified properties honestly while keeping partial work visible.
+Each part owner follows [Visual Debugging](../3d-modeling/visual-debugging.md) and directly inspects the new candidate's generating curves, skin and joins in the [viewer](screenshot.md) from its first usable preview, before expanding it. Baseline images and static review do not replace that observation. Collect all phenomena, root causes and contributing factors in the current affected scope, then correct those causes in one batch. Other parts, all parameter cases and fixed image counts must not gate the first preview. Keep partial work visible and mark missing or unverified properties.
 
 Inspect the existing working figure before replacing its overfitting dependencies. Compare the replacement under the same conditions across every affected region and join, including ordinary input changes and supported motion states. Preserve the working path until the replacement passes that comparison; reproducing the baseline alone does not establish a general construction.
 
