@@ -10,6 +10,7 @@ import { AutoMovieHumanVermilion } from "./appearance/AutoMovieHumanVermilion";
 import type { IAutoMovieHumanAppearanceBody } from "./appearance/IAutoMovieHumanAppearanceBody";
 import { AutoMovieHumanBodyConstruction } from "./generation/AutoMovieHumanBodyConstruction";
 import { AutoMovieHumanBodyLaw } from "./generation/AutoMovieHumanBodyLaw";
+import type { AutoMovieHumanBodyObservation } from "./generation/AutoMovieHumanBodyObservation";
 import { AutoMovieHumanBodySurface } from "./generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "./generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftMesh } from "./lofting/AutoMovieHumanLoftMesh";
@@ -59,21 +60,26 @@ export class AutoMovieHuman {
    * Generate the neutral body for one parameter set.
    *
    * @param params Complete public input; returned unchanged as `parameters`.
+   * @param execution Optional request-scoped observer of this same generation; it does not alter authored input.
    * @returns The parameters used and the generated model in metres.
    */
   public static generate(
     params: IAutoMovieHumanParameters,
+    execution?: {
+      /** Receives selected diagnostics from this generation without changing parameters. */
+      observe?: AutoMovieHumanBodyObservation.IObserver;
+    },
   ): IAutoMovieHumanGenerated {
     // Stature is required: an unknown height would otherwise be silently
     // replaced by the calibration specimen's.
     const height: number | null = params.body.controls.height.value;
-    if (height === null || !(height > 0))
+    if (height === null || !Number.isFinite(height) || !(height > 0))
       throw new Error("Human generation requires a positive height control");
 
     // The shape law gives this person's calibration in calibration mm; the
     // skin, its construction, the lips, eyes and apertures all read it.
     const law: AutoMovieHumanBodyLaw.IOutput =
-      AutoMovieHumanBodyLaw.calibrate(params);
+      AutoMovieHumanBodyLaw.calibrate(params, execution?.observe);
     const calibration: IAutoMovieHumanBodyCalibration = law.body;
     const lips: IAutoMovieHumanHermiteCurve = law.vermilion;
 

@@ -3,6 +3,7 @@ import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame
 import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import { AutoMovieHumanBodyObservation } from "./AutoMovieHumanBodyObservation";
 
 /**
  * Position and tangent-plane continuity across branch events.
@@ -62,14 +63,30 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * plane almost tangent to the parent) are left as fitted.
  */
 export namespace AutoMovieHumanEventJoin {
+  /** Read the same layer-based positional support the join actually uses. */
+  export function support(
+    child: IAutoMovieHumanLoftChain,
+    direction: "down" | "up",
+  ): AutoMovieHumanBodyObservation.ISupport {
+    return AutoMovieHumanBodyObservation.support(child, direction, REACH);
+  }
+
   /**
    * Calibration whose children meet their parents tangent-continuously.
    *
+   * Reuse a completed join only when its event and both source chain
+   * objects are exactly unchanged from an already reconciled calibration.
+   * Changed maps or basis layers still take the existing join path.
+   *
    * @param calibration Merged calibration; not modified.
+   * @param unchanged Previously reconciled source, if object identity is retained.
+   * @param observer Optional selected scalar inspection; it never changes a join.
    * @returns A copy with the children's adjacent end-layer slopes changed.
    */
   export function reconcile(
     calibration: IAutoMovieHumanBodyCalibration,
+    unchanged?: IAutoMovieHumanBodyCalibration,
+    observer?: AutoMovieHumanBodyObservation.IObserver,
   ): IAutoMovieHumanBodyCalibration {
     const chains: Map<string, IAutoMovieHumanLoftChain> = new Map(
       calibration.chains.map(
@@ -78,6 +95,12 @@ export namespace AutoMovieHumanEventJoin {
           c,
         ],
       ),
+    );
+    const originals: Map<string, IAutoMovieHumanLoftChain> = new Map(
+      unchanged?.chains.map(
+        (c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain] =>
+          [c.name, c],
+      ) ?? [],
     );
     const replaced: Map<string, IAutoMovieHumanLoftChain> = new Map();
     for (const event of calibration.events) {
@@ -90,9 +113,14 @@ export namespace AutoMovieHumanEventJoin {
           throw new Error(`Calibration lacks the ${split.child} chain`);
         const child: IAutoMovieHumanLoftChain =
           replaced.get(split.child) ?? fitted;
+        if (
+          unchanged?.events.includes(event) &&
+          parent === originals.get(parent.name) &&
+          child === originals.get(child.name)
+        ) continue;
         replaced.set(
           split.child,
-          join(parent, child, event.direction, split.arcs),
+          join(parent, child, event.direction, split.arcs, observer),
         );
       }
     }
@@ -124,9 +152,10 @@ function join(
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
   arcs: [number, number][],
+  observer?: AutoMovieHumanBodyObservation.IObserver,
 ): IAutoMovieHumanLoftChain {
   if (child.basis !== "spline") return child;
-  return slope(parent, place(parent, child, direction, arcs), direction, arcs);
+  return slope(parent, place(parent, child, direction, arcs, observer), direction, arcs);
 }
 
 /** Dense parent ring at an event and the arc weight of a phase on it. */
@@ -222,6 +251,7 @@ function place(
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
   arcs: [number, number][],
+  observer?: AutoMovieHumanBodyObservation.IObserver,
 ): IAutoMovieHumanLoftChain {
   const ring: IRing = parentRing(parent, direction, arcs);
   const k: number = direction === "down" ? child.layers.length - 1 : 0;
@@ -234,24 +264,27 @@ function place(
     (_: unknown, i: number): number => (2 * Math.PI * i) / Q,
   );
 
+  const inspection: AutoMovieHumanBodyObservation.ICounter | undefined =
+    AutoMovieHumanBodyObservation.begin(observer, parent, child, direction, REACH);
+
   // World move of every end point; zero off the arcs or off the ring.
   const moves: Vec3[] = AutoMovieHumanLoftChain.ring(child, sc, phases).map(
     (p: Vec3): Vec3 => {
       const [tau, q, distance] = nearest(ring, p);
       const w: number = distance <= SNAP ? ring.weight(tau) : 0;
-      return scale(sub(q, p), w);
+      const movement: Vec3 = scale(sub(q, p), w);
+      inspection?.record(distance, distance <= SNAP, norm(movement));
+      return movement;
     },
   );
-  if (moves.every((m: Vec3): boolean => norm(m) < 1e-6)) return child;
+  if (moves.every((m: Vec3): boolean => norm(m) < 1e-6)) {
+    inspection?.finish(false);
+    return child;
+  }
+  inspection?.finish(true);
 
   // Fade over the layers within the reach, at least two besides the end.
-  const second: number = k + 2 * step;
-  const reach: number = Math.max(
-    REACH,
-    second >= 0 && second < child.layers.length
-      ? 1.5 * Math.abs(child.layers[second]!.y - sc)
-      : 0,
-  );
+  const reach: number = AutoMovieHumanEventJoin.support(child, direction).reach;
   const layers: IAutoMovieHumanLoftChain.ILayer[] = child.layers.map(
     (
       layer: IAutoMovieHumanLoftChain.ILayer,

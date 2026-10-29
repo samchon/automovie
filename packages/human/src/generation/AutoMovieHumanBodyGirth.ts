@@ -46,9 +46,14 @@ export namespace AutoMovieHumanBodyGirth {
    *
    * @param chain Chain evaluated by the generator's own section rule,
    *   lift included.
-   * @param s Station inside the chain.
+   * @param s Declared chain station, not a world-space rig pivot height.
+   * @param scale Proposed x/z scale in the existing world-XZ tape plane.
    */
-  export function at(chain: IAutoMovieHumanLoftChain, s: number): number {
+  export function at(
+    chain: IAutoMovieHumanLoftChain,
+    s: number,
+    scale: readonly [number, number] = [1, 1],
+  ): number {
     const ring: [number, number, number][] = AutoMovieHumanLoftChain.ring(
       chain,
       s,
@@ -57,8 +62,8 @@ export namespace AutoMovieHumanBodyGirth {
     return perimeter(
       hull(
         ring.map((p: [number, number, number]): [number, number] => [
-          p[0],
-          p[2],
+          p[0] * scale[0],
+          p[2] * scale[1],
         ]),
       ),
     );

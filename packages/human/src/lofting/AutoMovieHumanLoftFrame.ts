@@ -162,6 +162,72 @@ export namespace AutoMovieHumanLoftFrame {
   }
 
   /**
+   * Exact first derivative of the same interpolated frame, per unit t.
+   * Returned origin/u/v are derivatives, not a proper placement frame.
+   */
+  export function derivative(
+    a: IFrame,
+    b: IFrame,
+    ta: readonly [number, number, number],
+    tb: readonly [number, number, number],
+    t: number,
+    wa?: readonly [number, number, number],
+    wb?: readonly [number, number, number],
+  ): IFrame {
+    const h00: number = 6 * t * (t - 1);
+    const h10: number = 3 * t ** 2 - 4 * t + 1;
+    const h01: number = -h00;
+    const h11: number = 3 * t ** 2 - 2 * t;
+    const origin: [number, number, number] = [0, 1, 2].map(
+      (k: number): number =>
+        h00 * a.origin[k]! + h10 * ta[k]! + h01 * b.origin[k]! + h11 * tb[k]!,
+    ) as [number, number, number];
+    const still: (
+      w: readonly [number, number, number] | undefined,
+    ) => boolean = (w: readonly [number, number, number] | undefined): boolean =>
+      w !== undefined && Math.abs(w[0]) + Math.abs(w[1]) + Math.abs(w[2]) < 1e-12;
+    if (
+      same(a.u, b.u) && same(a.v, b.v) &&
+      ((wa === undefined && wb === undefined) || (still(wa) && still(wb)))
+    )
+      return { origin, u: [0, 0, 0], v: [0, 0, 0] };
+
+    const Ra: number[][] = matrix(a);
+    const Rb: number[][] = matrix(b);
+    const phi: [number, number, number] = logarithm(
+      multiply(transpose(Ra), Rb),
+    );
+    const da: [number, number, number] =
+      wa === undefined ? phi : apply(transpose(Ra), wa);
+    const db: [number, number, number] =
+      wb === undefined ? phi : inverseJacobian(phi, apply(transpose(Rb), wb));
+    const h: [number, number, number] = [0, 1, 2].map(
+      (k: number): number =>
+        (t ** 3 - 2 * t ** 2 + t) * da[k]! +
+        (-2 * t ** 3 + 3 * t ** 2) * phi[k]! +
+        (t ** 3 - t ** 2) * db[k]!,
+    ) as [number, number, number];
+    const dh: [number, number, number] = [0, 1, 2].map(
+      (k: number): number => h10 * da[k]! + h01 * phi[k]! + h11 * db[k]!,
+    ) as [number, number, number];
+    const angle: number = Math.hypot(...h);
+    const A: number = angle < 1e-4
+      ? 1 / 2 - angle ** 2 / 24 + angle ** 4 / 720
+      : (1 - Math.cos(angle)) / angle ** 2;
+    const B: number = angle < 1e-4
+      ? 1 / 6 - angle ** 2 / 120 + angle ** 4 / 5040
+      : (angle - Math.sin(angle)) / angle ** 3;
+    const hd: [number, number, number] = cross(h, dh);
+    const hhd: [number, number, number] = cross(h, hd);
+    const local: [number, number, number] = [0, 1, 2].map(
+      (k: number): number => dh[k]! - A * hd[k]! + B * hhd[k]!,
+    ) as [number, number, number];
+    const value: IFrame = interpolate(a, b, ta, tb, t, wa, wb);
+    const angular: [number, number, number] = apply(matrix(value), local);
+    return { origin, u: cross(angular, value.u), v: cross(angular, value.v) };
+  }
+
+  /**
    * World angular velocity, rad per station unit, of the constant turn from
    * frame `a` to frame `b` over a station span.
    *

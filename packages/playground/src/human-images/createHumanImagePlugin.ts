@@ -32,6 +32,8 @@ export function createHumanImagePlugin(repository: string): Plugin {
     | {
         key: string;
         input: Awaited<ReturnType<typeof HumanImageRegistry.read>>;
+        /** Request-scoped observation selection kept with the current session key. */
+        observation?: readonly string[];
       }
     | undefined;
 
@@ -87,7 +89,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
       ? current!.input
       : await (await registryOwner()).read(path.resolve(repository, registry!), route[1]!);
     const format: "png" | "svg" = route[3] === "svg" ? "svg" : "png";
-    const operation: Awaited<ReturnType<HumanImageSession["modelDiagram"]>> = await session!.modelDiagram(input, pinned ? null : route[1]!, curves, format, url.searchParams.get("fresh") ?? undefined);
+    const operation: Awaited<ReturnType<HumanImageSession["modelDiagram"]>> = await session!.modelDiagram(input, pinned ? null : route[1]!, curves, format, url.searchParams.get("fresh") ?? undefined, pinned ? current?.observation : undefined);
     if (pinned && operation.frame.key !== pinned[1]) {
       response.statusCode = 409;
       response.end("Human source changed; reload the model");
@@ -293,6 +295,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
               return;
             }
             let input: Awaited<ReturnType<typeof HumanImageRegistry.read>>;
+            let observation: readonly string[] | undefined;
             if (pinned) {
               if (current?.key !== pinned[1]) {
                 response.statusCode = 409;
@@ -300,11 +303,19 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 return;
               }
               input = current.input;
+              observation = current.observation;
             } else if (
               request.method === "POST" &&
               url.pathname === "/human-images/model.json"
             ) {
               input = await HumanImageParameterRequest(request);
+              const selected: string | null = url.searchParams.get("observe");
+              if (selected !== null) {
+                const names: string[] = selected.split(",");
+                if (names.length > 8 || names.some((name: string): boolean => name.length > 128 || !/^[a-z][a-z0-9]*(?:\.[a-z0-9]+)*$/.test(name)))
+                  throw new Error("Human observation request: select one to eight chain names");
+                observation = [...new Set(names)].sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0);
+              }
             } else {
               if (request.method !== "GET" || (!json && !image && !model)) {
                 response.statusCode = 405;
@@ -351,6 +362,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 url.searchParams.get("fresh") ?? undefined,
                 curves,
                 view.text,
+                observation,
               );
             if (pinned && result.key !== pinned[1]) {
               response.statusCode = 409;
@@ -358,7 +370,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
               return;
             }
             if (!image && !pinned) {
-              current = { key: result.key, input };
+              current = { key: result.key, input, observation };
               response.setHeader("x-human-identity", result.key);
               response.setHeader("content-type", "application/json");
               response.end(url.searchParams.get("receipt") === "1"
@@ -434,7 +446,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
             console.error(error);
             const message: string = error instanceof Error ? error.message : String(error);
             response.statusCode = /queue is closed or full|server is closing|source changed|host changed|closing|idle release requires an empty request queue|requires the same current generated model|Execution context was destroyed|Target page, context or browser has been closed/i.test(message) ? 503
-              : /Malformed Human curve pattern|Human curves selection exceeds|Human view(?: |=)|Human parameter request:|Fresh nonce requires|pattern matches no|Human curve diagram (?:needs|cannot mix|is limited)|Unknown Human chain:|Human station series must|Stations of .+ lie outside chain|isolate=1 needs|fit=selection|no generated surface or overlay pass|Unknown Human (?:capture )?camera/i.test(message) ? 400 : 500;
+              : /Malformed Human curve pattern|Human curves selection exceeds|Human view(?: |=)|Human (?:parameter|observation) request:|Fresh nonce requires|pattern matches no|Human curve diagram (?:needs|cannot mix|is limited)|Unknown Human chain:|Human station series must|Stations of .+ lie outside chain|isolate=1 needs|fit=selection|no generated surface or overlay pass|Unknown Human (?:capture )?camera/i.test(message) ? 400 : 500;
             const unavailable: boolean = response.statusCode === 503;
             if (unavailable) response.setHeader("retry-after", "1");
             response.end(

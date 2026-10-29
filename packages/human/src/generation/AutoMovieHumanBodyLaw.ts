@@ -4,6 +4,7 @@ import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoft
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanBodyCalibration } from "./AutoMovieHumanBodyCalibration";
+import type { AutoMovieHumanBodyObservation } from "./AutoMovieHumanBodyObservation";
 import { AutoMovieHumanBodyWarp } from "./AutoMovieHumanBodyWarp";
 import { AutoMovieHumanBodyWarpField } from "./AutoMovieHumanBodyWarpField";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
@@ -60,10 +61,14 @@ export namespace AutoMovieHumanBodyLaw {
    * @param params Public input; the body controls listed in
    *   `AutoMovieHumanBodyWarpField`, `masculineFeminine` and the head
    *   length and cephalic index are read.
+   * @param observer Request-local read-only inspection of this same evaluation.
    * @returns The specimen calibrations themselves for the specimen's own
    *   inputs, otherwise new copies.
    */
-  export function calibrate(params: IAutoMovieHumanParameters): IOutput {
+  export function calibrate(
+    params: IAutoMovieHumanParameters,
+    observer?: AutoMovieHumanBodyObservation.IObserver,
+  ): IOutput {
     const morph: IAutoMovieHumanBodyMorph = AutoMovieHumanBodyMorphCalibration;
     const value: number | null = params.body.controls.masculineFeminine.value;
     const w: number = value === null ? 0 : value - morph.reference;
@@ -78,6 +83,8 @@ export namespace AutoMovieHumanBodyLaw {
             vermilion: lips(AutoMovieHumanVermilionCalibration, morph, w),
           };
 
+    observer?.stage("source", shaped.body, null);
+
     // Measurements last, so the girths, crotch height and head size reach
     // the person's inputs whatever the basis changed.
     const field: AutoMovieHumanBodyWarpField.IField | null =
@@ -87,12 +94,30 @@ export namespace AutoMovieHumanBodyLaw {
         params,
         AutoMovieHumanBodySpecimenCalibration,
       );
-    if (field === null) return shaped;
+    observer?.stage("field", shaped.body, field);
+    if (field === null) {
+      observer?.stage("final", shaped.body, null);
+      return shaped;
+    }
+    if (!(Number.isFinite(field.stature) && field.stature > 0 &&
+      Number.isFinite(field.calibrationPerPhysicalMm) &&
+      field.calibrationPerPhysicalMm > 0)) {
+      const retained: IOutput = {
+        ...shaped,
+        body: { ...shaped.body, deformationDiagnostics: [{
+          name: "height", status: "invalid",
+          detail: "The requested calibration conversion is not finite and positive; shape is retained.",
+        }] },
+      };
+      observer?.stage("final", retained.body, field);
+      return retained;
+    }
     const warped: AutoMovieHumanBodyWarp.IOutput = AutoMovieHumanBodyWarp.apply(
       shaped.body,
       field,
       shaped.vermilion.spans,
     );
+    observer?.stage("preJoin", warped.body, field);
 
     // The basis and the warp move each chain's end layer by their own
     // maps, which reopens the gaps and creases the specimen's event join
@@ -100,10 +125,18 @@ export namespace AutoMovieHumanBodyLaw {
     // rings up to 0.8 mm off their parents' at the 90th percentile), so
     // every person's children are rejoined to their parents' rings and
     // tangent planes.
-    return {
-      body: AutoMovieHumanEventJoin.reconcile(warped.body),
+    const result: IOutput = {
+      body: AutoMovieHumanBodyWarp.observeCourses(
+        AutoMovieHumanEventJoin.reconcile(
+          warped.body, AutoMovieHumanBodyCalibration, observer,
+        ),
+        shaped.body,
+        field,
+      ),
       vermilion: { ...shaped.vermilion, spans: warped.vermilion },
     };
+    observer?.stage("final", result.body, field);
+    return result;
   }
 }
 

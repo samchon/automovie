@@ -119,6 +119,14 @@ export namespace AutoMovieHumanLoftChain {
     return hermite(chain, s, false, liftArrays);
   }
 
+  /** Exact derivative of the existing scalar lift Hermite interpolant. */
+  export function liftDerivative(
+    chain: IAutoMovieHumanLoftChain,
+    s: number,
+  ): number[] | null {
+    return lift(chain, s) === null ? null : hermite(chain, s, true, liftArrays);
+  }
+
   /** Accessor of one Hermite-interpolated array of a layer: values and station slopes. */
   type Pick = (
     layer: IAutoMovieHumanLoftChain.ILayer,
@@ -212,6 +220,23 @@ export namespace AutoMovieHumanLoftChain {
     chain: IAutoMovieHumanLoftChain,
     s: number,
   ): AutoMovieHumanLoftFrame.IFrame {
+    return plane(chain, s, false);
+  }
+
+  /** Derivative of that same frame per mm of declared station. */
+  export function frameDerivative(
+    chain: IAutoMovieHumanLoftChain,
+    s: number,
+  ): AutoMovieHumanLoftFrame.IFrame {
+    return plane(chain, s, true);
+  }
+
+  /** The existing plane rule and its matching analytic derivative. */
+  function plane(
+    chain: IAutoMovieHumanLoftChain,
+    s: number,
+    derivative: boolean,
+  ): AutoMovieHumanLoftFrame.IFrame {
     const layers: readonly IAutoMovieHumanLoftChain.ILayer[] = chain.layers;
     const [lo, hi] = bracket(chain, s);
     const a: IAutoMovieHumanLoftChain.ILayer = layers[lo]!;
@@ -232,7 +257,7 @@ export namespace AutoMovieHumanLoftChain {
       const w: number[] = AutoMovieHumanStationHermite.weights(
         Math.min(1, Math.max(0, (s - a.y) / (b.y - a.y))),
         b.y - a.y,
-        0,
+        derivative ? 1 : 0,
         quintic,
       );
       return AutoMovieHumanStationHermite.unflat(
@@ -245,7 +270,9 @@ export namespace AutoMovieHumanLoftChain {
       layers[lo - 1]?.frame === undefined &&
       layers[hi + 1]?.frame === undefined
     )
-      return AutoMovieHumanLoftFrame.horizontal(s);
+      return derivative
+        ? { origin: [0, 1, 0], u: [0, 0, 0], v: [0, 0, 0] }
+        : AutoMovieHumanLoftFrame.horizontal(s);
 
     const frameOf = (k: number): AutoMovieHumanLoftFrame.IFrame =>
       layers[k]!.frame ?? AutoMovieHumanLoftFrame.horizontal(layers[k]!.y);
@@ -299,7 +326,10 @@ export namespace AutoMovieHumanLoftChain {
       return [w[0] * H, w[1] * H, w[2] * H];
     };
 
-    return AutoMovieHumanLoftFrame.interpolate(
+    const interpolate: typeof AutoMovieHumanLoftFrame.interpolate = derivative
+      ? AutoMovieHumanLoftFrame.derivative
+      : AutoMovieHumanLoftFrame.interpolate;
+    const result: AutoMovieHumanLoftFrame.IFrame = interpolate(
       frameOf(lo),
       frameOf(hi),
       tangent(lo),
@@ -308,6 +338,13 @@ export namespace AutoMovieHumanLoftChain {
       velocity(lo),
       velocity(hi),
     );
+    if (!derivative) return result;
+    const physical: (v: [number, number, number]) => [number, number, number] =
+      (v: [number, number, number]): [number, number, number] =>
+        [v[0] / H, v[1] / H, v[2] / H];
+    return {
+      origin: physical(result.origin), u: physical(result.u), v: physical(result.v),
+    };
   }
 
   /** Central-axis point `[x, y, z]` in mm at station s: the section centroid. */

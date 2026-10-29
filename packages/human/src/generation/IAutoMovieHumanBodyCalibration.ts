@@ -49,8 +49,37 @@ export interface IAutoMovieHumanBodyCalibration {
    * means none.
    */
   appendages?: IAutoMovieHumanBodyCalibration.IAppendage[];
+
+  /** Declared authoring addresses; a source address is transported before use. */
+  anchors?: Record<string, IAutoMovieHumanBodyCalibration.IAnchor>;
+
+  /** Explicit unmet deformation requests; never a fit or a geometry gate. */
+  deformationDiagnostics?: IAutoMovieHumanBodyCalibration.IDeformationDiagnostic[];
 }
 export namespace IAutoMovieHumanBodyCalibration {
+  /** One declared chart address, not a clinical joint or copied world point. */
+  export interface IAnchor {
+    /** Existing owning chain identity. */
+    chain: string;
+    /** Source or final station according to the owning calibration, mm. */
+    station: number;
+  }
+
+  /** A request/attachment limitation recorded without removing the figure. */
+  export interface IDeformationDiagnostic {
+    /** Control or anatomical feature identity. */
+    name: string;
+    /** Why this request is not claimed as achieved. */
+    status: "invalid" | "incompatible" | "unresolved" | "unsupported" | "observed";
+    /** Finite requested calibration-mm value, when defined. */
+    requested?: number;
+    /** Finite achieved course value under the selected valid map. */
+    achieved?: number;
+    /** Achieved minus requested in the same recorded units, when finite. */
+    residual?: number;
+    /** Constraint priority, chart premise or acquisition meaning. */
+    detail: string;
+  }
   /**
    * One appendage: a chain whose end meets a closed root loop on its base
    * chain through a transition strip.

@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanGenerated } from "../../../human/src/structures/IAutoMovieHumanGenerated";
 import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IAutoMovieHumanParameters";
 import type { HumanCaptureCamera } from "./HumanCaptureCamera";
+import type { collectHumanBodyObservation } from "./collectHumanBodyObservation";
 import type { normalizeHumanView } from "./normalizeHumanView";
 
 /**
@@ -40,6 +41,7 @@ export interface IHumanViewerPage {
    * Generate from a complete public parameter object validated at runtime.
    *
    * @param candidate Parsed JSON, for example the body of `/human-parameters/f1.json`.
+   * @param observation Optional exact chain names observed during the same actual generation.
    *
    * @evidence contracts/common.md#principled-implementation Validates the complete public structure and declared ranges, then generates from a private snapshot; example equality determines only the alias label.
    * @evidence contracts/common.md#clear-and-simple-design Used by `?document=` and by the worker's generate command.
@@ -49,12 +51,13 @@ export interface IHumanViewerPage {
    * @evidence contracts/performance.md#reuse-equivalent-work Uses module-shared examples for alias labels; generation owns a validated private snapshot.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps the displayed model through preparation, then joins its disposal after committing the replacement.
    */
-  load(candidate: unknown): Promise<IHumanViewerPage.ILoaded>;
+  load(candidate: unknown, observation?: readonly string[]): Promise<IHumanViewerPage.ILoaded>;
 
   /**
    * Generate from typed parameters supplied by TypeScript code.
    *
    * @param parameters Complete public Human input.
+   * @param observation Optional request-scoped chain selection; absent keeps ordinary generation.
    *
    * @evidence contracts/common.md#principled-implementation Uses the same runtime validation and private snapshot as load before calling AutoMovieHuman.generate.
    * @evidence contracts/common.md#clear-and-simple-design The typed entry for code; JSON goes through load.
@@ -66,6 +69,7 @@ export interface IHumanViewerPage {
    */
   generate(
     parameters: IAutoMovieHumanParameters,
+    observation?: readonly string[],
   ): Promise<IHumanViewerPage.ILoaded>;
 
   /**
@@ -294,6 +298,8 @@ export namespace IHumanViewerPage {
 
     /** Whether the model has at least one construction part. */
     construction: boolean;
+    /** Optional finite law observations from this actual generation, rather than mesh measurements. */
+    observation?: ReturnType<typeof collectHumanBodyObservation>["observation"];
   }
 
   /**

@@ -1,7 +1,6 @@
 import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
 import * as THREE from "three";
 
-import { AutoMovieHuman } from "../../../human/src/AutoMovieHuman";
 import type { IAutoMovieHumanGenerated } from "../../../human/src/structures/IAutoMovieHumanGenerated";
 import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IAutoMovieHumanParameters";
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
@@ -10,6 +9,7 @@ import { HumanViewerModel } from "./HumanViewerModel";
 import type { IHumanViewerPage } from "./IHumanViewerPage";
 import { admitHumanParameters } from "./admitHumanParameters";
 import { captureHumanPageFrame } from "./captureHumanPageFrame";
+import { collectHumanBodyObservation } from "./collectHumanBodyObservation";
 import { drawHumanPageCurveDiagram } from "./drawHumanPageCurveDiagram";
 import { layoutHumanViewerPage } from "./layoutHumanViewerPage";
 import { mountHumanViewControls } from "./mountHumanViewControls";
@@ -22,6 +22,8 @@ import { syncHumanViewerUrl } from "./syncHumanViewerUrl";
 /** What a load produces before display. */
 interface IProduced {
   result: IAutoMovieHumanGenerated;
+  /** Selected scalar observations from this actual generation, never from an imported model. */
+  observation?: ReturnType<typeof collectHumanBodyObservation>["observation"];
   alias: string | null;
   milliseconds: number | null;
 }
@@ -269,7 +271,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
         "ok",
         `생성 완료${produced.alias === null ? "" : " (" + produced.alias + ")"}${time}: 파트 ${model.loaded.parts.length}개${note}`,
       );
-      return model.loaded;
+      return { ...model.loaded, observation: produced.observation };
     } catch (error) {
       if (!committed) await prepared?.dispose().catch(console.error);
       report("error", "Human 생성 실패: " + describe(error));
@@ -278,22 +280,6 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       busy = false;
     }
   };
-
-  /** Run the public generator on admitted typed parameters and time it. */
-  const run: (
-    parameters: IAutoMovieHumanParameters,
-    alias: string | null,
-  ) => () => IProduced =
-    (
-      parameters: IAutoMovieHumanParameters,
-      alias: string | null,
-    ): (() => IProduced) =>
-    (): IProduced => {
-      const start: number = performance.now();
-      const result: IAutoMovieHumanGenerated =
-        AutoMovieHuman.generate(parameters);
-      return { result, alias, milliseconds: performance.now() - start };
-    };
 
   /** The loaded model, or a thrown error naming the missing load. */
   const loaded: () => HumanViewerModel = (): HumanViewerModel => {
@@ -313,21 +299,22 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       replace((): IProduced => {
         const admitted: ReturnType<typeof admitHumanParameters> =
           admitHumanParameters({ alias });
-        return run(admitted.parameters, admitted.alias)();
+        return { ...collectHumanBodyObservation(admitted.parameters), alias: admitted.alias };
       }),
-    load: (candidate: unknown): Promise<IHumanViewerPage.ILoaded> =>
+    load: (candidate: unknown, observation?: readonly string[]): Promise<IHumanViewerPage.ILoaded> =>
       replace((): IProduced => {
         const admitted: ReturnType<typeof admitHumanParameters> =
           admitHumanParameters({ candidate });
-        return run(admitted.parameters, admitted.alias)();
+        return { ...collectHumanBodyObservation(admitted.parameters, observation), alias: admitted.alias };
       }),
     generate: (
       parameters: IAutoMovieHumanParameters,
+      observation?: readonly string[],
     ): Promise<IHumanViewerPage.ILoaded> =>
       replace((): IProduced => {
         const admitted: ReturnType<typeof admitHumanParameters> =
           admitHumanParameters({ candidate: parameters });
-        return run(admitted.parameters, admitted.alias)();
+        return { ...collectHumanBodyObservation(admitted.parameters, observation), alias: admitted.alias };
       }),
     loadGenerated: (
       result: IAutoMovieHumanGenerated,

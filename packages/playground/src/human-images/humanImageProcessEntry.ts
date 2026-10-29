@@ -15,6 +15,8 @@ interface IResidentModel {
   key: string;
   source: string;
   value: unknown;
+  /** Selected same-execution observations to retain on page recovery. */
+  observation?: readonly string[];
   generation: number;
 }
 
@@ -134,9 +136,11 @@ export async function humanImageProcessEntry(): Promise<void> {
   const generate: (
     source: string,
     value: unknown,
+    observation?: readonly string[],
   ) => Promise<IHumanViewerPage.ILoaded> = async (
     source: string,
     value: unknown,
+    observation?: readonly string[],
   ): Promise<IHumanViewerPage.ILoaded> => {
     if (loadedSource !== undefined && loadedSource !== source) {
       await page.goto(url, { waitUntil: "load", timeout: 120000 });
@@ -144,9 +148,9 @@ export async function humanImageProcessEntry(): Promise<void> {
     }
     loadedSource = source;
     return page.evaluate(
-      (candidate: unknown): Promise<IHumanViewerPage.ILoaded> =>
-        (window as HumanWindow).__automovieHuman!.load(candidate),
-      value,
+      (request: { candidate: unknown; observation?: readonly string[] }): Promise<IHumanViewerPage.ILoaded> =>
+        (window as HumanWindow).__automovieHuman!.load(request.candidate, request.observation),
+      { candidate: value, observation },
     );
   };
 
@@ -170,6 +174,7 @@ export async function humanImageProcessEntry(): Promise<void> {
       const loaded: IHumanViewerPage.ILoaded = await generate(
         source,
         command.value,
+        command.observation as readonly string[] | undefined,
       );
       const json: string = await page.evaluate((): string =>
         (window as HumanWindow).__automovieHuman!.serialize(),
@@ -203,6 +208,7 @@ export async function humanImageProcessEntry(): Promise<void> {
         key,
         source,
         value: command.value,
+        observation: command.observation as readonly string[] | undefined,
         generation: loaded.generation,
       };
       return {
@@ -221,6 +227,7 @@ export async function humanImageProcessEntry(): Promise<void> {
           modelSha256,
           constructionSha256,
           alias: loaded.alias,
+          observation: loaded.observation,
           generatedUtc: new Date().toISOString(),
           generateMilliseconds: loaded.generateMilliseconds,
           workerMilliseconds: performance.now() - started,
@@ -256,6 +263,7 @@ export async function humanImageProcessEntry(): Promise<void> {
         const loaded: IHumanViewerPage.ILoaded = await generate(
           source,
           resident.value,
+          resident.observation,
         );
         resident.generation = loaded.generation;
       }
@@ -331,7 +339,7 @@ export async function humanImageProcessEntry(): Promise<void> {
         (): number => (window as HumanWindow).__automovieHuman?.snapshot().generation ?? 0,
       );
       if (generation !== resident.generation || loadedSource !== source) {
-        const loaded: IHumanViewerPage.ILoaded = await generate(source, resident.value);
+        const loaded: IHumanViewerPage.ILoaded = await generate(source, resident.value, resident.observation);
         resident.generation = loaded.generation;
       }
       const format: "svg" | "png" = command.format === "svg" ? "svg" : "png";

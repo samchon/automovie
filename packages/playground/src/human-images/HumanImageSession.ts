@@ -56,18 +56,18 @@ export class HumanImageSession {
   public pending(): number { return this.admittedRequests; }
 
   /** Queue one model/frame request; reject invalid nonces, full queues or closed sessions.
-   * The resident child generates and renders in its Chrome page. `curves` is the canonical selection from `normalizeHumanCurves`; it joins the frame identity and the receipt. Input value/SHA consistency is supplied by the caller.
+   * The resident child generates and renders in its Chrome page. `curves` joins frame identity; an optional canonical observation selection joins execution identity so another selection cannot reuse an earlier summary. Input value/SHA consistency is supplied by the caller.
    *
    * @evidence contracts/common.md#principled-implementation The serialized operation observes source/host hashes, derives a model key, verifies worker commitments and refuses source changes before returning publication or frame bytes.
    * @evidence contracts/common.md#clear-and-simple-design One queue protects a model lease and its frame Map while independent archive HTTP reads need no session operation.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A worker error rejects without fallback; on-disk source hashes neither validate arbitrary Human inputs nor certify the currently loaded module graph.
    * @evidence contracts/common.md#meaningful-documentation Documents nonce/queue failure, caller SHA responsibility and in-page generation.
    * @evidence contracts/performance.md#efficient-algorithms Production-inventory observation scans its selected bytes; cache hits save child generation/rendering, while PNG byte accounting scans the retained frame Map.
-   * @evidence contracts/performance.md#reuse-equivalent-work Source/input key and active child permit model reuse; name and curve selection plus absent or matching nonce permit frame reuse, preserving original capture UTC and PNG SHA.
+   * @evidence contracts/performance.md#reuse-equivalent-work Source/input/observation key and active child permit model reuse; name and curve selection plus absent or matching nonce permit frame reuse, preserving original capture UTC and PNG SHA.
    * @evidence contracts/performance.md#bound-retention-and-release-resources finally releases each of at most sixteen admission slots; an inactive child is closed before its replacement starts, PNG admission caps retained pixels at 256 MiB, and failures may leave that one child owned until replacement or close.
    */
-  public async image(input: Input, name: string, nonce?: string, curves: string = "", view: string = ""): Promise<Frame> {
-    return this.admit((): Promise<Frame> => this.frame(input, name, nonce, curves, view));
+  public async image(input: Input, name: string, nonce?: string, curves: string = "", view: string = "", observation?: readonly string[]): Promise<Frame> {
+    return this.admit((): Promise<Frame> => this.frame(input, name, nonce, curves, view, observation));
   }
 
   /** Generate/reuse a model and draw its diagram under ONE queue lease, without nested queue admission.
@@ -79,9 +79,9 @@ export class HumanImageSession {
    * @evidence contracts/performance.md#reuse-equivalent-work Private unqueued primitives avoid duplicate model generation and nested queue deadlock.
    * @evidence contracts/performance.md#bound-retention-and-release-resources One of sixteen admission slots owns the entire operation; finally releases it, and existing child/cache retirement stays unchanged.
    */
-  public async modelDiagram(input: Input, alias: string | null, curves: string, format: "png" | "svg", nonce?: string): Promise<{ frame: Frame; diagram: Diagram }> {
+  public async modelDiagram(input: Input, alias: string | null, curves: string, format: "png" | "svg", nonce?: string, observation?: readonly string[]): Promise<{ frame: Frame; diagram: Diagram }> {
     return this.admit(async (): Promise<{ frame: Frame; diagram: Diagram }> => {
-      const frame: Frame = await this.frame(input, "$model", nonce, curves, "");
+      const frame: Frame = await this.frame(input, "$model", nonce, curves, "", observation);
       const diagram: Diagram = await this.draw(alias, curves, format, frame.key, nonce);
       return { frame, diagram };
     });
@@ -141,7 +141,7 @@ export class HumanImageSession {
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the exact current model and frame slot when key and nonce permit.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The existing cache/publication caps apply before retention; no independent worker or renderer is acquired.
  */
-  private async frame(input: Input, name: string, nonce?: string, curves: string = "", view: string = ""): Promise<Frame> {
+  private async frame(input: Input, name: string, nonce?: string, curves: string = "", view: string = "", observation?: readonly string[]): Promise<Frame> {
     this.nonce(nonce);
     if (this.closed) throw new Error("Human image server is closing");
 
@@ -155,7 +155,7 @@ export class HumanImageSession {
     const observe: () => Promise<string> = (): Promise<string> => HumanImageSourceIdentity.source(this.root);
     const source: string = await observe();
     const key: string = createHash("sha256")
-      .update(source + input.sha256)
+      .update(source + input.sha256 + (observation === undefined ? "" : "|observation:" + JSON.stringify([...new Set(observation)].sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0))))
       .digest("hex");
     const previous: { nonce: string | null } | undefined =
       this.cached?.key === key ? this.cached.frames.get(slot) : undefined;
@@ -174,6 +174,7 @@ export class HumanImageSession {
         key,
         inputSha256: input.sha256,
         value: input.value,
+        observation,
       });
       if (
         result.key !== key ||

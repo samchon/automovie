@@ -1,3 +1,4 @@
+import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
@@ -34,6 +35,33 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  *   between 30 mm above its axillary ring and 10 mm below its top.
  */
 export namespace AutoMovieHumanBodyLandmarks {
+  /**
+   * Resolve a declared address on the final calibration, never a stale
+   * copied centre. Rig consumers keep their own pivot offset convention.
+   * Undefined means an undeclared legacy key, not an alternate estimate
+   * for a declared but malformed address.
+   */
+  export function anchor(
+    body: IAutoMovieHumanBodyCalibration,
+    name: string,
+  ): {
+    chain: IAutoMovieHumanLoftChain;
+    station: number;
+    point: [number, number, number];
+    frame: AutoMovieHumanLoftFrame.IFrame;
+  } | undefined {
+    const at: IAutoMovieHumanBodyCalibration.IAnchor | undefined = body.anchors?.[name];
+    if (at === undefined) return undefined;
+    const chain: IAutoMovieHumanLoftChain | undefined =
+      body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === at.chain);
+    if (chain === undefined)
+      throw new Error("Declared anchor has no owning chain: " + name);
+    return {
+      chain, station: at.station,
+      point: AutoMovieHumanLoftChain.axis(chain, at.station),
+      frame: AutoMovieHumanLoftChain.frame(chain, at.station),
+    };
+  }
   /** Landmarks of one calibration, mm, registered frame. */
   export interface ILandmarks {
     /** Eye level. */
