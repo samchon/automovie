@@ -1,0 +1,189 @@
+{
+  "createdUtc": "2026-10-29T17:14:12.743262+00:00",
+  "complete": true,
+  "source": "docs/body/screenplay/001-chronicle/001-road.md",
+  "sourceSha256": "694c7f781924d01ddc3cbed78e2a989eb2a38a975c9696caad4c30787e7df91a",
+  "indexSha256": "2f2a55930ffbdc4916410dba5220eae1111ad3d27e40e9b0bb70928cf0ac35db",
+  "tinyDiagnosticSha256": "66f39532bfc149efa7fe8d144b1d25d5ff72c7b79b7df7c71227b25bc2501f33",
+  "inputTakeIds": [
+    "line-016",
+    "line-026"
+  ],
+  "allInputIdentitiesVerified": true,
+  "acceptance": "candidate-unheard",
+  "model": {
+    "repository": "openai/whisper-base.en",
+    "snapshot": "911407f4214e0e1d82085af863093ec0b66f9cd6",
+    "versions": {
+      "transformers": "5.21.1",
+      "torch": "2.15.0+cpu",
+      "scipy": "1.18.1",
+      "soundfile": "0.14.0"
+    }
+  },
+  "parameters": {
+    "threads": 4,
+    "device": "cpu",
+    "dtype": "float32",
+    "resampling": "scipy.signal.resample_poly",
+    "sampleRate": 16000,
+    "chunkLengthSeconds": null,
+    "returnTimestamps": "word",
+    "expectedTextPrompt": false,
+    "priorTranscriptPrompt": false,
+    "generate": {
+      "do_sample": false,
+      "num_beams": 1,
+      "condition_on_prev_tokens": false
+    }
+  },
+  "takes": [
+    {
+      "id": "line-016",
+      "speaker": "BERTHIER",
+      "text": "Yes, Sire.",
+      "file": "line-016-a178a7cc1665bcc4.wav",
+      "sha256": "cb15e1c26583a288cc0cc378a241ea1690407621e5ee21171f6d32068c43c1f9",
+      "sourceLine": 73,
+      "sampleRate": 48000,
+      "frames": 46080,
+      "duration": 0.96,
+      "tiny": {
+        "model": {
+          "repository": "openai/whisper-tiny.en",
+          "snapshot": "87c7102498dcde7456f24cfd30239ca606ed9063",
+          "versions": {
+            "transformers": "5.21.1",
+            "torch": "2.15.0+cpu",
+            "scipy": "1.18.1",
+            "soundfile": "0.14.0"
+          }
+        },
+        "asr": {
+          "text": " Yes, I am.",
+          "chunks": [
+            {
+              "text": " Yes,",
+              "timestamp": [
+                0.0,
+                0.58
+              ]
+            },
+            {
+              "text": " I",
+              "timestamp": [
+                0.58,
+                0.7
+              ]
+            },
+            {
+              "text": " am.",
+              "timestamp": [
+                0.7,
+                0.94
+              ]
+            }
+          ]
+        }
+      },
+      "asr": {
+        "text": " Yes, Sire!",
+        "chunks": [
+          {
+            "text": " Yes,",
+            "timestamp": [
+              0.0,
+              0.48
+            ]
+          },
+          {
+            "text": " Sire!",
+            "timestamp": [
+              0.48,
+              0.94
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 2.0620000001508743
+    },
+    {
+      "id": "line-026",
+      "speaker": "SOULT",
+      "text": "Yes, Sire.",
+      "file": "line-026-3b4188d9bfbd8e9b.wav",
+      "sha256": "d54cc871bcd8530247c69cd03718352cda7d534177437daa8794bb6dd4d39892",
+      "sourceLine": 137,
+      "sampleRate": 48000,
+      "frames": 69120,
+      "duration": 1.44,
+      "tiny": {
+        "model": {
+          "repository": "openai/whisper-tiny.en",
+          "snapshot": "87c7102498dcde7456f24cfd30239ca606ed9063",
+          "versions": {
+            "transformers": "5.21.1",
+            "torch": "2.15.0+cpu",
+            "scipy": "1.18.1",
+            "soundfile": "0.14.0"
+          }
+        },
+        "asr": {
+          "text": " Yes, I said...",
+          "chunks": [
+            {
+              "text": " Yes,",
+              "timestamp": [
+                0.0,
+                0.9
+              ]
+            },
+            {
+              "text": " I",
+              "timestamp": [
+                0.9,
+                0.96
+              ]
+            },
+            {
+              "text": " said...",
+              "timestamp": [
+                0.96,
+                1.42
+              ]
+            }
+          ]
+        }
+      },
+      "asr": {
+        "text": " Yes, I said.",
+        "chunks": [
+          {
+            "text": " Yes,",
+            "timestamp": [
+              0.0,
+              0.74
+            ]
+          },
+          {
+            "text": " I",
+            "timestamp": [
+              0.74,
+              0.76
+            ]
+          },
+          {
+            "text": " said.",
+            "timestamp": [
+              0.76,
+              1.42
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 1.702999999979511
+    }
+  ],
+  "inputsUnchangedAfterRun": true,
+  "failedTakeCount": 0
+}

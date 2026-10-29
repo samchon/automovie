@@ -1,0 +1,16 @@
+{
+  "observedUtc": "2026-10-29T17:26:54.8103931Z",
+  "runtimeIdentity": "3ebc0a27c32116e86a8b9f2799f87b2c7f1ee01bafe8d1f8d5a6b9568c9b3422",
+  "movie": {
+    "path": "public/outputs/episode-one/runs/2026-10-29T16-45-38-792Z-3ebc0a27c321/the-road-gives-way.mp4",
+    "bytes": 21583355,
+    "sha256": "ad5ccb0a711b379ef0c5dabed4c5ecbb2553e61f43df68c12c7accf9f1cf79d8"
+  },
+  "decodeLog": {
+    "bytes": 2659,
+    "sha256": "33d2721ebdbbfbd6ba86adced7128c6c37723c0ec39adcf5930155e131204baa"
+  },
+  "semanticAcceptance": "rejected by independent episode review 1",
+  "audition": "unperformed",
+  "observation": "Separate coordinator digest receipt after the writer reported complete FFmpeg decoding. Original run records are unchanged."
+}

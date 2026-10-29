@@ -1,0 +1,339 @@
+{
+  "createdUtc": "2026-10-29T17:23:05.700026+00:00",
+  "complete": true,
+  "acceptance": "candidate-unheard",
+  "selected": false,
+  "declaredSeeds": [
+    9426,
+    19426
+  ],
+  "changedInput": "seed",
+  "originalTake": {
+    "id": "line-026",
+    "unit": "battle",
+    "speaker": "SOULT",
+    "qualifier": null,
+    "text": "Yes, Sire.",
+    "sourceLine": 137,
+    "file": "line-026-3b4188d9bfbd8e9b.wav",
+    "inputKey": "3b4188d9bfbd8e9b1641c22962dd2e84765da722844ee23c666d5c843675c0ae",
+    "sha256": "d54cc871bcd8530247c69cd03718352cda7d534177437daa8794bb6dd4d39892",
+    "frames": 69120,
+    "sampleRate": 48000,
+    "duration": 1.44,
+    "peak": 0.88861083984375,
+    "rms": 0.07313561017627714,
+    "inputs": {
+      "text": "Yes, Sire.",
+      "voice": "A middle-aged man, clear English, low measured voice, controlled and reserved",
+      "seed": 4126,
+      "model": {
+        "model": "openbmb/VoxCPM2",
+        "voxcpm": "2.0.3",
+        "torch": "2.15.0+cpu",
+        "cfgValue": 2.0,
+        "inferenceTimesteps": 10,
+        "device": "cpu",
+        "snapshot": "32279effe8c19989596f05d353d1447f51d9e915"
+      },
+      "reference": "061caa4b8ee0608c2fd2a98aac838d1fa24dd29ab0b7959607e5791e02026334"
+    },
+    "acceptance": "candidate-unheard"
+  },
+  "source": "docs/body/screenplay/001-chronicle/001-road.md",
+  "sourceSha256": "694c7f781924d01ddc3cbed78e2a989eb2a38a975c9696caad4c30787e7df91a",
+  "referenceTake": {
+    "id": "line-007",
+    "unit": "letter",
+    "speaker": "SOULT",
+    "qualifier": null,
+    "text": "Marshal Lannes, you write it. We are of one mind.",
+    "sourceLine": 43,
+    "file": "line-007-3e10132eedfa9e9e.wav",
+    "inputKey": "3e10132eedfa9e9e1a6b2ed0b67799e3e60971ab87cc075e1a7e0b5da76775da",
+    "sha256": "061caa4b8ee0608c2fd2a98aac838d1fa24dd29ab0b7959607e5791e02026334",
+    "frames": 222720,
+    "sampleRate": 48000,
+    "duration": 4.64,
+    "peak": 0.515167236328125,
+    "rms": 0.03366717327669281,
+    "inputs": {
+      "text": "Marshal Lannes, you write it. We are of one mind.",
+      "voice": "A middle-aged man, clear English, low measured voice, controlled and reserved",
+      "seed": 4107,
+      "model": {
+        "model": "openbmb/VoxCPM2",
+        "voxcpm": "2.0.3",
+        "torch": "2.15.0+cpu",
+        "cfgValue": 2.0,
+        "inferenceTimesteps": 10,
+        "device": "cpu",
+        "snapshot": "32279effe8c19989596f05d353d1447f51d9e915"
+      },
+      "reference": null
+    },
+    "acceptance": "candidate-unheard"
+  },
+  "generation": {
+    "threads": 12,
+    "loadDenoiser": false,
+    "optimize": false,
+    "device": "cpu",
+    "localFilesOnly": true,
+    "retryBadcase": false
+  },
+  "asrParameters": {
+    "threads": 4,
+    "device": "cpu",
+    "dtype": "float32",
+    "sampleRate": 16000,
+    "resampling": "scipy.signal.resample_poly(1,3)",
+    "returnTimestamps": "word",
+    "chunkLengthSeconds": null,
+    "expectedTextPrompt": false,
+    "priorTranscriptPrompt": false,
+    "generate": {
+      "do_sample": false,
+      "num_beams": 1,
+      "condition_on_prev_tokens": false
+    }
+  },
+  "versions": {
+    "voxcpm": "2.0.3",
+    "torch": "2.15.0+cpu",
+    "transformers": "5.21.1",
+    "scipy": "1.18.1",
+    "soundfile": "0.14.0"
+  },
+  "protectedInputs": {
+    "public/audio/001-road/takes.json": "2f2a55930ffbdc4916410dba5220eae1111ad3d27e40e9b0bb70928cf0ac35db",
+    "docs/body/screenplay/001-chronicle/001-road.md": "694c7f781924d01ddc3cbed78e2a989eb2a38a975c9696caad4c30787e7df91a",
+    "public/audio/001-road/line-001-279ba530788c5ab6.wav": "a2d5cfbe7fa83e064eb62b3a271bb9da05892509ed1ccfea13bbee751fc118ee",
+    "public/audio/001-road/line-002-3161e9e16668d1b2.wav": "c5731136ae62a5d926d2ab32696c34692243cac76211d64cef7c1568ca6882d7",
+    "public/audio/001-road/line-003-e755fe10571c76aa.wav": "fabc2b9a86b8c5a52e095ba314f5518ad48ef7efeb0c983b2325af96a27d4caf",
+    "public/audio/001-road/line-004-505f7a42bf907bfb.wav": "97ff623f777bd70fb1297882201ffa49e1b76413c7541c03ba199d66bd802996",
+    "public/audio/001-road/line-005-4570bc07b9dbf10f.wav": "5cf1178f524e3fd696cd010d4a3be26343a78da89dc23f2d5f238c8c037a510e",
+    "public/audio/001-road/line-006-b219be1eaf1b9dae.wav": "88681235d952ae3159099819982305e2747f9ec9c8fa3f1e4ab54796b1c6d69e",
+    "public/audio/001-road/line-007-3e10132eedfa9e9e.wav": "061caa4b8ee0608c2fd2a98aac838d1fa24dd29ab0b7959607e5791e02026334",
+    "public/audio/001-road/line-008-743c284089cb22b6.wav": "36a6aec7aab254933590a0220318d4faa60f106852e4aae4ff35bc7c0514a419",
+    "public/audio/001-road/line-009-e7f410c9d81a827a.wav": "18b2e559b2028376292f6864cfd63429b866937b851c15147bf96a681fb9c96c",
+    "public/audio/001-road/line-010-020330d4bf91cdaa.wav": "a1f645f4e79ab2501f58d23d4df135da26ba3c522e20f05ba499e14772b6b52d",
+    "public/audio/001-road/line-011-d9f7d3252637c240.wav": "a118550d6e0af11870fafa197f13804f593043f47e2d5d69e8d2a7004c081d03",
+    "public/audio/001-road/line-012-6f2f2cb46f628c72.wav": "d496fe60ff52ded8b2b95e9ce38b94386103807f7056a9bad0ff673c8327addd",
+    "public/audio/001-road/line-013-725feae1dd827a50.wav": "9e021932382df3ac713e8afb506aad5c2f7f2787c7d8ecfb970293c7f269aaca",
+    "public/audio/001-road/line-014-9f5f3ffcda297280.wav": "85f7fe0f2552594902648a079fda5f1dad79bf40b7c222b5ae5ba9aedf4bafc4",
+    "public/audio/001-road/line-015-2a43dbbf0145786a.wav": "6a509da6fbec965542c2bd736fe6e2f5e996e611d0ab9faa86415f291898e8e8",
+    "public/audio/001-road/line-016-a178a7cc1665bcc4.wav": "cb15e1c26583a288cc0cc378a241ea1690407621e5ee21171f6d32068c43c1f9",
+    "public/audio/001-road/line-017-d0e3317961e49877.wav": "99d45cbd64e7b3df00bfd65bd531d79a3cf96c5ce8c454d65db2e6a1291d7857",
+    "public/audio/001-road/line-018-1c1ffe3257783339.wav": "189c9b6c18cb485ce0fb349b680fd4db4fbbb9457e7680c46b2c677c1f5d1cce",
+    "public/audio/001-road/line-019-3774ca4d3f8964e6.wav": "88ca39eb5199b4ec54ffcf994e8d8152e03dedb0d494a7f98f18cd9431a12b65",
+    "public/audio/001-road/line-020-1e893bac4269f6e4.wav": "fa222bc215ad6586f18a736d975ac085ef43ed33d5936bac095a71016465e8cb",
+    "public/audio/001-road/line-021-4e2e618a62e282b2.wav": "274ee98a989f5a9ddc9bed8f03802dec00aceada87193b338df575fd448245c9",
+    "public/audio/001-road/line-022-867d2dad39f177f2.wav": "c1ecca00edb9768bccbd0fea5b80de5dc51a4bbef02b7f9c17d18a915c2e7aa3",
+    "public/audio/001-road/line-023-96892f5520ca8bb2.wav": "fb02f4b71ebe6933dff7cb3cfd73e5b7af9d43fae23b784c00859ac0666e1def",
+    "public/audio/001-road/line-024-5a1e4ecffb73b7e6.wav": "eeaf4d0fb86e026d16995447ed5531aa04df79cedb43f6c63e35120f876d2fe9",
+    "public/audio/001-road/line-025-47623785aee489fb.wav": "2b49e52f5fe3a25eb10b1c0ce9ebc0654985451b68d9d64a0e933588464d0736",
+    "public/audio/001-road/line-026-3b4188d9bfbd8e9b.wav": "d54cc871bcd8530247c69cd03718352cda7d534177437daa8794bb6dd4d39892",
+    "public/audio/001-road/line-027-a572ccf19049b688.wav": "bce6c96136771a21c095448264b27710e9366ced9b4d3332d8a19303375c9e7d",
+    "public/audio/001-road/episode-mix.wav": "ac78d64241fa4857edc6058325289d39905f9fc3d394d6827272ea99c3f431ab"
+  },
+  "candidates": [
+    {
+      "seed": 9426,
+      "inputs": {
+        "text": "Yes, Sire.",
+        "voice": "A middle-aged man, clear English, low measured voice, controlled and reserved",
+        "seed": 9426,
+        "model": {
+          "model": "openbmb/VoxCPM2",
+          "voxcpm": "2.0.3",
+          "torch": "2.15.0+cpu",
+          "cfgValue": 2.0,
+          "inferenceTimesteps": 10,
+          "device": "cpu",
+          "snapshot": "32279effe8c19989596f05d353d1447f51d9e915"
+        },
+        "reference": "061caa4b8ee0608c2fd2a98aac838d1fa24dd29ab0b7959607e5791e02026334"
+      },
+      "inputKey": "e679f366558cdadd07439f511d7dfc9ceca6d890940f8a3a273b86bdd4f6e0e0",
+      "file": "line-026-seed-9426-e679f366558cdadd.wav",
+      "acceptance": "candidate-unheard",
+      "selected": false,
+      "sha256": "189b0fd399dc18f8b53837290eb471c18ead090cfafbdcb0f6cf44080c9fce8c",
+      "signal": {
+        "frames": 61440,
+        "sampleRate": 48000,
+        "duration": 1.28,
+        "peak": 0.634765625,
+        "rms": 0.05582382118362589,
+        "clippedSamples": 0
+      },
+      "generationElapsedSeconds": 22.969000000040978,
+      "recognition": {
+        "openai/whisper-tiny.en": {
+          "model": "openai/whisper-tiny.en",
+          "snapshot": "87c7102498dcde7456f24cfd30239ca606ed9063",
+          "result": {
+            "text": " Yes, Sire.",
+            "chunks": [
+              {
+                "text": " Yes,",
+                "timestamp": [
+                  0.0,
+                  0.7
+                ]
+              },
+              {
+                "text": " Sire.",
+                "timestamp": [
+                  0.7,
+                  1.26
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 4.312999999849126
+        },
+        "openai/whisper-base.en": {
+          "model": "openai/whisper-base.en",
+          "snapshot": "911407f4214e0e1d82085af863093ec0b66f9cd6",
+          "result": {
+            "text": " Yes, Sire.",
+            "chunks": [
+              {
+                "text": " Yes,",
+                "timestamp": [
+                  0.0,
+                  0.52
+                ]
+              },
+              {
+                "text": " Sire.",
+                "timestamp": [
+                  0.52,
+                  1.2
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 2.6869999999180436
+        }
+      }
+    },
+    {
+      "seed": 19426,
+      "inputs": {
+        "text": "Yes, Sire.",
+        "voice": "A middle-aged man, clear English, low measured voice, controlled and reserved",
+        "seed": 19426,
+        "model": {
+          "model": "openbmb/VoxCPM2",
+          "voxcpm": "2.0.3",
+          "torch": "2.15.0+cpu",
+          "cfgValue": 2.0,
+          "inferenceTimesteps": 10,
+          "device": "cpu",
+          "snapshot": "32279effe8c19989596f05d353d1447f51d9e915"
+        },
+        "reference": "061caa4b8ee0608c2fd2a98aac838d1fa24dd29ab0b7959607e5791e02026334"
+      },
+      "inputKey": "09ff147278dc5514fd85d8508179dcb4f402810df94a84bac1a583c1772e5957",
+      "file": "line-026-seed-19426-09ff147278dc5514.wav",
+      "acceptance": "candidate-unheard",
+      "selected": false,
+      "sha256": "55df7884c4fb5ab6fd6ea7537dc7f4b469deecfcec633f5690166420972e978c",
+      "signal": {
+        "frames": 99840,
+        "sampleRate": 48000,
+        "duration": 2.08,
+        "peak": 0.70452880859375,
+        "rms": 0.061061481895928145,
+        "clippedSamples": 0
+      },
+      "generationElapsedSeconds": 28.734000000171363,
+      "recognition": {
+        "openai/whisper-tiny.en": {
+          "model": "openai/whisper-tiny.en",
+          "snapshot": "87c7102498dcde7456f24cfd30239ca606ed9063",
+          "result": {
+            "text": " Yes, Sire.",
+            "chunks": [
+              {
+                "text": " Yes,",
+                "timestamp": [
+                  0.0,
+                  1.36
+                ]
+              },
+              {
+                "text": " Sire.",
+                "timestamp": [
+                  1.36,
+                  2.06
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 1.1089999999385327
+        },
+        "openai/whisper-base.en": {
+          "model": "openai/whisper-base.en",
+          "snapshot": "911407f4214e0e1d82085af863093ec0b66f9cd6",
+          "result": {
+            "text": " Yes, Sire.",
+            "chunks": [
+              {
+                "text": " Yes,",
+                "timestamp": [
+                  0.0,
+                  1.32
+                ]
+              },
+              {
+                "text": " Sire.",
+                "timestamp": [
+                  1.32,
+                  2.06
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 2.5620000001508743
+        }
+      }
+    }
+  ],
+  "changedProtectedInputs": [],
+  "previousDiagnosticAttempts": [
+    {
+      "complete": false,
+      "asrSetupErrors": {
+        "openai/whisper-tiny.en": "IncompleteSnapshotError: The cached snapshot for 'openai/whisper-tiny.en' (revision '87c7102498dcde7456f24cfd30239ca606ed9063', commit 87c7102498dcde7456f24cfd30239ca606ed9063) is incomplete: 5 file(s) are missing (.gitattributes, README.md, flax_model.msgpack, ... (2 more)). Outgoing traffic is disabled ('local_files_only=True'). Re-run the download with network access to complete the snapshot.",
+        "openai/whisper-base.en": "IncompleteSnapshotError: The cached snapshot for 'openai/whisper-base.en' (revision '911407f4214e0e1d82085af863093ec0b66f9cd6', commit 911407f4214e0e1d82085af863093ec0b66f9cd6) is incomplete: 5 file(s) are missing (.gitattributes, README.md, flax_model.msgpack, ... (2 more)). Outgoing traffic is disabled ('local_files_only=True'). Re-run the download with network access to complete the snapshot."
+      },
+      "parameters": {
+        "threads": 4,
+        "device": "cpu",
+        "dtype": "float32",
+        "sampleRate": 16000,
+        "resampling": "scipy.signal.resample_poly(1,3)",
+        "returnTimestamps": "word",
+        "chunkLengthSeconds": null,
+        "expectedTextPrompt": false,
+        "priorTranscriptPrompt": false,
+        "generate": {
+          "do_sample": false,
+          "num_beams": 1,
+          "condition_on_prev_tokens": false
+        }
+      },
+      "reason": "Unfiltered local snapshot requested unused model framework files"
+    }
+  ],
+  "diagnosticsCreatedUtc": "2026-10-29T17:27:07.060972+00:00",
+  "diagnosticCacheAllowPatterns": [
+    "*.json",
+    "*.txt",
+    "*.safetensors"
+  ]
+}

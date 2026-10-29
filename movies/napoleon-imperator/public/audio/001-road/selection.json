@@ -1,0 +1,15 @@
+{
+  "sourceSha256": "694c7f781924d01ddc3cbed78e2a989eb2a38a975c9696caad4c30787e7df91a",
+  "changes": [
+    {
+      "id": "line-026",
+      "file": "line-026-seed-9426-e679f366558cdadd.wav",
+      "sha256": "189b0fd399dc18f8b53837290eb471c18ead090cfafbdcb0f6cf44080c9fce8c",
+      "provenance": "docs/production/audio-alternatives/line026/candidates.json",
+      "provenanceSha256": "ad7af7ec0a6cdb2236ab0b3e1c8bb866c32da6bc91a16dc7dab999fbb8d51983",
+      "acceptance": "candidate-unheard"
+    }
+  ],
+  "selection": "provisional",
+  "reason": "Both predeclared alternatives matched the canonical words in two unprompted ASR models. Use the first declared seed, whose measured duration is closer to the original; listening and acting acceptance remain unperformed."
+}

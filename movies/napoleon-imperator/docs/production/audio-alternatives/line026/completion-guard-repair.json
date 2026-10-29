@@ -1,0 +1,82 @@
+{
+  "createdUtc": "2026-10-29T17:33:02.872047+00:00",
+  "cause": "Both final completion predicates ignored changedProtectedInputs.",
+  "scope": "Future diagnostic completion only; no inference or adoption.",
+  "sourceBefore": {
+    "generate-alternatives.py": {
+      "sha256": "2d2caeace605bd1424bd8d14e7b77c9ae3179c616079b332c3a259e71d7ececb",
+      "retainedCopy": "provenance/generate-alternatives.py.before-completion-guard.txt"
+    },
+    "inspect-existing.py": {
+      "sha256": "2780fa06d73404def188fd7bfdeb7f4f8b7ff4aa5b238c14b1e5761a2bbc07f3",
+      "retainedCopy": "provenance/inspect-existing.py.before-completion-guard.txt"
+    }
+  },
+  "protectedObservedInputs": {
+    "candidates.json": "ad7af7ec0a6cdb2236ab0b3e1c8bb866c32da6bc91a16dc7dab999fbb8d51983",
+    "README.md": "854d3530a9a89283441ce5e9a6cf2ada35411c4a179e5eb6dba17cd39c40dabc",
+    "line-026-seed-19426-09ff147278dc5514.wav": "55df7884c4fb5ab6fd6ea7537dc7f4b469deecfcec633f5690166420972e978c",
+    "line-026-seed-9426-e679f366558cdadd.wav": "189b0fd399dc18f8b53837290eb471c18ead090cfafbdcb0f6cf44080c9fce8c"
+  },
+  "historicalRun": {
+    "candidateRecordSha256": "ad7af7ec0a6cdb2236ab0b3e1c8bb866c32da6bc91a16dc7dab999fbb8d51983",
+    "recordedChangedProtectedInputs": [],
+    "limit": "The valid retained run is not rewritten or rerun. Copies identify the immediate pre-guard source. The generation script already included the later ASR cache-filter repair, so its copy is not claimed as the original generation-time source."
+  },
+  "verificationComplete": true,
+  "sourceAfter": {
+    "generate-alternatives.py": {
+      "sha256": "3064b736897ba4bb3200c92901354c37a0ebf8e7374f78149c485fede2093eff",
+      "change": [
+        "--- provenance/generate-alternatives.py.before-completion-guard.txt",
+        "+++ generate-alternatives.py",
+        "@@ -211,7 +211,7 @@",
+        "     record[\"changedProtectedInputs\"] = [path.relative_to(root).as_posix()",
+        "                                          for path, value in protected.items()",
+        "                                          if digest(path.read_bytes()) != value]",
+        "-    record[\"complete\"] = len(record[\"candidates\"]) == 2 and all(",
+        "+    record[\"complete\"] = not record[\"changedProtectedInputs\"] and len(record[\"candidates\"]) == 2 and all(",
+        "         \"sha256\" in item and all(\"result\" in item.get(\"recognition\", {}).get(repository, {})",
+        "                                  for repository in [\"openai/whisper-tiny.en\", \"openai/whisper-base.en\"])",
+        "         for item in record[\"candidates\"])"
+      ]
+    },
+    "inspect-existing.py": {
+      "sha256": "5fcf218b1e31fb2c1c971b31cdc9de4a9e6f43d1cb2037c88120be412d7c6dad",
+      "change": [
+        "--- provenance/inspect-existing.py.before-completion-guard.txt",
+        "+++ inspect-existing.py",
+        "@@ -84,7 +84,7 @@",
+        "             save(folder, record)",
+        "     record[\"changedProtectedInputs\"] = [relative for relative, expected in record[\"protectedInputs\"].items()",
+        "                                          if hashlib.sha256((root / relative).read_bytes()).hexdigest() != expected]",
+        "-    record[\"complete\"] = all(",
+        "+    record[\"complete\"] = not record[\"changedProtectedInputs\"] and all(",
+        "         \"result\" in item.get(\"recognition\", {}).get(repository, {})",
+        "         for item in record[\"candidates\"]",
+        "         for repository in [\"openai/whisper-tiny.en\", \"openai/whisper-base.en\"])"
+      ]
+    }
+  },
+  "checks": {
+    "generate-alternatives.py": {
+      "syntax": "passed",
+      "recognitionSuccessUnchangedInputs": true,
+      "changedProtectedInputBlocksCompletion": true,
+      "missingRecognitionBlocksCompletion": true,
+      "bothFailuresBlockCompletion": true,
+      "retainedPreGuardCopyVerified": true
+    },
+    "inspect-existing.py": {
+      "syntax": "passed",
+      "recognitionSuccessUnchangedInputs": true,
+      "changedProtectedInputBlocksCompletion": true,
+      "missingRecognitionBlocksCompletion": true,
+      "bothFailuresBlockCompletion": true,
+      "retainedPreGuardCopyVerified": true
+    }
+  },
+  "verifiedUtc": "2026-10-29T17:33:36.327847+00:00",
+  "inferenceRerun": false,
+  "protectedObservedInputsUnchanged": true
+}
