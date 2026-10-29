@@ -41,7 +41,7 @@ import { resolveHumanCurves } from "./resolveHumanCurves";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown chains, unmatched globs, layer indices or stations outside a chain, empty or oversized series and axis/section mixes throw; no reference file or saved mesh is read.
  * @evidence contracts/common.md#meaningful-documentation States the id grammar, colour order, units, orientation, comb definition and scaling, and the axis plots.
  * @evidence contracts/performance.md#efficient-algorithms O(L N K) harmonic evaluations for L lines, N = 720 phases and order K; an axis costs 240 stations times one 512-point ring; at most 64 lines.
- * @evidence contracts/performance.md#reuse-equivalent-work The calibration module is the one the page's generator already loaded.
+ * @evidence contracts/performance.md#reuse-equivalent-work Consumes the caller's evaluated calibration for every selected curve; the page reevaluates BodyLaw from actual parameters rather than reusing stored model jets.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one string; retains nothing.
  */
 export function drawHumanCurveDiagram(

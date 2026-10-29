@@ -5,11 +5,11 @@ import path from "node:path";
 import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IAutoMovieHumanParameters";
 import { f1, f2, m1, m2 } from "../human-parameters";
 
-/** Serialize the explicitly registered typed Human examples as public JSON.
+/** Serialize explicitly registered Human authoring metadata as public JSON.
  * The registry names their source modules, not deleted JSON copies. These are
- * authored parameter examples; publication does not implement generation.
+ * authoring metadata examples; publication does not supply construction or implement generation.
  *
- * @evidence contracts/common.md#principled-implementation Each published literal satisfies IAutoMovieHumanParameters and is serialized from the same typed source used by the playground.
+ * @evidence contracts/common.md#principled-implementation Each published literal is authoring metadata; independent physical construction is required for generation and is serialized from the same typed source used by the playground.
  * @evidence contracts/common.md#clear-and-simple-design One reader supplies both JSON URL spellings from four explicit typed examples.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No deleted-file fallback, generated shape or unchecked parameter assertion is used.
  * @evidence contracts/common.md#meaningful-documentation States typed authority, explicit registration and the generation boundary.

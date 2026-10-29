@@ -3,9 +3,9 @@ import type { IHumanViewerPage } from "./human/IHumanViewerPage";
 /**
  * Mount the single Human page and generate the requested input.
  *
- * `?alias=f1` generates from the typed module `src/human-parameters/f1.ts`
- * directly; `?document=<url>` fetches JSON and generates only when it equals a
- * registered typed example (see `admitHumanParameters`). With neither, the page
+ * `?alias=f1` validates a snapshot of `src/human-parameters/f1.ts`;
+ * `?document=<url>` fetches and validates a complete public parameter object
+ * before generation (see `admitHumanParameters`). With neither, the page
  * waits for the alias selector or `window.__automovieHuman`, which the PNG
  * worker's headless Chrome drives. After a load, `?camera=`, `?pass=` and
  * `?curves=` restore the view, then the free-view variables (`az`, `el`, `view`,

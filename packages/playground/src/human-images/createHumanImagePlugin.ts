@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import type { Plugin, ViteDevServer } from "vite";
@@ -6,26 +5,29 @@ import type { Plugin, ViteDevServer } from "vite";
 import { normalizeHumanCurves } from "../human/normalizeHumanCurves";
 import { normalizeHumanView } from "../human/normalizeHumanView";
 import { HumanImageArchive } from "./HumanImageArchive";
-import { HumanImageRegistry } from "./HumanImageRegistry";
+import type { HumanImageRegistry } from "./HumanImageRegistry";
 import { HumanImageSession } from "./HumanImageSession";
+import { HumanImageParameterRequest } from "./HumanImageParameterRequest";
 
-/** Publish typed Human example JSON, generated models and rendered PNGs.
+/** Publish typed Human authoring metadata, independently admitted models and rendered PNGs.
  * Both /human-parameters/f1.json and /human-images/f1.json use the same typed
  * source registry. Model JSON and PNG requests go through HumanImageSession
  * to the resident worker, whose Chrome runs the same /human.html. Historical
  * captures remain historical and never stand in for a current-source render.
  *
- * @evidence contracts/common.md#principled-implementation JSON routes serialize the registered typed parameters; model and PNG requests return worker output whose identity the session verified, and a worker failure propagates as an HTTP error.
+ * @evidence contracts/common.md#principled-implementation Alias JSON routes serialize registered authoring metadata only; complete physical POST input is admitted by the resident page before generation. Worker output has its source/input identity verified, and failures propagate as HTTP errors.
  * @evidence contracts/common.md#clear-and-simple-design One existing middleware owns alias JSON and retained image transport.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No old model or synthetic output replaces a failed generation or render.
  * @evidence contracts/common.md#meaningful-documentation States both typed JSON paths and the worker-served model and PNG routes.
- * @evidence contracts/performance.md#efficient-algorithms JSON publication reads only the small registry and serializes one example, without GPU work.
+ * @evidence contracts/performance.md#efficient-algorithms Alias metadata reads the small registry without GPU work; model POST uses the normal generator. receipt=1 returns its existing receipt without reparsing model JSON.
  * @evidence contracts/performance.md#reuse-equivalent-work Both JSON paths share HumanImageRegistry; archive bytes retain their original capture identity.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Existing archive/session owners close on server disposal; this middleware adds no separate listener or result cache.
  */
 export function createHumanImagePlugin(repository: string): Plugin {
   const archive: HumanImageArchive = new HumanImageArchive();
   let session: HumanImageSession | undefined;
+  // Vite owns this fixed runtime module; typed examples must not become config dependencies.
+  let registryOwner: () => Promise<typeof HumanImageRegistry> = async (): Promise<typeof HumanImageRegistry> => { throw new Error("Human registry server is unavailable"); };
   let current:
     | {
         key: string;
@@ -34,7 +36,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
     | undefined;
 
   /**
-   * Serve `/human-curves/<alias>.png` (or `.svg`), optionally `/human-curves/<alias>/<id>.png`, from the resident page.
+   * Serve registered alias diagrams or `/human-curves/current/<key>.png` (or `.svg`) from the resident page.
    *
    * The path id, when present, is the first curve; repeated `curves=` keys and
    * comma lists follow in order. Headers and `fresh`/`receipt` follow the frame
@@ -45,17 +47,26 @@ export function createHumanImagePlugin(repository: string): Plugin {
     url: URL,
     response: ServerResponse,
   ): Promise<void> {
-    const route: RegExpExecArray | null =
+    const pinned: RegExpExecArray | null =
+      /^\/human-curves\/current\/([a-f0-9]{64})(?:\/(.+))?\.(png|svg)$/.exec(
+        url.pathname,
+      );
+    const route: RegExpExecArray | null = pinned ??
       /^\/human-curves\/([a-z][a-z0-9-]{0,15})(?:\/(.+))?\.(png|svg)$/.exec(
         url.pathname,
       );
     const registry: string | undefined =
       process.env.AUTOMOVIE_HUMAN_IMAGE_REGISTRY;
-    if (route === null || !registry) {
+    if (route === null || (!pinned && !registry)) {
       response.statusCode = route === null ? 404 : 503;
       response.end(
         route === null ? "" : "Human image registry is not configured",
       );
+      return;
+    }
+    if (pinned && current?.key !== pinned[1]) {
+      response.statusCode = 409;
+      response.end("Reload the current Human model");
       return;
     }
     let curves: string;
@@ -71,19 +82,18 @@ export function createHumanImagePlugin(repository: string): Plugin {
       return;
     }
 
-    // The alias must be registered; its parameters only scale the legend.
-    await HumanImageRegistry.read(
-      path.resolve(repository, registry),
-      route[1]!,
-    );
+    // The current route reuses the POST's exact input; alias routes admit their registered input.
+    const input: Awaited<ReturnType<typeof HumanImageRegistry.read>> = pinned
+      ? current!.input
+      : await (await registryOwner()).read(path.resolve(repository, registry!), route[1]!);
     const format: "png" | "svg" = route[3] === "svg" ? "svg" : "png";
-    const result: Awaited<ReturnType<HumanImageSession["diagram"]>> =
-      await session!.diagram(
-        route[1]!,
-        curves,
-        format,
-        url.searchParams.get("fresh") ?? undefined,
-      );
+    const operation: Awaited<ReturnType<HumanImageSession["modelDiagram"]>> = await session!.modelDiagram(input, pinned ? null : route[1]!, curves, format, url.searchParams.get("fresh") ?? undefined);
+    if (pinned && operation.frame.key !== pinned[1]) {
+      response.statusCode = 409;
+      response.end("Human source changed; reload the model");
+      return;
+    }
+    const result: typeof operation.diagram = operation.diagram;
     response.setHeader("cache-control", "no-store");
     response.setHeader("x-human-captured-utc", result.capturedUtc);
     response.setHeader(
@@ -115,6 +125,13 @@ export function createHumanImagePlugin(repository: string): Plugin {
   return {
     name: "automovie-human-images",
     async configureServer(server: ViteDevServer): Promise<void> {
+      if (server.config.configFileDependencies.some((file: string): boolean => /[\\/]src[\\/]human-parameters[\\/]/.test(file))) throw new Error("Typed Human metadata must be a runtime SSR module, not a Vite config dependency");
+      registryOwner = async (): Promise<typeof HumanImageRegistry> => {
+        const module: Record<string, unknown> = await server.ssrLoadModule("/src/human-images/HumanImageRegistry.ts");
+        const registry: unknown = module.HumanImageRegistry;
+        if (typeof registry !== "function" || !("read" in registry) || typeof registry.read !== "function") throw new Error("Fixed Human metadata SSR module has no registry reader");
+        return registry as typeof HumanImageRegistry;
+      };
       const published: string | undefined =
         process.env.AUTOMOVIE_HUMAN_AUDIT_IMPORT;
       if (published !== undefined) {
@@ -130,7 +147,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
         for (const filename of paths)
           await archive.import(path.resolve(repository, filename));
       }
-      session = new HumanImageSession(server, repository);
+      session = new HumanImageSession(repository);
 
       // The worker child inherits this environment when the first request
       // starts it, after listening, and opens /human.html on this origin.
@@ -159,6 +176,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
           const url: URL = new URL(request.url ?? "/", "http://localhost");
           if (
             !url.pathname.startsWith("/human-images/") &&
+            !url.pathname.startsWith("/human-diagnostics/") &&
             !url.pathname.startsWith("/human-parameters/") &&
             !url.pathname.startsWith("/human-curves/")
           ) {
@@ -166,6 +184,17 @@ export function createHumanImagePlugin(repository: string): Plugin {
             return;
           }
           const handle: () => Promise<void> = async (): Promise<void> => {
+            if (url.pathname.startsWith("/human-diagnostics/")) {
+              if (request.method !== "GET") { response.statusCode = 405; response.end(); return; }
+              response.setHeader("cache-control", "no-store");
+              response.setHeader("content-type", "application/json");
+              if (url.pathname === "/human-diagnostics/status.json")
+                response.end(JSON.stringify({ pending: session!.pending() }));
+              else if (url.pathname === "/human-diagnostics/release.json")
+                response.end(JSON.stringify(await session!.releaseIdle()));
+              else { response.statusCode = 404; response.end(); }
+              return;
+            }
             if (request.method !== "GET" && request.method !== "POST") {
               response.statusCode = 405;
               response.end();
@@ -236,11 +265,6 @@ export function createHumanImagePlugin(repository: string): Plugin {
             }
             const registry: string | undefined =
               process.env.AUTOMOVIE_HUMAN_IMAGE_REGISTRY;
-            if (!registry) {
-              response.statusCode = 503;
-              response.end("Human image registry is not configured");
-              return;
-            }
             const pinned: RegExpExecArray | null =
               /^\/human-images\/current\/([a-f0-9]{64})\/([a-z0-9.-]+\.png)$/.exec(
                 url.pathname,
@@ -280,52 +304,20 @@ export function createHumanImagePlugin(repository: string): Plugin {
               request.method === "POST" &&
               url.pathname === "/human-images/model.json"
             ) {
-              const chunks: Buffer[] = [];
-              let size: number = 0;
-              for await (const chunk of request) {
-                const bytes: Buffer = Buffer.from(chunk);
-                size += bytes.length;
-                if (size > 1_048_576)
-                  throw new Error("Human input exceeds one MiB");
-                chunks.push(bytes);
-              }
-              const value: Record<string, unknown> = JSON.parse(
-                Buffer.concat(chunks).toString("utf8"),
-              );
-              if (
-                !value.body ||
-                !value.head ||
-                Object.keys(value).some(
-                  (key: string): boolean =>
-                    ![
-                      "body",
-                      "head",
-                      "extremities",
-                      "supplement",
-                      "appearance",
-                      "pigmentation",
-                      "pose",
-                      "expression",
-                    ].includes(key),
-                )
-              )
-                throw new Error(
-                  "Expected public Human parameters; only registered typed examples are admitted",
-                );
-              const bytes: Buffer = Buffer.from(JSON.stringify(value));
-              input = {
-                value,
-                bytes,
-                sha256: createHash("sha256").update(bytes).digest("hex"),
-              };
+              input = await HumanImageParameterRequest(request);
             } else {
               if (request.method !== "GET" || (!json && !image && !model)) {
                 response.statusCode = 405;
                 response.end();
                 return;
               }
-              input = await HumanImageRegistry.read(
-                path.resolve(repository, registry),
+              if (!registry) {
+                response.statusCode = 503;
+                response.end("Human image registry is not configured for alias requests");
+                return;
+              }
+              input = await (await registryOwner()).read(
+                path.resolve(repository, registry!),
                 (json ?? image ?? model)![1]!,
               );
             }
@@ -367,15 +359,17 @@ export function createHumanImagePlugin(repository: string): Plugin {
             }
             if (!image && !pinned) {
               current = { key: result.key, input };
+              response.setHeader("x-human-identity", result.key);
               response.setHeader("content-type", "application/json");
-              response.end(result.png);
+              response.end(url.searchParams.get("receipt") === "1"
+                ? JSON.stringify(result.receipt) : result.png);
               return;
             }
             if (
               image &&
               (
-                await HumanImageRegistry.read(
-                  path.resolve(repository, registry),
+                await (await registryOwner()).read(
+                  path.resolve(repository, registry!),
                   image![1]!,
                 )
               ).sha256 !== input.sha256
@@ -438,14 +432,14 @@ export function createHumanImagePlugin(repository: string): Plugin {
           };
           void handle().catch((error: unknown): void => {
             console.error(error);
-            const unavailable: boolean =
-              error instanceof Error &&
-              /host.*changed|source changed|closing/.test(error.message);
-            response.statusCode = unavailable ? 503 : 500;
+            const message: string = error instanceof Error ? error.message : String(error);
+            response.statusCode = /queue is closed or full|server is closing|source changed|host changed|closing|idle release requires an empty request queue|requires the same current generated model|Execution context was destroyed|Target page, context or browser has been closed/i.test(message) ? 503
+              : /Malformed Human curve pattern|Human curves selection exceeds|Human view(?: |=)|Human parameter request:|Fresh nonce requires|pattern matches no|Human curve diagram (?:needs|cannot mix|is limited)|Unknown Human chain:|Human station series must|Stations of .+ lie outside chain|isolate=1 needs|fit=selection|no generated surface or overlay pass|Unknown Human (?:capture )?camera/i.test(message) ? 400 : 500;
+            const unavailable: boolean = response.statusCode === 503;
             if (unavailable) response.setHeader("retry-after", "1");
             response.end(
               unavailable
-                ? "Human service generation changed; operator restart required"
+                ? "Human viewer is temporarily unavailable; retry after the current operation"
                 : "Human image request failed: " +
                     (error instanceof Error ? error.message : String(error)),
             );

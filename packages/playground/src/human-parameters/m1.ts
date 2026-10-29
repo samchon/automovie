@@ -8,6 +8,11 @@ import { AutoMovieHumanUpperUnderwear } from "../../../human/src/typings/AutoMov
 
 /** Authored m1 example in the Human parameter units; null measurements remain unknown.
  *
+ * `head` transcribes the authored clinical-dimension request in `test/.shots/m1/head.json`.
+ * It records requested dimensions, not achieved clinical measurements.
+ * Surface proxies and residuals stay in `test/.shots/m1/head-application.json`;
+ * they do not replace the requested clinical fields.
+ *
  * `appearance` transcribes the reference's requested appearance, `test/.shots/m1/appearance.json`,
  * field for field: `skin.{oiliness, wrinkles, seed}`, `hair.{style, color, length, curl, hairline}`,
  * `browPair.<side>.color`, `lashPair.<side>.{color, length}` and `underwear.{bottom, top, color}` keep
@@ -165,51 +170,51 @@ export const m1: IAutoMovieHumanParameters = {
     },
   },
   head: {
-    length: 168.49408149719238,
-    cephalicIndex: 89.36349483823332,
-    circumference: 563.0135083475064,
-    height: Number("217.22427368164062"),
-    faceHeight: 107.21147564812946,
-    faceWidth: 138.1856610107695,
-    mandibularWidth: 139.78542138528064,
-    minimumFrontalWidth: 88.57894286708213,
+    length: 200,
+    cephalicIndex: 78,
+    circumference: 585,
+    height: 248,
+    faceHeight: 130,
+    faceWidth: 147,
+    mandibularWidth: 110,
+    minimumFrontalWidth: 114,
     mouthOpening: 54,
     mandibularLaterotrusion: 11,
     face: {
       eyePair: {
         left: {
           palpebralFissureLength: 31,
-          palpebralFissureHeight: 8.521728515625,
+          palpebralFissureHeight: 10
         },
         right: {
           palpebralFissureLength: 31,
-          palpebralFissureHeight: 8.54095458984375,
-        },
+          palpebralFissureHeight: 10
+        }
       },
       intercanthalWidth: 33,
       nose: {
-        width: 34.53574180603027,
-        height: 43.17291259765625,
-        protrusion: 2.7626512989853325,
+        width: 35,
+        height: 58,
+        protrusion: 24
       },
       mouth: {
         width: 53,
         upperVermilionHeight: 8,
-        lowerVermilionHeight: 11,
-      },
+        lowerVermilionHeight: 11
+      }
     },
     earPair: {
       left: {
-        length: 62.663421630859375,
-        breadth: 31.716914772987366,
-        protrusion: 15.434045791625977,
+        length: 68,
+        breadth: 31,
+        protrusion: 18
       },
       right: {
-        length: 61.67388916015625,
-        breadth: 32.948821783065796,
-        protrusion: 15.19474983215332,
-      },
-    },
+        length: 68,
+        breadth: 31,
+        protrusion: 18
+      }
+    }
   },
   extremities: {
     hands: {

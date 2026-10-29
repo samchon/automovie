@@ -20,7 +20,7 @@ interface IReplyObserver {
 }
 
 /** Own isolated lifecycle transport for the Human worker child, which keeps one headless Chrome tab on `/human.html`.
- * Chrome runs on a Playwright pipe and exits when a stopped child closes it.
+ * Chrome runs on a Playwright pipe and exits when a stopped child closes it. The worker heap defaults to 768 MiB; AUTOMOVIE_HUMAN_WORKER_HEAP_MIB overrides it with an integer from 256 to 2048.
  *
  * @evidence contracts/common.md#principled-implementation A lifecycle Worker retains the original ChildProcess and delegates checked native ownership to ProcessOwnership; command IDs and publication hashes qualify replies.
  * @evidence contracts/common.md#clear-and-simple-design HTTP transport, blocking OS lifecycle work and the Chrome-owning child have distinct owners; this class joins them without generating or rendering itself.
@@ -199,6 +199,8 @@ export class HumanImageProcess {
   }
   private async launch(root: string): Promise<void> {
     try {
+      const heapMiB: number = Number(process.env.AUTOMOVIE_HUMAN_WORKER_HEAP_MIB ?? "768");
+      if (!Number.isSafeInteger(heapMiB) || heapMiB < 256 || heapMiB > 2048) throw new Error("Human worker heap override must be an integer from 256 to 2048 MiB");
       const directory: string = await fs.mkdtemp(
         path.join(os.tmpdir(), "automovie-human-worker-"),
       );
@@ -215,7 +217,7 @@ export class HumanImageProcess {
         [],
         {
           cwd: path.join(root, "packages/playground"),
-          execArgv: ["--experimental-strip-types"],
+          execArgv: ["--experimental-strip-types", `--max-old-space-size=${heapMiB}`],
           serialization: "advanced",
           stdio: ["ignore", "ignore", "pipe", "ipc"],
           env: {
@@ -355,7 +357,7 @@ export class HumanImageProcess {
         ),
         {
           execArgv: ["--experimental-strip-types"],
-          workerData: { role: "human-image-lifecycle" },
+          workerData: { role: "human-image-lifecycle" }, resourceLimits: { maxOldGenerationSizeMb: 128 },
         },
       );
       this.remote = thread;

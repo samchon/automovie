@@ -9,16 +9,16 @@ import type { normalizeHumanView } from "./normalizeHumanView";
  * The browser entry, a person at the devtools console and the PNG worker's
  * headless Chrome all drive the same page through this interface, so the
  * interactive view and every served PNG come from one model, one scene and one
- * renderer. Every load first retires the displayed model; a failed load leaves
- * the viewport empty with the error in the status line, never an old model.
+ * renderer. Loads prepare a replacement before retiring the displayed model;
+ * failed preparation preserves that model and reports the failed request.
  *
  * @evidence contracts/common.md#principled-implementation One implementation (mountHumanViewerPage) serves people, the browser entry and the worker, so the PNG service cannot diverge from the visible page.
  * @evidence contracts/common.md#clear-and-simple-design Loads, display state, capture and inspection are the whole surface; HTTP, caching and archives stay in the Vite plugin.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed loads empty the viewport; no method returns an earlier model or image as current.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed preparation preserves the displayed generation but rejects the request; no earlier result is returned as a successful replacement.
  * @evidence contracts/common.md#meaningful-documentation States the shared consumers and the failure rule.
  * @evidence contracts/performance.md#efficient-algorithms Display changes restyle the built model; only loads generate.
  * @evidence contracts/performance.md#reuse-equivalent-work The worker reuses one page and model for every frame of a model key.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One displayed model at a time; dispose releases it with the controls and renderer.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One displayed model and at most one prepared replacement; dispose releases the displayed model with controls and renderer.
  */
 export interface IHumanViewerPage {
   /**
@@ -26,28 +26,28 @@ export interface IHumanViewerPage {
    *
    * @param alias Registered example name such as `f1`.
    *
-   * @evidence contracts/common.md#principled-implementation Selects the typed literal by alias and runs AutoMovieHuman.generate on it.
+   * @evidence contracts/common.md#principled-implementation Validates a registered typed example and generates from its private input snapshot.
    * @evidence contracts/common.md#clear-and-simple-design The URL `?alias=` path and the alias selector both use it.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown aliases throw; no default person is substituted.
    * @evidence contracts/common.md#meaningful-documentation States the typed source.
    * @evidence contracts/performance.md#efficient-algorithms One generation and one model build.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the module-shared literal.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retires the previous model before building the next.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses module-shared examples for alias labels; generation owns a validated private snapshot.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps the displayed model through preparation, then joins its disposal after committing the replacement.
    */
   loadAlias(alias: string): Promise<IHumanViewerPage.ILoaded>;
 
   /**
-   * Generate from untrusted JSON admitted only when it equals a registered typed example.
+   * Generate from a complete public parameter object validated at runtime.
    *
    * @param candidate Parsed JSON, for example the body of `/human-parameters/f1.json`.
    *
-   * @evidence contracts/common.md#principled-implementation Admits by byte equality with a registered literal's serialization and generates from the literal.
+   * @evidence contracts/common.md#principled-implementation Validates the complete public structure and declared ranges, then generates from a private snapshot; example equality determines only the alias label.
    * @evidence contracts/common.md#clear-and-simple-design Used by `?document=` and by the worker's generate command.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Never casts JSON to the parameter type; edited parameters are refused.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects invalid or unknown fields rather than casting or silently repairing input; valid edited parameters are admitted.
    * @evidence contracts/common.md#meaningful-documentation States the admission rule.
-   * @evidence contracts/performance.md#efficient-algorithms One serialization comparison per registered example, then one generation.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the module-shared literal.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retires the previous model before building the next.
+   * @evidence contracts/performance.md#efficient-algorithms Validation and copying scale with the input; one generation and model build follow successful admission.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses module-shared examples for alias labels; generation owns a validated private snapshot.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps the displayed model through preparation, then joins its disposal after committing the replacement.
    */
   load(candidate: unknown): Promise<IHumanViewerPage.ILoaded>;
 
@@ -56,13 +56,13 @@ export interface IHumanViewerPage {
    *
    * @param parameters Complete public Human input.
    *
-   * @evidence contracts/common.md#principled-implementation Passes compile-time typed parameters straight to AutoMovieHuman.generate.
+   * @evidence contracts/common.md#principled-implementation Uses the same runtime validation and private snapshot as load before calling AutoMovieHuman.generate.
    * @evidence contracts/common.md#clear-and-simple-design The typed entry for code; JSON goes through load.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Generator errors surface on the status line and reject.
    * @evidence contracts/common.md#meaningful-documentation States the typed-input premise.
    * @evidence contracts/performance.md#efficient-algorithms One generation and one model build.
    * @evidence contracts/performance.md#reuse-equivalent-work No caching: each call generates.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retires the previous model before building the next.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps the displayed model through preparation, then joins its disposal after committing the replacement.
    */
   generate(
     parameters: IAutoMovieHumanParameters,
@@ -79,7 +79,7 @@ export interface IHumanViewerPage {
    * @evidence contracts/common.md#meaningful-documentation States that no generation runs.
    * @evidence contracts/performance.md#efficient-algorithms One model build.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the caller's result object.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Retires the previous model before building the next.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps the displayed model through preparation, then joins its disposal after committing the replacement.
    */
   loadGenerated(
     result: IAutoMovieHumanGenerated,
@@ -217,21 +217,21 @@ export interface IHumanViewerPage {
   /**
    * Draw the 2D diagnostic diagram of one or more lofting curves (see `drawHumanCurveDiagram`).
    *
-   * @param alias Registered alias whose model scale the legend reports.
+   * @param alias Registered fallback used only without a loaded result; null requires actual loaded parameters.
    * @param curves Canonical curve list: `<chain>/<k>`, `<chain>/axis` with globs, `<chain>@<s>` and `<chain>@<from>:<to>:<step>`.
    * @param format `svg` returns the document; `png` rasterizes it in the page at 1200 x 1200.
    * @returns The SVG text or a PNG data URL.
    *
-   * @evidence contracts/common.md#principled-implementation Evaluates the calibration the page's generator module uses, so diagrams follow the current source; PNGs are the same SVG drawn onto a canvas.
-   * @evidence contracts/common.md#clear-and-simple-design The worker serves `/human-curves/` through this one method.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Unknown ids, aliases and stations throw.
-   * @evidence contracts/common.md#meaningful-documentation States the id grammar and formats.
-   * @evidence contracts/performance.md#efficient-algorithms No model generation; only the listed chains are evaluated.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the loaded calibration module.
+   * @evidence contracts/common.md#principled-implementation Reevaluates the shape law with the loaded result's actual parameters, or an admitted alias only without a loaded result; PNG rasterizes the same SVG.
+   * @evidence contracts/common.md#clear-and-simple-design The worker serves alias and current-input `/human-curves/` requests through this method.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing loaded parameters and alias, unknown ids and invalid stations throw; a loaded result never substitutes an alias.
+   * @evidence contracts/common.md#meaningful-documentation States nullable alias fallback, curve grammar and formats; law reevaluation is not mesh measurement.
+   * @evidence contracts/performance.md#efficient-algorithms No model generation; only requested chains are evaluated.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses actual parameter references and the loaded law evaluator.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The PNG canvas is a temporary element released after encoding.
    */
   diagram(
-    alias: string,
+    alias: string | null,
     curves: string,
     format: "svg" | "png",
   ): Promise<string>;

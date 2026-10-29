@@ -1,53 +1,45 @@
 import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IAutoMovieHumanParameters";
 import { f1, f2, m1, m2 } from "../human-parameters";
+import { HumanParameterAdmission } from "./HumanParameterAdmission";
 
 /**
- * Admit Human parameters by alias or by exact equality with a registered typed example.
+ * Admit registered aliases or any value satisfying the complete public Human input contract.
  *
- * The playground has no runtime validator for {@link IAutoMovieHumanParameters},
- * so it never casts JSON to that type. An alias selects the typed literal in
- * `src/human-parameters` directly. A JSON candidate, such as the body of
- * `/human-images/<alias>.json` handed over by the PNG worker, is admitted only
- * when its `JSON.stringify` bytes equal those of one registered literal, which
- * is exactly how `HumanImageRegistry` serializes it; the typed literal, not the
- * candidate, is then returned. Edited parameters therefore refuse explicitly
- * until a real runtime validator exists.
+ * Validation checks mandatory/optional fields, finite/null measurements, control
+ * pins, explicit ranges and closed unions, including appearance, pose and
+ * expression. Unknown fields and unsupported values reject with their field path.
+ * Optional fields may be omitted or explicitly undefined; their presence and values are preserved.
+ * Successful admission transfers an independent deep clone to the caller;
+ * subsequent mutation of the submitted object or typed example cannot change it.
+ * The clone remains mutable for the existing generator/UI contract.
  *
- * @param selector Either `{ alias }` naming a registered example or `{ candidate }` holding untrusted JSON.
- * @returns The alias and its typed literal; an unknown alias or unmatched candidate throws.
+ * An alias selects its registered example through the same validator. A candidate
+ * matching an example by values retains that alias; other valid candidates have
+ * alias null. Example matching labels a request and never establishes its schema.
  *
- * @evidence contracts/common.md#principled-implementation Admission is identity with a typed literal: the alias indexes the registry, and a candidate must serialize to exactly a registered literal's JSON.stringify bytes, which is how HumanImageRegistry publishes it; the typed literal is returned.
- * @evidence contracts/common.md#clear-and-simple-design One function serves both the alias and JSON entry points of the page and worker.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No unchecked cast of JSON to IAutoMovieHumanParameters; edited parameters are refused until a runtime validator exists.
- * @evidence contracts/common.md#meaningful-documentation States the admission rule, why JSON is never cast and what is refused.
- * @evidence contracts/performance.md#efficient-algorithms O(E x B) for E = 4 examples of B serialized bytes (a few kilobytes each).
- * @evidence contracts/performance.md#reuse-equivalent-work Returns the module-shared literal instead of a copy.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains nothing; temporary strings are dropped on return.
+ * @param selector A registered alias or an untrusted JSON parameter candidate.
+ * @returns The validated owned snapshot and its optional registered alias.
+ *
+ * @evidence contracts/common.md#principled-implementation The shared HumanParameterAdmission validates the actual public type tree, documented cross-field constraints and own data fields before a typed snapshot is returned.
+ * @evidence contracts/common.md#clear-and-simple-design One boundary serves existing alias, JSON page and image-worker callers; the Human-specific helper owns all structural rules.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Custom values do not need example equality; no typia macro, unchecked parameter cast, field deletion, geometry default or value correction is used.
+ * @evidence contracts/common.md#meaningful-documentation Documents nullable alias, failure paths, complete validation and independent mutable snapshot ownership.
+ * @evidence contracts/performance.md#efficient-algorithms Linear validation/cloning and at most four linear alias comparisons in the submitted field population.
+ * @evidence contracts/performance.md#reuse-equivalent-work Module-owned type rules are shared; each request receives one owned snapshot, with no model or effect cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned snapshot; temporary traversal state is released on return or throw and no handle or global request cache is acquired.
  */
 export function admitHumanParameters(
   selector: { alias: string } | { candidate: unknown },
-): { alias: string; parameters: IAutoMovieHumanParameters } {
-  const examples: Record<string, IAutoMovieHumanParameters> = {
-    f1,
-    f2,
-    m1,
-    m2,
-  };
-
+): { alias: string | null; parameters: IAutoMovieHumanParameters } {
+  const examples: Readonly<Record<string, IAutoMovieHumanParameters>> = { f1, f2, m1, m2 };
   if ("alias" in selector) {
     if (!Object.hasOwn(examples, selector.alias))
-      throw new Error("Unknown Human alias: " + selector.alias);
-    return {
-      alias: selector.alias,
-      parameters: examples[selector.alias]!,
-    };
+      throw new Error("Human parameter request: unknown alias " + selector.alias);
+    return { alias: selector.alias, parameters: HumanParameterAdmission.read(examples[selector.alias]!) };
   }
 
-  // Byte equality with the registry's own serialization is the admission rule.
-  const bytes: string = JSON.stringify(selector.candidate);
-  for (const [alias, parameters] of Object.entries(examples))
-    if (JSON.stringify(parameters) === bytes) return { alias, parameters };
-  throw new Error(
-    "Human parameters match no registered typed example; runtime admission of edited parameters is not implemented",
-  );
+  const parameters: IAutoMovieHumanParameters = HumanParameterAdmission.read(selector.candidate);
+  for (const [alias, example] of Object.entries(examples))
+    if (HumanParameterAdmission.same(parameters, example)) return { alias, parameters };
+  return { alias: null, parameters };
 }

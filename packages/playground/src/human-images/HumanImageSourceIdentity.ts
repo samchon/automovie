@@ -34,8 +34,9 @@ export class HumanImageSourceIdentity {
       "packages/playground/src/human-images/HumanImageArchive.ts",
       "packages/playground/src/human-images/HumanImageRegistry.ts",
       "packages/playground/src/human-images/createHumanImagePlugin.ts",
+      "packages/playground/src/human-images/HumanImageParameterRequest.ts",
     ])
-      digest.update(await fs.readFile(path.join(root, name)));
+      digest.update(await HumanImageSourceIdentity.hostFile(root, name));
     return digest.digest("hex");
   }
 
@@ -46,7 +47,7 @@ export class HumanImageSourceIdentity {
    * @evidence contracts/common.md#clear-and-simple-design One conservative inventory gives parent and child the same session invalidation policy without another module loader.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts This broader-than-consumed inventory is not an import-closure certificate, a dependency-runtime digest or an atomic filesystem snapshot.
    * @evidence contracts/common.md#meaningful-documentation Names extensions, package scope, absolute-path sensitivity and conservative invalidation.
-   * @evidence contracts/performance.md#efficient-algorithms For E directory entries, F selected files and B selected bytes, enumeration/hash work is O(E+B), sorting O(F log F), and memory holds selected paths, traversal depth and one file buffer.
+   * @evidence contracts/performance.md#efficient-algorithms For E directory entries, F selected files and B selected bytes, enumeration/hash work is O(E+B), sorting O(F log F), and memory holds selected paths, traversal depth and up to 64 file buffers from the current read window.
    * @evidence contracts/performance.md#reuse-equivalent-work Full rehashing detects byte edits without relying on mtime; completed model/frame reuse is decided separately by the session.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Path arrays, traversal frames and hash state are local to the call; no source snapshot, watcher or persistent cache survives return.
    */
@@ -62,7 +63,7 @@ export class HumanImageSourceIdentity {
         withFileTypes: true,
       })) {
         const name: string = path.join(directory, entry.name);
-        if (entry.isDirectory()) nested.push(visit(name));
+        if (entry.isDirectory() && !/^(?:node_modules|fixtures?|scratch)$/i.test(entry.name)) nested.push(visit(name));
         else if (entry.isFile() && /\.(?:ts|json)$/.test(entry.name))
           names.push(name);
       }
@@ -105,7 +106,45 @@ export class HumanImageSourceIdentity {
     return digest.digest("hex");
   }
 
-  /** Fixed worker/HTTP implementation closure, with no specimen discovery. */
+  /** Read one fixed host dependency within the checkout, bounded to 16 MiB.
+   * Real paths reject escaped links; a handle stat bounds the allocation and a
+   * second stat rejects size changes during the read. The handle always closes.
+   *
+   * @evidence contracts/common.md#principled-implementation Resolves the fixed dependency inside the checkout, stats its handle, then reads exactly the observed regular-file size and rejects changes.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps the host inventory's bounded read in its existing identity owner, independently of retired diagnostic protocols.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects escaped paths, oversized files and incomplete reads; this does not make concurrent same-size writes atomic.
+   * @evidence contracts/common.md#meaningful-documentation States the 16 MiB allocation ceiling, path boundary and handle lifetime.
+   * @evidence contracts/performance.md#efficient-algorithms Reads B observed bytes in O(B) work with one allocation of B bytes, at most 16 MiB.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each host observation reads current bytes rather than trusting an mtime cache.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned buffer belongs to the hash caller; finally closes the sole file handle on every path.
+   */
+  private static async hostFile(root: string, name: string): Promise<Buffer> {
+    const base: string = await fs.realpath(root);
+    const filename: string = await fs.realpath(path.join(root, name));
+    const relative: string = path.relative(base, filename);
+    if (relative.startsWith("..") || path.isAbsolute(relative))
+      throw new Error("Human host dependency escapes the checkout");
+    const handle: Awaited<ReturnType<typeof fs.open>> = await fs.open(filename, "r");
+    try {
+      const before: Awaited<ReturnType<typeof handle.stat>> = await handle.stat();
+      if (!before.isFile() || before.size > 16 * 1024 * 1024)
+        throw new Error("Human host dependency is not a bounded regular file");
+      const bytes: Buffer = Buffer.alloc(before.size);
+      let offset: number = 0;
+      while (offset < bytes.length) {
+        const read: Awaited<ReturnType<typeof handle.read>> = await handle.read(bytes, offset, bytes.length - offset, offset);
+        if (read.bytesRead === 0) throw new Error("Human host dependency ended during its read");
+        offset += read.bytesRead;
+      }
+      if ((await handle.stat()).size !== before.size)
+        throw new Error("Human host dependency changed during its read");
+      return bytes;
+    } finally {
+      await handle.close();
+    }
+  }
+
+  /** Fixed worker/HTTP implementation inventory, with no specimen discovery. */
   private static runtime(): string[] {
     return [
       "HumanImageSession.ts",

@@ -10,7 +10,9 @@ import { createCaptureSinkPlugin } from "./createCaptureSinkPlugin";
  * public Human images exist only on the development server with an explicit
  * alias registry. Scratch tools and generated captures never enter the file
  * watcher: Windows can lock a newly written scratch file and otherwise end
- * the whole server with EBUSY. Source changes retain normal HMR. Vite owns
+ * the whole server with EBUSY. Dedicated diagnostic hosts retain source watching
+ * but disable HMR navigation: the serialized worker explicitly reloads changed
+ * model sources, and an interactive diagnostic page refreshes explicitly. Vite owns
  * bundling, source loading and server shutdown.
  */
 export const playgroundViteConfig: UserConfig = defineConfig({
@@ -28,7 +30,7 @@ export const playgroundViteConfig: UserConfig = defineConfig({
           ? ["**/*"]
           : ["**/.tmp/**", "**/.shots/**"],
     },
-    ...(process.env.AUTOMOVIE_CAPTURE === "1" ? { hmr: false } : {}),
+    ...(process.env.AUTOMOVIE_CAPTURE === "1" || process.env.AUTOMOVIE_HUMAN_DIAGNOSTIC_GATE_ID !== undefined ? { hmr: false } : {}),
     fs: { allow: [resolve(__dirname, "../../..")] },
   },
   preview: { host: "127.0.0.1", port: 4173, strictPort: true },

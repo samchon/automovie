@@ -56,7 +56,7 @@ export function captureHumanPageFrame(
       context.key,
       descriptor,
       model.bounds,
-      selection.selected.map(
+      view.value.isolate ? [] : selection.selected.map(
         (id: string, index: number): { id: string; colour: string } => ({
           id,
           colour: selection.colours[index]!,

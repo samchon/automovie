@@ -2,6 +2,7 @@ import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { getHeapStatistics } from "node:v8";
 import { type Browser, type Page, chromium } from "playwright-core";
 
 import type { IHumanViewerPage } from "../human/IHumanViewerPage.ts";
@@ -26,16 +27,16 @@ interface IResidentModel {
  * loading of the current source and every PNG is drawn by the same page a
  * person opens, with no separate bundle or renderer.
  *
- * - `generate` admits the parameters in-page (exact equality with a registered
- *   typed example), runs `AutoMovieHuman.generate`, and writes the
+ * - `generate` validates and privately snapshots the complete parameters in-page,
+ *   runs `AutoMovieHuman.generate`, and writes the
  *   `{ parameters, model }` JSON to `<worker directory>/publication.json` with
  *   its byte count and SHA-256 for `HumanImageProcess.publication`.
  * - `render` captures one named camera, pass, curve selection and free view at
  *   the reference conditions and returns the PNG bytes, capture UTC, SHA-256
  *   and render metadata.
- * - `diagram` draws the 2D curve diagram of a curve list in the same page and
- *   returns its PNG (or SVG) bytes with SHA-256 and capture UTC; it needs no
- *   generated model.
+ * - `diagram` reevaluates BodyLaw from the exact resident model's parameters,
+ *   returning law-space PNG or SVG bytes with SHA-256 and UTC, not stored jets
+ *   or mesh measurements. The exact model key and source must match.
  *
  * The page and model are reused across frames of one model key and across
  * keys; a changed source hash navigates the tab back to the bare page so Vite serves the edited
@@ -155,12 +156,17 @@ export async function humanImageProcessEntry(): Promise<void> {
   ) => Promise<Record<string, unknown>> = async (
     command: Record<string, unknown>,
   ): Promise<Record<string, unknown>> => {
+    if (command.kind === "retire") {
+      closing = true;
+      await page.evaluate(async (): Promise<void> => { await (window as HumanWindow).__automovieHuman?.dispose(); });
+      await page.close(); await browser.close(); resident = undefined; loadedSource = undefined;
+      return { retired: true, scope: "Owned page/context/browser disposed through normal APIs; host remains available" };
+    }
     const source: string = String(command.source);
     const key: string = String(command.key);
 
     if (command.kind === "generate") {
       const started: number = performance.now();
-      resident = undefined;
       const loaded: IHumanViewerPage.ILoaded = await generate(
         source,
         command.value,
@@ -179,6 +185,7 @@ export async function humanImageProcessEntry(): Promise<void> {
       // construction parts separately, over their canonical JSON bytes.
       const parsed: {
         model: { parts: Array<{ id: string }> };
+        parameters: unknown;
       } = JSON.parse(json);
       const modelSha256: string = digest(
         Buffer.from(JSON.stringify(parsed.model)),
@@ -207,6 +214,7 @@ export async function humanImageProcessEntry(): Promise<void> {
         sha256,
         receipt: {
           kind: "human-generation",
+          actualParametersSha256: digest(Buffer.from(JSON.stringify(parsed.parameters))),
           key,
           sourceSha256: source,
           inputSha256: command.inputSha256,
@@ -216,6 +224,7 @@ export async function humanImageProcessEntry(): Promise<void> {
           generatedUtc: new Date().toISOString(),
           generateMilliseconds: loaded.generateMilliseconds,
           workerMilliseconds: performance.now() - started,
+          resources: { execArgv: process.execArgv, nodeOptions: process.env.NODE_OPTIONS ?? null, heapSizeLimitBytes: getHeapStatistics().heap_size_limit, peakRssKiB: process.resourceUsage().maxRSS },
           parts: loaded.parts,
           bounds: loaded.bounds,
           construction: loaded.construction,
@@ -316,17 +325,19 @@ export async function humanImageProcessEntry(): Promise<void> {
       };
     }
     if (command.kind === "diagram") {
-      // Diagrams need no generated model, only the current modules.
-      // A render later regenerates the resident model if this reload lost it.
-      if (loadedSource !== source) {
-        await page.goto(url, { waitUntil: "load", timeout: 120000 });
-        await ready();
-        loadedSource = source;
+      if (resident === undefined || resident.key !== command.modelKey || resident.source !== source)
+        throw new Error("Human diagram requested without its exact actual generation");
+      const generation: number = await page.evaluate(
+        (): number => (window as HumanWindow).__automovieHuman?.snapshot().generation ?? 0,
+      );
+      if (generation !== resident.generation || loadedSource !== source) {
+        const loaded: IHumanViewerPage.ILoaded = await generate(source, resident.value);
+        resident.generation = loaded.generation;
       }
       const format: "svg" | "png" = command.format === "svg" ? "svg" : "png";
       const drawn: string = await page.evaluate(
         ([alias, curves, kind]: [
-          string,
+          string | null,
           string,
           "svg" | "png",
         ]): Promise<string> =>
@@ -335,8 +346,8 @@ export async function humanImageProcessEntry(): Promise<void> {
             curves,
             kind,
           ),
-        [String(command.alias), String(command.curves), format] as [
-          string,
+        [command.alias === null ? null : String(command.alias), String(command.curves), format] as [
+          string | null,
           string,
           "svg" | "png",
         ],
@@ -354,6 +365,7 @@ export async function humanImageProcessEntry(): Promise<void> {
         key,
         source,
         bytes,
+        modelKey: resident.key,
         sha256: digest(bytes),
         capturedUtc: new Date().toISOString(),
       };
@@ -387,7 +399,7 @@ export async function humanImageProcessEntry(): Promise<void> {
         }),
       )
       .then((reply: Record<string, unknown>): void => {
-        process.send?.(reply);
+        process.send?.(reply, (): void => { if ("kind" in message && message.kind === "retire" && reply.retired === true) { process.disconnect(); process.exit(0); } });
       });
   });
   process.send({ kind: "ready" });
