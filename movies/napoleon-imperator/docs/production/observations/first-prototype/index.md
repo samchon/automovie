@@ -7,3 +7,5 @@ The fixed `public/film.json` and take index are excluded from Git text conversio
 `viewer-first.png` is an earlier initial-display observation. Its runtime source identity was not retained, so it does not belong to the later frozen baseline and cannot verify it. Preserve that limitation when citing the image.
 
 The [independent review](../../episode-one-review-1.md) rejected episode completion and identifies the repairs needed. A completed capture transport and passing source checks do not change that verdict. The commit containing this record preserves the reviewed implementation before its next repair batch.
+
+`native-video-observations.json` and `native-video-end.png` record a subsequent separate Chrome video-element check of the same baseline's full MP4. Metadata, decoded playback, pause holding and an end seek operated. The screenshot was opened and inspected; the coordinator did not listen or watch the whole episode continuously. That transport observation preserves the independent semantic rejection.

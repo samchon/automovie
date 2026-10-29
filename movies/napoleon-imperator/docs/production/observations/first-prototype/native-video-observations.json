@@ -1,0 +1,25 @@
+{
+  "source": "http://127.0.0.1:5187/outputs/episode-one/runs/2026-10-29T16-45-38-792Z-3ebc0a27c321/the-road-gives-way.mp4",
+  "runtimeIdentity": "3ebc0a27c32116e86a8b9f2799f87b2c7f1ee01bafe8d1f8d5a6b9568c9b3422",
+  "metadata": {
+    "width": 1280,
+    "height": 720,
+    "duration": 379.041667,
+    "readyState": 4,
+    "error": null
+  },
+  "played": {
+    "time": 0.514277,
+    "paused": true,
+    "decoded": 16
+  },
+  "pauseHeld": true,
+  "end": {
+    "time": 378.941667,
+    "paused": true,
+    "readyState": 4
+  },
+  "errors": [],
+  "audition": "unperformed",
+  "semanticAcceptance": "rejected by independent episode review 1"
+}
