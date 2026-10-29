@@ -5,13 +5,13 @@
 
 Section labels for producers.
 
-*Daemangniji* final audiovisual script · Part 1
+*The Great Magnate* final audiovisual script · Part 1
 
 Names before dialogue indicate speech heard in the scene; historian and inner voices are for the audience alone. For off-screen speech heard in the scene, identify the actual listener. Dates without other direction are on-screen text for the audience. Bodies and possessions carry their state into subsequent action. Natural light by day and lamps by night are the default; weather used causally is specified in the scene.
 
 [Event parent](../../../body/treatments/001-six-roads.md#report-at-court) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t001-report-at-court)
 
-Pyongyang council hall, day. On-screen text: “Late spring 661.” Gaesomun opens a report from Liaodong on the table. Once the paper stops moving, he speaks to the king. Adult King Bojang sits at the head, Namsaeng beside him, Namgeon and Namsan behind. On-screen text: “Namsaeng · Gaesomun's eldest son, mangniji.”
+Pyongyang council hall, day. On-screen text: “Late spring 661.” Gaesomun opens a report from Liaodong on the table. Once the paper stops moving, he speaks to the king. Adult King Bojang sits at the head. Namsaeng stands beside his father Gaesomun, with Namgeon and Namsan behind them. On-screen text: “Namsaeng · Gaesomun's eldest son, mangniji.”
 
 **GAESOMUN**　Baekje's capital has fallen, but fortresses recovered by the restoration army remain. This Liaodong report says Tang has appointed commanders for six fronts and is preparing thirty-five armies.
 
@@ -65,15 +65,25 @@ Namsaeng takes the document to the doorway. Go Hwi and Gaesomun face one another
 
 [Event parent](../../../body/treatments/001-six-roads.md#unheard-address) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t001-unheard-address)
 
-That night, Yeon office. Gaesomun sits with the Liaodong report beside a lamp. The door closes. Close on his face looking at the empty seat opposite; room sounds soften. Only the audience hears his thoughts; his lips do not move.
+Night, the military office of the Yeon residence in Pyongyang. Caption: “Late spring 661 · after the council.” Lamplight falls across the Liaodong report. Gaesomun draws it closer, then stops reading. His mouth remains closed.
 
-**GAESOMUN (INNER VOICE)**　Your Majesty, this task is mine now. I understand why you held on so long. But I cannot wait the same way. I cannot let them take the next spring too.
+**GAESOMUN (INNER VOICE)**　Your Majesty.
 
-Lamplight falls on the empty seat. As his inner voice ends, room sound returns.
+Stay with the living man at his desk.
 
-**HISTORIAN**　The king he addressed was the man he had killed with his own hand.
+**HISTORIAN**　He was addressing Go Geonmu, King Yeongnyu. Gaesomun had killed him with his own hands.
 
-The view moves from the report by the lamp to the dark doorway. A newborn's cry enters over the darkness first.
+Gaesomun's gaze lifts beyond the report.
+
+**GAESOMUN (INNER VOICE)**　I used to wonder why you hesitated. They are afraid to lose the army. So am I.
+
+He draws breath without speaking aloud.
+
+**GAESOMUN (INNER VOICE)**　You had to answer for all of it. I understand that now. I will still take them out to fight.
+
+Hold through his next breath. His eyes return to the report, and the small sounds of his work resume. End the office scene.
+
+Cut to the same household in 614. The newborn Gaesomun is visible before his first cry is heard.
 
 ## A house counting a birth and a man who has not returned {#t002-birth-after-war}
 
@@ -123,9 +133,15 @@ As the historian ends, the room's voices enter. Both adults can be heard from th
 
 **TAEJO**　We'll pay more once they've all assembled.
 
-**SEOGU**　Since we cannot know that future, we must also count the hands we have now.
+**SEOGU**　They say the Central Plain has only a third of its former people. His Majesty asks for time to restore our households, too.
 
-As Seogu tries to continue, Gaesomun outside moves closer to his father's voice. He does not cross the threshold.
+**TAEJO**　And let theirs recover first?
+
+Seogu tries to answer.
+
+**HISTORIAN**　The third was a belief circulating then, not a population count we can confirm.
+
+Outside, Gaesomun moves closer to his father's voice. He does not cross the threshold.
 
 ## The boy with a bow and the boy who hits {#t003-shared-bow}
 
@@ -136,6 +152,12 @@ On-screen text: “Around 620, gyeongdang.” Gaesomun holds a bow brought from 
 **GAESOMUN**　I'd shoot farther with mine.
 
 **EULBO**　I hit it with this one.
+
+The shared bow passes to another child. Its string trembles under the child's effort; the arrow drops before the target.
+
+**A WAITING CHILD**　Can't even pull it back?
+
+Laughter follows the child returning the bow. Buru calls the next name. Gaesomun steps forward with his own.
 
 At the gyeongdang as the sun falls, the shooting place is empty, but Eulbo is absent. Waiting, Gaesomun puts down his bow. Eulbo enters after unloading cargo.
 
@@ -173,7 +195,7 @@ Buru imitates a cavalry charge with his hand. As the hand missing two fingers th
 
 Gaesomun lowers himself like a leading rider. The children follow; seeing them, Buru speaks louder. Leave laughter and stamping as the historian's low voice enters.
 
-**HISTORIAN**　Two million was the threat Sui proclaimed, not a confirmed count of those mobilized. Even from Buru, who experienced the ambush, five hundred cavalry now charged first. Naval troops disordered by plunder, the outer-fortress ambush, and Zhou Fashang's force left with the ships vanished from the heroic story.
+**HISTORIAN**　The record lists 1,133,800 and says Sui proclaimed two million. A figure in the record is not a count we can independently confirm; the children heard the larger number. Even from Buru, who experienced the ambush, five hundred cavalry now charged first. Naval troops disordered by plunder, the outer-fortress ambush, and Zhou Fashang's force left with the ships vanished from the heroic story.
 
 As the commentary ends, play sounds return to the foreground. Gaesomun tells another child to move back and takes the lead himself. The child who watched Buru's hand looks again only at the front.
 
@@ -181,17 +203,19 @@ As the commentary ends, play sounds return to the foreground. Gaesomun tells ano
 
 [Event parent](../../../body/treatments/003-gyeongdang.md#winning-and-following) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t003-winning-and-following)
 
-On-screen text: “Around 626.” Gaesomun arrives first and looks back. The children behind are scattered. Buru does not praise him for arriving first; he points toward the last child. They try again. Gaesomun starts to step, then checks behind. Once the scattered children align, he runs too. This time the formation arrives together. That evening at home, Gaesomun reports his victory. When he finishes, Taejo asks:
+On-screen text: “Around 626.” The last child labors toward the end of the course. Ahead, Gaesomun has already stopped; Buru points him back toward the scattered group. Their next attempt stays with that last runner. This time Gaesomun waits within sight until the children have gathered, then runs with them across the finish.
 
-**TAEJO**　Can you entrust your rear to the children you beat today next time?
+At home that evening, Gaesomun names the children he beat. Taejo waits until the account ends.
 
-**GAESOMUN**　I'd win again if we competed.
+**TAEJO**　Would you trust them behind you next time?
 
-Taejo looks at his son. Beside them, Mother asks about Eulbo's household; Gaesomun begins a training story, then stops.
+**GAESOMUN**　I'd beat them again.
 
-**MOTHER**　Who pulls their cart?
+Mother asks who pulls Eulbo's cart. Gaesomun begins describing the contest instead; she waits until he stops.
 
-No answer. Jeongto goes toward the children who lost. On-screen text follows him: “Jeongto · Gaesomun's younger brother.” Unable to call him back, Gaesomun looks down at the hands with which he finished training.
+**MOTHER**　At his house. Who pulls it?
+
+He has no answer. Outside, Jeongto joins the children who lost. On-screen text identifies him: “Jeongto · Gaesomun's younger brother.” Gaesomun stays by the doorway as his brother goes to them.
 
 ## A lesson whose answer takes longer {#t004-explain-to-others}
 
@@ -247,9 +271,13 @@ Gaesomun turns the report toward his father. Another remains before Seogu's hand
 
 [Event parent](../../../body/treatments/004-first-command.md#night-shortcut) · [Scene parent](../../../body/scripts/001-the-right-to-command/001-people-to-command.md#t004-night-shortcut)
 
-This is the first family-soldier training Taejo permits. The task is to reach a stone pile in the northern fields first. Gaesomun sends the lead along a stream shortcut at night instead of the daytime main road.
+On-screen text: “Spring 629 · first household-soldier training permitted by Taejo.” Gaesomun points the soldiers toward the stream.
 
-On-screen text: “Spring 629.” Night training, stream shortcut. Only when the person ahead moves aside can those behind see the stones' outlines. Gaesomun gestures toward a stone he crossed first.
+**GAESOMUN**　First to the stone pile in the north field. We take this way tonight.
+
+He leads them off the main road used by day.
+
+Night training, stream shortcut. Only when the person ahead moves aside can those behind see the stones' outlines. Gaesomun gestures toward a stone he crossed first.
 
 **OLDER SOLDIER**　We can't see that stone from behind.
 
@@ -275,11 +303,11 @@ Still lying down, the soldier looks toward his left foot.
 
 **SOLDIER**　I don't think I'll be able to walk when it's time for the fields.
 
-**GAESOMUN**　Until then, rest...
+**GAESOMUN**　The training was to get us there together. If you rest until—
 
 **SOLDIER**　The field work remains even if I rest. I can't go out for day work either. Those wages bought our food.
 
-The soldier looks at Gaesomun, not his foot. Gaesomun swallows the training explanation he was about to add. He rises. His feet turn from a direct path to the threshold and move around the reclining man.
+The soldier looks at Gaesomun, not his foot. Gaesomun starts to answer, then leaves the silence to him. Only after the soldier looks away does Gaesomun rise. His feet turn from a direct path to the threshold and move around the reclining man.
 
 In the office, Gaesomun reports training and what he heard at the soldier's house to Taejo.
 
@@ -387,6 +415,6 @@ Connect Gaesomun entering the office and Jeongto outside its door in one flow. P
 
 Mother looks toward the office door, then returns to Aran.
 
-**HISTORIAN**　Twenty years after birth, having gained permission to lead the household, he also received military duties from the king. He still wanted to see the king he admired lead in battle. He had no intention yet of bringing him down.
+**HISTORIAN**　20 years after birth, having gained permission to lead the household, he also received military duties from the king. He still wanted to see the king he admired lead in battle. He had no intention yet of bringing him down.
 
 The baby's cry stops. A voice calling the new family head remains from the office.

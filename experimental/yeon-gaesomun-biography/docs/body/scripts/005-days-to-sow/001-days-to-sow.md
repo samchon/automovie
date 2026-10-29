@@ -3,6 +3,8 @@
 
 ## Dividing those who can return {#t030-return-and-repair}
 
+[Event parent](../../treatments/030-reconstruction-begins.md#return-and-repair)
+
 Outside a work yard in Liaodong and Gungnaeseong after 662, day. Namsaeng receives separate reports on people returning home and defenders remaining. Food and seed loads are divided; Seokbu points out the route for receiving tools and livestock.
 
 NAMSAENG: Keep food to eat separate from seed to plant. Leave troops to guard this approach before sending people home.
@@ -16,6 +18,8 @@ GAESOMUN: Don't ask me for permission again at every step. Just report together 
 Instead of a report of achievements raising his own name, Namsaeng checks households returning and defenders remaining again. Someone going home hands a load to someone staying on defense.
 
 ## Different claims from the same victory {#t030-demands-after-victory}
+
+[Event parent](../../treatments/030-reconstruction-begins.md#demands-after-victory)
 
 Inside the Pyongyang military office, day. Namgeon and Namsan place other regions' demands before Namsaeng.
 
@@ -35,9 +39,11 @@ NAMGEON: That battle—
 
 NAMSAENG: I'm not asking you to do work you don't know. Please carry out the duties assigned.
 
-Namgeon cannot ask again about his own experience. Namsan looks toward the palace as though seeking a larger place where demands will be heard. King Bojang does not open a public clash while Gaesomun lives.
+Namgeon begins again, but Namsaeng has already called for the next report. Namsan looks toward the palace as though seeking a larger place where demands will be heard. King Bojang does not open a public clash while Gaesomun lives.
 
 ## A quick son and a father who waits {#t030-future-for-heonchung}
+
+[Event parent](../../treatments/030-reconstruction-begins.md#future-for-heonchung)
 
 Outside a regional work area, day. Heonchung waits behind while Namsaeng hears a resident out. When the resident leaves, he steps forward.
 
@@ -53,15 +59,17 @@ Gaesomun observes father and son's different pace and receives Namsaeng's recove
 
 ## Defeat reaches a victorious country {#t031-baekgang-report-arrives}
 
+[Event parent](../../treatments/031-southern-victory-and-loss.md#baekgang-report-arrives)
+
 Inside the Pyongyang military office in autumn 663, day. Gaesomun's and Namsaeng's eyes follow the dates in the report. Narration and document inserts connect it; do not open Baekgang as a new battlefield.
 
-REPORT VOICE: In June Buyeo Pung killed Boksin. In August they lost the naval battle at Baekgang and lost their land strongholds too. The leading ships fell into disorder, and sending more troops in behind increased losses.
+REPORT VOICE: In the sixth lunar month Buyeo Pung killed Boksin. In the eighth lunar month they lost the naval battle at Baekgang and lost their land strongholds too. The leading ships fell into disorder, and sending more troops in behind increased losses.
 
 NAMSAENG: They continued the relief effort even after hearing Goguryeo survived?
 
 REPORT VOICE: Forces were already assembled, and Juryuseong faced a crisis.
 
-HISTORIAN (V.O.): Wa's main support of about thirty thousand differs from the recorded twenty-seven thousand dispatched in March. They cannot all be counted on one front at Baekgang.
+HISTORIAN (V.O.): Wa's main support of about thirty thousand differs from the recorded twenty-seven thousand dispatched in the third lunar month. They cannot all be counted on one front at Baekgang.
 
 REPORT VOICE: Buyeo Pung fled to this country. After Juryuseong surrendered, Baekje people discussed a route away with the Wa side and told their families they intended to leave.
 
@@ -73,9 +81,11 @@ Namsaeng points to the gap in the south and draws the next reconstruction report
 
 ## A policy ends, but pressure does not {#t031-different-readings-of-the-south}
 
+[Event parent](../../treatments/031-southern-victory-and-loss.md#different-readings-of-the-south)
+
 That same autumn, a separate report reaches Pyongyang. Gaesomun checks the date.
 
-GAESOMUN: On the twenty-seventh of August, they abolished shipbuilding and stopped the war.
+GAESOMUN: On the twenty-seventh day of the eighth lunar month, they abolished shipbuilding and stopped the war.
 
 He receives Tang's cessation of conquest as an achievement. He does not call it the same decision as Baekgang's defeat.
 
@@ -94,6 +104,8 @@ GAESOMUN: Do as Namsaeng decided. Begin with recovery.
 At the place where he was credited for victory, Namgeon sees his demand set aside again. Namsan withdraws without dropping the center's demands.
 
 ## A day saved before construction {#t032-work-yields-days-to-sowing}
+
+[Event parent](../../treatments/032-days-left-for-sowing.md#work-yields-days-to-sowing)
 
 Outside an eastern work site from 664 to early 665, day. Miran and Nuri stand before Nyuil. Miran separately explains that returned injured people cannot work as before and that hands are needed for fields, streams, and forest.
 
@@ -117,6 +129,8 @@ NYUIL: This is all we decided this time. We'll discuss the next share again.
 
 ## The same reconstruction costs regions differently {#t032-unequal-regional-costs}
 
+[Event parent](../../treatments/032-days-left-for-sowing.md#unequal-regional-costs)
+
 Outside on a recovery road in Liaodong and Gungnaeseong, day. Seokbu passes along a repaired section and guides the next workers. A returned household member approaches Namsaeng.
 
 HOUSEHOLD MEMBER: The road was connected, so we came home. We've taken up work at home again.
@@ -127,11 +141,11 @@ CARRIER: Do we go on the next transport too? Those households came back, but our
 
 Namsaeng stops leaving and turns toward the carrier.
 
-NAMSAENG: You mean you must come out again after moving this load?
+NAMSAENG: Show me the next transport list.
 
-CARRIER: Yes. The work waiting at home is still there too.
+The carrier gives the list to him without setting down the load. Namsaeng compares the same household names on the two assignments.
 
-Namsaeng stops accepting the welcoming household's words and listens further to the person unable to put down the load.
+Namsaeng stays beside the carrier. The returning household waits while he asks about the next assignment.
 
 Move to demands in Pyongyang and the south. A report that defense was deferred after sending food and materials carries the caption “Seventh lunar month, 664.”
 
@@ -147,25 +161,33 @@ Central demands remain from people who have not received their materials back. T
 
 ## Another door opens to the younger brothers {#t032-competence-strengthens-opposition}
 
-Inside the Pyongyang military office, day. Namgeon asks his brother, citing his experience regrouping cavalry on a narrow front.
+[Event parent](../../treatments/032-days-left-for-sowing.md#competence-strengthens-opposition)
 
-NAMGEON: I pulled cavalry out and moved it when danger came. I know when to use troops. I know you bought time at the Yalu too. But didn't you lose in the end? Must we still stop because of that?
+Inside the Pyongyang military office, day. Namgeon lays his cavalry assignment before Namsaeng.
 
-NAMSAENG: You know what the delay achieved. But first the households that feed those troops must survive.
+NAMGEON: At that narrow entrance I pulled the horses clear so the infantry could go in. The month you gained at the Yalu mattered, but they crossed in the end. Give me the force to use my judgment again.
 
-NAMGEON: We bore that cost too.
+NAMSAENG: I need you commanding those men. Keep the assigned force; there will be no new expedition.
 
-NAMSAN: Working with the royal house would mean less coercion than in Father's time. I'm not asking to abandon our family's authority.
+NAMSAN: And if the royal house shares responsibility? I can bring its demands here before they become another order imposed on us.
 
-NAMSAENG: Keep doing your work. The decision not to expand foreign expeditions stands.
+NAMSAENG: Bring me what is needed for your work. I'll decide what we can provide.
 
-After the two withdraw, inside the palace, day. Bojang recognizes Namsan's skill at coordination and Namgeon's command.
+Namsan leaves with the document he brought still unanswered. Namgeon takes back his assignment.
 
-BOJANG: More than one man has the ability to govern this country.
+In the palace, Bojang asks about the cavalry decision. He listens through Namgeon's account, then turns to Namsan.
 
-Namsan lingers over the opening those words offer. No one has ordered a coup yet.
+BOJANG: Bring the matters that are waiting between my house and yours. I will hear them here.
+
+NAMSAN: I can keep those requests moving, Your Majesty.
+
+BOJANG: There is more than one man capable of serving this country.
+
+Namgeon leaves for his troops. Namsan stays to arrange the next royal audience. No coup has been ordered.
 
 ## A father pleased to hear construction was delayed {#t033-yeon-accepts-the-restoration-plan}
+
+[Event parent](../../treatments/033-the-fathers-finished-work.md#yeon-accepts-the-restoration-plan)
 
 Inside the Yeon residence in spring 665, day. Weakened Gaesomun sits and receives Namsaeng's report. Remain at the height of a close conversation within the room.
 
@@ -189,6 +211,8 @@ The seat opposite is empty. Gaesomun looks down at Namsaeng's report. A smile re
 
 ## What bundled branches do not decide {#t033-unity-advice-and-death}
 
+[Event parent](../../treatments/033-the-fathers-finished-work.md#unity-advice-and-death)
+
 Inside the residence that spring. Daylight rests near the bed. Three sons sit before their father. As Gaesomun divides work to hand over, he draws one final decision back toward himself.
 
 GAESOMUN: I wanted to live longer and see the country you make.
@@ -211,6 +235,8 @@ No answer comes. The three sons remain together. The next day, the first militar
 
 ## Leaving the center to meet people {#t034-restoration-requires-absence}
 
+[Event parent](../../treatments/034-one-coup-three-ambitions.md#restoration-requires-absence)
+
 Outside on a regional tour in 665, day. Namsaeng's attendants and baggage move. His next departure is delayed while he discusses priorities with residents in a village where he stays. He cannot receive Pyongyang's answer on the spot.
 
 NAMSAENG: If we send reports back without hearing local conditions, the same thing will happen again. Tell the next village we'll be late.
@@ -220,6 +246,8 @@ HISTORIAN (V.O.): Between Gungnaeseong and Yodongseong, one way normally took ni
 At the center Namgeon handles military business and Namsan maintains royal and noble contacts. Both give orders and receive reports under duties their brother delegated. As the year turns to “666,” palace discussions have not yet reached Namsaeng.
 
 ## Three visions under one royal order {#t034-royal-command-enables-removal}
+
+[Event parent](../../treatments/034-one-coup-three-ambitions.md#royal-command-enables-removal)
 
 Inside the palace in 666, day. Bojang, Namsan, and Namgeon sit over the same order. Military sounds outside the door are distant and muffled.
 
@@ -240,6 +268,8 @@ HISTORIAN (V.O.): Namsan thought they could control the power the king sought to
 The order goes out. What reaches Namsaeng is troubling activity at the center, not the whole bargain.
 
 ## Detained where he waited {#t035-detained-envoy-establishes-danger}
+
+[Event parent](../../treatments/035-the-envoy-does-not-return.md#detained-envoy-establishes-danger)
 
 Inside Namsan's working residence, day. Dugyeom identifies his family's insignia and business and waits. From seated eye level, see the inner door that does not open and the arriving seizure commander.
 
@@ -265,6 +295,8 @@ Keeping that limit, Namsaeng can no longer trust a safe return.
 
 ## Refuge gained by refusing a royal order {#t035-summons-refused-and-gungnae-entered}
 
+[Event parent](../../treatments/035-the-envoy-does-not-return.md#summons-refused-and-gungnae-entered)
+
 Inside a regional meeting room, day. The royal summons lies before Namsaeng beside the report of Dugyeom's detention.
 
 NAMSAENG: If I go in, there's no guarantee I'll come back alive. Refuse, and they'll call it disobedience. Even so, I can't go.
@@ -279,6 +311,8 @@ Namsaeng accepts support gathered for different reasons. He does not yet request
 
 ## A royal order enters the south gate {#t036-damsuk-demands-seal-and-separation}
 
+[Event parent](../../treatments/036-the-seal-and-the-house-guards.md#damsuk-demands-seal-and-separation)
+
 At and inside the south gate of the Yeon residence in Pyongyang, day. See the guard-rotation yard from a height between the southern leading troops and northern family guards. Roughly 200 of Damseok's force enter; the rest hold the outer wall and alley. The whole thousand are not visible in one yard.
 
 DAMSEOK: By royal order and Lord Namgeon's command: surrender the seal and separate the guards. The young lord will be held apart.
@@ -292,6 +326,8 @@ DAMSEOK: The daemangniji refused the summons. We're taking this residence. Lay d
 Soldiers hold the exits and gate. Damseok does not claim he has gained command of the whole country. Heonchung sees the actual force trying to separate seal and people.
 
 ## A call to wait sounds like abandonment {#t036-heonchung-rejects-waiting}
+
+[Event parent](../../treatments/036-the-seal-and-the-house-guards.md#heonchung-rejects-waiting)
 
 North side of the same courtyard, day. Durim blocks Heonchung and speaks low. The view remains in the yard where seizure troops and guards can both be seen.
 
@@ -311,6 +347,8 @@ Blades of soldiers engaged at close quarters cannot all stop at the shout. In th
 
 ## The blade arrives before the order {#t037-wounded-heonchung-carried-inside}
 
+[Event parent](../../treatments/037-three-days-and-three-reports.md#wounded-heonchung-carried-inside)
+
 Fighting in the same courtyard, day. A leading soldier deeply cuts Heonchung's left flank. Do not insert the viewpoint of an assassin who recognized and chose him. The soldier withdraws when the call to capture alive sounds again. Heonchung can no longer support himself.
 
 DURIM: Get him inside. Two support him! Clear the front!
@@ -324,6 +362,8 @@ DAMSEOK: Don't go farther. Report the wound and await orders.
 Word goes to Namgeon. The seizure troops surrounding the house remain. Inside, Seokyeon's instructions to stop the blood are heard.
 
 ## Three days the reduced bleeding did not promise {#t037-treatment-fails-on-third-day}
+
+[Event parent](../../treatments/037-three-days-and-three-reports.md#treatment-fails-on-third-day)
 
 Inside the treatment room, day. Keep room for two caregivers just inside the door. Seokyeon washes the wound and presses it with cloth. Once treatment begins, the four guards withdraw to the door and courtyard perimeter.
 
@@ -348,6 +388,8 @@ NAMGEON: I said to take him alive and hold him apart.
 Namsan too cannot continue speaking at the office where he receives the report. Back in the treatment room, Seokyeon and the guards outside remain.
 
 ## Three reports that do not arrive on one day {#t037-reports-close-the-negotiating-path}
+
+[Event parent](../../treatments/037-three-days-and-three-reports.md#reports-close-the-negotiating-path)
 
 Inside the Gungnaeseong meeting place, day. Namsaeng receives the first report of injury. The audience has seen the death in the treatment room, but he still waits for news of whether his son may live.
 

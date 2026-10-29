@@ -80,19 +80,19 @@ Show strength and social cohesion leading to actual operations, and changes on o
 
 - [Lee Min-su, “The 661 Goguryeo–Tang War,” 2022](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049): page 209 presents 35 marching armies and 350,000 attacking in three directions, and reconstructs Goguryeo's fortress defense, Yalu supply interdiction, ties with nomadic forces, switch to offense when the enemy tired, and pursuit. Individual army allocations require separate reconstruction.
 - Battle of Sarhu, 1619: Nurhaci defeated the four routes of the Ming–Joseon coalition one at a time over five days. Use only as a structural reference when settings designs the rhythm and decisions of the sparsely recorded Goguryeo operation; do not introduce it as an analogy in the text.
-- [Samguk Sagi notes on Boksin's October 660 and April 661 requests for relief](https://db.history.go.kr/item/compareViewer.do?levelId=sg_028r_0020_0390), [Nihon Shoki on dispatch of relief to Baekje in August 661](https://db.history.go.kr/common/compareViewer.do?levelId=jm_001r_0240_0020&type=ancient), [the March 663 dispatch of 27,000 to attack Silla](https://db.history.go.kr/item/compareViewer.do?levelId=jm_001_0240_0160): show continuing Wa support and offense, but do not prove the leaders' 661 motives.
+- [Samguk Sagi notes on Boksin's requests for relief in the tenth lunar month of 660 and fourth lunar month of 661](https://db.history.go.kr/item/compareViewer.do?levelId=sg_028r_0020_0390), [Nihon Shoki on dispatch of relief to Baekje in the eighth lunar month of 661](https://db.history.go.kr/common/compareViewer.do?levelId=jm_001r_0240_0020&type=ancient), [the dispatch of 27,000 in the third lunar month of 663 to attack Silla](https://db.history.go.kr/item/compareViewer.do?levelId=jm_001_0240_0160): show continuing Wa support and offense, but do not prove the leaders' 661 motives.
 
 ## The second war and what did not go to plan {#second-war-course}
 
 Reconstruct the second war in the following stages in line with records and research. Dates are lunar; settings determines details and force figures by record.
 
 1. In autumn 661 Namsaeng delays Qibi Heli at the Yalu and cuts supply to Tang before Pyongyang, but loses the final battle after Qibi crosses on an early freeze.
-2. In late October 661 Gaesomun drives cavalry to strike the Liaodong armies, but Buyeo and Liaodong forces depart first because of the Tiele rebellion, frustrating him. He joins forces from the Sinseong area to defeat Zheng Mingzhen's isolated Nufang army.
+2. Late in the tenth lunar month of 661 Gaesomun drives cavalry to strike the Liaodong armies, but Buyeo and Liaodong forces depart first because of the Tiele rebellion, frustrating him. He joins forces from the Sinseong area to defeat Zheng Mingzhen's isolated Nufang army.
 3. Khitan aligned with Goguryeo try to block Ashina Zhong's withdrawal and lose; Goguryeo troops do not fight directly in that battle.
-4. In December 661 the Pyongyang garrison captures two Tang strongpoints but cannot attack the rest. The besiegers, cut off from supplies, wither in severe cold. Gaesomun's main force has not yet arrived.
-5. In January 662 Gaesomun arrives at Pyongyang with the mobile force victorious in Liaodong and joins the fortress troops.
-6. In February 662 he first breaks Ren Yaxiang's more weakly defended Paegang camp, then destroys Pang Xiaotai's Okjeo army at Sasu with its retreat cut off.
-7. Meanwhile Su Dingfang's army, revived by Kim Yusin's provisions delivered in early February, lifts the siege after Sasu and withdraws alive.
+4. In the twelfth lunar month of 661 the Pyongyang garrison captures two Tang strongpoints but cannot attack the rest. The besiegers, cut off from supplies, wither in severe cold. Gaesomun's main force has not yet arrived.
+5. In the first lunar month of 662 Gaesomun arrives at Pyongyang with the mobile force victorious in Liaodong and joins the fortress troops.
+6. In the second lunar month of 662 he first breaks Ren Yaxiang's more weakly defended Paegang camp, then destroys Pang Xiaotai's Okjeo army at Sasu with its retreat cut off.
+7. Meanwhile Su Dingfang's army, revived by Kim Yusin's provisions delivered early in the second lunar month, lifts the siege after Sasu and withdraws alive.
 8. Goguryeo's pursuers of Kim Yusin are counterattacked and defeated at the Imjin River.
 
 Of six armies, three are broken ([the destruction of three armies](#three-armies-and-abandoned-conquest)); the Pyongyang force withdraws alive and heavily damaged, while Liaodong and Buyeo depart for Tang's own reasons. Include two divergences from Gaesomun's plan: the frustration in Liaodong removes enemies he meant to defeat, and Kim Yusin's provisions save Su Dingfang's starving army and deny complete victory. Both are external variables he could not prevent.
@@ -101,11 +101,11 @@ Treat the nature of records as part of the course. Most surviving accounts come 
 
 Show both how a difficult decision was achieved and where it diverged, leaving victory bitter rather than complete.
 
-- [Zizhi Tongjian, volume 200](https://zh.wikisource.org/wiki/資治通鑑/卷200): records Qibi Heli's claim to have beheaded 30,000 at the Yalu and withdrawal by edict, Tiele rebellion and Xiao Siye's diversion to Seonak, Ren Yaxiang's death in camp in February 662 and Pang Xiaotai's death with 13 sons four days later, Su Dingfang lifting the siege and returning in heavy snow, and Zheng Rentai's Tiele expedition with barely 800 soldiers remaining.
+- [Zizhi Tongjian, volume 200](https://zh.wikisource.org/wiki/資治通鑑/卷200): records Qibi Heli's claim to have beheaded 30,000 at the Yalu and withdrawal by edict, Tiele rebellion and Xiao Siye's diversion to Seonak, Ren Yaxiang's death in camp in the second lunar month of 662 and Pang Xiaotai's death with 13 sons four days later, Su Dingfang lifting the siege and returning in heavy snow, and Zheng Rentai's Tiele expedition with barely 800 soldiers remaining.
 - [Old Book of Tang, volume 199, first part, account of Goguryeo](https://zh.wikisource.org/wiki/舊唐書/卷199上): says only that Ren Yaxiang, Su Dingfang, and Qibi Heli all returned without great achievement.
 - [Old Book of Tang, volume 83](https://zh.wikisource.org/wiki/舊唐書/卷83): says Zheng Mingzhen died in 662 and received posthumous office and the name Lie, without circumstances.
 - [Lee Min-su, “The 661 Goguryeo–Tang War,” 2022](https://journal.kci.go.kr/imhc/archive/articlePdf?artiId=ART002819049): infers Goguryeo's counterattack on Zheng Mingzhen's force from indirect wording in Yang Sixian's epitaph and introduces Khitan alliance and defeat in Ashina Zhong's inscription.
-- [Lee Min-su, “Reconstructing Goguryeo's Battles at Pyongyang and the Imjin River in 662,” 2022](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002869455): argues forces victorious in Liaodong joined the Pyongyang garrison for a February offensive, defeated Ren and Pang in turn, and lost pursuit at the Imjin.
+- [Lee Min-su, “Reconstructing Goguryeo's Battles at Pyongyang and the Imjin River in 662,” 2022](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002869455): argues forces victorious in Liaodong joined the Pyongyang garrison for an offensive in the second lunar month, defeated Ren and Pang in turn, and lost pursuit at the Imjin.
 - [Lee Sang-hun, “The Course of the Battle of Sasu during the Second Goguryeo–Tang War (661–662)”](https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART002927114): argues Tang besieged Pyongyang in four camps, Goguryeo first struck Ren's weaker force, and identifies Sasu with the Botong River.
 
 ## Namsaeng's successful delay and final defeat {#namsaeng-delay-and-defeat}

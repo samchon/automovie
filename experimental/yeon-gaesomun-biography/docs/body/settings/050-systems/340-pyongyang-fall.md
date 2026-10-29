@@ -6,7 +6,7 @@ Canon guide: [Location of this subject](../outline/index.md#050-systems--340-pyo
 
 **Definition and scope**
 
-The fall of Pyongyang adopts September 668. Namsan surrenders to Tang first; Namgeon resists. Monk Sinseong connects with Tang alongside Osa and Yomyo and agrees to open a gate. His internal cooperation is a different event from surrender of Sinseong Fortress (新城); identical pronunciation does not merge the subjects.
+The fall of Pyongyang adopts ninth lunar month 668. Namsan surrenders to Tang first; Namgeon resists. Monk Sinseong connects with Tang alongside Osa and Yomyo and agrees to open a gate. His internal cooperation is a different event from surrender of Sinseong Fortress (新城); identical pronunciation does not merge the subjects.
 
 **Established facts**
 

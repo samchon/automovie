@@ -52,11 +52,11 @@ A messenger leaves. While the answer has not yet reached the other side, Austria
 
 Move from British tax and borrowing ledgers to signatures on subsidy treaties. Allied troops promised support are still distributing equipment. People who left home line up for training.
 
-CONSCRIPT: When the money comes, is it finished?
+An unnamed veteran straightens a recruit's position. The recruit tries to follow the next movement before his equipment is settled and falls out of step.
 
-VETERAN: You still have to march.
+VETERAN: Set it right first. You'll be carrying it all the way.
 
-The veteran adjusts the recruit's shoulder and matches the next step.
+The recruit adjusts the load and rejoins. The line sets out; the veteran walks beside him.
 
 Bernadotte before a map involving Sweden's interests.
 
@@ -64,7 +64,7 @@ BERNADOTTE: I cannot judge wearing my old uniform. Let us go where Sweden needs.
 
 Gneisenau divides the direction Blücher urges into march preparations. Schwarzenberg moves armies within restrictions of several sovereigns. Do not gather different preparations into one staff room.
 
-## An Emperor absent from every place {#leipzig}
+## An Emperor Who Cannot Be Everywhere {#leipzig}
 
 Parents: [034#avoidance](../../treatments/034-leipzig-and-the-bridge.md#avoidance), [034#leipzig](../../treatments/034-leipzig-and-the-bridge.md#leipzig).
 
@@ -88,7 +88,13 @@ Caption: October, Leipzig.
 
 HISTORIAN (off screen): Poniatowski, commander of Polish troops and minister of war of the Duchy of Warsaw, was also in this war. At Leipzig he became a marshal of France.
 
-After several armies fight at Leipzig, the French gather on a retreat route. In a low wide view at the water, follow the flow toward a bridge. A premature explosion. People behind stop. Across the water troops already crossed are visible, but there is no road back to them.
+At Leipzig, daylight over French troops firing toward pressure from more than one direction. A group falling back passes men who are still holding. When the next group reaches them, an officer points toward the retreat route.
+
+OFFICER: Back toward the bridge. Keep the way clear!
+
+Those covering the movement leave their position in turn. Follow the withdrawing groups until they join the flow toward the crossing. These unnamed actions stage the established retreat without adding a new unit, commander or demolition order.
+
+In a low wide view at the water, follow the flow toward a bridge. A premature explosion. People behind stop. Across the water troops already crossed are visible, but there is no road back to them.
 
 HISTORIAN (off screen): Poniatowski and others did not return. The war first made retreat necessary; the lost bridge increased its losses.
 
@@ -98,7 +104,13 @@ Add no unknown demolition order or new close view of an individual's death. The 
 
 Parents: [035#defense](../../treatments/035-france-and-paris.md#defense), [035#capital](../../treatments/035-france-and-paris.md#capital).
 
-France, 1814. A small army concentrates and attacks. As the enemy withdraws Napoleon chooses the next road. Widen the view: another direction he has left is empty.
+France, 1814, daylight. In a wide view, a small French line fires and gives ground. Troops arriving beside Napoleon move toward the pressured position at his signal. The new ranks join those still firing; guns brought up behind them open fire. The enemy before them withdraws. Keep this unnamed staging within the established local victories, without assigning a new battle, formation or maneuver to the historical record.
+
+Napoleon watches the withdrawal, then turns to the next demand. He points down another road.
+
+NAPOLEON: Bring the troops together. We move again.
+
+Follow the ranks leaving the field they have gained. From farther away, see their departure and the other approach they cannot fill at the same time. Hold the empty approach while their footsteps recede.
 
 CAULAINCOURT: They demand a return to pre-Revolutionary borders and surrender of influence beyond them.
 
@@ -158,7 +170,7 @@ Night of April 4–5, the Essonnes corps moves. See ranks from afar.
 
 HISTORIAN (off screen): The Essonnes corps left Napoleon's command. Marmont later defended his action, but troops lost through the defection did not return to negotiation to protect the son's succession.
 
-News of movement arrives. Beside the conditional succession proposal, military possibility disappears.
+News of the defection arrives. Napoleon sets it beside the conditional succession proposal and leaves both papers on the table.
 
 Caption: April 6, unconditional abdication.
 

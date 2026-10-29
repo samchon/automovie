@@ -5,11 +5,11 @@
 
 Production section label.
 
-*Daemangniji*, final audiovisual screenplay · Part 5
+*The Great Magnate*, final audiovisual screenplay · Part 5
 
 [Event parent](../../../body/treatments/030-reconstruction-begins.md#return-and-repair) · [Scene parent](../../../body/scripts/005-days-to-sow/001-days-to-sow.md#t030-return-and-repair)
 
-On screen: “662: arranging the return home.” Food and seed go into separate allocations before Namsaeng. A defender who will stay hands a departing person their load. Only after handing back what they held during the war can the returnee go to their family.
+On screen: “662: arranging the return home.” Food and seed go into separate allocations before Namsaeng. A departing soldier passes the load needed for the next watch to a defender staying behind. With that handover made, the departing soldier joins the returnees.
 
 Seokbu describes the state of the roads, and Namsaeng puts him in charge of moving tools and livestock.
 
@@ -19,7 +19,7 @@ The arrangements are sent to Gaesomun.
 
 **Gaesomun**　Leave the roads to Seokbu as you have planned. You decide the shares for those going home and those staying on defense. I must know which work has been delayed. Send word afterward.
 
-A returnee receives tools with their authorization. The defender who handed over the load remains to take the next watch.
+A returnee receives tools with their authorization. The defender who received the watch load remains at the post.
 
 ## Different claims from the same victory {#t030-demands-after-victory}
 
@@ -69,17 +69,17 @@ The report on the southern war is still beside them. Return to the local work si
 
 On screen: “Autumn 663, Pyongyang.” A reporter reads the southern dispatch before Gaesomun and Namsaeng.
 
-**Reporter**　In June, Buyeo Pung killed Boksin.
+**Reporter**　In the sixth lunar month, Buyeo Pung killed Boksin.
 
 Even after hearing that, Gaesomun does not let the report end. The reporter opens the account of what followed.
 
-**Reporter**　At Baekgang in August, the ships in front scattered. Sending more in behind them could not turn it around. They rescued men and ships but sent them back in, and the losses grew. Once the land strongholds fell, there was nowhere left to regroup.
+**Reporter**　At Baekgang in the eighth lunar month, the ships in front scattered. Sending more in behind them could not turn it around. They rescued men and ships but sent them back in, and the losses grew. Once the land strongholds fell, there was nowhere left to regroup.
 
 **Namsaeng**　Did they keep sending aid even after word reached them that we had survived?
 
 **Reporter**　They had already assembled their forces, and Juryuseong was in danger.
 
-Move from the report to an audience-only numerical insert. First: “Major Wa support: approximately 30,000.” Then: “Separate entry · March dispatch record: 27,000.” Nothing indicates that the figures should be added or labels them the total force present at Baekgang. After the insert, hear the same reporter continue.
+Move from the report to an audience-only numerical insert. First: “Major Wa support: approximately 30,000.” Then: “Separate entry · third lunar month dispatch record: 27,000.” Nothing indicates that the figures should be added or labels them the total force present at Baekgang. After the insert, hear the same reporter continue.
 
 **Reporter**　Buyeo Pung fled to Goguryeo. After word of Juryuseong's surrender, there was talk of leaving for Wa. Baekje people sought passage from Wa and told their families they would have to leave home.
 
@@ -101,7 +101,7 @@ The report leaves unconfirmed whether Buyeo Pung's spouse accompanied him or whe
 
 On screen: “Autumn 663, Pyongyang.” After the Baekgang defeat report is put away, another messenger enters.
 
-**Messenger**　Tang stopped building ships on August 27 and has decided to end this war.
+**Messenger**　Tang stopped building ships on day 27 of the eighth lunar month and has decided to end this war.
 
 **Gaesomun**　We won that by fighting. Now we can send home the hands that are ready to return.
 
@@ -161,11 +161,7 @@ Behind that voice, someone still assigned to transport asks to speak. The welcom
 
 **Transport worker**　The homes that got their people back have more hands in the fields. We carry the loads to those homes as well. Is it our turn again next time?
 
-**Namsaeng**　Does your household have another turn after this load?
-
-**Transport worker**　Yes. We have to come out again without doing our own work at home.
-
-Namsaeng receives both the list of people going home and the list of those staying.
+The transport worker keeps hold of the load while an official brings Namsaeng the return-home and continuing-duty lists. The official starts to call the next household, but Namsaeng stops him and stays with the worker. He opens the two assignments side by side.
 
 At the military offices in Pyongyang. On screen: “Seventh lunar month, 664.”
 
@@ -189,25 +185,47 @@ Namsaeng keeps reconstruction as the priority. Reports of resources not yet reco
 
 [Event parent](../../../body/treatments/032-days-left-for-sowing.md#competence-strengthens-opposition) · [Scene parent](../../../body/scripts/005-days-to-sow/001-days-to-sow.md#t032-competence-strengthens-opposition)
 
-**Namgeon**　If I had not pulled the horses out at that entrance, the infantry could not have gone in. I know how to command too. I know you held them for a month, Brother. But in the end the enemy crossed. We have troops to strike with now. Give them to me.
+Day, Pyongyang's military office. Namgeon waits before Namsaeng, who has already given his answer.
 
-Namsan speaks to his brother next.
+**NAMSAENG**　Keep your command. I need you there.
 
-**Namsan**　If we share responsibility with the royal house, we can protect our family too. We can ease the pressure from above that bears down on us now.
+**NAMGEON**　Then let me use it.
 
-**Namsaeng**　The homes that feed your soldiers and the roads they use must live again. The work you do is needed. Continue within those responsibilities.
+**NAMSAENG**　For defense. We are not raising another expedition.
 
-**Namgeon**　We have seen the price those households paid too. Will you dismiss everyone and call them back when you need them? What will it cost to lose the force we have assembled and raise it again?
+**NAMGEON**　Before Ren Yaxiang's camp, I pulled the cavalry clear so the infantry could work. I know when to hold men back. I know what your month at the Yalu bought us too. But you lost there. Must this army wait because yours lost?
 
-Namsaeng receives the next report on burdens. Namgeon remains before him, trying to explain more of what he commanded. After the brothers withdraw, move to the palace. Before King Bojang, they have another chance to speak.
+Namsaeng looks directly at him.
 
-**King**　I know the work you have done. Between you, you know something of military affairs and the work of the center.
+**NAMSAENG**　The land still has to feed it. The decision to rebuild stands.
 
-**Namgeon**　Give me orders for the troops, and I will take the field.
+Namsan speaks before Namgeon leaves.
 
-**Namsan**　I will keep matters from becoming blocked between Your Majesty and the family.
+**NAMSAN**　Let me settle the court's requests with ours before another refusal becomes a threat. Our family need not lose its authority for the king to be heard.
 
-The brothers withdraw, having given the king different answers. Namsan lets Namgeon leave first for his military duties and stays to confirm the answer still owed to the royal house.
+**NAMSAENG**　Settle what you can within the work I entrusted. Broader decisions come to me.
+
+**NAMSAN**　I am asking for a place in those decisions.
+
+**NAMSAENG**　I need both of you. Do the work I have given you.
+
+At a separate royal audience, Bojang hears their requests without Namsaeng present.
+
+**BOJANG**　You brought the cavalry clear at Ren Yaxiang's camp. I have not forgotten that service.
+
+Namgeon raises his eyes to the king.
+
+**BOJANG**　And you, Namsan?
+
+**NAMSAN**　I can settle the work entrusted to me. But when the court asks for a larger decision, my brother wants it brought through him.
+
+**BOJANG**　I would rather hear it while it is still open than receive another refusal afterward.
+
+**NAMSAN**　Then let me come to you before it is settled, Your Majesty.
+
+**BOJANG**　Both of you may come. Bring what remains unresolved between the court and your family.
+
+The brothers bow. After the audience, Namsan confirms the next meeting with a palace attendant while Namgeon continues toward his military duties. No offensive or coup has been ordered.
 
 ## A father pleased by delayed construction {#t033-yeon-accepts-the-restoration-plan}
 
@@ -401,7 +419,7 @@ Two support Heonchung. A guard in front pushes soldiers aside to clear a path; t
 
 **Guard**　East! We are coming around—make way!
 
-All four make their way out together. At a turning corner of the east corridor of the office building, the leading guard stops to check inside. The two supporting Heonchung slow with him. When the guard in front turns and makes room, the two adjust their steps so Heonchung does not tilt. The guard who checked the route supports the rear as they go to the treatment room east of the family quarters. They clear a place inside and lay Heonchung down.
+From Damseok's courtyard, the wounded man disappears with all four guards into the bent east corridor. The guard clearing the way calls ahead for room; the two supporting Heonchung carry him through, while the fourth confirms Durim's route and follows them. Their calls reach the treatment room east of the family quarters before Heonchung is laid inside.
 
 In the courtyard, Damseok stops the advance.
 
@@ -431,7 +449,7 @@ On the first day, Heonchung turns toward the person calling his name and tries t
 
 **Seokyeon**　Do not get up. You must lie still for now.
 
-Seokyeon prevents Heonchung from moving and presses the cloth against the wound. The next day, his eyes no longer reach the voice calling his name from the same place. The caller leans down and calls again from close by. Wet cloth is replaced, and the hand pressing the same spot stays there longer and longer. On screen: “Third day after the wound.” On the third day, someone calls his name close to his face. His face does not change.
+Seokyeon prevents Heonchung from moving and presses the cloth against the wound. The next day, he no longer turns toward the person calling his name from the same place. The caller leans down and calls again from close by. Wet cloth is replaced, and the hand pressing the same spot stays there longer and longer. On screen: “Third day after the wound.” On the third day, someone calls his name close to his face. His face does not change.
 
 **Seokyeon**　Stop calling him. He has stopped breathing.
 
@@ -477,4 +495,4 @@ The messenger reads the king's authorized order of arrest and execution to the e
 
 **Person beside him**　There are households in this country beyond those who issued the royal order. They are people who still need protection. Do not bring the country's collapse down on them in striking at those others.
 
-He sets down the order in his hand and turns toward gathering strength. Leave the faces that have stopped asking and the person waiting for an answer as the part closes.
+Namsaeng sets down the order in his hand and turns toward gathering strength. Leave the faces that have stopped asking and the person waiting for an answer as the part closes.

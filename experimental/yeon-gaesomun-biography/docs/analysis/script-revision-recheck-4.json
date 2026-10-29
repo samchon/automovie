@@ -1,0 +1,4017 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-29T07:58:09.030109+00:00",
+  "comparison": {
+    "snapshot": ".cache/historical-script-revision/third/experimental/yeon-gaesomun-biography/docs/body/treatments/037-three-days-and-three-reports.md",
+    "snapshot_before_sha256": "db1926a2a737aeb9892d6057fc2fc1b135f26d9a1657f173f95d54c4fb1851d4",
+    "current_treatment_sha256": "ca12490c5942bce2c2f8521b2601b5097757e4a44d28196733ecc5e88b3ce28e",
+    "only_changed_token": "she → he",
+    "one_token_replacement_reproduces_current_raw_decoded_text": true,
+    "previous_treatment_fingerprint_reference": {
+      "record": "script-revision-recheck-1.json",
+      "sha256": "db1926a2a737aeb9892d6057fc2fc1b135f26d9a1657f173f95d54c4fb1851d4"
+    },
+    "before": {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/037-three-days-and-three-reports.md",
+      "h2": "treatment-fails-on-third-day",
+      "locator": "h2/p3",
+      "line": 25,
+      "quote": "Seokyeon records only the treatment and deterioration she witnessed; all four carrying guards are alive until then."
+    },
+    "after": {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/037-three-days-and-three-reports.md",
+      "h2": "treatment-fails-on-third-day",
+      "locator": "h2/p3",
+      "line": 25,
+      "quote": "Seokyeon records only the treatment and deterioration he witnessed; all four carrying guards are alive until then."
+    },
+    "exact_raw_byte_replacement_verified": true
+  },
+  "scope_hashes": {
+    "method": "SHA256 of sorted production-relative path + TAB + raw-file SHA256 + LF; UTF-8. File counts name the exact sets below. Fingerprinting is not a claim of rereading every inventoried file.",
+    "scope67": {
+      "count": 67,
+      "members": "24 manuscript files plus all 43 treatments",
+      "sha256": "d854376c679511a696b3f09f26418409bd08b3f0d5eb011163b86b4bb0ab0995"
+    },
+    "scope81": {
+      "count": 81,
+      "members": "scope67 plus the 14 explicitly listed calendar owners",
+      "additional_members": [
+        "settings/020-world/030-second-war-calendar.md",
+        "settings/020-world/040-postwar-window.md",
+        "settings/040-agents/051-pang-xiaotai.md",
+        "settings/040-agents/071-boksin.md",
+        "settings/050-systems/010-tang-military-confidence.md",
+        "settings/050-systems/020-goguryeo-force-system.md",
+        "settings/050-systems/050-forced-field-war.md",
+        "settings/050-systems/080-yalu-delay-and-loss.md",
+        "settings/050-systems/090-northern-diversion.md",
+        "settings/050-systems/100-counterattack-concentration.md",
+        "settings/050-systems/170-return-and-pursuit.md",
+        "settings/050-systems/290-baekje-restoration-war.md",
+        "settings/050-systems/300-baekgang-battle.md",
+        "settings/050-systems/340-pyongyang-fall.md"
+      ],
+      "sha256": "20e79b62b9227541c918264f767660f69edfd8e26b2d532b4332d33e7816b196"
+    },
+    "scope82": {
+      "count": 82,
+      "members": "scope81 plus settings/040-agents/024-heonchung-healer.md",
+      "sha256": "2b4207b793325d8e08f339bb63e7c363354be1d1d918b75ad709226e32249a55"
+    },
+    "manifest": [
+      {
+        "path": "docs/body/screenplay/001-the-right-to-command/001-people-to-command.md",
+        "sha256": "ae997271b390da35f113dd65da0155bd7ecb1d586d1730a9616e18bad310fe55"
+      },
+      {
+        "path": "docs/body/screenplay/001-the-right-to-command/index.md",
+        "sha256": "06bbd98f2ac8ed7e68ff6436e45219b32f62eb1ee6d5f6f621a22e756d6af46d"
+      },
+      {
+        "path": "docs/body/screenplay/002-the-kings-work/001-the-kings-work.md",
+        "sha256": "1d38b230f6533e95d70aac6342558ce4b660d811cfced39b78478d863ceae60a"
+      },
+      {
+        "path": "docs/body/screenplay/002-the-kings-work/index.md",
+        "sha256": "a797954ca6634ca582c3b46a0ee89177f551d2498ed713595a316bfd9bb33779"
+      },
+      {
+        "path": "docs/body/screenplay/003-the-roads-that-move/001-moving-roads.md",
+        "sha256": "f05f2e5404bcd052b99424ae33b97e4140d3aecf8ed0e171797bae2469bbea67"
+      },
+      {
+        "path": "docs/body/screenplay/003-the-roads-that-move/index.md",
+        "sha256": "34b8230478f4d58adf950b46378e85caf4485b9121ff8b55317c519a371c4506"
+      },
+      {
+        "path": "docs/body/screenplay/004-the-victory-that-remains/001-remaining-victory.md",
+        "sha256": "716ee483812a41075194a90ef234f2d4960906300260408bc08ec3601d4b24ab"
+      },
+      {
+        "path": "docs/body/screenplay/004-the-victory-that-remains/index.md",
+        "sha256": "0c1704a81e56f77a1e9dcd0ed31c64d0339116d0c985071fcd34ad3b937969f6"
+      },
+      {
+        "path": "docs/body/screenplay/005-days-to-sow/001-days-to-sow.md",
+        "sha256": "fb4e9f9bda40ba5d9af0655066851228fa7ec3d850c0b6c91b1024ee8f607cb9"
+      },
+      {
+        "path": "docs/body/screenplay/005-days-to-sow/index.md",
+        "sha256": "0c9c4494b086b79608d670e781b0ce4f5df4056b829b81791ed08ca5ff63f18c"
+      },
+      {
+        "path": "docs/body/screenplay/006-the-son-left-living/001-the-son-left-living.md",
+        "sha256": "0383051be0ba299c8968a152fb576d61f5069d56b01e807e964bdb9aee8829c5"
+      },
+      {
+        "path": "docs/body/screenplay/006-the-son-left-living/index.md",
+        "sha256": "8c99dbefeaad57ead86ac2e135c34b502974a0d6c8f6c754135e4a30981fd7ec"
+      },
+      {
+        "path": "docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+        "sha256": "95bdd3efb8f8908d6de3153422d0a7749f1cbce8e88a39e5259af3e197692671"
+      },
+      {
+        "path": "docs/body/scripts/001-the-right-to-command/index.md",
+        "sha256": "06bbd98f2ac8ed7e68ff6436e45219b32f62eb1ee6d5f6f621a22e756d6af46d"
+      },
+      {
+        "path": "docs/body/scripts/002-the-kings-work/001-the-kings-work.md",
+        "sha256": "e80b0f50ae51f0c6cffac62b9f4051804aeb00b846e863238990944f0087f41f"
+      },
+      {
+        "path": "docs/body/scripts/002-the-kings-work/index.md",
+        "sha256": "a797954ca6634ca582c3b46a0ee89177f551d2498ed713595a316bfd9bb33779"
+      },
+      {
+        "path": "docs/body/scripts/003-the-roads-that-move/001-moving-roads.md",
+        "sha256": "e52e2f74f2eafde8c035e870ba532932c6c516ba166efa37ad809f5198bed389"
+      },
+      {
+        "path": "docs/body/scripts/003-the-roads-that-move/index.md",
+        "sha256": "34b8230478f4d58adf950b46378e85caf4485b9121ff8b55317c519a371c4506"
+      },
+      {
+        "path": "docs/body/scripts/004-the-victory-that-remains/001-remaining-victory.md",
+        "sha256": "b608f37d543fb6f326dbaa120a94452c1ce6e929a49069f198c6604adc13dfc6"
+      },
+      {
+        "path": "docs/body/scripts/004-the-victory-that-remains/index.md",
+        "sha256": "0c1704a81e56f77a1e9dcd0ed31c64d0339116d0c985071fcd34ad3b937969f6"
+      },
+      {
+        "path": "docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+        "sha256": "a81c35174c186ac7ce1b8f037087614d88ac179c34ae2a22bf439016d3ef5f9c"
+      },
+      {
+        "path": "docs/body/scripts/005-days-to-sow/index.md",
+        "sha256": "0c9c4494b086b79608d670e781b0ce4f5df4056b829b81791ed08ca5ff63f18c"
+      },
+      {
+        "path": "docs/body/scripts/006-the-son-left-living/001-the-son-left-living.md",
+        "sha256": "ef8c577ec44b4c2602d1c5c2d7b68feb7d43db2f1a7261f52f5371c0a5b7e96c"
+      },
+      {
+        "path": "docs/body/scripts/006-the-son-left-living/index.md",
+        "sha256": "8c99dbefeaad57ead86ac2e135c34b502974a0d6c8f6c754135e4a30981fd7ec"
+      },
+      {
+        "path": "docs/body/settings/020-world/030-second-war-calendar.md",
+        "sha256": "03afdf6b6409d06e06cc574a51244447c705ea32c9f442041d6cfe3b1f2f2d93"
+      },
+      {
+        "path": "docs/body/settings/020-world/040-postwar-window.md",
+        "sha256": "4f58cdb25bf839ec96f641e497b9a94d964be174830a6564840a99ccac518d9a"
+      },
+      {
+        "path": "docs/body/settings/040-agents/024-heonchung-healer.md",
+        "sha256": "1a9f99020aaa8977a0139b156eacc15a53df4cf84a74b293ddf9de76f7df865e"
+      },
+      {
+        "path": "docs/body/settings/040-agents/051-pang-xiaotai.md",
+        "sha256": "ae0a8b1f5b1579bcae7eba84ba5d9544065451f17f3257cee338de31eabee232"
+      },
+      {
+        "path": "docs/body/settings/040-agents/071-boksin.md",
+        "sha256": "770d9b7cadafc133e451ddab4b8c21cf6c4e1665e63948d72bbd28b8b0a66979"
+      },
+      {
+        "path": "docs/body/settings/050-systems/010-tang-military-confidence.md",
+        "sha256": "43f26723541c6d0db7317ea678a62f99c96a0b5ec599bc269c66eee8e60c1c62"
+      },
+      {
+        "path": "docs/body/settings/050-systems/020-goguryeo-force-system.md",
+        "sha256": "4c586ad1d11220348e2ea328c142b399528bb9b23d85540601752caf55e1b4f5"
+      },
+      {
+        "path": "docs/body/settings/050-systems/050-forced-field-war.md",
+        "sha256": "5314fe4b6e427b69201b584bdeaccd5e2b066eb449458ce5f6bc64a296631b83"
+      },
+      {
+        "path": "docs/body/settings/050-systems/080-yalu-delay-and-loss.md",
+        "sha256": "c500e2d269b48e48d1bfc38a385845f8bfeaaeb937d2e770c19043e96a8597cc"
+      },
+      {
+        "path": "docs/body/settings/050-systems/090-northern-diversion.md",
+        "sha256": "edbdac557bc07337073961d05078128f5ff977a2df381d8e109bb1d80d0123f1"
+      },
+      {
+        "path": "docs/body/settings/050-systems/100-counterattack-concentration.md",
+        "sha256": "70022ba6c3e244865d6875933b4d1485c5d3a5f6e80c240fdaad461e9c15bd88"
+      },
+      {
+        "path": "docs/body/settings/050-systems/170-return-and-pursuit.md",
+        "sha256": "b4181a01e42658b9aa2b81c9653165f06713b3fd5e312d176ab5bd71d07d1335"
+      },
+      {
+        "path": "docs/body/settings/050-systems/290-baekje-restoration-war.md",
+        "sha256": "be2d6888380733075658fa1472af3683f99c94f3389ef1be56e5c8a4afcd6901"
+      },
+      {
+        "path": "docs/body/settings/050-systems/300-baekgang-battle.md",
+        "sha256": "794c9818ad7fc59552c48c93465da9a53625e98088521008958eb63f72185e7d"
+      },
+      {
+        "path": "docs/body/settings/050-systems/340-pyongyang-fall.md",
+        "sha256": "586a1300089907273a4223c02dfd56eb8ebae08711499386b52fe15ff1cfe01f"
+      },
+      {
+        "path": "docs/body/treatments/001-six-roads.md",
+        "sha256": "ef86998c4a331d788ad3c357778cc5e263f12c4fd9594d44eb3bd40df61a632c"
+      },
+      {
+        "path": "docs/body/treatments/002-child-after-war.md",
+        "sha256": "706e7724866a13156964e1c536dc576b147e7b7113f87d34305e054d380c3d8f"
+      },
+      {
+        "path": "docs/body/treatments/003-gyeongdang.md",
+        "sha256": "a6fac0452b93ac6062750eccbec95e9df99e4346f0443f81bce498a0ea7aadec"
+      },
+      {
+        "path": "docs/body/treatments/004-first-command.md",
+        "sha256": "9f8fddde98f12fc3e24853774985a1e48d876bb56b794018964bde3d7724b1c3"
+      },
+      {
+        "path": "docs/body/treatments/005-wall-and-frontier.md",
+        "sha256": "dec0a4f4f0ea3ef76320b5614ff6fd38ffc7bb615f73bba12e644b3242405e88"
+      },
+      {
+        "path": "docs/body/treatments/006-inheritance.md",
+        "sha256": "c6214ab9caa86425301dfac9b27a42b04f653109c868cc6e056de5e2c69d6c12"
+      },
+      {
+        "path": "docs/body/treatments/007-threat-and-authority.md",
+        "sha256": "bf6b59b25a65d35131225791e418f8005abee7ac5482ecb656c6a1e474b83b01"
+      },
+      {
+        "path": "docs/body/treatments/008-king-killed.md",
+        "sha256": "925629168100cedfbb22dccb12b222b489c5babe4b7c4cf5eb78d783312787e3"
+      },
+      {
+        "path": "docs/body/treatments/009-new-regime.md",
+        "sha256": "bc2926c293ac7bb8dc5fe366e440c8962b18bf3d3040437fd08c34b231049fe6"
+      },
+      {
+        "path": "docs/body/treatments/010-jupilsan.md",
+        "sha256": "6278362676722942b4129cb7805bc415da46e02cb55173b5789a259bcc8a5f8f"
+      },
+      {
+        "path": "docs/body/treatments/011-prisoners.md",
+        "sha256": "0f6831b6291167981551ffd4f46e3418088bd807c2d4f2e6c617c4648fe625ce"
+      },
+      {
+        "path": "docs/body/treatments/012-walls-and-ships.md",
+        "sha256": "d54a399c2d6e7ee7d4dc10f83348a8de22e99d23999cecb5b7d20f855712591c"
+      },
+      {
+        "path": "docs/body/treatments/013-understanding-the-king.md",
+        "sha256": "9f0254149edb5f7df37b4d8998993b8572c282cfff7dcb295331f5a466d875da"
+      },
+      {
+        "path": "docs/body/treatments/014-promises-delivered.md",
+        "sha256": "916cb9c38bb15a4ff65c0efdc04cb907058f90d5e7e8fff5b7f3e58f620f1127"
+      },
+      {
+        "path": "docs/body/treatments/015-years-without-rest.md",
+        "sha256": "2bc3c8e90412e764d52ec24d04792f9e49f313d1ce9a66fa22c289386367dca6"
+      },
+      {
+        "path": "docs/body/treatments/016-frame-closed.md",
+        "sha256": "e6e8ae91e9d5b40a964aac6d0c5d8844ff6e821adb0f1f0badb9987ac1009374"
+      },
+      {
+        "path": "docs/body/treatments/017-siege-and-southern-bets.md",
+        "sha256": "87b6db7c5c805f2f303c220c76384ba2623c8c9ffbdd202fff5e3fed5f4e1cf7"
+      },
+      {
+        "path": "docs/body/treatments/018-yalu.md",
+        "sha256": "855d27191e65ba5d78e811dc70cf2bae7bb81d590c6bc6a48d2eed0d6d91ec9f"
+      },
+      {
+        "path": "docs/body/treatments/019-orders-from-the-north.md",
+        "sha256": "0d66a771e47066da15f109b134907c545832ed24f94bd9b968aebe7f9b5c8b75"
+      },
+      {
+        "path": "docs/body/treatments/020-nubang.md",
+        "sha256": "79a1aaa829e6d8fcf34872f2e8c735c2d4512ea8f72a66efeb7457366622b3ba"
+      },
+      {
+        "path": "docs/body/treatments/021-winter-reserves.md",
+        "sha256": "73e51ac0ecbb037489b59e11632d6ebc3affd5f86a2066e9d7da7a2bf61359f8"
+      },
+      {
+        "path": "docs/body/treatments/022-january-concentration.md",
+        "sha256": "ee772d02118b3d20de76f6b6708590fada28d0ecfeb8bfc64743d7f6df57e4ff"
+      },
+      {
+        "path": "docs/body/treatments/023-mountain-column.md",
+        "sha256": "2528567fd8d0e34b1f257ac01d589dcd8e61710f6dc5b815ec35d35d8d706b55"
+      },
+      {
+        "path": "docs/body/treatments/024-yango.md",
+        "sha256": "a37a10a46324bd36546ab9db64443cb48b42225ac56934670dbbc491e44338d8"
+      },
+      {
+        "path": "docs/body/treatments/025-way-home.md",
+        "sha256": "0e793c2717d53c377221a21fb7a27873411413223671e0672a547388a918a389"
+      },
+      {
+        "path": "docs/body/treatments/026-ren-camp.md",
+        "sha256": "c233bc4e83d61937aa4441cbb0e89438a41b944493aaa851a618d0e08166853b"
+      },
+      {
+        "path": "docs/body/treatments/027-imjin.md",
+        "sha256": "c07cba279dc908479f52669ef64ca877416bc558fb322ce45d9628bba5138b27"
+      },
+      {
+        "path": "docs/body/treatments/028-sasu.md",
+        "sha256": "8c1a6806e2e2a9167d7c48e0c07e859014457f12cc898cb7c72c2141f93be5d2"
+      },
+      {
+        "path": "docs/body/treatments/029-bitter-victory.md",
+        "sha256": "c75ae7ec67fc2cb0d4f217640873be1fdc0fc5552b53fcd6b145a2cc1773a0aa"
+      },
+      {
+        "path": "docs/body/treatments/030-reconstruction-begins.md",
+        "sha256": "cde5980a83f806be79531e0adb77416e0de457fff9ee52c56b53b6916263bbf1"
+      },
+      {
+        "path": "docs/body/treatments/031-southern-victory-and-loss.md",
+        "sha256": "cbc18bbf1a9e02e5935b06243dfc2add94ba1f53187054e46b7dd81b944bf467"
+      },
+      {
+        "path": "docs/body/treatments/032-days-left-for-sowing.md",
+        "sha256": "39ebb3257164dc26ed703d7ee54d063f3e38d8392a8fade14759d67f8c9de2a4"
+      },
+      {
+        "path": "docs/body/treatments/033-the-fathers-finished-work.md",
+        "sha256": "3e94c454af236e04804e0e7280a15a136a8f070b217f56cf82b55401c9f6e6be"
+      },
+      {
+        "path": "docs/body/treatments/034-one-coup-three-ambitions.md",
+        "sha256": "2ed93609a2e294810832514767dc3c5e6cc7e5bc265633ac2cf9f795c5db7cb4"
+      },
+      {
+        "path": "docs/body/treatments/035-the-envoy-does-not-return.md",
+        "sha256": "7564f3935e02c36b022c478b66d7e2fe58a88493b5a7b8d041101b4f948559c9"
+      },
+      {
+        "path": "docs/body/treatments/036-the-seal-and-the-house-guards.md",
+        "sha256": "7b992d84c9f82a88504eab20dc4ffaf25fdd9994ccb60c4597a3014db7112298"
+      },
+      {
+        "path": "docs/body/treatments/037-three-days-and-three-reports.md",
+        "sha256": "ca12490c5942bce2c2f8521b2601b5097757e4a44d28196733ecc5e88b3ce28e"
+      },
+      {
+        "path": "docs/body/treatments/038-the-country-no-longer-decides.md",
+        "sha256": "5be8eea956736abec565ba8967460fd78434f0071ee5cad78cc213f8a0cf53e5"
+      },
+      {
+        "path": "docs/body/treatments/039-strong-forts-without-a-whole.md",
+        "sha256": "a85feb1658aa1c40253f4be81f23d9e792536d241f4d8b9afcef4b6c190612d0"
+      },
+      {
+        "path": "docs/body/treatments/040-five-days-to-the-west-gate.md",
+        "sha256": "addb45a27040db3b8ede03608261ad4027c50cd9dffe6fc013b637d05eb0292e"
+      },
+      {
+        "path": "docs/body/treatments/041-lives-spared-homes-removed.md",
+        "sha256": "90e43975385b35272360e2b45c819a25b5ad1050a1afaa671677b1eb56ace6e3"
+      },
+      {
+        "path": "docs/body/treatments/042-the-lives-conquest-did-not-end.md",
+        "sha256": "0cce650320e9f84dcd519ac858531389f00a94b8e81ea33f2e61a8d768590b4c"
+      },
+      {
+        "path": "docs/body/treatments/043-the-office-and-the-son-left-behind.md",
+        "sha256": "5470c97033ce14fdd7e95666b82fd07292cbcf60857b18926d5f52220ae4c627"
+      }
+    ]
+  },
+  "prior_records": [
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/analysis/script-revision-classification.json",
+      "sha256": "b6777ddfbd7f0c2314ab6dbcb34d4fadb96ba14d78a649d46d0fb8fb63e82e79"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/analysis/script-revision-recheck-1.json",
+      "sha256": "2010cf246ebe29ac464a17a9223f59337ad30467a29014c85e1b80576a9908af"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/analysis/script-revision-recheck-2.json",
+      "sha256": "1b5a1791c6dcbd424aec29cd3dc3a4a884cd277dcb3ee4b73a35756fc1380234"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/analysis/script-revision-recheck-3.json",
+      "sha256": "5b059d0e8e319fcb9dd964c4f3d852a51406ff79fc5ff58b1752821056623ef9"
+    }
+  ],
+  "method": {
+    "scope": "One complete declared affected-material round. Read all three current T037 H2s, the full current healer setting024, all three corresponding script and final H2s, and the preceding clash closure in both descendants. Compare the actual cached before and current treatment, then trace the changed pronoun through identity, observation limits, treatment, carrying guards, death and report closure. HTML comments were masked before reading.",
+    "isolation": "No author, review, notes or draft body was opened. No verdict from those records is used. Only current bodies, actual parents, setting024 and unchanged contract questions supply this round's judgments.",
+    "tested_failures": {
+      "common": [
+        "repeated explanation of action meaning",
+        "closing aphorisms/balanced summaries",
+        "background postponing entry",
+        "research/later commentary stopping scene",
+        "absent acts/sounds manufacturing stillness",
+        "redundant delivery labels",
+        "repeated appearance/rank introductions",
+        "habitual gestures/filler",
+        "invented misunderstandings to negate",
+        "empty links",
+        "arbitrary sentence molds",
+        "authoring jargon",
+        "informationless modifiers/qualifications/contrasts/formatting",
+        "unidiomatic word combinations/verbs/agreement/order/references/pronouns/nominal chains/clauses/imported syntax",
+        "unlocated inventories/unmarked gaze changes/vague impressions replacing required values",
+        "interchangeable metaphors erasing distinctions",
+        "physical conditions reduced to names/numbers",
+        "detail decoding displacing present pressure"
+      ],
+      "speech": [
+        "explanation of shared facts",
+        "arguments recited as lists",
+        "generic theme declarations",
+        "neighboring action repeated in another register",
+        "matching metaphors traded",
+        "inappropriate status/relationship language",
+        "uniform neutral exposition",
+        "edited replies with shifted meaning",
+        "unmotivated level changes/relationship-erasing neutral register",
+        "implausible speaker age/status/knowledge/register/tactic",
+        "action-line order misstates relation"
+      ],
+      "scripts": [
+        "uniform beat mold",
+        "gesture every line",
+        "decisive speech buried",
+        "summary substituted for exchange",
+        "repeated performance labels",
+        "long explanation hides response",
+        "interpretive label instead of performable operation",
+        "reactionless beat list/reported consequential exchange",
+        "unexplained transition/result without execution",
+        "redundant exit conclusion",
+        "missing view/impossible position or sightline/unsupported core appearance",
+        "habitual composition concealing changing force"
+      ],
+      "screenplay": [
+        "habitual opening/explanation/montage/music/reaction-pause/closing-image imposed",
+        "frantic pressure buried in duration",
+        "weight lost to uniform short beat",
+        "grouping concealing attention",
+        "copied planning labels/source-status/research commentary/category names",
+        "repeated appearance/vocal inventories/redundant acting tails",
+        "shot list without finished relation",
+        "mere transcription/expanded upstream directions",
+        "micro-procedures displacing important exchange/action",
+        "unmediated inward meaning",
+        "unmarked access/time/space/sound relation"
+      ],
+      "parent_each_paragraph": [
+        "copied wording or imagery",
+        "copied explanatory labels",
+        "copied narrator/design statements",
+        "borrowed opening/action sequence"
+      ],
+      "fidelity": [
+        "names/address/rank",
+        "quantities/dates/times",
+        "places/positions",
+        "consequential states/knowledge/uncertainty",
+        "object transfer/causal dependencies"
+      ],
+      "population": [
+        "recurrent frames/translation interference",
+        "voice distribution",
+        "execution distribution",
+        "screenplay voice/tempo distribution",
+        "work/obligations/narratives.md#chronicler-and-scene"
+      ]
+    },
+    "applicability": "The setting and treatment receive identity/fidelity and document-expression checks. Script/final sentences receive their applicable common, speech and layer-expression questions; downstream paragraphs also receive actual-parent differentiation and value checks. Population questions are applied only to the changed dependency, not claimed as a fresh whole-work test.",
+    "sentence_results": "Every listed sentence unit was read; - records no clear applicable named failure. Unlisted units receive no fresh negative.",
+    "paragraph_test_columns": [
+      "locator",
+      "copied-wording-imagery",
+      "copied-explanatory-labels",
+      "copied-narrator-design",
+      "borrowed-opening-action-sequence",
+      "fidelity"
+    ],
+    "locators": "hN selects current H2 order; pN counts annotation-masked Markdown blocks including headings/navigation; sN is a punctuation locator. Character spans address annotation-masked UTF-8-sig decoded source.",
+    "quote_policy": "All before/after and evidence quotes are literal substrings in the named H2 and block. NFC plus Unicode-whitespace collapse is the only allowed normalized fallback; none is used.",
+    "preservation": "Do not reopen unchanged no/ambiguous passages by preference. Required treatment/carrying/report actions, simple instructions, short speech, meaningful waiting, documentary time labels and ordinary male pronouns remain protected.",
+    "limits": [
+      "The 67/81/82 sets are fingerprint inventories, not fresh complete-text approvals. Actual reading coverage is listed separately.",
+      "Only setting024 is freshly read as a settings owner. Unchanged medical, guards, architecture and coup settings are not newly audited against external evidence.",
+      "No clinical diagnosis, external historical verification, media, measured timing or recorded performance is tested.",
+      "The healer's observational record in the treatment is realized downstream through treatment and death reports; this check does not require a redundant new spoken report.",
+      "No full initial sentence table or whole-work completion review is regenerated."
+    ]
+  },
+  "decision": {
+    "result": "-",
+    "status": "changed-pronoun-identity-corrected-without-dependent-regression",
+    "reason": "The revised he refers to Seokyeon, matching setting024's male healer and his restriction to reporting only what he observed. It changes neither who treats Heonchung nor what the healer knows or can authorize. The descendants retain temporary reduction of bleeding, worsening from the wound and blood loss, death after three days, four living carrying guards and distinct injury/death/royal-order disclosure. Namsaeng's initial ignorance and later abandonment of renegotiation remain. No applicable named expression or parent-fidelity failure is established by this one-word correction.",
+    "evidence": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/040-agents/024-heonchung-healer.md",
+        "h2": "heonchung-healer",
+        "locator": "h1/p3",
+        "line": 9,
+        "quote": "His name and birth year of 624 are invented."
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/040-agents/024-heonchung-healer.md",
+        "h2": "heonchung-healer",
+        "locator": "h1/p7",
+        "line": 17,
+        "quote": "After death he reports only the course he observed."
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+        "h2": "t037-treatment-fails-on-third-day",
+        "locator": "h18/p9",
+        "line": 380,
+        "quote": "Three days later the answers stop."
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+        "h2": "t037-treatment-fails-on-third-day",
+        "locator": "h18/p11",
+        "line": 384,
+        "quote": "All four guards are alive outside."
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/005-days-to-sow/001-days-to-sow.md",
+        "h2": "t037-treatment-fails-on-third-day",
+        "locator": "h18/p9",
+        "line": 452,
+        "quote": "On screen: “Third day after the wound.”"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/005-days-to-sow/001-days-to-sow.md",
+        "h2": "t037-reports-close-the-negotiating-path",
+        "locator": "h19/p11",
+        "line": 486,
+        "quote": "On screen: “Later: royal order received.”"
+      }
+    ]
+  },
+  "new_findings": [],
+  "files": [
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/037-three-days-and-three-reports.md",
+      "current_sha256": "ca12490c5942bce2c2f8521b2601b5097757e4a44d28196733ecc5e88b3ce28e",
+      "coverage": [
+        {
+          "h2": "document",
+          "locator": "h0/p1",
+          "line": 1,
+          "span": [
+            0,
+            54
+          ],
+          "kind": "heading",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "wounded-heonchung-carried-inside",
+          "locator": "h1/p1",
+          "line": 3,
+          "span": [
+            56,
+            157
+          ],
+          "kind": "heading",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "wounded-heonchung-carried-inside",
+          "locator": "h1/p2",
+          "line": 9,
+          "span": [
+            1053,
+            1532
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "wounded-heonchung-carried-inside",
+          "locator": "h1/p3",
+          "line": 11,
+          "span": [
+            1534,
+            2028
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "wounded-heonchung-carried-inside",
+          "locator": "h1/p4",
+          "line": 13,
+          "span": [
+            2030,
+            2506
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "wounded-heonchung-carried-inside",
+          "locator": "h1/p5",
+          "line": 15,
+          "span": [
+            2508,
+            2997
+          ],
+          "kind": "navigation",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "treatment-fails-on-third-day",
+          "locator": "h2/p1",
+          "line": 17,
+          "span": [
+            2999,
+            3083
+          ],
+          "kind": "heading",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "treatment-fails-on-third-day",
+          "locator": "h2/p2",
+          "line": 23,
+          "span": [
+            3897,
+            4405
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "treatment-fails-on-third-day",
+          "locator": "h2/p3",
+          "line": 25,
+          "span": [
+            4407,
+            4886
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "treatment-fails-on-third-day",
+          "locator": "h2/p4",
+          "line": 27,
+          "span": [
+            4888,
+            5290
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "treatment-fails-on-third-day",
+          "locator": "h2/p5",
+          "line": 29,
+          "span": [
+            5292,
+            5684
+          ],
+          "kind": "navigation",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "reports-close-the-negotiating-path",
+          "locator": "h3/p1",
+          "line": 31,
+          "span": [
+            5686,
+            5787
+          ],
+          "kind": "heading",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "reports-close-the-negotiating-path",
+          "locator": "h3/p2",
+          "line": 37,
+          "span": [
+            6527,
+            7008
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "reports-close-the-negotiating-path",
+          "locator": "h3/p3",
+          "line": 39,
+          "span": [
+            7010,
+            7436
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "reports-close-the-negotiating-path",
+          "locator": "h3/p4",
+          "line": 41,
+          "span": [
+            7438,
+            7977
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "reports-close-the-negotiating-path",
+          "locator": "h3/p5",
+          "line": 43,
+          "span": [
+            7979,
+            8380
+          ],
+          "kind": "navigation",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h1/p2/s1",
+          1053,
+          1166,
+          "-"
+        ],
+        [
+          "h1/p2/s2",
+          1167,
+          1311,
+          "-"
+        ],
+        [
+          "h1/p2/s3",
+          1312,
+          1434,
+          "-"
+        ],
+        [
+          "h1/p2/s4",
+          1435,
+          1532,
+          "-"
+        ],
+        [
+          "h1/p3/s1",
+          1534,
+          1598,
+          "-"
+        ],
+        [
+          "h1/p3/s2",
+          1599,
+          1715,
+          "-"
+        ],
+        [
+          "h1/p3/s3",
+          1716,
+          1822,
+          "-"
+        ],
+        [
+          "h1/p3/s4",
+          1823,
+          1934,
+          "-"
+        ],
+        [
+          "h1/p3/s5",
+          1935,
+          2028,
+          "-"
+        ],
+        [
+          "h1/p4/s1",
+          2030,
+          2133,
+          "-"
+        ],
+        [
+          "h1/p4/s2",
+          2134,
+          2251,
+          "-"
+        ],
+        [
+          "h1/p4/s3",
+          2252,
+          2318,
+          "-"
+        ],
+        [
+          "h1/p4/s4",
+          2319,
+          2399,
+          "-"
+        ],
+        [
+          "h1/p4/s5",
+          2400,
+          2506,
+          "-"
+        ],
+        [
+          "h2/p2/s1",
+          3897,
+          3978,
+          "-"
+        ],
+        [
+          "h2/p2/s2",
+          3979,
+          4041,
+          "-"
+        ],
+        [
+          "h2/p2/s3",
+          4042,
+          4143,
+          "-"
+        ],
+        [
+          "h2/p2/s4",
+          4144,
+          4235,
+          "-"
+        ],
+        [
+          "h2/p2/s5",
+          4236,
+          4405,
+          "-"
+        ],
+        [
+          "h2/p3/s1",
+          4407,
+          4489,
+          "-"
+        ],
+        [
+          "h2/p3/s2",
+          4490,
+          4605,
+          "-"
+        ],
+        [
+          "h2/p3/s3",
+          4606,
+          4738,
+          "-"
+        ],
+        [
+          "h2/p3/s4",
+          4739,
+          4771,
+          "-"
+        ],
+        [
+          "h2/p3/s5",
+          4772,
+          4886,
+          "-"
+        ],
+        [
+          "h2/p4/s1",
+          4888,
+          4925,
+          "-"
+        ],
+        [
+          "h2/p4/s2",
+          4926,
+          5059,
+          "-"
+        ],
+        [
+          "h2/p4/s3",
+          5060,
+          5173,
+          "-"
+        ],
+        [
+          "h2/p4/s4",
+          5174,
+          5290,
+          "-"
+        ],
+        [
+          "h3/p2/s1",
+          6527,
+          6607,
+          "-"
+        ],
+        [
+          "h3/p2/s2",
+          6608,
+          6691,
+          "-"
+        ],
+        [
+          "h3/p2/s3",
+          6692,
+          6765,
+          "-"
+        ],
+        [
+          "h3/p2/s4",
+          6766,
+          6889,
+          "-"
+        ],
+        [
+          "h3/p2/s5",
+          6890,
+          7008,
+          "-"
+        ],
+        [
+          "h3/p3/s1",
+          7010,
+          7072,
+          "-"
+        ],
+        [
+          "h3/p3/s2",
+          7073,
+          7148,
+          "-"
+        ],
+        [
+          "h3/p3/s3",
+          7149,
+          7211,
+          "-"
+        ],
+        [
+          "h3/p3/s4",
+          7212,
+          7323,
+          "-"
+        ],
+        [
+          "h3/p3/s5",
+          7324,
+          7436,
+          "-"
+        ],
+        [
+          "h3/p4/s1",
+          7438,
+          7543,
+          "-"
+        ],
+        [
+          "h3/p4/s2",
+          7544,
+          7702,
+          "-"
+        ],
+        [
+          "h3/p4/s3",
+          7703,
+          7862,
+          "-"
+        ],
+        [
+          "h3/p4/s4",
+          7863,
+          7977,
+          "-"
+        ]
+      ],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/settings/040-agents/024-heonchung-healer.md",
+      "current_sha256": "1a9f99020aaa8977a0139b156eacc15a53df4cf84a74b293ddf9de76f7df865e",
+      "coverage": [
+        {
+          "h2": "document",
+          "locator": "h0/p1",
+          "line": 1,
+          "span": [
+            0,
+            47
+          ],
+          "kind": "heading",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "document",
+          "locator": "h0/p2",
+          "line": 3,
+          "span": [
+            49,
+            143
+          ],
+          "kind": "navigation",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "heonchung-healer",
+          "locator": "h1/p1",
+          "line": 5,
+          "span": [
+            145,
+            213
+          ],
+          "kind": "heading",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "heonchung-healer",
+          "locator": "h1/p2",
+          "line": 7,
+          "span": [
+            215,
+            239
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "heonchung-healer",
+          "locator": "h1/p3",
+          "line": 9,
+          "span": [
+            241,
+            641
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "heonchung-healer",
+          "locator": "h1/p4",
+          "line": 11,
+          "span": [
+            643,
+            664
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "heonchung-healer",
+          "locator": "h1/p5",
+          "line": 13,
+          "span": [
+            666,
+            988
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "heonchung-healer",
+          "locator": "h1/p6",
+          "line": 15,
+          "span": [
+            990,
+            1296
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        },
+        {
+          "h2": "heonchung-healer",
+          "locator": "h1/p7",
+          "line": 17,
+          "span": [
+            1298,
+            1516
+          ],
+          "kind": "body",
+          "basis": "full-treatment-body-and-parent-identity-owner"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h1/p2/s1",
+          215,
+          239,
+          "-"
+        ],
+        [
+          "h1/p3/s1",
+          241,
+          326,
+          "-"
+        ],
+        [
+          "h1/p3/s2",
+          327,
+          371,
+          "-"
+        ],
+        [
+          "h1/p3/s3",
+          372,
+          473,
+          "-"
+        ],
+        [
+          "h1/p3/s4",
+          474,
+          641,
+          "-"
+        ],
+        [
+          "h1/p4/s1",
+          643,
+          664,
+          "-"
+        ],
+        [
+          "h1/p5/s1",
+          666,
+          775,
+          "-"
+        ],
+        [
+          "h1/p5/s2",
+          776,
+          795,
+          "-"
+        ],
+        [
+          "h1/p5/s3",
+          796,
+          889,
+          "-"
+        ],
+        [
+          "h1/p5/s4",
+          890,
+          988,
+          "-"
+        ],
+        [
+          "h1/p6/s1",
+          990,
+          1157,
+          "-"
+        ],
+        [
+          "h1/p6/s2",
+          1158,
+          1209,
+          "-"
+        ],
+        [
+          "h1/p6/s3",
+          1210,
+          1296,
+          "-"
+        ],
+        [
+          "h1/p7/s1",
+          1298,
+          1384,
+          "-"
+        ],
+        [
+          "h1/p7/s2",
+          1385,
+          1464,
+          "-"
+        ],
+        [
+          "h1/p7/s3",
+          1465,
+          1516,
+          "-"
+        ]
+      ],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+      "current_sha256": "a81c35174c186ac7ce1b8f037087614d88ac179c34ae2a22bf439016d3ef5f9c",
+      "coverage": [
+        {
+          "h2": "t036-heonchung-rejects-waiting",
+          "locator": "h16/p8",
+          "line": 342,
+          "span": [
+            20080,
+            20269
+          ],
+          "kind": "body",
+          "basis": "preceding-clash-closure-neighbor"
+        },
+        {
+          "h2": "t036-heonchung-rejects-waiting",
+          "locator": "h16/p9",
+          "line": 344,
+          "span": [
+            20271,
+            20317
+          ],
+          "kind": "body",
+          "basis": "preceding-clash-closure-neighbor"
+        },
+        {
+          "h2": "t036-heonchung-rejects-waiting",
+          "locator": "h16/p10",
+          "line": 346,
+          "span": [
+            20319,
+            20454
+          ],
+          "kind": "body",
+          "basis": "preceding-clash-closure-neighbor"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p1",
+          "line": 348,
+          "span": [
+            20456,
+            20534
+          ],
+          "kind": "heading",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p2",
+          "line": 350,
+          "span": [
+            20536,
+            20637
+          ],
+          "kind": "navigation",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p3",
+          "line": 352,
+          "span": [
+            20639,
+            20910
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p4",
+          "line": 354,
+          "span": [
+            20912,
+            20968
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p5",
+          "line": 356,
+          "span": [
+            20970,
+            21199
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p6",
+          "line": 358,
+          "span": [
+            21201,
+            21245
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p7",
+          "line": 360,
+          "span": [
+            21247,
+            21308
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p8",
+          "line": 362,
+          "span": [
+            21310,
+            21441
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p1",
+          "line": 364,
+          "span": [
+            21443,
+            21530
+          ],
+          "kind": "heading",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p2",
+          "line": 366,
+          "span": [
+            21532,
+            21629
+          ],
+          "kind": "navigation",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p3",
+          "line": 368,
+          "span": [
+            21631,
+            21851
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p4",
+          "line": 370,
+          "span": [
+            21853,
+            21922
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p5",
+          "line": 372,
+          "span": [
+            21924,
+            21975
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p6",
+          "line": 374,
+          "span": [
+            21977,
+            22007
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p7",
+          "line": 376,
+          "span": [
+            22009,
+            22034
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p8",
+          "line": 378,
+          "span": [
+            22036,
+            22298
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p9",
+          "line": 380,
+          "span": [
+            22300,
+            22334
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p10",
+          "line": 382,
+          "span": [
+            22336,
+            22358
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p11",
+          "line": 384,
+          "span": [
+            22360,
+            22501
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p12",
+          "line": 386,
+          "span": [
+            22503,
+            22556
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p13",
+          "line": 388,
+          "span": [
+            22558,
+            22705
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p1",
+          "line": 390,
+          "span": [
+            22707,
+            22796
+          ],
+          "kind": "heading",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p2",
+          "line": 392,
+          "span": [
+            22798,
+            22901
+          ],
+          "kind": "navigation",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p3",
+          "line": 394,
+          "span": [
+            22903,
+            23104
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p4",
+          "line": 396,
+          "span": [
+            23106,
+            23130
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p5",
+          "line": 398,
+          "span": [
+            23132,
+            23168
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p6",
+          "line": 400,
+          "span": [
+            23170,
+            23276
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p7",
+          "line": 402,
+          "span": [
+            23278,
+            23327
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p8",
+          "line": 404,
+          "span": [
+            23329,
+            23429
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p9",
+          "line": 406,
+          "span": [
+            23431,
+            23472
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p10",
+          "line": 408,
+          "span": [
+            23474,
+            23600
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p11",
+          "line": 410,
+          "span": [
+            23602,
+            23686
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p12",
+          "line": 412,
+          "span": [
+            23688,
+            23781
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p13",
+          "line": 414,
+          "span": [
+            23783,
+            23859
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p14",
+          "line": 416,
+          "span": [
+            23861,
+            23925
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p15",
+          "line": 418,
+          "span": [
+            23927,
+            24068
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p16",
+          "line": 420,
+          "span": [
+            24070,
+            24204
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p17",
+          "line": 422,
+          "span": [
+            24206,
+            24247
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p18",
+          "line": 424,
+          "span": [
+            24249,
+            24492
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h16/p8/s1",
+          20080,
+          20133,
+          "-"
+        ],
+        [
+          "h16/p8/s2",
+          20134,
+          20203,
+          "-"
+        ],
+        [
+          "h16/p8/s3",
+          20204,
+          20269,
+          "-"
+        ],
+        [
+          "h16/p9/s1",
+          20271,
+          20294,
+          "-"
+        ],
+        [
+          "h16/p9/s2",
+          20295,
+          20317,
+          "-"
+        ],
+        [
+          "h16/p10/s1",
+          20319,
+          20393,
+          "-"
+        ],
+        [
+          "h16/p10/s2",
+          20394,
+          20454,
+          "-"
+        ],
+        [
+          "h17/p3/s1",
+          20639,
+          20675,
+          "-"
+        ],
+        [
+          "h17/p3/s2",
+          20676,
+          20729,
+          "-"
+        ],
+        [
+          "h17/p3/s3",
+          20730,
+          20802,
+          "-"
+        ],
+        [
+          "h17/p3/s4",
+          20803,
+          20869,
+          "-"
+        ],
+        [
+          "h17/p3/s5",
+          20870,
+          20910,
+          "-"
+        ],
+        [
+          "h17/p4/s1",
+          20912,
+          20934,
+          "-"
+        ],
+        [
+          "h17/p4/s2",
+          20935,
+          20951,
+          "-"
+        ],
+        [
+          "h17/p4/s3",
+          20952,
+          20968,
+          "-"
+        ],
+        [
+          "h17/p5/s1",
+          20970,
+          21042,
+          "-"
+        ],
+        [
+          "h17/p5/s2",
+          21043,
+          21089,
+          "-"
+        ],
+        [
+          "h17/p5/s3",
+          21090,
+          21199,
+          "-"
+        ],
+        [
+          "h17/p6/s1",
+          21201,
+          21245,
+          "-"
+        ],
+        [
+          "h17/p7/s1",
+          21247,
+          21273,
+          "-"
+        ],
+        [
+          "h17/p7/s2",
+          21274,
+          21308,
+          "-"
+        ],
+        [
+          "h17/p8/s1",
+          21310,
+          21331,
+          "-"
+        ],
+        [
+          "h17/p8/s2",
+          21332,
+          21380,
+          "-"
+        ],
+        [
+          "h17/p8/s3",
+          21381,
+          21441,
+          "-"
+        ],
+        [
+          "h18/p3/s1",
+          21631,
+          21662,
+          "-"
+        ],
+        [
+          "h18/p3/s2",
+          21663,
+          21713,
+          "-"
+        ],
+        [
+          "h18/p3/s3",
+          21714,
+          21766,
+          "-"
+        ],
+        [
+          "h18/p3/s4",
+          21767,
+          21851,
+          "-"
+        ],
+        [
+          "h18/p4/s1",
+          21853,
+          21887,
+          "-"
+        ],
+        [
+          "h18/p4/s2",
+          21888,
+          21922,
+          "-"
+        ],
+        [
+          "h18/p5/s1",
+          21924,
+          21975,
+          "-"
+        ],
+        [
+          "h18/p6/s1",
+          21977,
+          22007,
+          "-"
+        ],
+        [
+          "h18/p7/s1",
+          22009,
+          22034,
+          "-"
+        ],
+        [
+          "h18/p8/s1",
+          22036,
+          22081,
+          "-"
+        ],
+        [
+          "h18/p8/s2",
+          22082,
+          22121,
+          "-"
+        ],
+        [
+          "h18/p8/s3",
+          22122,
+          22150,
+          "-"
+        ],
+        [
+          "h18/p8/s4",
+          22151,
+          22215,
+          "-"
+        ],
+        [
+          "h18/p8/s5",
+          22216,
+          22298,
+          "-"
+        ],
+        [
+          "h18/p9/s1",
+          22300,
+          22334,
+          "-"
+        ],
+        [
+          "h18/p10/s1",
+          22336,
+          22358,
+          "-"
+        ],
+        [
+          "h18/p11/s1",
+          22360,
+          22394,
+          "-"
+        ],
+        [
+          "h18/p11/s2",
+          22395,
+          22446,
+          "-"
+        ],
+        [
+          "h18/p11/s3",
+          22447,
+          22501,
+          "-"
+        ],
+        [
+          "h18/p12/s1",
+          22503,
+          22556,
+          "-"
+        ],
+        [
+          "h18/p13/s1",
+          22558,
+          22637,
+          "-"
+        ],
+        [
+          "h18/p13/s2",
+          22638,
+          22705,
+          "-"
+        ],
+        [
+          "h19/p3/s1",
+          22903,
+          22946,
+          "-"
+        ],
+        [
+          "h19/p3/s2",
+          22947,
+          22992,
+          "-"
+        ],
+        [
+          "h19/p3/s3",
+          22993,
+          23104,
+          "-"
+        ],
+        [
+          "h19/p4/s1",
+          23106,
+          23130,
+          "-"
+        ],
+        [
+          "h19/p5/s1",
+          23132,
+          23168,
+          "-"
+        ],
+        [
+          "h19/p6/s1",
+          23170,
+          23228,
+          "-"
+        ],
+        [
+          "h19/p6/s2",
+          23229,
+          23276,
+          "-"
+        ],
+        [
+          "h19/p7/s1",
+          23278,
+          23327,
+          "-"
+        ],
+        [
+          "h19/p8/s1",
+          23329,
+          23429,
+          "-"
+        ],
+        [
+          "h19/p9/s1",
+          23431,
+          23472,
+          "-"
+        ],
+        [
+          "h19/p10/s1",
+          23474,
+          23600,
+          "-"
+        ],
+        [
+          "h19/p11/s1",
+          23602,
+          23686,
+          "-"
+        ],
+        [
+          "h19/p12/s1",
+          23688,
+          23781,
+          "-"
+        ],
+        [
+          "h19/p13/s1",
+          23783,
+          23859,
+          "-"
+        ],
+        [
+          "h19/p14/s1",
+          23861,
+          23925,
+          "-"
+        ],
+        [
+          "h19/p15/s1",
+          23927,
+          23993,
+          "-"
+        ],
+        [
+          "h19/p15/s2",
+          23994,
+          24011,
+          "-"
+        ],
+        [
+          "h19/p15/s3",
+          24012,
+          24068,
+          "-"
+        ],
+        [
+          "h19/p16/s1",
+          24070,
+          24128,
+          "-"
+        ],
+        [
+          "h19/p16/s2",
+          24129,
+          24204,
+          "-"
+        ],
+        [
+          "h19/p17/s1",
+          24206,
+          24247,
+          "-"
+        ],
+        [
+          "h19/p18/s1",
+          24249,
+          24294,
+          "-"
+        ],
+        [
+          "h19/p18/s2",
+          24295,
+          24400,
+          "-"
+        ],
+        [
+          "h19/p18/s3",
+          24401,
+          24492,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h16/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h16/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h16/p10",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p5",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p6",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p7",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p5",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p6",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p7",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p10",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p11",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p12",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p13",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p5",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p6",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p7",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p10",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p11",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p12",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p13",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p14",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p15",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p16",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p17",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p18",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/005-days-to-sow/001-days-to-sow.md",
+      "current_sha256": "fb4e9f9bda40ba5d9af0655066851228fa7ec3d850c0b6c91b1024ee8f607cb9",
+      "coverage": [
+        {
+          "h2": "t036-heonchung-rejects-waiting",
+          "locator": "h16/p8",
+          "line": 400,
+          "span": [
+            26793,
+            27026
+          ],
+          "kind": "body",
+          "basis": "preceding-clash-closure-neighbor"
+        },
+        {
+          "h2": "t036-heonchung-rejects-waiting",
+          "locator": "h16/p9",
+          "line": 402,
+          "span": [
+            27028,
+            27085
+          ],
+          "kind": "body",
+          "basis": "preceding-clash-closure-neighbor"
+        },
+        {
+          "h2": "t036-heonchung-rejects-waiting",
+          "locator": "h16/p10",
+          "line": 404,
+          "span": [
+            27087,
+            27208
+          ],
+          "kind": "body",
+          "basis": "preceding-clash-closure-neighbor"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p1",
+          "line": 406,
+          "span": [
+            27210,
+            27288
+          ],
+          "kind": "heading",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p2",
+          "line": 408,
+          "span": [
+            27290,
+            27512
+          ],
+          "kind": "navigation",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p3",
+          "line": 410,
+          "span": [
+            27514,
+            27698
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p4",
+          "line": 412,
+          "span": [
+            27700,
+            27780
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p5",
+          "line": 414,
+          "span": [
+            27782,
+            27936
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p6",
+          "line": 416,
+          "span": [
+            27938,
+            28006
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p7",
+          "line": 418,
+          "span": [
+            28008,
+            28160
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p8",
+          "line": 420,
+          "span": [
+            28162,
+            28208
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p9",
+          "line": 422,
+          "span": [
+            28210,
+            28565
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p10",
+          "line": 424,
+          "span": [
+            28567,
+            28611
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p11",
+          "line": 426,
+          "span": [
+            28613,
+            28688
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p12",
+          "line": 428,
+          "span": [
+            28690,
+            28791
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p13",
+          "line": 430,
+          "span": [
+            28793,
+            28828
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p14",
+          "line": 432,
+          "span": [
+            28830,
+            28913
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-wounded-heonchung-carried-inside",
+          "locator": "h17/p15",
+          "line": 434,
+          "span": [
+            28915,
+            29188
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p1",
+          "line": 436,
+          "span": [
+            29190,
+            29274
+          ],
+          "kind": "heading",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p2",
+          "line": 438,
+          "span": [
+            29276,
+            29490
+          ],
+          "kind": "navigation",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p3",
+          "line": 440,
+          "span": [
+            29492,
+            29779
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p4",
+          "line": 442,
+          "span": [
+            29781,
+            29827
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p5",
+          "line": 444,
+          "span": [
+            29829,
+            29884
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p6",
+          "line": 446,
+          "span": [
+            29886,
+            29973
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p7",
+          "line": 448,
+          "span": [
+            29975,
+            30008
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p8",
+          "line": 450,
+          "span": [
+            30010,
+            30065
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p9",
+          "line": 452,
+          "span": [
+            30067,
+            30505
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p10",
+          "line": 454,
+          "span": [
+            30507,
+            30563
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p11",
+          "line": 456,
+          "span": [
+            30565,
+            30733
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p12",
+          "line": 458,
+          "span": [
+            30735,
+            30891
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p13",
+          "line": 460,
+          "span": [
+            30893,
+            30938
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p14",
+          "line": 462,
+          "span": [
+            30940,
+            30978
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-treatment-fails-on-third-day",
+          "locator": "h18/p15",
+          "line": 464,
+          "span": [
+            30980,
+            31070
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p1",
+          "line": 466,
+          "span": [
+            31072,
+            31158
+          ],
+          "kind": "heading",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p2",
+          "line": 468,
+          "span": [
+            31160,
+            31386
+          ],
+          "kind": "navigation",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p3",
+          "line": 470,
+          "span": [
+            31388,
+            31457
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p4",
+          "line": 472,
+          "span": [
+            31459,
+            31546
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p5",
+          "line": 474,
+          "span": [
+            31548,
+            31609
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p6",
+          "line": 476,
+          "span": [
+            31611,
+            31692
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p7",
+          "line": 478,
+          "span": [
+            31694,
+            31818
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p8",
+          "line": 480,
+          "span": [
+            31820,
+            31871
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p9",
+          "line": 482,
+          "span": [
+            31873,
+            31998
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p10",
+          "line": 484,
+          "span": [
+            32000,
+            32200
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p11",
+          "line": 486,
+          "span": [
+            32202,
+            32299
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p12",
+          "line": 488,
+          "span": [
+            32301,
+            32468
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p13",
+          "line": 490,
+          "span": [
+            32470,
+            32595
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p14",
+          "line": 492,
+          "span": [
+            32597,
+            32735
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p15",
+          "line": 494,
+          "span": [
+            32737,
+            32817
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p16",
+          "line": 496,
+          "span": [
+            32819,
+            33039
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        },
+        {
+          "h2": "t037-reports-close-the-negotiating-path",
+          "locator": "h19/p17",
+          "line": 498,
+          "span": [
+            33041,
+            33216
+          ],
+          "kind": "body",
+          "basis": "full-dependent-t037-H2"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h16/p8/s1",
+          26793,
+          26835,
+          "-"
+        ],
+        [
+          "h16/p8/s2",
+          26836,
+          26928,
+          "-"
+        ],
+        [
+          "h16/p8/s3",
+          26929,
+          26975,
+          "-"
+        ],
+        [
+          "h16/p8/s4",
+          26976,
+          27026,
+          "-"
+        ],
+        [
+          "h16/p9/s1",
+          27028,
+          27055,
+          "-"
+        ],
+        [
+          "h16/p9/s2",
+          27056,
+          27085,
+          "-"
+        ],
+        [
+          "h16/p10/s1",
+          27087,
+          27169,
+          "-"
+        ],
+        [
+          "h16/p10/s2",
+          27170,
+          27208,
+          "-"
+        ],
+        [
+          "h17/p3/s1",
+          27514,
+          27618,
+          "-"
+        ],
+        [
+          "h17/p3/s2",
+          27619,
+          27661,
+          "-"
+        ],
+        [
+          "h17/p3/s3",
+          27662,
+          27698,
+          "-"
+        ],
+        [
+          "h17/p4/s1",
+          27700,
+          27748,
+          "-"
+        ],
+        [
+          "h17/p4/s2",
+          27749,
+          27780,
+          "-"
+        ],
+        [
+          "h17/p5/s1",
+          27782,
+          27846,
+          "-"
+        ],
+        [
+          "h17/p5/s2",
+          27847,
+          27896,
+          "-"
+        ],
+        [
+          "h17/p5/s3",
+          27897,
+          27936,
+          "-"
+        ],
+        [
+          "h17/p6/s1",
+          27938,
+          27986,
+          "-"
+        ],
+        [
+          "h17/p6/s2",
+          27987,
+          28006,
+          "-"
+        ],
+        [
+          "h17/p7/s1",
+          28008,
+          28030,
+          "-"
+        ],
+        [
+          "h17/p7/s2",
+          28031,
+          28118,
+          "-"
+        ],
+        [
+          "h17/p7/s3",
+          28119,
+          28160,
+          "-"
+        ],
+        [
+          "h17/p8/s1",
+          28162,
+          28177,
+          "-"
+        ],
+        [
+          "h17/p8/s2",
+          28178,
+          28208,
+          "-"
+        ],
+        [
+          "h17/p9/s1",
+          28210,
+          28312,
+          "-"
+        ],
+        [
+          "h17/p9/s2",
+          28313,
+          28467,
+          "-"
+        ],
+        [
+          "h17/p9/s3",
+          28468,
+          28565,
+          "-"
+        ],
+        [
+          "h17/p10/s1",
+          28567,
+          28611,
+          "-"
+        ],
+        [
+          "h17/p11/s1",
+          28613,
+          28647,
+          "-"
+        ],
+        [
+          "h17/p11/s2",
+          28648,
+          28688,
+          "-"
+        ],
+        [
+          "h17/p12/s1",
+          28690,
+          28738,
+          "-"
+        ],
+        [
+          "h17/p12/s2",
+          28739,
+          28791,
+          "-"
+        ],
+        [
+          "h17/p13/s1",
+          28793,
+          28828,
+          "-"
+        ],
+        [
+          "h17/p14/s1",
+          28830,
+          28913,
+          "-"
+        ],
+        [
+          "h17/p15/s1",
+          28915,
+          28978,
+          "-"
+        ],
+        [
+          "h17/p15/s2",
+          28979,
+          29045,
+          "-"
+        ],
+        [
+          "h17/p15/s3",
+          29046,
+          29104,
+          "-"
+        ],
+        [
+          "h17/p15/s4",
+          29105,
+          29188,
+          "-"
+        ],
+        [
+          "h18/p3/s1",
+          29492,
+          29576,
+          "-"
+        ],
+        [
+          "h18/p3/s2",
+          29577,
+          29649,
+          "-"
+        ],
+        [
+          "h18/p3/s3",
+          29650,
+          29715,
+          "-"
+        ],
+        [
+          "h18/p3/s4",
+          29716,
+          29779,
+          "-"
+        ],
+        [
+          "h18/p4/s1",
+          29781,
+          29827,
+          "-"
+        ],
+        [
+          "h18/p5/s1",
+          29829,
+          29864,
+          "-"
+        ],
+        [
+          "h18/p5/s2",
+          29865,
+          29884,
+          "-"
+        ],
+        [
+          "h18/p6/s1",
+          29886,
+          29973,
+          "-"
+        ],
+        [
+          "h18/p7/s1",
+          29975,
+          30008,
+          "-"
+        ],
+        [
+          "h18/p8/s1",
+          30010,
+          30037,
+          "-"
+        ],
+        [
+          "h18/p8/s2",
+          30038,
+          30065,
+          "-"
+        ],
+        [
+          "h18/p9/s1",
+          30067,
+          30147,
+          "-"
+        ],
+        [
+          "h18/p9/s2",
+          30148,
+          30236,
+          "-"
+        ],
+        [
+          "h18/p9/s3",
+          30237,
+          30289,
+          "-"
+        ],
+        [
+          "h18/p9/s4",
+          30290,
+          30379,
+          "-"
+        ],
+        [
+          "h18/p9/s5",
+          30380,
+          30479,
+          "-"
+        ],
+        [
+          "h18/p9/s6",
+          30480,
+          30505,
+          "-"
+        ],
+        [
+          "h18/p10/s1",
+          30507,
+          30537,
+          "-"
+        ],
+        [
+          "h18/p10/s2",
+          30538,
+          30563,
+          "-"
+        ],
+        [
+          "h18/p11/s1",
+          30565,
+          30611,
+          "-"
+        ],
+        [
+          "h18/p11/s2",
+          30612,
+          30647,
+          "-"
+        ],
+        [
+          "h18/p11/s3",
+          30648,
+          30733,
+          "-"
+        ],
+        [
+          "h18/p12/s1",
+          30735,
+          30781,
+          "-"
+        ],
+        [
+          "h18/p12/s2",
+          30782,
+          30845,
+          "-"
+        ],
+        [
+          "h18/p12/s3",
+          30846,
+          30891,
+          "-"
+        ],
+        [
+          "h18/p13/s1",
+          30893,
+          30938,
+          "-"
+        ],
+        [
+          "h18/p14/s1",
+          30940,
+          30978,
+          "-"
+        ],
+        [
+          "h18/p15/s1",
+          30980,
+          31034,
+          "-"
+        ],
+        [
+          "h18/p15/s2",
+          31035,
+          31070,
+          "-"
+        ],
+        [
+          "h19/p3/s1",
+          31388,
+          31413,
+          "-"
+        ],
+        [
+          "h19/p3/s2",
+          31414,
+          31457,
+          "-"
+        ],
+        [
+          "h19/p4/s1",
+          31459,
+          31512,
+          "-"
+        ],
+        [
+          "h19/p4/s2",
+          31513,
+          31546,
+          "-"
+        ],
+        [
+          "h19/p5/s1",
+          31548,
+          31577,
+          "-"
+        ],
+        [
+          "h19/p5/s2",
+          31578,
+          31609,
+          "-"
+        ],
+        [
+          "h19/p6/s1",
+          31611,
+          31692,
+          "-"
+        ],
+        [
+          "h19/p7/s1",
+          31694,
+          31726,
+          "-"
+        ],
+        [
+          "h19/p7/s2",
+          31727,
+          31818,
+          "-"
+        ],
+        [
+          "h19/p8/s1",
+          31820,
+          31871,
+          "-"
+        ],
+        [
+          "h19/p9/s1",
+          31873,
+          31918,
+          "-"
+        ],
+        [
+          "h19/p9/s2",
+          31919,
+          31998,
+          "-"
+        ],
+        [
+          "h19/p10/s1",
+          32000,
+          32065,
+          "-"
+        ],
+        [
+          "h19/p10/s2",
+          32066,
+          32123,
+          "-"
+        ],
+        [
+          "h19/p10/s3",
+          32124,
+          32200,
+          "-"
+        ],
+        [
+          "h19/p11/s1",
+          32202,
+          32299,
+          "-"
+        ],
+        [
+          "h19/p12/s1",
+          32301,
+          32412,
+          "-"
+        ],
+        [
+          "h19/p12/s2",
+          32413,
+          32468,
+          "-"
+        ],
+        [
+          "h19/p13/s1",
+          32470,
+          32553,
+          "-"
+        ],
+        [
+          "h19/p13/s2",
+          32554,
+          32595,
+          "-"
+        ],
+        [
+          "h19/p14/s1",
+          32597,
+          32707,
+          "-"
+        ],
+        [
+          "h19/p14/s2",
+          32708,
+          32735,
+          "-"
+        ],
+        [
+          "h19/p15/s1",
+          32737,
+          32817,
+          "-"
+        ],
+        [
+          "h19/p16/s1",
+          32819,
+          32918,
+          "-"
+        ],
+        [
+          "h19/p16/s2",
+          32919,
+          32961,
+          "-"
+        ],
+        [
+          "h19/p16/s3",
+          32962,
+          33039,
+          "-"
+        ],
+        [
+          "h19/p17/s1",
+          33041,
+          33118,
+          "-"
+        ],
+        [
+          "h19/p17/s2",
+          33119,
+          33216,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h16/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h16/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h16/p10",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p5",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p6",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p7",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p10",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p11",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p12",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p13",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p14",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h17/p15",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p5",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p6",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p7",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p10",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p11",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p12",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p13",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p14",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h18/p15",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p5",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p6",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p7",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p10",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p11",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p12",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p13",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p14",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p15",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p16",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h19/p17",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    }
+  ],
+  "actual_parent_scopes": {
+    "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md#t037-wounded-heonchung-carried-inside": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/037-three-days-and-three-reports.md",
+        "h2": "wounded-heonchung-carried-inside",
+        "sha256": "ca12490c5942bce2c2f8521b2601b5097757e4a44d28196733ecc5e88b3ce28e",
+        "lines": [
+          3,
+          15
+        ]
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md#t037-treatment-fails-on-third-day": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/037-three-days-and-three-reports.md",
+        "h2": "treatment-fails-on-third-day",
+        "sha256": "ca12490c5942bce2c2f8521b2601b5097757e4a44d28196733ecc5e88b3ce28e",
+        "lines": [
+          17,
+          29
+        ]
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md#t037-reports-close-the-negotiating-path": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/037-three-days-and-three-reports.md",
+        "h2": "reports-close-the-negotiating-path",
+        "sha256": "ca12490c5942bce2c2f8521b2601b5097757e4a44d28196733ecc5e88b3ce28e",
+        "lines": [
+          31,
+          43
+        ]
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/005-days-to-sow/001-days-to-sow.md#t037-wounded-heonchung-carried-inside": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/037-three-days-and-three-reports.md",
+        "h2": "wounded-heonchung-carried-inside",
+        "sha256": "ca12490c5942bce2c2f8521b2601b5097757e4a44d28196733ecc5e88b3ce28e",
+        "lines": [
+          3,
+          15
+        ]
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+        "h2": "t037-wounded-heonchung-carried-inside",
+        "sha256": "a81c35174c186ac7ce1b8f037087614d88ac179c34ae2a22bf439016d3ef5f9c",
+        "lines": [
+          348,
+          362
+        ]
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/005-days-to-sow/001-days-to-sow.md#t037-treatment-fails-on-third-day": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/037-three-days-and-three-reports.md",
+        "h2": "treatment-fails-on-third-day",
+        "sha256": "ca12490c5942bce2c2f8521b2601b5097757e4a44d28196733ecc5e88b3ce28e",
+        "lines": [
+          17,
+          29
+        ]
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+        "h2": "t037-treatment-fails-on-third-day",
+        "sha256": "a81c35174c186ac7ce1b8f037087614d88ac179c34ae2a22bf439016d3ef5f9c",
+        "lines": [
+          364,
+          388
+        ]
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/005-days-to-sow/001-days-to-sow.md#t037-reports-close-the-negotiating-path": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/037-three-days-and-three-reports.md",
+        "h2": "reports-close-the-negotiating-path",
+        "sha256": "ca12490c5942bce2c2f8521b2601b5097757e4a44d28196733ecc5e88b3ce28e",
+        "lines": [
+          31,
+          43
+        ]
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+        "h2": "t037-reports-close-the-negotiating-path",
+        "sha256": "a81c35174c186ac7ce1b8f037087614d88ac179c34ae2a22bf439016d3ef5f9c",
+        "lines": [
+          390,
+          424
+        ]
+      }
+    ]
+  },
+  "contract_hashes": [
+    {
+      "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/shared/principles/narratives.md",
+      "sha256": "d0c16aea4c3a556730a41664d970625a7738a62667d49ae32ea6c395231127f4",
+      "reused_direct_reading_from_recheck3": true
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/shared/naturalness/common.md",
+      "sha256": "c87e7b54db5891d94c15c7af5190b149389aebe675963bd158f92f716d75bc37",
+      "reused_direct_reading_from_recheck3": true
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/shared/naturalness/realized.md",
+      "sha256": "49cd128305f74314daef0a0fd2b4ef71687196b68fc417ebebb487071b5b9e5e",
+      "reused_direct_reading_from_recheck3": true
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/shared/naturalness/screenplay.md",
+      "sha256": "ea2009f740460cf9c23376f979e9402efa7a223a6949eee6253e8fbb19600e4b",
+      "reused_direct_reading_from_recheck3": true
+    }
+  ],
+  "validation": {
+    "completed_at_utc": "2026-10-29T07:58:42.369551+00:00",
+    "checks": {
+      "exact_raw_one_word_replacement": true,
+      "snapshot_before_matches_previous_treatment_fingerprint": true,
+      "prior_four_records_unchanged": true,
+      "all82_current_manifest_hashes_valid": true,
+      "67_81_82_counts_membership_and_aggregates_valid": true,
+      "coverage_spans_and_sentence_units_valid": {
+        "blocks": 117,
+        "sentence_units": 222
+      },
+      "all_literal_quotes_correct_h2_and_locator": 8,
+      "actual_parent_hashes_and_h2s_valid": 9,
+      "four_contract_hashes_still_valid": true,
+      "both_dependent_manuscripts_byte_unchanged_since_recheck3": true,
+      "record_prose_english": true
+    },
+    "normalization_fallback_used": false,
+    "failures": []
+  },
+  "summary": {
+    "changed_files": 1,
+    "body_files_read": 3,
+    "settings_files_read": 1,
+    "treatment_h2s_read_to_end": 3,
+    "script_h2s_read_to_end": 3,
+    "screenplay_h2s_read_to_end": 3,
+    "preceding_closure_body_blocks": 6,
+    "coverage_blocks": 117,
+    "sentence_units": 222,
+    "new_findings": 0
+  }
+}

@@ -284,7 +284,11 @@ Parent: [011#nile](../../treatments/011-egypt-and-isolation.md#nile).
 
 HISTORIAN (off screen): France saw Egypt as a foothold for eastern trade and an opportunity to pressure Britain's position in India.
 
-Egypt in daylight, 1798. French troops walk through land they have taken. In a wide view one surveyor places one end of a measure against a building wall while another extends it to the opposite wall. A recorder looks between the ends.
+Caption: Egypt, 1798. Battle of the Pyramids.
+
+Daylight. From behind French infantry, see musket smoke and the opposing troops beyond it. Firing continues as men reload. When the smoke opens again, the opposing troops are withdrawing. The French advance over the ground left clear, then halt together. Men lower their muskets and catch their breath. This limited battle staging reconstructs the already established land victory without assigning a new tactical maneuver or individual achievement.
+
+Later, in occupied territory. A wide view holds a building's two facing walls. One surveyor places an end of a measure against a wall while another extends it to the opposite wall. A recorder looks between the ends.
 
 SURVEYOR: Hold that end. I'll check it again.
 

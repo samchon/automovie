@@ -11,25 +11,26 @@
 -->
 # 《대막리지》 요구 탐색
 
+This document retains earlier source-edition inspections and their original annotations. The adoption section below gives the current English document edition's respondent map. In retained inspection narratives, “current,” pending steps and native-run claims refer to the historical snapshot described there, not this checkout's active work. Earlier stage flags, claim declarations, snapshots and approvals remain records of their original inputs; they do not approve this revision. The [revision record](../../../../../../docs/analysis/script-revision.md) identifies the current inspection and review.
+
 ## 조사한 범위와 채택 결과 {#adopted-requirements}
 
 지정 revision의 지시 9개와 settings 237개 전체를 읽었다. 인물 119개 파일, 세계 15개, 사회 17개, 운용 39개, 장소 27개, 물건 17개, 작품 2개와 개요 1개다. 원본의 다른 창작 계층은 읽지 않았다. 실제 target의 AGENTS·README·production guide와 instructions·discovery·settings·review·production·storytelling·contracts·documentation을 읽고, 공유 discovery·settings·narrative 질문을 비교했다. 소스 계열과 파일별 identity는 `docs/references/intake-manifest.json`이 소유한다.
 
 원본은 소설 첫 권 우선 제작과 전체 생애 정전을 함께 갖고 있었다. 영상에서는 전범위 본편이 위임되었으므로 원매체 분량과 영상 편성을 분리한다. 연개소문의 결전이 성공한 이유와 사후 실패를 같은 국력·협력의 역사로 잇는 약속은 work 정전에, 사실과 창작의 지위는 각 대상의 정전에 둔다. 원본의 옛 계약과 미집필 권별 treatments를 active owner로 삼는 경로는 영상의 현재 owner로 바꾼다.
 
-추가 형식 질문은 `work/obligations/narratives.md#chronicler-and-scene` 하나다. 각 treatment·script·screenplay 완전 계층에 하나의 전체집합 응답자가 모든 실제 내레이션·날짜/진영 전환·회상·평가와 그 접합을 비교한다. scripts와 screenplay는 표현 판본에서도 전체를 다시 비교한다. 일부 H2를 본문 조건으로 선택하지 않으며 무서술 단위에 형식 사용을 강요하지 않는다. 원경/근경의 분포·후세/당대 지식·풍자의 표적과 비극의 정조를 함께 판단하고, 공유 unit 질문은 각 단위를 계속 담당한다. 희망 효과는 관객이 정보의 차이와 실제 선택의 무게를 동시에 경험하는 것이다. 실패는 설명이 선택을 대신하거나 후세의 지식이 당대 발언에 섞이는 경우다.
+The additional form question is `work/obligations/narratives.md#chronicler-and-scene`. One population respondent for each complete treatment, script or screenplay layer compares every actual use of narration, date/camp change, memory, evaluation and their joins. Scripts completes content and expression in construction; screenplay repeats the comparison for its complete expression edition. Do not select only narration-bearing H2s or force narration into silent units. The question preserves long/close distribution, later/contemporary knowledge, targets of satire and the weight of tragedy. Shared unit questions still judge every unit. The intended experience is the difference in knowledge and the weight of enacted choices; explanation replacing choice or later knowledge entering contemporary speech fails.
 
-[evidence 설정](../../../../../../evidence.config.ts)은 이 질문의 실제 모집단과 활성화 값을 소유한다. construction과 naturalness의 stage map이 built-in과 해당 work claim을 함께 제어한다. 아래 complete-work 모집단의 host는 각 계층의 실제 전체 numbered manuscript FILE다. 각 집합에서 정확히 한 FILE 응답자가 전체를 비교하고 제외는 허용하지 않는다. 이는 H2별 응답이나 조건문으로 골라 낸 내레이션 단위의 모집단이 아니다.
+This document edition has no runnable production package or `evidence.config.ts`. The map below specifies inspection respondents rather than claiming installed graph wiring. [Evidence configuration](../../../../evidence/configuration.md) owns actual claims, stages and relationships when the regular package workflow is opened. Each population has one positive FILE respondent comparing all numbered manuscripts; indexes are excluded and exclusions are not permitted. This is neither one response per H2 nor a text predicate selecting narrated scenes.
 
-| 실제 claim 이름 | layer / pass | 실제 전체 FILE 모집단 |
+| Whole-population duty | Layer / pass | Complete respondent scope |
 | --- | --- | --- |
-| treatments construction compares chronicler access across the complete drama | treatments / construction | docs/body/treatments/???-*.md |
-| scripts construction compares chronicler access across the complete drama | scripts / construction | docs/body/scripts/*/???-*.md |
-| screenplay construction compares chronicler access across the complete drama | screenplay / construction | docs/body/screenplay/*/???-*.md |
-| scripts naturalness compares chronicler access across the complete drama | scripts / naturalness | docs/naturalness/scripts/*/???-*.md |
-| screenplay naturalness compares chronicler access across the complete drama | screenplay / naturalness | docs/naturalness/screenplay/*/???-*.md |
+| Chronicler access across the complete drama | treatments / construction | All `docs/body/treatments/???-*.md` |
+| Same duty, including expression | scripts / construction | All `docs/body/scripts/*/???-*.md` |
+| Same duty | screenplay / construction | All `docs/body/screenplay/*/???-*.md` |
+| Same duty in the expression edition | screenplay / naturalness | The complete working screenplay edition selected by that pass |
 
-construction의 응답은 같은 FILE을 미러한 docs/evidence/construction/files에, naturalness의 응답은 해당 완전 working edition의 FILE 주석에 둔다. settings는 chronicler 분포의 응답자가 아니다. 각 완전 초안과 식별 가능한 snapshot을 보존한 뒤 해당 stage와 claim을 함께 활성화하여 실제 응답과 독립 검토를 거친다. 등록은 질문의 면제도 수행·응답·검토의 완료도 아니다. 언어 common/realized의 conventional 선택은 그대로이며 중복 work 질문을 만들지 않는다.
+Settings does not answer this chronicler-distribution duty. A regular package opens built-in and work claims together only after preserving its complete identifiable draft, places construction answers in the configured detached respondents and expression answers in the complete working edition, and obtains current independent review. No Scripts naturalness stage or `docs/naturalness/scripts` respondent remains. Retained Korean language questions preserve source relationship and knowledge functions under PROJECT.md's English rendering; shared expression questions judge actual English reception. Do not register duplicate language duties or present this map, old annotations or stage flags as current execution or approval.
 
 ## 언어를 별도로 살핀 범위 {#language-discovery}
 

@@ -1,6 +1,6 @@
 # 공개 단위의 작가 해설
 
-Each episode file in scripts and screenplay answers once as a whole file, in construction and its expression pass. A scene H2 or part index is not the respondent. The complete file can establish where the story ends and the commentary starts.
+Each episode file in scripts and screenplay answers once as a whole file during construction. Screenplay answers again for its expression edition; scripts completes content and expression together in construction. A scene H2 or part index is not the respondent. The complete file can establish where the story ends and the commentary starts.
 
 ## Does this episode end with an honest, distinct author's commentary? {#author-commentary}
 

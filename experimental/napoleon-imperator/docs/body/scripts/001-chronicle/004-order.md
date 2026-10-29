@@ -72,13 +72,21 @@ Parents: [015#concordat](../../treatments/015-peace-and-service.md#concordat), [
 
 1801–1802, indoors where religious life continues. Follow people entering and take a place with them.
 
-HISTORIAN (off screen): The Concordat negotiated from 1801 was a compromise reconnecting interrupted religious life. The government's order and the place the Church sought to defend were not the same.
+HISTORIAN (off screen): The Concordat negotiated from 1801 was a compromise reconnecting interrupted religious life.
 
-At the same time administrative documents seek to define how far religion may be independent. Before Cambacérès, Napoleon turns over a paper.
+In a daylight office, Napoleon turns from documents concerning the agreement to Cambacérès. People praying remain audible over the change of place, then recede before the exchange.
 
-NAPOLEON: This reconciliation must last.
+NAPOLEON: We cannot govern by trying to drive faith out of the country.
 
-CAMBACÉRÈS: Then we must address each side's place.
+CAMBACÉRÈS: Nor will reconciliation make the Church part of the army, Citizen First Consul.
+
+Napoleon keeps the document open.
+
+NAPOLEON: The state must still be able to govern.
+
+CAMBACÉRÈS: Then both sides must have a place in the agreement.
+
+Napoleon passes the paper back for further work. Return to people finishing their prayers and leaving together. No new treaty article is displayed or read.
 
 A classroom by day. A selected group receives books. Time spent studying leads into work in army and administration. Do not narrow it to a new named student's or honoree's biography. Hands arrange decorations and verify merit, followed by hands receiving a request to serve.
 
@@ -162,33 +170,37 @@ The people of this land move without waiting for France's next order.
 
 Parents: [017#code](../../treatments/017-law-and-crown.md#code), [017#emperor](../../treatments/017-law-and-crown.md#emperor).
 
-1804, a meeting room working on the code. Several papers lie in window light. A jurist turns a document he wrote toward Napoleon. Rather than read the original article, see a hand indicating words and both faces at the same height.
+1804, a meeting room working on the code. Several papers lie in window light. A jurist puts his draft before Napoleon; Cambacérès sits where he can see both men and the pages. Their words reconstruct deliberation on the already established benefits and restrictions, not the text of an actual article.
 
-JURIST: It means to protect property and establish legal equality.
+JURIST: Protection of property. Equality before the law.
 
-Napoleon points to the passage and starts to close the document.
+NAPOLEON: Keep that.
 
-NAPOLEON: Is the meaning not clear?
+The jurist opens the pages concerning women and children instead of gathering the draft away.
 
-The jurist keeps a hand there and opens a later sheet.
+JURIST: These restrictions remain in the same code?
 
-JURIST: The subordination of women and children remains too. Reading only the first part would mean they gain the same powers.
+NAPOLEON: They remain. Legal equality does not mean that I am giving everyone the same authority in the family.
 
-Napoleon opens the document again and looks between the two parts.
+JURIST: Then the limits must be clear in the wording.
 
-NAPOLEON: We write equality, but keep this limitation.
+Napoleon reaches for the earlier page. Cambacérès moves the later one beside it.
 
-JURIST: Yes.
+CAMBACÉRÈS: We must settle them together, Citizen First Consul.
 
-Cambacérès places the sheets side by side.
+Napoleon reads across the two pages, then returns them to the jurist.
 
-CAMBACÉRÈS: Please continue reading.
+NAPOLEON: Make both clear. Read the correction to us.
 
-Napoleon, about to rise, stops. The jurist points to the next words and waits. Napoleon sits and pushes the first paper forward.
+The jurist amends his draft. Keep the words on the page out of reading range; no new legal provision is introduced. He reads in a low voice, pausing where Cambacérès indicates a passage that must agree with another. Napoleon starts to answer before the reading ends, then waits.
 
-NAPOLEON: We cannot finish here. Let us read it again.
+NAPOLEON: Does that change remove the restrictions?
 
-The jurist reads. Cambacérès marks places to revise where passages meet. Napoleon starts to interrupt, then listens to the end. The light changes and read and corrected pages accumulate. They close the completed code. It makes a different sound from guns fired in haste.
+JURIST: No. It states them explicitly.
+
+NAPOLEON: Then continue.
+
+They remain at the table. The changing light and candles carry time while the jurist reads and revises, Cambacérès checks the connected passages, and Napoleon follows the work rather than dismissing it with an order. Only after their deliberation ends do they close the completed code. Its cover sounds in the quiet room.
 
 HISTORIAN (off screen): This order also established control of labor.
 

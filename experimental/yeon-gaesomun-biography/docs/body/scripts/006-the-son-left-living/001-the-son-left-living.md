@@ -3,6 +3,8 @@
 
 ## A choice the country could not prevent {#t038-namsaeng-chooses-destructive-aid}
 
+[Event parent](../../treatments/038-the-country-no-longer-decides.md#namsaeng-chooses-destructive-aid)
+
 Inside a Gungnaeseong council room in 666, day. Namsaeng and Heonseong sit facing each other. Having lost his brother, Heonseong waits for his father to speak, then begins.
 
 HEONSEONG: We can ask Tang for aid. They won't help from goodwill alone. But there's a way to live, instead of returning to the people who ordered us killed.
@@ -20,6 +22,8 @@ NAMSAENG: You go and explain our family's circumstances. Ask for aid and promise
 Heonseong departs. While waiting, Namsaeng determines cooperating regions and connections instead of a reconstruction plan.
 
 ## Choosing not to follow someone once trusted {#t038-followers-split-over-defection}
+
+[Event parent](../../treatments/038-the-country-no-longer-decides.md#followers-split-over-defection)
 
 Inside a Gungnaeseong council room, day. Namsaeng's followers sit facing one another. In light from the door, receive each speaker separately.
 
@@ -51,6 +55,8 @@ Sokro's decision reaches Gungnaeseong. Even after the refusal, Namsaeng does not
 
 ## Cargo enters through the gate that once blocked it {#t038-defensive-connections-handed-over}
 
+[Event parent](../../treatments/038-the-country-no-longer-decides.md#defensive-connections-handed-over)
+
 Day, when Tang's answer reaches Gungnaeseong. Namsaeng receives the report that Qibi Heli has been appointed Liaodong pacification commissioner to relieve him.
 
 NAMSAENG: The man who crossed the Yalu and defeated me.
@@ -63,9 +69,15 @@ Outside Gungnaeseong's river-facing south gate, day. Namsaeng's supporter permit
 
 NAMSAENG: Report separately the commanders who will cooperate and places that will resist. This road and storehouse serve the relief and the next movement.
 
-Foreign cargo passes the open south gate into the provisions yard. Namsaeng receives a relief force to strike king and brothers, and supporters gain strength to avoid a punitive attack. The roads and supplies they hand over also serve Tang's next advance.
+Foreign cargo passes the open south gate into the provisions yard. A supporter waits beside Namsaeng.
+
+SUPPORTER: If Pyongyang sends troops against us, will these men stay?
+
+NAMSAENG: This relief lets us stand against them. Send the route report on with the cargo.
 
 ## Defenders unable to trust the next fortress {#t039-local-cooperation-reopens-conquest}
+
+[Event parent](../../treatments/039-strong-forts-without-a-whole.md#local-cooperation-reopens-conquest)
 
 Inside Tang's expeditionary military office in 667, day. Li Shiji places roads known from earlier experience beside new cooperation reports.
 
@@ -81,9 +93,11 @@ The soldiers actually fight, but the connection is not restored.
 
 HISTORIAN (V.O.): In 666 Jeongto too offered territory and asked to surrender. His childhood appearance alone cannot tell us his private reasons then. It was a departure from the defense separate from Namsaeng's defection. Tang's army had ability before. Civil war gave it conditions to use for conquest again.
 
-Though Seokbu did not follow Namsaeng, he experiences the insecurity of his region.
+Seokbu returns to his place among the defenders. The neighboring approach remains empty.
 
 ## A capital to defend and connections impossible to hold {#t039-brothers-choose-different-ends}
+
+[Event parent](../../treatments/039-strong-forts-without-a-whole.md#brothers-choose-different-ends)
 
 Inside the Pyongyang military office in 668, day. Namgeon gathers troops against the immediate attack. Severed supply and command reports arrive at different times.
 
@@ -107,7 +121,9 @@ Even when the surrender becomes known, Namgeon's defense continues. Military dut
 
 ## Five days of preparation {#t040-sinseong-arranges-collusion}
 
-Inside the Pyongyang military office in September 668, day. After promising Tang he will open a gate, the monk Sinseong checks each share with Osa and Yomyo. The view stays close among the three; sounds of defense continue beyond the closed doorway.
+[Event parent](../../treatments/040-five-days-to-the-west-gate.md#sinseong-arranges-collusion)
+
+Inside the Pyongyang military office in the ninth lunar month of 668, day. After promising Tang he will open a gate, the monk Sinseong checks each share with Osa and Yomyo. The view stays close among the three; sounds of defense continue beyond the closed doorway.
 
 SINSEONG: If we fight longer, people inside cannot endure. We must open the gate at the promised time.
 
@@ -121,6 +137,8 @@ See five days of preparation through changing dates and actual shifts. Yomyo cha
 
 ## Fire that does not stop after the bar moves {#t040-gate-opened-and-tower-burned}
 
+[Event parent](../../treatments/040-five-days-to-the-west-gate.md#gate-opened-and-tower-burned)
+
 Inside the western postern five days after the promise, night. Shift troops clear space for the leaves; at Osa's direction they move the crossbar. At the inner junction, Yomyo's changed patrols prevent obstructing troops from gathering. Alternate facing views outside and inside.
 
 OSA: The bar this way. Open it.
@@ -130,6 +148,8 @@ Tang troops from the western outer road pass through the postern. No separate se
 Inside Namgeon's military office, night, as firelight and outside footsteps draw nearer. Told the gate is open and Tang has entered, Namgeon calls remaining resistance troops, but replies stop. He turns his sword on himself. After he falls, he still breathes. Entering troops remove the sword and capture him alive. Hold on the living captive and the interrupted command post. Add no praise that washes away responsibility for the coup. Residents' footsteps grow louder inside a city where national command can no longer continue.
 
 ## People who may never reunite if they leave separately {#t040-haeeun-household-stays-together}
+
+[Event parent](../../treatments/040-five-days-to-the-west-gate.md#haeeun-household-stays-together)
 
 Inside Haeun's home during the fall, night. Distant firelight and military sounds enter through the door gap. Janggeun tells what he knows of people through deliveries and transport. He does not know Sinseong's bargain.
 
@@ -149,6 +169,8 @@ Seou stands beside her bundle. Chamu puts down the load he lifted. Unable yet to
 
 ## A plea for life and words of unforgiven loss {#t041-clemency-without-forgiveness}
 
+[Event parent](../../treatments/041-lives-spared-homes-removed.md#clemency-without-forgiveness)
+
 Inside Namsaeng's office while awaiting Tang's disposition, day. After learning Namgeon was captured alive, Namsaeng submits a petition.
 
 NAMSAENG: Please spare his life.
@@ -166,6 +188,8 @@ HISTORIAN (V.O.): His later epitaph praised this plea as virtue. That praise doe
 The next report on disposition of residents reaches Namsaeng. Authority to petition for one commutation cannot stop it all.
 
 ## Cloth abandoned to keep two bundles {#t041-four-migrate-to-henan-together}
+
+[Event parent](../../treatments/041-lives-spared-homes-removed.md#four-migrate-to-henan-together)
 
 Outside a relocation preparation area in Pyongyang in 669, day. Haeun, Janggeun, Seou, and Chamu choose baggage within the same group. Belongings they cannot keep pile up beside them.
 
@@ -185,17 +209,25 @@ The four depart in the same group and reach the same rural village in Henan. The
 
 ## Words the tools cannot understand {#t042-henan-work-rebuilds-an-incomplete-livelihood}
 
+[Event parent](../../treatments/042-the-lives-conquest-did-not-end.md#henan-work-rebuilds-an-incomplete-livelihood)
+
 Inside a small Henan house after 669, day. Repair tools lie beside the sleeping place. Haeun unfolds cloth brought from home; Seou sets her bundle beside it. Neither fully understands neighbors speaking outside.
+
+NEIGHBOR OUTSIDE: Bring it over there.
+
+Seou brings the cloth to the threshold. The neighbor points farther down the lane and repeats the direction; she stops.
 
 SEOU: Are they leaving it with us now, or asking us to come back?
 
-Haeun cannot answer immediately either. They cannot understand every order from the authorities. Without a new character to translate and find work for them, the family experiences difficulty understanding.
+Haeun cannot answer immediately either. Seou carries the cloth back inside. At the next official demand, Janggeun asks for the direction to be repeated; he catches only part of the answer.
 
 Janggeun and Chamu newly learn what loads to carry and routes to travel. Seou divides the same day between helping her parents and her own repair work. Keeping food reduces work materials.
 
 Through the action of opening the workspace and folding it away for sleeping, seasons pass to 676. The four share labor in one house, but difficulties from language and lost materials and customers continue.
 
 ## A share to decide even without a country {#t042-remaining-communities-resist-new-demands}
+
+[Event parent](../../treatments/042-the-lives-conquest-did-not-end.md#remaining-communities-resist-new-demands)
 
 Outside the eastern community after conquest, day. Miran, Nuri, and Sokro face new demands for supplies and labor. Hearing the requested quantity, Miran corrects the share that includes all Nuri's work.
 
@@ -219,6 +251,8 @@ In another region, Seokbu, disarmed, receives a labor demand. He is not exempted
 
 ## Cooperation that does not return {#t042-imperial-limits-change-the-task}
 
+[Event parent](../../treatments/042-the-lives-conquest-did-not-end.md#imperial-limits-change-the-task)
+
 Inside an office receiving Tang reports on rule in the Goguryeo region, day. Reports pile up that labor and supplies are not gathering. Namsaeng checks names of relationships that once cooperated.
 
 NAMSAENG: Is this an answer from the same place?
@@ -229,9 +263,11 @@ Namsaeng takes the next report.
 
 HISTORIAN (V.O.): In the south Silla resisted Tang's direct rule. In the west Xue Rengui lost to Tibet in 670. Valor at Jupilsan did not guarantee every conquest. Tang could not place as many people and soldiers here as it wanted.
 
-Hold on the report that Tang cannot supply the personnel needed here. Do not open separate Silla and Tibetan battlefields. Local resentment and migrant losses through 676 reach Namsaeng. His name now conveys Tang's demands. The next order makes concrete the need to use old royal relationships again.
+Hold on the report that Tang cannot supply the personnel needed here. Do not open separate Silla and Tibetan battlefields. Through 676, reports of local losses and displaced households arrive with refusals. Namsaeng sends another request under his own name. The official returns it beside the unanswered one.
 
 ## A home after the order to return {#t043-return-orders-use-the-old-country}
+
+[Event parent](../../treatments/043-the-office-and-the-son-left-behind.md#return-orders-use-the-old-country)
 
 Caption: “677.” Inside the place receiving an order, day.
 
@@ -247,6 +283,8 @@ That year Namsaeng receives a task to organize the land under Tang authority. Do
 
 ## An official who cannot restore Goguryeo {#t043-namsaeng-administers-the-land-he-meant-to-restore}
 
+[Event parent](../../treatments/043-the-office-and-the-son-left-behind.md#namsaeng-administers-the-land-he-meant-to-restore)
+
 Inside Namsaeng's office in 677, day. He receives the imperial order for pacification and organization of prefectures and counties and reads reports on regional cooperation. Do not add a date appointing him a new grand governor that year. Do not call Sokro and Seokbu into this room for invented private conversation.
 
 REPORT VOICE: The demanded labor is not gathering. Even places that cooperated before are resentful.
@@ -260,6 +298,8 @@ NAMSAENG: They entered by the roads I gave them and killed and moved people. I c
 Namsaeng finishes what administrative work he can, one task at a time. No words forgive those who caused Heonchung's death. From the tired working hand, transition through time to the hand on his sickbed in 679.
 
 ## The son left in the residence {#t043-death-leaves-heonseong-living}
+
+[Event parent](../../treatments/043-the-office-and-the-son-left-behind.md#death-leaves-heonseong-living)
 
 Inside the resting room of the Andong Prefecture residence in 679, day. Heonseong enters through a door separate from the office. Near the sickbed, see Heonseong's living body and Namsaeng's breath together. There is no coffin or remains.
 

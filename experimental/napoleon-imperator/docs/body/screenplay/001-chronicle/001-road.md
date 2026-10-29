@@ -108,11 +108,11 @@ Raygern. Caption: The same night. The feet of Friant's leading men stop. A soldi
 
 Next dawn. Lannes blocks Soult's way.
 
-LANNES: I sent you a challenge. You have yet to answer it.
+LANNES: I sent you a challenge. I thought you knew how to use a sword.
 
 SOULT: We have more important business today.
 
-LANNES: And that makes what happened disappear?
+LANNES: You contemptible man.
 
 Soult goes toward the battlefield. Lannes stands where he has moved aside, then heads to his own troops.
 

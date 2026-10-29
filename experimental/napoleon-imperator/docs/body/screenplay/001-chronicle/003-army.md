@@ -14,7 +14,7 @@ Lodi. The leading men fall under fire from guns across the bridge. Feet coming u
 
 MESSENGER: The cavalry cannot join us yet.
 
-Napoleon looks at Lannes, ready to move toward the bridge. He decides between waiting to commit them together and continuing the attack now.
+Napoleon looks toward the empty cavalry approach, then at Lannes beside the halted bridge column.
 
 NAPOLEON: Continue the attack. Lannes, take the lead.
 
@@ -82,29 +82,27 @@ SOLDIER: Still, we won.
 
 Move to a workplace in 1797.
 
-NAPOLEON: Tell him I will see him later.
+From the waiting visitor's height, look through a doorway into Napoleon's workspace. Secretary Bourrienne, in his black wool coat, sits inside with a pen; Duroc stands at the entrance. Identify both men and their functions here. Keep the visitor outside for the whole passage.
 
-Secretary Bourrienne rolls up the sleeves of his black wool coat and writes the answer. Duroc, responsible for access, stops a waiting visitor. Give both names and roles at their first appearance.
+Napoleon's voice comes quickly from beyond the doorframe.
 
-VISITOR: Has he finished?
+NAPOLEON (inside): Later. I must finish this.
 
-DUROC: Not yet.
+BOURRIENNE (inside): Is he to leave, or stay until you call him?
 
-Inside, Bourrienne rereads what he has written. The document's content is inaudible.
+NAPOLEON (inside): He stays.
 
-BOURRIENNE: Shall I send him away today? Or tell him to wait until you call?
+The pen begins. The visitor rises at the movement of paper inside, but Duroc keeps his place in the doorway. A written answer passes out; its message is briefly legible as this reconstruction's instruction to wait outside until called, not a quoted historical document.
 
-NAPOLEON: Send that answer. Admit him after I finish this.
+VISITOR: I am still to wait?
 
-Bourrienne writes that he must wait until called when the work is finished. Duroc takes the answer to the visitor.
+DUROC: Here.
 
-DUROC: Wait here. I'll show you in when he calls.
+The visitor sits. Hold the outside view while the pen and Napoleon's work continue inside. When a chair moves again, the visitor looks to Duroc first. Duroc still blocks the entrance.
 
-Duroc stays outside. Bourrienne's pen stops and Napoleon finishes the last task.
+NAPOLEON (inside): Admit him.
 
-NAPOLEON: Admit him now.
-
-At his words Duroc opens the door. The visitor steps forward.
+Only now does Duroc move aside. The visitor crosses the threshold; the camera stays outside as the door closes.
 
 Venice. The sound of ghetto gates being removed. Two adults stand before their belongings. One ties up what to carry; the companion stands inside their original dwelling.
 
@@ -124,27 +122,81 @@ HISTORIAN (voice): The freedom to live outside ended. They had to reside inside 
 
 [Event parent 1](../../../body/treatments/011-egypt-and-isolation.md#nile) · [Scene parent](../../../body/scripts/001-chronicle/003-army.md#egypt)
 
-Egypt, 1798. Screen text identifies France's purpose: “Egypt as a foothold for eastern trade, a chance to pressure Britain's position in India.” Under a later caption, “Battle of the Pyramids,” French victory on land unfolds. French troops remain on the ground after the fighting. Gunfire fades into the sounds of human work.
+EXT. EGYPT — DAY, 1798
 
-Inside a building, two surveyors take places at facing walls. One checks a reading against the other's record.
+French soldiers cross the dry ground. The men closest to us breathe through open mouths; beyond them, the army continues out of sight.
 
-SURVEYOR: Was that measured from your end?
+HISTORIAN (V.O.): France intended to use Egypt as a foothold for eastern trade and to put pressure on Britain's position in India. Possession of Egypt would not fulfil the whole ambition.
 
-OTHER SURVEYOR: Yes. Read it again.
+The march gives way to battle at the Pyramids.
 
-The first checks the starting wall and compares again. A person standing between the walls moves aside, briefly revealing the entire measured distance. No number or name of a particular discovered site is shown. A short caption identifies this unnamed work as reconstruction.
+Look toward the French from the opposing line. Men here aim and fire; French ranks keep coming through the shots. Someone beside the view turns to leave, then more troops move back past him. French fire answers from closer ground.
 
-Outside, a resident attempting to go along a road is stopped by troops requisitioning supplies. After standing until goods pass, the resident takes another route. Surveying continues in the building behind.
+The retreat takes the opposing troops out of view. The French enter the position they have abandoned. Stay at that position while the French ranks pass through it; there is no new named unit, individual achievement or tactical maneuver. Their footsteps carry into the occupied building.
 
-At sea, Nelson, missing one arm, watches British fleet signals and turns toward a moving ship. On deck a sailor strains at a rope while others pull a gun back into place and reload. As cannon thunder over him, Nelson's mouth is briefly hidden. A person transmitting orders moves following the arm indicating direction. Individual words of command cannot be distinguished in the gunfire. Men continue handling a gun recoiling after firing and pulling ropes. Even after a French ship can no longer continue fighting, British sailors do not leave their work.
+INT. AN OCCUPIED BUILDING — DAY
 
-On land, separate from the defeat at sea the audience has seen, immediate work continues at French headquarters.
+A resident stands beside belongings drawn close against a wall. A French soldier indicates what he wants taken. The resident pulls an item back against the pile. The soldier reaches past the resident's hand and takes it.
 
-A report actually arrives. The reading hand stops, and commanders' attention gathers on Napoleon as he receives it.
+Across the room, a scholar waits for his assistant to reach the opposite wall. Their measuring line crosses the space the resident has just vacated.
 
-NAPOLEON: We must reckon again with the way back and the way here.
+SCHOLAR: Against the wall. All the way.
 
-Return to hands handling supplies on land. The sea where they look for incoming ships and land already occupied lie apart in one view.
+The assistant adjusts his end. The scholar reads the width and turns to the open record.
+
+SCHOLAR: That is different.
+
+ASSISTANT: Shall I put it down?
+
+SCHOLAR: First do it again.
+
+They reset the line. This time the scholar follows it with his eyes from one wall to the other before comparing the result with the earlier entry. He corrects the record and gestures toward the next part of the building. The assistant gathers the line.
+
+The resident lifts the remaining belongings out of their way. The soldier carries the requisitioned property through the doorway. The survey continues behind him.
+
+EXT. FRENCH ANCHORAGE, THE NILE — NIGHT
+
+British ships move toward the French fleet. Orders pass across a British deck, partly lost under wind and the movement of rigging.
+
+Nelson watches from the quarterdeck. His right sleeve has no arm inside it. With his left hand he directs attention toward the signal being prepared.
+
+NELSON: Make it.
+
+The signal rises. On another British ship, an officer looks up, recognizes it and turns to his own men.
+
+OFFICER: Steady. Hold her steady.
+
+The helmsman bears against the wheel. Sailors haul together; canvas changes its pull. A gun crew works in the confined space below, bringing a loaded gun out toward the dark shape of a French ship.
+
+The gun fires. Recoil throws it back into the men waiting to receive it. Smoke rolls along the deck. Before it clears, they are preparing to fire again.
+
+On the French side, answering guns flash through the darkness. British gunfire and sailors' work continue across successive ships, until the French fleet's defeat is visible in disabled vessels and fire upon the water.
+
+Nelson receives a report amid the noise. He turns from the man toward the battle still being fought. The crews keep working.
+
+INT. FRENCH HEADQUARTERS IN EGYPT — DAY, LATER
+
+Napoleon listens to a man who has brought news from the coast.
+
+REPORTING OFFICER: The British have defeated the fleet.
+
+Napoleon waits. The man has finished.
+
+NAPOLEON: Our ships?
+
+REPORTING OFFICER: We cannot count on them to supply us. Or to take the army home.
+
+Outside the room, soldiers are carrying supplies past the door. Napoleon watches them pass, then turns back to the officer.
+
+NAPOLEON: What can still reach us?
+
+REPORTING OFFICER: Less than before, General. I cannot promise how much.
+
+Napoleon returns to the table and brings the papers concerning provisions in front of him. The reporting officer starts to withdraw.
+
+NAPOLEON: Stay. We must go through this again.
+
+Through the open doorway, soldiers keep carrying supplies while Napoleon takes up the first provision paper.
 
 ## People left by advance and retreat {#syria}
 
@@ -178,9 +230,7 @@ Noise in the legislature grows. Among opposing deputies Napoleon cannot continue
 
 LUCIEN: In these circumstances we cannot vote.
 
-Without opening the vote, the president leaves the chamber. He passes the noise of deputies left behind and goes to the guards outside.
-
-Outside the chamber he claims to guards that deputies attacked his brother. Watch a soldier listening.
+Cut away from the chamber without tracing Lucien's departure from the chair or a continuous route outside. In a separate view he addresses the guards, claiming that deputies attacked his brother. Watch a soldier listening.
 
 LUCIEN: My brother was attacked in there. We must protect the legislature.
 
@@ -208,7 +258,7 @@ DESAIX: My men are here.
 
 NAPOLEON: Attack again. Join them together.
 
-The arriving troops turn and counterattack. Feet retreating meet feet advancing, and the fight changes direction. After Desaix falls, the counterattack continues past him. As Napoleon looks for his name after victory, the caption changes to Cairo.
+The arriving troops turn and counterattack. Feet retreating meet feet advancing, and the fight changes direction. After Desaix falls, the counterattack continues past him. After victory Napoleon searches among returning men and stops at Desaix's body. Cut to Cairo.
 
 HISTORIAN (voice): That same day in Egypt, Kléber died.
 

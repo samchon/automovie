@@ -6,7 +6,7 @@ Canon guide: [Location of this subject](../outline/index.md#020-world--040-postw
 
 **Definition and scope**
 
-Victory in the second war in 662 stops the large conquest offensive and gives Goguryeo room to rebuild, while hostile acts continue. Tang’s crushing defeat leaves national aftereffects comparable to Sui’s failed Goguryeo expeditions. Repeated losses in the field, where Tang had thought itself the finest under heaven, alert the court that it must not continue this fight; large-scale shipbuilding is abolished and the war stopped on August 27, 663. The comparison with Sui concerns postwar shock, not a claim of more deaths than in 612.
+Victory in the second war in 662 stops the large conquest offensive and gives Goguryeo room to rebuild, while hostile acts continue. Tang’s crushing defeat leaves national aftereffects comparable to Sui’s failed Goguryeo expeditions. Repeated losses in the field, where Tang had thought itself the finest under heaven, alert the court that it must not continue this fight; large-scale shipbuilding is abolished and the war stopped on day 27 of the eighth lunar month of 663. The comparison with Sui concerns postwar shock, not a claim of more deaths than in 612.
 
 **Established facts**
 

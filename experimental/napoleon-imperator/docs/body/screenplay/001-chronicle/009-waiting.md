@@ -6,7 +6,7 @@
 
 February 26, 1815. Bertrand boards the departing ship too.
 
-HISTORIAN (voice): Bertrand chose to accompany him. It was not a choice that put down his responsibility for his family's life.
+HISTORIAN (voice): Bertrand chose to accompany him. He still had his family's life to provide for.
 
 This is the ship leaving Elba. Sounds of preparation on land recede and the sea grows louder. Napoleon turns from the island growing distant to the sea ahead. No cheers from France are yet heard aboard.
 
@@ -16,9 +16,9 @@ SOLDIER: What do we have left?
 
 Another listens with musket in hand. When someone moves, more troops follow. Even as they pass, people standing still remain visible.
 
-Ney receives a report. He sees the king's order and actual movement together. The face that sought to protect the army when he stopped the Emperor's march before now faces a different choice.
+Ney receives a report. Holding the king's order, he looks toward troops already turning away. The officer who brought the report waits beside him.
 
-NEY: We cannot hold back everyone turning away. I will go to the Emperor.
+NEY: I stopped the march last year to keep this army alive. Now I am watching it leave the king. I will go to the Emperor.
 
 The person receiving his decision checks the troops actually following. Reporting to Napoleon, he names only those who came.
 
@@ -44,7 +44,7 @@ NAPOLEON: The army followed me.
 
 LUCIEN: And does that remove Parliament's approval too?
 
-Briefly show again annual approval of direct taxes and ministerial responsibility in the Act. The Emperor's military confidence cannot erase those conditions.
+Lucien keeps the Act before his brother. Napoleon looks from it to the military report beside him.
 
 Napoleon sees places still unfilled in a report.
 
@@ -104,9 +104,9 @@ NEY: Forward! Close the ranks!
 
 The squares do not break. Hold the rough breathing of horses returning to attack again.
 
-Grouchy's separate army. People stop at cannon sounds. Grouchy looks toward the sound and the direction of pursuit assigned the previous day. He judges within his conditional report that he would follow if the enemy went to Wavre and yesterday's mission. Later dispatches are not yet in his hands.
+Grouchy's separate army. People stop at cannon sounds. Grouchy looks toward the sound, then back along the road of pursuit. The previous day's mission and his report of divided enemy movements remain the information available to him; no later dispatch has yet arrived. Keep the report's conditional intention to follow toward Wavre distinct from confirmation of the enemy's main force there.
 
-GROUCHY: We will continue the mission assigned to us.
+GROUCHY: Our orders are to follow the Prussians. Continue toward Wavre.
 
 After his precise, courteous words, the army moves. An order sent from the Emperor that morning reaches Grouchy only in the afternoon. As he reads, show its substance: “Hurry to Wavre. Keep contact with the Emperor's army.” Distinguish this from the later order to maneuver and attack the flank.
 
@@ -124,7 +124,7 @@ NAPOLEON: Grouchy is still not here?
 
 MESSENGER: He has not come, Sire.
 
-He stays on that direction a little longer, then turns toward troops fighting now.
+His gaze lingers down that road, then returns to the troops fighting before him.
 
 A separate caption: late afternoon or evening. Grouchy receives and reads the order sent in the afternoon. Show its substance: “Maneuver toward the Emperor's army. Join in striking Prussians attacking the Emperor's flank.” While he reads, do not overlay the fall of La Haye Sainte as the same present minute.
 

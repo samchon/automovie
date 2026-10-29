@@ -34,11 +34,11 @@ BERNADOTTE: I will first consider what Sweden can bear.
 
 Schwarzenberg prepares orders from a command position receiving demands from several sovereigns. A hand about to send one after reading it stops to check another demand. Without newly sounding the sovereigns' voices, give time for his adjustment under several authorities. Blücher's and Gneisenau's preparations take place in another army.
 
-HISTORIAN (voice): Schwarzenberg commanded under constraints from several sovereigns. Blücher's urgency and Gneisenau's preparation, and Bernadotte putting Sweden first, were not the same judgment.
+In the other army, Blücher points toward the next movement. Gneisenau follows the direction on his map, then holds the order while men still gather for the march. Blücher waits beside him until the column can set out.
 
 At first needed appearances briefly attach each person's name and command or staff function. Army orders go to different forces. Even under a common purpose, troops must wait for each authority and preparation before moving.
 
-## An Emperor absent from every place {#leipzig}
+## An Emperor Who Cannot Be Everywhere {#leipzig}
 
 [Event parent 1](../../../body/treatments/034-leipzig-and-the-bridge.md#avoidance) · [Event parent 2](../../../body/treatments/034-leipzig-and-the-bridge.md#leipzig) · [Scene parent](../../../body/scripts/001-chronicle/008-army-refuses.md#leipzig)
 
@@ -50,47 +50,143 @@ His troops receive the order and advance kicking through water and mud. Unable t
 
 HISTORIAN (voice): They sought to avoid the Emperor and strike his other commands. Not every fight was controlled according to that plan.
 
-Leipzig in October. Different Allied armies press the French. A caption introduces Poniatowski as Polish commander and minister of war of the Duchy of Warsaw, then gives his appointment as marshal of France on the 16th. Briefly see him with Polish troops, then return to the field's wide pressure.
+Leipzig in October. A caption introduces Poniatowski as Polish commander and minister of war of the Duchy of Warsaw, then gives his appointment as marshal of France on the 16th. Briefly see him with Polish troops, then return to the field.
 
-The 19th. Battle forces retreat to begin. Troops crowd toward the bridge and people coming behind keep increasing. The bridge is blown too early. A foot about to cross stops before empty space as troops push from behind. Poniatowski dies during the retreat. Without moving to the unknown face who ordered demolition or a dying person's final speech, follow losses of an army whose road is cut off.
+The 19th. From beside the bridge, look back along the approach. French troops come toward the crossing while firing continues behind them. Through gaps between those arriving, see other French groups give ground under pressure from different directions. The stream onto the bridge grows while men farther away still have to fight their way back. Keep the enemy pressure audible as the foreground fills; these unnamed actions add no new battle or unit claim.
+
+The bridge is blown too early. A foot about to cross stops before empty space as troops push from behind. The firing on the far approach continues beyond the broken crossing. Poniatowski dies during the retreat. Without moving to the unknown face who ordered demolition or a dying person's final speech, follow losses of an army whose road is cut off.
 
 ## Victory does not bring the capital back {#france}
 
 [Event parent 1](../../../body/treatments/035-france-and-paris.md#defense) · [Event parent 2](../../../body/treatments/035-france-and-paris.md#capital) · [Scene parent](../../../body/scripts/001-chronicle/008-army-refuses.md#france)
 
-France, 1814. Local victories follow Napoleon's orders concentrating a small army. The image leaves the direction where he arrived and repelled the enemy and moves to another direction left empty by that army. Allied superiority approaching Paris continues.
+EXT. FRANCE — CAMPAIGN, 1814
 
-The Châtillon negotiations. Conditions before Caulaincourt are “pre-Revolutionary 1789 borders, surrender of influence outside them.” Distinguish those words in one image from the natural frontiers Napoleon demanded. Show the army's earlier fighting direction apart from narrowed negotiating terms.
+French troops gather before advancing. An officer checks the men still approaching and holds those already assembled until the last group joins.
 
-When initial conditions still leave a negotiating route open, Caulaincourt warns Napoleon. He does not speak with present knowledge of talks that will later close.
+OFFICER: Together. Forward!
 
-CAULAINCOURT: Sire, if we miss these terms, less may remain next time. Give me authority while we have this chance.
+The men advance into firing. From beside them, see muskets raised ahead; shots strike among the French, but the line continues far enough to return fire. Men who have fired step back to load while others keep shooting. The opposing line first holds, then gives ground.
 
-NAPOLEON: One more victory and they will change their terms. We must hold the natural frontiers.
+A French soldier about to follow is called back into line. Across the ground between them, the retreating enemy no longer fires from its earlier position. The French have gained it. This is an unnamed realization of the established local successes, with no new battle, unit or tactical maneuver selected.
 
-CAULAINCOURT: We cannot know whether they will wait for that victory.
+News of success reaches Napoleon.
 
-Napoleon turns to military business.
+REPORTING OFFICER: They have given ground, Sire. We have it.
 
-NAPOLEON: I will look first at where to concentrate the army.
+Napoleon turns from the man toward the work spread before him.
 
-Caulaincourt says no more. A military report takes its place.
+NAPOLEON: Bring me the reports from the other commands.
 
-Later Napoleon broadens and sends authority to concede, while Caulaincourt waits for it. When authority arrives late, the negotiating place has already closed.
+HISTORIAN (V.O.): With fewer means, he could still concentrate men and win.
 
-CAULAINCOURT: Authority has come, but there is no place left to negotiate.
+EXT. FRENCH ARMY — AFTER THE ENGAGEMENT
 
-He looks at the empty negotiating place and puts away the document. Do not reuse the 1813 deadline image; keep the date 1814.
+The troops move again. A man steadies himself against another as he walks. Horses pull at a burden they have to keep moving; men beside the road lift what can be carried onward.
 
-Paris. Talleyrand takes his place, moving with difficulty on one leg. Capital politicians choose the next order in the reality that Allies have arrived.
+At headquarters, the other commands' reports have arrived. Napoleon listens as an officer gives him the available strength.
 
-TALLEYRAND: The people remaining here must decide, I suppose.
+NAPOLEON: If I bring them together here, what remains elsewhere?
 
-April 1, appointment of a provisional government. April 2, Senate deposition. April 3, final text. Documents change with each date. Show that the Senate denies hereditary imperial rule to Napoleon and his family and releases oaths of loyalty.
+The officer looks from the force available to the other demands on it.
 
-HISTORIAN (voice): The Senate accused him and released the oaths. Those accusations do not all become the historian's verdict.
+OFFICER: Less than we need, Sire.
 
-The capital's obedience does not return to Napoleon, who won earlier. He enters among commanders awaiting the next instruction.
+Napoleon puts a hand on the report he has been using, leaving the other requests before him unanswered.
+
+HISTORIAN (V.O.): Men, horses, supply and time had diminished. Making strength at one point left other approaches, and Paris, harder to protect.
+
+INT. NEGOTIATIONS AT CHÂTILLON — 1814
+
+Caulaincourt listens to the Allied demand across the table.
+
+ALLIED REPRESENTATIVE: France must return to the borders of 1789. Its influence outside them must be surrendered.
+
+CAULAINCOURT: Those are not the frontiers the Emperor has authorized me to accept.
+
+The representative waits for a different answer. Caulaincourt cannot give one.
+
+INT. NAPOLEON'S HEADQUARTERS — DURING THE NEGOTIATIONS
+
+Caulaincourt's warning reaches Napoleon in a dispatch. As Napoleon reads, we hear Caulaincourt's voice, belonging to the correspondence rather than to the room.
+
+CAULAINCOURT (V.O.): They will not concede the natural frontiers because we ask again. Give me authority to secure what can still be obtained. Waiting may leave us with no negotiation at all.
+
+Napoleon lowers the dispatch. His officer is still waiting with news of the army.
+
+NAPOLEON: Another victory can change what they will offer.
+
+OFFICER: And Caulaincourt's authority, Sire?
+
+NAPOLEON: He is to continue. I will not give up the frontiers now.
+
+The reply goes out. Napoleon turns to the military possibility still before him.
+
+INT. ALLIED QUARTERS — THE SAME CAMPAIGN
+
+A report of a lost engagement has been heard. The Allied representatives continue their work.
+
+ALLIED REPRESENTATIVE: Our demands remain.
+
+INT. NAPOLEON'S HEADQUARTERS — LATER
+
+Napoleon returns to the correspondence from Caulaincourt.
+
+NAPOLEON: Give Caulaincourt the authority to concede further. Send it.
+
+The dispatch leaves him.
+
+INT. CHÂTILLON — AFTER THE TALKS HAVE CLOSED
+
+Caulaincourt receives the additional authority. He reads it standing beside the empty places used by the negotiators.
+
+His hand remains on the permission while the room is cleared around him.
+
+HISTORIAN (V.O.): The permission arrived after the talks had closed. The concessions he could now offer obtained no agreement at Châtillon in 1814.
+
+EXT. PARIS — LATER IN THE CAMPAIGN
+
+Allied soldiers are in the capital. Residents make room for their movement. Their marching carries us to the room where the politicians are deliberating.
+
+INT. CAPITAL POLITICIANS' MEETING — PARIS
+
+Talleyrand crosses to a chair, managing the difficulty in one leg. He sits among other men already discussing what government can now be maintained.
+
+POLITICIAN: He has won battles since they entered France.
+
+TALLEYRAND: And their armies are here.
+
+The other man looks toward the sound of troops outside.
+
+TALLEYRAND: We must decide what can govern Paris now.
+
+Another politician takes up the discussion. Talleyrand turns toward him to listen.
+
+INT. PARIS — APRIL 1, 1814
+
+SCREEN TEXT: April 1 — a provisional government is appointed.
+
+The men taking up the provisional government's business do so while Allied troops remain in the city.
+
+INT. SENATE — APRIL 2, 1814
+
+The Senate proceeds with Napoleon's deposition. A presiding voice calls the business; the men in the chamber give their answers within its formal procedure.
+
+INT. PARIS — APRIL 3, 1814
+
+The settled text is in the reader's hands.
+
+HISTORIAN (V.O.): The Senate set out its accusations against Napoleon. They belonged to its case for removing him.
+
+READER: The Emperor is deposed. His family's hereditary claim is ended. The nation and the army are released from their oaths of loyalty.
+
+The reader goes on. Outside the chamber, Allied troops still control the streets.
+
+EXT. NAPOLEON'S REMAINING ARMY — DAY
+
+Soldiers wait beside their equipment. Officers pass through them carrying the army's business.
+
+The sounds of the capital give way to voices among the soldiers and the movement of their equipment.
 
 ## Authority relinquished twice {#abdication}
 
@@ -132,11 +228,9 @@ OFFICIAL: We need more resources to continue.
 
 Napoleon looks at the site and turns away. Screen text: “Plans in Campbell's first-week record.” After showing plans, return to the stopped site.
 
-He wants to summon family, but they do not come. Reading news arriving on the island, Napoleon looks down at paper and speaks.
+He wants to summon family, but they do not come. Reading news arriving on the island, Napoleon looks down at the paper.
 
-NAPOLEON: There is discontent with the Restoration in France. I will look at other news too.
-
-He receives more news and compares it with the first paper. The screen leaves the limited news that reached the island and shows the Congress of Vienna from afar.
+A brief screen summary identifies discontent under the Restoration as the subject of the news reaching Elba; it does not reproduce an original letter. Napoleon sets that paper apart from the island's expense documents. He receives more news and compares it with the first paper. The screen leaves the limited news that reached the island and shows the Congress of Vienna from afar.
 
 HISTORIAN (voice): Europe's sovereigns and politicians were arranging the order after war.
 

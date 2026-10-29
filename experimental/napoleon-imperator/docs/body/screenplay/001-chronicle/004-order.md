@@ -58,7 +58,17 @@ She goes. A listener opens their mouth, looks around, and stops. The closing doo
 
 From 1801. People enter a space where religious life finds a place again. Listen fully to voices praying before moving to government documents dealing with the agreement.
 
-HISTORIAN (voice): The government sought to bind faith and order together. How far the Church could remain independent was an unresolved question.
+As the worshippers leave, move to Napoleon and Cambacérès working over the agreement in a daylight office. A door remains open behind the men carrying papers.
+
+NAPOLEON: We need reconciliation. Let people return to their faith.
+
+CAMBACÉRÈS: With a Church that has interests of its own, Citizen First Consul.
+
+Napoleon keeps his hand on the government document.
+
+NAPOLEON: And a state that must still govern.
+
+Cambacérès receives the paper and resumes the work. End their exchange before returning to the people outside; no new provision of the agreement is quoted.
 
 At school a student repeats something learned and corrects an error. Then military training and work in an office. People different from the students each use what they have learned in their work.
 
@@ -78,7 +88,7 @@ Matouba, Guadeloupe, May 1802. The sturdy Delgrès, in dark blue uniform, moves 
 
 After its echo, the screen distinguishes regions and procedures: “Abolition of slavery, 1794”; “Law maintaining slavery, 1802”; “Guadeloupe: separate order and late publication”; “Guiana: gradual restoration.” Between captions show bodies under forced labor.
 
-Saint-Domingue, June that year. Toussaint is arrested after surrender and separated from his family. His blue command uniform changes to dark wool in captivity. A room at Fort de Joux, France. Life ends within reach of his hand.
+Saint-Domingue, June that year. Toussaint is arrested after surrender and separated from his family. His blue command uniform changes to dark wool in captivity. At Fort de Joux, France, hold the confined room and closed door. Time passes before the death date appears.
 
 HISTORIAN (voice): He was a man whose freedom was not guaranteed. He also had his own order that compelled emancipated cultivators to work.
 
@@ -112,19 +122,131 @@ Sounds of life on the land remain after people leave the frame.
 
 [Event parent 1](../../../body/treatments/017-law-and-crown.md#code) · [Event parent 2](../../../body/treatments/017-law-and-crown.md#emperor) · [Scene parent](../../../body/scripts/001-chronicle/004-order.md#law)
 
-Before a draft written by jurists sits Cambacérès, the mediator. Briefly identify his name and role coordinating deliberation. Napoleon reads a sentence under discussion and starts to turn to the next.
+INT. LEGAL DELIBERATION ROOM — FRANCE, 1804
 
-NAPOLEON: Property must be protected and people equal before the law. This part is done.
+The jurist speaking has a manuscript open before him. Other participants have reached the same passage. Napoleon presides at the table.
 
-CAMBACÉRÈS: Citizen First Consul, you must look at the following restrictions too. Those clauses apply to the same people as the first.
+JURIST: Property needs protection whoever holds it. That has to remain clear when a judge opens this book without any of us beside him.
 
-Napoleon's hand cannot turn the page until the slow, gentle words end. He reads the earlier part again. Items concerning the subordination of women and children and control of labor appear briefly on screen. A jurist revises, Cambacérès aligns other clauses, and Napoleon continues deliberation. Give the labor enough time for candle height and bodies in seats to change. Review ends and correcting hands stop. The completed code is placed down. Benefits and restrictions seen earlier now lie in the same framework to be applied to many people.
+NAPOLEON: Then make it clear.
 
-Threats and the execution of Enghien come in a separate image. After the execution, the historian conveys the regime's stated reason.
+JURIST: We are trying to. But you keep answering the case in front of you. We are writing for cases we have not heard.
 
-HISTORIAN (voice): The security argument for a hereditary dynasty was that power would continue even if one ruler died. That claim did not make the execution just.
+Napoleon leans forward to take up the argument. Cambacérès speaks before the two men can speak across each other.
 
-Around May 18, 1804, “First Consul” in an earlier document changes to the new title “Emperor.” At the December 2 coronation light strikes Joséphine's ceremonial dress and jewels. Separate the ceremony where Letizia is absent and a later painting placing her there by time captions. On December 5 the outdoor air and sound of troops at the distribution of eagles replace the ceremony's indoor resonance.
+CAMBACÉRÈS: Let him finish, First Consul. Then we can decide what needs changing.
+
+SCREEN TEXT: Cambacérès — coordinator of the legal deliberations.
+
+The jurist goes back through the passage, pointing out where its reach becomes uncertain. Napoleon follows on his own copy.
+
+JURIST: If the general rule depends on the standing of the person who comes before the court, it will not be a general rule for long.
+
+NAPOLEON: I want the rule to survive the people who make it.
+
+CAMBACÉRÈS: Then we must settle the wording, not merely agree on the intention.
+
+The jurist turns back a page. Another jurist points to an earlier correction.
+
+SECOND JURIST: We have already changed this part. If we leave the later passage as it is, the two will pull against each other.
+
+NAPOLEON: Which one would you change?
+
+SECOND JURIST: The later one. Keep the protection we have agreed here.
+
+Cambacérès makes room beside the manuscript. The jurist brings the two passages together where Napoleon can follow them.
+
+The light at the windows changes. The discussion is still at the table.
+
+INT. THE SAME ROOM — ANOTHER SITTING
+
+There are corrections on the papers now being read. A jurist holds his place with one finger while Napoleon speaks.
+
+NAPOLEON: Equality before the law does not abolish authority in the family.
+
+JURIST: The wives and children governed by that authority will read the promise of equality too.
+
+NAPOLEON: I am not proposing to free them from it.
+
+The jurist looks down at the passage again. He begins to turn the page, then stops.
+
+JURIST: Then this cannot be left for a reader to reconcile by goodwill.
+
+CAMBACÉRÈS: Show us where you think the language blurs it.
+
+The jurist indicates the passage. Cambacérès waits while the others find it.
+
+CAMBACÉRÈS: Leave the authority in place. Revise this passage so that its reach is clear.
+
+The jurist marks the work that remains. Another jurist asks to see it before they turn the page.
+
+INT. THE SAME ROOM — LATER
+
+A fresh disagreement has held the room. Napoleon is on his feet; the jurists remain seated around their papers.
+
+JURIST: A worker comes under the general law. Yet we retain control over his labor.
+
+NAPOLEON: It remains.
+
+JURIST: Then we cannot write as though the general promise has removed it.
+
+NAPOLEON: No. Show me where you think we have.
+
+The man passes his copy to Napoleon and indicates the passage. Napoleon reads it, then sits.
+
+NAPOLEON: This needs to be clearer.
+
+CAMBACÉRÈS: We shall have the jurists redraft it and bring it back.
+
+HISTORIAN (V.O.): Four jurists had drafted the code. Cambacérès was not one of them.
+
+The manuscript being worked on becomes a completed printed volume. A reader opens it at a desk beyond the deliberation room.
+
+HISTORIAN (V.O.): In 1804 it was completed and promulgated. The government had made a lasting body of law. What happened in each court would still depend on people applying it.
+
+HISTORIAN (V.O.): The regime used threats against it, and the Duke of Enghien's execution, to argue that hereditary rule could preserve the government after one ruler's death. That security argument did not settle the justice of the execution.
+
+INT. FORMAL AUDIENCE — AROUND MAY 18, 1804
+
+An official approaches Napoleon. The room waits for the form of address.
+
+OFFICIAL: Your Imperial Majesty.
+
+Napoleon receives him. The official bows before continuing. The next man to approach also bows.
+
+SECOND OFFICIAL: Your Majesty.
+
+INT. PALACE ROOM — LATER
+
+Joséphine stands in the dress of her new public position. An attendant finishes arranging a jewel, then withdraws from between her and Napoleon.
+
+JOSÉPHINE: Empress.
+
+She says the title quietly, testing what now belongs to her.
+
+NAPOLEON: Yes.
+
+JOSÉPHINE: They will ask about a successor.
+
+Napoleon remains beside her. Neither answers the question of an heir. The attendant returns to the ceremonial dress when Joséphine raises her arm to allow it.
+
+INT. CORONATION CEREMONY — DECEMBER 2, 1804
+
+Joséphine's jewels catch the light as she moves in her ceremonial dress. From the assembled witnesses, we see the public elevation of the Emperor and Empress.
+
+The sound of the service ends before the next image.
+
+EXT. DISTRIBUTION OF THE EAGLES — DECEMBER 5, 1804
+
+Soldiers stand together as the eagles are distributed. The standards pass into military hands in a ceremony of their own.
+
+INT. VIEW OF THE CORONATION PAINTING — LATER
+
+The painted ceremony fills the image. Among its spectators is Napoleon's mother, Letizia.
+
+HISTORIAN (V.O.): His mother had not attended. The later painting gave her a place there.
+
+We draw close enough to see the paint in the face that the actual ceremony did not contain.
 
 ## The army goes to the continent {#ulm}
 
@@ -146,7 +268,7 @@ WEAVER: Can I keep working if I learn more about this machine too?
 
 NAPOLEON: It would be good to see more looms like this in use.
 
-The weaver watches Napoleon and waits for more. No answer to the question comes. The weaver turns back and continues weaving.
+Hold the wide view of the operating loom with Jacquard, the weaver, Napoleon and Joséphine still beside it. Its steady clatter outlasts their exchange. Close the visit there, without an employment outcome.
 
 After the visit closes, the historian conveys institutional support.
 

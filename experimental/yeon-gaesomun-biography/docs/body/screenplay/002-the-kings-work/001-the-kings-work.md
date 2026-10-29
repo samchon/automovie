@@ -5,7 +5,7 @@
 
 Production section label.
 
-*Daemangniji*, final audiovisual screenplay · Part 2
+*The Great Magnate*, final audiovisual screenplay · Part 2
 
 [Event parent](../../../body/treatments/007-threat-and-authority.md#rising-authority) · [Scene parent](../../../body/scripts/002-the-kings-work/001-the-kings-work.md#t007-rising-authority)
 
@@ -21,7 +21,7 @@ The noble answers the king and withdraws. As he crosses the doorway, Gaesomun ca
 
 **Gaesomun**　Wait. List what remains as well and bring it to me. I will see where it is tied up.
 
-Between the king's door and Gaesomun, the noble chooses a direction. His feet turn back toward Gaesomun. Those inside the open palace door see him turn and report. Even houses that waited for requests in King Taejo's time send people first. Gaesomun handles the military matter and sends them away; the next reporter takes their place. The queue grows. Voices asking whose turn it is reach the king's seat.
+Between the king's door and Gaesomun, the noble chooses a direction. His feet turn back toward Gaesomun. Those inside the open palace door see him turn and report. Even houses that waited for requests in his father Taejo's time send people first. Gaesomun handles the military matter and sends them away; the next reporter takes their place. The queue grows. Voices asking whose turn it is reach the king's seat.
 
 ## Danger indicated by separate reports {#t007-unexposed-envoy}
 
@@ -407,7 +407,7 @@ Meoru sends to the center the schedule shared with other households. When he bri
 
 **Member of a household going first**　If we go in Miran's household's turn, our house must give up time to gather and prepare what we take from the forest.
 
-People from the households taking the early turns leave to transport. Miran continues sowing and dressing hides as she waits for the allocated grain and tools. She puts down the hide she is working and approaches Mujin.
+People from the households taking the early turns leave to transport. Miran prepares for sowing and dresses hides while she waits for the allocated grain and tools. She puts down the hide she is working and approaches Mujin.
 
 **Miran**　Elder Mujin, when will we receive what was allocated?
 

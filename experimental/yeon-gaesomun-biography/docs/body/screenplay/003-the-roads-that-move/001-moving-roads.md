@@ -5,7 +5,7 @@
 
 Production section label.
 
-*Daemangniji*, final audiovisual screenplay · Part 3
+*The Great Magnate*, final audiovisual screenplay · Part 3
 
 [Event parent](../../../body/treatments/016-frame-closed.md#frame-closes) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t016-frame-closes)
 
@@ -55,23 +55,27 @@ Her husband does not yet have the release from duty Durak requested. Two unregis
 
 [Event parent](../../../body/treatments/016-frame-closed.md#public-ruling) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t016-public-ruling)
 
-The ruling reaches the gate. Durak reads it where both households can hear.
+Both households listen at the gate as Durak reads the ruling.
 
-**Durak**　Family members and unregistered attendants may leave. Lord Go Hwi and the registered defenders will continue their duties.
+**DURAK**　Family and unregistered attendants may leave. Lord Go Hwi and the registered defenders remain on duty.
 
-**Go Hwi**　Is this because I opposed him at the council?
+**GO HWI**　Because I opposed him in council?
 
-**Durak**　The same applies to Yuhye's husband. It is the same order for defenders without release documents.
+**DURAK**　Yuhye's husband remains too. No release document, no departure from defense.
 
-Go Hwi's household sees Yuhye's husband remain inside the gate. Go Hwi's wife returns to the luggage. She puts down some silk and jewelry, keeping clothes for her daughter and food. After separately securing valuables to hide, she presses down the closed bundle herself.
+Go Hwi looks across at the other man still inside. At the cart his wife reopens the bundle; silk and jewelry come out while food and her daughter's clothes stay within. She secures a smaller hidden share of valuables before tying it.
 
-**Wife**　Let us take this. Load no more.
+**WIFE**　No more on the cart.
 
-Her daughter tries to go ahead after the person carrying the luggage. Her mother catches her arm and brings her beside her.
+The daughter follows the luggage toward the gate. Her mother calls her back and takes her arm.
 
-**Wife**　Do not just follow the person in front. You are coming with me.
+**WIFE**　Stay with me. Not with whoever happens to be in front.
 
-The two guides lead, followed by luggage fitted to a handcart. Watch with the family as they pass through the gate toward the ferry. At the gate, Durak receives the next travelers. Yuhye and her son are still waiting.
+From Yuhye's place in the waiting line, the family passes out behind two guides with its handcart toward the ferry.
+
+Outside the gate, the wife walks with her daughter beside the moving cart. At the ferry landing the guides stop; the mother keeps her daughter with her while they wait for passage.
+
+Back at the gate, Durak admits the next traveler. Yuhye's son is still beside her; her husband remains inside.
 
 ## Allowed to leave, unable to go {#t016-household-remains}
 
@@ -81,7 +85,7 @@ Yuhye points outside the gate for her son. She gestures to show the limit of the
 
 **Yuhye**　We may go through the gate. But who will take us beyond the ferry? We do not have anyone yet. Let us go home and wait.
 
-There is still no word from the person asked to find a companion. Her husband returns to his post, and mother and son retrace their way home. Go Hwi takes one last look in the direction his family went. After he returns to duty, the report ends briefly.
+There is still no word from the person asked to find a companion. Her husband returns to his post, and mother and son retrace their way home. Go Hwi takes one last look in the direction his family went. After he returns to duty, the house falls quiet.
 
 The first alarm sounds. Yuhye hears it while still in their home inside the capital. She puts her son's luggage down again. She sets aside food where he will stay and asks a neighbor to look again for another companion. Carry the sound into the labor inside the fortress in the next scene.
 
@@ -89,7 +93,7 @@ The first alarm sounds. Yuhye hears it while still in their home inside the capi
 
 [Event parent](../../../body/treatments/017-siege-and-southern-bets.md#siege-begins) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t017-siege-begins)
 
-On screen: “August 661.” Su Dingfang's force approaches by water and seals off the area outside Pyongyang. Haeun and Janggeun redistribute the space occupied by things to repair and food shares. At Yuhye's home, they are still using what they meant to take when leaving.
+On screen: “eighth lunar month 661.” Su Dingfang's force approaches by water and seals off the area outside Pyongyang. Haeun and Janggeun redistribute the space occupied by things to repair and food shares. At Yuhye's home, they are still using what they meant to take when leaving.
 
 Gaesomun and Namgeon's central mobile force moves north. A road remains between the formations that went ahead and those still to join. Sokro, responsible for land connections, sees a transport column with a larger escort.
 
@@ -154,7 +158,7 @@ Namsaeng receives the same food as the soldiers. Seokbu passes him holding his f
 
 [Event parent](../../../body/treatments/018-yalu.md#month-of-delay) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t018-month-of-delay)
 
-On screen: “September 661.” South-bank defenders stand on a flat riverbank where boats can easily land. When Tang troops press along the approach, they meet and turn them back. A fresh sentry passes the shoulder of a soldier returning from battle. The faces going back to the bank change, but the place they block remains the same. Even when asked to pursue, Namsaeng points to the position to defend on the south bank.
+On screen: “ninth lunar month 661.” South-bank defenders stand on a flat riverbank where boats can easily land. When Tang troops press along the approach, they meet and turn them back. A fresh sentry passes the shoulder of a soldier returning from battle. The faces going back to the bank change, but the place they block remains the same. Even when asked to pursue, Namsaeng points to the position to defend on the south bank.
 
 **Namsaeng**　Do not cross. Keeping them from crossing is our achievement now.
 
@@ -168,17 +172,17 @@ Move from Namsaeng's face waiting for the next signal toward a bend in the river
 
 [Event parent](../../../body/treatments/018-yalu.md#ice-crossing) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t018-ice-crossing)
 
-On screen: “Late September–early October.”
+On-screen text: “Late ninth–early tenth lunar month.”
 
-**Historian**　The timing of the river's freezing is a reconstruction for this story.
+**HISTORIAN**　The river's freezing at this point is this story's reconstruction.
 
-Four kilometers east of the front, a river stretch concealed by woods and a bend. Qibi Heli first sends someone to test the narrow section. The person shifts their weight on the ice while horses and carts wait behind. Those behind follow only after the feet ahead reach the other side and confirmation returns.
+Namsaeng's front watches the far bank. The river bends out of sight four kilometers to the east; beyond the woods, Qibi Heli's horses and carts wait while a man crosses a narrow frozen reach on foot. No one behind him moves until he reaches the other bank and signals.
 
-At the south-bank front, Namsaeng watches movement opposite him. A messenger reporting the enemy in the rear crosses his line of sight.
+At Namsaeng's front, the expected movement is still across the water. A messenger breaks through the watchers with word of troops behind them.
 
-**Namsaeng**　Pass it to the rear. Withdraw without breaking the line!
+**NAMSAENG**　Get that to the rear! Keep the line together as you withdraw!
 
-The messenger runs. Sections that receive the word move, but other troops who do not hear still face forward. Someone returning to fetch them is also driven back by the enemy's entry. Seokbu puts down a load to support people. Keep Namsaeng hearing the broken replies and the column retreating alive together.
+A group receiving the message turns; farther along, soldiers still face the river. Seokbu drops his load to help them out. Someone trying to carry the warning back is driven toward the retreating group by the enemy. Namsaeng calls again, but the replies now come from separate directions.
 
 ## Names received even after defeat {#t018-defeat-and-trust}
 
@@ -190,7 +194,7 @@ At the Cheolsan assembly point, names are called after the retreat. When a name 
 
 Namsaeng looks at Seokbu.
 
-**Namsaeng**　I will entrust the next south-bank position to you too.
+**Namsaeng**　Stay with the men at the next south-bank position. Bring me their names and what they need.
 
 The taking of names continues. The audience hears the scope of the count of the entire returning formation.
 
@@ -206,13 +210,13 @@ At the reporting post of the mobile force moving north, Gaesomun reads of the mo
 
 **Gaesomun**　That does not erase the month gained before it.
 
-On the south bank, as Namsaeng organizes the names, the assigned person's voice is heard.
+On the south bank, Seokbu answers when his name is called. Namsaeng continues assigning the returning troops.
 
 ## Empty camps with no known reason {#t019-departure-observed}
 
 [Event parent](../../../body/treatments/019-orders-from-the-north.md#departure-observed) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t019-departure-observed)
 
-On screen: “October 661 · two days after the Tang departure.” An observer toward Buyeo confirms an empty camp. The direction taken is visible, but not the reason for departure. A separate observation follows that the Liaodong force has also left.
+On screen: “tenth lunar month 661 · two days after the Tang departure.” An observer toward Buyeo confirms an empty camp. The direction taken is visible, but not the reason for departure. A separate observation follows that the Liaodong force has also left.
 
 A messenger bearing the Buyeo observation travels. The next place we see him is before Namsaeng. On screen: “Two more days to deliver.” He reports only what was confirmed on the Buyeo side.
 
@@ -228,19 +232,19 @@ In the northern operational area, Gaesomun reconciles the reconnaissance gathere
 
 **Gaesomun**　First check the remaining connections. We turn toward Nufang.
 
-A messenger bearing Gaesomun's order heads for Nufang. As the camera follows his disappearing back, “Time turned back for the audience alone” appears. The sounds of the northern operational area where the order was just given stop.
+A messenger bearing Gaesomun's order heads for Nufang. As the camera follows his disappearing back, “Earlier” appears. The sounds of the northern operational area where the order was just given stop.
 
 ## Three orders from outside {#t019-diversion-explained}
 
 [Event parent](../../../body/treatments/019-orders-from-the-north.md#diversion-explained) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t019-diversion-explained)
 
-On screen: “Time turned back for the audience alone · mid-September.”
+On screen: “Earlier · mid-ninth lunar month.”
 
-**Historian**　In this story, three orders responding to the Tiele crisis set out in early mid-September.
+**Historian**　In this story, three orders responding to the Tiele crisis set out in the middle of the ninth lunar month.
 
 The three orders prompted by the Tiele crisis go to different recipients. While one is read, another is in transit. On Xiao Siye's side, the person receiving an order hands it to the person in charge of preparations. Ashina Zhong's side separately receives an order and prepares troops to depart. Qibi Heli's side turns its formation under an order received after the crossing. Complete the receipt, preparation and departure for each order once before moving to the next recipient.
 
-**Historian**　All three had left before October 20 at the latest. Khitan who had stood on Goguryeo's side tried to intercept Ashina Zhong on his return and lost. Goguryeo troops were not at that battle.
+**Historian**　All three had left by day 20 of the tenth lunar month at the latest. Khitan who had stood on Goguryeo's side tried to intercept Ashina Zhong on his return and lost. Goguryeo troops were not at that battle.
 
 **Historian**　Outside circumstances emptied two targets of attack. Zheng Mingzhen's Nufang force, left alone, had fewer connections through which relief could come.
 
@@ -250,9 +254,9 @@ Time returns to Gaesomun's order toward Nufang. The report before him records on
 
 [Event parent](../../../body/treatments/020-nubang.md#local-concentration) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t020-local-concentration)
 
-On screen: “Late October, west of Yodongseong.” A local commander divides the defenders who can stay from the people to send. The defenders remaining stand at the fortress gate. Troops going to join pass through it. They wait for the signal from infantry coming from Sinseong. Once the signal is confirmed, the arriving formation takes its position.
+On screen: “Late tenth lunar month, west of Yodongseong.” A local commander divides the defenders who can stay from the people to send. The defenders remaining stand at the fortress gate. Troops going to join pass through it. They wait for the signal from infantry coming from Sinseong. Once the signal is confirmed, the arriving formation takes its position. Their local officers divide that existing infantry contribution: one share moves toward the eastern approach, while another stays with Gaesomun outside the camp for the western assault.
 
-**Gaesomun**　Sokro, take the supply roads to the northwest and southwest. Local infantry will pressure the camp from the fortress side.
+**Gaesomun**　Sokro, take the supply roads to the northwest and southwest. The eastern infantry will pressure the camp from the fortress side.
 
 **Namgeon**　The central heavy cavalry will wait here. Keep us separate from the eastern pressure and coordinate the signal.
 
@@ -262,13 +266,27 @@ The road visible to Sokro's western force differs from the camp visible to the s
 
 [Event parent](../../../body/treatments/020-nubang.md#camp-separation) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t020-camp-separation)
 
-At Zheng Mingzhen's camp, a person requesting an escort to retrieve blocked cargo and another asking for troops to withstand pressure from the east compete for their turns.
+Day. Caption: “Late tenth lunar month, 661 · Nufang camp.” A brief audience map places Yodongseong east of the camp, the two supply roads at its western edge, and the open southern ground between the southwestern road and eastern approach. Sinseong is identified as the source of cooperating forces, separate from this battlefield.
 
-**Zheng Mingzhen**　Without the cargo we cannot hold here either. Send an escort, but do not leave the east empty.
+At the western access, a carrier waits with his load while armed men squeeze out past him. Fighting is audible from the other side of the camp.
 
-An escort going west and cargo trying to enter the camp meet on the same access road. While each waits for the other to give way, the east asks for more troops. Zheng Mingzhen separates forces to recover the western supply road and hold the front. Sokro cuts communication between the departing escort and the troops remaining. A returning messenger cannot take the original road and turns back. During that delay, the central army concentrates its attack on the separated force. The western messenger turns toward the sound of fighting in the east. The road he sees is still blocked.
+**ZHENG MINGZHEN**　The northern armies have gone. Send the escort for the supplies. Keep the east manned.
 
-Individuals flee south. A group following tries to gather again but loses track of each other's positions. Follow troops who cannot find one another even when orders reach them. At the place where the last messenger cannot bring back an answer, the sounds of battle recede.
+The carrier tries to advance again but the escort has not finished passing. Cut to the eastern defenders: they give ground, steady and strike back. Their engagement continues while the last escort soldiers clear the west.
+
+Beyond the western access, Sokro's force contests the connection back to camp. Escort troops turn to meet it; those drawing together to fight cannot restore the way behind them.
+
+With the local infantry reserve waiting beside the central cavalry outside the camp, Gaesomun receives a signal that the escort is clear. The eastern pressure continues. He directs the reserve toward the camp side of the western bottleneck. Follow their approach across the intervening ground before returning to the carrier still trying to enter.
+
+Goguryeo infantry strikes the western access. Tang soldiers turn out to resist; cargo blocks the escort soldiers trying to return from the other direction.
+
+**TANG OFFICER**　Back inside! Form up inside!
+
+The men nearest him turn toward the camp while those facing the attack turn outward. A few get through, but the infantry takes the access before the rest can rejoin the defenders. An escort soldier beyond Sokro's men waves toward the entrance. No formation comes back to him; he lowers his arm and fights where he stands.
+
+Inside, Zheng calls men west. The group beside him moves, but others remain engaged in the east. Keep the sounds of fighting as the view passes between those separate groups. An officer calls for them to join; the space between them remains empty.
+
+At the southern edge, individual Tang soldiers break away into the open ground. The last wide view includes that escape while the western access is held and resistance continues in separate groups. Zheng's personal fate is not shown.
 
 ## An army that leaves the spoils {#t020-victory-cost}
 
@@ -280,13 +298,13 @@ After the attack, someone lifts spoils but puts them down at an order to check h
 
 **Commander**　We move after re-equipping the remaining thirty-five thousand. Send the local infantry back to the fortress.
 
-Show the different directions of the infantry returning to the fortress and the mobile force that must go toward the capital. A returning supply official makes them wait for an answer about the next road. The column about to depart puts down its loads and repairs equipment again. After receiving cooperation from an official in another district and sending the loads again, show: “Early December, assembly at Sinseong.” People and horses needing recovery enter Sinseong.
+Show the different directions of the infantry returning to the fortress and the mobile force that must go toward the capital. A returning supply official makes them wait for an answer about the next road. The column about to depart puts down its loads and repairs equipment again. After receiving cooperation from an official in another district and sending the loads again, show: “Early twelfth lunar month, assembly at Sinseong.” People and horses needing recovery enter Sinseong.
 
 ## Feed that loyalty cannot provide {#t021-reserves-committed}
 
 [Event parent](../../../body/treatments/021-winter-reserves.md#reserves-committed) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t021-reserves-committed)
 
-Sinseong, early December. Show separately where horse fodder is handed over and where grain is distributed to people. Someone requesting enough to feed about fifty thousand horses asks again about available stocks. Confirm separately the grain and hay central and noble storehouses will provide and the carts, oxen and labor the regions can provide. When hands reach for seed and the last food of displaced households, a manager stops them.
+Sinseong, early twelfth lunar month. Show separately where horse fodder is handed over and where grain is distributed to people. Someone requesting enough to feed about fifty thousand horses asks again about available stocks. Confirm separately the grain and hay central and noble storehouses will provide and the carts, oxen and labor the regions can provide. When hands reach for seed and the last food of displaced households, a manager stops them.
 
 **Manager**　That is not for release. If you take it, there will be nothing to plant next time or to leave for today.
 
@@ -310,9 +328,11 @@ Deferred work is written beside district names. When the family representative f
 
 [Event parent](../../../body/treatments/021-winter-reserves.md#december-sortie) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t021-december-sortie)
 
-On screen: “That December, Pyongyang fortress garrison.” The central mobile force and Namgeon's heavy cavalry have not yet arrived from the north.
+On screen: “That twelfth lunar month, Pyongyang fortress garrison.” The central mobile force and Namgeon's heavy cavalry have not yet arrived from the north.
 
-The Pyongyang garrison attacks the first strongpoint. A soldier who enters opens the way inside and calls those behind. Troops outside guard the entrance and send others in after him. The Tang defenders withdraw and Goguryeo soldiers take their place. After assigning people to remain, they move to the second strongpoint. There too, those behind enter after receiving an answer from those who went in. Having taken the second strongpoint, the defenders gather scattered troops again.
+From inside the strongpoint, Tang defenders thrust the first attackers out of the entrance. Goguryeo troops waiting beyond their reach hold their ground instead of running past the men falling back. The two groups gather for another push. Tang weapons give way at the opening; a cry from inside calls the waiting rear forward.
+
+Later, soldiers carrying damaged equipment pass Go Hwi. Behind them, Goguryeo troops occupy a second captured position. The men who have returned stop for orders while others leave to relieve the troops holding both gains.
 
 **Go Hwi**　The fortress troops took these strongpoints. Can you go farther?
 
@@ -326,33 +346,23 @@ Outside the wall, the besiegers still seal off the fields. The garrison commande
 
 [Event parent](../../../body/treatments/021-winter-reserves.md#march-and-starvation) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t021-march-and-starvation)
 
-In the northern column, the vanguard stops to await an answer on stock, roads and access in the next supply district. When it comes back, the front sets out and support personnel receive and move the loads behind.
+At Su Dingfang's camp, the supply official opens the remaining stock report.
 
-**Historian**　They had 550 kilometers to travel. They moved roughly twenty to twenty-five kilometers a day, on twenty-two traveling days.
+**SUPPLY OFFICIAL**　We cannot hold much longer on this.
 
-At a river, the same horses stand in place and receive feed. The food and hay allocated in advance are unpacked. Support personnel who carried those loads also receive food.
+**SU DINGFANG**　Ask Silla for provisions. Find out how they can get them here.
 
-**Historian**　People and horses had to eat during the two days spent waiting here too. Those two days were in addition to the twenty-two days of travel.
+At the northern column's river halt, horses eat the hay carried for them; support personnel divide their own rations. The same loads that fed the journey have grown smaller.
 
-That winter, at Su Dingfang's camp.
+**HISTORIAN**　The route was 550 kilometers: twenty-two days of travel, roughly twenty to twenty-five kilometers on a traveling day. These two days waiting at the river were additional days to feed people and horses.
 
-**Supply official**　It is difficult to hold out any longer on the remaining stock.
+The vanguard waits for confirmation of the next supply district's stock, roads and entry. When the answer comes, the column moves; baggage follows the front.
 
-**Su Dingfang**　Ask Silla. Ask how it can be delivered as well.
+Ren Yaxiang asks what remains in his storehouse. At Pang Xiaotai's camp another day's rations are checked. Return to the northern column reaching its assembly ground.
 
-At Ren Yaxiang's camp.
+On-screen text: “Early first lunar month, 662, north of Pyongyang.” Men at the front make room for arriving loads. Their first calls are for the next supply district, rather than cheers.
 
-**Ren Yaxiang**　How much remains in the storehouse?
-
-A report of remaining provisions is opened before him. Move to Pang Xiaotai's camp.
-
-**Pang Xiaotai**　First check today's ration for our soldiers.
-
-From hands preparing rations, move to feed for the horses of the northern column.
-
-On screen: “Early January 662, north of Pyongyang.” The arriving vanguard moves aside and waits for the loads behind. Instead of cheers at arrival, voices ask for the next supply district.
-
-## A rendezvous that does not all enter the fortress {#t022-northern-assembly}
+## Joining without crowding inside the fortress {#t022-northern-assembly}
 
 [Event parent](../../../body/treatments/022-january-concentration.md#northern-assembly) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t022-northern-assembly)
 
@@ -418,23 +428,25 @@ The entrance through which people emerged empties. Inside, the sound of unloadin
 
 [Event parent](../../../body/treatments/023-mountain-column.md#unload-and-pass) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t023-unload-and-pass)
 
-On a narrow mountain path, carts stop and loads are taken off. Shares for people to carry and for livestock are divided and sent ahead. On the other side, arriving loads must be received and tied again before the next can be taken. When Gwidol lifts a wet load he put down, Chano loosens the side bearing too much weight and redistributes it. Gwidol takes part of a load from an exhausted companion as well.
+Chano clears the narrow mountain passage, then calls back.
 
-**Chano**　We can move forward!
+**CHANO**　We can get through!
 
-When he looks back, the carts behind still hold loads to be moved. A cart cannot immediately follow into the space people have cleared.
+The people ahead have crossed; the loaded cart behind him has not. An official points to what must be carried off it.
 
-**Official**　This cart stays. Choose what to load first.
+**OFFICIAL**　Leave the cart here. These loads go first.
 
-Someone conserving their own food loses strength. Kim Yusin has them fed from the share for delivery as needed.
+Men and livestock take divided shares. On the far side, hands receive the first arrivals and bind them for the onward journey. Gwidol's wet load hangs to one side; Chano shifts part of it before they lift again. Gwidol takes another share from an exhausted carrier.
 
-**Kim Yusin**　Feed them so they can move. Record separately what we feed them now and what we protect for delivery.
+A man who saved his ration cannot lift the next load. Yusin sees it and orders food brought from the provisions intended for delivery.
 
-One person counts the rations distributed; elsewhere the share for Tang is checked. While the quantities given out are recorded, loads behind stand still.
+**KIM YUSIN**　Feed the carriers. Keep the amount eaten on the road separate from what reaches Tang.
 
-**Historian**　The detour to Yango was about 240 kilometers and took two weeks.
+The clerk counts what is given out as the man eats. Behind them, the cart's remaining loads wait for hands to return.
 
-Hold the view where the last load comes over.
+**HISTORIAN**　This detour to Yango covered about 240 kilometers in two weeks.
+
+The passage stays open after the first men have gone, while the last loads are still coming across.
 
 ## A column that cannot sit at one fire {#t023-winter-camp-cost}
 
@@ -474,13 +486,15 @@ Even after Kim Inmun and Kim Yangdo disappear into the distance, the main force 
 
 [Event parent](../../../body/treatments/024-yango.md#handover) · [Scene parent](../../../body/scripts/003-the-roads-that-move/001-moving-roads.md#t024-handover)
 
-On screen: “Sixth day of the second lunar month, Yango.” Kim Inmun, Kim Yangdo and Ma Jeong check the space for incoming loads and the escort. Chano's carrying group enters in turn and hands over its loads. With damaged hands he sets down the last sack and withdraws with the others. A Tang worker takes the first sack and tries to carry it north, but meets a Silla carrier bringing down the next one at the entrance.
+A report of receipt is made ready at Yango. On-screen text: “Sixth day of the second lunar month.” Behind the reporter, Chano's group is still bringing sacks into the receiving space. Kim Inmun, Kim Yangdo and Ma Jeong check the escort and where the loads can stand.
 
-**Ma Jeong**　Clear this space first. What we have received must go inside before those behind can enter.
+A Tang worker carrying a received sack north meets the next Silla carrier in the entrance. Neither can pass.
 
-Ma Jeong separates wet sacks so they do not mix with dry ones. When a hungry worker lifts and sets one down, someone waiting sees the space and slows a load. Day fades, and the handover continues through the night.
+**MA JEONG**　Clear the inside first. Then send the next load in.
 
-Even after a report of receipt departs, loads remain to go inside the camp. End the scene on hands lifting sacks again to move them north.
+Chano lowers his last sack with injured hands and goes back to his group. Ma Jeong directs wet sacks away from the dry store. A hungry worker cannot keep a sack lifted; the men behind wait until it is moved.
+
+The receipt report leaves before the traffic clears. Night replaces daylight at the entrance. Calls from the northern end bring another load forward, and the handover continues.
 
 ## What the enemy chose after receiving grain {#t024-su-recovers}
 
@@ -494,7 +508,7 @@ A report also arrives asking about relief for the other two camps.
 
 Ma Jeong hands over the provisions received and withdraws.
 
-On the Silla side, Kim Yangdo and some personnel prepare to return by sea, while the main land force ties other escorts and loads together.
+On the Silla side, Kim Yangdo and some personnel prepare to return by sea, while the main land force assigns escorts to the remaining loads.
 
 News of the provisions' arrival reaches Gaesomun.
 

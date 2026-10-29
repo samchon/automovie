@@ -5,7 +5,7 @@
 
 Section labels for producers.
 
-*Daemangniji* final audiovisual script · Part 6
+*The Great Magnate* final audiovisual script · Part 6
 
 [Event parent](../../../body/treatments/038-the-country-no-longer-decides.md#namsaeng-chooses-destructive-aid) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t038-namsaeng-chooses-destructive-aid)
 
@@ -73,19 +73,21 @@ The sound at the place where nobles hand over agreement documents ends. Foreign 
 
 [Event parent](../../../body/treatments/039-strong-forts-without-a-whole.md#local-cooperation-reopens-conquest) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t039-local-cooperation-reopens-conquest)
 
-On-screen text: “667.” Li Shiji matches procurement and internal connections supplied by defecting regions to roads he knew from earlier expeditions. He approaches resisting fortresses through places that release provisions locally.
+On-screen text: “667.” A Tang convoy travels along a road Seokbu helped reopen for returning households. He watches from his place among the fortress defenders.
 
-A Tang convoy appears on a recovery road before Seokbu. He must now check whether the neighboring fortress that connected that road will send troops. He positions defenders and sends a request for support. The returning messenger stands before him.
+Inside Li Shiji's headquarters, a report from a cooperating place names that road and its available supplies. Li Shiji orders the convoy onward and assigns force against the fortress that will not open.
 
-**MESSENGER**　I received no promise of troops.
+At Seokbu's position, the messenger sent to the neighboring fortress returns without troops.
 
-**SEOKBU**　Hold our position first. Don't leave the neighbor's share empty without word that they are coming.
+**SEOKBU**　Are they coming?
 
-The troops fight, but the formation they expected from beside them is absent.
+**MESSENGER**　They gave no promise. I couldn't get an answer.
 
-**HISTORIAN**　Jeongto separately surrendered and gave up territory in 666.
+A command from the defenders' own line calls them back to their posts. Seokbu goes with the soldier beside him. From there the road to the neighboring fortress is visible; no supporting formation arrives before the fighting resumes.
 
-Beside the road where the neighbor's answer has stopped, Seokbu's troops continue defending their home.
+**HISTORIAN**　Jeongto separately surrendered and gave up territory in 666. His appearance as a child does not tell us why he made that choice. Tang had conquered before; divided defenses now opened its roads again.
+
+Seokbu takes his place among the soldiers defending their home.
 
 ## A capital to defend and connections impossible to hold {#t039-brothers-choose-different-ends}
 
@@ -95,11 +97,11 @@ On-screen text: “668.” Namgeon gathers troops at the capital. Forces still a
 
 **NAMGEON**　We must connect fortress to fortress. Gathering only in the capital cannot recover the outside.
 
-Namsaeng gives an operator an order.
+Namsaeng gives a military messenger an order.
 
 **NAMSAENG**　Take this road first. We must pass here before that fortress's troops can join.
 
-The operator leaves along the road.
+The messenger leaves along the road.
 
 Move to Namsan's office in Pyongyang. A document he receives gives the condition of remaining soldiers and usable routes. After reading it, he calls someone to convey surrender.
 
@@ -111,7 +113,7 @@ Even after news of surrender, a Pyongyang officer receives Namgeon's next order.
 
 [Event parent](../../../body/treatments/040-five-days-to-the-west-gate.md#sinseong-arranges-collusion) · [Scene parent](../../../body/scripts/006-the-son-left-living/001-the-son-left-living.md#t040-sinseong-arranges-collusion)
 
-On-screen text: “September 668, Pyongyang.” Character label: “Monk Sinseong · entrusted with military duties by Namgeon.” The audience enters a separate meeting where Sinseong, having arranged the promise to open the gate with Tang, meets Osa and Yomyo.
+On-screen text: “ninth lunar month 668, Pyongyang.” Character label: “Monk Sinseong · entrusted with military duties by Namgeon.” The audience enters a separate meeting where Sinseong, having arranged the promise to open the gate with Tang, meets Osa and Yomyo.
 
 **SINSEONG**　Tang will win. If we open before fighting to the end, might the people inside live?
 
@@ -130,8 +132,6 @@ Namgeon reads reports of shifts and patrols and returns them on the understandin
 Five nights later, the western postern. Osa's coordinated shift returns and the inner road clears. Hands move the bar and stop; Tang troops enter. The formation spreads along the route Yomyo prepared.
 
 Entering Tang troops set the gate tower on fire. Osa approaches.
-
-**HISTORIAN**　They could open the gate and inner road. They could not command the entering Tang troops or determine their treatment.
 
 **OSA**　This is the place we agreed...
 
@@ -253,9 +253,13 @@ Before her mother finishes, Nuri speaks for her own work.
 
 **NURI**　You need to ask me too, Mother. I'll say whether I can go that day.
 
-Miran turns and waits for her daughter's answer. Sokro receives each household's available time and checks again using shared language and roads. A messenger wants to hurry, but another household's answer has not arrived. Beside the place where the first agreed share arrives, a receiving place remains for the next.
+Miran turns and waits for her daughter's answer. Sokro receives each household's available time and checks again using shared language and roads. The local messenger cannot leave with all the answers: a household farther along the road has not replied. Those already able to go set out; Miran waits for Nuri to finish naming her own available work.
 
-**SOKRO**　Receive what came first. We can't write an absent household as present. We'll take the next turn and send it.
+At the receiving place under the new rulers, the official calls for the full demand. Only the first group stands before him. The local messenger finally arrives with answers giving different days for the rest.
+
+**SOKRO**　These households could leave first. The others gave their own days. This is what has come.
+
+The official keeps the unfilled portion of the demand open. The next group has not appeared when the first is sent to work.
 
 **HISTORIAN**　Among forces that had defected, some experienced the new rule and turned away. Others still saw cooperation with Tang as survival.
 
@@ -275,7 +279,7 @@ Looking for someone to send an answer, Namsaeng reads the region's name again.
 
 Audience time label: “Through 676.” Namsaeng repeatedly receives regional refusals. Calling names no longer brings the former promise of supplies. End the office sound and move to the Henan home. Haeun's family still folds away remaining work to make beds.
 
-**HISTORIAN**　Tang's distant defeat alone cannot explain this resentment. These people had displaced households and losses borne locally.
+**HISTORIAN**　Tang's distant defeat alone cannot explain this resentment. Households had been displaced, and people here had borne the losses.
 
 Return from the house made ready for four to lie down to the administrative office. Namsaeng places refusals beside the document requesting cooperation.
 
@@ -311,7 +315,7 @@ Namsaeng puts down the document and continues at once.
 
 **NAMSAENG**　That resentment remains. It doesn't erase what I did to people who died or were taken away.
 
-The official produces the next task. Namsaeng stops speaking and reads again. The registers name land he once meant to restore; now he must send people and supplies under Tang rule.
+The official produces the next task. Namsaeng stops speaking and reads it. He writes the required allocation on the Tang register.
 
 ## The son left in the residence {#t043-death-leaves-heonseong-living}
 

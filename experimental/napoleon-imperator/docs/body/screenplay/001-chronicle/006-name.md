@@ -22,7 +22,7 @@ Lannes, wounded May 22. His broad chest heaves and a breath about to speak becom
 
 After treatment. Another day's light enters the same place. A waiting person looks at Lannes, and Lannes moves his eyes to recognize them. His jaw relaxes from bearing pain, then tightens again. The caregiver lifts a hand, then resumes what can be done.
 
-HISTORIAN (voice): Lannes died on May 31. There was time spent waiting after the day he was wounded.
+HISTORIAN (voice): Lannes died on May 31.
 
 Napoleon remains beside the dead man. Do not return his face to a scene of reconciliation with Soult in 1805. The insult that had no answer while he lived remains. Where Lannes's deep voice is gone, only moving cloth is heard.
 
@@ -50,7 +50,7 @@ The order travels, and Austrians withdraw preserving their remaining forces.
 
 After victory Napoleon sees returning commanders. Stay briefly among them where Lannes is absent. No one calls his name. Transition to another space of papal authority.
 
-Another space in 1809, proceeding alongside the battle. Place the Pope's temporal territory, neutrality, and religious authority alongside territorial and blockade control demanded by the empire.
+Another space in 1809, proceeding alongside the battle. Open the imperial annexation document before the historian speaks.
 
 HISTORIAN (voice): The Emperor sought control of territory and blockade. The papacy held temporal territory, neutrality, and religious authority.
 
@@ -102,17 +102,11 @@ NAPOLEON: Yes. We stay here for now.
 
 As the procession ahead moves, they move together. Outside ceremony, the husband slows enough for his wife to follow. She reaches his side and both go in the same direction.
 
-After childbirth in 1811. The nineteen-year-old mother starts to lean back, then stops because of the child in her arms. Napoleon holds out both arms.
+After childbirth in 1811. From the nineteen-year-old Marie Louise's resting height, see Napoleon already holding the baby beside her. His hands support the head and body at the lower edge of the view. She stays awake watching them. The child stirs; Napoleon bends close and smiles, keeping his voice low.
 
-MARIE LOUISE: Support his head. A little farther this way.
+NAPOLEON: Rest. I have him.
 
-He adjusts his hands as he takes the baby. When the baby moves, the father's arms tremble a little too. The mother checks that his hand supports the head.
-
-NAPOLEON: Is that right?
-
-MARIE LOUISE: Yes. Just like that.
-
-At last Marie Louise leans back and rests. Screen text gives the child the title “King of Rome.” After the title disappears the father still supports the same weight. Hold the resting mother's breathing and the child's small movement together.
+Marie Louise watches a little longer, then closes her eyes. Keep her face in the foreground as the father's quieter movement and the baby's breathing continue beside her. The distant celebration remains farther away than these sounds. Screen text gives the child the title “King of Rome,” then disappears while the mother rests and the father remains with their child.
 
 ## A country demanding more {#grain}
 
@@ -128,7 +122,7 @@ The person leaving looks at someone nearby and draws their own pack close. Doors
 
 Move to a space conveying the blockade's burden in Russia. French demands put more pressure on local life and trade.
 
-HISTORIAN (voice): Russia moved away from France's demands because of its own interests and the blockade's cost. Moves not to follow the blockade became a path away from the alliance too.
+HISTORIAN (voice): The blockade's cost made Russia's own interests harder to reconcile with France's demands.
 
 News travels by messenger to Napoleon. He hears the reporter's voice in his own space.
 

@@ -26,7 +26,7 @@ Caulaincourt falls silent. Berthier continues sending orders. The picture follow
 
 [Event parent 1](../../../body/treatments/028-the-distance-before-winter.md#advance) · [Event parent 2](../../../body/treatments/028-the-distance-before-winter.md#limited-sight) · [Scene parent](../../../body/scripts/001-chronicle/007-distance.md#advance)
 
-Summer 1812. A march in running sweat. First-name caption: Bourgogne, Guard infantry sergeant. He starts to sit beside food, then rises again to follow the ranks. A horse cannot pull a cart and stops. Someone behind tries to go around the cart ahead and steps onto bad ground off the road.
+Summer 1812. A march in running sweat. At his first appearance a caption identifies Bourgogne, Guard infantry sergeant. He starts to sit beside food, then rises again to follow the ranks. A horse cannot pull a cart and stops. Someone behind tries to go around the cart ahead and steps onto bad ground off the road.
 
 BOURGOGNE: Come this way. Don't stay behind the cart.
 
@@ -62,7 +62,13 @@ NAPOLEON: The answer?
 
 OFFICER: None yet, Sire.
 
-Firelight spreads through the street. Without showing who first lit it, follow troops who must move before flames already present. Alexander continues the war in another space. No words connect the sovereigns' faces as direct dialogue.
+Firelight spreads through the street. Without showing who first lit it, follow troops who must move before flames already present.
+
+In a separate daylight interior in Russia, Alexander turns away from Moscow's place on a map to an officer waiting for his decision. This is a reconstruction of the established choice to continue the war, not a new letter or quoted order.
+
+ALEXANDER: Keep the army together. The war continues.
+
+The officer goes out. Cut to Russian troops still moving outside the city, then return to Napoleon's unanswered wait. No words connect the sovereigns' faces as a direct exchange.
 
 Days pass without an answer. Brought food dwindles and horses and carts for transport worsen. Napoleon hears another report of no answer. This time he rises first.
 
@@ -106,7 +112,7 @@ The later road home. Napoleon and Caulaincourt head to the capital before the ar
 
 A family's house. A messenger hands over paper.
 
-MESSENGER: A demand for a new army.
+MESSENGER: Another call for men. This is your notice.
 
 The recipient looks down the road by which a family member who has not yet returned departed. Outside stands the bearer of the demand instead. Only the news brought inside is placed on the table.
 

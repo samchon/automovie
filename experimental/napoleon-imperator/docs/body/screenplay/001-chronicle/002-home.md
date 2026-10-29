@@ -30,7 +30,7 @@ Caption: Reconstruction of a game from Bourrienne's later memoir.
 
 A fort built of snow. Boys charge and snowballs with stones in them fly. A hard impact cuts the shouting short. People gather around an injured child. Napoleon stops running too. Looking down at the child on the snow, his calculating confidence disappears.
 
-Paris military school, 1784. A young body in a larger space. A quiet caption then announces his father's death. In 1785 Napoleon, now a second lieutenant, dresses in uniform and counts money to spend while thinking of his family. Even after setting aside their share, he looks again at the money in his hand.
+Paris military school, 1784. At a study table in daylight, Napoleon bends over his work. The next caption changes the year: “1785. His father dies.” Later that year Napoleon, now a second lieutenant, dresses in uniform and counts money to spend while thinking of his family. Even after setting aside their share, he looks again at the money in his hand.
 
 ## One island, different sides {#island}
 
@@ -60,7 +60,7 @@ SALICETI: I've read your piece. What we need now is artillery work. Will you tak
 
 NAPOLEON: I will. Give me the means to put the guns to use.
 
-Saliceti's authority opens the assignment, and Napoleon positions guns in the field. Move from the same hand signing paper to many hands hauling a gun.
+Saliceti signs the assignment. Move from his signing hand to many hands hauling a gun into position.
 
 December. Beyond the bombardment, the Mulgrave redoubt; caption: “Little Gibraltar.” An attack climbs toward the height defended by British troops and is stopped by fire. In the darkness, men who came down gather again. Napoleon looks toward the height and follows them into a renewed assault. As light changes from the night of the 16th to the dawn of the 17th, he is wounded, but the advance continues. First show French troops on the captured height, then Allies withdrawing from the harbor. Napoleon's promotion comes afterward in a separate caption.
 

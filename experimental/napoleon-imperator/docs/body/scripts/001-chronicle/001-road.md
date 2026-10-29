@@ -96,11 +96,11 @@ The soldier ties his shoe. Cheers at headquarters recede, leaving the sound of d
 
 Dawn, outdoors before battle. Lannes and Soult meet as each heads to his troops. A fixed view holds both at waist height. Distant cannon sounds in the south.
 
-LANNES: Why have you not answered my challenge?
+LANNES: I thought you knew how to use a sword. Why have you not answered my challenge?
 
 SOULT: There are more important matters today.
 
-LANNES: Do you think the insult vanishes because there is work to do?
+LANNES: You contemptible man.
 
 Soult turns to his troops. Lannes goes the opposite way. Keep the camera where they part; do not follow to add an expression of reconciliation.
 
