@@ -24,6 +24,8 @@ interface IProduced {
   result: IAutoMovieHumanGenerated;
   /** Selected scalar observations from this actual generation, never from an imported model. */
   observation?: ReturnType<typeof collectHumanBodyObservation>["observation"];
+  /** Development geometry and the separate complete-generator outcome. */
+  inspection?: ReturnType<typeof collectHumanBodyObservation>["inspection"];
   alias: string | null;
   milliseconds: number | null;
 }
@@ -216,6 +218,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
         generation + 1,
       );
       prepared = model;
+      model.loaded.inspection = produced.inspection;
 
       // The page may have been disposed while the images decoded.
       if (closed) {
@@ -268,7 +271,8 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
           ? ""
           : ", " + produced.milliseconds.toFixed(0) + " ms";
       report(
-        "ok",
+        produced.inspection?.fullGeneration === "failed" ? "error" : "ok",
+        produced.inspection ? `개발 geometry 단계; 전체 Human 생성 ${produced.inspection.fullGeneration === "failed" ? "실패: " + produced.inspection.failure?.split("\n")[0] : "성공"}` :
         `생성 완료${produced.alias === null ? "" : " (" + produced.alias + ")"}${time}: 파트 ${model.loaded.parts.length}개${note}`,
       );
       return { ...model.loaded, observation: produced.observation };
@@ -316,11 +320,17 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
           admitHumanParameters({ candidate: parameters });
         return { ...collectHumanBodyObservation(admitted.parameters, observation), alias: admitted.alias };
       }),
-    loadGenerated: (
-      result: IAutoMovieHumanGenerated,
-    ): Promise<IHumanViewerPage.ILoaded> =>
-      replace((): IProduced => ({ result, alias: null, milliseconds: null })),
-    serialize: (): string => JSON.stringify(loaded().result),
+    loadGenerated: (result: IAutoMovieHumanGenerated): Promise<IHumanViewerPage.ILoaded> =>
+      replace((): IProduced => {
+        if (result.model.id === "automovie-human-geometry") throw new Error("Use explicit geometry inspection, not a complete-result import");
+        return { result, alias: null, milliseconds: null };
+      }),
+    loadGeometry: (candidate: unknown, observation?: readonly string[]): Promise<IHumanViewerPage.ILoaded> =>
+      replace((): IProduced => {
+        const admitted: ReturnType<typeof admitHumanParameters> = admitHumanParameters({ candidate });
+        return { ...collectHumanBodyObservation(admitted.parameters, observation, true), alias: admitted.alias };
+      }),
+    serialize: (): string => JSON.stringify({ ...loaded().result, inspection: loaded().loaded.inspection }),
     setPass: (next: IHumanViewerPage.Pass): void => {
       loaded().setPass(next);
       pass = next;
@@ -406,7 +416,8 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       curves: string,
       format: "svg" | "png",
     ): Promise<string> =>
-      drawHumanPageCurveDiagram(alias, curves, format, current?.result.parameters),
+      current?.loaded.inspection ? Promise.reject(new Error("Geometry inspection uses its generated construction passes")) :
+        drawHumanPageCurveDiagram(alias, curves, format, current?.result.parameters),
     snapshot: (): IHumanViewerPage.ISnapshot => ({
       generation: current?.loaded.generation ?? 0,
       alias: current?.loaded.alias ?? null,
@@ -417,6 +428,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       failed,
       busy,
       parameters: current?.result.parameters ?? null,
+      inspection: current?.loaded.inspection,
     }),
     dispose: (): Promise<void> => {
       closed = true;

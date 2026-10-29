@@ -34,6 +34,8 @@ export function createHumanImagePlugin(repository: string): Plugin {
         input: Awaited<ReturnType<typeof HumanImageRegistry.read>>;
         /** Request-scoped observation selection kept with the current session key. */
         observation?: readonly string[];
+        /** Explicit development stage; its key never identifies a complete Human. */
+        geometry: boolean;
       }
     | undefined;
 
@@ -69,6 +71,11 @@ export function createHumanImagePlugin(repository: string): Plugin {
     if (pinned && current?.key !== pinned[1]) {
       response.statusCode = 409;
       response.end("Reload the current Human model");
+      return;
+    }
+    if (pinned && current?.geometry) {
+      response.statusCode = 409;
+      response.end("Geometry inspection uses its generated construction passes");
       return;
     }
     let curves: string;
@@ -296,6 +303,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
             }
             let input: Awaited<ReturnType<typeof HumanImageRegistry.read>>;
             let observation: readonly string[] | undefined;
+            let geometry: boolean = false;
             if (pinned) {
               if (current?.key !== pinned[1]) {
                 response.statusCode = 409;
@@ -304,11 +312,13 @@ export function createHumanImagePlugin(repository: string): Plugin {
               }
               input = current.input;
               observation = current.observation;
+              geometry = current.geometry;
             } else if (
               request.method === "POST" &&
               url.pathname === "/human-images/model.json"
             ) {
               input = await HumanImageParameterRequest(request);
+              geometry = url.searchParams.get("stage") === "geometry";
               const selected: string | null = url.searchParams.get("observe");
               if (selected !== null) {
                 const names: string[] = selected.split(",");
@@ -363,14 +373,16 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 curves,
                 view.text,
                 observation,
+                geometry,
               );
             if (pinned && result.key !== pinned[1]) {
               response.statusCode = 409;
               response.end("Human source changed; reload the model");
               return;
             }
+            response.setHeader("x-human-stage", geometry ? "geometry" : "complete");
             if (!image && !pinned) {
-              current = { key: result.key, input, observation };
+              current = { key: result.key, input, observation, geometry };
               response.setHeader("x-human-identity", result.key);
               response.setHeader("content-type", "application/json");
               response.end(url.searchParams.get("receipt") === "1"
@@ -418,7 +430,7 @@ export function createHumanImagePlugin(repository: string): Plugin {
                 "x-human-archive-url",
                 archive.publish(url.href, result.png, eventBytes),
               );
-            response.setHeader("x-human-binding", "current-generation");
+            response.setHeader("x-human-binding", geometry ? "development-geometry" : "current-generation");
             response.setHeader(
               "x-human-curves",
               curves === "" ? "none" : normalizeHumanCurves.query(curves),

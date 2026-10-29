@@ -60,7 +60,7 @@ export class AutoMovieHuman {
    * Generate the neutral body for one parameter set.
    *
    * @param params Complete public input; returned unchanged as `parameters`.
-   * @param execution Optional request-scoped observer of this same generation; it does not alter authored input.
+   * @param execution Optional same-run observers, including explicit raw geometry inspection; authored input and ordinary failures are unchanged.
    * @returns The parameters used and the generated model in metres.
    */
   public static generate(
@@ -68,6 +68,8 @@ export class AutoMovieHuman {
     execution?: {
       /** Receives selected diagnostics from this generation without changing parameters. */
       observe?: AutoMovieHumanBodyObservation.IObserver;
+      /** Development-only raw geometry from this invocation, before appearance; normal generation still completes or throws. */
+      inspectGeometry?: (result: IAutoMovieHumanGenerated) => void;
     },
   ): IAutoMovieHumanGenerated {
     // Stature is required: an unknown height would otherwise be silently
@@ -132,21 +134,7 @@ export class AutoMovieHuman {
       ]),
     );
 
-    // Skin appearance is computed on the final pieces in calibration mm:
-    // texture coordinates, regional albedo and relief weights.
-    const dressed: AutoMovieHumanSkin.IOutput = AutoMovieHumanSkin.generate({
-      vermilion,
-      params,
-      pieces: skin,
-      eyes: calibration.eyes,
-      apertures: calibration.apertures,
-      stature: calibration.stature,
-      scale,
-    });
-
-    const body: IAutoMovieModelPart[] = [
-      ...dressed.parts,
-      ...curves.map(
+    const construction: IAutoMovieModelPart[] = curves.map(
         (curve: AutoMovieHumanBodyConstruction.ICurve): IAutoMovieModelPart =>
           part(
             "human.construction." + curve.id,
@@ -159,8 +147,35 @@ export class AutoMovieHuman {
             AutoMovieHumanLoftMesh.normals(curve.mesh),
             scale,
           ),
-      ),
+      );
+    const constructionMaterials: IAutoMovieMaterial[] = [
+      material("construction.sections", [0.1, 0.35, 0.9], true),
+      material("construction.axes", [0.9, 0.15, 0.1], true),
+      material("construction.guides", [0.1, 0.6, 0.25], true),
     ];
+
+    // Reuse the actual joined mesh and curves, without rerunning the law or
+    // lofting. Only explicit development inspection allocates this model.
+    execution?.inspectGeometry?.({
+      parameters: params,
+      model: {
+        id: "automovie-human-geometry", name: "Human geometry inspection",
+        origin: "generated", skeleton: null, body: null, images: [], asset: null,
+        parts: [
+          ...skin.map((piece: AutoMovieHumanLoftMesh.IPiece): IAutoMovieModelPart =>
+            part("human.skin." + piece.name, "skin.geometry", piece, piece.normals, scale)),
+          ...construction,
+        ],
+        materials: [material("skin.geometry", [0.62, 0.62, 0.62], false), ...constructionMaterials],
+      },
+    });
+
+    // Appearance failures remain failures of ordinary Human generation.
+    const dressed: AutoMovieHumanSkin.IOutput = AutoMovieHumanSkin.generate({
+      vermilion, params, pieces: skin, eyes: calibration.eyes,
+      apertures: calibration.apertures, stature: calibration.stature, scale,
+    });
+    const body: IAutoMovieModelPart[] = [...dressed.parts, ...construction];
 
     // Appearance is placed on the generated body. Eye frames are the
     // calibrated eyeball globes behind the eyelid apertures, scaled with the
@@ -207,10 +222,7 @@ export class AutoMovieHuman {
       materials: [
         ...dressed.materials,
 
-        // Construction colours only separate the two layers on screen.
-        material("construction.sections", [0.1, 0.35, 0.9], true),
-        material("construction.axes", [0.9, 0.15, 0.1], true),
-        material("construction.guides", [0.1, 0.6, 0.25], true),
+        ...constructionMaterials,
         ...appearance.materials,
       ],
       images: [...dressed.images, ...appearance.images],

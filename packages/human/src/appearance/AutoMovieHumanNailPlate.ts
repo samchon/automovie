@@ -95,7 +95,8 @@ export namespace AutoMovieHumanNailPlate {
         );
         const hit: [Vec3, Vec3] | null = cast(list, origin, direction);
         if (hit === null)
-          throw new Error("Nail outline lacks generated digit skin");
+          throw failure(list, digit, kind, i, j, t, v,
+            distal - length * (1 - v), origin, direction);
         bed.push(...hit[0]);
         bedNormals.push(...hit[1]);
         coordinates.push((t + 1) / 2, v);
@@ -177,6 +178,80 @@ export namespace AutoMovieHumanNailPlate {
       }
     AutoMovieHumanNailClosure.append(out, bed, ALONG, AROUND);
     return out;
+  }
+
+  /** Preserve the first missed ray without changing the failed generation.
+   *
+   * Only this failure path scans the affected digit. Names are bounded leaves,
+   * and geometry is summarized by scalar counts and bounds, never mesh data.
+   * The worker transports Error.message, so the existing error's first line
+   * is followed by one selected JSON record. Successful plates do no new work.
+   */
+  function failure(
+    list: readonly AutoMovieHumanSkinChart.IOutput[],
+    digit: IAutoMovieHumanNailFrame,
+    kind: "finger" | "thumb" | "toe",
+    row: number,
+    column: number,
+    t: number,
+    v: number,
+    station: number,
+    origin: Vec3,
+    direction: Vec3,
+  ): Error {
+    let vertexCount: number = 0;
+    let triangleCount: number = 0;
+    let finiteVertices: number = 0;
+    let nonfiniteVertices: number = 0;
+    let nonfiniteNormals: number = 0;
+    let invalidIndices: number = 0;
+    let finiteAxisProjections: number = 0;
+    const lo: Vec3 = [Infinity, Infinity, Infinity];
+    const hi: Vec3 = [-Infinity, -Infinity, -Infinity];
+    let axisLo: number = Infinity;
+    let axisHi: number = -Infinity;
+    for (const piece of list) {
+      const count: number = piece.positions.length / 3;
+      vertexCount += count;
+      triangleCount += piece.indices.length / 3;
+      for (let i: number = 0; i < count; i++) {
+        const p: Vec3 = V.at(piece.positions, i);
+        if (p.every(Number.isFinite)) {
+          finiteVertices++;
+          for (let k: number = 0; k < 3; k++) {
+            lo[k] = Math.min(lo[k]!, p[k]!);
+            hi[k] = Math.max(hi[k]!, p[k]!);
+          }
+          const axial: number = V.dot(V.sub(p, digit.origin), digit.axis);
+          if (Number.isFinite(axial)) {
+            finiteAxisProjections++;
+            axisLo = Math.min(axisLo, axial);
+            axisHi = Math.max(axisHi, axial);
+          }
+        } else nonfiniteVertices++;
+        if (!V.at(piece.normals, i).every(Number.isFinite)) nonfiniteNormals++;
+      }
+      for (const index of piece.indices)
+        if (!Number.isInteger(index) || index < 0 || index >= count) invalidIndices++;
+    }
+    const first: string = list[0]?.name ?? "";
+    const context: string = JSON.stringify({
+      schema: "human.nail.failure.v1",
+      chain: first.slice(0, first.lastIndexOf("/")).slice(0, 128),
+      kind, row, column, t, v, station,
+      ray: { origin, direction, finite: [...origin, ...direction].every(Number.isFinite) },
+      frame: { origin: digit.origin, axis: digit.axis, dorsal: digit.dorsal,
+        tip: digit.tip, radius: digit.radius,
+        finite: [...digit.origin, ...digit.axis, ...digit.dorsal, digit.tip, digit.radius].every(Number.isFinite) },
+      geometry: { pieceCount: list.length, vertexCount, triangleCount,
+        finiteVertices, nonfiniteVertices, nonfiniteNormals, invalidIndices,
+        finiteAxisProjections,
+        bounds: finiteVertices === 0 ? null : { min: lo, max: hi },
+        axisRange: finiteAxisProjections === 0 ? null : [axisLo, axisHi],
+        firstPiece: first.slice(0, 128),
+        lastPiece: (list[list.length - 1]?.name ?? "").slice(0, 128) },
+    });
+    return new Error("Nail outline lacks generated digit skin\nhuman.nail.failure=" + context);
   }
 
   /**

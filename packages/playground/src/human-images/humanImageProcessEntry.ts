@@ -17,6 +17,7 @@ interface IResidentModel {
   value: unknown;
   /** Selected same-execution observations to retain on page recovery. */
   observation?: readonly string[];
+  geometry: boolean;
   generation: number;
 }
 
@@ -44,7 +45,7 @@ interface IResidentModel {
  * keys; a changed source hash navigates the tab back to the bare page so Vite serves the edited
  * modules, and a page that lost its model (for example a Vite full reload)
  * regenerates the same input before rendering. Page errors return as replies
- * so the Vite host survives; a Chrome crash or disconnect exits the child so
+ * so the Vite host survives. Explicit geometry inspection publishes the same-run raw stage and records subsequent complete-generation failure; ordinary requests still reject. A Chrome crash or disconnect exits the child so
  * the session starts a fresh one. A software WebGL renderer is refused because
  * the reference photographs come from a hardware ANGLE renderer.
  *
@@ -137,10 +138,12 @@ export async function humanImageProcessEntry(): Promise<void> {
     source: string,
     value: unknown,
     observation?: readonly string[],
+    geometry?: boolean,
   ) => Promise<IHumanViewerPage.ILoaded> = async (
     source: string,
     value: unknown,
     observation?: readonly string[],
+    geometry: boolean = false,
   ): Promise<IHumanViewerPage.ILoaded> => {
     if (loadedSource !== undefined && loadedSource !== source) {
       await page.goto(url, { waitUntil: "load", timeout: 120000 });
@@ -148,9 +151,11 @@ export async function humanImageProcessEntry(): Promise<void> {
     }
     loadedSource = source;
     return page.evaluate(
-      (request: { candidate: unknown; observation?: readonly string[] }): Promise<IHumanViewerPage.ILoaded> =>
-        (window as HumanWindow).__automovieHuman!.load(request.candidate, request.observation),
-      { candidate: value, observation },
+      (request: { candidate: unknown; observation?: readonly string[]; geometry: boolean }): Promise<IHumanViewerPage.ILoaded> =>
+        request.geometry
+          ? (window as HumanWindow).__automovieHuman!.loadGeometry(request.candidate, request.observation)
+          : (window as HumanWindow).__automovieHuman!.load(request.candidate, request.observation),
+      { candidate: value, observation, geometry },
     );
   };
 
@@ -171,11 +176,15 @@ export async function humanImageProcessEntry(): Promise<void> {
 
     if (command.kind === "generate") {
       const started: number = performance.now();
+      const geometry: boolean = command.geometry === true;
       const loaded: IHumanViewerPage.ILoaded = await generate(
         source,
         command.value,
         command.observation as readonly string[] | undefined,
+        geometry,
       );
+      if (geometry && loaded.inspection?.stage !== "geometry") throw new Error("Geometry inspection state was not published");
+      if (loaded.inspection?.fullGeneration === "failed") console.error(loaded.inspection.failure);
       const json: string = await page.evaluate((): string =>
         (window as HumanWindow).__automovieHuman!.serialize(),
       );
@@ -209,6 +218,7 @@ export async function humanImageProcessEntry(): Promise<void> {
         source,
         value: command.value,
         observation: command.observation as readonly string[] | undefined,
+        geometry,
         generation: loaded.generation,
       };
       return {
@@ -219,7 +229,12 @@ export async function humanImageProcessEntry(): Promise<void> {
         bytes: bytes.length,
         sha256,
         receipt: {
-          kind: "human-generation",
+          kind: geometry ? "human-geometry-inspection" : "human-generation",
+          inspection: loaded.inspection,
+
+          // In this explicit stage, modelSha256 commits only to raw geometry,
+          // never to a successful complete Human; the alias serves archive compatibility.
+          ...(geometry ? { geometrySha256: modelSha256 } : {}),
           actualParametersSha256: digest(Buffer.from(JSON.stringify(parsed.parameters))),
           key,
           sourceSha256: source,
@@ -264,6 +279,7 @@ export async function humanImageProcessEntry(): Promise<void> {
           source,
           resident.value,
           resident.observation,
+          resident.geometry,
         );
         resident.generation = loaded.generation;
       }
@@ -333,13 +349,14 @@ export async function humanImageProcessEntry(): Promise<void> {
       };
     }
     if (command.kind === "diagram") {
+      if (resident?.geometry) throw new Error("Geometry inspection uses its generated construction parts, not reevaluated diagrams");
       if (resident === undefined || resident.key !== command.modelKey || resident.source !== source)
         throw new Error("Human diagram requested without its exact actual generation");
       const generation: number = await page.evaluate(
         (): number => (window as HumanWindow).__automovieHuman?.snapshot().generation ?? 0,
       );
       if (generation !== resident.generation || loadedSource !== source) {
-        const loaded: IHumanViewerPage.ILoaded = await generate(source, resident.value, resident.observation);
+        const loaded: IHumanViewerPage.ILoaded = await generate(source, resident.value, resident.observation, resident.geometry);
         resident.generation = loaded.generation;
       }
       const format: "svg" | "png" = command.format === "svg" ? "svg" : "png";

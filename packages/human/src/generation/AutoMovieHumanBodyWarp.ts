@@ -1,4 +1,3 @@
-import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanBodyGirth } from "./AutoMovieHumanBodyGirth";
 import { AutoMovieHumanLoftChain as Loft } from "../lofting/AutoMovieHumanLoftChain";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
@@ -161,41 +160,8 @@ export namespace AutoMovieHumanBodyWarp {
       station: chain.layers.some(
         (l: IAutoMovieHumanLoftChain.ILayer): boolean => l.frame !== undefined,
       ) ? source.station : source.station +
-        field.point(chain.name, source.station, axis)[1] - axis[1],
+        (field.point(chain.name, source.station, axis)[1] - axis[1]),
     };
-  }
-
-  /**
-   * Evaluate the candidate's retained principal-layer loft after the same
-   * existing event reconciliation as generation. The source declared course
-   * is transported; this is not a search for a new anatomical extremum.
-   * Nonlinear control transport remains an approximation between those layers.
-   */
-  export function measureCourse(
-    source: IAutoMovieHumanBodyCalibration,
-    field: AutoMovieHumanBodyWarpField.IField,
-    course: IAutoMovieHumanBodyCalibration.IAnchor,
-    baseline?: IAutoMovieHumanBodyCalibration,
-  ): number {
-    const outputs: AutoMovieHumanBodyWarpLayers.IOutput[] = source.chains.map(
-      (chain: IAutoMovieHumanLoftChain): AutoMovieHumanBodyWarpLayers.IOutput =>
-        AutoMovieHumanBodyWarpLayers.apply(chain, field),
-    );
-    if (outputs.some(
-      (o: AutoMovieHumanBodyWarpLayers.IOutput): boolean => !o.valid,
-    )) return NaN;
-    const candidate: IAutoMovieHumanBodyCalibration =
-      AutoMovieHumanEventJoin.reconcile({
-        ...source,
-        chains: outputs.map(
-          (o: AutoMovieHumanBodyWarpLayers.IOutput): IAutoMovieHumanLoftChain => o.chain,
-        ),
-      }, baseline);
-    const moved: IAutoMovieHumanBodyCalibration.IAnchor = address(source, field, course);
-    const chain: IAutoMovieHumanLoftChain | undefined = candidate.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === moved.chain,
-    );
-    return chain === undefined ? NaN : AutoMovieHumanBodyGirth.at(chain, moved.station);
   }
 
   /** Record actual post-join course residuals without turning them into admission gates. */

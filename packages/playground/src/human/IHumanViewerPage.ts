@@ -90,9 +90,29 @@ export interface IHumanViewerPage {
   ): Promise<IHumanViewerPage.ILoaded>;
 
   /**
-   * Serialize the displayed generated result as JSON, the `/human-images/<alias>.model.json` publication.
+   * Inspect this invocation's pre-appearance geometry; the complete-generation outcome remains explicit.
    *
-   * @returns `JSON.stringify` of `{ parameters, model }`; throws when nothing is loaded.
+   * @param candidate Complete authored input, privately admitted as for ordinary load.
+   * @param observation Optional exact chain selection for the same generation.
+   * @returns A displayed development stage, including any subsequent appearance failure.
+   *
+   * @evidence contracts/common.md#principled-implementation Reuses the actual generator's emitted mesh and curves without another law or loft evaluation.
+   * @evidence contracts/common.md#clear-and-simple-design Uses the existing admission, replacement and capture path with explicit inspection state.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only this opt-in path may display partial geometry; normal load still rejects, and missing geometry rejects here too.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes a displayed geometry stage from complete Human success.
+   * @evidence contracts/performance.md#efficient-algorithms One generation plus the existing model build; no second geometry evaluation.
+   * @evidence contracts/performance.md#reuse-equivalent-work The emitted joined mesh and construction serve all three passes.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Existing model retirement owns the displayed stage; no calibration object escapes.
+   */
+  loadGeometry(
+    candidate: unknown,
+    observation?: readonly string[],
+  ): Promise<IHumanViewerPage.ILoaded>;
+
+  /**
+   * Serialize the displayed generated result as JSON, the `/human-images/<alias>.model.json` publication. A development geometry result includes its separate complete-generation outcome in top-level `inspection`.
+   *
+   * @returns `JSON.stringify` of `{ parameters, model, inspection? }`; ordinary complete results omit `inspection`. Throws when nothing is loaded.
    *
    * @evidence contracts/common.md#principled-implementation Serializes the exact displayed result, so the publication and the PNGs share one model.
    * @evidence contracts/common.md#clear-and-simple-design The worker reads the publication through this one call.
@@ -218,8 +238,9 @@ export interface IHumanViewerPage {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Retains only the canonical text.
    */
   setView(query: string): string;
+
   /**
-   * Draw the 2D diagnostic diagram of one or more lofting curves (see `drawHumanCurveDiagram`).
+   * Draw the 2D diagnostic diagram of one or more lofting curves (see `drawHumanCurveDiagram`). Development geometry inspection rejects; its construction passes show the actual generated curves without another law evaluation.
    *
    * @param alias Registered fallback used only without a loaded result; null requires actual loaded parameters.
    * @param curves Canonical curve list: `<chain>/<k>`, `<chain>/axis` with globs, `<chain>@<s>` and `<chain>@<from>:<to>:<step>`.
@@ -228,8 +249,8 @@ export interface IHumanViewerPage {
    *
    * @evidence contracts/common.md#principled-implementation Reevaluates the shape law with the loaded result's actual parameters, or an admitted alias only without a loaded result; PNG rasterizes the same SVG.
    * @evidence contracts/common.md#clear-and-simple-design The worker serves alias and current-input `/human-curves/` requests through this method.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing loaded parameters and alias, unknown ids and invalid stations throw; a loaded result never substitutes an alias.
-   * @evidence contracts/common.md#meaningful-documentation States nullable alias fallback, curve grammar and formats; law reevaluation is not mesh measurement.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Development geometry inspection, missing loaded parameters and alias, unknown ids and invalid stations throw; a loaded result never substitutes an alias.
+   * @evidence contracts/common.md#meaningful-documentation States geometry-stage rejection, nullable alias fallback, curve grammar and formats; law reevaluation is not mesh measurement.
    * @evidence contracts/performance.md#efficient-algorithms No model generation; only requested chains are evaluated.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses actual parameter references and the loaded law evaluator.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The PNG canvas is a temporary element released after encoding.
@@ -298,8 +319,12 @@ export namespace IHumanViewerPage {
 
     /** Whether the model has at least one construction part. */
     construction: boolean;
+
     /** Optional finite law observations from this actual generation, rather than mesh measurements. */
     observation?: ReturnType<typeof collectHumanBodyObservation>["observation"];
+
+    /** Development-only geometry stage and the separate complete-generation outcome. */
+    inspection?: ReturnType<typeof collectHumanBodyObservation>["inspection"];
   }
 
   /**
@@ -432,5 +457,8 @@ export namespace IHumanViewerPage {
 
     /** Parameters of the displayed model, or null. */
     parameters: IAutoMovieHumanParameters | null;
+
+    /** Explicit partial geometry state; absent for complete Human output. */
+    inspection?: ILoaded["inspection"];
   }
 }

@@ -59,14 +59,16 @@ interface Probe {
   preJoin?: V;
 }
 
-/** Normal generation result with an optional developer-only observation summary. */
+/** Complete output or explicitly requested development geometry, with same-run observations. */
 interface Output {
-  /** The unchanged public generated result. */
+  /** Complete output, or a geometry-labelled model only for explicit development inspection. */
   result: IAutoMovieHumanGenerated;
   /** Elapsed generation and observation time; null remains valid for imported viewer results. */
   milliseconds: number | null;
   /** Same-execution scalar observations, absent for ordinary calls. */
   observation?: Report;
+  /** Explicit development geometry; the complete generator's outcome remains visible. */
+  inspection?: { stage: "geometry"; fullGeneration: "succeeded" | "failed"; failure: string | null };
 }
 
 /**
@@ -74,7 +76,8 @@ interface Output {
  *
  * @param parameters Already admitted, privately owned authored input.
  * @param selection Exact chain names; absent means ordinary generation without observation work.
- * @returns The public result and call-owned finite scalar tables. No model or parameter is modified.
+ * @param geometry Explicit development geometry capture; never a normal-generation fallback.
+ * @returns The public result or explicit raw geometry stage and call-owned scalar tables; no source geometry or parameter is mutated.
  *
  * @evidence contracts/common.md#principled-implementation Uses the actual BodyLaw stage and join callbacks, public address/support/ring operations, and rich jets only when carries holds.
  * @evidence contracts/common.md#clear-and-simple-design Keeps request-scoped scalar reduction beside the viewer; the generator and shared formulas retain their owners.
@@ -82,11 +85,12 @@ interface Output {
  * @evidence contracts/common.md#meaningful-documentation Labels calibration units, chart parameters, unavailable derivatives and executed versus calculated join observations.
  * @evidence contracts/performance.md#efficient-algorithms Traverses selected layers, courses and event phases with chain-name lookup scans; at most 4096 numeric probes are evaluated at the observed stages.
  * @evidence contracts/performance.md#reuse-equivalent-work Uses one actual generation and reuses numeric field/pre-join probes for subsequent stage comparisons.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only scalar tables escape; numeric temporary probes are cleared in finally and no borrowed body or field is retained.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Scalar tables and opt-in emitted geometry escape; numeric temporary probes are cleared in finally and no borrowed body or field is retained.
  */
 export function collectHumanBodyObservation(
   parameters: IAutoMovieHumanParameters,
   selection?: readonly string[],
+  geometry: boolean = false,
 ): Output {
   if (selection !== undefined && (!Array.isArray(selection) || selection.length === 0 ||
     selection.length > 8 || selection.some((name: string): boolean =>
@@ -259,16 +263,26 @@ export function collectHumanBodyObservation(
     },
   };
   const start: number = performance.now();
+  let inspected: IAutoMovieHumanGenerated | undefined;
   try {
-    const result: IAutoMovieHumanGenerated = AutoMovieHuman.generate(parameters, { observe: observer });
+    const result: IAutoMovieHumanGenerated = AutoMovieHuman.generate(parameters, {
+      observe: observer,
+      ...(geometry ? { inspectGeometry: (value: IAutoMovieHumanGenerated): void => { inspected = value; } } : {}),
+    });
+    if (geometry && inspected === undefined) throw new Error("Human geometry inspection was not emitted");
+    return { result: geometry ? inspected! : result, milliseconds: performance.now() - start, observation: report,
+      inspection: geometry ? { stage: "geometry", fullGeneration: "succeeded", failure: null } : undefined };
+  } catch (error) {
+    if (!geometry || inspected === undefined) throw error;
+    return { result: inspected, milliseconds: performance.now() - start, observation: report,
+      inspection: { stage: "geometry", fullGeneration: "failed", failure: error instanceof Error ? error.message : String(error) } };
+  } finally {
     if (report !== undefined) for (const rows of [report.stations, report.courses, report.probes, report.points, report.supports, report.diagnostics])
       for (const row of rows) for (const key of Object.keys(row))
         if (typeof row[key] === "number" && !Number.isFinite(row[key])) {
           row[key] = null;
           unavailable("Nonfinite scalar replaced by unavailable null");
         }
-    return { result, milliseconds: performance.now() - start, observation: report };
-  } finally {
     probes.length = 0;
   }
 }

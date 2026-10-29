@@ -12,7 +12,7 @@ type Diagram = { bytes: Buffer; key: string; cacheHit: boolean; capturedUtc: str
 /** Serialize an isolated generation/native owner while HTTP serves archives.
  * HTTP retains one byte publication and bounded PNGs, never parsed geometry.
  * Exact source/input commitments and asynchronous output hashing guard IPC.
- * One resident worker child keeps Chrome on /human.html across model keys and is replaced only when it stops being active; the current model and its frames are cached until the key changes.
+ * One resident worker child keeps Chrome on /human.html across model keys and is replaced only when it stops being active; the current model and its frames are cached until the key changes. Explicit development geometry has a separate key domain and receipt kind, and never satisfies an ordinary model request.
  *
  * @evidence contracts/common.md#principled-implementation A serialized queue binds source bytes and supplied input SHA to one child lease, verifies publication/frame commitments and rechecks source before delivery.
  * @evidence contracts/common.md#clear-and-simple-design The session owns model/frame reuse; process lifecycle and HTTP historical delivery stay with their separate owners.
@@ -56,7 +56,7 @@ export class HumanImageSession {
   public pending(): number { return this.admittedRequests; }
 
   /** Queue one model/frame request; reject invalid nonces, full queues or closed sessions.
-   * The resident child generates and renders in its Chrome page. `curves` joins frame identity; an optional canonical observation selection joins execution identity so another selection cannot reuse an earlier summary. Input value/SHA consistency is supplied by the caller.
+   * The resident child generates and renders in its Chrome page. `curves` joins frame identity; observation selection and explicit geometry stage join execution identity. Geometry inspection preserves the full-generator outcome, while ordinary errors still reject. Input value/SHA consistency is supplied by the caller.
    *
    * @evidence contracts/common.md#principled-implementation The serialized operation observes source/host hashes, derives a model key, verifies worker commitments and refuses source changes before returning publication or frame bytes.
    * @evidence contracts/common.md#clear-and-simple-design One queue protects a model lease and its frame Map while independent archive HTTP reads need no session operation.
@@ -66,8 +66,8 @@ export class HumanImageSession {
    * @evidence contracts/performance.md#reuse-equivalent-work Source/input/observation key and active child permit model reuse; name and curve selection plus absent or matching nonce permit frame reuse, preserving original capture UTC and PNG SHA.
    * @evidence contracts/performance.md#bound-retention-and-release-resources finally releases each of at most sixteen admission slots; an inactive child is closed before its replacement starts, PNG admission caps retained pixels at 256 MiB, and failures may leave that one child owned until replacement or close.
    */
-  public async image(input: Input, name: string, nonce?: string, curves: string = "", view: string = "", observation?: readonly string[]): Promise<Frame> {
-    return this.admit((): Promise<Frame> => this.frame(input, name, nonce, curves, view, observation));
+  public async image(input: Input, name: string, nonce?: string, curves: string = "", view: string = "", observation?: readonly string[], geometry: boolean = false): Promise<Frame> {
+    return this.admit((): Promise<Frame> => this.frame(input, name, nonce, curves, view, observation, geometry));
   }
 
   /** Generate/reuse a model and draw its diagram under ONE queue lease, without nested queue admission.
@@ -141,7 +141,7 @@ export class HumanImageSession {
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the exact current model and frame slot when key and nonce permit.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The existing cache/publication caps apply before retention; no independent worker or renderer is acquired.
  */
-  private async frame(input: Input, name: string, nonce?: string, curves: string = "", view: string = "", observation?: readonly string[]): Promise<Frame> {
+  private async frame(input: Input, name: string, nonce?: string, curves: string = "", view: string = "", observation?: readonly string[], geometry: boolean = false): Promise<Frame> {
     this.nonce(nonce);
     if (this.closed) throw new Error("Human image server is closing");
 
@@ -155,7 +155,7 @@ export class HumanImageSession {
     const observe: () => Promise<string> = (): Promise<string> => HumanImageSourceIdentity.source(this.root);
     const source: string = await observe();
     const key: string = createHash("sha256")
-      .update(source + input.sha256 + (observation === undefined ? "" : "|observation:" + JSON.stringify([...new Set(observation)].sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0))))
+      .update(source + input.sha256 + (observation === undefined ? "" : "|observation:" + JSON.stringify([...new Set(observation)].sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0))) + (geometry ? "|geometry" : ""))
       .digest("hex");
     const previous: { nonce: string | null } | undefined =
       this.cached?.key === key ? this.cached.frames.get(slot) : undefined;
@@ -175,13 +175,15 @@ export class HumanImageSession {
         inputSha256: input.sha256,
         value: input.value,
         observation,
+        geometry,
       });
       if (
         result.key !== key ||
         result.source !== source ||
         result.inputSha256 !== input.sha256 ||
         result.receipt === null ||
-        typeof result.receipt !== "object"
+        typeof result.receipt !== "object" ||
+        (result.receipt as { kind?: unknown }).kind !== (geometry ? "human-geometry-inspection" : "human-generation")
       )
         throw new Error("Worker generation identity mismatch");
       const publication: Buffer = await next.publication(result);
