@@ -120,6 +120,18 @@ One service at `http://127.0.0.1:5173` provides:
 
 The audit set is f1's bare whole front, side, top and back plus construction front, side and back.
 
+### Restored input-path findings
+
+The original f1 POST, surface PNG and curve PNG/SVG succeeded with 1,973 parts, model `1faf6d7c9e7c16cf6116528a7ec132937107856e554b8894e0745b539f77b38a` and construction `86d4679f2d5b7421b8ee5efbe6478eb898e862cbdf0da4b740287f1b45cb8899`. Root checked all three artifacts' hashes/headers and opened both PNGs; the [transport receipt](../../playground/.shots/campaign-2999-codex-input-observation/transport-smoke/transport-results.json) records those results.
+
+All twelve independent single-scalar POSTs returned HTTP 500 with the same 432-byte error, SHA256 `258CF242C15B9A773A9C3D50D31882CC97E350040AA419FDBCF0BCF4F7E8451E`, and produced no PNG. Root independently checked the actual request/response files, statuses, bodies and hashes. The [admission summary](../../playground/.shots/campaign-2999-codex-input-observation/custom-post-admission-round/summary.json) records the round; these requests failed before geometry could be observed.
+
+| Finding | Cause and contributing factors | Consequence and correction boundary |
+| --- | --- | --- |
+| Registered f1 works while every changed request fails. | `admitHumanParameters` accepts only exact registered-example JSON, and actual consumed parameters were not verified. | Example success does not establish runtime admission or parameter response; the failure is admission evidence, not malformed geometry. |
+| A failed replacement cannot establish preservation of the current live figure. | The page retires its current model before the replacement's admission fails. | Only the saved baseline artifacts remain evidence; separate validation/failure handling from retiring usable geometry. |
+| Restored generator and viewer dependencies disagree. | Static review found retired sparse adapter/API references, active calibrations excluded from cache identity, a mandatory heap environment breaking ordinary development startup, and missing actual-parameter verification. | Align source/cache identity, adapters and defaults with the actual restored working path. These findings are under one cause-based repair batch; completion and successful changed-input rendering remain unverified. |
+
 ## Open defects and their causes
 
 | Defect | Issue | Cause |

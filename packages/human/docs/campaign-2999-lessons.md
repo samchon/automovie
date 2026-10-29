@@ -26,6 +26,10 @@ Differences from Recovery or pre-PR centre and curve coordinates are diagnostics
 
 A source-budget refusal, missing clinical qualification or unvisited sample population is not evidence that the anatomy cannot be constructed. Preserve available geometry and distinguish missing inputs, numerical construction, display coverage and optional qualification. An optional appearance feature or display-precision failure must not erase unrelated valid skin.
 
+A registered example succeeding does not establish the changed-input path. Verify actual consumed parameters and separate admission failures from model retirement so a rejected replacement does not remove usable skin. In the restored viewer, retirement preceded rejection; only the saved artifacts established the earlier baseline, not a preserved live model.
+
+Bind cache identity to the restored generator's actual dependencies, including active calibrations. Align viewer adapters, protocols and ordinary development defaults with that working path; retired sparse adapters, excluded calibration hashes and a mandatory heap environment must not silently define the restored generator's behavior.
+
 ## Observe and correct by cause
 
 Use the actual viewer from the first usable working figure and throughout development. Compare the same finite model, inputs, camera, material, light, resolution and renderer across whole views, affected parts, neighboring joins and generating curves. Include ordinary input changes and supported motion states.
