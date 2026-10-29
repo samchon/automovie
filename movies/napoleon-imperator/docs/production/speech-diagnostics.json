@@ -1,0 +1,6222 @@
+{
+  "createdUtc": "2026-10-29T16:26:52.828374+00:00",
+  "complete": true,
+  "source": "docs/body/screenplay/001-chronicle/001-road.md",
+  "sourceSha256": "694c7f781924d01ddc3cbed78e2a989eb2a38a975c9696caad4c30787e7df91a",
+  "indexSha256": "2f2a55930ffbdc4916410dba5220eae1111ad3d27e40e9b0bb70928cf0ac35db",
+  "inputTakeCount": 27,
+  "allInputIdentitiesVerified": true,
+  "acceptance": "candidate-unheard",
+  "model": {
+    "repository": "openai/whisper-tiny.en",
+    "snapshot": "87c7102498dcde7456f24cfd30239ca606ed9063",
+    "versions": {
+      "transformers": "5.21.1",
+      "torch": "2.15.0+cpu",
+      "scipy": "1.18.1",
+      "soundfile": "0.14.0"
+    }
+  },
+  "parameters": {
+    "threads": 4,
+    "device": "cpu",
+    "dtype": "float32",
+    "resampling": "scipy.signal.resample_poly",
+    "sampleRate": 16000,
+    "chunkLengthSeconds": null,
+    "strideLengthSeconds": null,
+    "maximumInputSeconds": 30,
+    "returnTimestamps": "word",
+    "expectedTextPrompt": false,
+    "generate": {
+      "do_sample": false,
+      "num_beams": 1,
+      "condition_on_prev_tokens": false
+    }
+  },
+  "takes": [
+    {
+      "id": "line-001",
+      "unit": "road",
+      "speaker": "SOLDIER",
+      "text": "Out of the way! They're coming!",
+      "file": "line-001-279ba530788c5ab6.wav",
+      "sha256": "a2d5cfbe7fa83e064eb62b3a271bb9da05892509ed1ccfea13bbee751fc118ee",
+      "signal": {
+        "frames": 99840,
+        "sampleRate": 48000,
+        "duration": 2.08,
+        "peak": 0.8499755859375,
+        "rms": 0.13269656332193452,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " Out of the way, they're coming!",
+        "chunks": [
+          {
+            "text": " Out",
+            "timestamp": [
+              0.0,
+              0.32
+            ]
+          },
+          {
+            "text": " of",
+            "timestamp": [
+              0.32,
+              0.52
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              0.52,
+              0.66
+            ]
+          },
+          {
+            "text": " way,",
+            "timestamp": [
+              0.66,
+              1.24
+            ]
+          },
+          {
+            "text": " they're",
+            "timestamp": [
+              1.24,
+              1.6
+            ]
+          },
+          {
+            "text": " coming!",
+            "timestamp": [
+              1.6,
+              2.06
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 6,
+        "recognizedWords": 6,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 1.0629999998491257
+    },
+    {
+      "id": "line-002",
+      "unit": "road",
+      "speaker": "SOLDIER",
+      "text": "How far are we going?",
+      "file": "line-002-3161e9e16668d1b2.wav",
+      "sha256": "c5731136ae62a5d926d2ab32696c34692243cac76211d64cef7c1568ca6882d7",
+      "signal": {
+        "frames": 61440,
+        "sampleRate": 48000,
+        "duration": 1.28,
+        "peak": 0.932891845703125,
+        "rms": 0.18109371617782963,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " How far are we going?",
+        "chunks": [
+          {
+            "text": " How",
+            "timestamp": [
+              0.0,
+              0.34
+            ]
+          },
+          {
+            "text": " far",
+            "timestamp": [
+              0.34,
+              0.62
+            ]
+          },
+          {
+            "text": " are",
+            "timestamp": [
+              0.62,
+              0.66
+            ]
+          },
+          {
+            "text": " we",
+            "timestamp": [
+              0.66,
+              0.84
+            ]
+          },
+          {
+            "text": " going?",
+            "timestamp": [
+              0.84,
+              1.26
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 5,
+        "recognizedWords": 5,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.703999999910593
+    },
+    {
+      "id": "line-003",
+      "unit": "road",
+      "speaker": "BERTHIER",
+      "text": "Orders to concentrate the corps. Take them.",
+      "file": "line-003-e755fe10571c76aa.wav",
+      "sha256": "fabc2b9a86b8c5a52e095ba314f5518ad48ef7efeb0c983b2325af96a27d4caf",
+      "signal": {
+        "frames": 145920,
+        "sampleRate": 48000,
+        "duration": 3.04,
+        "peak": 0.670684814453125,
+        "rms": 0.059374392180389875,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": [
+          {
+            "start": 1.74,
+            "end": 2.44,
+            "position": "internal"
+          }
+        ]
+      },
+      "asr": {
+        "text": " Orders to concentrate the core. Take them.",
+        "chunks": [
+          {
+            "text": " Orders",
+            "timestamp": [
+              0.0,
+              0.5
+            ]
+          },
+          {
+            "text": " to",
+            "timestamp": [
+              0.5,
+              1.04
+            ]
+          },
+          {
+            "text": " concentrate",
+            "timestamp": [
+              1.04,
+              1.18
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              1.18,
+              1.58
+            ]
+          },
+          {
+            "text": " core.",
+            "timestamp": [
+              1.58,
+              2.74
+            ]
+          },
+          {
+            "text": " Take",
+            "timestamp": [
+              2.74,
+              2.74
+            ]
+          },
+          {
+            "text": " them.",
+            "timestamp": [
+              2.74,
+              3.02
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 7,
+        "recognizedWords": 7,
+        "wordEdits": 1,
+        "wordErrorRate": 0.14285714285714285,
+        "differenceSpans": [
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              4,
+              5
+            ],
+            "recognizedTokenRange": [
+              4,
+              5
+            ],
+            "expected": "corps",
+            "recognized": "core",
+            "recognizedTimeRange": [
+              1.58,
+              2.74
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 0.8440000000409782
+    },
+    {
+      "id": "line-004",
+      "unit": "road",
+      "speaker": "BERTHIER",
+      "text": "No report of their arrival yet. Wait for word.",
+      "file": "line-004-505f7a42bf907bfb.wav",
+      "sha256": "97ff623f777bd70fb1297882201ffa49e1b76413c7541c03ba199d66bd802996",
+      "signal": {
+        "frames": 161280,
+        "sampleRate": 48000,
+        "duration": 3.36,
+        "peak": 0.485626220703125,
+        "rms": 0.06151362502594495,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " No report of their arrival yet. Wait for word.",
+        "chunks": [
+          {
+            "text": " No",
+            "timestamp": [
+              0.0,
+              0.56
+            ]
+          },
+          {
+            "text": " report",
+            "timestamp": [
+              0.56,
+              0.86
+            ]
+          },
+          {
+            "text": " of",
+            "timestamp": [
+              0.86,
+              1.06
+            ]
+          },
+          {
+            "text": " their",
+            "timestamp": [
+              1.06,
+              1.3
+            ]
+          },
+          {
+            "text": " arrival",
+            "timestamp": [
+              1.3,
+              1.6
+            ]
+          },
+          {
+            "text": " yet.",
+            "timestamp": [
+              1.6,
+              2.44
+            ]
+          },
+          {
+            "text": " Wait",
+            "timestamp": [
+              2.6,
+              2.68
+            ]
+          },
+          {
+            "text": " for",
+            "timestamp": [
+              2.68,
+              2.9
+            ]
+          },
+          {
+            "text": " word.",
+            "timestamp": [
+              2.9,
+              3.34
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 9,
+        "recognizedWords": 9,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.8130000000819564
+    },
+    {
+      "id": "line-005",
+      "unit": "letter",
+      "speaker": "MURAT",
+      "text": "If we stay scattered, the enemy will take us one by one. Let us ask to withdraw together.",
+      "file": "line-005-4570bc07b9dbf10f.wav",
+      "sha256": "5cf1178f524e3fd696cd010d4a3be26343a78da89dc23f2d5f238c8c037a510e",
+      "signal": {
+        "frames": 307200,
+        "sampleRate": 48000,
+        "duration": 6.4,
+        "peak": 0.740081787109375,
+        "rms": 0.12950917407154924,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": [
+          {
+            "start": 3.56,
+            "end": 4.08,
+            "position": "internal"
+          }
+        ]
+      },
+      "asr": {
+        "text": " If we stay scattered, the enemy will take us one by one. Let us ask to withdraw together.",
+        "chunks": [
+          {
+            "text": " If",
+            "timestamp": [
+              0.0,
+              0.26
+            ]
+          },
+          {
+            "text": " we",
+            "timestamp": [
+              0.26,
+              0.46
+            ]
+          },
+          {
+            "text": " stay",
+            "timestamp": [
+              0.46,
+              0.78
+            ]
+          },
+          {
+            "text": " scattered,",
+            "timestamp": [
+              0.78,
+              1.68
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              1.68,
+              1.82
+            ]
+          },
+          {
+            "text": " enemy",
+            "timestamp": [
+              1.82,
+              2.02
+            ]
+          },
+          {
+            "text": " will",
+            "timestamp": [
+              2.02,
+              2.28
+            ]
+          },
+          {
+            "text": " take",
+            "timestamp": [
+              2.28,
+              2.52
+            ]
+          },
+          {
+            "text": " us",
+            "timestamp": [
+              2.52,
+              2.78
+            ]
+          },
+          {
+            "text": " one",
+            "timestamp": [
+              2.78,
+              3.04
+            ]
+          },
+          {
+            "text": " by",
+            "timestamp": [
+              3.04,
+              3.28
+            ]
+          },
+          {
+            "text": " one.",
+            "timestamp": [
+              3.28,
+              4.12
+            ]
+          },
+          {
+            "text": " Let",
+            "timestamp": [
+              4.12,
+              4.28
+            ]
+          },
+          {
+            "text": " us",
+            "timestamp": [
+              4.28,
+              4.54
+            ]
+          },
+          {
+            "text": " ask",
+            "timestamp": [
+              4.54,
+              4.86
+            ]
+          },
+          {
+            "text": " to",
+            "timestamp": [
+              4.86,
+              5.06
+            ]
+          },
+          {
+            "text": " withdraw",
+            "timestamp": [
+              5.06,
+              5.6
+            ]
+          },
+          {
+            "text": " together.",
+            "timestamp": [
+              5.6,
+              6.38
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 18,
+        "recognizedWords": 18,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 1.0939999998081475
+    },
+    {
+      "id": "line-006",
+      "unit": "letter",
+      "speaker": "SOULT",
+      "text": "My outposts have been pushed back too.",
+      "file": "line-006-b219be1eaf1b9dae.wav",
+      "sha256": "88681235d952ae3159099819982305e2747f9ec9c8fa3f1e4ab54796b1c6d69e",
+      "signal": {
+        "frames": 145920,
+        "sampleRate": 48000,
+        "duration": 3.04,
+        "peak": 0.8819580078125,
+        "rms": 0.0636227806193968,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " My outposts have been pushed back to.",
+        "chunks": [
+          {
+            "text": " My",
+            "timestamp": [
+              0.0,
+              0.5
+            ]
+          },
+          {
+            "text": " outposts",
+            "timestamp": [
+              0.5,
+              1.06
+            ]
+          },
+          {
+            "text": " have",
+            "timestamp": [
+              1.06,
+              1.3
+            ]
+          },
+          {
+            "text": " been",
+            "timestamp": [
+              1.3,
+              1.58
+            ]
+          },
+          {
+            "text": " pushed",
+            "timestamp": [
+              1.58,
+              1.84
+            ]
+          },
+          {
+            "text": " back",
+            "timestamp": [
+              1.84,
+              2.36
+            ]
+          },
+          {
+            "text": " to.",
+            "timestamp": [
+              2.36,
+              3.02
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 7,
+        "recognizedWords": 7,
+        "wordEdits": 1,
+        "wordErrorRate": 0.14285714285714285,
+        "differenceSpans": [
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              6,
+              7
+            ],
+            "recognizedTokenRange": [
+              6,
+              7
+            ],
+            "expected": "too",
+            "recognized": "to",
+            "recognizedTimeRange": [
+              2.36,
+              3.02
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 0.7650000001303852
+    },
+    {
+      "id": "line-007",
+      "unit": "letter",
+      "speaker": "SOULT",
+      "text": "Marshal Lannes, you write it. We are of one mind.",
+      "file": "line-007-3e10132eedfa9e9e.wav",
+      "sha256": "061caa4b8ee0608c2fd2a98aac838d1fa24dd29ab0b7959607e5791e02026334",
+      "signal": {
+        "frames": 222720,
+        "sampleRate": 48000,
+        "duration": 4.64,
+        "peak": 0.515167236328125,
+        "rms": 0.03366717327669281,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": [
+          {
+            "start": 1.06,
+            "end": 1.82,
+            "position": "internal"
+          },
+          {
+            "start": 2.52,
+            "end": 3.3,
+            "position": "internal"
+          }
+        ]
+      },
+      "asr": {
+        "text": " Marshall Lannis, you write it. We are of one mind.",
+        "chunks": [
+          {
+            "text": " Marshall",
+            "timestamp": [
+              0.0,
+              0.52
+            ]
+          },
+          {
+            "text": " Lannis,",
+            "timestamp": [
+              0.52,
+              1.92
+            ]
+          },
+          {
+            "text": " you",
+            "timestamp": [
+              1.92,
+              2.1
+            ]
+          },
+          {
+            "text": " write",
+            "timestamp": [
+              2.1,
+              2.36
+            ]
+          },
+          {
+            "text": " it.",
+            "timestamp": [
+              2.36,
+              3.42
+            ]
+          },
+          {
+            "text": " We",
+            "timestamp": [
+              3.42,
+              3.54
+            ]
+          },
+          {
+            "text": " are",
+            "timestamp": [
+              3.54,
+              3.74
+            ]
+          },
+          {
+            "text": " of",
+            "timestamp": [
+              3.74,
+              3.9
+            ]
+          },
+          {
+            "text": " one",
+            "timestamp": [
+              3.9,
+              4.16
+            ]
+          },
+          {
+            "text": " mind.",
+            "timestamp": [
+              4.16,
+              4.62
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 10,
+        "recognizedWords": 10,
+        "wordEdits": 2,
+        "wordErrorRate": 0.2,
+        "differenceSpans": [
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              0,
+              2
+            ],
+            "recognizedTokenRange": [
+              0,
+              2
+            ],
+            "expected": "marshal lannes",
+            "recognized": "marshall lannis",
+            "recognizedTimeRange": [
+              0.0,
+              1.92
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 1.047000000020489
+    },
+    {
+      "id": "line-008",
+      "unit": "letter",
+      "speaker": "LANNES",
+      "text": "I shall make clear that you both agree.",
+      "file": "line-008-743c284089cb22b6.wav",
+      "sha256": "36a6aec7aab254933590a0220318d4faa60f106852e4aae4ff35bc7c0514a419",
+      "signal": {
+        "frames": 107520,
+        "sampleRate": 48000,
+        "duration": 2.24,
+        "peak": 0.64013671875,
+        "rms": 0.07806320484127288,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " I shall make clear that you both agree.",
+        "chunks": [
+          {
+            "text": " I",
+            "timestamp": [
+              0.0,
+              0.32
+            ]
+          },
+          {
+            "text": " shall",
+            "timestamp": [
+              0.32,
+              0.48
+            ]
+          },
+          {
+            "text": " make",
+            "timestamp": [
+              0.48,
+              0.78
+            ]
+          },
+          {
+            "text": " clear",
+            "timestamp": [
+              0.78,
+              1.04
+            ]
+          },
+          {
+            "text": " that",
+            "timestamp": [
+              1.04,
+              1.24
+            ]
+          },
+          {
+            "text": " you",
+            "timestamp": [
+              1.24,
+              1.48
+            ]
+          },
+          {
+            "text": " both",
+            "timestamp": [
+              1.48,
+              1.7
+            ]
+          },
+          {
+            "text": " agree.",
+            "timestamp": [
+              1.7,
+              2.22
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 8,
+        "recognizedWords": 8,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.828999999910593
+    },
+    {
+      "id": "line-009",
+      "unit": "letter",
+      "speaker": "NAPOLEON",
+      "text": "Soult, what do you think?",
+      "file": "line-009-e7f410c9d81a827a.wav",
+      "sha256": "18b2e559b2028376292f6864cfd63429b866937b851c15147bf96a681fb9c96c",
+      "signal": {
+        "frames": 92160,
+        "sampleRate": 48000,
+        "duration": 1.92,
+        "peak": 0.72320556640625,
+        "rms": 0.0651869954062577,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " So, what do you think?",
+        "chunks": [
+          {
+            "text": " So,",
+            "timestamp": [
+              0.0,
+              0.64
+            ]
+          },
+          {
+            "text": " what",
+            "timestamp": [
+              0.64,
+              1.02
+            ]
+          },
+          {
+            "text": " do",
+            "timestamp": [
+              1.02,
+              1.2
+            ]
+          },
+          {
+            "text": " you",
+            "timestamp": [
+              1.2,
+              1.26
+            ]
+          },
+          {
+            "text": " think?",
+            "timestamp": [
+              1.26,
+              1.9
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 5,
+        "recognizedWords": 5,
+        "wordEdits": 1,
+        "wordErrorRate": 0.2,
+        "differenceSpans": [
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              0,
+              1
+            ],
+            "recognizedTokenRange": [
+              0,
+              1
+            ],
+            "expected": "soult",
+            "recognized": "so",
+            "recognizedTimeRange": [
+              0.0,
+              0.64
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 0.8130000000819564
+    },
+    {
+      "id": "line-010",
+      "unit": "letter",
+      "speaker": "SOULT",
+      "text": "Sire, my corps can face twice its number.",
+      "file": "line-010-020330d4bf91cdaa.wav",
+      "sha256": "a1f645f4e79ab2501f58d23d4df135da26ba3c522e20f05ba499e14772b6b52d",
+      "signal": {
+        "frames": 192000,
+        "sampleRate": 48000,
+        "duration": 4.0,
+        "peak": 0.93829345703125,
+        "rms": 0.06469207549978458,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": [
+          {
+            "start": 0.76,
+            "end": 1.4,
+            "position": "internal"
+          }
+        ]
+      },
+      "asr": {
+        "text": " Sire. My core can face twice its number.",
+        "chunks": [
+          {
+            "text": " Sire.",
+            "timestamp": [
+              0.0,
+              1.52
+            ]
+          },
+          {
+            "text": " My",
+            "timestamp": [
+              1.52,
+              1.86
+            ]
+          },
+          {
+            "text": " core",
+            "timestamp": [
+              1.86,
+              2.16
+            ]
+          },
+          {
+            "text": " can",
+            "timestamp": [
+              2.16,
+              2.44
+            ]
+          },
+          {
+            "text": " face",
+            "timestamp": [
+              2.44,
+              2.78
+            ]
+          },
+          {
+            "text": " twice",
+            "timestamp": [
+              2.78,
+              3.2
+            ]
+          },
+          {
+            "text": " its",
+            "timestamp": [
+              3.2,
+              3.48
+            ]
+          },
+          {
+            "text": " number.",
+            "timestamp": [
+              3.48,
+              3.98
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 8,
+        "recognizedWords": 8,
+        "wordEdits": 1,
+        "wordErrorRate": 0.125,
+        "differenceSpans": [
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              2,
+              3
+            ],
+            "recognizedTokenRange": [
+              2,
+              3
+            ],
+            "expected": "corps",
+            "recognized": "core",
+            "recognizedTimeRange": [
+              1.86,
+              2.16
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 0.9849999998696148
+    },
+    {
+      "id": "line-011",
+      "unit": "letter",
+      "speaker": "LANNES",
+      "text": "You asked me to write it, and now I am the only one asking?",
+      "file": "line-011-d9f7d3252637c240.wav",
+      "sha256": "a118550d6e0af11870fafa197f13804f593043f47e2d5d69e8d2a7004c081d03",
+      "signal": {
+        "frames": 161280,
+        "sampleRate": 48000,
+        "duration": 3.36,
+        "peak": 0.66656494140625,
+        "rms": 0.11295407881854545,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " You asked me to write it, and now I am the only one asking.",
+        "chunks": [
+          {
+            "text": " You",
+            "timestamp": [
+              0.0,
+              0.32
+            ]
+          },
+          {
+            "text": " asked",
+            "timestamp": [
+              0.32,
+              0.52
+            ]
+          },
+          {
+            "text": " me",
+            "timestamp": [
+              0.52,
+              0.66
+            ]
+          },
+          {
+            "text": " to",
+            "timestamp": [
+              0.66,
+              0.82
+            ]
+          },
+          {
+            "text": " write",
+            "timestamp": [
+              0.82,
+              0.98
+            ]
+          },
+          {
+            "text": " it,",
+            "timestamp": [
+              0.98,
+              1.32
+            ]
+          },
+          {
+            "text": " and",
+            "timestamp": [
+              1.32,
+              1.34
+            ]
+          },
+          {
+            "text": " now",
+            "timestamp": [
+              1.34,
+              1.66
+            ]
+          },
+          {
+            "text": " I",
+            "timestamp": [
+              1.66,
+              1.8
+            ]
+          },
+          {
+            "text": " am",
+            "timestamp": [
+              1.8,
+              1.9
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              1.9,
+              2.26
+            ]
+          },
+          {
+            "text": " only",
+            "timestamp": [
+              2.26,
+              2.5
+            ]
+          },
+          {
+            "text": " one",
+            "timestamp": [
+              2.5,
+              2.84
+            ]
+          },
+          {
+            "text": " asking.",
+            "timestamp": [
+              2.84,
+              3.34
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 14,
+        "recognizedWords": 14,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 1.1410000000614673
+    },
+    {
+      "id": "line-012",
+      "unit": "letter",
+      "speaker": "SOULT",
+      "text": "He asked about my corps.",
+      "file": "line-012-6f2f2cb46f628c72.wav",
+      "sha256": "d496fe60ff52ded8b2b95e9ce38b94386103807f7056a9bad0ff673c8327addd",
+      "signal": {
+        "frames": 76800,
+        "sampleRate": 48000,
+        "duration": 1.6,
+        "peak": 0.743865966796875,
+        "rms": 0.044393316623334865,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " He asked about my core.",
+        "chunks": [
+          {
+            "text": " He",
+            "timestamp": [
+              0.0,
+              0.4
+            ]
+          },
+          {
+            "text": " asked",
+            "timestamp": [
+              0.4,
+              0.64
+            ]
+          },
+          {
+            "text": " about",
+            "timestamp": [
+              0.64,
+              0.88
+            ]
+          },
+          {
+            "text": " my",
+            "timestamp": [
+              0.88,
+              1.18
+            ]
+          },
+          {
+            "text": " core.",
+            "timestamp": [
+              1.18,
+              1.58
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 5,
+        "recognizedWords": 5,
+        "wordEdits": 1,
+        "wordErrorRate": 0.2,
+        "differenceSpans": [
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              4,
+              5
+            ],
+            "recognizedTokenRange": [
+              4,
+              5
+            ],
+            "expected": "corps",
+            "recognized": "core",
+            "recognizedTimeRange": [
+              1.18,
+              1.58
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 0.875
+    },
+    {
+      "id": "line-013",
+      "unit": "letter",
+      "speaker": "LANNES",
+      "text": "Marshal Soult, I challenge you to a duel.",
+      "file": "line-013-725feae1dd827a50.wav",
+      "sha256": "9e021932382df3ac713e8afb506aad5c2f7f2787c7d8ecfb970293c7f269aaca",
+      "signal": {
+        "frames": 138240,
+        "sampleRate": 48000,
+        "duration": 2.88,
+        "peak": 0.58984375,
+        "rms": 0.06673839196182908,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " Marshall Salt, I challenge you to a duel.",
+        "chunks": [
+          {
+            "text": " Marshall",
+            "timestamp": [
+              0.0,
+              0.46
+            ]
+          },
+          {
+            "text": " Salt,",
+            "timestamp": [
+              0.46,
+              1.22
+            ]
+          },
+          {
+            "text": " I",
+            "timestamp": [
+              1.22,
+              1.4
+            ]
+          },
+          {
+            "text": " challenge",
+            "timestamp": [
+              1.4,
+              1.68
+            ]
+          },
+          {
+            "text": " you",
+            "timestamp": [
+              1.68,
+              1.96
+            ]
+          },
+          {
+            "text": " to",
+            "timestamp": [
+              1.96,
+              2.14
+            ]
+          },
+          {
+            "text": " a",
+            "timestamp": [
+              2.14,
+              2.32
+            ]
+          },
+          {
+            "text": " duel.",
+            "timestamp": [
+              2.32,
+              2.86
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 8,
+        "recognizedWords": 8,
+        "wordEdits": 2,
+        "wordErrorRate": 0.25,
+        "differenceSpans": [
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              0,
+              2
+            ],
+            "recognizedTokenRange": [
+              0,
+              2
+            ],
+            "expected": "marshal soult",
+            "recognized": "marshall salt",
+            "recognizedTimeRange": [
+              0.0,
+              1.22
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 1.0
+    },
+    {
+      "id": "line-014",
+      "unit": "letter",
+      "speaker": "NAPOLEON",
+      "text": "We must bring the army together. We shall withdraw.",
+      "file": "line-014-9f5f3ffcda297280.wav",
+      "sha256": "85f7fe0f2552594902648a079fda5f1dad79bf40b7c222b5ae5ba9aedf4bafc4",
+      "signal": {
+        "frames": 153600,
+        "sampleRate": 48000,
+        "duration": 3.2,
+        "peak": 0.956329345703125,
+        "rms": 0.11095621403118125,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " We must bring the army together. We shall withdraw.",
+        "chunks": [
+          {
+            "text": " We",
+            "timestamp": [
+              0.0,
+              0.28
+            ]
+          },
+          {
+            "text": " must",
+            "timestamp": [
+              0.28,
+              0.58
+            ]
+          },
+          {
+            "text": " bring",
+            "timestamp": [
+              0.58,
+              0.84
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              0.84,
+              1.02
+            ]
+          },
+          {
+            "text": " army",
+            "timestamp": [
+              1.02,
+              1.22
+            ]
+          },
+          {
+            "text": " together.",
+            "timestamp": [
+              1.22,
+              2.04
+            ]
+          },
+          {
+            "text": " We",
+            "timestamp": [
+              2.04,
+              2.26
+            ]
+          },
+          {
+            "text": " shall",
+            "timestamp": [
+              2.26,
+              2.54
+            ]
+          },
+          {
+            "text": " withdraw.",
+            "timestamp": [
+              2.54,
+              3.18
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 9,
+        "recognizedWords": 9,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 1.0309999999590218
+    },
+    {
+      "id": "line-015",
+      "unit": "letter",
+      "speaker": "NAPOLEON",
+      "text": "Move the army back. Send the orders to withdraw.",
+      "file": "line-015-2a43dbbf0145786a.wav",
+      "sha256": "6a509da6fbec965542c2bd736fe6e2f5e996e611d0ab9faa86415f291898e8e8",
+      "signal": {
+        "frames": 184320,
+        "sampleRate": 48000,
+        "duration": 3.84,
+        "peak": 0.83819580078125,
+        "rms": 0.08423170520351317,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " Move the army back. Send the orders to withdraw.",
+        "chunks": [
+          {
+            "text": " Move",
+            "timestamp": [
+              0.0,
+              0.66
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              0.66,
+              0.98
+            ]
+          },
+          {
+            "text": " army",
+            "timestamp": [
+              0.98,
+              1.12
+            ]
+          },
+          {
+            "text": " back.",
+            "timestamp": [
+              1.12,
+              2.06
+            ]
+          },
+          {
+            "text": " Send",
+            "timestamp": [
+              2.06,
+              2.3
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              2.3,
+              2.6
+            ]
+          },
+          {
+            "text": " orders",
+            "timestamp": [
+              2.6,
+              2.84
+            ]
+          },
+          {
+            "text": " to",
+            "timestamp": [
+              2.84,
+              3.1
+            ]
+          },
+          {
+            "text": " withdraw.",
+            "timestamp": [
+              3.1,
+              3.82
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 9,
+        "recognizedWords": 9,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.7809999999590218
+    },
+    {
+      "id": "line-016",
+      "unit": "letter",
+      "speaker": "BERTHIER",
+      "text": "Yes, Sire.",
+      "file": "line-016-a178a7cc1665bcc4.wav",
+      "sha256": "cb15e1c26583a288cc0cc378a241ea1690407621e5ee21171f6d32068c43c1f9",
+      "signal": {
+        "frames": 46080,
+        "sampleRate": 48000,
+        "duration": 0.96,
+        "peak": 0.489227294921875,
+        "rms": 0.04103552939398715,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " Yes, I am.",
+        "chunks": [
+          {
+            "text": " Yes,",
+            "timestamp": [
+              0.0,
+              0.58
+            ]
+          },
+          {
+            "text": " I",
+            "timestamp": [
+              0.58,
+              0.7
+            ]
+          },
+          {
+            "text": " am.",
+            "timestamp": [
+              0.7,
+              0.94
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 2,
+        "recognizedWords": 3,
+        "wordEdits": 2,
+        "wordErrorRate": 1.0,
+        "differenceSpans": [
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              1,
+              2
+            ],
+            "recognizedTokenRange": [
+              1,
+              3
+            ],
+            "expected": "sire",
+            "recognized": "i am",
+            "recognizedTimeRange": [
+              0.58,
+              0.94
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 0.6409999998286366
+    },
+    {
+      "id": "line-017",
+      "unit": "plans",
+      "speaker": "WEYROTHER",
+      "text": "We go down this way and cut the road. Each column will take its assigned route.",
+      "file": "line-017-d0e3317961e49877.wav",
+      "sha256": "99d45cbd64e7b3df00bfd65bd531d79a3cf96c5ce8c454d65db2e6a1291d7857",
+      "signal": {
+        "frames": 230400,
+        "sampleRate": 48000,
+        "duration": 4.8,
+        "peak": 0.852630615234375,
+        "rms": 0.12837165404650025,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " We go down this way and cut the road. Each column will take its assigned route.",
+        "chunks": [
+          {
+            "text": " We",
+            "timestamp": [
+              0.0,
+              0.24
+            ]
+          },
+          {
+            "text": " go",
+            "timestamp": [
+              0.24,
+              0.42
+            ]
+          },
+          {
+            "text": " down",
+            "timestamp": [
+              0.42,
+              0.7
+            ]
+          },
+          {
+            "text": " this",
+            "timestamp": [
+              0.7,
+              0.96
+            ]
+          },
+          {
+            "text": " way",
+            "timestamp": [
+              0.96,
+              1.18
+            ]
+          },
+          {
+            "text": " and",
+            "timestamp": [
+              1.18,
+              1.34
+            ]
+          },
+          {
+            "text": " cut",
+            "timestamp": [
+              1.34,
+              1.56
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              1.56,
+              1.8
+            ]
+          },
+          {
+            "text": " road.",
+            "timestamp": [
+              1.8,
+              2.38
+            ]
+          },
+          {
+            "text": " Each",
+            "timestamp": [
+              2.38,
+              2.72
+            ]
+          },
+          {
+            "text": " column",
+            "timestamp": [
+              2.72,
+              2.96
+            ]
+          },
+          {
+            "text": " will",
+            "timestamp": [
+              2.96,
+              3.24
+            ]
+          },
+          {
+            "text": " take",
+            "timestamp": [
+              3.24,
+              3.52
+            ]
+          },
+          {
+            "text": " its",
+            "timestamp": [
+              3.52,
+              3.8
+            ]
+          },
+          {
+            "text": " assigned",
+            "timestamp": [
+              3.8,
+              4.28
+            ]
+          },
+          {
+            "text": " route.",
+            "timestamp": [
+              4.28,
+              4.78
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 16,
+        "recognizedWords": 16,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.9529999999795109
+    },
+    {
+      "id": "line-018",
+      "unit": "night",
+      "speaker": "STAFF OFFICER",
+      "text": "Read that part again.",
+      "file": "line-018-1c1ffe3257783339.wav",
+      "sha256": "189c9b6c18cb485ce0fb349b680fd4db4fbbb9457e7680c46b2c677c1f5d1cce",
+      "signal": {
+        "frames": 76800,
+        "sampleRate": 48000,
+        "duration": 1.6,
+        "peak": 0.227752685546875,
+        "rms": 0.012061516153067182,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " Read that part again.",
+        "chunks": [
+          {
+            "text": " Read",
+            "timestamp": [
+              0.0,
+              0.56
+            ]
+          },
+          {
+            "text": " that",
+            "timestamp": [
+              0.56,
+              0.78
+            ]
+          },
+          {
+            "text": " part",
+            "timestamp": [
+              0.78,
+              0.94
+            ]
+          },
+          {
+            "text": " again.",
+            "timestamp": [
+              0.94,
+              1.58
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 4,
+        "recognizedWords": 4,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.6879999998491257
+    },
+    {
+      "id": "line-019",
+      "unit": "night",
+      "speaker": "SOLDIERS",
+      "text": "Long live the Emperor!",
+      "file": "line-019-3774ca4d3f8964e6.wav",
+      "sha256": "88ca39eb5199b4ec54ffcf994e8d8152e03dedb0d494a7f98f18cd9431a12b65",
+      "signal": {
+        "frames": 99840,
+        "sampleRate": 48000,
+        "duration": 2.08,
+        "peak": 0.969268798828125,
+        "rms": 0.21852208364964482,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " Long live the emperor!",
+        "chunks": [
+          {
+            "text": " Long",
+            "timestamp": [
+              0.0,
+              0.78
+            ]
+          },
+          {
+            "text": " live",
+            "timestamp": [
+              0.78,
+              1.14
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              1.14,
+              1.44
+            ]
+          },
+          {
+            "text": " emperor!",
+            "timestamp": [
+              1.44,
+              2.06
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 4,
+        "recognizedWords": 4,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.6869999999180436
+    },
+    {
+      "id": "line-020",
+      "unit": "night",
+      "speaker": "LANNES",
+      "text": "I sent you a challenge. I thought you knew how to use a sword.",
+      "file": "line-020-1e893bac4269f6e4.wav",
+      "sha256": "fa222bc215ad6586f18a736d975ac085ef43ed33d5936bac095a71016465e8cb",
+      "signal": {
+        "frames": 176640,
+        "sampleRate": 48000,
+        "duration": 3.68,
+        "peak": 0.71063232421875,
+        "rms": 0.0863631654684993,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " I sent you a challenge. I thought you knew how to use a sword.",
+        "chunks": [
+          {
+            "text": " I",
+            "timestamp": [
+              0.0,
+              0.32
+            ]
+          },
+          {
+            "text": " sent",
+            "timestamp": [
+              0.32,
+              0.5
+            ]
+          },
+          {
+            "text": " you",
+            "timestamp": [
+              0.5,
+              0.64
+            ]
+          },
+          {
+            "text": " a",
+            "timestamp": [
+              0.64,
+              0.9
+            ]
+          },
+          {
+            "text": " challenge.",
+            "timestamp": [
+              0.9,
+              1.62
+            ]
+          },
+          {
+            "text": " I",
+            "timestamp": [
+              1.62,
+              1.88
+            ]
+          },
+          {
+            "text": " thought",
+            "timestamp": [
+              1.88,
+              2.12
+            ]
+          },
+          {
+            "text": " you",
+            "timestamp": [
+              2.12,
+              2.34
+            ]
+          },
+          {
+            "text": " knew",
+            "timestamp": [
+              2.34,
+              2.56
+            ]
+          },
+          {
+            "text": " how",
+            "timestamp": [
+              2.56,
+              2.72
+            ]
+          },
+          {
+            "text": " to",
+            "timestamp": [
+              2.72,
+              2.76
+            ]
+          },
+          {
+            "text": " use",
+            "timestamp": [
+              2.76,
+              3.0
+            ]
+          },
+          {
+            "text": " a",
+            "timestamp": [
+              3.0,
+              3.3
+            ]
+          },
+          {
+            "text": " sword.",
+            "timestamp": [
+              3.3,
+              3.62
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 14,
+        "recognizedWords": 14,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 1.0
+    },
+    {
+      "id": "line-021",
+      "unit": "night",
+      "speaker": "SOULT",
+      "text": "We have more important business today.",
+      "file": "line-021-4e2e618a62e282b2.wav",
+      "sha256": "274ee98a989f5a9ddc9bed8f03802dec00aceada87193b338df575fd448245c9",
+      "signal": {
+        "frames": 115200,
+        "sampleRate": 48000,
+        "duration": 2.4,
+        "peak": 0.6766357421875,
+        "rms": 0.0526142271912799,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " We have more important business today.",
+        "chunks": [
+          {
+            "text": " We",
+            "timestamp": [
+              0.0,
+              0.32
+            ]
+          },
+          {
+            "text": " have",
+            "timestamp": [
+              0.32,
+              0.54
+            ]
+          },
+          {
+            "text": " more",
+            "timestamp": [
+              0.54,
+              0.9
+            ]
+          },
+          {
+            "text": " important",
+            "timestamp": [
+              0.9,
+              1.38
+            ]
+          },
+          {
+            "text": " business",
+            "timestamp": [
+              1.38,
+              1.78
+            ]
+          },
+          {
+            "text": " today.",
+            "timestamp": [
+              1.78,
+              2.38
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 6,
+        "recognizedWords": 6,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.7190000000409782
+    },
+    {
+      "id": "line-022",
+      "unit": "night",
+      "speaker": "LANNES",
+      "text": "You contemptible man.",
+      "file": "line-022-867d2dad39f177f2.wav",
+      "sha256": "c1ecca00edb9768bccbd0fea5b80de5dc51a4bbef02b7f9c17d18a915c2e7aa3",
+      "signal": {
+        "frames": 76800,
+        "sampleRate": 48000,
+        "duration": 1.6,
+        "peak": 0.817901611328125,
+        "rms": 0.07793209189986879,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " You contemptible man!",
+        "chunks": [
+          {
+            "text": " You",
+            "timestamp": [
+              0.0,
+              0.3
+            ]
+          },
+          {
+            "text": " contemptible",
+            "timestamp": [
+              0.3,
+              1.08
+            ]
+          },
+          {
+            "text": " man!",
+            "timestamp": [
+              1.08,
+              1.58
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 3,
+        "recognizedWords": 3,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.7970000000204891
+    },
+    {
+      "id": "line-023",
+      "unit": "battle",
+      "speaker": "SOLDIER",
+      "text": "Pass some this way!",
+      "file": "line-023-96892f5520ca8bb2.wav",
+      "sha256": "fb02f4b71ebe6933dff7cb3cfd73e5b7af9d43fae23b784c00859ac0666e1def",
+      "signal": {
+        "frames": 61440,
+        "sampleRate": 48000,
+        "duration": 1.28,
+        "peak": 0.98699951171875,
+        "rms": 0.1612781089582204,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " Pass some this way!",
+        "chunks": [
+          {
+            "text": " Pass",
+            "timestamp": [
+              0.0,
+              0.44
+            ]
+          },
+          {
+            "text": " some",
+            "timestamp": [
+              0.44,
+              0.66
+            ]
+          },
+          {
+            "text": " this",
+            "timestamp": [
+              0.66,
+              0.9
+            ]
+          },
+          {
+            "text": " way!",
+            "timestamp": [
+              0.9,
+              1.26
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 4,
+        "recognizedWords": 4,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.7340000001713634
+    },
+    {
+      "id": "line-024",
+      "unit": "battle",
+      "speaker": "DAVOUT",
+      "text": "Put the men who are here into the line. We cannot wait for the rest.",
+      "file": "line-024-5a1e4ecffb73b7e6.wav",
+      "sha256": "eeaf4d0fb86e026d16995447ed5531aa04df79cedb43f6c63e35120f876d2fe9",
+      "signal": {
+        "frames": 176640,
+        "sampleRate": 48000,
+        "duration": 3.68,
+        "peak": 0.381744384765625,
+        "rms": 0.05726673687412643,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " Put the men who are here into the line. We cannot wait for the rest.",
+        "chunks": [
+          {
+            "text": " Put",
+            "timestamp": [
+              0.0,
+              0.2
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              0.2,
+              0.42
+            ]
+          },
+          {
+            "text": " men",
+            "timestamp": [
+              0.42,
+              0.64
+            ]
+          },
+          {
+            "text": " who",
+            "timestamp": [
+              0.64,
+              0.78
+            ]
+          },
+          {
+            "text": " are",
+            "timestamp": [
+              0.78,
+              0.96
+            ]
+          },
+          {
+            "text": " here",
+            "timestamp": [
+              0.96,
+              1.2
+            ]
+          },
+          {
+            "text": " into",
+            "timestamp": [
+              1.2,
+              1.42
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              1.42,
+              1.64
+            ]
+          },
+          {
+            "text": " line.",
+            "timestamp": [
+              1.64,
+              2.0
+            ]
+          },
+          {
+            "text": " We",
+            "timestamp": [
+              2.0,
+              2.26
+            ]
+          },
+          {
+            "text": " cannot",
+            "timestamp": [
+              2.26,
+              2.44
+            ]
+          },
+          {
+            "text": " wait",
+            "timestamp": [
+              2.44,
+              2.92
+            ]
+          },
+          {
+            "text": " for",
+            "timestamp": [
+              2.92,
+              3.08
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              3.08,
+              3.24
+            ]
+          },
+          {
+            "text": " rest.",
+            "timestamp": [
+              3.24,
+              3.66
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 15,
+        "recognizedWords": 15,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 1.0
+    },
+    {
+      "id": "line-025",
+      "unit": "battle",
+      "speaker": "NAPOLEON",
+      "text": "Strike the center. We must take the ground they have left.",
+      "file": "line-025-47623785aee489fb.wav",
+      "sha256": "2b49e52f5fe3a25eb10b1c0ce9ebc0654985451b68d9d64a0e933588464d0736",
+      "signal": {
+        "frames": 215040,
+        "sampleRate": 48000,
+        "duration": 4.48,
+        "peak": 0.6591796875,
+        "rms": 0.07822409602228923,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": [
+          {
+            "start": 0.0,
+            "end": 0.6,
+            "position": "leading"
+          },
+          {
+            "start": 1.74,
+            "end": 2.3,
+            "position": "internal"
+          }
+        ]
+      },
+      "asr": {
+        "text": " Strike the center. We must take the ground they have left.",
+        "chunks": [
+          {
+            "text": " Strike",
+            "timestamp": [
+              0.0,
+              1.12
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              1.12,
+              1.46
+            ]
+          },
+          {
+            "text": " center.",
+            "timestamp": [
+              1.46,
+              2.34
+            ]
+          },
+          {
+            "text": " We",
+            "timestamp": [
+              2.34,
+              2.5
+            ]
+          },
+          {
+            "text": " must",
+            "timestamp": [
+              2.5,
+              2.78
+            ]
+          },
+          {
+            "text": " take",
+            "timestamp": [
+              2.78,
+              3.02
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              3.02,
+              3.26
+            ]
+          },
+          {
+            "text": " ground",
+            "timestamp": [
+              3.26,
+              3.52
+            ]
+          },
+          {
+            "text": " they",
+            "timestamp": [
+              3.52,
+              3.76
+            ]
+          },
+          {
+            "text": " have",
+            "timestamp": [
+              3.76,
+              4.02
+            ]
+          },
+          {
+            "text": " left.",
+            "timestamp": [
+              4.02,
+              4.46
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 11,
+        "recognizedWords": 11,
+        "wordEdits": 0,
+        "wordErrorRate": 0.0,
+        "differenceSpans": []
+      },
+      "elapsedSeconds": 0.8590000001713634
+    },
+    {
+      "id": "line-026",
+      "unit": "battle",
+      "speaker": "SOULT",
+      "text": "Yes, Sire.",
+      "file": "line-026-3b4188d9bfbd8e9b.wav",
+      "sha256": "d54cc871bcd8530247c69cd03718352cda7d534177437daa8794bb6dd4d39892",
+      "signal": {
+        "frames": 69120,
+        "sampleRate": 48000,
+        "duration": 1.44,
+        "peak": 0.88861083984375,
+        "rms": 0.07313561017627714,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": []
+      },
+      "asr": {
+        "text": " Yes, I said...",
+        "chunks": [
+          {
+            "text": " Yes,",
+            "timestamp": [
+              0.0,
+              0.9
+            ]
+          },
+          {
+            "text": " I",
+            "timestamp": [
+              0.9,
+              0.96
+            ]
+          },
+          {
+            "text": " said...",
+            "timestamp": [
+              0.96,
+              1.42
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 2,
+        "recognizedWords": 3,
+        "wordEdits": 2,
+        "wordErrorRate": 1.0,
+        "differenceSpans": [
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              1,
+              2
+            ],
+            "recognizedTokenRange": [
+              1,
+              3
+            ],
+            "expected": "sire",
+            "recognized": "i said",
+            "recognizedTimeRange": [
+              0.9,
+              1.42
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 0.6410000000614673
+    },
+    {
+      "id": "line-027",
+      "unit": "victory",
+      "speaker": "AUTHOR",
+      "text": "Our first story stops on the night of victory. The quarrel over the duel comes from an account Thiébault said he heard from Lannes's aide; the Guard cavalry sequence follows Rapp's later memoir within a narrow scope. We reconstructed the conversations and the lives of unnamed soldiers. Please remember that these memoirs are not recordings of that day. Beside tonight's cheering, we have left a place for those who did not return.",
+      "file": "line-027-a572ccf19049b688.wav",
+      "sha256": "bce6c96136771a21c095448264b27710e9366ced9b4d3332d8a19303375c9e7d",
+      "signal": {
+        "frames": 1121280,
+        "sampleRate": 48000,
+        "duration": 23.36,
+        "peak": 0.302093505859375,
+        "rms": 0.07993917702715418,
+        "clippedSamples": 0,
+        "lowEnergyIntervals": [
+          {
+            "start": 2.56,
+            "end": 3.18,
+            "position": "internal"
+          },
+          {
+            "start": 11.7,
+            "end": 12.4,
+            "position": "internal"
+          },
+          {
+            "start": 15.72,
+            "end": 16.3,
+            "position": "internal"
+          },
+          {
+            "start": 19.2,
+            "end": 19.72,
+            "position": "internal"
+          }
+        ]
+      },
+      "asr": {
+        "text": " Our first story stops on the night of victory. The quarrel over the duel comes from an account. Teabaugh said he heard from Lance's aid. The guard cavalry sequence follows Raps later memoir within a narrow scope. We reconstructed the conversations and the lives of unnamed soldiers. Please remember that these memoirs are not recordings of that day. Beside tonight's cheering, we have left a place for those who did not return.",
+        "chunks": [
+          {
+            "text": " Our",
+            "timestamp": [
+              0.0,
+              0.74
+            ]
+          },
+          {
+            "text": " first",
+            "timestamp": [
+              0.74,
+              1.06
+            ]
+          },
+          {
+            "text": " story",
+            "timestamp": [
+              1.06,
+              1.3
+            ]
+          },
+          {
+            "text": " stops",
+            "timestamp": [
+              1.3,
+              1.64
+            ]
+          },
+          {
+            "text": " on",
+            "timestamp": [
+              1.64,
+              1.84
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              1.84,
+              1.94
+            ]
+          },
+          {
+            "text": " night",
+            "timestamp": [
+              1.94,
+              2.1
+            ]
+          },
+          {
+            "text": " of",
+            "timestamp": [
+              2.1,
+              2.32
+            ]
+          },
+          {
+            "text": " victory.",
+            "timestamp": [
+              2.32,
+              3.18
+            ]
+          },
+          {
+            "text": " The",
+            "timestamp": [
+              3.22,
+              3.4
+            ]
+          },
+          {
+            "text": " quarrel",
+            "timestamp": [
+              3.4,
+              3.64
+            ]
+          },
+          {
+            "text": " over",
+            "timestamp": [
+              3.64,
+              3.9
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              3.9,
+              4.06
+            ]
+          },
+          {
+            "text": " duel",
+            "timestamp": [
+              4.06,
+              4.34
+            ]
+          },
+          {
+            "text": " comes",
+            "timestamp": [
+              4.34,
+              4.68
+            ]
+          },
+          {
+            "text": " from",
+            "timestamp": [
+              4.68,
+              4.84
+            ]
+          },
+          {
+            "text": " an",
+            "timestamp": [
+              4.84,
+              4.98
+            ]
+          },
+          {
+            "text": " account.",
+            "timestamp": [
+              4.98,
+              5.72
+            ]
+          },
+          {
+            "text": " Teabaugh",
+            "timestamp": [
+              5.82,
+              6.14
+            ]
+          },
+          {
+            "text": " said",
+            "timestamp": [
+              6.14,
+              6.34
+            ]
+          },
+          {
+            "text": " he",
+            "timestamp": [
+              6.34,
+              6.48
+            ]
+          },
+          {
+            "text": " heard",
+            "timestamp": [
+              6.48,
+              6.68
+            ]
+          },
+          {
+            "text": " from",
+            "timestamp": [
+              6.68,
+              6.86
+            ]
+          },
+          {
+            "text": " Lance's",
+            "timestamp": [
+              6.86,
+              7.38
+            ]
+          },
+          {
+            "text": " aid.",
+            "timestamp": [
+              7.38,
+              7.9
+            ]
+          },
+          {
+            "text": " The",
+            "timestamp": [
+              7.9,
+              8.12
+            ]
+          },
+          {
+            "text": " guard",
+            "timestamp": [
+              8.12,
+              8.44
+            ]
+          },
+          {
+            "text": " cavalry",
+            "timestamp": [
+              8.44,
+              8.82
+            ]
+          },
+          {
+            "text": " sequence",
+            "timestamp": [
+              8.82,
+              9.28
+            ]
+          },
+          {
+            "text": " follows",
+            "timestamp": [
+              9.28,
+              9.58
+            ]
+          },
+          {
+            "text": " Raps",
+            "timestamp": [
+              9.58,
+              9.92
+            ]
+          },
+          {
+            "text": " later",
+            "timestamp": [
+              9.92,
+              10.2
+            ]
+          },
+          {
+            "text": " memoir",
+            "timestamp": [
+              10.2,
+              10.56
+            ]
+          },
+          {
+            "text": " within",
+            "timestamp": [
+              10.56,
+              10.92
+            ]
+          },
+          {
+            "text": " a",
+            "timestamp": [
+              10.92,
+              11.2
+            ]
+          },
+          {
+            "text": " narrow",
+            "timestamp": [
+              11.2,
+              11.38
+            ]
+          },
+          {
+            "text": " scope.",
+            "timestamp": [
+              11.38,
+              12.32
+            ]
+          },
+          {
+            "text": " We",
+            "timestamp": [
+              12.32,
+              12.68
+            ]
+          },
+          {
+            "text": " reconstructed",
+            "timestamp": [
+              12.68,
+              13.12
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              13.12,
+              13.6
+            ]
+          },
+          {
+            "text": " conversations",
+            "timestamp": [
+              13.6,
+              13.9
+            ]
+          },
+          {
+            "text": " and",
+            "timestamp": [
+              13.9,
+              14.22
+            ]
+          },
+          {
+            "text": " the",
+            "timestamp": [
+              14.22,
+              14.4
+            ]
+          },
+          {
+            "text": " lives",
+            "timestamp": [
+              14.4,
+              14.6
+            ]
+          },
+          {
+            "text": " of",
+            "timestamp": [
+              14.6,
+              14.82
+            ]
+          },
+          {
+            "text": " unnamed",
+            "timestamp": [
+              14.82,
+              15.2
+            ]
+          },
+          {
+            "text": " soldiers.",
+            "timestamp": [
+              15.2,
+              16.24
+            ]
+          },
+          {
+            "text": " Please",
+            "timestamp": [
+              16.24,
+              16.58
+            ]
+          },
+          {
+            "text": " remember",
+            "timestamp": [
+              16.58,
+              16.92
+            ]
+          },
+          {
+            "text": " that",
+            "timestamp": [
+              16.92,
+              17.12
+            ]
+          },
+          {
+            "text": " these",
+            "timestamp": [
+              17.12,
+              17.34
+            ]
+          },
+          {
+            "text": " memoirs",
+            "timestamp": [
+              17.34,
+              17.82
+            ]
+          },
+          {
+            "text": " are",
+            "timestamp": [
+              17.82,
+              17.92
+            ]
+          },
+          {
+            "text": " not",
+            "timestamp": [
+              17.92,
+              18.14
+            ]
+          },
+          {
+            "text": " recordings",
+            "timestamp": [
+              18.14,
+              18.56
+            ]
+          },
+          {
+            "text": " of",
+            "timestamp": [
+              18.56,
+              18.78
+            ]
+          },
+          {
+            "text": " that",
+            "timestamp": [
+              18.78,
+              18.98
+            ]
+          },
+          {
+            "text": " day.",
+            "timestamp": [
+              18.98,
+              19.84
+            ]
+          },
+          {
+            "text": " Beside",
+            "timestamp": [
+              19.84,
+              20.14
+            ]
+          },
+          {
+            "text": " tonight's",
+            "timestamp": [
+              20.14,
+              20.72
+            ]
+          },
+          {
+            "text": " cheering,",
+            "timestamp": [
+              20.72,
+              21.16
+            ]
+          },
+          {
+            "text": " we",
+            "timestamp": [
+              21.16,
+              21.16
+            ]
+          },
+          {
+            "text": " have",
+            "timestamp": [
+              21.16,
+              21.34
+            ]
+          },
+          {
+            "text": " left",
+            "timestamp": [
+              21.34,
+              21.5
+            ]
+          },
+          {
+            "text": " a",
+            "timestamp": [
+              21.5,
+              21.68
+            ]
+          },
+          {
+            "text": " place",
+            "timestamp": [
+              21.68,
+              21.88
+            ]
+          },
+          {
+            "text": " for",
+            "timestamp": [
+              21.88,
+              22.06
+            ]
+          },
+          {
+            "text": " those",
+            "timestamp": [
+              22.06,
+              22.26
+            ]
+          },
+          {
+            "text": " who",
+            "timestamp": [
+              22.26,
+              22.38
+            ]
+          },
+          {
+            "text": " did",
+            "timestamp": [
+              22.38,
+              22.54
+            ]
+          },
+          {
+            "text": " not",
+            "timestamp": [
+              22.54,
+              22.72
+            ]
+          },
+          {
+            "text": " return.",
+            "timestamp": [
+              22.72,
+              23.34
+            ]
+          }
+        ]
+      },
+      "comparison": {
+        "expectedWords": 72,
+        "recognizedWords": 72,
+        "wordEdits": 4,
+        "wordErrorRate": 0.05555555555555555,
+        "differenceSpans": [
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              18,
+              19
+            ],
+            "recognizedTokenRange": [
+              18,
+              19
+            ],
+            "expected": "thiébault",
+            "recognized": "teabaugh",
+            "recognizedTimeRange": [
+              5.82,
+              6.14
+            ]
+          },
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              23,
+              25
+            ],
+            "recognizedTokenRange": [
+              23,
+              25
+            ],
+            "expected": "lannes's aide",
+            "recognized": "lance's aid",
+            "recognizedTimeRange": [
+              6.86,
+              7.9
+            ]
+          },
+          {
+            "operation": "replace",
+            "expectedTokenRange": [
+              30,
+              31
+            ],
+            "recognizedTokenRange": [
+              30,
+              31
+            ],
+            "expected": "rapp's",
+            "recognized": "raps",
+            "recognizedTimeRange": [
+              9.58,
+              9.92
+            ]
+          }
+        ]
+      },
+      "elapsedSeconds": 3.155999999959022
+    }
+  ],
+  "previousInspections": [
+    {
+      "createdUtc": "2026-10-29T16:25:03.396803+00:00",
+      "complete": true,
+      "source": "docs/body/screenplay/001-chronicle/001-road.md",
+      "sourceSha256": "694c7f781924d01ddc3cbed78e2a989eb2a38a975c9696caad4c30787e7df91a",
+      "indexSha256": "2f2a55930ffbdc4916410dba5220eae1111ad3d27e40e9b0bb70928cf0ac35db",
+      "inputTakeCount": 27,
+      "allInputIdentitiesVerified": true,
+      "acceptance": "candidate-unheard",
+      "model": {
+        "repository": "openai/whisper-tiny.en",
+        "snapshot": "87c7102498dcde7456f24cfd30239ca606ed9063",
+        "versions": {
+          "transformers": "5.21.1",
+          "torch": "2.15.0+cpu",
+          "scipy": "1.18.1",
+          "soundfile": "0.14.0"
+        }
+      },
+      "parameters": {
+        "threads": 4,
+        "device": "cpu",
+        "dtype": "float32",
+        "resampling": "scipy.signal.resample_poly",
+        "sampleRate": 16000,
+        "chunkLengthSeconds": 20,
+        "strideLengthSeconds": [
+          2,
+          2
+        ],
+        "returnTimestamps": "word",
+        "expectedTextPrompt": false,
+        "generate": {
+          "do_sample": false,
+          "num_beams": 1,
+          "max_new_tokens": 440,
+          "condition_on_prev_tokens": false
+        }
+      },
+      "takes": [
+        {
+          "id": "line-001",
+          "unit": "road",
+          "speaker": "SOLDIER",
+          "text": "Out of the way! They're coming!",
+          "file": "line-001-279ba530788c5ab6.wav",
+          "sha256": "a2d5cfbe7fa83e064eb62b3a271bb9da05892509ed1ccfea13bbee751fc118ee",
+          "signal": {
+            "frames": 99840,
+            "sampleRate": 48000,
+            "duration": 2.08,
+            "peak": 0.8499755859375,
+            "rms": 0.13269656332193452,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " Out of the way, they're coming!",
+            "chunks": [
+              {
+                "text": " Out",
+                "timestamp": [
+                  0.0,
+                  0.32
+                ]
+              },
+              {
+                "text": " of",
+                "timestamp": [
+                  0.32,
+                  0.52
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  0.52,
+                  0.66
+                ]
+              },
+              {
+                "text": " way,",
+                "timestamp": [
+                  0.66,
+                  1.24
+                ]
+              },
+              {
+                "text": " they're",
+                "timestamp": [
+                  1.24,
+                  1.6
+                ]
+              },
+              {
+                "text": " coming!",
+                "timestamp": [
+                  1.6,
+                  2.06
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 6,
+            "recognizedWords": 6,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 1.2659999998286366
+        },
+        {
+          "id": "line-002",
+          "unit": "road",
+          "speaker": "SOLDIER",
+          "text": "How far are we going?",
+          "file": "line-002-3161e9e16668d1b2.wav",
+          "sha256": "c5731136ae62a5d926d2ab32696c34692243cac76211d64cef7c1568ca6882d7",
+          "signal": {
+            "frames": 61440,
+            "sampleRate": 48000,
+            "duration": 1.28,
+            "peak": 0.932891845703125,
+            "rms": 0.18109371617782963,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " How far are we going?",
+            "chunks": [
+              {
+                "text": " How",
+                "timestamp": [
+                  0.0,
+                  0.34
+                ]
+              },
+              {
+                "text": " far",
+                "timestamp": [
+                  0.34,
+                  0.62
+                ]
+              },
+              {
+                "text": " are",
+                "timestamp": [
+                  0.62,
+                  0.66
+                ]
+              },
+              {
+                "text": " we",
+                "timestamp": [
+                  0.66,
+                  0.84
+                ]
+              },
+              {
+                "text": " going?",
+                "timestamp": [
+                  0.84,
+                  1.26
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 5,
+            "recognizedWords": 5,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.6559999999590218
+        },
+        {
+          "id": "line-003",
+          "unit": "road",
+          "speaker": "BERTHIER",
+          "text": "Orders to concentrate the corps. Take them.",
+          "file": "line-003-e755fe10571c76aa.wav",
+          "sha256": "fabc2b9a86b8c5a52e095ba314f5518ad48ef7efeb0c983b2325af96a27d4caf",
+          "signal": {
+            "frames": 145920,
+            "sampleRate": 48000,
+            "duration": 3.04,
+            "peak": 0.670684814453125,
+            "rms": 0.059374392180389875,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": [
+              {
+                "start": 1.74,
+                "end": 2.44,
+                "position": "internal"
+              }
+            ]
+          },
+          "asr": {
+            "text": " Orders to concentrate the core. Take them.",
+            "chunks": [
+              {
+                "text": " Orders",
+                "timestamp": [
+                  0.0,
+                  0.5
+                ]
+              },
+              {
+                "text": " to",
+                "timestamp": [
+                  0.5,
+                  1.04
+                ]
+              },
+              {
+                "text": " concentrate",
+                "timestamp": [
+                  1.04,
+                  1.18
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  1.18,
+                  1.58
+                ]
+              },
+              {
+                "text": " core.",
+                "timestamp": [
+                  1.58,
+                  2.74
+                ]
+              },
+              {
+                "text": " Take",
+                "timestamp": [
+                  2.74,
+                  2.74
+                ]
+              },
+              {
+                "text": " them.",
+                "timestamp": [
+                  2.74,
+                  3.02
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 7,
+            "recognizedWords": 7,
+            "wordEdits": 1,
+            "wordErrorRate": 0.14285714285714285,
+            "differenceSpans": [
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  4,
+                  5
+                ],
+                "recognizedTokenRange": [
+                  4,
+                  5
+                ],
+                "expected": "corps",
+                "recognized": "core",
+                "recognizedTimeRange": [
+                  1.58,
+                  2.74
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 0.671000000089407
+        },
+        {
+          "id": "line-004",
+          "unit": "road",
+          "speaker": "BERTHIER",
+          "text": "No report of their arrival yet. Wait for word.",
+          "file": "line-004-505f7a42bf907bfb.wav",
+          "sha256": "97ff623f777bd70fb1297882201ffa49e1b76413c7541c03ba199d66bd802996",
+          "signal": {
+            "frames": 161280,
+            "sampleRate": 48000,
+            "duration": 3.36,
+            "peak": 0.485626220703125,
+            "rms": 0.06151362502594495,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " No report of their arrival yet. Wait for word.",
+            "chunks": [
+              {
+                "text": " No",
+                "timestamp": [
+                  0.0,
+                  0.56
+                ]
+              },
+              {
+                "text": " report",
+                "timestamp": [
+                  0.56,
+                  0.86
+                ]
+              },
+              {
+                "text": " of",
+                "timestamp": [
+                  0.86,
+                  1.06
+                ]
+              },
+              {
+                "text": " their",
+                "timestamp": [
+                  1.06,
+                  1.3
+                ]
+              },
+              {
+                "text": " arrival",
+                "timestamp": [
+                  1.3,
+                  1.6
+                ]
+              },
+              {
+                "text": " yet.",
+                "timestamp": [
+                  1.6,
+                  2.44
+                ]
+              },
+              {
+                "text": " Wait",
+                "timestamp": [
+                  2.6,
+                  2.68
+                ]
+              },
+              {
+                "text": " for",
+                "timestamp": [
+                  2.68,
+                  2.9
+                ]
+              },
+              {
+                "text": " word.",
+                "timestamp": [
+                  2.9,
+                  3.34
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 9,
+            "recognizedWords": 9,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.7029999999795109
+        },
+        {
+          "id": "line-005",
+          "unit": "letter",
+          "speaker": "MURAT",
+          "text": "If we stay scattered, the enemy will take us one by one. Let us ask to withdraw together.",
+          "file": "line-005-4570bc07b9dbf10f.wav",
+          "sha256": "5cf1178f524e3fd696cd010d4a3be26343a78da89dc23f2d5f238c8c037a510e",
+          "signal": {
+            "frames": 307200,
+            "sampleRate": 48000,
+            "duration": 6.4,
+            "peak": 0.740081787109375,
+            "rms": 0.12950917407154924,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": [
+              {
+                "start": 3.56,
+                "end": 4.08,
+                "position": "internal"
+              }
+            ]
+          },
+          "asr": {
+            "text": " If we stay scattered, the enemy will take us one by one. Let us ask to withdraw together.",
+            "chunks": [
+              {
+                "text": " If",
+                "timestamp": [
+                  0.0,
+                  0.26
+                ]
+              },
+              {
+                "text": " we",
+                "timestamp": [
+                  0.26,
+                  0.46
+                ]
+              },
+              {
+                "text": " stay",
+                "timestamp": [
+                  0.46,
+                  0.78
+                ]
+              },
+              {
+                "text": " scattered,",
+                "timestamp": [
+                  0.78,
+                  1.68
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  1.68,
+                  1.82
+                ]
+              },
+              {
+                "text": " enemy",
+                "timestamp": [
+                  1.82,
+                  2.02
+                ]
+              },
+              {
+                "text": " will",
+                "timestamp": [
+                  2.02,
+                  2.28
+                ]
+              },
+              {
+                "text": " take",
+                "timestamp": [
+                  2.28,
+                  2.52
+                ]
+              },
+              {
+                "text": " us",
+                "timestamp": [
+                  2.52,
+                  2.78
+                ]
+              },
+              {
+                "text": " one",
+                "timestamp": [
+                  2.78,
+                  3.04
+                ]
+              },
+              {
+                "text": " by",
+                "timestamp": [
+                  3.04,
+                  3.28
+                ]
+              },
+              {
+                "text": " one.",
+                "timestamp": [
+                  3.28,
+                  4.12
+                ]
+              },
+              {
+                "text": " Let",
+                "timestamp": [
+                  4.12,
+                  4.28
+                ]
+              },
+              {
+                "text": " us",
+                "timestamp": [
+                  4.28,
+                  4.54
+                ]
+              },
+              {
+                "text": " ask",
+                "timestamp": [
+                  4.54,
+                  4.86
+                ]
+              },
+              {
+                "text": " to",
+                "timestamp": [
+                  4.86,
+                  5.06
+                ]
+              },
+              {
+                "text": " withdraw",
+                "timestamp": [
+                  5.06,
+                  5.6
+                ]
+              },
+              {
+                "text": " together.",
+                "timestamp": [
+                  5.6,
+                  6.38
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 18,
+            "recognizedWords": 18,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.8900000001303852
+        },
+        {
+          "id": "line-006",
+          "unit": "letter",
+          "speaker": "SOULT",
+          "text": "My outposts have been pushed back too.",
+          "file": "line-006-b219be1eaf1b9dae.wav",
+          "sha256": "88681235d952ae3159099819982305e2747f9ec9c8fa3f1e4ab54796b1c6d69e",
+          "signal": {
+            "frames": 145920,
+            "sampleRate": 48000,
+            "duration": 3.04,
+            "peak": 0.8819580078125,
+            "rms": 0.0636227806193968,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " My outposts have been pushed back to.",
+            "chunks": [
+              {
+                "text": " My",
+                "timestamp": [
+                  0.0,
+                  0.5
+                ]
+              },
+              {
+                "text": " outposts",
+                "timestamp": [
+                  0.5,
+                  1.06
+                ]
+              },
+              {
+                "text": " have",
+                "timestamp": [
+                  1.06,
+                  1.3
+                ]
+              },
+              {
+                "text": " been",
+                "timestamp": [
+                  1.3,
+                  1.58
+                ]
+              },
+              {
+                "text": " pushed",
+                "timestamp": [
+                  1.58,
+                  1.84
+                ]
+              },
+              {
+                "text": " back",
+                "timestamp": [
+                  1.84,
+                  2.36
+                ]
+              },
+              {
+                "text": " to.",
+                "timestamp": [
+                  2.36,
+                  3.02
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 7,
+            "recognizedWords": 7,
+            "wordEdits": 1,
+            "wordErrorRate": 0.14285714285714285,
+            "differenceSpans": [
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  6,
+                  7
+                ],
+                "recognizedTokenRange": [
+                  6,
+                  7
+                ],
+                "expected": "too",
+                "recognized": "to",
+                "recognizedTimeRange": [
+                  2.36,
+                  3.02
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 0.6879999998491257
+        },
+        {
+          "id": "line-007",
+          "unit": "letter",
+          "speaker": "SOULT",
+          "text": "Marshal Lannes, you write it. We are of one mind.",
+          "file": "line-007-3e10132eedfa9e9e.wav",
+          "sha256": "061caa4b8ee0608c2fd2a98aac838d1fa24dd29ab0b7959607e5791e02026334",
+          "signal": {
+            "frames": 222720,
+            "sampleRate": 48000,
+            "duration": 4.64,
+            "peak": 0.515167236328125,
+            "rms": 0.03366717327669281,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": [
+              {
+                "start": 1.06,
+                "end": 1.82,
+                "position": "internal"
+              },
+              {
+                "start": 2.52,
+                "end": 3.3,
+                "position": "internal"
+              }
+            ]
+          },
+          "asr": {
+            "text": " Marshall Lannis, you write it. We are of one mind.",
+            "chunks": [
+              {
+                "text": " Marshall",
+                "timestamp": [
+                  0.0,
+                  0.52
+                ]
+              },
+              {
+                "text": " Lannis,",
+                "timestamp": [
+                  0.52,
+                  1.92
+                ]
+              },
+              {
+                "text": " you",
+                "timestamp": [
+                  1.92,
+                  2.1
+                ]
+              },
+              {
+                "text": " write",
+                "timestamp": [
+                  2.1,
+                  2.36
+                ]
+              },
+              {
+                "text": " it.",
+                "timestamp": [
+                  2.36,
+                  3.42
+                ]
+              },
+              {
+                "text": " We",
+                "timestamp": [
+                  3.42,
+                  3.54
+                ]
+              },
+              {
+                "text": " are",
+                "timestamp": [
+                  3.54,
+                  3.74
+                ]
+              },
+              {
+                "text": " of",
+                "timestamp": [
+                  3.74,
+                  3.9
+                ]
+              },
+              {
+                "text": " one",
+                "timestamp": [
+                  3.9,
+                  4.16
+                ]
+              },
+              {
+                "text": " mind.",
+                "timestamp": [
+                  4.16,
+                  4.62
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 10,
+            "recognizedWords": 10,
+            "wordEdits": 2,
+            "wordErrorRate": 0.2,
+            "differenceSpans": [
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  0,
+                  2
+                ],
+                "recognizedTokenRange": [
+                  0,
+                  2
+                ],
+                "expected": "marshal lannes",
+                "recognized": "marshall lannis",
+                "recognizedTimeRange": [
+                  0.0,
+                  1.92
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 0.7809999999590218
+        },
+        {
+          "id": "line-008",
+          "unit": "letter",
+          "speaker": "LANNES",
+          "text": "I shall make clear that you both agree.",
+          "file": "line-008-743c284089cb22b6.wav",
+          "sha256": "36a6aec7aab254933590a0220318d4faa60f106852e4aae4ff35bc7c0514a419",
+          "signal": {
+            "frames": 107520,
+            "sampleRate": 48000,
+            "duration": 2.24,
+            "peak": 0.64013671875,
+            "rms": 0.07806320484127288,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " I shall make clear that you both agree.",
+            "chunks": [
+              {
+                "text": " I",
+                "timestamp": [
+                  0.0,
+                  0.32
+                ]
+              },
+              {
+                "text": " shall",
+                "timestamp": [
+                  0.32,
+                  0.48
+                ]
+              },
+              {
+                "text": " make",
+                "timestamp": [
+                  0.48,
+                  0.78
+                ]
+              },
+              {
+                "text": " clear",
+                "timestamp": [
+                  0.78,
+                  1.04
+                ]
+              },
+              {
+                "text": " that",
+                "timestamp": [
+                  1.04,
+                  1.24
+                ]
+              },
+              {
+                "text": " you",
+                "timestamp": [
+                  1.24,
+                  1.48
+                ]
+              },
+              {
+                "text": " both",
+                "timestamp": [
+                  1.48,
+                  1.7
+                ]
+              },
+              {
+                "text": " agree.",
+                "timestamp": [
+                  1.7,
+                  2.22
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 8,
+            "recognizedWords": 8,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.6879999998491257
+        },
+        {
+          "id": "line-009",
+          "unit": "letter",
+          "speaker": "NAPOLEON",
+          "text": "Soult, what do you think?",
+          "file": "line-009-e7f410c9d81a827a.wav",
+          "sha256": "18b2e559b2028376292f6864cfd63429b866937b851c15147bf96a681fb9c96c",
+          "signal": {
+            "frames": 92160,
+            "sampleRate": 48000,
+            "duration": 1.92,
+            "peak": 0.72320556640625,
+            "rms": 0.0651869954062577,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " So, what do you think?",
+            "chunks": [
+              {
+                "text": " So,",
+                "timestamp": [
+                  0.0,
+                  0.64
+                ]
+              },
+              {
+                "text": " what",
+                "timestamp": [
+                  0.64,
+                  1.02
+                ]
+              },
+              {
+                "text": " do",
+                "timestamp": [
+                  1.02,
+                  1.2
+                ]
+              },
+              {
+                "text": " you",
+                "timestamp": [
+                  1.2,
+                  1.26
+                ]
+              },
+              {
+                "text": " think?",
+                "timestamp": [
+                  1.26,
+                  1.9
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 5,
+            "recognizedWords": 5,
+            "wordEdits": 1,
+            "wordErrorRate": 0.2,
+            "differenceSpans": [
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  0,
+                  1
+                ],
+                "recognizedTokenRange": [
+                  0,
+                  1
+                ],
+                "expected": "soult",
+                "recognized": "so",
+                "recognizedTimeRange": [
+                  0.0,
+                  0.64
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 0.6870000001508743
+        },
+        {
+          "id": "line-010",
+          "unit": "letter",
+          "speaker": "SOULT",
+          "text": "Sire, my corps can face twice its number.",
+          "file": "line-010-020330d4bf91cdaa.wav",
+          "sha256": "a1f645f4e79ab2501f58d23d4df135da26ba3c522e20f05ba499e14772b6b52d",
+          "signal": {
+            "frames": 192000,
+            "sampleRate": 48000,
+            "duration": 4.0,
+            "peak": 0.93829345703125,
+            "rms": 0.06469207549978458,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": [
+              {
+                "start": 0.76,
+                "end": 1.4,
+                "position": "internal"
+              }
+            ]
+          },
+          "asr": {
+            "text": " Sire. My core can face twice its number.",
+            "chunks": [
+              {
+                "text": " Sire.",
+                "timestamp": [
+                  0.0,
+                  1.52
+                ]
+              },
+              {
+                "text": " My",
+                "timestamp": [
+                  1.52,
+                  1.86
+                ]
+              },
+              {
+                "text": " core",
+                "timestamp": [
+                  1.86,
+                  2.16
+                ]
+              },
+              {
+                "text": " can",
+                "timestamp": [
+                  2.16,
+                  2.44
+                ]
+              },
+              {
+                "text": " face",
+                "timestamp": [
+                  2.44,
+                  2.78
+                ]
+              },
+              {
+                "text": " twice",
+                "timestamp": [
+                  2.78,
+                  3.2
+                ]
+              },
+              {
+                "text": " its",
+                "timestamp": [
+                  3.2,
+                  3.48
+                ]
+              },
+              {
+                "text": " number.",
+                "timestamp": [
+                  3.48,
+                  3.98
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 8,
+            "recognizedWords": 8,
+            "wordEdits": 1,
+            "wordErrorRate": 0.125,
+            "differenceSpans": [
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  2,
+                  3
+                ],
+                "recognizedTokenRange": [
+                  2,
+                  3
+                ],
+                "expected": "corps",
+                "recognized": "core",
+                "recognizedTimeRange": [
+                  1.86,
+                  2.16
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 0.75
+        },
+        {
+          "id": "line-011",
+          "unit": "letter",
+          "speaker": "LANNES",
+          "text": "You asked me to write it, and now I am the only one asking?",
+          "file": "line-011-d9f7d3252637c240.wav",
+          "sha256": "a118550d6e0af11870fafa197f13804f593043f47e2d5d69e8d2a7004c081d03",
+          "signal": {
+            "frames": 161280,
+            "sampleRate": 48000,
+            "duration": 3.36,
+            "peak": 0.66656494140625,
+            "rms": 0.11295407881854545,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " You asked me to write it, and now I am the only one asking.",
+            "chunks": [
+              {
+                "text": " You",
+                "timestamp": [
+                  0.0,
+                  0.32
+                ]
+              },
+              {
+                "text": " asked",
+                "timestamp": [
+                  0.32,
+                  0.52
+                ]
+              },
+              {
+                "text": " me",
+                "timestamp": [
+                  0.52,
+                  0.66
+                ]
+              },
+              {
+                "text": " to",
+                "timestamp": [
+                  0.66,
+                  0.82
+                ]
+              },
+              {
+                "text": " write",
+                "timestamp": [
+                  0.82,
+                  0.98
+                ]
+              },
+              {
+                "text": " it,",
+                "timestamp": [
+                  0.98,
+                  1.32
+                ]
+              },
+              {
+                "text": " and",
+                "timestamp": [
+                  1.32,
+                  1.34
+                ]
+              },
+              {
+                "text": " now",
+                "timestamp": [
+                  1.34,
+                  1.66
+                ]
+              },
+              {
+                "text": " I",
+                "timestamp": [
+                  1.66,
+                  1.8
+                ]
+              },
+              {
+                "text": " am",
+                "timestamp": [
+                  1.8,
+                  1.9
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  1.9,
+                  2.26
+                ]
+              },
+              {
+                "text": " only",
+                "timestamp": [
+                  2.26,
+                  2.5
+                ]
+              },
+              {
+                "text": " one",
+                "timestamp": [
+                  2.5,
+                  2.84
+                ]
+              },
+              {
+                "text": " asking.",
+                "timestamp": [
+                  2.84,
+                  3.34
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 14,
+            "recognizedWords": 14,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.8279999999795109
+        },
+        {
+          "id": "line-012",
+          "unit": "letter",
+          "speaker": "SOULT",
+          "text": "He asked about my corps.",
+          "file": "line-012-6f2f2cb46f628c72.wav",
+          "sha256": "d496fe60ff52ded8b2b95e9ce38b94386103807f7056a9bad0ff673c8327addd",
+          "signal": {
+            "frames": 76800,
+            "sampleRate": 48000,
+            "duration": 1.6,
+            "peak": 0.743865966796875,
+            "rms": 0.044393316623334865,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " He asked about my core.",
+            "chunks": [
+              {
+                "text": " He",
+                "timestamp": [
+                  0.0,
+                  0.4
+                ]
+              },
+              {
+                "text": " asked",
+                "timestamp": [
+                  0.4,
+                  0.64
+                ]
+              },
+              {
+                "text": " about",
+                "timestamp": [
+                  0.64,
+                  0.88
+                ]
+              },
+              {
+                "text": " my",
+                "timestamp": [
+                  0.88,
+                  1.18
+                ]
+              },
+              {
+                "text": " core.",
+                "timestamp": [
+                  1.18,
+                  1.58
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 5,
+            "recognizedWords": 5,
+            "wordEdits": 1,
+            "wordErrorRate": 0.2,
+            "differenceSpans": [
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  4,
+                  5
+                ],
+                "recognizedTokenRange": [
+                  4,
+                  5
+                ],
+                "expected": "corps",
+                "recognized": "core",
+                "recognizedTimeRange": [
+                  1.18,
+                  1.58
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 0.7660000000614673
+        },
+        {
+          "id": "line-013",
+          "unit": "letter",
+          "speaker": "LANNES",
+          "text": "Marshal Soult, I challenge you to a duel.",
+          "file": "line-013-725feae1dd827a50.wav",
+          "sha256": "9e021932382df3ac713e8afb506aad5c2f7f2787c7d8ecfb970293c7f269aaca",
+          "signal": {
+            "frames": 138240,
+            "sampleRate": 48000,
+            "duration": 2.88,
+            "peak": 0.58984375,
+            "rms": 0.06673839196182908,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " Marshall Salt, I challenge you to a duel.",
+            "chunks": [
+              {
+                "text": " Marshall",
+                "timestamp": [
+                  0.0,
+                  0.46
+                ]
+              },
+              {
+                "text": " Salt,",
+                "timestamp": [
+                  0.46,
+                  1.22
+                ]
+              },
+              {
+                "text": " I",
+                "timestamp": [
+                  1.22,
+                  1.4
+                ]
+              },
+              {
+                "text": " challenge",
+                "timestamp": [
+                  1.4,
+                  1.68
+                ]
+              },
+              {
+                "text": " you",
+                "timestamp": [
+                  1.68,
+                  1.96
+                ]
+              },
+              {
+                "text": " to",
+                "timestamp": [
+                  1.96,
+                  2.14
+                ]
+              },
+              {
+                "text": " a",
+                "timestamp": [
+                  2.14,
+                  2.32
+                ]
+              },
+              {
+                "text": " duel.",
+                "timestamp": [
+                  2.32,
+                  2.86
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 8,
+            "recognizedWords": 8,
+            "wordEdits": 2,
+            "wordErrorRate": 0.25,
+            "differenceSpans": [
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  0,
+                  2
+                ],
+                "recognizedTokenRange": [
+                  0,
+                  2
+                ],
+                "expected": "marshal soult",
+                "recognized": "marshall salt",
+                "recognizedTimeRange": [
+                  0.0,
+                  1.22
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 0.7969999997876585
+        },
+        {
+          "id": "line-014",
+          "unit": "letter",
+          "speaker": "NAPOLEON",
+          "text": "We must bring the army together. We shall withdraw.",
+          "file": "line-014-9f5f3ffcda297280.wav",
+          "sha256": "85f7fe0f2552594902648a079fda5f1dad79bf40b7c222b5ae5ba9aedf4bafc4",
+          "signal": {
+            "frames": 153600,
+            "sampleRate": 48000,
+            "duration": 3.2,
+            "peak": 0.956329345703125,
+            "rms": 0.11095621403118125,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " We must bring the army together. We shall withdraw.",
+            "chunks": [
+              {
+                "text": " We",
+                "timestamp": [
+                  0.0,
+                  0.28
+                ]
+              },
+              {
+                "text": " must",
+                "timestamp": [
+                  0.28,
+                  0.58
+                ]
+              },
+              {
+                "text": " bring",
+                "timestamp": [
+                  0.58,
+                  0.84
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  0.84,
+                  1.02
+                ]
+              },
+              {
+                "text": " army",
+                "timestamp": [
+                  1.02,
+                  1.22
+                ]
+              },
+              {
+                "text": " together.",
+                "timestamp": [
+                  1.22,
+                  2.04
+                ]
+              },
+              {
+                "text": " We",
+                "timestamp": [
+                  2.04,
+                  2.26
+                ]
+              },
+              {
+                "text": " shall",
+                "timestamp": [
+                  2.26,
+                  2.54
+                ]
+              },
+              {
+                "text": " withdraw.",
+                "timestamp": [
+                  2.54,
+                  3.18
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 9,
+            "recognizedWords": 9,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.7809999999590218
+        },
+        {
+          "id": "line-015",
+          "unit": "letter",
+          "speaker": "NAPOLEON",
+          "text": "Move the army back. Send the orders to withdraw.",
+          "file": "line-015-2a43dbbf0145786a.wav",
+          "sha256": "6a509da6fbec965542c2bd736fe6e2f5e996e611d0ab9faa86415f291898e8e8",
+          "signal": {
+            "frames": 184320,
+            "sampleRate": 48000,
+            "duration": 3.84,
+            "peak": 0.83819580078125,
+            "rms": 0.08423170520351317,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " Move the army back. Send the orders to withdraw.",
+            "chunks": [
+              {
+                "text": " Move",
+                "timestamp": [
+                  0.0,
+                  0.66
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  0.66,
+                  0.98
+                ]
+              },
+              {
+                "text": " army",
+                "timestamp": [
+                  0.98,
+                  1.12
+                ]
+              },
+              {
+                "text": " back.",
+                "timestamp": [
+                  1.12,
+                  2.06
+                ]
+              },
+              {
+                "text": " Send",
+                "timestamp": [
+                  2.06,
+                  2.3
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  2.3,
+                  2.6
+                ]
+              },
+              {
+                "text": " orders",
+                "timestamp": [
+                  2.6,
+                  2.84
+                ]
+              },
+              {
+                "text": " to",
+                "timestamp": [
+                  2.84,
+                  3.1
+                ]
+              },
+              {
+                "text": " withdraw.",
+                "timestamp": [
+                  3.1,
+                  3.82
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 9,
+            "recognizedWords": 9,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.8430000001098961
+        },
+        {
+          "id": "line-016",
+          "unit": "letter",
+          "speaker": "BERTHIER",
+          "text": "Yes, Sire.",
+          "file": "line-016-a178a7cc1665bcc4.wav",
+          "sha256": "cb15e1c26583a288cc0cc378a241ea1690407621e5ee21171f6d32068c43c1f9",
+          "signal": {
+            "frames": 46080,
+            "sampleRate": 48000,
+            "duration": 0.96,
+            "peak": 0.489227294921875,
+            "rms": 0.04103552939398715,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " Yes, I am.",
+            "chunks": [
+              {
+                "text": " Yes,",
+                "timestamp": [
+                  0.0,
+                  0.58
+                ]
+              },
+              {
+                "text": " I",
+                "timestamp": [
+                  0.58,
+                  0.7
+                ]
+              },
+              {
+                "text": " am.",
+                "timestamp": [
+                  0.7,
+                  0.94
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 2,
+            "recognizedWords": 3,
+            "wordEdits": 2,
+            "wordErrorRate": 1.0,
+            "differenceSpans": [
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  1,
+                  2
+                ],
+                "recognizedTokenRange": [
+                  1,
+                  3
+                ],
+                "expected": "sire",
+                "recognized": "i am",
+                "recognizedTimeRange": [
+                  0.58,
+                  0.94
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 0.7659999998286366
+        },
+        {
+          "id": "line-017",
+          "unit": "plans",
+          "speaker": "WEYROTHER",
+          "text": "We go down this way and cut the road. Each column will take its assigned route.",
+          "file": "line-017-d0e3317961e49877.wav",
+          "sha256": "99d45cbd64e7b3df00bfd65bd531d79a3cf96c5ce8c454d65db2e6a1291d7857",
+          "signal": {
+            "frames": 230400,
+            "sampleRate": 48000,
+            "duration": 4.8,
+            "peak": 0.852630615234375,
+            "rms": 0.12837165404650025,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " We go down this way and cut the road. Each column will take its assigned route.",
+            "chunks": [
+              {
+                "text": " We",
+                "timestamp": [
+                  0.0,
+                  0.24
+                ]
+              },
+              {
+                "text": " go",
+                "timestamp": [
+                  0.24,
+                  0.42
+                ]
+              },
+              {
+                "text": " down",
+                "timestamp": [
+                  0.42,
+                  0.7
+                ]
+              },
+              {
+                "text": " this",
+                "timestamp": [
+                  0.7,
+                  0.96
+                ]
+              },
+              {
+                "text": " way",
+                "timestamp": [
+                  0.96,
+                  1.18
+                ]
+              },
+              {
+                "text": " and",
+                "timestamp": [
+                  1.18,
+                  1.34
+                ]
+              },
+              {
+                "text": " cut",
+                "timestamp": [
+                  1.34,
+                  1.56
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  1.56,
+                  1.8
+                ]
+              },
+              {
+                "text": " road.",
+                "timestamp": [
+                  1.8,
+                  2.38
+                ]
+              },
+              {
+                "text": " Each",
+                "timestamp": [
+                  2.38,
+                  2.72
+                ]
+              },
+              {
+                "text": " column",
+                "timestamp": [
+                  2.72,
+                  2.96
+                ]
+              },
+              {
+                "text": " will",
+                "timestamp": [
+                  2.96,
+                  3.24
+                ]
+              },
+              {
+                "text": " take",
+                "timestamp": [
+                  3.24,
+                  3.52
+                ]
+              },
+              {
+                "text": " its",
+                "timestamp": [
+                  3.52,
+                  3.8
+                ]
+              },
+              {
+                "text": " assigned",
+                "timestamp": [
+                  3.8,
+                  4.28
+                ]
+              },
+              {
+                "text": " route.",
+                "timestamp": [
+                  4.28,
+                  4.78
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 16,
+            "recognizedWords": 16,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 1.0469999997876585
+        },
+        {
+          "id": "line-018",
+          "unit": "night",
+          "speaker": "STAFF OFFICER",
+          "text": "Read that part again.",
+          "file": "line-018-1c1ffe3257783339.wav",
+          "sha256": "189c9b6c18cb485ce0fb349b680fd4db4fbbb9457e7680c46b2c677c1f5d1cce",
+          "signal": {
+            "frames": 76800,
+            "sampleRate": 48000,
+            "duration": 1.6,
+            "peak": 0.227752685546875,
+            "rms": 0.012061516153067182,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " Read that part again.",
+            "chunks": [
+              {
+                "text": " Read",
+                "timestamp": [
+                  0.0,
+                  0.56
+                ]
+              },
+              {
+                "text": " that",
+                "timestamp": [
+                  0.56,
+                  0.78
+                ]
+              },
+              {
+                "text": " part",
+                "timestamp": [
+                  0.78,
+                  0.94
+                ]
+              },
+              {
+                "text": " again.",
+                "timestamp": [
+                  0.94,
+                  1.58
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 4,
+            "recognizedWords": 4,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.6720000000204891
+        },
+        {
+          "id": "line-019",
+          "unit": "night",
+          "speaker": "SOLDIERS",
+          "text": "Long live the Emperor!",
+          "file": "line-019-3774ca4d3f8964e6.wav",
+          "sha256": "88ca39eb5199b4ec54ffcf994e8d8152e03dedb0d494a7f98f18cd9431a12b65",
+          "signal": {
+            "frames": 99840,
+            "sampleRate": 48000,
+            "duration": 2.08,
+            "peak": 0.969268798828125,
+            "rms": 0.21852208364964482,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " Long live the emperor!",
+            "chunks": [
+              {
+                "text": " Long",
+                "timestamp": [
+                  0.0,
+                  0.78
+                ]
+              },
+              {
+                "text": " live",
+                "timestamp": [
+                  0.78,
+                  1.14
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  1.14,
+                  1.44
+                ]
+              },
+              {
+                "text": " emperor!",
+                "timestamp": [
+                  1.44,
+                  2.06
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 4,
+            "recognizedWords": 4,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.6870000001508743
+        },
+        {
+          "id": "line-020",
+          "unit": "night",
+          "speaker": "LANNES",
+          "text": "I sent you a challenge. I thought you knew how to use a sword.",
+          "file": "line-020-1e893bac4269f6e4.wav",
+          "sha256": "fa222bc215ad6586f18a736d975ac085ef43ed33d5936bac095a71016465e8cb",
+          "signal": {
+            "frames": 176640,
+            "sampleRate": 48000,
+            "duration": 3.68,
+            "peak": 0.71063232421875,
+            "rms": 0.0863631654684993,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " I sent you a challenge. I thought you knew how to use a sword.",
+            "chunks": [
+              {
+                "text": " I",
+                "timestamp": [
+                  0.0,
+                  0.32
+                ]
+              },
+              {
+                "text": " sent",
+                "timestamp": [
+                  0.32,
+                  0.5
+                ]
+              },
+              {
+                "text": " you",
+                "timestamp": [
+                  0.5,
+                  0.64
+                ]
+              },
+              {
+                "text": " a",
+                "timestamp": [
+                  0.64,
+                  0.9
+                ]
+              },
+              {
+                "text": " challenge.",
+                "timestamp": [
+                  0.9,
+                  1.62
+                ]
+              },
+              {
+                "text": " I",
+                "timestamp": [
+                  1.62,
+                  1.88
+                ]
+              },
+              {
+                "text": " thought",
+                "timestamp": [
+                  1.88,
+                  2.12
+                ]
+              },
+              {
+                "text": " you",
+                "timestamp": [
+                  2.12,
+                  2.34
+                ]
+              },
+              {
+                "text": " knew",
+                "timestamp": [
+                  2.34,
+                  2.56
+                ]
+              },
+              {
+                "text": " how",
+                "timestamp": [
+                  2.56,
+                  2.72
+                ]
+              },
+              {
+                "text": " to",
+                "timestamp": [
+                  2.72,
+                  2.76
+                ]
+              },
+              {
+                "text": " use",
+                "timestamp": [
+                  2.76,
+                  3.0
+                ]
+              },
+              {
+                "text": " a",
+                "timestamp": [
+                  3.0,
+                  3.3
+                ]
+              },
+              {
+                "text": " sword.",
+                "timestamp": [
+                  3.3,
+                  3.62
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 14,
+            "recognizedWords": 14,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.8440000000409782
+        },
+        {
+          "id": "line-021",
+          "unit": "night",
+          "speaker": "SOULT",
+          "text": "We have more important business today.",
+          "file": "line-021-4e2e618a62e282b2.wav",
+          "sha256": "274ee98a989f5a9ddc9bed8f03802dec00aceada87193b338df575fd448245c9",
+          "signal": {
+            "frames": 115200,
+            "sampleRate": 48000,
+            "duration": 2.4,
+            "peak": 0.6766357421875,
+            "rms": 0.0526142271912799,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " We have more important business today.",
+            "chunks": [
+              {
+                "text": " We",
+                "timestamp": [
+                  0.0,
+                  0.32
+                ]
+              },
+              {
+                "text": " have",
+                "timestamp": [
+                  0.32,
+                  0.54
+                ]
+              },
+              {
+                "text": " more",
+                "timestamp": [
+                  0.54,
+                  0.9
+                ]
+              },
+              {
+                "text": " important",
+                "timestamp": [
+                  0.9,
+                  1.38
+                ]
+              },
+              {
+                "text": " business",
+                "timestamp": [
+                  1.38,
+                  1.78
+                ]
+              },
+              {
+                "text": " today.",
+                "timestamp": [
+                  1.78,
+                  2.38
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 6,
+            "recognizedWords": 6,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.625
+        },
+        {
+          "id": "line-022",
+          "unit": "night",
+          "speaker": "LANNES",
+          "text": "You contemptible man.",
+          "file": "line-022-867d2dad39f177f2.wav",
+          "sha256": "c1ecca00edb9768bccbd0fea5b80de5dc51a4bbef02b7f9c17d18a915c2e7aa3",
+          "signal": {
+            "frames": 76800,
+            "sampleRate": 48000,
+            "duration": 1.6,
+            "peak": 0.817901611328125,
+            "rms": 0.07793209189986879,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " You contemptible man!",
+            "chunks": [
+              {
+                "text": " You",
+                "timestamp": [
+                  0.0,
+                  0.3
+                ]
+              },
+              {
+                "text": " contemptible",
+                "timestamp": [
+                  0.3,
+                  1.08
+                ]
+              },
+              {
+                "text": " man!",
+                "timestamp": [
+                  1.08,
+                  1.58
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 3,
+            "recognizedWords": 3,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.5939999998081475
+        },
+        {
+          "id": "line-023",
+          "unit": "battle",
+          "speaker": "SOLDIER",
+          "text": "Pass some this way!",
+          "file": "line-023-96892f5520ca8bb2.wav",
+          "sha256": "fb02f4b71ebe6933dff7cb3cfd73e5b7af9d43fae23b784c00859ac0666e1def",
+          "signal": {
+            "frames": 61440,
+            "sampleRate": 48000,
+            "duration": 1.28,
+            "peak": 0.98699951171875,
+            "rms": 0.1612781089582204,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " Pass some this way!",
+            "chunks": [
+              {
+                "text": " Pass",
+                "timestamp": [
+                  0.0,
+                  0.44
+                ]
+              },
+              {
+                "text": " some",
+                "timestamp": [
+                  0.44,
+                  0.66
+                ]
+              },
+              {
+                "text": " this",
+                "timestamp": [
+                  0.66,
+                  0.9
+                ]
+              },
+              {
+                "text": " way!",
+                "timestamp": [
+                  0.9,
+                  1.26
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 4,
+            "recognizedWords": 4,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.625
+        },
+        {
+          "id": "line-024",
+          "unit": "battle",
+          "speaker": "DAVOUT",
+          "text": "Put the men who are here into the line. We cannot wait for the rest.",
+          "file": "line-024-5a1e4ecffb73b7e6.wav",
+          "sha256": "eeaf4d0fb86e026d16995447ed5531aa04df79cedb43f6c63e35120f876d2fe9",
+          "signal": {
+            "frames": 176640,
+            "sampleRate": 48000,
+            "duration": 3.68,
+            "peak": 0.381744384765625,
+            "rms": 0.05726673687412643,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " Put the men who are here into the line. We cannot wait for the rest.",
+            "chunks": [
+              {
+                "text": " Put",
+                "timestamp": [
+                  0.0,
+                  0.2
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  0.2,
+                  0.42
+                ]
+              },
+              {
+                "text": " men",
+                "timestamp": [
+                  0.42,
+                  0.64
+                ]
+              },
+              {
+                "text": " who",
+                "timestamp": [
+                  0.64,
+                  0.78
+                ]
+              },
+              {
+                "text": " are",
+                "timestamp": [
+                  0.78,
+                  0.96
+                ]
+              },
+              {
+                "text": " here",
+                "timestamp": [
+                  0.96,
+                  1.2
+                ]
+              },
+              {
+                "text": " into",
+                "timestamp": [
+                  1.2,
+                  1.42
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  1.42,
+                  1.64
+                ]
+              },
+              {
+                "text": " line.",
+                "timestamp": [
+                  1.64,
+                  2.0
+                ]
+              },
+              {
+                "text": " We",
+                "timestamp": [
+                  2.0,
+                  2.26
+                ]
+              },
+              {
+                "text": " cannot",
+                "timestamp": [
+                  2.26,
+                  2.44
+                ]
+              },
+              {
+                "text": " wait",
+                "timestamp": [
+                  2.44,
+                  2.92
+                ]
+              },
+              {
+                "text": " for",
+                "timestamp": [
+                  2.92,
+                  3.08
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  3.08,
+                  3.24
+                ]
+              },
+              {
+                "text": " rest.",
+                "timestamp": [
+                  3.24,
+                  3.66
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 15,
+            "recognizedWords": 15,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.9690000000409782
+        },
+        {
+          "id": "line-025",
+          "unit": "battle",
+          "speaker": "NAPOLEON",
+          "text": "Strike the center. We must take the ground they have left.",
+          "file": "line-025-47623785aee489fb.wav",
+          "sha256": "2b49e52f5fe3a25eb10b1c0ce9ebc0654985451b68d9d64a0e933588464d0736",
+          "signal": {
+            "frames": 215040,
+            "sampleRate": 48000,
+            "duration": 4.48,
+            "peak": 0.6591796875,
+            "rms": 0.07822409602228923,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": [
+              {
+                "start": 0.0,
+                "end": 0.6,
+                "position": "leading"
+              },
+              {
+                "start": 1.74,
+                "end": 2.3,
+                "position": "internal"
+              }
+            ]
+          },
+          "asr": {
+            "text": " Strike the center. We must take the ground they have left.",
+            "chunks": [
+              {
+                "text": " Strike",
+                "timestamp": [
+                  0.0,
+                  1.12
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  1.12,
+                  1.46
+                ]
+              },
+              {
+                "text": " center.",
+                "timestamp": [
+                  1.46,
+                  2.34
+                ]
+              },
+              {
+                "text": " We",
+                "timestamp": [
+                  2.34,
+                  2.5
+                ]
+              },
+              {
+                "text": " must",
+                "timestamp": [
+                  2.5,
+                  2.78
+                ]
+              },
+              {
+                "text": " take",
+                "timestamp": [
+                  2.78,
+                  3.02
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  3.02,
+                  3.26
+                ]
+              },
+              {
+                "text": " ground",
+                "timestamp": [
+                  3.26,
+                  3.52
+                ]
+              },
+              {
+                "text": " they",
+                "timestamp": [
+                  3.52,
+                  3.76
+                ]
+              },
+              {
+                "text": " have",
+                "timestamp": [
+                  3.76,
+                  4.02
+                ]
+              },
+              {
+                "text": " left.",
+                "timestamp": [
+                  4.02,
+                  4.46
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 11,
+            "recognizedWords": 11,
+            "wordEdits": 0,
+            "wordErrorRate": 0.0,
+            "differenceSpans": []
+          },
+          "elapsedSeconds": 0.8600000001024455
+        },
+        {
+          "id": "line-026",
+          "unit": "battle",
+          "speaker": "SOULT",
+          "text": "Yes, Sire.",
+          "file": "line-026-3b4188d9bfbd8e9b.wav",
+          "sha256": "d54cc871bcd8530247c69cd03718352cda7d534177437daa8794bb6dd4d39892",
+          "signal": {
+            "frames": 69120,
+            "sampleRate": 48000,
+            "duration": 1.44,
+            "peak": 0.88861083984375,
+            "rms": 0.07313561017627714,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": []
+          },
+          "asr": {
+            "text": " Yes, I said...",
+            "chunks": [
+              {
+                "text": " Yes,",
+                "timestamp": [
+                  0.0,
+                  0.9
+                ]
+              },
+              {
+                "text": " I",
+                "timestamp": [
+                  0.9,
+                  0.96
+                ]
+              },
+              {
+                "text": " said...",
+                "timestamp": [
+                  0.96,
+                  1.42
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 2,
+            "recognizedWords": 3,
+            "wordEdits": 2,
+            "wordErrorRate": 1.0,
+            "differenceSpans": [
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  1,
+                  2
+                ],
+                "recognizedTokenRange": [
+                  1,
+                  3
+                ],
+                "expected": "sire",
+                "recognized": "i said",
+                "recognizedTimeRange": [
+                  0.9,
+                  1.42
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 0.6410000000614673
+        },
+        {
+          "id": "line-027",
+          "unit": "victory",
+          "speaker": "AUTHOR",
+          "text": "Our first story stops on the night of victory. The quarrel over the duel comes from an account Thiébault said he heard from Lannes's aide; the Guard cavalry sequence follows Rapp's later memoir within a narrow scope. We reconstructed the conversations and the lives of unnamed soldiers. Please remember that these memoirs are not recordings of that day. Beside tonight's cheering, we have left a place for those who did not return.",
+          "file": "line-027-a572ccf19049b688.wav",
+          "sha256": "bce6c96136771a21c095448264b27710e9366ced9b4d3332d8a19303375c9e7d",
+          "signal": {
+            "frames": 1121280,
+            "sampleRate": 48000,
+            "duration": 23.36,
+            "peak": 0.302093505859375,
+            "rms": 0.07993917702715418,
+            "clippedSamples": 0,
+            "lowEnergyIntervals": [
+              {
+                "start": 2.56,
+                "end": 3.18,
+                "position": "internal"
+              },
+              {
+                "start": 11.7,
+                "end": 12.4,
+                "position": "internal"
+              },
+              {
+                "start": 15.72,
+                "end": 16.3,
+                "position": "internal"
+              },
+              {
+                "start": 19.2,
+                "end": 19.72,
+                "position": "internal"
+              }
+            ]
+          },
+          "asr": {
+            "text": " Our first story stops on the night of victory. The quarrel over the duel comes from an account. Teabaugh said he heard from Lance's aid. The guard cavalry sequence follows Raps later memoir within a narrow scope. We reconstructed the conversations and the lives of unnamed soldiers. Please remember that these memoirs are not recordings of that day. Beside tonight's cheering, we have left a place for those who did not return.",
+            "chunks": [
+              {
+                "text": " Our",
+                "timestamp": [
+                  0.0,
+                  0.74
+                ]
+              },
+              {
+                "text": " first",
+                "timestamp": [
+                  0.74,
+                  1.06
+                ]
+              },
+              {
+                "text": " story",
+                "timestamp": [
+                  1.06,
+                  1.32
+                ]
+              },
+              {
+                "text": " stops",
+                "timestamp": [
+                  1.32,
+                  1.64
+                ]
+              },
+              {
+                "text": " on",
+                "timestamp": [
+                  1.64,
+                  1.82
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  1.82,
+                  1.94
+                ]
+              },
+              {
+                "text": " night",
+                "timestamp": [
+                  1.94,
+                  2.1
+                ]
+              },
+              {
+                "text": " of",
+                "timestamp": [
+                  2.1,
+                  2.32
+                ]
+              },
+              {
+                "text": " victory.",
+                "timestamp": [
+                  2.32,
+                  3.2
+                ]
+              },
+              {
+                "text": " The",
+                "timestamp": [
+                  3.2,
+                  3.4
+                ]
+              },
+              {
+                "text": " quarrel",
+                "timestamp": [
+                  3.4,
+                  3.64
+                ]
+              },
+              {
+                "text": " over",
+                "timestamp": [
+                  3.64,
+                  3.9
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  3.9,
+                  4.06
+                ]
+              },
+              {
+                "text": " duel",
+                "timestamp": [
+                  4.06,
+                  4.34
+                ]
+              },
+              {
+                "text": " comes",
+                "timestamp": [
+                  4.34,
+                  4.7
+                ]
+              },
+              {
+                "text": " from",
+                "timestamp": [
+                  4.7,
+                  4.84
+                ]
+              },
+              {
+                "text": " an",
+                "timestamp": [
+                  4.84,
+                  4.98
+                ]
+              },
+              {
+                "text": " account.",
+                "timestamp": [
+                  4.98,
+                  5.72
+                ]
+              },
+              {
+                "text": " Teabaugh",
+                "timestamp": [
+                  5.82,
+                  6.14
+                ]
+              },
+              {
+                "text": " said",
+                "timestamp": [
+                  6.14,
+                  6.34
+                ]
+              },
+              {
+                "text": " he",
+                "timestamp": [
+                  6.34,
+                  6.48
+                ]
+              },
+              {
+                "text": " heard",
+                "timestamp": [
+                  6.48,
+                  6.68
+                ]
+              },
+              {
+                "text": " from",
+                "timestamp": [
+                  6.68,
+                  6.86
+                ]
+              },
+              {
+                "text": " Lance's",
+                "timestamp": [
+                  6.86,
+                  7.38
+                ]
+              },
+              {
+                "text": " aid.",
+                "timestamp": [
+                  7.38,
+                  7.92
+                ]
+              },
+              {
+                "text": " The",
+                "timestamp": [
+                  7.92,
+                  8.14
+                ]
+              },
+              {
+                "text": " guard",
+                "timestamp": [
+                  8.14,
+                  8.44
+                ]
+              },
+              {
+                "text": " cavalry",
+                "timestamp": [
+                  8.44,
+                  8.82
+                ]
+              },
+              {
+                "text": " sequence",
+                "timestamp": [
+                  8.82,
+                  9.28
+                ]
+              },
+              {
+                "text": " follows",
+                "timestamp": [
+                  9.28,
+                  9.6
+                ]
+              },
+              {
+                "text": " Raps",
+                "timestamp": [
+                  9.6,
+                  9.92
+                ]
+              },
+              {
+                "text": " later",
+                "timestamp": [
+                  9.92,
+                  10.2
+                ]
+              },
+              {
+                "text": " memoir",
+                "timestamp": [
+                  10.2,
+                  10.58
+                ]
+              },
+              {
+                "text": " within",
+                "timestamp": [
+                  10.58,
+                  10.92
+                ]
+              },
+              {
+                "text": " a",
+                "timestamp": [
+                  10.92,
+                  11.2
+                ]
+              },
+              {
+                "text": " narrow",
+                "timestamp": [
+                  11.2,
+                  11.4
+                ]
+              },
+              {
+                "text": " scope.",
+                "timestamp": [
+                  11.4,
+                  12.42
+                ]
+              },
+              {
+                "text": " We",
+                "timestamp": [
+                  12.42,
+                  12.68
+                ]
+              },
+              {
+                "text": " reconstructed",
+                "timestamp": [
+                  12.68,
+                  13.12
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  13.12,
+                  13.62
+                ]
+              },
+              {
+                "text": " conversations",
+                "timestamp": [
+                  13.62,
+                  13.94
+                ]
+              },
+              {
+                "text": " and",
+                "timestamp": [
+                  13.94,
+                  14.22
+                ]
+              },
+              {
+                "text": " the",
+                "timestamp": [
+                  14.22,
+                  14.4
+                ]
+              },
+              {
+                "text": " lives",
+                "timestamp": [
+                  14.4,
+                  14.6
+                ]
+              },
+              {
+                "text": " of",
+                "timestamp": [
+                  14.6,
+                  14.82
+                ]
+              },
+              {
+                "text": " unnamed",
+                "timestamp": [
+                  14.82,
+                  15.22
+                ]
+              },
+              {
+                "text": " soldiers.",
+                "timestamp": [
+                  15.22,
+                  16.32
+                ]
+              },
+              {
+                "text": " Please",
+                "timestamp": [
+                  16.32,
+                  16.58
+                ]
+              },
+              {
+                "text": " remember",
+                "timestamp": [
+                  16.58,
+                  16.92
+                ]
+              },
+              {
+                "text": " that",
+                "timestamp": [
+                  16.92,
+                  17.14
+                ]
+              },
+              {
+                "text": " these",
+                "timestamp": [
+                  17.14,
+                  17.34
+                ]
+              },
+              {
+                "text": " memoirs",
+                "timestamp": [
+                  17.34,
+                  17.82
+                ]
+              },
+              {
+                "text": " are",
+                "timestamp": [
+                  17.82,
+                  17.92
+                ]
+              },
+              {
+                "text": " not",
+                "timestamp": [
+                  17.92,
+                  18.18
+                ]
+              },
+              {
+                "text": " recordings",
+                "timestamp": [
+                  18.18,
+                  18.56
+                ]
+              },
+              {
+                "text": " of",
+                "timestamp": [
+                  18.56,
+                  18.78
+                ]
+              },
+              {
+                "text": " that",
+                "timestamp": [
+                  18.78,
+                  18.98
+                ]
+              },
+              {
+                "text": " day.",
+                "timestamp": [
+                  18.98,
+                  19.88
+                ]
+              },
+              {
+                "text": " Beside",
+                "timestamp": [
+                  19.88,
+                  20.14
+                ]
+              },
+              {
+                "text": " tonight's",
+                "timestamp": [
+                  20.14,
+                  20.72
+                ]
+              },
+              {
+                "text": " cheering,",
+                "timestamp": [
+                  20.72,
+                  21.16
+                ]
+              },
+              {
+                "text": " we",
+                "timestamp": [
+                  21.16,
+                  21.16
+                ]
+              },
+              {
+                "text": " have",
+                "timestamp": [
+                  21.16,
+                  21.34
+                ]
+              },
+              {
+                "text": " left",
+                "timestamp": [
+                  21.34,
+                  21.5
+                ]
+              },
+              {
+                "text": " a",
+                "timestamp": [
+                  21.5,
+                  21.66
+                ]
+              },
+              {
+                "text": " place",
+                "timestamp": [
+                  21.66,
+                  21.88
+                ]
+              },
+              {
+                "text": " for",
+                "timestamp": [
+                  21.88,
+                  22.06
+                ]
+              },
+              {
+                "text": " those",
+                "timestamp": [
+                  22.06,
+                  22.26
+                ]
+              },
+              {
+                "text": " who",
+                "timestamp": [
+                  22.26,
+                  22.42
+                ]
+              },
+              {
+                "text": " did",
+                "timestamp": [
+                  22.42,
+                  22.54
+                ]
+              },
+              {
+                "text": " not",
+                "timestamp": [
+                  22.54,
+                  22.72
+                ]
+              },
+              {
+                "text": " return.",
+                "timestamp": [
+                  22.72,
+                  23.34
+                ]
+              }
+            ]
+          },
+          "comparison": {
+            "expectedWords": 73,
+            "recognizedWords": 72,
+            "wordEdits": 5,
+            "wordErrorRate": 0.0684931506849315,
+            "differenceSpans": [
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  18,
+                  20
+                ],
+                "recognizedTokenRange": [
+                  18,
+                  19
+                ],
+                "expected": "thi bault",
+                "recognized": "teabaugh",
+                "recognizedTimeRange": [
+                  5.82,
+                  6.14
+                ]
+              },
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  24,
+                  26
+                ],
+                "recognizedTokenRange": [
+                  23,
+                  25
+                ],
+                "expected": "lannes's aide",
+                "recognized": "lance's aid",
+                "recognizedTimeRange": [
+                  6.86,
+                  7.92
+                ]
+              },
+              {
+                "operation": "replace",
+                "expectedTokenRange": [
+                  31,
+                  32
+                ],
+                "recognizedTokenRange": [
+                  30,
+                  31
+                ],
+                "expected": "rapp's",
+                "recognized": "raps",
+                "recognizedTimeRange": [
+                  9.6,
+                  9.92
+                ]
+              }
+            ]
+          },
+          "elapsedSeconds": 5.0310000001918525
+        }
+      ],
+      "failedTakeCount": 0,
+      "limitations": [
+        "The pipeline warned that seq2seq chunk_length_s is experimental.",
+        "The initial ASCII tokenizer split accented names into multiple words.",
+        "The pipeline warned max_new_tokens took precedence over model max_length."
+      ]
+    }
+  ],
+  "failedTakeCount": 0
+}

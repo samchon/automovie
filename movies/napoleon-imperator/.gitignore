@@ -1,0 +1,7 @@
+.capture/
+.cache/
+scripts/.pending/
+dist/
+public/outputs/
+public/audio/001-road/episode-mix.wav
+public/viewer-first.png

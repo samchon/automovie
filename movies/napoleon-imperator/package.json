@@ -1,0 +1,6 @@
+{
+  "name": "@automovie/napoleon-imperator", "private": true, "type": "module", "version": "0.1.0",
+  "scripts": {"dev": "vite --host 127.0.0.1 --port 5187 --strictPort", "build": "vite build", "lint": "ttsc --noEmit -p tsconfig.json", "evidence": "evidence", "test": "node --experimental-strip-types test/index.ts", "prepare:film": "python scripts/prepare-film.py", "capture:build": "vite build --config vite.capture.config.ts", "capture": "vite build --config vite.capture.config.ts && node .capture/capture.mjs"},
+  "dependencies": {"@automovie/engine": "workspace:^", "@automovie/interface": "workspace:^", "@automovie/render": "workspace:^", "@automovie/viewer": "workspace:^", "three": "catalog:three"},
+  "devDependencies": {"@automovie/evidence": "workspace:^", "@types/three": "catalog:three", "@types/node": "catalog:utils", "@wrtnlabs/evidence": "catalog:samchon", "ttsc": "catalog:samchon", "typescript": "catalog:typescript", "vite": "catalog:vite", "playwright": "catalog:media"}
+}

@@ -1,0 +1,46 @@
+# Episode 1 production campaign
+
+The [commission](../../PROJECT.md) is the complete first episode, including its six screenplay units and closing author commentary. The current English [screenplay](../body/screenplay/001-chronicle/001-road.md) remains the source. Its SHA-256 is `694c7f781924d01ddc3cbed78e2a989eb2a38a975c9696caad4c30787e7df91a`. No other episode or Yeon Gaesomun video is in this commission.
+
+## Current execution
+
+The coordinator works in `C:/Users/SamchonNam/.codex/worktrees/scaffold-video-alignment/automovie@template`, on `codex/napoleon-episode-one`. The separate original checkout has unrelated changes and is not an integration target. Foundation changes are in [draft PR 3009](https://github.com/samchon/automovie/pull/3009). Its initial implementation at `af44ebc2b057d4bb5355f92b945960a297948c7c` passed CI build, test, deploy and security checks on that exact head. The subsequent campaign instruction commit is identified below; runtime work requires its own current checks.
+
+| Role | Actual identity | Scope and observed state |
+| --- | --- | --- |
+| Coordinator | Current root chat `01a18791-88e2-7d80-b858-82da4791792f` | Instructions, explicit sync, package integration, history and worker inspection |
+| Episode writer | `/root/episode_writer` | Production runtime, coarse assets, staging, edit and capture; actual viewer and image population observed, complete performance repair active |
+| Foundation reviewer | `/root/foundation_reviewer` | Independent read-only review of the pinned foundation change; completed a whole round with no supported repair finding |
+| Speech diagnostics | `/root/speech_diagnostics` | Completed read-only local ASR and timing diagnosis of all 27 candidates; no listening acceptance |
+| Episode reviewer | `/root/episode_reviewer` | Completed independent review of the fixed prototype; episode completion rejected with 11 cause groups |
+| Foley support | `/root/foley_support` | Supplied and numerically tested an event-based synthesis module; integration and listening remain unperformed |
+
+These are actual agent task identities, not separate human participants. Exact model identity has not been independently observed and is not used for a model comparison. The writer's runtime files and the speech diagnostic files have disjoint owners; the coordinator owns root package wiring, installed instructions, PROJECT and README. Reviewers do not edit creative bodies.
+
+The [local VoxCPM setup](local-speech.md) produced [27 retained candidates](../../public/audio/001-road/takes.json), totaling 98.24 seconds. All recorded WAV byte digests, frame counts, sample rates and the source digest were rechecked successfully. The files remain `candidate-unheard`; generation and signal measurements do not establish pronunciation, acting, alignment or a final mix. No whole episode encode or completed delivery review exists at this checkpoint.
+
+## Inspection and interventions
+
+On 2026-10-30, the coordinator traced the current project instructions and source, prior [script revision](../analysis/script-revision.md), original review boundaries, Git relocation and current run logs. The historical text reviews establish their declared text editions, not the current film. Independent foundation review reconfirmed all 1,703 relocated files and 62 instruction-state entries per production at its pinned revision; creative bodies, contracts and historical proof were preserved.
+
+The missing execution/resumption guide was added and routed through the production skill. The viewer recovery requirement now applies before other work. The writer was assigned the actual host first, with complete episode performance afterward, and the speech diagnostic role was assigned all current takes. A known generation-script provenance concern, the fixed snapshot field despite a selectable model, was supplied to the writer for its complete implementation/verification round.
+
+An app heartbeat named “영화 제작 캠페인 15분 점검”, id `15`, is active on this chat at a 15-minute interval. Its recorded target thread and interval were checked. It inspects workers, current artifacts and relevant history, supplies authorized support, prioritizes viewer recovery and remains quiet on unchanged state. Configuration is not an executed inspection; subsequent actual checks and consequential interventions must be recorded here. It grants no publication or merge authority and starts no new work after cancellation or completion.
+
+The generated consumer installed actual local package tarballs and completed `lint`, `evidence` and `test` with exit 0. Its blank harness selected no narrative; its Evidence report had 0 errors and 0 warnings. The registry-default installation previously failed because required first-party packages were unavailable there. Local bundle validation does not establish public registry availability. The installed CLI was also observed restoring a missing instruction, refusing a conflicting local edit, recovering after that conflict was resolved and returning unchanged on its final check.
+
+## Next executable work and acceptance limits
+
+The actual viewer runs at `http://127.0.0.1:5187/`. The coordinator directly inspected [its first frame](observations/first-prototype/viewer-first.png) and the four whole-stage contact sheets under `public/outputs/episode-one`. Capture reported 43 shots at entry, middle and exit, 129 images, no browser page errors, and identical images for 43 matching-time reverse seeks on AMD Radeon 8060S Direct3D11. Those observations establish a working host and sampled replay on this computer, not the complete motion or a finished film. The first image/source round identified disconnected limb roots, hand/prop contact gaps, low-contrast labels, and insufficiently specific performance, together with clock, build-target, parser and playback-readiness findings.
+
+The final instruction closing round corrected the standalone sync guidance and found no further supported defect. Both productions now match all 63 retained instruction digests, and both explicit sync checks returned exit 0. A prior ordinary-single-link refusal remains a failed observation; the same source later succeeded in a quiescent execution window without weakening the guard. Installed source-runner code creates temporary hardlinks, consistent with that failure, but the second link at the exact failing instant was not captured. The viewer service stayed running during sync. Follow-up instructions are committed at `0c6a048317747dccfaeda384144355a84e73402e` and pushed to PR 3009; its new CI is pending.
+
+The [speech diagnostic](speech-diagnostics.md) completed all 27 takes locally without changing their bytes. It found no clipping or long low-energy gap; short `Yes, Sire.` takes 016 and 026 are priority listening candidates because ASR read different words. Homophones and historical-name spellings remain possible recognizer errors. The exact waveforms still need actual listening.
+
+Continue inspecting controls, complete motion, joins and actual capture after the combined repair. Implement and verify a reusable package gap when an actual consumer exposes one, reconnect that consumer, and sync changed guidance explicitly. Preserve other owners' processes and collect a complete affected inspection round before repairing causes together.
+
+The fresh fixed prototype `3ebc0a27c32116e86a8b9f2799f87b2c7f1ee01bafe8d1f8d5a6b9568c9b3422` passed its 129-sample transport and 43 reverse-seek checks, with actual play/pause/end-seek/camera observations and unchanged inputs. The coordinator retained [the observations and selected original images](observations/first-prototype/index.md) and independently recomputed all captured input hashes with no change. [Independent episode review 1](episode-one-review-1.md) then found 11 cause groups: missing causal performance, Guard battle space, the wrong retreating faction, repeated night-state resets, terrain direction/support, ice contact, wheel axes and foot support, prop reach and missing weapons, detached/distorted labels, and missing event sound. The whole episode remains unapproved. The writer is preserving this failed baseline before the combined repair; the first full encode belongs to that same baseline and cannot become an accepted film by finishing.
+
+The additional Foley role supplied [event sound synthesis](episode-one-foley.md) with 180 normal cases, 17 invalid-input cases and seed/boundary checks, preserving the 27 speech takes. It generates individual finite mono signals without choosing episode times. The writer owns the common event clock, actual action contacts, mix placement and new artifact identities; listening remains unperformed.
+
+Finish all six source units and commentary in programmed performance and the actual edit, place measured speech and sound against that clock, encode the entire episode, and inspect the delivered artifact. A preview or subset cannot close this commission. Independent review and actual listening remain separate checks; neither a passing compiler nor ASR can supply them.
