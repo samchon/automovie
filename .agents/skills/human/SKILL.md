@@ -5,7 +5,7 @@ description: Supervises worker subagents that preserve and improve complete Huma
 
 # Human
 
-Start from the existing working human figure and remove overfitting while preserving finite, connected, normal anatomy and stable consumers across the supported parameter domain. Judge both existing code and its replacement from their actual construction and viewer output; the baseline is a comparison, not proof of generality. Follow the user's task order before the campaign's order. An explicit stop overrides every modeling, capture and audit instruction. Terminate a live server only on an explicit user instruction.
+Start from the existing working human figure and remove overfitting while preserving finite, connected, normal anatomy and stable consumers across the supported parameter domain. Judge both existing code and its replacement from their actual construction and viewer output; the baseline is a comparison, not proof of generality. Follow the user's task order before the campaign's order. An explicit stop overrides every modeling, capture and audit instruction.
 
 ## Supervision
 
@@ -33,7 +33,7 @@ Start from the existing working human figure and remove overfitting while preser
 - Give each shared key the one owner named above; the other side copies it.
 - Let each subagent write only its own part's files, and change shared formulas and construction only through the Method subagent.
 - Allow subagents no git, issue or pull request operation.
-- Let only the Integration subagent touch a server.
+- Only Integration manages servers. After verifying ownership, it may start, stop or restart task-owned servers as needed without renewed approval or pausing the campaign; preserve protected servers and other owners' services.
 
 ## Work Order
 
