@@ -3,6 +3,8 @@
 
 ## Dividing the work with opposition still present {#t016-frame-closes}
 
+[Event parent](../../treatments/016-frame-closed.md#frame-closes)
+
 Inside the palace council hall, late spring 661, day. Briefly hold Go Hwi's face from the end of the first council. His opposition has not been withdrawn. Gaesomun hands Namsaeng a document. Follow the newly divided military duties.
 
 GAESOMUN: Hold the Yalu and cut land supplies. Regional infantry will determine the share to join us while leaving their fortresses defended.
@@ -11,7 +13,7 @@ NAMSAENG: I'll divide the defenders who remain in the capital from the troops go
 
 NAMGEON: When do my troops strike?
 
-GAESOMUN: After those holding the enemy have held. You and your heavy cavalry join the northern mobile army.
+GAESOMUN: Once the defenders and the troops cutting their routes have bought us time. You and your heavy cavalry join the northern mobile army.
 
 Namsan receives documents linking royal orders and central cooperation.
 
@@ -20,6 +22,8 @@ HISTORIAN (V.O.): The available one hundred and eighty thousand were not one arm
 Each order leaves through a different door.
 
 ## Two carts at the east gate {#t016-gate-dispute}
+
+[Event parent](../../treatments/016-frame-closed.md#gate-dispute)
 
 Outside Pyongyang's east gate, day. In shade beneath the gate, Durak checks passage. Go Hwi's family and baggage and three registered defenders stand first. Yu Hye's cart stops behind. A low view moves across their different loads and people.
 
@@ -45,6 +49,8 @@ Yu Hye looks at the driver. He will not undertake the road beyond the ferry. Nei
 
 ## Baggage chosen after the ruling {#t016-public-ruling}
 
+[Event parent](../../treatments/016-frame-closed.md#public-ruling)
+
 The same east gate, day. Durak receives the central ruling and reads it before both households.
 
 DURAK: Family and unregistered attendants may pass. Defenders cannot leave without release documents. Lord Go Hwi also remains at his post.
@@ -63,6 +69,8 @@ Only the two guides and baggage they can carry pass the gate. Stay briefly besid
 
 ## Permission without a way to go {#t016-household-remains}
 
+[Event parent](../../treatments/016-frame-closed.md#household-remains)
+
 At the east gate, day. Yu Hye asks again for someone to accompany her beyond the ferry, but finds no one. The cart driver waits to depart.
 
 YU HYE: Turn it around, please. We're going home.
@@ -73,7 +81,9 @@ Go Hwi also returns to duty after parting from his family. When he meets Gaesomu
 
 ## Fields blocked by an enemy from the sea {#t017-siege-begins}
 
-Caption: “August 661, Pyongyang.” Outside the walls, day. Tang's navy has come upriver; Su Dingfang's troops surround the city. Move close to Haeun's home inside, where hands moving repair work divide the food share.
+[Event parent](../../treatments/017-siege-and-southern-bets.md#siege-begins)
+
+Caption: “eighth lunar month 661, Pyongyang.” Outside the walls, day. Tang's navy has come upriver; Su Dingfang's troops surround the city. Move close to Haeun's home inside, where hands moving repair work divide the food share.
 
 HAE-EUN: After we use this much today, when will the next food come?
 
@@ -90,6 +100,8 @@ HISTORIAN (V.O.): Noeumsin and Saenghae failed at Sulcheonseong and moved to Buk
 Sounds of the siege camp continue over emptied fields.
 
 ## A war to begin before another country falls {#t017-baekje-assumption}
+
+[Event parent](../../treatments/017-siege-and-southern-bets.md#baekje-assumption)
 
 Inside a Baekje restoration council in 661, day. A support report lies before Boksin and Buyeo Pung. Military sounds outside the window are distant enough not to drown them.
 
@@ -113,6 +125,8 @@ Boksin moves the prepared share and the share that must wait forward separately.
 
 ## A mission to wait {#t017-yalu-stakes}
 
+[Event parent](../../treatments/017-siege-and-southern-bets.md#yalu-stakes)
+
 Outside on the Yalu's south bank, day. Namsaeng and Seokbu look at approaches to the river. Namsaeng reads a report from the capital and checks his troops again.
 
 NAMSAENG: If the road opens here, the enemies before Pyongyang can join. Our task isn't to cross and kill them.
@@ -129,7 +143,9 @@ The two share the same food and arrange watch shifts. The enemy across the river
 
 ## A month on watch {#t018-month-of-delay}
 
-Caption: “September 661.” Outside on the Yalu's south bank, day and night shifts continue. Defenders stop Tang troops approaching the main crossing. Namsaeng remains on his side and receives returning troops.
+[Event parent](../../treatments/018-yalu.md#month-of-delay)
+
+Caption: “ninth lunar month 661.” Outside on the Yalu's south bank, day and night shifts continue. Defenders stop Tang troops approaching the main crossing. Namsaeng remains on his side and receives returning troops.
 
 NAMSAENG: Stop them and come back. Don't chase them to the opposite bank.
 
@@ -141,7 +157,9 @@ In the colder night, Namsaeng eats the same food as the soldiers. Instead of a r
 
 ## The enemy crosses beyond the bend {#t018-ice-crossing}
 
-Caption: “Late September–early October.” Outside at a narrow upstream stretch, day. Qibi Heli's lead tests the ice first with people on foot, not horses. Once someone who crossed signals from the other side, the next moves.
+[Event parent](../../treatments/018-yalu.md#ice-crossing)
+
+Caption: “Late ninth lunar month–early tenth lunar month.” Outside at a narrow upstream stretch, day. Qibi Heli's lead tests the ice first with people on foot, not horses. Once someone who crossed signals from the other side, the next moves.
 
 From Namsaeng's position, woods and a bend obscure the upstream section. The screen separates the crossing beyond the bend from Namsaeng awaiting reports.
 
@@ -154,6 +172,8 @@ NAMSAENG: Leave the front. Withdraw to the rendezvous behind us. Those who hear,
 Seokbu puts down a load and calls people. Some have not yet received the retreat order and their road back closes. Seokbu does not report that he brought them all out.
 
 ## Names accounted for even after defeat {#t018-defeat-and-trust}
+
+[Event parent](../../treatments/018-yalu.md#defeat-and-trust)
 
 Outside the Cheolsan assembly point, day. Namsaeng walks between returning ranks and receives answers about missing people. Seokbu reports the people and baggage left behind.
 
@@ -173,7 +193,9 @@ Namsaeng, unable to hear them, arranges the next watch.
 
 ## An empty camp without a reason {#t019-departure-observed}
 
-Outside in the north in October, day. From the scouts' view, see what remains of a camp Tang has vacated. Captions separate the time taken for the report to reach Namsaeng: observed two days after departure, received another two days later. Pyongyang takes eight more days.
+[Event parent](../../treatments/019-orders-from-the-north.md#departure-observed)
+
+Outside in the north in the tenth lunar month, day. From the scouts' view, see what remains of a camp Tang has vacated. Captions separate the time taken for the report to reach Namsaeng: observed two days after departure, received another two days later. Pyongyang takes eight more days.
 
 NAMSAENG: It records their direction, but not why they left. Keep guarding the south bank.
 
@@ -187,9 +209,11 @@ Gaesomun does not receive the capital's answer that day. He compares more local 
 
 ## Three edicts from outside the campaign {#t019-diversion-explained}
 
-After the empty camp, the date briefly returns to “mid-September.” See the edicts' movement in a limited map insert, not an operational map read by a character.
+[Event parent](../../treatments/019-orders-from-the-north.md#diversion-explained)
 
-HISTORIAN (V.O.): Three edicts left Tang's center to address the Tiele crisis. The drama places dispatch early. They reached Xiao Siye, Ashina Zhong, and Qibi Heli at different times, so preparations and departures were separate. All left the Goguryeo front before October twentieth at the latest. Those who first saw the empty camp did not yet know why.
+After the empty camp, the date briefly returns to “mid-ninth lunar month.” See the edicts' movement in a limited map insert, not an operational map read by a character.
+
+HISTORIAN (V.O.): Three edicts left Tang's center to address the Tiele crisis. The drama places dispatch early. They reached Xiao Siye, Ashina Zhong, and Qibi Heli at different times, so preparations and departures were separate. All left the Goguryeo front by day 20 of the tenth lunar month at the latest. Those who first saw the empty camp did not yet know why.
 
 A later report follows: Khitan allied with Goguryeo lost trying to stop Ashina Zhong. Goguryeo troops do not appear on that battlefield. In the present, Gaesomun checks Nufang's remaining connections.
 
@@ -199,23 +223,29 @@ His troops move toward one remaining camp instead of the two departed enemies.
 
 ## Defenders to leave and infantry to borrow {#t020-local-concentration}
 
-West of Yodongseong in late October, outside, day. A local officer divides troops to leave in the fortress from infantry who will join. Forces from Sinseong arrive by road and coordinate signals. Gaesomun stops a demand to charge immediately.
+[Event parent](../../treatments/020-nubang.md#local-concentration)
 
-GAESOMUN: Take the two supply roads, northwest and southwest. The people holding them from the fortress side are here.
+West of Yodongseong late in the tenth lunar month, outside, day. A local officer divides troops to leave in the fortress from infantry who will join. Forces from Sinseong arrive by road and coordinate signals. Their local officers assign one share of the contributed infantry to eastern pressure and keep another with Gaesomun for the western attack. Gaesomun stops a demand to charge immediately.
+
+GAESOMUN: Sokro, cut the northwest and southwest supply roads. Eastern infantry, keep pressure from the fortress side. The reserve waits for my signal.
 
 Sokro takes his interdiction force west. Namgeon's heavy cavalry waits within the central mobile army. Follow the two diverging supply roads and troops heading out. Moving to the eastern pressure, see the separate force assigned to the fortress side move.
 
 ## The opening after escorts are sent {#t020-camp-separation}
 
+[Event parent](../../treatments/020-nubang.md#camp-separation)
+
 Outside Zheng Mingzhen's camp, day. On a report that supply roads are blocked, Zheng sends escorts out. Troops leaving and cargo entering collide at the western exit.
 
 ZHENG MINGZHEN: Get the cargo inside first. Don't pull every troop from the east.
 
-As eastern pressure increases, two demands overlap inside. Sokro does not seek to finish the escort head-on; he moves to the route by which contact could be restored. Holding the front, Gaesomun concentrates strength on the division.
+As eastern pressure increases, two demands overlap inside. Sokro does not seek to finish the escort head-on; he moves to the route by which contact could be restored. Gaesomun keeps the eastern attack engaged until the escort is clear of the camp exit. He signals the local infantry reserve to press the camp side of the western bottleneck. Tang soldiers turn back from the departing escort, but cargo blocks their return. Goguryeo infantry reaches the exit before those men can reform beside the troops still inside. Zheng's orders to close the gap pass through men facing opposite directions.
 
 People escape through a gap remaining in the south. Inside camp, soldiers with orders cannot find a formation to join. Without a scene confirming Zheng's fate, see orders and ranks scatter.
 
 ## An army leaves spoils behind {#t020-victory-cost}
+
+[Event parent](../../treatments/020-nubang.md#victory-cost)
 
 The same field after battle, daylight fading. Gaesomun turns troops who are moving toward spoils.
 
@@ -231,11 +261,13 @@ NAMGEON: Are we going to the capital?
 
 GAESOMUN: First confirm the road is open and there's food. Running won't create either.
 
-After time to deal with injuries, equipment, and regional cooperation, the caption changes to “Early December, Sinseong area.” The winter column assembles to go south.
+After time to deal with injuries, equipment, and regional cooperation, the caption changes to “Early twelfth lunar month, Sinseong area.” The winter column assembles to go south.
 
 ## Feed that loyalty cannot provide {#t021-reserves-committed}
 
-Inside a feeding-preparation area around Sinseong in early December, day. Gaesomun sits before someone carrying storehouse release reports. Outside the door, carriers wait for the next report.
+[Event parent](../../treatments/021-winter-reserves.md#reserves-committed)
+
+Inside a feeding-preparation area around Sinseong early in the twelfth lunar month, day. Gaesomun sits before someone carrying storehouse release reports. Outside the door, carriers wait for the next report.
 
 GAESOMUN: About fifty thousand horses. Don't speak only of grain. Allocate hay and food for people too.
 
@@ -253,7 +285,11 @@ The representative leaves with the release order. Outside, workers move loads wh
 
 ## Garrison troops stop after winning {#t021-december-sortie}
 
-Outside Pyongyang fortress that December, day. Defenders from the fortress hold the approach before a strongpoint. As the front enters, troops behind keep the entrance open. Defenders secure the interior beyond pushed-back Tang troops and catch their breath. In a separate scene at the next strongpoint, follow the same garrison's pressure and capture. Someone returns to the fortress carrying damaged equipment and waits for troops to go farther, but command stops. Remaining Tang camps are still visible in the distance.
+[Event parent](../../treatments/021-winter-reserves.md#december-sortie)
+
+Outside Pyongyang fortress in the twelfth lunar month, day. Garrison troops press a Tang strongpoint. Tang defenders block its entrance and push the first attackers back. The next Goguryeo rank holds the approach while the first gathers again; together they force the entrance and drive the defenders out. Men sent inside call back that they hold it, and the rear keeps the way open.
+
+Later, garrison troops return from a second captured strongpoint with damaged equipment. Men are assigned to stay at both positions. The returning soldiers wait for an order to go farther; beyond them the other Tang camps remain occupied.
 
 GO HWI: Can't we attack those too?
 
@@ -267,6 +303,8 @@ Yu Hye sets aside her son's food share again. Night follows with lights from the
 
 ## Horses eat and move; provisions stop {#t021-march-and-starvation}
 
+[Event parent](../../treatments/021-winter-reserves.md#march-and-starvation)
+
 Outside on the winter march, day into camp night. The whole column does not hurry until confirmation comes from the next feeding area. Before crossing, they distribute hay and food allocated in advance. Waiting horses eat; support personnel move the next loads.
 
 HISTORIAN (V.O.): They moved roughly five hundred fifty kilometers at twenty to twenty-five a day: twenty-two days moving and two waiting. Even cavalry needed feed to move and had to wait at the river.
@@ -275,9 +313,11 @@ Inside a Tang siege camp, low fires at night. Su Dingfang hears the remaining qu
 
 SU DINGFANG: The neighboring camp has no grain to share either. Ask Silla for provisions.
 
-Ren Yaxiang's and Pang Xiaotai's camps each count their remaining supplies. Through the same winter, the northern column reaches north of Pyongyang in “early January 662.”
+Ren Yaxiang's and Pang Xiaotai's camps each count their remaining supplies. Through the same winter, the northern column reaches north of Pyongyang in “early first lunar month 662.”
 
 ## Joining without crowding inside the fortress {#t022-northern-assembly}
+
+[Event parent](../../treatments/022-january-concentration.md#northern-assembly)
 
 Outside the assembly area north of Pyongyang, day. The central mobile army and infantry from the fortress assemble through separate entrances. Horses and baggage remain in dispersed feeding areas. Namgeon counts his remaining horses and men again.
 
@@ -287,11 +327,13 @@ GAESOMUN: Because we've assembled, do we all enter a narrow passage at once? Coo
 
 Preparation of at least three days continues through rotation and scouting.
 
-HISTORIAN (V.O.): Thirty-five thousand mobile troops joined fifteen thousand infantry released from the fortress. Within at most fifty thousand military personnel were four thousand handling horses and baggage. Namsaeng's twenty thousand stayed on the south bank.
+HISTORIAN (V.O.): Thirty-five thousand mobile troops joined fifteen thousand infantry released from the fortress. The total was at most fifty thousand, including four thousand handling horses and baggage. Namsaeng's twenty thousand stayed on the south bank.
 
 Gaesomun waits for a report on which connection to cut first.
 
 ## The king delegates punishment beyond the border {#t022-silla-delegation}
+
+[Event parent](../../treatments/022-january-concentration.md#silla-delegation)
 
 Inside the Silla king's council, day. King Munmu gives Kim Yusin a document written in his own hand.
 
@@ -311,6 +353,8 @@ The prepared column departs.
 
 ## A known mountain path judged impassable {#t022-unwatched-capacity}
 
+[Event parent](../../treatments/022-january-concentration.md#unwatched-capacity)
+
 Outside Goguryeo's southern watch, day. Troops on main roads and crossings observe movement toward the mountains. These are 7,000 Liaodong light cavalry and 3,000 southern defenders, separate from the central counterattack.
 
 WATCH: People can pass. Large loads would be difficult.
@@ -324,6 +368,8 @@ KIM YUSIN: Those ahead must confirm the loads have come through too. Don't repor
 Carts leave the main road and stop at a narrow entrance. Carriers unload the first cargo.
 
 ## Loads remain behind people who passed {#t023-unload-and-pass}
+
+[Event parent](../../treatments/023-mountain-column.md#unload-and-pass)
 
 Outside on a winter mountain path, day. Sacks are unloaded from carts before a narrow place and divided among people and animals. Carriers waiting on the far side tie the crossed sacks again. Even as the front advances, the rear remains long in the same place.
 
@@ -341,6 +387,8 @@ Behind the path reached by the lead's feet, baggage follows little by little.
 
 ## A column that cannot sit at one fire {#t023-winter-camp-cost}
 
+[Event parent](../../treatments/023-mountain-column.md#winter-camp-cost)
+
 Outside a representative camp, night. Close on Chano's wet feet near a fire, then widen to fires of other groups farther away. About 2,000 are in this area; the rest are divided ahead and behind. Someone carrying water uphill puts down an exhausting load.
 
 GWIDOL: Mother will have to work the field alone.
@@ -355,6 +403,8 @@ Kim Yusin leaves an escort for injured people returning and separates cargo to g
 
 ## Provisions cannot be counted from scattered sightings {#t023-late-recognition}
 
+[Event parent](../../treatments/023-mountain-column.md#late-recognition)
+
 Outside a Goguryeo watch reporting point, day. The first report gives a small number seen on the mountain path. Command initially reads it as messengers and scouts. Later reports add repeated cargo, livestock, and road repairs.
 
 COMMAND: You're saying cargo keeps coming along the same road?
@@ -367,6 +417,8 @@ Divided transport groups await handover. On Goguryeo's side, reports of cargo an
 
 ## What must still be moved after receipt {#t024-handover}
 
+[Event parent](../../treatments/024-yango.md#handover)
+
 Caption: “Sixth day of the second lunar month, Yango.” Outside the handover yard, day. Kim Inmun and Kim Yangdo confirm entry space and escort with Ma Jeong. As the first group enters, Ma Jeong has wet sacks placed separately.
 
 MA JEONG: Don't mix them with dry ones. We have to clear this side for the next loads.
@@ -378,6 +430,8 @@ KIM YANGDO: We can't report receipt and stop. Move it to camp so the next load c
 Work sounds continue at night. No one measures and claims all that departed has been delivered. Chano rubs his hands instead of carrying the now lighter load.
 
 ## What the enemy chooses after receiving grain {#t024-su-recovers}
+
+[Event parent](../../treatments/024-yango.md#su-recovers)
 
 Inside Su Dingfang's camp, day. Provisions enter and rations circulate again. He hears requests from Ren Yaxiang's and Pang Xiaotai's camps alongside the state of his own main force.
 

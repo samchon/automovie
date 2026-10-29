@@ -46,6 +46,8 @@ Caption: 1784, Paris military school.
 
 Indoors in daytime, an older boy closes a book.
 
+Caption: 1785.
+
 HISTORIAN (off screen): His father died. After completing the course he would also have to help his family.
 
 Hands set aside a share to send home. The second lieutenant of 1785 closes the bundle.

@@ -12,7 +12,7 @@ The six-direction attack aims beyond quickly taking one fortress. While Liaodong
 
 Feeding and interior-route limits follow [dispersed reserves](100-counterattack-concentration.md#interior-supply-capacity).
 
-Goguryeo faces a double trap. Field battle risks defeat and ruin against Tang’s finest army; emptying fields and holding walls cuts production and mobilization each year, collapsing the economy so the country effectively dies even with walls standing. Tang understood and used this. In February 647 its court observed that during the 645 imperial expedition people could not farm, Tang took grain from captured fortresses, and drought left most hungry (“前大駕親征，國人不得耕種，所克之城，悉收其穀，繼以旱災，民太半乏食”). It proposed alternating small forces to prevent cultivation until the land was desolate and people’s allegiance departed (“數遣偏師，更迭擾其疆場，使彼疲於奔命，釋耒入堡，數年之間，千里蕭條，則人心自離”). Invasions after 645 used that method; [field records](235-field-records-after-645.md#field-records-after-645) own each course. Tang and neighbors expect Goguryeo to perish either way. Yeon’s third path holds with fortresses but not forever, initiating decisive field battle once enemies tire and divide.
+Goguryeo faces a double trap. Field battle risks defeat and ruin against Tang’s finest army; emptying fields and holding walls cuts production and mobilization each year, collapsing the economy so the country effectively dies even with walls standing. Tang understood and used this. In the second lunar month of 647 its court observed that during the 645 imperial expedition people could not farm, Tang took grain from captured fortresses, and drought left most hungry (“前大駕親征，國人不得耕種，所克之城，悉收其穀，繼以旱災，民太半乏食”). It proposed alternating small forces to prevent cultivation until the land was desolate and people’s allegiance departed (“數遣偏師，更迭擾其疆場，使彼疲於奔命，釋耒入堡，數年之間，千里蕭條，則人心自離”). Invasions after 645 used that method; [field records](235-field-records-after-645.md#field-records-after-645) own each course. Tang and neighbors expect Goguryeo to perish either way. Yeon’s third path holds with fortresses but not forever, initiating decisive field battle once enemies tire and divide.
 
 The trap has a seasonal deadline. A summer enemy holding harvest cuts that year’s yield; staying through winter prevents spring sowing and causes hunger into the next year. Battle must finish before spring plowing. Hold during harvest to draw the enemy into winter, then strike when hunger and cold exhaust it, finishing before spring. Timing serves both enemy exhaustion and the people’s sowing.
 
@@ -24,4 +24,4 @@ Multiple enemy roads do not themselves yield defeat in detail. Each force is str
 
 **References and unresolved matters**
 
-Sources: [Court’s exhaustion strategy in February 647, Zizhi Tongjian vol. 198](https://zh.wikisource.org/wiki/資治通鑑/卷198).
+Sources: [Court’s exhaustion strategy in the second lunar month of 647, Zizhi Tongjian vol. 198](https://zh.wikisource.org/wiki/資治通鑑/卷198).

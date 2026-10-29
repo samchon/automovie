@@ -1,0 +1,64 @@
+{
+  "purpose": "Record-file serialization under repository .gitattributes; this is not manuscript repair or review renewal.",
+  "policy": "* text=auto eol=lf",
+  "scope": "Only new analysis records of this revision. Manuscripts, historical annotations, archives and manifests are unchanged by this operation.",
+  "hash_interpretation": "Earlier inter-record hashes identify raw inspection-time records. The LF hashes identify stored forms. A true crlf_reconstruction_matches_raw_hash means LF-to-CRLF reconstructs that raw input; false identifies a mixed-ending inspection input whose exact newline placement is no longer retained. Text content and manuscript fingerprints are unchanged; this map does not assert a permanent raw archive.",
+  "files": [
+    {
+      "path": "docs/analysis/script-revision-recheck-2.json",
+      "inspection_time_raw_sha256": "1b5a1791c6dcbd424aec29cd3dc3a4a884cd277dcb3ee4b73a35756fc1380234",
+      "stored_lf_sha256": "8b7273ea9a11115bc24a30fc1a554fadf283beac0a1878103ed236f9108c46d6",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": true
+    },
+    {
+      "path": "docs/analysis/script-revision-recheck-3.json",
+      "inspection_time_raw_sha256": "5b059d0e8e319fcb9dd964c4f3d852a51406ff79fc5ff58b1752821056623ef9",
+      "stored_lf_sha256": "ca548c9aab9461bc02a22e08a55c8b86f65a253da2775f5c5bd978c70a59bc78",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": true
+    },
+    {
+      "path": "docs/analysis/script-revision-recheck-4.json",
+      "inspection_time_raw_sha256": "c0a0301a6cb1e45aa2052c45f0ed1aadc62c449a7e3ebda4dbab9e91c43972e4",
+      "stored_lf_sha256": "1084f6c67674b7be00712f6ee921e904d7e8a066c6ce7fc437fc85bf81241362",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": true
+    },
+    {
+      "path": "docs/analysis/script-revision-recheck-5.json",
+      "inspection_time_raw_sha256": "8b6c67d51343e174d3890de2cc727f1311912180769bc8b6f8c2922c66f80077",
+      "stored_lf_sha256": "c181db5c4abe67c0f83a6349270dc9a15d34d4b44ee2d03a0236fd51771b26a0",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": true
+    },
+    {
+      "path": "docs/analysis/script-revision-review-1.md",
+      "inspection_time_raw_sha256": "240dc9eea1ab38b39d29528875af43e1c9cbcb3df08bdedd1af0d45419aa856a",
+      "stored_lf_sha256": "294c4423e3ddce26b642d6933a7d5c28735621d03ce542584854b388d65680fd",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": false
+    },
+    {
+      "path": "docs/analysis/script-revision-review-2.md",
+      "inspection_time_raw_sha256": "9c5406f587be5abf231fc942d45e764de297fc586092efde12a45629645bda76",
+      "stored_lf_sha256": "3a4f630232545e64f80f90e8bc0ca2fc790ee05bac8d4fd1cc42e26e414da911",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": true
+    },
+    {
+      "path": "docs/analysis/script-revision-review-3.md",
+      "inspection_time_raw_sha256": "653f760f9307be5ae1b9fffb51c15c84f6b4b2440fa2313f9c2ca1e7a1067058",
+      "stored_lf_sha256": "1a99d190fa722ec27e0f7153355d1504bd08ee923c2e414046f8810f6ed2590c",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": false
+    },
+    {
+      "path": "docs/analysis/script-revision-review-4.md",
+      "inspection_time_raw_sha256": "4d8e13d284d877f8d06e15cdb59109bae39bd57401ea81242ea9837a0c1b42c5",
+      "stored_lf_sha256": "5d812825224f2d535795030020f6e102d039eff929441f8fbaf13de1bf1b62d6",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": true
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 -->
 # The chronicler across the complete drama
 
-One population respondent per completed treatment, script, or screenplay layer answers this question against all of that layer's units and joins. Scripts and screenplay answer again for their complete expression edition. This collective duty inspects actual uses; it does not select headings by a narration or time-cut text predicate. Shared unit principles still govern each unit.
+One population respondent per completed treatment, script, or screenplay layer answers this question against all of that layer's units and joins. Scripts completes this comparison of content and expression during construction. Screenplay answers again for its complete expression edition. This collective duty inspects actual uses; it does not select headings by a narration or time-cut text predicate. Shared unit principles still govern each unit.
 
 The [discovery result](../discovery/results.md#adopted-requirements) records the adopted populations, their configuration owner, and the complete-draft activation boundary; registration does not answer this question.
 

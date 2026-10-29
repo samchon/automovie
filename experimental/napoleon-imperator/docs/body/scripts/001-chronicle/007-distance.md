@@ -24,7 +24,7 @@ BERTHIER: I will distribute the troops and supplies to be prepared.
 
 He writes the order and leaves. Caulaincourt remains before Napoleon.
 
-HISTORIAN (off screen): Caulaincourt later testified to this warning. Those people had not yet lived the result.
+HISTORIAN (off screen): Caulaincourt later testified to this warning.
 
 Do not turn departure into expressions already certain of failure.
 
@@ -64,9 +64,17 @@ Parents: [029#borodino](../../treatments/029-a-city-without-peace.md#borodino), 
 
 Borodino. See firing from both sides on different terrain. Whenever gun smoke clears, people fill gaps in the ranks. Bourgogne starts to pass a fallen comrade, then stops. He pulls the man's shoulder, but ducks under the next attack. Do not make Bourgogne speak command's assessment of the battle beside his comrade.
 
-Moscow after the Russians withdraw. Follow the empty road wide as French troops enter. Outside the city Kutuzov's army still moves. In a separate place Alexander decides.
+Moscow after the Russians withdraw. Follow the empty road wide as French troops enter. Outside the city Kutuzov's army still moves.
 
-ALEXANDER: Losing the city will not end the war.
+Russia, an interior in daylight. In a reconstruction of the established decision to continue the war, Alexander stands before a map. Keep the city on the map and the living army outside Moscow in separate views. An unnamed officer waits for his answer; no actual letter or original order is reproduced.
+
+ALEXANDER: They have Moscow. They do not have our army.
+
+He turns from the city to the officer.
+
+ALEXANDER: We continue the war. Keep the army together.
+
+The officer leaves to carry the command. Return to the army moving outside the occupied city.
 
 Before Napoleon, the place for an awaited document is empty. Light outside grows brighter. People move water and belongings. No insert identifies who first set the fire.
 

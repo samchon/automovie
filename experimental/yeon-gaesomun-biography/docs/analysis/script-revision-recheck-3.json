@@ -1,0 +1,4190 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-29T07:43:50.533288+00:00",
+  "comparison": {
+    "from_snapshot": "second batch",
+    "snapshot_root": ".cache/historical-script-revision/second",
+    "baseline_fallback": "bce12219262633c54c5264d08559567cea7e1c9f",
+    "snapshot_raw_inventory_count": 46,
+    "snapshot_inventory": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/work/discovery/results.md",
+        "sha256": "d6f4c5ab23b4d116842f99ce2983ad3add99fe1f3214f0c6037802d7edfe8f68",
+        "fingerprint_reference": "not-present-in-prior-fingerprint-manifests",
+        "reference_sha256": null,
+        "matches_reference": null,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/work/obligations/narratives.md",
+        "sha256": "89cb79225478ecd67040f123c0b67dbf3a1f20be452e5c87b7f0fd827ca93544",
+        "fingerprint_reference": "not-present-in-prior-fingerprint-manifests",
+        "reference_sha256": null,
+        "matches_reference": null,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/001-the-right-to-command/001-people-to-command.md",
+        "sha256": "1f54a222ebe8676aebb36894ee9adacfc720146c5e9435f47f9a58ae5f7e9652",
+        "fingerprint_reference": "recheck2-body",
+        "reference_sha256": "1f54a222ebe8676aebb36894ee9adacfc720146c5e9435f47f9a58ae5f7e9652",
+        "matches_reference": true,
+        "current_bytes_equal": false
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/002-the-kings-work/001-the-kings-work.md",
+        "sha256": "fcad54255b1d51cb047bf7efea334ed441acadad82764d4cdb74595296050592",
+        "fingerprint_reference": "recheck2-body",
+        "reference_sha256": "fcad54255b1d51cb047bf7efea334ed441acadad82764d4cdb74595296050592",
+        "matches_reference": true,
+        "current_bytes_equal": false
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/003-the-roads-that-move/001-moving-roads.md",
+        "sha256": "19262f083ab9e3692d181755ed45b5a36f4344df68ceea5a776715fef99d003e",
+        "fingerprint_reference": "recheck2-body",
+        "reference_sha256": "19262f083ab9e3692d181755ed45b5a36f4344df68ceea5a776715fef99d003e",
+        "matches_reference": true,
+        "current_bytes_equal": false
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/004-the-victory-that-remains/001-remaining-victory.md",
+        "sha256": "fa4aaec680b5bd7974475ec5515328b52c57cc39256716568a6c7df20301bdb5",
+        "fingerprint_reference": "recheck2-body",
+        "reference_sha256": "fa4aaec680b5bd7974475ec5515328b52c57cc39256716568a6c7df20301bdb5",
+        "matches_reference": true,
+        "current_bytes_equal": false
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/005-days-to-sow/001-days-to-sow.md",
+        "sha256": "6274b102eee6e7825a481a1df933737825c0e786a39962e94ef9724e445abac2",
+        "fingerprint_reference": "recheck2-body",
+        "reference_sha256": "6274b102eee6e7825a481a1df933737825c0e786a39962e94ef9724e445abac2",
+        "matches_reference": true,
+        "current_bytes_equal": false
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/006-the-son-left-living/001-the-son-left-living.md",
+        "sha256": "d32dbfac427d3a1e216492cdc55436c4825eb33c10335c4fa60858ab1816b8c0",
+        "fingerprint_reference": "recheck2-body",
+        "reference_sha256": "d32dbfac427d3a1e216492cdc55436c4825eb33c10335c4fa60858ab1816b8c0",
+        "matches_reference": true,
+        "current_bytes_equal": false
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+        "sha256": "0a2c63e1704d832ef23ce47ff6f9b677383130dda62eb1791c7840b1ed0933b2",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "0a2c63e1704d832ef23ce47ff6f9b677383130dda62eb1791c7840b1ed0933b2",
+        "matches_reference": true,
+        "current_bytes_equal": false
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/002-the-kings-work/001-the-kings-work.md",
+        "sha256": "e80b0f50ae51f0c6cffac62b9f4051804aeb00b846e863238990944f0087f41f",
+        "fingerprint_reference": "recheck2-body",
+        "reference_sha256": "e80b0f50ae51f0c6cffac62b9f4051804aeb00b846e863238990944f0087f41f",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/003-the-roads-that-move/001-moving-roads.md",
+        "sha256": "e52e2f74f2eafde8c035e870ba532932c6c516ba166efa37ad809f5198bed389",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "e52e2f74f2eafde8c035e870ba532932c6c516ba166efa37ad809f5198bed389",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/004-the-victory-that-remains/001-remaining-victory.md",
+        "sha256": "b608f37d543fb6f326dbaa120a94452c1ce6e929a49069f198c6604adc13dfc6",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "b608f37d543fb6f326dbaa120a94452c1ce6e929a49069f198c6604adc13dfc6",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+        "sha256": "a81c35174c186ac7ce1b8f037087614d88ac179c34ae2a22bf439016d3ef5f9c",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "a81c35174c186ac7ce1b8f037087614d88ac179c34ae2a22bf439016d3ef5f9c",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/006-the-son-left-living/001-the-son-left-living.md",
+        "sha256": "ef8c577ec44b4c2602d1c5c2d7b68feb7d43db2f1a7261f52f5371c0a5b7e96c",
+        "fingerprint_reference": "recheck2-body",
+        "reference_sha256": "ef8c577ec44b4c2602d1c5c2d7b68feb7d43db2f1a7261f52f5371c0a5b7e96c",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/010-work/020-voice-owners.md",
+        "sha256": "c8c828994a03a2679923ad81e458de917de358a79ffd9933e62c07952313fcdf",
+        "fingerprint_reference": "recheck1-unchanged-context",
+        "reference_sha256": "c8c828994a03a2679923ad81e458de917de358a79ffd9933e62c07952313fcdf",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/020-world/030-second-war-calendar.md",
+        "sha256": "03afdf6b6409d06e06cc574a51244447c705ea32c9f442041d6cfe3b1f2f2d93",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "03afdf6b6409d06e06cc574a51244447c705ea32c9f442041d6cfe3b1f2f2d93",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/020-world/040-postwar-window.md",
+        "sha256": "4f58cdb25bf839ec96f641e497b9a94d964be174830a6564840a99ccac518d9a",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "4f58cdb25bf839ec96f641e497b9a94d964be174830a6564840a99ccac518d9a",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/040-agents/051-pang-xiaotai.md",
+        "sha256": "ae0a8b1f5b1579bcae7eba84ba5d9544065451f17f3257cee338de31eabee232",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "ae0a8b1f5b1579bcae7eba84ba5d9544065451f17f3257cee338de31eabee232",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/040-agents/071-boksin.md",
+        "sha256": "770d9b7cadafc133e451ddab4b8c21cf6c4e1665e63948d72bbd28b8b0a66979",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "770d9b7cadafc133e451ddab4b8c21cf6c4e1665e63948d72bbd28b8b0a66979",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/050-systems/010-tang-military-confidence.md",
+        "sha256": "43f26723541c6d0db7317ea678a62f99c96a0b5ec599bc269c66eee8e60c1c62",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "43f26723541c6d0db7317ea678a62f99c96a0b5ec599bc269c66eee8e60c1c62",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/050-systems/020-goguryeo-force-system.md",
+        "sha256": "4c586ad1d11220348e2ea328c142b399528bb9b23d85540601752caf55e1b4f5",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "4c586ad1d11220348e2ea328c142b399528bb9b23d85540601752caf55e1b4f5",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/050-systems/050-forced-field-war.md",
+        "sha256": "5314fe4b6e427b69201b584bdeaccd5e2b066eb449458ce5f6bc64a296631b83",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "5314fe4b6e427b69201b584bdeaccd5e2b066eb449458ce5f6bc64a296631b83",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/050-systems/080-yalu-delay-and-loss.md",
+        "sha256": "c500e2d269b48e48d1bfc38a385845f8bfeaaeb937d2e770c19043e96a8597cc",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "c500e2d269b48e48d1bfc38a385845f8bfeaaeb937d2e770c19043e96a8597cc",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/050-systems/090-northern-diversion.md",
+        "sha256": "edbdac557bc07337073961d05078128f5ff977a2df381d8e109bb1d80d0123f1",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "edbdac557bc07337073961d05078128f5ff977a2df381d8e109bb1d80d0123f1",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/050-systems/100-counterattack-concentration.md",
+        "sha256": "70022ba6c3e244865d6875933b4d1485c5d3a5f6e80c240fdaad461e9c15bd88",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "70022ba6c3e244865d6875933b4d1485c5d3a5f6e80c240fdaad461e9c15bd88",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/050-systems/170-return-and-pursuit.md",
+        "sha256": "b4181a01e42658b9aa2b81c9653165f06713b3fd5e312d176ab5bd71d07d1335",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "b4181a01e42658b9aa2b81c9653165f06713b3fd5e312d176ab5bd71d07d1335",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/050-systems/290-baekje-restoration-war.md",
+        "sha256": "be2d6888380733075658fa1472af3683f99c94f3389ef1be56e5c8a4afcd6901",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "be2d6888380733075658fa1472af3683f99c94f3389ef1be56e5c8a4afcd6901",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/050-systems/300-baekgang-battle.md",
+        "sha256": "794c9818ad7fc59552c48c93465da9a53625e98088521008958eb63f72185e7d",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "794c9818ad7fc59552c48c93465da9a53625e98088521008958eb63f72185e7d",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/settings/050-systems/340-pyongyang-fall.md",
+        "sha256": "586a1300089907273a4223c02dfd56eb8ebae08711499386b52fe15ff1cfe01f",
+        "fingerprint_reference": "recheck1-unchanged-context",
+        "reference_sha256": "586a1300089907273a4223c02dfd56eb8ebae08711499386b52fe15ff1cfe01f",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/002-child-after-war.md",
+        "sha256": "706e7724866a13156964e1c536dc576b147e7b7113f87d34305e054d380c3d8f",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "706e7724866a13156964e1c536dc576b147e7b7113f87d34305e054d380c3d8f",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/003-gyeongdang.md",
+        "sha256": "a6fac0452b93ac6062750eccbec95e9df99e4346f0443f81bce498a0ea7aadec",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "a6fac0452b93ac6062750eccbec95e9df99e4346f0443f81bce498a0ea7aadec",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/004-first-command.md",
+        "sha256": "a373be66632e49614fe9d8fb2cce30840abec13acbf7aaf676a928ba3b0ef9b7",
+        "fingerprint_reference": "direct-baseline-raw",
+        "reference_sha256": "a373be66632e49614fe9d8fb2cce30840abec13acbf7aaf676a928ba3b0ef9b7",
+        "matches_reference": true,
+        "current_bytes_equal": false
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/017-siege-and-southern-bets.md",
+        "sha256": "87b6db7c5c805f2f303c220c76384ba2623c8c9ffbdd202fff5e3fed5f4e1cf7",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "87b6db7c5c805f2f303c220c76384ba2623c8c9ffbdd202fff5e3fed5f4e1cf7",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/018-yalu.md",
+        "sha256": "855d27191e65ba5d78e811dc70cf2bae7bb81d590c6bc6a48d2eed0d6d91ec9f",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "855d27191e65ba5d78e811dc70cf2bae7bb81d590c6bc6a48d2eed0d6d91ec9f",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/019-orders-from-the-north.md",
+        "sha256": "0d66a771e47066da15f109b134907c545832ed24f94bd9b968aebe7f9b5c8b75",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "0d66a771e47066da15f109b134907c545832ed24f94bd9b968aebe7f9b5c8b75",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/020-nubang.md",
+        "sha256": "79a1aaa829e6d8fcf34872f2e8c735c2d4512ea8f72a66efeb7457366622b3ba",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "79a1aaa829e6d8fcf34872f2e8c735c2d4512ea8f72a66efeb7457366622b3ba",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/021-winter-reserves.md",
+        "sha256": "73e51ac0ecbb037489b59e11632d6ebc3affd5f86a2066e9d7da7a2bf61359f8",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "73e51ac0ecbb037489b59e11632d6ebc3affd5f86a2066e9d7da7a2bf61359f8",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/022-january-concentration.md",
+        "sha256": "ee772d02118b3d20de76f6b6708590fada28d0ecfeb8bfc64743d7f6df57e4ff",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "ee772d02118b3d20de76f6b6708590fada28d0ecfeb8bfc64743d7f6df57e4ff",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/026-ren-camp.md",
+        "sha256": "ed89d4852604cfbbfaf58130a6b773c991dba2f57c29bcd568f6284b9057ad62",
+        "fingerprint_reference": "recheck2-context",
+        "reference_sha256": "ed89d4852604cfbbfaf58130a6b773c991dba2f57c29bcd568f6284b9057ad62",
+        "matches_reference": true,
+        "current_bytes_equal": false
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/031-southern-victory-and-loss.md",
+        "sha256": "cbc18bbf1a9e02e5935b06243dfc2add94ba1f53187054e46b7dd81b944bf467",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "cbc18bbf1a9e02e5935b06243dfc2add94ba1f53187054e46b7dd81b944bf467",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/040-five-days-to-the-west-gate.md",
+        "sha256": "addb45a27040db3b8ede03608261ad4027c50cd9dffe6fc013b637d05eb0292e",
+        "fingerprint_reference": "recheck2-parent",
+        "reference_sha256": "addb45a27040db3b8ede03608261ad4027c50cd9dffe6fc013b637d05eb0292e",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/instructions/003-era-and-restoration.md",
+        "sha256": "37f665c98a053371d82634d0d880fb943ead891ebb87e1e0c9ee2f8c5590bf03",
+        "fingerprint_reference": "recheck1-unchanged-context",
+        "reference_sha256": "37f665c98a053371d82634d0d880fb943ead891ebb87e1e0c9ee2f8c5590bf03",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/instructions/007-warfare-and-campaigns.md",
+        "sha256": "59b5566f9d8ff8bd055bdbb93363e9a5a5c56330f3afaf5ea5d32b603d74d9a0",
+        "fingerprint_reference": "recheck1-unchanged-context",
+        "reference_sha256": "59b5566f9d8ff8bd055bdbb93363e9a5a5c56330f3afaf5ea5d32b603d74d9a0",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/instructions/010-adaptation-and-delivery.md",
+        "sha256": "927d0f9ce3f1d0e882cf26bb12796638038595daab753df64ef4ccab4a65ddea",
+        "fingerprint_reference": "recheck1-unchanged-context",
+        "reference_sha256": "927d0f9ce3f1d0e882cf26bb12796638038595daab753df64ef4ccab4a65ddea",
+        "matches_reference": true,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/PROJECT.md",
+        "sha256": "4a98b47c8fa568a7a077e318ab5d7f0aef2540824a5e9cfd3049b0b89648ec95",
+        "fingerprint_reference": "not-present-in-prior-fingerprint-manifests",
+        "reference_sha256": null,
+        "matches_reference": null,
+        "current_bytes_equal": true
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/README.md",
+        "sha256": "fbec05ebe39db1a3182bc2dec11cf059e14a26a23f98f8c77195755744d21189",
+        "fingerprint_reference": "not-present-in-prior-fingerprint-manifests",
+        "reference_sha256": null,
+        "matches_reference": null,
+        "current_bytes_equal": true
+      }
+    ],
+    "prior_records": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/analysis/script-revision-classification.json",
+        "sha256": "b6777ddfbd7f0c2314ab6dbcb34d4fadb96ba14d78a649d46d0fb8fb63e82e79"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/analysis/script-revision-recheck-1.json",
+        "sha256": "2010cf246ebe29ac464a17a9223f59337ad30467a29014c85e1b80576a9908af"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/analysis/script-revision-recheck-2.json",
+        "sha256": "1b5a1791c6dcbd424aec29cd3dc3a4a884cd277dcb3ee4b73a35756fc1380234"
+      }
+    ],
+    "aggregate": {
+      "method": "SHA256 of sorted production-relative path + TAB + raw SHA256 + LF for the 26 inspected manuscript/treatment inventory files; UTF-8",
+      "sha256": "1c057660a8f70cdbb0ce1ac21f7fa470b25e1e08c9f328e827f7e5f50fffc245",
+      "coordinator_reported_81_scope_aggregate": "f96188ef1f606d50765aca3e7ed5246fe23a4e5c3da11058034fc1aec8350238",
+      "reported_scope_not_claimed": "The coordinator supplied a larger 81-file scope digest. This report independently fingerprints its own Yeon inputs and does not claim the larger cross-scope aggregate was reproduced."
+    }
+  },
+  "method": {
+    "scope": "One inspection round of all nine changed Yeon files, changed body sentences and neighbors, full affected Taehak treatment/script/final H2 and pupil settings, and the changed Ren date H2 with both actual descendants. All 24 manuscript files are fingerprinted; unchanged H2s outside coverage are not freshly classified.",
+    "isolation": "Only actual current body, actual parent passages, pupil settings 120/121, fixed-title instruction and applicable contracts were read for this round. Snapshot metadata and hashes were inventoried without reading prohibited records. No author, review, notes or draft body was opened. Prior isolation limitations remain in recheck2; they are not erased by this narrower round.",
+    "tested_failures": {
+      "common": [
+        "repeated explanation of action meaning",
+        "closing aphorisms/balanced summaries",
+        "background postponing entry",
+        "research/later commentary stopping scene",
+        "absent acts/sounds manufacturing stillness",
+        "redundant delivery labels",
+        "repeated appearance/rank introductions",
+        "habitual gestures/filler",
+        "invented misunderstandings to negate",
+        "empty links",
+        "arbitrary sentence molds",
+        "authoring jargon",
+        "informationless modifiers/qualifications/contrasts/formatting",
+        "unidiomatic word combinations/verbs/agreement/order/references/pronouns/nominal chains/clauses/imported syntax",
+        "unlocated inventories/unmarked gaze changes/vague impressions replacing required values",
+        "interchangeable metaphors erasing distinctions",
+        "physical conditions reduced to names/numbers",
+        "detail decoding displacing present pressure"
+      ],
+      "speech": [
+        "explanation of shared facts",
+        "arguments recited as lists",
+        "generic theme declarations",
+        "neighboring action repeated in another register",
+        "matching metaphors traded",
+        "inappropriate status/relationship language",
+        "uniform neutral exposition",
+        "edited replies with shifted meaning",
+        "unmotivated level changes/relationship-erasing neutral register",
+        "implausible speaker age/status/knowledge/register/tactic",
+        "action-line order misstates relation"
+      ],
+      "scripts": [
+        "uniform beat mold",
+        "gesture every line",
+        "decisive speech buried",
+        "summary substituted for exchange",
+        "repeated performance labels",
+        "long explanation hides response",
+        "interpretive label instead of performable operation",
+        "reactionless beat list/reported consequential exchange",
+        "unexplained transition/result without execution",
+        "redundant exit conclusion",
+        "missing view/impossible position or sightline/unsupported core appearance",
+        "habitual composition concealing changing force"
+      ],
+      "screenplay": [
+        "habitual opening/explanation/montage/music/reaction-pause/closing-image imposed",
+        "frantic pressure buried in duration",
+        "weight lost to uniform short beat",
+        "grouping concealing attention",
+        "copied planning labels/source-status/research commentary/category names",
+        "repeated appearance/vocal inventories/redundant acting tails",
+        "shot list without finished relation",
+        "mere transcription/expanded upstream directions",
+        "micro-procedures displacing important exchange/action",
+        "unmediated inward meaning",
+        "unmarked access/time/space/sound relation"
+      ],
+      "parent_each_paragraph": [
+        "copied wording or imagery",
+        "copied explanatory labels",
+        "copied narrator/design statements",
+        "borrowed opening/action sequence"
+      ],
+      "fidelity": [
+        "names/address/rank",
+        "quantities/dates/times",
+        "places/positions",
+        "consequential states/knowledge/uncertainty",
+        "object transfer/causal dependencies"
+      ],
+      "population": [
+        "recurrent frames/translation interference",
+        "voice distribution",
+        "execution distribution",
+        "screenplay voice/tempo distribution",
+        "work/obligations/narratives.md#chronicler-and-scene"
+      ]
+    },
+    "locators": "hN selects current H2 order; pN counts annotation-masked Markdown blocks including heading/navigation; sN is a punctuation locator. Character spans address masked UTF-8-sig decoded text.",
+    "sentence_results": "Every listed sentence unit was actually inspected against all applicable named questions; - means no clear applicable failure in this scope. No negatives are assigned to unlisted units.",
+    "paragraph_test_columns": [
+      "locator",
+      "copied-wording-imagery",
+      "copied-explanatory-labels",
+      "copied-narrator-design",
+      "borrowed-opening-action-sequence",
+      "fidelity"
+    ],
+    "judgment": "Repaired text receives yes only for a clear failure. Unchanged no/ambiguous judgments are not reopened by preference. Required basic acts, stable conditions, finished short replies and useful production labels are not forced into ornamental variation.",
+    "quote_policy": "Evidence and before/after excerpts are literal source substrings at the cited H2/locator. NFC plus Unicode-whitespace collapse is the only allowed normalized fallback; no fallback is used.",
+    "limits": [
+      "This is affected-material classification, not another full-work review or a rebuilt initial table.",
+      "The final Taehak passage grants the blocking step after arrival rather than separately depicting a physical blockade. The classroom exercise and recognition are clear; a literal battlefield operation is not inferred.",
+      "No external historical verification, media, measured timing or oral performance was tested.",
+      "Four cached files lack prior fingerprint entries in these classification manifests; their cache identity is recorded without a false recheck2 or baseline match claim."
+    ]
+  },
+  "decisions": [
+    {
+      "id": "R3-TAEHAK",
+      "result": "-",
+      "reason": "The new script distinguishes takeover confirmation from arrival: no answer means stay; the neighboring pupil answers; the first pupil then moves and reports arrival; only afterward does Gaesomun begin the blocking step. The revised treatment owns that causal order. Pupil settings identify the interrupted pupil as the mover and the neighboring pupil as the independent takeover respondent, and both roles are preserved.",
+      "evidence": [
+        {
+          "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p18",
+          "line": 248,
+          "quote": "FIRST PUPIL: And if the person taking over hasn't answered?"
+        },
+        {
+          "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p19",
+          "line": 250,
+          "quote": "GAESOMUN: Then you stay. I wait for your arrival before blocking the road."
+        },
+        {
+          "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p22",
+          "line": 256,
+          "quote": "Only after that answer does the first pupil move to the position Gaesomun indicated."
+        },
+        {
+          "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p24",
+          "line": 260,
+          "quote": "After the arrival report, Gaesomun begins the blocking step of the exercise."
+        }
+      ]
+    },
+    {
+      "id": "R3-FINAL-DEPENDENCY",
+      "result": "-",
+      "reason": "The existing final Taehak exchange already separates takeover, movement, arrival and permission to block. Its question tests the arrival condition, while the new script question tests the earlier takeover condition; the questions need not match. The final makes its own classroom attention/recognition relation without changing who asks, takes over, moves or reports. The short takeover reply and basic movement sequence are required values, not a reason to demand decorative differences.",
+      "evidence": [
+        {
+          "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/001-the-right-to-command/001-people-to-command.md",
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p11",
+          "line": 240,
+          "quote": "Let's first choose who takes your place. Get word that they've taken it, then come. Tell me when you get here. I'll block the road then."
+        },
+        {
+          "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/001-the-right-to-command/001-people-to-command.md",
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p13",
+          "line": 244,
+          "quote": "Then I'll wait. Just because I said it first doesn't mean I can block it before you arrive."
+        },
+        {
+          "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/001-the-right-to-command/001-people-to-command.md",
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p17",
+          "line": 252,
+          "quote": "I'm here. You can block it."
+        }
+      ]
+    },
+    {
+      "id": "R3-TITLE",
+      "result": "-",
+      "reason": "All six producer labels now use the fixed title The Great Magnate. Part numbers and audiovisual/script descriptors remain useful production notation; the change introduces no new scene event or audience-title promise.",
+      "instruction": {
+        "path": "experimental/yeon-gaesomun-biography/docs/instructions/010-adaptation-and-delivery.md",
+        "line": 25,
+        "quote": "The title is The Great Magnate.",
+        "h2": "fixed-wording",
+        "locator": "h4/p2"
+      }
+    },
+    {
+      "id": "R3-DATE",
+      "result": "-",
+      "reason": "The duplicated day construction is corrected to the fourteenth day of the second lunar month. Day 14, first attack on Ren, 30,000 frontal/16,000 reserve-interdiction/4,000 support out of at most 50,000, Namgeon's open-ground cavalry and local infantry at the narrow front remain unchanged in the owner and descendants.",
+      "evidence": [
+        {
+          "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/026-ren-camp.md",
+          "h2": "first-target",
+          "locator": "h1/p2",
+          "line": 9,
+          "quote": "On the fourteenth day of the second lunar month, Gaesomun attacks Ren Yaxiang's camp first."
+        }
+      ]
+    }
+  ],
+  "new_findings": [],
+  "files": [
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/001-the-right-to-command/001-people-to-command.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "1f54a222ebe8676aebb36894ee9adacfc720146c5e9435f47f9a58ae5f7e9652",
+      "current_sha256": "ae997271b390da35f113dd65da0155bd7ecb1d586d1730a9616e18bad310fe55",
+      "changed": true,
+      "h2_count": 16,
+      "changes": [
+        {
+          "operation": "replace",
+          "before": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*Daemangniji* final audiovisual script · Part 1",
+              "h2": "t001-report-at-court"
+            }
+          ],
+          "after": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*The Great Magnate* final audiovisual script · Part 1",
+              "h2": "t001-report-at-court"
+            }
+          ]
+        }
+      ],
+      "coverage": [
+        {
+          "h2": "t001-report-at-court",
+          "locator": "h1/p2",
+          "line": 6,
+          "span": [
+            97,
+            126
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        },
+        {
+          "h2": "t001-report-at-court",
+          "locator": "h1/p3",
+          "line": 8,
+          "span": [
+            128,
+            181
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "t001-report-at-court",
+          "locator": "h1/p4",
+          "line": 10,
+          "span": [
+            183,
+            605
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p1",
+          "line": 220,
+          "span": [
+            15350,
+            15413
+          ],
+          "kind": "heading",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p2",
+          "line": 222,
+          "span": [
+            15415,
+            15607
+          ],
+          "kind": "navigation",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p3",
+          "line": 224,
+          "span": [
+            15609,
+            15776
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p4",
+          "line": 226,
+          "span": [
+            15778,
+            15843
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p5",
+          "line": 228,
+          "span": [
+            15845,
+            15938
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p6",
+          "line": 230,
+          "span": [
+            15940,
+            15995
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p7",
+          "line": 232,
+          "span": [
+            15997,
+            16068
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p8",
+          "line": 234,
+          "span": [
+            16070,
+            16119
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p9",
+          "line": 236,
+          "span": [
+            16121,
+            16196
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p10",
+          "line": 238,
+          "span": [
+            16198,
+            16286
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p11",
+          "line": 240,
+          "span": [
+            16288,
+            16437
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p12",
+          "line": 242,
+          "span": [
+            16439,
+            16515
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p13",
+          "line": 244,
+          "span": [
+            16517,
+            16621
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p14",
+          "line": 246,
+          "span": [
+            16623,
+            16663
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p15",
+          "line": 248,
+          "span": [
+            16665,
+            16708
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p16",
+          "line": 250,
+          "span": [
+            16710,
+            16753
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p17",
+          "line": 252,
+          "span": [
+            16755,
+            16798
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p18",
+          "line": 254,
+          "span": [
+            16800,
+            16964
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p19",
+          "line": 256,
+          "span": [
+            16966,
+            17045
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p20",
+          "line": 258,
+          "span": [
+            17047,
+            17132
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p21",
+          "line": 260,
+          "span": [
+            17134,
+            17215
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p22",
+          "line": 262,
+          "span": [
+            17217,
+            17276
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p23",
+          "line": 264,
+          "span": [
+            17278,
+            17362
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p24",
+          "line": 266,
+          "span": [
+            17364,
+            17465
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p25",
+          "line": 268,
+          "span": [
+            17467,
+            17548
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h1/p2/s1",
+          97,
+          126,
+          "-"
+        ],
+        [
+          "h1/p3/s1",
+          128,
+          181,
+          "-"
+        ],
+        [
+          "h1/p4/s1",
+          183,
+          295,
+          "-"
+        ],
+        [
+          "h1/p4/s2",
+          296,
+          367,
+          "-"
+        ],
+        [
+          "h1/p4/s3",
+          368,
+          434,
+          "-"
+        ],
+        [
+          "h1/p4/s4",
+          435,
+          499,
+          "-"
+        ],
+        [
+          "h1/p4/s5",
+          500,
+          605,
+          "-"
+        ],
+        [
+          "h9/p3/s1",
+          15609,
+          15644,
+          "-"
+        ],
+        [
+          "h9/p3/s2",
+          15645,
+          15703,
+          "-"
+        ],
+        [
+          "h9/p3/s3",
+          15704,
+          15776,
+          "-"
+        ],
+        [
+          "h9/p4/s1",
+          15778,
+          15813,
+          "-"
+        ],
+        [
+          "h9/p4/s2",
+          15814,
+          15843,
+          "-"
+        ],
+        [
+          "h9/p5/s1",
+          15845,
+          15863,
+          "-"
+        ],
+        [
+          "h9/p5/s2",
+          15864,
+          15918,
+          "-"
+        ],
+        [
+          "h9/p5/s3",
+          15919,
+          15938,
+          "-"
+        ],
+        [
+          "h9/p6/s1",
+          15940,
+          15995,
+          "-"
+        ],
+        [
+          "h9/p7/s1",
+          15997,
+          16068,
+          "-"
+        ],
+        [
+          "h9/p8/s1",
+          16070,
+          16119,
+          "-"
+        ],
+        [
+          "h9/p9/s1",
+          16121,
+          16169,
+          "-"
+        ],
+        [
+          "h9/p9/s2",
+          16170,
+          16196,
+          "-"
+        ],
+        [
+          "h9/p10/s1",
+          16198,
+          16246,
+          "-"
+        ],
+        [
+          "h9/p10/s2",
+          16247,
+          16286,
+          "-"
+        ],
+        [
+          "h9/p11/s1",
+          16288,
+          16341,
+          "-"
+        ],
+        [
+          "h9/p11/s2",
+          16342,
+          16384,
+          "-"
+        ],
+        [
+          "h9/p11/s3",
+          16385,
+          16411,
+          "-"
+        ],
+        [
+          "h9/p11/s4",
+          16412,
+          16437,
+          "-"
+        ],
+        [
+          "h9/p12/s1",
+          16439,
+          16493,
+          "-"
+        ],
+        [
+          "h9/p12/s2",
+          16494,
+          16515,
+          "-"
+        ],
+        [
+          "h9/p13/s1",
+          16517,
+          16545,
+          "-"
+        ],
+        [
+          "h9/p13/s2",
+          16546,
+          16621,
+          "-"
+        ],
+        [
+          "h9/p14/s1",
+          16623,
+          16663,
+          "-"
+        ],
+        [
+          "h9/p15/s1",
+          16665,
+          16708,
+          "-"
+        ],
+        [
+          "h9/p16/s1",
+          16710,
+          16753,
+          "-"
+        ],
+        [
+          "h9/p17/s1",
+          16755,
+          16780,
+          "-"
+        ],
+        [
+          "h9/p17/s2",
+          16781,
+          16798,
+          "-"
+        ],
+        [
+          "h9/p18/s1",
+          16800,
+          16880,
+          "-"
+        ],
+        [
+          "h9/p18/s2",
+          16881,
+          16937,
+          "-"
+        ],
+        [
+          "h9/p18/s3",
+          16938,
+          16964,
+          "-"
+        ],
+        [
+          "h9/p19/s1",
+          16966,
+          17045,
+          "-"
+        ],
+        [
+          "h9/p20/s1",
+          17047,
+          17132,
+          "-"
+        ],
+        [
+          "h9/p21/s1",
+          17134,
+          17172,
+          "-"
+        ],
+        [
+          "h9/p21/s2",
+          17173,
+          17215,
+          "-"
+        ],
+        [
+          "h9/p22/s1",
+          17217,
+          17276,
+          "-"
+        ],
+        [
+          "h9/p23/s1",
+          17278,
+          17334,
+          "-"
+        ],
+        [
+          "h9/p23/s2",
+          17335,
+          17362,
+          "-"
+        ],
+        [
+          "h9/p24/s1",
+          17364,
+          17419,
+          "-"
+        ],
+        [
+          "h9/p24/s2",
+          17420,
+          17465,
+          "-"
+        ],
+        [
+          "h9/p25/s1",
+          17467,
+          17511,
+          "-"
+        ],
+        [
+          "h9/p25/s2",
+          17512,
+          17548,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h1/p2",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h1/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h1/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p5",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p6",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p7",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p10",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p11",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p12",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p13",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p14",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p15",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p16",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p17",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p18",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p19",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p20",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p21",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p22",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p23",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p24",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p25",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/001-the-right-to-command/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "06bbd98f2ac8ed7e68ff6436e45219b32f62eb1ee6d5f6f621a22e756d6af46d",
+      "current_sha256": "06bbd98f2ac8ed7e68ff6436e45219b32f62eb1ee6d5f6f621a22e756d6af46d",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/002-the-kings-work/001-the-kings-work.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "fcad54255b1d51cb047bf7efea334ed441acadad82764d4cdb74595296050592",
+      "current_sha256": "1d38b230f6533e95d70aac6342558ce4b660d811cfced39b78478d863ceae60a",
+      "changed": true,
+      "h2_count": 24,
+      "changes": [
+        {
+          "operation": "replace",
+          "before": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*Daemangniji*, final audiovisual screenplay · Part 2",
+              "h2": "t007-rising-authority"
+            }
+          ],
+          "after": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*The Great Magnate*, final audiovisual screenplay · Part 2",
+              "h2": "t007-rising-authority"
+            }
+          ]
+        }
+      ],
+      "coverage": [
+        {
+          "h2": "t007-rising-authority",
+          "locator": "h1/p2",
+          "line": 6,
+          "span": [
+            98,
+            123
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        },
+        {
+          "h2": "t007-rising-authority",
+          "locator": "h1/p3",
+          "line": 8,
+          "span": [
+            125,
+            183
+          ],
+          "kind": "body",
+          "basis": "changed"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h1/p2/s1",
+          98,
+          123,
+          "-"
+        ],
+        [
+          "h1/p3/s1",
+          125,
+          183,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h1/p2",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h1/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/002-the-kings-work/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "a797954ca6634ca582c3b46a0ee89177f551d2498ed713595a316bfd9bb33779",
+      "current_sha256": "a797954ca6634ca582c3b46a0ee89177f551d2498ed713595a316bfd9bb33779",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/003-the-roads-that-move/001-moving-roads.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "19262f083ab9e3692d181755ed45b5a36f4344df68ceea5a776715fef99d003e",
+      "current_sha256": "f05f2e5404bcd052b99424ae33b97e4140d3aecf8ed0e171797bae2469bbea67",
+      "changed": true,
+      "h2_count": 26,
+      "changes": [
+        {
+          "operation": "replace",
+          "before": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*Daemangniji*, final audiovisual screenplay · Part 3",
+              "h2": "t016-frame-closes"
+            }
+          ],
+          "after": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*The Great Magnate*, final audiovisual screenplay · Part 3",
+              "h2": "t016-frame-closes"
+            }
+          ]
+        }
+      ],
+      "coverage": [
+        {
+          "h2": "t016-frame-closes",
+          "locator": "h1/p2",
+          "line": 6,
+          "span": [
+            98,
+            123
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        },
+        {
+          "h2": "t016-frame-closes",
+          "locator": "h1/p3",
+          "line": 8,
+          "span": [
+            125,
+            183
+          ],
+          "kind": "body",
+          "basis": "changed"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h1/p2/s1",
+          98,
+          123,
+          "-"
+        ],
+        [
+          "h1/p3/s1",
+          125,
+          183,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h1/p2",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h1/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/003-the-roads-that-move/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "34b8230478f4d58adf950b46378e85caf4485b9121ff8b55317c519a371c4506",
+      "current_sha256": "34b8230478f4d58adf950b46378e85caf4485b9121ff8b55317c519a371c4506",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/004-the-victory-that-remains/001-remaining-victory.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "fa4aaec680b5bd7974475ec5515328b52c57cc39256716568a6c7df20301bdb5",
+      "current_sha256": "716ee483812a41075194a90ef234f2d4960906300260408bc08ec3601d4b24ab",
+      "changed": true,
+      "h2_count": 14,
+      "changes": [
+        {
+          "operation": "replace",
+          "before": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*Daemangniji* final audiovisual script · Part 4",
+              "h2": "t025-return-decision"
+            }
+          ],
+          "after": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*The Great Magnate* final audiovisual script · Part 4",
+              "h2": "t025-return-decision"
+            }
+          ]
+        }
+      ],
+      "coverage": [
+        {
+          "h2": "t025-return-decision",
+          "locator": "h1/p2",
+          "line": 6,
+          "span": [
+            86,
+            115
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        },
+        {
+          "h2": "t025-return-decision",
+          "locator": "h1/p3",
+          "line": 8,
+          "span": [
+            117,
+            170
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p1",
+          "line": 68,
+          "span": [
+            4075,
+            4136
+          ],
+          "kind": "heading",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p2",
+          "line": 70,
+          "span": [
+            4138,
+            4319
+          ],
+          "kind": "navigation",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p3",
+          "line": 72,
+          "span": [
+            4321,
+            4408
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p4",
+          "line": 74,
+          "span": [
+            4410,
+            4551
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p5",
+          "line": 76,
+          "span": [
+            4553,
+            4852
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p6",
+          "line": 78,
+          "span": [
+            4854,
+            4920
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p7",
+          "line": 80,
+          "span": [
+            4922,
+            4970
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p8",
+          "line": 82,
+          "span": [
+            4972,
+            5049
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p9",
+          "line": 84,
+          "span": [
+            5051,
+            5148
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p10",
+          "line": 86,
+          "span": [
+            5150,
+            5394
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p11",
+          "line": 88,
+          "span": [
+            5396,
+            5470
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p12",
+          "line": 90,
+          "span": [
+            5472,
+            5600
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p13",
+          "line": 92,
+          "span": [
+            5602,
+            5734
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p14",
+          "line": 94,
+          "span": [
+            5736,
+            5888
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h1/p2/s1",
+          86,
+          115,
+          "-"
+        ],
+        [
+          "h1/p3/s1",
+          117,
+          170,
+          "-"
+        ],
+        [
+          "h4/p3/s1",
+          4321,
+          4408,
+          "-"
+        ],
+        [
+          "h4/p4/s1",
+          4410,
+          4486,
+          "-"
+        ],
+        [
+          "h4/p4/s2",
+          4487,
+          4551,
+          "-"
+        ],
+        [
+          "h4/p5/s1",
+          4553,
+          4599,
+          "-"
+        ],
+        [
+          "h4/p5/s2",
+          4600,
+          4690,
+          "-"
+        ],
+        [
+          "h4/p5/s3",
+          4691,
+          4792,
+          "-"
+        ],
+        [
+          "h4/p5/s4",
+          4793,
+          4852,
+          "-"
+        ],
+        [
+          "h4/p6/s1",
+          4854,
+          4883,
+          "-"
+        ],
+        [
+          "h4/p6/s2",
+          4884,
+          4920,
+          "-"
+        ],
+        [
+          "h4/p7/s1",
+          4922,
+          4970,
+          "-"
+        ],
+        [
+          "h4/p8/s1",
+          4972,
+          5049,
+          "-"
+        ],
+        [
+          "h4/p9/s1",
+          5051,
+          5093,
+          "-"
+        ],
+        [
+          "h4/p9/s2",
+          5094,
+          5148,
+          "-"
+        ],
+        [
+          "h4/p10/s1",
+          5150,
+          5188,
+          "-"
+        ],
+        [
+          "h4/p10/s2",
+          5189,
+          5308,
+          "-"
+        ],
+        [
+          "h4/p10/s3",
+          5309,
+          5394,
+          "-"
+        ],
+        [
+          "h4/p11/s1",
+          5396,
+          5470,
+          "-"
+        ],
+        [
+          "h4/p12/s1",
+          5472,
+          5541,
+          "-"
+        ],
+        [
+          "h4/p12/s2",
+          5542,
+          5600,
+          "-"
+        ],
+        [
+          "h4/p13/s1",
+          5602,
+          5734,
+          "-"
+        ],
+        [
+          "h4/p14/s1",
+          5736,
+          5811,
+          "-"
+        ],
+        [
+          "h4/p14/s2",
+          5812,
+          5888,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h1/p2",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h1/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p5",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p6",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p7",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p10",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p11",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p12",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p13",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p14",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/004-the-victory-that-remains/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "0c1704a81e56f77a1e9dcd0ed31c64d0339116d0c985071fcd34ad3b937969f6",
+      "current_sha256": "0c1704a81e56f77a1e9dcd0ed31c64d0339116d0c985071fcd34ad3b937969f6",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/005-days-to-sow/001-days-to-sow.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "6274b102eee6e7825a481a1df933737825c0e786a39962e94ef9724e445abac2",
+      "current_sha256": "fb4e9f9bda40ba5d9af0655066851228fa7ec3d850c0b6c91b1024ee8f607cb9",
+      "changed": true,
+      "h2_count": 19,
+      "changes": [
+        {
+          "operation": "replace",
+          "before": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*Daemangniji*, final audiovisual screenplay · Part 5",
+              "h2": "t030-return-and-repair"
+            }
+          ],
+          "after": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*The Great Magnate*, final audiovisual screenplay · Part 5",
+              "h2": "t030-return-and-repair"
+            }
+          ]
+        }
+      ],
+      "coverage": [
+        {
+          "h2": "t030-return-and-repair",
+          "locator": "h1/p2",
+          "line": 6,
+          "span": [
+            78,
+            103
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        },
+        {
+          "h2": "t030-return-and-repair",
+          "locator": "h1/p3",
+          "line": 8,
+          "span": [
+            105,
+            163
+          ],
+          "kind": "body",
+          "basis": "changed"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h1/p2/s1",
+          78,
+          103,
+          "-"
+        ],
+        [
+          "h1/p3/s1",
+          105,
+          163,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h1/p2",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h1/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/005-days-to-sow/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "0c9c4494b086b79608d670e781b0ce4f5df4056b829b81791ed08ca5ff63f18c",
+      "current_sha256": "0c9c4494b086b79608d670e781b0ce4f5df4056b829b81791ed08ca5ff63f18c",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/006-the-son-left-living/001-the-son-left-living.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "d32dbfac427d3a1e216492cdc55436c4825eb33c10335c4fa60858ab1816b8c0",
+      "current_sha256": "0383051be0ba299c8968a152fb576d61f5069d56b01e807e964bdb9aee8829c5",
+      "changed": true,
+      "h2_count": 16,
+      "changes": [
+        {
+          "operation": "replace",
+          "before": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*Daemangniji* final audiovisual script · Part 6",
+              "h2": "t038-namsaeng-chooses-destructive-aid"
+            }
+          ],
+          "after": [
+            {
+              "locator": "h1/p3",
+              "line": 8,
+              "text": "*The Great Magnate* final audiovisual script · Part 6",
+              "h2": "t038-namsaeng-chooses-destructive-aid"
+            }
+          ]
+        }
+      ],
+      "coverage": [
+        {
+          "h2": "t038-namsaeng-chooses-destructive-aid",
+          "locator": "h1/p2",
+          "line": 6,
+          "span": [
+            108,
+            137
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        },
+        {
+          "h2": "t038-namsaeng-chooses-destructive-aid",
+          "locator": "h1/p3",
+          "line": 8,
+          "span": [
+            139,
+            192
+          ],
+          "kind": "body",
+          "basis": "changed"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h1/p2/s1",
+          108,
+          137,
+          "-"
+        ],
+        [
+          "h1/p3/s1",
+          139,
+          192,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h1/p2",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h1/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/screenplay/006-the-son-left-living/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "8c99dbefeaad57ead86ac2e135c34b502974a0d6c8f6c754135e4a30981fd7ec",
+      "current_sha256": "8c99dbefeaad57ead86ac2e135c34b502974a0d6c8f6c754135e4a30981fd7ec",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "0a2c63e1704d832ef23ce47ff6f9b677383130dda62eb1791c7840b1ed0933b2",
+      "current_sha256": "95bdd3efb8f8908d6de3153422d0a7749f1cbce8e88a39e5259af3e197692671",
+      "changed": true,
+      "h2_count": 16,
+      "changes": [
+        {
+          "operation": "replace",
+          "before": [
+            {
+              "locator": "h9/p18",
+              "line": 248,
+              "text": "FIRST PUPIL: And if that word doesn't come?",
+              "h2": "t004-explain-to-others"
+            },
+            {
+              "locator": "h9/p19",
+              "line": 250,
+              "text": "GAESOMUN: We must not move yet. Even if I told you to block it first.",
+              "h2": "t004-explain-to-others"
+            },
+            {
+              "locator": "h9/p20",
+              "line": 252,
+              "text": "The first pupil explains the sequence he has just heard to the neighboring pupil.",
+              "h2": "t004-explain-to-others"
+            },
+            {
+              "locator": "h9/p21",
+              "line": 254,
+              "text": "FIRST PUPIL: Then we wait for that word before going.",
+              "h2": "t004-explain-to-others"
+            },
+            {
+              "locator": "h9/p22",
+              "line": 256,
+              "text": "The neighboring pupil nods too. Gaesomun looks back at Mugok. First to rise, he is the last to sit.",
+              "h2": "t004-explain-to-others"
+            }
+          ],
+          "after": [
+            {
+              "locator": "h9/p18",
+              "line": 248,
+              "text": "FIRST PUPIL: And if the person taking over hasn't answered?",
+              "h2": "t004-explain-to-others"
+            },
+            {
+              "locator": "h9/p19",
+              "line": 250,
+              "text": "GAESOMUN: Then you stay. I wait for your arrival before blocking the road.",
+              "h2": "t004-explain-to-others"
+            },
+            {
+              "locator": "h9/p20",
+              "line": 252,
+              "text": "The neighboring pupil answers the first.",
+              "h2": "t004-explain-to-others"
+            },
+            {
+              "locator": "h9/p21",
+              "line": 254,
+              "text": "NEIGHBORING PUPIL: I'll take your place.",
+              "h2": "t004-explain-to-others"
+            },
+            {
+              "locator": "h9/p22",
+              "line": 256,
+              "text": "Only after that answer does the first pupil move to the position Gaesomun indicated.",
+              "h2": "t004-explain-to-others"
+            },
+            {
+              "locator": "h9/p23",
+              "line": 258,
+              "text": "FIRST PUPIL: I'm here.",
+              "h2": "t004-explain-to-others"
+            },
+            {
+              "locator": "h9/p24",
+              "line": 260,
+              "text": "After the arrival report, Gaesomun begins the blocking step of the exercise. He looks back at Mugok. First to rise, he is the last to sit.",
+              "h2": "t004-explain-to-others"
+            }
+          ]
+        }
+      ],
+      "coverage": [
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p1",
+          "line": 214,
+          "span": [
+            12580,
+            12643
+          ],
+          "kind": "heading",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p2",
+          "line": 216,
+          "span": [
+            12645,
+            12716
+          ],
+          "kind": "navigation",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p3",
+          "line": 218,
+          "span": [
+            12718,
+            12943
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p4",
+          "line": 220,
+          "span": [
+            12945,
+            13005
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p5",
+          "line": 222,
+          "span": [
+            13007,
+            13047
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p6",
+          "line": 224,
+          "span": [
+            13049,
+            13073
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p7",
+          "line": 226,
+          "span": [
+            13075,
+            13106
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p8",
+          "line": 228,
+          "span": [
+            13108,
+            13119
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p9",
+          "line": 230,
+          "span": [
+            13121,
+            13166
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p10",
+          "line": 232,
+          "span": [
+            13168,
+            13228
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p11",
+          "line": 234,
+          "span": [
+            13230,
+            13277
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p12",
+          "line": 236,
+          "span": [
+            13279,
+            13360
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p13",
+          "line": 238,
+          "span": [
+            13362,
+            13424
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p14",
+          "line": 240,
+          "span": [
+            13426,
+            13461
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p15",
+          "line": 242,
+          "span": [
+            13463,
+            13543
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p16",
+          "line": 244,
+          "span": [
+            13545,
+            13600
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p17",
+          "line": 246,
+          "span": [
+            13602,
+            13815
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p18",
+          "line": 248,
+          "span": [
+            13817,
+            13876
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p19",
+          "line": 250,
+          "span": [
+            13878,
+            13952
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p20",
+          "line": 252,
+          "span": [
+            13954,
+            13994
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p21",
+          "line": 254,
+          "span": [
+            13996,
+            14036
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p22",
+          "line": 256,
+          "span": [
+            14038,
+            14122
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p23",
+          "line": 258,
+          "span": [
+            14124,
+            14146
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p24",
+          "line": 260,
+          "span": [
+            14148,
+            14286
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p25",
+          "line": 262,
+          "span": [
+            14288,
+            14363
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p26",
+          "line": 264,
+          "span": [
+            14365,
+            14404
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p27",
+          "line": 266,
+          "span": [
+            14406,
+            14487
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p28",
+          "line": 268,
+          "span": [
+            14489,
+            14547
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p29",
+          "line": 270,
+          "span": [
+            14549,
+            14626
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p30",
+          "line": 272,
+          "span": [
+            14628,
+            14670
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p31",
+          "line": 274,
+          "span": [
+            14672,
+            14721
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t004-explain-to-others",
+          "locator": "h9/p32",
+          "line": 276,
+          "span": [
+            14723,
+            14799
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h9/p3/s1",
+          12718,
+          12753,
+          "-"
+        ],
+        [
+          "h9/p3/s2",
+          12754,
+          12818,
+          "-"
+        ],
+        [
+          "h9/p3/s3",
+          12819,
+          12866,
+          "-"
+        ],
+        [
+          "h9/p3/s4",
+          12867,
+          12943,
+          "-"
+        ],
+        [
+          "h9/p4/s1",
+          12945,
+          13005,
+          "-"
+        ],
+        [
+          "h9/p5/s1",
+          13007,
+          13047,
+          "-"
+        ],
+        [
+          "h9/p6/s1",
+          13049,
+          13073,
+          "-"
+        ],
+        [
+          "h9/p7/s1",
+          13075,
+          13106,
+          "-"
+        ],
+        [
+          "h9/p8/s1",
+          13108,
+          13119,
+          "-"
+        ],
+        [
+          "h9/p9/s1",
+          13121,
+          13166,
+          "-"
+        ],
+        [
+          "h9/p10/s1",
+          13168,
+          13228,
+          "-"
+        ],
+        [
+          "h9/p11/s1",
+          13230,
+          13277,
+          "-"
+        ],
+        [
+          "h9/p12/s1",
+          13279,
+          13360,
+          "-"
+        ],
+        [
+          "h9/p13/s1",
+          13362,
+          13424,
+          "-"
+        ],
+        [
+          "h9/p14/s1",
+          13426,
+          13461,
+          "-"
+        ],
+        [
+          "h9/p15/s1",
+          13463,
+          13525,
+          "-"
+        ],
+        [
+          "h9/p15/s2",
+          13526,
+          13543,
+          "-"
+        ],
+        [
+          "h9/p16/s1",
+          13545,
+          13600,
+          "-"
+        ],
+        [
+          "h9/p17/s1",
+          13602,
+          13657,
+          "-"
+        ],
+        [
+          "h9/p17/s2",
+          13658,
+          13699,
+          "-"
+        ],
+        [
+          "h9/p17/s3",
+          13700,
+          13754,
+          "-"
+        ],
+        [
+          "h9/p17/s4",
+          13755,
+          13815,
+          "-"
+        ],
+        [
+          "h9/p18/s1",
+          13817,
+          13876,
+          "-"
+        ],
+        [
+          "h9/p19/s1",
+          13878,
+          13902,
+          "-"
+        ],
+        [
+          "h9/p19/s2",
+          13903,
+          13952,
+          "-"
+        ],
+        [
+          "h9/p20/s1",
+          13954,
+          13994,
+          "-"
+        ],
+        [
+          "h9/p21/s1",
+          13996,
+          14036,
+          "-"
+        ],
+        [
+          "h9/p22/s1",
+          14038,
+          14122,
+          "-"
+        ],
+        [
+          "h9/p23/s1",
+          14124,
+          14146,
+          "-"
+        ],
+        [
+          "h9/p24/s1",
+          14148,
+          14224,
+          "-"
+        ],
+        [
+          "h9/p24/s2",
+          14225,
+          14248,
+          "-"
+        ],
+        [
+          "h9/p24/s3",
+          14249,
+          14286,
+          "-"
+        ],
+        [
+          "h9/p25/s1",
+          14288,
+          14363,
+          "-"
+        ],
+        [
+          "h9/p26/s1",
+          14365,
+          14404,
+          "-"
+        ],
+        [
+          "h9/p27/s1",
+          14406,
+          14441,
+          "-"
+        ],
+        [
+          "h9/p27/s2",
+          14442,
+          14487,
+          "-"
+        ],
+        [
+          "h9/p28/s1",
+          14489,
+          14504,
+          "-"
+        ],
+        [
+          "h9/p28/s2",
+          14505,
+          14547,
+          "-"
+        ],
+        [
+          "h9/p29/s1",
+          14549,
+          14568,
+          "-"
+        ],
+        [
+          "h9/p29/s2",
+          14569,
+          14626,
+          "-"
+        ],
+        [
+          "h9/p30/s1",
+          14628,
+          14670,
+          "-"
+        ],
+        [
+          "h9/p31/s1",
+          14672,
+          14721,
+          "-"
+        ],
+        [
+          "h9/p32/s1",
+          14723,
+          14799,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h9/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p5",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p6",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p7",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p10",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p11",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p12",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p13",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p14",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p15",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p16",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p17",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p18",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p19",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p20",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p21",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p22",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p23",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p24",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p25",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p26",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p27",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p28",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p29",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p30",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p31",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h9/p32",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "06bbd98f2ac8ed7e68ff6436e45219b32f62eb1ee6d5f6f621a22e756d6af46d",
+      "current_sha256": "06bbd98f2ac8ed7e68ff6436e45219b32f62eb1ee6d5f6f621a22e756d6af46d",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/002-the-kings-work/001-the-kings-work.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "e80b0f50ae51f0c6cffac62b9f4051804aeb00b846e863238990944f0087f41f",
+      "current_sha256": "e80b0f50ae51f0c6cffac62b9f4051804aeb00b846e863238990944f0087f41f",
+      "changed": false,
+      "h2_count": 24,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/002-the-kings-work/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "a797954ca6634ca582c3b46a0ee89177f551d2498ed713595a316bfd9bb33779",
+      "current_sha256": "a797954ca6634ca582c3b46a0ee89177f551d2498ed713595a316bfd9bb33779",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/003-the-roads-that-move/001-moving-roads.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "e52e2f74f2eafde8c035e870ba532932c6c516ba166efa37ad809f5198bed389",
+      "current_sha256": "e52e2f74f2eafde8c035e870ba532932c6c516ba166efa37ad809f5198bed389",
+      "changed": false,
+      "h2_count": 26,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/003-the-roads-that-move/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "34b8230478f4d58adf950b46378e85caf4485b9121ff8b55317c519a371c4506",
+      "current_sha256": "34b8230478f4d58adf950b46378e85caf4485b9121ff8b55317c519a371c4506",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/004-the-victory-that-remains/001-remaining-victory.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "b608f37d543fb6f326dbaa120a94452c1ce6e929a49069f198c6604adc13dfc6",
+      "current_sha256": "b608f37d543fb6f326dbaa120a94452c1ce6e929a49069f198c6604adc13dfc6",
+      "changed": false,
+      "h2_count": 14,
+      "changes": [],
+      "coverage": [
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p1",
+          "line": 56,
+          "span": [
+            3073,
+            3134
+          ],
+          "kind": "heading",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p2",
+          "line": 58,
+          "span": [
+            3136,
+            3197
+          ],
+          "kind": "navigation",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p3",
+          "line": 60,
+          "span": [
+            3199,
+            3410
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p4",
+          "line": 62,
+          "span": [
+            3412,
+            3595
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p5",
+          "line": 64,
+          "span": [
+            3597,
+            3670
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p6",
+          "line": 66,
+          "span": [
+            3672,
+            3765
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p7",
+          "line": 68,
+          "span": [
+            3767,
+            3918
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p8",
+          "line": 70,
+          "span": [
+            3920,
+            4024
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "t026-first-target",
+          "locator": "h4/p9",
+          "line": 72,
+          "span": [
+            4026,
+            4111
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h4/p3/s1",
+          3199,
+          3249,
+          "-"
+        ],
+        [
+          "h4/p3/s2",
+          3250,
+          3293,
+          "-"
+        ],
+        [
+          "h4/p3/s3",
+          3294,
+          3410,
+          "-"
+        ],
+        [
+          "h4/p4/s1",
+          3412,
+          3498,
+          "-"
+        ],
+        [
+          "h4/p4/s2",
+          3499,
+          3555,
+          "-"
+        ],
+        [
+          "h4/p4/s3",
+          3556,
+          3595,
+          "-"
+        ],
+        [
+          "h4/p5/s1",
+          3597,
+          3670,
+          "-"
+        ],
+        [
+          "h4/p6/s1",
+          3672,
+          3712,
+          "-"
+        ],
+        [
+          "h4/p6/s2",
+          3713,
+          3765,
+          "-"
+        ],
+        [
+          "h4/p7/s1",
+          3767,
+          3815,
+          "-"
+        ],
+        [
+          "h4/p7/s2",
+          3816,
+          3918,
+          "-"
+        ],
+        [
+          "h4/p8/s1",
+          3920,
+          3971,
+          "-"
+        ],
+        [
+          "h4/p8/s2",
+          3972,
+          4024,
+          "-"
+        ],
+        [
+          "h4/p9/s1",
+          4026,
+          4050,
+          "-"
+        ],
+        [
+          "h4/p9/s2",
+          4051,
+          4111,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h4/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p5",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p6",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p7",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p8",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h4/p9",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/004-the-victory-that-remains/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "0c1704a81e56f77a1e9dcd0ed31c64d0339116d0c985071fcd34ad3b937969f6",
+      "current_sha256": "0c1704a81e56f77a1e9dcd0ed31c64d0339116d0c985071fcd34ad3b937969f6",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "a81c35174c186ac7ce1b8f037087614d88ac179c34ae2a22bf439016d3ef5f9c",
+      "current_sha256": "a81c35174c186ac7ce1b8f037087614d88ac179c34ae2a22bf439016d3ef5f9c",
+      "changed": false,
+      "h2_count": 19,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "0c9c4494b086b79608d670e781b0ce4f5df4056b829b81791ed08ca5ff63f18c",
+      "current_sha256": "0c9c4494b086b79608d670e781b0ce4f5df4056b829b81791ed08ca5ff63f18c",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/006-the-son-left-living/001-the-son-left-living.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "ef8c577ec44b4c2602d1c5c2d7b68feb7d43db2f1a7261f52f5371c0a5b7e96c",
+      "current_sha256": "ef8c577ec44b4c2602d1c5c2d7b68feb7d43db2f1a7261f52f5371c0a5b7e96c",
+      "changed": false,
+      "h2_count": 16,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/006-the-son-left-living/index.md",
+      "snapshot2_source": "unchanged-baseline-fallback",
+      "snapshot2_sha256": "8c99dbefeaad57ead86ac2e135c34b502974a0d6c8f6c754135e4a30981fd7ec",
+      "current_sha256": "8c99dbefeaad57ead86ac2e135c34b502974a0d6c8f6c754135e4a30981fd7ec",
+      "changed": false,
+      "h2_count": 0,
+      "changes": [],
+      "coverage": [],
+      "sentence_units": [],
+      "paragraph_tests": []
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/004-first-command.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "a373be66632e49614fe9d8fb2cce30840abec13acbf7aaf676a928ba3b0ef9b7",
+      "current_sha256": "9f8fddde98f12fc3e24853774985a1e48d876bb56b794018964bde3d7724b1c3",
+      "changed": true,
+      "h2_count": 3,
+      "changes": [
+        {
+          "operation": "replace",
+          "before": [
+            {
+              "locator": "h1/p2",
+              "line": 7,
+              "text": "Questions from that pupil and [the pupil beside him](../settings/040-agents/121-taehak-receiving-pupil.md#taehak-receiving-pupil) force Gaesomun to restore steps he skipped in his rush.",
+              "h2": "explain-to-others"
+            }
+          ],
+          "after": [
+            {
+              "locator": "h1/p2",
+              "line": 7,
+              "text": "The neighboring pupil agrees to cover the first pupil's place; only then does the first pupil move and announce his arrival, allowing the blocking exercise to begin.",
+              "h2": "explain-to-others"
+            }
+          ],
+          "excerpt_policy": "Literal short excerpts of the changed paragraph; the before excerpt supplies the insertion context."
+        }
+      ],
+      "coverage": [
+        {
+          "h2": "explain-to-others",
+          "locator": "h1/p1",
+          "line": 3,
+          "span": [
+            42,
+            90
+          ],
+          "kind": "heading",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "explain-to-others",
+          "locator": "h1/p2",
+          "line": 7,
+          "span": [
+            1689,
+            2809
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "explain-to-others",
+          "locator": "h1/p3",
+          "line": 9,
+          "span": [
+            2811,
+            3150
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        },
+        {
+          "h2": "explain-to-others",
+          "locator": "h1/p4",
+          "line": 11,
+          "span": [
+            3152,
+            3540
+          ],
+          "kind": "body",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h1/p2/s1",
+          1689,
+          1725,
+          "-"
+        ],
+        [
+          "h1/p2/s2",
+          1726,
+          1930,
+          "-"
+        ],
+        [
+          "h1/p2/s3",
+          1931,
+          2017,
+          "-"
+        ],
+        [
+          "h1/p2/s4",
+          2018,
+          2203,
+          "-"
+        ],
+        [
+          "h1/p2/s5",
+          2204,
+          2369,
+          "-"
+        ],
+        [
+          "h1/p2/s6",
+          2370,
+          2453,
+          "-"
+        ],
+        [
+          "h1/p2/s7",
+          2454,
+          2529,
+          "-"
+        ],
+        [
+          "h1/p2/s8",
+          2530,
+          2809,
+          "-"
+        ],
+        [
+          "h1/p3/s1",
+          2811,
+          2961,
+          "-"
+        ],
+        [
+          "h1/p3/s2",
+          2962,
+          3079,
+          "-"
+        ],
+        [
+          "h1/p3/s3",
+          3080,
+          3150,
+          "-"
+        ],
+        [
+          "h1/p4/s1",
+          3152,
+          3215,
+          "-"
+        ],
+        [
+          "h1/p4/s2",
+          3216,
+          3334,
+          "-"
+        ],
+        [
+          "h1/p4/s3",
+          3335,
+          3540,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h1/p2",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h1/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h1/p4",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/026-ren-camp.md",
+      "snapshot2_source": "raw-cache",
+      "snapshot2_sha256": "ed89d4852604cfbbfaf58130a6b773c991dba2f57c29bcd568f6284b9057ad62",
+      "current_sha256": "c233bc4e83d61937aa4441cbb0e89438a41b944493aaa851a618d0e08166853b",
+      "changed": true,
+      "h2_count": 3,
+      "changes": [
+        {
+          "operation": "replace",
+          "before": [
+            {
+              "locator": "h1/p2",
+              "line": 9,
+              "text": "On the day of the fourteenth of the second lunar month,",
+              "h2": "first-target"
+            }
+          ],
+          "after": [
+            {
+              "locator": "h1/p2",
+              "line": 9,
+              "text": "On the fourteenth day of the second lunar month,",
+              "h2": "first-target"
+            }
+          ],
+          "excerpt_policy": "Literal changed opening clause; unchanged numbers and operational duties are inspected in the full H2."
+        }
+      ],
+      "coverage": [
+        {
+          "h2": "first-target",
+          "locator": "h1/p1",
+          "line": 3,
+          "span": [
+            38,
+            90
+          ],
+          "kind": "heading",
+          "basis": "whole-affected-H2-parent-execution-comparison"
+        },
+        {
+          "h2": "first-target",
+          "locator": "h1/p2",
+          "line": 9,
+          "span": [
+            1118,
+            1678
+          ],
+          "kind": "body",
+          "basis": "changed"
+        },
+        {
+          "h2": "first-target",
+          "locator": "h1/p3",
+          "line": 11,
+          "span": [
+            1680,
+            2527
+          ],
+          "kind": "body",
+          "basis": "adjacent"
+        }
+      ],
+      "sentence_units": [
+        [
+          "h1/p2/s1",
+          1118,
+          1209,
+          "-"
+        ],
+        [
+          "h1/p2/s2",
+          1210,
+          1362,
+          "-"
+        ],
+        [
+          "h1/p2/s3",
+          1363,
+          1618,
+          "-"
+        ],
+        [
+          "h1/p2/s4",
+          1619,
+          1678,
+          "-"
+        ],
+        [
+          "h1/p3/s1",
+          1680,
+          1777,
+          "-"
+        ],
+        [
+          "h1/p3/s2",
+          1778,
+          1874,
+          "-"
+        ],
+        [
+          "h1/p3/s3",
+          1875,
+          2025,
+          "-"
+        ],
+        [
+          "h1/p3/s4",
+          2026,
+          2151,
+          "-"
+        ],
+        [
+          "h1/p3/s5",
+          2152,
+          2277,
+          "-"
+        ],
+        [
+          "h1/p3/s6",
+          2278,
+          2357,
+          "-"
+        ],
+        [
+          "h1/p3/s7",
+          2358,
+          2473,
+          "-"
+        ],
+        [
+          "h1/p3/s8",
+          2474,
+          2527,
+          "-"
+        ]
+      ],
+      "paragraph_tests": [
+        [
+          "h1/p2",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ],
+        [
+          "h1/p3",
+          "-",
+          "-",
+          "-",
+          "-",
+          "-"
+        ]
+      ]
+    }
+  ],
+  "current_parent_and_contract_hashes": [
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/004-first-command.md",
+      "current_sha256": "9f8fddde98f12fc3e24853774985a1e48d876bb56b794018964bde3d7724b1c3"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/026-ren-camp.md",
+      "current_sha256": "c233bc4e83d61937aa4441cbb0e89438a41b944493aaa851a618d0e08166853b"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+      "current_sha256": "95bdd3efb8f8908d6de3153422d0a7749f1cbce8e88a39e5259af3e197692671"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/004-the-victory-that-remains/001-remaining-victory.md",
+      "current_sha256": "b608f37d543fb6f326dbaa120a94452c1ce6e929a49069f198c6604adc13dfc6"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/settings/040-agents/120-taehak-moving-pupil.md",
+      "current_sha256": "92cfe900ef258521ff3d84f8e5a58a5d2ba4df78aeb8089ad5dc222f1d4fe678"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/body/settings/040-agents/121-taehak-receiving-pupil.md",
+      "current_sha256": "eda921e488d2b10b308d5aadcf4a85bd50de7e0c2904ab525235da099c3cb71a"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/docs/instructions/010-adaptation-and-delivery.md",
+      "current_sha256": "927d0f9ce3f1d0e882cf26bb12796638038595daab753df64ef4ccab4a65ddea"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/shared/obligations/scripts.md",
+      "current_sha256": "630214b4f81c13124eca1ebedca136601689e1ff95a32e3c5e810e6356606e54"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/shared/obligations/settings.md",
+      "current_sha256": "3df4dd3612e2dd8d8ecf6c6a128d1924e9d78a0c06e72bb5be4dc33690e5a504"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/shared/principles/narratives.md",
+      "current_sha256": "d0c16aea4c3a556730a41664d970625a7738a62667d49ae32ea6c395231127f4"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/shared/naturalness/common.md",
+      "current_sha256": "c87e7b54db5891d94c15c7af5190b149389aebe675963bd158f92f716d75bc37"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/shared/naturalness/screenplay.md",
+      "current_sha256": "ea2009f740460cf9c23376f979e9402efa7a223a6949eee6253e8fbb19600e4b"
+    },
+    {
+      "path": "experimental/yeon-gaesomun-biography/.agents/skills/contracts/story/shared/naturalness/realized.md",
+      "current_sha256": "49cd128305f74314daef0a0fd2b4ef71687196b68fc417ebebb487071b5b9e5e"
+    }
+  ],
+  "prior_classification_policy": "Initial44 and prior six group resolutions are carried; this record tests only new/changed dependencies and does not rewrite prior findings.",
+  "validation": {
+    "completed_at_utc": "2026-10-29T07:45:03.906564+00:00",
+    "checks": {
+      "prior_three_records_unchanged": true,
+      "all_current_and_snapshot_file_hashes_valid": 26,
+      "nine_changed_files_confirmed": 9,
+      "all_coverage_spans_and_locator_rows_valid": {
+        "blocks": 100,
+        "sentence_units": 165
+      },
+      "all_before_after_excerpts_literal_in_correct_source": 28,
+      "current_parent_and_contract_hashes_valid": 13,
+      "literal_evidence_quotes_valid": 9,
+      "snapshot46_fingerprints": {
+        "matched_prior_manifest_or_baseline": 42,
+        "not_claimed_as_historical_manifest_match": 4,
+        "body12_match_recheck2": true
+      },
+      "english_record": true
+    },
+    "normalization_fallback_used": false,
+    "failures": []
+  },
+  "summary": {
+    "changed_files": 9,
+    "manuscript_inventory": 24,
+    "manuscript_h2_inventory": 230,
+    "coverage_blocks": 100,
+    "sentence_units": 165,
+    "new_findings": 0
+  },
+  "actual_parent_scopes": {
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/001-the-right-to-command/001-people-to-command.md#t001-report-at-court": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/001-six-roads.md",
+        "h2": "report-at-court",
+        "sha256": "ef86998c4a331d788ad3c357778cc5e263f12c4fd9594d44eb3bd40df61a632c"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+        "h2": "t001-report-at-court",
+        "sha256": "95bdd3efb8f8908d6de3153422d0a7749f1cbce8e88a39e5259af3e197692671"
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/001-the-right-to-command/001-people-to-command.md#t004-explain-to-others": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/004-first-command.md",
+        "h2": "explain-to-others",
+        "sha256": "9f8fddde98f12fc3e24853774985a1e48d876bb56b794018964bde3d7724b1c3"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/001-people-to-command.md",
+        "h2": "t004-explain-to-others",
+        "sha256": "95bdd3efb8f8908d6de3153422d0a7749f1cbce8e88a39e5259af3e197692671"
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/002-the-kings-work/001-the-kings-work.md#t007-rising-authority": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/007-threat-and-authority.md",
+        "h2": "rising-authority",
+        "sha256": "bf6b59b25a65d35131225791e418f8005abee7ac5482ecb656c6a1e474b83b01"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/002-the-kings-work/001-the-kings-work.md",
+        "h2": "t007-rising-authority",
+        "sha256": "e80b0f50ae51f0c6cffac62b9f4051804aeb00b846e863238990944f0087f41f"
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/003-the-roads-that-move/001-moving-roads.md#t016-frame-closes": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/016-frame-closed.md",
+        "h2": "frame-closes",
+        "sha256": "e6e8ae91e9d5b40a964aac6d0c5d8844ff6e821adb0f1f0badb9987ac1009374"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/003-the-roads-that-move/001-moving-roads.md",
+        "h2": "t016-frame-closes",
+        "sha256": "e52e2f74f2eafde8c035e870ba532932c6c516ba166efa37ad809f5198bed389"
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/004-the-victory-that-remains/001-remaining-victory.md#t025-return-decision": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/025-way-home.md",
+        "h2": "return-decision",
+        "sha256": "0e793c2717d53c377221a21fb7a27873411413223671e0672a547388a918a389"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/004-the-victory-that-remains/001-remaining-victory.md",
+        "h2": "t025-return-decision",
+        "sha256": "b608f37d543fb6f326dbaa120a94452c1ce6e929a49069f198c6604adc13dfc6"
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/004-the-victory-that-remains/001-remaining-victory.md#t026-first-target": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/026-ren-camp.md",
+        "h2": "first-target",
+        "sha256": "c233bc4e83d61937aa4441cbb0e89438a41b944493aaa851a618d0e08166853b"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/004-the-victory-that-remains/001-remaining-victory.md",
+        "h2": "t026-first-target",
+        "sha256": "b608f37d543fb6f326dbaa120a94452c1ce6e929a49069f198c6604adc13dfc6"
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/005-days-to-sow/001-days-to-sow.md#t030-return-and-repair": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/030-reconstruction-begins.md",
+        "h2": "return-and-repair",
+        "sha256": "cde5980a83f806be79531e0adb77416e0de457fff9ee52c56b53b6916263bbf1"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/005-days-to-sow/001-days-to-sow.md",
+        "h2": "t030-return-and-repair",
+        "sha256": "a81c35174c186ac7ce1b8f037087614d88ac179c34ae2a22bf439016d3ef5f9c"
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/screenplay/006-the-son-left-living/001-the-son-left-living.md#t038-namsaeng-chooses-destructive-aid": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/038-the-country-no-longer-decides.md",
+        "h2": "namsaeng-chooses-destructive-aid",
+        "sha256": "5be8eea956736abec565ba8967460fd78434f0071ee5cad78cc213f8a0cf53e5"
+      },
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/scripts/006-the-son-left-living/001-the-son-left-living.md",
+        "h2": "t038-namsaeng-chooses-destructive-aid",
+        "sha256": "ef8c577ec44b4c2602d1c5c2d7b68feb7d43db2f1a7261f52f5371c0a5b7e96c"
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/scripts/001-the-right-to-command/001-people-to-command.md#t004-explain-to-others": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/004-first-command.md",
+        "h2": "explain-to-others",
+        "sha256": "9f8fddde98f12fc3e24853774985a1e48d876bb56b794018964bde3d7724b1c3"
+      }
+    ],
+    "experimental/yeon-gaesomun-biography/docs/body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t026-first-target": [
+      {
+        "path": "experimental/yeon-gaesomun-biography/docs/body/treatments/026-ren-camp.md",
+        "h2": "first-target",
+        "sha256": "c233bc4e83d61937aa4441cbb0e89438a41b944493aaa851a618d0e08166853b"
+      }
+    ]
+  }
+}

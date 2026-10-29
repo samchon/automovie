@@ -6,7 +6,7 @@ Canon guide: [Location of this subject](../outline/index.md#050-systems--080-yal
 
 **Definition and scope**
 
-The work’s baseline for the Yalu in September 661 is a standoff in which Namsaeng’s force prevents Qibi Heli’s army from crossing and cuts supplies to the Tang army before Pyongyang. The Samguk Sagi’s September account says the Yalu froze, Qibi Heli crossed, and Namsaeng’s force lost. [The recorded calendar](../020-world/030-second-war-calendar.md#second-war-calendar) owns the work’s dates for the crossing on ice and defeat.
+The work’s baseline for the Yalu in the ninth lunar month of 661 is a standoff in which Namsaeng’s force prevents Qibi Heli’s army from crossing and cuts supplies to the Tang army before Pyongyang. The Samguk Sagi’s ninth lunar month account says the Yalu froze, Qibi Heli crossed, and Namsaeng’s force lost. [The recorded calendar](../020-world/030-second-war-calendar.md#second-war-calendar) owns the work’s dates for the crossing on ice and defeat.
 
 **Established facts**
 

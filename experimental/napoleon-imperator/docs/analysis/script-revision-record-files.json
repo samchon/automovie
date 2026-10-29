@@ -1,0 +1,43 @@
+{
+  "purpose": "Record-file serialization under repository .gitattributes; this is not manuscript repair or review renewal.",
+  "policy": "* text=auto eol=lf",
+  "scope": "Only new analysis records of this revision. Manuscripts, historical annotations, archives and manifests are unchanged by this operation.",
+  "hash_interpretation": "Earlier inter-record hashes identify raw inspection-time records. The LF hashes identify stored forms. A true crlf_reconstruction_matches_raw_hash means LF-to-CRLF reconstructs that raw input; false identifies a mixed-ending inspection input whose exact newline placement is no longer retained. Text content and manuscript fingerprints are unchanged; this map does not assert a permanent raw archive.",
+  "files": [
+    {
+      "path": "docs/analysis/script-revision-classification.json",
+      "inspection_time_raw_sha256": "6986202b18f26b8adb3d5f9092d8fe17d74128eef55ddba3e684703ccc3dd0db",
+      "stored_lf_sha256": "5fa10ca754ca70f4e8d6830249a562b6077d4dda61cd53262435104b91df725b",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": true
+    },
+    {
+      "path": "docs/analysis/script-revision-recheck-1.json",
+      "inspection_time_raw_sha256": "c203e17a74ae2713926b0469cad7e1b1cd835cf97ec63ec630ce8c183c6b8186",
+      "stored_lf_sha256": "4a64bd1ceca584791138dfbb13469da1a1a3ae9c3d14c092e57cf4fe2998f1c5",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": true
+    },
+    {
+      "path": "docs/analysis/script-revision-review-1.md",
+      "inspection_time_raw_sha256": "379141c0b114e8a90f9a3d62d485db978765835c0e6b452f96862b0176ef4810",
+      "stored_lf_sha256": "ecbb84bbc35e2af18f2e63b79b49193ba8c2315504451635c5a67528a9e0dcf4",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": true
+    },
+    {
+      "path": "docs/analysis/script-revision-review-3.md",
+      "inspection_time_raw_sha256": "bc19606b49714e336f618e487966511a7e32e13fdb9fce683ea994aa68f6a74b",
+      "stored_lf_sha256": "4933c56f99e47f859c0b35f64f28b2fd7406c1851d5f091e1901fea2b2a0a377",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": false
+    },
+    {
+      "path": "docs/analysis/script-revision-review-4.md",
+      "inspection_time_raw_sha256": "2c6a889af5a38606058110e6c7b54bfe4979ff27a1567c02bd4944ea2848227e",
+      "stored_lf_sha256": "d24b380c0d9a1db485dca55e3daf216982bea54d5f50400d602be83592f79d44",
+      "only_change": "CRLF to LF",
+      "crlf_reconstruction_matches_raw_hash": true
+    }
+  ]
+}

@@ -28,19 +28,21 @@ Marchand separates used plate. Bertrand records expenditure, then counts remaini
 
 Parent: [044#dictation](../../treatments/044-the-people-who-write.md#dictation).
 
-Longwood by day, autumn 1816. Napoleon walks and speaks. Las Cases draws paper toward him. Distinguish where Las Cases's son takes dictation from the father's diary desk. After Napoleon stops, the pen writes a few more characters.
+Longwood by day, autumn 1816. Napoleon walks and speaks. Las Cases's son takes dictation at one desk. At a separate desk his father brings his own record close to his weak eyes. After Napoleon stops, the son's pen writes a few more characters.
 
 NAPOLEON: Have you written that far?
 
-LAS CASES: I am finishing what you just said.
+LAS CASES'S SON: I am finishing what you just said.
 
-Before Las Cases can read back, Napoleon starts the next campaign. The father turns a page; the son draws another sheet.
+Before the son can read back, Napoleon starts the next campaign. The father turns a page of his separate record; the son draws another sheet for dictation.
 
 HISTORIAN (off screen): Las Cases's diary, his son's dictation, and the separately dictated campaign memoirs were different manuscripts.
 
 Through the historian's approach briefly widen to the Marengo report revised in exile. Compare the actual retreat and counterattack after Desaix arrived, already seen, briefly. Do not perform the entire battle again.
 
-HISTORIAN (off screen): Victory won by an army that was pushed back and counterattacked became, in the later account, strategy calculated from the start. The exact time of revision cannot be fixed to one day that autumn.
+HISTORIAN (off screen): Victory won by an army that was pushed back and counterattacked became, in the later account, strategy calculated from the start.
+
+Keep the comparison in a separate later historian's view, with no caption or action assigning the report's revision to this autumn day.
 
 Do not invent the revised original text on screen or read it as scene dialogue. Return to the same Longwood desk. Bertrand adds dates and Marchand records what he heard in close daily life.
 
@@ -74,17 +76,17 @@ Parents: [045#o-meara](../../treatments/045-the-patient-and-the-reports.md#o-mea
 
 Spring 1818, the patient's room. O'Meara examines Napoleon closely. Bertrand waits at the door; Marchand hands over water.
 
-O'MEARA: When did this begin today?
+O'MEARA: Is it worse now?
 
 Napoleon thinks briefly and answers.
 
 NAPOLEON: It is worse than before.
 
-O'Meara writes and examines him again. In another room Lowe waits for a report. O'Meara's writing hand stops.
+O'Meara writes and examines him again. Later, in a separate room, he puts his examination notes beside a report for the governor. A request from Lowe's office arrives. The messenger waits while O'Meara looks from it to his patient notes.
 
-O'MEARA: How much of what I hear from my patient must I pass on?
+O'MEARA: I have not finished the report.
 
-After this question receive the official report and opposing statements on Lowe's side as records of different interests.
+The messenger leaves. O'Meara keeps the patient notes beside him and begins writing on the report sheet. Receive the official report and opposing statements on Lowe's side as records of different interests; show no invented confidential passage or final disclosure decision.
 
 HISTORIAN (off screen): O'Meara wrote on the patient's side; Lowe's side opposed him. Closeness of treatment did not remove the interests in reporting.
 
@@ -118,7 +120,7 @@ See people beside the bed at the same height. Marchand adjusts support for the b
 
 Receive the autopsy on the 6th through documents and the medical personnel's different findings.
 
-HISTORIAN (off screen): The adopted cause of death is stomach cancer. Contemporary autopsy findings and interpretations differed. That difference is not proof of a poisoner.
+HISTORIAN (off screen): He died of stomach cancer. Contemporary autopsy findings and interpretations differed.
 
 In May a coffin is placed in the island grave. After people leave, the grave remains that day.
 
@@ -144,9 +146,9 @@ HISTORIAN (off screen): The father declared succession as Napoleon II for the ch
 
 Daylight inside Schönbrunn. The grown son turns from activity outside the window to his own document. An independent reconstruction without a new meeting with a specific historical person.
 
-SON: Even with my father's name, I do not gain a place of my own.
+HISTORIAN (off screen): He wanted to understand his father's place in history, and what place of his own that name could leave him.
 
-No army to answer or state order arrives. Briefly juxtapose his childhood face, then close on the result of his death July 22, 1832. Do not call him the Eaglet in life. The child once promising a return did not become a living successor who could return.
+He looks from his document to the uniform he wears, then toward the activity outside again. Keep him alone, with no new letter, historical listener or unrecorded private speech. Briefly juxtapose his childhood face, then close on the result of his death July 22, 1832. Do not call him the Eaglet in life.
 
 ## Authority to bring the coffin home {#permission-and-exhumation}
 
@@ -168,7 +170,7 @@ MARCHAND: I will look closer.
 
 Bertrand makes room. Give both time to verify.
 
-HISTORIAN (off screen): Observations reported by those who opened the coffin differed too. This was not a place to confirm a person had returned alive.
+HISTORIAN (off screen): Observations reported by those who opened the coffin differed too.
 
 Without an effect of the body breathing, hands supporting the coffin pass it to the next carriers.
 

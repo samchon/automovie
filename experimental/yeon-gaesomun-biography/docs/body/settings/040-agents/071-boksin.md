@@ -14,7 +14,7 @@ His invented appearance is 173 centimeters tall, broad-backed and thick-armed, w
 
 The work adopts fear that restoration forces will be eliminated next if Goguryeo falls as his invented motive for a risky decisive battle. Even if preparations are insufficient, he judges Silla must be badly defeated to gain resources and space to survive. After Goguryeo survives in 662, earlier preparations, accumulated mobilization, and southern pressure make it hard to stop what is already underway. Do not place Baekgang at the same time as the Sasu.
 
-Use of Boksin as a living commander or negotiator ends before Baekgang. Nihon Shoki vol. 27 places his killing by Buyeo Pung in the sixth lunar month of 663 and Baekgang in the eighth. The work adopts that outcome and order without fixing an exact June day. He does not mobilize or command alive at Baekgang. Treatments own the detailed conflict, killing, and order of disclosure to the audience.
+Use of Boksin as a living commander or negotiator ends before Baekgang. Nihon Shoki vol. 27 places his killing by Buyeo Pung in the sixth lunar month of 663 and Baekgang in the eighth. The work adopts that outcome and order without fixing a day within that sixth lunar month. He does not mobilize or command alive at Baekgang. Treatments own the detailed conflict, killing, and order of disclosure to the audience.
 
 **References and unresolved matters**
 

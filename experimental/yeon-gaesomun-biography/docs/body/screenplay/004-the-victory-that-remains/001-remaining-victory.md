@@ -5,11 +5,11 @@
 
 Section labels for producers.
 
-*Daemangniji* final audiovisual script · Part 4
+*The Great Magnate* final audiovisual script · Part 4
 
 [Event parent](../../../body/treatments/025-way-home.md#return-decision) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t025-return-decision)
 
-On-screen text: “Around February 7, Silla land main body.” Empty carts move faster than when loaded. As escorts try to set that pace, the injured column opens gaps behind. Gwidol looks for a place to set his foot before moving his body.
+On-screen text: “Around day 7 of the second lunar month, Silla land main body.” Empty carts move faster than when loaded. As escorts try to set that pace, the injured column opens gaps behind. Gwidol looks for a place to set his foot before moving his body.
 
 **OFFICIAL**　The carts can travel faster than on the way here.
 
@@ -27,33 +27,43 @@ Gwidol takes his next step.
 
 [Event parent](../../../body/treatments/025-way-home.md#guidol-dies) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t025-guidol-dies)
 
-Gwidol cannot put weight on his foot. Chano tries to take his load and drops it. When it slips from his grip again, companions divide places to carry it. Chano sits beside Gwidol.
+Day, the mountain road home. The returning party passes close by. Chano takes more of Gwidol's load, changes his failing grip and lifts it. Gwidol cannot take the next step.
 
-Trying to adjust his frozen foot, Gwidol grasps Chano's arm.
+**CHANO**　Lean on me.
 
-**GWIDOL**　Mother... in the field...
+The two sag together under Gwidol's weight. Chano lowers him beside the road. Men behind work their way past.
 
-His lips move, then stop. Chano lowers himself to meet his face. Gwidol's eyes do not return when called.
+**GWIDOL**　Mother will be in the field. If she has to do it all...
 
-**CHANO**　Gwidol.
+Chano bends close. Gwidol draws another breath, but no words follow. His breathing stops.
 
-No answer. Chano looks at his companion.
+**CHANO**　Gwidol?
 
-**COMPANION**　We can't take his body home too. There's no one here who can carry him farther.
+Chano watches his chest. A companion stops beside them as the column draws farther away. Chano tries to lift Gwidol against him, but his own feet give under the weight. The companion steadies him; together they lower the body.
 
-Chano points to the knife.
+**CHANO**　I can't leave him here.
 
-Gwidol's everyday knife is placed in Chano's hand. He tries to wrap the small blade, but cannot catch the cord with his fingers. His companion takes it and ties the knot. Chano looks at Gwidol's face and puts the knife inside his clothes. At the call to rise, he checks it there. The companion shoulders his own load and Chano follows.
+The companion looks toward the people still moving. He cannot offer to carry the body home.
+
+Keep Gwidol in the foreground. Beside him, Chano collects the small everyday knife.
+
+**CHANO**　His mother has to know.
+
+Without leaving the body behind in another shot, include Chano wrapping the blade. His attempt to fasten the cord fails; the companion takes the cord and ties it while Chano holds the wrapped knife. The secured object stays in Chano's hands.
+
+A call from the returning party reaches them. The companion helps Chano rise, and the two regain the road. The view remains with Gwidol as their steps recede. At the edge of the view, Chano is still carrying the bound knife when he passes from sight.
 
 ## Time bought by fires left behind {#t025-deception-at-night}
 
 [Event parent](../../../body/treatments/025-way-home.md#deception-at-night) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t025-deception-at-night)
 
-Night, Silla camp. Fires remain while the actual column moves quietly. After the person ahead disappears, the rear collects the injured and leaves. Hands signal to wait and go. Chano presses the place holding the knife to check it and follows.
+From the Goguryeo watch, the Silla camp's fires still burn. A pursuer waits for movement between them. When he finally enters, the place beside the fire is empty.
 
-From Goguryeo observation, the fires still look occupied. Only after someone enters to check and touches the empty space do they search for the next route. While he returns to report, Silla adds hands to crossing preparations.
+Earlier that night, behind the light of those same fires, the Silla rear waited for an injured man to pass before leaving quietly. Chano followed, feeling inside his clothes for Gwidol's knife. The main body was already ahead.
 
-The southern crossing preparations cut off. On-screen text: “February 14, preparation for the Pyongyang counterattack.” Hands tightening equipment and the sound of friction enter.
+Return to the pursuer checking the abandoned camp. His delay gives the Silla column time to gather people and prepare its crossing; the people he seeks are now at that work farther south.
+
+The crossing noise ends. On-screen text: “Second lunar month, day 14 · Pyongyang counterattack preparations.” Equipment is tightened for the northern attack.
 
 ## Cavalry pulled from a narrow entrance {#t026-first-target}
 
@@ -63,7 +73,7 @@ Gaesomun receives reconnaissance on Ren Yaxiang's camp defenses and relief conne
 
 **GAESOMUN**　We must remove this camp first to narrow the route out at Sasu. Hold the weaker defense and cut the connection relief would use.
 
-Before Ren's camp, February 14. Cavalry running across open ground is about to overlap infantry at the narrowing entrance. Namgeon, commanding one heavy-cavalry group in the existing central mobile force, turns them outward. Infantry enters in turn through the space the horses leave.
+Before Ren's camp, second lunar month, day 14. Cavalry running across open ground is about to overlap infantry at the narrowing entrance. Namgeon, commanding one heavy-cavalry group in the existing central mobile force, turns them outward. Infantry enters in turn through the space the horses leave.
 
 **NAMGEON**　Cavalry this way! Leave the entrance for the infantry.
 
@@ -87,19 +97,15 @@ Once Tang troops regain positions, they receive the next Goguryeo pressure. Even
 
 [Event parent](../../../body/treatments/026-ren-camp.md#relief-delayed) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t026-relief-delayed)
 
-Su Dingfang receives an urgent report. He asks someone trying to send an army in the direction the messenger entered about the road first.
+Ren's messenger reaches Su Dingfang alone. Before an army is sent back after him, Su asks about his route.
 
-**SU DINGFANG**　Can an army take the road you came by?
+**SU DINGFANG**　Can troops use the road you came by?
 
-**MESSENGER**　I crossed alone. An army must detour, cross the river, and assemble again.
+**MESSENGER**　Not as I did. They must go round, cross the river and form up again.
 
-Audience distance label: “Army detour: about 18 km.”
+Audience distance label: “Army detour: about 18 km.” Su checks the troops needed to hold his own camp. Outside, the intended relief turns toward the detour while Sokro's men delay further messengers.
 
-**SU DINGFANG**　Check what troops must remain here too. We can't empty our camp.
-
-Sokro's force delays approaching messengers. Su's side, ordered to relieve, prepares to reform after the detour and crossing.
-
-Ren's camp. The storehouse road is cut and no answer comes from assembly. Goguryeo reserves enter the gap. A withdrawing soldier tries to form a new rank, then divides again to avoid baggage. Battle sound continues from a face looking toward relief, hoping the urgent report arrived.
+At Ren's camp, a withdrawing soldier calls for his formation from beside the baggage. No one answers from the assembly place. Goguryeo reserves enter between it and the storehouse road. The soldier reaches men trying to make another rank, but they have to break around the baggage before they can join him. He looks toward the relief route. The fighting behind him continues without an answering call from that direction.
 
 ## A camp where answers stop {#t026-organization-lost}
 
@@ -121,7 +127,7 @@ At the end of the death report, a living prisoner receives water. Beside him, so
 
 [Event parent](../../../body/treatments/027-imjin.md#river-pressure) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t027-river-pressure)
 
-On-screen text: “Around February 15, Imjin River.” At the north-bank waiting area, Kim Yusin gives separate orders to escorts and carriers.
+On-screen text: “Around day 15 of the second lunar month, Imjin River.” At the north-bank waiting area, Kim Yusin gives separate orders to escorts and carriers.
 
 **KIM YUSIN**　Keep the crossing going. Escort stays here to meet pursuit. If everyone presses to cross together, we'll all be blocked at the river.
 
@@ -175,17 +181,31 @@ He chooses baggage to move within the time remaining. While he waits, the blocke
 
 [Event parent](../../../body/treatments/028-sasu.md#assault-on-camp) · [Scene parent](../../../body/scripts/004-the-victory-that-remains/001-remaining-victory.md#t028-assault-on-camp)
 
-On-screen text: “Morning of February 18, Sasu.” Namgeon's heavy cavalry shakes Pang's formation on the open front. Infantry enters where the entrance narrows. Support personnel receive damaged equipment and injured people behind, maintaining the connection. Sokro's force blocks the direction from which troops outside could join.
+Morning. Caption: “Day 18 of the second lunar month, 662 · Sasu.” From the riverside rise, the land entrance opens onto the slope where Namgeon's central heavy cavalry can form. Inside, barracks and baggage divide the view into narrow passages. A Tang drum turns men toward a front they cannot all see.
 
-Neither the fallen Ren camp nor the external rendezvous blocked the previous day offers a retreat route. Relief Pang awaits is not visible.
+**PANG XIAOTAI**　Hold the entrance. Keep looking for relief.
 
-**PANG XIAOTAI**　Hold the entrance. Check again whether anyone is coming from Su Dingfang!
+Outside, Sokro's riders prevent scattered Tang troops and messengers from reconnecting. The historian is heard over the return to the camp.
 
-A drum sounds inside. A soldier follows it, then stops at a barracks corner. A forward formation is pushed back along a passage hidden by baggage. As he turns to find an empty road, equipment coming back blocks his view.
+**HISTORIAN**　Ren's camp had fallen. The land rendezvous had been blocked since the previous day.
 
-**TANG COMMANDER**　Clear this side! Sideways, don't turn your backs!
+On the open slope, the Tang front holds long enough to strike back against Namgeon's cavalry. At the entrance, local Goguryeo infantry pushes in on foot. Stay with them into the passage, keeping the cavalry fight audible behind.
 
-One section actually clears and Tang counterattacks. Entering Goguryeo infantry falls back, passing injured people out. Heavy cavalry too needs open space to turn again. Through pushing, turning, and regaining positions, Tang's connections disappear one by one.
+A Tang junior commander finds men falling back between the barracks and gathers them for a counterattack.
+
+**TANG COMMANDER**　Forward! Clear the passage!
+
+Goguryeo infantry recoils toward the opening. A wounded man falls; his comrades fight over the ground he has lost. Outside, Gaesomun sees the retreat at the entrance.
+
+**GAESOMUN**　More infantry there. Hold the opening.
+
+The next rank enters and takes the pressure. Its advance stops, but it ceases to retreat. Outside, Tang soldiers try to turn toward that fight. Namgeon's cavalry engages them again on the open ground, forcing them to face away from the entrance.
+
+**NAMGEON**　Keep them here!
+
+Inside, the Tang commander calls for support. His men hear the cavalry clash beyond the opening, but no outside formation reaches them. Their next push fails against the infantry holding there. They give ground among the baggage; those behind must make room for men still fighting backward. A drum from beyond the buildings competes with the calls immediately before them.
+
+Return to the land side in a wide view. Horse and baggage personnel maintain the rear connection beyond tired and wounded Goguryeo troops. The cavalry still engages the outer Tang formation while infantry secures the opening and the inner defenders retreat. Neither Tang sector can reach the other.
 
 ## A collapse with people who escape {#t028-sasu-result}
 

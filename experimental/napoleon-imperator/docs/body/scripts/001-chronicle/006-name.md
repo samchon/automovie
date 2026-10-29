@@ -18,7 +18,7 @@ Napoleon looks back at the center and orders:
 
 NAPOLEON: Stop the attack. We cannot connect the army.
 
-A messenger leaves. Give time for the order to reach the front and troops to return. Next dawn see the army withdraw along the riverbank. Do not fix an actor who broke the bridge. Charles's victory and the limits confronting the French remain.
+A messenger leaves. Give time for the order to reach the front and troops to return. Next dawn see the army withdraw along the riverbank. Do not fix an actor who broke the bridge.
 
 ## A body that does not recover while they wait {#lannes}
 
@@ -132,7 +132,7 @@ HISTORIAN (off screen): The child received the title King of Rome.
 
 Parent: [027#grain-and-conscription](../../treatments/027-heir-and-hunger.md#grain-and-conscription).
 
-At the same period, distribution of grain by day. From the end of a line see shares received and sacks remaining. Follow households responding to service demands without a new named family's injury.
+At the same period, an outdoor grain collection point in daylight. From the end of a line, see household adults hand grain to officials collecting the state's demand. The officials put the delivered portions into army sacks; the adults hold close the containers of grain they mean to keep for home. Follow households responding to service demands without a new named family's injury.
 
 HOUSEHOLD ADULT: We have no money to buy a substitute.
 

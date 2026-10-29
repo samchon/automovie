@@ -90,11 +90,11 @@ Between fields D'Erlon's corps changes direction under conflicting demands. Leav
 
 The order reaches Ney. Indicate within that day the passage of two or three hours since dispatch.
 
-NEY: Has this just arrived?
+Ney opens the order. As he reads, an officer beside him points toward the troops already engaged. Ney looks from the paper to their changed position and calls toward the road between the fields.
 
-MESSENGER: I am delivering it now.
+NEY: Find D'Erlon's corps. Where are they now?
 
-The field behind Ney reading has already changed. Show Ligny victory, but no map where both enemies have disappeared.
+Return to the corps changing direction on that road, still on neither battlefield. Show Ligny victory, but no map where both enemies have disappeared.
 
 ## An alliance waiting for ammunition {#june-seventeen}
 
@@ -158,7 +158,7 @@ NAPOLEON: Grouchy?
 
 No answer. Move to the separate pursuing force. The afternoon dispatch reaches Grouchy late. Caption for audience: substance of afternoon dispatch — maneuver toward the Emperor's army and jointly attack Prussians striking its flank. The screen does not reproduce the original text. Leave receipt as the range late afternoon or evening; do not match the exact minute of the farm's fall. Even after Grouchy reads, time on the field does not return.
 
-The last troops committed advance. They fail to obtain the required breakthrough and are pushed back. People wishing to keep fighting and those wanting to return alive diverge. Cambronne's famous words are not heard as confirmed field speech. Follow the road by which even the Guard withdraws and see the army collapse.
+The last troops committed, including the Guard, advance into fire. The leading men stop; those behind crowd toward them, then give ground as the front comes back. An officer calls for men to hold, but returning bodies break the line of those still trying to advance. Follow the retreat from this failed attack into the ranks behind. People wishing to keep fighting and those wanting to return alive diverge. Cambronne's famous words are not heard as confirmed field speech. Follow the road by which even the Guard withdraws and see the army collapse.
 
 Wellington's army and Prussians win. Do not yet add cheers in London. At night the French scatter rather than sit together as on the first night of victory.
 

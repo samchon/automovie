@@ -6,7 +6,7 @@ Canon guide: [Location of this subject](../outline/index.md#050-systems--300-bae
 
 **Definition and scope**
 
-Baekgang is the decisive battle of 663, treated in the work as a fight for survival by the Baekje restoration forces and Silla. Do not move it earlier as if it were the final battle of Goguryeo’s 661–662 campaign. Wa’s main support force is about 30,000, distinct from the record of 27,000 dispatched in March 663. Do not land all support personnel at one port on the same day.
+Baekgang is the decisive battle of 663, treated in the work as a fight for survival by the Baekje restoration forces and Silla. Do not move it earlier as if it were the final battle of Goguryeo’s 661–662 campaign. Wa’s main support force is about 30,000, distinct from the record of 27,000 dispatched in the third lunar month of 663. Do not land all support personnel at one port on the same day.
 
 The battle occurs after [Boksin’s killing](../040-agents/071-boksin.md#boksin). Do not place him alive in command at Baekgang; use the conditions facing Buyeo Pung and the Wa commanders.
 

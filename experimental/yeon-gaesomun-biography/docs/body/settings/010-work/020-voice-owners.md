@@ -4,7 +4,7 @@ Canon guide: [Location of this subject](../outline/index.md#010-work--020-voice-
 
 ## Scope of expression changes preserving facts {#fact-preserving-expression}
 
-[Expression instructions](../../../instructions/009-expression-quality.md#fact-preserving-expression) own scope and preservation. Settings and treatments complete clarity and content in construction. Scripts and screenplay each undergo expression revision preserving their construction originals. Concision must not erase people, relationships, quantities, results, or uncertainty.
+[Expression instructions](../../../instructions/009-expression-quality.md#fact-preserving-expression) own scope and preservation. Settings and treatments complete clarity and content in construction. Scripts completes its content, dialogue and directions together in construction, comparing inherited meaning with treatments rather than a frozen scripts original. Final screenplay retains construction and a separate expression revision against its frozen original. Concision must not erase people, relationships, quantities, results, or uncertainty.
 
 ## The historian recording events from a later age {#chronicler}
 

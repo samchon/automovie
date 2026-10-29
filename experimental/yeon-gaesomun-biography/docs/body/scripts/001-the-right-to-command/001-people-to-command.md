@@ -3,6 +3,8 @@
 
 ## The man who opposed him to the end {#t001-report-at-court}
 
+[Event parent](../../treatments/001-six-roads.md#report-at-court)
+
 Inside the Pyongyang council hall. Day, late spring 661. Light from the open doorway falls on a report. A low viewpoint follows the open document to King Bojang's seat. Namsaeng stands beside Gaesomun; Namgeon and Namsan listen behind the other attendees. As we see Namsaeng, a caption reads: “Namsaeng — Gaesomun's son.”
 
 Default staging for the whole work: unless a scene specifies another viewpoint, a fixed medium view from one side of the space includes the speaker, listener, and objects used between them. Entrances, exits, and contact occur within that frame; when the location changes, begin again in the new space. Dialogue names identify speakers on screen. “Report voice” and “reading voice” are off-screen voices audible at the location; “historian voice” and “inner voice” are heard only by the audience.
@@ -26,6 +28,8 @@ GO HWI: At Liaodong, forty thousand of us drove back four thousand. Then Li Shij
 Gaesomun leaves the report open. Between the two men, the king cannot interrupt.
 
 ## A war that must end before spring {#t001-unconsented-decision}
+
+[Event parent](../../treatments/001-six-roads.md#unconsented-decision)
 
 In the same meeting, widen the view from the document. Go Hwi looks to the other attendees and questions Gaesomun again.
 
@@ -53,6 +57,8 @@ Before the king, Namsaeng takes the document and carries it out of the hall. Go 
 
 ## Words no one heard {#t001-unheard-address}
 
+[Event parent](../../treatments/001-six-roads.md#unheard-address)
+
 That night, inside the Yeon office. The report lies near a lamp. Once the door closes, Gaesomun is alone. From a fixed view behind his shoulder, look at the empty seat opposite.
 
 GAESOMUN (INNER VOICE): Your Majesty. I sit in your place now. But I cannot take the same path.
@@ -64,6 +70,8 @@ HISTORIAN (V.O.): The man speaking to that king had killed him.
 The sound of paper moving beneath the lamp carries into a newborn's cry.
 
 ## A house counting a birth and a man who has not returned {#t002-birth-after-war}
+
+[Event parent](../../treatments/002-child-after-war.md#birth-after-war)
 
 Caption: “614, Pyongyang.” Inside the family quarters by day, Mother takes the crying child and lays him down. Following the outside of the door to the office, Taejo is sorting returned equipment and the shares of men who have not returned. The cry is faintly audible from the family quarters.
 
@@ -81,6 +89,8 @@ Taejo returns to the office. The equipment he set aside is still there. He asks 
 
 ## A father's words chosen from outside the door {#t002-hero-becomes-king}
 
+[Event parent](../../treatments/002-child-after-war.md#hero-becomes-king)
+
 Caption: “Autumn 618.” Inside Taejo's house, Gaesomun listens to the adults beside his mother.
 
 TAEJO: King Yeongyang has died. His brother Go Geonmu will take the throne.
@@ -91,7 +101,7 @@ TAEJO: Yes. The prince led them himself.
 
 The boy approaches the door and hears guests outside telling the same story.
 
-HISTORIAN (V.O.): The new king inherited a country put back together by two kings before him. Before them came a succession civil war between Chugun and Segun. In this drama, all two thousand of the dead on Segun's side are nobles. The people who carried on families, marriages, and supply arrangements were lost together. Northern rights and resources passed away, and the southern base was lost too. Some Gungnaeseong families remembered the royal house abandoning their people. The royal house remembered an army it could not control.
+HISTORIAN (V.O.): The new king inherited a country put back together by two kings before him. Before them came a succession civil war between Chugun and Segun. In this drama, all two thousand of the dead on Segun's side are nobles. The people who carried on families, marriages, and supply arrangements were lost together. Northern rights and resources passed to Turkic powers, and the southern base was lost too. Some Gungnaeseong families remembered the royal house abandoning their people. The royal house remembered an army it could not control.
 
 Autumn gives way to winter. Outside the same door, the boy waits for two voices.
 
@@ -105,11 +115,17 @@ SEOGU: We struck Liaoxi in 598, and three hundred thousand came. Who will tend t
 
 TAEJO: It will cost more once a new master has united them.
 
-SEOGU: We cannot afford the price now either.
+SEOGU: We cannot afford the price now either. People say the Central Plain has only a third of its former population. His Majesty needs time for our households to recover too.
 
-Gaesomun cannot enter the room. When his father says “now” again, he listens toward him.
+TAEJO: Then we strike before they recover theirs.
+
+HISTORIAN (V.O.): That third was their estimate and rumor, not a population count verified for us.
+
+Gaesomun cannot enter the room. He leans toward his father’s call to strike before the enemy recovers.
 
 ## The boy with a bow and the boy who hits {#t003-shared-bow}
+
+[Event parent](../../treatments/003-gyeongdang.md#shared-bow)
 
 Around 620, outside in the Pyongyang gyeongdang yard, day. A fixed view faces the children from the target. Gaesomun brings his own bow to the front of the line. Buru steps in front of him.
 
@@ -124,6 +140,12 @@ The children laugh. As Gaesomun goes to the back, Eulbo takes the shared bow and
 GAESOMUN: My bow is better.
 
 EULBO: Then hit it.
+
+A child farther along the line strains to hold the shared bow drawn. The arrow falls short.
+
+WAITING CHILD: Pull it back! Or is that all you can lift?
+
+The child lowers the bow as laughter starts. Buru calls the next turn.
 
 On his next turn, Gaesomun lifts his bow. The waiting children are already asking Eulbo for another contest.
 
@@ -147,6 +169,8 @@ An arrow strikes the target. For now, the boys still argue only over whose turn 
 
 ## A victory greater than two missing fingers {#t003-inflated-victory}
 
+[Event parent](../../treatments/003-gyeongdang.md#inflated-victory)
+
 Inside the gyeongdang, day. In light from the door, see Buru's hand close up. He holds a bow beside the two missing fingers. The children look up at him.
 
 BURU: The prince led five hundred out. The enemy had forty-three thousand. He put horses and armor at the front and charged first himself.
@@ -157,11 +181,13 @@ BURU: He didn't stay behind and send others in his place.
 
 Gaesomun grips his bow. Eulbo mimics a charge beside him, and the other children rise too. Buru lines them up again.
 
-HISTORIAN (V.O.): In a country said to have defeated two million, the children heard about those five hundred. Even Buru, who experienced the outer-fortress ambush, led his story with a cavalry charge. He left out the naval troops' ranks falling into disorder through plunder, and Zhou Fashang's force remaining with the ships. The hero the boy heard was larger than the recorded battle.
+HISTORIAN (V.O.): The record gives 1,133,800 and says Sui proclaimed two million. That is a recorded figure, not an independently verified count. In a country said to have defeated two million, the children heard about those five hundred. Even Buru, who experienced the outer-fortress ambush, led his story with a cavalry charge. He left out the naval troops' ranks falling into disorder through plunder, and Zhou Fashang's force remaining with the ships. The hero the boy heard was larger than the recorded battle.
 
 Gaesomun tries to stand at the front; Buru pushes him back into place. He waits for the next charge.
 
 ## When the child behind moves {#t003-winning-and-following}
+
+[Event parent](../../treatments/003-gyeongdang.md#winning-and-following)
 
 Caption: “Around 626.” Gyeongdang yard, day. Buru moves the formation. Behind Gaesomun, first to reach the target, the children block one another and split apart.
 
@@ -186,6 +212,8 @@ MOTHER: How is Eulbo's father's leg?
 As Gaesomun searches for an answer, Jeongto goes outside to the children who lost. Gaesomun asks Taejo what he will learn tomorrow.
 
 ## A lesson whose answer takes longer {#t004-explain-to-others}
+
+[Event parent](../../treatments/004-first-command.md#explain-to-others)
 
 Around 627, inside the Taehak, day. Light from the door falls on youths seated opposite one another. Mugok closes the precedent they have just read. A fixed view toward Gaesomun also takes in the neighboring pupil's reaction.
 
@@ -217,15 +245,19 @@ Gaesomun turns to the first pupil, whom he interrupted.
 
 GAESOMUN: Move them immediately and that road is empty. First choose someone to take their place. Wait for confirmation of the handover, then move them. Once word comes that they've arrived, block the supply road.
 
-FIRST PUPIL: And if that word doesn't come?
+FIRST PUPIL: And if the person taking over hasn't answered?
 
-GAESOMUN: We must not move yet. Even if I told you to block it first.
+GAESOMUN: Then you stay. I wait for your arrival before blocking the road.
 
-The first pupil explains the sequence he has just heard to the neighboring pupil.
+The neighboring pupil answers the first.
 
-FIRST PUPIL: Then we wait for that word before going.
+NEIGHBORING PUPIL: I'll take your place.
 
-The neighboring pupil nods too. Gaesomun looks back at Mugok. First to rise, he is the last to sit.
+Only after that answer does the first pupil move to the position Gaesomun indicated.
+
+FIRST PUPIL: I'm here.
+
+After the arrival report, Gaesomun begins the blocking step of the exercise. He looks back at Mugok. First to rise, he is the last to sit.
 
 On the street after class, Gaesomun walks beside Eulbo, who carries a load.
 
@@ -233,7 +265,7 @@ GAESOMUN: You could come to the Taehak.
 
 EULBO: Who's going to recommend me? And will you carry the loads while I'm there?
 
-Gaesomun stops. Eulbo carries his load on his own way.
+Gaesomun stops. Eulbo carries his load on down the street.
 
 628, Taejo's house. Taejo and Seogu look together at a report of unification.
 
@@ -244,6 +276,8 @@ SEOGU: All the more reason to maintain relations.
 Gaesomun follows the report his father folds rather than Seogu's next words.
 
 ## The stones the lead passed {#t004-night-shortcut}
+
+[Event parent](../../treatments/004-first-command.md#night-shortcut)
 
 Spring night, 629, fields north of Pyongyang. A low view follows dark footing beside a stream. Gaesomun points toward a pile of stones.
 
@@ -265,17 +299,19 @@ Gaesomun cannot answer. Taejo sends him back to the injured soldier's house.
 
 ## A soldier does not rise for his visiting master {#t004-household-cost}
 
+[Event parent](../../treatments/004-first-command.md#household-cost)
+
 Next day, inside a small house. Light from the door reveals the reclining soldier's left foot. Gaesomun enters. The soldier does not rise to greet him. Gaesomun sits beside him where he can see.
 
 GAESOMUN: How long before you can walk?
 
 SOLDIER: Not by the time we need to work the fields, I expect.
 
-GAESOMUN: If you just rest—
+GAESOMUN: We had to learn to move together. I thought, if an injured man rested—
 
 SOLDIER: Leave the fields alone and there's no harvest. My day work is gone too. That's how I bought food.
 
-Gaesomun stops. The soldier adjusts his injured leg and finishes telling him what he cannot do this season. Gaesomun does not offer an explanation that training was necessary.
+Gaesomun stops speaking. The soldier adjusts his injured leg and finishes telling him what he cannot do this season. Gaesomun stays until he has finished.
 
 Taejo's office, day. Gaesomun stands before him.
 
@@ -284,6 +320,8 @@ GAESOMUN: We did arrive first. I thought the injured man only needed rest. But h
 TAEJO: You'll use people again. Next time, know what it costs.
 
 ## The closing chance to attack {#t005-unification-arrives}
+
+[Event parent](../../treatments/005-wall-and-frontier.md#unification-arrives)
 
 Autumn 629, inside the guest area of Taejo's house. In daylight, they read the report of defeat at Nangbiseong.
 
@@ -304,6 +342,8 @@ TAEJO: With the same people and grain, can we have both?
 Gaesomun starts to speak, but Taejo stops him. He looks at the folded report.
 
 ## The hero left after the monument falls {#t005-memorial-and-wall}
+
+[Event parent](../../treatments/005-wall-and-frontier.md#memorial-and-wall)
 
 Inside the Pyongyang palace in 631, day. The king has received news of the monument's destruction and assigns defense work and words for an envoy.
 
@@ -327,6 +367,8 @@ GAESOMUN: I wanted him to act as he did then.
 
 ## A household grows and its master disappears {#t006-marriage-and-loss}
 
+[Event parent](../../treatments/006-inheritance.md#marriage-and-loss)
+
 Inside the Yeon house, spring 632. After the marriage, Aran receives her share of household duties from Mother. Outside, Gaesomun returns from training.
 
 ARAN: Have you sent the defeated men away already?
@@ -342,6 +384,8 @@ FIRST REPRESENTATIVE: We have not yet authorized that share.
 Gaesomun's hand falls away from the equipment.
 
 ## Soldiers gained after bowing low {#t006-conditional-inheritance}
+
+[Event parent](../../treatments/006-inheritance.md#conditional-inheritance)
 
 Spring 634, inside the house's meeting area, day. The viewpoint includes the floor between Gaesomun and the three representatives. They sit without releasing their shares of people and equipment.
 
@@ -367,12 +411,14 @@ The third representative also offers his share. Gaesomun looks at each of them a
 
 ## A child arrives in the new family head's home {#t006-first-son}
 
+[Event parent](../../treatments/006-inheritance.md#first-son)
+
 Inside the family quarters, autumn 634, day. Aran tends Namsaeng. Gaesomun waits at the threshold, then enters.
 
 ARAN: You can hold him now.
 
 Before he reaches out, Mother makes a comfortable place for Aran. As Gaesomun receives the child, Mother watches his two hands move carefully. Jeongto remains outside the office where his elder brother's new authority is being discussed.
 
-HISTORIAN (V.O.): Twenty years passed. The boy became a family head and the king's subject. He had not abandoned his hero; he wanted that hero to make a different decision.
+HISTORIAN (V.O.): 20 years passed. The boy became a family head and the king's subject. He had not abandoned his hero; he wanted that hero to make a different decision.
 
 Gaesomun returns the child to Aran and goes to the office, where work awaits him.

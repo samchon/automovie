@@ -8,7 +8,7 @@ Return to island life with a caption indicating after arrival in October 1815. A
 
 MARCHAND: I will put it here, Sire.
 
-Bertrand finishes work needed for his family's life and returns to the Emperor's practical affairs. Las Cases translates and conveys language and records in his own notebook. The picture follows in turn Marchand placing objects, Bertrand coming and going, and Las Cases sitting and writing. Keep language work in this wide view too distant to understand individual words.
+Bertrand finishes work needed for his family's life and returns to the Emperor's practical affairs. Las Cases interprets a request for the household. At his desk later, he brings his own notebook close to his weak eyes. The picture follows Marchand placing objects, Bertrand coming and going, and Las Cases bending over the page. Keep the interpreted exchange in a wide view too distant to understand individual words.
 
 After April 1816. Hudson Lowe's office. Documents controlling movement and communication are stamped and sent. Do not create a new direct meeting with Napoleon. Distinguish the substance of titles on the governor's documents as “General Bonaparte” and at Longwood as “Sire,” without marking them as quotations of original document text.
 
@@ -52,7 +52,7 @@ Napoleon begins another dictation and only one pen moves again. Do not fill the 
 
 An undated moment at Longwood. Caption: Relationship reconstructed.
 
-Gourgaud tries to approach Napoleon. Napoleon's attention stays with another companion. Gourgaud waits for the exchange, then raises what he prepared to say.
+Gourgaud tries to approach Napoleon. Napoleon's attention stays with another companion. Gourgaud waits for the exchange, then starts to speak.
 
 GOURGAUD: Sire, I have something to tell you too.
 
@@ -88,7 +88,7 @@ ANTOMMARCHI: Will you try moving a little?
 
 Marchand walks with Napoleon. When Napoleon must stop and rest, both stop too. Antommarchi helps him rest and Marchand waits beside him.
 
-At a meal another day, the portion he can eat diminishes. His dictating voice breaks off sooner. Watch a life gradually losing strength to continue walking, eating, and speaking. Do not transition to a new treatment or cure.
+At a meal another day, the portion he can eat diminishes. His dictating voice breaks off sooner. Do not transition to a new treatment or cure.
 
 ## The work of what will be left {#will-and-death}
 
@@ -104,7 +104,7 @@ May 5, 1821. People who watched Napoleon's breathing remain beside him. Marchand
 
 Autopsy, May 6. Hands observing the body and records. The historian's voice is heard at a distance from the observers.
 
-HISTORIAN (voice): The judgment was stomach cancer. Differences remained in contemporary findings. Those differences cannot be evidence of a poisoner.
+HISTORIAN (voice): He died of stomach cancer. Differences remained in contemporary findings.
 
 Insert no face or object indicating a poisoner.
 
@@ -122,9 +122,9 @@ Briefly show Bourrienne as secretary. He turns an answer he heard into a documen
 
 Vienna. The child who was his father's King of Rome is now called Franz. Through the title Duke of Reichstadt in 1818 he becomes a young adult. On a white uniform after November 1830 are lieutenant colonel's epaulettes. His thin body is taller than his father's but breath is short. Alone, Franz looks down at the uniform.
 
-FRANZ (to himself, work's reconstruction): What am I in France?
+HISTORIAN (voice): He wanted to understand who his father had been, and who he could be with that name.
 
-No new person or letter answers. As he seeks his place attached to his father's name, there is no French state or army given to him. He braces a hand to sit and lowers himself slowly.
+As activity outside draws his attention, Franz rises and takes a step toward the window. His breath catches. He braces a hand and sits again. Keep him alone, without a new listener, letter or private speech.
 
 HISTORIAN (voice): In 1815 his father declared his succession as Napoleon II. He never actually ruled.
 
@@ -160,4 +160,4 @@ Bertrand moves his head slightly in answer. Marchand steps back and walks away. 
 
 Keep the black screen ending the main work. Then “Author's Commentary” appears and a separate voice is heard.
 
-AUTHOR (voice): The ending is temporary placement in 1840. We did not show the tomb completed later in advance. The will's wish and gift instructions, actual burial, and permission for transfer were different things. We also separated records by who left them and from what position. Work caring for a living person continued into moving a coffin. Marchand finishes and withdraws; Bertrand remains beside it. The son's question to himself is a reconstruction by the work, not a verbatim quotation from the record.
+AUTHOR (voice): The ending is temporary placement in 1840. We did not show the tomb completed later in advance. The will's wish and gift instructions, actual burial, and permission for transfer were different things. We also separated records by who left them and from what position. Work caring for a living person continued into moving a coffin. Marchand finishes and withdraws; Bertrand remains beside it. The son's private actions are reconstructed within the limits of his recorded titles and illness.
