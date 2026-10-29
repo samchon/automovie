@@ -16,7 +16,7 @@ import { writeScaffoldFile } from "./writeScaffoldFile";
 /**
  * Write a path-to-text map under `location` and return a receipt naming every completed file and the first entry that did not complete.
  *
- * The whole map is validated by {@link planScaffoldPublication} before the directory is created. Without `force`, a directory that already has an entry refuses the first file, so nothing is written. New files are created exclusively relative to captured parent directory handles, refusing linked parent directories; with `force`, existing ordinary single-link files are rewritten in place through verified descriptors. Publication stops at the first refusal or partial slot, and nothing is deleted. Directories created while preparing a failed entry can remain even when the receipt is refused.
+ * The whole map is validated by {@link planScaffoldPublication} before the directory is created. Without `force`, a directory that already has an entry refuses the first file, so nothing is written. New files are created exclusively relative to captured parent directory handles, refusing linked parent directories; with `force`, existing ordinary single-link files are rewritten in place through verified descriptors. Optional expected generations bind each candidate to its inspected ordinary-file identity and written state, or require absence. Publication stops at the first refusal or partial slot, and nothing is deleted. Directories created while preparing a failed entry can remain even when the receipt is refused.
  *
  * Every error thrown while preparing directories or before a file is written becomes a `create-failed` refusal for that file. Invalid input and an outcome that breaks the publication contract still throw.
  *
@@ -63,6 +63,7 @@ export const publishFiles: (
           base: session.base,
           bytes: Uint8Array.from(entry.bytes),
           force,
+          expected: options?.expected?.[entry.relative],
           parent,
           target: entry.target,
         });

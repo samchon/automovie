@@ -6,13 +6,14 @@ import type { ProductionGatePass } from "../../ProductionGatePass";
 import { AUTHORED_LAYERS } from "../AUTHORED_LAYERS";
 import { assertSupportClaims } from "../assertSupportClaims";
 import { hasNaturalness } from "../hasNaturalness";
+import { productionLayers } from "../productionLayers";
 
 /**
  * Validates the exact claim scopes and each layer's stage names.
  *
  * @evidence contracts/common.md#principled-implementation Runtime configuration is admitted only when route, lifecycle, stage vocabulary, exact custom-claim scope and support/authored boundaries agree; unsupported tuple shapes, duplicate names and work-owned review requirements throw before claim construction.
  * @evidence contracts/common.md#clear-and-simple-design One admission boundary checks related route/stage/scope invariants before factories materialize claims, while assertSupportClaims owns physical support-tree isolation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Asset routing has no narrative work claims, short routing authors screenplay alone and screenplay alone has a separate naturalness pass; these are declared production routes rather than consumer-specific repairs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Asset routing has no narrative work claims, direct short authors screenplay alone and compact short adds only settings and screenplay alone has a separate naturalness pass; these are declared production routes rather than consumer-specific repairs.
  * @evidence contracts/common.md#meaningful-documentation The comment names scope and stage validation, and every throw identifies its invalid route, relation, stage, tuple or ownership condition.
  * @evidence contracts/performance.md#efficient-algorithms For c custom claims, s scope entries and r references, repeated scope/name searches cost O(c*s + r); support validation additionally scans protected directories/aliases and compares selector prefixes against captured boundaries, so filesystem size and path resolution can dominate.
  * @evidence contracts/performance.md#reuse-equivalent-work The fixed layer vocabulary and scalar stage vocabulary are shared across checks; live support-tree admission is refreshed for each config build, and no stale acceptance result is cached across contract/filesystem changes.
@@ -22,14 +23,9 @@ export function assertProductionEvidenceSources(
   props: IProductionConfigProps,
 ): void {
   assertSupportClaims(props);
-  if (!["long", "short", "asset"].includes(props.mode))
+  if (!["long", "short", "short-with-settings", "asset"].includes(props.mode))
     throw new Error("Unknown production route.");
-  const routed: string[] | readonly AuthoredLayer[] =
-    props.mode === "long"
-      ? AUTHORED_LAYERS
-      : props.mode === "short"
-        ? ["screenplay"]
-        : [];
+  const routed: readonly AuthoredLayer[] = productionLayers(props);
   for (const layer of AUTHORED_LAYERS) {
     if (routed.includes(layer)) continue;
     if (

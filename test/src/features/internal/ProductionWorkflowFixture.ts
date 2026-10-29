@@ -39,7 +39,7 @@ export class ProductionWorkflowFixture {
   /** Returns a disabled lifecycle; tests explicitly open their own passes. */
   public static props(
     root: string,
-    mode: "long" | "short" | "asset" = "long",
+    mode: "long" | "short" | "short-with-settings" | "asset" = "long",
   ): IProductionConfigProps {
     return {
       lifecycle: "independent-evidence-v1",
@@ -123,7 +123,7 @@ export class ProductionWorkflowFixture {
   /** Builds an explicit one-scene graph whose contracts make no literary claim. */
   public static complete(
     root: string,
-    mode: "long" | "short",
+    mode: "long" | "short" | "short-with-settings",
   ): IProductionConfigProps {
     ProductionWorkflowFixture.populate(root);
     const props: IProductionConfigProps = ProductionWorkflowFixture.props(
@@ -133,7 +133,9 @@ export class ProductionWorkflowFixture {
     const layers: ("settings" | "treatments" | "scripts" | "screenplay")[] =
       mode === "long"
         ? ["settings", "treatments", "scripts", "screenplay"]
-        : ["screenplay"];
+        : mode === "short-with-settings"
+          ? ["settings", "screenplay"]
+          : ["screenplay"];
     const discovery: Set<string> = new Set<string>();
     for (const family of ["principles", "obligations"])
       ProductionWorkflowFixture.write(
@@ -196,15 +198,19 @@ export class ProductionWorkflowFixture {
       const files: string[] = groups.map(
         (group: string): string => `shared/obligations/${group}.md#scope`,
       );
-      if (layer === "settings" || layer === "treatments" || mode === "short")
+      if (layer === "settings" || layer === "treatments" || mode !== "long")
         units.push("instructions/001-brief.md#door");
-      if (layer === "settings")
+      if (layer === "settings" && mode === "long")
         files.push("settings/outline/index.md#001-event");
       for (const group of groups)
         discovery.add(`shared/discovery/${group}.md#scope`);
       if (layer !== "settings")
         units.push(`shared/upstream/${layer}.md#repair`);
-      if (layer === "treatments") units.push("settings/001-event.md#arrival");
+      if (
+        layer === "treatments" ||
+        (mode === "short-with-settings" && layer === "screenplay")
+      )
+        units.push("settings/001-event.md#arrival");
       if (mode === "long" && (layer === "scripts" || layer === "screenplay")) {
         units.push("treatments/001-event.md#arrival");
         files.push("docs/body/treatments/001-event.md");

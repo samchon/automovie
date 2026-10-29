@@ -4,7 +4,7 @@
 
 Ordinary coding and standalone assets can retain the default engineering configuration. Add actual asset or delivery duties where their respondents can establish them; a blank project needs no narrative mode, stages, or gate.
 
-For narrative work, long form retains settings → treatments → scripts → final screenplay. Scripts finishes content and expression together in construction; settings and treatments also finish within construction. Only final screenplay adds a separate naturalness pass. Short mode is the authorized direct-screenplay route and retains its expression and review duties. A disabled pass drafts its complete body; it does not waive the route's responsibilities. [Writing workflow](../screenwriting/workflow.md#completion) owns when those stages open and close.
+For narrative work, long form retains settings → treatments → scripts → final screenplay. Scripts finishes content and expression together in construction; settings and treatments also finish within construction. Only final screenplay adds a separate naturalness pass. Short mode is the direct-screenplay route; `short-with-settings` selects compact settings and screenplay, without treatments, scripts or an outline. Both retain screenplay expression and review duties; compact screenplay additionally requires actual settings coverage and current settings construction review. A disabled pass drafts its complete body; it does not waive the route's responsibilities. [Writing workflow](../screenwriting/workflow.md#completion) owns when those stages open and close.
 
 Complete work is the default scope. Select a first-part pilot only when the user commissions that slice, preserve work-wide settings and the exact part's inherited lineage, and identify which whole-work obligations it cannot establish. Restore complete scope and complete populations before claiming the whole work complete. Route an expansion or replacement of closed material through [upstream repair](../screenwriting/repair.md).
 
@@ -18,7 +18,7 @@ Engineering support duties stay outside creative bodies, frozen and working edit
 
 ## Preserve actual relationships
 
-Treatments consume settings; scripts and screenplay cover the treatments they realize. Event-to-scene coverage can be many-to-many when their partitions differ. Final screenplay preserves its actual script file and section lineage; rewriting working editions preserve the corresponding frozen construction identities. Keep source citations, selections, and respondent addresses consistent with those relationships.
+On the long route, treatments consume settings; scripts and screenplay cover the treatments they realize. Compact short screenplay cites its actual settings dependencies directly instead of inventing those intermediate populations. Event-to-scene coverage can be many-to-many when their partitions differ. Long-route final screenplay preserves its actual script file and section lineage; rewriting working editions preserve the corresponding frozen construction identities. Keep source citations, selections, and respondent addresses consistent with those relationships.
 
 For commissioned execution, use [execution traceability](execution.md) for settings-to-asset, screenplay-to-performance/shot and shot-to-edit relationships. Preserve their actual many-to-many form, native ownership boundaries and current observation scope. A source citation or native target coverage alone cannot prove invocation, edit inclusion or visible effect.
 

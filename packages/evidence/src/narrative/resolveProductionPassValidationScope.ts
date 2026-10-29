@@ -138,6 +138,11 @@ export function resolveProductionPassValidationScope(
   for (const layer of AUTHORED_LAYERS) {
     if (hasNaturalness(layer))
       add({ layer, pass: "naturalness" }, { layer, pass: "construction" });
+    if (props.mode === "short-with-settings" && layer === "screenplay")
+      add(
+        { layer, pass: "construction" },
+        { layer: "settings", pass: "construction" },
+      );
     if (props.mode !== "long") continue;
     if (layer === "treatments")
       add(

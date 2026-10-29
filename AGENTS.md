@@ -38,6 +38,7 @@ Read the skill whose trigger applies.
 - [3d-modeling](.agents/skills/3d-modeling/SKILL.md): changing geometry, rigs, assets, viewer behavior, materials, lighting, or motion, and before claiming a visual change works.
 - [human](.agents/skills/human/SKILL.md): working on `packages/human`, a human figure, or the Human viewer.
 - [scaffold](.agents/skills/scaffold/SKILL.md): editing `packages/template`, or reading, authoring, or reviewing production content anywhere.
+- [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md): designing or revising the production skills, contracts and routers shipped by the scaffold.
 - [prompting](.agents/skills/prompting/SKILL.md): changing `AGENTS.md`, `CLAUDE.md`, or a skill.
 - [documentation](.agents/skills/documentation/SKILL.md): writing any document or doc comment.
 - [review](.agents/skills/review/SKILL.md): any review or self-review.
