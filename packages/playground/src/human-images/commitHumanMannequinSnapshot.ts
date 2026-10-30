@@ -96,13 +96,13 @@ export function commitHumanMannequinSnapshot(
 
 /** SHA-256 of the existing JSON representation, with no alternate geometry serializer.
  *
- * @evidence contracts/common.md#principled-implementation Node SHA-256 consumes the exact JSON.stringify UTF-8 text of the supplied actual snapshot projection.
- * @evidence contracts/common.md#clear-and-simple-design One digest primitive serves the three explicit commitment domains.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No scalar counts, supplied digests or regenerated geometry substitute for actual data.
- * @evidence contracts/common.md#meaningful-documentation Returns lowercase hexadecimal over existing JSON semantics.
- * @evidence contracts/performance.md#efficient-algorithms One linear serialization/hash, with no second explicit Buffer.
- * @evidence contracts/performance.md#reuse-equivalent-work Uses caller-owned snapshot data and does not invoke the body law or renderer.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only a fixed-size digest escapes; the temporary JSON text becomes collectible after hashing.
+ * Node SHA-256 consumes the exact JSON.stringify UTF-8 text of the supplied actual snapshot projection.
+ * One digest primitive serves the three explicit commitment domains.
+ * No scalar counts, supplied digests or regenerated geometry substitute for actual data.
+ * Returns lowercase hexadecimal over existing JSON semantics.
+ * One linear serialization/hash, with no second explicit Buffer.
+ * Uses caller-owned snapshot data and does not invoke the body law or renderer.
+ * Only a fixed-size digest escapes; the temporary JSON text becomes collectible after hashing.
  */
 function digest(value: unknown): string {
   return createHash("sha256")

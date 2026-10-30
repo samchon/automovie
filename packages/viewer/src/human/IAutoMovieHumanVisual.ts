@@ -38,12 +38,29 @@ export interface IAutoMovieHumanVisual {
    * previous drawing. A retirement failure may leave a partial drawing and must
    * terminate further face updates; dispose still attempts the other owned resources
    * once and reports that failure. Runs on explicit controls, never per frame.
+   *
+   * @evidence contracts/common.md#principled-implementation The explicit callback receives independent expression and head-pose snapshots and returns unsupported field names for the actual original drawing.
+   * @evidence contracts/common.md#clear-and-simple-design Face geometry stays with the supplied visual instead of the transport or rigid binding.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refusal must retain the prior drawing; retirement failure may be partial and terminal, and no supported-action guarantee is inferred from a label.
+   * @evidence contracts/common.md#meaningful-documentation Documents callback input isolation, explicit-only invocation and failure/disposal obligations.
+   * @evidence contracts/performance.md#efficient-algorithms The signature is erased; implementation cost belongs to the supplied explicit face update, never an implicit per-frame callback.
+   * @evidence contracts/performance.md#reuse-equivalent-work Body geometry and rigid bindings remain reusable across expression updates.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The visual owns replacement resources and one-attempt retirement; the facade copies returned unsupported names.
    */
   updateFace?: (
     expression: IAutoMovieHumanExpression,
     head?: IAutoMovieHumanPose["head"],
   ) => readonly string[];
 
-  /** Release caller-created drawing resources; called once by the successful facade owner. */
+  /** Release caller-created drawing resources; called once by the successful facade owner.
+   *
+   * @evidence contracts/common.md#principled-implementation The transferred visual's disposer retires the original drawing resources after successful facade construction.
+   * @evidence contracts/common.md#clear-and-simple-design One visual callback owns geometry/material cleanup independently from binding player cleanup.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The facade calls it once through failure fan-out; failed construction leaves visual ownership with its caller.
+   * @evidence contracts/common.md#meaningful-documentation Documents transfer timing and the original resource owner's cleanup obligation.
+   * @evidence contracts/performance.md#efficient-algorithms The signature is erased; cleanup cost scales with resources actually owned by the visual implementation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Repeated facade disposal reuses terminal success or its stored cause rather than repeating this callback.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The implementation must release owned drawing handles; neither this type nor the binding disposes borrowed geometry.
+   */
   dispose: () => void;
 }

@@ -203,7 +203,16 @@ export function buildHumanPolygonModule(
   return { group, diagnostic, part };
 }
 
-/** Explicit section inputs shared by the display selector and mesh assembler. */
+/** Explicit section inputs shared by the display selector and mesh assembler.
+ *
+ * @evidence contracts/common.md#principled-implementation Section inputs describe registered metre points or half dimensions; frontAt queries the actual emitted indexed triangles along local +X, accepting either winding and selecting the greatest hit X.
+ * @evidence contracts/common.md#clear-and-simple-design The merged namespace owns the assembler's section contract and its local front-surface query without selecting anatomy or another mesh.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The query neither fits a primitive nor applies another pose; indexed triangles and their actual bounds are caller premises, and invalid Y/Z or no hit returns undefined.
+ * @evidence contracts/common.md#meaningful-documentation Documents section axes, optional source points and display coordinates, and the query's local units, frontmost selection and missing-hit result.
+ * @evidence contracts/performance.md#efficient-algorithms Section types are erased; frontAt scans T triangles once with constant-size ray/vector scratch.
+ * @evidence contracts/performance.md#reuse-equivalent-work The query borrows the original buffers and reuses its vectors throughout the scan; it creates no alternate attachment surface.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Section objects belong to the caller; frontAt returns only a number or undefined and acquires no GPU handle or retained cache.
+ */
 export namespace buildHumanPolygonModule {
   /** One elliptical polygon section, with physical half dimensions. */
   export interface ISection {
@@ -227,13 +236,13 @@ export namespace buildHumanPolygonModule {
    * and selects the greatest hit X. Nonfinite Y+Z or no hit returns undefined.
    * The query borrows the mesh and does not apply its posed placement again.
    *
-   * @evidence contracts/common.md#principled-implementation Intersects the actual emitted indexed triangles along local +X and returns their greatest hit X, preserving the head mesh as attachment authority.
-   * @evidence contracts/common.md#clear-and-simple-design A single triangle scan reads supplied local bounds and buffers; no reconstructed head profile or separate attachment surface is used.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not clamp a missing hit onto the silhouette, fit a primitive or apply another world or bone transform; indexed triangle geometry is an explicit caller premise.
-   * @evidence contracts/common.md#meaningful-documentation States local coordinates, +X direction, double-sided intersection, frontmost selection and undefined results for invalid queries or absent intersections.
-   * @evidence contracts/performance.md#efficient-algorithms Visits T indexed triangles once and keeps a constant-size set of ray and vector temporaries.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reads the original geometry attributes and reuses the same triangle and hit vectors throughout the scan instead of creating another mesh.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows geometry and bounds only for the call and returns a number or undefined; temporary vectors acquire no GPU handle or retained query cache.
+   * Intersects the actual emitted indexed triangles along local +X and returns their greatest hit X, preserving the head mesh as attachment authority.
+   * A single triangle scan reads supplied local bounds and buffers; no reconstructed head profile or separate attachment surface is used.
+   * Does not clamp a missing hit onto the silhouette, fit a primitive or apply another world or bone transform; indexed triangle geometry is an explicit caller premise.
+   * States local coordinates, +X direction, double-sided intersection, frontmost selection and undefined results for invalid queries or absent intersections.
+   * Visits T indexed triangles once and keeps a constant-size set of ray and vector temporaries.
+   * Reads the original geometry attributes and reuses the same triangle and hit vectors throughout the scan instead of creating another mesh.
+   * Borrows geometry and bounds only for the call and returns a number or undefined; temporary vectors acquire no GPU handle or retained query cache.
    */
   export function frontAt(
     geometry: THREE.BufferGeometry,

@@ -46,7 +46,16 @@ export class HumanImageMannequinFrames {
     this.root = root;
   }
 
-  /** Drop display-mode state when an ordinary/native model replaces this page or the Session closes. */
+  /** Drop display-mode state when an ordinary/native model replaces this page or the Session closes.
+   *
+   * @evidence contracts/common.md#principled-implementation Invalidates this owner's frame, input-key and geometry commitments together; the observed host identity remains pinned.
+   * @evidence contracts/common.md#clear-and-simple-design Cache invalidation stays separate from the Session's native-process retirement.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Clearing does not certify a host change or terminate a worker through another owner.
+   * @evidence contracts/common.md#meaningful-documentation Releases cached pixels and snapshot references while retaining the host restart requirement.
+   * @evidence contracts/performance.md#efficient-algorithms Clears at most six frame entries and constant commitment references without inspecting mesh arrays.
+   * @evidence contracts/performance.md#reuse-equivalent-work Removing the model key prevents reuse until the next frame reestablishes its source/input commitment.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Drops this cache's PNG and shared geometry references; it owns no page or native handle.
+   */
   public clear(): void {
     this.frames.clear();
     this.key = undefined;

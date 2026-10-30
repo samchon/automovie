@@ -259,7 +259,16 @@ function textureSnapshot(
   };
 }
 
-/** Borrowed page state for one actual snapshot; no geometry ownership transfers. */
+/** Borrowed page state for one actual snapshot; no geometry ownership transfers.
+ *
+ * @evidence contracts/common.md#principled-implementation IOptions borrows the actual mounted scene, prepared rest record, controller and completed-draw metadata used by the snapshot reader.
+ * @evidence contracts/common.md#clear-and-simple-design The merged namespace groups the page observation inputs without creating another page, renderer or snapshot cache.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Parameters, UI labels and completion facts remain separate from the actual scene buffers; this type does not validate drawing freshness.
+ * @evidence contracts/common.md#meaningful-documentation States borrowed ownership and names camera, light, canvas, preparation/evaluation counts and actual hint selection.
+ * @evidence contracts/performance.md#efficient-algorithms The namespace is erased; the reader owns the scene traversal and array-copy cost documented on its function.
+ * @evidence contracts/performance.md#reuse-equivalent-work The reader consumes existing page owners, rather than preparing body geometry or evaluating pose again.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources No ownership transfers through this input type; the caller keeps page resources and owns the returned copied snapshot.
+ */
 export namespace readHumanMannequinSnapshot {
   /** Existing page owners and actual UI selection; all placement comes from the scene. */
   export interface IOptions {

@@ -165,7 +165,16 @@ export function createHumanStickmanVisual(
   };
 }
 
-/** Existing builder inputs transferred to the playground's structural adapter. */
+/** Existing builder inputs transferred to the playground's structural adapter.
+ *
+ * @evidence contracts/common.md#principled-implementation IOptions names the same rest graph and original polygon, stickman and optional hint owners consumed by this adapter.
+ * @evidence contracts/common.md#clear-and-simple-design The merged namespace keeps playground builder types beside their structural binding adapter; the public facade sees only its visual contract.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts It introduces no geometry copy, bone normalization or replacement evaluator; omitted drawings remain omitted.
+ * @evidence contracts/common.md#meaningful-documentation Documents fixed-rest identity, transferred drawing resources and the optional face suppression switch.
+ * @evidence contracts/performance.md#efficient-algorithms The namespace is erased; assembly cost belongs to the adapter's scans of actual bones and drawing groups.
+ * @evidence contracts/performance.md#reuse-equivalent-work Types reference existing builder return shapes instead of duplicating their resource or head-surface contracts.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Type declarations acquire no resource; supplied builders transfer to the adapter and its terminal disposer.
+ */
 export namespace createHumanStickmanVisual {
   /** Geometry stays in its original builders; this adapter supplies only placement references. */
   export interface IOptions {

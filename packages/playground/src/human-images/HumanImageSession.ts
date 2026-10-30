@@ -53,7 +53,16 @@ export class HumanImageSession {
     private readonly root: string,
   ) {}
 
-  /** Current admitted work, observed without acquiring a worker or rendering. */
+  /** Current admitted work, observed without acquiring a worker or rendering.
+   *
+   * @evidence contracts/common.md#principled-implementation Returns the admission counter maintained by request entry and finally blocks, including queued work.
+   * @evidence contracts/common.md#clear-and-simple-design A read-only scalar exposes admission without exposing the queue or worker.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The count is not a native-process population or proof of idle cleanup.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes admitted work from process acquisition and rendering.
+   * @evidence contracts/performance.md#efficient-algorithms Reads one number in constant time without source hashing or queue traversal.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reads the existing admission counter rather than reconstructing requests.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a scalar and acquires or retains no resource.
+   */
   public pending(): number {
     return this.admittedRequests;
   }

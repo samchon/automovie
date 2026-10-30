@@ -40,13 +40,13 @@ import { traceHumanViewerPhase } from "./human/traceHumanViewerPhase";
  * Snapshots return actual geometry arrays and world placements only while the
  * public controls still match the completed draw; changes require a new draw.
  *
- * @evidence contracts/common.md#principled-implementation Existing skeleton generation owns pose and limits; polygon and face builders consume its posed placement once, and expression demos use existing public AU values.
- * @evidence contracts/common.md#clear-and-simple-design One existing page and mount serve both styles and their diagnostic passes.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Polygon modules remain a rigid diffusion-hint blockout; unsupported facial actions are exposed and optional realistic skin remains a rest overlay.
- * @evidence contracts/common.md#meaningful-documentation States query controls, posed ownership, expression examples and stable face framing.
- * @evidence contracts/performance.md#efficient-algorithms Body shape, rest joints and geometry are prepared once; explicit poses and lazy clip preparation reuse the existing clinical pose evaluator, while the public Human clock advances logical time and Three refreshes accepted placements without rebuilding shape.
- * @evidence contracts/performance.md#reuse-equivalent-work All passes share the selected posed output, with fixed head bounds across expressions.
- * @evidence contracts/performance.md#bound-retention-and-release-resources One page owns one mount and its builder resources; pagehide and initialization failure retire each acquired observer, mount, builder, optional skin and grid owner once.
+ * Existing skeleton generation owns pose and limits; polygon and face builders consume its posed placement once, and expression demos use existing public AU values.
+ * One existing page and mount serve both styles and their diagnostic passes.
+ * Polygon modules remain a rigid diffusion-hint blockout; unsupported facial actions are exposed and optional realistic skin remains a rest overlay.
+ * States query controls, posed ownership, expression examples and stable face framing.
+ * Body shape, rest joints and geometry are prepared once; explicit poses and lazy clip preparation reuse the existing clinical pose evaluator, while the public Human clock advances logical time and Three refreshes accepted placements without rebuilding shape.
+ * All passes share the selected posed output, with fixed head bounds across expressions.
+ * One page owns one mount and its builder resources; pagehide and initialization failure retire each acquired observer, mount, builder, optional skin and grid owner once.
  */
 async function bootstrapHumanStickman(): Promise<void> {
   traceHumanViewerPhase("mannequin.module.ready", "mannequin");

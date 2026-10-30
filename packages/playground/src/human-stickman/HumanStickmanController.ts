@@ -65,15 +65,42 @@ export class HumanStickmanController extends AutoMovieHumanFacade {
 
 /** Compatibility types for the existing page's original builder inputs and snapshot. */
 export namespace HumanStickmanController {
-  /** Original geometry options plus the same fixed prepared clinical evaluator. */
+  /** Original geometry options plus the same fixed prepared clinical evaluator.
+   *
+   * @evidence contracts/common.md#principled-implementation Extends the adapter's original drawing inputs with the matching fixed prepared pose evaluator and optional public expression.
+   * @evidence contracts/common.md#clear-and-simple-design Only this playground composition type joins example drawings to the reusable facade inputs.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No new body schema or fallback evaluator is admitted; the evaluator and rest prototype must describe the same body.
+   * @evidence contracts/common.md#meaningful-documentation States prepared-body identity, neutral expression omission and inherited drawing ownership.
+   * @evidence contracts/performance.md#efficient-algorithms This erased interface performs no work; construction assembles existing slots and authored definitions once.
+   * @evidence contracts/performance.md#reuse-equivalent-work The callback reuses the page's prepared body for later poses instead of regenerating shape.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The type owns no handles; controller construction transfers builders on entry, including failure cleanup.
+   */
   export interface IOptions extends createHumanStickmanVisual.IOptions {
-    /** Matching existing pose evaluator, prepared once by the page. */
+    /** Matching existing pose evaluator, prepared once by the page.
+     *
+     * @evidence contracts/common.md#principled-implementation Accepts existing clinical pose fields and returns the corresponding fixed body's skeleton output in metres using the page-prepared evaluator.
+     * @evidence contracts/common.md#clear-and-simple-design The callback leaves clinical interpretation and clamping with the existing skeleton implementation.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It must match rest and body shape for the controller lifetime; no alternate FK or body reconstruction is specified.
+     * @evidence contracts/common.md#meaningful-documentation Names the prepared evaluator premise; the returned output carries actual applied clamps.
+     * @evidence contracts/performance.md#efficient-algorithms The signature is erased; evaluator cost remains with the existing prepared skeleton operation.
+     * @evidence contracts/performance.md#reuse-equivalent-work The page prepares one body and this callback supplies subsequent pose evaluations to the facade.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources The callback reference is retained by the binding until disposal; returned records become per-operation inputs.
+     */
     evaluatePose: (pose: IAutoMovieHumanPose) => Skeleton.IOutput;
 
     /** Existing public facial input; omission is neutral. */
     expression?: IAutoMovieHumanExpression;
   }
 
-  /** The page now reports the public facade's defensive diagnostic snapshot. */
+  /** The page now reports the public facade's defensive diagnostic snapshot.
+   *
+   * @evidence contracts/common.md#principled-implementation Aliases the facade's defensive transport, pose, expression and limitation snapshot.
+   * @evidence contracts/common.md#clear-and-simple-design The page compatibility name references the public state contract rather than defining parallel diagnostics.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The alias provides no motion, clinical accuracy or continuous-skin guarantee.
+   * @evidence contracts/common.md#meaningful-documentation Documents that the page reports the public facade's defensive snapshot.
+   * @evidence contracts/performance.md#efficient-algorithms The erased alias adds no traversal or allocation beyond the facade getter.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the existing state type so field meaning and snapshot behavior remain identical.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The alias owns no handles; callers own returned plain diagnostic copies.
+   */
   export type IState = AutoMovieHumanFacade.IState;
 }

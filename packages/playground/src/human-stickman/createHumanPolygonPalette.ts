@@ -120,7 +120,16 @@ export function createHumanPolygonPalette(
   };
 }
 
-/** Colour input semantics shared by admission and later replacements. */
+/** Colour input semantics shared by admission and later replacements.
+ *
+ * @evidence contracts/common.md#principled-implementation The namespace validator admits undefined or supplied integer RGB values in [0, 0xffffff], including entries whose names do not match emitted parts.
+ * @evidence contracts/common.md#clear-and-simple-design Colour admission is separate from material allocation and part matching, and serves construction and later replacements.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No channel clamping, missing-value invention or anatomical interpretation of unmatched keys occurs; invalid values throw before allocation.
+ * @evidence contracts/common.md#meaningful-documentation States the optional clay default, inclusive RGB domain, unmatched-entry policy and refusal behavior.
+ * @evidence contracts/performance.md#efficient-algorithms Object.values copies P entries and some checks at most P values before success or refusal.
+ * @evidence contracts/performance.md#reuse-equivalent-work Initial construction and replacement call this same validator; the namespace keeps one colour admission rule.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary values array is call-owned; validation retains no input map, geometry, material or cleanup task.
+ */
 export namespace createHumanPolygonPalette {
   /**
    * Admit optional RGB overrides before allocation and during replacement.
@@ -128,13 +137,13 @@ export namespace createHumanPolygonPalette {
    * in [0, 0xffffff]. Undefined admits the default clay; invalid values throw.
    * Keys are not interpreted as anatomy or required to match an emitted mesh.
    *
-   * @evidence contracts/common.md#principled-implementation Applies the same integer RGB domain to initial admission and explicit replacements without mutating the input.
-   * @evidence contracts/common.md#clear-and-simple-design One predicate over supplied values owns colour admission independently of palette allocation and part matching.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not clamp channels, invent missing values or reinterpret unmatched names as generated parts.
-   * @evidence contracts/common.md#meaningful-documentation States the inclusive RGB domain, optional-default behavior, unmatched-entry policy and throwing refusal.
-   * @evidence contracts/performance.md#efficient-algorithms Object.values snapshots P supplied values and some checks at most P entries before admission or refusal.
-   * @evidence contracts/performance.md#reuse-equivalent-work Both construction and later replacements call this same validator rather than duplicating the admission rule.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the temporary values snapshot is allocated; no input map, material, geometry or cleanup task is retained.
+   * Applies the same integer RGB domain to initial admission and explicit replacements without mutating the input.
+   * One predicate over supplied values owns colour admission independently of palette allocation and part matching.
+   * Does not clamp channels, invent missing values or reinterpret unmatched names as generated parts.
+   * States the inclusive RGB domain, optional-default behavior, unmatched-entry policy and throwing refusal.
+   * Object.values snapshots P supplied values and some checks at most P entries before admission or refusal.
+   * Both construction and later replacements call this same validator rather than duplicating the admission rule.
+   * Only the temporary values snapshot is allocated; no input map, material, geometry or cleanup task is retained.
    */
   export function validate(colors?: Readonly<Record<string, number>>): void {
     if (

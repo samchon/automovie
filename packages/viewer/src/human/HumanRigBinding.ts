@@ -7,13 +7,12 @@ import * as THREE from "three";
 
 import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
 import { createHumanRigClip } from "./createHumanRigClip.js";
+import { convertHumanRigPose } from "./convertHumanRigPose.js";
 import type { IAutoMovieHumanVisual } from "./IAutoMovieHumanVisual.js";
 
 /**
  * Bind one fixed Human rest prototype to original rigid drawings and Three tracks.
  * This owner samples supplied local seconds; it never advances a second clock.
- * Existing evaluated world placements become parent-local rotations through
- * Three quaternion operations, with fixed rest joint offsets during body clips.
  * Explicit poses retain the evaluator's jaw translations. Clip eye/jaw channels
  * are refused because this body-track path does not interpolate a face drawing.
  * Drawing placements retain the complete parent-relative matrix, including
@@ -190,12 +189,30 @@ export class HumanRigBinding {
     }
   }
 
-  /** Successful facade construction transfers placement ownership and releases rollback data. */
+  /** Successful facade construction transfers placement ownership and releases rollback data.
+   *
+   * @evidence contracts/common.md#principled-implementation Releases rollback snapshots only after the facade has successfully accepted the original drawing.
+   * @evidence contracts/common.md#clear-and-simple-design One explicit construction commit separates borrowed setup from transferred placement ownership.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No drawing or GPU resource is disposed and no failed construction is silently committed.
+   * @evidence contracts/common.md#meaningful-documentation Documents successful-construction timing and released restoration data.
+   * @evidence contracts/performance.md#efficient-algorithms Clears one reference; collection of its stored matrix copies is left to ordinary memory lifetime.
+   * @evidence contracts/performance.md#reuse-equivalent-work Subsequent operation uses the already-bound original targets without retaining redundant pre-bind state.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The borrowed root/matrix snapshot is released; visual disposal ownership remains with the facade.
+   */
   public commit(): void {
     this.borrowed = undefined;
   }
 
-  /** Restore borrowed parent order and matrices after failed construction, attempting every cleanup. */
+  /** Restore borrowed parent order and matrices after failed construction, attempting every cleanup.
+   *
+   * @evidence contracts/common.md#principled-implementation Captures then clears borrowed setup state and independently attempts binding retirement, parent/sibling restoration and every original matrix/update flag.
+   * @evidence contracts/common.md#clear-and-simple-design Construction rollback owns placement restoration while the original visual retains geometry ownership.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Restoration failure propagates through the existing collector; no target is recreated or silently detached as a successful rollback.
+   * @evidence contracts/common.md#meaningful-documentation States original parent order, matrices and independent cleanup attempts after failed construction.
+   * @evidence contracts/performance.md#efficient-algorithms Traverses the captured target population once; stored matrix copies supply restoration without recomputation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses the exact captured objects and sibling index rather than guessing original placements.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Clears rollback ownership before one-attempt fan-out; missing borrowed state is a no-op and no visual resource is disposed.
+   */
   public rollback(): void {
     const borrowed: typeof this.borrowed = this.borrowed;
     this.borrowed = undefined;
@@ -246,7 +263,16 @@ export class HumanRigBinding {
     );
   }
 
-  /** Prepare a named clip from the facade's one admitted definition snapshot. */
+  /** Prepare a named clip from the facade's one admitted definition snapshot.
+   *
+   * @evidence contracts/common.md#principled-implementation Compiles the supplied admitted definition against this fixed rest prototype and existing evaluator, once per private name.
+   * @evidence contracts/common.md#clear-and-simple-design Track compilation stays in createHumanRigClip while this binding owns the resulting private cache.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The facade must supply its immutable admitted name/definition; no name-only reuse is claimed across different prototypes or definitions.
+   * @evidence contracts/common.md#meaningful-documentation Documents prototype-specific preparation and the facade-owned definition premise.
+   * @evidence contracts/performance.md#efficient-algorithms First preparation evaluates distinct keys and emits O(keys*bones) tracks; a prepared name returns immediately.
+   * @evidence contracts/performance.md#reuse-equivalent-work The private name cache is valid because this binding's body and the facade's definition snapshot remain fixed.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains at most one clip per admitted prepared name until binding disposal; no external clip instance is borrowed.
+   */
   public prepare(
     name: string,
     definition: AutoMovieHumanController.IDefinition,
@@ -263,17 +289,44 @@ export class HumanRigBinding {
     this.prepared.set(name, clip);
   }
 
-  /** Copy a previously prepared clip, preserving private track arrays. */
+  /** Copy a previously prepared clip, preserving private track arrays.
+   *
+   * @evidence contracts/common.md#principled-implementation Clones an already prepared clip, including Three track arrays, before returning it.
+   * @evidence contracts/common.md#clear-and-simple-design The private cache remains mutation-isolated from callers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A previously prepared name is a caller premise; this operation does not synthesize a missing clip.
+   * @evidence contracts/common.md#meaningful-documentation Documents required preparation and independent track ownership.
+   * @evidence contracts/performance.md#efficient-algorithms Copy cost scales with the selected clip's keyframe arrays.
+   * @evidence contracts/performance.md#reuse-equivalent-work The compiled private clip is reused as the source; caller edits cannot invalidate it.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the clone and the binding retains its original until disposal.
+   */
   public clip(name: string): THREE.AnimationClip {
     return this.prepared.get(name)!.clone();
   }
 
-  /** Existing prepared clinical evaluation for an explicit static pose, without shape preparation. */
+  /** Existing prepared clinical evaluation for an explicit static pose, without shape preparation.
+   *
+   * @evidence contracts/common.md#principled-implementation Invokes this fixed body's supplied clinical evaluator for an explicit pose without preparing body shape again.
+   * @evidence contracts/common.md#clear-and-simple-design Clinical mapping and clamping remain the evaluator's responsibility.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An active binding and matching prepared evaluator are premises; no fallback FK or shape law is provided.
+   * @evidence contracts/common.md#meaningful-documentation Documents prepared evaluation and its separation from body preparation.
+   * @evidence contracts/performance.md#efficient-algorithms Cost is the existing evaluator's bone/pose work; this forwarding boundary adds no traversal.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same retained prepared callback serves explicit poses and clip compilation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The evaluator reference is released on disposal; this method retains no evaluated output cache.
+   */
   public evaluate(pose: IAutoMovieHumanPose): Skeleton.IOutput {
     return this.evaluator!(pose);
   }
 
-  /** Sample the pure controller's local seconds through the original Three interpolation/FK. */
+  /** Sample the pure controller's local seconds through the original Three interpolation/FK.
+   *
+   * @evidence contracts/common.md#principled-implementation Samples an already prepared motion at controller-supplied local seconds through Three's action and mixer, then publishes target placements.
+   * @evidence contracts/common.md#clear-and-simple-design The binding owns sampling while the pure controller alone owns playback time.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Prepared name and admitted local time are caller premises; endpoint action pause is reset without introducing a wall clock or contact solver.
+   * @evidence contracts/common.md#meaningful-documentation Documents local seconds, existing interpolation and separation from transport.
+   * @evidence contracts/performance.md#efficient-algorithms Selection may restore rest once; each call samples existing tracks and publishes the bounded rig/slot populations.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same action is reused until name changes, with private prepared clips and original geometry preserved.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains one active action and name plus prepared clips; no timer, geometry or per-sample owner is created.
+   */
   public sample(name: string, time: number): void {
     if (this.selected !== name) {
       this.apply(this.pose(this.snapshot));
@@ -289,66 +342,44 @@ export class HumanRigBinding {
     this.publish();
   }
 
-  /** Refresh caller ancestor transforms without advancing time or rebuilding geometry. */
+  /** Refresh caller ancestor transforms without advancing time or rebuilding geometry.
+   *
+   * @evidence contracts/common.md#principled-implementation Publishes existing rig placement through actual ancestor matrices without changing clip time.
+   * @evidence contracts/common.md#clear-and-simple-design One publish path serves paused refresh and sampled motion alike.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No transform decomposition, new FK or guessed root correction replaces the full relative matrix.
+   * @evidence contracts/common.md#meaningful-documentation States that caller ancestor transforms refresh without geometry rebuilding or time advancement.
+   * @evidence contracts/performance.md#efficient-algorithms Traverses current rig and placement slots through publish using retained matrix scratch.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses accepted rig state and original targets, including external root scale and shear.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Acquires no resource or retained sample; binding-owned scratch remains bounded.
+   */
   public refresh(): void {
     this.publish();
   }
 
-  /** Validate and convert one actual evaluated world pose before changing any drawing. */
+  /** Validate and convert one actual evaluated world pose before changing any drawing.
+   *
+   * @evidence contracts/common.md#principled-implementation Delegates actual world placements to the unchanged parent-inverse quaternion/position conversion using this binding's fixed rest identities.
+   * @evidence contracts/common.md#clear-and-simple-design One pure conversion helper validates and returns local transforms before drawing mutation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing or nonfinite placements and zero quaternions reject; no clamping, new FK or coordinate correction is added.
+   * @evidence contracts/common.md#meaningful-documentation Documents metre-valued world input, parent-local output and validation before applying drawings.
+   * @evidence contracts/performance.md#efficient-algorithms Builds a placement lookup and one local record per rest bone in linear bone-population time and space.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses the existing evaluated output and fixed rest graph rather than evaluating another pose.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned map/vectors; conversion acquires no mixer, drawing or persistent cache.
+   */
   public pose(output: Skeleton.IOutput): Map<string, HumanRigBinding.ILocal> {
-    const placed: Map<string, Skeleton.IPlacement> = new Map(
-      output.posed.map(
-        (placement: Skeleton.IPlacement): [string, Skeleton.IPlacement] => [
-          placement.bone,
-          placement,
-        ],
-      ),
-    );
-    return new Map(
-      this.snapshot.bones.map(
-        (bone: Skeleton.IBone): [string, HumanRigBinding.ILocal] => {
-          const placement: Skeleton.IPlacement | undefined = placed.get(
-            bone.bone,
-          );
-          const parent: Skeleton.IPlacement | undefined =
-            bone.parent === null ? undefined : placed.get(bone.parent);
-          if (
-            placement === undefined ||
-            (bone.parent !== null && parent === undefined) ||
-            placement.position.length !== 3 ||
-            placement.rotation.length !== 4 ||
-            ![...placement.position, ...placement.rotation].every(
-              Number.isFinite,
-            ) ||
-            Math.hypot(...placement.rotation) === 0
-          )
-            throw new Error(
-              `Evaluated Human pose is missing finite bone ${bone.bone}`,
-            );
-          const position: THREE.Vector3 = new THREE.Vector3(
-            ...placement.position,
-          );
-          const rotation: THREE.Quaternion = new THREE.Quaternion(
-            ...placement.rotation,
-          ).normalize();
-          if (parent !== undefined) {
-            const inverse: THREE.Quaternion = new THREE.Quaternion(
-              ...parent.rotation,
-            )
-              .normalize()
-              .invert();
-            position
-              .sub(new THREE.Vector3(...parent.position))
-              .applyQuaternion(inverse);
-            rotation.premultiply(inverse).normalize();
-          }
-          return [bone.bone, { position, rotation }];
-        },
-      ),
-    );
+    return convertHumanRigPose(this.snapshot, output);
   }
 
-  /** Apply already admitted local transforms; explicit pose translations retain their owner. */
+  /** Apply already admitted local transforms; explicit pose translations retain their owner.
+   *
+   * @evidence contracts/common.md#principled-implementation Stops the current action, restores zero rig-root translation and copies admitted local positions/quaternions into the existing nodes before publication.
+   * @evidence contracts/common.md#clear-and-simple-design Explicit pose application is separate from validation and the logical controller's transport reset.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Input must match the bound nodes; authored explicit translations are retained without new joint fitting or shape changes.
+   * @evidence contracts/common.md#meaningful-documentation States admitted local transforms and their explicit-pose translation ownership.
+   * @evidence contracts/performance.md#efficient-algorithms Copies one transform per input entry and publishes existing targets; geometry buffers are untouched.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same nodes, original drawings and retained matrix scratch serve every explicit pose.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Releases active action/name references; input vectors are copied rather than retained as node state.
+   */
   public apply(local: Map<string, HumanRigBinding.ILocal>): void {
     this.mixer.stopAllAction();
     this.action = null;
@@ -362,7 +393,16 @@ export class HumanRigBinding {
     this.publish();
   }
 
-  /** Retire only owned transform/player data; the facade separately retires its visual sink. */
+  /** Retire only owned transform/player data; the facade separately retires its visual sink.
+   *
+   * @evidence contracts/common.md#principled-implementation Marks this binding terminal and fans out action stop, mixer uncache, detach and transform/cache reference release.
+   * @evidence contracts/common.md#clear-and-simple-design The binding retires only its player/transform data; the facade separately invokes the visual disposer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No borrowed visual geometry is disposed and a cleanup failure is propagated after independent attempts.
+   * @evidence contracts/common.md#meaningful-documentation Documents terminal one-attempt ownership and the boundary from visual retirement.
+   * @evidence contracts/performance.md#efficient-algorithms Cleanup scales with cached clips, nodes and slots; an already disposed binding returns immediately.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses the existing retirement collector without installing another cleanup owner.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Releases nodes, slots, clips, evaluator and rest data once; uncertain cleanup is not retried by this binding.
+   */
   public dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
@@ -438,7 +478,16 @@ export class HumanRigBinding {
 
 /** Internal prepared transform data, built by standard Three coordinate conversion. */
 export namespace HumanRigBinding {
-  /** One actual joint in its parent's frame. */
+  /** One actual joint in its parent's frame.
+   *
+   * @evidence contracts/common.md#principled-implementation Represents one joint's parent-local metre position and normalized quaternion produced by world-to-local conversion.
+   * @evidence contracts/common.md#clear-and-simple-design One internal record is shared by pose conversion, application and authored-track compilation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It is transform data, not another skeleton, body-shape authority or clinical validity proof.
+   * @evidence contracts/common.md#meaningful-documentation Documents the parent frame, metre units and unit rotation premise.
+   * @evidence contracts/performance.md#efficient-algorithms The interface is erased; the conversion allocates one vector and quaternion record per bone.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same shape carries converted static poses and keyframes into existing consumers.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Callers own the map records; the type acquires no player or drawing resource.
+   */
   export interface ILocal {
     /** Parent-local position in metres. */
     position: THREE.Vector3;

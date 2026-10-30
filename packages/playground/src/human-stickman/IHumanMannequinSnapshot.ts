@@ -124,7 +124,16 @@ export interface IHumanMannequinSnapshot {
 
 /** Actual Three material/image fields preserved by the snapshot's existing JSON transport. */
 export namespace IHumanMannequinSnapshot {
-  /** Actual texture dimensions and numeric pixels when exposed by a DataTexture; unavailable pixels stay null. */
+  /** Actual texture dimensions and numeric pixels when exposed by a DataTexture; unavailable pixels stay null.
+   *
+   * @evidence contracts/common.md#principled-implementation Describes actual Three image dimensions, format/filter state and copied numeric pixels, with unavailable values represented as null.
+   * @evidence contracts/common.md#clear-and-simple-design An ordered texture table is referenced by material map indices, independent of query labels or texture UUIDs.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type does not invent raster pixels when an image exposes no numeric data or decode an image.
+   * @evidence contracts/common.md#meaningful-documentation Documents pixel dimensions, stored colour space and the meaning of null image data.
+   * @evidence contracts/performance.md#efficient-algorithms The interface is erased; the reader copies exposed pixel elements once per distinct texture.
+   * @evidence contracts/performance.md#reuse-equivalent-work Material references share table indices for the same actual texture within one snapshot.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Copied arrays belong to the snapshot caller; this record owns no original texture or decoding handle.
+   */
   export interface ITexture {
     /** Actual exposed image width in pixels, or unavailable. */
     width: number | null;
@@ -142,7 +151,16 @@ export namespace IHumanMannequinSnapshot {
     data: number[] | null;
   }
 
-  /** Actual shader material state; color uses stored linear RGB and size uses renderer pixels. */
+  /** Actual shader material state; color uses stored linear RGB and size uses renderer pixels.
+   *
+   * @evidence contracts/common.md#principled-implementation Records actual stored Three shader fields and indices into the snapshot's actual texture table.
+   * @evidence contracts/common.md#clear-and-simple-design Separates material identity from per-geometry slots so shared material objects appear once.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Null marks inapplicable fields; colours remain stored linear RGB and point size is not relabelled as metres.
+   * @evidence contracts/common.md#meaningful-documentation Names depth state, opacity, side, point-size attenuation and optional texture addresses.
+   * @evidence contracts/performance.md#efficient-algorithms The erased type adds no shader work; the reader copies a fixed field set per distinct material.
+   * @evidence contracts/performance.md#reuse-equivalent-work Geometry and marker slots reuse ordered material-table addresses.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Plain values belong to the snapshot; no material or texture disposal ownership transfers.
+   */
   export interface IMaterial {
     /** Actual Three material class identifier. */
     type: string;
@@ -170,7 +188,16 @@ export namespace IHumanMannequinSnapshot {
     alphaMap: number | null;
   }
 
-  /** Optional page global admitted by the capture worker before using the mounted owner. */
+  /** Optional page global admitted by the capture worker before using the mounted owner.
+   *
+   * @evidence contracts/common.md#principled-implementation Names the mounted page's readiness/completion, existing controller and matching completed-draw snapshot callback.
+   * @evidence contracts/common.md#clear-and-simple-design The optional page global exposes one owner rather than another capture renderer.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Presence of the type does not certify freshness; snapshot must reject stale controls or failed drawing.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes ready state, actual draw completion and the owner supplying pose/expression controls.
+   * @evidence contracts/performance.md#efficient-algorithms The interface is erased; actual scene copying occurs only when snapshot is invoked.
+   * @evidence contracts/performance.md#reuse-equivalent-work The worker reads the existing controller and completed page instead of regenerating geometry.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The page owns resources and callback lifetime; callers own snapshot copies, not the mounted renderer.
+   */
   export interface IPage {
     /** Whether the controls still match the last completed draw. */
     ready: boolean;
@@ -178,7 +205,16 @@ export namespace IHumanMannequinSnapshot {
     completion: IHumanMannequinSnapshot["completion"];
     /** Existing facade owning pose, expression, root and motion controls. */
     controller: HumanStickmanController;
-    /** Read the matching completed drawing or reject stale public state. */
+    /** Read the matching completed drawing or reject stale public state.
+     *
+     * @evidence contracts/common.md#principled-implementation Returns the existing page's actual snapshot only when public controls match a completed draw.
+     * @evidence contracts/common.md#clear-and-simple-design A single callback supplies the same observation to page and capture consumers.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts It must reject stale or failed state rather than passing requested values off as rendered pixels.
+     * @evidence contracts/common.md#meaningful-documentation States matching completed-draw admission and its rejection behavior.
+     * @evidence contracts/performance.md#efficient-algorithms Invocation copies actual scene buffers through the reader; the signature itself is erased.
+     * @evidence contracts/performance.md#reuse-equivalent-work The callback reuses mounted scene and controller data without another body preparation.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns returned arrays; invoking this callback does not transfer page or renderer ownership.
+     */
     snapshot: () => IHumanMannequinSnapshot;
   }
 }
