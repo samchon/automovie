@@ -1,4 +1,6 @@
 import type { IAutoMovieHumanExpression } from "../../../human/src/structures/expression/IAutoMovieHumanExpression";
+import { AutoMovieHumanActionUnit as Unit } from "../../../human/src/typings/AutoMovieHumanActionUnit";
+import { AutoMovieHumanExpressionSide as Side } from "../../../human/src/typings/AutoMovieHumanExpressionSide";
 
 /**
  * Cartoon demos expressed through the existing public FACS action units.
@@ -19,23 +21,23 @@ export const HUMAN_CARTOON_EXPRESSIONS: Record<
   neutral: { units: [] },
   happy: {
     units: [
-      { unit: "cheekRaiser", intensity: 0.8, side: "both" },
-      { unit: "lipCornerPuller", intensity: 0.95, side: "both" },
+      { unit: Unit.CheekRaiser, intensity: 0.8, side: Side.Both },
+      { unit: Unit.LipCornerPuller, intensity: 0.95, side: Side.Both },
     ],
   },
   angry: {
     units: [
-      { unit: "browLowerer", intensity: 1, side: "both" },
-      { unit: "lidTightener", intensity: 0.65, side: "both" },
-      { unit: "lipTightener", intensity: 0.9, side: "both" },
+      { unit: Unit.BrowLowerer, intensity: 1, side: Side.Both },
+      { unit: Unit.LidTightener, intensity: 0.65, side: Side.Both },
+      { unit: Unit.LipTightener, intensity: 0.9, side: Side.Both },
     ],
   },
   surprised: {
     units: [
-      { unit: "innerBrowRaiser", intensity: 1, side: "both" },
-      { unit: "outerBrowRaiser", intensity: 1, side: "both" },
-      { unit: "upperLidRaiser", intensity: 1, side: "both" },
-      { unit: "jawDrop", intensity: 0.95, side: "both" },
+      { unit: Unit.InnerBrowRaiser, intensity: 1, side: Side.Both },
+      { unit: Unit.OuterBrowRaiser, intensity: 1, side: Side.Both },
+      { unit: Unit.UpperLidRaiser, intensity: 1, side: Side.Both },
+      { unit: Unit.JawDrop, intensity: 0.95, side: Side.Both },
     ],
   },
 };

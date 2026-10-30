@@ -6,6 +6,7 @@ import {
 import type { AutoMovieHumanSkeleton as Skeleton } from "../../../human/src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanExpression } from "../../../human/src/structures/expression/IAutoMovieHumanExpression";
 import type { IAutoMovieHumanPose } from "../../../human/src/structures/pose/IAutoMovieHumanPose";
+import { reportAutoMovieResourceRetirement } from "../../../viewer/src/reportAutoMovieResourceRetirement";
 import { HumanStickmanMotions } from "./HumanStickmanMotions";
 import { createHumanStickmanVisual } from "./createHumanStickmanVisual";
 
@@ -26,7 +27,20 @@ import { createHumanStickmanVisual } from "./createHumanStickmanVisual";
 export class HumanStickmanController extends AutoMovieHumanFacade {
   /** Assemble original page inputs without changing their geometry or prepared evaluator. */
   public constructor(options: HumanStickmanController.IOptions) {
-    const visual: IAutoMovieHumanVisual = createHumanStickmanVisual(options);
+    let visual: IAutoMovieHumanVisual;
+    try {
+      visual = createHumanStickmanVisual(options);
+    } catch (error: unknown) {
+      reportAutoMovieResourceRetirement(
+        [
+          (): void => { options.polygon?.dispose(); },
+          (): void => { options.stickman?.dispose(); },
+          (): void => { options.hints?.dispose(); },
+        ],
+        { error },
+      );
+      throw error;
+    }
     try {
       super({
         rest: options.rest,

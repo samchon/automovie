@@ -192,11 +192,10 @@ export class HumanImageMannequin {
       )
       .click();
     await this.page.evaluate((selection: Record<string, unknown>): void => {
-      const controller: HumanStickmanController = (
-        window as Window & {
-          __humanStickman: { controller: HumanStickmanController };
-        }
-      ).__humanStickman.controller;
+      const owner: Window & { __humanStickman?: IHumanMannequinSnapshot.IPage } = window;
+      const human: IHumanMannequinSnapshot.IPage | undefined = owner.__humanStickman;
+      if (human === undefined) throw new Error("Mannequin page owner is unavailable");
+      const controller: HumanStickmanController = human.controller;
       if (selection.head !== undefined)
         controller.setPose({
           ...controller.state.pose,
@@ -219,14 +218,12 @@ export class HumanImageMannequin {
         .getByRole("button", { name: "동작 시작", exact: true })
         .click();
       const afterPlay: number = await this.page.evaluate(
-        (): number =>
-          (
-            window as Window & {
-              __humanStickman: {
-                completion: IHumanMannequinSnapshot["completion"];
-              };
-            }
-          ).__humanStickman.completion.sequence,
+        (): number => {
+          const owner: Window & { __humanStickman?: IHumanMannequinSnapshot.IPage } = window;
+          const human: IHumanMannequinSnapshot.IPage | undefined = owner.__humanStickman;
+          if (human === undefined) throw new Error("Mannequin page owner is unavailable");
+          return human.completion.sequence;
+        },
       );
       const played: JSHandle<
         | false
@@ -249,17 +246,9 @@ export class HumanImageMannequin {
               duration: number;
               completionSequence: number;
             } => {
-          const human: {
-            completion: IHumanMannequinSnapshot["completion"];
-            controller: HumanStickmanController;
-          } = (
-            window as Window & {
-              __humanStickman: {
-                completion: IHumanMannequinSnapshot["completion"];
-                controller: HumanStickmanController;
-              };
-            }
-          ).__humanStickman;
+          const owner: Window & { __humanStickman?: IHumanMannequinSnapshot.IPage } = window;
+          const human: IHumanMannequinSnapshot.IPage | undefined = owner.__humanStickman;
+          if (human === undefined) throw new Error("Mannequin page owner is unavailable");
           if (human.completion.error || human.completion.closed)
             throw new Error("Mannequin playback draw failed");
           const state: HumanStickmanController.IState = human.controller.state;
@@ -301,12 +290,12 @@ export class HumanImageMannequin {
         .click();
       controls.push({ action: "pause", ...(await this.controlState()) });
       await this.page.evaluate(
-        (seconds: number): void =>
-          (
-            window as Window & {
-              __humanStickman: { controller: HumanStickmanController };
-            }
-          ).__humanStickman.controller.seek(seconds),
+        (seconds: number): void => {
+          const owner: Window & { __humanStickman?: IHumanMannequinSnapshot.IPage } = window;
+          const human: IHumanMannequinSnapshot.IPage | undefined = owner.__humanStickman;
+          if (human === undefined) throw new Error("Mannequin page owner is unavailable");
+          human.controller.seek(seconds);
+        },
         Number(input.localTimeSeconds ?? 0),
       );
       controls.push({ action: "seek", ...(await this.controlState()) });
@@ -449,11 +438,10 @@ export class HumanImageMannequin {
         playing: boolean;
         duration: number;
       } => {
-        const state: HumanStickmanController.IState = (
-          window as Window & {
-            __humanStickman: { controller: HumanStickmanController };
-          }
-        ).__humanStickman.controller.state;
+        const owner: Window & { __humanStickman?: IHumanMannequinSnapshot.IPage } = window;
+        const human: IHumanMannequinSnapshot.IPage | undefined = owner.__humanStickman;
+        if (human === undefined) throw new Error("Mannequin page owner is unavailable");
+        const state: HumanStickmanController.IState = human.controller.state;
         return {
           motion: state.motion,
           time: state.time,

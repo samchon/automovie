@@ -99,13 +99,11 @@ export async function humanImageProcessEntry(): Promise<void> {
     closing = true;
     shuttingDown = launching
       .then((browser: Browser): Promise<void> => browser.close())
-      .then(
-        (): never => process.exit(code),
-        (error: unknown): never => {
+      .then((): never => process.exit(code))
+      .catch((error: unknown): never => {
           console.error(error);
           process.exit(1);
-        },
-      );
+      });
   };
   process.once("disconnect", (): void => shutdown(0));
 

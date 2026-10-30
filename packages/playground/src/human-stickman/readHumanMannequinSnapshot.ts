@@ -231,17 +231,31 @@ function materialSnapshot(
 function textureSnapshot(
   texture: THREE.Texture,
 ): IHumanMannequinSnapshot.ITexture {
-  const image:
-    | { width?: number; height?: number; data?: ArrayLike<number> }
-    | undefined = texture.image;
+  const image: unknown = texture.image;
+  const width: unknown = image !== null && typeof image === "object" ? Reflect.get(image, "width") : undefined;
+  const height: unknown = image !== null && typeof image === "object" ? Reflect.get(image, "height") : undefined;
+  const pixels: unknown = image !== null && typeof image === "object" ? Reflect.get(image, "data") : undefined;
+  let data: number[] | null = null;
+  if (pixels !== null && typeof pixels === "object") {
+    const length: unknown = Reflect.get(pixels, "length");
+    if (typeof length === "number" && Number.isSafeInteger(length) && length >= 0) {
+      const copied: number[] = [];
+      for (let index: number = 0; index < length; index++) {
+        const value: unknown = Reflect.get(pixels, String(index));
+        if (typeof value !== "number") break;
+        copied.push(value);
+      }
+      if (copied.length === length) data = copied;
+    }
+  }
   return {
-    width: image?.width ?? null,
-    height: image?.height ?? null,
+    width: typeof width === "number" ? width : null,
+    height: typeof height === "number" ? height : null,
     colorSpace: texture.colorSpace,
     format: texture.format,
     minFilter: texture.minFilter,
     magFilter: texture.magFilter,
-    data: image?.data === undefined ? null : Array.from(image.data),
+    data,
   };
 }
 

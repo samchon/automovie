@@ -16,8 +16,8 @@ export async function navigateHumanCapturePage(
 ): Promise<void> {
   await page.evaluate(async (): Promise<void> => {
     const owner: Window & {
-      __automovieHuman?: { dispose: () => void | Promise<void> };
-      __humanStickman?: { dispose: () => void | Promise<void> };
+      __automovieHuman?: { dispose: (() => void) | (() => Promise<void>) };
+      __humanStickman?: { dispose: (() => void) | (() => Promise<void>) };
     } = window;
     await owner.__automovieHuman?.dispose();
     await owner.__humanStickman?.dispose();

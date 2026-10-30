@@ -11,111 +11,85 @@ import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IA
  * @evidence contracts/common.md#meaningful-documentation The overlay remains in rest pose; its textures and model resources join the page's original disposer list, including failed initialization.
  * @evidence contracts/performance.md#efficient-algorithms Optional generation and texture/model traversal retain their existing costs; no work occurs on the ordinary Mannequin path.
  * @evidence contracts/performance.md#reuse-equivalent-work Uses one generated model and the same shared texture cache for that requested overlay.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Registers texture/model retirement with the borrowed page list; initialization failure runs the original all-settled cleanup plus grid cleanup and reports all failures.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Registers texture/model retirement with the borrowed page list; the page owns all-settled cleanup on initialization failure and reports all failures.
  */
 export async function attachHumanMannequinSkin(options: {
   query: URLSearchParams;
   params: IAutoMovieHumanParameters;
   scene: THREE.Scene;
-  grid: THREE.GridHelper;
-  disposers: (() => void | Promise<void>)[];
+  disposers: Array<(() => void) | (() => Promise<void>)>;
 }): Promise<void> {
-  const { query, params, scene, grid, disposers }: typeof options = options;
-  try {
-    const [
-      { AutoMovieHuman },
-      { AutoMovieTextureCache },
-      { buildModel },
-      { materialTextureBindings },
-      { collectAutoMovieOwnedResources },
-      { createAutoMovieResourceRetirement },
-    ]: [
-      typeof import("../../../human/src/AutoMovieHuman"),
-      typeof import("../../../viewer/src/AutoMovieTextureCache"),
-      typeof import("../../../viewer/src/buildModel"),
-      typeof import("../../../viewer/src/materialTextureBindings"),
-      typeof import("../../../viewer/src/collectAutoMovieOwnedResources"),
-      typeof import("../../../viewer/src/createAutoMovieResourceRetirement"),
-    ] = await Promise.all([
-      import("../../../human/src/AutoMovieHuman"),
-      import("../../../viewer/src/AutoMovieTextureCache"),
-      import("../../../viewer/src/buildModel"),
-      import("../../../viewer/src/materialTextureBindings"),
-      import("../../../viewer/src/collectAutoMovieOwnedResources"),
-      import("../../../viewer/src/createAutoMovieResourceRetirement"),
-    ]);
-    const model: IAutoMovieModel = AutoMovieHuman.generate(params).model;
-    const textures: InstanceType<typeof AutoMovieTextureCache> =
-      new AutoMovieTextureCache(
-        (asset: string): Promise<THREE.Texture> =>
-          Promise.reject(new Error("Unserved texture asset " + asset)),
-      );
-    disposers.push((): Promise<void> => textures.dispose());
-    await textures.prime(
-      model.materials.flatMap(materialTextureBindings),
-      model.images ?? [],
+  const { query, params, scene, disposers }: typeof options = options;
+
+  const [
+    { AutoMovieHuman },
+    { AutoMovieTextureCache },
+    { buildModel },
+    { materialTextureBindings },
+    { collectAutoMovieOwnedResources },
+    { createAutoMovieResourceRetirement },
+  ]: [
+    typeof import("../../../human/src/AutoMovieHuman"),
+    typeof import("../../../viewer/src/AutoMovieTextureCache"),
+    typeof import("../../../viewer/src/buildModel"),
+    typeof import("../../../viewer/src/materialTextureBindings"),
+    typeof import("../../../viewer/src/collectAutoMovieOwnedResources"),
+    typeof import("../../../viewer/src/createAutoMovieResourceRetirement"),
+  ] = await Promise.all([
+    import("../../../human/src/AutoMovieHuman"),
+    import("../../../viewer/src/AutoMovieTextureCache"),
+    import("../../../viewer/src/buildModel"),
+    import("../../../viewer/src/materialTextureBindings"),
+    import("../../../viewer/src/collectAutoMovieOwnedResources"),
+    import("../../../viewer/src/createAutoMovieResourceRetirement"),
+  ]);
+  const model: IAutoMovieModel = AutoMovieHuman.generate(params).model;
+  const textures: InstanceType<typeof AutoMovieTextureCache> =
+    new AutoMovieTextureCache(
+      (asset: string): Promise<THREE.Texture> =>
+        Promise.reject(new Error("Unserved texture asset " + asset)),
     );
-    const garment: boolean = query.get("garment") !== "0";
-    const skin: ReturnType<typeof buildModel> = buildModel(
-      {
-        ...model,
-        parts: model.parts.filter(
-          (p: IAutoMovieModelPart): boolean =>
-            !p.id.startsWith("human.construction.") &&
-            (garment || !p.id.startsWith("human.garment.")),
-        ),
-      },
-      textures.resolve,
-    );
-    const skeletons: Set<THREE.Skeleton> = new Set();
-    skin.object.traverse((part: THREE.Object3D): void => {
-      if (part instanceof THREE.SkinnedMesh) skeletons.add(part.skeleton);
-    });
-    const closeSkin: () => Promise<void> = createAutoMovieResourceRetirement(
-      [...collectAutoMovieOwnedResources(skin.object), ...skeletons].map(
-        (resource: { dispose(): void }): (() => void) =>
-          (): void =>
-            resource.dispose(),
+  disposers.push((): Promise<void> => textures.dispose());
+  await textures.prime(
+    model.materials.flatMap(materialTextureBindings),
+    model.images ?? [],
+  );
+  const garment: boolean = query.get("garment") !== "0";
+  const skin: ReturnType<typeof buildModel> = buildModel(
+    {
+      ...model,
+      parts: model.parts.filter(
+        (p: IAutoMovieModelPart): boolean =>
+          !p.id.startsWith("human.construction.") &&
+          (garment || !p.id.startsWith("human.garment.")),
       ),
-    );
-    disposers.push(async (): Promise<void> => {
-      skin.object.removeFromParent();
-      await closeSkin();
-    });
-    skin.object.traverse((o: THREE.Object3D): void => {
-      const mesh: THREE.Mesh = o as THREE.Mesh;
-      if (mesh.material === undefined) return;
-      for (const m of ([] as THREE.Material[]).concat(mesh.material)) {
-        m.transparent = true;
-        m.opacity = 0.35;
-        m.depthWrite = false;
-      }
-      mesh.renderOrder = 1;
-    });
-    scene.add(skin.object);
-  } catch (error) {
-    const cleanup: PromiseSettledResult<void>[] = await Promise.allSettled(
-      disposers.map(
-        (dispose: () => void | Promise<void>): Promise<void> =>
-          Promise.resolve().then(dispose),
-      ),
-    );
-    grid.geometry.dispose();
-    for (const material of ([] as THREE.Material[]).concat(grid.material))
-      material.dispose();
-    throw new AggregateError(
-      [
-        error,
-        ...cleanup
-          .filter(
-            (
-              result: PromiseSettledResult<void>,
-            ): result is PromiseRejectedResult =>
-              result.status === "rejected",
-          )
-          .map((result: PromiseRejectedResult): unknown => result.reason),
-      ],
-      "Mannequin skin initialization failed",
-    );
-  }
+    },
+    textures.resolve,
+  );
+  const skeletons: Set<THREE.Skeleton> = new Set();
+  skin.object.traverse((part: THREE.Object3D): void => {
+    if (part instanceof THREE.SkinnedMesh) skeletons.add(part.skeleton);
+  });
+  const closeSkin: () => Promise<void> = createAutoMovieResourceRetirement(
+    [...collectAutoMovieOwnedResources(skin.object), ...skeletons].map(
+      (resource: { dispose(): void }): (() => void) =>
+        (): void =>
+          resource.dispose(),
+    ),
+  );
+  disposers.push(async (): Promise<void> => {
+    skin.object.removeFromParent();
+    await closeSkin();
+  });
+  skin.object.traverse((o: THREE.Object3D): void => {
+    const mesh: THREE.Mesh = o as THREE.Mesh;
+    if (mesh.material === undefined) return;
+    for (const m of ([] as THREE.Material[]).concat(mesh.material)) {
+      m.transparent = true;
+      m.opacity = 0.35;
+      m.depthWrite = false;
+    }
+    mesh.renderOrder = 1;
+  });
+  scene.add(skin.object);
 }

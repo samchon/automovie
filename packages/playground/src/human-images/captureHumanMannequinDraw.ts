@@ -21,16 +21,12 @@ export async function captureHumanMannequinDraw(
       png: string;
       capturedUtc: string;
     }> => {
-      const human: {
-        ready: boolean;
-        completion: IHumanMannequinSnapshot["completion"];
-        snapshot: () => IHumanMannequinSnapshot;
-      } = (window as Window & { __humanStickman: typeof human })
-        .__humanStickman;
+      const owner: Window & { __humanStickman?: IHumanMannequinSnapshot.IPage } = window;
+      const human: IHumanMannequinSnapshot.IPage | undefined = owner.__humanStickman;
       const canvas: HTMLCanvasElement | null =
         document.querySelector<HTMLCanvasElement>("#view");
       if (
-        canvas === null ||
+        human === undefined || canvas === null ||
         human.completion.error ||
         human.completion.closed
       )
@@ -71,8 +67,7 @@ export async function captureHumanMannequinDraw(
           const completed: EventListener = (): void => {
             try {
               if (
-                (window as Window & { __humanStickman: unknown })
-                  .__humanStickman !== human ||
+                owner.__humanStickman !== human ||
                 human.completion.error ||
                 human.completion.closed
               )

@@ -25,8 +25,9 @@ export interface IHumanMannequinSnapshot {
   parameters: IAutoMovieHumanParameters;
   /** Live pose, expression and playback state, rather than query labels. */
   controller: HumanStickmanController.IState;
-  /** Actual page style and visible diagnostic pass. */
+  /** Actual page style. */
   style: string;
+  /** Visible diagnostic pass, separate from invariant model geometry. */
   pass: string;
   /** Local buffers and actual world placement; visibility remains separately inspectable. */
   geometry: Array<{
@@ -72,17 +73,25 @@ export interface IHumanMannequinSnapshot {
     quaternion: number[];
     scale: number[];
   };
-  /** Actual preparation/evaluation counts and original source descriptor, not inferred visual measurements. */
+  /** Number of body shape preparations for this mounted character. */
   bodyPreparations: number;
+  /** Number of prepared pose evaluator calls. */
   poseEvaluations: number;
+  /** Same actual evaluator call count retained for capture diagnostics. */
   evaluatorCalls: number;
+  /** Independent copies of original neck, atlas, head and jaw source bones. */
   headDrivers: Skeleton.IBone[];
+  /** Independent rest neck descriptor, without applying the current pose again. */
   neckSurface: Skeleton.IOutput["neckSurface"];
   /** Existing blockout qualification and actual emitted mesh counts. */
   unsupported: readonly string[];
+  /** Blockout representation qualifier, without realistic continuous-skin claims. */
   body: string;
+  /** Whether the observed blockout has continuous skin binding. */
   skinBinding: boolean;
+  /** Number of source rig bones. */
   boneCount: number;
+  /** Actual mesh vertex and triangle counts, without inferring displayed visibility. */
   parts: Array<{ name: string; vertices: number; triangles: number }>;
   /** Actual posed skeleton positions used by the diagnostic construction commitment. */
   rig: Array<{
@@ -91,7 +100,7 @@ export interface IHumanMannequinSnapshot {
     position: number[];
     localPosition: number[];
   }>;
-  /** Camera, light and pixel dimensions read from the actual page. */
+  /** Actual perspective camera placement in metres and lens distances in metres. */
   camera: {
     position: number[];
     target: number[];
@@ -100,12 +109,14 @@ export interface IHumanMannequinSnapshot {
     near: number;
     far: number;
   };
+  /** Actual reference directional light placement and intensity. */
   light: {
     mode: string;
     position: number[];
     target: number[];
     intensity: number;
   };
+  /** Actual drawing-buffer pixel dimensions. */
   canvas: { width: number; height: number };
   /** Actual WebGL implementation; capture refuses software rendering. */
   renderer: { vendor: string; renderer: string };
@@ -115,29 +126,59 @@ export interface IHumanMannequinSnapshot {
 export namespace IHumanMannequinSnapshot {
   /** Actual texture dimensions and numeric pixels when exposed by a DataTexture; unavailable pixels stay null. */
   export interface ITexture {
+    /** Actual exposed image width in pixels, or unavailable. */
     width: number | null;
+    /** Actual exposed image height in pixels, or unavailable. */
     height: number | null;
+    /** Stored Three texture color-space identifier. */
     colorSpace: string;
+    /** Stored Three pixel format. */
     format: number;
+    /** Actual minification filter. */
     minFilter: number;
+    /** Actual magnification filter. */
     magFilter: number;
+    /** Copied actual numeric image elements; unavailable pixels are null. */
     data: number[] | null;
   }
 
   /** Actual shader material state; color uses stored linear RGB and size uses renderer pixels. */
   export interface IMaterial {
+    /** Actual Three material class identifier. */
     type: string;
+    /** Stored linear RGB components, or absent color support. */
     color: number[] | null;
+    /** Actual shader opacity multiplier. */
     opacity: number;
+    /** Actual blending enablement. */
     transparent: boolean;
+    /** Actual depth comparison enablement; xray markers disable it. */
     depthTest: boolean;
+    /** Actual depth-buffer write enablement. */
     depthWrite: boolean;
+    /** Actual Three face-side mode. */
     side: number;
+    /** Actual Points size in renderer pixels, or inapplicable. */
     size: number | null;
+    /** Whether perspective attenuates point size, or inapplicable. */
     sizeAttenuation: boolean | null;
+    /** Actual surface roughness, or inapplicable. */
     roughness: number | null;
     /** Actual texture-table addresses, not UUID or query labels. */
     map: number | null;
+    /** Actual alpha texture-table address, or no alpha texture. */
     alphaMap: number | null;
+  }
+
+  /** Optional page global admitted by the capture worker before using the mounted owner. */
+  export interface IPage {
+    /** Whether the controls still match the last completed draw. */
+    ready: boolean;
+    /** Original public draw completion and terminal failure state. */
+    completion: IHumanMannequinSnapshot["completion"];
+    /** Existing facade owning pose, expression, root and motion controls. */
+    controller: HumanStickmanController;
+    /** Read the matching completed drawing or reject stale public state. */
+    snapshot: () => IHumanMannequinSnapshot;
   }
 }

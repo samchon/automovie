@@ -175,8 +175,12 @@ export function buildHumanPolygonHints(
           (): void => geometry.dispose(),
           (): void => material.dispose(),
           (): void => texture.dispose(),
-          (): void => object.removeFromParent(),
-          (): void => object.clear(),
+          (): void => {
+            object.removeFromParent();
+          },
+          (): void => {
+            object.clear();
+          },
           (): void => {
             bindings.length = 0;
           },

@@ -409,8 +409,12 @@ export function buildHumanPolygon(
           (): void => material.dispose(),
           (): void => lineMaterial.dispose(),
           (): void => palette.dispose(),
-          (): void => object.removeFromParent(),
-          (): void => object.clear(),
+          (): void => {
+            object.removeFromParent();
+          },
+          (): void => {
+            object.clear();
+          },
           (): void => partMeshes.clear(),
           (): void => groups.clear(),
         ],

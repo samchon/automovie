@@ -69,7 +69,8 @@ export function attachHumanMannequinPoseControls(
             head: {
               ...pose.head,
               eyes: {
-                ...pose.head?.eyes,
+                left: pose.head?.eyes?.left ?? {},
+                right: pose.head?.eyes?.right ?? {},
                 [side]: { ...pose.head?.eyes?.[side], [axis]: value },
               },
             },
