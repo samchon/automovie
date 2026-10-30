@@ -1,0 +1,11 @@
+# Fixed playback inputs and machine receipts retain their identified bytes.
+src/** -text whitespace=trailing-space,space-before-tab,cr-at-eol
+scripts/*.ts -text whitespace=trailing-space,space-before-tab,cr-at-eol
+scripts/*.py -text whitespace=trailing-space,space-before-tab,cr-at-eol
+public/film.json -text whitespace=trailing-space,space-before-tab,cr-at-eol
+public/audio/001-road/takes.json -text whitespace=trailing-space,space-before-tab,cr-at-eol
+public/audio/001-road/selection.json -text whitespace=trailing-space,space-before-tab,cr-at-eol
+docs/production/**/*.json -text whitespace=trailing-space,space-before-tab,cr-at-eol
+docs/production/audio-alternatives/line026/** -text whitespace=trailing-space,space-before-tab,cr-at-eol
+# Preserve original FFmpeg progress whitespace in the raw diagnostic log.
+docs/production/observations/first-prototype/decode.log -text -diff

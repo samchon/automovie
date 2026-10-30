@@ -1,0 +1,97 @@
+"""Inspect the two retained alternatives without invoking speech generation.
+
+The first ASR setup failed because an unfiltered local snapshot request demanded
+unused Flax/TF weights. Keep that failure and request only the already-cached
+PyTorch/tokenizer files. Never regenerate, overwrite or select an alternative.
+"""
+
+import ast
+import hashlib
+import json
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+
+import numpy as np
+import soundfile as sf
+import torch
+from huggingface_hub import snapshot_download
+from scipy.signal import resample_poly
+from transformers import pipeline
+
+
+def main() -> None:
+    """Decode each existing WAV once per model, retaining the failed first pass."""
+    folder = Path(__file__).resolve().parent
+    root = Path(__file__).resolve().parents[4]
+    record = json.loads((folder / "candidates.json").read_text(encoding="utf-8"))
+    if record["complete"] or len(record["candidates"]) != 2:
+        raise ValueError("Expected the two retained candidates from the failed ASR setup")
+    if [item["seed"] for item in record["candidates"]] != [9426, 19426]:
+        raise ValueError("Declared candidate population differs")
+    for item in record["candidates"]:
+        if hashlib.sha256((folder / item["file"]).read_bytes()).hexdigest() != item["sha256"]:
+            raise ValueError("Retained candidate bytes differ")
+    for relative, expected in record["protectedInputs"].items():
+        if hashlib.sha256((root / relative).read_bytes()).hexdigest() != expected:
+            raise ValueError(f"Protected original differs: {relative}")
+    generator = folder / "generate-alternatives.py"
+    source = ast.parse(generator.read_text(encoding="utf-8"))
+    helper = ast.Module(body=[node for node in source.body
+                             if isinstance(node, ast.FunctionDef) and node.name == "save"],
+                        type_ignores=[])
+    namespace = {"Path": Path, "json": json}
+    exec(compile(helper, str(generator), "exec"), namespace)
+    save = namespace["save"]
+    record.setdefault("previousDiagnosticAttempts", []).append({
+        "complete": record["complete"], "asrSetupErrors": record.pop("asrSetupErrors", {}),
+        "parameters": record["asrParameters"],
+        "reason": "Unfiltered local snapshot requested unused model framework files"})
+    record["diagnosticsCreatedUtc"] = datetime.now(timezone.utc).isoformat()
+    record["diagnosticCacheAllowPatterns"] = ["*.json", "*.txt", "*.safetensors"]
+    torch.set_num_threads(4)
+    torch.set_num_interop_threads(1)
+    save(folder, record)
+    for repository, revision in [
+            ("openai/whisper-tiny.en", "87c7102498dcde7456f24cfd30239ca606ed9063"),
+            ("openai/whisper-base.en", "911407f4214e0e1d82085af863093ec0b66f9cd6")]:
+        try:
+            snapshot = snapshot_download(repository, revision=revision, local_files_only=True,
+                                         allow_patterns=record["diagnosticCacheAllowPatterns"])
+            recognizer = pipeline("automatic-speech-recognition", model=snapshot,
+                                  device="cpu", dtype=torch.float32)
+            for item in record["candidates"]:
+                observation = {"model": repository, "snapshot": Path(snapshot).name}
+                item.setdefault("recognition", {})[repository] = observation
+                start = time.monotonic()
+                try:
+                    audio, rate = sf.read(folder / item["file"], dtype="float64")
+                    if rate != 48000:
+                        raise ValueError("Unexpected candidate sample rate")
+                    with torch.inference_mode():
+                        observation["result"] = recognizer(
+                            {"array": resample_poly(audio, 1, 3).astype(np.float32),
+                             "sampling_rate": 16000}, return_timestamps="word",
+                            generate_kwargs=record["asrParameters"]["generate"])
+                except Exception as error:
+                    observation["error"] = f"{type(error).__name__}: {error}"
+                observation["elapsedSeconds"] = time.monotonic() - start
+                save(folder, record)
+                print(json.dumps({"seed": item["seed"], **observation}), flush=True)
+            del recognizer
+        except Exception as error:
+            record.setdefault("asrSetupErrors", {})[repository] = f"{type(error).__name__}: {error}"
+            save(folder, record)
+    record["changedProtectedInputs"] = [relative for relative, expected in record["protectedInputs"].items()
+                                         if hashlib.sha256((root / relative).read_bytes()).hexdigest() != expected]
+    record["complete"] = not record["changedProtectedInputs"] and all(
+        "result" in item.get("recognition", {}).get(repository, {})
+        for item in record["candidates"]
+        for repository in ["openai/whisper-tiny.en", "openai/whisper-base.en"])
+    save(folder, record)
+    if not record["complete"]:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

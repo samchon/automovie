@@ -1,0 +1,47 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'public/outputs/episode-one/runs/2026-10-29T16-45-38-792Z-3ebc0a27c321/the-road-gives-way.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf61.7.100
+  Duration: 00:06:19.04, start: 0.000000, bitrate: 455 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 1280x720, 377 kb/s, 24 fps, 24 tbr, 12288 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+        encoder         : Lavc61.19.100 libx264
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 72 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+Stream mapping:
+  Stream #0:0 -> #0:0 (h264 (native) -> wrapped_avframe (native))
+  Stream #0:1 -> #0:1 (aac (native) -> pcm_s16le (native))
+Press [q] to stop, [?] for help
+Output #0, null, to 'NUL':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf61.7.100
+  Stream #0:0(und): Video: wrapped_avframe, yuv420p(progressive), 1280x720, q=2-31, 200 kb/s, 24 fps, 24 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+        encoder         : Lavc61.19.100 wrapped_avframe
+  Stream #0:1(und): Audio: pcm_s16le, 48000 Hz, stereo, s16, 1536 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+        encoder         : Lavc61.19.100 pcm_s16le
+frame=  767 fps=0.0 q=-0.0 size=N/A time=00:00:31.87 bitrate=N/A speed=  62x    
+frame= 2159 fps=2106 q=-0.0 size=N/A time=00:01:29.95 bitrate=N/A speed=87.7x    
+frame= 3311 fps=2142 q=-0.0 size=N/A time=00:02:17.95 bitrate=N/A speed=89.2x    
+frame= 4441 fps=2146 q=-0.0 size=N/A time=00:03:05.04 bitrate=N/A speed=89.4x    
+frame= 5441 fps=2103 q=-0.0 size=N/A time=00:03:46.70 bitrate=N/A speed=87.6x    
+frame= 6203 fps=1993 q=-0.0 size=N/A time=00:04:18.45 bitrate=N/A speed=  83x    
+frame= 6940 fps=1913 q=-0.0 size=N/A time=00:04:49.16 bitrate=N/A speed=79.7x    
+frame= 7687 fps=1857 q=-0.0 size=N/A time=00:05:20.25 bitrate=N/A speed=77.4x    
+frame= 8897 fps=1913 q=-0.0 size=N/A time=00:06:10.70 bitrate=N/A speed=79.7x    
+[out#0/null @ 000001e9d1435000] video:3909KiB audio:71072KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: unknown
+frame= 9097 fps=1924 q=-0.0 Lsize=N/A time=00:06:19.04 bitrate=N/A speed=80.2x    

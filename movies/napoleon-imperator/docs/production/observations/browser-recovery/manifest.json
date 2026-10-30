@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "scope": "One retained failed initial browser launch plus independent Node22/24 and TEMP-root comparisons; no whole-film or audition acceptance",
+  "result": "Failure did not reproduce. The same cached-policy warning occurred in successful launches; underlying initial-exit cause remains unknown.",
+  "archive": {
+    "path": "launch-observations.zip",
+    "bytes": 363449,
+    "sha256": "be0988ae3f4c9d9a5057331d22e089a199173e0f8776f1b5291fe2ed5608b529"
+  },
+  "members": [
+    {
+      "path": "comparison-node22.json",
+      "bytes": 1615,
+      "sha256": "666d7c13e67ad1914acd0df0316af7620cb2facc92d3455e710ddc8fadc625af"
+    },
+    {
+      "path": "comparison-node24-extracted.json",
+      "bytes": 1650,
+      "sha256": "94581a5c53a6e06cd8a0c2a7b1f06eece2bf01dad5ba0bbb4b235e9a001dd80f"
+    },
+    {
+      "path": "default-temp.png",
+      "bytes": 179997,
+      "sha256": "45705f4577e38aab4ecd587e37469fb9dd23105336d5ee19690d09184c00374a"
+    },
+    {
+      "path": "diagnosis.md",
+      "bytes": 2972,
+      "sha256": "b72605d0238aa6e40c4c78fcb6c8b1732d919462fca68e66620fc1dc3e74cc77"
+    },
+    {
+      "path": "launch-node22.log",
+      "bytes": 6391,
+      "sha256": "39d79c99b9b74af9923f909917f3d700c7258028cd8d967c8c69cd5bb80bd5d9"
+    },
+    {
+      "path": "launch.log",
+      "bytes": 6398,
+      "sha256": "24bb745acf3b23cb115216e5e6d9f37a4a1f8448b5479b77492fe84293034801"
+    },
+    {
+      "path": "original-failed.json",
+      "bytes": 5276,
+      "sha256": "e874d05f0f014844de4d9eed222324c208d377467dd2692ecf4e7b22a2a1fe42"
+    },
+    {
+      "path": "workspace-temp.png",
+      "bytes": 179997,
+      "sha256": "45705f4577e38aab4ecd587e37469fb9dd23105336d5ee19690d09184c00374a"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "runtimeIdentity": "883b5595c1fe2d281df40f3b04b1c704544c0af001999952e3d07e61b0c3a954",
+  "run": "2026-10-30T05-13-44-355Z-883b5595c1fe-94f061aa",
+  "profile": {
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "frames": 9217,
+    "duration": 384.0416666666667
+  },
+  "inputCount": 2687,
+  "outputCount": 134,
+  "samples": 132,
+  "reverseSeeks": 44,
+  "errors": [],
+  "archive": {
+    "path": "receipts.zip",
+    "bytes": 343483,
+    "sha256": "4b608a786859e50b451451c7e78cbb71db827e917cdc6c46cc8d0bb34721b103"
+  },
+  "members": [
+    {
+      "path": "baseline.json",
+      "bytes": 513439,
+      "sha256": "302928b3b1e4c85a7d66a8ba127f575df1ba7ac3f204f9bf5bfaeb6da1613e9d"
+    },
+    {
+      "path": "completed.json",
+      "bytes": 534521,
+      "sha256": "281902f98dc2eca4a9526c944ea7ec8ffcf12c2e3000fc6b3523b9d670da87ef"
+    },
+    {
+      "path": "probe-observations.json",
+      "bytes": 2341963,
+      "sha256": "36f221945d031fb86ee40705844af1f8bde04c2cd6d0f0a7332aa785fe25e5b6"
+    }
+  ],
+  "limits": "Archived original transport/sample receipts; no whole continuous viewing or audition."
+}
