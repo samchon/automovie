@@ -14,6 +14,7 @@
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
     "@automovie/engine": "workspace:^",
+    "@automovie/human": "workspace:^",
     "@automovie/evidence": "workspace:^",
     "@automovie/ingest": "workspace:^",
     "@automovie/interface": "workspace:^",

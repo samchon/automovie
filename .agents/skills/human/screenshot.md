@@ -1,6 +1,6 @@
 # Screenshots
 
-The Integration subagent starts the viewer from the repository root:
+The Integration subagent uses the task's assigned viewer endpoint and checks ownership before starting a server, protecting other owners' services. This example starts the viewer from the repository root on the default port:
 
 ```powershell
 Set-Location packages/playground
@@ -8,7 +8,7 @@ $env:AUTOMOVIE_HUMAN_IMAGE_REGISTRY = (Resolve-Path human-images.json).Path
 node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5173 --strictPort
 ```
 
-| Use | URL under `http://127.0.0.1:5173` |
+| Use | Path under the viewer endpoint |
 | --- | --- |
 | Interactive page | `/human.html?alias=f1` |
 | 3D PNG | `/human-images/<alias>/<camera>.<pass>.png?fresh=<nonce>&...` |

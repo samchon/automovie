@@ -38,6 +38,7 @@ const LAYERS: Array<[string, string[]]> = [
     ],
   ],
   ["appearance", ["generation", "lofting", "structures", "typings"]],
+  ["control", ["structures", "typings"]],
   ["generation", ["lofting", "structures", "typings"]],
   ["skeleton", ["generation", "lofting", "structures", "typings"]],
   ["lofting", []],

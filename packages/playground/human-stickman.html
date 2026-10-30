@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>automovie: Human stickman</title>
+    <title>automovie: Human 부피와 표정</title>
+    <link rel="icon" href="data:," />
     <style>
       html,
       body {
@@ -23,6 +24,9 @@
         transform: translateX(-50%);
         display: flex;
         gap: 6px;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: min(96vw, 1000px);
         font: 13px/1 system-ui, sans-serif;
       }
       #clips button {

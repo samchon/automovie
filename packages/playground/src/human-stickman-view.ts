@@ -1,21 +1,22 @@
-import type {
-  IAutoMovieModel,
-  IAutoMovieModelPart,
-} from "@automovie/interface";
-import {
-  AutoMovieTextureCache,
-  buildModel,
-  materialTextureBindings,
-  mountViewer,
-} from "@automovie/viewer";
 import * as THREE from "three";
 
-import { AutoMovieHuman } from "../../human/src/AutoMovieHuman";
 import { AutoMovieHumanSkeleton } from "../../human/src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanParameters } from "../../human/src/structures/IAutoMovieHumanParameters";
+import type { IAutoMovieHumanPose } from "../../human/src/structures/pose/IAutoMovieHumanPose";
+import { mountViewer } from "../../viewer/src/mountViewer";
 import { f1, f2, m1, m2 } from "./human-parameters";
+import { HUMAN_CARTOON_EXPRESSIONS } from "./human-stickman/HUMAN_CARTOON_EXPRESSIONS";
 import { HUMAN_STICKMAN_POSES } from "./human-stickman/HUMAN_STICKMAN_POSES";
+import { HumanStickmanController } from "./human-stickman/HumanStickmanController";
+import { attachHumanMannequinControls } from "./human-stickman/attachHumanMannequinControls";
+import { attachHumanMannequinSkin } from "./human-stickman/attachHumanMannequinSkin";
+import { buildHumanPolygon } from "./human-stickman/buildHumanPolygon";
+import { buildHumanPolygonHints } from "./human-stickman/buildHumanPolygonHints";
 import { buildHumanStickman } from "./human-stickman/buildHumanStickman";
+import { humanMannequinPartColors } from "./human-stickman/humanMannequinPartColors";
+import { observeHumanMannequinCompletion } from "./human-stickman/observeHumanMannequinCompletion";
+import { readHumanMannequinSnapshot } from "./human-stickman/readHumanMannequinSnapshot";
+import { traceHumanViewerPhase } from "./human/traceHumanViewerPhase";
 
 /**
  * Human stickman page: the generated Human's rule-derived skeleton as a
@@ -25,10 +26,30 @@ import { buildHumanStickman } from "./human-stickman/buildHumanStickman";
  * default rest), `clamp=0` to apply the pose without clamping, `skin=1` to
  * overlay the neutral skin translucently (it stays in rest pose; `garment=0`
  * hides the underwear), `view` (front, side, back, oblique; default front).
- * `window.__humanStickman.ready` turns true once a frame is drawn, and
- * `clamped` lists the fields the clamp changed.
+ * `window.__humanStickman.ready` follows the original mount's completed draw
+ * and becomes false when controller, ancestor/root, camera or display controls
+ * differ from that completed draw, or on failure, context loss or disposal; `completion`
+ * records its actual sequence and optional elapsed seconds. The
+ * `clamped` lists the fields the clamp changed. `style=polygon` draws the rigid
+ * low-polygon volume and a cartoon face using the same posed skeleton.
+ * `expression=neutral|happy|angry|surprised` selects ordinary AU examples;
+ * `pass=surface|overlay|construction` shows skin, generating sections and bones.
+ * `framing=face` uses the head polygon bounds independently of expression.
+ * The same page exposes one controller for pose, expression, play, pause,
+ * seek and reset; motions are authored examples without contact or physics.
+ * Snapshots return actual geometry arrays and world placements only while the
+ * public controls still match the completed draw; changes require a new draw.
+ *
+ * @evidence contracts/common.md#principled-implementation Existing skeleton generation owns pose and limits; polygon and face builders consume its posed placement once, and expression demos use existing public AU values.
+ * @evidence contracts/common.md#clear-and-simple-design One existing page and mount serve both styles and their diagnostic passes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Polygon modules remain a rigid diffusion-hint blockout; unsupported facial actions are exposed and optional realistic skin remains a rest overlay.
+ * @evidence contracts/common.md#meaningful-documentation States query controls, posed ownership, expression examples and stable face framing.
+ * @evidence contracts/performance.md#efficient-algorithms Body shape, rest joints and geometry are prepared once; explicit poses and lazy clip preparation reuse the existing clinical pose evaluator, while the public Human clock advances logical time and Three refreshes accepted placements without rebuilding shape.
+ * @evidence contracts/performance.md#reuse-equivalent-work All passes share the selected posed output, with fixed head bounds across expressions.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One page owns one mount and its builder resources; pagehide stops the mount and disposes the builders.
  */
 async function bootstrapHumanStickman(): Promise<void> {
+  traceHumanViewerPhase("mannequin.module.ready", "mannequin");
   const query: URLSearchParams = new URLSearchParams(location.search);
   const people: Record<string, IAutoMovieHumanParameters> = { f1, f2, m1, m2 };
   const base: IAutoMovieHumanParameters | undefined =
@@ -43,66 +64,112 @@ async function bootstrapHumanStickman(): Promise<void> {
   const params: IAutoMovieHumanParameters = {
     ...base,
     pose: HUMAN_STICKMAN_POSES[poseName]!,
+    expression:
+      HUMAN_CARTOON_EXPRESSIONS[query.get("expression") ?? ""] ??
+      base.expression,
   };
+  const style: string =
+    query.get("style") === "polygon" ? "polygon" : "stickman";
+  let pass: string = query.get("pass") ?? "surface";
+  if (!["surface", "overlay", "construction"].includes(pass))
+    throw new Error("Unknown display pass");
+  let hintMode: string = query.get("hint") ?? "off";
+  let hintDetail: string = query.get("detail") ?? "major";
+  if (
+    !["off", "parts", "joints", "combined"].includes(hintMode) ||
+    !["major", "all"].includes(hintDetail)
+  )
+    throw new Error("Unknown Mannequin hint mode/detail");
+  const disposers: (() => void | Promise<void>)[] = [];
 
   // Skeleton posed by params.pose.
   const clamp: boolean = query.get("clamp") !== "0";
-  const output: AutoMovieHumanSkeleton.IOutput =
-    AutoMovieHumanSkeleton.generate(params, clamp);
+  traceHumanViewerPhase("mannequin.prepare.begin", "mannequin");
+  const prepared: ReturnType<typeof AutoMovieHumanSkeleton.prepare> =
+    AutoMovieHumanSkeleton.prepare(base, { neckSurface: style === "polygon" });
+  traceHumanViewerPhase("mannequin.prepare.ready", "mannequin");
+  const bodyPreparations: number = 1;
+  let evaluatorCalls: number = 0;
+  const evaluatePose: HumanStickmanController.IOptions["evaluatePose"] = (
+    pose: IAutoMovieHumanPose,
+  ): AutoMovieHumanSkeleton.IOutput => {
+    evaluatorCalls++;
+    return prepared(pose, clamp);
+  };
+  const rest: AutoMovieHumanSkeleton.IOutput = evaluatePose({});
+  traceHumanViewerPhase("mannequin.build.begin", "mannequin");
   const stickman: ReturnType<typeof buildHumanStickman> =
-    buildHumanStickman(output);
+    buildHumanStickman(rest);
+  const polygon: ReturnType<typeof buildHumanPolygon> | undefined =
+    style === "polygon" ? buildHumanPolygon(rest) : undefined;
+  const palette: Readonly<Record<string, number>> = humanMannequinPartColors(
+    rest.bones.map((bone: AutoMovieHumanSkeleton.IBone): string => bone.bone),
+  );
+  const hints: ReturnType<typeof buildHumanPolygonHints> | undefined =
+    polygon === undefined
+      ? undefined
+      : buildHumanPolygonHints(rest, {
+          diameterPixels: 18,
+          color: 0xffe66b,
+          detail: hintDetail as "major" | "all",
+        });
+  applyHints();
+  const controller: HumanStickmanController = new HumanStickmanController({
+    rest,
+    evaluatePose,
+    polygon,
+    stickman,
+    hints,
+    expression: params.expression,
+  });
+  controller.setPose(params.pose ?? {});
+  disposers.push((): void => controller.dispose());
+  traceHumanViewerPhase("mannequin.build.ready", "mannequin");
+  if (polygon !== undefined) {
+    polygon.surface.visible = pass !== "construction";
+    polygon.sections.visible = pass !== "surface";
+  }
+  stickman.object.visible = polygon === undefined || pass !== "surface";
+  if (polygon !== undefined)
+    stickman.object.traverse((part: THREE.Object3D): void => {
+      if (!(part instanceof THREE.Mesh)) return;
+      for (const material of ([] as THREE.Material[]).concat(part.material)) {
+        material.depthTest = false;
+        material.transparent = true;
+        material.opacity = 0.7;
+      }
+      part.renderOrder = 3;
+    });
 
   const scene: THREE.Scene = new THREE.Scene();
   scene.background = new THREE.Color(0xf1f3f6);
-  scene.add(stickman.object);
+  scene.add(controller.object);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa3b2, 1.2));
   const sun: THREE.DirectionalLight = new THREE.DirectionalLight(0xffffff, 1.6);
   sun.position.set(3, 4, 2);
   scene.add(sun);
-  scene.add(new THREE.GridHelper(4, 40, 0xb8c0cc, 0xd5dbe4));
+  const grid: THREE.GridHelper = new THREE.GridHelper(
+    4,
+    40,
+    0xb8c0cc,
+    0xd5dbe4,
+  );
+  scene.add(grid);
+  if (query.get("framing") === "face") grid.visible = false;
 
-  // Optional translucent skin overlay of the same parameters, in rest pose.
-  if (query.get("skin") === "1") {
-    const model: IAutoMovieModel = AutoMovieHuman.generate(params).model;
-    const textures: AutoMovieTextureCache = new AutoMovieTextureCache(
-      (asset: string): Promise<THREE.Texture> =>
-        Promise.reject(new Error("Unserved texture asset " + asset)),
-    );
-    await textures.prime(
-      model.materials.flatMap(materialTextureBindings),
-      model.images ?? [],
-    );
-    const garment: boolean = query.get("garment") !== "0";
-    const skin: ReturnType<typeof buildModel> = buildModel(
-      {
-        ...model,
-        parts: model.parts.filter(
-          (p: IAutoMovieModelPart): boolean =>
-            !p.id.startsWith("human.construction.") &&
-            (garment || !p.id.startsWith("human.garment.")),
-        ),
-      },
-      textures.resolve,
-    );
-    skin.object.traverse((o: THREE.Object3D): void => {
-      const mesh: THREE.Mesh = o as THREE.Mesh;
-      if (mesh.material === undefined) return;
-      for (const m of ([] as THREE.Material[]).concat(mesh.material)) {
-        m.transparent = true;
-        m.opacity = 0.35;
-        m.depthWrite = false;
-      }
-      mesh.renderOrder = 1;
-    });
-    scene.add(skin.object);
-  }
+  // Optional translucent skin remains an independently owned rest overlay.
+  if (query.get("skin") === "1")
+    await attachHumanMannequinSkin({ query, params, scene, grid, disposers });
 
-  // Camera framing the rest skeleton from the requested direction.
-  const box: THREE.Box3 = new THREE.Box3();
-  for (const b of output.bones) {
-    box.expandByPoint(new THREE.Vector3(...b.position));
-    if (b.tip !== null) box.expandByPoint(new THREE.Vector3(...b.tip));
-  }
+  // Face framing excludes expression marks so all AU examples share one camera.
+  scene.updateMatrixWorld(true);
+  const box: THREE.Box3 =
+    polygon !== undefined && query.get("framing") === "face"
+      ? new THREE.Box3(
+          new THREE.Vector3(...polygon.head.min),
+          new THREE.Vector3(...polygon.head.max),
+        ).applyMatrix4(polygon.head.object.matrixWorld)
+      : new THREE.Box3().setFromObject(polygon?.object ?? stickman.object);
   const centre: THREE.Vector3 = box.getCenter(new THREE.Vector3());
   const size: number = box.getSize(new THREE.Vector3()).length();
   const directions: Record<string, [number, number, number]> = {
@@ -128,52 +195,234 @@ async function bootstrapHumanStickman(): Promise<void> {
 
   const canvas: HTMLCanvasElement =
     document.querySelector<HTMLCanvasElement>("#view")!;
+  const completion: ReturnType<typeof observeHumanMannequinCompletion> =
+    observeHumanMannequinCompletion(canvas, scene, camera, (): string => {
+      /** Observe the borrowed local/world authorities, including external ancestors, without updating them. */
+      const placement: (object: THREE.Object3D) => object[] = (
+        object: THREE.Object3D,
+      ): object[] => {
+        const chain: object[] = [];
+        for (
+          let node: THREE.Object3D | null = object;
+          node !== null;
+          node = node.parent
+        )
+          chain.push({
+            position: node.position.toArray(),
+            quaternion: node.quaternion.toArray(),
+            scale: node.scale.toArray(),
+            matrix: node.matrix.elements,
+            matrixAutoUpdate: node.matrixAutoUpdate,
+            matrixWorldAutoUpdate: node.matrixWorldAutoUpdate,
+            matrixWorld: node.matrixWorldAutoUpdate
+              ? null
+              : node.matrixWorld.elements,
+          });
+        return chain;
+      };
+      return JSON.stringify({
+        controller: controller.state,
+        root: placement(controller.object),
+        camera: placement(camera),
+        projection: camera.projectionMatrix.elements,
+        zoom: camera.zoom,
+        lens: [camera.fov, camera.near, camera.far],
+        up: camera.up.toArray(),
+        light: {
+          position: sun.position.toArray(),
+          target: sun.target.position.toArray(),
+          intensity: sun.intensity,
+        },
+        target: centre.toArray(),
+        canvas: [canvas.width, canvas.height],
+        pass,
+        hintMode,
+        hintDetail,
+        visibility: [
+          grid.visible,
+          polygon?.surface.visible,
+          polygon?.sections.visible,
+          stickman.object.visible,
+          hints?.object.visible,
+        ],
+      });
+    });
+  disposers.push(completion.dispose);
+  let retirement: Promise<void> | undefined;
   const state: {
     ready: boolean;
+    completion: typeof completion.state;
+    fail: (error: unknown) => void;
     pose: string;
     clamped: AutoMovieHumanSkeleton.IClamp[];
-  } = { ready: false, pose: poseName, clamped: output.clamped };
+    style: string;
+    pass: string;
+    expression: IAutoMovieHumanParameters["expression"];
+    unsupported: readonly string[];
+    controller: HumanStickmanController;
+    snapshot: () => unknown;
+    dispose: () => Promise<void>;
+  } = {
+    get ready(): boolean {
+      return completion.state.ready;
+    },
+    completion: completion.state,
+    fail: completion.fail,
+    pose: poseName,
+    clamped: controller.state.clamped,
+    style,
+    pass,
+    expression: params.expression,
+    unsupported: controller.state.unsupported,
+    controller,
+    snapshot: (): unknown => {
+      if (
+        !completion.state.ready ||
+        completion.state.error !== null ||
+        completion.state.closed ||
+        viewer.renderer.getContext().isContextLost()
+      )
+        throw new Error("Mannequin has no active completed draw");
+      return readHumanMannequinSnapshot({
+        scene,
+        controller,
+        camera,
+        canvas,
+        renderer: viewer.renderer,
+        completion: completion.state,
+        sun,
+        rest,
+        parameters: base,
+        target: centre,
+        style,
+        pass,
+        preparations: bodyPreparations,
+        evaluations: evaluatorCalls,
+        hint: {
+          mode: hintMode,
+          detail: hintDetail,
+          diameterPixels: hints?.object.userData.humanHint?.diameterPixels ?? 0,
+          color: hints?.object.userData.humanHint?.color ?? 0,
+          xray: hints?.object.userData.humanHint?.xray === true,
+        },
+      });
+    },
+    dispose: (): Promise<void> => {
+      if (retirement !== undefined) return retirement;
+      completion.dispose();
+      retirement = (async (): Promise<void> => {
+        const operations: (() => void | Promise<void>)[] = [
+          (): void => viewer.stop(),
+          ...disposers,
+          (): void => grid.geometry.dispose(),
+          ...([] as THREE.Material[]).concat(grid.material).map(
+            (material: THREE.Material): (() => void) =>
+              (): void =>
+                material.dispose(),
+          ),
+        ];
+        const results: PromiseSettledResult<void>[] = await Promise.allSettled(
+          operations.map(
+            (dispose: () => void | Promise<void>): Promise<void> =>
+              Promise.resolve().then(dispose),
+          ),
+        );
+        const failures: PromiseRejectedResult[] = results.filter(
+          (
+            result: PromiseSettledResult<void>,
+          ): result is PromiseRejectedResult => result.status === "rejected",
+        );
+        if (failures.length)
+          throw new AggregateError(
+            failures.map(
+              (result: PromiseRejectedResult): unknown => result.reason,
+            ),
+            "Mannequin resource retirement failed",
+          );
+      })();
+      return retirement;
+    },
+  };
   Object.assign(window, { __humanStickman: state });
-  mountViewer(
+  const viewer: ReturnType<typeof mountViewer> = mountViewer(
     canvas,
     scene,
     camera,
-    (): void => {
-      state.ready = true;
+    (elapsedSeconds: number): void => {
+      completion.begin();
+      controller.update(elapsedSeconds);
+      controls.update();
     },
-    { preserveDrawingBuffer: true },
+    { preserveDrawingBuffer: true, pixelRatio: 1 },
+  );
+  window.addEventListener(
+    "pagehide",
+    (): void => {
+      void state.dispose().catch(console.error);
+    },
+    { once: true },
   );
 
-  // Pose selector and status line.
-  const bar: HTMLElement | null = document.getElementById("clips");
-  for (const name of Object.keys(HUMAN_STICKMAN_POSES)) {
-    const b: HTMLButtonElement = document.createElement("button");
-    b.textContent = name;
-    b.className = name === poseName ? "on" : "";
-    b.addEventListener("click", (): void => {
-      const next: URLSearchParams = new URLSearchParams(location.search);
-      next.set("pose", name);
-      location.search = next.toString();
-    });
-    bar?.appendChild(b);
+  /** Apply display-only materials and marker selection while retaining the fixed visual bindings. */
+  function applyHints(): void {
+    polygon?.setPartColors(
+      hintMode === "parts" || hintMode === "combined" ? palette : undefined,
+    );
+    hints?.setDetail(hintDetail as "major" | "all");
+    if (hints !== undefined)
+      hints.object.visible = hintMode === "joints" || hintMode === "combined";
   }
-  const status: HTMLElement | null = document.getElementById("status");
-  if (status !== null)
-    status.textContent =
-      `${query.get("alias") ?? "f1"} · ${poseName} · clamp ${clamp ? "on" : "off"} · ${output.bones.length} bones` +
-      output.clamped
-        .map(
-          (c: AutoMovieHumanSkeleton.IClamp): string =>
-            `\n${c.path}: ${c.requested} → ${Math.round(c.applied * 100) / 100}`,
-        )
-        .join("");
+
+  const controls: ReturnType<typeof attachHumanMannequinControls> =
+    attachHumanMannequinControls({
+      query,
+      poseName,
+      style,
+      clamp,
+      rest,
+      controller,
+      polygon,
+      stickman,
+      scene,
+      grid,
+      camera,
+      centre,
+      directions,
+      distance,
+      applyHints,
+      state,
+      display: {
+        get pass(): string {
+          return pass;
+        },
+        set pass(value: string) {
+          pass = value;
+        },
+        get hintMode(): string {
+          return hintMode;
+        },
+        set hintMode(value: string) {
+          hintMode = value;
+        },
+        get hintDetail(): string {
+          return hintDetail;
+        },
+        set hintDetail(value: string) {
+          hintDetail = value;
+        },
+      },
+    });
+  disposers.push(controls.dispose);
 }
 
 void bootstrapHumanStickman().catch((error: unknown): void => {
+  (
+    window as Window & { __humanStickman?: { fail: (error: unknown) => void } }
+  ).__humanStickman?.fail(error);
   console.error(error);
   const status: HTMLElement | null = document.getElementById("status");
   if (status !== null)
     status.textContent =
-      "Human stickman failed: " +
+      "Human 표시 실패: " +
       (error instanceof Error ? error.message : String(error));
 });

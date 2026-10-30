@@ -5,6 +5,29 @@ import path from "node:path";
 import { normalizeHumanCurves } from "../human/normalizeHumanCurves";
 import { normalizeHumanView } from "../human/normalizeHumanView";
 
+/** Actual producer envelope consumed by historical qualification; full receipt data stays attached.
+ * Live callers supply ordinary JSON data from the maintained capture owners, without getters or toJSON hooks.
+ */
+interface ProducerEvent {
+  /** Delivery discriminator and optional original example alias. */
+  kind: string;
+  alias?: string;
+  /** Original frame, model lease and cache admission state. */
+  image: string;
+  key: string;
+  cacheHit: boolean;
+  /** Actual producer commitments; other original receipt fields remain in the same object. */
+  receipt: {
+    key: string;
+    inputSha256: string;
+    sourceSha256: string;
+    modelSha256: string;
+    constructionSha256: string;
+    frame: string;
+    capture: { nonce: string; capturedUtc: string; pngSha256: string };
+  };
+}
+
 /** Retain at most sixteen historical PNG/receipt publications within 64 MiB.
  * Captured pixels and original producer records are copied, never regenerated.
  * URLs identify capture records, not the current source/model generation. Old
@@ -90,15 +113,13 @@ export class HumanImageArchive {
         );
       const png: Buffer = await member(entry.png);
       const event: Buffer = await member(entry.responseEvent);
-      const producer: { alias?: string; image?: string } = JSON.parse(
-        event.toString("utf8"),
-      );
+      const producer: ProducerEvent = JSON.parse(event.toString("utf8"));
       if (producer.alias !== entry.alias || producer.image !== entry.frame)
         throw new Error("Audit manifest and original producer identity differ");
       const qualified: ReturnType<HumanImageArchive["qualify"]> = this.qualify(
         entry.originalUrl,
         png,
-        event,
+        producer,
         {
           kind: audit ? "read-only-import" : "read-only-mixed-retention-import",
           manifestSha256: digest(original),
@@ -177,8 +198,32 @@ export class HumanImageArchive {
     const entry: ReturnType<HumanImageArchive["qualify"]> = this.qualify(
       originalUrl,
       png,
-      responseEvent,
+      JSON.parse(responseEvent.toString("utf8")) as ProducerEvent,
       { kind: "live-producer", responseEventSha256: digest(responseEvent) },
+    );
+    this.commit(entry);
+    return entry.summary.url!;
+  }
+
+  /** Publish one live producer graph without decoding another copy of its numeric arrays.
+   * The archive alone encodes the supplied plain JSON event and hashes those exact UTF-8 bytes.
+   * Qualification and historical encoding are synchronous, before the caller can mutate its borrowed data.
+   *
+   * @evidence contracts/common.md#principled-implementation The sole producer object supplies both exact JSON event bytes and the unchanged common URL, frame, nonce, UTC, PNG and digest checks; no independently supplied graph is trusted beside bytes.
+   * @evidence contracts/common.md#clear-and-simple-design Live publication owns encoding here; Buffer publication and file import retain their byte-parsing entry paths into the same qualification.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Maintained live callers pass plain producer JSON data, not accessors or toJSON hooks; no alternate serializer, omitted receipt or changed capture commitment is introduced.
+   * @evidence contracts/common.md#meaningful-documentation States borrowed plain-data ownership, synchronous qualification and the exact event SHA provenance.
+   * @evidence contracts/performance.md#efficient-algorithms Two existing JSON encodings scale with actual event bytes, while the redundant full JSON.parse graph is absent; memory still includes temporary encoded event and historical receipt buffers.
+   * @evidence contracts/performance.md#reuse-equivalent-work The original producer graph supplies historical qualification and wrapper encoding; existing capture IDs and FIFO admission remain unchanged.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The input graph is borrowed for this call; only the existing bounded archive entry survives, and temporary event bytes become collectible after return or rejection.
+   */
+  public publishEvent(originalUrl: string, png: Buffer, event: object): string {
+    const eventBytes: Buffer = Buffer.from(JSON.stringify(event));
+    const entry: ReturnType<HumanImageArchive["qualify"]> = this.qualify(
+      originalUrl,
+      png,
+      event as ProducerEvent,
+      { kind: "live-producer", responseEventSha256: digest(eventBytes) },
     );
     this.commit(entry);
     return entry.summary.url!;
@@ -289,7 +334,7 @@ export class HumanImageArchive {
   private qualify(
     originalUrl: string,
     png: Buffer,
-    eventBytes: Buffer,
+    event: ProducerEvent,
     proof: object,
   ): {
     id: string;
@@ -297,22 +342,6 @@ export class HumanImageArchive {
     receipt: Buffer;
     summary: Record<string, string>;
   } {
-    const event: {
-      kind: string;
-      alias?: string;
-      image: string;
-      key: string;
-      cacheHit: boolean;
-      receipt: {
-        key: string;
-        inputSha256: string;
-        sourceSha256: string;
-        modelSha256: string;
-        constructionSha256: string;
-        frame: string;
-        capture: { nonce: string; capturedUtc: string; pngSha256: string };
-      };
-    } = JSON.parse(eventBytes.toString("utf8"));
     const url: URL = new URL(originalUrl, "http://localhost");
     const capture: typeof event.receipt.capture = event.receipt.capture;
     const hashes: string[] = [

@@ -11,8 +11,10 @@
       "browser": "./lib/browser/index.js",
       "default": "./src/index.ts"
     },
+    "./control": "./src/control/index.ts",
     "./package.json": "./package.json"
   },
+  "typesVersions": { "*": { "control": ["src/control/index.ts"] } },
   "scripts": {
     "build": "ttsc --noEmit && rimraf lib && ttsc && ttsc -p tsconfig.browser.json",
     "prepack": "pnpm run build"
@@ -32,6 +34,7 @@
   ],
   "publishConfig": {
     "access": "public",
+    "typesVersions": { "*": { "control": ["lib/control/index.d.ts"] } },
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
     "exports": {
@@ -39,6 +42,11 @@
         "types": "./lib/index.d.ts",
         "browser": "./lib/browser/index.js",
         "default": "./lib/index.js"
+      },
+      "./control": {
+        "types": "./lib/control/index.d.ts",
+        "browser": "./lib/browser/control/index.js",
+        "default": "./lib/control/index.js"
       },
       "./package.json": "./package.json"
     }

@@ -1,7 +1,4 @@
 import { type ChildProcess, fork } from "node:child_process";
-import { webcrypto } from "node:crypto";
-import fs from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import {
   Worker,
@@ -10,7 +7,9 @@ import {
   workerData,
 } from "node:worker_threads";
 
-import { ProcessOwnership } from "../../../viewer/src/process/ProcessOwnership.ts";
+import { HumanImageTemporaryDirectory } from "./HumanImageTemporaryDirectory.ts";
+import { readHumanImagePublicationBytes } from "./readHumanImagePublicationBytes.ts";
+import { serveHumanImageLifecycle } from "./serveHumanImageLifecycle.ts";
 
 /** One pending reply owns its settlement callbacks and deadline timer. */
 interface IReplyObserver {
@@ -19,14 +18,14 @@ interface IReplyObserver {
   timer: ReturnType<typeof setTimeout>;
 }
 
-/** Own isolated lifecycle transport for the Human worker child, which keeps one headless Chrome tab on `/human.html`.
- * Chrome runs on a Playwright pipe and exits when a stopped child closes it.
+/** Own isolated lifecycle transport for the Human worker child, which starts one headless Chrome tab blank and mounts the command's page lazily.
+ * IPC disconnect requests normal browser shutdown; worker exit alone does not establish descendant absence. The worker heap defaults to 768 MiB; AUTOMOVIE_HUMAN_WORKER_HEAP_MIB overrides it with an integer from 256 to 1024.
  *
- * @evidence contracts/common.md#principled-implementation A lifecycle Worker retains the original ChildProcess and delegates checked native ownership to ProcessOwnership; command IDs and publication hashes qualify replies.
- * @evidence contracts/common.md#clear-and-simple-design HTTP transport, blocking OS lifecycle work and the Chrome-owning child have distinct owners; this class joins them without generating or rendering itself.
+ * @evidence contracts/common.md#principled-implementation A lifecycle Worker retains the original ChildProcess and private IPC channel; disconnect requests the child's existing normal browser shutdown, while command IDs and publication hashes qualify replies.
+ * @evidence contracts/common.md#clear-and-simple-design HTTP transport, lifecycle IPC and the Chrome-owning child have distinct owners; this class joins them without generating or rendering itself.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No PID-only termination, model fallback or synthetic output replaces a failed child command.
- * @evidence contracts/common.md#meaningful-documentation Documents isolated ownership, Chrome exit with its child, bounded waits and cleanup uncertainty.
- * @evidence contracts/performance.md#efficient-algorithms Lifecycle messages avoid geometry-object IPC; publication reads/hash scale with the declared maximum 256 MiB and native process checks run in the lifecycle thread.
+ * @evidence contracts/common.md#meaningful-documentation Documents isolated ownership, normal browser-close requests, bounded waits and descendant cleanup uncertainty.
+ * @evidence contracts/performance.md#efficient-algorithms Ordinary geometry uses publication files and Mannequin snapshots use JSON-text IPC; publication reads/hash scale with the declared maximum 256 MiB and normal shutdown starts no OS-query process.
  * @evidence contracts/performance.md#reuse-equivalent-work One owner shares startup and sticky close promises; child failures cannot silently acquire another child.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each instance owns at most one lifecycle thread, child and temporary directory; remote observers are capped at two, child commands at one, and cleanup failure retains ownership rather than claiming release.
  */
@@ -37,7 +36,7 @@ export class HumanImageProcess {
   private remotePath: string | undefined;
   private readonly remotePending: Map<number, IReplyObserver> = new Map();
   private child: ChildProcess | undefined;
-  private directory: string | undefined;
+  private directory: HumanImageTemporaryDirectory | undefined;
   private closed: boolean = false;
   private sequence: number = 0;
   private starting: Promise<void> | undefined;
@@ -54,11 +53,11 @@ export class HumanImageProcess {
   private tail: string = "";
   /** Share one startup attempt, including a failed attempt, until the owner closes.
    *
-   * @evidence contracts/common.md#principled-implementation Main-thread calls request lifecycle startup; that thread creates one temporary directory and original child, captures ownership and awaits IPC readiness.
+   * @evidence contracts/common.md#principled-implementation Main-thread calls request lifecycle startup; that thread owns one temporary directory, original fork result and its private IPC channel and awaits readiness.
    * @evidence contracts/common.md#clear-and-simple-design The starting promise keeps concurrent callers on the same acquisition path.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Readiness means the child has Chrome on /human.html and its IPC listener; it does not prove that a later generation or render succeeds.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Readiness means the child has a blank Chrome tab, document observer and IPC listener; the command mounts its page later, and startup does not prove generation or render success.
    * @evidence contracts/common.md#meaningful-documentation Documents shared failure and the distinction between readiness and implemented generation.
-   * @evidence contracts/performance.md#efficient-algorithms One thread/child startup and native ownership query dominate fixed-size control messages.
+   * @evidence contracts/performance.md#efficient-algorithms One thread/child startup dominates fixed-size control messages; normal ownership needs no separate OS-query process.
    * @evidence contracts/performance.md#reuse-equivalent-work starting retains the first startup promise, so repeated calls do not spawn replacement workers.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Child readiness has a 300-second deadline and remote commands 330 seconds; failures request cleanup, while uncertain native cleanup retains original handles and directory ownership.
    */
@@ -101,8 +100,8 @@ export class HumanImageProcess {
    * @evidence contracts/common.md#principled-implementation Sequence IDs match replies to one child command, with transport/closed checks before send; source/input admission belongs to the session, not this generic record transport.
    * @evidence contracts/common.md#clear-and-simple-design Main-thread requests cross the lifecycle worker while the original child and its IPC listeners stay owned there.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Worker errors reject rather than fabricate model or PNG output; arbitrary command records are not asserted to be validated Human parameters.
-   * @evidence contracts/common.md#meaningful-documentation States transport ownership and the generate/render commands the child serves.
-   * @evidence contracts/performance.md#efficient-algorithms Structured-clone cost scales with command/reply bytes; intended geometry transport uses a file, although this generic method imposes no payload byte cap.
+   * @evidence contracts/common.md#meaningful-documentation Startup ready means the owned browser/page observer exists on a blank tab, not that a model is generated; commands lazily mount their actual page and ordinary generate/render/diagram and Mannequin replies remain distinct.
+   * @evidence contracts/performance.md#efficient-algorithms Ordinary full geometry uses its publication file; Mannequin snapshots cross browser/child/lifecycle boundaries as JSON text and are parsed for actual commitment verification. Structured-clone cost scales with reply bytes and this generic transport imposes no payload byte cap.
    * @evidence contracts/performance.md#reuse-equivalent-work Effectful commands are not deduplicated; each sequence owns its own reply and deadline.
    * @evidence contracts/performance.md#bound-retention-and-release-resources At most one child command and two remote observers are pending; reply/failure clears timers, command timeout requests close, and remote timeout reports uncertainty without abandoning native ownership.
    */
@@ -127,52 +126,43 @@ export class HumanImageProcess {
           void this.close().catch(console.error);
         }, 300000);
         this.pending = { id, resolve, reject, timer };
-        this.child!.send({ ...value, id }, (error: Error | null): void => {
-          if (error) this.fail(error);
-        });
+        try {
+          this.child!.send({ ...value, id }, (error: Error | null): void => {
+            if (error && !this.closed) this.fail(error);
+          });
+        } catch (error: unknown) {
+          this.fail(error instanceof Error ? error : new Error(String(error)));
+        }
       },
     );
   }
-  /** Read the owned publication path and verify its declared bytes and SHA-256.
+  /** Verify bytes under this owner's exact publication path; the caller owns the returned Buffer.
    *
-   * @evidence contracts/common.md#principled-implementation The record must name this instance's publication file with a positive declared size at most 256 MiB; actual bytes and asynchronous SHA must match.
-   * @evidence contracts/common.md#clear-and-simple-design File publication avoids transferring a parsed geometry graph over IPC.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts A path, size or SHA mismatch rejects; no earlier publication substitutes for a failed one.
-   * @evidence contracts/common.md#meaningful-documentation Documents owned-path admission and exact byte/hash verification.
-   * @evidence contracts/performance.md#efficient-algorithms One asynchronous file read and SHA pass cost O(B) bytes; the declared cap is checked before read, but an unexpectedly larger on-disk file is allocated before length rejection.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each read verifies current bytes; the session owns reuse of a successfully verified publication.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Async read owns no persistent file handle; the returned Buffer belongs to the caller and the instance owns file removal during close.
+   * @evidence contracts/common.md#principled-implementation Supplies only the original lifecycle-owned path to the existing exact byte/hash verifier.
+   * @evidence contracts/common.md#clear-and-simple-design Process retains path ownership while byte admission has one helper.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing ownership, changed bytes and oversize declarations reject without another publication.
+   * @evidence contracts/common.md#meaningful-documentation The ordinary Session receives a verified Buffer; Mannequin does not use this path.
+   * @evidence contracts/performance.md#efficient-algorithms Delegates one O(B) read and SHA pass, bounded by the existing declared 256 MiB cap.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each read verifies current bytes; the Session owns successful reuse.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps no extra Buffer; the lifecycle owner removes its file on successful close.
    */
   public async publication(record: Record<string, unknown>): Promise<Buffer> {
-    const filename: string = isMainThread
-      ? this.remotePath!
-      : path.join(this.directory!, "publication.json");
-    if (filename === undefined)
-      throw new Error("Human publication has no lifecycle owner");
-    if (
-      record.path !== filename ||
-      !Number.isSafeInteger(record.bytes) ||
-      Number(record.bytes) < 1 ||
-      Number(record.bytes) > 268435456
-    )
-      throw new Error("Invalid worker publication identity");
-    const bytes: Buffer<ArrayBuffer> = await fs.readFile(filename);
-    const sha: string = Buffer.from(
-      await webcrypto.subtle.digest("SHA-256", bytes),
-    ).toString("hex");
-    if (bytes.length !== record.bytes || sha !== record.sha256)
-      throw new Error("Worker publication bytes changed");
-    return bytes;
+    return readHumanImagePublicationBytes(
+      isMainThread
+        ? this.remotePath
+        : path.join(this.directory!.path, "publication.json"),
+      record,
+    );
   }
   /** Join one sticky cleanup attempt; rejection preserves uncertain ownership.
    *
-   * @evidence contracts/common.md#principled-implementation Close seals admission, settles child observers, joins startup, stops the captured child, awaits exit and removes only its verified temporary directory.
+   * @evidence contracts/common.md#principled-implementation Close seals admission, settles child observers and disconnects the original IPC channel before joining startup; verified normal exit precedes owned-directory removal.
    * @evidence contracts/common.md#clear-and-simple-design Main-thread retirement asks the lifecycle owner to release its original resources before joining the thread exit.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Native stop refusal or timeout does not authorize a PID-only retry or claim released resources.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing normal exit or nonzero shutdown rejects and retains ownership; no timeout authorizes a PID kill or fabricated release.
    * @evidence contracts/common.md#meaningful-documentation Documents joined cleanup, sticky failure and retained uncertain ownership.
-   * @evidence contracts/performance.md#efficient-algorithms One native stop/exit and owned-directory removal dominate; file cleanup scales with that directory's contents.
+   * @evidence contracts/performance.md#efficient-algorithms Normal IPC disconnect and exit require no CIM snapshot or cleanup PowerShell; directory removal scales with its contents.
    * @evidence contracts/performance.md#reuse-equivalent-work Repeated close calls share closing, including its rejection, without another cleanup or replacement process.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Successful cleanup removes child, directory and main-thread worker/path references; native refusal or missing exit can retain them, and child exit joining has no separate deadline.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources A five-second normal-exit deadline reports failure without termination; successful exit/removal drops child, directory and thread/path references, while failure retains them.
    */
   public close(): Promise<void> {
     if (isMainThread) {
@@ -199,14 +189,21 @@ export class HumanImageProcess {
   }
   private async launch(root: string): Promise<void> {
     try {
-      const directory: string = await fs.mkdtemp(
-        path.join(os.tmpdir(), "automovie-human-worker-"),
+      const heapMiB: number = Number(
+        process.env.AUTOMOVIE_HUMAN_WORKER_HEAP_MIB ?? "768",
       );
+      if (!Number.isSafeInteger(heapMiB) || heapMiB < 256 || heapMiB > 1024)
+        throw new Error(
+          "Human worker heap override must be an integer from 256 to 1024 MiB",
+        );
+      const directory: HumanImageTemporaryDirectory =
+        await HumanImageTemporaryDirectory.create();
+      this.directory = directory;
       if (this.closed) {
-        await this.remove(directory);
+        await directory.remove();
+        this.directory = undefined;
         throw new Error("Human worker closed during directory acquisition");
       }
-      this.directory = directory;
       const child: ChildProcess = fork(
         path.join(
           root,
@@ -215,13 +212,16 @@ export class HumanImageProcess {
         [],
         {
           cwd: path.join(root, "packages/playground"),
-          execArgv: ["--experimental-strip-types"],
+          execArgv: [
+            "--experimental-strip-types",
+            `--max-old-space-size=${heapMiB}`,
+          ],
           serialization: "advanced",
           stdio: ["ignore", "ignore", "pipe", "ipc"],
           env: {
             ...process.env,
             AUTOMOVIE_HUMAN_WORKER_ROOT: root,
-            AUTOMOVIE_HUMAN_WORKER_DIRECTORY: directory,
+            AUTOMOVIE_HUMAN_WORKER_DIRECTORY: directory.path,
           },
         },
       );
@@ -260,6 +260,7 @@ export class HumanImageProcess {
         this.tail = (this.tail + bytes.toString("utf8")).slice(-65536);
       });
       child.on("message", (message: unknown): void => {
+        if (this.closed) return;
         if (!message || typeof message !== "object") {
           this.fail(new Error("Malformed Human worker message"));
           return;
@@ -269,9 +270,15 @@ export class HumanImageProcess {
           unknown
         >;
         if (record.kind === "memory") {
-          console.error(
-            JSON.stringify({ event: "human-worker-memory", ...record }),
-          );
+          try {
+            const line: string = JSON.stringify({
+              event: "human-worker-memory",
+              ...record,
+            });
+            if (Buffer.byteLength(line) <= 4096) console.error(line);
+          } catch {
+            /* Malformed diagnostic data does not settle a model command. */
+          }
           return;
         }
         if (record.kind === "ready") {
@@ -293,7 +300,6 @@ export class HumanImageProcess {
           pending.reject(new Error(String(record.error)));
         else pending.resolve(record);
       });
-      ProcessOwnership.own(child);
       await ready;
     } catch (error) {
       void this.close().catch(console.error);
@@ -301,30 +307,44 @@ export class HumanImageProcess {
     }
   }
   private async release(): Promise<void> {
+    if (this.child?.connected) this.child.disconnect();
     await this.starting?.catch((): undefined => undefined);
     if (this.child !== undefined) {
-      ProcessOwnership.stopChild(this.child);
-      await this.exited;
+      if (this.child.connected) this.child.disconnect();
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      try {
+        await Promise.race([
+          this.exited,
+          new Promise<never>(
+            (
+              _resolve: (value: never) => void,
+              reject: (error: Error) => void,
+            ): void => {
+              timer = setTimeout(
+                (): void =>
+                  reject(
+                    new Error(
+                      "Human worker normal exit deadline exceeded; ownership retained",
+                    ),
+                  ),
+                5000,
+              );
+            },
+          ),
+        ]);
+      } finally {
+        if (timer !== undefined) clearTimeout(timer);
+      }
+      if (this.child.exitCode !== 0)
+        throw new Error(
+          "Human worker did not confirm normal shutdown; ownership retained",
+        );
       this.child = undefined;
     }
     if (this.directory !== undefined) {
-      await this.remove(this.directory);
+      await this.directory.remove();
       this.directory = undefined;
     }
-  }
-  private async remove(directory: string): Promise<void> {
-    const resolved: string = await fs.realpath(directory),
-      base: string = await fs.realpath(os.tmpdir());
-    const relative: string = path.relative(base, resolved);
-    if (
-      path.dirname(relative) !== "." ||
-      !path.basename(relative).startsWith("automovie-human-worker-") ||
-      (await fs.lstat(directory)).isSymbolicLink()
-    )
-      throw new Error(
-        "Worker cleanup target lost its owned temporary boundary",
-      );
-    await fs.rm(resolved, { recursive: true });
   }
   private fail(error: Error): void {
     if (this.ready !== undefined) {
@@ -356,6 +376,7 @@ export class HumanImageProcess {
         {
           execArgv: ["--experimental-strip-types"],
           workerData: { role: "human-image-lifecycle" },
+          resourceLimits: { maxOldGenerationSizeMb: 128 },
         },
       );
       this.remote = thread;
@@ -458,40 +479,9 @@ export class HumanImageProcess {
         "human-image-lifecycle"
     ) {
       const owner: HumanImageProcess = new HumanImageProcess();
-      parentPort!.on("message", (message: unknown): void => {
-        const command: {
-          id: number;
-          operation: string;
-          value: Record<string, unknown>;
-        } = message as typeof command;
-        const run: () => Promise<void> = async (): Promise<void> => {
-          if (!command || !Number.isSafeInteger(command.id))
-            throw new Error("Malformed Human lifecycle command");
-          let result: Record<string, unknown>;
-          if (command.operation === "start") {
-            await owner.start(String(command.value.root));
-            result = { path: path.join(owner.directory!, "publication.json") };
-          } else if (command.operation === "request")
-            result = await owner.request(command.value);
-          else if (command.operation === "close") {
-            await owner.close();
-            result = {};
-          } else throw new Error("Unknown Human lifecycle operation");
-          parentPort!.postMessage({
-            id: command.id,
-            result,
-            active: owner.isActive(),
-          });
-          if (command.operation === "close") parentPort!.close();
-        };
-        void run().catch((error: unknown): void => {
-          parentPort!.postMessage({
-            id: command?.id,
-            error: error instanceof Error ? error.message : String(error),
-            active: owner.isActive(),
-          });
-        });
-      });
+      serveHumanImageLifecycle(owner, (): string =>
+        path.join(owner.directory!.path, "publication.json"),
+      );
     }
   }
 }
