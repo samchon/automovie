@@ -13,9 +13,7 @@ Start from the existing working human figure and remove overfitting while preser
 - Set each subagent's task, scope, high reasoning effort and memory cap, and how many run at once.
 - Start an actual recurring supervision loop immediately when Human work begins: assign a dedicated observer, audit at once and repeat every 15 minutes until all Human work is complete. Promises to audit later, manual reminders and one-time reports do not satisfy this rule; preparation must never postpone an audit or extend the interval.
 - Give the observer only inspection and feedback duties, with no modeling, capture, server or Git ownership.
-- At every audit, have the observer directly inspect every running worker's strategy, actual viewer use, original evidence and compliance with this skill and [Verification](verification.md).
-- As the main agent, read every output yourself and personally review the original evidence and give feedback at every audit; retain responsibility, because neither a worker's nor an observer's report is evidence.
-- Stop the offending worker at once on any violation, warn it strongly and require correction and strategy reassessment before resuming; replace a disproven strategy immediately. This includes new-candidate work without the required viewer observation, false completion claims and ownership violations.
+- Follow the [supervision audit](verification.md#supervision-audit) for each fixed round's original evidence, scrutiny of the main agent, interrupted-loop recovery and corrective response. Read every output yourself and retain responsibility for direct review; another agent's report does not replace it.
 - Collect every phenomenon, root cause and contributing factor in the observed scope, then require one combined correction by cause.
 - Keep the supervision loop and all unblocked work running through reports and questions; put progress notes beside the next tool call and continue in the same turn.
 - Tell the user only what you checked.

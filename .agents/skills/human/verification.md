@@ -4,6 +4,16 @@ Each part owner follows [Visual Debugging](../3d-modeling/visual-debugging.md) a
 
 Inspect the existing working figure before replacing its overfitting dependencies. Compare the replacement under the same conditions across every affected region and join, including ordinary input changes and supported motion states. Preserve the working path until the replacement passes that comparison; reproducing the baseline alone does not establish a general construction.
 
+## Supervision Audit
+
+At each fixed 15-minute round, record its actual start and next deadline. The observer inspects every active worker and the main agent; the main agent reads every output, personally opens the original evidence and gives feedback. Bind each original PNG and its actual generating curves to the same source, input, model and construction identities, checking camera, light and renderer identity together with execution completion and resource records. Missing bindings or execution/resource records remain unverified. Worker reports, static review, CPU success and another model's historical images do not replace observation of a new candidate.
+
+Audit the main agent's strategy as well as the workers': prolonged work without candidate observation, no actual replacement of old authority and stalled execution require causal reassessment. Remove unnecessary preparation, document or completion-proof prerequisites that delay a usable first preview. Collect the affected findings before one correction by cause; do not wait for every part to finish before observing usable work.
+
+Immediately stop the offending work for actual modeling or observation violations, false success claims, ownership violations or resource overruns. Warn the responsible agent, correct the collected causes and reassess the strategy before resuming. Correct sentence-quality issues, such as occasional spacing errors, through brief feedback; repeated stops and complete report rewrites must not obstruct the work.
+
+If an error prevents an audit, record the missed interval honestly and resume the existing recurring loop immediately. Do not claim the missed round ran or create a duplicate observer to hide the gap.
+
 ## Inspection Round
 
 Inspect the affected person and all affected parts under matching camera, light, material, resolution and renderer conditions, expanding to other people when the task requires it.
