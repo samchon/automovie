@@ -1,0 +1,280 @@
+{
+  "schema": "automovie-retained-observations-v1",
+  "scope": "Original coordinator encoded-picture inspection; sampled picture only, no continuous whole viewing or hearing",
+  "movie": {
+    "path": "public/outputs/episode-one/runs/2026-10-30T05-39-06-671Z-883b5595c1fe-da92a05b/the-road-gives-way.mp4",
+    "sha256": "084aa663f78b47b3758d63c1a9bfcdb013ac6b8626ebe026ce76eacbd1bbc47e"
+  },
+  "members": [
+    {
+      "file": "decode.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "detail-01.jpg",
+      "bytes": 306091,
+      "sha256": "5bda2b1f98c5a31cc1b42078845375e99892643b32c69c5ac6ef3342710a2107"
+    },
+    {
+      "file": "detail-02.jpg",
+      "bytes": 308214,
+      "sha256": "23b3cad1b067b230ef1beed0796b203d38ec47261735c27327db428c7204e712"
+    },
+    {
+      "file": "detail-03.jpg",
+      "bytes": 294131,
+      "sha256": "0d03cb397f98bc224b465ba9fdba7584ea99ffae1e2546a5c291e6b2c9c2b9e5"
+    },
+    {
+      "file": "detail-04.jpg",
+      "bytes": 303123,
+      "sha256": "7831fdc055f3b2c2d1aab8957c0038c12d7a2b4c477f56cfe07fb8d0bd90deff"
+    },
+    {
+      "file": "detail-05.jpg",
+      "bytes": 303168,
+      "sha256": "d433d72ec0331720bfb43311cf79c9ab57274f1d0b6ff86f75d9f63fe343a7a7"
+    },
+    {
+      "file": "detail-06.jpg",
+      "bytes": 439457,
+      "sha256": "82b7dda22b55b407c01f22acdc4886b63902ad41e1ea742f302b094b65f9247f"
+    },
+    {
+      "file": "detail-07.jpg",
+      "bytes": 424199,
+      "sha256": "eeee26763eafffbf4fb90dd534f4fa42994e379036dd6223c8022ea21abe900a"
+    },
+    {
+      "file": "detail-08.jpg",
+      "bytes": 388925,
+      "sha256": "9564f8eacf7efc4de4bd42718e2ff202389860868f6c5fab5c58d3e8908dc241"
+    },
+    {
+      "file": "detail-09.jpg",
+      "bytes": 328437,
+      "sha256": "dcac9736a4c88604aecd90e265b1dfba1c60bcbd5b2530cdabc122b75d29bf88"
+    },
+    {
+      "file": "detail-10.jpg",
+      "bytes": 403506,
+      "sha256": "01375f3d5ecde5873692c85f9983a923a9b3de6d7a1436605974303cc8122da6"
+    },
+    {
+      "file": "detail-11.jpg",
+      "bytes": 406460,
+      "sha256": "fe76df17273f0bda95ef6186fd82b92391241f1e3a6801c0ac41f95c367c00a6"
+    },
+    {
+      "file": "detail-12.jpg",
+      "bytes": 403685,
+      "sha256": "123b9a683b5cf288c3a0f9f47ee57b3e75e2f16794f1f888ba41ebc5830bf60d"
+    },
+    {
+      "file": "detail-13.jpg",
+      "bytes": 403210,
+      "sha256": "22f7ce2905247dc53a7770a4114e321921f9c12da7624f683183777a483ce818"
+    },
+    {
+      "file": "detail-14.jpg",
+      "bytes": 214792,
+      "sha256": "c642170fc5fdfecb2fae2893ce504bdf3015ad259810a3f4797833ce0e01deee"
+    },
+    {
+      "file": "detail-decode.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "detail-receipt.json",
+      "bytes": 19078,
+      "sha256": "7866b955d072cebe659c6500af8be52546813c1db4a45c5ee5ce8309a8680ae5"
+    },
+    {
+      "file": "detail.py",
+      "bytes": 2399,
+      "sha256": "58350001dbc19972a4db39aecbdb039bc7c13c4df255db0defa950c50d13443e"
+    },
+    {
+      "file": "receipt.json",
+      "bytes": 7214,
+      "sha256": "6ed97845abf368159d594085caddc76793193eea216de841010965dc108b8b9a"
+    },
+    {
+      "file": "review.py",
+      "bytes": 2390,
+      "sha256": "64f679b2db4e911626a2cea6ccbf0ac0458d8da03ca028f219e1cee8d8626cab"
+    },
+    {
+      "file": "timeline-01.jpg",
+      "bytes": 429290,
+      "sha256": "eac816ca3ac48bfbeab80014ae4375eac61933f8caf54ae0d7012a8effe947f4"
+    },
+    {
+      "file": "timeline-02.jpg",
+      "bytes": 322343,
+      "sha256": "addeb24391912e0df1e2962d0006f1b9dafb0c689edb1e4290cf6f7fbfd9ea4c"
+    },
+    {
+      "file": "timeline-03.jpg",
+      "bytes": 302939,
+      "sha256": "7ff779a0356b78c3182b6bcee9457cf075fd604b3d4f870001ad56328f3ca20e"
+    },
+    {
+      "file": "timeline-04.jpg",
+      "bytes": 350781,
+      "sha256": "8b7feabe3669886abe7e1b56ddeb3b6d9b8caac6a4e3706a5bd261e379734ba3"
+    },
+    {
+      "file": "timeline-05.jpg",
+      "bytes": 340322,
+      "sha256": "b0501a3daa836a00fa110ed71c47562f94607773dd85d7244b30d16492b8439c"
+    },
+    {
+      "file": "timeline-06.jpg",
+      "bytes": 324115,
+      "sha256": "2e4ac480906fa433061e04dde5426389daf48aaabae81268cf53903796d39aa0"
+    },
+    {
+      "file": "timeline-07.jpg",
+      "bytes": 308145,
+      "sha256": "a4e1938d0462ca3b5892f4b953fdd229e9178283da75fbfa5670c3862971eb09"
+    },
+    {
+      "file": "timeline-08.jpg",
+      "bytes": 315461,
+      "sha256": "772d79f6f86430931f3acf472ab8fea76ca911bb9745f5c1be195898251dfc06"
+    },
+    {
+      "file": "timeline-09.jpg",
+      "bytes": 298585,
+      "sha256": "4a3c657a12d48efc085348833e340c3694570d3fe8d229dc03fb7804bd6d854d"
+    },
+    {
+      "file": "timeline-10.jpg",
+      "bytes": 325381,
+      "sha256": "1ae45243d77ae0d22ad452f53bac9164bba9ddba8bdc8755d5e9b71b73589b9e"
+    },
+    {
+      "file": "timeline-11.jpg",
+      "bytes": 268861,
+      "sha256": "d9467f0988113292f73fa91ee24702df04be61a3f19e3d43ce8a2e1838477029"
+    },
+    {
+      "file": "timeline-12.jpg",
+      "bytes": 341534,
+      "sha256": "80285fa1542a6e4cc9f281286b7d24600198a57c836f0c60d314fd91bda80fa8"
+    },
+    {
+      "file": "timeline-13.jpg",
+      "bytes": 345377,
+      "sha256": "04a46af9d740224cc6d62f1fbd763e4369887ec2cfcc6d61e0875b0a2d50e229"
+    },
+    {
+      "file": "timeline-14.jpg",
+      "bytes": 337304,
+      "sha256": "c08eb033052d85d5a3c1e1b5df3321c9551a4d1df852604ac86a290a98125210"
+    },
+    {
+      "file": "timeline-15.jpg",
+      "bytes": 325025,
+      "sha256": "2713cd998a44c2fca1406339dc359ae6d1667e64b30143eac80b3ce0763a0dbe"
+    },
+    {
+      "file": "timeline-16.jpg",
+      "bytes": 295487,
+      "sha256": "a59bff5601836e591c654a2313ccfdcc2d32628c700c66959880317423222010"
+    },
+    {
+      "file": "timeline-17.jpg",
+      "bytes": 316041,
+      "sha256": "767758ecad9637ce2c5f285ee31dc06d6dbd1053cdf63a22f30cbebc6aa9f08d"
+    },
+    {
+      "file": "timeline-18.jpg",
+      "bytes": 392419,
+      "sha256": "042d94cc4c9e94aa871210e09058d23973407fd8444cbd5a0c8afb3bbe1b03f5"
+    },
+    {
+      "file": "timeline-19.jpg",
+      "bytes": 348637,
+      "sha256": "a45cadf05c43dc078620b2d2ce5b1d4f1450f3b75b7a3e9770d6a5cc375ba21d"
+    },
+    {
+      "file": "timeline-20.jpg",
+      "bytes": 358525,
+      "sha256": "849733f1a0b60a61f0c342f04b062fab56a02040fce308c502f1d35f1912b05e"
+    },
+    {
+      "file": "timeline-21.jpg",
+      "bytes": 337131,
+      "sha256": "b73043174bcfdeca6f7e459a6363b03e4e8d09acca805d61f7a0514f88a29e1f"
+    },
+    {
+      "file": "timeline-22.jpg",
+      "bytes": 375754,
+      "sha256": "07f2b97f03c5798135bc9df168c9a869b2821b000811722e59d48b69a70fbbe3"
+    },
+    {
+      "file": "timeline-23.jpg",
+      "bytes": 370122,
+      "sha256": "2f8ec72354c3c05d51db97e8b8e744b700e33e411dbe6e6af2a4c7b1f0346b90"
+    },
+    {
+      "file": "timeline-24.jpg",
+      "bytes": 422913,
+      "sha256": "1fe71c986bfb82255fe5c217a0e64985a9fc9f3e0280637b3beb062bb263d4ee"
+    },
+    {
+      "file": "timeline-25.jpg",
+      "bytes": 385619,
+      "sha256": "8fbb4dc3bec9058250398b90222dba7fb2e21227072235069fdb45e06cd0a0cc"
+    },
+    {
+      "file": "timeline-26.jpg",
+      "bytes": 346323,
+      "sha256": "874c079ebaf726485ed468215b39395bce57089ab49f33c0dde781819f7c998e"
+    },
+    {
+      "file": "timeline-27.jpg",
+      "bytes": 352330,
+      "sha256": "0069b7370d1715fe99765f589a2a18d7886491ea1cea8b3d94a1419ab031a931"
+    },
+    {
+      "file": "timeline-28.jpg",
+      "bytes": 366563,
+      "sha256": "c26470a3adc085de8eeacf409029a16fbffdbc32ab588eb11ee7517449c38969"
+    },
+    {
+      "file": "timeline-29.jpg",
+      "bytes": 344217,
+      "sha256": "3348f4226f4918ead66540f8928a02d4a8c678b60acd7573a5fd9865d94ff46c"
+    },
+    {
+      "file": "timeline-30.jpg",
+      "bytes": 329043,
+      "sha256": "cecc5aa6481072e45e74ad90392c05c1cb00240197455126284c923daaac932e"
+    },
+    {
+      "file": "timeline-31.jpg",
+      "bytes": 397417,
+      "sha256": "5a8fd53648505d4217bd46c562b81873d25a63657e8e9d8bf21905b0b12f5c6d"
+    },
+    {
+      "file": "timeline-32.jpg",
+      "bytes": 397421,
+      "sha256": "a7f43493f4019a7222d86232c6871addd23b9dc293765f3b54cbcf814e757394"
+    },
+    {
+      "file": "timeline-33.jpg",
+      "bytes": 51238,
+      "sha256": "7b6f41aa37c4621c64b8f0153272ebb6fe84b941342d8c3842db5d679f32ee93"
+    }
+  ],
+  "archive": {
+    "file": "encoded-picture-inspection.zip",
+    "bytes": 12665077,
+    "sha256": "2580a48e149e9284cc5b5df852b50bebe267cb53b510b18f52e91ad8034b4c2c"
+  }
+}
