@@ -16,6 +16,8 @@ import { stageScene, performShot, cutSequence } from "@automovie/engine";
 
 Every public function takes typed records and returns either a result or a violation list naming the field, the rule, and the correction; nothing is read from disk or the network.
 
+For procedural scene contacts, pass the actual evaluated world-space endpoints to [closestPointsBetweenSegments](src/math/closestPointsBetweenSegments.ts) and compare their separation with the declared capsule radii. [boundAutoMovieConvexSeparation](src/geometry/boundAutoMovieConvexSeparation.ts) gives a conservative separation bound for filled convex vertex sets, including a box's transformed corners; zero includes unresolved cases and is not a collision verdict. [segmentSphere](src/physics/segmentSphere.ts) checks a straight path chord, while [projectileSphereHit](src/physics/projectileSphereHit.ts) approximates a curved ballistic path with chords. The production owns its proxy coverage, time schedule, intended contacts and use of the results to correct actual staging. The rig-based [detectBodyCollision](src/validation/detectBodyCollision.ts) instead needs skeletal motion and resolves its own FK; its node id labels events rather than applying scene placement. Verify the resulting performance through the real viewer and capture path.
+
 ## Domains
 
 | Folder | Owns |

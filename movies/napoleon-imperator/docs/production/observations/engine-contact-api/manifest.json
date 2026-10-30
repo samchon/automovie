@@ -1,0 +1,81 @@
+{
+  "schema": "automovie-engine-api-observations-v1",
+  "sourceCheckpoint": "7895d5ccfe7821b15bb2653ef509f4b040e10652",
+  "apiTests": {
+    "failedDefaultTempExit": 2,
+    "taskTempExit": 0,
+    "passed": 6,
+    "scope": "Existing portable API tests only, not episode-wide collision validation"
+  },
+  "sync": {
+    "initialRelativePathExit": 1,
+    "absolutePlanExit": 1,
+    "applyExit": 0,
+    "finalCheckExit": 0,
+    "scope": "Only motion/physics.md and scaffold-state updated in each production"
+  },
+  "members": [
+    {
+      "file": "default-temp-failure.log",
+      "bytes": 1140,
+      "sha256": "fd5d31f786a8e137b422a8e8de1fa99421961a5eb8eb89754d3c00cf1c76cc06"
+    },
+    {
+      "file": "instruction-sync.zip",
+      "bytes": 2831,
+      "sha256": "ddbb762173eb4ec2205119637ba19cad92131338f66643d03905bc07ca394ecc"
+    },
+    {
+      "file": "physics-instruction-review.md",
+      "bytes": 7029,
+      "sha256": "f9f07b2b2f265a18f4d2fb84ae511b8a9a1b7f9057bd1e27bb534b3f4acd7d35"
+    },
+    {
+      "file": "task-temp-tests.log",
+      "bytes": 1109,
+      "sha256": "8fdc1af652e13b31add964afdb8cda88d4abb05109268709a6d21446fc880e88"
+    }
+  ],
+  "syncArchiveMembers": [
+    {
+      "file": "napoleon-physics-sync-check.log",
+      "bytes": 414,
+      "sha256": "3b2a0cb0e0b0d986e4882be6e45f2c602e188ffbe7564d49e0fc73e1494949a5"
+    },
+    {
+      "file": "yeon-physics-sync-check.log",
+      "bytes": 424,
+      "sha256": "8b48e5bdb185f5d16fc516e4043188e14d7239c1c08fb0b9b23dad2b076668c9"
+    },
+    {
+      "file": "napoleon-imperator-physics-plan.log",
+      "bytes": 546,
+      "sha256": "b806a8ef752e5c274a01ae8b80715ef15a1d52c555bf8f39b6de7680e9b7c43f"
+    },
+    {
+      "file": "napoleon-imperator-physics-apply.log",
+      "bytes": 217,
+      "sha256": "610115a1a9f726b39e53cb5782dfb700a861018ebee563b0691db73c768c0294"
+    },
+    {
+      "file": "napoleon-imperator-physics-final.log",
+      "bytes": 133,
+      "sha256": "55c739ae732268125bdafbe94efdf9e7f5717aeddda4109eda97803257964aec"
+    },
+    {
+      "file": "yeon-gaesomun-biography-physics-plan.log",
+      "bytes": 556,
+      "sha256": "a1913bde12e612328e13300c81ab6edfaeab1bfd08066697d0a917e6259aa6aa"
+    },
+    {
+      "file": "yeon-gaesomun-biography-physics-apply.log",
+      "bytes": 222,
+      "sha256": "d617b40de690a91e4803f36c0cec3c5fd7184ce95038e768c646cabc6f7a29f1"
+    },
+    {
+      "file": "yeon-gaesomun-biography-physics-final.log",
+      "bytes": 138,
+      "sha256": "31b864590ae7299cad8aba8647229e950b9dbfb18bd1f7a0a157f3e76a2b251a"
+    }
+  ]
+}

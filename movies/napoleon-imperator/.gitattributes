@@ -14,3 +14,5 @@ docs/production/observations/first-prototype/decode.log -text -diff
 docs/analysis/screenplay-realization-audit.md -text whitespace=trailing-space,space-before-tab,cr-at-eol
 docs/production/observations/directing-instructions/instruction-review.md -text whitespace=trailing-space,space-before-tab,cr-at-eol
 docs/production/observations/directing-instructions/planning-probe.md -text whitespace=trailing-space,space-before-tab,cr-at-eol
+docs/production/observations/engine-contact-api/*.log -text whitespace=trailing-space,space-before-tab,cr-at-eol
+docs/production/observations/engine-contact-api/physics-instruction-review.md -text whitespace=trailing-space,space-before-tab,cr-at-eol

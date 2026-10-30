@@ -1,0 +1,21 @@
+
+> @automovie/station@0.1.0 test C:\Users\SamchonNam\.codex\worktrees\scaffold-video-alignment\automovie@template
+> pnpm --filter @automovie/test start "--include" "geometry_convex_separation" "math_segment_closest_points" "physics_collision" "physics_segment_sphere" "kinematics_two_bone_ik"
+
+
+> @automovie/test@0.1.0 start C:\Users\SamchonNam\.codex\worktrees\scaffold-video-alignment\automovie@template\test
+> ttsx src/index.ts "--include" "geometry_convex_separation" "math_segment_closest_points" "physics_collision" "physics_segment_sphere" "kinematics_two_bone_ik"
+
+---------------------------------------------------
+AutoMovie Test Program
+Start 10/30/2026, 5:36:17 PM
+---------------------------------------------------
+  ✓ test_geometry_convex_separation (7 ms)
+  ✓ test_kinematics_two_bone_ik (0 ms)
+  ✓ test_math_segment_closest_points (1 ms)
+  ✓ test_physics_collision (1 ms)
+  ✓ test_physics_segment_sphere_radius (0 ms)
+  ✓ test_physics_segment_sphere_vectors (1 ms)
+---------------------------------------------------
+6/6 passed in 30,415 ms
+All tests passed.
