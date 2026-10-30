@@ -1,6 +1,6 @@
 ---
 name: prompting
-description: Writes and trims automovie's prompts for agents, namely AGENTS.md, CLAUDE.md, and the skills under .agents/skills. Use before changing any of them, together with the documentation skill's writing rules.
+description: Defines common prompt-writing principles for AGENTS.md, CLAUDE.md and skills. Use before changing agent instructions; scaffold-prompting owns production skill and contract design.
 ---
 
 # Prompting
@@ -9,11 +9,15 @@ A prompt follows the documentation skill's [Writing](../documentation/writing.md
 
 Write only facts the code does not show, rules the user set, and mistakes an agent made, and leave dates and history to git.
 
+Give a consequential instruction a short reason stating who loses what when it is missed. Put that reason in the instructions the recipient actually reads; a source comment or an unexplained prohibition cannot guide an unlisted case. Keep method choices open unless the failure requires a particular order or boundary.
+
 ## Skills And Contracts
 
 A skill gives a job's goal, order, and boundaries, and points to the checklists it relies on without restating their items.
 
-Design for the actual recipient's needed experience, not the quantity of included elements. Keep enough and too much of one achievement in the same contract question, with an observable failure and the legitimate neighboring form it protects. A later rule must not merely suppress excess caused by an earlier demand. Separate inherited decisions from the next author's own expression; record actual achievement and remaining loss rather than an unsupported claim of balance.
+Give each rule one owner and update its callers when moving it, so a task receives one consistent requirement. Group judgments the agent can make together; split when their task, respondent or repair owner differs. Keep overall achievement distinct from passing its detailed tests.
+
+Use [scaffold-prompting](../scaffold-prompting/SKILL.md) for the strategy and contract design of instructions shipped to productions. Repository engineering questions remain with [contracts](../contracts/SKILL.md); production questions must use respondents that can establish their actual creative or media result.
 
 An agent does not reliably follow long, detailed, or conditional prose, so a rule that every declaration must meet belongs in a [contracts](../contracts/SKILL.md) checklist as an H2 question. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete.
 
@@ -26,4 +30,4 @@ An agent does not reliably follow long, detailed, or conditional prose, so a rul
 
 ## Verification
 
-Check that links resolve and each rule has one owner. Then give a fresh session a real task the change governs, watch which files it opens and whether it follows the rule, and revise from what it actually did.
+Check that links resolve, triggers reach their resources and each rule has one owner. Compare the instructions with a real governed task and its actual consumers. When a separate context is available and authorized, give it the task and raw inputs without the intended answer and observe its choices. Report static inspection, behavioral observation and unavailable checks separately; explaining a rule does not prove another session follows it.

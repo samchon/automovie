@@ -24,8 +24,8 @@ export interface IProductionConfigProps {
   /** Names the evidence lifecycle; it does not issue creative approvals. */
   lifecycle: "independent-evidence-v1";
 
-  /** Chooses the long narrative, direct screenplay, or standalone asset route. */
-  mode: "long" | "short" | "asset";
+  /** Chooses four-layer long work, direct short screenplay, compact settings plus screenplay, or standalone assets. */
+  mode: "long" | "short" | "short-with-settings" | "asset";
 
   /** Engineering duties participate globally without a narrative parent. */
   supportClaims?: IEvidenceClaim[];

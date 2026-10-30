@@ -1,6 +1,6 @@
 # @automovie/template
 
-`@automovie/template` renders and installs the bundled `scaffold` for a new AutoMovie production. The installed files then belong to the project; package upgrades never overwrite them.
+`@automovie/template` renders and installs the bundled `scaffold` for a new AutoMovie production. The installed project owns its content and contracts. Package upgrades never overwrite them; explicit instruction sync updates only the generated instruction surface.
 
 ## Generated project
 
@@ -23,6 +23,12 @@ The installed project-root `PROJECT.md` owns adopted scope, delivery method, rep
 
 `renderScaffold` returns a deterministic project-relative file map with `{{name}}` and the catalog-resolved `{{version:*}}` tokens substituted. `publishFiles` validates and freezes that candidate, then returns a receipt naming every completed file and the first refused or parent-bound partial effect; `writeFiles` keeps the throwing API. New slots are created through Koffi-backed POSIX `openat` or Windows `NtCreateFile` parent-handle-relative adapters, so neither creation nor verification follows a successor child pathname.
 
+## Explicit instruction updates
+
+`planScaffoldSync` inspects one existing production; `syncScaffold` applies its fresh conflict-free plan through the same verified publication path. They update routers and bundled non-contract skill resources, preserving project scope, configuration, contracts, custom extra skills, authored content and historical proof. Creation records `.automovie/scaffold-state.json`. Sync compares current LF-normalized digests with that baseline and the new bundle, refuses all writes on a local conflict and publishes the new state last. `baseline` names an explicit prior adopted instruction root for legacy projects; `check` inspects without writing. Retired paths are reported and retained. File-generation preconditions prevent a changed inspected file from being adopted as a fresh replacement; partial publication retains its receipt and never silently retries or rolls back. The [CLI](../cli/README.md) exposes this as `automovie sync`.
+
 ## Development checks
+
+For shipped instruction design, use the repository's [scaffold-prompting skill](../../.agents/skills/scaffold-prompting/SKILL.md); [scaffold](../../.agents/skills/scaffold/SKILL.md) owns distribution and project ownership. Review task strategy, quality questions and their actual consumers together. Existing productions adopt an update explicitly; changing this bundle does not update their files or renew their earlier reviews.
 
 `pnpm run build` syncs the scaffold's version placeholders and shared instructions, then compiles with source correctness lint and the shared evidence declaration guards. `pnpm run evidence` checks the declarations' checklist answers with `@wrtnlabs/evidence`.

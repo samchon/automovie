@@ -29,6 +29,8 @@ export default createEvidenceConfig({
 });
 ```
 
+Use `mode: "short-with-settings"` when a short needs separately reviewed character, object or location facts. Its active construction layers are settings and screenplay, and its sole expression pass is screenplay. It requires no treatments, scripts or settings outline. Scene H2s cite actual compact-canon dependencies; settings changes invalidate the prerequisite review, and missing settings cannot produce readiness. `mode: "short"` remains the no-settings direct route.
+
 Choose `mode: "long"` for settings → treatments → scripts → final screenplay. Unspecified construction and expression layers are disabled drafts; an omitted outline stage follows settings. Unspecified scope is the complete work. Compose a complete draft before activating its evidence. Scripts finishes content and expression together in construction; settings and treatments also finish within construction. Only final screenplay retains a separate naturalness pass. Long screenplay requires treatments and scripts construction. A disabled stage or passing graph never grants creative approval.
 
 The factory derives lifecycle and actual implementation/compiler identities. Callers do not supply synthetic gate hashes or parallel ownership arrays. Narrative creation resolves the project's installed `ttsc` and the package's actual Evidence dependency; it rejects `TTSC_BINARY` overrides. Changing project options does not change the library implementation digest.

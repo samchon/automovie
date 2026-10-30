@@ -4,6 +4,8 @@ import * as path from "node:path";
 import { AUTOMOVIE_TEMPLATE_VERSIONS } from "./AUTOMOVIE_TEMPLATE_VERSIONS";
 import type { IAutoMovieScaffoldProps } from "./IAutoMovieScaffoldProps";
 import type { IAutoMovieScaffoldSourceEntry } from "./IAutoMovieScaffoldSourceEntry";
+import { SCAFFOLD_SYNC_STATE_FILE } from "./SCAFFOLD_SYNC_STATE_FILE";
+import { createScaffoldSyncState } from "./createScaffoldSyncState";
 import { listAutoMovieScaffoldFiles } from "./listAutoMovieScaffoldFiles";
 import { renderScaffoldEntries } from "./renderScaffoldEntries";
 import { scaffoldAssetDirectory } from "./scaffoldAssetDirectory";
@@ -11,7 +13,7 @@ import { scaffoldAssetDirectory } from "./scaffoldAssetDirectory";
 /**
  * Render the bundled scaffold into an in-memory `{ posixPath: content }` map.
  *
- * Every shipped file under the package's `scaffold` directory is read as UTF-8, its line endings normalized to LF, and its `{{name}}` and `{{version:<key>}}` tokens replaced: the name from `props`, the versions from the build-time {@link AUTOMOVIE_TEMPLATE_VERSIONS}. The root `_gitignore` stand-in is returned as `.gitignore`. Nothing is written; {@link publishFiles} and {@link writeFiles} write the map.
+ * Every shipped file under the package's `scaffold` directory is read as UTF-8, its line endings normalized to LF, and its `{{name}}` and `{{version:<key>}}` tokens replaced: the name from `props`, the versions from the build-time {@link AUTOMOVIE_TEMPLATE_VERSIONS}. The root `_gitignore` stand-in is returned as `.gitignore`. The returned map includes generated instruction digests for explicit later sync. Nothing is written; {@link publishFiles} and {@link writeFiles} write the map.
  *
  * The name is trimmed, then refused when empty, `.` or `..`, ending in `.`, containing `<>:"/\|?*` or an ASCII control character, or matching the ASCII device-name pattern `con`, `prn`, `aux`, `nul`, `com1` through `com9`, or `lpt1` through `lpt9`, with or without an extension. These checks prevent separators and JSON string delimiters; they do not establish npm package-name validity or every filesystem's name and length restrictions.
  *
@@ -49,7 +51,7 @@ export const renderScaffold: (
     variables[`version:${key}`] = value;
 
   const root: string = scaffoldAssetDirectory();
-  return renderScaffoldEntries(
+  const files: Record<string, string> = renderScaffoldEntries(
     listAutoMovieScaffoldFiles(root).map(
       (relative: string): IAutoMovieScaffoldSourceEntry => ({
         content: fs.readFileSync(path.join(root, relative), "utf8"),
@@ -58,4 +60,8 @@ export const renderScaffold: (
     ),
     variables,
   );
+  if (SCAFFOLD_SYNC_STATE_FILE in files)
+    throw new Error("The scaffold reserves its generated sync-state address.");
+  files[SCAFFOLD_SYNC_STATE_FILE] = createScaffoldSyncState(files);
+  return files;
 };

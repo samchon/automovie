@@ -12,6 +12,7 @@ This is an AutoMovie production. It primarily turns an LLM-authored screenplay i
 - Keep external generation outside deterministic playback; retain the actual media used.
 - Use installed package READMEs, public types, and JSDoc for APIs; do not copy them into instructions.
 - Report what you verified, not what you built.
+- Keep video and 3D viewers operational. Restore a broken viewer first, repair missing capabilities at their owner and reconnect the actual consumer before continuing.
 
 ## Finishing Work
 

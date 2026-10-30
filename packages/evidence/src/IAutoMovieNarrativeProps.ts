@@ -15,8 +15,8 @@ import type { NarrativeScope } from "./narrative/NarrativeScope";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A configuration type acquires no resources.
  */
 export interface IAutoMovieNarrativeProps {
-  /** Long form retains all four layers; short form enters at final screenplay. */
-  mode: "long" | "short";
+  /** Long retains four layers; short enters at screenplay; short-with-settings first establishes compact canon without treatments, scripts or an outline. */
+  mode: "long" | "short" | "short-with-settings";
 
   /** Unspecified layers are disabled drafts; an omitted outline follows settings. */
   construction?: Partial<IProductionConstruction>;

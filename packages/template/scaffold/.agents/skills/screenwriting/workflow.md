@@ -15,7 +15,7 @@ A long film or series retains settings → treatments → scripts → final scre
 
 ## Route and parents
 
-Long work follows settings construction → treatments construction → scripts construction → screenplay construction → screenplay naturalness. Short work enters at screenplay construction and retains its expression, evidence and independent review duties. Scripts finish dialogue and directions, including their expression contracts, within construction. Freezing content before inspecting content-shaped speech failures made those failures impossible to repair in revision. An asset-only task has no narrative passes. Only an explicit user waiver omits screenplay naturalness.
+Long work follows settings construction → treatments construction → scripts construction → screenplay construction → screenplay naturalness. Short work chooses either direct screenplay construction from its brief (`short`) or compact settings construction followed directly by screenplay construction (`short-with-settings`). The compact route has no treatments, scripts or outline population; its screenplay decides events, execution and audiovisual realization and cites actual settings dependencies. Both retain screenplay expression, evidence and independent review duties. Scripts finish dialogue and directions, including their expression contracts, within construction. Freezing content before inspecting content-shaped speech failures made those failures impossible to repair in revision. An asset-only task has no narrative passes. Only an explicit user waiver omits screenplay naturalness.
 
 For an expression pass, use the [rewriting method](rewriting/method.md) for composition and revision cycles, and the [rewriting procedure](rewriting/procedure.md) for freezing, submission, review and exact transfer.
 
@@ -31,16 +31,17 @@ Read current parent bodies and reviews when starting, resuming, or changing a so
 | Treatments | Completed settings construction |
 | Scripts | Completed treatments construction |
 | Screenplay in long work | Completed treatments and scripts construction, including scripts expression requirements |
-| Screenplay in short work | The request and adopted constraints directly |
+| Screenplay in direct short work | The request and adopted constraints directly |
+| Screenplay in compact short work | Completed compact settings construction and the actual brief |
 
-Facts pass through the actual parents. Direct settings evidence cannot repair an incomplete treatment handoff. [Discovery](discovery.md) compares requirements and current owners before bulk settings and at downstream design reviews.
+Facts pass through the actual parents. On the long route, direct settings evidence cannot repair an incomplete treatment handoff. [Discovery](discovery.md) compares requirements and current owners before bulk settings and at downstream design reviews.
 
 1. Finish the whole declared body while its pass is disabled. Read selected contract goals without shaping each paragraph as a checklist response. Preserve an identifiable complete-draft snapshot in version history or an immutable copy before opening evidence; a partial progress snapshot is insufficient.
 2. Open the corresponding evidence stage and claims together through [evidence configuration](../evidence/configuration.md). Compare the complete body with every selected requirement, complete [cause-based inspection and repair](repair.md#cause-rounds), and write [evidence](evidence/writing.md) from the corrected work.
 3. Submit the whole selected population, including boundaries and global obligations, to independent [review](../review/SKILL.md). Supply scope and actual inputs rather than a conclusion to confirm.
 4. Record reasoned author decisions, repair accepted findings through their owners, and satisfy the [closing-round rule](../review/rounds.md). Keep the current completed review and the pass in its evidence stage.
 
-Settings includes its outline in the same completion. Unit answers cannot establish whole-population coverage, character development, middle accumulation, partition, or complete handoff; use the selected population respondent and compare every member. Settings and treatments correct their documents within construction. Scripts completes expression there too; only final screenplay receives a separate naturalness pass.
+Long-route settings includes its outline in the same completion; compact short settings needs no outline or unused domains. Unit answers cannot establish whole-population coverage, character development, middle accumulation, partition, or complete handoff; use the selected population respondent and compare every member. Settings and treatments correct their documents within construction. Scripts completes expression there too; only final screenplay receives a separate naturalness pass.
 
 ## Completion
 

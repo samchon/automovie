@@ -14,7 +14,9 @@ Apply [Modularization](modularization.md) to direct placement and rebuilds alike
 
 ## Placement Or Rebuild
 
-Place a generated mesh as it is only when it never deforms, never comes close to the camera, and never varies, after reducing it to the budget and removing its baked lighting. Rebuild everything else.
+Use a fixed generated mesh directly when its admitted geometry, materials, rig and controls meet the actual views, motion and variation within budget. Inspect the imported result at that use, including deformation and close views when required; source quality or a successful import cannot establish fitness. Correct baked lighting or conversion defects where they affect the result.
+
+Recover or rebuild when the required editing, parameter control, deformation or internalization cannot be supplied by that asset and its supported controls. Proximity to the camera or motion alone does not require reconstruction; imposing it can discard usable rigging without improving the commissioned performance. Keep the user's chosen source workflow within these observed limits.
 
 ## Rebuild
 

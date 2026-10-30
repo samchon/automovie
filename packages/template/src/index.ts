@@ -31,3 +31,10 @@ export * from "./publishFiles";
 export * from "./IAutoMovieWorkspacePackageVersions";
 export * from "./IAutoMovieTemplateDependencyVersionsProps";
 export * from "./resolveAutoMovieTemplateDependencyVersions";
+
+export * from "./IScaffoldFileSnapshot";
+export * from "./IScaffoldSyncProps";
+export * from "./IScaffoldSyncPlan";
+export * from "./SCAFFOLD_SYNC_STATE_FILE";
+export * from "./planScaffoldSync";
+export * from "./syncScaffold";

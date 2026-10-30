@@ -63,7 +63,7 @@ export function inspectProductionTopology(
       ...validateTopologyDocuments(
         selected,
         layer,
-        props.mode === "short",
+        props.mode !== "long",
         label,
         collectTopologyDirectories(input.inventory, layer),
         props.mode === "long" && key.pass === "construction",
@@ -88,7 +88,7 @@ export function inspectProductionTopology(
       ...validateTopologyDocuments(
         originals,
         layer,
-        props.mode === "short",
+        props.mode !== "long",
         `${layer}/frozen`,
         collectTopologyDirectories(frozen, layer),
         false,

@@ -19,6 +19,7 @@ import { publishNativeScaffoldFile } from "./publishNativeScaffoldFile";
  * @param props.base Captured scaffold root; `parent` must lie inside it.
  * @param props.bytes Exact file content.
  * @param props.force Rewrite an existing file instead of refusing it.
+ * @param props.expected Earlier inspected generation, or null requiring absence; an existing replacement stays bound to this generation through truncation.
  * @param props.parent Captured directory that must be `target`'s parent.
  * @param props.target Path of the file.
  * @returns The frozen outcome.
@@ -36,12 +37,14 @@ export const writeScaffoldFile: (props: {
   base: IScaffoldPhysicalDirectory;
   bytes: Uint8Array;
   force: boolean;
+  expected?: IScaffoldFileSnapshot | null;
   parent: IScaffoldPhysicalDirectory;
   target: string;
 }) => ScaffoldFilePublicationOutcome = (props: {
   base: IScaffoldPhysicalDirectory;
   bytes: Uint8Array;
   force: boolean;
+  expected?: IScaffoldFileSnapshot | null;
   parent: IScaffoldPhysicalDirectory;
   target: string;
 }): ScaffoldFilePublicationOutcome => {
@@ -49,7 +52,7 @@ export const writeScaffoldFile: (props: {
   if (path.dirname(target) !== props.parent.path)
     throw new Error(`scaffold file changed declared parent: ${target}`);
   assertScaffoldOwnership(props.base, props.parent);
-  if (props.force) {
+  if (props.force || props.expected !== undefined) {
     let existing: IScaffoldFileSnapshot | null;
     try {
       existing = captureScaffoldFile(target);
@@ -57,11 +60,21 @@ export const writeScaffoldFile: (props: {
       if (missingPath(error) === false) throw error;
       existing = null;
     }
-    if (existing !== null)
+    if (
+      props.expected !== undefined &&
+      (props.expected === null
+        ? existing !== null
+        : existing === null ||
+          props.expected.path !== target ||
+          props.expected.identity !== existing.identity ||
+          props.expected.written !== existing.written)
+    )
+      throw new Error(`scaffold file changed since inspection: ${target}`);
+    if (existing !== null && props.force)
       return overwriteScaffoldFile({
         base: props.base,
         bytes: props.bytes,
-        existing,
+        existing: props.expected ?? existing,
         parent: props.parent,
       });
   }

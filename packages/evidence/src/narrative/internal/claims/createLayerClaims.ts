@@ -36,9 +36,9 @@ import { createSettingCoverageClaim } from "./createSettingCoverageClaim";
  *
  * @evidence contracts/common.md#principled-implementation Construction H2 claims, file inheritance and independent naturalness claims use native reference flags for per-unit checklists, treatment coverage and exact script/frozen lineage; naturalness hosts the working tree and targets its frozen construction.
  * @evidence contracts/common.md#clear-and-simple-design One layer factory centralizes stage/root/parent choices, while population obligations, discovery and review remain separate factories with their distinct respondents.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Short screenplay has no invented upstream parents; settings has no inherited file claim, and only screenplay receives separate naturalness claims, while scripts construction selects its expression questions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Direct screenplay invents no treatment or script parents; compact short cites its actual settings; settings has no inherited file claim, and only screenplay receives separate naturalness claims, while scripts construction selects its expression questions.
  * @evidence contracts/common.md#meaningful-documentation The prose distinguishes unit/population duties, layer-specific parents and body versus working hosts; nearby comments explain topology capture and frozen-reference ownership.
- * @evidence contracts/performance.md#efficient-algorithms A fixed number of claims and reference families are constructed per layer; helper existence probes dominate most layers, while treatments also enumerate settings files for coverage, whose scans and sorting scale with the installed canon.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed number of claims and reference families are constructed per layer; helper existence probes dominate most layers, while treatments and compact screenplay also enumerate settings files for coverage, whose scans and sorting scale with the installed canon.
  * @evidence contracts/performance.md#reuse-equivalent-work Unit/topology selectors, parent-reference builders and scalar stages are reused within the construction; each build refreshes filesystem-dependent contract/canon observations instead of retaining stale config results.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned claim graph owns its bounded layer-family objects plus settings-derived references when applicable; ownClaim records ownership weakly, and no filesystem handle or background task remains open.
  */
@@ -68,7 +68,7 @@ export function createLayerClaims(
   const parents: (symbol: "file" | "h2") => IEvidenceReference[] = (
     symbol: "file" | "h2",
   ): IEvidenceReference[] =>
-    props.mode === "short"
+    props.mode !== "long"
       ? []
       : [
           ...(layer === "screenplay"
@@ -170,7 +170,8 @@ export function createLayerClaims(
   if (layer === "settings") return [unit, ...surface];
 
   const coverage: IEvidenceClaim | undefined =
-    layer === "treatments"
+    layer === "treatments" ||
+    (layer === "screenplay" && props.mode === "short-with-settings")
       ? createSettingCoverageClaim(props, layer)
       : undefined;
   return [

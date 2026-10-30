@@ -4,7 +4,7 @@ Readiness or numerical success proves no appearance; only an observed render doe
 
 ## Viewer
 
-Recover a broken viewer first. Do no work that needs visual judgment until a displayed model and working controls confirm recovery, and protect other owners' processes meanwhile.
+Recover a broken video or 3D viewer before other work. Confirm the current displayed artifact and relevant controls, seek/playback and capture through the actual consumer, and protect other owners' processes meanwhile. Repair missing engine, interface, viewer or render capability at its reusable owner, then reconnect the production and apply explicit instruction sync for changed guidance; a build or server response alone does not prove recovery.
 
 Inspect the actual consumer with current source on a hardware renderer, recording source, input, renderer, and view.
 

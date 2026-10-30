@@ -56,4 +56,4 @@ Edit `packages/human/src`, a calibration module or a fitter only in steps 3 and 
 - Never treat a ruled reverse-render artifact as an anatomical target.
 - Claim no common law or prediction for other people from f1 reproduction alone.
 - Write and run no Human or Human-viewer test.
-- Acquire further references, without asking, by the [reference-experiments README](../../../test/src/executable/reference-experiments/README.md).
+- Acquire further references without asking. Retain each fixed source, its provenance and registration with the [reference population](screenshot.md#references), and obtain saved coefficients through [mesh recovery](../3d-modeling/recovery.md). A local acquisition script is an implementation aid, never the only copy of the procedure or its source record.
