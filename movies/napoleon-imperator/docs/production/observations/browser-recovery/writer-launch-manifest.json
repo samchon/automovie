@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "scope": "Writer bounded launch comparison: Chrome D3D11/default, Edge D3D11 and bundled Chromium. First three observed AMD hardware; bundled path observed SwiftShader. All four displayed current viewer; this is not full-film approval.",
+  "archive": {
+    "file": "writer-launch-comparison.zip",
+    "bytes": 3537,
+    "sha256": "d900bc8584c923c2769fba6ec1ca7cb405c3c67772faf47ae1112f4768cc0bc5"
+  },
+  "members": [
+    {
+      "path": "browser-diagnostic.mjs",
+      "bytes": 1397,
+      "sha256": "ba5f1e8ee88a1ec90f5c03039c7cb53a7f128c151b0a5497da4fca21dd35931e"
+    },
+    {
+      "path": "browser-diagnostic.json",
+      "bytes": 94479,
+      "sha256": "a1fd87bb0f32568bcbad2a5ee1898c764b3839817c1205af5c5ce4a9519063de"
+    }
+  ]
+}

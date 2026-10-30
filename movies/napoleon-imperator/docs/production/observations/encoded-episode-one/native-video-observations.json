@@ -1,0 +1,34 @@
+{
+  "captureRun": "public/outputs/episode-one/runs/2026-10-30T05-39-06-671Z-883b5595c1fe-da92a05b",
+  "completedSha256": "6d6f23aab88b53dfd27cb8bc45ff57af98b907abb166a613adb34ef7070df53b",
+  "movie": {
+    "file": "the-road-gives-way.mp4",
+    "bytes": 23322699,
+    "sha256": "084aa663f78b47b3758d63c1a9bfcdb013ac6b8626ebe026ce76eacbd1bbc47e"
+  },
+  "url": "http://127.0.0.1:5187/outputs/episode-one/runs/2026-10-30T05-39-06-671Z-883b5595c1fe-da92a05b/the-road-gives-way.mp4",
+  "metadata": {
+    "width": 1280,
+    "height": 720,
+    "duration": 384.041667,
+    "readyState": 4,
+    "error": null
+  },
+  "paused": 0.515727,
+  "held": 0.515727,
+  "hold": true,
+  "decoded": {
+    "totalVideoFrames": 16,
+    "droppedVideoFrames": 0,
+    "corruptedVideoFrames": 0
+  },
+  "end": {
+    "time": 383.941667,
+    "paused": true,
+    "readyState": 4,
+    "error": null
+  },
+  "errors": [],
+  "audition": "unperformed; muted native playback",
+  "continuousAudienceViewing": "unperformed"
+}
