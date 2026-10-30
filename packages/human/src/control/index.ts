@@ -1,0 +1,1 @@
+export { AutoMovieHumanController } from "./AutoMovieHumanController";

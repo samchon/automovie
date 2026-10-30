@@ -28,6 +28,9 @@ export class HumanImageSourceIdentity {
     const digest: ReturnType<typeof createHash> = createHash("sha256");
     for (const name of [
       "pnpm-lock.yaml",
+      "packages/human/package.json",
+      "packages/viewer/package.json",
+      "packages/playground/package.json",
       "packages/playground/vite.config.ts",
       "packages/playground/scripts/playgroundViteConfig.ts",
       ...HumanImageSourceIdentity.runtime(),
@@ -46,7 +49,7 @@ export class HumanImageSourceIdentity {
    * @evidence contracts/common.md#clear-and-simple-design One conservative inventory gives parent and child the same session invalidation policy without another module loader.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts This broader-than-consumed inventory is not an import-closure certificate, a dependency-runtime digest or an atomic filesystem snapshot.
    * @evidence contracts/common.md#meaningful-documentation Names extensions, package scope, absolute-path sensitivity and conservative invalidation.
-   * @evidence contracts/performance.md#efficient-algorithms For E directory entries, F selected files and B selected bytes, enumeration/hash work is O(E+B), sorting O(F log F), and memory holds selected paths, traversal depth and one file buffer.
+   * @evidence contracts/performance.md#efficient-algorithms For E entries, F files and B bytes, enumeration/hash work is O(E+B) and sorting O(F log F); memory holds selected paths, concurrent directory enumerations and each current window of at most 64 file buffers. This source rehash allocation's contribution to observed process peaks has not been isolated.
    * @evidence contracts/performance.md#reuse-equivalent-work Full rehashing detects byte edits without relying on mtime; completed model/frame reuse is decided separately by the session.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Path arrays, traversal frames and hash state are local to the call; no source snapshot, watcher or persistent cache survives return.
    */
@@ -75,15 +78,20 @@ export class HumanImageSourceIdentity {
       ),
 
       // The worker renders through the Human page, so its modules join the key.
-      ...["human", "human-parameters"].map(
+      ...["human", "human-parameters", "human-stickman"].map(
         (directory: string): Promise<void> =>
           visit(path.join(root, "packages/playground/src", directory)),
       ),
     ]);
     for (const name of [
       "packages/playground/human.html",
+      "packages/playground/human-stickman.html",
+      "packages/playground/src/human-stickman-view.ts",
       "packages/playground/src/human-view.ts",
       "pnpm-lock.yaml",
+      "packages/human/package.json",
+      "packages/viewer/package.json",
+      "packages/playground/package.json",
       "packages/playground/vite.config.ts",
       ...HumanImageSourceIdentity.runtime(),
     ])
@@ -112,6 +120,20 @@ export class HumanImageSourceIdentity {
       "HumanImageSourceIdentity.ts",
       "HumanImageProcess.ts",
       "humanImageProcessEntry.ts",
+      "HumanImageMannequin.ts",
+      "captureHumanMannequinDraw.ts",
+      "HumanImageMannequinFrames.ts",
+      "commitHumanMannequinSnapshot.ts",
+      "observeHumanPageDocuments.ts",
+      "navigateHumanCapturePage.ts",
+      "HumanImageProcessTrace.ts",
+      "HumanImageTemporaryDirectory.ts",
+      "HumanImageParameterRequest.ts",
+      "serveHumanMannequinImage.ts",
+      "respondHumanImage.ts",
+      "readHumanImagePublicationBytes.ts",
+      "serveHumanImageLifecycle.ts",
+      "HumanImageSessionOwner.ts",
     ].map(
       (name: string): string => "packages/playground/src/human-images/" + name,
     );

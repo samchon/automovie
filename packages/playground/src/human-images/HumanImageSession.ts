@@ -1,13 +1,15 @@
 import { createHash } from "node:crypto";
 import type { ViteDevServer } from "vite";
 
+import { HumanImageMannequinFrames } from "./HumanImageMannequinFrames";
 import { HumanImageProcess } from "./HumanImageProcess";
 import { HumanImageSourceIdentity } from "./HumanImageSourceIdentity";
 
-/** Serialize an isolated generation/native owner while HTTP serves archives.
- * HTTP retains one byte publication and bounded PNGs, never parsed geometry.
+/** Serialize an isolated generation/capture owner while HTTP serves archives.
+ * Ordinary Human retains its byte publication and PNGs. Mannequin retains
+ * verified parsed snapshots with shared invariant geometry arrays and six FIFO frames.
  * Exact source/input commitments and asynchronous output hashing guard IPC.
- * One resident worker child keeps Chrome on /human.html across model keys and is replaced only when it stops being active; the current model and its frames are cached until the key changes.
+ * One resident worker lazily mounts the Human or Mannequin page; successful retirement must precede replacement, and source/input or mode changes invalidate the corresponding caches.
  *
  * @evidence contracts/common.md#principled-implementation A serialized queue binds source bytes and supplied input SHA to one child lease, verifies publication/frame commitments and rechecks source before delivery.
  * @evidence contracts/common.md#clear-and-simple-design The session owns model/frame reuse; process lifecycle and HTTP historical delivery stay with their separate owners.
@@ -15,7 +17,7 @@ import { HumanImageSourceIdentity } from "./HumanImageSourceIdentity";
  * @evidence contracts/common.md#meaningful-documentation States isolated ownership, publication reuse and resident-worker replacement.
  * @evidence contracts/performance.md#efficient-algorithms Each admitted operation hashes the conservative package-source inventory; a new model key regenerates in the resident child, and frame hits avoid generation/render commands.
  * @evidence contracts/performance.md#reuse-equivalent-work One model key combines observed source hash and supplied input hash; frames additionally match name and optional fresh nonce, with active-child checks before reuse.
- * @evidence contracts/performance.md#bound-retention-and-release-resources At most sixteen requests queue behind one child, which owns one Chrome; one publication and PNG buffers each have a 256 MiB admission cap, frame names have no separate count cap, and close joins the queue and child before dropping caches.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources At most sixteen requests queue behind one child/Chrome. Ordinary publication and PNG buffers each have a 256 MiB admission cap and ordinary frame names have no count cap; Mannequin has six FIFO slots sharing invariant geometry arrays with a 256 MiB PNG cap. Close joins child/queue and drops references; the execution owner independently observes original Job members after cleanup.
  */
 export class HumanImageSession {
   private queue: Promise<void> = Promise.resolve();
@@ -37,6 +39,8 @@ export class HumanImageSession {
         >;
       }
     | undefined;
+  private mannequinFrames: HumanImageMannequinFrames | undefined;
+  private mode: "human" | "mannequin" | undefined;
   private hostIdentity: string | undefined;
   private readonly diagrams: Map<
     string,
@@ -49,6 +53,62 @@ export class HumanImageSession {
     private readonly root: string,
   ) {}
 
+  /** Current admitted work, observed without acquiring a worker or rendering.
+   *
+   * @evidence contracts/common.md#principled-implementation Returns the admission counter maintained by request entry and finally blocks, including queued work.
+   * @evidence contracts/common.md#clear-and-simple-design A read-only scalar exposes admission without exposing the queue or worker.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The count is not a native-process population or proof of idle cleanup.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes admitted work from process acquisition and rendering.
+   * @evidence contracts/performance.md#efficient-algorithms Reads one number in constant time without source hashing or queue traversal.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reads the existing admission counter rather than reconstructing requests.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a scalar and acquires or retains no resource.
+   */
+  public pending(): number {
+    return this.admittedRequests;
+  }
+
+  /** Queue the existing Mannequin page on this session's sole resident worker.
+   *
+   * @evidence contracts/common.md#principled-implementation Existing admission and queue serialize actual page-mode changes; the frame owner verifies source, input, buffers, GPU and pixels.
+   * @evidence contracts/common.md#clear-and-simple-design Page-specific metadata/cache remain in HumanImageMannequinFrames while this owner retains native lifecycle.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Switching representation invalidates ordinary caches; no ordinary publication or historical pixels substitute for a Mannequin frame.
+   * @evidence contracts/common.md#meaningful-documentation Supports static diagnostic frames independently of motion or anatomical approval.
+   * @evidence contracts/performance.md#efficient-algorithms Exact-fresh frames reuse verified snapshots and pixels on one page.
+   * @evidence contracts/performance.md#reuse-equivalent-work Source/input/frame/nonce identity qualify reuse; switching modes clears incompatible caches.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Shares sixteen admission slots and one child; close or representation replacement drops the six-frame cache.
+   */
+  public async mannequin(
+    input: { value: Record<string, unknown>; sha256: string },
+    name: string,
+    nonce?: string,
+  ): Promise<Awaited<ReturnType<HumanImageMannequinFrames["frame"]>>> {
+    if (nonce !== undefined && !/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,63}$/.test(nonce))
+      throw new Error("Fresh nonce requires one to sixty-four safe characters");
+    if (this.closed || this.admittedRequests >= 16)
+      throw new Error("Human image queue is closed or full");
+    this.admittedRequests++;
+    const work: Promise<
+      Awaited<ReturnType<HumanImageMannequinFrames["frame"]>>
+    > = this.queue.then(
+      async (): Promise<
+        Awaited<ReturnType<HumanImageMannequinFrames["frame"]>>
+      > => {
+        if (this.closed) throw new Error("Human image server is closing");
+        this.cached = undefined;
+        this.diagrams.clear();
+        this.mode = "mannequin";
+        const worker: HumanImageProcess = await this.resident();
+        this.mannequinFrames ??= new HumanImageMannequinFrames(this.root);
+        return this.mannequinFrames.frame(worker, input, name, nonce);
+      },
+    );
+    this.queue = work.then((): void => {}).catch((): void => {});
+    try {
+      return await work;
+    } finally {
+      this.admittedRequests--;
+    }
+  }
   /** Queue one model/frame request; reject invalid nonces, full queues or closed sessions.
    * The resident child generates and renders in its Chrome page. `curves` is the canonical selection from `normalizeHumanCurves`; it joins the frame identity and the receipt. Input value/SHA consistency is supplied by the caller.
    *
@@ -97,6 +157,8 @@ export class HumanImageSession {
       }> => {
         if (this.closed) throw new Error("Human image server is closing");
 
+        this.mannequinFrames?.clear();
+        this.mode = "human";
         // One frame slot per file name, canonical curve selection and free view.
         const slot: string = name + "|" + curves + "|" + view;
 
@@ -282,6 +344,12 @@ export class HumanImageSession {
           Awaited<ReturnType<HumanImageSession["diagram"]>>
         > => {
           if (this.closed) throw new Error("Human image server is closing");
+          if (this.mode === "mannequin") {
+            this.cached = undefined;
+            this.diagrams.clear();
+            this.mannequinFrames?.clear();
+          }
+          this.mode = "human";
           const source: string = await HumanImageSourceIdentity.source(
             this.root,
           );
@@ -382,6 +450,7 @@ export class HumanImageSession {
       await this.worker.close();
       this.worker = undefined;
       this.cached = undefined;
+      this.mannequinFrames?.clear();
     }
     if (this.worker === undefined) {
       if (this.closed)
@@ -414,5 +483,6 @@ export class HumanImageSession {
     this.worker = undefined;
     this.cached = undefined;
     this.diagrams.clear();
+    this.mannequinFrames?.clear();
   }
 }

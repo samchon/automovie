@@ -8,6 +8,9 @@ import { normalizeHumanView } from "../human/normalizeHumanView";
 import { HumanImageArchive } from "./HumanImageArchive";
 import { HumanImageRegistry } from "./HumanImageRegistry";
 import { HumanImageSession } from "./HumanImageSession";
+import { HumanImageSessionOwner } from "./HumanImageSessionOwner";
+import { respondHumanImage } from "./respondHumanImage";
+import { serveHumanMannequinImage } from "./serveHumanMannequinImage";
 
 /** Publish typed Human example JSON, generated models and rendered PNGs.
  * Both /human-parameters/f1.json and /human-images/f1.json use the same typed
@@ -25,7 +28,7 @@ import { HumanImageSession } from "./HumanImageSession";
  */
 export function createHumanImagePlugin(repository: string): Plugin {
   const archive: HumanImageArchive = new HumanImageArchive();
-  let session: HumanImageSession | undefined;
+  let session: HumanImageSessionOwner | undefined;
   let current:
     | {
         key: string;
@@ -78,12 +81,14 @@ export function createHumanImagePlugin(repository: string): Plugin {
     );
     const format: "png" | "svg" = route[3] === "svg" ? "svg" : "png";
     const result: Awaited<ReturnType<HumanImageSession["diagram"]>> =
-      await session!.diagram(
-        route[1]!,
-        curves,
-        format,
-        url.searchParams.get("fresh") ?? undefined,
-      );
+      await session!
+        .get()
+        .diagram(
+          route[1]!,
+          curves,
+          format,
+          url.searchParams.get("fresh") ?? undefined,
+        );
     response.setHeader("cache-control", "no-store");
     response.setHeader("x-human-captured-utc", result.capturedUtc);
     response.setHeader(
@@ -130,7 +135,9 @@ export function createHumanImagePlugin(repository: string): Plugin {
         for (const filename of paths)
           await archive.import(path.resolve(repository, filename));
       }
-      session = new HumanImageSession(server, repository);
+      session = new HumanImageSessionOwner(server, repository, (): void => {
+        current = undefined;
+      });
 
       // The worker child inherits this environment when the first request
       // starts it, after listening, and opens /human.html on this origin.
@@ -160,7 +167,8 @@ export function createHumanImagePlugin(repository: string): Plugin {
           if (
             !url.pathname.startsWith("/human-images/") &&
             !url.pathname.startsWith("/human-parameters/") &&
-            !url.pathname.startsWith("/human-curves/")
+            !url.pathname.startsWith("/human-curves/") &&
+            !url.pathname.startsWith("/human-diagnostics/")
           ) {
             next();
             return;
@@ -169,6 +177,38 @@ export function createHumanImagePlugin(repository: string): Plugin {
             if (request.method !== "GET" && request.method !== "POST") {
               response.statusCode = 405;
               response.end();
+              return;
+            }
+            if (url.pathname.startsWith("/human-diagnostics/")) {
+              response.setHeader("cache-control", "no-store");
+              response.setHeader("content-type", "application/json");
+              if (
+                url.pathname === "/human-diagnostics/close.json" &&
+                request.method === "POST"
+              ) {
+                await session!.close();
+                response.end(JSON.stringify({ closed: true }));
+              } else if (
+                url.pathname === "/human-diagnostics/status.json" &&
+                request.method === "GET"
+              )
+                response.end(
+                  JSON.stringify({ pid: process.pid, ...session!.status() }),
+                );
+              else {
+                response.statusCode = 405;
+                response.end();
+              }
+              return;
+            }
+            if (url.pathname.startsWith("/human-images/mannequin/")) {
+              await serveHumanMannequinImage(
+                request,
+                response,
+                url,
+                session!.get(),
+                archive,
+              );
               return;
             }
             if (url.pathname.startsWith("/human-curves/")) {
@@ -353,13 +393,15 @@ export function createHumanImagePlugin(repository: string): Plugin {
             }
             const requested: string = image?.[2] ?? pinned?.[2] ?? "$model";
             const result: Awaited<ReturnType<HumanImageSession["image"]>> =
-              await session!.image(
-                input,
-                requested,
-                url.searchParams.get("fresh") ?? undefined,
-                curves,
-                view.text,
-              );
+              await session!
+                .get()
+                .image(
+                  input,
+                  requested,
+                  url.searchParams.get("fresh") ?? undefined,
+                  curves,
+                  view.text,
+                );
             if (pinned && result.key !== pinned[1]) {
               response.statusCode = 409;
               response.end("Human source changed; reload the model");
@@ -383,58 +425,16 @@ export function createHumanImagePlugin(repository: string): Plugin {
               throw new Error(
                 "Published Human parameters changed during this request",
               );
-            if (!result.capturedUtc || !result.pngSha256)
-              throw new Error("Human PNG has no committed capture receipt");
-            response.setHeader("x-human-captured-utc", result.capturedUtc);
-            response.setHeader(
-              "x-human-fresh-nonce",
-              url.searchParams.get("fresh") ?? "none",
-            );
-            response.setHeader("x-human-identity", result.key);
-            response.setHeader("x-human-png-sha256", result.pngSha256);
-            response.setHeader(
-              "x-human-cache",
-              result.cacheHit ? "existing-png" : "new-requested-frame",
-            );
-            const event: object = {
-              kind: "human-image-response",
+            respondHumanImage({
+              response,
+              url,
+              archive,
+              result,
               alias: image?.[1],
-              image: requested,
+              requested,
               curves,
               view: view.text,
-              key: result.key,
-              cacheHit: result.cacheHit,
-              ...(result.cacheHit ? {} : { receipt: result.receipt }),
-            };
-            const eventBytes: Buffer = Buffer.from(JSON.stringify(event));
-            if (url.searchParams.has("fresh") && !result.cacheHit)
-              response.setHeader(
-                "x-human-archive-url",
-                archive.publish(url.href, result.png, eventBytes),
-              );
-            response.setHeader("x-human-binding", "current-generation");
-            response.setHeader(
-              "x-human-curves",
-              curves === "" ? "none" : normalizeHumanCurves.query(curves),
-            );
-            response.setHeader(
-              "x-human-view",
-              view.text === "" ? "none" : view.text,
-            );
-            console.info(eventBytes.toString("utf8"));
-            if (url.searchParams.get("receipt") === "1") {
-              response.setHeader("content-type", "application/json");
-              response.end(JSON.stringify(result.receipt));
-              return;
-            }
-            response.setHeader("content-type", "image/png");
-            response.setHeader("x-human-identity", result.key);
-            response.setHeader("x-human-png-sha256", result.pngSha256);
-            response.setHeader(
-              "x-human-cache",
-              result.cacheHit ? "existing-png" : "new-requested-frame",
-            );
-            response.end(result.png);
+            });
           };
           void handle().catch((error: unknown): void => {
             console.error(error);

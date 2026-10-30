@@ -22,6 +22,7 @@
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
     "@automovie/engine": "workspace:^",
+    "@automovie/human": "workspace:^",
     "@automovie/interface": "workspace:^",
     "@automovie/recovery": "workspace:^",
     "@automovie/render": "workspace:^",
