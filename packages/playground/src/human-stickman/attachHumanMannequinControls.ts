@@ -300,7 +300,7 @@ export function attachHumanMannequinControls(options: {
           : ` · ${current.motion} ${current.time.toFixed(2)} / ${current.duration.toFixed(2)}초 · ${current.playing ? "재생" : "정지"}`) +
         current.clamped
           .map(
-            (c: AutoMovieHumanSkeleton.IClamp): string =>
+            (c: Skeleton.IClamp): string =>
               `\n${c.path}: ${c.requested} → ${Math.round(c.applied * 100) / 100}`,
           )
           .join("") +

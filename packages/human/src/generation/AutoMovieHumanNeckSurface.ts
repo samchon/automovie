@@ -337,7 +337,8 @@ export namespace AutoMovieHumanNeckSurface {
       publicTargetLength: publicLengthMm / 1000,
       requestedMidHeight: middleHeight * scale,
       actualMidHeight: sections[1]!.centre[1],
-      ...(publicTargetCircumferenceMm == null
+      ...(publicTargetCircumferenceMm === null ||
+      publicTargetCircumferenceMm === undefined
         ? {}
         : { publicTargetCircumference: publicTargetCircumferenceMm / 1000 }),
     };
@@ -411,7 +412,8 @@ function course(
         const value: number =
           AutoMovieHumanLoftChain.axis(chain, mid)[1] - height;
         if (Math.abs(value) <= 1e-6 || hi - lo <= 1e-6) {
-          lo = hi = mid;
+          hi = mid;
+          lo = mid;
           break;
         }
         if (a * value < 0) hi = mid;
