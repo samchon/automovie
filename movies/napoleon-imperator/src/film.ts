@@ -15,6 +15,24 @@ export interface Film {
   audio: string;
   shots: Shot[];
   cues: Cue[];
+  events: FilmEvent[];
+  performance: {walkPeriod:number;runPeriod:number;horsePeriod:number};
+}
+
+/**
+ * A performed action's actual shared picture and sound interval.
+ * @evidence contracts/common.md#implementation-and-ownership Preparation owns one event population; staging consumes its intervals and the mix consumes its fixed sound recipes. Events do not certify narrative or listening acceptance.
+ * @evidence contracts/common.md#authoring-interface start and duration use film seconds; shot and action identify the executing scene. sound is absent for a silent action and gain/pan apply only to actual synthesized samples.
+ */
+export interface FilmEvent {
+  id:string;
+  shot:string;
+  action:string;
+  start:number;
+  duration:number;
+  sound?:string|null;
+  gain:number;
+  pan:number;
 }
 
 /**
@@ -44,6 +62,12 @@ export interface Cue {
   end: number;
   shot: string;
   acceptance: string;
+  file: string;
+  sha256: string;
+  duration: number;
+  frames: number;
+  sampleRate: number;
+  selection?:{provenance:string;provenanceSha256:string;sha256:string};
 }
 
 /**

@@ -23,7 +23,7 @@ const sun = new THREE.DirectionalLight("#ffe8bd", 2.8);
 sun.position.set(-3, 8, 6);
 scene.add(sun);
 const camera = new THREE.PerspectiveCamera(38, 16 / 9, 0.08, 180);
-const staging = new Staging(scene, camera);
+const staging = new Staging(scene, camera, film);
 const canvas = element<HTMLCanvasElement>("canvas"),
   audio = element<HTMLAudioElement>("audio"),
   seek = element<HTMLInputElement>("seek"),
@@ -101,7 +101,7 @@ function draw(seconds: number): void {
         : "0";
   seek.value = String(time);
   element("clock").textContent =
-    `${Math.floor(time / 60)}:${String(Math.floor(time % 60)).padStart(2, "0")} / 6:19`;
+    `${Math.floor(time / 60)}:${String(Math.floor(time % 60)).padStart(2, "0")} / ${Math.floor(film.duration/60)}:${String(Math.floor(film.duration%60)).padStart(2,"0")}`;
   select.value = String(shot.start);
 }
 const mounted = mountViewer(

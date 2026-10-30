@@ -63,13 +63,20 @@ export class Actor {
   readonly points: THREE.Vector3[] = [];
   readonly shadow: THREE.Mesh;
   readonly clamped: string[] = [];
+  feather: THREE.Group | null = null;
+  rifle: THREE.Group | null = null;
+  flash: THREE.Group | null = null;
+  tag: THREE.Sprite | null = null;
+  mode = "stand";
   constructor(
     readonly name: string,
     color = "#4775a3",
     marker = "",
+    readonly timing: {walkPeriod:number;runPeriod:number} = {walkPeriod:.85,runPeriod:.58},
   ) {
     this.head = primitive({ type: "sphere", radius: 0.145 }, "#eadac1");
     this.root.add(this.head);
+    for(const z of [-.052,.052]){const eye=primitive({type:"sphere",radius:.018},"#202733");eye.position.set(.135,.018,z);this.head.add(eye);}
     for (let i = 0; i < 11; i++) {
       const limb = primitive(
         { type: "cylinder", radius: i === 0 ? 0.065 : 0.038, height: 1 },
@@ -106,6 +113,7 @@ export class Actor {
       plume.position.set(0, 1.25, 0.08);
       plume.rotation.z = -0.15;
       this.root.add(plume);
+      this.feather=plume;
     }
     if (marker === "hair") {
       const hair = primitive({ type: "sphere", radius: 0.151 }, "#946b40");
@@ -135,9 +143,12 @@ export class Actor {
     t: number,
     mode = "stand",
     hands?: [THREE.Vector3, THREE.Vector3],
+    feet?: [THREE.Vector3, THREE.Vector3],
+    speed = .65,
   ): void {
-    const walking = mode === "walk" || mode === "run" || mode === "carry-walk";
-    const pace = mode === "run" ? 0.58 : 0.85;
+    this.mode=mode;
+    const walking = mode === "walk" || mode === "run" || mode === "carry-walk" || mode === "push-walk" || mode === "load-walk" || mode === "press-walk" || mode === "aim-walk" || mode === "reload-walk" || mode === "duck-walk";
+    const pace = mode === "run" ? this.timing.runPeriod : this.timing.walkPeriod;
     const angle = (t / pace) * Math.PI * 2;
     const pelvis = new THREE.Vector3(0, 0, 0);
     const shoulder = new THREE.Vector3(0, 0.59, 0);
@@ -148,7 +159,7 @@ export class Actor {
     for (let side = 0; side < 2; side++) {
       const sign = side === 0 ? 1 : -1;
       const phase = (((t / pace + side * 0.5) % 1) + 1) % 1;
-      const stride = 0.65 * pace * 0.6;
+      const stride = speed * pace * 0.6;
       const foot = new THREE.Vector3(
         walking
           ? phase < 0.6
@@ -162,19 +173,21 @@ export class Actor {
         sign * 0.12,
       );
       const hip = new THREE.Vector3(0, 0, sign * 0.105);
+      if(mode==="press-walk")foot.y+=.4;
       if (mode === "sit" || mode === "ride" || mode === "press")
         foot.set(0.55, -0.42, sign * 0.24);
-      if (mode === "press") {
+      if (mode === "press" || mode === "press-walk") {
         shoulder.y = 0.24;
         neck.y = 0.4;
         this.head.position.y = 0.53;
       }
-      if (mode === "duck") {
+      if (mode === "duck" || mode === "duck-walk") {
         foot.x = 0.22;
         shoulder.y = 0.42;
         neck.y = 0.6;
         this.head.position.y = 0.73;
       }
+      if(feet)foot.copy(feet[side]);
       const knee = joint(hip, foot, 0.46, 0.46, new THREE.Vector3(1, 0, 0));
       if (knee.clamped) this.clamped.push(`leg-${side}`);
       pts.push(hip, knee.mid, knee.tip);
@@ -191,9 +204,10 @@ export class Actor {
           0.34 + (side === 0 ? Math.sin(t * 12) * 0.018 : 0),
           sign * 0.14,
         );
-      if (mode === "push") hand.set(0.55, 0.27, sign * 0.2);
-      if (mode === "aim")
+      if (mode === "push" || mode === "push-walk") hand.set(0.55, 0.27, sign * 0.2);
+      if (mode === "aim" || mode === "aim-walk")
         hand.set(side === 0 ? 0.57 : 0.32, 0.53, sign * 0.055);
+      if(mode==="reload"||mode==="reload-walk")hand.set(side===0? .38:.15,side===0? .88+Math.sin(t*6)*.025:.3,side===0? 0:-.06);
       if (mode === "cheer")
         hand.set(0.08, 1.2 + Math.sin(t * 5) * 0.04, sign * 0.36);
       if (mode === "carry" || mode === "carry-walk")
@@ -210,6 +224,31 @@ export class Actor {
       pts.push(sh, elbow.mid, elbow.tip);
     }
     this.points.splice(0, this.points.length, ...pts);
+    this.applyPoints();
+    this.head.rotation.set(0,mode === "look" ? -0.6 : 0,0);
+    if(this.feather)this.feather.rotation.z=-.15;
+  }
+  /**
+   * Aim the minimal eye marks toward an actual world-space point.
+   * @evidence contracts/common.md#implementation-and-ownership The head and eye marks share one local frame; world targets are converted through the current actor transform, so gaze follows the intended participant or prop.
+   * @evidence contracts/common.md#authoring-interface Call after pose with a world target in meters; the next pose resets head direction before another gaze selection.
+   */
+  lookAt(target:THREE.Vector3):void {
+    this.root.updateMatrixWorld(true);const direction=this.root.worldToLocal(target.clone()).sub(this.head.position);
+    this.head.rotation.set(0,Math.atan2(-direction.z,direction.x),Math.atan2(direction.y,Math.hypot(direction.x,direction.z)));
+  }
+  /**
+   * Preserve each gait's lift while reaching the actual authored support plane.
+   * @evidence contracts/common.md#implementation-and-ownership The current gait points, stage surface and public IK solver produce the actual feet and knees. No limb stretches to hide unreachable support; clamping remains observable.
+   * @evidence contracts/common.md#authoring-interface Use only for upright ground actors after pose. surface returns the real world Y at each foot X/Z; the root must already be .85 m above its support.
+   */
+  plant(surface:(x:number,z:number)=>number):void {
+    this.root.updateMatrixWorld(true);
+    for(const side of [0,1]){const base=side===0? 2:8;const world=this.root.localToWorld(this.points[base+2]!.clone());const lift=Math.max(0,world.y-(this.root.position.y-.85));world.y=surface(world.x,world.z)+lift;
+      const reached=joint(this.points[base]!,this.root.worldToLocal(world),.46,.46,new THREE.Vector3(1,0,0));this.points[base+1]=reached.mid;this.points[base+2]=reached.tip;if(reached.clamped)this.clamped.push(`leg-${side}`);
+    }this.applyPoints();
+  }
+  private applyPoints():void {
     const pairs = [
       [0, 1],
       [2, 3],
@@ -223,8 +262,7 @@ export class Actor {
       [5, 11],
       [2, 8],
     ];
-    pairs.forEach(([a, b], i) => rod(this.limbs[i]!, pts[a]!, pts[b]!));
-    this.head.rotation.y = mode === "look" ? -0.6 : 0;
+    pairs.forEach(([a, b], i) => rod(this.limbs[i]!, this.points[a]!, this.points[b]!));
   }
 }
 
