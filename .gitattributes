@@ -18,3 +18,5 @@
 *.woff2 binary
 *.mp3 binary
 *.mp4 binary
+# Preserve the adopted independent report's original byte identity.
+/movies/yeon-gaesomun-biography/docs/analysis/screenplay-realization-audit.md -text whitespace=trailing-space,space-before-tab,cr-at-eol

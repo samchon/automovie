@@ -1,0 +1,13 @@
+
+> @automovie/station@0.1.0 test C:\Users\SamchonNam\.codex\worktrees\scaffold-video-alignment\automovie@template
+> pnpm --filter @automovie/test start "--include" "geometry_convex_separation" "math_segment_closest_points" "physics_collision" "physics_segment_sphere" "kinematics_two_bone_ik"
+
+
+> @automovie/test@0.1.0 start C:\Users\SamchonNam\.codex\worktrees\scaffold-video-alignment\automovie@template\test
+> ttsx src/index.ts "--include" "geometry_convex_separation" "math_segment_closest_points" "physics_collision" "physics_segment_sphere" "kinematics_two_bone_ik"
+
+ttsc: temporary directory escaped its physical parent: C:\Users\SamchonNam\AppData\Local\Packages\OpenAI.Codex_2p2nqsd0c76g0\LocalCache\Local\Temp\ttsc-spawn-QszXwX
+C:\Users\SamchonNam\.codex\worktrees\scaffold-video-alignment\automovie@template\test:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @automovie/test@0.1.0 start: `ttsx src/index.ts "--include" "geometry_convex_separation" "math_segment_closest_points" "physics_collision" "physics_segment_sphere" "kinematics_two_bone_ik"`
+Exit status 2
+ ELIFECYCLE  Test failed. See above for more details.
