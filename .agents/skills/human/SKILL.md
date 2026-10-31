@@ -5,7 +5,7 @@ description: Replaces the fitted Human calibration tables with one reusable cons
 
 # Human
 
-Generate every supported person from parameters by one reusable construction instead of the tables in `packages/human/src/generation/calibration/`. Find the major anatomical centres, draw lofting curves from them and construct each following layer up to the next centre by any anatomically and scientifically sound equation, recurrence or recursion. [Generalization](../../../packages/human/docs/generalization.md) holds the measurements, a candidate construction and the findings to reuse; it is a starting point, and a better construction replaces it. [Campaign #3013](https://github.com/samchon/automovie/issues/3013) owns the tasks. An explicit stop overrides every instruction here.
+Generate every supported person from parameters by one reusable construction instead of the tables in `packages/human/src/generation/calibration/`. Find the major anatomical centres, draw lofting curves from them and construct each following layer up to the next centre by any anatomically and scientifically sound equation, recurrence or recursion. [Generalization](../../../packages/human/docs/generalization.md) holds the measurements, a candidate construction and the findings to reuse; it is a starting point, and a better construction replaces it. [Campaign #3013](https://github.com/samchon/automovie/issues/3013) owns the tasks and how agents divide them. An explicit stop overrides every instruction here.
 
 ## Done When
 
