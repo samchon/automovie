@@ -1,6 +1,6 @@
 # Screenshots
 
-The Integration subagent uses the task's assigned viewer endpoint and checks ownership before starting a server, protecting other owners' services. This example starts the viewer from the repository root on the default port:
+Use the task's viewer endpoint. After verifying ownership, start, stop or restart a task-owned server as needed without approval, and leave other owners' services running. This example starts the viewer from the repository root on the default port:
 
 ```powershell
 Set-Location packages/playground
