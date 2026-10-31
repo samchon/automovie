@@ -19,11 +19,11 @@ A region may also carry key-section chains (`IAutoMovieHumanBodyRegion.networks`
 
 ## Calibration data
 
-`AutoMovieHumanBodyRegions.merge` merges four regions into one calibration: torso (23 chains: neck to legs, arms, hands, digits), foot (17 chains), head (8 chains, the head and the auricles) and eye (2 apertures, 2 globes).
+`AutoMovieHumanBodyRegions.merge` merges four regions into one calibration: torso (23 chains: neck to legs, arms, hands, digits), foot (17 chains), head (11 chains, the head and the auricles) and eye (2 apertures, 2 globes).
 
 - Representation: every chain is a stack of sections in world-height planes, tilted planes for the lower head and the feet. Each section is a periodic cubic B-spline of 16 to 256 control points at a principal layer, with a station slope per coefficient. The calibration has 51 chains, 25 branch events, 27 poles (fingertips, toetips, lobes, rims, pockets, crown) and 4 apertures (two nostrils, two eyes).
 - One section per height carries everything at that height. The middle head's sections hold the cranium, the face and both auricles in one outline from 1543.2 to 1595.5 mm. The helices leave through one ring at 1595.5 mm, and the rims, pockets and lobes are separate chains with layers 0.1 mm apart. The nose and the lips spread over tens of the lower and middle head's layers.
-- Size: about 4.9 MB of TypeScript literals (torso 2.4 MB, head 1.1 MB, basis 0.8 MB, foot 0.5 MB). The torso file is mostly the `head` chain; [Generalization](generalization.md#where-the-table-numbers-are) breaks the numbers down. CI's `packages/human` build spends 22 of 24 minutes type-checking and linting them three times.
+- Size: about 5 MB of TypeScript literals (torso 2.5 MB, head 1.1 MB, basis 0.8 MB, foot 0.5 MB). The torso file is mostly the `head` chain; [Generalization](generalization.md#where-the-table-numbers-are) breaks the numbers down. CI's `packages/human` build spends 22 of 24 minutes type-checking and linting them three times.
 - Fit: each layer was fitted to one row of the reference's Recovery/Hermite sections. The reference is a densely triangulated mesh, so rows 0.5 mm apart differ by up to 0.2 mm of facet noise, which the layers keep. Where a row lost the outline (1586.5 to 1597.5 mm on the head, broken by the palpebral apertures) the fitter interpolated without observations.
 
 ## Repair rules
@@ -110,19 +110,19 @@ The audit set is f1's bare whole front, side, top and back plus construction fro
 
 ## Open defects and their causes
 
-| Defect | Issue | Cause |
-| --- | --- | --- |
-| Ledge from each lateral canthus to the temple, line at eye height | #2978, #2979 | Head rows missing from 1586.5 to 1597.5 mm, where `head.upper` runs up to 1.4 mm inside the observed skin between its layers 1596.3 and 1599.5 mm, folds at each lateral canthus and climbs back within 0.8 mm; one section per height crossing the eye |
-| Lateral canthus open past the globe, lid teeth | #2979 | Aperture cut by position from a bridged loft; short margin columns |
-| Auricle stairs, ripples, helix-root trace, rim and lobe joins | #2984 | Auricle inside the middle head's sections; rim, pocket and lobe chains 0.1 mm apart; branch rings across the helix |
-| Lip notch at each commissure, light patch at the left one | #2980 | Tilted lower head rows ringing at the lips; oral line crossing layers |
-| Rough nostril rims | #2983 | Cut edge of a bridged loft; inferred pocket meeting it without matching derivatives |
-| Line under the chin | none | The tilted `head.lower` sections at 1495 to 1502 mm ring at the front (10 to 18 curvature sign changes) and advance unevenly between layers 1.5 mm apart |
-| Vertical striations on the forehead and the backs of the thighs | none | Phase noise of 256-point sections fitted to faceted rows |
-| Abdominal band, horizontal gluteal fold, armpit lump, thigh line at the crotch ring | #2985 | Trunk and leg rows; horizontal contact rings at the crotch and axillae; at the crotch ring the shape itself folds, its normals turning up to 9 degrees 3.6 mm into the leg |
-| Bob fringe saw edge, back highlight strip, standing strands | #2987 | Hair card rules |
-| Shape-law residuals (neck length, m2's mandibular width) | none | Landmarks the face stretch itself moves: the menton and the jaw-angle height shift with it |
-| Grey blotches over the back and top of the hair, hair flaring at the back | #2987 | Not traced; the envelope's hanging-column data rises as `1 / cos` toward 75 degrees below the horizon, where a sum of Gaussians can oscillate and turn the shading normals |
+| Defect | Cause |
+| --- | --- |
+| Ledge from each lateral canthus to the temple, line at eye height | Head rows missing from 1586.5 to 1597.5 mm, where `head.upper` runs up to 1.4 mm inside the observed skin between its layers 1596.3 and 1599.5 mm, folds at each lateral canthus and climbs back within 0.8 mm; one section per height crossing the eye |
+| Lateral canthus open past the globe, lid teeth | Aperture cut by position from a bridged loft; short margin columns |
+| Auricle stairs, ripples, helix-root trace, rim and lobe joins | Auricle inside the middle head's sections; rim, pocket and lobe chains 0.1 mm apart; branch rings across the helix |
+| Lip notch at each commissure, light patch at the left one | Tilted lower head rows ringing at the lips; oral line crossing layers |
+| Rough nostril rims | Cut edge of a bridged loft; inferred pocket meeting it without matching derivatives |
+| Line under the chin | The tilted `head.lower` sections at 1495 to 1502 mm ring at the front (10 to 18 curvature sign changes) and advance unevenly between layers 1.5 mm apart |
+| Vertical striations on the forehead and the backs of the thighs | Phase noise of 256-point sections fitted to faceted rows |
+| Abdominal band, horizontal gluteal fold, armpit lump, thigh line at the crotch ring | Trunk and leg rows; horizontal contact rings at the crotch and axillae; at the crotch ring the shape itself folds, its normals turning up to 9 degrees 3.6 mm into the leg |
+| Bob fringe saw edge, back highlight strip, standing strands | Hair card rules |
+| Shape-law residuals (neck length, m2's mandibular width) | Landmarks the face stretch itself moves: the menton and the jaw-angle height shift with it |
+| Grey blotches over the back and top of the hair, hair flaring at the back | Not traced; the envelope's hanging-column data rises as `1 / cos` toward 75 degrees below the horizon, where a sum of Gaussians can oscillate and turn the shading normals |
 
 The user's appearance goal: women's skin reads milky.
 

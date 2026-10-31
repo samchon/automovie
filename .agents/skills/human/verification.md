@@ -9,7 +9,7 @@ Keep one CPU-only executable beside the other reference tools under `test/src/ex
 | Measure | Reads | Meaning |
 | --- | --- | --- |
 | Table bytes deleted against source bytes added | the diff | Rejects a slice with a negative balance. |
-| Validity across the parameter domain | every control at both ends of its range and combined extremes | Rejects non-finite values, collapsed or self-crossing sections, folds and open joins. |
+| Validity across the parameter domain | every control at both ends of its declared range and combined extremes, declaring a range first where a control has none | Rejects non-finite values, collapsed or self-crossing sections, folds and open joins. |
 | Requested against generated dimensions | public measurement definitions | Rejects a parameter with no or the wrong response. |
 | Held-out surface distance per part | the reference meshes | Rejects a law that does not generalize. |
 

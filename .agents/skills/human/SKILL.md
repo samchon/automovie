@@ -25,7 +25,7 @@ Plan only as far as the next slice. An attempt that planned every part in advanc
 
 ## Vertical Slices
 
-A slice replaces one chain family in ordinary generation and leaves the whole figure working.
+A slice replaces one chain family in ordinary generation and leaves the whole figure working. Deliver the whole campaign in one pull request with one commit per slice, because the user wants it landed at once and a partial landing would leave two authorities in the generator.
 
 - Emit the existing `IAutoMovieHumanLoftChain` at runtime under the same chain names, so `AutoMovieHumanBodySurface`, `AutoMovieHumanEventJoin`, skin, appearance and construction keep working unchanged.
 - Keep the layer count of a chain until its Morph rows are replaced, because `AutoMovieHumanBodyLaw.displace` throws when a chain's layer count differs from its basis.
@@ -40,7 +40,7 @@ A candidate that keeps the source rows and deforms them is not a replacement. On
 - Keep a small shape prior when the anatomy needs it: named constants in normalized part coordinates, shared by every person. A table per person, per row or per side is not allowed, and moving or compressing a table is not replacing it.
 - Treat every difference from a reference or from master as evidence, never as a target. A large held-out error can reject a law; correcting a coefficient to shrink it is overfitting. Smoother and better curves than master are welcome.
 - Make skin smooth through its generating mathematics, with no smoothing pass, clamp, threshold or exclusion after construction.
-- Build each anatomical part as an independently deformable module in its own frame under a common body frame, joined to its neighbours by a rule in [Surface composition](../../../packages/human/docs/techniques/surface-composition.md). Reuse the existing skin-joining extension.
+- Build each anatomical part as an independently deformable module in its own frame under a common body frame, joined to its neighbours by a rule in [Surface composition](../../../packages/human/docs/techniques/surface-composition.md). Reuse the existing skin-joining extension, keep common mathematics in one shared module, and give each shared boundary one owner that its neighbour copies.
 - Keep full skin, the normal generation path, rigs, export and other consumers working at every commit. Replacing them with empty or unavailable output is a regression.
 - Leave genitals and nipples out of the modelled skin.
 - Use meshes and saved Recovery/Hermite curves as observations for rules, judge appearance against the original [photographs](screenshot.md#references), and never treat a ruled reverse-render artifact as an anatomical target.

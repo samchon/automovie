@@ -4,7 +4,7 @@ Evidence and options for replacing the calibration tables with one reusable cons
 
 ## Where the table numbers are
 
-The seven calibration modules occupy 4,981,463 bytes. The torso, ear and foot regions hold 510,848 section numbers, coefficients and slopes together. The four head chains `head`, `head.lower`, `head.middle` and `head.upper` hold 55.9 percent of them, and `head` alone holds 188,416 in 184 layers, which is 61 percent of the torso region's numbers. The trunk, arm and leg chains have only 13 to 28 layers each. Chains named `right` hold 17.2 percent.
+The seven calibration modules occupy 4,981,463 bytes. The torso, ear and foot regions hold 510,848 section numbers, coefficients and slopes together. The four head chains `head`, `head.lower`, `head.middle` and `head.upper` hold 55.9 percent of them, and `head` alone holds 188,416 in 184 layers, which is 62 percent of the torso region's numbers. The trunk, arm and leg chains have only 13 to 28 layers each. Chains named `right` hold 17.2 percent.
 
 ## Independent numbers in f1
 
@@ -33,7 +33,7 @@ Distance between f1 and each other person on the same vertices, normalized by st
 | Arm | 2.7 to 8.0 | 0.9 to 2.4 | 0.7 to 2.1 |
 | Trunk | 6.3 to 20.5 | 2.5 to 5.9 | 1.5 to 3.0 |
 
-Harmonics reach order 3 on limbs, 4 on the trunk and 6 on the head. Interpolating the section law between 12 evenly spaced anchors worsened vertex-distance RMS by at most 14 percent against fitting every section, so sparse dimensions can drive dense sections.
+The stature column also removes each part's mean offset. Harmonics reach order 3 on limbs, 4 on the trunk and 6 on the head. Interpolating the section law between 12 evenly spaced anchors worsened vertex-distance RMS by at most 14 percent against fitting every section, so sparse dimensions can drive dense sections.
 
 These are in-sample fits on a rough geometric part split, with coefficients fitted per person rather than predicted from public parameters. Hands, feet and ears were not compared. Four people from one source cannot separate human anatomy from that source's own low-rank deformation.
 
