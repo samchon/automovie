@@ -1,18 +1,23 @@
 # Verification
 
-Each part owner follows [Visual Debugging](../3d-modeling/visual-debugging.md) and directly inspects the new candidate's generating curves, skin and joins in the [viewer](screenshot.md) from its first usable preview, before expanding it. Baseline images and static review do not replace that observation. Collect all phenomena, root causes and contributing factors in the current affected scope, then correct those causes in one batch. Other parts, all parameter cases and fixed image counts must not gate the first preview. Keep partial work visible and mark missing or unverified properties.
+The score rejects and the viewer accepts. Run the score first because it is cheap, then inspect what survives, because numbers alone do not establish a sound human shape. Each candidate needs both.
 
-Inspect the existing working figure before replacing its overfitting dependencies. Compare the replacement under the same conditions across every affected region and join, including ordinary input changes and supported motion states. Preserve the working path until the replacement passes that comparison; reproducing the baseline alone does not establish a general construction.
+## Score
 
-## Supervision Audit
+Keep one CPU-only executable beside the other reference tools under `test/src/executable/`. It reads private references, so it stays local and never runs in CI. It generates the figure without a GPU and reports:
 
-At each fixed 15-minute round, record its actual start and next deadline. The observer inspects every active worker and the main agent; the main agent reads every output, personally opens the original evidence and gives feedback. Bind each original PNG and its actual generating curves to the same source, input, model and construction identities, checking camera, light and renderer identity together with execution completion and resource records. Missing bindings or execution/resource records remain unverified. Worker reports, static review, CPU success and another model's historical images do not replace observation of a new candidate.
+| Measure | Reads | Meaning |
+| --- | --- | --- |
+| Table bytes deleted against source bytes added | the diff | Rejects a slice with a negative balance. |
+| Validity across the parameter domain | every control at both ends of its range and combined extremes | Rejects non-finite values, collapsed or self-crossing sections, folds and open joins. |
+| Requested against generated dimensions | public measurement definitions | Rejects a parameter with no or the wrong response. |
+| Held-out surface distance per part | the reference meshes | Rejects a law that does not generalize. |
 
-Audit the main agent's strategy as well as the workers': prolonged work without candidate observation, no actual replacement of old authority and stalled execution require causal reassessment. Remove unnecessary preparation, document or completion-proof prerequisites that delay a usable first preview. Collect the affected findings before one correction by cause; do not wait for every part to finish before observing usable work.
+For the held-out distance, build the law without one person, generate that person from public parameters alone and measure along the reference surface normal, reporting RMS and the 95th percentile. Print the stature-only distance beside it: a law that does not beat that baseline explains nothing. Held-out rows of one person measure nothing, because neighbouring rows of a mesh predict each other almost exactly.
 
-Immediately stop the offending work for actual modeling or observation violations, false success claims, ownership violations or resource overruns. Warn the responsible agent, correct the collected causes and reassess the strategy before resuming. Correct sentence-quality issues, such as occasional spacing errors, through brief feedback; repeated stops and complete report rewrites must not obstruct the work.
+## Inspection
 
-If an error prevents an audit, record the missed interval honestly and resume the existing recurring loop immediately. Do not claim the missed round ran or create a duplicate observer to hide the gap.
+Inspect a candidate's generating curves, skin and joins in the [viewer](screenshot.md) as soon as the score admits it, following [Visual Debugging](../3d-modeling/visual-debugging.md). Compare it with the existing figure under the same conditions in every affected region and join, including changed inputs. Keep partial work visible and mark what is unverified.
 
 ## Inspection Round
 
@@ -24,7 +29,7 @@ Inspect the affected person and all affected parts under matching camera, light,
    - Click it in `overlay` to find its skin interval `human.skin.<chain>/<k>`.
    - Isolate sections `<chain>/<k>`, `<chain>/<k+1>` and `<chain>/axis` with `isolate=1&fit=selection`.
    - Read their curvature combs in a curve diagram.
-4. Record every finding with its cause, contributing factors and PNG in the [survey](../../../packages/human/docs/survey.md) before the round's combined correction. Numerical continuity alone does not establish a sound human shape.
+4. Record each finding that outlives the round, with its cause, in [Generalization](../../../packages/human/docs/generalization.md) before the round's combined correction.
 
 ## Render Audit
 
@@ -33,4 +38,4 @@ Inspect the affected person and all affected parts under matching camera, light,
 - Save each PNG's exact bytes under `packages/playground/.shots/<round>/`.
 - Check each file's SHA-256 against its `x-human-png-sha256` header.
 - Open every PNG.
-- If a capture fails, stop modeling and repair the viewer and capture path first.
+- If a capture fails, stop visual claims that depend on it and repair the viewer and capture path first.

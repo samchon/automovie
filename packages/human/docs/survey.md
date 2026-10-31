@@ -23,7 +23,7 @@ A region may also carry key-section chains (`IAutoMovieHumanBodyRegion.networks`
 
 - Representation: every chain is a stack of sections in world-height planes, tilted planes for the lower head and the feet. Each section is a periodic cubic B-spline of 16 to 256 control points at a principal layer, with a station slope per coefficient. The calibration has 51 chains, 25 branch events, 27 poles (fingertips, toetips, lobes, rims, pockets, crown) and 4 apertures (two nostrils, two eyes).
 - One section per height carries everything at that height. The middle head's sections hold the cranium, the face and both auricles in one outline from 1543.2 to 1595.5 mm. The helices leave through one ring at 1595.5 mm, and the rims, pockets and lobes are separate chains with layers 0.1 mm apart. The nose and the lips spread over tens of the lower and middle head's layers.
-- Size: about 4.9 MB of TypeScript literals (torso 2.4 MB, head 1.1 MB, basis 0.8 MB, foot 0.5 MB). CI's `packages/human` build spends 22 of 24 minutes type-checking and linting them three times.
+- Size: about 4.9 MB of TypeScript literals (torso 2.4 MB, head 1.1 MB, basis 0.8 MB, foot 0.5 MB). The torso file is mostly the `head` chain; [Generalization](generalization.md#where-the-table-numbers-are) breaks the numbers down. CI's `packages/human` build spends 22 of 24 minutes type-checking and linting them three times.
 - Fit: each layer was fitted to one row of the reference's Recovery/Hermite sections. The reference is a densely triangulated mesh, so rows 0.5 mm apart differ by up to 0.2 mm of facet noise, which the layers keep. Where a row lost the outline (1586.5 to 1597.5 mm on the head, broken by the palpebral apertures) the fitter interpolated without observations.
 
 ## Repair rules

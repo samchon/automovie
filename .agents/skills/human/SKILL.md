@@ -1,70 +1,52 @@
 ---
 name: human
-description: Supervises worker subagents that preserve and improve complete Human figures from recovered curves, observing development in the viewer and fixing full inspection rounds by cause. Use with 3d-modeling for Human geometry, the Human viewer or its renders.
+description: Replaces the fitted Human calibration tables with one reusable construction from anatomical centres, frames and dimensions, proven by whole vertical slices, a CPU score and the viewer. Use with 3d-modeling for Human geometry, the Human viewer or its renders.
 ---
 
 # Human
 
-Start from the existing working human figure and remove overfitting while preserving finite, connected, normal anatomy and stable consumers across the supported parameter domain. Judge both existing code and its replacement from their actual construction and viewer output; the baseline is a comparison, not proof of generality. Follow the user's task order before the campaign's order. An explicit stop overrides every modeling, capture and audit instruction.
+Generate every supported person from parameters by one reusable construction instead of the tables in `packages/human/src/generation/calibration/`. Find the major anatomical centres, draw lofting curves from them and construct each following layer up to the next centre by any anatomically and scientifically sound equation, recurrence or recursion. [Generalization](../../../packages/human/docs/generalization.md) holds the measurements, a candidate construction and the findings to reuse; it is a starting point, and a better construction replaces it. [Campaign #3013](https://github.com/samchon/automovie/issues/3013) owns the tasks. An explicit stop overrides every instruction here.
 
-## Supervision
+## Done When
 
-- Never work as a single agent; as the main agent, only supervise, and do no survey, plan, code, fit or capture yourself.
-- Set each subagent's task, scope, high reasoning effort and memory cap, and how many run at once.
-- Start an actual recurring supervision loop immediately when Human work begins: assign a dedicated observer, audit at once and repeat every 15 minutes until all Human work is complete. Promises to audit later, manual reminders and one-time reports do not satisfy this rule; preparation must never postpone an audit or extend the interval.
-- Give the observer only inspection and feedback duties, with no modeling, capture, server or Git ownership.
-- Follow the [supervision audit](verification.md#supervision-audit) for each fixed round's original evidence, scrutiny of the main agent, interrupted-loop recovery and corrective response. Read every output yourself and retain responsibility for direct review; another agent's report does not replace it.
-- Collect every phenomenon, root cause and contributing factor in the observed scope, then require one combined correction by cause.
-- Keep the supervision loop and all unblocked work running through reports and questions; put progress notes beside the next tool call and continue in the same turn.
-- Tell the user only what you checked.
-- Make every commit yourself.
+- The fitted section tables and the row repairs that exist only because of them are deleted, and ordinary generation runs without them.
+- Every public parameter changes the figure through that construction, including the inputs nothing reads today.
+- f1, f2, m1 and m2 come from that one construction with no person selector, and finite, connected, normal anatomy holds across the supported parameter domain.
 
-| Subagent | Owns | Starts after |
-| --- | --- | --- |
-| Method | the formulas and construction every part shares | nothing |
-| Trunk | trunk base, breast and buttock reliefs, the neck ring | Method |
-| Head | head base and cap, face reliefs, eye openings | Trunk |
-| Hand | palm, digits, digit strips, the wrist key | Method |
-| Arm | arm, arm strip on the trunk | Trunk, Hand |
-| Foot | foot, toes, toe strips, the ankle key | Method |
-| Leg | leg, leg strip on the trunk | Trunk, Foot |
-| Integration | export and render of every part; the viewer, the capture path and compiler and GPU resources | every part; the viewer and capture path at any time |
+## Order
 
-- Have one subagent model both sides of its part.
-- Run independent subagents in parallel.
-- Give each shared key the one owner named above; the other side copies it.
-- Let each subagent write only its own part's files, and change shared formulas and construction only through the Method subagent.
-- Allow subagents no git, issue or pull request operation.
-- Only Integration manages servers. After verifying ownership, it may start, stop or restart task-owned servers as needed without renewed approval or pausing the campaign; preserve protected servers and other owners' services.
+1. Build the [score](verification.md#score) before changing geometry. A render costs about a gigabyte of memory and often returns nothing, so an agent without a cheap numeric check spends its time on transport instead of shape.
+2. Measure the data and choose the construction yourself. Scratch analysis of the tables and meshes is allowed and expected; the choice of equations, representations and tools is yours.
+3. Finish one [vertical slice](#vertical-slices), the leg by default because it is a plain tube with few modes and the smallest difference between people.
+4. Inspect the slice, record what it taught in Generalization, and widen to the next part. The default order is foot, arm, trunk, hand, head; change it when a measurement gives a reason. The head holds 56 percent of the table numbers and the hardest features, so it comes last even though it pays the most.
+5. Replace the Morph basis and the measurement Warp with the construction's own response, then connect the unread inputs.
 
-## Work Order
+Plan only as far as the next slice. An attempt that planned every part in advance wrote 500 KB of plan before any module reached ordinary generation, and the first slice would have changed that plan anyway. When a slice disproves the construction, stop, record why and choose another instead of patching it.
 
-Restore an explicitly authorized working baseline immediately; the survey, plan and proof steps below do not gate that restoration.
+## Vertical Slices
 
-1. Inspect the existing working figure in the actual viewer, then survey its code and observations. Record all relevant defects and overfitting dependencies with their traced causes and contributing factors in [survey.md](../../../packages/human/docs/survey.md).
-2. Write the campaign's plan file under `packages/human/docs/`, mapping every cause to its replacement and the existing connections and consumers it must preserve, and self-review it until a full round finds nothing.
-3. Replace the planned causes in one batch, observing each part during development as [Verification](verification.md) requires. Retire a replaced path only after its replacement preserves the affected shape, joins and ordinary input behavior.
-4. Run a full [inspection round](verification.md#inspection-round) for the affected person and parts, editing nothing.
-5. Immediately stop and reselect a disproven strategy instead of prolonging it with local patches. Record the learned causes and applicability in the existing campaign documents as work proceeds; correct all collected causes in one pass and return to step 4.
+A slice replaces one chain family in ordinary generation and leaves the whole figure working.
 
-Apart from an explicitly authorized baseline restoration, edit `packages/human/src`, a calibration module or a fitter only in steps 3 and 5, and only for a change the plan names. Never change a constant and render to see its effect.
+- Emit the existing `IAutoMovieHumanLoftChain` at runtime under the same chain names, so `AutoMovieHumanBodySurface`, `AutoMovieHumanEventJoin`, skin, appearance and construction keep working unchanged.
+- Keep the layer count of a chain until its Morph rows are replaced, because `AutoMovieHumanBodyLaw.displace` throws when a chain's layer count differs from its basis.
+- Delete the replaced rows in the same change. A slice that adds more source bytes than it deletes is not finished.
+- Build both sides through one canonical construction and a declared reflection, including boundary maps, derivatives and orientation.
 
-## Rules
+A candidate that keeps the source rows and deforms them is not a replacement. One attempt added 780 KB of source that way and retired no table. Changing the section representation early is the same trap: each new representation spread into joins, caps, normals and sampling, so change it only when a slice shows the existing one cannot carry the law.
 
-- Make skin smooth through its generating mathematics; add no smoothing pass, clamp, threshold or exclusion after a fit.
-- Build each anatomical part as an independently deformable module in its own frame under a common body frame, joined to its neighbors by a rule stated in [Surface composition](../../../packages/human/docs/techniques/surface-composition.md).
-- Preserve reusable topology, assembly, rigs, export and working consumers while removing person-specific or observation-layer-specific corrections.
-- Preserve or improve anatomical detail, silhouettes, surface flow and beauty, connections and parameter stability while retaining parameter meanings and module transforms. Curve and layer counts are means and diagnostics: fewer layers with equal or better quality are acceptable, while more layers with worse quality fail. Sparse reconstruction or decimation may serve generalization without sacrificing that quality; forcing anatomy into a predetermined polynomial or primitive family is also overfitting.
-- Construct and expand lofting-curve layers from major anatomical centres, part-local frames, reference directions and dimensions by reusable algorithms. Reuse the existing skin-joining extension algorithm; choose polynomials or other representations to suit the problem.
-- Treat existing shared skin connections as reusable; concentrate on replacing fitted shape authority rather than restarting their construction or generality proof.
-- Keep common mathematics in the shared math modules under Method ownership. Use one common construction and a declared reflection for symmetric sides, including the boundary maps, derivatives and orientation.
-- Keep working full skin and the normal generation path available; replacing them with empty or unavailable output is a regression.
-- Use numerical geometry, needed derivatives, and sampling and rendering of the generated surface mesh. Require only the accuracy, reproducibility and invariants the task needs; completed proofs are not prerequisites for previews.
-- Use reference meshes and normals as observations, not as the generated anatomy; use no person-indexed table or arbitrary coordinate correction.
-- Treat differences from Recovery or pre-PR centre and curve coordinates as diagnostics. Smoother curves are allowed when anatomy, parameter meanings and connections remain sound; exact coordinate reproduction and person-specific error corrections are not the goal.
+## Boundaries
+
+- Reduce independent numbers, never curves. Keep generated curve and section density at or above the current figure; the construction evaluates as many curves as the surface needs. Sparse keys and fixed low control counts lost anatomy each time they were tried.
+- Keep a small shape prior when the anatomy needs it: named constants in normalized part coordinates, shared by every person. A table per person, per row or per side is not allowed, and moving or compressing a table is not replacing it.
+- Treat every difference from a reference or from master as evidence, never as a target. A large held-out error can reject a law; correcting a coefficient to shrink it is overfitting. Smoother and better curves than master are welcome.
+- Make skin smooth through its generating mathematics, with no smoothing pass, clamp, threshold or exclusion after construction.
+- Build each anatomical part as an independently deformable module in its own frame under a common body frame, joined to its neighbours by a rule in [Surface composition](../../../packages/human/docs/techniques/surface-composition.md). Reuse the existing skin-joining extension.
+- Keep full skin, the normal generation path, rigs, export and other consumers working at every commit. Replacing them with empty or unavailable output is a regression.
 - Leave genitals and nipples out of the modelled skin.
-- Use the saved Recovery/Hermite curves as observations for reusable construction rules and judge appearance against the original [photographs](screenshot.md#references).
-- Never treat a ruled reverse-render artifact as an anatomical target.
+- Use meshes and saved Recovery/Hermite curves as observations for rules, judge appearance against the original [photographs](screenshot.md#references), and never treat a ruled reverse-render artifact as an anatomical target.
 - Claim no common law or prediction for other people from f1 reproduction alone.
-- Write and run no Human or Human-viewer tests except pure-logic unit tests for the facade controller; never hardcode tests to match specific coordinates or output snapshots.
-- Acquire further references, without asking, by the [reference-experiments README](../../../test/src/executable/reference-experiments/README.md).
+- Write and run no Human or Human-viewer tests except pure-logic unit tests for the facade controller, and never hardcode a test to specific coordinates or output snapshots. The score is a local executable, not a test.
+- Acquire further references without asking, by the [reference-experiments README](../../../test/src/executable/reference-experiments/README.md). Generalization says which references help.
+- Call the references f1, f2, m1 and m2, or the reference source. The user does not want the generator behind them named in any file, issue, commit or pull request.
+- Run no `git clean -x` or `git stash --all` here, and compare a branch's added paths with the disk before switching to it. `test/.shots`, `test/src/executable` and `.shots` are ignored and unrecoverable, and a checkout can overwrite an ignored file without warning.
+- Tell the user only what you checked.

@@ -7,6 +7,7 @@ These notes hold literature, mathematical derivations and bounded reference obse
 | Need | Notes |
 | --- | --- |
 | Current code, data, observations and open defects | [Survey](survey.md) |
+| Measurements, candidate construction and disproven strategies for replacing the tables | [Generalization](generalization.md) |
 | Measured findings of the fitting and measurement programs | [Experiment findings](experiments.md) |
 | Generator design | [Section-chain lofting](techniques/section-chain-lofting.md) |
 | Measurement definitions, populations, licences and reading limits | [Literature source index](sources/README.md) |
@@ -43,4 +44,4 @@ Source identities, private paths, class names, fitted numbers and inspection res
 
 ## Ownership
 
-This directory owns durable research knowledge, and [survey.md](survey.md) holds step 1 of the Human skill's [work order](../../../.agents/skills/human/SKILL.md#work-order). The [Human skill](../../../.agents/skills/human/SKILL.md) owns work rules, [verification](../../../.agents/skills/human/verification.md) owns inspection and reporting, and [screenshots](../../../.agents/skills/human/screenshot.md) owns the viewer and PNG interface. [Campaign #2999](https://github.com/samchon/automovie/issues/2999) owns implementation tasks. Research observations do not override those contracts or establish specimen reproduction, parameter response or unseen-shape prediction.
+This directory owns durable research knowledge. The [Human skill](../../../.agents/skills/human/SKILL.md) owns work rules, [verification](../../../.agents/skills/human/verification.md) owns the score and inspection, and [screenshots](../../../.agents/skills/human/screenshot.md) owns the viewer and PNG interface. Open Human issues own implementation tasks. Research observations do not override those contracts or establish specimen reproduction, parameter response or unseen-shape prediction.
