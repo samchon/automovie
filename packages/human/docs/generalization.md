@@ -28,14 +28,33 @@ Distance between f1 and each other person on the same vertices, normalized by st
 
 | Part | Stature only | Per-section centre and in-plane affine | With low harmonics |
 | --- | --- | --- | --- |
-| Leg | 2.4 to 4.6 | 0.8 to 1.2 | 0.37 to 0.56 |
-| Head | 3.0 to 4.5 | 1.6 to 2.3 | 1.1 to 1.5 |
-| Arm | 2.7 to 8.0 | 0.9 to 2.4 | 0.7 to 2.1 |
-| Trunk | 6.3 to 20.5 | 2.5 to 5.9 | 1.5 to 3.0 |
+| Leg | 2.8 to 4.8 | 1.0 to 2.1 | 0.38 to 0.56 |
+| Head | 2.7 to 8.4 | 1.6 to 2.8 | 0.51 to 0.75 |
+| Arm | 3.3 to 9.8 | 0.8 to 1.8 | 0.28 to 0.72 |
+| Trunk | 6.0 to 19.9 | 2.7 to 4.8 | 0.87 to 1.5 |
 
-The stature column also removes each part's mean offset. Harmonics reach order 3 on limbs, 4 on the trunk and 6 on the head. Interpolating the section law between 12 evenly spaced anchors worsened vertex-distance RMS by at most 14 percent against fitting every section, so sparse dimensions can drive dense sections.
+The score recomputed this table with every vertex labelled by the nearest f1 chain and sections of about 100 to 150 vertices. The stature column also removes each part's mean offset. Harmonics reach order 3 on limbs, 4 on the trunk and 6 on the head. Interpolating the section law between 12 evenly spaced anchors worsened vertex-distance RMS by at most 14 percent against fitting every section, so sparse dimensions can drive dense sections.
 
-These are in-sample fits on a rough geometric part split, with coefficients fitted per person rather than predicted from public parameters. Hands, feet and ears were not compared. Four people from one source cannot separate human anatomy from that source's own low-rank deformation.
+These are in-sample fits with coefficients fitted per person rather than predicted from public parameters, and the harmonic column depends on how many vertices a section holds. Hands, feet and ears were not compared. Four people from one source cannot separate human anatomy from that source's own low-rank deformation.
+
+## Score baseline
+
+The figure before any slice, from the [score](../../../.agents/skills/human/verification.md#score). RMS in millimetres along the reference normal, on the figure as generated. The Morph basis was refitted without the held-out person; f1 cannot be held out, because the tables are f1. The stature laws scale f1, or the mean of the other people, to the person's height.
+
+| Part | f2 held out | m1 held out | m2 held out | Best stature law, f2, m1, m2 |
+| --- | --- | --- | --- | --- |
+| Leg | 6.6 | 8.9 | 8.5 | 4.6, 5.4, 4.8 |
+| Foot | 3.9 | 4.5 | 5.8 | 2.7, 5.1, 5.4 |
+| Arm | 6.9 | 11.1 | 33.4 | 9.0, 11.4, 16.2 |
+| Hand | 6.8 | 30.0 | 44.6 | 10.3, 13.0, 19.9 |
+| Trunk | 8.7 | 11.0 | 13.1 | 9.4, 9.5, 16.9 |
+| Neck | 10.0 | 16.0 | 6.8 | 7.1, 8.2, 20.8 |
+| Head | 5.4 | 11.4 | 9.4 | 4.1, 5.6, 9.3 |
+| Ear | 11.8 | 22.0 | 21.7 | 5.5, 5.7, 11.1 |
+
+The current law loses to height alone in 16 of these 24 cells, so the bar a candidate must clear is low; beating it does not prove the candidate good. On f1 in sample the figure sits 0.2 to 0.6 mm from its reference.
+
+Across 151 points of the declared domain, no point produced a non-finite value or a collapsed section. Five masculine points fold the head and ears, and two tall extremes add open mesh edges. 40 of 69 public scalars move nothing, and 7 of those that do reach under 0.7 of the requested change at an end of their range: chest, underbust, waist, high hip, neck base, elbow and knee. The domain bounds live in the score and become the stated domain at the end of the campaign.
 
 ## Candidate construction
 
