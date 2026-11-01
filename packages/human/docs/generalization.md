@@ -164,6 +164,38 @@ The issue's bar of beating stature in every part is not met, and the owner has r
 
 Response of the score's definitions to a control pushed alone to each end, gain 1 being exact: height 1.00, hip 1.04, chest 1.18, inseam and the foot's dimensions about 1, upper and lower arm about 1.25. Weak: neck 0.15, wrist 0.30, thigh 0.25, elbow 0.54, hand circumference 0.19, high hip 0.19, underbust 0.09, and the head's widths 0.15 to 0.46. High hip and underbust read at the body's own extremum stations, where a lone tape does not reach, and the trunk closes them at their own stations. Of 69 controls only the two palpebral heights move no skin: they move the lid's opening. Over 151 points no value went non-finite and no section collapsed, while 56 points showed more crossed sections or folds than the centre, nearly all on the ear lobe, the helix and the neck.
 
+### Achieved measurements
+
+Error of the score's definitions against each person's input, percent, for the generated figure and the fitted tables before it. The definitions are conventions on a surface, so a large shared offset is a definition's, not a figure's: both figures read neck base about 100 percent over and upper arm length about 55 percent under.
+
+| Measure | Generated, f1 f2 m1 m2 | Tables, f1 f2 m1 m2 |
+| --- | --- | --- |
+| Height | 0 0 0 0 | 0.2 0.2 0.2 0.2 |
+| Foot length | 0 0 -0.2 -0.2 | 37.9 31.8 41.6 42.7 |
+| Foot breadth | -0.6 -0.6 -0.6 -0.6 | -0.7 -4.8 2.6 0.4 |
+| Ankle height | 0 0 0 0 | 2.2 -2.8 -5.9 -3.0 |
+| Chest | 4.0 3.5 -11.2 -15.2 | 0.3 1.0 -8.1 -11.5 |
+| Underbust | 6.0 9.8 -5.3 -9.4 | 2.3 3.0 -2.7 -6.3 |
+| Waist | -2.7 -1.6 1.0 0.3 | 1.0 1.2 3.6 3.2 |
+| High hip | 9.5 7.9 1.5 1.9 | 10.2 10.2 11.6 10.1 |
+| Hip | 4.7 4.3 1.2 1.2 | 4.4 4.6 7.3 7.1 |
+| Thigh | 21.7 21.8 11.6 19.4 | 9.2 9.6 10.9 13.6 |
+| Knee | -0.1 -0.3 0 -0.5 | -0.9 -0.7 1.5 1.2 |
+| Calf | 2.1 2.1 2.4 2.1 | 1.6 2.0 4.1 4.0 |
+| Biceps | 7.1 4.1 5.0 5.3 | 12.9 13.2 15.7 15.2 |
+| Elbow | 17.0 16.6 18.7 19.7 | 23.6 23.7 26.6 26.1 |
+| Forearm | 20.7 21.0 21.1 21.5 | 32.9 33.5 37.3 36.8 |
+| Wrist | 47.8 45.9 35.2 40.9 | 53.5 53.9 55.2 54.8 |
+| Hand circumference | 28.2 28.3 16.9 17.8 | 23.3 23.6 26.5 26.0 |
+| Inseam | 8.4 8.8 10.3 10.3 | 8.1 7.0 8.3 8.1 |
+| Lower arm length | -2.9 -15.3 3.7 -0.1 | 8.7 7.0 11.6 11.0 |
+| Head length | 8.8 6.8 9.0 7.8 | 8.1 8.4 11.2 10.5 |
+| Face height | 44.4 40.4 63.3 58.4 | 53.1 50.2 58.4 57.4 |
+| Face width | 17.5 11.6 15.0 17.2 | 16.7 17.2 19.4 17.6 |
+| Mandibular width | -6.8 -10.3 19.9 30.9 | 2.4 1.3 10.1 23.3 |
+
+The generated figure reads closer on most rows. It reads further on the thigh, the chest and underbust and the male jaw. The thigh's top rings belong to the crotch ring, which follows the hip, so a thigh tape reaches them only through the hip. These stand as evidence, not as targets.
+
 ### Supported domain
 
 | Input | Range, mm unless noted |
