@@ -210,6 +210,10 @@ Tapes move together, as a body's do. Each curve test person is a whole person at
 
 A tape is what it says on the trunk, through a shared scale of width and depth. The ratio of hull to tape is 0.98 to 1.03 across the domain, so tapes are hull girths. Girth responses that remain weak, by score gain, are the thigh, elbow, wrist, neck, hand circumference and the head's widths; the trunk's were read before the closure and need rereading.
 
+## Open: the nose's base
+
+A zigzag runs along the wing of the nose, in clay as well as in appearance. Two candidates failed. Doubling `head.lower`'s ring order left it unchanged at 13 MB of page. Shallowing the nostril's shade field, which reaches 8.8 mm behind a cut that is 2 mm deep, left it too and broke the nostril into black fragments, since the cavity material moves whole triangles. So neither ring resolution nor the cavity split is the cause. The wing is a radial relief over a section cut at each height, and it overhangs the sill, so the next thing to test is whether that section stops being a function of its angle there. If so, the nose's base needs a surface of its own, as the ear has.
+
 ## Rig
 
 `AutoMovieHumanRig` gives the model a humanoid skeleton and every part a binding, and a pose moves the prepared skin without generating it again. A vertex's weights depend on its place alone, because a seam holds copies of one point in separately tessellated parts, and a binding read from the part would open that seam under any pose. Joints the shared vocabulary lacks fold into the bone that carries them: the toes are two grouped channels, so one toe cannot move alone.
