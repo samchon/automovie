@@ -321,7 +321,7 @@ function distance(p: Vector, a: Vector, b: Vector): number {
  * elbow's inside on the same pose; this keeps their volume, at the price of a
  * slight corner outside a deep bend.
  */
-const BLEND: "dual-quaternion" = "dual-quaternion";
+const BLEND = "dual-quaternion" as const;
 
 /** Steps of a weight. */
 const STEPS: number = 1000;
