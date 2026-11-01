@@ -7,9 +7,11 @@ import { AutoMovieHumanCornerSmoothing } from "./AutoMovieHumanCornerSmoothing";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
+import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
 import { AutoMovieHumanLipSmoothing } from "./AutoMovieHumanLipSmoothing";
 import { AutoMovieHumanSectionLoops } from "./AutoMovieHumanSectionLoops";
 import { AutoMovieHumanStationContinuity } from "./AutoMovieHumanStationContinuity";
+import { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyRegion } from "./IAutoMovieHumanBodyRegion";
@@ -99,15 +101,41 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
       forearm: controls.forearm!,
       wrist: controls.wrist!,
       circumference: controls.handCircumference!,
+      sex: controls.masculineFeminine!,
       left: hand,
       right: hand,
       scale: 1,
     };
+    const column: AutoMovieHumanTrunkConstruction.IInputs = {
+      hip: controls.hip!,
+      highHip: controls.highHip!,
+      waist: controls.waist!,
+      underbust: controls.underbust!,
+      chest: controls.chest!,
+      bustSpan: controls.bustSpan!,
+      neckBase: controls.neckBase!,
+      acrossShoulder: controls.acrossShoulder!,
+      bicep: controls.bicep!,
+      sex: controls.masculineFeminine!,
+      scale: 1,
+    };
+    const crotch: AutoMovieHumanLegPrior.ICrotch =
+      AutoMovieHumanLegPrior.PRIOR.crotch;
+    const floor: number =
+      crotch.offset +
+      crotch.height * controls.height! +
+      crotch.inseam * controls.inseam! +
+      crotch.thigh * controls.thigh! +
+      crotch.sex * controls.masculineFeminine!;
     const merged: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanLegConstruction.add(
         AutoMovieHumanFootConstruction.add(
           AutoMovieHumanArmConstruction.add(
-            AutoMovieHumanBodyRegions.merge(regions),
+            AutoMovieHumanTrunkConstruction.apply(
+              AutoMovieHumanBodyRegions.merge(regions),
+              column,
+              floor,
+            ),
             arms,
           ),
           feet,
@@ -141,13 +169,17 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
         AutoMovieHumanLegConstruction.stand(
           AutoMovieHumanFootConstruction.apply(
             AutoMovieHumanArmConstruction.apply(
-              {
-                ...repaired,
-                chains: repaired.chains.map(
-                  (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
-                    generated.get(c.name) ?? c,
-                ),
-              },
+              AutoMovieHumanTrunkConstruction.apply(
+                {
+                  ...repaired,
+                  chains: repaired.chains.map(
+                    (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
+                      generated.get(c.name) ?? c,
+                  ),
+                },
+                column,
+                floor,
+              ),
               arms,
             ),
             feet,

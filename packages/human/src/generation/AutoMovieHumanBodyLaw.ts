@@ -12,6 +12,7 @@ import { AutoMovieHumanBodyWarpField } from "./AutoMovieHumanBodyWarpField";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
+import { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyMorph } from "./IAutoMovieHumanBodyMorph";
@@ -122,8 +123,14 @@ export namespace AutoMovieHumanBodyLaw {
           AutoMovieHumanLegConstruction.stand(
             AutoMovieHumanFootConstruction.apply(
               AutoMovieHumanArmConstruction.apply(
-                warped.body,
-                arms(params, inputs.scale),
+                AutoMovieHumanTrunkConstruction.apply(
+                  warped.body,
+                  column(params, inputs),
+                  warped.body.chains.find(
+                    (c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk",
+                  )!.layers[0]!.y,
+                ),
+                arms(params, inputs.scale, inputs.sex),
               ),
               feet(params, inputs),
             ),
@@ -221,6 +228,44 @@ function feet(
   };
 }
 
+/** The person's trunk tapes in calibration millimetres. */
+function column(
+  params: IAutoMovieHumanParameters,
+  inputs: AutoMovieHumanLegConstruction.IInputs,
+): AutoMovieHumanTrunkConstruction.IInputs {
+  const tape = (
+    name:
+      | "highHip"
+      | "waist"
+      | "underbust"
+      | "chest"
+      | "bustSpan"
+      | "neckBase"
+      | "acrossShoulder"
+      | "bicep",
+  ): number => {
+    const value: number | null = params.body.controls[name].value;
+    return (
+      (value === null
+        ? AutoMovieHumanBodySpecimenCalibration.controls[name]!
+        : value) * inputs.scale
+    );
+  };
+  return {
+    hip: inputs.hip,
+    highHip: tape("highHip"),
+    waist: tape("waist"),
+    underbust: tape("underbust"),
+    chest: tape("chest"),
+    bustSpan: tape("bustSpan"),
+    neckBase: tape("neckBase"),
+    acrossShoulder: tape("acrossShoulder"),
+    bicep: tape("bicep"),
+    sex: inputs.sex,
+    scale: inputs.scale,
+  };
+}
+
 /**
  * The person's arm lengths, tapes and hand measures in calibration
  * millimetres. A side without measures takes what the body expects.
@@ -228,6 +273,7 @@ function feet(
 function arms(
   params: IAutoMovieHumanParameters,
   scale: number,
+  sex: number,
 ): AutoMovieHumanArmConstruction.IInputs {
   const tape = (
     name:
@@ -275,6 +321,7 @@ function arms(
     forearm: tape("forearm"),
     wrist: tape("wrist"),
     circumference: tape("handCircumference"),
+    sex,
     left: side(params.extremities?.hands?.left),
     right: side(params.extremities?.hands?.right),
     scale,
@@ -305,6 +352,8 @@ function displace(
     chains: base.chains.map(
       (chain: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain => {
         if (
+          chain.name === "trunk" ||
+          chain.name === "upper" ||
           chain.name.startsWith("leg.") ||
           AutoMovieHumanFootConstruction.owns(chain.name) ||
           AutoMovieHumanArmConstruction.owns(chain.name)

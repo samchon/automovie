@@ -60,6 +60,14 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * to zero over the last 6 mm of arc before each pinch phase, and points
  * farther than 0.5 mm from the parent ring or where `|N . m| < 0.3` (the
  * plane almost tangent to the parent) are left as fitted.
+ *
+ * An end slope acts across the child's whole last interval, a cubic Hermite
+ * span. A slope m past the span's secant over a span h stands `4/27 m h` off the
+ * chord, so a long span turning sharply to reach the parent's tangent trades a
+ * crease across the seam for a lump beside it. At the crotch, where the trunk
+ * opens at 60 degrees from a thigh that arrives upright, that lump stood 7 mm
+ * off the thigh. The change therefore stops at {@link BULGE}; a short span may
+ * turn as sharply as its parent asks.
  */
 export namespace AutoMovieHumanEventJoin {
   /**
@@ -117,6 +125,9 @@ const REACH: number = 4;
 
 /** Largest end-ring gap closed, mm; a farther point is not on the parent. */
 const SNAP: number = 3;
+
+/** Largest lump an end slope may raise off its span's chord, mm. */
+const BULGE: number = 4;
 
 /** Child chain moved onto the parent's ring and re-sloped. */
 function join(
@@ -348,6 +359,15 @@ function slope(
   const c: number[] = AutoMovieHumanLoftChain.coefficients(child, sc);
   const h: number = 0.02;
   const inward: number = direction === "down" ? -1 : 1;
+  const previous: number = child.layers[k + inward]!.y;
+  const inner: Vec3[] = AutoMovieHumanLoftChain.ring(
+    child,
+    previous,
+    Array.from(
+      { length: Q },
+      (_: unknown, i: number): number => (2 * Math.PI * i) / Q,
+    ),
+  );
   const samples: [number, number][] = [];
   for (let i: number = 0; i < Q; i++) {
     const t: number = (2 * Math.PI * i) / Q;
@@ -389,7 +409,18 @@ function slope(
 
     // Child slopes are per unit station in the child's own direction; the
     // two derivatives above both point away from the parent.
-    const alpha: number = (w * dot(N3, sub(Dp, Dc))) / nm;
+    const own: number = dot(Dc, m);
+    const span: number = Math.abs(previous - sc);
+    const secant: number = dot(sub(inner[i]!, p), m) / span;
+    const turn: number = Math.max(
+      (27 * BULGE) / (4 * span),
+      Math.abs(own - secant),
+    );
+    const alpha: number =
+      Math.max(
+        secant - turn,
+        Math.min(secant + turn, own + (w * dot(N3, sub(Dp, Dc))) / nm),
+      ) - own;
     const delta: Vec3 = scale(m, inward * alpha);
     samples.push([dot(delta, f.u), dot(delta, f.v)]);
   }

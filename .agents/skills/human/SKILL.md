@@ -15,7 +15,7 @@ Generate every supported person from parameters by one reusable construction ins
 
 ## Order
 
-1. Build the [score](verification.md#score) before changing geometry. A render costs about a gigabyte of memory and often returns nothing, so an agent without a cheap numeric check spends its time on transport instead of shape.
+1. Build the [score](verification.md#score) before changing geometry, and pass the [unit tests](verification.md#unit-tests) before rendering. A render costs about a gigabyte of memory and often returns nothing, so an agent without a cheap numeric check spends its time on transport instead of shape.
 2. Measure the data and choose the construction yourself. Scratch analysis of the tables and meshes is allowed and expected; the choice of equations, representations and tools is yours.
 3. Finish one [vertical slice](#vertical-slices), the leg by default because it is a plain tube with few modes and the smallest difference between people.
 4. Inspect the slice, record what it taught in Generalization, and widen to the next part. The default order is foot, arm, trunk, hand, head; change it when a measurement gives a reason. The head holds 56 percent of the table numbers and the hardest features, so it comes last even though it pays the most.
@@ -45,7 +45,7 @@ A candidate that keeps the source rows and deforms them is not a replacement. On
 - Leave genitals and nipples out of the modelled skin.
 - Use meshes and saved Recovery/Hermite curves as observations for rules, judge appearance against the original [photographs](screenshot.md#references), and never treat a ruled reverse-render artifact as an anatomical target. Recovery's ruled striping and cracks are accepted reference error that will not be fixed, so allow for them and construct better skin on your own instead of following them.
 - Claim no common law or prediction for other people from f1 reproduction alone.
-- Write and run no Human or Human-viewer tests except pure-logic unit tests for the facade controller, and never hardcode a test to specific coordinates or output snapshots. The score is a local executable, not a test.
+- Check Human logic and mathematics only through unit tests, written when needed and run alone by `pnpm test --include <name>`, with no one-off numeric scripts beside them. A Human test [audits everything before it fails](verification.md#unit-tests), so one run gives the whole worklist. Hardcode no test to specific coordinates or output snapshots apart from the curve audit's coarse slice bound. Write no test for the viewer. The score is a local executable, not a test.
 - Acquire further references without asking, by the [reference-experiments README](../../../test/src/executable/reference-experiments/README.md). Generalization says which references help.
 - Call the references f1, f2, m1 and m2, or the reference source. The user does not want the generator behind them named in any file, issue, commit or pull request.
 - Run no `git clean -x` or `git stash --all` here, and compare a branch's added paths with the disk before switching to it. `test/.shots`, `test/src/executable` and `.shots` are ignored and unrecoverable, and a checkout can overwrite an ignored file without warning.

@@ -30,13 +30,19 @@ export namespace AutoMovieHumanHorizontalChain {
    *
    * @param shape Name and section size.
    * @param rings Per layer from the bottom, one `[x, y, z]` per control point.
+   * @param beyond Ring past the top, when the surface runs on into the next
+   *   chain: the top layer's slope then reads both sides, as the next chain's
+   *   own does, and no layer stands for it.
    */
   export function build(
     shape: IShape,
     rings: readonly (readonly (readonly [number, number, number])[])[],
+    beyond?: readonly (readonly [number, number, number])[],
   ): IAutoMovieHumanLoftChain {
+    const all: readonly (readonly (readonly [number, number, number])[])[] =
+      beyond === undefined ? rings : [...rings, beyond];
     let last: number = -Infinity;
-    const heights: number[] = rings.map(
+    const heights: number[] = all.map(
       (ring: readonly (readonly [number, number, number])[]): number => {
         const y: number = Math.max(
           ring.reduce(
@@ -50,7 +56,7 @@ export namespace AutoMovieHumanHorizontalChain {
         return y;
       },
     );
-    const controls = rings.map(
+    const controls = all.map(
       (
         ring: readonly (readonly [number, number, number])[],
         k: number,
@@ -76,7 +82,7 @@ export namespace AutoMovieHumanHorizontalChain {
     return {
       ...shape,
       basis: "spline",
-      layers: heights.map(
+      layers: heights.slice(0, rings.length).map(
         (y: number, k: number): IAutoMovieHumanLoftChain.ILayer => ({
           y,
           coefficients: controls[k]!.coefficients,

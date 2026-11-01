@@ -34,9 +34,7 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  *   repair a generated section.
  *
  * The prior's shape at an end differs from the neighbour's ring, so that
- * difference fades into the leg from each end instead of creasing it. At the
- * crotch it fades in on the outer half only, because the inner half meets the
- * midline, where the last interval closes the gap between the thighs.
+ * difference fades into the leg from each end instead of creasing it.
  *
  * Reflection reverses polar phase: the right leg's radius at phase t is the
  * canonical radius at -t, with its centre's lateral coordinate negated. The
@@ -224,6 +222,16 @@ export namespace AutoMovieHumanLegConstruction {
     const last: IAutoMovieHumanLoftChain.ILayer = layers[layers.length - 1]!;
     const top: number[] = project(family.crotch, sign, family.crotchCentre);
     const reach: number = stations[interior]! - last.y;
+
+    // The last interior layer sees the ring above it, or the last interval
+    // starts with a corner.
+    const lower: IAutoMovieHumanLoftChain.ILayer = layers[layers.length - 2]!;
+    const below: number = last.y - lower.y;
+    last.slopes = last.coefficients.map(
+      (v: number, i: number): number =>
+        (((top[i]! - v) / reach) * below + ((v - lower.coefficients[i]!) / below) * reach) /
+        (below + reach),
+    );
     layers.push({
       y: stations[interior]!,
       coefficients: top,
@@ -381,12 +389,15 @@ export namespace AutoMovieHumanLegConstruction {
         start.radii[j]!,
     );
     const end: IBare = bare(family, LAST_INTERIOR);
+
+    // The crotch ring is read about the law's own last centre: read about its
+    // own, a phase would slide round the outline over the last interval.
+    family.crotchCentre = end.centre;
+    family.crotchLift = liftOf(crotch, end.centre, crotchWorld, bottom + length, sign);
     family.crotchResidual = PHASES.map(
       (t: number, j: number): number =>
-        (AutoMovieHumanPolarSection.radius(crotch, end.centre, t) -
-          end.radii[j]!) *
-        (1 + Math.sin(t)) *
-        0.5,
+        AutoMovieHumanPolarSection.radius(crotch, end.centre, t) -
+        end.radii[j]!,
     );
     return family;
   }

@@ -25,8 +25,8 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * each one is the horizontal cut of that tube, found per phase. The shoulder
  * ring's difference from the tube fades in over the top of the arm.
  *
- * The hand's heel keeps its sections, sized by the hand tape, because the
- * thumb and palm leave it; the tube blends into them past the wrist.
+ * The hand's heel, where the thumb and palm leave the arm, follows the hand's
+ * own map; the tube blends into it past the wrist.
  *
  * The hand is the population's hand from the wrist, in axes along it, across
  * it and through it. Along it the palm and the fingers scale apart with a
@@ -75,6 +75,9 @@ export namespace AutoMovieHumanArmConstruction {
 
     /** Hand tape. */
     circumference: number;
+
+    /** Masculine-feminine control. */
+    sex: number;
 
 
     /** Left hand. */
@@ -238,7 +241,7 @@ export namespace AutoMovieHumanArmConstruction {
   }
 
   /** Walk the bones and build the tube. */
-  function arm(ring: IRing, inputs: IInputs): IArm {
+  function arm(ring: IRing, inputs: IInputs, hand: IHand): IArm {
     const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
     if (
       !(inputs.upper > 0) ||
@@ -250,10 +253,10 @@ export namespace AutoMovieHumanArmConstruction {
     )
       throw new Error("An arm needs positive lengths and tapes");
     const upper: number =
-      prior.upperLength[0]! * inputs.scale +
+      (prior.upperLength[0]! + prior.upperLength[2]! * inputs.sex) * inputs.scale +
       prior.upperLength[1]! * inputs.upper;
     const lower: number =
-      prior.lowerLength[0]! * inputs.scale +
+      (prior.lowerLength[0]! + prior.lowerLength[2]! * inputs.sex) * inputs.scale +
       prior.lowerLength[1]! * inputs.lower;
     const total: number = upper + lower;
     const soft: number = prior.softness * inputs.scale;
@@ -371,23 +374,29 @@ export namespace AutoMovieHumanArmConstruction {
       wrist[1] + prior.heights[k]! * (top - wrist[1]);
     const angle = (t: number): number => prior.phase + prior.sense * t;
 
-    // Size of the hand's heel, which keeps its own sections.
+    // The heel of the hand follows the hand's own map, so the arm and the palm
+    // meet whatever the hand's measures.
     const unit: number = (inputs.circumference * prior.heelUnit) / (2 * Math.PI);
+    const origin: Vec3 = [
+      wrist[0] + unit * prior.heelOffset[0]!,
+      wrist[1] + unit * prior.heelOffset[1]!,
+      wrist[2] + unit * prior.heelOffset[2]!,
+    ];
     const field: AutoMovieHumanSectionField.ICompiled =
-      AutoMovieHumanSectionField.compile(prior);
-    const heel = (k: number, t: number): Vec3 => {
-      const q: Vec3 = AutoMovieHumanSectionField.point(
-        AutoMovieHumanSectionField.section(field, k),
-        field.width,
-        t,
+      AutoMovieHumanSectionField.compile(AutoMovieHumanArmPrior.PRIOR.hand.heel);
+    const heel = (k: number, t: number): Vec3 =>
+      handPoint(
+        AutoMovieHumanSectionField.point(
+          AutoMovieHumanSectionField.section(field, k),
+          field.width,
+          t,
+        ),
+        hand,
+        inputs.circumference,
+        inputs.scale,
+        origin,
+        null,
       );
-      const o: readonly number[] = prior.heelOffset[k]!;
-      return [
-        wrist[0] + unit * (o[0]! + q[0]),
-        wrist[1] + unit * (o[1]! + q[1]),
-        wrist[2] + unit * (o[2]! + q[2]),
-      ];
-    };
     const tube = (k: number, t: number): Vec3 => {
       const y: number = height(k);
       const p: Vec3 = cut(y, angle(t));
@@ -407,13 +416,9 @@ export namespace AutoMovieHumanArmConstruction {
         p[2] + w * gap * Math.sin(d),
       ];
     };
-    const place: number = prior.heelOffset.length - 1;
+    const place: number = prior.heel - 1;
     return {
-      wrist: [
-        wrist[0] + unit * prior.heelOffset[0]![0]!,
-        wrist[1] + unit * prior.heelOffset[0]![1]!,
-        wrist[2] + unit * prior.heelOffset[0]![2]!,
-      ],
+      wrist: origin,
       point: (k: number, t: number): Vec3 => {
         if (k < place - 2) return heel(k, t);
         const p: Vec3 = tube(k, t);
@@ -534,8 +539,8 @@ export namespace AutoMovieHumanArmConstruction {
     return (["left", "right"] as const).flatMap(
       (side: "left" | "right"): IAutoMovieHumanLoftChain[] => {
         const sign: 1 | -1 = side === "left" ? 1 : -1;
-        const law: IArm = arm(shoulder(calibration, side, sign), inputs);
         const hand: IHand = inputs[side];
+        const law: IArm = arm(shoulder(calibration, side, sign), inputs, hand);
         const armChain: IAutoMovieHumanLoftChain = build(
           {
             name: `arm.${side}`,
@@ -590,7 +595,11 @@ export namespace AutoMovieHumanArmConstruction {
     return (["left", "right"] as const).flatMap(
       (side: "left" | "right"): IAutoMovieHumanBodyCalibration.IPole[] => {
         const sign: 1 | -1 = side === "left" ? 1 : -1;
-        const law: IArm = arm(shoulder(calibration, side, sign), inputs);
+        const law: IArm = arm(
+          shoulder(calibration, side, sign),
+          inputs,
+          inputs[side],
+        );
         return prior.hand.poles.map(
           (
             p: AutoMovieHumanArmPrior.IPole,

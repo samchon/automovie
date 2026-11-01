@@ -122,6 +122,27 @@ Foot length, breadth and ankle height reach gains of 0.99 to 1.00 at both ends. 
 - Rings bound to a shared mesh carry to any person without cutting. Bindings must be saved while the table still exists, because they need the table to be made.
 - A square O(N^2) projection per section costs more than the whole foot field. A smooth field needs only the inverse of the knot filter, which is O(N).
 
+## Trunk slice
+
+The trunk and shoulders now come from one column in `AutoMovieHumanTrunkConstruction`: a closed-form section whose measures run from the crotch to the neck, with the arm's root as an ellipse joined across the shoulders. The prior is 9 KB, and the arms walk along two bones in `AutoMovieHumanArmConstruction`.
+
+What the viewer taught, each from a figure that passed every curve rule at the time:
+
+- A rule limit set just above the old figure's worst value licenses everything below it, and the worst values sit at the armpit and crotch. A band and a step across the chest passed at once. They needed a rule of their own: `ridge`, the median curvature round a ring. It reached 14.5 at the armpit joint on f1 and fell as the cause went.
+- Start a settle above the shared ring, not at it. Pulling the column toward the neck from the armpit up cost 25 mm of chest depth at 1344 mm and put a ridge on the joint.
+- Keep a layer's height when a ring settles. Pulling the height too bunched the last layers to 1.3 mm, and an end slope then had to turn inside that span.
+- Do not carry a neighbour's tangent into a ring by a local bump. It printed a collar round the neck.
+- An ellipse measured from an arc does not reach the torso. Keep its outer edge and run the inner edge into the torso, or the two stop crossing and the whole shoulder is lost.
+- A shoulder's ring is convex. A deltopectoral valley running to the top of the shoulder read as a sleeve seam.
+- Depth does not follow the tapes one to one. Measured over 67 people, width follows the tapes at about 0.8, and front depth from about 0.6 at the waist to 0.1 near the neck.
+- Closing a girth through depth alone failed twice, in the first attempt on a wrong tape-to-ring ratio and in the second with ratios measured. Girth is insensitive to depth, so a 4 percent disagreement between a tape and a ring becomes 10 percent of depth. The chest stood 18 mm proud.
+- Carry the front and back as places, not depths from the widest point. That point wandered by 50 mm between layers, its depths cancelled it exactly, and smoothing one side printed the wander as stripes at the same heights on every person.
+- A fitted station table can hide a slow step. `control()` read one JSON file per call, which took a fit past 32 minutes. Cached, and with the held-out fits behind `HELD_OUT=1`, one fit takes 11 s.
+
+An end slope acts across the child's whole last interval: a slope m over a span h stands `4/27 m h` off the chord. At the crotch the trunk's 60-degree opening stood 7 mm off a thigh that arrives upright, so `AutoMovieHumanEventJoin` stops at a 4 mm lump.
+
+The people at the ends of the audit are whole people. A chest of 1300 mm over an underbust of 742 mm is no body, and a rule failing on it says nothing. The domain to state must bound the tape ratios as well as the tapes.
+
 ## Reference people
 
 69 people now share the vertex order: f1, f2, m1, m2 and 65 geometry-only people. `b0` is a centre at height 1750 mm, `e1` to `e8` a half fraction of the corners of height, fat, muscularity and masculine-feminine, and the rest pin one control at an end of `b0`'s range. `e3` and `e6` are reserved from every fitted number.
