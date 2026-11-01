@@ -184,6 +184,9 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** Station map. */
     station: AutoMovieHumanNaturalSpline.ISpline;
+
+    /** Columella's rise above the horizontal, radians. */
+    columella: number;
   }
 
   /** One section's measures in its own plane. */
@@ -356,6 +359,12 @@ export namespace AutoMovieHumanHeadConstruction {
         [y0, menton, subnasale, eye, vertex],
         [0, 1, 2, 3, 4],
       ),
+      // The nasolabial angle is the columella's rise plus the right angle and the
+      // upper lip's forward lean.
+      columella:
+        ((f.nasolabial[0]! + f.nasolabial[1]! * inputs.sex - 90 + f.nasolabial[2]!) *
+          Math.PI) /
+        180,
     };
   }
 
@@ -673,12 +682,17 @@ export namespace AutoMovieHumanHeadConstruction {
         (a - plan.faceWidth * 0.98) / (12 * k),
       );
 
-    // The nose: a column of the dorsum's ridge and the tip's ball, which share
-    // an axis, joined to the alae and the sill by a quadratic union. A sharper
-    // union of lobes that stand apart ruled a valley of 0.75 mm radius between
-    // the tip and the wing, under the sections' 1.6 mm controls, and the cells
-    // aliased it into teeth at whatever pitch they had. All of it stands on the
-    // base edge, so that the nose ends on a shelf facing down.
+    // The nose: a column of the dorsum's ridge and the tip's lobule, which share
+    // an axis, joined to the alar lobules by a quadratic union. A sharper union
+    // of lobes that stand apart ruled a valley of 0.75 mm radius between the tip
+    // and the wing, under the sections' 1.6 mm controls, and the cells aliased
+    // it into teeth at whatever pitch they had.
+    //
+    // From below the nose ends on its base, a surface rising forward from the
+    // lip at the columella's angle. It trims the lobule and the alae by a
+    // harmonic union, so the tip, the columella and the alar rims turn into it
+    // over radii in proportion to their own size. A level shelf cut across the
+    // nose turned at 1 mm and read from three quarters as one slot.
     const span: number = plan.nasion - plan.tip;
     const w: number = plan.noseWidth;
     const lead: number = plan.noseLead;
@@ -700,36 +714,31 @@ export namespace AutoMovieHumanHeadConstruction {
           a / (f.tipBall[2]! * w),
         ),
       );
-    // The lobes and the sill stand at the middle of the shelf they bound. Both
-    // sides' lobes together are smooth across the midline.
-    const shelf: number = plan.subnasale + (f.base[0]! + f.base[2]! / 2) * span;
+    // The alar lobules, rounded, shallower below than above. Both sides' lobes
+    // together are smooth across the midline.
+    const lobeY: number = plan.subnasale + f.ala[2]! * span;
+    const lobeHalf: number = (y < lobeY ? f.ala[4]! : f.ala[3]!) * span;
     const lobe = (d: number): number =>
-      bell2((y - shelf) / (f.ala[2]! * span), (d - f.ala[1]! * w) / (f.ala[3]! * w));
+      bell2((y - lobeY) / lobeHalf, (d - f.ala[1]! * w) / (f.ala[5]! * w));
     const ala: number = ((f.ala[0]! * w) / 14) * (lobe(a) + lobe(-a));
-    const sill: number =
-      f.sill[0]! *
-      lead *
-      bell(
-        Math.hypot(
-          (y - shelf) / (f.sill[1]! * span),
-          a / (f.sill[2]! * w),
-        ),
-      );
-    const column: number = (ridge ** NOSE + ball ** NOSE) ** (1 / NOSE);
-    // The edge exists only under the nose. Carried past the wing it cut the
-    // lobes' tails into a ledge across the cheek, so it hands over to the wing's
-    // own fall, which meets the cheek with no edge at all.
-    const stands: number = smoother(
-      (y - noseEdge(plan, f, a)) / (f.base[2]! * span),
+    const body: number = Math.hypot((ridge ** NOSE + ball ** NOSE) ** (1 / NOSE), ala);
+    const floor: number = positive(
+      (y - noseBase(plan, f, a)) / Math.tan(plan.columella),
+      f.underside[4]! * k,
     );
-    const past: number = smooth((a / w - f.base[5]!) / f.base[6]!);
-    const body: number =
-      (stands + past * (1 - stands)) * Math.hypot(column, ala);
+    const p: number = f.underside[5]!;
+    out += body > 0 && floor > 0 ? (body ** -p + floor ** -p) ** (-1 / p) : 0;
 
-    // The sill carries the nose's floor down into the lip, so it stands on the
-    // lip and no edge cuts it. Cut with the rest, the skin met the lip at a
-    // corner of 2 mm radius, and the underside read as a band overhanging it.
-    out += Math.hypot(body, sill);
+    // The alar crease sets each lobule back into the cheek round its outer side.
+    const round: number = Math.hypot(
+      (y - lobeY) / (f.ala[3]! * span),
+      (a - f.ala[1]! * w) / (f.ala[5]! * w),
+    );
+    out -=
+      f.crease[0]! *
+      k *
+      bell((round - f.crease[2]!) / f.crease[1]!) *
+      smooth((a / w - f.ala[1]!) / f.ala[5]!);
 
     // Philtrum.
     const lipTop: number = plan.stomion + plan.upperLip;
@@ -762,21 +771,23 @@ export namespace AutoMovieHumanHeadConstruction {
     return out * front;
   }
 
-  /** Height of the nose's base edge at a distance from the midline. */
-  function noseEdge(
+  /**
+   * Height where the nose's base meets the face, at a distance from the
+   * midline: the subnasale at the columella, a little higher under the alar
+   * rims, and falling away past the wing so that the base trims nothing of the
+   * cheek.
+   */
+  function noseBase(
     plan: ILayout,
     f: AutoMovieHumanHeadPrior.IFace,
     a: number,
   ): number {
-    // Both sides' arches together are smooth across the midline.
     const u: number = a / plan.noseWidth;
     return (
       plan.subnasale +
       (plan.nasion - plan.tip) *
-        (f.base[0]! +
-          f.base[1]! *
-            (bell((u - f.base[3]!) / f.base[4]!) +
-              bell((u + f.base[3]!) / f.base[4]!)))
+        (f.underside[0]! * smooth(u) -
+          f.underside[1]! * smooth((u - f.underside[2]!) / f.underside[3]!))
     );
   }
 
@@ -1361,13 +1372,11 @@ export namespace AutoMovieHumanHeadConstruction {
       upper,
     };
 
-    const lowerStations: number[] = uniform(level, lower, LAYERS_LOWER);
     const middleStations: number[] = crowded(
       lower,
       upper,
       LAYERS_MIDDLE,
-      noseEdge(plan, prior.face, 0.5 * plan.noseWidth) +
-        (prior.face.base[2]! * (plan.nasion - plan.tip)) / 2,
+      plan.subnasale + BASE * (plan.nasion - plan.tip),
       SHELF * (plan.nasion - plan.tip),
     );
     const upperStations: number[] = Array.from(
@@ -1447,7 +1456,7 @@ export namespace AutoMovieHumanHeadConstruction {
     return {
       stature: scale * inputs.height,
       chains: [
-        plain("head.lower", 424, lowerStations),
+        plain("head.lower", 424, uniform(level, lower, LAYERS_LOWER)),
         middle,
         plain("head.upper", 504, upperStations),
         ...earLeft.chains,
@@ -1522,30 +1531,33 @@ export namespace AutoMovieHumanHeadConstruction {
     };
   }
 
-  /** One nostril: an oval drawn on the shelf under the nose, facing as it does. */
+  /**
+   * One nostril: a teardrop laid in the nose's base, its length running from
+   * beside the tip back and out toward the alar base, where it is widest, with
+   * the columella left between the two. It faces as the base does, down and a
+   * little forward.
+   */
   function nostril(surface: ISurface, sign: 1 | -1): IAutoMovieHumanLoftAperture {
     const { plan, compiled } = surface;
     const f: AutoMovieHumanHeadPrior.IFace = compiled.prior.face;
     const w: number = plan.noseWidth;
     const order: number = 3;
     const count: number = 24;
-    const cz: number = f.nostrilCentre[1]! * w;
-    const cy: number =
-      noseEdge(plan, f, cz) +
-      f.nostrilCentre[0]! * f.base[2]! * (plan.nasion - plan.tip);
-    // Its length lies along the shelf, so a height is that length over the
-    // shelf's slope, which differs from one nose to the next.
-    const slope: number = Math.max(
-      1,
-      Math.abs(frontAt(surface, cy + 1, sign * cz) - frontAt(surface, cy - 1, sign * cz)) / 2,
-    );
+    const sweep: number = (f.nostrilSweep * Math.PI) / 180;
+    const lead: number = f.nostrilCentre[0]! * plan.noseLead;
+    const out: number = f.nostrilCentre[1]! * w;
+    const rise: number = Math.tan(plan.columella);
     const points: Vec3[] = Array.from(
       { length: count },
       (_: unknown, i: number): Vec3 => {
         const t: number = (2 * Math.PI * i) / count;
-        const y: number = cy + (f.nostrilSize[1]! * w * Math.sin(t)) / slope;
-        const z: number =
-          cz + f.nostrilSize[0]! * w * Math.cos(t) - f.nostrilSweep * (y - cy);
+        const along: number = f.nostrilSize[0]! * w * Math.cos(t);
+        const across: number =
+          f.nostrilSize[1]! * w * Math.sin(t) * (1 + f.nostrilTear * Math.cos(t));
+        // In the base: forward from the face and out from the midline.
+        const d: number = lead - along * Math.cos(sweep) + across * Math.sin(sweep);
+        const z: number = out + along * Math.sin(sweep) + across * Math.cos(sweep);
+        const y: number = noseBase(plan, f, z) + d * rise;
         return [frontAt(surface, y, sign * z), y, sign * z];
       },
     );
@@ -1694,6 +1706,9 @@ const CROWD: number = 2;
 /** Half-height of that crowding, in spans of nasion to tip. */
 const SHELF: number = 0.25;
 
+/** Where it crowds, above the subnasale in spans of nasion to tip: the base. */
+const BASE: number = 0.15;
+
 /** Angles of half a section: finer than the face's gathered controls. */
 const ANGLES: number = 960;
 
@@ -1780,10 +1795,14 @@ function smooth(x: number): number {
   return t * t * (3 - 2 * t);
 }
 
-/** Quintic step clamped to [0, 1], with no jump of curvature at its ends. */
-function smoother(x: number): number {
-  const t: number = Math.min(1, Math.max(0, x));
-  return t * t * t * (t * (6 * t - 15) + 10);
+/**
+ * C1 nonnegative ramp: exactly zero below `-width`, exactly x above `width`, a
+ * quadratic between.
+ */
+function positive(x: number, width: number): number {
+  if (x <= -width) return 0;
+  if (x >= width) return x;
+  return (x + width) ** 2 / (4 * width);
 }
 
 /** Mean of a list. */

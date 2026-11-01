@@ -193,23 +193,36 @@ export namespace AutoMovieHumanHeadPrior {
     tipBall: readonly number[];
 
     /**
-     * Alar lobes, standing at the middle of the shelf: height, reach, half-height
-     * per nose height, half-width. Reach and half-width in half nose widths put
-     * the lobe's fall at the nose's width, so the width input is where it ends.
+     * Alar lobules: height, reach in half nose widths, centre above the
+     * subnasale in spans of nasion to tip, half-heights above and below likewise,
+     * half-width in half nose widths. Reach and half-width put the lobule's fall
+     * at the nose's width, so the width input is where it ends. A crest's radius
+     * is the square of the half-height over twice the height, so the lower
+     * half-height keeps the alar rim round.
      */
     ala: readonly number[];
 
     /**
-     * The nose's base edge, under which the nose stands on nothing, in spans of
-     * nasion to tip above the subnasale: its height at the columella, the arch
-     * over each nostril, the rise of the shelf above the edge, the arch's place
-     * and half-width in half nose widths, and where the edge hands over to the
-     * wing's own fall and over how far, likewise.
+     * The nose's base, which trims it from below: rise under the alar rims and
+     * fall past them, in spans of nasion to tip; where the fall starts and over
+     * how far, in half nose widths; the rounding into the lip, millimetres; the
+     * sharpness of its union with the nose.
      */
-    base: readonly number[];
+    underside: readonly number[];
 
-    /** Nasal sill, standing at the middle of the shelf: share of the lead, half-height, half-width. */
-    sill: readonly number[];
+    /**
+     * Nasolabial angle, degrees, and its change per unit of the
+     * masculine-feminine control, from about 97 in men to 105 in women; and the
+     * upper lip's forward lean, degrees. Their difference from a right angle is
+     * the columella's rise.
+     */
+    nasolabial: readonly number[];
+
+    /**
+     * Alar crease round each lobule's outer side: depth, millimetres; half-width
+     * and place, in lobule radii.
+     */
+    crease: readonly number[];
 
     /** Stomion below the subnasale, per subnasale to menton. */
     stomion: number;
@@ -259,14 +272,17 @@ export namespace AutoMovieHumanHeadPrior {
     /** Margin's centre ahead of the globe's. */
     marginForward: number;
 
-    /** Nostril's half-sizes on the shelf, across and along it, per half nose width. */
+    /** Nostril's half-length and half-width at its middle, per half nose width. */
     nostrilSize: readonly number[];
 
-    /** Nostril centre: share of the shelf's rise above the edge, lateral in half nose widths. */
+    /** Nostril centre in the base: forward in tip leads, out in half nose widths. */
     nostrilCentre: readonly number[];
 
-    /** Nostril's lean toward the columella, lateral per unit of height. */
+    /** Angle of the nostril's length from the sagittal plane, degrees. */
     nostrilSweep: number;
+
+    /** How much wider the nostril is at the alar base than at the tip's end. */
+    nostrilTear: number;
   }
 
   /** The whole prior. */
@@ -327,10 +343,11 @@ export namespace AutoMovieHumanHeadPrior {
       profileKnots: [-0.3, 0, 0.2, 0.55, 1, 1.25],
       profile: [0, 0.82, 0.86, 0.6, 0.2, 0],
       dorsum: [0.7, 0.66, 0.6, 0.52, 0.48, 0.5],
-      tipBall: [0.3, 0.46, 0.72],
-      ala: [11, 0.62, 0.21, 0.4],
-      base: [0.17, 0.03, 0.18, 0.55, 0.45, 0.95, 0.45],
-      sill: [0.3, 0.22, 1],
+      tipBall: [0.8, 0.46, 0.72],
+      ala: [11, 0.62, 0.3, 0.25, 0.2, 0.4],
+      underside: [0.05, 0.6, 1, 0.5, 1.5, 4],
+      nasolabial: [101.25, 3.75, 10],
+      crease: [1, 0.5, 1.3],
       stomion: 0.27,
       mouth: 1,
       vermilion: 1,
@@ -366,9 +383,10 @@ export namespace AutoMovieHumanHeadPrior {
         [1, 0.03, -0.034, -0.02, 0.062, 0.018],
       ],
       marginForward: 6.26,
-      nostrilSize: [0.24, 0.22],
-      nostrilCentre: [0.55, 0.52],
-      nostrilSweep: 1.2,
+      nostrilSize: [0.33, 0.15],
+      nostrilCentre: [0.42, 0.5],
+      nostrilSweep: 40,
+      nostrilTear: 0.35,
     },
     ear: {
       lengthRatio: 1.02,
