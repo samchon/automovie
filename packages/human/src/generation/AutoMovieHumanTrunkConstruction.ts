@@ -165,6 +165,9 @@ export namespace AutoMovieHumanTrunkConstruction {
     /** Half width of that pull's flat core, mm: the height above the ring. */
     crotchCore: number;
 
+    /** Softness of the fold at that core's edge, mm. */
+    foldSoft: number;
+
     /** Depth of the navel's pit at this height. */
     pit: number;
 
@@ -287,6 +290,11 @@ export namespace AutoMovieHumanTrunkConstruction {
     // 0.88, 0.70, 0.45 and 0.32 at 0, 5, 10, 20 and 30 mm above the ring, and
     // this law gives 1.07, 0.89, 0.73, 0.51 and 0.35 from the first alone.
     const crotchPull: number = pulls[0]!;
+
+    // The fold's softness, set once the section is known: the larger of the
+    // ring's control pitch at the crotch and the rows' spacing where the fold
+    // runs, which it crosses at one millimetre out per millimetre up.
+    let foldSoft: number = 1;
     const backPull = curve(above(prior.backPull));
     const frontGroove = curve(above(prior.frontGroove));
     const backGroove = curve(above(prior.backGroove));
@@ -365,6 +373,7 @@ export namespace AutoMovieHumanTrunkConstruction {
       return {
         crotch: crotchPull * Math.exp(-rise / groove),
         crotchCore: rise,
+        foldSoft,
         width: scale * Math.exp(read(width, u)) * inputs.scale,
         middle: m,
         front: Math.max(m + 1, m + scale * (f - m)),
@@ -428,6 +437,18 @@ export namespace AutoMovieHumanTrunkConstruction {
     );
     const section = (u: number): ISection =>
       measures(u, Math.exp(read(closing, u)));
+    {
+      const pitch: number = girth(outline(section(0))) / prior.order;
+      const reach: number =
+        FOLD_REACH * Math.max(1, read(frontGroove, eased(0))) * inputs.scale;
+      const rows: number[] = prior.layers
+        .slice(0, prior.joint + 1)
+        .map((u: number): number => u * span);
+      let gap: number = 0;
+      for (let k: number = 1; k < rows.length && rows[k - 1]! < reach; k++)
+        gap = Math.max(gap, rows[k]! - rows[k - 1]!);
+      foldSoft = FOLD_SAMPLES * Math.max(pitch, gap);
+    }
 
     const top: number = prior.layers.length - 1;
     const roofSection: ISection = section(1);
@@ -840,9 +861,16 @@ export namespace AutoMovieHumanTrunkConstruction {
         // by 50 mm and set the front at full depth there, a lobe across the
         // ring. Used for the spine's groove, that profile printed a crease
         // down the whole back.
+        // Inside the fold the front is flat across, as the reference's is: a
+        // rounded core sloped toward the midline all the way out and made a
+        // trough whose wall faced the midline, a dark lobe under raking light.
+        // The fold is as soft as the sampling needs: a fold narrower than the
+        // ring's pitch or the rows' run printed teeth along it.
+        const soft: number = s.foldSoft;
+        const away: number = Math.hypot(z, soft) - soft - s.crotchCore;
         const crotch: number = forward
           ? s.crotch *
-            Math.exp(-(Math.hypot(z, s.crotchCore) - s.crotchCore) / groove)
+            Math.exp(-((Math.hypot(away, soft) + away) / 2) / groove)
           : 0;
         const x: number =
           depth *
@@ -1105,6 +1133,18 @@ const JOINT_REACH: number = 1;
  * stays beside the ring, among the rows the leg keeps there.
  */
 const HIP_FILLET: number = 0.3;
+
+/**
+ * The crotch fold's softness in sampling pitches: a band about two and a half
+ * samples wide, so that each ring and each row carries it whole.
+ */
+const FOLD_SAMPLES: number = 1.25;
+
+/**
+ * Height over which the fold runs, in widths of the front groove: there its
+ * pull has fallen to a twentieth.
+ */
+const FOLD_REACH: number = 3;
 
 /** Reach of a measure's regression up the column, in fractions of it. */
 const FAIR: number = 0.05;

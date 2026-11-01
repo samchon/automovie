@@ -324,13 +324,52 @@ export function auditHumanHand(
   );
 }
 
+/**
+ * A foot's skin as it is meshed: `crumple`, sharp edges crowding one small
+ * patch of skin, which shows at the webs between the toes and no curve rule
+ * reads. Only the foot's own chains are lofted, and the ankle's closing fan,
+ * which has no leg here, is not read.
+ *
+ * @param person Name in the findings.
+ * @param body The generated body.
+ */
+export function auditHumanFoot(
+  person: string,
+  body: IAutoMovieHumanBodyCalibration,
+): IHumanCurveFinding[] {
+  return (["left", "right"] as const).flatMap(
+    (side: "left" | "right"): IHumanCurveFinding[] => {
+      const root: string = `foot.${side}`;
+      const layers: number =
+        body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === root)?.layers
+          .length ?? 0;
+      return auditHandMesh(
+        person,
+        body,
+        new RegExp(`^(foot|forefoot|toe)\\.${side}`),
+        (name: string): boolean => name !== `${root}/${layers - 2}`,
+      ).filter((f: IHumanCurveFinding): boolean => f.rule === "crumple");
+    },
+  );
 }
 
-/** The sharpest fold between neighbouring triangles, per chain of a hand. */
+}
+
+/**
+ * The sharpest fold between neighbouring triangles, and the crowding of sharp
+ * ones, per chain of a hand or a foot.
+ *
+ * @param keep Whether a triangle group counts; by default the arm far from
+ *   the hand does not, since it is not the hand and its top has no parent here.
+ */
 function auditHandMesh(
   person: string,
   body: IAutoMovieHumanBodyCalibration,
   owned: RegExp,
+  keep: (group: string) => boolean = (name: string): boolean => {
+    const [chain, interval] = name.split("/");
+    return !/^arm\./.test(chain!) || Number(interval) < HAND_ARM_LAYERS;
+  },
 ): HumanCurveAudit.IHumanCurveFinding[] {
   const mesh: AutoMovieHumanLoftMesh.IContext = AutoMovieHumanBodySurface.generate({
     ...body,
@@ -369,15 +408,10 @@ function auditHandMesh(
     );
   };
 
-  // The arm far from the hand is not the hand, and its top has no parent here.
-  const inHand = (name: string): boolean => {
-    const [chain, interval] = name.split("/");
-    return !/^arm\./.test(chain!) || Number(interval) < HAND_ARM_LAYERS;
-  };
   const edges: Map<number, number[]> = new Map();
   const size: number = mesh.positions.length / 3;
   for (let t: number = 0; t < count; t++) {
-    if (!inHand(owner[t]!)) continue;
+    if (!keep(owner[t]!)) continue;
     for (let e: number = 0; e < 3; e++) {
       const a: number = mesh.indices[3 * t + e]!;
       const b: number = mesh.indices[3 * t + ((e + 1) % 3)]!;
@@ -1030,6 +1064,34 @@ function auditHip(
     );
     if (difference > STEP)
       report("upper > trunk", "step", "back of the joint", difference, STEP, [0, joint, 0]);
+
+    // A feature narrower than a ring's control pitch turns the ring sharply
+    // between two controls, and each row places it differently, so it prints
+    // as teeth along it. The pinches are corners by design.
+    const per: number = 4;
+    const count: number = per * trunk.order;
+    const pitched: number[] = uniform(count);
+    const pinch: number = (TEETH_PINCH * 2 * Math.PI) / trunk.order;
+    trunk.layers.forEach((l: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
+      const stations: number[] =
+        k === 0 ? [l.y] : [(l.y + trunk.layers[k - 1]!.y) / 2, l.y];
+      for (const s of stations) {
+        const ring: V3[] = AutoMovieHumanLoftChain.ring(trunk, s, pitched);
+        const heading: number[] = ring.map((p: V3, i: number): number => {
+          const q: V3 = ring[(i + 1) % count]!;
+          return Math.atan2(q[2] - p[2], q[0] - p[0]);
+        });
+        ring.forEach((p: V3, i: number): void => {
+          const t: number = pitched[i]!;
+          if (Math.min(t, Math.abs(t - Math.PI), 2 * Math.PI - t) < pinch) return;
+          const d: number = heading[(i + per) % count]! - heading[i]!;
+          const turn: number =
+            (Math.abs(Math.atan2(Math.sin(d), Math.cos(d))) * 180) / Math.PI;
+          if (turn > TEETH)
+            report("trunk", "teeth", `layer ${band(k)} phase ${Math.round((t * 180) / Math.PI / 30) * 30}`, turn, TEETH, p);
+        });
+      }
+    });
   }
   for (const name of ["leg.left", "leg.right"]) {
     const leg: IAutoMovieHumanLoftChain | undefined = find(name);
@@ -1821,6 +1883,12 @@ const THIGH_TOP: number = 0.024;
 
 /** Largest girth of the thigh's top per unit of the thigh tape. */
 const THIGH_GIRTH: number = 1.15;
+
+/** Largest turn of the trunk's ring over one control pitch, degrees. */
+const TEETH: number = 30;
+
+/** Control pitches either side of a pinch where the teeth rule is not read. */
+const TEETH_PINCH: number = 6;
 
 /** Plane the rear is read in, a share of the crotch ring's half width. */
 const SHELF_PLANE: number = 0.3;
