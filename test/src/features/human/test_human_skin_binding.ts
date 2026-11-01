@@ -1,16 +1,22 @@
 import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
+import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
+import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftMesh } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
 import { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { f1, m2 } from "../../../../packages/playground/src/human-parameters/index";
+import { HUMAN_STICKMAN_POSES } from "../../../../packages/playground/src/human-stickman/HUMAN_STICKMAN_POSES";
 
 type V3 = [number, number, number];
 
 /** Metres of an edge a pose may not stretch past this many times its rest length. */
 const STRETCH: number = 4;
+
+/** Share of its rest area a limb's ring may fall to under a pose. */
+const THIN: number = 0.6;
 
 /** World transform of each rig bone from its local transforms. */
 function worlds(
@@ -71,12 +77,99 @@ function posed(
   return out;
 }
 
+/** A vertex under dual-quaternion blending, as the model draws it. */
+function blended(
+  p: V3,
+  skin: { joints: string[]; boneIndices: number[]; weights: number[] },
+  v: number,
+  world: ReadonlyMap<string, { from: V3; to: V3; q: number[] }>,
+): V3 {
+  const real: number[] = [0, 0, 0, 0];
+  const dual: number[] = [0, 0, 0, 0];
+  let first: number[] | null = null;
+  for (let i: number = 0; i < 4; i++) {
+    const w: number = skin.weights[4 * v + i]!;
+    if (w === 0) continue;
+    const b = world.get(skin.joints[skin.boneIndices[4 * v + i]!]!)!;
+    const turned: V3 = rotate(b.q, b.from);
+    const t: V3 = [b.to[0] - turned[0], b.to[1] - turned[1], b.to[2] - turned[2]];
+    first ??= b.q;
+    const dot: number = b.q.reduce((s: number, c: number, k: number): number => s + c * first![k]!, 0);
+    const s: number = dot < 0 ? -w : w;
+    const d: number[] = multiply([t[0], t[1], t[2], 0], b.q).map((c: number): number => c / 2);
+    for (let k: number = 0; k < 4; k++) {
+      real[k]! += s * b.q[k]!;
+      dual[k]! += s * d[k]!;
+    }
+  }
+  const length: number = Math.hypot(...real);
+  const q: number[] = real.map((c: number): number => c / length);
+  const e: number[] = dual.map((c: number): number => c / length);
+  const t: number[] = multiply(e, [-q[0]!, -q[1]!, -q[2]!, q[3]!]);
+  return add(rotate(q, p), [2 * t[0]!, 2 * t[1]!, 2 * t[2]!]);
+}
+
+/**
+ * Area a closed ring spans, the length of its area vector. A limb flattened to
+ * a ribbon keeps its perimeter and loses this.
+ */
+function spanned(ring: readonly V3[]): number {
+  const n: V3 = [0, 0, 0];
+  ring.forEach((p: V3, i: number): void => {
+    const q: V3 = ring[(i + 1) % ring.length]!;
+    n[0] += p[1] * q[2] - p[2] * q[1];
+    n[1] += p[2] * q[0] - p[0] * q[2];
+    n[2] += p[0] * q[1] - p[1] * q[0];
+  });
+  return Math.hypot(...n) / 2;
+}
+
+/** Every limb ring keeps its girth under a pose, listing those that do not. */
+function auditGirths(
+  name: string,
+  body: IAutoMovieHumanBodyCalibration,
+  scale: number,
+  rig: AutoMovieHumanRig.IRig,
+  world: ReadonlyMap<string, { from: V3; to: V3; q: number[] }>,
+  label: string,
+): string[] {
+  const out: string[] = [];
+  const phases: number[] = Array.from(
+    { length: 64 },
+    (_: unknown, i: number): number => (2 * Math.PI * i) / 64,
+  );
+  for (const chain of body.chains) {
+    if (!/^(arm|leg)\./.test(chain.name)) continue;
+    let worst: number = Infinity;
+    let at: number = 0;
+    // The end layers are the hand's and the trunk's rings, not a limb's.
+    for (const layer of chain.layers.slice(1, -1)) {
+      const rest: V3[] = AutoMovieHumanLoftChain.ring(chain, layer.y, phases).map(
+        (p: V3): V3 => [p[0] * scale, p[1] * scale, p[2] * scale],
+      );
+      const flat: number[] = rest.flat();
+      const skin = rig.bind(flat);
+      const moved: V3[] = rest.map(
+        (p: V3, v: number): V3 => blended(p, skin, v, world),
+      );
+      const ratio: number = spanned(moved) / spanned(rest);
+      if (ratio < worst) {
+        worst = ratio;
+        at = layer.y;
+      }
+    }
+    if (worst < THIN)
+      out.push(`${name} ${label} ${chain.name} thins to ${worst.toFixed(2)} at ${at.toFixed(0)}`);
+  }
+  return out;
+}
+
 /**
  * Every skin vertex binds to the rig, and a pose moves the prepared skin.
  *
  * @evidence contracts/testing.md#behavioral-verification Binds the generated skin of two people, evaluates a bent elbow and knee through the public skeleton, and moves each vertex by the mesh's own weights. It catches a weight that does not sum to one, a seam whose copies disagree, a rest pose that moves anything, a limb that fails to follow its bone, and a side that pulls the other.
  * @evidence contracts/testing.md#independent-expectations The binding's contract and rigid-body kinematics supply every expectation: weights sum to one, equal places move equally, identity pose moves nothing, and a bent arm leaves the other leg still. The stretch bound is a coarse limit, so it catches a torn skin and says nothing of a joint's form.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts rest against a bent left elbow and right knee, on a slender and a broad person. Skin on the bent limbs must move, and skin on the far limbs must not. Contact, collapse and joint volume belong to the joint-form work and are not read here.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts rest against a bent left elbow and right knee, on a slender and a broad person, and reads every limb ring's girth under the step-and-reach pose and the range-limit pose by the blend the model draws. Skin on the bent limbs must move, skin on the far limbs must not, and a limb must not thin. Contact, penetration and the folds at the joints themselves are not read here.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_skin_binding`, generating two bodies in process with no renderer, browser or GPU.
  */
 export const test_human_skin_binding = (): void => {
@@ -135,6 +228,17 @@ export const test_human_skin_binding = (): void => {
     if (hand < 0.1) problems.push(`${name} the bent arm's hand moved only ${hand} m`);
     if (farLeg > 1e-3) problems.push(`${name} the other leg's foot moved ${farLeg} m`);
     if (torn > 0) problems.push(`${name} ${torn} edges stretched past ${STRETCH} times`);
+    for (const label of ["demo", "limit"])
+      problems.push(
+        ...auditGirths(
+          name,
+          body,
+          scale,
+          rig,
+          worlds(rig, evaluate(HUMAN_STICKMAN_POSES[label]!)),
+          label,
+        ),
+      );
   }
   if (problems.length !== 0)
     throw new Error(`${problems.length} binding problems:\n${[...new Set(problems)].slice(0, 40).join("\n")}`);

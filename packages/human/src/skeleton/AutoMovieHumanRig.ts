@@ -24,10 +24,11 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * from a part or a chain would give those copies different weights and open
  * the seam under any pose. Here equal places get equal weights.
  *
- * Influence falls with distance from a bone's segment in units of that
- * segment's radius, so a thin finger's reach stays on the finger. The left and
- * right sides do not reach across the midline, or a thigh would pull its
- * neighbour.
+ * Influence falls with a point's height over each limb's capsule, the bone's
+ * segment thickened by the limb's radius, so a point on a thigh belongs to the
+ * thigh however thick the trunk beside it, and a transition is as wide as the
+ * limbs that meet there. The left and right sides do not reach across the
+ * midline, or a thigh would pull its neighbour.
  */
 export namespace AutoMovieHumanRig {
   /** A prepared rig. */
@@ -70,7 +71,13 @@ export namespace AutoMovieHumanRig {
   ): IRig {
     const joints: AutoMovieHumanJointCentres.IJoint[] =
       AutoMovieHumanJointCentres.derive(calibration);
-    const segments: ISegment[] = joints.map(
+    // The scapula's segment lies along the upper arm, so it would hand the arm
+    // to the shoulder bone.
+    const drawn: AutoMovieHumanJointCentres.IJoint[] = joints.filter(
+      (j: AutoMovieHumanJointCentres.IJoint): boolean =>
+        !j.bone.endsWith("Scapula"),
+    );
+    const segments: ISegment[] = drawn.map(
       (j: AutoMovieHumanJointCentres.IJoint): ISegment => ({
         bone: named(j.bone),
         side: j.bone.startsWith("left")
@@ -269,11 +276,30 @@ function influences(
   segments: readonly ISegment[],
   index: ReadonlyMap<AutoMovieHumanoidBone, number>,
 ): [number, number][] {
-  const sums = new Map<number, number>();
+  // A point's depth under each limb's capsule, so a thick trunk reaches no
+  // further into a thigh than the thigh's own surface.
+  const depths: [ISegment, number][] = [];
+  let nearest: number = Infinity;
   for (const s of segments) {
     if (s.side !== 0 && s.side * p[2] < -MIDLINE) continue;
-    const reach: number = distance(p, s.from, s.to) / s.radius;
-    const w: number = 1 / (reach + SOFTNESS) ** FALLOFF;
+    const d: number = distance(p, s.from, s.to) - s.radius;
+    depths.push([s, d]);
+    nearest = Math.min(nearest, d);
+  }
+
+  // The transition's width follows the limbs at hand, read softly so that it
+  // does not jump where the nearest limb changes.
+  let share: number = 0;
+  let width: number = 0;
+  for (const [s, d] of depths) {
+    const k: number = Math.exp(-(d - nearest) / READ);
+    share += k;
+    width += k * s.radius;
+  }
+  width = (SOFTNESS * width) / share;
+  const sums = new Map<number, number>();
+  for (const [s, d] of depths) {
+    const w: number = Math.exp(-(d - nearest) / width);
     const i: number = index.get(s.bone)!;
     sums.set(i, Math.max(sums.get(i) ?? 0, w));
   }
@@ -332,8 +358,8 @@ const MIDLINE: number = 0.002;
 /** Smallest limb radius a segment's reach is measured in, mm. */
 const MINIMUM_RADIUS: number = 4;
 
-/** Reach, in radii, inside which a bone's pull stops growing. */
-const SOFTNESS: number = 0.5;
+/** A transition's width in the radii of the limbs at hand. */
+const SOFTNESS: number = 0.2;
 
-/** Falloff of a bone's pull with its reach. */
-const FALLOFF: number = 6;
+/** Depth over which a limb stops counting toward that width, metres. */
+const READ: number = 0.005;
