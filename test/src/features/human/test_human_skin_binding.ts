@@ -110,7 +110,7 @@ export const test_human_skin_binding = (): void => {
         if (!(Math.abs(total - 1) < 1e-6)) problems.push(`${name} ${piece.name} weights sum to ${total}`);
         const p: V3 = [metres[3 * v]!, metres[3 * v + 1]!, metres[3 * v + 2]!];
         const key: string = p.map((c: number): string => c.toFixed(7)).join();
-        const bound: string = [...Array(4).keys()]
+        const bound: string = [0, 1, 2, 3]
           .map((i: number): string => `${skin.joints[skin.boneIndices[4 * v + i]!]}:${skin.weights[4 * v + i]!.toFixed(6)}`)
           .join();
         const seen: string | undefined = copies.get(key);
