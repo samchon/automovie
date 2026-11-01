@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanFeatureChain } from "../network/IAutoMovieHumanFeatureChain";
+import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
 import { AutoMovieHumanBodyRegions } from "./AutoMovieHumanBodyRegions";
 import { AutoMovieHumanContactSmoothing } from "./AutoMovieHumanContactSmoothing";
 import { AutoMovieHumanCornerSmoothing } from "./AutoMovieHumanCornerSmoothing";
@@ -9,6 +10,7 @@ import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
 import { AutoMovieHumanLipSmoothing } from "./AutoMovieHumanLipSmoothing";
 import { AutoMovieHumanSectionLoops } from "./AutoMovieHumanSectionLoops";
 import { AutoMovieHumanStationContinuity } from "./AutoMovieHumanStationContinuity";
+
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyRegion } from "./IAutoMovieHumanBodyRegion";
 import { AutoMovieHumanBodySpecimenCalibration } from "./calibration/AutoMovieHumanBodySpecimenCalibration";
@@ -41,10 +43,10 @@ import { AutoMovieHumanVermilionCalibration } from "./calibration/AutoMovieHuman
  *
  * Rules 1 to 5 repair fitted rows. A chain a region stores as key sections
  * (`networks`) is smooth by construction and skips them; only the event join
- * reaches it. The legs and feet are generated, so they exist for the rules
- * only as the contact sections the rules read, and are generated again from
- * the repaired trunk. These are stand-ins at f1's controls:
- * `AutoMovieHumanBodyLaw` generates both from the inputs of whoever is asked
+ * reaches it. The limbs are generated, so they exist for the rules only as
+ * the contact sections the rules read, and are generated again from the
+ * repaired trunk. These are stand-ins at f1's controls:
+ * `AutoMovieHumanBodyLaw` generates them from the inputs of whoever is asked
  * for.
  *
  * `AutoMovieHumanBodyLaw` maps it to the calibration of any parameter set.
@@ -81,10 +83,33 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
       muscularity: tapes.muscularity,
       scale: 1,
     };
+    const controls: Record<string, number | undefined> =
+      AutoMovieHumanBodySpecimenCalibration.controls;
+    const hand: AutoMovieHumanArmConstruction.IHand =
+      AutoMovieHumanArmConstruction.expected(
+        controls.height!,
+        controls.handCircumference!,
+        1,
+      );
+    const arms: AutoMovieHumanArmConstruction.IInputs = {
+      upper: controls.upperArmLength!,
+      lower: controls.lowerArmLength!,
+      bicep: controls.bicep!,
+      elbow: controls.elbow!,
+      forearm: controls.forearm!,
+      wrist: controls.wrist!,
+      circumference: controls.handCircumference!,
+      left: hand,
+      right: hand,
+      scale: 1,
+    };
     const merged: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanLegConstruction.add(
         AutoMovieHumanFootConstruction.add(
-          AutoMovieHumanBodyRegions.merge(regions),
+          AutoMovieHumanArmConstruction.add(
+            AutoMovieHumanBodyRegions.merge(regions),
+            arms,
+          ),
           feet,
         ),
         tapes,
@@ -115,13 +140,16 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanLegConstruction.apply(
         AutoMovieHumanLegConstruction.stand(
           AutoMovieHumanFootConstruction.apply(
-            {
-              ...repaired,
-              chains: repaired.chains.map(
-                (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
-                  generated.get(c.name) ?? c,
-              ),
-            },
+            AutoMovieHumanArmConstruction.apply(
+              {
+                ...repaired,
+                chains: repaired.chains.map(
+                  (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
+                    generated.get(c.name) ?? c,
+                ),
+              },
+              arms,
+            ),
             feet,
           ),
           tapes,

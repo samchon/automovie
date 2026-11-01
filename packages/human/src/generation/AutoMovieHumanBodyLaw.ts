@@ -3,13 +3,16 @@ import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHerm
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import type { IAutoMovieHumanExtremityDimensions } from "../structures/body/IAutoMovieHumanExtremityDimensions";
 import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHumanLegIdentity";
+import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
 import { AutoMovieHumanBodyCalibration } from "./AutoMovieHumanBodyCalibration";
 import { AutoMovieHumanBodyWarp } from "./AutoMovieHumanBodyWarp";
 import { AutoMovieHumanBodyWarpField } from "./AutoMovieHumanBodyWarpField";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
+
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyMorph } from "./IAutoMovieHumanBodyMorph";
 import { AutoMovieHumanBodyMorphCalibration } from "./calibration/AutoMovieHumanBodyMorphCalibration";
@@ -46,9 +49,10 @@ import { AutoMovieHumanVermilionCalibration } from "./calibration/AutoMovieHuman
  * Event pinch phases, layer stations and frames are unchanged, so every
  * shared ring is still generated once by its parent and inherited.
  *
- * The legs and feet take no basis and no measurement map:
- * `AutoMovieHumanFootConstruction` and `AutoMovieHumanLegConstruction`
- * generate them last, under the trunk those maps produced.
+ * The limbs take no basis and no measurement map:
+ * `AutoMovieHumanArmConstruction`, `AutoMovieHumanFootConstruction` and
+ * `AutoMovieHumanLegConstruction` generate them last, from the trunk those
+ * maps produced.
  */
 export namespace AutoMovieHumanBodyLaw {
   /** Calibrations for one parameter set. */
@@ -117,7 +121,10 @@ export namespace AutoMovieHumanBodyLaw {
         AutoMovieHumanLegConstruction.apply(
           AutoMovieHumanLegConstruction.stand(
             AutoMovieHumanFootConstruction.apply(
-              warped.body,
+              AutoMovieHumanArmConstruction.apply(
+                warped.body,
+                arms(params, inputs.scale),
+              ),
               feet(params, inputs),
             ),
             inputs,
@@ -215,6 +222,66 @@ function feet(
 }
 
 /**
+ * The person's arm lengths, tapes and hand measures in calibration
+ * millimetres. A side without measures takes what the body expects.
+ */
+function arms(
+  params: IAutoMovieHumanParameters,
+  scale: number,
+): AutoMovieHumanArmConstruction.IInputs {
+  const tape = (
+    name:
+      | "upperArmLength"
+      | "lowerArmLength"
+      | "bicep"
+      | "elbow"
+      | "forearm"
+      | "wrist"
+      | "handCircumference",
+  ): number => {
+    const value: number | null = params.body.controls[name].value;
+    return (
+      (value === null
+        ? AutoMovieHumanBodySpecimenCalibration.controls[name]!
+        : value) * scale
+    );
+  };
+  const expected: AutoMovieHumanArmConstruction.IHand =
+    AutoMovieHumanArmConstruction.expected(
+      statureOf(params),
+      tape("handCircumference") / scale,
+      scale,
+    );
+  const side = (
+    given: IAutoMovieHumanExtremityDimensions["hands"] extends infer P
+      ? P extends { left: infer H }
+        ? H | undefined
+        : never
+      : never,
+  ): AutoMovieHumanArmConstruction.IHand =>
+    given === undefined
+      ? expected
+      : {
+          length: given.handLength * scale,
+          palm: given.palmLength * scale,
+          breadth: given.handBreadth * scale,
+          thumb: given.thumbLength * scale,
+        };
+  return {
+    upper: tape("upperArmLength"),
+    lower: tape("lowerArmLength"),
+    bicep: tape("bicep"),
+    elbow: tape("elbow"),
+    forearm: tape("forearm"),
+    wrist: tape("wrist"),
+    circumference: tape("handCircumference"),
+    left: side(params.extremities?.hands?.left),
+    right: side(params.extremities?.hands?.right),
+    scale,
+  };
+}
+
+/**
  * Body calibration displaced by `w` units of a basis.
  *
  * @throws {Error} When the basis does not cover the calibration's chains,
@@ -239,7 +306,8 @@ function displace(
       (chain: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain => {
         if (
           chain.name.startsWith("leg.") ||
-          AutoMovieHumanFootConstruction.owns(chain.name)
+          AutoMovieHumanFootConstruction.owns(chain.name) ||
+          AutoMovieHumanArmConstruction.owns(chain.name)
         )
           return chain;
         const m: IAutoMovieHumanBodyMorph.IChain | undefined = chains.get(
@@ -296,7 +364,11 @@ function displace(
       (
         p: IAutoMovieHumanBodyCalibration.IPole,
       ): IAutoMovieHumanBodyCalibration.IPole => {
-        if (AutoMovieHumanFootConstruction.owns(p.chain)) return p;
+        if (
+          AutoMovieHumanFootConstruction.owns(p.chain) ||
+          AutoMovieHumanArmConstruction.owns(p.chain)
+        )
+          return p;
         const d: IAutoMovieHumanBodyMorph.IPole | undefined = morph.poles.find(
           (m: IAutoMovieHumanBodyMorph.IPole): boolean =>
             m.chain === p.chain && m.end === p.end,
