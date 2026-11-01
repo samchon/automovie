@@ -489,14 +489,17 @@ export namespace AutoMovieHumanBodySurface {
     return {
       mesh: context.mesh,
       construction,
-      normals: ringBlend(
-        calibration,
-        context.coordinates,
-        context.mesh.indices,
-        surfaceNormals(
+      normals: domed(
+        context.mesh,
+        ringBlend(
           calibration,
           context.coordinates,
-          AutoMovieHumanLoftMesh.normals(context.mesh),
+          context.mesh.indices,
+          surfaceNormals(
+            calibration,
+            context.coordinates,
+            AutoMovieHumanLoftMesh.normals(context.mesh),
+          ),
         ),
       ),
       // Vertices the cut and the tuck added after lofting have no loft
@@ -514,7 +517,11 @@ export namespace AutoMovieHumanBodySurface {
    * Generate an event's contact ring from its parent and hand out its arcs.
    *
    * The parent's end boundary becomes the whole ring; each child's adjacent
-   * end becomes the vertices on its arcs, in ring order.
+   * end becomes the vertices on its arcs, in ring order. Two children that part
+   * at two pinches close across the same span between them, a web or the
+   * crotch. Left without vertices every band of both would fan onto its two
+   * ends, which shades as a row of dents, so the span takes vertices at the
+   * ring's own spacing, shared by both.
    */
   function contact(
     context: IContext,
@@ -538,12 +545,87 @@ export namespace AutoMovieHumanBodySurface {
       ring,
     });
 
-    for (const split of event.splits)
-      context.boundaries.set(split.child + ":" + childEnd, {
-        kind: "inherited",
-        ring: split.arcs.flatMap((arc: [number, number]): number[] =>
+    const children: { name: string; arcs: number[][] }[] = event.splits.map(
+      (split: IAutoMovieHumanBodyCalibration.ISplit) => ({
+        name: split.child,
+        arcs: split.arcs.map((arc: [number, number]): number[] =>
           arcVertices(ring, phases, arc),
         ),
+      }),
+    );
+    const whole = (arcs: number[][]): boolean =>
+      arcs.length === 1 && arcs[0]!.length === ring.length;
+    const span = (arcs: number[][], k: number): [number, number] => [
+      arcs[k]![arcs[k]!.length - 1]!,
+      arcs[(k + 1) % arcs.length]![0]!,
+    ];
+    const spans: Set<string> = new Set(
+      children.flatMap((c): string[] =>
+        whole(c.arcs)
+          ? []
+          : c.arcs.map((_: number[], k: number): string =>
+              span(c.arcs, k).join(":"),
+            ),
+      ),
+    );
+    const spacing: number =
+      ring.reduce((sum: number, v: number, i: number): number => {
+        const a: [number, number, number] = AutoMovieHumanLoftMesh.position(
+          context.mesh,
+          v,
+        );
+        const b: [number, number, number] = AutoMovieHumanLoftMesh.position(
+          context.mesh,
+          ring[(i + 1) % ring.length]!,
+        );
+        return sum + Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      }, 0) / ring.length;
+    const bridges: Map<string, number[]> = new Map();
+    const bridge = (from: number, to: number): number[] => {
+      if (!spans.has(`${to}:${from}`)) return [];
+      const made: number[] | undefined = bridges.get(`${to}:${from}`);
+      if (made !== undefined) return [...made].reverse();
+      const a: [number, number, number] = AutoMovieHumanLoftMesh.position(
+        context.mesh,
+        from,
+      );
+      const b: [number, number, number] = AutoMovieHumanLoftMesh.position(
+        context.mesh,
+        to,
+      );
+      const inner: number =
+        Math.round(Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) / spacing) -
+        1;
+      const points: [number, number, number][] = Array.from(
+        { length: Math.max(0, inner) },
+        (_: unknown, i: number): [number, number, number] => {
+          const f: number = (i + 1) / (inner + 1);
+          return [
+            a[0] + f * (b[0] - a[0]),
+            a[1] + f * (b[1] - a[1]),
+            a[2] + f * (b[2] - a[2]),
+          ];
+        },
+      );
+      points.forEach((): void => {
+        context.coordinates.push(NaN, NaN, NaN);
+      });
+      const vertices: number[] = AutoMovieHumanLoftMesh.vertices(
+        context.mesh,
+        points,
+      );
+      bridges.set(`${from}:${to}`, vertices);
+      return vertices;
+    };
+    for (const c of children)
+      context.boundaries.set(c.name + ":" + childEnd, {
+        kind: "inherited",
+        ring: whole(c.arcs)
+          ? c.arcs[0]!
+          : c.arcs.flatMap((arc: number[], k: number): number[] => [
+              ...arc,
+              ...bridge(...span(c.arcs, k)),
+            ]),
       });
   }
 
@@ -1150,6 +1232,14 @@ export namespace AutoMovieHumanBodySurface {
     // toe tips). The ring is the dome base's (see domeBase), so the dome
     // replaces the fitted point rings. A provisional closure keeps the flat
     // fan.
+    //
+    // The profile x = r cos(a), y = h sin(a) turns its tangent by
+    // r h / (r^2 sin^2 a + h^2 cos^2 a) per unit of a, at most max(r/h, h/r),
+    // so the dome takes as many rings as keep each step's turn within
+    // {@link DOME_TURN}, but no step shorter than the surface's chord
+    // tolerance. Its points are not on the chain, so they carry the
+    // dome's own normal, d/da x d/du of the quarter ellipse, rather than the
+    // faceted mesh's.
     let last: number[] = ring;
     if (calibrated?.critical === true) {
       const corners: [number, number, number][] = ring.map(
@@ -1163,8 +1253,41 @@ export namespace AutoMovieHumanBodySurface {
             0,
           ) / corners.length,
       ) as [number, number, number];
-      for (let i: number = 1; i < DOME; i++) {
-        const a: number = (Math.PI / 2) * (i / DOME);
+      const radius: number =
+        corners.reduce(
+          (sum: number, q: [number, number, number]): number =>
+            sum + Math.hypot(q[0] - c[0], q[1] - c[1], q[2] - c[2]),
+          0,
+        ) / corners.length;
+      const height: number = Math.hypot(
+        point[0] - c[0],
+        point[1] - c[1],
+        point[2] - c[2],
+      );
+      const steep: number =
+        radius > 0 && height > 0
+          ? Math.max(radius / height, height / radius)
+          : 1;
+      // A step shorter than the surface's own tolerance needs no splitting,
+      // which keeps a flat crown or a sub-millimetre tip from taking dozens.
+      const arc: number =
+        (Math.PI / 2) * Math.sqrt((radius * radius + height * height) / 2);
+      const count: number = Math.min(
+        DOME_MOST,
+        Math.max(
+          DOME,
+          Math.min(
+            Math.ceil(((Math.PI / 2) * steep) / DOME_TURN),
+            Math.ceil(arc / context.tolerance),
+          ),
+        ),
+      );
+      const own: Map<number, [number, number, number]> =
+        DOMES.get(context.mesh) ?? new Map();
+      DOMES.set(context.mesh, own);
+      const n: number = corners.length;
+      for (let i: number = 1; i < count; i++) {
+        const a: number = (Math.PI / 2) * (i / count);
         for (let k: number = 0; k < ring.length; k++)
           context.coordinates.push(context.indices.get(target.name)!, y, NaN);
         const next: number[] = AutoMovieHumanLoftMesh.vertices(
@@ -1179,6 +1302,30 @@ export namespace AutoMovieHumanBodySurface {
               ) as [number, number, number],
           ),
         );
+        next.forEach((v: number, k: number): void => {
+          const q: [number, number, number] = corners[k]!;
+          const before: [number, number, number] = corners[(k + n - 1) % n]!;
+          const after: [number, number, number] = corners[(k + 1) % n]!;
+          const da: number[] = [0, 1, 2].map(
+            (j: number): number =>
+              -(q[j]! - c[j]!) * Math.sin(a) + (point[j]! - c[j]!) * Math.cos(a),
+          );
+          const du: number[] = [0, 1, 2].map(
+            (j: number): number => (after[j]! - before[j]!) * Math.cos(a),
+          );
+          const normal: [number, number, number] = [
+            du[1]! * da[2]! - du[2]! * da[1]!,
+            du[2]! * da[0]! - du[0]! * da[2]!,
+            du[0]! * da[1]! - du[1]! * da[0]!,
+          ];
+          const length: number = Math.hypot(...normal);
+          if (length > 1e-12)
+            own.set(v, [
+              normal[0] / length,
+              normal[1] / length,
+              normal[2] / length,
+            ]);
+        });
         if (end === "top")
           AutoMovieHumanLoftMesh.band(context.mesh, last, next);
         else AutoMovieHumanLoftMesh.band(context.mesh, next, last);
@@ -1266,8 +1413,42 @@ export namespace AutoMovieHumanBodySurface {
     return apex >= ASPECT * radius ? layers[k]!.y : null;
   }
 
-  /** Rings of the rounded dome closing a chain at a critical point, plus one. */
+  /** Fewest rings of the rounded dome closing a chain at a critical point, plus one. */
   const DOME: number = 4;
+
+  /** Most rings of such a dome, plus one. */
+  const DOME_MOST: number = 48;
+
+  /** Largest turn of a dome's profile between two of its rings, radians. */
+  const DOME_TURN: number = (6 * Math.PI) / 180;
+
+  /** Each mesh's dome normals, by vertex, oriented when the mesh's are known. */
+  const DOMES: WeakMap<
+    AutoMovieHumanLoftMesh.IContext,
+    Map<number, [number, number, number]>
+  > = new WeakMap();
+
+  /** Normals with the domes' own in place of the faceted mesh's, facing the same way. */
+  function domed(
+    mesh: AutoMovieHumanLoftMesh.IContext,
+    normals: number[],
+  ): number[] {
+    const own: Map<number, [number, number, number]> | undefined =
+      DOMES.get(mesh);
+    if (own === undefined) return normals;
+    const out: number[] = [...normals];
+    for (const [v, n] of own) {
+      const sign: number =
+        n[0] * normals[3 * v]! +
+          n[1] * normals[3 * v + 1]! +
+          n[2] * normals[3 * v + 2]! <
+        0
+          ? -1
+          : 1;
+      for (let k: number = 0; k < 3; k++) out[3 * v + k] = sign * n[k]!;
+    }
+    return out;
+  }
 
   /** Share of a chain's median layer radius below which an end layer is a point ring. */
   const FLOOR: number = 0.35;
