@@ -6,7 +6,8 @@
 
 - Angles are clinical degrees from the anatomical neutral (upright, arms at the sides, palms forward, feet flat). The field name is the positive motion; the opposite motion is negative. The jaw is in millimetres at the incisors.
 - Left and right are the person's own. Lateral flexion and rotation are positive toward the left.
-- An omitted field keeps the generated body's rest posture, an A-pose with relaxed hands, not the anatomical neutral.
+- An omitted field is 0, so `{}` is the anatomical neutral: arms resting at the sides with straight elbows and the thumbs forward, fingers straight and the thumb beside the index, legs plumb, feet flat. The body is generated in an A-pose with relaxed hands; that posture is the skin's bind, reached from neutral by each bone's achieved offset, and is not a value of the pose.
+- The forearm's zero is thumbs forward, the mid position its range is measured from.
 - Within a joint the degrees of freedom run sagittal, frontal, then transverse.
 
 ## Source grades
@@ -80,11 +81,11 @@ Rules read the chain tree, eye globes and stature S, never a person-indexed tabl
 | `atlas` (atlanto-axial) | 0.85 of the way from the neck base to the atlanto-occipital point | convention |
 | `jaw` | temporomandibular point 0.006 S forward and 0.008 S above the atlanto-occipital point; chin 0.068 S below the eye centres | convention |
 | `leftEye`, `rightEye` | calibrated eye globe centres | measured |
-| `*Shoulder` (sternoclavicular) | at the shoulder height, one neck girth radius from the midline | convention |
+| `*Shoulder` (sternoclavicular) | at the shoulder height, half a neck girth radius from the midline, the neck read a third of the way up it | convention |
 | `*Scapula`, `*UpperArm` (glenohumeral) | at 0.80 S, the shoulder section's lateral extremity moved medially by the axillary arm girth radius | derived |
-| `*LowerArm` (elbow) | along the arm axis at 0.162 / (0.162 + 0.151) of shoulder-to-wrist | derived (ANSUR II) |
-| `*Hand` (wrist) | arm axis at the thumb branch event | derived |
-| thumb | CMC halfway from wrist to the thumb branch, MCP at the branch, IP halfway to the tip | convention |
+| `*LowerArm` (elbow) | along the arm axis at 0.162 / (0.162 + 0.151) of shoulder to the arm's last ring | derived (ANSUR II) |
+| `*Hand` (wrist) | the arm's section centre at the crease: the hand's origin-to-tip measure is `lengthRatio` of the hand length, which runs from the crease, so the crease lies the rest of that length behind the origin, read in the mean hand's units | derived |
+| thumb | CMC halfway from the wrist crease to the thumb branch, which puts it 24 to 27 mm past the crease, at the trapezium; MCP at the branch, IP halfway to the tip | convention |
 | fingers, lesser toes | 2:1:1 phalanx split, web halfway along the proximal phalanx | convention |
 | hallux | two equal phalanges, web halfway along the proximal | convention |
 | `*UpperLeg`, `*LowerLeg`, `*Foot` | hip centre; leg axis at 0.2865 S; leg axis end lowered to 0.0405 S | derived |
@@ -92,7 +93,7 @@ Rules read the chain tree, eye globes and stature S, never a person-indexed tabl
 
 Bones use the engine humanoid names where they exist. `atlas`, `*Scapula`, `*Subtalar`, `*Midfoot`, `*HalluxProximal/Distal` and `*Toe2..5Proximal/Intermediate/Distal` are the Human's own, because the shared `AutoMovieHumanoidBone` vocabulary lacks them. The stickman runs its own forward kinematics instead of the engine's humanoid player, so the shared interface is unchanged.
 
-Each bone's axes come from its rest direction. The rest posture's own clinical angles (arm and thigh from the vertical, hinge angles between adjacent segments, the ankle from the shank's lean) are subtracted, so a field's value is the clinical angle whatever the rest posture.
+These centres stand in the bind, the generated A-pose. `AutoMovieHumanNeutral` turns each bone from there to the anatomical neutral, and each bone's axes come from its direction at neutral, so a field's value is the clinical angle from neutral whatever the bind.
 
 ## Open items
 

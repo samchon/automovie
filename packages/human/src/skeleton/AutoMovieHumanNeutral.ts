@@ -17,9 +17,8 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  *   abduction that clears this body's own skin.
  * - Elbow, wrist, fingers: straight. The bind's bend gives the elbow's plane,
  *   which neutral lays in the sagittal plane.
- * - Thumb: as it stands. Its carpometacarpal centre is a convention, not a
- *   landmark, and turning about it folds the web, so the thumb's zero is the
- *   achieved thumb and its fields count from there.
+ * - Thumb: beside the index metacarpal, turned about its carpometacarpal joint
+ *   at the trapezium, its phalanges straight.
  * - Forearm: thumb forward, the mid position its range of motion is measured
  *   from, not palms forward. The turn is shared between elbow and wrist.
  * - Leg: plumb under the hip with the knee forward, sole level, the foot on the
@@ -182,8 +181,23 @@ export namespace AutoMovieHumanNeutral {
       );
       named.set(`${side}Hand`, qHand);
 
+      // The thumb turns about its trapezium until it lies beside the index
+      // metacarpal, its phalanges straight on it.
+      const index: Vector = Math3D.unit(
+        Math3D.rotate(qHand, between2(`${side}Hand`, `${side}IndexProximal`)),
+      );
+      let thumb: Math3D.Quaternion = qHand;
+      for (const phalanx of ["Metacarpal", "Proximal", "Distal"]) {
+        const bone: string = `${side}Thumb${phalanx}`;
+        thumb = Math3D.multiply(
+          arc(Math3D.rotate(thumb, direction(bone)), index),
+          thumb,
+        );
+        named.set(bone, thumb);
+      }
+
       // Each finger lies along the hand, every phalanx straight on the one
-      // before. The thumb rides the hand as it stands.
+      // before.
       for (const finger of ["Index", "Middle", "Ring", "Little"]) {
         let previous: Math3D.Quaternion = qHand;
         for (const phalanx of ["Proximal", "Intermediate", "Distal"]) {

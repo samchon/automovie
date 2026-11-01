@@ -1,3 +1,4 @@
+import { AutoMovieHumanArmPrior } from "../generation/AutoMovieHumanArmPrior";
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
@@ -202,7 +203,10 @@ export namespace AutoMovieHumanJointCentres {
         shoulderY,
         s * neckRadius * 0.5,
       ];
-      const wrist: [number, number, number] = end(arm, "bottom");
+      // The wrist joint lies at the crease, where hand length is measured
+      // from: the centre of the arm's section there. The arm's last ring lies
+      // inside the palm, past the crease.
+      const wrist: [number, number, number] = axis(arm, crease(arm));
       const elbow: [number, number, number] = along(
         [glenohumeral, ...stations(arm, stop(arm), start(arm))],
         0.162 / (0.162 + 0.151),
@@ -244,8 +248,8 @@ export namespace AutoMovieHumanJointCentres {
         girth(hand, (start(hand) + stop(hand)) / 2),
       );
 
-      // Thumb: CMC halfway from the wrist to the branch, MCP at the branch,
-      // IP halfway to the tip (convention).
+      // Thumb: CMC halfway from the wrist crease to the branch, MCP at the
+      // branch, IP halfway to the tip (convention).
       const thumb: IAutoMovieHumanLoftChain = chain(`thumb.${side}`);
       const thumbBase: [number, number, number] = end(thumb, "top");
       const thumbTip: [number, number, number] = pole(`thumb.${side}`);
@@ -379,6 +383,30 @@ const FINGER: number[] = [-1, 1, 2, 3];
 
 /** Hallux: two equal phalanges with the web halfway along the first (convention). */
 const HALLUX: number[] = [-0.5, 0.5, 1.5];
+
+/**
+ * Station of an arm chain at the wrist crease. The arm's heel layers carry the
+ * hand's along-coordinate in order, from the palm up the forearm. The hand's
+ * origin is not the crease: its origin-to-tip measure is `lengthRatio` of the
+ * hand length, which runs from the crease, so the crease lies the remainder of
+ * that length behind the origin. Read in the mean hand's units, it is exact for
+ * a hand of mean proportions.
+ */
+function crease(arm: IAutoMovieHumanLoftChain): number {
+  const prior: AutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
+  const heel: readonly number[] = prior.arm.heel;
+  const at: number =
+    -prior.hand.size.length * (1 / prior.hand.lengthRatio - 1);
+  for (let k: number = 0; k + 1 < heel.length; k++) {
+    const a: number = heel[k]! - at;
+    const b: number = heel[k + 1]! - at;
+    if ((a >= 0 && b <= 0) || (a <= 0 && b >= 0)) {
+      const f: number = a === b ? 0 : a / (a - b);
+      return arm.layers[k]!.y + f * (arm.layers[k + 1]!.y - arm.layers[k]!.y);
+    }
+  }
+  throw new Error(`${arm.name} has no wrist crease among its heel layers`);
+}
 
 /** Phases sampling a section for perimeters and extremities. */
 const PHASES: number[] = Array.from(

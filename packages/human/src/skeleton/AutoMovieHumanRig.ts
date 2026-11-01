@@ -492,7 +492,11 @@ function grow(
     // so its end takes the skin's depth there; and the clavicle has no flesh
     // of its own, so the girdle's capsule starts as a line and swells to the
     // arm's girth at the shoulder.
-    const radius: number = Math.max(j.radius, MINIMUM_RADIUS) * scale;
+    // The thumb's metacarpal carries the thenar eminence, not a digit's girth:
+    // a digit's girth there left 7-fold stretches across the thenar at neutral.
+    const radius: number = /ThumbMetacarpal$/.test(j.bone)
+      ? depth(Math3D.times(Math3D.add(from, to), 0.5), skin)
+      : Math.max(j.radius, MINIMUM_RADIUS) * scale;
     const far: number =
       j.bone === "chest" ? Math.min(radius, depth(to, skin)) : radius;
     const near: number = /Shoulder$/.test(j.bone)
