@@ -6,6 +6,7 @@ import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanPar
 import { AutoMovieHumanBodyGirth } from "./AutoMovieHumanBodyGirth";
 import { AutoMovieHumanBodyLandmarks } from "./AutoMovieHumanBodyLandmarks";
 import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
+import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
 import { AutoMovieHumanStretchProfile } from "./AutoMovieHumanStretchProfile";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodySpecimen } from "./IAutoMovieHumanBodySpecimen";
@@ -26,9 +27,9 @@ import type { IAutoMovieHumanBodySpecimen } from "./IAutoMovieHumanBodySpecimen"
  *   bust span to measure and scales by its girth alone); the
  *   shoulder chain runs from the chest to the neck base, its lateral
  *   extent following the across-shoulder input at the acromion; the neck
- *   takes the neck girth; legs thigh, knee and calf, returning to their
- *   basis size at the ankle; arms biceps, elbow, forearm and wrist; hands
- *   and digits the hand girth; the feet keep their size. The three head
+ *   takes the neck girth; arms biceps, elbow, forearm and wrist; hands and
+ *   digits the hand girth; the legs and feet take no map, because
+ *   `AutoMovieHumanBodyLaw` generates them afterwards. The three head
  *   chains share one map over height: the neck girth at the neck, then the
  *   head length front to back, and across the bigonial, bizygomatic and
  *   minimum frontal widths at their heights
@@ -46,9 +47,10 @@ import type { IAutoMovieHumanBodySpecimen } from "./IAutoMovieHumanBodySpecimen"
  * `AutoMovieHumanStretchProfile`, so every shared ring is moved by the
  * same function from both sides:
  *
- * - The legs and feet scale about the floor so the crotch's share of the
- *   stature is the specimen's times the inseam input ratio; everything
- *   above rises with the crotch.
+ * - The legs and feet scale about the floor so the crotch reaches the height
+ *   `AutoMovieHumanLegPrior` reads from stature, inseam, thigh and the
+ *   masculine-feminine control, as a share of the stature; everything above
+ *   rises with the crotch.
  * - From the neck base to the menton the neck stretches by the neck-length
  *   ratio, and from the menton to the lower head's top ring (below the
  *   nose) the lower face stretches so the menton-to-eye height follows the
@@ -259,19 +261,7 @@ export namespace AutoMovieHumanBodyWarpField {
     };
     for (const name of ["head.lower", "head.middle", "head.upper"])
       knots.set(name, headKnots);
-    for (const [leg, s] of stations.legs)
-      knots.set(
-        leg,
-        iso([
-          // No input measures the ankle; the leg returns to its basis
-          // shape there, so the foot, which no input sizes either, meets
-          // it unscaled.
-          [chains.get(leg)!.layers[0]!.y, 1],
-          [s.calf, measured("calf", leg, s.calf)],
-          [s.knee, measured("knee", leg, s.knee)],
-          [s.thigh, measured("thigh", leg, s.thigh)],
-        ]),
-      );
+
     for (const [arm, s] of stations.arms)
       knots.set(
         arm,
@@ -312,13 +302,20 @@ export namespace AutoMovieHumanBodyWarpField {
         (sum: number, p: [number, number, number]): number => sum + p[1],
         0,
       ) / ring.length;
-    // The legs scale about the floor by rho and everything above moves up
-    // with the crotch: rho c / (H + (rho - 1) c) = P solves to
-    // rho = P (H - c) / (c (1 - P)), 1 for the specimen's own inputs.
     const H: number = body.stature;
-    const P: number = (crotch / H) * ratio("inseam");
-    const rho: number = (P * (H - current)) / (current * (1 - P));
-    const lift: number = (rho - 1) * current;
+    const fallback = (name: string): number => inputs.controls[name]!;
+    const known = (name: string): number => {
+      const value: number | null | undefined = controls[name]?.value;
+      return value === null || value === undefined ? fallback(name) : value;
+    };
+    const crotchLaw: AutoMovieHumanLegPrior.ICrotch =
+      AutoMovieHumanLegPrior.PRIOR.crotch;
+    const P: number =
+      crotchLaw.height +
+      (crotchLaw.inseam * known("inseam") +
+        crotchLaw.thigh * known("thigh") +
+        crotchLaw.sex * known("masculineFeminine")) /
+        known("height");
     // World heights: the basis lifts these rings off their stations.
     const neckBottom: number = marks.neck;
     const faceTop: number = marks.face;
@@ -351,6 +348,14 @@ export namespace AutoMovieHumanBodyWarpField {
         neckBottom - 20,
         faceTop + 20,
       );
+
+    // The legs scale about the floor by rho, everything above moves up with
+    // the crotch, and the neck and face add their own stretch d to the
+    // stature: rho c / (H + (rho - 1) c + d) = P solves to
+    // rho = P (H - c + d) / (c (1 - P)).
+    const rho: number =
+      (P * (H - current + face.displacement(H))) / (current * (1 - P));
+    const lift: number = (rho - 1) * current;
     const legs: Set<string> = AutoMovieHumanBodyTree.descendants(
       body,
       "trunk",

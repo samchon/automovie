@@ -52,9 +52,46 @@ The figure before any slice, from the [score](../../../.agents/skills/human/veri
 | Head | 5.4 | 11.4 | 9.4 | 4.1, 5.6, 9.3 |
 | Ear | 11.8 | 22.0 | 21.7 | 5.5, 5.7, 11.1 |
 
-The current law loses to height alone in 16 of these 24 cells, so the bar a candidate must clear is low; beating it does not prove the candidate good. On f1 in sample the figure sits 0.2 to 0.6 mm from its reference.
+The current law loses to height alone in 17 of these 24 cells, so the bar a candidate must clear is low; beating it does not prove the candidate good. On f1 in sample the figure sits 0.2 to 0.6 mm from its reference.
 
 Across 151 points of the declared domain, no point produced a non-finite value or a collapsed section. Five masculine points fold the head and ears, and two tall extremes add open mesh edges. 40 of 69 public scalars move nothing, and 7 of those that do reach under 0.7 of the requested change at an end of their range: chest, underbust, waist, high hip, neck base, elbow and knee. The domain bounds live in the score and become the stated domain at the end of the campaign.
+
+## Leg slice
+
+Both legs now come from one construction and a reflection in `AutoMovieHumanLegConstruction`, with its constants in `AutoMovieHumanLegPrior`. The figure reads them from public parameters, and the morph and warp no longer touch the legs.
+
+| Part | f1 held out | f2 held out | m1 held out | m2 held out |
+| --- | --- | --- | --- | --- |
+| Leg, generated | 2.03 | 4.62 | 4.98 | 5.11 |
+| Leg, tables at the baseline | none | 6.6 | 8.9 | 8.5 |
+| Best stature law | 3.35 | 4.63 | 5.40 | 4.76 |
+
+The law beats height alone on three people and loses by 0.35 mm on m2. Section by section, m2 loses only at the top of the thigh, where the trunk's crotch ring leaves the section about 6 mm too wide. f1's row is held out of the leg prior only: its crotch and ankle rings are still its own tables, so read it as an upper bound on how well the leg law can do, not as a generalization result. All four rows inherit tables at both ends, so the distance is judged again once the foot and trunk are generated.
+
+The calf, knee and thigh tapes are exact at the stations the law solves, but those stations are the law's own, so that proves the solver only. Measured at the body's own girth extremes, gain is 1.13 for the calf, 0.64 for the knee and 0.43 for the thigh, against 1.06, 0.57 and 0.76 for the tables. The thigh is worse because the largest girth sits by the crotch ring, which the trunk owns and the thigh tape does not move. It returns with the trunk.
+
+Sections and joins passed an inspection round on f1, f2 and m2 under both raking lights. The groin band and the gap at the crotch shrank against the tables under the same camera and light. The kink behind the ankle is in the tables too, and belongs to the foot.
+
+The chain carries the law: leg sections stay star-shaped across the people acquired, from height 1344 to 2193 mm, apart from 7 of 1,296 sections on two extreme people in the first 16 checked.
+
+### What the candidates taught
+
+Three structures were tried on the way, and the score rejected the first two. Structures were compared with every person in the table, reserved people included, so a reserved person did not judge the choice of form; they are reserved from the fitted numbers only.
+
+- A fixed stance: an inner edge line below the knee and an outer edge line above it, with a handover between them, on the idea that the two edges stay put while mass grows. It explained four people in sample and failed held out, because the four people's sex and length are confounded. Leg centre placement was 6.2 mm of a 6.75 mm section error.
+- An axis in leg lengths alone: leg length explained the four people, held out at 3.0 mm against 7.0 mm for a fixed axis, and then failed the extremes by up to 54 mm.
+- The accepted axis is a line per station in the constant, leg length, hip tape and the masculine-feminine control: 3.63 mm over all people left out one at a time, 0.8 to 3.7 mm on the four specimens, and 5.4 and 4.0 mm on two people reserved from every fit. The stance is that line at the ankle.
+
+Other findings:
+
+- Four people cannot separate sex from length, and that hid the knee's sex difference. The extremes from the first acquisition separated them in one round.
+- A crotch ring is tilted, so its horizontal projection is not a section. Using its centre and area directly threw the thigh about 8 mm back and 5 mm wide. The population's difference between the ring and the last section is three constants of the prior.
+- Crotch height is a line in stature, inseam, thigh and the masculine-feminine control, 3.06 mm left out one at a time. Inseam alone is 20 mm.
+- Fit population means on people inside the declared domain, and fit lines on all people: means over the extremes dilute the normal figure, while lines need the extremes for leverage.
+- A level fitted across acquired people carries their shared starting body. Fit the slopes on everyone and the level on the domain: the ankle's forward place moved 2 mm against f2 otherwise.
+- The neck and face stretches change the stature after the leg scale is chosen, so the crotch's share must count them. Leaving them out put f2's crotch 9.5 mm low, which an independent review traced from the numbers.
+- Tape radii must be solved against the hull of the section they wrap.
+- Ankle forward place is a line in fat and muscularity. Terms in stature, sex or ankle radius fit the extremes better and made m1 and m2 worse, so they stay out until more people separate them.
 
 ## Candidate construction
 

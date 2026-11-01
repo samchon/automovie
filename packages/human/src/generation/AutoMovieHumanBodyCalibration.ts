@@ -4,11 +4,13 @@ import { AutoMovieHumanBodyRegions } from "./AutoMovieHumanBodyRegions";
 import { AutoMovieHumanContactSmoothing } from "./AutoMovieHumanContactSmoothing";
 import { AutoMovieHumanCornerSmoothing } from "./AutoMovieHumanCornerSmoothing";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
+import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
 import { AutoMovieHumanLipSmoothing } from "./AutoMovieHumanLipSmoothing";
 import { AutoMovieHumanSectionLoops } from "./AutoMovieHumanSectionLoops";
 import { AutoMovieHumanStationContinuity } from "./AutoMovieHumanStationContinuity";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyRegion } from "./IAutoMovieHumanBodyRegion";
+import { AutoMovieHumanBodySpecimenCalibration } from "./calibration/AutoMovieHumanBodySpecimenCalibration";
 import { AutoMovieHumanEarCalibration } from "./calibration/AutoMovieHumanEarCalibration";
 import { AutoMovieHumanEyeCalibration } from "./calibration/AutoMovieHumanEyeCalibration";
 import { AutoMovieHumanFootCalibration } from "./calibration/AutoMovieHumanFootCalibration";
@@ -38,7 +40,9 @@ import { AutoMovieHumanVermilionCalibration } from "./calibration/AutoMovieHuman
  *
  * Rules 1 to 5 repair fitted rows. A chain a region stores as key sections
  * (`networks`) is smooth by construction and skips them; only the event join
- * reaches it.
+ * reaches it. The legs are generated, so they exist for the rules only as the
+ * contact sections the rules read, and are generated again from the repaired
+ * trunk and feet.
  *
  * `AutoMovieHumanBodyLaw` maps it to the calibration of any parameter set.
  */
@@ -50,8 +54,21 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanEarCalibration,
       AutoMovieHumanEyeCalibration,
     ];
+    const tapes: AutoMovieHumanLegConstruction.IInputs = {
+      calf: AutoMovieHumanBodySpecimenCalibration.controls.calf!,
+      knee: AutoMovieHumanBodySpecimenCalibration.controls.knee!,
+      thigh: AutoMovieHumanBodySpecimenCalibration.controls.thigh!,
+      hip: AutoMovieHumanBodySpecimenCalibration.controls.hip!,
+      sex: AutoMovieHumanBodySpecimenCalibration.controls.masculineFeminine!,
+      fat: AutoMovieHumanBodySpecimenCalibration.controls.fat!,
+      muscularity: AutoMovieHumanBodySpecimenCalibration.controls.muscularity!,
+      scale: 1,
+    };
     const merged: IAutoMovieHumanBodyCalibration =
-      AutoMovieHumanBodyRegions.merge(regions);
+      AutoMovieHumanLegConstruction.add(
+        AutoMovieHumanBodyRegions.merge(regions),
+        tapes,
+      );
     const generated: Map<string, IAutoMovieHumanLoftChain> = new Map(
       regions
         .flatMap((r: IAutoMovieHumanBodyRegion): string[] =>
@@ -74,11 +91,19 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
           AutoMovieHumanVermilionCalibration,
         ),
       );
-    return AutoMovieHumanEventJoin.reconcile({
-      ...repaired,
-      chains: repaired.chains.map(
-        (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
-          generated.get(c.name) ?? c,
+    return AutoMovieHumanEventJoin.reconcile(
+      AutoMovieHumanLegConstruction.apply(
+        AutoMovieHumanLegConstruction.stand(
+          {
+            ...repaired,
+            chains: repaired.chains.map(
+              (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
+                generated.get(c.name) ?? c,
+            ),
+          },
+          tapes,
+        ),
+        tapes,
       ),
-    });
+    );
   })();

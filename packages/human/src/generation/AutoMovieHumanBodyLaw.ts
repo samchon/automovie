@@ -7,6 +7,7 @@ import { AutoMovieHumanBodyCalibration } from "./AutoMovieHumanBodyCalibration";
 import { AutoMovieHumanBodyWarp } from "./AutoMovieHumanBodyWarp";
 import { AutoMovieHumanBodyWarpField } from "./AutoMovieHumanBodyWarpField";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
+import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyMorph } from "./IAutoMovieHumanBodyMorph";
 import { AutoMovieHumanBodyMorphCalibration } from "./calibration/AutoMovieHumanBodyMorphCalibration";
@@ -43,6 +44,10 @@ import { AutoMovieHumanVermilionCalibration } from "./calibration/AutoMovieHuman
  *
  * Event pinch phases, layer stations and frames are unchanged, so every
  * shared ring is still generated once by its parent and inherited.
+ *
+ * The legs take no basis and no measurement map:
+ * `AutoMovieHumanLegConstruction` generates them last, between the trunk and
+ * feet those maps produced.
  */
 export namespace AutoMovieHumanBodyLaw {
   /** Calibrations for one parameter set. */
@@ -100,11 +105,64 @@ export namespace AutoMovieHumanBodyLaw {
     // rings up to 0.8 mm off their parents' at the 90th percentile), so
     // every person's children are rejoined to their parents' rings and
     // tangent planes.
+    const inputs: AutoMovieHumanLegConstruction.IInputs = tapes(
+      params,
+      warped.body.stature,
+    );
     return {
-      body: AutoMovieHumanEventJoin.reconcile(warped.body),
+      body: AutoMovieHumanEventJoin.reconcile(
+        AutoMovieHumanLegConstruction.apply(
+          AutoMovieHumanLegConstruction.stand(warped.body, inputs),
+          inputs,
+        ),
+      ),
       vermilion: { ...shaped.vermilion, spans: warped.vermilion },
     };
   }
+}
+
+/** The person's height input, or the specimen's when unknown, mm. */
+function statureOf(params: IAutoMovieHumanParameters): number {
+  const value: number | null = params.body.controls.height.value;
+  return value === null
+    ? AutoMovieHumanBodySpecimenCalibration.controls.height!
+    : value;
+}
+
+/**
+ * The person's leg tapes in calibration millimetres: the world tape over the
+ * stature scale the generator applies afterwards. An unknown tape or height
+ * keeps the specimen's.
+ */
+function tapes(
+  params: IAutoMovieHumanParameters,
+  stature: number,
+): AutoMovieHumanLegConstruction.IInputs {
+  const scale: number = stature / statureOf(params);
+  const tape = (name: "calf" | "knee" | "thigh" | "hip"): number => {
+    const value: number | null = params.body.controls[name].value;
+    const known: number =
+      value === null
+        ? AutoMovieHumanBodySpecimenCalibration.controls[name]!
+        : value;
+    return known * scale;
+  };
+  const free = (name: "fat" | "muscularity" | "masculineFeminine"): number => {
+    const value: number | null = params.body.controls[name].value;
+    return value === null
+      ? AutoMovieHumanBodySpecimenCalibration.controls[name]!
+      : value;
+  };
+  return {
+    calf: tape("calf"),
+    knee: tape("knee"),
+    thigh: tape("thigh"),
+    hip: tape("hip"),
+    sex: free("masculineFeminine"),
+    fat: free("fat"),
+    muscularity: free("muscularity"),
+    scale,
+  };
 }
 
 /**
@@ -130,6 +188,7 @@ function displace(
     ...base,
     chains: base.chains.map(
       (chain: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain => {
+        if (chain.name.startsWith("leg.")) return chain;
         const m: IAutoMovieHumanBodyMorph.IChain | undefined = chains.get(
           chain.name,
         );
