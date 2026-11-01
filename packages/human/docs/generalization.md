@@ -216,17 +216,39 @@ Tapes move together, as a body's do. Each curve test person is a whole person at
 
 A tape is what it says on the trunk, through a shared scale of width and depth. The ratio of hull to tape is 0.98 to 1.03 across the domain, so tapes are hull girths. Girth responses that remain weak, by score gain, are the thigh, elbow, wrist, neck, hand circumference and the head's widths; the trunk's were read before the closure and need rereading.
 
-## Open: the nose's base
+## The nose's base
 
-A zigzag runs in a V from the nostrils about 14 mm up the wing of the nose, in clay as well as in appearance. The cause is not found. Doubling `head.lower`'s ring order left it unchanged at 13 MB of page. Shallowing the nostril's pocket from 8.8 to 2.5 mm left it too and broke the nostril into black fragments, since `AutoMovieHumanAperturePocket` builds that pocket and the cavity material moves whole triangles. The sections do not double back near the nose: the only reversals of z lie at the face's widest point, 60 mm behind it. It is not shading either. Of 465 edges whose shading normals jump by over 15 degrees at the wing, 8 have one end on the mesh normal and 450 jump in the mesh normals too, and letting the event rings average neighbours up to 70 degrees apart left the picture unchanged. The teeth stand about 1.5 mm apart on the wing's lower edge, where the skin turns nearly into the plane of the sections, and they sit among the vertices the nostril's opening derives. The refined rows of `AutoMovieHumanBodyApertures.refine` remain untested. Two candidates having failed on each side, the next step is a choice of structure for the nose's base, not another patch.
+The zigzag up the wing was a crease, not a cut. The nose's soft maximum joined the tip and the wing in a valley of 0.75 mm radius under controls 1.6 mm apart, and the cells aliased it: softening the union on the same mesh removed the teeth, and doubling every count only halved their pitch. Doubling `head.lower` could not help, because the crease lay in `head.middle`. The base edge belongs under the nose alone; carried past the wing it cut the lobes into a ledge across the cheek. The base is now built from its anatomy: a surface rising from the lip at the columella's angle, the tip lobule reaching down to it, rounded alar lobules with their crease, and two teardrop nostrils split by the columella. Where that surface trims the thin tail at the alar base, a rounding proportional to size falls under the controls and aliases the same way, so every rounding needs a floor set by the sampling.
 
-## Open: the hip's lower back
+Pocket shading darkened skin behind a nostril along its axis, and the wing lies there once the nostril faces down. It now darkens only skin that faces into the pocket: retained skin darkened fell from 544 to 598 vertices to none on four people.
 
-Measured against a fuller figure, the column's rear rises at about 0.15 over the 40 mm above the crotch ring where that figure rises at 0.7, and it stands 10 to 15 mm short at the crest. Fairing is not the cause: a fairing a quarter as wide moved it by a millimetre. The turn between the leg's rise and the column therefore shades as a soft line across the hip's back under raking light, and a fold of 15 degrees spans 32 mm there. The column's rear below the hip tape needs its own read.
+The neck's slit on the masculine end came from the ring's own vertices: a ray cast exactly along the midline passes through them, rounding can drop the crossing from both neighbouring edges, and the point falls to the polar origin. Rays keep a millionth of a radian off it. A width floor does not remove a body from a smooth union where its lateral term is zero, so the face shield enters with a weight that vanishes on the plain neck.
 
-At the wrist a fillet made things worse: the hand's first chain is 22 mm long, so the turn has no layers to spread over, and the notch grew and a curved band appeared. The wrist keeps its single span until that chain is rebuilt.
+The head has no mandible. Its sides at the jaw come from the back body handing over from neck to skull, which changes slowly with height, so the turn under the jaw has a radius of 12 to 22 mm on everyone, and on a neck tape wider than the mandible no angle can show. A crisp border at the mandibular plane sliced the skin into a flange, because the tilted sections run within about 10 degrees of that plane. A mandible needs a volume of its own in the section union.
 
-At the rear midline the bottom ring ends in a V about 6 mm wide and 10 mm deep. Its point shades across the cleft as a tab of 3 to 4 mm. It is not a shape error, the legs cross the midline by 0.4 mm at most, and underwear covers it.
+## The ear's correspondence
+
+The ear's sawtooth was never a shape error. Its sections were resampled by arclength, so as a section's length changed every phase slid, and the rim moved 1.3 rad round its ring while `head.middle` held it still. Keeping the uniform indices `path` already samples fixed the folds with no new numbers: 35 to 83 reversed cells became none on all nine people. The join also moved any child point within 3 mm of the parent's ring, including a closing chord on no parent arc, and printed waves along the lobe; it now fades with distance as the slopes do. "Five masculine points fold the head and ears" was one body counted five times, since fat and muscularity do not reach the head, and the folds were on every person.
+
+## The hip and the groin
+
+Under the buttock's crest the rear falls as the square of the height, over 52 people: the fall over 100 mm stands 2.78 times the fall over 60 mm, which is (100/60)². That and the crest's place as a share of the hip tape shape the rear; the heights of the crest and the lumbar take no line in the inputs and stay population means. Three lines on the torso were construction: a waist moved by two straight runs met at a corner, three-point station slopes left a corner in curvature at every row, and one breast's bump, mirrored, folded into a stripe down the sternum.
+
+A section sampled by its own angle crowds its points at the crotch's tip, and sampled by the super-ellipse's rational parameter it slides them round the ring on the widest people. Holding the front midline, the widest point and the rear midline at fixed phases, with points spaced by arclength along the outline drawn without its grooves, fixed both.
+
+At the crotch the front is flat across and drops at a fold that moves out about as fast as it rises. A rounded core made a trough whose wall faced the midline and shaded as a dark lobe; a crisp fold narrower than the ring's control pitch printed teeth. The fold's softness now comes from the sampling, 1.25 times the larger of the ring's pitch and the row spacing where it runs, with rows about 4 mm apart through the groin.
+
+The line across the thighs at the crotch ring is not one wrong table. Without the join's slope the thigh arrives rising 4 to 8 degrees forward and the trunk leaves receding 12 to 14, where a measured body stays within 0 to −3 on both sides, and correcting either trunk term moves the mismatch from one plane to another. The two chains need to share a direction where they meet, which belongs to rebuilding the leg on its own bone.
+
+## Webs
+
+A web floor cannot be a straight chord across the parent's section: at every finger web on f1 the chord leaves its pinch 83 to 88 degrees out of the parent's tangent plane, so skin holding it meets the parent at a right angle. Giving the span shared vertices removed the fans but not the corner, and starting each child a few millimetres in does not help, since a digit's sections keep the root's corners through its 12 to 16 mm handover. Four builds of columns hanging from each child's arc failed. A web is a saddle: above its crest the two children are one sheet, the parent continued, and below it two walls leave sideways.
+
+The ball of the foot is one padded surface the chains cannot own: each pinch lifted plantar skin into a groove 8 mm wide and 5 mm deep. The plantar skin near each web now follows one pad. That an older figure had the same grooves only showed the defect was old. A toe's dome laid on a tapering ring left it at the angle of the taper and read as a disc with a rim; each toe closes by its own tangent cap, and fingertip domes take as many rings as their turn needs.
+
+## The hand
+
+The hand's faults came from its representation: horizontal sections crossing the digits at up to 40 degrees, and pinches held in truncated Fourier series that stayed 3.6 to 6.9 mm open. It is rebuilt in its own axes: one star surface for the palm, digits as tubes cut across their own axis, and a thenar section from which the thumb leaves, joined by a soft maximum along each point's own ray. Morphing a heel into a fixed ring flattens its slope, so the target travels. The elbow's kink came from a turn of fixed length, which pinches harder on a thicker arm; it now scales with the elbow's radius. Arm, hand, digits and leg are still lofted on horizontal sections tilted by lift, and they move to their own bone frames once the skeleton comes before the skin.
 
 ## Rig
 
@@ -234,6 +256,8 @@ At the rear midline the bottom ring ends in a V about 6 mm wide and 10 mm deep. 
 
 - On one pose a linear blend thinned the bent thigh and the inside of the elbow, and a dual-quaternion blend kept their volume with a slight corner outside the deep bend. Dual quaternions are the default, so a display material swapped in must take the same skinning patch or the page shows a deformation the model does not have.
 - The page's 256 MiB publication held 115 MB of construction tubes at seventeen digits. They now stop at a hundredth of a millimetre, which left room for every binding at 241.7 MB.
+- Skin passes down the skeleton as a tree of cuts: each joint holds a plane and a compact ramp as wide as the skin is deep there. Comparing capsules along a limb carried the thigh's shell 62 mm past the knee, and the gap between two capsules grows with the square of the distance from the joint, so skin stood at an even share and then turned at once. Eyes carry no skin, the head is a ball from chin to crown, a raised arm brings its girdle at Inman's 2:1, and forearm twist is shared by elbow and wrist.
+- Pose zero is anatomical neutral, not the generated posture. The generated A-pose stays the skin's bind, and one rotation per bone, derived from the generated skeleton, reaches neutral: arms down, elbows and fingers straight, forearm thumb-forward, legs plumb with the foot's own heading. The wrist sat 45 to 50 mm inside the palm at the arm's last ring; it is now at the crease.
 
 ## Reference people
 
