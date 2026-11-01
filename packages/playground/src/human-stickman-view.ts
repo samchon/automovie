@@ -60,7 +60,7 @@ async function bootstrapHumanStickman(): Promise<void> {
     query.get("pose") ?? "",
   )
     ? query.get("pose")!
-    : "rest";
+    : "neutral";
   const params: IAutoMovieHumanParameters = {
     ...base,
     pose: HUMAN_STICKMAN_POSES[poseName]!,

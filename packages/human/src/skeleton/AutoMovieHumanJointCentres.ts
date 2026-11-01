@@ -94,7 +94,6 @@ export namespace AutoMovieHumanJointCentres {
     // Trunk column: hip centres, de Leva trunk boundaries, neck base.
     const trunk: IAutoMovieHumanLoftChain = chain("trunk");
     const upper: IAutoMovieHumanLoftChain = chain("upper");
-    const head: IAutoMovieHumanLoftChain = chain("head");
     const hipY: number = 0.518 * S;
     const hipCentre: (side: string) => [number, number, number] = (
       side: string,
@@ -113,7 +112,6 @@ export namespace AutoMovieHumanJointCentres {
     const lumbar: [number, number, number] = axis(trunk, hipY + 0.245 * span);
     const thoracic: [number, number, number] = axis(trunk, hipY + 0.617 * span);
     const neckBase: [number, number, number] = end(upper, "top");
-    const neckRadius: number = girth(head, (start(head) + stop(head)) / 2);
     const lobe: (side: string) => [number, number, number] = (
       side: string,
     ): [number, number, number] => end(chain(`ear.lobe.${side}`), "bottom");
@@ -121,6 +119,13 @@ export namespace AutoMovieHumanJointCentres {
       lobe("left"),
       lobe("right"),
       0.5,
+    );
+
+    // The neck read a third of the way up: lower it flares into the shoulders
+    // and higher it meets the jaw.
+    const neckRadius: number = girth(
+      chain("head.lower"),
+      neckBase[1] + (occiput[1] - neckBase[1]) / 3,
     );
     const atlas: [number, number, number] = lerp(neckBase, occiput, 0.85);
     const crown: [number, number, number] = pole("head.upper");
@@ -195,7 +200,7 @@ export namespace AutoMovieHumanJointCentres {
       const sternoclavicular: [number, number, number] = [
         axis(upper, shoulderY)[0],
         shoulderY,
-        s * neckRadius,
+        s * neckRadius * 0.5,
       ];
       const wrist: [number, number, number] = end(arm, "bottom");
       const elbow: [number, number, number] = along(
@@ -219,7 +224,7 @@ export namespace AutoMovieHumanJointCentres {
         "chest",
         sternoclavicular,
         glenohumeral,
-        neckRadius * 0.5,
+        armRadius,
       );
       add(`${side}Scapula`, `${side}Shoulder`, glenohumeral, elbow, armRadius);
       add(`${side}UpperArm`, `${side}Scapula`, glenohumeral, elbow, armRadius);

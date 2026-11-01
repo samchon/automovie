@@ -3,6 +3,7 @@ import { AutoMovieHumanNeckSurface } from "../generation/AutoMovieHumanNeckSurfa
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
+import { AutoMovieHumanNeutral } from "./AutoMovieHumanNeutral";
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
@@ -17,25 +18,28 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * vocabulary has one; the scapula, atlas, subtalar, midfoot and per-toe bones
  * are the Human's own, because the shared humanoid vocabulary lacks them.
  *
- * Every bone rests with identity rotation in the registered frame (forward
- * +X, up +Y, left +Z) and declares three orthonormal clinical axes from its
- * rest direction d: flexion turns d toward the joint's flexion direction,
- * abduction toward the side away from the midline (the figure's right for
- * midline bones), twist runs along d. The foot bones evert about their long
- * axis; the eyes and the scapula use fixed body axes. Each pose field maps
- * onto one bone axis through {@link AutoMovieHumanPoseChannels}, clamped to
- * its range of motion, minus the clinical angle the bone already has at rest
- * (arm and thigh from the vertical, hinge angles between adjacent segments,
- * the ankle from the shank's lean), so an omitted field keeps the rest posture
- * and a given one is the clinical angle.
+ * Three postures stay apart. The bind is the achieved posture the skin was
+ * generated in, and `bones` hold it. Neutral is the standing body clinical
+ * angles are measured from, and {@link AutoMovieHumanNeutral} reaches it from
+ * the bind. A pose is a further turn of neutral: every field at zero, or
+ * omitted, gives the neutral body, so `{}` is neutral and not the bind. Each
+ * placement's rotation runs from the bind, because that is what a skin reads.
  *
- * Construction and preview only: no skin binding, weights or deformation
- * (campaign #2947).
+ * Every bone declares three orthonormal clinical axes in the registered frame
+ * (forward +X, up +Y, left +Z) from its neutral direction d: flexion turns d
+ * toward the joint's flexion direction, abduction toward the side away from the
+ * midline (the figure's right for midline bones), twist runs along d. The foot
+ * bones evert about their long axis; the eyes and the scapula use fixed body
+ * axes. Each pose field maps onto one bone axis through
+ * {@link AutoMovieHumanPoseChannels}, clamped to its range of motion.
+ *
+ * The skin's binding and the engine's pose come from these placements through
+ * {@link AutoMovieHumanRig}.
  */
 export namespace AutoMovieHumanSkeleton {
-  /** Stickman skeleton at rest and under the requested pose. */
+  /** Stickman skeleton at its bind and under the requested pose. */
   export interface IOutput {
-    /** Bones at rest in metres, parent before child. */
+    /** Bones at the bind, the achieved posture, in metres, parent before child. */
     bones: IBone[];
 
     /** World placement of every bone under `params.pose`, in the order of `bones`. */
@@ -66,7 +70,7 @@ export namespace AutoMovieHumanSkeleton {
     radius: number;
   }
 
-  /** One bone's world placement: rest geometry moves rigidly with it. */
+  /** One bone's world placement: geometry at the bind moves rigidly with it. */
   export interface IPlacement {
     /** Bone id. */
     bone: string;
@@ -74,7 +78,7 @@ export namespace AutoMovieHumanSkeleton {
     /** World position of the joint, metres. */
     position: [number, number, number];
 
-    /** World rotation from rest as a unit quaternion `[x, y, z, w]`. */
+    /** World rotation from the bind as a unit quaternion `[x, y, z, w]`. */
     rotation: [number, number, number, number];
   }
 
@@ -147,8 +151,13 @@ export namespace AutoMovieHumanSkeleton {
           )
         : undefined;
 
-    const joints: AutoMovieHumanJointCentres.IJoint[] =
+    const bind: AutoMovieHumanJointCentres.IJoint[] =
       AutoMovieHumanJointCentres.derive(calibration);
+    const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.derive(
+      calibration,
+      bind,
+    );
+    const joints: AutoMovieHumanJointCentres.IJoint[] = neutral.joints;
     const byBone: Map<string, AutoMovieHumanJointCentres.IJoint> = new Map(
       joints.map(
         (
@@ -171,7 +180,7 @@ export namespace AutoMovieHumanSkeleton {
       input: NonNullable<IAutoMovieHumanParameters["pose"]> = {},
       clamp: boolean = true,
     ): IOutput => {
-      // Rig angle per bone and axis: requested clinical value minus rest.
+      // Turn per bone and axis from neutral: the requested clinical value.
       const rig: Map<string, Record<string, number>> = new Map();
       const set: (bone: string, axis: string, value: number) => void = (
         bone: string,
@@ -198,9 +207,7 @@ export namespace AutoMovieHumanSkeleton {
 
           // Tibial rotation exists only with the knee bent (convention).
           if (path.endsWith("knee.rotation")) {
-            const flexion: number =
-              kneeFlexion.get(side) ??
-              Math3D.restAngle(bone, "flexion", direction, byBone);
+            const flexion: number = kneeFlexion.get(side) ?? 0;
             const f: number = Math.min(1, Math.max(0, flexion / 90));
             min *= f;
             max *= f;
@@ -226,14 +233,41 @@ export namespace AutoMovieHumanSkeleton {
                   )) *
                 (180 / Math.PI)
               : applied;
-          set(
-            bone,
-            axis,
-            sign * degrees - Math3D.restAngle(bone, axis, direction, byBone),
-          );
+
+          // A resting arm has already left the plumb line, and overhead stays
+          // overhead, so abduction spans what remains.
+          const resting: number =
+            axis === "abduction" ? (neutral.resting.get(bone) ?? 0) : 0;
+          set(bone, axis, sign * degrees * (1 - resting / 180));
         }
 
-      // Forward kinematics with identity rest rotations.
+      // The shoulder's ranges are the whole complex's, so a raised arm brings
+      // its girdle along. Only the joint centre and the girdle's skin rise: the
+      // scapula hands the turn back, so the arm keeps the requested direction.
+      const lifts: Map<string, number> = new Map();
+      for (const side of ["left", "right"]) {
+        const arm: string = `${side}UpperArm`;
+        const r: Record<string, number> | undefined = rig.get(arm);
+        if (r === undefined) continue;
+        const a: IAxes = axes.get(arm)!;
+        const raised: Vector = Math3D.rotate(
+          Math3D.multiply(
+            Math3D.multiply(
+              Math3D.fromAxisAngle(a.twist, r.twist ?? 0),
+              Math3D.fromAxisAngle(a.abduction, r.abduction ?? 0),
+            ),
+            Math3D.fromAxisAngle(a.flexion, r.flexion ?? 0),
+          ),
+          direction(arm),
+        );
+        const over: number =
+          fromVertical(raised) - Math.max(SETTING, fromVertical(direction(arm)));
+        if (over > 0)
+          lifts.set(`${side}Shoulder`, (RHYTHM * over * over) / (over + EASE));
+      }
+      const handed: Map<string, Quaternion> = new Map();
+
+      // Forward kinematics from neutral, whose rotations are identity.
       const world: Map<string, IPlacement> = new Map();
       const posed: IPlacement[] = joints.map(
         (j: AutoMovieHumanJointCentres.IJoint): IPlacement => {
@@ -247,10 +281,51 @@ export namespace AutoMovieHumanSkeleton {
             a.abduction,
             r.abduction ?? 0,
           );
-          const qt: Quaternion = Math3D.fromAxisAngle(a.twist, r.twist ?? 0);
-          const local: Quaternion = j.bone.endsWith("LowerArm")
+          const qt: Quaternion = Math3D.fromAxisAngle(
+            a.twist,
+            (r.twist ?? 0) *
+              (j.bone.endsWith("LowerArm")
+                ? 1 - AutoMovieHumanNeutral.WRIST_TWIST
+                : 1),
+          );
+          const own: Quaternion = j.bone.endsWith("LowerArm")
             ? Math3D.multiply(Math3D.multiply(qa, qf), qt)
             : Math3D.multiply(Math3D.multiply(qt, qa), qf);
+
+          // The forearm has one bone and its twist grows toward the wrist, so
+          // the elbow and the wrist each carry a share and neither wrings.
+          let local: Quaternion = j.bone.endsWith("Hand")
+            ? Math3D.multiply(
+                Math3D.fromAxisAngle(
+                  axes.get(j.parent!)!.twist,
+                  (rig.get(j.parent!)?.twist ?? 0) *
+                    AutoMovieHumanNeutral.WRIST_TWIST,
+                ),
+                own,
+              )
+            : own;
+          const lift: number | undefined = lifts.get(j.bone);
+          if (lift !== undefined) {
+            const raised: Quaternion = Math3D.multiply(
+              Math3D.multiply(
+                qt,
+                Math3D.fromAxisAngle(a.abduction, (r.abduction ?? 0) + lift),
+              ),
+              qf,
+            );
+            handed.set(
+              j.bone,
+              Math3D.multiply(
+                [-raised[0], -raised[1], -raised[2], raised[3]],
+                local,
+              ),
+            );
+            local = raised;
+          }
+          const back: Quaternion | undefined =
+            j.parent === null ? undefined : handed.get(j.parent);
+          if (back !== undefined && j.bone.endsWith("Scapula"))
+            local = Math3D.multiply(back, local);
           const parent: IPlacement | undefined =
             j.parent === null ? undefined : world.get(j.parent);
           const offset: Vector =
@@ -281,12 +356,18 @@ export namespace AutoMovieHumanSkeleton {
                   rotation: Math3D.multiply(parent.rotation, local),
                 };
           world.set(j.bone, placement);
-          return placement;
+          return {
+            ...placement,
+            rotation: Math3D.multiply(
+              placement.rotation,
+              neutral.turns.get(j.bone)!,
+            ),
+          };
         },
       );
 
       return {
-        bones: joints.map(
+        bones: bind.map(
           (j: AutoMovieHumanJointCentres.IJoint): IBone => ({
             bone: j.bone,
             parent: j.parent,
@@ -313,6 +394,24 @@ type Quaternion = Math3D.Quaternion;
 
 /** Existing clinical axis convention. */
 type IAxes = Math3D.IAxes;
+
+/**
+ * Degrees of clavicle per degree of arm past the setting phase. Inman's 2:1
+ * rhythm gives the scapula a third of the arm, and the clavicle carries about
+ * three fifths of the scapula's turn.
+ */
+const RHYTHM: number = 0.2;
+
+/** Arm elevation from the vertical below which the girdle stays still, degrees. */
+const SETTING: number = 30;
+
+/** Degrees over which the girdle takes up its rhythm, so it starts without a kink. */
+const EASE: number = 10;
+
+/** A direction's angle from straight down, degrees. */
+function fromVertical(d: Vector): number {
+  return (Math.acos(Math.max(-1, Math.min(1, -d[1]))) * 180) / Math.PI;
+}
 
 /** Value at a dotted path of the pose, or undefined when any step is absent. */
 function read(pose: unknown, path: string): number | undefined {

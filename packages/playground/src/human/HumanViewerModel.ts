@@ -464,10 +464,12 @@ export class HumanViewerModel {
     this.evaluator ??= AutoMovieHumanSkeleton.prepare(this.result.parameters);
     applyHumanRigPose(
       this.built,
-      AutoMovieHumanRig.locals(
-        skeleton,
-        this.evaluator(HUMAN_STICKMAN_POSES[name]!),
-      ),
+      name === "rest"
+        ? AutoMovieHumanRig.bindLocals(skeleton)
+        : AutoMovieHumanRig.locals(
+            skeleton,
+            this.evaluator(HUMAN_STICKMAN_POSES[name]!),
+          ),
       name === "rest",
     );
     this.posed = name;

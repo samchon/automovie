@@ -111,46 +111,6 @@ export namespace AutoMovieHumanSkeletonMath {
     return toward(palmar, times(radial, ulnar ? -1 : 1), 1);
   }
 
-  /**
-   * Clinical angle, on one of a bone's axes, that the bone already has at rest.
-   *
-   * Arm and thigh: flexion and abduction of d from the vertical. Elbow, knee,
-   * wrist, finger and toe joints: the signed angle from the parent's direction
-   * to d about the bone's own axis. Ankle: dorsiflexion from the shank's lean
-   * with the sole on the floor. Every other bone and axis rests at zero.
-   */
-  export function restAngle(
-    bone: string,
-    axis: string,
-    direction: (bone: string) => Vector,
-    byBone: Map<string, AutoMovieHumanJointCentres.IJoint>,
-  ): number {
-    const s: number = bone.startsWith("right") ? -1 : 1;
-    const deg: number = 180 / Math.PI;
-    const d: Vector = direction(bone);
-    const parent: string | null = byBone.get(bone)!.parent;
-    if (bone.endsWith("UpperArm") || bone.endsWith("UpperLeg")) {
-      if (axis === "flexion")
-        return Math.atan2(dot(d, FORWARD), -dot(d, UP)) * deg;
-      if (axis === "abduction")
-        return Math.atan2(s * dot(d, LEFT), -dot(d, UP)) * deg;
-      return 0;
-    }
-    if (bone.endsWith("Foot") && axis === "flexion") {
-      const shank: Vector = direction(parent!);
-      return Math.atan2(-dot(shank, FORWARD), -dot(shank, UP)) * deg;
-    }
-    const hinge: boolean =
-      /(LowerArm|LowerLeg|Hand|Proximal|Intermediate|Distal)$/.test(bone) &&
-      !bone.includes("Thumb") &&
-      (axis === "flexion" || (axis === "abduction" && bone.endsWith("Hand")));
-    if (!hinge || parent === null) return 0;
-    const about: Vector = boneAxes(bone, d, byBone)[axis as "flexion"];
-    const a: Vector = unit(perp(direction(parent), about));
-    const b: Vector = unit(perp(d, about));
-    return Math.atan2(dot(cross(a, b), about), dot(a, b)) * deg;
-  }
-
   /** Quaternion of a turn by `degrees` about a unit axis. */
   export function fromAxisAngle(axis: Vector, degrees: number): Quaternion {
     const h: number = (degrees * Math.PI) / 360;

@@ -138,8 +138,8 @@ export function normalizeHumanView(read: (name: string) => string | null): {
   }
   const pose: string | null = read("pose");
   if (pose !== null && pose !== "" && pose !== "rest") {
-    if (pose !== "demo" && pose !== "limit")
-      throw new Error("Human view pose must be rest, demo or limit");
+    if (pose !== "neutral" && pose !== "demo" && pose !== "limit")
+      throw new Error("Human view pose must be rest, neutral, demo or limit");
     value.pose = pose;
   }
 
@@ -197,8 +197,8 @@ export namespace normalizeHumanView {
     /** Show the garment parts. */
     garment: boolean;
 
-    /** Named pose the skin is shown in; `rest` is the generated posture. */
-    pose: "rest" | "demo" | "limit";
+    /** Named pose the skin is shown in; `rest` is the generated posture, the skin's bind, and `neutral` the anatomical neutral. */
+    pose: "rest" | "neutral" | "demo" | "limit";
 
     /** Show scalp hair, brows and lashes. */
     hair: boolean;
