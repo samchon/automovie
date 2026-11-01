@@ -1,8 +1,11 @@
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
+  IAutoMovieJointAxes,
+  IAutoMovieJointPose,
   IAutoMovieMeshSkin,
   IAutoMovieModelPart,
+  IAutoMoviePose,
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
@@ -101,15 +104,35 @@ export namespace AutoMovieHumanRig {
       place.set(bone, Math3D.times(j.position, scale));
       parentOf.set(bone, j.parent === null ? null : named(j.parent));
     }
+    const byBone = new Map<string, AutoMovieHumanJointCentres.IJoint>(
+      joints.map(
+        (j: AutoMovieHumanJointCentres.IJoint): [string, AutoMovieHumanJointCentres.IJoint] => [
+          j.bone,
+          j,
+        ],
+      ),
+    );
     const skeleton: IAutoMovieSkeleton = {
       id: "automovie-human",
       bones: bones.map((bone: AutoMovieHumanoidBone): IAutoMovieBone => {
         const parent: AutoMovieHumanoidBone | null = parentOf.get(bone)!;
         const at: Vector = place.get(bone)!;
         const base: Vector = parent === null ? [0, 0, 0] : place.get(parent)!;
+        const own: AutoMovieHumanJointCentres.IJoint = byBone.get(joint(bone))!;
+        const axes: Math3D.IAxes = Math3D.boneAxes(
+          own.bone,
+          Math3D.unit(Math3D.sub(own.toward, own.position)),
+          byBone,
+        );
         return {
           bone,
           parent,
+          axes: {
+            flexion: vector(axes.flexion),
+            abduction: vector(axes.abduction),
+            twist: vector(axes.twist),
+            twistPlacement: placement(bone),
+          },
           rest: {
             translation: {
               x: at[0] - base[0],
@@ -224,9 +247,122 @@ export namespace AutoMovieHumanRig {
     }
     return out;
   }
+
+  /**
+   * An evaluated Human pose as the engine's clinical pose of this rig.
+   *
+   * The rig's rest rotations are identity and its bones declare the Human's own
+   * axes and composition, so each local rotation splits exactly into the three
+   * angles the engine composes back. Only translation has no channel: a jaw's
+   * protrusion and a shoulder girdle's slide are lost, and the bones they move
+   * are listed so a caller can refuse them.
+   *
+   * @param rest The rig.
+   * @param pose The evaluator's output for the same body.
+   * @returns The engine pose, and the bones whose translation it cannot carry.
+   */
+  export function enginePose(
+    rest: IAutoMovieSkeleton,
+    pose: AutoMovieHumanSkeleton.IOutput,
+  ): IEnginePose {
+    const local: Map<AutoMovieHumanoidBone, ILocal> = locals(rest, pose);
+    const joints: IAutoMovieJointPose[] = [];
+    const translated: AutoMovieHumanoidBone[] = [];
+    let root: Vector = [0, 0, 0];
+    for (const bone of rest.bones) {
+      const own: ILocal = local.get(bone.bone)!;
+      const t = bone.rest.translation;
+      const shift: Vector = [
+        own.translation[0] - t.x,
+        own.translation[1] - t.y,
+        own.translation[2] - t.z,
+      ];
+      if (bone.parent === null) root = shift;
+      else if (Math.hypot(...shift) > TRANSLATED) translated.push(bone.bone);
+      joints.push({ bone: bone.bone, ...angles(own.rotation, bone.axes!) });
+    }
+    return {
+      pose: {
+        skeleton: rest.id,
+        root: {
+          translation: { x: root[0], y: root[1], z: root[2] },
+          rotation: { x: 0, y: 0, z: 0, w: 1 },
+          scale: { x: 1, y: 1, z: 1 },
+        },
+        joints,
+      },
+      translated,
+    };
+  }
+
+  /** An engine pose with what it could not carry. */
+  export interface IEnginePose {
+    /** The clinical pose. */
+    pose: IAutoMoviePose;
+
+    /** Bones that moved along their parent, which the engine's rig cannot do. */
+    translated: AutoMovieHumanoidBone[];
+  }
 }
 
 type Vector = [number, number, number];
+
+/** A tuple as an interface vector. */
+function vector(v: readonly number[]): { x: number; y: number; z: number } {
+  return { x: v[0]!, y: v[1]!, z: v[2]! };
+}
+
+/** Where a bone's twist sits: the forearm's is distal, as the skeleton composes it. */
+function placement(bone: AutoMovieHumanoidBone): "distal" | "proximal" {
+  return bone.endsWith("LowerArm") ? "distal" : "proximal";
+}
+
+/** A local rotation as the three clinical angles of its axes, degrees. */
+function angles(
+  q: readonly [number, number, number, number],
+  axes: IAutoMovieJointAxes,
+): Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist"> {
+  const tuple = (v: { x: number; y: number; z: number }): Vector => [v.x, v.y, v.z];
+  const distal: boolean = axes.twistPlacement === "distal";
+  const f: Vector = tuple(axes.flexion);
+  const a: Vector = tuple(axes.abduction);
+  const t: Vector = tuple(axes.twist);
+
+  // The composition is first * second * third about these axes. A left-handed
+  // triple turns its last axis over, and that angle's sign with it.
+  const first: Vector = distal ? a : t;
+  const second: Vector = distal ? f : a;
+  const third: Vector = distal ? t : f;
+  const crossed: Vector = cross(first, second);
+  const hand: number = dot(crossed, third) < 0 ? -1 : 1;
+  const k: Vector = Math3D.times(third, hand);
+  const m = (u: Vector, v: Vector): number =>
+    dot(u, Math3D.rotate([q[0], q[1], q[2], q[3]], v));
+  const beta: number = Math.asin(Math.max(-1, Math.min(1, m(first, k))));
+  const alpha: number = Math.atan2(-m(second, k), m(k, k));
+  const gamma: number = Math.atan2(-m(first, second), m(first, first));
+  const degrees = (r: number): number => (r * 180) / Math.PI;
+  const out: [number, number, number] = [
+    degrees(alpha),
+    degrees(beta),
+    hand * degrees(gamma),
+  ];
+  return distal
+    ? { abduction: out[0], flexion: out[1], twist: out[2] }
+    : { twist: out[0], abduction: out[1], flexion: out[2] };
+}
+
+function cross(a: Vector, b: Vector): Vector {
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
+}
+
+function dot(a: Vector, b: Vector): number {
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
 
 /** One bone's drawn segment. */
 interface ISegment {
@@ -341,6 +477,9 @@ function distance(p: Vector, a: Vector, b: Vector): number {
       : Math.max(0, Math.min(1, (e[0] * d[0] + e[1] * d[1] + e[2] * d[2]) / length));
   return Math.hypot(e[0] - f * d[0], e[1] - f * d[1], e[2] - f * d[2]);
 }
+
+/** Shift along a parent below which a bone has not moved, metres. */
+const TRANSLATED: number = 1e-6;
 
 /**
  * How the skin blends its bones. A linear blend thinned the bent thigh and the
