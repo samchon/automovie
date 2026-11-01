@@ -225,7 +225,7 @@ export namespace AutoMovieHumanLegConstruction {
 
     // The ring's pinches are corners, which a leg has no use for: the interval
     // reaches the ring's plain form, and the corners come in over its last half.
-    const plain: number[] = process.env.HIP_X === "raw" ? [...top] : softened(top);
+    const plain: number[] = softened(top);
 
     // The last interior layer sees the ring above it, or the last interval
     // starts with a corner.

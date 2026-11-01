@@ -435,9 +435,18 @@ export namespace AutoMovieHumanTrunkConstruction {
     const place = (u: number): number => lift * smooth((u - LEAN) / (1 - LEAN));
     const height = (u: number): number => floor + u * (seat.y - floor);
     const column = (u: number): [number, number, number][] => {
-      const half: [number, number][] = outline(section(u));
+      const own: ISection = section(u);
+      const half: [number, number][] = outline(own);
+      const hull: [number, number][] = outline({
+        ...own,
+        frontPull: 0,
+        backPull: 0,
+        crotch: 0,
+        bust: 0,
+        pit: 0,
+      });
       const d: number = place(u);
-      return steady(half, prior.order).map(
+      return steady(half, hull, prior.order).map(
         (p: [number, number]): [number, number, number] => [
           p[0] + d,
           height(u),
@@ -824,21 +833,21 @@ export namespace AutoMovieHumanTrunkConstruction {
         const groove: number = forward ? s.frontGroove : s.backGroove;
         const n: number = (q ** s.power + (1 - q) ** s.power) ** (1 / s.power);
         const z: number = (s.width * q) / n;
-        // A groove falls away from the midline exponentially: at the crotch
-        // the front stands back from its full depth by 1.07, 0.55, 0.27 and
-        // 0.13 of it at 0, 20, 40 and 60 mm, a decay length of 29 mm. A
-        // Gaussian of that width dies by 50 mm and set the front at full
-        // depth there, a lobe across the ring. A core of a quarter of the
-        // width keeps the midline smooth above the pinch.
-        const core: number = groove * GROOVE_CORE;
-        const fall = (c: number): number =>
-          Math.exp(-(Math.hypot(z, c) - c) / groove);
+        // The fitted grooves keep the Gaussian they were fitted as. The
+        // crotch's front falls away exponentially instead: it stands back from
+        // its full depth by 1.07, 0.55, 0.27 and 0.13 of it at 0, 20, 40 and
+        // 60 mm, a decay length of 29 mm, where a Gaussian of that width dies
+        // by 50 mm and set the front at full depth there, a lobe across the
+        // ring. Used for the spine's groove, that profile printed a crease
+        // down the whole back.
+        const crotch: number = forward
+          ? s.crotch *
+            Math.exp(-(Math.hypot(z, s.crotchCore) - s.crotchCore) / groove)
+          : 0;
         const x: number =
           depth *
             ((1 - q) / n) *
-            (1 -
-              pull * fall(core) -
-              (forward ? s.crotch * fall(s.crotchCore) : 0)) +
+            (1 - pull * Math.exp(-((z / groove) ** 2)) - crotch) +
           // The two breasts, so that the relief is even across the midline: one
           // alone keeps its slope there, and the mirror folds it into a corner
           // that runs from the neck to the belly as a stripe.
@@ -862,17 +871,45 @@ export namespace AutoMovieHumanTrunkConstruction {
    * them at the tip or slid them as the width changed. Anchors hold the places
    * and arclength holds the spacing.
    */
-  function steady(half: [number, number][], order: number): [number, number][] {
+  function steady(
+    half: [number, number][],
+    hull: [number, number][],
+    order: number,
+  ): [number, number][] {
+    // The spacing is the hull's, without the grooves: a notch closing over a
+    // few millimetres changes the outline's length fast, and spacing by it
+    // slid the points sideways between rows. The hull changes slowly, and the
+    // grooves then move each point only where it already is.
     const widest: number = (half.length - 1) / 2;
-    const front: [number, number][] = half.slice(0, widest + 1);
-    const back: [number, number][] = half.slice(widest);
+    const lengths: number[] = [0];
+    for (let i: number = 1; i < hull.length; i++)
+      lengths.push(
+        lengths[i - 1]! +
+          Math.hypot(hull[i]![0] - hull[i - 1]![0], hull[i]![1] - hull[i - 1]![1]),
+      );
+    const index = (d: number): number => {
+      let i: number = 0;
+      while (i < hull.length - 2 && lengths[i + 1]! < d) i++;
+      return (
+        i + (d - lengths[i]!) / Math.max(1e-9, lengths[i + 1]! - lengths[i]!)
+      );
+    };
+    const total: number = lengths[lengths.length - 1]!;
+    const middle: number = lengths[widest]!;
     return Array.from(
       { length: order },
       (_: unknown, m: number): [number, number] => {
         const t: number = (2 * m) / order;
         const s: number = t <= 1 ? t : 2 - t;
-        const p: [number, number] =
-          s <= 0.5 ? along(front, 2 * s) : along(back, 2 * s - 1);
+        const x: number = index(
+          s <= 0.5 ? 2 * s * middle : middle + (2 * s - 1) * (total - middle),
+        );
+        const i: number = Math.min(half.length - 2, Math.floor(x));
+        const f: number = x - i;
+        const p: [number, number] = [
+          half[i]![0] + f * (half[i + 1]![0] - half[i]![0]),
+          half[i]![1] + f * (half[i + 1]![1] - half[i]![1]),
+        ];
         return t <= 1 ? p : [p[0], -p[1]];
       },
     );
@@ -1068,9 +1105,6 @@ const JOINT_REACH: number = 1;
  * stays beside the ring, among the rows the leg keeps there.
  */
 const HIP_FILLET: number = 0.3;
-
-/** A groove's rounded core at the midline, a share of its width. */
-const GROOVE_CORE: number = 0.25;
 
 /** Reach of a measure's regression up the column, in fractions of it. */
 const FAIR: number = 0.05;
