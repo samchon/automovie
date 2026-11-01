@@ -203,12 +203,18 @@ export namespace AutoMovieHumanHeadPrior {
     ala: readonly number[];
 
     /**
-     * The nose's base, which trims it from below: rise under the alar rims and
-     * fall past them, in spans of nasion to tip; where the fall starts and over
-     * how far, in half nose widths; the rounding into the lip, millimetres; the
-     * sharpness of its union with the nose.
+     * The nose's base, which trims it from below: its rise under the alar rims,
+     * in spans of nasion to tip, and the sharpness of its union with the nose.
      */
     underside: readonly number[];
+
+    /**
+     * Least rounding of the nose's base, in pitches of the head's sampling there.
+     * The trim's edge turns over at least this many of the lower head's layer
+     * pitch, the coarser of its layer and control pitches at the base, so no turn
+     * falls between two controls or two layers.
+     */
+    round: number;
 
     /**
      * Nasolabial angle, degrees, and its change per unit of the
@@ -285,6 +291,55 @@ export namespace AutoMovieHumanHeadPrior {
     nostrilTear: number;
   }
 
+  /**
+   * The mandible's skin, a volume in the section union. Its plan is the arch of
+   * the jaw from the chin to the gonions; its lower border is the mandibular
+   * plane through the menton, turning up at the gonial angle into the ramus's
+   * posterior border; under the border the skin falls inward to the neck.
+   */
+  export interface IMandible {
+    /** Mandibular plane's rise toward the back, degrees, and per unit of the masculine-feminine control. */
+    plane: readonly number[];
+
+    /** Gonial angle, degrees, and per unit of the masculine-feminine control. */
+    angle: readonly number[];
+
+    /** Gonion ahead of the ear's line, millimetres. */
+    gonion: number;
+
+    /**
+     * Fall of the skin under the border from the horizontal, degrees: the
+     * cervicomental angle is about a right angle and this.
+     */
+    under: number;
+
+    /**
+     * Soft tissue's rounding of the turn under the border, millimetres: an
+     * ellipse whose radius is `taper` times this over the bone's edge and the
+     * gonial angle, and this over `taper` squared where it opens into the
+     * skin under the jaw.
+     */
+    round: number;
+
+    /** See {@link round}. */
+    taper: number;
+
+    /** The arch's front behind the chin's skin, in radii over the bone's edge. */
+    inset: number;
+
+    /** Arch's half-length behind the gonion, in half mandibular widths. */
+    back: number;
+
+    /**
+     * Arch's exponent in plan: the jaw's sides run nearly straight from the
+     * chin to the angle, so the arch is squarer than an ellipse.
+     */
+    power: number;
+
+    /** Width of the blend with the face and the neck, millimetres. */
+    blend: number;
+  }
+
   /** The whole prior. */
   export interface IPrior {
     /** Stations of the curves' keys. */
@@ -304,6 +359,9 @@ export namespace AutoMovieHumanHeadPrior {
 
     /** Face reliefs. */
     face: IFace;
+
+    /** The jaw. */
+    mandible: IMandible;
 
     /** Auricle. */
     ear: IEar;
@@ -345,7 +403,8 @@ export namespace AutoMovieHumanHeadPrior {
       dorsum: [0.7, 0.66, 0.6, 0.52, 0.48, 0.5],
       tipBall: [0.8, 0.46, 0.72],
       ala: [11, 0.62, 0.3, 0.25, 0.2, 0.4],
-      underside: [0.05, 0.6, 1, 0.5, 1.5, 4],
+      underside: [0.05, 4],
+      round: 3,
       nasolabial: [101.25, 3.75, 10],
       crease: [1, 0.5, 1.3],
       stomion: 0.27,
@@ -387,6 +446,25 @@ export namespace AutoMovieHumanHeadPrior {
       nostrilCentre: [0.42, 0.5],
       nostrilSweep: 40,
       nostrilTear: 0.35,
+    },
+    // Frankfort to mandibular plane 25 degrees, steeper in women; gonial angle
+    // about 120 in men and 125 in women; a cervicomental angle of about 112.
+    mandible: {
+      plane: [25, 2.5],
+      angle: [122.5, 2.5],
+      gonion: 20,
+      under: 22,
+      // 5.5 mm over the bone's edge, which the lower head's layers cross nearly
+      // square, and 33 mm into the skin under the jaw, which they cross at about
+      // 18 degrees. A circle of 6 mm turned 34 degrees a layer at the underside,
+      // and an ellipse of 4.9 and 15.8 mm, the least the 1.27 mm layers carry
+      // by a straight estimate, still turned 29.
+      round: 10,
+      taper: 0.55,
+      inset: 1,
+      back: 0.5,
+      power: 3,
+      blend: 6,
     },
     ear: {
       lengthRatio: 1.02,

@@ -24,7 +24,10 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * those two bodies run along the station as natural splines through the
  * prior's keys, which are in head lengths and breadths, and every measure
  * closes on the vertex through one analytic cap. The public widths enter as
- * keys of the shield's half-width.
+ * keys of the shield's half-width. A third body, the mandible's skin, joins
+ * them along each ray by a smooth minimum of absolute width: an arch in plan
+ * from the chin to the gonions over the mandibular plane, whose border turns
+ * under into skin falling inward to the neck.
  *
  * Named features are reliefs written as radial heights over that surface, each
  * with its own place, widths and depth, driven by the public dimensions: the
@@ -187,6 +190,63 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** Columella's rise above the horizontal, radians. */
     columella: number;
+
+    /** Least rounding of the nose's base, from the sampling there. */
+    round: number;
+
+    /** The jaw, once the chin and the ears are placed. */
+    mandible?: IMandible;
+  }
+
+  /** The person's mandible, calibration millimetres. */
+  export interface IMandible {
+    /** Arch's front apex on the midline. */
+    front: number;
+
+    /** Gonion's place along the face's forward axis. */
+    gonion: number;
+
+    /** Gonion's height. */
+    gonionY: number;
+
+    /** Arch's half-width at the gonion. */
+    width: number;
+
+    /** Arch's half-length behind the gonion. */
+    back: number;
+
+    /** Arch's exponent in plan. */
+    power: number;
+
+    /** The chin's skin along the forward axis, where the plane passes the menton. */
+    chin: number;
+
+    /** Menton's height. */
+    menton: number;
+
+    /** Mandibular plane's rise toward the back per millimetre. */
+    slope: number;
+
+    /** Cosine of the mandibular plane's angle. */
+    cos: number;
+
+    /** Cosine and sine of the ramus's lean back from the vertical. */
+    lean: [number, number];
+
+    /** Body's height over its border, where it ends inside the face. */
+    height: number;
+
+    /** Inward run of the skin under the border per millimetre of fall. */
+    draft: number;
+
+    /** Soft tissue's rounding of the turn under the border. */
+    round: number;
+
+    /** Share of that rounding at the jaw's side; its inverse square at the underside. */
+    taper: number;
+
+    /** Width of the blend with the face and neck. */
+    blend: number;
   }
 
   /** One section's measures in its own plane. */
@@ -223,6 +283,12 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** Shield exponent. */
     powerFace: number;
+
+    /** Station: the plane's height on the vertical through the origin. */
+    station: number;
+
+    /** The jaw's volume, joined to the two bodies along each ray. */
+    jaw?: IMandible;
   }
 
   /** The prior's curves prepared. */
@@ -365,6 +431,9 @@ export namespace AutoMovieHumanHeadConstruction {
         ((f.nasolabial[0]! + f.nasolabial[1]! * inputs.sex - 90 + f.nasolabial[2]!) *
           Math.PI) /
         180,
+      // The lower head's layers run from the neck ring to the ears' lower ends,
+      // about the subnasale; `generate` sets the exact pitch.
+      round: (f.round * (subnasale - y0)) / (LAYERS_LOWER - 1),
     };
   }
 
@@ -426,6 +495,8 @@ export namespace AutoMovieHumanHeadConstruction {
             read(compiled.squareBack) + plan.vault * smooth((t - 2.2) / 0.6),
           ),
       powerFace: 4 + 2 * Math.tanh(read(compiled.squareFace)),
+      station: s,
+      jaw: plan.mandible,
     };
   }
 
@@ -446,12 +517,22 @@ export namespace AutoMovieHumanHeadConstruction {
     return (g ** -POWER + section.shield * f ** -POWER) ** (-1 / POWER);
   }
 
-  /** Radius of the section's outline along a ray from `(ox, 0)`. */
+  /** Radius of the section's outline along a ray from `(ox, 0)`, the jaw joined. */
   export function radius(
     section: ISection,
     ox: number,
     theta: number,
     guess: number = 0,
+  ): number {
+    return jawed(section, ox, theta, bodies(section, ox, theta, guess));
+  }
+
+  /** Radius of the union of the back body and the shield along a ray. */
+  function bodies(
+    section: ISection,
+    ox: number,
+    theta: number,
+    guess: number,
   ): number {
     const c: number = Math.cos(theta);
     const n: number = Math.sin(theta);
@@ -473,6 +554,97 @@ export namespace AutoMovieHumanHeadConstruction {
       else hi = mid;
     }
     return lo;
+  }
+
+  /**
+   * The outline along a ray with the jaw joined: the outermost root of a smooth
+   * minimum, of absolute width, of the distance past the bodies' outline and
+   * the jaw's signed distance. A width in millimetres, unlike the bodies' scale
+   * union, swells the skin by a quarter of it at most where the two meet flush,
+   * and rounds the hollow between the jaw's underside and the neck by about it.
+   */
+  function jawed(
+    section: ISection,
+    ox: number,
+    theta: number,
+    base: number,
+  ): number {
+    const m: IMandible | undefined = section.jaw;
+    if (m === undefined) return base;
+    const c: number = Math.cos(theta);
+    const n: number = Math.sin(theta);
+    const cos: number = Math.cos(section.tilt);
+    const sin: number = Math.sin(section.tilt);
+    const k: number = m.blend;
+    const join = (r: number): [number, number] => {
+      const xi: number = ox + r * c;
+      const d: number = mandible(m, xi * cos, section.station + xi * sin, r * n);
+      return [softMin(r - base, d, k), d];
+    };
+    let inside: number = -1;
+    let outside: number = -1;
+    for (let r: number = base, i: number = 0; i < 400; i++) {
+      const [v, d] = join(r);
+      if (v < 0) {
+        inside = r;
+        outside = -1;
+      } else if (outside < 0) outside = r;
+      if (v >= 0 && d > JAW_REACH) break;
+      r += Math.max(JAW_STEP, Math.abs(d) - k);
+    }
+    if (inside < 0) return base;
+    if (outside < 0) return inside;
+    let lo: number = inside;
+    let hi: number = outside;
+    for (let i: number = 0; i < 32; i++) {
+      const mid: number = (lo + hi) / 2;
+      if (join(mid)[0] < 0) lo = mid;
+      else hi = mid;
+    }
+    return lo;
+  }
+
+  /**
+   * Signed distance from the jaw's skin, negative inside, first order.
+   *
+   * In plan the jaw is an arch, an ellipse about the gonion, long ahead of it
+   * and short behind. Seen from the side its border is the mandibular plane
+   * through the menton, turning up at the gonial angle into the ramus's
+   * posterior border, the corner rounded by the soft tissue. Under the border
+   * the skin falls inward at a fixed angle to meet the neck, and the two faces
+   * meet over that soft tissue's radius. The body ends inside the face a fixed
+   * height over its border, softly.
+   */
+  export function mandible(
+    m: IMandible,
+    x: number,
+    y: number,
+    z: number,
+  ): number {
+    const a: number = x > m.gonion ? m.front - m.gonion : m.back;
+    const u: number = Math.abs(x - m.gonion) / a;
+    const v: number = Math.abs(z) / m.width;
+    const n: number = m.power;
+    const e: number = (u ** n + v ** n) ** (1 / n);
+    const g: number =
+      e < 1e-9
+        ? 0
+        : Math.hypot((u / e) ** (n - 1) / a, (v / e) ** (n - 1) / m.width);
+    const plan: number = g === 0 ? -Math.min(a, m.width) : (e - 1) / g;
+    const line: number = m.menton + (m.chin - x) * m.slope;
+    const below: number = (line - y) * m.cos;
+    const behind: number =
+      (m.gonion - x) * m.lean[0] - (y - m.gonionY) * m.lean[1];
+    const border: number = rounded(below, behind, m.round * m.taper);
+    const under: number = (plan + m.draft * border) / Math.hypot(1, m.draft);
+
+    // The turn under is an ellipse: its radius is the taper times the round
+    // where it leaves the jaw's side, which the layers cross nearly square, and
+    // the round over the taper squared where it runs into the underside, which
+    // they cross at under 20 degrees, a layer spanning 4 mm of it.
+    const side: number = rounded(m.taper * plan, under, m.round);
+    const top: number = (y - line - m.height) * m.cos;
+    return rounded(side, top, JAW_TOP * m.round);
   }
 
   /**
@@ -693,6 +865,14 @@ export namespace AutoMovieHumanHeadConstruction {
     // harmonic union, so the tip, the columella and the alar rims turn into it
     // over radii in proportion to their own size. A level shelf cut across the
     // nose turned at 1 mm and read from three quarters as one slot.
+    //
+    // A proportional rounding vanishes with what it rounds: where a base that
+    // fell away past the wing cut the lobule's thin tail it turned within
+    // 0.3 mm, a third of a control, and the cells aliased it into teeth. So the
+    // base meets the lip over a circle of absolute radius, a few of the
+    // sampling's pitches there: the subnasale turns over it, and a tail of
+    // height h is cut where the circle has risen to h, over about the square
+    // root of the radius times h, however thin the tail.
     const span: number = plan.nasion - plan.tip;
     const w: number = plan.noseWidth;
     const lead: number = plan.noseLead;
@@ -722,11 +902,13 @@ export namespace AutoMovieHumanHeadConstruction {
       bell2((y - lobeY) / lobeHalf, (d - f.ala[1]! * w) / (f.ala[5]! * w));
     const ala: number = ((f.ala[0]! * w) / 14) * (lobe(a) + lobe(-a));
     const body: number = Math.hypot((ridge ** NOSE + ball ** NOSE) ** (1 / NOSE), ala);
-    const floor: number = positive(
-      (y - noseBase(plan, f, a)) / Math.tan(plan.columella),
-      f.underside[4]! * k,
+    const [base, fall] = noseBase(plan, f, a);
+    const floor: number = filleted(
+      (y - base) / Math.hypot(1, fall),
+      plan.columella,
+      plan.round,
     );
-    const p: number = f.underside[5]!;
+    const p: number = f.underside[1]!;
     out += body > 0 && floor > 0 ? (body ** -p + floor ** -p) ** (-1 / p) : 0;
 
     // The alar crease sets each lobule back into the cheek round its outer side.
@@ -773,22 +955,22 @@ export namespace AutoMovieHumanHeadConstruction {
 
   /**
    * Height where the nose's base meets the face, at a distance from the
-   * midline: the subnasale at the columella, a little higher under the alar
-   * rims, and falling away past the wing so that the base trims nothing of the
-   * cheek.
+   * midline, and its slope across: the subnasale at the columella, a little
+   * higher under the alar rims, and level past them. A base that fell away past
+   * the wing bent its line at 0.3 mm and kept the lobule's tail below it, whose
+   * cut edge the trim then had to round.
    */
   function noseBase(
     plan: ILayout,
     f: AutoMovieHumanHeadPrior.IFace,
     a: number,
-  ): number {
-    const u: number = a / plan.noseWidth;
-    return (
-      plan.subnasale +
-      (plan.nasion - plan.tip) *
-        (f.underside[0]! * smooth(u) -
-          f.underside[1]! * smooth((u - f.underside[2]!) / f.underside[3]!))
-    );
+  ): [number, number] {
+    const u: number = Math.min(1, a / plan.noseWidth);
+    const rise: number = (plan.nasion - plan.tip) * f.underside[0]!;
+    return [
+      plan.subnasale + rise * u * u * (3 - 2 * u),
+      (rise * 6 * u * (1 - u)) / plan.noseWidth,
+    ];
   }
 
   /** The neck ring's polar difference from the law, per side. */
@@ -1334,14 +1516,6 @@ export namespace AutoMovieHumanHeadConstruction {
       cut: new Map(),
     };
 
-    // The eyes stand a fixed depth behind the nasion's skin, and the sockets
-    // fall to them.
-    const seat: number =
-      frontAt(surface, plan.nasion, 0) - prior.face.eyeRecess * scale;
-    plan.left.seat = frontAt(surface, plan.eye, plan.left.place) - seat;
-    plan.right.seat = frontAt(surface, plan.eye, -plan.right.place) - seat;
-    surface.cut.clear();
-
     // Ears, from the skull's side.
     const place = (e: PublicEar): AutoMovieHumanEarConstruction.IEar =>
       AutoMovieHumanEarConstruction.place(
@@ -1371,6 +1545,33 @@ export namespace AutoMovieHumanHeadConstruction {
       lower,
       upper,
     };
+
+    // The nose's base rounds over a few of the lower head's layer pitches, the
+    // coarser of its two samplings there: about 1.3 mm on the references,
+    // against 0.9 mm between controls.
+    plan.round =
+      (prior.face.round * (lower - level)) / (LAYERS_LOWER - 1);
+
+    // The eyes stand a fixed depth behind the nasion's skin, and the sockets
+    // fall to them.
+    const seat: number =
+      frontAt(surface, plan.nasion, 0) - prior.face.eyeRecess * scale;
+    plan.left.seat = frontAt(surface, plan.eye, plan.left.place) - seat;
+    plan.right.seat = frontAt(surface, plan.eye, -plan.right.place) - seat;
+
+    // The jaw, from the chin's skin, the ears and the public jaw width.
+    plan.mandible = jawOf(
+      plan,
+      prior.mandible,
+      frontAt(
+        surface,
+        plan.menton + prior.mandible.round * prior.mandible.taper * scale,
+        0,
+      ),
+      (left.x + right.x) / 2,
+      inputs.head.mandibularWidth * scale,
+    );
+    surface.cut.clear();
 
     const middleStations: number[] = crowded(
       lower,
@@ -1557,7 +1758,7 @@ export namespace AutoMovieHumanHeadConstruction {
         // In the base: forward from the face and out from the midline.
         const d: number = lead - along * Math.cos(sweep) + across * Math.sin(sweep);
         const z: number = out + along * Math.sin(sweep) + across * Math.cos(sweep);
-        const y: number = noseBase(plan, f, z) + d * rise;
+        const y: number = noseBase(plan, f, z)[0] + d * rise;
         return [frontAt(surface, y, sign * z), y, sign * z];
       },
     );
@@ -1634,6 +1835,47 @@ export namespace AutoMovieHumanHeadConstruction {
         endDerivative: tangent((i + 1) % n),
       }),
     );
+  }
+
+  /**
+   * The person's mandible: the plane through the chin's skin at the menton at
+   * its angle, the gonion on it a fixed distance ahead of the ears' line at
+   * half the jaw width, the ramus leaning back by the gonial angle, the body as
+   * tall as the menton to the stomion.
+   */
+  function jawOf(
+    plan: ILayout,
+    j: AutoMovieHumanHeadPrior.IMandible,
+    chin: number,
+    ear: number,
+    width: number,
+  ): IMandible {
+    const k: number = plan.scale;
+    const degree: number = Math.PI / 180;
+    const plane: number = (j.plane[0]! + j.plane[1]! * plan.sex) * degree;
+    const angle: number = (j.angle[0]! + j.angle[1]! * plan.sex) * degree;
+    const lean: number = angle - Math.PI / 2 - plane;
+    const round: number = j.round * k;
+    const gonion: number = ear + j.gonion * k;
+    const slope: number = Math.tan(plane);
+    return {
+      front: chin - j.inset * j.taper * round,
+      gonion,
+      gonionY: plan.menton + (chin - gonion) * slope,
+      width: width / 2,
+      back: (j.back * width) / 2,
+      power: j.power,
+      chin,
+      menton: plan.menton,
+      slope,
+      cos: Math.cos(plane),
+      lean: [Math.cos(lean), Math.sin(lean)],
+      height: plan.stomion - plan.menton,
+      draft: 1 / Math.tan(j.under * degree),
+      round,
+      taper: j.taper,
+      blend: j.blend * k,
+    };
   }
 
   /** Forward coordinate of the skin at a world height and lateral place. */
@@ -1751,6 +1993,15 @@ const LAYERS_UPPER: number = 40;
 /** Last section below the vertex, world millimetres. */
 const CROWN: number = 0.25;
 
+/** Least step along a ray near the jaw, millimetres. */
+const JAW_STEP: number = 0.4;
+
+/** Distance from the jaw past which a ray has left it, millimetres. */
+const JAW_REACH: number = 80;
+
+/** Rounding of the jaw's end inside the face, in its soft tissue's radii. */
+const JAW_TOP: number = 3;
+
 /**
  * Tilt of a section plane: a hump over the jaw, gone by the subnasale, so that
  * the planes pass under the chin and the sections above are level.
@@ -1796,13 +2047,32 @@ function smooth(x: number): number {
 }
 
 /**
- * C1 nonnegative ramp: exactly zero below `-width`, exactly x above `width`, a
- * quadratic between.
+ * Signed distance of the intersection of two regions given by signed
+ * distances, its edge rounded at a radius: exact for two planes.
  */
-function positive(x: number, width: number): number {
-  if (x <= -width) return 0;
-  if (x >= width) return x;
-  return (x + width) ** 2 / (4 * width);
+function rounded(a: number, b: number, r: number): number {
+  return (
+    Math.min(-r, Math.max(a, b)) +
+    Math.hypot(Math.max(a + r, 0), Math.max(b + r, 0))
+  );
+}
+
+/**
+ * Height of the nose's base over the lip at a distance above the base's line:
+ * the lip and the base plane, rising forward at an angle, joined by a circle
+ * of a radius tangent to both.
+ */
+function filleted(above: number, angle: number, radius: number): number {
+  const reach: number = radius / Math.tan(Math.PI / 4 + angle / 2);
+  if (above <= -reach) return 0;
+  if (above >= reach * Math.sin(angle)) return above / Math.tan(angle);
+  return radius - Math.sqrt(Math.max(0, radius ** 2 - (above + reach) ** 2));
+}
+
+/** Quadratic smooth minimum over an absolute width. */
+function softMin(a: number, b: number, width: number): number {
+  const h: number = Math.max(width - Math.abs(a - b), 0) / width;
+  return Math.min(a, b) - (h * h * width) / 4;
 }
 
 /** Mean of a list. */
