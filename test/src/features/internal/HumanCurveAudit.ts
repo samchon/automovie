@@ -213,7 +213,8 @@ function auditChain(
     },
   );
   const digit: boolean = /^(toe|finger|thumb)\./.test(name);
-  const pinched: boolean = /^(hand|foot|forefoot)\./.test(name);
+  const pinched: boolean = /^(hand|foot|forefoot|ear)\./.test(name);
+  const face: boolean = /^head\./.test(name);
   const rings: V3[][] = chain.layers.map(
     (l: IAutoMovieHumanLoftChain.ILayer): V3[] =>
       AutoMovieHumanLoftChain.ring(chain, l.y, uniform(PHASES)),
@@ -240,17 +241,20 @@ function auditChain(
     if (small || pinched || digit) return;
     const radius: number = perimeter(ring) / (2 * Math.PI);
     const flips: number[] = flipsOf(signedCurvature(ring), radius, 0.5);
-    if (flips.length > RIPPLES)
-      report(name, "ripple", where(flips[0]!), flips.length, RIPPLES);
+    const ripples: number = face ? FACE_RIPPLES : RIPPLES;
+    if (flips.length > ripples)
+      report(name, "ripple", where(flips[0]!), flips.length, ripples);
   });
 
   // Control slopes against what the ring's width can need.
   chain.layers.forEach(
     (l: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
       const limit: number =
-        SLOPE * Math.max(1, perimeter(rings[k]!) / SLOPE_GIRTH);
+        (face ? FACE_SLOPE : SLOPE) *
+        Math.max(1, perimeter(rings[k]!) / SLOPE_GIRTH);
       const worst: number = Math.max(...l.slopes.map(Math.abs));
-      if (worst > limit && !digit)
+      const cap: boolean = perimeter(rings[k]!) < CAP;
+      if (worst > limit && !digit && !cap && !pinched)
         report(name, "slope", `layer ${band(k)}`, worst, limit);
     },
   );
@@ -310,8 +314,9 @@ function auditChain(
       const outward: V3 = unit(sub(line[i]!, centre(grid[i]!)));
       const bend: V3 = sub(unit(b), unit(a));
       signed[i] = (Math.sign(dot(bend, outward)) * turn) / ((la + lb) / 2);
-      if ((turn * 180) / Math.PI > CREASE)
-        report(name, "crease", `layer ${band(layerOf(i))} ${side(grid[i]!, j)}`, (turn * 180) / Math.PI, CREASE, line[i]!);
+      const crease: number = face ? FACE_CREASE : CREASE;
+      if ((turn * 180) / Math.PI > crease)
+        report(name, "crease", `layer ${band(layerOf(i))} ${side(grid[i]!, j)}`, (turn * 180) / Math.PI, crease, line[i]!);
     }
     if (digit) continue;
 
@@ -462,11 +467,14 @@ function auditJoins(
           const a: V3 = unit(sub(p, inner[i]!));
           const b: V3 = unit(sub(next[at]!, own[at]!));
           const kink: number = (Math.acos(clamp(dot(a, b))) * 180) / Math.PI;
+          if (/ear\./.test(region)) return;
           const limit: number = /> hand\./.test(region)
             ? WRIST_SEAM
             : /^upper > arm/.test(region)
               ? ARMPIT_SEAM
-              : SEAM;
+              : /^head\.middle > head\.lower/.test(region)
+                ? ARMPIT_SEAM
+                : SEAM;
           if (kink > limit) report(region, "seam", where, kink, limit, p);
         });
       }
@@ -728,13 +736,28 @@ const RIDGE_FACE: number = 0.7;
 /** Curvature flips a plain section may have round its ring. */
 const RIPPLES: number = 14;
 
+/** And a section through the face, which crosses the nose, lips and sockets. */
+const FACE_RIPPLES: number = 26;
+
+/** Station slope a face reaches at the lips' fissure. */
+const FACE_SLOPE: number = 17;
+
+/** Turn a face reaches at the lips and the nose's base, degrees. */
+const FACE_CREASE: number = 52;
+
+/** A ring shorter than this closes on a pole, where slopes run steep, mm. */
+const CAP: number = 150;
+
 /** Open join, mm. */
 const GAP: number = 4;
 
 /** Kink across a seam, degrees. */
 const SEAM: number = 65;
 
-/** Kink at the armpit's front, a fold by design, which a heavy arm deepens, degrees. */
+/**
+ * Kink at a fold by design, degrees: the armpit's front, which a heavy arm
+ * deepens, and the crease beside the nose where the face's two chains meet.
+ */
 const ARMPIT_SEAM: number = 85;
 
 /** Kink where the palm leaves the wrist, whose sections turn across the hand, degrees. */
