@@ -50,6 +50,58 @@ export namespace AutoMovieHumanNeutral {
   /** Share of the forearm's twist the wrist carries. */
   export const WRIST_TWIST: number = 0.5;
 
+  /** One bone's segment frame at neutral. */
+  export interface IFrame {
+    /** Bone id. */
+    bone: string;
+
+    /** Parent bone, or null for the root. */
+    parent: string | null;
+
+    /** Joint centre, mm. */
+    centre: Math3D.Vector;
+
+    /** End of the segment: the child's centre or the leaf's tip, mm. */
+    end: Math3D.Vector;
+
+    /** The bone's clinical axes; `twist` runs along the segment. */
+    axes: Math3D.IAxes;
+  }
+
+  /**
+   * Every bone's segment frame at neutral: the joint centres and clinical axes
+   * the pose fields turn about, which a limb lofted in its own frame reads.
+   *
+   * The frames are a function of the generated skeleton alone, derived from
+   * the same centres the rig binds to, so a body that changes its skeleton
+   * changes its frames and nothing else is stored.
+   *
+   * @param joints The skeleton at neutral, from {@link derive}.
+   * @returns One frame per bone, parent before child.
+   */
+  export function frames(
+    joints: readonly AutoMovieHumanJointCentres.IJoint[],
+  ): IFrame[] {
+    const byBone = new Map<string, AutoMovieHumanJointCentres.IJoint>(
+      joints.map(
+        (j: AutoMovieHumanJointCentres.IJoint): [string, AutoMovieHumanJointCentres.IJoint] => [
+          j.bone,
+          j,
+        ],
+      ),
+    );
+    return joints.map((j: AutoMovieHumanJointCentres.IJoint): IFrame => {
+      const d: Vector = Math3D.unit(Math3D.sub(j.toward, j.position));
+      return {
+        bone: j.bone,
+        parent: j.parent,
+        centre: j.position,
+        end: j.tip ?? j.toward,
+        axes: Math3D.boneAxes(j.bone, d, byBone),
+      };
+    });
+  }
+
   /**
    * Derive one body's neutral.
    *
