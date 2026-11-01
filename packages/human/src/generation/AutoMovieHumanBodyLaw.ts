@@ -3,10 +3,12 @@ import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHerm
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHumanLegIdentity";
 import { AutoMovieHumanBodyCalibration } from "./AutoMovieHumanBodyCalibration";
 import { AutoMovieHumanBodyWarp } from "./AutoMovieHumanBodyWarp";
 import { AutoMovieHumanBodyWarpField } from "./AutoMovieHumanBodyWarpField";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
+import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyMorph } from "./IAutoMovieHumanBodyMorph";
@@ -24,9 +26,8 @@ import { AutoMovieHumanVermilionCalibration } from "./calibration/AutoMovieHuman
  * from the specimen's own value. The measurement law
  * (`AutoMovieHumanBodyWarpField`, `AutoMovieHumanBodyWarp`) then brings the
  * tape girths, the crotch's share of the stature and the head size to the
- * inputs. The specimen's own parameters, or missing controls, return the
- * specimen calibration objects themselves (identical output, no
- * arithmetic). Stature stays the generator's separate uniform scale.
+ * inputs. Both are the identity for the specimen's own parameters. Stature
+ * stays the generator's separate uniform scale.
  *
  * Every calibrated quantity moves by the same basis displacement field, so
  * the skin, its construction curves, the apertures cut from it, the globes
@@ -45,9 +46,9 @@ import { AutoMovieHumanVermilionCalibration } from "./calibration/AutoMovieHuman
  * Event pinch phases, layer stations and frames are unchanged, so every
  * shared ring is still generated once by its parent and inherited.
  *
- * The legs take no basis and no measurement map:
- * `AutoMovieHumanLegConstruction` generates them last, between the trunk and
- * feet those maps produced.
+ * The legs and feet take no basis and no measurement map:
+ * `AutoMovieHumanFootConstruction` and `AutoMovieHumanLegConstruction`
+ * generate them last, under the trunk those maps produced.
  */
 export namespace AutoMovieHumanBodyLaw {
   /** Calibrations for one parameter set. */
@@ -63,10 +64,10 @@ export namespace AutoMovieHumanBodyLaw {
    * Calibrations for one parameter set.
    *
    * @param params Public input; the body controls listed in
-   *   `AutoMovieHumanBodyWarpField`, `masculineFeminine` and the head
-   *   length and cephalic index are read.
-   * @returns The specimen calibrations themselves for the specimen's own
-   *   inputs, otherwise new copies.
+   *   `AutoMovieHumanBodyWarpField`, `masculineFeminine`, `fat`,
+   *   `muscularity`, the foot measures and the head length and cephalic
+   *   index are read.
+   * @returns New calibrations.
    */
   export function calibrate(params: IAutoMovieHumanParameters): IOutput {
     const morph: IAutoMovieHumanBodyMorph = AutoMovieHumanBodyMorphCalibration;
@@ -92,12 +93,14 @@ export namespace AutoMovieHumanBodyLaw {
         params,
         AutoMovieHumanBodySpecimenCalibration,
       );
-    if (field === null) return shaped;
-    const warped: AutoMovieHumanBodyWarp.IOutput = AutoMovieHumanBodyWarp.apply(
-      shaped.body,
-      field,
-      shaped.vermilion.spans,
-    );
+    const warped: AutoMovieHumanBodyWarp.IOutput =
+      field === null
+        ? { body: shaped.body, vermilion: shaped.vermilion.spans }
+        : AutoMovieHumanBodyWarp.apply(
+            shaped.body,
+            field,
+            shaped.vermilion.spans,
+          );
 
     // The basis and the warp move each chain's end layer by their own
     // maps, which reopens the gaps and creases the specimen's event join
@@ -112,7 +115,13 @@ export namespace AutoMovieHumanBodyLaw {
     return {
       body: AutoMovieHumanEventJoin.reconcile(
         AutoMovieHumanLegConstruction.apply(
-          AutoMovieHumanLegConstruction.stand(warped.body, inputs),
+          AutoMovieHumanLegConstruction.stand(
+            AutoMovieHumanFootConstruction.apply(
+              warped.body,
+              feet(params, inputs),
+            ),
+            inputs,
+          ),
           inputs,
         ),
       ),
@@ -166,6 +175,46 @@ function tapes(
 }
 
 /**
+ * The person's foot dimensions in calibration millimetres. A side without
+ * measures takes what the body's own inputs expect.
+ */
+function feet(
+  params: IAutoMovieHumanParameters,
+  inputs: AutoMovieHumanLegConstruction.IInputs,
+): AutoMovieHumanFootConstruction.IInputs {
+  const expected: AutoMovieHumanFootConstruction.IDimensions =
+    AutoMovieHumanFootConstruction.expected(
+      statureOf(params),
+      inputs.sex,
+      inputs.fat,
+      inputs.muscularity,
+      inputs.scale,
+    );
+  const side = (
+    given:
+      | Pick<
+          IAutoMovieHumanLegIdentity,
+          "footLength" | "footBreadth" | "ankleHeight"
+        >
+      | undefined,
+  ): AutoMovieHumanFootConstruction.IDimensions =>
+    given === undefined
+      ? expected
+      : {
+          length: given.footLength * inputs.scale,
+          breadth: given.footBreadth * inputs.scale,
+          ankle: given.ankleHeight * inputs.scale,
+        };
+  return {
+    left: side(params.extremities?.feet?.left),
+    right: side(params.extremities?.feet?.right),
+    fat: inputs.fat,
+    muscularity: inputs.muscularity,
+    scale: inputs.scale,
+  };
+}
+
+/**
  * Body calibration displaced by `w` units of a basis.
  *
  * @throws {Error} When the basis does not cover the calibration's chains,
@@ -188,7 +237,11 @@ function displace(
     ...base,
     chains: base.chains.map(
       (chain: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain => {
-        if (chain.name.startsWith("leg.")) return chain;
+        if (
+          chain.name.startsWith("leg.") ||
+          AutoMovieHumanFootConstruction.owns(chain.name)
+        )
+          return chain;
         const m: IAutoMovieHumanBodyMorph.IChain | undefined = chains.get(
           chain.name,
         );
@@ -243,6 +296,7 @@ function displace(
       (
         p: IAutoMovieHumanBodyCalibration.IPole,
       ): IAutoMovieHumanBodyCalibration.IPole => {
+        if (AutoMovieHumanFootConstruction.owns(p.chain)) return p;
         const d: IAutoMovieHumanBodyMorph.IPole | undefined = morph.poles.find(
           (m: IAutoMovieHumanBodyMorph.IPole): boolean =>
             m.chain === p.chain && m.end === p.end,

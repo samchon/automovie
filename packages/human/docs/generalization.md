@@ -62,11 +62,13 @@ Both legs now come from one construction and a reflection in `AutoMovieHumanLegC
 
 | Part | f1 held out | f2 held out | m1 held out | m2 held out |
 | --- | --- | --- | --- | --- |
-| Leg, generated | 2.03 | 4.62 | 4.98 | 5.11 |
+| Leg, generated | 2.18 | 5.02 | 4.62 | 5.42 |
 | Leg, tables at the baseline | none | 6.6 | 8.9 | 8.5 |
 | Best stature law | 3.35 | 4.63 | 5.40 | 4.76 |
 
-The law beats height alone on three people and loses by 0.35 mm on m2. Section by section, m2 loses only at the top of the thigh, where the trunk's crotch ring leaves the section about 6 mm too wide. f1's row is held out of the leg prior only: its crotch and ankle rings are still its own tables, so read it as an upper bound on how well the leg law can do, not as a generalization result. All four rows inherit tables at both ends, so the distance is judged again once the foot and trunk are generated.
+The law beats height alone on f1 and m1, and on f2 and m2 it loses by 0.39 and 0.66 mm to the best of the two stature laws. Section by section, m2 loses only at the top of the thigh, where the trunk's crotch ring leaves the section about 6 mm too wide. f1's row is held out of the leg prior only: its crotch ring is still its own table, so read it as an upper bound on the leg law, not as a generalization result. All four rows inherit the trunk's table, so the distance is judged again once the trunk is generated.
+
+Raising the crotch to its true height lifted everything above it, and f2's hand went from 7 to 25 mm, with its thin fingers now missing the rays. The arm owns that.
 
 The calf, knee and thigh tapes are exact at the stations the law solves, but those stations are the law's own, so that proves the solver only. Measured at the body's own girth extremes, gain is 1.13 for the calf, 0.64 for the knee and 0.43 for the thigh, against 1.06, 0.57 and 0.76 for the tables. The thigh is worse because the largest girth sits by the crotch ring, which the trunk owns and the thigh tape does not move. It returns with the trunk.
 
@@ -92,6 +94,41 @@ Other findings:
 - The neck and face stretches change the stature after the leg scale is chosen, so the crotch's share must count them. Leaving them out put f2's crotch 9.5 mm low, which an independent review traced from the numbers.
 - Tape radii must be solved against the hull of the section they wrap.
 - Ankle forward place is a line in fat and muscularity. Terms in stature, sex or ankle radius fit the extremes better and made m1 and m2 worse, so they stay out until more people separate them.
+
+## Foot slice
+
+Both feet now come from one construction and a reflection in `AutoMovieHumanFootConstruction`. The prior holds a mean foot as a sparse section field: harmonics per chain, carried between anchor stations by natural splines. The chains keep their section planes, and the map moves points off them through `lift`. The table's 540 KB became 30 KB.
+
+| Part | f1 held out | f2 held out | m1 held out | m2 held out |
+| --- | --- | --- | --- | --- |
+| Foot, generated | 4.61 | 3.01 | 2.93 | 3.57 |
+| Foot, tables at the baseline | none | 3.9 | 4.5 | 5.8 |
+| Best stature law | 5.64 | 2.70 | 5.09 | 5.38 |
+
+The law beats height alone on three people. On f2 it loses to f1 scaled by height, because f1 and f2 are nearly the same foot, and it beats the other people's mean at 4.51. f1's row keeps the section planes and toe poles f1 gave the prior; those are shared constants, and the mean foot itself leaves f1 out.
+
+The two people reserved from every fit, generated from their public inputs, far outside the declared domain:
+
+| Part | e3 | e6 | Best stature law, e3, e6 |
+| --- | --- | --- | --- |
+| Leg | 15.8 | 14.3 | 17.0, 12.3 |
+| Foot | 5.5 | 15.1 | 10.5, 11.0 |
+
+Foot length, breadth and ankle height reach gains of 0.99 to 1.00 at both ends. Seven folded cells remain on the second toe's root, where one chain takes two arcs of its parent's ring; the table had none. The skin there shows no mark under raking light, and they are recorded here rather than repaired.
+
+- People share their foot closely under a separate toe and heel scale: 3.2 to 3.6 mm in three dimensions against the others' mean, where one length scale about the ankle gave 4.3 to 7.2 mm, because the ankle's place along the foot differs between people.
+- `footLength` in the reference parameters was not the defined measure. It ran 1.33 to 1.40 times short of heel to toe, so the values are now measured from the meshes, in the fitter's own frame. `referenceHumanExtremityInputs.mts` still records the old partial extent. `footBreadth` was right within 1 percent. The ankle ring stands 1.46 times the ankle height input.
+- The left and right tables had different chain trees. The right foot now mirrors the left, so `forefoot.right.3` is gone; no consumer named it.
+- Rings bound to a shared mesh carry to any person without cutting. Bindings must be saved while the table still exists, because they need the table to be made.
+- A square O(N^2) projection per section costs more than the whole foot field. A smooth field needs only the inverse of the knot filter, which is O(N).
+
+## Reference people
+
+69 people now share the vertex order: f1, f2, m1, m2 and 65 geometry-only people. `b0` is a centre at height 1750 mm, `e1` to `e8` a half fraction of the corners of height, fat, muscularity and masculine-feminine, and the rest pin one control at an end of `b0`'s range. `e3` and `e6` are reserved from every fitted number.
+
+A geometry-only person costs 107 s and 24.7 MB. 7 people came out with their vertices renumbered although the count matched, so a shared count proves nothing about a shared order, and they were realigned by position and topology. Their heads carry no head fitting, so head scores cannot use them. Fit against the achieved value of a control: an end can fall far short of the request, and `neckToWaist`'s minimum reached 11 percent of it.
+
+What the people taught across slices: one preset's people pull a fitted level toward that preset, so take the slopes from everyone and the level from the people in the domain.
 
 ## Candidate construction
 

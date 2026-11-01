@@ -13,7 +13,7 @@ The current state of `packages/human`: its generation path, calibration data, re
 5. `AutoMovieHumanAppearance` builds eyes, brows, lashes, scalp hair, nails and underwear from the eye apertures and globes and the head and ear skin parts.
 6. Stature scales the whole result uniformly.
 
-The specimen's own parameters return the specimen calibration unchanged at every step. Rounded poles start their domes at the first full layer (`AutoMovieHumanBodySurface`). Aperture rims average their skin gradients along the rim before the lids and pockets are built (`AutoMovieHumanSkinProjection.rim`), and `AutoMovieHumanBodyApertures.cut` drops slivers of skin left inside an opening.
+Rounded poles start their domes at the first full layer (`AutoMovieHumanBodySurface`). Aperture rims average their skin gradients along the rim before the lids and pockets are built (`AutoMovieHumanSkinProjection.rim`), and `AutoMovieHumanBodyApertures.cut` drops slivers of skin left inside an opening.
 
 A region may also carry key-section chains (`IAutoMovieHumanBodyRegion.networks`), expanded by `AutoMovieHumanFeatureChain.expand`. Reliefs (`AutoMovieHumanRelief`), root loops and trims (`AutoMovieHumanBodyRoots`) and strips (`AutoMovieHumanBodyStrip`) evaluate on them.
 

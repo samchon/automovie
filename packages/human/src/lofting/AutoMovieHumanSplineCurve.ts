@@ -66,6 +66,33 @@ export namespace AutoMovieHumanSplineCurve {
   }
 
   /**
+   * Control points of the spline through N points at phases `2pi m / N`.
+   *
+   * The curve at a knot is `(P_{i-1} + 4 P_i + P_{i+1}) / 6`. The inverse of
+   * that periodic filter is `sqrt(3) (sqrt(3) - 2)^|k|`, which is negligible
+   * after 14 neighbours, so a smooth section costs O(N) rather than the
+   * O(N^2) of {@link project}.
+   *
+   * @param samples Points `[x, z]`, one per control point.
+   * @returns Control points in the layout above.
+   */
+  export function interpolate(
+    samples: readonly (readonly [number, number])[],
+  ): number[] {
+    const n: number = samples.length;
+    const out: number[] = new Array<number>(2 * n).fill(0);
+    samples.forEach((p: readonly [number, number], m: number): void => {
+      for (let k: number = -FILTER.length + 1; k < FILTER.length; k++) {
+        const j: number = (((m + k) % n) + n) % n;
+        const w: number = FILTER[Math.abs(k)]!;
+        out[j]! += w * p[0];
+        out[n + j]! += w * p[1];
+      }
+    });
+    return out;
+  }
+
+  /**
    * Evaluate the curve with its first and second phase derivatives.
    *
    * The same span and weights as {@link evaluate}, with the cubic weights'
@@ -228,3 +255,10 @@ export namespace AutoMovieHumanSplineCurve {
     ];
   }
 }
+
+/** Weights of the inverse knot filter by distance. */
+const FILTER: number[] = Array.from(
+  { length: 15 },
+  (_: unknown, k: number): number =>
+    Math.sqrt(3) * (Math.sqrt(3) - 2) ** k,
+);

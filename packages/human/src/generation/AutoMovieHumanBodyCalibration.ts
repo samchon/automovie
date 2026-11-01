@@ -4,6 +4,7 @@ import { AutoMovieHumanBodyRegions } from "./AutoMovieHumanBodyRegions";
 import { AutoMovieHumanContactSmoothing } from "./AutoMovieHumanContactSmoothing";
 import { AutoMovieHumanCornerSmoothing } from "./AutoMovieHumanCornerSmoothing";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
+import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
 import { AutoMovieHumanLipSmoothing } from "./AutoMovieHumanLipSmoothing";
 import { AutoMovieHumanSectionLoops } from "./AutoMovieHumanSectionLoops";
@@ -13,7 +14,7 @@ import type { IAutoMovieHumanBodyRegion } from "./IAutoMovieHumanBodyRegion";
 import { AutoMovieHumanBodySpecimenCalibration } from "./calibration/AutoMovieHumanBodySpecimenCalibration";
 import { AutoMovieHumanEarCalibration } from "./calibration/AutoMovieHumanEarCalibration";
 import { AutoMovieHumanEyeCalibration } from "./calibration/AutoMovieHumanEyeCalibration";
-import { AutoMovieHumanFootCalibration } from "./calibration/AutoMovieHumanFootCalibration";
+
 import { AutoMovieHumanTorsoCalibration } from "./calibration/AutoMovieHumanTorsoCalibration";
 import { AutoMovieHumanVermilionCalibration } from "./calibration/AutoMovieHumanVermilionCalibration";
 
@@ -40,9 +41,11 @@ import { AutoMovieHumanVermilionCalibration } from "./calibration/AutoMovieHuman
  *
  * Rules 1 to 5 repair fitted rows. A chain a region stores as key sections
  * (`networks`) is smooth by construction and skips them; only the event join
- * reaches it. The legs are generated, so they exist for the rules only as the
- * contact sections the rules read, and are generated again from the repaired
- * trunk and feet.
+ * reaches it. The legs and feet are generated, so they exist for the rules
+ * only as the contact sections the rules read, and are generated again from
+ * the repaired trunk. These are stand-ins at f1's controls:
+ * `AutoMovieHumanBodyLaw` generates both from the inputs of whoever is asked
+ * for.
  *
  * `AutoMovieHumanBodyLaw` maps it to the calibration of any parameter set.
  */
@@ -50,7 +53,6 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
   ((): IAutoMovieHumanBodyCalibration => {
     const regions: IAutoMovieHumanBodyRegion[] = [
       AutoMovieHumanTorsoCalibration,
-      AutoMovieHumanFootCalibration,
       AutoMovieHumanEarCalibration,
       AutoMovieHumanEyeCalibration,
     ];
@@ -64,9 +66,27 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
       muscularity: AutoMovieHumanBodySpecimenCalibration.controls.muscularity!,
       scale: 1,
     };
+    const foot: AutoMovieHumanFootConstruction.IDimensions =
+      AutoMovieHumanFootConstruction.expected(
+        AutoMovieHumanBodySpecimenCalibration.controls.height!,
+        tapes.sex,
+        tapes.fat,
+        tapes.muscularity,
+        1,
+      );
+    const feet: AutoMovieHumanFootConstruction.IInputs = {
+      left: foot,
+      right: foot,
+      fat: tapes.fat,
+      muscularity: tapes.muscularity,
+      scale: 1,
+    };
     const merged: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanLegConstruction.add(
-        AutoMovieHumanBodyRegions.merge(regions),
+        AutoMovieHumanFootConstruction.add(
+          AutoMovieHumanBodyRegions.merge(regions),
+          feet,
+        ),
         tapes,
       );
     const generated: Map<string, IAutoMovieHumanLoftChain> = new Map(
@@ -94,13 +114,16 @@ export const AutoMovieHumanBodyCalibration: IAutoMovieHumanBodyCalibration =
     return AutoMovieHumanEventJoin.reconcile(
       AutoMovieHumanLegConstruction.apply(
         AutoMovieHumanLegConstruction.stand(
-          {
-            ...repaired,
-            chains: repaired.chains.map(
-              (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
-                generated.get(c.name) ?? c,
-            ),
-          },
+          AutoMovieHumanFootConstruction.apply(
+            {
+              ...repaired,
+              chains: repaired.chains.map(
+                (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
+                  generated.get(c.name) ?? c,
+              ),
+            },
+            feet,
+          ),
           tapes,
         ),
         tapes,

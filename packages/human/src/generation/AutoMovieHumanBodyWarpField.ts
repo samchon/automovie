@@ -312,7 +312,8 @@ export namespace AutoMovieHumanBodyWarpField {
       AutoMovieHumanLegPrior.PRIOR.crotch;
     const P: number =
       crotchLaw.height +
-      (crotchLaw.inseam * known("inseam") +
+      (crotchLaw.offset +
+        crotchLaw.inseam * known("inseam") +
         crotchLaw.thigh * known("thigh") +
         crotchLaw.sex * known("masculineFeminine")) /
         known("height");

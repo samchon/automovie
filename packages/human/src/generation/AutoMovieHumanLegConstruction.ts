@@ -346,11 +346,11 @@ export namespace AutoMovieHumanLegConstruction {
       bottom,
       length,
       ankle: ankleSection.centre,
-      ankleLift: liftOf(ankle, ankleSection.centre, planar(ankleWorld), ankleWorld, bottom, sign),
+      ankleLift: liftOf(ankle, ankleSection.centre, ankleWorld, bottom, sign),
       crotch,
       crotchOffset: [0, 0],
       crotchCentre: crotchSection.centre,
-      crotchLift: liftOf(crotch, crotchSection.centre, planar(crotchWorld), crotchWorld, bottom + length, sign),
+      crotchLift: liftOf(crotch, crotchSection.centre, crotchWorld, bottom + length, sign),
       inputs,
       profile,
       forward: spline(prior.forward),
@@ -497,7 +497,6 @@ export namespace AutoMovieHumanLegConstruction {
   function liftOf(
     ring: readonly [number, number][],
     centre: readonly [number, number],
-    planar: readonly [number, number][],
     world: readonly [number, number, number][],
     level: number,
     sign: 1 | -1,
@@ -512,9 +511,9 @@ export namespace AutoMovieHumanLegConstruction {
       const z: number = centre[1] + r * Math.sin(a);
       let best: number = Infinity;
       let height: number = level;
-      planar.forEach((p: [number, number], i: number): void => {
-        const k: number = (i + 1) % planar.length;
-        const q: [number, number] = planar[k]!;
+      ring.forEach((p: readonly [number, number], i: number): void => {
+        const k: number = (i + 1) % ring.length;
+        const q: readonly [number, number] = ring[k]!;
         const ex: number = q[0] - p[0];
         const ez: number = q[1] - p[1];
         const f: number = Math.min(
@@ -600,8 +599,8 @@ export namespace AutoMovieHumanLegConstruction {
       (u - CROTCH_FROM) / (LAST_INTERIOR - CROTCH_FROM),
     );
     const samples: [number, number][] = [];
-    for (let m: number = 0; m < SAMPLE_RATE * ORDER; m++) {
-      const t: number = (2 * Math.PI * m) / (SAMPLE_RATE * ORDER);
+    for (let m: number = 0; m < ORDER; m++) {
+      const t: number = (2 * Math.PI * m) / ORDER;
 
       // A side's phase t reads the canonical function at sign * t.
       const a: number = sign * t;
@@ -614,7 +613,7 @@ export namespace AutoMovieHumanLegConstruction {
         sign * b.centre[1] + r * Math.sin(t),
       ]);
     }
-    return AutoMovieHumanSplineCurve.project(samples, ORDER);
+    return AutoMovieHumanSplineCurve.interpolate(samples);
   }
 
   /** Control points of a ring keyed in the canonical frame. */
@@ -624,15 +623,15 @@ export namespace AutoMovieHumanLegConstruction {
     centre: readonly [number, number],
   ): number[] {
     const samples: [number, number][] = [];
-    for (let m: number = 0; m < SAMPLE_RATE * ORDER; m++) {
-      const t: number = (2 * Math.PI * m) / (SAMPLE_RATE * ORDER);
+    for (let m: number = 0; m < ORDER; m++) {
+      const t: number = (2 * Math.PI * m) / ORDER;
       const r: number = AutoMovieHumanPolarSection.radius(ring, centre, sign * t);
       samples.push([
         centre[0] + r * Math.cos(t),
         sign * centre[1] + r * Math.sin(t),
       ]);
     }
-    return AutoMovieHumanSplineCurve.project(samples, ORDER);
+    return AutoMovieHumanSplineCurve.interpolate(samples);
   }
 
 
@@ -658,8 +657,6 @@ const ORDER: number = 256;
 /** Uniform phases of a leg ring. */
 const SAMPLES: number = 256;
 
-/** Samples per control point of a projected section. */
-const SAMPLE_RATE: number = 2;
 
 /** Phases of the radial tables. */
 const RING_PHASES: number = 256;

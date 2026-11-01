@@ -228,12 +228,12 @@ export const m2: IAutoMovieHumanParameters = {
     },
     feet: {
       left: {
-        footLength: 206.78462297733597,
+        footLength: 289.36373033403174,
         footBreadth: 108.18090936868944,
         ankleHeight: 89.92040930269248,
       },
       right: {
-        footLength: 206.7881156128512,
+        footLength: 289.21792032003873,
         footBreadth: 108.07010832672562,
         ankleHeight: 89.86850824340534,
       },
