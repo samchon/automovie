@@ -196,6 +196,7 @@ export class HumanImageProcess {
         throw new Error(
           "Human worker heap override must be an integer from 256 to 1024 MiB",
         );
+      await HumanImageTemporaryDirectory.reclaim();
       const directory: HumanImageTemporaryDirectory =
         await HumanImageTemporaryDirectory.create();
       this.directory = directory;

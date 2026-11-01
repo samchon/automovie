@@ -36,13 +36,53 @@ export class HumanImageTemporaryDirectory {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one directory owner; no file handle or watcher is retained.
    */
   public static async create(): Promise<HumanImageTemporaryDirectory> {
-    const acquired: string = await fs.mkdtemp(
-      path.join(os.tmpdir(), "automovie-human-worker-"),
-    );
+    const acquired: string = await fs.mkdtemp(path.join(os.tmpdir(), PREFIX));
     const directory: string = await fs.realpath(acquired);
     if ((await fs.lstat(acquired)).isSymbolicLink())
       throw new Error("Worker temporary acquisition is a symbolic link");
+    await fs.writeFile(
+      path.join(directory, OWNER),
+      JSON.stringify({ pid: process.pid }),
+    );
     return new HumanImageTemporaryDirectory(directory, path.dirname(directory));
+  }
+
+  /** Remove every worker directory whose owning process has ended.
+   *
+   * A worker that crashes, or whose server is killed, keeps its directory by
+   * design, since its browser may still be writing; a whole-body publication is
+   * 240 MB, so a day of restarted viewers filled the system drive. Each
+   * directory records the process that acquired it, and once that process is
+   * gone nothing can write there.
+   *
+   * @evidence contracts/common.md#principled-implementation A directory is removed only when its recorded owner no longer exists, checked by a zero signal, and only as the same nonsymbolic prefixed direct child of the actual Temp parent.
+   * @evidence contracts/common.md#clear-and-simple-design One sweep beside acquisition, called before each new acquisition.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A directory without an owner record, or whose owner is alive or cannot be read, is left alone; no age guess substitutes for ownership.
+   * @evidence contracts/common.md#meaningful-documentation States why directories outlive their workers and what ends that.
+   * @evidence contracts/performance.md#efficient-algorithms One listing of the Temp parent and one small read per worker directory.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the owner record written at acquisition.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Bounds leftover directories to those of live owners; holds no handle.
+   */
+  public static async reclaim(): Promise<void> {
+    const parent: string = await fs.realpath(os.tmpdir());
+    for (const entry of await fs.readdir(parent, { withFileTypes: true })) {
+      if (!entry.isDirectory() || !entry.name.startsWith(PREFIX)) continue;
+      const directory: string = path.join(parent, entry.name);
+      let pid: number;
+      try {
+        pid = (
+          JSON.parse(
+            await fs.readFile(path.join(directory, OWNER), "utf8"),
+          ) as { pid: number }
+        ).pid;
+      } catch {
+        continue;
+      }
+      if (!Number.isSafeInteger(pid) || pid === process.pid || alive(pid))
+        continue;
+      if ((await fs.lstat(directory)).isSymbolicLink()) continue;
+      await fs.rm(directory, { recursive: true }).catch((): void => {});
+    }
   }
 
   /** Remove only the unchanged actual acquisition, retaining ownership if its boundary changed.
@@ -62,12 +102,28 @@ export class HumanImageTemporaryDirectory {
     if (
       resolved !== this.path ||
       path.dirname(relative) !== "." ||
-      !path.basename(relative).startsWith("automovie-human-worker-") ||
+      !path.basename(relative).startsWith(PREFIX) ||
       (await fs.lstat(this.path)).isSymbolicLink()
     )
       throw new Error(
         "Worker cleanup target lost its owned temporary boundary",
       );
     await fs.rm(resolved, { recursive: true });
+  }
+}
+
+/** Name prefix of every worker directory. */
+const PREFIX: string = "automovie-human-worker-";
+
+/** File in a worker directory naming the process that acquired it. */
+const OWNER: string = "owner.json";
+
+/** Whether a process exists; a zero signal checks without delivering one. */
+function alive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code === "EPERM";
   }
 }
