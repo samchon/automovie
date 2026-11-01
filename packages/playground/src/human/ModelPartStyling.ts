@@ -5,6 +5,8 @@ import type {
 } from "@automovie/interface";
 import {
   type IAutoMovieModelObject,
+  type IMaterialShaderPatch,
+  addMaterialShaderPatch,
   applyDualQuaternionSkinning,
   dualQuaternionSkinningOf,
 } from "@automovie/viewer";
@@ -180,8 +182,16 @@ export class ModelPartStyling {
         material.polygonOffsetUnits = chosen.polygonOffset;
       }
 
-      // A swapped material would otherwise draw this skin linearly blended.
-      if (dual) applyDualQuaternionSkinning(material);
+      // A clone copies its source's shader patches through JSON, which drops
+      // their functions, so it takes the source's own patches again; those
+      // already carry the skinning. A swapped material would otherwise draw
+      // this skin linearly blended.
+      if (material !== source && "shaderPatches" in material.userData) {
+        delete material.userData.shaderPatches;
+        for (const patch of (source.userData.shaderPatches ??
+          []) as IMaterialShaderPatch[])
+          addMaterialShaderPatch(material, patch);
+      } else if (dual) applyDualQuaternionSkinning(material);
       variants.set(key, material);
       this.derived.push(material);
       return material;
