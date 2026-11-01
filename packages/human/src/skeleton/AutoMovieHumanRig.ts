@@ -150,8 +150,9 @@ export namespace AutoMovieHumanRig {
   }
 
   /**
-   * Give every part a skin. Construction curves stay at rest until they carry
-   * their own deformation, and rigid features ride one bone.
+   * Give every part a skin. Construction curves take the same place-based
+   * binding, so they stay on the skin they generate under any pose, and rigid
+   * features ride one bone.
    *
    * @param parts The model's parts, in metres.
    * @param rig The body's rig.
@@ -162,14 +163,19 @@ export namespace AutoMovieHumanRig {
     rig: IRig,
   ): IAutoMovieModelPart[] {
     return parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => {
-      if (part.geometry.type !== "mesh" || part.id.startsWith("human.construction."))
-        return part;
+      if (part.geometry.type !== "mesh") return part;
       const mesh = part.geometry.mesh;
       return {
         ...part,
         geometry: {
           ...part.geometry,
-          mesh: { ...mesh, skin: rig.bind(mesh.positions, rigid(part.id)) },
+          mesh: {
+            ...mesh,
+            skin: {
+              ...rig.bind(mesh.positions, rigid(part.id)),
+              method: BLEND,
+            },
+          },
         },
       };
     });
@@ -309,6 +315,13 @@ function distance(p: Vector, a: Vector, b: Vector): number {
       : Math.max(0, Math.min(1, (e[0] * d[0] + e[1] * d[1] + e[2] * d[2]) / length));
   return Math.hypot(e[0] - f * d[0], e[1] - f * d[1], e[2] - f * d[2]);
 }
+
+/**
+ * How the skin blends its bones. A linear blend thinned the bent thigh and the
+ * elbow's inside on the same pose; this keeps their volume, at the price of a
+ * slight corner outside a deep bend.
+ */
+const BLEND: "dual-quaternion" = "dual-quaternion";
 
 /** Steps of a weight. */
 const STEPS: number = 1000;

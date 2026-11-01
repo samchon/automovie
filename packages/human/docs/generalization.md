@@ -178,6 +178,13 @@ Tapes move together, as a body's do. Each curve test person is a whole person at
 
 A tape is what it says on the trunk, through a shared scale of width and depth. The ratio of hull to tape is 0.98 to 1.03 across the domain, so tapes are hull girths. Girth responses that remain weak, by score gain, are the thigh, elbow, wrist, neck, hand circumference and the head's widths; the trunk's were read before the closure and need rereading.
 
+## Rig
+
+`AutoMovieHumanRig` gives the model a humanoid skeleton and every part a binding, and a pose moves the prepared skin without generating it again. A vertex's weights depend on its place alone, because a seam holds copies of one point in separately tessellated parts, and a binding read from the part would open that seam under any pose. Joints the shared vocabulary lacks fold into the bone that carries them: the toes are two grouped channels, so one toe cannot move alone.
+
+- On one pose a linear blend thinned the bent thigh and the inside of the elbow, and a dual-quaternion blend kept their volume with a slight corner outside the deep bend. Dual quaternions are the default, so a display material swapped in must take the same skinning patch or the page shows a deformation the model does not have.
+- The page's 256 MiB publication held 115 MB of construction tubes at seventeen digits. They now stop at a hundredth of a millimetre, which left room for every binding at 241.7 MB.
+
 ## Reference people
 
 69 people now share the vertex order: f1, f2, m1, m2 and 65 geometry-only people. `b0` is a centre at height 1750 mm, `e1` to `e8` a half fraction of the corners of height, fat, muscularity and masculine-feminine, and the rest pin one control at an end of `b0`'s range. `e3` and `e6` are reserved from every fitted number.

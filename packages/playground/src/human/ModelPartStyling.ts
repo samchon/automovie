@@ -3,7 +3,11 @@ import type {
   IAutoMovieModel,
   IAutoMovieModelPart,
 } from "@automovie/interface";
-import type { IAutoMovieModelObject } from "@automovie/viewer";
+import {
+  type IAutoMovieModelObject,
+  applyDualQuaternionSkinning,
+  dualQuaternionSkinningOf,
+} from "@automovie/viewer";
 import * as THREE from "three";
 
 import { inflateTubeGeometry } from "./inflateTubeGeometry";
@@ -20,9 +24,9 @@ import { inflateTubeGeometry } from "./inflateTubeGeometry";
  * ones, so successive styles never compound. Derived materials are shared by
  * every part with the same source material and override values; derived
  * geometry is per mesh.
- * A plain override constructs a fresh rough dielectric, keeping geometry and normals while dropping source maps, vertex colours, emissive and material shader patches.
+ * A plain override constructs a fresh rough dielectric, keeping geometry and normals while dropping source maps, vertex colours, emissive and appearance shader patches. A derived material of a dual-quaternion skin takes that skinning patch again, or the swap would change the deformation it inspects.
  *
- * @evidence contracts/common.md#principled-implementation Every apply restores originals before deriving; colour overrides are linear RGB, unlit uses MeshBasicMaterial and plain uses a fresh rough MeshStandardMaterial without source maps, vertex colours or shader patches; geometry and normals change only for an explicit tube inflation.
+ * @evidence contracts/common.md#principled-implementation Every apply restores originals before deriving; colour overrides are linear RGB, unlit uses MeshBasicMaterial and plain uses a fresh rough MeshStandardMaterial without source maps, vertex colours or appearance shader patches, re-applying only dual-quaternion skinning to a mesh flagged for it; geometry and normals change only for an explicit tube inflation.
  * @evidence contracts/common.md#clear-and-simple-design A generic mechanism owned by the page's model mount; the rules that pick styles are a separate closure, so neither the viewer package nor this class holds application ids.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Model-owned materials and geometry are never mutated; overrides act on derived copies, and no part id is interpreted here.
  * @evidence contracts/common.md#meaningful-documentation States the closure contract, restore-then-derive order, sharing and ownership.
@@ -122,11 +126,14 @@ export class ModelPartStyling {
     const derive: (
       source: THREE.Material,
       chosen: ModelPartStyling.IStyle,
+      dual: boolean,
     ) => THREE.Material = (
       source: THREE.Material,
       chosen: ModelPartStyling.IStyle,
+      dual: boolean,
     ): THREE.Material => {
       const key: string = JSON.stringify([
+        dual,
         chosen.color,
         chosen.unlit,
         chosen.plain,
@@ -172,6 +179,9 @@ export class ModelPartStyling {
         material.polygonOffsetFactor = chosen.polygonOffset;
         material.polygonOffsetUnits = chosen.polygonOffset;
       }
+
+      // A swapped material would otherwise draw this skin linearly blended.
+      if (dual) applyDualQuaternionSkinning(material);
       variants.set(key, material);
       this.derived.push(material);
       return material;
@@ -182,11 +192,13 @@ export class ModelPartStyling {
         entry.part,
       );
       if (chosen === undefined) continue;
+      const dual: boolean = dualQuaternionSkinningOf(entry.mesh);
       entry.mesh.material = Array.isArray(entry.material)
         ? entry.material.map(
-            (source: THREE.Material): THREE.Material => derive(source, chosen),
+            (source: THREE.Material): THREE.Material =>
+              derive(source, chosen, dual),
           )
-        : derive(entry.material, chosen);
+        : derive(entry.material, chosen, dual);
       if (chosen.renderOrder !== undefined)
         entry.mesh.renderOrder = chosen.renderOrder;
       if (chosen.inflate !== undefined && chosen.inflate !== 0) {
