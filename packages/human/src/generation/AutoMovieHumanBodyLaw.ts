@@ -1,60 +1,29 @@
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
 import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHermiteCurve";
-import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanExtremityDimensions } from "../structures/body/IAutoMovieHumanExtremityDimensions";
 import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHumanLegIdentity";
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
-import { AutoMovieHumanBodyCalibration } from "./AutoMovieHumanBodyCalibration";
-import { AutoMovieHumanBodyWarp } from "./AutoMovieHumanBodyWarp";
-import { AutoMovieHumanBodyWarpField } from "./AutoMovieHumanBodyWarpField";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
+import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
+import { AutoMovieHumanNeckConstruction } from "./AutoMovieHumanNeckConstruction";
 import { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanBodyMorph } from "./IAutoMovieHumanBodyMorph";
-import { AutoMovieHumanBodyMorphCalibration } from "./calibration/AutoMovieHumanBodyMorphCalibration";
 import { AutoMovieHumanBodySpecimenCalibration } from "./calibration/AutoMovieHumanBodySpecimenCalibration";
-import { AutoMovieHumanVermilionCalibration } from "./calibration/AutoMovieHumanVermilionCalibration";
 
 /**
- * Shape law from the public parameters to the calibration the generator
- * lofts, in two steps: a shape basis, then the measurement law.
+ * The law from the public parameters to the body the generator lofts.
  *
- * The basis is `AutoMovieHumanBodyMorphCalibration`, the displacement per
- * unit of `body.controls.masculineFeminine` identified from the three other
- * reference specimens (see its fitter), weighted by the control's offset
- * from the specimen's own value. The measurement law
- * (`AutoMovieHumanBodyWarpField`, `AutoMovieHumanBodyWarp`) then brings the
- * tape girths, the crotch's share of the stature and the head size to the
- * inputs. Both are the identity for the specimen's own parameters. Stature
- * stays the generator's separate uniform scale.
+ * Every chain is generated, from the top down, each from its neighbour's ring
+ * and the person's inputs, in world millimetres: the head's rise sets where the
+ * neck ends, the neck carries the shoulders, the column runs from them to the
+ * crotch's height, and the limbs start from the column. The event join then
+ * settles every shared ring, once for all of them.
  *
- * Every calibrated quantity moves by the same basis displacement field, so
- * the skin, its construction curves, the apertures cut from it, the globes
- * behind them, its poles and the lip colour boundary keep their relations:
- *
- * - section control points move by the basis spline sampled at their
- *   Greville phases `2 pi j / N` (where control j of a uniform periodic
- *   cubic B-spline peaks), which displaces the curve by that spline's
- *   B-spline quasi-interpolant, exact for a displacement linear in phase;
- * - station slopes move by the basis slopes, so the Hermite rule between
- *   layers interpolates the displacement as it does the shape;
- * - the out-of-plane part becomes the layers' `lift`;
- * - aperture series, globe centres, poles and vermilion endpoints move by
- *   their own displacements; vermilion endpoint derivatives are kept.
- *
- * Event pinch phases, layer stations and frames are unchanged, so every
- * shared ring is still generated once by its parent and inherited.
- *
- * The limbs take no basis and no measurement map:
- * `AutoMovieHumanArmConstruction`, `AutoMovieHumanFootConstruction` and
- * `AutoMovieHumanLegConstruction` generate them last, from the trunk those
- * maps produced.
+ * An unknown input keeps the reference person's value.
  */
 export namespace AutoMovieHumanBodyLaw {
   /** Calibrations for one parameter set. */
@@ -69,88 +38,127 @@ export namespace AutoMovieHumanBodyLaw {
   /**
    * Calibrations for one parameter set.
    *
-   * @param params Public input; the body controls listed in
-   *   `AutoMovieHumanBodyWarpField`, `masculineFeminine`, `fat`,
-   *   `muscularity`, the foot measures and the head length and cephalic
-   *   index are read.
+   * @param params Public input.
    * @returns New calibrations.
    */
   export function calibrate(params: IAutoMovieHumanParameters): IOutput {
-    const morph: IAutoMovieHumanBodyMorph = AutoMovieHumanBodyMorphCalibration;
-    const value: number | null = params.body.controls.masculineFeminine.value;
-    const w: number = value === null ? 0 : value - morph.reference;
-    const shaped: IOutput =
-      w === 0
-        ? {
-            body: AutoMovieHumanBodyCalibration,
-            vermilion: AutoMovieHumanVermilionCalibration,
-          }
-        : {
-            body: displace(AutoMovieHumanBodyCalibration, morph, w),
-            vermilion: lips(AutoMovieHumanVermilionCalibration, morph, w),
-          };
-
-    // Measurements last, so the girths, crotch height and head size reach
-    // the person's inputs whatever the basis changed.
-    const field: AutoMovieHumanBodyWarpField.IField | null =
-      AutoMovieHumanBodyWarpField.build(
-        AutoMovieHumanBodyCalibration,
-        shaped.body,
-        params,
-        AutoMovieHumanBodySpecimenCalibration,
-      );
-    const warped: AutoMovieHumanBodyWarp.IOutput =
-      field === null
-        ? { body: shaped.body, vermilion: shaped.vermilion.spans }
-        : AutoMovieHumanBodyWarp.apply(
-            shaped.body,
-            field,
-            shaped.vermilion.spans,
-          );
-
-    // The basis and the warp move each chain's end layer by their own
-    // maps, which reopens the gaps and creases the specimen's event join
-    // closed (on m1 the head rings and the neck showed again, the child
-    // rings up to 0.8 mm off their parents' at the 90th percentile), so
-    // every person's children are rejoined to their parents' rings and
-    // tangent planes.
-    const headed: AutoMovieHumanHeadConstruction.IOutput =
-      AutoMovieHumanHeadConstruction.apply(warped.body, shaped.vermilion, {
-        head: params.head,
-        height: statureOf(params),
-        neckLength: known(params.body.controls.neckLength.value, "neckLength"),
-        neck: known(params.body.controls.neck.value, "neck"),
-        sex: known(value, "masculineFeminine"),
-      });
-    const inputs: AutoMovieHumanLegConstruction.IInputs = tapes(
+    const height: number = statureOf(params);
+    const inputs: AutoMovieHumanLegConstruction.IInputs = tapes(params, height);
+    const head: AutoMovieHumanHeadConstruction.IInputs = {
+      head: params.head,
+      height,
+      neckLength: known(params.body.controls.neckLength.value, "neckLength"),
+      neck: known(params.body.controls.neck.value, "neck"),
+      sex: inputs.sex,
+    };
+    const trunkInputs: AutoMovieHumanTrunkConstruction.IInputs = column(
       params,
-      headed.body.stature,
+      inputs,
     );
+    const headed: AutoMovieHumanHeadConstruction.IOutput =
+      AutoMovieHumanHeadConstruction.apply(
+        {
+          stature: height,
+          chains: [
+            AutoMovieHumanNeckConstruction.generate({
+              top: AutoMovieHumanHeadConstruction.seat(head),
+              neck: head.neck,
+              neckBase: trunkInputs.neckBase,
+              sex: inputs.sex,
+              scale: inputs.scale,
+            }),
+          ],
+          events: EVENTS,
+          poles: [],
+          apertures: [],
+          eyes: [],
+        },
+        LIPS,
+        head,
+      );
+    const standing: IAutoMovieHumanBodyCalibration =
+      AutoMovieHumanTrunkConstruction.apply(
+        headed.body,
+        trunkInputs,
+        crotch(params, inputs),
+      );
+    const stood: IAutoMovieHumanBodyCalibration =
+      AutoMovieHumanLegConstruction.stand(
+        AutoMovieHumanFootConstruction.add(
+          AutoMovieHumanArmConstruction.add(
+            standing,
+            arms(params, inputs.scale, inputs.sex),
+          ),
+          feet(params, inputs),
+        ),
+        inputs,
+      );
     return {
       body: AutoMovieHumanEventJoin.reconcile(
-        AutoMovieHumanLegConstruction.apply(
-          AutoMovieHumanLegConstruction.stand(
-            AutoMovieHumanFootConstruction.apply(
-              AutoMovieHumanArmConstruction.apply(
-                AutoMovieHumanTrunkConstruction.apply(
-                  headed.body,
-                  column(params, inputs),
-                  headed.body.chains.find(
-                    (c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk",
-                  )!.layers[0]!.y,
-                ),
-                arms(params, inputs.scale, inputs.sex),
-              ),
-              feet(params, inputs),
-            ),
-            inputs,
-          ),
-          inputs,
-        ),
+        AutoMovieHumanLegConstruction.add(stood, inputs),
       ),
       vermilion: headed.vermilion,
     };
   }
+}
+
+/** Shared rings of the trunk: the rest come with their chains. */
+const EVENTS: IAutoMovieHumanBodyCalibration.IEvent[] = [
+  {
+    parent: "head",
+    direction: "down",
+    splits: [{ child: "upper", arcs: [[0, 2 * Math.PI]] }],
+  },
+  {
+    parent: "upper",
+    direction: "down",
+    splits: [
+      {
+        child: "trunk",
+        arcs: [
+          [2.308057249, 3.974647596],
+          [5.148635503, 1.133093657],
+        ],
+      },
+      { child: "arm.left", arcs: [[1.133093657, 2.308057249]] },
+      { child: "arm.right", arcs: [[3.974647596, 5.148635503]] },
+    ],
+  },
+  {
+    parent: "head",
+    direction: "up",
+    splits: [{ child: "head.lower", arcs: [[0, 2 * Math.PI]] }],
+  },
+  { parent: "trunk", direction: "down", splits: [] },
+];
+
+/** The lip boundary before the head's spans. */
+const LIPS: IAutoMovieHumanHermiteCurve = {
+  name: "vermilion",
+  chain: "head.lower",
+  closed: true,
+  spans: [],
+};
+
+/** Height of the crotch, by the leg prior's line, calibration mm. */
+function crotch(
+  params: IAutoMovieHumanParameters,
+  inputs: AutoMovieHumanLegConstruction.IInputs,
+): number {
+  const line: AutoMovieHumanLegPrior.ICrotch =
+    AutoMovieHumanLegPrior.PRIOR.crotch;
+  const inseam: number | null = params.body.controls.inseam.value;
+  return (
+    (line.offset +
+      line.height * statureOf(params) +
+      line.inseam *
+        (inseam === null
+          ? AutoMovieHumanBodySpecimenCalibration.controls.inseam!
+          : inseam) +
+      line.thigh * (inputs.thigh / inputs.scale) +
+      line.sex * inputs.sex) *
+    inputs.scale
+  );
 }
 
 /** A control's value, or the specimen's when unknown. */
@@ -345,179 +353,4 @@ function arms(
     right: side(params.extremities?.hands?.right),
     scale,
   };
-}
-
-/**
- * Body calibration displaced by `w` units of a basis.
- *
- * @throws {Error} When the basis does not cover the calibration's chains,
- *   layers, apertures, eyes or poles one to one, which means it was fitted
- *   to another calibration and must be regenerated.
- */
-function displace(
-  base: IAutoMovieHumanBodyCalibration,
-  morph: IAutoMovieHumanBodyMorph,
-  w: number,
-): IAutoMovieHumanBodyCalibration {
-  const chains: Map<string, IAutoMovieHumanBodyMorph.IChain> = new Map(
-    morph.chains.map(
-      (
-        c: IAutoMovieHumanBodyMorph.IChain,
-      ): [string, IAutoMovieHumanBodyMorph.IChain] => [c.name, c],
-    ),
-  );
-  return {
-    ...base,
-    chains: base.chains.map(
-      (chain: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain => {
-        if (
-          chain.name === "trunk" ||
-          chain.name === "upper" ||
-          chain.name.startsWith("leg.") ||
-          AutoMovieHumanFootConstruction.owns(chain.name) ||
-          AutoMovieHumanArmConstruction.owns(chain.name)
-        )
-          return chain;
-        const m: IAutoMovieHumanBodyMorph.IChain | undefined = chains.get(
-          chain.name,
-        );
-        if (
-          m === undefined ||
-          m.layers.length !== chain.layers.length ||
-          chain.basis !== "spline"
-        )
-          throw new Error(`Shape basis does not cover chain ${chain.name}`);
-        return {
-          ...chain,
-          layers: chain.layers.map(
-            (
-              layer: IAutoMovieHumanLoftChain.ILayer,
-              k: number,
-            ): IAutoMovieHumanLoftChain.ILayer =>
-              section(layer, m.layers[k]!, chain.order, m.order, w),
-          ),
-        };
-      },
-    ),
-    apertures: base.apertures.map(
-      (a: IAutoMovieHumanLoftAperture): IAutoMovieHumanLoftAperture => {
-        const d: IAutoMovieHumanBodyMorph.IAperture | undefined =
-          morph.apertures.find(
-            (m: IAutoMovieHumanBodyMorph.IAperture): boolean =>
-              m.name === a.name,
-          );
-        if (d === undefined || d.coefficients.length !== a.coefficients.length)
-          throw new Error(`Shape basis does not cover aperture ${a.name}`);
-        return {
-          ...a,
-          coefficients: a.coefficients.map(
-            (c: number, i: number): number => c + w * d.coefficients[i]!,
-          ),
-        };
-      },
-    ),
-    eyes: base.eyes.map(
-      (
-        e: IAutoMovieHumanBodyCalibration.IEye,
-      ): IAutoMovieHumanBodyCalibration.IEye => {
-        const d: IAutoMovieHumanBodyMorph.IEye | undefined = morph.eyes.find(
-          (m: IAutoMovieHumanBodyMorph.IEye): boolean => m.side === e.side,
-        );
-        if (d === undefined)
-          throw new Error(`Shape basis does not cover the ${e.side} eye`);
-        return { ...e, centre: move(e.centre, d.centre, w) };
-      },
-    ),
-    poles: base.poles.map(
-      (
-        p: IAutoMovieHumanBodyCalibration.IPole,
-      ): IAutoMovieHumanBodyCalibration.IPole => {
-        if (
-          AutoMovieHumanFootConstruction.owns(p.chain) ||
-          AutoMovieHumanArmConstruction.owns(p.chain)
-        )
-          return p;
-        const d: IAutoMovieHumanBodyMorph.IPole | undefined = morph.poles.find(
-          (m: IAutoMovieHumanBodyMorph.IPole): boolean =>
-            m.chain === p.chain && m.end === p.end,
-        );
-        if (d === undefined)
-          throw new Error(
-            `Shape basis does not cover pole ${p.chain}:${p.end}`,
-          );
-        return { ...p, point: move(p.point, d.point, w) };
-      },
-    ),
-  };
-}
-
-/**
- * One displaced principal layer.
- *
- * The basis spline of M control points is sampled at the N control
- * points' Greville phases. The layer's frame and station are unchanged.
- */
-function section(
-  layer: IAutoMovieHumanLoftChain.ILayer,
-  d: IAutoMovieHumanBodyMorph.ILayer,
-  N: number,
-  M: number,
-  w: number,
-): IAutoMovieHumanLoftChain.ILayer {
-  const coefficients: number[] = [...layer.coefficients];
-  const slopes: number[] = [...layer.slopes];
-  const lift: number[] = new Array<number>(N);
-  const liftSlopes: number[] = new Array<number>(N);
-  const height: number[] = [...d.lift, ...d.lift];
-  const rise: number[] = [...d.liftSlopes, ...d.liftSlopes];
-  for (let j: number = 0; j < N; j++) {
-    const t: number = (2 * Math.PI * j) / N;
-    const p: [number, number, number, number] =
-      AutoMovieHumanSplineCurve.evaluate(d.coefficients, M, t);
-    const q: [number, number, number, number] =
-      AutoMovieHumanSplineCurve.evaluate(d.slopes, M, t);
-    coefficients[j]! += w * p[0];
-    coefficients[N + j]! += w * p[1];
-    slopes[j]! += w * q[0];
-    slopes[N + j]! += w * q[1];
-    lift[j] =
-      (layer.lift?.[j] ?? 0) +
-      w * AutoMovieHumanSplineCurve.evaluate(height, M, t)[0];
-    liftSlopes[j] =
-      (layer.liftSlopes?.[j] ?? 0) +
-      w * AutoMovieHumanSplineCurve.evaluate(rise, M, t)[0];
-  }
-  return { ...layer, coefficients, slopes, lift, liftSlopes };
-}
-
-/** Vermilion boundary with displaced span endpoints and unchanged derivatives. */
-function lips(
-  base: IAutoMovieHumanHermiteCurve,
-  morph: IAutoMovieHumanBodyMorph,
-  w: number,
-): IAutoMovieHumanHermiteCurve {
-  if (morph.vermilion.length !== base.spans.length)
-    throw new Error("Shape basis does not cover the vermilion spans");
-  return {
-    ...base,
-    spans: base.spans.map(
-      (
-        span: IAutoMovieHumanHermiteCurve["spans"][number],
-        i: number,
-      ): IAutoMovieHumanHermiteCurve["spans"][number] => ({
-        ...span,
-        start: move(span.start, morph.vermilion[i]!.start, w),
-        end: move(span.end, morph.vermilion[i]!.end, w),
-      }),
-    ),
-  };
-}
-
-/** `p + w d`. */
-function move(
-  p: readonly [number, number, number],
-  d: readonly [number, number, number],
-  w: number,
-): [number, number, number] {
-  return [p[0] + w * d[0], p[1] + w * d[1], p[2] + w * d[2]];
 }

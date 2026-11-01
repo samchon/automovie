@@ -513,6 +513,22 @@ export namespace AutoMovieHumanHeadConstruction {
     };
   }
 
+  /**
+   * World height of the ring the head stands on, under the head's rise.
+   *
+   * @param inputs The person's head inputs.
+   * @returns Millimetres above the floor.
+   */
+  export function seat(inputs: IInputs): number {
+    const r: AutoMovieHumanHeadPrior.IRatios =
+      AutoMovieHumanHeadPrior.PRIOR.ratios;
+    return (
+      inputs.height -
+      r.neck * inputs.neckLength -
+      r.height * inputs.head.height
+    );
+  }
+
   /** Whether a chain belongs to the head above the neck. */
   export function owns(name: string): boolean {
     return /^(head\.|ear\.)/.test(name);
