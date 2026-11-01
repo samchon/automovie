@@ -143,13 +143,17 @@ function join(
   arcs: [number, number][],
 ): IAutoMovieHumanLoftChain {
   if (child.basis !== "spline") return child;
-  return slope(parent, place(parent, child, direction, arcs), direction, arcs);
+  const ring: IRing = parentRing(parent, direction, arcs);
+  return slope(parent, ring, place(ring, child, direction), direction);
 }
 
 /** Dense parent ring at an event and the arc weight of a phase on it. */
 interface IRing {
   sp: number;
   points: Vec3[];
+
+  /** Length along the ring up to each sample, one more entry than the samples. */
+  length: number[];
   weight: (t: number) => number;
 }
 
@@ -199,7 +203,7 @@ function parentRing(
     }
     return best;
   };
-  return { sp, points: ring, weight };
+  return { sp, points: ring, length, weight };
 }
 
 /** Nearest point of a dense ring to p: its phase, the point on the closer neighbouring segment, and the distance. */
@@ -207,13 +211,37 @@ function nearest(ring: IRing, p: Vec3): [number, Vec3, number] {
   const n: number = ring.points.length;
   let best: number = 0;
   let distance: number = Infinity;
-  ring.points.forEach((q: Vec3, j: number): void => {
-    const d: number = norm(sub(q, p));
-    if (d < distance) {
-      distance = d;
-      best = j;
+  let bound: number = Infinity;
+  for (let j: number = 0; j < n; ) {
+    const q: Vec3 = ring.points[j]!;
+    const x: number = q[0] - p[0];
+    const y: number = q[1] - p[1];
+    const z: number = q[2] - p[2];
+
+    // Only a sample that can beat the best pays for the exact length.
+    const square: number = x * x + y * y + z * z;
+    if (!(square > bound)) {
+      const d: number = Math.hypot(x, y, z);
+      if (d < distance) {
+        distance = d;
+        best = j;
+        bound = square * (1 + 1e-9);
+      }
     }
-  });
+
+    // A sample closes on p by no more than the ring's length to it, so those
+    // too near along the ring to come within the bound are passed over.
+    const reach: number =
+      ring.length[j]! + Math.sqrt(square) - Math.sqrt(bound) - 1e-6;
+    let low: number = j + 1;
+    let high: number = n;
+    while (low < high) {
+      const middle: number = (low + high) >> 1;
+      if (ring.length[middle]! < reach) low = middle + 1;
+      else high = middle;
+    }
+    j = low;
+  }
   // Refine on the two segments beside the nearest sample.
   let point: Vec3 = ring.points[best]!;
   for (const other of [(best + n - 1) % n, (best + 1) % n]) {
@@ -235,12 +263,10 @@ function nearest(ring: IRing, p: Vec3): [number, Vec3, number] {
 
 /** Child chain with its end ring moved onto the parent's, faded over its first layers. */
 function place(
-  parent: IAutoMovieHumanLoftChain,
+  ring: IRing,
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
-  arcs: [number, number][],
 ): IAutoMovieHumanLoftChain {
-  const ring: IRing = parentRing(parent, direction, arcs);
   const k: number = direction === "down" ? child.layers.length - 1 : 0;
   const step: number = direction === "down" ? -1 : 1;
   const sc: number = child.layers[k]!.y;
@@ -345,11 +371,10 @@ function place(
 /** Child chain with its end layer at the event re-sloped. */
 function slope(
   parent: IAutoMovieHumanLoftChain,
+  ring: IRing,
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
-  arcs: [number, number][],
 ): IAutoMovieHumanLoftChain {
-  const ring: IRing = parentRing(parent, direction, arcs);
   const sp: number = ring.sp;
   const k: number = direction === "down" ? child.layers.length - 1 : 0;
   const sc: number = child.layers[k]!.y;
@@ -374,6 +399,22 @@ function slope(
       (_: unknown, i: number): number => (2 * Math.PI * i) / Q,
     ),
   );
+  const onParent: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    parent,
+    sp,
+  );
+  const insideParent: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    parent,
+    sp - inward * h,
+  );
+  const onChild: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    child,
+    sc,
+  );
+  const insideChild: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    child,
+    sc + inward * h,
+  );
   const samples: [number, number][] = [];
   for (let i: number = 0; i < Q; i++) {
     const t: number = (2 * Math.PI * i) / Q;
@@ -382,7 +423,7 @@ function slope(
       c,
       t,
     );
-    const p: Vec3 = AutoMovieHumanLoftChain.ring(child, sc, [t])[0]!;
+    const p: Vec3 = onChild(t);
 
     // Nearest parent sample, then the parent's jets there.
     const [tau, , distance] = nearest(ring, p);
@@ -393,19 +434,10 @@ function slope(
       samples.push([0, 0]);
       continue;
     }
-    const P: Vec3 = AutoMovieHumanLoftChain.ring(parent, sp, [tau])[0]!;
-    const Tp: Vec3 = sub(
-      AutoMovieHumanLoftChain.ring(parent, sp, [tau + 1e-4])[0]!,
-      AutoMovieHumanLoftChain.ring(parent, sp, [tau - 1e-4])[0]!,
-    );
-    const Dp: Vec3 = scale(
-      sub(P, AutoMovieHumanLoftChain.ring(parent, sp - inward * h, [tau])[0]!),
-      1 / h,
-    );
-    const Dc: Vec3 = scale(
-      sub(AutoMovieHumanLoftChain.ring(child, sc + inward * h, [t])[0]!, p),
-      1 / h,
-    );
+    const P: Vec3 = onParent(tau);
+    const Tp: Vec3 = sub(onParent(tau + 1e-4), onParent(tau - 1e-4));
+    const Dp: Vec3 = scale(sub(P, insideParent(tau)), 1 / h);
+    const Dc: Vec3 = scale(sub(insideChild(t), p), 1 / h);
     const N3: Vec3 = unit(cross(Tp, Dp));
     const Tc: Vec3 = add(scale(f.u, s[2]), scale(f.v, s[3]));
     const m: Vec3 = unit(cross(normal, Tc));

@@ -204,33 +204,40 @@ export namespace AutoMovieHumanSplineCurve {
     }
 
     // Eigenvalues of the circulant matrix and the solution per frequency.
+    const turns: ITurns = turnsOf(count);
+    const [lr, li] = transform(g, turns);
     const solve = (r: number[]): number[] => {
+      const [rr, ri] = transform(r, turns);
       const out: number[] = new Array<number>(count).fill(0);
       for (let q: number = 0; q < count; q++) {
-        let lr: number = 0;
-        let li: number = 0;
-        let rr: number = 0;
-        let ri: number = 0;
-        for (let k: number = 0; k < count; k++) {
-          const angle: number = (-2 * Math.PI * q * k) / count;
-          lr += g[k]! * Math.cos(angle);
-          li += g[k]! * Math.sin(angle);
-          rr += r[k]! * Math.cos(angle);
-          ri += r[k]! * Math.sin(angle);
-        }
-
         // Complex division (rr + i ri) / (lr + i li), then inverse DFT.
-        const norm: number = lr * lr + li * li;
-        const cr: number = (rr * lr + ri * li) / norm;
-        const ci: number = (ri * lr - rr * li) / norm;
-        for (let k: number = 0; k < count; k++) {
-          const angle: number = (2 * Math.PI * q * k) / count;
-          out[k]! += (cr * Math.cos(angle) - ci * Math.sin(angle)) / count;
-        }
+        const norm: number = lr[q]! * lr[q]! + li[q]! * li[q]!;
+        const cr: number = (rr[q]! * lr[q]! + ri[q]! * li[q]!) / norm;
+        const ci: number = (ri[q]! * lr[q]! - rr[q]! * li[q]!) / norm;
+        for (let k: number = 0; k < count; k++)
+          out[k]! +=
+            (cr * turns.cos[q * count + k]! - ci * turns.sin[q * count + k]!) /
+            count;
       }
       return out;
     };
     return [...solve(rx), ...solve(rz)];
+  }
+
+  /** Discrete Fourier transform, real and imaginary parts. */
+  function transform(
+    values: readonly number[],
+    turns: ITurns,
+  ): [Float64Array, Float64Array] {
+    const count: number = values.length;
+    const real: Float64Array = new Float64Array(count);
+    const imaginary: Float64Array = new Float64Array(count);
+    for (let q: number = 0; q < count; q++)
+      for (let k: number = 0; k < count; k++) {
+        real[q]! += values[k]! * turns.cos[q * count + k]!;
+        imaginary[q]! -= values[k]! * turns.sin[q * count + k]!;
+      }
+    return [real, imaginary];
   }
 
   /** Uniform cubic B-spline weights of P_{i-1} .. P_{i+2} at span fraction f. */
@@ -254,6 +261,32 @@ export namespace AutoMovieHumanSplineCurve {
       (f * f) / 2,
     ];
   }
+}
+
+/** Cosine and sine of `2 pi q k / N`, row q of N entries each. */
+interface ITurns {
+  cos: Float64Array;
+  sin: Float64Array;
+}
+
+/** The transform's turns by control count: a body has only a few counts. */
+const TURNS: Map<number, ITurns> = new Map();
+
+/** The turns of N control points. */
+function turnsOf(count: number): ITurns {
+  const found: ITurns | undefined = TURNS.get(count);
+  if (found !== undefined) return found;
+  const cos: Float64Array = new Float64Array(count * count);
+  const sin: Float64Array = new Float64Array(count * count);
+  for (let q: number = 0; q < count; q++)
+    for (let k: number = 0; k < count; k++) {
+      const angle: number = (2 * Math.PI * q * k) / count;
+      cos[q * count + k] = Math.cos(angle);
+      sin[q * count + k] = Math.sin(angle);
+    }
+  const turns: ITurns = { cos, sin };
+  TURNS.set(count, turns);
+  return turns;
 }
 
 /** Weights of the inverse knot filter by distance. */

@@ -124,6 +124,7 @@ export namespace AutoMovieHumanSkeleton {
     params: IAutoMovieHumanParameters,
     options: {
       /** Include the independent exterior-display descriptor. */ neckSurface?: boolean;
+      /** The body already calibrated from these same `params`, spared generating it again. */ calibration?: IAutoMovieHumanBodyCalibration;
     } = {},
   ): PoseEvaluator {
     const height: number | null = params.body.controls.height.value;
@@ -133,7 +134,7 @@ export namespace AutoMovieHumanSkeleton {
     // The skeleton is derived from the same calibration the skin is lofted
     // from, the shape law's output for these parameters.
     const calibration: IAutoMovieHumanBodyCalibration =
-      AutoMovieHumanBodyLaw.calibrate(params).body;
+      options.calibration ?? AutoMovieHumanBodyLaw.calibrate(params).body;
     const mmScale: number = height / calibration.stature;
     const scale: number = mmScale / 1000;
     const neckSurface: AutoMovieHumanNeckSurface.IOutput | undefined =

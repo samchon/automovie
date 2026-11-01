@@ -1,14 +1,12 @@
-import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftMesh } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
-import { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/AutoMovieHumanSkeleton";
+import type { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
-import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
-import { f1, m2 } from "../../../../packages/playground/src/human-parameters/index";
 import { HUMAN_STICKMAN_POSES } from "../../../../packages/playground/src/human-stickman/HUMAN_STICKMAN_POSES";
+import { HumanPeople } from "../internal/HumanPeople";
 
 type V3 = [number, number, number];
 
@@ -124,44 +122,66 @@ function spanned(ring: readonly V3[]): number {
   return Math.hypot(...n) / 2;
 }
 
-/** Every limb ring keeps its girth under a pose, listing those that do not. */
-function auditGirths(
-  name: string,
+/** A limb's bound ring at rest, read under every pose. */
+interface ILimbRing {
+  chain: string;
+  station: number;
+  rest: V3[];
+  skin: ReturnType<AutoMovieHumanRig.IRig["bind"]>;
+  area: number;
+}
+
+/** Every limb's rings, bound once. */
+function limbRings(
   body: IAutoMovieHumanBodyCalibration,
   scale: number,
   rig: AutoMovieHumanRig.IRig,
-  world: ReadonlyMap<string, { from: V3; to: V3; q: number[] }>,
-  label: string,
-): string[] {
-  const out: string[] = [];
+): ILimbRing[] {
   const phases: number[] = Array.from(
     { length: 64 },
     (_: unknown, i: number): number => (2 * Math.PI * i) / 64,
   );
-  for (const chain of body.chains) {
-    if (!/^(arm|leg)\./.test(chain.name)) continue;
-    let worst: number = Infinity;
-    let at: number = 0;
-    // The end layers are the hand's and the trunk's rings, not a limb's.
-    for (const layer of chain.layers.slice(1, -1)) {
-      const rest: V3[] = AutoMovieHumanLoftChain.ring(chain, layer.y, phases).map(
-        (p: V3): V3 => [p[0] * scale, p[1] * scale, p[2] * scale],
-      );
-      const flat: number[] = rest.flat();
-      const skin = rig.bind(flat);
-      const moved: V3[] = rest.map(
-        (p: V3, v: number): V3 => blended(p, skin, v, world),
-      );
-      const ratio: number = spanned(moved) / spanned(rest);
-      if (ratio < worst) {
-        worst = ratio;
-        at = layer.y;
-      }
-    }
-    if (worst < THIN)
-      out.push(`${name} ${label} ${chain.name} thins to ${worst.toFixed(2)} at ${at.toFixed(0)}`);
+  return body.chains
+    .filter((chain): boolean => /^(arm|leg)\./.test(chain.name))
+    .flatMap((chain): ILimbRing[] =>
+      // The end layers are the hand's and the trunk's rings, not a limb's.
+      chain.layers.slice(1, -1).map((layer): ILimbRing => {
+        const rest: V3[] = AutoMovieHumanLoftChain.ring(chain, layer.y, phases).map(
+          (p: V3): V3 => [p[0] * scale, p[1] * scale, p[2] * scale],
+        );
+        return {
+          chain: chain.name,
+          station: layer.y,
+          rest,
+          skin: rig.bind(rest.flat()),
+          area: spanned(rest),
+        };
+      }),
+    );
+}
+
+/** Every limb ring keeps its girth under a pose, listing those that do not. */
+function auditGirths(
+  name: string,
+  rings: readonly ILimbRing[],
+  world: ReadonlyMap<string, { from: V3; to: V3; q: number[] }>,
+  label: string,
+): string[] {
+  const worst = new Map<string, { ratio: number; at: number }>();
+  for (const ring of rings) {
+    const moved: V3[] = ring.rest.map(
+      (p: V3, v: number): V3 => blended(p, ring.skin, v, world),
+    );
+    const ratio: number = spanned(moved) / ring.area;
+    if (ratio < (worst.get(ring.chain)?.ratio ?? Infinity))
+      worst.set(ring.chain, { ratio, at: ring.station });
   }
-  return out;
+  return [...worst]
+    .filter(([, w]): boolean => w.ratio < THIN)
+    .map(
+      ([chain, w]): string =>
+        `${name} ${label} ${chain} thins to ${w.ratio.toFixed(2)} at ${w.at.toFixed(0)}`,
+    );
 }
 
 /**
@@ -170,17 +190,15 @@ function auditGirths(
  * @evidence contracts/testing.md#behavioral-verification Binds the generated skin of two people, evaluates a bent elbow and knee through the public skeleton, and moves each vertex by the mesh's own weights. It catches a weight that does not sum to one, a seam whose copies disagree, a rest pose that moves anything, a limb that fails to follow its bone, and a side that pulls the other.
  * @evidence contracts/testing.md#independent-expectations The binding's contract and rigid-body kinematics supply every expectation: weights sum to one, equal places move equally, identity pose moves nothing, and a bent arm leaves the other leg still. The stretch bound is a coarse limit, so it catches a torn skin and says nothing of a joint's form.
  * @evidence contracts/testing.md#distinguishing-cases Contrasts rest against a bent left elbow and right knee, on a slender and a broad person, and reads every limb ring's girth under the step-and-reach pose and the range-limit pose by the blend the model draws. Skin on the bent limbs must move, skin on the far limbs must not, and a limb must not thin. Contact, penetration and the folds at the joints themselves are not read here.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_skin_binding`, generating two bodies in process with no renderer, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_skin_binding`, reading the two people `HumanPeople` generates once per run and lofting their skin in process, with no renderer, browser or GPU.
  */
 export const test_human_skin_binding = (): void => {
   const problems: string[] = [];
-  for (const [name, params] of [["f1", f1], ["m2", m2]] as [string, IAutoMovieHumanParameters][]) {
-    const body = AutoMovieHumanBodyLaw.calibrate(params).body;
-    const scale: number = 0.001 * (params.body.controls.height.value! / body.stature);
+  for (const name of ["f1", "m2"]) {
+    const { body, scale, rig, evaluate } = HumanPeople.rigged(name);
     const surface = AutoMovieHumanBodySurface.generate(body, []);
     const pieces = AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals);
-    const rig: AutoMovieHumanRig.IRig = AutoMovieHumanRig.prepare(body, scale);
-    const evaluate = AutoMovieHumanSkeleton.prepare(params);
+    const rings: ILimbRing[] = limbRings(body, scale, rig);
     const rest = worlds(rig, evaluate({}));
     const bent: IAutoMovieHumanPose = {
       arms: { left: { elbow: { flexion: 90 } } },
@@ -232,14 +250,28 @@ export const test_human_skin_binding = (): void => {
       problems.push(
         ...auditGirths(
           name,
-          body,
-          scale,
-          rig,
+          rings,
           worlds(rig, evaluate(HUMAN_STICKMAN_POSES[label]!)),
           label,
         ),
       );
   }
-  if (problems.length !== 0)
-    throw new Error(`${problems.length} binding problems:\n${[...new Set(problems)].slice(0, 40).join("\n")}`);
+  if (problems.length === 0) return;
+
+  // A broken binding repeats one defect at every vertex, so each place and
+  // kind reads as one line with its count, and none is left out.
+  const kinds = new Map<string, [string, number]>();
+  for (const problem of problems) {
+    const key: string = problem.replace(/-?\d+\.\d+(,-?\d+\.\d+)*/g, "#");
+    const found: [string, number] | undefined = kinds.get(key);
+    if (found === undefined) kinds.set(key, [problem, 1]);
+    else found[1]++;
+  }
+  throw new Error(
+    `${problems.length} binding problems:\n${[...kinds.values()]
+      .map(([first, count]: [string, number]): string =>
+        count === 1 ? first : `${first} (${count} alike)`,
+      )
+      .join("\n")}`,
+  );
 };

@@ -219,18 +219,19 @@ function auditChain(
     (l: IAutoMovieHumanLoftChain.ILayer): V3[] =>
       AutoMovieHumanLoftChain.ring(chain, l.y, uniform(PHASES)),
   );
+  const perimeters: number[] = rings.map(perimeter);
 
   // Rings: orientation, crossings, section fairness.
   rings.forEach((ring: V3[], k: number): void => {
     const where = (j: number): string => `layer ${band(k)} ${side(ring, j)}`;
-    const small: boolean = perimeter(ring) < SMALL;
+    const small: boolean = perimeters[k]! < SMALL;
 
     // Neighbouring rings turn the same way, whatever way the section planes
     // fan round the chain.
     if (
       !small &&
       k > 0 &&
-      perimeter(rings[k - 1]!) >= SMALL &&
+      perimeters[k - 1]! >= SMALL &&
       dot(areaNormal(ring), areaNormal(rings[k - 1]!)) < 0
     )
       report(name, "winding", `layer ${k}`, 1, 0);
@@ -239,7 +240,7 @@ function auditChain(
       if (n > 0) report(name, "crossing", `layer ${k}`, n, 0);
     }
     if (small || pinched || digit) return;
-    const radius: number = perimeter(ring) / (2 * Math.PI);
+    const radius: number = perimeters[k]! / (2 * Math.PI);
     const flips: number[] = flipsOf(signedCurvature(ring), radius, 0.5);
     const ripples: number = face ? FACE_RIPPLES : RIPPLES;
     if (flips.length > ripples)
@@ -251,9 +252,9 @@ function auditChain(
     (l: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
       const limit: number =
         (face ? FACE_SLOPE : SLOPE) *
-        Math.max(1, perimeter(rings[k]!) / SLOPE_GIRTH);
+        Math.max(1, perimeters[k]! / SLOPE_GIRTH);
       const worst: number = Math.max(...l.slopes.map(Math.abs));
-      const cap: boolean = perimeter(rings[k]!) < CAP;
+      const cap: boolean = perimeters[k]! < CAP;
       if (worst > limit && !digit && !cap && !pinched)
         report(name, "slope", `layer ${band(k)}`, worst, limit);
     },
@@ -276,6 +277,10 @@ function auditChain(
   );
   const layerOf = (i: number): number => Math.ceil(i / STEPS);
   const count: number = grid.length;
+  const centres: V3[] = grid.map(centre);
+  const radii: number[] = grid.map(
+    (r: V3[]): number => perimeter(r) / (2 * Math.PI),
+  );
 
   // Slide and overshoot, per interval.
   for (let k: number = 1; k < rings.length; k++) {
@@ -311,7 +316,7 @@ function auditChain(
       const lb: number = Math.hypot(...b);
       if (la < SEGMENT || lb < SEGMENT) continue;
       const turn: number = Math.acos(clamp(dot(a, b) / (la * lb)));
-      const outward: V3 = unit(sub(line[i]!, centre(grid[i]!)));
+      const outward: V3 = unit(sub(line[i]!, centres[i]!));
       const bend: V3 = sub(unit(b), unit(a));
       signed[i] = (Math.sign(dot(bend, outward)) * turn) / ((la + lb) / 2);
       const crease: number = face ? FACE_CREASE : CREASE;
@@ -323,7 +328,7 @@ function auditChain(
     // A band is curvature that flips back within a radius.
     let last: number = -1;
     for (let i: number = 1; i + 1 < count; i++) {
-      const radius: number = perimeter(grid[i]!) / (2 * Math.PI);
+      const radius: number = radii[i]!;
       if (radius < 1) continue;
       const value: number = signed[i]! * radius;
       if (Math.abs(value) < BAND_FLOOR) continue;
@@ -367,27 +372,27 @@ function auditRidges(
     (a: number): boolean =>
       chain.name !== "upper" || Math.abs(Math.cos(a)) > RIDGE_FACE,
   );
-  const radius = (ring: V3[], bearing: number): number => {
+  const table: number[][] = rings.map((ring: V3[]): number[] => {
     const c: V3 = centre(ring);
-    let best: number = Infinity;
-    let at: number = 0;
-    ring.forEach((p: V3): void => {
-      const d: number = Math.abs(
-        Math.atan2(
-          Math.sin(Math.atan2(p[2] - c[2], p[0] - c[0]) - bearing),
-          Math.cos(Math.atan2(p[2] - c[2], p[0] - c[0]) - bearing),
-        ),
-      );
-      if (d < best) {
-        best = d;
-        at = Math.hypot(p[0] - c[0], p[2] - c[2]);
-      }
+    const angles: number[] = ring.map((p: V3): number =>
+      Math.atan2(p[2] - c[2], p[0] - c[0]),
+    );
+    return bearings.map((bearing: number): number => {
+      let best: number = Infinity;
+      let at: number = 0;
+      angles.forEach((a: number, j: number): void => {
+        const d: number = Math.abs(
+          Math.atan2(Math.sin(a - bearing), Math.cos(a - bearing)),
+        );
+        if (d < best) {
+          best = d;
+          at = j;
+        }
+      });
+      const p: V3 = ring[at]!;
+      return Math.hypot(p[0] - c[0], p[2] - c[2]);
     });
-    return at;
-  };
-  const table: number[][] = rings.map((ring: V3[]): number[] =>
-    bearings.map((b: number): number => radius(ring, b)),
-  );
+  });
   for (let i: number = 1; i < count; i++) {
     const r: number = perimeter(rings[i]!) / (2 * Math.PI);
     if (r < 1) continue;
@@ -418,8 +423,15 @@ function auditJoins(
   generated: RegExp,
   report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
 ): void {
-  const find = (n: string): IAutoMovieHumanLoftChain =>
-    body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === n)!;
+  const chains: Map<string, IAutoMovieHumanLoftChain> = new Map(
+    body.chains.map(
+      (c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain] => [
+        c.name,
+        c,
+      ],
+    ),
+  );
+  const find = (n: string): IAutoMovieHumanLoftChain => chains.get(n)!;
   for (const event of body.events) {
     const parent: IAutoMovieHumanLoftChain = find(event.parent);
     const down: boolean = event.direction === "down";
@@ -458,8 +470,7 @@ function auditJoins(
               at = m;
             }
           });
-          const where: string = side(ring, i);
-          if (best > GAP) report(region, "gap", where, best, GAP, p);
+          if (best > GAP) report(region, "gap", side(ring, i), best, GAP, p);
 
           // Pinches are corners by design: the seam rule is for the open arc.
           const edge: number = Math.min(i, count - 1 - i) / count;
@@ -475,7 +486,7 @@ function auditJoins(
               : /^head\.middle > head\.lower/.test(region)
                 ? ARMPIT_SEAM
                 : SEAM;
-          if (kink > limit) report(region, "seam", where, kink, limit, p);
+          if (kink > limit) report(region, "seam", side(ring, i), kink, limit, p);
         });
       }
     }
@@ -506,15 +517,17 @@ function auditSides(
           right.layers[k]!.y,
           uniform(PHASES),
         );
-        const off: number = Math.max(
-          ...a.map((p: V3): number =>
-            Math.min(
-              ...b.map((q: V3): number =>
-                Math.hypot(p[0] - q[0], p[1] - q[1], p[2] + q[2]),
-              ),
-            ),
-          ),
-        );
+        let square: number = 0;
+        for (const p of a) {
+          let near: number = Infinity;
+          for (const q of b)
+            near = Math.min(
+              near,
+              (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] + q[2]) ** 2,
+            );
+          square = Math.max(square, near);
+        }
+        const off: number = Math.sqrt(square);
         if (off > MIRROR) report(left.name, "mirror", `layer ${band(k)}`, off, MIRROR);
         const across: number = -Math.min(...a.map((p: V3): number => p[2]));
         if (across > MIDLINE)
@@ -585,11 +598,17 @@ function band(k: number): string {
   return `${from}-${from + 3}`;
 }
 
+const UNIFORM: Map<number, number[]> = new Map();
+
 function uniform(count: number): number[] {
-  return Array.from(
+  const found: number[] | undefined = UNIFORM.get(count);
+  if (found !== undefined) return found;
+  const phases: number[] = Array.from(
     { length: count },
     (_: unknown, i: number): number => (2 * Math.PI * i) / count,
   );
+  UNIFORM.set(count, phases);
+  return phases;
 }
 
 function perimeter(ring: V3[]): number {
@@ -652,12 +671,13 @@ function cross(a: V3, b: V3): V3 {
 }
 
 function unit(a: V3): V3 {
-  const l: number = Math.hypot(...a) || 1;
+  const l: number = Math.sqrt(dot(a, a)) || 1;
   return [a[0] / l, a[1] / l, a[2] / l];
 }
 
 function distance(a: V3, b: V3): number {
-  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+  const d: V3 = sub(a, b);
+  return Math.sqrt(dot(d, d));
 }
 
 function clamp(v: number): number {

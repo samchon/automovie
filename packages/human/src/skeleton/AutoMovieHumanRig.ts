@@ -149,6 +149,9 @@ export namespace AutoMovieHumanRig {
     const index = new Map<AutoMovieHumanoidBone, number>(
       bones.map((b: AutoMovieHumanoidBone, i: number): [AutoMovieHumanoidBone, number] => [b, i]),
     );
+    const slots: number[] = segments.map(
+      (s: ISegment): number => index.get(s.bone)!,
+    );
     return {
       skeleton,
       bind: (
@@ -167,7 +170,8 @@ export namespace AutoMovieHumanRig {
           const top: [number, number][] = influences(
             [positions[3 * v]!, positions[3 * v + 1]!, positions[3 * v + 2]!],
             segments,
-            index,
+            slots,
+            bones.length,
           );
           top.forEach(([b, w]: [number, number], i: number): void => {
             boneIndices[4 * v + i] = b;
@@ -410,38 +414,52 @@ function rigid(id: string): AutoMovieHumanoidBone | undefined {
 function influences(
   p: Vector,
   segments: readonly ISegment[],
-  index: ReadonlyMap<AutoMovieHumanoidBone, number>,
+  slots: readonly number[],
+  count: number,
 ): [number, number][] {
   // A point's depth under each limb's capsule, so a thick trunk reaches no
   // further into a thigh than the thigh's own surface.
-  const depths: [ISegment, number][] = [];
+  const reached: number[] = [];
+  const depths: number[] = [];
   let nearest: number = Infinity;
-  for (const s of segments) {
-    if (s.side !== 0 && s.side * p[2] < -MIDLINE) continue;
+  segments.forEach((s: ISegment, i: number): void => {
+    if (s.side !== 0 && s.side * p[2] < -MIDLINE) return;
     const d: number = distance(p, s.from, s.to) - s.radius;
-    depths.push([s, d]);
+    reached.push(i);
+    depths.push(d);
     nearest = Math.min(nearest, d);
-  }
+  });
 
   // The transition's width follows the limbs at hand, read softly so that it
   // does not jump where the nearest limb changes.
   let share: number = 0;
   let width: number = 0;
-  for (const [s, d] of depths) {
+  depths.forEach((d: number, i: number): void => {
     const k: number = Math.exp(-(d - nearest) / READ);
     share += k;
-    width += k * s.radius;
-  }
+    width += k * segments[reached[i]!]!.radius;
+  });
   width = (SOFTNESS * width) / share;
-  const sums = new Map<number, number>();
-  for (const [s, d] of depths) {
+
+  // Each bone's strongest pull, then the strongest four bones, the first met
+  // leading on a tie.
+  const pulls: Float64Array = new Float64Array(count).fill(-1);
+  const met: number[] = [];
+  depths.forEach((d: number, i: number): void => {
     const w: number = Math.exp(-(d - nearest) / width);
-    const i: number = index.get(s.bone)!;
-    sums.set(i, Math.max(sums.get(i) ?? 0, w));
+    const slot: number = slots[reached[i]!]!;
+    if (pulls[slot]! < 0) met.push(slot);
+    pulls[slot] = Math.max(pulls[slot]!, w);
+  });
+  const top: [number, number][] = [];
+  for (const slot of met) {
+    const w: number = pulls[slot]!;
+    let at: number = top.length;
+    while (at > 0 && w > top[at - 1]![1]) at--;
+    if (at === 4) continue;
+    top.splice(at, 0, [slot, w]);
+    if (top.length > 4) top.pop();
   }
-  const top: [number, number][] = [...sums]
-    .sort((a: [number, number], b: [number, number]): number => b[1] - a[1])
-    .slice(0, 4);
   const total: number = top.reduce(
     (a: number, e: [number, number]): number => a + e[1],
     0,
