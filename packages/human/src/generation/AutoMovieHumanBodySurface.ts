@@ -486,19 +486,20 @@ export namespace AutoMovieHumanBodySurface {
     // position, and the lid margins tucked onto the globes.
     construction.push(...AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures));
 
+    const faces: number[] = AutoMovieHumanLoftMesh.normals(context.mesh);
     return {
       mesh: context.mesh,
       construction,
       normals: domed(
         context.mesh,
-        ringBlend(
-          calibration,
-          context.coordinates,
-          context.mesh.indices,
-          surfaceNormals(
+        held(
+          context.mesh,
+          faces,
+          ringBlend(
             calibration,
             context.coordinates,
-            AutoMovieHumanLoftMesh.normals(context.mesh),
+            context.mesh.indices,
+            surfaceNormals(calibration, context.coordinates, faces),
           ),
         ),
       ),
@@ -627,6 +628,17 @@ export namespace AutoMovieHumanBodySurface {
               ...bridge(...span(c.arcs, k)),
             ]),
       });
+
+    // A pinch of a span left as a slit lies on the parent and on both
+    // children at once, where the skin turns: its normal is its faces' own,
+    // not the parent's surface it would otherwise take.
+    const pinned: Set<number> = PINNED.get(context.mesh) ?? new Set();
+    PINNED.set(context.mesh, pinned);
+    for (const c of children)
+      if (!whole(c.arcs))
+        c.arcs.forEach((_: number[], k: number): void => {
+          for (const v of span(c.arcs, k)) pinned.add(v);
+        });
   }
 
   /**
@@ -1446,6 +1458,30 @@ export namespace AutoMovieHumanBodySurface {
           ? -1
           : 1;
       for (let k: number = 0; k < 3; k++) out[3 * v + k] = sign * n[k]!;
+    }
+    return out;
+  }
+
+  /** Each mesh's slit pinches, whose normal is their faces' own. */
+  const PINNED: WeakMap<AutoMovieHumanLoftMesh.IContext, Set<number>> = new WeakMap();
+
+  /**
+   * Normals with every slit pinch on its faces' own normal. A pinch lies on
+   * the parent and on both children, where the skin turns, so the parent's
+   * surface normal it would otherwise take stood up to 37 degrees off its
+   * faces on f1 and m2 (the crotch's front 22 to 23). Applied after the ring
+   * blend only: a neighbour on the smooth parent averaged with a pinch's
+   * crease normal stood 38 degrees off its own surface behind the crotch.
+   */
+  function held(
+    mesh: AutoMovieHumanLoftMesh.IContext,
+    faces: readonly number[],
+    normals: number[],
+  ): number[] {
+    const out: number[] = [...normals];
+    for (const v of PINNED.get(mesh) ?? []) {
+      const l: number = Math.hypot(faces[3 * v]!, faces[3 * v + 1]!, faces[3 * v + 2]!);
+      if (l > 1e-12) for (let k: number = 0; k < 3; k++) out[3 * v + k] = faces[3 * v + k]! / l;
     }
     return out;
   }
