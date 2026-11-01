@@ -36,9 +36,6 @@ export namespace AutoMovieHumanLegPrior {
 
     /** Section centre outside the ring's, in leg lengths. */
     lateral: number;
-
-    /** Section radius per ring radius. */
-    ratio: number;
   }
 
   /** Station of a tape measure and its ratio to the prior section's hull there. */
@@ -120,7 +117,7 @@ export namespace AutoMovieHumanLegPrior {
   /** The law's constants. */
   export const PRIOR: IPrior = {
     crotch: { offset: 1.55245, height: 0.09106, inseam: 0.89836, thigh: -0.02214, sex: -5.73345 },
-    ring: { forward: 0.01424, lateral: 0.00731, ratio: 0.94373 },
+    ring: { forward: 0.01424, lateral: 0.00731 },
     ankle: { offset: 2.80246, fat: 3.1084, muscularity: 0.5333 },
     stations: [0, 0.0985, 0.197, 0.27088, 0.33244, 0.394, 0.44325, 0.4925, 0.54175, 0.61562, 0.71413, 0.81262, 0.91113, 0.96037],
     profile: [-3.00493, -2.86194, -2.65839, -2.51331, -2.46821, -2.49751, -2.53807, -2.52477, -2.46906, -2.37095, -2.20026, -2.06766, -1.98422, -1.95237],

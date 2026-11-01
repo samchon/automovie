@@ -112,6 +112,7 @@ const EVENTS: IAutoMovieHumanBodyCalibration.IEvent[] = [
   {
     parent: "upper",
     direction: "down",
+    fillet: 1,
     splits: [
       {
         child: "trunk",

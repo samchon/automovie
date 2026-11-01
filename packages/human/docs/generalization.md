@@ -141,6 +141,12 @@ What the viewer taught, each from a figure that passed every curve rule at the t
 
 An end slope acts across the child's whole last interval: a slope m over a span h stands `4/27 m h` off the chord. At the crotch the trunk's 60-degree opening stood 7 mm off a thigh that arrives upright, so `AutoMovieHumanEventJoin` stops at a 4 mm lump.
 
+Agreeing on a ring is not agreeing beside it. Normals matched to 0.1 degrees on the shared ring and parted by 20 to 30 degrees 4 mm either side of the arm's root, because a single end slope turned inside one short span. A fillet over one radius of the child's layers took that to 18 degrees at most on the open arc, under the same `4/27 m h` bound. `fold` reads the turn off the ring for that reason.
+
+A crotch ring is not a section of the thigh. Pulling the last sections onto it kept the thigh tape exact at its own station and filled the fold under the buttock: at 40 mm under the ring the girth stood 1.17 of the tape, and the skin 18 mm further back than a measured body at 24 mm. The thigh now keeps its tape's correction on the prior's flare, and only a last interval of 8 percent of the leg reaches the ring. That removed a fitted ratio and put the thigh's top back on the thigh tape.
+
+Three measurements misled on this work. A probe swept phases over one radian instead of a full turn and read a 57 mm step that does not exist. A comparison of the male figures against an older figure of another stature read as a shape error. A self-comparison of the skin against its surroundings stayed under 2 mm over a groove 12 degrees deep, since the groove is wider than the neighbourhood it reads: it finds spikes, not bands.
+
 The people at the ends of the audit are whole people. A chest of 1300 mm over an underbust of 742 mm is no body, and a rule failing on it says nothing. The domain to state must bound the tape ratios as well as the tapes.
 
 ## Whole law
@@ -194,7 +200,7 @@ Error of the score's definitions against each person's input, percent, for the g
 | Face width | 17.5 11.6 15.0 17.2 | 16.7 17.2 19.4 17.6 |
 | Mandibular width | -6.8 -10.3 19.9 30.9 | 2.4 1.3 10.1 23.3 |
 
-The generated figure reads closer on most rows. It reads further on the thigh, the chest and underbust and the male jaw. The thigh's top rings belong to the crotch ring, which follows the hip, so a thigh tape reaches them only through the hip. These stand as evidence, not as targets.
+The generated figure reads closer on most rows. It reads further on the thigh, the chest and underbust and the male jaw. The table's thigh row predates the thigh's top leaving the crotch ring and has not been read again. These stand as evidence, not as targets.
 
 ### Supported domain
 
@@ -213,6 +219,12 @@ A tape is what it says on the trunk, through a shared scale of width and depth. 
 ## Open: the nose's base
 
 A zigzag runs in a V from the nostrils about 14 mm up the wing of the nose, in clay as well as in appearance. The cause is not found. Doubling `head.lower`'s ring order left it unchanged at 13 MB of page. Shallowing the nostril's pocket from 8.8 to 2.5 mm left it too and broke the nostril into black fragments, since `AutoMovieHumanAperturePocket` builds that pocket and the cavity material moves whole triangles. The sections do not double back near the nose: the only reversals of z lie at the face's widest point, 60 mm behind it. Still untested: the seam of `head.lower` and `head.middle`, level 5 mm below the nostril, whose chains sample the shared ring by different phases, and the refined rows `AutoMovieHumanBodyApertures.refine` adds around an opening.
+
+## Open: the hip's lower back
+
+Measured against a fuller figure, the column's rear rises at about 0.15 over the 40 mm above the crotch ring where that figure rises at 0.7, and it stands 10 to 15 mm short at the crest. Fairing is not the cause: a fairing a quarter as wide moved it by a millimetre. The turn between the leg's rise and the column therefore shades as a soft line across the hip's back under raking light, and a fold of 15 degrees spans 32 mm there. The column's rear below the hip tape needs its own read.
+
+At the rear midline the bottom ring ends in a V about 6 mm wide and 10 mm deep. Its point shades across the cleft as a tab of 3 to 4 mm. It is not a shape error, the legs cross the midline by 0.4 mm at most, and underwear covers it.
 
 ## Rig
 

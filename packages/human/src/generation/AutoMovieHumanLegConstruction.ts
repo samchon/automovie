@@ -279,7 +279,6 @@ export namespace AutoMovieHumanLegConstruction {
     shape: AutoMovieHumanNaturalSpline.ISpline[];
     correction: AutoMovieHumanNaturalSpline.ISpline;
     ankleResidual: number[];
-    crotchResidual: number[];
   }
 
   /** Read the neighbours' keys and solve this person's radius correction. */
@@ -335,6 +334,14 @@ export namespace AutoMovieHumanLegConstruction {
           AutoMovieHumanNaturalSpline.evaluate(profile, u),
       ];
     };
+    // Above its tape the thigh keeps the tape's correction on the prior's own
+    // flare: the crotch ring is the skin's way into the trunk, not a section of
+    // the thigh, and only the last interval reaches it.
+    const thigh: [number, number] = key(
+      prior.thigh.station,
+      inputs.thigh,
+      prior.thigh.ratio,
+    );
     const keys: [number, number][] = [
       [
         0,
@@ -343,12 +350,8 @@ export namespace AutoMovieHumanLegConstruction {
       ],
       key(prior.calf.station, inputs.calf, prior.calf.ratio),
       key(prior.knee.station, inputs.knee, prior.knee.ratio),
-      key(prior.thigh.station, inputs.thigh, prior.thigh.ratio),
-      [
-        LAST_INTERIOR,
-        Math.log((crotchSection.radius * prior.ring.ratio) / length) -
-          AutoMovieHumanNaturalSpline.evaluate(profile, LAST_INTERIOR),
-      ],
+      thigh,
+      [LAST_INTERIOR, thigh[1]],
     ];
     const family: IFamily = {
       bottom,
@@ -369,7 +372,6 @@ export namespace AutoMovieHumanLegConstruction {
         keys.map((k: [number, number]): number => k[1]),
       ),
       ankleResidual: [],
-      crotchResidual: [],
     };
 
 
@@ -394,11 +396,6 @@ export namespace AutoMovieHumanLegConstruction {
     // own, a phase would slide round the outline over the last interval.
     family.crotchCentre = end.centre;
     family.crotchLift = liftOf(crotch, end.centre, crotchWorld, bottom + length, sign);
-    family.crotchResidual = PHASES.map(
-      (t: number, j: number): number =>
-        AutoMovieHumanPolarSection.radius(crotch, end.centre, t) -
-        end.radii[j]!,
-    );
     return family;
   }
 
@@ -606,9 +603,6 @@ export namespace AutoMovieHumanLegConstruction {
   function coefficients(family: IFamily, u: number, sign: 1 | -1): number[] {
     const b: IBare = bare(family, u);
     const low: number = 1 - smooth(u / ANKLE_REACH);
-    const high: number = smooth(
-      (u - CROTCH_FROM) / (LAST_INTERIOR - CROTCH_FROM),
-    );
     const samples: [number, number][] = [];
     for (let m: number = 0; m < ORDER; m++) {
       const t: number = (2 * Math.PI * m) / ORDER;
@@ -616,9 +610,7 @@ export namespace AutoMovieHumanLegConstruction {
       // A side's phase t reads the canonical function at sign * t.
       const a: number = sign * t;
       const r: number =
-        periodic(b.radii, a) +
-        low * periodic(family.ankleResidual, a) +
-        high * periodic(family.crotchResidual, a);
+        periodic(b.radii, a) + low * periodic(family.ankleResidual, a);
       samples.push([
         b.centre[0] + r * Math.cos(t),
         sign * b.centre[1] + r * Math.sin(t),
@@ -684,8 +676,11 @@ const PHASES: number[] = Array.from(
 /** Fraction step of the station differences. */
 const STEP: number = 0.001;
 
-/** Last fraction the law holds; the final interval closes the crotch. */
-const LAST_INTERIOR: number = 0.9604;
+/**
+ * Last fraction the law holds; the final interval rises under the buttock and
+ * closes the crotch, a rise of some 60 mm on a body of average height.
+ */
+const LAST_INTERIOR: number = 0.92;
 
 /** Softness of the thighs' contact at the midline, mm. */
 const CONTACT: number = 1.5;
@@ -695,9 +690,6 @@ const ANKLE_REACH: number = 0.12;
 
 /** Fraction where the thigh starts to lean onto the crotch ring's place. */
 const THIGH_FROM: number = 0.6;
-
-/** Fraction where the crotch ring's difference starts to enter, above the thigh tape. */
-const CROTCH_FROM: number = 0.87;
 
 /** Layer fractions: more sections than the rows carried, then the crotch. */
 const LAYERS: number[] = [

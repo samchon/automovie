@@ -68,6 +68,16 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * opens at 60 degrees from a thigh that arrives upright, that lump stood 7 mm
  * off the thigh. The change therefore stops at {@link BULGE}; a short span may
  * turn as sharply as its parent asks.
+ *
+ * Turned inside one span, the tangent planes agree at the ring and nowhere
+ * else: the skin's normals part again by 5 to 8 degrees 4 mm either side of the
+ * armpit joint and 20 to 30 degrees round the arm's root, which shades as a line
+ * across the back and notches the outline. An event with a fillet therefore
+ * spreads the turn over the child's layers within that many radii of its end
+ * ring: the cubic `m s (1 - s / R)^2` leaves the ring with slope m and meets the
+ * layer at R with neither place nor slope, standing the same `4/27 m R` off at
+ * most, so {@link BULGE} bounds it too. What the bound leaves stays in the end
+ * span.
  */
 export namespace AutoMovieHumanEventJoin {
   /**
@@ -100,7 +110,7 @@ export namespace AutoMovieHumanEventJoin {
           replaced.get(split.child) ?? fitted;
         replaced.set(
           split.child,
-          join(parent, child, event.direction, split.arcs),
+          join(parent, child, event.direction, split.arcs, event.fillet ?? 0),
         );
       }
     }
@@ -141,10 +151,11 @@ function join(
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
   arcs: [number, number][],
+  fillet: number,
 ): IAutoMovieHumanLoftChain {
   if (child.basis !== "spline") return child;
   const ring: IRing = parentRing(parent, direction, arcs);
-  return slope(parent, ring, place(ring, child, direction), direction);
+  return slope(parent, ring, place(ring, child, direction), direction, fillet);
 }
 
 /** Dense parent ring at an event and the arc weight of a phase on it. */
@@ -374,6 +385,7 @@ function slope(
   ring: IRing,
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
+  fillet: number,
 ): IAutoMovieHumanLoftChain {
   const sp: number = ring.sp;
   const k: number = direction === "down" ? child.layers.length - 1 : 0;
@@ -416,6 +428,22 @@ function slope(
     sc + inward * h,
   );
   const samples: [number, number][] = [];
+
+  // The fillet's slope at each phase, and the length it spreads over.
+  const spread: Vec3[] = [];
+  const rim: Vec3[] = Array.from(
+    { length: Q },
+    (_: unknown, i: number): Vec3 => onChild((2 * Math.PI * i) / Q),
+  );
+  const reach: number =
+    (fillet *
+      rim.reduce(
+        (sum: number, p: Vec3, i: number): number =>
+          sum + norm(sub(rim[(i + 1) % Q]!, p)),
+        0,
+      )) /
+    (2 * Math.PI);
+  const most: number = reach > 0 ? (27 * BULGE) / (4 * reach) : 0;
   for (let i: number = 0; i < Q; i++) {
     const t: number = (2 * Math.PI * i) / Q;
     const s: [number, number, number, number] = AutoMovieHumanLoftChain.section(
@@ -432,6 +460,7 @@ function slope(
     const w: number = ring.weight(tau) * (1 - smooth((distance - 0.5) / FAR));
     if (w === 0) {
       samples.push([0, 0]);
+      spread.push([0, 0, 0]);
       continue;
     }
     const P: Vec3 = onParent(tau);
@@ -445,6 +474,7 @@ function slope(
     const facing: number = smooth((Math.abs(nm) - 0.3) / FACING);
     if (facing === 0) {
       samples.push([0, 0]);
+      spread.push([0, 0, 0]);
       continue;
     }
 
@@ -464,6 +494,7 @@ function slope(
       ) - own;
     const delta: Vec3 = scale(m, inward * alpha);
     samples.push([dot(delta, f.u), dot(delta, f.v)]);
+    spread.push(scale(m, Math.max(-most, Math.min(most, alpha))));
   }
   const change: number[] = AutoMovieHumanSplineCurve.project(samples, N);
 
@@ -474,6 +505,42 @@ function slope(
       (v: number, i: number): number => v + change[i]!,
     ),
   };
+  child.layers.forEach(
+    (layer: IAutoMovieHumanLoftChain.ILayer, j: number): void => {
+      const sigma: number = Math.abs(layer.y - sc);
+      if (j === k || sigma >= reach) return;
+      const x: number = sigma / reach;
+      const lean: number = sigma * (1 - x) ** 2;
+      const rate: number = inward * (1 - x) * (1 - 3 * x);
+      const g: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(
+        child,
+        layer.y,
+      );
+      const moved: number[] = AutoMovieHumanSplineCurve.project(
+        spread.map((d: Vec3): [number, number] => [
+          lean * dot(d, g.u),
+          lean * dot(d, g.v),
+        ]),
+        N,
+      );
+      const turned: number[] = AutoMovieHumanSplineCurve.project(
+        spread.map((d: Vec3): [number, number] => [
+          rate * dot(d, g.u),
+          rate * dot(d, g.v),
+        ]),
+        N,
+      );
+      layers[j] = {
+        ...layer,
+        coefficients: layer.coefficients.map(
+          (v: number, i: number): number => v + moved[i]!,
+        ),
+        slopes: layer.slopes.map(
+          (v: number, i: number): number => v + turned[i]!,
+        ),
+      };
+    },
+  );
   return { ...child, layers };
 }
 

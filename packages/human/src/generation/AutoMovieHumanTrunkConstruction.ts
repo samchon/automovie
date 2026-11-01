@@ -114,6 +114,7 @@ export namespace AutoMovieHumanTrunkConstruction {
           e.parent === "trunk" && e.direction === "down"
             ? {
                 ...e,
+                fillet: 1,
                 splits: [
                   { child: "leg.right", arcs: [[Math.PI, 2 * Math.PI]] },
                   { child: "leg.left", arcs: [[0, Math.PI]] },

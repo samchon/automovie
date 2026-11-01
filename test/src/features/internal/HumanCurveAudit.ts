@@ -52,6 +52,8 @@ export interface IHumanCurveFinding {
  * - `ridge`: the whole ring bends the same way at one height.
  * - `ripple`: a section's curvature flips more often than its anatomy needs.
  * - `gap`, `seam`: a join is open (G0) or kinks across its seam (G1).
+ * - `fold`: a limb's or the trunk's join turns within a few millimetres of its
+ *   ring, though the tangent planes agree on the ring itself.
  * - `midline`, `mirror`: a limb crosses the plane of symmetry, or the sides
  *   differ under equal inputs.
  */
@@ -97,6 +99,56 @@ export function auditHumanCurves(
   auditJoins(body, generated, report);
   auditSides(body, report);
   return [...groups.values()];
+}
+
+/**
+ * The thigh above its tape, against the tape.
+ *
+ * The crotch ring is the skin's way into the trunk, not a section of the thigh.
+ * A law that lets the ring set the thigh's top keeps its tape exact at the tape's
+ * own station and fills the fold under the buttock above it.
+ *
+ * @param person Name in the findings.
+ * @param body The generated body.
+ * @param height Stature input, to read the tape in the body's millimetres.
+ * @param tape Thigh tape input.
+ */
+export function auditHumanThigh(
+  person: string,
+  body: IAutoMovieHumanBodyCalibration,
+  height: number,
+  tape: number,
+): IHumanCurveFinding[] {
+  return ["leg.left", "leg.right"].flatMap(
+    (name: string): IHumanCurveFinding[] => {
+      const leg: IAutoMovieHumanLoftChain = body.chains.find(
+        (c: IAutoMovieHumanLoftChain): boolean => c.name === name,
+      )!;
+      const station: number =
+        leg.layers[leg.layers.length - 1]!.y - THIGH_TOP * body.stature;
+      const ring: V3[] = AutoMovieHumanLoftChain.ring(
+        leg,
+        station,
+        uniform(PHASES),
+      );
+      const value: number =
+        perimeter(ring) / ((tape * body.stature) / height);
+      return value > THIGH_GIRTH
+        ? [
+            {
+              person,
+              region: name,
+              rule: "thigh",
+              where: `at ${Math.round(station)}`,
+              value,
+              limit: THIGH_GIRTH,
+              count: 1,
+              point: centre(ring),
+            },
+          ]
+        : [];
+    },
+  );
 }
 
 /** Bounds `[front, back, outer, inner]` of a body part at one share of stature, mm. */
@@ -460,6 +512,7 @@ function auditJoins(
         );
         const ring: V3[] = AutoMovieHumanLoftChain.ring(parent, end, phases);
         const inner: V3[] = AutoMovieHumanLoftChain.ring(parent, into, phases);
+        const facing: number[] = [];
         ring.forEach((p: V3, i: number): void => {
           let best: number = Infinity;
           let at: number = 0;
@@ -470,6 +523,7 @@ function auditJoins(
               at = m;
             }
           });
+          facing.push(fine[at]!);
           if (best > GAP) report(region, "gap", side(ring, i), best, GAP, p);
 
           // Pinches are corners by design: the seam rule is for the open arc.
@@ -488,9 +542,60 @@ function auditJoins(
                 : SEAM;
           if (kink > limit) report(region, "seam", side(ring, i), kink, limit, p);
         });
+
+        // How far the skin has turned a few millimetres either side of the ring.
+        // One point of a heavy arm pressed on the trunk is a contact, so the
+        // rule reads the arc's ninth decile.
+        if (!/^(trunk|upper)$/.test(event.parent)) continue;
+        const open: number[] = phases
+          .map((_: number, i: number): number => i)
+          .filter((i: number): boolean => Math.min(i, count - 1 - i) / count >= 0.15);
+        const step: number = (down ? 1 : -1) * FOLD_REACH;
+        const above: V3[] = normalsOf(
+          parent,
+          end + step,
+          open.map((i: number): number => phases[i]!),
+        );
+        const below: V3[] = normalsOf(
+          child,
+          tip - step,
+          open.map((i: number): number => facing[i]!),
+        );
+        const turns: number[] = open
+          .map(
+            (_: number, i: number): number =>
+              (Math.acos(clamp(Math.abs(dot(above[i]!, below[i]!)))) * 180) /
+              Math.PI,
+          )
+          .sort((p: number, q: number): number => p - q);
+        const turn: number = turns[Math.floor(0.9 * (turns.length - 1))]!;
+        if (turn > FOLD)
+          report(region, "fold", side(ring, Math.floor(count / 2)), turn, FOLD, ring[Math.floor(count / 2)]!);
       }
     }
   }
+}
+
+/** Unit normals of a chain's surface at one station and given phases. */
+function normalsOf(
+  chain: IAutoMovieHumanLoftChain,
+  station: number,
+  phases: number[],
+): V3[] {
+  const at = (s: number, shift: number): V3[] =>
+    AutoMovieHumanLoftChain.ring(
+      chain,
+      s,
+      phases.map((t: number): number => t + shift),
+    );
+  const up: V3[] = at(station + NORMAL_STATION, 0);
+  const down: V3[] = at(station - NORMAL_STATION, 0);
+  const ahead: V3[] = at(station, NORMAL_PHASE);
+  const behind: V3[] = at(station, -NORMAL_PHASE);
+  return phases.map(
+    (_: number, i: number): V3 =>
+      unit(cross(sub(up[i]!, down[i]!), sub(ahead[i]!, behind[i]!))),
+  );
 }
 
 /** The two sides mirror each other, and no limb crosses the midline. */
@@ -785,6 +890,24 @@ const WRIST_SEAM: number = 96;
 
 /** Station offset of the seam's tangents, mm. */
 const REACH: number = 6;
+
+/** Turn of the skin across a limb's or the trunk's join, degrees. */
+const FOLD: number = 20;
+
+/** Station offset either side of a join where its turn is read, mm. */
+const FOLD_REACH: number = 4;
+
+/** Station half step of a surface normal, mm. */
+const NORMAL_STATION: number = 0.02;
+
+/** Phase half step of a surface normal, radians. */
+const NORMAL_PHASE: number = 1e-3;
+
+/** Where the thigh's top is read under the crotch ring, a share of stature. */
+const THIGH_TOP: number = 0.024;
+
+/** Largest girth of the thigh's top per unit of the thigh tape. */
+const THIGH_GIRTH: number = 1.15;
 
 /** Sides' difference under equal inputs, mm. */
 const MIRROR: number = 1.5;

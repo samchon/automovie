@@ -16,7 +16,17 @@ export function assertHumanCurves(chains?: RegExp): void {
   ): HumanCurveAudit.IHumanCurveFinding[] => {
     const p: HumanPeople.IPerson = HumanPeople.person(name);
     return chains !== undefined
-      ? HumanCurveAudit.auditHumanCurves(p.name, p.body, chains)
+      ? [
+          ...HumanCurveAudit.auditHumanCurves(p.name, p.body, chains),
+          ...(chains.test("leg.left")
+            ? HumanCurveAudit.auditHumanThigh(
+                p.name,
+                p.body,
+                p.params.body.controls.height.value!,
+                p.params.body.controls.thigh.value!,
+              )
+            : []),
+        ]
       : HumanCurveAudit.auditHumanSlices(
           p.name,
           p.body,

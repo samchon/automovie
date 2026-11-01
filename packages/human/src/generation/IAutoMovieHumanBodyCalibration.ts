@@ -139,6 +139,12 @@ export namespace IAutoMovieHumanBodyCalibration {
 
     /** Children and the parent-phase arcs that form their adjacent end rings. */
     splits: ISplit[];
+
+    /**
+     * Length over which a child turns onto the parent's tangent plane, in
+     * radii of its end ring. Absent, the child turns within its last interval.
+     */
+    fillet?: number;
   }
 
   /** One child's share of a parent's contact ring. */
