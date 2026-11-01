@@ -7,6 +7,7 @@ import {
   createAutoMovieResourceRetirement,
   materialTextureBindings,
 } from "@automovie/viewer";
+import { applyHumanRigPose } from "@automovie/viewer/human";
 import * as THREE from "three";
 
 import { AutoMovieHumanRig } from "../../../human/src/skeleton/AutoMovieHumanRig";
@@ -461,19 +462,15 @@ export class HumanViewerModel {
     const skeleton: IAutoMovieSkeleton | null = this.result.model.skeleton;
     if (name === this.posed || skeleton === null) return;
     this.evaluator ??= AutoMovieHumanSkeleton.prepare(this.result.parameters);
-    for (const [bone, local] of AutoMovieHumanRig.locals(
-      skeleton,
-      this.evaluator(HUMAN_STICKMAN_POSES[name]!),
-    )) {
-      const node: THREE.Object3D = this.built.bones.get(bone)!;
-      node.position.set(...local.translation);
-      node.quaternion.set(...local.rotation);
-    }
+    applyHumanRigPose(
+      this.built,
+      AutoMovieHumanRig.locals(
+        skeleton,
+        this.evaluator(HUMAN_STICKMAN_POSES[name]!),
+      ),
+      name === "rest",
+    );
     this.posed = name;
-
-    // A posed limb leaves the rest bounds its mesh would be culled by.
-    for (const object of this.surface) object.frustumCulled = name === "rest";
-    this.object.updateMatrixWorld(true);
   }
 
   /** Union of the world bounds of the parts whose id passes the filter. */
