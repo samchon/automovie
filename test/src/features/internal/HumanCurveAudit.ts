@@ -56,7 +56,7 @@ export interface IHumanCurveFinding {
  * - `alias`: a face's section turns by most of a corner within one control.
  * - `ledge`: the skin beside the nose steps with height, a ridge off the lip.
  * - `base`: the nose's base turns at a shelf's edge instead of a radius.
- * - `jaw`: under the jaw the skin comes forward again, a neck with no jaw over it.
+ * - `jaw`: the lower face rolls into the neck with no border to turn under.
  * - `rib`: a foot's or toe's longitudinal curve turns sharply for its ring's
  *   size, the line a section prints across the skin.
  * - `ball`: a web runs a groove back into the padded ball of the foot.
@@ -176,93 +176,120 @@ export function auditHumanThigh(
   );
 }
 
-/** Bounds `[front, back, outer, inner]` of a body part at one share of stature, mm. */
-export type IHumanSlice = [string, number, number, number, number, number];
-
 /**
- * Where each part stands at set shares of the stature, in world millimetres.
+ * Where a standing body's parts are, read against anatomy and the stature
+ * input, never against an earlier figure.
  *
- * A construction may lay its layers anywhere, so two figures compare at a
- * height rather than a layer. Only the left side is read: the mirror rule owns
- * the right.
+ * - `part`: a side lacks an arm, a palm, a thumb, four fingers, a leg, a foot,
+ *   five toes or an ear, or the trunk, neck or head is gone.
+ * - `stature`: the crown does not stand at the stature input, or the sole is
+ *   off the floor, by more than a day changes a person's stature.
+ * - `order`: the lowest skin is not a foot's, or the highest is not the head's.
+ * - `inside`: an arm's axis runs inside the trunk's section at its height.
+ *
+ * @param person Name in the findings.
+ * @param body The generated body.
+ * @param height Stature input, to read the body in its own millimetres.
  */
-export function sliceHumanBody(
-  body: IAutoMovieHumanBodyCalibration,
-  height: number,
-): IHumanSlice[] {
-  const k: number = height / body.stature;
-  const out: Map<string, IHumanSlice> = new Map();
-  for (const [part, pattern] of PARTS)
-    for (const chain of body.chains) {
-      if (!pattern.test(chain.name)) continue;
-      const stations: number[] = chain.layers.flatMap(
-        (l: IAutoMovieHumanLoftChain.ILayer, i: number): number[] =>
-          i === 0 ? [l.y] : [(l.y + chain.layers[i - 1]!.y) / 2, l.y],
-      );
-      for (const s of stations)
-        for (const p of AutoMovieHumanLoftChain.ring(chain, s, uniform(48))) {
-          const share: number = Math.round(((p[1] * k) / height) * SHARES);
-          const key: string = `${part}/${share}`;
-          const x: number = p[0] * k;
-          const z: number = p[2] * k;
-          const found: IHumanSlice = out.get(key) ?? [part, share, x, x, z, z];
-          found[2] = Math.max(found[2], x);
-          found[3] = Math.min(found[3], x);
-          found[4] = Math.max(found[4], z);
-          found[5] = Math.min(found[5], z);
-          out.set(key, found);
-        }
-    }
-  return [...out.values()].map(
-    (s: IHumanSlice): IHumanSlice => [
-      s[0],
-      s[1],
-      Math.round(s[2]),
-      Math.round(s[3]),
-      Math.round(s[4]),
-      Math.round(s[5]),
-    ],
-  );
-}
-
-/**
- * Parts that stand absurdly far from the figure before generation. Agreement
- * is not asked for and a small error is not a goal: this fires only where a
- * part has left its place, or is missing from or added to a height.
- */
-export function auditHumanSlices(
+export function auditHumanPlacement(
   person: string,
   body: IAutoMovieHumanBodyCalibration,
   height: number,
-  before: readonly IHumanSlice[],
 ): IHumanCurveFinding[] {
-  const now: Map<string, IHumanSlice> = new Map(
-    sliceHumanBody(body, height).map((s: IHumanSlice): [string, IHumanSlice] => [
-      `${s[0]}/${s[1]}`,
-      s,
-    ]),
-  );
   const out: IHumanCurveFinding[] = [];
-  const add = (region: string, where: string, value: number, limit: number): void => {
-    out.push({ person, region, rule: "absurd", where, value, limit, count: 1, point: [] });
+  const add = (
+    region: string,
+    rule: string,
+    where: string,
+    value: number,
+    limit: number,
+    point: readonly number[] = [],
+  ): void => {
+    out.push({ person, region, rule, where, value, limit, count: 1, point: [...point] });
   };
-  const names: string[] = ["front", "back", "outer", "inner"];
-  for (const old of before) {
-    const share: string = `${Math.round((old[1] / SHARES) * 100)}% of stature`;
-    const fresh: IHumanSlice | undefined = now.get(`${old[0]}/${old[1]}`);
-    if (fresh === undefined) {
-      // A part's end may fall a slice either way.
-      if (!now.has(`${old[0]}/${old[1] - 1}`) || !now.has(`${old[0]}/${old[1] + 1}`))
-        if (!now.has(`${old[0]}/${old[1] - 1}`) && !now.has(`${old[0]}/${old[1] + 1}`))
-          add(old[0], `${share} missing`, 1, 0);
-      continue;
+  const k: number = height / body.stature;
+
+  // A chain counts as a part only while some ring of it encloses skin.
+  const present: IAutoMovieHumanLoftChain[] = body.chains.filter(
+    (c: IAutoMovieHumanLoftChain): boolean =>
+      c.layers.some(
+        (l: IAutoMovieHumanLoftChain.ILayer): boolean =>
+          perimeter(AutoMovieHumanLoftChain.ring(c, l.y, uniform(PHASES))) > 0,
+      ),
+  );
+  for (const [label, pattern, least, most] of ANATOMY)
+    for (const side of pattern.source.includes("<side>") ? ["left", "right"] : [""]) {
+      const own: RegExp = new RegExp(pattern.source.replace("<side>", side));
+      const count: number = present.filter((c: IAutoMovieHumanLoftChain): boolean =>
+        own.test(c.name),
+      ).length;
+      if (count < least || count > most)
+        add(
+          `${side === "" ? "" : `${side} `}${label}`,
+          "part",
+          `${count} found`,
+          count,
+          count < least ? least : most,
+        );
     }
-    const sizes: number[] = [old[2] - old[3], old[2] - old[3], old[4] - old[5], old[4] - old[5]];
-    names.forEach((name: string, i: number): void => {
-      const off: number = Math.abs(Number(fresh[i + 2]) - Number(old[i + 2]));
-      const limit: number = ABSURD_BASE + ABSURD_SHARE * sizes[i]!;
-      if (off > limit) add(old[0], `${share} ${name} edge`, off, Math.round(limit));
-    });
+  if (present.length === 0) return out;
+
+  // The crown and the sole, with the chain that holds each.
+  let top: { y: number; chain: string; at: V3 } = { y: -Infinity, chain: "", at: [0, 0, 0] };
+  let bottom: { y: number; chain: string; at: V3 } = { y: Infinity, chain: "", at: [0, 0, 0] };
+  const visit = (chain: string, p: V3): void => {
+    if (p[1] > top.y) top = { y: p[1], chain, at: p };
+    if (p[1] < bottom.y) bottom = { y: p[1], chain, at: p };
+  };
+  for (const chain of present) {
+    for (const l of chain.layers)
+      for (const p of AutoMovieHumanLoftChain.ring(chain, l.y, uniform(PHASES)))
+        visit(chain.name, p);
+    if (chain.pole !== undefined) visit(chain.name, chain.pole.point);
+  }
+  for (const pole of body.poles) visit(pole.chain, pole.point);
+  const day: number = STATURE_DAY * height;
+  const crown: number = Math.abs(top.y * k - height);
+  const sole: number = Math.abs(bottom.y * k);
+  if (crown > day) add(top.chain, "stature", "crown against the stature input", crown, day, top.at);
+  if (sole > day) add(bottom.chain, "stature", "sole against the floor", sole, day, bottom.at);
+  if (!/^head\./.test(top.chain)) add(top.chain, "order", "highest skin", 1, 0, top.at);
+  if (!/^(foot|forefoot|toe)\./.test(bottom.chain))
+    add(bottom.chain, "order", "lowest skin", 1, 0, bottom.at);
+
+  // Below the armpit an arm hangs beside the trunk. The trunk's sections are
+  // horizontal, so its station at a height is the section there.
+  const trunk: IAutoMovieHumanLoftChain | undefined = present.find(
+    (c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk",
+  );
+  if (trunk === undefined) return out;
+  const low: number = trunk.layers[0]!.y;
+  const high: number = trunk.layers[trunk.layers.length - 1]!.y;
+  for (const arm of present.filter((c: IAutoMovieHumanLoftChain): boolean =>
+    /^arm\.(left|right)$/.test(c.name),
+  )) {
+    const within: V3[] = [];
+    for (const l of arm.layers) {
+      const c: V3 = centre(AutoMovieHumanLoftChain.ring(arm, l.y, uniform(PHASES)));
+      if (c[1] < low || c[1] > high) continue;
+      const section: [number, number][] = AutoMovieHumanLoftChain.ring(
+        trunk,
+        c[1],
+        uniform(PHASES),
+      ).map((p: V3): [number, number] => [p[0], p[2]]);
+      if (encloses(section, [c[0], c[2]])) within.push(c);
+    }
+    if (within.length !== 0)
+      out.push({
+        person,
+        region: arm.name,
+        rule: "inside",
+        where: "rings in the trunk",
+        value: within.length,
+        limit: 0,
+        count: within.length,
+        point: [...within[0]!],
+      });
   }
   return out;
 }
@@ -1312,9 +1339,9 @@ function auditNoseBase(
 }
 
 /**
- * Under the mandible the skin turns under to the neck, which stands behind the
- * jaw: walking down from the face past its turn under, the skin does not come
- * forward again until the neck's base.
+ * The mandible's border is an edge the skin turns under, toward the neck: at the
+ * face's steepest fall below the cheek, the profile turns within a radius. A
+ * lower face rolling into the neck over a wide radius is a bag with no jaw.
  */
 function auditJaw(
   body: IAutoMovieHumanBodyCalibration,
@@ -1344,19 +1371,35 @@ function auditJaw(
         turn = j;
       }
     }
+    if (turn < 0) continue;
+
+    // The border's own radius: the sharpest convex turn about the turn under.
+    const k: number = body.stature / BASE_STATURE;
+    const centre: number = line[turn]![0];
+    const points: [number, number][] = [];
+    for (const p of line) {
+      if (Math.abs(p[0] - centre) > JAW_BAND * k) continue;
+      const last: [number, number] | undefined = points[points.length - 1];
+      if (last === undefined || Math.hypot(p[0] - last[0], p[1] - last[1]) >= JAW_SAMPLE * k) points.push(p);
+    }
     let least: number = Infinity;
-    let worst: number = 0;
-    let at: [number, number] = [0, 0];
-    for (let i: number = turn; i >= 0; i--) {
-      const [y, x] = line[i]!;
-      least = Math.min(least, x);
-      if (x - least > worst) {
-        worst = x - least;
-        at = [y, x];
+    let at: [number, number] = line[turn]!;
+    for (let i: number = 1; i + 1 < points.length; i++) {
+      const a: [number, number] = points[i - 1]!;
+      const b: [number, number] = points[i]!;
+      const c: [number, number] = points[i + 1]!;
+      const d1: [number, number] = [b[0] - a[0], b[1] - a[1]];
+      const d2: [number, number] = [c[0] - b[0], c[1] - b[1]];
+      const bend: number = Math.atan2(d1[0] * d2[1] - d1[1] * d2[0], d1[0] * d2[0] + d1[1] * d2[1]);
+      if (bend >= 0) continue;
+      const radius: number = (Math.hypot(...d1) + Math.hypot(...d2)) / 2 / -bend;
+      if (radius < least) {
+        least = radius;
+        at = b;
       }
     }
-    const limit: number = JAW_RISE * (body.stature / BASE_STATURE);
-    if (worst > limit) report("head.lower", "jaw", `under the jaw at ${share} of the head's half-width`, worst, limit, [at[1], at[0], share * half]);
+    const limit: number = JAW_TURN * k;
+    if (least > limit) report("head.lower", "jaw", `under the jaw at ${share} of the head's half-width`, least, limit, [at[1], at[0], share * half]);
   }
 }
 
@@ -1534,6 +1577,21 @@ function crossings(ring: V3[]): number {
   return count;
 }
 
+/** Whether a closed polygon in the plane holds a point, by the even-odd rule. */
+function encloses(polygon: [number, number][], p: [number, number]): boolean {
+  let odd: boolean = false;
+  for (let i: number = 0, j: number = polygon.length - 1; i < polygon.length; j = i++) {
+    const a: [number, number] = polygon[i]!;
+    const b: [number, number] = polygon[j]!;
+    if (
+      a[1] > p[1] !== b[1] > p[1] &&
+      p[0] < ((b[0] - a[0]) * (p[1] - a[1])) / (b[1] - a[1]) + a[0]
+    )
+      odd = !odd;
+  }
+  return odd;
+}
+
 function centre(ring: V3[]): V3 {
   const s: V3 = ring.reduce((a: V3, p: V3): V3 => add(a, p), [0, 0, 0]);
   return [s[0] / ring.length, s[1] / ring.length, s[2] / ring.length];
@@ -1573,25 +1631,31 @@ function clamp(v: number): number {
   return Math.min(1, Math.max(-1, v));
 }
 
-/** The parts sliced, by name. */
-const PARTS: [string, RegExp][] = [
-  ["leg", /^leg\.left$/],
-  ["foot", /^(foot|forefoot|toe)\.left/],
-  ["arm", /^arm\.left$/],
-  ["hand", /^(hand|finger|thumb)\.left/],
-  ["trunk", /^(trunk|upper)$/],
-  ["neck", /^head$/],
-  ["head", /^head\.(lower|middle|upper)$/],
+/**
+ * The parts a body has, by the chains that carry them, with the fewest and most
+ * of each: a hand has a thumb and four fingers, a foot five toes. `<side>`
+ * stands for each side in turn.
+ */
+const ANATOMY: readonly [label: string, chains: RegExp, least: number, most: number][] = [
+  ["trunk", /^(trunk|upper)$/, 1, Infinity],
+  ["neck", /^head$/, 1, 1],
+  ["head", /^head\.(lower|middle|upper)$/, 1, Infinity],
+  ["ear", /^ear\.[a-z]+\.<side>$/, 1, Infinity],
+  ["arm", /^arm\.<side>$/, 1, 1],
+  ["palm", /^hand\.<side>\./, 1, Infinity],
+  ["thumb", /^thumb\.<side>$/, 1, 1],
+  ["finger", /^finger\.<side>\./, 4, 4],
+  ["leg", /^leg\.<side>$/, 1, 1],
+  ["foot", /^foot\.<side>$/, 1, 1],
+  ["toe", /^toe\.<side>\./, 5, 5],
 ];
 
-/** Slices per stature. */
-const SHARES: number = 25;
-
-/** Distance from the earlier figure that is absurd for any part, mm. */
-const ABSURD_BASE: number = 45;
-
-/** And its growth with the part's extent there. */
-const ABSURD_SHARE: number = 0.3;
+/**
+ * Share of stature the crown and the sole may stand off: a person's stature
+ * falls by about this much from morning to evening, so a reading within it is
+ * the same stature.
+ */
+const STATURE_DAY: number = 0.01;
 
 /** Ring samples. */
 const PHASES: number = 96;
@@ -1683,14 +1747,21 @@ const BASE_BELOW: number = 6;
 const BASE_ABOVE: number = 12;
 const BASE_SAMPLE: number = 0.4;
 
-/** Forward return of the skin under the jaw, mm: a neck's own roundness stays under it. */
-const JAW_RISE: number = 8;
+/**
+ * Largest radius of the turn under the mandible's border, mm: the soft tissue
+ * over the bone's edge, which fat rounds but does not take away.
+ */
+const JAW_TURN: number = 10;
+
+/** Height either side of the jaw's turn read for its radius, and the sample, mm. */
+const JAW_BAND: number = 12;
+const JAW_SAMPLE: number = 1;
 
 /** Height over which the jaw's turn under is read, mm. */
 const JAW_SPAN: number = 3;
 
 /** Distances from the midline the jaw is read at, in the lower head's half-width. */
-const JAW_PLACES: readonly number[] = [0.6, 0.75, 0.9];
+const JAW_PLACES: readonly number[] = [0.5, 0.65, 0.8];
 
 /** Share of the lower head above its bottom ring where the neck's base ends. */
 const JAW_ABOVE_NECK: number = 0.15;

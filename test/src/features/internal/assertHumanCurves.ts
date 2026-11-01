@@ -1,13 +1,11 @@
-import { HUMAN_SLICE_BASELINE } from "./HUMAN_SLICE_BASELINE";
 import { HumanCurveAudit } from "./HumanCurveAudit";
 import { HumanPeople } from "./HumanPeople";
 
 /**
- * Audit one part on every person, or where every part stands on each recorded
- * person, and fail with the whole list. The slice bound generates only the
- * people it has a record of.
+ * Audit one part on every person, or where every part stands on every person,
+ * and fail with the whole list.
  *
- * @param chains Chains of the part; omitted, the slice bound of the whole body.
+ * @param chains Chains of the part; omitted, the placement of the whole body.
  * @throws {Error} Listing every unsound region.
  */
 export function assertHumanCurves(chains?: RegExp): void {
@@ -27,19 +25,14 @@ export function assertHumanCurves(chains?: RegExp): void {
               )
             : []),
         ]
-      : HumanCurveAudit.auditHumanSlices(
+      : HumanCurveAudit.auditHumanPlacement(
           p.name,
           p.body,
           p.params.body.controls.height.value!,
-          HUMAN_SLICE_BASELINE[p.name]!,
         );
   };
-  const findings: HumanCurveAudit.IHumanCurveFinding[] = HumanPeople.names()
-    .filter(
-      (name: string): boolean =>
-        chains !== undefined || name in HUMAN_SLICE_BASELINE,
-    )
-    .flatMap(audit);
+  const findings: HumanCurveAudit.IHumanCurveFinding[] =
+    HumanPeople.names().flatMap(audit);
   if (findings.length === 0) return;
   const lines: string[] = findings
     .sort(
