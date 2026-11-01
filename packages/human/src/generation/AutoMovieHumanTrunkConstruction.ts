@@ -24,6 +24,11 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * than it flattens. A height between two tapes reads both by its place between
  * them.
  *
+ * The rear under the lumbar is the seat's instead: a parabola about the buttock's
+ * crest, placed by the hip tape, running into the column's own rear by the
+ * lumbar. A single super-ellipse closed on the hip tape stands short of that
+ * crest, and no tape reads the crest's place.
+ *
  * The ends belong to the neighbours. The crotch's height comes from the leg
  * law, and the column leans over its top to stand under the neck. Across the
  * shoulders an ellipse, the arm's root, joins the column's section: the ring
@@ -114,7 +119,7 @@ export namespace AutoMovieHumanTrunkConstruction {
           e.parent === "trunk" && e.direction === "down"
             ? {
                 ...e,
-                fillet: 1,
+                fillet: HIP_FILLET,
                 splits: [
                   { child: "leg.right", arcs: [[Math.PI, 2 * Math.PI]] },
                   { child: "leg.left", arcs: [[0, Math.PI]] },
@@ -153,6 +158,12 @@ export namespace AutoMovieHumanTrunkConstruction {
 
     /** Half width of the back groove. */
     backGroove: number;
+
+    /** The crotch's pull at the front's midline, a share of the depth. */
+    crotch: number;
+
+    /** Half width of that pull's flat core, mm: the height above the ring. */
+    crotchCore: number;
 
     /** Depth of the navel's pit at this height. */
     pit: number;
@@ -225,34 +236,57 @@ export namespace AutoMovieHumanTrunkConstruction {
     // The front and back are carried as places, not as depths from the widest
     // point: that point wanders with what a ring's sides happen to do, and a
     // depth smoothed apart from it would print the wander on the skin.
+    // The fit read these two places off a different part of the section above
+    // the joint, where the arm's arc is left out, so the tables turn at the
+    // joint for no anatomical reason, and the more so the further a person's
+    // tapes stand from the mean. The wider reach keeps the anatomy's own run
+    // and leaves that turn out.
     const width = curve(fairly(size(prior.width).map(Math.log)));
     const front = curve(
-      fairly(
+      fair(
+        prior.stations,
         size(prior.front).map(
           (v: number, k: number): number => prior.middle[k]! + v,
         ),
+        MIDDLE_REACH,
       ),
     );
     const back = curve(
-      fairly(
+      fair(
+        prior.stations,
         size(prior.back).map(
           (v: number, k: number): number => prior.middle[k]! - v,
         ),
+        MIDDLE_REACH,
       ),
     );
     const middle = curve(fair(prior.stations, prior.middle, MIDDLE_REACH));
     const power = curve(fairly(prior.power));
+    // Under the belly the crotch's own law owns the front's pull, so the fitted
+    // pull counts only where the measures run fairly. The fit read the pull at
+    // the midline, where the male references carry their genitals, which the
+    // modelled skin leaves out.
+    const pulls: number[] = prior.frontPull.level.map(
+      (v: number, k: number): number =>
+        v +
+        prior.frontPull.sex[k]! * inputs.sex +
+        prior.frontPull.bust[k]! * Math.log(inputs.chest / inputs.underbust),
+    );
     const frontPull = curve(
-      above(
-        prior.frontPull.level.map(
-          (v: number, k: number): number =>
-            v +
-            prior.frontPull.sex[k]! * inputs.sex +
-            prior.frontPull.bust[k]! *
-              Math.log(inputs.chest / inputs.underbust),
-        ),
+      above(pulls).map(
+        (v: number, k: number): number =>
+          v * smooth((prior.stations[k]! - FAIR_FROM) / FAIR_RUN),
       ),
     );
+
+    // At the crotch the thighs part from the midline: the front stands back by
+    // the ring's pull, falling exponentially with the groove's width across
+    // the body, and the midline's core widens as fast as the height rises, so
+    // the fold runs out from the pubis toward the hip at 45 degrees while the
+    // pull further out stays. Measured on f1, the midline's pull reads 1.07,
+    // 0.88, 0.70, 0.45 and 0.32 at 0, 5, 10, 20 and 30 mm above the ring, and
+    // this law gives 1.07, 0.89, 0.73, 0.51 and 0.35 from the first alone.
+    const crotchPull: number = pulls[0]!;
     const backPull = curve(above(prior.backPull));
     const frontGroove = curve(above(prior.frontGroove));
     const backGroove = curve(above(prior.backGroove));
@@ -280,8 +314,36 @@ export namespace AutoMovieHumanTrunkConstruction {
         (inputs.neckToWaist - lengths.neckToWaist * inputs.scale) / span,
       ),
     );
+
+    // Two straight runs from the column's ends to the waist, their meeting
+    // rounded over the column's fairing reach: left a corner, every measure
+    // turned at that one row and printed a line round the waist.
+    const sum: number = 1 / waistAt + 1 / (1 - waistAt);
+    const difference: number = 1 / (1 - waistAt) - 1 / waistAt;
     const eased = (u: number): number =>
-      u + drop * (u <= waistAt ? u / waistAt : (1 - u) / (1 - waistAt));
+      u +
+      drop *
+        (1 -
+          (sum / 2) * rounded(u - waistAt, FAIR) -
+          (difference / 2) * (u - waistAt));
+
+    // Under the lumbar the rear is the seat's own parabola about the buttock's
+    // crest, which the hip tape places, and it runs into the column's own rear
+    // by the lumbar. Every derivative up to the second is continuous there.
+    const seated: AutoMovieHumanTrunkPrior.ISeat = prior.seat;
+    const share: number = calibration.stature / span;
+    const crestAt: number = share * seated.crest;
+    const lumbarAt: number = share * seated.lumbar;
+    const rear = (v: number): number => {
+      const seat: number =
+        ((-seated.depth + seated.bend * ((v - crestAt) / share) ** 2) *
+          inputs.hip) /
+        inputs.scale;
+      return (
+        seat +
+        fifth((v - crestAt) / (lumbarAt - crestAt)) * (read(back, v) - seat)
+      );
+    };
 
     // A longer shoulder-to-apex lowers the breast's apex; a wider front
     // interscye sets the arm's root further back, since that length is the
@@ -297,21 +359,28 @@ export namespace AutoMovieHumanTrunkConstruction {
       const u: number = eased(raw);
       const m: number = read(middle, u) * inputs.scale;
       const f: number = read(front, u) * inputs.scale;
-      const a: number = read(back, u) * inputs.scale;
+      const a: number = rear(u) * inputs.scale;
+      const rise: number = raw * span;
+      const groove: number = Math.max(1, read(frontGroove, u)) * inputs.scale;
       return {
+        crotch: crotchPull * Math.exp(-rise / groove),
+        crotchCore: rise,
         width: scale * Math.exp(read(width, u)) * inputs.scale,
         middle: m,
         front: Math.max(m + 1, m + scale * (f - m)),
         back: Math.min(m - 1, m + scale * (a - m)),
         power: read(power, u),
         frontPull: Math.max(0, read(frontPull, u)),
-        frontGroove: Math.max(1, read(frontGroove, u)) * inputs.scale,
+        frontGroove: groove,
         backPull: Math.max(0, read(backPull, u)),
         backGroove: Math.max(1, read(backGroove, u)) * inputs.scale,
+
+        // The pit is read at the rows' own height, which stand close round it,
+        // so that a moved waist cannot carry it into a long span.
         pit:
           prior.navel.depth *
           inputs.scale *
-          Math.exp(-(((u - prior.navel.station) / prior.navel.height) ** 2)),
+          Math.exp(-(((raw - prior.navel.station) / prior.navel.height) ** 2)),
         pitWidth: prior.navel.width * inputs.scale,
         bust: bust * Math.exp(-(((u - apex) / b.height) ** 2)),
         bustPlace: b.place * inputs.bustSpan,
@@ -376,15 +445,17 @@ export namespace AutoMovieHumanTrunkConstruction {
         ],
       );
     };
-    const trunk: IAutoMovieHumanLoftChain = AutoMovieHumanHorizontalChain.build(
-      {
-        name: "trunk",
-        order: prior.order,
-        samples: prior.samples,
-        rule: prior.rule,
-      },
-      prior.layers.slice(0, prior.joint + 1).map(column),
-      column(prior.layers[prior.joint + JOINT_REACH]!),
+    const trunk: IAutoMovieHumanLoftChain = continuous(
+      AutoMovieHumanHorizontalChain.build(
+        {
+          name: "trunk",
+          order: prior.order,
+          samples: prior.samples,
+          rule: prior.rule,
+        },
+        prior.layers.slice(0, prior.joint + 1).map(column),
+        column(prior.layers[prior.joint + JOINT_REACH]!),
+      ),
     );
     const shoulders: IAutoMovieHumanLoftChain =
       AutoMovieHumanHorizontalChain.build(
@@ -742,20 +813,39 @@ export namespace AutoMovieHumanTrunkConstruction {
     return Array.from(
       { length: RING + 1 },
       (_: unknown, i: number): [number, number] => {
-        const a: number = (Math.PI * i) / RING;
-        const c: number = Math.cos(a);
-        const e: number = 2 / s.power;
-        const z: number = s.width * Math.sin(a) ** e;
-        const forward: boolean = c >= 0;
+        // The rational form of the super-ellipse. Its trigonometric form runs
+        // through the midline with an infinite speed, which left a groove a
+        // single span of the ring and ended the crotch's ring in a sharp V.
+        const f: number = (2 * i) / RING;
+        const forward: boolean = f <= 1;
+        const q: number = forward ? f : 2 - f;
         const depth: number = forward ? s.front - s.middle : s.middle - s.back;
         const pull: number = forward ? s.frontPull : s.backPull;
         const groove: number = forward ? s.frontGroove : s.backGroove;
+        const n: number = (q ** s.power + (1 - q) ** s.power) ** (1 / s.power);
+        const z: number = (s.width * q) / n;
+        // A groove falls away from the midline exponentially: at the crotch
+        // the front stands back from its full depth by 1.07, 0.55, 0.27 and
+        // 0.13 of it at 0, 20, 40 and 60 mm, a decay length of 29 mm. A
+        // Gaussian of that width dies by 50 mm and set the front at full
+        // depth there, a lobe across the ring. A core of a quarter of the
+        // width keeps the midline smooth above the pinch.
+        const core: number = groove * GROOVE_CORE;
+        const fall = (c: number): number =>
+          Math.exp(-(Math.hypot(z, c) - c) / groove);
         const x: number =
           depth *
-            Math.abs(c) ** e *
-            (1 - pull * Math.exp(-((z / groove) ** 2))) +
+            ((1 - q) / n) *
+            (1 -
+              pull * fall(core) -
+              (forward ? s.crotch * fall(s.crotchCore) : 0)) +
+          // The two breasts, so that the relief is even across the midline: one
+          // alone keeps its slope there, and the mirror folds it into a corner
+          // that runs from the neck to the belly as a stripe.
           (forward
-            ? s.bust * Math.exp(-(((z - s.bustPlace) / s.bustWidth) ** 2)) -
+            ? s.bust *
+                (Math.exp(-(((z - s.bustPlace) / s.bustWidth) ** 2)) +
+                  Math.exp(-(((z + s.bustPlace) / s.bustWidth) ** 2))) -
               s.pit * Math.exp(-((z / s.pitWidth) ** 2))
             : 0);
         return [s.middle + (forward ? x : -x), z];
@@ -764,23 +854,25 @@ export namespace AutoMovieHumanTrunkConstruction {
   }
 
   /**
-   * A half outline as a whole ring with its phases held to the section's own
-   * angle. Where a ring's length changes fast, as the crotch opens, arclength
-   * phases slide round the ring from layer to layer and shear the skin.
+   * A half outline as a whole ring, each named place at a fixed phase and the
+   * points between them spaced by arclength: the front midline at 0, the
+   * widest point at a quarter turn and the rear midline at a half, where the
+   * crotch's pinches lie. Arclength round the whole ring slid the phases from
+   * layer to layer as the crotch opened; the section's own parameter crowded
+   * them at the tip or slid them as the width changed. Anchors hold the places
+   * and arclength holds the spacing.
    */
   function steady(half: [number, number][], order: number): [number, number][] {
-    const last: number = half.length - 1;
+    const widest: number = (half.length - 1) / 2;
+    const front: [number, number][] = half.slice(0, widest + 1);
+    const back: [number, number][] = half.slice(widest);
     return Array.from(
       { length: order },
       (_: unknown, m: number): [number, number] => {
         const t: number = (2 * m) / order;
-        const x: number = (t <= 1 ? t : 2 - t) * last;
-        const i: number = Math.min(last - 1, Math.floor(x));
-        const f: number = x - i;
-        const p: [number, number] = [
-          half[i]![0] + f * (half[i + 1]![0] - half[i]![0]),
-          half[i]![1] + f * (half[i + 1]![1] - half[i]![1]),
-        ];
+        const s: number = t <= 1 ? t : 2 - t;
+        const p: [number, number] =
+          s <= 0.5 ? along(front, 2 * s) : along(back, 2 * s - 1);
         return t <= 1 ? p : [p[0], -p[1]];
       },
     );
@@ -838,6 +930,88 @@ function smooth(x: number): number {
   return t * t * (3 - 2 * t);
 }
 
+/** Absolute value with its corner rounded over a half width, to the second derivative. */
+function rounded(x: number, half: number): number {
+  const t: number = x / half;
+  if (Math.abs(t) >= 1) return Math.abs(x);
+  return (
+    half *
+    (5 / 16 + (15 / 8) * (t ** 2 / 2 - t ** 4 / 6 + t ** 6 / 30))
+  );
+}
+
+/** Smootherstep clamped to [0, 1], flat to the second derivative at both ends. */
+function fifth(x: number): number {
+  const t: number = Math.min(1, Math.max(0, x));
+  return t * t * t * (t * (6 * t - 15) + 10);
+}
+
+/**
+ * A chain's slopes solved so that each coefficient's curvature carries across
+ * its rows, its end slopes kept. Three-point slopes leave the Hermite spans
+ * meeting at a corner in curvature, which shades as a line at every row and
+ * shows at the rows where the skin bends most, the waist first.
+ */
+function continuous(chain: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain {
+  const rows: readonly IAutoMovieHumanLoftChain.ILayer[] = chain.layers;
+  const last: number = rows.length - 1;
+  const solved = (
+    pick: (l: IAutoMovieHumanLoftChain.ILayer) => readonly number[],
+    ends: (l: IAutoMovieHumanLoftChain.ILayer) => readonly number[],
+  ): number[][] => {
+    const slopes: number[][] = rows.map((l: IAutoMovieHumanLoftChain.ILayer) => [
+      ...ends(l),
+    ]);
+    const sweep: number[] = new Array<number>(rows.length).fill(0);
+    const right: number[][] = rows.map((): number[] => []);
+    for (let k: number = 1; k < last; k++) {
+      const h0: number = rows[k]!.y - rows[k - 1]!.y;
+      const h1: number = rows[k + 1]!.y - rows[k]!.y;
+      const lower: number = 1 / h0;
+      const upper: number = 1 / h1;
+      const pivot: number =
+        2 * (lower + upper) - (k > 1 ? lower * sweep[k - 1]! : 0);
+      sweep[k] = upper / pivot;
+      const here: readonly number[] = pick(rows[k]!);
+      const below: readonly number[] = pick(rows[k - 1]!);
+      const above: readonly number[] = pick(rows[k + 1]!);
+      right[k] = here.map((v: number, i: number): number => {
+        const b: number =
+          3 * ((v - below[i]!) / (h0 * h0) + (above[i]! - v) / (h1 * h1)) -
+          (k === 1 ? lower * slopes[0]![i]! : 0) -
+          (k === last - 1 ? upper * slopes[last]![i]! : 0);
+        return (b - (k > 1 ? lower * right[k - 1]![i]! : 0)) / pivot;
+      });
+    }
+    for (let k: number = last - 1; k >= 1; k--)
+      slopes[k] = right[k]!.map((v: number, i: number): number =>
+        k === last - 1 ? v : v - sweep[k]! * slopes[k + 1]![i]!,
+      );
+    return slopes;
+  };
+  const section: number[][] = solved(
+    (l: IAutoMovieHumanLoftChain.ILayer): readonly number[] => l.coefficients,
+    (l: IAutoMovieHumanLoftChain.ILayer): readonly number[] => l.slopes,
+  );
+  const raised: number[][] = solved(
+    (l: IAutoMovieHumanLoftChain.ILayer): readonly number[] => l.lift!,
+    (l: IAutoMovieHumanLoftChain.ILayer): readonly number[] => l.liftSlopes!,
+  );
+  return {
+    ...chain,
+    layers: rows.map(
+      (
+        l: IAutoMovieHumanLoftChain.ILayer,
+        k: number,
+      ): IAutoMovieHumanLoftChain.ILayer => ({
+        ...l,
+        slopes: section[k]!,
+        liftSlopes: raised[k]!,
+      }),
+    ),
+  };
+}
+
 /** Samples of a half section or a ring's arc. */
 const RING: number = 240;
 
@@ -881,8 +1055,22 @@ const CLOSURE_REACH: number = 0.1;
 /** Bisections of a section's scale against its tape. */
 const CLOSURE_STEPS: number = 12;
 
-/** Layers above the joint of the ring that gives the trunk's top its slope. */
-const JOINT_REACH: number = 4;
+/**
+ * Layers above the joint of the ring that gives the trunk's top its slope. The
+ * next layer: a further one averages the skin's curvature into that slope, and
+ * the join then turns the difference back as a line across the back.
+ */
+const JOINT_REACH: number = 1;
+
+/**
+ * Radii of the thigh over which the join spreads the turn at the crotch. A whole
+ * radius carried each pinch's slope down the thigh as a long line; this much
+ * stays beside the ring, among the rows the leg keeps there.
+ */
+const HIP_FILLET: number = 0.3;
+
+/** A groove's rounded core at the midline, a share of its width. */
+const GROOVE_CORE: number = 0.25;
 
 /** Reach of a measure's regression up the column, in fractions of it. */
 const FAIR: number = 0.05;

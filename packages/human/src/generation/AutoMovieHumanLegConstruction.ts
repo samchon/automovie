@@ -223,24 +223,49 @@ export namespace AutoMovieHumanLegConstruction {
     const top: number[] = project(family.crotch, sign, family.crotchCentre);
     const reach: number = stations[interior]! - last.y;
 
+    // The ring's pinches are corners, which a leg has no use for: the interval
+    // reaches the ring's plain form, and the corners come in over its last half.
+    const plain: number[] = process.env.HIP_X === "raw" ? [...top] : softened(top);
+
     // The last interior layer sees the ring above it, or the last interval
     // starts with a corner.
     const lower: IAutoMovieHumanLoftChain.ILayer = layers[layers.length - 2]!;
     const below: number = last.y - lower.y;
     last.slopes = last.coefficients.map(
       (v: number, i: number): number =>
-        (((top[i]! - v) / reach) * below + ((v - lower.coefficients[i]!) / below) * reach) /
+        (((plain[i]! - v) / reach) * below + ((v - lower.coefficients[i]!) / below) * reach) /
         (below + reach),
     );
-    layers.push({
+    const end: number[] = plain.map(
+      (v: number, i: number): number => (v - last.coefficients[i]!) / reach,
+    );
+    const ring: IAutoMovieHumanLoftChain.ILayer = {
       y: stations[interior]!,
       coefficients: top,
-      slopes: top.map(
+      slopes: end.map(
         (v: number, i: number): number =>
-          (v - last.coefficients[i]!) / reach,
+          v + (2 * (top[i]! - plain[i]!)) / reach,
       ),
       ...lifted(family.crotchLift),
-    });
+    };
+
+    // A layer at the middle halves the span an end slope acts over, so where
+    // the gluteal fold lies close under the ring the turn stays beside it, and
+    // the join may take all of it instead of leaving a corner on the ring.
+    const middle: IAutoMovieHumanLoftChain.ILayer = inside(
+      last,
+      { ...ring, coefficients: plain, slopes: end },
+      last.y + reach / 2,
+    );
+    layers.push(middle);
+
+    // Layers beside the ring change no skin. The surface's rows follow the
+    // layers, and the ring's normals blend with their mesh neighbours, so rows
+    // far apart on one side drag the blend across the ring as a line.
+    for (const away of RING_ROWS)
+      if (away < reach / 2)
+        layers.push(inside(middle, ring, ring.y - away));
+    layers.push(ring);
     return {
       name: `leg.${side}`,
       basis: "spline",
@@ -249,6 +274,78 @@ export namespace AutoMovieHumanLegConstruction {
       samples: SAMPLES,
       layers,
     };
+  }
+
+  /** The layer at station y on the Hermite span between two layers. */
+  function inside(
+    a: IAutoMovieHumanLoftChain.ILayer,
+    b: IAutoMovieHumanLoftChain.ILayer,
+    y: number,
+  ): IAutoMovieHumanLoftChain.ILayer {
+    const h: number = b.y - a.y;
+    const u: number = (y - a.y) / h;
+    const value = (
+      p: readonly number[],
+      m: readonly number[],
+      q: readonly number[],
+      n: readonly number[],
+    ): number[] =>
+      p.map(
+        (v: number, i: number): number =>
+          (2 * u ** 3 - 3 * u ** 2 + 1) * v +
+          (u ** 3 - 2 * u ** 2 + u) * h * m[i]! +
+          (3 * u ** 2 - 2 * u ** 3) * q[i]! +
+          (u ** 3 - u ** 2) * h * n[i]!,
+      );
+    const rate = (
+      p: readonly number[],
+      m: readonly number[],
+      q: readonly number[],
+      n: readonly number[],
+    ): number[] =>
+      p.map(
+        (v: number, i: number): number =>
+          ((6 * u ** 2 - 6 * u) * (v - q[i]!)) / h +
+          (3 * u ** 2 - 4 * u + 1) * m[i]! +
+          (3 * u ** 2 - 2 * u) * n[i]!,
+      );
+    const none: number[] = new Array<number>(ORDER).fill(0);
+    const al: readonly number[] = a.lift ?? none;
+    const am: readonly number[] = a.liftSlopes ?? none;
+    const bl: readonly number[] = b.lift ?? none;
+    const bm: readonly number[] = b.liftSlopes ?? none;
+    return {
+      y,
+      coefficients: value(a.coefficients, a.slopes, b.coefficients, b.slopes),
+      slopes: rate(a.coefficients, a.slopes, b.coefficients, b.slopes),
+      lift: value(al, am, bl, bm),
+      liftSlopes: rate(al, am, bl, bm),
+    };
+  }
+
+  /** Control points with what is narrower than {@link SOFTEN} controls taken out. */
+  function softened(controls: readonly number[]): number[] {
+    const reach: number = 3 * SOFTEN;
+    const weights: number[] = Array.from(
+      { length: 2 * reach + 1 },
+      (_: unknown, k: number): number =>
+        Math.exp(-(((k - reach) / SOFTEN) ** 2) / 2),
+    );
+    const total: number = weights.reduce(
+      (s: number, w: number): number => s + w,
+      0,
+    );
+    return controls.map((_: number, i: number): number => {
+      const block: number = i < ORDER ? 0 : ORDER;
+      const at: number = i - block;
+      return (
+        weights.reduce(
+          (s: number, w: number, k: number): number =>
+            s + w * controls[block + ((at + k - reach + ORDER) % ORDER)]!,
+          0,
+        ) / total
+      );
+    });
   }
 
   /** Lift of an end layer, flat along the leg. */
@@ -672,6 +769,12 @@ const PHASES: number[] = Array.from(
   { length: RING_PHASES },
   (_: unknown, j: number): number => (2 * Math.PI * j) / RING_PHASES,
 );
+
+/** Spread of what the ring's plain form keeps, in control points. */
+const SOFTEN: number = 3;
+
+/** Distances under the ring of the rows beside it, mm. */
+const RING_ROWS: number[] = [14, 7, 3.4];
 
 /** Fraction step of the station differences. */
 const STEP: number = 0.001;
