@@ -269,6 +269,123 @@ export namespace AutoMovieHumanEarConstruction {
     return out;
   }
 
+  /**
+   * A free section as a closed loop whose points keep their place on the ear.
+   *
+   * {@link path} already samples each face at uniform `q`, so a point's index
+   * names the same place on every section and the rim is always
+   * {@link ANTERIOR}. Resampling by arclength would lose that: a section's
+   * length changes as it rises, every phase slides with it, and the rings then
+   * cut across the rim and the corners as a sawtooth.
+   *
+   * The closure stands inside the head while the section is attached, so it
+   * bows inward by the concha's depth: a straight chord is shallower than the
+   * bowl on a flat ear, and the anterior face would cross it. Once free of the
+   * head the closure is the skin behind the ear and runs straight.
+   *
+   * @param ear The ear.
+   * @param path The ear's path in one section.
+   * @param count Points of the loop; those past the path close it.
+   * @param bow Share of the closure's bow, 1 attached to 0 free.
+   * @returns The path followed by its closure.
+   */
+  export function loop(
+    ear: IEar,
+    path: readonly P2[],
+    count: number,
+    bow: number,
+  ): P2[] {
+    const first: P2 = path[0]!;
+    const last: P2 = path[path.length - 1]!;
+    const chord: number = count - path.length + 1;
+    const depth: number =
+      bow *
+      Math.abs(AutoMovieHumanHeadPrior.PRIOR.ear.concha[0]!) *
+      (ear.measures.breadth / 31);
+    return [
+      ...path,
+      ...Array.from({ length: chord - 1 }, (_: unknown, i: number): P2 => {
+        const f: number = (i + 1) / chord;
+        const sag: number = 4 * f * (1 - f) * depth;
+        return [
+          last[0] + f * (first[0] - last[0]) - sag * ear.normal[0],
+          last[1] + f * (first[1] - last[1]) - sag * ear.normal[1],
+        ];
+      }),
+    ];
+  }
+
+  /**
+   * A stretch of anterior skin dented into a pit.
+   *
+   * The pit has no points of its own to appear from: a run of the skin's own
+   * points, as wide as the pocket has points, carries the pocket scaled by `k`
+   * while the skin beside it closes over its mouth. The pocket's width and the
+   * mouth's add, so the pit's far wall stays beyond its near wall at any depth.
+   * At `k = 0` the result is the skin and at `k = 1` it pinches at `at` round
+   * the pocket. The rim and everything past it keep their indices.
+   *
+   * @param skin A loop from {@link loop}.
+   * @param at Index of the pit's mouth, on the anterior face.
+   * @param pocket The pocket's points, starting and ending at the mouth.
+   * @param k Depth of the dent.
+   * @returns `at + 1` skin points, the pocket's run, then the skin from `at`.
+   */
+  export function pitted(
+    skin: readonly P2[],
+    at: number,
+    pocket: readonly P2[],
+    k: number,
+  ): P2[] {
+    const open: number = (pocket.length / 2) * (1 - k);
+    const before: number = at - open;
+    const after: number = at + open;
+    const mouth: P2 = pocket[0]!;
+    const run = (from: number, to: number, count: number): P2[] =>
+      Array.from({ length: count }, (_: unknown, i: number): P2 =>
+        along(skin, from + ((to - from) * i) / Math.max(1, count - 1)),
+      );
+    return [
+      ...run(0, before, at + 1),
+      ...pocket.map((p: P2, i: number): P2 => {
+        const q: P2 = along(
+          skin,
+          before + ((after - before) * (i + 1)) / (pocket.length + 1),
+        );
+        return [q[0] + k * (p[0] - mouth[0]), q[1] + k * (p[1] - mouth[1])];
+      }),
+      ...run(after, ANTERIOR, ANTERIOR - at + 1),
+      ...skin.slice(ANTERIOR + 1),
+    ];
+  }
+
+  /**
+   * Unit tangent of a loop at an index, toward higher indices.
+   *
+   * A pocket lies along the skin it hangs from, not along the ear's chord: the
+   * two differ by some degrees where the pit opens, and an oval set on the
+   * chord pushes one flank out through the skin beside its mouth.
+   */
+  export function tangent(loop: readonly P2[], at: number): P2 {
+    const a: P2 = loop[at - 1]!;
+    const b: P2 = loop[at + 1]!;
+    const l: number = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+    return [(b[0] - a[0]) / l, (b[1] - a[1]) / l];
+  }
+
+  /**
+   * Uniform control rings of a loop whose indices are its phases.
+   *
+   * @param loop Closed loop of points in order.
+   * @param order Control points.
+   * @returns One point per uniform phase, phase `2 pi i / length` at index `i`.
+   */
+  export function even(loop: readonly P2[], order: number): P2[] {
+    return Array.from({ length: order }, (_: unknown, j: number): P2 =>
+      along(loop, (j * loop.length) / order),
+    );
+  }
+
   /** An oval of points about a centre along the chord. */
   export function oval(
     c: P2,
@@ -288,6 +405,19 @@ export namespace AutoMovieHumanEarConstruction {
       ];
     });
   }
+}
+
+/** A point at a fractional index of a closed run of points. */
+function along(
+  loop: readonly AutoMovieHumanEarConstruction.P2[],
+  index: number,
+): AutoMovieHumanEarConstruction.P2 {
+  const n: number = loop.length;
+  const i: number = Math.floor(index);
+  const f: number = index - i;
+  const a: AutoMovieHumanEarConstruction.P2 = loop[((i % n) + n) % n]!;
+  const b: AutoMovieHumanEarConstruction.P2 = loop[(((i + 1) % n) + n) % n]!;
+  return [a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1])];
 }
 
 /** Points of the posterior face in a section. */

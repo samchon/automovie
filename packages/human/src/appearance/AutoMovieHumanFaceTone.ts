@@ -176,12 +176,15 @@ export namespace AutoMovieHumanFaceTone {
 
     // Closed pockets behind openings (nostrils): skin within the opening's
     // outline and behind its margin along the facing direction is a shadowed
-    // cavity, darkened with depth instead of flushed.
+    // cavity, darkened with depth instead of flushed. A pocket's walls look
+    // out through the opening, while the outer skin of a wing above a nostril
+    // that faces down lies in the same place and turns its back on it.
     let cavity: number = 0;
     for (const pocket of F.pockets) {
       const d: Vec3 = V.sub(pocket.centre, p);
       const inside: number = V.dot(d, pocket.forward);
       const lateral: number = V.norm(V.sub(d, V.scale(pocket.forward, inside)));
+      const facing: number = V.smooth(V.dot(n, V.normalize(d)) / 0.2);
       // A pocket is finite along its axis as well as across it. The old
       // half-infinite cylinder also tinted unrelated crown skin.
       const axialFade: number =
@@ -190,6 +193,7 @@ export namespace AutoMovieHumanFaceTone {
         cavity,
         V.smooth(inside / (0.5 * pocket.depth)) *
           axialFade *
+          facing *
           V.smooth((1.4 * pocket.radius - lateral) / (0.4 * pocket.radius)),
       );
     }

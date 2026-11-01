@@ -29,7 +29,9 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * Named features are reliefs written as radial heights over that surface, each
  * with its own place, widths and depth, driven by the public dimensions: the
  * planes and hollows of the face, the nose's dorsum, tip, alae and sill, the
- * philtrum, the lips and the oral fissure between them. The sockets fall to seat
+ * philtrum, the lips and the oral fissure between them. The nose stands on a base
+ * edge, so it ends on a shelf facing down, and the nostrils lie in that shelf and
+ * face as it does. The sockets fall to seat
  * the eyes a fixed depth behind the nasion. The lid margins, globes, nostrils
  * and the lips' colour boundary are placed from the same dimensions, so they
  * stay on the features they belong to.
@@ -209,6 +211,9 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** Shield half-width. */
     face: number;
+
+    /** Share of the shield in the union: none where the plain neck is. */
+    shield: number;
 
     /** Back body exponent. */
     powerBack: number;
@@ -404,6 +409,7 @@ export namespace AutoMovieHumanHeadConstruction {
             plan.jaw * smooth((1.9 - t) / 0.9) +
             plan.brow * smooth((t - 2.8) / 0.5),
         ),
+      shield: smooth((t - SHIELD_FROM) / SHIELD_RISE) ** 3,
       powerBack:
         4 +
         2 *
@@ -426,7 +432,9 @@ export namespace AutoMovieHumanHeadConstruction {
       z / section.face,
       section.powerFace,
     );
-    return (g ** -POWER + f ** -POWER) ** (-1 / POWER);
+    // A width floor does not remove the shield: on the midline its lateral term
+    // is exactly nothing, so 0.3 mm of it stood proud of the neck as a needle.
+    return (g ** -POWER + section.shield * f ** -POWER) ** (-1 / POWER);
   }
 
   /** Radius of the section's outline along a ray from `(ox, 0)`. */
@@ -665,8 +673,12 @@ export namespace AutoMovieHumanHeadConstruction {
         (a - plan.faceWidth * 0.98) / (12 * k),
       );
 
-    // The nose: the dorsum's ridge, the tip's ball, the alae and the sill they
-    // stand on, joined by a soft maximum.
+    // The nose: a column of the dorsum's ridge and the tip's ball, which share
+    // an axis, joined to the alae and the sill by a quadratic union. A sharper
+    // union of lobes that stand apart ruled a valley of 0.75 mm radius between
+    // the tip and the wing, under the sections' 1.6 mm controls, and the cells
+    // aliased it into teeth at whatever pitch they had. All of it stands on the
+    // base edge, so that the nose ends on a shelf facing down.
     const span: number = plan.nasion - plan.tip;
     const w: number = plan.noseWidth;
     const lead: number = plan.noseLead;
@@ -688,26 +700,36 @@ export namespace AutoMovieHumanHeadConstruction {
           a / (f.tipBall[2]! * w),
         ),
       );
-    const ala: number =
-      ((f.ala[0]! * w) / 14) *
-      bell(
-        Math.hypot(
-          (y - plan.subnasale - f.ala[1]! * span) / (f.ala[3]! * span),
-          (a - f.ala[2]! * w) / (f.ala[4]! * w),
-        ),
-      );
+    // The lobes and the sill stand at the middle of the shelf they bound. Both
+    // sides' lobes together are smooth across the midline.
+    const shelf: number = plan.subnasale + (f.base[0]! + f.base[2]! / 2) * span;
+    const lobe = (d: number): number =>
+      bell2((y - shelf) / (f.ala[2]! * span), (d - f.ala[1]! * w) / (f.ala[3]! * w));
+    const ala: number = ((f.ala[0]! * w) / 14) * (lobe(a) + lobe(-a));
     const sill: number =
       f.sill[0]! *
       lead *
       bell(
         Math.hypot(
-          (y - plan.subnasale - f.sill[1]! * span) / (f.sill[2]! * span),
-          a / (f.sill[3]! * w),
+          (y - shelf) / (f.sill[1]! * span),
+          a / (f.sill[2]! * w),
         ),
       );
-    out +=
-      (ridge ** NOSE + ball ** NOSE + ala ** NOSE + sill ** NOSE) **
-      (1 / NOSE);
+    const column: number = (ridge ** NOSE + ball ** NOSE) ** (1 / NOSE);
+    // The edge exists only under the nose. Carried past the wing it cut the
+    // lobes' tails into a ledge across the cheek, so it hands over to the wing's
+    // own fall, which meets the cheek with no edge at all.
+    const stands: number = smoother(
+      (y - noseEdge(plan, f, a)) / (f.base[2]! * span),
+    );
+    const past: number = smooth((a / w - f.base[5]!) / f.base[6]!);
+    const body: number =
+      (stands + past * (1 - stands)) * Math.hypot(column, ala);
+
+    // The sill carries the nose's floor down into the lip, so it stands on the
+    // lip and no edge cuts it. Cut with the rest, the skin met the lip at a
+    // corner of 2 mm radius, and the underside read as a band overhanging it.
+    out += Math.hypot(body, sill);
 
     // Philtrum.
     const lipTop: number = plan.stomion + plan.upperLip;
@@ -740,6 +762,24 @@ export namespace AutoMovieHumanHeadConstruction {
     return out * front;
   }
 
+  /** Height of the nose's base edge at a distance from the midline. */
+  function noseEdge(
+    plan: ILayout,
+    f: AutoMovieHumanHeadPrior.IFace,
+    a: number,
+  ): number {
+    // Both sides' arches together are smooth across the midline.
+    const u: number = a / plan.noseWidth;
+    return (
+      plan.subnasale +
+      (plan.nasion - plan.tip) *
+        (f.base[0]! +
+          f.base[1]! *
+            (bell((u - f.base[3]!) / f.base[4]!) +
+              bell((u + f.base[3]!) / f.base[4]!)))
+    );
+  }
+
   /** The neck ring's polar difference from the law, per side. */
   function neckDelta(
     compiled: ICompiled,
@@ -753,9 +793,13 @@ export namespace AutoMovieHumanHeadConstruction {
     for (let j: number = 0; j <= ANGLES; j++) {
       const theta: number = (Math.PI * j) / ANGLES;
       const r: number = radius(m, ox, theta);
-      out.push(
-        AutoMovieHumanPolarSection.radius(ring, [ox, 0], sign * theta) - r,
-      );
+
+      // The midline's rays pass exactly through the ring's vertices there, and
+      // rounding can drop that crossing from both edges beside it. The ray then
+      // meets nothing and the point falls to the polar origin: on one person
+      // that was a slit 38 mm deep up the front of the neck.
+      const ray: number = Math.min(Math.PI - OFF_VERTEX, Math.max(OFF_VERTEX, theta));
+      out.push(AutoMovieHumanPolarSection.radius(ring, [ox, 0], sign * ray) - r);
     }
     return out;
   }
@@ -831,8 +875,7 @@ export namespace AutoMovieHumanHeadConstruction {
     const c: P2 = AutoMovieHumanEarConstruction.centre(ear, y, head);
     const tip: P2 = [c[0] - half * ear.along[0], c[1] - half * ear.along[1]];
     const rim: P2 = [c[0] + half * ear.along[0], c[1] + half * ear.along[1]];
-    const gap: number =
-      AutoMovieHumanHeadPrior.PRIOR.ear.root * ear.measures.breadth;
+    const gap: number = AutoMovieHumanHeadPrior.PRIOR.ear.root * 2 * half;
     return {
       front: at(canonical, tip[0]),
       back: at(canonical, tip[0] - gap),
@@ -852,6 +895,7 @@ export namespace AutoMovieHumanHeadConstruction {
     side: readonly Vec3[],
     sign: 1 | -1,
     y: number,
+    weight: (p: Vec3) => number,
   ): Vec3[] {
     const flat: P2[] = planar(side, sign);
     const r: IRoots = roots(ear, side, sign, y);
@@ -877,7 +921,12 @@ export namespace AutoMovieHumanHeadConstruction {
     pieces.forEach((piece: P2[], i: number): void => {
       const line: Vec3[] = piece.map((p: P2): Vec3 => [p[0], y, sign * p[1]]);
       const count: number = SPLICE[i]!;
-      out.push(...resample(line, count + 1).slice(0, count));
+      out.push(
+        ...resample(line, count + 1, i === 0 ? weight : undefined).slice(
+          0,
+          count,
+        ),
+      );
     });
     const last: P2 = flat[flat.length - 1]!;
     out.push([last[0], y, sign * last[1]]);
@@ -889,18 +938,55 @@ export namespace AutoMovieHumanHeadConstruction {
     left: readonly Vec3[],
     right: readonly Vec3[],
     order: number,
+    weight: (p: Vec3) => number,
   ): Vec3[] {
     const half: number = order / 2;
-    const a: Vec3[] = resample(left, half + 1);
-    const b: Vec3[] = resample(right, half + 1);
+    const a: Vec3[] = resample(left, half + 1, weight);
+    const b: Vec3[] = resample(right, half + 1, weight);
     return [...a.slice(0, half), ...b.slice(1).reverse()];
   }
 
-  /** Points at uniform arclength along a polyline, both ends included. */
-  function resample(line: readonly Vec3[], count: number): Vec3[] {
+  /**
+   * Controls per millimetre of section at a point, against the back of the head.
+   *
+   * The same counts, gathered over the face: the nose, lids and lips hold the
+   * small features, and 1.6 to 2.3 mm between controls could not carry them.
+   * It reads only the point's place, so a control stays on its feature from one
+   * section to the next instead of sliding with the arclength. It stops below
+   * the mouth: a tilted ring's mean height is its layer's, and controls gathered
+   * at the raised front crowded those layers to 0.4 mm. It stops slowly: over
+   * 8 mm the controls slid along the ring within a few layers and creased it.
+   */
+  function gathered(plan: ILayout): (p: Vec3) => number {
+    const reach: number = plan.left.place + plan.left.length / 2;
+    const k: number = plan.scale;
+    return (p: Vec3): number =>
+      1 +
+      GATHER *
+        bell(p[2] / reach) *
+        smooth((p[0] - plan.centre + 10 * k) / (30 * k)) *
+        smooth((p[1] - plan.stomion + 30 * k) / (40 * k));
+  }
+
+  /**
+   * Points at uniform arclength along a polyline, both ends included, or uniform
+   * in the arclength a weight scales.
+   */
+  function resample(
+    line: readonly Vec3[],
+    count: number,
+    weight?: (p: Vec3) => number,
+  ): Vec3[] {
     const s: number[] = [0];
-    for (let i: number = 1; i < line.length; i++)
-      s.push(s[i - 1]! + dist(line[i]!, line[i - 1]!));
+    for (let i: number = 1; i < line.length; i++) {
+      const d: number = dist(line[i]!, line[i - 1]!);
+      s.push(
+        s[i - 1]! +
+          (weight === undefined
+            ? d
+            : (d * (weight(line[i]!) + weight(line[i - 1]!))) / 2),
+      );
+    }
     const out: Vec3[] = [];
     let j: number = 0;
     for (let i: number = 0; i < count; i++) {
@@ -952,14 +1038,6 @@ export namespace AutoMovieHumanHeadConstruction {
     return { ring, phases };
   }
 
-  /** Equal shares of a path along arclength. */
-  function share(loop: readonly P2[], count: number): P2[] {
-    return resample(
-      loop.map((p: P2): Vec3 => [p[0], 0, p[1]]),
-      count,
-    ).map((p: Vec3): P2 => [p[0], p[2]]);
-  }
-
   /** Reflect a left-frame closed loop onto a side, keeping its sense. */
   function reflected(loop: readonly P2[], sign: 1 | -1): P2[] {
     return sign > 0
@@ -978,7 +1056,10 @@ export namespace AutoMovieHumanHeadConstruction {
     const chain: IAutoMovieHumanLoftChain = AutoMovieHumanHorizontalChain.build(
       { name, order, samples: order, rule },
       layers.map((l: ILoopLayer): Vec3[] =>
-        phased(rule, l.loop, order, mirrored).ring.map(
+        (rule === "arclength"
+          ? AutoMovieHumanEarConstruction.even(l.loop, order)
+          : phased(rule, l.loop, order, mirrored).ring
+        ).map(
           (p: P2): Vec3 => [p[0], l.y, p[1]],
         ),
       ),
@@ -998,6 +1079,33 @@ export namespace AutoMovieHumanHeadConstruction {
       { length: n },
       (_: unknown, i: number): number => a + ((b - a) * i) / (n - 1),
     );
+  }
+
+  /** Stations from a to b, n layers, crowding about a place with a half-width. */
+  function crowded(
+    a: number,
+    b: number,
+    n: number,
+    place: number,
+    reach: number,
+  ): number[] {
+    const fine: number = 512;
+    const y: number[] = uniform(a, b, fine);
+    const total: number[] = [0];
+    for (let i: number = 1; i < fine; i++)
+      total.push(
+        total[i - 1]! +
+          (y[i]! - y[i - 1]!) * (1 + CROWD * bell((y[i]! - place) / reach)),
+      );
+    const out: number[] = [];
+    let j: number = 0;
+    for (let i: number = 0; i < n; i++) {
+      const target: number = (total[fine - 1]! * i) / (n - 1);
+      while (j + 2 < fine && total[j + 1]! < target) j++;
+      const f: number = (target - total[j]!) / (total[j + 1]! - total[j]!);
+      out.push(y[j]! + Math.min(1, f) * (y[j + 1]! - y[j]!));
+    }
+    return out;
   }
 
   /** One ear's chains, its own events and poles. */
@@ -1033,7 +1141,7 @@ export namespace AutoMovieHumanHeadConstruction {
         r.rim,
         folds,
       );
-      return share(path, LOOP);
+      return AutoMovieHumanEarConstruction.loop(ear, path, LOOP, 1 - f);
     };
     const span: number = ear.top - ear.upper;
     const rise = (y: number): number => smooth((y - ear.upper) / span);
@@ -1062,16 +1170,17 @@ export namespace AutoMovieHumanHeadConstruction {
       const half: number = AutoMovieHumanEarConstruction.chord(ear, ear.split);
       const a: number = 0.24 * half * size;
       const b: number = 0.1 * half * size;
-      const n: P2 = ear.normal;
+      const t: P2 = AutoMovieHumanEarConstruction.tangent(l, pit);
+      const n: P2 = [t[1], -t[0]];
       const inset: number = b + 0.3 * half * (1 - size);
       return AutoMovieHumanEarConstruction.oval(
         [c[0] - n[0] * inset, c[1] - n[1] * inset],
-        ear.along,
+        t,
         a,
         b,
         POCKET,
         -1,
-        Math.PI / 2,
+        -Math.PI / 2,
       );
     };
     const rings = (y: number): P2[] => free(y, rise(y), 1);
@@ -1082,14 +1191,7 @@ export namespace AutoMovieHumanHeadConstruction {
           (y - ear.upper) / (ear.split - ear.upper) / PIT_FROM - 1 / PIT_FROM + 1,
         );
         const pocket: P2[] = pocketOval(ear.split);
-        return {
-          y,
-          loop: [
-            ...l.slice(0, pit + 1),
-            ...pocket.map((p: P2): P2 => mix(l[pit]!, p, k)),
-            ...l.slice(pit),
-          ],
-        };
+        return { y, loop: AutoMovieHumanEarConstruction.pitted(l, pit, pocket, k) };
       },
     );
     const high: P2[] = helixLayers[helixLayers.length - 1]!.loop;
@@ -1119,12 +1221,9 @@ export namespace AutoMovieHumanHeadConstruction {
     const closed: P2[] = reflected(high, sign);
     const cut: number[] =
       sign > 0 ? [from, to] : [closed.length - to, closed.length - from];
-    const phases: number[] = phased(
-      "arclength",
-      closed,
-      ORDER_HELIX,
-      false,
-    ).phases;
+    const phases: number[] = closed.map(
+      (_: P2, i: number): number => (2 * Math.PI * i) / closed.length,
+    );
     const pocketArc: [number, number] = [
       phases[Math.min(closed.length - 1, cut[0]!)]!,
       phases[Math.min(closed.length - 1, cut[1]!)]!,
@@ -1263,7 +1362,14 @@ export namespace AutoMovieHumanHeadConstruction {
     };
 
     const lowerStations: number[] = uniform(level, lower, LAYERS_LOWER);
-    const middleStations: number[] = uniform(lower, upper, LAYERS_MIDDLE);
+    const middleStations: number[] = crowded(
+      lower,
+      upper,
+      LAYERS_MIDDLE,
+      noseEdge(plan, prior.face, 0.5 * plan.noseWidth) +
+        (prior.face.base[2]! * (plan.nasion - plan.tip)) / 2,
+      SHELF * (plan.nasion - plan.tip),
+    );
     const upperStations: number[] = Array.from(
       { length: LAYERS_UPPER },
       (_: unknown, i: number): number =>
@@ -1271,6 +1377,7 @@ export namespace AutoMovieHumanHeadConstruction {
         (plan.vertex - CROWN * scale - upper) *
           Math.sin(((i / (LAYERS_UPPER - 1)) * Math.PI) / 2),
     );
+    const weight: (p: Vec3) => number = gathered(plan);
     const plain = (
       name: string,
       samples: number,
@@ -1280,13 +1387,13 @@ export namespace AutoMovieHumanHeadConstruction {
         { name, order: ORDER, samples, rule: "sagittal" },
         stations.map((s: number): Vec3[] => {
           const c: ISides = sides(surface, s);
-          return sagittal(c.left, c.right, ORDER);
+          return sagittal(c.left, c.right, ORDER, weight);
         }),
       );
     const eared = (s: number): Vec3[] => {
       const c: ISides = sides(surface, s);
-      const a: Vec3[] = spliced(leftEar, c.left, 1, s);
-      const b: Vec3[] = spliced(rightEar, c.right, -1, s);
+      const a: Vec3[] = spliced(leftEar, c.left, 1, s, weight);
+      const b: Vec3[] = spliced(rightEar, c.right, -1, s, weight);
       return [...a.slice(0, ORDER_MIDDLE / 2), ...b.slice(1).reverse()];
     };
     const half: number = ORDER_MIDDLE / 2;
@@ -1415,21 +1522,30 @@ export namespace AutoMovieHumanHeadConstruction {
     };
   }
 
-  /** One nostril: an oval drawn on the skin under the nose. */
+  /** One nostril: an oval drawn on the shelf under the nose, facing as it does. */
   function nostril(surface: ISurface, sign: 1 | -1): IAutoMovieHumanLoftAperture {
     const { plan, compiled } = surface;
     const f: AutoMovieHumanHeadPrior.IFace = compiled.prior.face;
     const w: number = plan.noseWidth;
     const order: number = 3;
     const count: number = 24;
-    const cy: number = plan.tip - f.nostrilCentre[0]! * (plan.nasion - plan.tip);
     const cz: number = f.nostrilCentre[1]! * w;
+    const cy: number =
+      noseEdge(plan, f, cz) +
+      f.nostrilCentre[0]! * f.base[2]! * (plan.nasion - plan.tip);
+    // Its length lies along the shelf, so a height is that length over the
+    // shelf's slope, which differs from one nose to the next.
+    const slope: number = Math.max(
+      1,
+      Math.abs(frontAt(surface, cy + 1, sign * cz) - frontAt(surface, cy - 1, sign * cz)) / 2,
+    );
     const points: Vec3[] = Array.from(
       { length: count },
       (_: unknown, i: number): Vec3 => {
         const t: number = (2 * Math.PI * i) / count;
-        const y: number = cy + f.nostrilSize[1]! * w * Math.sin(t);
-        const z: number = cz + f.nostrilSize[0]! * w * Math.cos(t);
+        const y: number = cy + (f.nostrilSize[1]! * w * Math.sin(t)) / slope;
+        const z: number =
+          cz + f.nostrilSize[0]! * w * Math.cos(t) - f.nostrilSweep * (y - cy);
         return [frontAt(surface, y, sign * z), y, sign * z];
       },
     );
@@ -1548,6 +1664,9 @@ const HANDOVER: number = 2.5;
 /** Station where the face shield starts, above the plain neck. */
 const SHIELD_FROM: number = 0.45;
 
+/** Angle a ray keeps off the midline, radians: far under a ring's spacing. */
+const OFF_VERTEX: number = 1e-6;
+
 /** Stations over which the shield rises to its width. */
 const SHIELD_RISE: number = 0.5;
 
@@ -1563,11 +1682,20 @@ const NECK_FADE: number = 0.95;
 /** Sharpness of the union of the back body and the shield. */
 const POWER: number = 5;
 
-/** Sharpness of the nose's soft maximum. */
+/** Sharpness of the soft maximum along the nose's own axis. */
 const NOSE: number = 5;
 
-/** Angles of half a section. */
-const ANGLES: number = 480;
+/** Extra controls per millimetre over the face. */
+const GATHER: number = 2;
+
+/** Extra layers per millimetre over the nose's shelf. */
+const CROWD: number = 2;
+
+/** Half-height of that crowding, in spans of nasion to tip. */
+const SHELF: number = 0.25;
+
+/** Angles of half a section: finer than the face's gathered controls. */
+const ANGLES: number = 960;
 
 /** Control points of the head's sections. */
 const ORDER: number = 256;
@@ -1650,6 +1778,12 @@ function bell2(x: number, y: number): number {
 function smooth(x: number): number {
   const t: number = Math.min(1, Math.max(0, x));
   return t * t * (3 - 2 * t);
+}
+
+/** Quintic step clamped to [0, 1], with no jump of curvature at its ends. */
+function smoother(x: number): number {
+  const t: number = Math.min(1, Math.max(0, x));
+  return t * t * t * (t * (6 * t - 15) + 10);
 }
 
 /** Mean of a list. */

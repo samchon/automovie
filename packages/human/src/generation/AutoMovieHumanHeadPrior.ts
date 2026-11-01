@@ -192,10 +192,23 @@ export namespace AutoMovieHumanHeadPrior {
     /** Tip's ball: half-heights below and above in nose heights, half-width in half nose widths. */
     tipBall: readonly number[];
 
-    /** Alar lobes: height, height above the subnasale per nose height, reach, widths. */
+    /**
+     * Alar lobes, standing at the middle of the shelf: height, reach, half-height
+     * per nose height, half-width. Reach and half-width in half nose widths put
+     * the lobe's fall at the nose's width, so the width input is where it ends.
+     */
     ala: readonly number[];
 
-    /** Nasal sill under the tip: share of the lead, height, half-height, half-width. */
+    /**
+     * The nose's base edge, under which the nose stands on nothing, in spans of
+     * nasion to tip above the subnasale: its height at the columella, the arch
+     * over each nostril, the rise of the shelf above the edge, the arch's place
+     * and half-width in half nose widths, and where the edge hands over to the
+     * wing's own fall and over how far, likewise.
+     */
+    base: readonly number[];
+
+    /** Nasal sill, standing at the middle of the shelf: share of the lead, half-height, half-width. */
     sill: readonly number[];
 
     /** Stomion below the subnasale, per subnasale to menton. */
@@ -246,11 +259,14 @@ export namespace AutoMovieHumanHeadPrior {
     /** Margin's centre ahead of the globe's. */
     marginForward: number;
 
-    /** Nostril's half-sizes, across and along, per half nose width. */
+    /** Nostril's half-sizes on the shelf, across and along it, per half nose width. */
     nostrilSize: readonly number[];
 
-    /** Nostril centre: below the tip in nose heights, lateral in half nose widths. */
+    /** Nostril centre: share of the shelf's rise above the edge, lateral in half nose widths. */
     nostrilCentre: readonly number[];
+
+    /** Nostril's lean toward the columella, lateral per unit of height. */
+    nostrilSweep: number;
   }
 
   /** The whole prior. */
@@ -312,8 +328,9 @@ export namespace AutoMovieHumanHeadPrior {
       profile: [0, 0.82, 0.86, 0.6, 0.2, 0],
       dorsum: [0.7, 0.66, 0.6, 0.52, 0.48, 0.5],
       tipBall: [0.3, 0.46, 0.72],
-      ala: [11, 0.24, 0.74, 0.21, 0.42],
-      sill: [0.3, 0.16, 0.22, 1],
+      ala: [11, 0.62, 0.21, 0.4],
+      base: [0.17, 0.03, 0.18, 0.55, 0.45, 0.95, 0.45],
+      sill: [0.3, 0.22, 1],
       stomion: 0.27,
       mouth: 1,
       vermilion: 1,
@@ -349,8 +366,9 @@ export namespace AutoMovieHumanHeadPrior {
         [1, 0.03, -0.034, -0.02, 0.062, 0.018],
       ],
       marginForward: 6.26,
-      nostrilSize: [0.26, 0.15],
-      nostrilCentre: [0.34, 0.52],
+      nostrilSize: [0.24, 0.22],
+      nostrilCentre: [0.55, 0.52],
+      nostrilSweep: 1.2,
     },
     ear: {
       lengthRatio: 1.02,

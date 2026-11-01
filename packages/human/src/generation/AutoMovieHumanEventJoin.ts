@@ -20,8 +20,10 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * {@link REACH} mm of the ring (at least two layers), with the station
  * slopes the fade implies, so the child closes the gap over a few
  * millimetres instead of one band. Points off the parent's arcs (the bridge
- * across a pinch) and farther than {@link SNAP} mm from the parent's ring
- * keep their place.
+ * across a pinch) keep their place, and a point leaves the move as it leaves
+ * the parent's ring, by the same fade the slopes below use: a hard gate at a
+ * distance moved the chord of an ear's lobe, which lies near a ring it is not
+ * on, and printed waves along it.
  *
  * Each chain's end layer also carries its own fitted station slopes. Where those slopes put the child's surface at
  * an angle to the parent's, the shared ring prints a crease: measured on
@@ -132,9 +134,6 @@ const TAPER: number = 6;
 
 /** Station reach over which the child's end-ring move fades out, mm. */
 const REACH: number = 4;
-
-/** Largest end-ring gap closed, mm; a farther point is not on the parent. */
-const SNAP: number = 3;
 
 /** Distance past 0.5 mm over which a point leaves the parent's surface, mm. */
 const FAR: number = 1;
@@ -292,7 +291,7 @@ function place(
   const moves: Vec3[] = AutoMovieHumanLoftChain.ring(child, sc, phases).map(
     (p: Vec3): Vec3 => {
       const [tau, q, distance] = nearest(ring, p);
-      const w: number = distance <= SNAP ? ring.weight(tau) : 0;
+      const w: number = ring.weight(tau) * (1 - smooth((distance - 0.5) / FAR));
       return scale(sub(q, p), w);
     },
   );
