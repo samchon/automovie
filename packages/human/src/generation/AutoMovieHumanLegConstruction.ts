@@ -3,6 +3,7 @@ import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpl
 import { AutoMovieHumanPolarSection } from "../lofting/AutoMovieHumanPolarSection";
 import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -99,10 +100,13 @@ export namespace AutoMovieHumanLegConstruction {
    * @param calibration Calibration holding the foot family and trunk; not
    *   modified.
    * @param inputs Tape measures in calibration millimetres.
+   * @param skeleton The bind skeleton: each foot stands under its ankle.
+   *   Absent, the stance is read from the prior's line here.
    */
   export function stand(
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IInputs,
+    skeleton?: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
     const axis: AutoMovieHumanNaturalSpline.ISpline[] = axisCurves();
     const moves: Map<"left" | "right", [number, number]> = new Map(
@@ -113,6 +117,18 @@ export namespace AutoMovieHumanLegConstruction {
           const at: [number, number] = AutoMovieHumanPolarSection.measure(
             ankle.map((p: [number, number, number]): [number, number] => [p[0], p[2]]),
           ).centre;
+          const joint: AutoMovieHumanSkeletonLaw.IBone | undefined =
+            skeleton?.find(
+              (b: AutoMovieHumanSkeletonLaw.IBone): boolean =>
+                b.bone === `${side}Foot`,
+            );
+          if (skeleton !== undefined && joint === undefined)
+            throw new Error(`The skeleton lacks the ${side} ankle`);
+          if (joint !== undefined)
+            return [
+              side,
+              [joint.position[0] - at[0], joint.position[2] - at[1]],
+            ];
           const length: number =
             level(crotchRing(calibration, side)) - level(ankle);
           return [

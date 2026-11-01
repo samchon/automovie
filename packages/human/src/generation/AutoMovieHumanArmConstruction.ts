@@ -5,6 +5,7 @@ import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpl
 import { AutoMovieHumanPolarSection } from "../lofting/AutoMovieHumanPolarSection";
 
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -12,11 +13,13 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * Both arms and hands generated from the shoulder ring and public lengths and
  * tapes, by one construction on the left side and a reflection.
  *
- * The arm is a walk along two bones. The trunk places the shoulder; from there
- * the heading runs along the upper arm to the elbow, turns over a short length
- * and runs along the forearm to the wrist. The elbow and wrist stand where the
- * arm length inputs reach, and every point of the axis follows from the one
- * before it and the heading, so the axis has no breaks.
+ * The arm is a walk along two bones. The heading runs along the upper arm to
+ * the elbow, turns over a short length and runs along the forearm to the wrist,
+ * and every point of the axis follows from the one before it and the heading,
+ * so the axis has no breaks. The walk starts on the trunk's shoulder ring, the
+ * elbow and wrist standing where the arm length inputs reach; that is where
+ * {@link bones} reads them for the skeleton, and the arm is then lofted on the
+ * skeleton, its walk turning at the skeleton's elbow.
  *
  * About that axis a section is an ellipse in the plane across the bone. Its
  * size is a natural spline through the shoulder ring's size and the circles of
@@ -138,17 +141,42 @@ export namespace AutoMovieHumanArmConstruction {
     };
   }
 
-  /** Calibration with both arms and hands, their events and poles added. */
+  /**
+   * Calibration with both arms and hands, their events and poles added.
+   *
+   * @param skeleton The bind skeleton the arms are lofted on: each walk turns
+   *   at its elbow. Absent, the walks start on the shoulder rings.
+   */
   export function add(
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IInputs,
+    skeleton?: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
     return {
       ...calibration,
-      chains: [...calibration.chains, ...chains(calibration, inputs)],
+      chains: [
+        ...calibration.chains,
+        ...chains(calibration, inputs, skeleton),
+      ],
       events: [...calibration.events, ...events()],
-      poles: [...calibration.poles, ...poles(calibration, inputs)],
+      poles: [...calibration.poles, ...poles(calibration, inputs, skeleton)],
     };
+  }
+
+  /** A side's elbow from a skeleton, in the left frame. */
+  function elbowOf(
+    skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[] | undefined,
+    side: "left" | "right",
+    sign: 1 | -1,
+  ): Vec3 | undefined {
+    if (skeleton === undefined) return undefined;
+    const bone: AutoMovieHumanSkeletonLaw.IBone | undefined = skeleton.find(
+      (b: AutoMovieHumanSkeletonLaw.IBone): boolean =>
+        b.bone === `${side}LowerArm`,
+    );
+    if (bone === undefined)
+      throw new Error(`The skeleton lacks the ${side} elbow`);
+    return sided(bone.position, sign);
   }
 
   /** Whether a chain belongs to an arm. */
@@ -235,12 +263,110 @@ export namespace AutoMovieHumanArmConstruction {
     /** Hand origin, in world millimetres. */
     wrist: Vec3;
 
+    /** Where the walk turns from the upper arm to the forearm. */
+    elbow: Vec3;
+
+    /** Centre of the section at the wrist crease. */
+    crease: Vec3;
+
     /** Point of layer k at phase t. */
     point(k: number, t: number): Vec3;
   }
 
-  /** Walk the bones and build the tube. */
-  function arm(ring: IRing, inputs: IInputs, hand: IHand): IArm {
+  /**
+   * One side's bone landmarks by the arm's law, in world millimetres, before
+   * any arm skin exists: what a skeleton stands its arm on.
+   */
+  export interface IBones {
+    /** Where the walk turns from the upper arm to the forearm. */
+    elbow: Vec3;
+
+    /**
+     * Centre of the hand's section at the wrist crease. Hand length runs from
+     * the crease, and the hand's origin-to-tip measure is `lengthRatio` of it,
+     * so the crease lies the rest of that length behind the origin.
+     */
+    crease: Vec3;
+
+    /** Hand length the hand was made to, from the crease. */
+    length: number;
+
+    /** Each digit's centre line from its root ring to its last ring and its tip, thumb first. */
+    digits: IDigitLine[];
+  }
+
+  /** A digit's centre line. */
+  export interface IDigitLine {
+    /** Chain name. */
+    name: string;
+
+    /** Centres of the digit's rings from its root to its tip. */
+    line: Vec3[];
+
+    /** The tip's apex. */
+    tip: Vec3;
+  }
+
+  /**
+   * Both arms' bone landmarks from the shoulder rings and the inputs, before
+   * the arms are lofted: the same walk, crease and digit lines the skin is
+   * built on.
+   *
+   * @param calibration Calibration holding `upper` and its event.
+   * @param inputs Lengths in calibration millimetres.
+   */
+  export function bones(
+    calibration: IAutoMovieHumanBodyCalibration,
+    inputs: IInputs,
+  ): Record<"left" | "right", IBones> {
+    const prior: AutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
+    const hand: IForm = form();
+    const one = (side: "left" | "right"): IBones => {
+      const sign: 1 | -1 = side === "left" ? 1 : -1;
+      const measures: IHand = inputs[side];
+      const law: IArm = arm(shoulder(calibration, side, sign), inputs, measures);
+      const map = (q: readonly [number, number, number]): Vec3 =>
+        sided(
+          handPoint(q, measures, inputs.circumference, inputs.scale, law.wrist),
+          sign,
+        );
+      const centre = (ring: readonly Vec3[]): Vec3 =>
+        [0, 1, 2].map(
+          (c: number): number =>
+            ring.reduce((s: number, p: Vec3): number => s + p[c]!, 0) /
+            ring.length,
+        ) as Vec3;
+      return {
+        elbow: sided(law.elbow, sign),
+        crease: sided(law.crease, sign),
+        length: measures.length,
+        digits: hand.digits.map((d: IDigit, i: number): IDigitLine => {
+          const growth: number = i === 0 ? thumbGrowth(measures) : 1;
+          const rings: Vec3[][] = i === 0 ? digitRings(d, growth) : d.rings;
+          return {
+            name: prior.hand.digits[i]!.name.replace("{side}", side),
+            // The rings run from the tip; the line runs from the root.
+            line: [...rings].reverse().map((r: Vec3[]): Vec3 => map(centre(r))),
+            tip: map(i === 0 ? grown(d.pole, growth) : d.pole),
+          };
+        }),
+      };
+    };
+    return { left: one("left"), right: one("right") };
+  }
+
+  /**
+   * Walk the bones and build the tube.
+   *
+   * @param elbow The skeleton's elbow in the left frame; the walk turns there.
+   *   Absent, the walk starts on the shoulder ring.
+   */
+  function arm(
+    ring: IRing,
+    inputs: IInputs,
+    hand: IHand,
+    elbow?: Vec3,
+  ): IArm {
     const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
     if (
       !(inputs.upper > 0) ||
@@ -278,6 +404,24 @@ export namespace AutoMovieHumanArmConstruction {
       const h: Vec3 = heading(prior, (i - 0.5) * WALK, upper, soft);
       const p: Vec3 = axis[i - 1]!;
       axis.push([p[0] + WALK * h[0], p[1] + WALK * h[1], p[2] + WALK * h[2]]);
+    }
+
+    // A skeleton's elbow places the walk: the bones stand where it says, and
+    // the walk's own lengths and headings run from there.
+    if (elbow !== undefined) {
+      const x: number = upper / WALK;
+      const i: number = Math.floor(x);
+      const f: number = x - i;
+      const turn: Vec3 = [0, 1, 2].map(
+        (c: number): number =>
+          axis[i]![c]! + f * (axis[i + 1]![c]! - axis[i]![c]!),
+      ) as Vec3;
+      const shift: Vec3 = sub(elbow, turn);
+      for (const p of axis) {
+        p[0] += shift[0];
+        p[1] += shift[1];
+        p[2] += shift[2];
+      }
     }
 
     // Size through the tapes, and aspect, by the walk's fraction of the arm.
@@ -431,34 +575,48 @@ export namespace AutoMovieHumanArmConstruction {
         p[2] + fade * gap * Math.sin(d),
       ];
     };
+    // A section of the heel at station a: the bone's tube handing over to the
+    // hand's skin.
+    const heel = (a: number, t: number): Vec3 => {
+      const shape: IForm = form();
+      const whole: Vec3 = wholeSkin(shape.whole, a, bowl - t);
+      const closing: number = smooth(
+        (a - handPrior.branch + handPrior.thenar.reach) /
+          handPrior.thenar.reach,
+      );
+      const opening: Vec3 = shape.opening(a, t);
+      const skin: Vec3 = map([
+        a,
+        whole[1] + closing * (opening[1] - whole[1]),
+        whole[2] + closing * (opening[2] - whole[2]),
+      ]);
+      const v: number = smoother(
+        (a - prior.blend[0]!) / (prior.blend[1]! - prior.blend[0]!),
+      );
+      if (v === 1) return skin;
+      const bone: Vec3 = cut(map([a, 0, 0]), square, angle(t));
+      return [
+        bone[0] + v * (skin[0] - bone[0]),
+        bone[1] + v * (skin[1] - bone[1]),
+        bone[2] + v * (skin[2] - bone[2]),
+      ];
+    };
+
+    // The crease: hand length runs from it, and the origin-to-tip measure is
+    // `lengthRatio` of that length, read in the mean hand's units.
+    const creaseAt: number =
+      -handPrior.size.length * (1 / handPrior.lengthRatio - 1);
+    const creaseRing: Vec3[] = Array.from(
+      { length: CREASE_PHASES },
+      (_: unknown, i: number): Vec3 =>
+        heel(creaseAt, (TWO_PI * i) / CREASE_PHASES),
+    );
     return {
       wrist: origin,
-      point: (k: number, t: number): Vec3 => {
-        if (k >= heelLayers) return tube(k, t);
-        const a: number = prior.heel[k]!;
-        const shape: IForm = form();
-        const heel: Vec3 = wholeSkin(shape.whole, a, bowl - t);
-        const closing: number = smooth(
-          (a - handPrior.branch + handPrior.thenar.reach) /
-            handPrior.thenar.reach,
-        );
-        const ring: Vec3 = shape.opening(a, t);
-        const skin: Vec3 = map([
-          a,
-          heel[1] + closing * (ring[1] - heel[1]),
-          heel[2] + closing * (ring[2] - heel[2]),
-        ]);
-        const v: number = smoother(
-          (a - prior.blend[0]!) / (prior.blend[1]! - prior.blend[0]!),
-        );
-        if (v === 1) return skin;
-        const bone: Vec3 = cut(map([a, 0, 0]), square, angle(t));
-        return [
-          bone[0] + v * (skin[0] - bone[0]),
-          bone[1] + v * (skin[1] - bone[1]),
-          bone[2] + v * (skin[2] - bone[2]),
-        ];
-      },
+      elbow: at(upper),
+      crease: [mean(creaseRing, 0), mean(creaseRing, 1), mean(creaseRing, 2)],
+      point: (k: number, t: number): Vec3 =>
+        k >= heelLayers ? tube(k, t) : heel(prior.heel[k]!, t),
     };
   }
 
@@ -560,6 +718,7 @@ export namespace AutoMovieHumanArmConstruction {
   function chains(
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IInputs,
+    skeleton?: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanLoftChain[] {
     const prior: AutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
     const hand: IForm = form();
@@ -571,6 +730,7 @@ export namespace AutoMovieHumanArmConstruction {
           shoulder(calibration, side, sign),
           inputs,
           measures,
+          elbowOf(skeleton, side, sign),
         );
         const map = (q: readonly [number, number, number]): Vec3 =>
           handPoint(q, measures, inputs.circumference, inputs.scale, law.wrist);
@@ -624,6 +784,7 @@ export namespace AutoMovieHumanArmConstruction {
   function poles(
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IInputs,
+    skeleton?: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration.IPole[] {
     const prior: AutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
     return (["left", "right"] as const).flatMap(
@@ -633,6 +794,7 @@ export namespace AutoMovieHumanArmConstruction {
           shoulder(calibration, side, sign),
           inputs,
           inputs[side],
+          elbowOf(skeleton, side, sign),
         );
         return form().digits.map(
           (d: IDigit, i: number): IAutoMovieHumanBodyCalibration.IPole => ({
@@ -1711,3 +1873,6 @@ const WALKED: number = 64;
 
 /** Step of a tube's tangent past its handover, mm. */
 const STEP: number = 0.2;
+
+/** Phases averaged for the centre of the section at the wrist crease. */
+const CREASE_PHASES: number = 256;

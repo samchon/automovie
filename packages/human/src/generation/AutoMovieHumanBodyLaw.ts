@@ -2,6 +2,7 @@ import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHerm
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanExtremityDimensions } from "../structures/body/IAutoMovieHumanExtremityDimensions";
 import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHumanLegIdentity";
+import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
@@ -19,9 +20,9 @@ import { AutoMovieHumanBodySpecimenCalibration } from "./calibration/AutoMovieHu
  *
  * Every chain is generated, from the top down, each from its neighbour's ring
  * and the person's inputs, in world millimetres: the head's rise sets where the
- * neck ends, the neck carries the shoulders, the column runs from them to the
- * crotch's height, and the limbs start from the column. The event join then
- * settles every shared ring, once for all of them.
+ * neck ends, the neck carries the shoulders, and the column runs from them to
+ * the crotch's height. The skeleton then stands in that root, and the limbs are
+ * lofted on it. The event join settles every shared ring, once for all of them.
  *
  * An unknown input keeps the reference person's value.
  */
@@ -82,21 +83,40 @@ export namespace AutoMovieHumanBodyLaw {
         trunkInputs,
         crotch(params, inputs),
       );
+
+    // The skeleton stands in the head, neck and trunk before any limb exists,
+    // and the limbs are lofted on it.
+    const armInputs: AutoMovieHumanArmConstruction.IInputs = arms(
+      params,
+      inputs.scale,
+      inputs.sex,
+    );
+    const footInputs: AutoMovieHumanFootConstruction.IInputs = feet(
+      params,
+      inputs,
+    );
+    const skeleton: AutoMovieHumanSkeletonLaw.IBone[] =
+      AutoMovieHumanSkeletonLaw.derive(standing, {
+        arms: armInputs,
+        feet: footInputs,
+        legs: inputs,
+      });
     const stood: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanLegConstruction.stand(
         AutoMovieHumanFootConstruction.add(
-          AutoMovieHumanArmConstruction.add(
-            standing,
-            arms(params, inputs.scale, inputs.sex),
-          ),
-          feet(params, inputs),
+          AutoMovieHumanArmConstruction.add(standing, armInputs, skeleton),
+          footInputs,
         ),
         inputs,
+        skeleton,
       );
     return {
-      body: AutoMovieHumanEventJoin.reconcile(
-        AutoMovieHumanLegConstruction.add(stood, inputs),
-      ),
+      body: {
+        ...AutoMovieHumanEventJoin.reconcile(
+          AutoMovieHumanLegConstruction.add(stood, inputs),
+        ),
+        skeleton,
+      },
       vermilion: headed.vermilion,
     };
   }

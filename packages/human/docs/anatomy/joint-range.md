@@ -1,6 +1,6 @@
 # Joint range and the stickman skeleton
 
-`IAutoMovieHumanPose` names every movable joint top to bottom and gives each degree of freedom one optional value in clinical units. `AutoMovieHumanSkeleton` derives a stickman skeleton from the generated body by rule and applies that pose to it, clamped to the ranges below. The ranges are preview clamps; measured means and handbook norms are not individual anatomical limits.
+`IAutoMovieHumanPose` names every movable joint top to bottom and gives each degree of freedom one optional value in clinical units. `AutoMovieHumanSkeletonLaw` places the bind skeleton by rule before any limb is lofted, the limbs are lofted on it, and `AutoMovieHumanSkeleton` applies that pose to it, clamped to the ranges below. The ranges are preview clamps; measured means and handbook norms are not individual anatomical limits.
 
 ## Conventions
 
@@ -70,11 +70,11 @@ These studies qualify recalled values without changing the ranges.
 
 ## Stickman joint centres
 
-Rules read the chain tree, eye globes and stature S, never a person-indexed table. Stature fractions are the ANSUR II joint-centre means of [skeleton](skeleton.md), sexes averaged.
+Rules read the root's chains (head, neck and trunk), the feet in their own frame, the eye globes, the limbs' own laws and stature S, never a limb's skin or a person-indexed table, so the arms, hands and legs can be lofted on the joints. Stature fractions are the ANSUR II joint-centre means of [skeleton](skeleton.md), sexes averaged. The stickman's girth radii are read from the finished skin afterwards.
 
 | Bone | Rule | Grade |
 | --- | --- | --- |
-| `hips` | midway between the hip centres: the thigh axis chord (knee to crotch) extended to 0.518 S | derived |
+| `hips` | midway between the hip centres: the chord from the knee through the centre of the crotch ring's leg half, extended to 0.518 S | derived |
 | `spine` (lumbar), `chest` (thoracic) | trunk axis at the omphalion (0.245) and xiphion (0.617) fractions of the mid-hip to cervicale span, cervicale at mid-hip + 0.3425 S | derived (de Leva) |
 | `neck` (C2 to C7) | axis at the neck/shoulder branch event | derived |
 | `head` (atlanto-occipital) | midway between the ear-lobe chains' lower ends | convention |
@@ -82,13 +82,13 @@ Rules read the chain tree, eye globes and stature S, never a person-indexed tabl
 | `jaw` | temporomandibular point 0.006 S forward and 0.008 S above the atlanto-occipital point; chin 0.068 S below the eye centres | convention |
 | `leftEye`, `rightEye` | calibrated eye globe centres | measured |
 | `*Shoulder` (sternoclavicular) | at the shoulder height, half a neck girth radius from the midline, the neck read a third of the way up it | convention |
-| `*Scapula`, `*UpperArm` (glenohumeral) | at 0.80 S, the shoulder section's lateral extremity moved medially by the axillary arm girth radius | derived |
-| `*LowerArm` (elbow) | along the arm axis at 0.162 / (0.162 + 0.151) of shoulder to the arm's last ring | derived (ANSUR II) |
-| `*Hand` (wrist) | the arm's section centre at the crease: the hand's origin-to-tip measure is `lengthRatio` of the hand length, which runs from the crease, so the crease lies the rest of that length behind the origin, read in the mean hand's units | derived |
-| thumb | CMC halfway from the wrist crease to the thumb branch, which puts it 24 to 27 mm past the crease, at the trapezium; MCP at the branch, IP halfway to the tip | convention |
+| `*Scapula`, `*UpperArm` (glenohumeral) | one humerus from the elbow, the humerus 0.162 / 0.151 of the elbow to the wrist crease, so the elbow lies 0.162 / (0.162 + 0.151) of the way from shoulder to crease; there the shoulder section's lateral extremity moved medially by the arm root's girth radius. A stature fraction does not follow shoulders built from the head down: 0.80 S put the joint at the neck base on a short body | derived (ANSUR II) |
+| `*LowerArm` (elbow) | where the arm's walk turns, its upper length the arm prior's line in the upper arm input | derived (arm prior) |
+| `*Hand` (wrist) | the hand's section centre at the crease: the hand's origin-to-tip measure is `lengthRatio` of the hand length, which runs from the crease, so the crease lies the rest of that length behind the origin, read in the mean hand's units | derived |
+| thumb | CMC halfway from the wrist crease to the thumb branch, at the trapezium (convention); MCP one thumb metacarpal past it toward the branch, 0.711 × 0.774 × 0.459 of the wrist centre to the middle fingertip, the hand length less 2.3 mm, since the wrist centre lies that far distal of stylion ([Reddy 2024](../sources/reddy-2024-metacarpal-ct.md), [de Leva 1996](../sources/de-leva-1996.md)); IP halfway to the tip (convention) | derived |
 | fingers, lesser toes | 2:1:1 phalanx split, web halfway along the proximal phalanx | convention |
 | hallux | two equal phalanges, web halfway along the proximal | convention |
-| `*UpperLeg`, `*LowerLeg`, `*Foot` | hip centre; leg axis at 0.2865 S; leg axis end lowered to 0.0405 S | derived |
+| `*UpperLeg`, `*LowerLeg`, `*Foot` | hip centre; the leg prior's line at 0.2865 S; the stance, that line at the ankle, at 0.0405 S | derived |
 | `*Subtalar`, `*Midfoot` | at the ankle; 0.4 of the way from the ankle to the mean MTP | convention |
 
 Bones use the engine humanoid names where they exist. `atlas`, `*Scapula`, `*Subtalar`, `*Midfoot`, `*HalluxProximal/Distal` and `*Toe2..5Proximal/Intermediate/Distal` are the Human's own, because the shared `AutoMovieHumanoidBone` vocabulary lacks them. The stickman runs its own forward kinematics instead of the engine's humanoid player, so the shared interface is unchanged.

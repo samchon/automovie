@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 
 /**
  * Shared shape coefficients (theta) of the generated body surface.
@@ -49,6 +50,12 @@ export interface IAutoMovieHumanBodyCalibration {
    * means none.
    */
   appendages?: IAutoMovieHumanBodyCalibration.IAppendage[];
+
+  /**
+   * The bind skeleton the limbs were lofted on, placed before any limb skin
+   * by `AutoMovieHumanSkeletonLaw`. Absent on a calibration still being built.
+   */
+  skeleton?: AutoMovieHumanSkeletonLaw.IBone[];
 }
 export namespace IAutoMovieHumanBodyCalibration {
   /**
