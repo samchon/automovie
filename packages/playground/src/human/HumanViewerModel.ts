@@ -1,4 +1,4 @@
-import type { IAutoMovieModelPart } from "@automovie/interface";
+import type { IAutoMovieModelPart, IAutoMovieSkeleton } from "@automovie/interface";
 import {
   AutoMovieTextureCache,
   type IAutoMovieModelObject,
@@ -9,7 +9,10 @@ import {
 } from "@automovie/viewer";
 import * as THREE from "three";
 
+import { AutoMovieHumanRig } from "../../../human/src/skeleton/AutoMovieHumanRig";
+import { AutoMovieHumanSkeleton } from "../../../human/src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanGenerated } from "../../../human/src/structures/IAutoMovieHumanGenerated";
+import { HUMAN_STICKMAN_POSES } from "../human-stickman/HUMAN_STICKMAN_POSES";
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
 import type { IHumanViewerPage } from "./IHumanViewerPage";
 import { ModelPartStyling } from "./ModelPartStyling";
@@ -70,6 +73,8 @@ export class HumanViewerModel {
     material: "appearance",
   };
   private current: IHumanViewerPage.ISelection = resolveHumanCurves("", [], []);
+  private posed: normalizeHumanView.IView["pose"] = "rest";
+  private evaluator: AutoMovieHumanSkeleton.PoseEvaluator | undefined;
 
   /**
    * Decode the result's carried images, then build and display its model.
@@ -448,6 +453,27 @@ export class HumanViewerModel {
       material: display.material,
     };
     this.restyle();
+    this.pose(display.pose);
+  }
+
+  /** Move the prepared skin to a named pose; the geometry is not rebuilt. */
+  private pose(name: normalizeHumanView.IView["pose"]): void {
+    const skeleton: IAutoMovieSkeleton | null = this.result.model.skeleton;
+    if (name === this.posed || skeleton === null) return;
+    this.evaluator ??= AutoMovieHumanSkeleton.prepare(this.result.parameters);
+    for (const [bone, local] of AutoMovieHumanRig.locals(
+      skeleton,
+      this.evaluator(HUMAN_STICKMAN_POSES[name]!),
+    )) {
+      const node: THREE.Object3D = this.built.bones.get(bone)!;
+      node.position.set(...local.translation);
+      node.quaternion.set(...local.rotation);
+    }
+    this.posed = name;
+
+    // A posed limb leaves the rest bounds its mesh would be culled by.
+    for (const object of this.surface) object.frustumCulled = name === "rest";
+    this.object.updateMatrixWorld(true);
   }
 
   /** Union of the world bounds of the parts whose id passes the filter. */

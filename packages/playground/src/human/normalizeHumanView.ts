@@ -65,6 +65,7 @@ export function normalizeHumanView(read: (name: string) => string | null): {
     hair: true,
     material: "appearance",
     light: "reference",
+    pose: "rest",
   };
 
   // Direction: the shorthand or explicit angles, never both.
@@ -135,6 +136,12 @@ export function normalizeHumanView(read: (name: string) => string | null): {
       );
     value.light = light;
   }
+  const pose: string | null = read("pose");
+  if (pose !== null && pose !== "" && pose !== "rest") {
+    if (pose !== "demo" && pose !== "limit")
+      throw new Error("Human view pose must be rest, demo or limit");
+    value.pose = pose;
+  }
 
   // Fixed key order; absent and default values are omitted.
   const entries: string[] = [];
@@ -151,6 +158,7 @@ export function normalizeHumanView(read: (name: string) => string | null): {
   if (value.material !== "appearance")
     entries.push("material=" + value.material);
   if (value.light !== "reference") entries.push("light=" + value.light);
+  if (value.pose !== "rest") entries.push("pose=" + value.pose);
   return { text: entries.join("&"), value };
 }
 
@@ -188,6 +196,9 @@ export namespace normalizeHumanView {
 
     /** Show the garment parts. */
     garment: boolean;
+
+    /** Named pose the skin is shown in; `rest` is the generated posture. */
+    pose: "rest" | "demo" | "limit";
 
     /** Show scalp hair, brows and lashes. */
     hair: boolean;

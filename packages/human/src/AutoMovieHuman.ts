@@ -14,6 +14,7 @@ import { AutoMovieHumanBodySurface } from "./generation/AutoMovieHumanBodySurfac
 import type { IAutoMovieHumanBodyCalibration } from "./generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftMesh } from "./lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanHermiteCurve } from "./lofting/IAutoMovieHumanHermiteCurve";
+import { AutoMovieHumanRig } from "./skeleton/AutoMovieHumanRig";
 import type { IAutoMovieHumanGenerated } from "./structures/IAutoMovieHumanGenerated";
 import type { IAutoMovieHumanParameters } from "./structures/IAutoMovieHumanParameters";
 
@@ -50,9 +51,10 @@ import type { IAutoMovieHumanParameters } from "./structures/IAutoMovieHumanPara
  * `body.controls.height` then scales it uniformly. `pigmentation` and
  * `appearance.skin` drive the skin material (see `AutoMovieHumanSkin`), and
  * the appearance layer consumes its eye, hair, brow, lash and underwear
- * settings. Body controls the law does not read, pose and expression fields
- * are returned unchanged without a skin shape or deformation response yet;
- * their laws belong to later campaign stages.
+ * settings. The model carries the rig and every skin part's binding
+ * (`AutoMovieHumanRig`), so a pose moves the prepared skin without generating
+ * it again. Construction curves stay at rest for now, and expression fields
+ * are returned unchanged.
  */
 export class AutoMovieHuman {
   /**
@@ -191,12 +193,16 @@ export class AutoMovieHuman {
         calibration,
       });
 
+    const rig: AutoMovieHumanRig.IRig = AutoMovieHumanRig.prepare(
+      calibration,
+      scale,
+    );
     const model: IAutoMovieModel = {
       id: "automovie-human",
       name: "Human",
       origin: "generated",
-      parts: [...body, ...appearance.parts],
-      skeleton: null,
+      parts: AutoMovieHumanRig.dress([...body, ...appearance.parts], rig),
+      skeleton: rig.skeleton,
       body: null,
       materials: [
         ...dressed.materials,
@@ -236,8 +242,14 @@ function part(
     geometry: {
       type: "mesh",
       mesh: {
-        positions: mesh.positions.map((v: number): number => v * scale),
-        normals,
+        // These tubes are drawn to look at, and every digit travels to the
+        // page as text, so they stop at a hundredth of a millimetre.
+        positions: mesh.positions.map(
+          (v: number): number => Math.round(v * scale * 1e5) / 1e5,
+        ),
+        normals: normals.map(
+          (v: number): number => Math.round(v * 1e4) / 1e4,
+        ),
         uvs: null,
         indices: mesh.indices,
         skin: null,
