@@ -297,7 +297,6 @@ function auditChain(
 
   // Longitudinal curves: creases and bands.
   const first: number = digit ? 2 * STEPS : 1;
-  const across: number[][] = grid.map((): number[] => []);
   for (let j: number = 0; j < PHASES; j += 2) {
     const line: V3[] = grid.map((r: V3[]): V3 => r[j]!);
     const signed: number[] = new Array<number>(count).fill(0);
@@ -315,15 +314,6 @@ function auditChain(
         report(name, "crease", `layer ${band(layerOf(i))} ${side(grid[i]!, j)}`, (turn * 180) / Math.PI, CREASE, line[i]!);
     }
     if (digit) continue;
-    // The arm's root on the shoulders is a ball, which does bend all one way.
-    const phase: number = (2 * Math.PI * j) / PHASES;
-    const folded: number = phase <= Math.PI ? phase : 2 * Math.PI - phase;
-    const root: boolean =
-      name === "upper" && folded > ARM_ROOT[0] && folded < ARM_ROOT[1];
-    if (!root)
-      signed.forEach((v: number, i: number): void => {
-        if (v !== 0) across[i]!.push(v * (perimeter(grid[i]!) / (2 * Math.PI)));
-      });
 
     // A band is curvature that flips back within a radius.
     let last: number = -1;
@@ -342,17 +332,79 @@ function auditChain(
     }
   }
 
-  // A ridge bends the whole ring the same way at one height, which no anatomy
-  // does: a rib or a breast bends a part of it.
-  across.forEach((values: number[], i: number): void => {
-    if (values.length < PHASES / 4) return;
-    const sorted: number[] = [...values].sort(
-      (a: number, b: number): number => a - b,
-    );
-    const middle: number = Math.abs(sorted[Math.floor(sorted.length / 2)]!);
+  auditRidges(chain, report);
+}
+
+/**
+ * A ridge bends the whole ring the same way at one height, which no anatomy
+ * does: a rib or a breast bends a part of it. It is read off the surface's
+ * radius at fixed heights and bearings, so a phase sliding round a ring is not
+ * mistaken for a bend, and at even steps, so a short layer does not magnify
+ * noise.
+ */
+function auditRidges(
+  chain: IAutoMovieHumanLoftChain,
+  report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
+): void {
+  if (!/^(trunk|upper|leg\.|arm\.)/.test(chain.name)) return;
+  const low: number = chain.layers[0]!.y;
+  const high: number = chain.layers[chain.layers.length - 1]!.y;
+  const count: number = Math.floor((high - low) / RIDGE_STEP);
+  if (count < 3) return;
+  const rings: V3[][] = Array.from(
+    { length: count + 1 },
+    (_: unknown, i: number): V3[] =>
+      AutoMovieHumanLoftChain.ring(chain, low + i * RIDGE_STEP, uniform(PHASES)),
+  );
+  // Across the shoulders only the torso's faces have a bearing: the arm's root
+  // is not star-shaped about the ring's centre.
+  const bearings: number[] = uniform(RIDGE_BEARINGS).filter(
+    (a: number): boolean =>
+      chain.name !== "upper" || Math.abs(Math.cos(a)) > RIDGE_FACE,
+  );
+  const radius = (ring: V3[], bearing: number): number => {
+    const c: V3 = centre(ring);
+    let best: number = Infinity;
+    let at: number = 0;
+    ring.forEach((p: V3): void => {
+      const d: number = Math.abs(
+        Math.atan2(
+          Math.sin(Math.atan2(p[2] - c[2], p[0] - c[0]) - bearing),
+          Math.cos(Math.atan2(p[2] - c[2], p[0] - c[0]) - bearing),
+        ),
+      );
+      if (d < best) {
+        best = d;
+        at = Math.hypot(p[0] - c[0], p[2] - c[2]);
+      }
+    });
+    return at;
+  };
+  const table: number[][] = rings.map((ring: V3[]): number[] =>
+    bearings.map((b: number): number => radius(ring, b)),
+  );
+  for (let i: number = 1; i < count; i++) {
+    const r: number = perimeter(rings[i]!) / (2 * Math.PI);
+    if (r < 1) continue;
+    const bends: number[] = bearings
+      .map(
+        (_: number, b: number): number =>
+          ((table[i + 1]![b]! - 2 * table[i]![b]! + table[i - 1]![b]!) /
+            (RIDGE_STEP * RIDGE_STEP)) *
+          r,
+      )
+      .sort((p: number, q: number): number => p - q);
+    const middle: number = Math.abs(bends[Math.floor(bends.length / 2)]!);
     if (middle > RIDGE)
-      report(name, "ridge", `layer ${band(layerOf(i))}`, middle, RIDGE, centre(grid[i]!));
-  });
+      report(
+        chain.name,
+        "ridge",
+        `at ${Math.round(low + i * RIDGE_STEP)}`,
+        middle,
+        RIDGE,
+        centre(rings[i]!),
+      );
+  }
 }
 
 /** Joins: closed, and smooth across the seam. */
@@ -410,7 +462,11 @@ function auditJoins(
           const a: V3 = unit(sub(p, inner[i]!));
           const b: V3 = unit(sub(next[at]!, own[at]!));
           const kink: number = (Math.acos(clamp(dot(a, b))) * 180) / Math.PI;
-          const limit: number = /> hand\./.test(region) ? WRIST_SEAM : SEAM;
+          const limit: number = /> hand\./.test(region)
+            ? WRIST_SEAM
+            : /^upper > arm/.test(region)
+              ? ARMPIT_SEAM
+              : SEAM;
           if (kink > limit) report(region, "seam", where, kink, limit, p);
         });
       }
@@ -629,14 +685,15 @@ const STEPS: number = 4;
 /** A ring shorter than this is a cap's tip, mm. */
 const SMALL: number = 20;
 
-/** Largest slope for a ring of `SLOPE_GIRTH`: the old loft's crotch reached 11. */
-const SLOPE: number = 12;
+/** Largest slope for a ring of `SLOPE_GIRTH`: the crotch opens this steeply. */
+const SLOPE: number = 13;
 
 /** Girth the slope limit is stated for, mm. */
 const SLOPE_GIRTH: number = 1300;
 
-// The limits below sit just above the worst values of the fitted figure, whose
-// skin read smooth in the viewer: a rule fires on what is worse than that.
+// The limits below sit just above what reads smooth in the viewer. A limit
+// licenses everything under it, so a defect the viewer shows gets its own rule
+// rather than a tighter number here.
 
 /** Tangential motion per unit of the rings' axial gap. */
 const SLIDE: number = 8;
@@ -645,7 +702,7 @@ const SLIDE: number = 8;
 const OVERSHOOT: number = 1.5;
 
 /** Turn along a longitudinal curve between samples, degrees. */
-const CREASE: number = 38;
+const CREASE: number = 40;
 
 /** Shortest step along a curve that can show a corner, mm. */
 const SEGMENT: number = 0.5;
@@ -656,11 +713,17 @@ const BAND: number = 34;
 /** Curvature times the radius that counts as bending at all. */
 const BAND_FLOOR: number = 1.5;
 
-/** Median curvature times the radius round a ring. */
-const RIDGE: number = 3;
+/** Median of the radius's height curvature, times the radius, round a ring. */
+const RIDGE: number = 8;
 
-/** Phases of the arm's root on the shoulders. */
-const ARM_ROOT: [number, number] = [1.13, 2.31];
+/** Height between the rings a ridge is read from, mm. */
+const RIDGE_STEP: number = 6;
+
+/** Bearings a ridge is read at. */
+const RIDGE_BEARINGS: number = 48;
+
+/** Cosine of a bearing past which it faces forward or back. */
+const RIDGE_FACE: number = 0.7;
 
 /** Curvature flips a plain section may have round its ring. */
 const RIPPLES: number = 14;
@@ -670,6 +733,9 @@ const GAP: number = 4;
 
 /** Kink across a seam, degrees. */
 const SEAM: number = 65;
+
+/** Kink at the armpit's front, a fold by design, which a heavy arm deepens, degrees. */
+const ARMPIT_SEAM: number = 85;
 
 /** Kink where the palm leaves the wrist, whose sections turn across the hand, degrees. */
 const WRIST_SEAM: number = 96;

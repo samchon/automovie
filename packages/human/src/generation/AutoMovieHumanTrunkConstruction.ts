@@ -63,8 +63,23 @@ export namespace AutoMovieHumanTrunkConstruction {
     /** Biceps tape. */
     bicep: number;
 
+    /** Neck to waist. */
+    neckToWaist: number;
+
+    /** Shoulder to bust apex. */
+    shoulderToApex: number;
+
+    /** Front interscye length. */
+    frontInterscyeLength: number;
+
     /** Masculine-feminine control. */
     sex: number;
+
+    /** Fat control. */
+    fat: number;
+
+    /** Muscularity control. */
+    muscularity: number;
 
     /** Calibration millimetres per world millimetre. */
     scale: number;
@@ -186,7 +201,9 @@ export namespace AutoMovieHumanTrunkConstruction {
         Math.exp(
           v +
             measure.sex[k]! * inputs.sex +
-            measure.gain[k]! * tape(prior.shares[k]!),
+            measure.gain[k]! * tape(prior.shares[k]!) +
+            measure.fat[k]! * inputs.fat +
+            measure.muscularity[k]! * inputs.muscularity,
         ),
       );
     const fairly = (values: readonly number[]): number[] =>
@@ -246,13 +263,45 @@ export namespace AutoMovieHumanTrunkConstruction {
       (2 * Math.PI);
     const soft: number = b.soft * inputs.scale;
     const bust: number = soft * Math.log1p(Math.exp(excess / soft));
-    const section = (u: number): ISection => {
+    const seat: INeck = neckRing(calibration, prior.shoulderOrder);
+    const span: number = seat.y - floor;
+    const lengths: AutoMovieHumanTrunkPrior.IBodyLengths = prior.bodyLengths;
+
+    // A height is read at the column's own proportions: a longer neck-to-waist
+    // lowers the waist, the crotch and the neck staying where they are.
+    const waistAt: number = prior.stations[prior.shares.findIndex(
+      (s: readonly number[]): boolean => s[WAIST_TAPE] === 1,
+    )]!;
+    const drop: number = Math.max(
+      -MAX_WAIST_DROP,
+      Math.min(
+        MAX_WAIST_DROP,
+        (inputs.neckToWaist - lengths.neckToWaist * inputs.scale) / span,
+      ),
+    );
+    const eased = (u: number): number =>
+      u + drop * (u <= waistAt ? u / waistAt : (1 - u) / (1 - waistAt));
+
+    // A longer shoulder-to-apex lowers the breast's apex; a wider front
+    // interscye sets the arm's root further back, since that length is the
+    // chest between the arms' front creases.
+    const apex: number =
+      b.station -
+      (inputs.shoulderToApex - lengths.shoulderToApex * inputs.scale) / span;
+    const rootBack: number =
+      INTERSCYE *
+      (inputs.frontInterscyeLength -
+        lengths.frontInterscyeLength * inputs.scale);
+    const measures = (raw: number, scale: number): ISection => {
+      const u: number = eased(raw);
       const m: number = read(middle, u) * inputs.scale;
+      const f: number = read(front, u) * inputs.scale;
+      const a: number = read(back, u) * inputs.scale;
       return {
-        width: Math.exp(read(width, u)) * inputs.scale,
+        width: scale * Math.exp(read(width, u)) * inputs.scale,
         middle: m,
-        front: Math.max(m + 1, read(front, u) * inputs.scale),
-        back: Math.min(m - 1, read(back, u) * inputs.scale),
+        front: Math.max(m + 1, m + scale * (f - m)),
+        back: Math.min(m - 1, m + scale * (a - m)),
         power: read(power, u),
         frontPull: Math.max(0, read(frontPull, u)),
         frontGroove: Math.max(1, read(frontGroove, u)) * inputs.scale,
@@ -263,13 +312,53 @@ export namespace AutoMovieHumanTrunkConstruction {
           inputs.scale *
           Math.exp(-(((u - prior.navel.station) / prior.navel.height) ** 2)),
         pitWidth: prior.navel.width * inputs.scale,
-        bust: bust * Math.exp(-(((u - b.station) / b.height) ** 2)),
+        bust: bust * Math.exp(-(((u - apex) / b.height) ** 2)),
         bustPlace: b.place * inputs.bustSpan,
         bustWidth: b.width * inputs.bustSpan,
       };
     };
 
-    const seat: INeck = neckRing(calibration, prior.shoulderOrder);
+    // A tape is what it says: width and depth together close each tape around
+    // the hull a tape wraps. A girth is linear in that shared scale, so a tape
+    // and a ring that disagree by a few percent move the skin by a few percent.
+    const closure: [number, number][] = prior.closure.map(
+      (ratio: number, i: number): [number, number] => {
+        // The hip's share is whole from the crotch up to the hip itself.
+        const u: number =
+          prior.stations[
+            prior.shares
+              .map((s: readonly number[]): boolean => s[i] === 1)
+              .lastIndexOf(true)
+          ]!;
+        let low: number = 0.5;
+        let high: number = 1.8;
+        for (let k: number = 0; k < CLOSURE_STEPS; k++) {
+          const mid: number = (low + high) / 2;
+          if (girth(outline(measures(u, mid))) < tapes[i]! * ratio) low = mid;
+          else high = mid;
+        }
+        return [u, Math.log((low + high) / 2)];
+      },
+    );
+    const keyed: AutoMovieHumanNaturalSpline.ISpline =
+      AutoMovieHumanNaturalSpline.create(
+        [0, ...closure.map((c: [number, number]): number => c[0]), 1],
+        [
+          closure[0]![1],
+          ...closure.map((c: [number, number]): number => c[1]),
+          0,
+        ],
+      );
+    const closing: AutoMovieHumanNaturalSpline.ISpline = curve(
+      fair(
+        prior.stations,
+        prior.stations.map((u: number): number => read(keyed, u)),
+        CLOSURE_REACH,
+      ),
+    );
+    const section = (u: number): ISection =>
+      measures(u, Math.exp(read(closing, u)));
+
     const top: number = prior.layers.length - 1;
     const roofSection: ISection = section(1);
     const lift: number = seat.x - (roofSection.front + roofSection.back) / 2;
@@ -310,7 +399,7 @@ export namespace AutoMovieHumanTrunkConstruction {
             const l: AutoMovieHumanTrunkPrior.ILobe = prior.lobes[q]!;
             const d: number = place(u);
             const lobe: IOval = {
-              x: l.x * inputs.scale,
+              x: l.x * inputs.scale - rootBack,
               z:
                 l.z[0]! * inputs.scale +
                 l.z[1]! * inputs.acrossShoulder,
@@ -550,6 +639,22 @@ export namespace AutoMovieHumanTrunkConstruction {
     );
   }
 
+  /** Length of a tape round a section: the hull of its half outline, doubled. */
+  function girth(half: [number, number][]): number {
+    const hull: [number, number][] = upperHull(
+      [...half].sort(
+        (p: [number, number], q: [number, number]): number => q[0] - p[0],
+      ),
+    );
+    let length: number = hull[0]![1] + hull[hull.length - 1]![1];
+    for (let i: number = 1; i < hull.length; i++)
+      length += Math.hypot(
+        hull[i]![0] - hull[i - 1]![0],
+        hull[i]![1] - hull[i - 1]![1],
+      );
+    return 2 * length;
+  }
+
   /** The hull's side away from the midline of points in descending forward place. */
   function upperHull(points: [number, number][]): [number, number][] {
     const hull: [number, number][] = [];
@@ -756,6 +861,24 @@ const EMBED: number = 0.25;
 
 /** Fraction of the column where it starts to settle onto the neck's ring. */
 const SETTLE: number = 0.96;
+
+/** Index of the waist among the tapes. */
+const WAIST_TAPE: number = 2;
+
+/** Largest move of the waist up the column, a fraction of it. */
+const MAX_WAIST_DROP: number = 0.08;
+
+/** How far the arm's root moves back per unit of the front interscye. */
+const INTERSCYE: number = 0.25;
+
+/**
+ * Reach of the closure's regression up the column. Two tapes a hand apart may
+ * ask different scales, and a closer reach prints that as a ledge.
+ */
+const CLOSURE_REACH: number = 0.1;
+
+/** Bisections of a section's scale against its tape. */
+const CLOSURE_STEPS: number = 12;
 
 /** Layers above the joint of the ring that gives the trunk's top its slope. */
 const JOINT_REACH: number = 4;

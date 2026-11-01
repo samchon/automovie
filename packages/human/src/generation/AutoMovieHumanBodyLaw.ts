@@ -269,7 +269,10 @@ function column(
       | "bustSpan"
       | "neckBase"
       | "acrossShoulder"
-      | "bicep",
+      | "bicep"
+      | "neckToWaist"
+      | "shoulderToApex"
+      | "frontInterscyeLength",
   ): number => {
     const value: number | null = params.body.controls[name].value;
     return (
@@ -288,7 +291,12 @@ function column(
     neckBase: tape("neckBase"),
     acrossShoulder: tape("acrossShoulder"),
     bicep: tape("bicep"),
+    neckToWaist: tape("neckToWaist"),
+    shoulderToApex: tape("shoulderToApex"),
+    frontInterscyeLength: tape("frontInterscyeLength"),
     sex: inputs.sex,
+    fat: inputs.fat,
+    muscularity: inputs.muscularity,
     scale: inputs.scale,
   };
 }
