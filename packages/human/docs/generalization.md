@@ -135,13 +135,48 @@ What the viewer taught, each from a figure that passed every curve rule at the t
 - An ellipse measured from an arc does not reach the torso. Keep its outer edge and run the inner edge into the torso, or the two stop crossing and the whole shoulder is lost.
 - A shoulder's ring is convex. A deltopectoral valley running to the top of the shoulder read as a sleeve seam.
 - Depth does not follow the tapes one to one. Measured over 67 people, width follows the tapes at about 0.8, and front depth from about 0.6 at the waist to 0.1 near the neck.
-- Closing a girth through depth alone failed twice, in the first attempt on a wrong tape-to-ring ratio and in the second with ratios measured. Girth is insensitive to depth, so a 4 percent disagreement between a tape and a ring becomes 10 percent of depth. The chest stood 18 mm proud.
+- Closing a girth through depth alone failed twice, in the first attempt on no ratio and in the second with ratios measured. Girth is insensitive to depth, so a small disagreement between a tape and a ring becomes a large change of depth, and the chest stood 18 mm proud. A shared scale of width and depth works, because a girth is linear in it.
 - Carry the front and back as places, not depths from the widest point. That point wandered by 50 mm between layers, its depths cancelled it exactly, and smoothing one side printed the wander as stripes at the same heights on every person.
 - A fitted station table can hide a slow step. `control()` read one JSON file per call, which took a fit past 32 minutes. Cached, and with the held-out fits behind `HELD_OUT=1`, one fit takes 11 s.
 
 An end slope acts across the child's whole last interval: a slope m over a span h stands `4/27 m h` off the chord. At the crotch the trunk's 60-degree opening stood 7 mm off a thigh that arrives upright, so `AutoMovieHumanEventJoin` stops at a 4 mm lump.
 
 The people at the ends of the audit are whole people. A chest of 1300 mm over an underbust of 742 mm is no body, and a rule failing on it says nothing. The domain to state must bound the tape ratios as well as the tapes.
+
+## Whole law
+
+`AutoMovieHumanBodyLaw` no longer starts from a stored person. Every chain is generated in world millimetres, from the top down: the head's rise sets where the neck ends, the neck carries the shoulders, the column runs to the crotch's height, and the limbs start from the column. The difference basis, the measurement warp, the region merge, the five row repairs and the fitted section tables are gone. Human source fell from 4.2 MB to 1.2 MB; against master the score reads 4.98 MB of calibration deleted and 0.17 MB of source added.
+
+Held-out distance, mm RMS, against the better of the two stature-only laws. f1's own stature law is f1 scaled onto itself, so its row reads against the others' mean.
+
+| Part | f1 | f2 | m1 | m2 | Better than stature |
+| --- | --- | --- | --- | --- | --- |
+| Leg | 4.36 / 3.98 | 6.28 / 4.63 | 8.01 / 5.19 | 8.31 / 5.15 | none |
+| Foot | 4.62 / 3.67 | 3.00 / 2.70 | 2.93 / 6.53 | 3.57 / 6.74 | m1, m2 |
+| Arm | 8.67 / 11.34 | 10.75 / 9.02 | 9.33 / 12.78 | 10.76 / 17.27 | f1, m1, m2 |
+| Hand | 17.31 / 14.62 | 14.82 / 9.52 | 33.45 / 14.94 | 25.39 / 21.43 | none |
+| Trunk | 8.58 / 15.14 | 10.83 / 9.40 | 9.98 / 9.10 | 10.96 / 12.94 | f1, m2 |
+| Neck | 3.53 / 10.85 | 13.20 / 7.07 | 4.80 / 6.68 | 2.60 / 17.58 | f1, m1, m2 |
+| Head | 7.30 / 3.61 | 6.19 / 4.05 | 9.22 / 5.28 | 8.26 / 8.55 | m2 |
+| Ear | 26.54 / 3.01 | 7.77 / 5.47 | 38.30 / 7.49 | 26.21 / 13.39 | none |
+
+The issue's bar of beating stature in every part is not met, and the owner has ruled that error is evidence and not a target, so these stand as a record. Read two facts before trusting a row. Hand error differs by person under one prior, so it is the hand's place along the arm more than its shape; it worsened when the arm's root moved with the front interscye. Ear distance is rays missing a thin rim, not a measure of the ear. The reference people `e3` and `e6` sit far outside the domain below and judge nothing but finiteness.
+
+Response of the score's definitions to a control pushed alone to each end, gain 1 being exact: height 1.00, hip 1.04, chest 1.18, inseam and the foot's dimensions about 1, upper and lower arm about 1.25. Weak: neck 0.15, wrist 0.30, thigh 0.25, elbow 0.54, hand circumference 0.19, high hip 0.19, underbust 0.09, and the head's widths 0.15 to 0.46. High hip and underbust read at the body's own extremum stations, where a lone tape does not reach, and the trunk closes them at their own stations. Of 69 controls only the two palpebral heights move no skin: they move the lid's opening. Over 151 points no value went non-finite and no section collapsed, while 56 points showed more crossed sections or folds than the centre, nearly all on the ear lobe, the helix and the neck.
+
+### Supported domain
+
+| Input | Range, mm unless noted |
+| --- | --- |
+| Height | 1450 to 2000 |
+| Hip | 800 to 1250 |
+| Waist | 560 to 1100 |
+| Chest | 720 to 1200, at or above the underbust |
+| Masculine-feminine, fat, muscularity | -1 to 1 |
+
+Tapes move together, as a body's do. Each curve test person is a whole person at an end of this range, and the rule set passes on all of them. A single tape pushed to its end alone, or a body past these bounds, stays finite and connected: over 151 points of the score's domain none produced a non-finite value or a collapsed section. Past them the armpit's fold deepens beyond its design limit and folds appear on the neck and the ear lobe, so those figures are out of the guarantee, not broken.
+
+A tape is what it says on the trunk, through a shared scale of width and depth. The ratio of hull to tape is 0.98 to 1.03 across the domain, so tapes are hull girths. Girth responses that remain weak, by score gain, are the thigh, elbow, wrist, neck, hand circumference and the head's widths; the trunk's were read before the closure and need rereading.
 
 ## Reference people
 
