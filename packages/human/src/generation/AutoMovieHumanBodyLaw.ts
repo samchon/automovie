@@ -11,6 +11,7 @@ import { AutoMovieHumanBodyWarp } from "./AutoMovieHumanBodyWarp";
 import { AutoMovieHumanBodyWarpField } from "./AutoMovieHumanBodyWarpField";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
+import { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
 import { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 
@@ -113,9 +114,17 @@ export namespace AutoMovieHumanBodyLaw {
     // rings up to 0.8 mm off their parents' at the 90th percentile), so
     // every person's children are rejoined to their parents' rings and
     // tangent planes.
+    const headed: AutoMovieHumanHeadConstruction.IOutput =
+      AutoMovieHumanHeadConstruction.apply(warped.body, shaped.vermilion, {
+        head: params.head,
+        height: statureOf(params),
+        neckLength: known(params.body.controls.neckLength.value, "neckLength"),
+        neck: known(params.body.controls.neck.value, "neck"),
+        sex: known(value, "masculineFeminine"),
+      });
     const inputs: AutoMovieHumanLegConstruction.IInputs = tapes(
       params,
-      warped.body.stature,
+      headed.body.stature,
     );
     return {
       body: AutoMovieHumanEventJoin.reconcile(
@@ -124,9 +133,9 @@ export namespace AutoMovieHumanBodyLaw {
             AutoMovieHumanFootConstruction.apply(
               AutoMovieHumanArmConstruction.apply(
                 AutoMovieHumanTrunkConstruction.apply(
-                  warped.body,
+                  headed.body,
                   column(params, inputs),
-                  warped.body.chains.find(
+                  headed.body.chains.find(
                     (c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk",
                   )!.layers[0]!.y,
                 ),
@@ -139,9 +148,19 @@ export namespace AutoMovieHumanBodyLaw {
           inputs,
         ),
       ),
-      vermilion: { ...shaped.vermilion, spans: warped.vermilion },
+      vermilion: headed.vermilion,
     };
   }
+}
+
+/** A control's value, or the specimen's when unknown. */
+function known(
+  value: number | null,
+  name: "neckLength" | "neck" | "masculineFeminine",
+): number {
+  return value === null
+    ? AutoMovieHumanBodySpecimenCalibration.controls[name]!
+    : value;
 }
 
 /** The person's height input, or the specimen's when unknown, mm. */

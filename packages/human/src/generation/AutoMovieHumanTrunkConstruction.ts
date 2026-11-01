@@ -755,7 +755,7 @@ const CLEARANCE: number = 1;
 const EMBED: number = 0.25;
 
 /** Fraction of the column where it starts to settle onto the neck's ring. */
-const SETTLE: number = 0.93;
+const SETTLE: number = 0.96;
 
 /** Layers above the joint of the ring that gives the trunk's top its slope. */
 const JOINT_REACH: number = 4;

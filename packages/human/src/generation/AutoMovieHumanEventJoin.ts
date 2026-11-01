@@ -57,9 +57,9 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  *
  * Only points on the parent's surface are constrained: the bridge a child
  * section draws across a pinch has no parent surface, so the change fades
- * to zero over the last 6 mm of arc before each pinch phase, and points
- * farther than 0.5 mm from the parent ring or where `|N . m| < 0.3` (the
- * plane almost tangent to the parent) are left as fitted.
+ * to zero over the last 6 mm of arc before each pinch phase, and fades out
+ * past 0.5 mm from the parent ring and as `|N . m|` falls to 0.3 (the plane
+ * almost tangent to the parent).
  *
  * An end slope acts across the child's whole last interval, a cubic Hermite
  * span. A slope m past the span's secant over a span h stands `4/27 m h` off the
@@ -125,6 +125,12 @@ const REACH: number = 4;
 
 /** Largest end-ring gap closed, mm; a farther point is not on the parent. */
 const SNAP: number = 3;
+
+/** Distance past 0.5 mm over which a point leaves the parent's surface, mm. */
+const FAR: number = 1;
+
+/** Rise of `|N . m|` past 0.3 over which a point comes to take the slope. */
+const FACING: number = 0.2;
 
 /** Largest lump an end slope may raise off its span's chord, mm. */
 const BULGE: number = 4;
@@ -380,7 +386,9 @@ function slope(
 
     // Nearest parent sample, then the parent's jets there.
     const [tau, , distance] = nearest(ring, p);
-    const w: number = distance < 0.5 ? ring.weight(tau) : 0;
+    // Both guards fade rather than switch: a change that turns on and off from
+    // one sample to the next prints ribs across the seam.
+    const w: number = ring.weight(tau) * (1 - smooth((distance - 0.5) / FAR));
     if (w === 0) {
       samples.push([0, 0]);
       continue;
@@ -402,7 +410,8 @@ function slope(
     const Tc: Vec3 = add(scale(f.u, s[2]), scale(f.v, s[3]));
     const m: Vec3 = unit(cross(normal, Tc));
     const nm: number = dot(N3, m);
-    if (Math.abs(nm) < 0.3) {
+    const facing: number = smooth((Math.abs(nm) - 0.3) / FACING);
+    if (facing === 0) {
       samples.push([0, 0]);
       continue;
     }
@@ -419,7 +428,7 @@ function slope(
     const alpha: number =
       Math.max(
         secant - turn,
-        Math.min(secant + turn, own + (w * dot(N3, sub(Dp, Dc))) / nm),
+        Math.min(secant + turn, own + (facing * w * dot(N3, sub(Dp, Dc))) / nm),
       ) - own;
     const delta: Vec3 = scale(m, inward * alpha);
     samples.push([dot(delta, f.u), dot(delta, f.v)]);
