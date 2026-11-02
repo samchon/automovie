@@ -1,0 +1,16 @@
+{
+  "extends": "../../../config/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "../../..",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": ["node", "three", "vite/client"],
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "plugins": [{ "transform": "@ttsc/lint", "configFile": "lint.config.ts" }]
+  },
+  "include": ["src", "*.ts", "../src"]
+}

@@ -1,14 +1,13 @@
 import { resolve } from "node:path";
 import { type UserConfig, defineConfig } from "vite";
 
-import { createHumanImagePlugin } from "../src/human-images/createHumanImagePlugin";
 import { createCaptureSinkPlugin } from "./createCaptureSinkPlugin";
 
-/** Configure the existing playground pages, capture sink and optional Human PNG service.
+/** Configure ordinary playground pages and their generic capture sink.
  * Loopback development uses port 5173; static preview uses 4173. The shared
- * execution operator owns GPU activity. Capture mode disables watching, and
- * public Human images exist only on the development server with an explicit
- * alias registry. Scratch tools and generated captures never enter the file
+ * execution operator owns GPU activity. Capture mode disables watching.
+ * Human construction diagnostics belong to the unpublished Human dev app.
+ * Scratch tools and generated captures never enter the file
  * watcher: Windows can lock a newly written scratch file and otherwise end
  * the whole server with EBUSY. Source changes retain normal HMR. Vite owns
  * bundling, source loading and server shutdown.
@@ -16,7 +15,6 @@ import { createCaptureSinkPlugin } from "./createCaptureSinkPlugin";
 export const playgroundViteConfig: UserConfig = defineConfig({
   plugins: [
     createCaptureSinkPlugin({ repository: resolve(__dirname, "../../..") }),
-    createHumanImagePlugin(resolve(__dirname, "../../..")),
   ],
   server: {
     host: "127.0.0.1",

@@ -5,7 +5,7 @@ import { AutoMovieHumanLoftMesh } from "../../../../packages/human/src/lofting/A
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
 import type { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
-import { HUMAN_STICKMAN_POSES } from "../../../../packages/playground/src/human-stickman/HUMAN_STICKMAN_POSES";
+import { HUMAN_STICKMAN_POSES } from "../../../../packages/human/dev/src/human-stickman/HUMAN_STICKMAN_POSES";
 import { HumanPeople } from "../internal/HumanPeople";
 
 type V3 = [number, number, number];
