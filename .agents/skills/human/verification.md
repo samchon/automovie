@@ -4,7 +4,7 @@ The [tests](testing.md) and the score reject, and the viewer accepts. A candidat
 
 ## Score
 
-Keep one CPU-only executable beside the other reference tools under `test/src/executable/`. It reads private references, so it stays local and never runs in CI. It generates the figure without a GPU and reports:
+Keep one CPU-only executable beside the other reference tools under `test/src/executable/`. It reads private references, so it runs locally. It generates the figure without a GPU and reports:
 
 | Measure | Reads | Meaning |
 | --- | --- | --- |
@@ -14,7 +14,7 @@ Keep one CPU-only executable beside the other reference tools under `test/src/ex
 
 For the held-out distance, build the law without one person, generate that person from public parameters alone, and measure along the reference surface normal, reporting RMS and the 95th percentile.
 
-Print the stature-only distance beside it: a law that does not beat that baseline explains nothing. Held-out rows of one person measure nothing, because neighbouring rows of a mesh predict each other almost exactly.
+Print the stature-only distance beside it; a law must beat that baseline. Hold out whole people, because neighbouring rows of one mesh predict each other.
 
 ## Inspection
 

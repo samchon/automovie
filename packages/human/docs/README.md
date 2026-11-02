@@ -1,6 +1,6 @@
 # Human research
 
-These notes hold the anatomy, literature and mathematics that `packages/human` builds on, and the findings its construction taught. They are research inputs: a note does not show that the generator implements or satisfies a method.
+These notes hold the anatomy, literature and mathematics that `packages/human` builds on, and the rules its construction follows.
 
 ## Reading map
 

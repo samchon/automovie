@@ -22,11 +22,11 @@ The tasks and their order live in the issue tracker. An explicit stop overrides 
 4. Inspect the change in the [viewer](verification.md#inspection-round), whole person and close-ups.
 5. Record what the change taught in the Human package's documentation.
 
-Plan only as far as the next change. When a change disproves a construction, stop, record why and choose another instead of patching it.
+Plan only as far as the next change. When a change disproves a construction, choose another construction.
 
 ## Files
 
-- [Construction](construction.md): what a construction may and may not contain, and how inputs are defined and consumed.
+- [Construction](construction.md): what a construction contains and how it consumes inputs.
 - [Testing](testing.md): which tests to write, how to write and run them.
 - [Verification](verification.md): the score, the inspection round and the render audit.
 - [Screenshot](screenshot.md): the viewer, its capture route and the reference photographs.

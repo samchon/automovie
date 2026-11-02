@@ -29,10 +29,10 @@ With publication authority, write each accepted issue so a fresh agent can start
 
 ## Handoff
 
-When the user ends a campaign before it is complete, record the unfinished work as unfinished; never force a check green to close it.
+When the user ends a campaign before it is complete, record the unfinished work as unfinished and leave its checks as they are.
 
 1. Stop every worker, keeping only changes that build, and commit them.
-2. Publish one handoff issue that a fresh session can follow as an instruction sheet: the user's standing rules, where the code, tools and tests are, the baseline results, and each open item in order with its verified cause or the hypotheses ruled out, the files and functions involved, and the next step. Copy every finding the next session needs into the issue, because local scratch files do not travel.
+2. Publish one handoff issue that a fresh session can follow as an instruction sheet: the user's standing rules, where the code, tools and tests are, the baseline results, and each open item in order with its verified cause, the files and functions involved, and the next step. Copy every finding the next session needs into the issue, because local scratch files do not travel.
 3. Comment the progress on each open issue, pointing to the handoff, and close only the issues whose acceptance is met.
 4. Update the pull request body to say what is met and what is not, then merge as the user directs.
 
