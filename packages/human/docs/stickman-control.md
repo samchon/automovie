@@ -1,12 +1,12 @@
 # Human facade control
 
-`@automovie/human/control` exports `AutoMovieHumanController`, the renderer-free owner of motion selection and time. `@automovie/viewer/human` exports the optional `AutoMovieHumanFacade` and `IAutoMovieHumanVisual` binding. Human imports no Three.js; the Viewer entry owns interpolation and drawing placement. The five playground motions are authoring examples, not a shipped motion catalogue or engine humanoid adapter.
+`@automovie/human/control` exports `AutoMovieHumanController`, the renderer-free owner of motion selection and time. The unpublished `packages/human/dev/src/three` module supplies the optional `AutoMovieHumanFacade` and `IAutoMovieHumanVisual` binding. Human imports no Three.js; the development adapter owns interpolation and drawing placement. The five development motions are authoring examples, not a shipped motion catalogue or engine humanoid adapter.
 
 ## Prepare and bind one character
 
 Call the existing public `AutoMovieHumanSkeleton.prepare(params)` once for a fixed body. It runs the existing body law and prepares joint centres, clinical axes and scales once. The returned `evaluate(pose = {}, clamp = true)` reuses the existing clinical channel limits and FK and returns fresh bone, placement and clamp arrays. `generate(params, clamp)` preserves its one-shot behavior. Create another evaluator and facade when the body or rest construction changes.
 
-The development-only playground polygon factory uses `prepare(params, { neckSurface: true })`; that factory is not a published package API. The same calibration supplies the small exterior descriptor once, and each evaluated output owns its copy. Its requested-length band and head display courses preserve their stated source geometry; they do not establish a clinical neck site or public girth attainment. Default skeleton generation does not require this display descriptor.
+The development-only Human polygon factory uses `prepare(params, { neckSurface: true })`; that factory is not a published package API. The same calibration supplies the small exterior descriptor once, and each evaluated output owns its copy. Its requested-length band and head display courses preserve their stated source geometry; they do not establish a clinical neck site or public girth attainment. Default skeleton generation does not require this display descriptor.
 
 Construct the facade with `{ definitions, rest: evaluate({}), evaluatePose: evaluate, visual, expression? }`. Definitions map caller names to `{ duration, loop, keys, alignAnkles? }`; keys contain local seconds and public Human poses. The controller snapshots those records, and the Three clip cache reads that same private snapshot. Returned definitions, state, name lists and prepared clips are independent data.
 

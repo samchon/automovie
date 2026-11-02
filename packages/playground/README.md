@@ -19,12 +19,10 @@ pnpm --filter @automovie/playground preview   # dist/ at http://127.0.0.1:4173
 | `launch.html`, `impact.html`, `attach.html`, `trampoline.html` | Projectile, impact, attachment and jump actions |
 | `spar.html` | Boxing scene |
 | `recovery.html` | Saved image-loft coefficients, independent dimension edits, matched surface/construction passes and an optional independent static mesh reference |
-| `human.html` | Human interface; generation and rendering are not implemented or qualified |
+| `human.html` | Ordinary Human parameter editing, Apply, orbit controls and parameter JSON download |
 
 ## Human
 
-`IAutoMovieHumanParameters` defines the typed input. `AutoMovieHuman.generate(params): IAutoMovieHumanGenerated` is an unimplemented contract that throws `Not implemented.`; its declared output contains `parameters` and an `IAutoMovieModel` in `model`.
+Open `human.html`, choose a typed example, edit body controls in their public units and select Apply. The page uses `AutoMovieHuman.generate` and the generic `buildModel` renderer; it generates only after Apply. Download saves the edited parameter document.
 
-The existing Human page and image routes are not qualified against this contract. They do not establish working geometry generation, appearance, editor admission, save/load or screenshots. Parameter sources under `src/human-parameters/` likewise require consumer and HTTP verification before use.
-
-Honor explicit server shutdowns; do not start or restore a deliberately stopped service. See [Human screenshot guidance](../../.agents/skills/human/screenshot.md) for access conventions and verification limits, not a guarantee of a running renderer.
+Construction views, curve selection, mannequin motion, compiler diagnostics and Human PNG routes live in the unpublished [Human development app](../human/dev/README.md). Run `pnpm --filter @automovie/human dev` from the repository root to open that app on port 5196.
