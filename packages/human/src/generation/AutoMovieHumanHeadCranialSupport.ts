@@ -1,83 +1,175 @@
 import { AutoMovieHumanHeadCranialImplicitSection as I } from "./AutoMovieHumanHeadCranialImplicitSection";
 import { AutoMovieHumanHeadCranialMeasurements as M } from "./AutoMovieHumanHeadCranialMeasurements";
 import { AutoMovieHumanHeadCranialSupportDeformation as D } from "./AutoMovieHumanHeadCranialSupportDeformation";
+import { AutoMovieHumanHeadCranialSourceRoot as R } from "./AutoMovieHumanHeadCranialSourceRoot";
+import { AutoMovieHumanHeadCranialExactCache as Cache } from "./AutoMovieHumanHeadCranialExactCache";
 
-/** Lightweight actual-source cranial support control and final-skin tape reader. */
+/** Unchanged physical support control with exact bounded reuse and real work. */
 export namespace AutoMovieHumanHeadCranialSupport {
-  /** Exact current source section and its constants; no expected dimension enters. */
+  /** Actual source primitive record, without expected landmark values. */
   export type ISection = I.Inputs;
-  /** Actual final-skin physical section, with both sides fully represented. */
+  /** Actual final-skin physical section, including both source sides. */
   export interface ICourse {
-    /** Existing source station. */
+    /** Existing physical source station. */
     station: number;
-    /** Existing source section-plane tilt. */
+    /** Existing physical section tilt. */
     tilt: number;
-    /** Actual final skin points on this plane, excluding attached auricles. */
+    /** Actual skin samples; no hull replaces their source geometry. */
     points: readonly [number, number, number][];
   }
-  /** Maximum actual taut tape and its physical frame. */
+  /** Independent actual taut-tape observation and physical course frame. */
   export interface IReading {
-    /** Maximum actual convex-hull tape across the supplied physical courses. */
+    /** Actual maximum convex-hull tape in millimetres. */
     circumference: number;
-    /** Actual maximizing source station. */
+    /** Actual maximizing physical station. */
     station: number;
-    /** Actual curve's forward/backward midpoint in the head frame. */
+    /** Actual forward/backward support midpoint. */
     origin: [number, number, number];
-    /** Existing physical course's plane normal. */
+    /** Actual course plane normal. */
     normal: [number, number, number];
   }
-  /** A query stays renderable but explicitly retains any failed geometry. */
+  /** Every query reports executed work separately from the cached solve. */
   export interface IRadius {
-    /** Changed radius on the exact original consumer ray, or the unchanged source on failure. */
+    /** Actual changed-ray radius, or unchanged source radius on explicit failure. */
     radius: number;
-    /** Geometry acceptance, distinct from clinical availability. */
+    /** Deformation acceptance, separate from clinical availability. */
     healthy: boolean;
-    /** False for the exact zero-deformation bypass; that path certifies no source health. */
+    /** Neutral queries certify no source differential. */
     sourceChecked: boolean;
-    /** Actual source implicit residual. */
+    /** Actual implicit source residual, unavailable on the neutral bypass. */
     sourceResidual: number;
-    /** Explicit unaccepted geometry cause. */
+    /** Explicit unaccepted geometry condition. */
     reason?: string;
-    /** Numerical changed-curve ray residual. */
+    /** Actual final angular residual, retaining an exhausted solve's observation. */
     angularResidual: number;
-    /** Changed-curve source query count. */
+    /** Outer iterations actually executed by this invocation. */
     iterations: number;
+    /** Original solve's iterations, retained on exact result-cache hits. */
+    solveIterations: number;
+    /** Source sample requests actually made by this invocation. */
+    sourceQueries: number;
+    /** Calls actually made to the source radius callback. */
+    sourceRadiusCalls: number;
+    /** Exact source sample requests served without another source radius call. */
+    sourceCacheHits: number;
+    /** True only when this invocation reused an exactly identical complete result. */
+    resultCacheHit: boolean;
+  }
+  /** Resource budgets change cache storage only, never geometry or precision. */
+  export interface ICacheOptions {
+    /** Retained exact source angles per frozen physical section; default 512. */
+    sourceEntries?: number;
+    /** Retained exact result angles for the current coefficient; default 256. */
+    resultEntries?: number;
+  }
+  /** Current exact cache sizes for bounded resource verification. */
+  export interface IStatistics {
+    /** Retained exact source angles. */
+    sourceEntries: number;
+    /** Retained exact result angles at the current coefficient. */
+    resultEntries: number;
+  }
+  /** Frozen-source query callable and its actual retained storage. */
+  export interface IPrepared {
+    /** Read the exact source ray under one physical support coefficient. */
+    (theta: number, coefficientMm: number): IRadius;
+    /** Inspect resource counts without evaluating a source or changing geometry. */
+    statistics: () => IStatistics;
+  }
+  /** One exact source radius and its optional analytic differential. */
+  interface ISource {
+    /** Actual physical source radius. */
+    radius: number;
+    /** Explicit stricter root failure, retaining its previous bounded skin. */
+    root?: R.IResult;
+    /** Actual source differential, computed only when deformation needs it. */
+    differential?: I.PolarJet;
   }
 
-  /** C2 zero jets at existing full-skull handover and actual crown-ring/cap join. */
+  /** Original C2-zero station basis, unchanged from the source snapshot. */
   export function weight(station: number, lower: number, upper: number): number {
     const u: number = (station - lower) / (upper - lower);
     return u <= 0 || u >= 1 ? 0 : (4 * u * (1 - u)) ** 3;
   }
 
-  /**
-   * Compile only the current actual implicit differential law. Each radius
-   * query calls the existing source radius callback, and bounded Newton solves
-   * the changed curve's actual intersection with the original consumer ray.
-   * There is no 8k survey, hull measurement or source identity replacement in
-   * this query path. A rejected geometry is returned unchanged and stays red.
-   */
-  export function prepare(section: ISection, originXi: number, sourceRadius: (theta: number) => number): (theta: number, coefficientMm: number) => IRadius {
-    const operator: I.Operator = I.operator(section);
-    return (theta: number, coefficientMm: number): IRadius => {
-      if (coefficientMm === 0) return { radius: sourceRadius(theta), healthy: true, sourceChecked: false, sourceResidual: NaN, angularResidual: 0, iterations: 1 };
-      const source = (angle: number): I.PolarJet => {
-        const radius: number = sourceRadius(angle);
-        const p: [number, number] = [originXi + radius * Math.cos(angle), radius * Math.sin(angle)];
-        return I.differential(p, operator.evaluate(p[0], p[1]), originXi, angle);
-      };
-      const result: D.RayResult = D.radial(source, originXi, theta, coefficientMm, operator.spatialC2);
-      return result.ok
-        ? { radius: result.radius, healthy: true, sourceChecked: true, sourceResidual: result.sourceResidual, angularResidual: result.angularResidual, iterations: result.iterations }
-        : { radius: sourceRadius(theta), healthy: false, sourceChecked: true, sourceResidual: result.sourceResidual, reason: result.reason, angularResidual: NaN, iterations: 0 };
-    };
+  /** Read the actual original field root with a compatible coordinate budget. */
+  export function sourceRadius(section: ISection, originXi: number, theta: number, guess: number = 0): R.IResult {
+    return R.prepare(section, originXi)(theta, guess);
   }
 
   /**
-   * Observe actual final-skin tape independently of coefficient and targets.
-   * Projection uses each existing source plane; its convex hull is a tape
-   * observation and never replaces the source skin or supplies a C2 claim.
+   * Freeze one actual section and origin until the owning head rebuilds.
+   * Exact angle keys reuse source samples; exact angle/coefficient keys reuse
+   * complete accepted or failed solves. No interpolation or rounding enters.
+   * Source cache storage is bounded; only one coefficient's results survive.
    */
+  export function prepare(section: ISection, originXi: number, sourceRadiusCallback: (theta: number) => number | R.IResult, options: ICacheOptions = {}): IPrepared {
+    const operator: I.Operator = I.operator(section);
+    const sources: Cache.Lru<number, ISource> = new Cache.Lru(options.sourceEntries ?? 512);
+    const results: Cache.Lru<number, IRadius> = new Cache.Lru(options.resultEntries ?? 256);
+    let coefficient: number = NaN;
+    const query: IPrepared = ((theta: number, coefficientMm: number): IRadius => {
+      if (coefficientMm !== coefficient) { coefficient = coefficientMm; results.clear(); }
+      const cached: IRadius | undefined = results.get(theta);
+      if (cached !== undefined) return { ...cached, iterations: 0, sourceQueries: 0, sourceRadiusCalls: 0, sourceCacheHits: 0, resultCacheHit: true };
+      let calls: number = 0;
+      let requests: number = 0;
+      let hits: number = 0;
+      let sourceFailure: string | undefined;
+      const read = (angle: number): ISource => {
+        requests++;
+        const known: ISource | undefined = sources.get(angle);
+        if (known !== undefined) { hits++; return known; }
+        calls++;
+        const supplied: number | R.IResult = sourceRadiusCallback(angle);
+        const value: ISource = typeof supplied === "number" ? { radius: supplied } : { radius: supplied.radius, root: supplied };
+        sources.set(angle, value);
+        return value;
+      };
+      if (coefficientMm === 0) {
+        const radius: number = read(theta).radius;
+        const result: IRadius = { radius, healthy: true, sourceChecked: false, sourceResidual: NaN, angularResidual: 0, iterations: 0, solveIterations: 0, sourceQueries: requests, sourceRadiusCalls: calls, sourceCacheHits: hits, resultCacheHit: false };
+        results.set(theta, result);
+        return result;
+      }
+      const source = (angle: number): I.PolarJet => {
+        const value: ISource = read(angle);
+        if (value.differential === undefined) {
+          const p: [number, number] = [originXi + value.radius * Math.cos(angle), value.radius * Math.sin(angle)];
+          value.differential = value.root !== undefined && !value.root.healthy
+            ? { point: p, normal: [NaN, NaN], curvature: NaN, speed: NaN, residual: value.root.fieldResidual }
+            : I.differential(p, operator.evaluate(p[0], p[1]), originXi, angle);
+        }
+        if (value.root !== undefined && !value.root.healthy) sourceFailure = value.root.reason;
+        return value.differential;
+      };
+      const solved: D.RayResult = D.radial(source, originXi, theta, coefficientMm, operator.spatialC2);
+      const radius: number = solved.ok ? solved.radius : read(theta).radius;
+      const result: IRadius = { radius, healthy: solved.ok, sourceChecked: true, sourceResidual: solved.sourceResidual, reason: solved.ok ? undefined : sourceFailure ?? solved.reason, angularResidual: solved.angularResidual, iterations: solved.iterations, solveIterations: solved.iterations, sourceQueries: requests, sourceRadiusCalls: calls, sourceCacheHits: hits, resultCacheHit: false };
+      results.set(theta, result);
+      return result;
+    }) as IPrepared;
+    query.statistics = (): IStatistics => ({ sourceEntries: sources.size, resultEntries: results.size });
+    return query;
+  }
+
+  /**
+   * Bound the existing exact-station owner cache at 64 physical sections.
+   * Rebuilding already clears the source owner; eviction only recomputes an
+   * identical section later and never rounds a station or changes sampling.
+   */
+  export function stationQuery(cache: Map<number, IPrepared> | undefined, station: number, create: () => IPrepared): IPrepared {
+    let query: IPrepared | undefined = cache?.get(station);
+    if (query === undefined) query = create();
+    if (cache !== undefined) {
+      cache.delete(station);
+      if (cache.size >= 64) cache.delete(cache.keys().next().value!);
+      cache.set(station, query);
+    }
+    return query;
+  }
+
+  /** Original final-skin tape reader; physical projection and hull law are unchanged. */
   export function measure(courses: readonly ICourse[]): IReading {
     let out: IReading = { circumference: NaN, station: NaN, origin: [NaN, NaN, NaN], normal: [NaN, NaN, NaN] };
     for (const course of courses) {
@@ -93,10 +185,8 @@ export namespace AutoMovieHumanHeadCranialSupport {
     return out;
   }
 
-  /** Newton tape increment uses the physical support identity; no positive-only coefficient is assumed. */
+  /** Original signed physical Newton update; no tolerance or dimension is changed. */
   export function increment(coefficientMm: number, achieved: number, requested: number, activeWeight: number): number {
-    return Number.isFinite(achieved) && Number.isFinite(requested) && activeWeight > 0
-      ? coefficientMm + (requested - achieved) / (Math.PI * activeWeight)
-      : coefficientMm;
+    return Number.isFinite(achieved) && Number.isFinite(requested) && activeWeight > 0 ? coefficientMm + (requested - achieved) / (Math.PI * activeWeight) : coefficientMm;
   }
 }

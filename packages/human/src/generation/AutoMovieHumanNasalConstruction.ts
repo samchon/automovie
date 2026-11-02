@@ -105,8 +105,14 @@ export namespace AutoMovieHumanNasalConstruction {
     normal: Point;
   }
 
+  /** Inputs needed by the runtime height law, without a diagnostic mesh consumer. */
+  export type BridgeProfileInputs = Omit<BridgeInputs, "face" | "boneJoint" | "normal">;
+
+  /** Exact bridge profile used by skin queries; materialization remains separate. */
+  export type BridgeEvaluator = Pick<Bridge, "root" | "join" | "height">;
+
   /** Replace only the last existing profile span by an endpoint-jet span. */
-  export function bridge(input: BridgeInputs): Bridge {
+  export function evaluateBridge(input: BridgeProfileInputs): BridgeEvaluator {
     const run: number = input.root - input.join;
     if (!(run > 0) || !(input.join > input.tip) || !(input.halfWidth > 0))
       throw new Error("The nasal bridge requires ordered physical boundaries.");
@@ -125,6 +131,13 @@ export namespace AutoMovieHumanNasalConstruction {
       const u: number = across / input.width(station);
       return typeof input.jet === "function" ? h : h * Math.exp(-u * u / 2);
     };
+    return { root: input.root, join: input.join, height };
+  }
+
+  /** Materialize the same physical bridge mesh when a primitive consumer requests it. */
+  export function bridge(input: BridgeInputs): Bridge {
+    const evaluator: BridgeEvaluator = evaluateBridge(input);
+    const height: BridgeEvaluator["height"] = evaluator.height;
     const columns: number = 32;
     const rows: number = 64;
     const points: Point[] = [];

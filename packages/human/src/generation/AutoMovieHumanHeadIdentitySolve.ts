@@ -38,8 +38,10 @@ export namespace AutoMovieHumanHeadIdentitySolve {
     constraints: readonly IConstraint[],
     rebuild: () => void,
   ): IResidual[] {
+    let current: boolean = false;
     for (let round: number = 0; round < 32; round++) {
       rebuild();
+      current = true;
       const values: number[] = constraints.map((c: IConstraint): number => c.measure());
       if (values.every((v: number, i: number): boolean => !Number.isFinite(v) || Math.abs(v - constraints[i]!.target) < 0.025)) break;
 
@@ -49,9 +51,10 @@ export namespace AutoMovieHumanHeadIdentitySolve {
         if (!Number.isFinite(v) || !(v > 0) || !(c.target > 0)) continue;
         const delta: number = Math.max(-Math.LN2, Math.min(Math.LN2, Math.log(c.target / v)));
         c.multiply(Math.exp(delta / 2));
+        current = false;
       }
     }
-    rebuild();
+    if (!current) rebuild();
     return constraints.map((c: IConstraint): IResidual => ({ name: c.name, error: c.measure() - c.target }));
   }
 }

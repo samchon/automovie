@@ -1,25 +1,25 @@
 import { AutoMovieHumanHeadCranialImplicitSection as I } from "./AutoMovieHumanHeadCranialImplicitSection";
 import { AutoMovieHumanHeadCranialVaultField as V } from "./AutoMovieHumanHeadCranialVaultField";
 
-/** Direct support deformation from an actual source point and its analytic jet. */
+/** Exact source support deformation with observable work on every exit. */
 export namespace AutoMovieHumanHeadCranialSupportDeformation {
-  /** Failed geometry retains the actual source point and its measurements. */
+  /** Point result retains the original skin on an unaccepted differential. */
   export type Result =
     | { ok: true; point: V.Local; normal: V.Local; curvature: number; sourceResidual: number }
     | { ok: false; point: V.Local; reason: string; sourceCurvature: number; sourceResidual: number };
+  /** Actual ray work is preserved on both accepted and failed results. */
+  export interface IWork {
+    /** Number of actual outer iterations, including the exhausted budget. */
+    iterations: number;
+    /** Number of actual source callback requests. */
+    sourceQueries: number;
+    /** Final observed angular residual in radians. */
+    angularResidual: number;
+  }
+  /** Exact ray result and its actual work, whether it succeeds or fails. */
+  export type RayResult = (Extract<Result, { ok: true }> & IWork & { radius: number }) | (Extract<Result, { ok: false }> & IWork);
 
-  /** Exact ray result, with its independent numerical intersection residual. */
-  export type RayResult =
-    | (Extract<Result, { ok: true }> & { radius: number; angularResidual: number; iterations: number })
-    | Extract<Result, { ok: false }>;
-
-  /**
-   * Apply delta*sin(2phi)^2 to the source support directly. The existing
-   * source curve's parameter remains a curve parameter; the output need not
-   * lie on the original polar ray. Consumers needing an exact ray must solve
-   * it on this changed curve, rather than treating displacement as a radius.
-   * This evaluator performs no hull, quadrature or landmark search.
-   */
+  /** Apply the unchanged support law directly to an actual analytic source jet. */
   export function apply(point: V.Local, jet: I.Jet, coefficient: number, spatialC2: boolean): Result {
     const gx: number = jet.gradient[0];
     const gz: number = jet.gradient[1];
@@ -29,11 +29,9 @@ export namespace AutoMovieHumanHeadCranialSupportDeformation {
   }
 
   /**
-   * Find the changed curve's intersection with the original consumer ray.
-   * The callback reads actual source points and analytic differentials. The
-   * support displacement is sampled on that source parameter, but its tangent
-   * is scaled by 1+delta*(b+b'')*kappa. Bounded Newton therefore uses the exact
-   * transformed tangent, with bisection whenever a step leaves the bracket.
+   * Preserve the exact 1e-12 rad criterion. Bounded Newton uses the actual
+   * transformed tangent. A failed 64th iteration returns its real work and
+   * does not request an unused 65th source sample.
    */
   export function radial(source: (theta: number) => I.PolarJet, originXi: number, theta: number, coefficient: number, spatialC2: boolean): RayResult {
     const two: number = Math.PI * 2;
@@ -41,18 +39,21 @@ export namespace AutoMovieHumanHeadCranialSupportDeformation {
     let lo: number = target <= Math.PI ? 0 : Math.PI;
     let hi: number = target <= Math.PI ? Math.PI : two;
     let parameter: number = target;
+    let sourceQueries: number = 1;
     let last: I.PolarJet = source(parameter);
+    let angularResidual: number = NaN;
     for (let iteration: number = 1; iteration <= 64; iteration++) {
       const changed: Result = deform(last.point, last.normal, last.curvature, last.residual, coefficient, spatialC2);
-      if (!changed.ok) return changed;
+      if (!changed.ok) return { ...changed, iterations: iteration, sourceQueries, angularResidual };
       const dx: number = changed.point[0] - originXi;
       const z: number = changed.point[1];
       const squared: number = dx * dx + z * z;
       let angle: number = Math.atan2(z, dx);
       if (target > Math.PI && angle < 0) angle += two;
       const error: number = angle - target;
-      if (Math.abs(error) < 1e-12)
-        return { ...changed, radius: Math.sqrt(squared), angularResidual: Math.abs(error), iterations: iteration };
+      angularResidual = Math.abs(error);
+      if (angularResidual < 1e-12) return { ...changed, radius: Math.sqrt(squared), angularResidual, iterations: iteration, sourceQueries };
+      if (iteration === 64) break;
       if (error < 0) lo = parameter;
       else hi = parameter;
       const phi: number = Math.atan2(last.normal[1], last.normal[0]);
@@ -63,13 +64,19 @@ export namespace AutoMovieHumanHeadCranialSupportDeformation {
       const next: number = parameter - error / derivative;
       parameter = next > lo && next < hi && Number.isFinite(next) ? next : (lo + hi) / 2;
       last = source(parameter);
+      sourceQueries++;
     }
-    return { ok: false, point: last.point, reason: "The exact changed-curve ray intersection did not converge; the original source point was retained.", sourceCurvature: last.curvature, sourceResidual: last.residual };
+    return { ok: false, point: last.point, reason: "The exact changed-curve ray intersection did not converge; the original source point was retained.", sourceCurvature: last.curvature, sourceResidual: last.residual, iterations: 64, sourceQueries, angularResidual };
   }
 
-  /** Actual geometric transformation, shared by point and exact-ray consumers. */
+  /**
+   * The physical support equation is unchanged. Finite zero curvature is a
+   * regular C2 flat point in this polar-source parameter: its tangent scale
+   * is exactly one and no inverse curvature is taken. Negative curvature and
+   * reversed transformed tangents remain rejected without changing skin.
+   */
   function deform(point: V.Local, normal: V.Local, curvature: number, sourceResidual: number, coefficient: number, spatialC2: boolean): Result {
-    if (!(spatialC2 && normal.every(Number.isFinite) && Number.isFinite(curvature) && curvature > 0 && Number.isFinite(coefficient) && Number.isFinite(sourceResidual)))
+    if (!(spatialC2 && normal.every(Number.isFinite) && Number.isFinite(curvature) && curvature >= 0 && Number.isFinite(coefficient) && Number.isFinite(sourceResidual)))
       return { ok: false, point, reason: "The actual source point has no healthy C2 convex differential; its skin was retained.", sourceCurvature: curvature, sourceResidual };
     const nx: number = normal[0];
     const nz: number = normal[1];

@@ -57,6 +57,12 @@ export namespace AutoMovieHumanAlarHeadSections {
 
       /** Triangles lying in the cutting plane, reported as unresolved section ambiguity. */
     coplanarTriangles: number;
+      /** Geometry disposition; outside means the plane has no section components or ambiguity. */
+      admission: "outside" | "spliced" | "unaccepted";
+
+      /** Observed causes preventing this physical section from being admitted. */
+      rejectionReasons: string[];
+
     };
   }
 
@@ -72,10 +78,16 @@ export namespace AutoMovieHumanAlarHeadSections {
       const h: number = input.derivativeStep;
       const f = (dy: number, dz: number): number => input.face(p[1] + dy, p[2] + dz);
       const value: number = f(0, 0);
-      const fy: number = (f(h, 0) - f(-h, 0)) / (2 * h);
-      const fz: number = (f(0, h) - f(0, -h)) / (2 * h);
-      const fyy: number = (f(h, 0) - 2 * value + f(-h, 0)) / (h * h);
-      const fzz: number = (f(0, h) - 2 * value + f(0, -h)) / (h * h);
+      // These nine physical samples own both derivative orders. Reusing a
+      // sample changes no arithmetic expression or source-face coordinate.
+      const above: number = f(h, 0);
+      const below: number = f(-h, 0);
+      const lateral: number = f(0, h);
+      const medial: number = f(0, -h);
+      const fy: number = (above - below) / (2 * h);
+      const fz: number = (lateral - medial) / (2 * h);
+      const fyy: number = (above - 2 * value + below) / (h * h);
+      const fzz: number = (lateral - 2 * value + medial) / (h * h);
       const fyz: number = (f(h, h) - f(h, -h) - f(-h, h) + f(-h, -h)) / (4 * h * h);
       const derivative: N.Point = rimTangents[i]!;
       const boundaryTangent: N.Point = N.normalized([fy * derivative[1] + fz * derivative[2], derivative[1], derivative[2]]);
@@ -98,7 +110,15 @@ export namespace AutoMovieHumanAlarHeadSections {
       });
       const facePaths: S.Path[] = result.paths.filter((p): boolean => !p.closed && p.startBoundary === "face" && p.endBoundary === "face");
       const remaining: S.Path[] = result.paths.filter((p): boolean => !facePaths.includes(p));
-      if (facePaths.length !== 1) return { points: [...base], rootGaps: [], facePaths, remaining, branching: result.branching, coplanarTriangles: result.coplanarTriangles };
+
+      const rejectionReasons: string[] = [];
+      if (facePaths.length > 1) rejectionReasons.push("Multiple physical face-to-face paths require a topology decision.");
+      if (facePaths.length === 0 && result.paths.length > 0) rejectionReasons.push("Physical section components have no face-to-face attachment path.");
+      if (remaining.length > 0) rejectionReasons.push("Additional physical section components require nostril-domain ownership.");
+      if (result.branching > 0) rejectionReasons.push("The physical section graph has branching vertices.");
+      if (result.coplanarTriangles > 0) rejectionReasons.push("Coplanar skin triangles leave the section topology unresolved.");
+      const admission: "outside" | "spliced" | "unaccepted" = rejectionReasons.length > 0 ? "unaccepted" : facePaths.length === 1 ? "spliced" : "outside";
+      if (facePaths.length !== 1) return { points: [...base], rootGaps: [], facePaths, remaining, branching: result.branching, coplanarTriangles: result.coplanarTriangles, admission, rejectionReasons };
       const path: S.Path = facePaths[0]!;
       const roots = [path.points[0]!, path.points[path.points.length - 1]!].map((point) => {
         let best = { segment: -1, parameter: 0, gap: Infinity };
@@ -115,7 +135,7 @@ export namespace AutoMovieHumanAlarHeadSections {
       const forward: boolean = roots[0]!.segment + roots[0]!.parameter <= roots[1]!.segment + roots[1]!.parameter;
       const points: N.Point[] = forward ? path.points : [...path.points].reverse();
       const a = roots[forward ? 0 : 1]!; const b = roots[forward ? 1 : 0]!;
-      return { points: [...base.slice(0, a.segment + 1), ...points, ...base.slice(b.segment + 1)], rootGaps: [a.gap, b.gap], facePaths, remaining, branching: result.branching, coplanarTriangles: result.coplanarTriangles };
+      return { points: [...base.slice(0, a.segment + 1), ...points, ...base.slice(b.segment + 1)], rootGaps: [a.gap, b.gap], facePaths, remaining, branching: result.branching, coplanarTriangles: result.coplanarTriangles, admission, rejectionReasons };
     } };
   }
 }

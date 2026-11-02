@@ -1,3 +1,6 @@
+import { AutoMovieHumanMedianWorldY as MedianWorldY } from "./AutoMovieHumanMedianWorldY";
+import { AutoMovieHumanRadiusEpoch as RadiusEpoch } from "./AutoMovieHumanRadiusEpoch";
+import { AutoMovieHumanHeadNeckPhaseLookup as NeckPhase } from "./AutoMovieHumanHeadNeckPhaseLookup";
 import { AutoMovieHumanHorizontalChain } from "../lofting/AutoMovieHumanHorizontalChain";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParameter";
@@ -112,6 +115,16 @@ export namespace AutoMovieHumanHeadConstruction {
     gaps: number[];
     /** Preserved extra paths, never silently removed as an outer envelope. */
     remaining: IAlarPath[];
+    /** Every actual face-to-face component, including competing fallback paths. */
+    facePaths: IAlarPath[];
+    /** Actual face-to-face component count before any fallback. */
+    facePathCount: number;
+    /** Actual coplanar triangle count retained from the physical section. */
+    coplanarTriangles: number;
+    /** This diagnostic records an unaccepted physical section. */
+    admission: "unaccepted";
+    /** Geometry and seam causes preventing section admission. */
+    rejectionReasons: string[];
     /** Number of section graph nodes with more than two neighbours. */
     branching: number;
   }
@@ -122,6 +135,10 @@ export namespace AutoMovieHumanHeadConstruction {
     points: Vec3[];
     /** Whether the first and last path nodes share an edge. */
     closed: boolean;
+    /** Actual mesh boundary at the first endpoint; absent on closed paths. */
+    startBoundary?: string;
+    /** Actual mesh boundary at the last endpoint; absent on closed paths. */
+    endBoundary?: string;
   }
 
   /** The neck ring's place and size. */
@@ -217,6 +234,8 @@ export namespace AutoMovieHumanHeadConstruction {
     geometryFindings: string[];
     /** Reuse the unchanged implicit source operator at each current station. */
     cranialQueries: Map<number, ReturnType<typeof Cranial.prepare>>;
+    /** Exact unsigned radius results retained only within the current geometry epoch. */
+    radiusEpoch?: RadiusEpoch.ICache;
 
     /** Log ratio of the jaw width against the face width's. */
     jaw: number;
@@ -383,6 +402,8 @@ export namespace AutoMovieHumanHeadConstruction {
     cranialCoefficient?: number;
     /** Operators shared only within this layout's current rebuilt geometry. */
     cranialQueries?: Map<number, ReturnType<typeof Cranial.prepare>>;
+    /** Current geometry epoch's exact unsigned radius lookup. */
+    radiusEpoch?: RadiusEpoch.ICache;
     /** Mutable report of source geometry that could not be accepted. */
     geometryFindings?: string[];
   }
@@ -589,6 +610,7 @@ export namespace AutoMovieHumanHeadConstruction {
       jaw: plan.mandible,
       cranialCoefficient: plan.vault === 0 ? 0 : plan.vault * Cranial.weight(s, plan.cranialLower!, plan.cranialUpper!),
       cranialQueries: plan.cranialQueries,
+      radiusEpoch: plan.radiusEpoch,
       geometryFindings: plan.geometryFindings,
     };
   }
@@ -613,56 +635,40 @@ export namespace AutoMovieHumanHeadConstruction {
   }
 
   /** Radius of the section's outline along a ray from `(ox, 0)`, the jaw joined. */
-  export function radius(
+  export function radius(section: ISection, ox: number, theta: number, guess: number = 0): number {
+    const cache: RadiusEpoch.ICache | undefined = section.radiusEpoch;
+    return cache === undefined ? uncachedRadius(section, ox, theta, guess)
+      : cache.read(section.jaw, section.station, ox, theta, guess, (): number => uncachedRadius(section, ox, theta, guess));
+  }
+
+  /** Compute the unchanged unsigned geometric radius before signed skin composition. */
+  function uncachedRadius(
     section: ISection,
     ox: number,
     theta: number,
     guess: number = 0,
   ): number {
-    const base: number = bodies(section, ox, theta, guess);
     const coefficient: number = section.cranialCoefficient ?? 0;
-    if (coefficient === 0) return jawed(section, ox, theta, base);
-    let query: ReturnType<typeof Cranial.prepare> | undefined = section.cranialQueries?.get(section.station);
-    if (query === undefined) {
-      query = Cranial.prepare({ ...section, handed: HANDED, handover: HANDOVER, power: POWER }, ox,
-        (angle: number): number => bodies(section, ox, angle, 0));
-      section.cranialQueries?.set(section.station, query);
-    }
+    if (coefficient === 0) return jawed(section, ox, theta, bodies(section, ox, theta, guess));
+    const query: ReturnType<typeof Cranial.prepare> = Cranial.stationQuery(section.cranialQueries, section.station, (): ReturnType<typeof Cranial.prepare> =>
+      Cranial.prepare({ ...section, handed: HANDED, handover: HANDOVER, power: POWER }, ox, (angle: number): ReturnType<typeof Cranial.sourceRadius> => Cranial.sourceRadius({ ...section, handed: HANDED, handover: HANDOVER, power: POWER }, ox, angle)));
     const result: Cranial.IRadius = query(theta, coefficient);
     if (!result.healthy && section.geometryFindings !== undefined) {
       const reason: string = result.reason ?? "Unaccepted cranial support deformation";
       if (!section.geometryFindings.includes(reason)) section.geometryFindings.push(reason);
     }
     return jawed(section, ox, theta, result.radius);
-  }
+  
+}
 
   /** Radius of the union of the back body and the shield along a ray. */
-  function bodies(
-    section: ISection,
-    ox: number,
-    theta: number,
-    guess: number,
-  ): number {
-    const c: number = Math.cos(theta);
-    const n: number = Math.sin(theta);
-    let r: number =
-      guess > 0 ? guess : (section.front - section.back) / 2 || 1;
-    for (let i: number = 0; i < 12; i++) {
-      const g: number = field(section, ox + r * c, r * n);
-      const next: number = r / g;
-      if (Math.abs(next - r) < 1e-6) return next;
-      r = next;
+  function bodies(section: ISection, ox: number, theta: number, guess: number): number {
+    const result: ReturnType<typeof Cranial.sourceRadius> = Cranial.sourceRadius({ ...section, handed: HANDED, handover: HANDOVER, power: POWER }, ox, theta, guess);
+    if (!result.healthy && section.geometryFindings !== undefined) {
+      const reason: string = result.reason ?? "Unaccepted original source radius root";
+      if (!section.geometryFindings.includes(reason)) section.geometryFindings.push(reason);
     }
-
-    // Where the two bodies pull apart the iteration need not settle.
-    let lo: number = 0;
-    let hi: number = 3 * Math.max(10, section.front - section.back);
-    for (let i: number = 0; i < 40; i++) {
-      const mid: number = (lo + hi) / 2;
-      if (field(section, ox + mid * c, mid * n) < 1) lo = mid;
-      else hi = mid;
-    }
-    return lo;
+    return result.radius;
   }
 
   /**
@@ -1017,7 +1023,7 @@ export namespace AutoMovieHumanHeadConstruction {
     /** Sections already cut, by station. */
     cut: Map<number, ISides>;
     /** Actual frontal/nasal shared boundary and its C2 bridge. */
-    bridge?: NasalOwner.Bridge;
+    bridge?: NasalOwner.BridgeEvaluator;
     /** Construction-only evaluation of the frontal foundation. */
     skipNose?: boolean;
     /** Physical corner profiles, prepared once for this person. */
@@ -1095,8 +1101,14 @@ export namespace AutoMovieHumanHeadConstruction {
       const base: Vec3[] = side === "left" ? left : right;
       const result = owner.section(base, s, m.tilt);
       base.splice(0, base.length, ...result.points);
-      if (result.remaining.length > 0 || result.rootGaps.some((gap: number): boolean => gap > 0.025 * plan.scale) || result.branching > 0)
-        surface.alarSections.push({ station: s, side, gaps: result.rootGaps, remaining: result.remaining.map((p) => ({ points: p.points, closed: p.closed })), branching: result.branching });
+      if (result.admission === "unaccepted" || result.remaining.length > 0 || result.rootGaps.some((gap: number): boolean => gap > 0.025 * plan.scale) || result.branching > 0 || result.coplanarTriangles > 0 || result.facePaths.length > 1) {
+        const rejectionReasons: string[] = [...result.rejectionReasons];
+        if (result.rootGaps.some((gap: number): boolean => gap > 0.025 * plan.scale)) rejectionReasons.push("The actual attachment gap exceeds the existing physical seam allowance.");
+        surface.alarSections.push({ station: s, side, gaps: result.rootGaps, admission: "unaccepted", rejectionReasons,
+          remaining: result.remaining.map((p) => ({ points: p.points, closed: p.closed, startBoundary: p.startBoundary, endBoundary: p.endBoundary })),
+          facePaths: result.facePaths.map((p) => ({ points: p.points, closed: p.closed, startBoundary: p.startBoundary, endBoundary: p.endBoundary })),
+          facePathCount: result.facePaths.length, branching: result.branching, coplanarTriangles: result.coplanarTriangles });
+      }
     }
     return { left, right };
   }
@@ -1268,13 +1280,13 @@ export namespace AutoMovieHumanHeadConstruction {
   }
 
   /** Build the actual frontal/nasal shared seam before measuring identity. */
-  function nasalBridge(surface: ISurface): NasalOwner.Bridge {
+  function nasalBridge(surface: ISurface): NasalOwner.BridgeEvaluator {
     const { plan, compiled } = surface;
     const knots: readonly number[] = compiled.prior.face.profileKnots;
     const last: number = Math.max(...knots.filter((v: number): boolean => v < 1));
     const join: number = plan.tip + last * (plan.nasion - plan.tip);
     const step: number = 0.001 * plan.scale;
-    return NasalOwner.bridge({
+    return NasalOwner.evaluateBridge({
       root: plan.nasion, join, tip: plan.tip, halfWidth: plan.noseWidth,
       jet: (z: number): NasalOwner.Jet => {
         const a: number = nasalRelief(surface, join - step, z);
@@ -1284,9 +1296,6 @@ export namespace AutoMovieHumanHeadConstruction {
       },
       profile: (y: number, z: number): number => nasalRelief(surface, y, z),
       width: (y: number): number => plan.noseWidth * AutoMovieHumanNaturalSpline.evaluate(compiled.dorsum, (y - plan.tip) / (plan.nasion - plan.tip)),
-      face: (y: number, z: number): number => foundationAt(surface, y, z),
-      // A model frame joint, not a claim that a bone surface has been rendered.
-      boneJoint: [plan.centre, plan.nasion, 0], normal: [1, 0, 0],
     });
   }
 
@@ -1393,19 +1402,10 @@ export namespace AutoMovieHumanHeadConstruction {
     const m: ISection = section(compiled, plan, plan.y0);
     const ox: number = (m.front + m.back) / 2;
     const out: number[] = [];
+    const phases: NeckPhase.IPrepared = NeckPhase.prepare(ring, ox);
     for (let j: number = 0; j <= ANGLES; j++) {
       const theta: number = (sign * Math.PI * j) / ANGLES;
-      let best: Vec3 = ring[0]!;
-      let gap: number = Infinity;
-      for (const p of ring) {
-        const a: number = Math.atan2(p[2], p[0] - ox) - theta;
-        const d: number = Math.abs(Math.atan2(Math.sin(a), Math.cos(a)));
-        if (d < gap) {
-          gap = d;
-          best = p;
-        }
-      }
-      out.push(best[1] - plan.y0);
+      out.push(ring[phases.nearest(theta).index]![1] - plan.y0);
     }
     return out;
   }
@@ -1899,6 +1899,7 @@ export namespace AutoMovieHumanHeadConstruction {
     // The vertex is the stature: the neck ring stays in calibration and the
     // head above it is in world lengths, so the scale closes on itself.
     const plan: ILayout = layout(compiled, inputs, neck, scale);
+    plan.radiusEpoch = RadiusEpoch.create(32768);
     const flat: [number, number][] = ring.map(
       (p: Vec3): [number, number] => [p[0], p[2]],
     );
@@ -1943,6 +1944,7 @@ export namespace AutoMovieHumanHeadConstruction {
     // Every dependent feature is rebuilt from the same current layout. A
     // solved face height must carry the ears, sockets and jaw with it.
     const rebuild: () => void = (): void => {
+      plan.radiusEpoch!.beginEpoch();
       plan.station = AutoMovieHumanNaturalSpline.create([plan.y0, plan.menton, plan.subnasale, plan.eye, plan.vertex], [0, 1, 2, 3, 4]);
       let lower: number = plan.y0;
       let upper: number = plan.vertex;
@@ -2402,6 +2404,14 @@ export namespace AutoMovieHumanHeadConstruction {
 
   /** Forward coordinate of the skin at a world height and lateral place. */
   export function frontAt(surface: ISurface, y: number, z: number): number {
+    if (z === 0) {
+      const reading: MedianWorldY.IReading = MedianWorldY.solve(y, (station: number): Vec3 => pointAt(surface, station, 0, 1));
+      if (!reading.converged) {
+        const reason: string = "The exact median world-Y intersection did not converge in twelve station corrections; its last actual skin point was retained.";
+        if (!surface.plan.geometryFindings.includes(reason)) surface.plan.geometryFindings.push(reason);
+      }
+      return reading.point[0];
+    }
     const sign: 1 | -1 = z < 0 ? -1 : 1;
     let station: number = y;
     let out: Vec3 = pointAt(surface, station, 0, sign);
