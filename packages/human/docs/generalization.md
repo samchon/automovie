@@ -112,11 +112,22 @@ Sample the ear's sections at uniform indices, and fade a join's correction with 
 
 Write mesh numbers as the shortest decimal that reads back to the same float32, to stay well under the viewer page's 256 MiB publication cap.
 
+## Ruled out, with the reason
+
+- A predetermined sparse polynomial or primitive family: boundaries and named measurements agreed while the anatomy was lost, and five keys on the head converged into a cone.
+- Full profiles for a local feature: a full section carries no feature location or depth, so the navel disappeared. Carry a local feature by its own location and depth.
+- Features as residuals against a coarse surface: a broad difference is not a feature, and the extractor carved deep flank and lumbar grooves.
+- Square collocation at arbitrary phases: it amplified foot section spans about 2,800 times. Use a standard periodic interpolant.
+- Forcing fine source derivatives across sparse keys: a 509 mm coefficient excursion appeared inside an 82 mm interval. Let a family generate its own derivatives.
+- Choosing counts or smoothing by held-out rows of one mesh: neighbouring rows predict each other, so the score improves until the model reproduces the mesh. Hold out whole people.
+- Closing a girth through depth alone: a girth barely responds to depth, so a small disagreement became 18 mm of chest depth.
+- Carrying the trunk's front and back as depths from the widest point: that point wandered 50 mm between layers, and smoothing one side printed stripes at the same heights on every person.
+- Taking a tilted crotch ring's horizontal projection as a thigh section: it threw the thigh 8 mm back and 5 mm wide.
+- A web floor as a straight chord across the parent's section: it leaves each pinch 83–88° out of the parent's tangent plane, so the skin meets the parent at a right angle.
+- A level jaw cut for the mouth: it puts the jaw's whole turn into a few millimetres round each corner, stretching that skin more than three times under a 20 mm opening.
+
 ## Rules to reuse
 
-- Generate shape from named dimensions and feature locations; carry a local feature such as the navel by its own location and depth.
-- Interpolate periodic sections with a standard periodic interpolant, and let a family generate its own derivatives.
-- Choose counts and smoothing by people held out, not rows of one mesh.
 - Take each frame anchor from a joint's bind affine by polar decomposition, name its axes as the ISB coordinate systems do, and carry in-plane axes by rotation-minimising transport.
 - Start a cap where the section's equivalent radius `sqrt(A / pi)` reaches the pole's height over the section's plane.
 - Carry only attachment translation into a child's sizing.
