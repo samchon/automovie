@@ -1,7 +1,7 @@
 import { webcrypto } from "node:crypto";
 import fs from "node:fs/promises";
 
-import { HumanImagePublication } from "./HumanImagePublication";
+import { HumanImagePublication } from "./HumanImagePublication.ts";
 
 /** Read the owned publication file and verify its declared bytes and SHA-256.
  *
