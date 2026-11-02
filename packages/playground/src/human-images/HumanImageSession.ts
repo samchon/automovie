@@ -139,15 +139,32 @@ export class HumanImageSession {
     if (this.closed || this.admittedRequests >= 16)
       throw new Error("Human image queue is closed or full");
     this.admittedRequests++;
-    const work: Promise<{
+    type Result = {
       png: Buffer;
       key: string;
       cacheHit: boolean;
       receipt: object;
       capturedUtc: string | undefined;
       pngSha256: string | undefined;
-    }> = this.queue.then(
-      async (): Promise<{
+    };
+    // Sources edited while a request runs leave its output unbound to any one
+    // source, so the request starts again on the newer bytes, a few times.
+    const retried = async (attempt: () => Promise<Result>): Promise<Result> => {
+      for (let tries: number = 1; ; tries++) {
+        try {
+          return await attempt();
+        } catch (error) {
+          if (
+            tries >= SOURCE_RETRIES ||
+            !(error instanceof Error) ||
+            !/^Human source changed/.test(error.message)
+          )
+            throw error;
+        }
+      }
+    };
+    const work: Promise<Result> = this.queue.then(
+      (): Promise<Result> => retried(async (): Promise<{
         png: Buffer;
         key: string;
         cacheHit: boolean;
@@ -298,7 +315,7 @@ export class HumanImageSession {
             cacheHit,
           },
         };
-      },
+      }),
     );
     this.queue = work.then((): void => {}).catch((): void => {});
     try {
@@ -486,3 +503,6 @@ export class HumanImageSession {
     this.mannequinFrames?.clear();
   }
 }
+
+/** Attempts of one request while its sources keep changing under it. */
+const SOURCE_RETRIES: number = 4;
