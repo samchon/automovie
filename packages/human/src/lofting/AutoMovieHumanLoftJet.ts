@@ -140,8 +140,8 @@ export namespace AutoMovieHumanLoftJet {
       tt: sum(scale(U[0]!, q0[4]), scale(W[0]!, q0[5])),
     };
 
-    // The lift a shape law writes moves points along w = v x u by the cubic
-    // Hermite of its values, as in AutoMovieHumanLoftChain.ring.
+    // Lift follows the same optional second-jet Hermite law as the displayed
+    // ring, so exact shading and derivatives cannot use a different surface.
     if (a.lift !== undefined || b.lift !== undefined) lift(jet, a, b, u, H, n, t, U, W);
 
     // Reliefs move points along their fixed axes.
@@ -192,16 +192,18 @@ function lift(
   const ea: AutoMovieHumanStationHermite.IEnd = {
     value: a.lift ?? zero,
     slope: a.liftSlopes ?? zero,
+    curvature: a.liftCurvatures,
   };
   const eb: AutoMovieHumanStationHermite.IEnd = {
     value: b.lift ?? zero,
     slope: b.liftSlopes ?? zero,
+    curvature: b.liftCurvatures,
   };
   const l: number[][] = [0, 1, 2].map((order: number): number[] =>
     AutoMovieHumanStationHermite.combine(
       ea,
       eb,
-      AutoMovieHumanStationHermite.weights(u, H, order as 0 | 1 | 2, false),
+      AutoMovieHumanStationHermite.weights(u, H, order as 0 | 1 | 2, a.liftCurvatures !== undefined && b.liftCurvatures !== undefined),
     ),
   );
 

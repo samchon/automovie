@@ -119,23 +119,23 @@ export namespace AutoMovieHumanLoftChain {
     return hermite(chain, s, false, liftArrays);
   }
 
-  /** Accessor of one Hermite-interpolated array of a layer: values and station slopes. */
+  /** One channel's values, first station derivatives and optional second derivatives. */
   type Pick = (
     layer: IAutoMovieHumanLoftChain.ILayer,
-  ) => [readonly number[], readonly number[]];
+  ) => [readonly number[], readonly number[], (readonly number[])?];
 
-  /** Values and slopes of a layer's section coefficients. */
+  /** Section coefficient values and their first and optional second station derivatives. */
   function sectionArrays(
     layer: IAutoMovieHumanLoftChain.ILayer,
-  ): [readonly number[], readonly number[]] {
-    return [layer.coefficients, layer.slopes];
+  ): [readonly number[], readonly number[], (readonly number[])?] {
+    return [layer.coefficients, layer.slopes, layer.curvatures];
   }
 
-  /** Values and slopes of a layer's lift, zero where the layer has none. */
+  /** Lift values and their first and optional second derivatives; absent lift is zero. */
   function liftArrays(
     layer: IAutoMovieHumanLoftChain.ILayer,
-  ): [readonly number[], readonly number[]] {
-    if (layer.lift !== undefined) return [layer.lift, layer.liftSlopes!];
+  ): [readonly number[], readonly number[], (readonly number[])?] {
+    if (layer.lift !== undefined) return [layer.lift, layer.liftSlopes!, layer.liftCurvatures];
     const zero: number[] = new Array<number>(
       layer.coefficients.length / 2,
     ).fill(0);
@@ -152,8 +152,8 @@ export namespace AutoMovieHumanLoftChain {
     const layers: readonly IAutoMovieHumanLoftChain.ILayer[] = chain.layers;
     const [lo, hi] = bracket(chain, y);
 
-    const [av, am] = pick(layers[lo]!);
-    const [bv, bm] = pick(layers[hi]!);
+    const [av, am, ac] = pick(layers[lo]!);
+    const [bv, bm, bc] = pick(layers[hi]!);
     const a: IAutoMovieHumanLoftChain.ILayer = layers[lo]!;
     const b: IAutoMovieHumanLoftChain.ILayer = layers[hi]!;
     const H: number = b.y - a.y;
@@ -162,13 +162,12 @@ export namespace AutoMovieHumanLoftChain {
     // Layers that carry second derivatives (a feature chain expanded with
     // its jets) take the quintic rule; the cubic below stays as it was.
     if (
-      pick === sectionArrays &&
-      a.curvatures !== undefined &&
-      b.curvatures !== undefined
+      ac !== undefined &&
+      bc !== undefined
     )
       return AutoMovieHumanStationHermite.combine(
-        { value: av, slope: am, curvature: a.curvatures },
-        { value: bv, slope: bm, curvature: b.curvatures },
+        { value: av, slope: am, curvature: ac },
+        { value: bv, slope: bm, curvature: bc },
         AutoMovieHumanStationHermite.weights(u, H, differentiate ? 1 : 0, true),
       );
 

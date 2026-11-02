@@ -110,6 +110,9 @@ export namespace IAutoMovieHumanLoftChain {
     /** Station derivative of every `lift` value in mm per mm; present exactly when `lift` is. */
     liftSlopes?: number[];
 
+    /** Second station derivatives of lift; both interval ends opt into quintic lift. */
+    liftCurvatures?: number[];
+
     /**
      * Second station derivative of every coefficient. When both layers of
      * an interval carry it, the interval is the quintic Hermite of their
