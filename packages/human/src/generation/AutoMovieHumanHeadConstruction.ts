@@ -1,7 +1,10 @@
-import { AutoMovieHumanFrontInverse as FrontInverse } from "./AutoMovieHumanFrontInverse";
-import { AutoMovieHumanMedianWorldY as MedianWorldY } from "./AutoMovieHumanMedianWorldY";
-import { AutoMovieHumanRadiusEpoch as RadiusEpoch } from "./AutoMovieHumanRadiusEpoch";
-import { AutoMovieHumanHeadNeckPhaseLookup as NeckPhase } from "./AutoMovieHumanHeadNeckPhaseLookup";
+import type { AutoMovieHumanHeadClosure } from "./AutoMovieHumanHeadClosure";
+import type { AutoMovieHumanHeadCranialSupport as Cranial } from "./AutoMovieHumanHeadCranialSupport";
+import type { AutoMovieHumanRadiusEpoch as RadiusEpoch } from "./AutoMovieHumanRadiusEpoch";
+import type { AutoMovieHumanNasalConstruction as NasalOwner } from "./AutoMovieHumanNasalConstruction";
+import type { AutoMovieHumanLipCornerCap as LipCap } from "./AutoMovieHumanLipCornerCap";
+import type { AutoMovieHumanNasalRim as NasalRim } from "./AutoMovieHumanNasalRim";
+import type { AutoMovieHumanAlarHeadSections as Alar } from "./AutoMovieHumanAlarHeadSections";
 import { AutoMovieHumanHorizontalChain } from "../lofting/AutoMovieHumanHorizontalChain";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParameter";
@@ -13,16 +16,6 @@ import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftCha
 import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
 import { AutoMovieHumanEarConstruction } from "./AutoMovieHumanEarConstruction";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
-import { AutoMovieHumanHeadClosure } from "./AutoMovieHumanHeadClosure";
-import type { AutoMovieHumanHeadDefinition } from "./AutoMovieHumanHeadDefinition";
-import type { AutoMovieHumanHeadLandmarks } from "./AutoMovieHumanHeadLandmarks";
-import { AutoMovieHumanNasalConstruction as NasalOwner } from "./AutoMovieHumanNasalConstruction";
-import { AutoMovieHumanLipCornerCap as LipCap } from "./AutoMovieHumanLipCornerCap";
-import { AutoMovieHumanNasalRim as NasalRim } from "./AutoMovieHumanNasalRim";
-import { AutoMovieHumanHeadCranialSupport as Cranial } from "./AutoMovieHumanHeadCranialSupport";
-import { AutoMovieHumanAlarHeadSections as Alar } from "./AutoMovieHumanAlarHeadSections";
-import { AutoMovieHumanMandibularQuery as Mandibular } from "./AutoMovieHumanMandibularQuery";
-import { AutoMovieHumanMandibularBorder as MandibularBorder } from "./AutoMovieHumanMandibularBorder";
 import { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -232,9 +225,9 @@ export namespace AutoMovieHumanHeadConstruction {
     /** Upper physical boundary of the same cranial course family. */
     cranialUpper?: number;
     /** Geometry failures remain separate from clinical availability. */
-    geometryFindings: string[];
+    geometryFindings?: string[];
     /** Reuse the unchanged implicit source operator at each current station. */
-    cranialQueries: Map<number, ReturnType<typeof Cranial.prepare>>;
+    cranialQueries?: Map<number, ReturnType<typeof Cranial.prepare>>;
     /** Exact unsigned radius results retained only within the current geometry epoch. */
     radiusEpoch?: RadiusEpoch.ICache;
 
@@ -339,9 +332,6 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** Body's height over its border, where it ends inside the face. */
     height: number;
-
-    /** Zygomatic arch height, where the mandible hands over to the cheek. */
-    cheekY: number;
 
     /** Inward run of the skin under the border per millimetre of fall. */
     draft: number;
@@ -485,14 +475,13 @@ export namespace AutoMovieHumanHeadConstruction {
     const k: number = scale;
     const head: IAutoMovieHumanHeadIdentity = inputs.head;
     const y0: number = neck.level;
-    const menton: number = y0 + inputs.neckLength * k;
-    const vertex: number = menton + head.height * k;
-    const nasion: number = menton + head.faceHeight * k;
-    const eye: number = nasion;
-    const subnasale: number = nasion - head.face.nose.height * k;
-    const columella: number = ((f.nasolabial[0]! + f.nasolabial[1]! * inputs.sex - 90 + f.nasolabial[2]!) * Math.PI) / 180;
-    const tip: number = subnasale + head.face.nose.protrusion * k * Math.sin(columella);
-    const face: number = head.faceWidth * k / 2;
+    const menton: number = y0 + r.neck * inputs.neckLength * k;
+    const vertex: number = menton + r.height * head.height * k;
+    const eye: number = menton + r.face * head.faceHeight * k;
+    const nasion: number = eye + r.nasion * head.faceHeight * k;
+    const tip: number = nasion - r.bridge * head.face.nose.height * k;
+    const subnasale: number = tip - r.tip * head.face.nose.height * k;
+    const face: number = (r.zygomatic * head.faceWidth * k) / 2;
     const opening = (eye: PublicEye): IEyeOpening => ({
       place: ((head.face.intercanthalWidth + eye.palpebralFissureLength) * k) / 2,
       length: eye.palpebralFissureLength * k,
@@ -513,26 +502,32 @@ export namespace AutoMovieHumanHeadConstruction {
       eye,
       vertex,
       centre: neck.x + r.forward * neck.radius,
-      length: head.length * k,
-      breadth: (head.length * head.cephalicIndex * k) / 100,
+      length: r.length * head.length * k,
+      breadth: (r.breadth * head.length * head.cephalicIndex * k) / 100,
       faceHeight: head.faceHeight * k,
-      vault: 0,
-      geometryFindings: [],
-      cranialQueries: new Map(),
+      vault:
+        VAULT_GAIN *
+        ((r.circumference * head.circumference * k) /
+          perimeter(
+            (r.length * head.length * k) / 2,
+            (r.breadth * head.length * head.cephalicIndex * k) / 200,
+          ) -
+          1),
       faceWidth: face,
       mandibularWidth: head.mandibularWidth * k,
       jaw: Math.log(
-        head.mandibularWidth / head.faceWidth,
+        (r.gonial * head.mandibularWidth) / (r.zygomatic * head.faceWidth),
       ),
       brow: Math.log(
-        head.minimumFrontalWidth / head.faceWidth,
+        (r.frontal * head.minimumFrontalWidth) / (r.zygomatic * head.faceWidth),
       ),
       noseWidth: (head.face.nose.width * k) / 2,
-      noseLead: head.face.nose.protrusion * k,
+      noseLead:
+        (f.projection[0]! + f.projection[1]! * head.face.nose.protrusion) * k,
       mouthWidth: (f.mouth * head.face.mouth.width * k) / 2,
       upperLip: f.vermilion * head.face.mouth.upperVermilionHeight * k,
       lowerLip: f.vermilion * head.face.mouth.lowerVermilionHeight * k,
-      gap: 0,
+      gap: f.gape * head.mouthOpening * k,
       joint: f.joint * head.mandibularLaterotrusion * k,
       left: opening(head.face.eyePair.left),
       right: opening(head.face.eyePair.right),
@@ -542,7 +537,10 @@ export namespace AutoMovieHumanHeadConstruction {
       ),
       // The nasolabial angle is the columella's rise plus the right angle and the
       // upper lip's forward lean.
-      columella,
+      columella:
+        ((f.nasolabial[0]! + f.nasolabial[1]! * inputs.sex - 90 + f.nasolabial[2]!) *
+          Math.PI) /
+        180,
       // The lower head's layers run from the neck ring to the ears' lower ends,
       // about the subnasale; `generate` sets the exact pitch.
       round: (f.round * (subnasale - y0)) / (LAYERS_LOWER - 1),
@@ -604,24 +602,18 @@ export namespace AutoMovieHumanHeadConstruction {
         4 +
         2 *
           Math.tanh(
-            read(compiled.squareBack),
+            read(compiled.squareBack) + plan.vault * smooth((t - 2.2) / 0.6),
           ),
       powerFace: 4 + 2 * Math.tanh(read(compiled.squareFace)),
       station: s,
       jaw: plan.mandible,
-      cranialCoefficient: plan.vault === 0 ? 0 : plan.vault * Cranial.weight(s, plan.cranialLower!, plan.cranialUpper!),
-      cranialQueries: plan.cranialQueries,
-      radiusEpoch: plan.radiusEpoch,
-      geometryFindings: plan.geometryFindings,
     };
   }
 
   /** One on the section's outline, as a distance scale about its centres. */
   export function field(section: ISection, x: number, z: number): number {
-    const neck: number = smooth((HANDOVER - section.t) / (HANDOVER - HANDED));
-    const anterior: number = neck * (section.axis - section.back) + (1 - neck) * (section.waist - section.axis);
     const g: number = lame(
-      (x - section.axis) / Math.max(1, x < section.axis ? section.axis - section.back : anterior),
+      (x - section.axis) / Math.max(1, section.axis - section.back),
       z / section.width,
       section.powerBack,
     );
@@ -636,39 +628,42 @@ export namespace AutoMovieHumanHeadConstruction {
   }
 
   /** Radius of the section's outline along a ray from `(ox, 0)`, the jaw joined. */
-  export function radius(section: ISection, ox: number, theta: number, guess: number = 0): number {
-    const cache: RadiusEpoch.ICache | undefined = section.radiusEpoch;
-    return cache === undefined ? uncachedRadius(section, ox, theta, guess)
-      : cache.read(section.jaw, section.station, ox, theta, guess, (): number => uncachedRadius(section, ox, theta, guess));
-  }
-
-  /** Compute the unchanged unsigned geometric radius before signed skin composition. */
-  function uncachedRadius(
+  export function radius(
     section: ISection,
     ox: number,
     theta: number,
     guess: number = 0,
   ): number {
-    const coefficient: number = section.cranialCoefficient ?? 0;
-    if (coefficient === 0) return jawed(section, ox, theta, bodies(section, ox, theta, guess));
-    const query: ReturnType<typeof Cranial.prepare> = Cranial.stationQuery(section.cranialQueries, section.station, (): ReturnType<typeof Cranial.prepare> =>
-      Cranial.prepare({ ...section, handed: HANDED, handover: HANDOVER, power: POWER }, ox, (angle: number): ReturnType<typeof Cranial.sourceRadius> => Cranial.sourceRadius({ ...section, handed: HANDED, handover: HANDOVER, power: POWER }, ox, angle)));
-    const result: Cranial.IRadius = query(theta, coefficient);
-    if (!result.healthy && section.geometryFindings !== undefined) {
-      const reason: string = result.reason ?? "Unaccepted cranial support deformation";
-      if (!section.geometryFindings.includes(reason)) section.geometryFindings.push(reason);
-    }
-    return jawed(section, ox, theta, result.radius);
+    return jawed(section, ox, theta, bodies(section, ox, theta, guess));
   }
 
   /** Radius of the union of the back body and the shield along a ray. */
-  function bodies(section: ISection, ox: number, theta: number, guess: number): number {
-    const result: ReturnType<typeof Cranial.sourceRadius> = Cranial.sourceRadius({ ...section, handed: HANDED, handover: HANDOVER, power: POWER }, ox, theta, guess);
-    if (!result.healthy && section.geometryFindings !== undefined) {
-      const reason: string = result.reason ?? "Unaccepted original source radius root";
-      if (!section.geometryFindings.includes(reason)) section.geometryFindings.push(reason);
+  function bodies(
+    section: ISection,
+    ox: number,
+    theta: number,
+    guess: number,
+  ): number {
+    const c: number = Math.cos(theta);
+    const n: number = Math.sin(theta);
+    let r: number =
+      guess > 0 ? guess : (section.front - section.back) / 2 || 1;
+    for (let i: number = 0; i < 12; i++) {
+      const g: number = field(section, ox + r * c, r * n);
+      const next: number = r / g;
+      if (Math.abs(next - r) < 1e-6) return next;
+      r = next;
     }
-    return result.radius;
+
+    // Where the two bodies pull apart the iteration need not settle.
+    let lo: number = 0;
+    let hi: number = 3 * Math.max(10, section.front - section.back);
+    for (let i: number = 0; i < 40; i++) {
+      const mid: number = (lo + hi) / 2;
+      if (field(section, ox + mid * c, mid * n) < 1) lo = mid;
+      else hi = mid;
+    }
+    return lo;
   }
 
   /**
@@ -691,29 +686,6 @@ export namespace AutoMovieHumanHeadConstruction {
     const n: number = Math.sin(theta);
     const cos: number = Math.cos(section.tilt);
     const sin: number = Math.sin(section.tilt);
-
-    // The lateral lower face belongs to the mandible. A union alone can only
-    // enlarge the old face shield, so first trim that shield to the jaw arch.
-    // The ownership fades at the zygomatic arch and behind the gonions, where
-    // the vault and neck remain responsible for the skin.
-    const bx: number = (ox + base * c) * cos;
-    const by: number = section.station + (ox + base * c) * sin;
-    const ownership: number = smooth((m.cheekY - by) / Math.max(m.round, m.cheekY - m.gonionY)) * smooth((bx - m.gonion + m.back) / m.back) * smooth((by - mandibularQuery(m).minimumY + m.round) / m.round);
-    let loArch: number = base;
-    if (ownership > 0) {
-      loArch = 0;
-      let hiArch: number = Math.max(base, 1);
-      for (let i: number = 0; i < 32; i++) {
-        const r: number = (loArch + hiArch) / 2;
-        const xi: number = ox + r * c;
-        const x: number = xi * cos;
-        const y: number = section.station + xi * sin;
-        if (mandible(m, x, y, r * n) < 0) loArch = r;
-        else hiArch = r;
-      }
-    }
-    const trimmed: number = base + ownership * (Math.min(base, loArch) - base);
-
     // The march steps no further than the widest blend can reach.
     const k: number = Math.max(m.blend, m.throat);
     const join = (r: number): [number, number] => {
@@ -721,11 +693,11 @@ export namespace AutoMovieHumanHeadConstruction {
       const x: number = xi * cos;
       const y: number = section.station + xi * sin;
       const d: number = mandible(m, x, y, r * n);
-      return [ownership >= 1 - 1e-12 ? d : softMin(r - trimmed, d, blendAt(m, x, y, r * n)), d];
+      return [softMin(r - base, d, blendAt(m, x, y, r * n)), d];
     };
     let inside: number = -1;
     let outside: number = -1;
-    for (let r: number = trimmed, i: number = 0; i < 400; i++) {
+    for (let r: number = base, i: number = 0; i < 400; i++) {
       const [v, d] = join(r);
       if (v < 0) {
         inside = r;
@@ -734,7 +706,7 @@ export namespace AutoMovieHumanHeadConstruction {
       if (v >= 0 && d > JAW_REACH) break;
       r += Math.max(JAW_STEP, Math.abs(d) - k);
     }
-    if (inside < 0) return trimmed;
+    if (inside < 0) return base;
     if (outside < 0) return inside;
     let lo: number = inside;
     let hi: number = outside;
@@ -855,45 +827,21 @@ export namespace AutoMovieHumanHeadConstruction {
     y: number,
     z: number,
   ): number {
+    const plan: number = arch(m, x, y, z);
     const line: number = m.menton + (m.chin - x) * m.slope;
+    const below: number = (line - y) * m.cos;
     const behind: number =
       (m.gonion - x) * m.lean[0] - (y - m.gonionY) * m.lean[1];
+    const border: number = rounded(below, behind, m.round * m.taper);
+    const under: number = (plan + m.draft * border) / Math.hypot(1, m.draft);
+
+    // The turn under is an ellipse: its radius is the taper times the round
+    // where it leaves the jaw's side, which the layers cross nearly square, and
+    // the round over the taper squared where it runs into the underside, which
+    // they cross at under 20 degrees, a layer spanning 4 mm of it.
+    const side: number = rounded(m.taper * plan, under, m.round);
     const top: number = (y - line - m.height) * m.cos;
-    if (top > m.round + m.blend + m.throat) return top;
-
-    // The owned physical arch sweep supplies the turn's actual triangle
-    // surface and source normals. The ramus and top remain this body's clips.
-    const side: number = rounded(mandibularQuery(m).field(x, y, z), behind, m.round * m.taper);
     return rounded(side, top, JAW_TOP * m.round);
-  }
-
-  /** Cache the actual owned patch once per rebuilt anatomical mandible. */
-  function mandibularQuery(m: IMandible): Mandibular.IPrepared {
-    let known: Mandibular.IPrepared | undefined = MANDIBULAR_QUERIES.get(m);
-    if (known === undefined) { known = Mandibular.prepare(m); MANDIBULAR_QUERIES.set(m, known); }
-    return known;
-  }
-
-  /** Observe the composed median turn within the actual owned normal section. */
-  function mandibularTurn(surface: ISurface): Vec3 {
-    const query: Mandibular.IPrepared = mandibularQuery(surface.plan.mandible!);
-    const domain: Vec3[] = MandibularBorder.emit(query.midline, 128);
-    const bottom: number = Math.min(...domain.map((p: Vec3): number => p[1]));
-    const top: number = Math.max(...domain.map((p: Vec3): number => p[1]));
-    const count: number = Math.max(16, Math.ceil((top - bottom) / (0.1 * surface.plan.scale)));
-    const points: Vec3[] = Array.from({length: count + 1}, (_: unknown, i: number): Vec3 => {
-      const y: number = bottom + (top - bottom) * i / count;
-      return [frontAt(surface, y, 0), y, 0];
-    });
-    let curvature: number = -Infinity;
-    let selected: Vec3 = [NaN, NaN, NaN];
-    for (let i: number = 1; i < count; i++) {
-      const a: Vec3 = points[i - 1]!; const b: Vec3 = points[i]!; const c: Vec3 = points[i + 1]!;
-      const cross: number = Math.abs((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]));
-      const value: number = 2 * cross / (dist(a,b) * dist(b,c) * dist(a,c));
-      if (value > curvature) { curvature = value; selected = b; }
-    }
-    return selected;
   }
 
   /**
@@ -947,13 +895,13 @@ export namespace AutoMovieHumanHeadConstruction {
         apertures: head.apertures,
         eyes: head.eyes,
         mouth: head.mouth,
-        measurementSites: {
-          ...calibration.measurementSites,
-          neck: { owner: "head", basis: "model-convention", pose: "bind", definition: "Section at the source back-body neck-to-vault handover onset (existing normalized shape convention HANDED). The course is fixed by that geometric boundary before closure, not relocated by a girth target. It is neither the whole-neck minimum nor a clinically identified infrathyroid landmark.", geometry: { kind: "section", origin: head.neckOrigin, normal: head.neckNormal } },
-        },
       },
       vermilion: { ...vermilion, spans: head.lips },
-      diagnostics: head.diagnostics,
+      diagnostics: {
+        closure: [],
+        geometry: ["The head source was restored from known-good commit 681f8a777. The experimental identity closure and physical-owner diagnostics were not executed; their measurements are unavailable."],
+        alarSections: [],
+      },
     };
   }
 
@@ -964,10 +912,12 @@ export namespace AutoMovieHumanHeadConstruction {
    * @returns Millimetres above the floor.
    */
   export function seat(inputs: IInputs): number {
+    const r: AutoMovieHumanHeadPrior.IRatios =
+      AutoMovieHumanHeadPrior.PRIOR.ratios;
     return (
       inputs.height -
-      inputs.neckLength -
-      inputs.head.height
+      r.neck * inputs.neckLength -
+      r.height * inputs.head.height
     );
   }
 
@@ -979,8 +929,6 @@ export namespace AutoMovieHumanHeadConstruction {
   /** Everything the head adds. */
   interface IGenerated {
     stature: number;
-    /** Final source evidence handed to the head result without reclassification. */
-    diagnostics: IOutput["diagnostics"];
     chains: IAutoMovieHumanLoftChain[];
     events: IAutoMovieHumanBodyCalibration.IEvent[];
     poles: IAutoMovieHumanBodyCalibration.IPole[];
@@ -988,10 +936,6 @@ export namespace AutoMovieHumanHeadConstruction {
     eyes: IAutoMovieHumanBodyCalibration.IEye[];
     lips: IAutoMovieHumanHermiteCurve["spans"];
     mouth: AutoMovieHumanMouth.IMouth;
-    /** Final neck tube's interior axis address. */
-    neckOrigin: Vec3;
-    /** Final neck tube's section normal. */
-    neckNormal: Vec3;
   }
 
   /** The surface of one person, ready to cut. */
@@ -1027,13 +971,13 @@ export namespace AutoMovieHumanHeadConstruction {
     /** Construction-only evaluation of the frontal foundation. */
     skipNose?: boolean;
     /** Physical corner profiles, prepared once for this person. */
-    lipCaps: [LipCap.ICap, LipCap.ICap];
+    lipCaps?: [LipCap.ICap, LipCap.ICap];
     /** Same physical curves consumed by the alar hood and final aperture. */
     nostrilRims?: [NasalRim.Curve, NasalRim.Curve];
     /** Actual cartilage and face-attachment owners on both sides. */
     alar?: [Alar.Owner, Alar.Owner];
     /** Preserved non-admitted section topology for the final diagnostic report. */
-    alarSections: IAlarSection[];
+    alarSections?: IAlarSection[];
     /** Replace the former alar relief with the physical hood construction. */
     withoutAla?: boolean;
   }
@@ -1134,14 +1078,6 @@ export namespace AutoMovieHumanHeadConstruction {
       left[j] = emit(surface.neckLeft[j]!, surface.slopeLeft[j]!, surface.riseLeft[j]!, 1);
       right[j] = emit(surface.neckRight[j]!, surface.slopeRight[j]!, surface.riseRight[j]!, -1);
     }
-    if (surface.alar !== undefined) for (const [side, owner] of [["left", surface.alar[0]], ["right", surface.alar[1]]] as const) {
-      const base: Vec3[] = side === "left" ? left : right;
-      const result = owner.section(base, s, m.tilt);
-      base.splice(0, base.length, ...result.points);
-      const finding: IAlarSection | undefined = observeAlarSection(s, side, result, plan.scale);
-      if (finding !== undefined) surface.alarSections.push(finding);
-
-    }
     return { left, right };
   }
 
@@ -1192,54 +1128,6 @@ export namespace AutoMovieHumanHeadConstruction {
         (a - plan.faceWidth * 0.98) / (12 * k),
       );
 
-    if (!surface.skipNose) out += surface.bridge !== undefined && y > surface.bridge.join
-      ? surface.bridge.height(y, z)
-      : nasalRelief(surface, y, z);
-
-    // Philtrum.
-    const lipTop: number = plan.stomion + plan.upperLip;
-    const between: number =
-      smooth((plan.subnasale - y) / (3 * k)) *
-      smooth((y - lipTop + 3 * k) / (3 * k));
-    out -= f.philtrum[0]! * k * between * bell(a / (f.philtrum[1]! * k));
-
-    // Lips over their borders; the fissure between them.
-    const u: number = a / plan.mouthWidth;
-    if (u < 1.6) {
-      const m: number = Math.max(0, 1 - u * u);
-      const mid: number = plan.stomion + 1.2 * k * u * u;
-      const upper: number =
-        plan.upperLip * m ** 0.55 * (1 - 0.18 * bell(u / 0.13));
-      const lower: number = plan.lowerLip * m ** 0.65;
-      const bulge = (c: number, h: number, cap: LipCap.ICap): number =>
-        h <= 0
-          ? 0
-          : LipCap.at(cap, a).value * bell((y - c) / Math.max(0.8 * k, 0.62 * h));
-      out += bulge(mid + upper / 2, upper, surface.lipCaps[0]);
-      out += bulge(mid - lower / 2, lower, surface.lipCaps[1]);
-      const groove: number = f.fissure[1]! * k + plan.gap;
-      out -=
-        (f.fissure[0]! * k + 0.4 * plan.gap) *
-        smooth((1.08 - u) / 0.2) *
-        bell((y - mid) / groove);
-    }
-
-    return out * front;
-  }
-
-  /** Prepare a supported physical corner once, retaining a geometry failure. */
-  function lipCap(width: number, lead: number): LipCap.ICap {
-    const result: LipCap.ICap | LipCap.IFailure = LipCap.solve(width, lead);
-    if ("failure" in result) throw new Error(`Unsupported lip corner: ${result.failure}: ${result.detail}`);
-    return result;
-  }
-
-  /** The complete original nasal relief below the owned final bridge span. */
-  function nasalRelief(surface: ISurface, y: number, z: number): number {
-    const { plan, compiled } = surface;
-    const f: AutoMovieHumanHeadPrior.IFace = compiled.prior.face;
-    const k: number = plan.scale;
-    const a: number = Math.abs(z);
     // The nose: a column of the dorsum's ridge and the tip's lobule, which share
     // an axis, joined to the alar lobules by a quadratic union. A sharper union
     // of lobes that stand apart ruled a valley of 0.75 mm radius between the tip
@@ -1286,7 +1174,7 @@ export namespace AutoMovieHumanHeadConstruction {
     const lobeHalf: number = (y < lobeY ? f.ala[4]! : f.ala[3]!) * span;
     const lobe = (d: number): number =>
       bell2((y - lobeY) / lobeHalf, (d - f.ala[1]! * w) / (f.ala[5]! * w));
-    const ala: number = surface.withoutAla ? 0 : ((f.ala[0]! * w) / 14) * (lobe(a) + lobe(-a));
+    const ala: number = ((f.ala[0]! * w) / 14) * (lobe(a) + lobe(-a));
     const body: number = Math.hypot((ridge ** NOSE + ball ** NOSE) ** (1 / NOSE), ala);
     const [base, fall] = noseBase(plan, f, a);
     const floor: number = filleted(
@@ -1295,7 +1183,7 @@ export namespace AutoMovieHumanHeadConstruction {
       plan.round,
     );
     const p: number = f.underside[1]!;
-    let out: number = body > 0 && floor > 0 ? (body ** -p + floor ** -p) ** (-1 / p) : 0;
+    out += body > 0 && floor > 0 ? (body ** -p + floor ** -p) ** (-1 / p) : 0;
 
     // The alar crease sets each lobule back into the cheek round its outer side.
     const round: number = Math.hypot(
@@ -1303,53 +1191,40 @@ export namespace AutoMovieHumanHeadConstruction {
       (a - f.ala[1]! * w) / (f.ala[5]! * w),
     );
     out -=
-      (surface.withoutAla ? 0 : f.crease[0]!) *
+      f.crease[0]! *
       k *
       bell((round - f.crease[2]!) / f.crease[1]!) *
       smooth((a / w - f.ala[1]!) / f.ala[5]!);
 
-    return out;
-  }
+    // Philtrum.
+    const lipTop: number = plan.stomion + plan.upperLip;
+    const between: number =
+      smooth((plan.subnasale - y) / (3 * k)) *
+      smooth((y - lipTop + 3 * k) / (3 * k));
+    out -= f.philtrum[0]! * k * between * bell(a / (f.philtrum[1]! * k));
 
-  /** Build the actual frontal/nasal shared seam before measuring identity. */
-  function nasalBridge(surface: ISurface): NasalOwner.BridgeEvaluator {
-    const { plan, compiled } = surface;
-    const knots: readonly number[] = compiled.prior.face.profileKnots;
-    const last: number = Math.max(...knots.filter((v: number): boolean => v < 1));
-    const join: number = plan.tip + last * (plan.nasion - plan.tip);
-    const step: number = 0.001 * plan.scale;
-    return NasalOwner.evaluateBridge({
-      root: plan.nasion, join, tip: plan.tip, halfWidth: plan.noseWidth,
-      jet: (z: number): NasalOwner.Jet => {
-        const a: number = nasalRelief(surface, join - step, z);
-        const b: number = nasalRelief(surface, join, z);
-        const c: number = nasalRelief(surface, join + step, z);
-        return { value: b, first: (c - a) / (2 * step), second: (a - 2 * b + c) / (step * step) };
-      },
-      profile: (y: number, z: number): number => nasalRelief(surface, y, z),
-      width: (y: number): number => plan.noseWidth * AutoMovieHumanNaturalSpline.evaluate(compiled.dorsum, (y - plan.tip) / (plan.nasion - plan.tip)),
-    });
-  }
+    // Lips over their borders; the fissure between them.
+    const u: number = a / plan.mouthWidth;
+    if (u < 1.6) {
+      const m: number = Math.max(0, 1 - u * u);
+      const mid: number = plan.stomion + 1.2 * k * u * u;
+      const upper: number =
+        plan.upperLip * m ** 0.55 * (1 - 0.18 * bell(u / 0.13));
+      const lower: number = plan.lowerLip * m ** 0.65;
+      const bulge = (c: number, h: number, lead: number): number =>
+        h <= 0
+          ? 0
+          : lead * k * m ** 0.8 * bell((y - c) / Math.max(0.8 * k, 0.62 * h));
+      out += bulge(mid + upper / 2, upper, f.lips[0]!);
+      out += bulge(mid - lower / 2, lower, f.lips[1]!);
+      const groove: number = f.fissure[1]! * k + plan.gap;
+      out -=
+        (f.fissure[0]! * k + 0.4 * plan.gap) *
+        smooth((1.08 - u) / 0.2) *
+        bell((y - mid) / groove);
+    }
 
-  /** Evaluate the original facial foundation without feeding a rim back into itself. */
-  function foundationAt(surface: ISurface, y: number, z: number): number {
-    const previous: boolean | undefined = surface.skipNose;
-    surface.skipNose = true;
-    try { return frontAt(surface, y, z); }
-    finally { surface.skipNose = previous; }
-  }
-
-  /** Construct one physical opening, before the hood and skin are assembled. */
-  function physicalNostril(surface: ISurface, sign: 1 | -1): NasalRim.Curve {
-    const { plan, compiled } = surface;
-    const f: AutoMovieHumanHeadPrior.IFace = compiled.prior.face;
-    return NasalRim.create({
-      halfWidth: plan.noseWidth, tipLead: plan.noseLead, columella: plan.columella,
-      size: [f.nostrilSize[0]!, f.nostrilSize[1]!], center: [f.nostrilCentre[0]!, f.nostrilCentre[1]!],
-      sweep: f.nostrilSweep * Math.PI / 180, tear: f.nostrilTear, side: sign,
-      face: (y: number, z: number): number => foundationAt(surface, y, z),
-      base: (z: number): number => noseBase(plan, f, z)[0],
-    });
+    return out * front;
   }
 
   /**
@@ -1434,10 +1309,19 @@ export namespace AutoMovieHumanHeadConstruction {
     const m: ISection = section(compiled, plan, plan.y0);
     const ox: number = (m.front + m.back) / 2;
     const out: number[] = [];
-    const phases: NeckPhase.IPrepared = NeckPhase.prepare(ring, ox);
     for (let j: number = 0; j <= ANGLES; j++) {
       const theta: number = (sign * Math.PI * j) / ANGLES;
-      out.push(ring[phases.nearest(theta).index]![1] - plan.y0);
+      let best: Vec3 = ring[0]!;
+      let gap: number = Infinity;
+      for (const p of ring) {
+        const a: number = Math.atan2(p[2], p[0] - ox) - theta;
+        const d: number = Math.abs(Math.atan2(Math.sin(a), Math.cos(a)));
+        if (d < gap) {
+          gap = d;
+          best = p;
+        }
+      }
+      out.push(best[1] - plan.y0);
     }
     return out;
   }
@@ -1919,8 +1803,9 @@ export namespace AutoMovieHumanHeadConstruction {
     const ring: Vec3[] = AutoMovieHumanLoftChain.ring(neckChain, top, dense);
     const xs: number[] = ring.map((p: Vec3): number => p[0]);
     const level: number = mean(ring.map((p: Vec3): number => p[1]));
+    const r: AutoMovieHumanHeadPrior.IRatios = prior.ratios;
     const rise: number =
-      inputs.neckLength + inputs.head.height;
+      r.neck * inputs.neckLength + r.height * inputs.head.height;
     const scale: number = level / (inputs.height - rise);
     const neck: INeck = {
       level,
@@ -1931,7 +1816,6 @@ export namespace AutoMovieHumanHeadConstruction {
     // The vertex is the stature: the neck ring stays in calibration and the
     // head above it is in world lengths, so the scale closes on itself.
     const plan: ILayout = layout(compiled, inputs, neck, scale);
-    plan.radiusEpoch = RadiusEpoch.create(32768);
     const flat: [number, number][] = ring.map(
       (p: Vec3): [number, number] => [p[0], p[2]],
     );
@@ -1951,9 +1835,6 @@ export namespace AutoMovieHumanHeadConstruction {
       riseLeft: neckRise(compiled, plan, ring, 1),
       riseRight: neckRise(compiled, plan, ring, -1),
       cut: new Map(),
-      alarSections: [],
-      withoutAla: true,
-      lipCaps: [lipCap(plan.mouthWidth, prior.face.lips[0]! * scale), lipCap(plan.mouthWidth, prior.face.lips[1]! * scale)],
     };
 
     // Ears, from the skull's side.
@@ -1968,80 +1849,12 @@ export namespace AutoMovieHumanHeadConstruction {
         plan.centre,
         scale,
       );
-    let left: AutoMovieHumanEarConstruction.IEar = place(inputs.head.earPair.left);
-    let right: AutoMovieHumanEarConstruction.IEar = place(inputs.head.earPair.right);
-    let seat: number = 0;
-    let arch: number = 0;
-
-    // Every dependent feature is rebuilt from the same current layout. A
-    // solved face height must carry the ears, sockets and jaw with it.
-    const rebuild: () => void = (): void => {
-      plan.radiusEpoch!.beginEpoch();
-      plan.station = AutoMovieHumanNaturalSpline.create([plan.y0, plan.menton, plan.subnasale, plan.eye, plan.vertex], [0, 1, 2, 3, 4]);
-      let lower: number = plan.y0;
-      let upper: number = plan.vertex;
-      for (let i: number = 0; i < 40; i++) { const middle: number = (lower + upper) / 2; if (AutoMovieHumanNaturalSpline.evaluate(plan.station, middle) < HANDOVER) lower = middle; else upper = middle; }
-      plan.cranialLower = (lower + upper) / 2;
-      plan.cranialUpper = plan.vertex - CROWN * scale;
-      plan.cranialQueries.clear();
-      plan.geometryFindings.length = 0;
-      surface.alar = undefined;
-      surface.alarSections.length = 0;
-      left = place(inputs.head.earPair.left);
-      right = place(inputs.head.earPair.right);
-      arch = (left.bottom + left.top + right.bottom + right.top) / 4;
-      plan.round = prior.face.round * (Math.max(left.lower, right.lower) - level) / (LAYERS_LOWER - 1);
-      surface.bridge = undefined;
-      plan.mandible = undefined;
-      plan.left.seat = 0;
-      plan.right.seat = 0;
-      surface.cut.clear();
-      surface.neckLeft = neckDelta(compiled, plan, flat, 1);
-      surface.neckRight = neckDelta(compiled, plan, flat, -1);
-      surface.slopeLeft = neckSlope(compiled, plan, flat, under, drop, 1);
-      surface.slopeRight = neckSlope(compiled, plan, flat, under, drop, -1);
-      surface.riseLeft = neckRise(compiled, plan, ring, 1);
-      surface.riseRight = neckRise(compiled, plan, ring, -1);
-      seat = frontAt(surface, plan.nasion, 0) - prior.face.eyeRecess * scale;
-      plan.left.seat = frontAt(surface, plan.eye, plan.left.place) - seat;
-      plan.right.seat = frontAt(surface, plan.eye, -plan.right.place) - seat;
-      plan.mandible = jawOf(plan, prior.mandible, frontAt(surface, plan.menton + prior.mandible.round * softness(prior.mandible, plan.fat) * prior.mandible.taper * scale, 0), (left.x + right.x) / 2, plan.mandibularWidth, [widest(compiled, plan, arch), arch]);
-      plan.left.seat = 0;
-      plan.right.seat = 0;
-      surface.bridge = nasalBridge(surface);
-      seat = frontAt(surface, plan.nasion, 0) - prior.face.eyeRecess * scale;
-      plan.left.seat = frontAt(surface, plan.eye, plan.left.place) - seat;
-      plan.right.seat = frontAt(surface, plan.eye, -plan.right.place) - seat;
-      surface.nostrilRims = [physicalNostril(surface, 1), physicalNostril(surface, -1)];
-      const alar = (side: 1 | -1, index: 0 | 1): Alar.Owner => Alar.create({
-        rim: surface.nostrilRims![index], outerHalfWidth: plan.noseWidth,
-        frame: { origin: [foundationAt(surface, plan.subnasale, 0), plan.subnasale, 0], forward: [Math.cos(plan.columella), Math.sin(plan.columella), 0], lateral: [0, 0, side], normal: [Math.sin(plan.columella), -Math.cos(plan.columella), 0] },
-        face: (y: number, z: number): number => frontAt(surface, y, z), derivativeStep: 0.05 * scale, rows: 24, columns: 12,
-      });
-      surface.alar = [alar(1, 0), alar(-1, 1)];
-      surface.cut.clear();
-    };
-
-    // Close dimensions on the composed analytic skin, including the mandible
-    // and neck handover, before attaching openings and emitting any chains.
-    const closure: AutoMovieHumanHeadClosure.IOutput = AutoMovieHumanHeadClosure.solve(plan, inputs, (s: number, theta: number, side: 1 | -1 = 1): Vec3 => pointAt(surface, s, theta, side), rebuild, (): AutoMovieHumanHeadLandmarks.IRegions => ({ eye: plan.eye, lid: plan.eye - Math.max(plan.left.height, plan.right.height) / 2, earTop: Math.max(left.top, right.top), earMiddle: arch, tragus: Math.max(earFront(left), earFront(right)), stomion: plan.stomion }), (): number => {
-      let lo: number = plan.y0;
-      let hi: number = plan.menton;
-      for (let i: number = 0; i < 40; i++) {
-        const mid: number = (lo + hi) / 2;
-        if (AutoMovieHumanNaturalSpline.evaluate(plan.station, mid) < HANDED) lo = mid;
-        else hi = mid;
-      }
-      return (lo + hi) / 2;
-    }, (): AutoMovieHumanHeadDefinition.IAddresses => ({
-      nasion: [frontAt(surface, plan.nasion, 0), plan.nasion, 0],
-      gnathion: mandibularTurn(surface),
-      alare: surface.alar === undefined ? undefined : [surface.alar[0].hood.mesh.points.reduce((a: Vec3, b: Vec3): Vec3 => b[2] > a[2] ? b : a), surface.alar[1].hood.mesh.points.reduce((a: Vec3, b: Vec3): Vec3 => b[2] < a[2] ? b : a)],
-      lips: {
-        border: lipSpans(surface).map((span: IAutoMovieHumanHermiteCurve["spans"][number]): Vec3 => span.start),
-        contact: [frontAt(surface, plan.stomion, 0), plan.stomion, 0],
-      },
-    }));
+    const left: AutoMovieHumanEarConstruction.IEar = place(
+      inputs.head.earPair.left,
+    );
+    const right: AutoMovieHumanEarConstruction.IEar = place(
+      inputs.head.earPair.right,
+    );
 
     // One ring ends each chain, so the two ears share their joins, each one
     // inside both ears.
@@ -2053,6 +1866,41 @@ export namespace AutoMovieHumanHeadConstruction {
       lower,
       upper,
     };
+
+    // The nose's base rounds over a few of the lower head's layer pitches, the
+    // coarser of its two samplings there: about 1.3 mm on the references,
+    // against 0.9 mm between controls.
+    plan.round =
+      (prior.face.round * (lower - level)) / (LAYERS_LOWER - 1);
+
+    // The eyes stand a fixed depth behind the nasion's skin, and the sockets
+    // fall to them.
+    const seat: number =
+      frontAt(surface, plan.nasion, 0) - prior.face.eyeRecess * scale;
+    plan.left.seat = frontAt(surface, plan.eye, plan.left.place) - seat;
+    plan.right.seat = frontAt(surface, plan.eye, -plan.right.place) - seat;
+
+    // The jaw, from the chin's skin, the ears, the public jaw width and the
+    // cheek at the zygomatic arch, which runs forward from the ear at about
+    // the height of its centre.
+    const arch: number = (left.bottom + left.top + right.bottom + right.top) / 4;
+    plan.mandible = jawOf(
+      plan,
+      prior.mandible,
+      frontAt(
+        surface,
+        plan.menton +
+          prior.mandible.round *
+            softness(prior.mandible, plan.fat) *
+            prior.mandible.taper *
+            scale,
+        0,
+      ),
+      (left.x + right.x) / 2,
+      inputs.head.mandibularWidth * scale,
+      [widest(compiled, plan, arch), arch],
+    );
+    surface.cut.clear();
 
     const shelf: number = plan.subnasale + BASE * (plan.nasion - plan.tip);
     const reach: number = SHELF * (plan.nasion - plan.tip);
@@ -2190,14 +2038,12 @@ export namespace AutoMovieHumanHeadConstruction {
         nostril(surface, -1),
         margin(plan, prior.face, eyes[0]!, plan.left, 1),
         margin(plan, prior.face, eyes[1]!, plan.right, -1),
-        mouth.aperture,
+        // `mouth.aperture` opens the lips; it joins these openings once the
+        // mouth test passes on every person (packages/human/docs/generalization.md, The mouth).
       ],
       eyes,
       lips: lipSpans(surface),
       mouth: mouth.mouth,
-      neckOrigin: closure.neckOrigin,
-      neckNormal: closure.neckNormal,
-      diagnostics: { closure: closure.residuals, geometry: plan.geometryFindings, alarSections: surface.alarSections },
     };
   }
 
@@ -2249,7 +2095,7 @@ export namespace AutoMovieHumanHeadConstruction {
         ...row(
           sign * o.place,
           face.margin[2]!,
-          (sign * o.length) / 2,
+          (sign * o.length * face.fissureLength) / 2,
         ),
       ],
       forward: [1, 0, 0],
@@ -2264,10 +2110,53 @@ export namespace AutoMovieHumanHeadConstruction {
    * little forward.
    */
   function nostril(surface: ISurface, sign: 1 | -1): IAutoMovieHumanLoftAperture {
-    const curve: NasalRim.Curve = surface.nostrilRims![sign > 0 ? 0 : 1];
-    const points: Vec3[] = Array.from({ length: 24 }, (_: unknown, i: number): Vec3 => curve.point(2 * Math.PI * i / 24));
-    return { name: sign > 0 ? "nostril.left" : "nostril.right", order: curve.order,
-      coefficients: curve.coefficients, forward: facing(points), depth: 2, pocket: 8.8 * surface.plan.scale };
+    const { plan, compiled } = surface;
+    const f: AutoMovieHumanHeadPrior.IFace = compiled.prior.face;
+    const w: number = plan.noseWidth;
+    const order: number = 3;
+    const count: number = 24;
+    const sweep: number = (f.nostrilSweep * Math.PI) / 180;
+    const lead: number = f.nostrilCentre[0]! * plan.noseLead;
+    const out: number = f.nostrilCentre[1]! * w;
+    const rise: number = Math.tan(plan.columella);
+    const points: Vec3[] = Array.from(
+      { length: count },
+      (_: unknown, i: number): Vec3 => {
+        const t: number = (2 * Math.PI * i) / count;
+        const along: number = f.nostrilSize[0]! * w * Math.cos(t);
+        const across: number =
+          f.nostrilSize[1]! * w * Math.sin(t) * (1 + f.nostrilTear * Math.cos(t));
+        // In the base: forward from the face and out from the midline.
+        const d: number = lead - along * Math.cos(sweep) + across * Math.sin(sweep);
+        const z: number = out + along * Math.sin(sweep) + across * Math.cos(sweep);
+        const y: number = noseBase(plan, f, z)[0] + d * rise;
+        return [frontAt(surface, y, sign * z), y, sign * z];
+      },
+    );
+    const coefficients: number[] = [0, 1, 2].flatMap((c: number): number[] => {
+      const out: number[] = [
+        points.reduce((v: number, p: Vec3): number => v + p[c]!, 0) / count,
+      ];
+      for (let k: number = 1; k <= order; k++) {
+        let a: number = 0;
+        let b: number = 0;
+        points.forEach((p: Vec3, i: number): void => {
+          const t: number = (2 * Math.PI * k * i) / count;
+          a += (2 * p[c]! * Math.cos(t)) / count;
+          b += (2 * p[c]! * Math.sin(t)) / count;
+        });
+        out.push(a, b);
+      }
+      return out;
+    });
+    return {
+      name: sign > 0 ? "nostril.left" : "nostril.right",
+      order,
+      coefficients,
+      forward: facing(points),
+      depth: 2,
+      pocket: 8.8 * plan.scale,
+    };
   }
 
   /** The lips' colour boundary, a closed run of Hermite spans. */
@@ -2391,8 +2280,7 @@ export namespace AutoMovieHumanHeadConstruction {
       slope,
       cos: Math.cos(plane),
       lean: [Math.cos(lean), Math.sin(lean)],
-      height: cheek[1] - plan.menton,
-      cheekY: cheek[1],
+      height: plan.stomion - plan.menton,
       draft: 1 / Math.tan(j.under * degree),
       round,
       taper: j.taper,
@@ -2404,22 +2292,6 @@ export namespace AutoMovieHumanHeadConstruction {
   /** Growth of the jaw's soft tissue with fat, from the prior's at none. */
   function softness(j: AutoMovieHumanHeadPrior.IMandible, fat: number): number {
     return Math.exp(j.fat * fat);
-  }
-
-  /** Forwardmost auricle point from the ear's actual analytic face field. */
-  function earFront(ear: AutoMovieHumanEarConstruction.IEar): number {
-    let front: number = -Infinity;
-    for (let i: number = 0; i <= 64; i++) {
-      const y: number = ear.bottom + (ear.top - ear.bottom) * i / 64;
-      const centre: number = AutoMovieHumanEarConstruction.centre(ear, y, 0)[0];
-      const chord: number = AutoMovieHumanEarConstruction.chord(ear, y);
-      for (let j: number = 0; j <= 64; j++) {
-        const q: number = j / 64;
-        const x: number = centre + ear.along[0] * (2 * q - 1) * chord + ear.normal[0] * AutoMovieHumanEarConstruction.relief(ear, y, q);
-        front = Math.max(front, x);
-      }
-    }
-    return front;
   }
 
   /** Widest half-width of the section at a station, before its reliefs. */
@@ -2436,45 +2308,13 @@ export namespace AutoMovieHumanHeadConstruction {
 
   /** Forward coordinate of the skin at a world height and lateral place. */
   export function frontAt(surface: ISurface, y: number, z: number): number {
-    if (z === 0) {
-      const reading: MedianWorldY.IReading = MedianWorldY.solve(y, (station: number): Vec3 => pointAt(surface, station, 0, 1));
-      if (!reading.converged) {
-        const reason: string = "The exact median world-Y intersection did not converge in twelve station corrections; its last actual skin point was retained.";
-        if (!surface.plan.geometryFindings.includes(reason)) surface.plan.geometryFindings.push(reason);
-      }
-      return reading.point[0];
-    }
-    const sign: 1 | -1 = z < 0 ? -1 : 1;
-    const reading: FrontInverse.IReading = FrontInverse.solve(y, z, (station: number, theta: number): Vec3 => pointAt(surface, station, theta, sign));
-    if (!reading.accelerated) {
-      const reason: string = "The general world-coordinate inverse retained its bounded source route: " + (reading.reason ?? "unaccepted-fast-route");
-      if (!surface.plan.geometryFindings.includes(reason)) surface.plan.geometryFindings.push(reason);
-    }
-    return reading.point[0];
-  }
-
-  /** Exact analytic point, including relief and the neck's shared boundary. */
-  export function pointAt(surface: ISurface, s: number, theta: number, sign: 1 | -1 = 1): Vec3 {
-    const plan: ILayout = surface.plan;
-    const m: ISection = section(surface.compiled, plan, s);
-    const ox: number = (m.front + m.back) / 2;
-    const r: number = radius(m, ox, theta);
-    const along: number = Math.min(1, Math.max(0, m.t / NECK_FADE));
-    const fade: number = 1 - smooth(along);
-    const run: number = (s - plan.y0) * (1 - along) ** 2;
-    const phase: number = Math.max(0, Math.min(ANGLES, theta * ANGLES / Math.PI));
-    const i: number = Math.min(ANGLES - 1, Math.floor(phase));
-    const f: number = phase - i;
-    const read = (values: readonly number[]): number => values[i]! * (1 - f) + values[i + 1]! * f;
-    const r0: number = r + fade * (read(sign > 0 ? surface.neckLeft : surface.neckRight) + run * read(sign > 0 ? surface.slopeLeft : surface.slopeRight));
-    const c: number = Math.cos(theta);
-    const n: number = Math.sin(theta);
-    const cos: number = Math.cos(m.tilt);
-    const sin: number = Math.sin(m.tilt);
-    const xi: number = ox + r0 * c;
-    const h: number = relief(surface, xi * cos, s + xi * sin, sign * r0 * n, sign);
-    const xi1: number = ox + (r0 + h) * c;
-    return [xi1 * cos, s + xi1 * sin + fade * read(sign > 0 ? surface.riseLeft : surface.riseRight), sign * (r0 + h) * n];
+    const m: ISection = section(surface.compiled, surface.plan, y);
+    const c: ISides = sides(surface, y - 100 * Math.sin(m.tilt));
+    const list: Vec3[] = z >= 0 ? c.left : c.right;
+    let best: Vec3 = list[0]!;
+    for (const p of list.slice(0, ANGLES / 2))
+      if (Math.abs(p[2] - z) < Math.abs(best[2] - z)) best = p;
+    return best[0];
   }
 
 }
@@ -2497,6 +2337,8 @@ type Vec3 = [number, number, number];
 /** A point of a section. */
 type P2 = [number, number];
 
+/** Change of the squareness key per share of tape over the ellipse's. */
+const VAULT_GAIN: number = 5.5;
 
 /** Station by which the neck's measures have left the sections. */
 const HANDOVER: number = 2.5;
@@ -2605,6 +2447,9 @@ function tiltOf(hump: readonly number[], t: number): number {
 }
 
 /** Ramanujan's perimeter of an ellipse. */
+function perimeter(a: number, b: number): number {
+  return Math.PI * (3 * (a + b) - Math.sqrt((3 * a + b) * (a + 3 * b)));
+}
 
 /** Lame field of a unit super-ellipse. */
 function lame(a: number, b: number, n: number): number {
@@ -2708,6 +2553,3 @@ function sub(a: Vec3, b: Vec3): Vec3 {
 function lifted(p: P2, y: number, sign: 1 | -1): [number, number, number] {
   return [p[0], y, sign * p[1]];
 }
-
-/** Per-layout physical patch cache; keys retire with their generated person. */
-const MANDIBULAR_QUERIES = new WeakMap<AutoMovieHumanHeadConstruction.IMandible, Mandibular.IPrepared>();
