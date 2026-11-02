@@ -119,7 +119,7 @@ export namespace AutoMovieHumanTrunkConstruction {
           e.parent === "trunk" && e.direction === "down"
             ? {
                 ...e,
-                fillet: HIP_FILLET,
+                shared: true,
                 splits: [
                   { child: "leg.right", arcs: [[Math.PI, 2 * Math.PI]] },
                   { child: "leg.left", arcs: [[0, Math.PI]] },
@@ -1126,13 +1126,6 @@ const CLOSURE_STEPS: number = 12;
  * the join then turns the difference back as a line across the back.
  */
 const JOINT_REACH: number = 1;
-
-/**
- * Radii of the thigh over which the join spreads the turn at the crotch. A whole
- * radius carried each pinch's slope down the thigh as a long line; this much
- * stays beside the ring, among the rows the leg keeps there.
- */
-const HIP_FILLET: number = 0.3;
 
 /**
  * The crotch fold's softness in sampling pitches: a band about two and a half

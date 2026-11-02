@@ -80,6 +80,11 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * layer at R with neither place nor slope, standing the same `4/27 m R` off at
  * most, so {@link BULGE} bounds it too. What the bound leaves stays in the end
  * span.
+ *
+ * A child built to leave its contact in the parent's tangent plane, as the leg
+ * now leaves the crotch ring, declares the event `shared` and is left as built.
+ * Re-sloping it inside a pinch's taper bent its rounded corner back into a
+ * crease of 42 to 64 degrees per 2 mm, which the leg alone kept under 13.
  */
 export namespace AutoMovieHumanEventJoin {
   /**
@@ -101,6 +106,9 @@ export namespace AutoMovieHumanEventJoin {
     );
     const replaced: Map<string, IAutoMovieHumanLoftChain> = new Map();
     for (const event of calibration.events) {
+      // Children built in the parent's tangent plane are left as built: a
+      // re-slope inside a rounded pinch bent it back into a crease.
+      if (event.shared === true) continue;
       const parent: IAutoMovieHumanLoftChain = chains.get(event.parent)!;
       for (const split of event.splits) {
         const fitted: IAutoMovieHumanLoftChain | undefined = chains.get(
