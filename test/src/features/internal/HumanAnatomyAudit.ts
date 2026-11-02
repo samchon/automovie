@@ -243,7 +243,10 @@ export namespace HumanAnatomyAudit {
         rows.push(identity(name, `${side} foot length, heel to the longest toe along the foot axis, mm`, f.length, own.footLength, FOOT));
         rows.push(identity(name, `${side} foot breadth, maximum across the foot axis, mm`, f.breadth, own.footBreadth, FOOT));
       }
-      rows.push(ratio(name, `${side} foot breadth / length`, f.breadth / f.length, 0.33, 0.43));
+      // ANSUR II: breadth over length 0.377 (women) and 0.376 (men), its spread
+      // bounded by the women's coefficients of variation of breadth (0.052) and
+      // length (0.050) taken as uncorrelated: SD 0.027, 2.326 SD either side.
+      rows.push(ratio(name, `${side} foot breadth / length`, f.breadth / f.length, 0.314, 0.440));
     }
     rows.push(...symmetry(name, A.bind(name), /^(foot|forefoot|toe)/, "feet"));
     return rows;
@@ -879,7 +882,21 @@ function neckSites(skin: HumanAnatomy.ISkin, S: number, t: ITrunk): INeck {
   const sn: V3 = [frontAt(notch), notch, 0];
   const cv: V3 = [backAt(c7), c7, 0];
   const normal: V3 = A.unit(A.cross([0, 0, 1], A.sub(sn, cv)));
-  const baseCut: HumanAnatomy.ICut | null = A.cut(skin, A.lerp(sn, cv, 0.5), normal[1] < 0 ? A.scale(normal, -1) : normal, A.lerp(sn, cv, 0.5), region);
+  // The tape over cervicale and suprasternale rises over the side neck points,
+  // so it is not planar; on a body whose trapezius stands above that plane the
+  // plane runs out over the shoulders. The plane's section is therefore kept
+  // within 1.25 times the neck's half-breadth at its least girth either side of
+  // the median plane before the taut tape is drawn round it.
+  const waist: HumanAnatomy.ICut | null = A.cut(skin, A.add(base, A.scale(axis, middle)), axis, A.add(base, A.scale(axis, middle)), region);
+  const half: number = waist === null ? Infinity : Math.max(...waist.points.map((p: V3): number => Math.abs(p[2])));
+  const o: V3 = A.lerp(sn, cv, 0.5);
+  const n: V3 = normal[1] < 0 ? A.scale(normal, -1) : normal;
+  const [bu, bw] = A.basis(n);
+  const kept: [number, number][] = A.polylines(skin, o, n, region)
+    .flatMap((l): V3[] => l.points)
+    .filter((p: V3): boolean => Math.abs(p[2]) <= 1.25 * half && A.dist(p, o) < 0.12 * S)
+    .map((p: V3): [number, number] => [A.dot(A.sub(p, o), bu), A.dot(A.sub(p, o), bw)]);
+  const baseCut: { girth: number } | null = kept.length < 3 ? null : { girth: A.hull(kept) };
   // Creases across the neck: meridians every 15 degrees about the axis.
   // Creases across the neck: the skin's curve in twelve planes through the
   // neck's axis (24 meridians), from the shoulders to 20 mm past the least
@@ -1145,86 +1162,6 @@ function breadth(skin: HumanAnatomy.ISkin, lo: number, hi: number): number {
 
 /** Locate the face's landmarks by their Farkas and FaceBase definitions. */
 function faceSites(skin: HumanAnatomy.ISkin, S: number): IFace {
-  const lines = A.polylines(skin, A.MEDIAN, [0, 0, 1], band(skin, 0.78 * S, S + 10));
-  // The mouth opening breaks the midline: the polyline over the vertex ends at
-  // the upper lip, the next one starts at the lower lip.
-  let top: V3 = [0, -Infinity, 0];
-  let upperLine: V3[] = [];
-  for (const l of lines)
-    for (const p of l.points)
-      if (p[1] > top[1]) {
-        top = p;
-        upperLine = l.points;
-      }
-  // Orient the upper line from its frontal end (the upper lip).
-  const ends: V3[] = [upperLine[0]!, upperLine[upperLine.length - 1]!];
-  if (ends[1]![0] > ends[0]![0]) upperLine = [...upperLine].reverse();
-  const eUp: V3 = upperLine[0]!;
-  let lowerLine: V3[] = [];
-  let gap: number = Infinity;
-  for (const l of lines) {
-    if (l.points === upperLine || l.points[0] === upperLine[upperLine.length - 1]) continue;
-    for (const [k, p] of [l.points[0]!, l.points[l.points.length - 1]!].entries()) {
-      const d: number = A.dist(p, eUp);
-      if (p !== eUp && d < gap && d > 0) {
-        gap = d;
-        lowerLine = k === 0 ? l.points : [...l.points].reverse();
-      }
-    }
-  }
-  const eLo: V3 = lowerLine[0] ?? eUp;
-  const up: V3[] = resample(upperLine, 0.5);
-  const lo: V3[] = resample(lowerLine, 0.5);
-  const turn = (line: V3[], i: number, h: number): number => {
-    // Signed turning over +-h samples in the x-y plane: negative is concave
-    // for a profile walked with the body on its left.
-    const a: V3 = line[Math.max(0, i - h)]!;
-    const b: V3 = line[i]!;
-    const c: V3 = line[Math.min(line.length - 1, i + h)]!;
-    const t1: [number, number] = [b[0] - a[0], b[1] - a[1]];
-    const t2: [number, number] = [c[0] - b[0], c[1] - b[1]];
-    return Math.atan2(t1[0] * t2[1] - t1[1] * t2[0], t1[0] * t2[0] + t1[1] * t2[1]);
-  };
-  // Upward from the lip: pronasale the most anterior point before the vertex.
-  let vertexIdx: number = 0;
-  for (let i: number = 0; i < up.length; i++) if (up[i]![1] > up[vertexIdx]![1]) vertexIdx = i;
-  let prn: number = 0;
-  for (let i: number = 0; i < vertexIdx; i++) if (up[i]![0] > up[prn]![0]) prn = i;
-  // Walking up from the lip the body lies behind, on the walker's left, so a
-  // concave corner turns right (negative).
-  let sn: number = 0;
-  for (let i: number = 4; i < prn - 4; i++) if (turn(up, i, 4) < turn(up, sn, 4)) sn = i;
-  // Labrale superius: the upper lip's most prominent point between stomion
-  // and subnasale.
-  let ls: number = 0;
-  for (let i: number = 0; i < sn; i++) if (up[i]![0] > up[ls]![0]) ls = i;
-  let n: number = prn;
-  for (let i: number = prn; i < vertexIdx; i++) {
-    if (up[i]![0] < up[n]![0]) n = i;
-    if (up[i]![0] > up[n]![0] + 3) break;
-  }
-  let g: number = n;
-  for (let i: number = n; i < vertexIdx; i++) {
-    if (up[i]![0] > up[g]![0]) g = i;
-    if (up[i]![0] < up[g]![0] - 3) break;
-  }
-  const glabella: V3 = up[g]!;
-  let op: V3 = glabella;
-  for (const p of up) if (p[1] > glabella[1] - 60 && A.dist(p, glabella) > A.dist(op, glabella)) op = p;
-  // Downward from the lower lip: labrale inferius the lip's most prominent
-  // point in its first 12 mm; gnathion the chin's support point toward the
-  // front and down within 60 mm; sublabiale the most concave turn between them
-  // (walking down, the body lies on the walker's right, so concave turns
-  // left); menton the lowest point within 40 mm past gnathion.
-  let li: number = 0;
-  for (let i: number = 0; i < Math.min(lo.length, 24); i++) if (lo[i]![0] > lo[li]![0]) li = i;
-  let gn: number = li;
-  for (let i: number = li; i < Math.min(lo.length, li + 120); i++) if (lo[i]![0] - lo[i]![1] > lo[gn]![0] - lo[gn]![1]) gn = i;
-  let sl: number = li;
-  for (let i: number = li + 4; i < gn - 4; i++) if (turn(lo, i, 4) > turn(lo, sl, 4)) sl = i;
-  let me: number = gn;
-  for (let i: number = gn; i < Math.min(lo.length, gn + 80); i++) if (lo[i]![1] < lo[me]![1]) me = i;
-  const sto: V3 = A.lerp(eUp, eLo, 0.5);
   // Openings: the mouth spans the midline lowest, the eyes are the two highest
   // off it.
   const loops: V3[][] = A.openings(skin);
@@ -1236,6 +1173,112 @@ function faceSites(skin: HumanAnatomy.ISkin, S: number): IFace {
     .filter((l: V3[]): boolean => Math.abs(centre(l)[2]) > 15)
     .sort((a: V3[], b: V3[]): number => centre(b)[1] - centre(a)[1])
     .slice(0, 2);
+  const lines = A.polylines(skin, A.MEDIAN, [0, 0, 1], band(skin, 0.78 * S, S + 10));
+  // Walk the median profile from the vertex forward and down the face. An
+  // opening of the mouth across the midline ends that walk at the upper lip;
+  // the walk then resumes from the lower lip's end of the nearest other curve.
+  let top: V3 = [0, -Infinity, 0];
+  let topLine: { points: V3[]; closed: boolean } = lines[0]!;
+  let topIdx: number = 0;
+  for (const l of lines)
+    l.points.forEach((p: V3, i: number): void => {
+      if (p[1] > top[1]) {
+        top = p;
+        topLine = l;
+        topIdx = i;
+      }
+    });
+  const floor: number = top[1] - 0.2 * S;
+  const walk = (line: { points: V3[]; closed: boolean }, start: number, dir: 1 | -1): { points: V3[]; open: boolean } => {
+    const n: number = line.points.length;
+    const out: V3[] = [];
+    for (let k: number = 0; k < n; k++) {
+      const i: number = start + dir * k;
+      if (!line.closed && (i < 0 || i >= n)) return { points: out, open: true };
+      const p: V3 = line.points[((i % n) + n) % n]!;
+      out.push(p);
+      if (p[1] < floor) break;
+    }
+    return { points: out, open: false };
+  };
+  const tp: V3[] = topLine.points;
+  const forward: 1 | -1 =
+    tp[(topIdx + 1) % tp.length]![0] > tp[(topIdx - 1 + tp.length) % tp.length]![0] ? 1 : -1;
+  const down = walk(topLine, topIdx, forward);
+  let up: V3[];
+  let lo: V3[];
+  let eUp: V3;
+  let eLo: V3;
+  const last: V3 = down.points[down.points.length - 1]!;
+  if (down.open && last[1] > floor) {
+    let lowerLine: V3[] = [];
+    let gap: number = Infinity;
+    for (const l of lines) {
+      if (l === topLine) continue;
+      for (const [k, p] of [l.points[0]!, l.points[l.points.length - 1]!].entries()) {
+        const d: number = A.dist(p, last);
+        if (d < gap) {
+          gap = d;
+          lowerLine = k === 0 ? l.points : [...l.points].reverse();
+        }
+      }
+    }
+    const upper: V3[] = resample(down.points, 0.5);
+    up = [...upper].reverse();
+    lo = resample(lowerLine.filter((p: V3): boolean => p[1] > floor), 0.5);
+    eUp = upper[upper.length - 1]!;
+    eLo = lo[0] ?? eUp;
+  } else {
+    // The lips meet on the midline: stomion is the labial fissure's crease,
+    // the sharpest notch (the profile behind the chord of its neighbours 2 mm
+    // of arc either side) from 4 to 35 mm below subnasale. The labiomental
+    // fold is broad, so it never out-notches the fissure.
+    const d: V3[] = resample(down.points, 0.5);
+    let p0: number = 0;
+    for (let i: number = 0; i < d.length; i++) if (d[i]![0] > d[p0]![0]) p0 = i;
+    const s0: number = subnasale(d, p0, 1);
+    const notch = (i: number): number => (d[i - 4]![0] + d[i + 4]![0]) / 2 - d[i]![0];
+    let st: number = s0 + 8;
+    for (let i: number = s0 + 8; i < Math.min(d.length - 4, s0 + 70); i++) if (notch(i) > notch(st)) st = i;
+    up = d.slice(0, st + 1).reverse();
+    lo = d.slice(st);
+    eUp = d[st]!;
+    eLo = d[st]!;
+  }
+  // Upward from the lip: pronasale the most anterior point before the vertex.
+  let vertexIdx: number = 0;
+  for (let i: number = 0; i < up.length; i++) if (up[i]![1] > up[vertexIdx]![1]) vertexIdx = i;
+  let prn: number = 0;
+  for (let i: number = 0; i < vertexIdx; i++) if (up[i]![0] > up[prn]![0]) prn = i;
+  // Walking up from the lip the body lies behind, on the walker's left, so a
+  // concave corner turns right (negative).
+  const sn: number = subnasale(up, prn, -1);
+  // Labrale superius: the upper lip's most prominent point between stomion
+  // and subnasale.
+  let ls: number = 0;
+  for (let i: number = 0; i < sn; i++) if (up[i]![0] > up[ls]![0]) ls = i;
+  // Glabella: the forehead's most prominent point within 45 mm above the eye
+  // openings' centre; nasion: the deepest point between it and pronasale.
+  const eyeLevel: number = eyes.length === 0 ? up[prn]![1] + 40 : eyes.reduce((s: number, e: V3[]): number => s + centre(e)[1], 0) / eyes.length;
+  let g: number = vertexIdx;
+  for (let i: number = prn; i < vertexIdx; i++)
+    if (up[i]![1] >= eyeLevel && up[i]![1] <= eyeLevel + 45 && (g === vertexIdx || up[i]![0] > up[g]![0])) g = i;
+  let n: number = prn;
+  for (let i: number = prn; i < g; i++) if (up[i]![0] < up[n]![0]) n = i;
+  const glabella: V3 = up[g]!;
+  let op: V3 = glabella;
+  for (const p of topLine.points) if (p[1] > glabella[1] - 60 && A.dist(p, glabella) > A.dist(op, glabella)) op = p;
+  // Downward from the lower lip: labrale inferius the lip's most prominent
+  // point in its first 12 mm; gnathion the chin's support point toward the
+  // front and down within 60 mm; menton the lowest point within 40 mm past
+  // gnathion.
+  let li: number = 0;
+  for (let i: number = 0; i < Math.min(lo.length, 24); i++) if (lo[i]![0] > lo[li]![0]) li = i;
+  let gn: number = li;
+  for (let i: number = li; i < Math.min(lo.length, li + 120); i++) if (lo[i]![0] - lo[i]![1] > lo[gn]![0] - lo[gn]![1]) gn = i;
+  let me: number = gn;
+  for (let i: number = gn; i < Math.min(lo.length, gn + 80); i++) if (lo[i]![1] < lo[me]![1]) me = i;
+  const sto: V3 = A.lerp(eUp, eLo, 0.5);
   const diameter = (l: V3[]): [V3, V3] => {
     let best: [V3, V3] = [l[0]!, l[0]!];
     for (const a of l) for (const b of l) if (A.dist(a, b) > A.dist(best[0], best[1])) best = [a, b];
@@ -1266,8 +1309,34 @@ function faceSites(skin: HumanAnatomy.ISkin, S: number): IFace {
     canthi[side] = en;
   }
   let mouthWidth: number = NaN;
-  let mouthGap: number = NaN;
-  if (mouthLoop !== undefined) {
+  let mouthGap: number = 0;
+  if (mouthLoop === undefined) {
+    // Closed lips: the corners are where the labial fissure's crease ends.
+    // Sagittal planes outward from the midline cut the lips; the fissure is
+    // the deepest notch within 8 mm of stomion's height, and the crease has
+    // ended where that notch sits less than 0.3 mm inside its 4 mm chord.
+    let width: number = 0;
+    for (const side of [1, -1]) {
+      let reach: number = NaN;
+      for (let c: number = 0.5; c <= 45; c += 0.5) {
+        const near: Uint32Array = band(skin, eUp[1] - 10, eUp[1] + 10);
+        let notch: number = 0;
+        for (const line of A.polylines(skin, [0, 0, side * c], [0, 0, 1], near)) {
+          const pts: V3[] = resample(line.points, 0.5);
+          for (let i: number = 4; i + 4 < pts.length; i++) {
+            const p: V3 = pts[i]!;
+            if (Math.abs(p[1] - eUp[1]) > 8 || p[0] < eUp[0] - 20) continue;
+            notch = Math.max(notch, (pts[i - 4]![0] + pts[i + 4]![0]) / 2 - p[0]);
+          }
+        }
+        if (notch < 0.3) break;
+        reach = c;
+      }
+      width += reach;
+    }
+    mouthWidth = width;
+  } else {
+    mouthGap = NaN;
     const [a, b] = diameter(mouthLoop);
     mouthWidth = A.dist(a, b);
     mouthGap = 0;
@@ -1276,18 +1345,18 @@ function faceSites(skin: HumanAnatomy.ISkin, S: number): IFace {
       if (ys.length >= 2) mouthGap = Math.max(mouthGap, Math.max(...ys) - Math.min(...ys));
     }
   }
-  // Ears: the auricle's chains; tragion at the most anterior point of the
-  // auricle's middle third in height, where the tragus stands.
+  // Ears: the auricle's chains; tragion at the auricle's front, at its middle
+  // height, where the tragus stands.
   const ears: V3[] = A.vertices(skin, /^ear\./);
   let earLow: number = Infinity;
   let earTop: number = -Infinity;
+  let earFront: number = -Infinity;
   for (const p of ears) {
     earLow = Math.min(earLow, p[1]);
     earTop = Math.max(earTop, p[1]);
+    earFront = Math.max(earFront, p[0]);
   }
-  const tragion: V3 = ears
-    .filter((p: V3): boolean => Math.abs(p[1] - (earLow + earTop) / 2) < (earTop - earLow) / 6)
-    .reduce((a: V3, b: V3): V3 => (b[0] > a[0] ? b : a), [-Infinity, 0, 0]);
+  const tragion: V3 = [earFront, (earLow + earTop) / 2, 0];
   const headPoints: V3[] = A.vertices(skin, /^head/);
   const widest = (keep: (p: V3) => boolean): number => {
     const rows: Map<number, [number, number]> = new Map();
@@ -1352,21 +1421,14 @@ function faceSites(skin: HumanAnatomy.ISkin, S: number): IFace {
     if (!Number.isNaN(left) && !Number.isNaN(right)) noseWidth = Math.max(noseWidth, left - right);
   }
   // Teeth seen from the front through the mouth's opening.
-  const teethSeen: number = teeth(skin, sto[1] - 40, sto[1] + 40);
+  // Skin closed over the mouth hides whatever lies behind it.
+  const teethSeen: number = mouthLoop === undefined ? 0 : teeth(skin, sto[1] - 40, sto[1] + 40);
   // Nasolabial angle at subnasale: columella tangent against the upper lip's.
   const colum: V3 = A.unit(A.sub(up[Math.min(prn, sn + 10)]!, snP));
   const lip: V3 = A.unit(A.sub(up[Math.max(0, ls)]!, snP));
   const nasolabial: number = (Math.acos(Math.max(-1, Math.min(1, A.dot(colum, lip)))) * 180) / Math.PI;
   const nasion: V3 = up[n]!;
   const gnathion: V3 = lo[gn]!;
-  if (process.env.HUMAN_ANATOMY_DEBUG !== undefined)
-    console.log(
-      JSON.stringify({
-        eUp, eLo, prn: up[prn], sn: snP, ls: up[ls], n: nasion, g: glabella, op, li: lo[li], sl: lo[sl], gn: gnathion, me: lo[me], top,
-        tragion, eyes: eyes.map((e: V3[]): unknown => ({ c: centre(e), n: e.length, d: diameter(e) })),
-        loops: loops.map((l: V3[]): unknown => ({ c: centre(l).map((v: number): number => Math.round(v)), n: l.length })),
-      }),
-    );
   return {
     length: A.dist(glabella, op),
     breadth: breadthHead,
@@ -1390,6 +1452,44 @@ function faceSites(skin: HumanAnatomy.ISkin, S: number): IFace {
     lowerFace: A.dist(snP, gnathion) / A.dist(nasion, gnathion),
     upperLip: A.dist(snP, sto) / A.dist(nasion, gnathion),
   };
+}
+
+/**
+ * Subnasale on a median profile sampled every 0.5 mm, the apex of the
+ * nasolabial angle: walking from pronasale toward the lips, the sharpest
+ * concave turn over 2 mm of arc before the deepest point the walk reaches ere
+ * the profile comes forward again by 1.5 mm onto the upper lip. That hollow
+ * bounds the search, so the labial fissure beyond it never competes.
+ *
+ * @param step +1 or -1, the index direction from pronasale toward the lips.
+ */
+function subnasale(line: V3[], prn: number, step: 1 | -1): number {
+  let deepest: number = prn;
+  for (let i: number = prn; i >= 0 && i < line.length; i += step) {
+    if (line[i]![0] < line[deepest]![0]) deepest = i;
+    else if (line[i]![0] > line[deepest]![0] + 1.5) break;
+  }
+  // Walking toward the lips (down), the body lies on the walker's right, so a
+  // concave corner turns left: a positive cross product.
+  const turn = (i: number): number => {
+    const a: V3 = line[i - 4 * step]!;
+    const b: V3 = line[i]!;
+    const c: V3 = line[i + 4 * step]!;
+    const t1: [number, number] = [b[0] - a[0], b[1] - a[1]];
+    const t2: [number, number] = [c[0] - b[0], c[1] - b[1]];
+    return Math.atan2(t1[0] * t2[1] - t1[1] * t2[0], t1[0] * t2[0] + t1[1] * t2[1]);
+  };
+  let best: number = deepest;
+  let sharpest: number = -Infinity;
+  for (let i: number = prn + 4 * step; step * (i - deepest) <= 0; i += step) {
+    if (i - 4 < 0 || i + 4 >= line.length) continue;
+    const t: number = turn(i);
+    if (t > sharpest) {
+      sharpest = t;
+      best = i;
+    }
+  }
+  return best;
 }
 
 /** Resample a polyline at an even step. */
@@ -1418,7 +1518,14 @@ function teeth(skin: HumanAnatomy.ISkin, lo: number, hi: number): number {
   const aperture = person.body.apertures.find((a): boolean => a.name === "mouth");
   if (mouth === undefined || aperture === undefined) return NaN;
   const surface: AutoMovieHumanBodySurface.IOutput = AutoMovieHumanBodySurface.generate(person.body, []);
-  const interior = AutoMovieHumanOralCavity.generate(surface.mesh, mouth, aperture, 1);
+  let interior: AutoMovieHumanOralCavity.IOutput;
+  try {
+    interior = AutoMovieHumanOralCavity.generate(surface.mesh, mouth, aperture, 1);
+  } catch {
+    // A mouth whose interior cannot be built shows nothing to count; the row
+    // then fails as unmeasured instead of hiding the head's other rows.
+    return NaN;
+  }
   let seen: number = 0;
   for (const part of interior.parts) {
     if (part.geometry.type !== "mesh" || !/tooth|teeth|incisor|molar/i.test(part.id)) continue;

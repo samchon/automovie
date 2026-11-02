@@ -10,7 +10,6 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanOralCavity } from "../generation/AutoMovieHumanOralCavity";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
 import type { AutoMovieHumanSkeleton } from "./AutoMovieHumanSkeleton";
@@ -451,10 +450,7 @@ interface ILips {
   /** Half width, midline to cheilion. */
   width: number;
 
-  /** Half-height of the opening at the midline. */
-  slit: number;
-
-  /** Half of the jaw's ramp past the cheilia. */
+  /** Height away from the contact line over which a crossing share fades, over the cheek. */
   wide: number;
 }
 
@@ -641,17 +637,26 @@ function grow(
 
   // With a mouth the jaw takes the skin below the lips' contact line, and
   // across the opening along it the upper lip stays on the head while the
-  // lower goes with the jaw: within the cheilia the hand-over is no wider than
-  // the opening, so neither lip pulls the other, and past them it widens to
-  // the jaw's own ramp over the cheek, where the skin is whole.
+  // lower goes with the jaw: over the middle half of the mouth the hand-over is
+  // narrower than the opening, so neither lip pulls the other, and toward the
+  // cheilia it widens over the cheek, so the opening narrows to its corners
+  // and the cheek's whole skin takes the stretch.
+  // A mouth whose skin is not open keeps the level cut: a hand-over narrower
+  // than the opening across whole skin would tear it.
   const lips: ILips | null =
-    calibration.mouth === undefined
+    calibration.mouth === undefined ||
+    !calibration.apertures.some((a): boolean => a.name === "mouth")
       ? null
       : {
           contact: calibration.mouth.contact.map((y: number): number => y * scale),
           width: calibration.mouth.width * scale,
-          slit: calibration.mouth.slit * scale,
-          wide: JAW_RAMP * span,
+          // Past the cheilia the cheek's skin between the maxilla and the
+          // mandible's body takes the jaw's turn: half the stomion's height over
+          // the menton. The jaw's own ramp, a 7 mm half, stretched the skin
+          // round the commissure more than three times under a 20 mm opening on
+          // every person.
+          wide:
+            ((calibration.mouth.stomion - calibration.mouth.menton) / 2) * scale,
         };
   jaw.lips = lips;
   jaw.planes = [
@@ -856,10 +861,18 @@ function cutShare(limb: ILimb, p: Vector): number {
 }
 
 /**
- * Share of a point below the lips' contact line. Within three quarters of
- * the half width the ramp is narrower than the gap between the lining's
- * pressed inner faces, so the two lips take nothing of each other; toward and
- * past the cheilia it widens to the jaw's ramp by a quintic step.
+ * The jaw's share of a point by its side of the lips' contact line.
+ *
+ * The skin is open along that line between the cheilia, so the share may
+ * jump across it there and nowhere else. Over the middle half of the mouth a
+ * point above the line is the head's and one below the jaw's whole. Toward
+ * the cheilia a share of up to half crosses the line, fading over the cheek's
+ * height away from it, so at a cheilion both sides hold half and the whole
+ * skin past it is continuous with a level tangent: the opening narrows to its
+ * corners as a parted mouth's does. A hand-over centred on the line itself,
+ * narrow within the slit and widening past it, put the whole jaw's turn
+ * across a few millimetres of skin round each commissure, which stretched
+ * more than three times under a 20 mm opening on every person.
  */
 function below(lips: ILips, p: Vector): number {
   const u: number = Math.abs(p[2]) / lips.width;
@@ -867,18 +880,12 @@ function below(lips: ILips, p: Vector): number {
   const i: number = Math.min(lips.contact.length - 2, Math.floor(k));
   const f: number = k - i;
   const contact: number = lips.contact[i]! * (1 - f) + lips.contact[i + 1]! * f;
-  // Within the slit the hand-over is half as wide as the gap the lining's
-  // pressed inner faces keep from the contact line, so each face, and each
-  // rim, rides its own bone whole.
-  const open: number =
-    u < 1
-      ? (AutoMovieHumanOralCavity.PRESSED / 2) * lips.slit * Math.sqrt(1 - u * u)
-      : 0;
-  const half: number = Math.max(
-    open,
-    lips.wide * rise((u - CORNER_FROM) / (CORNER_TO - CORNER_FROM)),
-  );
-  return ramp((contact - p[1]) / half);
+  const v: number = p[1] - contact;
+  const crossing: number =
+    0.5 *
+    rise((u - CORNER_FROM) / (CORNER_TO - CORNER_FROM)) *
+    (1 - rise(Math.abs(v) / lips.wide));
+  return v >= 0 ? crossing : 1 - crossing;
 }
 
 /** Smallest height of a point over a set of capsules. */
@@ -969,11 +976,15 @@ const HIP_LATERAL: number = 0.7;
  */
 const MOUTH: number = 0.735;
 
-/** Share of the mouth's half width where the lips' narrow hand-over starts to widen. */
-const CORNER_FROM: number = 0.75;
+/**
+ * Share of the mouth's half width where the lips' narrow hand-over starts to
+ * widen: the opening of a parted mouth narrows toward its corners, where the
+ * lips meet.
+ */
+const CORNER_FROM: number = 0.5;
 
-/** Share of the mouth's half width where it has widened to the jaw's ramp. */
-const CORNER_TO: number = 1.25;
+/** Share of the mouth's half width where it has widened to the jaw's ramp: the cheilion. */
+const CORNER_TO: number = 1;
 
 /** Half of the jaw's cut, as a share of the distance from hinge to chin. */
 const JAW_RAMP: number = 0.07;

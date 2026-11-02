@@ -1,5 +1,6 @@
 import { AutoMovieHumanMouthDeformation } from "../../../../packages/human/src/expression/AutoMovieHumanMouthDeformation";
 import { AutoMovieHumanMouthExpression } from "../../../../packages/human/src/expression/AutoMovieHumanMouthExpression";
+import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { AutoMovieHumanMouth } from "../../../../packages/human/src/generation/AutoMovieHumanMouth";
 import { AutoMovieHumanOralCavity } from "../../../../packages/human/src/generation/AutoMovieHumanOralCavity";
@@ -45,7 +46,16 @@ export const test_human_mouth = (): void => {
       problems.push(`${name} has no mouth`);
       continue;
     }
-    const surface = AutoMovieHumanBodySurface.generate(body, []);
+    // The skin as the generator lofts it, refined in a box 3 mm about the
+    // lips' colour boundary: the rim depends on that refinement.
+    const ends: number[][] = AutoMovieHumanBodyLaw.calibrate(params).vermilion.spans.flatMap(
+      (s): number[][] => [s.start, s.end],
+    );
+    const box: [[number, number, number], [number, number, number]] = [
+      [0, 1, 2].map((k: number): number => Math.min(...ends.map((p: number[]): number => p[k]!)) - 3) as [number, number, number],
+      [0, 1, 2].map((k: number): number => Math.max(...ends.map((p: number[]): number => p[k]!)) + 3) as [number, number, number],
+    ];
+    const surface = AutoMovieHumanBodySurface.generate(body, [box]);
     let loop: number[];
     try {
       loop = AutoMovieHumanOralCavity.rim(surface.mesh, aperture);
@@ -69,8 +79,8 @@ export const test_human_mouth = (): void => {
       if (shallow > 0) problems.push(`${name} ${part.id} has ${shallow} points within ${UNDER} mm of the skin`);
     }
 
-    // The rim: the upper lip rides the head, the lower the jaw, within three
-    // quarters of the half width.
+    // The rim: the upper lip rides the head, the lower the jaw, over the
+    // middle half of the mouth; toward the corners the opening narrows.
     const rim: V3[] = loop.map((v: number): V3 => [
       surface.mesh.positions[3 * v]!,
       surface.mesh.positions[3 * v + 1]!,
@@ -86,7 +96,7 @@ export const test_human_mouth = (): void => {
     let upper: number = 0;
     let lower: number = 1;
     rim.forEach((p: V3, i: number): void => {
-      if (Math.abs(p[2]) > 0.75 * mouth.width) return;
+      if (Math.abs(p[2]) > 0.5 * mouth.width) return;
       if (AutoMovieHumanOralCavity.angle(mouth, p) > 0) upper = Math.max(upper, jawShare(i));
       else lower = Math.min(lower, jawShare(i));
     });
@@ -134,6 +144,15 @@ export const test_human_mouth = (): void => {
     const context = AutoMovieHumanMouthDeformation.context(body)!;
     const tongue = interior.parts.find((p): boolean => p.id === "human.mouth.tongue")!;
     const tp: number[] = tongue.geometry.type === "mesh" ? tongue.geometry.mesh.positions : [];
+    // The lining rides its place-based binding and the tongue the jaw, so
+    // both are read at the jaw's opening for each viseme.
+    const liningPart = interior.parts.find((p): boolean => p.id === "human.mouth.lining")!;
+    const LP: number[] = liningPart.geometry.type === "mesh" ? liningPart.geometry.mesh.positions : [];
+    const LI: number[] = liningPart.geometry.type === "mesh" ? (liningPart.geometry.mesh.indices ?? []) : [];
+    const liningBound = rig.bind(LP.map((c: number): number => c * scale));
+    const tongueBound = rig.bind(tp.map((c: number): number => c * scale), "jaw");
+    const at = (bound: typeof liningBound, world: ReturnType<typeof worlds>, p: V3, i: number): V3 =>
+      blend(p.map((c: number): number => c * scale) as V3, bound, i, world).map((c: number): number => c / scale) as V3;
     for (const viseme of AutoMovieHumanMouthExpression.VISEMES) {
       const weights: IAutoMovieHumanVisemeWeights = { [viseme]: 1 };
       const resolved = AutoMovieHumanMouthExpression.resolve({ units: [], mouth: { visemes: weights } }, params.head.mouthOpening);
@@ -155,13 +174,18 @@ export const test_human_mouth = (): void => {
       if (strange > 0) problems.push(`${name} ${viseme} moves ${strange} skin points by a non-finite or far displacement`);
       if (largest > LARGEST) problems.push(`${name} ${viseme} moves the skin by ${largest.toFixed(1)} mm`);
       if (viseme !== "sil" && lips === 0 && resolved.opening === 0) problems.push(`${name} ${viseme} moves neither the lips nor the jaw`);
+      const opened = worlds(rig, evaluate({ head: { jaw: { opening: resolved.opening } } }));
+      const posedLining: number[] = [];
+      for (let v: number = 0; v < LP.length; v += 3)
+        posedLining.push(...at(liningBound, opened, [LP[v]!, LP[v + 1]!, LP[v + 2]!], v / 3));
+      const cavity: Skin = index(posedLining, LI, mouth);
       let left: number = 0;
       for (let v: number = 0; v < tp.length; v += 3) {
         const p: V3 = [tp[v]!, tp[v + 1]!, tp[v + 2]!];
         const d: V3 = field(p, true);
-        if (under(skin, [p[0] + d[0], p[1] + d[1], p[2] + d[2]]) < 0) left++;
+        if (under(cavity, at(tongueBound, opened, [p[0] + d[0], p[1] + d[1], p[2] + d[2]], v / 3)) < 0) left++;
       }
-      if (left > 0 && viseme !== "TH") problems.push(`${name} ${viseme} carries ${left} tongue points out of the head`);
+      if (left > 0 && viseme !== "TH") problems.push(`${name} ${viseme} carries ${left} tongue points out of the mouth's lining`);
     }
   }
   if (problems.length === 0) return;

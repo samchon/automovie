@@ -16,11 +16,12 @@ import type { AutoMovieHumanMouthExpression } from "./AutoMovieHumanMouthExpress
  * spread across the lip by a uniform Catmull-Rom spline in `u`. Upper and
  * lower lip carry their own handles and meet only at the cheilia, which is
  * why the skin is open along the contact line: the field may part there and
- * nowhere else. Past the cheilia a handle fades as a Gaussian of the distance
- * over the modiolus, and above and below the vermilion it fades over the
- * lip's skin to the subnasale and toward the labiomental fold. Behind the
- * vestibule's wall the lining stands still, so only the lips' inner faces
- * move with them; the teeth never move.
+ * nowhere else. Past the cheilia a handle fades by a smooth step over two
+ * modiolus spans, and above and below the vermilion it fades over the lip's
+ * skin to the subnasale and toward the labiomental fold, so the field is zero
+ * outside a bounded box. Behind the vestibule's wall the lining stands still,
+ * so only the lips' inner faces move with them, and past the molars nothing
+ * behind the pharynx's line moves; the teeth never move.
  *
  * Magnitudes: the lip corner puller moves its handles by a posed maximal
  * smile's mean 3D displacements (Korean adults, J Korean Soc Plast Reconstr
@@ -87,9 +88,18 @@ export namespace AutoMovieHumanMouthDeformation {
       tongue ? tongueAt(context, resolved, turn, p) : lipsAt(m, handles, resolved.whole.cheekPuff, p);
   }
 
-  /** Points moved within this distance of the mouth, mm; anything farther stands still. */
+  /**
+   * Distance from the lips' front at the stomion within which the field can
+   * move a point, mm: the corner of the box it acts in, as far aside as the
+   * modiolus's fade reaches, as high and low as the lips' skin, and back to
+   * the pharynx's line, behind which nothing moves.
+   */
   export function reach(mouth: AutoMovieHumanMouth.IMouth): number {
-    return 3 * mouth.width;
+    return Math.hypot(
+      mouth.front - mouth.pharynx[0] + FADE,
+      (1 + 2 * MODIOLUS) * mouth.width,
+      Math.max(mouth.subnasale - mouth.stomion, LABIOMENTAL * (mouth.stomion - mouth.menton)),
+    );
   }
 
   /**
@@ -287,7 +297,9 @@ export namespace AutoMovieHumanMouthDeformation {
       ? 1 - smooth((v - m.upper) / (top - m.upper))
       : 1 - smooth((-v - m.lower) / (bottom - m.lower));
     const within: number = upper ? Math.min(1, v / m.upper) : Math.min(1, -v / m.lower);
-    const lateral: number = au <= 1 ? 1 : Math.exp(-((((au - 1) * m.width) / (MODIOLUS * m.width)) ** 2));
+    // Past the cheilia a handle fades over two modiolus spans to nothing, by a
+    // smooth step, so the field has a bound and no seam where it ends.
+    const lateral: number = au <= 1 ? 1 : 1 - smooth((au - 1) / (2 * MODIOLUS));
     const s: number = Math.max(-1, Math.min(1, u));
     const along = (nodes: [Vec3, Vec3, Vec3]): Vec3 =>
       spline([h.corner.right, nodes[0], nodes[1], nodes[2], h.corner.left], s, au > 1);
@@ -306,7 +318,7 @@ export namespace AutoMovieHumanMouthDeformation {
       for (const side of [1, -1]) {
         const dz: number = (p[2] - side * PUFF_PLACE * m.width) / (PUFF_RADIUS * m.width);
         const dy: number = (p[1] - m.stomion) / (PUFF_RADIUS * m.width);
-        const g: number = Math.exp(-(dz * dz + dy * dy)) * gate;
+        const g: number = (1 - smooth(Math.hypot(dz, dy) / 2)) * gate;
         out[0] += puff * PUFF * m.width * 0.3 * g;
         out[2] += puff * PUFF * m.width * side * 0.95 * g;
       }
@@ -318,7 +330,9 @@ export namespace AutoMovieHumanMouthDeformation {
     const a: number = Math.abs(z);
     const front: number = m.vestibule.width;
     if (a <= front) return AutoMovieHumanMouth.sweepAt(m.vestibule, a / front) - Prior.MUCOSA;
-    if (a >= m.molars.width) return -Infinity;
+    // Past the molars' section only the cheek moves: nothing behind the
+    // pharynx's line, where the ears and the back of the head are.
+    if (a >= m.molars.width) return m.pharynx[0];
     const f: number = (a - front) / (m.molars.width - front);
     return (
       (AutoMovieHumanMouth.sweepAt(m.vestibule, 1) - Prior.MUCOSA) * (1 - f) +
@@ -361,14 +375,49 @@ export namespace AutoMovieHumanMouthDeformation {
     } else if (pr < 0) out[0] += pr * RETRACT * (t.tip - t.molars) * body;
     out[2] += T.tipLateral * LATERAL * t.width * tipShare;
 
-    // Dorsum: up to the palate or down, and back toward the pharynx.
+    // Dorsum: up to the roof of the mouth above it, which falls from the
+    // palate toward the oropharynx, or down; and back toward the pharynx,
+    // less toward the tongue's base, which the pharynx's wall holds. Rising
+    // to the palate's apex wherever it stood carried the back of the dorsum
+    // through the roof behind the molars for /k/ and /u/.
     const height: number = T.dorsumHeight;
     if (height > 0) {
-      const palate: [number, number] = back(c.mouth.palate);
-      out[1] += height * (palate[1] - Prior.MUCOSA - t.dorsum) * dorsum;
+      // The point's own height under the roof over it, at its height share.
+      const ceiling: [number, number] = back([p[0], roof(c.mouth, p[0], p[2]) - Prior.MUCOSA]);
+      out[1] += height * Math.max(0, ceiling[1] - p[1]) * dorsum;
     } else if (height < 0) out[1] += height * ((t.dorsum - t.floor) / 3) * dorsum;
-    out[0] -= T.dorsumBacking * BACKING * (t.molars - t.back) * dorsum;
+    out[0] -= T.dorsumBacking * BACKING * (t.molars - t.back) * dorsum * (1 - l);
     return out;
+  }
+
+  /**
+   * Height of the lining's roof over a place: its sections' centres, heights
+   * and half widths taken straight between the vestibule, the molars, the
+   * oropharynx and the pole by the forward place, and the elliptic section's
+   * top at the lateral place, so the roof falls toward the sides as the
+   * palate does. A roof read on the midline alone lifted the dorsum's sides
+   * through the palate for /k/.
+   */
+  function roof(m: AutoMovieHumanMouth.IMouth, x: number, z: number): number {
+    const keys: [number, number, number, number][] = [
+      [m.vestibule.x, m.vestibule.y, m.vestibule.up, m.vestibule.width],
+      [m.molars.x, m.molars.y, m.molars.up, m.molars.width],
+      [m.oropharynx.x, m.oropharynx.y, m.oropharynx.up, m.oropharynx.width],
+      [m.pharynx[0], m.pharynx[1], 0, 0],
+    ];
+    let k: [number, number, number, number] = keys[keys.length - 1]!;
+    if (x >= keys[0]![0]) k = keys[0]!;
+    else
+      for (let i: number = 1; i < keys.length; i++)
+        if (x >= keys[i]![0]) {
+          const a: [number, number, number, number] = keys[i - 1]!;
+          const b: [number, number, number, number] = keys[i]!;
+          const f: number = (x - b[0]) / (a[0] - b[0]);
+          k = [x, b[1] + f * (a[1] - b[1]), b[2] + f * (a[2] - b[2]), b[3] + f * (a[3] - b[3])];
+          break;
+        }
+    const s: number = k[3] > 0 ? Math.min(1, Math.abs(z) / k[3]) : 1;
+    return k[1] + k[2] * Math.sqrt(1 - s * s);
   }
 
   /** A head-fixed point in the jaw's bind frame for a jaw turned open by an angle. */

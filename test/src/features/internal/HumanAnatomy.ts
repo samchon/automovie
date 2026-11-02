@@ -196,7 +196,7 @@ export namespace HumanAnatomy {
     const ll: number = dot(ab, ab);
     const close = (v: number): boolean => {
       const p: V3 = point(skin, v);
-      const s: number = Math.max(0, Math.min(1, dot(sub(p, a), ab) / ll));
+      const s: number = ll === 0 ? 0 : Math.max(0, Math.min(1, dot(sub(p, a), ab) / ll));
       return dist(p, add(a, scale(ab, s))) <= radius;
     };
     const ok: Uint8Array = new Uint8Array(skin.P.length / 3);
@@ -232,17 +232,34 @@ export namespace HumanAnatomy {
     const q: [number, number] = at(pick);
     let best: number = -1;
     let bestArea: number = Infinity;
+    // A point is enclosed when rays in at least two of three directions cross
+    // the loop an odd number of times: a gap where the loop meets an opening
+    // can spoil one ray.
+    const directions: [number, number][] = [0, 1, 2].map((k: number): [number, number] => [
+      Math.cos(0.3 + (2 * Math.PI * k) / 3),
+      Math.sin(0.3 + (2 * Math.PI * k) / 3),
+    ]);
     all.components.forEach((c: IComponent, k: number): void => {
-      let crossings: number = 0;
-      for (const [a, b] of c.segments) {
-        const pa: [number, number] = at(a);
-        const pb: [number, number] = at(b);
-        if (pa[1] > q[1] !== pb[1] > q[1]) {
-          const x: number = pa[0] + ((q[1] - pa[1]) * (pb[0] - pa[0])) / (pb[1] - pa[1]);
-          if (x > q[0]) crossings++;
+      let votes: number = 0;
+      for (const [dx, dy] of directions) {
+        let crossings: number = 0;
+        for (const [a, b] of c.segments) {
+          const pa: [number, number] = at(a);
+          const pb: [number, number] = at(b);
+          // Ray q + t (dx, dy), t > 0, against segment pa + s (pb - pa), s in [0, 1).
+          const ex: number = pb[0] - pa[0];
+          const ey: number = pb[1] - pa[1];
+          const den: number = dx * ey - dy * ex;
+          if (Math.abs(den) < 1e-12) continue;
+          const wx: number = pa[0] - q[0];
+          const wy: number = pa[1] - q[1];
+          const t: number = (wx * ey - wy * ex) / den;
+          const s: number = (wx * dy - wy * dx) / den;
+          if (t > 0 && s >= 0 && s < 1) crossings++;
         }
+        if (crossings % 2 === 1) votes++;
       }
-      if (crossings % 2 === 1 && c.area < bestArea) {
+      if (votes >= 2 && c.area < bestArea) {
         best = k;
         bestArea = c.area;
       }
@@ -648,7 +665,6 @@ function pieces(
   };
   const segments: [HumanAnatomy.V3, HumanAnatomy.V3][] = [];
   const keys: [number, number][] = [];
-  const signs: number[] = [];
   const count: number = within === undefined ? skin.I.length / 3 : within.length;
   const P: Float64Array = skin.P;
   for (let i: number = 0; i < count; i++) {
@@ -686,7 +702,6 @@ function pieces(
     const flip: boolean = HumanAnatomy.dot(HumanAnatomy.cross(normal, tn), dir) < 0;
     segments.push(flip ? [ends[1]!, ends[0]!] : [ends[0]!, ends[1]!]);
     keys.push(flip ? [edgeKeys[1]!, edgeKeys[0]!] : [edgeKeys[0]!, edgeKeys[1]!]);
-    signs.push(1);
     for (const k of edgeKeys) if (!parent.has(k)) parent.set(k, k);
     const ra: number = find(edgeKeys[0]!);
     const rb: number = find(edgeKeys[1]!);

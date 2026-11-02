@@ -14,9 +14,10 @@ import { AutoMovieHumanMouthPrior as Prior } from "./AutoMovieHumanMouthPrior";
  * - Lining, `human.mouth.lining`: one meridian from every vertex of the rim
  *   the `mouth` aperture leaves in the skin, through the lips' inner faces
  *   pressed together just behind the slit, the vestibule's wall outside the
- *   front teeth, the molar section under the palate and over the floor, to a
- *   pole at the pharynx: a centripetal Catmull-Rom curve through those five
- *   points (Yuksel et al. 2011), so neighbouring meridians run alike and the
+ *   front teeth, the molar section under the palate and over the floor, the
+ *   oropharynx round the tongue's base, to a pole on the pharynx's back wall:
+ *   a centripetal Catmull-Rom curve through those six points (Yuksel et al.
+ *   2011), so neighbouring meridians run alike and the
  *   lining is smooth round the rim. The pressed faces close the slit at rest. Its first ring is the rim
  *   itself, at the same places, so the place-based binding gives the copies
  *   the skin's weights and the seam holds under any pose.
@@ -203,7 +204,7 @@ export namespace AutoMovieHumanOralCavity {
         AutoMovieHumanMouth.contactAt(mouth, r[2]) + PRESSED * (r[1] - AutoMovieHumanMouth.contactAt(mouth, r[2])),
         r[2],
       ];
-      const controls: Vec3[] = [r, contact, wall(v, t), wall(m, t), pole];
+      const controls: Vec3[] = [r, contact, wall(v, t), wall(m, t), wall(mouth.oropharynx, t), pole];
       let row: number = 0;
       for (let s: number = 0; s < SPANS.length; s++)
         for (let k: number = 0; k < SPANS[s]!; k++) {
@@ -592,8 +593,8 @@ export namespace AutoMovieHumanOralCavity {
 
   type Vec3 = [number, number, number];
 
-  /** Meridian points between the rim, the pressed faces, the vestibule, the molar section and the pole. */
-  const SPANS: readonly number[] = [3, 7, 8, 8];
+  /** Meridian points between the rim, the pressed faces, the vestibule, the molar and oropharyngeal sections and the pole. */
+  const SPANS: readonly number[] = [3, 7, 8, 6, 4];
 
   /** Share of the slit's half-height the pressed inner faces keep from the contact line. */
   export const PRESSED: number = 0.2;

@@ -175,7 +175,10 @@ export namespace AutoMovieHumanMouth {
     /** The lining's section over the first molars. */
     molars: ISection;
 
-    /** The pharynx's centre, where the lining closes, `[x, y]`. */
+    /** The lining's section at the oropharynx, round the tongue's base. */
+    oropharynx: ISection;
+
+    /** The pharynx's back wall, where the lining closes behind the oropharynx, `[x, y]`. */
     pharynx: [number, number];
 
     /** Alveolar ridge behind the upper incisors, where a tip touches for /t/, `[x, y]`. */
@@ -297,6 +300,19 @@ export namespace AutoMovieHumanMouth {
       width: lingual - Prior.MUCOSA / 2,
       molars: lowerMolar.neck[0],
     };
+    // The oropharynx holds the tongue's base: its section is the tongue's at
+    // the back with a lining's thickness all round, so the lining that closes
+    // behind it never passes through the tongue. A lining drawn to one point
+    // at the pharynx cut through a third of the resting tongue.
+    const occlusalBack: number = molarY + cant * (molar.neck[0] - pharynx[0]);
+    const oropharynx: ISection = {
+      x: pharynx[0],
+      y: occlusalBack,
+      width: tongue.width + 2 * Prior.MUCOSA,
+      up: (tongue.dorsum + tongue.floor) / 2 - occlusalBack + 2 * Prior.MUCOSA,
+      down: occlusalBack - tongue.floor + 2 * Prior.MUCOSA,
+      sweep: 0,
+    };
     const mouth: IMouth = {
       stomion: inputs.stomion,
       width: inputs.width,
@@ -312,7 +328,8 @@ export namespace AutoMovieHumanMouth {
       cant,
       vestibule,
       molars,
-      pharynx,
+      oropharynx,
+      pharynx: [pharynx[0] - 2 * Prior.MUCOSA, occlusalBack],
       ridge: [
         upperIncisor.neck[0] - upperIncisor.crown.depth,
         upperIncisor.neck[1] - Prior.MUCOSA,
