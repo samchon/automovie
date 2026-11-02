@@ -1,3 +1,4 @@
+import { HumanLoftSectionWinding } from "./HumanLoftSectionWinding";
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
@@ -45,6 +46,7 @@ export interface IHumanCurveFinding {
  *
  * - `finite`, `stations`, `winding`: values, station order, ring orientation.
  * - `crossing`: a ring runs over itself.
+ * - `collapse`: an interior section has no area distinguishable from roundoff.
  * - `slope`: a control point's station slope, against what the ring's width can
  *   need.
  * - `slide`: rings slip along themselves between layers, which shears skin.
@@ -649,6 +651,26 @@ function auditChain(
   const grid: V3[][] = stations.map((s: number): V3[] =>
     AutoMovieHumanLoftChain.ring(chain, s, uniform(PHASES)),
   );
+  // End sections cannot certify orientation between them.
+  const orientations: ReturnType<typeof HumanLoftSectionWinding> = HumanLoftSectionWinding(chain, stations, grid);
+  grid.forEach((ring: V3[], i: number): void => {
+    if (!orientations[i]!.finite) {
+      const phase: number = ring.findIndex((point: V3): boolean => !point.every(Number.isFinite));
+      report(name, "finite", `${i % STEPS === 0 ? "principal" : "interior"} at ${stations[i]}; phase=${phase < 0 ? "area" : (2 * Math.PI * phase / PHASES).toString()}`, 1, 0, ring[Math.max(0, phase)]!);
+      return;
+    }
+    if (i % STEPS === 0) return;
+    if (!orientations[i]!.resolved)
+      report(name, "collapse", `interior at ${stations[i]}; area=${orientations[i]!.area} mm^2, roundoff=${orientations[i]!.areaError} mm^2`, 1, 0, ring[0]!);
+    const previous: V3[] = rings[Math.floor(i / STEPS)]!;
+    if (perimeter(ring) >= SMALL && perimeter(previous) >= SMALL && orientations[i]!.area * orientations[Math.floor(i / STEPS) * STEPS]!.area < 0)
+      report(name, "winding", `interior at ${stations[i]}`, 1, 0, ring[0]!);
+    if (perimeter(ring) >= SMALL && !pinched) {
+      const crossingsFound: number = crossings(ring);
+      if (crossingsFound > 0)
+        report(name, "crossing", `interior at ${stations[i]}`, crossingsFound, 0, ring[0]!);
+    }
+  });
   const layerOf = (i: number): number => Math.ceil(i / STEPS);
   const count: number = grid.length;
   const centres: V3[] = grid.map(centre);
@@ -661,7 +683,7 @@ function auditChain(
     const gap: number = distance(centre(rings[k]!), centre(rings[k - 1]!));
     const a: V3[] = rings[k - 1]!;
     const b: V3[] = rings[k]!;
-    const mid: V3[] = grid[(k - 1) * STEPS + Math.floor(STEPS / 2)]!;
+    const interior: V3[][] = grid.slice((k - 1) * STEPS + 1, k * STEPS);
     for (let j: number = 0; j < PHASES; j++) {
       const tangent: V3 = unit(sub(a[(j + 1) % PHASES]!, a[(j + PHASES - 1) % PHASES]!));
       const move: V3 = sub(b[j]!, a[j]!);
@@ -670,8 +692,7 @@ function auditChain(
         report(name, "slide", `layer ${band(k)} ${side(a, j)}`, along / gap, SLIDE);
       const chord: number = distance(a[j]!, b[j]!);
       const swing: number = Math.max(
-        distance(mid[j]!, a[j]!),
-        distance(mid[j]!, b[j]!),
+        ...interior.flatMap((ring: V3[]): number[] => [distance(ring[j]!, a[j]!), distance(ring[j]!, b[j]!)]),
       );
       if (swing > OVERSHOOT * Math.max(chord, 1))
         report(name, "overshoot", `layer ${band(k)} ${side(a, j)}`, swing / Math.max(chord, 1), OVERSHOOT);

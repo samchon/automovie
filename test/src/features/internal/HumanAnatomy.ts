@@ -1,3 +1,4 @@
+import { HumanSkinDistance } from "./HumanSkinDistance";
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import { HumanPeople } from "./HumanPeople";
@@ -538,44 +539,14 @@ export namespace HumanAnatomy {
     return out;
   }
 
-  /** Distance from each point to the nearest triangle of the skin, by a grid. */
-  export function distances(skin: ISkin, points: V3[], reach: number): number[] {
-    const cell: number = Math.max(reach, 2);
-    const key = (i: number, j: number, k: number): number => ((i + 1000) * 2000 + (j + 1000)) * 2000 + (k + 1000);
-    const P: Float64Array = skin.P;
-    const cached: { cell: number; grid: Map<number, number[]> } | undefined = triangleGrids.get(skin);
-    const fresh: boolean = cached?.cell !== cell;
-    const grid: Map<number, number[]> = fresh ? new Map() : cached!.grid;
-    if (fresh) triangleGrids.set(skin, { cell, grid });
-    for (let t: number = 0; fresh && t < skin.I.length; t += 3) {
-      const a: number = 3 * skin.I[t]!;
-      const b: number = 3 * skin.I[t + 1]!;
-      const c: number = 3 * skin.I[t + 2]!;
-      const lo: number[] = [0, 1, 2].map((k: number): number => Math.floor(Math.min(P[a + k]!, P[b + k]!, P[c + k]!) / cell));
-      const hi: number[] = [0, 1, 2].map((k: number): number => Math.floor(Math.max(P[a + k]!, P[b + k]!, P[c + k]!) / cell));
-      for (let i: number = lo[0]!; i <= hi[0]!; i++)
-        for (let j: number = lo[1]!; j <= hi[1]!; j++)
-          for (let k: number = lo[2]!; k <= hi[2]!; k++) {
-            const list: number[] | undefined = grid.get(key(i, j, k));
-            if (list === undefined) grid.set(key(i, j, k), [t]);
-            else list.push(t);
-          }
+  /** Exact nearest distances on one immutable generated skin, with bounded triangle retention. */
+  export function distances(skin: ISkin, points: V3[]): number[] {
+    let index: HumanSkinDistance | undefined = distanceIndices.get(skin);
+    if (index === undefined) {
+      index = new HumanSkinDistance(skin);
+      distanceIndices.set(skin, index);
     }
-    return points.map((p: V3): number => {
-      const i: number = Math.floor(p[0] / cell);
-      const j: number = Math.floor(p[1] / cell);
-      const k: number = Math.floor(p[2] / cell);
-      let best: number = Infinity;
-      for (let a: number = -1; a <= 1; a++)
-        for (let b: number = -1; b <= 1; b++)
-          for (let c: number = -1; c <= 1; c++)
-            for (const t of grid.get(key(i + a, j + b, k + c)) ?? [])
-              best = Math.min(
-                best,
-                triangleDistance(p, point(skin, skin.I[t]!), point(skin, skin.I[t + 1]!), point(skin, skin.I[t + 2]!)),
-              );
-      return best;
-    });
+    return points.map((point: V3): number => index.read(point));
   }
 
   /** Exact distance from a point to a triangle. */
@@ -690,7 +661,8 @@ const binds: Map<string, HumanAnatomy.ISkin> = new Map();
 const poses: Map<string, HumanAnatomy.ISkin> = new Map();
 const bindings: Map<string, { joints: string[]; boneIndices: number[]; weights: number[] }> = new Map();
 const rayGrids: WeakMap<HumanAnatomy.ISkin, IRayGrid> = new WeakMap();
-const triangleGrids: WeakMap<HumanAnatomy.ISkin, { cell: number; grid: Map<number, number[]> }> = new WeakMap();
+/** A compiled nearest reader dies with its immutable skin. */
+const distanceIndices: WeakMap<HumanAnatomy.ISkin, HumanSkinDistance> = new WeakMap();
 
 /** Cut every triangle a plane crosses into segments, joined into loops by shared edges. */
 function pieces(

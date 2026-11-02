@@ -1,3 +1,4 @@
+import type { HumanPoseStrain } from "./HumanPoseStrain";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 
 /** Distinct evidence authorities; a model goal never supplies clinical evidence. */
@@ -28,6 +29,8 @@ export namespace HumanAnatomyAuthority {
     status: Status;
     /** Missing provenance, landmark or pose; never a substitute for failure. */
     reason?: string;
+    /** Complete face scan and worst actual skin triangle; this evidence never changes acceptance bounds. */
+    triangleStrain?: HumanPoseStrain.IOutput;
   }
 
   /** Local raw shape rows acquire an explicit observed-anatomy default on exit. */

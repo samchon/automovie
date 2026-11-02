@@ -1,9 +1,11 @@
+import { HumanSkinDistance } from "./HumanSkinDistance";
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import { AutoMovieHumanOralCavity } from "../../../../packages/human/src/generation/AutoMovieHumanOralCavity";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import { HUMAN_STICKMAN_POSES } from "../../../../packages/human/dev/src/human-stickman/HUMAN_STICKMAN_POSES";
 import { HumanAnatomy } from "./HumanAnatomy";
+import { HumanPoseStrain } from "./HumanPoseStrain";
 import { HumanPlanePath } from "./HumanPlanePath";
 import { HumanEyelidMeasurements } from "./HumanEyelidMeasurements";
 import { HumanMeasurementSite } from "./HumanMeasurementSite";
@@ -341,9 +343,10 @@ export namespace HumanAnatomyAudit {
           high: label === "neutral" ? CONTACT : COMPRESSION,
           unit: "mm",
         });
-        const tear = strain(rest, skin, t);
-        rows.push({ person: name, site: `${label} pose, ${region}: largest principal stretch`, value: tear.stretch, low: 0, high: STRETCH, unit: "x" });
-        rows.push({ person: name, site: `${label} pose, ${region}: triangles folded over their neighbours`, value: tear.folded, low: 0, high: 0, unit: "triangles" });
+        const tear: HumanPoseStrain.IOutput = strain(rest, skin, t, A.binding(name));
+        const strainReason: string | undefined = tear.availability === "complete" ? undefined : `${tear.availability}: ${tear.unmeasurableTriangles.map((face: HumanPoseStrain.IUnmeasurable): string => `${face.triangle}:${face.reason}`).join(", ") || "no selected faces"}`;
+        rows.push({ person: name, site: `${label} pose, ${region}: largest principal stretch`, value: tear.stretch, low: 0, high: STRETCH, unit: "x", reason: strainReason, triangleStrain: tear });
+        rows.push({ person: name, site: `${label} pose, ${region}: triangles folded over their neighbours`, value: tear.availability === "complete" ? tear.folded : NaN, low: 0, high: 0, unit: "triangles", reason: strainReason, triangleStrain: tear });
       }
     }
     // Volume of the limbs under full flexion against their volume at neutral.
@@ -361,6 +364,27 @@ export namespace HumanAnatomyAudit {
       });
     }
     return Authority.finish(rows);
+  }
+
+  /** Mirror the selected final-skin vertices, retaining measurement refusals as failed rows. */
+  export function symmetry(name: string, skin: HumanAnatomy.ISkin, chains: RegExp, label: string): IRow[] {
+    let worst: number = NaN;
+    let reason: string | undefined;
+    try {
+      const points: V3[] = A.vertices(skin, chains)
+        .filter((_: V3, i: number): boolean => i % 4 === 0)
+        .map((point: V3): V3 => [point[0], point[1], -point[2]]);
+      const distances: number[] = A.distances(skin, points);
+      worst = distances.length === 0 ? NaN : 0;
+      for (const distance of distances)
+        worst = Number.isFinite(distance) ? Math.max(worst, distance) : NaN;
+      if (!Number.isFinite(worst))
+        reason = `${name}: ${label} mirror measurement has no complete finite observation; points=${points.length}; distances=${distances.map(String).join(",")}; expected finite distances in mm.`;
+    } catch (error) {
+      if (!(error instanceof HumanSkinDistance.MeasurementError)) throw error;
+      reason = error.message;
+    }
+    return [{ person: name, site: `${label}: mirror image off the other side's skin, mm`, value: worst, low: 0, high: MIRROR, unit: "mm", authority: "observed-anatomy", status: Number.isFinite(worst) ? "measured" : "unavailable", reason }];
   }
 
   /** The poses the pose audit reads. */
@@ -1370,20 +1394,6 @@ function teeth(skin: HumanAnatomy.ISkin, lo: number, hi: number): number {
   return seen;
 }
 
-/**
- * Mirror symmetry of skin built from inputs the two sides share: each vertex of
- * the chains, reflected across the median plane, against the nearest skin.
- */
-function symmetry(name: string, skin: HumanAnatomy.ISkin, chains: RegExp, label: string): HumanAnatomyAudit.IRow[] {
-  const points: V3[] = A.vertices(skin, chains)
-    .filter((_: V3, i: number): boolean => i % 4 === 0)
-    .map((p: V3): V3 => [p[0], p[1], -p[2]]);
-  const d: number[] = A.distances(skin, points, 6);
-  let worst: number = 0;
-  for (const x of d) if (Number.isFinite(x)) worst = Math.max(worst, x);
-  return [{ person: name, site: `${label}: mirror image off the other side's skin, mm`, value: worst, low: 0, high: MIRROR, unit: "mm", authority: "observed-anatomy", status: Number.isFinite(worst) ? "measured" : "unavailable" }];
-}
-
 /** Mirror distance that reads as an asymmetry, mm. */
 const MIRROR: number = 0.5;
 
@@ -1393,63 +1403,8 @@ const MIRROR: number = 0.5;
  * triangles whose posed normal turns more than 120 degrees from its edge
  * neighbours' while it lay within 60 at the bind.
  */
-function strain(rest: HumanAnatomy.ISkin, posed: HumanAnatomy.ISkin, region: Uint32Array): { stretch: number; folded: number } {
-  let stretch: number = 0;
-  const normal = (skin: HumanAnatomy.ISkin, t: number): V3 => {
-    const a: V3 = A.point(skin, skin.I[3 * t]!);
-    return A.unit(A.cross(A.sub(A.point(skin, skin.I[3 * t + 1]!), a), A.sub(A.point(skin, skin.I[3 * t + 2]!), a)));
-  };
-  const inRegion: Set<number> = new Set(region);
-  const edgeOwner: Map<number, number[]> = new Map();
-  const n: number = rest.P.length / 3;
-  for (const t of region)
-    for (let e: number = 0; e < 3; e++) {
-      const a: number = rest.I[3 * t + e]!;
-      const b: number = rest.I[3 * t + ((e + 1) % 3)]!;
-      const k: number = Math.min(a, b) * n + Math.max(a, b);
-      const list: number[] = edgeOwner.get(k) ?? [];
-      list.push(t);
-      edgeOwner.set(k, list);
-    }
-  for (const t of region) {
-    const r: V3[] = [0, 1, 2].map((k: number): V3 => A.point(rest, rest.I[3 * t + k]!));
-    const q: V3[] = [0, 1, 2].map((k: number): V3 => A.point(posed, posed.I[3 * t + k]!));
-    const e1: V3 = A.sub(r[1]!, r[0]!);
-    const e2: V3 = A.sub(r[2]!, r[0]!);
-    const f1: V3 = A.sub(q[1]!, q[0]!);
-    const f2: V3 = A.sub(q[2]!, q[0]!);
-    // Rest frame in the triangle's plane.
-    const u: V3 = A.unit(e1);
-    const w: V3 = A.unit(A.reject(e2, u));
-    const R: number[] = [A.dot(e1, u), A.dot(e2, u), A.dot(e1, w), A.dot(e2, w)];
-    const det: number = R[0]! * R[3]! - R[1]! * R[2]!;
-    if (Math.abs(det) < 1e-9) continue;
-    const inv: number[] = [R[3]! / det, -R[1]! / det, -R[2]! / det, R[0]! / det];
-    // Deformation F = [f1 f2] inv(R), a 3x2 map; its Gram matrix gives the stretches.
-    const c1: V3 = A.add(A.scale(f1, inv[0]!), A.scale(f2, inv[2]!));
-    const c2: V3 = A.add(A.scale(f1, inv[1]!), A.scale(f2, inv[3]!));
-    const a11: number = A.dot(c1, c1);
-    const a12: number = A.dot(c1, c2);
-    const a22: number = A.dot(c2, c2);
-    const tr: number = a11 + a22;
-    const disc: number = Math.sqrt(Math.max(0, (a11 - a22) ** 2 / 4 + a12 * a12));
-    stretch = Math.max(stretch, Math.sqrt(tr / 2 + disc));
-  }
-  let folded: number = 0;
-  for (const t of region) {
-    const neighbours: number[] = [];
-    for (let e: number = 0; e < 3; e++) {
-      const a: number = rest.I[3 * t + e]!;
-      const b: number = rest.I[3 * t + ((e + 1) % 3)]!;
-      for (const o of edgeOwner.get(Math.min(a, b) * n + Math.max(a, b)) ?? []) if (o !== t && inRegion.has(o)) neighbours.push(o);
-    }
-    if (neighbours.length === 0) continue;
-    const mean = (skin: HumanAnatomy.ISkin): V3 => A.unit(neighbours.reduce((s: V3, o: number): V3 => A.add(s, normal(skin, o)), [0, 0, 0]));
-    const was: number = A.dot(normal(rest, t), mean(rest));
-    const now: number = A.dot(normal(posed, t), mean(posed));
-    if (was > 0.5 && now < -0.5) folded++;
-  }
-  return { stretch, folded };
+function strain(rest: HumanAnatomy.ISkin, posed: HumanAnatomy.ISkin, region: Uint32Array, binding: HumanPoseStrain.IBinding): HumanPoseStrain.IOutput {
+  return HumanPoseStrain.measure(rest, posed, region, binding);
 }
 
 /** Volume of a whole limb at the bind: its sections' areas along its bones. */
