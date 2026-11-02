@@ -28,7 +28,7 @@ export class HumanFixtureAudit {
         deviation: "case could not complete",
         units: "category",
         error: error instanceof Error
-          ? { category: error.name, reason: error.message, stack: error.stack }
+          ? { category: error.name, reason: error.message, cause: error.cause, stack: error.stack }
           : { category: typeof error, reason: String(error) },
       });
     }

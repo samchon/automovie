@@ -7,6 +7,11 @@ import { AutoMovieHumanMeasurementProtocol as Protocol } from "./AutoMovieHumanM
 import { AutoMovieHumanPelvisGuide } from "./AutoMovieHumanPelvisGuide";
 import { AutoMovieHumanTrunkPrior } from "./AutoMovieHumanTrunkPrior";
 import { AutoMovieHumanTrunkTapes } from "./AutoMovieHumanTrunkTapes";
+import { AutoMovieHumanTrunkPolyline } from "./AutoMovieHumanTrunkPolyline";
+import { AutoMovieHumanTrunkBoundary } from "./AutoMovieHumanTrunkBoundary";
+import { AutoMovieHumanThoracicCourse } from "./AutoMovieHumanThoracicCourse";
+import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
+import { AutoMovieHumanEventAnchors } from "./AutoMovieHumanEventAnchors";
 import { AutoMovieHumanLoftHorizontal } from "../lofting/AutoMovieHumanLoftHorizontal";
 import { AutoMovieHumanNeckCourse } from "./AutoMovieHumanNeckCourse";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
@@ -110,7 +115,52 @@ export namespace AutoMovieHumanTrunkConstruction {
     inputs: IInputs,
     floor: number,
   ): IAutoMovieHumanBodyCalibration {
-    const made: IMade = generate(calibration, inputs, floor);
+    let made: IMade = generate(calibration, inputs, floor);
+    const neck: IAutoMovieHumanLoftChain = calibration.chains.find((chain: IAutoMovieHumanLoftChain): boolean => chain.name === "head")!;
+    const neckTop: number = neck.layers.at(-1)!.y;
+    const boundary: [number, number, number][] = AutoMovieHumanLoftChain.ring(neck, neckTop, Array.from({ length: 128 }, (_: unknown, index: number): number => Math.PI * index / 127));
+    const contact: [number, number, number] = boundary.reduce((a: [number, number, number], b: [number, number, number]): [number, number, number] => a[2] >= b[2] ? a : b);
+    const span: number = made.chains.find((chain: IAutoMovieHumanLoftChain): boolean => chain.name === "upper")!.layers.at(-1)!.y - floor;
+    const chestStation: (value: IMade) => number = (value: IMade): number => {
+      const geometry: Protocol.ISite["geometry"] = value.sites.chest!.geometry;
+      if (geometry.kind !== "section") throw new Error("The trunk chest must own a physical section");
+      return geometry.origin[1];
+    };
+    const length: (value: IMade) => number = (value: IMade): number => AutoMovieHumanThoracicCourse.read([...value.finished, neck], { station: neckTop, lateral: contact[2] }, { station: chestStation(value), lateral: inputs.bustSpan / 2 }).length;
+
+    // The native Shoulder-to-Apex course ends at the independently supplied
+    // half Bust Span. Its arclength is not a vertical displacement. The
+    // physical endpoint cannot lie farther below the start than that length.
+    let low: number = (contact[1] - inputs.shoulderToApex - floor) / span;
+    let high: number = (chestStation(made) - floor) / span;
+    if (!(low > 0 && low < 1 && high > low && high < 1)) throw new Error("The thoracic course has no ordered axial domain", { cause: { stage: "axial bracket", chains: ["trunk", "upper", "head"], low, high, floor, span, coordinates: contact, target: inputs.shoulderToApex, units: "mm and normalized station" } });
+    const lower: IMade = generate(calibration, inputs, floor, low);
+    const lowerLength: number = length(lower);
+    if (lowerLength < inputs.shoulderToApex) throw new Error("The thoracic course did not bracket its physical lower endpoint", { cause: { stage: "lower bracket", station: chestStation(lower), observed: lowerLength, expected: inputs.shoulderToApex, deviation: lowerLength - inputs.shoulderToApex, tolerance: 0.01, units: "mm" } });
+    for (let iteration: number = 0; length(made) > inputs.shoulderToApex; iteration++) {
+      if (iteration === 8) throw new Error("The thoracic course has no upper axial bracket", { cause: { stage: "upper bracket", station: chestStation(made), observed: length(made), expected: inputs.shoulderToApex, deviation: length(made) - inputs.shoulderToApex, tolerance: 0.01, units: "mm" } });
+      high = (high + 1) / 2;
+      made = generate(calibration, inputs, floor, high);
+    }
+    for (let iteration: number = 0; iteration < 24; iteration++) {
+      const station: number = (low + high) / 2;
+      made = generate(calibration, inputs, floor, station);
+      const observed: number = length(made);
+      if (Math.abs(observed - inputs.shoulderToApex) <= 0.01) break;
+      if (observed > inputs.shoulderToApex) low = station;
+      else high = station;
+      if (iteration === 23) throw new Error("The actual thoracic surface course did not converge", { cause: { stage: "physical course closure", station: chestStation(made), bracket: [low, high], observed, expected: inputs.shoulderToApex, deviation: observed - inputs.shoulderToApex, tolerance: 0.01, units: "mm" } });
+    }
+    const residuals: object[] = Object.entries(made.sites).flatMap(([key, site]: [string, Protocol.ISite]): object[] => {
+      if (site.geometry.kind !== "section" || !(key in inputs)) return [];
+      const station: number = site.geometry.origin[1];
+      const points: [number, number, number][] = AutoMovieHumanLoftHorizontal.points(made.finished, station, AutoMovieHumanTrunkPrior.PRIOR.samples);
+      const observed: number = AutoMovieHumanTrunkTapes.perimeter(points.map((point: [number, number, number]): [number, number] => [point[0], point[2]]));
+      const expected: number = inputs[key as "hip" | "highHip" | "waist" | "underbust" | "chest"];
+      const deviation: number = observed - expected;
+      return !Number.isFinite(deviation) || Math.abs(deviation) > 0.05 ? [{ key, station, coordinates: points[0], observed, expected, deviation, tolerance: 0.05, units: "mm", reason: "The composed model course did not converge; no anatomical or clinical acceptance" }] : [];
+    });
+    if (residuals.length > 0) throw new Error("The composed trunk courses did not converge", { cause: { stage: "composed model tape closure", chains: ["trunk", "upper"], observed: residuals, expected: "All five original model courses close through actual composition", units: "mm" } });
     const others: IAutoMovieHumanLoftChain[] = calibration.chains.filter(
       (c: IAutoMovieHumanLoftChain): boolean =>
         c.name !== "trunk" && c.name !== "upper",
@@ -119,9 +169,10 @@ export namespace AutoMovieHumanTrunkConstruction {
     // The column is mirror-symmetric, so the legs part exactly on the midline.
     return {
       ...calibration,
+      thoracicCourse: { owners: ["trunk", "upper", "head"], from: { station: neckTop, lateral: contact[2] }, to: { station: chestStation(made), lateral: inputs.bustSpan / 2 }, guides: AutoMovieHumanThoracicCourse.read([...made.finished, neck], { station: neckTop, lateral: contact[2] }, { station: chestStation(made), lateral: inputs.bustSpan / 2 }).addresses },
       chains: [...made.chains, ...others],
       measurementSites: { ...calibration.measurementSites, ...made.sites },
-      events: calibration.events.map(
+      events: AutoMovieHumanEventAnchors.retain(calibration.events.map(
         (
           e: IAutoMovieHumanBodyCalibration.IEvent,
         ): IAutoMovieHumanBodyCalibration.IEvent =>
@@ -135,7 +186,7 @@ export namespace AutoMovieHumanTrunkConstruction {
                 ],
               }
             : e,
-      ),
+      ), made.chains, Object.values(made.sites).flatMap((site: Protocol.ISite): number[] => site.geometry.kind === "section" ? [site.geometry.origin[1]] : [])),
     };
   }
 
@@ -143,6 +194,9 @@ export namespace AutoMovieHumanTrunkConstruction {
   interface IMade {
     /** Trunk and shoulder surface chains. */
     chains: IAutoMovieHumanLoftChain[];
+
+    /** Private once-composed surfaces used by the dimensional solve; final BodyLaw still composes the raw owners once. */
+    finished: IAutoMovieHumanLoftChain[];
 
     /** Named addresses contain geometry, never a target circumference. */
     sites: Protocol.ISites;
@@ -207,6 +261,7 @@ export namespace AutoMovieHumanTrunkConstruction {
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IInputs,
     floor: number,
+    chestStation?: number,
   ): IMade {
     const prior: AutoMovieHumanTrunkPrior.IPrior = AutoMovieHumanTrunkPrior.PRIOR;
     const tapes: number[] = [
@@ -374,9 +429,7 @@ export namespace AutoMovieHumanTrunkConstruction {
     // A longer shoulder-to-apex lowers the breast's apex; a wider front
     // interscye sets the arm's root further back, since that length is the
     // chest between the arms' front creases.
-    const apex: number =
-      b.station -
-      (inputs.shoulderToApex - lengths.shoulderToApex * inputs.scale) / span;
+    const apex: number = chestStation === undefined ? b.station : eased(chestStation);
     const rootBack: number =
       INTERSCYE *
       (inputs.frontInterscyeLength -
@@ -576,23 +629,43 @@ export namespace AutoMovieHumanTrunkConstruction {
           }),
       ),
     );
-    return [trunk, shoulders];
+    // This full boundary has the same periodic basis and chart as the neck.
+    // Sampling and inverse-filtering it again introduces a second, displaced
+    // source curve even though the emitted boundary inherits the original.
+    const neck: IAutoMovieHumanLoftChain = calibration.chains.find((chain: IAutoMovieHumanLoftChain): boolean => chain.name === "head")!;
+    return [trunk, AutoMovieHumanTrunkBoundary.attach(neck, shoulders)];
     };
 
-    // Close the final section interpolant rather than compensating its loss
-    // with a fitted ratio. Every site is solved in the same complete rebuild.
+    // Read the same boundary composition that the final body will consume.
+    // Only existing upper/trunk children participate in this private solve;
+    // limbs retain their own once-only final reconciliation in BodyLaw.
+    const composed: (own: IAutoMovieHumanLoftChain[]) => IAutoMovieHumanLoftChain[] = (own: IAutoMovieHumanLoftChain[]): IAutoMovieHumanLoftChain[] => {
+      const others: IAutoMovieHumanLoftChain[] = calibration.chains.filter((chain: IAutoMovieHumanLoftChain): boolean => chain.name !== "trunk" && chain.name !== "upper");
+      const names: Set<string> = new Set([...own, ...others].map((chain: IAutoMovieHumanLoftChain): string => chain.name));
+      const events: IAutoMovieHumanBodyCalibration.IEvent[] = calibration.events.filter((event: IAutoMovieHumanBodyCalibration.IEvent): boolean => names.has(event.parent)).map((event: IAutoMovieHumanBodyCalibration.IEvent): IAutoMovieHumanBodyCalibration.IEvent => ({ ...event, splits: event.splits.filter((split: IAutoMovieHumanBodyCalibration.ISplit): boolean => split.child === "trunk" || split.child === "upper") })).filter((event: IAutoMovieHumanBodyCalibration.IEvent): boolean => event.splits.length > 0);
+      return AutoMovieHumanEventJoin.reconcile({ ...calibration, chains: [...own, ...others], events: AutoMovieHumanEventAnchors.retain(events, own, named.map((entry: readonly [Protocol.Key, number, number, string]): number => floor + entry[1] * span)) }).chains.filter((chain: IAutoMovieHumanLoftChain): boolean => chain.name === "trunk" || chain.name === "upper");
+    };
+
+    // A candidate whose current breadth alone exceeds its tape cannot be
+    // repaired by blindly flattening its centre. Retain that candidate while
+    // the outer course solve changes axial placement; this is not a global
+    // feasibility verdict. Apply refuses every remaining composed residual.
     let chains: IAutoMovieHumanLoftChain[] = build();
-    for (let round: number = 0; round < 6; round++) {
+    let finished: IAutoMovieHumanLoftChain[] = composed(chains);
+    for (let round: number = 0; round < 16; round++) {
       let worst: number = 0;
       named.forEach((entry: readonly [Protocol.Key, number, number, string], i: number): void => {
         const y: number = floor + entry[1] * span;
-        const points: [number, number, number][] = AutoMovieHumanLoftHorizontal.points(chains, y, prior.samples);
+        const points: [number, number, number][] = AutoMovieHumanLoftHorizontal.points(finished, y, prior.samples);
         const measured: number = AutoMovieHumanTrunkTapes.perimeter(points.map((p: [number, number, number]): [number, number] => [p[0], p[2]]));
+        const breadth: number = Math.max(...points.map((point: [number, number, number]): number => point[2])) - Math.min(...points.map((point: [number, number, number]): number => point[2]));
+        if (2 * breadth > entry[2]) return;
         worst = Math.max(worst, Math.abs(measured - entry[2]));
         keys[i + 1]!.girth *= entry[2] / measured;
       });
       if (worst < 0.05) break;
       chains = build();
+      finished = composed(chains);
     }
     const sites: Protocol.ISites = {};
     for (const [key, u, _target, definition] of named) {
@@ -604,7 +677,7 @@ export namespace AutoMovieHumanTrunkConstruction {
     const neckTop: number = neckChain.layers[neckChain.layers.length - 1]!.y;
     const contacts: [number, number, number][] = AutoMovieHumanNeckCourse.contacts(AutoMovieHumanLoftChain.ring(neckChain, neckTop, Array.from({ length: 1024 }, (_: unknown, j: number): number => 2 * Math.PI * j / 1024)), AutoMovieHumanLoftChain.axis(neckChain, neckTop));
     sites.neckBase = { owner: "neck", basis: "model-convention", pose: "bind", definition: "The neck owner's upper collar course through its four cardinal contacts; a model course, not inferred cervicale and suprasternale.", geometry: { kind: "course", origin: AutoMovieHumanLoftChain.axis(neckChain, neckTop), normal: [0, 1, 0], front: [1, 0, 0], contacts: [contacts[0]!, contacts[1]!, contacts[2]!, contacts[3]!] } };
-    return { chains, sites };
+    return { chains, sites, finished };
   }
 
   /** The neck's bottom ring. */
@@ -779,6 +852,8 @@ export namespace AutoMovieHumanTrunkConstruction {
     // until the ring is convex across the shoulder.
     const top: [number, number][] | null =
       fill > 0 ? filled(whole, side) : null;
+    const onWhole: (fraction: number) => [number, number] = AutoMovieHumanTrunkPolyline.prepare(whole);
+    const onTop: ((fraction: number) => [number, number]) | null = top === null ? null : AutoMovieHumanTrunkPolyline.prepare(top);
 
     // Low on the shoulders the arm's arc keeps its phases, where the arm's
     // chain takes them; toward the neck the ring runs by plain arclength, as
@@ -797,12 +872,11 @@ export namespace AutoMovieHumanTrunkConstruction {
               : lengths[0]! +
                 lengths[1]! +
                 ((s - arm[1]) / (Math.PI - arm[1])) * lengths[2]!;
-        const on: [number, number] = along(
-          whole,
+        const on: [number, number] = onWhole(
           (fixed + free * ((s / Math.PI) * total - fixed)) / total,
         );
         const over: [number, number] =
-          top === null ? on : along(top, s / Math.PI);
+          onTop === null ? on : onTop(s / Math.PI);
         const p: [number, number] = [
           on[0] + fill * (over[0] - on[0]),
           on[1] + fill * (over[1] - on[1]),
@@ -884,29 +958,6 @@ export namespace AutoMovieHumanTrunkConstruction {
       z = Math.max(z, a[1] + f * (b[1] - a[1]));
     }
     return z;
-  }
-
-  /** Point at a fraction of a polyline's length. */
-  function along(line: [number, number][], f: number): [number, number] {
-    if (line.length < 2) return line[0]!;
-    const lengths: number[] = [0];
-    for (let i: number = 1; i < line.length; i++)
-      lengths.push(
-        lengths[i - 1]! +
-          Math.hypot(
-            line[i]![0] - line[i - 1]![0],
-            line[i]![1] - line[i - 1]![1],
-          ),
-      );
-    const d: number = f * lengths[lengths.length - 1]!;
-    let i: number = 0;
-    while (i < line.length - 2 && lengths[i + 1]! < d) i++;
-    const w: number =
-      (d - lengths[i]!) / Math.max(1e-9, lengths[i + 1]! - lengths[i]!);
-    return [
-      line[i]![0] + w * (line[i + 1]![0] - line[i]![0]),
-      line[i]![1] + w * (line[i + 1]![1] - line[i]![1]),
-    ];
   }
 
   /** One section's left half, from the front on the midline to the back. */
@@ -1016,11 +1067,12 @@ export namespace AutoMovieHumanTrunkConstruction {
 
   /** A half outline as a whole ring at uniform sagittal phases. */
   function uniform(half: [number, number][], order: number): [number, number][] {
+    const sample: (fraction: number) => [number, number] = AutoMovieHumanTrunkPolyline.prepare(half);
     return Array.from(
       { length: order },
       (_: unknown, m: number): [number, number] => {
         const t: number = (2 * m) / order;
-        const p: [number, number] = along(half, t <= 1 ? t : 2 - t);
+        const p: [number, number] = sample(t <= 1 ? t : 2 - t);
         return t <= 1 ? p : [p[0], -p[1]];
       },
     );

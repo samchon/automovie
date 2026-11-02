@@ -51,11 +51,16 @@ export namespace HumanPeople {
     return [...inputs().keys()];
   }
 
+  /** Registered public inputs without generating geometry; callers must clone before editing. */
+  export function parameters(name: string): IAutoMovieHumanParameters {
+    return inputs().get(name)!;
+  }
+
   /** One person, generated on first use. */
   export function person(name: string): IPerson {
     const found: IPerson | undefined = persons.get(name);
     if (found !== undefined) return found;
-    const params: IAutoMovieHumanParameters = inputs().get(name)!;
+    const params: IAutoMovieHumanParameters = parameters(name);
     const calibrated: AutoMovieHumanBodyLaw.IOutput = AutoMovieHumanBodyLaw.calibrate(params);
     const made: IPerson = {
       name,

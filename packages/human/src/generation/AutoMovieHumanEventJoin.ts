@@ -1,6 +1,7 @@
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
+import { AutoMovieHumanEventDisplacement } from "./AutoMovieHumanEventDisplacement";
+import { AutoMovieHumanEventAnchors } from "./AutoMovieHumanEventAnchors";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -76,10 +77,11 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * armpit joint and 20 to 30 degrees round the arm's root, which shades as a line
  * across the back and notches the outline. An event with a fillet therefore
  * spreads the turn over the child's layers within that many radii of its end
- * ring: the cubic `m s (1 - s / R)^2` leaves the ring with slope m and meets the
- * layer at R with neither place nor slope, standing the same `4/27 m R` off at
- * most, so {@link BULGE} bounds it too. What the bound leaves stays in the end
- * span.
+ * ring. The quintic `m s (1-s/R)^3 (1+3s/R)` leaves with slope m and zero
+ * added curvature; at R its value, slope and curvature are zero. Its maximum
+ * displacement is `16/81 m R`. Interior producer guides subdivide the source
+ * polynomial exactly and bound that reach. Every correction carries both
+ * derivatives through the child's moving frame, including its lift.
  *
  * A child built to leave its contact in the parent's tangent plane, as the leg
  * now leaves the crotch ring, declares the event `shared` and is left as built.
@@ -120,7 +122,7 @@ export namespace AutoMovieHumanEventJoin {
           replaced.get(split.child) ?? fitted;
         replaced.set(
           split.child,
-          join(parent, child, event.direction, split.arcs, event.fillet ?? 0),
+          join(parent, child, event.direction, split.arcs, event.fillet ?? 0, split.preservedStations ?? []),
         );
       }
     }
@@ -159,10 +161,18 @@ function join(
   direction: "down" | "up",
   arcs: [number, number][],
   fillet: number,
+  preserved: readonly number[],
 ): IAutoMovieHumanLoftChain {
   if (child.basis !== "spline") return child;
+  child = AutoMovieHumanEventAnchors.subdivide(child, preserved);
+  const bottom: number = child.layers[0]!.y;
+  const top: number = child.layers.at(-1)!.y;
+  const end: number = direction === "down" ? top : bottom;
+  if (preserved.some((station: number): boolean => !Number.isFinite(station) || station <= bottom || station >= top))
+    throw new Error("A preserved event station must be strictly inside its child domain");
+  const limit: number = Math.min(Infinity, ...preserved.map((station: number): number => Math.abs(station - end)));
   const ring: IRing = parentRing(parent, direction, arcs);
-  return slope(parent, ring, place(ring, child, direction), direction, fillet);
+  return slope(parent, ring, place(ring, child, direction, limit), direction, fillet, limit);
 }
 
 /** Dense parent ring at an event and the arc weight of a phase on it. */
@@ -284,6 +294,7 @@ function place(
   ring: IRing,
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
+  limit: number,
 ): IAutoMovieHumanLoftChain {
   const k: number = direction === "down" ? child.layers.length - 1 : 0;
   const step: number = direction === "down" ? -1 : 1;
@@ -307,12 +318,12 @@ function place(
 
   // Fade over the layers within the reach, at least two besides the end.
   const second: number = k + 2 * step;
-  const reach: number = Math.max(
+  const reach: number = Math.min(limit, Math.max(
     REACH,
     second >= 0 && second < child.layers.length
       ? 1.5 * Math.abs(child.layers[second]!.y - sc)
       : 0,
-  );
+  ));
   const layers: IAutoMovieHumanLoftChain.ILayer[] = child.layers.map(
     (
       layer: IAutoMovieHumanLoftChain.ILayer,
@@ -320,67 +331,13 @@ function place(
     ): IAutoMovieHumanLoftChain.ILayer => {
       const sigma: number = Math.abs(layer.y - sc);
       if (sigma >= reach) return layer;
-      // Fade f(sigma) = 1 - smooth(sigma / reach) and its station derivative,
-      // sigma growing into the child.
+      // A compact quintic preserves value, slope and curvature at the first
+      // owned interior guide. The frame inverse carries the full world jets.
       const x: number = sigma / reach;
-      const fade: number = 1 - smooth(x);
-      const rate: number = (-6 * x * (1 - x) * step) / reach;
-      const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(
-        child,
-        layer.y,
-      );
-      const values: [number, number][] = moves.map(
-        (m: Vec3): [number, number] => [fade * dot(m, f.u), fade * dot(m, f.v)],
-      );
-      const slopes: [number, number][] = moves.map(
-        (m: Vec3): [number, number] => [rate * dot(m, f.u), rate * dot(m, f.v)],
-      );
-      const dc: number[] = AutoMovieHumanSplineCurve.project(values, N);
-      const dm: number[] = AutoMovieHumanSplineCurve.project(slopes, N);
-
-      // The law lifts sections off their planes, so part of a gap lies
-      // along the frame normal and moves the lift instead.
-      const normal: Vec3 = cross(f.v, f.u);
-      const across: number[] = moves.map((m: Vec3): number => dot(m, normal));
-      const lifted: boolean =
-        layer.lift !== undefined ||
-        across.some((v: number): boolean => Math.abs(v) > 1e-3);
-      const dl: number[] = lifted
-        ? AutoMovieHumanSplineCurve.project(
-            across.map((v: number): [number, number] => [fade * v, fade * v]),
-            N,
-          ).slice(0, N)
-        : [];
-      const dr: number[] = lifted
-        ? AutoMovieHumanSplineCurve.project(
-            across.map((v: number): [number, number] => [rate * v, rate * v]),
-            N,
-          ).slice(0, N)
-        : [];
-      const lift: number[] = layer.lift ?? new Array<number>(N).fill(0);
-      const liftSlopes: number[] =
-        layer.liftSlopes ?? new Array<number>(N).fill(0);
-      return {
-        ...layer,
-        coefficients: layer.coefficients.map(
-          (v: number, i: number): number => v + dc[i]!,
-        ),
-        slopes:
-          j === k
-            ? layer.slopes
-            : layer.slopes.map((v: number, i: number): number => v + dm[i]!),
-        ...(lifted
-          ? {
-              lift: lift.map((v: number, i: number): number => v + dl[i]!),
-              liftSlopes:
-                j === k
-                  ? liftSlopes
-                  : liftSlopes.map(
-                      (v: number, i: number): number => v + dr[i]!,
-                    ),
-            }
-          : {}),
-      };
+      const fade: number = 1 - 10 * x ** 3 + 15 * x ** 4 - 6 * x ** 5;
+      const rate: number = step * (-30 * x ** 2 + 60 * x ** 3 - 30 * x ** 4) / reach;
+      const curvature: number = (-60 * x + 180 * x ** 2 - 120 * x ** 3) / reach ** 2;
+      return AutoMovieHumanEventDisplacement.layer(child, j, moves, [fade, rate, curvature]);
     },
   );
   return { ...child, layers };
@@ -393,6 +350,7 @@ function slope(
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
   fillet: number,
+  limit: number,
 ): IAutoMovieHumanLoftChain {
   const sp: number = ring.sp;
   const k: number = direction === "down" ? child.layers.length - 1 : 0;
@@ -434,7 +392,7 @@ function slope(
     child,
     sc + inward * h,
   );
-  const samples: [number, number][] = [];
+  const changes: Vec3[] = [];
 
   // The fillet's slope at each phase, and the length it spreads over.
   const spread: Vec3[] = [];
@@ -442,15 +400,18 @@ function slope(
     { length: Q },
     (_: unknown, i: number): Vec3 => onChild((2 * Math.PI * i) / Q),
   );
-  const reach: number =
+  const reach: number = Math.min(limit,
     (fillet *
       rim.reduce(
         (sum: number, p: Vec3, i: number): number =>
           sum + norm(sub(rim[(i + 1) % Q]!, p)),
         0,
       )) /
-    (2 * Math.PI);
-  const most: number = reach > 0 ? (27 * BULGE) / (4 * reach) : 0;
+    (2 * Math.PI));
+
+  // q(s)=s-6s³/R²+8s⁴/R³-3s⁵/R⁴ has zero curvature at
+  // the contact and all three jets zero at R. Its maximum is 16R/81.
+  const most: number = reach > 0 ? (81 * BULGE) / (16 * reach) : 0;
   for (let i: number = 0; i < Q; i++) {
     const t: number = (2 * Math.PI * i) / Q;
     const s: [number, number, number, number] = AutoMovieHumanLoftChain.section(
@@ -466,7 +427,7 @@ function slope(
     // one sample to the next prints ribs across the seam.
     const w: number = ring.weight(tau) * (1 - smooth((distance - 0.5) / FAR));
     if (w === 0) {
-      samples.push([0, 0]);
+      changes.push([0, 0, 0]);
       spread.push([0, 0, 0]);
       continue;
     }
@@ -480,7 +441,7 @@ function slope(
     const nm: number = dot(N3, m);
     const facing: number = smooth((Math.abs(nm) - 0.3) / FACING);
     if (facing === 0) {
-      samples.push([0, 0]);
+      changes.push([0, 0, 0]);
       spread.push([0, 0, 0]);
       continue;
     }
@@ -491,7 +452,7 @@ function slope(
     const span: number = Math.abs(previous - sc);
     const secant: number = dot(sub(inner[i]!, p), m) / span;
     const turn: number = Math.max(
-      (27 * BULGE) / (4 * span),
+      child.layers[k]!.curvatures !== undefined && child.layers[k + inward]!.curvatures !== undefined ? (81 * BULGE) / (16 * span) : (27 * BULGE) / (4 * span),
       Math.abs(own - secant),
     );
     const alpha: number =
@@ -500,52 +461,20 @@ function slope(
         Math.min(secant + turn, own + (facing * w * dot(N3, sub(Dp, Dc))) / nm),
       ) - own;
     const delta: Vec3 = scale(m, inward * alpha);
-    samples.push([dot(delta, f.u), dot(delta, f.v)]);
+    changes.push(delta);
     spread.push(scale(m, Math.max(-most, Math.min(most, alpha))));
   }
-  const change: number[] = AutoMovieHumanSplineCurve.project(samples, N);
-
   const layers: IAutoMovieHumanLoftChain.ILayer[] = [...child.layers];
-  layers[k] = {
-    ...layers[k]!,
-    slopes: layers[k]!.slopes.map(
-      (v: number, i: number): number => v + change[i]!,
-    ),
-  };
+  layers[k] = AutoMovieHumanEventDisplacement.layer(child, k, changes, [0, 1, 0]);
   child.layers.forEach(
     (layer: IAutoMovieHumanLoftChain.ILayer, j: number): void => {
       const sigma: number = Math.abs(layer.y - sc);
       if (j === k || sigma >= reach) return;
       const x: number = sigma / reach;
-      const lean: number = sigma * (1 - x) ** 2;
-      const rate: number = inward * (1 - x) * (1 - 3 * x);
-      const g: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(
-        child,
-        layer.y,
-      );
-      const moved: number[] = AutoMovieHumanSplineCurve.project(
-        spread.map((d: Vec3): [number, number] => [
-          lean * dot(d, g.u),
-          lean * dot(d, g.v),
-        ]),
-        N,
-      );
-      const turned: number[] = AutoMovieHumanSplineCurve.project(
-        spread.map((d: Vec3): [number, number] => [
-          rate * dot(d, g.u),
-          rate * dot(d, g.v),
-        ]),
-        N,
-      );
-      layers[j] = {
-        ...layer,
-        coefficients: layer.coefficients.map(
-          (v: number, i: number): number => v + moved[i]!,
-        ),
-        slopes: layer.slopes.map(
-          (v: number, i: number): number => v + turned[i]!,
-        ),
-      };
+      const lean: number = sigma * (1 - x) ** 3 * (1 + 3 * x);
+      const rate: number = inward * (1 - 18 * x ** 2 + 32 * x ** 3 - 15 * x ** 4);
+      const curvature: number = (-36 * x + 96 * x ** 2 - 60 * x ** 3) / reach;
+      layers[j] = AutoMovieHumanEventDisplacement.layer(child, j, spread, [lean, rate, curvature]);
     },
   );
   return { ...child, layers };

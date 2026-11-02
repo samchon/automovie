@@ -28,6 +28,22 @@ import type { AutoMovieHumanMeasurementProtocol } from "./AutoMovieHumanMeasurem
  * identified across all references.
  */
 export interface IAutoMovieHumanBodyCalibration {
+  /**
+   * Declared anterior model surface course from side-neck to bust apex.
+   * Material/lateral addresses contain geometry only, never the target length.
+   * This is not a clinical landmark registration or a minimum neck course.
+   */
+  thoracicCourse?: {
+    /** Generating owner names; limbs and unrelated head surfaces are excluded. */
+    owners: string[];
+    /** Side-neck boundary material station and registered lateral coordinate, mm. */
+    from: { station: number; lateral: number };
+    /** Bust-apex material station and registered lateral coordinate, mm. */
+    to: { station: number; lateral: number };
+    /** Actual source-surface guide, independent of the expected length. */
+    guides: { station: number; lateral: number }[];
+  };
+
   /** Achieved stature input of the calibration specimen in mm. */
   stature: number;
 
@@ -192,6 +208,9 @@ export namespace IAutoMovieHumanBodyCalibration {
   export interface ISplit {
     /** Child chain whose adjacent end layer meets the parent's contact layer. */
     child: string;
+
+    /** Strictly interior material stations whose geometry and jets the boundary composition must preserve, in the child's station units. No dimensional target belongs here. */
+    preservedStations?: number[];
 
     /**
      * Parent-phase arcs `[from, to]` in radians, in ring order. An arc runs
