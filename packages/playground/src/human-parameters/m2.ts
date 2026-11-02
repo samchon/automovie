@@ -165,14 +165,14 @@ export const m2: IAutoMovieHumanParameters = {
     },
   },
   head: {
-    length: 180.73039531707764,
-    cephalicIndex: 80.78801620319355,
-    circumference: 569.7307994075559,
-    height: 218.115234375,
-    faceHeight: 111.46536557272354,
+    length: 198.9,
+    cephalicIndex: 83.6,
+    circumference: 594.1,
+    height: 210.1,
+    faceHeight: 124.8,
     faceWidth: 128.9090674521467,
     mandibularWidth: 126.91175381064693,
-    minimumFrontalWidth: 89.1067141598702,
+    minimumFrontalWidth: 105.9,
     mouthOpening: 54,
     mandibularLaterotrusion: 11,
     face: {
@@ -188,9 +188,9 @@ export const m2: IAutoMovieHumanParameters = {
       },
       intercanthalWidth: 33,
       nose: {
-        width: 33.68515729904175,
-        height: 43.049774169921875,
-        protrusion: 10.20297296119459,
+        width: 41.8,
+        height: 58.4,
+        protrusion: 23.8,
       },
       mouth: {
         width: 58,
@@ -200,30 +200,30 @@ export const m2: IAutoMovieHumanParameters = {
     },
     earPair: {
       left: {
-        length: 62.256317138671875,
-        breadth: 35.215818881988525,
-        protrusion: 16.293210983276367,
+        length: 64.6,
+        breadth: 31,
+        protrusion: 24.4,
       },
       right: {
-        length: 64.4781494140625,
-        breadth: 34.952014684677124,
-        protrusion: 14.922266006469727,
+        length: 66.9,
+        breadth: 32,
+        protrusion: 20.3,
       },
     },
   },
   extremities: {
     hands: {
       left: {
-        palmLength: 88.17157427060376,
-        handLength: 168.59441357757672,
-        handBreadth: 68.09946526935424,
-        thumbLength: 79.73545171172455,
+        palmLength: 125.2,
+        handLength: 210,
+        handBreadth: 97.5,
+        thumbLength: 63.2,
       },
       right: {
-        palmLength: 88.17149775988048,
-        handLength: 168.5944568396517,
-        handBreadth: 68.09944990787706,
-        thumbLength: 79.73537433647563,
+        palmLength: 125.2,
+        handLength: 210,
+        handBreadth: 97.5,
+        thumbLength: 63.2,
       },
     },
     feet: {
