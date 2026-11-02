@@ -37,9 +37,15 @@ export function assertHumanCurves(chains?: RegExp): void {
           p.params.body.controls.height.value!,
         );
   };
-  const findings: HumanCurveAudit.IHumanCurveFinding[] =
-    HumanPeople.names().flatMap(audit);
-  if (findings.length === 0) return;
+  const findings: HumanCurveAudit.IHumanCurveFinding[] = [];
+  const unavailable: object[] = [];
+  for (const person of HumanPeople.names()) {
+    try { findings.push(...audit(person)); }
+    catch (error) {
+      unavailable.push({ person, phase: "actual person and curve consumer", chains: chains?.source ?? "whole-body placement", observed: "unavailable", expected: "A generated person whose requested curves can all be measured", coordinates: "unavailable", units: "unavailable", category: error instanceof Error ? error.name : typeof error, reason: error instanceof Error ? error.message : String(error), cause: error instanceof Error ? error.cause : undefined, stack: error instanceof Error ? error.stack : undefined });
+    }
+  }
+  if (findings.length === 0 && unavailable.length === 0) return;
   const lines: string[] = findings
     .sort(
       (
@@ -52,9 +58,9 @@ export function assertHumanCurves(chains?: RegExp): void {
     )
     .map(
       (f: HumanCurveAudit.IHumanCurveFinding): string =>
-        `${f.rule.padEnd(10)} ${f.region.padEnd(28)} ${f.where.padEnd(26)} ${f.person.padEnd(10)} ${f.value.toFixed(2)} over ${f.limit} at ${f.count} points${f.point.length === 0 ? "" : ` near ${f.point.map((v: number): string => v.toFixed(0)).join(" ")}`}`,
+        `${f.rule.padEnd(10)} ${f.region.padEnd(28)} ${f.where.padEnd(26)} ${f.person.padEnd(10)} ${f.value.toFixed(2)} over ${f.limit} ${f.metric.units} at ${f.count} observations${f.point.length === 0 ? "" : `; ${f.metric.pointRole} [${f.point.join(", ")}] ${f.metric.coordinateUnits}`}; ${f.metric.definition}`,
     );
   throw new Error(
-    `${findings.length} unsound regions in the generated curves:\n${lines.join("\n")}`,
+    `${findings.length} unsound regions and ${unavailable.length} unavailable people in the generated curves:\n${lines.join("\n")}\n${JSON.stringify(unavailable, (_key: string, value: unknown): unknown => typeof value === "number" && !Number.isFinite(value) ? String(value) : value)}`,
   );
 }

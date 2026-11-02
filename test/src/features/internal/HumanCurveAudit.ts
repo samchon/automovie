@@ -1,4 +1,5 @@
 import { HumanLoftSectionWinding } from "./HumanLoftSectionWinding";
+import { HumanCurveMetric } from "./HumanCurveMetric";
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
@@ -33,8 +34,11 @@ export interface IHumanCurveFinding {
   /** Points in the group. */
   count: number;
 
-  /** The worst point, mm, to look at in the viewer. */
+  /** Locator in millimetres; metric.pointRole states whether it is a skin witness, centroid or diagnostic anchor. */
   point: number[];
+
+  /** Scalar units and formula, with the coordinate's actual witness or locator role. */
+  metric: HumanCurveMetric.IDescription;
 }
 
 /**
@@ -112,6 +116,7 @@ export function auditHumanCurves(
         limit,
         count: 1,
         point: [...point],
+        metric: HumanCurveMetric.describe(rule),
       });
     else {
       found.count++;
@@ -186,6 +191,7 @@ export function auditHumanThigh(
               limit: THIGH_GIRTH,
               count: 1,
               point: centre(ring),
+              metric: HumanCurveMetric.describe("thigh"),
             },
           ]
         : [];
@@ -222,7 +228,7 @@ export function auditHumanPlacement(
     limit: number,
     point: readonly number[] = [],
   ): void => {
-    out.push({ person, region, rule, where, value, limit, count: 1, point: [...point] });
+    out.push({ person, region, rule, where, value, limit, count: 1, point: [...point], metric: HumanCurveMetric.describe(rule) });
   };
   const k: number = height / body.stature;
 
@@ -306,6 +312,7 @@ export function auditHumanPlacement(
         limit: 0,
         count: within.length,
         point: [...within[0]!],
+        metric: HumanCurveMetric.describe("inside"),
       });
   }
   return out;
@@ -463,6 +470,7 @@ function auditHandMesh(
       limit: HAND_TEAR,
       count: found?.count ?? 1,
       point: point(Math.floor(key / size)),
+      metric: HumanCurveMetric.describe("tear"),
     });
   }
   const crumples: Map<string, HumanCurveAudit.IHumanCurveFinding> = new Map();
@@ -484,6 +492,7 @@ function auditHandMesh(
       limit: HAND_CRUMPLE,
       count: near,
       point: edge.at,
+      metric: HumanCurveMetric.describe("crumple"),
     });
   }
   return [...worst.values(), ...crumples.values()];
@@ -542,6 +551,7 @@ function auditHandJoins(
                 limit: HAND_JOIN,
                 count: 1,
                 point: at,
+                metric: HumanCurveMetric.describe("join"),
               },
             ]
           : [];

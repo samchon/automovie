@@ -23,6 +23,25 @@ export namespace AutoMovieHumanThoracicCourse {
     length: number;
     /** Geometry-only guide for independent emitted-skin intersection. */
     addresses: IAddress[];
+    /** Actual finite-graph route and cost, retained for numerical cause analysis. */
+    graph: {
+      /** Actual material station nodes, including every admitted owner key. */
+      stations: number[];
+      /** Sorted unique grid/key values before the roundoff merge. */
+      ordered: number[];
+      /** Original endpoint-dependent uniform grid interval count. */
+      uniformCount: number;
+      /** Actual owner choices per row, before route selection. */
+      rowOwners: string[][];
+      /** Actual open-interval owner, distinct from either boundary chart. */
+      intervalOwners: string[];
+      /** Candidate node count per actual station. */
+      rowNodes: number[];
+      /** Optimized coarse chord cost, distinct from refined physical length, mm. */
+      cost: number;
+      /** Actual selected coarse world nodes in their original owner charts. */
+      route: { owner: string; station: number; phase: number; point: Point }[];
+    };
   }
 
   /** A sampled actual source point with its generating chart address. */
@@ -63,6 +82,16 @@ export namespace AutoMovieHumanThoracicCourse {
   export function read(chains: readonly Chain[], from: IAddress, to: IAddress): IReading {
     if (![from.station, from.lateral, to.station, to.lateral].every(Number.isFinite) || from.station === to.station)
       throw new Error("A thoracic course needs distinct finite stations and finite lateral endpoints");
+    const sections: Map<Chain, Map<number, Crossing.IPrepared>> = new Map();
+
+    /** One unchanged source section supplies every lateral and boundary query in this operation. */
+    const crossing: typeof Crossing.read = (owner: Chain, station: number, lateral: number, stage: "start" | "end" | "interior" = "interior"): Crossing.IReading => {
+      let stations: Map<number, Crossing.IPrepared> | undefined = sections.get(owner);
+      if (stations === undefined) { stations = new Map(); sections.set(owner, stations); }
+      let prepared: Crossing.IPrepared | undefined = stations.get(station);
+      if (prepared === undefined) { prepared = Crossing.prepare(owner, station, stage, lateral); stations.set(station, prepared); }
+      return prepared.read(lateral, stage);
+    };
     const count: number = Math.max(1, Math.ceil(Math.abs(to.station - from.station) / 2));
     const ordered: number[] = [...new Set([
       ...Array.from({ length: count + 1 }, (_: unknown, index: number): number => from.station + index * (to.station - from.station) / count),
@@ -84,11 +113,11 @@ export namespace AutoMovieHumanThoracicCourse {
             if (!point.every(Number.isFinite)) throw new Error("A thoracic course evaluated a nonfinite source point", { cause: { stage: "interior", chain: owner.name, station, phase, coordinates: point, expected: "All physical coordinates finite", units: "mm" } });
             return { owner, station, phase, point };
           });
-          const side: Crossing.IPoint = Crossing.read(owner, station, 0).extrema.reduce((a: Crossing.IPoint, b: Crossing.IPoint): Crossing.IPoint => a.point[2] >= b.point[2] ? a : b);
+          const side: Crossing.IPoint = crossing(owner, station, 0).extrema.reduce((a: Crossing.IPoint, b: Crossing.IPoint): Crossing.IPoint => a.point[2] >= b.point[2] ? a : b);
           candidates.push(...nodes.filter((node: INode): boolean => node.phase < side.phase), { ...side, owner, station });
           continue;
         }
-        const reading: Crossing.IReading = Crossing.read(owner, station, endpoint.lateral, index === 0 ? "start" : "end");
+        const reading: Crossing.IReading = crossing(owner, station, endpoint.lateral, index === 0 ? "start" : "end");
         ranges.push({ chain: owner.name, range: reading.range, extrema: reading.extrema });
         candidates.push(...reading.crossings.map((point: Crossing.IPoint): INode => ({ ...point, owner, station })));
       }
@@ -103,7 +132,7 @@ export namespace AutoMovieHumanThoracicCourse {
       const owners: Chain[] = [...new Set(row.map((node: INode): Chain => node.owner))];
       for (let a: number = 0; a < owners.length; a++)
         for (let b: number = a + 1; b < owners.length; b++)
-          row.push(...intersections(owners[a]!, owners[b]!, stations[index]!, row));
+          row.push(...intersections(owners[a]!, owners[b]!, stations[index]!, row, crossing));
     });
     for (let index: number = 1; index < rows.length - 1; index++) {
       const row: INode[] = rows[index]!;
@@ -121,7 +150,7 @@ export namespace AutoMovieHumanThoracicCourse {
       /** Transfer only an actual common world point; meshing tolerance is not a seam allowance. */
       const transfer: (node: INode) => INode | undefined = (node: INode): INode | undefined => {
         if (node.owner === owner) return node;
-        const reading: Crossing.IReading = Crossing.read(owner, node.station, node.point[2], "interior");
+        const reading: Crossing.IReading = crossing(owner, node.station, node.point[2], "interior");
         const nearest: Crossing.IPoint | undefined = reading.crossings.reduce<Crossing.IPoint | undefined>((best: Crossing.IPoint | undefined, point: Crossing.IPoint): Crossing.IPoint => best === undefined || distance(point.point, node.point) < distance(best.point, node.point) ? point : best, undefined);
         const residual: number = nearest === undefined ? Infinity : distance(nearest.point, node.point);
         const arithmetic: number = 128 * Number.EPSILON * Math.max(1, ...node.point.map(Math.abs), ...(nearest?.point.map(Math.abs) ?? []));
@@ -174,7 +203,14 @@ export namespace AutoMovieHumanThoracicCourse {
     }
     const length: number = points.reduce((sum: number, point: Point, index: number): number => index === 0 ? sum : sum + Math.hypot(point[0] - points[index - 1]![0], point[1] - points[index - 1]![1], point[2] - points[index - 1]![2]), 0);
     if (!(length > 0) || !Number.isFinite(length)) throw new Error("A thoracic surface course has no finite positive length");
-    return { points, length, addresses };
+    let graph: IReading["graph"] | undefined;
+    return { points, length, addresses,
+      /** Numerical evidence is prepared only for an observer that actually requests it. */
+      get graph(): IReading["graph"] {
+        graph ??= { stations, ordered, uniformCount: count, rowOwners: rows.map((row: INode[]): string[] => [...new Set(row.map((node: INode): string => node.owner.name))]), intervalOwners: intervals.map((interval: IInterval): string => interval.owner.name), rowNodes: rows.map((row: INode[]): number => row.length), cost: costs.at(-1)![0]!, route: route.map((node: INode): { owner: string; station: number; phase: number; point: Point } => ({ owner: node.owner.name, station: node.station, phase: node.phase, point: node.point })) };
+        return graph;
+      },
+    };
   }
 }
 
@@ -184,14 +220,14 @@ function distance(a: AutoMovieHumanThoracicCourse.Point, b: AutoMovieHumanThorac
 }
 
 /** Actual front-arc intersections of two boundary splines, with both chart addresses. */
-function intersections(a: Chain, b: Chain, station: number, seeds: readonly { point: AutoMovieHumanThoracicCourse.Point }[]): { owner: Chain; station: number; phase: number; point: AutoMovieHumanThoracicCourse.Point }[] {
-  const rangeA: Crossing.IReading = Crossing.read(a, station, 0, "interior");
-  const rangeB: Crossing.IReading = Crossing.read(b, station, 0, "interior");
+function intersections(a: Chain, b: Chain, station: number, seeds: readonly { point: AutoMovieHumanThoracicCourse.Point }[], crossing: typeof Crossing.read): { owner: Chain; station: number; phase: number; point: AutoMovieHumanThoracicCourse.Point }[] {
+  const rangeA: Crossing.IReading = crossing(a, station, 0, "interior");
+  const rangeB: Crossing.IReading = crossing(b, station, 0, "interior");
   const low: number = Math.max(0, rangeA.range[0], rangeB.range[0]);
   const high: number = Math.min(rangeA.range[1], rangeB.range[1]);
   if (!(low <= high)) return [];
   /** Highest-forward crossing selects this model's anterior arc, without a target tape. */
-  const front: (owner: Chain, lateral: number) => Crossing.IPoint | undefined = (owner: Chain, lateral: number): Crossing.IPoint | undefined => Crossing.read(owner, station, lateral, "interior").crossings.reduce<Crossing.IPoint | undefined>((best: Crossing.IPoint | undefined, point: Crossing.IPoint): Crossing.IPoint => best === undefined || point.point[0] > best.point[0] ? point : best, undefined);
+  const front: (owner: Chain, lateral: number) => Crossing.IPoint | undefined = (owner: Chain, lateral: number): Crossing.IPoint | undefined => crossing(owner, station, lateral, "interior").crossings.reduce<Crossing.IPoint | undefined>((best: Crossing.IPoint | undefined, point: Crossing.IPoint): Crossing.IPoint => best === undefined || point.point[0] > best.point[0] ? point : best, undefined);
   const laterals: number[] = [...new Set([low, high, ...seeds.map((node: { point: AutoMovieHumanThoracicCourse.Point }): number => node.point[2]).filter((lateral: number): boolean => lateral > low && lateral < high), ...Array.from({ length: PHASES - 1 }, (_: unknown, index: number): number => low + (high - low) * (index + 1) / PHASES)])].sort((x: number, y: number): number => x - y);
   const result: { owner: Chain; station: number; phase: number; point: AutoMovieHumanThoracicCourse.Point }[] = [];
   let previous: { lateral: number; difference: number } | undefined;

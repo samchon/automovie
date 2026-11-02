@@ -9,7 +9,11 @@ import { AutoMovieHumanTrunkPrior } from "./AutoMovieHumanTrunkPrior";
 import { AutoMovieHumanTrunkTapes } from "./AutoMovieHumanTrunkTapes";
 import { AutoMovieHumanTrunkPolyline } from "./AutoMovieHumanTrunkPolyline";
 import { AutoMovieHumanTrunkBoundary } from "./AutoMovieHumanTrunkBoundary";
-import { AutoMovieHumanThoracicCourse } from "./AutoMovieHumanThoracicCourse";
+import type { AutoMovieHumanTrunkObservation } from "./AutoMovieHumanTrunkObservation";
+import { AutoMovieHumanBodySurface } from "./AutoMovieHumanBodySurface";
+import { AutoMovieHumanBodyEvents } from "./AutoMovieHumanBodyEvents";
+import { AutoMovieHumanSkinCourse } from "./AutoMovieHumanSkinCourse";
+import type { AutoMovieHumanSurfaceCorrespondence } from "./AutoMovieHumanSurfaceCorrespondence";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanEventAnchors } from "./AutoMovieHumanEventAnchors";
 import { AutoMovieHumanLoftHorizontal } from "../lofting/AutoMovieHumanLoftHorizontal";
@@ -114,6 +118,7 @@ export namespace AutoMovieHumanTrunkConstruction {
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: IInputs,
     floor: number,
+    observe?: AutoMovieHumanTrunkObservation.Listener,
   ): IAutoMovieHumanBodyCalibration {
     let made: IMade = generate(calibration, inputs, floor);
     const neck: IAutoMovieHumanLoftChain = calibration.chains.find((chain: IAutoMovieHumanLoftChain): boolean => chain.name === "head")!;
@@ -126,25 +131,57 @@ export namespace AutoMovieHumanTrunkConstruction {
       if (geometry.kind !== "section") throw new Error("The trunk chest must own a physical section");
       return geometry.origin[1];
     };
-    const length: (value: IMade) => number = (value: IMade): number => AutoMovieHumanThoracicCourse.read([...value.finished, neck], { station: neckTop, lateral: contact[2] }, { station: chestStation(value), lateral: inputs.bustSpan / 2 }).length;
+    let stage: AutoMovieHumanTrunkObservation.IEvent["stage"] = "initial";
+    let ordinal: number = 0;
+    const contexts: WeakMap<IMade, { stage: AutoMovieHumanTrunkObservation.IEvent["stage"]; iteration: number; bracket: [number, number] }> = new WeakMap();
+    const physical: WeakMap<IMade, { body: IAutoMovieHumanBodyCalibration; surface: AutoMovieHumanBodySurface.IGeometry; boundaries: AutoMovieHumanSurfaceCorrespondence.IBoundary[]; reading?: AutoMovieHumanSkinCourse.IReading }> = new WeakMap();
+    const emit: (value: IMade, reading?: AutoMovieHumanSkinCourse.IReading) => void = (value: IMade, reading?: AutoMovieHumanSkinCourse.IReading): void => {
+      if (observe === undefined) return;
+      if (!contexts.has(value)) contexts.set(value, { stage, iteration: ordinal, bracket: [low, high] });
+      const context: NonNullable<ReturnType<typeof contexts.get>> = contexts.get(value)!;
+      const prepared: ReturnType<typeof physical.get> = physical.get(value);
+      observe({ kind: reading === undefined ? "candidate" : "course", ...context, state: value, neck, from: { station: neckTop, lateral: contact[2] }, to: { station: chestStation(value), lateral: inputs.bustSpan / 2 }, expected: inputs.shoulderToApex, reading, surface: prepared?.surface, physicalBody: prepared?.body, boundaries: prepared?.boundaries });
+    };
+    const length: (value: IMade) => number = (value: IMade): number => {
+      let prepared: ReturnType<typeof physical.get> = physical.get(value);
+      if (prepared === undefined) {
+        const chains: IAutoMovieHumanLoftChain[] = [...value.finished, neck];
+        const names: Set<string> = new Set(chains.map((chain: IAutoMovieHumanLoftChain): string => chain.name));
+        const events: IAutoMovieHumanBodyCalibration.IEvent[] = AutoMovieHumanEventAnchors.retain(AutoMovieHumanBodyEvents.project(calibration.events, names), value.chains, Object.values(value.sites).flatMap((site: Protocol.ISite): number[] => site.geometry.kind === "section" ? [site.geometry.origin[1]] : []));
+        const body: IAutoMovieHumanBodyCalibration = { stature: calibration.stature, chains, events, poles: [], apertures: [], eyes: [] };
+        const boundaries: AutoMovieHumanSurfaceCorrespondence.IBoundary[] = [];
+        const surface: AutoMovieHumanBodySurface.IGeometry = AutoMovieHumanBodySurface.geometry(body, [], (boundary: AutoMovieHumanSurfaceCorrespondence.IBoundary): void => { boundaries.push(boundary); });
+        prepared = { body, surface, boundaries }; physical.set(value, prepared);
+        emit(value);
+        prepared.reading = AutoMovieHumanSkinCourse.read(body, surface, names, { station: neckTop, lateral: contact[2] }, { station: chestStation(value), lateral: inputs.bustSpan / 2 }, boundaries);
+      }
+      const reading: AutoMovieHumanSkinCourse.IReading = prepared.reading!;
+      emit(value, reading);
+      return reading.length;
+    };
 
     // The native Shoulder-to-Apex course ends at the independently supplied
     // half Bust Span. Its arclength is not a vertical displacement. The
     // physical endpoint cannot lie farther below the start than that length.
     let low: number = (contact[1] - inputs.shoulderToApex - floor) / span;
     let high: number = (chestStation(made) - floor) / span;
+    emit(made);
     if (!(low > 0 && low < 1 && high > low && high < 1)) throw new Error("The thoracic course has no ordered axial domain", { cause: { stage: "axial bracket", chains: ["trunk", "upper", "head"], low, high, floor, span, coordinates: contact, target: inputs.shoulderToApex, units: "mm and normalized station" } });
     const lower: IMade = generate(calibration, inputs, floor, low);
+    stage = "lower";
+    emit(lower);
     const lowerLength: number = length(lower);
     if (lowerLength < inputs.shoulderToApex) throw new Error("The thoracic course did not bracket its physical lower endpoint", { cause: { stage: "lower bracket", station: chestStation(lower), observed: lowerLength, expected: inputs.shoulderToApex, deviation: lowerLength - inputs.shoulderToApex, tolerance: 0.01, units: "mm" } });
     for (let iteration: number = 0; length(made) > inputs.shoulderToApex; iteration++) {
       if (iteration === 8) throw new Error("The thoracic course has no upper axial bracket", { cause: { stage: "upper bracket", station: chestStation(made), observed: length(made), expected: inputs.shoulderToApex, deviation: length(made) - inputs.shoulderToApex, tolerance: 0.01, units: "mm" } });
       high = (high + 1) / 2;
       made = generate(calibration, inputs, floor, high);
+      stage = "upper"; ordinal = iteration; emit(made);
     }
     for (let iteration: number = 0; iteration < 24; iteration++) {
       const station: number = (low + high) / 2;
       made = generate(calibration, inputs, floor, station);
+      stage = "bisect"; ordinal = iteration; emit(made);
       const observed: number = length(made);
       if (Math.abs(observed - inputs.shoulderToApex) <= 0.01) break;
       if (observed > inputs.shoulderToApex) low = station;
@@ -169,7 +206,7 @@ export namespace AutoMovieHumanTrunkConstruction {
     // The column is mirror-symmetric, so the legs part exactly on the midline.
     return {
       ...calibration,
-      thoracicCourse: { owners: ["trunk", "upper", "head"], from: { station: neckTop, lateral: contact[2] }, to: { station: chestStation(made), lateral: inputs.bustSpan / 2 }, guides: AutoMovieHumanThoracicCourse.read([...made.finished, neck], { station: neckTop, lateral: contact[2] }, { station: chestStation(made), lateral: inputs.bustSpan / 2 }).addresses },
+      thoracicCourse: { owners: ["trunk", "upper", "head"], from: { station: neckTop, lateral: contact[2] }, to: { station: chestStation(made), lateral: inputs.bustSpan / 2 }, guides: physical.get(made)!.reading!.addresses, realization: "emitted-skin-corridor-path" },
       chains: [...made.chains, ...others],
       measurementSites: { ...calibration.measurementSites, ...made.sites },
       events: AutoMovieHumanEventAnchors.retain(calibration.events.map(
@@ -580,6 +617,7 @@ export namespace AutoMovieHumanTrunkConstruction {
         },
         trunkRows.map(column),
         column(prior.layers[prior.joint + JOINT_REACH]!),
+        [...trunkRows.map(height), height(prior.layers[prior.joint + JOINT_REACH]!)],
       ),
     );
     const shoulders: IAutoMovieHumanLoftChain = continuous(
@@ -627,6 +665,8 @@ export namespace AutoMovieHumanTrunkConstruction {
               ];
             });
           }),
+        undefined,
+        prior.layers.slice(prior.joint, top + 1).map(height),
       ),
     );
     // This full boundary has the same periodic basis and chart as the neck.

@@ -1,4 +1,5 @@
 import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
+import { HumanOutcomeCache } from "./HumanOutcomeCache";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanHermiteCurve } from "../../../../packages/human/src/lofting/IAutoMovieHumanHermiteCurve";
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
@@ -58,26 +59,25 @@ export namespace HumanPeople {
 
   /** One person, generated on first use. */
   export function person(name: string): IPerson {
-    const found: IPerson | undefined = persons.get(name);
-    if (found !== undefined) return found;
     const params: IAutoMovieHumanParameters = parameters(name);
-    const calibrated: AutoMovieHumanBodyLaw.IOutput = AutoMovieHumanBodyLaw.calibrate(params);
-    const made: IPerson = {
-      name,
-      params,
-      body: calibrated.body,
-      vermilion: calibrated.vermilion,
-      headDiagnostics: calibrated.headDiagnostics,
-    };
-    persons.set(name, made);
-    return made;
+    return persons.read(name, params, (): IPerson => {
+      const calibrated: AutoMovieHumanBodyLaw.IOutput = AutoMovieHumanBodyLaw.calibrate(params);
+      const made: IPerson = {
+        name,
+        params,
+        body: calibrated.body,
+        vermilion: calibrated.vermilion,
+        headDiagnostics: calibrated.headDiagnostics,
+      };
+      return made;
+    });
   }
 
   /** One person with a rig and pose evaluator, prepared on first use. */
   export function rigged(name: string): IRigged {
+    const own: IPerson = person(name);
     const found: IRigged | undefined = riggeds.get(name);
     if (found !== undefined) return found;
-    const own: IPerson = person(name);
     const scale: number =
       0.001 * (own.params.body.controls.height.value! / own.body.stature);
     const made: IRigged = {
@@ -93,7 +93,8 @@ export namespace HumanPeople {
   }
 }
 
-const persons: Map<string, HumanPeople.IPerson> = new Map();
+/** One immutable outcome per alias, including failures repeated across anatomy consumers. */
+const persons: HumanOutcomeCache<HumanPeople.IPerson> = new HumanOutcomeCache();
 const riggeds: Map<string, HumanPeople.IRigged> = new Map();
 let table: Map<string, IAutoMovieHumanParameters> | null = null;
 

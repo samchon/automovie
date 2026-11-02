@@ -5,6 +5,7 @@ import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHu
 import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
+import { AutoMovieHumanBodyEvents } from "./AutoMovieHumanBodyEvents";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
@@ -73,7 +74,7 @@ export namespace AutoMovieHumanBodyLaw {
               scale: inputs.scale,
             }),
           ],
-          events: EVENTS,
+          events: AutoMovieHumanBodyEvents.create(),
           poles: [],
           apertures: [],
           eyes: [],
@@ -126,40 +127,6 @@ export namespace AutoMovieHumanBodyLaw {
     };
   }
 }
-
-/** Left shoulder contact phases; reflection owns the opposite boundary. */
-const ARM_ARC: readonly [number, number] = [1.133093657, 2.308057249];
-
-/** Shared rings of the trunk: the rest come with their chains. */
-const EVENTS: IAutoMovieHumanBodyCalibration.IEvent[] = [
-  {
-    parent: "head",
-    direction: "down",
-    splits: [{ child: "upper", arcs: [[0, 2 * Math.PI]] }],
-  },
-  {
-    parent: "upper",
-    direction: "down",
-    fillet: 1,
-    splits: [
-      {
-        child: "trunk",
-        arcs: [
-          [ARM_ARC[1], 2 * Math.PI - ARM_ARC[1]],
-          [2 * Math.PI - ARM_ARC[0], ARM_ARC[0]],
-        ],
-      },
-      { child: "arm.left", arcs: [[ARM_ARC[0], ARM_ARC[1]]] },
-      { child: "arm.right", arcs: [[2 * Math.PI - ARM_ARC[1], 2 * Math.PI - ARM_ARC[0]]] },
-    ],
-  },
-  {
-    parent: "head",
-    direction: "up",
-    splits: [{ child: "head.lower", arcs: [[0, 2 * Math.PI]] }],
-  },
-  { parent: "trunk", direction: "down", splits: [] },
-];
 
 /** The lip boundary before the head's spans. */
 const LIPS: IAutoMovieHumanHermiteCurve = {

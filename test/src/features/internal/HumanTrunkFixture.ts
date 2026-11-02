@@ -2,10 +2,13 @@ import { AutoMovieHumanHeadConstruction as Head } from "../../../../packages/hum
 import { AutoMovieHumanNeckConstruction as Neck } from "../../../../packages/human/src/generation/AutoMovieHumanNeckConstruction";
 import { AutoMovieHumanLegPrior as Leg } from "../../../../packages/human/src/generation/AutoMovieHumanLegPrior";
 import { AutoMovieHumanTrunkConstruction as Trunk } from "../../../../packages/human/src/generation/AutoMovieHumanTrunkConstruction";
+import { AutoMovieHumanBodyEvents as Events } from "../../../../packages/human/src/generation/AutoMovieHumanBodyEvents";
+import { AutoMovieHumanEventJoin as Join } from "../../../../packages/human/src/generation/AutoMovieHumanEventJoin";
 import { AutoMovieHumanBodySpecimenCalibration as Specimen } from "../../../../packages/human/src/generation/calibration/AutoMovieHumanBodySpecimenCalibration";
 import type { IAutoMovieHumanBodyCalibration as Body } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanParameters as Parameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanLoftChain as Chain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { AutoMovieHumanTrunkObservation as Observation } from "../../../../packages/human/src/generation/AutoMovieHumanTrunkObservation";
 
 /** Reach the actual neck/trunk producer without constructing unrelated hands or a head mesh. */
 export namespace HumanTrunkFixture {
@@ -17,16 +20,17 @@ export namespace HumanTrunkFixture {
 
   /**
    * Evaluate the exact upstream neck and column with explicit public inputs.
-   * No event is invented: this part-only observation is separate from actual
-   * BodyLaw composition and cannot certify whole-person anatomy.
+   * The same production-owned neck/column events are selected, composed and
+   * meshed. Missing head/arm/leg branches remain an explicit partial-consumer
+   * boundary; this operation cannot certify whole-person anatomy.
    */
-  export function generate(params: Parameters, own: Trunk.IInputs): Body {
+  export function generate(params: Parameters, own: Trunk.IInputs, observe?: Observation.Listener): Body {
     const height: number = control(params, "height");
     const head: Head.IInputs = { head: params.head, height, neckLength: control(params, "neckLength"), neck: control(params, "neck"), sex: own.sex, fat: own.fat };
     const law: Leg.ICrotch = Leg.PRIOR.crotch;
     const floor: number = law.offset + law.height * height + law.inseam * control(params, "inseam") + law.thigh * own.thigh + law.sex * own.sex;
     const neck: Chain = Neck.generate({ top: Head.seat(head), neck: head.neck, neckBase: own.neckBase, sex: own.sex, scale: own.scale });
-    return Trunk.apply({ stature: height, chains: [neck], events: [], poles: [], apertures: [], eyes: [] }, own, floor);
+    return Join.reconcile(Trunk.apply({ stature: height, chains: [neck], events: Events.select(new Set(["head", "upper", "trunk"])), poles: [], apertures: [], eyes: [] }, own, floor, observe));
   }
 
   /** Read public inputs without reading any generated measurement or fitted output. */

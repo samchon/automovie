@@ -40,8 +40,10 @@ export interface IAutoMovieHumanBodyCalibration {
     from: { station: number; lateral: number };
     /** Bust-apex material station and registered lateral coordinate, mm. */
     to: { station: number; lateral: number };
-    /** Actual source-surface guide, independent of the expected length. */
+    /** Actual physical material/lateral guide, independent of the expected length; a skin corridor can touch an equal-station portal more than once. */
     guides: { station: number; lateral: number }[];
+    /** Physical consumer owning the declared guide; absence denotes the older curve-only model convention. */
+    realization?: "emitted-skin-corridor-path";
   };
 
   /** Achieved stature input of the calibration specimen in mm. */

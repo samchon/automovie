@@ -3,6 +3,7 @@ import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftCha
 import type { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanSurfaceBoundary } from "./IAutoMovieHumanSurfaceBoundary";
+import type { AutoMovieHumanSurfaceCorrespondence } from "./AutoMovieHumanSurfaceCorrespondence";
 
 /** Mutable buffers and shared boundary ownership for one body generation. */
 export interface IAutoMovieHumanSurfaceContext {
@@ -30,6 +31,8 @@ export interface IAutoMovieHumanSurfaceContext {
   indices: Map<string, number>;
   /** Flat chain-index, station-mm and phase-radian triples per generated vertex. */
   coordinates: number[];
+  /** Optional operation-local observation of the exact boundary vertices and zipper phases; never replaces evaluation. */
+  correspondence?: AutoMovieHumanSurfaceCorrespondence.Listener;
   /**
    * Loops on each base chain, by its name: an appendage's root loop or an
    * opening's trim loop, sampled in the base chart as `[station, phase]`.

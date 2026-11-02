@@ -20,6 +20,12 @@ export namespace AutoMovieHumanThoracicCrossing {
     extrema: IPoint[];
   }
 
+  /** Operation-local immutable section preparation reused by lateral queries. */
+  export interface IPrepared {
+    /** Query the same evaluated section with the original root and bisection arithmetic. */
+    read(lateral: number, stage?: "start" | "end" | "interior"): IReading;
+  }
+
   /**
    * A column's world Z is its periodic cubic section's Z component. Its
    * derivative is quadratic on each knot span. Partition at every actual
@@ -31,6 +37,11 @@ export namespace AutoMovieHumanThoracicCrossing {
    * are explicitly outside this column operation's admitted domain.
    */
   export function read(owner: Chain, station: number, lateral: number, stage: "start" | "end" | "interior" = "interior"): IReading {
+    return prepare(owner, station, stage, lateral).read(lateral, stage);
+  }
+
+  /** Prepare coefficients, extrema and the sampler once for one unchanged source section. */
+  export function prepare(owner: Chain, station: number, stage: "start" | "end" | "interior" = "interior", lateral?: number): IPrepared {
     const context: Record<string, unknown> = { stage, chain: owner.name, station, targetCoordinate: lateral, units: "mm" };
     if (owner.basis !== "spline" || owner.layers.some((layer: Chain.ILayer): boolean => layer.frame !== undefined) || (owner.reliefs?.length ?? 0) > 0)
       throw new Error("A thoracic endpoint requires an unframed unrelieved spline column", { cause: context });
@@ -55,26 +66,30 @@ export namespace AutoMovieHumanThoracicCrossing {
       if (!point.every(Number.isFinite)) throw new Error("A thoracic course evaluated a nonfinite source point", { cause: { ...context, phase, coordinates: point } });
       return { phase, point };
     });
-    const crossings: IPoint[] = [];
-    for (let index: number = 0; index < extrema.length; index++) {
-      const here: IPoint = extrema[index]!;
-      const round: number = 64 * Number.EPSILON * Math.max(1, Math.abs(lateral), Math.abs(here.point[2]));
-      if (Math.abs(here.point[2] - lateral) <= round) crossings.push(here);
-      if (index === 0) continue;
-      const before: IPoint = extrema[index - 1]!;
-      const left: number = before.point[2] - lateral;
-      if (left * (here.point[2] - lateral) >= 0) continue;
-      let low: number = before.phase;
-      let high: number = here.phase;
-      for (let iteration: number = 0; iteration < 48; iteration++) {
-        const middle: number = (low + high) / 2;
-        if ((sample(middle)[2] - lateral) * left > 0) low = middle;
-        else high = middle;
+    const range: [number, number] = [Math.min(...extrema.map((point: IPoint): number => point.point[2])), Math.max(...extrema.map((point: IPoint): number => point.point[2]))];
+    return { read: (lateral: number, queryStage: "start" | "end" | "interior" = stage): IReading => {
+      if (!Number.isFinite(lateral)) throw new Error("A thoracic crossing needs a finite lateral coordinate", { cause: { ...context, stage: queryStage, targetCoordinate: lateral } });
+      const crossings: IPoint[] = [];
+      for (let index: number = 0; index < extrema.length; index++) {
+        const here: IPoint = extrema[index]!;
+        const round: number = 64 * Number.EPSILON * Math.max(1, Math.abs(lateral), Math.abs(here.point[2]));
+        if (Math.abs(here.point[2] - lateral) <= round) crossings.push(here);
+        if (index === 0) continue;
+        const before: IPoint = extrema[index - 1]!;
+        const left: number = before.point[2] - lateral;
+        if (left * (here.point[2] - lateral) >= 0) continue;
+        let low: number = before.phase;
+        let high: number = here.phase;
+        for (let iteration: number = 0; iteration < 48; iteration++) {
+          const middle: number = (low + high) / 2;
+          if ((sample(middle)[2] - lateral) * left > 0) low = middle;
+          else high = middle;
+        }
+        const phase: number = (low + high) / 2;
+        crossings.push({ phase, point: sample(phase) });
       }
-      const phase: number = (low + high) / 2;
-      crossings.push({ phase, point: sample(phase) });
-    }
-    return { crossings, range: [Math.min(...extrema.map((point: IPoint): number => point.point[2])), Math.max(...extrema.map((point: IPoint): number => point.point[2]))], extrema };
+      return { crossings, range, extrema };
+    } };
   }
 
   /** Stable real roots of a derivative polynomial, without a sampling fallback. */

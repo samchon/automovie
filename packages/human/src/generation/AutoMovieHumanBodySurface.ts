@@ -1,3 +1,5 @@
+import { AutoMovieHumanSurfaceNormalBlend } from "./AutoMovieHumanSurfaceNormalBlend";
+import { AutoMovieHumanSurfaceCorrespondence } from "./AutoMovieHumanSurfaceCorrespondence";
 import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
@@ -61,6 +63,9 @@ export namespace AutoMovieHumanBodySurface {
     construction: IAutoMovieHumanConstructionPath[];
   }
 
+  /** Exact physical buffers and material coordinates without display-normal work. */
+  export type IGeometry = Omit<IOutput, "normals">;
+
   /**
    * Create ring vertices and record their loft coordinates.
    *
@@ -110,6 +115,8 @@ export namespace AutoMovieHumanBodySurface {
     const out: number[] = [...mesh];
     const cosine: number = Math.cos((AGREE * Math.PI) / 180);
     const cache: Map<string, IStationJet> = new Map();
+    const eligible: boolean[] = calibration.chains.map((chain: IAutoMovieHumanLoftChain): boolean => AutoMovieHumanLoftJet.carries(chain));
+    const exact: Map<string, (t: number) => AutoMovieHumanLoftJet.IJet> = new Map();
     for (let v: number = 0; 3 * v + 2 < coordinates.length; v++) {
       const index: number = coordinates[3 * v]!;
       const s: number = coordinates[3 * v + 1]!;
@@ -118,10 +125,14 @@ export namespace AutoMovieHumanBodySurface {
       const target: IAutoMovieHumanLoftChain = calibration.chains[index]!;
 
       // A chain with jets has its exact normal, oriented with the mesh's.
-      if (AutoMovieHumanLoftJet.carries(target)) {
-        const n: [number, number, number] | null = AutoMovieHumanLoftJet.normal(
-          AutoMovieHumanLoftJet.at(target, s, t),
-        );
+      if (eligible[index]) {
+        const key: string = index.toString() + ":" + s.toString();
+        let sample: ((t: number) => AutoMovieHumanLoftJet.IJet) | undefined = exact.get(key);
+        if (sample === undefined) {
+          sample = AutoMovieHumanLoftJet.station(target, s);
+          exact.set(key, sample);
+        }
+        const n: [number, number, number] | null = AutoMovieHumanLoftJet.normal(sample(t));
         if (n === null) continue;
         const c: number =
           n[0] * mesh[3 * v]! + n[1] * mesh[3 * v + 1]! + n[2] * mesh[3 * v + 2]!;
@@ -256,40 +267,7 @@ export namespace AutoMovieHumanBodySurface {
         }
       }
 
-    const cosine: number = Math.cos((FOLD * Math.PI) / 180);
-    let current: number[] = [...normals];
-    for (let pass: number = 0; pass < PASSES; pass++) {
-      const next: number[] = [...current];
-      for (const [v, set] of neighbours) {
-        const n: [number, number, number] = [
-          current[3 * v]!,
-          current[3 * v + 1]!,
-          current[3 * v + 2]!,
-        ];
-        const sum: [number, number, number] = [0, 0, 0];
-        let k: number = 0;
-        for (const u of set) {
-          const m: [number, number, number] = [
-            current[3 * u]!,
-            current[3 * u + 1]!,
-            current[3 * u + 2]!,
-          ];
-          if (n[0] * m[0] + n[1] * m[1] + n[2] * m[2] < cosine) continue;
-          for (let i: number = 0; i < 3; i++) sum[i]! += m[i]!;
-          k++;
-        }
-        if (k === 0) continue;
-        const w: number = weight[v]!;
-        const b: number[] = [0, 1, 2].map(
-          (i: number): number => n[i]! + w * (sum[i]! / k - n[i]!),
-        );
-        const length: number = Math.hypot(b[0]!, b[1]!, b[2]!);
-        if (!(length > 1e-12)) continue;
-        for (let i: number = 0; i < 3; i++) next[3 * v + i] = b[i]! / length;
-      }
-      current = next;
-    }
-    return current;
+    return AutoMovieHumanSurfaceNormalBlend.apply(normals, weight, neighbours, PASSES, Math.cos((FOLD * Math.PI) / 180));
   }
 
   /** Station half-width of the normal blend across an event ring, mm. */
@@ -394,7 +372,24 @@ export namespace AutoMovieHumanBodySurface {
   export function generate(
     calibration: IAutoMovieHumanBodyCalibration,
     details: [[number, number, number], [number, number, number]][] = [],
+    correspondence?: AutoMovieHumanSurfaceCorrespondence.Listener,
   ): IOutput {
+    const physical: IGeometry = geometry(calibration, details, correspondence);
+    return shade(calibration, physical);
+  }
+
+  /** Shade an unchanged physical result under the exact calibration/chain order that generated it. */
+  export function shade(calibration: IAutoMovieHumanBodyCalibration, physical: IGeometry): IOutput {
+    const faces: number[] = AutoMovieHumanLoftMesh.normals(physical.mesh);
+    return { ...physical, normals: domed(physical.mesh, held(physical.mesh, faces, ringBlend(calibration, physical.coordinates, physical.mesh.indices, surfaceNormals(calibration, physical.coordinates, faces)))) };
+  }
+
+  /** Build the same actual mesh/correspondence once for physical consumers that do not need shading normals. */
+  export function geometry(
+    calibration: IAutoMovieHumanBodyCalibration,
+    details: [[number, number, number], [number, number, number]][] = [],
+    correspondence?: AutoMovieHumanSurfaceCorrespondence.Listener,
+  ): IGeometry {
     const context: IContext = {
       mesh: AutoMovieHumanLoftMesh.create(),
       chains: new Map(
@@ -432,6 +427,7 @@ export namespace AutoMovieHumanBodySurface {
         ),
       ),
       coordinates: [],
+      correspondence,
       roots: new Map(),
       ends: new Map(),
       holes: new Map(),
@@ -488,23 +484,9 @@ export namespace AutoMovieHumanBodySurface {
     construction.push(...AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures));
     construction.push(...(WEBS.get(context.mesh) ?? []));
 
-    const faces: number[] = AutoMovieHumanLoftMesh.normals(context.mesh);
     return {
       mesh: context.mesh,
       construction,
-      normals: domed(
-        context.mesh,
-        held(
-          context.mesh,
-          faces,
-          ringBlend(
-            calibration,
-            context.coordinates,
-            context.mesh.indices,
-            surfaceNormals(calibration, context.coordinates, faces),
-          ),
-        ),
-      ),
       // Vertices the cut and the tuck added after lofting have no loft
       // coordinates of their own.
       coordinates: [
@@ -732,6 +714,8 @@ export namespace AutoMovieHumanBodySurface {
             ? inheritedPhases(context, target, y, end.ring)
             : phases,
         );
+        if (context.correspondence !== undefined)
+          context.correspondence(AutoMovieHumanSurfaceCorrespondence.read(target, k === 0 ? "bottom" : "top", y, end.kind, context.mesh, end.ring, ringPhases.at(-1)!));
         return end.ring;
       }
 

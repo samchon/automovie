@@ -44,6 +44,7 @@ export const humanViteConfig: UserConfig = defineConfig({
     rollupOptions: {
       input: {
         human: resolve(__dirname, "human.html"),
+        components: resolve(__dirname, "human-components.html"),
         mannequin: resolve(__dirname, "human-stickman.html"),
       },
     },
