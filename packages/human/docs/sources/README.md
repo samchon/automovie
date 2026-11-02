@@ -5,33 +5,20 @@ Each note records one external source: its citation, what was read, what it prov
 ## Geometry and numerical methods
 
 - [Agarwal et al. 2018, parametric design velocity](agarwal-2018-design-velocity.md)
-- [Bommes et al. 2013, quad-mesh generation and processing](bommes-2013-quad-mesh-survey.md)
 - [ECMA-262, Number arithmetic and the Math object](ecma-262-math.md)
-- [Gabrielides et al. 2007, G1 branching surfaces from cross sections](gabrielides-2007-branching-sections.md)
 - [Hahmann et al. 2008, shape interrogation](hahmann-2008-shape-interrogation.md)
 - [Halstead, Kass and DeRose 1993, fair interpolation with Catmull-Clark surfaces](halstead-1993-fair-interpolation.md)
-- [Karčiauskas, Peters and Reif 2004, subdivision shape near extraordinary points](karciauskas-2004-subdivision-shape.md)
-- [OpenSubdiv documentation](opensubdiv-documentation.md)
-- [Schaefer, Warren and Zorin 2004, lofting curve networks with subdivision](schaefer-2004-lofting-subdivision.md)
 - [Shape-preserving cubic interpolation](shape-preserving-interpolation.md)
-- [Stam 1998, exact evaluation of Catmull-Clark surfaces](stam-1998.md)
-- [US 6,222,553, hybrid subdivision in computer graphics](us6222553-hybrid-subdivision.md)
 - [V8 commits importing fdlibm](v8-fdlibm-commits.md)
 - [You et al. 2011, trigonometric cross-section human modeling](you-2011-trigonometric-sections.md)
 
 ## Rigging and deformation
 
 - [Abdrashitov et al. 2023, robust skin weight transfer](abdrashitov-2023-skin-weight-transfer.md)
-- [Baran and Popović 2007, Pinocchio heat weights](baran-popovic-2007-pinocchio.md)
 - [Blender, Surface Deform and Shrinkwrap modifiers](blender-surface-deform-shrinkwrap.md)
-- [Jacobson et al. 2011, bounded biharmonic weights](jacobson-2011-bounded-biharmonic-weights.md)
 - [Kavan et al. 2008, dual quaternion skinning](kavan-2008-dual-quaternion-skinning.md)
-- [Le and Hodgins 2016, optimized centers of rotation](le-hodgins-2016-optimized-centers.md)
-- [Le and Lewis 2019, Direct Delta Mush](le-lewis-2019-direct-delta-mush.md)
-- [Lewis et al. 2000, pose space deformation](lewis-2000-pose-space-deformation.md)
 - [Loper et al. 2015, SMPL](loper-2015-smpl.md)
 - [Ma et al. 2020, CAPE clothing displacements](ma-2020-cape.md)
-- [Maya, geodesic voxel binding](maya-geodesic-voxel-binding.md)
 - [Maya, wrap deformer node](maya-wrap-deformer.md)
 - [Meta (Oculus) Lipsync viseme reference](meta-ovrlipsync-visemes.md)
 
@@ -63,7 +50,6 @@ Each note records one external source: its citation, what was read, what it prov
 - [ANSUR 1988 (1987-1988 US Army Anthropometric Survey)](ansur-1988.md)
 - [ANSUR II (2012 US Army Anthropometric Survey)](ansur-ii.md)
 - [Asai et al. 2017, sagittal spino-pelvic alignment (Wakayama Spine Study)](asai-2017-wakayama.md)
-- [CAESAR (Civilian American and European Surface Anthropometry Resource)](caesar.md)
 - [Du 2008, head-and-face anthropometric survey of Chinese workers](du-2008-chinese-workers.md)
 - [Farkas 2004, facial framework in adulthood](farkas-2004-adult-ageing.md)
 - [Farkas 2005, international anthropometric study of facial morphology](farkas-2005-international.md)
@@ -71,13 +57,11 @@ Each note records one external source: its citation, what was read, what it prov
 - [Liang 2024, cephalic index of Chinese children](liang-2024-cephalic-index-china.md)
 - [Mac-Thiong et al. 2011, sacropelvic morphology in asymptomatic adults](mac-thiong-2011.md)
 - [NHANES anthropometric reference data, 2015 to 2018](nhanes-2015-2018.md)
-- [Size Korea (Korean national anthropometric survey)](size-korea.md)
 - [Snyder et al. 1975, physical characteristics of children (AnthroKids)](snyder-1975.md)
 - [Snyder et al. 1977, anthropometry of US infants, children and youths (AnthroKids)](snyder-1977.md)
 - [Virdi 2019, Kenyan-African face](virdi-2019-kenyan-face.md)
 - [Weinberg 2016, 3D Facial Norms database (FaceBase)](weinberg-2016-3d-facial-norms.md)
 - [WHO Child Growth Standards, head circumference for age](who-2006-head-circumference.md)
-- [WHO Child Growth Standards (2006) and Growth Reference 5–19 years (2007), stature](who-child-growth-standards.md)
 - [Wilson 2023, young Black South African woman](wilson-2023-south-african-women.md)
 
 ## Anatomy and clinical protocols
@@ -108,4 +92,3 @@ Each note records one external source: its citation, what was read, what it prov
 - [Verkouteren 2022, mandibular range of motion in healthy children](verkouteren-2022-mandible-rom-children.md)
 - [White et al. 2018, passive range of motion of the thumb carpometacarpal joint](white-2018-thumb-cmc-rom.md)
 - [Wikipedia, Facial Action Coding System](wikipedia-facs.md)
-- [Zárate-Tejero et al. 2024, craniovertebral angle reference values](zarate-tejero-2024-cva.md)

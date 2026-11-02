@@ -24,8 +24,9 @@ node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5173 --strictPort
 | `curves` | `<chain>/<k>`, `<chain>/axis` or `<chain>/g<j>`, with `*` globs, repeatable |
 | `isolate=1`, `fit=selection` | draw or frame only the selected curves and the skin they shape |
 | `garment=0`, `hair=0` | hide underwear or hair |
-| `material=clay` | plain geometry material |
-| `light` | `raking-left`, `raking-right` |
+| `material` | `clay` for plain geometry, `appearance` for skin, hair and eyes |
+| `light` | `raking-left`, `raking-right`, `reference` |
+| `pose` | `neutral`, `demo`, `limit` |
 | `az`, `el`, `view`, `target`, `dist`, `ortho=1` | free camera in degrees and mm; `view` is `+x` to `-z`, with `+` written `%2B` |
 | `fresh` | nonce of letters, digits, `_` or `-` |
 

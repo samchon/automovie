@@ -20,4 +20,4 @@ A closed near-sphere such as the head cannot be flattened isometrically, and lea
 
 ## Conventions and limits
 
-The cut placement, grid resolution, sweep count and chart grouping are conventions. Because a tiled isotropic pattern is the main consumer, mild scale change and seams at chain junctions are acceptable. A painted atlas would need a published, versioned layout, with UV cuts duplicating render vertices but not physical points ([LSCM](../sources/levy-2002-lscm.md), [Ptex](../sources/ptex.md) and [OpenSubdiv face-varying boundaries](../sources/opensubdiv-documentation.md) record the alternatives).
+The cut placement, grid resolution, sweep count and chart grouping are conventions. Because a tiled isotropic pattern is the main consumer, mild scale change and seams at chain junctions are acceptable. A painted atlas would need a published, versioned layout, with UV cuts duplicating render vertices but not physical points ([LSCM](../sources/levy-2002-lscm.md) and [Ptex](../sources/ptex.md) record the alternatives).

@@ -18,8 +18,9 @@ Rerun the original comparison across every affected part, view, identity, resolu
 
 ## Coverage
 
-Front and side alone hide oblique sections and junctions, so inspect:
+Front and side alone hide oblique sections and junctions, and close-ups that each pass can still add up to an asset that fails at first sight, so inspect:
 
+- the whole assembled asset in its final appearance, as a viewer first meets it;
 - every direction, back quarters and high and low obliques included;
 - each defect with a free camera, framing its close-up on the affected region from outside the model;
 - assembled neighbors and distance;

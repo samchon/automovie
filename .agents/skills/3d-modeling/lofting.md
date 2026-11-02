@@ -6,7 +6,7 @@ For a fixed mesh or ordered line source, follow [Recovery](recovery.md) before f
 
 ## One Section Family
 
-Define one section family in the part's local frame from independent [dimensions](crafting.md#dimensions) and physical stations. Derive supported curve spans from corresponding feature parameters, constrain their joins, and derive guides from that section family.
+Define one section family in the part's local frame from independent [dimensions](crafting.md#dimensions) and physical stations. Cut sections square to the part's own axis, carried by minimal rotation; sections in a world plane cut a slanted or branching member obliquely. Derive supported curve spans from corresponding feature parameters, constrain their joins, and derive guides from that section family.
 
 Reconcile measured guide intersections before interpolation, using sections and obliques alongside front and side envelopes. Distinguish the generating operator's interpolation waypoints, control points and evaluated points.
 

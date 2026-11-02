@@ -31,6 +31,12 @@ Respect the [package boundaries](../project/SKILL.md#packages); review reads eve
 
 Tests, CI, wiring, dependencies, `interface` core types, and the range-of-motion and constraint tables are specification. Change them only on request or for a product reason, and say so.
 
+## Scripts And Shared Checkouts
+
+Write every helper script in TypeScript and run it with `ttsx`.
+
+When several agents work in one checkout, give each its own scratch directory and server port, delete only inside its own directory, and commit with `git add` then `git commit --only <paths>`. A shared index lets one commit sweep another agent's files, and a recursive delete can wipe every agent's scratch.
+
 ## Task Guides
 
 - Read [Repair](repair.md) when changing existing behavior.

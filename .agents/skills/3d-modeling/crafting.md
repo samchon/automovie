@@ -31,6 +31,8 @@ Construct positions in each part's local frame from named dimensions and dimensi
 
 Keep calibration in named, sourced dimensions and coefficients; never patch individual cases with absolute vertex coordinates or duplicate a neighbor's placement constants.
 
+When a dimension names a published measurement, construct it at that measurement's site and by its definition, and check it the same way. A dimension placed by a private convention only measures itself back, and a factor that absorbs a wrongly measured input becomes an error once the input is corrected.
+
 Size a feature on a surface in physical units through the surface's metric. A feature sized in chart parameters changes size whenever the surface or its layout changes.
 
 ## Resolution
