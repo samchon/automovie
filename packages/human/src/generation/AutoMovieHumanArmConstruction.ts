@@ -247,14 +247,19 @@ export namespace AutoMovieHumanArmConstruction {
   ): ILimb {
     const prior: AutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
     const sign: 1 | -1 = side === "left" ? 1 : -1;
-    const measures: IHand = inputs[side];
+    const given: IHand = inputs[side];
     const hand: IForm = form();
-    const law: IArm = arm(
-      shoulder(calibration, side, sign),
-      inputs,
-      measures,
-      elbowOf(skeleton, side, sign),
-    );
+    const ring: IRing = shoulder(calibration, side, sign);
+    const elbow: Vec3 | undefined = elbowOf(skeleton, side, sign);
+
+    // The crease and the hand's origin stand on the tube, whatever the hand's
+    // breadth, so a first build places the knuckles the breadth is read on.
+    const first: IArm = arm(ring, inputs, { ...given, across: 1 }, elbow);
+    const measures: IShaped = {
+      ...given,
+      across: acrossOf(hand, given, inputs, first.wrist, first.crease),
+    };
+    const law: IArm = arm(ring, inputs, measures, elbow);
     const map = (q: readonly [number, number, number]): Vec3 =>
       handPoint(q, measures, inputs.circumference, inputs.scale, law.wrist);
 
@@ -373,17 +378,26 @@ export namespace AutoMovieHumanArmConstruction {
           s + Math.hypot(p[0] - centre[0], p[1] - centre[1], p[2] - centre[2]),
         0,
       ) / ring.length;
-    return {
-      centre,
-      radius,
-      outline: ring.map((p: Vec3): [number, number] => [p[0], p[2]]),
-    };
+    const outline: [number, number][] = ring.map((p: Vec3): [number, number] => [p[0], p[2]]);
+    const area: number = Math.abs(
+      outline.reduce(
+        (s: number, p: [number, number], i: number): number => {
+          const q: [number, number] = outline[(i + 1) % outline.length]!;
+          return s + p[0] * q[1] - q[0] * p[1];
+        },
+        0,
+      ) / 2,
+    );
+    return { centre, radius, area, outline };
   }
 
   /** The shoulder ring's place, size and outline `[x, z]`. */
   interface IRing {
     centre: Vec3;
     radius: number;
+
+    /** Area the ring encloses in its level plane, mm^2. */
+    area: number;
     outline: [number, number][];
   }
 
@@ -433,7 +447,7 @@ export namespace AutoMovieHumanArmConstruction {
   function arm(
     ring: IRing,
     inputs: IInputs,
-    hand: IHand,
+    hand: IShaped,
     elbow?: Vec3,
   ): IArm {
     const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
@@ -512,9 +526,15 @@ export namespace AutoMovieHumanArmConstruction {
       0,
       ...keys.map((k: AutoMovieHumanArmPrior.IKey): number => k.station),
     ];
+    // The shoulder ring is a level cut of the arm, which leaves it at an angle
+    // to the vertical, so it encloses the area of the section square to the
+    // bone over the cosine of that angle; the tube starts from that section.
+    // Taken as square, the level ring's size swells the arm's root into a cap
+    // over a narrower arm.
+    const rise: number = Math.abs(heading(prior, 0, upper, soft)[1]);
     const size: AutoMovieHumanNaturalSpline.ISpline =
       AutoMovieHumanNaturalSpline.create(stations, [
-        Math.log(ring.radius),
+        Math.log(Math.sqrt((ring.area * rise) / Math.PI)),
         ...keys.map((k: AutoMovieHumanArmPrior.IKey, i: number): number =>
           Math.log((tapes[i]! * k.ratio) / (2 * Math.PI)),
         ),
@@ -760,10 +780,16 @@ export namespace AutoMovieHumanArmConstruction {
     return [d[0]! / l, d[1]! / l, d[2]! / l];
   }
 
+  /** A hand's measures with the scale across its form that its breadth takes. */
+  interface IShaped extends IHand {
+    /** World millimetres per unit across the form. */
+    across: number;
+  }
+
   /** A hand's map from the prior's axes to the left frame. */
   function handPoint(
     q: readonly [number, number, number],
-    hand: IHand,
+    hand: IShaped,
     tape: number,
     scale: number,
     wrist: readonly [number, number, number],
@@ -772,7 +798,6 @@ export namespace AutoMovieHumanArmConstruction {
       AutoMovieHumanArmPrior.PRIOR.hand;
     const length: number = hand.length * prior.lengthRatio;
     const palm: number = hand.palm * prior.palmRatio;
-    const breadth: number = hand.breadth * prior.breadthRatio;
     const inPalm: number = palm / prior.size.palm;
     const inFingers: number =
       (length - palm) / (prior.size.length - prior.size.palm);
@@ -782,7 +807,7 @@ export namespace AutoMovieHumanArmConstruction {
       (inFingers - inPalm) *
         prior.handover *
         softplus((q[0] - prior.size.palm) / prior.handover);
-    const b: number = (q[1] * breadth) / prior.size.breadth;
+    const b: number = q[1] * hand.across;
     const c: number = q[2] * through * scale;
     return [
       wrist[0] + a * prior.along[0] + b * prior.across[0] + c * prior.through[0],
@@ -794,7 +819,7 @@ export namespace AutoMovieHumanArmConstruction {
   /** The prior's axes of a world point, the inverse of {@link handPoint}. */
   function handLocal(
     p: Vec3,
-    hand: IHand,
+    hand: IShaped,
     tape: number,
     scale: number,
     wrist: Vec3,
@@ -816,9 +841,76 @@ export namespace AutoMovieHumanArmConstruction {
         lo = mid;
       else hi = mid;
     }
-    const breadth: number = hand.breadth * prior.breadthRatio;
     const through: number = tape / scale / prior.size.circumference;
-    return [(lo + hi) / 2, (b * prior.size.breadth) / breadth, c / (through * scale)];
+    return [(lo + hi) / 2, b / hand.across, c / (through * scale)];
+  }
+
+  /**
+   * World millimetres per unit across the hand's form for the palm's section
+   * through knuckles II and V to span the hand breadth along them, as ANSUR II
+   * measures it: in the plane through the knuckles' midpoint that holds the
+   * line from II to V and stands square to the hand's axis from the wrist to
+   * knuckle III. The knuckles stand on the fingers' roots and move with the
+   * scale, so it is solved in rounds from the palm's widest section.
+   *
+   * @param origin The hand map's origin.
+   * @param crease Centre of the hand's section at the wrist crease.
+   */
+  function acrossOf(
+    shape: IForm,
+    hand: IHand,
+    inputs: IInputs,
+    origin: Vec3,
+    crease: Vec3,
+  ): number {
+    const widest: number = Math.max(
+      ...shape.palmRings.map((ring: readonly Vec3[]): number =>
+        Math.max(...ring.map((q: Vec3): number => q[1])) -
+        Math.min(...ring.map((q: Vec3): number => q[1])),
+      ),
+    );
+    let k: number = hand.breadth / widest;
+    for (let round: number = 0; round < ACROSS_ROUNDS; round++) {
+      const shaped: IShaped = { ...hand, across: k };
+      const map = (q: readonly [number, number, number]): Vec3 =>
+        handPoint(q, shaped, inputs.circumference, inputs.scale, origin);
+      const roots: Vec3[] = shape.digits.map((d: IDigit): Vec3 => map(linePoint(d, 0)));
+      const mcps: Vec3[] = knuckles(crease, hand.length, roots).mcps;
+      k *= hand.breadth / knuckleBreadth(shape, map, crease, mcps);
+    }
+    return k;
+  }
+
+  /** The palm's breadth along knuckles II to V in the plane through them. */
+  function knuckleBreadth(
+    shape: IForm,
+    map: (q: readonly [number, number, number]) => Vec3,
+    crease: Vec3,
+    mcps: readonly Vec3[],
+  ): number {
+    const middle: Vec3 = scale(plus(mcps[1]!, mcps[4]!), 0.5);
+    const axis: Vec3 = unit(sub(mcps[2]!, crease));
+    const line: Vec3 = unit(sub(mcps[4]!, mcps[1]!));
+    const normal: Vec3 = unit(sub(axis, scale(line, dot(axis, line))));
+    const rings: Vec3[][] = shape.palmRings.map((ring: readonly Vec3[]): Vec3[] =>
+      ring.map((q: Vec3): Vec3 => map(q)),
+    );
+    const count: number = Math.min(...rings.map((ring: Vec3[]): number => ring.length));
+    let lo: number = Infinity;
+    let hi: number = -Infinity;
+    for (let j: number = 0; j < count; j++)
+      for (let k: number = 1; k < rings.length; k++) {
+        const p: Vec3 = rings[k - 1]![j]!;
+        const q: Vec3 = rings[k]![j]!;
+        const fp: number = dot(sub(p, middle), normal);
+        const fq: number = dot(sub(q, middle), normal);
+        if (fp === fq || fp * fq > 0) continue;
+        const s: number = dot(plus(p, scale(sub(q, p), fp / (fp - fq))), line);
+        lo = Math.min(lo, s);
+        hi = Math.max(hi, s);
+      }
+    if (!(hi > lo)) throw new Error("The knuckles' plane misses the palm");
+    return hi - lo;
   }
 
   /** The thumb's stretch past its joint. */
@@ -842,7 +934,7 @@ export namespace AutoMovieHumanArmConstruction {
   function stretch(
     d: IDigit,
     mcp: Vec3,
-    hand: IHand,
+    hand: IShaped,
     inputs: IInputs,
     wrist: Vec3,
   ): IStretch {
@@ -876,7 +968,20 @@ export namespace AutoMovieHumanArmConstruction {
       if (reach(mid) < hand.thumb) lo = mid;
       else hi = mid;
     }
-    return { from, factor: (lo + hi) / 2, first: Math.max(from, d.first) };
+    const factor: number = (lo + hi) / 2;
+    // A thumb shorter than the form's draws its shaft back toward the joint,
+    // and with it a first section past the joint, so that section is found
+    // again on the drawn line: it must still clear what it cleared in the form.
+    const grown = (s: number): Vec3 => stretched(d, { from, factor, first: from }, s);
+    let first: number = d.first;
+    while (
+      first < d.cap - 3 &&
+      !d.clear.every(
+        (x: IClear): boolean => dot(sub(x.point, grown(first)), lineTangent(d, first)) <= -x.margin,
+      )
+    )
+      first += 0.05;
+    return { from, factor, first: Math.max(from, first) };
   }
 
   /** The thumb's line at a station of the form, grown past its joint. */
@@ -1236,6 +1341,9 @@ interface IDigit {
   /** Station of its first own section, past its webs' crests. */
   first: number;
 
+  /** What its first section must clear: its arcs of the parent's ring and its webs' crests. */
+  clear: IClear[];
+
   /** Station where the rounded tip starts. */
   cap: number;
   pole: Vec3;
@@ -1514,6 +1622,7 @@ function digit(
     depth: [],
     angles: [],
     first: 0,
+    clear: [],
     cap: 0,
     pole: [0, 0, 0],
   };
@@ -1891,7 +2000,8 @@ function make(): IForm {
   );
   const webs: IClear[][] = [[thumbCrest], [crests[0]!], [crests[0]!, crests[1]!], [crests[1]!, crests[2]!], [crests[2]!]];
   digits.forEach((d: IDigit, i: number): void => {
-    d.first = firstOf(d, [...arcPoints(i === 0 ? armRing : fingerRing, arcs[i]!), ...webs[i]!]);
+    d.clear = [...arcPoints(i === 0 ? armRing : fingerRing, arcs[i]!), ...webs[i]!];
+    d.first = firstOf(d, d.clear);
   });
 
   // The palm from past the thumb's web to the finger roots, each section the
@@ -2092,6 +2202,12 @@ const DIGIT_STEP: number = 5;
 
 /** Spacing of a digit's centre line handed to the skeleton, mm of the form. */
 const LINE_STEP: number = 2;
+
+/**
+ * Rounds of the across scale's solve: each moves the knuckles less than a
+ * twentieth of a millimetre past the third.
+ */
+const ACROSS_ROUNDS: number = 4;
 
 /** De Leva's wrist centre to third metacarpale over wrist centre to third dactylion. */
 const KNUCKLE: number = 0.459;
