@@ -9,6 +9,7 @@ import {
   addMaterialShaderPatch,
   applyDualQuaternionSkinning,
   dualQuaternionSkinningOf,
+  invalidateAutoMovieSkinnedPose,
 } from "@automovie/viewer";
 import * as THREE from "three";
 
@@ -28,7 +29,7 @@ import { inflateTubeGeometry } from "./inflateTubeGeometry";
  * geometry is per mesh.
  * A plain override constructs a fresh rough dielectric, keeping geometry and normals while dropping source maps, vertex colours, emissive and appearance shader patches. A derived material of a dual-quaternion skin takes that skinning patch again, or the swap would change the deformation it inspects.
  *
- * @evidence contracts/common.md#principled-implementation Every apply restores originals before deriving; colour overrides are linear RGB, unlit uses MeshBasicMaterial and plain uses a fresh rough MeshStandardMaterial without source maps, vertex colours or appearance shader patches, re-applying only dual-quaternion skinning to a mesh flagged for it; geometry and normals change only for an explicit tube inflation.
+ * @evidence contracts/common.md#principled-implementation Every apply restores originals before deriving; colour overrides are linear RGB, unlit uses MeshBasicMaterial and plain uses a fresh rough MeshStandardMaterial without source maps, vertex colours or appearance shader patches, re-applying only dual-quaternion skinning to a mesh flagged for it; geometry and normals change only for an explicit tube inflation, and every geometry swap or restoration starts the skinned mesh's bounds revision because a SkinnedMesh's bounds are object-level.
  * @evidence contracts/common.md#clear-and-simple-design A generic mechanism owned by the page's model mount; the rules that pick styles are a separate closure, so neither the viewer package nor this class holds application ids.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Model-owned materials and geometry are never mutated; overrides act on derived copies, and no part id is interpreted here.
  * @evidence contracts/common.md#meaningful-documentation States the closure contract, restore-then-derive order, sharing and ownership.
@@ -218,6 +219,10 @@ export class ModelPartStyling {
         );
         this.derived.push(geometry);
         entry.mesh.geometry = geometry;
+
+        // A skinned mesh's bounds are its own, not the geometry's; the
+        // thicker tube starts a new revision of them.
+        invalidateAutoMovieSkinnedPose(entry.mesh);
       }
     }
   }
@@ -241,7 +246,10 @@ export class ModelPartStyling {
   private restore(): void {
     for (const entry of this.meshes) {
       entry.mesh.material = entry.material;
-      entry.mesh.geometry = entry.geometry;
+      if (entry.mesh.geometry !== entry.geometry) {
+        entry.mesh.geometry = entry.geometry;
+        invalidateAutoMovieSkinnedPose(entry.mesh);
+      }
       entry.mesh.renderOrder = entry.renderOrder;
     }
     for (const { object } of this.objects) object.visible = true;

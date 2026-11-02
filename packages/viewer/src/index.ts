@@ -33,6 +33,8 @@ export * from "./IAutoMovieViewerFrame.js";
 export * from "./IAutoMovieModelObject.js";
 export * from "./applyTransform.js";
 export * from "./buildModel.js";
+export * from "./AutoMovieSkinnedMesh.js";
+export * from "./invalidateAutoMovieSkinnedPose.js";
 export * from "./applyPose.js";
 export * from "./applyExpression.js";
 export * from "./importedModel/index.js";

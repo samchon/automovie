@@ -18,12 +18,10 @@ import { AutoMovieHumanEyebrow } from "./AutoMovieHumanEyebrow";
 import { AutoMovieHumanEyelash } from "./AutoMovieHumanEyelash";
 import { AutoMovieHumanGarment } from "./AutoMovieHumanGarment";
 import { AutoMovieHumanHairCard } from "./AutoMovieHumanHairCard";
-import { AutoMovieHumanHairGuide } from "./AutoMovieHumanHairGuide";
 import { AutoMovieHumanHairImage } from "./AutoMovieHumanHairImage";
-import { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
+import { AutoMovieHumanHairStage } from "./AutoMovieHumanHairStage";
 import { AutoMovieHumanIrisImage } from "./AutoMovieHumanIrisImage";
 import { AutoMovieHumanScleraImage } from "./AutoMovieHumanScleraImage";
-import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
 import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceBody";
 
 /**
@@ -187,23 +185,17 @@ export namespace AutoMovieHumanAppearance {
     }
 
     // Scalp hair: guides on the measured head chart, realised as cards and
-    // an undercoat. Omitted appearance or zero length emits none.
+    // an undercoat, each stage reused while its own inputs are unchanged
+    // (`AutoMovieHumanHairStage`); the colour reaches only the materials.
+    // Omitted appearance or zero length emits none.
     const hair: IAutoMovieHumanScalpHair | undefined = params.appearance?.hair;
     if (hair !== undefined && hair.length > 0) {
-      const field: AutoMovieHumanHeadField.IField =
-        AutoMovieHumanHeadField.create(params, body);
-      const guides: AutoMovieHumanHairGuide.IGuide[] =
-        AutoMovieHumanHairGuide.generate(
-          field,
-          AutoMovieHumanShoulderField.create(body.parts, field),
-          hair,
-        );
-      if (guides.length !== 0) {
-        const mesh: AutoMovieHumanHairCard.IOutput =
-          AutoMovieHumanHairCard.generate(field, hair, guides);
+      const realised: AutoMovieHumanHairStage.IOutput | null =
+        AutoMovieHumanHairStage.realise(params, body, hair);
+      if (realised !== null) {
         parts.push(
-          part("human.hair.scalp", "human.hair.scalp", mesh.scalp),
-          part("human.hair.cards", "human.hair.cards", mesh.cards),
+          part("human.hair.scalp", "human.hair.scalp", realised.mesh.scalp),
+          part("human.hair.cards", "human.hair.cards", realised.mesh.cards),
         );
         materials.push(...AutoMovieHumanHairCard.materials(hair));
         images.push(AutoMovieHumanHairImage.generate());

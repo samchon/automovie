@@ -68,7 +68,9 @@ import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
  * Normals: the envelope's outward normal at the point's direction, whether
  * a strand lies on the head or hangs, so the whole cut shades as one
  * smooth hair mass, and halfway between that and the body's surface normal
- * where it rests on the body.
+ * where it rests on the body. A bob uses the envelope's hanging curtain
+ * from each azimuth's widest point for both its clearance and its normals;
+ * the shorter cuts use the head envelope.
  */
 export namespace AutoMovieHumanHairGuide {
   /** One solved guide. */
@@ -115,6 +117,8 @@ export namespace AutoMovieHumanHairGuide {
     const guides: IGuide[] = [];
     const envelope: AutoMovieHumanHairEnvelope.IEnvelope =
       AutoMovieHumanHairEnvelope.create(field);
+    const scalp: AutoMovieHumanScalpBoundary.IScalp =
+      AutoMovieHumanScalpBoundary.measure(field);
 
     for (let k: number = 0; k < lattice; ++k) {
       const y: number = 1 - (2 * (k + 0.5)) / lattice;
@@ -132,7 +136,7 @@ export namespace AutoMovieHumanHairGuide {
       const boundary: number = AutoMovieHumanScalpBoundary.height(
         hair.hairline,
         Math.atan2(u[2], u[0]),
-        field.height,
+        scalp,
       );
       // Feather the hairline: the roots within FEATHER mm above it grow
       // shorter hair the closer they are, each against the boundary raised
@@ -281,12 +285,25 @@ function solve(
   // share a depth.
   const layer: number = 1.2 + 0.4 * AutoMovieHumanAppearanceNoise.hash(7, root);
 
-  const start: number = AutoMovieHumanHeadField.radius(field, u) + layer;
+  // A bob hangs: below each azimuth's widest draped point it falls as a
+  // vertical curtain from that point, and shades as one; the shorter cuts
+  // lie on the head down to the nape.
+  const hang: boolean = style === AutoMovieHumanHairStyle.Bob;
+
+  // The root sits a layer above the surface its strand is held to (the
+  // envelope, and for a hanging cut the draped head too) where that lies
+  // higher than the skin (beside the auricle): rooted on the skin there,
+  // the first step climbed the rise and stood the strand off the head.
+  const start: number =
+    Math.max(
+      AutoMovieHumanHeadField.radius(field, u),
+      AutoMovieHumanHairEnvelope.radius(envelope, u, hang),
+    ) + layer;
   let p: [number, number, number] = scale(u, start);
   let heading: [number, number, number] = tangent(flow(style, u), u);
   const points: Array<[number, number, number]> = [p];
   const normals: Array<[number, number, number]> = [
-    AutoMovieHumanHairEnvelope.normal(envelope, u),
+    AutoMovieHumanHairEnvelope.normal(envelope, u, hang),
   ];
   let travelled: number = 0;
 
@@ -329,16 +346,41 @@ function solve(
       // with length as later hair stacks over earlier hair.
       const dir: [number, number, number] = unit(next);
       const over: number = AutoMovieHumanHairEnvelope.radius(envelope, dir);
-      const floor: number = over + layer + stack * (travelled + step);
+      // Only head skin above the menton drapes: below it the chart measures
+      // the neck the head chains loft.
+      const skin: number = AutoMovieHumanHeadField.radius(field, dir);
+      const draped: number =
+        AutoMovieHumanHeadField.covered(field, dir) &&
+        field.centre[1] + dir[1] * skin > menton
+          ? AutoMovieHumanHairEnvelope.drape(field, dir)
+          : 0;
       // Short cuts lie on the head everywhere; a bob lies on the vault
       // above the chart centre and hangs freely below it.
       const lies: boolean =
         style !== AutoMovieHumanHairStyle.Bob || next[1] > 0;
-      // Lying hair ends where the envelope rises over a bump such as the
+      // The clearance is over the smooth envelope; a hanging strand also
+      // keeps out of the draped head itself, since the envelope's power
+      // mean runs up to 8 mm under the drape's sharpest bump, the auricle,
+      // whose rim then showed through the curtain. On the vault the two
+      // agree to a millimetre, and holding lying hair to their larger one
+      // stepped it up and down. The normals stay the envelope's.
+      const floor: number =
+        (hang
+          ? Math.max(
+              AutoMovieHumanHairEnvelope.radius(envelope, dir, true),
+              lies ? 0 : draped,
+            )
+          : over) +
+        layer +
+        stack * (travelled + step);
+      // Lying hair ends where the drape rises over a bump such as the
       // auricle: cut short there, as a short cut is above the ear, instead
-      // of standing off the side of the head.
-      if (lies && over - AutoMovieHumanHeadField.radius(field, dir) > DRAPE)
-        break;
+      // of standing off the side of the head. The test reads the drape, a
+      // local 45 degree fall from each bump, not the envelope: that is a
+      // mean over 0.15 radian, which bridges the concave nape under the
+      // occiput by more than DRAPE, and lying hair tested on it ended there
+      // and bared the undercoat down the nape.
+      if (lies && (draped > 0 ? draped : over) - skin > DRAPE) break;
       if (norm(next) < floor || lies) {
         const projected: [number, number, number] = scale(dir, floor);
 
@@ -358,6 +400,7 @@ function solve(
     let normal: [number, number, number] = AutoMovieHumanHairEnvelope.normal(
       envelope,
       next,
+      hang,
     );
 
     // Reaching the body: the strand settles on it and slides along it.
@@ -381,7 +424,10 @@ function solve(
       // so the hair keeps its tone where it meets the shoulders instead of
       // turning into a separately lit shelf.
       normal = unit(
-        add(AutoMovieHumanHairEnvelope.normal(envelope, next), contact.normal),
+        add(
+          AutoMovieHumanHairEnvelope.normal(envelope, next, hang),
+          contact.normal,
+        ),
       );
 
       // A bob rests along the body for the drop it still had to its level

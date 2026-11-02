@@ -8,10 +8,10 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
 
 /**
  * A depth material normalized on a scene-stable metric range instead of the
- * camera's clip planes. The vertex stage includes three's skinning chunks (a
- * plain rigid mesh compiles them out; a `SkinnedMesh` deforms correctly), so
- * the depth of a posed skinned character is the deformed surface's, not the
- * bind pose's.
+ * camera's clip planes. The vertex stage includes three's morph and skinning
+ * chunks in the order of its own depth shader (a plain rigid mesh compiles
+ * them out), so the depth of a posed skinned character with correctives is the
+ * deformed surface's, morph before skin, not the bind pose's.
  */
 const makeNormalizedDepthMaterial: (range: number) => THREE.ShaderMaterial = (
   range: number,
@@ -20,11 +20,14 @@ const makeNormalizedDepthMaterial: (range: number) => THREE.ShaderMaterial = (
     uniforms: { depthRange: { value: range } },
     vertexShader: `
       #include <common>
+      #include <morphtarget_pars_vertex>
       #include <skinning_pars_vertex>
       varying float vViewZ;
       void main() {
         #include <skinbase_vertex>
+        #include <morphinstance_vertex>
         #include <begin_vertex>
+        #include <morphtarget_vertex>
         #include <skinning_vertex>
         vec4 worldPosition = vec4(transformed, 1.0);
         #ifdef USE_INSTANCING
@@ -52,7 +55,7 @@ const makeNormalizedDepthMaterial: (range: number) => THREE.ShaderMaterial = (
  * Active or failed scene retirement refuses before background mutation; failed
  * restoration retains its owned callback and original cause through that scene.
  *
- * @evidence contracts/common.md#principled-implementation Shades clamp(1-viewZ/range,0,1) after native skinning/instancing and shared formation-cycle injection, using camera-space metre depth rather than near/far normalization; range must be finite/positive and morph/custom deformation not represented by these chunks is unsupported.
+ * @evidence contracts/common.md#principled-implementation Shades clamp(1-viewZ/range,0,1) after native morph targets, then native or dual-quaternion skinning, instancing and shared formation-cycle injection, the operator order of the beauty pass, using camera-space metre depth rather than near/far normalization; range must be finite/positive and custom deformation not represented by these chunks is unsupported.
  * @evidence contracts/common.md#clear-and-simple-design Owns the depth shader/background while the shared override helper owns mesh selection, each mesh's replacement and cycle patch, and restoration bookkeeping.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses actual deformed view-space vertices and one declared scene range without fixture bounds or camera-specific depth rescaling; no foreign method/prototype is replaced.
  * @evidence contracts/common.md#meaningful-documentation States the metric depth mapping, black far background, supported native skinning, range premise and returned restoration ownership.

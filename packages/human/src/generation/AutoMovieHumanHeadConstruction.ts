@@ -9,6 +9,7 @@ import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftCha
 import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
 import { AutoMovieHumanEarConstruction } from "./AutoMovieHumanEarConstruction";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
+import { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
@@ -25,9 +26,10 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * prior's keys, which are in head lengths and breadths, and every measure
  * closes on the vertex through one analytic cap. The public widths enter as
  * keys of the shield's half-width. A third body, the mandible's skin, joins
- * them along each ray by a smooth minimum of absolute width: an arch in plan
- * from the chin to the gonions over the mandibular plane, whose border turns
- * under into skin falling inward to the neck.
+ * them along each ray by a smooth minimum of absolute width, wider where the
+ * skin under the jaw meets the neck: an arch in plan from the chin to the
+ * gonions over the mandibular plane, whose border turns under into skin
+ * falling inward to the neck. The soft tissue's roundings grow with fat.
  *
  * Named features are reliefs written as radial heights over that surface, each
  * with its own place, widths and depth, driven by the public dimensions: the
@@ -40,9 +42,11 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * stay on the features they belong to.
  *
  * The neck ring's difference from the law fades in over the jaw, so the bottom
- * ring is the neck's own. Auricles are spliced into the sections of the middle
- * chain by `AutoMovieHumanEarConstruction`, and their free ends are the ear
- * chains. Rings are parametrized by each chain's own phase rule.
+ * ring is the neck's own. The lower and middle head's layers both crowd about
+ * the nose's base, which crosses their join. Auricles are spliced into the
+ * sections of the middle chain by `AutoMovieHumanEarConstruction`, and their
+ * free ends are the ear chains. Rings are parametrized by each chain's own
+ * phase rule.
  */
 export namespace AutoMovieHumanHeadConstruction {
   /** What the head reads, world millimetres. */
@@ -61,6 +65,9 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** Masculine-feminine control. */
     sex: number;
+
+    /** Fat control. */
+    fat: number;
   }
 
   /** Head and lip boundary. */
@@ -106,6 +113,9 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** Masculine-feminine control. */
     sex: number;
+
+    /** Fat control. */
+    fat: number;
 
     /** Neck ring's height. */
     y0: number;
@@ -247,6 +257,9 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** Width of the blend with the face and neck. */
     blend: number;
+
+    /** Width of that blend under the border, where the jaw meets the neck. */
+    throat: number;
   }
 
   /** One section's measures in its own plane. */
@@ -383,6 +396,7 @@ export namespace AutoMovieHumanHeadConstruction {
     return {
       scale: k,
       sex: inputs.sex,
+      fat: inputs.fat,
       y0,
       neck,
       menton,
@@ -561,7 +575,8 @@ export namespace AutoMovieHumanHeadConstruction {
    * minimum, of absolute width, of the distance past the bodies' outline and
    * the jaw's signed distance. A width in millimetres, unlike the bodies' scale
    * union, swells the skin by a quarter of it at most where the two meet flush,
-   * and rounds the hollow between the jaw's underside and the neck by about it.
+   * and rounds the hollow between the jaw's underside and the neck by about it;
+   * {@link blendAt} sets it.
    */
   function jawed(
     section: ISection,
@@ -575,11 +590,14 @@ export namespace AutoMovieHumanHeadConstruction {
     const n: number = Math.sin(theta);
     const cos: number = Math.cos(section.tilt);
     const sin: number = Math.sin(section.tilt);
-    const k: number = m.blend;
+    // The march steps no further than the widest blend can reach.
+    const k: number = Math.max(m.blend, m.throat);
     const join = (r: number): [number, number] => {
       const xi: number = ox + r * c;
-      const d: number = mandible(m, xi * cos, section.station + xi * sin, r * n);
-      return [softMin(r - base, d, k), d];
+      const x: number = xi * cos;
+      const y: number = section.station + xi * sin;
+      const d: number = mandible(m, x, y, r * n);
+      return [softMin(r - base, d, blendAt(m, x, y, r * n)), d];
     };
     let inside: number = -1;
     let outside: number = -1;
@@ -605,6 +623,40 @@ export namespace AutoMovieHumanHeadConstruction {
   }
 
   /**
+   * Width of the jaw's blend at a point: its own over and beside the jaw, the
+   * throat's under the border and well inside the arch, where the skin under
+   * the jaw meets the neck at the cervicomental angle. The sections cross that
+   * hollow nearly along the skin under the jaw, so a blend of the jaw's own
+   * 6 mm turned it within one layer and shaded it as a row of facets. Within a
+   * round of the arch the throat's width would swell the chin's sides, where
+   * the jaw and the face meet nearly flush, and round the border away.
+   */
+  function blendAt(m: IMandible, x: number, y: number, z: number): number {
+    const below: number = (m.menton + (m.chin - x) * m.slope - y) * m.cos;
+    const inside: number = -arch(m, x, z);
+    return (
+      m.blend +
+      (m.throat - m.blend) *
+        smooth(below / m.round) *
+        smooth((inside - m.round) / m.round)
+    );
+  }
+
+  /** Signed distance from the jaw's arch in plan, first order, negative inside. */
+  function arch(m: IMandible, x: number, z: number): number {
+    const a: number = x > m.gonion ? m.front - m.gonion : m.back;
+    const u: number = Math.abs(x - m.gonion) / a;
+    const v: number = Math.abs(z) / m.width;
+    const n: number = m.power;
+    const e: number = (u ** n + v ** n) ** (1 / n);
+    const g: number =
+      e < 1e-9
+        ? 0
+        : Math.hypot((u / e) ** (n - 1) / a, (v / e) ** (n - 1) / m.width);
+    return g === 0 ? -Math.min(a, m.width) : (e - 1) / g;
+  }
+
+  /**
    * Signed distance from the jaw's skin, negative inside, first order.
    *
    * In plan the jaw is an arch, an ellipse about the gonion, long ahead of it
@@ -621,16 +673,7 @@ export namespace AutoMovieHumanHeadConstruction {
     y: number,
     z: number,
   ): number {
-    const a: number = x > m.gonion ? m.front - m.gonion : m.back;
-    const u: number = Math.abs(x - m.gonion) / a;
-    const v: number = Math.abs(z) / m.width;
-    const n: number = m.power;
-    const e: number = (u ** n + v ** n) ** (1 / n);
-    const g: number =
-      e < 1e-9
-        ? 0
-        : Math.hypot((u / e) ** (n - 1) / a, (v / e) ** (n - 1) / m.width);
-    const plan: number = g === 0 ? -Math.min(a, m.width) : (e - 1) / g;
+    const plan: number = arch(m, x, z);
     const line: number = m.menton + (m.chin - x) * m.slope;
     const below: number = (line - y) * m.cos;
     const behind: number =
@@ -697,6 +740,7 @@ export namespace AutoMovieHumanHeadConstruction {
         ],
         apertures: head.apertures,
         eyes: head.eyes,
+        mouth: head.mouth,
       },
       vermilion: { ...vermilion, spans: head.lips },
     };
@@ -732,6 +776,7 @@ export namespace AutoMovieHumanHeadConstruction {
     apertures: IAutoMovieHumanLoftAperture[];
     eyes: IAutoMovieHumanBodyCalibration.IEye[];
     lips: IAutoMovieHumanHermiteCurve["spans"];
+    mouth: AutoMovieHumanMouth.IMouth;
   }
 
   /** The surface of one person, ready to cut. */
@@ -1301,6 +1346,17 @@ export namespace AutoMovieHumanHeadConstruction {
     return out;
   }
 
+  /** Length from a to b with {@link crowded}'s crowding counted in. */
+  function weighted(a: number, b: number, place: number, reach: number): number {
+    const fine: number = 512;
+    let total: number = 0;
+    for (let i: number = 0; i < fine; i++) {
+      const y: number = a + ((b - a) * (i + 0.5)) / fine;
+      total += ((b - a) / fine) * (1 + CROWD * bell((y - place) / reach));
+    }
+    return total;
+  }
+
   /** One ear's chains, its own events and poles. */
   function earChains(
     surface: ISurface,
@@ -1565,7 +1621,11 @@ export namespace AutoMovieHumanHeadConstruction {
       prior.mandible,
       frontAt(
         surface,
-        plan.menton + prior.mandible.round * prior.mandible.taper * scale,
+        plan.menton +
+          prior.mandible.round *
+            softness(prior.mandible, plan.fat) *
+            prior.mandible.taper *
+            scale,
         0,
       ),
       (left.x + right.x) / 2,
@@ -1573,12 +1633,28 @@ export namespace AutoMovieHumanHeadConstruction {
     );
     surface.cut.clear();
 
+    const shelf: number = plan.subnasale + BASE * (plan.nasion - plan.tip);
+    const reach: number = SHELF * (plan.nasion - plan.tip);
     const middleStations: number[] = crowded(
       lower,
       upper,
       LAYERS_MIDDLE,
-      plan.subnasale + BASE * (plan.nasion - plan.tip),
-      SHELF * (plan.nasion - plan.tip),
+      shelf,
+      reach,
+    );
+
+    // The ears' lower ends, where the middle head starts, lie from 1.5 to 9.5
+    // mm over the subnasale on the references, so the nose's base runs across
+    // the join. The lower head's layers crowd about it as the middle's do, and
+    // gain the layers the crowding takes, so its pitch below is kept: on its
+    // even 1.3 mm a sill 2.8 mm over the lip turned 54 degrees in one layer.
+    const lowerPitch: number = (lower - level) / (LAYERS_LOWER - 1);
+    const lowerStations: number[] = crowded(
+      level,
+      lower,
+      1 + Math.ceil(weighted(level, lower, shelf, reach) / lowerPitch),
+      shelf,
+      reach,
     );
     const upperStations: number[] = Array.from(
       { length: LAYERS_UPPER },
@@ -1654,10 +1730,11 @@ export namespace AutoMovieHumanHeadConstruction {
       eye("left", 1),
       eye("right", -1),
     ];
+    const mouth: AutoMovieHumanMouth.IOutput = mouthOf(surface);
     return {
       stature: scale * inputs.height,
       chains: [
-        plain("head.lower", 424, uniform(level, lower, LAYERS_LOWER)),
+        plain("head.lower", 424, lowerStations),
         middle,
         plain("head.upper", 504, upperStations),
         ...earLeft.chains,
@@ -1692,10 +1769,35 @@ export namespace AutoMovieHumanHeadConstruction {
         nostril(surface, -1),
         margin(plan, prior.face, eyes[0]!, plan.left, 1),
         margin(plan, prior.face, eyes[1]!, plan.right, -1),
+        mouth.aperture,
       ],
       eyes,
       lips: lipSpans(surface),
+      mouth: mouth.mouth,
     };
+  }
+
+  /**
+   * The mouth placed from this head's lips: the fissure along the contact
+   * line the lips' relief draws, and the interior behind it
+   * (`AutoMovieHumanMouth`).
+   */
+  function mouthOf(surface: ISurface): AutoMovieHumanMouth.IOutput {
+    const { plan } = surface;
+    return AutoMovieHumanMouth.create({
+      stomion: plan.stomion,
+      width: plan.mouthWidth,
+      upper: plan.upperLip,
+      lower: plan.lowerLip,
+      gap: plan.gap,
+      subnasale: plan.subnasale,
+      menton: plan.menton,
+      sex: plan.sex,
+      gonion: plan.mandible!.gonion,
+      // The fissure's midline in `relief`.
+      contact: (u: number): number => plan.stomion + 1.2 * plan.scale * u * u,
+      front: (y: number, z: number): number => frontAt(surface, y, z),
+    });
   }
 
   /** One lid margin, a short Fourier series about its globe. */
@@ -1841,7 +1943,8 @@ export namespace AutoMovieHumanHeadConstruction {
    * The person's mandible: the plane through the chin's skin at the menton at
    * its angle, the gonion on it a fixed distance ahead of the ears' line at
    * half the jaw width, the ramus leaning back by the gonial angle, the body as
-   * tall as the menton to the stomion.
+   * tall as the menton to the stomion. The soft tissue over it, and so its
+   * roundings, grows with fat.
    */
   function jawOf(
     plan: ILayout,
@@ -1855,7 +1958,8 @@ export namespace AutoMovieHumanHeadConstruction {
     const plane: number = (j.plane[0]! + j.plane[1]! * plan.sex) * degree;
     const angle: number = (j.angle[0]! + j.angle[1]! * plan.sex) * degree;
     const lean: number = angle - Math.PI / 2 - plane;
-    const round: number = j.round * k;
+    const soft: number = softness(j, plan.fat);
+    const round: number = j.round * soft * k;
     const gonion: number = ear + j.gonion * k;
     const slope: number = Math.tan(plane);
     return {
@@ -1875,7 +1979,13 @@ export namespace AutoMovieHumanHeadConstruction {
       round,
       taper: j.taper,
       blend: j.blend * k,
+      throat: j.throat * soft * k,
     };
+  }
+
+  /** Growth of the jaw's soft tissue with fat, from the prior's at none. */
+  function softness(j: AutoMovieHumanHeadPrior.IMandible, fat: number): number {
+    return Math.exp(j.fat * fat);
   }
 
   /** Forward coordinate of the skin at a world height and lateral place. */

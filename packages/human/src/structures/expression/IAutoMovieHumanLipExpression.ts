@@ -5,7 +5,7 @@ import type { IAutoMovieHumanPair } from "../common/IAutoMovieHumanPair";
 /**
  * Lip and cheek action units used in speech, as intensities from rest (0) to maximum (1), FACS letter grades A to E at about 0.2, 0.4, 0.6, 0.8 and 1 (Ekman and Friesen 1978, FACS). Upper lip first, then the mouth corners, the lower lip and whole-mouth shapes. Units that act on one side separately take a left and right value, the person's own sides.
  *
- * Not consumed by the generator yet (deferred to the mouth-geometry task).
+ * `AutoMovieHumanMouthExpression` resolves each into the rule displacements of `AutoMovieHumanMouthDeformation`. The skin is open along the lips' contact line, so lips that part do not stretch across it.
  */
 export interface IAutoMovieHumanLipExpression {
   /** AU10, levator labii superioris: the upper lip rises. */
@@ -32,6 +32,9 @@ export interface IAutoMovieHumanLipExpression {
   lowerLipDepressor?: IAutoMovieHumanPair<
     number & tags.Minimum<0> & tags.Maximum<1>
   >;
+
+  /** AU17, mentalis: the chin's skin and the lower lip push up, as when the lower lip meets the upper teeth for /f/. */
+  chinRaiser?: number & tags.Minimum<0> & tags.Maximum<1>;
 
   /** AU18, incisivus labii: the lips push forward and gather (pucker). */
   lipPucker?: number & tags.Minimum<0> & tags.Maximum<1>;

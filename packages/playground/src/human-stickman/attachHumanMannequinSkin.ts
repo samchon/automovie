@@ -66,12 +66,8 @@ export async function attachHumanMannequinSkin(options: {
     },
     textures.resolve,
   );
-  const skeletons: Set<THREE.Skeleton> = new Set();
-  skin.object.traverse((part: THREE.Object3D): void => {
-    if (part instanceof THREE.SkinnedMesh) skeletons.add(part.skeleton);
-  });
   const closeSkin: () => Promise<void> = createAutoMovieResourceRetirement(
-    [...collectAutoMovieOwnedResources(skin.object), ...skeletons].map(
+    collectAutoMovieOwnedResources(skin.object).map(
       (resource: { dispose(): void }): (() => void) =>
         (): void =>
           resource.dispose(),

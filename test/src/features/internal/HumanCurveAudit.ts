@@ -3,6 +3,7 @@ import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/
 import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
 import type { AutoMovieHumanLoftMesh } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieHumanPoseChannels } from "../../../../packages/human/src/skeleton/AutoMovieHumanPoseChannels";
 
 type V3 = [number, number, number];
 
@@ -57,6 +58,10 @@ export interface IHumanCurveFinding {
  * - `ledge`: the skin beside the nose steps with height, a ridge off the lip.
  * - `base`: the nose's base turns at a shelf's edge instead of a radius.
  * - `jaw`: the lower face rolls into the neck with no border to turn under.
+ * - `facet`: the jaw's border shades as facets, its skin turning by a large
+ *   angle across one cell of the mesh.
+ * - `pit`: a nostril's closure shades as streaks, its walls turning by a large
+ *   angle across one cell of the mesh.
  * - `rib`: a foot's or toe's longitudinal curve turns sharply for its ring's
  *   size, the line a section prints across the skin.
  * - `ball`: a web runs a groove back into the padded ball of the foot.
@@ -70,11 +75,19 @@ export interface IHumanCurveFinding {
  * - `rim-slide`, `ear-fold`, `ear-crossing`: an ear's rim leaves its phase, its
  *   cells reverse along the chain, or a section runs over itself round more
  *   than a pinch's corner.
+ *
+ * @param person Name in the findings.
+ * @param body The generated body.
+ * @param generated Chains audited.
+ * @param mandible Half the person's mandibular width input, in the body's
+ *   millimetres: the jaw is read at shares of its own width. Without it the
+ *   jaw is read at shares of the lower head's.
  */
 export function auditHumanCurves(
   person: string,
   body: IAutoMovieHumanBodyCalibration,
   generated: RegExp,
+  mandible?: number,
 ): IHumanCurveFinding[] {
   const groups: Map<string, IHumanCurveFinding> = new Map();
   const report = (
@@ -118,10 +131,12 @@ export function auditHumanCurves(
   auditBall(body, generated, report);
   auditSides(body, report);
   auditHip(body, generated, report);
+  auditLegRoot(body, generated, report);
   if (generated.test("head.middle")) {
     auditNoseFlank(body, report);
     auditNoseBase(body, report);
-    auditJaw(body, report);
+    auditJaw(body, report, mandible);
+    auditHeadMesh(body, report, mandible);
   }
   return [...groups.values()];
 }
@@ -480,8 +495,10 @@ function auditHandJoins(
 ): HumanCurveAudit.IHumanCurveFinding[] {
   const find = (name: string): IAutoMovieHumanLoftChain =>
     body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === name)!;
+  // A web's children start apart from the parent's ring by design; the mesh
+  // rules read the web between them.
   return body.events
-    .filter((e: IAutoMovieHumanBodyCalibration.IEvent): boolean => owned.test(e.parent))
+    .filter((e: IAutoMovieHumanBodyCalibration.IEvent): boolean => owned.test(e.parent) && e.web !== true)
     .flatMap((event: IAutoMovieHumanBodyCalibration.IEvent): HumanCurveAudit.IHumanCurveFinding[] => {
       const parent: IAutoMovieHumanLoftChain = find(event.parent);
       const end: number = parent.layers[0]!.y;
@@ -835,10 +852,17 @@ function auditRidges(
     (a: number): boolean =>
       chain.name !== "upper" || Math.abs(Math.cos(a)) > RIDGE_FACE,
   );
-  const table: number[][] = rings.map((ring: V3[]): number[] => {
+  // Bearings and radii lie in each ring's own section plane, which is level
+  // on a chain without frames and across the bone on a limb lofted in them.
+  const table: number[][] = rings.map((ring: V3[], i: number): number[] => {
     const c: V3 = centre(ring);
-    const angles: number[] = ring.map((p: V3): number =>
-      Math.atan2(p[2] - c[2], p[0] - c[0]),
+    const f = AutoMovieHumanLoftChain.frame(chain, low + i * RIDGE_STEP);
+    const flat: [number, number][] = ring.map((p: V3): [number, number] => [
+      dot(sub(p, c), f.u),
+      dot(sub(p, c), f.v),
+    ]);
+    const angles: number[] = flat.map((p: [number, number]): number =>
+      Math.atan2(p[1], p[0]),
     );
     return bearings.map((bearing: number): number => {
       let best: number = Infinity;
@@ -852,8 +876,7 @@ function auditRidges(
           at = j;
         }
       });
-      const p: V3 = ring[at]!;
-      return Math.hypot(p[0] - c[0], p[2] - c[2]);
+      return Math.hypot(...flat[at]!);
     });
   });
   for (let i: number = 1; i < count; i++) {
@@ -896,6 +919,9 @@ function auditJoins(
   );
   const find = (n: string): IAutoMovieHumanLoftChain => chains.get(n)!;
   for (const event of body.events) {
+    // A web's children meet the parent through the web's own surface, which
+    // the mesh rules read; their ends stand apart from its ring by design.
+    if (event.web === true) continue;
     const parent: IAutoMovieHumanLoftChain = find(event.parent);
     const down: boolean = event.direction === "down";
     const end: number = down
@@ -1115,6 +1141,96 @@ function auditHip(
         if (third > STREAK)
           report(name, "streak", `under the ring ${share}`, third, STREAK, b);
       });
+    }
+  }
+}
+
+/**
+ * A leg's rows through its knee and its sections under the crotch's pinches.
+ *
+ * - `rows`: under the knee's whole flexion, two neighbouring layers within its
+ *   bend turn apart by more than {@link ALIAS}. The rig spreads a joint's turn
+ *   over a quintic ramp {@link BEND} skin depths either side of it and the skin
+ *   bends only between its rows, so rows that far apart print as facets round
+ *   a flexed knee though the standing skin is smooth.
+ * - `corner`: a leg's own section turns by more than {@link ALIAS} within 2 mm
+ *   near one of the crotch ring's pinches, deeper than {@link CORNER_FROM} under
+ *   the ring and down to the thigh rule's depth: the slit's corner carried down
+ *   the thigh, which the cells alias into an edge.
+ */
+function auditLegRoot(
+  body: IAutoMovieHumanBodyCalibration,
+  generated: RegExp,
+  report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
+): void {
+  const trunk: IAutoMovieHumanLoftChain | undefined = body.chains.find(
+    (c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk",
+  );
+  const event: IAutoMovieHumanBodyCalibration.IEvent | undefined = body.events.find(
+    (e: IAutoMovieHumanBodyCalibration.IEvent): boolean => e.parent === "trunk" && e.direction === "down",
+  );
+  const flexion = AutoMovieHumanPoseChannels.find((r): boolean => r[0] === "legs.<side>.knee.flexion");
+  for (const side of ["left", "right"]) {
+    const name: string = `leg.${side}`;
+    const leg: IAutoMovieHumanLoftChain | undefined = body.chains.find(
+      (c: IAutoMovieHumanLoftChain): boolean => c.name === name,
+    );
+    if (leg === undefined || !generated.test(name)) continue;
+    const low: number = leg.layers[0]!.y;
+    const top: number = leg.layers[leg.layers.length - 1]!.y;
+
+    // Rows through the knee.
+    const knee: V3 | undefined = body.skeleton?.find((b): boolean => b.bone === `${side}LowerLeg`)?.position;
+    if (knee !== undefined && flexion !== undefined && knee[1] > low && knee[1] < top) {
+      const range: number = flexion[5] - flexion[4];
+      const depth: number = Math.min(
+        ...AutoMovieHumanLoftChain.ring(leg, knee[1], uniform(PHASES)).map((p: V3): number => distance(p, knee)),
+      );
+      const half: number = BEND * depth;
+      const ramp = (s: number): number => {
+        const y: number = (Math.min(1, Math.max(-1, (s - knee[1]) / half)) + 1) / 2;
+        return y * y * y * (y * (6 * y - 15) + 10);
+      };
+      leg.layers.forEach((l: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
+        if (k === 0) return;
+        const turn: number = range * (ramp(l.y) - ramp(leg.layers[k - 1]!.y));
+        if (turn > ALIAS) report(name, "rows", `layer ${band(k)}`, turn, ALIAS, knee);
+      });
+    }
+
+    // Sections under the pinches.
+    const split: IAutoMovieHumanBodyCalibration.ISplit | undefined = event?.splits.find(
+      (s: IAutoMovieHumanBodyCalibration.ISplit): boolean => s.child === name,
+    );
+    if (trunk === undefined || split === undefined) continue;
+    const pinches: V3[] = AutoMovieHumanLoftChain.ring(trunk, trunk.layers[0]!.y, split.arcs.flat());
+    const phases: number[] = uniform(CORNER_PHASES);
+    for (let d: number = CORNER_FROM; d <= THIGH_TOP * body.stature && top - d > low; d += CORNER_STEP) {
+      const ring: V3[] = AutoMovieHumanLoftChain.ring(leg, top - d, phases);
+      const n: number = ring.length;
+      const walk = (from: number, step: number): V3 => {
+        let gone: number = 0;
+        let i: number = from;
+        while (gone < 1) {
+          const j: number = (i + step + n) % n;
+          gone += distance(ring[j]!, ring[i]!);
+          i = j;
+        }
+        return ring[i]!;
+      };
+      for (const pinch of pinches) {
+        let near: number = 0;
+        ring.forEach((p: V3, i: number): void => {
+          if (distance(p, pinch) < distance(ring[near]!, pinch)) near = i;
+        });
+        for (let o: number = -CORNER_REACH; o <= CORNER_REACH; o++) {
+          const i: number = (near + o + n) % n;
+          const a: V3 = unit(sub(ring[i]!, walk(i, -1)));
+          const b: V3 = unit(sub(walk(i, 1), ring[i]!));
+          const turn: number = (Math.acos(clamp(dot(a, b))) * 180) / Math.PI;
+          if (turn > ALIAS) report(name, "corner", `under the ring ${Math.round(d)} ${pinch[0] > 0 ? "front" : "back"}`, turn, ALIAS, ring[i]!);
+        }
+      }
     }
   }
 }
@@ -1404,10 +1520,15 @@ function auditNoseBase(
  * The mandible's border is an edge the skin turns under, toward the neck: at the
  * face's steepest fall below the cheek, the profile turns within a radius. A
  * lower face rolling into the neck over a wide radius is a bag with no jaw.
+ *
+ * The places are shares of the mandible's own half-width, as a jaw is
+ * measured: a share of the head's width read a jaw narrower than the cheeks
+ * outside its own angle, on the cheek's taper.
  */
 function auditJaw(
   body: IAutoMovieHumanBodyCalibration,
   report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
+  mandible: number | undefined,
 ): void {
   const lower: IAutoMovieHumanLoftChain | undefined = body.chains.find(
     (c: IAutoMovieHumanLoftChain): boolean => c.name === "head.lower",
@@ -1415,7 +1536,9 @@ function auditJaw(
   if (lower === undefined) return;
   const bottom: number = lower.layers[0]!.y;
   const top: number = lower.layers[lower.layers.length - 1]!.y;
-  const half: number = Math.max(...AutoMovieHumanLoftChain.ring(lower, top, uniform(720)).map((p: V3): number => Math.abs(p[2])));
+  const half: number =
+    mandible ??
+    Math.max(...AutoMovieHumanLoftChain.ring(lower, top, uniform(720)).map((p: V3): number => Math.abs(p[2])));
   const from: number = bottom + JAW_ABOVE_NECK * (top - bottom);
   for (const share of JAW_PLACES) {
     const line: [number, number][] = faceProfile(body, share * half, from, top);
@@ -1461,8 +1584,121 @@ function auditJaw(
       }
     }
     const limit: number = JAW_TURN * k;
-    if (least > limit) report("head.lower", "jaw", `under the jaw at ${share} of the head's half-width`, least, limit, [at[1], at[0], share * half]);
+    if (least > limit) report("head.lower", "jaw", `under the jaw at ${share} of its half-width`, least, limit, [at[1], at[0], share * half]);
   }
+}
+
+/**
+ * The head's skin as the viewer shades it, about the jaw and the nostrils.
+ *
+ * - `facet`: across one cell of the skin along the mandible's border, the
+ *   shading normal turns by more than {@link FACET}. Where the sections run
+ *   nearly along the jaw's underside, a turn the layers cannot carry falls
+ *   between two of them and shades as a row of facets, though every curve
+ *   rule reads the layers themselves as sound.
+ * - `pit`: across one cell of a nostril's closure where it shows through the
+ *   opening, or from it to the skin round it, the shading normal turns by
+ *   more than {@link PIT}: the walls shade as the white streaks of a fringe.
+ */
+function auditHeadMesh(
+  body: IAutoMovieHumanBodyCalibration,
+  report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
+  mandible: number | undefined,
+): void {
+  const owned: RegExp = /^head\.(lower|middle)$/;
+  const nostrils = body.apertures.filter((a): boolean => /^nostril\./.test(a.name));
+  const lower: IAutoMovieHumanLoftChain | undefined = body.chains.find(
+    (c: IAutoMovieHumanLoftChain): boolean => c.name === "head.lower",
+  );
+  if (lower === undefined || nostrils.length === 0) return;
+  const out = AutoMovieHumanBodySurface.generate({
+    ...body,
+    chains: body.chains.filter((c: IAutoMovieHumanLoftChain): boolean => owned.test(c.name)),
+    events: body.events
+      .filter((e: IAutoMovieHumanBodyCalibration.IEvent): boolean => owned.test(e.parent))
+      .map((e: IAutoMovieHumanBodyCalibration.IEvent): IAutoMovieHumanBodyCalibration.IEvent => ({
+        ...e,
+        splits: e.splits.filter((s: IAutoMovieHumanBodyCalibration.ISplit): boolean => owned.test(s.child)),
+      })),
+    poles: [],
+    apertures: nostrils,
+    eyes: [],
+    appendages: undefined,
+  });
+  const p: number[] = out.mesh.positions;
+  const n: number[] = out.normals;
+  const c: number[] = out.coordinates;
+  const size: number = p.length / 3;
+  const at = (v: number): V3 => [p[3 * v]!, p[3 * v + 1]!, p[3 * v + 2]!];
+  const skin = (v: number): boolean => Number.isFinite(c[3 * v]!);
+  const turn = (a: number, b: number): number =>
+    (Math.acos(clamp(n[3 * a]! * n[3 * b]! + n[3 * a + 1]! * n[3 * b + 1]! + n[3 * a + 2]! * n[3 * b + 2]!)) * 180) / Math.PI;
+
+  // The jaw's border: below the nose, about the mandible's own half-width,
+  // ahead of the lower head's axis.
+  const step: number = 2 * nostrils[0]!.order + 1;
+  const nose: number = nostrils[0]!.coefficients[step]!;
+  const k: number = body.stature / BASE_STATURE;
+  const half: number =
+    mandible ??
+    Math.max(
+      ...AutoMovieHumanLoftChain.ring(lower, lower.layers[lower.layers.length - 1]!.y, uniform(720)).map(
+        (q: V3): number => Math.abs(q[2]),
+      ),
+    );
+  const bottom: number = lower.layers[0]!.y;
+  const top: number = lower.layers[lower.layers.length - 1]!.y;
+  const jaw = (v: number): boolean => {
+    const q: V3 = at(v);
+    if (q[1] < nose - FACET_BELOW[1]! * k || q[1] > nose - FACET_BELOW[0]! * k) return false;
+    if (Math.abs(q[2]) < FACET_ACROSS[0]! * half || Math.abs(q[2]) > FACET_ACROSS[1]! * half) return false;
+    // The lips turn sharply by design.
+    if (Math.abs(q[2]) < FACET_MOUTH[0]! * half && q[1] > nose - FACET_MOUTH[1]! * k) return false;
+    // Back to the angle, which stands about the lower head's axis.
+    const axis: V3 = AutoMovieHumanLoftChain.axis(lower, Math.min(top, Math.max(bottom, q[1])));
+    return q[0] > axis[0] - FACET_BACK * half;
+  };
+
+  // A nostril's closure: the vertices it added in the half of its pocket that
+  // shows through the opening. The skin's shading darkens the pocket fully
+  // by half its depth, and the pole's fan lies past it.
+  const centres: { centre: V3; forward: V3; reach: number; depth: number }[] = nostrils.map((a) => {
+    const s: number = 2 * a.order + 1;
+    const radius: number = Math.hypot(
+      ...[1, 2, s + 1, s + 2, 2 * s + 1, 2 * s + 2].map((h: number): number => a.coefficients[h]!),
+    );
+    return {
+      centre: [a.coefficients[0]!, a.coefficients[s]!, a.coefficients[2 * s]!],
+      forward: unit([a.forward[0]!, a.forward[1]!, a.forward[2]!]),
+      reach: (a.pocket ?? 0) + 2 * radius,
+      depth: (a.pocket ?? 0) / 2,
+    };
+  });
+  const closure = (v: number): boolean =>
+    !skin(v) &&
+    centres.some(
+      (o): boolean =>
+        distance(at(v), o.centre) < o.reach && dot(sub(o.centre, at(v)), o.forward) < o.depth,
+    );
+
+  const seen: Set<number> = new Set();
+  const ix: number[] = out.mesh.indices;
+  for (let t: number = 0; t < ix.length; t += 3)
+    for (let e: number = 0; e < 3; e++) {
+      const a: number = ix[t + e]!;
+      const b: number = ix[t + ((e + 1) % 3)]!;
+      const key: number = Math.min(a, b) * size + Math.max(a, b);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (skin(a) && skin(b) && jaw(a) && jaw(b)) {
+        const value: number = turn(a, b);
+        if (value > FACET) report("head.lower", "facet", "along the jaw's border", value, FACET, at(a));
+      } else if (closure(a) || closure(b)) {
+        if (!(closure(a) || skin(a)) || !(closure(b) || skin(b))) continue;
+        const value: number = turn(a, b);
+        if (value > PIT) report("head", "pit", "nostril closure", value, PIT, at(a));
+      }
+    }
 }
 
 /** Unit normals of a chain's surface at one station and given phases. */
@@ -1828,6 +2064,33 @@ const JAW_PLACES: readonly number[] = [0.5, 0.65, 0.8];
 /** Share of the lower head above its bottom ring where the neck's base ends. */
 const JAW_ABOVE_NECK: number = 0.15;
 
+/**
+ * Turn of the shading normal across one cell along the jaw's border, degrees:
+ * above it the border read as a row of facets in the viewer.
+ */
+const FACET: number = 15;
+
+/** Heights below the nostrils the jaw's border is read between, mm. */
+const FACET_BELOW: readonly number[] = [25, 80];
+
+/** Distances from the midline it is read between, in the jaw's half-width. */
+const FACET_ACROSS: readonly number[] = [0.35, 1.3];
+
+/**
+ * The mouth, which it leaves out: within this share of the jaw's half-width
+ * of the midline, and less than this far below the nostrils, mm.
+ */
+const FACET_MOUTH: readonly number[] = [0.6, 40];
+
+/** How far behind the lower head's axis it is read, in the jaw's half-width. */
+const FACET_BACK: number = 0.5;
+
+/**
+ * Turn of the shading normal across one cell of a nostril's closure, degrees:
+ * at 40 and more its walls read in the viewer as a white, jagged fringe.
+ */
+const PIT: number = 30;
+
 /** Rise of the skin forward per millimetre of height beside the nose. */
 const LEDGE: number = 0.7;
 
@@ -1883,6 +2146,24 @@ const THIGH_TOP: number = 0.024;
 
 /** Largest girth of the thigh's top per unit of the thigh tape. */
 const THIGH_GIRTH: number = 1.15;
+
+/** Skin depths either side of a joint over which the rig spreads its turn: its cut. */
+const BEND: number = 1.5;
+
+/**
+ * Depth under the crotch ring where a leg's section is its own, mm: within it
+ * the slit's pinch is a corner by design, as the event join's taper holds.
+ */
+const CORNER_FROM: number = 6;
+
+/** Depth step of the corner rule, mm. */
+const CORNER_STEP: number = 1;
+
+/** Phases of a ring the corner rule reads: about a quarter millimetre apart. */
+const CORNER_PHASES: number = 1440;
+
+/** Samples either side of a pinch's nearest point the corner rule reads. */
+const CORNER_REACH: number = 60;
 
 /** Largest turn of the trunk's ring over one control pitch, degrees. */
 const TEETH: number = 30;

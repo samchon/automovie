@@ -2,8 +2,12 @@ import type * as THREE from "three";
 
 /**
  * Collect the resources a subtree owner may retire, before any disposal event
- * can mutate that subtree. Geometry, standard materials and custom shadow
- * materials are distinct by object identity, including sharing across meshes.
+ * can mutate that subtree. Geometry, standard materials, custom shadow
+ * materials and skinned meshes' skeletons are distinct by object identity,
+ * including sharing across meshes. A skeleton is collected because its
+ * disposal releases the bone texture the renderer allocates on first draw;
+ * omitting it left that texture to the GPU until context loss. Skeletons come
+ * last, after every geometry, material and texture.
  *
  * Textures are included only for a decoded subtree that owns them. A group
  * backed by a texture cache leaves those wrappers to the cache's independent
@@ -13,7 +17,7 @@ import type * as THREE from "three";
  * decoded standard-material previews. Shader uniform textures have their own
  * producer lifetime and are not acquired by this subtree collector.
  *
- * @evidence contracts/common.md#principled-implementation Snapshots geometry/visible/custom-shadow material identities from actual mesh subclasses before disposal can mutate the subtree, optionally collecting direct native texture slots; the caller must own those roles, and shader-uniform/producer-owned textures remain outside this collector.
+ * @evidence contracts/common.md#principled-implementation Snapshots geometry/visible/custom-shadow material identities and skinned-mesh skeletons (whose dispose releases the renderer's bone texture) from actual mesh subclasses before disposal can mutate the subtree, optionally collecting direct native texture slots; the caller must own those roles, and shader-uniform/producer-owned textures remain outside this collector.
  * @evidence contracts/common.md#clear-and-simple-design Returns a deduplicated retirement population without executing disposal or inferring ownership from attachment; asynchronous/failure-aware retirement stays with its resource owner.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts ownTextures is an explicit decoded-subtree ownership decision, not a fixture-name inference; actual object identity dedup avoids duplicate calls and no foreign disposal method is replaced.
  * @evidence contracts/common.md#meaningful-documentation Gives pre-disposal snapshot purpose, standard/custom-shadow roles, optional texture ownership, borrowed-source prohibition and uniform-texture exclusion.
@@ -35,7 +39,12 @@ export function collectAutoMovieOwnedResources(
     new Set<THREE.Material>();
   const textures: Set<THREE.Texture<unknown, THREE.TextureEventMap>> =
     new Set<THREE.Texture>();
+  const skeletons: Set<THREE.Skeleton> = new Set<THREE.Skeleton>();
   group.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
+    // A skinned mesh's skeleton owns the bone texture the renderer uploads its
+    // bone matrices into; it is retired with the subtree that bound it.
+    if ((object as THREE.SkinnedMesh).isSkinnedMesh === true)
+      skeletons.add((object as THREE.SkinnedMesh).skeleton);
     const mesh: THREE.Mesh<
       THREE.BufferGeometry<
         THREE.NormalBufferAttributes,
@@ -60,5 +69,5 @@ export function collectAutoMovieOwnedResources(
     for (const material of materials)
       for (const value of Object.values(material))
         if (value?.isTexture === true) textures.add(value);
-  return [...geometries, ...materials, ...textures];
+  return [...geometries, ...materials, ...textures, ...skeletons];
 }

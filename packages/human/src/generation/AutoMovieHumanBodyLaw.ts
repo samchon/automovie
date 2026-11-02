@@ -51,6 +51,7 @@ export namespace AutoMovieHumanBodyLaw {
       neckLength: known(params.body.controls.neckLength.value, "neckLength"),
       neck: known(params.body.controls.neck.value, "neck"),
       sex: inputs.sex,
+      fat: inputs.fat,
     };
     const trunkInputs: AutoMovieHumanTrunkConstruction.IInputs = column(
       params,
@@ -113,7 +114,7 @@ export namespace AutoMovieHumanBodyLaw {
     return {
       body: {
         ...AutoMovieHumanEventJoin.reconcile(
-          AutoMovieHumanLegConstruction.add(stood, inputs),
+          AutoMovieHumanLegConstruction.add(stood, inputs, skeleton),
         ),
         skeleton,
       },

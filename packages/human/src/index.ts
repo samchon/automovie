@@ -1,5 +1,10 @@
 export * from "./structures";
 export * from "./typings";
 export { AutoMovieHuman } from "./AutoMovieHuman";
+export { AutoMovieHumanChange } from "./instance/AutoMovieHumanChange";
+export { AutoMovieHumanEnginePose } from "./instance/AutoMovieHumanEnginePose";
+export { AutoMovieHumanInstance } from "./instance/AutoMovieHumanInstance";
+export { AutoMovieHumanStateAdmission } from "./instance/AutoMovieHumanStateAdmission";
+export type { IAutoMovieHumanPrepared } from "./instance/IAutoMovieHumanPrepared";
 export { AutoMovieHumanRig } from "./skeleton/AutoMovieHumanRig";
 export { AutoMovieHumanSkeleton } from "./skeleton/AutoMovieHumanSkeleton";

@@ -3,7 +3,7 @@ import { tags } from "typia";
 /**
  * Tongue position, tip first, then the dorsum. Each value is a fraction of the person's maximal voluntary excursion from the resting tongue (0), signed where the motion has two directions (convention: no physical-unit source was read).
  *
- * Not consumed by the generator yet (deferred to the mouth-geometry task).
+ * The tip and the dorsum travel toward the anatomical contact each motion makes: elevation to the alveolar ridge behind the upper incisors, protrusion past the incisors, the dorsum to the palate (`AutoMovieHumanMouthDeformation`), with the jaw's opening taken out so a contact stays one when the mouth opens.
  */
 export interface IAutoMovieHumanTongueExpression {
   /** Tip elevation toward the alveolar ridge and palate (1), or depression to the floor of the mouth (-1). */

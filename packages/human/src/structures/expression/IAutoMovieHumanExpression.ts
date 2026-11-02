@@ -12,6 +12,6 @@ export interface IAutoMovieHumanExpression {
   /** Acting units with their intensity and side. */
   units: IAutoMovieHumanActionUnitActivation[];
 
-  /** Lips, tongue and visemes as named fields; defined for speech, not consumed by the generator yet. */
+  /** Lips, tongue and visemes as named fields for speech. Mouth units in `units` and here are resolved together; units of the brows and eyes are not consumed yet. */
   mouth?: IAutoMovieHumanMouthExpression;
 }

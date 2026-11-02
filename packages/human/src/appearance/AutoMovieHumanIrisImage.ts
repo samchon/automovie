@@ -35,12 +35,34 @@ export namespace AutoMovieHumanIrisImage {
   export const size: number = 512;
 
   /**
-   * Generate the iris image of one colour choice.
+   * The iris image of one colour choice, drawn and encoded once per colour
+   * per process: the colour is its only input, so every generation of that
+   * colour shares one record (callers must not mutate it). The retained
+   * population is bounded by the closed colour set, one 512 x 512 RGB PNG
+   * per colour used.
    *
    * @param color Iris colour category
    * @returns Image with id `human.eye.iris.<color>`
    */
   export function generate(color: AutoMovieHumanIrisColor): IAutoMovieImage {
+    let image: IAutoMovieImage | undefined = cached.get(color);
+    if (image === undefined) {
+      image = draw(color);
+      cached.set(color, image);
+    }
+    return image;
+  }
+
+  /** Images drawn so far by colour; see {@link generate}. */
+  const cached: Map<AutoMovieHumanIrisColor, IAutoMovieImage> = new Map();
+
+  /**
+   * Draw and encode the iris image of one colour choice.
+   *
+   * @param color Iris colour category
+   * @returns Image with id `human.eye.iris.<color>`
+   */
+  function draw(color: AutoMovieHumanIrisColor): IAutoMovieImage {
     const palette: IPalette = PALETTES[color];
     const stroma: number[] = linear(palette.stroma);
     const fibre: number[] = linear(palette.fibre);

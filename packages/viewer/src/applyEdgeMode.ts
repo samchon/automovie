@@ -19,7 +19,7 @@ import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
- * Inverted-hull shell material: extrude by edgeWidth along the normalized model-space normal after native skinning, then apply instance/object and camera transforms. White back faces exposed beyond the black fill form contours; subsequent scaling and perspective determine their world and screen thickness.
+ * Inverted-hull shell material: extrude by edgeWidth along the normalized model-space normal after native morph targets and then skinning, the beauty pass's order, then apply instance/object and camera transforms. White back faces exposed beyond the black fill form contours; subsequent scaling and perspective determine their world and screen thickness.
  */
 const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (
   edgeWidth: number,
@@ -29,13 +29,17 @@ const makeEdgeShellMaterial: (edgeWidth: number) => THREE.ShaderMaterial = (
     uniforms: { edgeWidth: { value: edgeWidth } },
     vertexShader: `
       #include <common>
+      #include <morphtarget_pars_vertex>
       #include <skinning_pars_vertex>
       uniform float edgeWidth;
       void main() {
+        #include <morphinstance_vertex>
         #include <beginnormal_vertex>
+        #include <morphnormal_vertex>
         #include <skinbase_vertex>
         #include <skinnormal_vertex>
         #include <begin_vertex>
+        #include <morphtarget_vertex>
         #include <skinning_vertex>
         transformed += normalize(objectNormal) * edgeWidth;
         vec4 worldPosition = vec4(transformed, 1.0);

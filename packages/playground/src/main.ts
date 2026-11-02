@@ -162,42 +162,68 @@ const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
 camera.position.set(0.2, 1.25, 3.1);
 camera.lookAt(0, 1.0, 0);
 
-const rebuild: () => void = (): void => {
+/**
+ * Replace the displayed humanoid with one built from `next`, atomically: the
+ * replacement is built, bound to its player and posed before the displayed
+ * model is touched, so a failed build retires only the candidate and leaves
+ * the previous model, player and parameters in force. Only after the swap
+ * are the old model's resources retired.
+ */
+const rebuild: (next?: IHumanoidParams) => void = (
+  next: IHumanoidParams = params,
+): void => {
   if (closed) throw new Error("The humanoid editor is closed.");
   if (retirementFailure !== undefined) throw retirementFailure.error;
   const built: { skeleton: IAutoMovieSkeleton; model: IAutoMovieModel } =
-    buildHumanoid(params);
-  skeleton = built.skeleton;
+    buildHumanoid(next);
+  const candidate: IAutoMovieModelObject = buildModel(built.model);
+  let candidatePlayer: AutoMoviePlayer;
+  try {
+    candidatePlayer = new AutoMoviePlayer(
+      candidate,
+      built.skeleton,
+      waveMotion(),
+      HUMANOID_JOINT_AXES,
+      false,
+      undefined,
+      HUMANOID_REST_FRAME,
+    );
+    if (!playing)
+      applyPose(
+        candidate,
+        currentPose(),
+        built.skeleton,
+        HUMANOID_JOINT_AXES,
+        HUMANOID_REST_FRAME,
+      );
+  } catch (error) {
+    reportAutoMovieResourceRetirement(
+      collectAutoMovieOwnedResources(candidate.object).map(
+        (resource: { dispose(): void }): (() => void) =>
+          (): void =>
+            resource.dispose(),
+      ),
+      { error },
+    );
+    throw error;
+  }
+
+  // Commit: the candidate becomes the displayed model, then the old one retires.
   if (objectOwned)
     for (const resource of collectAutoMovieOwnedResources(object.object))
       retiring.add(resource);
-  objectOwned = false;
   figure.clear();
+  figure.add(candidate.object);
+  object = candidate;
+  objectOwned = true;
+  skeleton = built.skeleton;
+  player = candidatePlayer;
+  if (next !== params) Object.assign(params, next);
   try {
     retireOwned();
   } catch (error) {
     reportAutoMovieResourceRetirement([(): void => viewer?.stop()], { error });
   }
-  object = buildModel(built.model);
-  objectOwned = true;
-  figure.add(object.object);
-  player = new AutoMoviePlayer(
-    object,
-    skeleton,
-    waveMotion(),
-    HUMANOID_JOINT_AXES,
-    false,
-    undefined,
-    HUMANOID_REST_FRAME,
-  );
-  if (!playing)
-    applyPose(
-      object,
-      currentPose(),
-      skeleton,
-      HUMANOID_JOINT_AXES,
-      HUMANOID_REST_FRAME,
-    );
 };
 
 // ── editor UI ───────────────────────────────────────────────────────────────
@@ -239,8 +265,8 @@ function prop(
     step: 0.005,
     get: (): number => params[key],
     set: (n: number): void => {
-      params[key] = n;
-      rebuild();
+      // The parameters change only when the rebuilt model replaced the old one.
+      rebuild({ ...params, [key]: n });
     },
   };
 }
@@ -343,7 +369,14 @@ const mountSliders: (host: HTMLElement, specs: SliderSpec[]) => void = (
     input.addEventListener("input", (): void => {
       if (closed || retirementFailure !== undefined) return;
       const n: number = Number(input.value);
-      s.set(n);
+      try {
+        s.set(n);
+      } catch (error) {
+        // A refused change keeps the displayed model, so the control returns to it.
+        input.value = String(s.get());
+        console.error("PLAYGROUND_REBUILD_ERROR", error);
+        return;
+      }
       out.textContent = value(n);
     });
     host.appendChild(row);

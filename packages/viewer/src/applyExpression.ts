@@ -11,6 +11,7 @@ import {
 import * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
+import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
 
 // One list with engine admission, which refuses a pose-driven morph target
 // under any of these names because this reset would overwrite it.
@@ -88,12 +89,14 @@ const PRESET_CHANNELS: Partial<
  * VRM-style expression targets receive preset and ARKit names directly.
  * Imported meshes with `morphTargetDictionary` receive exact or
  * case-insensitive matching names; generated primitive models simply no-op.
+ * Skinned meshes then start a new pose revision, because morphs precede
+ * skinning and move their bounds.
  *
  * @evidence contracts/common.md#principled-implementation Expands semantic presets through the viewer's declared ARKit factor table, whose gaze rows are the engine's `GAZE_PRESET_CHANNELS` so morph and eye-bone gaze expand alike, clamps finite weights to [0,1] with nonfinite inputs treated as zero, lets explicit blendshapes override expanded channels and resolves morph names exact-first then case-insensitively; factors are illustrative expression mappings, not measured anatomical equivalence, and case-fold collisions depend on dictionary insertion order.
  * @evidence contracts/common.md#clear-and-simple-design One channel-weight map feeds native morph influences and optional VRM-style sinks; private helpers own preset expansion, supported-channel reset and name lookup without modifying engine pose or model topology.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Preset factors are explicit supported visual conventions rather than fixture-specific expected weights; no target method/global is replaced, and unsupported names remain untouched instead of inventing morph targets.
  * @evidence contracts/common.md#meaningful-documentation Documents sink/native-name paths and generated-model no-op; the implementation answer makes clamping, preset factor status, explicit override and folded-name collision limits explicit.
- * @evidence contracts/performance.md#efficient-algorithms Builds W requested weights, traverses O objects and builds a folded D-entry dictionary for each morph mesh before supported-name resets/writes; time is O(W+objects+sum(dictionary entries and supported/requested channel writes)), temporary space is one weight map plus each active dictionary map.
+ * @evidence contracts/performance.md#efficient-algorithms Builds W requested weights, traverses O objects and builds a folded D-entry dictionary for each morph mesh before supported-name resets/writes, then one constant-time revision traversal; time is O(W+objects+sum(dictionary entries and supported/requested channel writes)), temporary space is one weight map plus each active dictionary map.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares preset/channel tables and the expanded weights between all meshes/sinks in one call; morph dictionaries may mutate, so folded lookups are rebuilt rather than cached without an invalidation key.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows model/morph arrays/sinks and creates request-local maps only; owns no texture, geometry, animation task or worker, and channel writes remain in host-owned targets until the next supported-channel reset.
  */
@@ -106,6 +109,9 @@ export const applyExpression: (
 ): void => {
   const weights: ReadonlyMap<string, number> = expressionWeights(expression);
   applyMorphTargets(target.object, weights);
+
+  // Morphs precede skinning, so a skinned mesh's bounds follow the new weights.
+  invalidateAutoMovieSkinnedPose(target.object);
   for (const sink of target.expressionTargets ?? []) {
     for (const name of EXPRESSION_RESET_NAMES) sink.setExpressionValue(name, 0);
     for (const [name, weight] of weights) sink.setExpressionValue(name, weight);

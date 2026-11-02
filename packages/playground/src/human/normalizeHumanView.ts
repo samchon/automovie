@@ -1,3 +1,5 @@
+import type { IAutoMovieHumanVisemeWeights } from "../../../human/src/structures/expression/IAutoMovieHumanVisemeWeights";
+
 /**
  * Parse and canonicalize the free-view URL variables of the Human page and PNG URLs.
  *
@@ -20,6 +22,8 @@
  * - `hair=0`: hide scalp hair, brows and lashes (`human.hair.`); absent or 1 shows them.
  * - `material=clay`: use a neutral plain skin material without source textures, vertex colours or shader effects; absent or `appearance` keeps the generated appearance. Geometry and normals stay unchanged; eyes and nails retain their materials.
  * - `light=raking-left|raking-right`: camera-relative grazing inspection light; absent or `reference` keeps the reference illumination. These are development inspection conditions, not reference-comparable beauty frames.
+ * - `pose=rest|neutral|demo|limit`: the named pose the skin is shown in.
+ * - `mouth=<viseme>[:<weight>][,...]`: viseme weights in (0, 1] by the names of `IAutoMovieHumanVisemeWeights`, such as `aa` or `PP:0.5,aa:0.5`; a missing weight is 1. The jaw takes the opening they ask for on top of the named pose, which must not be `rest`.
  *
  * The canonical text lists the present variables in fixed key order with
  * numbers in shortest round-trip form, so every spelling of one view has one
@@ -66,6 +70,7 @@ export function normalizeHumanView(read: (name: string) => string | null): {
     material: "appearance",
     light: "reference",
     pose: "rest",
+    mouth: {},
   };
 
   // Direction: the shorthand or explicit angles, never both.
@@ -142,6 +147,22 @@ export function normalizeHumanView(read: (name: string) => string | null): {
       throw new Error("Human view pose must be rest, neutral, demo or limit");
     value.pose = pose;
   }
+  const mouth: string | null = read("mouth");
+  if (mouth !== null && mouth.trim() !== "") {
+    for (const entry of mouth.split(",")) {
+      const [name, raw] = entry.trim().split(":") as [string, string | undefined];
+      if (!(VISEMES as readonly string[]).includes(name))
+        throw new Error("Human view mouth names an unknown viseme: " + name);
+      const weight: number = raw === undefined ? 1 : Number(raw);
+      if (!(weight > 0 && weight <= 1))
+        throw new Error("Human view mouth weights must lie in (0, 1]");
+      if (value.mouth[name as Viseme] !== undefined)
+        throw new Error("Human view mouth repeats " + name);
+      value.mouth[name as Viseme] = weight;
+    }
+    if (value.pose === "rest")
+      throw new Error("Human view mouth needs a pose other than rest");
+  }
 
   // Fixed key order; absent and default values are omitted.
   const entries: string[] = [];
@@ -159,8 +180,22 @@ export function normalizeHumanView(read: (name: string) => string | null): {
     entries.push("material=" + value.material);
   if (value.light !== "reference") entries.push("light=" + value.light);
   if (value.pose !== "rest") entries.push("pose=" + value.pose);
+  const spoken: string[] = VISEMES.filter(
+    (v: Viseme): boolean => value.mouth[v] !== undefined,
+  ).map((v: Viseme): string =>
+    value.mouth[v] === 1 ? v : `${v}:${String(value.mouth[v])}`,
+  );
+  if (spoken.length !== 0) entries.push("mouth=" + spoken.join(","));
   return { text: entries.join("&"), value };
 }
+
+/** A viseme's name. */
+type Viseme = keyof IAutoMovieHumanVisemeWeights;
+
+/** Viseme names in the canonical order of the mouth variable. */
+const VISEMES: readonly Viseme[] = [
+  "sil", "PP", "FF", "TH", "DD", "kk", "CH", "SS", "nn", "RR", "aa", "E", "I", "O", "U",
+];
 
 /**
  * Types of the free-view variables.
@@ -199,6 +234,9 @@ export namespace normalizeHumanView {
 
     /** Named pose the skin is shown in; `rest` is the generated posture, the skin's bind, and `neutral` the anatomical neutral. */
     pose: "rest" | "neutral" | "demo" | "limit";
+
+    /** Viseme weights the mouth is shown speaking; empty for the face at rest. */
+    mouth: IAutoMovieHumanVisemeWeights;
 
     /** Show scalp hair, brows and lashes. */
     hair: boolean;

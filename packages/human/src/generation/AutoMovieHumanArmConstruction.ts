@@ -1,4 +1,4 @@
-import { AutoMovieHumanHorizontalChain } from "../lofting/AutoMovieHumanHorizontalChain";
+import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCubic";
 import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpline";
@@ -7,53 +7,62 @@ import { AutoMovieHumanPolarSection } from "../lofting/AutoMovieHumanPolarSectio
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
+import { AutoMovieHumanLimbFrame } from "./AutoMovieHumanLimbFrame";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
  * Both arms and hands generated from the shoulder ring and public lengths and
- * tapes, by one construction on the left side and a reflection.
+ * tapes, by one construction on the left side and a reflection, each part lofted
+ * in its own bone frame.
  *
  * The arm is a walk along two bones. The heading runs along the upper arm to
- * the elbow, turns over a short length and runs along the forearm to the wrist,
- * and every point of the axis follows from the one before it and the heading,
- * so the axis has no breaks. The walk starts on the trunk's shoulder ring, the
- * elbow and wrist standing where the arm length inputs reach; that is where
- * {@link bones} reads them for the skeleton, and the arm is then lofted on the
- * skeleton, its walk turning at the skeleton's elbow.
+ * the elbow, turns over a length scaled by the elbow's radius and runs along the
+ * forearm to the wrist, and every point of the axis follows from the one before
+ * it and the heading, so the axis has no breaks. The walk starts on the trunk's
+ * shoulder ring, the elbow and wrist standing where the arm length inputs reach;
+ * that is where {@link bones} reads them for the skeleton, and the arm is then
+ * lofted on the skeleton, its walk turning at the skeleton's elbow.
  *
  * About that axis a section is an ellipse in the plane across the bone. Its
  * size is a natural spline through the shoulder ring's size and the circles of
  * the biceps, elbow, forearm and wrist tapes, and its aspect runs from the
- * wrist's flat oval to the nearly round arm. A layer is that tube cut by a
- * plane: level at the shoulder, turning down the forearm until it stands across
- * the hand, so the arm reaches the hand square on. The shoulder ring's
- * difference from the tube fades in over the top of the arm.
+ * wrist's flat oval to the nearly round arm. A layer is that tube cut by the
+ * plane square to the bone: the plane's normal is the bone's heading, which
+ * turns with the walk at the elbow, turns onto the hand's own axis over the
+ * wrist, and lies level at the shoulder, where the arm meets the trunk's level
+ * ring. The section frames are carried down the arm by the least rotation
+ * between neighbouring planes ({@link AutoMovieHumanLimbFrame}), so they turn
+ * only as the bones bend. The shoulder ring's difference from the tube fades in
+ * over the top of the arm.
  *
  * The hand is one form in its own axes, and every person's hand is that form
  * through one map. The heel, and the palm past the thumb's branch, are each a
  * radius about an inner point, read in the section's own half extents so a flat
  * section keeps its ends. The thenar is a section of its own: at the branch the
- * arm's last ring is the palm's curve and the thenar's ellipse, which cross at
- * the branch's two ends, and the heel above becomes that ring. Each digit is a
- * curved tube of elliptical sections that start in the branch's plane and turn
- * square to the digit's line, closed where its radius equals its distance from
- * the tip's apex; its width stops changing there, so the rounded tip leaves the
- * tube tangent. Valleys run back from each web between the knuckles, so a web is
- * a thin bridge and not a cut through the palm.
+ * arm's last ring is the palm's curve and the thenar's ellipse joined by a soft
+ * maximum along each point's own ray, and the heel above becomes that ring by a
+ * target that travels with the heel. Its sections lie square to the hand's axis.
  *
- * A child leaves its parent by one rule. Its first ring is its arc of the
- * parent's ring closed by a bridge. To the plain tube each point runs a cubic
- * that starts along the child's own axis on the arc and sideways on the bridge,
- * which rounds the floor of the web, and `AutoMovieHumanEventJoin` makes the
- * arc tangent to the parent. A ring's phase follows its length, so no arc is
- * starved of points.
+ * Each digit is a curved tube of elliptical sections square to its own line,
+ * lofted in frames carried along that line, closed where its radius equals its
+ * distance from the tip's apex; its width stops changing there, so the rounded
+ * tip leaves the tube tangent. A digit starts from a round section a little past
+ * its web, and the skin between the palm's last ring and the digits' first ones
+ * is the webs' own surface, built by the body's surface on events marked as webs
+ * (`AutoMovieHumanBodyWeb`): each web there is a saddle, so no digit's section
+ * carries its parent's corners. Valleys run back from each web between the
+ * knuckles.
+ *
+ * The thumb leaves at its metacarpophalangeal crease: its metacarpal stands in
+ * the thenar, and its phalanges run the thumb length input from that joint. The
+ * finger joints at the knuckles stand where the metacarpals reach, by de Leva's
+ * wrist-to-knuckle share of the hand and the measured metacarpal proportions.
  *
  * Along the hand the palm and the fingers scale apart with a smooth change at
  * the finger roots; across it the breadth and through it the hand girth scale
- * it; the thumb scales about its root. Sections stay horizontal chains: a layer
- * sits at its ring's mean height and `lift` carries the rest. Reflection
- * reverses phase: the right side's point at phase t is the mirror of the left's
- * at -t.
+ * it. Reflection reverses phase: the right side's point at phase t is the mirror
+ * of the left's at -t, and its frames are the mirror of the left's with `v`
+ * turned over.
  */
 export namespace AutoMovieHumanArmConstruction {
   /** One hand's measures, in the same millimetres as the calibration. */
@@ -67,7 +76,7 @@ export namespace AutoMovieHumanArmConstruction {
     /** Breadth across the palm. */
     breadth: number;
 
-    /** Length of the thumb. */
+    /** Length of the thumb from its metacarpophalangeal joint. */
     thumb: number;
   }
 
@@ -108,40 +117,6 @@ export namespace AutoMovieHumanArmConstruction {
   }
 
   /**
-   * Calibration whose arms and hands are generated from its own shoulders.
-   *
-   * @param calibration Calibration holding `upper` and those chains, whose
-   *   rows are replaced; not modified.
-   * @param inputs Lengths in calibration millimetres.
-   */
-  export function apply(
-    calibration: IAutoMovieHumanBodyCalibration,
-    inputs: IInputs,
-  ): IAutoMovieHumanBodyCalibration {
-    const generated: Map<string, IAutoMovieHumanLoftChain> = new Map(
-      chains(calibration, inputs).map(
-        (c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain] => [
-          c.name,
-          c,
-        ],
-      ),
-    );
-    return {
-      ...calibration,
-      chains: calibration.chains.map(
-        (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
-          generated.get(c.name) ?? c,
-      ),
-      poles: [
-        ...calibration.poles.filter(
-          (p: IAutoMovieHumanBodyCalibration.IPole): boolean => !owns(p.chain),
-        ),
-        ...poles(calibration, inputs),
-      ],
-    };
-  }
-
-  /**
    * Calibration with both arms and hands, their events and poles added.
    *
    * @param skeleton The bind skeleton the arms are lofted on: each walk turns
@@ -152,31 +127,21 @@ export namespace AutoMovieHumanArmConstruction {
     inputs: IInputs,
     skeleton?: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
+    const limbs: ILimb[] = (["left", "right"] as const).map(
+      (side: "left" | "right"): ILimb => limb(calibration, inputs, side, skeleton),
+    );
     return {
       ...calibration,
       chains: [
         ...calibration.chains,
-        ...chains(calibration, inputs, skeleton),
+        ...limbs.flatMap((l: ILimb): IAutoMovieHumanLoftChain[] => l.chains),
       ],
       events: [...calibration.events, ...events()],
-      poles: [...calibration.poles, ...poles(calibration, inputs, skeleton)],
+      poles: [
+        ...calibration.poles,
+        ...limbs.flatMap((l: ILimb): IAutoMovieHumanBodyCalibration.IPole[] => l.poles),
+      ],
     };
-  }
-
-  /** A side's elbow from a skeleton, in the left frame. */
-  function elbowOf(
-    skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[] | undefined,
-    side: "left" | "right",
-    sign: 1 | -1,
-  ): Vec3 | undefined {
-    if (skeleton === undefined) return undefined;
-    const bone: AutoMovieHumanSkeletonLaw.IBone | undefined = skeleton.find(
-      (b: AutoMovieHumanSkeletonLaw.IBone): boolean =>
-        b.bone === `${side}LowerArm`,
-    );
-    if (bone === undefined)
-      throw new Error(`The skeleton lacks the ${side} elbow`);
-    return sided(bone.position, sign);
   }
 
   /** Whether a chain belongs to an arm. */
@@ -201,9 +166,173 @@ export namespace AutoMovieHumanArmConstruction {
     };
   }
 
+  /**
+   * One side's bone landmarks by the arm's law, in world millimetres, before
+   * any arm skin exists: what a skeleton stands its arm and hand on.
+   */
+  export interface IBones {
+    /** Where the walk turns from the upper arm to the forearm. */
+    elbow: Vec3;
+
+    /**
+     * Centre of the hand's section at the wrist crease. Hand length runs from
+     * the crease, and the hand's origin-to-tip measure is `lengthRatio` of it,
+     * so the crease lies the rest of that length behind the origin.
+     */
+    crease: Vec3;
+
+    /** Hand length the hand was made to, from the crease. */
+    length: number;
+
+    /** The thumb's carpometacarpal and metacarpophalangeal joints. */
+    thumb: { cmc: Vec3; mcp: Vec3 };
+
+    /** Each digit's centre line from its web to its tip, thumb first. */
+    digits: IDigitLine[];
+  }
+
+  /** A digit's centre line. */
+  export interface IDigitLine {
+    /** Chain name. */
+    name: string;
+
+    /** Points of the digit's centre line from its root at the web to its tip. */
+    line: Vec3[];
+
+    /** The tip's apex. */
+    tip: Vec3;
+
+    /** The metacarpophalangeal joint, where the metacarpal ends. */
+    joint: Vec3;
+  }
+
+  /**
+   * Both arms' bone landmarks from the shoulder rings and the inputs, before
+   * the arms are lofted: the same walk, crease, joints and digit lines the
+   * skin is built on.
+   *
+   * @param calibration Calibration holding `upper` and its event.
+   * @param inputs Lengths in calibration millimetres.
+   */
+  export function bones(
+    calibration: IAutoMovieHumanBodyCalibration,
+    inputs: IInputs,
+  ): Record<"left" | "right", IBones> {
+    return {
+      left: limb(calibration, inputs, "left", undefined, false).bones,
+      right: limb(calibration, inputs, "right", undefined, false).bones,
+    };
+  }
+
+  /** One side's chains, poles and bone landmarks. */
+  interface ILimb {
+    chains: IAutoMovieHumanLoftChain[];
+    poles: IAutoMovieHumanBodyCalibration.IPole[];
+    bones: IBones;
+  }
+
+  /**
+   * One side: the walk and the hand's map in the left frame, and from them the
+   * chains in their bone frames, the poles and the landmarks, reflected for the
+   * right side.
+   *
+   * @param lofted Whether to build the chains; the skeleton needs only bones.
+   */
+  function limb(
+    calibration: IAutoMovieHumanBodyCalibration,
+    inputs: IInputs,
+    side: "left" | "right",
+    skeleton?: readonly AutoMovieHumanSkeletonLaw.IBone[],
+    lofted: boolean = true,
+  ): ILimb {
+    const prior: AutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
+    const sign: 1 | -1 = side === "left" ? 1 : -1;
+    const measures: IHand = inputs[side];
+    const hand: IForm = form();
+    const law: IArm = arm(
+      shoulder(calibration, side, sign),
+      inputs,
+      measures,
+      elbowOf(skeleton, side, sign),
+    );
+    const map = (q: readonly [number, number, number]): Vec3 =>
+      handPoint(q, measures, inputs.circumference, inputs.scale, law.wrist);
+
+    // Joints at the knuckles and the thumb's base, by the hand's anatomy.
+    const roots: Vec3[] = hand.digits.map((d: IDigit): Vec3 => map(linePoint(d, 0)));
+    const joints: IJoints = knuckles(law.crease, measures.length, roots);
+
+    // The thumb runs the thumb length from its joint.
+    const thumb: IStretch = stretch(hand.digits[0]!, joints.mcps[0]!, measures, inputs, law.wrist);
+    const lines: IDigitLine[] = hand.digits.map((d: IDigit, i: number): IDigitLine => {
+      const at = (s: number): Vec3 => map(i === 0 ? stretched(d, thumb, s) : linePoint(d, s));
+      const last: number = d.cap;
+      const count: number = Math.max(2, Math.ceil(last / LINE_STEP));
+      return {
+        name: prior.hand.digits[i]!.name.replace("{side}", side),
+        line: Array.from({ length: count + 1 }, (_: unknown, k: number): Vec3 =>
+          sided(at((last * k) / count), sign),
+        ),
+        tip: sided(map(i === 0 ? stretchedPole(d, thumb) : d.pole), sign),
+        joint: sided(joints.mcps[i]!, sign),
+      };
+    });
+    const bones_: IBones = {
+      elbow: sided(law.elbow, sign),
+      crease: sided(law.crease, sign),
+      length: measures.length,
+      thumb: { cmc: sided(joints.cmc, sign), mcp: sided(joints.mcps[0]!, sign) },
+      digits: lines,
+    };
+    if (!lofted) return { chains: [], poles: [], bones: bones_ };
+
+    const armChain: IAutoMovieHumanLoftChain = armOf(law, side, sign);
+    const palm: IAutoMovieHumanLoftChain = palmOf(hand, map, side, sign);
+    const digits: IAutoMovieHumanLoftChain[] = hand.digits.map(
+      (d: IDigit, i: number): IAutoMovieHumanLoftChain =>
+        digitOf(d, i, i === 0 ? thumb : null, map, side, sign),
+    );
+    return {
+      chains: [armChain, ...digits.slice(0, 1), palm, ...digits.slice(1)],
+      poles: hand.digits.map(
+        (d: IDigit, i: number): IAutoMovieHumanBodyCalibration.IPole => ({
+          chain: prior.hand.digits[i]!.name.replace("{side}", side),
+          end: "bottom",
+          critical: true,
+          point: sided(map(i === 0 ? stretchedPole(d, thumb) : d.pole), sign),
+        }),
+      ),
+      bones: bones_,
+    };
+  }
+
+  /** A side's elbow from a skeleton, in the left frame. */
+  function elbowOf(
+    skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[] | undefined,
+    side: "left" | "right",
+    sign: 1 | -1,
+  ): Vec3 | undefined {
+    if (skeleton === undefined) return undefined;
+    const bone: AutoMovieHumanSkeletonLaw.IBone | undefined = skeleton.find(
+      (b: AutoMovieHumanSkeletonLaw.IBone): boolean =>
+        b.bone === `${side}LowerArm`,
+    );
+    if (bone === undefined)
+      throw new Error(`The skeleton lacks the ${side} elbow`);
+    return sided(bone.position, sign);
+  }
+
   /** Read a world point's mirror on a side. */
   function sided(p: readonly [number, number, number], sign: 1 | -1): Vec3 {
     return [p[0], p[1], sign * p[2]];
+  }
+
+  /** A side's frame from the left frame's. */
+  function sidedFrame(
+    f: AutoMovieHumanLoftFrame.IFrame,
+    sign: 1 | -1,
+  ): AutoMovieHumanLoftFrame.IFrame {
+    return sign === 1 ? f : AutoMovieHumanLimbFrame.mirror(f);
   }
 
   /** The arm's arc of the shoulder ring, left frame. */
@@ -258,7 +387,10 @@ export namespace AutoMovieHumanArmConstruction {
     outline: [number, number][];
   }
 
-  /** The arm's tube for one side, in the left frame. */
+  /**
+   * The arm's sections for one side, in the left frame: a one-parameter family
+   * of planes from the hand's branch (low parameter) to the shoulder.
+   */
   interface IArm {
     /** Hand origin, in world millimetres. */
     wrist: Vec3;
@@ -269,94 +401,25 @@ export namespace AutoMovieHumanArmConstruction {
     /** Centre of the section at the wrist crease. */
     crease: Vec3;
 
-    /** Point of layer k at phase t. */
-    point(k: number, t: number): Vec3;
+    /** Layer parameters from the bottom. */
+    layers: number[];
+
+    /** Normal of the section plane at a parameter, toward the shoulder. */
+    normal(q: number): Vec3;
+
+    /** A point the section plane passes through. */
+    anchor(q: number): Vec3;
+
+    /** Point of the section at a parameter and phase. */
+    point(q: number, t: number): Vec3;
   }
 
   /**
-   * One side's bone landmarks by the arm's law, in world millimetres, before
-   * any arm skin exists: what a skeleton stands its arm on.
-   */
-  export interface IBones {
-    /** Where the walk turns from the upper arm to the forearm. */
-    elbow: Vec3;
-
-    /**
-     * Centre of the hand's section at the wrist crease. Hand length runs from
-     * the crease, and the hand's origin-to-tip measure is `lengthRatio` of it,
-     * so the crease lies the rest of that length behind the origin.
-     */
-    crease: Vec3;
-
-    /** Hand length the hand was made to, from the crease. */
-    length: number;
-
-    /** Each digit's centre line from its root ring to its last ring and its tip, thumb first. */
-    digits: IDigitLine[];
-  }
-
-  /** A digit's centre line. */
-  export interface IDigitLine {
-    /** Chain name. */
-    name: string;
-
-    /** Centres of the digit's rings from its root to its tip. */
-    line: Vec3[];
-
-    /** The tip's apex. */
-    tip: Vec3;
-  }
-
-  /**
-   * Both arms' bone landmarks from the shoulder rings and the inputs, before
-   * the arms are lofted: the same walk, crease and digit lines the skin is
-   * built on.
+   * Walk the bones and build the tube and its section planes.
    *
-   * @param calibration Calibration holding `upper` and its event.
-   * @param inputs Lengths in calibration millimetres.
-   */
-  export function bones(
-    calibration: IAutoMovieHumanBodyCalibration,
-    inputs: IInputs,
-  ): Record<"left" | "right", IBones> {
-    const prior: AutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
-    const hand: IForm = form();
-    const one = (side: "left" | "right"): IBones => {
-      const sign: 1 | -1 = side === "left" ? 1 : -1;
-      const measures: IHand = inputs[side];
-      const law: IArm = arm(shoulder(calibration, side, sign), inputs, measures);
-      const map = (q: readonly [number, number, number]): Vec3 =>
-        sided(
-          handPoint(q, measures, inputs.circumference, inputs.scale, law.wrist),
-          sign,
-        );
-      const centre = (ring: readonly Vec3[]): Vec3 =>
-        [0, 1, 2].map(
-          (c: number): number =>
-            ring.reduce((s: number, p: Vec3): number => s + p[c]!, 0) /
-            ring.length,
-        ) as Vec3;
-      return {
-        elbow: sided(law.elbow, sign),
-        crease: sided(law.crease, sign),
-        length: measures.length,
-        digits: hand.digits.map((d: IDigit, i: number): IDigitLine => {
-          const growth: number = i === 0 ? thumbGrowth(measures) : 1;
-          const rings: Vec3[][] = i === 0 ? digitRings(d, growth) : d.rings;
-          return {
-            name: prior.hand.digits[i]!.name.replace("{side}", side),
-            // The rings run from the tip; the line runs from the root.
-            line: [...rings].reverse().map((r: Vec3[]): Vec3 => map(centre(r))),
-            tip: map(i === 0 ? grown(d.pole, growth) : d.pole),
-          };
-        }),
-      };
-    };
-    return { left: one("left"), right: one("right") };
-  }
-
-  /**
-   * Walk the bones and build the tube.
+   * The parameter is the hand's station `-a` up to where the heel has become the
+   * bone's tube, and past it the walk's distance back toward the shoulder, so it
+   * rises from the hand to the shoulder.
    *
    * @param elbow The skeleton's elbow in the left frame; the walk turns there.
    *   Absent, the walk starts on the shoulder ring.
@@ -503,7 +566,7 @@ export namespace AutoMovieHumanArmConstruction {
     const cut = (point: Vec3, normal: Vec3, theta: number): Vec3 => {
       let lo: number = -ring.radius * 2;
       let hi: number = (count - 1) * WALK;
-      for (let i: number = 0; i < 30; i++) {
+      for (let i: number = 0; i < 40; i++) {
         const mid: number = (lo + hi) / 2;
         if (dot(sub(surface(mid, theta), point), normal) > 0) lo = mid;
         else hi = mid;
@@ -514,16 +577,27 @@ export namespace AutoMovieHumanArmConstruction {
     const top: number = ring.centre[1];
     const angle = (t: number): number => prior.phase + prior.sense * t;
 
-    // The bone's own point at a height, for a tilted plane's place.
-    const level = (y: number): Vec3 => {
+    // The walk's distance at which it stands at a height, and at which it
+    // crosses a plane.
+    const heightAt = (y: number): number => {
       let lo: number = 0;
       let hi: number = (count - 1) * WALK;
-      for (let i: number = 0; i < 30; i++) {
+      for (let i: number = 0; i < 40; i++) {
         const mid: number = (lo + hi) / 2;
         if (at(mid)[1] > y) lo = mid;
         else hi = mid;
       }
-      return at((lo + hi) / 2);
+      return (lo + hi) / 2;
+    };
+    const crossing = (point: Vec3, normal: Vec3): number => {
+      let lo: number = 0;
+      let hi: number = (count - 1) * WALK;
+      for (let i: number = 0; i < 40; i++) {
+        const mid: number = (lo + hi) / 2;
+        if (dot(sub(at(mid), point), normal) > 0) lo = mid;
+        else hi = mid;
+      }
+      return (lo + hi) / 2;
     };
 
     // The hand's map from the wrist; its axes are the arm's lower end.
@@ -543,40 +617,10 @@ export namespace AutoMovieHumanArmConstruction {
     ];
     const map = (q: readonly [number, number, number]): Vec3 =>
       handPoint(q, hand, inputs.circumference, inputs.scale, origin);
-    const heelLayers: number = prior.heel.length;
     const bowl: number = omega();
 
-    const tube = (k: number, t: number): Vec3 => {
-      const h: number = prior.heights[k - heelLayers]!;
-      const y: number = wrist[1] + h * (top - wrist[1]);
-      const w: number =
-        1 - smooth((h - prior.tilt[0]!) / (prior.tilt[1]! - prior.tilt[0]!));
-      const normal: Vec3 = unit([
-        w * square[0],
-        1 - w + w * square[1],
-        w * square[2],
-      ]);
-      const p: Vec3 = cut(level(y), normal, angle(t));
-      const fade: number = smooth(
-        (y - top + REACH * inputs.scale) / (REACH * inputs.scale),
-      );
-      if (fade === 0) return p;
-      const q: Vec3 = cut([0, top, 0], [0, 1, 0], angle(t));
-      const d: number = Math.atan2(q[2] - ring.centre[2], q[0] - ring.centre[0]);
-      const gap: number =
-        AutoMovieHumanPolarSection.radius(
-          ring.outline,
-          [ring.centre[0], ring.centre[2]],
-          d,
-        ) - Math.hypot(q[0] - ring.centre[0], q[2] - ring.centre[2]);
-      return [
-        p[0] + fade * gap * Math.cos(d),
-        p[1],
-        p[2] + fade * gap * Math.sin(d),
-      ];
-    };
     // A section of the heel at station a: the bone's tube handing over to the
-    // hand's skin.
+    // hand's skin, in the plane square to the hand.
     const heel = (a: number, t: number): Vec3 => {
       const shape: IForm = form();
       const whole: Vec3 = wholeSkin(shape.whole, a, bowl - t);
@@ -602,6 +646,68 @@ export namespace AutoMovieHumanArmConstruction {
       ];
     };
 
+    // Where the heel has become the tube the planes leave the hand's axis and
+    // follow the walk: the parameter runs on as the walk's distance back.
+    const join: number = -prior.blend[0]!;
+    const joinWalk: number = crossing(map([prior.blend[0]!, 0, 0]), square);
+    const topWalk: number = heightAt(top);
+    const walkOf = (q: number): number => joinWalk - (q - join);
+    const normal = (q: number): Vec3 => {
+      if (q <= join) return square;
+      const s: number = walkOf(q);
+      const bone: Vec3 = scale(heading(prior, s, upper, soft), -1);
+      const w: number = smooth((q - join) / (WRIST_TURN * inputs.scale));
+      const body: Vec3 = unit([
+        square[0] + w * (bone[0] - square[0]),
+        square[1] + w * (bone[1] - square[1]),
+        square[2] + w * (bone[2] - square[2]),
+      ]);
+      const level: number = 1 - smooth((s - topWalk) / (REACH * inputs.scale));
+      return unit([
+        body[0] * (1 - level),
+        body[1] * (1 - level) + level,
+        body[2] * (1 - level),
+      ]);
+    };
+    const anchor = (q: number): Vec3 => (q <= join ? map([-q, 0, 0]) : at(walkOf(q)));
+    const point = (q: number, t: number): Vec3 => {
+      if (q <= join) return heel(-q, t);
+      const c: Vec3 = at(walkOf(q));
+      const p: Vec3 = cut(c, normal(q), angle(t));
+      const fade: number = smooth(
+        (c[1] - top + REACH * inputs.scale) / (REACH * inputs.scale),
+      );
+      if (fade === 0) return p;
+      const o: Vec3 = cut([0, top, 0], [0, 1, 0], angle(t));
+      const d: number = Math.atan2(o[2] - ring.centre[2], o[0] - ring.centre[0]);
+      const gap: number =
+        AutoMovieHumanPolarSection.radius(
+          ring.outline,
+          [ring.centre[0], ring.centre[2]],
+          d,
+        ) - Math.hypot(o[0] - ring.centre[0], o[2] - ring.centre[2]);
+      return [
+        p[0] + fade * gap * Math.cos(d),
+        p[1],
+        p[2] + fade * gap * Math.sin(d),
+      ];
+    };
+
+    // Layers: the heel's own stations in the hand, then the forearm's above
+    // the join, then the tube's heights up to the shoulder's level ring.
+    const layers: number[] = prior.heel
+      .filter((a: number): boolean => a > prior.blend[0]!)
+      .map((a: number): number => -a)
+      .sort((p: number, q: number): number => p - q);
+    for (const step of FOREARM_LAYERS) layers.push(join + step * inputs.scale);
+    const qTop: number = join + (joinWalk - topWalk);
+    for (const h of prior.heights) {
+      const q: number = join + (joinWalk - heightAt(wrist[1] + h * (top - wrist[1])));
+      if (q >= qTop - 1e-6) continue;
+      if (q - layers[layers.length - 1]! > LAYER_GAP * inputs.scale) layers.push(q);
+    }
+    layers.push(qTop);
+
     // The crease: hand length runs from it, and the origin-to-tip measure is
     // `lengthRatio` of that length, read in the mean hand's units.
     const creaseAt: number =
@@ -615,8 +721,10 @@ export namespace AutoMovieHumanArmConstruction {
       wrist: origin,
       elbow: at(upper),
       crease: [mean(creaseRing, 0), mean(creaseRing, 1), mean(creaseRing, 2)],
-      point: (k: number, t: number): Vec3 =>
-        k >= heelLayers ? tube(k, t) : heel(prior.heel[k]!, t),
+      layers,
+      normal,
+      anchor,
+      point,
     };
   }
 
@@ -667,154 +775,367 @@ export namespace AutoMovieHumanArmConstruction {
     ];
   }
 
-  /** How much longer a person's thumb is than the mean, past the palm's own scale. */
-  function thumbGrowth(hand: IHand): number {
+  /** The prior's axes of a world point, the inverse of {@link handPoint}. */
+  function handLocal(
+    p: Vec3,
+    hand: IHand,
+    tape: number,
+    scale: number,
+    wrist: Vec3,
+  ): Vec3 {
     const prior: AutoMovieHumanArmPrior.IHandPrior =
       AutoMovieHumanArmPrior.PRIOR.hand;
-    const inPalm: number = (hand.palm * prior.palmRatio) / prior.size.palm;
-    return (hand.thumb * prior.thumbRatio) / prior.size.thumb / inPalm;
+    const d: Vec3 = sub(p, wrist);
+    const a: number = dot(d, [...prior.along]);
+    const b: number = dot(d, [...prior.across]);
+    const c: number = dot(d, [...prior.through]);
+    let lo: number = -1000;
+    let hi: number = 1000;
+    for (let i: number = 0; i < 60; i++) {
+      const mid: number = (lo + hi) / 2;
+      if (handPoint([mid, 0, 0], hand, tape, scale, [0, 0, 0]).reduce(
+        (s: number, v: number, k: number): number => s + v * prior.along[k]!,
+        0,
+      ) < a)
+        lo = mid;
+      else hi = mid;
+    }
+    const breadth: number = hand.breadth * prior.breadthRatio;
+    const through: number = tape / scale / prior.size.circumference;
+    return [(lo + hi) / 2, (b * prior.size.breadth) / breadth, c / (through * scale)];
   }
 
-  /** A horizontal chain from a point function of station and phase. */
-  function build(
-    shape: AutoMovieHumanHorizontalChain.IShape,
-    stations: readonly number[],
-    read: (s: number, t: number) => Vec3,
-    sign: 1 | -1,
-  ): IAutoMovieHumanLoftChain {
-    return AutoMovieHumanHorizontalChain.build(
-      shape,
-      stations.map((s: number): Vec3[] =>
-        Array.from(
-          { length: shape.order },
-          (_: unknown, m: number): Vec3 =>
-            sided(read(s, (sign * 2 * Math.PI * m) / shape.order), sign),
-        ),
-      ),
-    );
+  /** The thumb's stretch past its joint. */
+  interface IStretch {
+    /** Station of the thumb's line nearest its joint, in the form. */
+    from: number;
+
+    /** Share by which the thumb's shaft past that station grows. */
+    factor: number;
+
+    /** First station of the thumb's own sections. */
+    first: number;
   }
 
-  /** A chain from the hand's own rings, from the bottom, through a person's map. */
-  function placed(
-    shape: AutoMovieHumanHorizontalChain.IShape,
-    rings: readonly (readonly Vec3[])[],
-    map: (q: readonly [number, number, number]) => Vec3,
-    sign: 1 | -1,
-  ): IAutoMovieHumanLoftChain {
-    const n: number = shape.order;
-    return AutoMovieHumanHorizontalChain.build(
-      shape,
-      rings.map((ring: readonly Vec3[]): Vec3[] =>
-        Array.from(
-          { length: n },
-          (_: unknown, m: number): Vec3 =>
-            sided(map(ring[sign === 1 ? m : (n - m) % n]!), sign),
-        ),
-      ),
-    );
-  }
-
-  /** Both sides' chains. */
-  function chains(
-    calibration: IAutoMovieHumanBodyCalibration,
+  /**
+   * The thumb's phalanges, run from its metacarpophalangeal joint to the
+   * thumb length: the form's thumb past its joint grows along its own line until
+   * its apex stands that far from the joint, its sections and its rounded tip
+   * kept, so a long thumb is not a fat one.
+   */
+  function stretch(
+    d: IDigit,
+    mcp: Vec3,
+    hand: IHand,
     inputs: IInputs,
-    skeleton?: readonly AutoMovieHumanSkeletonLaw.IBone[],
-  ): IAutoMovieHumanLoftChain[] {
-    const prior: AutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
-    const hand: IForm = form();
-    return (["left", "right"] as const).flatMap(
-      (side: "left" | "right"): IAutoMovieHumanLoftChain[] => {
-        const sign: 1 | -1 = side === "left" ? 1 : -1;
-        const measures: IHand = inputs[side];
-        const law: IArm = arm(
-          shoulder(calibration, side, sign),
-          inputs,
-          measures,
-          elbowOf(skeleton, side, sign),
-        );
-        const map = (q: readonly [number, number, number]): Vec3 =>
-          handPoint(q, measures, inputs.circumference, inputs.scale, law.wrist);
-        const armChain: IAutoMovieHumanLoftChain = build(
-          {
-            name: `arm.${side}`,
-            order: prior.arm.order,
-            samples: prior.arm.samples,
-            rule: prior.arm.rule,
-          },
-          Array.from(
-            { length: prior.arm.heel.length + prior.arm.heights.length },
-            (_: unknown, k: number): number => k,
+    wrist: Vec3,
+  ): IStretch {
+    const local: Vec3 = handLocal(mcp, hand, inputs.circumference, inputs.scale, wrist);
+    let from: number = 0;
+    let best: number = Infinity;
+    for (let s: number = 0; s <= d.cap; s += 0.05) {
+      const e: number = norm(sub(linePoint(d, s), local));
+      if (e < best) {
+        best = e;
+        from = s;
+      }
+    }
+    const reach = (k: number): number =>
+      norm(
+        sub(
+          handPoint(
+            stretchedPole(d, { from, factor: k, first: from }),
+            hand,
+            inputs.circumference,
+            inputs.scale,
+            wrist,
           ),
-          (k: number, t: number): Vec3 => law.point(k, t),
-          sign,
-        );
-        const palm: IAutoMovieHumanLoftChain = placed(
-          {
-            name: `hand.${side}.1`,
-            order: prior.hand.palmSection.order,
-            samples: prior.hand.palmSection.samples,
-            rule: "arclength",
-          },
-          hand.palmRings,
-          map,
-          sign,
-        );
-        const digits: IAutoMovieHumanLoftChain[] = hand.digits.map(
-          (d: IDigit, i: number): IAutoMovieHumanLoftChain => {
-            const source: AutoMovieHumanArmPrior.IDigit = prior.hand.digits[i]!;
-            return placed(
-              {
-                name: source.name.replace("{side}", side),
-                order: source.order,
-                samples: source.samples,
-                rule: "polar",
-              },
-              i === 0 ? digitRings(d, thumbGrowth(measures)) : d.rings,
-              map,
-              sign,
-            );
-          },
-        );
-        return [armChain, ...digits.slice(0, 1), palm, ...digits.slice(1)];
-      },
-    );
+          mcp,
+        ),
+      );
+    let lo: number = 0.3;
+    let hi: number = 6;
+    for (let i: number = 0; i < 60; i++) {
+      const mid: number = (lo + hi) / 2;
+      if (reach(mid) < hand.thumb) lo = mid;
+      else hi = mid;
+    }
+    return { from, factor: (lo + hi) / 2, first: Math.max(from, d.first) };
   }
 
-  /** Both hands' poles. */
-  function poles(
-    calibration: IAutoMovieHumanBodyCalibration,
-    inputs: IInputs,
-    skeleton?: readonly AutoMovieHumanSkeletonLaw.IBone[],
-  ): IAutoMovieHumanBodyCalibration.IPole[] {
-    const prior: AutoMovieHumanArmPrior.IPrior = AutoMovieHumanArmPrior.PRIOR;
-    return (["left", "right"] as const).flatMap(
-      (side: "left" | "right"): IAutoMovieHumanBodyCalibration.IPole[] => {
-        const sign: 1 | -1 = side === "left" ? 1 : -1;
-        const law: IArm = arm(
-          shoulder(calibration, side, sign),
-          inputs,
-          inputs[side],
-          elbowOf(skeleton, side, sign),
-        );
-        return form().digits.map(
-          (d: IDigit, i: number): IAutoMovieHumanBodyCalibration.IPole => ({
-            chain: prior.hand.digits[i]!.name.replace("{side}", side),
-            end: "bottom",
-            critical: true,
-            point: sided(
-              handPoint(
-                i === 0 ? grown(d.pole, thumbGrowth(inputs[side])) : d.pole,
-                inputs[side],
-                inputs.circumference,
-                inputs.scale,
-                law.wrist,
-              ),
-              sign,
-            ),
-          }),
+  /** The thumb's line at a station of the form, grown past its joint. */
+  function stretched(d: IDigit, s: IStretch | null, at: number): Vec3 {
+    if (s === null || at <= s.from) return linePoint(d, at);
+    const base: Vec3 = linePoint(d, s.from);
+    const p: Vec3 = linePoint(d, at);
+    return [
+      base[0] + s.factor * (p[0] - base[0]),
+      base[1] + s.factor * (p[1] - base[1]),
+      base[2] + s.factor * (p[2] - base[2]),
+    ];
+  }
+
+  /** The thumb's apex, carried with its last section. */
+  function stretchedPole(d: IDigit, s: IStretch): Vec3 {
+    const end: Vec3 = stretched(d, s, d.cap);
+    const own: Vec3 = linePoint(d, d.cap);
+    return [
+      end[0] + d.pole[0] - own[0],
+      end[1] + d.pole[1] - own[1],
+      end[2] + d.pole[2] - own[2],
+    ];
+  }
+
+  /** The joints the metacarpals end at, in the left frame. */
+  interface IJoints {
+    /** The thumb's carpometacarpal joint. */
+    cmc: Vec3;
+
+    /** Each digit's metacarpophalangeal joint, thumb first. */
+    mcps: Vec3[];
+  }
+
+  /**
+   * The knuckles and the thumb's base by the hand's anatomy
+   * (`docs/anatomy/hand.md`): the third metacarpal's head stands de Leva's
+   * {@link KNUCKLE} of the wrist centre to the middle fingertip from the wrist
+   * centre, that centre {@link STYLION} distal of the crease; the third
+   * metacarpal is {@link THIRD_METACARPAL} of that reach; the bases stand level
+   * across the hand, and each metacarpal reaches its measured share of the
+   * third toward its finger's root. The thumb's carpometacarpal joint stands
+   * halfway from the crease to the thumb's branch, at the trapezium
+   * (convention), its metacarpal {@link METACARPALS}[0] of the third.
+   *
+   * @param crease Centre of the hand's section at the wrist crease.
+   * @param length Hand length from the crease.
+   * @param roots Each digit's root at its web, thumb first.
+   */
+  function knuckles(crease: Vec3, length: number, roots: Vec3[]): IJoints {
+    const along: Vec3 = [...AutoMovieHumanArmPrior.PRIOR.hand.along];
+    const centre: Vec3 = plus(crease, scale(along, STYLION));
+    const reach: number = KNUCKLE * (length - STYLION);
+    const third: number = THIRD_METACARPAL * reach;
+    const middle: Vec3 = roots[2]!;
+    const toward: Vec3 = unit(sub(middle, centre));
+    const head: Vec3 = plus(centre, scale(toward, reach));
+    const base: Vec3 = sub(head, scale(toward, third));
+    const mcps: Vec3[] = roots.map((root: Vec3, i: number): Vec3 => {
+      if (i === 0) return [0, 0, 0];
+      const offset: Vec3 = sub(root, middle);
+      const level: Vec3 = sub(offset, scale(along, dot(offset, along)));
+      const own: Vec3 = plus(base, level);
+      return plus(own, scale(unit(sub(root, own)), METACARPALS[i]! * third));
+    });
+    const cmc: Vec3 = scale(plus(crease, roots[0]!), 0.5);
+    mcps[0] = plus(cmc, scale(unit(sub(roots[0]!, cmc)), METACARPALS[0]! * third));
+    return { cmc, mcps };
+  }
+
+  /** The arm's chain in its bone frames, for one side. */
+  function armOf(law: IArm, side: "left" | "right", sign: 1 | -1): IAutoMovieHumanLoftChain {
+    const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
+    const order: number = prior.order;
+    const phases: number[] = Array.from(
+      { length: order },
+      (_: unknown, m: number): number => (TWO_PI * m) / order,
+    );
+    const ring = (q: number): Vec3[] =>
+      phases.map((t: number): Vec3 => law.point(q, t));
+
+    // The in-plane axis carried down from the level shoulder ring.
+    const layers: number[] = law.layers;
+    const top: number = layers[layers.length - 1]!;
+    const bottom: number = layers[0]!;
+    const grid: { q: number; n: Vec3; u: Vec3 }[] = [
+      { q: top, n: law.normal(top), u: [1, 0, 0] },
+    ];
+    for (let q: number = top - CARRY; q > bottom - 2 * CARRY; q -= CARRY) {
+      const last = grid[grid.length - 1]!;
+      const n: Vec3 = law.normal(q);
+      grid.push({ q, n, u: AutoMovieHumanLimbFrame.carry(last.u, last.n, n) });
+    }
+    const axisAt = (q: number): Vec3 => {
+      const i: number = Math.min(grid.length - 1, Math.max(0, Math.floor((top - q) / CARRY)));
+      const g = grid[i]!;
+      return AutoMovieHumanLimbFrame.carry(g.u, g.n, law.normal(q));
+    };
+
+    // A section in its own frame, its origin the centre of its ring.
+    const sample = (q: number): { ring: Vec3[]; frame: AutoMovieHumanLoftFrame.IFrame } => {
+      const points: Vec3[] = ring(q);
+      const n: Vec3 = law.normal(q);
+      const c: Vec3 = [mean(points, 0), mean(points, 1), mean(points, 2)];
+      const o: Vec3 = sub(c, scale(n, dot(sub(c, law.anchor(q)), n)));
+      return { ring: points, frame: AutoMovieHumanLimbFrame.frame(o, n, axisAt(q)) };
+    };
+    const samples = layers.map(sample);
+    const stations: number[] = [0];
+    for (let k: number = 1; k < samples.length; k++)
+      stations.push(stations[k - 1]! + norm(sub(samples[k]!.frame.origin, samples[k - 1]!.frame.origin)));
+    const made: IAutoMovieHumanLoftChain.ILayer[] = layers.map(
+      (q: number, k: number): IAutoMovieHumanLoftChain.ILayer => {
+        const own = samples[k]!;
+        const at = (dq: number): AutoMovieHumanLimbFrame.ISample => {
+          const s = sample(q + dq);
+          const step: number = norm(sub(s.frame.origin, own.frame.origin));
+          return {
+            station: stations[k]! + Math.sign(dq) * step,
+            frame: sidedFrame(s.frame, sign),
+            ring: reflect(s.ring, sign),
+          };
+        };
+        return AutoMovieHumanLimbFrame.layer(
+          { station: stations[k]!, frame: sidedFrame(own.frame, sign), ring: reflect(own.ring, sign) },
+          at(-SLOPE_STEP),
+          at(SLOPE_STEP),
+          order,
         );
       },
     );
+    return {
+      name: `arm.${side}`,
+      basis: "spline",
+      order,
+      samples: prior.samples,
+      rule: prior.rule,
+      layers: made,
+    };
+  }
+
+  /**
+   * A ring of one side from the left frame's: mirrored, its phase reversed so
+   * the right side's point at phase t is the mirror of the left's at -t.
+   */
+  function reflect(ring: readonly Vec3[], sign: 1 | -1): Vec3[] {
+    if (sign === 1) return [...ring];
+    const n: number = ring.length;
+    return ring.map((_: Vec3, m: number): Vec3 => sided(ring[(n - m) % n]!, -1));
+  }
+
+  /** The palm's chain, its sections square to the hand's axis. */
+  function palmOf(
+    hand: IForm,
+    map: (q: readonly [number, number, number]) => Vec3,
+    side: "left" | "right",
+    sign: 1 | -1,
+  ): IAutoMovieHumanLoftChain {
+    const prior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
+    const along: Vec3 = [...prior.along];
+    const normal: Vec3 = scale(along, -1);
+    const samples: AutoMovieHumanLimbFrame.ISample[] = hand.palmRings.map(
+      (ring: readonly Vec3[]): AutoMovieHumanLimbFrame.ISample => {
+        const points: Vec3[] = ring.map((q: Vec3): Vec3 => map(q));
+        const c: Vec3 = [mean(points, 0), mean(points, 1), mean(points, 2)];
+        const frame: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLimbFrame.frame(
+          c,
+          normal,
+          [...prior.through],
+        );
+        return { station: -dot(c, along), frame: sidedFrame(frame, sign), ring: reflect(points, sign) };
+      },
+    );
+    const first: number = samples[0]!.station;
+    return {
+      name: `hand.${side}.1`,
+      basis: "spline",
+      order: prior.palmSection.order,
+      samples: prior.palmSection.samples,
+      rule: "arclength",
+      layers: AutoMovieHumanLimbFrame.layers(
+        samples.map((s: AutoMovieHumanLimbFrame.ISample): AutoMovieHumanLimbFrame.ISample => ({
+          ...s,
+          station: s.station - first,
+        })),
+        prior.palmSection.order,
+      ),
+    };
+  }
+
+  /**
+   * A digit's chain, its sections square to its own line and their frames
+   * carried along it from the root, from the tip up.
+   */
+  function digitOf(
+    d: IDigit,
+    index: number,
+    grow: IStretch | null,
+    map: (q: readonly [number, number, number]) => Vec3,
+    side: "left" | "right",
+    sign: 1 | -1,
+  ): IAutoMovieHumanLoftChain {
+    const prior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
+    const source: AutoMovieHumanArmPrior.IDigit = prior.digits[index]!;
+    const order: number = d.angles.length;
+    const first: number = grow === null ? d.first : grow.first;
+    const stations: number[] = digitStations(d, first, grow === null ? 1 : grow.factor);
+
+    // World centre, normal toward the root, and ring at a station of the form.
+    const centre = (s: number): Vec3 => map(stretched(d, grow, s));
+    const normalAt = (s: number): Vec3 =>
+      unit(sub(centre(Math.max(0, s - STEP)), centre(Math.min(d.cap, s + STEP))));
+    const ringAt = (s: number): Vec3[] =>
+      digitRing(d, grow, s).map((q: Vec3): Vec3 => map(q));
+
+    // The in-plane axis carried from the root toward the tip.
+    const root: number = stations[0]!;
+    const grid: { s: number; n: Vec3; u: Vec3 }[] = [
+      { s: root, n: normalAt(root), u: [...prior.through] },
+    ];
+    for (let s: number = root + DIGIT_CARRY; s < d.cap + DIGIT_CARRY; s += DIGIT_CARRY) {
+      const last = grid[grid.length - 1]!;
+      const n: Vec3 = normalAt(Math.min(d.cap, s));
+      grid.push({ s, n, u: AutoMovieHumanLimbFrame.carry(last.u, last.n, n) });
+    }
+    const axisAt = (s: number): Vec3 => {
+      const i: number = Math.min(grid.length - 1, Math.max(0, Math.floor((s - root) / DIGIT_CARRY)));
+      const g = grid[i]!;
+      return AutoMovieHumanLimbFrame.carry(g.u, g.n, normalAt(s));
+    };
+    const sample = (s: number): { ring: Vec3[]; frame: AutoMovieHumanLoftFrame.IFrame } => ({
+      ring: ringAt(s),
+      frame: AutoMovieHumanLimbFrame.frame(centre(s), normalAt(s), axisAt(s)),
+    });
+
+    // Stations from the tip up: the length of the centre line.
+    const ordered: number[] = [...stations].reverse();
+    const own = ordered.map(sample);
+    const along: number[] = [0];
+    for (let k: number = 1; k < own.length; k++)
+      along.push(along[k - 1]! + norm(sub(own[k]!.frame.origin, own[k - 1]!.frame.origin)));
+    const layers: IAutoMovieHumanLoftChain.ILayer[] = ordered.map(
+      (s: number, k: number): IAutoMovieHumanLoftChain.ILayer => {
+        const here = own[k]!;
+        const mine: AutoMovieHumanLimbFrame.ISample = {
+          station: along[k]!,
+          frame: sidedFrame(here.frame, sign),
+          ring: reflect(here.ring, sign),
+        };
+        // Toward the tip the chain's station falls; the tip itself is read on
+        // one side.
+        const at = (ds: number): AutoMovieHumanLimbFrame.ISample => {
+          const t = sample(s + ds);
+          return {
+            station: along[k]! - Math.sign(ds) * norm(sub(t.frame.origin, here.frame.origin)),
+            frame: sidedFrame(t.frame, sign),
+            ring: reflect(t.ring, sign),
+          };
+        };
+        return AutoMovieHumanLimbFrame.layer(
+          mine,
+          s + SLOPE_STEP <= d.cap ? at(SLOPE_STEP) : mine,
+          at(-SLOPE_STEP),
+          order,
+        );
+      },
+    );
+    return {
+      name: source.name.replace("{side}", side),
+      basis: "spline",
+      order: source.order,
+      samples: source.samples,
+      rule: "polar",
+      layers,
+    };
   }
 
   /** Both hands' events: the form's for the left, reflected for the right. */
@@ -824,6 +1145,7 @@ export namespace AutoMovieHumanArmConstruction {
         {
           parent: e.parent.replace("{side}", "left"),
           direction: "down",
+          web: true,
           splits: e.splits.map(
             (s: ISplit): IAutoMovieHumanBodyCalibration.ISplit => ({
               child: s.child.replace("{side}", "left"),
@@ -836,6 +1158,7 @@ export namespace AutoMovieHumanArmConstruction {
         {
           parent: e.parent.replace("{side}", "right"),
           direction: "down",
+          web: true,
           splits: [...e.splits].reverse().map(
             (s: ISplit): IAutoMovieHumanBodyCalibration.ISplit => ({
               child: s.child.replace("{side}", "right"),
@@ -883,30 +1206,23 @@ interface IStarField {
   splines: AutoMovieHumanNaturalSpline.ISpline[];
 }
 
-/** A child's first ring and how each of its points leaves it. */
-interface IRoot {
-  /** Points of the first ring, one per control point. */
-  points: Vec3[];
-
-  /** 1 on the bridge, falling to 0 on the arc. */
-  bridge: number[];
-
-  /** Length of its longest bridge. */
-  span: number;
-}
-
-/** A digit's law and rings, in the hand's axes. */
+/** A digit's law, in the hand's axes. */
 interface IDigit {
-  root: IRoot;
+  /** Centre of its root at the web, where its line starts. */
   centre: Vec3;
   line: AutoMovieHumanNaturalSpline.ISpline[];
   width: [number, number][];
   depth: [number, number][];
+
+  /** Section angle of each control point, turning one way round the digit. */
   angles: number[];
-  blend: number;
-  stations: number[];
+
+  /** Station of its first own section, past its webs' crests. */
+  first: number;
+
+  /** Station where the rounded tip starts. */
+  cap: number;
   pole: Vec3;
-  rings: Vec3[][];
 }
 
 /** The whole hand in its own axes. */
@@ -1040,93 +1356,32 @@ function palmPoint(field: IStarField, u: number, theta: number): Vec3 {
   return palmSkin(field, a, theta);
 }
 
-/** A digit's first ring: its arcs of the parent's ring, closed by bridges. */
+/** A digit's first ring at its web: its arcs of the parent's ring, closed by bridges. */
 function rootOf(
   order: number,
   arcs: readonly [number, number][],
   read: (t: number) => Vec3,
-): IRoot {
+): Vec3[] {
   const span = ([from, to]: [number, number]): number =>
     to >= from ? to - from : to + TWO_PI - from;
-  const walk = (arc: [number, number]): number[] => {
-    const sums: number[] = [0];
-    let last: Vec3 = read(arc[0]);
-    for (let i: number = 1; i <= WALKED; i++) {
-      const p: Vec3 = read(arc[0] + (span(arc) * i) / WALKED);
-      sums.push(sums[i - 1]! + norm(sub(p, last)));
-      last = p;
-    }
-    return sums;
-  };
-  const length = (arc: [number, number]): number => walk(arc)[WALKED]!;
-  const phaseAt = (arc: [number, number], sums: number[], f: number): number => {
-    const goal: number = f * sums[WALKED]!;
-    let i: number = 0;
-    while (i + 1 < WALKED && sums[i + 1]! < goal) i++;
-    const piece: number = sums[i + 1]! - sums[i]!;
-    const part: number = piece > 0 ? (goal - sums[i]!) / piece : 0;
-    return arc[0] + (span(arc) * (i + part)) / WALKED;
-  };
-  const pieces: { arc: [number, number] | null; from: Vec3; to: Vec3; size: number }[] =
-    arcs.flatMap((arc: [number, number], i: number) => {
-      const next: [number, number] = arcs[(i + 1) % arcs.length]!;
-      const from: Vec3 = read(arc[0] + span(arc));
-      const to: Vec3 = read(next[0]);
-      return [
-        { arc, from: read(arc[0]), to: from, size: length(arc) },
-        { arc: null, from, to, size: norm(sub(to, from)) },
-      ];
-    });
-  const whole: number = pieces.reduce(
-    (s: number, p): number => s + p.size,
-    0,
-  );
-  const shares: number[] = pieces.map((p): number =>
-    Math.max(p.arc === null ? 3 : 4, Math.round((order * p.size) / whole)),
-  );
-  const longest: number = shares.indexOf(Math.max(...shares));
-  shares[longest]! += order - shares.reduce((s: number, v: number): number => s + v, 0);
   const points: Vec3[] = [];
-  const open: boolean[] = [];
-  pieces.forEach((p, i: number): void => {
-    const sums: number[] = p.arc === null ? [] : walk(p.arc);
-    for (let j: number = 0; j < shares[i]!; j++) {
-      const f: number = j / shares[i]!;
-      if (p.arc !== null) {
-        const t: number = phaseAt(p.arc, sums, f);
-        points.push(read(t));
-        open.push(j === 0);
-      } else {
-        points.push([
-          p.from[0] + f * (p.to[0] - p.from[0]),
-          p.from[1] + f * (p.to[1] - p.from[1]),
-          p.from[2] + f * (p.to[2] - p.from[2]),
-        ]);
-        open.push(true);
-      }
+  arcs.forEach((arc: [number, number], i: number): void => {
+    const next: [number, number] = arcs[(i + 1) % arcs.length]!;
+    const share: number = Math.max(4, Math.round(order / (2 * arcs.length)));
+    for (let j: number = 0; j < share; j++)
+      points.push(read(arc[0] + (span(arc) * j) / share));
+    const from: Vec3 = read(arc[0] + span(arc));
+    const to: Vec3 = read(next[0]);
+    for (let j: number = 0; j < 3; j++) {
+      const f: number = j / 3;
+      points.push([
+        from[0] + f * (to[0] - from[0]),
+        from[1] + f * (to[1] - from[1]),
+        from[2] + f * (to[2] - from[2]),
+      ]);
     }
   });
-  return {
-    points,
-    bridge: bridgeWeights(open),
-    span: Math.max(
-      ...pieces.map((p): number => (p.arc === null ? p.size : 0)),
-    ),
-  };
-}
-
-/** A weight 1 on bridge nodes that falls to 0 within a few nodes of the arc. */
-function bridgeWeights(open: readonly boolean[]): number[] {
-  const n: number = open.length;
-  return open.map((_: boolean, m: number): number => {
-    let near: number = n;
-    for (let i: number = 0; i < n; i++)
-      if (open[i]!) {
-        const d: number = Math.abs(i - m);
-        near = Math.min(near, Math.min(d, n - d));
-      }
-    return near >= FALL ? 0 : 1 - smooth(near / FALL);
-  });
+  return points;
 }
 
 /** A digit's line at a length from its root. */
@@ -1143,17 +1398,6 @@ function lineTangent(d: IDigit, s: number): Vec3 {
   return unit(sub(linePoint(d, s + 0.05), linePoint(d, s - 0.05)));
 }
 
-/**
- * Normal of a digit's section plane. It starts as the branch's plane, across the
- * hand, and turns square to the digit's line: square at the root, a digit that
- * leaves at a slant would swing its near side back into its parent.
- */
-function sectionNormal(d: IDigit, s: number): Vec3 {
-  const t: Vec3 = lineTangent(d, s);
-  const w: number = smooth(s / TURN);
-  return unit([1 - w + w * t[0], w * t[1], w * t[2]]);
-}
-
 /** Axes across a digit's line: toward the thumb's side and through the hand. */
 function digitAxes(t: Vec3): [Vec3, Vec3] {
   const k: number = t[1];
@@ -1161,108 +1405,66 @@ function digitAxes(t: Vec3): [Vec3, Vec3] {
   return [b, cross(t, b)];
 }
 
-/** The plain tube of a digit at a length and section angle. */
-function digitTube(d: IDigit, s: number, phi: number): Vec3 {
-  const c: Vec3 = linePoint(d, s);
-  const [b, n] = digitAxes(sectionNormal(d, s));
-  const w: number =
-    AutoMovieHumanMonotoneCubic.interpolate(d.width, s) * Math.cos(phi);
-  const h: number =
-    AutoMovieHumanMonotoneCubic.interpolate(d.depth, s) * Math.sin(phi);
-  return [
-    c[0] + w * b[0] + h * n[0],
-    c[1] + w * b[1] + h * n[1],
-    c[2] + w * b[2] + h * n[2],
-  ];
-}
-
-/** A point about the thumb's root at a person's growth. */
-function grown(q: Vec3, k: number): Vec3 {
-  const r: readonly [number, number, number] =
-    AutoMovieHumanArmPrior.PRIOR.hand.thumbRoot;
-  return [
-    r[0] + k * (q[0] - r[0]),
-    r[1] + k * (q[1] - r[1]),
-    r[2] + k * (q[2] - r[2]),
-  ];
+/**
+ * A digit's section at a station, square to its line, one point per control
+ * point; a thumb's line grown past its joint by its stretch.
+ */
+function digitRing(
+  d: IDigit,
+  grow: { from: number; factor: number } | null,
+  s: number,
+): Vec3[] {
+  const c: Vec3 =
+    grow === null || s <= grow.from
+      ? linePoint(d, s)
+      : (() => {
+          const base: Vec3 = linePoint(d, grow.from);
+          const p: Vec3 = linePoint(d, s);
+          return [
+            base[0] + grow.factor * (p[0] - base[0]),
+            base[1] + grow.factor * (p[1] - base[1]),
+            base[2] + grow.factor * (p[2] - base[2]),
+          ] as Vec3;
+        })();
+  const [b, n] = digitAxes(lineTangent(d, s));
+  const w: number = AutoMovieHumanMonotoneCubic.interpolate(d.width, s);
+  const h: number = AutoMovieHumanMonotoneCubic.interpolate(d.depth, s);
+  return d.angles.map((phi: number): Vec3 => [
+    c[0] + w * Math.cos(phi) * b[0] + h * Math.sin(phi) * n[0],
+    c[1] + w * Math.cos(phi) * b[1] + h * Math.sin(phi) * n[1],
+    c[2] + w * Math.cos(phi) * b[2] + h * Math.sin(phi) * n[2],
+  ]);
 }
 
 /**
- * Cubic from a root point to the tube: its start runs along the tube's own
- * tangent, so skin the parent and child share stays that skin, or sideways
- * toward the child's middle on a bridge, its end along the tube.
+ * A digit's layer stations from its first own section to its tip, at even
+ * steps of the grown length along its shaft and close together where it rounds.
  */
-function handover(
-  root: IRoot,
-  m: number,
-  middle: Vec3,
-  flow: Vec3,
-  end: Vec3,
-  after: Vec3,
-  x: number,
-): Vec3 {
-  const start: Vec3 = root.points[m]!;
-  const reach: number = norm(sub(end, start));
-  const side: Vec3 = unit(sub(middle, start));
-  const k: number = root.bridge[m]!;
-  const lead: Vec3 = unit([
-    (1 - k) * flow[0] + k * side[0],
-    (1 - k) * flow[1] + k * side[1],
-    (1 - k) * flow[2] + k * side[2],
-  ]);
-  const h00: number = 2 * x * x * x - 3 * x * x + 1;
-  const h10: number = x * x * x - 2 * x * x + x;
-  const h01: number = 3 * x * x - 2 * x * x * x;
-  const h11: number = x * x * x - x * x;
-  return [0, 1, 2].map(
-    (c: number): number =>
-      h00 * start[c]! +
-      h10 * reach * lead[c]! +
-      h01 * end[c]! +
-      h11 * after[c]!,
-  ) as Vec3;
+function digitStations(d: IDigit, first: number, factor: number): number[] {
+  const step: number = DIGIT_STEP / factor;
+  const out: number[] = [first];
+  for (let s: number = first + step; s < d.cap - 2.5; s += step) out.push(s);
+  out.push(d.cap - 1.2, d.cap - 0.3, d.cap);
+  return out.filter((s: number, i: number): boolean => i === 0 || s > out[i - 1]! + 0.1);
 }
 
-/** A digit's rings from its tip, at a growth about the thumb's root. */
-function digitRings(d: IDigit, k: number): Vec3[][] {
-  const order: number = d.root.points.length;
-  const grow = (q: Vec3): Vec3 => (k === 1 ? q : grown(q, k));
-  return [...d.stations].reverse().map((s: number): Vec3[] =>
-    Array.from({ length: order }, (_: unknown, m: number): Vec3 => {
-      const phi: number = d.angles[m]!;
-      if (s >= d.blend) return grow(digitTube(d, s, phi));
-      if (s === 0) return d.root.points[m]!;
-      const end: Vec3 = grow(digitTube(d, d.blend, phi));
-      const on: Vec3 = grow(digitTube(d, d.blend + STEP, phi));
-      return handover(
-        d.root,
-        m,
-        d.centre,
-        unit(sub(grow(digitTube(d, 0.5, phi)), grow(digitTube(d, 0, phi)))),
-        end,
-        [
-          ((on[0] - end[0]) / STEP) * d.blend,
-          ((on[1] - end[1]) / STEP) * d.blend,
-          ((on[2] - end[2]) / STEP) * d.blend,
-        ],
-        s / d.blend,
-      );
-    }),
-  );
-}
-
-/** A digit's law from its first ring and its anchors. */
+/**
+ * A digit's law from its anchors and its root.
+ *
+ * @param root Its first ring at the web, for its centre and the sense its phase
+ *   turns.
+ */
 function digit(
   source: AutoMovieHumanArmPrior.IDigit,
-  root: IRoot,
+  root: Vec3[],
   start: { centre: Vec3; width: number; depth: number } | null = null,
 ): IDigit {
-  const n: number = root.points.length;
+  const n: number = source.order;
   const centre: Vec3 =
     start?.centre ??
     ([0, 1, 2].map(
       (c: number): number =>
-        root.points.reduce((s: number, p: Vec3): number => s + p[c]!, 0) / n,
+        root.reduce((s: number, p: Vec3): number => s + p[c]!, 0) / root.length,
     ) as Vec3);
   const sizes: number[] = source.anchors
     .map((r: readonly number[]): number => Math.sqrt(r[3]! * r[4]!))
@@ -1290,16 +1492,14 @@ function digit(
       ),
   );
   const tube: IDigit = {
-    root,
     centre,
     line,
     width: [],
     depth: [],
     angles: [],
-    blend: source.blend,
-    stations: [],
+    first: 0,
+    cap: 0,
     pole: [0, 0, 0],
-    rings: [],
   };
 
   // The tip closes where the radius reaches the distance to the apex.
@@ -1332,6 +1532,7 @@ function digit(
   ];
   tube.width = knots(3);
   tube.depth = knots(4);
+  tube.cap = cap;
   const tip: Vec3 = lineTangent(tube, cap - 0.05);
   const reach: number = norm(sub(apex, linePoint(tube, cap)));
   const end: Vec3 = linePoint(tube, cap);
@@ -1341,53 +1542,76 @@ function digit(
     end[2] + reach * tip[2],
   ];
 
-  // Section angles step with length round the first ring, from the middle of
-  // a bridge, so they always turn one way and no point slides round the digit.
-  const [b, c] = digitAxes(sectionNormal(tube, 0.1));
-  const plain: [number, number][] = root.points.map(
+  // The section turns the way its parent's ring runs round it, so a ring's
+  // phase keeps the sense of the rings it joins.
+  const [b, c] = digitAxes(lineTangent(tube, 0.1));
+  const plain: [number, number][] = root.map(
     (p: Vec3): [number, number] => {
       const v: Vec3 = sub(p, centre);
-      return [dot(v, b) / tube.width[0]![1], dot(v, c) / tube.depth[0]![1]];
+      return [dot(v, b), dot(v, c)];
     },
   );
   const area: number = plain.reduce(
     (s: number, p: [number, number], m: number): number => {
-      const q: [number, number] = plain[(m + 1) % n]!;
+      const q: [number, number] = plain[(m + 1) % plain.length]!;
       return s + p[0] * q[1] - q[0] * p[1];
     },
     0,
   );
   const turn: number = area >= 0 ? TWO_PI : -TWO_PI;
-  const steps: number[] = root.points.map((p: Vec3, m: number): number =>
-    norm(sub(root.points[(m + 1) % n]!, p)),
-  );
-  const around: number = steps.reduce(
-    (s: number, v: number): number => s + v,
-    0,
-  );
-  const anchor: number = root.bridge.indexOf(Math.max(...root.bridge));
-  const face: number = Math.atan2(plain[anchor]![1], plain[anchor]![0]);
-  let walked: number = 0;
-  tube.angles = new Array<number>(n).fill(0);
-  for (let i: number = 0; i < n; i++) {
-    const m: number = (anchor + i) % n;
-    tube.angles[m] = face + (turn * walked) / around;
-    walked += steps[m]!;
-  }
-  // The first layer stands clear of a bridge's corners by the bridge's own
-  // size: nearer, a corner's quads fold under one of the mirrored diagonals.
-  const clear: number = Math.max(FIRST, CLEAR * root.span);
-  const stations: number[] = [
-    0,
-    ...[clear, 5, 7, 10, 13].filter(
-      (s: number): boolean => s >= clear && s < source.blend,
-    ),
-  ];
-  for (let s: number = source.blend; s < cap - 2.5; s += 5) stations.push(s);
-  stations.push(cap - 1.2, cap - 0.3, cap);
-  tube.stations = stations;
-  tube.rings = digitRings(tube, 1);
+  tube.angles = Array.from({ length: n }, (_: unknown, m: number): number => (turn * m) / n);
+
   return tube;
+}
+
+/** A point the web's skin leaves behind, and how far past it a first section must stand. */
+interface IClear {
+  point: Vec3;
+  margin: number;
+}
+
+/**
+ * A web's crest in the form, as the surface builds it: a round margin half its
+ * pinches' chord past their middle, along the parent's own surface there.
+ */
+function crestOf(
+  ring: (t: number) => Vec3,
+  outward: (t: number) => Vec3,
+  from: number,
+  to: number,
+): IClear {
+  const A: Vec3 = ring(from);
+  const B: Vec3 = ring(to);
+  const xi: Vec3 = unit(sub(B, A));
+  const mean: Vec3 = plus(outward(from), outward(to));
+  const ea: Vec3 = unit(sub(mean, scale(xi, dot(mean, xi))));
+  const rho: number = norm(sub(B, A)) / 2;
+  return { point: plus(scale(plus(A, B), 0.5), scale(ea, rho)), margin: rho + CREST_CLEARANCE };
+}
+
+/** A child's arcs of its parent's ring, sampled, each to stand behind its first section. */
+function arcPoints(ring: (t: number) => Vec3, arcs: readonly [number, number][]): IClear[] {
+  return arcs.flatMap(([from, to]: [number, number]): IClear[] => {
+    const span: number = to >= from ? to - from : to + TWO_PI - from;
+    return Array.from({ length: ARC_SAMPLES + 1 }, (_: unknown, i: number): IClear => ({
+      point: ring(from + (span * i) / ARC_SAMPLES),
+      margin: ARC_CLEARANCE,
+    }));
+  });
+}
+
+/**
+ * The first station of a digit whose section, square to its line, has every
+ * point it must clear behind it by that point's margin: its arcs of the
+ * parent's ring and its webs' crests, so every column of the web descends.
+ */
+function firstOf(d: IDigit, clear: readonly IClear[]): number {
+  for (let s: number = 0; s < d.cap - 3; s += 0.05) {
+    const c: Vec3 = linePoint(d, s);
+    const t: Vec3 = lineTangent(d, s);
+    if (clear.every((x: IClear): boolean => dot(sub(x.point, c), t) <= -x.margin)) return s;
+  }
+  return d.cap - 3;
 }
 
 /** The hand. */
@@ -1570,120 +1794,9 @@ function make(): IForm {
     ];
   };
 
-  // The palm's first ring: each ray from the palm's middle to the arm's ring.
-  const section: AutoMovieHumanArmPrior.ISection = prior.palmSection;
-  const order: number = section.order;
-  const near: number = wrap(dorsal);
-  const away: number = wrap(palmar);
-  const span: number = away >= near ? away - near : away + TWO_PI - near;
-  const outline: { p: Vec3; t: number | null }[] = [
-    ...Array.from({ length: 360 }, (_: unknown, i: number) => {
-      const t: number = near + (span * i) / 359;
-      return { p: armRing(t), t };
-    }),
-    ...Array.from({ length: 40 }, (_: unknown, i: number) => {
-      const a: Vec3 = armRing(near + span);
-      const b: Vec3 = armRing(near);
-      const f: number = (i + 1) / 41;
-      return {
-        p: [
-          a[0] + f * (b[0] - a[0]),
-          a[1] + f * (b[1] - a[1]),
-          a[2] + f * (b[2] - a[2]),
-        ] as Vec3,
-        t: null,
-      };
-    }),
-  ];
-  const middle: [number, number] = [
-    AutoMovieHumanNaturalSpline.evaluate(palm.splines[0]!, prior.branch),
-    AutoMovieHumanNaturalSpline.evaluate(palm.splines[1]!, prior.branch),
-  ];
-  const extent: [number, number] = [
-    AutoMovieHumanNaturalSpline.evaluate(palm.splines[2]!, prior.branch),
-    AutoMovieHumanNaturalSpline.evaluate(palm.splines[3]!, prior.branch),
-  ];
-  const hits = outline.map((o) =>
-    wrap(
-      Math.atan2(
-        (o.p[2] - middle[1]) / extent[1],
-        (o.p[1] - middle[0]) / extent[0],
-      ),
-    ),
-  );
-  const firstPoints: Vec3[] = [];
-  const open: boolean[] = [];
-  for (let m: number = 0; m < order; m++) {
-    const theta: number = wrap((-TWO_PI * m) / order);
-    let best: number = 0;
-    let least: number = Infinity;
-    hits.forEach((h: number, i: number): void => {
-      const d: number = Math.abs(Math.atan2(Math.sin(h - theta), Math.cos(h - theta)));
-      if (d < least) {
-        least = d;
-        best = i;
-      }
-    });
-    const o = outline[best]!;
-    const off: number = Math.atan2(
-      Math.sin(hits[best]! - theta),
-      Math.cos(hits[best]! - theta),
-    );
-    const side: number = off > 0 ? -1 : 1;
-    const other = outline[(best + side + outline.length) % outline.length]!;
-    const gap: number = Math.abs(
-      Math.atan2(
-        Math.sin(hits[(best + side + hits.length) % hits.length]! - hits[best]!),
-        Math.cos(hits[(best + side + hits.length) % hits.length]! - hits[best]!),
-      ),
-    );
-    const f: number = gap > 0 ? Math.min(1, least / gap) : 0;
-    firstPoints.push([
-      o.p[0] + f * (other.p[0] - o.p[0]),
-      o.p[1] + f * (other.p[1] - o.p[1]),
-      o.p[2] + f * (other.p[2] - o.p[2]),
-    ]);
-    open.push(o.t === null);
-  }
-  const first: IRoot = {
-    points: firstPoints,
-    bridge: bridgeWeights(open),
-    span: 0,
-  };
-
-  // The palm from that ring to the finger roots.
-  const toward: number = knuckle(0) - prior.branch;
-  const distances: number[] = [0, 1.5, 3, 5, 7.5, 10];
-  for (let d: number = section.blend; d < toward - 2; d += 4) distances.push(d);
-  distances.push(toward - 1.2, toward);
-  const centre: Vec3 = [prior.branch, middle[0], middle[1]];
-  const palmRings: Vec3[][] = [...distances].reverse().map((d: number): Vec3[] =>
-    Array.from({ length: order }, (_: unknown, m: number): Vec3 => {
-      const theta: number = (-TWO_PI * m) / order;
-      if (d >= section.blend) return palmPoint(palm, d / toward, theta);
-      if (d === 0) return first.points[m]!;
-      const end: Vec3 = palmPoint(palm, section.blend / toward, theta);
-      const on: Vec3 = palmPoint(palm, (section.blend + STEP) / toward, theta);
-      return handover(
-        first,
-        m,
-        centre,
-        unit(
-          sub(palmPoint(palm, 0.5 / toward, theta), palmPoint(palm, 0, theta)),
-        ),
-        end,
-        [
-          ((on[0] - end[0]) / STEP) * section.blend,
-          ((on[1] - end[1]) / STEP) * section.blend,
-          ((on[2] - end[2]) / STEP) * section.blend,
-        ],
-        d / section.blend,
-      );
-    }),
-  );
-
   // Web phases on the palm's last ring: its back runs with phase from the
   // thumb's side, its front back again.
+  const toward: number = knuckle(0) - prior.branch;
   const fingerRing = (t: number): Vec3 => palmPoint(palm, 1, -t);
   const column = (b: number, from: number, to: number): number => {
     let lo: number = from;
@@ -1726,30 +1839,80 @@ function make(): IForm {
           })
         : digit(d, rootOf(d.order, arcs[i]!, fingerRing)),
   );
+  const opening = (a: number, t: number): Vec3 => {
+    const along: number = wrap(t - palmar);
+    const own: number =
+      along < inner
+        ? smooth(along / OWN_FADE) * smooth((inner - along) / OWN_FADE)
+        : 0;
+    const line: Vec3 = lineTangent(digits[0]!, 0.1);
+    const here: Vec3 = palmSkin(palm, a, bowl - t);
+    const there: Vec3 = palmSkin(palm, prior.branch, bowl - t);
+    const run: number = a - prior.branch;
+    const ring: Vec3 = armRing(t);
+    return [
+      a,
+      ring[1] +
+        (1 - own) * (here[1] - there[1]) +
+        (own * run * line[1]) / line[0],
+      ring[2] +
+        (1 - own) * (here[2] - there[2]) +
+        (own * run * line[2]) / line[0],
+    ];
+  };
+
+  // Every child's first own section stands past its arcs of its parent's ring
+  // and its webs' crests, each read with the parent's own surface there, so
+  // every column of the webs descends from the ring to the child.
+  const armOutward = (t: number): Vec3 =>
+    unit(sub(opening(prior.branch, t), opening(prior.branch - OUTWARD_STEP, t)));
+  const palmOutward = (t: number): Vec3 =>
+    unit(sub(fingerRing(t), palmPoint(palm, 1 - OUTWARD_STEP / toward, -t)));
+  const thumbCrest: IClear = crestOf(armRing, armOutward, palmar, dorsal);
+  const crests: IClear[] = prior.webs.map(
+    (_: AutoMovieHumanArmPrior.IWeb, i: number): IClear =>
+      crestOf(fingerRing, palmOutward, back[i]!, front[i]!),
+  );
+  const webs: IClear[][] = [[thumbCrest], [crests[0]!], [crests[0]!, crests[1]!], [crests[1]!, crests[2]!], [crests[2]!]];
+  digits.forEach((d: IDigit, i: number): void => {
+    d.first = firstOf(d, [...arcPoints(i === 0 ? armRing : fingerRing, arcs[i]!), ...webs[i]!]);
+  });
+
+  // The palm from past the thumb's web to the finger roots, each section the
+  // palm's own skin: every point to clear has the section's nearest point past
+  // it along the hand.
+  const section: AutoMovieHumanArmPrior.ISection = prior.palmSection;
+  const order: number = section.order;
+  const ringOf = (d: number): Vec3[] =>
+    Array.from({ length: order }, (_: unknown, m: number): Vec3 =>
+      palmPoint(palm, d / toward, (-TWO_PI * m) / order),
+    );
+  const palmClear: IClear[] = [...arcPoints(armRing, [[dorsal, palmar]]), thumbCrest];
+  let start: number = 0;
+  for (; start < toward - PALM_STEP; start += 0.25) {
+    const ring: Vec3[] = ringOf(start);
+    const clear: boolean = palmClear.every((x: IClear): boolean => {
+      let near: Vec3 = ring[0]!;
+      let best: number = Infinity;
+      for (const p of ring) {
+        const e: number = Math.hypot(p[1] - x.point[1], p[2] - x.point[2]);
+        if (e < best) {
+          best = e;
+          near = p;
+        }
+      }
+      return near[0] - x.point[0] >= x.margin;
+    });
+    if (clear) break;
+  }
+  const distances: number[] = [start];
+  for (let d: number = start + PALM_STEP; d < toward - 2; d += PALM_STEP) distances.push(d);
+  distances.push(toward - 1.2, toward);
+  const palmRings: Vec3[][] = [...distances].reverse().map(ringOf);
   return {
     whole,
     palm,
-    opening: (a: number, t: number): Vec3 => {
-      const along: number = wrap(t - palmar);
-      const own: number =
-        along < inner
-          ? smooth(along / OWN_FADE) * smooth((inner - along) / OWN_FADE)
-          : 0;
-      const line: Vec3 = lineTangent(digits[0]!, 0.1);
-      const here: Vec3 = palmSkin(palm, a, bowl - t);
-      const there: Vec3 = palmSkin(palm, prior.branch, bowl - t);
-      const run: number = a - prior.branch;
-      const ring: Vec3 = armRing(t);
-      return [
-        a,
-        ring[1] +
-          (1 - own) * (here[1] - there[1]) +
-          (own * run * line[1]) / line[0],
-        ring[2] +
-          (1 - own) * (here[2] - there[2]) +
-          (own * run * line[2]) / line[0],
-      ];
-    },
+    opening,
     palmRings,
     digits,
     events: [
@@ -1776,6 +1939,16 @@ function make(): IForm {
 /** Difference. */
 function sub(a: Vec3, b: Vec3): Vec3 {
   return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+}
+
+/** Sum. */
+function plus(a: Vec3, b: Vec3): Vec3 {
+  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+}
+
+/** Scalar multiple. */
+function scale(a: Vec3, s: number): Vec3 {
+  return [a[0] * s, a[1] * s, a[2] * s];
 }
 
 /** Dot product. */
@@ -1838,7 +2011,7 @@ const OWNED: RegExp = /^(arm|hand|thumb|finger)\./;
 /** Samples of the shoulder ring's arc. */
 const RING: number = 128;
 
-/** Height over which the shoulder ring's difference fades in, world mm. */
+/** Height over which the shoulder ring's difference fades in, and the arm's sections turn level, world mm. */
 const REACH: number = 70;
 
 /** The arm's top ring above the mean height of its arc, which dips at the armpit, world mm. */
@@ -1850,11 +2023,23 @@ const WALK: number = 1;
 /** A whole turn. */
 const TWO_PI: number = 2 * Math.PI;
 
-/** Nodes of a ring over which a bridge's sideways start fades into the arc. */
-const FALL: number = 5;
+/** Length past the heel's join over which the sections turn from the hand's axis onto the forearm's, world mm. */
+const WRIST_TURN: number = 50;
 
-/** Length along a digit over which its section turns square to its line, mm. */
-const TURN: number = 20;
+/** The forearm's layers past the heel's join, world mm. */
+const FOREARM_LAYERS: readonly number[] = [8, 22, 38, 56, 76];
+
+/** Least spacing of the tube's layers past those, world mm. */
+const LAYER_GAP: number = 12;
+
+/** Parameter step of the arm's carried frame. */
+const CARRY: number = 0.5;
+
+/** Station step of a digit's carried frame, mm of the form. */
+const DIGIT_CARRY: number = 0.25;
+
+/** Parameter step of a layer's slopes. */
+const SLOPE_STEP: number = 0.05;
 
 /** Phase over which the heel's target hands from the palm's run to the thumb's. */
 const OWN_FADE: number = 0.6;
@@ -1862,17 +2047,44 @@ const OWN_FADE: number = 0.6;
 /** Angles at which the arm's last ring holds its radius. */
 const RADII: number = 720;
 
-/** Least distance of a digit's first layer from its root, mm. */
-const FIRST: number = 2.5;
-
-/** That distance per unit of the digit's bridge. */
-const CLEAR: number = 0.8;
-
-/** Steps of an arc when it is walked by length. */
-const WALKED: number = 64;
-
-/** Step of a tube's tangent past its handover, mm. */
+/** Step of a tube's tangent, mm. */
 const STEP: number = 0.2;
 
 /** Phases averaged for the centre of the section at the wrist crease. */
 const CREASE_PHASES: number = 256;
+
+/** How far a part's first own section stands past its webs' crests, beyond the margin's radius, mm of the form. */
+const CREST_CLEARANCE: number = 2;
+
+/** How far it stands past every point of its arcs, mm of the form. */
+const ARC_CLEARANCE: number = 2;
+
+/** Samples of each arc read for that clearance. */
+const ARC_SAMPLES: number = 32;
+
+/** Station step of a parent's outward direction at its ring, mm of the form. */
+const OUTWARD_STEP: number = 0.05;
+
+/** Spacing of the palm's sections, mm of the form. */
+const PALM_STEP: number = 4;
+
+/** Spacing of a digit's sections along its grown shaft, mm of the form. */
+const DIGIT_STEP: number = 5;
+
+/** Spacing of a digit's centre line handed to the skeleton, mm of the form. */
+const LINE_STEP: number = 2;
+
+/** De Leva's wrist centre to third metacarpale over wrist centre to third dactylion. */
+const KNUCKLE: number = 0.459;
+
+/** Third metacarpal over de Leva's wrist centre to third metacarpale. */
+const THIRD_METACARPAL: number = 0.774;
+
+/** De Leva's wrist centre distal of stylion, sexes averaged, mm. */
+const STYLION: number = 2.3;
+
+/**
+ * Metacarpal lengths over the third, thumb to little (Reddy 2024, sexes
+ * pooled; `docs/anatomy/hand.md`).
+ */
+const METACARPALS: readonly number[] = [0.711, 1.039, 1, 0.883, 0.797];

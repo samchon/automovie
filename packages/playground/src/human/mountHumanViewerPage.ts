@@ -2,6 +2,8 @@ import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
 import * as THREE from "three";
 
 import { AutoMovieHuman } from "../../../human/src/AutoMovieHuman";
+import type { AutoMovieHumanInstance } from "../../../human/src/instance/AutoMovieHumanInstance";
+import type { IAutoMovieHumanPrepared } from "../../../human/src/instance/IAutoMovieHumanPrepared";
 import type { IAutoMovieHumanGenerated } from "../../../human/src/structures/IAutoMovieHumanGenerated";
 import type { IAutoMovieHumanParameters } from "../../../human/src/structures/IAutoMovieHumanParameters";
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
@@ -22,6 +24,9 @@ import { syncHumanViewerUrl } from "./syncHumanViewerUrl";
 /** What a load produces before display. */
 interface IProduced {
   result: IAutoMovieHumanGenerated;
+
+  /** The prepared shape's evaluator and rig; absent for a result generated elsewhere. */
+  body?: AutoMovieHumanInstance.IBody;
   alias: string | null;
   milliseconds: number | null;
 }
@@ -85,6 +90,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     (): null => null,
   );
   let busy: boolean = false;
+  const calls: IHumanViewerPage.ICalls = { generate: 0, build: 0 };
   let closed: boolean = false;
   let closing: Promise<void> | undefined;
   let failed: boolean = false;
@@ -209,11 +215,14 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       );
       if (closed) throw new Error("Human viewer closed during generation");
       const produced: IProduced = produce();
+      ++calls.build;
       const model: HumanViewerModel = await HumanViewerModel.create(
         produced.result,
         produced.alias,
         produced.milliseconds,
         generation + 1,
+        calls,
+        produced.body,
       );
 
       // The page may have been disposed while the images decoded.
@@ -288,10 +297,20 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       alias: string | null,
     ): (() => IProduced) =>
     (): IProduced => {
+      ++calls.generate;
       const start: number = performance.now();
-      const result: IAutoMovieHumanGenerated =
-        AutoMovieHuman.generate(parameters);
-      return { result, alias, milliseconds: performance.now() - start };
+
+      // Prepare rather than generate: the same model, plus the rig and the
+      // evaluator built from the same calibration, so a pose never runs the
+      // shape law again. The published result stays `{ parameters, model }`.
+      const prepared: IAutoMovieHumanPrepared =
+        AutoMovieHuman.prepare(parameters);
+      return {
+        result: { parameters: prepared.parameters, model: prepared.model },
+        body: prepared,
+        alias,
+        milliseconds: performance.now() - start,
+      };
     };
 
   /** The loaded model, or a thrown error naming the missing load. */
@@ -386,7 +405,15 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       const model: HumanViewerModel = loaded();
       try {
         return captureHumanPageFrame(
-          { model, renderer: mount.renderer, scene, key, hemisphere, shots },
+          {
+            model,
+            renderer: mount.renderer,
+            scene,
+            key,
+            hemisphere,
+            shots,
+            calls,
+          },
           name,
           next,
           selection,

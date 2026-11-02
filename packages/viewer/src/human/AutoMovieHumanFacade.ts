@@ -3,6 +3,7 @@ import type {
   IAutoMovieHumanPose,
   AutoMovieHumanSkeleton as Skeleton,
 } from "@automovie/human";
+import { AutoMovieHumanStateAdmission } from "@automovie/human/instance";
 import { AutoMovieHumanController } from "@automovie/human/control";
 import type * as THREE from "three";
 
@@ -326,23 +327,22 @@ export class AutoMovieHumanFacade {
     expression: IAutoMovieHumanExpression,
   ): void {
     this.open();
-    const snapshot: IAutoMovieHumanPose = structuredClone(pose);
+    // Admission refuses a field that is no pose channel before anything moves.
+    const requested: IAutoMovieHumanPose =
+      AutoMovieHumanStateAdmission.pose(pose);
     const face: IAutoMovieHumanExpression = structuredClone(expression);
     const output: Skeleton.IOutput =
-      Object.keys(snapshot).length === 0
+      Object.keys(requested).length === 0
         ? this.binding.rest
-        : this.binding.evaluate(snapshot);
+        : this.binding.evaluate(requested);
     const local: Map<string, HumanRigBinding.ILocal> =
       this.binding.pose(output);
 
     // Drawing gaze and jaw use the same admitted values as the existing clinical evaluator.
-    for (const clamp of output.clamped) {
-      const keys: string[] = clamp.path.split(".");
-      let branch: Record<string, unknown> = snapshot as Record<string, unknown>;
-      for (const key of keys.slice(0, -1))
-        branch = branch[key] as Record<string, unknown>;
-      branch[keys[keys.length - 1]!] = clamp.applied;
-    }
+    const snapshot: IAutoMovieHumanPose = AutoMovieHumanStateAdmission.clamp(
+      requested,
+      output.clamped,
+    );
     const unsupported: string[] = this.face(face, snapshot.head);
     this.control.reset();
     this.pose = snapshot;

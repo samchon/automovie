@@ -13,9 +13,15 @@ export function assertHumanCurves(chains?: RegExp): void {
     name: string,
   ): HumanCurveAudit.IHumanCurveFinding[] => {
     const p: HumanPeople.IPerson = HumanPeople.person(name);
+    // The jaw is read at shares of its own width, the input in the body's
+    // millimetres.
+    const mandible: number =
+      (p.params.head.mandibularWidth * p.body.stature) /
+      p.params.body.controls.height.value! /
+      2;
     return chains !== undefined
       ? [
-          ...HumanCurveAudit.auditHumanCurves(p.name, p.body, chains),
+          ...HumanCurveAudit.auditHumanCurves(p.name, p.body, chains, mandible),
           ...(chains.test("leg.left")
             ? HumanCurveAudit.auditHumanThigh(
                 p.name,

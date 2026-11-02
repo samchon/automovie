@@ -10,6 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
+import { AutoMovieHumanOralCavity } from "../generation/AutoMovieHumanOralCavity";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
 import type { AutoMovieHumanSkeleton } from "./AutoMovieHumanSkeleton";
@@ -216,9 +217,17 @@ export namespace AutoMovieHumanRig {
     );
     const out = new Map<AutoMovieHumanoidBone, ILocal>();
     for (const bone of rest.bones) {
-      const own: AutoMovieHumanSkeleton.IPlacement = placed.get(joint(bone.bone))!;
+      // A pose evaluated for another body or skeleton lacks a rig bone's
+      // joint; refusing it here keeps a foreign pose from placing any bone.
+      const own: AutoMovieHumanSkeleton.IPlacement | undefined = placed.get(
+        joint(bone.bone),
+      );
       const parent: AutoMovieHumanSkeleton.IPlacement | undefined =
         bone.parent === null ? undefined : placed.get(joint(bone.parent));
+      if (own === undefined || (bone.parent !== null && parent === undefined))
+        throw new Error(
+          `Evaluated Human pose lacks the joint of rig bone ${bone.bone}`,
+        );
       if (parent === undefined) {
         out.set(bone.bone, { translation: own.position, rotation: own.rotation });
         continue;
@@ -397,6 +406,9 @@ interface ILimb {
   /** The cuts that hand skin down from the parent; a point must pass them all. */
   planes: IPlane[];
 
+  /** The jaw's cut along the lips' contact line, or null for any other limb. */
+  lips: ILips | null;
+
   /** Width of the fall to nothing at the midline, metres; zero for no fall. */
   midline: number;
 
@@ -429,6 +441,21 @@ interface IPlane {
 
   /** Half of the ramp's width, metres. */
   half: number;
+}
+
+/** The lips' contact line the jaw's skin is cut along, metres. */
+interface ILips {
+  /** Contact line's height at shares 0, 1/16 .. 1 of the half width. */
+  contact: number[];
+
+  /** Half width, midline to cheilion. */
+  width: number;
+
+  /** Half-height of the opening at the midline. */
+  slit: number;
+
+  /** Half of the jaw's ramp past the cheilia. */
+  wide: number;
 }
 
 /** The binding tree of one body. */
@@ -509,6 +536,7 @@ function grow(
       near,
       far,
       planes: [],
+      lips: null,
       midline: 0,
       clear: null,
       side: j.bone.startsWith("left") ? 1 : j.bone.startsWith("right") ? -1 : 0,
@@ -610,12 +638,32 @@ function grow(
   const span: number = Math.hypot(...Math3D.sub(chin, hinge));
   const eye: Vector = at("leftEye");
   const mouth: number = eye[1] - MOUTH * (crown[1] - eye[1]);
+
+  // With a mouth the jaw takes the skin below the lips' contact line, and
+  // across the opening along it the upper lip stays on the head while the
+  // lower goes with the jaw: within the cheilia the hand-over is no wider than
+  // the opening, so neither lip pulls the other, and past them it widens to
+  // the jaw's own ramp over the cheek, where the skin is whole.
+  const lips: ILips | null =
+    calibration.mouth === undefined
+      ? null
+      : {
+          contact: calibration.mouth.contact.map((y: number): number => y * scale),
+          width: calibration.mouth.width * scale,
+          slit: calibration.mouth.slit * scale,
+          wide: JAW_RAMP * span,
+        };
+  jaw.lips = lips;
   jaw.planes = [
-    {
-      at: [hinge[0], mouth, 0],
-      normal: [0, -1, 0],
-      half: JAW_RAMP * span,
-    },
+    ...(lips === null
+      ? [
+          {
+            at: [hinge[0], mouth, 0] as Vector,
+            normal: [0, -1, 0] as Vector,
+            half: JAW_RAMP * span,
+          },
+        ]
+      : []),
     {
       at: Math3D.add(hinge, Math3D.times(FORWARD, JAW_BACK * span)),
       normal: FORWARD,
@@ -695,6 +743,10 @@ function rigid(id: string): AutoMovieHumanoidBone | undefined {
   if (id.startsWith("human.eye.left")) return "leftEye";
   if (id.startsWith("human.eye.right")) return "rightEye";
   if (/^human\.(hair|brow|lash|eyebrow|eyelash)/.test(id)) return "head";
+  // The upper teeth stand in the skull; the lower and the tongue on the
+  // mandible, whose turn the tongue's own controls already allow for.
+  if (/^human\.mouth\.(teeth|gum)\.upper$/.test(id)) return "head";
+  if (/^human\.mouth\.((teeth|gum)\.lower|tongue)$/.test(id)) return "jaw";
   return undefined;
 }
 
@@ -794,12 +846,39 @@ function share(limb: ILimb, p: Vector): number {
   return out;
 }
 
-/** A limb's share over its own planes alone. */
+/** A limb's share over its own planes alone, and the jaw's under the lips. */
 function cutShare(limb: ILimb, p: Vector): number {
   let out: number = 1;
   for (const plane of limb.planes)
     out *= ramp(dot(Math3D.sub(p, plane.at), plane.normal) / plane.half);
+  if (limb.lips !== null && out > 0) out *= below(limb.lips, p);
   return out;
+}
+
+/**
+ * Share of a point below the lips' contact line. Within three quarters of
+ * the half width the ramp is narrower than the gap between the lining's
+ * pressed inner faces, so the two lips take nothing of each other; toward and
+ * past the cheilia it widens to the jaw's ramp by a quintic step.
+ */
+function below(lips: ILips, p: Vector): number {
+  const u: number = Math.abs(p[2]) / lips.width;
+  const k: number = Math.min(1, u) * (lips.contact.length - 1);
+  const i: number = Math.min(lips.contact.length - 2, Math.floor(k));
+  const f: number = k - i;
+  const contact: number = lips.contact[i]! * (1 - f) + lips.contact[i + 1]! * f;
+  // Within the slit the hand-over is half as wide as the gap the lining's
+  // pressed inner faces keep from the contact line, so each face, and each
+  // rim, rides its own bone whole.
+  const open: number =
+    u < 1
+      ? (AutoMovieHumanOralCavity.PRESSED / 2) * lips.slit * Math.sqrt(1 - u * u)
+      : 0;
+  const half: number = Math.max(
+    open,
+    lips.wide * rise((u - CORNER_FROM) / (CORNER_TO - CORNER_FROM)),
+  );
+  return ramp((contact - p[1]) / half);
 }
 
 /** Smallest height of a point over a set of capsules. */
@@ -889,6 +968,12 @@ const HIP_LATERAL: number = 0.7;
  * stature does not: a head does not grow with the body.
  */
 const MOUTH: number = 0.735;
+
+/** Share of the mouth's half width where the lips' narrow hand-over starts to widen. */
+const CORNER_FROM: number = 0.75;
+
+/** Share of the mouth's half width where it has widened to the jaw's ramp. */
+const CORNER_TO: number = 1.25;
 
 /** Half of the jaw's cut, as a share of the distance from hinge to chin. */
 const JAW_RAMP: number = 0.07;

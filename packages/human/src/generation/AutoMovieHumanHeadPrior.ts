@@ -314,12 +314,19 @@ export namespace AutoMovieHumanHeadPrior {
     under: number;
 
     /**
-     * Soft tissue's rounding of the turn under the border, millimetres: an
-     * ellipse whose radius is `taper` times this over the bone's edge and the
-     * gonial angle, and this over `taper` squared where it opens into the
-     * skin under the jaw.
+     * Soft tissue's rounding of the turn under the border, millimetres at no
+     * fat: an ellipse whose radius is `taper` times this over the bone's edge
+     * and the gonial angle, and this over `taper` squared where it opens into
+     * the skin under the jaw.
      */
     round: number;
+
+    /**
+     * Growth of the soft tissue's roundings with fat, as the logarithm per unit
+     * of the fat control: subcutaneous fat over the jaw and under the chin
+     * thickens with it, and rounds the border and fills the throat.
+     */
+    fat: number;
 
     /** See {@link round}. */
     taper: number;
@@ -338,6 +345,13 @@ export namespace AutoMovieHumanHeadPrior {
 
     /** Width of the blend with the face and the neck, millimetres. */
     blend: number;
+
+    /**
+     * Width of that blend under the border, millimetres at no fat: the hollow
+     * where the skin under the jaw meets the neck at the cervicomental angle,
+     * which the sections cross nearly along that skin.
+     */
+    throat: number;
   }
 
   /** The whole prior. */
@@ -424,8 +438,6 @@ export namespace AutoMovieHumanHeadPrior {
         { name: "malar", anchor: "eye", rise: -22.8177, lateral: 0.9161, tall: 15.5685, wide: 16.9835, height: 0.0689, sex: -2.3169 },
         { name: "nasolabial", anchor: "subnasale", rise: -13.8311, lateral: 0.2922, tall: 13.2918, wide: 12.4769, height: -4.7683, sex: 1.551 },
         { name: "buccal", anchor: "stomion", rise: -0.4533, lateral: 0.6763, tall: 18.9175, wide: 13.8898, height: -2.9103, sex: 0.2186 },
-        { name: "jaw", anchor: "menton", rise: 27.4045, lateral: 0.8262, tall: 14.6409, wide: 14.1332, height: -3.2993, sex: -1.386 },
-        { name: "chinSide", anchor: "menton", rise: 10.4724, lateral: 0.5183, tall: 9.5716, wide: 12.2754, height: -3.0045, sex: -0.5996 },
         { name: "mental", anchor: "menton", rise: 22.6451, lateral: 0.0007, tall: 11.1951, wide: 16.9119, height: 3.6095, sex: 0.8344 },
         { name: "sublabial", anchor: "stomion", rise: -17.5599, lateral: 0, tall: 5.5418, wide: 14.5368, height: -1.3, sex: 0 },
         { name: "temple", anchor: "eye", rise: 27.8865, lateral: 0.9302, tall: 22.5017, wide: 13.8798, height: -0.639, sex: -1.0628 },
@@ -454,17 +466,22 @@ export namespace AutoMovieHumanHeadPrior {
       angle: [122.5, 2.5],
       gonion: 20,
       under: 22,
-      // 5.5 mm over the bone's edge, which the lower head's layers cross nearly
-      // square, and 33 mm into the skin under the jaw, which they cross at about
+      // 6.2 mm over the bone's edge, which the lower head's layers cross nearly
+      // square, and 26 mm into the skin under the jaw, which they cross at about
       // 18 degrees. A circle of 6 mm turned 34 degrees a layer at the underside,
       // and an ellipse of 4.9 and 15.8 mm, the least the 1.27 mm layers carry
-      // by a straight estimate, still turned 29.
-      round: 10,
-      taper: 0.55,
+      // by a straight estimate, still turned 29. 33 mm ran past the 24 to 30 mm
+      // of underside a thick neck leaves before the throat, and rounded the
+      // border into it. Stated at no fat: 10 mm at the references' fat of about
+      // -0.6.
+      round: 13.5,
+      fat: 0.5,
+      taper: 0.62,
       inset: 1,
       back: 0.5,
       power: 3,
       blend: 6,
+      throat: 24,
     },
     ear: {
       lengthRatio: 1.02,

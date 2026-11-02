@@ -78,17 +78,19 @@ export namespace AutoMovieHumanHairCard {
    *
    * Cards: the strand image's luminance times the category colour,
    * alpha-tested at 0.35 coverage (mask needs no sorting and writes depth,
-   * at the cost of aliased strand edges), double-sided, roughness 0.38
-   * with an anisotropic lobe whose roughness grows along u, across the
-   * strands (strength 0.6), and specular intensity 0.7 for the fibre's weak
-   * dielectric reflection. A fibre reflects light on a cone about its own
-   * axis, so its highlight spreads across the strands and the hair mass
-   * shows the familiar band running around the head (Kajiya and Kay 1989);
-   * the glTF anisotropy direction is the one along which the highlight is
-   * stretched. Stretching it along v, the strand direction, drew one
-   * vertical stripe down the back of the head. Conventions pending the
-   * optical qualification of #2957. Undercoat: 55 percent of the colour,
-   * roughness 0.85, opaque.
+   * at the cost of aliased strand edges), double-sided, roughness 0.38 and
+   * specular intensity 0.7 for the fibre's weak dielectric reflection, with
+   * an isotropic lobe. A fibre reflects light on a cone about its own axis
+   * (Kajiya and Kay 1989), but a card's strand direction is the card's own
+   * heading, which turns a little from card to card as combed hair does:
+   * an anisotropic lobe of strength 0.6 stretched every highlight across
+   * the strands and switched it on or off card by card, so the lit side of
+   * every cut broke into grey card-shaped planks (the grey blotches over
+   * the back and top) and the aligned cards at the back's midline drew a
+   * highlight strip. Removing that lobe alone, with geometry, normals and
+   * vertex shade unchanged, removed the planks in a controlled render.
+   * Conventions pending the optical qualification of #2957. Undercoat: 55
+   * percent of the colour, roughness 0.85, opaque.
    *
    * @param hair Scalp hair input
    * @returns The two materials
@@ -121,7 +123,6 @@ export namespace AutoMovieHumanHairCard {
         alphaMode: "mask",
         alphaCutoff: 0.35,
         specularIntensity: 0.7,
-        anisotropy: { strength: 0.6, rotationDeg: 0, texture: null },
       },
       {
         id: "human.hair.scalp",
@@ -420,7 +421,11 @@ function edge(
   alpha: number,
 ): number {
   const boundary: number =
-    AutoMovieHumanScalpBoundary.height(hair.hairline, alpha, field.height) +
+    AutoMovieHumanScalpBoundary.height(
+      hair.hairline,
+      alpha,
+      AutoMovieHumanScalpBoundary.measure(field),
+    ) +
     INSET;
   const bears: (beta: number) => boolean = (beta: number): boolean => {
     const u: [number, number, number] = AutoMovieHumanHeadField.direction(

@@ -24,11 +24,10 @@ import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftCha
  *   the humerus `0.162 / 0.151` of the forearm (the ANSUR II joint-centre
  *   means of `docs/anatomy/skeleton.md`), where the deltoid's skin is one arm
  *   radius outside it.
- * - Hand: each digit's centre line by the hand's map. The thumb's metacarpal is
- *   `0.711` of the third (Reddy 2024), the third `0.774` of the wrist centre to
- *   the third metacarpale (de Leva 1996 against Reddy), and that distance
- *   `0.459` of the wrist centre to the middle fingertip, the wrist centre lying
- *   2.3 mm distal of the crease's stylion (de Leva 1996).
+ * - Hand: each digit's centre line by the hand's map, and the joints where the
+ *   metacarpals end, which the arm's construction places by the hand's anatomy
+ *   (the third metacarpal's head at de Leva's share of the hand, the others by
+ *   their measured lengths from level bases, the thumb's from the trapezium).
  * - Leg: the leg prior's line, the same line its skin is lofted about: the
  *   stance at the ankle, the knee at its stature fraction, and the hip centre on
  *   the chord from the knee through the thigh's top section, the crotch ring
@@ -188,10 +187,16 @@ export namespace AutoMovieHumanSkeletonLaw {
         glenohumeral[1],
         s * neckRadius * 0.5,
       ];
+      // A finger's knuckle is where its metacarpal ends, by the hand's anatomy;
+      // its phalanges' joints follow its centre line from the web.
       const digit = (
         line: AutoMovieHumanArmConstruction.IDigitLine,
         units: number[],
-      ): Vec3[] => phalanges([...line.line, line.tip], units);
+      ): Vec3[] => {
+        const joints: Vec3[] = phalanges([...line.line, line.tip], units);
+        joints[0] = line.joint;
+        return joints;
+      };
       const lines: AutoMovieHumanArmConstruction.IDigitLine[] = bones_.digits;
       const named = (name: string): AutoMovieHumanArmConstruction.IDigitLine =>
         lines.find(
@@ -205,21 +210,13 @@ export namespace AutoMovieHumanSkeletonLaw {
       add(`${side}LowerArm`, `${side}UpperArm`, elbow, wrist);
       add(`${side}Hand`, `${side}LowerArm`, wrist, middle[0]!);
 
-      // Thumb: the carpometacarpal joint halfway from the wrist crease to the
-      // branch, at the trapezium (convention); the metacarpal's measured share
-      // of the hand along the line to the branch; IP halfway to the tip
-      // (convention).
+      // Thumb: the carpometacarpal and metacarpophalangeal joints the hand's
+      // anatomy places; IP halfway to the tip (convention).
       const thumb: AutoMovieHumanArmConstruction.IDigitLine = named(
         `thumb.${side}`,
       );
-      const branch: Vec3 = thumb.line[0]!;
-      const cmc: Vec3 = lerp(wrist, branch, 0.5);
-      const metacarpal: number =
-        THUMB_METACARPAL *
-        THIRD_METACARPAL *
-        KNUCKLE *
-        (bones_.length - STYLION);
-      const mcp: Vec3 = along2(cmc, branch, metacarpal);
+      const cmc: Vec3 = bones_.thumb.cmc;
+      const mcp: Vec3 = bones_.thumb.mcp;
       const ip: Vec3 = lerp(mcp, thumb.tip, 0.5);
       add(`${side}ThumbMetacarpal`, `${side}Hand`, cmc, mcp);
       add(`${side}ThumbProximal`, `${side}ThumbMetacarpal`, mcp, ip);
@@ -538,18 +535,6 @@ const XIPHION: number = 0.617;
 const UPPER_ARM: number = 0.162;
 const FOREARM: number = 0.151;
 
-/** Thumb metacarpal over the third (Reddy 2024, sexes pooled). */
-const THUMB_METACARPAL: number = 0.711;
-
-/** Third metacarpal over de Leva's wrist centre to third metacarpale. */
-const THIRD_METACARPAL: number = 0.774;
-
-/** De Leva's wrist centre to third metacarpale over wrist centre to third dactylion. */
-const KNUCKLE: number = 0.459;
-
-/** De Leva's wrist centre distal of stylion, sexes averaged, mm (Table 2, from stylion-3rd metacarpale). */
-const STYLION: number = 2.3;
-
 /** Phases sampling a section for perimeters and extremities. */
 const PHASES: number[] = Array.from(
   { length: 96 },
@@ -667,12 +652,6 @@ function along(path: Vec3[], fraction: number): Vec3 {
     remaining -= step;
   }
   return path[path.length - 1]!;
-}
-
-/** The point a distance from `a` toward `b`, on past it when farther. */
-function along2(a: Vec3, b: Vec3, d: number): Vec3 {
-  const u: Vec3 = unitVector(sub(b, a));
-  return [a[0] + d * u[0], a[1] + d * u[1], a[2] + d * u[2]];
 }
 
 /** Euclidean distance. */

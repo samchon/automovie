@@ -37,6 +37,15 @@ export namespace AutoMovieHumanBodyApertures {
   const REACH: number = 2;
 
   /**
+   * Distance from the outline within which a vertex lies on it, mm: a fifth
+   * of the 0.5 mm station spacing round an opening, so the margin leaves the
+   * outline by no more than the skin's own facets do. Twins 0.08 mm apart
+   * remain, but at 0.2 mm the skin vertices snapped onto the margin turned
+   * more of the pocket's first cells than the twins had.
+   */
+  const SNAP: number = 0.1;
+
+  /**
    * Evaluate each aperture's margin once and find the globe behind it.
    *
    * @param apertures Calibrated openings.
@@ -248,6 +257,23 @@ export namespace AutoMovieHumanBodyApertures {
         }
       });
     }
+
+    // A vertex within SNAP of the outline lies on it. The outline passes
+    // beside such a vertex across all of its edges at once, and their
+    // crossings stood 0.003 mm apart on the margin: each started its own
+    // meridian of a pocket, and the cells between those twins shaded as
+    // streaks round the opening. Read per vertex, the choice is the same from
+    // every edge, so the cut skin stays connected. Only an opening this module
+    // closes with a pocket is snapped: a skin vertex snapped beside a lid band
+    // kept the mesh normal of both and shaded 80 degrees off its neighbours,
+    // and an opening closed elsewhere finds its rim on the outline itself.
+    for (let v: number = 0; v < count; v++)
+      if (
+        Math.abs(value[v]!) <= SNAP &&
+        apertures[owner[v]!]!.lid === null &&
+        (apertures[owner[v]!]!.aperture.pocket ?? 0) > 0
+      )
+        value[v] = 0;
 
     // Margin vertices: originals exactly on the outline, and edge
     // crossings. A crossing remembers the kept vertex of its edge, from

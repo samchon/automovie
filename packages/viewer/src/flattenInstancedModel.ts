@@ -77,20 +77,11 @@ export const flattenInstancedModel: (
             samples: bake.samples,
           });
   } catch (error) {
-    const skeletons: THREE.Skeleton[] = [...temporary].filter(
-      (
-        resource: THREE.BufferGeometry | THREE.Skeleton,
-      ): resource is THREE.Skeleton => resource instanceof THREE.Skeleton,
-    );
+    // The source collection already holds the skinned meshes' skeletons.
     reportAutoMovieResourceRetirement(
       [
         ...sourceResources.map(
           (resource: { dispose(): void }): (() => void) =>
-            (): void =>
-              resource.dispose(),
-        ),
-        ...skeletons.map(
-          (resource: THREE.Skeleton): (() => void) =>
             (): void =>
               resource.dispose(),
         ),

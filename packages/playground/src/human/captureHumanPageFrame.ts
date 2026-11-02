@@ -37,11 +37,14 @@ export function captureHumanPageFrame(
       new URLSearchParams(query).get(variable),
   );
   const model: HumanViewerModel = context.model;
+  const started: number = performance.now();
   model.setPass(pass);
   const selection: IHumanViewerPage.ISelection = model.setCurves(curves);
   model.setIsolate(view.value.isolate);
   model.setDisplay(view.value);
+  const poseMilliseconds: number | null = model.poseMilliseconds;
   const visibleParts: string[] = model.setPass(pass);
+  const displayMilliseconds: number = performance.now() - started;
   const descriptor: HumanCaptureCamera.IDescriptor = model.describe(
     name,
     view.value,
@@ -65,6 +68,28 @@ export function captureHumanPageFrame(
       context.hemisphere,
       view.value.light,
     );
+
+  // What the CPU queries read at this draw, and where it projects, so the
+  // drawn silhouette can be compared with it pixel for pixel.
+  const queried: THREE.Box3 = model.queried();
+  const camera: THREE.Camera =
+    descriptor.orthographic === true
+      ? context.shots.orthographic
+      : context.shots.perspective;
+  const screen: THREE.Box2 = new THREE.Box2();
+  for (let corner: number = 0; corner < 8; ++corner) {
+    const point: THREE.Vector3 = new THREE.Vector3(
+      corner & 1 ? queried.max.x : queried.min.x,
+      corner & 2 ? queried.max.y : queried.min.y,
+      corner & 4 ? queried.max.z : queried.min.z,
+    ).project(camera);
+    screen.expandByPoint(
+      new THREE.Vector2(
+        ((point.x + 1) / 2) * drawn.canvas.width,
+        ((1 - point.y) / 2) * drawn.canvas.height,
+      ),
+    );
+  }
   return {
     png: drawn.png,
     capturedUtc: drawn.capturedUtc,
@@ -93,6 +118,16 @@ export function captureHumanPageFrame(
         intensity: context.hemisphere.intensity,
       },
       renderer: drawn.renderer,
+      query: {
+        bounds: {
+          min: queried.min.toArray(),
+          max: queried.max.toArray(),
+        },
+        screen: { min: screen.min.toArray(), max: screen.max.toArray() },
+      },
+      timing: { displayMilliseconds, poseMilliseconds, ...drawn.timing },
+      calls: { ...context.calls },
+      articulation: model.articulation(),
     },
   };
 }
@@ -133,5 +168,8 @@ export namespace captureHumanPageFrame {
       perspective: THREE.PerspectiveCamera;
       orthographic: THREE.OrthographicCamera;
     };
+
+    /** Page-lifetime call counts, reported with the frame. */
+    calls: IHumanViewerPage.ICalls;
   }
 }
