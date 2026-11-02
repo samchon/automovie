@@ -417,9 +417,15 @@ export namespace AutoMovieHumanArmConstruction {
   /**
    * Walk the bones and build the tube and its section planes.
    *
-   * The parameter is the hand's station `-a` up to where the heel has become the
-   * bone's tube, and past it the walk's distance back toward the shoulder, so it
-   * rises from the hand to the shoulder.
+   * The parameter is the hand's station `-a` up to the wrist crease, and past it
+   * the walk's distance back toward the shoulder, so it rises from the hand to
+   * the shoulder. The tube runs down to the crease, where the wrist tape is
+   * taken and the arm is narrowest, and hands over to the hand's skin across
+   * the heel, from the crease to the branch: a handover reaching above the
+   * crease swells the wrist toward the heel's girth, and one ending at the
+   * thenar steps out of the wrist. Toward the wrist the tube's long axis lies
+   * along the hand's breadth, so the wrist is flat where the radius and ulna
+   * lie side by side.
    *
    * @param elbow The skeleton's elbow in the left frame; the walk turns there.
    *   Absent, the walk starts on the shoulder ring.
@@ -449,8 +455,10 @@ export namespace AutoMovieHumanArmConstruction {
     const total: number = upper + lower;
     const soft: number = (prior.softness * inputs.elbow) / (2 * Math.PI);
 
-    // The walk: each step follows the heading from the point before it.
-    const count: number = Math.ceil((total + 40 * inputs.scale) / WALK) + 1;
+    // The walk: each step follows the heading from the point before it, and
+    // runs on past the wrist through the heel, whose cuts meet it up to where
+    // the thenar starts.
+    const count: number = Math.ceil((total + RUN_ON * inputs.scale) / WALK) + 1;
     const start: Vec3 = [
       ring.centre[0],
       ring.centre[1] + SEAT * inputs.scale,
@@ -550,7 +558,13 @@ export namespace AutoMovieHumanArmConstruction {
       const t: Vec3 = heading(prior, s, upper, soft);
       const f: Vec3 = across([1, 0, 0], t);
       const g: Vec3 = cross(t, f);
-      const turn: number = prior.wristTurn * smooth((u - 0.6) / 0.4);
+      // Toward the wrist the long axis turns onto the hand's breadth, where
+      // the radius and ulna lie side by side.
+      const breadth: Vec3 = across([...AutoMovieHumanArmPrior.PRIOR.hand.across], t);
+      let lie: number = Math.atan2(dot(breadth, g), dot(breadth, f));
+      if (lie > Math.PI / 2) lie -= Math.PI;
+      if (lie <= -Math.PI / 2) lie += Math.PI;
+      const turn: number = lie * smooth((u - 0.6) / 0.4);
       const a: number = r * Math.sqrt(aspect) * Math.cos(theta - turn);
       const b: number = (r / Math.sqrt(aspect)) * Math.sin(theta - turn);
       const x: number = a * Math.cos(turn) - b * Math.sin(turn);
@@ -619,8 +633,16 @@ export namespace AutoMovieHumanArmConstruction {
       handPoint(q, hand, inputs.circumference, inputs.scale, origin);
     const bowl: number = omega();
 
-    // A section of the heel at station a: the bone's tube handing over to the
-    // hand's skin, in the plane square to the hand.
+    // The crease: hand length runs from it, and the origin-to-tip measure is
+    // `lengthRatio` of that length, read in the mean hand's units.
+    const creaseAt: number =
+      -handPrior.size.length * (1 / handPrior.lengthRatio - 1);
+    const branchAt: number = handPrior.branch;
+
+    // A section of the heel at station a: the bone's tube up to the crease,
+    // handing over to the hand's skin across the whole heel, from the crease
+    // to the branch where the palm and thumb part, in the plane square to the
+    // hand.
     const heel = (a: number, t: number): Vec3 => {
       const shape: IForm = form();
       const whole: Vec3 = wholeSkin(shape.whole, a, bowl - t);
@@ -634,9 +656,7 @@ export namespace AutoMovieHumanArmConstruction {
         whole[1] + closing * (opening[1] - whole[1]),
         whole[2] + closing * (opening[2] - whole[2]),
       ]);
-      const v: number = smoother(
-        (a - prior.blend[0]!) / (prior.blend[1]! - prior.blend[0]!),
-      );
+      const v: number = smoother((a - creaseAt) / (branchAt - creaseAt));
       if (v === 1) return skin;
       const bone: Vec3 = cut(map([a, 0, 0]), square, angle(t));
       return [
@@ -646,10 +666,10 @@ export namespace AutoMovieHumanArmConstruction {
       ];
     };
 
-    // Where the heel has become the tube the planes leave the hand's axis and
-    // follow the walk: the parameter runs on as the walk's distance back.
-    const join: number = -prior.blend[0]!;
-    const joinWalk: number = crossing(map([prior.blend[0]!, 0, 0]), square);
+    // Above the crease the planes leave the hand's axis and follow the walk:
+    // the parameter runs on as the walk's distance back.
+    const join: number = -creaseAt;
+    const joinWalk: number = crossing(map([creaseAt, 0, 0]), square);
     const topWalk: number = heightAt(top);
     const walkOf = (q: number): number => joinWalk - (q - join);
     const normal = (q: number): Vec3 => {
@@ -696,7 +716,7 @@ export namespace AutoMovieHumanArmConstruction {
     // Layers: the heel's own stations in the hand, then the forearm's above
     // the join, then the tube's heights up to the shoulder's level ring.
     const layers: number[] = prior.heel
-      .filter((a: number): boolean => a > prior.blend[0]!)
+      .filter((a: number): boolean => a > creaseAt)
       .map((a: number): number => -a)
       .sort((p: number, q: number): number => p - q);
     for (const step of FOREARM_LAYERS) layers.push(join + step * inputs.scale);
@@ -708,10 +728,6 @@ export namespace AutoMovieHumanArmConstruction {
     }
     layers.push(qTop);
 
-    // The crease: hand length runs from it, and the origin-to-tip measure is
-    // `lengthRatio` of that length, read in the mean hand's units.
-    const creaseAt: number =
-      -handPrior.size.length * (1 / handPrior.lengthRatio - 1);
     const creaseRing: Vec3[] = Array.from(
       { length: CREASE_PHASES },
       (_: unknown, i: number): Vec3 =>
@@ -2019,6 +2035,9 @@ const SEAT: number = 8.5;
 
 /** Step of the walk along the bones, mm. */
 const WALK: number = 1;
+
+/** Length of the walk past the wrist, world mm: beyond the heel's last cut. */
+const RUN_ON: number = 120;
 
 /** A whole turn. */
 const TWO_PI: number = 2 * Math.PI;
