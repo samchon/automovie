@@ -2,6 +2,7 @@ import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoft
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
+import type { AutoMovieHumanMeasurementProtocol } from "./AutoMovieHumanMeasurementProtocol";
 
 /**
  * Shared shape coefficients (theta) of the generated body surface.
@@ -57,6 +58,14 @@ export interface IAutoMovieHumanBodyCalibration {
    * by `AutoMovieHumanSkeletonLaw`. Absent on a calibration still being built.
    */
   skeleton?: AutoMovieHumanSkeletonLaw.IBone[];
+
+  /**
+   * Owned bind-pose geometric measurement addresses, established before skin
+   * closure. Their model-convention provenance does not certify equivalence
+   * to native reference courses or to clinical measurements. No target sizes
+   * or solved shape coefficients are stored here.
+   */
+  measurementSites?: AutoMovieHumanMeasurementProtocol.ISites;
 
   /**
    * The mouth behind the `mouth` aperture: the lips' contact line, the teeth,

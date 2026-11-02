@@ -23,7 +23,8 @@ import { inflateTubeGeometry } from "./inflateTubeGeometry";
  * look. This class knows no part ids: whatever rules decide the overrides, such
  * as the Human page's pass and curve selection, live in the closure. Each
  * {@link ModelPartStyling.apply} first restores every mesh to the material,
- * geometry, visibility and render order `buildModel` gave it, then derives new
+ * visibility and render order `buildModel` gave it and restores only geometry
+ * this styling owner derived, preserving an instance's expression buffers, then derives new
  * ones, so successive styles never compound. Derived materials are shared by
  * every part with the same source material and override values; derived
  * geometry is per mesh.
@@ -228,7 +229,7 @@ export class ModelPartStyling {
   }
 
   /**
-   * Restore the originals and release every derived material and geometry.
+   * Restore display originals and release styling-owned material and geometry.
    *
    * @evidence contracts/common.md#principled-implementation Puts back the recorded material, geometry, render order and visibility before disposing derived copies, so no mesh keeps a disposed resource.
    * @evidence contracts/common.md#clear-and-simple-design The inverse of apply, used by the model owner on retirement.
@@ -246,7 +247,7 @@ export class ModelPartStyling {
   private restore(): void {
     for (const entry of this.meshes) {
       entry.mesh.material = entry.material;
-      if (entry.mesh.geometry !== entry.geometry) {
+      if (this.derived.includes(entry.mesh.geometry)) {
         entry.mesh.geometry = entry.geometry;
         invalidateAutoMovieSkinnedPose(entry.mesh);
       }

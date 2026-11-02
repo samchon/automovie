@@ -88,13 +88,13 @@ export interface IHumanViewerPage {
   /**
    * Serialize the displayed generated result as JSON, the `/human-images/<alias>.model.json` publication.
    *
-   * @returns `JSON.stringify` of `{ parameters, model }`; throws when nothing is loaded.
+   * @returns Float32-compatible mesh JSON of `{ parameters, model }`; throws when nothing is loaded.
    *
-   * @evidence contracts/common.md#principled-implementation Serializes the exact displayed result, so the publication and the PNGs share one model.
+   * @evidence contracts/common.md#principled-implementation Preserves the displayed model's Float32 mesh attribute bits and original JSON values of parameters, transforms, rig, indices, materials and images; model commitments refer to the parsed wire representation rather than the original double graph.
    * @evidence contracts/common.md#clear-and-simple-design The worker reads the publication through this one call.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Throws when nothing is loaded instead of returning an old model.
-   * @evidence contracts/common.md#meaningful-documentation States the payload shape.
-   * @evidence contracts/performance.md#efficient-algorithms O(model size); tens of megabytes for the current generator.
+   * @evidence contracts/common.md#meaningful-documentation States the payload shape, mesh precision and commitment domain.
+   * @evidence contracts/performance.md#efficient-algorithms O(model size), including one checked decimal candidate for each Float32 mesh scalar.
    * @evidence contracts/performance.md#reuse-equivalent-work Called once per generation by the worker.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one string owned by the caller.
    */

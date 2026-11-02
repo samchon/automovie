@@ -36,8 +36,8 @@ export function test_human_trunk_measurement(): void {
   const coefficients: number[] = AutoMovieHumanSplineCurve.interpolate(Array.from({ length: count }, (_: unknown, j: number): [number, number] => [20 * Math.cos(2 * Math.PI * j / count), 20 * Math.sin(2 * Math.PI * j / count)]));
   const zero: number[] = coefficients.map((): number => 0);
   const chain: Chain = { name: "synthetic lifted tube", basis: "spline", order: count, samples: 512, rule: "polar", layers: [
-    { y: 0, coefficients, slopes: zero, lift: Array<number>(count).fill(0), liftSlopes: Array<number>(count).fill(0), liftCurvatures: Array<number>(count).fill(0.01) },
-    { y: 100, coefficients, slopes: zero, lift: Array<number>(count).fill(20), liftSlopes: Array<number>(count).fill(0), liftCurvatures: Array<number>(count).fill(0.02) },
+    { y: 0, coefficients, slopes: zero, lift: new Array<number>(count).fill(0), liftSlopes: new Array<number>(count).fill(0), liftCurvatures: new Array<number>(count).fill(0.01) },
+    { y: 100, coefficients, slopes: zero, lift: new Array<number>(count).fill(20), liftSlopes: new Array<number>(count).fill(0), liftCurvatures: new Array<number>(count).fill(0.02) },
   ] };
   const expected: (station: number) => number = (station: number): number => {
     const u: number = station / 100;
@@ -72,7 +72,7 @@ export function test_human_trunk_measurement(): void {
     coefficients: coefficients.map((value: number): number => value * (20 + s / 10) / 20),
     slopes: coefficients.map((value: number): number => value / 200),
     lift: AutoMovieHumanSplineCurve.interpolate(Array.from({ length: count }, (_: unknown, j: number): [number, number] => [40 * Math.cos(2 * Math.PI * j / count), 0])).slice(0, count),
-    liftSlopes: Array<number>(count).fill(0),
+    liftSlopes: new Array<number>(count).fill(0),
   })) };
   const actual: number = Tape.perimeter(Horizontal.points([tilted], 50, 1024).map((point: [number, number, number]): Tape.Point => [point[0], point[2]]));
   const projected: number = Tape.perimeter(After.ring(tilted, 50, Array.from({ length: 1024 }, (_: unknown, i: number): number => 2 * Math.PI * i / 1024)).map((point: [number, number, number]): Tape.Point => [point[0], point[2]]));
@@ -80,7 +80,7 @@ export function test_human_trunk_measurement(): void {
   assert("tilted projection is red", Math.abs(projected - independent) > 0.9);
   assert("actual horizontal plane is green", Math.abs(actual - independent) < 0.002);
 
-  const hidden: Chain = { ...tilted, layers: tilted.layers.map((layer: Chain.ILayer): Chain.ILayer => ({ ...layer, lift: Array<number>(count).fill(0), liftSlopes: Array<number>(count).fill(0), liftCurvatures: Array<number>(count).fill(0.01) })) };
+  const hidden: Chain = { ...tilted, layers: tilted.layers.map((layer: Chain.ILayer): Chain.ILayer => ({ ...layer, lift: new Array<number>(count).fill(0), liftSlopes: new Array<number>(count).fill(0), liftCurvatures: new Array<number>(count).fill(0.01) })) };
   let low: number = 0;
   let high: number = 100;
   for (let k: number = 0; k < 80; k++) {

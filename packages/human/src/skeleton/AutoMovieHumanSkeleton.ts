@@ -1,3 +1,4 @@
+import { AutoMovieHumanShoulderTransfer } from "./AutoMovieHumanShoulderTransfer";
 import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanNeckSurface } from "../generation/AutoMovieHumanNeckSurface";
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
@@ -15,8 +16,8 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * body exactly as `AutoMovieHuman.generate` scales the skin (stature control
  * over calibration stature, millimetres to metres), so the rest skeleton
  * overlays the neutral skin. Bones use the engine's humanoid names where the
- * vocabulary has one; the scapula, atlas, subtalar, midfoot and per-toe bones
- * are the Human's own, because the shared humanoid vocabulary lacks them.
+ * vocabulary has one, including its optional scapular articulation; atlas,
+ * subtalar, midfoot and per-toe bones remain Human-specific joints.
  *
  * Three postures stay apart. The bind is the achieved posture the skin was
  * generated in, and `bones` hold it. Neutral is the standing body clinical
@@ -243,8 +244,9 @@ export namespace AutoMovieHumanSkeleton {
 
       // The shoulder's ranges are the whole complex's, so a raised arm brings
       // its girdle along. Only the joint centre and the girdle's skin rise: the
-      // scapula hands the turn back, so the arm keeps the requested direction.
+      // humerus hands the turn back, so the arm keeps the requested direction.
       const lifts: Map<string, number> = new Map();
+      const scapular: Map<string, number> = new Map();
       for (const side of ["left", "right"]) {
         const arm: string = `${side}UpperArm`;
         const r: Record<string, number> | undefined = rig.get(arm);
@@ -262,8 +264,13 @@ export namespace AutoMovieHumanSkeleton {
         );
         const over: number =
           fromVertical(raised) - Math.max(SETTING, fromVertical(direction(arm)));
-        if (over > 0)
-          lifts.set(`${side}Shoulder`, (RHYTHM * over * over) / (over + EASE));
+        if (over > 0) {
+          const clavicle: number = (RHYTHM * over * over) / (over + EASE);
+          const shoulder: string = `${side}Shoulder`;
+          const blade: string = `${side}Scapula`;
+          lifts.set(shoulder, Math.min(clavicle, remaining(shoulder, "abduction", rig.get(shoulder)?.abduction ?? 0)));
+          scapular.set(blade, Math.min(clavicle / CLAVICLE_SCAPULA, remaining(blade, "flexion", rig.get(blade)?.flexion ?? 0)));
+        }
       }
       const handed: Map<string, Quaternion> = new Map();
 
@@ -324,8 +331,16 @@ export namespace AutoMovieHumanSkeleton {
           }
           const back: Quaternion | undefined =
             j.parent === null ? undefined : handed.get(j.parent);
-          if (back !== undefined && j.bone.endsWith("Scapula"))
+          if (back !== undefined && j.bone.endsWith("Scapula")) {
+            // Retain the blade's own rotation and move the compensating turn
+            // to GH. R * Snew * (Snew^-1 R^-1 O Sold) * U = O Sold U,
+            // preserving the requested humeral direction without erasing Snew.
+            const transfer: AutoMovieHumanShoulderTransfer.ITransfer = AutoMovieHumanShoulderTransfer.apply(back, local, a.flexion, scapular.get(j.bone) ?? 0);
+            local = transfer.scapula;
+            handed.set(j.bone, transfer.humerus);
+          } else if (back !== undefined && j.bone.endsWith("UpperArm")) {
             local = Math3D.multiply(back, local);
+          }
           const parent: IPlacement | undefined =
             j.parent === null ? undefined : world.get(j.parent);
           const offset: Vector =
@@ -402,6 +417,9 @@ type IAxes = Math3D.IAxes;
  */
 const RHYTHM: number = 0.2;
 
+/** Existing clavicular fraction of scapular rotation, three fifths (Inman). */
+const CLAVICLE_SCAPULA: number = 3 / 5;
+
 /** Arm elevation from the vertical below which the girdle stays still, degrees. */
 const SETTING: number = 30;
 
@@ -421,4 +439,12 @@ function read(pose: unknown, path: string): number | undefined {
     node = (node as Record<string, unknown>)[key];
   }
   return typeof node === "number" ? node : undefined;
+}
+
+/** Existing clinical channel limit left after an explicit girdle request. */
+function remaining(bone: string, axis: "flexion" | "abduction", explicit: number): number {
+  const canonical: string = bone.replace(/^(left|right)/, "<side>");
+  const channel: (typeof AutoMovieHumanPoseChannels)[number] | undefined = AutoMovieHumanPoseChannels.find((row): boolean => row[1] === canonical && row[2] === axis);
+  if (channel === undefined) throw new Error(`No girdle range for ${bone}.${axis}`);
+  return Math.max(0, channel[5] - explicit);
 }

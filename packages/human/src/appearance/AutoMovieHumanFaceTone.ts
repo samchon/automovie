@@ -61,8 +61,8 @@ export namespace AutoMovieHumanFaceTone {
    * @returns Face, or null without two eyes or head skin
    */
   export function create(
-    input: AutoMovieHumanSkinTone.IInput,
-    chains: Map<string, AutoMovieHumanSkinChart.IOutput[]>,
+    input: Pick<AutoMovieHumanSkinTone.IInput, "eyes" | "apertures" | "vermilion">,
+    chains: Map<string, AutoMovieHumanSkinChart.IPiece[]>,
   ): IOutput | null {
     const left: AutoMovieHumanSkinTone.IEye | undefined = input.eyes.find(
       (e: AutoMovieHumanSkinTone.IEye): boolean => e.side === "left",

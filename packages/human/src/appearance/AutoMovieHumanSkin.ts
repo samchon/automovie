@@ -133,6 +133,7 @@ export namespace AutoMovieHumanSkin {
       AutoMovieHumanSkinChart.generate(props.pieces);
     const tone: AutoMovieHumanSkinTone.IOutput =
       AutoMovieHumanSkinTone.generate({
+        geometry: props.pieces,
         vermilion: props.vermilion,
         pieces,
         eyes: props.eyes,
@@ -309,8 +310,9 @@ export namespace AutoMovieHumanSkin {
       images.push(marks.image);
     }
 
+    // Geometry attachments use the original skin, before chart seam duplication.
     const nails: AutoMovieHumanNail.IOutput = AutoMovieHumanNail.generate(
-      pieces,
+      props.pieces,
       props.scale,
       albedo,
     );

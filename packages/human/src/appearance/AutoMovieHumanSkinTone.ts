@@ -84,7 +84,10 @@ export namespace AutoMovieHumanSkinTone {
   export interface IInput {
     /** Exterior vermilion courses in the same calibration frame. */
     vermilion: AutoMovieHumanVermilion.IBoundary;
-    /** Charted skin pieces in mm. */
+    /** Original geometric skin in mm, before texture seam duplication. */
+    geometry: readonly AutoMovieHumanSkinChart.IPiece[];
+
+    /** Charted skin pieces in mm; outputs retain their vertex order. */
     pieces: readonly AutoMovieHumanSkinChart.IOutput[];
 
     /** Eye globes in mm. */
@@ -151,7 +154,7 @@ export namespace AutoMovieHumanSkinTone {
     const table: AutoMovieHumanSkinPigment.ITable =
       AutoMovieHumanSkinPigment.table(input.pigmentation);
     const landmarks: AutoMovieHumanSkinLandmarks.IOutput =
-      AutoMovieHumanSkinLandmarks.generate(input);
+      AutoMovieHumanSkinLandmarks.generate({ ...input, pieces: input.geometry });
     const colors: number[][] = [];
     const reliefWeights: number[][] = [];
     const shades: number[][] = [];

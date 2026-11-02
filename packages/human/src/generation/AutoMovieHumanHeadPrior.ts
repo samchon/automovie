@@ -12,42 +12,6 @@
 export namespace AutoMovieHumanHeadPrior {
   /** Ratios from public inputs to the construction's own lengths. */
   export interface IRatios {
-    /** Menton above the neck ring, per neck length. */
-    neck: number;
-
-    /** Vertex above the menton, per head height. */
-    height: number;
-
-    /** Eye level above the menton, per face height. */
-    face: number;
-
-    /** Nasion above eye level, per face height. */
-    nasion: number;
-
-    /** Nasion above the nose tip, per nose height. */
-    bridge: number;
-
-    /** Nose tip above the subnasale, per nose height. */
-    tip: number;
-
-    /** Greatest vault length, per head length. */
-    length: number;
-
-    /** Greatest vault breadth, per head breadth. */
-    breadth: number;
-
-    /** Face half-width key, per half face width. */
-    zygomatic: number;
-
-    /** Jaw half-width key, per half mandibular width. */
-    gonial: number;
-
-    /** Forehead half-width key, per half minimum frontal width. */
-    frontal: number;
-
-    /** Tape round the vault, per head circumference. */
-    circumference: number;
-
     /** Skull centre ahead of the neck ring's centre, per neck radius. */
     forward: number;
   }
@@ -177,9 +141,6 @@ export namespace AutoMovieHumanHeadPrior {
 
   /** The face's reliefs. */
   export interface IFace {
-    /** Tip's lead past the subnasale: a line in the protrusion input. */
-    projection: readonly number[];
-
     /** Nose profile along the dorsum: fractions from the tip (0) to the nasion (1). */
     profileKnots: readonly number[];
 
@@ -245,9 +206,6 @@ export namespace AutoMovieHumanHeadPrior {
     /** Oral fissure's depth and half-height. */
     fissure: readonly number[];
 
-    /** Lips' rest gap per mouth opening. */
-    gape: number;
-
     /** Jaw joint's fullness per laterotrusion. */
     joint: number;
 
@@ -265,9 +223,6 @@ export namespace AutoMovieHumanHeadPrior {
 
     /** Globe radius, millimetres. */
     radius: number;
-
-    /** Fissure length on the margin per the length input. */
-    fissureLength: number;
 
     /**
      * Lid margin's harmonics 1 to 3 per coordinate, `[a1, b1, a2, b2, a3, b3]`:
@@ -380,18 +335,6 @@ export namespace AutoMovieHumanHeadPrior {
     knots: [0, 0.35, 0.7, 1, 1.15, 1.3, 1.45, 1.6, 1.8, 2, 2.35, 2.7, 3, 3.25, 3.5, 3.75, 4],
     tilt: [-0.245, 1.3, 0.62, 0.52],
     ratios: {
-      neck: 0.5806,
-      height: 1.0573,
-      face: 1.1399,
-      nasion: 0.0463,
-      bridge: 0.9056,
-      tip: 0.4598,
-      length: 1.0961,
-      breadth: 1.0499,
-      zygomatic: 1.1705,
-      gonial: 1.0144,
-      frontal: 1.6423,
-      circumference: 0.9747,
       forward: 0.8043,
     },
     curves: {
@@ -405,7 +348,6 @@ export namespace AutoMovieHumanHeadPrior {
       squareFace: [-1.4748, -1.5681, -1.6577, -1.7353, -1.7875, -1.7939, -1.734, -1.5756, -1.2081, -0.6686, -0.1866, -0.0073, -0.1909, -0.5242, -0.9098, -1.1608, -1.2314],
     },
     face: {
-      projection: [12.5, 1.1],
       profileKnots: [-0.3, 0, 0.2, 0.55, 1, 1.25],
       profile: [0, 0.82, 0.86, 0.6, 0.2, 0],
       dorsum: [0.7, 0.66, 0.6, 0.52, 0.48, 0.5],
@@ -420,7 +362,6 @@ export namespace AutoMovieHumanHeadPrior {
       vermilion: 1,
       lips: [2.6, 2.8],
       fissure: [1.8, 0.9],
-      gape: 0.012,
       joint: 0.09,
       philtrum: [0.9, 3.2],
       bumps: [
@@ -439,7 +380,6 @@ export namespace AutoMovieHumanHeadPrior {
       eyeRecess: 13.5,
       globeRise: 2.2,
       radius: 11.392,
-      fissureLength: 0.85,
       margin: [
         [-1.6, 1.27, -3.3, -0.14, -0.7, -0.1],
         [0.28, 1, 0.08, 0.01, 0.08, 0.033],

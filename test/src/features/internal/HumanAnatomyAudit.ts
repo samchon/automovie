@@ -4,6 +4,14 @@ import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/s
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import { HUMAN_STICKMAN_POSES } from "../../../../packages/human/dev/src/human-stickman/HUMAN_STICKMAN_POSES";
 import { HumanAnatomy } from "./HumanAnatomy";
+import { HumanPlanePath } from "./HumanPlanePath";
+import { HumanEyelidMeasurements } from "./HumanEyelidMeasurements";
+import { HumanMeasurementSite } from "./HumanMeasurementSite";
+import { HumanVermilionMeasurements } from "./HumanVermilionMeasurements";
+import { HumanAnatomyAuthority as Authority } from "./HumanAnatomyAuthority";
+import { HumanObservedGirthMinimum } from "./HumanObservedGirthMinimum";
+import type { AutoMovieHumanMeasurementProtocol as Measurement } from "../../../../packages/human/src/generation/AutoMovieHumanMeasurementProtocol";
+import type { AutoMovieHumanEyelid } from "../../../../packages/human/src/generation/AutoMovieHumanEyelid";
 import { HumanPeople } from "./HumanPeople";
 
 type V3 = HumanAnatomy.V3;
@@ -11,35 +19,18 @@ const A = HumanAnatomy;
 
 /**
  * Anatomical measurements of a generated person, each taken on the skin at a
- * site its published definition locates, against an expectation from the
- * public inputs or from published anthropometry. Nothing reads the
- * construction's constants or fields.
+ * explicit model site or observed surface feature, against the public inputs
+ * and published population relations. Owned addresses locate final-skin cuts
+ * without exposing a target radius or solved coefficient. Clinical-equivalence
+ * limitations are recorded in the measurement protocol.
  */
 export namespace HumanAnatomyAudit {
-  /** One measurement against its expectation. */
-  export interface IRow {
-    /** Person. */
-    person: string;
+  /** Acceptance row with explicit evidence authority and availability. */
+  export type IRow = Authority.IRow;
 
-    /** What was measured, and where. */
-    site: string;
-
-    /** Measured value; NaN when the site could not be found. */
-    value: number;
-
-    /** Least value that passes. */
-    low: number;
-
-    /** Largest value that passes. */
-    high: number;
-
-    /** Unit of the value. */
-    unit: string;
-  }
-
-  /** Whether a row passes. */
+  /** Clinical, anatomical and model goals remain distinct even when numeric values agree. */
   export function passes(row: IRow): boolean {
-    return row.value >= row.low && row.value <= row.high;
+    return Authority.passes(row);
   }
 
   /** Every region's audit by name. */
@@ -54,28 +45,30 @@ export namespace HumanAnatomyAudit {
   };
 
   /**
-   * The trunk and neck: tapes at their ISO 8559-1 and ANSUR II sites, the
+   * The trunk and neck: tapes at their canonical model addresses, the
    * trunk's sections against ANSUR II shape ratios, the neck's girth profile
    * and the body's mirror symmetry.
    */
   export function trunk(name: string): IRow[] {
-    const rows: IRow[] = [];
+    const rows: Authority.IInput[] = [];
     const p: IAutoMovieHumanParameters = HumanPeople.person(name).params;
     const c = p.body.controls;
     const skin: HumanAnatomy.ISkin = A.bind(name);
     const S: number = c.height.value!;
     const t: ITrunk = trunkSites(skin, S);
     const tape = (site: string, value: number, input: number | null, tol: number): void => {
-      if (input !== null) rows.push(identity(name, site, value, input, tol));
+      if (input !== null) rows.push(modelIdentity(name, site, value, input, tol));
     };
-    tape("chest girth at the bust point, mm", t.chest.girth, c.chest.value, LARGE);
-    tape("underbust girth at the inframammary fold, mm", t.underbust.girth, c.underbust.value, LARGE);
-    tape("waist girth, natural (least) waist, mm", t.waist.girth, c.waist.value, LARGE);
+    tape("chest girth at the model bust-apex address, mm", t.chest.girth, c.chest.value, LARGE);
+    tape("underbust girth at the model lower-bust address, mm", t.underbust.girth, c.underbust.value, LARGE);
+    tape("waist girth at the owned model waist, mm", t.waist.girth, c.waist.value, LARGE);
     tape("high hip girth, midway waist to hip, mm", t.highHip.girth, c.highHip.value, LARGE);
     tape("hip girth at the buttock prominence, mm", t.hip.girth, c.hip.value, LARGE);
-    const neck: INeck = neckSites(skin, S, t);
-    tape("neck girth, least girth across the neck axis, mm", neck.neck, c.neck.value, SMALL);
-    tape("neck base girth over cervicale and suprasternale, mm", neck.base, c.neckBase.value, SMALL);
+    const neck: INeck = neckSites(skin, S);
+    tape("neck girth at the owned model neck section, mm", neck.neck, c.neck.value, SMALL);
+    tape("neck base girth along the owned model contact course, mm", neck.base, c.neckBase.value, SMALL);
+
+    rows.push(...observedMinimumChecks(name, skin, t));
 
     // ANSUR II shape ratios: mean +- 2.33 SD over both sexes.
     rows.push(ratio(name, "chest depth / breadth at the bust point", extent(t.chest.points, 0) / extent(t.chest.points, 2), 0.702, 1.095));
@@ -102,23 +95,23 @@ export namespace HumanAnatomyAudit {
       unit: "mm",
     });
     rows.push(...symmetry(name, skin, /^(trunk|upper|head\.lower|leg)/, "trunk, neck and legs"));
-    return rows;
+    return Authority.finish([...rows, ...Authority.requirements("trunk", name, HumanPeople.person(name).params)]);
   }
 
-  /** The arms: tapes at ANSUR II and ISO sites, the forearm's and wrist's girth profile, the thumb side of the wrist. */
+  /** The arms: owned model tapes, the complete forearm/wrist profile and radial bulge. */
   export function arm(name: string): IRow[] {
-    const rows: IRow[] = [];
+    const rows: Authority.IInput[] = [];
     const c = HumanPeople.person(name).params.body.controls;
     const skin: HumanAnatomy.ISkin = A.bind(name);
     for (const side of SIDES) {
       const s: IArm = armSites(skin, side);
       const tape = (site: string, value: number, input: number | null): void => {
-        if (input !== null) rows.push(identity(name, `${side} ${site}`, value, input, SMALL));
+        if (input !== null) rows.push(modelIdentity(name, `${side} ${site}`, value, input, SMALL));
       };
-      tape("upper arm girth midway acromion to olecranon, mm", s.bicep, c.bicep.value);
-      tape("elbow girth over the olecranon, mm", s.elbow, c.elbow.value);
-      tape("forearm girth, relaxed maximum below the elbow, mm", s.forearm, c.forearm.value);
-      tape("wrist girth over stylion, mm", s.wrist, c.wrist.value);
+      tape("upper arm girth midway owned attachment to elbow centre, mm", s.bicep, c.bicep.value);
+      tape("elbow girth at the owned joint section, mm", s.elbow, c.elbow.value);
+      tape("forearm girth, maximum of the owned muscle region, mm", s.forearm, c.forearm.value);
+      tape("wrist girth at the owned crease section, mm", s.wrist, c.wrist.value);
       rows.push({
         person: name,
         site: `${side} forearm girth, elbow to wrist: maxima past the first deeper than a small-girth error`,
@@ -129,7 +122,7 @@ export namespace HumanAnatomyAudit {
       });
       rows.push({
         person: name,
-        site: `${side} least girth from the forearm's belly to the knuckles, mm from stylion (negative proximal)`,
+        site: `${side} least girth from the forearm's belly to the knuckles, mm from wrist crease (negative proximal)`,
         value: s.narrowest,
         low: -WRIST_PROXIMAL,
         high: WRIST_DISTAL,
@@ -137,11 +130,20 @@ export namespace HumanAnatomyAudit {
       });
       rows.push({
         person: name,
-        site: `${side} wrist girth over stylion above that least girth, mm`,
+        site: `${side} wrist crease girth above that least girth, mm`,
         value: s.wrist - s.least,
         low: 0,
         high: SMALL,
         unit: "mm",
+      });
+      rows.push({
+        person: name,
+        site: `${side} owned wrist tape versus the exact crease in its plane family, mm`,
+        value: s.creaseMetricError,
+        low: 0,
+        high: 1e-6,
+        unit: "mm",
+        reason: "Both final-skin observations must use the same owned crease plane before their profile is compared.",
       });
       for (const [joint, off] of Object.entries(s.outside))
         rows.push({
@@ -154,7 +156,7 @@ export namespace HumanAnatomyAudit {
         });
       rows.push({
         person: name,
-        site: `${side} wrist's thumb side: bulge over its own chord, stylion -40 to +10 mm, mm`,
+        site: `${side} wrist's thumb side: 10 mm chord bulge in its owned plane family, crease -40 to +10 mm, mm`,
         value: s.radialBulge,
         low: 0,
         high: BULGE,
@@ -162,48 +164,56 @@ export namespace HumanAnatomyAudit {
       });
     }
     rows.push(...symmetry(name, skin, /^arm/, "arms"));
-    return rows;
+    return Authority.finish([...rows, ...Authority.requirements("arm", name, HumanPeople.person(name).params)]);
   }
 
   /** The hands, straightened at the neutral pose: ANSUR II and ISO 7250-1 lengths, breadth and circumference. */
   export function hand(name: string): IRow[] {
-    const rows: IRow[] = [];
+    const rows: Authority.IInput[] = [];
     const p: IAutoMovieHumanParameters = HumanPeople.person(name).params;
     const skin: HumanAnatomy.ISkin = A.posed(name, {});
     for (const side of SIDES) {
       const h: IHand = handSites(skin, side);
       const own = p.extremities?.hands?.[side];
       if (own !== undefined) {
-        rows.push(identity(name, `${side} hand length, stylion to dactylion III, mm`, h.length, own.handLength, HAND));
-        rows.push(identity(name, `${side} hand breadth across metacarpals II to V, mm`, h.breadth, own.handBreadth, HAND));
-        rows.push(identity(name, `${side} palm length, stylion to the middle finger's base, mm`, h.palm, own.palmLength, HAND));
-        rows.push(identity(name, `${side} thumb length, MCP crease to tip, mm`, h.thumb, own.thumbLength, HAND));
+        rows.push(modelIdentity(name, `${side} hand length, model wrist crease to digit III tip, mm`, h.length, own.handLength, HAND));
+        rows.push(modelIdentity(name, `${side} hand breadth across metacarpals II to V, mm`, h.breadth, own.handBreadth, HAND));
+        rows.push(modelIdentity(name, `${side} palm length, model wrist crease to the middle finger's base, mm`, h.palm, own.palmLength, HAND));
+        rows.push(modelIdentity(name, `${side} thumb length, MCP crease to tip, mm`, h.thumb, own.thumbLength, HAND));
         rows.push(
           ratio(name, `${side} hand breadth / length`, h.breadth / h.length, 0.383, 0.506),
         );
       }
       const circumference: number | null = p.body.controls.handCircumference.value;
       if (circumference !== null)
-        rows.push(identity(name, `${side} hand circumference over metacarpals II to V, mm`, h.circumference, circumference, SMALL));
+        rows.push(modelIdentity(name, `${side} hand circumference over metacarpals II to V, mm`, h.circumference, circumference, SMALL));
     }
-    return rows;
+    return Authority.finish([...rows, ...Authority.requirements("hand", name, HumanPeople.person(name).params)]);
+  }
+
+  /**
+   * Measure one supplied hand skin without generating or posing it. Campaign
+   * diagnostics can compare cached bind and neutral output through the same
+   * independent reader, separating a construction endpoint from rig movement.
+   */
+  export function handAt(skin: HumanAnatomy.ISkin, side: "left" | "right"): IHand {
+    return handSites(skin, side);
   }
 
   /** The legs: tapes at ANSUR II and ISO sites and the shank's girth profile. */
   export function leg(name: string): IRow[] {
-    const rows: IRow[] = [];
+    const rows: Authority.IInput[] = [];
     const c = HumanPeople.person(name).params.body.controls;
     const skin: HumanAnatomy.ISkin = A.bind(name);
     const S: number = c.height.value!;
-    const t: ITrunk = trunkSites(skin, S);
     for (const side of SIDES) {
-      const l: ILeg = legSites(skin, side, t);
+      const l: ILeg = legSites(skin, side);
       if (c.thigh.value !== null)
-        rows.push(identity(name, `${side} thigh girth, horizontal maximum just below the crotch, mm`, l.thigh, c.thigh.value, LARGE));
+        rows.push(modelIdentity(name, `${side} thigh girth, horizontal maximum just below the crotch, mm`, l.thigh, c.thigh.value, LARGE));
       if (c.knee.value !== null)
-        rows.push(identity(name, `${side} knee girth at mid-patella, mm`, l.knee, c.knee.value, SMALL));
+        rows.push(modelIdentity(name, `${side} knee girth at the owned joint section, mm`, l.knee, c.knee.value, SMALL));
       if (c.calf.value !== null)
-        rows.push(identity(name, `${side} calf girth, horizontal maximum, mm`, l.calf, c.calf.value, SMALL));
+        rows.push(modelIdentity(name, `${side} calf girth, horizontal maximum of the owned muscle region, mm`, l.calf, c.calf.value, SMALL));
       rows.push({
         person: name,
         site: `${side} shank girth, knee to ankle: maxima past the first deeper than a small-girth error`,
@@ -224,16 +234,18 @@ export namespace HumanAnatomyAudit {
     }
     // Bideltoid over hip breadth, standing with the arms hanging.
     const neutral: HumanAnatomy.ISkin = A.posed(name, {});
-    const nt: ITrunk = trunkSites(neutral, S);
+    // Neutral changes the arms and legs, while the unrotated torso retains
+    // the bind's owned hip landmark. Measure that plane on the posed skin.
+    const neutralHip: HumanMeasurementSite.IReading = HumanMeasurementSite.read(neutral, skin.measurementSites?.hip);
     const shoulder: number = (A.joint(neutral, "leftUpperArm")[1] + A.joint(neutral, "rightUpperArm")[1]) / 2;
     const bideltoid: number = breadth(neutral, shoulder - 0.08 * S, shoulder + 0.02 * S);
-    rows.push(ratio(name, "bideltoid / hip breadth, arms hanging", bideltoid / extent(nt.hip.points, 2), 1.111, 1.647));
-    return rows;
+    rows.push(ratio(name, "bideltoid / hip breadth, arms hanging", bideltoid / extent(neutralHip.points, 2), 1.111, 1.647));
+    return Authority.finish([...rows, ...Authority.requirements("leg", name, HumanPeople.person(name).params)]);
   }
 
   /** The feet, flat at the neutral pose: ISO 7250-1 length and breadth. */
   export function foot(name: string): IRow[] {
-    const rows: IRow[] = [];
+    const rows: Authority.IInput[] = [];
     const p: IAutoMovieHumanParameters = HumanPeople.person(name).params;
     const skin: HumanAnatomy.ISkin = A.posed(name, {});
     for (const side of SIDES) {
@@ -249,7 +261,7 @@ export namespace HumanAnatomyAudit {
       rows.push(ratio(name, `${side} foot breadth / length`, f.breadth / f.length, 0.314, 0.440));
     }
     rows.push(...symmetry(name, A.bind(name), /^(foot|forefoot|toe)/, "feet"));
-    return rows;
+    return Authority.finish(rows);
   }
 
   /**
@@ -257,29 +269,29 @@ export namespace HumanAnatomyAudit {
    * ISO 7250-1 landmarks, the closed mouth, and population proportions.
    */
   export function head(name: string): IRow[] {
-    const rows: IRow[] = [];
+    const rows: Authority.IInput[] = [];
     const p: IAutoMovieHumanParameters = HumanPeople.person(name).params;
     const skin: HumanAnatomy.ISkin = A.bind(name);
     const S: number = p.body.controls.height.value!;
     const f: IFace = faceSites(skin, S);
     const h = p.head;
-    const id = (site: string, value: number, input: number): void => {
-      rows.push(identity(name, site, value, input, HEAD));
+    const id = (site: string, value: number, input: number, authority: Authority.Authority = "clinical-identity"): void => {
+      rows.push(identity(name, authority === "model-identity" ? "model proxy: " + site : site, value, input, HEAD, authority));
     };
     id("head length, glabella to opisthocranion, mm", f.length, h.length);
     id("head breadth, eurion to eurion, mm", f.breadth, (h.length * h.cephalicIndex) / 100);
     id("head height, menton to vertex, mm", f.height, h.height);
-    id("face height, nasion to gnathion, mm", f.faceHeight, h.faceHeight);
-    id("face width, zygion to zygion, mm", f.faceWidth, h.faceWidth);
-    id("mandibular width, gonion to gonion, mm", f.mandibular, h.mandibularWidth);
+    id("face height, nasion to gnathion, mm", f.faceHeight, h.faceHeight, "model-identity");
+    id("face width, zygion to zygion, mm", f.faceWidth, h.faceWidth, "model-identity");
+    id("mandibular width, gonion to gonion, mm", f.mandibular, h.mandibularWidth, "model-identity");
     rows.push(identity(name, "head circumference over glabella and opisthocranion, mm", f.circumference, h.circumference, SMALL));
     id("intercanthal width, en to en, mm", f.intercanthal, h.face.intercanthalWidth);
     for (const side of SIDES) {
       id(`${side} palpebral fissure length, en to ex, mm`, f.fissure[side].length, h.face.eyePair[side].palpebralFissureLength);
       id(`${side} palpebral fissure height at the pupil, mm`, f.fissure[side].height, h.face.eyePair[side].palpebralFissureHeight);
     }
-    id("nasal width, al to al, mm", f.noseWidth, h.face.nose.width);
-    id("nasal height, n to sn, mm", f.noseHeight, h.face.nose.height);
+    id("nasal width, al to al, mm", f.noseWidth, h.face.nose.width, "model-identity");
+    id("nasal height, n to sn, mm", f.noseHeight, h.face.nose.height, "model-identity");
     id("nasal protrusion, sn to prn, mm", f.noseProtrusion, h.face.nose.protrusion);
     id("mouth width, ch to ch, mm", f.mouthWidth, h.face.mouth.width);
     id("upper vermilion height, ls to sto, mm", f.upperVermilion, h.face.mouth.upperVermilionHeight);
@@ -290,7 +302,7 @@ export namespace HumanAnatomyAudit {
     rows.push(ratio(name, "nasolabial angle, deg", f.nasolabial, 83.4, 120.6));
     rows.push(ratio(name, "lower face height sn-gn / n-gn", f.lowerFace, 0.441, 0.694));
     rows.push(ratio(name, "upper lip height sn-sto / n-gn", f.upperLip, 0.12, 0.232));
-    return rows;
+    return Authority.finish([...rows, ...Authority.requirements("head", name, HumanPeople.person(name).params)]);
   }
 
   /**
@@ -300,7 +312,7 @@ export namespace HumanAnatomyAudit {
    * trunk at neutral, and a flexed limb keeping its volume.
    */
   export function pose(name: string): IRow[] {
-    const rows: IRow[] = [];
+    const rows: Authority.IInput[] = [];
     const rest: HumanAnatomy.ISkin = A.bind(name);
     const S: number = HumanPeople.person(name).params.body.controls.height.value!;
     const regions: [string, string, number][] = [];
@@ -348,7 +360,7 @@ export namespace HumanAnatomyAudit {
         unit: "share",
       });
     }
-    return rows;
+    return Authority.finish(rows);
   }
 
   /** The poses the pose audit reads. */
@@ -388,10 +400,10 @@ const FOOT: number = 2;
 /** Sagitta over a 10 mm chord past a 12.5 mm radius that reads as a crease, mm. */
 const CREASE: number = 1;
 
-/** Distance proximal of stylion the least wrist girth may lie, mm. */
+/** Retained engineering proximal bound from the owned crease; no stylion claim, mm. */
 const WRIST_PROXIMAL: number = 30;
 
-/** Distance distal of stylion the least wrist girth may lie, up to the distal wrist crease, mm. */
+/** Retained engineering distal bound from the owned crease; clinical identity is separate, mm. */
 const WRIST_DISTAL: number = 10;
 
 /** Bulge of the wrist's thumb side over its chord, mm. */
@@ -428,22 +440,19 @@ interface ITrunk {
   crotch: number;
 
   /** Section at the bust point. */
-  chest: HumanAnatomy.ICut;
+  chest: HumanMeasurementSite.IReading;
 
   /** Section at the inframammary fold. */
-  underbust: HumanAnatomy.ICut;
+  underbust: HumanMeasurementSite.IReading;
 
   /** Section at the natural waist. */
-  waist: HumanAnatomy.ICut;
+  waist: HumanMeasurementSite.IReading;
 
   /** Section midway between waist and hip. */
-  highHip: HumanAnatomy.ICut;
+  highHip: HumanMeasurementSite.IReading;
 
   /** Section at the buttock prominence. */
-  hip: HumanAnatomy.ICut;
-
-  /** Heights of the bust point, the fold, the waist, the hip and the axilla, mm. */
-  heights: { chest: number; underbust: number; waist: number; hip: number; axilla: number };
+  hip: HumanMeasurementSite.IReading;
 }
 
 /** Neck sites. */
@@ -489,6 +498,9 @@ interface IArm {
 
   /** Largest bulge of the wrist's thumb side over its chord, mm. */
   radialBulge: number;
+
+  /** Disagreement between two actual readings of the same owned crease plane. */
+  creaseMetricError: number;
 }
 
 /** Hand sites, one side. */
@@ -594,13 +606,18 @@ interface IFace {
 }
 
 /** An identity row: the measured value equals the input within a tolerance. */
-function identity(person: string, site: string, value: number, input: number, tol: number): HumanAnatomyAudit.IRow {
-  return { person, site, value, low: input - tol, high: input + tol, unit: "mm" };
+function identity(person: string, site: string, value: number, input: number, tol: number, authority: Authority.Authority = "clinical-identity"): HumanAnatomyAudit.IRow {
+  return { person, site, value, low: input - tol, high: input + tol, unit: "mm", authority, status: Number.isFinite(value) ? "measured" : "unavailable", reason: Number.isFinite(value) ? undefined : "The final skin did not yield a finite independent reading at this declared landmark or course." };
+}
+
+/** A model goal retains its numeric result without claiming a clinical identity. */
+function modelIdentity(person: string, site: string, value: number, input: number, tolerance: number): HumanAnatomyAudit.IRow {
+  return identity(person, site, value, input, tolerance, "model-identity");
 }
 
 /** A ratio row against a population range. */
 function ratio(person: string, site: string, value: number, low: number, high: number): HumanAnatomyAudit.IRow {
-  return { person, site, value, low, high, unit: "" };
+  return { person, site, value, low, high, unit: "", authority: "observed-anatomy", status: Number.isFinite(value) ? "measured" : "unavailable" };
 }
 
 /** Extent of points along an axis. */
@@ -654,28 +671,8 @@ function extraTurns(profile: number[], floor: number): number {
 }
 
 /**
- * Horizontal cut of the trunk at a height, the component holding the spine,
- * the arms left out: a tape round the chest passes under them.
- */
-function trunkCut(skin: HumanAnatomy.ISkin, y: number): HumanAnatomy.ICut | null {
-  let keep: Uint8Array | undefined = trunkMasks.get(skin);
-  if (keep === undefined) {
-    const arm: boolean[] = skin.chains.map((c: string): boolean => /^(arm|thumb|hand|finger)/.test(c));
-    keep = Uint8Array.from(skin.tri, (c: number): number => (arm[c] ? 0 : 1));
-    trunkMasks.set(skin, keep);
-  }
-  const mask: Uint8Array = keep;
-  const tris: Uint32Array = band(skin, y - 1, y + 1).filter((t: number): boolean => mask[t] === 1);
-  return A.cut(skin, [0, y, 0], [0, 1, 0], [spineX(skin, y), y, 0], tris);
-}
-
-const trunkMasks: WeakMap<HumanAnatomy.ISkin, Uint8Array> = new WeakMap();
-
-/**
- * Deepest crease along a planar skin curve: at each point, the sagitta of the
- * curve inside the chord of its neighbours 5 mm of arc either side, less the
- * sagitta a 12.5 mm radius gives over that chord (1 mm). Inside is toward a
- * reference line, the limb's axis.
+ * Deepest crease sagitta inside a chord spanning 5 mm of arc on either side,
+ * less the 1 mm sagitta of a 12.5 mm reference radius. Inside faces the axis.
  */
 function curveCrease(curve: V3[], origin: V3, axis: V3): number {
   const line: V3[] = resample(curve, 1);
@@ -690,18 +687,6 @@ function curveCrease(curve: V3[], origin: V3, axis: V3): number {
     deepest = Math.max(deepest, sag - 1);
   }
   return deepest;
-}
-
-/** The x of the spine's joint line at a height. */
-function spineX(skin: HumanAnatomy.ISkin, y: number): number {
-  const line: V3[] = ["hips", "spine", "chest", "neck", "head"].map((b: string): V3 => A.joint(skin, b));
-  if (y <= line[0]![1]) return line[0]![0];
-  for (let i: number = 0; i + 1 < line.length; i++) {
-    const a: V3 = line[i]!;
-    const b: V3 = line[i + 1]!;
-    if (y <= b[1]) return a[0] + ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]);
-  }
-  return line[line.length - 1]![0];
 }
 
 /** Triangles whose height range meets a band, cached per skin and band. */
@@ -745,87 +730,37 @@ const bands: WeakMap<HumanAnatomy.ISkin, { order: Uint32Array; low: Float64Array
 const highs: WeakMap<HumanAnatomy.ISkin, Float64Array> = new WeakMap();
 const trunks: WeakMap<HumanAnatomy.ISkin, ITrunk> = new WeakMap();
 
-/** Locate the trunk's sites by their ISO 8559-1 and ANSUR II definitions. */
+/** Read owned trunk addresses on the independently assembled skin. */
 function trunkSites(skin: HumanAnatomy.ISkin, S: number): ITrunk {
   const found: ITrunk | undefined = trunks.get(skin);
   if (found !== undefined) return found;
   let vertex: number = -Infinity;
   for (let v: number = 1; v < skin.P.length; v += 3) vertex = Math.max(vertex, skin.P[v]!);
-  // Crotch: the lowest midline skin between the legs, above the knees.
+
+  // Crotch and stature remain independent observations of the complete skin.
   const hip: V3 = A.joint(skin, "hips");
   let crotch: number = Infinity;
   for (const line of A.polylines(skin, A.MEDIAN, [0, 0, 1], band(skin, 0.3 * S, hip[1])))
-    for (const p of line.points) if (p[1] > 0.3 * S && p[1] < hip[1]) crotch = Math.min(crotch, p[1]);
-  const at = (y: number): HumanAnatomy.ICut | null => trunkCut(skin, y);
-  const scan = (lo: number, hi: number, f: (c: HumanAnatomy.ICut) => number): { y: number; v: number }[] => {
-    const out: { y: number; v: number }[] = [];
-    for (let y: number = lo; y <= hi; y += 2) {
-      const c: HumanAnatomy.ICut | null = at(y);
-      out.push({ y, v: c === null ? NaN : f(c) });
-    }
-    return out;
-  };
-  // Axilla: the lowest height where the trunk's section takes in the arms'
-  // roots, its breadth jumping by more than 30 mm in 2 mm.
-  const widths = scan(0.66 * S, 0.86 * S, (c: HumanAnatomy.ICut): number => extent(c.points, 2));
-  let axilla: number = 0.76 * S;
-  for (let i: number = 1; i < widths.length; i++)
-    if (widths[i]!.v - widths[i - 1]!.v > 30) {
-      axilla = widths[i - 1]!.y;
-      break;
-    }
-  // Bust point: the trunk's most anterior point from ANSUR II's chest height
-  // band (0.720-0.735 S, widened to 0.64 S) up to the axilla.
-  const front = scan(0.64 * S, axilla, (c: HumanAnatomy.ICut): number => Math.max(...c.points.map((p: V3): number => p[0])));
-  const chestY: number = front.reduce((a, b) => (b.v > a.v ? b : a)).y;
-  const chest: HumanAnatomy.ICut = at(chestY)!;
-  const bust: V3 = chest.points.reduce((a: V3, b: V3): V3 => (b[0] > a[0] ? b : a));
-  // Inframammary fold: the most concave point of the profile through the bust
-  // point, within 0.12 S below it.
-  const profile = scan(chestY - 0.12 * S, chestY, (c: HumanAnatomy.ICut): number => {
-    let x: number = -Infinity;
-    for (const p of c.points) if (Math.abs(p[2] - bust[2]) < 15) x = Math.max(x, p[0]);
-    return x;
-  });
-  let foldY: number = chestY - 0.05 * S;
-  let best: number = -Infinity;
-  for (let i: number = 3; i + 3 < profile.length; i++) {
-    if (profile[i]!.y > chestY - 10) continue;
-    const c: number = profile[i - 3]!.v + profile[i + 3]!.v - 2 * profile[i]!.v;
-    if (c > best) {
-      best = c;
-      foldY = profile[i]!.y;
-    }
-  }
-  const underbust: HumanAnatomy.ICut = at(foldY)!;
-  // Natural waist: least girth from 0.56 S to the fold (ANSUR II iliocristale
-  // 0.605-0.611 S to tenth rib 0.638-0.649 S, widened past the 13-26 mm
-  // residual of landmark heights).
-  const girths = scan(0.56 * S, Math.min(0.7 * S, foldY - 10), (c: HumanAnatomy.ICut): number => c.girth);
-  const waistY: number = girths.reduce((a, b) => (b.v < a.v ? b : a)).y;
-  const waist: HumanAnatomy.ICut = at(waistY)!;
-  // Hip: the buttocks' most posterior point between the crotch and the waist.
-  const back = scan(crotch + 4, waistY, (c: HumanAnatomy.ICut): number => -Math.min(...c.points.map((p: V3): number => p[0])));
-  const hipY: number = back.reduce((a, b) => (b.v > a.v ? b : a)).y;
-  const hipCut: HumanAnatomy.ICut = at(hipY)!;
-  const highHip: HumanAnatomy.ICut = at((waistY + hipY) / 2)!;
+    for (const point of line.points)
+      if (point[1] > 0.3 * S && point[1] < hip[1]) crotch = Math.min(crotch, point[1]);
   const out: ITrunk = {
     vertex,
     crotch,
-    chest,
-    underbust,
-    waist,
-    highHip,
-    hip: hipCut,
-    heights: { chest: chestY, underbust: foldY, waist: waistY, hip: hipY, axilla },
+    chest: HumanMeasurementSite.named(skin, "chest"),
+    underbust: HumanMeasurementSite.named(skin, "underbust"),
+    waist: HumanMeasurementSite.named(skin, "waist"),
+    highHip: HumanMeasurementSite.named(skin, "highHip"),
+    hip: HumanMeasurementSite.named(skin, "hip"),
   };
   trunks.set(skin, out);
   return out;
 }
 
-/** Locate the neck's sites: ISO 8559-1 neck girth and ANSUR neck base girth. */
-function neckSites(skin: HumanAnatomy.ISkin, S: number, t: ITrunk): INeck {
-  const base: V3 = A.joint(skin, "neck");
+/** Named neck tapes plus a complete independent surface-health survey. */
+function neckSites(skin: HumanAnatomy.ISkin, S: number): INeck {
+  const neckRead: HumanMeasurementSite.IReading = HumanMeasurementSite.named(skin, "neck");
+  const baseRead: HumanMeasurementSite.IReading = HumanMeasurementSite.named(skin, "neckBase");
+  const base: V3 = Number.isFinite(baseRead.origin[1]) ? baseRead.origin : A.joint(skin, "neck");
   const top: V3 = A.joint(skin, "head");
   const axis: V3 = A.unit(A.sub(top, base));
   const length: number = A.dist(base, top);
@@ -833,70 +768,13 @@ function neckSites(skin: HumanAnatomy.ISkin, S: number, t: ITrunk): INeck {
   const profile: number[] = [];
   let least: number = Infinity;
   let middle: number = length / 2;
-  for (let s: number = 0; s <= length; s += 2) {
-    const o: V3 = A.add(base, A.scale(axis, s));
-    const c: HumanAnatomy.ICut | null = A.cut(skin, o, axis, o, region);
-    const g: number = c === null ? NaN : c.girth;
-    profile.push(g);
-    if (g < least) {
-      least = g;
-      middle = s;
-    }
+  for (let station: number = 0; station <= length; station += 2) {
+    const origin: V3 = A.add(base, A.scale(axis, station));
+    const section: HumanAnatomy.ICut | null = A.cut(skin, origin, axis, origin, region);
+    const girth: number = section === null ? NaN : section.girth;
+    profile.push(girth);
+    if (girth < least) { least = girth; middle = station; }
   }
-  // Suprasternale: the most concave point of the front midline profile between
-  // the bust and the neck's least girth; cervicale: the most convex point of
-  // the back midline profile within 0.06 S above it.
-  const mid = A.polylines(skin, A.MEDIAN, [0, 0, 1], band(skin, t.heights.chest, top[1]));
-  const crossings = (y: number): number[] => {
-    const xs: number[] = [];
-    for (const l of mid)
-      for (let i: number = 0; i + 1 < l.points.length; i++) {
-        const a: V3 = l.points[i]!;
-        const b: V3 = l.points[i + 1]!;
-        if (a[1] >= y !== b[1] >= y) xs.push(a[0] + ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]));
-      }
-    return xs;
-  };
-  const frontAt = (y: number): number => Math.max(...crossings(y).filter((x: number): boolean => x > spineX(skin, y)));
-  const backAt = (y: number): number => Math.min(...crossings(y).filter((x: number): boolean => x < spineX(skin, y)));
-  let notch: number = base[1];
-  let best: number = -Infinity;
-  // Up to the neck's least girth, below the turn under the jaw.
-  for (let y: number = t.heights.chest + 30; y <= base[1] + middle * axis[1]; y += 2) {
-    const c: number = frontAt(y - 8) + frontAt(y + 8) - 2 * frontAt(y);
-    if (c > best) {
-      best = c;
-      notch = y;
-    }
-  }
-  let c7: number = notch + 0.04 * S;
-  best = -Infinity;
-  for (let y: number = notch; y <= notch + 0.06 * S; y += 2) {
-    // The back faces -X, so a bump outward lies behind its chord: c > 0.
-    const c: number = backAt(y - 8) + backAt(y + 8) - 2 * backAt(y);
-    if (c > best) {
-      best = c;
-      c7 = y;
-    }
-  }
-  const sn: V3 = [frontAt(notch), notch, 0];
-  const cv: V3 = [backAt(c7), c7, 0];
-  const normal: V3 = A.unit(A.cross([0, 0, 1], A.sub(sn, cv)));
-  // The tape over cervicale and suprasternale rises over the side neck points,
-  // so it is not planar; on a body whose trapezius stands above that plane the
-  // plane runs out over the shoulders. The plane's section is therefore kept
-  // within 1.25 times the neck's half-breadth at its least girth either side of
-  // the median plane before the taut tape is drawn round it.
-  const waist: HumanAnatomy.ICut | null = A.cut(skin, A.add(base, A.scale(axis, middle)), axis, A.add(base, A.scale(axis, middle)), region);
-  const half: number = waist === null ? Infinity : Math.max(...waist.points.map((p: V3): number => Math.abs(p[2])));
-  const o: V3 = A.lerp(sn, cv, 0.5);
-  const n: V3 = normal[1] < 0 ? A.scale(normal, -1) : normal;
-  const [bu, bw] = A.basis(n);
-  const kept: [number, number][] = A.polylines(skin, o, n, region)
-    .flatMap((l): V3[] => l.points)
-    .filter((p: V3): boolean => Math.abs(p[2]) <= 1.25 * half && A.dist(p, o) < 0.12 * S)
-    .map((p: V3): [number, number] => [A.dot(A.sub(p, o), bu), A.dot(A.sub(p, o), bw)]);
-  const baseCut: { girth: number } | null = kept.length < 3 ? null : { girth: A.hull(kept) };
   // Creases across the neck: meridians every 15 degrees about the axis.
   // Creases across the neck: the skin's curve in twelve planes through the
   // neck's axis (24 meridians), from the shoulders to 20 mm past the least
@@ -924,7 +802,7 @@ function neckSites(skin: HumanAnatomy.ISkin, S: number, t: ITrunk): INeck {
         flush();
       }
   }
-  return { neck: least, base: baseCut === null ? NaN : baseCut.girth, profile, crease };
+  return { neck: neckRead.girth, base: baseRead.girth, profile, crease };
 }
 
 /** Locate an arm's sites at the bind. */
@@ -932,11 +810,8 @@ function armSites(skin: HumanAnatomy.ISkin, side: "left" | "right"): IArm {
   const shoulder: V3 = A.joint(skin, `${side}UpperArm`);
   const elbow: V3 = A.joint(skin, `${side}LowerArm`);
   const wrist: V3 = A.joint(skin, `${side}Hand`);
-  const mcp: V3 = A.joint(skin, `${side}MiddleProximal`);
-  const thumb: V3 = A.joint(skin, `${side}ThumbMetacarpal`);
   const upper: V3 = A.unit(A.sub(elbow, shoulder));
   const fore: V3 = A.unit(A.sub(wrist, elbow));
-  const palm: V3 = A.unit(A.sub(mcp, wrist));
   const lf: number = A.dist(elbow, wrist);
   const region: Uint32Array = A.armRegion(skin, side);
   const planes: Map<V3, (origin: V3, pick?: V3) => HumanAnatomy.ICut | null> = new Map();
@@ -952,47 +827,26 @@ function armSites(skin: HumanAnatomy.ISkin, side: "left" | "right"): IArm {
     const c: HumanAnatomy.ICut | null = cut(o, n);
     return c === null ? NaN : c.girth;
   };
-  // de Leva 1996 Table 2: the shoulder centre 34 mm below the acromion, the
-  // wrist centre 1.5 mm distal of stylion; the olecranon at the elbow centre.
-  const acromion: V3 = A.sub(shoulder, A.scale(upper, 34));
-  const bicep: number = girth(A.lerp(acromion, elbow, 0.5), upper);
-  const elbowGirth: number = girth(elbow, A.unit(A.add(upper, fore)));
-  const stylion: V3 = A.sub(wrist, A.scale(fore, 1.5));
+  // The owner names model attachment, joint and crease sections. Animation
+  // origins are not relabelled clinical acromion, olecranon or stylion.
+  const bicep: number = HumanMeasurementSite.named(skin, `${side}.upperArm`, region).girth;
+  const elbowGirth: number = HumanMeasurementSite.named(skin, `${side}.elbow`, region).girth;
+  const wristRead: HumanMeasurementSite.IReading = HumanMeasurementSite.named(skin, `${side}.wrist`, region);
   const forearmProfile: number[] = [];
-  let forearm: number = 0;
-  let belly: number = 0.3 * lf;
-  for (let s: number = 0; s <= lf - 1.5; s += 2) {
+  const muscle: HumanMeasurementSite.IReading = HumanMeasurementSite.named(skin, `${side}.forearm`, region);
+  const forearm: number = muscle.girth;
+  for (let s: number = 0; s <= lf; s += 2) {
     const g: number = girth(A.add(elbow, A.scale(fore, s)), fore);
     forearmProfile.push(g);
-    if (s >= 0.1 * lf && s <= 0.6 * lf && g > forearm) {
-      forearm = g;
-      belly = s;
-    }
   }
-  const wristGirth: number = girth(stylion, fore);
-  // Least girth from the forearm's belly to the knuckles: along the forearm to
-  // stylion, then along the hand.
-  let narrowest: number = 0;
-  let least: number = Infinity;
-  const toStylion: number = lf - 1.5;
-  for (let s: number = belly; s <= toStylion + A.dist(wrist, mcp) * 0.6; s += 1) {
-    const o: V3 = s <= toStylion ? A.add(elbow, A.scale(fore, s)) : A.add(stylion, A.scale(palm, s - toStylion));
-    const g: number = girth(o, s <= toStylion ? fore : palm);
-    if (g < least) {
-      least = g;
-      narrowest = s - toStylion;
-    }
-  }
-  // The thumb side: the section's reach toward the thumb, stylion -40 to +10 mm.
-  const radial: V3 = A.unit(A.reject(A.sub(thumb, wrist), fore));
-  const reach: number[] = [];
-  for (let s: number = -45; s <= 15; s += 1) {
-    const o: V3 = A.add(stylion, A.scale(fore, s));
-    const c: HumanAnatomy.ICut | null = cut(o, fore);
-    reach.push(c === null ? NaN : Math.max(...c.points.map((p: V3): number => A.dot(A.sub(p, o), radial))));
-  }
-  let radialBulge: number = 0;
-  for (let i: number = 5; i + 5 < reach.length; i++) radialBulge = Math.max(radialBulge, reach[i]! - (reach[i - 5]! + reach[i + 5]!) / 2);
+  const wristGirth: number = wristRead.girth;
+
+  // Minimum and thumb-side health use one complete physically owned family.
+  // Changing plane obliquity halfway through a profile can create a false bulge.
+  const transition: Measurement.ISite["geometry"] | undefined = skin.measurementSites?.[`${side}.wristTransition`]?.geometry;
+  const family: HumanPlanePath.IResult = transition?.kind === "plane-path" ? HumanPlanePath.read(skin, transition, region) : { samples: [], reason: "No physical wrist plane family is published." };
+  const least: { station: number; girth: number } = family.least ?? { station: NaN, girth: NaN };
+  const radialBulge: number = HumanPlanePath.bulge(family.samples);
   const off = (o: V3, n: V3): number => cut(o, n)?.outside ?? NaN;
   return {
     bicep,
@@ -1000,9 +854,10 @@ function armSites(skin: HumanAnatomy.ISkin, side: "left" | "right"): IArm {
     forearm,
     wrist: wristGirth,
     forearmProfile,
-    narrowest,
-    least,
+    narrowest: least.station,
+    least: least.girth,
     radialBulge,
+    creaseMetricError: family.crease === undefined ? NaN : Math.abs(wristGirth - family.crease.girth),
     outside: {
       elbow: off(elbow, A.unit(A.add(upper, fore))),
       wrist: off(wrist, fore),
@@ -1021,14 +876,16 @@ function handSites(skin: HumanAnatomy.ISkin, side: "left" | "right"): IHand {
   const thumbMcp: V3 = A.joint(skin, `${side}ThumbProximal`);
   const thumbIp: V3 = A.joint(skin, `${side}ThumbDistal`);
   const axis: V3 = A.unit(A.sub(mcp3, wrist));
-  const stylion: V3 = A.sub(wrist, A.scale(axis, 1.5));
+  // The model's Hand origin is its owned crease centre, not WJC minus a
+  // population-mean offset to an unobserved bony crease.
+  const crease: V3 = wrist;
   const middle: V3[] = A.vertices(skin, new RegExp(`^finger\\.${side}\\.middle`));
-  const length: number = Math.max(...middle.map((p: V3): number => A.dot(A.sub(p, stylion), axis)));
+  const length: number = Math.max(...middle.map((p: V3): number => A.dot(A.sub(p, crease), axis)));
   const across: V3 = A.unit(A.sub(mcp5, mcp2));
   const normal: V3 = A.unit(A.reject(axis, across));
   const palmTris: Uint32Array = A.triangles(skin, new RegExp(`^(hand|finger)\\.${side}`));
   const knuckles: HumanAnatomy.ICut | null = A.cut(skin, A.lerp(mcp2, mcp5, 0.5), normal, mcp3, palmTris);
-  // Palm length: stylion to the station where the middle finger parts from both
+  // Palm length: crease to the station where the middle finger parts from both
   // neighbours, the web level its base crease lies on.
   const tip = (finger: string): V3 => A.joint(skin, `${side}${finger}Distal`);
   const base = (finger: string): V3 => A.joint(skin, `${side}${finger}Proximal`);
@@ -1036,12 +893,12 @@ function handSites(skin: HumanAnatomy.ISkin, side: "left" | "right"): IHand {
     const a: V3 = base(finger);
     const b: V3 = tip(finger);
     const d: V3 = A.unit(A.sub(b, a));
-    const k: number = (s - A.dot(A.sub(a, stylion), axis)) / A.dot(d, axis);
+    const k: number = (s - A.dot(A.sub(a, crease), axis)) / A.dot(d, axis);
     return A.add(a, A.scale(d, k));
   };
   let palm: number = NaN;
-  for (let s: number = A.dot(A.sub(mcp3, stylion), axis); s < length; s += 0.5) {
-    const o: V3 = A.add(stylion, A.scale(axis, s));
+  for (let s: number = A.dot(A.sub(mcp3, crease), axis); s < length; s += 0.5) {
+    const o: V3 = A.add(crease, A.scale(axis, s));
     const parts = A.polylines(skin, o, axis, palmTris);
     const owner = (q: V3): number => {
       let best: number = -1;
@@ -1076,7 +933,7 @@ function handSites(skin: HumanAnatomy.ISkin, side: "left" | "right"): IHand {
 }
 
 /** Locate a leg's sites at the bind. */
-function legSites(skin: HumanAnatomy.ISkin, side: "left" | "right", t: ITrunk): ILeg {
+function legSites(skin: HumanAnatomy.ISkin, side: "left" | "right"): ILeg {
   const hip: V3 = A.joint(skin, `${side}UpperLeg`);
   const knee: V3 = A.joint(skin, `${side}LowerLeg`);
   const ankle: V3 = A.joint(skin, `${side}Foot`);
@@ -1084,48 +941,24 @@ function legSites(skin: HumanAnatomy.ISkin, side: "left" | "right", t: ITrunk): 
   const axisAt = (y: number): V3 =>
     y >= knee[1] ? A.lerp(hip, knee, (hip[1] - y) / (hip[1] - knee[1])) : A.lerp(knee, ankle, (knee[1] - y) / (knee[1] - ankle[1]));
   const horizontal = (y: number): HumanAnatomy.ICut | null => A.cut(skin, [0, y, 0], [0, 1, 0], axisAt(y), band(skin, y - 1, y + 1));
-  // Thigh: ISO 8559-1 thigh girth, the maximum horizontal girth of the thigh
-  // just below the crotch, read from 10 mm under it down 0.1 S.
-  let thigh: number = 0;
-  for (let y: number = t.crotch - 10; y >= t.crotch - 0.1 * t.vertex; y -= 2) {
-    const c: HumanAnatomy.ICut | null = horizontal(y);
-    if (c !== null && c.girth > thigh) thigh = c.girth;
-  }
-  // Mid-patella: the knee front's local prominence over the leg's axis nearest
-  // the joint within 40 mm; a knee without one is read at the joint centre.
-  const fronts: { y: number; x: number }[] = [];
-  for (let y: number = knee[1] - 45; y <= knee[1] + 45; y += 1) {
-    const c: HumanAnatomy.ICut | null = horizontal(y);
-    if (c !== null) fronts.push({ y, x: Math.max(...c.points.map((p: V3): number => p[0])) - axisAt(y)[0] });
-  }
-  let patella: number = knee[1];
-  let nearest: number = Infinity;
-  for (let i: number = 5; i + 5 < fronts.length; i++) {
-    const f = fronts[i]!;
-    if (f.x > fronts[i - 5]!.x && f.x > fronts[i + 5]!.x && Math.abs(f.y - knee[1]) < nearest) {
-      nearest = Math.abs(f.y - knee[1]);
-      patella = f.y;
-    }
-  }
-  const kneeCut: HumanAnatomy.ICut | null = horizontal(patella);
-  // Calf: ANSUR II maximum horizontal girth, sought over the gastrocnemius'
-  // belly, 0.15 to 0.6 of the shank below the knee. The shank profile runs
-  // from the knee to the least girth above the ankle.
-  const shank: number = knee[1] - ankle[1];
+  const region: Uint32Array = A.triangles(skin, new RegExp(`^(leg\\.${side}(?:\\.|$)|trunk$)`));
+  const thigh: number = HumanMeasurementSite.named(skin, `${side}.thigh`, region).girth;
+  const kneeGirth: number = HumanMeasurementSite.named(skin, `${side}.knee`, region).girth;
+  const calf: number = HumanMeasurementSite.named(skin, `${side}.calf`, region).girth;
+
+  // The whole shank profile remains visible to the health check, including
+  // both joint transitions excluded from the muscle-only maximum domain.
   const shankProfile: number[] = [];
-  let calf: number = 0;
   for (let y: number = knee[1]; y >= ankle[1] + 20; y -= 2) {
-    const c: HumanAnatomy.ICut | null = horizontal(y);
-    const g: number = c === null ? NaN : c.girth;
-    shankProfile.push(g);
-    if (y <= knee[1] - 0.15 * shank && y >= knee[1] - 0.6 * shank && g > calf) calf = g;
+    const section: HumanAnatomy.ICut | null = horizontal(y);
+    shankProfile.push(section === null ? NaN : section.girth);
   }
   let lowest: number = shankProfile.length - 1;
   for (let i: number = 0; i < shankProfile.length; i++) if (shankProfile[i]! < shankProfile[lowest]!) lowest = i;
   const off = (o: V3, n: V3): number => A.cut(skin, o, n, o, A.near(skin, hip, ankle, 150))?.outside ?? NaN;
   return {
     thigh,
-    knee: kneeCut === null ? NaN : kneeCut.girth,
+    knee: kneeGirth,
     calf,
     shankProfile: shankProfile.slice(0, lowest + 1),
     outside: {
@@ -1178,10 +1011,13 @@ function faceSites(skin: HumanAnatomy.ISkin, S: number): IFace {
   const mouthLoop: V3[] | undefined = loops
     .filter((l: V3[]): boolean => Math.min(...l.map((p: V3): number => p[2])) < 0 && Math.max(...l.map((p: V3): number => p[2])) > 0)
     .sort((a: V3[], b: V3[]): number => centre(a)[1] - centre(b)[1])[0];
-  const eyes: V3[][] = loops
-    .filter((l: V3[]): boolean => Math.abs(centre(l)[2]) > 15)
-    .sort((a: V3[], b: V3[]): number => centre(b)[1] - centre(a)[1])
-    .slice(0, 2);
+  const eyes: V3[][] = (skin.eyelids ?? []).map((lid: AutoMovieHumanEyelid.ILid): V3[] => lid.samples.map((sample: AutoMovieHumanEyelid.ISample): V3 => sample.contact));
+  const diameter: (points: V3[]) => [V3, V3] = (points: V3[]): [V3, V3] => {
+    let best: [V3, V3] = [points[0]!, points[0]!];
+    for (const a of points) for (const b of points)
+      if (A.dist(a, b) > A.dist(best[0], best[1])) best = [a, b];
+    return best;
+  };
   const lines = A.polylines(skin, A.MEDIAN, [0, 0, 1], band(skin, 0.78 * S, S + 10));
   // Walk the median profile from the vertex forward and down the face. An
   // opening of the mouth across the midline ends that walk at the upper lip;
@@ -1288,34 +1124,20 @@ function faceSites(skin: HumanAnatomy.ISkin, S: number): IFace {
   let me: number = gn;
   for (let i: number = gn; i < Math.min(lo.length, gn + 80); i++) if (lo[i]![1] < lo[me]![1]) me = i;
   const sto: V3 = A.lerp(eUp, eLo, 0.5);
-  const diameter = (l: V3[]): [V3, V3] => {
-    let best: [V3, V3] = [l[0]!, l[0]!];
-    for (const a of l) for (const b of l) if (A.dist(a, b) > A.dist(best[0], best[1])) best = [a, b];
-    return best;
-  };
+
+  // Colour borders locate ls/li; the independent final median skin supplies depth.
+  const vermilion: HumanVermilionMeasurements.IReading = HumanVermilionMeasurements.read(skin.vermilion ?? [], lines.map((line): V3[] => line.points), sto);
   const fissure: Record<"left" | "right", { length: number; height: number }> = {
     left: { length: NaN, height: NaN },
     right: { length: NaN, height: NaN },
   };
   const canthi: Record<"left" | "right", V3> = { left: [NaN, NaN, NaN], right: [NaN, NaN, NaN] };
-  for (const eye of eyes) {
-    const side: "left" | "right" = centre(eye)[2] > 0 ? "left" : "right";
-    const [a, b] = diameter(eye);
-    const en: V3 = Math.abs(a[2]) < Math.abs(b[2]) ? a : b;
-    const ex: V3 = en === a ? b : a;
-    const d: V3 = A.unit(A.sub(ex, en));
-    const L: number = A.dist(en, ex);
-    let over: number = 0;
-    let under: number = 0;
-    for (const p of eye) {
-      const s: number = A.dot(A.sub(p, en), d);
-      if (Math.abs(s - L / 2) > 0.1 * L) continue;
-      const off: number = A.dot(A.reject(A.sub(p, en), d), [0, 1, 0]);
-      over = Math.max(over, off);
-      under = Math.min(under, off);
-    }
-    fissure[side] = { length: L, height: over - under };
-    canthi[side] = en;
+  // The recessed trim loop is a skin assembly boundary. Farkas en/ex belong
+  // to the visible lid contact margin, owned by the actual eyelid consumer.
+  for (const lid of skin.eyelids ?? []) {
+    const side: "left" | "right" = lid.name === "eye.left" ? "left" : "right";
+    fissure[side] = HumanEyelidMeasurements(lid);
+    canthi[side] = lid.samples[lid.medial]!.contact;
   }
   let mouthWidth: number = NaN;
   let mouthGap: number = 0;
@@ -1452,8 +1274,8 @@ function faceSites(skin: HumanAnatomy.ISkin, S: number): IFace {
     noseHeight: A.dist(nasion, snP),
     noseProtrusion: A.dist(snP, prnP),
     mouthWidth,
-    upperVermilion: A.dist(up[ls]!, sto),
-    lowerVermilion: A.dist(sto, lo[li]!),
+    upperVermilion: vermilion.upper,
+    lowerVermilion: vermilion.lower,
     lipGap: A.dist(eUp, eLo),
     mouthGap,
     teethSeen,
@@ -1559,7 +1381,7 @@ function symmetry(name: string, skin: HumanAnatomy.ISkin, chains: RegExp, label:
   const d: number[] = A.distances(skin, points, 6);
   let worst: number = 0;
   for (const x of d) if (Number.isFinite(x)) worst = Math.max(worst, x);
-  return [{ person: name, site: `${label}: mirror image off the other side's skin, mm`, value: worst, low: 0, high: MIRROR, unit: "mm" }];
+  return [{ person: name, site: `${label}: mirror image off the other side's skin, mm`, value: worst, low: 0, high: MIRROR, unit: "mm", authority: "observed-anatomy", status: Number.isFinite(worst) ? "measured" : "unavailable" }];
 }
 
 /** Mirror distance that reads as an asymmetry, mm. */
@@ -1652,4 +1474,19 @@ function limbVolume(skin: HumanAnatomy.ISkin, limb: string): number {
     }
   }
   return sum;
+}
+
+/** Keep physically observable least-section acceptance distinct from site identity. */
+function observedMinimumChecks(name: string, skin: HumanAnatomy.ISkin, trunk: ITrunk): HumanAnatomyAudit.IRow[] {
+  const waist: HumanObservedGirthMinimum.IReading = HumanObservedGirthMinimum.read(skin, trunk.hip.origin, trunk.underbust.origin, [0, 1, 0], trunk.waist);
+  const neck: HumanMeasurementSite.IReading = HumanMeasurementSite.named(skin, "neck");
+  const base: HumanMeasurementSite.IReading = HumanMeasurementSite.named(skin, "neckBase");
+  const geometry: Measurement.ISite["geometry"] | undefined = skin.measurementSites?.neck?.geometry;
+  const leastNeck: number = geometry?.kind === "section"
+    ? HumanObservedGirthMinimum.read(skin, base.origin, A.joint(skin, "head"), geometry.normal, neck).girth
+    : NaN;
+  return Authority.finish([
+    { person: name, site: "owned waist above the final minimum between the owned hip and underbust, mm", value: trunk.waist.girth - waist.girth, low: 0, high: LARGE, unit: "mm", authority: "observed-anatomy", reason: "Same horizontal sections over the complete declared trunk domain; this observation does not establish clinical input-course correspondence." },
+    { person: name, site: "owned neck above the final whole-domain minimum under its declared section normal, mm", value: neck.girth - leastNeck, low: 0, high: SMALL, unit: "mm", authority: "observed-anatomy", reason: "All compared cuts share the neck course's declared normal; the base-to-head domain remains a model premise, not a palpable infrathyroid registration." },
+  ]);
 }

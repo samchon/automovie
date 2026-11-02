@@ -40,9 +40,6 @@ export namespace AutoMovieHumanMouth {
     /** Lower vermilion height. */
     lower: number;
 
-    /** Rest gap of the lips. */
-    gap: number;
-
     /** Height of the subnasale. */
     subnasale: number;
 

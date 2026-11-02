@@ -12,6 +12,7 @@ import {
 import type { IHumanViewerPage } from "../human/IHumanViewerPage.ts";
 import { HumanImageMannequin } from "./HumanImageMannequin.ts";
 import { HumanImageProcessTrace } from "./HumanImageProcessTrace.ts";
+import { HumanImagePublication } from "./HumanImagePublication.ts";
 import { navigateHumanCapturePage } from "./navigateHumanCapturePage.ts";
 import { observeHumanPageDocuments } from "./observeHumanPageDocuments.ts";
 
@@ -243,30 +244,18 @@ export async function humanImageProcessEntry(): Promise<void> {
         );
         const serialized: number = performance.now();
 
+        // Canonical model hashes describe parsed wire data, independently of
+        // the publication hash over exact UTF-8 numeric-token spellings.
+        const committed: HumanImagePublication.ICommitted = HumanImagePublication.commit(json);
+        const commitment: number = performance.now();
+        const bytes: Buffer = committed.bytes;
+        const sha256: string = committed.sha256;
+
         // Write beside, then rename, so the session never reads a partial file.
-        const bytes: Buffer = Buffer.from(json, "utf8");
-        const sha256: string = digest(bytes);
         await fs.writeFile(publication + ".partial", bytes);
         await fs.rename(publication + ".partial", publication);
         const written: number = performance.now();
 
-        // The archive's receipt rule commits to the model and to its
-        // construction parts separately, over their canonical JSON bytes.
-        const parsed: {
-          model: { parts: Array<{ id: string }> };
-        } = JSON.parse(json);
-        const modelSha256: string = digest(
-          Buffer.from(JSON.stringify(parsed.model)),
-        );
-        const constructionSha256: string = digest(
-          Buffer.from(
-            JSON.stringify(
-              parsed.model.parts.filter((part: { id: string }): boolean =>
-                part.id.startsWith("human.construction."),
-              ),
-            ),
-          ),
-        );
         resident = {
           key,
           source,
@@ -280,13 +269,15 @@ export async function humanImageProcessEntry(): Promise<void> {
           path: publication,
           bytes: bytes.length,
           sha256,
+          encoding: HumanImagePublication.ENCODING,
+          canonical: HumanImagePublication.CANONICAL,
           receipt: {
             kind: "human-generation",
             key,
             sourceSha256: source,
             inputSha256: command.inputSha256,
-            modelSha256,
-            constructionSha256,
+            modelSha256: committed.modelSha256,
+            constructionSha256: committed.constructionSha256,
             alias: loaded.alias,
             generatedUtc: new Date().toISOString(),
             generateMilliseconds: loaded.generateMilliseconds,
@@ -295,7 +286,8 @@ export async function humanImageProcessEntry(): Promise<void> {
               navigationMilliseconds: navigated,
               loadMilliseconds: generated - started - (navigated ?? 0),
               serializeMilliseconds: serialized - generated,
-              publishMilliseconds: written - serialized,
+              commitmentMilliseconds: commitment - serialized,
+              publishMilliseconds: written - commitment,
               timing: loaded.timing,
               calls: loaded.calls,
               workerRssBytes: process.memoryUsage().rss,
@@ -303,7 +295,7 @@ export async function humanImageProcessEntry(): Promise<void> {
             parts: loaded.parts,
             bounds: loaded.bounds,
             construction: loaded.construction,
-            publication: { bytes: bytes.length, sha256 },
+            publication: { bytes: bytes.length, sha256, encoding: HumanImagePublication.ENCODING, canonical: HumanImagePublication.CANONICAL },
             page: url,
           },
         };

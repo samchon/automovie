@@ -34,6 +34,9 @@ export namespace AutoMovieHumanBodyLaw {
 
     /** Exterior lip boundary in the same frame. */
     vermilion: IAutoMovieHumanHermiteCurve;
+
+    /** Unaccepted head construction findings retained beside the geometry. */
+    headDiagnostics: AutoMovieHumanHeadConstruction.IConstructionDiagnostics;
   }
 
   /**
@@ -119,9 +122,13 @@ export namespace AutoMovieHumanBodyLaw {
         skeleton,
       },
       vermilion: headed.vermilion,
+      headDiagnostics: headed.diagnostics,
     };
   }
 }
+
+/** Left shoulder contact phases; reflection owns the opposite boundary. */
+const ARM_ARC: readonly [number, number] = [1.133093657, 2.308057249];
 
 /** Shared rings of the trunk: the rest come with their chains. */
 const EVENTS: IAutoMovieHumanBodyCalibration.IEvent[] = [
@@ -138,12 +145,12 @@ const EVENTS: IAutoMovieHumanBodyCalibration.IEvent[] = [
       {
         child: "trunk",
         arcs: [
-          [2.308057249, 3.974647596],
-          [5.148635503, 1.133093657],
+          [ARM_ARC[1], 2 * Math.PI - ARM_ARC[1]],
+          [2 * Math.PI - ARM_ARC[0], ARM_ARC[0]],
         ],
       },
-      { child: "arm.left", arcs: [[1.133093657, 2.308057249]] },
-      { child: "arm.right", arcs: [[3.974647596, 5.148635503]] },
+      { child: "arm.left", arcs: [[ARM_ARC[0], ARM_ARC[1]]] },
+      { child: "arm.right", arcs: [[2 * Math.PI - ARM_ARC[1], 2 * Math.PI - ARM_ARC[0]]] },
     ],
   },
   {
@@ -305,6 +312,7 @@ function column(
   };
   return {
     hip: inputs.hip,
+    thigh: inputs.thigh,
     highHip: tape("highHip"),
     waist: tape("waist"),
     underbust: tape("underbust"),

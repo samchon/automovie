@@ -19,10 +19,12 @@ const UPPER = [
   "chest",
   "upperChest",
   "leftShoulder",
+  "leftScapula",
   "leftUpperArm",
   "leftLowerArm",
   "leftHand",
   "rightShoulder",
+  "rightScapula",
   "rightUpperArm",
   "rightLowerArm",
   "rightHand",
@@ -99,7 +101,7 @@ const RIG_IS_PARTITIONED: UnregionedBone extends never ? true : UnregionedBone =
  * something. Declared plainly `true` rather than carrying the conditional, so
  * the emitted declaration does not republish the three region tuples and the
  * aliases over them: a downstream builder would otherwise re-evaluate the
- * proof against whichever `@automovie/interface` it resolves, and read 55 bone
+ * proof against whichever `@automovie/interface` it resolves, and republish all bone
  * literals to learn the type of a constant that is `true`.
  */
 export const AUTOMOVIE_RIG_IS_PARTITIONED: true = RIG_IS_PARTITIONED;

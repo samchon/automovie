@@ -181,11 +181,13 @@ function auditRange(name: string): string[] {
  * @evidence contracts/testing.md#independent-expectations The Human skeleton's placements are computed by separate code from the engine's FK, so the two disagree if the adapter is wrong; the rig's composition is the premise both share.
  * @evidence contracts/testing.md#distinguishing-cases Runs neutral, the step-and-reach pose and the range-limit pose on a slender and a broad person, across forearms with their distal twist and every other joint. A bone the adapter reports as translated is exempt, because the engine's rig has no channel for it, and its descendants with it. On every person it also reads that `{}` is the anatomical neutral, that a field at zero is the field left out, both ends, clamp and left-right mirror, and the clinical angle the elbows, knees, shoulders and hips reach from the placements alone, so a wrong sign, a zero taken from the achieved posture or a turn in a tilted plane each shows as an angle or a mirror off.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_engine_pose`, importing pure engine kinematics, reading the people `HumanPeople` generates once per run and starting no renderer or host.
+ * @param aliases Defaults to all nine; the campaign supplies its one cached
+ * person so its nine workers preserve the full coverage without regenerating.
  */
-export const test_human_engine_pose = (): void => {
+export const test_human_engine_pose = (aliases: readonly string[] = HumanPeople.names()): void => {
   const problems: string[] = [];
-  for (const name of HumanPeople.names()) problems.push(...auditRange(name));
-  for (const name of ["f1", "m2"]) {
+  for (const name of aliases) problems.push(...auditRange(name));
+  for (const name of ["f1", "m2"].filter((name: string): boolean => aliases.includes(name))) {
     const { rig, evaluate } = HumanPeople.rigged(name);
     for (const label of ["neutral", "demo", "limit"]) {
       const output = evaluate(HUMAN_STICKMAN_POSES[label]!);

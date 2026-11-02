@@ -74,7 +74,7 @@ export namespace AutoMovieHumanNail {
   export const size: number = AutoMovieHumanNailImage.size;
 
   /**
-   * Lay nails on the digits of charted skin pieces.
+   * Lay nails on geometric skin before texture chart seam duplication.
    *
    * @param pieces Skin pieces in mm
    * @param scale Millimetre-to-model factor
@@ -82,14 +82,14 @@ export namespace AutoMovieHumanNail {
    * @returns Parts, material and images
    */
   export function generate(
-    pieces: readonly AutoMovieHumanSkinChart.IOutput[],
+    pieces: readonly AutoMovieHumanSkinChart.IPiece[],
     scale: number,
     albedo: readonly [number, number, number],
   ): IOutput {
-    const chains: Map<string, AutoMovieHumanSkinChart.IOutput[]> = new Map();
+    const chains: Map<string, AutoMovieHumanSkinChart.IPiece[]> = new Map();
     for (const piece of pieces) {
       const chain: string = piece.name.slice(0, piece.name.lastIndexOf("/"));
-      const list: AutoMovieHumanSkinChart.IOutput[] | undefined =
+      const list: AutoMovieHumanSkinChart.IPiece[] | undefined =
         chains.get(chain);
       if (list === undefined) chains.set(chain, [piece]);
       else list.push(piece);
@@ -207,25 +207,25 @@ const REFERENCE: readonly number[] = [0.72, 0.53, 0.44];
  * @returns The frame, or null when the hand or foot it hangs from is missing
  */
 function frame(
-  chains: Map<string, AutoMovieHumanSkinChart.IOutput[]>,
-  list: readonly AutoMovieHumanSkinChart.IOutput[],
+  chains: Map<string, AutoMovieHumanSkinChart.IPiece[]>,
+  list: readonly AutoMovieHumanSkinChart.IPiece[],
   kind: "finger" | "thumb" | "toe",
   side: "left" | "right",
 ): IAutoMovieHumanNailFrame | null {
-  const gather: (prefix: string) => AutoMovieHumanSkinChart.IOutput[] = (
+  const gather: (prefix: string) => AutoMovieHumanSkinChart.IPiece[] = (
     prefix: string,
-  ): AutoMovieHumanSkinChart.IOutput[] =>
+  ): AutoMovieHumanSkinChart.IPiece[] =>
     [...chains.entries()]
-      .filter(([name]: [string, AutoMovieHumanSkinChart.IOutput[]]): boolean =>
+      .filter(([name]: [string, AutoMovieHumanSkinChart.IPiece[]]): boolean =>
         name.startsWith(prefix),
       )
       .flatMap(
         ([, pieces]: [
           string,
-          AutoMovieHumanSkinChart.IOutput[],
-        ]): AutoMovieHumanSkinChart.IOutput[] => pieces,
+          AutoMovieHumanSkinChart.IPiece[],
+        ]): AutoMovieHumanSkinChart.IPiece[] => pieces,
       );
-  const base: AutoMovieHumanSkinChart.IOutput[] =
+  const base: AutoMovieHumanSkinChart.IPiece[] =
     kind === "toe" ? gather(`foot.${side}`) : gather(`hand.${side}.`);
   if (base.length === 0) return null;
   const anchor: Vec3 = mean(base);
@@ -246,8 +246,8 @@ function frame(
   // Dorsal direction by digit kind, made perpendicular to the axis.
   let dorsal: Vec3 = [0, 1, 0];
   if (kind !== "toe") {
-    const thumb: AutoMovieHumanSkinChart.IOutput[] = gather(`thumb.${side}`);
-    const fingers: AutoMovieHumanSkinChart.IOutput[] = gather(
+    const thumb: AutoMovieHumanSkinChart.IPiece[] = gather(`thumb.${side}`);
+    const fingers: AutoMovieHumanSkinChart.IPiece[] = gather(
       `finger.${side}.`,
     );
     if (thumb.length === 0 || fingers.length === 0) return null;
@@ -293,9 +293,9 @@ function frame(
  * @param pieces Pieces in mm
  * @returns Centroid
  */
-function mean(pieces: readonly AutoMovieHumanSkinChart.IOutput[]): Vec3 {
+function mean(pieces: readonly AutoMovieHumanSkinChart.IPiece[]): Vec3 {
   const all: number[] = pieces.flatMap(
-    (piece: AutoMovieHumanSkinChart.IOutput): number[] => piece.positions,
+    (piece: AutoMovieHumanSkinChart.IPiece): number[] => piece.positions,
   );
   return V.centroid(all);
 }
@@ -307,15 +307,15 @@ function mean(pieces: readonly AutoMovieHumanSkinChart.IOutput[]): Vec3 {
  * @returns Lowest-band and highest-band centroids
  */
 function extremes(
-  pieces: readonly AutoMovieHumanSkinChart.IOutput[],
+  pieces: readonly AutoMovieHumanSkinChart.IPiece[],
 ): [Vec3, Vec3] {
-  const band: (p: AutoMovieHumanSkinChart.IOutput) => number = (
-    p: AutoMovieHumanSkinChart.IOutput,
+  const band: (p: AutoMovieHumanSkinChart.IPiece) => number = (
+    p: AutoMovieHumanSkinChart.IPiece,
   ): number => Number(p.name.slice(p.name.lastIndexOf("/") + 1));
-  const sorted: AutoMovieHumanSkinChart.IOutput[] = [...pieces].sort(
+  const sorted: AutoMovieHumanSkinChart.IPiece[] = [...pieces].sort(
     (
-      a: AutoMovieHumanSkinChart.IOutput,
-      b: AutoMovieHumanSkinChart.IOutput,
+      a: AutoMovieHumanSkinChart.IPiece,
+      b: AutoMovieHumanSkinChart.IPiece,
     ): number => band(a) - band(b),
   );
   return [

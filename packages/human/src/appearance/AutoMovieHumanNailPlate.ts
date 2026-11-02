@@ -44,7 +44,7 @@ export namespace AutoMovieHumanNailPlate {
    * @returns The plate mesh
    */
   export function generate(
-    list: readonly AutoMovieHumanSkinChart.IOutput[],
+    list: readonly AutoMovieHumanSkinChart.IPiece[],
     digit: IAutoMovieHumanNailFrame,
     kind: "finger" | "thumb" | "toe",
   ): IOutput {
@@ -283,7 +283,7 @@ export namespace AutoMovieHumanNailPlate {
    * @returns Section centroid
    */
   function section(
-    list: readonly AutoMovieHumanSkinChart.IOutput[],
+    list: readonly AutoMovieHumanSkinChart.IPiece[],
     digit: IAutoMovieHumanNailFrame,
     station: number,
   ): Vec3 {
@@ -320,7 +320,7 @@ export namespace AutoMovieHumanNailPlate {
    * @returns Hit point and unit normal, or null
    */
   function cast(
-    list: readonly AutoMovieHumanSkinChart.IOutput[],
+    list: readonly AutoMovieHumanSkinChart.IPiece[],
     origin: Vec3,
     direction: Vec3,
   ): [Vec3, Vec3] | null {

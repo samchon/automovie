@@ -33,4 +33,5 @@ export interface IAutoMovieHumanPrepared extends IAutoMovieHumanGenerated {
    * same shape, because generation is a function of those fields alone.
    */
   key: string;
+
 }

@@ -16,6 +16,7 @@ import type {
 } from "../../../src/index";
 import { AutoMovieHumanInstance } from "../../../src/instance/index";
 import type { AutoMovieHumanSkinAsset } from "./AutoMovieHumanSkinAsset.js";
+import { HumanMouthGeometry } from "../human/HumanMouthGeometry";
 
 /**
  * One independently posed Human on a shared {@link AutoMovieHumanSkinAsset}.
@@ -25,7 +26,8 @@ import type { AutoMovieHumanSkinAsset } from "./AutoMovieHumanSkinAsset.js";
  * materials) and its pure `AutoMovieHumanInstance` state. Deformation is the
  * GPU's: the meshes are skinned in the vertex shader (dual quaternion where the
  * skin asks for it, in the beauty and both shadow passes) from the skeleton's
- * bone texture, so an update writes bone transforms and never a vertex. A
+ * bone texture. Mouth expressions first displace owned copies of original bind
+ * buffers through the runtime instance's field; the shared asset stays immutable. A
  * Human skin binds every part to the same joint list, so one skeleton serves
  * every part: the renderer updates and uploads its bone matrices once a frame
  * instead of once per part.
@@ -36,7 +38,8 @@ import type { AutoMovieHumanSkinAsset } from "./AutoMovieHumanSkinAsset.js";
  * the write; an inadmissible update throws before anything moves and leaves
  * the previous state shown. Only bones whose local transform changed are
  * written, and the root placement moves the whole graph. Object, mesh,
- * geometry and material identities never change across updates.
+ * and material identities remain stable. A changed mouth replaces only its
+ * affected owned geometry and retires the preceding copy.
  *
  * The parts are `buildModel`'s `AutoMovieSkinnedMesh` class, cloned, so
  * every write that moves a joint starts their pose revision: culling, shadows,
@@ -45,11 +48,11 @@ import type { AutoMovieHumanSkinAsset } from "./AutoMovieHumanSkinAsset.js";
  *
  * @evidence contracts/common.md#principled-implementation Writes parent-local bone translations and rotations from AutoMovieHumanRig.locals of the admitted pose onto the instance's bones, which Three's skeleton turns into the bone texture the existing skinning shaders read; the root writes the group's TRS.
  * @evidence contracts/common.md#clear-and-simple-design Pose semantics, admission, equivalence and rollback stay in AutoMovieHumanInstance; this class owns only its Three graph and the write of an admitted plan.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No geometry is rebuilt or rewritten on the CPU; an unchanged bone is skipped only when every local component rounds to the same float32 as the written value, the bone texture's own resolution, not by a tuned tolerance; a failed plan or a disposed instance throws.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Shared bind buffers are never written. Mouth geometry is prepared before swap and rolled back on failed state writes; an unchanged bone is skipped only at the bone texture's float32 resolution. Failed plans and disposed instances throw.
  * @evidence contracts/common.md#meaningful-documentation States the GPU deformation authority, the bind/pose display, the plan-write-commit order, culling and identity guarantees.
- * @evidence contracts/performance.md#efficient-algorithms An update costs one skeleton evaluation (about 0.6 ms for f1) plus at most B bone writes and a world update of the bone subtree, or of the whole graph when the root moved, and one constant-time pose revision per part when a joint moved; nothing here scales with vertices, while the next frame's culling spheres cost O(U^2) per part in AutoMovieSkinnedMesh.
+ * @evidence contracts/performance.md#efficient-algorithms Pose and expression changes prepare the bounded mouth field before at most B bone writes; root-only changes skip that work. The next frame's culling spheres cost O(U^2) per part in AutoMovieSkinnedMesh.
  * @evidence contracts/performance.md#reuse-equivalent-work Shares the asset's buffers and programs, reuses the pure instance's cached evaluation for an equal pose, and skips writes for bones whose values are unchanged.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Owns its bones, skeletons and meshes; dispose retires the skeletons' bone textures, detaches the graph and releases the asset's live count exactly once.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owns its mouth geometry copies, bones, skeletons and meshes; dispose retires those copies and bone textures, detaches the graph and releases the asset's live count exactly once.
  */
 export class AutoMovieHumanSkinInstance implements IAutoMovieModelObject {
   /** Root group; add it to a scene. */
@@ -66,6 +69,9 @@ export class AutoMovieHumanSkinInstance implements IAutoMovieModelObject {
 
   /** Pure state of this instance. */
   private readonly human: AutoMovieHumanInstance;
+
+  /** Expression geometry owned by this instance. */
+  private readonly mouthGeometry: HumanMouthGeometry;
 
   /** Owned skeletons, one per joint list. */
   private readonly skeletons: THREE.Skeleton[];
@@ -179,6 +185,7 @@ export class AutoMovieHumanSkinInstance implements IAutoMovieModelObject {
     this.object = group;
     this.bones = bones;
     this.parts = parts;
+    this.mouthGeometry = new HumanMouthGeometry(parts, this.human);
     this.skeletons = [...skeletons.values()];
     this.release = release;
     this.write(this.human.bindLocals());
@@ -253,8 +260,21 @@ export class AutoMovieHumanSkinInstance implements IAutoMovieModelObject {
         AutoMovieHumanoidBone,
         AutoMovieHumanRig.ILocal
       > = this.human.localsOf(plan);
-      this.place(plan.state.root);
-      this.write(locals);
+      const geometry: HumanMouthGeometry.IWrite | undefined = plan.changed.some((kind): boolean => kind === "pose" || kind === "expression") ? this.mouthGeometry.prepare(plan) : undefined;
+      try {
+        geometry?.write();
+        this.place(plan.state.root);
+        this.write(locals);
+        this.human.commit(plan);
+      } catch (error) {
+        reportAutoMovieResourceRetirement([
+          (): void => geometry?.rollback(),
+          (): void => { this.place(this.human.state.root); this.write(this.human.locals()); },
+        ], { error });
+        throw error;
+      }
+      geometry?.retire();
+      return [...plan.changed];
     }
     this.human.commit(plan);
     return [...plan.changed];
@@ -272,10 +292,7 @@ export class AutoMovieHumanSkinInstance implements IAutoMovieModelObject {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Acquires nothing.
    */
   public showBind(): void {
-    this.open();
-    this.place(this.human.state.root);
-    this.write(this.human.bindLocals());
-    this.cull("bind");
+    this.displayCurrent(true);
   }
 
   /**
@@ -290,12 +307,7 @@ export class AutoMovieHumanSkinInstance implements IAutoMovieModelObject {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Acquires nothing.
    */
   public showPose(): void {
-    this.open();
-    const locals: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieHumanRig.ILocal> =
-      this.human.locals();
-    this.place(this.human.state.root);
-    this.write(locals);
-    this.cull("pose");
+    this.displayCurrent(false);
   }
 
   /**
@@ -314,6 +326,7 @@ export class AutoMovieHumanSkinInstance implements IAutoMovieModelObject {
     if (release === undefined) return;
     this.release = undefined;
     reportAutoMovieResourceRetirement([
+      (): void => this.mouthGeometry.dispose(),
       ...this.skeletons.map(
         (s: THREE.Skeleton): (() => void) =>
           (): void =>
@@ -397,6 +410,28 @@ export class AutoMovieHumanSkinInstance implements IAutoMovieModelObject {
     // spheres, boxes and vertex queries then follow the drawn pose; a root move
     // alone cancels in the skin's local joint transforms and needs none.
     if (touched !== 0) invalidateAutoMovieSkinnedPose(this.object);
+  }
+
+  /** Swap bind or posed buffers and bone locals, restoring both on failure. */
+  private displayCurrent(bind: boolean): void {
+    this.open();
+    const before: "bind" | "pose" = this.shown;
+    const previous: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieHumanRig.ILocal> = before === "bind" ? this.human.bindLocals() : this.human.locals();
+    const locals: ReadonlyMap<AutoMovieHumanoidBone, AutoMovieHumanRig.ILocal> = bind ? this.human.bindLocals() : this.human.locals();
+    const geometry: HumanMouthGeometry.IWrite = this.mouthGeometry.prepare(undefined, bind);
+    try {
+      geometry.write();
+      this.place(this.human.state.root);
+      this.write(locals);
+      this.cull(bind ? "bind" : "pose");
+    } catch (error) {
+      reportAutoMovieResourceRetirement([
+        (): void => geometry.rollback(),
+        (): void => { this.write(previous); this.cull(before); },
+      ], { error });
+      throw error;
+    }
+    geometry.retire();
   }
 
   /** Record which posture is displayed; culling stays on, on posed bounds. */

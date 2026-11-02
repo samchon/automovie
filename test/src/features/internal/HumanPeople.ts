@@ -1,5 +1,6 @@
 import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
+import type { IAutoMovieHumanHermiteCurve } from "../../../../packages/human/src/lofting/IAutoMovieHumanHermiteCurve";
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
 import { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
@@ -25,6 +26,12 @@ export namespace HumanPeople {
 
     /** The generated body. */
     body: IAutoMovieHumanBodyCalibration;
+
+    /** Actual exterior colour-boundary curve consumed by appearance, in mm. */
+    vermilion: IAutoMovieHumanHermiteCurve;
+
+    /** Construction defects and closure residuals, separate from anatomy claims. */
+    headDiagnostics: AutoMovieHumanBodyLaw.IOutput["headDiagnostics"];
   }
 
   /** A generated person with a rig and a pose evaluator. */
@@ -49,10 +56,13 @@ export namespace HumanPeople {
     const found: IPerson | undefined = persons.get(name);
     if (found !== undefined) return found;
     const params: IAutoMovieHumanParameters = inputs().get(name)!;
+    const calibrated: AutoMovieHumanBodyLaw.IOutput = AutoMovieHumanBodyLaw.calibrate(params);
     const made: IPerson = {
       name,
       params,
-      body: AutoMovieHumanBodyLaw.calibrate(params).body,
+      body: calibrated.body,
+      vermilion: calibrated.vermilion,
+      headDiagnostics: calibrated.headDiagnostics,
     };
     persons.set(name, made);
     return made;

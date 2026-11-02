@@ -5,6 +5,12 @@ import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
 
 /** Body landmarks measured from the generated skin rather than specimen identifiers. */
 export namespace AutoMovieHumanSkinLandmarks {
+  /** Geometry and registered feature addresses required to locate tone fields. */
+  export interface IInput extends Pick<AutoMovieHumanSkinTone.IInput, "eyes" | "apertures" | "stature" | "vermilion"> {
+    /** Original pieces before texture seam duplication reweights vertex means. */
+    pieces: readonly AutoMovieHumanSkinChart.IPiece[];
+  }
+
   /** Point or direction in mm. */
   type Vec3 = AutoMovieHumanSkinVector.Vec3;
 
@@ -74,11 +80,11 @@ export namespace AutoMovieHumanSkinLandmarks {
    * @param input Tone inputs
    * @returns Landmarks
    */
-  export function generate(input: AutoMovieHumanSkinTone.IInput): IOutput {
-    const chains: Map<string, AutoMovieHumanSkinChart.IOutput[]> = new Map();
+  export function generate(input: IInput): IOutput {
+    const chains: Map<string, AutoMovieHumanSkinChart.IPiece[]> = new Map();
     for (const piece of input.pieces) {
       const chain: string = piece.name.slice(0, piece.name.lastIndexOf("/"));
-      const list: AutoMovieHumanSkinChart.IOutput[] | undefined =
+      const list: AutoMovieHumanSkinChart.IPiece[] | undefined =
         chains.get(chain);
       if (list === undefined) chains.set(chain, [piece]);
       else list.push(piece);
@@ -89,24 +95,24 @@ export namespace AutoMovieHumanSkinLandmarks {
     const soles: Map<"left" | "right", number> = new Map();
     const toes: Array<[Vec3, number]> = [];
     for (const side of ["left", "right"] as const) {
-      const of: (prefix: string) => AutoMovieHumanSkinChart.IOutput[] = (
+      const of: (prefix: string) => AutoMovieHumanSkinChart.IPiece[] = (
         prefix: string,
-      ): AutoMovieHumanSkinChart.IOutput[] =>
+      ): AutoMovieHumanSkinChart.IPiece[] =>
         [...chains.entries()]
           .filter(
-            ([name]: [string, AutoMovieHumanSkinChart.IOutput[]]): boolean =>
+            ([name]: [string, AutoMovieHumanSkinChart.IPiece[]]): boolean =>
               name.startsWith(prefix),
           )
           .flatMap(
             ([, list]: [
               string,
-              AutoMovieHumanSkinChart.IOutput[],
-            ]): AutoMovieHumanSkinChart.IOutput[] => list,
+              AutoMovieHumanSkinChart.IPiece[],
+            ]): AutoMovieHumanSkinChart.IPiece[] => list,
           );
-      const palm: AutoMovieHumanSkinChart.IOutput[] = of(`hand.${side}.`);
-      const thumb: AutoMovieHumanSkinChart.IOutput[] = of(`thumb.${side}`);
-      const fingers: AutoMovieHumanSkinChart.IOutput[] = of(`finger.${side}.`);
-      const arm: AutoMovieHumanSkinChart.IOutput[] =
+      const palm: AutoMovieHumanSkinChart.IPiece[] = of(`hand.${side}.`);
+      const thumb: AutoMovieHumanSkinChart.IPiece[] = of(`thumb.${side}`);
+      const fingers: AutoMovieHumanSkinChart.IPiece[] = of(`finger.${side}.`);
+      const arm: AutoMovieHumanSkinChart.IPiece[] =
         chains.get(`arm.${side}`) ?? [];
       if (palm.length !== 0 && thumb.length !== 0 && fingers.length !== 0) {
         const hand: Vec3 = mean(palm);
@@ -161,7 +167,7 @@ export namespace AutoMovieHumanSkinLandmarks {
           spread: 0.07 * length,
         });
       }
-      const foot: AutoMovieHumanSkinChart.IOutput[] =
+      const foot: AutoMovieHumanSkinChart.IPiece[] =
         chains.get(`foot.${side}`) ?? [];
       if (foot.length !== 0) {
         let lo: number = Infinity;
@@ -189,16 +195,16 @@ export namespace AutoMovieHumanSkinLandmarks {
     // distance of their vertices from it.
     const ears: Array<[Vec3, number]> = [];
     for (const side of ["left", "right"] as const) {
-      const pieces: AutoMovieHumanSkinChart.IOutput[] = [...chains.entries()]
+      const pieces: AutoMovieHumanSkinChart.IPiece[] = [...chains.entries()]
         .filter(
-          ([name]: [string, AutoMovieHumanSkinChart.IOutput[]]): boolean =>
+          ([name]: [string, AutoMovieHumanSkinChart.IPiece[]]): boolean =>
             name.startsWith("ear.") && name.endsWith(`.${side}`),
         )
         .flatMap(
           ([, list]: [
             string,
-            AutoMovieHumanSkinChart.IOutput[],
-          ]): AutoMovieHumanSkinChart.IOutput[] => list,
+            AutoMovieHumanSkinChart.IPiece[],
+          ]): AutoMovieHumanSkinChart.IPiece[] => list,
         );
       if (pieces.length === 0) continue;
       const centre: Vec3 = mean(pieces);
@@ -230,7 +236,7 @@ export namespace AutoMovieHumanSkinLandmarks {
    * @param pieces Pieces in mm
    * @returns Centroid
    */
-  function mean(pieces: readonly AutoMovieHumanSkinChart.IOutput[]): Vec3 {
+  function mean(pieces: readonly AutoMovieHumanSkinChart.IPiece[]): Vec3 {
     const c: Vec3 = [0, 0, 0];
     let n: number = 0;
     for (const piece of pieces) {
@@ -251,15 +257,15 @@ export namespace AutoMovieHumanSkinLandmarks {
    * @returns Lowest-band and highest-band centroids
    */
   function extremes(
-    pieces: readonly AutoMovieHumanSkinChart.IOutput[],
+    pieces: readonly AutoMovieHumanSkinChart.IPiece[],
   ): [Vec3, Vec3] {
-    const band: (p: AutoMovieHumanSkinChart.IOutput) => number = (
-      p: AutoMovieHumanSkinChart.IOutput,
+    const band: (p: AutoMovieHumanSkinChart.IPiece) => number = (
+      p: AutoMovieHumanSkinChart.IPiece,
     ): number => Number(p.name.slice(p.name.lastIndexOf("/") + 1));
-    const sorted: AutoMovieHumanSkinChart.IOutput[] = [...pieces].sort(
+    const sorted: AutoMovieHumanSkinChart.IPiece[] = [...pieces].sort(
       (
-        a: AutoMovieHumanSkinChart.IOutput,
-        b: AutoMovieHumanSkinChart.IOutput,
+        a: AutoMovieHumanSkinChart.IPiece,
+        b: AutoMovieHumanSkinChart.IPiece,
       ): number => band(a) - band(b),
     );
     return [
@@ -275,7 +281,7 @@ export namespace AutoMovieHumanSkinLandmarks {
    * @returns Mean radius in mm
    */
   function meanRadius(
-    pieces: readonly AutoMovieHumanSkinChart.IOutput[],
+    pieces: readonly AutoMovieHumanSkinChart.IPiece[],
   ): number {
     let sum: number = 0;
     let count: number = 0;

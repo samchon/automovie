@@ -2,13 +2,20 @@ import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/genera
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import { HumanPeople } from "./HumanPeople";
 import { HumanPlaneIndex } from "./HumanPlaneIndex";
+import type { AutoMovieHumanMeasurementProtocol } from "../../../../packages/human/src/generation/AutoMovieHumanMeasurementProtocol";
+import { AutoMovieHumanEyelid } from "../../../../packages/human/src/generation/AutoMovieHumanEyelid";
+import type { IAutoMovieHumanLoftAperture } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftAperture";
+import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
+import { AutoMovieHumanVermilion } from "../../../../packages/human/src/appearance/AutoMovieHumanVermilion";
 
 /**
  * Measurement of a generated person's skin: the closed triangle mesh the
  * surface emits, at the bind or under a pose through the public rig and pose
- * evaluator. Everything here reads positions and triangles only; nothing reads
- * the construction's constants, priors or fields, and sites are found on the
- * skin by the definitions the anatomy tests cite.
+ * evaluator. Skin measurements read positions and triangles independently of
+ * construction radii and targets. Owned model addresses locate declared tape
+ * planes and regions. Eyelid dimensions read the actual consumer's evaluated
+ * visible contact margins, whose attachment and seam health remain separate
+ * surface and viewer checks.
  *
  * Frame: forward +X, up +Y, the body's left +Z, millimetres, floor at y = 0.
  */
@@ -35,6 +42,15 @@ export namespace HumanAnatomy {
 
     /** Joint centres of the rig in this skin's pose, mm. */
     joints: Map<string, V3>;
+
+    /** Model-owned bind addresses; absent on a posed skin until transformed. */
+    measurementSites?: AutoMovieHumanMeasurementProtocol.ISites;
+
+    /** Actual visible lid-contact samples from the same owner as the consumer. */
+    eyelids?: AutoMovieHumanEyelid.ILid[];
+
+    /** Actual appearance consumer exterior colour-border samples in mm. */
+    vermilion?: V3[];
   }
 
   /** One component of a plane's section through the skin. */
@@ -89,6 +105,12 @@ export namespace HumanAnatomy {
       tri,
       chains,
       joints: joints(person, person.evaluate({}), false),
+      measurementSites: person.body.measurementSites,
+      vermilion: AutoMovieHumanVermilion.prepare(person.vermilion).points,
+      eyelids: person.body.eyes.flatMap((eye: IAutoMovieHumanBodyCalibration.IEye): AutoMovieHumanEyelid.ILid[] => {
+        const aperture: IAutoMovieHumanLoftAperture | undefined = person.body.apertures.find((entry: IAutoMovieHumanLoftAperture): boolean => entry.name === `eye.${eye.side}`);
+        return aperture === undefined ? [] : [AutoMovieHumanEyelid.create(aperture, eye)];
+      }),
     };
     binds.set(name, out);
     return out;
@@ -142,7 +164,7 @@ export namespace HumanAnatomy {
       P[3 * v + 1] = q[1] + t[1];
       P[3 * v + 2] = q[2] + t[2];
     }
-    const out: ISkin = { ...rest, P, joints: joints(person, output, true) };
+    const out: ISkin = { ...rest, P, joints: joints(person, output, true), measurementSites: undefined, eyelids: undefined, vermilion: undefined };
     if (poses.size > 6) poses.delete(poses.keys().next().value!);
     poses.set(key, out);
     return out;
@@ -184,11 +206,12 @@ export namespace HumanAnatomy {
   }
 
   /**
-   * One entire arm and hand for anatomical cuts. A capsule about the straight
-   * shoulder-to-knuckle chord can crop the bent bind elbow and open its ring.
+   * One entire arm and hand plus its upper parent for anatomical cuts. A
+   * proximal oblique plane can cross their shared boundary. A capsule about
+   * the shoulder-to-knuckle chord can crop the bent bind elbow instead.
    */
   export function armRegion(skin: ISkin, side: "left" | "right"): Uint32Array {
-    return triangles(skin, new RegExp(`^(arm|hand|finger|thumb)\\.${side}(?:\\.|$)`));
+    return triangles(skin, new RegExp(`^(upper$|(?:arm|hand|finger|thumb)\\.${side}(?:\\.|$))`));
   }
 
   /** Vertices of the triangles whose chain name passes a test. */

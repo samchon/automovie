@@ -2,7 +2,7 @@ import { AutoMovieHumanPoseChannels } from "../skeleton/AutoMovieHumanPoseChanne
 import type { AutoMovieHumanSkeleton } from "../skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanExpression } from "../structures/expression/IAutoMovieHumanExpression";
 import type { IAutoMovieHumanPose } from "../structures/pose/IAutoMovieHumanPose";
-import { AutoMovieHumanActionUnit } from "../typings/AutoMovieHumanActionUnit";
+import { AutoMovieHumanExpressionAdmission } from "./AutoMovieHumanExpressionAdmission";
 
 /**
  * Runtime admission of a Human instance's mutable state: pose, expression and
@@ -15,11 +15,10 @@ import { AutoMovieHumanActionUnit } from "../typings/AutoMovieHumanActionUnit";
  * - Pose: a tree of plain objects whose leaves are finite numbers at a path
  *   of {@link AutoMovieHumanPoseChannels}. Range is not checked here; the
  *   skeleton evaluator clamps it and reports each clamp.
- * - Expression: unique units with a finite intensity in [0, 1]. The generated
- *   skin has no FACS shapes, so only the neutral face (no unit above zero and
- *   no mouth record) is admitted. Jaw units are refused separately because
- *   the jaw belongs to `pose.head.jaw` and eye gaze to `pose.head.eyes`: an
- *   expression never writes a skeletal channel the pose owns.
+ * - Expression: unique units and bounded named lips, tongue and visemes.
+ *   The mouth's supported muscle fields are admitted; its jaw request is
+ *   composed with the authored pose by the instance. Other facial units
+ *   remain admissible at zero until their deformation is implemented.
  * - Root: a finite translation in metres and a nonzero finite quaternion,
  *   returned normalized.
  */
@@ -60,55 +59,11 @@ export namespace AutoMovieHumanStateAdmission {
    * Admit an expression for the generated skin.
    *
    * @param value Candidate expression.
-   * @returns An independent copy of the neutral expression.
+   * @returns An independent copy of the supported expression.
    * @throws {Error} Listing every malformed or unsupported unit with its reason.
    */
   export function expression(value: unknown): IAutoMovieHumanExpression {
-    if (!isRecord(value) || !Array.isArray(value.units))
-      throw new Error("Human expression must hold a units array");
-    const refused: string[] = [];
-    const seen: Set<string> = new Set();
-    const sides: Map<string, Set<string>> = new Map();
-    for (const entry of value.units) {
-      if (
-        !isRecord(entry) ||
-        typeof entry.unit !== "string" ||
-        !UNITS.has(entry.unit) ||
-        typeof entry.side !== "string" ||
-        !SIDES.has(entry.side) ||
-        typeof entry.intensity !== "number" ||
-        !Number.isFinite(entry.intensity) ||
-        entry.intensity < 0 ||
-        entry.intensity > 1
-      ) {
-        refused.push("malformed unit " + JSON.stringify(entry));
-        continue;
-      }
-      const key: string = entry.unit + "/" + entry.side;
-      const used: Set<string> = sides.get(entry.unit) ?? new Set();
-      if (
-        seen.has(key) ||
-        (entry.side === "both" ? used.size !== 0 : used.has("both"))
-      )
-        refused.push(`duplicate or overlapping ${key}`);
-      seen.add(key);
-      used.add(entry.side);
-      sides.set(entry.unit, used);
-      if (entry.intensity === 0) continue;
-      refused.push(
-        JAW.has(entry.unit)
-          ? `${key}: the jaw is articulated by pose.head.jaw`
-          : `${key}: the generated skin synthesizes no FACS shape`,
-      );
-    }
-    if (value.mouth !== undefined)
-      refused.push("mouth: lips, tongue and visemes are not consumed");
-    if (refused.length !== 0)
-      throw new Error("Human expression is unsupported: " + refused.join("; "));
-
-    // Only zero-intensity units remain, so the admitted value is the neutral
-    // face whatever was listed; it is rebuilt rather than cast from the input.
-    return { units: [] };
+    return AutoMovieHumanExpressionAdmission.admit(value);
   }
 
   /**
@@ -281,51 +236,3 @@ const BRANCHES: ReadonlySet<string> = new Set(
       .map((_: string, i: number): string => keys.slice(0, i + 1).join("."));
   }),
 );
-
-/**
- * Every action unit name. The unit type is a `const enum` with no runtime
- * object, so the names are listed here and the record's key type makes the
- * compiler refuse a list that misses or invents one.
- */
-const UNITS: ReadonlySet<string> = new Set<string>(
-  Object.keys({
-    [AutoMovieHumanActionUnit.InnerBrowRaiser]: null,
-    [AutoMovieHumanActionUnit.OuterBrowRaiser]: null,
-    [AutoMovieHumanActionUnit.BrowLowerer]: null,
-    [AutoMovieHumanActionUnit.UpperLidRaiser]: null,
-    [AutoMovieHumanActionUnit.CheekRaiser]: null,
-    [AutoMovieHumanActionUnit.LidTightener]: null,
-    [AutoMovieHumanActionUnit.NoseWrinkler]: null,
-    [AutoMovieHumanActionUnit.UpperLipRaiser]: null,
-    [AutoMovieHumanActionUnit.NasolabialDeepener]: null,
-    [AutoMovieHumanActionUnit.LipCornerPuller]: null,
-    [AutoMovieHumanActionUnit.SharpLipPuller]: null,
-    [AutoMovieHumanActionUnit.Dimpler]: null,
-    [AutoMovieHumanActionUnit.LipCornerDepressor]: null,
-    [AutoMovieHumanActionUnit.LowerLipDepressor]: null,
-    [AutoMovieHumanActionUnit.ChinRaiser]: null,
-    [AutoMovieHumanActionUnit.LipPucker]: null,
-    [AutoMovieHumanActionUnit.LipStretcher]: null,
-    [AutoMovieHumanActionUnit.NeckTightener]: null,
-    [AutoMovieHumanActionUnit.LipFunneler]: null,
-    [AutoMovieHumanActionUnit.LipTightener]: null,
-    [AutoMovieHumanActionUnit.LipPressor]: null,
-    [AutoMovieHumanActionUnit.LipsPart]: null,
-    [AutoMovieHumanActionUnit.JawDrop]: null,
-    [AutoMovieHumanActionUnit.MouthStretch]: null,
-    [AutoMovieHumanActionUnit.LipSuck]: null,
-    [AutoMovieHumanActionUnit.NostrilDilator]: null,
-    [AutoMovieHumanActionUnit.NostrilCompressor]: null,
-    [AutoMovieHumanActionUnit.LidDroop]: null,
-    [AutoMovieHumanActionUnit.EyesClosed]: null,
-  } satisfies Record<AutoMovieHumanActionUnit, null>),
-);
-
-/** Admitted sides of an action unit. */
-const SIDES: ReadonlySet<string> = new Set(["left", "right", "both"]);
-
-/** Units whose action is the jaw's own movement, which the pose owns. */
-const JAW: ReadonlySet<string> = new Set<string>([
-  AutoMovieHumanActionUnit.JawDrop,
-  AutoMovieHumanActionUnit.MouthStretch,
-]);
