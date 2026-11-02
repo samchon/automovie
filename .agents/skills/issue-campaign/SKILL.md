@@ -15,7 +15,7 @@ A cycle audits the target branch until a discovery round finds nothing new, then
 
 ## Issues
 
-With publication authority, write each accepted issue so a fresh agent can start from it alone: the problem, reproduction and root cause, consequence surface and case matrix, the invariant to restore, acceptance cases with commands, and dependencies. Publish bodies as the [pull-request](../pull-request/SKILL.md) skill says, so their text arrives intact.
+With publication authority, write each accepted issue so a fresh agent can start from it alone: the problem, reproduction and root cause, consequence surface and case matrix, the invariant to restore, acceptance cases with commands, and dependencies. Publish bodies as the [pull-request](../pull-request/SKILL.md) skill says.
 
 ## Pull Request
 

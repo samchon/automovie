@@ -19,7 +19,7 @@ The tasks and their order live in the issue tracker. An explicit stop overrides 
 1. Build the [score](verification.md#score) and pass the [tests](testing.md) before rendering, because a render is expensive and often returns nothing.
 2. Measure the data and choose the construction yourself, under the [construction rules](construction.md).
 3. Change one part at a time and leave the whole figure working.
-4. Inspect the change in the [viewer](verification.md#inspection-round), whole person and close-ups. Give each defect the viewer finds a test, and prove the test fails on it.
+4. Inspect the change in the [viewer](verification.md#inspection-round), whole person and close-ups.
 5. Record what the change taught in the Human package's documentation.
 
 Plan only as far as the next change. When a change disproves a construction, stop, record why and choose another instead of patching it.

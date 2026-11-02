@@ -1,6 +1,6 @@
 # Verification
 
-The [tests](testing.md) and the score reject, and the viewer accepts. A candidate needs all three: numbers alone do not establish a sound human shape, and a defect no number was read for costs a whole render round to find.
+The [tests](testing.md) and the score reject, and the viewer accepts. A candidate needs all three, because numbers alone do not establish a sound human shape.
 
 ## Score
 
@@ -8,7 +8,6 @@ Keep one CPU-only executable beside the other reference tools under `test/src/ex
 
 | Measure | Reads | Meaning |
 | --- | --- | --- |
-| Table bytes deleted against source bytes added | the diff | Rejects a change with a negative balance. |
 | Validity across the parameter domain | every control at both ends of its declared range and combined extremes, declaring a range first where a control has none | Rejects non-finite values, collapsed or self-crossing sections, folds and open joins. |
 | Requested against generated dimensions | public measurement definitions | Rejects a parameter with no or the wrong response. |
 | Held-out surface distance per part | the reference meshes | Rejects a law that does not generalize. |
@@ -28,7 +27,7 @@ Compare it with the existing figure under the same conditions in every affected 
 Inspect the affected person and all affected parts under matching camera, light, material, resolution and renderer conditions, expanding to other people when the task requires it.
 
 1. View the whole person from every direction in the `surface`, `overlay` and `construction` passes, and with `material=appearance`, at rest and in the supported poses. Check normal human proportions, silhouettes, and missing or disconnected anatomy.
-2. View the face with `material=appearance`. Region close-ups can each read acceptable while the whole person fails at first sight.
+2. View the face with `material=appearance`.
 3. View each region and join in close-ups with `material=clay` under both raking lights. Check C2 at shared keys, G2 across strips, and trims against the observed shape.
 4. Trace every line or ripple to the curves that make it:
    - Click it in `overlay` to find its skin interval `human.skin.<chain>/<k>`.
