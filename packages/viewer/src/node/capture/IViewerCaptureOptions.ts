@@ -30,10 +30,10 @@ export interface IViewerCaptureOptions {
   /** Controls hidden once at creation; null preserves controls. Defaults to #clips. */
   hideSelector?: string | null;
 
-  /** Page function called with each sample; defaults to __afSeek. */
+  /** Page function called with each sample; defaults to __afSeek. Capture awaits its completion, including a returned promise, and discards its fulfilled value inside the page. */
   seekFunction?: string;
 
-  /** Page function selecting each pass; defaults to __afPass. */
+  /** Page function selecting each pass; defaults to __afPass. Capture awaits its completion, including a returned promise, and discards its fulfilled value inside the page. */
   passFunction?: string;
 
   /** Browser navigation milestone; defaults to load. */

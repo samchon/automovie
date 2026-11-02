@@ -55,7 +55,7 @@ export interface IAutoMovieHeadlessPage {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The adapter imposes no timeout or retry of its own; it relies on the host's wait and reports the host's rejection as is.
    * @evidence contracts/common.md#meaningful-documentation The doc says what the adapter waits for, the constraint that the predicate use only its argument, and how a rejection is classified.
    * @evidenceExclude contracts/performance.md#efficient-algorithms The wait strategy and polling interval belong to the host implementation.
-   * @evidence contracts/performance.md#reuse-equivalent-work Each hook is awaited once per session at creation; frames then call the hook without waiting again.
+   * @evidence contracts/performance.md#reuse-equivalent-work Hook existence is polled once per session at creation; frames reuse that readiness check while separately awaiting each hook invocation through evaluate.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Any polling timer is the host's and ends when the returned promise settles; the adapter holds nothing from it.
    */
   waitForFunction<T>(predicate: (arg: T) => unknown, arg: T): Promise<unknown>;
