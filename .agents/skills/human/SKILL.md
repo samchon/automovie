@@ -9,6 +9,8 @@ Generate every supported person from parameters by one reusable construction. Fi
 
 The tasks and their order live in the issue tracker. An explicit stop overrides every instruction here.
 
+Human debugging UI and capture tooling belong in `packages/human/dev`, outside the published library. Playground owns the ordinary parameter editor, and the generic viewer supplies rendering without Human-specific features. Keep those boundaries so development diagnostics do not become runtime dependencies.
+
 ## Done When
 
 - Every public parameter changes the figure through that construction, answered at its published site.

@@ -39,7 +39,7 @@ Inspect the affected person and all affected parts under matching camera, light,
 
 - Capture only after the generated output changes, and show only new frames.
 - By default capture the current person's whole front, side, top (`free` with `view=%2By`) and back with `garment=0`, plus construction front, side and back; include the developing parts and their actual generating curves.
-- Save each PNG's exact bytes under `packages/playground/.shots/<round>/`.
+- Save each PNG's exact bytes under `packages/human/.shots/<round>/`.
 - Check each file's SHA-256 against its `x-human-png-sha256` header.
 - Open every PNG.
 - If a capture fails, stop visual claims that depend on it and repair the viewer and capture path first.
