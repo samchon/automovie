@@ -16,13 +16,12 @@ The following non-exhaustive diagnostic hypotheses can produce bands, plates or 
 
 | Cause | Signature | Comparison |
 | --- | --- | --- |
-| C2 or tension spline overshoot between unevenly spaced keys | Channel extrema between keys; a mid-interval feature can depend on unequal spacing and the selected spline | Evaluate the same keys with a C2 spline and a [shape-preserving interpolant](parametric-curve-family.md) and plot the channel against height |
+| C2 or tension spline overshoot between unevenly spaced keys | Channel extrema between keys; a mid-interval feature can depend on unequal spacing and the selected spline | Evaluate the same keys with a C2 spline and a [shape-preserving interpolant](../sources/shape-preserving-interpolation.md) and plot the channel against height |
 | Key-to-key alternation in the key data | Alternating second differences can indicate changing discrete curvature; they do not imply extrema or nonmonotonicity | Sign sequence of second differences over the keys |
 | C1-only channel | Possible highlight changes near knots under suitable lighting; C1 alone neither guarantees nor forces a visible kink | Isophote or zebra render under two light directions |
 | Zero slope at a data extremum (`pchip` family) | A zero derivative can contribute to a local shelf, depending on neighboring values and physical parameterization | Whether the shelved keys are local extrema of that channel |
 | Inconsistent station dimensions | Cylindrical segment between two stations | Inequality constraints between stations in the dimension table |
 | Section representation lacking a degree of freedom | Masses or recess missing at every station rather than banded | Reference section and generated section overlaid at the same height |
-| Sampling or cage-fit loss | Narrow features lost or flanked by grooves, independent of height | Source surface against cage limit at the same surface coordinates, read against the [retention table](subdivision-and-cage.md#feature-retention-through-a-ring) |
 | Extraordinary vertex of the wrong valence for the curvature sign | Dimple on a convex mass at valence 5, flat spot in a saddle at valence 3 | Valence of each pole against the intended Gaussian curvature sign |
 
 ## Attribution
