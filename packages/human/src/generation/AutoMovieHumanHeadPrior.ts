@@ -337,12 +337,6 @@ export namespace AutoMovieHumanHeadPrior {
     /** Arch's half-length behind the gonion, in half mandibular widths. */
     back: number;
 
-    /**
-     * Arch's exponent in plan: the jaw's sides run nearly straight from the
-     * chin to the angle, so the arch is squarer than an ellipse.
-     */
-    power: number;
-
     /** Width of the blend with the face and the neck, millimetres. */
     blend: number;
 
@@ -437,12 +431,10 @@ export namespace AutoMovieHumanHeadPrior {
         { name: "infraorbital", anchor: "eye", rise: -19.3805, lateral: 0.4475, tall: 9.2867, wide: 14.0913, height: 1.4757, sex: 0.3617 },
         { name: "malar", anchor: "eye", rise: -22.8177, lateral: 0.9161, tall: 15.5685, wide: 16.9835, height: 0.0689, sex: -2.3169 },
         { name: "nasolabial", anchor: "subnasale", rise: -13.8311, lateral: 0.2922, tall: 13.2918, wide: 12.4769, height: -4.7683, sex: 1.551 },
-        { name: "buccal", anchor: "stomion", rise: -0.4533, lateral: 0.6763, tall: 18.9175, wide: 13.8898, height: -2.9103, sex: 0.2186 },
         { name: "mental", anchor: "menton", rise: 22.6451, lateral: 0.0007, tall: 11.1951, wide: 16.9119, height: 3.6095, sex: 0.8344 },
         { name: "sublabial", anchor: "stomion", rise: -17.5599, lateral: 0, tall: 5.5418, wide: 14.5368, height: -1.3, sex: 0 },
         { name: "temple", anchor: "eye", rise: 27.8865, lateral: 0.9302, tall: 22.5017, wide: 13.8798, height: -0.639, sex: -1.0628 },
         { name: "forehead", anchor: "eye", rise: 45.6137, lateral: 0.4138, tall: 19.6071, wide: 30.629, height: -1.5542, sex: -2.0315 },
-        { name: "submental", anchor: "menton", rise: -12.0339, lateral: -0.0035, tall: 9.7448, wide: 20.0075, height: -0.0842, sex: -0.2212 },
       ],
       eyeRecess: 13.5,
       globeRise: 2.2,
@@ -479,7 +471,6 @@ export namespace AutoMovieHumanHeadPrior {
       taper: 0.62,
       inset: 1,
       back: 0.5,
-      power: 3,
       blend: 6,
       throat: 24,
     },

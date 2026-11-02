@@ -28,8 +28,9 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * keys of the shield's half-width. A third body, the mandible's skin, joins
  * them along each ray by a smooth minimum of absolute width, wider where the
  * skin under the jaw meets the neck: an arch in plan from the chin to the
- * gonions over the mandibular plane, whose border turns under into skin
- * falling inward to the neck. The soft tissue's roundings grow with fat.
+ * gonions over the mandibular plane, whose side leans in from the cheek to the
+ * angle and whose border turns under into skin falling inward to the neck. The
+ * soft tissue's roundings grow with fat.
  *
  * Named features are reliefs written as radial heights over that surface, each
  * with its own place, widths and depth, driven by the public dimensions: the
@@ -41,8 +42,8 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * and the lips' colour boundary are placed from the same dimensions, so they
  * stay on the features they belong to.
  *
- * The neck ring's difference from the law fades in over the jaw, so the bottom
- * ring is the neck's own. The lower and middle head's layers both crowd about
+ * The neck ring's difference from the law, and its slope's, fade in over the
+ * jaw, so the bottom ring is the neck's own and leaves it as the neck does. The lower and middle head's layers both crowd about
  * the nose's base, which crosses their join. Auricles are spliced into the
  * sections of the middle chain by `AutoMovieHumanEarConstruction`, and their
  * free ends are the ear chains. Rings are parametrized by each chain's own
@@ -225,8 +226,26 @@ export namespace AutoMovieHumanHeadConstruction {
     /** Arch's half-length behind the gonion. */
     back: number;
 
-    /** Arch's exponent in plan. */
-    power: number;
+    /** Radius of the chin's turn in plan. */
+    radius: number;
+
+    /** Point on the midline behind the gonions the arch is read from, along the forward axis. */
+    origin: number;
+
+    /** Outward unit normal of the arch's left side in plan, `[x, z]`. */
+    side: [number, number];
+
+    /** Where that side leaves the arch's back, `[x, z]`. */
+    start: [number, number];
+
+    /** Where it meets the chin's turn, `[x, z]`. */
+    end: [number, number];
+
+    /**
+     * Share of the half-width the jaw's side gains per millimetre over its
+     * border: the line from the gonion up to the cheek at the zygomatic arch.
+     */
+    spread: number;
 
     /** The chin's skin along the forward axis, where the plane passes the menton. */
     chin: number;
@@ -633,7 +652,7 @@ export namespace AutoMovieHumanHeadConstruction {
    */
   function blendAt(m: IMandible, x: number, y: number, z: number): number {
     const below: number = (m.menton + (m.chin - x) * m.slope - y) * m.cos;
-    const inside: number = -arch(m, x, z);
+    const inside: number = -arch(m, x, y, z);
     return (
       m.blend +
       (m.throat - m.blend) *
@@ -642,30 +661,88 @@ export namespace AutoMovieHumanHeadConstruction {
     );
   }
 
-  /** Signed distance from the jaw's arch in plan, first order, negative inside. */
-  function arch(m: IMandible, x: number, z: number): number {
-    const a: number = x > m.gonion ? m.front - m.gonion : m.back;
-    const u: number = Math.abs(x - m.gonion) / a;
-    const v: number = Math.abs(z) / m.width;
-    const n: number = m.power;
-    const e: number = (u ** n + v ** n) ** (1 / n);
-    const g: number =
-      e < 1e-9
-        ? 0
-        : Math.hypot((u / e) ** (n - 1) / a, (v / e) ** (n - 1) / m.width);
-    return g === 0 ? -Math.min(a, m.width) : (e - 1) / g;
+  /**
+   * Signed distance from the jaw's arch in plan, first order, negative inside.
+   *
+   * The arch is the hull of the chin's turn and an ellipse about the gonions:
+   * the body runs straight from each angle to the chin. Over the border the
+   * arch widens across by {@link IMandible.spread}, so the jaw's side leans in
+   * from the cheek to the angle as the masseter does, while its front, whose
+   * skin faces forward, stays where the chin is.
+   */
+  function arch(m: IMandible, x: number, y: number, z: number): number {
+    const h: number = (y - m.menton - (m.chin - x) * m.slope) * m.cos;
+    // Smooth through the border, so the lean starts inside its rounding.
+    const over: number = (Math.hypot(h, m.round) + h - m.round) / 2;
+    const s: number = Math.max(0.5, 1 + m.spread * over);
+    const pz: number = Math.abs(z) / s;
+
+    // Read along the ray from a point on the midline behind the gonions: the
+    // distance out to the outline along it, times the cosine of the outline's
+    // normal there. The skin under the jaw falls inward by this distance, and
+    // a distance to the nearest piece of the outline creases where two pieces
+    // are equally near: down the midline and at the chin's centre, which
+    // printed a groove under the jaw and a turn of 120 degrees in a ring under
+    // the chin. Along rays the outline's own smoothness carries inward, up to
+    // the one point the rays leave from; halfway to the chin that point's
+    // cone turned a ring under the jaw by 145 degrees, so it stands behind the
+    // gonions, inside the neck.
+    const vx: number = x - m.origin;
+    const l: number = Math.hypot(vx, pz);
+    if (l < 1e-9) return -exit(m, 1, 0)[0];
+    const ux: number = vx / l;
+    const uz: number = pz / l;
+    const [reach, nx, nz] = exit(m, ux, uz);
+    const d: number = (l - reach) * Math.max(0.2, ux * nx + uz * nz);
+    return d / Math.hypot(nx, nz / s);
+  }
+
+  /**
+   * Where a ray from the arch's origin leaves its left half, and the
+   * outline's outward normal there: `[distance, nx, nz]`, for `uz >= 0`.
+   */
+  function exit(m: IMandible, ux: number, uz: number): [number, number, number] {
+    const [sx, sz] = m.side;
+    const along: number = ux * sx + uz * sz;
+    if (along > 1e-12) {
+      const t: number = ((m.start[0] - m.origin) * sx + m.start[1] * sz) / along;
+      const qx: number = m.origin + t * ux;
+      const qz: number = t * uz;
+      const ex: number = m.end[0] - m.start[0];
+      const ez: number = m.end[1] - m.start[1];
+      const f: number = ((qx - m.start[0]) * ex + (qz - m.start[1]) * ez) / (ex * ex + ez * ez);
+      if (f >= 0 && f <= 1) return [t, sx, sz];
+    }
+    const centre: number = m.front - m.radius;
+    const w: number = m.origin - centre;
+    const b: number = w * ux;
+    const root: number = b * b - (w * w - m.radius * m.radius);
+    if (root >= 0) {
+      const t: number = -b + Math.sqrt(root);
+      const nx: number = (m.origin + t * ux - centre) / m.radius;
+      if (t > 0 && nx >= sx) return [t, nx, (t * uz) / m.radius];
+    }
+    const g: number = m.origin - m.gonion;
+    const a2: number = (ux / m.back) ** 2 + (uz / m.width) ** 2;
+    const b2: number = (2 * g * ux) / m.back ** 2;
+    const c2: number = (g / m.back) ** 2 - 1;
+    const t: number = (-b2 + Math.sqrt(Math.max(0, b2 * b2 - 4 * a2 * c2))) / (2 * a2);
+    const gx: number = (m.origin + t * ux - m.gonion) / m.back ** 2;
+    const gz: number = (t * uz) / m.width ** 2;
+    const n: number = Math.hypot(gx, gz) || 1;
+    return [t, gx / n, gz / n];
   }
 
   /**
    * Signed distance from the jaw's skin, negative inside, first order.
    *
-   * In plan the jaw is an arch, an ellipse about the gonion, long ahead of it
-   * and short behind. Seen from the side its border is the mandibular plane
-   * through the menton, turning up at the gonial angle into the ramus's
-   * posterior border, the corner rounded by the soft tissue. Under the border
-   * the skin falls inward at a fixed angle to meet the neck, and the two faces
-   * meet over that soft tissue's radius. The body ends inside the face a fixed
-   * height over its border, softly.
+   * In plan the jaw is an arch from the gonions to the chin, leaning in from
+   * the cheek above its border. Seen from the side its border is the
+   * mandibular plane through the menton, turning up at the gonial angle into
+   * the ramus's posterior border, the corner rounded by the soft tissue. Under
+   * the border the skin falls inward at a fixed angle to meet the neck, and
+   * the two faces meet over that soft tissue's radius. The body ends inside
+   * the face a fixed height over its border, softly.
    */
   export function mandible(
     m: IMandible,
@@ -673,7 +750,7 @@ export namespace AutoMovieHumanHeadConstruction {
     y: number,
     z: number,
   ): number {
-    const plan: number = arch(m, x, z);
+    const plan: number = arch(m, x, y, z);
     const line: number = m.menton + (m.chin - x) * m.slope;
     const below: number = (line - y) * m.cos;
     const behind: number =
@@ -793,6 +870,12 @@ export namespace AutoMovieHumanHeadConstruction {
     /** Neck ring's radial difference from the law, right side. */
     neckRight: number[];
 
+    /** The neck's radial slope with height at its ring over the law's, left side. */
+    slopeLeft: number[];
+
+    /** See {@link slopeLeft}, right side. */
+    slopeRight: number[];
+
     /** Neck ring's height off its plane, left side. */
     riseLeft: number[];
 
@@ -823,7 +906,15 @@ export namespace AutoMovieHumanHeadConstruction {
     const { compiled, plan } = surface;
     const m: ISection = section(compiled, plan, s);
     const ox: number = (m.front + m.back) / 2;
-    const fade: number = Math.max(0, 1 - m.t / NECK_FADE) ** 2;
+    // The neck ring's difference from the law hands over as a cubic Hermite
+    // span: the ring's own place and slope at its start, nothing at the end.
+    // A weight falling at the ring under the law's own slope met the neck's
+    // rising throat at a ridge turning 45 degrees round the front of the
+    // neck; the slope carried on a straight line overshot the sides, where the
+    // neck narrows at 2 mm per mm, into a dent.
+    const along: number = Math.min(1, m.t / NECK_FADE);
+    const fade: number = 1 - smooth(along);
+    const run: number = (s - plan.y0) * (1 - along) ** 2;
     const cos: number = Math.cos(m.tilt);
     const sin: number = Math.sin(m.tilt);
     const left: Vec3[] = new Array<Vec3>(ANGLES + 1);
@@ -835,8 +926,13 @@ export namespace AutoMovieHumanHeadConstruction {
       guess = r;
       const c: number = Math.cos(theta);
       const n: number = Math.sin(theta);
-      const emit = (delta: number, rise: number, sign: 1 | -1): Vec3 => {
-        const r0: number = r + fade * delta;
+      const emit = (
+        delta: number,
+        slope: number,
+        rise: number,
+        sign: 1 | -1,
+      ): Vec3 => {
+        const r0: number = r + fade * (delta + run * slope);
         const xi: number = ox + r0 * c;
         const z: number = sign * r0 * n;
         const x: number = xi * cos;
@@ -846,8 +942,8 @@ export namespace AutoMovieHumanHeadConstruction {
         const xi1: number = ox + r1 * c;
         return [xi1 * cos, s + xi1 * sin + fade * rise, sign * r1 * n];
       };
-      left[j] = emit(surface.neckLeft[j]!, surface.riseLeft[j]!, 1);
-      right[j] = emit(surface.neckRight[j]!, surface.riseRight[j]!, -1);
+      left[j] = emit(surface.neckLeft[j]!, surface.slopeLeft[j]!, surface.riseLeft[j]!, 1);
+      right[j] = emit(surface.neckRight[j]!, surface.slopeRight[j]!, surface.riseRight[j]!, -1);
     }
     return { left, right };
   }
@@ -1038,6 +1134,34 @@ export namespace AutoMovieHumanHeadConstruction {
       // that was a slit 38 mm deep up the front of the neck.
       const ray: number = Math.min(Math.PI - OFF_VERTEX, Math.max(OFF_VERTEX, theta));
       out.push(AutoMovieHumanPolarSection.radius(ring, [ox, 0], sign * ray) - r);
+    }
+    return out;
+  }
+
+  /**
+   * The neck's radial slope with height at its ring, over the law's own there,
+   * along the same rays, per side: from the ring and one just under it.
+   */
+  function neckSlope(
+    compiled: ICompiled,
+    plan: ILayout,
+    ring: readonly [number, number][],
+    under: readonly [number, number][],
+    drop: number,
+    sign: 1 | -1,
+  ): number[] {
+    const m: ISection = section(compiled, plan, plan.y0);
+    const up: ISection = section(compiled, plan, plan.y0 + drop);
+    const ox: number = (m.front + m.back) / 2;
+    const out: number[] = [];
+    for (let j: number = 0; j <= ANGLES; j++) {
+      const theta: number = (Math.PI * j) / ANGLES;
+      const ray: number = Math.min(Math.PI - OFF_VERTEX, Math.max(OFF_VERTEX, theta));
+      const neck: number =
+        AutoMovieHumanPolarSection.radius(ring, [ox, 0], sign * ray) -
+        AutoMovieHumanPolarSection.radius(under, [ox, 0], sign * ray);
+      const law: number = radius(up, ox, theta) - radius(m, ox, theta);
+      out.push((neck - law) / drop);
     }
     return out;
   }
@@ -1562,11 +1686,19 @@ export namespace AutoMovieHumanHeadConstruction {
     const flat: [number, number][] = ring.map(
       (p: Vec3): [number, number] => [p[0], p[2]],
     );
+    const step: number = Math.min(NECK_STEP * scale, (top - neckChain.layers[0]!.y) / 2);
+    const beneath: Vec3[] = AutoMovieHumanLoftChain.ring(neckChain, top - step, dense);
+    const drop: number = level - mean(beneath.map((p: Vec3): number => p[1]));
+    const under: [number, number][] = beneath.map(
+      (p: Vec3): [number, number] => [p[0], p[2]],
+    );
     const surface: ISurface = {
       compiled,
       plan,
       neckLeft: neckDelta(compiled, plan, flat, 1),
       neckRight: neckDelta(compiled, plan, flat, -1),
+      slopeLeft: neckSlope(compiled, plan, flat, under, drop, 1),
+      slopeRight: neckSlope(compiled, plan, flat, under, drop, -1),
       riseLeft: neckRise(compiled, plan, ring, 1),
       riseRight: neckRise(compiled, plan, ring, -1),
       cut: new Map(),
@@ -1615,7 +1747,10 @@ export namespace AutoMovieHumanHeadConstruction {
     plan.left.seat = frontAt(surface, plan.eye, plan.left.place) - seat;
     plan.right.seat = frontAt(surface, plan.eye, -plan.right.place) - seat;
 
-    // The jaw, from the chin's skin, the ears and the public jaw width.
+    // The jaw, from the chin's skin, the ears, the public jaw width and the
+    // cheek at the zygomatic arch, which runs forward from the ear at about
+    // the height of its centre.
+    const arch: number = (left.bottom + left.top + right.bottom + right.top) / 4;
     plan.mandible = jawOf(
       plan,
       prior.mandible,
@@ -1630,6 +1765,7 @@ export namespace AutoMovieHumanHeadConstruction {
       ),
       (left.x + right.x) / 2,
       inputs.head.mandibularWidth * scale,
+      [widest(compiled, plan, arch), arch],
     );
     surface.cut.clear();
 
@@ -1769,7 +1905,8 @@ export namespace AutoMovieHumanHeadConstruction {
         nostril(surface, -1),
         margin(plan, prior.face, eyes[0]!, plan.left, 1),
         margin(plan, prior.face, eyes[1]!, plan.right, -1),
-        mouth.aperture,
+        // `mouth.aperture` opens the lips; it joins these openings once the
+        // mouth test passes on every person (packages/human/docs/generalization.md, The mouth).
       ],
       eyes,
       lips: lipSpans(surface),
@@ -1943,8 +2080,9 @@ export namespace AutoMovieHumanHeadConstruction {
    * The person's mandible: the plane through the chin's skin at the menton at
    * its angle, the gonion on it a fixed distance ahead of the ears' line at
    * half the jaw width, the ramus leaning back by the gonial angle, the body as
-   * tall as the menton to the stomion. The soft tissue over it, and so its
-   * roundings, grows with fat.
+   * tall as the menton to the stomion, and its side leaning in from the cheek,
+   * `[half-width, height]` at the zygomatic arch, to the angle. The soft tissue
+   * over it, and so its roundings, grows with fat.
    */
   function jawOf(
     plan: ILayout,
@@ -1952,6 +2090,7 @@ export namespace AutoMovieHumanHeadConstruction {
     chin: number,
     ear: number,
     width: number,
+    cheek: [number, number],
   ): IMandible {
     const k: number = plan.scale;
     const degree: number = Math.PI / 180;
@@ -1962,13 +2101,48 @@ export namespace AutoMovieHumanHeadConstruction {
     const round: number = j.round * soft * k;
     const gonion: number = ear + j.gonion * k;
     const slope: number = Math.tan(plane);
+    const gonionY: number = plan.menton + (chin - gonion) * slope;
+    const front: number = chin - j.inset * j.taper * round;
+    const half: number = width / 2;
+    const back: number = j.back * half;
+
+    // The chin turns with the curvature of the parabola through the chin's
+    // front and both gonions, the arch form of the mandible's base; the sides
+    // run straight from it to the ellipse about the gonions, tangent to both.
+    const radius: number = Math.min(0.9 * half, half ** 2 / (2 * (front - gonion)));
+    const centre: number = front - radius;
+    const gap = (phi: number): number =>
+      centre * Math.sin(phi) +
+      radius -
+      gonion * Math.sin(phi) -
+      Math.hypot(back * Math.sin(phi), half * Math.cos(phi));
+    let lo: number = 0;
+    let hi: number = Math.PI / 2;
+    for (let i: number = 0; i < 60; i++) {
+      const mid: number = (lo + hi) / 2;
+      if (gap(mid) < 0) lo = mid;
+      else hi = mid;
+    }
+    const nx: number = Math.sin(lo);
+    const nz: number = Math.cos(lo);
+    const q: number = Math.hypot(back * nx, half * nz);
+
+    // The masseter runs from the zygomatic arch down to the angle, so the
+    // jaw's side leans in from the cheek at the arch's height to the gonion.
+    const rise: number = cheek[1] - gonionY;
+    const spread: number = rise > 10 * k ? (cheek[0] - half) / rise / half : 0;
     return {
-      front: chin - j.inset * j.taper * round,
+      front,
       gonion,
-      gonionY: plan.menton + (chin - gonion) * slope,
-      width: width / 2,
-      back: (j.back * width) / 2,
-      power: j.power,
+      gonionY,
+      width: half,
+      back,
+      radius,
+      origin: gonion - back / 2,
+      side: [nx, nz],
+      start: [gonion + (back ** 2 * nx) / q, (half ** 2 * nz) / q],
+      end: [centre + radius * nx, radius * nz],
+      spread,
       chin,
       menton: plan.menton,
       slope,
@@ -1986,6 +2160,18 @@ export namespace AutoMovieHumanHeadConstruction {
   /** Growth of the jaw's soft tissue with fat, from the prior's at none. */
   function softness(j: AutoMovieHumanHeadPrior.IMandible, fat: number): number {
     return Math.exp(j.fat * fat);
+  }
+
+  /** Widest half-width of the section at a station, before its reliefs. */
+  function widest(compiled: ICompiled, plan: ILayout, s: number): number {
+    const m: ISection = section(compiled, plan, s);
+    const ox: number = (m.front + m.back) / 2;
+    let out: number = 0;
+    for (let j: number = 0; j <= ANGLES / 4; j++) {
+      const theta: number = (4 * Math.PI * j) / ANGLES;
+      out = Math.max(out, radius(m, ox, theta) * Math.sin(theta));
+    }
+    return out;
   }
 
   /** Forward coordinate of the skin at a world height and lateral place. */
@@ -2042,6 +2228,9 @@ const HANDED: number = 0.7;
 
 /** Station by which the neck ring's own difference has left the sections. */
 const NECK_FADE: number = 0.95;
+
+/** Height under the neck's top ring its slope is read over, millimetres. */
+const NECK_STEP: number = 2;
 
 /** Sharpness of the union of the back body and the shield. */
 const POWER: number = 5;

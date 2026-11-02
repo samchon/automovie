@@ -93,6 +93,74 @@ export namespace AutoMovieHumanAperturePocket {
   }
 
   /**
+   * Each rim vertex's last control: on a circle about the pole, half the
+   * rim's mean distance from the opening's axis, at the vertex's share of the
+   * rim's length round from a phase that best keeps each vertex's own
+   * bearing. Last controls at half the vertex's own offset shrank the rim's
+   * shape whole toward the pole, so a teardrop kept its narrow ends at every
+   * depth, and since a homothety keeps angles, the walls there turned as
+   * sharply between two meridians mid-depth as the rim does at the skin: 40
+   * to 50 degrees. On a circle the pocket rounds as it deepens. Empty when the
+   * rim is not one loop.
+   */
+  function landings(
+    vertices: readonly number[],
+    owners: ReadonlyMap<number, IAutoMovieHumanApertureEdge>,
+    inwards: ReadonlyMap<number, [number, number]>,
+    tip: readonly number[],
+    outline: AutoMovieHumanLoftAperture.IOutline,
+  ): Map<number, number[]> {
+    const out: Map<number, number[]> = new Map();
+    const order: number[] = [vertices[0]!];
+    for (let k: number = 1; k < vertices.length; k++) {
+      const next: number | undefined = owners.get(order[k - 1]!)?.v;
+      if (next === undefined || next === vertices[0]) break;
+      order.push(next);
+    }
+    if (order.length !== vertices.length) return out;
+    const flat = (v: number): [number, number] => {
+      const w: [number, number] = inwards.get(v)!;
+      return [-w[0], -w[1]];
+    };
+    const arc: number[] = [0];
+    let area: number = 0;
+    order.forEach((v: number, k: number): void => {
+      const a: [number, number] = flat(v);
+      const b: [number, number] = flat(order[(k + 1) % order.length]!);
+      area += a[0] * b[1] - a[1] * b[0];
+      arc.push(arc[k]! + Math.hypot(b[0] - a[0], b[1] - a[1]));
+    });
+    const total: number = arc[order.length]!;
+    if (!(total > 0)) return out;
+    const sense: number = area >= 0 ? 1 : -1;
+    let cx: number = 0;
+    let cy: number = 0;
+    let mean: number = 0;
+    order.forEach((v: number, k: number): void => {
+      const a: [number, number] = flat(v);
+      const bearing: number =
+        Math.atan2(a[1], a[0]) - (sense * 2 * Math.PI * arc[k]!) / total;
+      cx += Math.cos(bearing);
+      cy += Math.sin(bearing);
+      mean += Math.hypot(a[0], a[1]) / order.length;
+    });
+    const start: number = Math.atan2(cy, cx);
+    order.forEach((v: number, k: number): void => {
+      const phi: number = start + (sense * 2 * Math.PI * arc[k]!) / total;
+      out.set(
+        v,
+        tip.map(
+          (value: number, a: number): number =>
+            value +
+            (mean / 2) *
+              (Math.cos(phi) * outline.lateral[a]! + Math.sin(phi) * outline.up[a]!),
+        ),
+      );
+    });
+    return out;
+  }
+
+  /**
    * Close a cut rim using cubic meridians with its exterior transverse jet.
    * The first control follows the source triangle's tangent plane. The last
    * control lies in the pole's plane perpendicular to the aperture axis,
@@ -164,6 +232,13 @@ export namespace AutoMovieHumanAperturePocket {
       slopes.set(v, hit.gradient[0] * inward[0] + hit.gradient[1] * inward[1]);
     }
 
+    const landing: Map<number, number[]> = landings(
+      vertices,
+      owners,
+      inwards,
+      tip,
+      outline,
+    );
     const controls: IControls[] = vertices.map((v: number): IControls => {
       const p: number[] = [0, 1, 2].map(
         (a: number): number => mesh.positions[3 * v + a]!,
@@ -199,9 +274,9 @@ export namespace AutoMovieHumanAperturePocket {
         (value: number, a: number): number =>
           value + (tangent[a]! * handle) / speed,
       );
-      const last: number[] = tip.map(
-        (value: number, a: number): number => value - radial[a]! / 2,
-      );
+      const last: number[] =
+        landing.get(v) ??
+        tip.map((value: number, a: number): number => value - radial[a]! / 2);
       return [p, first, last, tip];
     });
     const rings: Map<number, number[]> = new Map();
