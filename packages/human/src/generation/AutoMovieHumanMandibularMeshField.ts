@@ -1,125 +1,175 @@
-import { AutoMovieHumanMandibularBorder as Border } from "./AutoMovieHumanMandibularBorder";
+import type { AutoMovieHumanMandibularBorder as Border } from "./AutoMovieHumanMandibularBorder";
 
-/** Physical closest-triangle query over the actual emitted mandibular patch. */
+/** Physical closest-triangle query over an immutable emitted mandibular patch. */
 export namespace AutoMovieHumanMandibularMeshField {
-  /** Cached spatial query; physical source normals determine its local sign. */
+  /** Physical XYZ coordinates in the body frame, in millimetres. */
+  type Point = Border.Point;
+
+  /** Cached spatial query; authored source normals determine its local sign. */
   export interface IPrepared {
-    /** Signed physical distance to the emitted patch, millimetres; negative inward. */
+    /** Signed physical distance to the emitted patch; negative points inward. */
     field(x: number, y: number, z: number): number;
   }
 
-  /** Bounding-volume node, with triangle leaves small enough for direct reads. */
-  interface INode {
-    /** Lower body-coordinate corner of this node's physical bounding box. */
-    min: Border.Point;
-    /** Upper body-coordinate corner of this node's physical bounding box. */
-    max: Border.Point;
-    /** First spatial child; absent on a triangle leaf. */
-    left?: INode;
-    /** Second spatial child; absent on a triangle leaf. */
-    right?: INode;
-    /** Original triangle indices owned by a leaf; absent on an internal node. */
-    triangles?: number[];
-  }
-
-  /** Physical displacement. */
-  function subtract(a: Border.Point, b: Border.Point): Border.Point { return [a[0] - b[0], a[1] - b[1], a[2] - b[2]]; }
-
-  /** Physical dot product. */
-  function dot(a: Border.Point, b: Border.Point): number { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; }
-
-  /** Barycentric coordinates of the closest point on a physical triangle. */
-  function closest(p: Border.Point, a: Border.Point, b: Border.Point, c: Border.Point): [number, number, number] {
-    const ab: Border.Point = subtract(b, a);
-    const ac: Border.Point = subtract(c, a);
-    const ap: Border.Point = subtract(p, a);
-    const d1: number = dot(ab, ap);
-    const d2: number = dot(ac, ap);
-    if (d1 <= 0 && d2 <= 0) return [1, 0, 0];
-    const bp: Border.Point = subtract(p, b);
-    const d3: number = dot(ab, bp);
-    const d4: number = dot(ac, bp);
-    if (d3 >= 0 && d4 <= d3) return [0, 1, 0];
-    const vc: number = d1 * d4 - d3 * d2;
-    if (vc <= 0 && d1 >= 0 && d3 <= 0) { const v: number = d1 / (d1 - d3); return [1 - v, v, 0]; }
-    const cp: Border.Point = subtract(p, c);
-    const d5: number = dot(ab, cp);
-    const d6: number = dot(ac, cp);
-    if (d6 >= 0 && d5 <= d6) return [0, 0, 1];
-    const vb: number = d5 * d2 - d1 * d6;
-    if (vb <= 0 && d2 >= 0 && d6 <= 0) { const w: number = d2 / (d2 - d6); return [1 - w, 0, w]; }
-    const va: number = d3 * d6 - d5 * d4;
-    if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) { const w: number = (d4 - d3) / (d4 - d3 + d5 - d6); return [0, 1 - w, w]; }
-    const inverse: number = 1 / (va + vb + vc);
-    const v: number = vb * inverse;
-    const w: number = vc * inverse;
-    return [1 - v - w, v, w];
-  }
-
-  /** Prepare a BVH once; no query changes or rebuilds the physical patch. */
-  export function prepare(vertices: Border.Point[], triangles: [number, number, number][], normals: Border.Point[]): IPrepared {
-    /** Spatial median split changes only lookup cost, never geometry. */
-    function build(indices: number[]): INode {
-      const min: Border.Point = [Infinity, Infinity, Infinity];
-      const max: Border.Point = [-Infinity, -Infinity, -Infinity];
-      for (const i of indices) for (const vertex of triangles[i]!) for (let j: number = 0; j < 3; j++) {
-        min[j] = Math.min(min[j]!, vertices[vertex]![j]!);
-        max[j] = Math.max(max[j]!, vertices[vertex]![j]!);
+  /**
+   * Preserve the source's arithmetic, eight-triangle leaves and visitation ties.
+   * Each row stores nine positions, six edge components and nine authored normals.
+   * Build sorting costs O(T log-squared T), snapshot storage is O(T), and the
+   * reusable DFS stack is O(log T). Triangle queries allocate no tuples. A query
+   * visits O(T) triangles in the worst case. Rebuild after changing the source.
+   * Callers must finish each synchronous query before
+   * starting the next; no callback is called while the shared scratch is active.
+   */
+  export function prepare(vertices: Point[], triangles: [number, number, number][], normals: Point[]): IPrepared {
+    const rows: Float64Array = new Float64Array(triangles.length * 24);
+    for (let index: number = 0; index < triangles.length; index++) {
+      const ids: [number, number, number] = triangles[index]!;
+      const row: number = index * 24;
+      for (let corner: number = 0; corner < 3; corner++) {
+        for (let axis: number = 0; axis < 3; axis++) {
+          rows[row + corner * 3 + axis] = vertices[ids[corner]!]![axis]!;
+          rows[row + 15 + corner * 3 + axis] = normals[ids[corner]!]![axis]!;
+        }
       }
-      if (indices.length <= 8) return { min, max, triangles: indices };
-      let axis: number = 0;
-      for (let j: number = 1; j < 3; j++) if (max[j]! - min[j]! > max[axis]! - min[axis]!) axis = j;
-      const center = (i: number): number => triangles[i]!.reduce((sum: number, v: number): number => sum + vertices[v]![axis]!, 0);
-      indices.sort((a: number, b: number): number => center(a) - center(b));
-      const mid: number = indices.length >>> 1;
-      return { min, max, left: build(indices.slice(0, mid)), right: build(indices.slice(mid)) };
+      for (let axis: number = 0; axis < 3; axis++) {
+        rows[row + 9 + axis] = rows[row + 3 + axis]! - rows[row + axis]!;
+        rows[row + 12 + axis] = rows[row + 6 + axis]! - rows[row + axis]!;
+      }
     }
 
-    const root: INode = build(triangles.map((_t: [number, number, number], i: number): number => i));
+    const boundsBuild: number[] = [];
+    const nodesBuild: number[] = [];
+    const leavesBuild: number[] = [];
+    let depth: number = 0;
+
+    /** Reproduce the source's stable centroid sort and exact split topology. */
+    function build(indices: number[], level: number): number {
+      depth = Math.max(depth, level);
+      const node: number = nodesBuild.length / 4;
+      const min: Point = [Infinity, Infinity, Infinity];
+      const max: Point = [-Infinity, -Infinity, -Infinity];
+      for (const index of indices) for (const vertex of triangles[index]!) for (let axis: number = 0; axis < 3; axis++) {
+        min[axis] = Math.min(min[axis]!, vertices[vertex]![axis]!);
+        max[axis] = Math.max(max[axis]!, vertices[vertex]![axis]!);
+      }
+      boundsBuild.push(...min, ...max);
+      nodesBuild.push(-1, -1, 0, 0);
+      if (indices.length <= 8) {
+        nodesBuild[node * 4 + 2] = leavesBuild.length;
+        nodesBuild[node * 4 + 3] = indices.length;
+        leavesBuild.push(...indices);
+        return node;
+      }
+      let axis: number = 0;
+      for (let candidate: number = 1; candidate < 3; candidate++) if (max[candidate]! - min[candidate]! > max[axis]! - min[axis]!) axis = candidate;
+      /** Read a triangle's immutable centroid coordinate for spatial sorting. */
+      const center: (index: number) => number = (index: number): number => triangles[index]!.reduce((sum: number, vertex: number): number => sum + vertices[vertex]![axis]!, 0);
+      indices.sort((a: number, b: number): number => center(a) - center(b));
+      const middle: number = indices.length >>> 1;
+      nodesBuild[node * 4] = build(indices.slice(0, middle), level + 1);
+      nodesBuild[node * 4 + 1] = build(indices.slice(middle), level + 1);
+      return node;
+    }
+    build(triangles.map((_triangle: [number, number, number], index: number): number => index), 0);
+    const boxes: Float64Array = Float64Array.from(boundsBuild);
+    const nodes: Int32Array = Int32Array.from(nodesBuild);
+    const leaves: Uint32Array = Uint32Array.from(leavesBuild);
+    const stackNodes: Int32Array = new Int32Array(depth + 2);
+    const stackBounds: Float64Array = new Float64Array(depth + 2);
+    let px: number = 0, py: number = 0, pz: number = 0;
+    let u: number = 0, v: number = 0, w: number = 0;
+    let best: number = Infinity, signed: number = Infinity;
+
+    /** Same max and sum operation order as the source, computed once per node. */
+    function bound(node: number): number {
+      const at: number = node * 6;
+      const dx: number = Math.max(boxes[at]! - px, 0, px - boxes[at + 3]!);
+      const dy: number = Math.max(boxes[at + 1]! - py, 0, py - boxes[at + 4]!);
+      const dz: number = Math.max(boxes[at + 2]! - pz, 0, pz - boxes[at + 5]!);
+      let squared: number = 0;
+      squared += dx * dx;
+      squared += dy * dy;
+      squared += dz * dz;
+      return squared;
+    }
+
+    /** Ericson regions with the source's expression order and scalar outputs. */
+    function closest(at: number): void {
+      const ax: number = rows[at]!, ay: number = rows[at + 1]!, az: number = rows[at + 2]!;
+      const abx: number = rows[at + 9]!, aby: number = rows[at + 10]!, abz: number = rows[at + 11]!;
+      const acx: number = rows[at + 12]!, acy: number = rows[at + 13]!, acz: number = rows[at + 14]!;
+      const apx: number = px - ax, apy: number = py - ay, apz: number = pz - az;
+      const d1: number = abx * apx + aby * apy + abz * apz;
+      const d2: number = acx * apx + acy * apy + acz * apz;
+      if (d1 <= 0 && d2 <= 0) { u = 1; v = 0; w = 0; return; }
+      const bpx: number = px - rows[at + 3]!, bpy: number = py - rows[at + 4]!, bpz: number = pz - rows[at + 5]!;
+      const d3: number = abx * bpx + aby * bpy + abz * bpz;
+      const d4: number = acx * bpx + acy * bpy + acz * bpz;
+      if (d3 >= 0 && d4 <= d3) { u = 0; v = 1; w = 0; return; }
+      const vc: number = d1 * d4 - d3 * d2;
+      if (vc <= 0 && d1 >= 0 && d3 <= 0) { v = d1 / (d1 - d3); u = 1 - v; w = 0; return; }
+      const cpx: number = px - rows[at + 6]!, cpy: number = py - rows[at + 7]!, cpz: number = pz - rows[at + 8]!;
+      const d5: number = abx * cpx + aby * cpy + abz * cpz;
+      const d6: number = acx * cpx + acy * cpy + acz * cpz;
+      if (d6 >= 0 && d5 <= d6) { u = 0; v = 0; w = 1; return; }
+      const vb: number = d5 * d2 - d1 * d6;
+      if (vb <= 0 && d2 >= 0 && d6 <= 0) { w = d2 / (d2 - d6); u = 1 - w; v = 0; return; }
+      const va: number = d3 * d6 - d5 * d4;
+      if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) { w = (d4 - d3) / (d4 - d3 + d5 - d6); u = 0; v = 1 - w; return; }
+      const inverse: number = 1 / (va + vb + vc);
+      v = vb * inverse;
+      w = vc * inverse;
+      u = 1 - v - w;
+    }
+
+    /** Delay authored-normal interpolation until a strictly better witness wins. */
+    function consider(index: number): void {
+      const at: number = index * 24;
+      closest(at);
+      const dx: number = px - u * rows[at]! - v * rows[at + 3]! - w * rows[at + 6]!;
+      const dy: number = py - u * rows[at + 1]! - v * rows[at + 4]! - w * rows[at + 7]!;
+      const dz: number = pz - u * rows[at + 2]! - v * rows[at + 5]! - w * rows[at + 8]!;
+      const squared: number = dx * dx + dy * dy + dz * dz;
+      if (!(squared < best)) return;
+      best = squared;
+      const nx: number = u * rows[at + 15]! + v * rows[at + 18]! + w * rows[at + 21]!;
+      const ny: number = u * rows[at + 16]! + v * rows[at + 19]! + w * rows[at + 22]!;
+      const nz: number = u * rows[at + 17]! + v * rows[at + 20]! + w * rows[at + 23]!;
+      signed = Math.sqrt(squared) * (dx * nx + dy * ny + dz * nz < 0 ? -1 : 1);
+    }
+
     return {
-      /** Read the closest emitted triangle and sign by its physical source normal. */
+      /** Read the closest emitted triangle, retaining the original strict tie rule. */
       field(x: number, y: number, z: number): number {
-        const p: Border.Point = [x, y, z];
-        let best: number = Infinity;
-        let signed: number = Infinity;
-
-        /** Conservative box lower bound permits exact closest-point pruning. */
-        function bound(node: INode): number {
-          let squared: number = 0;
-          for (let j: number = 0; j < 3; j++) {
-            const d: number = Math.max(node.min[j]! - p[j]!, 0, p[j]! - node.max[j]!);
-            squared += d * d;
+        px = x; py = y; pz = z;
+        best = Infinity;
+        signed = Infinity;
+        let size: number = 1;
+        stackNodes[0] = 0;
+        stackBounds[0] = bound(0);
+        while (size > 0) {
+          size--;
+          const node: number = stackNodes[size]!;
+          const lower: number = stackBounds[size]!;
+          if (lower > best) continue;
+          const at: number = node * 4;
+          const left: number = nodes[at]!;
+          if (left < 0) {
+            const start: number = nodes[at + 2]!;
+            const stop: number = start + nodes[at + 3]!;
+            for (let index: number = start; index < stop; index++) consider(leaves[index]!);
+            continue;
           }
-          return squared;
-        }
-
-        /** Observe actual triangles, then sign by their owned physical normals. */
-        function visit(node: INode): void {
-          if (bound(node) > best) return;
-          if (node.triangles !== undefined) {
-            for (const index of node.triangles) {
-              const ids: [number, number, number] = triangles[index]!;
-              const a: Border.Point = vertices[ids[0]]!;
-              const b: Border.Point = vertices[ids[1]]!;
-              const c: Border.Point = vertices[ids[2]]!;
-              const weights: [number, number, number] = closest(p, a, b, c);
-              const delta: Border.Point = [0, 0, 0];
-              const normal: Border.Point = [0, 0, 0];
-              for (let j: number = 0; j < 3; j++) {
-                delta[j] = p[j]! - weights[0] * a[j]! - weights[1] * b[j]! - weights[2] * c[j]!;
-                normal[j] = weights[0] * normals[ids[0]]![j]! + weights[1] * normals[ids[1]]![j]! + weights[2] * normals[ids[2]]![j]!;
-              }
-              const squared: number = dot(delta, delta);
-              if (squared < best) { best = squared; signed = Math.sqrt(squared) * (dot(delta, normal) < 0 ? -1 : 1); }
-            }
-            return;
+          const right: number = nodes[at + 1]!;
+          const a: number = bound(left), b: number = bound(right);
+          if (a < b) {
+            stackNodes[size] = right; stackBounds[size++] = b;
+            stackNodes[size] = left; stackBounds[size++] = a;
+          } else {
+            stackNodes[size] = left; stackBounds[size++] = a;
+            stackNodes[size] = right; stackBounds[size++] = b;
           }
-          const a: INode = node.left!;
-          const b: INode = node.right!;
-          if (bound(a) < bound(b)) { visit(a); visit(b); }
-          else { visit(b); visit(a); }
         }
-        visit(root);
         return signed;
       },
     };

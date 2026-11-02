@@ -1,3 +1,4 @@
+import { AutoMovieHumanFrontInverse as FrontInverse } from "./AutoMovieHumanFrontInverse";
 import { AutoMovieHumanMedianWorldY as MedianWorldY } from "./AutoMovieHumanMedianWorldY";
 import { AutoMovieHumanRadiusEpoch as RadiusEpoch } from "./AutoMovieHumanRadiusEpoch";
 import { AutoMovieHumanHeadNeckPhaseLookup as NeckPhase } from "./AutoMovieHumanHeadNeckPhaseLookup";
@@ -658,8 +659,7 @@ export namespace AutoMovieHumanHeadConstruction {
       if (!section.geometryFindings.includes(reason)) section.geometryFindings.push(reason);
     }
     return jawed(section, ox, theta, result.radius);
-  
-}
+  }
 
   /** Radius of the union of the back body and the shield along a ray. */
   function bodies(section: ISection, ox: number, theta: number, guess: number): number {
@@ -1053,6 +1053,43 @@ export namespace AutoMovieHumanHeadConstruction {
     return out;
   }
 
+  /**
+   * Observe a physical alar section without losing competing components or
+   * unresolved triangles. An empty, unambiguous outside plane returns no
+   * finding. The existing 0.025 mm scaled seam allowance remains unchanged.
+   * Returned path records retain the source point arrays and boundary labels;
+   * the function changes neither the input geometry nor its admission state.
+   *
+   * @internal
+   * @evidence contracts/common.md#principled-implementation Classifies actual section components, graph ambiguity and physical seam distances. Producer rejection reasons remain visible, and the existing scaled seam allowance is applied without moving endpoints.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps the head's admission observation in its existing namespace so both the real cut consumer and the portable regression test call one production function.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no person, fixture selector, expected dimension or replacement surface. All competing and additional components are retained in an unaccepted finding.
+   * @evidence contracts/common.md#meaningful-documentation States the physical seam allowance, empty-plane behavior, shared path-array ownership and absence of geometry mutation.
+   */
+  export function observeAlarSection(
+    station: number,
+    side: "left" | "right",
+    result: ReturnType<Alar.Owner["section"]>,
+    scale: number,
+  ): IAlarSection | undefined {
+    const excessiveGap: boolean = result.rootGaps.some((gap: number): boolean => gap > 0.025 * scale);
+    if (!(result.admission === "unaccepted" || result.remaining.length > 0 || excessiveGap || result.branching > 0 || result.coplanarTriangles > 0 || result.facePaths.length > 1)) return undefined;
+    const rejectionReasons: string[] = [...result.rejectionReasons];
+    if (excessiveGap) rejectionReasons.push("The actual attachment gap exceeds the existing physical seam allowance.");
+    return {
+      station,
+      side,
+      gaps: result.rootGaps,
+      admission: "unaccepted",
+      rejectionReasons,
+      remaining: result.remaining.map((p: ReturnType<Alar.Owner["section"]>["facePaths"][number]): IAlarPath => ({ points: p.points, closed: p.closed, startBoundary: p.startBoundary, endBoundary: p.endBoundary })),
+      facePaths: result.facePaths.map((p: ReturnType<Alar.Owner["section"]>["facePaths"][number]): IAlarPath => ({ points: p.points, closed: p.closed, startBoundary: p.startBoundary, endBoundary: p.endBoundary })),
+      facePathCount: result.facePaths.length,
+      branching: result.branching,
+      coplanarTriangles: result.coplanarTriangles,
+    };
+  }
+
   /** The section at station s, its reliefs on. */
   function cut(surface: ISurface, s: number): ISides {
     const { compiled, plan } = surface;
@@ -1101,14 +1138,9 @@ export namespace AutoMovieHumanHeadConstruction {
       const base: Vec3[] = side === "left" ? left : right;
       const result = owner.section(base, s, m.tilt);
       base.splice(0, base.length, ...result.points);
-      if (result.admission === "unaccepted" || result.remaining.length > 0 || result.rootGaps.some((gap: number): boolean => gap > 0.025 * plan.scale) || result.branching > 0 || result.coplanarTriangles > 0 || result.facePaths.length > 1) {
-        const rejectionReasons: string[] = [...result.rejectionReasons];
-        if (result.rootGaps.some((gap: number): boolean => gap > 0.025 * plan.scale)) rejectionReasons.push("The actual attachment gap exceeds the existing physical seam allowance.");
-        surface.alarSections.push({ station: s, side, gaps: result.rootGaps, admission: "unaccepted", rejectionReasons,
-          remaining: result.remaining.map((p) => ({ points: p.points, closed: p.closed, startBoundary: p.startBoundary, endBoundary: p.endBoundary })),
-          facePaths: result.facePaths.map((p) => ({ points: p.points, closed: p.closed, startBoundary: p.startBoundary, endBoundary: p.endBoundary })),
-          facePathCount: result.facePaths.length, branching: result.branching, coplanarTriangles: result.coplanarTriangles });
-      }
+      const finding: IAlarSection | undefined = observeAlarSection(s, side, result, plan.scale);
+      if (finding !== undefined) surface.alarSections.push(finding);
+
     }
     return { left, right };
   }
@@ -2413,22 +2445,12 @@ export namespace AutoMovieHumanHeadConstruction {
       return reading.point[0];
     }
     const sign: 1 | -1 = z < 0 ? -1 : 1;
-    let station: number = y;
-    let out: Vec3 = pointAt(surface, station, 0, sign);
-    for (let iteration: number = 0; iteration < 12; iteration++) {
-      let lo: number = 0;
-      let hi: number = Math.PI / 2;
-      for (let i: number = 0; i < 28; i++) {
-        const mid: number = (lo + hi) / 2;
-        if (Math.abs(pointAt(surface, station, mid, sign)[2]) < Math.abs(z)) lo = mid;
-        else hi = mid;
-      }
-      out = pointAt(surface, station, (lo + hi) / 2, sign);
-      const error: number = out[1] - y;
-      if (Math.abs(error) < 1e-6) break;
-      station -= error;
+    const reading: FrontInverse.IReading = FrontInverse.solve(y, z, (station: number, theta: number): Vec3 => pointAt(surface, station, theta, sign));
+    if (!reading.accelerated) {
+      const reason: string = "The general world-coordinate inverse retained its bounded source route: " + (reading.reason ?? "unaccepted-fast-route");
+      if (!surface.plan.geometryFindings.includes(reason)) surface.plan.geometryFindings.push(reason);
     }
-    return out[0];
+    return reading.point[0];
   }
 
   /** Exact analytic point, including relief and the neck's shared boundary. */

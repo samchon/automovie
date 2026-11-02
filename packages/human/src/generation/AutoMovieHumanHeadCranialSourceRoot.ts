@@ -40,7 +40,9 @@ export namespace AutoMovieHumanHeadCranialSourceRoot {
       const c: number = Math.cos(theta);
       const n: number = Math.sin(theta);
       let evaluations: number = 0;
-      const read = (r: number): I.Jet => { evaluations++; return operator.evaluate(originXi + r * c, r * n, false); };
+
+      /** Count actual analytic evaluations on this unchanged physical source ray. */
+      const read: (r: number) => I.Jet = (r: number): I.Jet => { evaluations++; return operator.evaluate(originXi + r * c, r * n, false); };
       let lo: number = 0;
       let hi: number = 3 * Math.max(10, section.front - section.back);
       const inside: I.Jet = read(0);
@@ -51,7 +53,9 @@ export namespace AutoMovieHumanHeadCranialSourceRoot {
       let jet: I.Jet = read(r);
       let radialResidualMm: number = Infinity;
       let coordinateBudgetMm: number = NaN;
-      const result = (healthy: boolean, iterations: number, reason?: string): IResult => {
+
+      /** Preserve failed root work separately from the retained legacy radius. */
+      const result: (healthy: boolean, iterations: number, reason?: string) => IResult = (healthy: boolean, iterations: number, reason?: string): IResult => {
         const retained: { radius: number; evaluations: number } = healthy ? { radius: r, evaluations: 0 } : legacy(section, originXi, theta, guess);
         return { radius: retained.radius, rootRadius: r, fallbackUsed: !healthy, fallbackEvaluations: retained.evaluations, healthy, iterations, evaluations, fieldResidual: Math.abs(jet.value), radialResidualMm, coordinateBudgetMm, reason };
       };
@@ -89,7 +93,9 @@ export namespace AutoMovieHumanHeadCranialSourceRoot {
     const anterior: number = neck * (section.axis - section.back) + (1 - neck) * (section.waist - section.axis);
     const c: number = Math.cos(theta);
     const n: number = Math.sin(theta);
-    const field = (radius: number): number => {
+
+    /** Count the original primal evaluations without repairing its arithmetic. */
+    const field: (radius: number) => number = (radius: number): number => {
       evaluations++;
       const x: number = originXi + radius * c;
       const z: number = radius * n;

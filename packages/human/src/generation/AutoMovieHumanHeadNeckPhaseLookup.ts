@@ -31,8 +31,9 @@ export namespace AutoMovieHumanHeadNeckPhaseLookup {
       throw new Error("A physical neck phase lookup requires a finite source ring.");
     const two: number = 2 * Math.PI;
     const phases: number[] = points.map((p: IPoint): number => Math.atan2(p[2], p[0] - origin));
-    const sorted: IPhase[] = [-1, 0, 1].flatMap((turn: number) => phases.map((phase: number, index: number) => ({ phase: phase + turn * two, index }))).sort((a, b): number => a.phase - b.phase || a.index - b.index);
-    const lower = (phase: number): number => {
+    const sorted: IPhase[] = [-1, 0, 1].flatMap((turn: number): IPhase[] => phases.map((phase: number, index: number): IPhase => ({ phase: phase + turn * two, index }))).sort((a: IPhase, b: IPhase): number => a.phase - b.phase || a.index - b.index);
+    /** Locate the first unwrapped phase without evaluating a skin metric. */
+    const lower: (phase: number) => number = (phase: number): number => {
       let lo: number = 0;
       let hi: number = sorted.length;
       while (lo < hi) { const mid: number = (lo + hi) >>> 1; if (sorted[mid]!.phase < phase) lo = mid + 1; else hi = mid; }
@@ -46,7 +47,8 @@ export namespace AutoMovieHumanHeadNeckPhaseLookup {
       let best: number = Infinity;
       let selected: number = points.length;
       let comparisons: number = 0;
-      const inspect = (index: number): void => {
+      /** Read the unchanged metric and preserve original-index tie priority. */
+      const inspect: (index: number) => void = (index: number): void => {
         const a: number = phases[index]! - theta;
         const distance: number = Math.abs(Math.atan2(Math.sin(a), Math.cos(a)));
         comparisons++;

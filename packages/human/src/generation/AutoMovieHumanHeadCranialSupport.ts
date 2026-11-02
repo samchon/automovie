@@ -36,7 +36,7 @@ export namespace AutoMovieHumanHeadCranialSupport {
     healthy: boolean;
     /** Neutral queries certify no source differential. */
     sourceChecked: boolean;
-    /** Actual implicit source residual, unavailable on the neutral bypass. */
+    /** Actual source residual when a root or differential supplied one. */
     sourceResidual: number;
     /** Explicit unaccepted geometry condition. */
     reason?: string;
@@ -116,7 +116,9 @@ export namespace AutoMovieHumanHeadCranialSupport {
       let requests: number = 0;
       let hits: number = 0;
       let sourceFailure: string | undefined;
-      const read = (angle: number): ISource => {
+
+      /** Count exact source requests and reuse only the same frozen-source angle. */
+      const read: (angle: number) => ISource = (angle: number): ISource => {
         requests++;
         const known: ISource | undefined = sources.get(angle);
         if (known !== undefined) { hits++; return known; }
@@ -127,12 +129,14 @@ export namespace AutoMovieHumanHeadCranialSupport {
         return value;
       };
       if (coefficientMm === 0) {
-        const radius: number = read(theta).radius;
-        const result: IRadius = { radius, healthy: true, sourceChecked: false, sourceResidual: NaN, angularResidual: 0, iterations: 0, solveIterations: 0, sourceQueries: requests, sourceRadiusCalls: calls, sourceCacheHits: hits, resultCacheHit: false };
+        const value: ISource = read(theta);
+        const result: IRadius = { radius: value.radius, healthy: value.root?.healthy ?? true, sourceChecked: false, sourceResidual: value.root?.fieldResidual ?? NaN, reason: value.root?.reason, angularResidual: 0, iterations: 0, solveIterations: 0, sourceQueries: requests, sourceRadiusCalls: calls, sourceCacheHits: hits, resultCacheHit: false };
         results.set(theta, result);
         return result;
       }
-      const source = (angle: number): I.PolarJet => {
+
+      /** Observe the actual source differential while retaining explicit root failures. */
+      const source: (angle: number) => I.PolarJet = (angle: number): I.PolarJet => {
         const value: ISource = read(angle);
         if (value.differential === undefined) {
           const p: [number, number] = [originXi + value.radius * Math.cos(angle), value.radius * Math.sin(angle)];
