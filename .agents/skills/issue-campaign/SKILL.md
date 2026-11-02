@@ -15,7 +15,7 @@ A cycle audits the target branch until a discovery round finds nothing new, then
 
 ## Issues
 
-With publication authority, write each accepted issue so a fresh agent can start from it alone: the problem, reproduction and root cause, consequence surface and case matrix, the invariant to restore, acceptance cases with commands, and dependencies.
+With publication authority, write each accepted issue so a fresh agent can start from it alone: the problem, reproduction and root cause, consequence surface and case matrix, the invariant to restore, acceptance cases with commands, and dependencies. Publish bodies as the [pull-request](../pull-request/SKILL.md) skill says, so their text arrives intact.
 
 ## Pull Request
 
@@ -26,5 +26,14 @@ With publication authority, write each accepted issue so a fresh agent can start
 5. On the integrated head, run [Overall Self-Review](../review/SKILL.md#overall-self-review) while CI runs. Fix every failed check, pre-existing ones included, and repeat on the new head.
 6. [Format](../development/validation.md#formatting), then [merge](../pull-request/SKILL.md) with authority once one head is green and review-clean. First read `git log origin/master..HEAD` to confirm each closed issue keeps its fix, and reopen any that does not.
 7. After merge, `git pull --ff-only` on `master`, delete the topic branch, remove only the temporary paths the campaign created, and start the next cycle.
+
+## Handoff
+
+When the user ends a campaign before it is complete, record the unfinished work as unfinished; never force a check green to close it.
+
+1. Stop every worker, keeping only changes that build, and commit them.
+2. Publish one handoff issue that a fresh session can follow as an instruction sheet: the user's standing rules, where the code, tools and tests are, the baseline results, and each open item in order with its verified cause or the hypotheses ruled out, the files and functions involved, and the next step. Copy every finding the next session needs into the issue, because local scratch files do not travel.
+3. Comment the progress on each open issue, pointing to the handoff, and close only the issues whose acceptance is met.
+4. Update the pull request body to say what is met and what is not, then merge as the user directs.
 
 The campaign is complete when a round on the latest baseline finds nothing, no accepted issue is open, and no campaign branch, pull request, or temporary asset remains.

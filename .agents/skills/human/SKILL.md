@@ -30,6 +30,6 @@ Plan only as far as the next change. When a change disproves a construction, sto
 - [Testing](testing.md): which tests to write, how to write and run them.
 - [Verification](verification.md): the score, the inspection round and the render audit.
 - [Screenshot](screenshot.md): the viewer, its capture route and the reference photographs.
-- [Workspace](workspace.md): references, ignored paths and agents sharing a checkout.
+- [Workspace](workspace.md): references and ignored paths.
 
 Tell the user only what you checked.

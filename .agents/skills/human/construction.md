@@ -4,7 +4,7 @@
 
 - Build both sides through one canonical construction and a declared reflection, including boundary maps, derivatives and orientation.
 - Build each anatomical part as an independently deformable module in its own frame under a common body frame, joined to its neighbours by a declared composition rule. Keep common mathematics in one shared module, and give each shared boundary one owner that its neighbour copies.
-- Loft a limb on its bone: stations along the bone axis and sections square to it. Horizontal sections cut a slanted limb obliquely.
+- Loft each limb and digit on its own bone.
 - Emit `IAutoMovieHumanLoftChain` under the existing chain names, so the body surface, event joins, skin, appearance and construction keep working unchanged.
 - Change the section representation only when a part shows the existing one cannot carry the law: each new representation spreads into joins, caps, normals and sampling.
 - Make skin smooth through its generating mathematics, with no smoothing pass, clamp, threshold or exclusion after construction.
@@ -20,9 +20,8 @@
 
 ## Inputs
 
-- Construct and measure each input at its published site and by its published definition: ISO 8559-1 and ANSUR II for the body, Farkas for the head, limb sections square to the bone axis. A construction that places a tape by its own convention only measures that convention back, so its misses stay invisible.
-- Check an input against its documented definition and its population relations before relying on it. Inputs taken between rig joints or at stand-in landmarks are far off their definitions.
-- Never tune the construction to an input: a factor that absorbs a wrong input becomes an error once the input is measured correctly.
+- Construct and measure each input at its published site and by its published definition: ISO 8559-1 and ANSUR II for the body, Farkas for the head.
+- Check an input against its documented definition and its population relations before relying on it, and never tune the construction to it. Inputs taken between rig joints or at stand-in landmarks are far off their definitions.
 
 ## Evidence
 
