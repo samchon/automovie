@@ -33,7 +33,7 @@ Tests, CI, wiring, dependencies, `interface` core types, and the range-of-motion
 
 ## Scripts And Shared Checkouts
 
-Write every helper script in TypeScript and run it with `ttsx`; write no `.py`, `.js` or `node -e` helper. When `ttsx` is slow or fails, report it rather than routing around it.
+Write every helper script in TypeScript and run it with `ttsx`; write no `.py`, `.js` or `node -e` helper.
 
 When several agents work in one checkout, give each its own scratch directory and server port, allow no recursive delete outside its own directory, and commit with `git add` then `git commit --only <paths>`. A shared index lets one commit sweep another agent's files, and a recursive delete can wipe every agent's scratch.
 
