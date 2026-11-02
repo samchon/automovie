@@ -374,7 +374,7 @@ function canonical(value: unknown): string {
     return (
       "{" +
       Object.keys(value)
-        .sort()
+        .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
         .filter(
           (key: string): boolean =>
             (value as Record<string, unknown>)[key] !== undefined,

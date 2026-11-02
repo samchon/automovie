@@ -33,7 +33,7 @@ import { AutoMovieHumanScalpBoundary } from "./AutoMovieHumanScalpBoundary";
  * and twist ranges (Callender 2026), not these values, which are
  * conventions of a card representation that cannot show tight coils.
  *
- * Undercoat: the scalp from six millimetres inside the scalp boundary
+ * Undercoat: the scalp from sixteen millimetres inside the scalp boundary
  * up to the vertex, its margin following the boundary as a smooth curve,
  * as an opaque shell a millimetre above the skin (below the cards, which
  * start 1.2 mm above it, and far enough that the shell does not lose the
@@ -334,7 +334,7 @@ function cards(
  * A lattice of chart directions, one column per chart azimuth cell and
  * {@link UNDERCOAT_ROWS} rows from the undercoat's edge up to the vertex,
  * which closes on one pole vertex. The edge of each column lies exactly at
- * the elevation where the skin rises 3 mm above the scalp boundary
+ * the elevation where the skin rises {@link INSET} mm above the scalp boundary
  * ({@link edge}), so the shell's margin follows the hairline as a smooth
  * curve instead of the staircase of whole chart cells.
  *
@@ -390,12 +390,15 @@ function undercoat(
 }
 
 /**
- * Height of the undercoat's edge above the scalp boundary, mm. Inside it
- * the cards' scattered root band shows the skin between hairs, so the
- * hairline feathers in; at 3 mm the opaque shell drew the hairline as a
- * hard, comb-like edge.
+ * Height of the undercoat's edge above the scalp boundary, mm: the 8 mm
+ * over which roots feather in (`AutoMovieHumanHairGuide`) plus the 8 mm
+ * root band over which each card's strands fade in. Below it the cards
+ * there are still sparse or transparent, and the skin shows between hairs,
+ * so the hairline feathers in. At 3 mm the opaque shell drew the hairline
+ * as a hard, comb-like edge, and at 6 mm its dark margin still showed in
+ * flecks between the root bands of a bob's swept front.
  */
-const INSET: number = 6;
+const INSET: number = 16;
 
 /** Undercoat rows from its edge to the row below the pole. */
 const UNDERCOAT_ROWS: number = 32;

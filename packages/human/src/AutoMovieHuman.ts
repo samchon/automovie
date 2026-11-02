@@ -322,8 +322,10 @@ function bind(
   });
   let next: number = 0;
   return out.map(
-    (part: IAutoMovieModelPart | null): IAutoMovieModelPart =>
-      part ?? dressed[next++]!,
+    (part: IAutoMovieModelPart | null): IAutoMovieModelPart => {
+      if (part !== null) return part;
+      return dressed[next++]!;
+    },
   );
 }
 

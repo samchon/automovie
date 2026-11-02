@@ -35,9 +35,10 @@ import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
  * falls). Every step above the menton keeps a clearance above the hair
  * mass's smooth envelope (`AutoMovieHumanHairEnvelope`), which drapes over
  * bumps such as the ears: crop and short hair is held at that clearance (it
- * lies on the scalp and nape) and ends where the envelope rises more than
+ * lies on the scalp and nape) and ends where the drape rises more than
  * {@link DRAPE} mm over the scalp, cut above the ear instead of standing
- * off the side of the head,
+ * off the side of the head, or where it reaches the menton's level, below
+ * which the chart no longer holds it to the head,
  * while a bob lies on the vault above the chart centre and hangs freely
  * below it, pushed out only where it would pass inside. The clearance is
  * a common layer height with a small per-root jitter plus a growth with
@@ -341,6 +342,10 @@ function solve(
     }
 
     let next: [number, number, number] = add(p, scale(heading, step));
+    // Lying cuts are held to the head, which the chart measures down to the
+    // menton; a nape strand reaching below it left the chart and stood off
+    // the neck, so it ends there.
+    if (!hang && next[1] + field.centre[1] <= menton) break;
     if (resting === null && next[1] + field.centre[1] > menton) {
       // Push out to the clearance over the envelope, which grows slowly
       // with length as later hair stacks over earlier hair.
