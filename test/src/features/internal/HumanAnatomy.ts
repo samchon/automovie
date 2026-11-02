@@ -1,6 +1,7 @@
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import { HumanPeople } from "./HumanPeople";
+import { HumanPlaneIndex } from "./HumanPlaneIndex";
 
 /**
  * Measurement of a generated person's skin: the closed triangle mesh the
@@ -182,6 +183,14 @@ export namespace HumanAnatomy {
     return Uint32Array.from(out);
   }
 
+  /**
+   * One entire arm and hand for anatomical cuts. A capsule about the straight
+   * shoulder-to-knuckle chord can crop the bent bind elbow and open its ring.
+   */
+  export function armRegion(skin: ISkin, side: "left" | "right"): Uint32Array {
+    return triangles(skin, new RegExp(`^(arm|hand|finger|thumb)\\.${side}(?:\\.|$)`));
+  }
+
   /** Vertices of the triangles whose chain name passes a test. */
   export function vertices(skin: ISkin, chain: RegExp): V3[] {
     const seen: Set<number> = new Set();
@@ -205,6 +214,23 @@ export namespace HumanAnatomy {
     for (let t: number = 0; t < skin.I.length / 3; t++)
       if (ok[skin.I[3 * t]!] || ok[skin.I[3 * t + 1]!] || ok[skin.I[3 * t + 2]!]) out.push(t);
     return Uint32Array.from(out);
+  }
+
+  /**
+   * Prepare parallel cuts of one immutable skin and region. The caller owns
+   * the index for this measurement only; the exact cutter still decides all
+   * intersections and components. Copy the normal so later caller mutation
+   * cannot separate the candidate planes from the planes actually cut.
+   */
+  export function parallel(
+    skin: ISkin,
+    normal: V3,
+    within?: Uint32Array,
+  ): (origin: V3, pick?: V3) => ICut | null {
+    const direction: V3 = [...normal];
+    const index: HumanPlaneIndex = new HumanPlaneIndex(skin, direction, within);
+    return (origin: V3, pick: V3 = origin): ICut | null =>
+      cut(skin, origin, direction, pick, index.query(origin));
   }
 
   /**

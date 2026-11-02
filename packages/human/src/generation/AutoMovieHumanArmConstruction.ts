@@ -7,6 +7,7 @@ import { AutoMovieHumanPolarSection } from "../lofting/AutoMovieHumanPolarSectio
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
+import { AutoMovieHumanArmTapes } from "./AutoMovieHumanArmTapes";
 import { AutoMovieHumanLimbFrame } from "./AutoMovieHumanLimbFrame";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -24,8 +25,8 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * lofted on the skeleton, its walk turning at the skeleton's elbow.
  *
  * About that axis a section is an ellipse in the plane across the bone. Its
- * size is a natural spline through the shoulder ring's size and the circles of
- * the biceps, elbow, forearm and wrist tapes, and its aspect runs from the
+ * size follows the biceps, elbow, forearm and wrist tapes at their bone sites,
+ * normalized by each ellipse's perimeter, and its aspect runs from the
  * wrist's flat oval to the nearly round arm. A layer is that tube cut by the
  * plane square to the bone: the plane's normal is the bone's heading, which
  * turns with the walk at the elbow, turns onto the hand's own axis over the
@@ -251,15 +252,17 @@ export namespace AutoMovieHumanArmConstruction {
     const hand: IForm = form();
     const ring: IRing = shoulder(calibration, side, sign);
     const elbow: Vec3 | undefined = elbowOf(skeleton, side, sign);
+    const shoulderJoint: Vec3 | undefined = jointOf(skeleton, `${side}UpperArm`, sign);
+    const wristJoint: Vec3 | undefined = jointOf(skeleton, `${side}Hand`, sign);
 
     // The crease and the hand's origin stand on the tube, whatever the hand's
     // breadth, so a first build places the knuckles the breadth is read on.
-    const first: IArm = arm(ring, inputs, { ...given, across: 1 }, elbow);
+    const first: IArm = arm(ring, inputs, { ...given, across: 1 }, elbow, shoulderJoint, wristJoint);
     const measures: IShaped = {
       ...given,
       across: acrossOf(hand, given, inputs, first.wrist, first.crease),
     };
-    const law: IArm = arm(ring, inputs, measures, elbow);
+    const law: IArm = arm(ring, inputs, measures, elbow, shoulderJoint, wristJoint);
     const map = (q: readonly [number, number, number]): Vec3 =>
       handPoint(q, measures, inputs.circumference, inputs.scale, law.wrist);
 
@@ -324,6 +327,20 @@ export namespace AutoMovieHumanArmConstruction {
     );
     if (bone === undefined)
       throw new Error(`The skeleton lacks the ${side} elbow`);
+    return sided(bone.position, sign);
+  }
+
+  /** A named bind joint in the canonical left arm's frame. */
+  function jointOf(
+    skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[] | undefined,
+    name: string,
+    sign: 1 | -1,
+  ): Vec3 | undefined {
+    if (skeleton === undefined) return undefined;
+    const bone: AutoMovieHumanSkeletonLaw.IBone | undefined = skeleton.find(
+      (b: AutoMovieHumanSkeletonLaw.IBone): boolean => b.bone === name,
+    );
+    if (bone === undefined) throw new Error(`The skeleton lacks ${name}`);
     return sided(bone.position, sign);
   }
 
@@ -449,6 +466,8 @@ export namespace AutoMovieHumanArmConstruction {
     inputs: IInputs,
     hand: IShaped,
     elbow?: Vec3,
+    shoulderJoint?: Vec3,
+    wristJoint?: Vec3,
   ): IArm {
     const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
     if (
@@ -509,44 +528,6 @@ export namespace AutoMovieHumanArmConstruction {
       }
     }
 
-    // Size through the tapes, and aspect, by the walk's fraction of the arm.
-    const keys: AutoMovieHumanArmPrior.IKey[] = [
-      prior.bicep,
-      prior.elbow,
-      prior.forearm,
-      prior.wrist,
-    ];
-    const tapes: number[] = [
-      inputs.bicep,
-      inputs.elbow,
-      inputs.forearm,
-      inputs.wrist,
-    ];
-    const stations: number[] = [
-      0,
-      ...keys.map((k: AutoMovieHumanArmPrior.IKey): number => k.station),
-    ];
-    // The shoulder ring is a level cut of the arm, which leaves it at an angle
-    // to the vertical, so it encloses the area of the section square to the
-    // bone over the cosine of that angle; the tube starts from that section.
-    // Taken as square, the level ring's size swells the arm's root into a cap
-    // over a narrower arm.
-    const rise: number = Math.abs(heading(prior, 0, upper, soft)[1]);
-    const size: AutoMovieHumanNaturalSpline.ISpline =
-      AutoMovieHumanNaturalSpline.create(stations, [
-        Math.log(Math.sqrt((ring.area * rise) / Math.PI)),
-        ...keys.map((k: AutoMovieHumanArmPrior.IKey, i: number): number =>
-          Math.log((tapes[i]! * k.ratio) / (2 * Math.PI)),
-        ),
-      ]);
-    const round: AutoMovieHumanNaturalSpline.ISpline =
-      AutoMovieHumanNaturalSpline.create(stations, [
-        prior.aspect[3]!,
-        prior.aspect[3]!,
-        prior.aspect[2]!,
-        prior.aspect[1]!,
-        prior.aspect[0]!,
-      ]);
     const before: Vec3 = heading(prior, 0, upper, soft);
     const at = (s: number): Vec3 => {
       // Above the shoulder the bone runs on: the top layers' cuts reach it.
@@ -567,13 +548,62 @@ export namespace AutoMovieHumanArmConstruction {
         a[2] + f * (b[2] - a[2]),
       ];
     };
+
+    // The clinical sites live on each bone. de Leva's offsets put acromion
+    // 34 mm above the shoulder centre and stylion 1.5 mm before the wrist.
+    // Intersect their planes with the walk rather than assuming that a fitted
+    // fraction of total arm length still selects the elbow or upper-arm tape.
+    const shoulderSite: Vec3 = shoulderJoint ?? at(0);
+    const elbowSite: Vec3 = at(upper);
+    const wristSite: Vec3 = wristJoint ?? at(total);
+    const upperAxis: Vec3 = unit(sub(elbowSite, shoulderSite));
+    const foreAxis: Vec3 = unit(sub(wristSite, elbowSite));
+    const stationAt = (point: Vec3, normal: Vec3): number => {
+      let lo: number = 0;
+      let hi: number = (count - 1) * WALK;
+      for (let i: number = 0; i < 40; i++) {
+        const mid: number = (lo + hi) / 2;
+        if (dot(sub(at(mid), point), normal) < 0) lo = mid;
+        else hi = mid;
+      }
+      return (lo + hi) / 2;
+    };
+    const bicepStation: number = stationAt(
+      scale(sub(shoulderSite, scale(upperAxis, 34)), 0.5).map(
+        (v: number, i: number): number => v + 0.5 * elbowSite[i]!,
+      ) as Vec3,
+      upperAxis,
+    );
+    const wristStation: number = stationAt(sub(wristSite, scale(foreAxis, 1.5)), foreAxis);
+
+    // A single proximal forearm belly lies one third of the bone's run below
+    // the elbow. Its location is a shared shape convention; its circumference
+    // is the requested maximum, with monotone runs on either side.
+    const stations: number[] = [0, bicepStation, upper, upper + (wristStation - upper) / 3, wristStation];
+    const round: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
+      stations,
+      [prior.aspect[3]!, prior.aspect[3]!, prior.aspect[2]!, prior.aspect[1]!, prior.aspect[0]!],
+    );
+    const rise: number = Math.abs(heading(prior, 0, upper, soft)[1]);
+    const rootRadius: number = Math.sqrt((ring.area * rise) / Math.PI);
+    const rootGirth: number = rootRadius / AutoMovieHumanArmTapes.radius(1, prior.aspect[3]!);
+    const tapeKeys: AutoMovieHumanArmTapes.IKey[] = [rootGirth, inputs.bicep, inputs.elbow, inputs.forearm, inputs.wrist].map(
+      (girth: number, i: number): AutoMovieHumanArmTapes.IKey => ({ station: stations[i]!, girth }),
+    );
+    // Cutting many phases revisits the same walk stations. Keep each analytic
+    // ellipse's radius and aspect for this arm only; no generated person or
+    // sampling grid is retained by a global cache.
+    const sections: Map<number, { aspect: number; radius: number }> = new Map();
     const surface = (s: number, theta: number): Vec3 => {
       const u: number = Math.max(0, s / total);
-      const r: number = Math.exp(AutoMovieHumanNaturalSpline.evaluate(size, u));
-      const aspect: number = Math.max(
-        1,
-        AutoMovieHumanNaturalSpline.evaluate(round, u),
-      );
+      let section: { aspect: number; radius: number } | undefined = sections.get(s);
+      if (section === undefined) {
+        const aspect: number = Math.max(1, AutoMovieHumanNaturalSpline.evaluate(round, s));
+        section = { aspect, radius: AutoMovieHumanArmTapes.radius(AutoMovieHumanArmTapes.girth(tapeKeys, s), aspect) };
+        sections.set(s, section);
+      }
+      const aspect: number = section.aspect;
+      const r: number = section.radius;
       const c: Vec3 = at(s);
       const t: Vec3 = heading(prior, s, upper, soft);
       const f: Vec3 = across([1, 0, 0], t);
@@ -607,7 +637,7 @@ export namespace AutoMovieHumanArmConstruction {
       }
       return surface((lo + hi) / 2, theta);
     };
-    const wrist: Vec3 = at(prior.wrist.station * total);
+    const wrist: Vec3 = at(total);
     const top: number = ring.centre[1];
     const angle = (t: number): number => prior.phase + prior.sense * t;
 

@@ -938,9 +938,18 @@ function armSites(skin: HumanAnatomy.ISkin, side: "left" | "right"): IArm {
   const fore: V3 = A.unit(A.sub(wrist, elbow));
   const palm: V3 = A.unit(A.sub(mcp, wrist));
   const lf: number = A.dist(elbow, wrist);
-  const region: Uint32Array = A.near(skin, shoulder, mcp, 90);
+  const region: Uint32Array = A.armRegion(skin, side);
+  const planes: Map<V3, (origin: V3, pick?: V3) => HumanAnatomy.ICut | null> = new Map();
+  const cut: (o: V3, n: V3) => HumanAnatomy.ICut | null = (o: V3, n: V3): HumanAnatomy.ICut | null => {
+    let plane: ((origin: V3, pick?: V3) => HumanAnatomy.ICut | null) | undefined = planes.get(n);
+    if (plane === undefined) {
+      plane = A.parallel(skin, n, region);
+      planes.set(n, plane);
+    }
+    return plane(o);
+  };
   const girth = (o: V3, n: V3): number => {
-    const c: HumanAnatomy.ICut | null = A.cut(skin, o, n, o, region);
+    const c: HumanAnatomy.ICut | null = cut(o, n);
     return c === null ? NaN : c.girth;
   };
   // de Leva 1996 Table 2: the shoulder centre 34 mm below the acromion, the
@@ -979,12 +988,12 @@ function armSites(skin: HumanAnatomy.ISkin, side: "left" | "right"): IArm {
   const reach: number[] = [];
   for (let s: number = -45; s <= 15; s += 1) {
     const o: V3 = A.add(stylion, A.scale(fore, s));
-    const c: HumanAnatomy.ICut | null = A.cut(skin, o, fore, o, region);
+    const c: HumanAnatomy.ICut | null = cut(o, fore);
     reach.push(c === null ? NaN : Math.max(...c.points.map((p: V3): number => A.dot(A.sub(p, o), radial))));
   }
   let radialBulge: number = 0;
   for (let i: number = 5; i + 5 < reach.length; i++) radialBulge = Math.max(radialBulge, reach[i]! - (reach[i - 5]! + reach[i + 5]!) / 2);
-  const off = (o: V3, n: V3): number => A.cut(skin, o, n, o, region)?.outside ?? NaN;
+  const off = (o: V3, n: V3): number => cut(o, n)?.outside ?? NaN;
   return {
     bicep,
     elbow: elbowGirth,

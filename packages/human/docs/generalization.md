@@ -14,10 +14,13 @@ The rules the construction follows, by part. A better construction replaces any 
 
 ## Tapes
 
-- Locate each tape's site on the part's own sections by its published definition, square to the bone on a limb, and solve the section's hull there with no ratio.
+- Locate each tape by its published definition: an upper-arm tape is square to its bone; the thigh, knee and calf audits use horizontal planes. A construction's bone-normal section is not a substitute for the declared measurement plane.
 - Close a girth through a shared scale of width and depth, in which a girth is linear.
 - Let width follow the tapes at about 0.8 and front depth from about 0.6 at the waist to 0.1 near the neck, as measured over 67 people.
 - Solve a tape against the hull of the section it wraps.
+- Normalize an elliptical section by its own hull perimeter; an equivalent-area circle is a different tape.
+- Close the assembled surface, including root handovers and event joins. A tape closed on a bare section can change when its neighbours are composed.
+- Preserve every closure constraint through fairing. In the 2026-11-02 trunk survey, the existing fairing operator retained only 62.6–93.6% of a unit correction at its own tape key and transferred corrections into adjacent keys.
 
 ## Leg
 
@@ -56,6 +59,9 @@ The arm and digits loft in their own bone frames: sections square to each bone, 
 - Hand the forearm's tube to the hand only from the wrist crease to the branch, with its long axis on the hand's breadth, so the least girth sits at the crease.
 - Solve the scale across the hand so the section through knuckles II and V spans the breadth input.
 - Scale the elbow's turn with the elbow's radius.
+- Derive both event arcs from one canonical boundary and reflect them exactly. Use a phase sample set closed under that reflection; midpoint samples avoid exchanging a missing endpoint. On wide, fixing both reduced the reflected shoulder-ring error from 0.412578 mm to 6.83e-13 mm in a controlled comparison.
+- Include the parent's skin where a clinical plane crosses a shared boundary. The arm plus `upper` selection reproduces the complete skin's closed cut on all nine people; arm-only opens the m1 and masculine biceps cuts.
+- Include an exact measured landmark among the candidates when comparing it with a sampled minimum. A 1 mm wrist scan skipped stylion and falsely reported six negative minimum differences of 0.0011–0.0080 mm.
 - Next: build each web junction's palm side as one blended surface over its four boundaries, sample the palm finely enough for the metacarpal-head grooves, then derive the knuckle grooves from the heads' gap.
 
 ## Webs
@@ -114,6 +120,11 @@ Write mesh numbers as the shortest decimal that reads back to the same float32, 
 
 ## Ruled out, with the reason
 
+- Changing `AutoMovieHumanBodyGirth` to repair the current figure's tape errors: the 2026-11-02 source survey found zero production callers. The live closures are the fitted station/ratio keys in `ArmConstruction`, `LegConstruction` and `TrunkConstruction`, with separate neck size regressions. The unchanged nine-person baseline reports 55 trunk, 105 arm and 54 leg failures; see `campaign-baseline.md`.
+- Treating the baseline leg errors as ellipse-to-circle normalization: the leg already normalizes the convex-hull perimeter with `PolarSection.girth`. Its thigh and knee ratios contribute less than 0.7 and 0.05 mm, respectively, against observed errors of 37.3–118.5 and 22.8–52.3 mm. Private sites and the final handover must be measured instead. The calf ratio explains most of eight people's errors, but removing its contribution still leaves narrow 8.45 mm too large.
+- Attributing the leg's crotch handover to the generic event fillet: `TrunkConstruction.apply` declares that event `shared`, so `EventJoin.reconcile` skips it. Its shape must be traced through the leg's own handover and the trunk-owned ring.
+- Bypassing the arm's event fillet to fix its residual root crease: on wide the unjoined crease is 44.141/43.873 degrees, the normal join reduces it to 24.932/25.009, and removing the fillet spread worsens it to 32.827/33.418. The collar needs a construction satisfying continuity and the tape together, rather than disabling continuity.
+- Blaming a missing parent triangle for every residual biceps error: seven people's arm-only and full-skin cuts agree. Narrow has no parent triangle at that plane and its fixed root lies wholly proximal; its bare cut is 215.545 mm against 215 mm, while the shoulder blend and join produce 228.240 mm. Conversely, masculine needs the parent and changes from 257.871 to 260.928 mm with the complete region.
 - A predetermined sparse polynomial or primitive family: boundaries and named measurements agreed while the anatomy was lost, and five keys on the head converged into a cone.
 - Full profiles for a local feature: a full section carries no feature location or depth, so the navel disappeared. Carry a local feature by its own location and depth.
 - Features as residuals against a coarse surface: a broad difference is not a feature, and the extractor carved deep flank and lumbar grooves.
