@@ -9,9 +9,9 @@ import type { IViewerCaptureSession } from "./IViewerCaptureSession.js";
 /**
  * Open one page and capture explicitly sought samples through its published hooks. Passes must already be validated, nonempty and deduplicated by the caller. A hook override selects another published seek hook for an isolated sample.
  *
- * Creation failures leave the page with the caller; a returned session owns it until close. Captures must not overlap. Each pass supplies its PNG bytes to an awaited writer without retaining previous frames. Writer and close failures propagate unchanged; page failures carry a capture-step code.
+ * Creation failures leave the page with the caller; a returned session owns it until close. Captures must not overlap. Seek and pass hooks finish before screenshots, including asynchronous completion; fulfilled hook values are discarded inside the page. Each pass supplies its PNG bytes to an awaited writer without retaining previous frames. Writer and close failures propagate unchanged; page failures carry a capture-step code.
  *
- * @evidence contracts/common.md#principled-implementation One explicit seek followed by ordered pass switches and screenshots observes the viewer's deterministic hooks; the caller supplies admitted pass names and owns output naming.
+ * @evidence contracts/common.md#principled-implementation One awaited explicit seek followed by awaited ordered pass switches and screenshots observes completed hooks; the page wrapper discards fulfilled hook values before the driver boundary, while hook rejection retains its capture-step classification. The caller supplies admitted pass names and owns output naming.
  * @evidence contracts/common.md#clear-and-simple-design Page lifecycle and pixel transport live here while scheduling, file paths and encoding remain with consumers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The same hook and selector options drive every route; beauty-only capture requires no pass hook.
  * @evidence contracts/common.md#meaningful-documentation States admission premises, hook overrides, failure ownership and non-overlapping use.
@@ -120,14 +120,18 @@ const isPageFunction: (name: string) => boolean = (name: string): boolean =>
   "function";
 
 /**
- * Page-side call of the global `name` with `value`. It reads only its argument
- * because the host serializes it into the page.
+ * Await the page-global hook, discarding its fulfilled value before the driver
+ * boundary so synchronous scene objects need no serialization. It reads only
+ * its argument because the host serializes this callback into the page.
  */
 const callPageFunction: (arg: {
   name: string;
   value: unknown;
-}) => void = (arg: { name: string; value: unknown }): void => {
-  (globalThis as unknown as Record<string, (value: unknown) => void>)[
+}) => Promise<void> = async (arg: {
+  name: string;
+  value: unknown;
+}): Promise<void> => {
+  await (globalThis as unknown as Record<string, (value: unknown) => unknown>)[
     arg.name
   ]!(arg.value);
 };

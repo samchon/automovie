@@ -36,7 +36,7 @@ class FakePage implements IAutoMovieHeadlessPage {
   public async addStyleTag(): Promise<void> {}
 
   public async evaluate<T>(task: (arg: T) => unknown, arg: T): Promise<void> {
-    runHeadlessPageCallback(this.context, task, arg);
+    await runHeadlessPageCallback(this.context, task, arg);
   }
 
   public locator(): IAutoMovieHeadlessLocator {
