@@ -32,6 +32,8 @@ export namespace AutoMovieHumanEyelidProfile {
    * @param band Band width, mm
    * @param skin Skin depth relative to the globe centre at the band's
    *   outer edge, and its slope per mm outward
+   * @param drift Tangential offset of the cut vertex from the sample's smooth
+   *   outward line, which the anterior surface loses toward the margin
    * @returns Row points in mm
    */
   export function generate(
@@ -39,6 +41,7 @@ export namespace AutoMovieHumanEyelidProfile {
     g: AutoMovieHumanEyelid.IGlobe,
     band: number,
     skin: { x: number; k: number },
+    drift: AutoMovieHumanEyelid.Point = [0, 0, 0],
   ): AutoMovieHumanEyelid.Point[] {
     const E: typeof AutoMovieHumanEyelid = AutoMovieHumanEyelid;
     const contact: number = E.dot(E.sub(s.contact, g.centre), g.forward);
@@ -144,13 +147,19 @@ export namespace AutoMovieHumanEyelidProfile {
     const tuckX: number =
       (1 - into) * (AutoMovieHumanEyeGlobe.anterior(under) - 0.15) +
       into * -TUCK;
+    const lost = (u: number): AutoMovieHumanEyelid.Point => {
+      const q: number = Math.min(1, Math.max(0, (u - edgeU) / span));
+      return E.scale(drift, q * q);
+    };
     const points: AutoMovieHumanEyelid.Point[] = [
-      ...surface,
-      ...rounded,
-      ...face,
-    ].map(
-      ([u, x]: [number, number]): AutoMovieHumanEyelid.Point => place(u, x),
-    );
+      ...surface.map(
+        ([u, x]: [number, number]): AutoMovieHumanEyelid.Point =>
+          E.add(place(u, x), lost(u)),
+      ),
+      ...[...rounded, ...face].map(
+        ([u, x]: [number, number]): AutoMovieHumanEyelid.Point => place(u, x),
+      ),
+    ];
 
     // The tuck end lies on the contact point's radial line from the axis.
     const offset: AutoMovieHumanEyelid.Point = E.sub(s.contact, g.centre);

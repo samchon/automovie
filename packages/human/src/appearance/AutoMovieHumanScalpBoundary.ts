@@ -1,13 +1,16 @@
 import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCubic";
 import { AutoMovieHumanHairline } from "../typings/AutoMovieHumanHairline";
+import type { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
 
 /**
  * Hair-bearing boundary of the scalp as a height above eye level for each
  * azimuth around the head chart (see `AutoMovieHumanHeadField`).
  *
  * A head-skin point at azimuth `alpha` bears hair when its height above the
- * eyes' centres exceeds {@link height}. Heights are fractions of the head
- * height parameter (menton to vertex), so the boundary follows head size.
+ * eyes' centres exceeds {@link height}. Heights scale with the generated
+ * head's measured eye-to-vertex and eye-to-menton heights
+ * ({@link measure}), so the boundary follows the scalp the head
+ * generator makes, whatever its size or vault.
  * The boundary is mirror-symmetric (it reads `|alpha|`), and runs from the
  * frontal hairline (trichion) over the temples, down the sideburns in front
  * of the ear, over the ear and down behind it to the nape.
@@ -34,21 +37,58 @@ export namespace AutoMovieHumanScalpBoundary {
   /**
    * Boundary height above eye level at one azimuth.
    *
+   * The knots are fractions of the head height for an adult whose eyes lie
+   * half the head height below the vertex. The boundary scales them by the
+   * measured scalp instead: above the eyes by twice the chart's
+   * eye-to-vertex height, below them by twice its eye-to-menton height, so
+   * a head whose cranium rises less or more above the eyes keeps its
+   * hairline at the same share of the forehead and vault rather than at a
+   * fixed distance that a lower vault puts at the vertex. The two scales
+   * meet where the boundary crosses eye level, so it stays continuous.
+   *
    * @param hairline Frontal hairline class
    * @param alpha Azimuth from the front (+X) toward +Z, radians
-   * @param headHeight Head height parameter, millimetres
+   * @param scalp Measured eye-to-vertex and eye-to-menton heights, millimetres
    * @returns Height in millimetres above the eyes' centres
    */
   export function height(
     hairline: AutoMovieHumanHairline,
     alpha: number,
-    headHeight: number,
+    scalp: IScalp,
   ): number {
     // Fold the azimuth into [0, 180] degrees: the boundary is symmetric.
     let degrees: number = Math.abs((alpha * 180) / Math.PI) % 360;
     if (degrees > 180) degrees = 360 - degrees;
     const knots: Array<[number, number]> = [...FRONT[hairline], ...COMMON];
-    return AutoMovieHumanMonotoneCubic.interpolate(knots, degrees) * headHeight;
+    const share: number = AutoMovieHumanMonotoneCubic.interpolate(
+      knots,
+      degrees,
+    );
+    return 2 * share * (share >= 0 ? scalp.above : scalp.below);
+  }
+
+  /**
+   * Measure the scalp heights of a head chart: the vertex from the chart's
+   * skin, the eyes from the eye frames and the menton as the vertex less
+   * the head height parameter.
+   *
+   * @param field Head chart
+   * @returns Eye-to-vertex and eye-to-menton heights
+   */
+  export function measure(field: AutoMovieHumanHeadField.IField): IScalp {
+    return {
+      above: field.top - field.eyeLevel,
+      below: field.eyeLevel - (field.top - field.height),
+    };
+  }
+
+  /** Measured heights of the scalp about the eyes. */
+  export interface IScalp {
+    /** Vertex above the eyes' centres, millimetres. */
+    above: number;
+
+    /** Eyes' centres above the menton, millimetres. */
+    below: number;
   }
 }
 

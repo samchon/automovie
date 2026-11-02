@@ -35,11 +35,26 @@ export namespace AutoMovieHumanScleraImage {
   export const height: number = 128;
 
   /**
-   * Generate the vessel image.
+   * The vessel image, drawn and encoded once per process: it has no input,
+   * so every generation shares one record (callers must not mutate it) and
+   * a shot sees one id with one byte string. Retains one 512 x 128 RGB PNG.
    *
    * @returns RGB PNG image
    */
   export function generate(): IAutoMovieImage {
+    cached ??= draw();
+    return cached;
+  }
+
+  /** The image once drawn; see {@link generate}. */
+  let cached: IAutoMovieImage | undefined;
+
+  /**
+   * Draw and encode the vessel image.
+   *
+   * @returns RGB PNG image
+   */
+  function draw(): IAutoMovieImage {
     const N: typeof AutoMovieHumanAppearanceNoise =
       AutoMovieHumanAppearanceNoise;
 

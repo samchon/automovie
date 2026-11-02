@@ -6,13 +6,15 @@ import * as THREE from "three";
  * Construction curves are drawn as thin tubes whose vertex normals point away from the
  * curve, so moving each vertex along its normal widens the tube while the
  * curve itself stays put. A normal of zero length leaves its vertex in place.
+ * Every other attribute is copied: a curve bound to the skeleton keeps its
+ * skin indices and weights, without which its skinned mesh cannot be drawn.
  * The copy shares no buffers with the source; the caller owns and disposes it.
  *
  * @param geometry Source tube with `position` and `normal` attributes, in its mesh's local frame.
  * @param thickness Radius increase in the same units, metres for AutoMovie models.
- * @returns A new geometry with grown positions, copied normals and a copied index.
+ * @returns A new geometry with grown positions and every other attribute and the index copied.
  *
- * @evidence contracts/common.md#principled-implementation Offsetting each vertex along its unit normal grows a tube's radius uniformly because tube normals are radial; the index and normals are unchanged.
+ * @evidence contracts/common.md#principled-implementation Offsetting each vertex along its unit normal grows a tube's radius uniformly because tube normals are radial; the index, normals, skin indices and weights are unchanged.
  * @evidence contracts/common.md#clear-and-simple-design One geometry helper used by ModelPartStyling for any style that thickens a tube.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not mutate or scale the source geometry, so the model's own curve stays exact.
  * @evidence contracts/common.md#meaningful-documentation States the radial-normal premise, units and ownership of the copy.
@@ -38,8 +40,9 @@ export function inflateTubeGeometry(
         normal.getComponent(i, axis) * thickness;
 
   const inflated: THREE.BufferGeometry = new THREE.BufferGeometry();
+  for (const [name, attribute] of Object.entries(geometry.attributes))
+    inflated.setAttribute(name, attribute.clone());
   inflated.setAttribute("position", new THREE.BufferAttribute(values, 3));
-  inflated.setAttribute("normal", normal.clone());
   if (geometry.index !== null) inflated.setIndex(geometry.index.clone());
   return inflated;
 }

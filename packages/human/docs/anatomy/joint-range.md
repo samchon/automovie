@@ -1,12 +1,13 @@
 # Joint range and the stickman skeleton
 
-`IAutoMovieHumanPose` names every movable joint top to bottom and gives each degree of freedom one optional value in clinical units. `AutoMovieHumanSkeleton` derives a stickman skeleton from the generated body by rule and applies that pose to it, clamped to the ranges below. The ranges are preview clamps; measured means and handbook norms are not individual anatomical limits.
+`IAutoMovieHumanPose` names every movable joint top to bottom and gives each degree of freedom one optional value in clinical units. `AutoMovieHumanSkeletonLaw` places the bind skeleton by rule before any limb is lofted, the limbs are lofted on it, and `AutoMovieHumanSkeleton` applies that pose to it, clamped to the ranges below. The ranges are preview clamps; measured means and handbook norms are not individual anatomical limits.
 
 ## Conventions
 
 - Angles are clinical degrees from the anatomical neutral (upright, arms at the sides, palms forward, feet flat). The field name is the positive motion; the opposite motion is negative. The jaw is in millimetres at the incisors.
 - Left and right are the person's own. Lateral flexion and rotation are positive toward the left.
-- An omitted field keeps the generated body's rest posture, an A-pose with relaxed hands, not the anatomical neutral.
+- An omitted field is 0, so `{}` is the anatomical neutral: arms resting at the sides with straight elbows and the thumbs forward, fingers straight and the thumb beside the index, legs plumb, feet flat. The body is generated in an A-pose with relaxed hands; that posture is the skin's bind, reached from neutral by each bone's achieved offset, and is not a value of the pose.
+- The forearm's zero is thumbs forward, the mid position its range is measured from.
 - Within a joint the degrees of freedom run sagittal, frontal, then transverse.
 
 ## Source grades
@@ -69,30 +70,30 @@ These studies qualify recalled values without changing the ranges.
 
 ## Stickman joint centres
 
-Rules read the chain tree, eye globes and stature S, never a person-indexed table. Stature fractions are the ANSUR II joint-centre means of [skeleton](skeleton.md), sexes averaged.
+Rules read the root's chains (head, neck and trunk), the feet in their own frame, the eye globes, the limbs' own laws and stature S, never a limb's skin or a person-indexed table, so the arms, hands and legs can be lofted on the joints. Stature fractions are the ANSUR II joint-centre means of [skeleton](skeleton.md), sexes averaged. The stickman's girth radii are read from the finished skin afterwards.
 
 | Bone | Rule | Grade |
 | --- | --- | --- |
-| `hips` | midway between the hip centres: the thigh axis chord (knee to crotch) extended to 0.518 S | derived |
+| `hips` | midway between the hip centres: the chord from the knee through the centre of the crotch ring's leg half, extended to 0.518 S | derived |
 | `spine` (lumbar), `chest` (thoracic) | trunk axis at the omphalion (0.245) and xiphion (0.617) fractions of the mid-hip to cervicale span, cervicale at mid-hip + 0.3425 S | derived (de Leva) |
 | `neck` (C2 to C7) | axis at the neck/shoulder branch event | derived |
 | `head` (atlanto-occipital) | midway between the ear-lobe chains' lower ends | convention |
 | `atlas` (atlanto-axial) | 0.85 of the way from the neck base to the atlanto-occipital point | convention |
 | `jaw` | temporomandibular point 0.006 S forward and 0.008 S above the atlanto-occipital point; chin 0.068 S below the eye centres | convention |
 | `leftEye`, `rightEye` | calibrated eye globe centres | measured |
-| `*Shoulder` (sternoclavicular) | at the shoulder height, one neck girth radius from the midline | convention |
-| `*Scapula`, `*UpperArm` (glenohumeral) | at 0.80 S, the shoulder section's lateral extremity moved medially by the axillary arm girth radius | derived |
-| `*LowerArm` (elbow) | along the arm axis at 0.162 / (0.162 + 0.151) of shoulder-to-wrist | derived (ANSUR II) |
-| `*Hand` (wrist) | arm axis at the thumb branch event | derived |
-| thumb | CMC halfway from wrist to the thumb branch, MCP at the branch, IP halfway to the tip | convention |
+| `*Shoulder` (sternoclavicular) | at the shoulder height, half a neck girth radius from the midline, the neck read a third of the way up it | convention |
+| `*Scapula`, `*UpperArm` (glenohumeral) | one humerus from the elbow, the humerus 0.162 / 0.151 of the elbow to the wrist crease, so the elbow lies 0.162 / (0.162 + 0.151) of the way from shoulder to crease; there the shoulder section's lateral extremity moved medially by the arm root's girth radius. A stature fraction does not follow shoulders built from the head down: 0.80 S put the joint at the neck base on a short body | derived (ANSUR II) |
+| `*LowerArm` (elbow) | where the arm's walk turns, its upper length the arm prior's line in the upper arm input | derived (arm prior) |
+| `*Hand` (wrist) | the hand's section centre at the crease: the hand's origin-to-tip measure is `lengthRatio` of the hand length, which runs from the crease, so the crease lies the rest of that length behind the origin, read in the mean hand's units | derived |
+| thumb | CMC halfway from the wrist crease to the thumb branch, at the trapezium (convention); MCP one thumb metacarpal past it toward the branch, 0.711 × 0.774 × 0.459 of the wrist centre to the middle fingertip, the hand length less 2.3 mm, since the wrist centre lies that far distal of stylion ([Reddy 2024](../sources/reddy-2024-metacarpal-ct.md), [de Leva 1996](../sources/de-leva-1996.md)); IP halfway to the tip (convention) | derived |
 | fingers, lesser toes | 2:1:1 phalanx split, web halfway along the proximal phalanx | convention |
 | hallux | two equal phalanges, web halfway along the proximal | convention |
-| `*UpperLeg`, `*LowerLeg`, `*Foot` | hip centre; leg axis at 0.2865 S; leg axis end lowered to 0.0405 S | derived |
+| `*UpperLeg`, `*LowerLeg`, `*Foot` | hip centre; the leg prior's line at 0.2865 S; the stance, that line at the ankle, at 0.0405 S | derived |
 | `*Subtalar`, `*Midfoot` | at the ankle; 0.4 of the way from the ankle to the mean MTP | convention |
 
 Bones use the engine humanoid names where they exist. `atlas`, `*Scapula`, `*Subtalar`, `*Midfoot`, `*HalluxProximal/Distal` and `*Toe2..5Proximal/Intermediate/Distal` are the Human's own, because the shared `AutoMovieHumanoidBone` vocabulary lacks them. The stickman runs its own forward kinematics instead of the engine's humanoid player, so the shared interface is unchanged.
 
-Each bone's axes come from its rest direction. The rest posture's own clinical angles (arm and thigh from the vertical, hinge angles between adjacent segments, the ankle from the shank's lean) are subtracted, so a field's value is the clinical angle whatever the rest posture.
+These centres stand in the bind, the generated A-pose. `AutoMovieHumanNeutral` turns each bone from there to the anatomical neutral, and each bone's axes come from its direction at neutral, so a field's value is the clinical angle from neutral whatever the bind.
 
 ## Open items
 

@@ -25,6 +25,7 @@ export namespace AutoMovieHumanEyelidSurface {
     const rows: Map<number, number[]> = new Map();
     const jets: Map<number, AutoMovieHumanSkinProjection.IJet> =
       AutoMovieHumanSkinProjection.rim(mesh, open, prepared.outline);
+    const drawn: IColumn[] = [];
     for (const edge of open) {
       const p: AutoMovieHumanEyelid.Point = mesh.positions.slice(
         3 * edge.u,
@@ -66,24 +67,50 @@ export namespace AutoMovieHumanEyelidSurface {
         delta,
         E.scale(lid.globe.forward, E.dot(delta, lid.globe.forward)),
       );
-      const band: number = Math.hypot(...across);
-      sample.outward = E.normalize(across);
+      // The margin's own outward line carries the column: a cut vertex lies on
+      // whatever mesh edge the outline crossed, and a direction read from it
+      // combs the columns round the eye. The vertex's offset from that line
+      // fades across the band. A vertex off to the side of the line, at a
+      // canthus, keeps its own direction.
+      const reach: number = Math.hypot(...across);
+      const along: number = E.dot(across, sample.outward);
+      const regular: boolean = along > 0.7 * reach;
+      const band: number = regular ? along : reach;
+      if (!regular) sample.outward = E.normalize(across);
+      const drift: AutoMovieHumanEyelid.Point = regular
+        ? E.sub(across, E.scale(sample.outward, along))
+        : [0, 0, 0];
       const hit: AutoMovieHumanSkinProjection.IJet = jets.get(edge.u)!;
+      drawn.push({
+        vertex: edge.u,
+        p,
+        sample,
+        band,
+        drift,
+        x: hit.x - E.dot(lid.globe.centre, lid.globe.forward),
+        k:
+          hit.gradient[0] * E.dot(sample.outward, prepared.outline.lateral) +
+          hit.gradient[1] * E.dot(sample.outward, prepared.outline.up),
+      });
+    }
+    const slopes: Map<number, number> = rimSlopes(drawn, open);
+    for (const c of drawn) {
       const profile: AutoMovieHumanEyelid.Point[] =
-        AutoMovieHumanEyelidProfile.generate(sample, lid.globe, band, {
-          x: hit.x - E.dot(lid.globe.centre, lid.globe.forward),
-          k:
-            hit.gradient[0] * E.dot(sample.outward, prepared.outline.lateral) +
-            hit.gradient[1] * E.dot(sample.outward, prepared.outline.up),
-        });
-      const column: number[] = [edge.u];
+        AutoMovieHumanEyelidProfile.generate(
+          c.sample,
+          lid.globe,
+          c.band,
+          { x: c.x, k: slopes.get(c.vertex)! },
+          c.drift,
+        );
+      const column: number[] = [c.vertex];
       for (const point of profile) {
         if (!point.every(Number.isFinite))
           throw new Error(`Non-finite lid profile ${lid.name}`);
         column.push(mesh.positions.length / 3);
         mesh.positions.push(...point);
       }
-      rows.set(edge.u, column);
+      rows.set(c.vertex, column);
     }
     for (const edge of open) {
       const u: number[] = rows.get(edge.u)!;
@@ -163,6 +190,78 @@ export namespace AutoMovieHumanEyelidSurface {
     }
     return AutoMovieHumanApertureConstruction.generate(mesh, lid.name, open, rows);
   }
+
+  /** One lid column before its profile is drawn. */
+  interface IColumn {
+    /** Cut vertex it starts from. */
+    vertex: number;
+
+    /** That vertex's place. */
+    p: AutoMovieHumanEyelid.Point;
+
+    /** Margin sample it runs to. */
+    sample: AutoMovieHumanEyelid.ISample;
+
+    /** Band width along the sample's outward line, mm. */
+    band: number;
+
+    /** Vertex's tangential offset from that line. */
+    drift: AutoMovieHumanEyelid.Point;
+
+    /** Skin depth relative to the globe's centre. */
+    x: number;
+
+    /** The cut triangle's slope outward. */
+    k: number;
+  }
+
+  /**
+   * Each column's slope averaged over {@link RIM_SPREAD} mm of rim either side.
+   *
+   * A slope read from a cut triangle is constant across that skin cell, which
+   * holds many rim vertices, so the columns shaded as blocks a cell wide however
+   * many neighbours were averaged. A length spans the cell whatever the count.
+   */
+  function rimSlopes(
+    columns: readonly IColumn[],
+    open: readonly IAutoMovieHumanApertureEdge[],
+  ): Map<number, number> {
+    const found: Map<number, IColumn> = new Map(
+      columns.map((c: IColumn): [number, IColumn] => [c.vertex, c]),
+    );
+    const out: Map<number, number> = new Map();
+    const walks: Map<number, number>[] = [
+      new Map(open.map((e: IAutoMovieHumanApertureEdge): [number, number] => [e.u, e.v])),
+      new Map(open.map((e: IAutoMovieHumanApertureEdge): [number, number] => [e.v, e.u])),
+    ];
+    for (const c of columns) {
+      let sum: number = c.k;
+      let count: number = 1;
+      for (const step of walks) {
+        let at: IColumn = c;
+        let walked: number = 0;
+        for (let k: number = 0; k < columns.length; k++) {
+          const next: number | undefined = step.get(at.vertex);
+          if (next === undefined || next === c.vertex) break;
+          const other: IColumn | undefined = found.get(next);
+          if (other === undefined) break;
+          walked += AutoMovieHumanEyelid.dot(
+            AutoMovieHumanEyelid.sub(other.p, at.p),
+            AutoMovieHumanEyelid.sub(other.p, at.p),
+          ) ** 0.5;
+          if (walked > RIM_SPREAD) break;
+          sum += other.k;
+          count++;
+          at = other;
+        }
+      }
+      out.set(c.vertex, sum / count);
+    }
+    return out;
+  }
+
+  /** Rim length either side a column's slope is averaged over, mm. */
+  const RIM_SPREAD: number = 1.5;
 
   /** Interpolate the stored margin field at a fractional sample address. */
   function margin(

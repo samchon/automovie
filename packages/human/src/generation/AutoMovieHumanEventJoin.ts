@@ -20,8 +20,10 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * {@link REACH} mm of the ring (at least two layers), with the station
  * slopes the fade implies, so the child closes the gap over a few
  * millimetres instead of one band. Points off the parent's arcs (the bridge
- * across a pinch) and farther than {@link SNAP} mm from the parent's ring
- * keep their place.
+ * across a pinch) keep their place, and a point leaves the move as it leaves
+ * the parent's ring, by the same fade the slopes below use: a hard gate at a
+ * distance moved the chord of an ear's lobe, which lies near a ring it is not
+ * on, and printed waves along it.
  *
  * Each chain's end layer also carries its own fitted station slopes. Where those slopes put the child's surface at
  * an angle to the parent's, the shared ring prints a crease: measured on
@@ -57,9 +59,32 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  *
  * Only points on the parent's surface are constrained: the bridge a child
  * section draws across a pinch has no parent surface, so the change fades
- * to zero over the last 6 mm of arc before each pinch phase, and points
- * farther than 0.5 mm from the parent ring or where `|N . m| < 0.3` (the
- * plane almost tangent to the parent) are left as fitted.
+ * to zero over the last 6 mm of arc before each pinch phase, and fades out
+ * past 0.5 mm from the parent ring and as `|N . m|` falls to 0.3 (the plane
+ * almost tangent to the parent).
+ *
+ * An end slope acts across the child's whole last interval, a cubic Hermite
+ * span. A slope m past the span's secant over a span h stands `4/27 m h` off the
+ * chord, so a long span turning sharply to reach the parent's tangent trades a
+ * crease across the seam for a lump beside it. At the crotch, where the trunk
+ * opens at 60 degrees from a thigh that arrives upright, that lump stood 7 mm
+ * off the thigh. The change therefore stops at {@link BULGE}; a short span may
+ * turn as sharply as its parent asks.
+ *
+ * Turned inside one span, the tangent planes agree at the ring and nowhere
+ * else: the skin's normals part again by 5 to 8 degrees 4 mm either side of the
+ * armpit joint and 20 to 30 degrees round the arm's root, which shades as a line
+ * across the back and notches the outline. An event with a fillet therefore
+ * spreads the turn over the child's layers within that many radii of its end
+ * ring: the cubic `m s (1 - s / R)^2` leaves the ring with slope m and meets the
+ * layer at R with neither place nor slope, standing the same `4/27 m R` off at
+ * most, so {@link BULGE} bounds it too. What the bound leaves stays in the end
+ * span.
+ *
+ * A child built to leave its contact in the parent's tangent plane, as the leg
+ * now leaves the crotch ring, declares the event `shared` and is left as built.
+ * Re-sloping it inside a pinch's taper bent its rounded corner back into a
+ * crease of 42 to 64 degrees per 2 mm, which the leg alone kept under 13.
  */
 export namespace AutoMovieHumanEventJoin {
   /**
@@ -81,6 +106,9 @@ export namespace AutoMovieHumanEventJoin {
     );
     const replaced: Map<string, IAutoMovieHumanLoftChain> = new Map();
     for (const event of calibration.events) {
+      // Children built in the parent's tangent plane are left as built: a
+      // re-slope inside a rounded pinch bent it back into a crease.
+      if (event.shared === true) continue;
       const parent: IAutoMovieHumanLoftChain = chains.get(event.parent)!;
       for (const split of event.splits) {
         const fitted: IAutoMovieHumanLoftChain | undefined = chains.get(
@@ -92,7 +120,7 @@ export namespace AutoMovieHumanEventJoin {
           replaced.get(split.child) ?? fitted;
         replaced.set(
           split.child,
-          join(parent, child, event.direction, split.arcs),
+          join(parent, child, event.direction, split.arcs, event.fillet ?? 0),
         );
       }
     }
@@ -115,8 +143,14 @@ const TAPER: number = 6;
 /** Station reach over which the child's end-ring move fades out, mm. */
 const REACH: number = 4;
 
-/** Largest end-ring gap closed, mm; a farther point is not on the parent. */
-const SNAP: number = 3;
+/** Distance past 0.5 mm over which a point leaves the parent's surface, mm. */
+const FAR: number = 1;
+
+/** Rise of `|N . m|` past 0.3 over which a point comes to take the slope. */
+const FACING: number = 0.2;
+
+/** Largest lump an end slope may raise off its span's chord, mm. */
+const BULGE: number = 4;
 
 /** Child chain moved onto the parent's ring and re-sloped. */
 function join(
@@ -124,15 +158,20 @@ function join(
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
   arcs: [number, number][],
+  fillet: number,
 ): IAutoMovieHumanLoftChain {
   if (child.basis !== "spline") return child;
-  return slope(parent, place(parent, child, direction, arcs), direction, arcs);
+  const ring: IRing = parentRing(parent, direction, arcs);
+  return slope(parent, ring, place(ring, child, direction), direction, fillet);
 }
 
 /** Dense parent ring at an event and the arc weight of a phase on it. */
 interface IRing {
   sp: number;
   points: Vec3[];
+
+  /** Length along the ring up to each sample, one more entry than the samples. */
+  length: number[];
   weight: (t: number) => number;
 }
 
@@ -182,7 +221,7 @@ function parentRing(
     }
     return best;
   };
-  return { sp, points: ring, weight };
+  return { sp, points: ring, length, weight };
 }
 
 /** Nearest point of a dense ring to p: its phase, the point on the closer neighbouring segment, and the distance. */
@@ -190,13 +229,37 @@ function nearest(ring: IRing, p: Vec3): [number, Vec3, number] {
   const n: number = ring.points.length;
   let best: number = 0;
   let distance: number = Infinity;
-  ring.points.forEach((q: Vec3, j: number): void => {
-    const d: number = norm(sub(q, p));
-    if (d < distance) {
-      distance = d;
-      best = j;
+  let bound: number = Infinity;
+  for (let j: number = 0; j < n; ) {
+    const q: Vec3 = ring.points[j]!;
+    const x: number = q[0] - p[0];
+    const y: number = q[1] - p[1];
+    const z: number = q[2] - p[2];
+
+    // Only a sample that can beat the best pays for the exact length.
+    const square: number = x * x + y * y + z * z;
+    if (!(square > bound)) {
+      const d: number = Math.hypot(x, y, z);
+      if (d < distance) {
+        distance = d;
+        best = j;
+        bound = square * (1 + 1e-9);
+      }
     }
-  });
+
+    // A sample closes on p by no more than the ring's length to it, so those
+    // too near along the ring to come within the bound are passed over.
+    const reach: number =
+      ring.length[j]! + Math.sqrt(square) - Math.sqrt(bound) - 1e-6;
+    let low: number = j + 1;
+    let high: number = n;
+    while (low < high) {
+      const middle: number = (low + high) >> 1;
+      if (ring.length[middle]! < reach) low = middle + 1;
+      else high = middle;
+    }
+    j = low;
+  }
   // Refine on the two segments beside the nearest sample.
   let point: Vec3 = ring.points[best]!;
   for (const other of [(best + n - 1) % n, (best + 1) % n]) {
@@ -218,12 +281,10 @@ function nearest(ring: IRing, p: Vec3): [number, Vec3, number] {
 
 /** Child chain with its end ring moved onto the parent's, faded over its first layers. */
 function place(
-  parent: IAutoMovieHumanLoftChain,
+  ring: IRing,
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
-  arcs: [number, number][],
 ): IAutoMovieHumanLoftChain {
-  const ring: IRing = parentRing(parent, direction, arcs);
   const k: number = direction === "down" ? child.layers.length - 1 : 0;
   const step: number = direction === "down" ? -1 : 1;
   const sc: number = child.layers[k]!.y;
@@ -238,7 +299,7 @@ function place(
   const moves: Vec3[] = AutoMovieHumanLoftChain.ring(child, sc, phases).map(
     (p: Vec3): Vec3 => {
       const [tau, q, distance] = nearest(ring, p);
-      const w: number = distance <= SNAP ? ring.weight(tau) : 0;
+      const w: number = ring.weight(tau) * (1 - smooth((distance - 0.5) / FAR));
       return scale(sub(q, p), w);
     },
   );
@@ -328,11 +389,11 @@ function place(
 /** Child chain with its end layer at the event re-sloped. */
 function slope(
   parent: IAutoMovieHumanLoftChain,
+  ring: IRing,
   child: IAutoMovieHumanLoftChain,
   direction: "down" | "up",
-  arcs: [number, number][],
+  fillet: number,
 ): IAutoMovieHumanLoftChain {
-  const ring: IRing = parentRing(parent, direction, arcs);
   const sp: number = ring.sp;
   const k: number = direction === "down" ? child.layers.length - 1 : 0;
   const sc: number = child.layers[k]!.y;
@@ -348,7 +409,48 @@ function slope(
   const c: number[] = AutoMovieHumanLoftChain.coefficients(child, sc);
   const h: number = 0.02;
   const inward: number = direction === "down" ? -1 : 1;
+  const previous: number = child.layers[k + inward]!.y;
+  const inner: Vec3[] = AutoMovieHumanLoftChain.ring(
+    child,
+    previous,
+    Array.from(
+      { length: Q },
+      (_: unknown, i: number): number => (2 * Math.PI * i) / Q,
+    ),
+  );
+  const onParent: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    parent,
+    sp,
+  );
+  const insideParent: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    parent,
+    sp - inward * h,
+  );
+  const onChild: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    child,
+    sc,
+  );
+  const insideChild: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    child,
+    sc + inward * h,
+  );
   const samples: [number, number][] = [];
+
+  // The fillet's slope at each phase, and the length it spreads over.
+  const spread: Vec3[] = [];
+  const rim: Vec3[] = Array.from(
+    { length: Q },
+    (_: unknown, i: number): Vec3 => onChild((2 * Math.PI * i) / Q),
+  );
+  const reach: number =
+    (fillet *
+      rim.reduce(
+        (sum: number, p: Vec3, i: number): number =>
+          sum + norm(sub(rim[(i + 1) % Q]!, p)),
+        0,
+      )) /
+    (2 * Math.PI);
+  const most: number = reach > 0 ? (27 * BULGE) / (4 * reach) : 0;
   for (let i: number = 0; i < Q; i++) {
     const t: number = (2 * Math.PI * i) / Q;
     const s: [number, number, number, number] = AutoMovieHumanLoftChain.section(
@@ -356,42 +458,50 @@ function slope(
       c,
       t,
     );
-    const p: Vec3 = AutoMovieHumanLoftChain.ring(child, sc, [t])[0]!;
+    const p: Vec3 = onChild(t);
 
     // Nearest parent sample, then the parent's jets there.
     const [tau, , distance] = nearest(ring, p);
-    const w: number = distance < 0.5 ? ring.weight(tau) : 0;
+    // Both guards fade rather than switch: a change that turns on and off from
+    // one sample to the next prints ribs across the seam.
+    const w: number = ring.weight(tau) * (1 - smooth((distance - 0.5) / FAR));
     if (w === 0) {
       samples.push([0, 0]);
+      spread.push([0, 0, 0]);
       continue;
     }
-    const P: Vec3 = AutoMovieHumanLoftChain.ring(parent, sp, [tau])[0]!;
-    const Tp: Vec3 = sub(
-      AutoMovieHumanLoftChain.ring(parent, sp, [tau + 1e-4])[0]!,
-      AutoMovieHumanLoftChain.ring(parent, sp, [tau - 1e-4])[0]!,
-    );
-    const Dp: Vec3 = scale(
-      sub(P, AutoMovieHumanLoftChain.ring(parent, sp - inward * h, [tau])[0]!),
-      1 / h,
-    );
-    const Dc: Vec3 = scale(
-      sub(AutoMovieHumanLoftChain.ring(child, sc + inward * h, [t])[0]!, p),
-      1 / h,
-    );
+    const P: Vec3 = onParent(tau);
+    const Tp: Vec3 = sub(onParent(tau + 1e-4), onParent(tau - 1e-4));
+    const Dp: Vec3 = scale(sub(P, insideParent(tau)), 1 / h);
+    const Dc: Vec3 = scale(sub(insideChild(t), p), 1 / h);
     const N3: Vec3 = unit(cross(Tp, Dp));
     const Tc: Vec3 = add(scale(f.u, s[2]), scale(f.v, s[3]));
     const m: Vec3 = unit(cross(normal, Tc));
     const nm: number = dot(N3, m);
-    if (Math.abs(nm) < 0.3) {
+    const facing: number = smooth((Math.abs(nm) - 0.3) / FACING);
+    if (facing === 0) {
       samples.push([0, 0]);
+      spread.push([0, 0, 0]);
       continue;
     }
 
     // Child slopes are per unit station in the child's own direction; the
     // two derivatives above both point away from the parent.
-    const alpha: number = (w * dot(N3, sub(Dp, Dc))) / nm;
+    const own: number = dot(Dc, m);
+    const span: number = Math.abs(previous - sc);
+    const secant: number = dot(sub(inner[i]!, p), m) / span;
+    const turn: number = Math.max(
+      (27 * BULGE) / (4 * span),
+      Math.abs(own - secant),
+    );
+    const alpha: number =
+      Math.max(
+        secant - turn,
+        Math.min(secant + turn, own + (facing * w * dot(N3, sub(Dp, Dc))) / nm),
+      ) - own;
     const delta: Vec3 = scale(m, inward * alpha);
     samples.push([dot(delta, f.u), dot(delta, f.v)]);
+    spread.push(scale(m, Math.max(-most, Math.min(most, alpha))));
   }
   const change: number[] = AutoMovieHumanSplineCurve.project(samples, N);
 
@@ -402,6 +512,42 @@ function slope(
       (v: number, i: number): number => v + change[i]!,
     ),
   };
+  child.layers.forEach(
+    (layer: IAutoMovieHumanLoftChain.ILayer, j: number): void => {
+      const sigma: number = Math.abs(layer.y - sc);
+      if (j === k || sigma >= reach) return;
+      const x: number = sigma / reach;
+      const lean: number = sigma * (1 - x) ** 2;
+      const rate: number = inward * (1 - x) * (1 - 3 * x);
+      const g: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(
+        child,
+        layer.y,
+      );
+      const moved: number[] = AutoMovieHumanSplineCurve.project(
+        spread.map((d: Vec3): [number, number] => [
+          lean * dot(d, g.u),
+          lean * dot(d, g.v),
+        ]),
+        N,
+      );
+      const turned: number[] = AutoMovieHumanSplineCurve.project(
+        spread.map((d: Vec3): [number, number] => [
+          rate * dot(d, g.u),
+          rate * dot(d, g.v),
+        ]),
+        N,
+      );
+      layers[j] = {
+        ...layer,
+        coefficients: layer.coefficients.map(
+          (v: number, i: number): number => v + moved[i]!,
+        ),
+        slopes: layer.slopes.map(
+          (v: number, i: number): number => v + turned[i]!,
+        ),
+      };
+    },
+  );
   return { ...child, layers };
 }
 

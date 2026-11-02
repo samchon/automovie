@@ -7,6 +7,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
+import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
 import { applyTransform } from "./applyTransform.js";
@@ -32,7 +33,9 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * A skin whose `method` is `"dual-quaternion"` takes a material variant with
  * the dual quaternion vertex patch, and its mesh casts shadows through its own
  * patched depth and distance materials, so the shadow deforms like the surface;
- * the mesh is flagged so guide passes patch the materials they swap in.
+ * the mesh is flagged so guide passes patch the materials they swap in. Every
+ * skinned part is an {@link AutoMovieSkinnedMesh} of its skin's method, so
+ * bounds, culling, raycasts and vertex queries read the blend the shader draws.
  *
  * A mesh's morph targets reach `morphTargetDictionary` by name, so
  * {@link applyExpression} drives them, and its driven targets are recorded on
@@ -218,7 +221,7 @@ export const buildModel: (
           THREE.MeshStandardMaterial,
           THREE.Object3DEventMap
         > = skin !== null
-          ? new THREE.SkinnedMesh(geo, mat)
+          ? new AutoMovieSkinnedMesh(geo, mat, skin.method ?? "linear")
           : new THREE.Mesh(geo, mat);
         mesh.name = part.name ?? part.id;
         parts.set(part.id, mesh);

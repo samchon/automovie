@@ -17,7 +17,7 @@ export interface IAutoMovieHumanLegIdentity {
   shankLength: number & tags.Minimum<60> & tags.Maximum<700>;
 
   /**
-   * Lateral malleolus height: the lowest point of the lateral malleolus to the standing surface, millimetres.
+   * Lateral malleolus height: the lateral malleolus landmark, the most laterally prominent point of the fibula's lower end, above the standing surface, millimetres.
    */
   ankleHeight: number & tags.Minimum<15> & tags.Maximum<150>;
 

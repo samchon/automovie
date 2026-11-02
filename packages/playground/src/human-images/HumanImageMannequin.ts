@@ -77,7 +77,7 @@ export class HumanImageMannequin {
           ].includes(key),
       ) ||
       !["f1", "f2", "m1", "m2"].includes(String(input.alias)) ||
-      !["rest", "demo", "limit"].includes(String(input.pose)) ||
+      !["neutral", "demo", "limit"].includes(String(input.pose)) ||
       !["neutral", "happy", "angry", "surprised"].includes(
         String(input.expression),
       ) ||
@@ -104,7 +104,7 @@ export class HumanImageMannequin {
       throw new Error("Unsupported Mannequin hint, motion or time input");
     if (
       input.motion !== undefined &&
-      (input.head !== undefined || input.pose !== "rest")
+      (input.head !== undefined || input.pose !== "neutral")
     )
       throw new Error(
         "Body clips and explicit head/pose inputs require separate captures",

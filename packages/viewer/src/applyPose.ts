@@ -15,6 +15,7 @@ import type * as THREE from "three";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { applyTransform } from "./applyTransform.js";
+import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
 import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
 
 /**
@@ -35,6 +36,9 @@ import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
  * Morph targets that `buildModel` recorded as pose-driven take the weights
  * `resolveMorphTargetWeights` computes from the same pose, so a corrective
  * follows every applied pose; expression-written targets are left alone.
+ * Every skinned mesh then starts a new pose revision
+ * ({@link invalidateAutoMovieSkinnedPose}), so its bounds and vertex queries
+ * follow the pose the shader draws.
  *
  * Returns the skeleton bones the FK resolved but the model's bone map does not
  * carry (#1051). A deliberately partial imported map (a VRM without toes)
@@ -46,7 +50,7 @@ import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
  * @evidence contracts/common.md#clear-and-simple-design Keeps pose and driver mathematics in resolvePose and resolveMorphTargetWeights and only copies their outputs into borrowed model bones, morph influences and root; caller-supplied partial bone mapping remains explicit instead of inventing missing joints.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Unit root scale is the engine rig convention, not a visual compensation; all mapped bones follow one FK result and missing bones are returned without fixture-specific tolerances or replaced solvers.
  * @evidence contracts/common.md#meaningful-documentation Gives local bone write, driven morph weights, optional clinical rest frames, unmapped-bone report, root reset and intentionally ignored root scale.
- * @evidence contracts/performance.md#efficient-algorithms Visits the engine's resolved bone list once with map lookups and fixed quaternion writes, then traverses the model's O objects once and resolves each driven mesh's targets; dominant work is engine FK over the skeleton, with temporary resolved/skipped records proportional to bones rather than vertex count.
+ * @evidence contracts/performance.md#efficient-algorithms Visits the engine's resolved bone list once with map lookups and fixed quaternion writes, then traverses the model's O objects once to resolve each driven mesh's targets and once more to start the skinned meshes' pose revision in constant time each; dominant work is engine FK over the skeleton, with temporary resolved/skipped records proportional to bones rather than vertex count.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the model's existing Bone objects and one engine FK implementation; different pose/skeleton/axes/rest frames require fresh resolution and target state is rewritten rather than cached.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Borrows model/skeleton/pose and retains no solver or bone collection after return; skipped ids transfer to the caller and no GPU allocation or task is acquired.
  */
@@ -94,6 +98,11 @@ export const applyPose: (
       if (index !== undefined) mesh.morphTargetInfluences[index] = weight;
     }
   });
+
+  // Bones and correctives moved: skinned bounds and vertex queries take a new
+  // pose revision, so culling, shadows and picking read this pose.
+  invalidateAutoMovieSkinnedPose(target.object);
+
   // A null root means "at the node's staged base", the engine's convention
   // (`resolvePose`/`animatedBaseAt` default it to identity, #1046). Keeping
   // the previous pose's root here would strand the model at the LAST rooted

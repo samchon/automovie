@@ -283,7 +283,7 @@ export namespace IHumanViewerPage {
     /** Registered alias of the parameters, or null for typed code input. */
     alias: string | null;
 
-    /** Wall-clock milliseconds spent in `AutoMovieHuman.generate`, or null for `loadGenerated`. */
+    /** Wall-clock milliseconds spent in `AutoMovieHuman.prepare` (generation plus the pose evaluator from the same calibration), or null for `loadGenerated`. */
     generateMilliseconds: number | null;
 
     /** Model parts with their mesh sizes; non-mesh geometry reports zero counts. */
@@ -294,6 +294,40 @@ export namespace IHumanViewerPage {
 
     /** Whether the model has at least one construction part. */
     construction: boolean;
+
+    /** Measured preparation phases of this load, in wall-clock milliseconds of the page's main thread. */
+    timing: {
+      /** Decoding the carried images into the texture cache. */
+      primeMilliseconds: number;
+
+      /** `buildModel`: geometry, materials and skin binding. */
+      buildMilliseconds: number;
+
+      /** Surface bounds, part classification and the first restyle. */
+      displayMilliseconds: number;
+    };
+
+    /** Page-lifetime call counts after this load, so a caller can prove which work a later frame repeated. */
+    calls: IHumanViewerPage.ICalls;
+  }
+
+  /**
+   * Page-lifetime counts of the expensive preparation calls.
+   *
+   * @evidence contracts/common.md#principled-implementation Incremented at the actual call sites of AutoMovieHuman.generate and HumanViewerModel.create.
+   * @evidence contracts/common.md#clear-and-simple-design One record shared by load and capture metadata.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Counts calls made, not calls intended.
+   * @evidence contracts/common.md#meaningful-documentation Each field states what it counts.
+   * @evidence contracts/performance.md#efficient-algorithms Two integers.
+   * @evidence contracts/performance.md#reuse-equivalent-work Lets a caller verify reuse instead of assuming it.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Plain data.
+   */
+  export interface ICalls {
+    /** `AutoMovieHuman.generate` calls since the page mounted. */
+    generate: number;
+
+    /** Model builds (`HumanViewerModel.create`) since the page mounted. */
+    build: number;
   }
 
   /**
@@ -385,7 +419,114 @@ export namespace IHumanViewerPage {
 
       /** WebGL vendor and renderer strings, unmasked when the browser exposes them. */
       renderer: { vendor: string; renderer: string };
+
+      /**
+       * Bounds the CPU queries read at the draw: the union of the visible
+       * surface parts' object bounds, metres, and their eight corners
+       * projected into drawing-buffer pixels (x right, y down).
+       */
+      query: {
+        bounds: { min: number[]; max: number[] };
+        screen: { min: number[]; max: number[] };
+      };
+
+      /** Measured phases of this frame; see {@link IHumanViewerPage.IFrameTiming}. */
+      timing: IHumanViewerPage.IFrameTiming;
+
+      /** Page-lifetime call counts at this frame. */
+      calls: IHumanViewerPage.ICalls;
+
+      /** Pose and deformation backend the frame was drawn with; see {@link IHumanViewerPage.IArticulation}. */
+      articulation: IHumanViewerPage.IArticulation;
     };
+  }
+
+  /**
+   * The articulation of a drawn figure.
+   *
+   * @evidence contracts/common.md#principled-implementation Every field is read from the displayed instance and its model at the draw.
+   * @evidence contracts/common.md#clear-and-simple-design One record ties a PNG to the pose state and the deformation that produced it.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The backend is the one drawing, not a configuration guess.
+   * @evidence contracts/common.md#meaningful-documentation Each field states its meaning.
+   * @evidence contracts/performance.md#efficient-algorithms Plain data.
+   * @evidence contracts/performance.md#reuse-equivalent-work Recorded per frame.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Plain data.
+   */
+  export interface IArticulation {
+    /** Named view pose: `rest` shows the bind. */
+    pose: normalizeHumanView.IView["pose"];
+
+    /** Whether the bind or the instance's clinical pose is displayed. */
+    display: "bind" | "pose";
+
+    /** Commits of the instance's state so far. */
+    revision: number;
+
+    /** Fields the evaluator clamped in the displayed pose; zero at the bind. */
+    clamped: number;
+
+    /** How the skin is deformed. */
+    deformation: {
+      /** Vertices are skinned in the vertex shader from the bone texture; nothing is written on the CPU. */
+      authority: "gpu-skinning";
+
+      /** Skin blend methods the model declares, such as `dual-quaternion`. */
+      methods: string[];
+
+      /** Skeletons the instance binds its parts to. */
+      skeletons: number;
+
+      /** Bones the last pose write changed. */
+      bonesWritten: number;
+    };
+  }
+
+  /**
+   * Measured phases of one captured frame.
+   *
+   * CPU phases are wall-clock milliseconds of the page's main thread. The GPU
+   * time comes from a timer query only when the context exposes
+   * `EXT_disjoint_timer_query_webgl2` and the query completed without
+   * disjoint; otherwise it is null and `gpuTimer` says why, never an estimate.
+   *
+   * @evidence contracts/common.md#principled-implementation Every field is a performance.now difference around the actual call, a renderer.info counter after the draw or a WebGL timer query result.
+   * @evidence contracts/common.md#clear-and-simple-design One record per frame, carried in the capture metadata the worker already forwards.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An unsupported or unfinished timer reports null with its reason.
+   * @evidence contracts/common.md#meaningful-documentation Each field states its unit and boundary.
+   * @evidence contracts/performance.md#efficient-algorithms Plain numbers.
+   * @evidence contracts/performance.md#reuse-equivalent-work Recorded per frame; nothing is shared.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Plain data.
+   */
+  export interface IFrameTiming {
+    /** Applying pass, curves, isolation and display, including any pose change. */
+    displayMilliseconds: number;
+
+    /** The pose change inside the display step, or null when the pose was unchanged. */
+    poseMilliseconds: number | null;
+
+    /** `renderer.render` on the main thread: culling, uploads and command submission. */
+    renderMilliseconds: number;
+
+    /** A one-pixel `readPixels` right after the draw, which waits for the GPU to finish it. */
+    finishMilliseconds: number;
+
+    /** `toDataURL` PNG encoding of the drawing buffer, legend included. */
+    encodeMilliseconds: number;
+
+    /** GPU time of the draw from a timer query, or null. */
+    gpuMilliseconds: number | null;
+
+    /** Why `gpuMilliseconds` is or is not present. */
+    gpuTimer: "measured" | "unsupported" | "disjoint" | "unavailable";
+
+    /** Draw calls and triangles of the draw, from `renderer.info.render`. */
+    draws: { calls: number; triangles: number };
+
+    /** Live GPU resources and compiled programs after the draw, from `renderer.info`. */
+    resources: { geometries: number; textures: number; programs: number };
+
+    /** Browser JS heap in bytes after encoding when Chrome exposes it, else null; not process memory. */
+    heapBytes: number | null;
   }
 
   /**

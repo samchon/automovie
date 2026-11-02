@@ -1,5 +1,7 @@
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
+import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 
 /**
  * Shared shape coefficients (theta) of the generated body surface.
@@ -49,6 +51,19 @@ export interface IAutoMovieHumanBodyCalibration {
    * means none.
    */
   appendages?: IAutoMovieHumanBodyCalibration.IAppendage[];
+
+  /**
+   * The bind skeleton the limbs were lofted on, placed before any limb skin
+   * by `AutoMovieHumanSkeletonLaw`. Absent on a calibration still being built.
+   */
+  skeleton?: AutoMovieHumanSkeletonLaw.IBone[];
+
+  /**
+   * The mouth behind the `mouth` aperture: the lips' contact line, the teeth,
+   * the cavity's lining and the tongue, placed by `AutoMovieHumanMouth`.
+   * Absent on a calibration whose head has no generated mouth.
+   */
+  mouth?: AutoMovieHumanMouth.IMouth;
 }
 export namespace IAutoMovieHumanBodyCalibration {
   /**
@@ -139,6 +154,29 @@ export namespace IAutoMovieHumanBodyCalibration {
 
     /** Children and the parent-phase arcs that form their adjacent end rings. */
     splits: ISplit[];
+
+    /**
+     * Length over which a child turns onto the parent's tangent plane, in
+     * radii of its end ring. Absent, the child turns within its last interval.
+     */
+    fillet?: number;
+
+    /**
+     * The children already leave the contact in the parent's tangent plane, by
+     * their own construction, so the join leaves them as built. Absent, the join
+     * moves each child's end ring onto the parent's and re-slopes it.
+     */
+    shared?: true;
+
+    /**
+     * Whether the children start apart from the parent's ring, joined to it by
+     * the webs' own surface (`AutoMovieHumanBodyWeb`): each child's adjacent end
+     * is its own section past the webs' crests, and the skin from the parent's
+     * ring to those sections, the saddle of every web included, is built by the
+     * surface. Absent, the children's ends are the arcs themselves, closed across
+     * each span by a chord.
+     */
+    web?: boolean;
   }
 
   /** One child's share of a parent's contact ring. */

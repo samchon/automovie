@@ -36,6 +36,9 @@ export namespace AutoMovieHumanFaceTone {
       /** Largest margin distance from the centroid across `forward`, mm. */
       radius: number;
 
+      /** Mean margin distance from the centroid across `forward`, mm. */
+      mean: number;
+
       /** Pocket depth behind the margin, mm. */
       depth: number;
 
@@ -125,15 +128,15 @@ export namespace AutoMovieHumanFaceTone {
         const forward: Vec3 = V.normalize([...a.forward]);
         let radius: number = 0;
         let axial: number = 0;
+        let mean: number = 0;
         for (const q of margin) {
           const d: Vec3 = V.sub(q, centre);
+          const across: number = V.norm(V.sub(d, V.scale(forward, V.dot(d, forward))));
           axial = Math.max(axial, Math.abs(V.dot(d, forward)));
-          radius = Math.max(
-            radius,
-            V.norm(V.sub(d, V.scale(forward, V.dot(d, forward)))),
-          );
+          radius = Math.max(radius, across);
+          mean += across / margin.length;
         }
-        return { centre, forward, radius, axial, depth: a.pocket! };
+        return { centre, forward, radius, mean, axial, depth: a.pocket! };
       });
     return { mid, ipd, eyes: [left, right], nose, lips, pockets };
   }
@@ -176,20 +179,32 @@ export namespace AutoMovieHumanFaceTone {
 
     // Closed pockets behind openings (nostrils): skin within the opening's
     // outline and behind its margin along the facing direction is a shadowed
-    // cavity, darkened with depth instead of flushed.
+    // cavity, darkened with depth instead of flushed. A pocket's walls look
+    // out through the opening, while the outer skin of a wing above a nostril
+    // that faces down lies in the same place and turns its back on it.
     let cavity: number = 0;
     for (const pocket of F.pockets) {
       const d: Vec3 = V.sub(pocket.centre, p);
       const inside: number = V.dot(d, pocket.forward);
       const lateral: number = V.norm(V.sub(d, V.scale(pocket.forward, inside)));
+      const facing: number = V.smooth(V.dot(n, V.normalize(d)) / 0.2);
       // A pocket is finite along its axis as well as across it. The old
       // half-infinite cylinder also tinted unrelated crown skin.
       const axialFade: number =
         1 - V.smooth((inside - pocket.depth - pocket.axial) / pocket.depth);
+      // A wall facing the axis at depth h of a tube of half-width w sees out
+      // about as much as 1 - h / hypot(h, 2w), half of open skin's at the rim
+      // itself. Darkened only by a quarter of the depth, the walls inside
+      // the rim kept the skin's sheen and read pale from the front.
+      const depth: number = Math.max(0, inside);
+      const occluded: number =
+        1 - 0.5 * (1 - depth / Math.hypot(depth, 2 * pocket.mean));
       cavity = Math.max(
         cavity,
-        V.smooth(inside / (0.5 * pocket.depth)) *
+        V.smooth(inside / RIM) *
+          occluded *
           axialFade *
+          facing *
           V.smooth((1.4 * pocket.radius - lateral) / (0.4 * pocket.radius)),
       );
     }
@@ -265,3 +280,9 @@ export namespace AutoMovieHumanFaceTone {
     });
   }
 }
+
+/**
+ * Depth past a pocket's margin over which its shadow sets in, mm: the walls
+ * just inside the rim darken, the skin outside it does not.
+ */
+const RIM: number = 0.5;

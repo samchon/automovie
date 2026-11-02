@@ -182,6 +182,9 @@ export async function humanImageProcessEntry(): Promise<void> {
     // IPC readiness owns only a blank page; the command mounts its actual consumer.
     trace.node("page.owner.ready");
 
+    // Navigation plus module loading of the last generate, null when it reused the page.
+    let navigationMilliseconds: number | null = null;
+
     /** Generate one input in-page; a changed source reloads the tab first. */
     const generate: (
       source: string,
@@ -190,13 +193,16 @@ export async function humanImageProcessEntry(): Promise<void> {
       source: string,
       value: unknown,
     ): Promise<IHumanViewerPage.ILoaded> => {
+      navigationMilliseconds = null;
       if (
         loadedSource !== source ||
         new URL(page.url()).pathname !== "/human.html"
       ) {
+        const started: number = performance.now();
         await page.setViewportSize({ width: 1280, height: 1200 });
         await navigateHumanCapturePage(page, url);
         await ready();
+        navigationMilliseconds = performance.now() - started;
       }
       loadedSource = source;
       return page.evaluate(
@@ -230,15 +236,19 @@ export async function humanImageProcessEntry(): Promise<void> {
           source,
           command.value,
         );
+        const navigated: number | null = navigationMilliseconds;
+        const generated: number = performance.now();
         const json: string = await page.evaluate((): string =>
           (window as HumanWindow).__automovieHuman!.serialize(),
         );
+        const serialized: number = performance.now();
 
         // Write beside, then rename, so the session never reads a partial file.
         const bytes: Buffer = Buffer.from(json, "utf8");
         const sha256: string = digest(bytes);
         await fs.writeFile(publication + ".partial", bytes);
         await fs.rename(publication + ".partial", publication);
+        const written: number = performance.now();
 
         // The archive's receipt rule commits to the model and to its
         // construction parts separately, over their canonical JSON bytes.
@@ -281,6 +291,15 @@ export async function humanImageProcessEntry(): Promise<void> {
             generatedUtc: new Date().toISOString(),
             generateMilliseconds: loaded.generateMilliseconds,
             workerMilliseconds: performance.now() - started,
+            phases: {
+              navigationMilliseconds: navigated,
+              loadMilliseconds: generated - started - (navigated ?? 0),
+              serializeMilliseconds: serialized - generated,
+              publishMilliseconds: written - serialized,
+              timing: loaded.timing,
+              calls: loaded.calls,
+              workerRssBytes: process.memoryUsage().rss,
+            },
             parts: loaded.parts,
             bounds: loaded.bounds,
             construction: loaded.construction,
@@ -323,6 +342,7 @@ export async function humanImageProcessEntry(): Promise<void> {
         // resolves it against the model and fails on an unmatched pattern.
         const curves: string = String(command.curves ?? "");
         const view: string = String(command.view ?? "");
+        const evaluating: number = performance.now();
         const capture: IHumanViewerPage.ICapture = await page.evaluate(
           ([camera, pass, selection, free]: [
             string,
@@ -343,6 +363,7 @@ export async function humanImageProcessEntry(): Promise<void> {
             string,
           ],
         );
+        const evaluated: number = performance.now();
         if (
           /swiftshader|llvmpipe|software/i.test(
             capture.metadata.renderer.renderer,
@@ -368,14 +389,22 @@ export async function humanImageProcessEntry(): Promise<void> {
           png.readUInt32BE(20) !== capture.metadata.canvas.height
         )
           throw new Error("Human capture PNG header does not match its canvas");
+        const pngSha256: string = digest(png);
         return {
           key,
           source,
           png,
           capturedUtc: capture.capturedUtc,
-          pngSha256: digest(png),
+          pngSha256,
           metadata: {
             ...capture.metadata,
+            transport: {
+              evaluateMilliseconds: evaluated - evaluating,
+              decodeMilliseconds: performance.now() - evaluated,
+              pngBytes: png.length,
+              dataUrlBytes: capture.png.length,
+              workerRssBytes: process.memoryUsage().rss,
+            },
             frame: command.name,
             modelKey: key,
             source,

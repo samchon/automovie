@@ -14,7 +14,7 @@ The body surface is a tree of chains, each a family of horizontal sections index
    - A shape basis per unit of `masculineFeminine`. The four reference meshes share one vertex order, so a barycentric address of the calibrated f1 surface names the same point on every specimen; the stature-normalized displacements of f2, m1 and m2 there are reduced by least squares through f1 to one direction (`fitBodyMorph.ts`). Section displacements live in each layer's frame, the out-of-plane part as the layer's `lift`.
    - A measurement law. Tape girths (hip, high hip, waist, underbust, chest, neck base, neck, thigh, knee, calf, biceps, elbow, forearm, wrist, hand) scale each section about its centre at the named stations, the head length and breadth scale the head, and the legs stretch so the crotch takes the inputs' inseam share of the stature, everything above moving up with it. Targets are the specimen's own geometry times the input ratios in stature units, divided by the body being warped, so the basis's own size change is not counted twice.
    - Branches move rigidly with their parent's map where they join and blend to it within 40 mm of the ring, so shared boundaries stay shared.
-   - Both are the identity for the specimen's own inputs, which return the specimen calibration object itself.
+   - Both are the identity for the specimen's own inputs.
    - Arm and leg lengths other than the inseam are not read; three specimens identify only the one basis direction. Stature then scales the body uniformly.
 
 Horizontal slices do not separate toes lying on the floor, so the foot region cuts its own planes.

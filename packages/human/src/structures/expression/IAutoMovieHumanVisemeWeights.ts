@@ -3,7 +3,7 @@ import { tags } from "typia";
 /**
  * Blend weights of the 15 standard visemes, each from 0 (absent) to 1 (full mouth shape), named as in the Meta (Oculus) Lipsync viseme reference, which follows the MPEG-4 viseme set. Omitted visemes weigh 0; weights are not required to sum to 1.
  *
- * Not consumed by the generator yet (deferred to the mouth-geometry task).
+ * `AutoMovieHumanMouthExpression` maps each viseme onto lip units, tongue controls and a jaw opening by the articulation of its sounds (Ladefoged and Johnson, A Course in Phonetics), and sums them by weight.
  */
 export interface IAutoMovieHumanVisemeWeights {
   /** Silence, the closed resting mouth. */

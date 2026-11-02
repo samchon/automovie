@@ -19,7 +19,7 @@ interface IReplyObserver {
 }
 
 /** Own isolated lifecycle transport for the Human worker child, which starts one headless Chrome tab blank and mounts the command's page lazily.
- * IPC disconnect requests normal browser shutdown; worker exit alone does not establish descendant absence. The worker heap defaults to 768 MiB; AUTOMOVIE_HUMAN_WORKER_HEAP_MIB overrides it with an integer from 256 to 1024.
+ * IPC disconnect requests normal browser shutdown; worker exit alone does not establish descendant absence. The worker heap defaults to 1024 MiB, since a whole body's model of 241 MB exhausted 768 MiB; AUTOMOVIE_HUMAN_WORKER_HEAP_MIB overrides it with an integer from 256 to 1024.
  *
  * @evidence contracts/common.md#principled-implementation A lifecycle Worker retains the original ChildProcess and private IPC channel; disconnect requests the child's existing normal browser shutdown, while command IDs and publication hashes qualify replies.
  * @evidence contracts/common.md#clear-and-simple-design HTTP transport, lifecycle IPC and the Chrome-owning child have distinct owners; this class joins them without generating or rendering itself.
@@ -190,12 +190,13 @@ export class HumanImageProcess {
   private async launch(root: string): Promise<void> {
     try {
       const heapMiB: number = Number(
-        process.env.AUTOMOVIE_HUMAN_WORKER_HEAP_MIB ?? "768",
+        process.env.AUTOMOVIE_HUMAN_WORKER_HEAP_MIB ?? "1024",
       );
       if (!Number.isSafeInteger(heapMiB) || heapMiB < 256 || heapMiB > 1024)
         throw new Error(
           "Human worker heap override must be an integer from 256 to 1024 MiB",
         );
+      await HumanImageTemporaryDirectory.reclaim();
       const directory: HumanImageTemporaryDirectory =
         await HumanImageTemporaryDirectory.create();
       this.directory = directory;

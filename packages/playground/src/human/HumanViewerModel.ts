@@ -1,16 +1,26 @@
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import {
   AutoMovieTextureCache,
-  type IAutoMovieModelObject,
-  buildModel,
-  collectAutoMovieOwnedResources,
   createAutoMovieResourceRetirement,
   materialTextureBindings,
 } from "@automovie/viewer";
+import {
+  AutoMovieHumanSkinAsset,
+  type AutoMovieHumanSkinInstance,
+} from "@automovie/viewer/human";
 import * as THREE from "three";
 
+import { AutoMovieHumanMouthDeformation } from "../../../human/src/expression/AutoMovieHumanMouthDeformation";
+import { AutoMovieHumanMouthExpression } from "../../../human/src/expression/AutoMovieHumanMouthExpression";
+import { AutoMovieHumanBodyLaw } from "../../../human/src/generation/AutoMovieHumanBodyLaw";
+import type { IAutoMovieHumanBodyCalibration } from "../../../human/src/generation/IAutoMovieHumanBodyCalibration";
+import type { AutoMovieHumanInstance } from "../../../human/src/instance/AutoMovieHumanInstance";
+import type { IAutoMovieHumanPose } from "../../../human/src/structures/pose/IAutoMovieHumanPose";
+import { AutoMovieHumanSkeleton } from "../../../human/src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanGenerated } from "../../../human/src/structures/IAutoMovieHumanGenerated";
+import { HUMAN_STICKMAN_POSES } from "../human-stickman/HUMAN_STICKMAN_POSES";
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
+import { applyHumanMouth } from "./applyHumanMouth";
 import type { IHumanViewerPage } from "./IHumanViewerPage";
 import { ModelPartStyling } from "./ModelPartStyling";
 import { createHumanPartStyle } from "./createHumanPartStyle";
@@ -33,13 +43,20 @@ const CONSTRUCTION: string = "human.construction.";
  * adds {@link HumanViewerModel.object} to its scene and must call
  * {@link HumanViewerModel.dispose}.
  *
+ * The figure is one `AutoMovieHumanSkinInstance` on an `AutoMovieHumanSkinAsset`
+ * built once from the result's model. A named view pose updates that
+ * instance's state and bones; `rest` shows the bind. No pose rebuilds a
+ * buffer or reruns the shape law: the evaluator comes prepared with the
+ * shape, or, for a result generated elsewhere, is prepared once on its first
+ * pose.
+ *
  * @evidence contracts/common.md#principled-implementation Bounds are the union of surface part boxes after a world-matrix update; display changes restyle from recorded originals, so shown state is a function of model, pass, selection, isolate and garment/hair/material display choices.
  * @evidence contracts/common.md#clear-and-simple-design Owns one built model and its display state; Human display rules are the createHumanPartStyle closure, curve resolution is resolveHumanCurves, and the generic override mechanism is ModelPartStyling.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A model without surface geometry or without construction for a construction pass throws instead of rendering an empty or wrong pass.
  * @evidence contracts/common.md#meaningful-documentation States the part classification, framing basis, display-state model and disposal duty.
  * @evidence contracts/performance.md#efficient-algorithms Building is O(V) in model vertices via buildModel plus one box per surface part; each display change is one ModelPartStyling.apply.
  * @evidence contracts/performance.md#reuse-equivalent-work The built model, bounds and part classification serve every pass, selection and capture of the generation.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Owns the built resources and the styling's derived resources; dispose releases both, and a failed construction releases what was built.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Owns the asset, its one instance and the styling's derived resources; dispose releases the instance (its skeleton's bone texture) before the shared asset, and a failed construction releases what was built.
  */
 export class HumanViewerModel {
   /** Generator output this model displays. */
@@ -54,7 +71,11 @@ export class HumanViewerModel {
   /** Facts reported to callers of the page's load methods. */
   public readonly loaded: IHumanViewerPage.ILoaded;
 
-  private readonly built: IAutoMovieModelObject;
+  /** The prepared shape's shared GPU assets; this model owns its only instance. */
+  private readonly asset: AutoMovieHumanSkinAsset;
+
+  /** The displayed instance on {@link asset}, with its own pose state. */
+  private readonly built: AutoMovieHumanSkinInstance;
   private readonly surface: THREE.Object3D[] = [];
   private readonly construction: THREE.Object3D[] = [];
   private readonly close: () => Promise<void>;
@@ -70,6 +91,18 @@ export class HumanViewerModel {
     material: "appearance",
   };
   private current: IHumanViewerPage.ISelection = resolveHumanCurves("", [], []);
+  private posed: normalizeHumanView.IView["pose"] = "rest";
+  private posing: number | null = null;
+
+  /** Canonical text of the mouth shown, and the undo of its displacement. */
+  private spoken: string = "{}";
+  private unspeak: (() => void) | null = null;
+
+  /** The body's mouth and scale, read from its calibration on the first spoken mouth. */
+  private speaker:
+    | { context: AutoMovieHumanMouthDeformation.IContext; scale: number }
+    | null
+    | undefined = undefined;
 
   /**
    * Decode the result's carried images, then build and display its model.
@@ -86,6 +119,8 @@ export class HumanViewerModel {
    * @param alias Registered alias of its parameters, or null.
    * @param milliseconds Generator time, or null for an externally generated result.
    * @param generation Page generation counter assigned to this model.
+   * @param calls Page call counts including this build.
+   * @param body The prepared shape's evaluator and rig, from `AutoMovieHuman.prepare`; omitted for a result generated elsewhere, whose evaluator is prepared from its parameters on the first pose.
    * @returns The displayed model, owning its texture cache.
    *
    * @evidence contracts/common.md#principled-implementation Primes AutoMovieTextureCache with every material binding and the model's carried images before buildModel, exactly as buildAutoMovieMaterialLibrary does, and passes cache.resolve as the resolver.
@@ -101,7 +136,10 @@ export class HumanViewerModel {
     alias: string | null,
     milliseconds: number | null,
     generation: number,
+    calls: IHumanViewerPage.ICalls,
+    body?: AutoMovieHumanInstance.IBody,
   ): Promise<HumanViewerModel> {
+    const started: number = performance.now();
     const textures: AutoMovieTextureCache = new AutoMovieTextureCache(
       (asset: string): Promise<THREE.Texture> =>
         Promise.reject(
@@ -123,6 +161,9 @@ export class HumanViewerModel {
         milliseconds,
         generation,
         textures,
+        performance.now() - started,
+        calls,
+        body ?? lazyBody(result),
       );
     } catch (error) {
       await textures.dispose().catch(console.error);
@@ -138,6 +179,9 @@ export class HumanViewerModel {
    * @param milliseconds Generator time, or null for an externally generated result.
    * @param generation Page generation counter assigned to this model.
    * @param textures Cache primed with the model's carried images; ownership passes to the model.
+   * @param prime Milliseconds the texture priming took.
+   * @param calls Page call counts including this build.
+   * @param body The prepared evaluator and rig the instance poses with.
    */
   private constructor(
     result: IAutoMovieHumanGenerated,
@@ -145,17 +189,32 @@ export class HumanViewerModel {
     milliseconds: number | null,
     generation: number,
     private readonly textures: AutoMovieTextureCache,
+    prime: number,
+    calls: IHumanViewerPage.ICalls,
+    body: AutoMovieHumanInstance.IBody,
   ) {
     this.result = result;
-    this.built = buildModel(result.model, textures.resolve);
+    const started: number = performance.now();
+
+    // The shape's buffers and materials are built once into a shared asset;
+    // the displayed figure is one instance on it, whose initial state is the
+    // parameters' own pose and expression, applied once by that instance.
+    this.asset = AutoMovieHumanSkinAsset.create(result.model, textures.resolve);
+    try {
+      this.built = this.asset.instantiate(body, {
+        pose: result.parameters.pose,
+        expression: result.parameters.expression,
+      });
+    } catch (error) {
+      this.asset.dispose();
+      throw error;
+    }
+    const built: number = performance.now();
     this.object = this.built.object;
-    this.close = createAutoMovieResourceRetirement(
-      collectAutoMovieOwnedResources(this.built.object).map(
-        (resource: { dispose(): void }): (() => void) =>
-          (): void =>
-            resource.dispose(),
-      ),
-    );
+    this.close = createAutoMovieResourceRetirement([
+      (): void => this.built.dispose(),
+      (): void => this.asset.dispose(),
+    ]);
     try {
       this.bounds = new THREE.Box3();
       this.object.updateMatrixWorld(true);
@@ -177,9 +236,16 @@ export class HumanViewerModel {
           max: this.bounds.max.toArray(),
         },
         construction: this.construction.length !== 0,
+        timing: {
+          primeMilliseconds: prime,
+          buildMilliseconds: built - started,
+          displayMilliseconds: 0,
+        },
+        calls: { ...calls },
       };
       this.styling = new ModelPartStyling(result.model, this.built);
       this.restyle();
+      this.loaded.timing.displayMilliseconds = performance.now() - built;
     } catch (error) {
       void this.close().catch(console.error);
       throw error;
@@ -448,6 +514,129 @@ export class HumanViewerModel {
       material: display.material,
     };
     this.restyle();
+    this.pose(display.pose, display.mouth);
+  }
+
+  /**
+   * Union of the visible surface parts' object bounds as the CPU queries read them, metres.
+   *
+   * @evidence contracts/common.md#principled-implementation Box3.setFromObject over each visible non-construction part, Three's own bound query that frustum, framing and picking consumers share.
+   * @evidence contracts/common.md#clear-and-simple-design Exposes what the query consumers see so a capture can compare it with the drawn silhouette.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads the bounds as they are, stale or current, rather than recomputing them for the report.
+   * @evidence contracts/common.md#meaningful-documentation States the frame and the parts included.
+   * @evidence contracts/performance.md#efficient-algorithms O(P) part bounds; a part whose bounds are unset computes them once.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses each part's cached bounds.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new box owned by the caller.
+   */
+  public queried(): THREE.Box3 {
+    return this.box(
+      (id: string): boolean =>
+        !id.startsWith(CONSTRUCTION) && this.built.parts.get(id)!.visible,
+    );
+  }
+
+  /** Milliseconds the last display change spent moving to a new pose, or null when the pose was unchanged. */
+  public get poseMilliseconds(): number | null {
+    return this.posing;
+  }
+
+  /**
+   * The articulation behind the displayed figure, for capture metadata: the
+   * named view pose, whether the bind or the instance's pose is shown, the
+   * instance's revision and clamps, and the deformation backend.
+   *
+   * @evidence contracts/common.md#principled-implementation Reads the displayed instance's own state, revision, clamps and owned skeletons, and the skins' declared blend methods from the model.
+   * @evidence contracts/common.md#clear-and-simple-design One record lets every PNG name the pose and backend it was drawn with.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reports the state as displayed; nothing is recomputed for the report.
+   * @evidence contracts/common.md#meaningful-documentation States each field's meaning.
+   * @evidence contracts/performance.md#efficient-algorithms O(P) over the model's skins for the blend methods; the rest is constant.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the instance's cached evaluation for its clamps.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new record owned by the caller.
+   */
+  public articulation(): IHumanViewerPage.IArticulation {
+    return {
+      pose: this.posed,
+      display: this.built.display,
+      revision: this.built.revision,
+      clamped: this.built.display === "pose" ? this.built.clamped.length : 0,
+      deformation: {
+        authority: "gpu-skinning",
+        methods: [
+          ...new Set(
+            this.result.model.parts.flatMap((part: IAutoMovieModelPart): string[] =>
+              part.geometry.type === "mesh" && part.geometry.mesh.skin !== null
+                ? [part.geometry.mesh.skin.method ?? "linear"]
+                : [],
+            ),
+          ),
+        ],
+        skeletons: this.built.skeletonCount,
+        bonesWritten: this.built.writtenBones,
+      },
+    };
+  }
+
+  /**
+   * Move the displayed instance to a named pose; the geometry is not rebuilt.
+   * `rest` shows the bind and keeps the instance's state; any other name
+   * replaces the instance's pose, keeping its expression and root. A spoken
+   * mouth opens the jaw by what its visemes ask on top of the named pose and
+   * moves the lips, cheeks and tongue at their bind (`applyHumanMouth`).
+   */
+  private pose(
+    name: normalizeHumanView.IView["pose"],
+    mouth: normalizeHumanView.IView["mouth"] = {},
+  ): void {
+    this.posing = null;
+    const spoken: string = JSON.stringify(mouth);
+    if (name === this.posed && spoken === this.spoken) return;
+    const started: number = performance.now();
+    const resolved: AutoMovieHumanMouthExpression.IResolved =
+      AutoMovieHumanMouthExpression.resolve(
+        { units: [], mouth: { visemes: mouth } },
+        this.result.parameters.head.mouthOpening,
+      );
+    if (spoken !== this.spoken) {
+      this.unspeak?.();
+      this.unspeak = null;
+      if (!AutoMovieHumanMouthExpression.still(resolved)) {
+        this.speaker ??= speaker(this.result);
+        if (this.speaker !== null)
+          this.unspeak = applyHumanMouth(
+            this.built.parts,
+            this.speaker.context,
+            resolved,
+            this.speaker.scale,
+          );
+      }
+      this.spoken = spoken;
+    }
+    if (name === "rest") this.built.showBind();
+    else {
+      const state: AutoMovieHumanInstance.IState = this.built.state;
+      const named: IAutoMovieHumanPose = HUMAN_STICKMAN_POSES[name]!;
+      this.built.update({
+        kind: "snapshot",
+        pose:
+          resolved.opening === 0
+            ? named
+            : {
+                ...named,
+                head: {
+                  ...named.head,
+                  jaw: {
+                    ...named.head?.jaw,
+                    opening: (named.head?.jaw?.opening ?? 0) + resolved.opening,
+                  },
+                },
+              },
+        expression: state.expression,
+        root: state.root,
+      });
+      if (this.built.display !== "pose") this.built.showPose();
+    }
+    this.posed = name;
+    this.posing = performance.now() - started;
   }
 
   /** Union of the world bounds of the parts whose id passes the filter. */
@@ -477,6 +666,45 @@ export class HumanViewerModel {
       .filter((id: string): boolean => id.startsWith(prefix))
       .map((id: string): string => id.slice(prefix.length));
   }
+}
+
+/**
+ * The posing body of a result generated elsewhere, which carries no prepared
+ * evaluator: the evaluator is prepared from the result's own parameters on the
+ * first pose, so a result that is only viewed at the bind never pays for it,
+ * and it is prepared once for the model's lifetime.
+ */
+function lazyBody(result: IAutoMovieHumanGenerated): AutoMovieHumanInstance.IBody {
+  let evaluate: AutoMovieHumanSkeleton.PoseEvaluator | undefined;
+  return {
+    skeleton: result.model.skeleton,
+    evaluate: (
+      pose?: Parameters<AutoMovieHumanSkeleton.PoseEvaluator>[0],
+      clamp?: boolean,
+    ): AutoMovieHumanSkeleton.IOutput =>
+      (evaluate ??= AutoMovieHumanSkeleton.prepare(result.parameters))(
+        pose,
+        clamp,
+      ),
+  };
+}
+
+/**
+ * The mouth's deformation context of a result, from its own parameters'
+ * calibration, or null for a body without a generated mouth.
+ */
+function speaker(
+  result: IAutoMovieHumanGenerated,
+): { context: AutoMovieHumanMouthDeformation.IContext; scale: number } | null {
+  const body: IAutoMovieHumanBodyCalibration = AutoMovieHumanBodyLaw.calibrate(
+    result.parameters,
+  ).body;
+  const context: AutoMovieHumanMouthDeformation.IContext | null =
+    AutoMovieHumanMouthDeformation.context(body);
+  const height: number | null = result.parameters.body.controls.height.value;
+  return context === null || height === null
+    ? null
+    : { context, scale: height / body.stature / 1000 };
 }
 
 /** Mesh vertex and triangle counts of one part; other geometry counts zero. */

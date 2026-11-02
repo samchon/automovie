@@ -10,7 +10,7 @@ Root-to-tip widths, curl radius, pitch and scalp clearance need physical lengths
 
 Cards read as one hair mass only when their depth order follows the groom. Human gives every root nearly the same clearance and grows it with the length already grown, so a strand lies over the strands whose roots it passed; a random clearance of several millimetres per card breaks the mass into stepped planks with their own highlights. Side-by-side cards keep a sub-millimetre jitter so they never share a depth.
 
-Shading normals come from the mass, not from each card: the scalp chart's outward direction where hair lies on the head, a capsule about the chart centre (radial above it, horizontal below it) where hair hangs, and halfway to the body normal where it rests on the body. Per-card leans of a few hundredths of a radian still separate locks; leans of tenths give every card its own highlight band. Curl waves share a phase that varies smoothly over the scalp, so neighbouring cards wave together instead of crossing.
+Shading normals come from the mass, not from each card: the outward normal of a smooth envelope over the draped head, and halfway to the body normal where hair rests on the body. The envelope over the head is a kernel power mean of the draped radii (spherical Gaussians 0.15 radian wide, order 16); a positive kernel cannot ring, whereas the earlier least-squares fit of a sum of Gaussians turned the normals up to 14 degrees either way at the Gaussians' spacing and broke the back and top into grey blotches. Below the head the envelope is an analytic vertical column. Lying cuts hang it from each azimuth's lowest draped point; a hanging cut (the bob) hangs it from the widest one, as a curtain falls, because following the head back in under the occiput, the ears and the jaw turned the normals down and shaded the hair black there. Roots start a layer above the envelope where it rises above the skin beside the auricle, since a root on the skin climbed that rise on its first step and stood off the head. A hanging strand also keeps out of the draped head itself, because the power mean runs up to 8 mm under the drape at the auricle, whose rim showed through the curtain. Lying hair ends where the drape, not the envelope, rises more than 5 mm over the skin: the envelope bridges the concave nape under the occiput by more than that, and strands tested on it ended there and bared the undercoat down the nape. The cards' highlight is isotropic. An anisotropic lobe stretches each highlight across the strands along the card's own heading, which turns a little from card to card; at strength 0.6 it switched the highlight on and off card by card and broke the lit side of every cut into grey planks. In a controlled render on f1, removing only that lobe removed the planks, while flattening the per-card shade or the cards' edge lean did not. Per-card leans of a few hundredths of a radian still separate locks; leans of tenths give every card its own highlight band. Curl waves share a phase that varies smoothly over the scalp, so neighbouring cards wave together instead of crossing.
 
 ## Ends
 
@@ -22,9 +22,25 @@ Hair below the head meets a height field of the body: the highest skin crossing 
 
 ## Hairline
 
-A hair-bearing boundary interpolated over azimuth and mirrored at the front and back midlines needs zero slope there, or the mirror folds it into a cusp, a notch at the parting. An opaque undercoat's edge follows the boundary curve, because a margin made of whole chart cells shows that grid as a staircase along the hairline.
+The boundary's knots are shares of an adult head whose eyes lie half its height below the vertex, and the generator scales them by the generated head's measured eye-to-vertex and eye-to-menton heights, so the hairline follows whatever scalp the head construction makes. A hair-bearing boundary interpolated over azimuth and mirrored at the front and back midlines needs zero slope there, or the mirror folds it into a cusp, a notch at the parting. An opaque undercoat's edge follows the boundary curve, because a margin made of whole chart cells shows that grid as a staircase along the hairline. It starts 16 mm inside the boundary, past the 8 mm over which roots feather in and the 8 mm root band of each card: at 6 mm its dark margin showed in flecks between the transparent root bands of a bob's swept front, which a render with the undercoat removed and everything else equal showed to be the undercoat.
 
 The hairline is soft only when the cards there end in fine hair. Roots within 8 mm above the boundary grow shorter and narrower cards the closer they lie. Each card widens from a third over its root band, since square card roots of hair combed back at an angle line up as a saw edge. Strands shorter than 4 mm get no card, since such a card shows neither band and reads as a dark fleck on the forehead. Short hair that meets the auricle's drape ends above the ear instead of stepping out and standing off the side of the head, and a bob's front sweeps back over the temples as well as aside, so the roots at the front of its parting do not fall across the forehead.
+
+## Representation and cost
+
+Measured 2026-11-02 in Chrome, ANGLE D3D11 on an AMD Radeon 8060S, 1200 x 1200, WebGL2 with `EXT_disjoint_timer_query_webgl2`, one person (f1, bob) unless stated, every variant from the same 1,698 guides. GPU milliseconds are the hair drawn alone at close, medium and distant views (camera 0.75, 2.6 and 8 m away with a 30 degree field, a 220 mm head about 660, 190 and 60 pixels high).
+
+| Representation | Triangles | Hair GPU ms close / medium / distant | Against full cards (silhouette XOR, mean difference) |
+| --- | --- | --- | --- |
+| Alpha-tested cards, every root | 120 k | 3.0 / 0.80 / 0.31 | reference |
+| Cards, half the roots, 1.41 x wider | 66 k | 2.2 / 0.56 / 0.23 | 1.5-2.0 %, 4.3-4.9 |
+| Cards, a quarter, 2 x wider | 36 k | 1.6 / 0.39 / 0.17 | 2.1-2.5 %, 6.2-6.5 |
+| Opaque planks, a quarter | 36 k | 1.2 / 0.35 / 0.16 | 2.1-2.9 %, 6.4-8.5; no strands close up |
+| Opaque swept tubes, a quarter | 98 k | 1.3 / 0.40 / 0.19 | 3.9-4.8 %, 11-17 |
+| Bounded strands, 8 per guide | 498 k | 7.1 / 1.85 / 0.92 | 2.1-3.1 %, 6-9 |
+| Undercoat cap alone | 8 k | 0.17 / 0.10 / 0.09 | 51-56 %, 81-86 |
+
+The whole frame took 19, 27 and 37 GPU ms at those views, of which the body's 400 to 930 draw calls (one per skin part) are nearly all; four people took 45 to 160 ms with the hair at 0.7 to 1.4 ms of it. One shadow-casting light raised the cards' own cost to 3.7 / 1.3 / 0.67 ms and doubled the draw calls, and broke the opaque planks' tone (mean difference 14-24) by self-shadowing. The strand image decodes to a 256 x 512 RGBA8 texture with mipmaps, 699,052 bytes.
 
 ## Limits
 

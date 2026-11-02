@@ -49,11 +49,32 @@ export namespace AutoMovieHumanHairImage {
   export const tip: number = 0.7;
 
   /**
-   * Generate the strand image.
+   * The strand image, generated and encoded once per process.
+   *
+   * The image has no input, so every call returns the same record: a
+   * generation re-run for any edit (colour, style, shape) reuses its pixels
+   * and PNG bytes instead of drawing and encoding 128 K pixels again, and a
+   * shot texture cache sees one id with one byte string across every Human
+   * it primes. The record is shared, so callers must not mutate it. The
+   * retained population is one 256 x 512 greyscale-alpha PNG (about 350 KB
+   * of base64 text) for the life of the module.
    *
    * @returns Greyscale-alpha PNG image
    */
   export function generate(): IAutoMovieImage {
+    cached ??= draw();
+    return cached;
+  }
+
+  /** The image once drawn; see {@link generate}. */
+  let cached: IAutoMovieImage | undefined;
+
+  /**
+   * Draw and encode the strand image.
+   *
+   * @returns Greyscale-alpha PNG image
+   */
+  function draw(): IAutoMovieImage {
     const N: typeof AutoMovieHumanAppearanceNoise =
       AutoMovieHumanAppearanceNoise;
     const strands: number = 96;

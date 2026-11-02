@@ -401,6 +401,24 @@ export namespace AutoMovieHumanLoftChain {
     s: number,
     phases: readonly number[],
   ): [number, number, number][] {
+    const point: (t: number) => [number, number, number] = sampler(chain, s);
+    return phases.map((t: number): [number, number, number] => point(t));
+  }
+
+  /**
+   * World point of the chain at station s as a function of phase.
+   *
+   * The section, plane and lift of a station cost as much as the whole chain's
+   * order, so a caller reading a station at many separate phases takes them
+   * from here rather than through {@link ring} one phase at a time.
+   *
+   * @param chain Chain to evaluate.
+   * @param s Station within the chain; world height for horizontal layers.
+   */
+  export function sampler(
+    chain: IAutoMovieHumanLoftChain,
+    s: number,
+  ): (t: number) => [number, number, number] {
     const c: number[] = coefficients(chain, s);
     const f: AutoMovieHumanLoftFrame.IFrame = frame(chain, s);
 
@@ -411,7 +429,7 @@ export namespace AutoMovieHumanLoftChain {
     const lifted: number[] | null = l === null ? null : [...l, ...l];
     const n: [number, number, number] = normal(f);
 
-    return phases.map((t: number): [number, number, number] => {
+    return (t: number): [number, number, number] => {
       const p: [number, number, number, number] = section(chain, c, t);
       const q: [number, number, number] = AutoMovieHumanLoftFrame.place(
         f,
@@ -433,7 +451,7 @@ export namespace AutoMovieHumanLoftChain {
         for (let k: number = 0; k < 3; k++) q[k]! += d * relief.axis[k]!;
       }
       return q;
-    });
+    };
   }
 
   /** Unit normal `v x u` of a section frame: up for a horizontal frame. */

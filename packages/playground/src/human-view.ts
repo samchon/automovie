@@ -78,6 +78,7 @@ async function bootstrapHumanPage(): Promise<void> {
     "hair",
     "material",
     "light",
+    "pose",
   ]) {
     const value: string | null = query.get(name);
     if (value !== null) free.set(name, value);

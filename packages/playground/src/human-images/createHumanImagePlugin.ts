@@ -120,6 +120,8 @@ export function createHumanImagePlugin(repository: string): Plugin {
   return {
     name: "automovie-human-images",
     async configureServer(server: ViteDevServer): Promise<void> {
+      // One restart per server: the restarted server installs a new plugin.
+      let restarting: boolean = false;
       const published: string | undefined =
         process.env.AUTOMOVIE_HUMAN_AUDIT_IMPORT;
       if (published !== undefined) {
@@ -438,16 +440,25 @@ export function createHumanImagePlugin(repository: string): Plugin {
           };
           void handle().catch((error: unknown): void => {
             console.error(error);
-            const unavailable: boolean =
-              error instanceof Error &&
-              /host.*changed|source changed|closing/.test(error.message);
-            response.statusCode = unavailable ? 503 : 500;
-            if (unavailable) response.setHeader("retry-after", "1");
+            const message: string =
+              error instanceof Error ? error.message : String(error);
+            // The service's own code changed: it restarts itself, since the
+            // running plugin cannot load the new code. Generation sources are
+            // read afresh by every request, so a change there needs only a retry.
+            const host: boolean = /host.*changed/.test(message);
+            const source: boolean = /source changed|closing/.test(message);
+            if (host && !restarting) {
+              restarting = true;
+              void server.restart().catch(console.error);
+            }
+            response.statusCode = host || source ? 503 : 500;
+            if (host || source) response.setHeader("retry-after", host ? "30" : "2");
             response.end(
-              unavailable
-                ? "Human service generation changed; operator restart required"
-                : "Human image request failed: " +
-                    (error instanceof Error ? error.message : String(error)),
+              host
+                ? "Human service code changed; restarting the server, retry shortly"
+                : source
+                  ? "Human source changed during the request; retry"
+                  : "Human image request failed: " + message,
             );
           });
         },

@@ -47,7 +47,7 @@ import { textureBindingAsset } from "./textureBindingAsset.js";
  * @evidence contracts/common.md#meaningful-documentation Explains decoded-source sharing versus binding-private sampler state, renderer-specific native allocation, loader teardown constraints and single-attempt failure-preserving disposal.
  * @evidence contracts/performance.md#efficient-algorithms Asset Maps deduplicate loading in constant expected lookup time; prime and release traverse distinct assets and issued wrappers, with retained memory proportional to assets, clone count and decoded pixels.
  * @evidence contracts/performance.md#reuse-equivalent-work One pending promise per asset shares completed or in-flight decode within this shot; each binding receives a fresh wrapper because sampler and decoding state differ, and native upload sharing is not guaranteed.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The shot owner must dispose the cache; issued wrappers can grow without a numeric bound until then. Teardown waits for loader settlement, clears bookkeeping, attempts distinct textures once and retains failed or indeterminate wrappers with the failed completion.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The shot owner must dispose the cache; wrappers issued through resolve grow with every call until then, while resolveShared bounds them by the distinct object bindings of the shot. Teardown waits for loader settlement, clears bookkeeping, attempts distinct textures once and retains failed or indeterminate wrappers with the failed completion.
  */
 export class AutoMovieTextureCache {
   private readonly pending: Map<string, Promise<THREE.Texture>> = new Map<
@@ -190,6 +190,47 @@ export class AutoMovieTextureCache {
    */
   public readonly resolve: (binding: AutoMovieTextureBinding) => THREE.Texture;
 
+  /**
+   * A material wrapper shared by every equal binding, for {@link buildModel}
+   * and {@link buildMaterial} when one shot builds several models or rebuilds
+   * one.
+   *
+   * Two object bindings that carry the same fields (asset, coordinate set
+   * and source, colour space, UV transform and sampler) make
+   * `resolveAutoMovieMaterialTexture` write the same state onto their
+   * wrapper, so they can share it; each distinct binding still receives its
+   * own wrapper, issued once by {@link resolve}. A legacy string binding takes
+   * its colour space from the slot it fills, which the binding does not
+   * name, so it always receives a fresh wrapper. Environment scenes need a
+   * wrapper of their own and must keep using {@link resolve}.
+   *
+   * @evidence contracts/common.md#principled-implementation Keys each object binding by the canonical JSON of every field it carries, so a hit returns the wrapper whose binding writes are identical; string bindings and unprimed assets defer to resolve, which issues or refuses as before.
+   * @evidence contracts/common.md#clear-and-simple-design A second bound resolver keeps resolve's fresh-wrapper contract for environment and binding-private callers while material builders opt into sharing by passing this field.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No field is ignored in the key and slot-dependent legacy bindings are never shared, so no binding receives another binding's colour space, transform or sampler.
+   * @evidence contracts/common.md#meaningful-documentation States the equality that permits sharing, the legacy-string exception and the environment restriction.
+   * @evidence contracts/performance.md#efficient-algorithms One canonical serialization of a small binding record and one Map lookup per call; a miss adds one clone through resolve.
+   * @evidence contracts/performance.md#reuse-equivalent-work Equal bindings, whose wrapper writes are identical, reuse one issued wrapper and therefore one sampler/format/colour-space state; different fields issue a separate wrapper because their native allocation state may differ.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Wrappers issued here stay in the shot-owned list that dispose retires; their population is bounded by the distinct object bindings resolved in the shot plus one per string-binding resolution, not by the number of resolutions.
+   */
+  public readonly resolveShared: (
+    binding: AutoMovieTextureBinding,
+  ) => THREE.Texture = (binding: AutoMovieTextureBinding): THREE.Texture => {
+    this.assertLive();
+    if (typeof binding === "string") return this.resolve(binding);
+    const key: string = canonical(binding);
+    const found: THREE.Texture | undefined = this.shared.get(key);
+    if (found !== undefined) return found;
+    const issued: THREE.Texture = this.resolve(binding);
+    this.shared.set(key, issued);
+    return issued;
+  };
+
+  /** Wrappers issued by {@link resolveShared}, by canonical binding. */
+  private readonly shared: Map<string, THREE.Texture> = new Map<
+    string,
+    THREE.Texture
+  >();
+
   /** How many distinct assets this cache has decoded. */
   public get size(): number {
     return this.sources.size;
@@ -262,6 +303,7 @@ export class AutoMovieTextureCache {
     for (const result of settled)
       if (result.status === "fulfilled") textures.add(result.value);
     this.issued.length = 0;
+    this.shared.clear();
     this.pending.clear();
     this.sources.clear();
     this.origins.clear();
@@ -317,4 +359,34 @@ export class AutoMovieTextureCache {
     if (this.disposed)
       throw new Error("This shot texture cache has already been disposed.");
   }
+}
+
+/**
+ * JSON of a plain binding record with object keys sorted at every level, so
+ * equal bindings spelled in different key orders share one text.
+ *
+ * @param value Binding record or one of its fields
+ * @returns Canonical text
+ */
+function canonical(value: unknown): string {
+  if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
+  if (typeof value === "object" && value !== null)
+    return (
+      "{" +
+      Object.keys(value)
+        .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
+        .filter(
+          (key: string): boolean =>
+            (value as Record<string, unknown>)[key] !== undefined,
+        )
+        .map(
+          (key: string): string =>
+            JSON.stringify(key) +
+            ":" +
+            canonical((value as Record<string, unknown>)[key]),
+        )
+        .join(",") +
+      "}"
+    );
+  return JSON.stringify(value) ?? "null";
 }

@@ -5,34 +5,23 @@ description: Replaces the fitted Human calibration tables with one reusable cons
 
 # Human
 
-Generate every supported person from parameters by one reusable construction instead of the tables in `packages/human/src/generation/calibration/`. Find the major anatomical centres, draw lofting curves from them and construct each following layer up to the next centre by any anatomically and scientifically sound equation, recurrence or recursion. [Generalization](../../../packages/human/docs/generalization.md) holds the measurements, a candidate construction and the findings to reuse; it is a starting point, and a better construction replaces it. [Campaign #3013](https://github.com/samchon/automovie/issues/3013) owns the tasks. An explicit stop overrides every instruction here.
+Generate every supported person from parameters by one reusable construction. The fitted tables are gone, so a change never brings one back. Find the major anatomical centres, draw lofting curves from them and construct each following layer up to the next centre by any anatomically and scientifically sound equation, recurrence or recursion. [Generalization](../../../packages/human/docs/generalization.md) holds the measurements, a candidate construction and the findings to reuse; it is a starting point, and a better construction replaces it. [Campaign #3013](https://github.com/samchon/automovie/issues/3013) owns the tasks and how agents divide them. An explicit stop overrides every instruction here.
 
 ## Done When
 
-- The fitted section tables and the row repairs that exist only because of them are deleted, and ordinary generation runs without them.
-- Every public parameter changes the figure through that construction, including the inputs nothing reads today.
+- Every public parameter changes the figure through that construction.
 - f1, f2, m1 and m2 come from that one construction with no person selector, and finite, connected, normal anatomy holds across the supported parameter domain.
 
 ## Order
 
-1. Build the [score](verification.md#score) before changing geometry. A render costs about a gigabyte of memory and often returns nothing, so an agent without a cheap numeric check spends its time on transport instead of shape.
-2. Measure the data and choose the construction yourself. Scratch analysis of the tables and meshes is allowed and expected; the choice of equations, representations and tools is yours.
-3. Finish one [vertical slice](#vertical-slices), the leg by default because it is a plain tube with few modes and the smallest difference between people.
-4. Inspect the slice, record what it taught in Generalization, and widen to the next part. The default order is foot, arm, trunk, hand, head; change it when a measurement gives a reason. The head holds 56 percent of the table numbers and the hardest features, so it comes last even though it pays the most.
-5. Replace the Morph basis and the measurement Warp with the construction's own response, then connect the unread inputs.
+1. Build the [score](verification.md#score) before changing geometry, and pass the [unit tests](verification.md#unit-tests) before rendering. A render costs about a gigabyte of memory and often returns nothing, so an agent without a cheap numeric check spends its time on transport instead of shape.
+2. Measure the data and choose the construction yourself. The choice of equations, representations and tools is yours.
+3. Change one part at a time and leave the whole figure working: emit `IAutoMovieHumanLoftChain` under the same chain names, so `AutoMovieHumanBodySurface`, `AutoMovieHumanEventJoin`, skin, appearance and construction keep working unchanged.
+4. Inspect the change in the viewer and record what it taught in Generalization. A green curve test is not a pass: the viewer showed a step, a shelf and stripes on figures the rules passed. Give each defect it finds a rule, and prove the rule fails on the defect.
 
-Plan only as far as the next slice. An attempt that planned every part in advance wrote 500 KB of plan before any module reached ordinary generation, and the first slice would have changed that plan anyway. When a slice disproves the construction, stop, record why and choose another instead of patching it.
+Plan only as far as the next change. When a change disproves a construction, stop, record why and choose another instead of patching it.
 
-## Vertical Slices
-
-A slice replaces one chain family in ordinary generation and leaves the whole figure working. Deliver the whole campaign in one pull request with one commit per slice, because the user wants it landed at once and a partial landing would leave two authorities in the generator.
-
-- Emit the existing `IAutoMovieHumanLoftChain` at runtime under the same chain names, so `AutoMovieHumanBodySurface`, `AutoMovieHumanEventJoin`, skin, appearance and construction keep working unchanged.
-- Keep the layer count of a chain until its Morph rows are replaced, because `AutoMovieHumanBodyLaw.displace` throws when a chain's layer count differs from its basis.
-- Delete the replaced rows in the same change. A slice that adds more source bytes than it deletes is not finished.
-- Build both sides through one canonical construction and a declared reflection, including boundary maps, derivatives and orientation.
-
-A candidate that keeps the source rows and deforms them is not a replacement. One attempt added 780 KB of source that way and retired no table. Changing the section representation early is the same trap: each new representation spread into joins, caps, normals and sampling, so change it only when a slice shows the existing one cannot carry the law.
+Build both sides through one canonical construction and a declared reflection, including boundary maps, derivatives and orientation. A candidate that stores a person's rows and deforms them is not a construction. Change the section representation only when a part shows the existing one cannot carry the law: each new representation spreads into joins, caps, normals and sampling.
 
 ## Boundaries
 
@@ -43,9 +32,9 @@ A candidate that keeps the source rows and deforms them is not a replacement. On
 - Build each anatomical part as an independently deformable module in its own frame under a common body frame, joined to its neighbours by a rule in [Surface composition](../../../packages/human/docs/techniques/surface-composition.md). Reuse the existing skin-joining extension, keep common mathematics in one shared module, and give each shared boundary one owner that its neighbour copies.
 - Keep full skin, the normal generation path, rigs, export and other consumers working at every commit. Replacing them with empty or unavailable output is a regression.
 - Leave genitals and nipples out of the modelled skin.
-- Use meshes and saved Recovery/Hermite curves as observations for rules, judge appearance against the original [photographs](screenshot.md#references), and never treat a ruled reverse-render artifact as an anatomical target.
+- Use meshes and saved Recovery/Hermite curves as observations for rules, judge appearance against the original [photographs](screenshot.md#references), and never treat a ruled reverse-render artifact as an anatomical target. Recovery's ruled striping and cracks are accepted reference error that will not be fixed, so allow for them and construct better skin on your own instead of following them.
 - Claim no common law or prediction for other people from f1 reproduction alone.
-- Write and run no Human or Human-viewer tests except pure-logic unit tests for the facade controller, and never hardcode a test to specific coordinates or output snapshots. The score is a local executable, not a test.
+- Check Human logic and mathematics only through unit tests, written when needed and run alone by `pnpm test --include <name>`, with no one-off numeric scripts beside them. A Human test [audits everything before it fails](verification.md#unit-tests), so one run gives the whole worklist. Hardcode no test to specific coordinates or output snapshots apart from the curve audit's coarse slice bound. Write no test for the viewer. The score is a local executable, not a test.
 - Acquire further references without asking, by the [reference-experiments README](../../../test/src/executable/reference-experiments/README.md). Generalization says which references help.
 - Call the references f1, f2, m1 and m2, or the reference source. The user does not want the generator behind them named in any file, issue, commit or pull request.
 - Run no `git clean -x` or `git stash --all` here, and compare a branch's added paths with the disk before switching to it. `test/.shots`, `test/src/executable` and `.shots` are ignored and unrecoverable, and a checkout can overwrite an ignored file without warning.

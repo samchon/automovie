@@ -1,6 +1,24 @@
 # Verification
 
-The score rejects and the viewer accepts. Run the score first because it is cheap, then inspect what survives, because numbers alone do not establish a sound human shape. Each candidate needs both.
+The unit tests and the score reject and the viewer accepts. Run them first because they are cheap, then inspect what survives, because numbers alone do not establish a sound human shape. Each candidate needs all of them: a reversed arc and a zero-length arc reached the viewer in one session because no number was read first, and each cost a render round to find.
+
+## Unit Tests
+
+Unit tests are how logic and mathematics get checked here, and the only way besides the score. Write one when a question comes up, run it alone, and read its list:
+
+```bash
+pnpm test --include human_curve_trunk
+```
+
+That command compiles the whole test project for about thirteen minutes before a test starts, however narrow the selection. While iterating, run the same test functions directly with the local `test/src/executable/human-score/runHumanTest.ts`, and use `pnpm test --include` before a commit.
+
+A Human test audits every region before it fails, and its error lists all that it found by person, chain, layers and direction. Stopping at the first failure turns one cause into a run per symptom, so never assert one at a time. Fix the list by cause, then run it again.
+
+One test per part (`trunk`, `arm`, `hand`, `leg`, `foot`) audits the generated curves on every person across the domain, by rules in `HumanCurveAudit`; run the part you changed, and `human_curve` for all of them: orientation, crossings, slopes, slide, overshoot, creases, curvature bands, ripples, open or kinked seams and mirrored sides. A limit comes from what a surface is, from anatomy or from what reads smooth in the viewer, never from an earlier figure's worst value: several old limits began that way and still need their own basis.
+
+The rules name no coordinate, and no test reads a private reference or an earlier output. `test_human_curve_placement` checks what any body must have: every part present, the crown at the stature input and the sole on the floor within a day's change of height, a foot lowest and the head highest, and no arm inside the trunk below the armpit. No test compares the body with an older one; a defect the old figure shared is still a defect.
+
+When a defect reaches the viewer that no rule caught, add the rule that would have listed it. A clean run says the curves are not broken, not that the anatomy is right: that still takes the [inspection round](#inspection-round) in the viewer.
 
 ## Score
 

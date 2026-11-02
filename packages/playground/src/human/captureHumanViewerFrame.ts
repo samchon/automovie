@@ -1,8 +1,15 @@
 import * as THREE from "three";
 
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
+import type { IHumanViewerPage } from "./IHumanViewerPage";
 import { applyHumanInspectionLighting } from "./applyHumanInspectionLighting";
 import type { normalizeHumanView } from "./normalizeHumanView";
+
+/** The WebGL2 timer-query extension's constants; DOM typings do not declare it. */
+interface ITimerQuery {
+  TIME_ELAPSED_EXT: number;
+  GPU_DISJOINT_EXT: number;
+}
 
 /**
  * Draw one named camera with the requested display and inspection conditions and read the PNG back.
@@ -26,13 +33,13 @@ import type { normalizeHumanView } from "./normalizeHumanView";
  * @param legend Selected curves and their colours; non-empty draws a legend box at the top left of the PNG.
  * @param hemisphere Existing ambient light; changed only by the inspection profile.
  * @param light Reference or raking inspection profile, recorded through the actual placement and ambient values.
- * @returns PNG data URL, capture time, placement, canvas facts and the WebGL renderer strings.
+ * @returns PNG data URL, capture time, placement, canvas facts, the WebGL renderer strings and the measured draw, GPU-completion and encode times, with the GPU timer's result or the reason it is absent.
  *
  * @evidence contracts/common.md#principled-implementation Pins the drawing buffer and pixel ratio, places the shot camera with the reference framing rule, applies the shared inspection-light profile, draws once and reads the preserved buffer, then checks the canvas reached 1200 x 1200.
  * @evidence contracts/common.md#clear-and-simple-design One function owns the readback conditions; pass, selection and restoring the interactive view stay with the page.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A wrong canvas size throws instead of returning a mis-sized PNG; renderer strings are read from the context, never assumed.
  * @evidence contracts/common.md#meaningful-documentation States the conditions, the preserveDrawingBuffer premise and what the caller must restore.
- * @evidence contracts/performance.md#efficient-algorithms One draw of the scene plus one PNG encode of 1200 x 1200 pixels in the browser.
+ * @evidence contracts/performance.md#efficient-algorithms One draw of the scene, a one-pixel readPixels that waits for the GPU so draw completion and encoding are timed apart, an optional timer query around the draw and one PNG encode of 1200 x 1200 pixels in the browser.
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the page's renderer, scene, lights and shot camera.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one data URL string owned by the caller; the drawing buffer stays the renderer's.
  */
@@ -52,6 +59,10 @@ export function captureHumanViewerFrame(
   placement: HumanCaptureCamera.IPlacement;
   canvas: { width: number; height: number; pixelRatio: number };
   renderer: { vendor: string; renderer: string };
+  timing: Omit<
+    IHumanViewerPage.IFrameTiming,
+    "displayMilliseconds" | "poseMilliseconds"
+  >;
 } {
   renderer.setPixelRatio(1);
   renderer.setSize(HumanCaptureCamera.size, HumanCaptureCamera.size, false);
@@ -70,12 +81,68 @@ export function captureHumanViewerFrame(
     bounds.getSize(new THREE.Vector3()).length(),
     light,
   );
+  // Time the draw: main-thread submission, then a one-pixel read that waits
+  // for the GPU, then the PNG encode; a timer query brackets the draw when the
+  // context offers one.
+  const gl: WebGLRenderingContext | WebGL2RenderingContext =
+    renderer.getContext();
+  const timer: ITimerQuery | null =
+    "createQuery" in gl
+      ? (gl.getExtension("EXT_disjoint_timer_query_webgl2") as ITimerQuery | null)
+      : null;
+  const query: WebGLQuery | null =
+    timer !== null ? (gl as WebGL2RenderingContext).createQuery() : null;
+  if (query !== null)
+    (gl as WebGL2RenderingContext).beginQuery(timer!.TIME_ELAPSED_EXT, query);
+  const started: number = performance.now();
   renderer.render(scene, shot);
+  const rendered: number = performance.now();
+  if (query !== null)
+    (gl as WebGL2RenderingContext).endQuery(timer!.TIME_ELAPSED_EXT);
+  gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4));
+  const finished: number = performance.now();
   const capturedUtc: string = new Date().toISOString();
   const png: string =
     legend.length === 0
       ? renderer.domElement.toDataURL("image/png")
       : compose(renderer.domElement, legend);
+  const encoded: number = performance.now();
+  let gpuMilliseconds: number | null = null;
+  let gpuTimer: IHumanViewerPage.IFrameTiming["gpuTimer"] =
+    timer === null ? "unsupported" : "unavailable";
+  if (query !== null) {
+    const gl2: WebGL2RenderingContext = gl as WebGL2RenderingContext;
+    if (gl.getParameter(timer!.GPU_DISJOINT_EXT) === true) gpuTimer = "disjoint";
+    else if (gl2.getQueryParameter(query, gl2.QUERY_RESULT_AVAILABLE) === true) {
+      gpuMilliseconds =
+        Number(gl2.getQueryParameter(query, gl2.QUERY_RESULT)) / 1e6;
+      gpuTimer = "measured";
+    }
+    gl2.deleteQuery(query);
+  }
+  const heap: number | undefined = (
+    performance as Performance & { memory?: { usedJSHeapSize?: number } }
+  ).memory?.usedJSHeapSize;
+  const timing: Omit<
+    IHumanViewerPage.IFrameTiming,
+    "displayMilliseconds" | "poseMilliseconds"
+  > = {
+    renderMilliseconds: rendered - started,
+    finishMilliseconds: finished - rendered,
+    encodeMilliseconds: encoded - finished,
+    gpuMilliseconds,
+    gpuTimer,
+    draws: {
+      calls: renderer.info.render.calls,
+      triangles: renderer.info.render.triangles,
+    },
+    resources: {
+      geometries: renderer.info.memory.geometries,
+      textures: renderer.info.memory.textures,
+      programs: renderer.info.programs?.length ?? 0,
+    },
+    heapBytes: typeof heap === "number" && Number.isFinite(heap) ? heap : null,
+  };
 
   const canvas: { width: number; height: number; pixelRatio: number } = {
     width: renderer.domElement.width,
@@ -89,8 +156,6 @@ export function captureHumanViewerFrame(
     throw new Error("Human capture canvas did not reach 1200 x 1200");
 
   // Unmasked strings name the GPU; the masked ones are the fallback.
-  const gl: WebGLRenderingContext | WebGL2RenderingContext =
-    renderer.getContext();
   const info: WEBGL_debug_renderer_info | null = gl.getExtension(
     "WEBGL_debug_renderer_info",
   );
@@ -99,6 +164,7 @@ export function captureHumanViewerFrame(
     capturedUtc,
     placement,
     canvas,
+    timing,
     renderer: {
       vendor: String(
         gl.getParameter(info === null ? gl.VENDOR : info.UNMASKED_VENDOR_WEBGL),

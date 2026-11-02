@@ -3,7 +3,8 @@ import type { IAutoMovieHumanPose } from "../../../human/src/structures/pose/IAu
 /**
  * Demo poses of the Human stickman page, in the public pose type.
  *
- * - `rest`: `{}`, the generated body's own rest posture.
+ * - `neutral`: `{}`, the anatomical neutral every field is measured from. The
+ *   generated A-pose is the skin's bind and has no pose here.
  * - `demo`: a step and reach exercising every region: gaze and an open jaw,
  *   head turn and nod, thoracic rotation and lumbar flexion, a reaching left
  *   arm with a spread hand, a right fist with a pronated forearm, a raised
@@ -14,7 +15,7 @@ import type { IAutoMovieHumanPose } from "../../../human/src/structures/pose/IAu
  *   clamps it to the range, and `clamp=0` shows the overshoot.
  */
 export const HUMAN_STICKMAN_POSES: Record<string, IAutoMovieHumanPose> = {
-  rest: {},
+  neutral: {},
   demo: {
     head: {
       eyes: { left: { horizontal: 20 }, right: { horizontal: 20 } },

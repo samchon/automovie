@@ -13,7 +13,152 @@ import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstruct
  */
 export namespace AutoMovieHumanAperturePocket {
   /** Meridian tessellation; geometry is the cubic, not a stack of flat walls. */
-  const STEPS: number = 12;
+  const STEPS: number = 24;
+
+  /** Points a meridian is measured at before its steps are chosen. */
+  const DENSE: number = 128;
+
+  /**
+   * Longest first handle of a meridian, in the rim's distance from the
+   * opening's axis. A handle of a third of the chord to the pole, 3 mm, is
+   * longer than a nostril is half wide, 2.4 mm: the wall ran on across the
+   * opening in the skin's plane, under the wall opposite, before it turned
+   * into the pocket within a millimetre, and from below the nostril read as
+   * a slit with a white fringe.
+   */
+  const HANDLE: number = 0.5;
+
+  /** A meridian's cubic controls: rim, first handle, last handle, pole. */
+  type IControls = [number[], number[], number[], number[]];
+
+  /** A point of a meridian's cubic. */
+  function cubic(c: IControls, t: number): number[] {
+    return c[0].map(
+      (value: number, a: number): number =>
+        (1 - t) ** 3 * value +
+        3 * (1 - t) ** 2 * t * c[1][a]! +
+        3 * (1 - t) * t * t * c[2][a]! +
+        t ** 3 * c[3][a]!,
+    );
+  }
+
+  /**
+   * A meridian's share of its length plus its turning times a radius of a
+   * chord over pi, so a half turn counts as one chord, at each of DENSE
+   * steps of its parameter.
+   */
+  function measured(c: IControls): number[] {
+    const points: number[][] = Array.from(
+      { length: DENSE + 1 },
+      (_: unknown, i: number): number[] => cubic(c, i / DENSE),
+    );
+    const radius: number =
+      Math.hypot(...c[0].map((v: number, a: number): number => c[3][a]! - v)) / Math.PI;
+    const out: number[] = [0];
+    for (let i: number = 1; i <= DENSE; i++) {
+      const d: number[] = points[i]!.map((v: number, a: number): number => v - points[i - 1]![a]!);
+      let turn: number = 0;
+      if (i > 1) {
+        const e: number[] = points[i - 1]!.map((v: number, a: number): number => v - points[i - 2]![a]!);
+        const l: number = Math.hypot(...d) * Math.hypot(...e);
+        if (l > 1e-12)
+          turn = Math.acos(
+            Math.min(1, Math.max(-1, d.reduce((s: number, v: number, a: number): number => s + v * e[a]!, 0) / l)),
+          );
+      }
+      out.push(out[i - 1]! + Math.hypot(...d) + radius * turn);
+    }
+    return out.map((v: number): number => v / (out[DENSE]! || 1));
+  }
+
+  /**
+   * Each meridian's points, rim and pole excluded, at equal steps of its own
+   * length plus turning. Uniform steps of the parameter put the turn under
+   * the rim within one or two of them, 40 to 60 degrees a step, which shaded
+   * the walls as streaks.
+   */
+  function meridians(controls: readonly IControls[]): number[][][] {
+    return controls.map((c: IControls): number[][] => {
+      const measure: number[] = measured(c);
+      const out: number[][] = [];
+      let j: number = 0;
+      for (let k: number = 1; k < STEPS; k++) {
+        const target: number = k / STEPS;
+        while (j + 1 < DENSE && measure[j + 1]! < target) j++;
+        const span: number = measure[j + 1]! - measure[j]! || 1;
+        out.push(cubic(c, (j + Math.min(1, Math.max(0, (target - measure[j]!) / span))) / DENSE));
+      }
+      return out;
+    });
+  }
+
+  /**
+   * Each rim vertex's last control: on a circle about the pole, half the
+   * rim's mean distance from the opening's axis, at the vertex's share of the
+   * rim's length round from a phase that best keeps each vertex's own
+   * bearing. Last controls at half the vertex's own offset shrank the rim's
+   * shape whole toward the pole, so a teardrop kept its narrow ends at every
+   * depth, and since a homothety keeps angles, the walls there turned as
+   * sharply between two meridians mid-depth as the rim does at the skin: 40
+   * to 50 degrees. On a circle the pocket rounds as it deepens. Empty when the
+   * rim is not one loop.
+   */
+  function landings(
+    vertices: readonly number[],
+    owners: ReadonlyMap<number, IAutoMovieHumanApertureEdge>,
+    inwards: ReadonlyMap<number, [number, number]>,
+    tip: readonly number[],
+    outline: AutoMovieHumanLoftAperture.IOutline,
+  ): Map<number, number[]> {
+    const out: Map<number, number[]> = new Map();
+    const order: number[] = [vertices[0]!];
+    for (let k: number = 1; k < vertices.length; k++) {
+      const next: number | undefined = owners.get(order[k - 1]!)?.v;
+      if (next === undefined || next === vertices[0]) break;
+      order.push(next);
+    }
+    if (order.length !== vertices.length) return out;
+    const flat = (v: number): [number, number] => {
+      const w: [number, number] = inwards.get(v)!;
+      return [-w[0], -w[1]];
+    };
+    const arc: number[] = [0];
+    let area: number = 0;
+    order.forEach((v: number, k: number): void => {
+      const a: [number, number] = flat(v);
+      const b: [number, number] = flat(order[(k + 1) % order.length]!);
+      area += a[0] * b[1] - a[1] * b[0];
+      arc.push(arc[k]! + Math.hypot(b[0] - a[0], b[1] - a[1]));
+    });
+    const total: number = arc[order.length]!;
+    if (!(total > 0)) return out;
+    const sense: number = area >= 0 ? 1 : -1;
+    let cx: number = 0;
+    let cy: number = 0;
+    let mean: number = 0;
+    order.forEach((v: number, k: number): void => {
+      const a: [number, number] = flat(v);
+      const bearing: number =
+        Math.atan2(a[1], a[0]) - (sense * 2 * Math.PI * arc[k]!) / total;
+      cx += Math.cos(bearing);
+      cy += Math.sin(bearing);
+      mean += Math.hypot(a[0], a[1]) / order.length;
+    });
+    const start: number = Math.atan2(cy, cx);
+    order.forEach((v: number, k: number): void => {
+      const phi: number = start + (sense * 2 * Math.PI * arc[k]!) / total;
+      out.set(
+        v,
+        tip.map(
+          (value: number, a: number): number =>
+            value +
+            (mean / 2) *
+              (Math.cos(phi) * outline.lateral[a]! + Math.sin(phi) * outline.up[a]!),
+        ),
+      );
+    });
+    return out;
+  }
 
   /**
    * Close a cut rim using cubic meridians with its exterior transverse jet.
@@ -87,8 +232,14 @@ export namespace AutoMovieHumanAperturePocket {
       slopes.set(v, hit.gradient[0] * inward[0] + hit.gradient[1] * inward[1]);
     }
 
-    const rings: Map<number, number[]> = new Map();
-    for (const v of vertices) {
+    const landing: Map<number, number[]> = landings(
+      vertices,
+      owners,
+      inwards,
+      tip,
+      outline,
+    );
+    const controls: IControls[] = vertices.map((v: number): IControls => {
       const p: number[] = [0, 1, 2].map(
         (a: number): number => mesh.positions[3 * v + a]!,
       );
@@ -113,31 +264,31 @@ export namespace AutoMovieHumanAperturePocket {
 
       // A near-vertical exterior has a large depth derivative in the
       // projected chart, not an arbitrarily long physical handle. Preserve
-      // its tangent plane using a unit direction and the closure's chord.
+      // its tangent plane using a unit direction, the handle no longer than
+      // the closure's chord over three or the rim's way to the axis allows.
+      const handle: number = Math.min(
+        length / 3,
+        HANDLE * Math.hypot(inward[0], inward[1]),
+      );
       const first: number[] = p.map(
         (value: number, a: number): number =>
-          value + (tangent[a]! * length) / (3 * speed),
+          value + (tangent[a]! * handle) / speed,
       );
-      const last: number[] = tip.map(
-        (value: number, a: number): number => value - radial[a]! / 2,
-      );
-      const row: number[] = [v];
-      for (let k: number = 1; k < STEPS; k++) {
-        const t: number = k / STEPS;
+      const last: number[] =
+        landing.get(v) ??
+        tip.map((value: number, a: number): number => value - radial[a]! / 2);
+      return [p, first, last, tip];
+    });
+    const rings: Map<number, number[]> = new Map();
+    meridians(controls).forEach((points: number[][], i: number): void => {
+      const row: number[] = [vertices[i]!];
+      for (const point of points) {
         row.push(mesh.positions.length / 3);
-        mesh.positions.push(
-          ...p.map(
-            (value: number, a: number): number =>
-              (1 - t) ** 3 * value +
-              3 * (1 - t) ** 2 * t * first[a]! +
-              3 * (1 - t) * t * t * last[a]! +
-              t ** 3 * tip[a]!,
-          ),
-        );
+        mesh.positions.push(...point);
       }
       row.push(pole);
-      rings.set(v, row);
-    }
+      rings.set(vertices[i]!, row);
+    });
     for (const edge of open) {
       const u: number[] = rings.get(edge.u)!;
       const v: number[] = rings.get(edge.v)!;
@@ -179,8 +330,7 @@ export namespace AutoMovieHumanAperturePocket {
     const tip: number[] = centre.map((v: number, a: number): number => v - aperture.forward[a]! * aperture.pocket!);
     const pole: number = mesh.positions.length / 3;
     mesh.positions.push(...tip);
-    const rings: Map<number, number[]> = new Map();
-    ring.forEach((v: number, i: number): void => {
+    const controls: IControls[] = ring.map((v: number, i: number): IControls => {
       const p: number[] = [0, 1, 2].map((a: number): number => mesh.positions[3 * v + a]!);
       const tangent: number[] = slopes[i]!.map((x: number): number => -x);
       const length: number = Math.hypot(...p.map((value: number, a: number): number => tip[a]! - value));
@@ -189,21 +339,20 @@ export namespace AutoMovieHumanAperturePocket {
       const towards: number[] = p.map((value: number, a: number): number => value - tip[a]!);
       const along: number = towards.reduce((s: number, x: number, a: number): number => s + x * aperture.forward[a]!, 0);
       const radial: number[] = towards.map((x: number, a: number): number => x - along * aperture.forward[a]!);
-      const first: number[] = p.map((value: number, a: number): number => value + (tangent[a]! * length) / 3);
+      const handle: number = Math.min(length / 3, HANDLE * Math.hypot(...radial));
+      const first: number[] = p.map((value: number, a: number): number => value + tangent[a]! * handle);
       const last: number[] = tip.map((value: number, a: number): number => value + radial[a]! / 2);
-      const row: number[] = [v];
-      for (let k: number = 1; k < STEPS; k++) {
-        const t: number = k / STEPS;
+      return [p, first, last, tip];
+    });
+    const rings: Map<number, number[]> = new Map();
+    meridians(controls).forEach((points: number[][], i: number): void => {
+      const row: number[] = [ring[i]!];
+      for (const point of points) {
         row.push(mesh.positions.length / 3);
-        mesh.positions.push(
-          ...p.map(
-            (value: number, a: number): number =>
-              (1 - t) ** 3 * value + 3 * (1 - t) ** 2 * t * first[a]! + 3 * (1 - t) * t * t * last[a]! + t ** 3 * tip[a]!,
-          ),
-        );
+        mesh.positions.push(...point);
       }
       row.push(pole);
-      rings.set(v, row);
+      rings.set(ring[i]!, row);
     });
     const open: IAutoMovieHumanApertureEdge[] = ring.map(
       (u: number, i: number): IAutoMovieHumanApertureEdge => ({ u, v: ring[(i + 1) % ring.length]!, inside: -1, name: aperture.name }),

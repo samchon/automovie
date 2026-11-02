@@ -1,0 +1,12 @@
+import { assertHumanAnatomy } from "../internal/assertHumanAnatomy";
+
+/**
+ * Every person's hands, straightened at the anatomical neutral, measure what
+ * their hand inputs say by ANSUR II's and ISO 7250-1's definitions.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Poses each person's skin to `{}` through the public pose evaluator and the rig's own binding, blended as dual quaternions, and reads each hand along its axis from the wrist centre to the third knuckle: hand length from stylion to the middle fingertip's farthest skin, breadth and circumference on the section through knuckles II and V with the thumb's chains left out, palm length from stylion to the station where the middle finger's section parts from both neighbours (the web level its base crease lies on), thumb length from its MCP joint to its farthest tip skin, and breadth over length. It catches a hand of the wrong length, breadth or girth, a palm too long for its fingers and a hand too broad for any adult.
+ * @evidence contracts/testing.md#independent-expectations Lengths and breadth come from `extremities.hands`, the circumference from the hand-circumference control, each within ISO 20685-1:2018 Table 4's error for hand dimensions (1 mm) or small circumferences (4 mm). Breadth over length must lie within ANSUR II's women's 0.432 minus 2.326 SD 0.021 and men's 0.457 plus 2.326 SD, 0.383 to 0.506. No construction constant or earlier output enters. Made red on f1: breadth 83.8 against 57.3, length 158.4 against 151.1, palm 86.0 against 80.1, circumference 184.6 against 179.6, breadth over length 0.529; made green on thumb length 68.36 against 68.36. Oracle limits: the reference people's hand inputs are the reference source's own proxies, so a miss can be an input that does not hold its documented definition; the palmar crease is read at the webs, which the hand documentation places it on.
+ * @evidence contracts/testing.md#distinguishing-cases Both hands of all nine people, whose hand inputs move with them to the population's ends, so a 99th and 1st percentile hand length and breadth are each read. The arm test owns the wrist.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_anatomy_hand`, posing the cached people in process with no renderer, browser or GPU.
+ */
+export const test_human_anatomy_hand = (): void => assertHumanAnatomy("hand");
