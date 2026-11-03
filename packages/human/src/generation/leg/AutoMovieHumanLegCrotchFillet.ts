@@ -33,6 +33,30 @@ export namespace AutoMovieHumanLegCrotchFillet {
     edges: number[];
   }
 
+  /** A point of the trunk's arc read at a length along it. */
+  interface IPlace {
+    /** The point. */
+    p: Vec3;
+
+    /** The trunk's station derivative there, per mm up. */
+    d: Vec3;
+
+    /** Unit tangent of the arc there, in its own order. */
+    t: Vec3;
+  }
+
+  /** One fillet's samples, both ends left out. */
+  interface IFillet {
+    /** Points. */
+    points: Vec3[];
+
+    /** The trunk's station derivative carried along, per mm up. */
+    rates: Vec3[];
+
+    /** Distance along the arc to the nearer pinch, carried along. */
+    edges: number[];
+  }
+
   /**
    * Growth of the corner's sides per mm of depth: the trunk's crotch fold
    * leaves the midline as fast as it rises, and the leg's corner opens at that
@@ -73,7 +97,7 @@ export namespace AutoMovieHumanLegCrotchFillet {
     );
 
     // A point of the arc at a length from its start, with its rate and tangent.
-    const along = (s: number): { p: Vec3; d: Vec3; t: Vec3 } => {
+    const along: (s: number) => IPlace = (s: number): IPlace => {
       let i: number = 1;
       while (i < n - 1 && lengths[i]! < s) i++;
       const f: number = (s - lengths[i - 1]!) / (lengths[i]! - lengths[i - 1]! || 1);
@@ -85,18 +109,18 @@ export namespace AutoMovieHumanLegCrotchFillet {
     };
 
     // The slit carries the pinches' rates, on the midline.
-    const slitRate = (f: number): Vec3 => {
+    const slitRate: (f: number) => Vec3 = (f: number): Vec3 => {
       const r: Vec3 = lerp(root.rates[n - 1]!, root.rates[0]!, f);
       return [r[0], r[1], 0];
     };
-    const start = along(size);
-    const end = along(total - size);
+    const start: IPlace = along(size);
+    const end: IPlace = along(total - size);
     const toFront: Vec3 = normalize(sub(front, rear));
     const nearRear: Vec3 = plus(rear, scale(toFront, size));
     const nearFront: Vec3 = sub(front, scale(toFront, size));
 
     // A cubic Hermite fillet between two points with their tangents.
-    const fillet = (
+    const fillet: (p: Vec3, tp: Vec3, q: Vec3, tq: Vec3, dp: Vec3, dq: Vec3, ep: number, eq: number) => IFillet = (
       p: Vec3,
       tp: Vec3,
       q: Vec3,
@@ -105,7 +129,7 @@ export namespace AutoMovieHumanLegCrotchFillet {
       dq: Vec3,
       ep: number,
       eq: number,
-    ): { points: Vec3[]; rates: Vec3[]; edges: number[] } => {
+    ): IFillet => {
       const lambda: number = AutoMovieHumanLegVector.norm(sub(q, p));
       const points: Vec3[] = [];
       const rates: Vec3[] = [];
@@ -144,7 +168,7 @@ export namespace AutoMovieHumanLegCrotchFillet {
     points.push(end.p);
     rates.push(end.d);
     edges.push(size);
-    const back = fillet(end.p, end.t, nearRear, toFront, end.d, slitRate(size / slit), size, 0);
+    const back: IFillet = fillet(end.p, end.t, nearRear, toFront, end.d, slitRate(size / slit), size, 0);
     points.push(...back.points);
     rates.push(...back.rates);
     edges.push(...back.edges);
@@ -154,7 +178,7 @@ export namespace AutoMovieHumanLegCrotchFillet {
       rates.push(slitRate(f));
       edges.push(0);
     }
-    const fore = fillet(nearFront, toFront, start.p, start.t, slitRate(1 - size / slit), start.d, 0, size);
+    const fore: IFillet = fillet(nearFront, toFront, start.p, start.t, slitRate(1 - size / slit), start.d, 0, size);
     points.push(...fore.points);
     rates.push(...fore.rates);
     edges.push(...fore.edges);

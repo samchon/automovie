@@ -113,7 +113,7 @@ export namespace AutoMovieHumanLegTube {
       // removing it, along each knot's own ray. They are fixed in millimetres,
       // so the hull is not linear in K and a fixed point settles it.
       const target: number = input.girth(s);
-      const place = (k: number): [number, number][] =>
+      const place: (k: number) => [number, number][] = (k: number): [number, number][] =>
         unit.map((p: [number, number], m: number): [number, number] => {
           const base: number = k * Math.hypot(p[0], p[1]);
           const r: number = AutoMovieHumanSeamCarve.dent(AutoMovieHumanSeamUnion.bump(base, rise[m]!), sink[m]!);
@@ -124,7 +124,7 @@ export namespace AutoMovieHumanLegTube {
       const points: [number, number][] = place(scale);
 
       // The spline's control points: the guides write their jets exactly, scaled.
-      const chord = (j: number): number => {
+      const chord: (j: number) => number = (j: number): number => {
         const a: readonly number[] = ends[j]!.point;
         const b: readonly number[] = ends[(j + 1) % count]!.point;
         return Math.hypot(b[0]! - a[0]!, b[1]! - a[1]!);
@@ -142,7 +142,7 @@ export namespace AutoMovieHumanLegTube {
         name: `leg sector ${j}`,
         jet: (t: number): AutoMovieHumanSeamKnot.Jet => {
           const xi: number = (t - j * SPANS * h) / (SPANS * h);
-          const [p, d1, d2] = AutoMovieHumanChordArc.jet(ends[j]!, ends[(j + 1) % count]!, own.fullness[j]!, xi);
+          const [p, d1, d2]: AutoMovieHumanChordArc.Jet = AutoMovieHumanChordArc.jet(ends[j]!, ends[(j + 1) % count]!, own.fullness[j]!, xi);
           const speed: number = SPANS * h;
           return [
             p.map((v: number): number => scale * v),

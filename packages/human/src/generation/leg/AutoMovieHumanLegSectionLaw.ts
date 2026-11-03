@@ -91,8 +91,9 @@ export namespace AutoMovieHumanLegSectionLaw {
     inputs: AutoMovieHumanLegConstruction.IInputs,
     bones: AutoMovieHumanLegStations.IBones,
   ): ILaw {
-    const planar = (ring: readonly Vec3[]): [number, number][] => ring.map((p: Vec3): [number, number] => [p[0], p[2]]);
-    const level = (ring: readonly Vec3[]): number => ring.reduce((sum: number, p: Vec3): number => sum + p[1], 0) / ring.length;
+    const planar: (ring: readonly Vec3[]) => [number, number][] = (ring: readonly Vec3[]): [number, number][] =>
+      ring.map((p: Vec3): [number, number] => [p[0], p[2]]);
+    const level: (ring: readonly Vec3[]) => number = (ring: readonly Vec3[]): number => ring.reduce((sum: number, p: Vec3): number => sum + p[1], 0) / ring.length;
 
     // The two rings, canonical, and their centroids.
     const ankleWorld: Vec3[] = AutoMovieHumanLegAnkleSeam.ring(calibration, side).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]]);
@@ -112,7 +113,10 @@ export namespace AutoMovieHumanLegSectionLaw {
     // The rings as rows: the ankle ring about its centroid, and the trunk's
     // rounded loop at depth 0 (the arc closed by the slit) about the arc's.
     const root: AutoMovieHumanLegCrotchRoot.IRoot = AutoMovieHumanLegCrotchRoot.of(calibration, side, sign, crotchCentre, crotchReach);
-    const about = (ring: readonly [number, number][], c: readonly [number, number]): [number, number][] =>
+    const about: (ring: readonly [number, number][], c: readonly [number, number]) => [number, number][] = (
+      ring: readonly [number, number][],
+      c: readonly [number, number],
+    ): [number, number][] =>
       ring.map((p: [number, number]): [number, number] => [p[0] - c[0], p[1] - c[1]]);
     const low: AutoMovieHumanLegRingRow.IRow = AutoMovieHumanLegRingRow.of(about(ankle, ankleCentre));
     const high: AutoMovieHumanLegRingRow.IRow = AutoMovieHumanLegRingRow.of(about(planar(root.ring.points), crotchCentre));
@@ -127,7 +131,7 @@ export namespace AutoMovieHumanLegSectionLaw {
     const tube: (s: number) => AutoMovieHumanLegTube.ISection = AutoMovieHumanLegTube.of({
       bones,
       girth,
-      reliefs: AutoMovieHumanLegReliefs.of(bones, girth, [bottom, top]),
+      reliefs: AutoMovieHumanLegReliefs.of(bones, girth, [bottom, top], crotchReach),
       ends: { bottom: { at: bottom, shape: low.shape }, top: { at: top, shape: high.shape } },
     });
 

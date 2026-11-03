@@ -42,6 +42,16 @@ export namespace AutoMovieHumanLegReliefWindow {
 
     /** Unit direction of a positive height in the section frame `[forward, along the bone, lateral]`. */
     axis: [number, number, number];
+
+    /**
+     * Where the centre stands when it is not a share of a bone: `crotch` puts
+     * it at the leg's first own row under the crotch ring, where the trunk's
+     * ring has handed the skin over to the leg's law. A skin crease of the
+     * thigh's root (the infragluteal fold, the inguinal crease) is the line
+     * where the trunk's skin meets the leg's, so it stands there and not at a
+     * share of the femur; `segment` and `share` then only name its bone.
+     */
+    anchor?: "crotch";
   }
 
   /** What a window is placed from. */
@@ -51,6 +61,9 @@ export namespace AutoMovieHumanLegReliefWindow {
 
     /** The local radius at the window's centre, mm: the section's girth over 2 pi. */
     radius: number;
+
+    /** The centre's station when the window is anchored (see {@link IWindow.anchor}), mm. */
+    at?: number;
   }
 
   /** Controls across each direction of a window. */
@@ -76,7 +89,7 @@ export namespace AutoMovieHumanLegReliefWindow {
   export function create(window: IWindow, input: IInput): IAutoMovieHumanRelief {
     if (!(input.radius > 0)) throw new Error(`The ${window.name} window needs a positive local radius`);
     const n: number = COUNT;
-    const centre: number = AutoMovieHumanLegStations.heightAt(input.bones, window.segment, window.share);
+    const centre: number = input.at ?? AutoMovieHumanLegStations.heightAt(input.bones, window.segment, window.share);
     const half: number = window.halfStation * input.radius;
     const stations: [number, number] = [centre - half, centre + half];
     const first: number = wrap(window.angle - window.halfAngle);

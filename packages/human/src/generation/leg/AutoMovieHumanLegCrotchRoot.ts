@@ -64,6 +64,15 @@ export namespace AutoMovieHumanLegCrotchRoot {
   /** Share of the crotch's handover at each end over which its rate eases. */
   export const EASE: number = 0.25;
 
+  /** The trunk and the phase arcs of its bottom ring that one leg takes. */
+  export interface IArcs {
+    /** The trunk chain, owner of the ring. */
+    trunk: IAutoMovieHumanLoftChain;
+
+    /** The arcs `[from, to]` of the trunk's phases the leg takes, radians. */
+    arcs: [number, number][];
+  }
+
   /**
    * The trunk and the arcs of its bottom ring a leg takes.
    *
@@ -73,7 +82,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
   export function arcs(
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
-  ): { trunk: IAutoMovieHumanLoftChain; arcs: [number, number][] } {
+  ): IArcs {
     const trunk: IAutoMovieHumanLoftChain = calibration.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk")!;
     const event: IAutoMovieHumanBodyCalibration.IEvent = calibration.events.find(
       (e: IAutoMovieHumanBodyCalibration.IEvent): boolean => e.parent === "trunk" && e.direction === "down",
@@ -92,7 +101,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
 
   /** The arc of the trunk's bottom ring that a leg takes, world, in its own phase order. */
   export function ring(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): Vec3[] {
-    const taken = arcs(calibration, side);
+    const taken: IArcs = arcs(calibration, side);
     return taken.arcs.flatMap(([from, to]: [number, number]): Vec3[] =>
       AutoMovieHumanLoftChain.ring(taken.trunk, taken.trunk.layers[0]!.y, phases(from, to)),
     );
@@ -114,11 +123,11 @@ export namespace AutoMovieHumanLegCrotchRoot {
     centre: [number, number],
     reach: number,
   ): IRoot {
-    const taken = arcs(calibration, side);
+    const taken: IArcs = arcs(calibration, side);
     const trunk: IAutoMovieHumanLoftChain = taken.trunk;
     const y: number = trunk.layers[0]!.y;
     const ringPhases: number[] = taken.arcs.flatMap(([from, to]: [number, number]): number[] => phases(from, to));
-    const at = (s: number): Vec3[] =>
+    const at: (s: number) => Vec3[] = (s: number): Vec3[] =>
       AutoMovieHumanLoftChain.ring(trunk, s, ringPhases).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]]);
 
     // The trunk's station derivative at the ring: one-sided of second order.
@@ -187,7 +196,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
   export function handover(x: number): number {
     const t: number = Math.min(1, Math.max(0, x));
     const k: number = 1 / (1 - EASE);
-    const eased = (y: number): number => EASE * (y ** 6 - 3 * y ** 5 + 2.5 * y ** 4);
+    const eased: (y: number) => number = (y: number): number => EASE * (y ** 6 - 3 * y ** 5 + 2.5 * y ** 4);
     if (t <= EASE) return k * eased(t / EASE);
     if (t >= 1 - EASE) return 1 - k * eased((1 - t) / EASE);
     return k * (EASE / 2 + (t - EASE));

@@ -45,9 +45,12 @@ export namespace AutoMovieHumanLegStand {
     );
 
     // The chains and poles of one side's foot, toes and forefoot.
-    const owner = (name: string): "left" | "right" | null =>
+    const owner: (name: string) => "left" | "right" | null = (name: string): "left" | "right" | null =>
       !/^(foot|forefoot|toe)\./.test(name) ? null : name.includes("left") ? "left" : "right";
-    const shift = (p: readonly [number, number, number], d: readonly [number, number]): Vec3 => [p[0] + d[0], p[1], p[2] + d[1]];
+    const shift: (p: readonly [number, number, number], d: readonly [number, number]) => Vec3 = (
+      p: readonly [number, number, number],
+      d: readonly [number, number],
+    ): Vec3 => [p[0] + d[0], p[1], p[2] + d[1]];
     return {
       ...calibration,
       chains: calibration.chains.map((c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain => {

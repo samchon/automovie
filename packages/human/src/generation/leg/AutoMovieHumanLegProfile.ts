@@ -106,7 +106,7 @@ export namespace AutoMovieHumanLegProfile {
         value: r.values[k]!,
       }))
       .sort((a: IKnot, b: IKnot): number => a.at - b.at);
-    const end = (e: IEnd | undefined): IKnot | undefined => (e === undefined ? undefined : { at: e.at, value: e.values[k]! });
+    const end: (e: IEnd | undefined) => IKnot | undefined = (e: IEnd | undefined): IKnot | undefined => (e === undefined ? undefined : { at: e.at, value: e.values[k]! });
     const placed: IKnot[] = joined(sorted, end(ends.bottom), end(ends.top));
     for (let i: number = 0; i < placed.length; i++) {
       if (!Number.isFinite(placed[i]!.value)) throw new Error(`A landmark row lacks channel ${k}`);

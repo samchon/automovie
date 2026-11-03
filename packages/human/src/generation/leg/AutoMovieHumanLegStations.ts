@@ -94,7 +94,7 @@ export namespace AutoMovieHumanLegStations {
 
   /** A joint's whole range of motion along its flexion channel, radians. */
   export function range(channel: keyof typeof RANGES): number {
-    const [low, high] = RANGES[channel];
+    const [low, high]: readonly [number, number] = RANGES[channel];
     return ((high - low) * Math.PI) / 180;
   }
 
@@ -120,12 +120,14 @@ export namespace AutoMovieHumanLegStations {
    * @returns Strictly increasing stations from the ankle ring to the crotch ring, both included.
    */
   export function layers(input: IInput): number[] {
-    const { bottom, top, bends } = input;
+    const bottom: number = input.bottom;
+    const top: number = input.top;
+    const bends: readonly IBend[] = input.bends;
 
     // The density is the layers wanted per mm at a station: the larger of the
     // coarsest spacing's, each joint's (its range over the row turn, times the
     // bend's own quintic turning rate) and the doubling under the crotch ring.
-    const density = (s: number): number => {
+    const density: (s: number) => number = (s: number): number => {
       let m: number = 1 / input.coarsest;
       for (const b of bends) {
         const x: number = (s - b.at) / b.half;

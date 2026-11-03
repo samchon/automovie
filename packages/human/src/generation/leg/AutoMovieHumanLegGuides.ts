@@ -95,16 +95,16 @@ export namespace AutoMovieHumanLegGuides {
    * @returns The shape at a station, in units of the section's girth over 2 pi.
    */
   export function shape(bones: AutoMovieHumanLegStations.IBones, ends: IEnds = {}): (s: number) => IShape {
-    const guideEnds = (j: number): AutoMovieHumanLegProfile.IEnds => {
-      const row = (e: IEnd | undefined): AutoMovieHumanLegProfile.IEnd | undefined => {
+    const guideEnds: (j: number) => AutoMovieHumanLegProfile.IEnds = (j: number): AutoMovieHumanLegProfile.IEnds => {
+      const row: (e: IEnd | undefined) => AutoMovieHumanLegProfile.IEnd | undefined = (e: IEnd | undefined): AutoMovieHumanLegProfile.IEnd | undefined => {
         if (e === undefined) return undefined;
         const g: AutoMovieHumanPolarSector.IGuide = e.shape.guides[j]!;
         return { at: e.at, values: [g.value, g.slope, g.curvature] };
       };
       return { bottom: row(ends.bottom), top: row(ends.top) };
     };
-    const sectorEnds = (j: number): AutoMovieHumanLegProfile.IEnds => {
-      const row = (e: IEnd | undefined): AutoMovieHumanLegProfile.IEnd | undefined =>
+    const sectorEnds: (j: number) => AutoMovieHumanLegProfile.IEnds = (j: number): AutoMovieHumanLegProfile.IEnds => {
+      const row: (e: IEnd | undefined) => AutoMovieHumanLegProfile.IEnd | undefined = (e: IEnd | undefined): AutoMovieHumanLegProfile.IEnd | undefined =>
         e === undefined ? undefined : { at: e.at, values: [e.shape.fullness[j]!] };
       return { bottom: row(ends.bottom), top: row(ends.top) };
     };

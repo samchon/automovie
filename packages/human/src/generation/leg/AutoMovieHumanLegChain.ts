@@ -1,3 +1,4 @@
+import { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanLegConstruction } from "../AutoMovieHumanLegConstruction";
 import type { AutoMovieHumanSkeletonLaw } from "../AutoMovieHumanSkeletonLaw";
@@ -33,7 +34,7 @@ export namespace AutoMovieHumanLegChain {
     side: "left" | "right",
     sign: 1 | -1,
   ): AutoMovieHumanLegAxis.IJoints {
-    const at = (name: string): Vec3 => {
+    const at: (name: string) => Vec3 = (name: string): Vec3 => {
       const bone: AutoMovieHumanSkeletonLaw.IBone | undefined = skeleton.find((b: AutoMovieHumanSkeletonLaw.IBone): boolean => b.bone === `${side}${name}`);
       if (bone === undefined) throw new Error(`The skeleton lacks the ${side} ${name}`);
       return [bone.position[0], bone.position[1], sign * bone.position[2]];
@@ -92,7 +93,12 @@ export namespace AutoMovieHumanLegChain {
       first: trunk.layers[1]!.y - trunk.layers[0]!.y,
       coarsest: AutoMovieHumanLegStations.COARSEST * inputs.scale,
     });
-    const section = (s: number): AutoMovieHumanLegSection.ISection => AutoMovieHumanLegSection.of(law, frames, centre, root, s);
+
+    // The leg's rows meet the layer contract every chain hands its
+    // neighbours: finite and rising by at least the least layer gap, so a
+    // spline over them never divides by a vanishing gap.
+    AutoMovieHumanLoftContract.stations(`leg.${side}`, stations, AutoMovieHumanLoftContract.LEAST_LAYER_GAP);
+    const section: (s: number) => AutoMovieHumanLegSection.ISection = (s: number): AutoMovieHumanLegSection.ISection => AutoMovieHumanLegSection.of(law, frames, centre, root, s);
     const last: number = stations.length - 1;
     const layers: IAutoMovieHumanLoftChain.ILayer[] = stations.map((s: number, k: number): IAutoMovieHumanLoftChain.ILayer => {
       const here: AutoMovieHumanLegSection.ISection = section(s);
@@ -116,8 +122,16 @@ export namespace AutoMovieHumanLegChain {
                 (_: Vec3, m: number): Vec3 => [0, 1, 2].map((c: number): number => (b.local[m]![c]! - a.local[m]![c]!) / (2 * STEP)) as Vec3,
               );
             })();
-      const values = AutoMovieHumanLegReflection.sided(here.local, sign);
-      const slopes = AutoMovieHumanLegReflection.sided(rate, sign);
+      const values: { coefficients: number[]; lift: number[] } = AutoMovieHumanLegReflection.sided(here.local, sign);
+      const slopes: { coefficients: number[]; lift: number[] } = AutoMovieHumanLegReflection.sided(rate, sign);
+
+      // Every value and slope of the layer is finite, so a defect in a piece
+      // is named at this layer and not where the skin is charted.
+      const where: string = `leg.${side} layer ${k} at ${s.toFixed(2)} mm`;
+      AutoMovieHumanLoftContract.jet(`${where} coefficients`, values.coefficients, AutoMovieHumanLoftContract.FINITE);
+      AutoMovieHumanLoftContract.jet(`${where} lift`, values.lift, AutoMovieHumanLoftContract.FINITE);
+      AutoMovieHumanLoftContract.jet(`${where} slopes`, slopes.coefficients, AutoMovieHumanLoftContract.FINITE);
+      AutoMovieHumanLoftContract.jet(`${where} lift slopes`, slopes.lift, AutoMovieHumanLoftContract.FINITE);
       return {
         y: s,
         frame: AutoMovieHumanLegReflection.placed(here.frame, sign),

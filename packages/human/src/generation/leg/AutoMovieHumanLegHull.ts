@@ -13,9 +13,14 @@ export namespace AutoMovieHumanLegHull {
   export function girth(points: readonly (readonly [number, number])[]): number {
     const p: (readonly [number, number])[] = [...points].sort((u: readonly [number, number], v: readonly [number, number]): number => u[0] - v[0] || u[1] - v[1]);
     if (p.length < 3) return 0;
-    const turn = (o: readonly [number, number], a: readonly [number, number], b: readonly [number, number]): number =>
-      (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-    const chain = (list: (readonly [number, number])[]): (readonly [number, number])[] => {
+    const turn: (o: readonly [number, number], a: readonly [number, number], b: readonly [number, number]) => number = (
+      o: readonly [number, number],
+      a: readonly [number, number],
+      b: readonly [number, number],
+    ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const chain: (list: (readonly [number, number])[]) => (readonly [number, number])[] = (
+      list: (readonly [number, number])[],
+    ): (readonly [number, number])[] => {
       const out: (readonly [number, number])[] = [];
       for (const q of list) {
         while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, q) <= 0) out.pop();

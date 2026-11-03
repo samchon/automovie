@@ -79,13 +79,42 @@ export namespace AutoMovieHumanLegGirth {
   ];
 
   /**
+   * The thigh tape's site, a share of the thigh from the hip centre: the
+   * input's declared definition, ISO 8559-1 5.3.20, the widest girth under the
+   * gluteal fold, which is the thigh row 0.25 (the references' widest row).
+   * The thigh rows are read relative to their own ratio here, so the tape
+   * stands at this share whatever row it falls between; an input measured at
+   * another site moves only this declaration.
+   */
+  export const THIGH_SITE: number = 0.25;
+
+  /**
+   * A table's ratio at a share: linear between its two rows either side, held
+   * at the end rows past them.
+   *
+   * @param table Rows `[share, ratio]` by increasing share.
+   * @param share The share read.
+   */
+  export function ratioAt(table: readonly (readonly [number, number])[], share: number): number {
+    if (share <= table[0]![0]) return table[0]![1];
+    for (let i: number = 1; i < table.length; i++) {
+      const [s0, r0]: readonly [number, number] = table[i - 1]!;
+      const [s1, r1]: readonly [number, number] = table[i]!;
+      if (share <= s1) return r0 + ((r1 - r0) * (share - s0)) / (s1 - s0);
+    }
+    return table[table.length - 1]![1];
+  }
+
+  /**
    * The girth law.
    *
    * @param input The tapes, the joints and the scale.
    * @returns The girth the section asks for at a station, mm, held at the end knots past them.
    */
   export function of(input: IInput): (s: number) => number {
-    const { tapes, bones } = input;
+    const tapes: ITapes = input.tapes;
+    const bones: AutoMovieHumanLegStations.IBones = input.bones;
+    const thighSite: number = ratioAt(THIGH, THIGH_SITE);
     const knots: [number, number][] = [
       ...[...SHANK].reverse().map(([share, ratio]: readonly [number, number]): [number, number] => [
         AutoMovieHumanLegStations.heightAt(bones, "shank", share),
@@ -94,7 +123,7 @@ export namespace AutoMovieHumanLegGirth {
       [bones.knee - MID_PATELLA * input.scale, tapes.knee],
       ...[...THIGH].reverse().map(([share, ratio]: readonly [number, number]): [number, number] => [
         AutoMovieHumanLegStations.heightAt(bones, "thigh", share),
-        ratio * tapes.thigh,
+        (ratio / thighSite) * tapes.thigh,
       ]),
     ];
 
@@ -103,7 +132,9 @@ export namespace AutoMovieHumanLegGirth {
       if (!(knots[i]![0] > knots[i - 1]![0])) throw new Error("The girth law's sites are not in order along the leg");
 
     // The rings are the law's first and last knots, by the table's ring rule.
-    const end = (e: AutoMovieHumanLegProfile.IEnd | undefined): AutoMovieHumanLegProfile.IKnot | undefined =>
+    const end: (e: AutoMovieHumanLegProfile.IEnd | undefined) => AutoMovieHumanLegProfile.IKnot | undefined = (
+      e: AutoMovieHumanLegProfile.IEnd | undefined,
+    ): AutoMovieHumanLegProfile.IKnot | undefined =>
       e === undefined ? undefined : { at: e.at, value: e.values[0]! };
     const joined: [number, number][] = AutoMovieHumanLegProfile.joined(
       knots.map(([at, value]: [number, number]): AutoMovieHumanLegProfile.IKnot => ({ at, value })),

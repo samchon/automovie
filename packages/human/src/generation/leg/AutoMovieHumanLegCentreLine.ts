@@ -48,7 +48,7 @@ export namespace AutoMovieHumanLegCentreLine {
    * @returns The chart origin's offset from the frame origin at a station, `[along u, along v]` mm.
    */
   export function of(input: IInput): (s: number) => [number, number] {
-    const offset = (a: IAnchor): [number, number] => {
+    const offset: (a: IAnchor) => [number, number] = (a: IAnchor): [number, number] => {
       const f: AutoMovieHumanLegAxis.IFrame = AutoMovieHumanLegAxis.frameAt(input.frames, a.at);
       const d: number[] = [a.point[0] - f.origin[0], 0, a.point[1] - f.origin[2]];
       return [d[0]! * f.u[0] + d[2]! * f.u[2], d[0]! * f.v[0] + d[2]! * f.v[2]];
@@ -56,7 +56,7 @@ export namespace AutoMovieHumanLegCentreLine {
     const low: [number, number] = offset(input.ankle);
     const high: [number, number] = offset(input.crotch);
     const stations: number[] = [input.ankle.at, input.knee, input.crotch.at];
-    const channel = (k: 0 | 1): AutoMovieHumanNaturalSpline.ISpline => AutoMovieHumanNaturalSpline.create(stations, [low[k], 0, high[k]]);
+    const channel: (k: 0 | 1) => AutoMovieHumanNaturalSpline.ISpline = (k: 0 | 1): AutoMovieHumanNaturalSpline.ISpline => AutoMovieHumanNaturalSpline.create(stations, [low[k], 0, high[k]]);
     const u: AutoMovieHumanNaturalSpline.ISpline = channel(0);
     const v: AutoMovieHumanNaturalSpline.ISpline = channel(1);
     return (s: number): [number, number] => [AutoMovieHumanNaturalSpline.evaluate(u, s), AutoMovieHumanNaturalSpline.evaluate(v, s)];

@@ -46,14 +46,14 @@ export namespace AutoMovieHumanLegRingRow {
   export function of(ring: readonly [number, number][]): IRow {
     const girth: number = AutoMovieHumanLegHull.girth(ring);
     const unit: number = girth / (2 * Math.PI);
-    const radius = (t: number): number => AutoMovieHumanPolarSection.radius(ring, [0, 0], t) / unit;
+    const radius: (t: number) => number = (t: number): number => AutoMovieHumanPolarSection.radius(ring, [0, 0], t) / unit;
 
     // Each guide: a quadratic in the angle offset by least squares over the
     // window, r = a + b d + c d^2, so rho = a, rho' = b, rho'' = 2 c.
     const guides: AutoMovieHumanPolarSector.IGuide[] = AutoMovieHumanLegGuides.ANGLES.map((angle: number): AutoMovieHumanPolarSector.IGuide => {
       const d: number[] = Array.from({ length: SAMPLES }, (_: unknown, i: number): number => -HALF_WINDOW + (2 * HALF_WINDOW * i) / (SAMPLES - 1));
       const r: number[] = d.map((x: number): number => radius(angle + x));
-      const [a, b, c] = quadratic(d, r);
+      const [a, b, c]: [number, number, number] = quadratic(d, r);
       return { angle, value: a, slope: b, curvature: 2 * c };
     });
 
@@ -82,11 +82,11 @@ function quadratic(x: readonly number[], y: readonly number[]): [number, number,
     [s[1]!, s[2]!, s[3]!],
     [s[2]!, s[3]!, s[4]!],
   ];
-  const det = (a: number[][]): number =>
+  const det: (a: number[][]) => number = (a: number[][]): number =>
     a[0]![0]! * (a[1]![1]! * a[2]![2]! - a[1]![2]! * a[2]![1]!) -
     a[0]![1]! * (a[1]![0]! * a[2]![2]! - a[1]![2]! * a[2]![0]!) +
     a[0]![2]! * (a[1]![0]! * a[2]![1]! - a[1]![1]! * a[2]![0]!);
   const d: number = det(m);
-  const solve = (k: number): number => det(m.map((row: number[], i: number): number[] => row.map((v: number, j: number): number => (j === k ? t[i]! : v)))) / d;
+  const solve: (k: number) => number = (k: number): number => det(m.map((row: number[], i: number): number[] => row.map((v: number, j: number): number => (j === k ? t[i]! : v)))) / d;
   return [solve(0), solve(1), solve(2)];
 }

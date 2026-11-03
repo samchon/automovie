@@ -2,8 +2,8 @@ import type { IAutoMovieHumanRelief } from "../../network/IAutoMovieHumanRelief"
 import { AutoMovieHumanLegReliefWindow } from "./AutoMovieHumanLegReliefWindow";
 
 /**
- * The crease under the buttock as a relief window in its own frame: its own centre on the
- * thigh (0.2 of the bone), its own section angle, extents and
+ * The crease under the buttock as a relief window in its own frame: its own centre at the thigh's root, the leg's first own row under
+ * the crotch ring (where the trunk's ring has handed the skin over), its own section angle, extents and
  * displacement axis, with a net whose three outer rings are zero, so its
  * height, slope and curvature vanish at the edge (rule J7).
  *
@@ -24,6 +24,7 @@ export namespace AutoMovieHumanLegInfraglutealFold {
     halfAngle: 0.5,
     height: 0.03,
     axis: [1, 0, 0],
+    anchor: "crotch",
   };
 
   /**

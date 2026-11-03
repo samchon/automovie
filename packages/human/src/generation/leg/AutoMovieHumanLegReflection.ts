@@ -39,7 +39,7 @@ export namespace AutoMovieHumanLegReflection {
    */
   export function sided(local: readonly Vec3[], sign: 1 | -1): { coefficients: number[]; lift: number[] } {
     const order: number = AutoMovieHumanLegSampling.ORDER;
-    const read = (m: number): Vec3 => local[sign === 1 ? m : (order - m) % order]!;
+    const read: (m: number) => Vec3 = (m: number): Vec3 => local[sign === 1 ? m : (order - m) % order]!;
     const samples: Vec3[] = local.map((_: Vec3, m: number): Vec3 => read(m));
     return {
       coefficients: AutoMovieHumanSplineCurve.interpolate(samples.map((p: Vec3): [number, number] => [p[0], sign * p[1]])),

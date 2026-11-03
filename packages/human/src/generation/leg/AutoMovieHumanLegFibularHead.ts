@@ -7,7 +7,7 @@ import { AutoMovieHumanLegReliefWindow } from "./AutoMovieHumanLegReliefWindow";
  * displacement axis, with a net whose three outer rings are zero, so its
  * height, slope and curvature vanish at the edge (rule J7).
  *
- * The fibular head stands slightly above the level of the tibial tuberosity, behind and lateral to the lateral tibial condyle (Gray 1918, docs/anatomy/skeleton.md).
+ * The fibular head stands slightly above the level of the tibial tuberosity, behind and lateral to the lateral tibial condyle (Gray 1918, docs/anatomy/skeleton.md), so its window stands posterolateral (120 degrees round the section) and apart from the lateral condyle's at 90 degrees: two bumps summed at one place read as a knob, which the references' lateral knee does not show.
  *
  * The window's numbers are conventions awaiting a relief fit on the references
  * (as the foot's malleoli): their sizes are anatomical sizes in local radii,
@@ -19,11 +19,11 @@ export namespace AutoMovieHumanLegFibularHead {
     name: "leg.fibularHead",
     segment: "shank",
     share: 0.07,
-    angle: 1.7453,
-    halfStation: 0.3,
-    halfAngle: 0.3,
-    height: 0.04,
-    axis: [-0.1736, 0, 0.9848],
+    angle: 2.0944,
+    halfStation: 0.4,
+    halfAngle: 0.35,
+    height: 0.025,
+    axis: [-0.5, 0, 0.866],
   };
 
   /**

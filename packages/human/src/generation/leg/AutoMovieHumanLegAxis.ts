@@ -100,7 +100,7 @@ export namespace AutoMovieHumanLegAxis {
     const Y: Vec3 = [0, 1, 0];
     const shank: Vec3 = normalize(sub(bones.knee, bones.ankle));
     const thigh: Vec3 = normalize(sub(bones.hip, bones.knee));
-    const turn = (a: Vec3, b: Vec3, from: number, span: number): ITurn => {
+    const turn: (a: Vec3, b: Vec3, from: number, span: number) => ITurn = (a: Vec3, b: Vec3, from: number, span: number): ITurn => {
       const axis: Vec3 = cross(a, b);
       const sine: number = norm(axis);
       return {
@@ -125,7 +125,7 @@ export namespace AutoMovieHumanLegAxis {
 
     // The origin runs along the section normal, through the knee: integrate
     // the normal's slope (Simpson over a millimetre) from below the ankle ring.
-    const n = (s: number): Vec3 => {
+    const n: (s: number) => Vec3 = (s: number): Vec3 => {
       const d: Vec3 = rotated(frames, s, Y, false);
       return scale(d, 1 / d[1]);
     };
@@ -209,7 +209,7 @@ export namespace AutoMovieHumanLegAxis {
    */
   export function frameRate(frames: IFrames, s: number, side: 1 | -1 | 0): IFrame {
     const n: Vec3 = rotated(frames, s, [0, 1, 0], false);
-    const derive = (pick: (f: IFrame) => Vec3): Vec3 => {
+    const derive: (pick: (f: IFrame) => Vec3) => Vec3 = (pick: (f: IFrame) => Vec3): Vec3 => {
       if (side === 0) {
         const a: Vec3 = pick(frameAt(frames, s - FRAME_STEP));
         const b: Vec3 = pick(frameAt(frames, s + FRAME_STEP));
