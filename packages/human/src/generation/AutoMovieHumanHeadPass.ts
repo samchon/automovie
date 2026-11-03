@@ -90,7 +90,13 @@ export namespace AutoMovieHumanHeadPass {
       back: rearOf(flat),
       backSlope: (rearOf(flat) - rearOf(under)) / drop,
     };
-    return { inputs, compiled, neck, scale, ring, flat, under, drop };
+
+    // The ring twice the step under the top ring, so the neck's second
+    // derivative with height reaches the head's hand-over with its slope.
+    const lower: [number, number][] = AutoMovieHumanLoftChain.ring(neckChain, top - 2 * step, dense).map(
+      (p: [number, number, number]): [number, number] => [p[0], p[2]],
+    );
+    return { inputs, compiled, neck, scale, ring, flat, under, drop, lower };
   }
 
   /**
@@ -107,7 +113,7 @@ export namespace AutoMovieHumanHeadPass {
     setup: IAutoMovieHumanHeadSetup,
     fix: IAutoMovieHumanHeadCorrections,
   ): IAutoMovieHumanHeadBuilt {
-    const { inputs, compiled, neck, scale, ring, flat, under, drop } = setup;
+    const { inputs, compiled, neck, scale, ring, flat, under, drop, lower } = setup;
     const prior: AutoMovieHumanHeadPrior.IPrior = compiled.prior;
     const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadLandmarks.layout(compiled, inputs, neck, scale, fix);
 
@@ -121,6 +127,8 @@ export namespace AutoMovieHumanHeadPass {
       neckRight: AutoMovieHumanHeadNeckBase.neckDelta(compiled, plan, flat, -1),
       slopeLeft: AutoMovieHumanHeadNeckBase.neckSlope(compiled, plan, flat, under, drop, 1),
       slopeRight: AutoMovieHumanHeadNeckBase.neckSlope(compiled, plan, flat, under, drop, -1),
+      curveLeft: AutoMovieHumanHeadNeckBase.neckCurve(compiled, plan, [flat, under, lower], drop, 1),
+      curveRight: AutoMovieHumanHeadNeckBase.neckCurve(compiled, plan, [flat, under, lower], drop, -1),
       riseLeft: AutoMovieHumanHeadNeckBase.neckRise(compiled, plan, ring, 1),
       riseRight: AutoMovieHumanHeadNeckBase.neckRise(compiled, plan, ring, -1),
       cut: new Map(),

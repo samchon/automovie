@@ -142,7 +142,7 @@ export namespace AutoMovieHumanLegChain {
         (_: Vec3, m: number): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.jet((run: number): Vec3 => ownAt(run)[m]!, reach, CURVE_STEP),
       ),
     });
-    const section: (s: number) => AutoMovieHumanLegSection.ISection = (s: number): AutoMovieHumanLegSection.ISection => AutoMovieHumanLegSection.of(law, frames, centre, strip, s);
+    const section: (s: number) => AutoMovieHumanLegSection.ISection = (s: number): AutoMovieHumanLegSection.ISection => AutoMovieHumanLegSection.of(law, frames, centre, strip.ring, s);
     const last: number = stations.length - 1;
     const built: (IAutoMovieHumanLoftChain.ILayer | null)[] = stations.map((s: number, k: number): IAutoMovieHumanLoftChain.ILayer | null => {
       const here: AutoMovieHumanLegSection.ISection = section(s);

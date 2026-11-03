@@ -22,6 +22,12 @@ export interface IAutoMovieHumanHeadSurface {
   /** See {@link slopeLeft}, right side. */
   slopeRight: number[];
 
+  /** The neck's radial second derivative with height at its ring over the law's, left side. */
+  curveLeft: number[];
+
+  /** See {@link curveLeft}, right side. */
+  curveRight: number[];
+
   /** Neck ring's height off its plane, left side. */
   riseLeft: number[];
 

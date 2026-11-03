@@ -13,23 +13,59 @@ import type { IAutoMovieHumanHeadSection } from "./IAutoMovieHumanHeadSection";
  */
 export namespace AutoMovieHumanHeadNeckBase {
   /**
-   * Weights of the neck ring's difference from the law and of its slope's at
-   * a station, `[value, run]`: the quintic Hermite span from the ring's own
-   * place and slope to nothing, its run in millimetres so that the slope it
-   * leaves the ring with is the ring's own. The neck's chain publishes no
-   * station curvature, so the span leaves the ring straight; it reaches the
-   * law with level slope and curvature, so the head above it is C2. A cubic
-   * span had stepped in curvature where it ended under the chin.
+   * Weights of the neck ring's difference from the law, of its slope's and of
+   * its second derivative's at a station, `[value, run, bend]`: the quintic
+   * Hermite span from the ring's own place, slope and curvature to nothing, its
+   * run in millimetres so that the jet it leaves the ring with is the ring's
+   * own (rule J3 to G2). It reaches the law with level slope and curvature, so
+   * the head above it is C2. A cubic span had stepped in curvature where it
+   * ended under the chin; a span that left the ring with the law's own
+   * curvature stepped there by the neck's curvature less the law's.
    */
-  export function neckFade(plan: IAutoMovieHumanHeadLayout, s: number): [number, number] {
+  export function neckFade(plan: IAutoMovieHumanHeadLayout, s: number): [number, number, number] {
     const h: number = AutoMovieHumanHeadSection.NECK_FADE * (plan.menton - plan.y0);
-    const [value, run] = AutoMovieHumanSeam.quintic(
-      [[1, 0], [0, 1], [0, 0]],
-      [[0, 0], [0, 0], [0, 0]],
+    const [value, run, bend] = AutoMovieHumanSeam.quintic(
+      [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+      [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
       h,
       (s - plan.y0) / h,
     );
-    return [value!, run!];
+    return [value!, run!, bend!];
+  }
+
+  /**
+   * The neck's radial second derivative with height at its ring, over the
+   * law's own there, along the same rays, per side: the neck's from the ring
+   * and two under it, the law's from its section at the ring and two over it,
+   * each a second difference over the same drop.
+   *
+   * @param compiled The head's compiled prior.
+   * @param plan The head's layout.
+   * @param rings The neck's top ring and the two under it, `[x, z]` plans, a drop apart.
+   * @param drop The rings' spacing, millimetres.
+   * @param sign 1 for the left side, -1 for the right.
+   * @returns Per ray, per square millimetre.
+   */
+  export function neckCurve(
+    compiled: IAutoMovieHumanHeadCompiled,
+    plan: IAutoMovieHumanHeadLayout,
+    rings: readonly [readonly [number, number][], readonly [number, number][], readonly [number, number][]],
+    drop: number,
+    sign: 1 | -1,
+  ): number[] {
+    const sections: IAutoMovieHumanHeadSection[] = [0, 1, 2].map(
+      (k: number): IAutoMovieHumanHeadSection => AutoMovieHumanHeadSection.section(compiled, plan, plan.y0 + k * drop),
+    );
+    const ox: number = (sections[0]!.front + sections[0]!.back) / 2;
+    const out: number[] = [];
+    for (let j: number = 0; j <= AutoMovieHumanHeadSection.ANGLES; j++) {
+      const theta: number = (Math.PI * j) / AutoMovieHumanHeadSection.ANGLES;
+      const ray: number = Math.min(Math.PI - OFF_VERTEX, Math.max(OFF_VERTEX, theta));
+      const [a, b, c]: number[] = rings.map((ring: readonly [number, number][]): number => AutoMovieHumanPolarSection.radius(ring, [ox, 0], sign * ray));
+      const [p, q, r]: number[] = sections.map((m: IAutoMovieHumanHeadSection): number => AutoMovieHumanHeadRadius.radius(m, ox, theta));
+      out.push((a! - 2 * b! + c! - (p! - 2 * q! + r!)) / (drop * drop));
+    }
+    return out;
   }
 
   /** The neck ring's polar difference from the law, per side. */

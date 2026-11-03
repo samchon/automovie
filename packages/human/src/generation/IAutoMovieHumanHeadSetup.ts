@@ -35,4 +35,7 @@ export interface IAutoMovieHumanHeadSetup {
 
   /** How far that ring lies under the top ring, millimetres. */
   drop: number;
+
+  /** The plan of the ring twice that far under the top ring, from which the neck's second derivative with height is read. */
+  lower: [number, number][];
 }

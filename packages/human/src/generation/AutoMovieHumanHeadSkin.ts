@@ -34,7 +34,7 @@ export namespace AutoMovieHumanHeadSkin {
     // rising throat at a ridge turning 45 degrees round the front of the
     // neck; the slope carried on a straight line overshot the sides, where the
     // neck narrows at 2 mm per mm, into a dent.
-    const [fade, run] = AutoMovieHumanHeadNeckBase.neckFade(plan, s);
+    const [fade, run, bend] = AutoMovieHumanHeadNeckBase.neckFade(plan, s);
     const cos: number = Math.cos(m.tilt);
     const sin: number = Math.sin(m.tilt);
     const left: Vec3[] = new Array<Vec3>(AutoMovieHumanHeadSection.ANGLES + 1);
@@ -49,10 +49,11 @@ export namespace AutoMovieHumanHeadSkin {
       const emit = (
         delta: number,
         slope: number,
+        curve: number,
         rise: number,
         sign: 1 | -1,
       ): Vec3 => {
-        const r0: number = r + fade * delta + run * slope;
+        const r0: number = r + fade * delta + run * slope + bend * curve;
         const xi: number = ox + r0 * c;
         const z: number = sign * r0 * n;
         const x: number = xi * cos;
@@ -61,8 +62,8 @@ export namespace AutoMovieHumanHeadSkin {
         const xi1: number = ox + r1 * c;
         return [xi1 * cos, s + xi1 * sin + fade * rise, sign * r1 * n];
       };
-      left[j] = emit(surface.neckLeft[j]!, surface.slopeLeft[j]!, surface.riseLeft[j]!, 1);
-      right[j] = emit(surface.neckRight[j]!, surface.slopeRight[j]!, surface.riseRight[j]!, -1);
+      left[j] = emit(surface.neckLeft[j]!, surface.slopeLeft[j]!, surface.curveLeft[j]!, surface.riseLeft[j]!, 1);
+      right[j] = emit(surface.neckRight[j]!, surface.slopeRight[j]!, surface.curveRight[j]!, surface.riseRight[j]!, -1);
     }
     return { left, right };
   }

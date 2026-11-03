@@ -1,4 +1,3 @@
-import type { AutoMovieHumanLimbRootStrip } from "../AutoMovieHumanLimbRootStrip";
 import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
 import { AutoMovieHumanLegSectionLaw } from "./AutoMovieHumanLegSectionLaw";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
@@ -13,7 +12,7 @@ const { dot, sub } = AutoMovieHumanLegVector;
  * Under the law's crotch reach the section is the law's about the centre line;
  * over it, the root strip's ring at the station's share of the reach, which
  * runs from the trunk's crotch ring to the law's own section there
- * ({@link AutoMovieHumanLimbRootStrip}). Then the thighs meet at the midline
+ * (`AutoMovieHumanLimbRootStrip`). Then the thighs meet at the midline
  * and do not pass it: a point on the far side of the midline is folded back by
  * a smooth `tanh` of the contact's softness.
  */
@@ -36,19 +35,19 @@ export namespace AutoMovieHumanLegSection {
    * @param law The leg's section law.
    * @param frames The leg's frames.
    * @param centre The centre line: the chart origin's offset from the frame origin at a station.
-   * @param strip The root strip from the crotch ring down the law's crotch reach.
+   * @param strip The root strip from the crotch ring down the law's crotch reach: its ring at a share of the reach, 0 at the crotch ring, composed by the leg chain (`AutoMovieHumanLimbRootStrip`).
    * @param s The station.
    */
   export function of(
     law: AutoMovieHumanLegSectionLaw.ILaw,
     frames: AutoMovieHumanLegAxis.IFrames,
     centre: (s: number) => [number, number],
-    strip: AutoMovieHumanLimbRootStrip.IStrip,
+    strip: (w: number) => Vec3[],
     s: number,
   ): ISection {
     const frame: AutoMovieHumanLegAxis.IFrame = AutoMovieHumanLegAxis.frameAt(frames, s);
     const depth: number = law.top - s;
-    const world: Vec3[] = depth < law.crotchReach ? strip.ring(depth / law.crotchReach) : AutoMovieHumanLegSectionLaw.points(law, s, frame, centre(s));
+    const world: Vec3[] = depth < law.crotchReach ? strip(depth / law.crotchReach) : AutoMovieHumanLegSectionLaw.points(law, s, frame, centre(s));
 
     // The thighs meet at the midline and do not pass it.
     const local: Vec3[] = world.map((p: Vec3): Vec3 => {
