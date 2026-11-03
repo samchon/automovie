@@ -10,6 +10,11 @@
  * the same range of motion as the field's type tags, in degrees, or
  * millimetres for the jaw; the field comments and
  * `docs/anatomy/joint-range.md` give their sources.
+ *
+ * A side's axes are the left's mirrored, so a sided field turns both sides as
+ * mirror images. An optional seventh element `world` marks a field whose value
+ * is a world direction both sides share instead, as conjugate gaze is: the
+ * right side takes it with its sign reflected.
  */
 export const AutoMovieHumanPoseChannels: readonly [
   path: string,
@@ -18,10 +23,11 @@ export const AutoMovieHumanPoseChannels: readonly [
   sign: 1 | -1,
   min: number,
   max: number,
+  world?: boolean,
 ][] = ((): Channel[] => {
   const rows: Channel[] = [
     ["head.eyes.<side>.vertical", "<side>Eye", "flexion", 1, -30, 30],
-    ["head.eyes.<side>.horizontal", "<side>Eye", "twist", 1, -45, 45],
+    ["head.eyes.<side>.horizontal", "<side>Eye", "twist", 1, -45, 45, true],
     ["head.jaw.opening", "jaw", "flexion", 1, 0, 52.9],
     ["head.jaw.protrusion", "jaw", "forward", 1, 0, 8.5],
     ["head.jaw.lateralExcursion", "jaw", "lateral", 1, -10.35, 10.35],
@@ -286,4 +292,5 @@ type Channel = [
   sign: 1 | -1,
   min: number,
   max: number,
+  world?: boolean,
 ];

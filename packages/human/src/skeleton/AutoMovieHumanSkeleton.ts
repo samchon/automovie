@@ -2,8 +2,10 @@ import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanNeckSurface } from "../generation/AutoMovieHumanNeckSurface";
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import { AutoMovieHumanBindingInputs } from "./AutoMovieHumanBindingInputs";
 import { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
 import { AutoMovieHumanNeutral } from "./AutoMovieHumanNeutral";
+import { AutoMovieHumanPelvicShare } from "./AutoMovieHumanPelvicShare";
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
@@ -154,7 +156,7 @@ export namespace AutoMovieHumanSkeleton {
     const bind: AutoMovieHumanJointCentres.IJoint[] =
       AutoMovieHumanJointCentres.derive(calibration);
     const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.derive(
-      calibration,
+      AutoMovieHumanBindingInputs.rings(calibration, AutoMovieHumanNeutral.READS),
       bind,
     );
     const joints: AutoMovieHumanJointCentres.IJoint[] = neutral.joints;
@@ -175,6 +177,10 @@ export namespace AutoMovieHumanSkeleton {
         Math3D.boneAxes(j.bone, direction(j.bone), byBone),
       ]),
     );
+
+    const root: string = joints.find(
+      (j: AutoMovieHumanJointCentres.IJoint): boolean => j.parent === null,
+    )!.bone;
 
     return (
       input: NonNullable<IAutoMovieHumanParameters["pose"]> = {},
@@ -199,7 +205,8 @@ export namespace AutoMovieHumanSkeleton {
           const path: string = row[0].replace("<side>", side);
           const bone: string = row[1].replace("<side>", side);
           const axis: string = row[2];
-          const sign: number = row[3];
+          // A world-direction field turns the mirrored right side the other way.
+          const sign: number = row[6] === true && side === "right" ? -row[3] : row[3];
           let min: number = row[4];
           let max: number = row[5];
           const requested: number | undefined = read(pose, path);
@@ -267,6 +274,18 @@ export namespace AutoMovieHumanSkeleton {
       }
       const handed: Map<string, Quaternion> = new Map();
 
+      // The pelvis carries its share of the hips' flexion
+      // (AutoMovieHumanPelvicShare); the spine and both thighs hand the turn
+      // back, so the trunk and each thigh keep the requested directions while
+      // the pelvis's skin turns.
+      const thigh = (side: string): number =>
+        rig.get(`${side}UpperLeg`)?.flexion ?? 0;
+      const tilt: number = AutoMovieHumanPelvicShare.tilt(
+        thigh("left"),
+        thigh("right"),
+      );
+      let pelvis: Quaternion | undefined;
+
       // Forward kinematics from neutral, whose rotations are identity.
       const world: Map<string, IPlacement> = new Map();
       const posed: IPlacement[] = joints.map(
@@ -326,6 +345,19 @@ export namespace AutoMovieHumanSkeleton {
             j.parent === null ? undefined : handed.get(j.parent);
           if (back !== undefined && j.bone.endsWith("Scapula"))
             local = Math3D.multiply(back, local);
+          if (j.parent === null && tilt > 0) {
+            // Posterior tilt turns the pelvis the way the thigh flexes.
+            const turned: Quaternion = Math3D.multiply(
+              Math3D.fromAxisAngle(a.flexion, -tilt),
+              local,
+            );
+            pelvis = Math3D.multiply(
+              [-turned[0], -turned[1], -turned[2], turned[3]],
+              local,
+            );
+            local = turned;
+          } else if (pelvis !== undefined && j.parent === root)
+            local = Math3D.multiply(pelvis, local);
           const parent: IPlacement | undefined =
             j.parent === null ? undefined : world.get(j.parent);
           const offset: Vector =
