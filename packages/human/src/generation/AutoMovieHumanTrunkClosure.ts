@@ -66,9 +66,30 @@ export namespace AutoMovieHumanTrunkClosure {
     close("waist", inputs.waist, h.waist, none);
     close("highHip", inputs.highHip, h.highHip, none);
     close("fold", inputs.underbust, h.fold, none);
-    close("bust", inputs.chest, h.bust, (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanRelief[] =>
-      AutoMovieHumanTrunkFeatures.breasts(col, AutoMovieHumanTrunkKeys.sites(ctx, st, col)),
-    );
+
+    // The chest tape passes over the breasts and the blades, both standing on
+    // the wall. The wall under the breasts continues the rib cage the underbust
+    // tape measures at the fold, so the tape closes by the breasts' projection;
+    // only a rib cage that alone exceeds the tape is narrowed to it.
+    const chest = (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanRelief[] => {
+      const sites: AutoMovieHumanTrunkFeatures.ISites = AutoMovieHumanTrunkKeys.sites(ctx, st, col);
+
+      return [...AutoMovieHumanTrunkFeatures.breasts(col, sites), ...AutoMovieHumanTrunkFeatures.scapulae(col, sites)];
+    };
+    st.widths.bust = st.widths.fold;
+    st.projection = 0;
+    if (girthAt(ctx, st, h.bust, chest) >= inputs.chest) close("bust", inputs.chest, h.bust, chest);
+    else
+      st.projection = AutoMovieHumanTrunkSolve.bisect(
+        0,
+        inputs.chest / (2 * Math.PI),
+        (p: number): number => {
+          st.projection = p;
+
+          return girthAt(ctx, st, h.bust, chest) - inputs.chest;
+        },
+        1,
+      );
     close("buttock", inputs.hip, ctx.buttock, (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanRelief[] =>
       AutoMovieHumanTrunkFeatures.buttocks(col, AutoMovieHumanTrunkKeys.sites(ctx, st, col)),
     );

@@ -16,21 +16,22 @@
  * neighbours' between them, a step the C2 rule prints as a ring.
  *
  * The count is never below the reference's: the four reference bodies' trunk
- * carries 105 (f1), 104 (f2), 114 (m1) and 133 (m2) closed sections over 609,
- * 606, 685 and 694 mm, a mean gap of 5.85, 5.89, 6.07 and 5.25 mm, with up to
- * 100 Hermite spans per loop. The spacing here never exceeds `MAX_GAP`, so the
- * trunk carries at least 120 rows over the same height and 256 controls on
- * every row, 2.5 times the reference's spans per loop.
+ * region carries 158 (f1), 151 (f2), 150 (m1) and 171 (m2) sections over 609,
+ * 606, 685 and 694 mm (`docs/testing/reference-layer.md`, Counts by region), a
+ * mean gap of 3.9, 4.0, 4.6 and 4.1 mm, with up to 100 Hermite spans per loop.
+ * The spacing here never exceeds `MAX_GAP`, so the trunk and the shoulders
+ * carry at least 175 rows over the same height and 256 controls on every row,
+ * 2.5 times the reference's spans per loop.
  */
 export namespace AutoMovieHumanTrunkRows {
   /**
-   * The widest row spacing, mm: just under the smallest mean gap of the four
-   * references' trunk sections (m2, 133 closed sections over 694 mm of the
-   * MetaHuman reference asset's trunk, 5.25 mm). Derived from the reference's
+   * The widest row spacing, mm: under the smallest mean gap of the four
+   * references' trunk sections (f1, 158 sections over 609 mm of the MetaHuman
+   * reference asset's trunk region, 3.9 mm). Derived from the reference's
    * density; the rule that places the rows is the spacing function the caller
    * passes.
    */
-  export const MAX_GAP: number = 5;
+  export const MAX_GAP: number = 3.5;
 
   /** Share of the spacing under which two kept stations are one row. */
   export const MERGE: number = 0.4;

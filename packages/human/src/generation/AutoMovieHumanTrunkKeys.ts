@@ -126,9 +126,10 @@ export namespace AutoMovieHumanTrunkKeys {
       axilla: ctx.axilla,
       furrowFrom: ctx.buttock + 0.05 * ctx.span,
       bustSpan: inputs.bustSpan,
-      chest: inputs.chest,
-      underbust: inputs.underbust,
+      projection: st.projection,
       buttockProjection: col.at(ctx.buttock).back - target.back!,
+      span: ctx.span,
+      neck: ctx.seat.y,
     };
   }
 }

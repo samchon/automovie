@@ -1,5 +1,6 @@
 ﻿import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+import { AutoMovieHumanBreastProfile } from "./AutoMovieHumanBreastProfile";
 import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
 import { AutoMovieHumanShoulderLine } from "./AutoMovieHumanShoulderLine";
 import type { IAutoMovieHumanShoulderOutline } from "./IAutoMovieHumanShoulderOutline";
@@ -160,6 +161,7 @@ export namespace AutoMovieHumanTrunkSolver {
       shoulderZ: Math.max(ctx.seat.width + 20, (0.5 * inputs.acrossShoulder) / 1.1),
       anterior: AutoMovieHumanTrunkGuideAnteriorAxillary.SHARE,
       groin: AutoMovieHumanTrunkShapes.CROTCH_WIDTH * round(inputs.hip),
+      projection: AutoMovieHumanBreastProfile.start(inputs.chest, inputs.underbust),
       widths: {
         buttock: round(inputs.hip),
         highHip: round(inputs.highHip),

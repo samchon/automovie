@@ -16,9 +16,10 @@ import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
  * flare is copied and nothing else changes. Below the shoulder point the arm
  * is a lobe on the torso: the ring is the trunk's with the arm's arc between
  * the two axillary guides, the torso's own width kept in the other sectors.
- * At the vault the arc leaves the torso at the fold's crease angle and the
- * crease fades to a tangent join where the arm has merged with the shoulder
- * (the glenohumeral centre's height).
+ * At the vault the arc stands on the torso's own axillary folds, so the ring
+ * is the torso's outside the arc and the trunk's top ring agrees with it
+ * there; the folds move to the ellipse's crossings as the arm merges with the
+ * shoulder (the glenohumeral centre's height).
  */
 export namespace AutoMovieHumanShoulderRing {
   /** What a shoulder ring reads. */
@@ -44,7 +45,23 @@ export namespace AutoMovieHumanShoulderRing {
   export const MINIMUM_RX: number = 30;
 
   /**
-   * The ring's controls at a height.
+   * The ring of the girdle and the thoracic wall alone at a height, the arm's
+   * arc left out: the torso continued above the vault. The trunk's chain reads
+   * it above its top layer for its station rule only, so the trunk's top
+   * layer carries the derivatives of the torso running on into the shoulders
+   * and agrees with the shoulders' chain wherever the arm's arc is absent.
+   *
+   * @param input What the ring reads.
+   * @param y Height, mm.
+   * @returns The 256-control section.
+   */
+  export function wall(input: IInput, y: number): number[] {
+    return AutoMovieHumanThoracicWall.controls(AutoMovieHumanShoulderGirdle.section(input, y));
+  }
+
+  /**
+   * The ring's controls at a height, from the axilla vault up: at the vault
+   * the arm's arc leaves the torso at the full crease.
    *
    * @param input What the ring reads.
    * @param y Height, mm.
@@ -61,10 +78,10 @@ export namespace AutoMovieHumanShoulderRing {
     const outline: AutoMovieHumanTrunkSolve.IJet = AutoMovieHumanArmRootOval.outline(input.oval, y);
     const kept: AutoMovieHumanArmRootOval.IOval = { ...oval, rx: Math.max(oval.rx, MINIMUM_RX) };
 
-    // The crease is full at the vault and gone where the arm has merged.
+    // The torso's folds hold the arc at the vault and let it go where the arm has merged.
     const merged: number = input.oval.glenohumeral[1];
-    const corner: number = 1 - AutoMovieHumanTrunkSolve.smooth((y - input.axilla) / (merged - input.axilla));
+    const torso: number = 1 - AutoMovieHumanTrunkSolve.smooth((y - input.axilla) / (merged - input.axilla));
 
-    return AutoMovieHumanThoracicWall.controls(s, AutoMovieHumanArmRootArc.create(s, kept, outline.value, corner));
+    return AutoMovieHumanThoracicWall.controls(s, AutoMovieHumanArmRootArc.create(s, kept, outline.value, torso));
   }
 }

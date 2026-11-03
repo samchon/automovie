@@ -13,17 +13,20 @@ import type { AutoMovieHumanTrunkAssembly } from "./AutoMovieHumanTrunkAssembly"
  * the posterior axillary guides through the lateral guide at the ellipse's
  * outer extreme.
  *
- * The guides stand where the ellipse crosses the torso's quadrant: the
- * anterior at `CROSS` of the ellipse's forward half size ahead of its centre,
- * the posterior as far behind it. At the vault the arm leaves the torso at an
- * angle, the axillary fold's crease, so the arc leaves each guide along a
- * direction turned from the torso's tangent toward the outward lateral
- * direction by the `corner` weight (1 at the vault, 0 where the arm has
- * merged with the shoulder), a G0 seam with the torso's sectors that fades to
- * G1. The lateral guide is the ellipse's extreme: tangent along the body,
- * curvature `rz / rx^2`. Each sector is the quintic Hermite of its guides
- * whose end speed is the arc length of a quarter turn over the chord, `pi / (2
- * sqrt 2)` times the chord (a quarter circle's arc over its chord).
+ * The guides are the axillary folds. At the vault they are the torso's own
+ * anterior and posterior axillary guides, so the ring there is the torso's
+ * outside the arc and the trunk's top ring, which crosses the armpit below,
+ * agrees with it on every sector the arm leaves alone. As the arm merges with
+ * the shoulder they move, by the `torso` weight (1 at the vault, 0 at the
+ * glenohumeral centre's height), to where the ellipse crosses the torso's
+ * quadrant: the anterior at `CROSS` of the ellipse's forward half size ahead
+ * of its centre, the posterior as far behind it. Each guide keeps the torso's
+ * own jet there, so the arc joins the torso's sectors G1 and the fold's
+ * softness is the arc's own. The lateral guide is the ellipse's extreme:
+ * tangent along the body, curvature `rz / rx^2`. Each sector is the quintic
+ * Hermite of its guides whose end speed is the arc length of a quarter turn
+ * over the chord, `pi / (2 sqrt 2)` times the chord (a quarter circle's arc
+ * over its chord).
  */
 export namespace AutoMovieHumanArmRootArc {
   /**
@@ -46,27 +49,20 @@ export namespace AutoMovieHumanArmRootArc {
    * @param s The torso's section at the height.
    * @param oval The arm's ellipse there.
    * @param extreme The lateral extreme's place, mm: the outline's value.
-   * @param corner The corner weight, 1 at the vault and 0 where the arm has merged.
+   * @param torso The torso's weight, 1 at the vault and 0 where the arm has merged.
    * @returns The arc.
    */
   export function create(
     s: AutoMovieHumanTrunkQuadrant.ISection,
     oval: AutoMovieHumanArmRootOval.IOval,
     extreme: number,
-    corner: number,
+    torso: number,
   ): IAutoMovieHumanArmRootArc {
-    const anterior: number = share(s, "front", oval.x + CROSS * oval.rx);
-    const posterior: number = share(s, "back", oval.x - CROSS * oval.rx);
-    const A: IAutoMovieHumanSeam.IArcJet = leave(
-      AutoMovieHumanTrunkQuadrant.onQuadrant(s, "front", anterior, false),
-      Math.PI / 2,
-      corner,
-    );
-    const P: IAutoMovieHumanSeam.IArcJet = leave(
-      AutoMovieHumanTrunkQuadrant.onQuadrant(s, "back", posterior, false),
-      -Math.PI / 2,
-      corner,
-    );
+    const own: number = s.posterior ?? AutoMovieHumanTrunkGuidePosteriorAxillary.SHARE;
+    const anterior: number = torso * s.anterior + (1 - torso) * share(s, "front", oval.x + CROSS * oval.rx);
+    const posterior: number = torso * own + (1 - torso) * share(s, "back", oval.x - CROSS * oval.rx);
+    const A: IAutoMovieHumanSeam.IArcJet = AutoMovieHumanTrunkGuideAnteriorAxillary.jet({ ...s, anterior });
+    const P: IAutoMovieHumanSeam.IArcJet = AutoMovieHumanTrunkGuidePosteriorAxillary.jet({ ...s, posterior });
     const L: IAutoMovieHumanSeam.IArcJet = {
       point: [oval.x, extreme],
       tangent: [-1, 0],
@@ -84,6 +80,7 @@ export namespace AutoMovieHumanArmRootArc {
     return {
       anterior,
       posterior,
+      torso,
       guides: [A, L, P],
       rates: [lengthFront / spanFront, lengthBack / spanBack],
       front: (speeds: readonly [number, number]): AutoMovieHumanTrunkAssembly.Sector =>
@@ -110,23 +107,6 @@ export namespace AutoMovieHumanArmRootArc {
     const n: number = AutoMovieHumanTrunkQuadrant.square(s, side);
 
     return Math.min(LIMIT, (1 - xi ** n) ** (1 / n));
-  }
-
-  /**
-   * A torso guide's jet with its tangent turned toward the outward
-   * direction: the direction angle moves by `corner` of the way to the
-   * target, and the curvature is zero (the corner's own).
-   *
-   * @param jet The torso's jet at the crossing.
-   * @param target The outward direction's angle: pi / 2 for the anterior guide, -pi / 2 for the posterior.
-   * @param corner The corner weight.
-   * @returns The jet the arc leaves with.
-   */
-  function leave(jet: IAutoMovieHumanSeam.IArcJet, target: number, corner: number): IAutoMovieHumanSeam.IArcJet {
-    const angle: number = Math.atan2(jet.tangent[1]!, jet.tangent[0]!);
-    const turned: number = angle + corner * (target - angle);
-
-    return { point: jet.point, tangent: [Math.cos(turned), Math.sin(turned)], curvature: [0, 0] };
   }
 
   /**

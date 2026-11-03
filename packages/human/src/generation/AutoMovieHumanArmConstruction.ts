@@ -142,6 +142,16 @@ export namespace AutoMovieHumanArmConstruction {
   /** Chains an arm owns. */
   const OWNED: RegExp = /^(arm|hand|thumb|finger)\./;
 
+  /**
+   * The latest hand builds by the arm's placement: the skeleton reads the
+   * bones and the arms are lofted on the skeleton's elbow, which is the bones'
+   * own, so both read one solve of the hand.
+   */
+  const BUILT: Map<string, AutoMovieHumanHandConstruction.IBuilt<IAutoMovieHumanArmLaw>> = new Map();
+
+  /** Builds kept: both sides of one person. */
+  const KEPT: number = 2;
+
   /** One side's chains, poles and bone landmarks. */
   interface ILimb {
     /** The arm's, palm's and digits' chains. */
@@ -245,20 +255,42 @@ export namespace AutoMovieHumanArmConstruction {
     const elbow: Vec3 | undefined = elbowOf(skeleton, side, sign);
     const centre: Vec3 = sided(AutoMovieHumanArmShoulder.glenohumeral(calibration, side, inputs.upper), sign);
     const form: IAutoMovieHumanHandForm = AutoMovieHumanHandForm.form();
+    const placed: Vec3 = AutoMovieHumanArmLaw.centreOf(centre, inputs, elbow);
+    const key: string = JSON.stringify([
+      side,
+      inputs[side],
+      inputs.circumference,
+      inputs.wrist,
+      inputs.scale,
+      inputs.upper,
+      inputs.lower,
+      inputs.bicep,
+      inputs.elbow,
+      inputs.forearm,
+      placed,
+      ring.centre,
+      ring.radius,
+    ]);
 
     // The hand is composed by its own pieces; the arm it grows out of is
     // built for every set of scales the hand's solve tries, since the crease
-    // stands on the tube's wrist whatever the scales.
-    const built: AutoMovieHumanHandConstruction.IBuilt<IAutoMovieHumanArmLaw> = AutoMovieHumanHandConstruction.build<IAutoMovieHumanArmLaw>({
-      calibration,
-      side,
-      given: inputs[side],
-      circumference: inputs.circumference,
-      wristTape: inputs.wrist,
-      makeArm: (m: IAutoMovieHumanHandScales): IAutoMovieHumanArmLaw => AutoMovieHumanArmLaw.of(ring, inputs, m, form, centre, elbow),
-      key: JSON.stringify([side, inputs[side], inputs.circumference, inputs.wrist, inputs.scale, elbow, centre, ring.centre, ring.radius]),
-      lofted,
-    });
+    // stands on the tube's wrist whatever the scales. One lofted build per
+    // placement serves the skeleton's bones and the lofted arm.
+    const built: AutoMovieHumanHandConstruction.IBuilt<IAutoMovieHumanArmLaw> =
+      BUILT.get(key) ??
+      remember(
+        key,
+        AutoMovieHumanHandConstruction.build<IAutoMovieHumanArmLaw>({
+          calibration,
+          side,
+          given: inputs[side],
+          circumference: inputs.circumference,
+          wristTape: inputs.wrist,
+          makeArm: (m: IAutoMovieHumanHandScales): IAutoMovieHumanArmLaw => AutoMovieHumanArmLaw.of(ring, inputs, m, form, placed),
+          key,
+          lofted: true,
+        }),
+      );
     const landmarks: IBones = {
       elbow: sided(built.law.elbow, sign),
       crease: sided(built.law.crease, sign),
@@ -273,6 +305,22 @@ export namespace AutoMovieHumanArmConstruction {
       poles: built.poles,
       bones: landmarks,
     };
+  }
+
+  /**
+   * Keep a build, the oldest dropped past `KEPT`.
+   *
+   * @param key The build's placement key.
+   * @param built The build.
+   * @returns The build.
+   */
+  function remember(
+    key: string,
+    built: AutoMovieHumanHandConstruction.IBuilt<IAutoMovieHumanArmLaw>,
+  ): AutoMovieHumanHandConstruction.IBuilt<IAutoMovieHumanArmLaw> {
+    BUILT.set(key, built);
+    while (BUILT.size > KEPT) BUILT.delete(BUILT.keys().next().value!);
+    return built;
   }
 
   /**

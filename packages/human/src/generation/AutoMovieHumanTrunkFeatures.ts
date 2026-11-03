@@ -3,14 +3,16 @@ import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
 import { AutoMovieHumanBreastDome } from "./AutoMovieHumanBreastDome";
 import { AutoMovieHumanBreastFootprint } from "./AutoMovieHumanBreastFootprint";
 import { AutoMovieHumanBreastFrame } from "./AutoMovieHumanBreastFrame";
-import { AutoMovieHumanBreastProfile } from "./AutoMovieHumanBreastProfile";
 import { AutoMovieHumanBreastRelief } from "./AutoMovieHumanBreastRelief";
 import { AutoMovieHumanGlutealDome } from "./AutoMovieHumanGlutealDome";
 import { AutoMovieHumanGlutealFrame } from "./AutoMovieHumanGlutealFrame";
 import { AutoMovieHumanGlutealRelief } from "./AutoMovieHumanGlutealRelief";
+import { AutoMovieHumanScapularMass } from "./AutoMovieHumanScapularMass";
 import { AutoMovieHumanSpinalFrame } from "./AutoMovieHumanSpinalFrame";
 import { AutoMovieHumanSpinalGroove } from "./AutoMovieHumanSpinalGroove";
 import { AutoMovieHumanSpinalProfile } from "./AutoMovieHumanSpinalProfile";
+import { AutoMovieHumanSternalNotch } from "./AutoMovieHumanSternalNotch";
+import { AutoMovieHumanSternalNotchProfile } from "./AutoMovieHumanSternalNotchProfile";
 import { AutoMovieHumanUmbilicalFrame } from "./AutoMovieHumanUmbilicalFrame";
 import { AutoMovieHumanUmbilicalProfile } from "./AutoMovieHumanUmbilicalProfile";
 import { AutoMovieHumanUmbilicus } from "./AutoMovieHumanUmbilicus";
@@ -65,14 +67,17 @@ export namespace AutoMovieHumanTrunkFeatures {
     /** The bust span, mm: the breadth between the bust points. */
     bustSpan: number;
 
-    /** The chest tape, mm. */
-    chest: number;
-
-    /** The underbust tape, mm. */
-    underbust: number;
+    /** The breasts' projection over the chest wall at the bust point, mm: what the chest tape closes over the wall. */
+    projection: number;
 
     /** What the base's back lacks at the buttock point for the buttock's depth, mm: the buttock's projection. */
     buttockProjection: number;
+
+    /** The crotch-to-cervicale span, mm: the blades' reach is a share of it. */
+    span: number;
+
+    /** Height of the neck's bottom ring, the shoulders' top, mm: the windows near the neck stay under it. */
+    neck: number;
   }
 
   /**
@@ -147,7 +152,7 @@ export namespace AutoMovieHumanTrunkFeatures {
     return AutoMovieHumanBreastDome.create({
       frame,
       footprint: AutoMovieHumanBreastFootprint.create(lateral, sites.bust - sites.fold),
-      projection: AutoMovieHumanBreastProfile.projection(sites.chest, sites.underbust),
+      projection: sites.projection,
     });
   }
 
@@ -218,19 +223,52 @@ export namespace AutoMovieHumanTrunkFeatures {
     });
   }
   /**
-   * The umbilicus and the spinal furrow.
+   * The scapular masses standing on the back's envelope at the axilla's height.
+   *
+   * @param col The column.
+   * @param sites The landmark heights and the span.
+   * @returns The left and the right window.
+   */
+  export function scapulae(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieHumanRelief[] {
+    const s: IAutoMovieHumanTrunkSection = col.at(sites.axilla);
+    const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
+
+    // The mass's centre lies midway between the blade's borders on the back wall.
+    const lateral: number = ((AutoMovieHumanScapularMass.MEDIAL + AutoMovieHumanScapularMass.OUTER) / 2) * s.width;
+    const centre: [number, number, number] = AutoMovieHumanTrunkCourses.point(s, [], lateral, "back", controls);
+    const j: [number, number, number, number, number, number] = AutoMovieHumanSplineCurve.jet(
+      controls,
+      AutoMovieHumanTrunkQuadrant.ORDER,
+      phaseAt(controls, "back", lateral),
+    );
+
+    return AutoMovieHumanScapularMass.create({
+      centre,
+      tangent: [j[2], j[3]],
+      width: s.width,
+      span: sites.span,
+      phaseOf: (z: number): number => phaseAt(controls, "back", Math.min(0.97 * s.width, Math.max(0, z))),
+      base: baseSurface(col),
+      ceiling: sites.neck - AutoMovieHumanSternalNotch.CLEARANCE,
+    });
+  }
+
+  /**
+   * The umbilicus, the spinal furrow and the sternal notch.
    *
    * @param col The column.
    * @param sites The landmark heights.
-   * @returns The pit's window and the furrow's.
+   * @returns The pit's window, the furrow's and the notch's.
    */
   export function midline(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieHumanRelief[] {
     const rate = (y: number, index: number): number => AutoMovieHumanTrunkRing.speeds(col.at(y))[index]!;
     const base: AutoMovieHumanTrunkReliefNet.Base = baseSurface(col);
     const to: number = sites.axilla - 1;
     const middle: number = (sites.furrowFrom + to) / 2;
+    const notch: AutoMovieHumanTrunkFeatureFrame.IFrame = AutoMovieHumanSternalNotch.frame(sites.neck, (y: number): number => col.at(y).front);
 
     return [
+      AutoMovieHumanSternalNotch.create(notch, base, AutoMovieHumanSternalNotchProfile.HALF / rate(notch.origin[1], 0)),
       AutoMovieHumanUmbilicus.create(
         AutoMovieHumanUmbilicalFrame.create(sites.omphalion, col.at(sites.omphalion).front),
         base,
@@ -250,9 +288,9 @@ export namespace AutoMovieHumanTrunkFeatures {
    *
    * @param col The column.
    * @param sites The landmark heights and tapes.
-   * @returns The windows: both breasts, both buttocks, the umbilicus and the furrow.
+   * @returns The windows: both breasts, both blades and both buttocks (unions), the notch, the umbilicus and the furrow (carves).
    */
   export function all(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieHumanRelief[] {
-    return [...breasts(col, sites), ...buttocks(col, sites), ...midline(col, sites)];
+    return [...breasts(col, sites), ...scapulae(col, sites), ...buttocks(col, sites), ...midline(col, sites)];
   }
 }

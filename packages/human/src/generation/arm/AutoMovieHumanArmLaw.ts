@@ -87,6 +87,48 @@ export namespace AutoMovieHumanArmLaw {
   /** Unit sections' hull perimeters by walk length, per placed arm, kept across the hand's solve rounds. */
   const HULLS: Map<string, Map<number, number>> = new Map();
 
+  /** Distance off its plane at which a cut is settled, world mm: far under the 0.05 mm step the layers' slopes are read over. */
+  const CUT_TOLERANCE: number = 1e-6;
+
+  /** Most secant steps of a cut before it bisects its bracket instead. */
+  const CUT_STEPS: number = 12;
+
+  /** Length of a cut's first secant step along the walk, world mm. */
+  const CUT_PROBE: number = 1;
+
+  /** Halvings of a bracket: the walk's 600 mm to under a micrometre. */
+  const BISECTIONS: number = 40;
+
+  /**
+   * The glenohumeral centre the bones stand on: the given centre, moved so the
+   * elbow centre stands at a skeleton's elbow when one is given, the bones'
+   * lengths and directions kept. Two calls that place the bones alike build
+   * the same law.
+   *
+   * @param centre The glenohumeral centre.
+   * @param inputs Lengths.
+   * @param elbow The skeleton's elbow, if any.
+   * @returns The placed centre.
+   */
+  export function centreOf(centre: Vec3, inputs: IInputs, elbow?: Vec3): Vec3 {
+    if (elbow === undefined) return centre;
+    const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
+    const placed: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(centre, direction(prior.upper), direction(prior.lower), inputs.upper, inputs.lower);
+    const shift: Vec3 = sub(elbow, placed.elbow);
+
+    return [centre[0] + shift[0], centre[1] + shift[1], centre[2] + shift[2]];
+  }
+
+  /**
+   * A bind bone direction of the prior as a unit vector.
+   *
+   * @param v The direction's three numbers.
+   * @returns The unit direction.
+   */
+  function direction(v: readonly number[]): Vec3 {
+    return unit([v[0]!, v[1]!, v[2]!]);
+  }
+
   /**
    * The law of one side, left frame.
    *
@@ -110,15 +152,9 @@ export namespace AutoMovieHumanArmLaw {
     if (!(inputs.upper > 0) || !(inputs.lower > 0) || !(inputs.bicep > 0) || !(inputs.elbow > 0) || !(inputs.forearm > 0) || !(inputs.wrist > 0))
       throw new Error("An arm needs positive lengths and tapes");
 
-    // The bones from the glenohumeral centre; a skeleton's elbow places them,
-    // the bones' lengths and directions kept.
-    const direction = (v: readonly number[]): Vec3 => unit([v[0]!, v[1]!, v[2]!]);
-    const placed: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(centre, direction(prior.upper), direction(prior.lower), inputs.upper, inputs.lower);
-    const shift: Vec3 = elbow === undefined ? [0, 0, 0] : sub(elbow, placed.elbow);
-    const bones: AutoMovieHumanArmBones.IBones =
-      elbow === undefined
-        ? placed
-        : AutoMovieHumanArmBones.place([centre[0] + shift[0], centre[1] + shift[1], centre[2] + shift[2]], placed.upper, placed.lower, inputs.upper, inputs.lower);
+    // The bones from the placed glenohumeral centre, their lengths and directions kept.
+    const at: Vec3 = centreOf(centre, inputs, elbow);
+    const bones: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(at, direction(prior.upper), direction(prior.lower), inputs.upper, inputs.lower);
 
     // The walk on the bones and the tube of the spans about it.
     const soft: number = (prior.softness * inputs.elbow) / TWO_PI;
@@ -131,7 +167,7 @@ export namespace AutoMovieHumanArmLaw {
     });
     const pieces: IAutoMovieHumanArmPiece[] = AutoMovieHumanArmPieces.build(pieceInputs);
     const knots: [number, number][] = AutoMovieHumanArmGirth.knots(pieces);
-    const hullKey: string = JSON.stringify([centre, shift, inputs.upper, inputs.lower, inputs.elbow]);
+    const hullKey: string = JSON.stringify([at, inputs.upper, inputs.lower, inputs.elbow]);
     let hulls: Map<number, number> | undefined = HULLS.get(hullKey);
     if (hulls === undefined) HULLS.set(hullKey, (hulls = new Map()));
     const tube: AutoMovieHumanArmTube.ITube = AutoMovieHumanArmTube.build(
@@ -147,12 +183,37 @@ export namespace AutoMovieHumanArmLaw {
     const end: number = stylion + RUN_ON * inputs.scale;
 
     // A plane's cut: the tube passes through it along the walk at any phase.
-    const cut = (point: Vec3, normal: Vec3, theta: number): Vec3 => {
-      let lo: number = -ring.radius * 2;
+    // Secant steps from a walk length on or near the plane, where the walk
+    // itself crosses it, settle in a few reads of the tube; where they leave
+    // the walk or do not settle, the bracket from the shoulder to the run-on
+    // is bisected.
+    const low: number = -ring.radius * 2;
+    const tolerance: number = CUT_TOLERANCE * inputs.scale;
+
+    // A section tilted up to level cuts the tube no further along the walk
+    // from where the walk crosses its plane than the scye's diameter, so a
+    // secant root beyond that is another crossing of a bent tube.
+    const reach: number = 2 * ring.radius;
+    const off = (s: number, point: Vec3, normal: Vec3, theta: number): number => dot(sub(tube.surface(s, theta), point), normal);
+    const cut = (point: Vec3, normal: Vec3, theta: number, guess: number): Vec3 => {
+      let s0: number = guess;
+      let f0: number = off(s0, point, normal, theta);
+      let s1: number = guess + CUT_PROBE * inputs.scale;
+      let f1: number = off(s1, point, normal, theta);
+      for (let i: number = 0; i < CUT_STEPS && Math.abs(f1) > tolerance && f1 !== f0; i++) {
+        const s2: number = s1 - (f1 * (s1 - s0)) / (f1 - f0);
+        s0 = s1;
+        f0 = f1;
+        s1 = s2;
+        f1 = off(s1, point, normal, theta);
+      }
+      if (Math.abs(f1) <= tolerance && Math.abs(s1 - guess) <= reach && s1 >= low && s1 <= end) return tube.surface(s1, theta);
+
+      let lo: number = low;
       let hi: number = end;
-      for (let i: number = 0; i < 40; i++) {
+      for (let i: number = 0; i < BISECTIONS; i++) {
         const mid: number = (lo + hi) / 2;
-        if (dot(sub(tube.surface(mid, theta), point), normal) > 0) lo = mid;
+        if (off(mid, point, normal, theta) > 0) lo = mid;
         else hi = mid;
       }
       return tube.surface((lo + hi) / 2, theta);
@@ -165,7 +226,7 @@ export namespace AutoMovieHumanArmLaw {
     const crossing = (point: Vec3, normal: Vec3): number => {
       let lo: number = 0;
       let hi: number = end;
-      for (let i: number = 0; i < 40; i++) {
+      for (let i: number = 0; i < BISECTIONS; i++) {
         const mid: number = (lo + hi) / 2;
         if (dot(sub(axis.at(mid), point), normal) > 0) lo = mid;
         else hi = mid;
@@ -181,8 +242,16 @@ export namespace AutoMovieHumanArmLaw {
     const square: Vec3 = [-handPrior.along[0], -handPrior.along[1], -handPrior.along[2]];
     const map = (q: readonly [number, number, number]): Vec3 => handPoint(q, hand, origin);
     const creaseAt: number = handPrior.crease;
+
+    // A heel station's plane is crossed by the walk once, kept for every phase.
+    const heelWalks: Map<number, number> = new Map();
+    const heelWalk = (b: number): number => {
+      let s: number | undefined = heelWalks.get(b);
+      if (s === undefined) heelWalks.set(b, (s = crossing(map([b, 0, 0]), square)));
+      return s;
+    };
     const heel = (a: number, t: number): Vec3 =>
-      AutoMovieHumanHandHeel.point({ form: shape, map, bone: (b: number, u: number): Vec3 => cut(map([b, 0, 0]), square, angle(u)) }, a, t);
+      AutoMovieHumanHandHeel.point({ form: shape, map, bone: (b: number, u: number): Vec3 => cut(map([b, 0, 0]), square, angle(u), heelWalk(b)) }, a, t);
 
     // Above the crease the planes leave the hand's axis and follow the walk.
     const join: number = -creaseAt;
@@ -199,15 +268,23 @@ export namespace AutoMovieHumanArmLaw {
       return unit([body[0] * (1 - level), body[1] * (1 - level) + level, body[2] * (1 - level)]);
     };
     const anchor = (q: number): Vec3 => (q <= join ? map([-q, 0, 0]) : axis.at(walkOf(q)));
+
+    // The level ring's cut depends on the phase alone, kept for every layer.
+    const levels: Map<number, Vec3> = new Map();
+    const level = (t: number): Vec3 => {
+      let o: Vec3 | undefined = levels.get(t);
+      if (o === undefined) levels.set(t, (o = cut([0, top, 0], [0, 1, 0], angle(t), topWalk)));
+      return o;
+    };
     const point = (q: number, t: number): Vec3 => {
       if (q <= join) return heel(-q, t);
       const c: Vec3 = axis.at(walkOf(q));
-      const p: Vec3 = cut(c, normal(q), angle(t));
+      const p: Vec3 = cut(c, normal(q), angle(t), walkOf(q));
       const fade: number = smooth((c[1] - top + REACH * inputs.scale) / (REACH * inputs.scale));
       if (fade === 0) return p;
 
       // Near the level ring the section moves out onto the trunk's arc.
-      const o: Vec3 = cut([0, top, 0], [0, 1, 0], angle(t));
+      const o: Vec3 = level(t);
       const d: number = Math.atan2(o[2] - ring.centre[2], o[0] - ring.centre[0]);
       const gap: number = AutoMovieHumanPolarSection.radius(ring.outline, [ring.centre[0], ring.centre[2]], d) - Math.hypot(o[0] - ring.centre[0], o[2] - ring.centre[2]);
       return [p[0] + fade * gap * Math.cos(d), p[1], p[2] + fade * gap * Math.sin(d)];
@@ -229,9 +306,10 @@ export namespace AutoMovieHumanArmLaw {
     const girth = (at: Vec3, n: Vec3): number => {
       const u: Vec3 = across([1, 0, 0], n);
       const v: Vec3 = cross(n, u);
+      const walk: number = crossing(at, n);
       return hull(
         Array.from({ length: GIRTH_PHASES }, (_: unknown, i: number): [number, number] => {
-          const p: Vec3 = sub(cut(at, n, (TWO_PI * i) / GIRTH_PHASES), at);
+          const p: Vec3 = sub(cut(at, n, (TWO_PI * i) / GIRTH_PHASES, walk), at);
           return [dot(p, u), dot(p, v)];
         }),
       );

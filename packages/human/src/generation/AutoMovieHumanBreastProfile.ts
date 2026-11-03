@@ -7,21 +7,24 @@ import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureP
  *
  * The height is the bust point's projection at the centre, with a rounded
  * apex, falling by `(1 - rho^2)^3` to the rim with slope and curvature zero
- * there, so the breast leaves the wall tangent to it. Its projection is the
- * tapes' excess as a radius: the chest tape over the underbust tape, over 2
- * pi, which is the cup excess bra sizing reads (the definition; the former
- * trunk's rise of 1 without its sex term).
+ * there, so the breast leaves the wall tangent to it. Its projection is what
+ * closes the chest tape over the chest wall, which continues the rib cage the
+ * underbust tape measures at the fold (`AutoMovieHumanTrunkClosure.tapes`):
+ * the tape's excess over the wall lies on the two domes, not round the whole
+ * torso.
  */
 export namespace AutoMovieHumanBreastProfile {
   /**
-   * The breast's projection from its tapes.
+   * The first reading of the projection's solve from the tapes: their excess
+   * shared by the two domes, each lifting the tape over its own front, so
+   * `(chest - underbust) / pi`.
    *
    * @param chest The chest tape at the bust point, mm.
    * @param underbust The underbust tape at the fold, mm.
    * @returns The projection, mm; 0 when the chest is not larger than the underbust.
    */
-  export function projection(chest: number, underbust: number): number {
-    return Math.max(0, chest - underbust) / (2 * Math.PI);
+  export function start(chest: number, underbust: number): number {
+    return Math.max(0, chest - underbust) / Math.PI;
   }
 
   /**

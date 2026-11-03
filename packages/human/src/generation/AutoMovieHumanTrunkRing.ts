@@ -128,11 +128,14 @@ export namespace AutoMovieHumanTrunkRing {
    */
   export function speeds(s: AutoMovieHumanTrunkQuadrant.ISection, arc?: IAutoMovieHumanArmRootArc): number[] {
     const rates: number[] = SECTORS.map((sector: ISector, i: number): number => {
-      if (arc !== undefined && (i === 2 || i === 3)) return arc.rates[i - 2]!;
       const [a, b]: [number, number] = sector.shares(s);
       const span: number = AutoMovieHumanTrunkQuadrant.phase(GUIDES[i + 1]!.knot - GUIDES[i]!.knot);
+      const own: number = AutoMovieHumanTrunkQuadrant.arclength(s, sector.side, a, b) / span;
 
-      return AutoMovieHumanTrunkQuadrant.arclength(s, sector.side, a, b) / span;
+      // The arc's flank rates carry the torso's by its weight, so at the vault
+      // the folds run at the torso's own speeds.
+      if (arc !== undefined && (i === 2 || i === 3)) return arc.torso * own + (1 - arc.torso) * arc.rates[i - 2]!;
+      return own;
     });
 
     return GUIDES.map((_: unknown, j: number): number =>
