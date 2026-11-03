@@ -111,13 +111,11 @@ export namespace AutoMovieHumanTrunkSolver {
    * @returns The context.
    */
   function context(fixed: IFixed): IAutoMovieHumanTrunkContext {
+    // The cervicale at the person's own height (ANSUR II cervicale height),
+    // on the back of the neck's ring.
     const seat: AutoMovieHumanTrunkNeckSeat.ISeat = AutoMovieHumanTrunkNeckSeat.read(fixed.neck);
-    const cervicale: [number, number, number] = [
-      seat.back[0],
-      Math.max(seat.y + 1, AutoMovieHumanTrunkLandmarks.CERVICALE * fixed.stature),
-      0,
-    ];
-    const at = (share: number): number => AutoMovieHumanTrunkLandmarks.at(fixed.crotch, cervicale[1], share);
+    const cervicale: [number, number, number] = [seat.back[0], fixed.inputs.cervicale, 0];
+    const at: (share: number) => number = (share: number): number => AutoMovieHumanTrunkLandmarks.at(fixed.crotch, cervicale[1], share);
     const pitch: number = ringPitch(fixed.inputs.hip / (2 * Math.PI));
 
     return {
@@ -153,8 +151,8 @@ export namespace AutoMovieHumanTrunkSolver {
    */
   function start(ctx: IAutoMovieHumanTrunkContext): IState {
     const inputs: IAutoMovieHumanTrunkInputs = ctx.fixed.inputs;
-    const at = (share: number): number => AutoMovieHumanTrunkLandmarks.at(ctx.fixed.crotch, ctx.cervicale[1], share);
-    const round = (tape: number): number => (tape / (2 * Math.PI)) * 1.1;
+    const at: (share: number) => number = (share: number): number => AutoMovieHumanTrunkLandmarks.at(ctx.fixed.crotch, ctx.cervicale[1], share);
+    const round: (tape: number) => number = (tape: number): number => (tape / (2 * Math.PI)) * 1.1;
 
     return {
       waist: at(AutoMovieHumanTrunkLandmarks.WAIST),

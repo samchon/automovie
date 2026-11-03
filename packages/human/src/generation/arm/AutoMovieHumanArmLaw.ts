@@ -1,5 +1,5 @@
-import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
+import { AutoMovieHumanLimbRootStrip } from "../AutoMovieHumanLimbRootStrip";
 import { AutoMovieHumanHandHeel } from "../hand/AutoMovieHumanHandHeel";
 import { AutoMovieHumanHandMap } from "../hand/AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
@@ -10,13 +10,13 @@ import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import { AutoMovieHumanArmGirth } from "./AutoMovieHumanArmGirth";
 import { AutoMovieHumanArmGuides } from "./AutoMovieHumanArmGuides";
 import { AutoMovieHumanArmPieces } from "./AutoMovieHumanArmPieces";
-import type { AutoMovieHumanArmScye } from "./AutoMovieHumanArmScye";
+import { AutoMovieHumanArmScye } from "./AutoMovieHumanArmScye";
 import { AutoMovieHumanArmTube } from "./AutoMovieHumanArmTube";
 import type { IAutoMovieHumanArmLaw } from "./IAutoMovieHumanArmLaw";
 import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
 
 type Vec3 = AutoMovieHumanHandVector.Vec3;
-const { across, cross, dot, hull, mean, scale, smooth, sub, unit, TWO_PI }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
+const { across, cross, dot, hull, mean, norm, scale, smooth, smoother, sub, unit, TWO_PI }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
 
 /**
@@ -32,9 +32,11 @@ const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
  * is the hand's station `-a` up to the wrist crease, where the hand's heel
  * piece takes over (`AutoMovieHumanHandHeel`), and past it the walk's distance
  * back toward the shoulder, so it rises from the hand to the shoulder; the
- * planes turn from the hand's axis onto the forearm's over `WRIST_TURN` and lie
- * level where the arm meets the trunk's level ring, whose difference from the
- * tube fades in over `REACH`.
+ * planes turn from the hand's axis onto the forearm's over `WRIST_TURN`. The
+ * arm's own square sections end one scye radius down the walk from the trunk's
+ * level ring, and the root strip (`AutoMovieHumanLimbRootStrip`) carries the
+ * skin from there to the ring, its parameter running on as the strip's mean
+ * chord.
  */
 export namespace AutoMovieHumanArmLaw {
   /** The lengths and tapes the law reads, calibration mm. */
@@ -64,9 +66,6 @@ export namespace AutoMovieHumanArmLaw {
   /** Length of the walk past the wrist, world mm: beyond the heel's last cut. */
   const RUN_ON: number = 120;
 
-  /** Height over which the shoulder ring's difference fades in, and the arm's sections turn level, world mm. */
-  const REACH: number = 70;
-
   /** Length past the heel's join over which the sections turn from the hand's axis onto the forearm's, world mm. */
   const WRIST_TURN: number = 50;
 
@@ -77,6 +76,13 @@ export namespace AutoMovieHumanArmLaw {
    * sections than the reference.
    */
   const LAYER_STEP: number = 3;
+
+  /**
+   * Half the walk length over which the tube's jet is read at the arm's last
+   * own section, world mm: half the widest layer spacing, so the root strip
+   * arrives with the curvature the arm's own layers carry there.
+   */
+  const JET_READ: number = LAYER_STEP / 2;
 
   /** Phases averaged for the centre of the section at the wrist crease. */
   const CREASE_PHASES: number = 256;
@@ -219,7 +225,6 @@ export namespace AutoMovieHumanArmLaw {
       return tube.surface((lo + hi) / 2, theta);
     };
     const wrist: Vec3 = axis.at(stylion);
-    const top: number = ring.centre[1];
     const angle = (t: number): number => prior.phase + prior.sense * t;
 
     // The walk's distance at which it crosses a plane.
@@ -256,49 +261,84 @@ export namespace AutoMovieHumanArmLaw {
     // Above the crease the planes leave the hand's axis and follow the walk.
     const join: number = -creaseAt;
     const joinWalk: number = crossing(map([creaseAt, 0, 0]), square);
-    const topWalk: number = crossing([0, top, 0], [0, 1, 0]);
-    const walkOf = (q: number): number => joinWalk - (q - join);
-    const normal = (q: number): Vec3 => {
+    const walkOf: (q: number) => number = (q: number): number => joinWalk - (q - join);
+
+    // The arm's own sections stop one scye radius down the walk from where it
+    // crosses the ring's lowest point, square to the walk; from there the
+    // root strip (`AutoMovieHumanLimbRootStrip`) joins them to the trunk's
+    // ring, copying the trunk's jet down across the ring and the arm's own
+    // jet at its last section, with no fade of either piece. The ring is not
+    // level: its arm arc dips on the lateral side, and an own section placed
+    // under the ring's mean height stood above that side, where the strip
+    // folded back up into a lip.
+    const lowest: number = Math.min(...ring.points.map((p: Vec3): number => p[1]));
+    const ownWalk: number = crossing([0, lowest, 0], [0, 1, 0]) + ring.radius;
+    const qOwn: number = join + (joinWalk - ownWalk);
+    const phases: number[] = Array.from({ length: prior.order }, (_: unknown, m: number): number => (TWO_PI * m) / prior.order);
+    const ends: AutoMovieHumanLimbRootStrip.IJet[] = phases.map(
+      (t: number): AutoMovieHumanLimbRootStrip.IJet =>
+        AutoMovieHumanLimbRootStrip.jet((s: number): Vec3 => tube.surface(s, angle(t)), ownWalk, JET_READ * inputs.scale),
+    );
+    const starts: AutoMovieHumanLimbRootStrip.IJet[] = ends.map(
+      (e: AutoMovieHumanLimbRootStrip.IJet): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanArmScye.under(ring, e.point),
+    );
+
+    // The strip's parameter runs as its mean chord, so its layers are spaced
+    // in millimetres like the tube's: w is 1 at the arm's own section, 0 at
+    // the ring.
+    const chord: number = mean(starts.map((c: AutoMovieHumanLimbRootStrip.IJet, m: number): Vec3 => [norm(sub(ends[m]!.point, c.point)), 0, 0]), 0);
+    const strip: AutoMovieHumanLimbRootStrip.IStrip = AutoMovieHumanLimbRootStrip.strip({ start: starts, end: ends });
+
+    // The strip's layer planes turn from the ring's level plane to the arm's
+    // square plane by the quintic smoothstep, with no step in their slope or
+    // curvature at either end.
+    const level: Vec3 = [0, 1, 0];
+    const squareOwn: Vec3 = scale(axis.heading(ownWalk), -1);
+    const stripNormal: (w: number) => Vec3 = (w: number): Vec3 => {
+      const x: number = smoother(w);
+      return unit([level[0] + x * (squareOwn[0] - level[0]), level[1] + x * (squareOwn[1] - level[1]), level[2] + x * (squareOwn[2] - level[2])]);
+    };
+    const qTop: number = qOwn + chord;
+    const wOf: (q: number) => number = (q: number): number => (qTop - q) / chord;
+    const rings: Map<number, Vec3[]> = new Map<number, Vec3[]>();
+    const stripRing: (q: number) => Vec3[] = (q: number): Vec3[] => {
+      let found: Vec3[] | undefined = rings.get(q);
+      if (found === undefined) rings.set(q, (found = strip.ring(wOf(q))));
+      return found;
+    };
+    const normal: (q: number) => Vec3 = (q: number): Vec3 => {
       if (q <= join) return square;
+      if (q > qOwn) return stripNormal(wOf(q));
       const s: number = walkOf(q);
       const bone: Vec3 = scale(axis.heading(s), -1);
       const w: number = smooth((q - join) / (WRIST_TURN * inputs.scale));
-      const body: Vec3 = unit([square[0] + w * (bone[0] - square[0]), square[1] + w * (bone[1] - square[1]), square[2] + w * (bone[2] - square[2])]);
-      const level: number = 1 - smooth((s - topWalk) / (REACH * inputs.scale));
-      return unit([body[0] * (1 - level), body[1] * (1 - level) + level, body[2] * (1 - level)]);
+      return unit([square[0] + w * (bone[0] - square[0]), square[1] + w * (bone[1] - square[1]), square[2] + w * (bone[2] - square[2])]);
     };
-    const anchor = (q: number): Vec3 => (q <= join ? map([-q, 0, 0]) : axis.at(walkOf(q)));
-
-    // The level ring's cut depends on the phase alone, kept for every layer.
-    const levels: Map<number, Vec3> = new Map();
-    const level = (t: number): Vec3 => {
-      let o: Vec3 | undefined = levels.get(t);
-      if (o === undefined) levels.set(t, (o = cut([0, top, 0], [0, 1, 0], angle(t), topWalk)));
-      return o;
+    const anchor: (q: number) => Vec3 = (q: number): Vec3 => {
+      if (q <= join) return map([-q, 0, 0]);
+      if (q > qOwn) {
+        const r: Vec3[] = stripRing(q);
+        return [mean(r, 0), mean(r, 1), mean(r, 2)];
+      }
+      return axis.at(walkOf(q));
     };
-    const point = (q: number, t: number): Vec3 => {
+    const point: (q: number, t: number) => Vec3 = (q: number, t: number): Vec3 => {
       if (q <= join) return heel(-q, t);
-      const c: Vec3 = axis.at(walkOf(q));
-      const p: Vec3 = cut(c, normal(q), angle(t), walkOf(q));
-      const fade: number = smooth((c[1] - top + REACH * inputs.scale) / (REACH * inputs.scale));
-      if (fade === 0) return p;
-
-      // Near the level ring the section moves out onto the trunk's arc.
-      const o: Vec3 = level(t);
-      const d: number = Math.atan2(o[2] - ring.centre[2], o[0] - ring.centre[0]);
-      const gap: number = AutoMovieHumanPolarSection.radius(ring.outline, [ring.centre[0], ring.centre[2]], d) - Math.hypot(o[0] - ring.centre[0], o[2] - ring.centre[2]);
-      return [p[0] + fade * gap * Math.cos(d), p[1], p[2] + fade * gap * Math.sin(d)];
+      if (q > qOwn) return stripRing(q)[((Math.round((t / TWO_PI) * prior.order) % prior.order) + prior.order) % prior.order]!;
+      return cut(axis.at(walkOf(q)), normal(q), angle(t), walkOf(q));
     };
 
-    // Layers: the heel's own stations in the hand, then the arm's own from the
-    // join up to the level ring in equal steps no wider than `LAYER_STEP`.
+    // Layers: the heel's own stations in the hand, the arm's own from the join
+    // up to its last square section, then the strip's up to the ring, each in
+    // equal steps no wider than `LAYER_STEP`.
     const layers: number[] = prior.heel
       .filter((a: number): boolean => a > creaseAt)
       .map((a: number): number => -a)
       .sort((p: number, q: number): number => p - q);
-    const qTop: number = join + (joinWalk - topWalk);
-    const steps: number = Math.max(1, Math.ceil((qTop - join) / (LAYER_STEP * inputs.scale)));
-    for (let i: number = 1; i <= steps; i++) layers.push(join + ((qTop - join) * i) / steps);
+    const steps: number = Math.max(1, Math.ceil((qOwn - join) / (LAYER_STEP * inputs.scale)));
+    for (let i: number = 1; i <= steps; i++) layers.push(join + ((qOwn - join) * i) / steps);
+    const rootSteps: number = Math.max(1, Math.ceil(chord / (LAYER_STEP * inputs.scale)));
+    for (let i: number = 1; i <= rootSteps; i++) layers.push(qOwn + (chord * i) / rootSteps);
 
     const creaseRing: Vec3[] = Array.from({ length: CREASE_PHASES }, (_: unknown, i: number): Vec3 => heel(creaseAt, (TWO_PI * i) / CREASE_PHASES));
 

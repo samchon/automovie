@@ -23,9 +23,10 @@ import { AutoMovieHumanLegStand } from "./leg/AutoMovieHumanLegStand";
  *   replace it) and {@link AutoMovieHumanLegSection}, a station's section;
  * - {@link AutoMovieHumanLegAnkleSeam}: the foot's ring, read as the leg's
  *   start (owner: the foot);
- * - {@link AutoMovieHumanLegCrotchRoot}, {@link AutoMovieHumanLegCrotchFillet}
- *   and {@link AutoMovieHumanLegCrotchSlope}: the trunk's ring, the fold's
- *   rounded corners and the carried slope (owner: the trunk);
+ * - {@link AutoMovieHumanLegCrotchRoot} and {@link AutoMovieHumanLegCrotchFillet}:
+ *   the trunk's ring with its jet and the fold's rounded corners (owner: the
+ *   trunk), joined to the leg's own section by the root strip
+ *   (`AutoMovieHumanLimbRootStrip`) the leg chain composes;
  * - {@link AutoMovieHumanLegChain} and {@link AutoMovieHumanLegReflection}: the
  *   chain `leg.<side>` and the right side as the left's reflection;
  * - {@link AutoMovieHumanLegStand}: the feet moved under the stance.

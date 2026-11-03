@@ -113,8 +113,15 @@ export namespace HumanLegPieceAudit {
 
     // Varus when the knee stands lateral (+Z on the left leg) of the
     // hip-ankle line at its height, valgus when medial.
-    const line: number = b.hip[2] + ((b.hip[1] - b.knee[1]) / (b.hip[1] - b.ankle[1])) * (b.ankle[2] - b.hip[2]);
+    const share: number = (b.hip[1] - b.knee[1]) / (b.hip[1] - b.ankle[1]);
+    const line: number = b.hip[2] + share * (b.ankle[2] - b.hip[2]);
     const sense: number = b.knee[2] >= line ? 1 : -1;
+
+    // The Neutral-0 position's knee is the extended knee every flexion is
+    // measured from, so in the sagittal plane the knee centre stands on the
+    // hip-ankle chord; an offset past the crease sagitta reads as a bent or
+    // hyperextended knee.
+    const sagittal: number = b.knee[0] - (b.hip[0] + share * (b.ankle[0] - b.hip[0]));
     return [
       { person: p.person, site: "leg bones: hip centre above the knee centre, mm", value: b.hip[1] - b.knee[1], low: 0, high: Infinity, unit: "mm" },
       { person: p.person, site: "leg bones: knee centre above the ankle centre, mm", value: b.knee[1] - b.ankle[1], low: 0, high: Infinity, unit: "mm" },
@@ -127,6 +134,14 @@ export namespace HumanLegPieceAudit {
         low: ALIGNMENT[0],
         high: ALIGNMENT[1],
         unit: "deg",
+      },
+      {
+        person: p.person,
+        site: "leg bones: knee centre ahead of the hip-ankle chord at Neutral-0, mm",
+        value: sagittal,
+        low: -HumanAnatomyShared.CREASE,
+        high: HumanAnatomyShared.CREASE,
+        unit: "mm",
       },
     ];
   }

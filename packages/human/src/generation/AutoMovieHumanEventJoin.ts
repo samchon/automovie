@@ -111,6 +111,7 @@ export namespace AutoMovieHumanEventJoin {
       if (event.shared === true) continue;
       const parent: IAutoMovieHumanLoftChain = chains.get(event.parent)!;
       for (const split of event.splits) {
+        if (split.shared === true) continue;
         const fitted: IAutoMovieHumanLoftChain | undefined = chains.get(
           split.child,
         );

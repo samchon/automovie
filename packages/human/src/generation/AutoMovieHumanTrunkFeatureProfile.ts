@@ -23,6 +23,29 @@ export namespace AutoMovieHumanTrunkFeatureProfile {
   }
 
   /**
+   * A dome's unit profile: `(1 - rho^2)^3 (1 + a rho^2)`, which meets the
+   * wall at `rho = 1` with the same C2 contact as {@link bump} and whose apex
+   * has the curvature of the spherical cap standing on the same base with the
+   * same height. Along a radius `b` a height `h` gives the apex the curvature
+   * `2 h (3 - a) / b^2`, the cap's is `2 h / (b^2 + h^2)`, so
+   * `a = 3 - 1 / (1 + aspect^2)` with `aspect = h / b`; `a` lies in `[2, 3)`,
+   * where the profile falls monotonically. {@link bump}'s apex is three times
+   * as sharp as a flat cap's, which reads as a cone once the height grows.
+   *
+   * @param rho Normalised radius, at least 0.
+   * @param aspect The feature's height over its base radius.
+   * @returns Height share in [0, 1].
+   */
+  export function dome(rho: number, aspect: number): number {
+    if (rho >= 1) return 0;
+
+    const x: number = rho * rho;
+    const a: number = 3 - 1 / (1 + aspect * aspect);
+
+    return (1 - x) ** 3 * (1 + a * x);
+  }
+
+  /**
    * A footprint of two half ellipses sharing a lateral half width: the
    * normalised radius of a point at `(u, v)` from the footprint's centre,
    * the lower half ellipse reaching `lower` below it and the upper one

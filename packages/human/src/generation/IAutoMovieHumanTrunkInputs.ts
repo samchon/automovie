@@ -35,6 +35,9 @@ export interface IAutoMovieHumanTrunkInputs {
   /** Biacromial breadth: between the acromia (ISO 7250-1:2017 6.2.7), twice the shoulder point's lateral place. */
   biacromial: number;
 
+  /** Cervicale height: the back neck point over the floor (ANSUR II; ISO 8559-1 3.1.6), where the trunk's landmark shares are measured from. */
+  cervicale: number;
+
   /** Acromial height: the acromion over the floor (ANSUR II), the shoulder point's height. */
   acromion: number;
 

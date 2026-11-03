@@ -4,9 +4,11 @@ import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoft
 import type { AutoMovieHumanLegConstruction } from "../AutoMovieHumanLegConstruction";
 import type { AutoMovieHumanSkeletonLaw } from "../AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
+import { AutoMovieHumanLimbRootStrip } from "../AutoMovieHumanLimbRootStrip";
 import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
 import { AutoMovieHumanLegCentreLine } from "./AutoMovieHumanLegCentreLine";
 import { AutoMovieHumanLegCrotchRoot } from "./AutoMovieHumanLegCrotchRoot";
+import { AutoMovieHumanLegMassPrior } from "./AutoMovieHumanLegMassPrior";
 import { AutoMovieHumanLegReflection } from "./AutoMovieHumanLegReflection";
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
 import { AutoMovieHumanLegSection } from "./AutoMovieHumanLegSection";
@@ -78,11 +80,30 @@ export namespace AutoMovieHumanLegChain {
     );
     const BEND: number = AutoMovieHumanLegStations.BEND;
     const frames: AutoMovieHumanLegAxis.IFrames = AutoMovieHumanLegAxis.of(bones, s0, s1, BEND * kneeDepth, law.ankleReach, law.crotchReach);
+
+    // The sections' centres ahead of the bone by the limb's mass prior, at
+    // its rows where the law's own sections stand (between the two rings'
+    // reaches): the tube's reach ahead of and behind its centre at phases 0
+    // and pi places the bone at the prior's front share of the depth.
+    const half: number = AutoMovieHumanLegSampling.ORDER / 2;
+    const rows: (prior: readonly AutoMovieHumanLegMassPrior.IRow[], top: number, bottom: number) => { at: number; offset: number }[] = (
+      prior: readonly AutoMovieHumanLegMassPrior.IRow[],
+      top: number,
+      bottom: number,
+    ): { at: number; offset: number }[] =>
+      prior
+        .map((r: AutoMovieHumanLegMassPrior.IRow): { at: number; front: number } => ({ at: top - r.share * (top - bottom), front: r.front }))
+        .filter((r: { at: number; front: number }): boolean => r.at > s0 + law.ankleReach && r.at < s1 - law.crotchReach)
+        .map((r: { at: number; front: number }): { at: number; offset: number } => {
+          const radii: number[] = AutoMovieHumanLegSectionLaw.radii(law.tube(r.at));
+          return { at: r.at, offset: AutoMovieHumanLegMassPrior.offset(r.front, radii[0]!, radii[half]!) };
+        });
     const centre: (s: number) => [number, number] = AutoMovieHumanLegCentreLine.of({
       frames,
       ankle: { at: s0, point: law.ankleCentre },
       crotch: { at: s1, point: law.crotchCentre },
       knee: bones.knee[1],
+      mass: [...rows(AutoMovieHumanLegMassPrior.THIGH, bones.hip[1], bones.knee[1]), ...rows(AutoMovieHumanLegMassPrior.SHANK, bones.knee[1], bones.ankle[1])],
     });
     const trunk: IAutoMovieHumanLoftChain = calibration.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk")!;
     const placed: number[] = AutoMovieHumanLegStations.layers({
@@ -102,7 +123,26 @@ export namespace AutoMovieHumanLegChain {
     // spline over them never divides by a vanishing gap. A row that breaks it
     // is left out and recorded; its neighbours carry the leg there.
     const stations: number[] = kept(`leg.${side}`, placed, diagnostics);
-    const section: (s: number) => AutoMovieHumanLegSection.ISection = (s: number): AutoMovieHumanLegSection.ISection => AutoMovieHumanLegSection.of(law, frames, centre, root, s);
+
+    // The root strip from the trunk's crotch ring, with the trunk's jet, to the
+    // law's own section at the crotch reach, with the law's own jet there.
+    const reach: number = law.crotchReach;
+    const own: Map<number, Vec3[]> = new Map<number, Vec3[]>();
+    const ownAt: (run: number) => Vec3[] = (run: number): Vec3[] => {
+      let found: Vec3[] | undefined = own.get(run);
+      if (found === undefined) {
+        const s: number = law.top - run;
+        own.set(run, (found = AutoMovieHumanLegSectionLaw.points(law, s, AutoMovieHumanLegAxis.frameAt(frames, s), centre(s))));
+      }
+      return found;
+    };
+    const strip: AutoMovieHumanLimbRootStrip.IStrip = AutoMovieHumanLimbRootStrip.strip({
+      start: AutoMovieHumanLegCrotchRoot.start(root),
+      end: ownAt(reach).map(
+        (_: Vec3, m: number): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.jet((run: number): Vec3 => ownAt(run)[m]!, reach, CURVE_STEP),
+      ),
+    });
+    const section: (s: number) => AutoMovieHumanLegSection.ISection = (s: number): AutoMovieHumanLegSection.ISection => AutoMovieHumanLegSection.of(law, frames, centre, strip, s);
     const last: number = stations.length - 1;
     const built: (IAutoMovieHumanLoftChain.ILayer | null)[] = stations.map((s: number, k: number): IAutoMovieHumanLoftChain.ILayer | null => {
       const here: AutoMovieHumanLegSection.ISection = section(s);

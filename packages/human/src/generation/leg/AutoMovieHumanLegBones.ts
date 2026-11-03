@@ -23,10 +23,12 @@
  *   within 3.6 mm of it on f1, f2 and m1 and 8.0 mm on m2; on f1's
  *   bone-normal sections 0.2 mm.
  * - Forward: the hip stands under the trunk's crotch ring (the caller reads
- *   it), the ankle at the foot's stance, and the knee ahead of their chord by
- *   the standing posture's slight knee extension, a convention carried from
- *   the former fitted line (`KNEE_AHEAD`) until the references' sagittal
- *   alignment is measured.
+ *   it), the ankle at the foot's stance, and the knee on their chord: the
+ *   bones stand in the Neutral-0 position, whose knee is the extended knee
+ *   every flexion is measured from (`docs/sources/dguv-f4030-neutral-zero.md`),
+ *   so the femur's and the tibia's mechanical axes are one line in the
+ *   sagittal plane as in the frontal one. A standing person's slight flexion
+ *   or hyperextension is a pose from that zero, not a bone place.
  */
 export namespace AutoMovieHumanLegBones {
   /** A point in the body frame. */
@@ -98,9 +100,6 @@ export namespace AutoMovieHumanLegBones {
    */
   export const STANCE: number = 136.6;
 
-  /** The knee centre ahead of the hip-ankle chord, world mm: the former fitted line's value on f1 (16.4 against the chord's 12.4), flagged for measurement. */
-  export const KNEE_AHEAD: number = 4;
-
   /**
    * The left leg's joint centres.
    *
@@ -126,10 +125,11 @@ export namespace AutoMovieHumanLegBones {
     const hipZ: number = HARA_LATERAL * input.scale + HARA_LATERAL_SLOPE * length;
     const ankleZ: number = STANCE * input.scale;
 
-    // The knee on the straight line from the hip to the ankle at its height.
+    // The knee on the straight line from the hip to the ankle at its height,
+    // in both planes: the extended knee of the Neutral-0 position.
     const share: number = (hipY - kneeY) / (hipY - ankleY);
     const kneeZ: number = hipZ + share * (ankleZ - hipZ);
-    const kneeX: number = input.hipForward + share * (input.ankleForward - input.hipForward) + KNEE_AHEAD * input.scale;
+    const kneeX: number = input.hipForward + share * (input.ankleForward - input.hipForward);
     const hip: Vec3 = [input.hipForward, hipY, hipZ];
     const knee: Vec3 = [kneeX, kneeY, kneeZ];
     const ankle: Vec3 = [input.ankleForward, ankleY, ankleZ];

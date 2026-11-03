@@ -3,6 +3,7 @@ import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoft
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
+import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandmarks";
 
 /**
  * Shared shape coefficients (theta) of the generated body surface.
@@ -83,6 +84,14 @@ export interface IAutoMovieHumanBodyCalibration {
    * coordinates. Absent on a calibration whose head is not generated.
    */
   head?: IAutoMovieHumanBodyCalibration.IHeadLandmarks;
+
+  /**
+   * The trunk's landmarks as its solve placed them, left side: the shoulders'
+   * arm arc stands on their glenohumeral centre, so the arm and the skeleton
+   * stand on the same centre instead of reading one off the skin. Absent on a
+   * calibration whose trunk is not generated.
+   */
+  trunk?: IAutoMovieHumanTrunkLandmarks;
 }
 export namespace IAutoMovieHumanBodyCalibration {
   /** Head landmarks on the skin, `[x, y, z]` calibration millimetres. */
@@ -233,6 +242,14 @@ export namespace IAutoMovieHumanBodyCalibration {
      * children share the vertex at a pinch.
      */
     arcs: [number, number][];
+
+    /**
+     * This child already leaves the contact by its own construction with the
+     * parent's jet across it, as a limb's root strip does, so the join leaves it
+     * as built while it still settles the event's other children. Absent, the
+     * event's own `shared` decides.
+     */
+    shared?: true;
   }
 
   /** Surface pole closing a chain end. */

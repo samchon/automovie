@@ -253,7 +253,15 @@ export namespace AutoMovieHumanArmConstruction {
     const sign: 1 | -1 = side === "left" ? 1 : -1;
     const ring: AutoMovieHumanArmScye.IRing = AutoMovieHumanArmScye.of(calibration, side);
     const elbow: Vec3 | undefined = elbowOf(skeleton, side, sign);
-    const centre: Vec3 = sided(AutoMovieHumanArmShoulder.glenohumeral(calibration, side, inputs.upper), sign);
+
+    // The arm stands on the trunk's glenohumeral centre, the one the
+    // shoulders' arm arc is built about, so the arm's tube and the arc share
+    // their axis; a calibration without a generated trunk reads it off the
+    // shoulders' skin.
+    const centre: Vec3 =
+      calibration.trunk !== undefined
+        ? [...calibration.trunk.glenohumeral]
+        : sided(AutoMovieHumanArmShoulder.glenohumeral(calibration, side, inputs.upper), sign);
     const form: IAutoMovieHumanHandForm = AutoMovieHumanHandForm.form();
     const placed: Vec3 = AutoMovieHumanArmLaw.centreOf(centre, inputs, elbow);
     const key: string = JSON.stringify([

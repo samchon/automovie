@@ -51,8 +51,13 @@ export namespace AutoMovieHumanTrunkKeys {
     return [
       K.key(ctx.fixed.crotch, st.groin, K.CROTCH, S, share),
 
-      // No back place at the buttock point: the buttock relief stands there, and the base's back runs through its neighbours.
-      { ...K.key(ctx.buttock, st.widths.buttock, K.BUTTOCK, S, share), back: null },
+      // The buttock point's back at the buttock's depth over the hip breadth
+      // (ANSUR II): the base reaches the gluteal mass's measured depth, so the
+      // gluteal relief only adds what the base still lacks there. Without
+      // this place the base's back ran through the crotch and the high hip,
+      // far inside, and the relief's peaked profile carried the whole depth
+      // as a cone with a folded band under it.
+      K.key(ctx.buttock, st.widths.buttock, K.BUTTOCK, S, share),
 
       // No front place at the high hip: its tape fixes the girth there, and the
       // abdominal wall's front runs from the buttock row to the waist.

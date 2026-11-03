@@ -22,18 +22,6 @@ import { AutoMovieHumanTrunkTapes } from "./AutoMovieHumanTrunkTapes";
  * an input.
  */
 export namespace AutoMovieHumanTrunkClosure {
-  /**
-   * The chest wall's girth at the bust row over the below-bust girth, its
-   * constant, mm: in men, who have no breast, the chest at the nipple level is
-   * `47.34 + 1.0193 underbust` (ANSUR 1988 working data, 1,774 men, R² 0.933,
-   * residual SD 17.8 mm; Gordon et al. 1989), the rib cage and the pectorals
-   * as they rise from the inframammary level. Measured.
-   */
-  const WALL_INTERCEPT: number = 47.34;
-
-  /** The same relation's slope over the below-bust girth. Measured. */
-  const WALL_SLOPE: number = 1.0193;
-
   /** A function of the column giving the reliefs that act at a tape's site. */
   type Reliefs = (col: AutoMovieHumanTrunkColumn.IColumn) => IAutoMovieHumanRelief[];
 
@@ -79,17 +67,19 @@ export namespace AutoMovieHumanTrunkClosure {
     close("fold", inputs.underbust, h.fold, none);
 
     // The chest tape passes over the breasts and the blades, both standing on
-    // the wall. The wall's own girth at the bust row is the rib cage and the
-    // pectorals rising from the fold, which a man's chest tape measures whole;
-    // a woman's breasts close what the tape holds beyond it. The tape bridges
-    // between the bust points, so the domes' projection is what their hull
-    // adds that excess with, not the excess spread round the torso.
+    // the wall, which a man's chest tape measures whole. A woman's wall at the
+    // bust row is the thorax the underbust tape closes at the fold, carried
+    // up: the size of the breasts is the chest tape's excess over the
+    // underbust (EN 13402-3 sizes a bra by those two girths), so the breasts
+    // close all of that excess. The tape bridges between the bust points, so
+    // the domes' projection is what their hull adds that excess with, not the
+    // excess spread round the torso.
     const chest = (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanRelief[] => {
       const sites: AutoMovieHumanTrunkFeatures.ISites = AutoMovieHumanTrunkKeys.sites(ctx, st, col);
 
       return [...optional("trunk.breast", (): IAutoMovieHumanRelief[] => AutoMovieHumanTrunkFeatures.breasts(col, sites)), ...optional("trunk.scapula", (): IAutoMovieHumanRelief[] => AutoMovieHumanTrunkFeatures.scapulae(col, sites))];
     };
-    const wall: number = WALL_INTERCEPT * inputs.scale + WALL_SLOPE * inputs.underbust;
+    const wall: number = inputs.underbust;
     st.projection = 0;
     close("bust", inputs.female ? Math.min(inputs.chest, wall) : inputs.chest, h.bust, chest);
     if (inputs.female && inputs.chest > girthAt(ctx, st, h.bust, chest))

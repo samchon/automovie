@@ -32,7 +32,8 @@ const { fifth } = AutoMovieHumanLegVector;
  * ankle ring (the residual of its radius and its height off its plane) is
  * carried from the ring to the first landmark row by the smootherstep, which
  * is flat to the second derivative at both ends; at the crotch the trunk's
- * rounded loop takes the same span ({@link AutoMovieHumanLegCrotchRoot.join}).
+ * rounded ring and its jet are joined to the law over the same span by the
+ * root strip the leg chain composes (`AutoMovieHumanLimbRootStrip`).
  * Both spans are the distance from the ring to the first landmark row kept
  * beside it, so no share of the leg's length enters.
  */
@@ -57,7 +58,7 @@ export namespace AutoMovieHumanLegSectionLaw {
     /** Span over which the ankle ring's residual is carried, mm. */
     ankleReach: number;
 
-    /** Span over which the crotch loop is carried, mm. */
+    /** Span of the root strip from the crotch ring to the law's own section, mm. */
     crotchReach: number;
 
     /** The ankle ring's radius less the tube's at each leg phase, mm. */
@@ -115,7 +116,7 @@ export namespace AutoMovieHumanLegSectionLaw {
 
     // The rings as rows: the ankle ring about its centroid, and the trunk's
     // rounded loop at depth 0 (the arc closed by the slit) about the arc's.
-    const root: AutoMovieHumanLegCrotchRoot.IRoot = AutoMovieHumanLegCrotchRoot.of(calibration, side, sign, crotchCentre, crotchReach);
+    const root: AutoMovieHumanLegCrotchRoot.IRoot = AutoMovieHumanLegCrotchRoot.of(calibration, side, sign, crotchCentre);
     const about: (ring: readonly [number, number][], c: readonly [number, number]) => [number, number][] = (
       ring: readonly [number, number][],
       c: readonly [number, number],

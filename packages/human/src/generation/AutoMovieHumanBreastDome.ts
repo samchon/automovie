@@ -30,9 +30,14 @@ export namespace AutoMovieHumanBreastDome {
   export function create(input: IInput): IAutoMovieHumanTrunkFeature {
     const f: AutoMovieHumanBreastFootprint.IFootprint = input.footprint;
 
+    // The dome's apex is the spherical cap's on the footprint's mean base
+    // radius, the geometric mean of its lateral and vertical half extents.
+    const base: number = Math.sqrt((f.half * (f.lower + f.upper)) / 2);
+    const aspect: number = base > 0 ? input.projection / base : 0;
+
     return {
       frame: input.frame,
-      height: (u: number, v: number): number => input.projection * AutoMovieHumanTrunkFeatureProfile.bump(f.rho(u, v)),
+      height: (u: number, v: number): number => input.projection * AutoMovieHumanTrunkFeatureProfile.dome(f.rho(u, v), aspect),
       reach: { u: [-f.half, f.half], v: [-f.lower, f.upper] },
       apex: [0, 0],
     };

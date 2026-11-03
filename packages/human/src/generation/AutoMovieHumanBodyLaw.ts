@@ -100,6 +100,7 @@ export namespace AutoMovieHumanBodyLaw {
         arms: armInputs,
         feet: footInputs,
         legs: inputs,
+        ...(standing.trunk !== undefined ? { trunk: standing.trunk } : {}),
       });
     const stood: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanLegConstruction.stand(
@@ -194,13 +195,17 @@ const EVENTS: IAutoMovieHumanBodyCalibration.IEvent[] = [
           [2 * Math.PI - ARM_ARC[0], ARM_ARC[0]],
         ],
       },
-      { child: "arm.left", arcs: [[ARM_ARC[0], ARM_ARC[1]]] },
+
+      // Each arm leaves the ring by its root strip, which copies the shoulders'
+      // jet down across it, so the join leaves the arms as built.
+      { child: "arm.left", arcs: [[ARM_ARC[0], ARM_ARC[1]]], shared: true },
 
       // The right arm's arc is the left's reflection (rule J6): phase t on
       // the left is 2 pi - t on the right, so the two sides are one construction.
       {
         child: "arm.right",
         arcs: [[2 * Math.PI - ARM_ARC[1], 2 * Math.PI - ARM_ARC[0]]],
+        shared: true,
       },
     ],
   },
@@ -278,7 +283,7 @@ function tapes(
 ): AutoMovieHumanLegConstruction.IInputs {
   const scale: number = stature / statureOf(params);
   const measures: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(params);
-  const free = (name: "fat" | "muscularity" | "masculineFeminine"): number => AutoMovieHumanBodyLaw.slider(params, name);
+  const free: (name: "fat" | "muscularity" | "masculineFeminine") => number = (name: "fat" | "muscularity" | "masculineFeminine"): number => AutoMovieHumanBodyLaw.slider(params, name);
   return {
     calf: measures.calfCircumference * scale,
     knee: measures.kneeCircumference * scale,
@@ -291,6 +296,12 @@ function tapes(
     furrow: measures.glutealFurrowHeight * scale,
   };
 }
+
+/** One foot's given measures, or none. */
+type FootGiven = Pick<IAutoMovieHumanLegIdentity, "footLength" | "footBreadth" | "ankleHeight"> | undefined;
+
+/** One hand's given measures, or none. */
+type HandGiven = IAutoMovieHumanExtremityDimensions["hands"] extends infer P ? (P extends { left: infer H } ? H | undefined : never) : never;
 
 /**
  * The person's foot dimensions in calibration millimetres. A side without
@@ -306,14 +317,7 @@ function feet(
       inputs.sex,
       inputs.scale,
     );
-  const side = (
-    given:
-      | Pick<
-          IAutoMovieHumanLegIdentity,
-          "footLength" | "footBreadth" | "ankleHeight"
-        >
-      | undefined,
-  ): AutoMovieHumanFootConstruction.IDimensions =>
+  const side: (given: FootGiven) => AutoMovieHumanFootConstruction.IDimensions = (given: FootGiven): AutoMovieHumanFootConstruction.IDimensions =>
     given === undefined
       ? expected
       : {
@@ -352,6 +356,7 @@ function column(
     upperArm: anatomy.upperArmLength * inputs.scale,
     biacromial: anatomy.biacromialBreadth * inputs.scale,
     acromion: anatomy.acromialHeight * inputs.scale,
+    cervicale: anatomy.cervicaleHeight * inputs.scale,
     axilla: anatomy.axillaHeight * inputs.scale,
     female: anatomy.sex === AutoMovieHumanSex.Female,
     sex: inputs.sex,
@@ -377,13 +382,7 @@ function arms(
       measures.handCircumference,
       scale,
     );
-  const side = (
-    given: IAutoMovieHumanExtremityDimensions["hands"] extends infer P
-      ? P extends { left: infer H }
-        ? H | undefined
-        : never
-      : never,
-  ): AutoMovieHumanArmConstruction.IHand =>
+  const side: (given: HandGiven) => AutoMovieHumanArmConstruction.IHand = (given: HandGiven): AutoMovieHumanArmConstruction.IHand =>
     given === undefined
       ? expected
       : {

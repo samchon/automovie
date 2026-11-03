@@ -53,6 +53,7 @@ export namespace AutoMovieHumanTrunkFixed {
     return {
       biacromial: anatomy.biacromialBreadth,
       acromion: anatomy.acromialHeight,
+      cervicale: anatomy.cervicaleHeight,
       axilla: anatomy.axillaHeight,
       female: anatomy.sex === AutoMovieHumanSex.Female,
       hip: anatomy.hipCircumference,

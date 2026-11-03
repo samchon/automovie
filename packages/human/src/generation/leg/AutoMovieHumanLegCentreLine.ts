@@ -11,10 +11,12 @@ import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
  * a fitted line: the foot's ankle ring and the trunk's crotch arc, whose
  * centroids are the neighbours' own (read off their rings at the leg's two
  * end stations), and the knee, whose joint centre (the midpoint of the
- * femoral condyles, de Leva 1996) is the centre of the knee's section. The
- * offset in each direction is the natural cubic spline through the three,
- * so the line is C2 along the leg, meets each ring's centroid exactly and
- * crosses the knee on its joint.
+ * femoral condyles, de Leva 1996) is the centre of the knee's section. Along
+ * the segments the forward offset also passes the limb's mass prior's
+ * centres (`AutoMovieHumanLegMassPrior`: the thigh's mass a little ahead of
+ * the femur, the shank's well behind the tibia). The offset in each direction
+ * is the natural cubic spline through its places, so the line is C2 along the
+ * leg, meets each ring's centroid exactly and crosses the knee on its joint.
  */
 export namespace AutoMovieHumanLegCentreLine {
   /** A centroid the line passes through. */
@@ -39,6 +41,13 @@ export namespace AutoMovieHumanLegCentreLine {
 
     /** Station of the knee centre, mm. */
     knee: number;
+
+    /**
+     * The sections' centres ahead of the bone where the leg's own law stands,
+     * by the limb's mass prior (`AutoMovieHumanLegMassPrior`): station and
+     * forward offset, mm.
+     */
+    mass: readonly { at: number; offset: number }[];
   }
 
   /**
@@ -55,10 +64,21 @@ export namespace AutoMovieHumanLegCentreLine {
     };
     const low: [number, number] = offset(input.ankle);
     const high: [number, number] = offset(input.crotch);
-    const stations: number[] = [input.ankle.at, input.knee, input.crotch.at];
-    const channel: (k: 0 | 1) => AutoMovieHumanNaturalSpline.ISpline = (k: 0 | 1): AutoMovieHumanNaturalSpline.ISpline => AutoMovieHumanNaturalSpline.create(stations, [low[k], 0, high[k]]);
-    const u: AutoMovieHumanNaturalSpline.ISpline = channel(0);
-    const v: AutoMovieHumanNaturalSpline.ISpline = channel(1);
+
+    // Forward, the line also passes the mass prior's centres along the
+    // segments; sideways the prior says nothing, and the line runs through the
+    // three places alone.
+    const forward: { at: number; offset: number }[] = [
+      { at: input.ankle.at, offset: low[0] },
+      ...input.mass.filter((m: { at: number; offset: number }): boolean => m.at > input.ankle.at && m.at < input.crotch.at),
+      { at: input.knee, offset: 0 },
+      { at: input.crotch.at, offset: high[0] },
+    ].sort((a: { at: number; offset: number }, b: { at: number; offset: number }): number => a.at - b.at);
+    const u: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
+      forward.map((m: { at: number; offset: number }): number => m.at),
+      forward.map((m: { at: number; offset: number }): number => m.offset),
+    );
+    const v: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create([input.ankle.at, input.knee, input.crotch.at], [low[1], 0, high[1]]);
     return (s: number): [number, number] => [AutoMovieHumanNaturalSpline.evaluate(u, s), AutoMovieHumanNaturalSpline.evaluate(v, s)];
   }
 }

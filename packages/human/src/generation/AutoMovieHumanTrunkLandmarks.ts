@@ -18,15 +18,6 @@ export namespace AutoMovieHumanTrunkLandmarks {
   /** The landmarks of a trunk; the skeleton's code reads this name. */
   export type ILandmarks = IAutoMovieHumanTrunkLandmarks;
 
-  /**
-   * Cervicale height over stature (the back neck point, ISO 8559-1 3.1.6):
-   * ANSUR II 0.8570 women, 0.8639 men, pooled 0.8605; the neck owns cervicale,
-   * and until its construction places it the population's height is used.
-   * Measured. The neck's bottom ring stands lower on f1 (1406 mm against 1462
-   * mm), so it is not cervicale.
-   */
-  export const CERVICALE: number = 0.8605;
-
   /** Buttock point (the hip tape's site): ANSUR II buttock height 0.5118 S women, 0.5054 S men. Measured. */
   export const BUTTOCK: number = 0.073;
 

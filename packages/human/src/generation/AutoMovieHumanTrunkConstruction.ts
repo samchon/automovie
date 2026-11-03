@@ -59,6 +59,7 @@ export namespace AutoMovieHumanTrunkConstruction {
     return {
       ...calibration,
       chains: [...made, ...others],
+      trunk: solution.landmarks,
       diagnostics: [...(calibration.diagnostics ?? []), ...solution.diagnostics],
       events: calibration.events.map(
         (e: IAutoMovieHumanBodyCalibration.IEvent): IAutoMovieHumanBodyCalibration.IEvent =>
