@@ -6,7 +6,7 @@ Use the task's Human development viewer endpoint, by default `http://127.0.0.1:5
 pnpm --filter @automovie/human dev
 ```
 
-The default registry is `packages/human/dev/human-images.json`. The [development README](../../../packages/human/dev/README.md) documents explicit registry overrides and the compiler gate used by generation and capture.
+The default registry is `packages/human/dev/human-images.json`. The [development README](../../../packages/human/dev/README.md) documents explicit registry overrides. Generation and capture do not wait for the type check, so parallel workers can inspect while another's edit is still red; collect compile errors beside the server with `pnpm --filter @automovie/human exec ttsc --noEmit --watch -p dev/tsconfig.json`.
 
 | Use | Path under the viewer endpoint |
 | --- | --- |
@@ -32,7 +32,7 @@ The default registry is `packages/human/dev/human-images.json`. The [development
 
 - Give every new frame a unique `fresh` nonce.
 - Accept a frame as new only when `x-human-cache` is `new-requested-frame`.
-- Keep its `x-human-captured-utc` and `x-human-png-sha256` headers.
+- Keep its `x-human-captured-utc`, `x-human-png-sha256` and `x-human-source-sha256` headers; the last names the source the frame reflects.
 
 ## References
 

@@ -22,11 +22,13 @@ Run every test on whole people: the references, and people at the population end
 
 - Measure the generated output as an anthropometrist or a renderer would. Use construction internals only to locate an axis or a landmark.
 - Read a border, fold or profile across the feature, in the plane normal to its own tangent; a world plane misreads a slanted feature.
+- Check each piece of a divided part alone and every seam from the declared seam list: gap, tangent break and normal-curvature jump against the continuity the seam declares, read in the plane normal to the seam's tangent, so a defect names its piece and seam.
 - Derive every expectation from an input or a cited published value, so the test holds for any person.
 - Run every test on the CPU; the viewer serves inspection.
 - Audit everything before failing, listing every finding by person, region and direction.
 - Prove each check red on a made defect and green on a correct shape. A reading must move by a known change of its input.
 - Give each limit its own anatomical or geometric basis, and keep it when the figure fails it.
+- Compare with a reference body only to catch gross defects: limit by the range real bodies take at that site, never by a closeness that rewards matching the reference, because the construction is universal logic the references inform, and a universal curve may differ from them and read better. Where the references barely vary, take that range from published population variation, not from a measuring tolerance.
 - Record a measure that cannot be an independent check, with the reason, instead of inventing a site for it.
 - When the viewer shows a defect no test listed, add the test that lists it.
 
