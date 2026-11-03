@@ -22,7 +22,7 @@ import type { IAutoMovieHumanVisemeWeights } from "../../../src/structures/expre
  * - `hair=0`: hide scalp hair, brows and lashes (`human.hair.`); absent or 1 shows them.
  * - `material=clay`: use a neutral plain skin material without source textures, vertex colours or shader effects; absent or `appearance` keeps the generated appearance. Geometry and normals stay unchanged; eyes and nails retain their materials.
  * - `light=raking-left|raking-right`: camera-relative grazing inspection light; absent or `reference` keeps the reference illumination. These are development inspection conditions, not reference-comparable beauty frames.
- * - `pose=rest|neutral|demo|limit`: the named pose the skin is shown in.
+ * - `pose=rest|neutral|demo|limit|raised|flexed`: the named pose the skin is shown in.
  * - `mouth=<viseme>[:<weight>][,...]`: viseme weights in (0, 1] by the names of `IAutoMovieHumanVisemeWeights`, such as `aa` or `PP:0.5,aa:0.5`; a missing weight is 1. The jaw takes the opening they ask for on top of the named pose, which must not be `rest`.
  *
  * The canonical text lists the present variables in fixed key order with
@@ -143,8 +143,16 @@ export function normalizeHumanView(read: (name: string) => string | null): {
   }
   const pose: string | null = read("pose");
   if (pose !== null && pose !== "" && pose !== "rest") {
-    if (pose !== "neutral" && pose !== "demo" && pose !== "limit")
-      throw new Error("Human view pose must be rest, neutral, demo or limit");
+    if (
+      pose !== "neutral" &&
+      pose !== "demo" &&
+      pose !== "limit" &&
+      pose !== "raised" &&
+      pose !== "flexed"
+    )
+      throw new Error(
+        "Human view pose must be rest, neutral, demo, limit, raised or flexed",
+      );
     value.pose = pose;
   }
   const mouth: string | null = read("mouth");
@@ -250,7 +258,7 @@ export namespace normalizeHumanView {
     garment: boolean;
 
     /** Named pose the skin is shown in; `rest` is the generated posture, the skin's bind, and `neutral` the anatomical neutral. */
-    pose: "rest" | "neutral" | "demo" | "limit";
+    pose: "rest" | "neutral" | "demo" | "limit" | "raised" | "flexed";
 
     /** Viseme weights the mouth is shown speaking; empty for the face at rest. */
     mouth: IAutoMovieHumanVisemeWeights;

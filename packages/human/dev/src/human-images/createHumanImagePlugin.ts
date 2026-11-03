@@ -28,7 +28,7 @@ import { serveHumanMannequinImage } from "./serveHumanMannequinImage";
  */
 export function createHumanImagePlugin(
   repository: string,
-  requirePassed: () => Promise<string>,
+  currentSource: () => Promise<string>,
 ): Plugin {
   const archive: HumanImageArchive = new HumanImageArchive();
   let session: HumanImageSessionOwner | undefined;
@@ -51,7 +51,7 @@ export function createHumanImagePlugin(
     url: URL,
     response: ServerResponse,
   ): Promise<void> {
-    const admittedSource: string = await requirePassed();
+    const generatedSource: string = await currentSource();
     const route: RegExpExecArray | null =
       /^\/human-curves\/([a-z][a-z0-9-]{0,15})(?:\/(.+))?\.(png|svg)$/.exec(
         url.pathname,
@@ -93,7 +93,7 @@ export function createHumanImagePlugin(
           format,
           url.searchParams.get("fresh") ?? undefined,
         );
-    if ((await requirePassed()) !== admittedSource)
+    if ((await currentSource()) !== generatedSource)
       throw new Error("Human source changed during diagram capture");
     response.setHeader("cache-control", "no-store");
     response.setHeader("x-human-captured-utc", result.capturedUtc);
@@ -102,6 +102,7 @@ export function createHumanImagePlugin(
       url.searchParams.get("fresh") ?? "none",
     );
     response.setHeader("x-human-identity", result.key);
+    response.setHeader("x-human-source-sha256", generatedSource);
     response.setHeader(
       format === "png" ? "x-human-png-sha256" : "x-human-svg-sha256",
       result.sha256,
@@ -216,7 +217,7 @@ export function createHumanImagePlugin(
                 url,
                 session!.get(),
                 archive,
-                requirePassed,
+                currentSource,
               );
               return;
             }
@@ -384,7 +385,7 @@ export function createHumanImagePlugin(
               response.end(input.bytes);
               return;
             }
-            const admittedSource: string = await requirePassed();
+            const generatedSource: string = await currentSource();
 
             // Selection and free view join the frame identity in canonical form.
             let curves: string;
@@ -412,8 +413,9 @@ export function createHumanImagePlugin(
                   curves,
                   view.text,
                 );
-            if ((await requirePassed()) !== admittedSource)
+            if ((await currentSource()) !== generatedSource)
               throw new Error("Human source changed across image capture");
+            response.setHeader("x-human-source-sha256", generatedSource);
             if (pinned && result.key !== pinned[1]) {
               response.statusCode = 409;
               response.end("Human source changed; reload the model");

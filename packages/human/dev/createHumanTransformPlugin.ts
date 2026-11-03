@@ -9,6 +9,9 @@ import { type Plugin, normalizePath } from "vite";
  * adapter only repeats generation-proof registration; Vite already strips
  * their types. The adapter retains its original configuration, watch and close
  * hooks, and receives the original transform context for the admitted entry.
+ * `noCheck` lets the adapter emit that entry whatever its type state, so a
+ * compile error anywhere never stops the server delivering modules; the
+ * separate `ttsc --watch` reports those errors.
  */
 export function createHumanTransformPlugin(directory: string): Plugin {
   const entry: string = normalizePath(
@@ -19,6 +22,7 @@ export function createHumanTransformPlugin(directory: string): Plugin {
       {
         project: resolve(directory, "tsconfig.transform.json"),
         projectRoot: resolve(directory, "../../.."),
+        compilerOptions: { noCheck: true },
       },
       { framework: "vite" },
     );

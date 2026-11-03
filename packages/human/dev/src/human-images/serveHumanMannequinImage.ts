@@ -20,7 +20,7 @@ export async function serveHumanMannequinImage(
   url: URL,
   session: HumanImageSession,
   archive: HumanImageArchive,
-  requirePassed: () => Promise<string>,
+  currentSource: () => Promise<string>,
 ): Promise<void> {
   const match: RegExpExecArray | null =
     /^\/human-images\/mannequin\/((?:whole|face)-(?:front|right|back|oblique-front)\.(?:surface|overlay|construction)\.png)$/.exec(
@@ -33,14 +33,14 @@ export async function serveHumanMannequinImage(
   }
   const input: Awaited<ReturnType<typeof HumanImageParameterRequest>> =
     await HumanImageParameterRequest(request);
-  const admittedSource: string = await requirePassed();
+  const generatedSource: string = await currentSource();
   const result: Awaited<ReturnType<HumanImageSession["mannequin"]>> =
     await session.mannequin(
       input,
       match[1],
       url.searchParams.get("fresh") ?? undefined,
     );
-  if ((await requirePassed()) !== admittedSource)
+  if ((await currentSource()) !== generatedSource)
     throw new Error("Human source changed across mannequin capture");
   if (!result.capturedUtc || !result.pngSha256)
     throw new Error("Mannequin frame lacks actual capture commitment");
@@ -48,6 +48,7 @@ export async function serveHumanMannequinImage(
   response.setHeader("x-human-stage", "mannequin-prototype");
   response.setHeader("x-human-binding", "mannequin-prototype");
   response.setHeader("x-human-identity", result.key);
+  response.setHeader("x-human-source-sha256", generatedSource);
   response.setHeader("x-human-captured-utc", result.capturedUtc);
   response.setHeader("x-human-png-sha256", result.pngSha256);
   response.setHeader(

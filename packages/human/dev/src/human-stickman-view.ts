@@ -20,7 +20,6 @@ import { readHumanMannequinSnapshot } from "./human-stickman/readHumanMannequinS
 import { traceHumanViewerPhase } from "./human/traceHumanViewerPhase";
 
 HumanCompilerStatus.mount();
-await HumanCompilerStatus.requirePassed();
 
 /**
  * Human stickman page: the generated Human's rule-derived skeleton as a

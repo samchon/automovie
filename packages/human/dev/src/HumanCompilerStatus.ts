@@ -1,32 +1,19 @@
-/** Show incremental compile diagnostics independently from geometry generation. */
+/** Show incremental compile diagnostics independently from geometry generation.
+ * The diagnostics are advisory: generation and capture never wait on them.
+ */
 export namespace HumanCompilerStatus {
-  /** Latest observed compiler phase; an unobserved checker never admits work. */
-  let phase: string = "unknown";
-
-  /** Join the native current-source barrier before generating or accepting a model. */
-  export async function requirePassed(): Promise<string> {
-    const response: Response = await fetch("/__human/compiler/admit", {
+  /** Hash the current source inventory so a model records what it reflects. */
+  export async function currentSource(): Promise<string> {
+    const response: Response = await fetch("/__human/compiler/source", {
       cache: "no-store",
     });
-    const verdict: { phase: string; sourceSha256?: string; error?: string } =
+    const value: { sourceSha256?: string; error?: string } =
       await response.json();
-    phase = verdict.phase;
-    if (
-      !response.ok ||
-      phase !== "passed" ||
-      typeof verdict.sourceSha256 !== "string"
-    )
-      throw new Error(
-        verdict.error ?? "Human compiler has no passing current-source verdict",
-      );
-    return verdict.sourceSha256;
+    if (!response.ok || typeof value.sourceSha256 !== "string")
+      throw new Error(value.error ?? "Human source hash is unavailable");
+    return value.sourceSha256;
   }
 
-  /** Synchronous draws also reject an observed checking or failed checker. */
-  export function assertPassed(): void {
-    if (phase !== "passed")
-      throw new Error("Human compiler is checking or failed");
-  }
   /** Bind one status panel until the development page is unloaded. */
   export function mount(): void {
     const panel: HTMLDetailsElement = document.createElement("details");
@@ -48,7 +35,6 @@ export namespace HumanCompilerStatus {
       output: string;
       sequence: number;
     }): void => {
-      phase = state.phase;
       label.textContent =
         "컴파일 " +
         ({ checking: "검사 중", passed: "통과", failed: "오류" }[state.phase] ??

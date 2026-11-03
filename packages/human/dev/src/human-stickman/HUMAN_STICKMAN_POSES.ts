@@ -13,6 +13,10 @@ import type { IAutoMovieHumanPose } from "../../../src/structures/pose/IAutoMovi
  *   finger PIP 130, toe extension 100, neck flexion 60 and nod 40 degrees);
  *   typia tags do not stop such a value at compile time, so the stickman
  *   clamps it to the range, and `clamp=0` shows the overshoot.
+ * - `raised`: both arms abducted to overhead, 179 degrees, the shoulder's
+ *   range end that opens the axillae furthest.
+ * - `flexed`: both elbows, hips and knees at their ranges' ends together, the
+ *   deepest bend of the groin, the elbows and the knees.
  */
 export const HUMAN_STICKMAN_POSES: Record<string, IAutoMovieHumanPose> = {
   neutral: {},
@@ -104,6 +108,22 @@ export const HUMAN_STICKMAN_POSES: Record<string, IAutoMovieHumanPose> = {
         foot: { hallux: { mtpFlexion: -100 } },
       },
       right: {},
+    },
+  },
+  raised: {
+    arms: {
+      left: { shoulder: { abduction: 179 } },
+      right: { shoulder: { abduction: 179 } },
+    },
+  },
+  flexed: {
+    arms: {
+      left: { elbow: { flexion: 147.3 } },
+      right: { elbow: { flexion: 147.3 } },
+    },
+    legs: {
+      left: { hip: { flexion: 132.1 }, knee: { flexion: 139.8 } },
+      right: { hip: { flexion: 132.1 }, knee: { flexion: 139.8 } },
     },
   },
 };

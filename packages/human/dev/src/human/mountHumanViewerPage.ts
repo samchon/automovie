@@ -205,7 +205,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
     if (closed || busy) throw new Error("Human viewer is closed or busy");
     busy = true;
     try {
-      const admittedSource: string = await HumanCompilerStatus.requirePassed();
+      const generatedSource: string = await HumanCompilerStatus.currentSource();
       await retire();
       report("busy", "Human 모델을 생성하고 있습니다.");
 
@@ -217,7 +217,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       );
       if (closed) throw new Error("Human viewer closed during generation");
       const produced: IProduced = produce();
-      if ((await HumanCompilerStatus.requirePassed()) !== admittedSource)
+      if ((await HumanCompilerStatus.currentSource()) !== generatedSource)
         throw new Error("Human source changed during generation");
       ++calls.build;
       const model: HumanViewerModel = await HumanViewerModel.create(
@@ -404,7 +404,6 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       selection: string,
       query: string,
     ): IHumanViewerPage.ICapture => {
-      HumanCompilerStatus.assertPassed();
       if (closed || busy || mount === undefined)
         throw new Error("Human viewer has no idle loaded model to capture");
       const model: HumanViewerModel = loaded();

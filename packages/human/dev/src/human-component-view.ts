@@ -67,7 +67,6 @@ async function main(): Promise<void> {
   const selection: () => string[] = (): string[] => [...options.querySelectorAll<HTMLInputElement>("input:checked")].map((input: HTMLInputElement): string => input.value);
   /** Apply one selection/pass and fit its actual surface under the shared camera rule. */
   const fit: () => void = (): void => {
-    HumanCompilerStatus.assertPassed();
     if (current === undefined) return;
     current.apply(pass.value as "surface" | "overlay" | "construction", selection());
     mount.renderer.setPixelRatio(1);
@@ -85,14 +84,14 @@ async function main(): Promise<void> {
     const file: File = picker.files[0];
     lock(true);
     void (async (): Promise<void> => {
-      const before: string = await HumanCompilerStatus.requirePassed();
+      const before: string = await HumanCompilerStatus.currentSource();
       const bytes: ArrayBuffer = await file.arrayBuffer();
       const fileSha256: string = await sha256(bytes);
       const input: IEnvelope = JSON.parse(new TextDecoder().decode(bytes)) as IEnvelope;
       const next: HumanComponentView = new HumanComponentView(input.parts);
       let adopted: boolean = false;
       try {
-        const after: string = await HumanCompilerStatus.requirePassed();
+        const after: string = await HumanCompilerStatus.currentSource();
         if (before !== after) throw new Error("Source changed while admitting the component document");
         if (closed) return;
         const labels: HTMLLabelElement[] = input.parts.map((part: HumanComponentModel.IPart): HTMLLabelElement => {
@@ -127,7 +126,7 @@ async function main(): Promise<void> {
     if (busy) return;
     lock(true);
     void (async (): Promise<void> => {
-      const before: string = await HumanCompilerStatus.requirePassed();
+      const before: string = await HumanCompilerStatus.currentSource();
       if (current === undefined || before !== checked) throw new Error("Reload the actual component document after a source change");
       fit();
       mount.renderer.render(scene, camera);
@@ -141,7 +140,7 @@ async function main(): Promise<void> {
       const cameraState: object = { azimuth: Number(az.value), elevation: Number(el.value), position: camera.position.toArray(), quaternion: camera.quaternion.toArray(), target: orbit.target.toArray(), up: camera.up.toArray(), width: canvas.width, height: canvas.height };
       const rendererState: object = { ...mount.renderer.info.render };
       const pngSha256: string = await sha256(await (await fetch(png)).arrayBuffer());
-      const after: string = await HumanCompilerStatus.requirePassed();
+      const after: string = await HumanCompilerStatus.currentSource();
       if (after !== before || after !== checked) throw new Error("Source changed while capturing the component");
       const link: HTMLAnchorElement = document.createElement("a");
       link.download = "human-component-" + display.pass + ".png";

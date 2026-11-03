@@ -11,13 +11,13 @@ process.env.AUTOMOVIE_HUMAN_IMAGE_REGISTRY ??= resolve(
   "human-images.json",
 );
 
-/** The checker and captures commit to the same conservative source inventory. */
+/** Hash of the conservative source inventory a generation or capture reflects. */
+const source: () => Promise<string> = (): Promise<string> =>
+  HumanImageSourceIdentity.compiler(resolve(__dirname, "../../.."));
+
+/** The advisory checker reports compile state; it never gates generation. */
 const compiler: ReturnType<typeof createHumanCompilerPlugin> =
-  createHumanCompilerPlugin(
-    __dirname,
-    (): Promise<string> =>
-      HumanImageSourceIdentity.compiler(resolve(__dirname, "../../..")),
-  );
+  createHumanCompilerPlugin(__dirname, source);
 
 /** Unpublished Human inspection app; renderer and captures share one page. */
 export const humanViteConfig: UserConfig = defineConfig({
@@ -26,10 +26,7 @@ export const humanViteConfig: UserConfig = defineConfig({
   plugins: [
     compiler.plugin,
     createHumanTransformPlugin(__dirname),
-    createHumanImagePlugin(
-      resolve(__dirname, "../../.."),
-      compiler.requirePassed,
-    ),
+    createHumanImagePlugin(resolve(__dirname, "../../.."), source),
   ],
   server: {
     host: "127.0.0.1",
