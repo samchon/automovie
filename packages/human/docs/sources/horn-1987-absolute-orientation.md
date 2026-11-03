@@ -16,4 +16,4 @@ Copyright 1987 Optical Society of America; read for reference only, nothing copi
 
 ## Used for
 
-`test/src/features/internal/HumanReferenceSurface.ts` removes each body segment's placement before reading the population's surface spread, so the spread is of shape, not of where a limb happens to sit.
+`test/src/features/internal/reference/surface/HumanReferenceSurfaceLimits.ts` removes each body segment's placement before reading the population's surface spread, so the spread is of shape, not of where a limb happens to sit.

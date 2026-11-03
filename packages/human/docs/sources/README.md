@@ -51,6 +51,8 @@ Each note records one external source: its citation, what was read, what it prov
 ## Anthropometry and populations
 
 - [Adekunle 2022, Nigerian facial anthropometry by stereophotogrammetry](adekunle-2022-nigerian-3d.md)
+- [Ashwell 2012, waist-to-height ratio as a screening tool](ashwell-2012-waist-to-height.md)
+- [FAA 1965 and Japanese surveys, shoulder slope](faa-1965-shoulder-slope.md)
 - [ANSUR 1988 (1987-1988 US Army Anthropometric Survey)](ansur-1988.md)
 - [ANSUR II (2012 US Army Anthropometric Survey)](ansur-ii.md)
 - [ANSUR II segment lengths, trunk surface lengths and allowable errors](ansur-ii-course-measures.md)
@@ -95,6 +97,8 @@ Each note records one external source: its citation, what was read, what it prov
 - [Gray's Anatomy (1918), the curves of the vertebral column](gray-1918-vertebral-curves.md)
 - [Greiner 1991, hand anthropometry of US Army personnel](greiner-1991-hand.md)
 - [Hara et al. 2016, hip joint centre by age group and sex](hara-2016.md)
+- [Tang 2000, axial alignment of the lower extremity in Chinese adults](tang-2000-lower-limb-alignment.md)
+- [Williams and McClay 2000, foot and medial longitudinal arch measurements](williams-mcclay-2000-arch-height.md)
 - [Hendriks et al. 2020 supplement, AAOS normal range of motion table](hendriks-2020-aaos.md)
 - [Kaewpornsawan et al. 2018, carrying angle from birth to adolescence](kaewpornsawan-2018-carrying-angle.md)
 - [Koelé et al. 2020, age-related hyperkyphosis](koele-2020.md)
