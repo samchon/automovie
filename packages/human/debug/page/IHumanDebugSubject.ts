@@ -10,8 +10,11 @@ import type { IHumanDebugDocument } from "../contracts/IHumanDebugDocument";
  * generating curves as point lists in metres, so every option applies to both alike.
  */
 export interface IHumanDebugSubject {
-  /** Person alias and piece name (null for the whole figure) the subject was loaded for. */
-  key: { person: string; piece: string | null };
+  /**
+   * Person alias, piece name (null for the whole figure) and pose name (null for a piece, which
+   * has no pose) the subject was loaded for.
+   */
+  key: { person: string; piece: string | null; pose: string | null };
 
   /** Surface parts; construction tubes are not among them. */
   model: IAutoMovieModel;

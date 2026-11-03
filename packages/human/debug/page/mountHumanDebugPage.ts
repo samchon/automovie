@@ -137,15 +137,21 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
     loaded = null;
     element<HTMLElement>("app").classList.toggle("bare", !options.ui);
     try {
-      const key: string = JSON.stringify([options.person, options.piece]);
-      if (view === undefined || JSON.stringify([view.subject.key.person, view.subject.key.piece]) !== key) {
+      // A piece has no pose, so its key ignores the pose variable.
+      const pose: string | null = options.piece === null ? options.pose : null;
+      const key: string = JSON.stringify([options.person, options.piece, pose]);
+      if (
+        view === undefined ||
+        JSON.stringify([view.subject.key.person, view.subject.key.piece, view.subject.key.pose]) !== key
+      ) {
         const previous: HumanDebugView | undefined = view;
         view = undefined;
         await previous?.dispose();
         labels.replaceChildren();
-        status.textContent = "불러오는 중: " + (options.person ?? "(첫 사람)") + " " + (options.piece ?? "전신");
+        status.textContent =
+          "불러오는 중: " + (options.person ?? "(첫 사람)") + " " + (options.piece ?? "전신 " + options.pose);
         const started: number = performance.now();
-        view = new HumanDebugView(await loadHumanDebugSubject(options.person, options.piece));
+        view = new HumanDebugView(await loadHumanDebugSubject(options.person, options.piece, options.pose));
         loaded = performance.now() - started;
         stage.content.add(view.object, view.overlays);
         const inventory: { parts: string[]; curves: string[] } = view.inventory();

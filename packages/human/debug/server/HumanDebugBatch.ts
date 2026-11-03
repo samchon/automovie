@@ -84,6 +84,7 @@ export async function HumanDebugBatch(
   return items;
 }
 
+/** Helpers of {@link HumanDebugBatch}: the entry selection of the batch route. */
 export namespace HumanDebugBatch {
   /**
    * The entries a `pieces` glob list keeps; `whole` names the whole figure.

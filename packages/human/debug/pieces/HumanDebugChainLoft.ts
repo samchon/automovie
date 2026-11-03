@@ -90,12 +90,31 @@ export namespace HumanDebugChainLoft {
         ...HumanDebugTubeCentreline(tube.mesh.positions, tube.mesh.indices.length / 3, tube.id),
       });
     }
+    // Per chain: its layers and ring phases, and the vertices whose coordinates are not finite,
+    // which the renderer drops and the skin chart cannot flatten.
+    const chains: Record<string, { layers: number; phases: number; vertices: number; nonFinite: number }> = {};
+    for (const c of subset.chains) chains[c.name] = { layers: c.layers.length, phases: c.samples, vertices: 0, nonFinite: 0 };
+    for (const piece of pieces) {
+      const entry: { vertices: number; nonFinite: number } | undefined = chains[chain(piece.name)];
+      if (entry === undefined) continue;
+      for (let i: number = 0; i + 2 < piece.positions.length; i += 3) {
+        entry.vertices += 1;
+        if (!(Number.isFinite(piece.positions[i]!) && Number.isFinite(piece.positions[i + 1]!) && Number.isFinite(piece.positions[i + 2]!)))
+          entry.nonFinite += 1;
+      }
+    }
+    const broken: string[] = Object.entries(chains)
+      .filter(([, v]: [string, { nonFinite: number }]): boolean => v.nonFinite > 0)
+      .map(([k, v]: [string, { nonFinite: number; vertices: number }]): string => k + " " + v.nonFinite + "/" + v.vertices);
+    if (broken.length !== 0) console.log("[human-debug loft] non-finite vertices: " + broken.join(", "));
     return {
       parts,
       provenance: {
         producer: "HumanDebugChainLoft",
         globs: [...globs],
         lofted: subset.chains.map((c: IAutoMovieHumanLoftChain): string => c.name),
+        nonFinite: broken,
+        chains,
         orphans,
         milliseconds: Math.round(performance.now() - started),
       },

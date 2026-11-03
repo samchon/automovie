@@ -54,7 +54,7 @@ export const HumanDebugPieceWebSaddle: IHumanDebugPiece = {
 
     // Each side's curve read back from its jet, for the curve overlay.
     const curve = (id: string, jet: (a: number) => { point: number[] }): IHumanDebugDocument.ICurve => ({
-      id: "human.construction.web.saddle/" + id,
+      id: "human.construction.web.saddle.upper/" + id,
       closed: false,
       points: Array.from({ length: CURVE_POINTS }, (_: unknown, k: number): Point => {
         const p: number[] = jet(k / (CURVE_POINTS - 1)).point;

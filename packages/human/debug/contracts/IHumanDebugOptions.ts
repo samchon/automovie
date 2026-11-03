@@ -16,6 +16,12 @@ export interface IHumanDebugOptions {
   /** Registered piece `<name>` or `<name>:<argument>`; null shows the whole generated figure. */
   piece: string | null;
 
+  /**
+   * Pose of the whole figure: `neutral`, the anatomical neutral the rig defines and the default,
+   * another key of `HUMAN_DEBUG_POSES`, or `bind` for the skin as generated. A piece has no pose.
+   */
+  pose: string;
+
   /** Parts shown; empty shows none. */
   parts: string[];
 

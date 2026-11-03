@@ -35,7 +35,8 @@ An open page never refreshes by itself. The server has no hot module replacement
 
 The page generates its subject itself, with the modules it loaded:
 
-- The whole figure is `AutoMovieHuman.generate` of the person's typed inputs, shown at its bind. Its construction tubes return as the curves they were swept along, so the whole figure and a piece draw curves through the same tube renderer and options.
+- The whole figure is `AutoMovieHuman.prepare` of the person's typed inputs, generated once per person and page load and shown in its pose, by default the anatomical neutral. `HumanDebugPose` poses it with the production rig: an `AutoMovieHumanInstance` gives each bone's local transform under the pose and at the bind, and the engine's `skinAutoMovieMesh` moves every bound part with the binding's own method, so a pose that translates a bone (a folded scapula or atlas) moves it too. `pose=bind` shows the skin as generated. Its construction tubes ride the same binding and return as the curves they were swept along, so the whole figure and a piece draw curves through the same tube renderer and options.
+- Each whole-figure load writes one `[human-debug timing]` line (prepare, pose, curves and textures milliseconds; evaluate and skin for a pose) to the console, which the server log repeats, and the same numbers to the provenance.
 - A piece builds from the person's typed inputs and the current production code, and reads no file.
 
 ## URL variables
@@ -52,6 +53,7 @@ The page generates its subject itself, with the modules it loaded:
 | --- | --- | --- |
 | `person` | first exported person | export name of `packages/playground/src/human-parameters` |
 | `piece` | none: the whole figure | `<name>` or `<name>:<argument>` of `HUMAN_DEBUG_PIECES` |
+| `pose` | `neutral` | `neutral`, `bind` (the skin as generated), or another key of `HUMAN_DEBUG_POSES`; a piece ignores it |
 | `parts` | `*` | part patterns shown, `none` |
 | `hide` | none | part patterns hidden after `parts` |
 | `partColor` | none | `pattern:rrggbb` list |
@@ -97,6 +99,11 @@ A piece is one file under `debug/pieces/` exporting one `IHumanDebugPiece` and l
 | `chains:<globs>` | the named chains lofted alone from the person's calibration, such as `chains:leg.left` |
 | `region:<region>` | the chains of one region of `HUMAN_DEBUG_REGIONS` (head, neck, trunk, shoulder, arm, hand, leg, foot), both sides; its provenance lists chains no region names |
 | `web:<hand\|foot>` | the region's web patches (`AutoMovieHumanBodyWeb`) lofted with their parents and children alone, the web-grouped interval of each chain with its lips and columns |
+| `timing[:lofts]` | milliseconds per generation stage (calibrate, surface, split, construction, skin chart, rig), per skin chart group and, with `lofts`, per chain lofted alone; each chain's layers and phases; the raw skin pieces |
+| `trunk.landmarks` | the trunk solve's landmark heights and points as markers, and the column's axis |
+| `trunk.chains[:trunk\|upper]` | the `trunk` and `upper` chains built by the trunk solve alone (`AutoMovieHumanTrunkFixed`) and lofted alone |
+| `shoulder.outline` | the left shoulder's frontal outline pieces: trapezius line, cap fillet, arm edge |
+| `shoulder.oval` | the left arm root's ellipses from the axilla to the shoulder point |
 | `foot.centres` | ankle and malleoli, metatarsal heads and ball, toe joints |
 | `foot.knots` | every guide region's knots, one part per region |
 | `foot.guides` | the five guides as ribbons and curves |
@@ -120,6 +127,7 @@ A chain end whose parent chain is not lofted closes as a flat fan at its axis: t
 | `x-human-query` | canonical variables the page drew |
 | `x-human-gpu` | WebGL renderer string; a software renderer is refused |
 | `x-human-notices` | URI-encoded page notices, one per line |
+| `x-human-provenance` | URI-encoded JSON of the subject's provenance (pose, stage milliseconds, counts), cut at 7000 characters |
 
 Examples (PowerShell from `packages/human`):
 

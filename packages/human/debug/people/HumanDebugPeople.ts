@@ -28,7 +28,9 @@ export namespace HumanDebugPeople {
    * @returns The person; an unknown alias throws naming every known one.
    */
   export function of(alias: string | null): IHumanDebugPerson {
-    const name: string = alias ?? aliases()[0]!;
+    const first: string | undefined = aliases()[0];
+    const name: string | undefined = alias ?? first;
+    if (name === undefined) throw new Error("No Human person is exported.");
     const parameters: IAutoMovieHumanParameters | undefined = (
       examples as Record<string, IAutoMovieHumanParameters>
     )[name];

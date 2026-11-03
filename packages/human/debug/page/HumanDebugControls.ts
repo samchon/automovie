@@ -12,7 +12,7 @@ import type { IHumanDebugPiece } from "../pieces/IHumanDebugPiece";
  * The controls never draw. A change writes the current options as URL text, replaces the one
  * variable and parses the text again through `HumanDebugOptions`, so a control and a typed URL
  * cannot disagree. The person and piece menus list the people registry and the piece registry
- * (each registered argument as its own entry). A part or curve toggled in the lists is added to or
+ * (each registered argument as its own entry), and the pose menu the whole figure's poses. A part or curve toggled in the lists is added to or
  * removed from `hide`/`curveHide` by its exact id, so broad `parts`/`curves` patterns stay readable.
  * {@link show} sets every control from options without reporting a change.
  */
@@ -41,6 +41,7 @@ export class HumanDebugControls {
       ),
     ]);
     this.text(subject, "piece", "조각 직접 입력");
+    this.select(subject, "pose", "자세 (전신)", HumanDebugOptions.POSES);
 
     const view: HTMLFieldSetElement = this.group(root, "보기");
     this.select(view, "camera", "카메라", Object.keys(HUMAN_DEBUG_CAMERAS));

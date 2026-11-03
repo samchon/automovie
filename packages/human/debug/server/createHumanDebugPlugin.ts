@@ -87,6 +87,9 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
       response.setHeader(headers.query, frame.query);
       response.setHeader(headers.gpu, frame.snapshot.canvas.gpu);
       response.setHeader(headers.notices, encodeURIComponent(frame.snapshot.notices.join("\n")));
+
+      // The subject's producer facts (stage timings, pose, counts), cut to stay inside header limits.
+      response.setHeader(headers.provenance, encodeURIComponent(JSON.stringify(frame.snapshot.provenance)).slice(0, 7000));
       return send(response, 200, "image/png", frame.png);
     }
 

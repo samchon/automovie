@@ -1,3 +1,4 @@
+import { HUMAN_DEBUG_POSES } from "../poses/HUMAN_DEBUG_POSES";
 import { HUMAN_DEBUG_CAMERAS } from "./HUMAN_DEBUG_CAMERAS";
 import { HumanDebugOptionField } from "./HumanDebugOptionField";
 import type { IHumanDebugOptions } from "./IHumanDebugOptions";
@@ -18,6 +19,7 @@ export namespace HumanDebugOptions {
     return {
       person: null,
       piece: null,
+      pose: "neutral",
       parts: ["*"],
       hide: [],
       partColor: [],
@@ -136,6 +138,13 @@ export namespace HumanDebugOptions {
           : "path";
   }
 
+  /** Every pose name of the whole figure: the neutral default first, the bind, then the other shared poses. */
+  export const POSES: readonly string[] = [
+    "neutral",
+    "bind",
+    ...Object.keys(HUMAN_DEBUG_POSES).filter((name: string): boolean => name !== "neutral"),
+  ];
+
   /** Every curve kind, in canonical order. */
   export const KINDS: readonly IHumanDebugOptions.CurveKind[] = [
     "section",
@@ -160,6 +169,7 @@ export namespace HumanDebugOptions {
         "<name> or <name>:<argument>",
       ),
     ),
+    pose: HumanDebugOptionField.choice(POSES),
     parts: HumanDebugOptionField.globs(),
     hide: HumanDebugOptionField.globs(),
     partColor: HumanDebugOptionField.entries(
