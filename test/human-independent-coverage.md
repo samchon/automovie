@@ -33,7 +33,7 @@ The saved output round generated each person once and cached success/failure for
 
 ## Execution receipts
 
-Portable functions live in `test/src/features/human/test_human_raw_*.ts`. The Human skill's CPU executables and private-source adapters live in ignored `test/src/executable/human-test-rebuild/`; private reference bytes remain under ignored `test/.shots/`.
+Portable functions live in `test/src/features/human/test_human_raw_*.ts`. The Human skill's CPU checks run through these formal tests and the development viewer; private reference bytes remain under ignored `test/.shots/`.
 
 The committed numerical checkpoint is c3d840a7d. `independent-round-r4-complete.json` records 23 unchanged source hashes, five native raw functions, 84 witness controls, actual-buffer controls, all 36 bind/pose buffer observations, the complete four-reference round and 3,779,488 loft observations. It records 12 byte-identical reports and four reports differing only in the configured-height-course authority label. The 392,588 reported full-surface findings include missing normal support and absent independent limits; they are not 392,588 independently established anatomical defects. `body-source-lineage-r1.json` and `head-source-lineage-r1.json` retain original raw-source coordinate/topology provenance and their separate authority limitations.
 
