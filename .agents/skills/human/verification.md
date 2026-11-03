@@ -34,7 +34,7 @@ Inspect the affected person and all affected parts under matching camera, light,
 4. Trace every line or ripple to the curves that make it:
    - Click it in `overlay` to find its skin interval `human.skin.<chain>/<k>`.
    - Isolate sections `<chain>/<k>`, `<chain>/<k+1>` and `<chain>/axis` with `isolate=1&fit=selection`.
-   - Read their curvature combs in a curve diagram.
+   - Read their curvature with `shade=curvature` and their labels with `labels=marked`.
 5. Record each finding that outlives the round, with its cause, in the Human package's documentation before the round's combined correction.
 
 ## Render Audit
@@ -42,6 +42,7 @@ Inspect the affected person and all affected parts under matching camera, light,
 - Capture only after the generated output changes, and show only new frames.
 - By default capture the current person's whole front, side, top (`free` with `view=%2By`) and back with `garment=0`, plus construction front, side and back; include the developing parts and their actual generating curves.
 - Save each PNG's exact bytes under `packages/human/.shots/<round>/`.
+- The batch route draws every part of a person and saves the PNGs and their receipts under `packages/human/.shots/debug/<person>/<round>/`.
 - Check each file's SHA-256 against its `x-human-png-sha256` header.
 - Open every PNG.
 - If a capture fails, stop visual claims that depend on it and repair the viewer and capture path first.

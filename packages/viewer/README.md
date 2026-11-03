@@ -43,4 +43,4 @@ The viewer releases what it creates and leaves what the caller passes in. `dispo
 
 `updateAutoMovieComparisonCamera` derives one centred orthographic projection and a screen-right separation vector from a standalone perspective camera. Hosts can display unchanged subjects at equal opposite offsets with the same magnification and view direction, including profile views. The caller owns the reusable output camera/vector and subject placement; parented/scaled cameras, manual matrices and off-axis source lenses refuse.
 
-Human-specific bindings and diagnostic controls live in the unpublished [Human development app](../human/dev/README.md). The viewer consumes ordinary model and pose data and has no dependency on the Human generator.
+Human-specific bindings and diagnostic controls live in the Human package's [debug viewer](../human/debug/README.md). The viewer consumes ordinary model and pose data and has no dependency on the Human generator.
