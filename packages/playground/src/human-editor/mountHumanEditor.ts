@@ -16,6 +16,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { f1, f2, m1, m2 } from "../human-parameters";
+import { HumanEditorMeasureFields } from "./HumanEditorMeasureFields";
 
 /** Mount the ordinary parameter editor with generic model rendering.
  * Draft controls retain their public units and generate only after Apply.
@@ -23,7 +24,7 @@ import { f1, f2, m1, m2 } from "../human-parameters";
  * unpublished development application. This editor owns one displayed model,
  * its texture cache and orbit controls, releasing them before replacement.
  *
- * @evidence contracts/common.md#principled-implementation Public typed body controls update a detached draft; Apply passes it to the generator and generic model renderer, with no diagnostic construction parts.
+ * @evidence contracts/common.md#principled-implementation Public typed body measures (`body.anatomy`, each shown with its resolved value) update a detached draft; Apply passes it to the generator and generic model renderer, with no diagnostic construction parts.
  * @evidence contracts/common.md#clear-and-simple-design This page owns end-user edits and one displayed model; Human development diagnostics remain in the unpublished application.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Four typed examples initialize ordinary inputs; generation follows the public generator without result substitutions or person-specific geometry.
  * @evidence contracts/common.md#meaningful-documentation Documents Apply-only generation, public units and ownership of the displayed model, texture cache and controls.
@@ -124,56 +125,7 @@ export function mountHumanEditor(root: HTMLElement): () => Promise<void> {
     fieldEvents.abort();
     fieldEvents = new AbortController();
     fields.replaceChildren();
-    const labels: Record<string, string> = {
-      height: "키",
-      fat: "체지방 성향",
-      masculineFeminine: "체형 성향",
-      muscularity: "근육량",
-      chest: "가슴둘레",
-      bustSpan: "가슴점 사이 너비",
-      underbust: "밑가슴둘레",
-      frontInterscyeLength: "앞겨드랑이 사이 길이",
-      neckToWaist: "목에서 허리 길이",
-      acrossShoulder: "어깨너비",
-      shoulderToApex: "어깨에서 가슴점 길이",
-      waist: "허리둘레",
-      hip: "엉덩이둘레",
-      highHip: "위엉덩이둘레",
-      neckBase: "목밑둘레",
-      neck: "목둘레",
-      neckLength: "목길이",
-      upperArmLength: "위팔길이",
-      lowerArmLength: "아래팔길이",
-      bicep: "위팔둘레",
-      elbow: "팔꿈치둘레",
-      wrist: "손목둘레",
-      forearm: "아래팔둘레",
-      inseam: "다리 안쪽 길이",
-      thigh: "허벅지둘레",
-      knee: "무릎둘레",
-      calf: "종아리둘레",
-      handCircumference: "손둘레",
-    };
-    for (const [name, control] of Object.entries(draft.body.controls)) {
-      const label: HTMLLabelElement = document.createElement("label");
-      const input: HTMLInputElement = document.createElement("input");
-      input.type = "number";
-      input.step = "any";
-      input.value = control.value === null ? "" : String(control.value);
-      input.setAttribute("aria-label", name);
-      input.addEventListener(
-        "change",
-        (): void => {
-          if (input.value === "") control.value = null;
-          else if (Number.isFinite(input.valueAsNumber))
-            control.value = input.valueAsNumber;
-          if (control.value === null) control.pinned = false;
-        },
-        { signal: fieldEvents.signal },
-      );
-      label.append(labels[name] ?? name, input);
-      fields.append(label);
-    }
+    HumanEditorMeasureFields.append(fields, draft, fieldEvents.signal);
   }
 
   /** Retire before generation so a failed edit never displays an older result. */
