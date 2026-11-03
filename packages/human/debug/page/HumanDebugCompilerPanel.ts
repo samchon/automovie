@@ -2,13 +2,27 @@ import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
 import type { IHumanDebugCompilerState } from "../contracts/IHumanDebugCompilerState";
 
 /**
- * A corner panel showing the separate type checker's latest cycle.
+ * A corner panel showing the separate type checker's latest cycle, and the read the page gates on.
  *
- * The verdict is advisory: the page loads, generates and draws whatever the check says. The panel
- * reads the compiler route when the page loads and again whenever it is opened; nothing is pushed to
- * the page, which never refreshes by itself. It starts open while the cycle failed.
+ * The page generates only on a passed cycle (`read`); until then it shows the compiler's messages.
+ * The panel reads the compiler route when the page loads and again whenever it is opened, and it
+ * starts open while the cycle failed.
  */
 export namespace HumanDebugCompilerPanel {
+  /**
+   * Read the compile collector's latest cycle.
+   *
+   * @returns The cycle; an unreachable route is `unknown` with the reason as its output.
+   */
+  export async function read(): Promise<IHumanDebugCompilerState> {
+    try {
+      const response: Response = await fetch(HUMAN_DEBUG_ROUTES.compiler, { cache: "no-store" });
+      return (await response.json()) as IHumanDebugCompilerState;
+    } catch (error) {
+      return { phase: "unknown", output: String(error), log: "", cycle: null };
+    }
+  }
+
   /** Mount the panel until the page unloads. */
   export function mount(): void {
     const panel: HTMLDetailsElement = document.createElement("details");
@@ -24,14 +38,11 @@ export namespace HumanDebugCompilerPanel {
       if (open) panel.open = state.phase === "failed";
       panel.dataset.phase = state.phase;
     };
-    const read: (open: boolean) => void = (open: boolean): void =>
-      void fetch(HUMAN_DEBUG_ROUTES.compiler, { cache: "no-store" })
-        .then((response: Response): Promise<IHumanDebugCompilerState> => response.json())
-        .then((state: IHumanDebugCompilerState): void => show(state, open))
-        .catch((error: unknown): void => show({ phase: "unknown", output: String(error), log: "", cycle: null }, open));
-    read(true);
+    const refresh: (open: boolean) => void = (open: boolean): void =>
+      void read().then((state: IHumanDebugCompilerState): void => show(state, open));
+    refresh(true);
     panel.addEventListener("toggle", (): void => {
-      if (panel.open) read(false);
+      if (panel.open) refresh(false);
     });
   }
 }

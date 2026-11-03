@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
 import { HumanDebugOptions } from "../contracts/HumanDebugOptions";
 import type { IHumanDebugAutomation } from "../contracts/IHumanDebugAutomation";
+import type { IHumanDebugCompilerState } from "../contracts/IHumanDebugCompilerState";
 import type { IHumanDebugOptions } from "../contracts/IHumanDebugOptions";
 import type { IHumanDebugSnapshot } from "../contracts/IHumanDebugSnapshot";
 import { HumanDebugCompilerPanel } from "./HumanDebugCompilerPanel";
@@ -20,7 +21,9 @@ import { loadHumanDebugSubject } from "./loadHumanDebugSubject";
  * orbiting writes `az`, `el`, `dist` and `target`. A subject (person and piece) is loaded once and
  * kept while only display options change; changing the person or piece disposes it and loads the
  * next. Rejected values keep their defaults and are listed in the notice box, and a failed load
- * leaves nothing of the previous subject on screen.
+ * leaves nothing of the previous subject on screen. A subject is generated only on a passed compile
+ * (`HumanDebugCompilerPanel.read`); otherwise the notice box shows the compiler's messages and the
+ * page tries again every 3 s.
  *
  * @returns The automation handle, also published as `window.__humanDebug`.
  */
@@ -57,6 +60,7 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
   let loaded: number | null = null;
   let source: string | null = null;
   let drawn: () => void = (): void => {};
+  let retry: ReturnType<typeof setTimeout> | undefined;
   const size: { width: number; height: number } = { width: 0, height: 0 };
 
   // Draw on demand; labels follow the camera after every draw.
@@ -148,6 +152,19 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
         view = undefined;
         await previous?.dispose();
         labels.replaceChildren();
+
+        // Nothing is generated on a failed or unfinished compile; the page shows the messages and
+        // tries again every 3 s until a cycle passes.
+        const compile: IHumanDebugCompilerState = await HumanDebugCompilerPanel.read();
+        if (compile.phase !== "passed") {
+          // A capture page (`ui=0`) never retries by itself: its server asks again.
+          clearTimeout(retry);
+          if (options.ui) retry = setTimeout((): void => void apply(options, []), RETRY);
+          throw new Error(
+            "Compile " + compile.phase + " (" + (compile.cycle ?? "no cycle") + "); nothing is generated until it passes.\n" +
+              compile.output,
+          );
+        }
         status.textContent =
           "불러오는 중: " + (options.person ?? "(첫 사람)") + " " + (options.piece ?? "전신 " + options.pose);
         const started: number = performance.now();
@@ -257,3 +274,6 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
   window.addEventListener("pagehide", (): void => void retire().catch(console.error), { once: true });
   return automation;
 }
+
+/** Milliseconds a page blocked by the compile waits before it reads the compile again. */
+const RETRY: number = 3000;

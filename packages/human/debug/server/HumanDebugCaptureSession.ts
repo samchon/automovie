@@ -35,8 +35,10 @@ const FRAME: number = 900_000;
  * Frames are serialized through one queue. A frame is bound to one source: before the page loads,
  * the session hashes the source (`HumanDebugSourceHash`), and the page reads the hash again once
  * every module has evaluated, before it generates; equal hashes mean the page runs entirely on
- * those bytes, and the server sends no update to a page, so later saves cannot reach it. A later frame
- * reuses the page while the disk still hashes the same; otherwise the page loads again. A save
+ * those bytes, and the capture page blocks Vite's update socket, so later saves cannot reach it. A later frame
+ * reuses the page while the disk still hashes the same; otherwise the page loads again, unless the
+ * frame asks to keep the loaded source (`keep`, as every batch frame after the first does), so one
+ * batch draws all its frames from one generation on one source however often files are saved. A save
  * between the two hashes, or a module that fails to load for a moment (the page's module error marker), is a
  * `Human source changed` failure that is retried after 3 s times the attempt, up to eight attempts.
  *
@@ -75,9 +77,10 @@ export class HumanDebugCaptureSession {
    *
    * @param options Frame options; `ui` is forced off and an unset canvas size becomes 1200 by 1200.
    * @param nonce `fresh` nonce of letters, digits, `_` and `-`, or null to accept a kept frame.
+   * @param keep Draw on the page's loaded source even if the disk has moved since; the frame reports that source.
    * @returns The frame; a failure throws with its cause.
    */
-  public async frame(options: IHumanDebugOptions, nonce: string | null): Promise<IHumanDebugFrame> {
+  public async frame(options: IHumanDebugOptions, nonce: string | null, keep: boolean = false): Promise<IHumanDebugFrame> {
     if (nonce !== null && !/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(nonce))
       throw new Error("fresh needs one to sixty-four letters, digits, _ or -");
     if (this.closed || this.admitted >= QUEUE) throw new Error("Human debug capture queue is closed or full");
@@ -88,7 +91,9 @@ export class HumanDebugCaptureSession {
       h: options.h === 0 ? 1200 : options.h,
     });
     this.admitted++;
-    const work: Promise<IHumanDebugFrame> = this.queue.then((): Promise<IHumanDebugFrame> => this.attempts(query, options, nonce));
+    const work: Promise<IHumanDebugFrame> = this.queue.then((): Promise<IHumanDebugFrame> =>
+      this.attempts(query, options, nonce, keep),
+    );
     this.queue = work.then((): void => {}).catch((): void => {});
     try {
       return await work;
@@ -108,10 +113,15 @@ export class HumanDebugCaptureSession {
   }
 
   /** Retry one frame while saves interrupt its module load. */
-  private async attempts(query: string, options: IHumanDebugOptions, nonce: string | null): Promise<IHumanDebugFrame> {
+  private async attempts(
+    query: string,
+    options: IHumanDebugOptions,
+    nonce: string | null,
+    keep: boolean,
+  ): Promise<IHumanDebugFrame> {
     for (let attempt: number = 1; ; ++attempt)
       try {
-        return { ...(await this.draw(query, options, nonce)), attempts: attempt };
+        return { ...(await this.draw(query, options, nonce, keep)), attempts: attempt };
       } catch (error) {
         if (attempt >= ATTEMPTS || !(error instanceof Error) || !/^Human source changed/.test(error.message)) throw error;
         this.source = undefined;
@@ -121,10 +131,16 @@ export class HumanDebugCaptureSession {
       }
   }
 
-  /** Draw one frame on the current source, loading the page when the source moved. */
-  private async draw(query: string, options: IHumanDebugOptions, nonce: string | null): Promise<IHumanDebugFrame> {
+  /** Draw one frame on the current source, loading the page when the source moved and the frame does not keep it. */
+  private async draw(
+    query: string,
+    options: IHumanDebugOptions,
+    nonce: string | null,
+    keep: boolean,
+  ): Promise<IHumanDebugFrame> {
     if (this.closed) throw new Error("Human debug capture session is closing");
-    const disk: string = await HumanDebugSourceHash(this.environment);
+    const disk: string =
+      keep && this.source !== undefined ? this.source : await HumanDebugSourceHash(this.environment);
     const key: string = disk + "?" + query;
     const kept: (IHumanDebugFrame & { nonce: string | null }) | undefined = this.frames.get(key);
     if (kept !== undefined && this.source === disk && (nonce === null || kept.nonce === nonce))
@@ -212,8 +228,15 @@ export class HumanDebugCaptureSession {
     );
   }
 
-  /** The resident page, starting Chrome once; any WebSocket the page opens is held unconnected. */
+  /** The resident page, starting Chrome once and again after it disconnects; any WebSocket the page opens is held unconnected. */
   private async resident(): Promise<Page> {
+    // A Chrome that crashed or was closed under the session is launched again, never reused.
+    if (this.browser !== undefined && !this.browser.isConnected()) {
+      this.browser = undefined;
+      this.page = undefined;
+      this.source = undefined;
+      this.subject = undefined;
+    }
     if (this.page !== undefined && !this.page.isClosed()) return this.page;
     this.browser ??= await chromium.launch({
       executablePath: DEFAULT_CHROME_EXECUTABLE,

@@ -25,9 +25,9 @@ pnpm ttsc --noEmit --watch -p tsconfig.debug.json >> .shots\debug\ttsc-debug-wat
 
 The first command serves the viewer on `http://127.0.0.1:5197`. `AUTOMOVIE_HUMAN_PORT` selects another port, from 1024 to 65535, and each port gets its own dependency cache. The second command is the compile collector. Its log is the default of `AUTOMOVIE_HUMAN_CHECK_LOG`, and the page's corner panel and `/human-debug/compiler.json` report its latest cycle. `pnpm debug:check` runs the same check once.
 
-Vite strips types and checks nothing, so type or lint errors never stop a page, a generation or a frame.
+Vite strips types and checks none; the compile collector checks them. Nothing is generated on a failed or unfinished compile: while the collector's latest cycle (`/human-debug/compiler.json`) is checking, failed or missing, the page shows the compiler's messages and generates nothing until a cycle passes, the image and batch routes answer 503 with `retry-after` while it checks and 409 after a failed cycle, each with the messages.
 
-An open page never refreshes by itself. The server has no hot module replacement (`server.hmr: false`) and no WebSocket (`server.ws: false`), and the page uses no `import.meta.hot`. So a saved file changes nothing in an open page or a running capture, and a new page load reads the current source. The file watcher only invalidates Vite's module cache for the files the server serves; it ignores `.shots`, `docs`, `dev`, `lib` and Markdown. The server restarts only when its own configuration modules under `debug/server` and `debug/contracts` change, never for a library `src` file. The compile panel reads `/human-debug/compiler.json` when the page loads and when the panel is opened.
+An open page reloads when a file it loaded is saved: Vite's update socket reaches it, and no module accepts a hot update, so every change is a full reload. A capture page blocks that socket, so a frame stays bound to the source its page loaded. The file watcher ignores `.shots`, `docs`, `dev`, `lib` and Markdown. Vite restarts the server when its configuration file or a module the configuration imports changes (`vite.config.ts`, `debug/server`, `debug/contracts`, `debug/poses`); a restart closes the capture session and its page. The compile panel reads `/human-debug/compiler.json` when the page loads, when the panel is opened, and every 3 s while a compile blocks generation.
 
 ## The page
 
@@ -99,7 +99,7 @@ A piece is one file under `debug/pieces/` exporting one `IHumanDebugPiece` and l
 | `chains:<globs>` | the named chains lofted alone from the person's calibration, such as `chains:leg.left` |
 | `region:<region>` | the chains of one region of `HUMAN_DEBUG_REGIONS` (head, neck, trunk, shoulder, arm, hand, leg, foot), both sides; its provenance lists chains no region names |
 | `web:<hand\|foot>` | the region's web patches (`AutoMovieHumanBodyWeb`) lofted with their parents and children alone, the web-grouped interval of each chain with its lips and columns |
-| `timing[:lofts]` | milliseconds per generation stage (calibrate, surface, split, construction, skin chart, rig), per skin chart group and, with `lofts`, per chain lofted alone; each chain's layers and phases; the raw skin pieces |
+| `timing` | milliseconds per generation stage (calibrate, surface, split, construction, skin chart, rig) and per skin chart group; each chain's layers and phases; the raw skin pieces |
 | `trunk.landmarks` | the trunk solve's landmark heights and points as markers, and the column's axis |
 | `trunk.chains[:trunk\|upper]` | the `trunk` and `upper` chains built by the trunk solve alone (`AutoMovieHumanTrunkFixed`) and lofted alone |
 | `shoulder.outline` | the left shoulder's frontal outline pieces: trapezius line, cap fillet, arm edge |
@@ -110,12 +110,13 @@ A piece is one file under `debug/pieces/` exporting one `IHumanDebugPiece` and l
 | `foot.arcs` | the five section pieces, each swept alone between its guides |
 | `foot.body` | the body from its sections and the five toes from their spans, before lofting |
 | `foot.loft` | the left foot and toes lofted alone from the foot construction |
+| `hair.guides[:<every>]` | the scalp hair the production hair stage builds on the generated figure at the bind: head and ear skin, `human.hair.cards` and `human.hair.scalp` as parts, every `<every>`-th guide (default all) as a curve `human.construction.hair.<left\|right>/g<root>` (left for a canonical root, right for its mirror); it generates the whole figure, so it takes minutes |
 
 A chain end whose parent chain is not lofted closes as a flat fan at its axis: that lid is the cut, not anatomy.
 
 ## Image route
 
-`GET /human-debug/images/<name>.png?<variables>&fresh=<nonce>` answers the PNG of the page's `#viewport` drawn with those variables. `<name>` is any file name of letters, digits, `.`, `_` and `-`; it labels the request and plays no part in the frame. `ui` is forced to `0`. An unset `w` or `h` becomes 1200, so a frame's size is fixed by its URL. A variable the parser rejects answers HTTP 400 with every notice.
+`GET /human-debug/images/<name>.png?<variables>&fresh=<nonce>` answers the PNG of the page's `#viewport` drawn with those variables. `keep=1` draws on the source the page has loaded even if files were saved since, so a series of frames shares one generation; `x-human-source-sha256` then names that loaded source. `<name>` is any file name of letters, digits, `.`, `_` and `-`; it labels the request and plays no part in the frame. `ui` is forced to `0`. An unset `w` or `h` becomes 1200, so a frame's size is fixed by its URL. A variable the parser rejects answers HTTP 400 with every notice.
 
 | Header | Meaning |
 | --- | --- |
@@ -150,7 +151,7 @@ A frame is bound to one source:
 
 Any other failure answers HTTP 500 with its cause, which the server log repeats with the page's own stack.
 
-A frame that changes the person or the piece generates in the page. While it does, the session holds one of the machine's generation slots, which are shared with every viewer and probe. A slot is the directory `.shots/locks/generation/slot-<n>`, at most two run at once, and `AUTOMOVIE_HUMAN_SLOTS` and `AUTOMOVIE_HUMAN_SLOT_ROOT` change the count and the directory. The session admits 16 requests at a time and serializes them on one resident headless Chrome page. It keeps up to 256 MiB of PNGs, so a repeated URL without a new `fresh` nonce answers `existing-png`. Changing the person takes minutes; options on the same subject take seconds.
+A frame that changes the person or the piece generates in the page. A frame that changes only the pose re-poses the person's prepared body, kept for the page's lifetime, in seconds; the session's subject key is the person and the piece, so such a frame takes no generation slot. While it does, the session holds one of the machine's generation slots, which are shared with every viewer and probe. A slot is the directory `.shots/locks/generation/slot-<n>`, at most two run at once, and `AUTOMOVIE_HUMAN_SLOTS` and `AUTOMOVIE_HUMAN_SLOT_ROOT` change the count and the directory. The session admits 16 requests at a time and serializes them on one resident headless Chrome page. It keeps up to 256 MiB of PNGs, so a repeated URL without a new `fresh` nonce answers `existing-png`. Changing the person takes minutes; options on the same subject take seconds.
 
 ## Batch route
 
@@ -159,6 +160,7 @@ A frame that changes the person or the piece generates in the page. While it doe
 - The subjects are the whole figure (`whole`) and every piece entry of the registry (each registered argument is its own entry, such as `region:arm`), narrowed by `pieces`. Each subject is drawn from every camera of `cameras` (default all), with the other variables applied to every frame.
 - Each frame is written as `<subject>.<camera>.png` beside `<subject>.<camera>.json`, under `packages/human/.shots/debug/<person>/<round>/`. The JSON holds the source hash, PNG SHA-256, capture time, cache state, attempts, canonical variables and the page snapshot.
 - The answer lists every frame with its file, hashes and notices, or its error. A failed frame does not stop the others.
+- The first frame binds the batch to the source on disk and every later frame keeps that source, so one batch is one generation per subject and every frame of it has the same `source`, however often files are saved meanwhile. `keep=1` keeps the page's loaded source from the first frame too, so the batches of several people on one viewer share one source.
 - The batch answers only when every frame is done, so use a long client timeout.
 
 ```powershell
@@ -171,7 +173,7 @@ Invoke-RestMethod "http://127.0.0.1:5197/human-debug/batch/m2.json?round=r1-feet
 `debug/capture/human-debug-capture.ts` saves shots of the image route as files. It draws nothing itself:
 
 ```powershell
-node_modules\.bin\ttsx.CMD --no-plugins --noCheck -P packages\human\tsconfig.debug.scripts.json packages\human\debug\capture\human-debug-capture.ts --out packages\human\.shots\<you>\<round> --base "person=f1;piece=foot.loft" --shot "front:camera=front" --shot "top:camera=top;curves=none"
+node_modules\.bin\ttsx.CMD -P packages\human\tsconfig.debug.scripts.json packages\human\debug\capture\human-debug-capture.ts --out packages\human\.shots\<you>\<round> --base "person=f1;piece=foot.loft" --shot "front:camera=front" --shot "top:camera=top;curves=none"
 ```
 
 Run it from the repository root.

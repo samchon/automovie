@@ -6,6 +6,7 @@ import { HUMAN_DEBUG_CAMERAS } from "../contracts/HUMAN_DEBUG_CAMERAS";
 import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
 import { HumanDebugOptionField } from "../contracts/HumanDebugOptionField";
 import { HumanDebugOptions } from "../contracts/HumanDebugOptions";
+import type { IHumanDebugCompilerState } from "../contracts/IHumanDebugCompilerState";
 import type { IHumanDebugOptions } from "../contracts/IHumanDebugOptions";
 import type { IHumanDebugPiece } from "../pieces/IHumanDebugPiece";
 import { HumanDebugBatch } from "./HumanDebugBatch";
@@ -18,7 +19,7 @@ import type { IHumanDebugEnvironment } from "./IHumanDebugEnvironment";
 import type { IHumanDebugFrame } from "./IHumanDebugFrame";
 
 /** Variables the image and batch routes read besides the frame options. */
-const EXTRA: readonly string[] = ["fresh", "round", "cameras", "pieces"];
+const EXTRA: readonly string[] = ["fresh", "round", "cameras", "pieces", "keep"];
 
 /**
  * The debug viewer's server routes: frames, batch renders, the registries and diagnostics.
@@ -27,8 +28,9 @@ const EXTRA: readonly string[] = ["fresh", "round", "cameras", "pieces"];
  * failure is logged on the server and answered with its cause: a source change during a frame is
  * HTTP 503 with `retry-after`, a rejected request 400, anything else 500 with the message. The
  * registries are read through Vite's SSR loader, so the index and batch lists follow the source as
- * it stands. Compile errors never stop a route; the check log is only reported, read on each
- * request of the compiler route, and nothing is ever pushed to an open page.
+ * it stands. The image and batch routes draw only on a passed compile: while the compile
+ * collector's latest cycle is still checking (or its log is missing) they answer 503 with
+ * `retry-after`, and after a failed cycle 409, each with the compiler's messages.
  *
  * @param environment Server environment.
  * @returns The plugin.
@@ -76,8 +78,25 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
     const nonce: string | null = url.searchParams.get("fresh");
 
     const image: RegExpExecArray | null = new RegExp("^" + HUMAN_DEBUG_ROUTES.images + "([A-Za-z0-9_.-]+)\\.png$").exec(url.pathname);
+    const batch: RegExpExecArray | null = new RegExp("^" + HUMAN_DEBUG_ROUTES.batch + "([A-Za-z_][A-Za-z0-9_]*)\\.json$").exec(url.pathname);
+
+    // Nothing is drawn on a failed or unfinished compile; the answer carries the compiler's messages.
+    if (image !== null || batch !== null) {
+      const compile: IHumanDebugCompilerState = HumanDebugCompilerLog(environment.checkLog);
+      if (compile.phase !== "passed") {
+        if (compile.phase !== "failed") response.setHeader("retry-after", "5");
+        return send(
+          response,
+          compile.phase === "failed" ? 409 : 503,
+          "text/plain; charset=utf-8",
+          "Human debug compile " + compile.phase + " (" + (compile.cycle ?? "no cycle") + "); nothing is drawn.\n" + compile.output,
+        );
+      }
+    }
+
     if (image !== null) {
-      const frame: IHumanDebugFrame = await session.frame(parsed.options, nonce);
+      // `keep=1` draws on the page's loaded source, so a series of frames shares one generation while files are saved.
+      const frame: IHumanDebugFrame = await session.frame(parsed.options, nonce, url.searchParams.get("keep") === "1");
       const headers: typeof HUMAN_DEBUG_ROUTES.headers = HUMAN_DEBUG_ROUTES.headers;
       response.setHeader(headers.source, frame.source);
       response.setHeader(headers.cache, frame.cache);
@@ -93,7 +112,6 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
       return send(response, 200, "image/png", frame.png);
     }
 
-    const batch: RegExpExecArray | null = new RegExp("^" + HUMAN_DEBUG_ROUTES.batch + "([A-Za-z_][A-Za-z0-9_]*)\\.json$").exec(url.pathname);
     if (batch !== null) {
       const round: string | null = url.searchParams.get("round");
       if (round === null || !/^[A-Za-z0-9_-]{1,64}$/.test(round))
@@ -113,6 +131,7 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
         cameras.value,
         { ...parsed.options, person: batch[1]! },
         nonce,
+        url.searchParams.get("keep") === "1",
       );
       return json(response, { person: batch[1], round, directory, items });
     }

@@ -13,7 +13,7 @@ import { parseHumanDebugCaptureArguments } from "./parseHumanDebugCaptureArgumen
  * Run from the repository root against a running debug viewer:
  *
  * ```powershell
- * node_modules\.bin\ttsx.CMD --no-plugins --noCheck -P packages\human\tsconfig.debug.scripts.json packages\human\debug\capture\human-debug-capture.ts --out packages\human\.shots\<you>\<round> --base "person=f1;piece=foot.loft" --shot "front:camera=front" --shot "top:camera=top;curves=none"
+ * node_modules\.bin\ttsx.CMD -P packages\human\tsconfig.debug.scripts.json packages\human\debug\capture\human-debug-capture.ts --out packages\human\.shots\<you>\<round> --base "person=f1;piece=foot.loft" --shot "front:camera=front" --shot "top:camera=top;curves=none"
  * ```
  *
  * `--base` is the search text every shot starts from and each `--shot <name>:<search text>`

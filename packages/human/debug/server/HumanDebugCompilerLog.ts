@@ -15,7 +15,7 @@ const OUTPUT: number = 131072;
  * appends every cycle to a log, and this reads the text after the last `[ttsc] rebuilding` line.
  * The cycle passed when it holds `[ttsc] watch build complete`, failed with `[ttsc] watch build
  * failed`, and is still checking otherwise. A missing or unreadable log is `unknown`, with the
- * reason as its output; it never blocks a page or a frame.
+ * reason as its output. The page and the image and batch routes generate only on `passed`.
  *
  * @param log Path of the log.
  * @returns The latest cycle's state.
