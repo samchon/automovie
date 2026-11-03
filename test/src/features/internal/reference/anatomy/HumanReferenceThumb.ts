@@ -1,4 +1,4 @@
-import type { HumanReferenceRigSingleton } from "../bodies/HumanReferenceRigSingleton";
+import type { HumanReferenceRig } from "../bodies/HumanReferenceRig";
 
 /** A point or direction in space. */
 type V3 = [number, number, number];
@@ -56,9 +56,9 @@ export namespace HumanReferenceThumb {
    * @param side Which hand.
    * @throws Error when a joint the reading needs is missing.
    */
-  export function read(rig: HumanReferenceRigSingleton.IRig, side: "l" | "r"): IReading {
-    const at: (name: string) => HumanReferenceRigSingleton.IJoint = (name: string): HumanReferenceRigSingleton.IJoint => {
-      const joint: HumanReferenceRigSingleton.IJoint | undefined = rig.get(`${name}_${side}`);
+  export function read(rig: HumanReferenceRig.IRig, side: "l" | "r"): IReading {
+    const at: (name: string) => HumanReferenceRig.IJoint = (name: string): HumanReferenceRig.IJoint => {
+      const joint: HumanReferenceRig.IJoint | undefined = rig.get(`${name}_${side}`);
 
       if (joint === undefined) throw new Error(`the rig has no joint ${name}_${side}`);
       return joint;

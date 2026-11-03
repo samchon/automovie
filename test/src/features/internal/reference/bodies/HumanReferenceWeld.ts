@@ -9,26 +9,16 @@ import { HumanReferenceFiles } from "./HumanReferenceFiles";
  * The source stores the head and the body as two parts whose shared neck seam
  * would otherwise read as an opening, so coincident vertices (equal to the
  * micrometre) are welded into one and triangles that collapse under the weld
- * are dropped. Each alias has one `Singleton`, so the model file is parsed
- * once; the mesh is read-only to its consumers.
+ * are dropped. The mesh is built for each call and is read-only to its
+ * consumers.
  */
-export namespace HumanReferenceMeshSingleton {
-  /**
-   * A reference body's welded mesh, built on first use.
-   *
-   * @param id Reference alias.
-   */
-  export function get(id: string): HumanReference.IMesh {
-    return build(id);
-  }
-
-
+export namespace HumanReferenceWeld {
   /**
    * Weld a reference body's parts into one mesh.
    *
    * @param id Reference alias.
    */
-  function build(id: string): HumanReference.IMesh {
+  export function get(id: string): HumanReference.IMesh {
     const model: HumanReferenceFiles.IModel = HumanReferenceFiles.model(id);
     const positions: number[] = [];
     const indices: number[] = [];

@@ -2,10 +2,9 @@ import { HumanInputs } from "./HumanInputs";
 import type { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
 import type { HumanAnatomyHeadEar } from "./HumanAnatomyHeadEar";
-import type { HumanAnatomyHeadSites } from "./HumanAnatomyHeadSites";
+import { HumanAnatomyHeadSites } from "./HumanAnatomyHeadSites";
 import { HumanAnatomyProfile } from "./HumanAnatomyProfile";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
-import { HumanHeadSitesSingleton } from "./HumanHeadSitesSingleton";
 
 type V3 = HumanAnatomy.V3;
 type IRow = HumanAnatomyAudit.IRow;
@@ -32,7 +31,7 @@ export namespace HumanAnatomyHeadConsistency {
   export function rows(subject: HumanAnatomyAudit.ISubject): IRow[] {
     const skin: HumanAnatomy.ISkin = subject.bind();
     const S: number = HumanInputs.stature(subject.params);
-    const f: ISites = HumanHeadSitesSingleton.get(skin, S, subject.mouth);
+    const f: ISites = HumanAnatomyHeadSites.sites(skin, S, subject.mouth);
 
     return [
       ...landmarks(subject.name, f.median, f),

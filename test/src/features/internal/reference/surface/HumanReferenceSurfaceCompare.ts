@@ -1,12 +1,18 @@
+import { HumanSkinMemo } from "../../HumanSkinMemo";
+import type { HumanReference } from "../bodies/HumanReference";
 import type { HumanReferenceSurface } from "./HumanReferenceSurface";
 import { HumanReferenceSurfaceExtras } from "./HumanReferenceSurfaceExtras";
-import { HumanReferenceSurfaceGenerateds } from "./HumanReferenceSurfaceGenerateds";
 import { HumanReferenceSurfaceNaming } from "./HumanReferenceSurfaceNaming";
 import { HumanReferenceSurfaceOffsets } from "./HumanReferenceSurfaceOffsets";
-import type { HumanReferenceSurfacePair } from "./HumanReferenceSurfacePair";
+import { HumanReferenceSurfacePair } from "./HumanReferenceSurfacePair";
 import { HumanReferenceSurfacePatches } from "./HumanReferenceSurfacePatches";
-import { HumanReferenceSurfaceReferences } from "./HumanReferenceSurfaceReferences";
 import { HumanReferenceSurfaceRegions } from "./HumanReferenceSurfaceRegions";
+
+/** Each generated skin's side of a pairing (normals, outer-skin test, hierarchies; seconds to build), by skin object, so a red proof's edited copy gets its own and each dies with its skin. */
+const GENERATED: HumanSkinMemo.Values<HumanReferenceSurfacePair.IGeneratedSide> = new WeakMap();
+
+/** Each reference mesh's side of a pairing, by mesh object, so a displaced copy gets its own and each dies with its mesh. */
+const REFERENCES: HumanSkinMemo.Values<HumanReferenceSurfacePair.IReferenceSide, HumanReference.IMesh> = new WeakMap();
 
 /**
  * The two-way comparison of a generated skin with its reference, assembled
@@ -26,10 +32,10 @@ export namespace HumanReferenceSurfaceCompare {
     const n: number = reference.P.length / 3;
     if (limit.length !== n) throw new Error(`${person}: ${limit.length} limits for ${n} reference vertices`);
 
-    const ref: HumanReferenceSurfacePair.IReferenceSide = HumanReferenceSurfaceReferences.side(reference);
+    const ref: HumanReferenceSurfacePair.IReferenceSide = HumanSkinMemo.get(REFERENCES, reference, (): HumanReferenceSurfacePair.IReferenceSide => HumanReferenceSurfacePair.ofReference(reference));
     const naming: HumanReferenceSurfaceNaming = new HumanReferenceSurfaceNaming(labels.joints);
     const region: Int32Array = naming.label(reference.P, reference.I, labels.tri, labels.chains);
-    const gen: HumanReferenceSurfacePair.IGeneratedSide = HumanReferenceSurfaceGenerateds.side(generated);
+    const gen: HumanReferenceSurfacePair.IGeneratedSide = HumanSkinMemo.get(GENERATED, generated, (): HumanReferenceSurfacePair.IGeneratedSide => HumanReferenceSurfacePair.ofGenerated(generated));
 
     // Reference to generated: the signed offsets, and the patches where they pass their limits.
     const read: HumanReferenceSurfaceOffsets.IOffsets = HumanReferenceSurfaceOffsets.offsets(ref, gen, limit);

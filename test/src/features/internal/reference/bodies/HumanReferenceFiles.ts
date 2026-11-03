@@ -8,8 +8,8 @@ import path from "node:path";
  * indices; the repository holds none of them, so a checkout without them reads
  * every body as absent.
  *
- * Nothing here caches: each reader of a model keeps what it derives in its own
- * `Singleton`, so a model's large number arrays are released once read.
+ * Nothing here caches: each reader of a model derives what it needs for its
+ * own call, so a model's large number arrays are released once read.
  */
 export namespace HumanReferenceFiles {
   /** One part of a model as far as the geometry: the head, then the body. */

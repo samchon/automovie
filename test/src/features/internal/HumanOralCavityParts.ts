@@ -3,31 +3,21 @@ import { AutoMovieHumanOralCavity } from "../../../../packages/human/src/generat
 import { HumanPeople } from "./HumanPeople";
 
 /**
- * The oral cavity of a generated person, built once and shared.
+ * The oral cavity of a generated person, built for each call.
  *
  * Counting the teeth a viewer would see needs the cavity's parts, and building
- * them regenerates the body surface and the mouth interior. A person never
- * changes within a run, so one `Singleton` per person name builds it once,
- * and every later call reads the result or the fact that it cannot be built.
+ * them regenerates the body surface and the mouth interior. Each call builds
+ * them for the person it names and returns the parts or the fact that they
+ * cannot be built.
  */
-export namespace HumanOralCavitySingleton {
+export namespace HumanOralCavityParts {
   /** The cavity built for a person, or the reason it cannot be built. */
   export interface IOutcome {
     /** Cavity parts; undefined when the person has no mouth or the interior cannot be built. */
     interior: AutoMovieHumanOralCavity.IOutput | undefined;
   }
-
-  /**
-   * The oral cavity of a person.
-   *
-   * @param name Person's name in the test table.
-   */
-  export function get(name: string): IOutcome {
-    return build(name);
-  }
-
   /** Build the cavity of a person from the generation's own body surface. */
-  function build(name: string): IOutcome {
+  export function get(name: string): IOutcome {
     const person: HumanPeople.IRigged = HumanPeople.rigged(name);
     const mouth: typeof person.body.mouth = person.body.mouth;
     const aperture: (typeof person.body.apertures)[number] | undefined = person.body.apertures.find(

@@ -22,7 +22,7 @@ import { HumanPeople } from "../HumanPeople";
  * the person's delivered `head` chain, which no later stage of the body law
  * moves (it is a parent at both of its events).
  */
-export namespace HumanHeadPieceSingleton {
+export namespace HumanHeadPiece {
   /** A head built alone. */
   export interface IPiece {
     /** Person. */

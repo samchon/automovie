@@ -2,13 +2,16 @@ import { HumanAnatomy } from "./HumanAnatomy";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
 import { HumanAnatomyTrunkBand } from "./HumanAnatomyTrunkBand";
 import { HumanAnatomyTrunkScan } from "./HumanAnatomyTrunkScan";
-import { HumanNeckReadingSingleton } from "./HumanNeckReadingSingleton";
+import { HumanSkinMemo } from "./HumanSkinMemo";
 
 type V3 = HumanAnatomy.V3;
 type INeck = HumanAnatomyShared.INeck;
 const A: typeof HumanAnatomy = HumanAnatomy;
 const { SMALL, curveCrease, spineX, band }: typeof HumanAnatomyShared = HumanAnatomyShared;
 const { side, station, deepest, flattest }: typeof HumanAnatomyTrunkScan = HumanAnatomyTrunkScan;
+
+/** The neck readings taken without given locators, by skin; each dies with its skin. */
+const READINGS: HumanSkinMemo.Values<INeck> = new WeakMap();
 
 /** The neck's sites: ISO 8559-1 neck girth, neck base girth, suprasternale and cervicale, and the skin's creases. */
 export namespace HumanAnatomyNeckSites {
@@ -52,7 +55,7 @@ export namespace HumanAnatomyNeckSites {
     // A skin is read once: the sections and meridians below cost seconds, and
     // a reading found without locators is a pure function of the skin. A copy
     // read at given locators is a different reading and is not remembered.
-    if (known === undefined) return HumanNeckReadingSingleton.get(skin, (): INeck => reading(skin, S));
+    if (known === undefined) return HumanSkinMemo.get(READINGS, skin, (): INeck => reading(skin, S));
     return reading(skin, S, known);
   }
 

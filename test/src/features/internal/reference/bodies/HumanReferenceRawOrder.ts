@@ -1,7 +1,7 @@
 
 import type { HumanReference } from "./HumanReference";
 import { HumanReferenceFiles } from "./HumanReferenceFiles";
-import { HumanReferenceMeshSingleton } from "./HumanReferenceMeshSingleton";
+import { HumanReferenceWeld } from "./HumanReferenceWeld";
 
 /**
  * For each reference body, the raw vertex behind every welded vertex, found
@@ -9,31 +9,19 @@ import { HumanReferenceMeshSingleton } from "./HumanReferenceMeshSingleton";
  *
  * The population bodies are not welded, so a welded vertex of a reference
  * finds its row in them through this map. It repeats the weld
- * `HumanReferenceMeshSingleton` applies, keeping each position's first raw
+ * `HumanReferenceWeld` applies, keeping each position's first raw
  * vertex, and is checked against the welded mesh vertex by vertex, so a weld
  * that drifts from the mesh's throws instead of reading another point of
  * anatomy.
  */
-export namespace HumanReferenceRawOrderSingleton {
-  /**
-   * The raw vertex index of every welded vertex of a reference, found on
-   * first use.
-   *
-   * @param id Reference alias.
-   * @throws Error when the weld disagrees with the welded mesh.
-   */
-  export function get(id: string): Int32Array {
-    return build(id);
-  }
-
-
+export namespace HumanReferenceRawOrder {
   /**
    * Repeat the weld and check it against the welded mesh.
    *
    * @param id Reference alias.
    */
-  function build(id: string): Int32Array {
-    const mesh: HumanReference.IMesh = HumanReferenceMeshSingleton.get(id);
+  export function get(id: string): Int32Array {
+    const mesh: HumanReference.IMesh = HumanReferenceWeld.get(id);
     const P: Float64Array = HumanReferenceFiles.positions(id);
     const out: Int32Array = new Int32Array(mesh.P.length / 3).fill(-1);
     const weld: Map<string, number> = new Map();

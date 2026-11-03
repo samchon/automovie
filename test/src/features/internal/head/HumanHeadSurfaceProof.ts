@@ -1,6 +1,6 @@
 import { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanHeadMadeCut } from "./HumanHeadMadeCut";
-import { HumanHeadPieceSingleton } from "./HumanHeadPieceSingleton";
+import { HumanHeadPiece } from "./HumanHeadPiece";
 import type { HumanHeadSurfaceRows } from "./HumanHeadSurfaceRows";
 
 /**
@@ -11,7 +11,7 @@ import type { HumanHeadSurfaceRows } from "./HumanHeadSurfaceRows";
  */
 export namespace HumanHeadSurfaceProof {
   /** A family of rows over a cut. */
-  export type Family = (piece: HumanHeadPieceSingleton.IPiece, cut: HumanHeadSurfaceRows.Cut) => HumanAnatomyAudit.IRow[];
+  export type Family = (piece: HumanHeadPiece.IPiece, cut: HumanHeadSurfaceRows.Cut) => HumanAnatomyAudit.IRow[];
 
   /**
    * The proof's failures, empty when it holds.
@@ -23,11 +23,11 @@ export namespace HumanHeadSurfaceProof {
    */
   export function failures(
     family: Family,
-    defect: (piece: HumanHeadPieceSingleton.IPiece) => HumanHeadMadeCut.Change,
+    defect: (piece: HumanHeadPiece.IPiece) => HumanHeadMadeCut.Change,
     match: string,
     least: number,
   ): string[] {
-    const piece: HumanHeadPieceSingleton.IPiece = HumanHeadPieceSingleton.get("f1");
+    const piece: HumanHeadPiece.IPiece = HumanHeadPiece.get("f1");
     const correct: HumanHeadSurfaceRows.Cut = HumanHeadMadeCut.ellipsoid(piece);
     const out: string[] = family(piece, correct)
       .filter((r: HumanAnatomyAudit.IRow): boolean => !HumanAnatomyAudit.passes(r))

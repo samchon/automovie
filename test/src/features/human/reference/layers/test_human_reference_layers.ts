@@ -1,6 +1,5 @@
 import { HumanAnatomy } from "../../../internal/HumanAnatomy";
 import { HumanLayerBasis } from "../../../internal/reference/layers/HumanLayerBasis";
-import { HumanLayerBasisSingleton } from "../../../internal/reference/layers/HumanLayerBasisSingleton";
 import { HumanLayerCompare } from "../../../internal/reference/layers/HumanLayerCompare";
 import { HumanLayerFinding } from "../../../internal/HumanLayerFinding";
 import { HumanLayerFold } from "../../../internal/reference/layers/HumanLayerFold";
@@ -95,7 +94,7 @@ export function test_human_reference_layers(): void {
     const reference: HumanLayerIndex = new HumanLayerIndex(mesh.P, mesh.I);
     const generated: HumanLayerIndex = new HumanLayerIndex(skin.P, skin.I);
     const sites: HumanLayerSite.ISite[] = HumanLayerSite.sites(views);
-    const basis: HumanLayerBasis.IBasis = HumanLayerBasisSingleton.get(id);
+    const basis: HumanLayerBasis.IBasis = HumanLayerBasis.build(id);
     const self: HumanLayerReport.IReport = HumanLayerCompare.compare({ person: id, sites, generated: reference, reference, basis });
 
     info.push(prove({ id, sites, mesh, reference, basis, self, skin }));

@@ -1,18 +1,18 @@
 import fs from "node:fs";
 
 import type { HumanReference } from "../bodies/HumanReference";
-import { HumanReferenceBodySingleton } from "../bodies/HumanReferenceBodySingleton";
+import { HumanReferenceBodies } from "../bodies/HumanReferenceBodies";
 import { HumanReferenceFiles } from "../bodies/HumanReferenceFiles";
 
 /**
  * The population of private reference bodies whose spread bounds what real
  * bodies do. All of them share one vertex order, so a vertex index names the
  * same point of anatomy on every body. Each body is read by each call of
- * `HumanReferenceBodySingleton`, which the layer comparison shares.
+ * `HumanReferenceBodies`, which the layer comparison shares.
  */
 export namespace HumanReferenceSurfacePopulation {
   /** One population body, as read. */
-  export type IBody = HumanReferenceBodySingleton.IBody;
+  export type IBody = HumanReferenceBodies.IBody;
 
   /** Every population body. */
   export interface IPopulation {
@@ -47,7 +47,7 @@ export namespace HumanReferenceSurfacePopulation {
     if (ids.length < MINIMUM)
       throw new Error(`the reference population holds ${ids.length} bodies, fewer than ${MINIMUM}; the surface limits have no basis`);
 
-    const bodies: IBody[] = ids.map((id: string): IBody => HumanReferenceBodySingleton.get(id));
+    const bodies: IBody[] = ids.map((id: string): IBody => HumanReferenceBodies.get(id));
 
     for (const b of bodies)
       if (b.P.length !== bodies[0]!.P.length)

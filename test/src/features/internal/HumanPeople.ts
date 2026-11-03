@@ -124,9 +124,7 @@ interface IEntry {
   params: IAutoMovieHumanParameters;
 }
 
-let people: Map<string, IEntry> | null = null;
-
-/** Every person, the references first. */
+/** Every person, the references first, built for each call so nothing outlives its test. */
 function table(): Map<string, IEntry> {
   const all: IEntry[] = [
     { name: "f1", sex: "female", core: true, params: f1 },
@@ -134,7 +132,7 @@ function table(): Map<string, IEntry> {
     { name: "m1", sex: "male", core: true, params: m1 },
     { name: "m2", sex: "male", core: true, params: m2 },
   ];
-  people ??= new Map<string, IEntry>(
+  return new Map<string, IEntry>(
     [
       ...all,
       ...HumanPopulation.ENDS.map(
@@ -142,7 +140,6 @@ function table(): Map<string, IEntry> {
       ),
     ].map((e: IEntry): [string, IEntry] => [e.name, e]),
   );
-  return people;
 }
 
 /** One entry. */

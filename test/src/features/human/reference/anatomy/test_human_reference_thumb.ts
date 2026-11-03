@@ -1,5 +1,5 @@
 import { HumanReference } from "../../../internal/reference/bodies/HumanReference";
-import { HumanReferenceRigSingleton } from "../../../internal/reference/bodies/HumanReferenceRigSingleton";
+import { HumanReferenceRig } from "../../../internal/reference/bodies/HumanReferenceRig";
 import { HumanReferenceThumb } from "../../../internal/reference/anatomy/HumanReferenceThumb";
 
 /** A point or direction in space. */
@@ -26,13 +26,13 @@ const RANGE: { mcp: [number, number]; ip: [number, number] } = { mcp: [0, 50], i
  * 1. On the first present reference, the IP joint's distal bone turned 5 degrees either way about the rig's own hinge axis reads the IP angle 5 degrees either side and leaves the MCP angle unchanged; the proximal phalanx turned 5 degrees either way about the MCP hinge reads the MCP angle 5 degrees either side.
  * 2. Each hand of f1, f2, m1 and m2 is read and printed; a hand whose angle lies outside the joint's published range is listed.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads each present reference's rig (`HumanReferenceRigSingleton`, the source's own bind frames) by `HumanReferenceThumb.read` and prints every reading by person and hand: the observation the construction's resting thumb rule is checked against. It fails with every hand outside the published ranges and with a proof that does not hold. It catches a reader that takes the wrong joints, the wrong frame column or the wrong side, and a rig no real resting thumb could take.
+ * @evidence contracts/testing.md#behavioral-verification Reads each present reference's rig (`HumanReferenceRig`, the source's own bind frames) by `HumanReferenceThumb.read` and prints every reading by person and hand: the observation the construction's resting thumb rule is checked against. It fails with every hand outside the published ranges and with a proof that does not hold. It catches a reader that takes the wrong joints, the wrong frame column or the wrong side, and a rig no real resting thumb could take.
  * @evidence contracts/testing.md#independent-expectations The readings are observations of the references, never targets; the expectation is only that a resting thumb lies within its joints' published active ranges (AAOS: MCP 0 to 50, IP 0 to 80 degrees). The proofs are exact: a rotation by a known angle about a joint's hinge (the rig's z axis, normal to both bones it joins) changes the angle between the bones by that angle, to double arithmetic. Oracle limits: the rig is the source's template, whose bind angles are authored rather than measured on each person, so the four people can agree to the decimal; the skin of each reference follows that rig.
  * @evidence contracts/testing.md#distinguishing-cases Two women and two men, both hands each; the proofs turn each joint both ways and check the other joint stays. Without the private rig records the test prints that it did not run and returns, since the data cannot ship. The generated person's thumb belongs to the hand anatomy and pose tests; this test owns the reference observation.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_reference_thumb`, reading the ignored `test/.shots/<alias>/body-observations.json` records with no generation, renderer, browser or GPU.
  */
 export function test_human_reference_thumb(): void {
-  const ids: string[] = HumanReference.IDS.filter((id: string): boolean => HumanReferenceRigSingleton.exists(id));
+  const ids: string[] = HumanReference.IDS.filter((id: string): boolean => HumanReferenceRig.exists(id));
 
   if (ids.length === 0) {
     console.log("test_human_reference_thumb: no private rig record in test/.shots; the thumb was not observed");
@@ -43,7 +43,7 @@ export function test_human_reference_thumb(): void {
 
   for (const id of ids)
     for (const side of ["l", "r"] as const) {
-      const r: HumanReferenceThumb.IReading = HumanReferenceThumb.read(HumanReferenceRigSingleton.get(id), side);
+      const r: HumanReferenceThumb.IReading = HumanReferenceThumb.read(HumanReferenceRig.get(id), side);
 
       console.log(
         `test_human_reference_thumb: ${id} ${side}: MCP ${r.mcp.toFixed(1)}, IP ${r.ip.toFixed(1)}; ` +
@@ -66,7 +66,7 @@ export function test_human_reference_thumb(): void {
  * @returns Every failed proof.
  */
 function prove(id: string): string[] {
-  const rig: HumanReferenceRigSingleton.IRig = HumanReferenceRigSingleton.get(id);
+  const rig: HumanReferenceRig.IRig = HumanReferenceRig.get(id);
   const before: HumanReferenceThumb.IReading = HumanReferenceThumb.read(rig, "l");
   const failures: string[] = [];
 
@@ -102,10 +102,10 @@ function prove(id: string): string[] {
  * @param joint Which joint.
  * @param theta Turn, radians.
  */
-function turned(rig: HumanReferenceRigSingleton.IRig, joint: "IP" | "MCP", theta: number): HumanReferenceRigSingleton.IRig {
-  const copy: HumanReferenceRigSingleton.IRig = new Map(rig);
-  const distal: HumanReferenceRigSingleton.IJoint = rig.get("thumb_03_l")!;
-  const pivot: HumanReferenceRigSingleton.IJoint = joint === "IP" ? distal : rig.get("thumb_02_l")!;
+function turned(rig: HumanReferenceRig.IRig, joint: "IP" | "MCP", theta: number): HumanReferenceRig.IRig {
+  const copy: HumanReferenceRig.IRig = new Map(rig);
+  const distal: HumanReferenceRig.IJoint = rig.get("thumb_03_l")!;
+  const pivot: HumanReferenceRig.IJoint = joint === "IP" ? distal : rig.get("thumb_02_l")!;
   const k: V3 = pivot.axes[2]!;
   const centre: V3 = pivot.origin;
   const offset: V3 = [distal.origin[0] - centre[0], distal.origin[1] - centre[1], distal.origin[2] - centre[2]];

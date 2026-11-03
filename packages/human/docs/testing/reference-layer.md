@@ -9,7 +9,7 @@ The reference comparison layer reads each generated reference person (f1, f2, m1
 - A limit reads no generated position, so it cannot reward closeness to the reference.
 - Every reader is proved inside its test, red on made defects of known size and green on the reference itself, before its readings blame a person.
 - The reference data stays private and git-ignored under `test/.shots/<alias>/` and `.references/curves/<alias>/`. Without it, each test prints that it did not run and returns.
-- Each loaded body, labelled skin, population body, limit set, layer basis and curve-pack file is built once per process by its own `tstl` `Singleton` file.
+- Each loaded body, labelled skin, population body, limit set, layer basis and curve-pack file is built for each call, so nothing outlives the test that reads it.
 
 ## Folders and files
 
@@ -30,10 +30,10 @@ Internals, under `test/src/features/internal/reference/`:
 
 | Folder | Files | Holds |
 | --- | --- | --- |
-| `bodies/` | `HumanReference`, `HumanReferenceFiles`, `HumanReferenceMeshSingleton`, `HumanReferenceSkinSingleton`, `HumanReferenceBodySingleton`, `HumanReferenceRawOrderSingleton`, `HumanReferenceRigSingleton` | reading the reference bodies: the welded mesh, the skin labelled by the generated person's chains, the 66 population bodies, the welded-to-raw vertex order, and the source's own rig (bind frames of every joint, from `body-observations.json`) |
-| `surface/` | `HumanReferenceSurface` and its pieces `Align`, `Compare`, `Extras`, `Flag`, `Floor`, `Generateds`, `Grid`, `Limits`, `LimitsSingleton`, `Mesh`, `Naming`, `Offsets`, `Pair`, `Patches`, `Population`, `Proofs`, `References`, `Regions`, `Search`, `Skin`, `Tree` | the two-way surface comparison, its population limits and its proofs |
-| `layers/` | `HumanLayerBasis`, `HumanLayerBasisSingleton`, `HumanLayerCompare`, `HumanLayerFold`, `HumanLayerReport` | the section comparison by layer and phase |
-| `curves/` | `HumanReferenceCurves` and `HumanReferenceCurve{Geometry,Quality,Pack,Store,FileSingleton,Sections,Limbs}` | reading the private curve pack |
+| `bodies/` | `HumanReference`, `HumanReferenceFiles`, `HumanReferenceWeld`, `HumanReferenceSkin`, `HumanReferenceBodies`, `HumanReferenceRawOrder`, `HumanReferenceRig` | reading the reference bodies: the welded mesh, the skin labelled by the generated person's chains, the 66 population bodies, the welded-to-raw vertex order, and the source's own rig (bind frames of every joint, from `body-observations.json`) |
+| `surface/` | `HumanReferenceSurface` and its pieces `Align`, `Compare`, `Extras`, `Flag`, `Floor`, `Grid`, `Limits`, `Mesh`, `Naming`, `Offsets`, `Pair`, `Patches`, `Population`, `Proofs`, `Regions`, `Search`, `Skin`, `Tree` | the two-way surface comparison, its population limits and its proofs |
+| `layers/` | `HumanLayerBasis`, `HumanLayerCompare`, `HumanLayerFold`, `HumanLayerReport` | the section comparison by layer and phase |
+| `curves/` | `HumanReferenceCurves` and `HumanReferenceCurve{Geometry,Quality,Pack,Store,File,Sections,Limbs}` | reading the private curve pack |
 | `audit/` | `HumanReferenceAudit` | the raw two-mesh comparator |
 | `anatomy/` | `HumanReferenceThumb` | the thumb's joint angles and bone directions read from a rig |
 | `isolation/` | `HumanReferenceIsolation` | the import-boundary reader |
@@ -69,7 +69,7 @@ p(t) = (2t^3 - 3t^2 + 1) start + (t^3 - 2t^2 + t) h startDerivative
 
 Each section's plane is `y = coordinateMm`. `links.json` joins the closed loops of neighbouring sections into tubes. The reference names no chains, so a region's loops are labelled from geometry alone.
 
-`HumanReferenceCurves` reads the pack. `index.json` runs to tens of megabytes, so its readers take only the region files a query overlaps, and each pack file is parsed once per process by `HumanReferenceCurveFileSingleton`.
+`HumanReferenceCurves` reads the pack. `index.json` runs to tens of megabytes, so its readers take only the region files a query overlaps, and each pack file is parsed for each call by `HumanReferenceCurveFile`.
 
 ### Counts by region
 

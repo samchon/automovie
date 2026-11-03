@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { HumanReferenceCurveFileSingleton } from "./HumanReferenceCurveFileSingleton";
+import { HumanReferenceCurveFile } from "./HumanReferenceCurveFile";
 
 /**
  * Where the private reference curve pack lives and how its files are read.
@@ -32,14 +32,14 @@ export namespace HumanReferenceCurveStore {
 
   /**
    * A pack file's parsed JSON, read by each call of
-   * `HumanReferenceCurveFileSingleton` and shared by every caller, so a caller
+   * `HumanReferenceCurveFile` and shared by every caller, so a caller
    * never mutates it. The path is under `directory(id)`.
    *
    * @param file Absolute path of the pack file.
    * @throws Error when the file is missing or is not JSON.
    */
   export function read<T>(file: string): T {
-    return HumanReferenceCurveFileSingleton.get<T>(file);
+    return HumanReferenceCurveFile.get<T>(file);
   }
 
   /**

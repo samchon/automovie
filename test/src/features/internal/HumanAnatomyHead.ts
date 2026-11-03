@@ -6,7 +6,6 @@ import type { HumanAnatomyHeadEar } from "./HumanAnatomyHeadEar";
 import { HumanAnatomyHeadGeometry } from "./HumanAnatomyHeadGeometry";
 import { HumanAnatomyHeadSites } from "./HumanAnatomyHeadSites";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
-import { HumanHeadSitesSingleton } from "./HumanHeadSitesSingleton";
 
 type IRow = HumanAnatomyAudit.IRow;
 type ISubject = HumanAnatomyAudit.ISubject;
@@ -95,7 +94,7 @@ export namespace HumanAnatomyHead {
    * entry the audit and the input-response test reach.
    */
   export function faceSites(skin: HumanAnatomy.ISkin, S: number, mouth: boolean): ISites {
-    return HumanHeadSitesSingleton.get(skin, S, mouth);
+    return HumanAnatomyHeadSites.sites(skin, S, mouth);
   }
 
   /**

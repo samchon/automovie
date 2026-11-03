@@ -176,18 +176,9 @@ export namespace HumanCurveRing {
     return `${from}-${from + 3}`;
   }
 
-  const UNIFORM: Map<number, number[]> = new Map();
-
-  /** Phases of a ring sampled evenly, once per sample count. */
+  /** Phases of a ring sampled evenly, built for each call. */
   export function uniform(count: number): number[] {
-    const found: number[] | undefined = UNIFORM.get(count);
-    if (found !== undefined) return found;
-    const phases: number[] = Array.from(
-      { length: count },
-      (_: unknown, i: number): number => (2 * Math.PI * i) / count,
-    );
-    UNIFORM.set(count, phases);
-    return phases;
+    return Array.from({ length: count }, (_: unknown, i: number): number => (2 * Math.PI * i) / count);
   }
 
   /** Length of a closed ring. */

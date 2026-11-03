@@ -2,7 +2,7 @@ import type { HumanAnatomy } from "../../HumanAnatomy";
 import type { HumanReference } from "../bodies/HumanReference";
 import { HumanReferenceSurfaceCompare } from "./HumanReferenceSurfaceCompare";
 import { HumanReferenceSurfaceFloor } from "./HumanReferenceSurfaceFloor";
-import { HumanReferenceSurfaceLimitsSingleton } from "./HumanReferenceSurfaceLimitsSingleton";
+import { HumanReferenceSurfaceLimits } from "./HumanReferenceSurfaceLimits";
 import { HumanReferenceSurfacePopulation } from "./HumanReferenceSurfacePopulation";
 import { HumanReferenceSurfaceSkin } from "./HumanReferenceSurfaceSkin";
 
@@ -298,12 +298,12 @@ export namespace HumanReferenceSurface {
   }
 
   /**
-   * A reference's limits, computed once per run from the population.
+   * A reference's limits, computed for each call from the population.
    *
    * @param id Reference alias.
    */
   export function limits(id: string): ILimits {
-    return HumanReferenceSurfaceLimitsSingleton.get(id);
+    return HumanReferenceSurfaceLimits.build(id);
   }
 
   /**

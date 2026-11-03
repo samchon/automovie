@@ -8,11 +8,15 @@ import { HumanAnatomyHeadNose } from "./HumanAnatomyHeadNose";
 import { HumanAnatomyHeadProfile } from "./HumanAnatomyHeadProfile";
 import { HumanAnatomyHeadVault } from "./HumanAnatomyHeadVault";
 import type { HumanAnatomyShared } from "./HumanAnatomyShared";
+import { HumanSkinMemo } from "./HumanSkinMemo";
 
 type V3 = HumanAnatomy.V3;
 type ISide = "left" | "right";
 const A: typeof HumanAnatomy = HumanAnatomy;
 const ahead: typeof HumanAnatomyHeadGeometry.ahead = HumanAnatomyHeadGeometry.ahead;
+
+/** The face sites by skin, with and without the teeth counted; each dies with its skin. */
+const SITES: Record<"mouth" | "plain", HumanSkinMemo.Values<HumanAnatomyHeadSites.ISites>> = { mouth: new WeakMap(), plain: new WeakMap() };
 
 /**
  * The face's landmarks and the dimensions between them, located on a skin by
@@ -57,6 +61,20 @@ export namespace HumanAnatomyHeadSites {
       /** Index of glabella on `up`. */
       glabella: number;
     };
+  }
+
+  /**
+   * The face's landmarks of a skin, located once per skin and teeth count
+   * ({@link faceSites}): locating them costs seconds and is a pure function
+   * of the skin.
+   *
+   * @param skin Skin to read.
+   * @param S Stature, mm.
+   * @param mouth Whether the skin carries an oral cavity whose teeth to count.
+   * @returns The sites.
+   */
+  export function sites(skin: HumanAnatomy.ISkin, S: number, mouth: boolean): ISites {
+    return HumanSkinMemo.get(SITES[mouth ? "mouth" : "plain"], skin, (): ISites => faceSites(skin, S, mouth));
   }
 
   /**

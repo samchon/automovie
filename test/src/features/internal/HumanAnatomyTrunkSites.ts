@@ -1,7 +1,7 @@
 import { HumanAnatomy } from "./HumanAnatomy";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
 import { HumanAnatomyTrunkScan } from "./HumanAnatomyTrunkScan";
-import { HumanTrunkSitesSingleton } from "./HumanTrunkSitesSingleton";
+import { HumanSkinMemo } from "./HumanSkinMemo";
 
 type V3 = HumanAnatomy.V3;
 type ITrunk = HumanAnatomyShared.ITrunk;
@@ -9,6 +9,9 @@ type IStation = HumanAnatomyTrunkScan.IStation;
 const A: typeof HumanAnatomy = HumanAnatomy;
 const { extent, trunkCut, band }: typeof HumanAnatomyShared = HumanAnatomyShared;
 const { least, sagittal, cutOrEmpty }: typeof HumanAnatomyTrunkScan = HumanAnatomyTrunkScan;
+
+/** The trunk sites located so far, by skin; each dies with its skin. */
+const SITES: HumanSkinMemo.Values<ITrunk> = new WeakMap();
 
 /** The trunk's tape sites, located on a skin by their ISO 8559-1 and ANSUR II definitions. */
 export namespace HumanAnatomyTrunkSites {
@@ -26,7 +29,7 @@ export namespace HumanAnatomyTrunkSites {
    * @param S Stature input, mm.
    */
   export function trunkSites(skin: HumanAnatomy.ISkin, S: number): ITrunk {
-    return HumanTrunkSitesSingleton.get(skin, (): ITrunk => locate(skin, S));
+    return HumanSkinMemo.get(SITES, skin, (): ITrunk => locate(skin, S));
   }
 
   /** Locate the trunk's sites afresh; see {@link trunkSites}. */

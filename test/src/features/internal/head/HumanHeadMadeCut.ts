@@ -2,7 +2,7 @@ import { AutoMovieHumanHeadSection } from "../../../../../packages/human/src/gen
 import type { IAutoMovieHumanHeadLayout } from "../../../../../packages/human/src/generation/IAutoMovieHumanHeadLayout";
 import type { IAutoMovieHumanHeadSides } from "../../../../../packages/human/src/generation/IAutoMovieHumanHeadSides";
 import type { HumanAnatomy } from "../HumanAnatomy";
-import type { HumanHeadPieceSingleton } from "./HumanHeadPieceSingleton";
+import type { HumanHeadPiece } from "./HumanHeadPiece";
 import type { HumanHeadSurfaceRows } from "./HumanHeadSurfaceRows";
 
 type V3 = HumanAnatomy.V3;
@@ -26,7 +26,7 @@ export namespace HumanHeadMadeCut {
    * section, half the head length forward and back, half the head breadth
    * across, reaching from under the neck ring to the vertex.
    */
-  export function ellipsoid(piece: HumanHeadPieceSingleton.IPiece): HumanHeadSurfaceRows.Cut {
+  export function ellipsoid(piece: HumanHeadPiece.IPiece): HumanHeadSurfaceRows.Cut {
     const plan: IAutoMovieHumanHeadLayout = piece.built.plan;
     const k: number = piece.scale;
     const g: V3 = piece.landmarks.glabella;
@@ -63,7 +63,7 @@ export namespace HumanHeadMadeCut {
    * widened 6 percent over 3 mm of height at the exocanthion's level, about
    * 4 mm of half width, the eye-to-ear groove's form.
    */
-  export function cliff(piece: HumanHeadPieceSingleton.IPiece): Change {
+  export function cliff(piece: HumanHeadPiece.IPiece): Change {
     const k: number = piece.scale;
     return (p: V3, s: number, sign: 1 | -1): V3 => {
       const ex: V3 = piece.landmarks.exocanthion[sign > 0 ? "left" : "right"];
@@ -77,7 +77,7 @@ export namespace HumanHeadMadeCut {
    * A shelf on the forehead: the front half pushed out 2 mm between 15 and
    * 25 mm over the glabella, with 1 mm edges, a plateau's two creases.
    */
-  export function shelf(piece: HumanHeadPieceSingleton.IPiece, ox: number): Change {
+  export function shelf(piece: HumanHeadPiece.IPiece, ox: number): Change {
     const k: number = piece.scale;
     const g: number = piece.landmarks.glabella[1];
     return (p: V3, s: number): V3 => {
@@ -88,13 +88,13 @@ export namespace HumanHeadMadeCut {
   }
 
   /** A step across the chin: every point beyond 15 mm of half width pushed out 1.5 mm over 1.4 mm. */
-  export function jawStep(piece: HumanHeadPieceSingleton.IPiece): Change {
+  export function jawStep(piece: HumanHeadPiece.IPiece): Change {
     const k: number = piece.scale;
     return (p: V3): V3 => [p[0], p[1], p[2] + Math.sign(p[2]) * 1.5 * k * step((Math.abs(p[2]) - 15 * k) / (0.7 * k))];
   }
 
   /** Waves under the chin: the front moved 1.2 mm in a sine of 20 mm wavelength below the menton. */
-  export function waves(piece: HumanHeadPieceSingleton.IPiece): Change {
+  export function waves(piece: HumanHeadPiece.IPiece): Change {
     const k: number = piece.scale;
     const plan: IAutoMovieHumanHeadLayout = piece.built.plan;
     return (p: V3, s: number): V3 => (s > plan.menton ? p : [p[0] + 1.2 * k * Math.sin((2 * Math.PI * (s - plan.y0)) / (20 * k)), p[1], p[2]]);

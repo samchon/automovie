@@ -3,7 +3,7 @@ import { HumanAnatomy } from "./HumanAnatomy";
 import { HumanAnatomyHeadGeometry } from "./HumanAnatomyHeadGeometry";
 import { HumanAnatomyHeadProfile } from "./HumanAnatomyHeadProfile";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
-import { HumanOralCavitySingleton } from "./HumanOralCavitySingleton";
+import { HumanOralCavityParts } from "./HumanOralCavityParts";
 
 type V3 = HumanAnatomy.V3;
 const A: typeof HumanAnatomy = HumanAnatomy;
@@ -92,7 +92,7 @@ export namespace HumanAnatomyHeadMouth {
    * @returns The count, or NaN when the cavity cannot be built.
    */
   export function teeth(skin: HumanAnatomy.ISkin, lo: number, hi: number): number {
-    const interior: AutoMovieHumanOralCavity.IOutput | undefined = HumanOralCavitySingleton.get(skin.name).interior;
+    const interior: AutoMovieHumanOralCavity.IOutput | undefined = HumanOralCavityParts.get(skin.name).interior;
     if (interior === undefined) return NaN;
 
     let seen: number = 0;

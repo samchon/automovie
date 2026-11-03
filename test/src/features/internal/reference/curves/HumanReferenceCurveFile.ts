@@ -5,11 +5,10 @@ import fs from "node:fs";
  * shared by every reader.
  *
  * A pack region file holds up to a few megabytes of Hermite spans, and a
- * curve query reads the same files again and again, so each absolute path has
- * one `Singleton` holding the parsed JSON. The value is shared, so a caller
- * reads it and never mutates it.
+ * curve query reads each file it overlaps, parsed for each call; a caller
+ * reads the value and never mutates it.
  */
-export namespace HumanReferenceCurveFileSingleton {
+export namespace HumanReferenceCurveFile {
   /**
    * A pack file's parsed JSON, read on first use.
    *

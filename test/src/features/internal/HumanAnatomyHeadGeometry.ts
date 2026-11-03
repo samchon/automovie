@@ -1,8 +1,11 @@
 import { HumanAnatomy } from "./HumanAnatomy";
-import { HumanVertexNormalsSingleton } from "./HumanVertexNormalsSingleton";
+import { HumanSkinMemo } from "./HumanSkinMemo";
 
 type V3 = HumanAnatomy.V3;
 const A: typeof HumanAnatomy = HumanAnatomy;
+
+/** Vertex normals by skin; each dies with its skin. */
+const NORMALS: HumanSkinMemo.Values<Float64Array> = new WeakMap();
 
 /**
  * Point and profile geometry the head observers share: the median-plane
@@ -49,7 +52,7 @@ export namespace HumanAnatomyHeadGeometry {
 
   /** Vertex normals of a skin, computed once per skin. */
   export function normals(skin: HumanAnatomy.ISkin): Float64Array {
-    return HumanVertexNormalsSingleton.get(skin);
+    return HumanSkinMemo.get(NORMALS, skin, (): Float64Array => HumanAnatomy.vertexNormals(skin));
   }
 
   /**

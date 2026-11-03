@@ -5,14 +5,14 @@ import type { HumanAnatomy } from "../HumanAnatomy";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanAnatomyShared } from "../HumanAnatomyShared";
 import { HumanSagitta } from "../region/HumanSagitta";
-import { HumanHeadPieceSingleton } from "./HumanHeadPieceSingleton";
+import { HumanHeadPiece } from "./HumanHeadPiece";
 
 type V3 = HumanAnatomy.V3;
 type IRow = HumanAnatomyAudit.IRow;
 type Side = "left" | "right";
 
 /**
- * Rows of the head's skin piece built alone (`HumanHeadPieceSingleton`), read
+ * Rows of the head's skin piece built alone (`HumanHeadPiece`), read
  * as an anthropometrist reads a face: vertical and horizontal profiles through
  * the temple, the forehead's median and paramedian profiles, the horizontal
  * sections of the chin and jaw under the lower lip and the submental profile
@@ -29,7 +29,7 @@ export namespace HumanHeadSurfaceRows {
   export type Cut = (station: number) => IAutoMovieHumanHeadSides;
 
   /** The piece's own cut. */
-  export function cutOf(piece: HumanHeadPieceSingleton.IPiece): Cut {
+  export function cutOf(piece: HumanHeadPiece.IPiece): Cut {
     return (station: number): IAutoMovieHumanHeadSides => AutoMovieHumanHeadSkin.sides(piece.built.surface, station);
   }
 
@@ -43,7 +43,7 @@ export namespace HumanHeadSurfaceRows {
    * face lies there (FLD-1), so every sagitta over a 10 mm chord stays within
    * `HumanAnatomyShared.CREASE` either way.
    */
-  export function temple(piece: HumanHeadPieceSingleton.IPiece, cut: Cut): IRow[] {
+  export function temple(piece: HumanHeadPiece.IPiece, cut: Cut): IRow[] {
     const k: number = piece.scale;
     const rows: IRow[] = [];
     for (const side of SIDES) {
@@ -92,7 +92,7 @@ export namespace HumanHeadSurfaceRows {
    * sagitta stays under `CREASE` outward (no ridge) and under `CREASE` inward
    * (no dent).
    */
-  export function forehead(piece: HumanHeadPieceSingleton.IPiece, cut: Cut): IRow[] {
+  export function forehead(piece: HumanHeadPiece.IPiece, cut: Cut): IRow[] {
     const k: number = piece.scale;
     const plan: IAutoMovieHumanHeadLayout = piece.built.plan;
     const g: V3 = piece.landmarks.glabella;
@@ -126,7 +126,7 @@ export namespace HumanHeadSurfaceRows {
    * runs across the vertical profile, not the horizontal section), so the
    * sagitta stays within `CREASE` either way.
    */
-  export function jaw(piece: HumanHeadPieceSingleton.IPiece, cut: Cut): IRow[] {
+  export function jaw(piece: HumanHeadPiece.IPiece, cut: Cut): IRow[] {
     const k: number = piece.scale;
     const plan: IAutoMovieHumanHeadLayout = piece.built.plan;
     const span: number = plan.stomion - plan.menton;
@@ -161,7 +161,7 @@ export namespace HumanHeadSurfaceRows {
    * more, a lean throat less. A wave of 1 mm amplitude and 20 mm wavelength
    * reads 1.7 mm on that chord and adds two runs.
    */
-  export function submental(piece: HumanHeadPieceSingleton.IPiece, cut: Cut): IRow[] {
+  export function submental(piece: HumanHeadPiece.IPiece, cut: Cut): IRow[] {
     const k: number = piece.scale;
     const plan: IAutoMovieHumanHeadLayout = piece.built.plan;
     const span: number = plan.stomion - plan.menton;
@@ -247,7 +247,7 @@ export namespace HumanHeadSurfaceRows {
   }
 
   /** The crease row of a line: its largest sagitta either way over a 10 mm chord, input mm, within `CREASE`. */
-  function crease(piece: HumanHeadPieceSingleton.IPiece, site: string, line: V3[], outward: (p: V3) => V3): IRow {
+  function crease(piece: HumanHeadPiece.IPiece, site: string, line: V3[], outward: (p: V3) => V3): IRow {
     const k: number = piece.scale;
     const r: HumanSagitta.IReading | null = HumanSagitta.extreme(HumanSagitta.along(line, 5 * k, 0.5 * k, outward), 0);
     const at: string = r === null ? "" : ` at [${r.point.map((v: number): string => (v / k).toFixed(0)).join(", ")}]`;
@@ -255,7 +255,7 @@ export namespace HumanHeadSurfaceRows {
   }
 
   /** A one-signed crease row: the most convex (or concave) sagitta, input mm, under `CREASE`. */
-  function signed(piece: HumanHeadPieceSingleton.IPiece, site: string, readings: HumanSagitta.IReading[], sign: 1 | -1): IRow {
+  function signed(piece: HumanHeadPiece.IPiece, site: string, readings: HumanSagitta.IReading[], sign: 1 | -1): IRow {
     const k: number = piece.scale;
     if (readings.length === 0) return row(piece.person, `${site}: no profile was read, mm`, NaN, 0, 0);
     const r: HumanSagitta.IReading | null = HumanSagitta.extreme(readings, sign);

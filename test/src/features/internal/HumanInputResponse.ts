@@ -1,10 +1,9 @@
 import { AutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
-import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
+import { HumanAnatomyAudit } from "./HumanAnatomyAudit";
 import { HumanAnatomyCourse } from "./HumanAnatomyCourse";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
-import { HumanInputResponseCache } from "./HumanInputResponseCache";
 import { HumanInputResponseMade } from "./HumanInputResponseMade";
 import { HumanInputResponseReadings } from "./HumanInputResponseReadings";
 
@@ -130,7 +129,7 @@ export namespace HumanInputResponse {
    * @returns One finding per perturbation, in order.
    */
   export function run(perturbations: readonly IPerturbation[], groups: readonly HumanInputResponseReadings.Group[]): IFinding[] {
-    const base: HumanAnatomyAudit.ISubject = HumanInputResponseCache.named(BASE);
+    const base: HumanAnatomyAudit.ISubject = HumanAnatomyAudit.subject(BASE);
     const before: HumanInputResponseReadings.IReadings = HumanInputResponseReadings.read(base, groups);
     const rest: Float64Array = base.bind().P;
     const findings: IFinding[] = [];
@@ -177,7 +176,7 @@ export namespace HumanInputResponse {
     // the base's own readings on both sides and the figure unchanged, must
     // come out not honoured, so an ignored input cannot pass; an input that
     // limits a pose leaves the rest figure as it is and is not judged so.
-    const before: HumanInputResponseReadings.IReadings = HumanInputResponseReadings.read(HumanInputResponseCache.named(BASE), groups);
+    const before: HumanInputResponseReadings.IReadings = HumanInputResponseReadings.read(HumanAnatomyAudit.subject(BASE), groups);
     const proof: string[] = perturbations
       .filter((p: IPerturbation): boolean => p.rest !== false)
       .map((p: IPerturbation): Omit<IFinding, "ms"> => (Object.keys(p.expect).length === 0 ? judgeSiteless(p, false) : judge(p, before, before, false)))

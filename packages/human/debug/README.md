@@ -180,7 +180,15 @@ Run it from the repository root.
 
 - `--base` is the search text every shot starts from, and each `--shot <name>:<text>` replaces its variables. `;` stands for `&`, because the Windows shim of ttsx reads `&` as a command separator.
 - `--origin` names another viewer.
-- Each shot writes `<name>.png` and `<name>.json`: the URL, the response headers and the SHA-256 of the received bytes. The shot fails when that hash differs from `x-human-png-sha256`.
+- Each shot asks a new frame (a unique `fresh` nonce) and is kept as `<name>.png` only when the route answers `new-requested-frame` and the received bytes hash to `x-human-png-sha256`. `receipt.json` lists every kept shot: its file, URL, SHA-256 and the response headers, the source hash and capture time among them.
+- `keep=1` in a shot's text draws it on the page's loaded source, so a series of people shares one source while files are saved.
+- A failed shot keeps no PNG, adds one line with its cause to `<person>-FAILED.txt`, and the run goes on; the program then exits with code 1. While the compile gate answers 503 or 409 the shot is asked again after `retry-after`, for up to 30 minutes. Requests carry no timeout, since changing the person takes minutes.
+
+The owner's evidence set, each reference person from the front, the left and the back on one source:
+
+```powershell
+node_modules\.bin\ttsx.CMD -P packages\human\tsconfig.debug.scripts.json packages\human\debug\capture\human-debug-capture.ts --out packages\human\.shots\owner\<yyyyMMdd-HHmm> --base "curves=none;w=900;h=1500;keep=1" --shot "f1-front:person=f1;camera=front" --shot "f1-left:person=f1;camera=left" --shot "f1-back:person=f1;camera=back" --shot "f2-front:person=f2;camera=front" --shot "f2-left:person=f2;camera=left" --shot "f2-back:person=f2;camera=back" --shot "m1-front:person=m1;camera=front" --shot "m1-left:person=m1;camera=left" --shot "m1-back:person=m1;camera=back" --shot "m2-front:person=m2;camera=front" --shot "m2-left:person=m2;camera=left" --shot "m2-back:person=m2;camera=back"
+```
 
 ## Diagnostics
 

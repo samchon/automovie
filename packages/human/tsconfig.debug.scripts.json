@@ -4,7 +4,7 @@
     "rootDir": "../..",
     "noEmit": true,
     "types": ["node"],
-    "plugins": []
+    "plugins": [{ "transform": "@ttsc/lint", "configFile": "../../config/lint.config.ts" }]
   },
   "files": ["debug/capture/human-debug-capture.ts"]
 }

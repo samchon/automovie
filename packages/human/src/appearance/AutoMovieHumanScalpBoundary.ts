@@ -5,8 +5,7 @@ import { AutoMovieHumanHairlineClass } from "./AutoMovieHumanHairlineClass";
 import { AutoMovieHumanHairlineEarBehind } from "./AutoMovieHumanHairlineEarBehind";
 import { AutoMovieHumanHairlineEarTop } from "./AutoMovieHumanHairlineEarTop";
 import { AutoMovieHumanHairlineFrontalLine } from "./AutoMovieHumanHairlineFrontalLine";
-import { AutoMovieHumanHairlineNapeMidline } from "./AutoMovieHumanHairlineNapeMidline";
-import { AutoMovieHumanHairlineNapeSide } from "./AutoMovieHumanHairlineNapeSide";
+import { AutoMovieHumanHairlineNape } from "./AutoMovieHumanHairlineNape";
 import { AutoMovieHumanHairlineSideburn } from "./AutoMovieHumanHairlineSideburn";
 import { AutoMovieHumanHairlineTemporalPeak } from "./AutoMovieHumanHairlineTemporalPeak";
 import { AutoMovieHumanHairlineTrichion } from "./AutoMovieHumanHairlineTrichion";
@@ -27,7 +26,7 @@ import type { AutoMovieHumanScalpLandmarks } from "./AutoMovieHumanScalpLandmark
  * (`AutoMovieHumanHairlineTemporalPeak`, `AutoMovieHumanHairlineSideburn`),
  * the margin over and behind the ear (`AutoMovieHumanHairlineEarTop`,
  * `AutoMovieHumanHairlineEarBehind`) and the nape
- * (`AutoMovieHumanHairlineNapeSide`, `AutoMovieHumanHairlineNapeMidline`).
+ * (`AutoMovieHumanHairlineNape`).
  * The declared reflection is `alpha -> -alpha` (`z -> -z`): the boundary
  * reads `|alpha|`. Interpolation is monotone piecewise cubic
  * (`AutoMovieHumanMonotoneCubic`), so the boundary never overshoots between
@@ -84,8 +83,7 @@ export namespace AutoMovieHumanScalpBoundary {
       ...AutoMovieHumanHairlineSideburn.knots(peak[0]),
       AutoMovieHumanHairlineEarTop.knot(landmarks),
       AutoMovieHumanHairlineEarBehind.knot(landmarks),
-      ...AutoMovieHumanHairlineNapeSide.knots(landmarks),
-      ...AutoMovieHumanHairlineNapeMidline.knots(landmarks),
+      ...AutoMovieHumanHairlineNape.knots(landmarks),
     ];
     // A zone placed past its neighbour's azimuth on an unusual head keeps
     // the order by standing a degree after it.

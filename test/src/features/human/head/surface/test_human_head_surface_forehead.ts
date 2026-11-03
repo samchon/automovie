@@ -1,4 +1,4 @@
-import { HumanHeadPieceSingleton } from "../../../internal/head/HumanHeadPieceSingleton";
+import { HumanHeadPiece } from "../../../internal/head/HumanHeadPiece";
 import { HumanHeadMadeCut } from "../../../internal/head/HumanHeadMadeCut";
 import { HumanHeadSurfaceProof } from "../../../internal/head/HumanHeadSurfaceProof";
 import { HumanHeadSurfaceRows } from "../../../internal/head/HumanHeadSurfaceRows";
@@ -16,7 +16,7 @@ import { assertHumanProvenRows } from "../../../internal/region/assertHumanProve
  * @evidence contracts/testing.md#behavioral-verification Builds each person's head piece from its fixed setup and cuts the skin every half millimetre from the glabella to 6 mm under the vertex, reading the median profile (each section's front midline point) and the profiles 20 and 35 mm either side (the section's first point at that half width from the front), each as signed sagittae over a 10 mm chord about the head's centre at the eye level. It catches a forehead plateau's edges, a shelf, a ridge or a dent across the frontal bone.
  * @evidence contracts/testing.md#independent-expectations The frontal bone and its skin are convex in both directions from the glabella to the vertex and carry no named crease (HD-9, FLD-1), so the most convex sagitta stays under the 1 mm crease limit (a radius of 12.5 mm or more) and the most concave under the same limit inward. Proven here: the made ellipsoid passes; the made 2 mm shelf turns the ridge rows red with finite values. Oracle limits: a plateau with rounded edges wider than 12.5 mm of radius passes; the glabella's own prominence lies at the profile's start and is read only from its upper side.
  * @evidence contracts/testing.md#distinguishing-cases The core set's references and population ends. The temple, jaw and submental rows are their own tests; the vault's composed chain belongs to the curve tests.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_head_surface_forehead`, building each person's head piece once per test in a `Singleton`, on the CPU with no renderer, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_head_surface_forehead`, building each person's head piece for each read, on the CPU with no renderer, browser or GPU.
  */
 export function test_human_head_surface_forehead(): void {
   assertHumanProvenRows(
@@ -24,12 +24,12 @@ export function test_human_head_surface_forehead(): void {
     (): string[] =>
       HumanHeadSurfaceProof.failures(
         HumanHeadSurfaceRows.forehead,
-        (piece: HumanHeadPieceSingleton.IPiece): HumanHeadMadeCut.Change => HumanHeadMadeCut.shelf(piece, piece.landmarks.glabella[0] - piece.built.plan.length / 2),
+        (piece: HumanHeadPiece.IPiece): HumanHeadMadeCut.Change => HumanHeadMadeCut.shelf(piece, piece.landmarks.glabella[0] - piece.built.plan.length / 2),
         "(ridge)",
         1,
       ),
     (name: string): ReturnType<typeof HumanHeadSurfaceRows.forehead> => {
-      const piece: HumanHeadPieceSingleton.IPiece = HumanHeadPieceSingleton.get(name);
+      const piece: HumanHeadPiece.IPiece = HumanHeadPiece.get(name);
       return HumanHeadSurfaceRows.forehead(piece, HumanHeadSurfaceRows.cutOf(piece));
     },
   );

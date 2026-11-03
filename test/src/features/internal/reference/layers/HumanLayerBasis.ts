@@ -5,9 +5,9 @@ import { HumanLayerPolygon } from "../../HumanLayerPolygon";
 import { HumanPeople } from "../../HumanPeople";
 import type { HumanPopulation } from "../../HumanPopulation";
 import { HumanReference } from "../bodies/HumanReference";
-import { HumanReferenceBodySingleton } from "../bodies/HumanReferenceBodySingleton";
+import { HumanReferenceBodies } from "../bodies/HumanReferenceBodies";
 import { HumanReferenceFiles } from "../bodies/HumanReferenceFiles";
-import { HumanReferenceRawOrderSingleton } from "../bodies/HumanReferenceRawOrderSingleton";
+import { HumanReferenceRawOrder } from "../bodies/HumanReferenceRawOrder";
 import { HumanReferenceSurface } from "../surface/HumanReferenceSurface";
 import { HumanReferenceSurfacePopulation } from "../surface/HumanReferenceSurfacePopulation";
 
@@ -81,10 +81,9 @@ export namespace HumanLayerBasis {
   }
 
   /**
-   * Builds the basis of a reference's comparison. Read it through
-   * `HumanLayerBasisSingleton`, which builds each once; the population bodies
-   * come from `HumanReferenceBodySingleton`, shared with the surface
-   * comparison.
+   * Builds the basis of a reference's comparison, for each call; the
+   * population bodies come from `HumanReferenceBodies`, shared with the
+   * surface comparison.
    *
    * @param id The reference alias.
    * @throws Error when fewer than `HumanReferenceSurface.MINIMUM` other bodies or not all four fitted heads are present.
@@ -104,7 +103,7 @@ export namespace HumanLayerBasis {
       id,
       sex: HumanPeople.sex(id),
       normal: outwardNormals(mesh.P, mesh.I),
-      raw: HumanReferenceRawOrderSingleton.get(id),
+      raw: HumanReferenceRawOrder.get(id),
       head: HumanReferenceSurfacePopulation.headOnly(mesh),
       bodies: bodies.map(measured),
       heads: heads.map(measured),
@@ -263,5 +262,5 @@ function outwardNormals(P: Float64Array, I: Uint32Array): Float64Array {
  * @param id Reference alias.
  */
 function measured(id: string): HumanLayerBasis.IBody {
-  return { id, P: HumanReferenceBodySingleton.get(id).P };
+  return { id, P: HumanReferenceBodies.get(id).P };
 }

@@ -3,8 +3,8 @@ import type { HumanAnatomy } from "../../HumanAnatomy";
 import type { HumanAnatomyAudit } from "../../HumanAnatomyAudit";
 import { HumanPeople } from "../../HumanPeople";
 import { HumanReferenceFiles } from "./HumanReferenceFiles";
-import { HumanReferenceMeshSingleton } from "./HumanReferenceMeshSingleton";
-import { HumanReferenceSkinSingleton } from "./HumanReferenceSkinSingleton";
+import { HumanReferenceWeld } from "./HumanReferenceWeld";
+import { HumanReferenceSkin } from "./HumanReferenceSkin";
 
 /**
  * The private reference bodies f1, f2, m1 and m2: closed skins captured from
@@ -57,7 +57,7 @@ export namespace HumanReference {
    * @param id Reference alias.
    */
   export function mesh(id: string): IMesh {
-    return HumanReferenceMeshSingleton.get(id);
+    return HumanReferenceWeld.get(id);
   }
 
   /**
@@ -67,7 +67,7 @@ export namespace HumanReference {
    * @param id Reference alias.
    */
   export function skin(id: string): HumanAnatomy.ISkin {
-    return HumanReferenceSkinSingleton.get(id);
+    return HumanReferenceSkin.get(id);
   }
 
   /**

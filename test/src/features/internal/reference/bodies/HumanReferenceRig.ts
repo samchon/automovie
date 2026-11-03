@@ -17,7 +17,7 @@ import { HumanReferenceFiles } from "./HumanReferenceFiles";
  * reader follows the record's content and not its nesting. Angles between
  * joints are unchanged by the frame, which is rigid up to a uniform scale.
  */
-export namespace HumanReferenceRigSingleton {
+export namespace HumanReferenceRig {
   /** One joint's bind frame. */
   export interface IJoint {
     /** The source's joint name, such as `thumb_02_l`. */
@@ -46,17 +46,6 @@ export namespace HumanReferenceRigSingleton {
   }
 
   /**
-   * A reference body's rig, read on first use.
-   *
-   * @param id Reference alias.
-   * @throws Error when the record is missing or holds no joint list.
-   */
-  export function get(id: string): IRig {
-    return build(id);
-  }
-
-
-  /**
    * The rig record's path.
    *
    * @param id Reference alias.
@@ -70,7 +59,7 @@ export namespace HumanReferenceRigSingleton {
    *
    * @param id Reference alias.
    */
-  function build(id: string): IRig {
+  export function get(id: string): IRig {
     const record: unknown = JSON.parse(fs.readFileSync(file(id), "utf8"));
     const rows: IRow[] | null = joints(record);
 

@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
+import http from "node:http";
 import path from "node:path";
 
 import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
@@ -19,34 +20,144 @@ import { parseHumanDebugCaptureArguments } from "./parseHumanDebugCaptureArgumen
  * `--base` is the search text every shot starts from and each `--shot <name>:<search text>`
  * replaces its variables; `;` separates variables because the Windows shim of ttsx reads `&` as a
  * command separator. The text is checked by `HumanDebugOptions` before any request, so a typo
- * fails here. Each shot writes `<name>.png` and `<name>.json` with the response headers and an
- * independent SHA-256 of the bytes received; a hash that differs from `x-human-png-sha256` fails.
- * The program draws nothing itself: the server's resident page draws every frame.
+ * fails here; `keep=1` passes through to the route, so a series of shots is drawn on one loaded
+ * source. Every shot asks a new frame (a unique `fresh` nonce unless the text gives one).
+ *
+ * A shot is kept only when the route answers `new-requested-frame` and the bytes received hash to
+ * `x-human-png-sha256`; it is written as `<name>.png`, and `receipt.json` lists every kept shot with
+ * its URL, its bytes' SHA-256 and the route's headers (source hash, capture time). A shot that
+ * fails keeps no PNG and adds one line with its cause to `<person>-FAILED.txt`, named by the
+ * shot's `person` variable, and the run goes on to the next shot and ends with exit code 1. While
+ * the viewer's compile gate is shut (HTTP 503 during a check, 409 after a failed one) the shot is
+ * asked again after the answer's `retry-after`, for up to {@link GATE_WAIT}. Requests use
+ * `node:http` without a timeout, because one person's generation takes minutes, longer than
+ * `fetch`'s header timeout. The program draws nothing itself: the server's resident page draws
+ * every frame.
  */
 async function main(): Promise<void> {
   const parsed: IHumanDebugCaptureArguments = parseHumanDebugCaptureArguments(process.argv.slice(2));
   await fs.mkdir(parsed.out, { recursive: true });
+  const receipt: IReceiptRow[] = [];
+  let failed: boolean = false;
   for (const shot of parsed.shots) {
     const query: URLSearchParams = new URLSearchParams(parsed.base);
     for (const [name, value] of new URLSearchParams(shot.query)) query.set(name, value);
-    const checked: { notices: string[] } = HumanDebugOptions.parse(query, ["fresh"]);
+    const checked: { notices: string[] } = HumanDebugOptions.parse(query, ["fresh", "keep"]);
     if (checked.notices.length !== 0) throw new Error("Shot " + shot.name + ": " + checked.notices.join("; "));
-    if (!query.has("fresh")) query.set("fresh", shot.name + "-" + Date.now().toString(36));
+    if (!query.has("fresh")) query.set("fresh", shot.name + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2));
     const url: string = parsed.origin + HUMAN_DEBUG_ROUTES.images + shot.name + ".png?" + query.toString();
-    const response: Response = await fetch(url);
-    const bytes: Buffer = Buffer.from(await response.arrayBuffer());
-    if (!response.ok) throw new Error("Shot " + shot.name + " answered HTTP " + response.status + ": " + bytes.toString("utf8"));
-    const sha256: string = createHash("sha256").update(bytes).digest("hex");
-    const headers: Record<string, string> = Object.fromEntries(
-      Object.values(HUMAN_DEBUG_ROUTES.headers).map((name: string): [string, string] => [name, response.headers.get(name) ?? ""]),
-    );
-    if (sha256 !== headers[HUMAN_DEBUG_ROUTES.headers.png])
-      throw new Error("Shot " + shot.name + " bytes hash " + sha256 + " but the header says " + headers[HUMAN_DEBUG_ROUTES.headers.png]);
-    const file: string = path.join(parsed.out, shot.name + ".png");
-    await fs.writeFile(file, bytes);
-    await fs.writeFile(path.join(parsed.out, shot.name + ".json"), JSON.stringify({ url, sha256, headers }, null, 2));
-    process.stdout.write(JSON.stringify({ file, cache: headers[HUMAN_DEBUG_ROUTES.headers.cache], bytes: bytes.length }) + "\n");
+    try {
+      const row: IReceiptRow = await capture(url, path.join(parsed.out, shot.name + ".png"));
+      receipt.push(row);
+      process.stdout.write(JSON.stringify({ shot: shot.name, captured: row.headers[HUMAN_DEBUG_ROUTES.headers.captured], source: row.headers[HUMAN_DEBUG_ROUTES.headers.source] }) + "\n");
+    } catch (error) {
+      failed = true;
+      const message: string = shot.name + ": " + (error instanceof Error ? error.message : String(error)).replace(/\s+/g, " ");
+      await fs.appendFile(path.join(parsed.out, (query.get("person") ?? "shot") + "-FAILED.txt"), message + "\n");
+      process.stdout.write(JSON.stringify({ shot: shot.name, failed: message }) + "\n");
+    }
   }
+  await fs.writeFile(path.join(parsed.out, "receipt.json"), JSON.stringify(receipt, null, 2) + "\n");
+  if (failed) process.exitCode = 1;
+}
+
+/** How long a shot waits for the compile gate to open, ms: a save's check takes seconds, a repair minutes. */
+const GATE_WAIT: number = 30 * 60 * 1000;
+
+/** One kept shot of the receipt. */
+interface IReceiptRow {
+  /** File name in the output directory. */
+  file: string;
+
+  /** The URL asked. */
+  url: string;
+
+  /** SHA-256 of the saved bytes, equal to the route's `x-human-png-sha256`. */
+  sha256: string;
+
+  /** The route's headers by name (`HUMAN_DEBUG_ROUTES.headers`). */
+  headers: Record<string, string>;
+}
+
+/** An HTTP answer read whole. */
+interface IAnswer {
+  /** Status code. */
+  status: number;
+
+  /** Lower-case header names to their values. */
+  headers: Record<string, string>;
+
+  /** The body bytes. */
+  body: Buffer;
+}
+
+/**
+ * Ask one frame, check it and save it.
+ *
+ * @param url The frame's address.
+ * @param file Where its bytes go.
+ * @returns The receipt row.
+ * @throws {Error} When the route refuses, answers a kept frame, or the bytes do not hash to its header.
+ */
+async function capture(url: string, file: string): Promise<IReceiptRow> {
+  const answer: IAnswer = await gated(url);
+  if (answer.status !== 200) throw new Error("HTTP " + answer.status + ": " + answer.body.toString("utf8").slice(0, 400));
+  const headers: Record<string, string> = Object.fromEntries(
+    Object.values(HUMAN_DEBUG_ROUTES.headers).map((name: string): [string, string] => [name, answer.headers[name] ?? ""]),
+  );
+  if (headers[HUMAN_DEBUG_ROUTES.headers.cache] !== "new-requested-frame")
+    throw new Error("the route answered " + headers[HUMAN_DEBUG_ROUTES.headers.cache] + ", not a new frame");
+  const sha256: string = createHash("sha256").update(answer.body).digest("hex");
+  if (sha256 !== headers[HUMAN_DEBUG_ROUTES.headers.png])
+    throw new Error("bytes hash " + sha256 + " but the header says " + headers[HUMAN_DEBUG_ROUTES.headers.png]);
+  await fs.writeFile(file, answer.body);
+  return { file: path.basename(file), url, sha256, headers };
+}
+
+/**
+ * GET a frame, waiting while the viewer's compile gate is shut: the route
+ * answers 503 while the collector checks a save and 409 after a failed check,
+ * and draws nothing then, so the frame is asked again after the answer's
+ * `retry-after` (10 s when absent) until {@link GATE_WAIT} has passed.
+ *
+ * @param url The frame's address.
+ * @returns The first answer that is not a shut gate, or the last one.
+ */
+async function gated(url: string): Promise<IAnswer> {
+  const until: number = Date.now() + GATE_WAIT;
+  for (;;) {
+    const answer: IAnswer = await get(url);
+    if ((answer.status !== 503 && answer.status !== 409) || Date.now() > until) return answer;
+    const after: number = Number(answer.headers["retry-after"]);
+    await new Promise<boolean>((resolve: (done: boolean) => void): void => {
+      setTimeout((): void => resolve(true), 1000 * (Number.isFinite(after) && after > 0 ? after : 10));
+    });
+  }
+}
+
+/**
+ * GET one URL with no timeout and read the whole answer.
+ *
+ * @param url The address.
+ * @returns The status, headers and body.
+ */
+function get(url: string): Promise<IAnswer> {
+  return new Promise<IAnswer>((resolve: (answer: IAnswer) => void, reject: (error: Error) => void): void => {
+    http
+      .get(url, (response: http.IncomingMessage): void => {
+        const chunks: Buffer[] = [];
+        response.on("data", (chunk: Buffer): void => {
+          chunks.push(chunk);
+        });
+        response.on("end", (): void => {
+          const headers: Record<string, string> = {};
+          for (const [key, value] of Object.entries(response.headers)) if (typeof value === "string") headers[key] = value;
+          resolve({ status: response.statusCode ?? 0, headers, body: Buffer.concat(chunks) });
+        });
+        response.on("error", reject);
+      })
+      .on("error", reject);
+  });
 }
 
 main().catch((error: unknown): void => {

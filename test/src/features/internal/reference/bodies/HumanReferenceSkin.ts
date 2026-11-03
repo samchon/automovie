@@ -1,7 +1,7 @@
 
 import { HumanAnatomy } from "../../HumanAnatomy";
 import type { HumanReference } from "./HumanReference";
-import { HumanReferenceMeshSingleton } from "./HumanReferenceMeshSingleton";
+import { HumanReferenceWeld } from "./HumanReferenceWeld";
 
 /**
  * Each reference body as a skin the anatomy observers read, labelled once per
@@ -13,26 +13,17 @@ import { HumanReferenceMeshSingleton } from "./HumanReferenceMeshSingleton";
  * arm from the trunk where the two skins differ by far less than a limb's
  * radius, and the rig's joint centres locate the sites. A joint the generated
  * person misplaces moves a site on the reference with it; that is the
- * observer's limit here. Each alias has one `Singleton`; the generated person
- * comes from the shared generation cache behind `HumanAnatomy.bind`.
+ * observer's limit here. The skin is built for each call, and the
+ * generated person is the caller's own.
  */
-export namespace HumanReferenceSkinSingleton {
-  /**
-   * A reference body's labelled skin, built on first use.
-   *
-   * @param id Reference alias.
-   */
-  export function get(id: string): HumanAnatomy.ISkin {
-    return build(id);
-  }
-
+export namespace HumanReferenceSkin {
   /**
    * Label a reference body's triangles by the generated person's chains.
    *
    * @param id Reference alias.
    */
-  function build(id: string): HumanAnatomy.ISkin {
-    const m: HumanReference.IMesh = HumanReferenceMeshSingleton.get(id);
+  export function get(id: string): HumanAnatomy.ISkin {
+    const m: HumanReference.IMesh = HumanReferenceWeld.get(id);
     const generated: HumanAnatomy.ISkin = HumanAnatomy.bind(id);
     const owner: Int32Array = vertexChains(generated);
     const grid: Grid = new Grid(generated.P, 12);

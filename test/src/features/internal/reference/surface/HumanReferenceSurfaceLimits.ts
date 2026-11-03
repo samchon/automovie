@@ -1,6 +1,6 @@
 import type { HumanAnatomy } from "../../HumanAnatomy";
 import { HumanReference } from "../bodies/HumanReference";
-import { HumanReferenceRawOrderSingleton } from "../bodies/HumanReferenceRawOrderSingleton";
+import { HumanReferenceRawOrder } from "../bodies/HumanReferenceRawOrder";
 import type { HumanReferenceSurface } from "./HumanReferenceSurface";
 import { HumanReferenceSurfaceAlign } from "./HumanReferenceSurfaceAlign";
 import { HumanReferenceSurfaceFloor } from "./HumanReferenceSurfaceFloor";
@@ -61,8 +61,7 @@ export namespace HumanReferenceSurfaceLimits {
   }
 
   /**
-   * Computes a reference's limits from the population. Read them through
-   * `HumanReferenceSurfaceLimitsSingleton`, which computes each once.
+   * Computes a reference's limits from the population, for each call.
    *
    * @param id Reference alias; it must be in the population.
    * @throws Error when the reference is not in the population or the four fitted heads are not all present.
@@ -76,7 +75,7 @@ export namespace HumanReferenceSurfaceLimits {
     if (self === undefined) throw new Error(`${id} is not in the reference population`);
 
     const mesh: HumanReference.IMesh = HumanReference.mesh(id);
-    const raw: Int32Array = HumanReferenceRawOrderSingleton.get(id);
+    const raw: Int32Array = HumanReferenceRawOrder.get(id);
     const normal: Float64Array = HumanReferenceSurfaceMesh.vertexNormals(mesh.P, mesh.I);
     const head: Uint8Array = HumanReferenceSurfacePopulation.headOnly(mesh);
     const n: number = mesh.P.length / 3;
