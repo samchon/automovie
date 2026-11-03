@@ -1,3 +1,4 @@
+import { AutoMovieHumanLoftContract } from "./AutoMovieHumanLoftContract";
 import type { AutoMovieHumanLoftFrame } from "./AutoMovieHumanLoftFrame";
 import type { IAutoMovieHumanLoftChain } from "./IAutoMovieHumanLoftChain";
 
@@ -166,7 +167,11 @@ export namespace AutoMovieHumanSeamStation {
     keep: readonly number[] = [],
   ): IAutoMovieHumanLoftChain {
     const rows: readonly IAutoMovieHumanLoftChain.ILayer[] = chain.layers;
-    const t: number[] = rows.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y);
+    const t: AutoMovieHumanLoftContract.Stations = AutoMovieHumanLoftContract.stations(
+      chain.name,
+      rows.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y),
+      AutoMovieHumanLoftContract.LEAST_SPLINE_GAP,
+    );
     const kept: Set<number> = new Set(keep);
     const values: number[][] = rows.map((l: IAutoMovieHumanLoftChain.ILayer): number[] => [...l.coefficients]);
     const cM: number[][] = curvatures(t, values);
@@ -193,6 +198,8 @@ export namespace AutoMovieHumanSeamStation {
             throw new Error(`Kept layer ${k} of ${chain.name} carries no curvatures`);
           return l;
         }
+        AutoMovieHumanLoftContract.jet(`${chain.name} layer ${k} slopes`, cS[k]!, AutoMovieHumanLoftContract.FINITE);
+        AutoMovieHumanLoftContract.jet(`${chain.name} layer ${k} curvatures`, cM[k]!, AutoMovieHumanLoftContract.FINITE);
         return {
           ...l,
           slopes: cS[k]!,

@@ -223,25 +223,43 @@ export namespace AutoMovieHumanSeamPatch {
       const au: number = x === 0 ? 1 : -1;
       const bvSign: number = y === 0 ? 1 : -1;
       const phi: number[] = blend(a, b, p);
-      for (const i of range(r))
-        for (const j of range(r)) {
+      for (let i: number = 0; i <= r; i++)
+        for (let j: number = 0; j <= r; j++) {
           const H: number[] = c.horizontal[i]![j]!;
           const V: number[] = c.vertical[i]![j]!;
-          const delta: number[] = H.map((h: number, k: number): number => h - V[k]!);
-          const T: number[] = V.map((w: number, k: number): number => w + delta[k]! * phi[0]!);
-          const Tu: number[] = delta.map((d: number): number => d * phi[1]! * au);
-          const Tv: number[] = delta.map((d: number): number => d * phi[2]! * bvSign);
-          const Tuu: number[] = delta.map((d: number): number => d * phi[3]!);
-          const Tuv: number[] = delta.map((d: number): number => d * phi[4]! * au * bvSign);
-          const Tvv: number[] = delta.map((d: number): number => d * phi[5]!);
-          const A = (o: number): number => basis(bu, x, i, o);
-          const B = (o: number): number => basis(bv, y, j, o);
-          add(0, -A(0) * B(0), T);
-          add(1, -A(0) * B(0), Tu); add(1, -A(1) * B(0), T);
-          add(2, -A(0) * B(0), Tv); add(2, -A(0) * B(1), T);
-          add(3, -A(0) * B(0), Tuu); add(3, -2 * A(1) * B(0), Tu); add(3, -A(2) * B(0), T);
-          add(4, -A(0) * B(0), Tuv); add(4, -A(0) * B(1), Tu); add(4, -A(1) * B(0), Tv); add(4, -A(1) * B(1), T);
-          add(5, -A(0) * B(0), Tvv); add(5, -2 * A(0) * B(1), Tv); add(5, -A(0) * B(2), T);
+          const a0: number = basis(bu, x, i, 0);
+          const a1: number = basis(bu, x, i, 1);
+          const a2: number = basis(bu, x, i, 2);
+          const b0: number = basis(bv, y, j, 0);
+          const b1: number = basis(bv, y, j, 1);
+          const b2: number = basis(bv, y, j, 2);
+
+          // The blended entry T and its derivatives, one coordinate at a
+          // time, each product formed as the Hermite weight times the entry.
+          for (let k: number = 0; k < dim; k++) {
+            const delta: number = H[k]! - V[k]!;
+            const T: number = V[k]! + delta * phi[0]!;
+            const Tu: number = delta * phi[1]! * au;
+            const Tv: number = delta * phi[2]! * bvSign;
+            const Tuu: number = delta * phi[3]!;
+            const Tuv: number = delta * phi[4]! * au * bvSign;
+            const Tvv: number = delta * phi[5]!;
+            out[0]![k]! += -a0 * b0 * T;
+            out[1]![k]! += -a0 * b0 * Tu;
+            out[1]![k]! += -a1 * b0 * T;
+            out[2]![k]! += -a0 * b0 * Tv;
+            out[2]![k]! += -a0 * b1 * T;
+            out[3]![k]! += -a0 * b0 * Tuu;
+            out[3]![k]! += -2 * a1 * b0 * Tu;
+            out[3]![k]! += -a2 * b0 * T;
+            out[4]![k]! += -a0 * b0 * Tuv;
+            out[4]![k]! += -a0 * b1 * Tu;
+            out[4]![k]! += -a1 * b0 * Tv;
+            out[4]![k]! += -a1 * b1 * T;
+            out[5]![k]! += -a0 * b0 * Tvv;
+            out[5]![k]! += -2 * a0 * b1 * Tv;
+            out[5]![k]! += -a0 * b2 * T;
+          }
         }
     });
     return { p: out[0]!, u: out[1]!, v: out[2]!, uu: out[3]!, uv: out[4]!, vv: out[5]! };
