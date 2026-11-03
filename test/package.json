@@ -36,6 +36,7 @@
     "onnxruntime-node": "catalog:media",
     "pngjs": "catalog:media",
     "three": "catalog:three",
+    "tstl": "catalog:samchon",
     "typia": "catalog:samchon",
     "@automovie/recovery": "workspace:^"
   },
