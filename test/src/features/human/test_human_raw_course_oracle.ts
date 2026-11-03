@@ -1,6 +1,7 @@
 import { TestValidator } from "@nestia/e2e";
 import { HumanRawGeometry as G } from "../internal/HumanRawGeometry";
 import { HumanRawCourseAudit as C } from "../internal/HumanRawCourseAudit";
+import { nclose } from "../internal/nclose";
 
 /**
  * Fixed independent source curves retain key and intermediate skin disagreement.
@@ -26,13 +27,15 @@ export function test_human_raw_course_oracle(): void {
     const made: G.Mesh = { positions: Array.from(source.positions, (value: number, index: number): number => index % 3 === 0 ? value + offset : value), indices: [0, 1, 3, 1, 2, 3] };
     const report: C.Report = C.read(course, original, new G.Index(made));
     values.push(report.skinMaximum ?? NaN);
-    check(failures, `actual buffer offset ${offset}`, report.status === "DIAGNOSTIC" && Math.abs(report.polylineLength - 40) < 1e-8 && report.readings.every((row: C.Reading): boolean => row.skinDistance !== null && row.sourceDistance !== null && Math.abs(row.skinDistance - offset) < 1e-8 && row.sourceDistance < 1e-8), report);
+    check(failures, `actual buffer offset ${offset}`, report.status === "DIAGNOSTIC" && nclose(report.polylineLength, 40, 1e-8) && report.readings.every((row: C.Reading): boolean => row.skinDistance !== null && row.sourceDistance !== null && nclose(row.skinDistance, offset, 1e-8) && nclose(row.sourceDistance, 0, 1e-8)), report);
   }
-  check(failures, "known input delta", Math.abs(values[2]! - values[1]! - 3) < 1e-8, values);
+  check(failures, "known input delta", nclose(values[2]! - values[1]!, 3, 1e-8), values);
   const gap: G.Mesh = { positions: [0, 0, 0, 0, 10, 0, 0, 10, 4, 0, 0, 4, 0, 0, 6, 0, 10, 6, 0, 10, 10, 0, 0, 10], indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7] };
   const defect: C.Report = C.read(course, original, new G.Index(gap));
-  check(failures, "all actual source keys remain on skin", defect.readings.filter((row: C.Reading): boolean => row.fraction === 0 || row.fraction === 1).every((row: C.Reading): boolean => row.skinDistance !== null && row.skinDistance < 1e-8), defect);
+  check(failures, "all actual source keys remain on skin", defect.readings.filter((row: C.Reading): boolean => row.fraction === 0 || row.fraction === 1).every((row: C.Reading): boolean => row.skinDistance !== null && nclose(row.skinDistance, 0, 1e-8)), defect);
   check(failures, "intermediate source interval catches missing strip", defect.readings.some((row: C.Reading): boolean => row.fraction > 0 && row.fraction < 1 && row.skinDistance !== null && row.skinDistance > 0.5), defect);
+  const missing: C.Report = C.read(course, original);
+  check(failures, "missing candidate stays red without source substitution", missing.status === "FAIL" && missing.readings.every((row: C.Reading): boolean => row.sourceDistance !== null && row.skinDistance === null && row.reason !== null), missing);
   for (const points of [[], [[0, 0, 0]], [[NaN, 0, 0], [1, 0, 0]], [[1e308, 0, 0], [-1e308, 0, 0]], [[0, 0, 0], [1e200, 0, 0]]] as G.Point[][]) {
     const refused: C.Report = C.read({ ...course, points }, original, original);
     check(failures, "unavailable original curve cannot pass", refused.status === "FAIL" && refused.issues.length > 0, refused);

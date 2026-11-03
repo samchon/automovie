@@ -33,6 +33,20 @@ export namespace HumanRawGeometry {
     /** Degree-two barycentric quadrature address. */
     barycentric: Point;
   }
+  /** A malformed raw observation retains its actual address instead of a fabricated origin. */
+  export interface Issue {
+    /** Original face index; null for a buffer/vertex-level failure. */
+    triangle: number | null;
+
+    /** Original material vertex index; null without an attributable vertex. */
+    vertex: number | null;
+
+    /** Actual raw coordinate; null when no such coordinate exists. */
+    coordinate: Point | null;
+
+    /** Exact finite/domain/area refusal and original buffer index where applicable. */
+    reason: string;
+  }
   /** Axis-aligned hierarchy node. */
   interface Node { low: Point; high: Point; faces: number[]; left?: Node; right?: Node; }
 
@@ -49,17 +63,23 @@ export namespace HumanRawGeometry {
 
   /** Collect every malformed buffer or triangle; an absent observation is never zero error. */
   export function invalid(mesh: Mesh): string[] {
-    const issues: string[] = [];
-    if (mesh.positions.length === 0 || mesh.positions.length % 3 !== 0) issues.push("positions must contain nonempty XYZ triples");
-    if (mesh.indices.length === 0 || mesh.indices.length % 3 !== 0) issues.push("indices must contain nonempty triangle triples");
-    for (let i: number = 0; i < mesh.positions.length; i++) if (!Number.isFinite(mesh.positions[i])) issues.push(`coordinate ${i}: non-finite ${String(mesh.positions[i])}`);
-    for (let i: number = 0; i < mesh.indices.length; i++) if (!Number.isInteger(mesh.indices[i]) || mesh.indices[i]! < 0 || mesh.indices[i]! * 3 + 2 >= mesh.positions.length) issues.push(`index ${i}: missing vertex ${String(mesh.indices[i])}`);
+    return inspect(mesh).map((issue: Issue): string => issue.reason);
+  }
+  /** Collect every invalid raw coordinate/index/face with its original physical address. */
+  export function inspect(mesh: Mesh): Issue[] {
+    const issues: Issue[] = [];
+    if (mesh?.positions === undefined || mesh.positions === null || mesh?.indices === undefined || mesh.indices === null) return [{ triangle: null, vertex: null, coordinate: null, reason: "Raw positions and indices buffers are required" }];
+    if (![mesh.positions.length, mesh.indices.length].every((length: number): boolean => Number.isSafeInteger(length) && length >= 0)) return [{ triangle: null, vertex: null, coordinate: null, reason: "Raw buffer lengths must be finite nonnegative safe integers" }];
+    if (mesh.positions.length === 0 || mesh.positions.length % 3 !== 0) issues.push({ triangle: null, vertex: null, coordinate: null, reason: "positions must contain nonempty XYZ triples" });
+    if (mesh.indices.length === 0 || mesh.indices.length % 3 !== 0) issues.push({ triangle: null, vertex: null, coordinate: null, reason: "indices must contain nonempty triangle triples" });
+    for (let i: number = 0; i < mesh.positions.length; i++) if (!Number.isFinite(mesh.positions[i])) { const index: number = Math.floor(i / 3); issues.push({ triangle: null, vertex: index, coordinate: vertex(mesh, index), reason: `coordinate ${i}: non-finite ${String(mesh.positions[i])}` }); }
+    for (let i: number = 0; i < mesh.indices.length; i++) if (!Number.isInteger(mesh.indices[i]) || mesh.indices[i]! < 0 || mesh.indices[i]! * 3 + 2 >= mesh.positions.length) issues.push({ triangle: Math.floor(i / 3), vertex: null, coordinate: null, reason: `index ${i}: missing vertex ${String(mesh.indices[i])}` });
     if (issues.length !== 0) return issues;
     for (let face: number = 0; face < mesh.indices.length / 3; face++) {
       const [a, b, c]: readonly [Point, Point, Point] = triangle(mesh, face);
       const normal: Point = cross(sub(b, a), sub(c, a));
       const twiceArea: number = Math.hypot(...normal);
-      if (!Number.isFinite(twiceArea) || twiceArea <= 0) issues.push(`triangle ${face}: non-positive or non-finite area; vertices ${JSON.stringify([a, b, c])}`);
+      if (!Number.isFinite(twiceArea) || twiceArea <= 0) issues.push({ triangle: face, vertex: mesh.indices[face * 3]!, coordinate: a, reason: `triangle ${face}: non-positive or non-finite area; vertices ${JSON.stringify([a, b, c])}` });
     }
     return issues;
   }
@@ -89,7 +109,9 @@ export namespace HumanRawGeometry {
       const issues: string[] = invalid(mesh);
       if (issues.length !== 0) throw new Error(issues.join("\n"));
       this.mesh = Object.freeze({ positions: Object.freeze(Array.from(mesh.positions)), indices: Object.freeze(Array.from(mesh.indices)) });
-      this.root = build(this.mesh, Array.from({ length: this.mesh.indices.length / 3 }, (_: unknown, index: number): number => index));
+      const centres: Float64Array = new Float64Array(this.mesh.indices.length);
+      for (let face: number = 0; face < this.mesh.indices.length / 3; face++) for (let axis: number = 0; axis < 3; axis++) centres[face * 3 + axis] = this.mesh.positions[this.mesh.indices[face * 3]! * 3 + axis]! + this.mesh.positions[this.mesh.indices[face * 3 + 1]! * 3 + axis]! + this.mesh.positions[this.mesh.indices[face * 3 + 2]! * 3 + axis]!;
+      this.root = build(this.mesh, Array.from({ length: this.mesh.indices.length / 3 }, (_: unknown, index: number): number => index), centres);
     }
     /** Closest point across all triangles; no spatial cutoff can hide a distant spike. */
     public nearest(point: Point): Hit {
@@ -123,7 +145,10 @@ export namespace HumanRawGeometry {
       let best: number | undefined;
       const visit: (node: Node) => void = (node: Node): void => {
         if (!lineBox(point, direction, node, Math.abs(best ?? Infinity))) return;
-        if (node.left !== undefined && node.right !== undefined) { visit(node.left); visit(node.right); return; }
+        if (node.left !== undefined && node.right !== undefined) {
+          const ordered: Node[] = [node.left, node.right].sort((a: Node, b: Node): number => lineBoxDistance(point, direction, a) - lineBoxDistance(point, direction, b));
+          visit(ordered[0]!); visit(ordered[1]!); return;
+        }
         for (const face of node.faces) {
           const [a, b, c]: readonly [Point, Point, Point] = triangle(this.mesh, face);
           const u: Point = sub(b, a); const v: Point = sub(c, a);
@@ -142,16 +167,16 @@ export namespace HumanRawGeometry {
   }
 
   /** Median hierarchy construction; it changes search order only, never the target surface. */
-  function build(mesh: Mesh, faces: number[]): Node {
+  function build(mesh: Mesh, faces: number[], centres: Float64Array): Node {
     const low: number[] = [Infinity, Infinity, Infinity]; const high: number[] = [-Infinity, -Infinity, -Infinity];
-    for (const face of faces) for (const point of triangle(mesh, face)) for (let axis: number = 0; axis < 3; axis++) { low[axis] = Math.min(low[axis]!, point[axis]!); high[axis] = Math.max(high[axis]!, point[axis]!); }
+    for (const face of faces) for (let corner: number = 0; corner < 3; corner++) for (let axis: number = 0; axis < 3; axis++) { const value: number = mesh.positions[mesh.indices[face * 3 + corner]! * 3 + axis]!; low[axis] = Math.min(low[axis]!, value); high[axis] = Math.max(high[axis]!, value); }
     const node: Node = { low: low as unknown as Point, high: high as unknown as Point, faces: [] };
     if (faces.length <= 8) { node.faces = faces; return node; }
     const axis: number = [0, 1, 2].sort((a: number, b: number): number => high[b]! - low[b]! - (high[a]! - low[a]!))[0]!;
-    const centre: (face: number) => number = (face: number): number => triangle(mesh, face).reduce((sum: number, point: Point): number => sum + point[axis]!, 0);
+    const centre: (face: number) => number = (face: number): number => centres[face * 3 + axis]!;
     faces.sort((a: number, b: number): number => centre(a) - centre(b));
     const middle: number = Math.floor(faces.length / 2);
-    node.left = build(mesh, faces.slice(0, middle)); node.right = build(mesh, faces.slice(middle)); return node;
+    node.left = build(mesh, faces.slice(0, middle), centres); node.right = build(mesh, faces.slice(middle), centres); return node;
   }
   /** Exact point-to-box lower bound in millimetres. */
   function boxDistance(point: Point, node: Node): number { return Math.hypot(...point.map((value: number, axis: number): number => Math.max(0, node.low[axis]! - value, value - node.high[axis]!))); }
@@ -164,6 +189,16 @@ export namespace HumanRawGeometry {
       low = Math.max(low, Math.min(a, b)); high = Math.min(high, Math.max(a, b)); if (low > high) return false;
     }
     return true;
+  }
+  /** Minimum possible absolute ray parameter for a child; this changes visitation order only. */
+  function lineBoxDistance(point: Point, direction: Point, node: Node): number {
+    let low: number = -Infinity; let high: number = Infinity;
+    for (let axis: number = 0; axis < 3; axis++) {
+      if (direction[axis] === 0) { if (point[axis]! < node.low[axis]! || point[axis]! > node.high[axis]!) return Infinity; continue; }
+      const a: number = (node.low[axis]! - point[axis]!) / direction[axis]!; const b: number = (node.high[axis]! - point[axis]!) / direction[axis]!;
+      low = Math.max(low, Math.min(a, b)); high = Math.min(high, Math.max(a, b)); if (low > high) return Infinity;
+    }
+    return low <= 0 && high >= 0 ? 0 : Math.min(Math.abs(low), Math.abs(high));
   }
   /** Closest point from the triangle's seven Voronoi regions (Ericson, Real-Time Collision Detection, section 5.1.5). */
   function closest(p: Point, a: Point, b: Point, c: Point): Point {

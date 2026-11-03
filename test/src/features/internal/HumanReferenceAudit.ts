@@ -34,7 +34,7 @@ export namespace HumanReferenceAudit {
     /** Original face index; -1 denotes a vertex or buffer-level failure. */
     triangle: number;
     /** Actual observation coordinate in the fixed frame, mm. */
-    coordinate: Geometry.Point;
+    coordinate: Geometry.Point | null;
     /** Measured reading; null explicitly means unavailable. */
     observed: number | null;
     /** Independently prescribed scalar answer. */
@@ -81,16 +81,18 @@ export namespace HumanReferenceAudit {
     findings: Finding[];
     /** Two-way area-weighted readings per fixed source region. */
     metrics: Metric[];
-    /** Total original source and output vertices independently queried. */
+    /** Total original indexed source/output surface vertices independently queried. */
     verticesChecked: number;
     /** Independent authority of the limits, or explicit diagnostic-only limitation. */
     authority: string;
   }
   /** Weighted scalar observation. */
   interface Weighted { value: number; area: number; }
+  /** Geometry depends on the actual sample and target, not the number of reporting regions. */
+  interface Observation { hit?: Geometry.Hit; nearestError?: string; normalCalled: boolean; normal?: number; normalError?: string; }
 
   /**
-   * Audit both directions on every face quadrature sample and every original vertex.
+   * Audit both directions on every face quadrature sample and original indexed vertex.
    * The reverse pass attributes a sample to its nearest RAW source triangle, never
    * a generated-body label. It cannot hide extra skin by cropping the candidate.
    */
@@ -98,7 +100,7 @@ export namespace HumanReferenceAudit {
     const findings: Finding[] = [];
     const metrics: Metric[] = [];
     for (const [direction, mesh] of [["reference", reference], ["candidate", candidate]] as const) {
-      for (const reason of Geometry.invalid(mesh)) findings.push({ person, part: "all", stage, direction, triangle: -1, coordinate: [0, 0, 0], observed: null, expected: 0, deviation: null, tolerance: 0, units: "valid geometry", reason });
+      for (const issue of Geometry.inspect(mesh)) findings.push({ person, part: "all", stage, direction, triangle: issue.triangle ?? -1, coordinate: issue.coordinate, observed: null, expected: 0, deviation: null, tolerance: 0, units: "valid geometry", reason: issue.reason + (issue.vertex === null ? "" : `; original vertex ${issue.vertex}`) });
     }
     if (findings.length !== 0) return { status: "FAIL", findings, metrics, verticesChecked: 0, authority: "Euclidean validity" };
     if (regions.length === 0 || (limits !== undefined && (![limits.distance, limits.normalDegrees].every(Number.isFinite) || limits.distance < 0 || limits.normalDegrees < 0 || limits.basis.length === 0))) throw new Error("Regions and externally justified finite nonnegative limits are required");
@@ -117,6 +119,7 @@ export namespace HumanReferenceAudit {
     }
     const sourceSamples: Geometry.Sample[] = Geometry.samples(reference);
     const outputSamples: Geometry.Sample[] = Geometry.samples(candidate);
+    const observations: Map<Geometry.Sample, Observation> = new Map();
     for (const sample of sourceSamples) if (!regions.some((region: Region): boolean => region.triangle(sample.triangle, sample.point))) findings.push(finding(person, "unassigned raw source", stage, "reference coverage", sample, null, 0, "sample", "An actual source sample belongs to no declared region; candidate cropping cannot remove this obligation."));
     for (const region of regions) for (const direction of ["reference-to-candidate", "candidate-to-reference"] as const) {
       const samples: Geometry.Sample[] = direction === "reference-to-candidate" ? sourceSamples : outputSamples;
@@ -125,9 +128,15 @@ export namespace HumanReferenceAudit {
       let area: number = 0; let missingNormalArea: number = 0;
       for (const sample of samples) {
         if (![...sample.point, ...sample.normal, sample.area].every(Number.isFinite) || sample.area <= 0) { findings.push(finding(person, region.name, stage, direction, sample, null, 0, "finite sample", "Non-finite or non-positive derived quadrature/normal.")); continue; }
-        let hit: Geometry.Hit;
-        try { hit = target.nearest(sample.point); }
-        catch (error) { findings.push(finding(person, region.name, stage, direction, sample, null, 0, "mm", `Nearest observation refused: ${error instanceof Error ? error.message : String(error)}`)); continue; }
+        let observation: Observation | undefined = observations.get(sample);
+        if (observation === undefined) {
+          observation = { normalCalled: false };
+          try { observation.hit = target.nearest(sample.point); }
+          catch (error) { observation.nearestError = error instanceof Error ? error.message : String(error); }
+          observations.set(sample, observation);
+        }
+        if (observation.hit === undefined) { findings.push(finding(person, region.name, stage, direction, sample, null, 0, "mm", `Nearest observation refused: ${observation.nearestError}`)); continue; }
+        const hit: Geometry.Hit = observation.hit;
         const sourceFace: number = direction === "reference-to-candidate" ? sample.triangle : hit.triangle;
         const sourcePoint: Geometry.Point = direction === "reference-to-candidate" ? sample.point : hit.point;
         if (!region.triangle(sourceFace, sourcePoint)) continue;
@@ -137,25 +146,31 @@ export namespace HumanReferenceAudit {
         const angle: number = Math.acos(Math.max(-1, Math.min(1, Geometry.dot(sample.normal, hit.normal)))) * 180 / Math.PI;
         if (Number.isFinite(angle)) angles.push({ value: angle, area: sample.area });
         else findings.push(finding(person, region.name, stage, direction, sample, null, 0, "degree", "Derived normal angle is non-finite."));
-        let normal: number | undefined;
-        try { normal = target.normalDistance(sample.point, sample.normal); }
-        catch (error) { findings.push(finding(person, region.name, stage, direction, sample, null, 0, "mm", `Normal observation refused: ${error instanceof Error ? error.message : String(error)}`)); }
+        if (!observation.normalCalled) {
+          observation.normalCalled = true;
+          try { observation.normal = target.normalDistance(sample.point, sample.normal); }
+          catch (error) { observation.normalError = error instanceof Error ? error.message : String(error); }
+        }
+        if (observation.normalError !== undefined) findings.push(finding(person, region.name, stage, direction, sample, null, 0, "mm", `Normal observation refused: ${observation.normalError}`));
+        const normal: number | undefined = observation.normal;
         if (normal === undefined) {
           missingNormalArea += sample.area;
           findings.push(finding(person, region.name, stage, direction, sample, null, 0, "mm", "No intersection on this actual source/output normal line; nearest distance cannot substitute for normal distance."));
         } else if (Number.isFinite(normal)) normals.push({ value: Math.abs(normal), area: sample.area });
         else { missingNormalArea += sample.area; findings.push(finding(person, region.name, stage, direction, sample, null, 0, "mm", "Derived normal distance is non-finite.")); }
         if (limits !== undefined && hit.distance > limits.distance) findings.push(finding(person, region.name, stage, direction, sample, hit.distance, limits.distance, "mm", limits.basis));
+        if (limits !== undefined && normal !== undefined && Number.isFinite(normal) && Math.abs(normal) > limits.distance) findings.push(finding(person, region.name, stage, direction + ".normal-distance", sample, Math.abs(normal), limits.distance, "mm", `${limits.basis}; finite normal-line separation is independently gated even when nearest distance is smaller.`));
         if (limits !== undefined && angle > limits.normalDegrees) findings.push(finding(person, region.name, stage, direction + ".normal", sample, angle, limits.normalDegrees, "degree", limits.basis));
       }
-      if (area === 0) findings.push({ person, part: region.name, stage, direction, triangle: -1, coordinate: [0, 0, 0], observed: null, expected: 1, deviation: null, tolerance: 0, units: "sample", reason: "The declared fixed reference region has no observed support." });
+      if (area === 0) findings.push({ person, part: region.name, stage, direction, triangle: -1, coordinate: null, observed: null, expected: 1, deviation: null, tolerance: 0, units: "sample", reason: "The declared fixed reference region has no observed support." });
       metrics.push({ part: region.name, direction, area, samples: distances.length, missingNormalArea, nearestRms: rms(distances), nearestP95: percentile(distances), nearestMaximum: distances.reduce((maximum: number, row: Weighted): number => Math.max(maximum, row.value), 0), normalRms: missingNormalArea === 0 && normals.length !== 0 ? rms(normals) : null, normalP95: missingNormalArea === 0 && normals.length !== 0 ? percentile(normals) : null, normalAngleRms: rms(angles) });
-      for (const [key, value] of Object.entries(metrics[metrics.length - 1]!)) if (typeof value === "number" && !Number.isFinite(value)) findings.push({ person, part: region.name, stage, direction, triangle: -1, coordinate: [0, 0, 0], observed: null, expected: 0, deviation: null, tolerance: 0, units: "finite derived metric", reason: `${key} is non-finite; unresolved arithmetic never establishes acceptance.` });
+      for (const [key, value] of Object.entries(metrics[metrics.length - 1]!)) if (typeof value === "number" && !Number.isFinite(value)) findings.push({ person, part: region.name, stage, direction, triangle: -1, coordinate: null, observed: null, expected: 0, deviation: null, tolerance: 0, units: "finite derived metric", reason: `${key} is non-finite; unresolved arithmetic never establishes acceptance.` });
     }
 
-    // Every original vertex is checked too: a tiny-area spike must not vanish in p95.
+    // Every indexed surface vertex is checked too: a tiny-area spike must not
+    // vanish in p95, and an unused buffer point must not fabricate a skin defect.
     let verticesChecked: number = 0;
-    for (const [direction, mesh, target] of [["reference-vertex-to-candidate", reference, emitted], ["candidate-vertex-to-reference", candidate, source]] as const) for (let index: number = 0; index < mesh.positions.length / 3; index++) {
+    for (const [direction, mesh, target] of [["reference-vertex-to-candidate", reference, emitted], ["candidate-vertex-to-reference", candidate, source]] as const) for (const index of new Set(Array.from(mesh.indices))) {
       const coordinate: Geometry.Point = Geometry.vertex(mesh, index);
       verticesChecked++;
       let hit: Geometry.Hit;

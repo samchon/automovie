@@ -65,7 +65,7 @@ export namespace HumanRawCourseAudit {
    * Source interpolation chord error is retained against the actual raw answer,
    * rather than being subtracted from generated error or treated as a free margin.
    */
-  export function read(course: Course, source: G.Index, skin: G.Index): Report {
+  export function read(course: Course, source: G.Index, skin?: G.Index): Report {
     const readings: Reading[] = []; let polylineLength: number = 0;
     const issues: string[] = [];
     if (course.points.length < 2) issues.push("A source course requires at least two independent coordinates");
@@ -77,7 +77,7 @@ export namespace HumanRawCourseAudit {
       const length: number = Math.hypot(...G.sub(b, a)); polylineLength += length;
       if (!Number.isFinite(length)) { issues.push(`Source interval ${interval} has unresolved length arithmetic`); continue; }
       const count: number = Math.max(1, Math.ceil(length / 3));
-      if (count > 1_000_000) { issues.push(`Source interval ${interval} exceeds the declared one-million-sample CPU observation domain; no reading is admitted`); continue; }
+      if (count > 1_000_000 || readings.length + count + 1 > 1_000_000) { issues.push(`Source interval ${interval} exceeds the declared one-million-sample total CPU observation domain; no reading is admitted`); continue; }
       for (let sample: number = 0; sample <= count; sample++) {
         if (interval !== 0 && sample === 0) continue;
         const fraction: number = sample / count;
@@ -85,12 +85,15 @@ export namespace HumanRawCourseAudit {
         const row: Reading = { part: course.name, interval, fraction, coordinate, sourceDistance: null, skinDistance: null, skinTriangle: null, skinCoordinate: null, direction: null, reason: null };
         try { const hit: G.Hit = source.nearest(coordinate); row.sourceDistance = hit.distance; row.direction = hit.normal; }
         catch (error) { row.reason = `Raw source observation refused: ${error instanceof Error ? error.message : String(error)}`; }
-        try { const hit: G.Hit = skin.nearest(coordinate); row.skinDistance = hit.distance; row.skinTriangle = hit.triangle; row.skinCoordinate = hit.point; }
-        catch (error) { row.reason = `${row.reason ?? ""} Emitted skin observation refused: ${error instanceof Error ? error.message : String(error)}`; }
+        if (skin === undefined) row.reason = `${row.reason ?? ""} Actual final-skin output is unavailable; reference registration alone cannot admit generated anatomy.`;
+        else {
+          try { const hit: G.Hit = skin.nearest(coordinate); row.skinDistance = hit.distance; row.skinTriangle = hit.triangle; row.skinCoordinate = hit.point; }
+          catch (error) { row.reason = `${row.reason ?? ""} Emitted skin observation refused: ${error instanceof Error ? error.message : String(error)}`; }
+        }
         readings.push(row);
       }
     }
-    const values: (field: "sourceDistance" | "skinDistance") => number | null = (field: "sourceDistance" | "skinDistance"): number | null => readings.length === 0 || readings.some((row: Reading): boolean => row[field] === null) ? null : Math.max(...readings.map((row: Reading): number => row[field]!));
+    const values: (field: "sourceDistance" | "skinDistance") => number | null = (field: "sourceDistance" | "skinDistance"): number | null => readings.length === 0 || readings.some((row: Reading): boolean => row[field] === null) ? null : readings.reduce((maximum: number, row: Reading): number => Math.max(maximum, row[field]!), 0);
     return { part: course.name, status: issues.length !== 0 || readings.length === 0 || !Number.isFinite(polylineLength) || !Number.isFinite(course.dimension) || readings.some((row: Reading): boolean => row.reason !== null) ? "FAIL" : "DIAGNOSTIC", readings, polylineLength, sourceDimension: course.dimension, sourceDimensionDifference: polylineLength - course.dimension, sourceMaximum: values("sourceDistance"), skinMaximum: values("skinDistance"), authority: `${course.authority}; source key/chord distances are observations, not registered clinical identity or invented acceptance limits.`, issues };
   }
 }
