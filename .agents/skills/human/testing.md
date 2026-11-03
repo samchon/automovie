@@ -28,7 +28,7 @@ Run every test on whole people: the references, and people at the population end
 - Test the completed curves by cutting through them, not only along their lines: stations along an axis, up and down runs, the places and shares of extrema, such as the arch of a foot along its length.
 - Express an expectation as a function of the person's own inputs, an intrinsic profile, never of a population or a reference; a lean person has no folds, and a crease is allowed only at an anatomical site with a depth bounded by the person's fat.
 - Keep reference comparisons in their own removable files that no real test imports, and never tighten a real rule to match a reference.
-- Cache generated people, curves and fixtures with a `Singleton` from `tstl` and never regenerate them per test; put test files in folders by level and part, a folder tree of its own for each.
+- Build every person, derived view, reference mesh and fixture inside the test that needs it and cache nothing across tests, so nothing outlives its test. Put test files in folders by level and part, a folder tree of its own for each.
 - Derive every expectation from an input or a cited published value, so the test holds for any person.
 - Run every test on the CPU; the viewer serves inspection.
 - Audit everything before failing, listing every finding by person, region and direction.
@@ -37,10 +37,10 @@ Run every test on whole people: the references, and people at the population end
 - Compare with a reference body only to catch gross defects: limit by the range real bodies take at that site, never by a closeness that rewards matching the reference, because the construction is universal logic the references inform, and a universal curve may differ from them and read better. Where the references barely vary, take that range from published population variation, not from a measuring tolerance.
 - Record a measure that cannot be an independent check, with the reason, instead of inventing a site for it.
 - When the viewer shows a defect no test listed, add the test that lists it.
-- When a test and the viewer disagree, suspect both: check the observer's site and limit against the definition and the references before trusting either, because a wrong test steers every worker who passes it.
+- When a test and the viewer disagree, suspect both: check the observer's site and limit against the definition and the references before trusting either, because a wrong test steers every change that passes it.
 
 ## Running
 
-Run a test alone with `pnpm test --include <name>`; when another worker's file fails the project check, run `pnpm test:noChecks --include <name>` and read the type errors from `ttsc --noEmit`.
+Run tests with `pnpm test --include <names...>`.
 
 After a clean run, judge the look in the [inspection round](verification.md#inspection-round).

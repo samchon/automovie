@@ -60,6 +60,8 @@ Each note records one external source: its citation, what was read, what it prov
 - [ANSUR II trunk landmark heights and neck girth ratio](ansur-ii-trunk-ratios.md)
 - [ISO 8559-1:2017, landmarks and surface lengths](iso-8559-1-2017-landmarks.md)
 - [ISO 20685-1:2018, evaluation protocol for body dimensions from 3-D scans](iso-20685-1-2018.md)
+- [ISO 7250-1:2017, basic human body measurements for technological design](iso-7250-1-2017.md)
+- [Heinz et al. 2003, body dimensions with skeletal breadths](heinz-2003-body-dimensions.md)
 - [Asai et al. 2017, sagittal spino-pelvic alignment (Wakayama Spine Study)](asai-2017-wakayama.md)
 - [Celebi 2013, Legan and Burstone soft-tissue norms against Turkish adults](celebi-2013-legan-burstone-norms.md)
 - [Du 2008, head-and-face anthropometric survey of Chinese workers](du-2008-chinese-workers.md)

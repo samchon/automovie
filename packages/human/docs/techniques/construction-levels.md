@@ -26,7 +26,21 @@ The Human is built in levels. Each level reads only the levels below it and the 
 - A seam's owner publishes the shared ring's jet and the neighbour adopts it; the neighbour reads the published jet, never the owner's layers.
 - A measure solved on the construction's own surface (an input whose definition is a skin distance) is a declared feedback from level 7 to the level-1 key that measure owns, named in the solve, and nowhere else.
 
-## The head today
+## Totality and diagnostics
+
+`AutoMovieHuman.generate` returns a figure for every person inside the declared parameter domain. Contracts stay loud, and where a broken contract lands decides what happens:
+
+| Where the contract breaks | What the figure gets | What is recorded |
+| --- | --- | --- |
+| an optional piece: an additive or subtractive piece, an aperture and its interior, a hair or garment piece | the piece's base: no piece over the base envelope; an aperture that cannot leave one closed loop leaves the skin closed (the mouth's seam lips meet) | an `AutoMovieHumanLoftContract.IDiagnostic` (producer, level, contract, message with its numbers) in the shape's `diagnostics` |
+| a base envelope's row (a section, a station list, a ring) | the neighbouring valid row's frame, by construction of the row rule | the same diagnostic, naming the chain and the layer |
+| a value contract at a shared module (`AutoMovieHumanLoftContract.stations`, `jet`, `ring`) | the producer catches it at its own level and degrades as above | the diagnostic |
+
+A diagnostic is a defect of the piece's law. The universality test turns diagnostics into failures: it fails on any thrown error and on any non-empty `diagnostics`, for the ten core people and for a fixed-seed sample of the parameter domain (a Latin hypercube over the input ranges), so "never fails" is a property test.
+
+What each owner returns: a piece returns its own value (height, depth, body distance, mesh) or, when it cannot meet its contract, nothing plus one diagnostic; it never throws past its own level. The mouth's interior is the first piece written so (`AutoMovieHumanOralCavity.attempt`).
+
+## Head pieces off their level
 
 | Where | What it reads | Level it should read | Plan |
 | --- | --- | --- | --- |

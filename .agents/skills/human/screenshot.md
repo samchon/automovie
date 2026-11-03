@@ -1,6 +1,6 @@
 # Screenshots
 
-Use the Human debug viewer, by default `http://127.0.0.1:5197`. After verifying ownership, start, stop or restart a task-owned server as needed without approval, and leave other owners' services running. From `packages/human`, start the viewer with `pnpm debug` and its compile collector with `pnpm ttsc --noEmit --watch -p tsconfig.debug.json`. Generation and capture never wait for the type check, and an open page never refreshes when a file is saved. The [debug README](../../../packages/human/debug/README.md) documents every route, variable and header.
+Use the Human debug viewer, by default `http://127.0.0.1:5197`. Start, stop or restart the viewer as needed without approval. From `packages/human`, start the viewer with `pnpm debug` and its compile collector with `pnpm ttsc --noEmit --watch -p tsconfig.debug.json`. An open page refreshes when a file is saved, and nothing generates or captures while the compile collector reports an error. The [debug README](../../../packages/human/debug/README.md) documents every route, variable and header.
 
 | Use | Path under the viewer endpoint |
 | --- | --- |
@@ -22,7 +22,7 @@ View one piece or part alone in the component page of the development viewer. It
 
 ## Running
 
-- Start the viewer and its collector with the commands above; a red file never stops a capture.
+- Start the viewer and its collector with the commands above, and fix a red file before capturing.
 - A frame's `x-human-source-sha256` is the source hash at module load, and a later save does not change a frame already made; a retry count above one shows a save during loading.
 
 ## References

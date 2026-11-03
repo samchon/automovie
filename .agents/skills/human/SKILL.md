@@ -15,16 +15,19 @@ Human debugging UI and capture tooling belong in `packages/human/debug`, a devel
 
 - Every public parameter changes the figure through that construction, answered at its published site.
 - Every supported person comes from that one construction with no person selector, and finite, connected, normal anatomy holds across the supported parameter domain, at rest and in every supported pose.
+- Generation returns a figure for every valid person: a piece that cannot keep its contract is left out and records one diagnostic, and an empty diagnostics list is part of done.
 
 ## Order
 
-1. Build the [score](verification.md#score) and pass the [tests](testing.md) before rendering, because a render is expensive and often returns nothing.
-2. Measure the data and choose the construction yourself, under the [construction rules](construction.md).
-3. Change one part at a time, all of its pieces and seams together, and leave the whole figure working.
-4. Inspect the change in the [viewer](verification.md#inspection-round), whole person and close-ups.
-5. Record what the change taught in the Human package's documentation.
+Find every phenomenon and every cause, hidden ones included, before changing anything, fix them all in one batch, and give each fixed defect a test that fails if it returns; every fix and test is universal, orthodox and scientific, never a patch at the symptom, a special case or a hard-coded value or expectation, because a defect in a seam cannot be fixed from inside one piece and fixing one symptom at a time never ends. Work in cycles over the whole figure:
 
-Plan only as far as the next change. When a change disproves a construction, choose another construction.
+1. Inspect: open every image the figure needs in the [viewer](verification.md#inspection-round), the whole person, the close-ups and the curve views of every suspect piece, and read each one.
+2. Analyse: write one table of every phenomenon with its root cause, the hidden causes of the same class elsewhere, and the pieces, seams and files it touches.
+3. Fix every row in one batch under the [construction rules](construction.md), after reviewing the diff against them, and leave the whole figure generating.
+4. Verify: pass the [tests](testing.md) and the [score](verification.md#score), then start the next cycle with every image opened again.
+5. Record what the cycle taught in the Human package's documentation.
+
+Measure the data and choose the construction yourself. When a cycle disproves a construction, choose another construction.
 
 Conquer the anatomical neutral and the bind before any other pose: every motion starts from them, so a defect left at neutral returns in every pose.
 

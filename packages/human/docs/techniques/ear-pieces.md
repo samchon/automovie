@@ -27,7 +27,7 @@ Tragus and antitragus are bumps on the concha's rim (`AutoMovieHumanSeamUnion.bu
 
 ## What the shared loft must support
 
-`AutoMovieHumanBodySurface` owns the appendage join and the event joins. The tree above needs the root chain to be both an appendage (bottom) and an event parent (top) and to carry framed layers. If a framed appendage chain or a rooted event parent is refused today, the integrator's change is confined to `boundary` and `join` and the frame read of the end ring (`context.ends`) for a framed chain; the exact diff is written against the first refusal the build reports, because the code accepts each end's kind separately.
+`AutoMovieHumanBodySurface` owns the appendage join and the event joins. The tree above needs the root chain to be both an appendage (bottom) and an event parent (top) and to carry framed layers. A framed appendage chain or a rooted event parent needs changes only in `boundary`, `join` and the frame read of the end ring (`context.ends`), because the code accepts each end's kind separately.
 
 ## Tests
 

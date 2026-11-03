@@ -49,7 +49,7 @@ The base envelope is the face without its nose, lips, brow ridge and ears, the c
 | eye socket hollow, temple hollow, philtrum groove, nasolabial and mentolabial sulci | depth under the base in its own C2 window | `SeamCarve.dent` |
 | lid opening, nostrils, oral fissure, ear canal | holes | apertures |
 
-Today the head's reliefs (`AutoMovieHumanHeadRelief`) are already radial heights summed in their own windows over the base, so a positive window is a bump and a negative one a dent; the nose's parts, the lips and the ear's splice still read the face's lofting stations and are the pieces still to separate.
+The head's reliefs (`AutoMovieHumanHeadRelief`) are radial heights summed in their own windows over the base, so a positive window is a bump and a negative one a dent; the nose's parts, the lips and the ear's splice read the face's lofting stations.
 
 ## Files
 
@@ -59,7 +59,7 @@ The files stand in `packages/human/src/generation/` under `AutoMovieHumanHead...
 
 ## Standalone entries
 
-Every piece has a TypeScript entry that builds it in its own frame from the fixed inputs of one person (the head inputs and the neck chain of the shared fixture, read once per process) and writes a component document (`HumanComponentModel`). Run with `ttsx --no-plugins --noCheck` and look at the result in the part viewer or a CPU render before the piece is wired into the composition. A piece is wired only after its own check passes.
+Every piece has a TypeScript entry that builds it in its own frame from the fixed inputs of one person (the head inputs and the neck chain of the shared fixture, read once per process) and writes a component document (`HumanComponentModel`). Run with `ttsx` and look at the result in the part viewer or a CPU render before the piece is wired into the composition. A piece is wired only after its own check passes.
 
 ## What a piece must not do
 

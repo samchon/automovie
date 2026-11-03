@@ -7,7 +7,6 @@
   "scripts": {
     "build": "ttsc --noEmit",
     "start": "ttsx src/index.ts",
-    "start:noChecks": "ttsx --no-plugins --noCheck src/index.ts",
     "evidence": "evidence"
   },
   "author": "Samchon",
