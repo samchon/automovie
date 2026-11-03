@@ -6,7 +6,28 @@ The Human runtime and its engine, interface and ingest changes from PR #3038 wer
 
 The dedicated development viewer already exists in that baseline through PR #3041, with capture completion fixed by PR #3042. The retained component page displays supplied mesh vertices, original normals and generating curves without generating or repairing anatomy. Its successful captures establish display behavior only. The removed candidate measurements and provisional protocol are not an anatomical oracle; replacement tests must read the emitted skin independently and derive expectations from public inputs, reference observations or cited anatomy.
 
-The rules the construction follows, by part. A better construction replaces any of them.
+## Independent verification
+
+The raw-array observers read saved emitted coordinates and indices without importing the Human construction, interpolation, measurements or rig. Their successful controls establish the observer's stated mathematical contract; they do not establish that a generated person is anatomically correct. Keep correct-output, actual-buffer defect and known-input-change controls on the same observer path.
+
+- Measure the indexed surface. The saved f1 skin contains 289,042 buffer vertices but only 286,021 referenced vertices; its 3,021 unused vertices cannot establish a crown, a sole or a skin spike. Correct indexed geometry with unused extreme coordinates must remain green, and short floating geometry with unused answer coordinates must remain red. Check referenced narrow spikes directly so an area-weighted percentile cannot hide them.
+- Gate finite normal-line separation separately from nearest Euclidean separation. The oblique control has normal separation `31/3` mm and nearest separation `31/(3 sqrt(2))` mm; the latter is below its independently fixed 8 mm control contract while the former must fail. That fixture allowance supplies no clinical tolerance, and missing normal support remains unavailable.
+- Fix source-region coverage from the original raw source parts before examining the candidate. Candidate labels or cropping cannot redefine the answer's support. Missing or duplicate original head/body parts and unassigned original source samples must refuse acceptance. Nearest-distance diagnostics cannot stand in for a complete normal-distance score or genuine held-out improvement.
+- Keep native source courses distinct from independently registered clinical sites. In f1, the original `Chest`, `Waist` and `Hip` courses have maximum separation from the original raw source skin of 18.655, 10.863 and 19.326 mm respectively. This rejects treating those courses as exact skin-bound clinical answers. Retain the source residual and candidate residual separately; the source residual is neither a free candidate tolerance nor a reason to alter the original dimensions.
+- Check numerical support before reporting material strain. Positive finite triangle area does not establish a usable tangent basis. Saved `head.upper` faces 316430, 317065 and 329242 have basis conditions from approximately `2.43e13` to `8.62e14`; their three-pose readings remain unavailable, nine readings in total. Preserve bind/posed corners, altitude ratio, conditioning, world-coordinate resolution and orthogonalization residual with the refusal. An arithmetic screen is an engineering guard, not a certified error bound or an anatomical allowance.
+- Assess thin faces by their actual numerical support rather than rejecting every thin triangle. Saved `ear.lobe.left` face 383720 has a basis condition of approximately 1129.95. Eighteen identity, right-angle rotation and uniform-scale controls across its six vertex permutations pass, as do six permutations of its actual posed map. The observed maximum principal stretch, approximately 140.862398820536 to 140.862398820538, belongs to that particular material face; it supplies neither a universal clinical threshold nor a whole-body stretch claim.
+
+The maintained controls are [raw reference comparison](../../../test/src/features/human/test_human_raw_reference_oracle.ts), [indexed placement](../../../test/src/features/human/test_human_raw_placement.ts) and [material deformation](../../../test/src/features/human/test_human_raw_deformation.ts). The recovery's seven acceptance gaps remain:
+
+1. Independently registered clinical sites and fine anatomical regions on the raw source.
+2. Every public control at both declared range ends and combined extremes.
+3. Actual public model refinements and every subsystem, including oral geometry.
+4. Forbidden skin-inside-skin and global self-intersection.
+5. Every supported pose and each independently defined clinical joint endpoint.
+6. Genuine whole-person training exclusion and held-out normal-distance improvement over the stature-only baseline.
+7. Complete whole-model appearance and clay acceptance; the fresh f1 public-consumer captures establish that its appearance displays, not acceptance across people, parts or poses.
+
+The following sections describe construction rules by part. A better construction replaces any of them.
 
 ## Whole body
 
