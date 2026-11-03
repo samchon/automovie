@@ -200,18 +200,64 @@ export namespace HumanRawGeometry {
     }
     return low <= 0 && high >= 0 ? 0 : Math.min(Math.abs(low), Math.abs(high));
   }
-  /** Closest point from the triangle's seven Voronoi regions (Ericson, Real-Time Collision Detection, section 5.1.5). */
+  /**
+   * Preserve the ordinary Voronoi calculation, retrying unsupported arithmetic in
+   * a triangle-local unit chart. Fourth-order dot products can underflow while a
+   * triangle's second-order area remains finite, incorrectly selecting an edge.
+   * Scaling only that refused calculation preserves ordinary output bits; an
+   * extreme aspect ratio that still lacks support explicitly refuses the query.
+   */
   function closest(p: Point, a: Point, b: Point, c: Point): Point {
+    try {
+      const result: Point = closestSupported(p, a, b, c);
+      if (!result.every(Number.isFinite)) throw new Error("closest-triangle witness has unsupported arithmetic");
+      return result;
+    }
+    catch (error) {
+      const ab: Point = sub(b, a); const ac: Point = sub(c, a);
+      const scale: number = Math.max(...ab.map(Math.abs), ...ac.map(Math.abs));
+      if (!Number.isFinite(scale) || scale <= 0 || scale === 1) throw error;
+      const local: (point: Point) => Point = (point: Point): Point => [0, 1, 2].map((axis: number): number => (point[axis]! - a[axis]!) / scale) as unknown as Point;
+      const result: Point = closestSupported(local(p), [0, 0, 0], local(b), local(c));
+      return [0, 1, 2].map((axis: number): number => a[axis]! + result[axis]! * scale) as unknown as Point;
+    }
+  }
+  /** Refuse non-finite or subnormal products before they can choose a false Voronoi region. */
+  function supportedProduct(a: number, b: number): number {
+    const value: number = a * b;
+    if (!Number.isFinite(value) || (a !== 0 && b !== 0 && (value === 0 || Math.abs(value) < 2 ** -1022))) throw new Error("closest-triangle product has unsupported overflow/underflow arithmetic");
+    return value;
+  }
+  /** The ordinary left-associated dot sum is retained whenever its arithmetic has support. */
+  function supportedDot(a: Point, b: Point): number {
+    const value: number = supportedProduct(a[0], b[0]) + supportedProduct(a[1], b[1]) + supportedProduct(a[2], b[2]);
+    if (!Number.isFinite(value)) throw new Error("closest-triangle dot has unsupported overflow arithmetic");
+    return value;
+  }
+  /** Seven Voronoi regions (Ericson, Real-Time Collision Detection, section 5.1.5), with arithmetic support checked. */
+  function closestSupported(p: Point, a: Point, b: Point, c: Point): Point {
     const ab: Point = sub(b, a); const ac: Point = sub(c, a); const ap: Point = sub(p, a);
-    const d1: number = dot(ab, ap); const d2: number = dot(ac, ap); if (d1 <= 0 && d2 <= 0) return a;
-    const bp: Point = sub(p, b); const d3: number = dot(ab, bp); const d4: number = dot(ac, bp); if (d3 >= 0 && d4 <= d3) return b;
-    const vc: number = d1 * d4 - d3 * d2;
-    const interpolate: (origin: Point, delta: Point, t: number) => Point = (origin: Point, delta: Point, t: number): Point => [origin[0] + delta[0] * t, origin[1] + delta[1] * t, origin[2] + delta[2] * t];
+    const d1: number = supportedDot(ab, ap); const d2: number = supportedDot(ac, ap); if (d1 <= 0 && d2 <= 0) return a;
+    const bp: Point = sub(p, b); const d3: number = supportedDot(ab, bp); const d4: number = supportedDot(ac, bp); if (d3 >= 0 && d4 <= d3) return b;
+    const vc: number = supportedProduct(d1, d4) - supportedProduct(d3, d2);
+    if (!Number.isFinite(vc)) throw new Error("closest-triangle region determinant overflowed");
+    const interpolate: (origin: Point, delta: Point, t: number) => Point = (origin: Point, delta: Point, t: number): Point => {
+      if (!Number.isFinite(t) || t < 0 || t > 1) throw new Error("closest-triangle edge interpolation is unsupported");
+      return [origin[0] + delta[0] * t, origin[1] + delta[1] * t, origin[2] + delta[2] * t];
+    };
     if (vc <= 0 && d1 >= 0 && d3 <= 0) return interpolate(a, ab, d1 / (d1 - d3));
-    const cp: Point = sub(p, c); const d5: number = dot(ab, cp); const d6: number = dot(ac, cp); if (d6 >= 0 && d5 <= d6) return c;
-    const vb: number = d5 * d2 - d1 * d6; if (vb <= 0 && d2 >= 0 && d6 <= 0) return interpolate(a, ac, d2 / (d2 - d6));
-    const va: number = d3 * d6 - d5 * d4; if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) return interpolate(b, sub(c, b), (d4 - d3) / (d4 - d3 + d5 - d6));
-    const denominator: number = 1 / (va + vb + vc); const v: number = vb * denominator; const w: number = vc * denominator;
+    const cp: Point = sub(p, c); const d5: number = supportedDot(ab, cp); const d6: number = supportedDot(ac, cp); if (d6 >= 0 && d5 <= d6) return c;
+    const vb: number = supportedProduct(d5, d2) - supportedProduct(d1, d6);
+    if (!Number.isFinite(vb)) throw new Error("closest-triangle region determinant overflowed");
+    if (vb <= 0 && d2 >= 0 && d6 <= 0) return interpolate(a, ac, d2 / (d2 - d6));
+    const va: number = supportedProduct(d3, d6) - supportedProduct(d5, d4);
+    if (!Number.isFinite(va)) throw new Error("closest-triangle region determinant overflowed");
+    if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) return interpolate(b, sub(c, b), (d4 - d3) / (d4 - d3 + d5 - d6));
+    const sum: number = va + vb + vc;
+    if (!Number.isFinite(sum) || sum <= 0) throw new Error("closest-triangle barycentric determinant sum is unsupported");
+    const denominator: number = 1 / sum;
+    if (!Number.isFinite(denominator) || denominator <= 0 || denominator < 2 ** -1022) throw new Error("closest-triangle barycentric reciprocal is unsupported");
+    const v: number = supportedProduct(vb, denominator); const w: number = supportedProduct(vc, denominator);
     return [a[0] + ab[0] * v + ac[0] * w, a[1] + ab[1] * v + ac[1] * w, a[2] + ab[2] * v + ac[2] * w];
   }
 }
