@@ -1,5 +1,6 @@
 import type { AutoMovieHumanBodySurface as Surface } from "./AutoMovieHumanBodySurface";
 import { AutoMovieHumanSkinCorridor as Corridor } from "./AutoMovieHumanSkinCorridor";
+import { AutoMovieHumanSkinShortening as Shortening } from "./AutoMovieHumanSkinShortening";
 import type { AutoMovieHumanSurfaceCorrespondence as Correspondence } from "./AutoMovieHumanSurfaceCorrespondence";
 import type { AutoMovieHumanThoracicCourse as Source } from "./AutoMovieHumanThoracicCourse";
 import type { IAutoMovieHumanBodyCalibration as Body } from "./IAutoMovieHumanBodyCalibration";
@@ -16,6 +17,12 @@ export namespace AutoMovieHumanSkinCourse {
     bindings: Corridor.IReading["bindings"];
     /** Original triangle index-buffer offset containing each consecutive segment. */
     triangles: number[];
+    /** Every refused local corridor alternative, with its original physical witness. */
+    alternatives: NonNullable<Corridor.IReading["alternatives"]>;
+    /** Measured bounded material-constraint work, when the unmodified funnel path was inadmissible. */
+    directedWork?: Corridor.IReading["directedWork"];
+    /** All local-alternative costs, including directed paths discarded by shortening. */
+    shorteningWork?: Corridor.IReading["shorteningWork"];
     /** Finite edge-path evidence; a virtual endpoint has an actual triangle rather than a source-ring phase. */
     graph: Omit<Source.IReading["graph"], "route"> & { route: { owner: string; station: number; phase?: number; point: Source.Point }[] };
   }
@@ -143,7 +150,9 @@ export namespace AutoMovieHumanSkinCourse {
     for (let vertex: number = count + 1; vertex >= 0; vertex = before[vertex]!) vertices.push(vertex);
     vertices.reverse();
     const seedFaces: number[] = vertices.slice(1).map((vertex: number): number => face[vertex]!);
-    const refined: Corridor.IReading = Corridor.read(skin, vertices, seedFaces, start, finish, coordinates, selectedFaces);
+    const incidence: Corridor.Connectivity = Corridor.prepare(skin, selectedFaces);
+    const seed: Corridor.IReading = Corridor.read(skin, vertices, seedFaces, start, finish, coordinates, selectedFaces, incidence);
+    const refined: Corridor.IReading = Shortening.read(skin, seed, coordinates, selectedFaces, incidence);
     const points: Source.Point[] = refined.points;
     const addresses: Source.IAddress[] = points.map((p: Source.Point, index: number): Source.IAddress => ({ station: index === 0 ? from.station : index === points.length - 1 ? to.station : refined.stations[index]!, lateral: p[2] }));
     for (let index: number = 0; index < addresses.length; index++) {
@@ -157,7 +166,7 @@ export namespace AutoMovieHumanSkinCourse {
     const length: number = refined.length;
     if (!(length > 0) || !Number.isFinite(length)) throw new Error("An emitted skin course has no finite positive physical length");
     let graph: IReading["graph"] | undefined;
-    return { physicalStage: "emitted-skin-corridor-path", points, addresses, seedVertices: vertices, bindings: refined.bindings, triangles, length,
+    return { physicalStage: "emitted-skin-corridor-path", points, addresses, seedVertices: vertices, bindings: refined.bindings, triangles, length, alternatives: refined.alternatives ?? [], directedWork: refined.directedWork, shorteningWork: refined.shorteningWork,
       /** Allocate diagnostic row/route records only when a caller requests them. */
       get graph(): IReading["graph"] {
         graph ??= { stations: addresses.map((address: Source.IAddress): number => address.station), ordered: addresses.map((address: Source.IAddress): number => address.station), uniformCount: 0, rowOwners: points.map((_: Source.Point, index: number): string[] => [groupName(skin, triangles[Math.min(index, triangles.length - 1)]!)]), intervalOwners: triangles.map((offset: number): string => groupName(skin, offset)), rowNodes: points.map((): number => 1), cost: distances[count + 1]!, route: points.map((p: Source.Point, index: number): { owner: string; station: number; point: Source.Point } => ({ owner: groupName(skin, triangles[Math.min(index, triangles.length - 1)]!), station: addresses[index]!.station, point: p })) };

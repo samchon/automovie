@@ -1,5 +1,6 @@
 import type { AutoMovieHumanBodySurface as Surface } from "./AutoMovieHumanBodySurface";
 import type { AutoMovieHumanThoracicCourse as Source } from "./AutoMovieHumanThoracicCourse";
+import { AutoMovieHumanSkinDirectedPath as Directed } from "./AutoMovieHumanSkinDirectedPath";
 
 /** Unfold an actual connected triangle corridor and remove mesh-edge stair steps inside it. */
 export namespace AutoMovieHumanSkinCorridor {
@@ -15,6 +16,12 @@ export namespace AutoMovieHumanSkinCorridor {
     bindings: ({ edge: [number, number]; unit: number } | { triangle: number })[];
     /** Physical arclength of this unfolded-corridor shortest path, not a global geodesic certificate. */
     length: number;
+    /** Refused alternative corridors, retained even when the current valid physical path remains admitted. */
+    alternatives?: { triangles: number[]; reason: string; witness: unknown }[];
+    /** Actual additional work for a material-constrained corridor, absent for an unchanged directed funnel path. */
+    directedWork?: { sweeps: number; scalarEvaluations: number; segmentEvaluations: number; termination: string };
+    /** Aggregate actual work across every evaluated local alternative, including alternatives not selected. */
+    shorteningWork?: { corridorEvaluations: number; directedCalls: number; sweeps: number; scalarEvaluations: number; segmentEvaluations: number; refusedAlternatives: number; certificates: number; certificateSegments: number; certifiedPruned: number };
   }
 
   /** A two-dimensional isometric coordinate. */
@@ -26,6 +33,25 @@ export namespace AutoMovieHumanSkinCorridor {
   /** A funnel corner and the portal it touches. */
   interface ICorner { point: Point; portal: number }
 
+  /** Original vertex -> radial neighbor -> original incident face offsets; owned by one physical-course operation. */
+  export type Connectivity = ReadonlyMap<number, ReadonlyMap<number, readonly number[]>>;
+
+  /** Prepare actual indexed face incidence once for seed routing and every local corridor refinement. */
+  export function prepare(skin: Surface.IGeometry, selectedFaces: readonly number[]): Connectivity {
+    const incidence: Map<number, Map<number, number[]>> = new Map();
+    for (const face of selectedFaces) {
+      const ids: number[] = skin.mesh.indices.slice(face, face + 3);
+      for (const vertex of ids) {
+        const star: Map<number, number[]> = incidence.get(vertex) ?? new Map();
+        for (const other of ids.filter((value: number): boolean => value !== vertex)) {
+          const faces: number[] = star.get(other) ?? []; faces.push(face); star.set(other, faces);
+        }
+        incidence.set(vertex, star);
+      }
+    }
+    return incidence;
+  }
+
   /**
    * Expand vertex-only seed transitions through their actual incident face
    * fan, unfold adjacent triangles isometrically, and string-pull through the
@@ -33,26 +59,15 @@ export namespace AutoMovieHumanSkinCorridor {
    * original triangle. A different homotopy corridor may be shorter; neither
    * an edge graph nor this finite corridor certifies a global geodesic.
    */
-  export function read(skin: Surface.IGeometry, seedVertices: readonly number[], seedFaces: readonly number[], from: Source.Point, to: Source.Point, coordinates: readonly number[], selectedFaces: readonly number[]): IReading {
-    const incident: Map<number, number[]> = new Map();
-    const edgeFaces: Map<string, number[]> = new Map();
+  export function read(skin: Surface.IGeometry, seedVertices: readonly number[], seedFaces: readonly number[], from: Source.Point, to: Source.Point, coordinates: readonly number[], selectedFaces: readonly number[], incidence: Connectivity = prepare(skin, selectedFaces)): IReading {
     const ids: (face: number) => number[] = (face: number): number[] => skin.mesh.indices.slice(face, face + 3);
-    for (const face of selectedFaces) {
-      const vertices: number[] = ids(face);
-      for (let index: number = 0; index < 3; index++) {
-        const vertex: number = vertices[index]!;
-        const list: number[] = incident.get(vertex) ?? []; list.push(face); incident.set(vertex, list);
-        const key: string = edgeKey(vertex, vertices[(index + 1) % 3]!);
-        const adjacent: number[] = edgeFaces.get(key) ?? []; adjacent.push(face); edgeFaces.set(key, adjacent);
-      }
-    }
     const corridor: number[] = [seedFaces[0]!];
     for (let index: number = 1; index < seedFaces.length; index++) {
       const next: number = seedFaces[index]!;
       const last: number = corridor.at(-1)!;
       if (next === last) continue;
       const vertex: number = seedVertices[index]!;
-      const around: Set<number> = new Set(incident.get(vertex) ?? []);
+      const star: ReadonlyMap<number, readonly number[]> = incidence.get(vertex)!;
       const routes: number[][] = [];
 
       /** A manifold vertex star has at most two simple edge-connected routes. */
@@ -61,8 +76,8 @@ export namespace AutoMovieHumanSkinCorridor {
         if (current === next) { routes.push(route); return; }
         const neighbors: Set<number> = new Set();
         for (const other of ids(current).filter((value: number): boolean => value !== vertex))
-          for (const face of edgeFaces.get(edgeKey(vertex, other)) ?? [])
-            if (face !== current && around.has(face)) neighbors.add(face);
+          for (const face of star.get(other) ?? [])
+            if (face !== current) neighbors.add(face);
         if (neighbors.size > 2) throw new Error("A physical course vertex star has nonmanifold face incidence", { cause: { vertex, triangle: current, adjacent: [...neighbors] } });
         for (const face of neighbors) if (!route.includes(face)) visit([...route, face]);
       };
@@ -77,6 +92,12 @@ export namespace AutoMovieHumanSkinCorridor {
       routes.sort((a: number[], b: number[]): number => fanAngle(skin, a, vertex, incoming, outgoing) - fanAngle(skin, b, vertex, incoming, outgoing) || a.length - b.length);
       corridor.push(...routes[0]!.slice(1));
     }
+    return within(skin, corridor, from, to, coordinates);
+  }
+
+  /** Unfold one actual edge-adjacent face corridor; route selection and local shortening have separate owners. */
+  export function within(skin: Surface.IGeometry, corridor: readonly number[], from: Source.Point, to: Source.Point, coordinates: readonly number[], directed: boolean = true): IReading {
+    const ids: (face: number) => number[] = (face: number): number[] => skin.mesh.indices.slice(face, face + 3);
     const first: number[] = ids(corridor[0]!);
     const p0: Source.Point = world(skin, first[0]!);
     const p1: Source.Point = world(skin, first[1]!);
@@ -118,8 +139,8 @@ export namespace AutoMovieHumanSkinCorridor {
     const corners: ICorner[] = funnel(portals);
     const points: Source.Point[] = [from];
     const triangles: number[] = [];
-    const stations: number[] = [material(from, skin, coordinates, seedFaces[0]!)];
-    const bindings: IReading["bindings"] = [{ triangle: seedFaces[0]! }];
+    const stations: number[] = [material(from, skin, coordinates, corridor[0]!)];
+    const bindings: IReading["bindings"] = [{ triangle: corridor[0]! }];
     for (let index: number = 1; index < corners.length; index++) {
       const a: ICorner = corners[index - 1]!;
       const b: ICorner = corners[index]!;
@@ -127,7 +148,7 @@ export namespace AutoMovieHumanSkinCorridor {
       for (let portalIndex: number = a.portal + 1; portalIndex <= b.portal; portalIndex++) {
         const portal: IPortal = portals[portalIndex]!;
         if (portalIndex === portals.length - 1) {
-          points.push(to); stations.push(material(to, skin, coordinates, seedFaces.at(-1)!)); bindings.push({ triangle: seedFaces.at(-1)! });
+          points.push(to); stations.push(material(to, skin, coordinates, corridor.at(-1)!)); bindings.push({ triangle: corridor.at(-1)! });
         } else {
           const intersection: { line: number; edge: number } = intersect(a.point, b.point, portal.left, portal.right, progress);
           progress = intersection.line;
@@ -142,7 +163,8 @@ export namespace AutoMovieHumanSkinCorridor {
     }
     const physicalLength: number = points.reduce((sum: number, p: Source.Point, index: number): number => index === 0 ? sum : sum + norm(subtract(p, points[index - 1]!)), 0);
     if (triangles.length !== points.length - 1 || ![physicalLength, ...stations, ...points.flat()].every(Number.isFinite)) throw new Error("A physical course corridor omitted a finite physical segment");
-    return { points, triangles, stations, bindings, length: physicalLength };
+    const reading: IReading = { points, triangles, stations, bindings, length: physicalLength };
+    return directed ? Directed.read(skin, reading, coordinates) : reading;
   }
 
   /** Intrinsic angular wedge between the two actual seed rays through an incident face route. */
@@ -224,6 +246,12 @@ export namespace AutoMovieHumanSkinCorridor {
 
   /** Ordered segment/portal crossing; arithmetic allowance never welds distinct mesh sheets. */
   function intersect(a: Point, b: Point, left: Point, right: Point, previous: number): { line: number; edge: number } {
+    // A funnel corner is an existing portal endpoint. Preserve that exact
+    // incidence instead of solving an ill-conditioned intersection again.
+    if (equal(b, left)) return { line: 1, edge: 0 };
+    if (equal(b, right)) return { line: 1, edge: 1 };
+    if (equal(a, left) && previous === 0) return { line: 0, edge: 0 };
+    if (equal(a, right) && previous === 0) return { line: 0, edge: 1 };
     const dx: number = b[0] - a[0]; const dy: number = b[1] - a[1];
     const ex: number = right[0] - left[0]; const ey: number = right[1] - left[1];
     const determinant: number = dx * ey - dy * ex;
@@ -262,6 +290,4 @@ export namespace AutoMovieHumanSkinCorridor {
   function cross(a: Point, b: Point, c: Point): number { return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]); }
   /** Exact repeated chart point identity; no coordinate welding. */
   function equal(a: Point, b: Point): boolean { return a[0] === b[0] && a[1] === b[1]; }
-  /** Undirected original mesh edge identity. */
-  function edgeKey(a: number, b: number): string { return a < b ? a + "/" + b : b + "/" + a; }
 }
