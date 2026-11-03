@@ -1,6 +1,7 @@
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import { HumanPeople } from "./HumanPeople";
+import { HumanOnce } from "./HumanOnce";
 
 /**
  * Measurement of a generated person's skin: the closed triangle mesh the
@@ -62,8 +63,7 @@ export namespace HumanAnatomy {
 
   /** The skin at the bind, generated once per person. */
   export function bind(name: string): ISkin {
-    const found: ISkin | undefined = binds.get(name);
-    if (found !== undefined) return found;
+    return binds.read(name, (): ISkin => {
     const person: HumanPeople.IRigged = HumanPeople.rigged(name);
     const surface: AutoMovieHumanBodySurface.IOutput =
       AutoMovieHumanBodySurface.generate(person.body, []);
@@ -89,8 +89,8 @@ export namespace HumanAnatomy {
       chains,
       joints: joints(person, person.evaluate({}), false),
     };
-    binds.set(name, out);
     return out;
+    });
   }
 
   /**
@@ -637,7 +637,8 @@ interface IRayGrid {
   cells: Map<number, number[]>[];
 }
 
-const binds: Map<string, HumanAnatomy.ISkin> = new Map();
+/** Failed final-skin production is preserved for every later region, exactly like successful output. */
+const binds: HumanOnce<HumanAnatomy.ISkin> = new HumanOnce();
 const poses: Map<string, HumanAnatomy.ISkin> = new Map();
 const bindings: Map<string, { joints: string[]; boneIndices: number[]; weights: number[] }> = new Map();
 const rayGrids: WeakMap<HumanAnatomy.ISkin, IRayGrid> = new WeakMap();

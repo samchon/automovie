@@ -1,4 +1,5 @@
 import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
+import { HumanOnce } from "./HumanOnce";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
 import { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/AutoMovieHumanSkeleton";
@@ -46,22 +47,15 @@ export namespace HumanPeople {
 
   /** One person, generated on first use. */
   export function person(name: string): IPerson {
-    const found: IPerson | undefined = persons.get(name);
-    if (found !== undefined) return found;
-    const params: IAutoMovieHumanParameters = inputs().get(name)!;
-    const made: IPerson = {
-      name,
-      params,
-      body: AutoMovieHumanBodyLaw.calibrate(params).body,
-    };
-    persons.set(name, made);
-    return made;
+    return persons.read(name, (): IPerson => {
+      const params: IAutoMovieHumanParameters = inputs().get(name)!;
+      return { name, params, body: AutoMovieHumanBodyLaw.calibrate(params).body };
+    });
   }
 
   /** One person with a rig and pose evaluator, prepared on first use. */
   export function rigged(name: string): IRigged {
-    const found: IRigged | undefined = riggeds.get(name);
-    if (found !== undefined) return found;
+    return riggeds.read(name, (): IRigged => {
     const own: IPerson = person(name);
     const scale: number =
       0.001 * (own.params.body.controls.height.value! / own.body.stature);
@@ -73,13 +67,15 @@ export namespace HumanPeople {
         calibration: own.body,
       }),
     };
-    riggeds.set(name, made);
     return made;
+    });
   }
 }
 
-const persons: Map<string, HumanPeople.IPerson> = new Map();
-const riggeds: Map<string, HumanPeople.IRigged> = new Map();
+/** Both successful geometry and the identical native failure are shared by every test consumer. */
+const persons: HumanOnce<HumanPeople.IPerson> = new HumanOnce();
+/** Preparing a rig also preserves its exact failed outcome instead of retrying it per region. */
+const riggeds: HumanOnce<HumanPeople.IRigged> = new HumanOnce();
 let table: Map<string, IAutoMovieHumanParameters> | null = null;
 
 /** Every person's inputs. */

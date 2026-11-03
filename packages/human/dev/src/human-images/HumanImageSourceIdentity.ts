@@ -101,13 +101,15 @@ export class HumanImageSourceIdentity {
       ),
 
       // The worker renders through the Human page, so its modules join the key.
-      ...["human", "human-stickman", "three"].map(
+      ...["human", "human-stickman", "three", "components"].map(
         (directory: string): Promise<void> =>
           visit(path.join(root, "packages/human/dev/src", directory)),
       ),
     ]);
     for (const name of [
       "packages/human/dev/human.html",
+      "packages/human/dev/human-components.html",
+      "packages/human/dev/src/human-component-view.ts",
       "packages/human/dev/human-stickman.html",
       "packages/human/dev/vite.config.ts",
       "packages/human/dev/humanViteConfig.ts",

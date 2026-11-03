@@ -16,6 +16,8 @@ Generation and current capture require a passing full-check verdict. Admission a
 
 The detailed page retains named and free cameras, surface/overlay/construction passes, curve picking and glob selection, isolation, selection framing, appearance/clay materials, raking lighting, pose controls and PNG/curve-diagram capture. It shares the generated model and scene with the capture worker.
 
+`human-components.html` inspects an explicitly supplied JSON document with `parts` and optional `provenance`. Each part declares its original vertices, triangle indices, optional original normals, generating curves and either body-millimetre coordinates or a local-millimetre frame. Selection, the three structural passes and PNG export operate on that supplied geometry without generating a person. The page records input and PNG hashes separately from the producer's supplied provenance; it does not certify anatomical correctness or that the supplied document came from the current generator.
+
 | Review output | Endpoint |
 | --- | --- |
 | Current PNG | `/human-images/f1/whole-front.surface.png?fresh=<unique-nonce>` |

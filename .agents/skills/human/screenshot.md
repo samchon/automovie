@@ -1,12 +1,12 @@
 # Screenshots
 
-Use the task's viewer endpoint. After verifying ownership, start, stop or restart a task-owned server as needed without approval, and leave other owners' services running. This example starts the viewer from the repository root on the default port:
+Use the task's Human development viewer endpoint, by default `http://127.0.0.1:5196`. After verifying ownership, start, stop or restart a task-owned server as needed without approval, and leave other owners' services running. Start the application in `packages/human/dev` from the repository root:
 
 ```powershell
-Set-Location packages/playground
-$env:AUTOMOVIE_HUMAN_IMAGE_REGISTRY = (Resolve-Path human-images.json).Path
-node node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5173 --strictPort
+pnpm --filter @automovie/human dev
 ```
+
+The default registry is `packages/human/dev/human-images.json`. The [development README](../../../packages/human/dev/README.md) documents explicit registry overrides and the compiler gate used by generation and capture.
 
 | Use | Path under the viewer endpoint |
 | --- | --- |
