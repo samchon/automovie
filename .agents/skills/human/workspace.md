@@ -8,4 +8,4 @@
 
 ## Ignored Paths
 
-`test/.shots`, `test/src/executable`, `.shots` and `packages/human/.shots` are ignored and unrecoverable, and a checkout can overwrite an ignored file without warning. New Human viewer evidence belongs in `packages/human/.shots`; preserve historical captures under `packages/playground/.shots`. Use `git clean` and `git stash` without `-x` and `--all`, and compare a branch's added paths with the disk before switching to it.
+`test/.shots`, `test/src/executable`, `.shots` and `packages/human/.shots` are ignored and unrecoverable, and a checkout can overwrite an ignored file without warning. New Human viewer evidence belongs in `packages/human/.shots`; preserve historical captures under `packages/playground/.shots`. These paths hold captured evidence and reference data only; logic, tests and scripts belong in tracked files. Use `git clean` and `git stash` without `-x` and `--all`, and compare a branch's added paths with the disk before switching to it.

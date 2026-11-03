@@ -34,6 +34,15 @@ The default registry is `packages/human/dev/human-images.json`. The [development
 - Accept a frame as new only when `x-human-cache` is `new-requested-frame`.
 - Keep its `x-human-captured-utc`, `x-human-png-sha256` and `x-human-source-sha256` headers; the last names the source the frame reflects.
 
+## Part View
+
+View one piece or part alone in the component page of the development viewer. It shows a supplied document of parts with their surfaces and generating curves, and every option is a URL variable: the visibility and colour of each part, the visibility, thickness and colour of each curve, the camera, the shading, the raking light and the section. Build the document from a piece's standalone entry with fixed inputs, so a piece is seen in seconds without generating the whole body. The [development README](../../../packages/human/dev/README.md) lists the variables and the entry contract.
+
+## Running
+
+- Start the viewer with the command above and collect type errors from a `ttsc --noEmit --watch` run beside it, so a red file never stops a capture.
+- A frame's `x-human-source-sha256` is the source hash at module load, and a later save does not change a frame already made; a retry count above one shows a save during loading.
+
 ## References
 
 Reference outputs live in `test/.shots/<alias>/`, selected by `test/.shots/manifest.json`: `captures.json` indexes the original photographs, `recovery/screenshots/index.json` the Recovery renders, and `hermite-curves.json.gz` holds the saved curves.

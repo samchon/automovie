@@ -4,7 +4,7 @@ The [tests](testing.md) and the score reject, and the viewer accepts. A candidat
 
 ## Score
 
-Keep one CPU-only executable beside the other reference tools under `test/src/executable/`. It reads private references, so it runs locally. It generates the figure without a GPU and reports:
+The score is a set of CPU-only tests that generate the figure without a GPU; those that read the private references run locally. They report:
 
 | Measure | Reads | Meaning |
 | --- | --- | --- |
@@ -21,6 +21,8 @@ Print the stature-only distance beside it; a law must beat that baseline. Hold o
 Inspect a candidate's generating curves, skin and joins in the [viewer](screenshot.md) as soon as the tests and the score admit it, following [Visual Debugging](../3d-modeling/visual-debugging.md).
 
 Compare it with the existing figure under the same conditions in every affected region and join, including changed inputs. Keep partial work visible and mark what is unverified.
+
+View a piece alone in the [part view](screenshot.md#part-view) before wiring it, and the whole figure after.
 
 ## Inspection Round
 

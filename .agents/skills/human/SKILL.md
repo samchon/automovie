@@ -20,7 +20,7 @@ Human debugging UI and capture tooling belong in `packages/human/dev`, outside t
 
 1. Build the [score](verification.md#score) and pass the [tests](testing.md) before rendering, because a render is expensive and often returns nothing.
 2. Measure the data and choose the construction yourself, under the [construction rules](construction.md).
-3. Change one part at a time and leave the whole figure working.
+3. Change one part at a time, all of its pieces and seams together, and leave the whole figure working.
 4. Inspect the change in the [viewer](verification.md#inspection-round), whole person and close-ups.
 5. Record what the change taught in the Human package's documentation.
 
