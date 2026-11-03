@@ -22,6 +22,7 @@
 - Universalizing a law never lowers the number of curves, guides, sections or knots below what the reference has; find the rule that produces them, and raise a chain that has fewer.
 - Hold shape priors as named constants in normalized part coordinates, shared by every person.
 - Give every constant a published source, a population measurement or a derivation, and turn a value repeated across features into the rule that produces it.
+- Use a named constant where the number is a fact of the world: a definition, a unit factor, a published range, a cited anatomical ratio. Let a variable or a function stand where the value must follow the person's inputs, so that a constant never fixes one person's value.
 - When an input or its definition changes, replace a prior fitted to it by the definition, and solve the measure against the construction's own surface.
 
 ## Inputs
