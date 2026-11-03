@@ -2,7 +2,6 @@ import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoft
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
-import type { AutoMovieHumanMeasurementProtocol } from "./AutoMovieHumanMeasurementProtocol";
 
 /**
  * Shared shape coefficients (theta) of the generated body surface.
@@ -28,24 +27,6 @@ import type { AutoMovieHumanMeasurementProtocol } from "./AutoMovieHumanMeasurem
  * identified across all references.
  */
 export interface IAutoMovieHumanBodyCalibration {
-  /**
-   * Declared anterior model surface course from side-neck to bust apex.
-   * Material/lateral addresses contain geometry only, never the target length.
-   * This is not a clinical landmark registration or a minimum neck course.
-   */
-  thoracicCourse?: {
-    /** Generating owner names; limbs and unrelated head surfaces are excluded. */
-    owners: string[];
-    /** Side-neck boundary material station and registered lateral coordinate, mm. */
-    from: { station: number; lateral: number };
-    /** Bust-apex material station and registered lateral coordinate, mm. */
-    to: { station: number; lateral: number };
-    /** Actual physical material/lateral guide, independent of the expected length; a skin corridor can touch an equal-station portal more than once. */
-    guides: { station: number; lateral: number }[];
-    /** Physical consumer owning the declared guide; absence denotes the older curve-only model convention. */
-    realization?: "emitted-skin-corridor-path";
-  };
-
   /** Achieved stature input of the calibration specimen in mm. */
   stature: number;
 
@@ -76,14 +57,6 @@ export interface IAutoMovieHumanBodyCalibration {
    * by `AutoMovieHumanSkeletonLaw`. Absent on a calibration still being built.
    */
   skeleton?: AutoMovieHumanSkeletonLaw.IBone[];
-
-  /**
-   * Owned bind-pose geometric measurement addresses, established before skin
-   * closure. Their model-convention provenance does not certify equivalence
-   * to native reference courses or to clinical measurements. No target sizes
-   * or solved shape coefficients are stored here.
-   */
-  measurementSites?: AutoMovieHumanMeasurementProtocol.ISites;
 
   /**
    * The mouth behind the `mouth` aperture: the lips' contact line, the teeth,
@@ -210,9 +183,6 @@ export namespace IAutoMovieHumanBodyCalibration {
   export interface ISplit {
     /** Child chain whose adjacent end layer meets the parent's contact layer. */
     child: string;
-
-    /** Strictly interior material stations whose geometry and jets the boundary composition must preserve, in the child's station units. No dimensional target belongs here. */
-    preservedStations?: number[];
 
     /**
      * Parent-phase arcs `[from, to]` in radians, in ring order. An arc runs

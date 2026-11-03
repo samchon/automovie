@@ -23,12 +23,12 @@ import type { AutoMovieHumanMouthExpression } from "./AutoMovieHumanMouthExpress
  * so only the lips' inner faces move with them, and past the molars nothing
  * behind the pharynx's line moves; the teeth never move.
  *
- * Magnitudes: the lip corner puller moves its handles by a maximal spontaneous
+ * Magnitudes: the lip corner puller moves its handles by a posed maximal
  * smile's mean 3D displacements (Korean adults, J Korean Soc Plast Reconstr
  * Surg 2003, "Three Dimensional Analysis of Normal Smiles in Korean"): the
  * cheilion 13.7 mm at 52.2 degrees up from lateral in the coronal plane and
  * 48.9 degrees back, the mid-lateral upper lip 10.1 mm at 57.2 and 30.9, the
- * upper lip's centre 7.3 mm at 88.1 and 33.3, the lower lip's centre 5.9 mm at -87.5 and 66.9
+ * upper lip's centre 7.3 mm, the lower lip's centre 5.9 mm at -87.5 and 66.9
  * and its mid-lateral point 6.7 mm at -12.7 and 61.5. No measured magnitude
  * was read for the other units: each moves by a share of the person's own
  * half width or vermilion height, a convention in the direction FACS gives.
@@ -128,18 +128,16 @@ export namespace AutoMovieHumanMouthDeformation {
     const count: number = positions.length / 3;
     const far: number = reach(mouth);
     const centre: Vec3 = [mouth.front, mouth.stomion, 0];
-    let outP: number[] | null = null;
-    let outN: number[] | null = null;
+    let moved: boolean = false;
+    const outP: number[] = Array.from(positions);
+    const outN: number[] | null = normals === null ? null : Array.from(normals);
     const h: number = DIFFERENCE;
     for (let v: number = 0; v < count; v++) {
       const p: Vec3 = [positions[3 * v]! / scale, positions[3 * v + 1]! / scale, positions[3 * v + 2]! / scale];
       if (Math.hypot(p[0] - centre[0], p[1] - centre[1], p[2] - centre[2]) > far) continue;
       const d: Vec3 = field(p, tongue);
       if (d[0] === 0 && d[1] === 0 && d[2] === 0) continue;
-      if (outP === null) {
-        outP = Array.from(positions);
-        outN = normals === null ? null : Array.from(normals);
-      }
+      moved = true;
       for (let k: number = 0; k < 3; k++) outP[3 * v + k] = (p[k]! + d[k]!) * scale;
       if (outN === null) continue;
       // Jacobian columns of p -> p + d(p).
@@ -162,7 +160,7 @@ export namespace AutoMovieHumanMouthDeformation {
       if (!(l > 1e-12)) continue;
       for (let k: number = 0; k < 3; k++) outN[3 * v + k] = t[k]! / l;
     }
-    return outP === null ? null : { positions: outP, normals: outN };
+    return moved ? { positions: outP, normals: outN } : null;
   }
 
   /** Handle vectors of every lip channel at full intensity, per side, summed by intensity. */
@@ -212,7 +210,8 @@ export namespace AutoMovieHumanMouthDeformation {
         return {
           corner: measured(13.7, 52.2, 48.9),
           upperMiddle: measured(10.1, 57.2, 30.9),
-          upperCentre: measured(7.3, 88.1, 33.3),
+          // The centre's direction was not reported; it is taken straight up.
+          upperCentre: [0, 7.3, 0],
           lowerMiddle: measured(6.7, -12.7, 61.5),
           lowerCentre: measured(5.9, -87.5, 66.9),
           linear: false,
@@ -271,16 +270,11 @@ export namespace AutoMovieHumanMouthDeformation {
       plus(upper[0], mirror(c.upperMiddle), right);
       plus(lower[2], c.lowerMiddle, left);
       plus(lower[0], mirror(c.lowerMiddle), right);
-      plus(upper[1], c.upperCentre, left / 2);
-      plus(upper[1], mirror(c.upperCentre), right / 2);
-      plus(lower[1], c.lowerCentre, left / 2);
-      plus(lower[1], mirror(c.lowerCentre), right / 2);
+      plus(upper[1], c.upperCentre, (left + right) / 2);
+      plus(lower[1], c.lowerCentre, (left + right) / 2);
     };
-    for (const [name, left] of Object.entries(r.left)) {
-      if (name === "cheekPuff") continue;
-      const bilateral: number = r.whole[name as AutoMovieHumanMouthExpression.Whole] ?? 0;
-      apply(name, Math.min(1, left + bilateral), Math.min(1, r.right[name as AutoMovieHumanMouthExpression.Lip] + bilateral));
-    }
+    for (const [name, left] of Object.entries(r.left)) apply(name, left, r.right[name as AutoMovieHumanMouthExpression.Paired]);
+    for (const [name, value] of Object.entries(r.whole)) if (name !== "cheekPuff") apply(name, value, value);
     return out;
   }
 

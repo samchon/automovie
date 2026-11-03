@@ -1,10 +1,3 @@
-import type { AutoMovieHumanHeadClosure } from "./AutoMovieHumanHeadClosure";
-import type { AutoMovieHumanHeadCranialSupport as Cranial } from "./AutoMovieHumanHeadCranialSupport";
-import type { AutoMovieHumanRadiusEpoch as RadiusEpoch } from "./AutoMovieHumanRadiusEpoch";
-import type { AutoMovieHumanNasalConstruction as NasalOwner } from "./AutoMovieHumanNasalConstruction";
-import type { AutoMovieHumanLipCornerCap as LipCap } from "./AutoMovieHumanLipCornerCap";
-import type { AutoMovieHumanNasalRim as NasalRim } from "./AutoMovieHumanNasalRim";
-import type { AutoMovieHumanAlarHeadSections as Alar } from "./AutoMovieHumanAlarHeadSections";
 import { AutoMovieHumanHorizontalChain } from "../lofting/AutoMovieHumanHorizontalChain";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParameter";
@@ -85,54 +78,6 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** Lip colour boundary. */
     vermilion: IAutoMovieHumanHermiteCurve;
-    /** Actual construction findings; never a clinical identity certificate. */
-    diagnostics: IConstructionDiagnostics;
-  }
-
-  /** Actual construction evidence retained through the head's public result. */
-  export interface IConstructionDiagnostics {
-    /** Achieved-minus-requested residuals, including unavailable readings. */
-    closure: AutoMovieHumanHeadClosure.IOutput["residuals"];
-    /** Unaccepted source geometry, distinct from clinical reference status. */
-    geometry: string[];
-    /** Actual section domains not yet assigned to a final nostril interior. */
-    alarSections: IAlarSection[];
-  }
-
-  /** A physical alar section whose topology still needs consumer admission. */
-  export interface IAlarSection {
-    /** Existing physical head station in calibration millimetres. */
-    station: number;
-    /** Actual side of the figure. */
-    side: "left" | "right";
-    /** Measured endpoint gaps to the source face polyline, millimetres. */
-    gaps: number[];
-    /** Preserved extra paths, never silently removed as an outer envelope. */
-    remaining: IAlarPath[];
-    /** Every actual face-to-face component, including competing fallback paths. */
-    facePaths: IAlarPath[];
-    /** Actual face-to-face component count before any fallback. */
-    facePathCount: number;
-    /** Actual coplanar triangle count retained from the physical section. */
-    coplanarTriangles: number;
-    /** This diagnostic records an unaccepted physical section. */
-    admission: "unaccepted";
-    /** Geometry and seam causes preventing section admission. */
-    rejectionReasons: string[];
-    /** Number of section graph nodes with more than two neighbours. */
-    branching: number;
-  }
-
-  /** A complete physical component returned by the alar plane section. */
-  export interface IAlarPath {
-    /** Ordered world points in calibration millimetres. */
-    points: Vec3[];
-    /** Whether the first and last path nodes share an edge. */
-    closed: boolean;
-    /** Actual mesh boundary at the first endpoint; absent on closed paths. */
-    startBoundary?: string;
-    /** Actual mesh boundary at the last endpoint; absent on closed paths. */
-    endBoundary?: string;
   }
 
   /** The neck ring's place and size. */
@@ -215,21 +160,8 @@ export namespace AutoMovieHumanHeadConstruction {
     /** Face half-width key. */
     faceWidth: number;
 
-    /** Mandibular breadth before its final skin closure. */
-    mandibularWidth: number;
-
-    /** Signed physical cranial support coefficient, closed on actual skin tape. */
+    /** Vault's squareness over the population's, from the head tape. */
     vault: number;
-    /** Physical boundaries of the existing full-vault course family. */
-    cranialLower?: number;
-    /** Upper physical boundary of the same cranial course family. */
-    cranialUpper?: number;
-    /** Geometry failures remain separate from clinical availability. */
-    geometryFindings?: string[];
-    /** Reuse the unchanged implicit source operator at each current station. */
-    cranialQueries?: Map<number, ReturnType<typeof Cranial.prepare>>;
-    /** Exact unsigned radius results retained only within the current geometry epoch. */
-    radiusEpoch?: RadiusEpoch.ICache;
 
     /** Log ratio of the jaw width against the face width's. */
     jaw: number;
@@ -389,14 +321,6 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** The jaw's volume, joined to the two bodies along each ray. */
     jaw?: IMandible;
-    /** Physical support deformation on this course, millimetres. */
-    cranialCoefficient?: number;
-    /** Operators shared only within this layout's current rebuilt geometry. */
-    cranialQueries?: Map<number, ReturnType<typeof Cranial.prepare>>;
-    /** Current geometry epoch's exact unsigned radius lookup. */
-    radiusEpoch?: RadiusEpoch.ICache;
-    /** Mutable report of source geometry that could not be accepted. */
-    geometryFindings?: string[];
   }
 
   /** The prior's curves prepared. */
@@ -514,7 +438,6 @@ export namespace AutoMovieHumanHeadConstruction {
           ) -
           1),
       faceWidth: face,
-      mandibularWidth: head.mandibularWidth * k,
       jaw: Math.log(
         (r.gonial * head.mandibularWidth) / (r.zygomatic * head.faceWidth),
       ),
@@ -897,11 +820,6 @@ export namespace AutoMovieHumanHeadConstruction {
         mouth: head.mouth,
       },
       vermilion: { ...vermilion, spans: head.lips },
-      diagnostics: {
-        closure: [],
-        geometry: ["The head source was restored from known-good commit 681f8a777. The experimental identity closure and physical-owner diagnostics were not executed; their measurements are unavailable."],
-        alarSections: [],
-      },
     };
   }
 
@@ -966,20 +884,6 @@ export namespace AutoMovieHumanHeadConstruction {
 
     /** Sections already cut, by station. */
     cut: Map<number, ISides>;
-    /** Actual frontal/nasal shared boundary and its C2 bridge. */
-    bridge?: NasalOwner.BridgeEvaluator;
-    /** Construction-only evaluation of the frontal foundation. */
-    skipNose?: boolean;
-    /** Physical corner profiles, prepared once for this person. */
-    lipCaps?: [LipCap.ICap, LipCap.ICap];
-    /** Same physical curves consumed by the alar hood and final aperture. */
-    nostrilRims?: [NasalRim.Curve, NasalRim.Curve];
-    /** Actual cartilage and face-attachment owners on both sides. */
-    alar?: [Alar.Owner, Alar.Owner];
-    /** Preserved non-admitted section topology for the final diagnostic report. */
-    alarSections?: IAlarSection[];
-    /** Replace the former alar relief with the physical hood construction. */
-    withoutAla?: boolean;
   }
 
   /** A section's two sides, each from the front to the back of the midline. */
@@ -995,43 +899,6 @@ export namespace AutoMovieHumanHeadConstruction {
     const out: ISides = cut(surface, s);
     surface.cut.set(s, out);
     return out;
-  }
-
-  /**
-   * Observe a physical alar section without losing competing components or
-   * unresolved triangles. An empty, unambiguous outside plane returns no
-   * finding. The existing 0.025 mm scaled seam allowance remains unchanged.
-   * Returned path records retain the source point arrays and boundary labels;
-   * the function changes neither the input geometry nor its admission state.
-   *
-   * @internal
-   * @evidence contracts/common.md#principled-implementation Classifies actual section components, graph ambiguity and physical seam distances. Producer rejection reasons remain visible, and the existing scaled seam allowance is applied without moving endpoints.
-   * @evidence contracts/common.md#clear-and-simple-design Keeps the head's admission observation in its existing namespace so both the real cut consumer and the portable regression test call one production function.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no person, fixture selector, expected dimension or replacement surface. All competing and additional components are retained in an unaccepted finding.
-   * @evidence contracts/common.md#meaningful-documentation States the physical seam allowance, empty-plane behavior, shared path-array ownership and absence of geometry mutation.
-   */
-  export function observeAlarSection(
-    station: number,
-    side: "left" | "right",
-    result: ReturnType<Alar.Owner["section"]>,
-    scale: number,
-  ): IAlarSection | undefined {
-    const excessiveGap: boolean = result.rootGaps.some((gap: number): boolean => gap > 0.025 * scale);
-    if (!(result.admission === "unaccepted" || result.remaining.length > 0 || excessiveGap || result.branching > 0 || result.coplanarTriangles > 0 || result.facePaths.length > 1)) return undefined;
-    const rejectionReasons: string[] = [...result.rejectionReasons];
-    if (excessiveGap) rejectionReasons.push("The actual attachment gap exceeds the existing physical seam allowance.");
-    return {
-      station,
-      side,
-      gaps: result.rootGaps,
-      admission: "unaccepted",
-      rejectionReasons,
-      remaining: result.remaining.map((p: ReturnType<Alar.Owner["section"]>["facePaths"][number]): IAlarPath => ({ points: p.points, closed: p.closed, startBoundary: p.startBoundary, endBoundary: p.endBoundary })),
-      facePaths: result.facePaths.map((p: ReturnType<Alar.Owner["section"]>["facePaths"][number]): IAlarPath => ({ points: p.points, closed: p.closed, startBoundary: p.startBoundary, endBoundary: p.endBoundary })),
-      facePathCount: result.facePaths.length,
-      branching: result.branching,
-      coplanarTriangles: result.coplanarTriangles,
-    };
   }
 
   /** The section at station s, its reliefs on. */
@@ -2059,6 +1926,7 @@ export namespace AutoMovieHumanHeadConstruction {
       width: plan.mouthWidth,
       upper: plan.upperLip,
       lower: plan.lowerLip,
+      gap: plan.gap,
       subnasale: plan.subnasale,
       menton: plan.menton,
       sex: plan.sex,
@@ -2307,7 +2175,7 @@ export namespace AutoMovieHumanHeadConstruction {
   }
 
   /** Forward coordinate of the skin at a world height and lateral place. */
-  export function frontAt(surface: ISurface, y: number, z: number): number {
+  function frontAt(surface: ISurface, y: number, z: number): number {
     const m: ISection = section(surface.compiled, surface.plan, y);
     const c: ISides = sides(surface, y - 100 * Math.sin(m.tilt));
     const list: Vec3[] = z >= 0 ? c.left : c.right;

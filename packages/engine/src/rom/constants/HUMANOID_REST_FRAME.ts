@@ -6,7 +6,6 @@ import { IAutoMovieRestFrame } from "../IAutoMovieRestFrame";
 /** Bones of each arm from the clavicle to the fingertips, without the side prefix. */
 const ARM: readonly string[] = [
   "Shoulder",
-  "Scapula",
   "UpperArm",
   "LowerArm",
   "Hand",
@@ -31,7 +30,7 @@ const ARM: readonly string[] = [
 const LEG: readonly string[] = ["UpperLeg", "LowerLeg", "Foot", "Toes"];
 
 /** Bones whose fingertip-ward motions read on the hand's basis, without the side prefix. */
-const HAND: readonly string[] = ARM.slice(ARM.indexOf("Hand"));
+const HAND: readonly string[] = ARM.slice(3);
 
 /** A reversed axis at the rig's own rest. */
 const REVERSED: IAutoMovieAxisFrame = { sign: -1, neutral: 0 };
@@ -44,7 +43,6 @@ const REVERSED: IAutoMovieAxisFrame = { sign: -1, neutral: 0 };
  * Both sides share the axes of `HUMANOID_JOINT_AXES`. The body is mirror-symmetric about its sagittal (YZ) plane, and a turn about an axis lying in that plane, Y or Z, is mirrored into the opposite turn, while a turn about X is mirrored into itself. So every axis along Y or Z reverses on one side, which side being the one where a positive angle would otherwise not be the clinical motion below; axes along X need no frame. With `HUMANOID_JOINT_AXES`, a positive angle is:
  *
  * - Shoulder girdle: flexion protracts (the clavicle's tip moves forward), abduction elevates.
- * - Optional scapula: positive flexion rotates the blade upward about canonical forward Z; positive abduction turns about Y. These extension readings are model conventions, overridable by a rig's axes.
  * - Upper arm: flexion raises the arm forward, abduction raises it sideways (0 down, 90 horizontal, 180 overhead: the T-pose rests at 90), twist is external rotation, which turns the front of the arm upward in the T-pose.
  * - Forearm: flexion folds the forearm forward, toward the front of the upper arm; twist is pronation, which turns the T-pose's downward palm backward.
  * - Hand and every finger and thumb segment: flexion carries the fingertips toward the palm; abduction is radial deviation at the wrist and spreads a finger away from the middle finger (the middle finger and the thumb toward the thumb's side).
@@ -71,10 +69,6 @@ export const HUMANOID_REST_FRAME: Partial<
     set(`left${bone}`, "flexion", REVERSED);
     set(`right${bone}`, "abduction", REVERSED);
   }
-  // Optional scapular upward rotation is about Z; its mirror changes sign.
-  set("rightScapula", "flexion", REVERSED);
-  set("rightScapula", "abduction", REVERSED);
-
   // upper arm twist about X turns the front of either arm downward: internal
   set("leftUpperArm", "twist", REVERSED);
   set("rightUpperArm", "twist", REVERSED);

@@ -14,7 +14,7 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @evidence contracts/common.md#meaningful-documentation The documentation states the normalization steps with an example, the covered conventions, the unmapped finger, eye and jaw slots, and what `undefined` means.
  * @evidence contracts/performance.md#efficient-algorithms Cost is linear in the name length for two regular-expression passes and one lowercase copy, then one hash lookup.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each invocation normalizes its supplied name; a joint shared by several skins may be revisited, and this helper retains no cache over mutable source revisions.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The module-level table is a fixed naming table; a call retains nothing.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The module-level table is a fixed forty-entry constant; a call retains nothing.
  */
 export const humanoidBoneOfName: (
   name: string,
@@ -46,7 +46,6 @@ const HUMANOID_ALIASES: ReadonlyMap<string, AutoMovieHumanoidBone> = new Map<
   ["head", "head"],
   ["leftshoulder", "leftShoulder"],
   ["leftclavicle", "leftShoulder"],
-  ["leftscapula", "leftScapula"],
   ["leftarm", "leftUpperArm"],
   ["leftupperarm", "leftUpperArm"],
   ["leftforearm", "leftLowerArm"],
@@ -54,7 +53,6 @@ const HUMANOID_ALIASES: ReadonlyMap<string, AutoMovieHumanoidBone> = new Map<
   ["lefthand", "leftHand"],
   ["rightshoulder", "rightShoulder"],
   ["rightclavicle", "rightShoulder"],
-  ["rightscapula", "rightScapula"],
   ["rightarm", "rightUpperArm"],
   ["rightupperarm", "rightUpperArm"],
   ["rightforearm", "rightLowerArm"],

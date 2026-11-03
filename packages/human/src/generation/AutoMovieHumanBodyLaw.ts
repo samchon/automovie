@@ -5,7 +5,6 @@ import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHu
 import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
-import { AutoMovieHumanBodyEvents } from "./AutoMovieHumanBodyEvents";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
@@ -35,9 +34,6 @@ export namespace AutoMovieHumanBodyLaw {
 
     /** Exterior lip boundary in the same frame. */
     vermilion: IAutoMovieHumanHermiteCurve;
-
-    /** Unaccepted head construction findings retained beside the geometry. */
-    headDiagnostics: AutoMovieHumanHeadConstruction.IConstructionDiagnostics;
   }
 
   /**
@@ -74,7 +70,7 @@ export namespace AutoMovieHumanBodyLaw {
               scale: inputs.scale,
             }),
           ],
-          events: AutoMovieHumanBodyEvents.create(),
+          events: EVENTS,
           poles: [],
           apertures: [],
           eyes: [],
@@ -123,10 +119,40 @@ export namespace AutoMovieHumanBodyLaw {
         skeleton,
       },
       vermilion: headed.vermilion,
-      headDiagnostics: headed.diagnostics,
     };
   }
 }
+
+/** Shared rings of the trunk: the rest come with their chains. */
+const EVENTS: IAutoMovieHumanBodyCalibration.IEvent[] = [
+  {
+    parent: "head",
+    direction: "down",
+    splits: [{ child: "upper", arcs: [[0, 2 * Math.PI]] }],
+  },
+  {
+    parent: "upper",
+    direction: "down",
+    fillet: 1,
+    splits: [
+      {
+        child: "trunk",
+        arcs: [
+          [2.308057249, 3.974647596],
+          [5.148635503, 1.133093657],
+        ],
+      },
+      { child: "arm.left", arcs: [[1.133093657, 2.308057249]] },
+      { child: "arm.right", arcs: [[3.974647596, 5.148635503]] },
+    ],
+  },
+  {
+    parent: "head",
+    direction: "up",
+    splits: [{ child: "head.lower", arcs: [[0, 2 * Math.PI]] }],
+  },
+  { parent: "trunk", direction: "down", splits: [] },
+];
 
 /** The lip boundary before the head's spans. */
 const LIPS: IAutoMovieHumanHermiteCurve = {
@@ -279,7 +305,6 @@ function column(
   };
   return {
     hip: inputs.hip,
-    thigh: inputs.thigh,
     highHip: tape("highHip"),
     waist: tape("waist"),
     underbust: tape("underbust"),

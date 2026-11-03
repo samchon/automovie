@@ -47,10 +47,6 @@ const HAND: readonly string[] = [
  * already align with the default basis, so they are omitted (and fall back to
  * it).
  *
- * Optional scapular articulations use Z for upward rotation, Y for their
- * secondary rotation and X for twist in this canonical model convention.
- * A normalized rig can declare its own anatomical axes.
- *
  * The hand and every finger and thumb segment flex about Z, carrying the
  * fingertips toward the −Y palm, and twist about their length. The hand, the
  * thumb and the index and middle fingers deviate or abduct about +Y, toward the
@@ -98,11 +94,6 @@ export const HUMANOID_JOINT_AXES: Partial<
     abduction: { x: 0, y: 1, z: 0 },
     twist: { x: 1, y: 0, z: 0 },
   };
-  // The optional scapula rotates upward about canonical forward (+Z).
-  // Its explicit rest frame supplies the side's sign. A rig's own axes win.
-  table.leftScapula = hand;
-  table.rightScapula = hand;
-
   // the ring and little fingers abduct away from the middle finger, toward −Z
   const ulnar: IAutoMovieJointAxes = {
     ...hand,

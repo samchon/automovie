@@ -1,5 +1,3 @@
-import { AutoMovieHumanArmClearance } from "./AutoMovieHumanArmClearance";
-import { AutoMovieHumanBindingGeometry } from "./AutoMovieHumanBindingGeometry";
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import type { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
@@ -129,7 +127,6 @@ export namespace AutoMovieHumanNeutral {
     const between2 = (from: string, to: string): Vector =>
       Math3D.sub(byBone.get(to)!.position, byBone.get(from)!.position);
 
-    const geometry: AutoMovieHumanBindingGeometry.IGeometry = AutoMovieHumanBindingGeometry.prepare(calibration, 1);
     const named = new Map<string, Math3D.Quaternion>();
     const resting = new Map<string, number>();
     const forearms = new Map<string, number>();
@@ -137,7 +134,7 @@ export namespace AutoMovieHumanNeutral {
       const s: number = side === "left" ? 1 : -1;
 
       // The arm lays its bend forward and hangs at its resting angle.
-      const angle: number = restingAngle(calibration, byBone, side, geometry);
+      const angle: number = restingAngle(calibration, byBone, side);
       resting.set(`${side}UpperArm`, angle);
       const radians: number = (angle * Math.PI) / 180;
       const down: Vector = [0, -Math.cos(radians), s * Math.sin(radians)];
@@ -280,16 +277,15 @@ export namespace AutoMovieHumanNeutral {
   }
 
   /**
-   * The least abduction of the outer-radius capsule bound for both arm segments.
+   * The least abduction that lets a straight forearm pass the waist and hip.
    *
-   * Both the chest above the elbow and the waist/hip below it constrain the arm;
-   * the shared axilla neighbourhood remains the joint deformation's domain.
+   * The skin is read from the elbow down. Above it the arm rests on the ribs,
+   * and flesh there gives: at the axilla they are one surface.
    */
   function restingAngle(
     calibration: IAutoMovieHumanBodyCalibration,
     byBone: ReadonlyMap<string, AutoMovieHumanJointCentres.IJoint>,
     side: "left" | "right",
-    geometry: AutoMovieHumanBindingGeometry.IGeometry,
   ): number {
     const s: number = side === "left" ? 1 : -1;
     const at = (bone: string): AutoMovieHumanJointCentres.IJoint =>
@@ -297,14 +293,19 @@ export namespace AutoMovieHumanNeutral {
     const shoulder: Vector = at("UpperArm").position;
     const upper: number = length(shoulder, at("LowerArm").position);
     const fore: number = upper + length(at("LowerArm").position, at("Hand").position);
-    const upperRadius: number = Math.max(at("UpperArm").radius, geometry.envelope(`arm.${side}`, shoulder, at("LowerArm").position));
-    const foreRadius: number = Math.max(at("LowerArm").radius, geometry.envelope(`arm.${side}`, at("LowerArm").position, at("Hand").position));
-    const skin: Vector[] = [];
+    const radius: number = at("LowerArm").radius;
+
+    let widest: number = 0;
     for (const chain of calibration.chains) {
       if (chain.name !== "trunk" && chain.name !== `leg.${side}`) continue;
-      for (const layer of chain.layers) skin.push(...AutoMovieHumanLoftChain.ring(chain, layer.y, PHASES));
+      for (const layer of chain.layers)
+        for (const p of AutoMovieHumanLoftChain.ring(chain, layer.y, PHASES)) {
+          const t: number = shoulder[1] - p[1];
+          if (t < upper || t > fore) continue;
+          widest = Math.max(widest, (s * p[2] + radius - s * shoulder[2]) / t);
+        }
     }
-    return AutoMovieHumanArmClearance.angle({ shoulder, upperLength: upper, foreLength: fore - upper, upperRadius, foreRadius, side: s as 1 | -1 }, skin);
+    return (Math.asin(Math.min(1, widest)) * 180) / Math.PI;
   }
 }
 

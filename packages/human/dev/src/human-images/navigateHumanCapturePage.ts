@@ -1,10 +1,6 @@
 import type { Page } from "playwright-core";
 
-import type { HumanImageProcessTrace } from "./HumanImageProcessTrace.ts";
-
 /** Retire the actual mounted consumer before replacing the worker's one page.
- * Optional trace phases bracket the actual page.goto after prior consumer disposal;
- * a rejected navigation emits no completed phase and preserves its original error.
  *
  * @evidence contracts/common.md#principled-implementation Awaits the mounted Human or Mannequin public disposer before Playwright navigation; failure preserves the old document and rejects the command.
  * @evidence contracts/common.md#clear-and-simple-design One page-navigation responsibility is shared by the existing ordinary and Mannequin commands.
@@ -17,7 +13,6 @@ import type { HumanImageProcessTrace } from "./HumanImageProcessTrace.ts";
 export async function navigateHumanCapturePage(
   page: Page,
   url: string,
-  trace?: HumanImageProcessTrace,
 ): Promise<void> {
   await page.evaluate(async (): Promise<void> => {
     const owner: Window & {
@@ -27,7 +22,5 @@ export async function navigateHumanCapturePage(
     await owner.__automovieHuman?.dispose();
     await owner.__humanStickman?.dispose();
   });
-  trace?.node("page.goto.begin");
   await page.goto(url, { waitUntil: "load", timeout: 120000 });
-  trace?.node("page.goto.end");
 }

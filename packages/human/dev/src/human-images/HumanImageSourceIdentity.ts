@@ -155,7 +155,6 @@ export class HumanImageSourceIdentity {
       "HumanImageSourceIdentity.ts",
       "HumanImageProcess.ts",
       "humanImageProcessEntry.ts",
-      "HumanImagePublication.ts",
       "HumanImageMannequin.ts",
       "captureHumanMannequinDraw.ts",
       "HumanImageMannequinFrames.ts",

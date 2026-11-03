@@ -33,21 +33,16 @@ export namespace AutoMovieHumanHorizontalChain {
    * @param beyond Ring past the top, when the surface runs on into the next
    *   chain: the top layer's slope then reads both sides, as the next chain's
    *   own does, and no layer stands for it.
-   * @param stations Optional declared material station of every supplied ring,
-   *   including beyond. Strictly increasing finite authored addresses are
-   *   retained exactly; lift carries their physical Y difference. Without
-   *   them the existing mean-height/minimum-gap convention is unchanged.
    */
   export function build(
     shape: IShape,
     rings: readonly (readonly (readonly [number, number, number])[])[],
     beyond?: readonly (readonly [number, number, number])[],
-    stations?: readonly number[],
   ): IAutoMovieHumanLoftChain {
     const all: readonly (readonly (readonly [number, number, number])[])[] =
       beyond === undefined ? rings : [...rings, beyond];
     let last: number = -Infinity;
-    const heights: number[] = stations === undefined ? all.map(
+    const heights: number[] = all.map(
       (ring: readonly (readonly [number, number, number])[]): number => {
         const y: number = Math.max(
           ring.reduce(
@@ -60,12 +55,7 @@ export namespace AutoMovieHumanHorizontalChain {
         last = y;
         return y;
       },
-    ) : [...stations];
-    if (heights.length !== all.length || heights.some((height: number, index: number): boolean => !Number.isFinite(height) || index > 0 && height <= heights[index - 1]!))
-      throw new Error("Horizontal rings need one finite strictly increasing material station each", { cause: { chain: shape.name, observed: heights, expectedRings: all.length, units: "mm and count" } });
-    // A periodic cubic basis partitions unity exactly in real arithmetic.
-    // Preserve a constant axial field directly: the finite inverse-filter
-    // convolution otherwise perturbs it, including chart-only translations.
+    );
     const controls = all.map(
       (
         ring: readonly (readonly [number, number, number])[],
@@ -79,9 +69,7 @@ export namespace AutoMovieHumanHorizontalChain {
             ],
           ),
         ),
-        lift: ring.every((point: readonly [number, number, number]): boolean => point[1] - heights[k]! === ring[0]![1] - heights[k]!)
-          ? new Array<number>(shape.order).fill(ring[0]![1] - heights[k]!)
-          : AutoMovieHumanSplineCurve.interpolate(
+        lift: AutoMovieHumanSplineCurve.interpolate(
           ring.map(
             (p: readonly [number, number, number]): [number, number] => [
               p[1] - heights[k]!,

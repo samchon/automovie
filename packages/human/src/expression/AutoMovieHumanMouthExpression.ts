@@ -59,9 +59,6 @@ export namespace AutoMovieHumanMouthExpression {
   /** A side-acting channel. */
   export type Paired = (typeof PAIRED)[number];
 
-  /** A lip channel that may receive a unilateral action-unit request. */
-  export type Lip = Paired | Whole;
-
   /** A whole-mouth channel. */
   export type Whole = (typeof WHOLE)[number];
 
@@ -70,11 +67,11 @@ export namespace AutoMovieHumanMouthExpression {
 
   /** The resolved mouth. */
   export interface IResolved {
-    /** Per-side channel contribution, 0 to 1; bilateral whole requests add at the field's final clamp. */
-    left: Record<Lip, number>;
+    /** Intensity of each side-acting channel, 0 to 1, per side. */
+    left: Record<Paired, number>;
 
     /** The same on the person's right. */
-    right: Record<Lip, number>;
+    right: Record<Paired, number>;
 
     /** Intensity of each whole-mouth channel, 0 to 1. */
     whole: Record<Whole, number>;
@@ -141,10 +138,11 @@ export namespace AutoMovieHumanMouthExpression {
   ): IResolved {
     const out: IResolved = rest();
     const add = (name: Paired | Whole, side: "both" | "left" | "right", value: number): void => {
-      if ((PAIRED as readonly string[]).includes(name) || side !== "both") {
-        if (side !== "right") out.left[name] += value;
-        if (side !== "left") out.right[name] += value;
-      } else out.whole[name as Whole] += value;
+      if ((PAIRED as readonly string[]).includes(name)) {
+        const n: Paired = name as Paired;
+        if (side !== "right") out.left[n] += value;
+        if (side !== "left") out.right[n] += value;
+      } else out.whole[name as Whole] += side === "both" ? value : value / 2;
     };
     let share: number = 0;
     for (const unit of expression?.units ?? []) {
@@ -174,7 +172,7 @@ export namespace AutoMovieHumanMouthExpression {
       share += w * a.jaw;
     }
     const unitRange = (v: number): number => Math.max(0, Math.min(1, v));
-    for (const name of [...PAIRED, ...WHOLE]) {
+    for (const name of PAIRED) {
       out.left[name] = unitRange(out.left[name]);
       out.right[name] = unitRange(out.right[name]);
     }
@@ -189,7 +187,7 @@ export namespace AutoMovieHumanMouthExpression {
   export function rest(): IResolved {
     const zero = <K extends string>(keys: readonly K[]): Record<K, number> =>
       Object.fromEntries(keys.map((k: K): [K, number] => [k, 0])) as Record<K, number>;
-    return { left: zero([...PAIRED, ...WHOLE]), right: zero([...PAIRED, ...WHOLE]), whole: zero(WHOLE), tongue: zero(TONGUE), opening: 0 };
+    return { left: zero(PAIRED), right: zero(PAIRED), whole: zero(WHOLE), tongue: zero(TONGUE), opening: 0 };
   }
 
   /** Whether a resolved mouth moves nothing but possibly the jaw. */

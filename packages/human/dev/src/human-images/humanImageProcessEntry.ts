@@ -12,7 +12,6 @@ import {
 import type { IHumanViewerPage } from "../human/IHumanViewerPage.ts";
 import { HumanImageMannequin } from "./HumanImageMannequin.ts";
 import { HumanImageProcessTrace } from "./HumanImageProcessTrace.ts";
-import { HumanImagePublication } from "./HumanImagePublication.ts";
 import { navigateHumanCapturePage } from "./navigateHumanCapturePage.ts";
 import { observeHumanPageDocuments } from "./observeHumanPageDocuments.ts";
 
@@ -27,19 +26,36 @@ interface IResidentModel {
   generation: number;
 }
 
-/** Serve generation, capture and diagrams through the actual resident Human page.
- * The child owns one Chrome and blank tab. Commands mount the same Vite-loaded
- * human.html as the UI, or human-stickman.html for Mannequin; no bundle or renderer
- * substitutes for that consumer. Generation validates parameters, prepares the model
- * in-page and atomically publishes its JSON bytes. Rendering verifies the actual PNG
- * and hardware WebGL renderer; diagrams need no generated model.
+/**
+ * Serve Human generation and PNG capture from one resident headless Chrome page.
  *
- * Source changes navigate before loading; a lost page model regenerates its original
- * admitted input. Node phases distinguish actual navigation, public API readiness,
- * load invocation/completion and publication. A page.load.begin does not prove that
- * prepare has started, and only a matching end proves completion. Errors return to
- * the host; nonzero worker/Chrome exit retains uncertain ownership. Normal close
- * joins browser.close, while the execution owner separately verifies descendant absence.
+ * The child owns one Chrome process and one blank tab, mounting `/human.html`
+ * or `/human-stickman.html` only for the actual command. The plugin sets its origin in `AUTOMOVIE_HUMAN_WORKER_ORIGIN`
+ * once the server listens. Generation therefore runs through Vite's module
+ * loading of the current source and every PNG is drawn by the same page a
+ * person opens, with no separate bundle or renderer.
+ *
+ * - `generate` admits the parameters in-page (exact equality with a registered
+ *   typed example), runs `AutoMovieHuman.generate`, and writes the
+ *   `{ parameters, model }` JSON to `<worker directory>/publication.json` with
+ *   its byte count and SHA-256 for `HumanImageProcess.publication`.
+ * - `render` captures one named camera, pass, curve selection and free view at
+ *   the reference conditions and returns the PNG bytes, capture UTC, SHA-256
+ *   and render metadata.
+ * - `diagram` draws the 2D curve diagram of a curve list in the same page and
+ *   returns its PNG (or SVG) bytes with SHA-256 and capture UTC; it needs no
+ *   generated model.
+ * - `mannequin` uses the original page controls and public fixed-time seek,
+ *   capturing a paused state with actual buffers, materials, marker pixels,
+ *   placements and conditions without a full Human publication.
+ *
+ * The page and model are reused across frames of one model key and across
+ * keys; a changed source hash navigates the tab back to the bare page so Vite serves the edited
+ * modules, and a page that lost its model (for example a Vite full reload)
+ * regenerates the same input before rendering. Page errors return as replies
+ * so the Vite host survives; nonzero Chrome/worker termination preserves
+ * uncertain ownership. Only successful normal retirement permits replacement. A software WebGL renderer is refused because
+ * the reference photographs come from a hardware ANGLE renderer.
  *
  * @evidence contracts/common.md#principled-implementation Generation and capture run in the same human.html a person opens, loaded through Vite's module graph; the publication is written beside and renamed, and every PNG's signature and IHDR size are checked against the capture's canvas before its SHA-256 is computed.
  * @evidence contracts/common.md#clear-and-simple-design The child owns Chrome and the page only; queueing, cache, identity and HTTP stay with HumanImageSession, HumanImageProcess and the plugin.
@@ -153,7 +169,6 @@ export async function humanImageProcessEntry(): Promise<void> {
      * worker waits for that load to settle before issuing its own commands.
      */
     const ready: () => Promise<void> = async (): Promise<void> => {
-      trace.node("page.api.ready.begin");
       await page.waitForFunction(
         (): boolean => {
           const human: IHumanViewerPage | undefined = (window as HumanWindow)
@@ -163,7 +178,6 @@ export async function humanImageProcessEntry(): Promise<void> {
         null,
         { timeout: 120000 },
       );
-      trace.node("page.api.ready.end");
     };
     // IPC readiness owns only a blank page; the command mounts its actual consumer.
     trace.node("page.owner.ready");
@@ -186,19 +200,16 @@ export async function humanImageProcessEntry(): Promise<void> {
       ) {
         const started: number = performance.now();
         await page.setViewportSize({ width: 1280, height: 1200 });
-        await navigateHumanCapturePage(page, url, trace);
+        await navigateHumanCapturePage(page, url);
         await ready();
         navigationMilliseconds = performance.now() - started;
       }
       loadedSource = source;
-      trace.node("page.load.begin");
-      const loaded: IHumanViewerPage.ILoaded = await page.evaluate(
+      return page.evaluate(
         (candidate: unknown): Promise<IHumanViewerPage.ILoaded> =>
           (window as HumanWindow).__automovieHuman!.load(candidate),
         value,
       );
-      trace.node("page.load.end");
-      return loaded;
     };
 
     /** Execute one session command and build its reply record. */
@@ -227,25 +238,35 @@ export async function humanImageProcessEntry(): Promise<void> {
         );
         const navigated: number | null = navigationMilliseconds;
         const generated: number = performance.now();
-        trace.node("publication.begin");
         const json: string = await page.evaluate((): string =>
           (window as HumanWindow).__automovieHuman!.serialize(),
         );
         const serialized: number = performance.now();
 
-        // Canonical model hashes describe parsed wire data, independently of
-        // the publication hash over exact UTF-8 numeric-token spellings.
-        const committed: HumanImagePublication.ICommitted = HumanImagePublication.commit(json);
-        const commitment: number = performance.now();
-        const bytes: Buffer = committed.bytes;
-        const sha256: string = committed.sha256;
-
         // Write beside, then rename, so the session never reads a partial file.
+        const bytes: Buffer = Buffer.from(json, "utf8");
+        const sha256: string = digest(bytes);
         await fs.writeFile(publication + ".partial", bytes);
         await fs.rename(publication + ".partial", publication);
         const written: number = performance.now();
-        trace.node("publication.end");
 
+        // The archive's receipt rule commits to the model and to its
+        // construction parts separately, over their canonical JSON bytes.
+        const parsed: {
+          model: { parts: Array<{ id: string }> };
+        } = JSON.parse(json);
+        const modelSha256: string = digest(
+          Buffer.from(JSON.stringify(parsed.model)),
+        );
+        const constructionSha256: string = digest(
+          Buffer.from(
+            JSON.stringify(
+              parsed.model.parts.filter((part: { id: string }): boolean =>
+                part.id.startsWith("human.construction."),
+              ),
+            ),
+          ),
+        );
         resident = {
           key,
           source,
@@ -259,15 +280,13 @@ export async function humanImageProcessEntry(): Promise<void> {
           path: publication,
           bytes: bytes.length,
           sha256,
-          encoding: HumanImagePublication.ENCODING,
-          canonical: HumanImagePublication.CANONICAL,
           receipt: {
             kind: "human-generation",
             key,
             sourceSha256: source,
             inputSha256: command.inputSha256,
-            modelSha256: committed.modelSha256,
-            constructionSha256: committed.constructionSha256,
+            modelSha256,
+            constructionSha256,
             alias: loaded.alias,
             generatedUtc: new Date().toISOString(),
             generateMilliseconds: loaded.generateMilliseconds,
@@ -276,8 +295,7 @@ export async function humanImageProcessEntry(): Promise<void> {
               navigationMilliseconds: navigated,
               loadMilliseconds: generated - started - (navigated ?? 0),
               serializeMilliseconds: serialized - generated,
-              commitmentMilliseconds: commitment - serialized,
-              publishMilliseconds: written - commitment,
+              publishMilliseconds: written - serialized,
               timing: loaded.timing,
               calls: loaded.calls,
               workerRssBytes: process.memoryUsage().rss,
@@ -285,7 +303,7 @@ export async function humanImageProcessEntry(): Promise<void> {
             parts: loaded.parts,
             bounds: loaded.bounds,
             construction: loaded.construction,
-            publication: { bytes: bytes.length, sha256, encoding: HumanImagePublication.ENCODING, canonical: HumanImagePublication.CANONICAL },
+            publication: { bytes: bytes.length, sha256 },
             page: url,
           },
         };
@@ -402,7 +420,7 @@ export async function humanImageProcessEntry(): Promise<void> {
           new URL(page.url()).pathname !== "/human.html"
         ) {
           await page.setViewportSize({ width: 1280, height: 1200 });
-          await navigateHumanCapturePage(page, url, trace);
+          await navigateHumanCapturePage(page, url);
           await ready();
           loadedSource = source;
         }
@@ -465,10 +483,10 @@ export async function humanImageProcessEntry(): Promise<void> {
           }),
         )
         .catch(
-          (error: unknown): Record<string, unknown> => {
-            trace.node("command.failed");
-            return { id, error: error instanceof Error ? error.message : String(error) };
-          },
+          (error: unknown): Record<string, unknown> => ({
+            id,
+            error: error instanceof Error ? error.message : String(error),
+          }),
         )
         .then(reply);
     });

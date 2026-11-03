@@ -21,7 +21,6 @@ import { normalizeHumanView } from "./normalizeHumanView";
 import { readHumanLegend } from "./readHumanLegend";
 import { resolveHumanCurves } from "./resolveHumanCurves";
 import { syncHumanViewerUrl } from "./syncHumanViewerUrl";
-import { serializeHumanImagePublication } from "./serializeHumanImagePublication";
 
 /** What a load produces before display. */
 interface IProduced {
@@ -351,7 +350,7 @@ export function mountHumanViewerPage(root: HTMLElement): IHumanViewerPage {
       result: IAutoMovieHumanGenerated,
     ): Promise<IHumanViewerPage.ILoaded> =>
       replace((): IProduced => ({ result, alias: null, milliseconds: null })),
-    serialize: (): string => serializeHumanImagePublication(loaded().result),
+    serialize: (): string => JSON.stringify(loaded().result),
     setPass: (next: IHumanViewerPage.Pass): void => {
       loaded().setPass(next);
       pass = next;

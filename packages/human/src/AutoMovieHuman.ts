@@ -8,7 +8,6 @@ import type {
 import { AutoMovieHumanAppearance } from "./appearance/AutoMovieHumanAppearance";
 import { AutoMovieHumanSkin } from "./appearance/AutoMovieHumanSkin";
 import { AutoMovieHumanVermilion } from "./appearance/AutoMovieHumanVermilion";
-import { AutoMovieHumanMouthDeformation } from "./expression/AutoMovieHumanMouthDeformation";
 import type { IAutoMovieHumanAppearanceBody } from "./appearance/IAutoMovieHumanAppearanceBody";
 import { AutoMovieHumanBodyConstruction } from "./generation/AutoMovieHumanBodyConstruction";
 import { AutoMovieHumanBodyLaw } from "./generation/AutoMovieHumanBodyLaw";
@@ -78,9 +77,7 @@ export class AutoMovieHuman {
   public static generate(
     params: IAutoMovieHumanParameters,
   ): IAutoMovieHumanGenerated {
-    const built: IConstructed = construct(params);
-    const mouth: IAutoMovieHumanGenerated["mouth"] = mouthOf(params, built);
-    return { parameters: params, model: built.model, ...(mouth === undefined ? {} : { mouth }) };
+    return { parameters: params, model: construct(params).model };
   }
 
   /**
@@ -101,7 +98,6 @@ export class AutoMovieHuman {
   ): IAutoMovieHumanPrepared {
     const built: IConstructed = construct(params);
     const { pose: _pose, expression: _expression, ...shape } = params;
-    const mouth: IAutoMovieHumanGenerated["mouth"] = mouthOf(params, built);
     return {
       parameters: params,
       model: built.model,
@@ -110,7 +106,6 @@ export class AutoMovieHuman {
         calibration: built.calibration,
       }),
       key: AutoMovieHumanStateAdmission.key(shape),
-      ...(mouth === undefined ? {} : { mouth }),
     };
   }
 }
@@ -125,18 +120,6 @@ interface IConstructed {
 
   /** The rig bound to the model. */
   rig: AutoMovieHumanRig.IRig;
-}
-
-/** Carry the exact generated mouth to every independent geometry consumer. */
-function mouthOf(params: IAutoMovieHumanParameters, built: IConstructed): IAutoMovieHumanGenerated["mouth"] {
-  const context: AutoMovieHumanMouthDeformation.IContext | null = built.calibration.apertures.some((entry): boolean => entry.name === "mouth")
-    ? AutoMovieHumanMouthDeformation.context(built.calibration)
-    : null;
-  return context === null ? undefined : {
-    context,
-    scale: params.body.controls.height.value! / built.calibration.stature / 1000,
-    maximal: params.head.mouthOpening,
-  };
 }
 
 /**

@@ -38,6 +38,15 @@ export namespace AutoMovieHumanLegPrior {
     lateral: number;
   }
 
+  /** Station of a tape measure and its ratio to the prior section's hull there. */
+  export interface ICourse {
+    /** Leg fraction of the tape. */
+    station: number;
+
+    /** Hull girth at the station per unit of the tape input. */
+    ratio: number;
+  }
+
   /** The ankle centre ahead of the origin as a line, world millimetres. */
   export interface IAnkle {
     /** Constant. */
@@ -79,6 +88,9 @@ export namespace AutoMovieHumanLegPrior {
     /** Leg fractions of the channels, ankle first. */
     stations: readonly number[];
 
+    /** Log of the equivalent radius in leg lengths. */
+    profile: readonly number[];
+
     /** Section centre ahead of the ankle centre, in leg lengths. */
     forward: readonly number[];
 
@@ -92,6 +104,14 @@ export namespace AutoMovieHumanLegPrior {
      */
     shape: readonly (readonly number[])[];
 
+    /** Calf tape. */
+    calf: ICourse;
+
+    /** Knee tape. */
+    knee: ICourse;
+
+    /** Thigh tape. */
+    thigh: ICourse;
   }
 
   /** The law's constants. */
@@ -100,6 +120,7 @@ export namespace AutoMovieHumanLegPrior {
     ring: { forward: 0.01424, lateral: 0.00731 },
     ankle: { offset: 2.80246, fat: 3.1084, muscularity: 0.5333 },
     stations: [0, 0.0985, 0.197, 0.27088, 0.33244, 0.394, 0.44325, 0.4925, 0.54175, 0.61562, 0.71413, 0.81262, 0.91113, 0.96037],
+    profile: [-3.00493, -2.86194, -2.65839, -2.51331, -2.46821, -2.49751, -2.53807, -2.52477, -2.46906, -2.37095, -2.20026, -2.06766, -1.98422, -1.95237],
     forward: [0, -0.0115, -0.01488, -0.0182, -0.01811, -0.01326, -0.00459, 0.01123, 0.02149, 0.03238, 0.04139, 0.04728, 0.05159, 0.04965],
     lateral: {
       offset: [34.73299, 43.73572, 49.13327, 54.05717, 63.91446, 72.74896, 75.56743, 71.46235, 67.95286, 62.19401, 64.80983, 57.49655, 43.19682, 30.0177],
@@ -123,5 +144,8 @@ export namespace AutoMovieHumanLegPrior {
       [0.99913, -0.00078, 0.00009, 0.02057, 0.04046, 0.0111, 0.01223, -0.005, 0.00712, -0.00007, 0.00355, 0.00133, 0.00111],
       [0.99927, -0.00014, -0.00025, 0.03819, 0.02446, -0.00561, 0.0057, -0.00161, 0.01173, -0.00275, 0.00353, 0.00106, 0.00326],
     ],
+    calf: {station: 0.33244, ratio: 1.02071},
+    knee: {station: 0.44325, ratio: 1.00011},
+    thigh: {station: 0.86187, ratio: 1.00086},
   };
 }

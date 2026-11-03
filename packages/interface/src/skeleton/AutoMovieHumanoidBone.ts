@@ -1,16 +1,15 @@
 /**
- * Closed humanoid vocabulary: the 55 VRM 1.0 slots and two optional scapular
- * articulations for rigs that retain a separate shoulder blade.
+ * Closed 55-name vocabulary matching the VRM 1.0 humanoid specification.
  *
  * Typed authoring and runtime admission use these semantic names. A valid name does not guarantee membership in a particular rig or compatibility of its rest basis; retargeting must check both.
  *
  * VRM 1.0 requires 15 slots: hips, spine, head and the four limb chains. Chest, fingers, eyes, jaw, upperChest, neck, toes and shoulders are optional and may be absent from an imported rig.
  *
- * The scapular extension is not a VRM slot and does not imply that an imported rig has that articulation. Thirty names address fingers; a pose can author only the joints its target rig declares.
+ * Thirty names address fingers; a pose can author only the joints its target rig declares.
  *
  * Reference: VRM 1.0 humanoid specification (https://github.com/vrm-c/vrm-specification/blob/master/specification/VRMC_vrm-1.0/humanoid.md).
  *
- * @evidence contracts/common.md#principled-implementation The VRM 1.0 names remain unchanged and optional scapular names preserve an independently articulated shoulder blade between clavicle and humerus; the VRM importer keeps its standard-only vocabulary; actual rig membership and rest-basis compatibility still require runtime admission.
+ * @evidence contracts/common.md#principled-implementation The closed 55-slot vocabulary follows VRM 1.0 humanoid names so normalized poses and ingest mappings share semantic bone identity; actual rig membership and rest-basis compatibility still require runtime admission.
  * @evidence contracts/common.md#clear-and-simple-design One named bone union serves pose, ROM, attachment and ingest contracts instead of free strings or duplicated per-avatar names.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A valid bone name does not imply that every avatar declares it or that copying angles alone retargets arbitrary rest bases; absent optional bones and differing target constraints remain explicit conversion concerns.
  * @evidence contracts/common.md#meaningful-documentation Defines semantic names, VRM specification reference, 15 required slots versus optional chest and articulation population and runtime membership limits.
@@ -43,12 +42,9 @@ export type AutoMovieHumanoidBone =
 
   /** Jaw (optional). */
   | "jaw"
-  // ── left arm (5) ──
+  // ── left arm (4) ──
   /** Left clavicle / shoulder (optional). */
   | "leftShoulder"
-
-  /** Left scapula, optional extension; its joint may share the humeral origin. */
-  | "leftScapula"
 
   /** Left upper arm (humerus). */
   | "leftUpperArm"
@@ -58,12 +54,9 @@ export type AutoMovieHumanoidBone =
 
   /** Left hand. */
   | "leftHand"
-  // ── right arm (5) ──
+  // ── right arm (4) ──
   /** Right clavicle / shoulder (optional). */
   | "rightShoulder"
-
-  /** Right scapula, optional extension; its joint may share the humeral origin. */
-  | "rightScapula"
 
   /** Right upper arm (humerus). */
   | "rightUpperArm"

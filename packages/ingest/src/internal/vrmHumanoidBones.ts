@@ -116,8 +116,8 @@ const VRM0_THUMB_NAMES: Readonly<Record<string, AutoMovieHumanoidBone>> = {
   rightThumbIntermediate: "rightThumbProximal",
 };
 
-/** VRM's standard slots exclude the model's optional scapular extension. */
-const HUMANOID_BONES: Readonly<Record<Exclude<AutoMovieHumanoidBone, "leftScapula" | "rightScapula">, true>> = {
+/** Every humanoid slot; the `Record` type requires exactly the union's keys. */
+const HUMANOID_BONES: Readonly<Record<AutoMovieHumanoidBone, true>> = {
   hips: true,
   spine: true,
   chest: true,

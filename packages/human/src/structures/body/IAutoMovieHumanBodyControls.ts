@@ -1,15 +1,6 @@
 import { IAutoMovieHumanBodyControl } from "./IAutoMovieHumanBodyControl";
 
-/**
- * Authored values and pins consumed by Human's canonical relaxed measurement
- * protocol, documented in `packages/human/docs/measurement-protocol.md`.
- *
- * Girth goals are answered on the assembled skin at construction-owned model
- * addresses. The four reference examples retain their original native-course
- * values; neither those values nor model addresses establish clinical ISO or
- * ANSUR equivalence. A control is never inferred from another, and unknown
- * independent measurements remain separate from these authored goals.
- */
+/** Named authored values and pins; no control is inferred from another. */
 export interface IAutoMovieHumanBodyControls {
   /** Configured body height course; neither exported bbox extent nor clinical stature is substituted. Unit: mm. */
   height: IAutoMovieHumanBodyControl;
@@ -23,13 +14,13 @@ export interface IAutoMovieHumanBodyControls {
   /** Body shape coordinate: increasing means more muscular. It is not a lean-mass index. Unitless. */
   muscularity: IAutoMovieHumanBodyControl;
 
-  /** Taut chest girth at the owned model bust-apex section. Native-course and clinical chest/bust equivalence remain unestablished. Unit: mm. */
+  /** Chest circumference course; correspondence to clinical chest or bust tape is unestablished. Unit: mm. */
   chest: IAutoMovieHumanBodyControl;
 
   /** Bust span course; endpoints are not inferred from a clinical breadth. Unit: mm. */
   bustSpan: IAutoMovieHumanBodyControl;
 
-  /** Taut underbust girth at the owned model lower-bust section, separate from the chest. Unit: mm. */
+  /** Underbust circumference course with its own measurement site. Unit: mm. */
   underbust: IAutoMovieHumanBodyControl;
 
   /** Anterior interscye course; neither shoulder breadth nor a joint-centre distance. Unit: mm. */
@@ -44,19 +35,19 @@ export interface IAutoMovieHumanBodyControls {
   /** Shoulder-to-apex course, not an inferred vertical landmark separation. Unit: mm. */
   shoulderToApex: IAutoMovieHumanBodyControl;
 
-  /** Taut waist girth at the owned model waist. Natural-waist and ANSUR omphalion equivalence remain distinct and unestablished. Unit: mm. */
+  /** Waist circumference course; clinical natural-waist correspondence is unestablished. Unit: mm. */
   waist: IAutoMovieHumanBodyControl;
 
-  /** Taut hip girth at the owned posterior-crest section, distinct from breadth and joint-centre separation. Unit: mm. */
+  /** Hip circumference course, distinct from hip breadth and joint-centre separation. Unit: mm. */
   hip: IAutoMovieHumanBodyControl;
 
-  /** Taut high-hip girth midway between the owned model waist and hip sections; no palpable iliac-crest equivalence is implied. Unit: mm. */
+  /** High-hip circumference course; no iliac-crest landmark is implied. Unit: mm. */
   highHip: IAutoMovieHumanBodyControl;
 
-  /** Length of the owned four-contact model neck-base surface course, distinct from a planar tape or a clinically palpated C7 course. Unit: mm. */
+  /** Neck-base circumference course, separate from the neck course. Unit: mm. */
   neckBase: IAutoMovieHumanBodyControl;
 
-  /** Taut girth at the owned model neck section; clinical infrathyroid equivalence remains unestablished. Unit: mm. */
+  /** Neck circumference course with its own measurement site. Unit: mm. */
   neck: IAutoMovieHumanBodyControl;
 
   /** Neck-length course; neither vertebral length nor a guessed landmark difference. Unit: mm. */
@@ -68,28 +59,28 @@ export interface IAutoMovieHumanBodyControls {
   /** Lower-arm length course; it is distinct from the Forearm circumference control. Unit: mm. */
   lowerArmLength: IAutoMovieHumanBodyControl;
 
-  /** Taut upper-arm girth midway from the owned shoulder attachment to the elbow centre, square to the upper-arm axis; no clinical acromion/olecranon equivalence is implied. Unit: mm. */
+  /** Upper-arm circumference course; it does not establish muscle mass. Unit: mm. */
   bicep: IAutoMovieHumanBodyControl;
 
-  /** Taut girth at the owned model elbow-joint section, not joint breadth or a palpated olecranon course. Unit: mm. */
+  /** Elbow circumference course, not joint breadth. Unit: mm. */
   elbow: IAutoMovieHumanBodyControl;
 
-  /** Taut girth of the owned wrist-crease section, not joint breadth or a stylion derived from an animation-joint offset. Unit: mm. */
+  /** Wrist circumference course, not joint breadth. Unit: mm. */
   wrist: IAutoMovieHumanBodyControl;
 
-  /** Maximum taut girth over the complete owned forearm muscle region, excluding its geometrically declared joint transitions. Unit: mm. */
+  /** Forearm circumference course, separate from Lower Arm Length. Unit: mm. */
   forearm: IAutoMovieHumanBodyControl;
 
   /** Inseam course, distinct from crotch-to-floor Rise and mechanical leg length. Unit: mm. */
   inseam: IAutoMovieHumanBodyControl;
 
-  /** Maximum horizontal taut girth in the owned upper-thigh region below the model crotch; clinical gluteal-furrow equivalence remains unestablished. Unit: mm. */
+  /** Thigh circumference course; site and side are not inferred from clinical limb data. Unit: mm. */
   thigh: IAutoMovieHumanBodyControl;
 
-  /** Horizontal taut girth at the owned model knee-joint section, not joint breadth or a palpated mid-patella course. Unit: mm. */
+  /** Knee circumference course, not joint breadth. Unit: mm. */
   knee: IAutoMovieHumanBodyControl;
 
-  /** Maximum horizontal taut girth over the owned shank muscle region, excluding its declared ankle and knee transitions. Both sides share this authored goal. Unit: mm. */
+  /** Calf circumference course; it does not specify left and right independently. Unit: mm. */
   calf: IAutoMovieHumanBodyControl;
 
   /** Hand circumference course; no hand length or breadth is derived from it. Unit: mm. */

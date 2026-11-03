@@ -7,14 +7,6 @@ import { AutoMovieHumanPolarSection } from "../lofting/AutoMovieHumanPolarSectio
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
-import { AutoMovieHumanArmTapes } from "./AutoMovieHumanArmTapes";
-import { AutoMovieHumanArmCollar } from "./AutoMovieHumanArmCollar";
-import { AutoMovieHumanHandSection } from "./AutoMovieHumanHandSection";
-import { AutoMovieHumanHandSectionSolve } from "./AutoMovieHumanHandSectionSolve";
-import { AutoMovieHumanHandLongitudinal } from "./AutoMovieHumanHandLongitudinal";
-import { AutoMovieHumanStraightDigit } from "./AutoMovieHumanStraightDigit";
-import { AutoMovieHumanSectionJets } from "./AutoMovieHumanSectionJets";
-import type { AutoMovieHumanMeasurementProtocol } from "./AutoMovieHumanMeasurementProtocol";
 import { AutoMovieHumanLimbFrame } from "./AutoMovieHumanLimbFrame";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -32,8 +24,8 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * lofted on the skeleton, its walk turning at the skeleton's elbow.
  *
  * About that axis a section is an ellipse in the plane across the bone. Its
- * size follows the biceps, elbow, forearm and wrist tapes at their bone sites,
- * normalized by each ellipse's perimeter, and its aspect runs from the
+ * size is a natural spline through the shoulder ring's size and the circles of
+ * the biceps, elbow, forearm and wrist tapes, and its aspect runs from the
  * wrist's flat oval to the nearly round arm. A layer is that tube cut by the
  * plane square to the bone: the plane's normal is the bone's heading, which
  * turns with the walk at the elbow, turns onto the hand's own axis over the
@@ -149,11 +141,6 @@ export namespace AutoMovieHumanArmConstruction {
         ...calibration.poles,
         ...limbs.flatMap((l: ILimb): IAutoMovieHumanBodyCalibration.IPole[] => l.poles),
       ],
-      measurementSites: {
-        ...calibration.measurementSites,
-        ...limbs[0]!.sites,
-        ...limbs[1]!.sites,
-      },
     };
   }
 
@@ -242,9 +229,6 @@ export namespace AutoMovieHumanArmConstruction {
     chains: IAutoMovieHumanLoftChain[];
     poles: IAutoMovieHumanBodyCalibration.IPole[];
     bones: IBones;
-
-    /** Owned bind-pose measurement addresses, reflected with this limb. */
-    sites: AutoMovieHumanMeasurementProtocol.ISites;
   }
 
   /**
@@ -267,40 +251,26 @@ export namespace AutoMovieHumanArmConstruction {
     const hand: IForm = form();
     const ring: IRing = shoulder(calibration, side, sign);
     const elbow: Vec3 | undefined = elbowOf(skeleton, side, sign);
-    const longitudinal: AutoMovieHumanHandLongitudinal.IMap =
-      AutoMovieHumanHandLongitudinal.create(hand.longitudinal, given.palm, given.length);
 
     // The crease and the hand's origin stand on the tube, whatever the hand's
     // breadth, so a first build places the knuckles the breadth is read on.
-    const first: IArm = arm(ring, inputs, {
+    const first: IArm = arm(ring, inputs, { ...given, across: 1 }, elbow);
+    const measures: IShaped = {
       ...given,
-      across: 1,
-      through: inputs.circumference / prior.hand.size.circumference,
-      longitudinal,
-    }, elbow, false);
-    const measures: IShaped = sectionOf(hand, given, inputs, first.wrist, first.crease);
-    const law: IArm = arm(ring, inputs, measures, elbow, lofted);
+      across: acrossOf(hand, given, inputs, first.wrist, first.crease),
+    };
+    const law: IArm = arm(ring, inputs, measures, elbow);
     const map = (q: readonly [number, number, number]): Vec3 =>
-      handPoint(q, measures, law.wrist);
+      handPoint(q, measures, inputs.circumference, inputs.scale, law.wrist);
 
     // Joints at the knuckles and the thumb's base, by the hand's anatomy.
     const roots: Vec3[] = hand.digits.map((d: IDigit): Vec3 => map(linePoint(d, 0)));
     const joints: IJoints = knuckles(law.crease, measures.length, roots);
-    const handAxis: Vec3 = unit(sub(joints.mcps[2]!, law.crease));
-    const straight: (AutoMovieHumanStraightDigit.IOutput | undefined)[] = hand.digits.map(
-      (d: IDigit, i: number): AutoMovieHumanStraightDigit.IOutput | undefined => i === 0 ? undefined : AutoMovieHumanStraightDigit.create({
-        joint: joints.mcps[i]!, axis: handAxis, cap: d.cap, step: DIGIT_CARRY,
-        centre: (s: number): Vec3 => map(linePoint(d, s)),
-      }),
-    );
-    const firstSections: number[] = hand.digits.map((d: IDigit, i: number): number =>
-      straight[i] === undefined ? d.first : straightFirst(d, straight[i]!, measures, map, handAxis),
-    );
 
     // The thumb runs the thumb length from its joint.
-    const thumb: IStretch = stretch(hand.digits[0]!, joints.mcps[0]!, measures, law.wrist);
+    const thumb: IStretch = stretch(hand.digits[0]!, joints.mcps[0]!, measures, inputs, law.wrist);
     const lines: IDigitLine[] = hand.digits.map((d: IDigit, i: number): IDigitLine => {
-      const at = (s: number): Vec3 => straight[i]?.centre(s) ?? map(stretched(d, thumb, s));
+      const at = (s: number): Vec3 => map(i === 0 ? stretched(d, thumb, s) : linePoint(d, s));
       const last: number = d.cap;
       const count: number = Math.max(2, Math.ceil(last / LINE_STEP));
       return {
@@ -308,7 +278,7 @@ export namespace AutoMovieHumanArmConstruction {
         line: Array.from({ length: count + 1 }, (_: unknown, k: number): Vec3 =>
           sided(at((last * k) / count), sign),
         ),
-        tip: sided(straight[i]?.point(d.cap, map(d.pole)) ?? map(stretchedPole(d, thumb)), sign),
+        tip: sided(map(i === 0 ? stretchedPole(d, thumb) : d.pole), sign),
         joint: sided(joints.mcps[i]!, sign),
       };
     });
@@ -319,34 +289,13 @@ export namespace AutoMovieHumanArmConstruction {
       thumb: { cmc: sided(joints.cmc, sign), mcp: sided(joints.mcps[0]!, sign) },
       digits: lines,
     };
-    const sites: AutoMovieHumanMeasurementProtocol.ISites = {};
-    for (const key of ["upperArm", "elbow", "forearm", "wrist"] as const) {
-      const own: AutoMovieHumanMeasurementProtocol.ISite = law.sites[key];
-      const geometry: AutoMovieHumanMeasurementProtocol.ISection | AutoMovieHumanMeasurementProtocol.IMaximum = own.geometry as AutoMovieHumanMeasurementProtocol.ISection | AutoMovieHumanMeasurementProtocol.IMaximum;
-      sites[`${side}.${key}`] = {
-        ...own,
-        geometry: geometry.kind === "section"
-          ? { ...geometry, origin: sided(geometry.origin, sign), normal: sided(geometry.normal, sign) }
-          : { ...geometry, start: sided(geometry.start, sign), end: sided(geometry.end, sign), normal: sided(geometry.normal, sign) },
-      };
-    }
-    if (!lofted) return { chains: [], poles: [], bones: bones_, sites };
-    const transition: AutoMovieHumanMeasurementProtocol.IPlanePath = law.wristPath(joints.mcps[2]!);
-    sites[`${side}.wristTransition`] = {
-      owner: "arm", basis: "model-convention", pose: "bind",
-      definition: "Owned section-plane family from the forearm belly through the exact wrist crease to the middle metacarpal head; origins interpolate linearly and signed normals by shortest arc. Thumb-side directions are transported in those same planes. No radial-stylion equivalence is asserted.",
-      geometry: {
-        ...transition,
-        stations: transition.stations.map((station: AutoMovieHumanMeasurementProtocol.IPlaneStation): AutoMovieHumanMeasurementProtocol.IPlaneStation => ({
-          origin: sided(station.origin, sign), normal: sided(station.normal, sign), thumbSide: sided(station.thumbSide, sign),
-        })),
-      },
-    };
+    if (!lofted) return { chains: [], poles: [], bones: bones_ };
+
     const armChain: IAutoMovieHumanLoftChain = armOf(law, side, sign);
     const palm: IAutoMovieHumanLoftChain = palmOf(hand, map, side, sign);
     const digits: IAutoMovieHumanLoftChain[] = hand.digits.map(
       (d: IDigit, i: number): IAutoMovieHumanLoftChain =>
-        digitOf(d, i, i === 0 ? thumb : null, map, side, sign, straight[i], firstSections[i]),
+        digitOf(d, i, i === 0 ? thumb : null, map, side, sign),
     );
     return {
       chains: [armChain, ...digits.slice(0, 1), palm, ...digits.slice(1)],
@@ -355,11 +304,10 @@ export namespace AutoMovieHumanArmConstruction {
           chain: prior.hand.digits[i]!.name.replace("{side}", side),
           end: "bottom",
           critical: true,
-          point: sided(straight[i]?.point(d.cap, map(d.pole)) ?? map(stretchedPole(d, thumb)), sign),
+          point: sided(map(i === 0 ? stretchedPole(d, thumb) : d.pole), sign),
         }),
       ),
       bones: bones_,
-      sites,
     };
   }
 
@@ -413,14 +361,12 @@ export namespace AutoMovieHumanArmConstruction {
       )!
       .arcs.flatMap(([from, to]: [number, number]): Vec3[] => {
         const span: number = to >= from ? to - from : to + TWO_PI - from;
-
-        // Midpoint quadrature is unchanged by reversing the reflected arc.
         return AutoMovieHumanLoftChain.ring(
           upper,
           upper.layers[0]!.y,
           Array.from(
             { length: RING },
-            (_: unknown, i: number): number => from + (span * (i + 0.5)) / RING,
+            (_: unknown, i: number): number => from + (span * i) / RING,
           ),
         );
       })
@@ -432,20 +378,7 @@ export namespace AutoMovieHumanArmConstruction {
           s + Math.hypot(p[0] - centre[0], p[1] - centre[1], p[2] - centre[2]),
         0,
       ) / ring.length;
-    // The centroid uses symmetric midpoint quadrature, while the boundary
-    // includes its exact endpoints and the chord closing the contact arc.
-    const arcs: [number, number][] = event.splits.find(
-      (split: IAutoMovieHumanBodyCalibration.ISplit): boolean => split.child === `arm.${side}`,
-    )!.arcs;
-    const outlines: [number, number][][] = [0, 1, 2].map((k: number): [number, number][] =>
-      arcs.flatMap(([from, to]: [number, number]): [number, number][] => {
-        const span: number = to >= from ? to - from : to + TWO_PI - from;
-        return AutoMovieHumanLoftChain.ring(upper, upper.layers[0]!.y + k * ROOT_JET_STEP,
-          Array.from({ length: 4 * RING + 1 }, (_: unknown, i: number): number => from + span * i / (4 * RING)),
-        ).map((p: Vec3): [number, number] => [p[0], sign * p[2]]);
-      }),
-    );
-    const outline: [number, number][] = outlines[0]!;
+    const outline: [number, number][] = ring.map((p: Vec3): [number, number] => [p[0], p[2]]);
     const area: number = Math.abs(
       outline.reduce(
         (s: number, p: [number, number], i: number): number => {
@@ -455,20 +388,7 @@ export namespace AutoMovieHumanArmConstruction {
         0,
       ) / 2,
     );
-    return {
-      centre, radius, area, outline,
-      continuation: (point: Vec3): Vec3 => {
-        const angle: number = Math.atan2(point[2] - centre[2], point[0] - centre[0]);
-        const radii: number[] = outlines.map((loop: [number, number][]): number =>
-          AutoMovieHumanPolarSection.radius(loop, [centre[0], centre[2]], angle),
-        );
-        const first: number = (-3 * radii[0]! + 4 * radii[1]! - radii[2]!) / (2 * ROOT_JET_STEP);
-        const second: number = (radii[2]! - 2 * radii[1]! + radii[0]!) / (ROOT_JET_STEP * ROOT_JET_STEP);
-        const height: number = point[1] - centre[1];
-        const radial: number = radii[0]! + height * first + 0.5 * height * height * second;
-        return [centre[0] + radial * Math.cos(angle), point[1], centre[2] + radial * Math.sin(angle)];
-      },
-    };
+    return { centre, radius, area, outline };
   }
 
   /** The shoulder ring's place, size and outline `[x, z]`. */
@@ -479,9 +399,6 @@ export namespace AutoMovieHumanArmConstruction {
     /** Area the ring encloses in its level plane, mm^2. */
     area: number;
     outline: [number, number][];
-
-    /** Parent arc's second-order continuation at a nearby angular correspondence. */
-    continuation(point: Vec3): Vec3;
   }
 
   /**
@@ -497,12 +414,6 @@ export namespace AutoMovieHumanArmConstruction {
 
     /** Centre of the section at the wrist crease. */
     crease: Vec3;
-
-    /** Addresses owned before solving the arm's surface, in the left frame. */
-    sites: Record<"upperArm" | "elbow" | "forearm" | "wrist", AutoMovieHumanMeasurementProtocol.ISite>;
-
-    /** Same owned plane metric for the wrist minimum and thumb-side profile. */
-    wristPath(knuckle: Vec3): AutoMovieHumanMeasurementProtocol.IPlanePath;
 
     /** Layer parameters from the bottom. */
     layers: number[];
@@ -538,7 +449,6 @@ export namespace AutoMovieHumanArmConstruction {
     inputs: IInputs,
     hand: IShaped,
     elbow?: Vec3,
-    collared: boolean = true,
   ): IArm {
     const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
     if (
@@ -599,8 +509,46 @@ export namespace AutoMovieHumanArmConstruction {
       }
     }
 
+    // Size through the tapes, and aspect, by the walk's fraction of the arm.
+    const keys: AutoMovieHumanArmPrior.IKey[] = [
+      prior.bicep,
+      prior.elbow,
+      prior.forearm,
+      prior.wrist,
+    ];
+    const tapes: number[] = [
+      inputs.bicep,
+      inputs.elbow,
+      inputs.forearm,
+      inputs.wrist,
+    ];
+    const stations: number[] = [
+      0,
+      ...keys.map((k: AutoMovieHumanArmPrior.IKey): number => k.station),
+    ];
+    // The shoulder ring is a level cut of the arm, which leaves it at an angle
+    // to the vertical, so it encloses the area of the section square to the
+    // bone over the cosine of that angle; the tube starts from that section.
+    // Taken as square, the level ring's size swells the arm's root into a cap
+    // over a narrower arm.
+    const rise: number = Math.abs(heading(prior, 0, upper, soft)[1]);
+    const size: AutoMovieHumanNaturalSpline.ISpline =
+      AutoMovieHumanNaturalSpline.create(stations, [
+        Math.log(Math.sqrt((ring.area * rise) / Math.PI)),
+        ...keys.map((k: AutoMovieHumanArmPrior.IKey, i: number): number =>
+          Math.log((tapes[i]! * k.ratio) / (2 * Math.PI)),
+        ),
+      ]);
+    const round: AutoMovieHumanNaturalSpline.ISpline =
+      AutoMovieHumanNaturalSpline.create(stations, [
+        prior.aspect[3]!,
+        prior.aspect[3]!,
+        prior.aspect[2]!,
+        prior.aspect[1]!,
+        prior.aspect[0]!,
+      ]);
     const before: Vec3 = heading(prior, 0, upper, soft);
-    const at: (s: number) => Vec3 = (s: number): Vec3 => {
+    const at = (s: number): Vec3 => {
       // Above the shoulder the bone runs on: the top layers' cuts reach it.
       if (s < 0)
         return [
@@ -619,66 +567,13 @@ export namespace AutoMovieHumanArmConstruction {
         a[2] + f * (b[2] - a[2]),
       ];
     };
-
-    // The hand owns its crease plane. It is a geometric model address, not a
-    // palpable styloid inferred from an absolute offset at every body size.
-    const wrist: Vec3 = at(total);
-    const origin: Vec3 = [...wrist];
-    const handPrior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
-    const square: Vec3 = scale([...handPrior.along], -1);
-    const map: (q: readonly [number, number, number]) => Vec3 =
-      (q: readonly [number, number, number]): Vec3 => handPoint(q, hand, origin);
-    const creaseAt: number = form().longitudinal.wrist;
-    const branchAt: number = handPrior.branch;
-
-    // The upper-arm tape bisects the generated shoulder contact and elbow.
-    // This declared model convention stays separate from a clinical acromion.
-    const shoulderSite: Vec3 = ring.centre;
-    const elbowSite: Vec3 = at(upper);
-    const wristSite: Vec3 = map([creaseAt, 0, 0]);
-    const upperAxis: Vec3 = unit(sub(elbowSite, shoulderSite));
-    const foreAxis: Vec3 = heading(prior, upper + soft, upper, soft);
-    const stationAt: (point: Vec3, normal: Vec3) => number = (point: Vec3, normal: Vec3): number => {
-      let lo: number = 0;
-      let hi: number = (count - 1) * WALK;
-      for (let i: number = 0; i < 40; i++) {
-        const mid: number = (lo + hi) / 2;
-        if (dot(sub(at(mid), point), normal) < 0) lo = mid;
-        else hi = mid;
-      }
-      return (lo + hi) / 2;
-    };
-    const bicepStation: number = stationAt(
-      scale(plus(shoulderSite, elbowSite), 0.5),
-      upperAxis,
-    );
-    const wristStation: number = stationAt(wristSite, scale(square, -1));
-    const muscleStart: number = upper + soft;
-    if (!(muscleStart < wristStation)) throw new Error("The elbow transition must end before the wrist crease");
-
-    // A single proximal forearm belly lies one third of the bone's run below
-    // the elbow. Its location is a shared shape convention; its circumference
-    // is the requested maximum, with monotone runs on either side.
-    const stations: number[] = [0, bicepStation, upper, muscleStart, muscleStart + (wristStation - muscleStart) / 3, wristStation];
-    const round: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
-      stations,
-      [prior.aspect[3]!, prior.aspect[3]!, prior.aspect[2]!, prior.aspect[2]!, prior.aspect[1]!, prior.aspect[0]!],
-    );
-    const rise: number = Math.abs(heading(prior, 0, upper, soft)[1]);
-    const rootRadius: number = Math.sqrt((ring.area * rise) / Math.PI);
-    const rootGirth: number = rootRadius / AutoMovieHumanArmTapes.radius(1, prior.aspect[3]!);
-    const tapeKeys: AutoMovieHumanArmTapes.IKey[] = [rootGirth, inputs.bicep, inputs.elbow, Math.min(inputs.elbow, inputs.forearm), inputs.forearm, inputs.wrist].map(
-      (girth: number, i: number): AutoMovieHumanArmTapes.IKey => ({ station: stations[i]!, girth }),
-    );
-
-    // Cutting many phases revisits the same walk stations. Keep each analytic
-    // ellipse's radius and aspect for this arm only; no generated person or
-    // sampling grid is retained by a global cache.
-    const sections: Map<number, { aspect: number; radius: number }> = new Map();
-    const surface: (s: number, theta: number) => Vec3 = (s: number, theta: number): Vec3 => {
+    const surface = (s: number, theta: number): Vec3 => {
       const u: number = Math.max(0, s / total);
-      let section: { aspect: number; radius: number } | undefined = sections.get(s);
-      const aspect: number = section?.aspect ?? Math.max(1, AutoMovieHumanNaturalSpline.evaluate(round, s));
+      const r: number = Math.exp(AutoMovieHumanNaturalSpline.evaluate(size, u));
+      const aspect: number = Math.max(
+        1,
+        AutoMovieHumanNaturalSpline.evaluate(round, u),
+      );
       const c: Vec3 = at(s);
       const t: Vec3 = heading(prior, s, upper, soft);
       const f: Vec3 = across([1, 0, 0], t);
@@ -690,21 +585,6 @@ export namespace AutoMovieHumanArmConstruction {
       if (lie > Math.PI / 2) lie -= Math.PI;
       if (lie <= -Math.PI / 2) lie += Math.PI;
       const turn: number = lie * smooth((u - 0.6) / 0.4);
-
-      // The owned wrist crease cuts the forearm obliquely. Normalize its tape
-      // in that physical plane, rather than closing a different bone-normal
-      // ellipse and reading it through a longer oblique circumference.
-      if (section === undefined) {
-        const blend: number = smoother((s - stations[4]!) / (wristStation - stations[4]!));
-        const normal: Vec3 = unit(plus(scale(t, 1 - blend), scale(square, -blend)));
-        const long: Vec3 = plus(scale(f, Math.cos(turn)), scale(g, Math.sin(turn)));
-        section = {
-          aspect,
-          radius: AutoMovieHumanArmTapes.radius(AutoMovieHumanArmTapes.girth(tapeKeys, s), aspect, { axis: t, across: long, normal }),
-        };
-        sections.set(s, section);
-      }
-      const r: number = section.radius;
       const a: number = r * Math.sqrt(aspect) * Math.cos(theta - turn);
       const b: number = (r / Math.sqrt(aspect)) * Math.sin(theta - turn);
       const x: number = a * Math.cos(turn) - b * Math.sin(turn);
@@ -727,6 +607,7 @@ export namespace AutoMovieHumanArmConstruction {
       }
       return surface((lo + hi) / 2, theta);
     };
+    const wrist: Vec3 = at(prior.wrist.station * total);
     const top: number = ring.centre[1];
     const angle = (t: number): number => prior.phase + prior.sense * t;
 
@@ -753,7 +634,30 @@ export namespace AutoMovieHumanArmConstruction {
       return (lo + hi) / 2;
     };
 
+    // The hand's map from the wrist; its axes are the arm's lower end.
+    const unit_: number =
+      (inputs.circumference * prior.heelUnit) / (2 * Math.PI);
+    const origin: Vec3 = [
+      wrist[0] + unit_ * prior.heelOffset[0]!,
+      wrist[1] + unit_ * prior.heelOffset[1]!,
+      wrist[2] + unit_ * prior.heelOffset[2]!,
+    ];
+    const handPrior: AutoMovieHumanArmPrior.IHandPrior =
+      AutoMovieHumanArmPrior.PRIOR.hand;
+    const square: Vec3 = [
+      -handPrior.along[0],
+      -handPrior.along[1],
+      -handPrior.along[2],
+    ];
+    const map = (q: readonly [number, number, number]): Vec3 =>
+      handPoint(q, hand, inputs.circumference, inputs.scale, origin);
     const bowl: number = omega();
+
+    // The crease: hand length runs from it, and the origin-to-tip measure is
+    // `lengthRatio` of that length, read in the mean hand's units.
+    const creaseAt: number =
+      -handPrior.size.length * (1 / handPrior.lengthRatio - 1);
+    const branchAt: number = handPrior.branch;
 
     // A section of the heel at station a: the bone's tube up to the crease,
     // handing over to the hand's skin across the whole heel, from the crease
@@ -792,13 +696,13 @@ export namespace AutoMovieHumanArmConstruction {
       if (q <= join) return square;
       const s: number = walkOf(q);
       const bone: Vec3 = scale(heading(prior, s, upper, soft), -1);
-      const w: number = smoother((q - join) / (WRIST_TURN * inputs.scale));
+      const w: number = smooth((q - join) / (WRIST_TURN * inputs.scale));
       const body: Vec3 = unit([
         square[0] + w * (bone[0] - square[0]),
         square[1] + w * (bone[1] - square[1]),
         square[2] + w * (bone[2] - square[2]),
       ]);
-      const level: number = 1 - smoother((s - topWalk) / (REACH * inputs.scale));
+      const level: number = 1 - smooth((s - topWalk) / (REACH * inputs.scale));
       return unit([
         body[0] * (1 - level),
         body[1] * (1 - level) + level,
@@ -806,12 +710,11 @@ export namespace AutoMovieHumanArmConstruction {
       ]);
     };
     const anchor = (q: number): Vec3 => (q <= join ? map([-q, 0, 0]) : at(walkOf(q)));
-    const qTop: number = join + (joinWalk - topWalk);
-    const basePoint: (q: number, t: number) => Vec3 = (q: number, t: number): Vec3 => {
+    const point = (q: number, t: number): Vec3 => {
       if (q <= join) return heel(-q, t);
       const c: Vec3 = at(walkOf(q));
       const p: Vec3 = cut(c, normal(q), angle(t));
-      const fade: number = smoother(
+      const fade: number = smooth(
         (c[1] - top + REACH * inputs.scale) / (REACH * inputs.scale),
       );
       if (fade === 0) return p;
@@ -829,16 +732,6 @@ export namespace AutoMovieHumanArmConstruction {
         p[2] + fade * gap * Math.sin(d),
       ];
     };
-    // Bone placement and the provisional hand-size solve consume only the
-    // elbow, crease and hand origin. Their unused root needs no jet fitting.
-    const collar: AutoMovieHumanArmCollar.IOutput = collared ? AutoMovieHumanArmCollar.create({
-      root: qTop,
-      reach: Math.min(REACH * inputs.scale, bicepStation - topWalk),
-      bulge: ROOT_BULGE * inputs.scale,
-      phases: prior.order,
-      surface: basePoint,
-      parent: (q: number, t: number): Vec3 => ring.continuation(basePoint(q, t)),
-    }) : { reach: 0, point: basePoint };
 
     // Layers: the heel's own stations in the hand, then the forearm's above
     // the join, then the tube's heights up to the shoulder's level ring.
@@ -847,16 +740,13 @@ export namespace AutoMovieHumanArmConstruction {
       .map((a: number): number => -a)
       .sort((p: number, q: number): number => p - q);
     for (const step of FOREARM_LAYERS) layers.push(join + step * inputs.scale);
+    const qTop: number = join + (joinWalk - topWalk);
     for (const h of prior.heights) {
       const q: number = join + (joinWalk - heightAt(wrist[1] + h * (top - wrist[1])));
       if (q >= qTop - 1e-6) continue;
       if (q - layers[layers.length - 1]! > LAYER_GAP * inputs.scale) layers.push(q);
     }
     layers.push(qTop);
-    if (collared)
-      for (let k: number = 1; k <= 4; k++) layers.push(qTop - collar.reach * k / 4);
-    layers.sort((a: number, b: number): number => a - b);
-    const ordered: number[] = layers.filter((q: number, k: number): boolean => k === 0 || q - layers[k - 1]! > 1e-6);
 
     const creaseRing: Vec3[] = Array.from(
       { length: CREASE_PHASES },
@@ -867,50 +757,10 @@ export namespace AutoMovieHumanArmConstruction {
       wrist: origin,
       elbow: at(upper),
       crease: [mean(creaseRing, 0), mean(creaseRing, 1), mean(creaseRing, 2)],
-      sites: {
-        upperArm: {
-          owner: "arm", basis: "model-convention", pose: "bind",
-          definition: "Section normal to the shoulder-contact centroid to elbow axis at their midpoint; no clinical acromion equivalence is asserted.",
-          geometry: { kind: "section", origin: scale(plus(shoulderSite, elbowSite), 0.5), normal: upperAxis },
-        },
-        elbow: {
-          owner: "arm", basis: "model-convention", pose: "bind",
-          definition: "Section at the generated elbow turn centre, normal to its walk tangent.",
-          geometry: { kind: "section", origin: elbowSite, normal: heading(prior, upper, upper, soft) },
-        },
-        forearm: {
-          owner: "arm", basis: "model-convention", pose: "bind",
-          definition: "Maximum over the complete straight forearm muscle domain, from the owned elbow-heading transition end to the owned wrist crease; the bony elbow transition is excluded.",
-          geometry: { kind: "maximum", start: at(muscleStart), end: wristSite, normal: foreAxis },
-        },
-        wrist: {
-          owner: "arm", basis: "model-convention", pose: "bind",
-          definition: "Taut section in the hand's owned wrist-crease plane; the source lacks a palpable styloid, so no stylion equivalence is asserted.",
-          geometry: { kind: "section", origin: wristSite, normal: scale(square, -1) },
-        },
-      },
-      wristPath: (knuckle: Vec3): AutoMovieHumanMeasurementProtocol.IPlanePath => {
-        const belly: number = join + joinWalk - stations[4]!;
-        const end: number = -hand.longitudinal.inverse(dot(sub(knuckle, origin), [...handPrior.along]));
-        if (!(belly > join && end < join)) throw new Error("The wrist plane path must run from its belly through its crease to the hand");
-        const proximal: number = Math.ceil((belly - join) / CARRY);
-        const distal: number = Math.ceil((join - end) / DIGIT_CARRY);
-        const parameters: number[] = [
-          ...Array.from({ length: proximal + 1 }, (_: unknown, i: number): number => belly + (join - belly) * i / proximal),
-          ...Array.from({ length: distal }, (_: unknown, i: number): number => join + (end - join) * (i + 1) / distal),
-        ];
-        return {
-          kind: "plane-path", crease: proximal,
-          stations: parameters.map((q: number): AutoMovieHumanMeasurementProtocol.IPlaneStation => ({
-            origin: anchor(q), normal: scale(normal(q), -1),
-            thumbSide: AutoMovieHumanLimbFrame.carry([...handPrior.across], square, normal(q)),
-          })),
-        };
-      },
-      layers: ordered,
+      layers,
       normal,
       anchor,
-      point: collar.point,
+      point,
     };
   }
 
@@ -930,29 +780,35 @@ export namespace AutoMovieHumanArmConstruction {
     return [d[0]! / l, d[1]! / l, d[2]! / l];
   }
 
-  /** Hand dimensions and the independently solved transverse scales. */
+  /** A hand's measures with the scale across its form that its breadth takes. */
   interface IShaped extends IHand {
     /** World millimetres per unit across the form. */
     across: number;
-
-    /** World millimetres per source millimetre through the hand. */
-    through: number;
-
-    /** C2 source-axis map whose origin is the owned wrist crease. */
-    longitudinal: AutoMovieHumanHandLongitudinal.IMap;
   }
 
   /** A hand's map from the prior's axes to the left frame. */
   function handPoint(
     q: readonly [number, number, number],
     hand: IShaped,
+    tape: number,
+    scale: number,
     wrist: readonly [number, number, number],
   ): Vec3 {
     const prior: AutoMovieHumanArmPrior.IHandPrior =
       AutoMovieHumanArmPrior.PRIOR.hand;
-    const a: number = hand.longitudinal.point(q[0]);
+    const length: number = hand.length * prior.lengthRatio;
+    const palm: number = hand.palm * prior.palmRatio;
+    const inPalm: number = palm / prior.size.palm;
+    const inFingers: number =
+      (length - palm) / (prior.size.length - prior.size.palm);
+    const through: number = tape / scale / prior.size.circumference;
+    const a: number =
+      inPalm * q[0] +
+      (inFingers - inPalm) *
+        prior.handover *
+        softplus((q[0] - prior.size.palm) / prior.handover);
     const b: number = q[1] * hand.across;
-    const c: number = q[2] * hand.through;
+    const c: number = q[2] * through * scale;
     return [
       wrist[0] + a * prior.along[0] + b * prior.across[0] + c * prior.through[0],
       wrist[1] + a * prior.along[1] + b * prior.across[1] + c * prior.through[1],
@@ -964,6 +820,8 @@ export namespace AutoMovieHumanArmConstruction {
   function handLocal(
     p: Vec3,
     hand: IShaped,
+    tape: number,
+    scale: number,
     wrist: Vec3,
   ): Vec3 {
     const prior: AutoMovieHumanArmPrior.IHandPrior =
@@ -972,124 +830,64 @@ export namespace AutoMovieHumanArmConstruction {
     const a: number = dot(d, [...prior.along]);
     const b: number = dot(d, [...prior.across]);
     const c: number = dot(d, [...prior.through]);
-    return [hand.longitudinal.inverse(a), b / hand.across, c / hand.through];
+    let lo: number = -1000;
+    let hi: number = 1000;
+    for (let i: number = 0; i < 60; i++) {
+      const mid: number = (lo + hi) / 2;
+      if (handPoint([mid, 0, 0], hand, tape, scale, [0, 0, 0]).reduce(
+        (s: number, v: number, k: number): number => s + v * prior.along[k]!,
+        0,
+      ) < a)
+        lo = mid;
+      else hi = mid;
+    }
+    const through: number = tape / scale / prior.size.circumference;
+    return [(lo + hi) / 2, b / hand.across, c / (through * scale)];
   }
 
   /**
-   * Re-establish the child root after its centreline changes direction. Each
-   * source clearance ball is bounded in the actual mapped hand frame, rather
-   * than comparing a source-unit margin against a world-unit plane. The C2
-   * longitudinal map has its slope extrema at span endpoints and midpoints.
-   */
-  function straightFirst(
-    digit: IDigit,
-    straight: AutoMovieHumanStraightDigit.IOutput,
-    hand: IShaped,
-    map: (q: readonly [number, number, number]) => Vec3,
-    axis: Vec3,
-  ): number {
-    const prior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
-    const source: AutoMovieHumanHandLongitudinal.ILandmarks = form().longitudinal;
-    const extrema: number[] = [source.wrist, (source.wrist + source.base) / 2, source.base, (source.base + source.tip) / 2, source.tip];
-    const clear: IClear[] = digit.clear.map((item: IClear): IClear => {
-      const low: number = item.point[0] - item.margin;
-      const high: number = item.point[0] + item.margin;
-      const longitudinal: number = Math.max(...[low, high, ...extrema.filter((x: number): boolean => x >= low && x <= high)].map(hand.longitudinal.slope));
-      return {
-        point: map(item.point),
-        margin: item.margin * Math.hypot(
-          dot(axis, [...prior.along]) * longitudinal,
-          dot(axis, [...prior.across]) * hand.across,
-          dot(axis, [...prior.through]) * hand.through,
-        ),
-      };
-    });
-    for (let station: number = 0; station < digit.cap - 3; station += 0.05)
-      if (clear.every((item: IClear): boolean => dot(sub(item.point, straight.centre(station)), axis) <= -item.margin)) return station;
-    throw new Error("A straight digit has no first section clearing its mapped parent and web crests");
-  }
-
-  /**
-   * Close breadth and taut circumference on the same mapped knuckle section.
-   * The measuring plane passes through the knuckles' midpoint and holds the
+   * World millimetres per unit across the hand's form for the palm's section
+   * through knuckles II and V to span the hand breadth along them, as ANSUR II
+   * measures it: in the plane through the knuckles' midpoint that holds the
    * line from II to V and stands square to the hand's axis from the wrist to
-   * knuckle III. Both transverse scales move the metacarpal heads, so the
-   * coupled solve observes their plane again after each proposed scale change.
+   * knuckle III. The knuckles stand on the fingers' roots and move with the
+   * scale, so it is solved in rounds from the palm's widest section.
    *
    * @param origin The hand map's origin.
    * @param crease Centre of the hand's section at the wrist crease.
    */
-  function sectionOf(
+  function acrossOf(
     shape: IForm,
     hand: IHand,
     inputs: IInputs,
     origin: Vec3,
     crease: Vec3,
-  ): IShaped {
+  ): number {
     const widest: number = Math.max(
       ...shape.palmRings.map((ring: readonly Vec3[]): number =>
         Math.max(...ring.map((q: Vec3): number => q[1])) -
         Math.min(...ring.map((q: Vec3): number => q[1])),
       ),
     );
-
-    // The final axes move with the skin; each transverse trial closes both
-    // independent lengths against those axes before its tapes are observed.
-    const fitted: (scales: AutoMovieHumanHandSectionSolve.IScale) => IShaped =
-      (scales: AutoMovieHumanHandSectionSolve.IScale): IShaped => {
-        const longitudinal: AutoMovieHumanHandLongitudinal.IMap =
-          AutoMovieHumanHandLongitudinal.fit(shape.longitudinal, hand,
-            (candidate: AutoMovieHumanHandLongitudinal.IMap): AutoMovieHumanHandLongitudinal.IMeasures => {
-              const shaped: IShaped = { ...hand, ...scales, longitudinal: candidate };
-              const map: (q: readonly [number, number, number]) => Vec3 =
-                (q: readonly [number, number, number]): Vec3 => handPoint(q, shaped, origin);
-              const roots: Vec3[] = shape.digits.map((digit: IDigit): Vec3 => map(linePoint(digit, 0)));
-              const mcp: Vec3 = knuckles(crease, hand.length, roots).mcps[2]!;
-              const axis: Vec3 = unit(sub(mcp, crease));
-              const middle: IDigit = shape.digits[2]!;
-              const straight: AutoMovieHumanStraightDigit.IOutput = AutoMovieHumanStraightDigit.create({
-                joint: mcp, axis, cap: middle.cap, step: DIGIT_CARRY,
-                centre: (s: number): Vec3 => map(linePoint(middle, s)),
-              });
-              const project: (q: Vec3) => number =
-                (q: Vec3): number => dot(sub(map(q), crease), axis);
-              return {
-                palm: Math.max(...shape.palmCreases.map(project)),
-                length: Math.max(...shape.middleSections.flatMap(
-                  (section: { station: number; points: Vec3[] }): number[] => section.points.map(
-                    (p: Vec3): number => dot(sub(straight.point(section.station, map(p)), crease), axis),
-                  ),
-                )),
-              };
-            },
-          );
-        return { ...hand, ...scales, longitudinal };
-      };
-    const scales: AutoMovieHumanHandSectionSolve.IScale = AutoMovieHumanHandSectionSolve.solve(
-      { breadth: hand.breadth, girth: inputs.circumference },
-      {
-        across: hand.breadth / widest,
-        through: inputs.circumference / AutoMovieHumanArmPrior.PRIOR.hand.size.circumference,
-      },
-      (scales: AutoMovieHumanHandSectionSolve.IScale): AutoMovieHumanHandSectionSolve.IMeasures => {
-        const shaped: IShaped = fitted(scales);
-        const map: (q: readonly [number, number, number]) => Vec3 =
-          (q: readonly [number, number, number]): Vec3 => handPoint(q, shaped, origin);
-        const roots: Vec3[] = shape.digits.map((d: IDigit): Vec3 => map(linePoint(d, 0)));
-        const mcps: Vec3[] = knuckles(crease, hand.length, roots).mcps;
-        return knuckleMeasures(shape, map, crease, mcps);
-      },
-    );
-    return fitted(scales);
+    let k: number = hand.breadth / widest;
+    for (let round: number = 0; round < ACROSS_ROUNDS; round++) {
+      const shaped: IShaped = { ...hand, across: k };
+      const map = (q: readonly [number, number, number]): Vec3 =>
+        handPoint(q, shaped, inputs.circumference, inputs.scale, origin);
+      const roots: Vec3[] = shape.digits.map((d: IDigit): Vec3 => map(linePoint(d, 0)));
+      const mcps: Vec3[] = knuckles(crease, hand.length, roots).mcps;
+      k *= hand.breadth / knuckleBreadth(shape, map, crease, mcps);
+    }
+    return k;
   }
 
-  /** Breadth and taut perimeter of the palm in the plane through knuckles II/V. */
-  function knuckleMeasures(
+  /** The palm's breadth along knuckles II to V in the plane through them. */
+  function knuckleBreadth(
     shape: IForm,
     map: (q: readonly [number, number, number]) => Vec3,
     crease: Vec3,
     mcps: readonly Vec3[],
-  ): AutoMovieHumanHandSectionSolve.IMeasures {
+  ): number {
     const middle: Vec3 = scale(plus(mcps[1]!, mcps[4]!), 0.5);
     const axis: Vec3 = unit(sub(mcps[2]!, crease));
     const line: Vec3 = unit(sub(mcps[4]!, mcps[1]!));
@@ -1097,7 +895,22 @@ export namespace AutoMovieHumanArmConstruction {
     const rings: Vec3[][] = shape.palmRings.map((ring: readonly Vec3[]): Vec3[] =>
       ring.map((q: Vec3): Vec3 => map(q)),
     );
-    return AutoMovieHumanHandSection.measure(rings, middle, normal, line);
+    const count: number = Math.min(...rings.map((ring: Vec3[]): number => ring.length));
+    let lo: number = Infinity;
+    let hi: number = -Infinity;
+    for (let j: number = 0; j < count; j++)
+      for (let k: number = 1; k < rings.length; k++) {
+        const p: Vec3 = rings[k - 1]![j]!;
+        const q: Vec3 = rings[k]![j]!;
+        const fp: number = dot(sub(p, middle), normal);
+        const fq: number = dot(sub(q, middle), normal);
+        if (fp === fq || fp * fq > 0) continue;
+        const s: number = dot(plus(p, scale(sub(q, p), fp / (fp - fq))), line);
+        lo = Math.min(lo, s);
+        hi = Math.max(hi, s);
+      }
+    if (!(hi > lo)) throw new Error("The knuckles' plane misses the palm");
+    return hi - lo;
   }
 
   /** The thumb's stretch past its joint. */
@@ -1122,9 +935,10 @@ export namespace AutoMovieHumanArmConstruction {
     d: IDigit,
     mcp: Vec3,
     hand: IShaped,
+    inputs: IInputs,
     wrist: Vec3,
   ): IStretch {
-    const local: Vec3 = handLocal(mcp, hand, wrist);
+    const local: Vec3 = handLocal(mcp, hand, inputs.circumference, inputs.scale, wrist);
     let from: number = 0;
     let best: number = Infinity;
     for (let s: number = 0; s <= d.cap; s += 0.05) {
@@ -1140,6 +954,8 @@ export namespace AutoMovieHumanArmConstruction {
           handPoint(
             stretchedPole(d, { from, factor: k, first: from }),
             hand,
+            inputs.circumference,
+            inputs.scale,
             wrist,
           ),
           mcp,
@@ -1289,7 +1105,7 @@ export namespace AutoMovieHumanArmConstruction {
             ring: reflect(s.ring, sign),
           };
         };
-        return AutoMovieHumanSectionJets.layer(
+        return AutoMovieHumanLimbFrame.layer(
           { station: stations[k]!, frame: sidedFrame(own.frame, sign), ring: reflect(own.ring, sign) },
           at(-SLOPE_STEP),
           at(SLOPE_STEP),
@@ -1367,21 +1183,19 @@ export namespace AutoMovieHumanArmConstruction {
     map: (q: readonly [number, number, number]) => Vec3,
     side: "left" | "right",
     sign: 1 | -1,
-    straight?: AutoMovieHumanStraightDigit.IOutput,
-    firstSection?: number,
   ): IAutoMovieHumanLoftChain {
     const prior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
     const source: AutoMovieHumanArmPrior.IDigit = prior.digits[index]!;
     const order: number = d.angles.length;
-    const first: number = grow === null ? firstSection ?? d.first : grow.first;
+    const first: number = grow === null ? d.first : grow.first;
     const stations: number[] = digitStations(d, first, grow === null ? 1 : grow.factor);
 
     // World centre, normal toward the root, and ring at a station of the form.
-    const centre = (s: number): Vec3 => straight?.centre(s) ?? map(stretched(d, grow, s));
+    const centre = (s: number): Vec3 => map(stretched(d, grow, s));
     const normalAt = (s: number): Vec3 =>
       unit(sub(centre(Math.max(0, s - STEP)), centre(Math.min(d.cap, s + STEP))));
     const ringAt = (s: number): Vec3[] =>
-      digitRing(d, grow, s).map((q: Vec3): Vec3 => straight?.point(s, map(q)) ?? map(q));
+      digitRing(d, grow, s).map((q: Vec3): Vec3 => map(q));
 
     // The in-plane axis carried from the root toward the tip.
     const root: number = stations[0]!;
@@ -1427,9 +1241,12 @@ export namespace AutoMovieHumanArmConstruction {
             ring: reflect(t.ring, sign),
           };
         };
-        return s + SLOPE_STEP <= d.cap
-          ? AutoMovieHumanSectionJets.layer(mine, at(SLOPE_STEP), at(-SLOPE_STEP), order)
-          : AutoMovieHumanSectionJets.layer(mine, at(-SLOPE_STEP), at(-2 * SLOPE_STEP), order);
+        return AutoMovieHumanLimbFrame.layer(
+          mine,
+          s + SLOPE_STEP <= d.cap ? at(SLOPE_STEP) : mine,
+          at(-SLOPE_STEP),
+          order,
+        );
       },
     );
     return {
@@ -1534,15 +1351,6 @@ interface IDigit {
 
 /** The whole hand in its own axes. */
 interface IForm {
-  /** Source wrist, middle web separation and middle fingertip stations. */
-  longitudinal: AutoMovieHumanHandLongitudinal.ILandmarks;
-
-  /** The source web crests on either side of the middle finger. */
-  palmCreases: Vec3[];
-
-  /** Source middle sections retain their station for the common neutral transform. */
-  middleSections: { station: number; points: Vec3[] }[];
-
   whole: IStarField;
   palm: IStarField;
   opening: (a: number, t: number) => Vec3;
@@ -2228,18 +2036,6 @@ function make(): IForm {
   distances.push(toward - 1.2, toward);
   const palmRings: Vec3[][] = [...distances].reverse().map(ringOf);
   return {
-    longitudinal: {
-      wrist: prior.whole.stations[0]!,
-      base: Math.max(crests[0]!.point[0], crests[1]!.point[0]),
-      tip: digits[2]!.pole[0],
-    },
-    palmCreases: [crests[0]!.point, crests[1]!.point],
-    middleSections: [
-      { station: digits[2]!.cap, points: [digits[2]!.pole] },
-      ...digitStations(digits[2]!, digits[2]!.first, 1).map(
-        (station: number): { station: number; points: Vec3[] } => ({ station, points: digitRing(digits[2]!, null, station) }),
-      ),
-    ],
     whole,
     palm,
     opening,
@@ -2330,6 +2126,11 @@ function softMax(a: number, b: number, k: number): number {
   return Math.max(a, b) + (h * h * k) / 4;
 }
 
+/** `log(1 + e^x)` without overflow. */
+function softplus(x: number): number {
+  return Math.max(x, 0) + Math.log1p(Math.exp(-Math.abs(x)));
+}
+
 /** Chains an arm owns. */
 const OWNED: RegExp = /^(arm|hand|thumb|finger)\./;
 
@@ -2338,12 +2139,6 @@ const RING: number = 128;
 
 /** Height over which the shoulder ring's difference fades in, and the arm's sections turn level, world mm. */
 const REACH: number = 70;
-
-/** Parent-jet observation step above the shoulder contact, mm. */
-const ROOT_JET_STEP: number = 0.05;
-
-/** Largest collar displacement, matching the event join's existing 4 mm bound. */
-const ROOT_BULGE: number = 4;
 
 /** The arm's top ring above the mean height of its arc, which dips at the armpit, world mm. */
 const SEAT: number = 8.5;
@@ -2407,6 +2202,12 @@ const DIGIT_STEP: number = 5;
 
 /** Spacing of a digit's centre line handed to the skeleton, mm of the form. */
 const LINE_STEP: number = 2;
+
+/**
+ * Rounds of the across scale's solve: each moves the knuckles less than a
+ * twentieth of a millimetre past the third.
+ */
+const ACROSS_ROUNDS: number = 4;
 
 /** De Leva's wrist centre to third metacarpale over wrist centre to third dactylion. */
 const KNUCKLE: number = 0.459;

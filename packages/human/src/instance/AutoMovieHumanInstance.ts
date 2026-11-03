@@ -10,7 +10,6 @@ import type { IAutoMovieHumanExpression } from "../structures/expression/IAutoMo
 import type { IAutoMovieHumanPose } from "../structures/pose/IAutoMovieHumanPose";
 import type { AutoMovieHumanChange } from "./AutoMovieHumanChange";
 import { AutoMovieHumanEnginePose } from "./AutoMovieHumanEnginePose";
-import { AutoMovieHumanMouthState } from "./AutoMovieHumanMouthState";
 import { AutoMovieHumanStateAdmission as Admission } from "./AutoMovieHumanStateAdmission";
 
 /**
@@ -38,8 +37,8 @@ import { AutoMovieHumanStateAdmission as Admission } from "./AutoMovieHumanState
  * write succeeds, so a failed update leaves the previous state in force. A
  * plan made before another commit is stale and refused.
  *
- * Equivalence: the evaluator is a pure function of the authored pose composed
- * with the expression's jaw request, so equal effective pose text reuses the evaluation
+ * Equivalence: the evaluator is a pure function of the pose, so a plan whose
+ * canonical pose text equals the current one reuses the current evaluation
  * and reports no `pose` change. The instance declares no time-dependent
  * effect; a clock owner such as `AutoMovieHumanController` advances time
  * independently, and skipping equal state never skips its work.
@@ -84,8 +83,8 @@ export class AutoMovieHumanInstance {
       expression: Admission.expression(initial.expression ?? { units: [] }),
       root: Admission.root(initial.root ?? Admission.identity()),
     };
+    this.poseKey = Admission.key(this.current.pose);
     this.body = body;
-    this.poseKey = Admission.key(this.effective(this.current));
   }
 
   /** Independent copy of the current state, readable after disposal. */
@@ -101,48 +100,8 @@ export class AutoMovieHumanInstance {
   /** The current pose's evaluation, shared read-only with the caller. */
   public get output(): AutoMovieHumanSkeleton.IOutput {
     const body: AutoMovieHumanInstance.IBody = this.open();
-    this.evaluated ??= body.evaluate(this.effective(this.current));
+    this.evaluated ??= body.evaluate(this.current.pose);
     return this.evaluated;
-  }
-
-  /** Mouth channels with the total evaluated jaw opening, including speech. */
-  public get mouth(): ReturnType<typeof AutoMovieHumanMouthState.channels> {
-    return AutoMovieHumanMouthState.channels(
-      this.open().mouth,
-      this.current.pose,
-      this.current.expression,
-      this.output,
-    );
-  }
-
-  /** Mouth channels for a plan a consumer is about to write. */
-  public mouthOf(plan: AutoMovieHumanInstance.IPlan): ReturnType<typeof AutoMovieHumanMouthState.channels> {
-    this.check(plan);
-    return AutoMovieHumanMouthState.channels(
-      this.open().mouth,
-      plan.state.pose,
-      plan.state.expression,
-      plan.output ?? this.output,
-    );
-  }
-
-  /**
-   * Deform immutable bind buffers for the current state or an uncommitted plan.
-   * A renderer owns the returned buffers and restores its bind when null is returned.
-   */
-  public deformMouth(
-    id: string,
-    positions: ArrayLike<number>,
-    normals: ArrayLike<number> | null,
-    plan?: AutoMovieHumanInstance.IPlan,
-  ): ReturnType<typeof AutoMovieHumanMouthState.deform> {
-    return AutoMovieHumanMouthState.deform(
-      this.open().mouth,
-      plan === undefined ? this.mouth : this.mouthOf(plan),
-      id,
-      positions,
-      normals,
-    );
   }
 
   /** Clamps the evaluator applied to the current pose. */
@@ -241,13 +200,12 @@ export class AutoMovieHumanInstance {
           : this.current.root;
 
     // Equal pose text means equal evaluation, so the current one is reused.
-    const effective: IAutoMovieHumanPose = this.effective({ pose, expression, root });
-    const key: string = Admission.key(effective);
+    const key: string = Admission.key(pose);
     const changed: AutoMovieHumanChange.Class[] = [];
     let output: AutoMovieHumanSkeleton.IOutput | undefined = undefined;
     if (key !== this.poseKey) {
       changed.push("pose");
-      output = body.evaluate(effective);
+      output = body.evaluate(pose);
     }
     if (Admission.key(expression) !== Admission.key(this.current.expression))
       changed.push("expression");
@@ -317,18 +275,6 @@ export class AutoMovieHumanInstance {
     if (this.body === undefined) throw new Error("Human instance is disposed");
     return this.body;
   }
-
-  /** The skeleton consumes the authored pose and speech request exactly once. */
-  private effective(state: AutoMovieHumanInstance.IState): IAutoMovieHumanPose {
-    return AutoMovieHumanMouthState.pose(this.open().mouth, state.pose, state.expression);
-  }
-
-  /** Refuse a consumer's stale or foreign plan before reading its expression. */
-  private check(plan: AutoMovieHumanInstance.IPlan): void {
-    this.open();
-    if (plan.owner !== this || plan.revision !== this.revisionCount)
-      throw new Error("Human instance plan is stale or foreign");
-  }
 }
 
 /** Contracts of {@link AutoMovieHumanInstance}. */
@@ -340,9 +286,6 @@ export namespace AutoMovieHumanInstance {
 
     /** The rig the skin is bound to, or null for a body drawn without one. */
     skeleton: IAutoMovieSkeleton | null;
-
-    /** Mouth geometry and articulation data, absent on a shape without an oral opening. */
-    mouth?: AutoMovieHumanMouthState.IPrepared;
   }
 
   /** An instance's mutable state. */
@@ -350,7 +293,7 @@ export namespace AutoMovieHumanInstance {
     /** Clinical pose from neutral; `{}` is neutral, not the bind. */
     pose: IAutoMovieHumanPose;
 
-    /** Supported lip and tongue fields, visemes and bilateral jaw action units. */
+    /** Facial expression; only the neutral face is admitted on the generated skin. */
     expression: IAutoMovieHumanExpression;
 
     /** Placement of the model root in its parent, metres. */
@@ -383,7 +326,7 @@ export namespace AutoMovieHumanInstance {
     /** The state a commit adopts. */
     readonly state: IState;
 
-    /** Canonical text of the authored pose composed with the speech jaw. */
+    /** Canonical text of `state.pose`. */
     readonly poseKey: string;
 
     /** The new pose's evaluation, absent when the pose did not change. */

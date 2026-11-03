@@ -6,6 +6,10 @@ import {
 } from "@automovie/viewer";
 import * as THREE from "three";
 
+import { AutoMovieHumanMouthDeformation } from "../../../src/expression/AutoMovieHumanMouthDeformation";
+import { AutoMovieHumanMouthExpression } from "../../../src/expression/AutoMovieHumanMouthExpression";
+import { AutoMovieHumanBodyLaw } from "../../../src/generation/AutoMovieHumanBodyLaw";
+import type { IAutoMovieHumanBodyCalibration } from "../../../src/generation/IAutoMovieHumanBodyCalibration";
 import type { AutoMovieHumanInstance } from "../../../src/instance/AutoMovieHumanInstance";
 import { AutoMovieHumanSkeleton } from "../../../src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanGenerated } from "../../../src/structures/IAutoMovieHumanGenerated";
@@ -18,6 +22,7 @@ import {
 import { HumanCaptureCamera } from "./HumanCaptureCamera";
 import type { IHumanViewerPage } from "./IHumanViewerPage";
 import { ModelPartStyling } from "./ModelPartStyling";
+import { applyHumanMouth } from "./applyHumanMouth";
 import { createHumanPartStyle } from "./createHumanPartStyle";
 import { normalizeHumanCurves } from "./normalizeHumanCurves";
 import type { normalizeHumanView } from "./normalizeHumanView";
@@ -40,8 +45,8 @@ const CONSTRUCTION: string = "human.construction.";
  *
  * The figure is one `AutoMovieHumanSkinInstance` on an `AutoMovieHumanSkinAsset`
  * built once from the result's model. A named view pose updates that
- * instance's state, mouth bind buffers and bones; silent `rest` shows the bind.
- * No update reruns the shape law: the evaluator comes prepared with the
+ * instance's state and bones; `rest` shows the bind. No pose rebuilds a
+ * buffer or reruns the shape law: the evaluator comes prepared with the
  * shape, or, for a result generated elsewhere, is prepared once on its first
  * pose.
  *
@@ -89,8 +94,15 @@ export class HumanViewerModel {
   private posed: normalizeHumanView.IView["pose"] = "rest";
   private posing: number | null = null;
 
-  /** Canonical text of the selected viseme record. */
+  /** Canonical text of the mouth shown, and the undo of its displacement. */
   private spoken: string = "{}";
+  private unspeak: (() => void) | null = null;
+
+  /** The body's mouth and scale, read from its calibration on the first spoken mouth. */
+  private speaker:
+    | { context: AutoMovieHumanMouthDeformation.IContext; scale: number }
+    | null
+    | undefined = undefined;
 
   /**
    * Decode the result's carried images, then build and display its model.
@@ -568,9 +580,10 @@ export class HumanViewerModel {
 
   /**
    * Move the displayed instance to a named pose; the geometry is not rebuilt.
-   * Silent `rest` shows the bind; a selected viseme speaks over the neutral
-   * or named authored pose. The runtime instance composes its jaw once and
-   * owns the matching lip, lining and tongue bind deformation.
+   * `rest` shows the bind and keeps the instance's state; any other name
+   * replaces the instance's pose, keeping its expression and root. A spoken
+   * mouth opens the jaw by what its visemes ask on top of the named pose and
+   * moves the lips, cheeks and tongue at their bind (`applyHumanMouth`).
    */
   private pose(
     name: normalizeHumanView.IView["pose"],
@@ -580,17 +593,50 @@ export class HumanViewerModel {
     const spoken: string = JSON.stringify(mouth);
     if (name === this.posed && spoken === this.spoken) return;
     const started: number = performance.now();
-    const state: AutoMovieHumanInstance.IState = this.built.state;
-    const named: IAutoMovieHumanPose = name === "rest" ? {} : HUMAN_STICKMAN_POSES[name]!;
-    this.built.update({
-      kind: "snapshot",
-      pose: named,
-      expression: { units: [], mouth: { visemes: mouth } },
-      root: state.root,
-    });
-    if (name === "rest" && Object.values(mouth).every((value: number): boolean => value === 0)) this.built.showBind();
-    else if (this.built.display !== "pose") this.built.showPose();
-    this.spoken = spoken;
+    const resolved: AutoMovieHumanMouthExpression.IResolved =
+      AutoMovieHumanMouthExpression.resolve(
+        { units: [], mouth: { visemes: mouth } },
+        this.result.parameters.head.mouthOpening,
+      );
+    if (spoken !== this.spoken) {
+      this.unspeak?.();
+      this.unspeak = null;
+      if (!AutoMovieHumanMouthExpression.still(resolved)) {
+        this.speaker ??= speaker(this.result);
+        if (this.speaker !== null)
+          this.unspeak = applyHumanMouth(
+            this.built.parts,
+            this.speaker.context,
+            resolved,
+            this.speaker.scale,
+          );
+      }
+      this.spoken = spoken;
+    }
+    if (name === "rest") this.built.showBind();
+    else {
+      const state: AutoMovieHumanInstance.IState = this.built.state;
+      const named: IAutoMovieHumanPose = HUMAN_STICKMAN_POSES[name]!;
+      this.built.update({
+        kind: "snapshot",
+        pose:
+          resolved.opening === 0
+            ? named
+            : {
+                ...named,
+                head: {
+                  ...named.head,
+                  jaw: {
+                    ...named.head?.jaw,
+                    opening: (named.head?.jaw?.opening ?? 0) + resolved.opening,
+                  },
+                },
+              },
+        expression: state.expression,
+        root: state.root,
+      });
+      if (this.built.display !== "pose") this.built.showPose();
+    }
     this.posed = name;
     this.posing = performance.now() - started;
   }
@@ -636,7 +682,6 @@ function lazyBody(
   let evaluate: AutoMovieHumanSkeleton.PoseEvaluator | undefined;
   return {
     skeleton: result.model.skeleton,
-    ...(result.mouth === undefined ? {} : { mouth: result.mouth }),
     evaluate: (
       pose?: Parameters<AutoMovieHumanSkeleton.PoseEvaluator>[0],
       clamp?: boolean,
@@ -646,6 +691,24 @@ function lazyBody(
         clamp,
       ),
   };
+}
+
+/**
+ * The mouth's deformation context of a result, from its own parameters'
+ * calibration, or null for a body without a generated mouth.
+ */
+function speaker(
+  result: IAutoMovieHumanGenerated,
+): { context: AutoMovieHumanMouthDeformation.IContext; scale: number } | null {
+  const body: IAutoMovieHumanBodyCalibration = AutoMovieHumanBodyLaw.calibrate(
+    result.parameters,
+  ).body;
+  const context: AutoMovieHumanMouthDeformation.IContext | null =
+    AutoMovieHumanMouthDeformation.context(body);
+  const height: number | null = result.parameters.body.controls.height.value;
+  return context === null || height === null
+    ? null
+    : { context, scale: height / body.stature / 1000 };
 }
 
 /** Mesh vertex and triangle counts of one part; other geometry counts zero. */

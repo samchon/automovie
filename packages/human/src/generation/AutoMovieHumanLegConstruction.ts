@@ -6,9 +6,6 @@ import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve"
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
-import { AutoMovieHumanTapeProfile } from "./AutoMovieHumanTapeProfile";
-import { AutoMovieHumanLegTapes } from "./AutoMovieHumanLegTapes";
-import type { AutoMovieHumanMeasurementProtocol as Measurement } from "./AutoMovieHumanMeasurementProtocol";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
@@ -42,11 +39,11 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * crotch, is `C(u) + R(u) rho(u, theta)` in its bone's plane:
  *
  * - `rho` is the prior's area-normalized radial shape.
- * - `R` normalizes each radial shape by its convex-hull perimeter and a C2
- *   monotone size profile through physical ankle, calf, knee and thigh keys.
- *   Calf and knee sizes close against horizontal cuts of the assembled loft,
- *   so their bone-normal construction sections do not substitute for the
- *   measurement plane. The trunk owns the thigh-sized shared root.
+ * - `R` is the prior's log-radius profile, in leg lengths, shifted through
+ *   the ankle ring's radius and the calf, knee and thigh tapes. A tape's radius
+ *   is solved against the hull of the prior section it wraps, because that
+ *   hull, not a circle, is what the tape measures, and the section is square to
+ *   the limb as a tape is.
  * - `C` is the prior's centre line, read in the bone's plane: forward it
  *   follows the ankle by the prior's forward curve in leg lengths, and
  *   laterally it stands off the midline by a line in the leg's length, the hip
@@ -62,12 +59,19 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * Over the last part of the leg the section hands over to the crotch ring. The
  * ring the leg takes is the trunk's arc closed by the slit between the thighs,
  * so it has a corner at each pinch. The leg starts from that ring as a rounded
- * loop: each corner is a fillet whose sides grow with depth under the ring,
- * so the contact between the thighs shortens downward. The loop leaves the
- * ring straight down and hands over to the law at an even rate, eased at both
- * ends. The trunk's lower column and the leg share a zero transverse jet
- * there. The old zero-offset slope carrier reversed direction a few
- * millimetres below that ring and is not part of the construction.
+ * loop: each corner is a fillet whose sides grow as fast as the depth under the
+ * ring, the rate at which the trunk's own fold leaves the midline, so the
+ * contact between the thighs shortens downward and the leg's own sections never
+ * keep the root's corner. The loop leaves the ring straight down and hands over
+ * to the law at an even rate, eased at both ends. On top of that the trunk's own
+ * station derivative at the ring is carried into the leg: each point of the ring
+ * leaves it with the trunk's outward slope there, by a quintic that meets the
+ * leg's own surface with neither place, slope nor curvature, over the longest
+ * reach that keeps its lump within the event join's bound. The two chains
+ * therefore share one tangent plane on the open arc by construction, and the
+ * join has nothing left to bend there. Within a taper of each pinch the trunk's
+ * slope is its fold opening, which a rounded corner cannot share, so it fades
+ * there, read over the taper's length of ring so the fade turns no section.
  *
  * ## Layers
  *
@@ -124,16 +128,14 @@ export namespace AutoMovieHumanLegConstruction {
     inputs: IInputs,
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
-    const measurementSites: Measurement.ISites = { ...calibration.measurementSites };
     return {
       ...calibration,
-      measurementSites,
       chains: calibration.chains.map(
         (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
           c.name === "leg.left"
-            ? generate(calibration, "left", inputs, skeleton, measurementSites)
+            ? generate(calibration, "left", inputs, skeleton)
             : c.name === "leg.right"
-              ? generate(calibration, "right", inputs, skeleton, measurementSites)
+              ? generate(calibration, "right", inputs, skeleton)
               : c,
       ),
     };
@@ -244,14 +246,12 @@ export namespace AutoMovieHumanLegConstruction {
     inputs: IInputs,
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
-    const measurementSites: Measurement.ISites = { ...calibration.measurementSites };
     return {
       ...calibration,
-      measurementSites,
       chains: [
         ...calibration.chains,
-        generate(calibration, "right", inputs, skeleton, measurementSites),
-        generate(calibration, "left", inputs, skeleton, measurementSites),
+        generate(calibration, "right", inputs, skeleton),
+        generate(calibration, "left", inputs, skeleton),
       ],
     };
   }
@@ -262,11 +262,10 @@ export namespace AutoMovieHumanLegConstruction {
     side: "left" | "right",
     inputs: IInputs,
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
-    measurementSites: Measurement.ISites,
   ): IAutoMovieHumanLoftChain {
     const sign: 1 | -1 = side === "left" ? 1 : -1;
+    const family: IFamily = prepare(calibration, side, sign, inputs);
     const bones: IJoints = jointsOf(skeleton, side, sign);
-    const family: IFamily = prepare(calibration, side, sign, inputs, bones);
     const root: IRoot = rootOf(calibration, side, sign, family);
     const s0: number = family.bottom;
     const s1: number = family.bottom + family.length;
@@ -287,13 +286,6 @@ export namespace AutoMovieHumanLegConstruction {
         norm(sub(lerp(root.arc[root.arc.length - 1]!, root.arc[0]!, f), bones.hip)),
       ),
     );
-    const calfLow: number = s0 + ANKLE_REACH * family.length;
-    const calfHigh: number = bones.knee[1] - BEND * kneeDepth;
-
-    // The knee's bony circumference may exceed the calf's muscle tape. The
-    // knee-frame transition owns that change; continuing it through the calf
-    // would turn the muscle maximum into an arbitrary search-window edge.
-    family.tapes.splice(2, 0, { station: calfHigh, girth: Math.min(inputs.calf, inputs.knee) });
     const frames: IFrames = framesOf(
       bones,
       s0,
@@ -305,7 +297,7 @@ export namespace AutoMovieHumanLegConstruction {
     const trunk: IAutoMovieHumanLoftChain = calibration.chains.find(
       (c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk",
     )!;
-    const baseStations: number[] = stationsOf(
+    const stations: number[] = stationsOf(
       s0,
       s1,
       [
@@ -316,58 +308,8 @@ export namespace AutoMovieHumanLegConstruction {
       trunk.layers[1]!.y - trunk.layers[0]!.y,
       family.length * coarsest(),
     );
-    const stations: number[] = [...new Set([...baseStations, ...family.tapes.map((key: AutoMovieHumanTapeProfile.IKey): number => key.station)])].sort((a: number, b: number): number => a - b);
     const section = (s: number): ISection =>
       sectionOf(family, frames, root, s);
-    const axisAt: (height: number) => Measurement.Vec3 = (height: number): Measurement.Vec3 => {
-      const high: Vec3 = height >= bones.knee[1] ? bones.hip : bones.knee;
-      const low: Vec3 = height >= bones.knee[1] ? bones.knee : bones.ankle;
-      const point: Vec3 = lerp(low, high, (height - low[1]) / (high[1] - low[1]));
-      return [point[0], height, sign * point[2]];
-    };
-
-    // These addresses describe owned model regions rather than claiming a
-    // palpated clinical landmark. The calf excludes both generated bony/end
-    // transitions; its complete remaining muscle-bearing interval is eligible.
-    measurementSites[`${side}.knee`] = {
-      owner: "leg", basis: "model-convention", pose: "bind",
-      definition: "Horizontal section through the owned bind knee-joint centre; no clinical mid-patella equivalence is established.",
-      geometry: { kind: "section", origin: axisAt(bones.knee[1]), normal: [0, 1, 0] },
-    };
-    measurementSites[`${side}.calf`] = {
-      owner: "leg", basis: "model-convention", pose: "bind",
-      definition: "Maximum horizontal girth over the complete generated shank muscle region, between the ankle handover and the knee-frame transition; clinical calf-region equivalence is unestablished.",
-      geometry: { kind: "maximum", start: axisAt(calfLow), end: axisAt(calfHigh), normal: [0, 1, 0] },
-    };
-    measurementSites[`${side}.thigh`] = {
-      owner: "leg", basis: "model-convention", pose: "bind",
-      definition: "Maximum horizontal girth in the model's upper-thigh region, 10 mm to one tenth stature below its owned crotch root; this region has not been registered to a palpable clinical course.",
-      geometry: { kind: "maximum", start: axisAt(s1 - 0.1 * calibration.stature), end: axisAt(s1 - 10), normal: [0, 1, 0] },
-    };
-    const surface: () => AutoMovieHumanLegTapes.IRing[] = (): AutoMovieHumanLegTapes.IRing[] => stations.map((station: number): AutoMovieHumanLegTapes.IRing => {
-      const value: ISection = section(station);
-      return { station, points: value.local.map((p: Vec3): Vec3 => plus(value.frame.origin, plus(plus(scale(value.frame.u, p[0]), scale(value.frame.v, p[1])), scale(value.frame.n, p[2])))) };
-    });
-    AutoMovieHumanLegTapes.close([
-      {
-        target: inputs.calf,
-        value: (): number => family.tapes[1]!.girth,
-        set: (value: number): void => {
-          family.tapes[1]!.girth = value;
-          family.tapes[2]!.girth = Math.min(value, family.tapes[3]!.girth);
-        },
-        read: (rings: readonly AutoMovieHumanLegTapes.IRing[]): number => AutoMovieHumanLegTapes.maximum(rings, calfLow, calfHigh)?.girth ?? NaN,
-      },
-      {
-        target: inputs.knee,
-        value: (): number => family.tapes[3]!.girth,
-        set: (value: number): void => {
-          family.tapes[3]!.girth = value;
-          family.tapes[2]!.girth = Math.min(family.tapes[1]!.girth, value);
-        },
-        read: (rings: readonly AutoMovieHumanLegTapes.IRing[]): number => AutoMovieHumanLegTapes.horizontal(rings, bones.knee[1])?.girth ?? NaN,
-      },
-    ], surface);
     const last: number = stations.length - 1;
     const layers: IAutoMovieHumanLoftChain.ILayer[] = stations.map(
       (s: number, k: number): IAutoMovieHumanLoftChain.ILayer => {
@@ -375,63 +317,42 @@ export namespace AutoMovieHumanLegConstruction {
         // nothing exists past the rings.
         const here: ISection = section(s);
         const rate: Vec3[] =
-          k === last
-            ? here.local.map((): Vec3 => [0, 0, 0])
-            : k === 0
-              ? ((): Vec3[] => {
-                  const a: ISection = section(s + STEP);
-                  const b: ISection = section(s + 2 * STEP);
-                  return here.local.map((p: Vec3, m: number): Vec3 =>
-                    [0, 1, 2].map((c: number): number =>
-                      (-3 * p[c]! + 4 * a.local[m]![c]! - b.local[m]![c]!) / (2 * STEP),
-                    ) as Vec3,
-                  );
-                })()
-              : ((): Vec3[] => {
-                  const a: ISection = section(s - STEP);
-                  const b: ISection = section(s + STEP);
-                  return here.local.map((_: Vec3, m: number): Vec3 =>
-                    [0, 1, 2].map((c: number): number =>
-                      (b.local[m]![c]! - a.local[m]![c]!) / (2 * STEP),
-                    ) as Vec3,
-                  );
-                })();
-        const acceleration: Vec3[] =
-          k === last
-            ? here.local.map((): Vec3 => [0, 0, 0])
-            : ((): Vec3[] => {
-                const a: ISection = section(s + STEP);
-                const b: ISection = section(s + (k === 0 ? 2 * STEP : -STEP));
-                const c: ISection | undefined = k === 0 ? section(s + 3 * STEP) : undefined;
+          k === 0 || k === last
+            ? ((): Vec3[] => {
+                const d: number = k === 0 ? STEP : -STEP;
+                const a: ISection = section(s + d);
+                const b: ISection = section(s + 2 * d);
                 return here.local.map((p: Vec3, m: number): Vec3 =>
-                  [0, 1, 2].map((axis: number): number =>
-                    c === undefined
-                      ? (a.local[m]![axis]! - 2 * p[axis]! + b.local[m]![axis]!) / STEP ** 2
-                      : (2 * p[axis]! - 5 * a.local[m]![axis]! + 4 * b.local[m]![axis]! - c.local[m]![axis]!) / STEP ** 2,
+                  [0, 1, 2].map(
+                    (c: number): number =>
+                      (-3 * p[c]! + 4 * a.local[m]![c]! - b.local[m]![c]!) /
+                      (2 * d),
+                  ) as Vec3,
+                );
+              })()
+            : ((): Vec3[] => {
+                const a: ISection = section(s - STEP);
+                const b: ISection = section(s + STEP);
+                return here.local.map((_: Vec3, m: number): Vec3 =>
+                  [0, 1, 2].map(
+                    (c: number): number =>
+                      (b.local[m]![c]! - a.local[m]![c]!) / (2 * STEP),
                   ) as Vec3,
                 );
               })();
-        const values: { coefficients: number[]; lift: number[] } = sided(here.local, sign);
-        const slopes: { coefficients: number[]; lift: number[] } = sided(rate, sign);
-        const curvatures: { coefficients: number[]; lift: number[] } = sided(acceleration, sign);
+        const values = sided(here.local, sign);
+        const slopes = sided(rate, sign);
         return {
           y: s,
           frame: placed(here.frame, sign),
-
-          // The root copies the parent's straight-down first jet and zero
-          // second jet exactly, including the frame and out-of-plane lift.
-          frameSlopes: placed(k === last
-            ? { origin: [0, 1, 0], u: [0, 0, 0], v: [0, 0, 0], n: [0, 0, 0] }
-            : frameRate(frames, s, k === 0 ? 1 : 0), sign),
-          frameCurvatures: placed(k === last
-            ? { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0], n: [0, 0, 0] }
-            : frameAcceleration(frames, s, k === 0 ? 1 : 0), sign),
+          frameSlopes: placed(
+            frameRate(frames, s, k === 0 ? 1 : k === last ? -1 : 0),
+            sign,
+          ),
           coefficients: values.coefficients,
           slopes: slopes.coefficients,
-          curvatures: curvatures.coefficients,
           lift: values.lift,
           liftSlopes: slopes.lift,
-          liftCurvatures: curvatures.lift,
         };
       },
     );
@@ -445,7 +366,7 @@ export namespace AutoMovieHumanLegConstruction {
     };
   }
 
-  /** Shared shape channels and one person's physical size keys. */
+  /** The fitted law's channels with one person's keys. */
   interface IFamily {
     bottom: number;
     length: number;
@@ -455,23 +376,20 @@ export namespace AutoMovieHumanLegConstruction {
     crotchOffset: [number, number];
     crotchCentre: [number, number];
     inputs: IInputs;
+    profile: AutoMovieHumanNaturalSpline.ISpline;
     forward: AutoMovieHumanNaturalSpline.ISpline;
     axis: AutoMovieHumanNaturalSpline.ISpline[];
     shape: AutoMovieHumanNaturalSpline.ISpline[];
-    /** Positive size keys closed against the assembled horizontal tapes. */
-    tapes: AutoMovieHumanTapeProfile.IKey[];
-    /** Local lifetime reuse of size-independent shape and its hull. */
-    shapeCache: Map<number, { radii: number[]; hull: number }>;
+    correction: AutoMovieHumanNaturalSpline.ISpline;
     ankleResidual: number[];
   }
 
-  /** Read the neighbours' boundaries and initialize physical girth keys. */
+  /** Read the neighbours' keys and solve this person's radius correction. */
   function prepare(
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
     sign: 1 | -1,
     inputs: IInputs,
-    bones: IJoints,
   ): IFamily {
     const prior: AutoMovieHumanLegPrior.IPrior = AutoMovieHumanLegPrior.PRIOR;
 
@@ -507,15 +425,36 @@ export namespace AutoMovieHumanLegConstruction {
       (_: number, k: number): AutoMovieHumanNaturalSpline.ISpline =>
         spline(prior.shape.map((row: readonly number[]): number => row[k]!)),
     );
-    // The calf belly is one third of the shank below the knee. Its location
-    // sets a shape convention; its magnitude is the maximum horizontal tape.
-    // The knee is at its joint and the thigh just below the crotch, rather
-    // than at private fractions of a fitted radius curve.
-    const tapes: AutoMovieHumanTapeProfile.IKey[] = [
-      { station: bottom, girth: AutoMovieHumanLegTapes.perimeter(ankle) },
-      { station: bones.knee[1] - (bones.knee[1] - bones.ankle[1]) / 3, girth: inputs.calf },
-      { station: bones.knee[1], girth: inputs.knee },
-      { station: bottom + length - 10, girth: inputs.thigh },
+    const profile: AutoMovieHumanNaturalSpline.ISpline = spline(prior.profile);
+
+    // Radius keys: the ankle ring's own radius, then each tape against the
+    // hull of the section it wraps.
+    const key = (u: number, girth: number, ratio: number): [number, number] => {
+      const hull: number = AutoMovieHumanPolarSection.girth(unit(shape, u));
+      return [
+        u,
+        Math.log((girth * ratio) / hull / length) -
+          AutoMovieHumanNaturalSpline.evaluate(profile, u),
+      ];
+    };
+    // Above its tape the thigh keeps the tape's correction on the prior's own
+    // flare: the crotch ring is the skin's way into the trunk, not a section of
+    // the thigh, and only the last reach hands over to it.
+    const thigh: [number, number] = key(
+      prior.thigh.station,
+      inputs.thigh,
+      prior.thigh.ratio,
+    );
+    const keys: [number, number][] = [
+      [
+        0,
+        Math.log(ankleSection.radius / length) -
+          AutoMovieHumanNaturalSpline.evaluate(profile, 0),
+      ],
+      key(prior.calf.station, inputs.calf, prior.calf.ratio),
+      key(prior.knee.station, inputs.knee, prior.knee.ratio),
+      thigh,
+      [LAST_INTERIOR, thigh[1]],
     ];
     const family: IFamily = {
       bottom,
@@ -526,11 +465,14 @@ export namespace AutoMovieHumanLegConstruction {
       crotchOffset: [0, 0],
       crotchCentre: crotchSection.centre,
       inputs,
+      profile,
       forward: spline(prior.forward),
       axis: axisCurves(),
       shape,
-      tapes,
-      shapeCache: new Map(),
+      correction: AutoMovieHumanNaturalSpline.create(
+        keys.map((k: [number, number]): number => k[0]),
+        keys.map((k: [number, number]): number => k[1]),
+      ),
       ankleResidual: [],
     };
 
@@ -732,14 +674,9 @@ export namespace AutoMovieHumanLegConstruction {
     const value = (s: AutoMovieHumanNaturalSpline.ISpline): number =>
       AutoMovieHumanNaturalSpline.evaluate(s, u);
     const L: number = family.length;
-    let shape: { radii: number[]; hull: number } | undefined = family.shapeCache.get(u);
-    if (shape === undefined) {
-      const radii: number[] = unit(family.shape, u);
-      shape = { radii, hull: AutoMovieHumanPolarSection.girth(radii) };
-      family.shapeCache.set(u, shape);
-    }
-    const radii: number[] = shape.radii;
-    const R: number = AutoMovieHumanTapeProfile.evaluate(family.tapes, family.bottom + u * L) / shape.hull;
+    const radii: number[] = unit(family.shape, u);
+    const R: number =
+      L * Math.exp(value(family.profile) + value(family.correction));
     const inner: number = R * radii[(3 * ORDER) / 4]!;
     const lean: number = smooth(
       (u - THIGH_FROM) / (LAST_INTERIOR - THIGH_FROM),
@@ -1000,27 +937,6 @@ export namespace AutoMovieHumanLegConstruction {
     };
   }
 
-  /** Second frame derivatives in physical station units, inward at the ankle. */
-  function frameAcceleration(frames: IFrames, s: number, side: 1 | 0): IFrame {
-    const derive: (pick: (f: IFrame) => Vec3) => Vec3 = (pick: (f: IFrame) => Vec3): Vec3 => {
-      const p: Vec3 = pick(frameAt(frames, s));
-      const a: Vec3 = pick(frameAt(frames, s + FRAME_STEP));
-      const b: Vec3 = pick(frameAt(frames, s + (side === 0 ? -FRAME_STEP : 2 * FRAME_STEP)));
-      const c: Vec3 | undefined = side === 0 ? undefined : pick(frameAt(frames, s + 3 * FRAME_STEP));
-      return [0, 1, 2].map((axis: number): number =>
-        c === undefined
-          ? (a[axis]! - 2 * p[axis]! + b[axis]!) / FRAME_STEP ** 2
-          : (2 * p[axis]! - 5 * a[axis]! + 4 * b[axis]! - c[axis]!) / FRAME_STEP ** 2,
-      ) as Vec3;
-    };
-    return {
-      origin: derive((f: IFrame): Vec3 => f.origin),
-      u: derive((f: IFrame): Vec3 => f.u),
-      v: derive((f: IFrame): Vec3 => f.v),
-      n: derive((f: IFrame): Vec3 => f.n),
-    };
-  }
-
   /**
    * A canonical frame, or its station derivative, on a side: the origin and `u`
    * mirrored, and `v` mirrored and turned over, a linear map either way.
@@ -1038,24 +954,39 @@ export namespace AutoMovieHumanLegConstruction {
     /** The arc from the front pinch round the outside to the rear pinch. */
     arc: Vec3[];
 
+    /** The trunk's station derivative at each point of the arc, per mm up. */
+    rates: Vec3[];
+
     /** Station of the ring. */
     y: number;
 
     /** Centre the ring's phases are read about, `[x, z]`. */
     centre: [number, number];
 
+    /** The ring at depth 0 at the leg's phases, with its normals and outward slopes. */
+    ring: ILoop;
+
     /** Corner size at the ring. */
     corner: number;
-    /** Local reuse of boundary geometry independent of the size solve. */
-    loops: Map<number, ILoop>;
+
+    /** The trunk's outward slope at each of the leg's phases, per mm down. */
+    slopes: number[];
+
+    /** Reach of each phase's slope into the leg, mm. */
+    spans: number[];
   }
 
   /** The leg's start at a depth under the ring, at the leg's phases. */
   interface ILoop {
     points: Vec3[];
+    normals: Vec3[];
+    rates: Vec3[];
+
+    /** Distance along the trunk's arc to the nearer pinch; 0 off the arc. */
+    edges: number[];
   }
 
-  /** Copy the trunk-owned crotch arc into the canonical side's boundary. */
+  /** The crotch ring a leg takes, with the trunk's own derivative along it. */
   function rootOf(
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
@@ -1072,19 +1003,91 @@ export namespace AutoMovieHumanLegConstruction {
         (p: Vec3): Vec3 => [p[0], p[1], sign * p[2]],
       );
     const here: Vec3[] = at(y);
+    const a: Vec3[] = at(y + TRUNK_STEP);
+    const b: Vec3[] = at(y + 2 * TRUNK_STEP);
+    const rates: Vec3[] = here.map((p: Vec3, i: number): Vec3 =>
+      [0, 1, 2].map(
+        (c: number): number =>
+          (-3 * p[c]! + 4 * a[i]![c]! - b[i]![c]!) / (2 * TRUNK_STEP),
+      ) as Vec3,
+    );
+
     // Front pinch first: the front pinch stands ahead of the rear one.
     const forward: boolean = here[0]![0] >= here[here.length - 1]![0];
     const arc: Vec3[] = forward ? here : [...here].reverse();
+    const ordered: Vec3[] = forward ? rates : [...rates].reverse();
     let perimeter: number = norm(sub(arc[0]!, arc[arc.length - 1]!));
     for (let i: number = 1; i < arc.length; i++)
       perimeter += norm(sub(arc[i]!, arc[i - 1]!));
     const root: IRoot = {
       arc,
+      rates: ordered,
       y,
       centre: family.crotchCentre,
+      ring: { points: [], normals: [], rates: [], edges: [] },
       corner: (CORNER * perimeter) / ORDER,
-      loops: new Map(),
+      slopes: [],
+      spans: [],
     };
+    root.ring = loopOf(root, 0);
+
+    // The trunk's outward slope at each phase. Near a pinch it is the fold
+    // opening, which the leg's rounded corner does not share; it fades there
+    // over the join's taper.
+    root.slopes = root.ring.rates.map(
+      (rate: Vec3, m: number): number =>
+        (smooth(root.ring.edges[m]! / TAPER) * dot(rate, root.ring.normals[m]!)) /
+        rate[1],
+    );
+
+    // Each phase's reach is the longest whose lump stays within the bound, for
+    // the steepest slope near it, read over the ring's own length so that the
+    // reach changes along the ring no faster than the slopes do.
+    const ring: Vec3[] = root.ring.points;
+    const along: number[] = [0];
+    for (let m: number = 1; m <= ORDER; m++)
+      along.push(along[m - 1]! + norm(sub(ring[m % ORDER]!, ring[m - 1]!)));
+    const whole: number = along[ORDER]!;
+    const apart = (a: number, b: number): number => {
+      const d: number = Math.abs(along[a]! - along[b]!);
+      return Math.min(d, whole - d);
+    };
+    // The fade at a pinch is as fast as the join's, a few of the leg's
+    // controls; carried into the skin it would turn the ring there, so the
+    // slopes are read over a taper's length of ring, which leaves the open arc
+    // as it is and widens only the fade.
+    const blurred: number[] = ring.map((_: Vec3, m: number): number => {
+      let weight: number = 0;
+      let sum: number = 0;
+      for (let k: number = 0; k < ORDER; k++) {
+        const d: number = apart(m, k);
+        if (d > 3 * TAPER) continue;
+        const w: number = Math.exp(-((d / TAPER) ** 2) / 2);
+        weight += w;
+        sum += w * root.slopes[k]!;
+      }
+      return sum / weight;
+    });
+    root.slopes = blurred;
+    const steepest: number[] = ring.map((_: Vec3, m: number): number => {
+      let most: number = 0;
+      for (let k: number = 0; k < ORDER; k++)
+        if (apart(m, k) <= 2 * TAPER) most = Math.max(most, Math.abs(root.slopes[k]!));
+      return most;
+    });
+    const reach: number = reachOf(family);
+    root.spans = ring.map((_: Vec3, m: number): number => {
+      let weight: number = 0;
+      let sum: number = 0;
+      for (let k: number = 0; k < ORDER; k++) {
+        const d: number = apart(m, k);
+        if (d > 3 * TAPER) continue;
+        const w: number = Math.exp(-((d / TAPER) ** 2) / 2);
+        weight += w;
+        sum += w * steepest[k]!;
+      }
+      return 1 / (1 / reach + (HUMP * (sum / weight)) / BULGE);
+    });
     return root;
   }
 
@@ -1094,8 +1097,6 @@ export namespace AutoMovieHumanLegConstruction {
    * read at the leg's phases about the ring's centre.
    */
   function loopOf(root: IRoot, depth: number): ILoop {
-    const cached: ILoop | undefined = root.loops.get(depth);
-    if (cached !== undefined) return cached;
     const arc: Vec3[] = root.arc;
     const n: number = arc.length;
     const front: Vec3 = arc[0]!;
@@ -1108,22 +1109,28 @@ export namespace AutoMovieHumanLegConstruction {
     // The corner opens from rest, so the ring's own derivative stays the
     // trunk's, and then at the fold's rate.
     const size: number = Math.min(
-      root.corner + GROWTH * AutoMovieHumanLegTapes.cornerAdvance(depth, root.corner),
+      root.corner + GROWTH * (Math.hypot(depth, root.corner) - root.corner),
       CORNER_SHARE * slit,
       CORNER_SHARE * total,
     );
 
-    // A point of the arc at a length from its start, with its tangent.
-    const along = (s: number): { p: Vec3; t: Vec3 } => {
+    // A point of the arc at a length from its start, with its rate and tangent.
+    const along = (s: number): { p: Vec3; d: Vec3; t: Vec3 } => {
       let i: number = 1;
       while (i < n - 1 && lengths[i]! < s) i++;
       const f: number = (s - lengths[i - 1]!) / (lengths[i]! - lengths[i - 1]! || 1);
       return {
         p: lerp(arc[i - 1]!, arc[i]!, f),
+        d: lerp(root.rates[i - 1]!, root.rates[i]!, f),
         t: normalize(sub(arc[i]!, arc[i - 1]!)),
       };
     };
 
+    // The slit carries the pinches' rates, on the midline.
+    const slitRate = (f: number): Vec3 => {
+      const r: Vec3 = lerp(root.rates[n - 1]!, root.rates[0]!, f);
+      return [r[0], r[1], 0];
+    };
     const start = along(size);
     const end = along(total - size);
     const toFront: Vec3 = normalize(sub(front, rear));
@@ -1134,11 +1141,18 @@ export namespace AutoMovieHumanLegConstruction {
       tp: Vec3,
       q: Vec3,
       tq: Vec3,
-    ): Vec3[] => {
+      dp: Vec3,
+      dq: Vec3,
+      ep: number,
+      eq: number,
+    ): { points: Vec3[]; rates: Vec3[]; edges: number[] } => {
       const lambda: number = norm(sub(q, p));
       const points: Vec3[] = [];
+      const rates: Vec3[] = [];
+      const edges: number[] = [];
       for (let k: number = 1; k < FILLET; k++) {
         const x: number = k / FILLET;
+        edges.push(ep + (eq - ep) * x);
         points.push(
           [0, 1, 2].map(
             (c: number): number =>
@@ -1148,40 +1162,76 @@ export namespace AutoMovieHumanLegConstruction {
               (x ** 3 - x ** 2) * lambda * tq[c]!,
           ) as Vec3,
         );
+        rates.push(lerp(dp, dq, x));
       }
-      return points;
+      return { points, rates, edges };
     };
 
     // Round the loop: the arc, the rear fillet, the slit, the front fillet.
+    // Each point keeps its distance along the arc from the nearer pinch.
     const points: Vec3[] = [];
+    const rates: Vec3[] = [];
+    const edges: number[] = [];
     points.push(start.p);
+    rates.push(start.d);
+    edges.push(size);
     for (let i: number = 1; i < n - 1; i++)
       if (lengths[i]! > size && lengths[i]! < total - size) {
         points.push(arc[i]!);
+        rates.push(root.rates[i]!);
+        edges.push(Math.min(lengths[i]!, total - lengths[i]!));
       }
     points.push(end.p);
+    rates.push(end.d);
+    edges.push(size);
     const back = fillet(
       end.p,
       end.t,
       nearRear,
       toFront,
+      end.d,
+      slitRate(size / slit),
+      size,
+      0,
     );
-    points.push(...back);
+    points.push(...back.points);
+    rates.push(...back.rates);
+    edges.push(...back.edges);
     for (let k: number = 0; k <= SLIT; k++) {
       const f: number = (size + ((slit - 2 * size) * k) / SLIT) / slit;
       points.push(lerp(rear, front, f));
+      rates.push(slitRate(f));
+      edges.push(0);
     }
     const fore = fillet(
       nearFront,
       toFront,
       start.p,
       start.t,
+      slitRate(1 - size / slit),
+      start.d,
+      0,
+      size,
     );
-    points.push(...fore);
+    points.push(...fore.points);
+    rates.push(...fore.rates);
+    edges.push(...fore.edges);
+
+    // Outward normals at the loop's vertices, horizontal.
     const count: number = points.length;
+    let area: number = 0;
+    points.forEach((p: Vec3, i: number): void => {
+      const q: Vec3 = points[(i + 1) % count]!;
+      area += p[0] * q[2] - q[0] * p[2];
+    });
+    const turn: number = area >= 0 ? 1 : -1;
+    const normals: Vec3[] = points.map((_: Vec3, i: number): Vec3 => {
+      const t: Vec3 = sub(points[(i + 1) % count]!, points[(i + count - 1) % count]!);
+      return normalize([turn * t[2], 0, -turn * t[0]]);
+    });
 
     // Read at the leg's phases: the farthest crossing of each ray.
-    const out: ILoop = { points: [] };
+    const out: ILoop = { points: [], normals: [], rates: [], edges: [] };
     for (const t of PHASES) {
       const dx: number = Math.cos(t);
       const dz: number = Math.sin(t);
@@ -1207,8 +1257,10 @@ export namespace AutoMovieHumanLegConstruction {
       }
       const j: number = (at + 1) % count;
       out.points.push(lerp(points[at]!, points[j]!, share));
+      out.normals.push(normalize(lerp(normals[at]!, normals[j]!, share)));
+      out.rates.push(lerp(rates[at]!, rates[j]!, share));
+      out.edges.push(edges[at]! + share * (edges[j]! - edges[at]!));
     }
-    root.loops.set(depth, out);
     return out;
   }
 
@@ -1244,11 +1296,24 @@ export namespace AutoMovieHumanLegConstruction {
       world = law.map((p: Vec3, m: number): Vec3 => {
         const q: Vec3 = loop.points[m]!;
         const ring: Vec3 = [q[0], q[1] - root.y + s, q[2]];
+        const base: Vec3 = lerp(p, ring, w);
 
-        // The trunk and this child now share a zero transverse jet at their
-        // common ring. A zero-offset slope carrier necessarily reverses its
-        // direction before vanishing, creating the former buttock shelf.
-        return lerp(p, ring, w);
+        // The trunk's outward slope at the ring, carried in by a quintic that
+        // meets the leg's own surface with neither place, slope nor curvature,
+        // over the longest reach that keeps its lump within the join's bound.
+        // Near a pinch the trunk's slope is its fold opening, which the leg's
+        // rounded corner does not share; it fades there over the join's taper.
+        // The skin moves along the ring's own ray, a field as smooth as the
+        // phases, by what moves it along its normal as far.
+        const at: Vec3 = root.ring.points[m]!;
+        const normal: Vec3 = root.ring.normals[m]!;
+        const slope: number = root.slopes[m]!;
+        const span: number = root.spans[m]!;
+        const x: number = Math.min(1, depth / span);
+        const ray: Vec3 = normalize([at[0] - root.centre[0], 0, at[2] - root.centre[1]]);
+        const facing: number = Math.max(FACING, dot(ray, normal));
+        const lever: number = x - 6 * x ** 3 + 8 * x ** 4 - 3 * x ** 5;
+        return plus(base, scale(ray, (-slope * span * lever) / facing));
       });
     }
 
@@ -1457,6 +1522,9 @@ const STEP: number = 0.05;
 /** Station step of the frame differences, mm. */
 const FRAME_STEP: number = 0.01;
 
+/** Height step of the trunk's derivative at its ring, mm. */
+const TRUNK_STEP: number = 0.02;
+
 /** Margin of the origin's table past the rings, mm. */
 const PAD: number = 2;
 
@@ -1520,6 +1588,18 @@ const FILLET: number = 24;
 
 /** Samples of the slit. */
 const SLIT: number = 32;
+
+/** Largest lump the trunk's slope may raise off the leg's own surface, as the event join's, mm. */
+const BULGE: number = 4;
+
+/** Arc length from a pinch over which the trunk's slope comes in, as the event join's, mm. */
+const TAPER: number = 6;
+
+/** Highest point of the quintic `x - 6x^3 + 8x^4 - 3x^5`, at a third. */
+const HUMP: number = 16 / 81;
+
+/** Least cosine between a ring's ray and its normal a slope is carried along. */
+const FACING: number = 0.3;
 
 /** Share of the crotch's handover at each end over which its rate eases. */
 const EASE: number = 0.25;
