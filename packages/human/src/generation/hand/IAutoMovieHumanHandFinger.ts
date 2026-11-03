@@ -1,5 +1,6 @@
 import type { AutoMovieHumanDigitLine } from "../AutoMovieHumanDigitLine";
 import type { AutoMovieHumanDigitSection } from "../AutoMovieHumanDigitSection";
+import type { AutoMovieHumanDigitProfile } from "./AutoMovieHumanDigitProfile";
 import type { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 
 type Vec3 = AutoMovieHumanHandVector.Vec3;
@@ -35,4 +36,7 @@ export interface IAutoMovieHumanHandFinger {
 
   /** Its length from its web to its tip. */
   external: number;
+
+  /** The windows of its narrow reliefs along the line, which its stations resolve. */
+  windows: readonly AutoMovieHumanDigitProfile.IWindow[];
 }

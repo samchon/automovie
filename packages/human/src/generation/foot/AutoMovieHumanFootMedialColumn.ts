@@ -1,3 +1,6 @@
+import { Singleton } from "tstl";
+
+import { AutoMovieHumanFootColumnLaw } from "./AutoMovieHumanFootColumnLaw";
 import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
 import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
 import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
@@ -7,37 +10,53 @@ type Vec3 = G.Vec3;
 
 /**
  * The medial border up the ankle's column: from the navicular to the ankle ring, past the medial malleolus (shares 0.7 to 1). Own centre: the medial malleolus's, which stands at 1.1 lateral malleolus heights (Gray).
+ *
+ * The border's plan place is the column's law of height
+ * (`AutoMovieHumanFootColumnLaw`) through the region's knots, and the guide
+ * reads each knot at its own height on that law.
  */
 export namespace AutoMovieHumanFootMedialColumn {
   /**
    * The region's knots as world points, front to back, read in the fan's own
-   * planes (AutoMovieHumanFootGuide.fanned).
+   * planes (AutoMovieHumanFootGuide.fanned), each at its height on the
+   * column's law.
    *
    * @param frame The foot's frame.
    * @param line The web line.
    */
   export function knots(frame: AutoMovieHumanFootFrame.IFrame, line: AutoMovieHumanFootWebLine.IWebLine): Vec3[] {
-    return AutoMovieHumanFootGuide.fanned(frame, line, KNOTS);
+    const law: AutoMovieHumanFootColumnLaw.IPlan = LAW.get();
+
+    return AutoMovieHumanFootGuide.fanned(
+      frame,
+      line,
+      KNOTS.map((q: AutoMovieHumanFootGuide.IFanKnot): AutoMovieHumanFootGuide.IFanKnot => [q[0], law.along(q[4]), law.across(q[4]), q[3], q[4]]),
+    );
   }
 
   /**
-   * The border's place at a height in lateral malleolus heights, between the
-   * two knots whose heights bracket it, at that height: the medial
-   * malleolus's centre. Total: a height outside the knots takes the nearest
-   * interval's end.
+   * The border's place on the column's law at a height in lateral malleolus
+   * heights: the medial malleolus's centre.
    *
    * @param frame The foot's frame.
    * @param height Height in lateral malleolus heights.
    */
   export function centre(frame: AutoMovieHumanFootFrame.IFrame, height: number): Vec3 {
-    const i: number = Math.max(1, KNOTS.findIndex((q: AutoMovieHumanFootGuide.IFanKnot): boolean => q[4] >= height));
-    const lo: AutoMovieHumanFootGuide.IFanKnot = KNOTS[i - 1]!;
-    const hi: AutoMovieHumanFootGuide.IFanKnot = KNOTS[i]!;
-    const f: number = Math.min(1, Math.max(0, (height - lo[4]) / (hi[4] - lo[4] || 1)));
+    const law: AutoMovieHumanFootColumnLaw.IPlan = LAW.get();
 
-    return frame.at(lo[1] + f * (hi[1] - lo[1]), lo[2] + f * (hi[2] - lo[2]), height * frame.H);
+    return frame.at(law.along(height), law.across(height), height * frame.H);
   }
 }
+
+/** The column's plan law over its knots' heights in lateral malleolus heights. */
+const LAW: Singleton<AutoMovieHumanFootColumnLaw.IPlan> = new Singleton(
+  (): AutoMovieHumanFootColumnLaw.IPlan =>
+    AutoMovieHumanFootColumnLaw.plan(
+      KNOTS.map((q: AutoMovieHumanFootGuide.IFanKnot): number => q[4]),
+      KNOTS.map((q: AutoMovieHumanFootGuide.IFanKnot): number => q[1]),
+      KNOTS.map((q: AutoMovieHumanFootGuide.IFanKnot): number => q[2]),
+    ),
+);
 
 /** The region's knots, [share, a, u, y / L, y / H]. Reference median, awaiting a published value. */
 const KNOTS: readonly AutoMovieHumanFootGuide.IFanKnot[] = [

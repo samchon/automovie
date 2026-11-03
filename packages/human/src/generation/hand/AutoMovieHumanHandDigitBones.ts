@@ -91,7 +91,7 @@ export namespace AutoMovieHumanHandDigitBones {
     const base: (s: number) => [number, number, number] = thumb
       ? formBase
       : AutoMovieHumanDigitProfile.span(size(rootAt), [rootAt, joints[0]!, joints[1]!, formCap]);
-    const shape: (s: number) => AutoMovieHumanDigitSection.IShape = AutoMovieHumanDigitProfile.of({
+    const profile: AutoMovieHumanDigitProfile.IInput = {
       base,
       root: rootAt,
       joints: [joints[0]!, joints[1]!],
@@ -99,7 +99,8 @@ export namespace AutoMovieHumanHandDigitBones {
       cap: formCap,
       softness,
       thumb,
-    });
+    };
+    const shape: (s: number) => AutoMovieHumanDigitSection.IShape = AutoMovieHumanDigitProfile.of(profile);
 
     // The tip closes where the composed section's radius reaches the length
     // left to the apex (`AutoMovieHumanDigitTipCap`).
@@ -154,6 +155,7 @@ export namespace AutoMovieHumanHandDigitBones {
       cap,
       pole,
       external: length,
+      windows: AutoMovieHumanDigitProfile.windows(profile),
     };
   }
 

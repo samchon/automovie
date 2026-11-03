@@ -8,8 +8,6 @@ import type { IAutoMovieHumanWebResult } from "./IAutoMovieHumanWebResult";
 import type { IAutoMovieHumanWebSurface } from "./IAutoMovieHumanWebSurface";
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
-import { AutoMovieHumanWebSaddleField } from "./AutoMovieHumanWebSaddleField";
-import type { IAutoMovieHumanWeb } from "./IAutoMovieHumanWeb";
 
 type Vec3 = AutoMovieHumanHandVector.Vec3;
 const { sub, plus: add, scale, smooth }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
@@ -43,40 +41,6 @@ export namespace AutoMovieHumanWebMesh {
     const { webs } = crests;
     const { children, rows, crestRow } = columns;
     const { levelOf, lip, chart, plainAt } = surface;
-
-    // Each child's saddle on each side of each of its webs, built once: the
-    // seam patches its columns nearer the pinch than the fade column take
-    // their points from.
-    const saddles: Map<string, AutoMovieHumanWebSaddleField.ISaddle | null> = new Map();
-    const saddleOf = (
-      name: string,
-      own: IAutoMovieHumanWebChild,
-      web: IAutoMovieHumanWeb,
-      side: number,
-    ): AutoMovieHumanWebSaddleField.ISaddle | null => {
-      const key: string = `${name}|${web.first}|${web.second}|${side}`;
-      if (!saddles.has(key)) {
-        const beside: IAutoMovieHumanWebChild.IBeside | undefined = own.beside.find(
-          (b: IAutoMovieHumanWebChild.IBeside): boolean => b.side === side,
-        );
-        saddles.set(
-          key,
-          beside === undefined
-            ? null
-            : AutoMovieHumanWebSaddleField.of({
-                name: `${name}.web-${web.first}-${web.second}.${side}`,
-                web,
-                own,
-                law: beside.law,
-                reach: beside.reach,
-                surface,
-                blend: FADE,
-              }),
-        );
-      }
-
-      return saddles.get(key)!;
-    };
 
     // Vertices: the lips and crest of every web, shared by its two children.
     const vertex = (p: Vec3, coordinates: [number, number, number] = [NaN, NaN, NaN]): number => {
@@ -128,21 +92,30 @@ export namespace AutoMovieHumanWebMesh {
         const ids: number[] = [col.v];
         const own: IAutoMovieHumanWebChild = col.web.children.get(c.name)!;
         const plain: (r: number) => Vec3 = plainAt(col);
-        const w: number = 1 - smooth(Math.abs(col.y) / FADE);
-        const saddle: AutoMovieHumanWebSaddleField.ISaddle | null = saddleOf(c.name, own, col.web, col.side);
-        const y: number = Math.abs(col.y);
 
-        // Nearer the pinch than the saddle's fade column the column's points
-        // are the seam patches'; past it the blend of the chart and the plain
-        // law, which the patches' sides continue.
+        // The chart serves its own half of the arc: a column is drawn to it
+        // over at most FADE margin radii and never past the arc's middle,
+        // where the column passes to the next web and that web's chart
+        // begins, so the weight is zero where the column changes web. A
+        // hand's web spans the palm's thickness, so its margin's radius is a
+        // large share of a finger's arc, and over FADE radii the chart's end
+        // correction dragged every column of the arc toward its own arrival
+        // across its neighbours, and changed web with the weight still high.
+        const beside: IAutoMovieHumanWebChild.IBeside | undefined = own.beside.find(
+          (b: IAutoMovieHumanWebChild.IBeside): boolean => b.side === col.side,
+        );
+        const fade: number = Math.min(FADE, beside === undefined ? FADE : beside.reach);
+        const w: number = 1 - smooth(Math.abs(col.y) / fade);
+
+        // The blend of the saddle's chart and the plain column law, drawn to
+        // the chart near the pinch. The seam patches
+        // (`AutoMovieHumanWebSaddleField`) take these points over once their
+        // sides read the owners' jets in closed form: read by finite
+        // differences of this surface, whose depth inverse steps where a
+        // column's depth is not monotone, their jets are unbounded.
         for (let r: number = 1; r < rows; r++) {
           const a: Vec3 = plain(r);
-          const p: Vec3 =
-            saddle !== null && y < saddle.fade
-              ? saddle.place(levelOf(r, own, col.web), y)
-              : w === 0
-                ? a
-                : add(a, scale(sub(chart(col, own, r), a), w));
+          const p: Vec3 = w === 0 ? a : add(a, scale(sub(chart(col, own, r), a), w));
           ids.push(vertex(p));
         }
         ids.push(vertex(col.q, [index, c.station, col.phi]));

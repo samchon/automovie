@@ -44,7 +44,7 @@ export namespace AutoMovieHumanHandDigitChain {
       unit(sub(at(Math.max(0, s - STEP)), at(Math.min(f.cap, s + STEP))));
 
     // The reference's section density is a floor: see the stations' rule.
-    const kept: number[] = AutoMovieHumanDigitStations.of(f.first, f.cap, f.line.joints.slice(0, -1));
+    const kept: number[] = AutoMovieHumanDigitStations.of(f.first, f.cap, f.line.joints.slice(0, -1), f.windows);
 
     // The in-plane axis carried from the root toward the tip.
     const root: number = kept[0]!;

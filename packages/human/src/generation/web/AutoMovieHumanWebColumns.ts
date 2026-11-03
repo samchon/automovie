@@ -284,10 +284,18 @@ export namespace AutoMovieHumanWebColumns {
         // than its chord since that need not be the chart's own direction.
         const lateral: number = Math.max(0, dot(run, eta));
         const depth: number = Math.max(0.25 * web.rho, dot(run, web.ea));
+        // Its depth rises monotonically from the crest to the section, so its
+        // rows, which are depth levels, never fold back: a cubic Hermite that
+        // leaves with zero slope stays monotone while it arrives with at most
+        // three times its rise (Fritsch and Carlson 1980), which bounds the
+        // arrival speed by the rise over the arrival's own share along `e_a`.
         const d: Vec3 = into(phi);
+        const rise: number = dot(run, web.ea);
+        const descent: number = dot(d, web.ea);
         const arrive: number = Math.min(
           norm(add(scale(eta, lateral), scale(web.ea, 2 * depth))),
           norm(run),
+          rise > 0 && descent > 0 ? (3 * rise) / descent : Infinity,
         );
         web.children.set(share.name, {
           phi,

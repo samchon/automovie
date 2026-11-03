@@ -299,6 +299,13 @@ export namespace AutoMovieHumanWebSaddleQuads {
    * are one-sided three-point differences into the quadrilateral, so every
    * reading lies inside it.
    *
+   * The jet is read at {@link SAMPLES} even steps of the side's parameter
+   * once, when the side is built, and between them it is interpolated
+   * ({@link interpolate}): a patch evaluation reads each side's jet six
+   * times, and a mesh places hundreds of vertices on one saddle, so reading
+   * the surface afresh at every evaluation would cost the surface's column
+   * law hundreds of times per vertex.
+   *
    * @param owner Name in findings.
    * @param surface The web's surface in branch coordinates.
    * @param curve The side's curve over [0, 1].
@@ -327,7 +334,7 @@ export namespace AutoMovieHumanWebSaddleQuads {
         f0.map((v: number, k: number): number => (v - 2 * f1[k]! + f2[k]!) / (h * h)),
       ];
     };
-    const jet = (a: number): IAutoMovieHumanSeam.ISurfaceJet => {
+    const read = (a: number): IAutoMovieHumanSeam.ISurfaceJet => {
       const c: number = Math.min(1 - h, Math.max(h, a));
       const p: Vec3 = at(a, 0);
       const cp: Vec3 = at(c + h, 0);
@@ -348,10 +355,79 @@ export namespace AutoMovieHumanWebSaddleQuads {
         twist: plus.map((v: number, k: number): number => (v - minus[k]!) / (2 * h)),
       };
     };
+    const table: IAutoMovieHumanSeam.ISurfaceJet[] = Array.from(
+      { length: SAMPLES + 1 },
+      (_: unknown, k: number): IAutoMovieHumanSeam.ISurfaceJet => read(k / SAMPLES),
+    );
+    const jet = (a: number): IAutoMovieHumanSeam.ISurfaceJet => interpolate(table, a);
 
     return { owner, jet, from: 0, to: 1, alpha: 1, beta: 0, continuity: "G1" };
   }
+
+  /**
+   * A side's jet between its samples, read at even steps of its parameter
+   * over [0, 1]. The point, the along derivative and the across derivative
+   * each run as the cubic Hermite of their samples and of their own along
+   * derivatives, which the samples hold (the along derivative, the second
+   * along derivative and the twist), so each meets its samples with their
+   * slopes. The second derivatives and the twist, whose along derivatives the
+   * samples do not hold, run as the Catmull-Rom spline of their samples,
+   * continued past the two ends by the line through the last two.
+   *
+   * @param table The side's jets at its samples.
+   * @param a The side's parameter, held in [0, 1].
+   */
+  function interpolate(table: readonly IAutoMovieHumanSeam.ISurfaceJet[], a: number): IAutoMovieHumanSeam.ISurfaceJet {
+    const n: number = table.length - 1;
+    const x: number = Math.min(1, Math.max(0, a)) * n;
+    const i: number = Math.min(n - 1, Math.floor(x));
+    const f: number = x - i;
+    const d: number = 1 / n;
+    const f2: number = f * f;
+    const f3: number = f2 * f;
+    const J0: IAutoMovieHumanSeam.ISurfaceJet = table[i]!;
+    const J1: IAutoMovieHumanSeam.ISurfaceJet = table[i + 1]!;
+    const hermite = (p0: readonly number[], m0: readonly number[], p1: readonly number[], m1: readonly number[]): number[] =>
+      p0.map(
+        (v: number, k: number): number =>
+          (2 * f3 - 3 * f2 + 1) * v + (f3 - 2 * f2 + f) * d * m0[k]! + (-2 * f3 + 3 * f2) * p1[k]! + (f3 - f2) * d * m1[k]!,
+      );
+    const sample = (k: number, pick: (j: IAutoMovieHumanSeam.ISurfaceJet) => number[]): number[] => {
+      if (k >= 0 && k <= n) return pick(table[k]!);
+      const [near, far]: [number[], number[]] = k < 0 ? [pick(table[0]!), pick(table[1]!)] : [pick(table[n]!), pick(table[n - 1]!)];
+
+      return near.map((v: number, c: number): number => 2 * v - far[c]!);
+    };
+    const catmull = (pick: (j: IAutoMovieHumanSeam.ISurfaceJet) => number[]): number[] => {
+      const pm: number[] = sample(i - 1, pick);
+      const p0: number[] = sample(i, pick);
+      const p1: number[] = sample(i + 1, pick);
+      const p2: number[] = sample(i + 2, pick);
+
+      return p0.map(
+        (v: number, k: number): number =>
+          0.5 * ((-f3 + 2 * f2 - f) * pm[k]! + (3 * f3 - 5 * f2 + 2) * v + (-3 * f3 + 4 * f2 + f) * p1[k]! + (f3 - f2) * p2[k]!),
+      );
+    };
+
+    return {
+      point: hermite(J0.point, J0.along, J1.point, J1.along),
+      along: hermite(J0.along, J0.alongSecond, J1.along, J1.alongSecond),
+      alongSecond: catmull((j: IAutoMovieHumanSeam.ISurfaceJet): number[] => j.alongSecond),
+      across: hermite(J0.across, J0.twist, J1.across, J1.twist),
+      acrossSecond: catmull((j: IAutoMovieHumanSeam.ISurfaceJet): number[] => j.acrossSecond),
+      twist: catmull((j: IAutoMovieHumanSeam.ISurfaceJet): number[] => j.twist),
+    };
+  }
 }
+
+/**
+ * Steps of a side's parameter its jet is read at: the cubic Hermite between
+ * samples a sixteenth of the side apart errs by `h^4 / 384` of the field's
+ * fourth derivative, below a micrometre on a web's margin of a few
+ * millimetres.
+ */
+const SAMPLES: number = 16;
 
 /** Step of the central differences, in the sides' and quadrilaterals' parameters (each runs over [0, 1]). */
 const STEP: number = 1e-3;

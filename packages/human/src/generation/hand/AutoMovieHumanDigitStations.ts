@@ -1,3 +1,5 @@
+import type { AutoMovieHumanDigitProfile } from "./AutoMovieHumanDigitProfile";
+
 /**
  * Where along a digit's centre line its sections stand.
  *
@@ -12,6 +14,9 @@
  * - one every {@link JOINT_STEP} mm within {@link JOINT_WINDOW} mm either side
  *   of each interphalangeal joint, so the turn of the centre line and the
  *   joint's relief window are resolved by more than one section;
+ * - one every quarter of a relief's half width within each window of the
+ *   profile's narrow reliefs (the palmar creases, the proximal nail fold, the
+ *   plate's apex window), so each relief is read as the bump it is;
  * - the tip's three rings, close together, so the cap's sections keep the
  *   rounded end tangent.
  *
@@ -32,6 +37,14 @@ export namespace AutoMovieHumanDigitStations {
    */
   export const JOINT_WINDOW: number = 4;
 
+  /**
+   * Stations per half width inside a relief window: a C2 window read by the
+   * loft's cubic spline through samples a quarter of its half width apart
+   * keeps its height to about one percent; one or two samples across a
+   * window narrower than the base step turn its bump into a step.
+   */
+  export const RESOLVE: number = 4;
+
   /** Where the first tip rings stand before the cap, mm: the cap's last 1.2, 0.3 and 0. */
   const TIP_RINGS: readonly number[] = [1.2, 0.3, 0];
 
@@ -41,16 +54,28 @@ export namespace AutoMovieHumanDigitStations {
    * @param first Arc length of the first own section along the digit's line, mm.
    * @param cap Arc length where the rounded tip starts, mm.
    * @param joints Arc lengths of the digit's interphalangeal joints along the line, mm.
+   * @param windows The profile's narrow reliefs along the line (`AutoMovieHumanDigitProfile.windows`).
    */
-  export function of(first: number, cap: number, joints: readonly number[]): number[] {
+  export function of(
+    first: number,
+    cap: number,
+    joints: readonly number[],
+    windows: readonly AutoMovieHumanDigitProfile.IWindow[],
+  ): number[] {
     const out: number[] = [first];
     const last: number = cap - 2.5;
 
-    // Walk from the first section, closing the step inside a joint's window.
+    // Walk from the first section, closing the step inside a joint's window
+    // and inside every relief window to a share of its half width.
     let s: number = first;
     while (s < last) {
       const near: boolean = joints.some((j: number): boolean => Math.abs(s - j) <= JOINT_WINDOW);
-      s += near ? JOINT_STEP : STEP;
+      const fine: number = windows.reduce(
+        (step: number, w: AutoMovieHumanDigitProfile.IWindow): number =>
+          Math.abs(s - w.at) <= w.half + step ? Math.min(step, w.half / RESOLVE) : step,
+        near ? JOINT_STEP : STEP,
+      );
+      s += fine;
       if (s < last) out.push(s);
     }
     for (const back of TIP_RINGS) out.push(cap - back);

@@ -1,3 +1,6 @@
+import { Singleton } from "tstl";
+
+import { AutoMovieHumanFootColumnLaw } from "./AutoMovieHumanFootColumnLaw";
 import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
 import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootHeelCorner } from "./AutoMovieHumanFootHeelCorner";
@@ -20,9 +23,27 @@ export namespace AutoMovieHumanFootAchilles {
    * @param side -1 for the medial edge, 1 for the lateral.
    */
   export function knots(frame: AutoMovieHumanFootFrame.IFrame, side: -1 | 1): Vec3[] {
-    return KNOTS.map((q: readonly [number, number, number]): Vec3 => frame.at(q[0], q[1] + side * AutoMovieHumanFootHeelCorner.HALF, q[2] * frame.H));
+    const law: AutoMovieHumanFootColumnLaw.IPlan = LAW.get();
+
+    return KNOTS.map(
+      (q: readonly [number, number, number]): Vec3 =>
+        frame.at(law.along(q[2]), law.across(q[2]) + side * AutoMovieHumanFootHeelCorner.HALF, q[2] * frame.H),
+    );
   }
 }
+
+/**
+ * The tendon's plan law over its knots' heights (`AutoMovieHumanFootColumnLaw`):
+ * the guide reads each knot at its own height on it.
+ */
+const LAW: Singleton<AutoMovieHumanFootColumnLaw.IPlan> = new Singleton(
+  (): AutoMovieHumanFootColumnLaw.IPlan =>
+    AutoMovieHumanFootColumnLaw.plan(
+      KNOTS.map((q: readonly [number, number, number]): number => q[2]),
+      KNOTS.map((q: readonly [number, number, number]): number => q[0]),
+      KNOTS.map((q: readonly [number, number, number]): number => q[1]),
+    ),
+);
 
 /** The tendon's knots along the midline, lowest first: `[a, u, eta]`. Reference median. */
 const KNOTS: readonly (readonly [number, number, number])[] = [

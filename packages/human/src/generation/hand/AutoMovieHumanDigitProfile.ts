@@ -80,13 +80,84 @@ export namespace AutoMovieHumanDigitProfile {
     };
   }
 
+  /** A relief's window along the line. */
+  export interface IWindow {
+    /** Arc length of the window's centre, mm. */
+    at: number;
+
+    /** Half width of the window along the line, mm. */
+    half: number;
+  }
+
+  /**
+   * The windows of the profile's reliefs narrower than a joint's turn, which
+   * the digit's stations must resolve (`AutoMovieHumanDigitStations`): the
+   * palmar creases, the proximal nail fold's band behind the plate's root and
+   * the plate's apex window over its length.
+   *
+   * @param input The digit's base and loci.
+   */
+  export function windows(input: IInput): IWindow[] {
+    const plate: AutoMovieHumanNailPlate.ISize = plateOf(input);
+    const plateRoot: number = input.cap - plate.length;
+
+    return [
+      ...creasesOf(input).map(
+        (c: AutoMovieHumanDigitCrease.IInput): IWindow => ({ at: c.at, half: AutoMovieHumanDigitCrease.WIDTH_SHARE * c.radius }),
+      ),
+      { at: plateRoot - AutoMovieHumanNailFold.BAND / 2, half: AutoMovieHumanNailFold.BAND / 2 },
+      { at: plateRoot + plate.length / 2, half: plate.length / 2 },
+    ];
+  }
+
+  /**
+   * The creases: Bridgman's four loci for a finger (the line starts at the
+   * MCP), the two joints' for the thumb, each as wide as its nearest joint's
+   * radius allows.
+   *
+   * @param input The digit's base and loci.
+   */
+  function creasesOf(input: IInput): AutoMovieHumanDigitCrease.IInput[] {
+    const [j0, j1] = input.joints;
+    const radiusAt = (s: number): number => {
+      const [w, p, d] = input.base(s);
+
+      return (w + (p + d) / 2) / 2;
+    };
+    const loci: readonly number[] = input.thumb ? [j1, j0] : AutoMovieHumanDigitCrease.loci([0, j0, j1]);
+    const nearest = (at: number): number => radiusAt(Math.abs(at - j0) < Math.abs(at - j1) ? j0 : j1);
+
+    return loci
+      .filter((at: number): boolean => at > input.root)
+      .map((at: number): AutoMovieHumanDigitCrease.IInput => ({ at, palmar: input.base(at)[1], radius: nearest(at) }));
+  }
+
+  /**
+   * The nail plate: its free edge at the cap's start, its root a plate length
+   * back. Its size reads only the distal phalanx's length and the section's
+   * width; the frame vectors are the plate chart's own axes.
+   *
+   * @param input The digit's base and loci.
+   */
+  function plateOf(input: IInput): AutoMovieHumanNailPlate.ISize {
+    const distal: number = input.length - input.joints[1];
+
+    return AutoMovieHumanNailPlate.size({
+      origin: [0, 0, 0],
+      along: [1, 0, 0],
+      normal: [0, 0, 1],
+      phalanx: distal,
+      width: 2 * input.base(input.cap - AutoMovieHumanNailPlate.LENGTH_SHARE * distal)[0],
+    });
+  }
+
   /**
    * The section shape at every arc length.
    *
    * @param input The digit's base and loci.
    */
   export function of(input: IInput): (s: number) => AutoMovieHumanDigitSection.IShape {
-    const [j0, j1] = input.joints;
+    const j1: number = input.joints[1];
     const radiusAt = (s: number): number => {
       const [w, p, d] = input.base(s);
 
@@ -98,30 +169,14 @@ export namespace AutoMovieHumanDigitProfile {
       (at: number): AutoMovieHumanDigitJointRelief.IInput => ({ at, half: Math.max(1, input.softness * radiusAt(at)), radius: radiusAt(at) }),
     );
 
-    // Creases: Bridgman's four loci for a finger (the line starts at the
-    // MCP), the two joints' for the thumb.
-    const loci: readonly number[] = input.thumb ? [j1, j0] : AutoMovieHumanDigitCrease.loci([0, j0, j1]);
-    const nearest = (at: number): number => radiusAt(Math.abs(at - j0) < Math.abs(at - j1) ? j0 : j1);
-    const creases: AutoMovieHumanDigitCrease.IInput[] = loci
-      .filter((at: number): boolean => at > input.root)
-      .map((at: number): AutoMovieHumanDigitCrease.IInput => ({ at, palmar: input.base(at)[1], radius: nearest(at) }));
+    const creases: AutoMovieHumanDigitCrease.IInput[] = creasesOf(input);
 
     // The pulp's middle halfway from the distal joint to the apex.
     const distal: number = input.length - j1;
     const middle: number = j1 + distal / 2;
     const pad: AutoMovieHumanFingertipPulp.IInput = { phalanx: distal, width: input.base(middle)[0], palmar: input.base(middle)[1] };
 
-    // The plate's free edge at the cap's start, its root a plate length back.
-    // Its size reads only the phalanx's length and the section's width; the
-    // frame vectors are the plate chart's own axes.
-    const plateInput: AutoMovieHumanNailPlate.IInput = {
-      origin: [0, 0, 0],
-      along: [1, 0, 0],
-      normal: [0, 0, 1],
-      phalanx: distal,
-      width: 2 * input.base(input.cap - AutoMovieHumanNailPlate.LENGTH_SHARE * distal)[0],
-    };
-    const plate: AutoMovieHumanNailPlate.ISize = AutoMovieHumanNailPlate.size(plateInput);
+    const plate: AutoMovieHumanNailPlate.ISize = plateOf(input);
     const plateRoot: number = input.cap - plate.length;
 
     // The plate's transverse arch, a parabola of rise `sag` over half width

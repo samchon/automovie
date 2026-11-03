@@ -3,6 +3,7 @@ import { AutoMovieHumanSeamStation } from "../../lofting/AutoMovieHumanSeamStati
 import { AutoMovieHumanFootFan } from "./AutoMovieHumanFootFan";
 import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
+import { AutoMovieHumanFootGuideSmoothing } from "./AutoMovieHumanFootGuideSmoothing";
 import type { AutoMovieHumanFootWebLine } from "./AutoMovieHumanFootWebLine";
 
 type Vec3 = G.Vec3;
@@ -14,7 +15,8 @@ type Vec3 = G.Vec3;
  *
  * The guide is parametrised by the fan's own station: each knot is read as its
  * plane's station and its place in that plane, and the place is the natural
- * cubic spline of the station through them (the shared C2 rule,
+ * cubic spline of the station through the knots' places smoothed to their own
+ * scatter (`AutoMovieHumanFootGuideSmoothing`; the shared C2 rule,
  * `AutoMovieHumanSeamStation`). So the guide meets every plane once by
  * construction, through the yaw fan, the hand-over and the turn alike, and its
  * place in the planes is C2; a guide over chord length climbed within a few
@@ -104,7 +106,13 @@ export namespace AutoMovieHumanFootGuide {
     const kept: IKnot[] = [];
     for (const q of read) if (kept.length === 0 || q.station > kept[kept.length - 1]!.station + MIN_GAP) kept.push(q);
     const t: number[] = kept.map((q: IKnot): number => q.station);
-    const values: number[][] = kept.map((q: IKnot): number[] => [q.across, q.up]);
+
+    // The knots' places smoothed to their own scatter, the ends held on the
+    // rings (`AutoMovieHumanFootGuideSmoothing`).
+    const values: number[][] = AutoMovieHumanFootGuideSmoothing.of(
+      t,
+      kept.map((q: IKnot): number[] => [q.across, q.up]),
+    );
     const curvatures: number[][] = AutoMovieHumanSeamStation.curvatures(t, values);
     const slopes: number[][] = AutoMovieHumanSeamStation.slopes(t, values, curvatures);
 
