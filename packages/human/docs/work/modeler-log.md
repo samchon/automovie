@@ -1,5 +1,10 @@
 # Modeler log
 
+## 2026-11-04 supervisor audit 08:13, answered (08:30, Get-Date)
+
+1. Fix-and-render loop: acknowledged. From 07:31 to 08:13 single fixes were each followed by a capture or a universality run (the strip's own sections at 07:33, the sector revert at 07:31, the neck curvature at 07:50 then 07:54 and 08:13) and committed one by one (`9385bcc`). From now on: no capture after a fix; every open row (R1, R3, R4, R7 to R11, items 6 and 7) is analysed first, the comparisons that separate unclear causes are planned as one set and run on one source without editing, then every fix is made and judged once (region tests, universality, one capture of the owner's twelve), with commits by topic hourly.
+2. Stalled viewer: acknowledged; repaired at the debug server. Trace: the page generates on its main thread (no worker), and `HumanDebugCaptureSession.load` and `apply` awaited the page's `ready` and `apply` promises through `page.evaluate`, which has no timeout, while holding the generation slot (`.shots/locks/generation/slot-0/owner.json`), released only after the evaluation returned. A page whose promise never settles (both stalls followed a page load on a new source; the server log carries one 404 for a page resource) held the slot with no process computing. Fix: `debug/server/HumanDebugStall.ts` states the rule (no more than 0.05 s of main-thread task time over 60 s while a frame is in progress) and the session reads `Performance.getMetrics` `TaskDuration` every 5 s during `load` and `apply`; a stalled page fails the frame with the requests it still waits on, is closed and so releases the slot, and the next frame loads a fresh page. `test_human_debug_stall` (made idle series red, working, short and burst series green) passed at 08:27; the debug type check is clean; the README documents the check. The 404's resource is not yet named; the next stall's failure line names the pending requests.
+
 ## 2026-11-04 batch, worker 3 (from 06:25, Get-Date)
 
 State: the 06:20 plan is being built in the tree; nothing judged yet. Stale test runs of the previous worker (started 05:07 and 06:05, on the old tree) were stopped at 06:27.

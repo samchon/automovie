@@ -1,6 +1,6 @@
 import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
 import { createHash } from "node:crypto";
-import { type Browser, type ConsoleMessage, type Page, chromium } from "playwright-core";
+import { type Browser, type CDPSession, type ConsoleMessage, type Page, type Request, chromium } from "playwright-core";
 
 import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
 import { HumanDebugOptions } from "../contracts/HumanDebugOptions";
@@ -8,6 +8,7 @@ import type { IHumanDebugOptions } from "../contracts/IHumanDebugOptions";
 import type { IHumanDebugSnapshot } from "../contracts/IHumanDebugSnapshot";
 import { HumanDebugGenerationSlot } from "./HumanDebugGenerationSlot";
 import { HumanDebugSourceHash } from "./HumanDebugSourceHash";
+import { HumanDebugStall } from "./HumanDebugStall";
 import type { IHumanDebugEnvironment } from "./IHumanDebugEnvironment";
 import type { IHumanDebugFrame } from "./IHumanDebugFrame";
 
@@ -43,7 +44,9 @@ const FRAME: number = 900_000;
  * `Human source changed` failure that is retried after 3 s times the attempt, up to eight attempts.
  *
  * A frame that changes the subject (person or piece) generates in the page and holds one of the
- * machine's generation slots meanwhile. A software renderer is refused. PNGs are kept per source
+ * machine's generation slots meanwhile. While the page works on a frame its main-thread task time
+ * is read every few seconds (`HumanDebugStall`): a page that does no work for a minute fails the frame
+ * with the requests it still waits on and is closed, so a stalled page never holds the slot. A software renderer is refused. PNGs are kept per source
  * and canonical options up to 256 MiB, and `fresh` with a new nonce always draws again.
  */
 export class HumanDebugCaptureSession {
@@ -55,6 +58,7 @@ export class HumanDebugCaptureSession {
   private subject: string | undefined;
   private closed: boolean = false;
   private readonly frames: Map<string, IHumanDebugFrame & { nonce: string | null }> = new Map();
+  private readonly pending: Set<string> = new Set();
 
   /**
    * Prepare the session; nothing starts until the first frame.
@@ -207,8 +211,10 @@ export class HumanDebugCaptureSession {
       .then((value: string | null): string => value ?? "missing")
       .catch((error: unknown): string => "timeout: " + String(error));
     if (mounted !== "mounted") throw new Error("Human source changed: the page did not mount (" + mounted + ")");
-    const snapshot: IHumanDebugSnapshot = await page.evaluate(
-      (): Promise<IHumanDebugSnapshot> => (window as unknown as { __humanDebug: { ready: Promise<IHumanDebugSnapshot> } }).__humanDebug.ready,
+    const snapshot: IHumanDebugSnapshot = await this.watched(
+      page.evaluate(
+        (): Promise<IHumanDebugSnapshot> => (window as unknown as { __humanDebug: { ready: Promise<IHumanDebugSnapshot> } }).__humanDebug.ready,
+      ),
     );
 
     // The page read the hash after its modules loaded; a save since `before` means its modules
@@ -221,11 +227,62 @@ export class HumanDebugCaptureSession {
 
   /** Apply a query on the loaded page. */
   private async apply(query: string): Promise<IHumanDebugSnapshot> {
-    return this.page!.evaluate(
-      (search: string): Promise<IHumanDebugSnapshot> =>
-        (window as unknown as { __humanDebug: { apply(search: string): Promise<IHumanDebugSnapshot> } }).__humanDebug.apply(search),
-      query,
+    return this.watched(
+      this.page!.evaluate(
+        (search: string): Promise<IHumanDebugSnapshot> =>
+          (window as unknown as { __humanDebug: { apply(search: string): Promise<IHumanDebugSnapshot> } }).__humanDebug.apply(search),
+        query,
+      ),
     );
+  }
+
+  /**
+   * Wait for the page's work while reading its main-thread task time: a page that holds the frame
+   * and does no work for `HumanDebugStall.WINDOW` fails the frame with the requests it still waits
+   * on, and is closed, so the generation slot is released and the next frame loads a fresh page.
+   *
+   * @param work The page's evaluation.
+   * @returns The evaluation's value.
+   */
+  private async watched<T>(work: Promise<T>): Promise<T> {
+    const page: Page = this.page!;
+    const cdp: CDPSession = await page.context().newCDPSession(page);
+    await cdp.send("Performance.enable");
+    const samples: HumanDebugStall.ISample[] = [];
+    let settled: boolean = false;
+    const watch: Promise<never> = (async (): Promise<never> => {
+      for (;;) {
+        await new Promise<undefined>((resolve: (value: undefined) => void): void => {
+          setTimeout(resolve, HumanDebugStall.EVERY, undefined);
+        });
+        if (settled) return new Promise<never>((): void => {});
+        const metrics: { metrics: { name: string; value: number }[] } = await cdp.send("Performance.getMetrics");
+        const work: number = metrics.metrics.find((m: { name: string; value: number }): boolean => m.name === "TaskDuration")?.value ?? 0;
+        samples.push({ at: Date.now(), work });
+        if (HumanDebugStall.stalled(samples)) {
+          const waiting: string[] = [...this.pending].slice(0, 8);
+          throw new Error(
+            "Human debug page stalled: no main-thread work for " + HumanDebugStall.WINDOW / 1000 + " s while drawing a frame; " +
+              (waiting.length === 0 ? "no request pending" : "pending: " + waiting.join(", ")),
+          );
+        }
+      }
+    })();
+    try {
+      return await Promise.race([work, watch]);
+    } catch (error) {
+      if (error instanceof Error && /^Human debug page stalled/.test(error.message)) {
+        console.error("[human-debug]", error.message);
+        this.source = undefined;
+        this.subject = undefined;
+        this.page = undefined;
+        await page.close().catch((): void => {});
+      }
+      throw error;
+    } finally {
+      settled = true;
+      await cdp.detach().catch((): void => {});
+    }
   }
 
   /** The resident page, starting Chrome once and again after it disconnects; any WebSocket the page opens is held unconnected. */
@@ -247,6 +304,12 @@ export class HumanDebugCaptureSession {
     page.setDefaultTimeout(FRAME);
     await page.routeWebSocket(/.*/, (): void => {});
     page.on("pageerror", (error: Error): void => console.error("[human-debug page]", error.stack ?? error.message));
+
+    // The requests the page still waits on, named when a frame stalls.
+    this.pending.clear();
+    page.on("request", (request: Request): void => void this.pending.add(request.url()));
+    page.on("requestfinished", (request: Request): void => void this.pending.delete(request.url()));
+    page.on("requestfailed", (request: Request): void => void this.pending.delete(request.url()));
 
     // The page logs every failed load with its stack; the server log is where a frame's cause is read.
     page.on("console", (message: ConsoleMessage): void => {

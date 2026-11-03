@@ -182,7 +182,8 @@ Run it from the repository root.
 - `--origin` names another viewer.
 - Each shot asks a new frame (a unique `fresh` nonce) and is kept as `<name>.png` only when the route answers `new-requested-frame` and the received bytes hash to `x-human-png-sha256`. `receipt.json` lists every kept shot: its file, URL, SHA-256 and the response headers, the source hash and capture time among them.
 - `keep=1` in a shot's text draws it on the page's loaded source, so a series of people shares one source while files are saved.
-- A failed shot keeps no PNG, adds one line with its cause to `<person>-FAILED.txt`, and the run goes on; the program then exits with code 1. While the compile gate answers 503 or 409 the shot is asked again after `retry-after`, for up to 30 minutes. Requests carry no timeout, since changing the person takes minutes.
+- A failed shot keeps no PNG, adds one line with its cause to `<person>-FAILED.txt`, and the run goes on; the program then exits with code 1.
+- While the page works on a frame, the server reads its main-thread task time every 5 s (Chrome's `Performance.getMetrics`). A page that does no work for a minute while it holds the frame and the generation slot fails the frame with `Human debug page stalled` and the requests it still waits on, and is closed, so the slot is released and the next frame loads a fresh page (`debug/server/HumanDebugStall.ts`, proven by `test_human_debug_stall`). Such a cause in `<person>-FAILED.txt` is a viewer defect to trace before any visual claim. While the compile gate answers 503 or 409 the shot is asked again after `retry-after`, for up to 30 minutes. Requests carry no timeout, since changing the person takes minutes.
 
 The owner's evidence set, each reference person from the front, the left and the back on one source:
 
