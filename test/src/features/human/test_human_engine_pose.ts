@@ -2,7 +2,7 @@ import { resolvePose } from "../../../../packages/engine/src/kinematics/resolveP
 import { AutoMovieHumanPoseChannels } from "../../../../packages/human/src/skeleton/AutoMovieHumanPoseChannels";
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
-import { HUMAN_STICKMAN_POSES } from "../../../../packages/human/dev/src/human-stickman/HUMAN_STICKMAN_POSES";
+import { HUMAN_DEBUG_POSES as HUMAN_STICKMAN_POSES } from "../../../../packages/human/debug/poses/HUMAN_DEBUG_POSES";
 import { HumanPeople } from "../internal/HumanPeople";
 
 /** Distance between the two kinematics a bone may show, metres. */

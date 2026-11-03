@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
-import { HUMAN_STICKMAN_POSES } from "../../../../packages/human/dev/src/human-stickman/HUMAN_STICKMAN_POSES";
+import { HUMAN_DEBUG_POSES as HUMAN_STICKMAN_POSES } from "../../../../packages/human/debug/poses/HUMAN_DEBUG_POSES";
 import { HumanPeople } from "./HumanPeople";
 import { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
