@@ -1,14 +1,11 @@
-import type { AutoMovieHumanFootArc } from "./AutoMovieHumanFootArc";
+import { AutoMovieHumanFootArc } from "./AutoMovieHumanFootArc";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootJunction } from "./AutoMovieHumanFootJunction";
 import { AutoMovieHumanFootSectors } from "./AutoMovieHumanFootSectors";
-import { AutoMovieHumanFootToeDorsalHalf } from "./AutoMovieHumanFootToeDorsalHalf";
-import { AutoMovieHumanFootToePlantarHalf } from "./AutoMovieHumanFootToePlantarHalf";
 
 /**
  * A toe's section in its own plane, composed of its two halves on one breadth:
- * the dorsal half ({@link AutoMovieHumanFootToeDorsalHalf}) and the plantar half
- * ({@link AutoMovieHumanFootToePlantarHalf}), four quintic pieces between the
+ * the nail side and the pad side, four quintic pieces ({@link AutoMovieHumanFootArc.TOE}) between the
  * dorsal, lateral, plantar and medial points, each point's jet owning its
  * curvature from its neighbours, so the halves meet G2 at the side points, the
  * section's tightest turn. Each piece owns a quarter of the phases, from the
@@ -30,10 +27,8 @@ export namespace AutoMovieHumanFootToeSection {
     const jR: AutoMovieHumanFootArc.IJet = jet(R, [0, -1], [D, P]);
     const jP: AutoMovieHumanFootArc.IJet = jet(P, [-1, 0], [R, Lm]);
     const jL: AutoMovieHumanFootArc.IJet = jet(Lm, [0, 1], [P, D]);
-    const dorsal: AutoMovieHumanFootToeDorsalHalf.IHalf = AutoMovieHumanFootToeDorsalHalf.of(jD, jR, jL, POINTS);
-    const plantar: AutoMovieHumanFootToePlantarHalf.IHalf = AutoMovieHumanFootToePlantarHalf.of(jR, jP, jL, POINTS);
     const sectors: AutoMovieHumanFootSectors.ISectors = AutoMovieHumanFootSectors.join(
-      [dorsal.lateral, plantar.lateral, plantar.medial, dorsal.medial].map(AutoMovieHumanFootSectors.piece),
+      AutoMovieHumanFootArc.pieces(AutoMovieHumanFootArc.TOE, { dorsal: jD, lateral: jR, plantar: jP, medial: jL }, POINTS).map(AutoMovieHumanFootSectors.piece),
       [count / 4, count / 4, count / 4, count / 4],
     );
 

@@ -3,6 +3,7 @@ import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieHumanApertureHoles } from "./AutoMovieHumanApertureHoles";
 import { AutoMovieHumanAperturePocket } from "./AutoMovieHumanAperturePocket";
 import { AutoMovieHumanBodyApertureIslands } from "./AutoMovieHumanBodyApertureIslands";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
@@ -182,7 +183,24 @@ export namespace AutoMovieHumanBodyApertures {
               AutoMovieHumanLoftAperture.signed(a.outline, p, REACH) < REACH,
           ),
       );
-    return split(heights, near);
+
+    // Between two rows a skin point near an opening rises by at most half
+    // the opening's own thickness (`AutoMovieHumanApertureHoles`), so every
+    // column crosses it in at least two rows and no row bridges it: a tilted
+    // section's front points rise faster than its station.
+    const half: number[] = apertures.map((a: IPrepared): number => AutoMovieHumanApertureHoles.thickness(a.outline) / 2);
+    const count = (a: number, b: number): number => {
+      const lo: [number, number, number][] = AutoMovieHumanLoftChain.ring(target, a, phases);
+      const hi: [number, number, number][] = AutoMovieHumanLoftChain.ring(target, b, phases);
+      let steps: number = Math.ceil((b - a) / SPACING);
+      for (let i: number = 0; i < lo.length; i++)
+        apertures.forEach((p: IPrepared, k: number): void => {
+          if (half[k]! > 0 && AutoMovieHumanLoftAperture.signed(p.outline, lo[i]!, REACH) < REACH)
+            steps = Math.max(steps, Math.ceil(Math.abs(hi[i]![1] - lo[i]![1]) / half[k]!));
+        });
+      return steps;
+    };
+    return split(heights, near, count);
   }
 
   /**
@@ -192,16 +210,19 @@ export namespace AutoMovieHumanBodyApertures {
   function split(
     heights: readonly number[],
     near: (s: number) => boolean,
+    count: (a: number, b: number) => number = (a: number, b: number): number => Math.ceil((b - a) / SPACING),
   ): number[] {
     const out: number[] = [heights[0]!];
     const marked: boolean[] = heights.map(near);
     for (let k: number = 0; k + 1 < heights.length; k++) {
       const a: number = heights[k]!;
       const b: number = heights[k + 1]!;
-      const steps: number = Math.ceil((b - a) / SPACING);
-      if (steps > 1 && (marked[k] || marked[k + 1] || near((a + b) / 2)))
-        for (let i: number = 1; i < steps; i++)
-          out.push(a + ((b - a) * i) / steps);
+      // An interval no longer than the spacing whose ends are not near is not
+      // near in the middle either: the reach round an opening is wider.
+      if (marked[k] || marked[k + 1] || (b - a > SPACING && near((a + b) / 2))) {
+        const steps: number = count(a, b);
+        for (let i: number = 1; i < steps; i++) out.push(a + ((b - a) * i) / steps);
+      }
       out.push(b);
     }
     return out;

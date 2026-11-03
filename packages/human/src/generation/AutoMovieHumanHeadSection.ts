@@ -97,7 +97,7 @@ export namespace AutoMovieHumanHeadSection {
       powerBack: 2 + (plan.vault - 2) * vaulted,
       taper: AutoMovieHumanHeadVault.frontTaper(plan) * vaulted,
       brow: AutoMovieHumanHeadMath.smooth((y - m.nasion[1]) / Math.max(1e-6, g - m.nasion[1])),
-      shield,
+      tube: w,
       front,
       waist,
       face,

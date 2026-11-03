@@ -1,12 +1,11 @@
-import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
-
 /**
  * The breast's side profile alone: its height over the chest wall against the
  * normalised distance from the bust point, the curve that sweeps over the
  * footprint into the dome.
  *
- * The height is the bust point's projection at the centre, with a rounded
- * apex, falling by `(1 - rho^2)^3` to the rim with slope and curvature zero
+ * The height is the bust point's projection at the centre times the trunk
+ * features' bump (`AutoMovieHumanTrunkFeatureProfile.bump`, swept by
+ * `AutoMovieHumanBreastDome`), with a rounded apex, falling by `(1 - rho^2)^3` to the rim with slope and curvature zero
  * there, so the breast leaves the wall tangent to it. Its projection is what
  * closes the chest tape over the chest wall, which continues the rib cage the
  * underbust tape measures at the fold (`AutoMovieHumanTrunkClosure.tapes`):
@@ -27,14 +26,4 @@ export namespace AutoMovieHumanBreastProfile {
     return Math.max(0, chest - underbust) / Math.PI;
   }
 
-  /**
-   * The profile's height at a normalised radius.
-   *
-   * @param rho Normalised distance from the bust point, 1 at the rim.
-   * @param projection The bust point's projection, mm.
-   * @returns The height over the wall, mm.
-   */
-  export function height(rho: number, projection: number): number {
-    return projection * AutoMovieHumanTrunkFeatureProfile.bump(rho);
-  }
 }

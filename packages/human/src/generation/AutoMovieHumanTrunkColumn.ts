@@ -3,12 +3,10 @@ import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpl
 import type { IAutoMovieHumanTrunkKey } from "./IAutoMovieHumanTrunkKey";
 import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection";
 import { AutoMovieHumanTrunkGlutealCleft } from "./AutoMovieHumanTrunkGlutealCleft";
-import { AutoMovieHumanTrunkGuideBustLine } from "./AutoMovieHumanTrunkGuideBustLine";
-import { AutoMovieHumanTrunkGuidePosteriorAxillary } from "./AutoMovieHumanTrunkGuidePosteriorAxillary";
-import { AutoMovieHumanTrunkGuideScapular } from "./AutoMovieHumanTrunkGuideScapular";
 import { AutoMovieHumanTrunkInguinalFold } from "./AutoMovieHumanTrunkInguinalFold";
 import { AutoMovieHumanTrunkProfileBack } from "./AutoMovieHumanTrunkProfileBack";
 import { AutoMovieHumanTrunkProfileFront } from "./AutoMovieHumanTrunkProfileFront";
+import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 
 /**
  * The trunk's column: the section at any height between its landmark keys.
@@ -69,7 +67,7 @@ export namespace AutoMovieHumanTrunkColumn {
         const b: number = Math.min(m - 1, back(y));
 
         // The anterior guide stays clear of the bust line and of the widest point.
-        const a: number = Math.min(0.97, Math.max(AutoMovieHumanTrunkGuideBustLine.SHARE + 0.05, anterior(y)));
+        const a: number = Math.min(0.97, Math.max(AutoMovieHumanTrunkGuides.SHARE.bustLine + 0.05, anterior(y)));
         const rise: number = y - crotch;
 
         return {
@@ -82,12 +80,12 @@ export namespace AutoMovieHumanTrunkColumn {
           squareBack: Math.max(1.2, squareBack(y)),
           anterior: a,
           foldFront: AutoMovieHumanTrunkInguinalFold.at(rise, f - m, soft, [
-            AutoMovieHumanTrunkGuideBustLine.SHARE * w,
+            AutoMovieHumanTrunkGuides.SHARE.bustLine * w,
             a * w,
           ]),
           foldBack: AutoMovieHumanTrunkGlutealCleft.at(rise, m - b, [
-            AutoMovieHumanTrunkGuideScapular.SHARE * w,
-            AutoMovieHumanTrunkGuidePosteriorAxillary.SHARE * w,
+            AutoMovieHumanTrunkGuides.SHARE.scapular * w,
+            AutoMovieHumanTrunkGuides.SHARE.posteriorAxillary * w,
           ]),
         };
       },

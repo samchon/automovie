@@ -9,14 +9,21 @@
  * about 50 mm for human hair. A fibre of length l clamped at the angle
  * theta0 over the horizontal is bent at its root with the curvature
  * `kappa0 = l^2 cos(theta0) / (2 lambda^3)` (the moment of its own weight
- * about the root over EI, for a horizontal moment arm l cos(theta0) / 2);
- * the angle relaxes from theta0 at that rate, so over the decay length
- * `theta0 / kappa0` it is bent flat: hair much shorter than lambda stands
- * straight in its exit direction, hair much longer falls within millimetres
- * of its root. The standing height at an arc length s is the integral of
- * `sin(theta0 exp(-s / decay))`, taken with `sin(theta0)` constant over the
- * relaxation (a first-order closure of the elastica, whose form is a
- * convention; its length scale is derived).
+ * about the root over EI, for a horizontal moment arm l cos(theta0) / 2).
+ * The fibre bends at that curvature: its angle over the scalp is
+ * `theta0 - kappa0 s`, so it rises to its apex `(1 - cos theta0) / kappa0`
+ * at `s = theta0 / kappa0` and comes down again onto the hair under it at
+ * `s = 2 theta0 / kappa0`, after which it lies on the mass (the height over
+ * the scalp is `(cos(theta0 - kappa0 s) - cos theta0) / kappa0` up to the
+ * landing, zero after it). Hair much shorter than lambda stands straight in
+ * its exit direction; hair much longer lands within millimetres of its root.
+ * Keeping the curvature at its root value is a first-order closure of the
+ * elastica (the moment of the remaining length falls along the fibre, so the
+ * true fibre lands somewhat later); the length scale is derived. A closure
+ * that relaxed the angle toward the surface and kept the height reached let
+ * every strand beside a parting ride 14 mm over the mass for its whole length,
+ * a crest of card edges along the parting and a shell of cards apart from the
+ * rest at the silhouette.
  *
  * Young's modulus (about 4 GPa, dry human hair, tensile tests) and the
  * density (1.32 g per cm3) are values relayed from the hair-science
@@ -59,10 +66,15 @@ export namespace AutoMovieHumanHairBending {
     bending: number,
     s: number,
   ): number {
-    // The decay length of the exit angle, from the root curvature.
+    // The root curvature; a fibre too short to bend stands straight.
     const curvature: number =
       (strand * strand * Math.cos(exit)) / (2 * bending ** 3);
-    const decay: number = exit / Math.max(curvature, 1e-9);
-    return Math.sin(exit) * decay * (1 - Math.exp(-s / decay));
+    if (!(curvature > 0)) return Math.sin(exit) * s;
+
+    // The arc's turn up to the landing, then the height of the circular arc,
+    // written as 2 sin(theta0 - x / 2) sin(x / 2) / kappa so that a small
+    // curvature keeps its precision.
+    const turn: number = Math.min(curvature * s, 2 * exit);
+    return (2 * Math.sin(exit - turn / 2) * Math.sin(turn / 2)) / curvature;
   }
 }

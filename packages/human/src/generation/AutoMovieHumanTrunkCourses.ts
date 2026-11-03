@@ -1,12 +1,10 @@
 ﻿import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
 import { AutoMovieHumanRelief } from "../network/AutoMovieHumanRelief";
 import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
-import { AutoMovieHumanTrunkGuideAnteriorAxillary } from "./AutoMovieHumanTrunkGuideAnteriorAxillary";
-import { AutoMovieHumanTrunkGuideBackMidline } from "./AutoMovieHumanTrunkGuideBackMidline";
-import { AutoMovieHumanTrunkGuideMidAxillary } from "./AutoMovieHumanTrunkGuideMidAxillary";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
 import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
+import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 
 /**
  * The trunk's course inputs read on the construction's own surface, by their
@@ -71,8 +69,8 @@ export namespace AutoMovieHumanTrunkCourses {
     side: AutoMovieHumanTrunkQuadrant.Side,
     controls: number[] = AutoMovieHumanTrunkRing.controls(s),
   ): V3 {
-    const L: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuideMidAxillary.KNOT);
-    const S: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuideBackMidline.KNOT);
+    const L: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuides.KNOT.midAxillary);
+    const S: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuides.KNOT.backMidline);
     // Phase rises with z on the front and falls with it on the back.
     let lo: number = side === "front" ? 0 : L;
     let hi: number = side === "front" ? L : S;
@@ -141,7 +139,7 @@ export namespace AutoMovieHumanTrunkCourses {
    */
   export function acrossFront(s: AutoMovieHumanTrunkQuadrant.ISection, reliefs: readonly IAutoMovieHumanRelief[]): number {
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
-    const A: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuideAnteriorAxillary.KNOT);
+    const A: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary);
     const at = (t: number): V3 => {
       const p: [number, number, number, number] = AutoMovieHumanSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
       let x: number = p[0];

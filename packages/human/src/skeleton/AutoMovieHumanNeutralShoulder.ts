@@ -161,22 +161,33 @@ export namespace AutoMovieHumanNeutralShoulder {
       const db: number = Turn.length(p, Math3D.add(elbow, [forearm[0] * b, forearm[1] * b, forearm[2] * b]));
       return a <= upper && (b < 0 || da <= db) ? [a, da] : [upper + b, db];
     };
-    const bins: Map<number, number> = new Map();
     const count: number = arm.points.length / 3;
+    const readings: [number, number][] = Array.from({ length: count }, (_: unknown, k: number): [number, number] =>
+      reading([arm.points[3 * k]!, arm.points[3 * k + 1]!, arm.points[3 * k + 2]!]),
+    );
     const ringMeans: number[] = arm.stations.map((): number => 0);
-    for (let k: number = 0; k < count; k++) {
-      const [t, r]: [number, number] = reading([arm.points[3 * k]!, arm.points[3 * k + 1]!, arm.points[3 * k + 2]!]);
-      const bin: number = Math.floor(t / BIN);
-      bins.set(bin, Math.max(bins.get(bin) ?? 0, r));
+    readings.forEach(([t]: [number, number], k: number): void => {
       const ring: number = Math.floor(k / arm.phases);
       ringMeans[ring] = ringMeans[ring]! + t / arm.phases;
-    }
+    });
 
     // The arm's own skin starts past the ring nearest the shoulder.
     const root: number = ringMeans.indexOf(Math.min(...ringMeans));
     let from: number = 0;
-    for (let j: number = root * arm.phases; j < (root + 1) * arm.phases; j++)
-      from = Math.max(from, reading([arm.points[3 * j]!, arm.points[3 * j + 1]!, arm.points[3 * j + 2]!])[0]);
+    for (let j: number = root * arm.phases; j < (root + 1) * arm.phases; j++) from = Math.max(from, readings[j]![0]);
+
+    // The radius profile is the arm's own skin only. The root ring is the
+    // loop where the arm leaves the trunk, the axilla and the deltoid's
+    // spread round the joint, whose distance from the humerus is the
+    // junction's and not the arm's: read into the bins at the root's depth,
+    // it widens the arm there by the loop's spread, and at that small depth
+    // the spread alone asks for a wide abduction.
+    const bins: Map<number, number> = new Map();
+    readings.forEach(([t, r]: [number, number], k: number): void => {
+      if (Math.floor(k / arm.phases) === root) return;
+      const bin: number = Math.floor(t / BIN);
+      bins.set(bin, Math.max(bins.get(bin) ?? 0, r));
+    });
     return {
       from,
       radius: (t: number): number => {

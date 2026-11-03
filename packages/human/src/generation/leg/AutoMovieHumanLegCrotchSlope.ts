@@ -11,8 +11,8 @@ const { dot, normalize, scale, smooth, sub } = AutoMovieHumanLegVector;
  *
  * Each point of the ring leaves it with the trunk's outward slope there, by a
  * quintic `x - 6x^3 + 8x^4 - 3x^5` that meets the leg's own surface with
- * neither place, slope nor curvature, over the whole hand-over from the ring
- * to the leg's first own row. The two chains therefore share one
+ * neither place, slope nor curvature, over the longest reach that keeps its
+ * lump within the event join's bound. The two chains therefore share one
  * tangent plane on the open arc by construction, and the join has nothing left
  * to bend there. Within a taper of each pinch the trunk's slope is its fold
  * opening, which a rounded corner cannot share, so it fades there, read over
@@ -28,8 +28,14 @@ export namespace AutoMovieHumanLegCrotchSlope {
     spans: number[];
   }
 
+  /** Largest lump the trunk's slope may raise off the leg's own surface, as the event join's, mm. */
+  export const BULGE: number = 4;
+
   /** Arc length from a pinch over which the trunk's slope comes in, as the event join's, mm. */
   export const TAPER: number = 6;
+
+  /** Highest point of the quintic `x - 6x^3 + 8x^4 - 3x^5`, at a third. */
+  export const HUMP: number = 16 / 81;
 
   /** Least cosine between a ring's ray and its normal a slope is carried along. */
   export const FACING: number = 0.3;
@@ -50,7 +56,9 @@ export namespace AutoMovieHumanLegCrotchSlope {
       (rate: Vec3, m: number): number => (smooth(ring.edges[m]! / TAPER) * dot(rate, ring.normals[m]!)) / rate[1],
     );
 
-    // The ring's own length, over which the slopes are read.
+    // Each phase's reach is the longest whose lump stays within the bound, for
+    // the steepest slope near it, read over the ring's own length so that the
+    // reach changes along the ring no faster than the slopes do.
     const points: Vec3[] = ring.points;
     const along: number[] = [0];
     for (let m: number = 1; m <= order; m++) along.push(along[m - 1]! + AutoMovieHumanLegVector.norm(sub(points[m % order]!, points[m - 1]!)));
@@ -76,14 +84,23 @@ export namespace AutoMovieHumanLegCrotchSlope {
       }
       return sum / weight;
     });
-
-    // Every phase carries its slope over the whole hand-over, from the ring to
-    // the leg's first own row: the trunk's surface turns into the leg's over
-    // the same span the trunk's ring hands the section over in. A shorter
-    // span, bounded by the lump the slope raises off the leg's own surface,
-    // turned a steep hip or buttock slope into the leg's plumb surface within
-    // a few millimetres, a crease round the thigh under the ring.
-    const spans: number[] = points.map((): number => reach);
+    const steepest: number[] = points.map((_: Vec3, m: number): number => {
+      let most: number = 0;
+      for (let k: number = 0; k < order; k++) if (apart(m, k) <= 2 * TAPER) most = Math.max(most, Math.abs(slopes[k]!));
+      return most;
+    });
+    const spans: number[] = points.map((_: Vec3, m: number): number => {
+      let weight: number = 0;
+      let sum: number = 0;
+      for (let k: number = 0; k < order; k++) {
+        const d: number = apart(m, k);
+        if (d > 3 * TAPER) continue;
+        const w: number = Math.exp(-((d / TAPER) ** 2) / 2);
+        weight += w;
+        sum += w * steepest[k]!;
+      }
+      return 1 / (1 / reach + (HUMP * (sum / weight)) / BULGE);
+    });
     return { slopes, spans };
   }
 

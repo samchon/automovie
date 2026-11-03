@@ -7,7 +7,6 @@ import { AutoMovieHumanHairEnvelope } from "./AutoMovieHumanHairEnvelope";
 import { AutoMovieHumanHairExitAngle } from "./AutoMovieHumanHairExitAngle";
 import { AutoMovieHumanHairFlow } from "./AutoMovieHumanHairFlow";
 import { AutoMovieHumanHairOcclusion } from "./AutoMovieHumanHairOcclusion";
-import { AutoMovieHumanHairParting } from "./AutoMovieHumanHairParting";
 import type { AutoMovieHumanHairRoots } from "./AutoMovieHumanHairRoots";
 import { AutoMovieHumanHairStrandBase } from "./AutoMovieHumanHairStrandBase";
 import { AutoMovieHumanHairStrandDynamics } from "./AutoMovieHumanHairStrandDynamics";
@@ -101,12 +100,11 @@ export namespace AutoMovieHumanHairGuideStart {
     // The hair leaves the scalp at its exit angle over the surface, along the
     // head's normal (the chart direction) as it grows: short hair stands,
     // long hair falls within millimetres of its root
-    // (`AutoMovieHumanHairBending`, applied by the clearance). Beside a
-    // parting the angle is steep.
-    const offset: number | null = AutoMovieHumanHairParting.offset(style);
+    // (`AutoMovieHumanHairBending`, applied by the clearance). The measured
+    // angles act at the hairline and fade into the mass with the feather.
     const exit: number = AutoMovieHumanHairExitAngle.angle(
       (Math.atan2(u[2], u[0]) * 180) / Math.PI,
-      offset === null ? null : Math.abs(u[2] - offset) * start,
+      feather,
     );
     return {
       context: {

@@ -1,7 +1,6 @@
 import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
-import { AutoMovieHumanSternalNotchFrame } from "./AutoMovieHumanSternalNotchFrame";
 import { AutoMovieHumanSternalNotchProfile } from "./AutoMovieHumanSternalNotchProfile";
-import type { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
+import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
 import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
 
@@ -28,7 +27,7 @@ export namespace AutoMovieHumanSternalNotch {
   export function frame(neck: number, front: (y: number) => number): AutoMovieHumanTrunkFeatureFrame.IFrame {
     const y: number = neck - CLEARANCE - AutoMovieHumanSternalNotchProfile.UPPER;
 
-    return AutoMovieHumanSternalNotchFrame.create(y, front(y));
+    return AutoMovieHumanTrunkFeatureFrame.midline(y, front(y), "front");
   }
 
   /**

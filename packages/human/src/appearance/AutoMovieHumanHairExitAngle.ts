@@ -1,17 +1,23 @@
-import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
-import { AutoMovieHumanHairFeather } from "./AutoMovieHumanHairFeather";
-
 /**
  * The angle at which a hair leaves the scalp, over the scalp surface, by
- * where it is rooted (Jung and Yun 2014, measured on patients): about 15 to
- * 20 degrees at the sideburn and the temporal point, 20 to 30 at the
- * supratemporal line, 30 to 45 at the lateral frontal line, 45 to 60 at the
- * central frontal line and 60 to 90 beside the parting. The zone values are
- * the midpoints of those ranges; the azimuths of the zones along the
- * hairline, from the front midline to the sideburn, are conventions of this
- * prototype. Beside a parting (within the hairline's transition zone width
- * of the line) the angle rises to the parting's, so the hair leaves the line
- * steeply and the two sides stand over it.
+ * where it is rooted along the hairline (Jung and Yun 2014, measured on
+ * patients at the hairline): about 15 to 20 degrees at the sideburn and the
+ * temporal point, 20 to 30 at the supratemporal line, 30 to 45 at the
+ * lateral frontal line and 45 to 60 at the central frontal line. The zone
+ * values are the midpoints of those ranges; the azimuths of the zones along
+ * the hairline, from the front midline to the sideburn, are conventions of
+ * this prototype.
+ *
+ * The angles are measured at the hairline, so they act in its transition
+ * zone and fade into the mass with the root's feather
+ * (`AutoMovieHumanHairFeather`): a root at the boundary leaves at its zone's
+ * angle, a root at the zone's inner edge and beyond lies in its comb. A free
+ * fibre at those angles stands nearly straight when it is not much longer
+ * than its bending length (`AutoMovieHumanHairBending`), but inside the mass
+ * the comb and the hair above lay it down; applied by azimuth to every root,
+ * the angles stood a 50 mm crop 34 mm high along the front midline up to the
+ * vertex and a 70 mm short cut 63 mm high along its side parting (60 to 90
+ * degrees there, Jung and Yun), a crest like a mohawk.
  */
 export namespace AutoMovieHumanHairExitAngle {
   /** `[azimuth degrees, exit angle degrees]` along the hairline: central frontal to sideburn. */
@@ -22,18 +28,14 @@ export namespace AutoMovieHumanHairExitAngle {
     [80, 17.5],
   ];
 
-  /** Exit angle beside a parting, degrees (the midpoint of 60 to 90). */
-  export const PART: number = 75;
-
   /**
    * The exit angle of one root.
    *
    * @param azimuth Azimuth of the root from the front midline, degrees
-   * @param part Distance from the parting line, millimetres, or null without
-   *   a parting
+   * @param feather The root's feather, 0 at the boundary to 1 inside the mass
    * @returns Exit angle in radians
    */
-  export function angle(azimuth: number, part: number | null): number {
+  export function angle(azimuth: number, feather: number): number {
     const a: number = Math.abs(azimuth);
     let zone: number = ZONES[ZONES.length - 1]![1];
     if (a <= ZONES[0]![0]) zone = ZONES[0]![1];
@@ -45,15 +47,7 @@ export namespace AutoMovieHumanHairExitAngle {
         break;
       }
     }
-    const near: number =
-      part === null
-        ? 0
-        : 1 -
-          AutoMovieHumanAppearanceNoise.smoothstep(
-            0,
-            AutoMovieHumanHairFeather.WIDTH,
-            part,
-          );
-    return ((zone + (PART - zone) * near) * Math.PI) / 180;
+    const share: number = 1 - Math.min(1, Math.max(0, feather));
+    return (zone * share * Math.PI) / 180;
   }
 }

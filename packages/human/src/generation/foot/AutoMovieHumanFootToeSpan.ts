@@ -5,7 +5,7 @@ import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeomet
 import { AutoMovieHumanFootToeBreadth } from "./AutoMovieHumanFootToeBreadth";
 import { AutoMovieHumanFootToeCap } from "./AutoMovieHumanFootToeCap";
 import type { AutoMovieHumanFootToeLines } from "./AutoMovieHumanFootToeLines";
-import { AutoMovieHumanFingertipPulp } from "../hand/AutoMovieHumanFingertipPulp";
+import { AutoMovieHumanHandWindow } from "../hand/AutoMovieHumanHandWindow";
 import { AutoMovieHumanFootToeRoot } from "./AutoMovieHumanFootToeRoot";
 import { AutoMovieHumanFootToeShaft } from "./AutoMovieHumanFootToeShaft";
 import { AutoMovieHumanFootToeTaper } from "./AutoMovieHumanFootToeTaper";
@@ -85,8 +85,9 @@ export namespace AutoMovieHumanFootToeSpan {
       const taper: [number, number, number] = AutoMovieHumanFootToeTaper.at(input.index, breadth.length, shaft, at);
       const depth: number = (2 * breadth.shape(at) * t.depth) / taper[0];
       const plantar: number = depth * (1 - prior.toeDorsal) * taper[1];
-      const pad: number = AutoMovieHumanFingertipPulp.height(
-        { phalanx: breadth.length - joint, width: breadth.half(middle), palmar: plantar },
+      const pad: number = AutoMovieHumanHandWindow.mass(
+        AutoMovieHumanHandWindow.PULP,
+        { length: breadth.length - joint, width: breadth.half(middle), depth: plantar },
         at - middle,
         0,
       );

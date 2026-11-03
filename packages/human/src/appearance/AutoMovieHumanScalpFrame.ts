@@ -2,6 +2,7 @@ import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHum
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
 import type { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
+import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
 
 /**
  * The frame change every published head landmark needs: the calibration's
@@ -22,8 +23,7 @@ export namespace AutoMovieHumanScalpFrame {
     calibration: IAutoMovieHumanBodyCalibration,
   ): number {
     return (
-      (params.body.controls.height.value ?? calibration.stature) /
-      calibration.stature
+      AutoMovieHumanBodyAnatomy.resolve(params).stature / calibration.stature
     );
   }
 

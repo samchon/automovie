@@ -5,7 +5,7 @@ import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanPar
  *
  * A Human splits into an immutable prepared shape and per-instance state. The
  * shape is everything `AutoMovieHuman.generate` reads: body, head, extremity,
- * supplement, appearance and pigmentation fields. An instance holds the pose,
+ * appearance and pigmentation fields. An instance holds the pose,
  * the expression and the root placement, and a viewer adds the camera. A
  * change is classified by the first segment of each changed leaf path, and its
  * effect says what is invalid afterwards:
@@ -37,7 +37,6 @@ export namespace AutoMovieHumanChange {
     | "body"
     | "head"
     | "extremities"
-    | "supplement"
     | "appearance"
     | "pigmentation"
     | "pose"
@@ -129,7 +128,6 @@ export namespace AutoMovieHumanChange {
       case "body":
       case "head":
       case "extremities":
-      case "supplement":
         return { class: head, effect: "shape" };
       case "pose":
         return { class: "pose", effect: "articulation" };

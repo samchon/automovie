@@ -4,7 +4,7 @@ import { AutoMovieHumanShoulderGirdle } from "./AutoMovieHumanShoulderGirdle";
 import { AutoMovieHumanArmRootArc } from "./AutoMovieHumanArmRootArc";
 import { AutoMovieHumanArmRootOval } from "./AutoMovieHumanArmRootOval";
 import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
-import { AutoMovieHumanThoracicWall } from "./AutoMovieHumanThoracicWall";
+import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
 import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
 
 /**
@@ -56,7 +56,7 @@ export namespace AutoMovieHumanShoulderRing {
    * @returns The 256-control section.
    */
   export function wall(input: IInput, y: number): number[] {
-    return AutoMovieHumanThoracicWall.controls(AutoMovieHumanShoulderGirdle.section(input, y));
+    return AutoMovieHumanTrunkRing.controls(AutoMovieHumanShoulderGirdle.section(input, y));
   }
 
   /**
@@ -69,12 +69,12 @@ export namespace AutoMovieHumanShoulderRing {
    */
   export function controls(input: IInput, y: number): number[] {
     const s: IAutoMovieHumanTrunkSection = AutoMovieHumanShoulderGirdle.section(input, y);
-    if (y >= input.line.from) return AutoMovieHumanThoracicWall.controls(s);
+    if (y >= input.line.from) return AutoMovieHumanTrunkRing.controls(s);
 
     // Below the shoulder point the arm's ellipse and the outline's extreme
     // set the arc; an ellipse too small to keep an arc leaves the torso's own ring.
     const oval: AutoMovieHumanArmRootOval.IOval | null = AutoMovieHumanArmRootOval.at(input.oval, y);
-    if (oval === null) return AutoMovieHumanThoracicWall.controls(s);
+    if (oval === null) return AutoMovieHumanTrunkRing.controls(s);
     const outline: AutoMovieHumanTrunkSolve.IJet = AutoMovieHumanArmRootOval.outline(input.oval, y);
     const kept: AutoMovieHumanArmRootOval.IOval = { ...oval, rx: Math.max(oval.rx, MINIMUM_RX) };
 
@@ -82,6 +82,6 @@ export namespace AutoMovieHumanShoulderRing {
     const merged: number = input.oval.glenohumeral[1];
     const torso: number = 1 - AutoMovieHumanTrunkSolve.smooth((y - input.axilla) / (merged - input.axilla));
 
-    return AutoMovieHumanThoracicWall.controls(s, AutoMovieHumanArmRootArc.create(s, kept, outline.value, torso));
+    return AutoMovieHumanTrunkRing.controls(s, AutoMovieHumanArmRootArc.create(s, kept, outline.value, torso));
   }
 }

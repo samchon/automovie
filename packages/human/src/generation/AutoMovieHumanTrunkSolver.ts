@@ -1,4 +1,5 @@
-﻿import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+﻿import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
 import { AutoMovieHumanBreastProfile } from "./AutoMovieHumanBreastProfile";
 import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
@@ -13,7 +14,6 @@ import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
 import { AutoMovieHumanTrunkClosure } from "./AutoMovieHumanTrunkClosure";
 import { AutoMovieHumanTrunkCourses } from "./AutoMovieHumanTrunkCourses";
 import { AutoMovieHumanTrunkFeatures } from "./AutoMovieHumanTrunkFeatures";
-import { AutoMovieHumanTrunkGuideAnteriorAxillary } from "./AutoMovieHumanTrunkGuideAnteriorAxillary";
 import { AutoMovieHumanTrunkInguinalFold } from "./AutoMovieHumanTrunkInguinalFold";
 import { AutoMovieHumanTrunkKeys } from "./AutoMovieHumanTrunkKeys";
 import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
@@ -21,6 +21,7 @@ import { AutoMovieHumanTrunkNeckSeat } from "./AutoMovieHumanTrunkNeckSeat";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import { AutoMovieHumanTrunkRows } from "./AutoMovieHumanTrunkRows";
 import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
+import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 
 /**
  * The trunk solved from the person's inputs, the crotch height and the neck's
@@ -127,8 +128,8 @@ export namespace AutoMovieHumanTrunkSolver {
       buttock: at(AutoMovieHumanTrunkLandmarks.BUTTOCK),
       iliocristale: at(AutoMovieHumanTrunkLandmarks.ILIOCRISTALE),
       omphalion: at(AutoMovieHumanTrunkLandmarks.OMPHALION),
-      axilla: at(AutoMovieHumanTrunkLandmarks.AXILLA),
-      shoulderY: Math.min(at(AutoMovieHumanTrunkLandmarks.ACROMION), seat.y - SHOULDER_GAP),
+      axilla: fixed.inputs.axilla,
+      shoulderY: Math.min(fixed.inputs.acromion, seat.y - SHOULDER_GAP),
       soft: AutoMovieHumanTrunkInguinalFold.softness(pitch, AutoMovieHumanTrunkRows.MAX_GAP),
     };
   }
@@ -158,8 +159,8 @@ export namespace AutoMovieHumanTrunkSolver {
     return {
       waist: at(AutoMovieHumanTrunkLandmarks.WAIST),
       bust: at(AutoMovieHumanTrunkLandmarks.CHEST),
-      shoulderZ: Math.max(ctx.seat.width + 20, (0.5 * inputs.acrossShoulder) / 1.1),
-      anterior: AutoMovieHumanTrunkGuideAnteriorAxillary.SHARE,
+      shoulderZ: inputs.biacromial / 2,
+      anterior: AutoMovieHumanTrunkGuides.SHARE.anteriorAxillary,
       groin: AutoMovieHumanTrunkShapes.CROTCH_WIDTH * round(inputs.hip),
       projection: AutoMovieHumanBreastProfile.start(inputs.chest, inputs.underbust),
       widths: {
@@ -184,7 +185,8 @@ export namespace AutoMovieHumanTrunkSolver {
     const col: AutoMovieHumanTrunkColumn.IColumn = AutoMovieHumanTrunkKeys.column(ctx, st);
     const h: AutoMovieHumanTrunkKeys.Heights = AutoMovieHumanTrunkKeys.heights(ctx, st);
     const where: AutoMovieHumanTrunkFeatures.ISites = AutoMovieHumanTrunkKeys.sites(ctx, st, col);
-    const reliefs: IAutoMovieHumanRelief[] = AutoMovieHumanTrunkFeatures.all(col, where);
+    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
+    const reliefs: IAutoMovieHumanRelief[] = AutoMovieHumanTrunkFeatures.all(col, where, diagnostics);
     const shoulder: [number, number, number] = [
       AutoMovieHumanTrunkShapes.SHOULDER.middle * ctx.fixed.stature,
       ctx.shoulderY,
@@ -212,6 +214,7 @@ export namespace AutoMovieHumanTrunkSolver {
     return {
       column: col,
       reliefs,
+      diagnostics,
       sites: where,
       seat: ctx.seat,
       neck: ctx.fixed.neck,

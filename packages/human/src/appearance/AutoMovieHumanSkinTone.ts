@@ -117,8 +117,8 @@ export namespace AutoMovieHumanSkinTone {
 
   /**
    * The person's chromophores with the feminine shift: a feminine body's
-   * skin reads milky, paler and cooler, so with femininity `w` (the
-   * `masculineFeminine` control clamped to `[0, 1]`) melanin is multiplied
+   * skin reads milky, paler and cooler, so with femininity `w` (1 for a
+   * woman and 0 for a man, by the declared sex) melanin is multiplied
    * by `1 - 0.3 w`, haemoglobin by `1 - 0.15 w` and the carotenoid band by
    * `1 - 0.35 w`. The direction follows the lighter constitutive skin
    * reported for women (Jablonski and Chaplin 2000, J. Hum. Evol. 39,

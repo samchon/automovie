@@ -45,11 +45,12 @@ export namespace AutoMovieHumanLegReliefWindow {
 
     /**
      * Where the centre stands when it is not a share of a bone: `crotch` puts
-     * it at the leg's first own row under the crotch ring, where the trunk's
-     * ring has handed the skin over to the leg's law. A skin crease of the
-     * thigh's root (the infragluteal fold, the inguinal crease) is the line
-     * where the trunk's skin meets the leg's, so it stands there and not at a
-     * share of the femur; `segment` and `share` then only name its bone.
+     * it at the person's gluteal furrow height when that is known and lies
+     * inside the leg, else at the leg's first own row under the crotch ring,
+     * where the trunk's ring has handed the skin over to the leg's law. A skin
+     * crease of the thigh's root is where the buttock meets the thigh, so it
+     * stands there and not at a share of the femur; `segment` and `share` then
+     * only name its bone.
      */
     anchor?: "crotch";
   }

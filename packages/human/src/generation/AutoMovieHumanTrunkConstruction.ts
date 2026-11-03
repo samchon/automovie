@@ -30,7 +30,7 @@ export namespace AutoMovieHumanTrunkConstruction {
    * @param calibration Calibration holding the neck chain `head`.
    * @param inputs Tapes, courses and controls in calibration millimetres.
    * @param floor Height of the crotch in calibration millimetres.
-   * @returns The calibration with `trunk` and `upper`.
+   * @returns The calibration with `trunk` and `upper`, and the diagnostics of any trunk feature that broke its contract and was left out.
    */
   export function apply(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -59,6 +59,7 @@ export namespace AutoMovieHumanTrunkConstruction {
     return {
       ...calibration,
       chains: [...made, ...others],
+      diagnostics: [...(calibration.diagnostics ?? []), ...solution.diagnostics],
       events: calibration.events.map(
         (e: IAutoMovieHumanBodyCalibration.IEvent): IAutoMovieHumanBodyCalibration.IEvent =>
           e.parent === "trunk" && e.direction === "down"

@@ -21,9 +21,6 @@ export namespace AutoMovieHumanBreastRelief {
 
     /** The base's phase at a lateral place on the front at the bust point's height. */
     phaseOf: (z: number) => number;
-
-    /** Height of the trunk's top the window must stay under, mm: the axilla. */
-    ceiling: number;
   }
 
   /**
@@ -35,7 +32,10 @@ export namespace AutoMovieHumanBreastRelief {
   export function create(input: IInput): IAutoMovieHumanRelief[] {
     const dome: IAutoMovieHumanTrunkFeature = input.dome;
     const o: [number, number, number] = dome.frame.origin;
-    const stations: [number, number] = [o[1] + dome.reach.v[0], Math.min(input.ceiling - 1, o[1] + dome.reach.v[1])];
+
+    // The footprint's stations: the window over it runs on across the vault
+    // onto the shoulders' chain, held under the neck by the base's bounds.
+    const stations: [number, number] = [o[1] + dome.reach.v[0], o[1] + dome.reach.v[1]];
 
     // The lateral reach in phases on the base: the front's phase rises with z.
     const phases: [number, number] = [input.phaseOf(o[2] + dome.reach.u[0]), input.phaseOf(o[2] + dome.reach.u[1])];

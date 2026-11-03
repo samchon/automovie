@@ -11,7 +11,7 @@
  *
  * The cap takes the pulp's and the nail fold's seams: the pulp meets it G2
  * on the palmar side, and the nail plate's free edge ends over it
- * (`AutoMovieHumanFingertipPulp`, `AutoMovieHumanNailPlate`).
+ * (`AutoMovieHumanHandWindow.PULP`, `AutoMovieHumanNailPlate`).
  */
 export namespace AutoMovieHumanDigitTipCap {
   /** Station step of the search, mm. */

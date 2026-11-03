@@ -1,5 +1,5 @@
 ﻿import type { AutoMovieHumanBreastFootprint } from "./AutoMovieHumanBreastFootprint";
-import { AutoMovieHumanBreastProfile } from "./AutoMovieHumanBreastProfile";
+import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
 
@@ -32,7 +32,7 @@ export namespace AutoMovieHumanBreastDome {
 
     return {
       frame: input.frame,
-      height: (u: number, v: number): number => AutoMovieHumanBreastProfile.height(f.rho(u, v), input.projection),
+      height: (u: number, v: number): number => input.projection * AutoMovieHumanTrunkFeatureProfile.bump(f.rho(u, v)),
       reach: { u: [-f.half, f.half], v: [-f.lower, f.upper] },
       apex: [0, 0],
     };

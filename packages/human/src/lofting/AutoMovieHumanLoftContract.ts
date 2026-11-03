@@ -22,6 +22,25 @@
  * broke the contract.
  */
 export namespace AutoMovieHumanLoftContract {
+  /**
+   * A contract an optional piece broke, recorded instead of aborting the
+   * figure: the piece is replaced by its base (no piece over the base
+   * envelope; an aperture that cannot close one loop leaves the mouth closed).
+   */
+  export interface IDiagnostic {
+    /** The piece that broke the contract, such as `human.mouth`. */
+    producer: string;
+
+    /** Its construction level (`construction-levels.md`). */
+    level: number;
+
+    /** The contract it broke. */
+    contract: string;
+
+    /** The message with its numbers. */
+    detail: string;
+  }
+
   /** Stations a constructor checked: finite, strictly increasing by at least its stated step, mm. */
   export type Stations = readonly number[] & { readonly contract: "stations" };
 

@@ -1,4 +1,5 @@
 import { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
+import { AutoMovieHumanSeamStation } from "../../lofting/AutoMovieHumanSeamStation";
 import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanLegConstruction } from "../AutoMovieHumanLegConstruction";
 import type { AutoMovieHumanSkeletonLaw } from "../AutoMovieHumanSkeletonLaw";
@@ -49,17 +50,19 @@ export namespace AutoMovieHumanLegChain {
    * @param side The leg's side.
    * @param inputs Tape measures in calibration millimetres.
    * @param skeleton The bind skeleton the leg is lofted on.
+   * @param diagnostics The list a broken contract is recorded in; the chain is still made, its broken rows replaced by their valid neighbours and a broken relief left out.
    */
   export function of(
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
     inputs: AutoMovieHumanLegConstruction.IInputs,
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
+    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [],
   ): IAutoMovieHumanLoftChain {
     const sign: 1 | -1 = side === "left" ? 1 : -1;
     const bones: AutoMovieHumanLegAxis.IJoints = joints(skeleton, side, sign);
     const heights: AutoMovieHumanLegStations.IBones = { hip: bones.hip[1], knee: bones.knee[1], ankle: bones.ankle[1] };
-    const law: AutoMovieHumanLegSectionLaw.ILaw = AutoMovieHumanLegSectionLaw.of(calibration, side, sign, inputs, heights);
+    const law: AutoMovieHumanLegSectionLaw.ILaw = AutoMovieHumanLegSectionLaw.of(calibration, side, sign, inputs, heights, diagnostics);
     const root: AutoMovieHumanLegCrotchRoot.IRoot = law.root;
     const s0: number = law.bottom;
     const s1: number = law.top;
@@ -82,7 +85,7 @@ export namespace AutoMovieHumanLegChain {
       knee: bones.knee[1],
     });
     const trunk: IAutoMovieHumanLoftChain = calibration.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk")!;
-    const stations: number[] = AutoMovieHumanLegStations.layers({
+    const placed: number[] = AutoMovieHumanLegStations.layers({
       bottom: s0,
       top: s1,
       bends: [
@@ -96,11 +99,12 @@ export namespace AutoMovieHumanLegChain {
 
     // The leg's rows meet the layer contract every chain hands its
     // neighbours: finite and rising by at least the least layer gap, so a
-    // spline over them never divides by a vanishing gap.
-    AutoMovieHumanLoftContract.stations(`leg.${side}`, stations, AutoMovieHumanLoftContract.LEAST_LAYER_GAP);
+    // spline over them never divides by a vanishing gap. A row that breaks it
+    // is left out and recorded; its neighbours carry the leg there.
+    const stations: number[] = kept(`leg.${side}`, placed, diagnostics);
     const section: (s: number) => AutoMovieHumanLegSection.ISection = (s: number): AutoMovieHumanLegSection.ISection => AutoMovieHumanLegSection.of(law, frames, centre, root, s);
     const last: number = stations.length - 1;
-    const layers: IAutoMovieHumanLoftChain.ILayer[] = stations.map((s: number, k: number): IAutoMovieHumanLoftChain.ILayer => {
+    const built: (IAutoMovieHumanLoftChain.ILayer | null)[] = stations.map((s: number, k: number): IAutoMovieHumanLoftChain.ILayer | null => {
       const here: AutoMovieHumanLegSection.ISection = section(s);
 
       // The station derivative of every point.
@@ -126,12 +130,18 @@ export namespace AutoMovieHumanLegChain {
       const slopes: { coefficients: number[]; lift: number[] } = AutoMovieHumanLegReflection.sided(rate, sign);
 
       // Every value and slope of the layer is finite, so a defect in a piece
-      // is named at this layer and not where the skin is charted.
+      // is named at this layer and not where the skin is charted; a broken
+      // layer is recorded and takes its nearest valid neighbour's row.
       const where: string = `leg.${side} layer ${k} at ${s.toFixed(2)} mm`;
-      AutoMovieHumanLoftContract.jet(`${where} coefficients`, values.coefficients, AutoMovieHumanLoftContract.FINITE);
-      AutoMovieHumanLoftContract.jet(`${where} lift`, values.lift, AutoMovieHumanLoftContract.FINITE);
-      AutoMovieHumanLoftContract.jet(`${where} slopes`, slopes.coefficients, AutoMovieHumanLoftContract.FINITE);
-      AutoMovieHumanLoftContract.jet(`${where} lift slopes`, slopes.lift, AutoMovieHumanLoftContract.FINITE);
+      try {
+        AutoMovieHumanLoftContract.jet(`${where} coefficients`, values.coefficients, AutoMovieHumanLoftContract.FINITE);
+        AutoMovieHumanLoftContract.jet(`${where} lift`, values.lift, AutoMovieHumanLoftContract.FINITE);
+        AutoMovieHumanLoftContract.jet(`${where} slopes`, slopes.coefficients, AutoMovieHumanLoftContract.FINITE);
+        AutoMovieHumanLoftContract.jet(`${where} lift slopes`, slopes.lift, AutoMovieHumanLoftContract.FINITE);
+      } catch (error) {
+        diagnostics.push({ producer: `leg.${side}`, level: 2, contract: "a leg layer's values and slopes are finite", detail: error instanceof Error ? error.message : String(error) });
+        return null;
+      }
       return {
         y: s,
         frame: AutoMovieHumanLegReflection.placed(here.frame, sign),
@@ -142,16 +152,107 @@ export namespace AutoMovieHumanLegChain {
         liftSlopes: slopes.lift,
       };
     });
-    return {
+    const layers: IAutoMovieHumanLoftChain.ILayer[] = neighboured(built, stations);
+
+    // The two rings' layers carry their own second derivatives, one-sided
+    // into the leg (second order over CURVE_STEP), so the chain can be made
+    // C2 along its stations with its ends kept: the trunk and the foot are
+    // C2 chains, and a leg joined by its layers' slopes alone steps its
+    // curvature at every layer, a band of shading at each row.
+    const curvature: (k: 0 | 1) => number[] = (k: 0 | 1): number[] => {
+      const s: number = stations[k === 0 ? 0 : last]!;
+      const d: number = k === 0 ? CURVE_STEP : -CURVE_STEP;
+      const [p, a, b, c]: AutoMovieHumanLegSection.ISection[] = [0, 1, 2, 3].map((i: number): AutoMovieHumanLegSection.ISection => section(s + i * d));
+      const second: Vec3[] = p!.local.map(
+        (q: Vec3, m: number): Vec3 =>
+          [0, 1, 2].map((e: number): number => (2 * q[e]! - 5 * a!.local[m]![e]! + 4 * b!.local[m]![e]! - c!.local[m]![e]!) / (d * d)) as Vec3,
+      );
+      return AutoMovieHumanLegReflection.sided(second, sign).coefficients;
+    };
+    const loose: IAutoMovieHumanLoftChain = {
       name: `leg.${side}`,
       basis: "spline",
       order: AutoMovieHumanLegSampling.ORDER,
       rule: "polar",
       samples: AutoMovieHumanLegSampling.SAMPLES,
-      layers,
+      layers: layers.map((l: IAutoMovieHumanLoftChain.ILayer, k: number): IAutoMovieHumanLoftChain.ILayer =>
+        k === 0 ? { ...l, curvatures: curvature(0) } : k === last ? { ...l, curvatures: curvature(1) } : l,
+      ),
     };
+
+    // A chain the station spline cannot carry stays joined by its slopes,
+    // and the broken contract is recorded.
+    try {
+      return AutoMovieHumanSeamStation.continuous(loose, [0, last]);
+    } catch (error) {
+      diagnostics.push({
+        producer: `leg.${side}`,
+        level: 2,
+        contract: "the leg chain is C2 along its stations",
+        detail: error instanceof Error ? error.message : String(error),
+      });
+      return loose;
+    }
   }
 
   /** Station step of the section differences, mm. */
   export const STEP: number = 0.05;
+
+  /**
+   * Station step of the rings' one-sided second differences, mm: ten section
+   * steps, so the second difference stands well over the section's own
+   * rounding and stays within the first millimetre past each ring.
+   */
+  export const CURVE_STEP: number = 10 * STEP;
+
+  /**
+   * The stations that keep the layer contract: finite and each at least the
+   * least layer gap over the last one kept. When the list breaks it, the
+   * broken rows are left out and the contract's message is recorded once.
+   *
+   * @param producer The chain, for the message.
+   * @param stations The placed stations, mm.
+   * @param diagnostics The list a broken contract is recorded in.
+   */
+  export function kept(producer: string, stations: readonly number[], diagnostics: AutoMovieHumanLoftContract.IDiagnostic[]): number[] {
+    try {
+      AutoMovieHumanLoftContract.stations(producer, stations, AutoMovieHumanLoftContract.LEAST_LAYER_GAP);
+      return [...stations];
+    } catch (error) {
+      diagnostics.push({
+        producer,
+        level: 2,
+        contract: `layers finite and at least ${AutoMovieHumanLoftContract.LEAST_LAYER_GAP} mm apart`,
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
+    // The two rings are the chain's ends and stay; a row too near the top
+    // ring gives way to it.
+    const gap: number = AutoMovieHumanLoftContract.LEAST_LAYER_GAP;
+    const top: number = stations[stations.length - 1]!;
+    const out: number[] = [];
+    for (const s of stations.slice(0, -1)) if (Number.isFinite(s) && (out.length === 0 || s - out[out.length - 1]! >= gap)) out.push(s);
+    while (out.length > 1 && !(top - out[out.length - 1]! >= gap)) out.pop();
+    out.push(top);
+    return out;
+  }
+
+  /**
+   * Layers with each broken one replaced by its nearest valid neighbour's
+   * row at its own station: the base row rule of the totality contract, so a
+   * broken layer leaves a flat band and never an undefined surface.
+   *
+   * @param built The layers, a broken one as null.
+   * @param stations Their stations, mm.
+   * @throws When no layer is valid, since no neighbour can then stand in.
+   */
+  export function neighboured(built: readonly (IAutoMovieHumanLoftChain.ILayer | null)[], stations: readonly number[]): IAutoMovieHumanLoftChain.ILayer[] {
+    const valid: number[] = built.flatMap((l: IAutoMovieHumanLoftChain.ILayer | null, k: number): number[] => (l === null ? [] : [k]));
+    if (valid.length === 0) throw new Error("No leg layer keeps its contract");
+    return built.map((l: IAutoMovieHumanLoftChain.ILayer | null, k: number): IAutoMovieHumanLoftChain.ILayer => {
+      if (l !== null) return l;
+      const near: number = valid.reduce((a: number, b: number): number => (Math.abs(b - k) < Math.abs(a - k) ? b : a));
+      return { ...built[near]!, y: stations[k]! };
+    });
+  }
 }

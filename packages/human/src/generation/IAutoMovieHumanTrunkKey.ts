@@ -16,8 +16,12 @@ export interface IAutoMovieHumanTrunkKey {
   /** Forward place of the widest point. */
   middle: number;
 
-  /** Front midline's forward place. */
-  front: number;
+  /**
+   * Front midline's forward place; null where the abdominal wall's front runs
+   * through its neighbours, because the key's tape fixes a girth there and
+   * not where the wall stands (the high hip).
+   */
+  front: number | null;
 
   /**
    * Back midline's forward place; null where the base's back runs through

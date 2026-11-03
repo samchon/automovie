@@ -8,20 +8,18 @@ import type { IAutoMovieHumanLoftChain } from "../../src/lofting/IAutoMovieHuman
 import { AutoMovieHumanRig } from "../../src/skeleton/AutoMovieHumanRig";
 import type { IHumanDebugDocument } from "../contracts/IHumanDebugDocument";
 import type { IHumanDebugPerson } from "../people/IHumanDebugPerson";
-import { HumanDebugChainLoft } from "./HumanDebugChainLoft";
 import type { IHumanDebugPiece } from "./IHumanDebugPiece";
 
 /**
- * `timing`, `timing:lofts`: where one person's generation spends its time, measured on the
- * production stages the whole figure runs, and the raw skin they make.
+ * `timing`: where one person's generation spends its time, measured on the production stages the
+ * whole figure runs, and the raw skin they make.
  *
  * The stages are called as `AutoMovieHuman` calls them, each timed alone: the body law's
  * calibration, the body surface (`AutoMovieHumanBodySurface.generate`, without the lip refinement
  * box), its split into skin pieces, the construction curves, the skin chart per chart group (the
  * charts `AutoMovieHumanSkinChart` flattens independently: `head`, `trunk` and every other chain
  * alone, before packing) and the rig. Per chain the provenance lists its layers, its ring phases
- * and its layers times phases; `timing:lofts` also lofts each chain alone (`HumanDebugChainLoft`)
- * and adds its milliseconds. Every number goes to the console as `[human-debug timing]` lines,
+ * and its layers times phases. Every number goes to the console as `[human-debug timing]` lines,
  * which the capture session repeats in the server log. The parts are the skin pieces in body
  * millimetres.
  */
@@ -29,9 +27,9 @@ export const HumanDebugPieceTiming: IHumanDebugPiece = {
   name: "timing",
   region: "body",
   description: "Milliseconds per generation stage, skin chart and chain, with each chain's layers and phases",
-  arguments: ["lofts"],
+  arguments: [],
   build: (person: IHumanDebugPerson, argument: string | null): IHumanDebugDocument => {
-    if (argument !== null && argument !== "lofts") throw new Error("timing takes lofts or no argument; got " + argument);
+    if (argument !== null) throw new Error("timing takes no argument; got " + argument);
     const stages: Record<string, number> = {};
     const time = <T>(stage: string, task: () => T): T => {
       const started: number = performance.now();
@@ -77,15 +75,9 @@ export const HumanDebugPieceTiming: IHumanDebugPiece = {
     stages.skinChart = Math.round(performance.now() - chartStarted);
     time("rig", (): AutoMovieHumanRig.IRig => AutoMovieHumanRig.prepare(calibration, 0.001));
 
-    const chains: Record<string, { layers: number; phases: number; cells: number; loft?: number }> = {};
-    for (const c of calibration.chains) {
+    const chains: Record<string, { layers: number; phases: number; cells: number }> = {};
+    for (const c of calibration.chains)
       chains[c.name] = { layers: c.layers.length, phases: c.samples, cells: c.layers.length * c.samples };
-      if (argument === "lofts") {
-        const started: number = performance.now();
-        HumanDebugChainLoft.build(calibration, [c.name.replace(/\*/g, "")]);
-        chains[c.name]!.loft = Math.round(performance.now() - started);
-      }
-    }
     console.log(
       "[human-debug timing] person=" + person.alias + " stages " +
         Object.entries(stages).map(([k, v]: [string, number]): string => k + "=" + v + "ms").join(" "),
@@ -95,10 +87,7 @@ export const HumanDebugPieceTiming: IHumanDebugPiece = {
       "[human-debug timing] person=" + person.alias + " chains " +
         Object.entries(chains)
           .sort((a: [string, { cells: number }], b: [string, { cells: number }]): number => b[1].cells - a[1].cells)
-          .map(
-            ([k, v]: [string, { layers: number; phases: number; loft?: number }]): string =>
-              k + "=" + v.layers + "x" + v.phases + (v.loft === undefined ? "" : "@" + v.loft + "ms"),
-          )
+          .map(([k, v]: [string, { layers: number; phases: number }]): string => k + "=" + v.layers + "x" + v.phases)
           .join(" "),
     );
     return {
@@ -114,7 +103,7 @@ export const HumanDebugPieceTiming: IHumanDebugPiece = {
         }),
       ),
       provenance: {
-        piece: "timing" + (argument === null ? "" : ":" + argument),
+        piece: "timing",
         person: person.alias,
         stages,
         charts: chartTimes,

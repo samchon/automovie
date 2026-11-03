@@ -43,6 +43,14 @@ export namespace AutoMovieHumanLegGirth {
 
     /** The neighbours' rings, each a knot at its own station with its taut girth, `[girth]`. */
     ends?: AutoMovieHumanLegProfile.IEnds;
+
+    /**
+     * The thigh tape's station, mm: the person's gluteal furrow height, since
+     * ISO 8559-1 5.3.20 takes the thigh girth just below the gluteal fold.
+     * Absent, or not above the next thigh row, the tape stands at
+     * {@link THIGH_SITE} of the thigh.
+     */
+    site?: number;
   }
 
   /** Mid-patella under the knee centre, world mm: the median of the references (f1 38, f2 34, m1 36, m2 36). */
@@ -63,6 +71,14 @@ export namespace AutoMovieHumanLegGirth {
     [0.8, 0.626],
     [0.9, 0.604],
   ];
+
+  /**
+   * The calf tape's site, a share of the shank from the knee centre: the shank
+   * row the girth law reaches the calf tape at (ratio 1), the calf's maximum
+   * on the references (0.335 to 0.345 of the shank). The gastrocnemius
+   * bellies stand there, since they are what makes the calf's maximum.
+   */
+  export const CALF_SITE: number = SHANK.find((row: readonly [number, number]): boolean => row[1] === 1)![0];
 
   /**
    * Thigh rows, `[share of the thigh, girth over the thigh tape]`: the same
@@ -106,6 +122,20 @@ export namespace AutoMovieHumanLegGirth {
   }
 
   /**
+   * The thigh tape's station: the person's furrow height when it stands
+   * above the next thigh row (the tape's knot must keep the rows' order), else
+   * {@link THIGH_SITE} of the thigh.
+   *
+   * @param input The law's input.
+   * @returns The station, mm.
+   */
+  export function tapeStation(input: IInput): number {
+    const share: number = AutoMovieHumanLegStations.heightAt(input.bones, "thigh", THIGH_SITE);
+    const next: number = AutoMovieHumanLegStations.heightAt(input.bones, "thigh", THIGH[1]![0]);
+    return input.site !== undefined && Number.isFinite(input.site) && input.site > next ? input.site : share;
+  }
+
+  /**
    * The girth law.
    *
    * @param input The tapes, the joints and the scale.
@@ -122,7 +152,7 @@ export namespace AutoMovieHumanLegGirth {
       ]),
       [bones.knee - MID_PATELLA * input.scale, tapes.knee],
       ...[...THIGH].reverse().map(([share, ratio]: readonly [number, number]): [number, number] => [
-        AutoMovieHumanLegStations.heightAt(bones, "thigh", share),
+        share === THIGH_SITE ? tapeStation(input) : AutoMovieHumanLegStations.heightAt(bones, "thigh", share),
         (ratio / thighSite) * tapes.thigh,
       ]),
     ];

@@ -1,23 +1,15 @@
 import { Singleton } from "tstl";
 
+import { AutoMovieHumanFootArc } from "../../../src/generation/foot/AutoMovieHumanFootArc";
 import { AutoMovieHumanFootBody } from "../../../src/generation/foot/AutoMovieHumanFootBody";
 import { AutoMovieHumanFootBones } from "../../../src/generation/foot/AutoMovieHumanFootBones";
-import { AutoMovieHumanFootContactLateralGuide } from "../../../src/generation/foot/AutoMovieHumanFootContactLateralGuide";
-import { AutoMovieHumanFootContactMedialGuide } from "../../../src/generation/foot/AutoMovieHumanFootContactMedialGuide";
 import { AutoMovieHumanFootCrestForefoot } from "../../../src/generation/foot/AutoMovieHumanFootCrestForefoot";
-import { AutoMovieHumanFootCrestGuide } from "../../../src/generation/foot/AutoMovieHumanFootCrestGuide";
-import { AutoMovieHumanFootDorsalLateralArc } from "../../../src/generation/foot/AutoMovieHumanFootDorsalLateralArc";
-import { AutoMovieHumanFootDorsalMedialArc } from "../../../src/generation/foot/AutoMovieHumanFootDorsalMedialArc";
+import { AutoMovieHumanFootKnots } from "../../../src/generation/foot/AutoMovieHumanFootKnots";
 import { AutoMovieHumanFootFan } from "../../../src/generation/foot/AutoMovieHumanFootFan";
 import type { AutoMovieHumanFootFrame } from "../../../src/generation/foot/AutoMovieHumanFootFrame";
 import { AutoMovieHumanFootGuide } from "../../../src/generation/foot/AutoMovieHumanFootGuide";
 import { AutoMovieHumanFootHeelCorner } from "../../../src/generation/foot/AutoMovieHumanFootHeelCorner";
-import { AutoMovieHumanFootLateralBorder } from "../../../src/generation/foot/AutoMovieHumanFootLateralBorder";
-import { AutoMovieHumanFootLateralGuide } from "../../../src/generation/foot/AutoMovieHumanFootLateralGuide";
-import { AutoMovieHumanFootMedialArch } from "../../../src/generation/foot/AutoMovieHumanFootMedialArch";
-import { AutoMovieHumanFootMedialGuide } from "../../../src/generation/foot/AutoMovieHumanFootMedialGuide";
 import { AutoMovieHumanFootSectionJets } from "../../../src/generation/foot/AutoMovieHumanFootSectionJets";
-import { AutoMovieHumanFootSoleContact } from "../../../src/generation/foot/AutoMovieHumanFootSoleContact";
 import { AutoMovieHumanFootToeSection } from "../../../src/generation/foot/AutoMovieHumanFootToeSection";
 import { AutoMovieHumanFootToeSpan } from "../../../src/generation/foot/AutoMovieHumanFootToeSpan";
 import { AutoMovieHumanFootWebLine } from "../../../src/generation/foot/AutoMovieHumanFootWebLine";
@@ -127,16 +119,12 @@ export namespace HumanDebugFootKit {
         heights: { lateral: world(points.contactLateral)[1], medial: world(points.contactMedial)[1] },
         corner,
       });
-      const row: [number, number][] =
-        arc === "dorsalLateral"
-          ? AutoMovieHumanFootDorsalLateralArc.of(jets.crest, jets.lateral, 24)
-          : arc === "lateralPlantar"
-            ? AutoMovieHumanFootLateralBorder.of(jets.lateral, jets.contactLateral, 24)
-            : arc === "sole"
-              ? AutoMovieHumanFootSoleContact.of(jets.contactLateral, jets.contactMedial, 24)
-              : arc === "arch"
-                ? AutoMovieHumanFootMedialArch.of(jets.contactMedial, jets.medial, 24)
-                : AutoMovieHumanFootDorsalMedialArc.of(jets.medial, jets.crest, 24);
+      const found: AutoMovieHumanFootArc.IPiece<AutoMovieHumanFootArc.BodyJunction> | undefined = AutoMovieHumanFootArc.BODY.find(
+        (p: AutoMovieHumanFootArc.IPiece<AutoMovieHumanFootArc.BodyJunction>): boolean => p.name === arc,
+      );
+      if (found === undefined) throw new Error(`The foot has no section piece `);
+      const piece: AutoMovieHumanFootArc.IPiece<AutoMovieHumanFootArc.BodyJunction> = found;
+      const row: [number, number][] = AutoMovieHumanFootArc.pieces([piece], jets, 24)[0]!;
       return row.map(world);
     });
   }
@@ -210,13 +198,7 @@ export namespace HumanDebugFootKit {
       frame,
       centres,
       line,
-      guides: {
-        crest: AutoMovieHumanFootCrestGuide.of(frame, line),
-        lateral: AutoMovieHumanFootLateralGuide.of(frame, line),
-        contactLateral: AutoMovieHumanFootContactLateralGuide.of(frame, line),
-        contactMedial: AutoMovieHumanFootContactMedialGuide.of(frame, line),
-        medial: AutoMovieHumanFootMedialGuide.of(frame, line),
-      },
+      guides: AutoMovieHumanFootKnots.guides(frame, line),
     };
   }
 }

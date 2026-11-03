@@ -88,7 +88,7 @@ export namespace AutoMovieHumanHeadRadius {
     // In front of Z the cranium owns only the forehead: its share is whole
     // over the glabella and gone by the nasion (`brow`), so under the brow the
     // face alone is the skin there and the temple sector the skin behind it.
-    if (!(section.brow > 0) && !(section.shield < 1)) return face;
+    if (!(section.brow > 0) && !(section.tube > 0)) return face;
     const cranium: number = AutoMovieHumanHeadMath.outermost(
       (r: number): number => AutoMovieHumanHeadVault.gauge(section, ox + r * c, r * n),
       reach,
@@ -100,20 +100,23 @@ export namespace AutoMovieHumanHeadRadius {
     const front: number = hit
       ? face + section.brow * (AutoMovieHumanHeadMath.softMax(cranium, face, section.union) - face)
       : cranium;
-    if (!(section.shield < 1)) return front;
+    if (!(section.tube > 0)) return front;
 
-    // Under the chin the fading shield is an additive piece on the neck tube,
+    // Where the cranium is the neck's tube (under the jaw, handing over to the
+    // skull by the nose's base), the face is an additive piece on the tube,
     // merged by adding volume with a blend from its own size: a miss is no
-    // piece, and a shield inside the tube by more than the blend leaves the
-    // tube exact. A face weighted against the tube instead had a kink where
-    // its rays began to miss a vestige 1.5 by 1.2 mm under the chin (f1), and
-    // the side sector read a curvature of -6891 per square radian there.
+    // piece, and a face inside the tube by more than the blend leaves the
+    // tube exact. Only where the cranium is the skull does the face alone own
+    // the skin in front of Z. Weighted by the shield's rise instead, a face
+    // inside the tube pulled the skin in (a notch at the front and waves at
+    // the jaw's sides under the chin), and where its rays began to miss a
+    // vestige 1.5 by 1.2 mm (f1) the side sector read -6891 per square radian.
     const joined: number = AutoMovieHumanSeamUnion.body(
       cranium,
       hit ? face : -Infinity,
       AutoMovieHumanSeamUnion.width(Math.max(1e-6, section.front - section.waist), Math.max(1e-6, section.face)),
     );
-    return front + (1 - section.shield) * (joined - front);
+    return front + section.tube * (joined - front);
   }
 }
 

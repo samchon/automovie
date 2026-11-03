@@ -1,3 +1,4 @@
+import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanHandFinger } from "./IAutoMovieHumanHandFinger";
 import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
 import type { IAutoMovieHumanHandJoints } from "./IAutoMovieHumanHandJoints";
@@ -31,6 +32,9 @@ export namespace AutoMovieHumanHandSolve {
    */
   const SOLVE_ROUNDS: number = 5;
 
+  /** The solve's construction level: the hand's landmarks and scales (`construction-levels.md`, level 1). */
+  const SOLVE_LEVEL: number = 1;
+
   /** What the solve gives: the hand's scales, the arm built with them, and the joints. */
   export interface ISolved<A extends IAutoMovieHumanHandWrist> {
     /** The hand's scales as solved, each at its measure's site. */
@@ -51,6 +55,8 @@ export namespace AutoMovieHumanHandSolve {
    * @param targets What the knuckle section read on the chains must measure
    *   for the meshed skin to measure the breadth and the hand tape (see
    *   {@link skinTargets}); absent, the inputs themselves.
+   * @param diagnostics The list a round records into when the knuckle plane
+   *   misses the palm; the scales then keep their value for that round.
    */
   export function solve<A extends IAutoMovieHumanHandWrist>(
     hand: IAutoMovieHumanHandForm,
@@ -59,6 +65,7 @@ export namespace AutoMovieHumanHandSolve {
     wristTape: number,
     makeArm: (measures: IAutoMovieHumanHandScales) => A,
     targets?: { breadth: number; girth: number },
+    diagnostics?: AutoMovieHumanLoftContract.IDiagnostic[],
   ): ISolved<A> {
     const widest: number = Math.max(
       ...hand.palmRings.map((r: readonly Vec3[]): number =>
@@ -86,7 +93,7 @@ export namespace AutoMovieHumanHandSolve {
       const axis: Vec3 = unit(sub(joints.mcps[2]!, law.crease));
       const stylion: Vec3 = sub(law.crease, scale(axis, STYLION));
       const palm: number = Math.max(...webs.map((c: Vec3): number => dot(sub(map(c), stylion), axis)));
-      const section: { breadth: number; girth: number } = knuckleSection(
+      const section: { breadth: number; girth: number } | null = knuckleSection(
         hand,
         map,
         law.crease,
@@ -97,8 +104,20 @@ export namespace AutoMovieHumanHandSolve {
       const fore: Vec3 = unit(sub(law.crease, law.elbow));
       const wrist: number = law.girth(sub(law.crease, scale(fore, STYLION)), scale(fore, -1));
       measures.along *= (given.palm - STYLION) / (palm - STYLION);
-      measures.across *= (targets?.breadth ?? given.breadth) / section.breadth;
-      measures.through *= (targets?.girth ?? circumference) / section.girth;
+
+      // A knuckle plane that misses the palm leaves the breadth and girth
+      // scales where they stand, the inputs' first reading, and is recorded.
+      if (section === null)
+        diagnostics?.push({
+          producer: "hand",
+          level: SOLVE_LEVEL,
+          contract: "the knuckles' plane crosses the palm's rings",
+          detail: `fewer than three crossings in round ${round}; breadth and girth scales kept at ${measures.across.toFixed(4)} and ${measures.through.toFixed(4)}`,
+        });
+      else {
+        measures.across *= (targets?.breadth ?? given.breadth) / section.breadth;
+        measures.through *= (targets?.girth ?? circumference) / section.girth;
+      }
       measures.wrist *= wristTape / wrist;
       law = makeArm(measures);
       joints = jointsOf(hand, measures, law);
@@ -130,7 +149,7 @@ export namespace AutoMovieHumanHandSolve {
     crease: Vec3,
     mcps: readonly Vec3[],
     fingers: readonly IAutoMovieHumanHandFinger[],
-  ): { breadth: number; girth: number } {
+  ): { breadth: number; girth: number } | null {
     const middle: Vec3 = scale(plus(mcps[1]!, mcps[4]!), 0.5);
     const axis: Vec3 = unit(sub(mcps[2]!, crease));
     const line: Vec3 = unit(sub(mcps[4]!, mcps[1]!));
@@ -151,7 +170,7 @@ export namespace AutoMovieHumanHandSolve {
         const x: Vec3 = sub(plus(p, scale(sub(q, p), fp / (fp - fq))), middle);
         points.push([dot(x, line), dot(x, other)]);
       }
-    if (points.length < 3) throw new Error("The knuckles' plane misses the palm");
+    if (points.length < 3) return null;
     // The border fingers' roots, the index's and the little finger's: each
     // one's outermost point across the hand, where the web's columns carry
     // the border out to it.

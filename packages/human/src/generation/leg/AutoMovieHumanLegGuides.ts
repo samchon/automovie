@@ -1,30 +1,7 @@
 import type { AutoMovieHumanPolarSector } from "../../lofting/AutoMovieHumanPolarSector";
-import { AutoMovieHumanLegGuideAnterior } from "./AutoMovieHumanLegGuideAnterior";
-import { AutoMovieHumanLegGuideAnterolateral } from "./AutoMovieHumanLegGuideAnterolateral";
-import { AutoMovieHumanLegGuideAnteromedial } from "./AutoMovieHumanLegGuideAnteromedial";
-import { AutoMovieHumanLegGuideLateral } from "./AutoMovieHumanLegGuideLateral";
-import { AutoMovieHumanLegGuideMedial } from "./AutoMovieHumanLegGuideMedial";
-import { AutoMovieHumanLegGuidePosterior } from "./AutoMovieHumanLegGuidePosterior";
-import { AutoMovieHumanLegGuidePosterolateral } from "./AutoMovieHumanLegGuidePosterolateral";
-import { AutoMovieHumanLegGuidePosteromedial } from "./AutoMovieHumanLegGuidePosteromedial";
 import { AutoMovieHumanLegProfile } from "./AutoMovieHumanLegProfile";
+import { AutoMovieHumanLegSectionRows } from "./AutoMovieHumanLegSectionRows";
 import type { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
-import { AutoMovieHumanLegShankExtensorMass } from "./AutoMovieHumanLegShankExtensorMass";
-import { AutoMovieHumanLegShankGastrocnemiusLateral } from "./AutoMovieHumanLegShankGastrocnemiusLateral";
-import { AutoMovieHumanLegShankGastrocnemiusMedial } from "./AutoMovieHumanLegShankGastrocnemiusMedial";
-import { AutoMovieHumanLegShankMedialBorder } from "./AutoMovieHumanLegShankMedialBorder";
-import { AutoMovieHumanLegShankPeroneals } from "./AutoMovieHumanLegShankPeroneals";
-import { AutoMovieHumanLegShankSoleusMedial } from "./AutoMovieHumanLegShankSoleusMedial";
-import { AutoMovieHumanLegShankTibialFace } from "./AutoMovieHumanLegShankTibialFace";
-import { AutoMovieHumanLegShankTibialisAnterior } from "./AutoMovieHumanLegShankTibialisAnterior";
-import { AutoMovieHumanLegThighAdductorLongus } from "./AutoMovieHumanLegThighAdductorLongus";
-import { AutoMovieHumanLegThighBicepsFemoris } from "./AutoMovieHumanLegThighBicepsFemoris";
-import { AutoMovieHumanLegThighGracilisMagnus } from "./AutoMovieHumanLegThighGracilisMagnus";
-import { AutoMovieHumanLegThighHamstringMedial } from "./AutoMovieHumanLegThighHamstringMedial";
-import { AutoMovieHumanLegThighIliotibialBand } from "./AutoMovieHumanLegThighIliotibialBand";
-import { AutoMovieHumanLegThighQuadricepsAnterior } from "./AutoMovieHumanLegThighQuadricepsAnterior";
-import { AutoMovieHumanLegThighVastusLateralis } from "./AutoMovieHumanLegThighVastusLateralis";
-import { AutoMovieHumanLegThighVastusMedialis } from "./AutoMovieHumanLegThighVastusMedialis";
 
 /**
  * The leg's eight guides and eight sectors composed: at any station the
@@ -46,28 +23,7 @@ export namespace AutoMovieHumanLegGuides {
   }
 
   /** Section angles of the guides, radians. */
-  export const ANGLES: readonly number[] = [
-    AutoMovieHumanLegGuideAnterior.ANGLE,
-    AutoMovieHumanLegGuideAnterolateral.ANGLE,
-    AutoMovieHumanLegGuideLateral.ANGLE,
-    AutoMovieHumanLegGuidePosterolateral.ANGLE,
-    AutoMovieHumanLegGuidePosterior.ANGLE,
-    AutoMovieHumanLegGuidePosteromedial.ANGLE,
-    AutoMovieHumanLegGuideMedial.ANGLE,
-    AutoMovieHumanLegGuideAnteromedial.ANGLE,
-  ];
-
-  /** The thigh's and the shank's rows of each sector, by index. */
-  const SECTORS: readonly (readonly [readonly AutoMovieHumanLegProfile.IRow[], readonly AutoMovieHumanLegProfile.IRow[]])[] = [
-    [AutoMovieHumanLegThighQuadricepsAnterior.ROWS, AutoMovieHumanLegShankTibialisAnterior.ROWS],
-    [AutoMovieHumanLegThighVastusLateralis.ROWS, AutoMovieHumanLegShankExtensorMass.ROWS],
-    [AutoMovieHumanLegThighIliotibialBand.ROWS, AutoMovieHumanLegShankPeroneals.ROWS],
-    [AutoMovieHumanLegThighBicepsFemoris.ROWS, AutoMovieHumanLegShankGastrocnemiusLateral.ROWS],
-    [AutoMovieHumanLegThighHamstringMedial.ROWS, AutoMovieHumanLegShankGastrocnemiusMedial.ROWS],
-    [AutoMovieHumanLegThighGracilisMagnus.ROWS, AutoMovieHumanLegShankSoleusMedial.ROWS],
-    [AutoMovieHumanLegThighAdductorLongus.ROWS, AutoMovieHumanLegShankMedialBorder.ROWS],
-    [AutoMovieHumanLegThighVastusMedialis.ROWS, AutoMovieHumanLegShankTibialFace.ROWS],
-  ];
+  export const ANGLES: readonly number[] = AutoMovieHumanLegSectionRows.GUIDES.map((g: AutoMovieHumanLegSectionRows.IGuide): number => g.angle);
 
   /** A neighbour's ring read as the shape's row at its own station. */
   export interface IEnd {
@@ -108,25 +64,42 @@ export namespace AutoMovieHumanLegGuides {
         e === undefined ? undefined : { at: e.at, values: [e.shape.fullness[j]!] };
       return { bottom: row(ends.bottom), top: row(ends.top) };
     };
-    const guides: ((s: number) => AutoMovieHumanPolarSector.IGuide)[] = [
-      AutoMovieHumanLegGuideAnterior.profile(bones, guideEnds(0)),
-      AutoMovieHumanLegGuideAnterolateral.profile(bones, guideEnds(1)),
-      AutoMovieHumanLegGuideLateral.profile(bones, guideEnds(2)),
-      AutoMovieHumanLegGuidePosterolateral.profile(bones, guideEnds(3)),
-      AutoMovieHumanLegGuidePosterior.profile(bones, guideEnds(4)),
-      AutoMovieHumanLegGuidePosteromedial.profile(bones, guideEnds(5)),
-      AutoMovieHumanLegGuideMedial.profile(bones, guideEnds(6)),
-      AutoMovieHumanLegGuideAnteromedial.profile(bones, guideEnds(7)),
-    ];
-    const fullness: AutoMovieHumanLegProfile.Channel[] = SECTORS.map(
-      (
-        [thigh, shank]: readonly [readonly AutoMovieHumanLegProfile.IRow[], readonly AutoMovieHumanLegProfile.IRow[]],
-        j: number,
-      ): AutoMovieHumanLegProfile.Channel => AutoMovieHumanLegProfile.channel([...shank, ...thigh], bones, 0, sectorEnds(j)),
+    const guides: ((s: number) => AutoMovieHumanPolarSector.IGuide)[] = AutoMovieHumanLegSectionRows.GUIDES.map(
+      (g: AutoMovieHumanLegSectionRows.IGuide, j: number): ((s: number) => AutoMovieHumanPolarSector.IGuide) => profile(g, bones, guideEnds(j)),
+    );
+    const fullness: AutoMovieHumanLegProfile.Channel[] = AutoMovieHumanLegSectionRows.SECTORS.map(
+      (sector: AutoMovieHumanLegSectionRows.ISector, j: number): AutoMovieHumanLegProfile.Channel =>
+        AutoMovieHumanLegProfile.channel([...sector.shankRows, ...sector.thighRows], bones, 0, sectorEnds(j)),
     );
     return (s: number): IShape => ({
       guides: guides.map((g: (s: number) => AutoMovieHumanPolarSector.IGuide): AutoMovieHumanPolarSector.IGuide => g(s)),
       fullness: fullness.map((f: AutoMovieHumanLegProfile.Channel): number => f(s)),
+    });
+  }
+
+  /**
+   * A guide along the leg: its three channels, each carried between its
+   * landmark rows by the natural cubic spline (C2).
+   *
+   * @param guide The guide.
+   * @param bones The joints' heights, which place the rows.
+   * @param ends The neighbours' rings as the first and last rows, `[rho, rho_theta, rho_thetatheta]` each.
+   * @returns The guide at a station: its angle, radius and the two angle derivatives.
+   */
+  function profile(
+    guide: AutoMovieHumanLegSectionRows.IGuide,
+    bones: AutoMovieHumanLegStations.IBones,
+    ends: AutoMovieHumanLegProfile.IEnds,
+  ): (s: number) => AutoMovieHumanPolarSector.IGuide {
+    const value: AutoMovieHumanLegProfile.Channel = AutoMovieHumanLegProfile.channel(guide.rows, bones, 0, ends);
+    const slope: AutoMovieHumanLegProfile.Channel = AutoMovieHumanLegProfile.channel(guide.rows, bones, 1, ends);
+    const curvature: AutoMovieHumanLegProfile.Channel = AutoMovieHumanLegProfile.channel(guide.rows, bones, 2, ends);
+
+    return (s: number): AutoMovieHumanPolarSector.IGuide => ({
+      angle: guide.angle,
+      value: value(s),
+      slope: slope(s),
+      curvature: curvature(s),
     });
   }
 }

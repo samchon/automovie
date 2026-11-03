@@ -1,4 +1,5 @@
 ﻿import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
+import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
 import { AutoMovieHumanBreastDome } from "./AutoMovieHumanBreastDome";
 import { AutoMovieHumanBreastFootprint } from "./AutoMovieHumanBreastFootprint";
@@ -8,17 +9,15 @@ import { AutoMovieHumanGlutealDome } from "./AutoMovieHumanGlutealDome";
 import { AutoMovieHumanGlutealFrame } from "./AutoMovieHumanGlutealFrame";
 import { AutoMovieHumanGlutealRelief } from "./AutoMovieHumanGlutealRelief";
 import { AutoMovieHumanScapularMass } from "./AutoMovieHumanScapularMass";
-import { AutoMovieHumanSpinalFrame } from "./AutoMovieHumanSpinalFrame";
 import { AutoMovieHumanSpinalGroove } from "./AutoMovieHumanSpinalGroove";
 import { AutoMovieHumanSpinalProfile } from "./AutoMovieHumanSpinalProfile";
 import { AutoMovieHumanSternalNotch } from "./AutoMovieHumanSternalNotch";
 import { AutoMovieHumanSternalNotchProfile } from "./AutoMovieHumanSternalNotchProfile";
-import { AutoMovieHumanUmbilicalFrame } from "./AutoMovieHumanUmbilicalFrame";
 import { AutoMovieHumanUmbilicalProfile } from "./AutoMovieHumanUmbilicalProfile";
 import { AutoMovieHumanUmbilicus } from "./AutoMovieHumanUmbilicus";
 import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
 import { AutoMovieHumanTrunkCourses } from "./AutoMovieHumanTrunkCourses";
-import type { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
+import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import type { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
 import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
@@ -35,6 +34,12 @@ import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection"
  * body.
  */
 export namespace AutoMovieHumanTrunkFeatures {
+  /** Construction level of an additive piece (`construction-levels.md`, Levels). */
+  const ADDITIVE: number = 3;
+
+  /** Construction level of a subtractive piece. */
+  const SUBTRACTIVE: number = 4;
+
   /** What the features stand on: landmark heights and the tapes that size them. */
   export interface ISites {
     /** Crotch height, mm. */
@@ -115,8 +120,7 @@ export namespace AutoMovieHumanTrunkFeatures {
    */
   export function baseSurface(col: AutoMovieHumanTrunkColumn.IColumn): AutoMovieHumanTrunkReliefNet.Base {
     const rings: Map<number, number[]> = new Map();
-
-    return (y: number, t: number): [number, number, number] => {
+    const at = (y: number, t: number): [number, number, number] => {
       let controls: number[] | undefined = rings.get(y);
       if (controls === undefined) {
         controls = AutoMovieHumanTrunkRing.controls(col.at(y));
@@ -126,6 +130,12 @@ export namespace AutoMovieHumanTrunkFeatures {
 
       return [p[0], y, p[1]];
     };
+
+    // The windows stay inside the chart's two shared ends: over the crotch
+    // ring the legs share, under the neck's ring a clearance below it.
+    const bounds: [number, number] = [col.keys[0]!.y, col.keys[col.keys.length - 1]!.y - AutoMovieHumanSternalNotch.CLEARANCE];
+
+    return Object.assign(at, { bounds });
   }
 
   /**
@@ -171,7 +181,6 @@ export namespace AutoMovieHumanTrunkFeatures {
       dome: breastDome(col, sites),
       base: baseSurface(col),
       phaseOf: (z: number): number => phaseAt(controls, "front", Math.min(0.97 * s.width, Math.max(0, z))),
-      ceiling: sites.axilla,
     });
   }
 
@@ -258,9 +267,14 @@ export namespace AutoMovieHumanTrunkFeatures {
    *
    * @param col The column.
    * @param sites The landmark heights.
-   * @returns The pit's window, the furrow's and the notch's.
+   * @param diagnostics The list a broken carve is recorded in.
+   * @returns The notch's window, the pit's and the furrow's.
    */
-  export function midline(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieHumanRelief[] {
+  export function midline(
+    col: AutoMovieHumanTrunkColumn.IColumn,
+    sites: ISites,
+    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [],
+  ): IAutoMovieHumanRelief[] {
     const rate = (y: number, index: number): number => AutoMovieHumanTrunkRing.speeds(col.at(y))[index]!;
     const base: AutoMovieHumanTrunkReliefNet.Base = baseSurface(col);
     const to: number = sites.axilla - 1;
@@ -268,29 +282,77 @@ export namespace AutoMovieHumanTrunkFeatures {
     const notch: AutoMovieHumanTrunkFeatureFrame.IFrame = AutoMovieHumanSternalNotch.frame(sites.neck, (y: number): number => col.at(y).front);
 
     return [
-      AutoMovieHumanSternalNotch.create(notch, base, AutoMovieHumanSternalNotchProfile.HALF / rate(notch.origin[1], 0)),
-      AutoMovieHumanUmbilicus.create(
-        AutoMovieHumanUmbilicalFrame.create(sites.omphalion, col.at(sites.omphalion).front),
-        base,
-        AutoMovieHumanUmbilicalProfile.RADIUS / rate(sites.omphalion, 0),
-      ),
-      AutoMovieHumanSpinalGroove.create(
-        AutoMovieHumanSpinalFrame.create(middle, col.at(middle).back),
-        (to - sites.furrowFrom) / 2,
-        base,
-        AutoMovieHumanSpinalProfile.RADIUS / rate(sites.waist, 6),
-      ),
+      ...guarded("trunk.sternalNotch", SUBTRACTIVE, diagnostics, (): IAutoMovieHumanRelief[] => [
+        AutoMovieHumanSternalNotch.create(notch, base, AutoMovieHumanSternalNotchProfile.HALF / rate(notch.origin[1], 0)),
+      ]),
+      ...guarded("trunk.umbilicus", SUBTRACTIVE, diagnostics, (): IAutoMovieHumanRelief[] => [
+        AutoMovieHumanUmbilicus.create(
+          AutoMovieHumanTrunkFeatureFrame.midline(sites.omphalion, col.at(sites.omphalion).front, "front"),
+          base,
+          AutoMovieHumanUmbilicalProfile.RADIUS / rate(sites.omphalion, 0),
+        ),
+      ]),
+      ...guarded("trunk.spinalGroove", SUBTRACTIVE, diagnostics, (): IAutoMovieHumanRelief[] => [
+        AutoMovieHumanSpinalGroove.create(
+          AutoMovieHumanTrunkFeatureFrame.midline(middle, col.at(middle).back, "back"),
+          (to - sites.furrowFrom) / 2,
+          base,
+          AutoMovieHumanSpinalProfile.RADIUS / rate(sites.waist, 6),
+        ),
+      ]),
     ];
   }
 
   /**
-   * Every feature of the trunk.
+   * Every feature of the trunk. Each is an optional piece: one that cannot
+   * keep its contract is left out, the base keeps its place there, and the
+   * broken contract is recorded (`construction-levels.md`, Totality and
+   * diagnostics).
    *
    * @param col The column.
    * @param sites The landmark heights and tapes.
+   * @param diagnostics The list a broken feature is recorded in.
    * @returns The windows: both breasts, both blades and both buttocks (unions), the notch, the umbilicus and the furrow (carves).
    */
-  export function all(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieHumanRelief[] {
-    return [...breasts(col, sites), ...scapulae(col, sites), ...buttocks(col, sites), ...midline(col, sites)];
+  export function all(
+    col: AutoMovieHumanTrunkColumn.IColumn,
+    sites: ISites,
+    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [],
+  ): IAutoMovieHumanRelief[] {
+    return [
+      ...guarded("trunk.breast", ADDITIVE, diagnostics, (): IAutoMovieHumanRelief[] => breasts(col, sites)),
+      ...guarded("trunk.scapula", ADDITIVE, diagnostics, (): IAutoMovieHumanRelief[] => scapulae(col, sites)),
+      ...guarded("trunk.buttock", ADDITIVE, diagnostics, (): IAutoMovieHumanRelief[] => buttocks(col, sites)),
+      ...midline(col, sites, diagnostics),
+    ];
+  }
+
+  /**
+   * An optional piece's windows, or none and one diagnostic when it breaks
+   * its contract.
+   *
+   * @param producer The piece's name.
+   * @param level Its construction level.
+   * @param diagnostics The list a broken piece is recorded in.
+   * @param make The piece's windows.
+   * @returns The windows, or none.
+   */
+  export function guarded(
+    producer: string,
+    level: number,
+    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
+    make: () => IAutoMovieHumanRelief[],
+  ): IAutoMovieHumanRelief[] {
+    try {
+      return make();
+    } catch (error) {
+      diagnostics.push({
+        producer,
+        level,
+        contract: "a trunk feature's window over its own footprint, single-signed and inside the chart",
+        detail: error instanceof Error ? error.message : String(error),
+      });
+      return [];
+    }
   }
 }

@@ -7,9 +7,7 @@ import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
 import { AutoMovieHumanTrunkCourses } from "./AutoMovieHumanTrunkCourses";
 import { AutoMovieHumanTrunkFeatures } from "./AutoMovieHumanTrunkFeatures";
 import { AutoMovieHumanTrunkGroinWidth } from "./AutoMovieHumanTrunkGroinWidth";
-import { AutoMovieHumanTrunkGuideBustLine } from "./AutoMovieHumanTrunkGuideBustLine";
 import { AutoMovieHumanTrunkKeys } from "./AutoMovieHumanTrunkKeys";
-import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
 import { AutoMovieHumanTrunkSolve } from "./AutoMovieHumanTrunkSolve";
 import { AutoMovieHumanTrunkTapes } from "./AutoMovieHumanTrunkTapes";
 
@@ -18,11 +16,24 @@ import { AutoMovieHumanTrunkTapes } from "./AutoMovieHumanTrunkTapes";
  * at its site on the hull of its own section, reliefs included, bisected until
  * the girth is the tape (generalization.md, Tapes), and each course input
  * moving the landmark it owns until the taut length over the surface reads it
- * (`neckToWaist` the waist, `shoulderToApex` the bust point, `acrossShoulder`
- * the shoulder points' breadth, `frontInterscyeLength` the anterior axillary
- * guide). Nothing here changes an input.
+ * (`neckToWaist` the waist, `shoulderToApex` the bust point). The shoulder points
+ * stand on the measured biacromial breadth and acromial height, so
+ * `acrossShoulder` is a reading of the skin over them. Nothing here changes
+ * an input.
  */
 export namespace AutoMovieHumanTrunkClosure {
+  /**
+   * The chest wall's girth at the bust row over the below-bust girth, its
+   * constant, mm: in men, who have no breast, the chest at the nipple level is
+   * `47.34 + 1.0193 underbust` (ANSUR 1988 working data, 1,774 men, R² 0.933,
+   * residual SD 17.8 mm; Gordon et al. 1989), the rib cage and the pectorals
+   * as they rise from the inframammary level. Measured.
+   */
+  const WALL_INTERCEPT: number = 47.34;
+
+  /** The same relation's slope over the below-bust girth. Measured. */
+  const WALL_SLOPE: number = 1.0193;
+
   /** A function of the column giving the reliefs that act at a tape's site. */
   type Reliefs = (col: AutoMovieHumanTrunkColumn.IColumn) => IAutoMovieHumanRelief[];
 
@@ -68,18 +79,20 @@ export namespace AutoMovieHumanTrunkClosure {
     close("fold", inputs.underbust, h.fold, none);
 
     // The chest tape passes over the breasts and the blades, both standing on
-    // the wall. The wall under the breasts continues the rib cage the underbust
-    // tape measures at the fold, so the tape closes by the breasts' projection;
-    // only a rib cage that alone exceeds the tape is narrowed to it.
+    // the wall. The wall's own girth at the bust row is the rib cage and the
+    // pectorals rising from the fold, which a man's chest tape measures whole;
+    // a woman's breasts close what the tape holds beyond it. The tape bridges
+    // between the bust points, so the domes' projection is what their hull
+    // adds that excess with, not the excess spread round the torso.
     const chest = (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanRelief[] => {
       const sites: AutoMovieHumanTrunkFeatures.ISites = AutoMovieHumanTrunkKeys.sites(ctx, st, col);
 
-      return [...AutoMovieHumanTrunkFeatures.breasts(col, sites), ...AutoMovieHumanTrunkFeatures.scapulae(col, sites)];
+      return [...optional("trunk.breast", (): IAutoMovieHumanRelief[] => AutoMovieHumanTrunkFeatures.breasts(col, sites)), ...optional("trunk.scapula", (): IAutoMovieHumanRelief[] => AutoMovieHumanTrunkFeatures.scapulae(col, sites))];
     };
-    st.widths.bust = st.widths.fold;
+    const wall: number = WALL_INTERCEPT * inputs.scale + WALL_SLOPE * inputs.underbust;
     st.projection = 0;
-    if (girthAt(ctx, st, h.bust, chest) >= inputs.chest) close("bust", inputs.chest, h.bust, chest);
-    else
+    close("bust", inputs.female ? Math.min(inputs.chest, wall) : inputs.chest, h.bust, chest);
+    if (inputs.female && inputs.chest > girthAt(ctx, st, h.bust, chest))
       st.projection = AutoMovieHumanTrunkSolve.bisect(
         0,
         inputs.chest / (2 * Math.PI),
@@ -91,8 +104,21 @@ export namespace AutoMovieHumanTrunkClosure {
         1,
       );
     close("buttock", inputs.hip, ctx.buttock, (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanRelief[] =>
-      AutoMovieHumanTrunkFeatures.buttocks(col, AutoMovieHumanTrunkKeys.sites(ctx, st, col)),
+      optional("trunk.buttock", (): IAutoMovieHumanRelief[] => AutoMovieHumanTrunkFeatures.buttocks(col, AutoMovieHumanTrunkKeys.sites(ctx, st, col))),
     );
+  }
+
+  /**
+   * An optional feature's windows while the tapes and courses close, or none
+   * when it breaks its contract: the closure then reads the base there, as
+   * the figure will, and the final feature list records the break once.
+   *
+   * @param producer The feature's name.
+   * @param make The feature's windows.
+   * @returns The windows, or none.
+   */
+  function optional(producer: string, make: () => IAutoMovieHumanRelief[]): IAutoMovieHumanRelief[] {
+    return AutoMovieHumanTrunkFeatures.guarded(producer, 0, [], make);
   }
 
   /**
@@ -104,13 +130,8 @@ export namespace AutoMovieHumanTrunkClosure {
   export function courses(ctx: IAutoMovieHumanTrunkContext, st: IAutoMovieHumanTrunkState): void {
     const inputs: IAutoMovieHumanTrunkInputs = ctx.fixed.inputs;
     const column = (): AutoMovieHumanTrunkColumn.IColumn => AutoMovieHumanTrunkKeys.column(ctx, st);
-    const shoulder = (): [number, number, number] => [
-      AutoMovieHumanTrunkShapes.SHOULDER.middle * ctx.fixed.stature,
-      ctx.shoulderY,
-      st.shoulderZ,
-    ];
     const breasts = (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanRelief[] =>
-      AutoMovieHumanTrunkFeatures.breasts(col, AutoMovieHumanTrunkKeys.sites(ctx, st, col));
+      optional("trunk.breast", (): IAutoMovieHumanRelief[] => AutoMovieHumanTrunkFeatures.breasts(col, AutoMovieHumanTrunkKeys.sites(ctx, st, col)));
 
     // Neck to waist: the waist moves down as the back's length grows.
     st.waist = AutoMovieHumanTrunkSolve.bisect(
@@ -142,30 +163,12 @@ export namespace AutoMovieHumanTrunkClosure {
       -1,
     );
 
-    // Across the back: the shoulder points move apart as the tape grows.
-    st.shoulderZ = AutoMovieHumanTrunkSolve.bisect(
-      ctx.seat.width + 10,
-      3 * ctx.seat.width + 60,
-      (z: number): number => {
-        st.shoulderZ = z;
-
-        return AutoMovieHumanTrunkCourses.acrossBack(column(), shoulder(), ctx.cervicale) - inputs.acrossShoulder;
-      },
-      1,
-    );
-
-    // Across the front: the anterior folds move apart as the length grows.
-    st.anterior = AutoMovieHumanTrunkSolve.bisect(
-      AutoMovieHumanTrunkGuideBustLine.SHARE + 0.05,
-      0.97,
-      (a: number): number => {
-        st.anterior = a;
-        const col: AutoMovieHumanTrunkColumn.IColumn = column();
-
-        return AutoMovieHumanTrunkCourses.acrossFront(col.at(ctx.axilla), breasts(col)) - inputs.frontInterscyeLength;
-      },
-      1,
-    );
+    // The shoulder points stand on the biacromial breadth, the acromia
+    // projected to the skin (ISO 8559-1 3.1.1), set at the start; the across
+    // back course over them is a reading of the skin, not a solve. The
+    // anterior folds keep the start's population share: no input fixes the
+    // armpit's front fold points, which ISO 8559-1 3.1.13 sets by a rule
+    // pressed under the arm.
   }
 
   /**

@@ -1,6 +1,7 @@
 import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
 
 import { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
+import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import { AutoMovieHumanBrowProjector } from "./AutoMovieHumanBrowProjector";
 import { AutoMovieHumanEyebrowBody } from "./AutoMovieHumanEyebrowBody";
@@ -33,6 +34,41 @@ import { AutoMovieHumanEyebrowTail } from "./AutoMovieHumanEyebrowTail";
 export namespace AutoMovieHumanEyebrow {
   /** Hairs per brow. */
   export const COUNT: number = 1100;
+
+  /**
+   * Build one brow, or nothing and one diagnostic when it breaks its
+   * contract: a brow is an optional piece of level 8
+   * (`docs/techniques/construction-levels.md`), so the figure keeps its bare
+   * brow skin and the defect is recorded, never thrown past this level.
+   *
+   * @param lid The eye's lid margin in calibration millimetres
+   * @param parts Generated body parts in model units, for the head skin
+   * @param scale Calibration millimetre to model unit factor
+   * @param seed Seed of the hair placement, one for both eyes so they mirror
+   * @param side The eye's side, for the diagnostic
+   * @param diagnostics The list a broken contract is recorded in
+   * @returns Brow strands in model units, or null
+   */
+  export function attempt(
+    lid: AutoMovieHumanEyelid.ILid,
+    parts: readonly IAutoMovieModelPart[],
+    scale: number,
+    seed: number,
+    side: "left" | "right",
+    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
+  ): IAutoMovieMesh | null {
+    try {
+      return generate(lid, parts, scale, seed);
+    } catch (error) {
+      diagnostics.push({
+        producer: `human.hair.brows.${side}`,
+        level: 8,
+        contract: "the brow builds on the head skin above its lid",
+        detail: error instanceof Error ? error.message : String(error),
+      });
+      return null;
+    }
+  }
 
   /**
    * Build one brow.

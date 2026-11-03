@@ -1,4 +1,3 @@
-import { AutoMovieHumanGlutealProfile } from "./AutoMovieHumanGlutealProfile";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
 import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
@@ -8,6 +7,16 @@ import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature"
  * frame, from the crotch ring (which it leaves untouched, so the legs keep
  * their ring) up to iliocristale, across from `MEDIAL` to `OUTER` of the half
  * width, so the cleft between the two buttocks stays the base's own.
+ *
+ * The profile, the side curve alone, is the trunk features' bump
+ * (`AutoMovieHumanTrunkFeatureProfile.bump`) times the buttock point's
+ * projection: under the buttock's crest the rear falls as the square of the
+ * height (the fall over 100 mm stands 2.78 times that over 60 mm, and
+ * (100/60)^2 is 2.78, measured over 52 people, generalization.md Trunk), and
+ * the bump's fall near the rim is that square law's smooth form:
+ * `(1 - rho^2)^3` falls as `rho^2` from the centre. The projection is what the
+ * base's section lacks at the buttock point for the buttock's depth over the
+ * hip breadth (ANSUR II).
  */
 export namespace AutoMovieHumanGlutealDome {
   /** The apex's lateral share of the half width: the buttock point lies a little inside the mass's middle. Conventional, flagged. */
@@ -55,7 +64,7 @@ export namespace AutoMovieHumanGlutealDome {
     return {
       frame: input.frame,
       height: (u: number, v: number): number =>
-        AutoMovieHumanGlutealProfile.height(AutoMovieHumanTrunkFeatureProfile.rho(u - centre, v, half, lower, upper), input.projection),
+        input.projection * AutoMovieHumanTrunkFeatureProfile.bump(AutoMovieHumanTrunkFeatureProfile.rho(u - centre, v, half, lower, upper)),
       reach: { u: [centre - half, centre + half], v: [-lower, upper] },
       apex: [centre, 0],
     };

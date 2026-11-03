@@ -35,8 +35,14 @@ export namespace AutoMovieHumanFootSectors {
     return { points, lengths };
   }
 
-  /** Pieces joined into a ring over their fixed shares. */
-  export function join(pieces: IPiece[], shares: readonly number[]): ISectors {
+  /**
+   * Pieces joined into a ring over their fixed shares.
+   *
+   * @param pieces The pieces in ring order.
+   * @param shares Each piece's share of the ring's control points.
+   * @param miss Told when a cleft lies outside the listed pieces, which then answer their nearest point.
+   */
+  export function join(pieces: IPiece[], shares: readonly number[], miss?: (detail: string) => void): ISectors {
     const total: number = shares.reduce((s: number, n: number): number => s + n, 0);
     const starts: number[] = [0];
     for (const n of shares) starts.push(starts[starts.length - 1]! + n);
@@ -64,6 +70,10 @@ export namespace AutoMovieHumanFootSectors {
       },
       start: (index: number): number => (starts[index]! / total) * G.TWO_PI,
       find: (v: number, list: number[]): number => {
+        // The nearest point of the listed pieces across, for a cleft the
+        // ring does not reach: the web then pinches at the ring's own edge.
+        let nearest: number = 0;
+        let gap: number = Infinity;
         for (const i of list) {
           const p: IPiece = pieces[i]!;
           const L: number = p.lengths[p.lengths.length - 1]!;
@@ -75,9 +85,14 @@ export namespace AutoMovieHumanFootSectors {
               const f: number = (p.lengths[j]! + w * (p.lengths[j + 1]! - p.lengths[j]!)) / L;
               return G.wrap(((starts[i]! + f * shares[i]!) / total) * G.TWO_PI);
             }
+            if (Math.abs(a[0] - v) < gap) {
+              gap = Math.abs(a[0] - v);
+              nearest = G.wrap(((starts[i]! + (p.lengths[j]! / L) * shares[i]!) / total) * G.TWO_PI);
+            }
           }
         }
-        throw new Error("A cleft lies outside the web ring");
+        miss?.(`a cleft at ${v.toFixed(2)} mm across lies ${gap.toFixed(2)} mm outside the web ring's pieces ${list.join(", ")}`);
+        return nearest;
       },
     };
   }

@@ -1,3 +1,4 @@
+import { AutoMovieHumanBodyLaw } from "../../../src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanFootConstruction } from "../../../src/generation/AutoMovieHumanFootConstruction";
 import type { IAutoMovieHumanBodyCalibration } from "../../../src/generation/IAutoMovieHumanBodyCalibration";
 import type { IHumanDebugDocument } from "../../contracts/IHumanDebugDocument";
@@ -11,7 +12,7 @@ import { HumanDebugFootKit } from "./HumanDebugFootKit";
  * construction's own chains on an empty calibration (no skeleton, leg or rest of the person), with
  * the generator's sections, axes, guides and web paths.
  *
- * The inputs are the person's left foot dimensions and its fat and muscularity controls, at scale 1.
+ * The inputs are the person's left foot dimensions and the body law's adiposity and muscle coordinates, at scale 1.
  * The ankle ring has no leg above it, so it closes as a flat fan: that lid is the cut.
  */
 export const HumanDebugPieceFootLoft: IHumanDebugPiece = {
@@ -21,8 +22,6 @@ export const HumanDebugPieceFootLoft: IHumanDebugPiece = {
   arguments: [],
   build: (person: IHumanDebugPerson): IHumanDebugDocument => {
     const f: HumanDebugFootKit.IFixed = HumanDebugFootKit.fixed(person);
-    const controls: { fat: { value: number | null }; muscularity: { value: number | null } } =
-      person.parameters.body.controls;
 
     // The foot construction adds its chains to whatever calibration it is given; an empty one
     // keeps the loft to the foot alone. The stature only sizes defaults the foot does not read.
@@ -37,8 +36,8 @@ export const HumanDebugPieceFootLoft: IHumanDebugPiece = {
     const calibration: IAutoMovieHumanBodyCalibration = AutoMovieHumanFootConstruction.add(empty, {
       left: f.dimensions,
       right: f.dimensions,
-      fat: controls.fat.value ?? 0,
-      muscularity: controls.muscularity.value ?? 0,
+      fat: AutoMovieHumanBodyLaw.slider(person.parameters, "fat"),
+      muscularity: AutoMovieHumanBodyLaw.slider(person.parameters, "muscularity"),
       scale: 1,
     });
     const document: IHumanDebugDocument = HumanDebugChainLoft.build(calibration, ["foot.left", "foot.left.*", "toe.left", "toe.left.*"]);

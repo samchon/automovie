@@ -1,10 +1,12 @@
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
+import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "./AutoMovieHumanBodyLaw";
 import type { AutoMovieHumanTrunkSolver } from "./AutoMovieHumanTrunkSolver";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 import type { IAutoMovieHumanTrunkInputs } from "./IAutoMovieHumanTrunkInputs";
-import { AutoMovieHumanBodySpecimenCalibration } from "./calibration/AutoMovieHumanBodySpecimenCalibration";
 
 /**
  * The trunk solve's fixed inputs of one person, from the person's typed
@@ -14,32 +16,13 @@ import { AutoMovieHumanBodySpecimenCalibration } from "./calibration/AutoMovieHu
  * The tapes, courses and controls are the public inputs at their definitions
  * in calibration millimetres; the body law calibrates at its own stature, so
  * a calibration millimetre is a world millimetre here (scale 1), and an
- * unknown input takes the specimen's value as the body law does. The neck
+ * unknown input takes the default the body law gives it. The neck
  * chain `head` and the crotch ring's height are the ones the body law gives
  * the same person: the trunk stands between them and owns neither. A caller
  * that reads the solve many times caches `AutoMovieHumanTrunkSolver.solve(of(p))`
  * once (a `Singleton` of `tstl` in the tests and the viewer).
  */
 export namespace AutoMovieHumanTrunkFixed {
-  /** A public body control the trunk reads. */
-  type Control =
-    | "hip"
-    | "highHip"
-    | "waist"
-    | "underbust"
-    | "chest"
-    | "bustSpan"
-    | "neckBase"
-    | "acrossShoulder"
-    | "bicep"
-    | "neckToWaist"
-    | "shoulderToApex"
-    | "frontInterscyeLength"
-    | "upperArmLength"
-    | "masculineFeminine"
-    | "fat"
-    | "muscularity";
-
   /**
    * The fixed inputs of a person's trunk solve.
    *
@@ -65,28 +48,28 @@ export namespace AutoMovieHumanTrunkFixed {
    * @returns The inputs in calibration millimetres.
    */
   export function inputs(params: IAutoMovieHumanParameters): IAutoMovieHumanTrunkInputs {
-    const value = (name: Control): number => {
-      const given: number | null = params.body.controls[name].value;
-      return given === null ? AutoMovieHumanBodySpecimenCalibration.controls[name]! : given;
-    };
+    const anatomy: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(params);
 
     return {
-      hip: value("hip"),
-      highHip: value("highHip"),
-      waist: value("waist"),
-      underbust: value("underbust"),
-      chest: value("chest"),
-      bustSpan: value("bustSpan"),
-      neckBase: value("neckBase"),
-      acrossShoulder: value("acrossShoulder"),
-      bicep: value("bicep"),
-      neckToWaist: value("neckToWaist"),
-      shoulderToApex: value("shoulderToApex"),
-      frontInterscyeLength: value("frontInterscyeLength"),
-      upperArm: value("upperArmLength"),
-      sex: value("masculineFeminine"),
-      fat: value("fat"),
-      muscularity: value("muscularity"),
+      biacromial: anatomy.biacromialBreadth,
+      acromion: anatomy.acromialHeight,
+      axilla: anatomy.axillaHeight,
+      female: anatomy.sex === AutoMovieHumanSex.Female,
+      hip: anatomy.hipCircumference,
+      highHip: anatomy.highHipCircumference,
+      waist: anatomy.waistCircumference,
+      underbust: anatomy.underbustCircumference,
+      chest: anatomy.chestCircumference,
+      bustSpan: anatomy.bustPointWidth,
+      neckBase: anatomy.neckBaseCircumference,
+      acrossShoulder: anatomy.acrossBackShoulderWidth,
+      bicep: anatomy.upperArmCircumference,
+      neckToWaist: anatomy.backNeckToWaist,
+      shoulderToApex: anatomy.sideNeckToBustPoint,
+      upperArm: anatomy.upperArmLength,
+      sex: AutoMovieHumanBodyLaw.slider(params, "masculineFeminine"),
+      fat: AutoMovieHumanBodyLaw.slider(params, "fat"),
+      muscularity: AutoMovieHumanBodyLaw.slider(params, "muscularity"),
       scale: 1,
     };
   }

@@ -46,4 +46,73 @@ export namespace AutoMovieHumanHandWindow {
     const q: number = 1 - u * u - v * v;
     return q <= 0 ? 0 : q ** 3;
   }
+
+  /**
+   * An elliptic mass over the palmar skin, `h(s, t) = height D (1 - (s /
+   * a)^2 - (t / b)^2)^3` with `a = length L` and `b = width W`: its height
+   * over a depth `D` and its footprint's half extents over a length `L` and a
+   * half width `W` of its own frame, all CONVENTIONS (no mass of the hand is
+   * measured in the repository). It vanishes with slope and curvature at the
+   * footprint's edge (rule J7), so it meets the skin under it without a seam.
+   */
+  export interface IMass {
+    /** Height over the depth `D`. */
+    height: number;
+
+    /** Footprint half length over the length `L`. */
+    length: number;
+
+    /** Footprint half width over the half width `W`. */
+    width: number;
+  }
+
+  /** A mass's fixed sizes in its own frame, mm. */
+  export interface IMassSize {
+    /** The length `L` its footprint's half length is a share of. */
+    length: number;
+
+    /** The half width `W` its footprint's half width is a share of. */
+    width: number;
+
+    /** The depth `D` its height is a share of. */
+    depth: number;
+  }
+
+  /**
+   * The fingertip pulp: the fat pad of the palmar side of the distal phalanx,
+   * from the distal interphalangeal crease to the apex, in the pad's own axis
+   * (origin the middle of the pad on the palmar sector, along the bone, normal
+   * the palmar normal of the skin there). `L` is the distal phalanx's length,
+   * `W` the section's half width and `D` its palmar depth at the pad's middle.
+   * It ends on the tip cap, which takes the pulp's height at its last rings
+   * (G2). f1's tip sections show the palmar depth rising over the distal
+   * phalanx (index 7.3 to 7.8 mm against the dorsal 3.8 to 2.0) while the
+   * dorsal falls, which the span law's distal knots already carry; the pulp is
+   * the extra a knot cannot, localised at the pad. The toes' pads take the same
+   * mass (`AutoMovieHumanFootToeSpan`, `AutoMovieHumanFootToeLines`).
+   */
+  export const PULP: IMass = { height: 0.12, length: 0.45, width: 0.85 };
+
+  /**
+   * The hypothenar eminence: the long narrow mass along the fifth metacarpal on
+   * the ulnar side of the palm (Bridgman 1920, `docs/anatomy/hand.md`, Form),
+   * in the fifth metacarpal's frame. `L` is the fifth metacarpal's length
+   * (Reddy 2024: 0.797 of the third) and `W` and `D` the palm's half width; it
+   * is lower than the thenar's mass, and meets the palmar sector at the
+   * proximal palmar crease, a declared G1 seam.
+   */
+  export const HYPOTHENAR: IMass = { height: 0.18, length: 0.7, width: 0.2 };
+
+  /**
+   * A mass's height over the skin under it, mm.
+   *
+   * @param mass The mass.
+   * @param size Its fixed sizes.
+   * @param s Along its frame from its middle, mm.
+   * @param t Across it, mm.
+   * @returns The height, mm.
+   */
+  export function mass(mass: IMass, size: IMassSize, s: number, t: number): number {
+    return mass.height * size.depth * ellipse(s / (mass.length * size.length), t / (mass.width * size.width));
+  }
 }

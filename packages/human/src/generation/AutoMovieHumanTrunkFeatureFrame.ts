@@ -47,6 +47,22 @@ export namespace AutoMovieHumanTrunkFeatureFrame {
   }
 
   /**
+   * The frame of a feature centred on the trunk's midline: the wall's outward
+   * normal on the midline of a mirror-symmetric section is the sagittal
+   * direction, forward on the front and backward on the back. The sternal
+   * notch (the jugular notch over the manubrium, Gray 1918), the umbilicus (at
+   * omphalion, ANSUR II) and the spinal furrow (on the spinous line) stand so.
+   *
+   * @param y Height of the feature's centre, mm.
+   * @param place The midline's forward place at that height, mm.
+   * @param side Which midline: the front's axis is forward, the back's backward.
+   * @returns The frame on the midline.
+   */
+  export function midline(y: number, place: number, side: "front" | "back"): IFrame {
+    return create([place, y, 0], [side === "front" ? 1 : -1, 0, 0]);
+  }
+
+  /**
    * A body point's coordinates in a frame.
    *
    * @param frame The frame.

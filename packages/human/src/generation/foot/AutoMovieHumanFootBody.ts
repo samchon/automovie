@@ -1,17 +1,14 @@
+import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
 import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
 import type { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
-import { AutoMovieHumanFootDorsalLateralArc } from "./AutoMovieHumanFootDorsalLateralArc";
-import { AutoMovieHumanFootDorsalMedialArc } from "./AutoMovieHumanFootDorsalMedialArc";
+import { AutoMovieHumanFootArc } from "./AutoMovieHumanFootArc";
 import { AutoMovieHumanFootFan } from "./AutoMovieHumanFootFan";
 import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootGuide } from "./AutoMovieHumanFootGuide";
 import { AutoMovieHumanFootHeelCorner } from "./AutoMovieHumanFootHeelCorner";
-import { AutoMovieHumanFootLateralBorder } from "./AutoMovieHumanFootLateralBorder";
-import { AutoMovieHumanFootMedialArch } from "./AutoMovieHumanFootMedialArch";
 import { AutoMovieHumanFootSectionJets } from "./AutoMovieHumanFootSectionJets";
 import { AutoMovieHumanFootSectors } from "./AutoMovieHumanFootSectors";
-import { AutoMovieHumanFootSoleContact } from "./AutoMovieHumanFootSoleContact";
 import type { AutoMovieHumanFootWebLine } from "./AutoMovieHumanFootWebLine";
 
 type Vec3 = G.Vec3;
@@ -24,11 +21,9 @@ type Vec2 = G.Vec2;
  * and is five pieces between five guides ({@link AutoMovieHumanFootGuide}), each
  * guide owning the jet at its point (place; tangent across the plane at the
  * crest and the contact edges, along its up axis at the borders; curvature from
- * {@link AutoMovieHumanFootSectionJets}): the dorsal-lateral piece
- * ({@link AutoMovieHumanFootDorsalLateralArc}), the lateral border's plantar piece
- * ({@link AutoMovieHumanFootLateralBorder}), the sole's contact
- * ({@link AutoMovieHumanFootSoleContact}), the medial arch
- * ({@link AutoMovieHumanFootMedialArch}) and the dorsal-medial piece ({@link AutoMovieHumanFootDorsalMedialArc}). Each piece
+ * {@link AutoMovieHumanFootSectionJets}): the dorsal-lateral piece, the lateral
+ * border's plantar piece, the sole's contact, the medial arch and the
+ * dorsal-medial piece of {@link AutoMovieHumanFootArc.BODY}. Each piece
  * owns a fixed share of the section's control points ({@link AutoMovieHumanFootSectors}).
  */
 export namespace AutoMovieHumanFootBody {
@@ -60,6 +55,12 @@ export namespace AutoMovieHumanFootBody {
 
     /** The guides. */
     guides: IGuides;
+
+    /** The list a degraded section records into; a part viewer may leave it out. */
+    diagnostics?: AutoMovieHumanLoftContract.IDiagnostic[];
+
+    /** The producer named in a diagnostic, such as `foot.left`. */
+    producer?: string;
   }
 
   /** The body: its stations and the section at any station. */
@@ -110,7 +111,17 @@ export namespace AutoMovieHumanFootBody {
     const guides: IGuides = input.guides;
     const corner: number = AutoMovieHumanFootHeelCorner.height(input.frame);
 
-    const section = (station: number): ISection => {
+    // A broken contract degrades and is recorded once per kind and place.
+    const sink: AutoMovieHumanLoftContract.IDiagnostic[] = input.diagnostics ?? [];
+    const recorded: Set<string> = new Set();
+    const record = (contract: string, detail: string): void => {
+      if (recorded.has(detail)) return;
+      recorded.add(detail);
+      sink.push({ producer: input.producer ?? "foot", level: BASE_LEVEL, contract, detail });
+    };
+
+    // The section at a station, or why its premise fails there.
+    const attempt = (station: number, force: boolean): ISection | string => {
       const frame: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
       const local = (p: Vec3): Vec2 => {
         const r: Vec3 = G.sub(p, line.origin);
@@ -125,7 +136,7 @@ export namespace AutoMovieHumanFootBody {
       const M: Vec2 = local(AutoMovieHumanFootGuide.at(guides.medial, line, station));
 
       // Premise of the pieces: the five points stand in the order the
-      // section runs; a person whose guides cross is refused, not repaired.
+      // section runs; a section whose guides cross is not built here.
       const ordered: boolean =
         M[0] < C[0] &&
         C[0] < X[0] &&
@@ -136,10 +147,10 @@ export namespace AutoMovieHumanFootBody {
         X[1] < C[1] &&
         Em[1] < M[1] &&
         M[1] < C[1];
-      if (!ordered)
-        throw new Error(
-          `A foot section's guide points are out of order at station ${station.toFixed(3)}: ` +
-            [C, X, El, Em, M].map((q: Vec2): string => `(${q[0].toFixed(1)}, ${q[1].toFixed(1)})`).join(" "),
+      if (!ordered && !force)
+        return (
+          `guide points out of order at station ${station.toFixed(3)}: ` +
+          [C, X, El, Em, M].map((q: Vec2): string => `(${q[0].toFixed(1)}, ${q[1].toFixed(1)})`).join(" ")
         );
 
       // The guides' jets: what both arcs meeting at each point copy.
@@ -149,14 +160,9 @@ export namespace AutoMovieHumanFootBody {
         corner,
       });
       const sectors: AutoMovieHumanFootSectors.ISectors = AutoMovieHumanFootSectors.join(
-        [
-          AutoMovieHumanFootDorsalLateralArc.of(jets.crest, jets.lateral, POINTS),
-          AutoMovieHumanFootLateralBorder.of(jets.lateral, jets.contactLateral, POINTS),
-          AutoMovieHumanFootSoleContact.of(jets.contactLateral, jets.contactMedial, POINTS),
-          AutoMovieHumanFootMedialArch.of(jets.contactMedial, jets.medial, POINTS),
-          AutoMovieHumanFootDorsalMedialArc.of(jets.medial, jets.crest, POINTS),
-        ].map(AutoMovieHumanFootSectors.piece),
+        AutoMovieHumanFootArc.pieces(AutoMovieHumanFootArc.BODY, jets, POINTS).map(AutoMovieHumanFootSectors.piece),
         SHARES,
+        (detail: string): void => record("a cleft lies on the web ring", `${detail} at station ${station.toFixed(3)}`),
       );
 
       return {
@@ -173,6 +179,26 @@ export namespace AutoMovieHumanFootBody {
           plantar: sectors.find(v, [1, 2, 3]),
         }),
       };
+    };
+
+    // A section whose guide points fall out of order degrades to the
+    // nearest station, searched outward, whose points stand in order; with
+    // none, the pieces are drawn on the points as they stand.
+    const section = (station: number): ISection => {
+      const own: ISection | string = attempt(station, false);
+      if (typeof own !== "string") return own;
+      const step: number = line.end / SEARCH_STEPS;
+      for (let k: number = 1; k <= SEARCH_STEPS; k++)
+        for (const s of [station - k * step, station + k * step]) {
+          if (s < 0 || s > line.end) continue;
+          const near: ISection | string = attempt(s, false);
+          if (typeof near !== "string") {
+            record("the five guide points stand in the section's order", `${own}; read at station ${s.toFixed(3)}`);
+            return near;
+          }
+        }
+      record("the five guide points stand in the section's order", `${own}; no station in order`);
+      return attempt(station, true) as ISection;
     };
     const stations: number[] = [
       ...Array.from({ length: YAW_LAYERS }, (_: unknown, i: number): number => line.square * (i / YAW_LAYERS) ** YAW_GRADE),
@@ -203,6 +229,12 @@ export namespace AutoMovieHumanFootBody {
  * guide stands at a fixed phase on every section.
  */
 const SHARES: readonly number[] = [51, 46, 56, 52, 51];
+
+/** The body's construction level, the base envelope's (`construction-levels.md`). */
+const BASE_LEVEL: number = 2;
+
+/** Steps over the stations' whole range a degraded section searches for its nearest valid station. */
+const SEARCH_STEPS: number = 256;
 
 /** Layers of the yaw fan and the turn fan, and the grading toward the web ring. Convention. */
 const YAW_LAYERS: number = 10;

@@ -8,6 +8,8 @@ import { AutoMovieHumanScalpMidline } from "./AutoMovieHumanScalpMidline";
 import { AutoMovieHumanScalpNasion } from "./AutoMovieHumanScalpNasion";
 import type { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
 import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceBody";
+import { AutoMovieHumanHeadAnatomy } from "../generation/AutoMovieHumanHeadAnatomy";
+import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
 
 /**
  * The Farkas landmarks scalp hair is placed from, read from what the head
@@ -73,7 +75,7 @@ export namespace AutoMovieHumanScalpLandmarks {
     body: IAutoMovieHumanAppearanceBody,
     field: AutoMovieHumanHeadField.IField,
   ): ILandmarks {
-    const head: IAutoMovieHumanParameters["head"] = params.head;
+    const head: IAutoMovieHumanHeadIdentity = AutoMovieHumanHeadAnatomy.resolve(params);
     const menton: number = field.top - head.height;
     const midline: number = AutoMovieHumanScalpMidline.plane(body, field);
 

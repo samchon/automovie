@@ -73,7 +73,7 @@ export namespace AutoMovieHumanHandSkinTargets {
     if (found !== undefined) return found;
     const targets: { breadth: number; girth: number } = { breadth: given.breadth, girth: circumference };
     for (let round: number = 0; round < SKIN_ROUNDS; round++) {
-      const { measures, law, joints } = solve(hand, given, circumference, wristTape, makeArm, targets);
+      const { measures, law, joints } = solve(hand, given, circumference, wristTape, makeArm, targets, calibration.diagnostics);
       const map = (q: readonly [number, number, number]): Vec3 => handPoint(q, measures, law.wrist);
       const fingers: IAutoMovieHumanHandFinger[] = digitsOf(hand, measures, law, joints);
       const chains: IAutoMovieHumanLoftChain[] = [

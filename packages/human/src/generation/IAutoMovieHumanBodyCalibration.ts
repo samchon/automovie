@@ -1,3 +1,4 @@
+import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
@@ -44,6 +45,17 @@ export interface IAutoMovieHumanBodyCalibration {
 
   /** Eyeball globes seated behind the eyelid apertures. */
   eyes: IAutoMovieHumanBodyCalibration.IEye[];
+
+  /**
+   * Contracts the body law's pieces broke while building this calibration,
+   * each piece degraded to its base (`construction-levels.md`, Totality and
+   * diagnostics). The body law creates the list once and every stage that
+   * spreads the calibration shares it, so a piece records into it where it
+   * degrades; `AutoMovieHuman.generate` carries it into the shape's own
+   * diagnostics. A calibration built by hand, as a part viewer's or a test's,
+   * may leave it out.
+   */
+  diagnostics?: AutoMovieHumanLoftContract.IDiagnostic[];
 
   /**
    * Chains rooted in a closed loop on another chain's surface (an auricle on

@@ -4,7 +4,6 @@ import type { AutoMovieHumanDigitSection } from "../AutoMovieHumanDigitSection";
 import { AutoMovieHumanDigitCrease } from "./AutoMovieHumanDigitCrease";
 import { AutoMovieHumanDigitJointRelief } from "./AutoMovieHumanDigitJointRelief";
 import { AutoMovieHumanDigitSpan } from "./AutoMovieHumanDigitSpan";
-import { AutoMovieHumanFingertipPulp } from "./AutoMovieHumanFingertipPulp";
 import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
 import { AutoMovieHumanNailFold } from "./AutoMovieHumanNailFold";
 import { AutoMovieHumanNailPlate } from "./AutoMovieHumanNailPlate";
@@ -22,7 +21,7 @@ import { AutoMovieHumanNailPlate } from "./AutoMovieHumanNailPlate";
  *    distal joints, all round the section;
  * 3. the palmar flexion creases ({@link AutoMovieHumanDigitCrease}), grooves of
  *    the palmar depth;
- * 4. the fingertip pulp ({@link AutoMovieHumanFingertipPulp}) on the palmar
+ * 4. the fingertip pulp ({@link AutoMovieHumanHandWindow.PULP}) on the palmar
  *    side of the distal phalanx;
  * 5. the nail plate ({@link AutoMovieHumanNailPlate}), whose transverse arch sets
  *    the dorsal midline's curvature over the plate, and the proximal nail fold
@@ -174,7 +173,7 @@ export namespace AutoMovieHumanDigitProfile {
     // The pulp's middle halfway from the distal joint to the apex.
     const distal: number = input.length - j1;
     const middle: number = j1 + distal / 2;
-    const pad: AutoMovieHumanFingertipPulp.IInput = { phalanx: distal, width: input.base(middle)[0], palmar: input.base(middle)[1] };
+    const pad: AutoMovieHumanHandWindow.IMassSize = { length: distal, width: input.base(middle)[0], depth: input.base(middle)[1] };
 
     const plate: AutoMovieHumanNailPlate.ISize = plateOf(input);
     const plateRoot: number = input.cap - plate.length;
@@ -196,7 +195,7 @@ export namespace AutoMovieHumanDigitProfile {
       const w: number = AutoMovieHumanSeamUnion.bump(w0, swell);
       const palmar: number = AutoMovieHumanSeamUnion.bump(
         AutoMovieHumanSeamCarve.dent(AutoMovieHumanSeamUnion.bump(p0, swell), -groove),
-        AutoMovieHumanFingertipPulp.height(pad, at - middle, 0),
+        AutoMovieHumanHandWindow.mass(AutoMovieHumanHandWindow.PULP, pad, at - middle, 0),
       );
       const dorsal: number = AutoMovieHumanSeamUnion.bump(AutoMovieHumanSeamUnion.bump(d0, swell), AutoMovieHumanNailFold.height(plate, u, 0));
 

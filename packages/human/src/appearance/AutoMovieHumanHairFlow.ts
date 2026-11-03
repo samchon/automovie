@@ -1,9 +1,6 @@
 import { AutoMovieHumanHairStyle } from "../typings/AutoMovieHumanHairStyle";
 import { AutoMovieHumanHairCrown } from "./AutoMovieHumanHairCrown";
-import { AutoMovieHumanHairFlowBobFall } from "./AutoMovieHumanHairFlowBobFall";
 import { AutoMovieHumanHairFlowBobSweep } from "./AutoMovieHumanHairFlowBobSweep";
-import { AutoMovieHumanHairFlowShortRest } from "./AutoMovieHumanHairFlowShortRest";
-import { AutoMovieHumanHairFlowShortTop } from "./AutoMovieHumanHairFlowShortTop";
 import { AutoMovieHumanHairFlowWeights } from "./AutoMovieHumanHairFlowWeights";
 import { AutoMovieHumanHairParting } from "./AutoMovieHumanHairParting";
 import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
@@ -14,20 +11,56 @@ import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
  * style's own pieces.
  *
  * `crop` points away from the crown's whorl (`AutoMovieHumanHairCrown`);
- * `short` blends its combed top (`AutoMovieHumanHairFlowShortTop`) with its
- * falling rest (`AutoMovieHumanHairFlowShortRest`) by the larger of the top
+ * `short` blends its combed top with its combed rest by the larger of the top
  * and front weights; `bob` blends its comb away from the parting
- * (`AutoMovieHumanHairFlowBobSweep`) with its fall
- * (`AutoMovieHumanHairFlowBobFall`) by the share of the head that is not the
- * back (`AutoMovieHumanHairFlowWeights`), since the parting runs from the
- * hairline back to the crown. Directions are in the chart's frame
- * (`+X` forward, `+Y` up, `+Z` the person's left); paired sides come from
- * the parting's signed side alone, so a symmetric style's field is
+ * (`AutoMovieHumanHairFlowBobSweep`) with its fall by the share of the head
+ * that is not the back (`AutoMovieHumanHairFlowWeights`), since the parting
+ * runs from the hairline back to the crown. A top or a rest is the head
+ * chart's own axes weighted by the style's comb ({@link COMB}): gravity's
+ * `DOWN`, the head's backward axis and, on a combed top, the parting's side
+ * axis; the tangent projection at each root ({@link tangent}) lays it on that
+ * root's scalp, so the field follows the head's shape. Directions are in the
+ * chart's frame (`+X` forward, `+Y` up, `+Z` the person's left); paired sides
+ * come from the parting's signed side alone, so a symmetric style's field is
  * mirror-symmetric.
  */
 export namespace AutoMovieHumanHairFlow {
-  /** Downward unit vector. */
+  /** Downward unit vector: gravity in the head chart's frame. */
   export const DOWN: AutoMovieHumanSkinVector.Vec3 = [0, -1, 0];
+
+  /** The head chart's backward unit axis. */
+  export const BACK: AutoMovieHumanSkinVector.Vec3 = [-1, 0, 0];
+
+  /** The head chart's unit axis toward the person's left. */
+  export const LEFT: AutoMovieHumanSkinVector.Vec3 = [0, 0, 1];
+
+  /** A combed style's comb, as weights of the chart's axes. */
+  export interface IComb {
+    /** Backward share of the rest's fall per unit of gravity. */
+    restBack: number;
+
+    /** Share of the top's comb toward the parting's side per unit of backward comb; null when the top falls like the rest. */
+    topSide: number | null;
+  }
+
+  /**
+   * Each combed style's comb (conventions of this prototype):
+   *
+   * - short: the back and sides combed down and slightly back, `0.4` back per
+   *   unit down, tapering to a third of the length at the nape and sides
+   *   (`AutoMovieHumanHairStrandBase`); the top and front combed back from the
+   *   side parting toward the side the parting's ramp gives
+   *   (`AutoMovieHumanHairParting.side`), `0.7` sideways per unit back, the
+   *   front of the head, temples included, combed back like the top rather
+   *   than down over the forehead.
+   * - bob: the back and sides falling straight to the level cut, `0.3` back
+   *   per unit down; the top is the comb away from the parting
+   *   (`AutoMovieHumanHairFlowBobSweep`).
+   */
+  export const COMB: Readonly<Record<AutoMovieHumanHairStyle.Short | AutoMovieHumanHairStyle.Bob, IComb>> = {
+    [AutoMovieHumanHairStyle.Short]: { restBack: 0.4, topSide: 0.7 },
+    [AutoMovieHumanHairStyle.Bob]: { restBack: 0.3, topSide: null },
+  };
 
   /**
    * Unnormalised style direction at a chart direction.
@@ -44,37 +77,26 @@ export namespace AutoMovieHumanHairFlow {
       return AutoMovieHumanHairCrown.flow(u);
 
     // Top hair stands in the style's combing; the sides and back fall.
+    const comb: IComb = COMB[style];
     const upper: number = AutoMovieHumanHairFlowWeights.upper(u);
     const side: number = AutoMovieHumanHairParting.side(style, u);
     const front: number = AutoMovieHumanHairFlowWeights.front(u);
-    if (style === AutoMovieHumanHairStyle.Short) {
+    const rest: AutoMovieHumanSkinVector.Vec3 = AutoMovieHumanSkinVector.add(DOWN, AutoMovieHumanSkinVector.scale(BACK, comb.restBack));
+    if (comb.topSide !== null) {
       // The front of the head, temples included, is combed back like the top
       // rather than down over the forehead.
       const w: number = Math.max(upper, front);
-      return AutoMovieHumanSkinVector.add(
-        AutoMovieHumanSkinVector.scale(
-          AutoMovieHumanHairFlowShortTop.direction(side),
-          w,
-        ),
-        AutoMovieHumanSkinVector.scale(
-          AutoMovieHumanHairFlowShortRest.direction(),
-          1 - w,
-        ),
-      );
+      const top: AutoMovieHumanSkinVector.Vec3 = AutoMovieHumanSkinVector.add(BACK, AutoMovieHumanSkinVector.scale(LEFT, comb.topSide * side));
+
+      return AutoMovieHumanSkinVector.add(AutoMovieHumanSkinVector.scale(top, w), AutoMovieHumanSkinVector.scale(rest, 1 - w));
     }
 
     // Bob: combed away from the parting in front of the back of the head,
     // falling behind it.
     const mix: number = 1 - AutoMovieHumanHairFlowWeights.back(u);
     return AutoMovieHumanSkinVector.add(
-      AutoMovieHumanSkinVector.scale(
-        AutoMovieHumanHairFlowBobSweep.direction(u, side),
-        mix,
-      ),
-      AutoMovieHumanSkinVector.scale(
-        AutoMovieHumanHairFlowBobFall.direction(),
-        1 - mix,
-      ),
+      AutoMovieHumanSkinVector.scale(AutoMovieHumanHairFlowBobSweep.direction(u, side), mix),
+      AutoMovieHumanSkinVector.scale(rest, 1 - mix),
     );
   }
 

@@ -8,6 +8,7 @@ import { AutoMovieHumanNeutral } from "./AutoMovieHumanNeutral";
 import { AutoMovieHumanPelvicShare } from "./AutoMovieHumanPelvicShare";
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
+import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
 
 /**
  * Lightweight posable skeleton of the generated Human, the stickman mode, and
@@ -133,9 +134,8 @@ export namespace AutoMovieHumanSkeleton {
       /** The body already calibrated from these same `params`, spared generating it again. */ calibration?: IAutoMovieHumanBodyCalibration;
     } = {},
   ): PoseEvaluator {
-    const height: number | null = params.body.controls.height.value;
-    if (height === null || !(height > 0))
-      throw new Error("Human stickman requires a positive height control");
+    const height: number = AutoMovieHumanBodyAnatomy.resolve(params).stature;
+    if (!(height > 0)) throw new Error("Human stickman requires a positive stature");
 
     // The skeleton is derived from the same calibration the skin is lofted
     // from, the shape law's output for these parameters.
@@ -148,8 +148,8 @@ export namespace AutoMovieHumanSkeleton {
         ? AutoMovieHumanNeckSurface.derive(
             calibration,
             scale,
-            params.body.controls.neck.value,
-            params.body.controls.neckLength.value,
+            AutoMovieHumanBodyAnatomy.resolve(params).neckCircumference,
+            AutoMovieHumanBodyLaw.headInputs(params).neckLength,
           )
         : undefined;
 

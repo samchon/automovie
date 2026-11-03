@@ -8,7 +8,7 @@ import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
  * own centre is the humeral head's (the glenohumeral centre), not the shoulder
  * girdle's, which stands at the acromioclavicular joint.
  *
- * The ellipse keeps its centre and its aspect `1 / cos(abduction)` and
+ * The ellipse keeps its centre and its aspect `AutoMovieHumanShoulderCap.STRETCH` and
  * shrinks to nothing at the shoulder point, so the cap merges with the girdle
  * at the point where both stand at the same lateral place.
  */
@@ -55,6 +55,6 @@ export namespace AutoMovieHumanDeltoidCap {
     const rz: number = input.outline.at(y).value - gz;
     if (rz < MINIMUM) return null;
 
-    return { x, z: gz, rx: rz * Math.cos(AutoMovieHumanShoulderCap.ABDUCTION), rz };
+    return { x, z: gz, rx: rz / AutoMovieHumanShoulderCap.STRETCH, rz };
   }
 }

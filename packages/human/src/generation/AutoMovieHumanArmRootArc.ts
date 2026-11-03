@@ -1,11 +1,9 @@
 import type { IAutoMovieHumanSeam } from "../lofting/IAutoMovieHumanSeam";
 import type { IAutoMovieHumanArmRootArc } from "./IAutoMovieHumanArmRootArc";
 import { AutoMovieHumanArmRootOval } from "./AutoMovieHumanArmRootOval";
-import { AutoMovieHumanTrunkGuideAnteriorAxillary } from "./AutoMovieHumanTrunkGuideAnteriorAxillary";
-import { AutoMovieHumanTrunkGuideMidAxillary } from "./AutoMovieHumanTrunkGuideMidAxillary";
-import { AutoMovieHumanTrunkGuidePosteriorAxillary } from "./AutoMovieHumanTrunkGuidePosteriorAxillary";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import type { AutoMovieHumanTrunkAssembly } from "./AutoMovieHumanTrunkAssembly";
+import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 
 /**
  * The arm's arc of the shoulder ring: where the arm's horizontal ellipse
@@ -58,21 +56,21 @@ export namespace AutoMovieHumanArmRootArc {
     extreme: number,
     torso: number,
   ): IAutoMovieHumanArmRootArc {
-    const own: number = s.posterior ?? AutoMovieHumanTrunkGuidePosteriorAxillary.SHARE;
+    const own: number = s.posterior ?? AutoMovieHumanTrunkGuides.SHARE.posteriorAxillary;
     const anterior: number = torso * s.anterior + (1 - torso) * share(s, "front", oval.x + CROSS * oval.rx);
     const posterior: number = torso * own + (1 - torso) * share(s, "back", oval.x - CROSS * oval.rx);
-    const A: IAutoMovieHumanSeam.IArcJet = AutoMovieHumanTrunkGuideAnteriorAxillary.jet({ ...s, anterior });
-    const P: IAutoMovieHumanSeam.IArcJet = AutoMovieHumanTrunkGuidePosteriorAxillary.jet({ ...s, posterior });
+    const A: IAutoMovieHumanSeam.IArcJet = AutoMovieHumanTrunkGuides.jet("anteriorAxillary", { ...s, anterior });
+    const P: IAutoMovieHumanSeam.IArcJet = AutoMovieHumanTrunkGuides.jet("posteriorAxillary", { ...s, posterior });
     const L: IAutoMovieHumanSeam.IArcJet = {
       point: [oval.x, extreme],
       tangent: [-1, 0],
       curvature: [0, -AutoMovieHumanArmRootOval.curvature(oval)],
     };
     const spanFront: number = AutoMovieHumanTrunkQuadrant.phase(
-      AutoMovieHumanTrunkGuideMidAxillary.KNOT - AutoMovieHumanTrunkGuideAnteriorAxillary.KNOT,
+      AutoMovieHumanTrunkGuides.KNOT.midAxillary - AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary,
     );
     const spanBack: number = AutoMovieHumanTrunkQuadrant.phase(
-      AutoMovieHumanTrunkGuidePosteriorAxillary.KNOT - AutoMovieHumanTrunkGuideMidAxillary.KNOT,
+      AutoMovieHumanTrunkGuides.KNOT.posteriorAxillary - AutoMovieHumanTrunkGuides.KNOT.midAxillary,
     );
     const lengthFront: number = QUARTER * chord(A.point, L.point);
     const lengthBack: number = QUARTER * chord(L.point, P.point);
@@ -84,9 +82,9 @@ export namespace AutoMovieHumanArmRootArc {
       guides: [A, L, P],
       rates: [lengthFront / spanFront, lengthBack / spanBack],
       front: (speeds: readonly [number, number]): AutoMovieHumanTrunkAssembly.Sector =>
-        sector(A, L, AutoMovieHumanTrunkGuideAnteriorAxillary.KNOT, AutoMovieHumanTrunkGuideMidAxillary.KNOT, speeds),
+        sector(A, L, AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary, AutoMovieHumanTrunkGuides.KNOT.midAxillary, speeds),
       back: (speeds: readonly [number, number]): AutoMovieHumanTrunkAssembly.Sector =>
-        sector(L, P, AutoMovieHumanTrunkGuideMidAxillary.KNOT, AutoMovieHumanTrunkGuidePosteriorAxillary.KNOT, speeds),
+        sector(L, P, AutoMovieHumanTrunkGuides.KNOT.midAxillary, AutoMovieHumanTrunkGuides.KNOT.posteriorAxillary, speeds),
     };
   }
 

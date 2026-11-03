@@ -1,6 +1,6 @@
 import { AutoMovieHumanSeamCarve } from "../../lofting/AutoMovieHumanSeamCarve";
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
-import { AutoMovieHumanHypothenar } from "./AutoMovieHumanHypothenar";
+import { AutoMovieHumanHandWindow } from "./AutoMovieHumanHandWindow";
 import { AutoMovieHumanInterosseousValley } from "./AutoMovieHumanInterosseousValley";
 import { AutoMovieHumanMetacarpalArch } from "./AutoMovieHumanMetacarpalArch";
 import { AutoMovieHumanPalmPalmarSector } from "./AutoMovieHumanPalmPalmarSector";
@@ -19,7 +19,7 @@ type Vec3 = AutoMovieHumanHandVector.Vec3;
  *   deep as its share of the metacarpal arches' radius
  *   ({@link AutoMovieHumanMetacarpalArch}), growing from the palm's first
  *   section to the knuckles;
- * - the hypothenar eminence ({@link AutoMovieHumanHypothenar}) along the fifth
+ * - the hypothenar eminence ({@link AutoMovieHumanHandWindow.HYPOTHENAR}) along the fifth
  *   metacarpal on the palm's ulnar side, its window between the palm's first
  *   section and the fifth finger's root.
  *
@@ -75,7 +75,7 @@ export namespace AutoMovieHumanPalmRelief {
     // (LENGTH_SHARE of the metacarpal) is half that run.
     const little: IAutoMovieHumanHandDigit = fingers[fingers.length - 1]!;
     const run: number = Math.max(1, little.centre[0] - start);
-    const hypothenar: AutoMovieHumanHypothenar.IInput = { metacarpal: run / (2 * AutoMovieHumanHypothenar.LENGTH_SHARE), palm };
+    const hypothenar: AutoMovieHumanHandWindow.IMassSize = { length: run / (2 * AutoMovieHumanHandWindow.HYPOTHENAR.length), width: palm, depth: palm };
     const belly: number = start + run / 2;
 
     // The palmar sector's pad: the half ellipse between the section's radial
@@ -119,7 +119,7 @@ export namespace AutoMovieHumanPalmRelief {
           sum + AutoMovieHumanInterosseousValley.depth(v.input, q[1], (q[0] - start) / Math.max(1e-6, v.head - start)),
         0,
       );
-      const rise: number = AutoMovieHumanHypothenar.height(hypothenar, q[0] - belly, q[1] - little.centre[1]);
+      const rise: number = AutoMovieHumanHandWindow.mass(AutoMovieHumanHandWindow.HYPOTHENAR, hypothenar, q[0] - belly, q[1] - little.centre[1]);
 
       // A dorsal point's distance from the section's middle only shrinks by
       // the declared recess, a palmar point's only grows by the eminence.

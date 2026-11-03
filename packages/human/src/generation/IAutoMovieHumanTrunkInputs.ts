@@ -29,8 +29,20 @@ export interface IAutoMovieHumanTrunkInputs {
   /** Neck base tape. */
   neckBase: number;
 
-  /** Across back shoulder width: shoulder point over the back neck point to shoulder point (ISO 8559-1 5.4.3). */
+  /** Across back shoulder width: shoulder point over the back neck point to shoulder point (ISO 8559-1 5.4.3); a reading of the skin, the shoulder points stand on the biacromial breadth. */
   acrossShoulder: number;
+
+  /** Biacromial breadth: between the acromia (ISO 7250-1:2017 6.2.7), twice the shoulder point's lateral place. */
+  biacromial: number;
+
+  /** Acromial height: the acromion over the floor (ANSUR II), the shoulder point's height. */
+  acromion: number;
+
+  /** Axilla height: the armpit's vault over the floor (ANSUR II), where the arm parts from the trunk. */
+  axilla: number;
+
+  /** Whether the person's measured anatomy is a woman's (`AutoMovieHumanBodyAnatomy`): the chest tape then closes over the breasts, a man's over the pectoral wall. */
+  female: boolean;
 
   /** Biceps tape: the upper arm's greatest girth, the arm's root radius is its girth radius. */
   bicep: number;
@@ -40,9 +52,6 @@ export interface IAutoMovieHumanTrunkInputs {
 
   /** Side neck point to bust point over the front (ISO 8559-1 5.4.10). */
   shoulderToApex: number;
-
-  /** Across front width between the anterior axillary fold points (ISO 8559-1 5.4.7). */
-  frontInterscyeLength: number;
 
   /** Upper arm length, acromion to radiale (ANSUR II): the glenohumeral centre's offset below the shoulder point is a share of it. */
   upperArm: number;

@@ -24,7 +24,8 @@ import type { IAutoMovieHumanHairGuideState } from "./IAutoMovieHumanHairGuideSt
  * star-shaped over the vault: where it jumps (an ear, the open neck end, the
  * flare toward the shoulders) a projection can move a point much further than
  * one step; lying hair cannot follow such a jump, so it ends there, while
- * hanging hair is outside the head anyway and keeps its free step. The
+ * hanging hair is lifted to its floor however far, so a curtain goes round
+ * the auricle instead of through it. The
  * clearance also holds the strand's standing height over the scalp along the
  * head's normal, from its exit angle and its fibre's bending length
  * (`AutoMovieHumanHairBending`): the hair follows the cranium's shape and sits
@@ -100,19 +101,23 @@ export namespace AutoMovieHumanHairGuideClearance {
     if (AutoMovieHumanSkinVector.norm(next) < floor || lies) {
       const projected: AutoMovieHumanSkinVector.Vec3 =
         AutoMovieHumanSkinVector.scale(dir, floor);
+
+      // Lying hair cannot follow a jump of the chart and ends there; hanging
+      // hair is lifted to its floor whatever the lift, since a free step
+      // past a fast rise of the drape went through the auricle and showed the
+      // ear through the curtain as pale slits.
       if (
+        lies &&
         AutoMovieHumanSkinVector.norm(
           AutoMovieHumanSkinVector.sub(projected, state.p),
         ) >
-        2.5 * step
-      ) {
-        if (lies) return ended;
-      } else {
-        held = projected;
-        heading = AutoMovieHumanSkinVector.normalize(
-          AutoMovieHumanSkinVector.sub(held, state.p),
-        );
-      }
+          2.5 * step
+      )
+        return ended;
+      held = projected;
+      heading = AutoMovieHumanSkinVector.normalize(
+        AutoMovieHumanSkinVector.sub(held, state.p),
+      );
     }
     return { ended: false, next: held, heading };
   }

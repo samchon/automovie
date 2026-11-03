@@ -113,12 +113,28 @@ export namespace AutoMovieHumanWebMesh {
         // sides read the owners' jets in closed form: read by finite
         // differences of this surface, whose depth inverse steps where a
         // column's depth is not monotone, their jets are unbounded.
+        // Each column is published as a construction path, and where the
+        // chart weighs in also its two laws apart, so a frame shows which
+        // law carries a column where.
+        const path: Vec3[] = [col.p];
+        const plainPath: Vec3[] = [col.p];
+        const chartPath: Vec3[] = [col.p];
         for (let r: number = 1; r < rows; r++) {
           const a: Vec3 = plain(r);
-          const p: Vec3 = w === 0 ? a : add(a, scale(sub(chart(col, own, r), a), w));
+          const b: Vec3 | null = w === 0 ? null : chart(col, own, r);
+          const p: Vec3 = b === null ? a : add(a, scale(sub(b, a), w));
           ids.push(vertex(p));
+          path.push(p);
+          plainPath.push(a);
+          if (b !== null) chartPath.push(b);
         }
         ids.push(vertex(col.q, [index, c.station, col.phi]));
+        for (const list of [path, plainPath, chartPath]) list.push(col.q);
+        construction.push({ id: `${c.name}/web-column-${col.v}`, points: path, closed: false });
+        if (w > 0) {
+          construction.push({ id: `${c.name}/web-plain-${col.v}`, points: plainPath, closed: false });
+          construction.push({ id: `${c.name}/web-chart-${col.v}`, points: chartPath, closed: false });
+        }
         return ids;
       });
 

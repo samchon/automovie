@@ -7,6 +7,7 @@ import type {
 
 import { AutoMovieHumanBodyApertures } from "../generation/AutoMovieHumanBodyApertures";
 import type { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
+import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanBrowAppearance } from "../structures/appearance/IAutoMovieHumanBrowAppearance";
 import type { IAutoMovieHumanEyelash } from "../structures/appearance/IAutoMovieHumanEyelash";
@@ -24,6 +25,7 @@ import { AutoMovieHumanHairStage } from "./AutoMovieHumanHairStage";
 import { AutoMovieHumanIrisImage } from "./AutoMovieHumanIrisImage";
 import { AutoMovieHumanScleraImage } from "./AutoMovieHumanScleraImage";
 import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceBody";
+import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
 
 /**
  * Human appearance: the parts, materials and generated images that dress
@@ -74,6 +76,13 @@ export namespace AutoMovieHumanAppearance {
 
     /** Generated images the materials cite. */
     images: IAutoMovieImage[];
+
+    /**
+     * Contracts the optional hair pieces broke, one per piece that was left
+     * out (`docs/techniques/construction-levels.md`); empty for a sound
+     * figure.
+     */
+    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
   }
 
   /**
@@ -96,13 +105,14 @@ export namespace AutoMovieHumanAppearance {
       ...AutoMovieHumanConjunctiva.materials(),
     ];
     const images: IAutoMovieImage[] = [image, sclera];
+    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
 
     // Lid margins of both eyes, the ones the body generator cut, in
     // calibration millimetres; the body is that calibration scaled
     // uniformly by stature into model metres.
     const stature: number = body.calibration.stature;
     const scale: number =
-      (params.body.controls.height.value ?? stature) / stature / 1000;
+      AutoMovieHumanBodyAnatomy.resolve(params).stature / stature / 1000;
     const lids: Map<string, AutoMovieHumanEyelid.ILid> = new Map();
     for (const prepared of AutoMovieHumanBodyApertures.prepare(
       body.calibration.apertures,
@@ -163,7 +173,14 @@ export namespace AutoMovieHumanAppearance {
       const lashes: IAutoMovieMesh | null =
         lash === undefined
           ? null
-          : AutoMovieHumanEyelash.generate(lid, lash, scale, seed);
+          : AutoMovieHumanEyelash.attempt(
+              lid,
+              lash,
+              scale,
+              seed,
+              side,
+              diagnostics,
+            );
       if (lash !== undefined && lashes !== null && finite(lashes)) {
         const material: IAutoMovieMaterial = AutoMovieHumanEyelash.material(
           lash,
@@ -177,7 +194,14 @@ export namespace AutoMovieHumanAppearance {
       const brows: IAutoMovieMesh | null =
         brow === undefined
           ? null
-          : AutoMovieHumanEyebrow.generate(lid, body.parts, scale, seed + 1);
+          : AutoMovieHumanEyebrow.attempt(
+              lid,
+              body.parts,
+              scale,
+              seed + 1,
+              side,
+              diagnostics,
+            );
       if (brow !== undefined && brows !== null && finite(brows)) {
         const material: IAutoMovieMaterial =
           AutoMovieHumanEyebrowMaterial.material(brow, side);
@@ -193,7 +217,7 @@ export namespace AutoMovieHumanAppearance {
     const hair: IAutoMovieHumanScalpHair | undefined = params.appearance?.hair;
     if (hair !== undefined && hair.length > 0) {
       const realised: AutoMovieHumanHairStage.IOutput | null =
-        AutoMovieHumanHairStage.realise(params, body, hair);
+        AutoMovieHumanHairStage.attempt(params, body, hair, diagnostics);
       if (realised !== null) {
         parts.push(
           part("human.hair.scalp", "human.hair.scalp", realised.mesh.scalp),
@@ -215,7 +239,7 @@ export namespace AutoMovieHumanAppearance {
     parts.push(...garment.parts);
     materials.push(...garment.materials);
 
-    return { parts, materials, images };
+    return { parts, materials, images, diagnostics };
   }
 }
 

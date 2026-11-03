@@ -9,10 +9,19 @@ import { AutoMovieHumanHairShade } from "./AutoMovieHumanHairShade";
  *
  * Cards: the strand image's luminance times the category colour,
  * alpha-tested at 0.35 coverage (mask needs no sorting and writes depth, at
- * the cost of aliased strand edges), double-sided, roughness 0.38 and
- * specular intensity 0.7 for the fibre's weak dielectric reflection, with an
- * isotropic lobe. A fibre reflects light on a cone about its own axis (Kajiya
- * and Kay 1989), but a card's strand direction is the card's own heading,
+ * the cost of aliased strand edges), double-sided, the dielectric reflection
+ * of keratin at its refractive index {@link KERATIN_IOR} (Marschner et al.
+ * 2003, the index their fibre model takes), with an isotropic lobe of
+ * roughness 1. A fibre reflects light on a cone about its own axis (Kajiya
+ * and Kay 1989): across the fibre its surface normals span the whole half
+ * circle, so its highlight is spread over every azimuth and narrow only along
+ * the fibre. An isotropic lobe cannot be narrow one way and wide the other;
+ * at roughness 0.38 it gathered the spread highlight of the whole mass into
+ * one round white spot on the smooth mass normals, which read as shiny bare
+ * scalp on the top and side of the head. The widest isotropic lobe is the
+ * one that spreads as a fibre does across its axis; the narrow band along the
+ * strands needs an anisotropic lobe on a strand tangent continuous across
+ * cards. A card's strand direction is the card's own heading,
  * which turns a little from card to card as combed hair does: an anisotropic
  * lobe of strength 0.6 stretched every highlight across the strands and
  * switched it on or off card by card, so the lit side of every cut broke into
@@ -26,6 +35,9 @@ import { AutoMovieHumanHairShade } from "./AutoMovieHumanHairShade";
  * the alpha-masked cards and depth-tested against both.
  */
 export namespace AutoMovieHumanHairCardMaterial {
+  /** Refractive index of hair keratin (Marschner et al. 2003, measured value their model uses). */
+  export const KERATIN_IOR: number = 1.55;
+
   /**
    * The two materials.
    *
@@ -44,7 +56,7 @@ export namespace AutoMovieHumanHairCardMaterial {
         name: "scalp hair",
         baseColor: { r, g, b, a: 1, hex: null },
         metallic: 0,
-        roughness: 0.38,
+        roughness: 1,
         emissive: null,
         opacity: 1,
         baseColorTexture: {
@@ -61,7 +73,7 @@ export namespace AutoMovieHumanHairCardMaterial {
         doubleSided: true,
         alphaMode: "mask",
         alphaCutoff: 0.35,
-        specularIntensity: 0.7,
+        ior: KERATIN_IOR,
       },
       {
         id: "human.hair.scalp",

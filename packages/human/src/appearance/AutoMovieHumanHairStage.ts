@@ -4,6 +4,7 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
+import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanScalpHair } from "../structures/appearance/IAutoMovieHumanScalpHair";
 import { AutoMovieHumanHairCard } from "./AutoMovieHumanHairCard";
@@ -14,6 +15,8 @@ import { AutoMovieHumanScalpBoundary } from "./AutoMovieHumanScalpBoundary";
 import { AutoMovieHumanScalpLandmarks } from "./AutoMovieHumanScalpLandmarks";
 import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
 import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceBody";
+import { AutoMovieHumanHeadAnatomy } from "../generation/AutoMovieHumanHeadAnatomy";
+import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
 
 /**
  * Scalp hair geometry with its work reused across generations.
@@ -70,6 +73,40 @@ export namespace AutoMovieHumanHairStage {
   }
 
   /**
+   * Realise scalp hair, or nothing and one diagnostic when a piece of the
+   * hair family breaks its contract (a head chart without head skin, a
+   * forehead profile that does not reach the nasion): the hair is an
+   * optional piece of level 8 (`docs/techniques/construction-levels.md`),
+   * so the figure keeps its bare scalp and the defect is recorded, never
+   * thrown past this level.
+   *
+   * @param params Complete public input
+   * @param body Frames the body generator publishes for appearance
+   * @param hair Scalp hair input
+   * @param diagnostics The list a broken contract is recorded in
+   * @returns The meshes and guides, or null without hair
+   */
+  export function attempt(
+    params: IAutoMovieHumanParameters,
+    body: IAutoMovieHumanAppearanceBody,
+    hair: IAutoMovieHumanScalpHair,
+    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
+  ): IOutput | null {
+    try {
+      return realise(params, body, hair);
+    } catch (error) {
+      diagnostics.push({
+        producer: "human.hair.scalp",
+        level: 8,
+        contract:
+          "the scalp hair builds from the head chart and its published landmarks",
+        detail: error instanceof Error ? error.message : String(error),
+      });
+      return null;
+    }
+  }
+
+  /**
    * Realise scalp hair, reusing every stage whose inputs are unchanged.
    *
    * @param params Complete public input
@@ -88,12 +125,13 @@ export namespace AutoMovieHumanHairStage {
     );
     const eyeLevel: number =
       body.eyePair.left.centre[1] + body.eyePair.right.centre[1];
+    const headIdentity: IAutoMovieHumanHeadIdentity = AutoMovieHumanHeadAnatomy.resolve(params);
     const head: number[] = [
-      params.head.height,
-      params.head.faceHeight,
-      params.head.face.nose.height,
-      params.head.face.intercanthalWidth,
-      params.head.face.eyePair.left.palpebralFissureLength,
+      headIdentity.height,
+      headIdentity.faceHeight,
+      headIdentity.face.nose.height,
+      headIdentity.face.intercanthalWidth,
+      headIdentity.face.eyePair.left.palpebralFissureLength,
       body.eyePair.left.centre[2],
       body.eyePair.right.centre[2],
     ];

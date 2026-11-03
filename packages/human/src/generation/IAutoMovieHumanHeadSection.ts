@@ -38,11 +38,12 @@ export interface IAutoMovieHumanHeadSection {
   brow: number;
 
   /**
-   * The face shield's rise over the neck, in [0, 1]: 0 under the shield's
-   * start, 1 from the menton up (`AutoMovieHumanHeadSection`). Under 1 the
-   * shield is a fading piece on the neck tube, merged by adding volume.
+   * The neck tube's share of the cranium, in [0, 1]: 1 under the jaw, where
+   * the cranium is the neck's tube, falling to 0 as the skull's sizes take
+   * over by the nose's base (`AutoMovieHumanHeadSection`). The face merges
+   * onto the tube by adding volume in that share.
    */
-  shield: number;
+  tube: number;
 
   /** Face's front apex, on the midline profile. */
   front: number;

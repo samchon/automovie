@@ -1,3 +1,4 @@
+import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
 import type { AutoMovieHumanLegConstruction } from "../AutoMovieHumanLegConstruction";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
@@ -5,7 +6,7 @@ import { AutoMovieHumanLegAnkleSeam } from "./AutoMovieHumanLegAnkleSeam";
 import type { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
 import { AutoMovieHumanLegCrotchRoot } from "./AutoMovieHumanLegCrotchRoot";
 import { AutoMovieHumanLegGirth } from "./AutoMovieHumanLegGirth";
-import { AutoMovieHumanLegGuideAnterior } from "./AutoMovieHumanLegGuideAnterior";
+import { AutoMovieHumanLegSectionRows } from "./AutoMovieHumanLegSectionRows";
 import { AutoMovieHumanLegProfile } from "./AutoMovieHumanLegProfile";
 import { AutoMovieHumanLegReliefs } from "./AutoMovieHumanLegReliefs";
 import { AutoMovieHumanLegRingRow } from "./AutoMovieHumanLegRingRow";
@@ -83,6 +84,7 @@ export namespace AutoMovieHumanLegSectionLaw {
    * @param sign 1 for the left leg, -1 for the right's reflection.
    * @param inputs Tape measures in calibration millimetres.
    * @param bones The joints' heights, mm.
+   * @param diagnostics The list a relief that breaks its contract is recorded in; the relief is then left out.
    */
   export function of(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -90,6 +92,7 @@ export namespace AutoMovieHumanLegSectionLaw {
     sign: 1 | -1,
     inputs: AutoMovieHumanLegConstruction.IInputs,
     bones: AutoMovieHumanLegStations.IBones,
+    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [],
   ): ILaw {
     const planar: (ring: readonly Vec3[]) => [number, number][] = (ring: readonly Vec3[]): [number, number][] =>
       ring.map((p: Vec3): [number, number] => [p[0], p[2]]);
@@ -106,7 +109,7 @@ export namespace AutoMovieHumanLegSectionLaw {
     const crotchCentre: [number, number] = AutoMovieHumanPolarSection.measure(planar(crotchWorld)).centre;
 
     // The spans from each ring to its first kept landmark row.
-    const rows: readonly AutoMovieHumanLegProfile.IRow[] = AutoMovieHumanLegGuideAnterior.ROWS;
+    const rows: readonly AutoMovieHumanLegProfile.IRow[] = AutoMovieHumanLegSectionRows.GUIDES[0]!.rows;
     const ankleReach: number = AutoMovieHumanLegProfile.reach(rows, bones, bottom, "bottom");
     const crotchReach: number = AutoMovieHumanLegProfile.reach(rows, bones, top, "top");
 
@@ -127,11 +130,12 @@ export namespace AutoMovieHumanLegSectionLaw {
       bones,
       scale: inputs.scale,
       ends: { bottom: { at: bottom, values: [low.girth] }, top: { at: top, values: [high.girth] } },
+      site: inputs.furrow,
     });
     const tube: (s: number) => AutoMovieHumanLegTube.ISection = AutoMovieHumanLegTube.of({
       bones,
       girth,
-      reliefs: AutoMovieHumanLegReliefs.of(bones, girth, [bottom, top], crotchReach),
+      reliefs: AutoMovieHumanLegReliefs.of(bones, girth, [bottom, top], crotchReach, diagnostics, inputs.furrow),
       ends: { bottom: { at: bottom, shape: low.shape }, top: { at: top, shape: high.shape } },
     });
 

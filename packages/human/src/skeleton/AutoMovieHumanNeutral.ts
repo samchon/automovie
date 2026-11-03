@@ -5,19 +5,12 @@ import type { IAutoMovieHumanChainRings } from "./IAutoMovieHumanChainRings";
 import type { IAutoMovieHumanNeutralBody } from "./IAutoMovieHumanNeutralBody";
 import type { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
 import { AutoMovieHumanNeutralAnkle } from "./AutoMovieHumanNeutralAnkle";
-import { AutoMovieHumanNeutralElbow } from "./AutoMovieHumanNeutralElbow";
-import { AutoMovieHumanNeutralFingerDip } from "./AutoMovieHumanNeutralFingerDip";
-import { AutoMovieHumanNeutralFingerPip } from "./AutoMovieHumanNeutralFingerPip";
 import { AutoMovieHumanNeutralForearm } from "./AutoMovieHumanNeutralForearm";
 import { AutoMovieHumanNeutralHip } from "./AutoMovieHumanNeutralHip";
-import { AutoMovieHumanNeutralKnee } from "./AutoMovieHumanNeutralKnee";
 import { AutoMovieHumanNeutralKnuckle } from "./AutoMovieHumanNeutralKnuckle";
 import { AutoMovieHumanNeutralShoulder } from "./AutoMovieHumanNeutralShoulder";
 import { AutoMovieHumanNeutralThumbCmc } from "./AutoMovieHumanNeutralThumbCmc";
-import { AutoMovieHumanNeutralThumbIp } from "./AutoMovieHumanNeutralThumbIp";
-import { AutoMovieHumanNeutralThumbMcp } from "./AutoMovieHumanNeutralThumbMcp";
 import { AutoMovieHumanNeutralTurn } from "./AutoMovieHumanNeutralTurn";
-import { AutoMovieHumanNeutralWrist } from "./AutoMovieHumanNeutralWrist";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
 /**
@@ -30,20 +23,23 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * from the bind by one rotation per bone, and those rotations are the body's
  * achieved offset. A bone that no piece names rides its parent, so its offset
  * is zero. Each joint's rule is its own piece, composed here parent before
- * child:
+ * child; a hinge whose neutral is straight on its parent (Neutral-0: extension
+ * is the zero of flexion) is `AutoMovieHumanNeutralTurn.straighten` of its bone
+ * along the limb's line:
  *
  * - Arm: {@link AutoMovieHumanNeutralShoulder} (resting at the side),
- *   {@link AutoMovieHumanNeutralElbow}, {@link AutoMovieHumanNeutralForearm}
- *   (thumbs forward) and {@link AutoMovieHumanNeutralWrist}.
+ *   the elbow straight (the forearm on the arm's line),
+ *   {@link AutoMovieHumanNeutralForearm} (thumbs forward) and the wrist straight
+ *   (the hand on the forearm's line, before the forearm's twist).
  * - Thumb: {@link AutoMovieHumanNeutralThumbCmc} (toward the index
- *   metacarpal, clear of the hand), {@link AutoMovieHumanNeutralThumbMcp} and
- *   {@link AutoMovieHumanNeutralThumbIp}.
+ *   metacarpal, clear of the hand), and its two hinges straight on
+ *   the line it lies along.
  * - Fingers: {@link AutoMovieHumanNeutralKnuckle},
- *   {@link AutoMovieHumanNeutralFingerPip} and
- *   {@link AutoMovieHumanNeutralFingerDip}, straight on the hand, parted by the
+ *   its two interphalangeal hinges straight, the finger straight on the hand, parted by the
  *   least spread at which neighbours do not cross.
  * - Leg: {@link AutoMovieHumanNeutralHip} (the least abduction at which the
- *   thighs do not cross), {@link AutoMovieHumanNeutralKnee} and
+ *   thighs do not cross), the knee straight (the shank plumb under
+ *   the knee) and
  *   {@link AutoMovieHumanNeutralAnkle} (the sole level, the foot straight ahead).
  * - Spine, neck, head, jaw, eyes, girdle: as they stand. A standing column is
  *   its own neutral, and the head is built in the Frankfort plane, so no
@@ -188,18 +184,8 @@ export namespace AutoMovieHumanNeutral {
     for (const side of ["left", "right"] as const) {
       const shoulder: AutoMovieHumanNeutralShoulder.IOutput =
         AutoMovieHumanNeutralShoulder.derive(body, rings, side);
-      const straight: Math3D.Quaternion = AutoMovieHumanNeutralElbow.derive(
-        body,
-        side,
-        shoulder.turn,
-        shoulder.down,
-      );
-      const bent: Math3D.Quaternion = AutoMovieHumanNeutralWrist.derive(
-        body,
-        side,
-        straight,
-        shoulder.down,
-      );
+      const straight: Math3D.Quaternion = AutoMovieHumanNeutralTurn.straighten(body, `${side}LowerArm`, shoulder.turn, shoulder.down);
+      const bent: Math3D.Quaternion = AutoMovieHumanNeutralTurn.straighten(body, `${side}Hand`, straight, shoulder.down);
       const forearm: AutoMovieHumanNeutralForearm.IOutput =
         AutoMovieHumanNeutralForearm.derive(
           body,
@@ -228,17 +214,12 @@ export namespace AutoMovieHumanNeutral {
         forearm.hand,
         line,
       );
-      const mcp: Math3D.Quaternion = AutoMovieHumanNeutralThumbMcp.derive(
-        body,
-        side,
-        cmc,
-        line,
-      );
+      const mcp: Math3D.Quaternion = AutoMovieHumanNeutralTurn.straighten(body, `${side}ThumbProximal`, cmc, line);
       named.set(`${side}ThumbMetacarpal`, cmc);
       named.set(`${side}ThumbProximal`, mcp);
       named.set(
         `${side}ThumbDistal`,
-        AutoMovieHumanNeutralThumbIp.derive(body, side, mcp, line),
+        AutoMovieHumanNeutralTurn.straighten(body, `${side}ThumbDistal`, mcp, line),
       );
 
       // Each finger lies along the hand, the neighbours parted by the least
@@ -259,24 +240,12 @@ export namespace AutoMovieHumanNeutral {
           forearm.hand,
           along,
         );
-        const middle: Math3D.Quaternion = AutoMovieHumanNeutralFingerPip.derive(
-          body,
-          side,
-          finger,
-          proximal,
-          along,
-        );
+        const middle: Math3D.Quaternion = AutoMovieHumanNeutralTurn.straighten(body, `${side}${finger}Intermediate`, proximal, along);
         named.set(`${side}${finger}Proximal`, proximal);
         named.set(`${side}${finger}Intermediate`, middle);
         named.set(
           `${side}${finger}Distal`,
-          AutoMovieHumanNeutralFingerDip.derive(
-            body,
-            side,
-            finger,
-            middle,
-            along,
-          ),
+          AutoMovieHumanNeutralTurn.straighten(body, `${side}${finger}Distal`, middle, along),
         );
       }
 
@@ -288,7 +257,7 @@ export namespace AutoMovieHumanNeutral {
       named.set(`${side}UpperLeg`, thigh);
       named.set(
         `${side}LowerLeg`,
-        AutoMovieHumanNeutralKnee.derive(body, side, thigh),
+        AutoMovieHumanNeutralTurn.straighten(body, `${side}LowerLeg`, thigh, AutoMovieHumanNeutralTurn.DOWN),
       );
       named.set(`${side}Foot`, AutoMovieHumanNeutralAnkle.derive(body, side));
     }

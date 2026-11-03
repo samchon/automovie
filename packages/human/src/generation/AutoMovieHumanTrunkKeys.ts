@@ -4,9 +4,9 @@ import type { IAutoMovieHumanTrunkKey } from "./IAutoMovieHumanTrunkKey";
 import type { IAutoMovieHumanTrunkState } from "./IAutoMovieHumanTrunkState";
 import { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
 import type { AutoMovieHumanTrunkFeatures } from "./AutoMovieHumanTrunkFeatures";
-import { AutoMovieHumanTrunkGuideAnteriorAxillary } from "./AutoMovieHumanTrunkGuideAnteriorAxillary";
 import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
 import { AutoMovieHumanTrunkShapes } from "./AutoMovieHumanTrunkShapes";
+import { AutoMovieHumanTrunkGuides } from "./AutoMovieHumanTrunkGuides";
 
 /**
  * The column of a solve's state: the landmark heights the courses move, the
@@ -46,14 +46,17 @@ export namespace AutoMovieHumanTrunkKeys {
     const h: Heights = heights(ctx, st);
     const K: typeof AutoMovieHumanTrunkShapes = AutoMovieHumanTrunkShapes;
     const S: number = ctx.fixed.stature;
-    const share: number = AutoMovieHumanTrunkGuideAnteriorAxillary.SHARE;
+    const share: number = AutoMovieHumanTrunkGuides.SHARE.anteriorAxillary;
 
     return [
       K.key(ctx.fixed.crotch, st.groin, K.CROTCH, S, share),
 
       // No back place at the buttock point: the buttock relief stands there, and the base's back runs through its neighbours.
       { ...K.key(ctx.buttock, st.widths.buttock, K.BUTTOCK, S, share), back: null },
-      K.key(h.highHip, st.widths.highHip, K.HIGH_HIP, S, share),
+
+      // No front place at the high hip: its tape fixes the girth there, and the
+      // abdominal wall's front runs from the buttock row to the waist.
+      { ...K.key(h.highHip, st.widths.highHip, K.HIGH_HIP, S, share), front: null },
       K.key(h.waist, st.widths.waist, K.WAIST, S, share),
       K.key(h.fold, st.widths.fold, K.FOLD, S, share),
       K.key(h.bust, st.widths.bust, K.BUST, S, share),
@@ -112,7 +115,7 @@ export namespace AutoMovieHumanTrunkKeys {
       st.widths.buttock,
       AutoMovieHumanTrunkShapes.BUTTOCK,
       ctx.fixed.stature,
-      AutoMovieHumanTrunkGuideAnteriorAxillary.SHARE,
+      AutoMovieHumanTrunkGuides.SHARE.anteriorAxillary,
     );
 
     return {

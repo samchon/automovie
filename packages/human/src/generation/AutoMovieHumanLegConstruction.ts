@@ -1,3 +1,4 @@
+import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
@@ -55,6 +56,14 @@ export namespace AutoMovieHumanLegConstruction {
 
     /** Calibration millimetres per world millimetre. */
     scale: number;
+
+    /**
+     * Gluteal furrow height, the gluteal fold's lowest point over the floor
+     * (ANSUR 1988), in calibration millimetres: the thigh tape's station (ISO
+     * 8559-1 5.3.20, just below the fold) and the infragluteal fold's centre.
+     * Absent, both stand at their declared places on the thigh.
+     */
+    furrow?: number;
   }
 
   /**
@@ -69,14 +78,16 @@ export namespace AutoMovieHumanLegConstruction {
     inputs: IInputs,
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
+    // The body law's shared list: a leg records where it degrades.
+    const found: AutoMovieHumanLoftContract.IDiagnostic[] = calibration.diagnostics ?? [];
     return {
       ...calibration,
       chains: calibration.chains.map(
         (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
           c.name === "leg.left"
-            ? AutoMovieHumanLegChain.of(calibration, "left", inputs, skeleton)
+            ? AutoMovieHumanLegChain.of(calibration, "left", inputs, skeleton, found)
             : c.name === "leg.right"
-              ? AutoMovieHumanLegChain.of(calibration, "right", inputs, skeleton)
+              ? AutoMovieHumanLegChain.of(calibration, "right", inputs, skeleton, found)
               : c,
       ),
     };
@@ -109,13 +120,15 @@ export namespace AutoMovieHumanLegConstruction {
     inputs: IInputs,
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
+    // The body law's shared list: a leg records where it degrades.
+    const found: AutoMovieHumanLoftContract.IDiagnostic[] = calibration.diagnostics ?? [];
+    const chains: IAutoMovieHumanLoftChain[] = [
+      AutoMovieHumanLegChain.of(calibration, "right", inputs, skeleton, found),
+      AutoMovieHumanLegChain.of(calibration, "left", inputs, skeleton, found),
+    ];
     return {
       ...calibration,
-      chains: [
-        ...calibration.chains,
-        AutoMovieHumanLegChain.of(calibration, "right", inputs, skeleton),
-        AutoMovieHumanLegChain.of(calibration, "left", inputs, skeleton),
-      ],
+      chains: [...calibration.chains, ...chains],
     };
   }
 }

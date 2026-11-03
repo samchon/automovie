@@ -1,5 +1,5 @@
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
-import { AutoMovieHumanFingertipPulp } from "../hand/AutoMovieHumanFingertipPulp";
+import { AutoMovieHumanHandWindow } from "../hand/AutoMovieHumanHandWindow";
 import { AutoMovieHumanFootToeTaper } from "./AutoMovieHumanFootToeTaper";
 import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
 import type { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
@@ -15,7 +15,7 @@ type Vec3 = G.Vec3;
  * plantar skin lies `depth (1 - dorsal share)` of the pulp's breadth under the
  * line, tapered by the span law's plantar share and raised by the distal
  * pulp's fullness there (`AutoMovieHumanFootToeTaper`,
- * `AutoMovieHumanFingertipPulp`), so the line's height at the apex follows from
+ * `AutoMovieHumanHandWindow.PULP`), so the line's height at the apex follows from
  * the head's height and the pad's own depth. The joints on the line are
  * `AutoMovieHumanFootToeJoints`.
  */
@@ -52,7 +52,7 @@ export namespace AutoMovieHumanFootToeLines {
       const joint: number = t.joints[t.joints.length - 1]! * length;
       const middle: number = (joint + length) / 2;
       const plantar: number =
-        plantar0 + AutoMovieHumanFingertipPulp.height({ phalanx: length - joint, width: half, palmar: plantar0 }, PAD * length - middle, 0);
+        plantar0 + AutoMovieHumanHandWindow.mass(AutoMovieHumanHandWindow.PULP, { length: length - joint, width: half, depth: plantar0 }, PAD * length - middle, 0);
       const y: number = head[1] + (plantar + PAD_CLEARANCE - head[1]) / PAD;
 
       return { head, tip: frame.at(t.tip[0], t.tip[1], y) };

@@ -1,4 +1,5 @@
-﻿import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+﻿import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
 import type { AutoMovieHumanArmRootOval } from "./AutoMovieHumanArmRootOval";
 import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
@@ -20,8 +21,11 @@ export interface IAutoMovieHumanTrunkSolution {
   /** The landmarks, left side. */
   landmarks: IAutoMovieHumanTrunkLandmarks;
 
-  /** The breasts, buttocks, umbilicus and spinal furrow as relief windows on the trunk chain. */
+  /** The breasts, blades, buttocks, sternal notch, umbilicus and spinal furrow as relief windows on the trunk's chart. */
   reliefs: IAutoMovieHumanRelief[];
+
+  /** The features that broke their contract and were left out, one diagnostic each. */
+  diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
 
   /** The landmark heights and tapes the features stand on, which a feature piece reads alone. */
   sites: AutoMovieHumanTrunkFeatures.ISites;

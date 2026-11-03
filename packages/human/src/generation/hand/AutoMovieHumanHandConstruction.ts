@@ -139,6 +139,7 @@ export namespace AutoMovieHumanHandConstruction {
       input.wristTape,
       input.makeArm,
       targets,
+      input.calibration.diagnostics,
     );
 
     // Every digit stands on its bones: the thumb from its root through its MCP,

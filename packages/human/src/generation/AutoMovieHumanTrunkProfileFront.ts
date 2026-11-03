@@ -30,14 +30,18 @@ export namespace AutoMovieHumanTrunkProfileFront {
    * @returns The profile.
    */
   export function create(keys: readonly IAutoMovieHumanTrunkKey[]): IProfile {
+    // A key whose tape fixes only a girth leaves its front to the wall's own run.
+    const marks: [number, number][] = keys
+      .filter((k: IAutoMovieHumanTrunkKey): boolean => k.front !== null)
+      .map((k: IAutoMovieHumanTrunkKey): [number, number] => [k.y, k.front!]);
     const spline: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
-      keys.map((k: IAutoMovieHumanTrunkKey): number => k.y),
-      keys.map((k: IAutoMovieHumanTrunkKey): number => k.front),
+      marks.map((m: [number, number]): number => m[0]),
+      marks.map((m: [number, number]): number => m[1]),
     );
 
     return {
       at: (y: number): number => AutoMovieHumanNaturalSpline.evaluate(spline, y),
-      marks: keys.map((k: IAutoMovieHumanTrunkKey): [number, number] => [k.y, k.front]),
+      marks,
     };
   }
 }

@@ -2,8 +2,7 @@ import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 import { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootHeads } from "./AutoMovieHumanFootHeads";
-import { AutoMovieHumanFootLateralColumn } from "./AutoMovieHumanFootLateralColumn";
-import { AutoMovieHumanFootMedialColumn } from "./AutoMovieHumanFootMedialColumn";
+import { AutoMovieHumanFootColumn } from "./AutoMovieHumanFootColumn";
 import { AutoMovieHumanFootToeJoints } from "./AutoMovieHumanFootToeJoints";
 import { AutoMovieHumanFootToeLines } from "./AutoMovieHumanFootToeLines";
 
@@ -14,8 +13,8 @@ type Vec3 = G.Vec3;
  * the ankle at the lateral malleolus height, the metatarsal heads
  * ({@link AutoMovieHumanFootHeads}), each toe's line and joints
  * ({@link AutoMovieHumanFootToeLines}, {@link AutoMovieHumanFootToeJoints}) and
- * the malleoli on their borders ({@link AutoMovieHumanFootLateralColumn.centre},
- * {@link AutoMovieHumanFootMedialColumn.centre}). Built in the left foot's
+ * the malleoli on their borders ({@link AutoMovieHumanFootColumn.centre}),
+ * built in the left foot's
  * frame; the right foot's centres are its reflection.
  */
 export namespace AutoMovieHumanFootBones {
@@ -74,8 +73,8 @@ export namespace AutoMovieHumanFootBones {
       bones: {
         ankle: [0, frame.H, 0],
         malleoli: {
-          lateral: sided(AutoMovieHumanFootLateralColumn.centre(frame, prior.malleoli.lateral.height)),
-          medial: sided(AutoMovieHumanFootMedialColumn.centre(frame, prior.malleoli.medial.height)),
+          lateral: sided(AutoMovieHumanFootColumn.centre("lateral", frame, prior.malleoli.lateral.height)),
+          medial: sided(AutoMovieHumanFootColumn.centre("medial", frame, prior.malleoli.medial.height)),
         },
         heads: heads.heads.map(sided),
         ball: sided(heads.ball),
