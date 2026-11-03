@@ -1,4 +1,5 @@
 import { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
+import { AutoMovieHumanSeamStation } from "../lofting/AutoMovieHumanSeamStation";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanFeatureChain } from "./IAutoMovieHumanFeatureChain";
 
@@ -119,60 +120,17 @@ export namespace AutoMovieHumanFeatureChain {
     t: readonly number[],
     values: readonly (readonly number[])[],
   ): number[][] {
-    const n: number = t.length;
-    const width: number = values[0]!.length;
-    const out: number[][] = t.map((): number[] =>
-      new Array<number>(width).fill(0),
-    );
-    if (n < 3) return out;
-    const h: number[] = t
-      .slice(1)
-      .map((v: number, i: number): number => v - t[i]!);
-    const m: number = n - 2;
-    const c: number[] = new Array<number>(m);
-    const d: number[] = new Array<number>(m);
-    for (let col: number = 0; col < width; col++) {
-      // Row i (interior): h_{i-1} M_{i-1} + 2 (h_{i-1} + h_i) M_i + h_i M_{i+1}
-      // = 6 (secant_i - secant_{i-1}).
-      for (let r: number = 0; r < m; r++) {
-        const i: number = r + 1;
-        const rhs: number =
-          6 *
-          ((values[i + 1]![col]! - values[i]![col]!) / h[i]! -
-            (values[i]![col]! - values[i - 1]![col]!) / h[i - 1]!);
-        const diagonal: number = 2 * (h[i - 1]! + h[i]!);
-        const lower: number = h[i - 1]!;
-        const upper: number = h[i]!;
-        const denom: number = r === 0 ? diagonal : diagonal - lower * c[r - 1]!;
-        c[r] = upper / denom;
-        d[r] = (r === 0 ? rhs : rhs - lower * d[r - 1]!) / denom;
-      }
-      out[m]![col] = d[m - 1]!;
-      for (let r: number = m - 2; r >= 0; r--)
-        out[r + 1]![col] = d[r]! - c[r]! * out[r + 2]![col]!;
-    }
-    return out;
+    // The shared station rule (AutoMovieHumanSeamStation) owns the solve.
+    return AutoMovieHumanSeamStation.curvatures(t, values);
   }
 
-  /** First derivatives of the natural cubic spline at its stations. */
+  /** First derivatives of the natural cubic spline at its stations, by the shared station rule. */
   function derivatives(
     t: readonly number[],
     values: readonly (readonly number[])[],
-    M: readonly (readonly number[])[] = curvatures(t, values),
+    M?: readonly (readonly number[])[],
   ): number[][] {
-    const n: number = t.length;
-    return t.map((_: number, i: number): number[] => {
-      // Left end of the interval to the right, or right end of the last.
-      const lo: number = Math.min(i, n - 2);
-      const h: number = t[lo + 1]! - t[lo]!;
-      return values[i]!.map((_v: number, col: number): number => {
-        const secant: number =
-          (values[lo + 1]![col]! - values[lo]![col]!) / h;
-        return i === lo
-          ? secant - (h * (2 * M[lo]![col]! + M[lo + 1]![col]!)) / 6
-          : secant + (h * (M[lo]![col]! + 2 * M[lo + 1]![col]!)) / 6;
-      });
-    });
+    return AutoMovieHumanSeamStation.slopes(t, values, M);
   }
 
   /** One chain's layers with their jets, its owners already expanded. */
@@ -214,7 +172,7 @@ export namespace AutoMovieHumanFeatureChain {
 
     // Shared ends copy the owner's key before the spline is solved, and
     // keep the owner's derivatives, signed into this chain's station.
-    const overrides: [number, IAutoMovieHumanLoftChain.ILayer, number][] = [];
+    const overrides: [number, AutoMovieHumanSeamStation.ICopy][] = [];
     for (const which of ["bottom", "top"] as const) {
       const share: IAutoMovieHumanFeatureChain.IShare | undefined = chain.ends?.[which];
       if (share === undefined) continue;
@@ -226,9 +184,15 @@ export namespace AutoMovieHumanFeatureChain {
         throw new Error(`Chain ${chain.name} and ${share.owner} share a key of different control counts`);
       if (end.curvatures === undefined || end.frameSlopes === undefined)
         throw new Error(`Owner ${share.owner} of ${chain.name} carries no jets`);
-      coefficients[index] = [...end.coefficients];
-      planes[index] = flat(end.frame ?? AutoMovieHumanLoftFrame.horizontal(end.y));
-      overrides.push([index, end, which === share.end ? -1 : 1]);
+
+      // The owner publishes the layer; this chain copies it (rule J3).
+      const copied: AutoMovieHumanSeamStation.ICopy = AutoMovieHumanSeamStation.copy(
+        end,
+        which === share.end ? -1 : 1,
+      );
+      coefficients[index] = copied.coefficients;
+      planes[index] = copied.plane;
+      overrides.push([index, copied]);
     }
 
     // Natural splines: the control points over every key, base and cap
@@ -248,11 +212,11 @@ export namespace AutoMovieHumanFeatureChain {
     const pS: number[][] = t.map((s: number, k: number): number[] =>
       capped[k] ? cap!.plane(s, 1) : bS[base.indexOf(k)]!,
     );
-    for (const [index, end, factor] of overrides) {
-      cS[index] = end.slopes.map((v: number): number => v * factor);
-      cM[index] = end.curvatures!.map((v: number): number => v * factor * factor);
-      pS[index] = flat(end.frameSlopes!).map((v: number): number => v * factor);
-      pM[index] = flat(end.frameCurvatures!).map((v: number): number => v * factor * factor);
+    for (const [index, copied] of overrides) {
+      cS[index] = copied.slopes;
+      cM[index] = copied.curvatures;
+      pS[index] = copied.frameSlopes;
+      pM[index] = copied.frameCurvatures;
     }
 
     return {
