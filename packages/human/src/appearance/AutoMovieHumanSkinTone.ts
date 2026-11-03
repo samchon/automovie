@@ -2,7 +2,7 @@ import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoft
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import { AutoMovieHumanFaceTone } from "./AutoMovieHumanFaceTone";
 import type { AutoMovieHumanSkinChart } from "./AutoMovieHumanSkinChart";
-import { AutoMovieHumanSkinLandmarks } from "./AutoMovieHumanSkinLandmarks";
+import { AutoMovieHumanSkinChartSites } from "./AutoMovieHumanSkinChartSites";
 import { AutoMovieHumanSkinPigment } from "./AutoMovieHumanSkinPigment";
 import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
 import type { AutoMovieHumanVermilion } from "./AutoMovieHumanVermilion";
@@ -150,8 +150,8 @@ export namespace AutoMovieHumanSkinTone {
   export function generate(input: IInput): IOutput {
     const table: AutoMovieHumanSkinPigment.ITable =
       AutoMovieHumanSkinPigment.table(input.pigmentation);
-    const landmarks: AutoMovieHumanSkinLandmarks.IOutput =
-      AutoMovieHumanSkinLandmarks.generate(input);
+    const landmarks: AutoMovieHumanSkinChartSites.IOutput =
+      AutoMovieHumanSkinChartSites.generate(input);
     const colors: number[][] = [];
     const reliefWeights: number[][] = [];
     const shades: number[][] = [];
@@ -202,7 +202,7 @@ const V: typeof AutoMovieHumanSkinVector = AutoMovieHumanSkinVector;
  * @returns Multipliers before mottling
  */
 function regional(
-  L: AutoMovieHumanSkinLandmarks.IOutput,
+  L: AutoMovieHumanSkinChartSites.IOutput,
   chain: string,
   p: Vec3,
   n: Vec3,
@@ -225,7 +225,7 @@ function regional(
     }
 
   const side: "left" | "right" = p[2] >= 0 ? "left" : "right";
-  const hand: AutoMovieHumanSkinLandmarks.IHand | undefined = L.hands.get(side);
+  const hand: AutoMovieHumanSkinChartSites.IHand | undefined = L.hands.get(side);
   const handChain: boolean =
     chain.startsWith("hand.") ||
     chain.startsWith("finger.") ||
@@ -257,7 +257,7 @@ function regional(
     }
   }
 
-  const elbow: AutoMovieHumanSkinLandmarks.IElbow | undefined =
+  const elbow: AutoMovieHumanSkinChartSites.IElbow | undefined =
     L.elbows.get(side);
   if (elbow !== undefined && chain.startsWith("arm.")) {
     const d: Vec3 = V.sub(p, elbow.point);

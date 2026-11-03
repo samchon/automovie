@@ -3,8 +3,12 @@ import type { AutoMovieHumanSkinChart } from "./AutoMovieHumanSkinChart";
 import type { AutoMovieHumanSkinTone } from "./AutoMovieHumanSkinTone";
 import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
 
-/** Body landmarks measured from the generated skin rather than specimen identifiers. */
-export namespace AutoMovieHumanSkinLandmarks {
+/**
+ * Body landmarks measured on the generated skin chart rather than taken from
+ * specimen identifiers: a reader of the skin (level 7), so its name carries the
+ * skin chart's mark (`docs/techniques/construction-levels.md`).
+ */
+export namespace AutoMovieHumanSkinChartSites {
   /** Point or direction in mm. */
   type Vec3 = AutoMovieHumanSkinVector.Vec3;
 

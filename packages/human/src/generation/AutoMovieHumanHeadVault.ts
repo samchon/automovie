@@ -124,6 +124,20 @@ export namespace AutoMovieHumanHeadVault {
   }
 
   /**
+   * The vault's exponent for a layout: the super-ellipse through the glabella
+   * and the cranium's back at the glabella's height, as wide as the head's
+   * breadth, whose perimeter is the layout's head tape.
+   *
+   * @param plan The layout, its `vault` not yet solved.
+   * @returns The exponent that closes the head circumference.
+   */
+  export function closing(plan: IAutoMovieHumanHeadLayout): number {
+    const g: number = plan.landmarks.glabella[1];
+
+    return vaultPower(plan.length / 2 + cranialBack(plan, g), plan.breadth, plan.tape);
+  }
+
+  /**
    * Exponent of the super-ellipse of a length and a breadth whose perimeter is
    * a tape: the vault's squareness closes the head circumference.
    */

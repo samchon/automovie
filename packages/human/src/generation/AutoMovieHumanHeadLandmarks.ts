@@ -5,8 +5,6 @@ import type { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstru
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadNose } from "./AutoMovieHumanHeadNose";
-
-import { AutoMovieHumanHeadVault } from "./AutoMovieHumanHeadVault";
 import type { IAutoMovieHumanHeadCompiled } from "./IAutoMovieHumanHeadCompiled";
 import type { IAutoMovieHumanHeadCorrections } from "./IAutoMovieHumanHeadCorrections";
 import type { IAutoMovieHumanHeadEyeOpening } from "./IAutoMovieHumanHeadEyeOpening";
@@ -217,6 +215,7 @@ export namespace AutoMovieHumanHeadLandmarks {
       mandibularWidth: (head.mandibularWidth * k) / 2 + fix.gonion,
       frontalWidth: (head.minimumFrontalWidth * k) / 2,
       vault: 2,
+      tape: head.circumference * k + fix.tape,
       reach: Math.sqrt(Math.max(1, L * L - (p.glabella * FH) ** 2)) - L / 2 + fix.occiput,
       noseWidth: (head.face.nose.width * k) / 2 + fix.ala,
       border: menton + fix.menton,
@@ -267,7 +266,6 @@ export namespace AutoMovieHumanHeadLandmarks {
       },
       profile,
     };
-    plan.vault = AutoMovieHumanHeadVault.vaultPower(L / 2 + AutoMovieHumanHeadVault.cranialBack(plan, g), B, head.circumference * k + fix.tape);
     for (const side of ["left", "right"] as const)
       [plan[side].span, plan[side].place] = canthi(plan[side], prior.face, plan.scale);
     return plan;

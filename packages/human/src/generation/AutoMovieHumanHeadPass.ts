@@ -7,6 +7,7 @@ import { AutoMovieHumanHeadJawBody } from "./AutoMovieHumanHeadJawBody";
 import { AutoMovieHumanHeadLandmarks } from "./AutoMovieHumanHeadLandmarks";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import { AutoMovieHumanHeadNeckBase } from "./AutoMovieHumanHeadNeckBase";
+import { AutoMovieHumanHeadVault } from "./AutoMovieHumanHeadVault";
 import type { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadSkinReading } from "./AutoMovieHumanHeadSkinReading";
 
@@ -109,6 +110,10 @@ export namespace AutoMovieHumanHeadPass {
     const { inputs, compiled, neck, scale, ring, flat, under, drop } = setup;
     const prior: AutoMovieHumanHeadPrior.IPrior = compiled.prior;
     const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadLandmarks.layout(compiled, inputs, neck, scale, fix);
+
+    // The vault's exponent is solved on the cranium's own back outline, a base
+    // envelope that stands on the layout, so it closes the head tape here.
+    plan.vault = AutoMovieHumanHeadVault.closing(plan);
     const surface: IAutoMovieHumanHeadSurface = {
       compiled,
       plan,

@@ -63,8 +63,16 @@ export interface IAutoMovieHumanHeadLayout {
   /** Half the minimum frontal width. */
   frontalWidth: number;
 
-  /** Exponent of the cranium's plan, which closes the head circumference. */
+  /**
+   * Exponent of the cranium's plan, which closes the head circumference: 2 in
+   * the layout, solved on the cranium's own outline by
+   * `AutoMovieHumanHeadVault.closing` once the layout stands, since that outline
+   * is a base envelope the layout precedes.
+   */
   vault: number;
+
+  /** Head circumference the vault closes, calibration mm, with its correction. */
+  tape: number;
 
   /** The vault's reach behind its centre at the opisthocranion, solved for g-op. */
   reach: number;
