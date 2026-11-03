@@ -41,6 +41,6 @@ Run every test on whole people: the references, and people at the population end
 
 ## Running
 
-Run a test alone with `pnpm test --include <name>` and read its whole list.
+Run a test alone with `pnpm test --include <name>`; when another worker's file fails the project check, run `pnpm test:noChecks --include <name>` and read the type errors from `ttsc --noEmit`.
 
 After a clean run, judge the look in the [inspection round](verification.md#inspection-round).
