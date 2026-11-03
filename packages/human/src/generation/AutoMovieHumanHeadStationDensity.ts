@@ -42,18 +42,30 @@ export namespace AutoMovieHumanHeadStationDensity {
    * @returns Strictly increasing stations.
    */
   export function stations(surface: IAutoMovieHumanHeadSurface, a: number, b: number, samples: number): number[] {
-    const step: number = (b - a) / FINE;
+    // The density is read on a grid at half the opening pitch, the finest
+    // spacing a station may take, so every station the rule places is
+    // resolved. Each grid node's guides are cut once, and its slope and
+    // curvature are the central differences of its two neighbours.
+    const fine: number = Math.max(2, Math.ceil((b - a) / (AutoMovieHumanMouth.PITCH / 2)));
+    const step: number = (b - a) / fine;
+    const nodes: IGuides[] = Array.from(
+      { length: fine + 3 },
+      (_: unknown, i: number): IGuides => guides(surface, a + (i - 1) * step),
+    );
+    const rate: number[] = Array.from(
+      { length: fine + 1 },
+      (_: unknown, i: number): number => density(nodes[i]!, nodes[i + 1]!, nodes[i + 2]!, samples, step),
+    );
     const total: number[] = [0];
-    for (let i: number = 0; i < FINE; i++)
-      total.push(total[i]! + density(surface, a + (i + 0.5) * step, samples, step) * step);
+    for (let i: number = 0; i < fine; i++) total.push(total[i]! + ((rate[i]! + rate[i + 1]!) / 2) * step);
 
     // At least one station per unit of the integral, and both ends.
-    const count: number = Math.max(2, Math.ceil(total[FINE]!) + 1);
+    const count: number = Math.max(2, Math.ceil(total[fine]!) + 1);
     const out: number[] = [a];
     let j: number = 0;
     for (let k: number = 1; k + 1 < count; k++) {
-      const target: number = (total[FINE]! * k) / (count - 1);
-      while (j + 1 < FINE && total[j + 1]! < target) j++;
+      const target: number = (total[fine]! * k) / (count - 1);
+      while (j + 1 < fine && total[j + 1]! < target) j++;
       const span: number = total[j + 1]! - total[j]!;
       out.push(a + (j + (span > 0 ? (target - total[j]!) / span : 0)) * step);
     }
@@ -62,19 +74,17 @@ export namespace AutoMovieHumanHeadStationDensity {
   }
 
   /**
-   * Stations per millimetre at a station.
+   * Stations per millimetre at a grid node, from the guides there and at its
+   * two neighbours.
    *
-   * @param surface The head's surface.
-   * @param s Station, calibration millimetres.
+   * @param lo The guides one step under the node.
+   * @param mid The guides at the node.
+   * @param hi The guides one step over the node.
    * @param samples Points per ring.
-   * @param step Station step of the central differences, millimetres.
+   * @param step Station step between the nodes, millimetres.
    * @returns Density, stations per millimetre.
    */
-  export function density(surface: IAutoMovieHumanHeadSurface, s: number, samples: number, step: number): number {
-    const lo: IGuides = guides(surface, s - step);
-    const mid: IGuides = guides(surface, s);
-    const hi: IGuides = guides(surface, s + step);
-
+  function density(lo: IGuides, mid: IGuides, hi: IGuides, samples: number, step: number): number {
     // The ring's sample spacing: the perimeter of the ellipse of the section's
     // half length and half width (Ramanujan's approximation, within 0.01
     // percent for a head's proportions) over the ring's samples.
@@ -120,7 +130,7 @@ export namespace AutoMovieHumanHeadStationDensity {
       const r: number = AutoMovieHumanHeadRadius.radius(m, ox, theta);
       const xi: number = ox + r * Math.cos(theta);
       const z: number = r * Math.sin(theta);
-      return r + AutoMovieHumanHeadRelief.relief(surface, xi * cos, s + xi * sin, z, 1);
+      return AutoMovieHumanHeadRelief.merged(surface, r, xi * cos, s + xi * sin, z, 1);
     };
     return {
       front: ox + along(0),
@@ -128,7 +138,4 @@ export namespace AutoMovieHumanHeadStationDensity {
       half: along(Math.PI / 2),
     };
   }
-
-  /** Samples of the density's integral over a chain's height. */
-  const FINE: number = 2048;
 }

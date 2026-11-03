@@ -1,3 +1,5 @@
+import { AutoMovieHumanSeamCarve } from "../lofting/AutoMovieHumanSeamCarve";
+import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
 import { AutoMovieHumanHeadJawJoint } from "./AutoMovieHumanHeadJawJoint";
 import { AutoMovieHumanHeadLipFrame } from "./AutoMovieHumanHeadLipFrame";
 import { AutoMovieHumanHeadLowerLip } from "./AutoMovieHumanHeadLowerLip";
@@ -14,20 +16,29 @@ import type { IAutoMovieHumanHeadEyeOpening } from "./IAutoMovieHumanHeadEyeOpen
 import type { IAutoMovieHumanHeadSurface } from "./IAutoMovieHumanHeadSurface";
 
 /**
- * The head's named features composed into one radial height over the base
- * surface: the orbit's hollow and the socket that seats the eye, the jaw
- * joint, the nose with its alar crease, the philtrum and the lips with the
- * fissure between them. Each feature is a window of its own file in its own
- * frame (the eye's, the nose's, the lips'); this namespace only adds their
- * heights, in a fixed order, and fades them in over the face.
+ * The head's named features merged onto the base surface: the additive
+ * pieces (the jaw joint, the nose, the lips) by `AutoMovieHumanSeamUnion.bump`,
+ * then the subtractive pieces (the orbit's hollow and the socket that seats
+ * the eye, the alar crease, the philtrum, the oral groove) by
+ * `AutoMovieHumanSeamCarve.dent`. Each feature is a window of its own file in
+ * its own frame (the eye's, the nose's, the lips'), read at the base point
+ * the ray reaches; this namespace only gathers each level's heights and
+ * merges them in the order of the construction levels (base, then additive,
+ * then subtractive), faded in over the face.
  */
 export namespace AutoMovieHumanHeadRelief {
+  /** The features' heights at a base point, millimetres, both at least zero. */
+  export interface IHeights {
+    /** Sum of the additive pieces' heights over the base. */
+    raised: number;
+
+    /** Sum of the subtractive pieces' depths under the base. */
+    carved: number;
+  }
+
   /**
-   * Radial height of the named features at a point of the base surface.
-   *
-   * The windows add in the order the face's features were first drawn (orbit,
-   * joint, nose, crease, philtrum, lips, fissure); the sum is in millimetres,
-   * positive outward, and is held to nothing behind the ears by a smoothstep
+   * The additive and subtractive heights of the named features at a point of
+   * the base surface, each held to nothing behind the ears by a smoothstep
    * that starts 25 mm behind the skull's centre and takes 30 mm.
    *
    * @param surface The person's surface: plan, prior and compiled splines.
@@ -35,52 +46,69 @@ export namespace AutoMovieHumanHeadRelief {
    * @param y Height of the point.
    * @param z Lateral place of the point.
    * @param sign Side of the point, 1 left and -1 right; each side reads its own eye.
-   * @returns Height in millimetres.
+   * @returns The two sums in millimetres.
    */
-  export function relief(
+  export function heights(
     surface: IAutoMovieHumanHeadSurface,
     x: number,
     y: number,
     z: number,
     sign: 1 | -1,
-  ): number {
+  ): IHeights {
     const { plan, compiled } = surface;
     const f: AutoMovieHumanHeadPrior.IFace = compiled.prior.face;
     const k: number = plan.scale;
-    if (x < plan.centre - 25 * k) return 0;
+    if (x < plan.centre - 25 * k) return { raised: 0, carved: 0 };
     const front: number = AutoMovieHumanHeadMath.smooth((x - plan.centre + 25 * k) / (30 * k));
     const a: number = Math.abs(z);
     const eye: IAutoMovieHumanHeadEyeOpening = sign > 0 ? plan.left : plan.right;
-
-    // The orbit: the hollow, then the socket falling to the eye's seat.
     const orbit: AutoMovieHumanHeadOrbit.IInput = { plan, face: f, eye };
-    let out: number = 0;
-    out -= AutoMovieHumanHeadOrbit.socket(orbit, y, a);
-    out -= AutoMovieHumanHeadOrbit.seat(orbit, y, a);
-
-    // The jaw joint, ahead of the ear.
-    out += AutoMovieHumanHeadJawJoint.height(
-      { plan, base: compiled.prior.frame.base },
-      y,
-      a,
-    );
-
-    // The nose, and the alar crease that sets each lobule back into the cheek.
     const nose: AutoMovieHumanHeadNoseFrame.IFrame = AutoMovieHumanHeadNoseFrame.at(plan, f, y);
-    out += AutoMovieHumanHeadNose.height({ plan, face: f, compiled }, y, a);
-    out -= AutoMovieHumanHeadNoseCrease.depth(nose, f, k, y, a);
-
-    // The philtrum between the nose's base and the lip.
-    out -= AutoMovieHumanHeadPhiltrum.depth(plan, f, y, a);
-
-    // The lips over their borders, and the fissure between them.
     const lips: AutoMovieHumanHeadLipFrame.IFrame | null = AutoMovieHumanHeadLipFrame.at(plan, a);
-    if (lips !== null) {
-      out += AutoMovieHumanHeadUpperLip.bulge(plan, lips, y);
-      out += AutoMovieHumanHeadLowerLip.bulge(plan, lips, y);
-      out -= AutoMovieHumanHeadOralGroove.depth(plan, f, lips, y);
-    }
 
-    return out * front;
+    // Additive: the jaw joint ahead of the ear, the nose, the lips over their borders.
+    const raised: number =
+      AutoMovieHumanHeadJawJoint.height({ plan, base: compiled.prior.frame.base }, y, a) +
+      AutoMovieHumanHeadNose.height({ plan, face: f, compiled }, y, a) +
+      (lips !== null
+        ? AutoMovieHumanHeadUpperLip.bulge(plan, lips, y) + AutoMovieHumanHeadLowerLip.bulge(plan, lips, y)
+        : 0);
+
+    // Subtractive: the orbit's hollow and the socket falling to the eye's
+    // seat, the alar crease that sets each lobule back into the cheek, the
+    // philtrum, and the fissure between the lips.
+    const carved: number =
+      AutoMovieHumanHeadOrbit.socket(orbit, y, a) +
+      AutoMovieHumanHeadOrbit.seat(orbit, y, a) +
+      AutoMovieHumanHeadNoseCrease.depth(nose, f, k, y, a) +
+      AutoMovieHumanHeadPhiltrum.depth(plan, f, y, a) +
+      (lips !== null ? AutoMovieHumanHeadOralGroove.depth(plan, f, lips, y) : 0);
+    return { raised: raised * front, carved: carved * front };
+  }
+
+  /**
+   * The skin's radial distance along a ray: the base's, raised by the
+   * additive pieces and then carved by the subtractive ones. The operators
+   * refuse a piece of the wrong sign, so a piece that would carve by adding,
+   * or add by carving, is named where it breaks the merge.
+   *
+   * @param surface The person's surface.
+   * @param base The base outline's radial distance along the ray, mm.
+   * @param x Forward place of the base point.
+   * @param y Height of the base point.
+   * @param z Lateral place of the base point.
+   * @param sign Side of the point.
+   * @returns The merged radial distance, mm.
+   */
+  export function merged(
+    surface: IAutoMovieHumanHeadSurface,
+    base: number,
+    x: number,
+    y: number,
+    z: number,
+    sign: 1 | -1,
+  ): number {
+    const h: IHeights = heights(surface, x, y, z, sign);
+    return AutoMovieHumanSeamCarve.dent(AutoMovieHumanSeamUnion.bump(base, h.raised), -h.carved);
   }
 }

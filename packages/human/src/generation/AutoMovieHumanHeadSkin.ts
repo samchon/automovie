@@ -57,8 +57,7 @@ export namespace AutoMovieHumanHeadSkin {
         const z: number = sign * r0 * n;
         const x: number = xi * cos;
         const y: number = s + xi * sin;
-        const h: number = AutoMovieHumanHeadRelief.relief(surface, x, y, z, sign);
-        const r1: number = r0 + h;
+        const r1: number = AutoMovieHumanHeadRelief.merged(surface, r0, x, y, z, sign);
         const xi1: number = ox + r1 * c;
         return [xi1 * cos, s + xi1 * sin + fade * rise, sign * r1 * n];
       };

@@ -1,3 +1,4 @@
+import { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import type { IAutoMovieHumanHeadEarSampler } from "./IAutoMovieHumanHeadEarSampler";
 import type { IAutoMovieHumanHeadLoopLayer } from "./IAutoMovieHumanHeadLoopLayer";
@@ -22,11 +23,21 @@ export namespace AutoMovieHumanHeadEarRim {
    */
   export function layers(sampler: IAutoMovieHumanHeadEarSampler): IAutoMovieHumanHeadLoopLayer[] {
     const ear: IAutoMovieHumanHeadEarSampler["ear"] = sampler.ear;
-    return Array.from(
-      { length: LAYERS },
-      (_: unknown, i: number): number =>
-        ear.split + (ear.top - 0.04 - ear.split) * Math.sin(((i / (LAYERS - 1)) * Math.PI) / 2),
-    ).map(
+    const span: number = ear.top - 0.04 - ear.split;
+
+    // The quarter sine's last step is `1 - cos(pi / (2 (LAYERS - 1)))` of the
+    // span, about 0.0009, which fell to 0.046 mm on f1, under the least gap a
+    // chain's layers keep (`AutoMovieHumanLoftContract.LEAST_LAYER_GAP`). A
+    // share `alpha` of uniform steps, the least that brings the last step to
+    // twice that gap, keeps the sine's crowding everywhere else; aimed at the
+    // gap itself, the step met it only to within rounding and failed it.
+    const last: number = 1 - Math.cos(Math.PI / (2 * (LAYERS - 1)));
+    const want: number = (2 * AutoMovieHumanLoftContract.LEAST_LAYER_GAP) / Math.max(1e-9, span);
+    const alpha: number = Math.min(1, Math.max(0, (want - last) / (1 / (LAYERS - 1) - last)));
+    return Array.from({ length: LAYERS }, (_: unknown, i: number): number => {
+      const u: number = i / (LAYERS - 1);
+      return ear.split + span * ((1 - alpha) * Math.sin((u * Math.PI) / 2) + alpha * u);
+    }).map(
       (y: number): IAutoMovieHumanHeadLoopLayer => ({
         y,
         loop: sampler.free(y, sampler.rise(y), sampler.fold(y)),

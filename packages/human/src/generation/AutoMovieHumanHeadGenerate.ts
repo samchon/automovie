@@ -83,6 +83,10 @@ export namespace AutoMovieHumanHeadGenerate {
       AutoMovieHumanHeadStations.SAMPLES_UPPER,
     );
     const weight: (p: Vec3) => number = AutoMovieHumanHeadStations.gathered(plan);
+
+    // Each layer stands at the station its section was cut at: a tilted
+    // section's mean height falls where the tilt falls faster than the station
+    // rises, and layers dated by it stood 0.05 mm apart under the chin.
     const plain = (
       name: string,
       samples: number,
@@ -94,6 +98,8 @@ export namespace AutoMovieHumanHeadGenerate {
           const c: IAutoMovieHumanHeadSides = AutoMovieHumanHeadSkin.sides(surface, s);
           return AutoMovieHumanHeadStations.sagittal(c.left, c.right, AutoMovieHumanHeadStations.ORDER, weight);
         }),
+        undefined,
+        stations,
       );
     const eared = (s: number): Vec3[] => {
       const c: IAutoMovieHumanHeadSides = AutoMovieHumanHeadSkin.sides(surface, s);
@@ -114,6 +120,8 @@ export namespace AutoMovieHumanHeadGenerate {
         rule: "sagittal",
       },
       middleRings,
+      undefined,
+      middleStations,
     );
     const earLeft = AutoMovieHumanHeadEarChains.earChains(surface, leftEar, "left", 1);
     const earRight = AutoMovieHumanHeadEarChains.earChains(surface, rightEar, "right", -1);

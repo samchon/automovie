@@ -138,11 +138,12 @@ export namespace AutoMovieHumanHeadPass {
 
 
     // The eyes stand a fixed depth behind the nasion's skin, and the sockets
-    // fall to them.
+    // fall to them: a socket is a subtractive piece, so where the skin
+    // already stands behind the seat it falls by nothing.
     const seat: number =
       AutoMovieHumanHeadSkinReading.frontAt(surface, plan.nasion, 0) - prior.face.eyeRecess * scale;
-    plan.left.seat = AutoMovieHumanHeadSkinReading.frontAt(surface, plan.eye, plan.left.place) - seat;
-    plan.right.seat = AutoMovieHumanHeadSkinReading.frontAt(surface, plan.eye, -plan.right.place) - seat;
+    plan.left.seat = Math.max(0, AutoMovieHumanHeadSkinReading.frontAt(surface, plan.eye, plan.left.place) - seat);
+    plan.right.seat = Math.max(0, AutoMovieHumanHeadSkinReading.frontAt(surface, plan.eye, -plan.right.place) - seat);
 
     // The jaw, from the chin's skin, the ears, the jaw width and the cheek
     // at the zygomatic arch, which runs forward from the ear at about the

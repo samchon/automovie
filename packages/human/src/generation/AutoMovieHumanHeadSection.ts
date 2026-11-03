@@ -72,7 +72,8 @@ export namespace AutoMovieHumanHeadSection {
     // The face fades into the cranium over the forehead, and draws back into
     // its widest place as it fades into the neck under the chin.
     const yw: number = s + waist * sin;
-    const rise: number = Math.max(0.05, AutoMovieHumanHeadMath.smooth((t - SHIELD_FROM) / SHIELD_RISE));
+    const shield: number = AutoMovieHumanHeadMath.smooth((t - SHIELD_FROM) / SHIELD_RISE);
+    const rise: number = Math.max(0.05, shield);
     const face: number =
       AutoMovieHumanHeadFaceBoundary.faceHalf(plan, yw) *
       (yw > g ? 1 - AutoMovieHumanHeadMath.smooth((yw - g) / (AutoMovieHumanHeadFaceBoundary.FOREHEAD * top)) : 1) *
@@ -96,6 +97,7 @@ export namespace AutoMovieHumanHeadSection {
       powerBack: 2 + (plan.vault - 2) * vaulted,
       taper: AutoMovieHumanHeadVault.frontTaper(plan) * vaulted,
       brow: AutoMovieHumanHeadMath.smooth((y - m.nasion[1]) / Math.max(1e-6, g - m.nasion[1])),
+      shield,
       front,
       waist,
       face,

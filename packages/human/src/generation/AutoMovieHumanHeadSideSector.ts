@@ -49,11 +49,17 @@ export namespace AutoMovieHumanHeadSideSector {
     to: number,
   ): IWindow | null {
     if (!(to - from > 4 * STEP)) return null;
+
+    // Each jet is read over a window that follows the span it feeds, a
+    // sixteenth of it: an owner's corner finer than that (a fading face's
+    // tip) is averaged at the span's own scale instead of read as an
+    // unbounded curvature that swings the whole span.
+    const step: number = (to - from) / JET_SHARE;
     const jet = (owner: (theta: number) => number, theta: number): number[] => {
-      const a: number = owner(theta - STEP);
+      const a: number = owner(theta - step);
       const b: number = owner(theta);
-      const c: number = owner(theta + STEP);
-      return [b, (c - a) / (2 * STEP), (a - 2 * b + c) / (STEP * STEP)];
+      const c: number = owner(theta + step);
+      return [b, (c - a) / (2 * step), (a - 2 * b + c) / (step * step)];
     };
     return { from, to, lo: jet(front, from), hi: jet(rear, to) };
   }
@@ -74,6 +80,9 @@ export namespace AutoMovieHumanHeadSideSector {
     )[0]!;
   }
 
-  /** Step of the central differences that read a guide's jet, radians. */
+  /** Least span of a sector, in quarters of it, radians: narrower sectors are none. */
   export const STEP: number = 2e-3;
+
+  /** Windows of the central differences that read a guide's jet per sector span. */
+  export const JET_SHARE: number = 16;
 }

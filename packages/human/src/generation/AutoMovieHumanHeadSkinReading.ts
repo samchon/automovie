@@ -52,8 +52,7 @@ export namespace AutoMovieHumanHeadSkinReading {
       AutoMovieHumanHeadRadius.radius(m, ox, back ? Math.PI : 0) +
       fade * surface.neckLeft[j]! + run * surface.slopeLeft[j]!;
     const xi: number = ox + sign * r0;
-    const h: number = AutoMovieHumanHeadRelief.relief(surface, xi * cos, s + xi * sin, 0, 1);
-    const xi1: number = ox + sign * (r0 + h);
+    const xi1: number = ox + sign * AutoMovieHumanHeadRelief.merged(surface, r0, xi * cos, s + xi * sin, 0, 1);
     return [xi1 * cos, s + xi1 * sin + fade * surface.riseLeft[j]!];
   }
 

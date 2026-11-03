@@ -37,6 +37,13 @@ export interface IAutoMovieHumanHeadSection {
    */
   brow: number;
 
+  /**
+   * The face shield's rise over the neck, in [0, 1]: 0 under the shield's
+   * start, 1 from the menton up (`AutoMovieHumanHeadSection`). Under 1 the
+   * shield is a fading piece on the neck tube, merged by adding volume.
+   */
+  shield: number;
+
   /** Face's front apex, on the midline profile. */
   front: number;
 
