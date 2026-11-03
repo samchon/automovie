@@ -9,11 +9,11 @@ import { HumanPeople } from "./HumanPeople";
  * @throws {Error} Listing every failing measurement.
  */
 export function assertHumanAnatomy(region: string): void {
-  const audit: (name: string) => HumanAnatomyAudit.IRow[] = HumanAnatomyAudit.REGIONS[region]!;
+  const audit: (subject: HumanAnatomyAudit.ISubject) => HumanAnatomyAudit.IRow[] = HumanAnatomyAudit.REGIONS[region]!;
   const failed: HumanAnatomyAudit.IRow[] = [];
   for (const name of HumanPeople.names()) {
     try {
-      failed.push(...audit(name).filter((r: HumanAnatomyAudit.IRow): boolean => !HumanAnatomyAudit.passes(r)));
+      failed.push(...audit(HumanAnatomyAudit.subject(name)).filter((r: HumanAnatomyAudit.IRow): boolean => !HumanAnatomyAudit.passes(r)));
     } catch (error) {
       failed.push({ person: name, site: `could not be measured: ${(error as Error).message}`, value: NaN, low: 0, high: 0, unit: "" });
     }
