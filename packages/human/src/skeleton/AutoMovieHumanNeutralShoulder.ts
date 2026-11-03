@@ -49,16 +49,28 @@ export namespace AutoMovieHumanNeutralShoulder {
     const down: Math3D.Vector = [0, -Math.cos(radians), s * Math.sin(radians)];
     const upper: Math3D.Vector = body.direction(`${side}UpperArm`);
     const fore: Math3D.Vector = body.direction(`${side}LowerArm`);
+
+    // The elbow's plane is the forearm's lean off the humerus. A bind arm
+    // held straight has no such plane (the lean's length is zero and its
+    // direction undefined), and then the upper arm keeps its bind twist: the
+    // side carried is the body's forward direction, square to the humerus.
+    const lean: Math3D.Vector = Turn.perpendicular(fore, upper);
+    const bent: boolean = Math.hypot(...lean) > STRAIGHT;
+    const plane: Math3D.Vector = bent ? Math3D.unit(lean) : Math3D.unit(Turn.perpendicular(Turn.FORWARD, upper));
     return {
-      turn: Turn.frame(
-        upper,
-        Math3D.unit(Turn.perpendicular(fore, upper)),
-        down,
-        Turn.FORWARD,
-      ),
+      turn: Turn.frame(upper, plane, down, bent ? Turn.FORWARD : plane),
       down,
       resting: angle,
     };
+  }
+
+  /**
+   * The sine of the elbow's bend below which the bind arm counts as straight
+   * and has no elbow plane: one degree, far under any carrying or flexion
+   * angle a bind is built with, and far over the rounding of unit directions.
+   */
+  export const STRAIGHT: number = Math.sin(Math.PI / 180);
+
   /** Width of a station bin of the arm's radius profile, mm. */
   export const BIN: number = 5;
 
@@ -97,7 +109,9 @@ export namespace AutoMovieHumanNeutralShoulder {
         const y: number = chain.points[3 * k + 1]!;
         const z: number = chain.points[3 * k + 2]!;
         const t: number = shoulder[1] - y;
-        if (t < profile.from || t > fore) continue;
+        // A depth of zero (a skin point level with the shoulder) bounds no
+        // angle: the arm's own skin starts below it.
+        if (!(t > 0) || t < profile.from || t > fore) continue;
         widest = Math.max(widest, (s * z + profile.radius(t) - s * shoulder[2]) / t);
       }
     }
@@ -151,7 +165,7 @@ export namespace AutoMovieHumanNeutralShoulder {
     const count: number = arm.points.length / 3;
     const ringMeans: number[] = arm.stations.map((): number => 0);
     for (let k: number = 0; k < count; k++) {
-      const [t, r] = reading([arm.points[3 * k]!, arm.points[3 * k + 1]!, arm.points[3 * k + 2]!]);
+      const [t, r]: [number, number] = reading([arm.points[3 * k]!, arm.points[3 * k + 1]!, arm.points[3 * k + 2]!]);
       const bin: number = Math.floor(t / BIN);
       bins.set(bin, Math.max(bins.get(bin) ?? 0, r));
       const ring: number = Math.floor(k / arm.phases);

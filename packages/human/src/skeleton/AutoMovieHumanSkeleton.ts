@@ -155,9 +155,12 @@ export namespace AutoMovieHumanSkeleton {
 
     const bind: AutoMovieHumanJointCentres.IJoint[] =
       AutoMovieHumanJointCentres.derive(calibration);
-    const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.derive(
-      AutoMovieHumanBindingInputs.rings(calibration, AutoMovieHumanNeutral.READS),
-      bind,
+    const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.of(
+      calibration,
+      (): AutoMovieHumanNeutral.ISource => ({
+        rings: AutoMovieHumanBindingInputs.rings(calibration, AutoMovieHumanNeutral.READS),
+        joints: bind,
+      }),
     );
     const joints: AutoMovieHumanJointCentres.IJoint[] = neutral.joints;
     const byBone: Map<string, AutoMovieHumanJointCentres.IJoint> = new Map(

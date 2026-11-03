@@ -1,3 +1,6 @@
+import { Singleton } from "tstl";
+
+import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanChainRings } from "./IAutoMovieHumanChainRings";
 import type { IAutoMovieHumanNeutralBody } from "./IAutoMovieHumanNeutralBody";
 import type { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
@@ -120,6 +123,49 @@ export namespace AutoMovieHumanNeutral {
         axes: Math3D.boneAxes(j.bone, d, byBone),
       };
     });
+  }
+
+  /** What a body's neutral is derived from: its skin's rings and its bind skeleton. */
+  export interface ISource {
+    /** The skin as rings; at least the chains {@link READS} names. */
+    rings: readonly IAutoMovieHumanChainRings[];
+
+    /** The bind skeleton. */
+    joints: readonly AutoMovieHumanJointCentres.IJoint[];
+  }
+
+  /**
+   * Each calibration's neutral, derived once. The skeleton's pose evaluator
+   * and the rig's binding both stand on the same body's neutral, and each
+   * derived it again: the separating pieces scan the skin's rings, so the
+   * second derivation repeated the whole scan for the same answer. The key
+   * is the calibration object itself, so a body generated again is a new key
+   * and an old body's entry goes with it.
+   */
+  const CACHE: WeakMap<IAutoMovieHumanBodyCalibration, Singleton<IOutput>> = new WeakMap();
+
+  /**
+   * One calibrated body's neutral, derived at its first request and shared by
+   * every later one.
+   *
+   * The neutral reads only the chains {@link READS} names, by name, and the
+   * bind skeleton, which is a function of the calibration alone, so every
+   * caller's source gives the same neutral and the first one's is kept.
+   *
+   * @param calibration The body.
+   * @param source Its rings and bind skeleton, read only on the first request.
+   * @returns The neutral; callers read it and do not change it.
+   */
+  export function of(calibration: IAutoMovieHumanBodyCalibration, source: () => ISource): IOutput {
+    let cached: Singleton<IOutput> | undefined = CACHE.get(calibration);
+    if (cached === undefined) {
+      cached = new Singleton((): IOutput => {
+        const read: ISource = source();
+        return derive(read.rings, read.joints);
+      });
+      CACHE.set(calibration, cached);
+    }
+    return cached.get();
   }
 
   /**

@@ -44,7 +44,7 @@ export namespace AutoMovieHumanNeutralHip {
     const bind: Math3D.Vector = body.direction(`${side}UpperLeg`);
     const hip: Math3D.Vector = body.byBone.get(`${side}UpperLeg`)!.position;
     const leg: IAutoMovieHumanChainRings | undefined = rings.find((r: IAutoMovieHumanChainRings): boolean => r.chain === `leg.${side}`);
-    const target = (degrees: number): Math3D.Vector => {
+    const target: (degrees: number) => Math3D.Vector = (degrees: number): Math3D.Vector => {
       const a: number = (degrees * Math.PI) / 180;
       return [0, -Math.cos(a), s * Math.sin(a)];
     };

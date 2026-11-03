@@ -49,7 +49,7 @@ export namespace AutoMovieHumanNeutralThumbCmc {
     const depth: number[] = rows.map((r: Math3D.Vector[]): number => Turn.length(centroid(r), joint));
     const root: number = depth.indexOf(Math.min(...depth));
     const skin: Math3D.Vector[] = rows.filter((_: Math3D.Vector[], k: number): boolean => k !== root).flat();
-    const hull: Math3D.Vector[][] = ringsOf(palm);
+    const hull: ISlab[] = slabs(ringsOf(palm));
 
     // The nearest share to the index line at which the turned skin stays out.
     for (let share: number = 1; share > 0; share -= STEP) {
@@ -96,36 +96,78 @@ export namespace AutoMovieHumanNeutralThumbCmc {
   }
 
   /**
-   * Whether a point lies inside a chain's skin: within the slab of the ring
-   * whose plane it is nearest (half the gap to that ring's neighbours either
-   * side), and inside that ring's outline in its plane (crossing number).
+   * One ring of a chain's skin as a slab: its centroid, its plane's normal
+   * (along the line through its neighbours' centroids), the slab's half
+   * thickness (half the gap to the neighbours either side) and its outline in
+   * its own plane.
    */
-  function inside(rings: readonly Math3D.Vector[][], p: Math3D.Vector): boolean {
+  interface ISlab {
+    /** The ring's centroid. */
+    centre: Math3D.Vector;
+
+    /** Unit normal of the ring's plane. */
+    normal: Math3D.Vector;
+
+    /** Half thickness of the slab the ring stands for, mm. */
+    half: number;
+
+    /** First in-plane axis. */
+    e1: Math3D.Vector;
+
+    /** Second in-plane axis. */
+    e2: Math3D.Vector;
+
+    /** The ring in its plane, `[along e1, along e2]`. */
+    outline: [number, number][];
+  }
+
+  /**
+   * A chain's rings as slabs, read once per chain: every point the scan
+   * tests reads the same slabs, so their centroids, normals and outlines are
+   * fixed before the scan.
+   */
+  function slabs(rings: readonly Math3D.Vector[][]): ISlab[] {
     const centres: Math3D.Vector[] = rings.map(centroid);
-    let best: number = -1;
-    let least: number = Infinity;
-    let normal: Math3D.Vector = [0, 1, 0];
-    for (let k: number = 0; k < rings.length; k++) {
+    return rings.map((ring: Math3D.Vector[], k: number): ISlab => {
       const a: Math3D.Vector = centres[Math.max(0, k - 1)]!;
       const b: Math3D.Vector = centres[Math.min(rings.length - 1, k + 1)]!;
-      const n: Math3D.Vector = Math3D.unit(Math3D.sub(b, a));
-      const offset: number = Math.abs(Turn.dot(Math3D.sub(p, centres[k]!), n));
-      const half: number = Turn.length(a, b) / (k === 0 || k === rings.length - 1 ? 2 : 4);
-      if (offset <= half && offset < least) {
+      const normal: Math3D.Vector = Math3D.unit(Math3D.sub(b, a));
+      const centre: Math3D.Vector = centres[k]!;
+      const e1: Math3D.Vector = Math3D.unit(Turn.perpendicular(Math3D.sub(ring[0]!, centre), normal));
+      const e2: Math3D.Vector = Turn.cross(normal, e1);
+      return {
+        centre,
+        normal,
+        half: Turn.length(a, b) / (k === 0 || k === rings.length - 1 ? 2 : 4),
+        e1,
+        e2,
+        outline: ring.map((q: Math3D.Vector): [number, number] => [Turn.dot(Math3D.sub(q, centre), e1), Turn.dot(Math3D.sub(q, centre), e2)]),
+      };
+    });
+  }
+
+  /**
+   * Whether a point lies inside a chain's skin: within the slab of the ring
+   * whose plane it is nearest, and inside that ring's outline in its plane
+   * (crossing number).
+   */
+  function inside(hull: readonly ISlab[], p: Math3D.Vector): boolean {
+    let best: ISlab | null = null;
+    let least: number = Infinity;
+    for (const slab of hull) {
+      const offset: number = Math.abs(Turn.dot(Math3D.sub(p, slab.centre), slab.normal));
+      if (offset <= slab.half && offset < least) {
         least = offset;
-        best = k;
-        normal = n;
+        best = slab;
       }
     }
-    if (best < 0) return false;
+    if (best === null) return false;
 
-    // The ring and the point in the ring's plane.
-    const c: Math3D.Vector = centres[best]!;
-    const e1: Math3D.Vector = Math3D.unit(Turn.perpendicular(Math3D.sub(rings[best]![0]!, c), normal));
-    const e2: Math3D.Vector = Turn.cross(normal, e1);
-    const flat: (q: Math3D.Vector) => [number, number] = (q: Math3D.Vector): [number, number] => [Turn.dot(Math3D.sub(q, c), e1), Turn.dot(Math3D.sub(q, c), e2)];
-    const [x, y] = flat(p);
-    const outline: [number, number][] = rings[best]!.map(flat);
+    // The point in the ring's plane against its outline.
+    const d: Math3D.Vector = Math3D.sub(p, best.centre);
+    const x: number = Turn.dot(d, best.e1);
+    const y: number = Turn.dot(d, best.e2);
+    const outline: [number, number][] = best.outline;
     let crossings: number = 0;
     outline.forEach((a: [number, number], i: number): void => {
       const b: [number, number] = outline[(i + 1) % outline.length]!;
