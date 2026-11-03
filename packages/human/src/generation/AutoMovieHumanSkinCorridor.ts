@@ -21,7 +21,7 @@ export namespace AutoMovieHumanSkinCorridor {
     /** Actual additional work for a material-constrained corridor, absent for an unchanged directed funnel path. */
     directedWork?: { sweeps: number; scalarEvaluations: number; segmentEvaluations: number; termination: string };
     /** Aggregate actual work across every evaluated local alternative, including alternatives not selected. */
-    shorteningWork?: { corridorEvaluations: number; directedCalls: number; sweeps: number; scalarEvaluations: number; segmentEvaluations: number; refusedAlternatives: number; certificates: number; certificateSegments: number; certifiedPruned: number };
+    shorteningWork?: { corridorEvaluations: number; directedCalls: number; sweeps: number; scalarEvaluations: number; segmentEvaluations: number; refusedAlternatives: number; certificates: number; certificateSegments: number; certifiedPruned: number; globalRelaxations: number; splicedIntervals: number; maxLocalPortals: number; cacheHits: number; erasedFaceVisits: number };
   }
 
   /** A two-dimensional isometric coordinate. */

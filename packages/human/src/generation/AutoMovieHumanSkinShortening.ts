@@ -6,28 +6,57 @@ import type { AutoMovieHumanThoracicCourse as Source } from "./AutoMovieHumanTho
 
 /** Remove shorten-able actual refined vertex corners by changing the incident physical face corridor. */
 export namespace AutoMovieHumanSkinShortening {
+  /** A strict physical shortcut between two unchanged cut points of the current path. */
+  interface IProposal {
+    /** Original point index of the fixed incoming cut. */
+    first: number;
+    /** Original point index of the fixed outgoing cut. */
+    last: number;
+    /** Actual local original-face corridor between those cuts. */
+    reading: Corridor.IReading;
+    /** Resolved original-local minus candidate-local length, mm. */
+    saving: number;
+  }
+  /** Opt-in copied evidence for one evaluated actual local fan, never an input to geometry. */
+  export interface IAlternative {
+    /** Original triangle offsets in the incident fan. */
+    triangles: number[];
+    /** Fixed incoming and outgoing physical cuts, mm. */
+    cuts: Source.Point[];
+    /** Fixed directed material interval limits, mm. */
+    domain: number[];
+    /** Physical length of the original cut interval, mm. */
+    originalLength: number;
+    /** Evaluated physical alternative length, mm. */
+    candidateLength: number;
+    /** Actual physical points in that alternative, mm. */
+    points: Source.Point[];
+    /** Actual material stations of those points, mm. */
+    stations: number[];
+    /** Whether the actual candidate retains its fixed directed material interval. */
+    admissible: boolean;
+  }
   /**
-   * Compare every actual refined corner's manifold fan routes, re-unfold
-   * eligible alternatives and accept only a numerically resolved physical
-   * shortening. Seed directions do not decide stationarity. No geometry is
-   * remeshed or moved, and endpoints/material direction remain fixed.
+   * Solve only the incident fan between actual incoming/outgoing cuts.
+   * Batch nonoverlapping strict local shortcuts, retain original cut-edge
+   * identities, then relax their shared physical portal corridor once.
+   * Every accepted batch strictly shortens the full physical path. No
+   * geometry is remeshed or moved; public endpoints and material direction
+   * remain fixed. Seed directions do not decide stationarity.
    * This is finite local corridor descent, not a global geodesic proof.
    * An optional local observer receives copied counters only; its refusal
    * aborts that observation and is never an admitted physical result.
    */
-  export function read(skin: Surface.IGeometry, seed: Corridor.IReading, coordinates: readonly number[], selectedFaces: readonly number[], adjacency: Corridor.Connectivity = Corridor.prepare(skin, selectedFaces), observe?: (work: Readonly<NonNullable<Corridor.IReading["shorteningWork"]>>, stage: "pruned" | "refused" | "evaluated") => void): Corridor.IReading {
-    const visited: Set<string> = new Set([seed.triangles.join(",")]);
+  export function read(skin: Surface.IGeometry, seed: Corridor.IReading, coordinates: readonly number[], selectedFaces: readonly number[], adjacency: Corridor.Connectivity = Corridor.prepare(skin, selectedFaces), observe?: (work: Readonly<NonNullable<Corridor.IReading["shorteningWork"]>>, stage: "pruned" | "refused" | "evaluated", alternative?: IAlternative) => void): Corridor.IReading {
+    const cache: Map<string, Corridor.IReading> = new Map();
     const refusals: NonNullable<Corridor.IReading["alternatives"]> = [];
-    const work: NonNullable<Corridor.IReading["shorteningWork"]> = { corridorEvaluations: 0, directedCalls: 0, sweeps: 0, scalarEvaluations: 0, segmentEvaluations: 0, refusedAlternatives: 0, certificates: 0, certificateSegments: 0, certifiedPruned: 0 };
+    const work: NonNullable<Corridor.IReading["shorteningWork"]> = { corridorEvaluations: 0, directedCalls: 0, sweeps: 0, scalarEvaluations: 0, segmentEvaluations: 0, refusedAlternatives: 0, certificates: 0, certificateSegments: 0, certifiedPruned: 0, globalRelaxations: 0, splicedIntervals: 0, maxLocalPortals: 0, cacheHits: 0, erasedFaceVisits: 0 };
     accumulate(seed);
     let current: Corridor.IReading = seed;
-    const from: Source.Point = seed.points[0]!;
-    const to: Source.Point = seed.points.at(-1)!;
-    const bottom: number = Math.min(seed.stations[0]!, seed.stations.at(-1)!);
-    const top: number = Math.max(seed.stations[0]!, seed.stations.at(-1)!);
     const direction: number = Math.sign(seed.stations.at(-1)! - seed.stations[0]!);
+    current = relax(current);
     for (let round: number = 0; round <= selectedFaces.length; round++) {
-      let best: Corridor.IReading = current;
+      const proposals: IProposal[] = [];
       const handled: Set<number> = new Set();
       for (let index: number = 1; index < current.points.length - 1; index++) {
         const binding: Corridor.IReading["bindings"][number] = current.bindings[index]!;
@@ -42,58 +71,133 @@ export namespace AutoMovieHumanSkinShortening {
           if (first === 0 || last === current.points.length - 1) continue;
           const incoming: Source.Point = current.points[first - 1]!;
           const outgoing: Source.Point = current.points[last + 1]!;
+          const start: number = first - 1;
+          const end: number = last + 1;
+          const originalLength: number = length(current.points.slice(start, end + 1));
+          const bottom: number = Math.min(current.stations[start]!, current.stations[end]!);
+          const top: number = Math.max(current.stations[start]!, current.stations[end]!);
           const paths: number[][] = fans(skin, adjacency.get(vertex)!, vertex, current.triangles[first - 1]!, current.triangles[last]!);
+          let best: Corridor.IReading | undefined;
           for (const fan of paths) {
             const angle: number = wedge(skin, fan, vertex, incoming, outgoing);
             const angularRoundoff: number = 32 * Math.sqrt(Number.EPSILON) * fan.length;
             if (angle >= Math.PI - angularRoundoff) continue;
-            const faces: number[] = [...current.triangles.slice(0, first - 1), ...fan, ...current.triangles.slice(last + 1)];
-            const key: string = faces.join(",");
-            if (visited.has(key)) continue;
-            visited.add(key);
-            work.corridorEvaluations++;
+            const key: string = JSON.stringify({ fan, incoming, outgoing, bottom, top });
             let candidate: Corridor.IReading;
             let pruned: boolean = false;
             try {
-              const geometric: Corridor.IReading = Corridor.within(skin, faces, from, to, coordinates, false);
-              const certificate: LowerBound.IReading = LowerBound.read(skin, geometric);
-              work.certificates++; work.certificateSegments += certificate.segments;
-              if (certificate.lower >= best.length) { work.certifiedPruned++; pruned = true; candidate = geometric; }
-              else candidate = Directed.read(skin, geometric, coordinates);
+              const cached: Corridor.IReading | undefined = cache.get(key);
+              if (cached !== undefined) { candidate = cached; work.cacheHits++; }
+              else {
+                work.corridorEvaluations++;
+                const geometric: Corridor.IReading = Corridor.within(skin, fan, incoming, outgoing, coordinates, false);
+                work.maxLocalPortals = Math.max(work.maxLocalPortals, geometric.points.length);
+                const certificate: LowerBound.IReading = LowerBound.read(skin, geometric);
+                work.certificates++; work.certificateSegments += certificate.segments;
+                if (certificate.lower >= Math.min(originalLength, best?.length ?? Infinity)) { work.certifiedPruned++; pruned = true; candidate = geometric; }
+                else { candidate = Directed.read(skin, geometric, coordinates); accumulate(candidate); cache.set(key, candidate); }
+              }
             }
             catch (error) {
-              if (!(error instanceof Error) || error.constructor !== Error || !["An actual face corridor has no feasible directed material path", "An unfolded physical course does not cross its actual ordered portal"].includes(error.message)) throw new Error("Physical shortening could not evaluate an alternative actual corridor", { cause: { vertex, fan, faces, incoming, outgoing, failure: error instanceof Error ? { category: error.name, reason: error.message, cause: error.cause, stack: error.stack } : error } });
-              refusals.push({ triangles: faces, reason: error.message, witness: error.cause });
+              accumulateFailure(error);
+              if (!(error instanceof Error) || error.constructor !== Error || !["An actual face corridor has no feasible directed material path", "An unfolded physical course does not cross its actual ordered portal"].includes(error.message)) throw new Error("Physical shortening could not evaluate an alternative actual corridor", { cause: { vertex, fan, incoming, outgoing, first: start, last: end, work: { ...work, refusedAlternatives: refusals.length }, failure: error instanceof Error ? { category: error.name, reason: error.message, cause: error.cause, stack: error.stack } : error } });
+              refusals.push({ triangles: fan, reason: error.message, witness: error.cause });
               observe?.({ ...work, refusedAlternatives: refusals.length }, "refused");
               continue;
             }
             if (pruned) { observe?.({ ...work, refusedAlternatives: refusals.length }, "pruned"); continue; }
-            accumulate(candidate);
-            const arithmetic: number = 256 * Number.EPSILON * Math.max(1, current.length, candidate.length) * Math.max(current.points.length, candidate.points.length);
+            const arithmetic: number = 256 * Number.EPSILON * Math.max(1, originalLength, candidate.length) * Math.max(end - start + 1, candidate.points.length);
             const admissible: boolean = candidate.stations.every((station: number, ordinal: number): boolean => {
               const materialBound: number = 512 * Number.EPSILON * Math.max(1, Math.abs(station), Math.abs(candidate.stations[ordinal - 1] ?? station), Math.abs(bottom), Math.abs(top));
               return Number.isFinite(station) && station >= bottom - materialBound && station <= top + materialBound && (ordinal === 0 || (station - candidate.stations[ordinal - 1]!) * direction >= -materialBound);
             });
-            if (!admissible) refusals.push({ triangles: faces, reason: "Alternative path leaves its fixed directed material domain", witness: { stations: candidate.stations, coordinates: candidate.points, bottom, top, direction, units: "mm" } });
-            if (admissible && candidate.length < best.length - arithmetic) best = candidate;
-            observe?.({ ...work, refusedAlternatives: refusals.length }, "evaluated");
+            if (!admissible) refusals.push({ triangles: fan, reason: "Alternative path leaves its fixed directed material domain", witness: { stations: candidate.stations, coordinates: candidate.points, bottom, top, direction, units: "mm" } });
+            if (admissible && candidate.length < Math.min(originalLength, best?.length ?? Infinity) - arithmetic) best = candidate;
+            observe?.({ ...work, refusedAlternatives: refusals.length }, "evaluated", { triangles: fan.slice(), cuts: [incoming.slice() as Source.Point, outgoing.slice() as Source.Point], domain: [bottom, top], originalLength, candidateLength: candidate.length, points: candidate.points.map((point: Source.Point): Source.Point => point.slice() as Source.Point), stations: candidate.stations.slice(), admissible });
           }
+          if (best !== undefined) proposals.push({ first: start, last: end, reading: best, saving: originalLength - best.length });
         }
       }
-      if (best === current) return { ...current, alternatives: refusals, shorteningWork: { ...work, refusedAlternatives: refusals.length } };
-      current = best;
+      if (proposals.length === 0) return finish();
+      const selected: IProposal[] = [];
+      for (const proposal of proposals.sort((a: IProposal, b: IProposal): number => b.saving - a.saving || a.first - b.first))
+        if (selected.every((other: IProposal): boolean => proposal.last <= other.first || proposal.first >= other.last)) selected.push(proposal);
+      let candidate: Corridor.IReading = current;
+      for (const proposal of selected.sort((a: IProposal, b: IProposal): number => b.first - a.first)) candidate = splice(candidate, proposal);
+      const arithmetic: number = 256 * Number.EPSILON * Math.max(1, current.length, candidate.length) * Math.max(current.points.length, candidate.points.length);
+      if (!(candidate.length < current.length - arithmetic)) {
+        refusals.push({ triangles: candidate.triangles, reason: "Local shortcuts have no numerically resolved full-path descent", witness: { observed: candidate.length, expected: current.length, tolerance: arithmetic, units: "mm" } });
+        return finish();
+      }
+      work.splicedIntervals += selected.length;
+      current = relax(candidate);
     }
-    throw new Error("Physical corridor shortening exhausted its finite face-work budget", { cause: { selectedFaces: selectedFaces.length, examinedCorridors: visited.size, points: current.points, triangles: current.triangles, length: current.length, units: "mm and counts" } });
+    throw new Error("Physical corridor shortening exhausted its finite face-work budget", { cause: { selectedFaces: selectedFaces.length, work, points: current.points, triangles: current.triangles, length: current.length, units: "mm and counts" } });
+
+    /** Keep every outside point and original cut-edge identity unchanged while replacing one strict local interval. */
+    function splice(value: Corridor.IReading, proposal: IProposal): Corridor.IReading {
+      const local: Corridor.IReading = proposal.reading;
+      const points: Source.Point[] = [...value.points.slice(0, proposal.first), ...local.points, ...value.points.slice(proposal.last + 1)];
+      const bindings: Corridor.IReading["bindings"] = [...value.bindings.slice(0, proposal.first), value.bindings[proposal.first]!, ...local.bindings.slice(1, -1), value.bindings[proposal.last]!, ...value.bindings.slice(proposal.last + 1)];
+      return { points, bindings, stations: [...value.stations.slice(0, proposal.first), value.stations[proposal.first]!, ...local.stations.slice(1, -1), value.stations[proposal.last]!, ...value.stations.slice(proposal.last + 1)], triangles: [...value.triangles.slice(0, proposal.first), ...local.triangles, ...value.triangles.slice(proposal.last)], length: length(points) };
+    }
+
+    /** String-pull the shared whole corridor once per accepted batch; solve constraints only if that exact physical path reverses material direction. */
+    function relax(value: Corridor.IReading): Corridor.IReading {
+      work.globalRelaxations++;
+      const corridor: number[] = [];
+      const visited: Map<number, number> = new Map();
+
+      // Re-entering the same original convex triangle admits its direct chord.
+      // Its affine material station stays between the two ordered cuts.
+      // Contract identity-equal face visits, never coincident separate sheets.
+      for (const face of value.triangles) {
+        const earlier: number | undefined = visited.get(face);
+        if (earlier === undefined) { visited.set(face, corridor.length); corridor.push(face); }
+        else {
+          for (let index: number = corridor.length - 1; index > earlier; index--) visited.delete(corridor[index]!);
+          corridor.length = earlier + 1;
+        }
+      }
+      work.erasedFaceVisits += value.triangles.length - corridor.length;
+      let geometric: Corridor.IReading | undefined;
+      try {
+        geometric = Corridor.within(skin, corridor, value.points[0]!, value.points.at(-1)!, coordinates, false);
+        const relaxed: Corridor.IReading = Directed.read(skin, geometric, coordinates);
+        accumulate(relaxed);
+        return relaxed.length <= value.length ? relaxed : value;
+      } catch (error) {
+        accumulateFailure(error);
+        throw new Error("Physical shortening could not relax its actual shared corridor", { cause: { stage: "whole-corridor relaxation", work: { ...work, refusedAlternatives: refusals.length }, original: value, geometric, failure: error instanceof Error ? { category: error.name, reason: error.message, cause: error.cause, stack: error.stack } : error } });
+      }
+    }
+
+    /** Retain all real alternative refusals and all actual costs even when no local change is admitted. */
+    function finish(): Corridor.IReading { return { ...current, alternatives: refusals, shorteningWork: { ...work, refusedAlternatives: refusals.length } }; }
 
     /** Count every actually executed directed solve; the chosen final corridor alone understates its cost. */
     function accumulate(reading: Corridor.IReading): void {
       if (reading.directedWork === undefined) return;
+      accumulateWork(reading.directedWork);
+    }
+
+    /** Include a real failed descent's measured work rather than losing its final sweeps. */
+    function accumulateWork(value: NonNullable<Corridor.IReading["directedWork"]>): void {
       work.directedCalls++;
-      work.sweeps += reading.directedWork.sweeps;
-      work.scalarEvaluations += reading.directedWork.scalarEvaluations;
-      work.segmentEvaluations += reading.directedWork.segmentEvaluations;
+      work.sweeps += value.sweeps;
+      work.scalarEvaluations += value.scalarEvaluations;
+      work.segmentEvaluations += value.segmentEvaluations;
+    }
+
+    /** Preserve all measured sweeps of the owner's exact finite-budget refusal, including local alternatives. */
+    function accumulateFailure(error: unknown): void {
+      const failed: Corridor.IReading["directedWork"] | undefined = error instanceof Error && error.constructor === Error && error.message === "Directed physical corridor descent did not converge within its finite work budget" ? (error.cause as { work?: Corridor.IReading["directedWork"] } | undefined)?.work : undefined;
+      if (failed !== undefined) accumulateWork(failed);
     }
   }
+
+  /** Full physical segment sum in the original order, without prefix subtraction or a mesh-edge surrogate. */
+  function length(points: readonly Source.Point[]): number { return points.reduce((sum: number, point: Source.Point, index: number): number => index === 0 ? sum : sum + Math.hypot(...subtract(point, points[index - 1]!)), 0); }
 
   /** Enumerate actual edge-connected simple routes in one manifold indexed vertex star. */
   function fans(skin: Surface.IGeometry, star: ReadonlyMap<number, readonly number[]>, vertex: number, start: number, end: number): number[][] {

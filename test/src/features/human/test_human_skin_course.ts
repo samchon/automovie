@@ -20,18 +20,20 @@ import { HumanSkinVariation } from "../internal/HumanSkinVariation";
  * 5. An actual broken original-face witness fails the independent continuity reader.
  * 6. A nonfinite or collapsed actual selected triangle refuses with its intended cause.
  * 7. Interior endpoints require neither a station-aligned row nor a contained original vertex.
- * 8. The retained actual wrong face corridor is locally shorten-able; its refined rays, not collinear seed rays, expose the defect.
+ * 8. The retained actual wrong face corridor is locally shorten-able; its refined rays, not collinear seed rays, expose the defect. Actual local work stays inside the original incident vertex fan, without mutating the original mesh or path.
  * 9. An isometric folded rectangle retains the same intrinsic length in both travel directions.
  * 10. An authored affine material field forces an actual vertex corner; an inadmissible geometric shortcut is red.
  * 11. An active equal-material block has a shortening direction even when each feasible single portal does not.
  * 12. A bent actual edge-interior path fails first variation without relying on a vertex-corner observer.
  * 13. A physical norm-dual certificate stays below analytic minima, responds to stretch/endpoints and does not mistake a bent path's length for a lower bound.
+ * 14. Re-entry into the same original convex triangle contracts to its material-monotone chord; an actual loop is red and a known lateral change retains its analytic response.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the actual indexed-skin producer, unfolding/string-pull and directed-portal owners, then independently reconstructs original triangles, feasible corner chords and constrained first variation. Both diagonal choices must remove edge stair steps. Real stretched, disconnected, overlapping, degenerate, material-reversing, active-block and edge-interior defective paths are observed rather than replacing evaluation.
  * @evidence contracts/testing.md#independent-expectations The geometric primitive is an open planar rectangle, not a normal human. Its fixed endpoint displacement is (0,20,8), so the straight surface length is sqrt(464); doubling physical Y gives sqrt(1664). Extending the fixed endpoint from material twenty to thirty gives sqrt(964)-sqrt(464). Folding the rectangle by a right angle along material ten is an isometry, preserving those intrinsic lengths. The retained wrong corridor's actual incoming/outgoing slopes are 0.2/0.4, giving an available intrinsic angle pi-atan(0.4)+atan(0.2), strictly below pi. The independent observer uses original triangle incidence and the cosine law. A 1e-9 mm arithmetic allowance covers these small finite fixtures; it is not an anatomy or mesh approximation allowance.
  * The material-constrained fan has station ranges [5,8] then [2,5], forcing both crossings to its shared vertex and length 2*hypot(1.5,height). Its geometric shortcut reverses those stations. The concave planar fan's shortest admitted path passes (0,0,10), with length sqrt(101)+sqrt(500). A real midpoint path has an active-block normalized derivative (-19/sqrt(241)-2+20/sqrt(250))/sqrt(2), below zero; single feasible portal moves do not expose that joint direction. Raising its start by one gives sqrt(122)-sqrt(101). The independent first-variation allowance includes coordinate subtraction conditioning and normalized-dot roundoff, separately from the unchanged length tolerance. The Cauchy–Schwarz norm-dual certificate must remain below the same analytic planar, folded and constrained optima, including the cutoff boundary. Actual field stretch makes its normal-target comparison red, while an actual bent interior path cannot inflate the valid lower bound. Edge endpoints, displaced off-triangle endpoints and actual nonfinite source coordinates refuse with their exact categories.
+ * The original-face loop's endpoints have physical YZ=(6,3)/(9,1), so its straight length is sqrt(13); changing the second lateral coordinate to two gives sqrt(10). The explicitly authored affine face stations are 5.4/8.7 (8.1 after the change), surrounding the loop vertex's station seven. Their direct chord therefore preserves the fixed material interval. A repeated face means indexed identity, never a coincident sheet.
  *
- * @evidence contracts/testing.md#distinguishing-cases Includes opposite triangulations, actual field stretch, endpoint input delta, isometric folds in both directions, constrained normal corners, real active-block and edge-interior defects, coincident disconnected seams, a forward overlap sheet, real invalid physical triangles and corrupted face ownership. Local necessary conditions inside one finite corridor are not asserted to certify a global shortest path on an arbitrary folded body or a clinical registration.
+ * @evidence contracts/testing.md#distinguishing-cases Includes opposite triangulations, actual field stretch, endpoint input delta, isometric folds in both directions, constrained normal corners, real active-block and edge-interior defects, coincident disconnected seams, a forward overlap sheet, real invalid physical triangles and corrupted face ownership. A fan with F incident triangles has at most F+1 portal points including its fixed cuts; that independent incidence bound distinguishes local solves from repeatedly solving a whole path. Mutating copied observer evidence must leave the actual result and input unchanged. Local necessary conditions inside one finite corridor are not asserted to certify a global shortest path on an arbitrary folded body or a clinical registration.
  * @evidence contracts/testing.md#execution-ownership Discoverable synchronous portable CPU unit using resident mesh arrays and local audit state only. No whole person, process, browser, GPU, cache, monkeypatch or file I/O is used.
  */
 export function test_human_skin_course(): void {
@@ -95,10 +97,42 @@ export function test_human_skin_course(): void {
     audit.measure("independent known actual angular defect", witness?.observed ?? NaN, Math.PI - Math.atan(0.4) + Math.atan(0.2), 1e-8, "rad");
     audit.category("independent angular unit", witness?.units, "rad");
     const faces: number[] = Array.from({ length: skin.mesh.indices.length / 3 }, (_: unknown, index: number): number => index * 3);
+    const before: string = JSON.stringify({ skin, wrong });
     const corrected: Corridor.IReading = Shortening.read(skin, wrong, skin.coordinates, faces);
     audit.measure("actual refined-ray corridor correction", corrected.length, Math.sqrt(964), 1e-9, "mm");
+    audit.measure("independently reconstructed corrected physical path", Independent.read(skin, corrected, { station: 0, lateral: 1 }, { station: 30, lateral: 9 }).length, Math.sqrt(964), 1e-9, "mm");
     audit.measure("independent actual corner condition after correction", HumanSkinStationarity.inspect(skin, corrected, corrected.points, 0, 30).length, 0, 0, "findings");
+    audit.measure("independent actual edge and active-block conditions after correction", HumanSkinVariation.inspect(skin, corrected, corrected.points, 0, 30).length, 0, 0, "findings");
+    const valence: number = Math.max(...Array.from({ length: skin.mesh.positions.length / 3 }, (_: unknown, vertex: number): number => faces.filter((face: number): boolean => skin.mesh.indices.slice(face, face + 3).includes(vertex)).length));
+    audit.bound("each alternative uses only an incident fan's face count plus its fixed endpoints", corrected.shorteningWork?.maxLocalPortals ?? NaN, valence + 1, "<=", "portal points");
+    audit.bound("whole-corridor solves are limited to the initial path and accepted local batches", corrected.shorteningWork?.globalRelaxations ?? NaN, (corrected.shorteningWork?.splicedIntervals ?? NaN) + 1, "<=", "solves");
+    audit.category("local shortcut preserves original mesh, material map and input path", JSON.stringify({ skin, wrong }), before);
+    const observed: Corridor.IReading = Shortening.read(skin, wrong, skin.coordinates, faces, undefined, (_work: Readonly<NonNullable<Corridor.IReading["shorteningWork"]>>, _stage: "pruned" | "refused" | "evaluated", alternative?: Shortening.IAlternative): void => {
+      if (alternative !== undefined) { alternative.cuts[0]![0] = NaN; alternative.points[0]![0] = NaN; alternative.triangles[0] = -1; alternative.stations[0] = NaN; }
+    });
+    audit.category("copied optional diagnostic evidence cannot mutate physical output", JSON.stringify(observed), JSON.stringify(corrected));
+    audit.category("copied optional diagnostic evidence cannot mutate original source", JSON.stringify({ skin, wrong }), before);
   });
+  for (const lateral of [1, 2])
+    audit.run({ scenario: "14 actual repeated original-face loop", part: "patch", station: [5.4, lateral === 1 ? 8.7 : 8.1], lateral }, (): void => {
+      const skin: Surface.IGeometry = patch(true, 1);
+      skin.coordinates[3 * 4 + 1] = 7;
+      const a: { station: number; lateral: number } = { station: 5.4, lateral: 3 };
+      const b: { station: number; lateral: number } = { station: lateral === 1 ? 8.7 : 8.1, lateral };
+      const original: Corridor.IReading = { points: [[5, 6, 3], ...Array.from({ length: 6 }, (): [number, number, number] => [5, 10, 5]), [5, 9, lateral]], triangles: [3, 12, 15, 18, 9, 6, 3], stations: [a.station, 7, 7, 7, 7, 7, 7, b.station], bindings: [{ triangle: 3 }, ...[3, 6, 7, 5, 2, 1].map((vertex: number): { edge: [number, number]; unit: number } => ({ edge: [vertex, 4], unit: 1 })), { triangle: 3 }], length: Math.sqrt(20) + Math.hypot(1, 5 - lateral) };
+      const before: string = JSON.stringify({ skin, original });
+      refusal(audit, (): unknown => Independent.read(skin, original, a, b), "An emitted path has a shorten-able actual vertex corner");
+      const faces: number[] = Array.from({ length: skin.mesh.indices.length / 3 }, (_: unknown, index: number): number => index * 3);
+      const corrected: Corridor.IReading = Shortening.read(skin, original, skin.coordinates, faces);
+      const observed: Independent.IReading = Independent.read(skin, corrected, a, b);
+      audit.scope({ scenario: "14 actual repeated original-face loop", part: "patch", station: [a, b], coordinates: corrected.points, triangles: corrected.triangles, originalCoordinates: original.points, originalTriangles: original.triangles });
+      audit.measure("independent same-triangle chord length", observed.length, Math.hypot(3, lateral - 3), 1e-9, "mm");
+      audit.reject("actual loop is red against the independent chord", original.length, Math.hypot(3, lateral - 3), 1e-9, "mm");
+      audit.measure("known lateral input response", observed.length - Math.sqrt(13), Math.hypot(3, lateral - 3) - Math.sqrt(13), 1e-9, "mm");
+      audit.measure("one original convex triangle replaces its actual repeated visits", corrected.triangles.length, 1, 0, "face visits");
+      audit.measure("actual removed face visits are counted", corrected.shorteningWork?.erasedFaceVisits ?? NaN, 6, 0, "face visits");
+      audit.category("face contraction preserves actual mesh and input path", JSON.stringify({ skin, original }), before);
+    });
   for (const diagonal of [false, true])
     for (const reverse of [false, true])
       audit.run({ scenario: "9 actual isometric folded surface", part: "patch", station: [0, 20], diagonal, reverse }, (): void => {

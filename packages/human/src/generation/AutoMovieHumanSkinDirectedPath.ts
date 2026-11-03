@@ -19,10 +19,11 @@ export namespace AutoMovieHumanSkinDirectedPath {
     const direction: number = Math.sign(seed.stations.at(-1)! - seed.stations[0]!);
     const bottom: number = direction * seed.stations[0]!;
     const top: number = direction * seed.stations.at(-1)!;
-    if (seed.stations.every((station: number, index: number): boolean => {
+    const admitted: boolean = seed.stations.every((station: number, index: number): boolean => {
       const bound: number = 512 * Number.EPSILON * Math.max(1, Math.abs(station), Math.abs(seed.stations[index - 1] ?? station), Math.abs(bottom), Math.abs(top));
       return Number.isFinite(station) && direction * station >= bottom - bound && direction * station <= top + bound && (index === 0 || direction * (station - seed.stations[index - 1]!) >= -bound);
-    })) return seed;
+    });
+    if (admitted) return seed;
 
     const portals: IPortal[] = seed.bindings.map((binding: Corridor.IReading["bindings"][number], index: number): IPortal => {
       if (!("edge" in binding)) return { a: seed.points[index]!, delta: [0, 0, 0], start: direction * seed.stations[index]!, span: 0, low: direction * seed.stations[index]!, high: direction * seed.stations[index]! };
@@ -44,7 +45,7 @@ export namespace AutoMovieHumanSkinDirectedPath {
       const high: number = ceiling[index]!;
       if (low > high) throw new Error("An actual face corridor has no feasible directed material path", { cause: { index, low, high, previous, portal, stations: seed.stations, triangles: seed.triangles, units: "mm" } });
       const value: number = Math.max(low, Math.min(high, direction * seed.stations[index]!));
-      values.push(value); units.push(portal.span === 0 ? ("edge" in seed.bindings[index]! ? (seed.bindings[index]! as { unit: number }).unit : 0) : (value - portal.start) / portal.span);
+      values.push(value); units.push(portal.span === 0 && "edge" in seed.bindings[index]! ? (seed.bindings[index]! as { unit: number }).unit : portal.span === 0 ? 0 : (value - portal.start) / portal.span);
       previous = value;
     }
     const points: Source.Point[] = portals.map((portal: IPortal, index: number): Source.Point => position(portal, units[index]!));
@@ -74,7 +75,7 @@ export namespace AutoMovieHumanSkinDirectedPath {
         return { points, stations, bindings, triangles: seed.triangles, length: total, directedWork: { sweeps: sweep + 1, scalarEvaluations, segmentEvaluations, termination: "physical length descent at arithmetic resolution; independent first variation remains required" } };
       }
     }
-    throw new Error("Directed physical corridor descent did not converge within its finite work budget", { cause: { points, stations: values, triangles: seed.triangles, length: total, sweeps: 128, units: "mm and counts" } });
+    throw new Error("Directed physical corridor descent did not converge within its finite work budget", { cause: { points, stations: values, triangles: seed.triangles, length: total, sweeps: 128, work: { sweeps: 128, scalarEvaluations, segmentEvaluations, termination: "finite work budget exhausted; no admitted result" }, units: "mm and counts" } });
 
     /** Minimize one feasible block by convex one-dimensional interval reduction. */
     function update(first: number, last: number, edgeUnit: boolean): void {
