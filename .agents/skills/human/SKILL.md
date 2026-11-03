@@ -26,6 +26,8 @@ Human debugging UI and capture tooling belong in `packages/human/dev`, outside t
 
 Plan only as far as the next change. When a change disproves a construction, choose another construction.
 
+Conquer the anatomical neutral and the bind before any other pose: every motion starts from them, so a defect left at neutral returns in every pose.
+
 ## Files
 
 - [Construction](construction.md): what a construction contains and how it consumes inputs.
