@@ -15,9 +15,10 @@ import { AutoMovieHumanIrisColor } from "../typings/AutoMovieHumanIrisColor";
 import { AutoMovieHumanConjunctiva } from "./AutoMovieHumanConjunctiva";
 import { AutoMovieHumanEyeball } from "./AutoMovieHumanEyeball";
 import { AutoMovieHumanEyebrow } from "./AutoMovieHumanEyebrow";
+import { AutoMovieHumanEyebrowMaterial } from "./AutoMovieHumanEyebrowMaterial";
 import { AutoMovieHumanEyelash } from "./AutoMovieHumanEyelash";
 import { AutoMovieHumanGarment } from "./AutoMovieHumanGarment";
-import { AutoMovieHumanHairCard } from "./AutoMovieHumanHairCard";
+import { AutoMovieHumanHairCardMaterial } from "./AutoMovieHumanHairCardMaterial";
 import { AutoMovieHumanHairImage } from "./AutoMovieHumanHairImage";
 import { AutoMovieHumanHairStage } from "./AutoMovieHumanHairStage";
 import { AutoMovieHumanIrisImage } from "./AutoMovieHumanIrisImage";
@@ -114,12 +115,10 @@ export namespace AutoMovieHumanAppearance {
       const lid: AutoMovieHumanEyelid.ILid | null =
         lids.get(`eye.${side}`) ?? null;
 
-      // The right eye turns the shared iris image by an irrational-looking
-      // fraction of a turn so the two irises do not repeat each other.
+      // One canonical eye, the left; the right is its reflection.
       const eye: AutoMovieHumanEyeball.IOutput = AutoMovieHumanEyeball.generate(
         {
           eye: body.eyePair[side],
-          uvTurn: side === "left" ? 0 : 0.381966,
           mirror: side === "right",
           lid,
           scale,
@@ -153,7 +152,12 @@ export namespace AutoMovieHumanAppearance {
         );
 
       // Lashes on the lash line, and the brow on the generated skin above.
-      const seed: number = side === "left" ? 0x1a5 : 0x2b7;
+      // One seed for both sides, so one canonical construction serves both
+      // and equal inputs give mirror images (the canonical side reflected).
+      // Each side is still fed its own measured inputs (its own lid, lash and
+      // brow settings), never an average of the two sides' inputs; nothing
+      // but a declared per-side input may make the sides differ.
+      const seed: number = 0x1a5;
       const lash: IAutoMovieHumanEyelash | undefined =
         params.appearance?.lashPair[side];
       const lashes: IAutoMovieMesh | null =
@@ -175,10 +179,8 @@ export namespace AutoMovieHumanAppearance {
           ? null
           : AutoMovieHumanEyebrow.generate(lid, body.parts, scale, seed + 1);
       if (brow !== undefined && brows !== null && finite(brows)) {
-        const material: IAutoMovieMaterial = AutoMovieHumanEyebrow.material(
-          brow,
-          side,
-        );
+        const material: IAutoMovieMaterial =
+          AutoMovieHumanEyebrowMaterial.material(brow, side);
         parts.push(part(`human.hair.brows.${side}`, material.id, brows));
         materials.push(material);
       }
@@ -197,8 +199,13 @@ export namespace AutoMovieHumanAppearance {
           part("human.hair.scalp", "human.hair.scalp", realised.mesh.scalp),
           part("human.hair.cards", "human.hair.cards", realised.mesh.cards),
         );
-        materials.push(...AutoMovieHumanHairCard.materials(hair));
-        images.push(AutoMovieHumanHairImage.generate());
+        materials.push(
+          ...AutoMovieHumanHairCardMaterial.materials(
+            hair,
+            realised.mesh.coverage.id,
+          ),
+        );
+        images.push(AutoMovieHumanHairImage.generate(), realised.mesh.coverage);
       }
     }
 

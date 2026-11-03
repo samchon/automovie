@@ -57,7 +57,7 @@ export namespace AutoMovieHumanEyelash {
    * @param lid Lid margin in calibration millimetres
    * @param lash Lash input; its `length` is the longest upper lash in mm
    * @param scale Calibration millimetre to model unit factor
-   * @param seed Seed of the per-lash variation, distinct per eye
+   * @param seed Seed of the per-lash variation, one for both eyes so they mirror
    * @returns Lash tubes in model units, or null for zero length
    */
   export function generate(

@@ -1,10 +1,17 @@
-import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
+import type {
+  IAutoMovieImage,
+  IAutoMovieMesh,
+  IAutoMovieModelPart,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanScalpHair } from "../structures/appearance/IAutoMovieHumanScalpHair";
 import { AutoMovieHumanHairCard } from "./AutoMovieHumanHairCard";
 import { AutoMovieHumanHairGuide } from "./AutoMovieHumanHairGuide";
+import { AutoMovieHumanHairScalpLayer } from "./AutoMovieHumanHairScalpLayer";
 import { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
+import { AutoMovieHumanScalpBoundary } from "./AutoMovieHumanScalpBoundary";
+import { AutoMovieHumanScalpLandmarks } from "./AutoMovieHumanScalpLandmarks";
 import { AutoMovieHumanShoulderField } from "./AutoMovieHumanShoulderField";
 import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceBody";
 
@@ -13,13 +20,18 @@ import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceB
  *
  * Dependencies, each stage keyed by exactly the inputs it reads:
  *
- * - chart (`AutoMovieHumanHeadField`, `AutoMovieHumanShoulderField`): the
- *   positions and indices of every `human.skin.` part with its id, the eye
- *   centres' height and `head.height`;
- * - guides (`AutoMovieHumanHairGuide`): the chart and `hair.style`,
- *   `hair.length` and `hair.hairline`;
- * - cards and undercoat (`AutoMovieHumanHairCard`): the guides, the chart
- *   and `hair.style`, `hair.curl` and `hair.hairline`.
+ * - chart (`AutoMovieHumanHeadField`, `AutoMovieHumanShoulderField`,
+ *   `AutoMovieHumanScalpLandmarks`): the positions and indices of every
+ *   `human.skin.` part with its id, the eye centres' height and lateral
+ *   places, and the head inputs the landmarks read (`head.height`,
+ *   `head.faceHeight`, the nose height, the intercanthal width and the
+ *   left palpebral fissure length);
+ * - boundary and guides (`AutoMovieHumanScalpBoundary`,
+ *   `AutoMovieHumanHairGuide`): the chart and `hair.style`, `hair.length`
+ *   and `hair.hairline`;
+ * - cards and scalp layer (`AutoMovieHumanHairCard`,
+ *   `AutoMovieHumanHairScalpLayer`): the guides, the boundary, the chart and
+ *   `hair.style`, `hair.curl` and `hair.hairline`.
  *
  * `hair.color` reaches only the materials, which the caller builds every
  * time, so a colour edit reuses every stage; a curl edit reuses the chart
@@ -38,11 +50,23 @@ import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceB
 export namespace AutoMovieHumanHairStage {
   /** Realised scalp hair. */
   export interface IOutput {
-    /** Card and undercoat meshes in model metres. */
-    mesh: AutoMovieHumanHairCard.IOutput;
+    /** Card and scalp layer meshes in model metres, and the layer's coverage image. */
+    mesh: IMesh;
 
     /** Guides the cards realise. */
     guides: AutoMovieHumanHairGuide.IGuide[];
+  }
+
+  /** Realised hair meshes in model metres and the scalp layer's coverage image. */
+  export interface IMesh {
+    /** All cards. */
+    cards: IAutoMovieMesh;
+
+    /** The scalp layer's shell. */
+    scalp: IAutoMovieMesh;
+
+    /** The scalp layer's coverage image. */
+    coverage: IAutoMovieImage;
   }
 
   /**
@@ -64,10 +88,19 @@ export namespace AutoMovieHumanHairStage {
     );
     const eyeLevel: number =
       body.eyePair.left.centre[1] + body.eyePair.right.centre[1];
+    const head: number[] = [
+      params.head.height,
+      params.head.faceHeight,
+      params.head.face.nose.height,
+      params.head.face.intercanthalWidth,
+      params.head.face.eyePair.left.palpebralFissureLength,
+      body.eyePair.left.centre[2],
+      body.eyePair.right.centre[2],
+    ];
     let chart: IChart | undefined = CHARTS.find(
       (entry: IChart): boolean =>
         entry.eyeLevel === eyeLevel &&
-        entry.height === params.head.height &&
+        equal(entry.head, head) &&
         same(entry.skin, skin),
     );
     if (chart === undefined) {
@@ -76,8 +109,9 @@ export namespace AutoMovieHumanHairStage {
       chart = {
         skin,
         eyeLevel,
-        height: params.head.height,
+        head,
         field,
+        landmarks: AutoMovieHumanScalpLandmarks.measure(params, body, field),
         shoulders: AutoMovieHumanShoulderField.create(body.parts, field),
         cuts: [],
       };
@@ -88,24 +122,43 @@ export namespace AutoMovieHumanHairStage {
     let cut: ICut | undefined = chart.cuts.find(
       (entry: ICut): boolean => entry.key === guideKey,
     );
-    if (cut === undefined)
+    if (cut === undefined) {
+      const boundary: AutoMovieHumanScalpBoundary.IBoundary =
+        AutoMovieHumanScalpBoundary.build(
+          hair.hairline,
+          chart.field,
+          chart.landmarks,
+        );
       cut = {
         key: guideKey,
+        boundary,
         guides: AutoMovieHumanHairGuide.generate(
           chart.field,
           chart.shoulders,
           hair,
+          boundary,
         ),
         meshes: new Map(),
       };
+    }
     touch(chart.cuts, cut);
     if (cut.guides.length === 0) return null;
 
     const meshKey: string = [hair.curl, hair.hairline].join("|");
-    let mesh: AutoMovieHumanHairCard.IOutput | undefined =
-      cut.meshes.get(meshKey);
+    let mesh: IMesh | undefined = cut.meshes.get(meshKey);
     if (mesh === undefined) {
-      mesh = AutoMovieHumanHairCard.generate(chart.field, hair, cut.guides);
+      const layer: AutoMovieHumanHairScalpLayer.IOutput =
+        AutoMovieHumanHairScalpLayer.generate(
+          chart.field,
+          hair,
+          cut.boundary,
+          cut.guides,
+        );
+      mesh = {
+        cards: AutoMovieHumanHairCard.generate(chart.field, hair, cut.guides),
+        scalp: layer.mesh,
+        coverage: layer.image,
+      };
       cut.meshes.set(meshKey, mesh);
     }
     return { mesh, guides: cut.guides };
@@ -119,8 +172,9 @@ const KEEP: number = 2;
 interface IChart {
   skin: IAutoMovieModelPart[];
   eyeLevel: number;
-  height: number;
+  head: number[];
   field: AutoMovieHumanHeadField.IField;
+  landmarks: AutoMovieHumanScalpLandmarks.ILandmarks;
   shoulders: AutoMovieHumanShoulderField.IField;
   cuts: ICut[];
 }
@@ -128,8 +182,9 @@ interface IChart {
 /** One haircut's guides and the meshes realised from them. */
 interface ICut {
   key: string;
+  boundary: AutoMovieHumanScalpBoundary.IBoundary;
   guides: AutoMovieHumanHairGuide.IGuide[];
-  meshes: Map<string, AutoMovieHumanHairCard.IOutput>;
+  meshes: Map<string, AutoMovieHumanHairStage.IMesh>;
 }
 
 /** Charts, most recently used first. */
