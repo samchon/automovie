@@ -59,7 +59,8 @@ export const m2: IAutoMovieHumanParameters = {
         pinned: false,
       },
       acrossShoulder: {
-        value: 377.3447799682617,
+        // ISO 8559-1 5.4.3 across back shoulder width: shoulder point to shoulder point through the back neck point, taut over the skin; measured on the reference by test_human_anatomy_course.
+        value: 451.9,
         pinned: false,
       },
       shoulderToApex: {
