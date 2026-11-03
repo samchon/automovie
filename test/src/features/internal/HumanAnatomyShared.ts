@@ -88,6 +88,12 @@ export namespace HumanAnatomyShared {
 
     /** Deepest crease sagitta on the neck's meridians, mm. */
     crease: number;
+
+    /** Height of suprasternale, the front neck point, mm. */
+    notch: number;
+
+    /** Height of cervicale, the back neck point, mm. */
+    cervicale: number;
   }
 
   /** Arm sites, one side. */

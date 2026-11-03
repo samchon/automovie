@@ -140,6 +140,8 @@ export namespace HumanReference {
       bind: (): HumanAnatomy.ISkin => skin(id),
       neutral: (): HumanAnatomy.ISkin => skin(id),
       mouth: false,
+      construction: false,
+      straightened: false,
     };
   }
 }

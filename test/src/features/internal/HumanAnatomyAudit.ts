@@ -61,6 +61,21 @@ export namespace HumanAnatomyAudit {
 
     /** Whether the subject carries an oral cavity whose teeth the closed lips must hide. */
     mouth: boolean;
+
+    /**
+     * Whether the subject comes from the one Human construction, so the
+     * construction's own contracts bind it: mirror symmetry of sides built
+     * from shared inputs, and any other row that holds by how the figure is
+     * made rather than by anatomy. A captured real body does not.
+     */
+    construction: boolean;
+
+    /**
+     * Whether `neutral()` straightens the hands and feet to the anatomical
+     * neutral. A captured body stands in its own pose, so rows defined on
+     * straightened digits cannot be read on it.
+     */
+    straightened: boolean;
   }
 
   /** A generated person as a subject. */
@@ -71,6 +86,8 @@ export namespace HumanAnatomyAudit {
       bind: (): HumanAnatomy.ISkin => A.bind(name),
       neutral: (): HumanAnatomy.ISkin => A.posed(name, {}),
       mouth: true,
+      construction: true,
+      straightened: true,
     };
   }
 

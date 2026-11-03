@@ -29,7 +29,8 @@ export namespace HumanAnatomyArm {
       rows.push({
         person: name,
         site: `${side} forearm girth, elbow to wrist: maxima past the first deeper than a small-girth error`,
-        value: extraTurns(s.forearmProfile.map((g: number): number => -g), SMALL),
+        // A section that missed its bone leaves the profile unread, not a turn shorter.
+        value: s.forearmProfile.every((g: number): boolean => Number.isFinite(g)) ? extraTurns(s.forearmProfile.map((g: number): number => -g), SMALL) : NaN,
         low: 0,
         high: 0,
         unit: "turns",
@@ -68,7 +69,8 @@ export namespace HumanAnatomyArm {
         unit: "mm",
       });
     }
-    rows.push(...symmetry(name, skin, /^arm/, "arms"));
+    // Both sides come from one construction and shared inputs; a real body's need not mirror.
+    if (subject.construction) rows.push(...symmetry(name, skin, /^arm/, "arms"));
     return rows;
   }
 
@@ -83,10 +85,12 @@ export namespace HumanAnatomyArm {
     const fore: V3 = A.unit(A.sub(wrist, elbow));
     const palm: V3 = A.unit(A.sub(mcp, wrist));
     const lf: number = A.dist(elbow, wrist);
-    const region: Uint32Array = A.near(skin, shoulder, mcp, 90);
+    const region: Uint32Array = limb(skin, [shoulder, elbow, wrist, mcp]);
+    // A section that does not enclose the bone it was cut across is no girth of
+    // this limb: it reads NaN, and every site that depends on it fails with it.
     const girth = (o: V3, n: V3): number => {
       const c: HumanAnatomy.ICut | null = A.cut(skin, o, n, o, region);
-      return c === null ? NaN : c.girth;
+      return c === null || !c.contained ? NaN : c.girth;
     };
     // de Leva 1996 Table 2: the shoulder centre 34 mm below the acromion, the
     // wrist centre 1.5 mm distal of stylion; the olecranon at the elbow centre.
@@ -100,23 +104,30 @@ export namespace HumanAnatomyArm {
     for (let s: number = 0; s <= lf - 1.5; s += 2) {
       const g: number = girth(A.add(elbow, A.scale(fore, s)), fore);
       forearmProfile.push(g);
+      if (s >= 0.1 * lf && s <= 0.6 * lf && !Number.isFinite(g)) forearm = NaN;
       if (s >= 0.1 * lf && s <= 0.6 * lf && g > forearm) {
         forearm = g;
         belly = s;
       }
     }
     const wristGirth: number = girth(stylion, fore);
-    // Least girth from the forearm's belly to the knuckles: along the forearm to
-    // stylion, then along the hand.
+    // Least girth from the forearm's belly to the knuckles, on a 1 mm grid
+    // through stylion itself, so the section over stylion is one of those
+    // compared: along the forearm to stylion, then along the hand.
     let narrowest: number = 0;
     let least: number = Infinity;
     const toStylion: number = lf - 1.5;
-    for (let s: number = belly; s <= toStylion + A.dist(wrist, mcp) * 0.6; s += 1) {
-      const o: V3 = s <= toStylion ? A.add(elbow, A.scale(fore, s)) : A.add(stylion, A.scale(palm, s - toStylion));
-      const g: number = girth(o, s <= toStylion ? fore : palm);
+    for (let t: number = Math.ceil(belly - toStylion); t <= A.dist(wrist, mcp) * 0.6; t += 1) {
+      const o: V3 = t <= 0 ? A.add(stylion, A.scale(fore, t)) : A.add(stylion, A.scale(palm, t));
+      const g: number = girth(o, t <= 0 ? fore : palm);
+      if (!Number.isFinite(g)) {
+        least = NaN;
+        narrowest = NaN;
+        break;
+      }
       if (g < least) {
         least = g;
-        narrowest = s - toStylion;
+        narrowest = t;
       }
     }
     // The thumb side: the section's reach toward the thumb, stylion -40 to +10 mm.
@@ -125,7 +136,7 @@ export namespace HumanAnatomyArm {
     for (let s: number = -45; s <= 15; s += 1) {
       const o: V3 = A.add(stylion, A.scale(fore, s));
       const c: HumanAnatomy.ICut | null = A.cut(skin, o, fore, o, region);
-      reach.push(c === null ? NaN : Math.max(...c.points.map((p: V3): number => A.dot(A.sub(p, o), radial))));
+      reach.push(c === null || !c.contained ? NaN : Math.max(...c.points.map((p: V3): number => A.dot(A.sub(p, o), radial))));
     }
     let radialBulge: number = 0;
     for (let i: number = 5; i + 5 < reach.length; i++) radialBulge = Math.max(radialBulge, reach[i]! - (reach[i - 5]! + reach[i + 5]!) / 2);
@@ -148,4 +159,22 @@ export namespace HumanAnatomyArm {
     };
   }
 
+  /**
+   * Triangles within reach of a limb's bone polyline. The limb bends at its
+   * joints, so a radius about the straight line from its root to its end
+   * leaves out the outer side of a bent elbow and cuts its sections open.
+   */
+  export function limb(skin: HumanAnatomy.ISkin, bones: V3[]): Uint32Array {
+    const keep: Set<number> = new Set();
+    for (let i: number = 0; i + 1 < bones.length; i++) for (const t of A.near(skin, bones[i]!, bones[i + 1]!, REACH)) keep.add(t);
+    return Uint32Array.from([...keep].sort((a: number, b: number): number => a - b));
+  }
+
+  /**
+   * Reach of a limb's skin from its bone, mm: the radius of the largest upper
+   * arm circumference the identity admits (800 mm, so 127 mm) with margin. A
+   * section picks the component enclosing its bone, so the trunk inside this
+   * reach stays out of it.
+   */
+  export const REACH: number = 150;
 }
