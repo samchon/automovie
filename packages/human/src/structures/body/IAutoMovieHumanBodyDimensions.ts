@@ -1,4 +1,4 @@
-/** Independent length-course measurements, mm; controls do not fill unknown observations. */
+/** Independent measurements, mm, each by the definition of the same-named control; controls do not fill unknown observations. */
 export interface IAutoMovieHumanBodyDimensions {
   /** Height, mm; null means unmeasured. */
   height: number | null;

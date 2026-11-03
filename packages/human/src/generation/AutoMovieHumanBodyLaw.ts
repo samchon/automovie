@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHermiteCurve";
+﻿import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHermiteCurve";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanExtremityDimensions } from "../structures/body/IAutoMovieHumanExtremityDimensions";
 import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHumanLegIdentity";
@@ -8,7 +8,7 @@ import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
-import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
+import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeight";
 import { AutoMovieHumanNeckConstruction } from "./AutoMovieHumanNeckConstruction";
 import { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 
@@ -123,6 +123,17 @@ export namespace AutoMovieHumanBodyLaw {
   }
 }
 
+/**
+ * Phases on the left where the arm's arc of the shoulder ring starts and ends,
+ * radians, from the first to the second going round the left side from the
+ * front midline. The trunk's ring places the same two guides at these knots;
+ * the right side's arc is derived from it by reflection rather than written
+ * again. The anterior and posterior axillary guides' knots of the
+ * 256-control shoulder ring (`AutoMovieHumanTrunkGuideAnteriorAxillary.KNOT`,
+ * `AutoMovieHumanTrunkGuidePosteriorAxillary.KNOT`).
+ */
+const ARM_ARC: readonly [number, number] = [(2 * Math.PI * 46) / 256, (2 * Math.PI * 94) / 256];
+
 /** Shared rings of the trunk: the rest come with their chains. */
 const EVENTS: IAutoMovieHumanBodyCalibration.IEvent[] = [
   {
@@ -138,12 +149,18 @@ const EVENTS: IAutoMovieHumanBodyCalibration.IEvent[] = [
       {
         child: "trunk",
         arcs: [
-          [2.308057249, 3.974647596],
-          [5.148635503, 1.133093657],
+          [ARM_ARC[1], 2 * Math.PI - ARM_ARC[1]],
+          [2 * Math.PI - ARM_ARC[0], ARM_ARC[0]],
         ],
       },
-      { child: "arm.left", arcs: [[1.133093657, 2.308057249]] },
-      { child: "arm.right", arcs: [[3.974647596, 5.148635503]] },
+      { child: "arm.left", arcs: [[ARM_ARC[0], ARM_ARC[1]]] },
+
+      // The right arm's arc is the left's reflection (rule J6): phase t on
+      // the left is 2 pi - t on the right, so the two sides are one construction.
+      {
+        child: "arm.right",
+        arcs: [[2 * Math.PI - ARM_ARC[1], 2 * Math.PI - ARM_ARC[0]]],
+      },
     ],
   },
   {
@@ -162,25 +179,30 @@ const LIPS: IAutoMovieHumanHermiteCurve = {
   spans: [],
 };
 
-/** Height of the crotch, by the leg prior's line, calibration mm. */
+/** Height of the crotch by the inseam's definition (ISO 8559-1 5.7.6), calibration mm. */
 function crotch(
   params: IAutoMovieHumanParameters,
   inputs: AutoMovieHumanLegConstruction.IInputs,
 ): number {
-  const line: AutoMovieHumanLegPrior.ICrotch =
-    AutoMovieHumanLegPrior.PRIOR.crotch;
   const inseam: number | null = params.body.controls.inseam.value;
-  return (
-    (line.offset +
-      line.height * statureOf(params) +
-      line.inseam *
-        (inseam === null
-          ? AutoMovieHumanBodySpecimenCalibration.controls.inseam!
-          : inseam) +
-      line.thigh * (inputs.thigh / inputs.scale) +
-      line.sex * inputs.sex) *
-    inputs.scale
-  );
+  const feet: NonNullable<IAutoMovieHumanParameters["extremities"]>["feet"] =
+    params.extremities?.feet;
+  const expected: number = AutoMovieHumanFootConstruction.expected(
+    statureOf(params),
+    inputs.sex,
+    inputs.scale,
+  ).ankle;
+  return AutoMovieHumanLegCrotchHeight.of({
+    inseam:
+      (inseam === null
+        ? AutoMovieHumanBodySpecimenCalibration.controls.inseam!
+        : inseam) * inputs.scale,
+    ankleHeight:
+      feet === undefined
+        ? expected
+        : ((feet.left.ankleHeight + feet.right.ankleHeight) / 2) *
+          inputs.scale,
+  });
 }
 
 /** A control's value, or the specimen's when unknown. */
@@ -249,8 +271,6 @@ function feet(
     AutoMovieHumanFootConstruction.expected(
       statureOf(params),
       inputs.sex,
-      inputs.fat,
-      inputs.muscularity,
       inputs.scale,
     );
   const side = (
@@ -316,6 +336,10 @@ function column(
     neckToWaist: tape("neckToWaist"),
     shoulderToApex: tape("shoulderToApex"),
     frontInterscyeLength: tape("frontInterscyeLength"),
+    upperArm:
+      (params.body.controls.upperArmLength.value === null
+        ? AutoMovieHumanBodySpecimenCalibration.controls.upperArmLength!
+        : params.body.controls.upperArmLength.value) * inputs.scale,
     sex: inputs.sex,
     fat: inputs.fat,
     muscularity: inputs.muscularity,

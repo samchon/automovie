@@ -64,8 +64,36 @@ export interface IAutoMovieHumanBodyCalibration {
    * Absent on a calibration whose head has no generated mouth.
    */
   mouth?: AutoMovieHumanMouth.IMouth;
+
+  /**
+   * The head's landmarks as its construction solved them, so parts placed on
+   * the head (hair, garments) attach through landmarks instead of
+   * coordinates. Absent on a calibration whose head is not generated.
+   */
+  head?: IAutoMovieHumanBodyCalibration.IHeadLandmarks;
 }
 export namespace IAutoMovieHumanBodyCalibration {
+  /** Head landmarks on the skin, `[x, y, z]` calibration millimetres. */
+  export interface IHeadLandmarks {
+    /** Vertex, the crown's highest point on the midline. */
+    vertex: [number, number, number];
+
+    /** Glabella, the forehead's most prominent midline point. */
+    glabella: [number, number, number];
+
+    /** Soft-tissue nasion. */
+    nasion: [number, number, number];
+
+    /** Exocanthion of each eye, the right one the left's reflection. */
+    exocanthion: Record<"left" | "right", [number, number, number]>;
+
+    /** Ear roots, otobasion superius and inferius, each side. */
+    otobasion: Record<
+      "left" | "right",
+      { superius: [number, number, number]; inferius: [number, number, number] }
+    >;
+  }
+
   /**
    * One appendage: a chain whose end meets a closed root loop on its base
    * chain through a transition strip.
