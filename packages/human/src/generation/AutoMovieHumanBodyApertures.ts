@@ -4,6 +4,7 @@ import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanAperturePocket } from "./AutoMovieHumanAperturePocket";
+import { AutoMovieHumanBodyApertureIslands } from "./AutoMovieHumanBodyApertureIslands";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
 import { AutoMovieHumanEyelidSurface } from "./AutoMovieHumanEyelidSurface";
 import type { IAutoMovieHumanApertureEdge } from "./IAutoMovieHumanApertureEdge";
@@ -382,7 +383,7 @@ export namespace AutoMovieHumanBodyApertures {
     // triangles 0.6 mm round beside the right medial canthus), whose own
     // boundary would be a second margin loop; such islands are dropped.
     const total: number = mesh.positions.length / 3;
-    islands(indices, faces, groups, total);
+    AutoMovieHumanBodyApertureIslands.islands(indices, faces, groups, total);
 
     // Open margin edges per opening: directed edges whose reverse no
     // triangle uses, with the group of their triangle.
@@ -446,64 +447,22 @@ export namespace AutoMovieHumanBodyApertures {
       indices.push(...list);
     }
 
+    // A seam's rim closes on its line, each side a hair off it.
+    apertures.forEach((prepared: IPrepared, a: number): void => {
+      const seam: IAutoMovieHumanLoftAperture["seam"] = prepared.aperture.seam;
+      if (seam === undefined) return;
+      const n: number = seam.contact.length - 1;
+      for (const v of new Set(open[a]!.flatMap((e: IAutoMovieHumanApertureEdge): number[] => [e.u, e.v]))) {
+        const u: number = Math.min(1, Math.abs(mesh.positions[3 * v + 2]!) / seam.width) * n;
+        const i: number = Math.min(n - 1, Math.floor(u));
+        const line: number = seam.contact[i]! + (u - i) * (seam.contact[i + 1]! - seam.contact[i]!);
+        const y: number = mesh.positions[3 * v + 1]!;
+        mesh.positions[3 * v + 1] = line + (y >= line ? seam.closed : -seam.closed);
+      }
+    });
+
     mesh.indices = indices;
     mesh.groups = groups;
     return construction;
-  }
-
-  /** Fewest triangles a connected piece of clipped skin keeps. */
-  const ISLAND: number = 64;
-
-  /**
-   * Remove, in place, the triangles of connected pieces smaller than
-   * {@link ISLAND} triangles, keeping the groups' order and their starts.
-   */
-  function islands(
-    indices: number[],
-    faces: string[],
-    groups: { name: string; start: number }[],
-    count: number,
-  ): void {
-    const parent: Int32Array = new Int32Array(count);
-    for (let v: number = 0; v < count; v++) parent[v] = v;
-    const find = (v: number): number => {
-      while (parent[v] !== v) {
-        parent[v] = parent[parent[v]!]!;
-        v = parent[v]!;
-      }
-      return v;
-    };
-    for (let t: number = 0; t < indices.length; t += 3)
-      for (let i: number = 1; i < 3; i++) {
-        const a: number = find(indices[t]!);
-        const b: number = find(indices[t + i]!);
-        if (a !== b) parent[a] = b;
-      }
-    const size: Map<number, number> = new Map();
-    for (let t: number = 0; t < indices.length; t += 3) {
-      const root: number = find(indices[t]!);
-      size.set(root, (size.get(root) ?? 0) + 1);
-    }
-    if ([...size.values()].every((n: number): boolean => n >= ISLAND)) return;
-
-    // Compact the kept triangles forward, group by group.
-    let write: number = 0;
-    const ends: number[] = groups.map(
-      (_: unknown, k: number): number => groups[k + 1]?.start ?? indices.length,
-    );
-    groups.forEach((g: { name: string; start: number }, k: number): void => {
-      const from: number = g.start;
-      g.start = write;
-      for (let t: number = from; t < ends[k]!; t += 3) {
-        if (size.get(find(indices[t]!))! < ISLAND) continue;
-        indices[write] = indices[t]!;
-        indices[write + 1] = indices[t + 1]!;
-        indices[write + 2] = indices[t + 2]!;
-        faces[write / 3] = faces[t / 3]!;
-        write += 3;
-      }
-    });
-    indices.length = write;
-    faces.length = write / 3;
   }
 }

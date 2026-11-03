@@ -5,6 +5,7 @@ import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import { AutoMovieHumanMouthPrior as Prior } from "./AutoMovieHumanMouthPrior";
+import { AutoMovieHumanOralCavityMesh as Mesh } from "./AutoMovieHumanOralCavityMesh";
 
 /**
  * The inside of the mouth as model parts: the cavity's lining from the skin's
@@ -120,15 +121,27 @@ export namespace AutoMovieHumanOralCavity {
     );
     const count: number = skin.positions.length / 3;
     const on = new Map<number, boolean>();
+    const seam: IAutoMovieHumanLoftAperture["seam"] = aperture.seam;
     const near = (v: number): boolean => {
       let known: boolean | undefined = on.get(v);
       if (known === undefined) {
-        const d: number = AutoMovieHumanLoftAperture.signed(
-          outline,
-          [skin.positions[3 * v]!, skin.positions[3 * v + 1]!, skin.positions[3 * v + 2]!],
-          1,
-        );
-        known = Math.abs(d) < ON_RIM;
+        const p: [number, number, number] = [
+          skin.positions[3 * v]!,
+          skin.positions[3 * v + 1]!,
+          skin.positions[3 * v + 2]!,
+        ];
+        if (seam !== undefined) {
+          // A closed seam's rim lies on its line, each side a hair off it.
+          const n: number = seam.contact.length - 1;
+          const u: number = Math.min(1, Math.abs(p[2]) / seam.width) * n;
+          const i: number = Math.min(n - 1, Math.floor(u));
+          const line: number =
+            seam.contact[i]! + (u - i) * (seam.contact[i + 1]! - seam.contact[i]!);
+          known =
+            Math.abs(Math.abs(p[1] - line) - seam.closed) < 1e-6 &&
+            Math.abs(AutoMovieHumanLoftAperture.signed(outline, p, 1)) < 1;
+        } else
+          known = Math.abs(AutoMovieHumanLoftAperture.signed(outline, p, 1)) < ON_RIM;
         on.set(v, known);
       }
       return known;
@@ -196,9 +209,9 @@ export namespace AutoMovieHumanOralCavity {
       ];
       const t: number = angle(mouth, r);
       // The lips' inner faces press together across the slit, as deep behind
-      // the rim as the slit is tall, each a fifth of the slit's height short of
-      // the contact line, so the closed mouth shows no gap and the two faces
-      // stay apart by place for the jaw's binding.
+      // the rim as the slit is tall, each a tenth of the rim's own distance
+      // from the contact line short of it, so the closed mouth shows no gap and
+      // the two faces stay apart by place for the jaw's binding.
       const contact: Vec3 = [
         r[0] - mouth.slit,
         AutoMovieHumanMouth.contactAt(mouth, r[2]) + PRESSED * (r[1] - AutoMovieHumanMouth.contactAt(mouth, r[2])),
@@ -208,7 +221,7 @@ export namespace AutoMovieHumanOralCavity {
       let row: number = 0;
       for (let s: number = 0; s < SPANS.length; s++)
         for (let k: number = 0; k < SPANS[s]!; k++) {
-          const p: Vec3 = catmull(controls, s, k / SPANS[s]!);
+          const p: Vec3 = Mesh.catmull(controls, s, k / SPANS[s]!);
           positions.push(...p);
           colors.push(...shade(MUCOSA_COLOUR, 1 - row / rows));
           row++;
@@ -228,7 +241,7 @@ export namespace AutoMovieHumanOralCavity {
       indices.push(a + rows - 1, apex, b + rows - 1);
     }
     // Rim vertices keep their own places; the copies are only renumbered.
-    return inward({ positions, indices, colors }, [m.x, m.y, 0]);
+    return Mesh.inward({ positions, indices, colors }, [m.x, m.y, 0]);
   }
 
   /** Every tooth of one jaw. */
@@ -246,7 +259,7 @@ export namespace AutoMovieHumanOralCavity {
       for (let i: number = 0; i <= sections; i++) {
         const h: number = from + ((1 - from) * i) / sections;
         const k: number = Math.max(0, h);
-        const rise: number = smooth(k / 0.45);
+        const rise: number = Mesh.smooth(k / 0.45);
         const width: number =
           (c.neck + (c.width - c.neck) * rise) / 2 *
           (c.kind === "canine" ? 1 - 0.55 * k ** 3 : 1);
@@ -259,8 +272,8 @@ export namespace AutoMovieHumanOralCavity {
               : 0.85 + 0.15 * rise);
         for (let j: number = 0; j < around; j++) {
           const phi: number = (2 * Math.PI * j) / around;
-          const a: number = superellipse(Math.cos(phi), TOOTH_POWER) * width;
-          const b: number = superellipse(Math.sin(phi), TOOTH_POWER) * thick;
+          const a: number = Mesh.superellipse(Math.cos(phi), TOOTH_POWER) * width;
+          const b: number = Mesh.superellipse(Math.sin(phi), TOOTH_POWER) * thick;
           const p: Vec3 = [0, 1, 2].map(
             (q: number): number =>
               tooth.neck[q]! +
@@ -279,12 +292,12 @@ export namespace AutoMovieHumanOralCavity {
       const apex: number = out.positions.length / 3;
       out.positions.push(...tip);
       out.colors.push(...shade(ENAMEL_COLOUR, light));
-      grid(out.indices, base, sections + 1, around, true);
+      Mesh.grid(out.indices, base, sections + 1, around, true);
       const last: number = base + sections * around;
       for (let j: number = 0; j < around; j++)
         out.indices.push(last + j, last + ((j + 1) % around), apex);
     }
-    return outward(out, mouth, jaw);
+    return Mesh.outward(out, mouth, jaw);
   }
 
   /** The gum over one arch's necks, a tube from one end of the arch to the other. */
@@ -303,7 +316,7 @@ export namespace AutoMovieHumanOralCavity {
     for (let i: number = 0; i < stations; i++) {
       const s: number = Math.min(keys.length - 2, Math.floor(i / along));
       const f: number = i / along - s;
-      const p: Vec3 = catmull(keys, s, f);
+      const p: Vec3 = Mesh.catmull(keys, s, f);
       const q: AutoMovieHumanMouth.ITooth = path[Math.round(i / along)]!;
       const thick: number = q.crown.depth / 2 + GUM_OVER;
       const tall: number = Prior.GINGIVA / 2 + GUM_OVER;
@@ -318,9 +331,9 @@ export namespace AutoMovieHumanOralCavity {
         out.colors.push(...shade(GUM_COLOUR, light));
       }
     }
-    grid(out.indices, 0, stations, around, true);
-    capEnds(out, 0, stations, around);
-    return outward(out, mouth, jaw);
+    Mesh.grid(out.indices, 0, stations, around, true);
+    Mesh.capEnds(out, 0, stations, around);
+    return Mesh.outward(out, mouth, jaw);
   }
 
   /** The tongue at rest. */
@@ -335,16 +348,16 @@ export namespace AutoMovieHumanOralCavity {
       const light: number = darkness(mouth.edge[0] - s.x, mouth);
       for (let j: number = 0; j < around; j++) {
         const phi: number = (2 * Math.PI * j) / around;
-        const c: number = superellipse(Math.cos(phi), TONGUE_POWER);
-        const n: number = superellipse(Math.sin(phi), TONGUE_POWER);
+        const c: number = Mesh.superellipse(Math.cos(phi), TONGUE_POWER);
+        const n: number = Mesh.superellipse(Math.sin(phi), TONGUE_POWER);
         const mid: number = (s.top + s.bottom) / 2;
         out.positions.push(s.x, mid + n * (s.top - s.bottom) / 2, c * s.width);
         out.colors.push(...shade(TONGUE_COLOUR, light));
       }
     }
-    grid(out.indices, 0, stations, around, true);
-    capEnds(out, 0, stations, around);
-    return inward(out, [t.molars, (t.dorsum + t.floor) / 2, 0], true);
+    Mesh.grid(out.indices, 0, stations, around, true);
+    Mesh.capEnds(out, 0, stations, around);
+    return Mesh.inward(out, [t.molars, (t.dorsum + t.floor) / 2, 0], true);
   }
 
   /** One section of the tongue at its share from tip (0) to back (1). */
@@ -370,9 +383,9 @@ export namespace AutoMovieHumanOralCavity {
     const width: number = t.width * Math.sin((Math.PI / 2) * Math.min(1, l / reach)) ** 0.5;
     const top: number =
       l < reach
-        ? t.tipTop + (t.dorsum - t.tipTop) * smooth(l / reach)
-        : t.dorsum - (t.dorsum - (t.dorsum + t.floor) / 2) * smooth((l - reach) / (1 - reach));
-    const bottom: number = t.floor + (t.tipTop - TIP_THICKNESS - t.floor) * (1 - smooth(l / reach));
+        ? t.tipTop + (t.dorsum - t.tipTop) * Mesh.smooth(l / reach)
+        : t.dorsum - (t.dorsum - (t.dorsum + t.floor) / 2) * Mesh.smooth((l - reach) / (1 - reach));
+    const bottom: number = t.floor + (t.tipTop - TIP_THICKNESS - t.floor) * (1 - Mesh.smooth(l / reach));
     const mid: number = (top + bottom) / 2;
     return {
       x: t.tip - (t.tip - t.back) * l,
@@ -394,180 +407,17 @@ export namespace AutoMovieHumanOralCavity {
     return [colour[0] * f, colour[1] * f, colour[2] * f];
   }
 
-  /** Quads of a grid of rings, each `around` long, wrapped round. */
-  function grid(indices: number[], base: number, rings: number, around: number, wrap: boolean): void {
-    for (let i: number = 0; i + 1 < rings; i++)
-      for (let j: number = 0; j < (wrap ? around : around - 1); j++) {
-        const a: number = base + i * around + j;
-        const b: number = base + i * around + ((j + 1) % around);
-        const c: number = a + around;
-        const d: number = b + around;
-        indices.push(a, b, c, b, d, c);
-      }
-  }
-
-  /** Close a tube's two end rings, each at its centroid. */
-  function capEnds(mesh: IMesh, base: number, rings: number, around: number): void {
-    for (const [ring, flip] of [[0, true], [rings - 1, false]] as [number, boolean][]) {
-      const start: number = base + ring * around;
-      const centre: number[] = [0, 1, 2].map(
-        (k: number): number =>
-          Array.from({ length: around }, (_: unknown, j: number): number => mesh.positions[3 * (start + j) + k]!).reduce(
-            (a: number, b: number): number => a + b,
-            0,
-          ) / around,
-      );
-      const apex: number = mesh.positions.length / 3;
-      mesh.positions.push(...centre);
-      mesh.colors.push(...mesh.colors.slice(3 * start, 3 * start + 3));
-      for (let j: number = 0; j < around; j++) {
-        const a: number = start + j;
-        const b: number = start + ((j + 1) % around);
-        mesh.indices.push(...(flip ? [b, a, apex] : [a, b, apex]));
-      }
-    }
-  }
-
   /**
-   * Wind a closed or open mesh so its normals face away from (`out`) or
-   * toward a point, by the sign of the summed agreement of its faces.
+   * Area-weighted vertex normals (`AutoMovieHumanOralCavityMesh.normals`).
+   *
+   * @param mesh Positions and triangles.
+   * @returns Flat unit normals, one triple per vertex.
    */
-  function orient(mesh: IMesh, centre: readonly number[], away: boolean): IMesh {
-    let sum: number = 0;
-    const p = mesh.positions;
-    for (let t: number = 0; t < mesh.indices.length; t += 3) {
-      const [a, b, c] = [mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!];
-      const u: Vec3 = [p[3 * b]! - p[3 * a]!, p[3 * b + 1]! - p[3 * a + 1]!, p[3 * b + 2]! - p[3 * a + 2]!];
-      const w: Vec3 = [p[3 * c]! - p[3 * a]!, p[3 * c + 1]! - p[3 * a + 1]!, p[3 * c + 2]! - p[3 * a + 2]!];
-      const n: Vec3 = [u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2], u[0] * w[1] - u[1] * w[0]];
-      sum +=
-        n[0] * (p[3 * a]! - centre[0]!) + n[1] * (p[3 * a + 1]! - centre[1]!) + n[2] * (p[3 * a + 2]! - centre[2]!);
-    }
-    if (sum < 0 === away)
-      for (let t: number = 0; t < mesh.indices.length; t += 3) {
-        const b: number = mesh.indices[t + 1]!;
-        mesh.indices[t + 1] = mesh.indices[t + 2]!;
-        mesh.indices[t + 2] = b;
-      }
-    return mesh;
-  }
-
-  /** The lining faces into the cavity; a closed body faces out from its centre. */
-  function inward(mesh: IMesh, centre: readonly number[], body: boolean = false): IMesh {
-    return orient(mesh, centre, body);
-  }
-
-  /** Teeth and gums face away from the middle of their own arch. */
-  function outward(mesh: IMesh, mouth: AutoMovieHumanMouth.IMouth, jaw: "upper" | "lower"): IMesh {
-    // Each crown is closed, and its own centre lies inside it, so each is
-    // wound from its first ring's centroid: a sum over the whole arch would
-    // let the long side outvote a short one.
-    void mouth;
-    void jaw;
-    return orientPieces(mesh);
-  }
-
-  /** Wind each connected piece of a mesh outward from its own centroid. */
-  function orientPieces(mesh: IMesh): IMesh {
-    const count: number = mesh.positions.length / 3;
-    const parent: Int32Array = Int32Array.from({ length: count }, (_: unknown, i: number): number => i);
-    const find = (v: number): number => {
-      while (parent[v] !== v) {
-        parent[v] = parent[parent[v]!]!;
-        v = parent[v]!;
-      }
-      return v;
-    };
-    for (let t: number = 0; t < mesh.indices.length; t += 3) {
-      parent[find(mesh.indices[t]!)] = find(mesh.indices[t + 1]!);
-      parent[find(mesh.indices[t + 1]!)] = find(mesh.indices[t + 2]!);
-    }
-    const groups = new Map<number, number[]>();
-    for (let t: number = 0; t < mesh.indices.length; t += 3) {
-      const root: number = find(mesh.indices[t]!);
-      const list: number[] = groups.get(root) ?? [];
-      list.push(t);
-      groups.set(root, list);
-    }
-    const out: number[] = [];
-    for (const triangles of groups.values()) {
-      const vertices = [...new Set(triangles.flatMap((t: number): number[] => [mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!]))];
-      const centre: number[] = [0, 1, 2].map(
-        (k: number): number => vertices.reduce((a: number, v: number): number => a + mesh.positions[3 * v + k]!, 0) / vertices.length,
-      );
-      const piece: IMesh = {
-        positions: mesh.positions,
-        colors: mesh.colors,
-        indices: triangles.flatMap((t: number): number[] => [mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!]),
-      };
-      out.push(...orient(piece, centre, true).indices);
-    }
-    mesh.indices = out;
-    return mesh;
-  }
-
-  /** Area-weighted vertex normals. */
   export function normals(mesh: Pick<IMesh, "positions" | "indices">): number[] {
-    const out: number[] = new Array<number>(mesh.positions.length).fill(0);
-    const p = mesh.positions;
-    for (let t: number = 0; t < mesh.indices.length; t += 3) {
-      const [a, b, c] = [mesh.indices[t]!, mesh.indices[t + 1]!, mesh.indices[t + 2]!];
-      const u: Vec3 = [p[3 * b]! - p[3 * a]!, p[3 * b + 1]! - p[3 * a + 1]!, p[3 * b + 2]! - p[3 * a + 2]!];
-      const w: Vec3 = [p[3 * c]! - p[3 * a]!, p[3 * c + 1]! - p[3 * a + 1]!, p[3 * c + 2]! - p[3 * a + 2]!];
-      const n: Vec3 = [u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2], u[0] * w[1] - u[1] * w[0]];
-      for (const v of [a, b, c]) for (let k: number = 0; k < 3; k++) out[3 * v + k]! += n[k]!;
-    }
-    for (let v: number = 0; v < out.length; v += 3) {
-      const l: number = Math.hypot(out[v]!, out[v + 1]!, out[v + 2]!) || 1;
-      out[v]! /= l;
-      out[v + 1]! /= l;
-      out[v + 2]! /= l;
-    }
-    return out;
+    return Mesh.normals(mesh);
   }
 
-  /** Centripetal Catmull-Rom point on span s of a control list, ends doubled. */
-  function catmull(points: readonly Vec3[], s: number, f: number): Vec3 {
-    const p0: Vec3 = points[Math.max(0, s - 1)]!;
-    const p1: Vec3 = points[s]!;
-    const p2: Vec3 = points[s + 1]!;
-    const p3: Vec3 = points[Math.min(points.length - 1, s + 2)]!;
-    const knot = (a: Vec3, b: Vec3): number => Math.max(1e-6, Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]) ** 0.5);
-    const t0: number = 0;
-    const t1: number = t0 + (s === 0 ? knot(p1, p2) : knot(p0, p1));
-    const t2: number = t1 + knot(p1, p2);
-    const t3: number = t2 + (s + 2 >= points.length ? knot(p1, p2) : knot(p2, p3));
-    const q0: Vec3 = s === 0 ? sub(scale3(p1, 2), p2) : p0;
-    const q3: Vec3 = s + 2 >= points.length ? sub(scale3(p2, 2), p1) : p3;
-    const t: number = t1 + (t2 - t1) * f;
-    const lerp = (a: Vec3, b: Vec3, ta: number, tb: number): Vec3 =>
-      [0, 1, 2].map((k: number): number => ((tb - t) * a[k]! + (t - ta) * b[k]!) / (tb - ta)) as Vec3;
-    const a1: Vec3 = lerp(q0, p1, t0, t1);
-    const a2: Vec3 = lerp(p1, p2, t1, t2);
-    const a3: Vec3 = lerp(p2, q3, t2, t3);
-    const b1: Vec3 = lerp(a1, a2, t0, t2);
-    const b2: Vec3 = lerp(a2, a3, t1, t3);
-    return lerp(b1, b2, t1, t2);
-  }
-
-  function sub(a: Vec3, b: Vec3): Vec3 {
-    return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-  }
-
-  function scale3(a: Vec3, s: number): Vec3 {
-    return [a[0] * s, a[1] * s, a[2] * s];
-  }
-
-  /** Signed power of a super-ellipse's coordinate. */
-  function superellipse(c: number, power: number): number {
-    return Math.sign(c) * Math.abs(c) ** (2 / power);
-  }
-
-  function smooth(x: number): number {
-    const t: number = Math.max(0, Math.min(1, x));
-    return t * t * (3 - 2 * t);
-  }
-
+  /** A material whose colour and darkening the vertex colours carry. */
   function material(
     id: string,
     name: string,
@@ -596,8 +446,8 @@ export namespace AutoMovieHumanOralCavity {
   /** Meridian points between the rim, the pressed faces, the vestibule, the molar and oropharyngeal sections and the pole. */
   const SPANS: readonly number[] = [3, 7, 8, 6, 4];
 
-  /** Share of the slit's half-height the pressed inner faces keep from the contact line. */
-  export const PRESSED: number = 0.2;
+  /** Share of the rim's distance from the contact line the pressed inner faces keep from it. */
+  export const PRESSED: number = 0.1;
 
   /**
    * Largest distance of a rim vertex from the slit's outline, mm: the cut
