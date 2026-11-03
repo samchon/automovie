@@ -1,4 +1,3 @@
-import { Singleton } from "tstl";
 
 import type { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyShared } from "./HumanAnatomyShared";
@@ -8,7 +7,7 @@ import type { HumanAnatomyShared } from "./HumanAnatomyShared";
  *
  * Reading the neck cuts the skin into sections and meridians and costs
  * seconds, and a reading taken without given locators is a pure function of the
- * skin, so each skin has one `Singleton` that takes it on first use. The
+ * skin, so each skin has one value that takes it on first use. The
  * entries are weakly held by skin object: an edited copy made for a red proof
  * is another skin and has its own.
  */
@@ -20,15 +19,15 @@ export namespace HumanNeckReadingSingleton {
    * @param produce Takes the reading; called once per skin, on first use.
    */
   export function get(skin: HumanAnatomy.ISkin, produce: () => HumanAnatomyShared.INeck): HumanAnatomyShared.INeck {
-    let found: Singleton<HumanAnatomyShared.INeck, []> | undefined = cache.get(skin);
+    let found: HumanAnatomyShared.INeck | undefined = cache.get(skin);
 
     if (found === undefined) {
-      found = new Singleton(produce);
+      found = produce();
       cache.set(skin, found);
     }
-    return found.get();
+    return found;
   }
 
-  /** Singletons by skin. */
-  const cache: WeakMap<HumanAnatomy.ISkin, Singleton<HumanAnatomyShared.INeck, []>> = new WeakMap();
+  /** Values by skin; each dies with its skin. */
+  const cache: WeakMap<HumanAnatomy.ISkin, HumanAnatomyShared.INeck> = new WeakMap();
 }

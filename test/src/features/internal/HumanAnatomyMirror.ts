@@ -1,5 +1,3 @@
-import { Singleton } from "tstl";
-
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { HumanAnatomy } from "./HumanAnatomy";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
@@ -152,19 +150,17 @@ export namespace HumanAnatomyMirror {
    * @param scale Skin units per input millimetre.
    */
   export function limbs(params: IAutoMovieHumanParameters, joint: (bone: string) => V3, scale: number = 1): (chain: string, q: V3) => V3 {
-    const maps: Map<string, Singleton<Rebuild>> = new Map();
+    const maps: Map<string, Rebuild> = new Map();
 
     // The map onto a side, built once: its frame needs the joints of the other side.
     const of: (kind: "arm" | "leg", side: Side) => Rebuild = (kind: "arm" | "leg", side: Side): Rebuild => {
       const key: string = `${kind}.${side}`;
-      let found: Singleton<Rebuild> | undefined = maps.get(key);
+      let found: Rebuild | undefined = maps.get(key);
       if (found === undefined) {
-        found = new Singleton(
-          (): Rebuild => (kind === "arm" ? hand(params, side, joint) : leg(params, side, joint(`${side}LowerLeg`)[1], scale)),
-        );
+        found = (kind === "arm" ? hand(params, side, joint) : leg(params, side, joint(`${side}LowerLeg`)[1], scale));
         maps.set(key, found);
       }
-      return found.get();
+      return found;
     };
 
     return (chain: string, q: V3): V3 => {

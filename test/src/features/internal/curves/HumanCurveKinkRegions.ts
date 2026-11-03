@@ -1,3 +1,5 @@
+import { AutoMovieHumanBodyAnatomy } from "../../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
+import type { IAutoMovieHumanBodyMeasures } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyMeasures";
 import { HumanAnatomy } from "../HumanAnatomy";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import type { HumanCurveKinks } from "./HumanCurveKinks";
@@ -166,12 +168,13 @@ export namespace HumanCurveKinkRegions {
   /**
    * Whether a person is lean by their own inputs: waist over stature under
    * 0.5, the boundary of central adiposity in adults of both sexes (Ashwell
-   * 2012, Browning 2010; source notes owed), and the `fat` control at or
-   * below zero. A lean person carries no adiposity fold (FLD-2).
+   * 2012, Browning 2010; source notes owed), and an adiposity coordinate at or
+   * below zero (`AutoMovieHumanBodyAnatomy.adiposity`, from the fat percentage). A
+   * lean person carries no adiposity fold (FLD-2).
    */
   export function lean(subject: HumanAnatomyAudit.ISubject): boolean {
-    const c: HumanAnatomyAudit.ISubject["params"]["body"]["controls"] = subject.params.body.controls;
-    return c.waist.value !== null && c.height.value !== null && c.waist.value / c.height.value < 0.5 && (c.fat.value ?? 0) <= 0;
+    const m: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(subject.params);
+    return m.waistCircumference / m.stature < 0.5 && AutoMovieHumanBodyAnatomy.adiposity(m) <= 0;
   }
 
   /**
@@ -255,6 +258,28 @@ export namespace HumanCurveKinkRegions {
     azimuths: [...sweep(70, 110, 10), ...sweep(250, 290, 10)],
   };
 
+  /**
+   * LUMP-BT-1 and LUMP-BT-2, each buttock from above the gluteal fold to
+   * below the iliac crest: vertical half-planes through the hip joint, from
+   * 0.04 S below it to 0.08 S above it, at the posterior azimuths 160 to 200
+   * degrees. Gluteus maximus with its fat pad is one convex mass from the
+   * iliac crest and sacrum to the gluteal fold (Gray 1918); the fold below
+   * and the natal cleft medial of 160 degrees are real creases and are not
+   * read.
+   */
+  export function buttock(side: "left" | "right"): IRegion {
+    return {
+      name: `${side} buttock, posterior meridians`,
+      rule: side === "left" ? "LUMP-BT-1" : "LUMP-BT-2",
+      chains: new RegExp(`^(trunk|leg\\.${side})$`),
+      frame: (skin: HumanAnatomy.ISkin, S: number): HumanCurveKinks.IFrame => {
+        const hip: V3 = A.joint(skin, `${side}UpperLeg`);
+        return { origin: hip, axis: [0, 1, 0], forward: [1, 0, 0], from: -0.04 * S, to: 0.08 * S, reach: 0.12 * S };
+      },
+      azimuths: sweep(160, 200, 10),
+    };
+  }
+
   /** Every region, in the order the defect tests read them. */
-  export const ALL: readonly IRegion[] = [NECK_BASE, shoulder("left"), shoulder("right"), TEMPLE, FOREHEAD, shank("left"), shank("right"), ABDOMEN, BACK, NECK_FRONT, groin("left"), groin("right"), HIP];
+  export const ALL: readonly IRegion[] = [NECK_BASE, shoulder("left"), shoulder("right"), TEMPLE, FOREHEAD, shank("left"), shank("right"), ABDOMEN, BACK, NECK_FRONT, groin("left"), groin("right"), HIP, buttock("left"), buttock("right")];
 }

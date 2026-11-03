@@ -61,6 +61,15 @@ export namespace HumanAnatomyAudit {
     /** The skin at the anatomical neutral, hands and feet straightened; a reference stands in its own pose. */
     neutral: () => HumanAnatomy.ISkin;
 
+    /** The skin under a pose, for a generated subject. */
+    posed?: (pose: IAutoMovieHumanPose) => HumanAnatomy.ISkin;
+
+    /** The rigged person, for a generated subject. */
+    person?: () => HumanPeople.IRigged;
+
+    /** Every skin view of a generated subject, held by the subject. */
+    views?: () => HumanAnatomy.IViews;
+
     /** Whether the subject carries an oral cavity whose teeth the closed lips must hide. */
     mouth: boolean;
 
@@ -80,13 +89,22 @@ export namespace HumanAnatomyAudit {
     straightened: boolean;
   }
 
-  /** A generated person as a subject. */
+  /**
+   * A generated person as a subject: its skins are made on first read and
+   * kept on this subject alone, so a test that holds the subject reads one
+   * generation and drops it with the subject.
+   */
   export function subject(name: string): ISubject {
+    let views: HumanAnatomy.IViews | undefined;
+    const own: () => HumanAnatomy.IViews = (): HumanAnatomy.IViews => (views ??= A.views(name));
     return {
       name,
-      params: HumanPeople.person(name).params,
-      bind: (): HumanAnatomy.ISkin => A.bind(name),
-      neutral: (): HumanAnatomy.ISkin => A.posed(name, {}),
+      params: HumanPeople.params(name),
+      bind: (): HumanAnatomy.ISkin => own().bind(),
+      neutral: (): HumanAnatomy.ISkin => own().posed({}),
+      posed: (pose: IAutoMovieHumanPose): HumanAnatomy.ISkin => own().posed(pose),
+      person: (): HumanPeople.IRigged => own().person,
+      views: own,
       mouth: true,
       construction: true,
       straightened: true,
@@ -108,7 +126,7 @@ export namespace HumanAnatomyAudit {
     head: (s: ISubject): IRow[] => HumanAnatomyHead.head(s),
     headConsistency: (s: ISubject): IRow[] => HumanAnatomyHeadConsistency.rows(s),
     trunkSilhouette: (s: ISubject): IRow[] => HumanAnatomyTrunkSilhouette.rows(s),
-    pose: (s: ISubject): IRow[] => HumanAnatomyPose.pose(s.name),
+    pose: (s: ISubject): IRow[] => HumanAnatomyPose.pose(s),
   };
 
   /** The poses the pose audit reads. */

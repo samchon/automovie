@@ -1,4 +1,6 @@
-import type { IAutoMovieHumanBodyControls } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyControls";
+import { AutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
+import type { IAutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
+import { AutoMovieHumanSex } from "../../../../packages/human/src/typings/AutoMovieHumanSex";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { f1, m1 } from "../../../../packages/playground/src/human-parameters/index";
 import { HumanPopulationAccess } from "./HumanPopulationAccess";
@@ -17,7 +19,7 @@ type Variable = HumanPopulationSurvey.Variable;
  */
 export namespace HumanPopulationBuild {
   /**
-   * An end's public inputs: body controls, head, hands and feet. Inputs the
+   * An end's public inputs: body measures, head, hands and feet. Inputs the
    * survey does not measure keep the sex's first reference person's value
    * (appearance, pose) or are anchored to a surveyed carrier.
    *
@@ -30,7 +32,8 @@ export namespace HumanPopulationBuild {
     const base: P = structuredClone(sex === "female" ? f1 : m1);
     const anchor: (a: HumanPopulationAnchors.IAnchor) => number = (a: HumanPopulationAnchors.IAnchor): number => HumanPopulationAnchors.ratio(sex, a) * x[a.proxy];
 
-    body(base.body.controls, sex, x, anchor);
+    base.body.anatomy = {};
+    body(base.body.anatomy, sex, x, anchor);
     head(base, sex, x, anchor);
     extremities(base, sex, x, anchor);
 
@@ -38,39 +41,29 @@ export namespace HumanPopulationBuild {
   }
 
   /**
-   * Write the body controls: the shape coordinates from the end's body-mass
-   * index and muscle, the measured controls from their surveyed measure and the
-   * rest from their anchors.
+   * Write the body measures: the sex, the measured fields from their surveyed
+   * measure, the rest from their anchors, and the fat percentage the end's
+   * body mass index implies by Deurenberg et al.'s relation (1991: percent fat
+   * = 1.2 BMI + 0.23 age - 10.8 male - 5.4) at ANSUR 1988's mean age of the sex.
    *
-   * @param controls The controls to write.
+   * @param anatomy The record to write.
    * @param sex The surveyed sex.
    * @param x The end's surveyed measures.
    * @param anchor Value of an anchored course.
    */
   function body(
-    controls: IAutoMovieHumanBodyControls,
+    anatomy: IAutoMovieHumanBodyAnatomy,
     sex: Sex,
     x: Record<Variable, number>,
     anchor: (a: HumanPopulationAnchors.IAnchor) => number,
   ): void {
-    const z: number = HumanPopulationSurvey.Z;
-    const [meanBmi, sdBmi]: readonly [number, number] = HumanPopulationSurvey.BMI[sex];
+    const k: 0 | 1 = sex === "female" ? 0 : 1;
     const bmi: number = x.mass / (x.stature / 1000) ** 2;
-    const muscle: HumanPopulationConditional.IMoments = HumanPopulationConditional.moments(
-      sex,
-      new Map([
-        [HumanPopulationConditional.index("stature"), x.stature],
-        [HumanPopulationConditional.index("mass"), x.mass],
-      ]),
-      HumanPopulationConditional.index("bicepsFlexed"),
-    );
-    const clamp: (v: number) => number = (v: number): number => Math.max(-1, Math.min(1, v));
 
-    controls.fat.value = clamp((bmi - meanBmi) / sdBmi / z);
-    controls.masculineFeminine.value = sex === "female" ? 1 : -1;
-    controls.muscularity.value = clamp((x.bicepsFlexed - muscle.mean) / muscle.sd / z);
-    for (const [key, v] of HumanPopulationAnchors.DIRECT) controls[key].value = x[v];
-    for (const key of HumanPopulationAnchors.ANCHORED) controls[key].value = anchor(HumanPopulationAnchors.ANCHORS[key]);
+    anatomy.sex = sex === "female" ? AutoMovieHumanSex.Female : AutoMovieHumanSex.Male;
+    anatomy.bodyFatPercentage = 1.2 * bmi + 0.23 * AutoMovieHumanBodyAnatomy.MEAN_AGE[k] - 10.8 * k - 5.4;
+    for (const [key, v] of HumanPopulationAnchors.DIRECT) anatomy[key] = x[v];
+    for (const key of HumanPopulationAnchors.ANCHORED) anatomy[key] = anchor(HumanPopulationAnchors.ANCHORS[key]);
   }
 
   /**

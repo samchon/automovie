@@ -1,3 +1,4 @@
+import { HumanInputs } from "./HumanInputs";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
@@ -70,9 +71,9 @@ export namespace HumanAnatomyTrunk {
     const name: string = subject.name;
     const rows: IRow[] = [];
     const params: IAutoMovieHumanParameters = subject.params;
-    const controls: IAutoMovieHumanParameters["body"]["controls"] = params.body.controls;
+    const controls: IAutoMovieHumanParameters["body"]["anatomy"] = params.body.anatomy;
     const skin: HumanAnatomy.ISkin = subject.bind();
-    const S: number = controls.height.value!;
+    const S: number = HumanInputs.stature(params);
     const t: ITrunk = trunkSites(skin, S);
     const neck: INeck = neckSites(skin, S, known);
 
@@ -87,13 +88,13 @@ export namespace HumanAnatomyTrunk {
     ): void => {
       if (input !== null) rows.push(identity(name, site, value, input, tol));
     };
-    tape("chest girth at the bust point, mm", t.chest.girth, controls.chest.value, LARGE);
-    tape("underbust girth at the inframammary fold, mm", t.underbust.girth, controls.underbust.value, LARGE);
-    tape("waist girth, natural (least) waist, mm", t.waist.girth, controls.waist.value, LARGE);
-    tape("high hip girth, midway waist to hip, mm", t.highHip.girth, controls.highHip.value, LARGE);
-    tape("hip girth at the buttock prominence, mm", t.hip.girth, controls.hip.value, LARGE);
-    tape("neck girth, least girth across the neck axis, mm", neck.neck, controls.neck.value, SMALL);
-    tape("neck base girth along the neck's base, over the jugular notch, side neck points and nape, mm", neck.base, controls.neckBase.value, SMALL);
+    tape("chest girth at the bust point, mm", t.chest.girth, (controls.chestCircumference ?? null), LARGE);
+    tape("underbust girth at the inframammary fold, mm", t.underbust.girth, (controls.underbustCircumference ?? null), LARGE);
+    tape("waist girth, natural (least) waist, mm", t.waist.girth, (controls.waistCircumference ?? null), LARGE);
+    tape("high hip girth, midway waist to hip, mm", t.highHip.girth, (controls.highHipCircumference ?? null), LARGE);
+    tape("hip girth at the buttock prominence, mm", t.hip.girth, (controls.hipCircumference ?? null), LARGE);
+    tape("neck girth, least girth across the neck axis, mm", neck.neck, (controls.neckCircumference ?? null), SMALL);
+    tape("neck base girth along the neck's base, over the jugular notch, side neck points and nape, mm", neck.base, (controls.neckBaseCircumference ?? null), SMALL);
 
     // ANSUR II shape ratios and heights: each sex's mean plus and minus 2.326
     // SD (the 1st to 99th percentile of a normal), the union of both sexes

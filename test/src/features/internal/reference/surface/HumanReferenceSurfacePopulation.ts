@@ -7,7 +7,7 @@ import { HumanReferenceFiles } from "../bodies/HumanReferenceFiles";
 /**
  * The population of private reference bodies whose spread bounds what real
  * bodies do. All of them share one vertex order, so a vertex index names the
- * same point of anatomy on every body. Each body is read once per process by
+ * same point of anatomy on every body. Each body is read by each call of
  * `HumanReferenceBodySingleton`, which the layer comparison shares.
  */
 export namespace HumanReferenceSurfacePopulation {

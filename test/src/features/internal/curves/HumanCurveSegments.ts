@@ -38,7 +38,7 @@ export namespace HumanCurveSegments {
   /** The segment rows of one person's neutral joints. */
   export function rows(person: string, params: IAutoMovieHumanParameters, sex: "female" | "male", j: HumanCurveJoints.Joints): IRow[] {
     const out: IRow[] = [];
-    const c: IAutoMovieHumanParameters["body"]["controls"] = params.body.controls;
+    const c: IAutoMovieHumanParameters["body"]["anatomy"] = params.body.anatomy;
     const at: (bone: string) => V3 = (bone: string): V3 => {
       const p: V3 | undefined = j.get(bone);
       if (p === undefined) throw new Error(`no ${bone} joint`);
@@ -48,12 +48,12 @@ export namespace HumanCurveSegments {
       const shoulder: V3 = at(`${side}UpperArm`);
       const elbow: V3 = at(`${side}LowerArm`);
       const wrist: V3 = at(`${side}Hand`);
-      if (c.upperArmLength.value !== null) {
-        const expected: number = c.upperArmLength.value + UPPER[sex];
+      if (c.upperArmLength !== undefined) {
+        const expected: number = c.upperArmLength + UPPER[sex];
         out.push({ person, site: `${side} shoulder-to-elbow centre length against acromion-radiale less de Leva's offsets, mm (SEG-1)`, value: A.dist(shoulder, elbow), low: expected - ERROR.upper, high: expected + ERROR.upper, unit: "mm" });
       }
-      if (c.lowerArmLength.value !== null) {
-        const expected: number = c.lowerArmLength.value + FORE[sex];
+      if (c.forearmLength !== undefined) {
+        const expected: number = c.forearmLength + FORE[sex];
         out.push({ person, site: `${side} elbow-to-wrist centre length against radiale-stylion plus de Leva's offsets, mm (SEG-1)`, value: A.dist(elbow, wrist), low: expected - ERROR.fore, high: expected + ERROR.fore, unit: "mm" });
       }
     }

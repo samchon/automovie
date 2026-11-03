@@ -1,3 +1,4 @@
+import { HumanInputs } from "../../../internal/HumanInputs";
 import { HumanCurveRings } from "../../../internal/curves/HumanCurveRings";
 import { HumanCurveTrunkGirth } from "../../../internal/curves/HumanCurveTrunkGirth";
 import { HumanAnatomyAudit } from "../../../internal/HumanAnatomyAudit";
@@ -19,7 +20,7 @@ type IProfile = HumanCurveRings.IProfile;
  * @evidence contracts/testing.md#behavioral-verification Generates each person through the public body law and evaluates its delivered `trunk` chain every 2 mm of height (`HumanCurveRings`), taking the natural waist as the least taut girth within 0.56 S to 0.70 S, the chest as the greatest girth above it and the hips as the greatest below it, and reading each span's excess variation (total variation less the ends' difference). It catches a roll or a groove between the bust and the waist, a belly roll on a lean person, a second waist, and a shelf above the hips.
  * @evidence contracts/testing.md#independent-expectations The shape is anatomy's and the definitions': the natural waist is the least girth between the lowest rib and the iliac crest (ISO 8559-1 5.3.10), so the trunk falls to it from the chest and rises from it to the hips (ISO 8559-1 5.3.13, the buttocks' greatest projection); the high hip lies midway (5.3.12), so a high hip input above the waist-to-hip line by more than 9 mm is the person's own central adiposity (WHO 2008), which admits one abdominal maximum. The floor is ISO 20685-1:2018 Table 4's 9 mm for large girths. No construction constant or reference enters. Proven green on a made cosine trunk and red on f1's own profile with three periods of a 10 mm, 20 mm-wavelength ripple (each reversal adds twice its height to the excess variation). Oracle limits: the trunk chain ends at the axilla, so a chest whose greatest girth lies above it is read at the chain's top; the girth is the taut tape, so a groove narrower than the hull is the kink rules'.
  * @evidence contracts/testing.md#distinguishing-cases The core set's ten people, slender and heavy trunks of both sexes, with and without central adiposity by their own inputs. The outlines' turn sequences and the waist's height belong to `test_human_curves_profile_trunk`; the tapes at their sites to `test_human_anatomy_trunk`.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curves_profile_trunk_girth`, generating the cached people in process on the CPU (body law only) with no renderer, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curves_profile_trunk_girth`, generating its people in process on the CPU (body law only) with no renderer, browser or GPU.
  */
 export function test_human_curves_profile_trunk_girth(): void {
   const failures: string[] = [];
@@ -36,7 +37,7 @@ export function test_human_curves_profile_trunk_girth(): void {
   // f1's own profile with rolls midway on each span: three periods of a 10 mm ripple of 20 mm wavelength, whose
   // slope (3.1 mm of girth per mm) reverses any trunk span, which falls or rises about 1 mm per mm.
   const own: IProfile = HumanCurveRings.profile("f1", "trunk");
-  const f1S: number = HumanPeople.params("f1").body.controls.height.value!;
+  const f1S: number = HumanInputs.stature(HumanPeople.params("f1"));
   const s: HumanCurveTrunkGirth.ISites = HumanCurveTrunkGirth.sites(own, f1S);
   const roll: (centre: number) => number[] = (centre: number): number[] =>
     own.girth.map((g: number, i: number): number => {
@@ -54,9 +55,9 @@ export function test_human_curves_profile_trunk_girth(): void {
   // Every person.
   for (const name of HumanPeople.names()) {
     try {
-      const c: ReturnType<typeof HumanPeople.params>["body"]["controls"] = HumanPeople.params(name).body.controls;
-      const central: boolean = HumanCurveTrunkGirth.central(c.waist.value!, c.highHip.value!, c.hip.value!);
-      for (const r of HumanCurveTrunkGirth.rows(name, HumanCurveRings.profile(name, "trunk"), c.height.value!, central))
+      const c: ReturnType<typeof HumanInputs.of> = HumanInputs.of(HumanPeople.params(name));
+      const central: boolean = HumanCurveTrunkGirth.central(c.waistCircumference, c.highHipCircumference, c.hipCircumference);
+      for (const r of HumanCurveTrunkGirth.rows(name, HumanCurveRings.profile(name, "trunk"), c.stature, central))
         if (!HumanAnatomyAudit.passes(r)) failures.push(`${r.person.padEnd(14)} ${r.site}: ${r.value.toFixed(2)} ${r.unit} over ${r.high}`);
     } catch (error) {
       failures.push(`${name.padEnd(14)} could not be read: ${(error as Error).message}`);

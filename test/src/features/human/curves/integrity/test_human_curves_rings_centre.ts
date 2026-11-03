@@ -21,7 +21,7 @@ type V3 = HumanAnatomy.V3;
  * @evidence contracts/testing.md#behavioral-verification Generates each person through the public body law and evaluates each delivered chain's section every 2 mm by its own evaluator (`HumanCurveRings`), taking each section's mean point at 192 even phases as its centre; the track of those centres, three stations at each end left out, is resampled at 1 mm and read for its sharpest sagitta over a 10 mm chord. It catches a layer offset from its neighbours at any girth (an offset ring, a kinked leg or forearm axis, a stepped neck), which the girth profile cannot see.
  * @evidence contracts/testing.md#independent-expectations The bound is the crease definition (`HumanAnatomyShared.CREASE`): a section's outline is its centre plus its radius, so a turn of the centre track tighter than about 7 mm of radius is carried by the outline on at least one side, and no limb, digit, neck or trunk meridian at the bind turns that sharply (Gray 1918: the limbs extended, the joints' turns broad). No construction constant enters. Proven green on a made straight track and a 50 mm arc (0.25 mm of sagitta against the 1.04 mm smooth turn), red on f1's own leg track with one centre moved 6 mm (a 6 mm tent). Oracle limits: the centre is the phase mean, not the area centroid, so a section whose phases bunch moves its centre slightly; the head chains below the vault and the ears are not read (the chin and the nose enter a horizontal section abruptly, the ears are open shells).
  * @evidence contracts/testing.md#distinguishing-cases Every chain of the core set's ten people that `HumanCurveCentreTrack.CHAINS` names. Girth steps and spacing belong to `test_human_curves_rings`, the girth profile shapes to `test_human_curves_profile_*`, the skin's meridian kinks to `test_human_curves_step_*` and `_dent_*`.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curves_rings_centre`, generating the cached people in process on the CPU (body law only) with no renderer, browser or GPU; profiles are shared with the other chain readers.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curves_rings_centre`, generating its people in process on the CPU (body law only) with no renderer, browser or GPU; profiles are shared with the other chain readers.
  */
 export function test_human_curves_rings_centre(): void {
   const failures: string[] = [];
@@ -51,8 +51,9 @@ export function test_human_curves_rings_centre(): void {
   // Every person, every chain read.
   for (const name of HumanPeople.names()) {
     try {
-      const chains: string[] = HumanPeople.person(name).body.chains.map((c: IAutoMovieHumanLoftChain): string => c.name);
-      for (const r of HumanCurveCentreTrack.rows(name, chains, (chain: string): HumanCurveRings.IProfile => HumanCurveRings.profile(name, chain)))
+      const p: HumanPeople.IPerson = HumanPeople.person(name);
+      const chains: string[] = p.body.chains.map((c: IAutoMovieHumanLoftChain): string => c.name);
+      for (const r of HumanCurveCentreTrack.rows(name, chains, (chain: string): HumanCurveRings.IProfile => HumanCurveRings.profile(p, chain)))
         if (!HumanAnatomyAudit.passes(r)) failures.push(`${r.person.padEnd(14)} ${r.site}: ${r.value.toFixed(2)} mm over ${r.high}`);
     } catch (error) {
       failures.push(`${name.padEnd(14)} could not be read: ${(error as Error).message}`);

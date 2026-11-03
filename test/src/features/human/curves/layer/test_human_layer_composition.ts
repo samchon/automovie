@@ -46,8 +46,9 @@ export function test_human_layer_composition(): void {
   let proved: boolean = false;
 
   for (const name of HumanPeople.names()) {
-    const skin: HumanAnatomy.ISkin = HumanAnatomy.bind(name);
-    const sites: HumanLayerSite.ISite[] = HumanLayerSite.sites(name);
+    const views: HumanAnatomy.IViews = HumanAnatomy.views(name);
+    const skin: HumanAnatomy.ISkin = views.bind();
+    const sites: HumanLayerSite.ISite[] = HumanLayerSite.sites(views);
     const report: HumanLayerComposition.IComposition = HumanLayerComposition.composition({
       person: name,
       sites,

@@ -1,3 +1,4 @@
+import { HumanInputs } from "./HumanInputs";
 import type { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
 import type { HumanAnatomyHeadEar } from "./HumanAnatomyHeadEar";
@@ -30,7 +31,7 @@ export namespace HumanAnatomyHeadConsistency {
    */
   export function rows(subject: HumanAnatomyAudit.ISubject): IRow[] {
     const skin: HumanAnatomy.ISkin = subject.bind();
-    const S: number = subject.params.body.controls.height.value!;
+    const S: number = HumanInputs.stature(subject.params);
     const f: ISites = HumanHeadSitesSingleton.get(skin, S, subject.mouth);
 
     return [

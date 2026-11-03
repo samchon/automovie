@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyControls } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyControls";
+import type { IAutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
 import { HumanAnatomy } from "./HumanAnatomy";
 import { HumanAnatomyArmProfile } from "./HumanAnatomyArmProfile";
 import { HumanAnatomyArmSites } from "./HumanAnatomyArmSites";
@@ -23,7 +23,7 @@ export namespace HumanAnatomyArm {
   export function arm(subject: ISubject): IRow[] {
     const name: string = subject.name;
     const rows: IRow[] = [];
-    const c: IAutoMovieHumanBodyControls = subject.params.body.controls;
+    const c: IAutoMovieHumanBodyAnatomy = subject.params.body.anatomy;
     const skin: HumanAnatomy.ISkin = subject.bind();
 
     for (const side of SIDES) {
@@ -31,10 +31,10 @@ export namespace HumanAnatomyArm {
       const tape: (site: string, value: number, input: number | null) => void = (site: string, value: number, input: number | null): void => {
         if (input !== null) rows.push(identity(name, `${side} ${site}`, value, input, SMALL));
       };
-      tape("upper arm girth midway acromion to olecranon, mm", s.bicep, c.bicep.value);
-      tape("elbow girth over the olecranon, mm", s.elbow, c.elbow.value);
-      tape("forearm girth, relaxed maximum below the elbow, mm", s.forearm, c.forearm.value);
-      tape("wrist girth over stylion, mm", s.wrist, c.wrist.value);
+      tape("upper arm girth midway acromion to olecranon, mm", s.bicep, (c.upperArmCircumference ?? null));
+      tape("elbow girth over the olecranon, mm", s.elbow, (c.elbowCircumference ?? null));
+      tape("forearm girth, relaxed maximum below the elbow, mm", s.forearm, (c.forearmCircumference ?? null));
+      tape("wrist girth over stylion, mm", s.wrist, (c.wristCircumference ?? null));
 
       // A section that missed its bone leaves the profile unread, not a turn shorter.
       const profiled: boolean = s.forearmProfile.every((g: number): boolean => Number.isFinite(g));

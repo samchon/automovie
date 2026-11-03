@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyControls } from "../../../../../packages/human/src/structures/body/IAutoMovieHumanBodyControls";
+import type { IAutoMovieHumanBodyAnatomy } from "../../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
 import type { HumanAnatomy } from "../HumanAnatomy";
 import { HumanAnatomyArm } from "../HumanAnatomyArm";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
@@ -44,8 +44,8 @@ export namespace HumanCurveOrder {
    * is only ever read within one side of the body.
    */
   export function tapes(subject: ISubject, side: "left" | "right"): ITape[] {
-    const c: IAutoMovieHumanBodyControls = subject.params.body.controls;
-    const S: number = c.height.value!;
+    const c: IAutoMovieHumanBodyAnatomy = subject.params.body.anatomy;
+    const S: number = c.stature!;
     const skin: HumanAnatomy.ISkin = subject.bind();
     const t: HumanAnatomyShared.ITrunk = HumanAnatomyTrunk.trunkSites(skin, S);
     const neck: HumanAnatomyShared.INeck = HumanAnatomyTrunk.neckSites(skin, S);
@@ -58,21 +58,21 @@ export namespace HumanCurveOrder {
     const tape: (name: string, value: number, input: number | null, error: number) => void = (name: string, value: number, input: number | null, error: number): void => {
       if (input !== null) out.push({ name, value, input, error });
     };
-    tape("chest", t.chest.girth, c.chest.value, LARGE);
-    tape("underbust", t.underbust.girth, c.underbust.value, LARGE);
-    tape("waist", t.waist.girth, c.waist.value, LARGE);
-    tape("high hip", t.highHip.girth, c.highHip.value, LARGE);
-    tape("hip", t.hip.girth, c.hip.value, LARGE);
-    tape("neck", neck.neck, c.neck.value, SMALL);
-    tape("neck base", neck.base, c.neckBase.value, SMALL);
-    tape(`${side} bicep`, arm.bicep, c.bicep.value, SMALL);
-    tape(`${side} elbow`, arm.elbow, c.elbow.value, SMALL);
-    tape(`${side} forearm`, arm.forearm, c.forearm.value, SMALL);
-    tape(`${side} wrist`, arm.wrist, c.wrist.value, SMALL);
-    tape(`${side} thigh`, leg.thigh, c.thigh.value, LARGE);
-    tape(`${side} knee`, leg.knee, c.knee.value, SMALL);
-    tape(`${side} calf`, leg.calf, c.calf.value, SMALL);
-    tape(`${side} hand circumference`, hand.circumference, c.handCircumference.value, SMALL);
+    tape("chest", t.chest.girth, (c.chestCircumference ?? null), LARGE);
+    tape("underbust", t.underbust.girth, (c.underbustCircumference ?? null), LARGE);
+    tape("waist", t.waist.girth, (c.waistCircumference ?? null), LARGE);
+    tape("high hip", t.highHip.girth, (c.highHipCircumference ?? null), LARGE);
+    tape("hip", t.hip.girth, (c.hipCircumference ?? null), LARGE);
+    tape("neck", neck.neck, (c.neckCircumference ?? null), SMALL);
+    tape("neck base", neck.base, (c.neckBaseCircumference ?? null), SMALL);
+    tape(`${side} bicep`, arm.bicep, (c.upperArmCircumference ?? null), SMALL);
+    tape(`${side} elbow`, arm.elbow, (c.elbowCircumference ?? null), SMALL);
+    tape(`${side} forearm`, arm.forearm, (c.forearmCircumference ?? null), SMALL);
+    tape(`${side} wrist`, arm.wrist, (c.wristCircumference ?? null), SMALL);
+    tape(`${side} thigh`, leg.thigh, (c.thighCircumference ?? null), LARGE);
+    tape(`${side} knee`, leg.knee, (c.kneeCircumference ?? null), SMALL);
+    tape(`${side} calf`, leg.calf, (c.calfCircumference ?? null), SMALL);
+    tape(`${side} hand circumference`, hand.circumference, (c.handCircumference ?? null), SMALL);
     return out;
   }
 

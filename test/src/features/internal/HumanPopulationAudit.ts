@@ -1,4 +1,5 @@
-import type { IAutoMovieHumanBodyControls } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyControls";
+import { AutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
+import type { IAutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
@@ -7,7 +8,8 @@ import { HumanPopulationSurvey } from "./HumanPopulationSurvey";
 type P = IAutoMovieHumanParameters;
 type Sex = HumanPopulationSurvey.Sex;
 type Variable = HumanPopulationSurvey.Variable;
-type Key = keyof IAutoMovieHumanBodyControls;
+type Key = AutoMovieHumanBodyAnatomy.TapeControl | "height";
+type Field = Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">;
 
 /**
  * The consistency check of a person's inputs against the declared domain and
@@ -139,8 +141,8 @@ export namespace HumanPopulationAudit {
   ];
 
   /**
-   * Every check of one person's inputs: each body control inside its declared
-   * domain, the shape coordinate's sign on the person's sex, each survey
+   * Every check of one person's inputs: each body measure inside its declared
+   * domain, the declared sex the person's own, each survey
    * measure inside its sex's surveyed range, and each population relation
    * inside its band.
    *
@@ -156,9 +158,9 @@ export namespace HumanPopulationAudit {
     };
     const t: HumanPopulationSurvey.ISurvey = HumanPopulationSurvey.SURVEY[sex];
 
-    for (const [key, [low, high]] of Object.entries(HumanPopulationSurvey.DOMAIN) as [Key, readonly [number, number]][])
-      row(`domain: ${key}`, HumanPopulationAccess.controls(p)[key].value ?? NaN, low, high, key === "fat" || key === "masculineFeminine" || key === "muscularity" ? "" : "mm");
-    row(`masculineFeminine on a ${sex} body, signed toward its sex`, (sex === "female" ? 1 : -1) * (HumanPopulationAccess.controls(p).masculineFeminine.value ?? NaN), Number.MIN_VALUE, 1, "");
+    for (const [key, [low, high]] of Object.entries(HumanPopulationSurvey.DOMAIN) as [Field, readonly [number, number]][])
+      row(`domain: ${key}`, HumanPopulationAccess.measures(p)[key], low, high, "mm");
+    row(`sex declared on a ${sex} body`, HumanPopulationAccess.measures(p).sex === sex ? 1 : 0, 1, 1, "");
     for (const [label, variable, read] of RANGES)
       for (const value of read(p)) row(`surveyed ${sex} range: ${label}`, value, t.min[HumanPopulationConditional.index(variable)]!, t.max[HumanPopulationConditional.index(variable)]!, "mm");
     for (const r of RELATIONS) for (const value of r.read(p)) row(`relation: ${r.label}`, value, r.band[sex][0], r.band[sex][1], "");
@@ -177,14 +179,15 @@ export namespace HumanPopulationAudit {
   }
 
   /**
-   * A body control's value on a person.
+   * A body measure's resolved value on a person, by its reading name.
    *
    * @param p The person's inputs.
-   * @param key The control.
+   * @param key The measure.
    * @returns Its value.
    */
   function v(p: P, key: Key): number {
-    return HumanPopulationAccess.controls(p)[key].value!;
+    const m: ReturnType<typeof HumanPopulationAccess.measures> = HumanPopulationAccess.measures(p);
+    return key === "height" ? m.stature : m[AutoMovieHumanBodyAnatomy.TAPE_FIELD[key]];
   }
 
   /**

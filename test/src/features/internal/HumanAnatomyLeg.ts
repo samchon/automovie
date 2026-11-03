@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyControls } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyControls";
+import type { IAutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
 import { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
 import { HumanAnatomyLegPatella } from "./HumanAnatomyLegPatella";
@@ -44,20 +44,20 @@ export namespace HumanAnatomyLeg {
   export function leg(subject: ISubject): IRow[] {
     const name: string = subject.name;
     const rows: IRow[] = [];
-    const c: IAutoMovieHumanBodyControls = subject.params.body.controls;
+    const c: IAutoMovieHumanBodyAnatomy = subject.params.body.anatomy;
     const skin: HumanAnatomy.ISkin = subject.bind();
-    const S: number = c.height.value!;
+    const S: number = c.stature!;
     const levels: ILevels = { crotch: crotchHeight(skin, S), vertex: vertexHeight(skin) };
 
     for (const side of SIDES) {
       const l: ILeg = legSites(skin, side, levels);
 
-      if (c.thigh.value !== null)
-        rows.push(identity(name, `${side} thigh girth, horizontal maximum just below the crotch, mm`, l.thigh, c.thigh.value, LARGE));
-      if (c.knee.value !== null)
-        rows.push(identity(name, `${side} knee girth at mid-patella, mm`, l.knee, c.knee.value, SMALL));
-      if (c.calf.value !== null)
-        rows.push(identity(name, `${side} calf girth, horizontal maximum, mm`, l.calf, c.calf.value, SMALL));
+      if (c.thighCircumference !== undefined)
+        rows.push(identity(name, `${side} thigh girth, horizontal maximum just below the crotch, mm`, l.thigh, c.thighCircumference, LARGE));
+      if (c.kneeCircumference !== undefined)
+        rows.push(identity(name, `${side} knee girth at mid-patella, mm`, l.knee, c.kneeCircumference, SMALL));
+      if (c.calfCircumference !== undefined)
+        rows.push(identity(name, `${side} calf girth, horizontal maximum, mm`, l.calf, c.calfCircumference, SMALL));
       rows.push({
         person: name,
         site: `${side} shank girth, knee to ankle: maxima past the first deeper than a small-girth error`,
@@ -81,8 +81,8 @@ export namespace HumanAnatomyLeg {
       rows.push(
         ...HumanAnatomyLegProfile.rows(name, skin, side, levels, l, {
           ankleHeight: subject.params.extremities?.feet?.[side]?.ankleHeight,
-          knee: c.knee.value,
-          calf: c.calf.value,
+          knee: (c.kneeCircumference ?? null),
+          calf: (c.calfCircumference ?? null),
         }),
       );
 

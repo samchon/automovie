@@ -1,4 +1,3 @@
-import { Singleton } from "tstl";
 
 import type { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyShared } from "./HumanAnatomyShared";
@@ -19,15 +18,15 @@ export namespace HumanTrunkSitesSingleton {
    * @param locate Locates the sites; called once per skin, on first use.
    */
   export function get(skin: HumanAnatomy.ISkin, locate: () => HumanAnatomyShared.ITrunk): HumanAnatomyShared.ITrunk {
-    let found: Singleton<HumanAnatomyShared.ITrunk, []> | undefined = cache.get(skin);
+    let found: HumanAnatomyShared.ITrunk | undefined = cache.get(skin);
 
     if (found === undefined) {
-      found = new Singleton(locate);
+      found = locate();
       cache.set(skin, found);
     }
-    return found.get();
+    return found;
   }
 
-  /** Singletons by skin. */
-  const cache: WeakMap<HumanAnatomy.ISkin, Singleton<HumanAnatomyShared.ITrunk, []>> = new WeakMap();
+  /** Values by skin; each dies with its skin. */
+  const cache: WeakMap<HumanAnatomy.ISkin, HumanAnatomyShared.ITrunk> = new WeakMap();
 }

@@ -1,12 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
-import { Singleton } from "tstl";
 
 import { HumanReferenceFiles } from "./HumanReferenceFiles";
 
 /**
  * Each reference body's own rig as the reference source recorded it, read
- * once per process: every joint's bind frame from
+ * by each call: every joint's bind frame from
  * `test/.shots/<alias>/body-observations.json`.
  *
  * The file lists the joints of the source's body rig under a `joints` array,
@@ -53,17 +52,9 @@ export namespace HumanReferenceRigSingleton {
    * @throws Error when the record is missing or holds no joint list.
    */
   export function get(id: string): IRig {
-    let found: Singleton<IRig> | undefined = cache.get(id);
-
-    if (found === undefined) {
-      found = new Singleton((): IRig => build(id));
-      cache.set(id, found);
-    }
-    return found.get();
+    return build(id);
   }
 
-  /** One singleton per reference alias. */
-  const cache: Map<string, Singleton<IRig>> = new Map();
 
   /**
    * The rig record's path.

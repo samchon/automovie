@@ -1,3 +1,4 @@
+import { HumanInputs } from "../../../internal/HumanInputs";
 import type { IAutoMovieHumanPose } from "../../../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import type { HumanAnatomy } from "../../../internal/HumanAnatomy";
 import { HumanCurveJoints } from "../../../internal/curves/HumanCurveJoints";
@@ -30,7 +31,7 @@ export function test_human_curves_region_kinematics(): void {
   for (const name of HumanPeople.names()) {
     try {
       const { neutral, posed }: { neutral: Joints; posed: Record<string, Joints> } = joints(name);
-      const S: number = HumanPeople.params(name).body.controls.height.value!;
+      const S: number = HumanInputs.stature(HumanPeople.params(name));
       const rows: IRow[] = [
         ...HumanCurveKinematics.rows(name, neutral, posed),
         ...HumanCurveKinematics.heights(name, neutral, HumanPeople.sex(name), S),
@@ -45,11 +46,12 @@ export function test_human_curves_region_kinematics(): void {
   if (failures.length !== 0) throw new Error(`${failures.length} kinematics findings:\n${failures.join("\n")}`);
 }
 
-/** A person's joint centres at neutral and in each rule's pose, mm, from the shared cache. */
+/** A person's joint centres at neutral and in each rule's pose, mm, on one rigged person. */
 function joints(name: string): { neutral: Joints; posed: Record<string, Joints> } {
+  const rigged: HumanPeople.IRigged = HumanPeople.rigged(name);
   return {
-    neutral: HumanCurveJoints.of(name, {}),
-    posed: Object.fromEntries(Object.entries(HumanCurveKinematics.POSES).map(([key, pose]: [string, IAutoMovieHumanPose]): [string, Joints] => [key, HumanCurveJoints.of(name, pose)])),
+    neutral: HumanCurveJoints.of(rigged, {}),
+    posed: Object.fromEntries(Object.entries(HumanCurveKinematics.POSES).map(([key, pose]: [string, IAutoMovieHumanPose]): [string, Joints] => [key, HumanCurveJoints.of(rigged, pose)])),
   };
 }
 

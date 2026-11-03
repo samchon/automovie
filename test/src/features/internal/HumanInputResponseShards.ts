@@ -1,10 +1,10 @@
+import { AutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { HumanAnatomyAudit } from "./HumanAnatomyAudit";
 import { HumanAnatomyCourse } from "./HumanAnatomyCourse";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
 import { HumanInputResponse } from "./HumanInputResponse";
 import type { HumanInputResponseReadings } from "./HumanInputResponseReadings";
-import { HumanInputResponseSupplement } from "./HumanInputResponseSupplement";
 
 type IParams = IAutoMovieHumanParameters;
 type IPerturbation = HumanInputResponse.IPerturbation;
@@ -30,14 +30,12 @@ export namespace HumanInputResponseShards {
 
   /**
    * Each region's inputs. Paired inputs move on the left only, so the right
-   * side's reading is held. The shape coordinates have no declared range (the
-   * public type declares none) and no unit; each moves by 0.3, about a third
-   * of f1's own distance from zero in masculineFeminine (0.945) and fat
-   * (-0.650), enough to change any construction that reads it. The inseam
-   * moves 30 mm, three times the crotch height's 10 mm allowable error;
-   * stature 18 mm, three times its 6.
+   * side's reading is held. The body fat percentage moves 5 points, enough
+   * to move the shape priors' adiposity by about two thirds and so change any construction
+   * that reads it. The inseam moves 30 mm, three times the crotch height's 10 mm
+   * allowable error; stature 18 mm, three times its 6.
    */
-  export const SHARDS: Record<"trunk" | "limbs" | "head" | "face" | "extremities" | "shape" | "negative", IShard> = {
+  export const SHARDS: Record<"trunk" | "limbs" | "head" | "face" | "extremities" | "shape" | "anatomy" | "negative", IShard> = {
     trunk: {
       groups: ["stature", "trunk", "course", "arm"],
       perturbations: [
@@ -50,10 +48,8 @@ export namespace HumanInputResponseShards {
         control("neckBase", 3 * SMALL, { neckBase: 3 * SMALL }),
         control("bustSpan", 3 * E.bustPointWidth, { bustSpan: 3 * E.bustPointWidth }),
         control("acrossShoulder", 3 * E.acrossShoulder, { acrossShoulder: 3 * E.acrossShoulder }),
-        siteless("frontInterscyeLength", 30, "ISO 8559-1 5.4.7's armpit front fold points are set by a rule pressed under the arm, a contact the skin alone does not fix (test_human_anatomy_course)"),
         control("neckToWaist", 3 * E.backNeckToWaist, { neckToWaist: 3 * E.backNeckToWaist }),
         control("shoulderToApex", 3 * E.sideNeckToBust, { "shoulderToApex left": 3 * E.sideNeckToBust, "shoulderToApex right": 3 * E.sideNeckToBust }),
-        siteless("neckLength", 15, "neither ISO 8559-1 nor ANSUR II defines a neck length, and the type names no endpoints"),
       ],
     },
     limbs: {
@@ -167,38 +163,23 @@ export namespace HumanInputResponseShards {
       groups: ["stature", "trunk", "course", "arm", "leg", "head"],
       perturbations: [
         control("height", 18, { stature: 18 }),
-        siteless("fat", 0.3, "a unitless coordinate of the reference source's authoring model, not body fat; the tapes it would move are held"),
-        siteless("masculineFeminine", -0.3, "a unitless coordinate that selects no sex table; the tapes it would move are held"),
-        siteless("muscularity", 0.3, "a unitless coordinate, not a lean-mass index; the tapes it would move are held"),
+        siteless("bodyFatPercentage", 5, "a whole-body DXA percentage with no site of its own; it moves the shape priors' adiposity while every tape is held"),
+      ],
+    },
+    anatomy: {
+      groups: ["leg", "fold"],
+      perturbations: [
         {
-          input: "supplement",
-          edit: (q: IParams): void => {
-            q.supplement = structuredClone(HumanInputResponseSupplement);
-          },
-          expect: {},
-          reason: "a record of further measured dimensions, each of its own site; a figure that reads none of them is unchanged",
-        },
-        {
-          input: "body.measurements",
+          input: "body.anatomy.glutealFurrowHeight",
 
-          // Every observation set 3 percent above its control (100 where the
-          // control is unknown), so any reading of them changes the figure.
+          // The fold raised 20 mm, twice ANSUR II's crotch-height error; the
+          // thigh tape's knot and the infragluteal window stand at it, so the
+          // fold read on the skin rises by the same 20 mm on both sides and
+          // the thigh, knee and calf tapes read at their sites hold.
           edit: (q: IParams): void => {
-            const m: Record<string, number | null> = q.body.measurements as unknown as Record<string, number | null>;
-            const c: Record<string, { value: number | null }> = q.body.controls as unknown as Record<string, { value: number | null }>;
-            for (const key of Object.keys(m)) m[key] = (c[key]?.value ?? 100) * 1.03;
+            q.body.anatomy = { ...q.body.anatomy, glutealFurrowHeight: AutoMovieHumanBodyAnatomy.resolve(q).glutealFurrowHeight + 20 };
           },
-          expect: {},
-          reason: "independent observations of the person, each 3 percent above its control here; the type says they are never inferred from targets",
-        },
-        {
-          input: "body.diagnostics",
-          edit: (q: IParams): void => {
-            q.body.diagnostics.rise = 800;
-            q.body.diagnostics.shoulderHeight = 1400;
-          },
-          expect: {},
-          reason: "read-only floor-relative heights; a figure that reads them is changed",
+          expect: { "gluteal fold left": 20, "gluteal fold right": 20 },
         },
       ],
     },

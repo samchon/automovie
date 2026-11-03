@@ -1,3 +1,4 @@
+import { HumanInputs } from "../HumanInputs";
 import { HumanAnatomy } from "../HumanAnatomy";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanAnatomyShared } from "../HumanAnatomyShared";
@@ -141,7 +142,7 @@ export namespace HumanCurveKinks {
 
   /** The rows of one region on one subject: one per azimuth, its sharpest turn against the crease bound. */
   export function rows(subject: HumanAnatomyAudit.ISubject, region: IRegion, skin: HumanAnatomy.ISkin = subject.bind()): IRow[] {
-    const S: number = subject.params.body.controls.height.value!;
+    const S: number = HumanInputs.stature(subject.params);
     return kinks(skin, region, S).map(
       (k: IKink): IRow => ({
         person: subject.name,

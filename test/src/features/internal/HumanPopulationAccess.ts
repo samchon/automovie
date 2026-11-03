@@ -1,4 +1,5 @@
-import type { IAutoMovieHumanBodyControls } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyControls";
+import { AutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
+import type { IAutoMovieHumanBodyMeasures } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyMeasures";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import {
   f1,
@@ -51,13 +52,13 @@ export namespace HumanPopulationAccess {
   };
 
   /**
-   * A person's body controls.
+   * A person's body measures, supplied or defaulted.
    *
    * @param p The person's inputs.
-   * @returns The controls.
+   * @returns The resolved measures.
    */
-  export function controls(p: IAutoMovieHumanParameters): IAutoMovieHumanBodyControls {
-    return p.body.controls;
+  export function measures(p: IAutoMovieHumanParameters): IAutoMovieHumanBodyMeasures {
+    return AutoMovieHumanBodyAnatomy.resolve(p);
   }
 
   /**

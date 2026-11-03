@@ -1,5 +1,3 @@
-import { Singleton } from "tstl";
-
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import { AutoMovieHumanOralCavity } from "../../../../packages/human/src/generation/AutoMovieHumanOralCavity";
 import { HumanPeople } from "./HumanPeople";
@@ -25,13 +23,7 @@ export namespace HumanOralCavitySingleton {
    * @param name Person's name in the test table.
    */
   export function get(name: string): IOutcome {
-    let found: Singleton<IOutcome, []> | undefined = cache.get(name);
-
-    if (found === undefined) {
-      found = new Singleton((): IOutcome => build(name));
-      cache.set(name, found);
-    }
-    return found.get();
+    return build(name);
   }
 
   /** Build the cavity of a person from the generation's own body surface. */
@@ -54,6 +46,4 @@ export namespace HumanOralCavitySingleton {
     }
   }
 
-  /** Singletons by person name. */
-  const cache: Map<string, Singleton<IOutcome, []>> = new Map();
 }

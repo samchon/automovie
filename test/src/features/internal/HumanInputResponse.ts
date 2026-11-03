@@ -1,8 +1,11 @@
+import { AutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
+import type { IAutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
 import { HumanAnatomyCourse } from "./HumanAnatomyCourse";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
 import { HumanInputResponseCache } from "./HumanInputResponseCache";
+import { HumanInputResponseMade } from "./HumanInputResponseMade";
 import { HumanInputResponseReadings } from "./HumanInputResponseReadings";
 
 type IParams = IAutoMovieHumanParameters;
@@ -95,6 +98,10 @@ export namespace HumanInputResponse {
 
       // Crotch height's ANSUR II allowable error; the malleolus input is held.
       inseam: 10,
+
+      // The gluteal fold is a height on the posterior profile, read with the
+      // crotch height's ANSUR II allowable error.
+      "gluteal fold": 10,
       bicep: SMALL,
       elbow: SMALL,
       forearm: SMALL,
@@ -138,7 +145,9 @@ export namespace HumanInputResponse {
 
       let finding: Omit<IFinding, "ms">;
       try {
-        const subject: HumanAnatomyAudit.ISubject = HumanInputResponseCache.subject(`${BASE} ${p.input}`, params);
+        // Built for this perturbation alone and dropped with it: no perturbed
+        // person is kept.
+        const subject: HumanAnatomyAudit.ISubject = HumanInputResponseMade.subject(`${BASE} ${p.input}`, params);
         const changed: boolean = differs(rest, subject.bind().P);
         finding = Object.keys(p.expect).length === 0 ? judgeSiteless(p, changed) : judge(p, before, HumanInputResponseReadings.read(subject, groups), changed);
       } catch (error) {
@@ -164,37 +173,65 @@ export namespace HumanInputResponse {
     const line: (f: IFinding) => string = (f: IFinding): string => `${f.status.padEnd(12)} ${f.input} (${f.ms} ms)${f.detail.length === 0 ? "" : `\n    ${f.detail.join("\n    ")}`}`;
     console.log(`input response, ${region}, on ${BASE}:\n${findings.map(line).join("\n")}`);
 
+    // Red proof: each perturbation judged as if its edit had moved nothing,
+    // the base's own readings on both sides and the figure unchanged, must
+    // come out not honoured, so an ignored input cannot pass; an input that
+    // limits a pose leaves the rest figure as it is and is not judged so.
+    const before: HumanInputResponseReadings.IReadings = HumanInputResponseReadings.read(HumanInputResponseCache.named(BASE), groups);
+    const proof: string[] = perturbations
+      .filter((p: IPerturbation): boolean => p.rest !== false)
+      .map((p: IPerturbation): Omit<IFinding, "ms"> => (Object.keys(p.expect).length === 0 ? judgeSiteless(p, false) : judge(p, before, before, false)))
+      .filter((f: Omit<IFinding, "ms">): boolean => f.status === "honoured" || f.status === "unmeasurable")
+      .map((f: Omit<IFinding, "ms">): string => `proof: ${f.input} judged ${f.status} on an unmoved figure`);
+
     const bad: IFinding[] = findings.filter((f: IFinding): boolean => f.status !== "honoured" && f.status !== "unmeasurable");
-    if (bad.length !== 0) throw new Error(`${bad.length} ${region} inputs are not honoured at their sites:\n${bad.map(line).join("\n")}`);
+    if (bad.length !== 0 || proof.length !== 0) throw new Error(`${bad.length} ${region} inputs are not honoured at their sites:\n${[...proof, ...bad.map(line)].join("\n")}`);
   }
 
+  /** A body measure a perturbation moves, by the reading name the shards key it with. */
+  export type Measure = AutoMovieHumanBodyAnatomy.TapeControl | "height" | "highHip" | "acrossShoulder";
+
+  /** A numeric field of the anatomy record. */
+  export type Field = Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">;
+
+  /** The anatomy field each reading name moves. */
+  export const FIELD: Readonly<Record<Measure, Field>> = {
+    ...AutoMovieHumanBodyAnatomy.TAPE_FIELD,
+    height: "stature",
+    highHip: "highHipCircumference",
+    acrossShoulder: "acrossBackShoulderWidth",
+  };
+
   /**
-   * A body control moved by a known amount.
+   * A body measure moved by a known amount from the person's resolved value.
    *
-   * @param name The control.
+   * @param name The measure, by its reading name.
    * @param delta The change of its value, in its own unit (mm for lengths and tapes).
    * @param expect The readings that must move, with their known change, mm.
    */
-  export function control(name: keyof IParams["body"]["controls"], delta: number, expect: Record<string, number>): IPerturbation {
-    return {
-      input: `body.controls.${name}`,
-      edit: (q: IParams): void => {
-        const c: { value: number | null } = q.body.controls[name];
-        c.value = c.value! + delta;
-      },
-      expect,
-    };
+  export function control(name: Measure, delta: number, expect: Record<string, number>): IPerturbation {
+    return { ...moved(FIELD[name], delta), expect };
   }
 
   /**
-   * A body control with no site on the skin, moved by a known amount.
+   * A body measure with no site on the skin among the readings, moved by a known amount.
    *
-   * @param name The control.
+   * @param field The anatomy field.
    * @param delta The change of its value.
    * @param reason Why no reading answers it.
    */
-  export function siteless(name: keyof IParams["body"]["controls"], delta: number, reason: string): IPerturbation {
-    return { ...control(name, delta, {}), reason };
+  export function siteless(field: Field, delta: number, reason: string): IPerturbation {
+    return { ...moved(field, delta), expect: {}, reason };
+  }
+
+  /** The edit that moves one anatomy field from its resolved value. */
+  function moved(field: Field, delta: number): Pick<IPerturbation, "input" | "edit"> {
+    return {
+      input: `body.anatomy.${field}`,
+      edit: (q: IParams): void => {
+        q.body.anatomy[field] = AutoMovieHumanBodyAnatomy.resolve(q)[field] + delta;
+      },
+    };
   }
 }
 

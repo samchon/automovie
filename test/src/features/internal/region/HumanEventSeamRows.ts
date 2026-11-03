@@ -63,6 +63,9 @@ export namespace HumanEventSeamRows {
     /** Parent-phase arcs of the child, radians, wrapping through 2 pi when `to < from`. */
     arcs: [number, number][];
 
+    /** The continuity the seam declares, when given; absent, the catalog's class by the two chains' names (`g2`). */
+    declared?: "G1" | "G2";
+
     /** Whether the lowest quarter of the seam is the axillary hollow, a named fold (FLD-1), left out of the crease reading. */
     axilla: boolean;
   }
@@ -158,6 +161,7 @@ export namespace HumanEventSeamRows {
     let gap: [number, string] = [0, ""];
     let angle: [number, string] = [0, ""];
     let crease: [number, string] = [0, ""];
+    let jump: [number, string] = [0, ""];
     phases.forEach((psi: number, i: number): void => {
       const pp: V3 = points[i]!;
       const found: { index: number; distance: number } = nearest(childRing, pp);
@@ -166,14 +170,20 @@ export namespace HumanEventSeamRows {
       if (found.distance * k > gap[0]) gap = [found.distance * k, where];
 
       // Meridians away from the seam on each side.
-      const pm: V3[] = [0, 1, 2].map((j: number): V3 => p.ring(sP + dP * j * h, [psi])[0]!);
-      const cm: V3[] = [0, 1, 2].map((j: number): V3 => c.ring(sC + dC * j * h, [phi])[0]!);
+      const pm: V3[] = [0, 1, 2, 3].map((j: number): V3 => p.ring(sP + dP * j * h, [psi])[0]!);
+      const cm: V3[] = [0, 1, 2, 3].map((j: number): V3 => c.ring(sC + dC * j * h, [phi])[0]!);
       const tp: V3 = derivative(pm, h);
       const tc: V3 = derivative(cm, h);
       const np: V3 = oriented(HumanAnatomy.cross(phaseTangent(p, sP, psi), tp), HumanAnatomy.sub(pp, parentCentre));
       const nc: V3 = oriented(HumanAnatomy.cross(phaseTangent(c, sC, phi), tc), HumanAnatomy.sub(cm[0]!, childCentre));
       const a: number = (Math.acos(Math.max(-1, Math.min(1, HumanAnatomy.dot(np, nc)))) * 180) / Math.PI;
       if (a > angle[0]) angle = [a, where];
+
+      // Normal curvature of each meridian at the seam, input 1/mm: the jump a G2 seam must not show.
+      const kp: number = HumanAnatomy.dot(second(pm, h), np) / HumanAnatomy.dot(tp, tp);
+      const kc: number = HumanAnatomy.dot(second(cm, h), nc) / HumanAnatomy.dot(tc, tc);
+      const dk: number = Math.abs(kp - kc) / k;
+      if (dk > jump[0]) jump = [dk, `${where} (parent ${(kp / k).toFixed(4)}, child ${(kc / k).toFixed(4)} /mm)`];
 
       // The meridian through the seam, 10 mm each side, read for a crease.
       if (seam.axilla && pp[1] < low + 0.25 * (high - low)) return;
@@ -192,7 +202,33 @@ export namespace HumanEventSeamRows {
       row(`largest gap between the two sides, ${gap[1]}`, gap[0], 0, GAP, "mm"),
       row(`largest angle between the two sides' normals, ${angle[1]}`, angle[0], 0, ANGLE, "deg"),
       row(`largest sagitta of the meridian across the seam over a 10 mm chord, ${crease[1]}`, crease[0], -HumanAnatomyShared.CREASE, HumanAnatomyShared.CREASE, "mm"),
+      row(
+        `largest jump of the meridians' normal curvature across the seam, declared ${g2(seam) ? "G2" : "G1 (read only)"}, ${jump[1]}`,
+        jump[0],
+        0,
+        g2(seam) ? JUMP : Infinity,
+        "1/mm",
+      ),
     ];
+  }
+
+  /**
+   * Largest curvature jump across a G2 seam, input 1/mm: the rendered-skin
+   * limit of `HumanSeamObserver.rendered`, a jump that turns the normal by the
+   * class A 0.1 degree over one station spacing of 2 mm.
+   */
+  export const JUMP: number = (0.1 * Math.PI) / 180 / 2;
+
+  /**
+   * Whether the catalog declares a seam G2 (SEAM-1 the neck's ring on the
+   * shoulders, SEAM-5 the ankle, SEAM-6 the wrist, SEAM-7 and SEAM-8 the
+   * digit and toe roots); the arm root and the crotch ring are G1 until the
+   * trunk publishes its curvature.
+   */
+  export function g2(seam: ISeam): boolean {
+    if (seam.declared !== undefined) return seam.declared === "G2";
+    const pair: string = `${seam.parent.name} ${seam.child.name}`;
+    return (seam.parent.name === "head" && seam.child.name === "upper") || /foot\.|hand\.|finger\.|thumb\.|toe\./.test(pair);
   }
 
   /** The nearest point of a dense ring. */
@@ -219,6 +255,12 @@ export namespace HumanEventSeamRows {
   /** One-sided second-order first derivative from points at 0, h and 2h. */
   function derivative(m: readonly V3[], h: number): V3 {
     return HumanAnatomy.scale(HumanAnatomy.add(HumanAnatomy.add(HumanAnatomy.scale(m[0]!, -3), HumanAnatomy.scale(m[1]!, 4)), HumanAnatomy.scale(m[2]!, -1)), 1 / (2 * h));
+  }
+
+  /** One-sided second-order second derivative from points at 0, h, 2h and 3h. */
+  function second(m: readonly V3[], h: number): V3 {
+    const A: typeof HumanAnatomy = HumanAnatomy;
+    return A.scale(A.add(A.add(A.scale(m[0]!, 2), A.scale(m[1]!, -5)), A.add(A.scale(m[2]!, 4), A.scale(m[3]!, -1))), 1 / (h * h));
   }
 
   /** The ring's tangent in phase at a point, by a central difference of a thousandth of a turn. */

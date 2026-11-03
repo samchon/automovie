@@ -27,6 +27,7 @@ export namespace HumanEventSeamProof {
       child: { name: "made.child", first: -80, last: 0, ring: (s: number, phases: readonly number[]): V3[] => ring(s, phases, push * Math.exp(-Math.abs(s) / 3)) },
       direction: "down",
       arcs: [[0, 2 * Math.PI]],
+      declared: "G2",
       axilla: false,
     };
   }

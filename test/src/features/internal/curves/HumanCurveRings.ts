@@ -1,8 +1,8 @@
+import { HumanInputs } from "../HumanInputs";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
 import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import { HumanAnatomy } from "../HumanAnatomy";
-import { HumanOnce } from "../HumanOnce";
 import { HumanPeople } from "../HumanPeople";
 
 type V3 = HumanAnatomy.V3;
@@ -46,21 +46,19 @@ export namespace HumanCurveRings {
   export const PHASES: readonly number[] = Array.from({ length: 192 }, (_: unknown, k: number): number => (2 * Math.PI * k) / 192);
 
   /**
-   * A person's chain profile, sampled once per process and shared by every
-   * rule that reads it.
+   * A person's chain profile, sampled by this call on the person the caller
+   * holds, or on one generated for it from a name.
    *
    * @throws {Error} When the person's body carries no chain of that name.
    */
-  export function profile(person: string, chain: string): IProfile {
-    return profiles.read(`${person}|${chain}`, (): IProfile => {
-      const p: HumanPeople.IPerson = HumanPeople.person(person);
-      return of(p.body, chain, scale(p));
-    });
+  export function profile(who: string | HumanPeople.IPerson, chain: string): IProfile {
+    const p: HumanPeople.IPerson = typeof who === "string" ? HumanPeople.person(who) : who;
+    return of(p.body, chain, scale(p));
   }
 
   /** Input millimetres per calibration millimetre: the stature input over the body's own stature. */
   export function scale(p: HumanPeople.IPerson): number {
-    return p.params.body.controls.height.value! / p.body.stature;
+    return HumanInputs.stature(p.params) / p.body.stature;
   }
 
   /**
@@ -126,5 +124,3 @@ export namespace HumanCurveRings {
 
 const A: typeof HumanAnatomy = HumanAnatomy;
 
-/** Every person's chain profiles, sampled once per process. */
-const profiles: HumanOnce<HumanCurveRings.IProfile> = new HumanOnce();

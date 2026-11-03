@@ -1,3 +1,4 @@
+import { HumanInputs } from "./HumanInputs";
 import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
@@ -57,7 +58,7 @@ interface IMade {
  */
 function generate(name: string, params: IAutoMovieHumanParameters): IMade {
   const body: IAutoMovieHumanBodyCalibration = AutoMovieHumanBodyLaw.calibrate(params).body;
-  const scale: number = 0.001 * (params.body.controls.height.value! / body.stature);
+  const scale: number = 0.001 * (HumanInputs.stature(params) / body.stature);
   const rig: AutoMovieHumanRig.IRig = AutoMovieHumanRig.prepare(body, scale);
   const evaluate: AutoMovieHumanSkeleton.PoseEvaluator = AutoMovieHumanSkeleton.prepare(params, { calibration: body });
   const surface: AutoMovieHumanBodySurface.IOutput = AutoMovieHumanBodySurface.generate(body, []);

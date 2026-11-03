@@ -1,10 +1,9 @@
-import { Singleton } from "tstl";
 
 import type { HumanReference } from "./HumanReference";
 import { HumanReferenceFiles } from "./HumanReferenceFiles";
 
 /**
- * Each reference body's welded mesh, built once per process and shared by
+ * Each reference body's welded mesh, built by each call for
  * every comparison and observer that reads it.
  *
  * The source stores the head and the body as two parts whose shared neck seam
@@ -20,17 +19,9 @@ export namespace HumanReferenceMeshSingleton {
    * @param id Reference alias.
    */
   export function get(id: string): HumanReference.IMesh {
-    let found: Singleton<HumanReference.IMesh> | undefined = cache.get(id);
-
-    if (found === undefined) {
-      found = new Singleton((): HumanReference.IMesh => build(id));
-      cache.set(id, found);
-    }
-    return found.get();
+    return build(id);
   }
 
-  /** One singleton per reference alias. */
-  const cache: Map<string, Singleton<HumanReference.IMesh>> = new Map();
 
   /**
    * Weld a reference body's parts into one mesh.

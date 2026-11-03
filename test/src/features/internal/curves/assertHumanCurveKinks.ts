@@ -1,3 +1,4 @@
+import { HumanInputs } from "../HumanInputs";
 import type { HumanAnatomy } from "../HumanAnatomy";
 import { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanAnatomyShared } from "../HumanAnatomyShared";
@@ -25,7 +26,7 @@ export function assertHumanCurveKinks(region: HumanCurveKinks.IRegion): void {
 
   // The made ridge on f1.
   const base: HumanAnatomyAudit.ISubject = HumanAnatomyAudit.subject("f1");
-  const S: number = base.params.body.controls.height.value!;
+  const S: number = HumanInputs.stature(base.params);
   const skin: HumanAnatomy.ISkin = base.bind();
   const f: HumanCurveKinks.IFrame = region.frame(skin, S);
   const station: number = (f.from + f.to) / 2;

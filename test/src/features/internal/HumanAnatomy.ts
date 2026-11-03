@@ -76,6 +76,12 @@ export namespace HumanAnatomy {
   /** The rig's four influences on every bind vertex; see {@link HumanAnatomySkins.binding}. */
   export const binding: typeof HumanAnatomySkins.binding = HumanAnatomySkins.binding;
 
+  /** One person's skin views held by the caller: {@link HumanAnatomySkins.views}. */
+  export const views: typeof HumanAnatomySkins.views = HumanAnatomySkins.views;
+
+  /** One person's skin views: {@link HumanAnatomySkins.IViews}. */
+  export type IViews = HumanAnatomySkins.IViews;
+
   /** A plane section's component holding a point; see {@link HumanAnatomySection.cut}. */
   export const cut: typeof HumanAnatomySection.cut = HumanAnatomySection.cut;
 

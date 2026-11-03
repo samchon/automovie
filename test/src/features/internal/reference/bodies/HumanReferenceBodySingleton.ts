@@ -1,9 +1,8 @@
-import { Singleton } from "tstl";
 
 import { HumanReferenceFiles } from "./HumanReferenceFiles";
 
 /**
- * Each population body as measured, read once per process and shared by the
+ * Each population body as measured, read by each call for the
  * surface and the layer comparisons, whose limits both stand on the spread of
  * these bodies.
  *
@@ -31,17 +30,9 @@ export namespace HumanReferenceBodySingleton {
    * @param id Reference alias.
    */
   export function get(id: string): IBody {
-    let found: Singleton<IBody> | undefined = cache.get(id);
-
-    if (found === undefined) {
-      found = new Singleton((): IBody => build(id));
-      cache.set(id, found);
-    }
-    return found.get();
+    return build(id);
   }
 
-  /** One singleton per reference alias. */
-  const cache: Map<string, Singleton<IBody>> = new Map();
 
   /**
    * Read a body and its stature, the highest raw vertex over the floor at 0.

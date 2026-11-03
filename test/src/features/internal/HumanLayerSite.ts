@@ -3,16 +3,12 @@ import type { AutoMovieHumanLoftFrame } from "../../../../packages/human/src/lof
 import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import { HumanAnatomy } from "./HumanAnatomy";
 import { HumanLayerPlane } from "./HumanLayerPlane";
-import { HumanOnce } from "./HumanOnce";
-import { HumanPeople } from "./HumanPeople";
 import type { HumanPopulation } from "./HumanPopulation";
 
 type V3 = HumanAnatomy.V3;
 
 const A: typeof HumanAnatomy = HumanAnatomy;
 
-/** Each person's sites, computed once per run. */
-const CACHE: HumanOnce<HumanLayerSite.ISite[]> = new HumanOnce();
 
 /**
  * Every principal layer of every loft chain of a generated person, as a place
@@ -78,13 +74,12 @@ export namespace HumanLayerSite {
   /**
    * Every layer of a generated person's chains as a place to cut.
    *
-   * @param person The person's name in `HumanPeople`.
+   * @param views The person's skin views, held by the caller.
    */
-  export function sites(person: string): ISite[] {
-    return CACHE.read(person, (): ISite[] => {
-      const out: ISite[] = [];
-      const chains: IAutoMovieHumanLoftChain[] = HumanPeople.person(person).body.chains;
-      const joints: Map<string, V3> = HumanAnatomy.bind(person).joints;
+  export function sites(views: HumanAnatomy.IViews): ISite[] {
+    const out: ISite[] = [];
+    const chains: IAutoMovieHumanLoftChain[] = views.person.body.chains;
+    const joints: Map<string, V3> = views.bind().joints;
       const knee: number | undefined = joints.get("leftLowerLeg")?.[1];
       const phases: number[] = Array.from({ length: PHASES }, (_: unknown, i: number): number => (2 * Math.PI * i) / PHASES);
 
@@ -93,8 +88,7 @@ export namespace HumanLayerSite {
           out.push(site(chain, layer, k, phases, joints, knee));
         });
 
-      return out;
-    });
+    return out;
   }
 
   /**

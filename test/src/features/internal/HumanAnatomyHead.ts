@@ -1,3 +1,4 @@
+import { HumanInputs } from "./HumanInputs";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
@@ -32,7 +33,7 @@ export namespace HumanAnatomyHead {
     const rows: IRow[] = [];
     const p: IAutoMovieHumanParameters = subject.params;
     const skin: HumanAnatomy.ISkin = subject.bind();
-    const S: number = p.body.controls.height.value!;
+    const S: number = HumanInputs.stature(p);
     const f: ISites = faceSites(skin, S, subject.mouth);
     const h: IAutoMovieHumanParameters["head"] = p.head;
     const id: (site: string, value: number, input: number) => void = (site: string, value: number, input: number): void => {

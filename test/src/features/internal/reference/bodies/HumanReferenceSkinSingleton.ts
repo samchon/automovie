@@ -1,4 +1,3 @@
-import { Singleton } from "tstl";
 
 import { HumanAnatomy } from "../../HumanAnatomy";
 import type { HumanReference } from "./HumanReference";
@@ -24,17 +23,8 @@ export namespace HumanReferenceSkinSingleton {
    * @param id Reference alias.
    */
   export function get(id: string): HumanAnatomy.ISkin {
-    let found: Singleton<HumanAnatomy.ISkin> | undefined = cache.get(id);
-
-    if (found === undefined) {
-      found = new Singleton((): HumanAnatomy.ISkin => build(id));
-      cache.set(id, found);
-    }
-    return found.get();
+    return build(id);
   }
-
-  /** One singleton per reference alias. */
-  const cache: Map<string, Singleton<HumanAnatomy.ISkin>> = new Map();
 
   /**
    * Label a reference body's triangles by the generated person's chains.

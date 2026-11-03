@@ -1,13 +1,14 @@
+import { AutoMovieHuman } from "../../../../../packages/human/src/AutoMovieHuman";
 import { AutoMovieHumanBodyLaw } from "../../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanBodySurface } from "../../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import { AutoMovieHumanOralCavity } from "../../../../../packages/human/src/generation/AutoMovieHumanOralCavity";
 import { AutoMovieHumanLoftAperture } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftAperture";
+import type { AutoMovieHumanLoftContract } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanLoftAperture } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanParameters } from "../../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { HumanCurveCollapse } from "../curves/HumanCurveCollapse";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
-import { HumanOnce } from "../HumanOnce";
 import { HumanPeople } from "../HumanPeople";
 
 type V3 = [number, number, number];
@@ -18,7 +19,9 @@ type ISurface = AutoMovieHumanBodySurface.IOutput;
  * person built stage by stage along the public path `AutoMovieHuman` takes,
  * the body law, the skin with the lips' refinement box, and the oral cavity's
  * rim, each stage's outcome kept, so a failure names its stage, its message
- * and the person's inputs that lie outside the passing people's range.
+ * and the person's inputs that lie outside the passing people's range; then
+ * the whole figure's diagnostics (`AutoMovieHuman.diagnose`), each a piece
+ * whose contract broke and was replaced by its base.
  *
  * The rim is read in the rim's own terms (`AutoMovieHumanOralCavity.rim`):
  * the skin's open edges whose two ends lie on the mouth's outline, or on a
@@ -34,7 +37,7 @@ export namespace HumanUniversality {
     person: string;
 
     /** The first stage that threw, or null when every stage passed. */
-    failed: "body law" | "skin" | "oral rim" | null;
+    failed: "body law" | "skin" | "oral rim" | "figure" | null;
 
     /** The thrown message, or empty. */
     message: string;
@@ -44,37 +47,78 @@ export namespace HumanUniversality {
 
     /** The rim's components and the seam's measures, when the skin was built. */
     rim: string[];
+
+    /**
+     * The contracts the figure's optional pieces broke (`AutoMovieHuman.diagnose`:
+     * the calibration's, the mouth's and the appearance's), each one line:
+     * producer, level, contract and detail.
+     */
+    diagnostics: string[];
   }
 
-  /** One person built once per process. */
+  /**
+   * Whether a person fails the gate: a stage threw, a ring left the standing
+   * box, or a piece recorded a broken contract (totality,
+   * `construction-levels.md`).
+   */
+  export function fails(p: IPerson): boolean {
+    return p.failed !== null || p.flung.length !== 0 || p.diagnostics.length !== 0;
+  }
+
+  /** One diagnostic as one line of findings. */
+  export function line(d: AutoMovieHumanLoftContract.IDiagnostic): string {
+    return `${d.producer} (level ${d.level}) ${d.contract}: ${d.detail}`;
+  }
+
+  /** One person built by this call. */
   export function person(name: string): IPerson {
-    return people.read(name, (): IPerson => {
-      const params: IAutoMovieHumanParameters = HumanPeople.params(name);
-      let law: AutoMovieHumanBodyLaw.IOutput;
-      try {
-        law = AutoMovieHumanBodyLaw.calibrate(params);
-      } catch (error) {
-        return { person: name, failed: "body law", message: (error as Error).message, flung: [], rim: [] };
-      }
-      const flung: HumanAnatomyAudit.IRow[] = law.body.chains
-        .filter((c: IAutoMovieHumanLoftChain): boolean => HumanCurveCollapse.CHAINS.test(c.name))
-        .map((c: IAutoMovieHumanLoftChain, k: number): HumanAnatomyAudit.IRow => HumanCurveCollapse.boxed(name, law.body.stature, c, k))
-        .filter((r: HumanAnatomyAudit.IRow): boolean => r.value > 0);
-      let surface: ISurface;
-      try {
-        surface = AutoMovieHumanBodySurface.generate(law.body, [lipsBox(law)]);
-      } catch (error) {
-        return { person: name, failed: "skin", message: (error as Error).message, flung, rim: [] };
-      }
-      const opening: IAutoMovieHumanLoftAperture | undefined = law.body.apertures.find((a: IAutoMovieHumanLoftAperture): boolean => a.name === "mouth");
-      const rim: string[] = opening === undefined ? ["no mouth aperture"] : components(surface, opening, law);
-      try {
-        if (opening !== undefined) AutoMovieHumanOralCavity.rim(surface.mesh, opening);
-      } catch (error) {
-        return { person: name, failed: "oral rim", message: (error as Error).message, flung, rim };
-      }
-      return { person: name, failed: null, message: "", flung, rim };
-    });
+    return build(name, HumanPeople.params(name));
+  }
+
+  /**
+   * One person built from given inputs, uncached: a sampled person the people
+   * table does not hold.
+   *
+   * @param name Name in findings.
+   * @param params The person's public inputs.
+   */
+  export function build(name: string, params: IAutoMovieHumanParameters): IPerson {
+    let law: AutoMovieHumanBodyLaw.IOutput;
+    try {
+      law = AutoMovieHumanBodyLaw.calibrate(params);
+    } catch (error) {
+      return { person: name, failed: "body law", message: (error as Error).message, flung: [], rim: [], diagnostics: [] };
+    }
+    const flung: HumanAnatomyAudit.IRow[] = law.body.chains
+      .filter((c: IAutoMovieHumanLoftChain): boolean => HumanCurveCollapse.CHAINS.test(c.name))
+      .map((c: IAutoMovieHumanLoftChain, k: number): HumanAnatomyAudit.IRow => HumanCurveCollapse.boxed(name, law.body.stature, c, k))
+      .filter((r: HumanAnatomyAudit.IRow): boolean => r.value > 0);
+    let surface: ISurface;
+    try {
+      surface = AutoMovieHumanBodySurface.generate(law.body, [lipsBox(law)]);
+    } catch (error) {
+      return { person: name, failed: "skin", message: (error as Error).message, flung, rim: [], diagnostics: [] };
+    }
+    const opening: IAutoMovieHumanLoftAperture | undefined = law.body.apertures.find((a: IAutoMovieHumanLoftAperture): boolean => a.name === "mouth");
+    const rim: string[] = opening === undefined ? ["no mouth aperture"] : components(surface, opening, law);
+
+    // The rim's contract, which the public path records as the mouth's
+    // diagnostic instead of throwing; the throw here names the stage.
+    let message: string = "";
+    try {
+      if (opening !== undefined) AutoMovieHumanOralCavity.rim(surface.mesh, opening);
+    } catch (error) {
+      message = (error as Error).message;
+    }
+
+    // The whole figure along the public path, every recorded diagnostic.
+    let diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+    try {
+      diagnostics = AutoMovieHuman.diagnose(params);
+    } catch (error) {
+      return { person: name, failed: "figure", message: (error as Error).message, flung, rim, diagnostics: [] };
+    }
+    return { person: name, failed: message === "" ? null : "oral rim", message, flung, rim, diagnostics: diagnostics.map(line) };
   }
 
   /** The box 3 mm round the lips' boundary that `AutoMovieHuman` refines the skin in. */
@@ -157,5 +201,3 @@ export namespace HumanUniversality {
   }
 }
 
-/** Every person's stages, built once per process. */
-const people: HumanOnce<HumanUniversality.IPerson> = new HumanOnce();

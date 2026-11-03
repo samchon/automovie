@@ -1,4 +1,3 @@
-import { Singleton } from "tstl";
 
 import type { HumanReference } from "./HumanReference";
 import { HumanReferenceFiles } from "./HumanReferenceFiles";
@@ -6,7 +5,7 @@ import { HumanReferenceMeshSingleton } from "./HumanReferenceMeshSingleton";
 
 /**
  * For each reference body, the raw vertex behind every welded vertex, found
- * once per process and shared by the surface and the layer comparisons.
+ * by each call for the surface and the layer comparisons.
  *
  * The population bodies are not welded, so a welded vertex of a reference
  * finds its row in them through this map. It repeats the weld
@@ -24,17 +23,9 @@ export namespace HumanReferenceRawOrderSingleton {
    * @throws Error when the weld disagrees with the welded mesh.
    */
   export function get(id: string): Int32Array {
-    let found: Singleton<Int32Array> | undefined = cache.get(id);
-
-    if (found === undefined) {
-      found = new Singleton((): Int32Array => build(id));
-      cache.set(id, found);
-    }
-    return found.get();
+    return build(id);
   }
 
-  /** One singleton per reference alias. */
-  const cache: Map<string, Singleton<Int32Array>> = new Map();
 
   /**
    * Repeat the weld and check it against the welded mesh.

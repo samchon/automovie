@@ -1,6 +1,6 @@
+import { HumanInputs } from "./HumanInputs";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import { HUMAN_DEBUG_POSES as HUMAN_STICKMAN_POSES } from "../../../../packages/human/debug/poses/HUMAN_DEBUG_POSES";
-import { HumanPeople } from "./HumanPeople";
 import { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
@@ -17,11 +17,15 @@ export namespace HumanAnatomyPose {
    * at the axillae, elbows, groin and knees beyond a stated depth, no skin
    * stretched past its failure strain or folded over, the arms clear of the
    * trunk at neutral, and a flexed limb keeping its volume.
+   *
+   * @param subject A generated subject, whose views hold its bind and posed skins.
+   * @param posed The subject's skin under a pose; a made one in the red proof.
    */
-  export function pose(name: string): IRow[] {
+  export function pose(subject: HumanAnatomyAudit.ISubject, posed: (request: IAutoMovieHumanPose) => HumanAnatomy.ISkin = (request: IAutoMovieHumanPose): HumanAnatomy.ISkin => subject.posed!(request)): IRow[] {
+    const name: string = subject.name;
     const rows: IRow[] = [];
-    const rest: HumanAnatomy.ISkin = A.bind(name);
-    const S: number = HumanPeople.person(name).params.body.controls.height.value!;
+    const rest: HumanAnatomy.ISkin = subject.bind();
+    const S: number = HumanInputs.stature(subject.params);
     const regions: [string, string, number][] = [];
     for (const side of SIDES) {
       regions.push([`${side} axilla`, `${side}UpperArm`, 0.07 * S]);
@@ -36,7 +40,7 @@ export namespace HumanAnatomyPose {
       }),
     );
     for (const [label, request] of Object.entries(POSES)) {
-      const skin: HumanAnatomy.ISkin = A.posed(name, request);
+      const skin: HumanAnatomy.ISkin = posed(request);
       for (const [region] of regions) {
         const t: Uint32Array = tris.get(region)!;
         const deep = A.penetration(skin, t);
@@ -54,9 +58,9 @@ export namespace HumanAnatomyPose {
       }
     }
     // Volume of the limbs under full flexion against their volume at neutral.
-    const neutral: number = A.volume(A.posed(name, {}));
+    const neutral: number = A.volume(posed({}));
     for (const [label, request, limbs] of FLEXION) {
-      const change: number = A.volume(A.posed(name, request)) - neutral;
+      const change: number = A.volume(posed(request)) - neutral;
       const own: number = limbs.reduce((sum: number, limb: string): number => sum + limbVolume(rest, limb), 0);
       rows.push({
         person: name,

@@ -1,3 +1,4 @@
+import { HumanInputs } from "../../../internal/HumanInputs";
 import { HumanAnatomy } from "../../../internal/HumanAnatomy";
 import { HumanAnatomyAudit } from "../../../internal/HumanAnatomyAudit";
 import { HumanAnatomyShared } from "../../../internal/HumanAnatomyShared";
@@ -20,7 +21,7 @@ type IRow = HumanAnatomyAudit.IRow;
  * @evidence contracts/testing.md#behavioral-verification Generates each person's bind skin and reads its girths at their sites with the region audits' own locators (`HumanAnatomyTrunk.trunkSites` and `neckSites`, `HumanAnatomyArm.armSites`, `HumanAnatomyLeg.legSites`, `HumanAnatomyHand.handSites` at the neutral): chest at the bust point, underbust at the inframammary fold, natural waist, high hip, hip at the buttocks' prominence, neck, neck base, and per side upper arm, elbow, forearm, wrist, thigh, mid-patella knee, calf and hand circumference. For every pair of tapes whose inputs differ by more than the sum of their two allowable errors, it reads the generated girth of the larger input less that of the smaller, which must be positive. It catches a construction that swaps, flattens or crosses two tapes, such as a chest narrower than its waist on a person whose inputs say otherwise, a thigh no wider than its knee, a wrist wider than its forearm, whatever the absolute sizes.
  * @evidence contracts/testing.md#independent-expectations The expectation is the person's own inputs: the order of two tapes is the order of their inputs, and a pair whose inputs differ by no more than the sum of their ISO 20685-1:2018 Table 4 errors (9 mm for the trunk's and the thigh's large circumferences, 4 mm for the others) is not resolved by the tapes and is not read. The inputs themselves are bounded by the population in `test_human_people` (ANSUR 1988 chest over natural waist 1.253, SD 0.055, in women; 1.183, SD 0.050, in men). No construction constant or reference shape enters. Proven red here: f1's chest narrowed to 0.65 of its girth by a Gaussian band of 40 mm about its bust height, scaling the trunk and shoulder skin about the spine's joint line, reads its chest about 0.35 of 857 mm smaller while the waist 170 mm lower is untouched, so chest less waist turns from positive to a finite negative value. Oracle limits: the sites are the region audits' own, so a misplaced site moves both its identity row and its order rows; the hand circumference is read at the neutral, the other girths at the bind.
  * @evidence contracts/testing.md#distinguishing-cases The core set's four references and six population ends, whose inputs order their tapes differently (a heavy person's waist near her chest, a calf larger or smaller than its knee), so both orders of the near pairs are read and the unresolved pairs are left out. Each tape's value against its own input belongs to `test_human_anatomy_trunk`, `_arm`, `_leg` and `_hand`; this test owns only the relations between tapes.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curves_region_order`, generating the cached people's bind and neutral skins in process on the CPU with no renderer, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curves_region_order`, generating each person's bind and neutral skins in process on the CPU with no renderer, browser or GPU.
  */
 export function test_human_curves_region_order(): void {
   const failures: string[] = [...made()];
@@ -40,7 +41,7 @@ export function test_human_curves_region_order(): void {
 function made(): string[] {
   const base: HumanAnatomyAudit.ISubject = HumanAnatomyAudit.subject("f1");
   const skin: HumanAnatomy.ISkin = base.bind();
-  const S: number = base.params.body.controls.height.value!;
+  const S: number = HumanInputs.stature(base.params);
   const chest: number = HumanAnatomyTrunk.trunkSites(skin, S).heights.chest;
 
   // The trunk's and shoulders' vertices, scaled toward the spine's joint line

@@ -4,8 +4,7 @@ import { AutoMovieHumanArmBones } from "../../../../../packages/human/src/genera
 import { AutoMovieHumanArmGirth } from "../../../../../packages/human/src/generation/arm/AutoMovieHumanArmGirth";
 import { AutoMovieHumanArmPieces } from "../../../../../packages/human/src/generation/arm/AutoMovieHumanArmPieces";
 import type { IAutoMovieHumanArmPiece } from "../../../../../packages/human/src/generation/arm/IAutoMovieHumanArmPiece";
-import type { IAutoMovieHumanBodyControls } from "../../../../../packages/human/src/structures/body/IAutoMovieHumanBodyControls";
-import { HumanOnce } from "../HumanOnce";
+import type { IAutoMovieHumanBodyAnatomy } from "../../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
 import { HumanPeople } from "../HumanPeople";
 
 /**
@@ -49,7 +48,7 @@ export namespace HumanArmPieces {
 
   /** One person's arm pieces, built on first use. */
   export function of(person: string): IPieces {
-    return cache.read(person, (): IPieces => build(person));
+    return build(person);
   }
 
   /** Every person of the run's arm pieces. */
@@ -58,20 +57,18 @@ export namespace HumanArmPieces {
   }
 }
 
-/** One build per person. */
-const cache: HumanOnce<HumanArmPieces.IPieces> = new HumanOnce();
 
 /** A person's arm pieces from their public inputs. */
 function build(person: string): HumanArmPieces.IPieces {
-  const c: IAutoMovieHumanBodyControls = HumanPeople.params(person).body.controls;
+  const c: IAutoMovieHumanBodyAnatomy = HumanPeople.params(person).body.anatomy;
   const prior: typeof AutoMovieHumanArmPrior.PRIOR = AutoMovieHumanArmPrior.PRIOR;
   const unit: (v: readonly number[]) => [number, number, number] = (v: readonly number[]): [number, number, number] => {
     const l: number = Math.hypot(v[0]!, v[1]!, v[2]!);
     return [v[0]! / l, v[1]! / l, v[2]! / l];
   };
-  const tapes: IAutoMovieHumanArmPiece.ITapes = { bicep: c.bicep.value!, elbow: c.elbow.value!, forearm: c.forearm.value!, wrist: c.wrist.value! };
-  const ar: number = c.upperArmLength.value!;
-  const rs: number = c.lowerArmLength.value!;
+  const tapes: IAutoMovieHumanArmPiece.ITapes = { bicep: c.upperArmCircumference!, elbow: c.elbowCircumference!, forearm: c.forearmCircumference!, wrist: c.wristCircumference! };
+  const ar: number = c.upperArmLength!;
+  const rs: number = c.forearmLength!;
   const bones: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place([0, 0, 0], unit(prior.arm.upper), unit(prior.arm.lower), ar, rs);
   const axis: AutoMovieHumanArmAxis.IAxis = AutoMovieHumanArmAxis.walk(bones, (prior.arm.softness * tapes.elbow) / (2 * Math.PI));
   const spans: IAutoMovieHumanArmPiece[] = AutoMovieHumanArmPieces.build(AutoMovieHumanArmPieces.inputs(bones, axis, tapes));

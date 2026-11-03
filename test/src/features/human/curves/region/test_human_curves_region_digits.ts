@@ -32,8 +32,9 @@ export function test_human_curves_region_digits(): void {
   const failures: string[] = [...made()];
   for (const name of HumanPeople.names()) {
     try {
-      const body: IAutoMovieHumanBodyCalibration = HumanPeople.person(name).body;
-      const read: (chain: string) => HumanCurveRings.IProfile = (chain: string): HumanCurveRings.IProfile => HumanCurveRings.profile(name, chain);
+      const p: HumanPeople.IPerson = HumanPeople.person(name);
+      const body: IAutoMovieHumanBodyCalibration = p.body;
+      const read: (chain: string) => HumanCurveRings.IProfile = (chain: string): HumanCurveRings.IProfile => HumanCurveRings.profile(p, chain);
       for (const r of [...HumanCurveDigitOrder.rows(name, HumanCurveJoints.of(name, {})), ...HumanCurveDigitGirth.rows(name, body, read)])
         if (!HumanAnatomyAudit.passes(r)) failures.push(`${r.person.padEnd(14)} ${r.site}: ${r.value.toFixed(2)} ${r.unit}, at least ${r.low.toFixed(2)}`);
     } catch (error) {

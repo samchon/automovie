@@ -20,12 +20,16 @@ type IProfile = HumanCurveFootBreadth.IProfile;
  * @evidence contracts/testing.md#behavioral-verification Generates each person's skin at the anatomical neutral (the pose the foot audit reads, `HumanAnatomy.posed` with no joint moved) and cuts each foot's skin (its foot, forefoot and toe chains) by planes across the foot axis every 2.5 percent of foot length from the rearmost skin point (`HumanAnatomyFoot.footSites`), reading each section's extent across the axis. It catches a heel as wide as the forefoot, a foot widest at the toes or the midfoot, a waist or a bulge along the foot's border, and a forefoot that splays and closes again.
  * @evidence contracts/testing.md#independent-expectations The foot breadth is defined across the metatarsal heads (ANSUR II, ISO 8559-1), the first head standing at 0.739 and 0.741 of foot length (ANSUR II ball-of-foot length, women and men) and the fifth behind it on the oblique metatarsal line, so the widest section lies within 0.6 to 0.8; Gray 1918 gives the narrow heel and the forefoot spread over the heads. Each run is monotone within ISO 20685-1:2018 Table 4's 2 mm for foot dimensions. No construction constant or reference enters. Proven red here on f1's own profile, edited in memory: a section cut 3 mm below both neighbours reads at least 3 mm more excess (excess variation is twice a reversal, less any reversal the section already had), a heel widened past the forefoot moves the widest section to the heel. Oracle limits: the neutral foot is read standing on the floor; the toes' gaps are inside a section's extent, so the forefoot's spread is read, not each toe's.
  * @evidence contracts/testing.md#distinguishing-cases Both feet of the core set's ten people, short and long feet of both sexes. The dorsum, arch and toe order belong to `HumanAnatomyFootProfile` (`test_human_anatomy_foot`); the foot's own pieces to the part tester's `test_human_foot_piece_*`.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curves_region_foot_breadth`, generating the cached people's neutral skin in process on the CPU with no renderer, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curves_region_foot_breadth`, generating each person's neutral skin in process on the CPU with no renderer, browser or GPU.
  */
 export function test_human_curves_region_foot_breadth(): void {
   const failures: string[] = [];
+  // Each person's neutral skin, posed once for both feet and dropped with the
+  // next person.
+  let held: { person: string; skin: HumanAnatomy.ISkin } | undefined;
   const read: (person: string, side: "left" | "right") => IProfile = (person: string, side: "left" | "right"): IProfile => {
-    const skin: HumanAnatomy.ISkin = HumanAnatomy.posed(person, {});
+    if (held?.person !== person) held = { person, skin: HumanAnatomy.posed(person, {}) };
+    const skin: HumanAnatomy.ISkin = held.skin;
     return HumanCurveFootBreadth.profile(skin, side, HumanAnatomyFoot.footSites(skin, side));
   };
   const row: (p: IProfile, prefix: string) => IRow = (p: IProfile, prefix: string): IRow =>

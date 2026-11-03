@@ -1,3 +1,4 @@
+import { HumanInputs } from "../../../internal/HumanInputs";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanLoftChain } from "../../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import { HumanCurveProfile } from "../../../internal/curves/HumanCurveProfile";
@@ -26,7 +27,7 @@ type IRow = HumanAnatomyAudit.IRow;
  * @evidence contracts/testing.md#behavioral-verification Generates each person through the public body law and evaluates its delivered `leg.left` and `leg.right` chains by `AutoMovieHumanLoftChain.ring` at every station 2 mm apart, layers and mid-sections alike, reading each section's taut-tape girth (the perimeter of its hull in its own Newell plane, 192 phases) and centre; the crotch is the chain's top ring, the knee and ankle levels the bind skeleton's joint centres, and the thigh (widest from 10 mm to 0.1 S under the crotch), mid-patella (widest within 20 mm below the knee centre), calf belly (widest within 0.15 to 0.6 of the shank below the knee), infrapatellar waist and least ankle the profile's own extremes in those windows. It reads thigh over knee, least ankle over calf, the least ankle's depth as a share of the shank, the excess variation and inflections of the calf's fall to the least ankle, the excess of the rise from the infrapatellar waist to the calf, the interior turns from the knee to the thigh, and the excess from the thigh's widest to the crotch ring, and the thigh's girth over the hip's (the `trunk` chain's widest girth from the crotch ring to 0.62 S; ANSUR 1988 thigh over hip 0.600 and 0.606, SD 0.020, 3 SD band 0.540 to 0.666). It catches a thigh with no mass above the knee, a swollen ankle, an ankle narrowest at mid-shank, a wobble or ridge from calf to ankle, a second calf belly, a bulge on the thigh's taper, and a dip under the crotch, each named by side and rule.
  * @evidence contracts/testing.md#independent-expectations Expectations are the person's intrinsic leg profile (`packages/human/docs/testing/consistency.md` section 3.1) and cited anatomy, never a reference shape or a construction constant: ANSUR 1988 knee over thigh 0.631 (SD 0.029), so the thigh always outgirths the knee; ANSUR II least ankle over calf 0.578 and 0.585, 2.326 SD band 0.439 to 0.719; the calf one gastrocnemius belly whose tendon begins about mid-calf (Gray 1918), so the fall is one monotone run with at most one inflection; the least ankle above the malleoli, 0.75 to 0.97 of the shank. The noise floor is ISO 20685-1:2018 Table 4's small-circumference error, 4 mm (9 mm at the thigh's top, a large circumference); excess variation reads 2a for a reversal of a, and an inflection counts where the second difference over a tenth of the shank exceeds `8 e / w^2`, a parabola rising e over that chord. Proven here: the analytic readings of scenario 1 are exact; the made copies move the girth at the edited layers by exactly the edit's factor (1.07 and 0.93 within 1e-6) and turn their own rows red. Oracle limits: the knee and ankle levels come from the construction's bind skeleton, so a misplaced joint moves its windows with it; the profile reads horizontal-standing sections only as far as the chain's own planes are horizontal; mid-patella is the widest section near the knee centre, not a palpated patella.
  * @evidence contracts/testing.md#distinguishing-cases Both legs of the core set (four references and six population ends: small and large, tall-light and short-heavy, both sexes), so a thin and a heavy thigh, a short and a long shank, a calf larger or smaller than its knee (calf over knee 0.966, SD 0.041, either order human) are each read. Knee against calf order follows the inputs and is not read here; the skin girths at the tapes' sites belong to `test_human_anatomy_leg`, surface soundness to `test_human_curve_leg`, and the leg's pieces, once the leg is announced divided, to the part tester.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curves_profile_leg`, generating the cached people in process on the CPU (body law only, no skin, rig, browser or GPU); profiles are sampled once per person and chain through `HumanCurveRings.profile`.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curves_profile_leg`, generating its people in process on the CPU (body law only, no skin, rig, browser or GPU); profiles are sampled once per person and chain through `HumanCurveRings.profile`.
  */
 export function test_human_curves_profile_leg(): void {
   const failures: string[] = [...controls(), ...made()];
@@ -35,8 +36,8 @@ export function test_human_curves_profile_leg(): void {
   for (const name of HumanPeople.names()) {
     try {
       const p: HumanPeople.IPerson = HumanPeople.person(name);
-      const rows: IRow[] = HumanCurveProfileLeg.rows(name, p.body, p.params.body.controls.height.value!, HumanCurveRings.scale(p), (chain: string): HumanCurveRings.IProfile =>
-        HumanCurveRings.profile(name, chain),
+      const rows: IRow[] = HumanCurveProfileLeg.rows(name, p.body, HumanInputs.stature(p.params), HumanCurveRings.scale(p), (chain: string): HumanCurveRings.IProfile =>
+        HumanCurveRings.profile(p, chain),
       );
       for (const r of rows) if (!HumanAnatomyAudit.passes(r)) failures.push(format(r));
     } catch (error) {
@@ -72,7 +73,7 @@ function made(): string[] {
   const out: string[] = [];
   const p: HumanPeople.IPerson = HumanPeople.person("f1");
   const k: number = HumanCurveRings.scale(p);
-  const S: number = p.params.body.controls.height.value!;
+  const S: number = HumanInputs.stature(p.params);
   const leg: IAutoMovieHumanLoftChain = p.body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "leg.left")!;
   const joint: (bone: string) => number = (bone: string): number => p.body.skeleton!.find((b: { bone: string }): boolean => b.bone === bone)!.position[1];
   const knee: number = joint("leftLowerLeg");

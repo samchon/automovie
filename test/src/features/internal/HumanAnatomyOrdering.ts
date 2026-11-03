@@ -1,3 +1,4 @@
+import { AutoMovieHumanSex } from "../../../../packages/human/src/typings/AutoMovieHumanSex";
 import { HumanAnatomy } from "./HumanAnatomy";
 import { HumanAnatomyArm } from "./HumanAnatomyArm";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
@@ -52,8 +53,8 @@ export namespace HumanAnatomyOrdering {
    */
   export function ordering(subject: ISubject): IRow[] {
     const name: string = subject.name;
-    const c: ISubject["params"]["body"]["controls"] = subject.params.body.controls;
-    const S: number = c.height.value!;
+    const c: ISubject["params"]["body"]["anatomy"] = subject.params.body.anatomy;
+    const S: number = c.stature!;
     const skin: HumanAnatomy.ISkin = subject.bind();
     const t: HumanAnatomyShared.ITrunk = HumanAnatomyTrunk.trunkSites(skin, S);
     const neck: HumanAnatomyShared.INeck = HumanAnatomyCourse.neckSites(skin, S);
@@ -81,7 +82,7 @@ export namespace HumanAnatomyOrdering {
     // A woman's bust stands over the fold under it, which stands over the
     // waist. A man's chest point is the nipple, which the modelled skin
     // leaves out, so his bust and fold are not located.
-    if ((c.masculineFeminine.value ?? 0) > 0) {
+    if ((c.sex ?? AutoMovieHumanSex.Female) === AutoMovieHumanSex.Female) {
       above("bust point above the inframammary fold, mm", t.heights.chest, t.heights.underbust);
       above("inframammary fold above the waist, mm", t.heights.underbust, t.heights.waist);
     }

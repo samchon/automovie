@@ -1,4 +1,5 @@
-import type { IAutoMovieHumanBodyControls } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyControls";
+import type { IAutoMovieHumanBodyMeasures } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyMeasures";
+import type { IAutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { HumanPopulationAccess } from "./HumanPopulationAccess";
 import { HumanPopulationConditional } from "./HumanPopulationConditional";
@@ -9,15 +10,15 @@ type Sex = HumanPopulationSurvey.Sex;
 type Variable = HumanPopulationSurvey.Variable;
 
 /**
- * How a body control reads from the survey: directly where the survey measures
+ * How a body measure reads from the survey: directly where the survey measures
  * its definition, through an anchor where it does not.
  */
 export namespace HumanPopulationAnchors {
-  /** A body control the survey measures by its definition. */
-  export type Direct = readonly [keyof IAutoMovieHumanBodyControls, Variable];
+  /** A body measure the survey measures by its definition. */
+  export type Direct = readonly [Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">, Variable];
 
-  /** A body control the survey does not measure by its definition. */
-  export type Anchored = "frontInterscyeLength" | "neckToWaist" | "acrossShoulder" | "highHip" | "bicep" | "forearm" | "inseam" | "neckLength";
+  /** A body measure the survey does not measure by its definition. */
+  export type Anchored = "backNeckToWaist" | "acrossBackShoulderWidth" | "highHipCircumference" | "upperArmCircumference" | "forearmCircumference" | "inseam";
 
   /** An anchored head, ear or hand input. */
   export type Part = "earBreadth" | "thumbLength" | "vertexToNasion";
@@ -39,64 +40,56 @@ export namespace HumanPopulationAnchors {
     read: (p: P) => number;
   }
 
-  /** Body controls whose definition the survey measures: the control and its measure. */
+  /** Body measures whose definition the survey measures: the field and its measure. */
   export const DIRECT: readonly Direct[] = [
-    ["height", "stature"],
-    ["chest", "chest"],
-    ["bustSpan", "bustSpan"],
-    ["underbust", "underbust"],
-    ["shoulderToApex", "neckToBustPoint"],
-    ["waist", "waist"],
-    ["hip", "buttock"],
-    ["neckBase", "neckBase"],
-    ["neck", "neck"],
+    ["stature", "stature"],
+    ["chestCircumference", "chest"],
+    ["bustPointWidth", "bustSpan"],
+    ["underbustCircumference", "underbust"],
+    ["sideNeckToBustPoint", "neckToBustPoint"],
+    ["waistCircumference", "waist"],
+    ["hipCircumference", "buttock"],
+    ["neckBaseCircumference", "neckBase"],
+    ["neckCircumference", "neck"],
     ["upperArmLength", "acromionRadiale"],
-    ["lowerArmLength", "radialeStylion"],
-    ["elbow", "elbow"],
-    ["wrist", "wrist"],
-    ["thigh", "thigh"],
-    ["knee", "knee"],
-    ["calf", "calf"],
+    ["forearmLength", "radialeStylion"],
+    ["elbowCircumference", "elbow"],
+    ["wristCircumference", "wrist"],
+    ["thighCircumference", "thigh"],
+    ["kneeCircumference", "knee"],
+    ["calfCircumference", "calf"],
     ["handCircumference", "handCircumference"],
   ];
 
-  /** Body controls carried by an anchor. */
+  /** Body measures carried by an anchor. */
   export const ANCHORED: readonly Anchored[] = [
-    "frontInterscyeLength",
-    "neckToWaist",
-    "acrossShoulder",
-    "highHip",
-    "bicep",
-    "forearm",
+    "backNeckToWaist",
+    "acrossBackShoulderWidth",
+    "highHipCircumference",
+    "upperArmCircumference",
+    "forearmCircumference",
     "inseam",
-    "neckLength",
   ];
 
   /** Each anchored course and its carrier. */
   export const ANCHORS: Record<Anchored | Part, IAnchor> = {
-    // Front interscye over the back interscye (INTRSCY_DIST).
-    frontInterscyeLength: { proxy: "interscye", given: ["stature", "chest"], read: (p: P): number => HumanPopulationAccess.controls(p).frontInterscyeLength.value! },
-
     // Neck to waist over the natural waist back length (cervicale to waist).
-    neckToWaist: { proxy: "waistBackLength", given: ["stature"], read: (p: P): number => HumanPopulationAccess.controls(p).neckToWaist.value! },
+    backNeckToWaist: { proxy: "waistBackLength", given: ["stature"], read: (p: P): number => HumanPopulationAccess.measures(p).backNeckToWaist },
 
     // Across shoulder over the biacromial breadth.
-    acrossShoulder: { proxy: "biacromial", given: ["stature", "chest"], read: (p: P): number => HumanPopulationAccess.controls(p).acrossShoulder.value! },
+    acrossBackShoulderWidth: { proxy: "biacromial", given: ["stature", "chest"], read: (p: P): number => HumanPopulationAccess.measures(p).acrossBackShoulderWidth },
 
     // High hip over the omphalion girth, the survey's girth between waist and hip.
-    highHip: { proxy: "omphalionWaist", given: ["waist", "buttock"], read: (p: P): number => HumanPopulationAccess.controls(p).highHip.value! },
+    highHipCircumference: { proxy: "omphalionWaist", given: ["waist", "buttock"], read: (p: P): number => HumanPopulationAccess.measures(p).highHipCircumference },
 
     // Relaxed upper-arm girth over the flexed biceps girth.
-    bicep: { proxy: "bicepsFlexed", given: ["elbow", "wrist", "chest"], read: (p: P): number => HumanPopulationAccess.controls(p).bicep.value! },
+    upperArmCircumference: { proxy: "bicepsFlexed", given: ["elbow", "wrist", "chest"], read: (p: P): number => HumanPopulationAccess.measures(p).upperArmCircumference },
 
     // Relaxed forearm girth over the flexed forearm girth.
-    forearm: { proxy: "forearmFlexed", given: ["elbow", "wrist"], read: (p: P): number => HumanPopulationAccess.controls(p).forearm.value! },
+    forearmCircumference: { proxy: "forearmFlexed", given: ["elbow", "wrist"], read: (p: P): number => HumanPopulationAccess.measures(p).forearmCircumference },
 
     // Inseam course over crotch height.
-    inseam: { proxy: "crotchHeight", given: ["stature"], read: (p: P): number => HumanPopulationAccess.controls(p).inseam.value! },
-
-    // Neck length over stature.
-    neckLength: { proxy: "stature", given: ["stature"], read: (p: P): number => HumanPopulationAccess.controls(p).neckLength.value! },
+    inseam: { proxy: "crotchHeight", given: ["stature"], read: (p: P): number => HumanPopulationAccess.measures(p).inseam },
 
     // The ear's breadth from otobasion superius over the survey's ear breadth.
     earBreadth: { proxy: "earBreadth", given: ["earLength"], read: (p: P): number => (p.head.earPair.left.breadth + p.head.earPair.right.breadth) / 2 },
@@ -140,14 +133,14 @@ export namespace HumanPopulationAnchors {
    * @returns The input that stands for the measure.
    */
   function surveyed(p: P, v: Variable): number {
-    const k: IAutoMovieHumanBodyControls = HumanPopulationAccess.controls(p);
+    const k: IAutoMovieHumanBodyMeasures = HumanPopulationAccess.measures(p);
     const table: Partial<Record<Variable, () => number>> = {
-      stature: (): number => k.height.value!,
-      chest: (): number => k.chest.value!,
-      waist: (): number => k.waist.value!,
-      buttock: (): number => k.hip.value!,
-      elbow: (): number => k.elbow.value!,
-      wrist: (): number => k.wrist.value!,
+      stature: (): number => k.stature,
+      chest: (): number => k.chestCircumference,
+      waist: (): number => k.waistCircumference,
+      buttock: (): number => k.hipCircumference,
+      elbow: (): number => k.elbowCircumference,
+      wrist: (): number => k.wristCircumference,
       earLength: (): number => (p.head.earPair.left.length + p.head.earPair.right.length) / 2,
       handLength: (): number => HumanPopulationAccess.hands(p)[0]!.handLength,
       headLength: (): number => p.head.length,

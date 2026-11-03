@@ -1,3 +1,4 @@
+import { HumanInputs } from "./HumanInputs";
 import { HumanAnatomy } from "./HumanAnatomy";
 import { HumanAnatomyArm } from "./HumanAnatomyArm";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
@@ -6,6 +7,7 @@ import { HumanAnatomyFoot } from "./HumanAnatomyFoot";
 import { HumanAnatomyHand } from "./HumanAnatomyHand";
 import { HumanAnatomyHead } from "./HumanAnatomyHead";
 import { HumanAnatomyLeg } from "./HumanAnatomyLeg";
+import { HumanAnatomyLegFold } from "./HumanAnatomyLegFold";
 import { HumanAnatomyShared } from "./HumanAnatomyShared";
 import { HumanAnatomyTrunk } from "./HumanAnatomyTrunk";
 
@@ -21,7 +23,7 @@ export namespace HumanInputResponseReadings {
   export type IReadings = Record<string, number>;
 
   /** A group of readings that share their sites and their observer. */
-  export type Group = "stature" | "trunk" | "course" | "arm" | "leg" | "hand" | "foot" | "head";
+  export type Group = "stature" | "trunk" | "course" | "arm" | "leg" | "fold" | "hand" | "foot" | "head";
 
   /**
    * Every reading of the named groups on one subject.
@@ -64,14 +66,14 @@ const GROUPS: Record<HumanInputResponseReadings.Group, (s: HumanAnatomyAudit.ISu
   stature: (s: HumanAnatomyAudit.ISubject): HumanInputResponseReadings.IReadings => ({ stature: HumanAnatomyLeg.vertexHeight(s.bind()) }),
 
   trunk: (s: HumanAnatomyAudit.ISubject): HumanInputResponseReadings.IReadings => {
-    const S: number = s.params.body.controls.height.value!;
+    const S: number = HumanInputs.stature(s.params);
     const t: HumanAnatomyShared.ITrunk = HumanAnatomyTrunk.trunkSites(s.bind(), S);
     const n: HumanAnatomyShared.INeck = HumanAnatomyCourse.neckSites(s.bind(), S);
     return { chest: t.chest.girth, underbust: t.underbust.girth, waist: t.waist.girth, highHip: t.highHip.girth, hip: t.hip.girth, neck: n.neck, neckBase: n.base };
   },
 
   course: (s: HumanAnatomyAudit.ISubject): HumanInputResponseReadings.IReadings => {
-    const k: HumanAnatomyCourse.ICourse = HumanAnatomyCourse.courseSites(s.bind(), s.params.body.controls.height.value!);
+    const k: HumanAnatomyCourse.ICourse = HumanAnatomyCourse.courseSites(s.bind(), HumanInputs.stature(s.params));
     const out: HumanInputResponseReadings.IReadings = {
       bustSpan: k.bustPointWidth,
       acrossShoulder: k.acrossShoulder,
@@ -100,7 +102,7 @@ const GROUPS: Record<HumanInputResponseReadings.Group, (s: HumanAnatomyAudit.ISu
   leg: (s: HumanAnatomyAudit.ISubject): HumanInputResponseReadings.IReadings => {
     const skin: HumanAnatomy.ISkin = s.bind();
     const levels: HumanAnatomyLeg.ILevels = {
-      crotch: HumanAnatomyLeg.crotchHeight(skin, s.params.body.controls.height.value!),
+      crotch: HumanAnatomyLeg.crotchHeight(skin, HumanInputs.stature(s.params)),
       vertex: HumanAnatomyLeg.vertexHeight(skin),
     };
     const out: HumanInputResponseReadings.IReadings = {};
@@ -109,6 +111,17 @@ const GROUPS: Record<HumanInputResponseReadings.Group, (s: HumanAnatomyAudit.ISu
       const l: HumanAnatomyShared.ILeg = HumanAnatomyLeg.legSites(skin, side, levels);
       Object.assign(out, { [`thigh ${side}`]: l.thigh, [`knee ${side}`]: l.knee, [`calf ${side}`]: l.calf });
     }
+    return out;
+  },
+
+  // The gluteal fold's height on each side (`HumanAnatomyLegFold.height`), the
+  // site `body.anatomy.glutealFurrowHeight` names; its own group, because the
+  // crotch's inputs move it by definition.
+  fold: (s: HumanAnatomyAudit.ISubject): HumanInputResponseReadings.IReadings => {
+    const skin: HumanAnatomy.ISkin = s.bind();
+    const crotch: number = HumanAnatomyLeg.crotchHeight(skin, HumanInputs.stature(s.params));
+    const out: HumanInputResponseReadings.IReadings = {};
+    for (const side of SIDES) out[`gluteal fold ${side}`] = HumanAnatomyLegFold.height(skin, side, crotch);
     return out;
   },
 
@@ -139,7 +152,7 @@ const GROUPS: Record<HumanInputResponseReadings.Group, (s: HumanAnatomyAudit.ISu
   },
 
   head: (s: HumanAnatomyAudit.ISubject): HumanInputResponseReadings.IReadings => {
-    const f: HumanAnatomyHead.ISites = HumanAnatomyHead.faceSites(s.bind(), s.params.body.controls.height.value!, false);
+    const f: HumanAnatomyHead.ISites = HumanAnatomyHead.faceSites(s.bind(), HumanInputs.stature(s.params), false);
     const out: HumanInputResponseReadings.IReadings = {
       "head length": f.length,
       "head breadth": f.breadth,

@@ -31,7 +31,7 @@ export namespace HumanReferenceCurveStore {
   }
 
   /**
-   * A pack file's parsed JSON, read once per process by
+   * A pack file's parsed JSON, read by each call of
    * `HumanReferenceCurveFileSingleton` and shared by every caller, so a caller
    * never mutates it. The path is under `directory(id)`.
    *

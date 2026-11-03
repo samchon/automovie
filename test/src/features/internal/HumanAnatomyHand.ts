@@ -71,7 +71,7 @@ export namespace HumanAnatomyHand {
           rows.push(ratio(name, `${side} hand breadth / length`, h.breadth / h.length, 0.3575, 0.5327));
         }
       }
-      const circumference: number | null = p.body.controls.handCircumference.value;
+      const circumference: number | null = p.body.anatomy.handCircumference ?? null;
       if (circumference !== null)
         rows.push(identity(name, `${side} hand circumference over metacarpals II to V, mm`, h.circumference, circumference, SMALL));
       rows.push(...fingerOrder(name, side, digits(skin, side)));

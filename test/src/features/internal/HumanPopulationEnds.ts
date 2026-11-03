@@ -174,12 +174,12 @@ export namespace HumanPopulationEnds {
       out[i] = [Math.max(out[i]![0], lo), Math.min(out[i]![1], hi)];
     };
 
-    for (const [key, v] of HumanPopulationAnchors.DIRECT) narrow(HumanPopulationConditional.index(v), HumanPopulationSurvey.DOMAIN[key][0], HumanPopulationSurvey.DOMAIN[key][1]);
+    for (const [key, v] of HumanPopulationAnchors.DIRECT) narrow(HumanPopulationConditional.index(v), HumanPopulationSurvey.DOMAIN[key]![0], HumanPopulationSurvey.DOMAIN[key]![1]);
     for (const key of HumanPopulationAnchors.ANCHORED) {
       const a: HumanPopulationAnchors.IAnchor = HumanPopulationAnchors.ANCHORS[key];
       if (a.proxy === "stature") continue;
       const k: number = HumanPopulationAnchors.ratio(sex, a);
-      narrow(HumanPopulationConditional.index(a.proxy), HumanPopulationSurvey.DOMAIN[key][0] / k, HumanPopulationSurvey.DOMAIN[key][1] / k);
+      narrow(HumanPopulationConditional.index(a.proxy), HumanPopulationSurvey.DOMAIN[key]![0] / k, HumanPopulationSurvey.DOMAIN[key]![1] / k);
     }
 
     return out.map(([lo, hi]: [number, number], i: number): [number, number, number] => [i, lo, hi]);

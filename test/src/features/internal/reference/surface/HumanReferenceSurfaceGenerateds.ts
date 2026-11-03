@@ -1,16 +1,15 @@
-import { Singleton } from "tstl";
 
 import type { HumanAnatomy } from "../../HumanAnatomy";
 import { HumanReferenceSurfacePair } from "./HumanReferenceSurfacePair";
 
 /**
- * The generated side of a pairing, built once per process for each generated
+ * The generated side of a pairing, built by each call for each generated
  * skin and shared by every comparison that reads it.
  *
  * Building it costs seconds: the normals, the outer-skin test of 290,000
  * vertices and the hierarchies over the whole and the outer skin.
  * `HumanAnatomy.bind` hands back the same skin object for one person, so each
- * skin object has one `Singleton`. The key is the object, not the alias,
+ * skin object has one value. The key is the object, not the alias,
  * because a red proof compares a copy of the skin with a made defect, which
  * must get its own side; the entries are weakly held, so a dropped copy frees
  * its side. The result is read-only to its consumers, which only query the
@@ -23,15 +22,15 @@ export namespace HumanReferenceSurfaceGenerateds {
    * @param skin The generated skin; its identity is the key.
    */
   export function side(skin: HumanAnatomy.ISkin): HumanReferenceSurfacePair.IGeneratedSide {
-    let found: Singleton<HumanReferenceSurfacePair.IGeneratedSide> | undefined = sides.get(skin);
+    let found: HumanReferenceSurfacePair.IGeneratedSide | undefined = sides.get(skin);
 
     if (found === undefined) {
-      found = new Singleton((): HumanReferenceSurfacePair.IGeneratedSide => HumanReferenceSurfacePair.ofGenerated(skin));
+      found = HumanReferenceSurfacePair.ofGenerated(skin);
       sides.set(skin, found);
     }
-    return found.get();
+    return found;
   }
 
-  /** One singleton per skin object, released with the skin. */
-  const sides: WeakMap<HumanAnatomy.ISkin, Singleton<HumanReferenceSurfacePair.IGeneratedSide>> = new WeakMap();
+  /** Values by skin object, released with the skin. */
+  const sides: WeakMap<HumanAnatomy.ISkin, HumanReferenceSurfacePair.IGeneratedSide> = new WeakMap();
 }

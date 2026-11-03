@@ -3,7 +3,6 @@ import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofti
 import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import type { HumanAnatomy } from "../HumanAnatomy";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
-import { HumanOnce } from "../HumanOnce";
 import { HumanCurveProfile } from "./HumanCurveProfile";
 import { HumanCurveRings } from "./HumanCurveRings";
 
@@ -46,12 +45,7 @@ export namespace HumanCurveTrunkOutline {
   /** The turn floor, mm: the station step of the back's profile (`HumanAnatomySpine.FLOOR`). */
   export const FLOOR: number = 2;
 
-  /** The trunk's outlines, sampled once per person. */
-  export function outline(person: string, body: IAutoMovieHumanBodyCalibration, k: number): IStation[] {
-    return cache.read(person, (): IStation[] => sample(body, k));
-  }
-
-  /** The trunk's outlines of any body, uncached. */
+  /** The trunk's outlines of a body, sampled by this call. */
   export function sample(body: IAutoMovieHumanBodyCalibration, k: number): IStation[] {
     const out: IStation[] = [];
     for (const name of ["trunk", "upper"]) {
@@ -144,5 +138,3 @@ export namespace HumanCurveTrunkOutline {
   }
 }
 
-/** Every person's trunk outlines, sampled once per process. */
-const cache: HumanOnce<HumanCurveTrunkOutline.IStation[]> = new HumanOnce();

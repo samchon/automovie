@@ -1,10 +1,9 @@
-import { Singleton } from "tstl";
 
 import type { HumanReferenceSurface } from "./HumanReferenceSurface";
 import { HumanReferenceSurfaceLimits } from "./HumanReferenceSurfaceLimits";
 
 /**
- * Each reference's gross-defect limits, computed once per process and shared
+ * Each reference's gross-defect limits, computed by each call and handed
  * by every comparison of that reference.
  *
  * Computing them aligns every one of the 66 population bodies onto the
@@ -19,15 +18,7 @@ export namespace HumanReferenceSurfaceLimitsSingleton {
    * @param id Reference alias; it must be in the population.
    */
   export function get(id: string): HumanReferenceSurface.ILimits {
-    let found: Singleton<HumanReferenceSurface.ILimits> | undefined = cache.get(id);
-
-    if (found === undefined) {
-      found = new Singleton((): HumanReferenceSurface.ILimits => HumanReferenceSurfaceLimits.build(id));
-      cache.set(id, found);
-    }
-    return found.get();
+    return HumanReferenceSurfaceLimits.build(id);
   }
 
-  /** One singleton per reference alias. */
-  const cache: Map<string, Singleton<HumanReferenceSurface.ILimits>> = new Map();
 }

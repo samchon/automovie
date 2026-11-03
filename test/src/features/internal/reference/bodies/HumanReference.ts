@@ -13,7 +13,7 @@ import { HumanReferenceSkinSingleton } from "./HumanReferenceSkinSingleton";
  * standing pose, so one observer reads a reference and the generated person
  * alike, and a reference proves an observer green on a real body.
  *
- * Every mesh and skin is built once per process by its own `Singleton` file
+ * Every mesh and skin is built by the call that asks, in its own file
  * beside this one; this namespace is the layer's one entry to them.
  *
  * Frame: forward +X, up +Y, the body's left +Z, millimetres, floor at y = 0.
@@ -52,7 +52,7 @@ export namespace HumanReference {
   }
 
   /**
-   * A reference's welded mesh, built once per process.
+   * A reference's welded mesh, built by this call.
    *
    * @param id Reference alias.
    */
@@ -62,7 +62,7 @@ export namespace HumanReference {
 
   /**
    * A reference as a skin the anatomy observers read, labelled by the
-   * generated person's chains and joints, once per process.
+   * generated person's chains and joints, built by this call.
    *
    * @param id Reference alias.
    */
@@ -77,13 +77,15 @@ export namespace HumanReference {
    * @param id Reference alias.
    */
   export function subject(id: string): HumanAnatomyAudit.ISubject {
-    const params: IAutoMovieHumanParameters = HumanPeople.person(id).params;
+    const params: IAutoMovieHumanParameters = HumanPeople.params(id);
 
+    // The labelled skin is made on first read and kept on this subject alone.
+    let own: HumanAnatomy.ISkin | undefined;
     return {
       name: `${id} reference`,
       params,
-      bind: (): HumanAnatomy.ISkin => skin(id),
-      neutral: (): HumanAnatomy.ISkin => skin(id),
+      bind: (): HumanAnatomy.ISkin => (own ??= skin(id)),
+      neutral: (): HumanAnatomy.ISkin => (own ??= skin(id)),
       mouth: false,
       construction: false,
       straightened: false,

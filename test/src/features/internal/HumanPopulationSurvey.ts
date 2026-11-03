@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanBodyControls } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyControls";
+import type { IAutoMovieHumanBodyAnatomy } from "../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
 
 /**
  * The published statistics every test person is built from and checked against:
@@ -247,41 +247,36 @@ export namespace HumanPopulationSurvey {
   export const PALM: Record<Sex, number> = { female: 108.7 / 181.1, male: 116.5 / 193.3 };
 
   /**
-   * The declared range of each body control for adult people: a statement of
+   * The declared range of each body measure for adult people: a statement of
    * what the generator supports, not a measurement. `HumanPopulation.audit`
-   * holds every person's controls inside it and every tape inside the
+   * holds every person's measures inside it and every tape inside the
    * surveyed extremes of its sex (ANSUR 1988,
    * `packages/human/docs/sources/ansur-1988-boundary-people.md`); the public
    * type declares no range.
    */
-  export const DOMAIN: Readonly<Record<keyof IAutoMovieHumanBodyControls, readonly [number, number]>> = {
-    height: [1450, 2000],
-    fat: [-1, 1],
-    masculineFeminine: [-1, 1],
-    muscularity: [-1, 1],
-    chest: [720, 1300],
-    bustSpan: [140, 260],
-    underbust: [640, 1200],
-    frontInterscyeLength: [270, 430],
-    neckToWaist: [290, 450],
-    acrossShoulder: [260, 420],
-    shoulderToApex: [200, 330],
-    waist: [560, 1250],
-    hip: [800, 1350],
-    highHip: [720, 1300],
-    neckBase: [310, 520],
-    neck: [280, 480],
-    neckLength: [55, 120],
+  export const DOMAIN: Readonly<Partial<Record<Exclude<keyof IAutoMovieHumanBodyAnatomy, "sex">, readonly [number, number]>>> = {
+    stature: [1450, 2000],
+    chestCircumference: [720, 1300],
+    bustPointWidth: [140, 260],
+    underbustCircumference: [640, 1200],
+    backNeckToWaist: [290, 450],
+    acrossBackShoulderWidth: [260, 470],
+    sideNeckToBustPoint: [200, 330],
+    waistCircumference: [560, 1250],
+    hipCircumference: [800, 1350],
+    highHipCircumference: [720, 1300],
+    neckBaseCircumference: [310, 520],
+    neckCircumference: [280, 480],
     upperArmLength: [270, 410],
-    lowerArmLength: [200, 310],
-    bicep: [210, 460],
-    elbow: [190, 370],
-    wrist: [125, 215],
-    forearm: [190, 370],
+    forearmLength: [200, 310],
+    upperArmCircumference: [210, 460],
+    elbowCircumference: [190, 370],
+    wristCircumference: [125, 215],
+    forearmCircumference: [190, 370],
     inseam: [640, 920],
-    thigh: [440, 780],
-    knee: [290, 500],
-    calf: [280, 480],
+    thighCircumference: [440, 780],
+    kneeCircumference: [290, 500],
+    calfCircumference: [280, 480],
     handCircumference: [160, 250],
   };
 }

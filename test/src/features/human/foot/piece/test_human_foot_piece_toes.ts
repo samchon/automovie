@@ -12,7 +12,7 @@ import { failingHumanRows } from "../../../internal/limbs/failingHumanRows";
  * @evidence contracts/testing.md#behavioral-verification Builds each person's feet through the foot's own pieces (`HumanFootPieces`: centres, body, web ring, toe spans) and reads each toe span's first own section, its cap and its half breadth at the first section. It catches a toe the web ring swallows, the cause of the little toe's self-crossing web and the crumpled webs of toes two to five.
  * @evidence contracts/testing.md#independent-expectations Geometry of a closed digit: the dome that closes a tip is a half breadth long and the web's fillet into the root another half breadth, so a tube shorter than its breadth makes the two overlap and the skin fold. Proven before the rows bind: f1's left hallux with its cap moved to one half breadth past its first section fails its row, and the same toe with its cap moved to three half breadths past it passes.
  * @evidence contracts/testing.md#distinguishing-cases All five toes of both feet of every person of the run, hallux to fifth. The webs' own surface is the web patch's, the toes' girth profile `PRO-FT-6`'s.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_foot_piece_toes`, sharing the cached foot pieces, with no renderer, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_foot_piece_toes`, building the foot pieces, with no renderer, browser or GPU.
  */
 export function test_human_foot_piece_toes(): void {
   const failures: string[] = [];

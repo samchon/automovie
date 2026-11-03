@@ -1,26 +1,23 @@
+import { AutoMovieHumanFootKnots } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootKnots";
+import { AutoMovieHumanBodyAnatomy } from "../../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
+import { HumanInputs } from "../HumanInputs";
 import { AutoMovieHumanFootConstruction } from "../../../../../packages/human/src/generation/AutoMovieHumanFootConstruction";
 import { AutoMovieHumanFootPrior } from "../../../../../packages/human/src/generation/AutoMovieHumanFootPrior";
 import { AutoMovieHumanFootBody } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootBody";
 import { AutoMovieHumanFootBones } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootBones";
-import { AutoMovieHumanFootContactLateralGuide } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootContactLateralGuide";
-import { AutoMovieHumanFootContactMedialGuide } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootContactMedialGuide";
 import { AutoMovieHumanFootCrestForefoot } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootCrestForefoot";
-import { AutoMovieHumanFootCrestGuide } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootCrestGuide";
 import type { AutoMovieHumanFootFrame } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootFrame";
-import { AutoMovieHumanFootLateralGuide } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootLateralGuide";
-import { AutoMovieHumanFootMedialGuide } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootMedialGuide";
 import { AutoMovieHumanFootToeSpan } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootToeSpan";
 import { AutoMovieHumanFootWebLine } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootWebLine";
 import { AutoMovieHumanFootWebRing } from "../../../../../packages/human/src/generation/foot/AutoMovieHumanFootWebRing";
 import type { IAutoMovieHumanParameters } from "../../../../../packages/human/src/structures/IAutoMovieHumanParameters";
-import { HumanOnce } from "../HumanOnce";
 import { HumanPeople } from "../HumanPeople";
 
 /**
  * One foot's construction pieces built alone from the person's three foot
  * inputs (foot length, foot breadth, lateral malleolus height), in the left
  * foot's frame as the foot's composer builds both sides, with no body, leg or
- * skeleton generated. Each person and side is built once per process.
+ * skeleton generated. Each person and side is built by the call that asks.
  */
 export namespace HumanFootPieces {
   /** The pieces of one foot. */
@@ -61,12 +58,12 @@ export namespace HumanFootPieces {
     const params: IAutoMovieHumanParameters = HumanPeople.params(person);
     const given: { footLength: number; footBreadth: number; ankleHeight: number } | undefined = params.extremities?.feet?.[side];
     if (given !== undefined) return { length: given.footLength, breadth: given.footBreadth, ankle: given.ankleHeight };
-    return AutoMovieHumanFootConstruction.expected(params.body.controls.height.value!, params.body.controls.masculineFeminine.value ?? 0, 1);
+    return AutoMovieHumanFootConstruction.expected(HumanInputs.stature(params), AutoMovieHumanBodyAnatomy.sexCoordinate(HumanInputs.of(params)), 1);
   }
 
   /** One foot's pieces, built on first use. */
   export function of(person: string, side: "left" | "right"): IPieces {
-    return cache.read(`${person}/${side}`, (): IPieces => build(person, side, dimensions(person, side)));
+    return build(person, side, dimensions(person, side));
   }
 
   /**
@@ -78,13 +75,7 @@ export namespace HumanFootPieces {
     const centres: AutoMovieHumanFootBones.ICentres = AutoMovieHumanFootBones.of(dimensions, 1);
     const k: AutoMovieHumanFootFrame.IFrame = centres.frame;
     const line: AutoMovieHumanFootWebLine.IWebLine = AutoMovieHumanFootWebLine.of({ frame: k, depth: AutoMovieHumanFootCrestForefoot.depth });
-    const guides: AutoMovieHumanFootBody.IGuides = {
-      crest: AutoMovieHumanFootCrestGuide.of(k, line),
-      lateral: AutoMovieHumanFootLateralGuide.of(k, line),
-      contactLateral: AutoMovieHumanFootContactLateralGuide.of(k, line),
-      contactMedial: AutoMovieHumanFootContactMedialGuide.of(k, line),
-      medial: AutoMovieHumanFootMedialGuide.of(k, line),
-    };
+    const guides: AutoMovieHumanFootBody.IGuides = AutoMovieHumanFootKnots.guides(k, line);
     const body: AutoMovieHumanFootBody.IBody = AutoMovieHumanFootBody.of({ frame: k, line, guides });
     const web: AutoMovieHumanFootWebRing.IWebRing = AutoMovieHumanFootWebRing.of(k, body);
     const toes: AutoMovieHumanFootToeSpan.IToe[] = AutoMovieHumanFootPrior.PRIOR.toes.map(
@@ -100,5 +91,3 @@ export namespace HumanFootPieces {
   }
 }
 
-/** One build per person and side. */
-const cache: HumanOnce<HumanFootPieces.IPieces> = new HumanOnce();

@@ -90,10 +90,11 @@ export function test_human_reference_layers(): void {
 
   for (const id of ids) {
     const mesh: HumanReference.IMesh = HumanReference.mesh(id);
-    const skin: HumanAnatomy.ISkin = HumanAnatomy.bind(id);
+    const views: HumanAnatomy.IViews = HumanAnatomy.views(id);
+    const skin: HumanAnatomy.ISkin = views.bind();
     const reference: HumanLayerIndex = new HumanLayerIndex(mesh.P, mesh.I);
     const generated: HumanLayerIndex = new HumanLayerIndex(skin.P, skin.I);
-    const sites: HumanLayerSite.ISite[] = HumanLayerSite.sites(id);
+    const sites: HumanLayerSite.ISite[] = HumanLayerSite.sites(views);
     const basis: HumanLayerBasis.IBasis = HumanLayerBasisSingleton.get(id);
     const self: HumanLayerReport.IReport = HumanLayerCompare.compare({ person: id, sites, generated: reference, reference, basis });
 

@@ -1,7 +1,6 @@
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import { HumanAnatomy } from "./HumanAnatomy";
 import { HumanAnatomyPose } from "./HumanAnatomyPose";
-import { HumanPeople } from "./HumanPeople";
 import { HumanSkinIntegrity } from "./HumanSkinIntegrity";
 
 /**
@@ -12,7 +11,8 @@ import { HumanSkinIntegrity } from "./HumanSkinIntegrity";
 export namespace HumanSkinIntegrityPerson {
   /** A generated person's bind skin against the openings its body declares. */
   export function bind(name: string): HumanSkinIntegrity.IFinding[] {
-    return HumanSkinIntegrity.audit(HumanAnatomy.bind(name), HumanSkinIntegrity.openings(HumanPeople.person(name).body.apertures));
+    const views: HumanAnatomy.IViews = HumanAnatomy.views(name);
+    return HumanSkinIntegrity.audit(views.bind(), HumanSkinIntegrity.openings(views.person.body.apertures));
   }
 
   /**
@@ -21,9 +21,10 @@ export namespace HumanSkinIntegrityPerson {
    */
   export function posed(name: string): HumanSkinIntegrity.IFinding[] {
     const out: HumanSkinIntegrity.IFinding[] = [];
+    const views: HumanAnatomy.IViews = HumanAnatomy.views(name);
 
     for (const [pose, value] of Object.entries(HumanAnatomyPose.POSES)) {
-      const skin: HumanAnatomy.ISkin = HumanAnatomy.posed(name, value as IAutoMovieHumanPose);
+      const skin: HumanAnatomy.ISkin = views.posed(value as IAutoMovieHumanPose);
 
       out.push(...HumanSkinIntegrity.intersections({ ...skin, name: `${name} ${pose}` }));
     }

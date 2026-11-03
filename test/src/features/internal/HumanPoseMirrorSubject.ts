@@ -1,3 +1,4 @@
+import { HumanInputs } from "./HumanInputs";
 import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
@@ -6,7 +7,6 @@ import { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import { HumanAnatomy } from "./HumanAnatomy";
-import { HumanOnce } from "./HumanOnce";
 import type { HumanPoseMirror } from "./HumanPoseMirror";
 import { HumanPeople } from "./HumanPeople";
 
@@ -25,20 +25,18 @@ export namespace HumanPoseMirrorSubject {
     bones: Map<string, { position: HumanAnatomy.V3; rotation: number[] }>;
   }
 
-  /** Each mirror image is generated once per run. */
-  const mirrors: HumanOnce<HumanPoseMirror.ISubject> = new HumanOnce();
-
   /** A generated person as a subject. */
   export function original(name: string): HumanPoseMirror.ISubject {
-    const person: HumanPeople.IRigged = HumanPeople.rigged(name);
+    const views: HumanAnatomy.IViews = HumanAnatomy.views(name);
+    const person: HumanPeople.IRigged = views.person;
 
     return {
       name,
       scale: person.scale,
       rig: person.rig,
       evaluate: person.evaluate,
-      skin: HumanAnatomy.bind(name),
-      binding: HumanAnatomy.binding(name),
+      skin: views.bind(),
+      binding: views.binding(),
     };
   }
 
@@ -66,41 +64,39 @@ export namespace HumanPoseMirrorSubject {
   }
 
   /**
-   * The person's mirror image, built once from its own inputs with every
+   * The person's mirror image, built by this call from its own inputs with every
    * left-right pair swapped; the person itself when swapping changes nothing.
    */
   export function mirrored(name: string): HumanPoseMirror.ISubject {
-    return mirrors.read(name, (): HumanPoseMirror.ISubject => {
-      const params: IAutoMovieHumanParameters = HumanPeople.person(name).params;
-      const swapped: IAutoMovieHumanParameters = swap(params);
+    const params: IAutoMovieHumanParameters = HumanPeople.params(name);
+    const swapped: IAutoMovieHumanParameters = swap(params);
 
-      // A person whose pairs are equal is its own mirror image.
-      if (JSON.stringify(swapped) === JSON.stringify(params)) return original(name);
+    // A person whose pairs are equal is its own mirror image.
+    if (JSON.stringify(swapped) === JSON.stringify(params)) return original(name);
 
-      // The mirror image built the way the person is: calibrated body, rig, evaluator and skin.
-      const body: IAutoMovieHumanBodyCalibration = AutoMovieHumanBodyLaw.calibrate(swapped).body;
-      const scale: number = 0.001 * (swapped.body.controls.height.value! / body.stature);
-      const rig: AutoMovieHumanRig.IRig = AutoMovieHumanRig.prepare(body, scale);
-      const evaluate: AutoMovieHumanSkeleton.PoseEvaluator = AutoMovieHumanSkeleton.prepare(swapped, { calibration: body });
-      const surface: AutoMovieHumanBodySurface.IOutput = AutoMovieHumanBodySurface.generate(body, []);
-      const skin: HumanAnatomy.ISkin = skinOf(`${name} mirrored`, surface);
-      const made: ReturnType<AutoMovieHumanRig.IRig["bind"]> = rig.bind(
-        Array.from(skin.P, (c: number): number => c * scale),
-      );
+    // The mirror image built the way the person is: calibrated body, rig, evaluator and skin.
+    const body: IAutoMovieHumanBodyCalibration = AutoMovieHumanBodyLaw.calibrate(swapped).body;
+    const scale: number = 0.001 * (HumanInputs.stature(swapped) / body.stature);
+    const rig: AutoMovieHumanRig.IRig = AutoMovieHumanRig.prepare(body, scale);
+    const evaluate: AutoMovieHumanSkeleton.PoseEvaluator = AutoMovieHumanSkeleton.prepare(swapped, { calibration: body });
+    const surface: AutoMovieHumanBodySurface.IOutput = AutoMovieHumanBodySurface.generate(body, []);
+    const skin: HumanAnatomy.ISkin = skinOf(`${name} mirrored`, surface);
+    const made: ReturnType<AutoMovieHumanRig.IRig["bind"]> = rig.bind(
+      Array.from(skin.P, (c: number): number => c * scale),
+    );
 
-      return {
-        name: `${name} mirrored`,
-        scale,
-        rig,
-        evaluate,
-        skin,
-        binding: {
-          joints: made.joints as string[],
-          boneIndices: made.boneIndices as number[],
-          weights: made.weights as number[],
-        },
-      };
-    });
+    return {
+      name: `${name} mirrored`,
+      scale,
+      rig,
+      evaluate,
+      skin,
+      binding: {
+        joints: made.joints as string[],
+        boneIndices: made.boneIndices as number[],
+        weights: made.weights as number[],
+      },
+    };
   }
 
   /**

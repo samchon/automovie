@@ -1,3 +1,4 @@
+import { AutoMovieHumanSex } from "../../../../packages/human/src/typings/AutoMovieHumanSex";
 import { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
 import { HumanAnatomyCourseLandmarks } from "./HumanAnatomyCourseLandmarks";
@@ -7,7 +8,7 @@ import { HumanAnatomyTrunk } from "./HumanAnatomyTrunk";
 type V3 = HumanAnatomy.V3;
 type IRow = HumanAnatomyAudit.IRow;
 type ISubject = HumanAnatomyAudit.ISubject;
-type Controls = ISubject["params"]["body"]["controls"];
+type Controls = ISubject["params"]["body"]["anatomy"];
 type Feet = NonNullable<NonNullable<ISubject["params"]["extremities"]>["feet"]>;
 type Side = "left" | "right";
 type Range = readonly [number, number];
@@ -136,8 +137,8 @@ export namespace HumanAnatomyCourse {
   export function course(subject: ISubject): IRow[] {
     const name: string = subject.name;
     const rows: IRow[] = [];
-    const c: Controls = subject.params.body.controls;
-    const S: number = c.height.value!;
+    const c: Controls = subject.params.body.anatomy;
+    const S: number = c.stature!;
     const skin: HumanAnatomy.ISkin = subject.bind();
     const k: ICourse = courseSites(skin, S);
     const id: (site: string, value: number, input: number | null, tol: number) => void = (
@@ -153,24 +154,24 @@ export namespace HumanAnatomyCourse {
     // leaves the nipples out (construction.md), so a masculine chest, whose
     // chest point is the nipple, carries no bust point its skin can show and
     // its bust rows cannot be read; a feminine chest without one fails them.
-    const breasts: boolean = (c.masculineFeminine.value ?? 0) > 0;
+    const breasts: boolean = (c.sex ?? AutoMovieHumanSex.Female) === AutoMovieHumanSex.Female;
 
     // bustSpan is not read: ISO 8559-1 5.2.3 measures the straight breadth
     // between the bust points, the nipples, and the skin leaves the nipples
     // out, so the most anterior point of each breast stands in for a landmark
     // the skin does not show and the breadth would not be that of the input.
-    id("across shoulder: ISO 8559-1 5.4.3 across back shoulder width, shoulder point through the back neck point to shoulder point over the skin, mm", k.acrossShoulder, c.acrossShoulder.value, ERROR.acrossShoulder);
+    id("across shoulder: ISO 8559-1 5.4.3 across back shoulder width, shoulder point through the back neck point to shoulder point over the skin, mm", k.acrossShoulder, (c.acrossBackShoulderWidth ?? null), ERROR.acrossShoulder);
 
     // frontInterscyeLength is not read: ISO 8559-1 5.4.7 across front width
     // runs between the armpit front fold points, which 3.1.13 sets by a rule
     // pressed under the arm, a contact the skin alone does not fix, and the
     // clause text was not read; the armpit hollow's own deepest point lies at
     // the armpit's middle, not at its front fold.
-    id("neck to waist: ISO 8559-1 5.4.5 back neck point to waist level down the back's median skin, mm", k.backNeckToWaist, c.neckToWaist.value, ERROR.backNeckToWaist);
+    id("neck to waist: ISO 8559-1 5.4.5 back neck point to waist level down the back's median skin, mm", k.backNeckToWaist, (c.backNeckToWaist ?? null), ERROR.backNeckToWaist);
     for (const side of SIDES) {
-      if (breasts) id(`${side} shoulder to apex: ISO 8559-1 5.4.10 side neck point to bust point over the skin, mm`, k.sideNeckToBust[side], c.shoulderToApex.value, ERROR.sideNeckToBust);
-      id(`${side} upper arm length: ANSUR II acromion-radiale length along the upper arm's axis, mm`, k.acromionRadiale[side], c.upperArmLength.value, ERROR.acromionRadiale);
-      id(`${side} lower arm length: ANSUR II radiale-stylion length along the forearm's axis, mm`, k.radialeStylion[side], c.lowerArmLength.value, ERROR.radialeStylion);
+      if (breasts) id(`${side} shoulder to apex: ISO 8559-1 5.4.10 side neck point to bust point over the skin, mm`, k.sideNeckToBust[side], (c.sideNeckToBustPoint ?? null), ERROR.sideNeckToBust);
+      id(`${side} upper arm length: ANSUR II acromion-radiale length along the upper arm's axis, mm`, k.acromionRadiale[side], (c.upperArmLength ?? null), ERROR.acromionRadiale);
+      id(`${side} lower arm length: ANSUR II radiale-stylion length along the forearm's axis, mm`, k.radialeStylion[side], (c.forearmLength ?? null), ERROR.radialeStylion);
     }
 
     // ISO 8559-1 5.7.6 inside leg length runs from the inside leg level to the
@@ -179,8 +180,8 @@ export namespace HumanAnatomyCourse {
     // mean of the two feet's, mm.
     const feet: Feet | undefined = subject.params.extremities?.feet;
     const malleolus: number = feet === undefined ? NaN : (feet.left.ankleHeight + feet.right.ankleHeight) / 2;
-    if (c.inseam.value !== null && feet !== undefined)
-      id("inseam: ISO 8559-1 5.7.6 inside leg length, the crotch's height less the lateral malleolus height input, read as the crotch's height, mm", k.crotch, c.inseam.value + malleolus, ERROR.insideLeg);
+    if (c.inseam !== undefined && feet !== undefined)
+      id("inseam: ISO 8559-1 5.7.6 inside leg length, the crotch's height less the lateral malleolus height input, read as the crotch's height, mm", k.crotch, c.inseam + malleolus, ERROR.insideLeg);
     if (feet !== undefined) rows.push(ratio(name, "crotch height less the lateral malleolus height input, over stature", (k.crotch - malleolus) / S, RATIOS.insideLeg[0], RATIOS.insideLeg[1]));
 
     // The back's surface length over its vertical drop from the back neck

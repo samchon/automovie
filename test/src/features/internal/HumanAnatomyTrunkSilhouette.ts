@@ -1,3 +1,4 @@
+import { HumanInputs } from "./HumanInputs";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import type { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
@@ -37,16 +38,16 @@ export namespace HumanAnatomyTrunkSilhouette {
   export function rows(subject: HumanAnatomyAudit.ISubject): IRow[] {
     const name: string = subject.name;
     const skin: HumanAnatomy.ISkin = subject.bind();
-    const controls: IAutoMovieHumanParameters["body"]["controls"] = subject.params.body.controls;
-    const hip: number | null = controls.hip.value;
-    const waist: number | null = controls.waist.value;
-    const chest: number | null = controls.chest.value;
+    const controls: IAutoMovieHumanParameters["body"]["anatomy"] = subject.params.body.anatomy;
+    const hip: number | null = (controls.hipCircumference ?? null);
+    const waist: number | null = (controls.waistCircumference ?? null);
+    const chest: number | null = (controls.chestCircumference ?? null);
 
     // A trunk with no waist input to hold the profile against asks nothing.
     if (hip === null || waist === null || chest === null) return [];
     if (Math.min(hip, chest) - waist <= CLEAR) return [];
 
-    const S: number = controls.height.value!;
+    const S: number = HumanInputs.stature(subject.params);
     const sites: HumanAnatomyShared.ITrunk = HumanAnatomyTrunk.trunkSites(skin, S);
     const breadth: number[] = [];
     const heights: number[] = [];

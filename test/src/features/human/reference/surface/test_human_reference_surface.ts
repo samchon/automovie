@@ -36,7 +36,8 @@ export function test_human_reference_surface(): void {
   }
 
   // The reader must be right before its readings blame a person.
-  const proofs: string[] = HumanReferenceSurfaceProofs.prove(ids[0]!, HumanAnatomy.bind(ids[0]!));
+  const first: HumanAnatomy.ISkin = HumanAnatomy.bind(ids[0]!);
+  const proofs: string[] = HumanReferenceSurfaceProofs.prove(ids[0]!, first);
 
   if (proofs.length !== 0) throw new Error(`${proofs.length} surface comparison proofs failed:\n${proofs.join("\n")}`);
 
@@ -46,7 +47,7 @@ export function test_human_reference_surface(): void {
   for (const id of ids) {
     const report: HumanReferenceSurface.IReport = HumanReferenceSurface.compare({
       person: id,
-      generated: HumanAnatomy.bind(id),
+      generated: id === ids[0] ? first : HumanAnatomy.bind(id),
       reference: HumanReference.mesh(id),
       labels: HumanReference.skin(id),
       limit: HumanReferenceSurface.limits(id).limit,
