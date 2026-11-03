@@ -5,12 +5,15 @@ import { HumanAnatomyArm } from "./HumanAnatomyArm";
 import { HumanAnatomyFoot } from "./HumanAnatomyFoot";
 import { HumanAnatomyHand } from "./HumanAnatomyHand";
 import { HumanAnatomyHead } from "./HumanAnatomyHead";
+import { HumanAnatomyHeadConsistency } from "./HumanAnatomyHeadConsistency";
+import { HumanAnatomyTrunkOrder } from "./HumanAnatomyTrunkOrder";
+import { HumanAnatomyTrunkSilhouette } from "./HumanAnatomyTrunkSilhouette";
 import { HumanAnatomyLeg } from "./HumanAnatomyLeg";
 import { HumanAnatomyPose } from "./HumanAnatomyPose";
 import { HumanAnatomyTrunk } from "./HumanAnatomyTrunk";
 import { HumanPeople } from "./HumanPeople";
 
-const A = HumanAnatomy;
+const A: typeof HumanAnatomy = HumanAnatomy;
 
 
 /**
@@ -104,6 +107,9 @@ export namespace HumanAnatomyAudit {
     leg: (s: ISubject): IRow[] => HumanAnatomyLeg.leg(s),
     foot: (s: ISubject): IRow[] => HumanAnatomyFoot.foot(s),
     head: (s: ISubject): IRow[] => HumanAnatomyHead.head(s),
+    headConsistency: (s: ISubject): IRow[] => HumanAnatomyHeadConsistency.rows(s),
+    trunkSilhouette: (s: ISubject): IRow[] => HumanAnatomyTrunkSilhouette.rows(s),
+    trunkOrder: (s: ISubject): IRow[] => HumanAnatomyTrunkOrder.rows(s),
     pose: (s: ISubject): IRow[] => HumanAnatomyPose.pose(s.name),
   };
 

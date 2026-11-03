@@ -19,7 +19,7 @@ import {
  * Two sets: the core set, which every run reads, holds the four references
  * and six population ends (each sex's small and large corner, a tall light
  * woman and a short heavy man); the extended set adds every other end of
- * {@link HumanPopulation.ENDS}, 36 people in all. Set
+ * {@link HumanPopulation.ENDS}, 66 people in all. Set
  * `AUTOMOVIE_HUMAN_PEOPLE=extended` to run every test over the extended set,
  * locally or nightly.
  */

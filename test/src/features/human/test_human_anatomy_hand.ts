@@ -11,4 +11,6 @@ import { assertHumanAnatomy } from "../internal/assertHumanAnatomy";
  * @evidence contracts/testing.md#distinguishing-cases Both hands of all nine people, whose hand inputs move with them to the population's ends, so a 99th and 1st percentile hand length and breadth are each read. The arm test owns the wrist and the reference anatomy test the four reference bodies.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_anatomy_hand`, posing the cached people in process with no renderer, browser or GPU.
  */
-export const test_human_anatomy_hand = (): void => assertHumanAnatomy("hand");
+export function test_human_anatomy_hand(): void {
+  assertHumanAnatomy("hand");
+}

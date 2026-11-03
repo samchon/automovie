@@ -1,3 +1,6 @@
+import type { AutoMovieHumanSkeletonLaw } from "../../../../packages/human/src/generation/AutoMovieHumanSkeletonLaw";
+import type { HumanAnatomy } from "./HumanAnatomy";
+import { HumanAnatomyMirror } from "./HumanAnatomyMirror";
 import { HumanCurveAudit } from "./HumanCurveAudit";
 import { HumanPeople } from "./HumanPeople";
 
@@ -9,19 +12,36 @@ import { HumanPeople } from "./HumanPeople";
  * @throws {Error} Listing every unsound region.
  */
 export function assertHumanCurves(chains?: RegExp): void {
-  const audit = (
+  const audit: (name: string) => HumanCurveAudit.IHumanCurveFinding[] = (
     name: string,
   ): HumanCurveAudit.IHumanCurveFinding[] => {
     const p: HumanPeople.IPerson = HumanPeople.person(name);
+
     // The jaw is read at shares of its own width, the input in the body's
     // millimetres.
     const mandible: number =
       (p.params.head.mandibularWidth * p.body.stature) /
       p.params.body.controls.height.value! /
       2;
+
+    // Each side's rings are compared with the other side's reflection rebuilt
+    // to this side's own inputs, located on the body's own skeleton.
+    const skeleton: AutoMovieHumanSkeletonLaw.IBone[] | undefined = p.body.skeleton;
+    const joint: (bone: string) => HumanAnatomy.V3 = (bone: string): HumanAnatomy.V3 => {
+      const found: AutoMovieHumanSkeletonLaw.IBone | undefined = skeleton?.find(
+        (b: AutoMovieHumanSkeletonLaw.IBone): boolean => b.bone === bone,
+      );
+      if (found === undefined) throw new Error(`${p.name} has no ${bone} bone`);
+      return [...found.position];
+    };
+    const rebuild: ((chain: string, q: HumanAnatomy.V3) => HumanAnatomy.V3) | undefined =
+      skeleton === undefined
+        ? undefined
+        : HumanAnatomyMirror.limbs(p.params, joint, p.body.stature / p.params.body.controls.height.value!);
+
     return chains !== undefined
       ? [
-          ...HumanCurveAudit.auditHumanCurves(p.name, p.body, chains, mandible),
+          ...HumanCurveAudit.auditHumanCurves(p.name, p.body, chains, mandible, rebuild),
           ...(chains.test("leg.left")
             ? HumanCurveAudit.auditHumanThigh(
                 p.name,
@@ -40,6 +60,7 @@ export function assertHumanCurves(chains?: RegExp): void {
   const findings: HumanCurveAudit.IHumanCurveFinding[] =
     HumanPeople.names().flatMap(audit);
   if (findings.length === 0) return;
+
   const lines: string[] = findings
     .sort(
       (

@@ -10,4 +10,6 @@ import { assertHumanAnatomy } from "../internal/assertHumanAnatomy";
  * @evidence contracts/testing.md#distinguishing-cases Both legs of all nine people across the domain's tapes and statures, and the four references, whose captured arms do not hang, so bideltoid over hip breadth is read only on straightened subjects. The trunk test owns the hip girth and the crotch height as trunk sites, the foot test the foot and the sole, and the pose test the leg in motion.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_anatomy_leg`, generating and posing the cached people in process with no renderer, browser or GPU, and without the private references.
  */
-export const test_human_anatomy_leg = (): void => assertHumanAnatomy("leg");
+export function test_human_anatomy_leg(): void {
+  assertHumanAnatomy("leg");
+}

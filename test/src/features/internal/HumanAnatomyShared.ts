@@ -2,12 +2,12 @@ import { HumanAnatomy } from "./HumanAnatomy";
 import type { HumanAnatomyAudit } from "./HumanAnatomyAudit";
 
 type V3 = HumanAnatomy.V3;
-const A = HumanAnatomy;
+const A: typeof HumanAnatomy = HumanAnatomy;
 
 /** Limits, site records and measuring helpers the Human anatomy audits share. */
 export namespace HumanAnatomyShared {
   /** Sides of the paired parts. */
-  export const SIDES = ["left", "right"] as const;
+  export const SIDES: readonly ["left", "right"] = ["left", "right"];
 
   /** ISO 20685-1:2018 Table 4 maximum allowable error, large circumferences, mm. */
   export const LARGE: number = 9;
@@ -280,6 +280,7 @@ export namespace HumanAnatomyShared {
       for (let i: number = m; i >= 0; i--) left = Math.max(left, v[i]!);
       let right: number = v[m]!;
       for (let i: number = m; i < v.length; i++) right = Math.max(right, v[i]!);
+
       // The rise toward the global minimum is the barrier on that side.
       const toward: number = m < global ? Math.max(...v.slice(m, global + 1)) : Math.max(...v.slice(global, m + 1));
       const other: number = m < global ? left : right;
@@ -315,7 +316,7 @@ export namespace HumanAnatomyShared {
    */
   export function curveCrease(curve: V3[], origin: V3, axis: V3): number {
     const line: V3[] = resample(curve, 1);
-    const depth = (p: V3): number => A.dist(p, A.add(origin, A.scale(axis, A.dot(A.sub(p, origin), axis))));
+    const depth: (p: V3) => number = (p: V3): number => A.dist(p, A.add(origin, A.scale(axis, A.dot(A.sub(p, origin), axis))));
     let deepest: number = 0;
     for (let i: number = 5; i + 5 < line.length; i++) {
       const a: V3 = line[i - 5]!;
@@ -361,6 +362,7 @@ export namespace HumanAnatomyShared {
     }
     const high: Float64Array = highs.get(skin)!;
     const out: number[] = [];
+
     // Triangles are at most a few centimetres tall; start the scan 60 mm low.
     let a: number = 0;
     let b: number = sorted.order.length;
@@ -381,8 +383,6 @@ export namespace HumanAnatomyShared {
   export const bands: WeakMap<HumanAnatomy.ISkin, { order: Uint32Array; low: Float64Array }> = new WeakMap();
   /** Highest vertex height of every triangle, per skin. */
   export const highs: WeakMap<HumanAnatomy.ISkin, Float64Array> = new WeakMap();
-  /** Trunk sites, located once per skin. */
-  export const trunks: WeakMap<HumanAnatomy.ISkin, ITrunk> = new WeakMap();
 
   /** Breadth of all skin in a height band. */
   export function breadth(skin: HumanAnatomy.ISkin, lo: number, hi: number): number {

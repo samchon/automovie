@@ -1,5 +1,5 @@
 import { HumanRawGeometry as G } from "./HumanRawGeometry";
-import { HumanReferenceAudit as A } from "./HumanReferenceAudit";
+import type { HumanRawFinding } from "./HumanRawFinding";
 
 /** World-frame placement from original public stature and actual bind vertices only. */
 export namespace HumanRawPlacement {
@@ -18,7 +18,7 @@ export namespace HumanRawPlacement {
     status: "PASS" | "FAIL";
 
     /** Every actual invalid observation retains the world coordinate when available. */
-    findings: A.Finding[];
+    findings: HumanRawFinding[];
 
     /** Actual highest bind-skin vertex, null without support. */
     crown: G.Point | null;
@@ -44,9 +44,10 @@ export namespace HumanRawPlacement {
    * staging contract, not an ISO anthropometric error or whole-anatomy admission.
    */
   export function read(person: string, mesh: G.Mesh, input: Input): Report {
-    const findings: A.Finding[] = G.inspect(mesh).map((row: G.Issue): A.Finding => ({ person, part: "all", stage: "upright bind placement", direction: "raw buffer", triangle: row.triangle ?? -1, coordinate: row.coordinate, observed: null, expected: 0, deviation: null, tolerance: 0, units: "valid geometry", reason: row.reason }));
+    const findings: HumanRawFinding[] = G.inspect(mesh).map((row: G.Issue): HumanRawFinding => ({ person, part: "all", stage: "upright bind placement", direction: "raw buffer", triangle: row.triangle ?? -1, coordinate: row.coordinate, observed: null, expected: 0, deviation: null, tolerance: 0, units: "valid geometry", reason: row.reason }));
     if (![input?.stature, input?.floor].every(Number.isFinite) || input.stature <= 0 || !Number.isFinite(input.floor + input.stature)) findings.push({ person, part: "public stature/world floor", stage: "upright bind placement", direction: "original public input", triangle: -1, coordinate: null, observed: null, expected: 1, deviation: null, tolerance: 0, units: "finite mm", reason: "Original finite positive stature and finite world floor are required; generated dimensions cannot substitute" });
     if (findings.length !== 0) return { status: "FAIL", findings, crown: null, sole: null, crownVertex: null, soleVertex: null, arithmeticTolerance: null };
+
     // Only indexed vertices belong to the emitted skin. Unused buffer points
     // cannot supply a missing crown/sole or move a correct surface's extrema.
     const referenced: Set<number> = new Set(Array.from(mesh.indices));

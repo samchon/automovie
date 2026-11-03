@@ -1,0 +1,13 @@
+import { assertHumanCurves } from "../../../internal/assertHumanCurves";
+
+/**
+ * Every part of a standing body is there and in its place, on every person.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Generates each person and reads which parts the body has, where its crown and sole stand, which parts hold them, and whether an arm's axis runs inside the trunk. It catches a missing or extra digit, toe, limb, ear or head, a crown that is not at the body's stature, a sole off the floor, a hand or other part below the feet or above the head, and an arm set into the torso. Any proportions pass, so a long trunk, short legs or a broad body never fail here.
+ * @evidence contracts/testing.md#independent-expectations Anatomy supplies the counts: a thumb and four fingers to a hand, five toes to a foot, an arm, a leg and an ear to each side. Stature is by definition the crown's height above the standing surface, and a person's stature falls by about one percent over a day, so the crown and the sole may each stand off by that much. A standing person's lowest skin is a foot's and the highest the head's, and below the armpit an arm hangs beside the trunk. No earlier figure enters. Made red on f1: a removed ring finger read 3 against 4, a sixth toe 6 against 5, a removed head lost the head and both ears and dropped the crown 273 mm, a crown raised 30 mm read 30 against 17, a hand dropped 1 m put the lowest skin on a finger 132 mm under the floor, and an arm moved 300 mm toward the midline put 13 of its rings inside the trunk. The stature input sets the body's millimetres, so a wrong input alone is not caught here, and a part misplaced by less than a day's change of stature, or sized wrongly in place, is left to the curve units and the viewer.
+ * @evidence contracts/testing.md#distinguishing-cases Runs on the four references and on the tall, short, wide, narrow and masculine people, so a crown at 1450 or 2000 mm and an arm beside a broad or slight trunk both pass. The curve units own the shape of each part and its joins, and the pose test owns where the joints stand.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_curve_placement`, reading the cached people, with no external host.
+ */
+export function test_human_curve_placement(): void {
+  assertHumanCurves();
+}
