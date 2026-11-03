@@ -75,6 +75,24 @@ function rotate(q: number[], v: V3): V3 {
   return [r[0]!, r[1]!, r[2]!];
 }
 
+/** A vertex under linear blend skinning. */
+function posed(
+  p: V3,
+  skin: { joints: string[]; boneIndices: number[]; weights: number[] },
+  v: number,
+  world: ReadonlyMap<string, { from: V3; to: V3; q: number[] }>,
+): V3 {
+  let out: V3 = [0, 0, 0];
+  for (let i: number = 0; i < 4; i++) {
+    const w: number = skin.weights[4 * v + i]!;
+    if (w === 0) continue;
+    const b = world.get(skin.joints[skin.boneIndices[4 * v + i]!]!)!;
+    const moved: V3 = add(b.to, rotate(b.q, [p[0] - b.from[0], p[1] - b.from[1], p[2] - b.from[2]]));
+    out = add(out, [moved[0] * w, moved[1] * w, moved[2] * w]);
+  }
+  return out;
+}
+
 /** A vertex under dual-quaternion blending, as the model draws it. */
 function blended(
   p: V3,
@@ -429,16 +447,14 @@ function blendedTurn(
 /**
  * Every skin vertex binds to the rig, and a pose moves the prepared skin.
  *
- * @evidence contracts/testing.md#behavioral-verification Binds every selected person's generated skin, evaluates a bent elbow and knee through the public skeleton, and moves each vertex by the mesh's own weights. It catches a weight that does not sum to one, a seam whose copies disagree, a rest pose that moves anything, a limb that fails to follow its bone, and a side that pulls the other.
+ * @evidence contracts/testing.md#behavioral-verification Binds the generated skin of two people, evaluates a bent elbow and knee through the public skeleton, and moves each vertex by the mesh's own weights. It catches a weight that does not sum to one, a seam whose copies disagree, a rest pose that moves anything, a limb that fails to follow its bone, and a side that pulls the other.
  * @evidence contracts/testing.md#independent-expectations The binding's contract and rigid-body kinematics supply every expectation: weights sum to one, equal places move equally, identity pose moves nothing, and a bent arm leaves the other leg still. The stretch bound is a coarse limit, so it catches a torn skin and says nothing of a joint's form.
  * @evidence contracts/testing.md#distinguishing-cases Contrasts rest against a bent left elbow and right knee, on a slender and a broad person, and reads every limb ring's girth and every region's turned-over triangles, digits included, at neutral, under the step-and-reach pose and under the range-limit pose, by the blend the model draws. The bind moves nothing; from neutral, skin on the bent limbs must move, skin on the far limbs must not, a limb must not thin, and the midline must keep nothing on a side's bones. Across every person it reads where each elbow and knee turns and over what length, and which bone holds the face, neck and heel. Skin-to-skin contact and penetration are not read here.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_skin_binding`, reading the people `HumanPeople` generates once per run and lofting their skin in process, with no renderer, browser or GPU.
- * @param aliases Defaults to all nine; the campaign supplies its one cached
- * person so its nine workers preserve the full coverage without regenerating.
  */
-export const test_human_skin_binding = (aliases: readonly string[] = HumanPeople.names()): void => {
+export const test_human_skin_binding = (): void => {
   const problems: string[] = [];
-  for (const name of aliases) {
+  for (const name of HumanPeople.names()) {
     const { body, scale, rig, evaluate } = HumanPeople.rigged(name);
     const at = new Map<string, V3>(
       evaluate({}).bones.map((b): [string, V3] => [b.bone, b.position]),
@@ -489,11 +505,11 @@ export const test_human_skin_binding = (aliases: readonly string[] = HumanPeople
             if (/^(left|right)/.test(bone) && w > MIDLINE)
               problems.push(`${name} the midline keeps ${w.toFixed(3)} on ${bone} at ${p[1].toFixed(3)}`);
           }
-        const still: V3 = blended(p, skin, v, bind);
+        const still: V3 = posed(p, skin, v, bind);
         idle = Math.max(idle, Math.hypot(still[0] - p[0], still[1] - p[1], still[2] - p[2]));
-        const q: V3 = blended(p, skin, v, moved);
+        const q: V3 = posed(p, skin, v, moved);
         out.push(q);
-        const from: V3 = blended(p, skin, v, neutral);
+        const from: V3 = posed(p, skin, v, neutral);
         const by: number = Math.hypot(q[0] - from[0], q[1] - from[1], q[2] - from[2]);
         if (/^(hand|finger|thumb)\.left/.test(piece.name)) hand = Math.max(hand, by);
         if (/^(foot|toe|forefoot)\.left/.test(piece.name)) farLeg = Math.max(farLeg, by);

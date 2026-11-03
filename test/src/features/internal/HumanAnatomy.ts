@@ -1,22 +1,14 @@
-import { HumanSkinDistance } from "./HumanSkinDistance";
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
 import { HumanPeople } from "./HumanPeople";
-import { HumanPlaneIndex } from "./HumanPlaneIndex";
-import type { AutoMovieHumanMeasurementProtocol } from "../../../../packages/human/src/generation/AutoMovieHumanMeasurementProtocol";
-import { AutoMovieHumanEyelid } from "../../../../packages/human/src/generation/AutoMovieHumanEyelid";
-import type { IAutoMovieHumanLoftAperture } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanVermilion } from "../../../../packages/human/src/appearance/AutoMovieHumanVermilion";
+import { HumanOnce } from "./HumanOnce";
 
 /**
  * Measurement of a generated person's skin: the closed triangle mesh the
  * surface emits, at the bind or under a pose through the public rig and pose
- * evaluator. Skin measurements read positions and triangles independently of
- * construction radii and targets. Owned model addresses locate declared tape
- * planes and regions. Eyelid dimensions read the actual consumer's evaluated
- * visible contact margins, whose attachment and seam health remain separate
- * surface and viewer checks.
+ * evaluator. Everything here reads positions and triangles only; nothing reads
+ * the construction's constants, priors or fields, and sites are found on the
+ * skin by the definitions the anatomy tests cite.
  *
  * Frame: forward +X, up +Y, the body's left +Z, millimetres, floor at y = 0.
  */
@@ -43,15 +35,6 @@ export namespace HumanAnatomy {
 
     /** Joint centres of the rig in this skin's pose, mm. */
     joints: Map<string, V3>;
-
-    /** Model-owned bind addresses; absent on a posed skin until transformed. */
-    measurementSites?: AutoMovieHumanMeasurementProtocol.ISites;
-
-    /** Actual visible lid-contact samples from the same owner as the consumer. */
-    eyelids?: AutoMovieHumanEyelid.ILid[];
-
-    /** Actual appearance consumer exterior colour-border samples in mm. */
-    vermilion?: V3[];
   }
 
   /** One component of a plane's section through the skin. */
@@ -80,8 +63,7 @@ export namespace HumanAnatomy {
 
   /** The skin at the bind, generated once per person. */
   export function bind(name: string): ISkin {
-    const found: ISkin | undefined = binds.get(name);
-    if (found !== undefined) return found;
+    return binds.read(name, (): ISkin => {
     const person: HumanPeople.IRigged = HumanPeople.rigged(name);
     const surface: AutoMovieHumanBodySurface.IOutput =
       AutoMovieHumanBodySurface.generate(person.body, []);
@@ -106,15 +88,9 @@ export namespace HumanAnatomy {
       tri,
       chains,
       joints: joints(person, person.evaluate({}), false),
-      measurementSites: person.body.measurementSites,
-      vermilion: AutoMovieHumanVermilion.prepare(person.vermilion).points,
-      eyelids: person.body.eyes.flatMap((eye: IAutoMovieHumanBodyCalibration.IEye): AutoMovieHumanEyelid.ILid[] => {
-        const aperture: IAutoMovieHumanLoftAperture | undefined = person.body.apertures.find((entry: IAutoMovieHumanLoftAperture): boolean => entry.name === `eye.${eye.side}`);
-        return aperture === undefined ? [] : [AutoMovieHumanEyelid.create(aperture, eye)];
-      }),
     };
-    binds.set(name, out);
     return out;
+    });
   }
 
   /**
@@ -165,7 +141,7 @@ export namespace HumanAnatomy {
       P[3 * v + 1] = q[1] + t[1];
       P[3 * v + 2] = q[2] + t[2];
     }
-    const out: ISkin = { ...rest, P, joints: joints(person, output, true), measurementSites: undefined, eyelids: undefined, vermilion: undefined };
+    const out: ISkin = { ...rest, P, joints: joints(person, output, true) };
     if (poses.size > 6) poses.delete(poses.keys().next().value!);
     poses.set(key, out);
     return out;
@@ -206,15 +182,6 @@ export namespace HumanAnatomy {
     return Uint32Array.from(out);
   }
 
-  /**
-   * One entire arm and hand plus its upper parent for anatomical cuts. A
-   * proximal oblique plane can cross their shared boundary. A capsule about
-   * the shoulder-to-knuckle chord can crop the bent bind elbow instead.
-   */
-  export function armRegion(skin: ISkin, side: "left" | "right"): Uint32Array {
-    return triangles(skin, new RegExp(`^(upper$|(?:arm|hand|finger|thumb)\\.${side}(?:\\.|$))`));
-  }
-
   /** Vertices of the triangles whose chain name passes a test. */
   export function vertices(skin: ISkin, chain: RegExp): V3[] {
     const seen: Set<number> = new Set();
@@ -238,23 +205,6 @@ export namespace HumanAnatomy {
     for (let t: number = 0; t < skin.I.length / 3; t++)
       if (ok[skin.I[3 * t]!] || ok[skin.I[3 * t + 1]!] || ok[skin.I[3 * t + 2]!]) out.push(t);
     return Uint32Array.from(out);
-  }
-
-  /**
-   * Prepare parallel cuts of one immutable skin and region. The caller owns
-   * the index for this measurement only; the exact cutter still decides all
-   * intersections and components. Copy the normal so later caller mutation
-   * cannot separate the candidate planes from the planes actually cut.
-   */
-  export function parallel(
-    skin: ISkin,
-    normal: V3,
-    within?: Uint32Array,
-  ): (origin: V3, pick?: V3) => ICut | null {
-    const direction: V3 = [...normal];
-    const index: HumanPlaneIndex = new HumanPlaneIndex(skin, direction, within);
-    return (origin: V3, pick: V3 = origin): ICut | null =>
-      cut(skin, origin, direction, pick, index.query(origin));
   }
 
   /**
@@ -539,14 +489,44 @@ export namespace HumanAnatomy {
     return out;
   }
 
-  /** Exact nearest distances on one immutable generated skin, with bounded triangle retention. */
-  export function distances(skin: ISkin, points: V3[]): number[] {
-    let index: HumanSkinDistance | undefined = distanceIndices.get(skin);
-    if (index === undefined) {
-      index = new HumanSkinDistance(skin);
-      distanceIndices.set(skin, index);
+  /** Distance from each point to the nearest triangle of the skin, by a grid. */
+  export function distances(skin: ISkin, points: V3[], reach: number): number[] {
+    const cell: number = Math.max(reach, 2);
+    const key = (i: number, j: number, k: number): number => ((i + 1000) * 2000 + (j + 1000)) * 2000 + (k + 1000);
+    const P: Float64Array = skin.P;
+    const cached: { cell: number; grid: Map<number, number[]> } | undefined = triangleGrids.get(skin);
+    const fresh: boolean = cached?.cell !== cell;
+    const grid: Map<number, number[]> = fresh ? new Map() : cached!.grid;
+    if (fresh) triangleGrids.set(skin, { cell, grid });
+    for (let t: number = 0; fresh && t < skin.I.length; t += 3) {
+      const a: number = 3 * skin.I[t]!;
+      const b: number = 3 * skin.I[t + 1]!;
+      const c: number = 3 * skin.I[t + 2]!;
+      const lo: number[] = [0, 1, 2].map((k: number): number => Math.floor(Math.min(P[a + k]!, P[b + k]!, P[c + k]!) / cell));
+      const hi: number[] = [0, 1, 2].map((k: number): number => Math.floor(Math.max(P[a + k]!, P[b + k]!, P[c + k]!) / cell));
+      for (let i: number = lo[0]!; i <= hi[0]!; i++)
+        for (let j: number = lo[1]!; j <= hi[1]!; j++)
+          for (let k: number = lo[2]!; k <= hi[2]!; k++) {
+            const list: number[] | undefined = grid.get(key(i, j, k));
+            if (list === undefined) grid.set(key(i, j, k), [t]);
+            else list.push(t);
+          }
     }
-    return points.map((point: V3): number => index.read(point));
+    return points.map((p: V3): number => {
+      const i: number = Math.floor(p[0] / cell);
+      const j: number = Math.floor(p[1] / cell);
+      const k: number = Math.floor(p[2] / cell);
+      let best: number = Infinity;
+      for (let a: number = -1; a <= 1; a++)
+        for (let b: number = -1; b <= 1; b++)
+          for (let c: number = -1; c <= 1; c++)
+            for (const t of grid.get(key(i + a, j + b, k + c)) ?? [])
+              best = Math.min(
+                best,
+                triangleDistance(p, point(skin, skin.I[t]!), point(skin, skin.I[t + 1]!), point(skin, skin.I[t + 2]!)),
+              );
+      return best;
+    });
   }
 
   /** Exact distance from a point to a triangle. */
@@ -657,12 +637,12 @@ interface IRayGrid {
   cells: Map<number, number[]>[];
 }
 
-const binds: Map<string, HumanAnatomy.ISkin> = new Map();
+/** Failed final-skin production is preserved for every later region, exactly like successful output. */
+const binds: HumanOnce<HumanAnatomy.ISkin> = new HumanOnce();
 const poses: Map<string, HumanAnatomy.ISkin> = new Map();
 const bindings: Map<string, { joints: string[]; boneIndices: number[]; weights: number[] }> = new Map();
 const rayGrids: WeakMap<HumanAnatomy.ISkin, IRayGrid> = new WeakMap();
-/** A compiled nearest reader dies with its immutable skin. */
-const distanceIndices: WeakMap<HumanAnatomy.ISkin, HumanSkinDistance> = new WeakMap();
+const triangleGrids: WeakMap<HumanAnatomy.ISkin, { cell: number; grid: Map<number, number[]> }> = new WeakMap();
 
 /** Cut every triangle a plane crosses into segments, joined into loops by shared edges. */
 function pieces(

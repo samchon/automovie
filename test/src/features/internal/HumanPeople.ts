@@ -1,7 +1,6 @@
 import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
-import { HumanOutcomeCache } from "./HumanOutcomeCache";
+import { HumanOnce } from "./HumanOnce";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanHermiteCurve } from "../../../../packages/human/src/lofting/IAutoMovieHumanHermiteCurve";
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
 import { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
@@ -27,12 +26,6 @@ export namespace HumanPeople {
 
     /** The generated body. */
     body: IAutoMovieHumanBodyCalibration;
-
-    /** Actual exterior colour-boundary curve consumed by appearance, in mm. */
-    vermilion: IAutoMovieHumanHermiteCurve;
-
-    /** Construction defects and closure residuals, separate from anatomy claims. */
-    headDiagnostics: AutoMovieHumanBodyLaw.IOutput["headDiagnostics"];
   }
 
   /** A generated person with a rig and a pose evaluator. */
@@ -52,32 +45,18 @@ export namespace HumanPeople {
     return [...inputs().keys()];
   }
 
-  /** Registered public inputs without generating geometry; callers must clone before editing. */
-  export function parameters(name: string): IAutoMovieHumanParameters {
-    return inputs().get(name)!;
-  }
-
   /** One person, generated on first use. */
   export function person(name: string): IPerson {
-    const params: IAutoMovieHumanParameters = parameters(name);
-    return persons.read(name, params, (): IPerson => {
-      const calibrated: AutoMovieHumanBodyLaw.IOutput = AutoMovieHumanBodyLaw.calibrate(params);
-      const made: IPerson = {
-        name,
-        params,
-        body: calibrated.body,
-        vermilion: calibrated.vermilion,
-        headDiagnostics: calibrated.headDiagnostics,
-      };
-      return made;
+    return persons.read(name, (): IPerson => {
+      const params: IAutoMovieHumanParameters = inputs().get(name)!;
+      return { name, params, body: AutoMovieHumanBodyLaw.calibrate(params).body };
     });
   }
 
   /** One person with a rig and pose evaluator, prepared on first use. */
   export function rigged(name: string): IRigged {
+    return riggeds.read(name, (): IRigged => {
     const own: IPerson = person(name);
-    const found: IRigged | undefined = riggeds.get(name);
-    if (found !== undefined) return found;
     const scale: number =
       0.001 * (own.params.body.controls.height.value! / own.body.stature);
     const made: IRigged = {
@@ -88,14 +67,15 @@ export namespace HumanPeople {
         calibration: own.body,
       }),
     };
-    riggeds.set(name, made);
     return made;
+    });
   }
 }
 
-/** One immutable outcome per alias, including failures repeated across anatomy consumers. */
-const persons: HumanOutcomeCache<HumanPeople.IPerson> = new HumanOutcomeCache();
-const riggeds: Map<string, HumanPeople.IRigged> = new Map();
+/** Both successful geometry and the identical native failure are shared by every test consumer. */
+const persons: HumanOnce<HumanPeople.IPerson> = new HumanOnce();
+/** Preparing a rig also preserves its exact failed outcome instead of retrying it per region. */
+const riggeds: HumanOnce<HumanPeople.IRigged> = new HumanOnce();
 let table: Map<string, IAutoMovieHumanParameters> | null = null;
 
 /** Every person's inputs. */

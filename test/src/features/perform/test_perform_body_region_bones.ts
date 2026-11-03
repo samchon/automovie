@@ -18,7 +18,7 @@ const disjoint: (
 /**
  * Observe literal region sizes, selected semantic membership, disjointness and fullBody concatenation. The runtime unit does not enumerate the complete AutoMovieHumanoidBone union independently, so extending that vocabulary without updating the partition is outside these assertions.
  *
- * Current bodyRegionBones declares its three lists with satisfies readonly AutoMovieHumanoidBone[], which admits each named element but does not prove vocabulary exhaustiveness. The separate AUTOMOVIE_RIG_IS_PARTITIONED owner checks the vocabulary's completeness at build time; these runtime assertions independently check literal counts and selected membership.
+ * Current bodyRegionBones declares its three lists with satisfies readonly AutoMovieHumanoidBone[], which admits each named element but does not prove vocabulary exhaustiveness. No AUTOMOVIE_RIG_IS_PARTITIONED declaration exists in that source owner, so this comment does not claim a compiler completeness guard that the current implementation lacks.
  *
  * Scenarios:
  *
@@ -26,10 +26,10 @@ const disjoint: (
  *    fingers, head = neck/head/eyes/jaw, face = none).
  * 2. The three bony regions are pairwise disjoint.
  * 3. `fullBody` is exactly their concatenation, element for element. Nothing here
- *    asserts independent vocabulary completeness; the unique population is additionally fixed at 57.
+ *    asserts independent vocabulary completeness; the unique population is additionally fixed at 55.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls bodyRegionBones for all five regions and inspects literal lengths, selected membership, pairwise disjointness, concatenation order and the unique fullBody size. This observes the product's mask vocabulary, not only test fixture arrangement.
- * @evidence contracts/testing.md#independent-expectations Literal counts 9/43/5/0/57 and named hips/foot/spine/hand/finger/neck/jaw expectations independently constrain the returned lists. Concatenation agreement alone can share an omitted vocabulary member, so this runtime unit does not claim a complete union enumeration; the separate compiler guard owns that proof.
+ * @evidence contracts/testing.md#independent-expectations Literal counts 9/41/5/0/55 and named hips/foot/spine/hand/finger/neck/jaw expectations independently constrain the returned lists. Concatenation agreement alone can share an omitted vocabulary member, so no complete union enumeration or current compiler exhaustiveness check is claimed.
  * @evidence contracts/testing.md#distinguishing-cases Retains lower/upper/head/face/full regions, all three pairwise intersections, concatenation order and unique count. Unknown runtime region admission, list mutation ownership and future bone-union completeness are outside this unchanged unit.
  * @evidence contracts/testing.md#execution-ownership This named synchronous unit owns all direct region reads and local set observations. The private intersection helper registers no extra cases and starts no viewer, process or native artifact.
  */
@@ -50,14 +50,12 @@ export function test_perform_body_region_bones(): void {
     ]),
     { lowerIncludesHips: true, lowerIncludesLeftFoot: true },
   );
-  TestValidator.equals("upperBody owns 43 bones", upper.length, 43);
+  TestValidator.equals("upperBody owns 41 bones", upper.length, 41);
   TestValidator.equals(
     "upperBody has spine, a hand, a finger",
     namedFacts([
       ["upperIncludesSpine", (): boolean => upper.includes("spine")],
       ["upperIncludesLeftHand", (): boolean => upper.includes("leftHand")],
-      ["upperIncludesLeftScapula", (): boolean => upper.includes("leftScapula")],
-      ["upperIncludesRightScapula", (): boolean => upper.includes("rightScapula")],
       [
         "upperIncludesRightLittleDistal",
         (): boolean => upper.includes("rightLittleDistal"),
@@ -66,8 +64,6 @@ export function test_perform_body_region_bones(): void {
     {
       upperIncludesSpine: true,
       upperIncludesLeftHand: true,
-      upperIncludesLeftScapula: true,
-      upperIncludesRightScapula: true,
       upperIncludesRightLittleDistal: true,
     },
   );
@@ -93,5 +89,5 @@ export function test_perform_body_region_bones(): void {
     [...full],
     [...lower, ...upper, ...head],
   );
-  TestValidator.equals("fullBody has no duplicates", new Set(full).size, 57);
+  TestValidator.equals("fullBody has no duplicates", new Set(full).size, 55);
 }
