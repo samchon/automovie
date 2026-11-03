@@ -16,10 +16,11 @@ import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
  * `crop` points away from the crown's whorl (`AutoMovieHumanHairCrown`);
  * `short` blends its combed top (`AutoMovieHumanHairFlowShortTop`) with its
  * falling rest (`AutoMovieHumanHairFlowShortRest`) by the larger of the top
- * and front weights; `bob` blends its sweep (`AutoMovieHumanHairFlowBobSweep`)
- * with its fall (`AutoMovieHumanHairFlowBobFall`) by the top weight times
- * the share of the head that is not the back
- * (`AutoMovieHumanHairFlowWeights`). Directions are in the chart's frame
+ * and front weights; `bob` blends its comb away from the parting
+ * (`AutoMovieHumanHairFlowBobSweep`) with its fall
+ * (`AutoMovieHumanHairFlowBobFall`) by the share of the head that is not the
+ * back (`AutoMovieHumanHairFlowWeights`), since the parting runs from the
+ * hairline back to the crown. Directions are in the chart's frame
  * (`+X` forward, `+Y` up, `+Z` the person's left); paired sides come from
  * the parting's signed side alone, so a symmetric style's field is
  * mirror-symmetric.
@@ -62,11 +63,12 @@ export namespace AutoMovieHumanHairFlow {
       );
     }
 
-    // Bob: the sweep over the top and front, the fall behind.
-    const mix: number = upper * (1 - AutoMovieHumanHairFlowWeights.back(u));
+    // Bob: combed away from the parting in front of the back of the head,
+    // falling behind it.
+    const mix: number = 1 - AutoMovieHumanHairFlowWeights.back(u);
     return AutoMovieHumanSkinVector.add(
       AutoMovieHumanSkinVector.scale(
-        AutoMovieHumanHairFlowBobSweep.direction(front, side),
+        AutoMovieHumanHairFlowBobSweep.direction(u, side),
         mix,
       ),
       AutoMovieHumanSkinVector.scale(

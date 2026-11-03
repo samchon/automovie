@@ -131,7 +131,7 @@ export namespace AutoMovieHumanHairGuideStart {
         ),
         reach:
           AutoMovieHumanHairStrandLocks.vary(u) *
-          AutoMovieHumanHairStrandBase.base(style, hair.length, u),
+          AutoMovieHumanHairStrandBase.physical(style, hair.length, u),
       },
       state: {
         p,
