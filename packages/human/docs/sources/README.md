@@ -32,6 +32,7 @@ Each note records one external source: its citation, what was read, what it prov
 - [Donner and Jensen 2006, spectral BSSRDF for skin](donner-jensen-2006-spectral-skin.md)
 - [Fink 2008, visual attention to facial skin colour distribution](fink-2008-skin-colour-distribution.md)
 - [Garg and Garg 2017, hairline design including forehead curvature](garg-2017-hairline-design.md)
+- [Goldstein, Warren and Ball 2012, the shape of a ponytail](goldstein-2012-ponytail.md)
 - [Jacques 1998, skin optics summary](jacques-1998-skin-optics.md)
 - [Jimenez 2010, practical appearance model for dynamic facial colour](jimenez-2010-dynamic-facial-color.md)
 - [Jung and Yun 2014, total hairline correction in women](jung-2014-female-hairline-correction.md)

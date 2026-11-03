@@ -21,7 +21,9 @@ ISO 8559-1 5.7.6 defines the inside leg length as the vertical distance from the
 
 ## Mid-patella and tapes
 
-Mid-patella stands 36 mm under the knee centre on the references (38, 34, 36, 36 mm; ANSUR II: 16.9 mm women and 3.3 mm men under the lateral epicondyle, 11.2 and 20.2 mm above tibiale). The calf's maximum stands at 0.335 to 0.345 of the shank below the knee, the thigh's at the top row under the crotch. The thigh, knee and calf inputs are the source's native courses (horizontal loops at fixed heights), which fall short of a taut tape round their own loops; the pieces solve the tapes on the emitted hull at the sites above.
+Mid-patella stands 36 mm under the knee centre on the references (38, 34, 36, 36 mm; ANSUR II: 16.9 mm women and 3.3 mm men under the lateral epicondyle, 11.2 and 20.2 mm above tibiale). The calf's maximum stands at 0.335 to 0.345 of the shank below the knee, the thigh's at the top row under the crotch. The pieces solve the tapes on the emitted hull at the sites above.
+
+The thigh tape's site is ISO 8559-1 5.3.20, the widest girth just below the gluteal fold. On the references the fold (the posterior profile's deepest notch under the buttock) stands 36, 36 and 16 mm under the crotch on f1, f2 and m2, and m1 shows none. The thigh's 0.25 row stands about 33 mm under the crotch on f1, at the fold, and is the widest of the thigh rows, so it is the tape's site (`AutoMovieHumanLegGirth.THIGH_SITE`). The thigh rows are read relative to the table's own ratio at that share, so a different declared site moves that one declaration and the rest of the law follows.
 
 ## Landmark rows
 
@@ -39,4 +41,6 @@ A table row on or past a ring is dropped. So is a row nearer to the ring than ha
 
 The chart origin of every section is its centroid, because the rows were read about the references' centroids. It is a natural spline through three places no fit chooses: the ankle ring's centroid, the knee centre (the midpoint of the femoral condyles, the centre of the knee section) and the crotch arc's centroid.
 
-Reliefs join the base by the shared operators along each knot's own ray. A window whose axis points out of the leg adds volume only. One whose axis points into the leg is a declared recess: the infragluteal fold, the inguinal crease, the popliteal fossa and the trochanteric depression. The infragluteal fold's window spans 171 to 229 degrees round the thigh, from posterior to posteromedial, so the fold is deepest medially and absent on the lateral third, as on the references.
+Reliefs join the base by the shared operators along each knot's own ray. A window whose axis points out of the leg adds volume only. One whose axis points into the leg is a declared recess: the infragluteal fold and the popliteal fossa. The infragluteal fold's window spans 171 to 229 degrees round the thigh, from posterior to posteromedial, so the fold is deepest medially and absent on the lateral third, as on the references. Its centre is the leg's first own row under the crotch ring, where the trunk's ring has handed the skin over to the leg's law (on f1 about 33 mm under the crotch, against the references' fold at 36 mm).
+
+The inguinal crease and the trochanteric depression are not leg pieces. The inguinal crease runs obliquely from the anterior superior iliac spine to the pubic tubercle, above the crotch ring, on the trunk's skin; the hollow behind the greater trochanter stands at about the hip centre's height, also above the ring. Placed as horizontal windows on the thigh's root, the two lined up with the infragluteal fold into one groove round the thigh under the ring.
