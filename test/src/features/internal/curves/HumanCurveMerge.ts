@@ -15,9 +15,12 @@ const A: typeof HumanAnatomy = HumanAnatomy;
  * chain that carries reliefs is evaluated twice at the same stations and
  * phases, as delivered (the merged surface) and with its reliefs removed (the
  * base envelope). Inside every relief's window the merged point less the base
- * point, read along the base's outward normal, is never negative: a
- * protruding piece only adds volume, and a recess belongs to the base or to a
- * declared subtractive piece.
+ * point is read along the base's outward normal, and a relief is one-signed:
+ * an additive piece (its largest displacement outward) never goes inward, and
+ * a subtractive piece (its largest displacement inward: the umbilicus, the
+ * spinal furrow, the jugular notch) never goes outward, each within a
+ * hundredth of a millimetre. A relief that changes sign is the failure, the
+ * same claim `test_human_trunk_merge` reads on the trunk's pieces.
  */
 export namespace HumanCurveMerge {
   /** Least outward displacement inside a window, mm: a hundredth of a millimetre, far under any modelled feature. */
@@ -35,6 +38,8 @@ export namespace HumanCurveMerge {
 
       for (const relief of reliefs) {
         let inward: number = Infinity;
+        let outmost: number = -Infinity;
+        let outmostAt: string = "";
         let inwardAt: string = "";
         const lo: number = Math.max(first, relief.stations[0]);
         const hi: number = Math.min(last, relief.stations[1]);
@@ -46,6 +51,10 @@ export namespace HumanCurveMerge {
             const d: V3 = A.sub(merged[j]!, plain[j]!);
             if (inWindow(relief, s, t)) {
               const h: number = A.dot(d, normals[j]!);
+              if (h > outmost) {
+                outmost = h;
+                outmostAt = `station ${s.toFixed(0)}, phase ${((t * 180) / Math.PI).toFixed(0)} deg`;
+              }
               if (h < inward) {
                 inward = h;
                 inwardAt = `station ${s.toFixed(0)}, phase ${((t * 180) / Math.PI).toFixed(0)} deg`;
@@ -53,7 +62,16 @@ export namespace HumanCurveMerge {
             }
           });
         }
-        out.push({ person, site: `${chain.name} relief ${relief.name}: least outward displacement over its base, at ${inwardAt} (MRG-5)`, value: inward, low: INWARD, high: Infinity, unit: "mm" });
+        // The relief is additive when its largest displacement is outward, subtractive when inward; either way it never takes the other sign.
+        const additive: boolean = outmost >= -inward;
+        out.push({
+          person,
+          site: `${chain.name} relief ${relief.name}, ${additive ? "additive" : "subtractive"} by its largest displacement (${(additive ? outmost : inward).toFixed(2)} mm): its displacement of the other sign, at ${additive ? inwardAt : outmostAt} (MRG-5)`,
+          value: additive ? inward : -outmost,
+          low: INWARD,
+          high: Infinity,
+          unit: "mm",
+        });
       }
     }
     return out;

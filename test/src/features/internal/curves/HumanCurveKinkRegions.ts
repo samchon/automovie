@@ -210,6 +210,51 @@ export namespace HumanCurveKinkRegions {
     applies: lean,
   };
 
+  /**
+   * STEP-LG-1 and STEP-LG-2, each thigh's root where the leg leaves the
+   * trunk: half-planes through the femur's axis (hip joint to knee joint),
+   * from 0.05 to 0.35 of the femur below the hip joint, over the lateral 120
+   * degrees. The medial side is left out: the inguinal crease in front and
+   * the gluteal sulcus behind are real creases there (Gray 1918); the
+   * thigh's lateral root over the greater trochanter carries none.
+   */
+  export function groin(side: "left" | "right"): IRegion {
+    return {
+      name: `${side} thigh root, lateral meridians`,
+      rule: side === "left" ? "STEP-LG-1" : "STEP-LG-2",
+      chains: new RegExp(`^(trunk|leg\\.${side})$`),
+      frame: (skin: HumanAnatomy.ISkin, S: number): HumanCurveKinks.IFrame => {
+        const hip: V3 = A.joint(skin, `${side}UpperLeg`);
+        const knee: V3 = A.joint(skin, `${side}LowerLeg`);
+        const L: number = A.dist(hip, knee);
+        return { origin: hip, axis: A.unit(A.sub(knee, hip)), forward: [1, 0, 0], from: 0.05 * L, to: 0.35 * L, reach: 0.12 * S };
+      },
+
+      // The axis runs down, so `axis x forward` points to the body's left (+Z):
+      // lateral for the left thigh (90 degrees), medial for the right.
+      azimuths: side === "left" ? sweep(30, 150, 15) : sweep(210, 330, 15),
+    };
+  }
+
+  /**
+   * DENT-TR-1, the sides of the hips from the trochanters' level to below
+   * the iliac crests, 0.50 S to 0.60 S: vertical half-planes through the
+   * spine's joint, at the lateral azimuths (70 to 110 degrees either side).
+   * Gluteus medius covers the iliac wing there in one convex run (Gray
+   * 1918); the iliac crest's lateral fold of adiposity lies above 0.60 S and
+   * is the lean-fold rule's.
+   */
+  export const HIP: IRegion = {
+    name: "sides of the hips, vertical meridians",
+    rule: "DENT-TR-1",
+    chains: /^(trunk|leg\.(left|right))$/,
+    frame: (skin: HumanAnatomy.ISkin, S: number): HumanCurveKinks.IFrame => {
+      const spine: V3 = A.joint(skin, "spine");
+      return { origin: [spine[0], 0, 0], axis: [0, 1, 0], forward: [1, 0, 0], from: 0.5 * S, to: 0.6 * S, reach: 0.3 * S };
+    },
+    azimuths: [...sweep(70, 110, 10), ...sweep(250, 290, 10)],
+  };
+
   /** Every region, in the order the defect tests read them. */
-  export const ALL: readonly IRegion[] = [NECK_BASE, shoulder("left"), shoulder("right"), TEMPLE, FOREHEAD, shank("left"), shank("right"), ABDOMEN, BACK, NECK_FRONT];
+  export const ALL: readonly IRegion[] = [NECK_BASE, shoulder("left"), shoulder("right"), TEMPLE, FOREHEAD, shank("left"), shank("right"), ABDOMEN, BACK, NECK_FRONT, groin("left"), groin("right"), HIP];
 }

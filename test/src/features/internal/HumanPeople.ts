@@ -51,9 +51,22 @@ export namespace HumanPeople {
   /** The environment variable that selects the extended set. */
   export const SET_VARIABLE: string = "AUTOMOVIE_HUMAN_PEOPLE";
 
-  /** The names of the set this run reads, without generating anyone. */
+  /**
+   * The names of the set this run reads, without generating anyone: the core
+   * set; every person when {@link SET_VARIABLE} is `extended`; or, when it
+   * lists names separated by commas (such as `f1` or `f1,m2`), those people
+   * only, for a diagnostic run that must not wait for the whole set.
+   *
+   * @throws {Error} When the variable names a person the table does not hold.
+   */
   export function names(): string[] {
-    const extended: boolean = process.env[SET_VARIABLE] === "extended";
+    const value: string | undefined = process.env[SET_VARIABLE];
+    if (value !== undefined && value !== "" && value !== "extended") {
+      const listed: string[] = value.split(",").map((s: string): string => s.trim());
+      for (const name of listed) entry(name);
+      return [...table().keys()].filter((name: string): boolean => listed.includes(name));
+    }
+    const extended: boolean = value === "extended";
     return [...table().values()].filter((e: IEntry): boolean => extended || e.core).map((e: IEntry): string => e.name);
   }
 
