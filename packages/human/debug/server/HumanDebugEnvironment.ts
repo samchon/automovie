@@ -31,7 +31,7 @@ export function HumanDebugEnvironment(directory: string): IHumanDebugEnvironment
     repository: path.resolve(directory, "../.."),
     people: path.resolve(directory, "../playground/src/human-parameters"),
     port,
-    checkLog: process.env.AUTOMOVIE_HUMAN_CHECK_LOG ?? path.join(shots, "debug", "ttsc-debug-watch.log"),
+    checkLog: process.env.AUTOMOVIE_HUMAN_CHECK_LOG ?? path.join(shots, "debug", "ttsc-test-watch.log"),
     slots,
     slotRoot: process.env.AUTOMOVIE_HUMAN_SLOT_ROOT ?? path.join(shots, "locks", "generation"),
     evidence: path.join(shots, "debug"),

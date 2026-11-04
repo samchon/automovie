@@ -11,11 +11,11 @@ const OUTPUT: number = 131072;
 /**
  * Read the latest cycle of the separate `ttsc --watch` log.
  *
- * The server runs no checker: one long-running `ttsc --noEmit --watch -p tsconfig.debug.json`
+ * The server runs no checker: the one long-running collector, `ttsc --noEmit --watch` in `test/`,
  * appends every cycle to a log, and this reads the text after the last `[ttsc] rebuilding` line.
  * The cycle passed when it holds `[ttsc] watch build complete`, failed with `[ttsc] watch build
  * failed`, and is still checking otherwise. A missing or unreadable log is `unknown`, with the
- * reason as its output. The page and the image and batch routes generate only on `passed`.
+ * reason as its output. The page and the image and batch routes report it as information.
  *
  * @param log Path of the log.
  * @returns The latest cycle's state.

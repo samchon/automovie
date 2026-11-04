@@ -22,8 +22,8 @@ const ENVIRONMENT: IHumanDebugEnvironment = HumanDebugEnvironment(DIRECTORY);
  * restarts the server itself when its configuration file or a module the configuration imports
  * changes (`vite.config.ts`, `debug/server`, `debug/contracts`, `debug/poses`).
  *
- * Vite strips the types and checks none; the separate `ttsc --watch -p tsconfig.debug.json`
- * checks them, and the page and the image and batch routes generate only on its passed cycle.
+ * Vite strips the types and checks none; the one compile collector, `ttsc --noEmit --watch` in
+ * `test/`, checks them, and the page and the image and batch routes report its latest cycle.
  * Each port gets its own dependency cache, under the repository's `node_modules` so that its
  * rewrites never reach the collectors' watch on the package, and several viewers run side by side.
  */
