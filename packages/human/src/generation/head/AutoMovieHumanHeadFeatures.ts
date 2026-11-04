@@ -43,6 +43,9 @@ export namespace AutoMovieHumanHeadFeatures {
 
     /** The part's own size the blend width follows: its height and its least half extent, mm. */
     size: [number, number];
+
+    /** The part it joins: `head.mass`, or another part's chain name. */
+    parent: string;
   }
 
   /** Depth of a part's base inside the head mass, mm. */
@@ -145,6 +148,7 @@ export namespace AutoMovieHumanHeadFeatures {
       seed,
       contact: INSET,
       size: [h - INSET, Math.min(...extents)],
+      parent: "head.mass",
     };
   }
 

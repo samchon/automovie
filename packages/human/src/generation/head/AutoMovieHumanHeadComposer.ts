@@ -9,6 +9,7 @@ import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanS
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
+import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 
 /**
@@ -68,15 +69,24 @@ export namespace AutoMovieHumanHeadComposer {
   export function compose(plan: IAutoMovieHumanHeadLayout, ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar }): IOutput {
     const mass: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(AutoMovieHumanHeadMassPart.of(plan));
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...mass.diagnostics];
-    const host: IAutoMovieHumanSolidSurface | null = mass.surface;
-    const parts: IJoined[] = AutoMovieHumanHeadFeatures.of(plan, ears).map((feature: AutoMovieHumanHeadFeatures.IFeature): IJoined => {
+    // Parents before their inner parts, each joined to its parent's bare
+    // surface.
+    const surfaces: Map<string, IAutoMovieHumanSolidSurface | null> = new Map([["head.mass", mass.surface]]);
+    const features: AutoMovieHumanHeadFeatures.IFeature[] = [...AutoMovieHumanHeadFeatures.of(plan, ears), ...AutoMovieHumanHeadInnerParts.of(plan)];
+    const parts: IJoined[] = features.map((feature: AutoMovieHumanHeadFeatures.IFeature): IJoined => {
       const loft: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(feature.part);
       diagnostics.push(...loft.diagnostics);
+      surfaces.set(feature.part.name, loft.surface);
+      const host: IAutoMovieHumanSolidSurface | null = surfaces.get(feature.parent) ?? null;
       if (host === null || loft.surface === null) return { feature, loft, join: null };
 
-      // The seed: the landmark's foot on the head mass, from the station at
-      // its height and the phase toward it about the head's axis.
-      const guess: [number, number] = [feature.seed[1], Math.atan2(feature.seed[2], feature.seed[0] - plan.centre)];
+      // The seed: the landmark's foot on the parent, on the head mass from
+      // the station at its height and the phase toward it about the head's
+      // axis, on a parent part from the middle of its base.
+      const guess: [number, number] =
+        feature.parent === "head.mass"
+          ? [feature.seed[1], Math.atan2(feature.seed[2], feature.seed[0] - plan.centre)]
+          : [AutoMovieHumanHeadFeatures.INSET, Math.atan2(feature.seed[2], feature.seed[0])];
       const foot: AutoMovieHumanSolidFoot.IFoot | null = AutoMovieHumanSolidFoot.of(host, feature.seed, guess, TOLERANCE);
       if (foot === null) {
         diagnostics.push({ producer: `head.${feature.part.name}`, level: 2, contract: "seed", detail: "the landmark has no foot on the head mass" });
