@@ -1,6 +1,7 @@
 /**
- * The outline knot tables estimated from the private reference curves, the
- * shapes the view parts draw between the published measures that size them.
+ * Outline data between the published measures that size the view parts:
+ * private-reference knot tables and the separately cited public upper-lid
+ * Bézier control points, {@link SHIN_UPPER_LID}.
  *
  * Estimated from the private reference set (f1, f2, m1 and m2, aggregated as
  * normalized ratios, `.references/curves`); no published source carries these
@@ -15,11 +16,45 @@
  * neighbours. A table whose rows are empty would wait for its reading's run,
  * and its reader reports that rather than inventing a shape.
  *
- * Scaling: every value is a share of one of the person's own measures, named
- * per table, so a person's outline is the table times their measure; the
- * stations are shares between the person's own landmarks.
+ * Scaling: the private tables contain shares of the person's own measures;
+ * stations are shares between landmarks. SHIN_UPPER_LID instead retains its
+ * published photo-scale millimetres and pupil datum for an explicit mapping.
+ *
+ * @evidence contracts/common.md#principled-implementation Separates observed normalized outlines from published upper-lid control points and states every datum and missing-cell rule.
+ * @evidence contracts/common.md#clear-and-simple-design One namespace publishes fixed data and one linear reader; builders own their geometric mapping.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No generated output or individual reference coordinates enter; the public lid data has no person branch or fitted compensation.
+ * @evidence contracts/common.md#meaningful-documentation Names provenance, units, normalization, consumers and the incomplete observations.
+ * @evidence contracts/performance.md#efficient-algorithms The reader filters n rows then scans the retained rows, O(n) time and temporary space; fixed-size control data performs no geometry work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Consumers share the same module tables and public control record, without an output-dependent cache or copied coefficients.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed module data survives; column filtering is call-local and retains no figure or source pack.
  */
 export namespace AutoMovieHumanReferenceOutlines {
+  /**
+   * Shin et al. 2025, PLOS One e0316714, S3 Appendix's executed cubic
+   * matrices P2 (female) and P1 (male), not its inconsistent example prose.
+   * Points are [temporal-to-nasal, superior] in photo-scale mm about the pupil;
+   * a 12 mm corneal diameter supplies scale. Endpoints span the medial
+   * commissure to lateral canthus, not an unoccluded 3D en-ex measurement.
+   * Sex assignment is inferred by matching the published widths and peaks.
+   * `head/AutoMovieHumanHeadEyeParts` maps the chord and its residual to the
+   * supplied endpoints and pupil-height constraint; this is upper margin only.
+   * That consumer samples the cubic into loft knots; their subsequent spline
+   * is a numerical approximation, not the unchanged analytic cubic.
+   * Source and limitations: `docs/sources/shin-2025-upper-eyelid-contour.md`.
+   *
+   * @evidence contracts/common.md#principled-implementation Retains the primary supplement's four control points in their stated datum, independently of a generated person.
+   * @evidence contracts/common.md#clear-and-simple-design A fixed record supplies the single eye-parts consumer without a second curve builder.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not fill the private FISSURE gaps or invent a lower margin, forward course or tissue thickness.
+   * @evidence contracts/common.md#meaningful-documentation States the source matrices, coordinate directions, photographic scale and required endpoint mapping.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A fixed eight-point data declaration has no algorithm.
+   * @evidence contracts/performance.md#reuse-equivalent-work The eye consumer imports this record rather than transcribing its own data.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Eight immutable-by-type coordinate pairs retain no figure, image or reference pack.
+   */
+  export const SHIN_UPPER_LID: Readonly<Record<"female" | "male", readonly [readonly [number, number], readonly [number, number], readonly [number, number], readonly [number, number]]>> = {
+    female: [[-12.770, -0.405], [-3.345, 9.527], [8.919, 3.497], [12.061, -4.764]],
+    male: [[-12.869, -0.972], [-7.529, 5.598], [7.375, 6.139], [12.382, -4.274]],
+  };
+
   /** One station of a table: its share and its columns' values. */
   export interface IRow {
     /** The station's share between the table's landmarks. */

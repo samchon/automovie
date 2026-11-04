@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 published upper-lid record review (2026-11-05 01:57:53 +09:00, Get-Date)
+
+`ReferenceOutlines.SHIN_UPPER_LID` is ready as its own data topic. S3's eight published control points were compared with its executed cubic matrices; sex assignment is explicitly inferred from the article's widths and peaks. The tuple record retains photo-scale millimetres and pupil origin, and the source note distinguishes published curve coefficients from measured landmarks. Existing private outline cells are unchanged. The current file ends at physical line 475, verified with `rg -n`; earlier handoff counts of 478/480 were inaccurate and are superseded here.
+
+The complete data diff, original S3 text/plot, article tables, current EyeParts consumer, sex-coordinate input path and declaration evidence were reviewed. The final round found no additional issue after correcting namespace cost/immutability claims and recording the consumer's spline approximation. No second builder, runtime cache, f1 fit or lower-lid coefficient was introduced by the data record. Whitespace checks are clean. HEAD owns the realization and appearance checks; this review accepts the data/source contract only.
+
+The debug collector completed its 01:56:30 cycle. Test's latest completed cycle failed solely on `runConstructionZeroTurn.ts` exporting `main` against the singular-file rule, and was rebuilding from 01:57:50; that unrelated helper's owner and supervisor received the exact TS12028 diagnostic. Earlier test/debug cycles after the actual margin import had completed. No new test, Human generation or private-reference reading was run here. Shared push waits for supervisor coordination; source-reading scratch remains while HEAD finishes using it.
+
 ## #3062 datum contracts settled for commit (2026-11-05 01:51:22 +09:00, Get-Date)
 
 The final retained-law review found no additional issue after separating the two foot normalizers, vertex means, skeletal proxies and neck tape sites. The two TypeScript law-file diffs contain comments only; every coefficient, type and executable expression is unchanged. The complete owned diffs and current consumers were read, declaration evidence was checked against common/performance, and whitespace checks are clean. No runtime test is needed for this documentation-only change. Both shared collectors completed later cycles, test 01:45:08 and debug 01:48:30; their next rebuilds are 01:50:12 and 01:50:27. No duplicate collector was started.

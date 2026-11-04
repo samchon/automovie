@@ -4,7 +4,7 @@ Shin DY, Cho WK, Paik JS, Yang SW. "Upper eyelid contour measurement in an Asian
 
 ## Population and definition
 
-80 Korean clinic patients, 40 women and 40 men, aged 20-39, photographed in primary gaze. A cubic Bézier curve describes the upper margin from medial palpebral commissure to lateral canthus. Coordinates use the pupil centre; photographs assume a 12 mm white-to-white corneal diameter for scale. Eye width is the horizontal endpoint separation. This differs from an unoccluded en-ex distance.
+80 Korean clinic patients, 40 women and 40 men, aged 20-39, photographed in primary gaze. A cubic Bézier curve describes the upper margin from medial palpebral commissure to lateral canthus. Coordinates use the pupil centre; photographs assume a 12 mm white-to-white corneal diameter for scale. Eye width is the horizontal endpoint separation. This differs from an unoccluded en-ex distance. Grade: published curve coefficients, not directly measured control-point landmarks.
 
 ## Reading and use
 
