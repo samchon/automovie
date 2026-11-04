@@ -268,17 +268,22 @@ export namespace AutoMovieViewSection {
 
   /**
    * The section's length, `integral sqrt(rho^2 + rho_phi^2) dphi`, by
-   * Gauss-Legendre quadrature on equal parts of each quarter; the integrand
-   * is smooth inside a quarter, so the rule converges spectrally.
+   * Gauss-Legendre quadrature on each knot span: the radius is one quintic
+   * inside a span and only C2 across its knots, so the rule converges
+   * spectrally per span, where panels across knots lost it (0.07 mm on a
+   * 158 mm girth once the knots follow the conic's turn).
    *
    * @param section The section.
    * @returns Its length, mm; its taut-tape girth while it is convex.
    */
   export function length(section: ISection): number {
     let sum: number = 0;
-    const h: number = QUARTER / PARTS;
-    for (let k: number = 0; k < 4 * PARTS; k++) {
-      const middle: number = (k + 0.5) * h;
+    const angles: number[] = section.knots.map((k: AutoMoviePolarSector.IGuide): number => k.angle);
+    for (let k: number = 0; k < angles.length; k++) {
+      const a: number = angles[k]!;
+      const b: number = k + 1 < angles.length ? angles[k + 1]! : angles[0]! + 2 * Math.PI;
+      const h: number = b - a;
+      const middle: number = (a + b) / 2;
       for (let i: number = 0; i < GAUSS_NODES.length; i++) {
         const [r, r1] = radius(section, middle + (GAUSS_NODES[i]! * h) / 2);
         sum += ((GAUSS_WEIGHTS[i]! * h) / 2) * Math.hypot(r, r1);
@@ -471,15 +476,6 @@ function zeros(n: number): number[] {
   }
   return z;
 }
-
-/**
- * Equal parts of each quarter for the length's quadrature. The
- * {@link GAUSS_NODES} eight-point rule is exact for polynomials of degree 15
- * on each part, and the speed `sqrt(rho^2 + rho_phi^2)` of a positive radius
- * is analytic there, so the error falls geometrically with the parts; the
- * ellipse test reads it against Ramanujan's perimeter.
- */
-const PARTS: number = 8;
 
 /** Gauss-Legendre nodes on `[-1, 1]`, eight points (Abramowitz and Stegun, table 25.4). */
 const GAUSS_NODES: readonly number[] = [
