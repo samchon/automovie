@@ -4,7 +4,7 @@ Hotzman J et al. *Measurer's Handbook: US Army and Marine Corps Anthropometric S
 
 ## Direct reading
 
-Printed pp. 33-34, 83-84, 112-115 and 139-140 were read; rendered figures on pp. 83/84/112/113 were also inspected. A later hand-datum follow-up directly read sections 5.2.36, 6.4.45 and 6.4.66, printed pp. 60, 121 and 142, as text only. The heel follow-up read the complete text and rendered figures of sections 6.4.49/6.4.50, printed pp. 125-126. PDF page numbers are ten greater. This is not a complete handbook reading.
+Printed pp. 33-34, 83-84, 112-115 and 139-140 were read; rendered figures on pp. 83/84/112/113 were also inspected. A later hand-datum follow-up directly read sections 5.2.36, 6.4.45 and 6.4.66, printed pp. 60, 121 and 142, as text only. The heel follow-up read the complete text and rendered figures of sections 6.4.49/6.4.50, printed pp. 125-126. The neck-site follow-up directly read the complete section 5.2.18/p. 40 and reopened pp. 139-140 as text, without claiming their figures. PDF page numbers are ten greater. This is not a complete handbook reading.
 
 ## Definitions and use
 
@@ -14,11 +14,19 @@ Neck girth, p. 139, is infrathyroid and perpendicular to the neck axis. The base
 
 ## Current consumer distinction, campaign #3062
 
-Human's public declarations independently specify the neck girth plane and the neck-base course over back, side and front neck points. The current NeckConstruction instead scales a retained nonplanar harmonic course by its XZ control-polygon perimeter. Its 3D length is a different quantity. HeadMassPart subsequently uses the neck tape's circle-equivalent radius with independent back/fullness profiles; it does not solve that source section's perimeter to the tape. Neither operation alone establishes the published measurement.
+Human's public declarations independently specify the neck girth plane and the neck-base course over back, side and front neck points. The current NeckSource scales a retained nonplanar harmonic course by its XZ control-polygon perimeter; NeckConstruction only adapts that shared record to the transitional trunk chain. Its 3D length is a different quantity. HeadMassPart subsequently uses the neck tape's circle-equivalent radius with independent back/fullness profiles; it does not solve that source section's perimeter to the tape. Neither operation alone establishes the published measurement.
 
 HeadLayout's top-ring mean station is also distinct from an actual landmark height. The current C7 definition includes the adopted posterior phase pi's vertical lift in that named point's height and passes its separate backLevel to the back-profile consumer. Shared round 64952 confirms the chosen height and actual mass/neck point sharing against an independent body calibration scale. This connects the chosen source points; identifying that phase anatomically and identifying the public tape plane remain separate decisions. The earlier [law audit checkpoint](../work/law-definition-audit.md#current-datum-checkpoint-2026-11-05-040146-0900) records the prior consumers and available geometric closure without adding a neck height or forward-shift coefficient. The head source pass does not close either neck tape or clear the full round's six failing cases.
 
 The current HumanAnatomyNeckSites observer uses the minimum girth along the rig's neck-to-head axis, explicitly without a larynx locator. Its base reading projects sampled concavity landmarks into an estimated plane before taking a convex-hull perimeter, and its C7 is the posterior base concavity. These definitions do not independently establish the public infrathyroid site, 3D base course or cervical spinous-process landmark. The handbook requires the Frankfurt head position and enough tape tension to maintain contact; it does not instruct a minimum-girth search along a rig segment or plane projection of the base course. See the [public/authored/observer comparison](../work/law-definition-audit.md#neck-public-authored-and-observed-definitions).
+
+## Neck site construction alternatives, campaign #3062
+
+Section 5.2.18 defines infrathyroid as the inferior midsagittal point of the thyroid cartilage. The measurer palpates down its smooth lateral surface to the gap above the cricoid, then marks the bottom point while the head is in Frankfurt position. No distance or ratio from C7, suprasternale, side-neck points or the clinical submental C is supplied. Human's resolved three heights and two tapes therefore do not locate that landmark uniquely. The public fields and their actual consumer were checked separately from this protocol; default heights are not observed f1 landmark positions.
+
+Two explicit geometric choices were supplied to HEAD without a new offset or site fraction. A retained site proxy F0 can use the existing head mass's anterior original point at y0. With v=world-up, its plane is `dot(P-F0,v)=0`, compatible with the current horizontal authoring. Alternatively take v along the secant between the retained top/bottom generating-row means and use the same plane equation. That changes the axis convention, not the known anatomy: neither F0 nor v is a measured infrathyroid definition, and clinical C/C7 must retain their own meanings. These are alternatives before a modeler choice, not saved neck geometry or accepted tape locations.
+
+For a chosen planar tape template R0 in a fixed plane, a positive homothety in that plane gives `G(lambda)=lambda*G0`, hence `lambda=G/G0`. This closes the declared tape curve's length while retaining its plane; its actual anterior point must still be named on the scaled curve. Shape/aspect, centre, site identity and taut skin contact remain separate premises. The nonplanar base course instead needs its three-dimensional arc-length equation with the independently supplied named heights, as recorded in the audit; a circle-equivalent radius or XZ perimeter is insufficient.
 
 ## Hand caliper follow-up, campaign #3062
 

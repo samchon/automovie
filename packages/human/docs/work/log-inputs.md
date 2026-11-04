@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 neck-site alternatives and ear confirmation (2026-11-05 07:00:05 +09:00, Get-Date)
+
+HEAD requested alternatives for the infrathyroid plane/site from existing named data. Directly reread the public fields, resolver/context, current NeckSource/Construction/HeadMass and complete ANSUR sections 5.2.18/6.4.63/6.4.64. The thyroid's palpated inferior point is not determined by C7/side/front heights and two tapes. Supplied a retained y0 anterior source-site proxy with either world-up or the retained generating-centre secant as explicitly chosen axis; neither is asserted measured thyroid anatomy. The source note gives planar homothety versus nonplanar base length and corrects normalization ownership to NeckSource. No new scalar, geometry, generation, oracle fit or research prerequisite was added.
+
+Directly read HEAD67779's completed 2/2 log, its named and old-query endpoint records and source findings. Its concha/helix confirmation is now distinguished from 99716's failures, while the independent public expectations/tolerance, left old-query gap, sampled envelope limit and unchanged 40 raw diagnostics remain explicit. Also read all 42 CORE counterexample case results and the full independent affine-support test: new support passes, five existing cases fail, and no new formula/oracle conflict was found. These are other workers' completed log observations, not this worker's executions or process-reaping claims. No viewer acceptance is asserted.
+
+At 07:01:42 +09:00 (Get-Date), reviewed the complete four-document diff against the original landmark protocol, current source ownership and both completed logs. The reading matrix now adds p. 40 as text only. `git diff --check` is clean. No TypeScript or source value changed, so no duplicate functional run was added for this prose checkpoint.
+
 ## #3062 emitted metric reconciliation (2026-11-05 06:50:15 +09:00, Get-Date)
 
 Directly read the completed CORE99716 result, all 47 case rows, all eight head/body findings and the full 40-row head diagnostic payload. The round remains 40/47, exit 1; its plate p2/c-j and fork-point observations do not clear concha/left-endpoint findings, raw concavity, whole-ear envelope or final skin. Reread current EarFrame/Plate/Parts/Ridge and separated later concha projection/helix-centreline saves from that earlier result. The Cho note now dates the obsolete n-projection and names the actual world-lateral scalp/rim source convention. CORE released the EarPlace current-reader JSDoc correction before its next invocation; coefficients, expressions and API remain unchanged.

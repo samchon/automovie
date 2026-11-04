@@ -22,6 +22,8 @@ The plate inspected at 05:54 used `dot(posterior-attachment,n)=P`, an internal p
 
 The same snapshot still fails four head-source findings: two concha-frame basis errors and two left endpoint/chord observations. The plate's c-j lengths close at 26.20000000000011/26.300000000000008 mm, but that does not measure the complete relief envelope. Later concha-plane projection and helix-centreline changes were read as saved source, without treating the earlier result as their verification. Course offsets, carrier thickness and fork-join success remain separate from Cho's measured dimensions.
 
+The completed HEAD67779 confirmation (start 06:55:32, 2/2 in 108,382 ms) subsequently reports empty source findings. Its actual named sa/sba endpoints retain public length/top expectations and the 1e-8 mm tolerance; the earlier input-height query is kept separately, with a left 1.7033149294e-6 mm gap after the endpoint's one-ULP unit conversion. Concha basis errors fall to 2.22e-16/2.78e-17. Sampled original rolled guides have zero observed height escape, not a complete world-extrema or final-skin certificate. The 40 raw section-concavity diagnostics are text-identical to CORE99716 and remain unresolved. These source checks do not establish the full physical ear or make the world-lateral p2 convention a published vector law.
+
 ## Values, mean (SD) mm (left / right where both given)
 
 | Measure | Men | Women |
