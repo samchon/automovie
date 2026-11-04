@@ -47,8 +47,4 @@ Derive every limit from the person's inputs, a published source or geometry, nev
 
 ## Running
 
-Run tests on the CPU with `pnpm test --include <names...>`; the viewer serves inspection.
-
-Put every test a question needs into one `--include`, because each program compiles the whole project before its first test. Run it once the shared type check reads green, and end its process tree once its result is read.
-
-After a clean run, judge the look in the [inspection round](verification.md#inspection-round).
+Run tests on the CPU, once the test type-check watch reads clean, with every test a question needs in one run as development's [Tests](../development/validation.md#tests) describes. They confirm each batch of fixes in the Human skill's [order](SKILL.md#order); the viewer serves inspection.

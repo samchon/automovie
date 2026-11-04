@@ -1,6 +1,6 @@
 # Verification
 
-The [tests](testing.md) and the score reject, and the viewer accepts. A candidate needs all three, because numbers alone do not establish a sound human shape.
+The viewer finds defects and accepts a candidate, and the [tests](testing.md) confirm it, in the Human skill's [order](SKILL.md#order). A candidate needs both, because numbers alone do not establish a sound human shape and the viewer shows defects no test reads yet.
 
 ## Score
 
@@ -11,19 +11,15 @@ The score is a set of CPU-only tests that generate the figure without a GPU. The
 | Validity across the parameter domain | every control at both ends of its declared range and combined extremes, declaring a range first where a control has none | Rejects non-finite values, collapsed or self-crossing sections, folds and open joins. |
 | Requested against generated dimensions | the input-identity audit ([Testing](testing.md#levels)) | Rejects a parameter with no or the wrong response. |
 
-## Inspection
-
-Inspect a candidate's generating curves, skin and joins in the [viewer](screenshot.md) as soon as the tests and the score admit it, following [Visual Debugging](../3d-modeling/visual-debugging.md).
-
-Compare it with the existing figure under the same conditions in every affected region and join, including changed inputs. Keep partial work visible and mark what is unverified.
-
-View a piece alone ([Frames](screenshot.md#frames)) before wiring it, and the whole figure after.
-
 ## Curves Against The Reference
 
-A part is only as right as the view curves it is lofted from, so judge those curves before any surface. Draw the reference figure in the viewer with every part's view curves and axis over it, each part in its own colour and each curve labelled with its part and view, from the front, side and top. Then go part by part in close-up and record, for each curve, where it leaves the reference skin, by how much, and which input, law, frame or construction choice put it there. Fix by those causes in one batch and draw the same close-ups again.
+A part is only as right as the view curves it is lofted from, so judge those curves before any surface. Draw the reference figure with every part's view curves and axis over it, each part in its own colour and each curve labelled with its part and view, from the front, side and top, using the view comparison's `reference`, `part`, `referencePart`, `views` and `viewLabels` variables in the [debug README](../../../packages/human/debug/README.md). Then go part by part in close-up and record, for each curve, where it leaves the reference skin, by how much, and which input, law, frame or construction choice put it there.
+
+The deviation is a diagnostic that finds causes, never a target to fit one person. A shape comes from the person's inputs, published or derived laws, and normalized tables derived from the references and aggregated over the whole reference set.
 
 ## Inspection Round
+
+Inspect a candidate's generating curves, skin and joins following [Visual Debugging](../3d-modeling/visual-debugging.md), and compare it with the existing figure under the same conditions in every affected region and join, including changed inputs. View a piece alone ([Frames](screenshot.md#frames)) before wiring it, and the whole figure after. Keep partial work visible and mark what is unverified.
 
 Inspect the affected person and all affected parts under matching camera, light, shading, size and renderer conditions, expanding to other people when the task requires it. Every variable below is a URL variable of the [debug viewer](screenshot.md).
 
