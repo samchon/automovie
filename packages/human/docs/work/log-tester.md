@@ -94,3 +94,24 @@ Violation (same entry): the shared test watch's cycle started 14:33:33 read `Hum
 | `test_human_seam_{patch,ribbon,section,station}` | stay while their modules stay in `lofting/` | none |
 
 Kept as they are (#3057 item 6): pose and rig, mouth, nails, universality, levels, performance, memory, the debug stall, the solid and view operator tests, `test_human_people`, `test_human_curve_placement`, `test_human_skin_integrity` and `_posed`, `test_human_skin_collapse`, `test_human_arm_clearance`.
+
+## Supervised operator run 14:42:19 to 14:45:27, triage (written 14:51:20, `date`)
+
+3 of 9 passed: `test_human_solid_intersection`, `_merge`, `_mesh`. Every failure by cause:
+
+| Test | Finding | Cause | Owner and fix |
+| --- | --- | --- | --- |
+| `view_section`, `_girth`, `_chain` | no valid range at the ellipse's shoulder for every box of aspect 2:1 or more and every asymmetric box (the chain's at 1.4:1); so no girth range, no chain, no surface | one quintic and one bump per quarter cannot follow a conic of aspect 2 or more | kernel, confirmed and fixed in `a0ec6ac90` (each quarter carries its conic's points at t = 1/4, 2/4, 3/4 as extra guides) |
+| `view_section` | the three-point curvature at the guides off the declared by 2e-4 to 3.5e-4 relative at shoulders away from the ellipse's, on a square box | my symmetric three-point circle straddles a jump of the third derivative at the guide, which the C2 section may carry, and errs at the order of the step (kernel's reading, accepted) | test: read one side at a time, Richardson-extrapolated to zero step |
+| `view_section` | the 0.02 fuller ellipse inside the remainder bound (2.6 mm on 30 by 20, 3.5 m on 60 by 20) | one quarter's seventh-order remainder is loose on elongated boxes | test: the bound follows the fixed section's knot spans, each a quintic Hermite (`max|rho^(6)| h^6 / (720 * 64)`), tight enough for the red proof on every box |
+| `view_section` | mixed-shoulder continuity sections invalid (concave) | my chosen shoulders lay outside the reach | test: departures of 0.01 and 0.02 about the middle of the reach they leave |
+| `solid_diff` | rim normal curvature 0.1 /mm "concave" at share 1 | G2 makes the rim equal the bowl there, concave from outside by 1 / R; the test asked convexity at every share | test: 0 at the plane's rail, 1 / R at the bowl's, a convex run between |
+| `solid_diff` | the merge of the same pair does not keep the sphere above the plane | merge gives no join or a rail at z <= 0 | kernel, sent; the test now prints which |
+| `solid_merge_angle` | part rail 0.52 to 0.80 mm off the vertical great circle, height varying with t | the rail is offset along a chart line, which depends on the parameterisation | kernel, confirmed: both rails move to the normal section (the great-circle oracle stays) |
+| `solid_trim` | rolled rim angle 2.8e-9 rad and curvature jump 2.3e-6 /mm over the exact limits | the exact limits leave out the stencils' truncation; the rim quintic's fifth derivative, about 32 /mm^5, predicts 4.0e-9 and 3.3e-6 | test: truncation added to the limits from the rim's own ribbons |
+
+The test fixes are in one batch; the next supervised run checks them with the kernel's answers.
+
+14:59:35 (`date`): the kernel confirmed findings 1 and 3 as operator defects and fixed them (`a0ec6ac90` conic guides, `65fafe9bb` normal-section rails); finding 2 was my test's (a symmetric three-point circle straddling a third-derivative jump), now read one side at a time. The ellipse oracle now bounds each knot span's quintic Hermite (`max|rho^(6)| h^6 / (720 * 64)`), and the 0.02-fuller red proof is back on every box. New operator test `test_human_solid_body` for `AutoMovieHumanSolidBody` (`b84ae180d`): a column on a floor, a beam across the column's face and blend; watertight, outward, coordinates read back, red on a turned or dropped triangle and a moved coordinate. Asked the kernel for the host chain per column in `IMerge`, since a rail across faces cannot be read on one host chain.
+
+Violation 15:01:58 (`date`): the shared test watch's cycle started 14:59:18 read `HumanSeamAudit.ts` red (TS2304 `turn`): a multi-line `sed` insert collapsed into one comment line and dropped the declaration it carried. Repaired within two minutes by the Edit tool. From here multi-line source edits go through the Edit tool only, never `sed` inserts. Change itself: `HumanSeamAudit.merges` reads each host column on its own chain (`IMerge.hostChains`, the kernel's field), with a first-order model of the rail toward same-chain neighbours.

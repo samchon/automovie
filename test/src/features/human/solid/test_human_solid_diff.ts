@@ -15,10 +15,10 @@ const { cross, distance, dot, plane, sphere, sum } = HumanSolidShapes;
 /**
  * The solid diff of a sphere sunk into a plane cuts the rim where the closed
  * forms put it, keeps the plane outside the sphere and the sphere's floor
- * inside the plane, and rounds the rim by a convex blend that meets both G2.
+ * inside the plane, and rounds the rim by a blend that meets both G2: flat at the plane, as concave as the bowl at the bowl, convex between.
  *
- * @evidence contracts/testing.md#behavioral-verification Subtracts a 10 mm sphere centred 6 mm under the plane z = 0 (the solid below it, so the recess is 4 mm deep) with `AutoMovieHumanSolidDiff.create`, rim widths 2 mm on the sphere and 3 mm on the plane, and reads `IJoin.curve`, `IJoin.rail` and `IJoin.column` with `AutoMovieHumanSolidBlend.jet`; reads both rails with `HumanSeamObserver.surface` from points alone, and reads the rim's normal curvature along its columns against its outward normal. It catches a rim at the wrong radius, a rail on the wrong side of either surface (the plane kept inside the sphere or the sphere kept above the plane), a rim that breaks G2 at either rail, and a rim that turns concave. Any diff passes whose curve, rails and blend meet these closed forms.
- * @evidence contracts/testing.md#independent-expectations Expectations are closed forms: the rim circle of radius `sqrt(R^2 - (R - d)^2)` = 8 mm at z = 0; the plane's rail the circle of radius 8 + 3 mm (a radial chord on the plane); the sphere's rail at polar angle `s* + 2 asin(w / 2R)` from the sphere's top, the chord w = 2 mm along the meridian below the plane; a convex rim's normal-curvature `k_n = q_ww . n / |q_w|^2` against the solid's outward normal n is at most zero. Limits: points 1e-9 mm, a thousand times the 1e-12 mm solve tolerance; seam readings `HumanSeamObserver.exact(20, 0.002)`, a hundred times the observer's rounding at 20 mm and a 0.002 mm stencil, whose truncation on a rim of chord near 4 mm stays near 1e-9 per mm; convexity to -1e-9 per mm.
+ * @evidence contracts/testing.md#behavioral-verification Subtracts a 10 mm sphere centred 6 mm under the plane z = 0 (the solid below it, so the recess is 4 mm deep) with `AutoMovieHumanSolidDiff.create`, rim widths 2 mm on the sphere and 3 mm on the plane, and reads `IJoin.curve`, `IJoin.rail` and `IJoin.column` with `AutoMovieHumanSolidBlend.jet`; reads both rails with `HumanSeamObserver.surface` from points alone, and reads the rim's normal curvature along its columns against its outward normal. It catches a rim at the wrong radius, a rail on the wrong side of either surface (the plane kept inside the sphere or the sphere kept above the plane), a rim that breaks G2 at either rail, and an edge left sharp or turned concave between the rails. Any diff passes whose curve, rails and blend meet these closed forms.
+ * @evidence contracts/testing.md#independent-expectations Expectations are closed forms: the rim circle of radius `sqrt(R^2 - (R - d)^2)` = 8 mm at z = 0; the plane's rail the circle of radius 8 + 3 mm (a radial chord on the plane); the sphere's rail at polar angle `s* + 2 asin(w / 2R)` from the sphere's top, the chord w = 2 mm along the meridian below the plane; the rim's normal curvature `k_n = q_ww . n / |q_w|^2` against the solid's outward normal n is the plane's 0 at the plane's rail and the bowl's 1 / R at the bowl's (the recess floor is concave from outside), with a convex run between them, a rounded edge. Limits: points 1e-9 mm, a thousand times the 1e-12 mm solve tolerance; seam readings `HumanSeamObserver.exact(20, 0.002)`, a hundred times the observer's rounding at 20 mm and a 0.002 mm stencil, whose truncation on a rim of chord near 4 mm stays near 1e-9 per mm; the rim's end curvatures to 1e-6 per mm, the normal taken from a 1e-4 rad difference along the rim.
  * @evidence contracts/testing.md#distinguishing-cases Green: readings at phases 0, 1.3, 3 and 5. Red: the same configuration composed as a merge (`AutoMovieHumanSolidMerge` keeps the part outside) must put the sphere's rail above the plane, the side a diff must not keep. Refused: a cutter that misses the base (centred 20 mm under it) must return no join with a diagnostic. The intersection's accuracy is `test_human_solid_intersection`'s; the merge's widths `test_human_solid_merge`'s.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_solid_diff`; it builds closed-form surfaces in process and starts no host, browser or GPU.
  */
@@ -98,10 +98,14 @@ export function test_human_solid_diff(): void {
       ),
     );
 
-    // Convex rim: the normal curvature against the solid's outward normal,
-    // the normal oriented by the plane's +z at the plane's rail.
+    // The rim's normal curvature across it, against the solid's outward
+    // normal (oriented by the plane's +z at the plane's rail): G2 makes it
+    // the plane's 0 at the plane's rail and the bowl's 1 / R at the bowl's
+    // rail, where the recess floor is concave from outside, and a rounded
+    // rim turns convex (below zero) between them.
     const h: number = 1e-4;
-    for (const a of places)
+    for (const a of places) {
+      const bends: number[] = [];
       for (let k: number = 0; k <= 10; k++) {
         const w: number = k / 10;
         const c: AutoMovieHumanSolidJoin.IColumn = column(a);
@@ -112,15 +116,19 @@ export function test_human_solid_diff(): void {
         const n0: Vec3 = cross(along, j.first);
         const sign: number = dot(cross(along, AutoMovieHumanSolidBlend.jet(c.start, c.end, 0).first), [0, 0, 1]) > 0 ? 1 : -1;
         const n: Vec3 = sum([sign / Math.hypot(...n0), n0]);
-        const bend: number = dot(j.second, n) / dot(j.first, j.first);
-        if (!(bend <= 1e-9)) failures.push(`rim at phi ${a}, share ${w}: normal curvature ${bend} /mm toward the outside, a concave rim`);
+        bends.push(dot(j.second, n) / dot(j.first, j.first));
       }
+      if (!(Math.abs(bends[0]!) <= 1e-6)) failures.push(`rim at phi ${a}: normal curvature ${bends[0]} /mm at the plane's rail, expected the plane's 0`);
+      if (!(Math.abs(bends[10]! - 1 / R) <= 1e-6)) failures.push(`rim at phi ${a}: normal curvature ${bends[10]} /mm at the bowl's rail, expected the bowl's ${1 / R}`);
+      if (!(Math.min(...bends) < 0)) failures.push(`rim at phi ${a}: no convex run between the rails (least normal curvature ${Math.min(...bends)} /mm), the edge is not rounded`);
+    }
   }
 
   // Red: the merge of the same pair keeps the sphere above the plane.
   const merged: AutoMovieHumanSolidJoin.IResult = AutoMovieHumanSolidMerge.create(input(cutter(R - depth)));
   const mergedRail: AutoMovieHumanSolidRail.IRail | null = merged.join?.rail(0) ?? null;
-  if (mergedRail === null || !(mergedRail.partPoint[2] > 0)) failures.push("the merge of the same pair does not keep the sphere above the plane");
+  if (mergedRail === null || !(mergedRail.partPoint[2] > 0))
+    failures.push(`the merge of the same pair does not keep the sphere above the plane (${mergedRail === null ? `no rail: ${details(merged)}` : `part rail at ${mergedRail.partPoint.join(", ")}`})`);
 
   // Refused: a cutter that misses the base.
   const missing: AutoMovieHumanSolidJoin.IResult = AutoMovieHumanSolidDiff.create(input(cutter(20)));

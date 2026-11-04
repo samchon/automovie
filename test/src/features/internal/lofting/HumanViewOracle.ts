@@ -2,13 +2,13 @@
  * Closed-form oracles for the view-to-section operator's tests: the centred
  * ellipse in polar form, its exact angle derivatives by truncated Taylor
  * arithmetic, its perimeter by the arithmetic-geometric mean, and the error
- * bound of the quintic-plus-bump quarter that interpolates it.
+ * bound of the quintic Hermite spans that interpolate it between its knots.
  *
  * Nothing here reads the operator: every value is a function of the box's
  * half axes, so a test compares the operator's section with these numbers.
  */
 export namespace HumanViewOracle {
-  /** Taylor coefficients kept, orders 0 to 7: the interpolation bound needs the seventh derivative. */
+  /** Taylor coefficients kept, orders 0 to 7: the spans' interpolation bound reads the sixth derivative. */
   export const ORDER: number = 7;
 
   /**
@@ -48,37 +48,48 @@ export namespace HumanViewOracle {
   }
 
   /**
-   * The largest seventh angle derivative of the ellipse's radius over its
-   * first quarter, `[0, pi / 2]`, on `samples` equal steps (the radius is
-   * even about both axes, so one quarter holds the whole turn's extremes).
+   * The polar angles of the ellipse's points at the parameter steps
+   * `t = k / spans` of its first quarter, drawn as the rational quadratic
+   * Bezier of `(a, 0)`, the box corner `(a, b)` and `(0, b)` with the middle
+   * weight `1 / sqrt(2)` (the conic of the ellipse's shoulder `sqrt(2) - 1`):
+   * the knots the view section places in each quarter (#3046, a0ec6ac90).
    */
-  export function seventh(a: number, b: number, samples: number): number {
-    let worst: number = 0;
-    for (let i: number = 0; i <= samples; i++) worst = Math.max(worst, Math.abs(derivatives(a, b, (i * Math.PI) / 2 / samples)[ORDER]!));
-    return worst;
+  export function knots(a: number, b: number, spans: number): number[] {
+    const w: number = Math.SQRT1_2;
+    return Array.from({ length: spans + 1 }, (_: unknown, k: number): number => {
+      const t: number = k / spans;
+      const d: number = (1 - t) ** 2 + 2 * t * (1 - t) * w + t * t;
+      const x: number = ((1 - t) ** 2 * a + 2 * t * (1 - t) * w * a) / d;
+      const z: number = (2 * t * (1 - t) * w * b + t * t * b) / d;
+      return Math.atan2(z, x);
+    });
   }
 
   /**
-   * The error bound of the quarter that interpolates the ellipse from its two
-   * guides' radius, slope and curvature and its shoulder point, mm: seven
-   * conditions, so by the Hermite remainder the error at share `xi` of the
-   * quarter's width `h = pi / 2` is
-   * `rho^(7)(zeta) / 7! * h^7 * xi^3 (xi - 1)^3 (xi - xi_s)`, bounded by the
-   * largest seventh derivative over the quarter times the largest node
-   * polynomial. `xi_s` is the shoulder point's share, `atan2(b, a) / h`.
-   * The seventh derivative's maximum is read on 2048 steps, so the bound is
-   * itself taken a tenth above it against the sampling, plus the rounding of
-   * the radius, 1e-12 of the larger half axis, which alone bounds a circle.
+   * The error bound of a quarter interpolated from the ellipse's exact
+   * radius, slope and second derivative at its knots, mm: between two knots
+   * `h` apart the quintic Hermite of those six values errs by
+   * `rho^(6)(zeta) / 6! (phi - phi_i)^3 (phi - phi_(i+1))^3`, at most
+   * `max|rho^(6)| h^6 / (720 * 64)` over that span, since `xi^3 (1 - xi)^3`
+   * peaks at 1/64. The sixth derivative's maximum is read on 256 steps of each
+   * span by Taylor arithmetic ({@link derivatives}), so the bound is taken a
+   * tenth above it against the sampling, plus the radius' rounding, 1e-12 of
+   * the larger half axis, which alone bounds a circle.
+   *
+   * @param a Half axis along `u`, mm.
+   * @param b Half axis along `v`, mm.
+   * @param spans Knot spans per quarter.
    */
-  export function bound(a: number, b: number): number {
-    const h: number = Math.PI / 2;
-    const xs: number = Math.atan2(b, a) / h;
-    let node: number = 0;
-    for (let i: number = 0; i <= 4096; i++) {
-      const xi: number = i / 4096;
-      node = Math.max(node, xi ** 3 * (1 - xi) ** 3 * Math.abs(xi - xs));
+  export function bound(a: number, b: number, spans: number): number {
+    const at: number[] = knots(a, b, spans);
+    let worst: number = 0;
+    for (let i: number = 0; i < spans; i++) {
+      const h: number = at[i + 1]! - at[i]!;
+      let sixth: number = 0;
+      for (let k: number = 0; k <= 256; k++) sixth = Math.max(sixth, Math.abs(derivatives(a, b, at[i]! + (h * k) / 256)[6]!));
+      worst = Math.max(worst, (sixth * h ** 6) / (720 * 64));
     }
-    return (1.1 * seventh(a, b, 2048) * h ** 7 * node) / 5040 + 1e-12 * Math.max(a, b);
+    return 1.1 * worst + 1e-12 * Math.max(a, b);
   }
 
   /**

@@ -180,7 +180,8 @@ export namespace HumanSeamAudit {
    * `sigma` along its published chart direction `partAcross` (absent, along
    * its station by its kept sign). The seam parameter is the blend's
    * phase; each seam is read at the blend's columns, phase `2 pi k / count`,
-   * where both sides are exact. The observer's search in the normal plane
+   * where both sides are exact, each host column on its own chain where the
+   * rail crosses faces (`hostChains`). The observer's search in the normal plane
    * moves the phase slightly off a column, where the rail data are carried
    * by the periodic Catmull-Rom cubic of the columns (C1, error of the
    * columns' spacing cubed), far below the gap the facets hide.
@@ -203,6 +204,32 @@ export namespace HumanSeamAudit {
       const columns: number[] = Array.from({ length: count }, (_: unknown, k: number): number => (2 * Math.PI * k) / count);
       const hostAt: (a: number) => number[] = periodic([...m.hostLoop.chart.map((p: [number, number]): number[] => [...p]), ...m.across.map((d: [number, number]): number[] => [...d])], count, [1]);
 
+      // On a rail across faces, column k's chart point lies on chain hostChains[k]; near a column
+      // its rail is carried to first order by the chart slope toward its neighbours on the same
+      // chain (central where both are, one-sided where one is), its offset direction held.
+      const local: (a: number) => [IAutoMovieHumanLoftChain, number, number, number, number] = (a: number): [IAutoMovieHumanLoftChain, number, number, number, number] => {
+        const width: number = (2 * Math.PI) / count;
+        const k: number = ((Math.round(a / width) % count) + count) % count;
+        const on: string = m.hostChains![k]!;
+
+        // The phase's change over one turn of the loop (its winding times 2 pi), as `periodic` unwraps it.
+        const last: number = m.hostLoop.chart[count - 1]![1];
+        const turn: number = last - m.hostLoop.chart[0]![1] + Math.atan2(Math.sin(m.hostLoop.chart[0]![1] - last), Math.cos(m.hostLoop.chart[0]![1] - last));
+        const at: (j: number) => [number, number] | null = (j: number): [number, number] | null => {
+          const i: number = ((j % count) + count) % count;
+          if (m.hostChains![i] !== on) return null;
+          const wraps: number = Math.floor(j / count);
+          return [m.hostLoop.chart[i]![0], m.hostLoop.chart[i]![1] + wraps * turn];
+        };
+        const here: [number, number] = m.hostLoop.chart[k]!;
+        const before: [number, number] | null = at(k - 1);
+        const after: [number, number] | null = at(k + 1);
+        const slope: [number, number] =
+          before !== null && after !== null ? [(after[0] - before[0]) / (2 * width), (after[1] - before[1]) / (2 * width)] : after !== null ? [(after[0] - here[0]) / width, (after[1] - here[1]) / width] : before !== null ? [(here[0] - before[0]) / width, (here[1] - before[1]) / width] : [0, 0];
+        const d: number = a - k * width - Math.round((a - k * width) / (2 * Math.PI)) * 2 * Math.PI;
+        return [named(on), here[0] + d * slope[0], here[1] + d * slope[1], m.across[k]![0], m.across[k]![1]];
+      };
+
       // The part continues past its rail along its published chart direction, or along its station on its kept side.
       const partAcross: [number, number][] = m.partAcross ?? m.partLoop.chart.map((): [number, number] => [m.sigma, 0]);
       const partAt: (a: number) => number[] = periodic([...m.partLoop.chart.map((p: [number, number]): number[] => [...p]), ...partAcross.map((d: [number, number]): number[] => [...d])], count, [1]);
@@ -213,6 +240,11 @@ export namespace HumanSeamAudit {
           continuity: "G2",
           owner: (a: number, sigma: number): number[] => AutoMovieHumanLoftChain.point(blend, sigma, a),
           neighbour: (a: number, sigma: number): number[] => {
+            // A rail that crosses faces is read on each column's own chain, by the local model of its column.
+            if (m.hostChains !== undefined) {
+              const [chain, y, theta, dy, dt]: [IAutoMovieHumanLoftChain, number, number, number, number] = local(a);
+              return AutoMovieHumanLoftChain.point(chain, y + sigma * dy, theta + sigma * dt);
+            }
             const [y, theta, dy, dt]: number[] = hostAt(a);
             return AutoMovieHumanLoftChain.point(host, y! + sigma * dy!, theta! + sigma * dt!);
           },
