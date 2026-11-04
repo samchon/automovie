@@ -20,12 +20,13 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  * Limits: an older sample, muscle only and one site per segment; no paired
  * forearm reading is available. Fat, bone diameter, the skin-section
  * centroid and the mechanical axis are not supplied. Applying this ratio
- * to whole skin depth or along a segment is an additional modelling proxy,
- * as in the current LegLaws reader, not a published skin-placement law.
+ * to whole skin depth or along a segment would be an additional modelling
+ * proxy, not a published skin-placement law. No current production or test
+ * caller imports this helper; LegLaws now reads the retained skin-support q.
  *
  * @evidence contracts/common.md#principled-implementation Exposes the ratio of the cited cohort's paired thickness means, separating that arithmetic from the unsupported transfer to whole skin depth or a bone centre.
  * @evidence contracts/common.md#clear-and-simple-design Keeps the three segment records and their scalar ratio together; consumers own any skin or skeletal placement assumption.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no new coefficient or person branch and identifies the existing LegLaws transfer's unresolved datum instead of justifying it as anatomy.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no new coefficient or person branch, makes no whole-skin transfer and states the helper's current unconsumed status.
  * @evidence contracts/common.md#meaningful-documentation Gives the primary table, cohort, units, ratio derivation, single-site limit and missing fat/bone/axis information.
  * @evidence contracts/performance.md#efficient-algorithms A fixed segment/sex lookup and one ratio use constant time and local scalar space.
  * @evidence contracts/performance.md#reuse-equivalent-work All callers share the same twelve module-owned thickness means; the scalar calculation needs no result cache.

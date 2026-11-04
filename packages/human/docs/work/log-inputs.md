@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 consumer metadata follow-up (2026-11-05 04:09:04 +09:00, Get-Date)
+
+The complete six-law/record consumer search found one stale declaration ground after BODY's q migration: LimbBonePlace still described LegLaws as its current reader, although no production or test import remains. Corrected that namespace explanation and its own prohibited-shortcuts answer together. EarPlace, NeckSection, FootPlaces, ReferenceOutlines and ReferenceOutlineTypes still match the directly searched readers. No table, function, API, selector or executable expression changed.
+
+BODY confirmed the actual shared GH consumer and corrected the remaining reconstructed-AR attribution. It independently opened Ali Figure 2 and Patil Figure 1/Table 3. Its next toe-record choice will share the current pure leg ankle, the explicitly retained heel-transfer proxy, public ball length and the longest skin tip; old frame/head/tip values are not all rigidly preserved. The actual interface awaits the completed common round, without a new research gate. Re-read the complete historical foot-outline reader at 5a8e27b007: its body-X-selected endpoints, planar Euclidean span and +/-4 mm bands confirm the registry metadata, not a same-cut anatomical profile. No reader was restored or executed.
+
+At 04:11:57, the entire two-file diff and all six owned declaration/reader groups had been reviewed; no further metadata mismatch was found. Whitespace checks were clean, and the existing test 04:10:23/debug 04:10:49 cycles had completed. No new test or Evidence invocation was needed for a comment-only consumer-status correction. The next-neck course equations and explicit height/forward/plane limits were delivered to both modelers without changing their frozen source round.
+
 ## #3062 current datum support round (2026-11-05 04:01:46 +09:00, Get-Date)
 
 BODY's concrete GH choice was checked against the public caliper pose and the exact projection identity: its shared longitudinal approximation closes AR in the declared straight measuring convention before bind transport. The actual current TrunkLandmarks, ArmBones/callers, LegLaws/MassPrior, FootInterim/Heads/ToeJoints, NeckConstruction/Layout/MassPart, fold accessor and engine width consumer were reread together. The [current checkpoint](law-definition-audit.md#current-datum-checkpoint-2026-11-05-040146-0900) separates the phenomena, roots, contributors and construction alternatives.
