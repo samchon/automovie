@@ -15,7 +15,7 @@ export interface IMountViewerOptions {
   /** Creation-time multisample antialiasing, true by default; false avoids segment-edge blending without proving cross-GPU byte equality. */
   antialias?: boolean;
 
-  /** Explicit canvas pixel ratio; absence preserves the renderer's default and a capture host can pin one for fixed output dimensions. */
+  /** Fixed canvas pixel ratio; absence follows the current device ratio. Capture hosts pin one for fixed output dimensions. CSS layout owns the logical canvas dimensions. */
   pixelRatio?: number;
 
   /** Creation-time native buffer preservation, false by default; an explicit readback host must choose its required lifetime. */
@@ -37,15 +37,36 @@ export interface IMountViewerOptions {
     | undefined;
 
   /**
-   * Redraw the current handled frame through its original producer and complete that draw synchronously.
+   * Redraw the handled frame at the requested seconds through its original
+   * producer and complete that draw synchronously. Restore supplies the saved
+   * production time; ordinary redraw supplies the last completed time. Refusal
+   * throws. Call completeFrame after the draw, or expose a distinct new producer
+   * record through completedFrame; retaining the previous record is not completion.
    *
-   * @evidence contracts/common.md#principled-implementation Explicit redraw delegates to the same producer that owns the handled frame and mount checks that a completion was published.
+   * @evidence contracts/common.md#principled-implementation Explicit redraw delegates the requested completed seconds to the same producer that owns the handled frame and mount checks that a completion was published. A producer with its own clock restores that clock before drawing.
    * @evidence contracts/common.md#clear-and-simple-design The mount supplies preserved clock/control while the producer retains its composite render sequence.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Redraw does not substitute the nominal scene for an unobserved composite or silently accept a producer that fails to complete.
-   * @evidence contracts/common.md#meaningful-documentation The member states original-producer redraw and synchronous completion responsibility.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Redraw does not substitute the nominal scene for an unobserved composite or relabel a previous producer record. Explicit completion or a newly exposed producer record must attest the requested time; refusal throws.
+   * @evidence contracts/common.md#meaningful-documentation The member states original-producer redraw, requested seconds for restoration versus ordinary redraw, and synchronous completion responsibility.
    * @evidenceExclude contracts/performance.md#efficient-algorithms This redraw capability chooses no multipass or guide rendering strategy.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Redraw is an individual render effect under the current completed clock and cannot be cached by matching options.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The callback borrows its producer's resources; that producer owns pass restoration and mount owns renderer/loop lifetime.
    */
-  redrawCompleted?: () => void;
+  redrawCompleted?: (elapsedSeconds: number) => void;
+
+  /**
+   * Pause an independently owned producer clock/audio for the outermost freeze.
+   * Return synchronous cleanup: resume=true on the last normal release and
+   * resume=false when the mount stops. Nested freezes share this lease. The
+   * mount suppresses animation ticks while frozen; explicit redraw/restore still
+   * completes through the original producer. A throwing acquisition owns rollback.
+   *
+   * @evidence contracts/common.md#principled-implementation Delegates independent clock/audio pause to their actual producer owner and distinguishes resumption from terminal release; mount keeps nested lease accounting and animation suppression.
+   * @evidence contracts/common.md#clear-and-simple-design One optional producer lease complements original redraw ownership without making Viewer own media playback or a production clock.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Ordinary mount-clock producers need no callback; independently advancing state is paused through its owner rather than a substituted time argument.
+   * @evidence contracts/common.md#meaningful-documentation States outermost acquisition, final and terminal release flags, synchronous ownership, nested behavior, explicit draws and failed-acquisition rollback.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This callback type performs no playback calculation itself.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The controller shares the outer producer lease; this declaration retains no cache.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources A mounted controller retains at most one acquired producer cleanup and consumes it on final release or terminal disposal; the producer owns any async tasks it starts during resumption.
+   */
+  freezeCompleted?: () => (resume: boolean) => void;
 }

@@ -8,3 +8,9 @@ export { AutoMovieHumanStateAdmission } from "./instance/AutoMovieHumanStateAdmi
 export type { IAutoMovieHumanPrepared } from "./instance/IAutoMovieHumanPrepared";
 export { AutoMovieHumanRig } from "./skeleton/AutoMovieHumanRig";
 export { AutoMovieHumanSkeleton } from "./skeleton/AutoMovieHumanSkeleton";
+export { AutoMovieHumanFootSurface } from "./generation/AutoMovieHumanFootSurface";
+export { AutoMovieHumanClinicalIk } from "./skeleton/AutoMovieHumanClinicalIk";
+export { AutoMovieHumanRigControls } from "./skeleton/AutoMovieHumanRigControls";
+export { AutoMovieHumanLegIk } from "./skeleton/AutoMovieHumanLegIk";
+export { AutoMovieHumanSupportFrame } from "./skeleton/AutoMovieHumanSupportFrame";
+export { AutoMovieHumanGrounding } from "./skeleton/AutoMovieHumanGrounding";

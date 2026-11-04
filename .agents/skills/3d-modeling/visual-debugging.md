@@ -4,7 +4,7 @@ Readiness or numerical success proves no appearance; only an observed render doe
 
 ## Viewer
 
-Recover a broken video or 3D viewer before other work. Confirm the current displayed artifact and relevant controls, seek/playback and capture through the actual consumer, and protect other owners' processes meanwhile. Repair a missing capability at the owner of that capability, then reconnect and verify the actual consumer; a build or server response alone does not prove recovery.
+Recover a broken video or 3D viewer before other work. Confirm the adopted scene, its required subjects, the current displayed artifact and relevant controls, seek/playback and capture through the actual consumer, and protect other owners' processes meanwhile. Repair a missing capability at the owner of that capability, then reconnect and verify the actual consumer; a build, a server response or an unrelated demonstration alone does not prove recovery.
 
 Inspect the actual consumer with current source on a hardware renderer, recording the source revision, asset identities, input, time or pose, camera, renderer and detail settings needed to repeat the observation.
 
@@ -46,7 +46,7 @@ Judge form under raking light with fine material detail such as normal maps turn
 
 ## Cost
 
-Measure rendering cost at the intended resolution, asset population and motion load. When a lower-specification host is a requirement, observe that host or report it as untested; a coarser mesh alone does not establish acceptable memory or frame time. Keep measured budgets and accepted visual compromises where the project records its decisions.
+Measure rendering cost at the intended resolution, asset population and motion load. Separate startup or compilation, motion evaluation, transform updates and drawing from capture and encoding, so a repair addresses the actual bottleneck. When a lower-specification host is a requirement, observe that host or report it as untested; a coarser mesh alone does not establish acceptable memory or frame time. Keep measured budgets and accepted visual compromises where the project records its decisions.
 
 ## Confirmation
 

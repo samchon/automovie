@@ -4,7 +4,7 @@ Use this guide with [3D modeling](../3d-modeling/SKILL.md) whenever a commission
 
 ## Scope The Asset
 
-Read the adopted [production decisions](profile.md); instance-only work does not require a screenplay or whole film. A short scene can use a ready asset with a few placements; a recurring character may need editable proportions, expressions, and motion across many scenes. A standalone modeling task defines its required views and controls without a screenplay.
+Read the adopted [production decisions](profile.md); instance-only work does not require a screenplay or whole film. A short scene can use a ready asset with a few placements; a recurring character may need editable proportions, expressions, and motion across many scenes. A standalone modeling task defines its required views and controls without a screenplay. When appearance, form or material needs study, follow [production research](research.md) to inspect original visual evidence, retain local references and derive supported constraints.
 
 ## Start With Programmed Control
 
@@ -22,7 +22,7 @@ Human is an optional identity and expression representation, not a prerequisite 
 
 The commission sets which uses an inspection covers. An instance-only task inspects that instance and its promised controls; a screenplay-only task requires no render. A static background prop is promised fewer views and motion states than a reusable articulated character, and every promised use includes its shot cameras, visible details and assembled neighbors. A motion hint is judged as its complete commissioned hint artifact, not as an uncommissioned post-diffusion film.
 
-For a whole-video commission, inspect the complete programmed main-scene progression and assembled timeline, including transitions and ending; stills and isolated clips cannot replace it. Inspect the visible consequences of motion's contacts and constraints rather than inferring success from admitted numbers. After a detail upgrade, compare the same sequence for changed proportions, pivots, attachments, deformation, contact, timing and silhouette, and remeasure cost. A hint needs reliable action and staging; photographic detail is required only by its adopted output contract. A requested direct 3D film receives its commissioned visual finish after low-cost motion works.
+For commissioned video, inspect [contiguous segments](../review/video.md#review-contiguous-segments) as they are implemented, then the complete programmed progression and assembled timeline, including transitions and ending; stills and isolated clips cannot replace it. Inspect the visible consequences of motion's contacts and constraints rather than inferring success from admitted numbers. After a detail upgrade, compare the same affected segments for changed proportions, pivots, attachments, deformation, contact, timing and silhouette, and remeasure cost. A hint needs reliable action and staging; photographic detail is required only by its adopted output contract. A requested direct 3D film receives its commissioned visual finish after low-cost motion works.
 
 ## Hand Off And Judge
 

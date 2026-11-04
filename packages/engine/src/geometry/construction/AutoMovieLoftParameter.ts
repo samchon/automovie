@@ -181,15 +181,22 @@ export namespace AutoMovieLoftParameter {
       cumulative.push(cumulative[i]! + Math.hypot(b[0] - a[0], b[1] - a[1]));
     }
     const perimeter: number = cumulative[n]!;
-    const arc = (at: number): number => {
+    /** Read a cumulative knot directly, or interpolate inside its edge. */
+    const arc: (at: number) => number = (at: number): number => {
       const i: number = Math.floor(at);
-      return (
-        cumulative[i]! + (at - i) * (cumulative[i + 1]! - cumulative[i]!)
-      );
+
+      // A last-edge crossing can round to the closing knot n. Its arclength
+      // is cumulative[n]; interpolating would read the nonexistent next edge
+      // and turn the otherwise exact zero fraction into 0 * NaN.
+      if (at === i) return cumulative[i]!;
+      return cumulative[i]! + (at - i) * (cumulative[i + 1]! - cumulative[i]!);
     };
 
-    // Length travelled from `from` to `to` along the orientation, wrapping once.
-    const lengthBetween = (from: number, to: number): number => {
+    /** Length travelled from `from` to `to` along the orientation, wrapping once. */
+    const lengthBetween: (from: number, to: number) => number = (
+      from: number,
+      to: number,
+    ): number => {
       const d: number = arc(to) - arc(from);
       return d >= 0 ? d : d + perimeter;
     };
@@ -208,8 +215,7 @@ export namespace AutoMovieLoftParameter {
         fromFront <= firstHalf
           ? (Math.PI * fromFront) / Math.max(firstHalf, 1e-12)
           : Math.PI +
-              (Math.PI * (fromFront - firstHalf)) /
-                Math.max(secondHalf, 1e-12),
+              (Math.PI * (fromFront - firstHalf)) / Math.max(secondHalf, 1e-12),
       );
     }
     return out;

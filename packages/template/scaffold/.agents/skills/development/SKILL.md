@@ -5,7 +5,7 @@ description: Implements and tests production source, integrations, dependencies 
 
 # Development
 
-Read the production's current source and the installed package APIs before choosing an implementation. Keep authored controls close to the assets, shots, and edit they control, with one owner for shared values. External acquisition produces fixed inputs before playback.
+Read the production's current source and the installed package APIs before choosing an implementation. Divide behavior into cohesive responsibilities with explicit inputs, outputs, units, state ownership and failure conditions, so each part can be changed and checked independently. Reuse existing capabilities and give each module meaningful [unit tests](testing.md) against its behavioral contract, covering input boundaries, timing or retained state, and numerical error where applicable; then verify their composition through the actual consumer. Keep authored controls close to the assets, shots, and edit they control, with one owner for shared values. External acquisition produces fixed inputs before playback.
 
 A missing installed capability belongs with its package owner, and [campaign execution](../production/campaign.md) keeps the blocked handoff and its repair attributable. Explicit instruction sync updates guidance, not source or contracts.
 

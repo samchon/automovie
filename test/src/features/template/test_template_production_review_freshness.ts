@@ -21,7 +21,7 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * @evidence contracts/testing.md#behavioral-verification Evaluates the factory's real review claim against body and mirrored review documents, proving that an ordinary evidence citation cannot substitute for independent review and that authored action changes produce graph-stale-review.
  * @evidence contracts/testing.md#independent-expectations The documented native fingerprint contract excludes annotations and includes scene content. A captured public graph edge supplies the opaque hash token, while independently changed annotations and action determine the expected unchanged and stale outcomes; no literary verdict is inferred.
- * @evidence contracts/testing.md#distinguishing-cases Missing review, current paired review, annotation-only edit and action edit distinguish presence from currentness. Relationship coverage and complete upstream readiness belong to their separate tests.
+ * @evidence contracts/testing.md#distinguishing-cases Missing review, current paired review, annotation-only edit and action edit distinguish presence from currentness; separate relationship tests cover inherited evidence edges.
  * @evidence contracts/testing.md#execution-ownership The exported test_template_production_review_freshness entry owns four authored snapshots and a finally-cleaned temporary directory. It uses the public Markdown checker in-process without spawning a host or mocking adapters.
  */
 export async function test_template_production_review_freshness(): Promise<void> {

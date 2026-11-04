@@ -31,17 +31,23 @@ export namespace AutoMovieHumanHeadJawJoin {
     const sin: number = Math.sin(section.tilt);
     // The march steps no further than the widest blend can reach.
     const k: number = Math.max(m.blend, m.throat);
-    const join = (r: number): [number, number] => {
+    const join: (r: number) => [number, number] = (
+      r: number,
+    ): [number, number] => {
       const xi: number = ox + r * c;
       const x: number = xi * cos;
       const y: number = section.station + xi * sin;
-      const d: number = AutoMovieHumanHeadJawBody.mandible(m, x, y, r * n);
-      return [AutoMovieHumanHeadMath.softMin(r - base, d, blendAt(m, x, y, r * n)), d];
+      const plan: number = AutoMovieHumanHeadJawBody.arch(m, x, y, r * n);
+      const d: number = AutoMovieHumanHeadJawBody.mandibleAt(m, x, y, plan);
+      return [
+        AutoMovieHumanHeadMath.softMin(r - base, d, blendAt(m, x, y, plan)),
+        d,
+      ];
     };
     let inside: number = -1;
     let outside: number = -1;
     for (let r: number = base, i: number = 0; i < 400; i++) {
-      const [v, d] = join(r);
+      const [v, d]: [number, number] = join(r);
       if (v < 0) {
         inside = r;
         outside = -1;
@@ -70,9 +76,14 @@ export namespace AutoMovieHumanHeadJawJoin {
    * round of the arch the throat's width would swell the chin's sides, where
    * the jaw and the face meet nearly flush, and round the border away.
    */
-  function blendAt(m: IAutoMovieHumanHeadMandible, x: number, y: number, z: number): number {
+  function blendAt(
+    m: IAutoMovieHumanHeadMandible,
+    x: number,
+    y: number,
+    plan: number,
+  ): number {
     const below: number = (m.menton + (m.chin - x) * m.slope - y) * m.cos;
-    const inside: number = -AutoMovieHumanHeadJawBody.arch(m, x, y, z);
+    const inside: number = -plan;
     return (
       m.blend +
       (m.throat - m.blend) *

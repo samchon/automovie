@@ -1,5 +1,5 @@
 /** Closed hair style choices; serialized values are unchanged. */
-export const enum AutoMovieHumanHairStyle {
+export enum AutoMovieHumanHairStyle {
   /** crop choice. */
   Crop = "crop",
 

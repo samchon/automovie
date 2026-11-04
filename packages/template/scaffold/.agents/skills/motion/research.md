@@ -1,9 +1,11 @@
 # Motion and conditioning references
 
-These sources inform candidate methods and failure checks. Their reported experiments, embodiments and hardware do not validate this production or supply an installed solver. Adopting a principle below for film is a production inference, to be checked through the current host and commissioned output.
+Use [production research](../production/research.md) for original movement evidence, connected phases and retained local references. These sources inform candidate methods and failure checks. Their reported experiments, embodiments and hardware do not validate this production or supply an installed solver. Adopting a principle below for film is a production inference, to be checked through the current host and commissioned output.
 
 | Primary source | Decision informed here |
 | --- | --- |
+| [Motion Graphs](https://graphics.cs.wisc.edu/Papers/2002/KGP02/mograph.pdf), Sections 3–4, and [parameterized motions](https://research.cs.wisc.edu/graphics/Gallery/kovar.vol/ParamMotion/motionFamilies.pdf), Section 1.1.2 | Reuse motion units through compatible transitions and meaningful bounded parameters; these captured-motion methods inform composition without supplying a procedural controller or contact solver |
+| [Animation sync markers](https://dev.epicgames.com/documentation/unreal-engine/animation-sync-groups-in-unreal-engine?application_version=5.8) and [target warping windows](https://dev.epicgames.com/documentation/en-us/unreal-engine/motion-warping-in-unreal-engine) | Align meaningful phases and limit target adaptation to the relevant interval; synchronization and target fitting do not establish collision response, balance or an installed AutoMovie capability |
 | [Retargeting Matters / General Motion Retargeting](https://arxiv.org/abs/2510.02252) | Source-to-target artifacts such as sliding, self-intersection and velocity spikes deserve inspection before expecting a downstream tracker or generator to repair them |
 | [Shooting for Contact](https://arxiv.org/abs/2608.03116) | Kinematic similarity and dynamically feasible contact are different claims; use actual supported contact/physics evidence when the task requires it |
 | [Spatiotemporal Retargeting](https://arxiv.org/abs/2610.30540) | Object-interaction fidelity can depend on particular stages and body parts; inspect those actual contacts instead of relying on a uniform average pose error. Treat this recent research as a candidate method, not an established AutoMovie capability |

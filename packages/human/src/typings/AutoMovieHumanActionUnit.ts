@@ -3,7 +3,7 @@
  *
  * Each unit describes the visible effect of one muscle or muscle group. The FACS number follows each name. Units for gross behaviour (tongue show, jaw thrust, cheek puff and the like), head position and gaze are not facial deformation and are not listed. Head position belongs to pose, while gaze describes eye orientation. Blink (45) and wink (46) are timed or one-sided forms of eye closure, authored as `eyesClosed` with a side.
  */
-export const enum AutoMovieHumanActionUnit {
+export enum AutoMovieHumanActionUnit {
   /** AU1, frontalis medial part: the inner brow rises. */
   InnerBrowRaiser = "innerBrowRaiser",
 

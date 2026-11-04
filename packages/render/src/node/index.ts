@@ -12,3 +12,6 @@ export * from "./probeProductionRenderedMedia";
 export * from "./probeProductionVideoMp4";
 export * from "./trimProductionAudioPresentation";
 export * from "./capture/index.js";
+export * from "./IAutoMovieViewerVideoOptions";
+export * from "./IAutoMovieViewerVideoResult";
+export * from "./renderViewerVideo";

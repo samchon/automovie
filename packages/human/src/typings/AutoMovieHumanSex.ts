@@ -3,7 +3,7 @@
  *
  * This category distinguishes female and male population statistics. It does not specify detailed body measurements or the continuous masculine/feminine shape coordinate.
  */
-export const enum AutoMovieHumanSex {
+export enum AutoMovieHumanSex {
   /** Female population statistics. */
   Female = "female",
 

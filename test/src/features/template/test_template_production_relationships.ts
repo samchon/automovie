@@ -21,7 +21,7 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * @evidence contracts/testing.md#behavioral-verification Submits the factory's actual file-relationship claims to EvidenceChecker with authored Markdown citations and asserts accepted many-to-many coverage, uncovered-event failure and rejection of multiple lineage parents.
  * @evidence contracts/testing.md#independent-expectations Two independently authored treatment files and three explicit script citations establish the allowed braid; the final screenplay's one-parent contract determines its permitted cardinality. Assertions inspect checker outcomes and diagnostic codes rather than source arrangement.
- * @evidence contracts/testing.md#distinguishing-cases Shared-parent and multi-parent event coverage both pass, a completely uncited event fails, and the neighboring final-lineage relation rejects that same multi-parent shape. Full pass readiness and review freshness are owned by the routing and review tests.
+ * @evidence contracts/testing.md#distinguishing-cases Shared-parent and multi-parent event coverage both pass, a completely uncited event fails, and the neighboring final-lineage relation rejects that same multi-parent shape. Separate review tests cover native fingerprint freshness.
  * @evidence contracts/testing.md#execution-ownership The exported test_template_production_relationships entry owns three independent authored snapshots in a temporary tree and calls the public checker in-process. It installs nothing and starts no process, browser or GPU.
  */
 export async function test_template_production_relationships(): Promise<void> {

@@ -1,0 +1,45 @@
+{
+  "name": "kickboxing",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "An AutoMovie coding-agent production repository.",
+  "engines": {
+    "node": ">=22.23.2"
+  },
+  "scripts": {
+    "lint": "ttsc --cache-dir node_modules/.cache/ttsc --noEmit -p tsconfig.json",
+    "format": "ttsc format --cache-dir node_modules/.cache/ttsc -p tsconfig.json",
+    "evidence": "evidence",
+    "test": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.test.json test/index.ts",
+    "dev": "vite --host 127.0.0.1 --port 5199 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 5198 --strictPort",
+    "render": "ttsx -P tsconfig.json src/render.ts"
+  },
+  "dependencies": {
+    "@automovie/archetypes": "workspace:^",
+    "@automovie/engine": "workspace:^",
+    "@automovie/human": "workspace:^",
+    "@automovie/ingest": "workspace:^",
+    "@automovie/interface": "workspace:^",
+    "@automovie/recovery": "workspace:^",
+    "@automovie/render": "workspace:^",
+    "@automovie/viewer": "workspace:^"
+  },
+  "devDependencies": {
+    "@automovie/evidence": "workspace:^",
+    "@ttsc/lint": "^0.35.0",
+    "@types/node": "^22.19.17",
+    "ttsc": "^0.35.0",
+    "typescript": "^7.0.2",
+    "@wrtnlabs/evidence": "^0.8.2",
+    "vite": "catalog:vite",
+    "playwright-core": "catalog:media",
+    "three": "catalog:three",
+    "@types/three": "catalog:three",
+    "ffmpeg-static": "^5.2.0",
+    "ffprobe-static": "^3.1.0"
+  }
+}

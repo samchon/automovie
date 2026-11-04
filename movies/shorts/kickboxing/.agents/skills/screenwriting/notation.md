@@ -1,0 +1,13 @@
+# Scene and performance notation
+
+Choose readable notation before drafting scripts or screenplay. [Production layout](../production/layout.md) owns file identities; the selected contracts judge the execution and expression.
+
+Unless the commission adopts another form, use conventional screenplay blocks: a scene heading such as `INT. LOCATION - DAY` establishes interior or exterior, place and story time; short present-tense action paragraphs carry what can be seen or heard; a consistent speaker cue precedes each actual dialogue block. Break paragraphs at meaningful changes of action, response or attention. Mark off-screen speech (`O.S.`), voiceover, overlap, screen text and shifts of time or location when otherwise ambiguous. The [BBC format](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf) and [Final Draft elements](https://www.finaldraft.com/learn/screenplay-formatting-elements/) illustrate these conventions.
+
+Audiovisual columns and shooting scripts can carry the same scene meaning. Include camera, edit and performance directions where they determine the experience, and follow an adopted submission format. H1/H2 identities provide navigation and evidence units; paragraphs and headings do not prescribe shot boundaries or uniform duration.
+
+A long or complex continuous scene may use brief subheadings for meaningful shifts of action, exchange or focus so its progression stays readable. Where the project adopts H2 scene headings, use H3 for these groups while preserving the scene's place and time continuity. The [BBC format, page 4](https://downloads.bbc.co.uk/writersroom/scripts/screenplay.pdf#page=5) illustrates action subheadings; Markdown levels are the project's notation choice.
+
+Keep implementation precision with its actual executable shot or performance consumer, linked through [execution traceability](../evidence/execution.md). The screenplay still decides the complete visible and audible action, actual speech, reactions, consequential timing, continuity and result. A technical companion realizes those decisions rather than asking the implementer to invent them; [staging](../motion/staging.md) preserves them through performance.
+
+Read the blocks as a continuous sequence of seen and heard events, with exchanges beside their action and each entry following the preceding exit. A table read can refine spoken timing when available. Final duration comes from performed action, speech, pauses and edit. [Motion](../motion/SKILL.md) and [production](../production/SKILL.md) realize the commissioned output; [delivery review](../review/delivery.md) observes it.

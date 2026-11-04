@@ -55,6 +55,7 @@
     }
   },
   "devDependencies": {
+    "@playwright/mcp": "catalog:media",
     "@automovie/render": "workspace:^",
     "@automovie/viewer": "workspace:^",
     "@types/three": "catalog:three",

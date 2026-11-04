@@ -1,5 +1,5 @@
 /** Closed hairline choices; serialized values are unchanged. */
-export const enum AutoMovieHumanHairline {
+export enum AutoMovieHumanHairline {
   /** round choice. */
   Round = "round",
 

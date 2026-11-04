@@ -1,5 +1,5 @@
 /** Closed hair curl choices; serialized values are unchanged. */
-export const enum AutoMovieHumanHairCurl {
+export enum AutoMovieHumanHairCurl {
   /** I choice. */
   I = "I",
 
