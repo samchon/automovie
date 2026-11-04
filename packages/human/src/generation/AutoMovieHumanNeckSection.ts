@@ -30,27 +30,11 @@
 export namespace AutoMovieHumanNeckSection {
   /**
    * Breadth over depth at the observed least girth, four-reference mean.
-   *
-   * @evidence contracts/common.md#principled-implementation Retains the dimensionless estimate and SD stated on the namespace, without asserting the infrathyroid site was measured.
-   * @evidence contracts/common.md#clear-and-simple-design One named ratio supplies the box conversion.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixture branch or newly fitted value is introduced.
-   * @evidence contracts/common.md#meaningful-documentation Names the ratio's site, provenance and dimensionless units.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A numeric data declaration chooses no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A primitive constant coordinates no effectful or cached work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources One immutable module number has a fixed lifetime and size.
    */
   export const BREADTH_OVER_DEPTH: number = 0.983;
 
   /**
    * Fullness between rhombus and box perimeter bounds at the observed site.
-   *
-   * @evidence contracts/common.md#principled-implementation Retains the four-reference mean in the declared perimeter-interpolation convention.
-   * @evidence contracts/common.md#clear-and-simple-design One scalar supplies the conversion, separate from geometry realization.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not relabel an estimate as a published anatomical coefficient.
-   * @evidence contracts/common.md#meaningful-documentation Names the endpoints of the dimensionless fullness and its observed site.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A numeric data declaration chooses no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A primitive constant coordinates no effectful or cached work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources One immutable module number has a fixed lifetime and size.
    */
   export const FULLNESS: number = 0.245;
 

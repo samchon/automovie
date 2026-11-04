@@ -11,9 +11,10 @@
  * (SD 1.02) degrees; the ankle loop's centre 0.1706 (SD 0.0326) of the foot's
  * body-X span ahead of the heel; and the dorsum's height, the highest section
  * whose loop spans a body-X place, divided by that same projected span, at
- * the forefoot's projected shares ({@link FOREFOOT}). The dorsum at half that span
- * is published and stays with `AutoMovieHumanFootArch` (the reading's 0.209,
- * SD 0.063, agrees with its 0.214 of the foot length standing).
+ * the forefoot's projected shares ({@link FOREFOOT}). The dorsum at half that
+ * projected span reads 0.209 (SD 0.063). `AutoMovieHumanFootArch` instead uses
+ * a published standing ratio, 0.214 of foot length. These distinct length
+ * normalizers and station definitions do not establish numeric agreement.
  *
  * Limits: six feet of four people; the sections stand 10 mm apart, so the
  * heights are read to about 0.04 of the foot's length; the replacement stays
@@ -33,40 +34,16 @@
 export namespace AutoMovieHumanFootPlaces {
   /**
    * Observed heel-to-foremost yaw, toe out, degrees.
-   *
-   * @evidence contracts/common.md#principled-implementation Retains the six-foot normalized frame observation with the namespace's reader and SD.
-   * @evidence contracts/common.md#clear-and-simple-design One scalar supplies the consumer's floor frame.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no side/person exception or measured anatomical-axis claim.
-   * @evidence contracts/common.md#meaningful-documentation Names yaw direction, degrees and the observed axis.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A primitive data declaration chooses no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A numeric constant coordinates no cached work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources One immutable module number has fixed size.
    */
   export const YAW: number = 2.3;
 
   /**
    * Observed ankle skin-loop vertex-mean X ahead of heel X, per body-X span.
-   *
-   * @evidence contracts/common.md#principled-implementation Retains the existing vertex-mean X ratio; transfer to an anatomical joint or rotated axis is not claimed measured.
-   * @evidence contracts/common.md#clear-and-simple-design One named ratio supplies the ankle helper.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No new fitted offset or compensation is added.
-   * @evidence contracts/common.md#meaningful-documentation States the skin vertex-mean datum and projected-span normalizer.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A primitive data declaration chooses no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A numeric constant coordinates no cached work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources One immutable module number has fixed size.
    */
   export const ANKLE: number = 0.1706;
 
   /**
    * Dorsum height per body-X span, at projected shares from heel X.
-   *
-   * @evidence contracts/common.md#principled-implementation Retains four source height ratios and their stated section-spacing uncertainty.
-   * @evidence contracts/common.md#clear-and-simple-design A fixed four-row record is read by the dorsum helper.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no new law, interpolated observation or person-specific row.
-   * @evidence contracts/common.md#meaningful-documentation Names the floor-height datum and projected station/value normalizations.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A fixed data declaration chooses no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fixed table coordinates no cached computation.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Four module-owned records have a fixed retained population and no external handles.
    */
   export const FOREFOOT: readonly { readonly share: number; readonly height: number }[] = [
     { share: 0.6, height: 0.1704 },
@@ -140,14 +117,6 @@ export namespace AutoMovieHumanFootPlaces {
    * centres. Reusing their across centres for a rig requires a separate
    * placement convention. The independent public breadth is applied by the
    * consumer; these retained ratios are still normalized by foot length.
-   *
-   * @evidence contracts/common.md#principled-implementation Retains the four-foot skin-loop reading in its heel-to-foremost frame; no joint-centre location follows without another convention.
-   * @evidence contracts/common.md#clear-and-simple-design One five-row record supplies skin reach and across placement; the consumer owns its anatomical interpretation.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no private reading or f1 fit and does not relabel tip observations as metatarsal heads.
-   * @evidence contracts/common.md#meaningful-documentation States row order, axes, units, sample exclusions and all reported spreads.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A fixed data declaration chooses no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fixed record coordinates no cached work.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Five module-owned records have fixed size and retain no skin or reference pack.
    */
   export const TOES: readonly { readonly tip: number; readonly across: number }[] = [
     { tip: 0.9681, across: 0.0072 },

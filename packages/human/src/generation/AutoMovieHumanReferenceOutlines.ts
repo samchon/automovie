@@ -1,3 +1,5 @@
+import type { AutoMovieHumanReferenceOutlineTypes as Records } from "./AutoMovieHumanReferenceOutlineTypes";
+
 /**
  * Outline data between the published measures that size the view parts:
  * private-reference knot tables and the separately cited public upper-lid
@@ -24,9 +26,9 @@
  * @evidence contracts/common.md#clear-and-simple-design One namespace publishes fixed data and one linear reader; builders own their geometric mapping.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No generated output or individual reference coordinates enter; the public lid data has no person branch or fitted compensation.
  * @evidence contracts/common.md#meaningful-documentation Names provenance, units, normalization, consumers and the incomplete observations.
- * @evidence contracts/performance.md#efficient-algorithms The reader filters n rows then scans the retained rows, O(n) time and temporary space; fixed-size control data performs no geometry work.
+ * @evidence contracts/performance.md#efficient-algorithms For c columns and n rows the reader checks column membership, filters rows and scans retained rows, O(c+n) time and O(n) temporary space; fixed data performs no geometry work.
  * @evidence contracts/performance.md#reuse-equivalent-work Consumers share the same module tables and public control record, without an output-dependent cache or copied coefficients.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed module data survives; column filtering is call-local and retains no figure or source pack.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Each module instance owns fixed table literals; the reader's filtered row references are call-local, and neither data nor functions retain a figure or source pack.
  */
 export namespace AutoMovieHumanReferenceOutlines {
   /**
@@ -41,55 +43,43 @@ export namespace AutoMovieHumanReferenceOutlines {
    * That consumer samples the cubic into loft knots; their subsequent spline
    * is a numerical approximation, not the unchanged analytic cubic.
    * Source and limitations: `docs/sources/shin-2025-upper-eyelid-contour.md`.
-   *
-   * @evidence contracts/common.md#principled-implementation Retains the primary supplement's four control points in their stated datum, independently of a generated person.
-   * @evidence contracts/common.md#clear-and-simple-design A fixed record supplies the single eye-parts consumer without a second curve builder.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not fill the private FISSURE gaps or invent a lower margin, forward course or tissue thickness.
-   * @evidence contracts/common.md#meaningful-documentation States the source matrices, coordinate directions, photographic scale and required endpoint mapping.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms A fixed eight-point data declaration has no algorithm.
-   * @evidence contracts/performance.md#reuse-equivalent-work The eye consumer imports this record rather than transcribing its own data.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Eight immutable-by-type coordinate pairs retain no figure, image or reference pack.
    */
   export const SHIN_UPPER_LID: Readonly<Record<"female" | "male", readonly [readonly [number, number], readonly [number, number], readonly [number, number], readonly [number, number]]>> = {
     female: [[-12.770, -0.405], [-3.345, 9.527], [8.919, 3.497], [12.061, -4.764]],
     male: [[-12.869, -0.972], [-7.529, 5.598], [7.375, 6.139], [12.382, -4.274]],
   };
 
-  /** One station of a table: its share and its columns' values. */
-  export interface IRow {
-    /** The station's share between the table's landmarks. */
-    share: number;
+  /**
+   * Existing qualified row name, forwarding the single sparse-record definition.
+   *
+   * @evidence contracts/common.md#principled-implementation The alias is exactly Records.IRow, preserving its sparse cells, station datum and compiler-only validation limit.
+   * @evidence contracts/common.md#clear-and-simple-design Preserves consumers' existing namespace type address while one module owns the record definition.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Copies no schema or data and introduces no alternate row representation.
+   * @evidence contracts/common.md#meaningful-documentation Identifies the compatibility address and the authoritative sparse-record type.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias selects no runtime algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The erased alias computes nothing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A type-only import and alias allocate no runtime object or handle.
+   */
+  export type IRow = Records.IRow;
 
-    /** Each kept column's mean at the station. */
-    values: Readonly<Record<string, number>>;
-
-    /** Each kept column's SD over the people at the station. */
-    spreads: Readonly<Record<string, number>>;
-  }
-
-  /** One table: its reading, its normalization, its consumers and its rows. */
-  export interface ITable {
-    /** The reading test that prints it. */
-    reading: string;
-
-    /** What the stations' share runs between, and what each value is a share of. */
-    normalization: string;
-
-    /** The view parts that read it. */
-    consumers: string;
-
-    /** The columns, in order. */
-    columns: readonly string[];
-
-    /** The rows, by increasing share; empty until the reading runs. */
-    rows: readonly IRow[];
-  }
+  /**
+   * Existing qualified table name, forwarding the single metadata/row schema.
+   *
+   * @evidence contracts/common.md#principled-implementation The exact alias retains Records.ITable's columns, row ordering and normalization metadata without changing its structural API.
+   * @evidence contracts/common.md#clear-and-simple-design Separates record documentation from the large literal registry while preserving every caller's type address.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no wrapper, validator, copy or narrowed data state.
+   * @evidence contracts/common.md#meaningful-documentation Names the authoritative record definition and the preserved qualified API.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms An erased alias performs no table lookup.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This type coordinates no repeated runtime work.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The alias retains no runtime table or consumer state.
+   */
+  export type ITable = Records.ITable;
 
   /** The trunk's outline along its height. */
   export const TRUNK: ITable = {
     reading: "test_human_estimate_trunk_outline",
     normalization: "share of crotch to cervicale; half breadth, front and back (forward of cervicale's back point) per stature; shoulders 0 chord to 1 box",
-    consumers: "the trunk's view part (upperSites, the outlines above the chest)",
+    consumers: "trunk/AutoMovieHumanTrunkInterim.upperSites and AutoMovieHumanTrunkLaws.of",
     columns: ["halfBreadth", "front", "back", "shoulderFront", "shoulderBack"],
     rows: [
       { share: 0, values: { "halfBreadth": 0.1114, "front": 0.1117, "back": -0.0151, "shoulderFront": 0.595, "shoulderBack": 0.511 }, spreads: { "halfBreadth": 0.0034, "front": 0.0068, "back": 0.0093, "shoulderFront": 0.022, "shoulderBack": 0.018 } },
@@ -119,7 +109,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   export const HEAD: ITable = {
     reading: "test_human_estimate_head_outline",
     normalization: "share of menton to vertex; P and B forward of the skull's centre per head length; L per half head breadth; shoulders 0 chord to 1 box",
-    consumers: "AutoMovieHumanHeadMassPart (P, B, L, the quarters' fullness)",
+    consumers: "retained estimate; no current production reader",
     columns: ["P", "B", "L", "shoulderFront", "shoulderBack"],
     rows: [
       { share: 0, values: { "L": 0.7141, "shoulderFront": 0.269, "shoulderBack": 0.442 }, spreads: { "L": 0.0379, "shoulderFront": 0.109, "shoulderBack": 0.018 } },
@@ -149,7 +139,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   export const FOREARM: ITable = {
     reading: "test_human_estimate_arm_sections",
     normalization: "share of wrist to elbow; the four extents about the section's centre per girth; shoulders 0 chord to 1 box",
-    consumers: "the arm's view part (armSites)",
+    consumers: "arm/AutoMovieHumanArmInterim.sites (forearm and wrist boxes)",
     columns: ["anterior", "lateral", "posterior", "medial", "shoulderFront", "shoulderBack"],
     rows: [
       { share: 0, values: { "anterior": 0.2211, "lateral": 0.1423, "posterior": 0.1451, "medial": 0.1069, "shoulderFront": 0.34, "shoulderBack": 0.532 }, spreads: { "anterior": 0.0331, "lateral": 0.0217, "posterior": 0.02, "medial": 0.0214, "shoulderFront": 0.068, "shoulderBack": 0.048 } },
@@ -170,7 +160,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   export const UPPER_ARM: ITable = {
     reading: "test_human_estimate_arm_sections",
     normalization: "share of elbow to the axilla; the four extents per girth; shoulders 0 chord to 1 box",
-    consumers: "the arm's view part (armSites)",
+    consumers: "arm/AutoMovieHumanArmInterim.sites (upper-arm boxes)",
     columns: ["anterior", "lateral", "posterior", "medial", "shoulderFront", "shoulderBack"],
     rows: [
       { share: 0, values: { "anterior": 0.1721, "lateral": 0.1573, "posterior": 0.1566, "medial": 0.1645, "shoulderFront": 0.37, "shoulderBack": 0.342 }, spreads: { "anterior": 0.019, "lateral": 0.0215, "posterior": 0.0213, "medial": 0.0194, "shoulderFront": 0.027, "shoulderBack": 0.029 } },
@@ -190,8 +180,8 @@ export namespace AutoMovieHumanReferenceOutlines {
   /** The foot's outline along its axis, heel 0 to toe 1. */
   export const FOOT: ITable = {
     reading: "test_human_estimate_foot_outline",
-    normalization: "share of the foot length from the heel; edges about the axis and heights, per foot length",
-    consumers: "the foot's view part (foot())",
+    normalization: "heel/toe selected by body-X extrema; shares of their planar Euclidean span; lateral/medial maxima and highest/lowest section in an along-axis +/-4 mm band, per that span",
+    consumers: "foot/AutoMovieHumanFootInterim.of, toes and acrossScale; subsequent curve extrema remain the consumer's responsibility",
     columns: ["lateral", "medial", "dorsum", "plantar"],
     rows: [
       { share: 0, values: { "lateral": 0.0434, "medial": 0.0477, "dorsum": 0.1296, "plantar": 0.0776 }, spreads: { "lateral": 0.0088, "medial": 0.013, "dorsum": 0.0297, "plantar": 0.0347 } },
@@ -222,7 +212,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   export const FACE: ITable = {
     reading: "test_human_estimate_face_profile",
     normalization: "share of nasion to menton; midline forward of the nasion per face height; setback at 0 to 1 of the half face width per half face width",
-    consumers: "the head's face parts (nose, lips, chin, malar and cheek over the head mass)",
+    consumers: "retained estimate; no current production reader",
     columns: ["midline", "setback0", "setback0.2", "setback0.4", "setback0.6", "setback0.8", "setback1"],
     rows: [
       { share: 0, values: { "midline": 0, "setback0": 0, "setback0.2": 0.088, "setback0.4": 0.124, "setback0.6": 0.176, "setback0.8": 0.369 }, spreads: { "midline": 0, "setback0": 0, "setback0.2": 0.056, "setback0.4": 0.05, "setback0.6": 0.028, "setback0.8": 0.093 } },
@@ -253,7 +243,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   export const BREAST: ITable = {
     reading: "test_human_estimate_masses",
     normalization: "share of 0.1 stature (vertical) or a quarter section breadth (horizontal) about the bust point; setback behind the point per stature, women",
-    consumers: "the breast part's footprint and profile",
+    consumers: "retained profile estimate; no current production reader",
     columns: ["vertical", "horizontal"],
     rows: [
       { share: -1, values: { "horizontal": 0.0123 }, spreads: { "horizontal": 0.0048 } },
@@ -272,7 +262,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   export const GLUTEAL: ITable = {
     reading: "test_human_estimate_masses",
     normalization: "as BREAST, about the buttock's most posterior point, women and men apart",
-    consumers: "the gluteal part's footprint and profile",
+    consumers: "retained profile estimate; no current production reader",
     columns: ["femaleVertical", "femaleHorizontal", "maleVertical", "maleHorizontal"],
     rows: [
       { share: -1, values: { "femaleHorizontal": 0.0012 }, spreads: { "femaleHorizontal": 0.0001 } },
@@ -291,7 +281,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   export const EAR: ITable = {
     reading: "test_human_estimate_ear_outline",
     normalization: "share of the ear's height; anterior and posterior rim forward of the ear's mean per ear breadth",
-    consumers: "the ear's lateral outline (AutoMovieHumanHeadEarParts)",
+    consumers: "retained estimate; no current production reader",
     columns: ["anterior", "posterior"],
     rows: [
       { share: 0, values: { "anterior": 0.507, "posterior": 0.381 }, spreads: { "anterior": 0.229, "posterior": 0.222 } },
@@ -312,7 +302,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   export const FISSURE: ITable = {
     reading: "test_human_estimate_lid_margins",
     normalization: "share of the fissure length; upper and lower margin heights per fissure height; forward per fissure length",
-    consumers: "the lids' fissure outline and profile",
+    consumers: "retained incomplete estimate; no current production reader; SHIN_UPPER_LID is a separate published record",
     columns: ["upper", "lower", "forward"],
     rows: [
       { share: 0, values: { "upper": 0.076, "lower": -0.241, "forward": 0.121 }, spreads: { "upper": 0.061, "lower": 0.123, "forward": 0.015 } },
@@ -333,7 +323,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   export const LIPS: ITable = {
     reading: "test_human_estimate_face_detail",
     normalization: "share of subnasale to a quarter face height under the stomion; half width per half mouth width",
-    consumers: "the lips' front-view outline",
+    consumers: "retained estimate; no current production reader",
     columns: ["halfWidth"],
     rows: [
       { share: 0, values: { "halfWidth": 0.496 }, spreads: { "halfWidth": 0.13 } },
@@ -385,26 +375,18 @@ export namespace AutoMovieHumanReferenceOutlines {
     ],
   };
 
-  /** One mass's footprint on the trunk wall: its amplitude and four edges. */
-  export interface IFootprint {
-    /** The reading test that prints it. */
-    reading: string;
-
-    /** What each value is a share of, and how the edges are found. */
-    normalization: string;
-
-    /** The parts that read it. */
-    consumers: string;
-
-    /** The people and sides the values come from. */
-    people: string;
-
-    /** Each value's mean. */
-    values: Readonly<Record<"amplitude" | "up" | "down" | "lateral" | "medial" | "halfPointWidth", number>>;
-
-    /** Each value's SD over the sides. */
-    spreads: Readonly<Record<"amplitude" | "up" | "down" | "lateral" | "medial" | "halfPointWidth", number>>;
-  }
+  /**
+   * Existing qualified mass-summary name, forwarding its measured footprint record.
+   *
+   * @evidence contracts/common.md#principled-implementation The exact Records.IFootprint alias preserves each dimension key, sample and wall normalization without turning an observed amplitude into an input law.
+   * @evidence contracts/common.md#clear-and-simple-design MassInterim keeps its existing type address while the record fields have one documented owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no duplicate summary, fitted coefficient or geometry wrapper.
+   * @evidence contracts/common.md#meaningful-documentation Names the authoritative footprint schema and its observational meaning.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A type alias implements no processing strategy.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This erased alias performs no repeated computation.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A type-only alias owns no runtime footprint, mesh or handle.
+   */
+  export type IFootprint = Records.IFootprint;
 
   /**
    * The breast's footprint about the bust point, women. The lateral edge is
@@ -416,7 +398,7 @@ export namespace AutoMovieHumanReferenceOutlines {
     reading: "test_human_estimate_mass_footprints",
     normalization:
       "per stature; amplitude the bust point's projection over the wall's line (the inframammary fold to the back hull's first vertex above, in the point's sagittal plane); up and down the edges' heights from the bust point along that profile; lateral and medial the distances in the bust's section to where the setback reaches the amplitude; halfPointWidth the bust point's distance from the median plane",
-    consumers: "AutoMovieHumanBreastFootprint (the base's extent and the mass's amplitude)",
+    consumers: "trunk/AutoMovieHumanMassInterim.breast and breastAmplitude",
     people: "two women (f1, f2), three sides; m2's one breast reads 0.0009 of stature, no mass",
     values: { amplitude: 0.0101, up: 0.0254, down: 0.0254, lateral: 0.0102, medial: 0.0172, halfPointWidth: 0.0374 },
     spreads: { amplitude: 0.0058, up: 0.0068, down: 0.0089, lateral: 0.0027, medial: 0.0141, halfPointWidth: 0.0017 },
@@ -433,7 +415,7 @@ export namespace AutoMovieHumanReferenceOutlines {
     female: {
       reading: "test_human_estimate_mass_footprints",
       normalization: "as BREAST_FOOTPRINT, about the buttock's most posterior point, per stature",
-      consumers: "the gluteal part's footprint and amplitude",
+      consumers: "trunk/AutoMovieHumanMassInterim.gluteal and glutealAmplitude",
       people: "two women (f1, f2), four sides",
       values: { amplitude: 0.0076, up: 0.0359, down: 0.0581, lateral: 0.0244, medial: 0.0167, halfPointWidth: 0.0327 },
       spreads: { amplitude: 0.0051, up: 0.0103, down: 0.0518, lateral: 0.0052, medial: 0.0109, halfPointWidth: 0.0003 },
@@ -441,7 +423,7 @@ export namespace AutoMovieHumanReferenceOutlines {
     male: {
       reading: "test_human_estimate_mass_footprints",
       normalization: "as BREAST_FOOTPRINT, about the buttock's most posterior point, per stature",
-      consumers: "the gluteal part's footprint and amplitude",
+      consumers: "trunk/AutoMovieHumanMassInterim.gluteal and glutealAmplitude",
       people: "two men (m1, m2), four sides",
       values: { amplitude: 0.0063, up: 0.0253, down: 0.0365, lateral: 0.0194, medial: 0.0208, halfPointWidth: 0.0293 },
       spreads: { amplitude: 0.0048, up: 0.0049, down: 0.0204, lateral: 0.0099, medial: 0.0029, halfPointWidth: 0.0037 },
@@ -450,20 +432,29 @@ export namespace AutoMovieHumanReferenceOutlines {
 
   /**
    * A table's column at a share, linear between the rows that keep the column
-   * and held beyond them.
+   * and held beyond them. Rows must have finite numeric values and strictly
+   * increasing shares; this reader does not validate those numeric premises.
    *
    * @param table The table.
    * @param column One of its columns.
-   * @param share The station's share.
+   * @param share Finite station share; values outside the retained range are held at its endpoints.
    * @returns The value at the share.
    * @throws When the table's rows wait for their reading's run, the column is not the table's, or no row keeps it.
+   *
+   * @evidence contracts/common.md#principled-implementation Filters retained cells, holds the first/last value outside their range and uses affine interpolation between finite, strictly ordered station rows.
+   * @evidence contracts/common.md#clear-and-simple-design One scalar reader serves all tables and reports absent tables, undeclared columns and columns with no observations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Fills no source cell and has no person, fixture, curve-fit or expected-output branch; interpolation remains a derived value.
+   * @evidence contracts/common.md#meaningful-documentation States interpolation, endpoint holding, numeric premises and the three unavailable-data errors.
+   * @evidence contracts/performance.md#efficient-algorithms For c declared columns and n rows, membership plus filtering and a retained-row scan cost O(c+n) time and O(n) temporary references; small literal tables need no index or persistent cache.
+   * @evidence contracts/performance.md#reuse-equivalent-work All callers read the same module tables, while each column/share lookup is call-local; no cache assumes equivalent tables or hides mutable input changes.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The filtered array and row references live only during this call; a scalar result retains no table, figure or source pack.
    */
   export function at(table: ITable, column: string, share: number): number {
     if (table.rows.length === 0) throw new Error(`AutoMovieHumanReferenceOutlines: ${table.reading} has not filled its table yet`);
     if (!table.columns.includes(column)) throw new Error(`AutoMovieHumanReferenceOutlines: ${table.reading} has no column ${column}`);
     const rows: readonly IRow[] = table.rows.filter((r: IRow): boolean => r.values[column] !== undefined);
     if (rows.length === 0) throw new Error(`AutoMovieHumanReferenceOutlines: ${table.reading} kept no station of column ${column}`);
-    const read = (r: IRow): number => r.values[column]!;
+    const read: (r: IRow) => number = (r: IRow): number => r.values[column]!;
     if (share <= rows[0]!.share) return read(rows[0]!);
     for (let i: number = 0; i + 1 < rows.length; i++) {
       const a: IRow = rows[i]!;
