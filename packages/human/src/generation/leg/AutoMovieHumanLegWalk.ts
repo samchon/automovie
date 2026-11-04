@@ -18,8 +18,8 @@ type Vec3 = AutoMovieHumanLegBones.Vec3;
  * largest edge, inside the heel. Those runs carry the nearest site's box, a
  * construction never seen: the merges trim them.
  *
- * Sites. The five published tapes at their sites (ISO 8559-1 5.3.20 thigh
- * below the gluteal fold, the lower thigh above the patella, 5.3.22 the knee
+ * Sites. The four published tapes the anatomy carries at their sites (ISO 8559-1 5.3.20 thigh
+ * below the gluteal fold, 5.3.22 the knee
  * at mid-patella, 5.3.24 the calf at its widest, 5.3.26 the ankle at its
  * least), each placed on its bone by its height and owning the section's
  * fullness there; each site's box (its anterior, lateral, posterior and
@@ -40,7 +40,7 @@ export namespace AutoMovieHumanLegWalk {
   }
 
   /** The sites, from the hip down. */
-  export const SITES: readonly string[] = ["thigh", "lowerThigh", "knee", "calf", "ankle"];
+  export const SITES: readonly string[] = ["thigh", "knee", "calf", "ankle"];
 
   /** Control points and ring phases of every section: 256, over four times the reference pack's about 57 spans per leg section (`generalization.md`, Leg), a multiple of 4. */
   export const ORDER: number = 256;
