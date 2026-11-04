@@ -36,12 +36,15 @@ type Quarters<T> = IAutoMovieHumanViewPart.IQuarters<T>;
  *
  * The guide's curvature law. Both quarters beside a guide meet in one
  * curvature, so the section is C2 there. Each quarter's own conic asks for
- * its `kappa`; the shared value is their mean, the least-squares compromise
- * of the two (the second angle derivative of the radius is linear in the
- * curvature at a guide, `rho_phiphi = e - kappa e^2` with `rho_phi = 0`, so
- * the mean curvature is also the mean `rho_phiphi`). A symmetric box with the
- * ellipse's shoulder in every quarter gives both quarters `a / b^2`, the
- * centred ellipse's own curvature.
+ * its `kappa`; the shared value is the smaller, the flatter quarter's. Past
+ * the guide each quarter turns from the shared curvature to its own conic's
+ * (its first conic guide): the rounder quarter only turns faster, which keeps
+ * it convex, while a quarter given more curvature than its conic's would
+ * have to straighten back out toward its own long side, a turn against
+ * convexity (the first operator run found it on a box whose depths beside a
+ * guide differ five to one). A symmetric box with the ellipse's shoulder in
+ * every quarter gives both quarters `a / b^2`, the centred ellipse's own
+ * curvature.
  *
  * The quarter's fullness. Inside its quarter the section follows its conic:
  * the conic's points at the parameters `t = j / M` of its rational
@@ -126,7 +129,7 @@ export namespace AutoMovieHumanViewSection {
   }
 
   /**
-   * Each guide's curvature, the mean of its two quarters' conic curvatures at
+   * Each guide's curvature, the smaller of its two quarters' conic curvatures at
    * its touch point.
    *
    * @param box The box.
@@ -141,7 +144,7 @@ export namespace AutoMovieHumanViewSection {
     };
     return [0, 1, 2, 3].map((g: number): number => {
       const before: number = (g + 3) % 4;
-      return (conic(before, e[g]!, e[before]!) + conic(g, e[g]!, e[(g + 1) % 4]!)) / 2;
+      return Math.min(conic(before, e[g]!, e[before]!), conic(g, e[g]!, e[(g + 1) % 4]!));
     }) as Quarters<number>;
   }
 

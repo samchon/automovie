@@ -134,7 +134,7 @@ export namespace AutoMovieHumanSolidRail {
       sigma = side;
       partAcross = [side / norm(a.u), 0];
       if (typeof partWidth === "number") {
-        const lambda: number | null = offset((l: number): IJet => part.jet(curve.s + side * l, curve.phi), [1, 0], curve.point, partWidth);
+        const lambda: number | null = offset((l: number): IJet => part.jet(curve.s + side * l, curve.phi), [side, 0], curve.point, partWidth);
         if (lambda === null) return null;
         s = curve.s + side * lambda;
       } else {

@@ -1,5 +1,6 @@
 import { AutoMovieHumanLoftContract } from "./AutoMovieHumanLoftContract";
 import type { AutoMovieHumanLoftFrame } from "./AutoMovieHumanLoftFrame";
+import type { AutoMovieHumanSolidIntersection } from "./AutoMovieHumanSolidIntersection";
 import type { AutoMovieHumanSolidJoin } from "./AutoMovieHumanSolidJoin";
 import type { AutoMovieHumanSolidMesh } from "./AutoMovieHumanSolidMesh";
 import type { AutoMovieHumanSolidVector } from "./AutoMovieHumanSolidVector";
@@ -29,7 +30,10 @@ type Vec3 = AutoMovieHumanSolidVector.Vec3;
  *
  * So at every column the chain is the blend exactly (to the B-spline
  * interpolation filter's rounding), including both ribbons' 2-jets, and
- * between columns it is the B-spline through them.
+ * between columns it is the B-spline through them: its interpolated ribbons
+ * leave the surfaces' tangent planes there by about `(spacing / R)^2 / 8`,
+ * the spacing the columns' distance along a rail and `R` the surface's
+ * smaller radius of curvature, so the column count is chosen from that bound.
  */
 export namespace AutoMovieHumanSolidBlendChain {
   /** A published blend. */
@@ -63,6 +67,15 @@ export namespace AutoMovieHumanSolidBlendChain {
      * rail along it.
      */
     partAcross: [number, number][];
+
+    /** The intersection curve's point at each column, mm. */
+    curve: [number, number, number][];
+
+    /** The declared chords at each column, mm (`AutoMovieHumanSolidJoin.IJoin.widths`); the part's null where its rail is one fixed station. */
+    widths: { host: number[]; part: (number | null)[] };
+
+    /** The kind of the curve's parameter (`AutoMovieHumanSolidIntersection.Parameter`). */
+    parameter: AutoMovieHumanSolidIntersection.Parameter["kind"];
 
     /** The part's kept side in its station: the part continues past its rail at `s + sigma d`, `d > 0` (the phase parameter). */
     sigma: 1 | -1;
@@ -133,6 +146,12 @@ export namespace AutoMovieHumanSolidBlendChain {
       },
       across: columns.map((c: AutoMovieHumanSolidJoin.IColumn): [number, number] => [c.rail.across[0], c.rail.across[1]]),
       partAcross: columns.map((c: AutoMovieHumanSolidJoin.IColumn): [number, number] => [c.rail.partAcross[0], c.rail.partAcross[1]]),
+      curve: columns.map((c: AutoMovieHumanSolidJoin.IColumn): [number, number, number] => [c.rail.curve.point[0], c.rail.curve.point[1], c.rail.curve.point[2]]),
+      widths: {
+        host: columns.map((_: AutoMovieHumanSolidJoin.IColumn, k: number): number => join.widths(seed + (2 * Math.PI * k) / count).host),
+        part: columns.map((_: AutoMovieHumanSolidJoin.IColumn, k: number): number | null => join.widths(seed + (2 * Math.PI * k) / count).part),
+      },
+      parameter: join.curve.parameter.kind,
       sigma: r0.rail.sigma > 0 ? 1 : -1,
       part: {
         kind: join.curve.partWinding === 0 ? "hole" : r0.rail.sigma > 0 ? "start" : "end",

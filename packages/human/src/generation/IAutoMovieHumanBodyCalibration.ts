@@ -204,6 +204,15 @@ export namespace IAutoMovieHumanBodyCalibration {
      */
     partAcross?: [number, number][];
 
+    /** The intersection curve's point at each column, mm (`AutoMovieHumanSolidBlendChain.IBlend.curve`). Absent on an entry built before it was published. */
+    curve?: [number, number, number][];
+
+    /** The declared chords at each column, mm (`AutoMovieHumanSolidBlendChain.IBlend.widths`). */
+    widths?: { host: number[]; part: (number | null)[] };
+
+    /** The kind of the curve's parameter: `phase`, `angle` or `arc` (`AutoMovieHumanSolidBlendChain.IBlend.parameter`). */
+    parameter?: "phase" | "angle" | "arc";
+
     /** The part's kept side in its station (`AutoMovieHumanSolidBlendChain.IBlend.sigma`). */
     sigma: 1 | -1;
 

@@ -96,8 +96,23 @@ export namespace AutoMovieHumanSolidChain {
       domain: [first, last],
       orientation: sign,
       jet: (u: number, v: number): IAutoMovieHumanSolidSurface.IJet => {
-        const q: AutoMovieHumanLoftJet.IJet = AutoMovieHumanLoftJet.at(chain, u, v);
-        return { p: q.p, u: q.s, v: q.t, uu: q.ss, uv: q.st, vv: q.tt };
+        // Past an end layer the surface continues by its end jet's Taylor
+        // expansion in station, so a solve that steps past the layers walks
+        // back on a smooth surface instead of failing; the domain (`beyond`)
+        // reports any point that ends there.
+        const at: number = Math.min(last, Math.max(first, u));
+        const d: number = u - at;
+        const q: AutoMovieHumanLoftJet.IJet = AutoMovieHumanLoftJet.at(chain, at, v);
+        if (d === 0) return { p: q.p, u: q.s, v: q.t, uu: q.ss, uv: q.st, vv: q.tt };
+        const step = (a: number[], b: number[], k: number): AutoMovieHumanSolidVector.Vec3 => [a[0]! + k * b[0]!, a[1]! + k * b[1]!, a[2]! + k * b[2]!];
+        return {
+          p: step(step(q.p, q.s, d), q.ss, (d * d) / 2),
+          u: step(q.s, q.ss, d),
+          v: step(q.t, q.st, d),
+          uu: q.ss,
+          uv: q.st,
+          vv: q.tt,
+        };
       },
     };
   }

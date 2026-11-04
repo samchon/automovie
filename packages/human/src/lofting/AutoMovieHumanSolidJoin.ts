@@ -67,6 +67,12 @@ export namespace AutoMovieHumanSolidJoin {
 
     /** The host's rail as a chart loop `[y, theta]` at `count` uniform parameters from the seed's, or null where a rail fails between the traced points. */
     loop(count: number): [number, number][] | null;
+
+    /**
+     * The declared chords at a curve parameter, mm: the width laws read there,
+     * the part's null where its rail is one fixed station.
+     */
+    widths(t: number): { host: number; part: number | null };
   }
 
   /** The blend's two edge ribbons at one part phase. */
@@ -216,7 +222,11 @@ export namespace AutoMovieHumanSolidJoin {
       }
     }
 
-    return { join: { curve, keep, continuity: "G2", rail, column, loop }, diagnostics };
+    const widths = (t: number): { host: number; part: number | null } => ({
+      host: input.width.host(t),
+      part: typeof input.width.part === "function" ? input.width.part(t) : null,
+    });
+    return { join: { curve, keep, continuity: "G2", rail, column, loop, widths }, diagnostics };
   }
 
   /**
