@@ -475,10 +475,103 @@ export namespace AutoMovieLoftChain {
     let kept: { s: number; at: (t: number) => [number, number, number] }[] | undefined = SAMPLERS.get(chain);
     if (kept === undefined) SAMPLERS.set(chain, (kept = []));
     for (const entry of kept) if (entry.s === s) return entry.at(t);
-    const at: (t: number) => [number, number, number] = sampler(chain, s);
+    const at: (t: number) => [number, number, number] = chain.basis === "spline" ? lazy(chain, s) : sampler(chain, s);
     kept.unshift({ s, at });
     if (kept.length > RECENT) kept.pop();
     return at(t);
+  }
+
+  /**
+   * A spline chain's {@link sampler} whose section and lift controls are
+   * combined only as its phases read them: a uniform cubic B-spline reads four
+   * controls per coordinate at a phase, so a Newton step or a foot search that
+   * meets a new station at a phase or two pays for those few controls instead
+   * of the whole row. Each control is the same Hermite combination
+   * {@link coefficients} and {@link lift} write for the whole row, entry by
+   * entry, so every point is the sampler's to the bit.
+   */
+  function lazy(chain: IAutoMovieLoftChain, s: number): (t: number) => [number, number, number] {
+    const layers: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
+    const [lo, hi] = bracket(chain, s);
+    const a: IAutoMovieLoftChain.ILayer = layers[lo]!;
+    const b: IAutoMovieLoftChain.ILayer = layers[hi]!;
+    const H: number = b.y - a.y;
+    const u: number = Math.min(1, Math.max(0, (s - a.y) / H));
+    const f: AutoMovieLoftFrame.IFrame = frame(chain, s);
+    const n: [number, number, number] = normal(f);
+    const N: number = chain.order;
+
+    // One entry of the row, as `hermite` combines it.
+    const entry = (
+      av: (k: number) => number,
+      am: (k: number) => number,
+      ac: readonly number[] | undefined,
+      bv: (k: number) => number,
+      bm: (k: number) => number,
+      bc: readonly number[] | undefined,
+    ): ((k: number) => number) => {
+      if (ac !== undefined && bc !== undefined) {
+        const w: number[] = AutoMovieStationHermite.weights(u, H, 0, true);
+        return (k: number): number => w[0]! * av(k) + w[1]! * am(k) + w[2]! * ac[k]! + w[3]! * bc[k]! + w[4]! * bm(k) + w[5]! * bv(k);
+      }
+      const h00: number = 2 * u ** 3 - 3 * u ** 2 + 1;
+      const h10: number = u ** 3 - 2 * u ** 2 + u;
+      const h01: number = -2 * u ** 3 + 3 * u ** 2;
+      const h11: number = u ** 3 - u ** 2;
+      return (k: number): number => h00 * av(k) + h10 * H * am(k) + h01 * bv(k) + h11 * H * bm(k);
+    };
+    const section: (k: number) => number = entry(
+      (k: number): number => a.coefficients[k]!,
+      (k: number): number => a.slopes[k]!,
+      a.curvatures,
+      (k: number): number => b.coefficients[k]!,
+      (k: number): number => b.slopes[k]!,
+      b.curvatures,
+    );
+    const lifting: ((k: number) => number) | null = !layers.some((l: IAutoMovieLoftChain.ILayer): boolean => l.lift !== undefined)
+      ? null
+      : entry(
+          (k: number): number => (a.lift !== undefined ? a.lift[k]! : 0),
+          (k: number): number => (a.lift !== undefined ? a.liftSlopes![k]! : 0),
+          a.liftCurvatures,
+          (k: number): number => (b.lift !== undefined ? b.lift[k]! : 0),
+          (k: number): number => (b.lift !== undefined ? b.liftSlopes![k]! : 0),
+          b.liftCurvatures,
+        );
+
+    // The row and the doubled lift, filled where a phase reads them.
+    const c: number[] = new Array<number>(2 * N);
+    const lifted: number[] | null = lifting === null ? null : new Array<number>(2 * N);
+    const filled: Uint8Array = new Uint8Array(N);
+    const fill = (j: number): void => {
+      if (filled[j] === 1) return;
+      c[j] = section(j);
+      c[N + j] = section(N + j);
+      if (lifted !== null) {
+        const h: number = lifting!(j);
+        lifted[j] = h;
+        lifted[N + j] = h;
+      }
+      filled[j] = 1;
+    };
+    return (t: number): [number, number, number] => {
+      // The four controls `AutoMovieSplineCurve.evaluate` reads at t.
+      const i: number = Math.min(N - 1, Math.floor(((((t / (2 * Math.PI)) % 1) + 1) % 1) * N));
+      if (Number.isInteger(i)) for (let d: number = -1; d <= 2; d++) fill((i + d + N) % N);
+      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(c, N, t);
+      const q: [number, number, number] = AutoMovieLoftFrame.place(f, p[0], p[1]);
+      if (lifted !== null) {
+        const h: number = AutoMovieSplineCurve.evaluate(lifted, N, t)[0];
+        for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
+      }
+      // Reliefs move the base point along their axes.
+      for (const relief of chain.reliefs ?? []) {
+        const d: number = AutoMovieLoftRelief.height(relief, s, t)[0];
+        if (d === 0) continue;
+        for (let k: number = 0; k < 3; k++) q[k]! += d * relief.axis[k]!;
+      }
+      return q;
+    };
   }
 
   /** Stations whose samplers {@link point} keeps per chain. */
