@@ -256,6 +256,66 @@ export namespace AutoMovieHumanSolidBody {
   }
 
   /**
+   * A body as data, for a calibration (`IAutoMovieHumanBodyCalibration.bodies`):
+   * the shared boundary points, each named by the face that evaluates it and
+   * its chart point there, and each face by its chain's name with its trim
+   * cycles as indices into those points. The skin (`AutoMovieHumanBodySurfaceSolids`)
+   * makes one vertex per point, so the faces share their boundaries as the
+   * body does.
+   */
+  export interface IPublished {
+    /** Name in diagnostics. */
+    name: string;
+
+    /** The shared boundary points: the chain that evaluates each, and its chart point there. */
+    points: { chain: string; chart: [number, number] }[];
+
+    /** The faces, each a chain of the calibration. */
+    faces: {
+      /** The chain's name: the face's surface name. */
+      chain: string;
+
+      /** Its trim cycles, as points. */
+      cycles: { kind: AutoMovieHumanSolidCycle.ICycle["kind"]; points: number[]; chart: [number, number][] }[];
+
+      /** Whether it is a diff's cutter. */
+      inverted?: boolean;
+    }[];
+  }
+
+  /**
+   * A body as data: the vertices its cycles use, renumbered as points.
+   *
+   * @param body The body, its faces' surfaces named after their chains.
+   * @returns The published body.
+   */
+  export function publish(body: IBody): IPublished {
+    const index: Map<number, number> = new Map();
+    const points: IPublished["points"] = [];
+    const point = (v: number): number => {
+      const known: number | undefined = index.get(v);
+      if (known !== undefined) return known;
+      const c: number[] = body.mesh.coordinates.slice(3 * v, 3 * v + 3);
+      points.push({ chain: body.mesh.owners[c[0]!]!.name, chart: [c[1]!, c[2]!] });
+      index.set(v, points.length - 1);
+      return points.length - 1;
+    };
+    return {
+      name: body.name,
+      points,
+      faces: body.faces.map((f: IFace): IPublished["faces"][number] => ({
+        chain: f.surface.name,
+        cycles: f.cycles.map((c: AutoMovieHumanSolidCycle.ICycle): IPublished["faces"][number]["cycles"][number] => ({
+          kind: c.kind,
+          points: c.vertices.map(point),
+          chart: c.chart.map((p: [number, number]): [number, number] => [p[0], p[1]]),
+        })),
+        ...(f.inverted === true ? { inverted: true } : {}),
+      })),
+    };
+  }
+
+  /**
    * Whether a chart point lies in a face's kept region: on the kept side of
    * every cycle.
    *

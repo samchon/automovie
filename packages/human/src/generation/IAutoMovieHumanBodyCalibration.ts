@@ -1,5 +1,6 @@
 import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import type { AutoMovieHumanSolidBody } from "../lofting/AutoMovieHumanSolidBody";
 import type { AutoMovieHumanSolidMesh } from "../lofting/AutoMovieHumanSolidMesh";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
@@ -73,6 +74,16 @@ export interface IAutoMovieHumanBodyCalibration {
    * drawn as a trimmed face, not by events or rings. Absent means none.
    */
   merges?: IAutoMovieHumanBodyCalibration.IMerge[];
+
+  /**
+   * Solids built as bodies of trimmed faces (`AutoMovieHumanSolidBody`):
+   * merges onto merged hosts, whose rails cross faces, published with
+   * `AutoMovieHumanSolidBody.publish`. Every face is a chain of `chains`
+   * (the blends included) and is drawn by the solid tessellation
+   * (`AutoMovieHumanBodySurfaceSolids`), not by events or rings. Absent means
+   * none.
+   */
+  bodies?: AutoMovieHumanSolidBody.IPublished[];
 
   /**
    * The bind skeleton the limbs were lofted on, placed before any limb skin

@@ -1,6 +1,7 @@
 import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
+import type { AutoMovieHumanSolidBody } from "../lofting/AutoMovieHumanSolidBody";
 import { AutoMovieHumanSolidChain } from "../lofting/AutoMovieHumanSolidChain";
 import { AutoMovieHumanSolidMesh } from "../lofting/AutoMovieHumanSolidMesh";
 import { AutoMovieHumanSolidVector } from "../lofting/AutoMovieHumanSolidVector";
@@ -13,7 +14,9 @@ import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHuma
 type Vec3 = AutoMovieHumanSolidVector.Vec3;
 
 /**
- * The skin of the solids: every chain a merge or diff names, drawn by the
+ * The skin of the solids: every chain a merge or diff names, and every face
+ * of a published body (`IAutoMovieHumanBodyCalibration.bodies`, merges onto
+ * merged hosts), drawn by the
  * solid tessellation (`AutoMovieHumanSolidMesh`) into the body's mesh with
  * the body's loft coordinates.
  *
@@ -51,6 +54,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       out.add(m.host);
       out.add(m.part);
     }
+    for (const b of calibration.bodies ?? []) for (const f of b.faces) out.add(f.chain);
     return out;
   }
 
@@ -64,7 +68,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
   export function draw(context: IContext, calibration: IAutoMovieHumanBodyCalibration): AutoMovieHumanLoftContract.IDiagnostic[] {
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
     const merges: IAutoMovieHumanBodyCalibration.IMerge[] = calibration.merges ?? [];
-    if (merges.length === 0) return diagnostics;
+    if (merges.length === 0 && (calibration.bodies ?? []).length === 0) return diagnostics;
     const report = (contract: string, detail: string): void => {
       diagnostics.push({ producer: "body.solids", level: 7, contract, detail });
     };
@@ -106,6 +110,32 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       loops.set(m.host, [...(loops.get(m.host) ?? []), joined.host]);
       loops.set(m.part, [...(loops.get(m.part) ?? []), joined.part]);
       if (m.diff === true) inverted.add(m.part);
+    }
+
+    // Each published body: one vertex per shared boundary point, and its
+    // faces' cycles as trims of their chains.
+    for (const body of calibration.bodies ?? []) {
+      const ids: (number | null)[] = body.points.map((p: { chain: string; chart: [number, number] }): number | null => {
+        const s: IAutoMovieHumanSolidSurface | null = surface(p.chain);
+        if (s === null) return null;
+        return AutoMovieHumanSolidMesh.vertex(mesh, s.jet(p.chart[0], p.chart[1]).p, AutoMovieHumanSolidMesh.owner(mesh, s), p.chart[0], p.chart[1]);
+      });
+      const missing: string[] = body.faces.map((f: AutoMovieHumanSolidBody.IPublished["faces"][number]): string => f.chain).filter((n: string): boolean => surface(n) === null);
+      if (missing.length > 0 || ids.some((v: number | null): boolean => v === null)) {
+        report("solid chains", `body ${body.name}: ${[...new Set(missing)].join(", ")} carries no jets or is missing`);
+        continue;
+      }
+      for (const f of body.faces) {
+        const trims: AutoMovieHumanSolidMesh.ILoop[] = f.cycles.map(
+          (c: AutoMovieHumanSolidBody.IPublished["faces"][number]["cycles"][number]): AutoMovieHumanSolidMesh.ILoop => ({
+            kind: c.kind,
+            vertices: c.points.map((k: number): number => ids[k]!),
+            chart: c.chart,
+          }),
+        );
+        loops.set(f.chain, [...(loops.get(f.chain) ?? []), ...trims]);
+        if (f.inverted === true) inverted.add(f.chain);
+      }
     }
 
     // Then every host and part chain as one trimmed face. An end that an
