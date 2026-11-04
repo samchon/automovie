@@ -256,7 +256,48 @@ export namespace AutoMovieHumanBodyLane {
       branches(arm, fingers);
       branches(foot, toes);
     }
-    return { chains, merges, diagnostics };
+    return publishable(chains, merges, diagnostics);
+  }
+
+  /**
+   * The chains and merges that can be published: a chain holding a
+   * non-finite number in any layer (a section, a slope, a curvature, a plane
+   * or its station derivatives) is left out with one diagnostic, and every
+   * merge naming it with it, because the skin's station bisection over such a
+   * chain never meets its tolerance (`construction.md`: a piece that cannot
+   * keep its contract records one diagnostic and the figure is still made).
+   *
+   * @param chains The built chains.
+   * @param merges The built merges.
+   * @param diagnostics Where each dropped chain and merge is recorded.
+   * @returns The finite chains and the merges whose chains all remain.
+   */
+  function publishable(chains: IAutoMovieHumanLoftChain[], merges: IAutoMovieHumanBodyCalibration.IMerge[], diagnostics: AutoMovieHumanLoftContract.IDiagnostic[]): IOutput {
+    const finite = (values: readonly number[] | undefined): boolean => values === undefined || values.every(Number.isFinite);
+    const plane = (f: AutoMovieHumanLoftFrame.IFrame | undefined): boolean => f === undefined || [...f.origin, ...f.u, ...f.v].every(Number.isFinite);
+    const sound = (c: IAutoMovieHumanLoftChain): boolean =>
+      c.layers.every(
+        (l: IAutoMovieHumanLoftChain.ILayer): boolean =>
+          Number.isFinite(l.y) && finite(l.coefficients) && finite(l.slopes) && finite(l.curvatures) && finite(l.lift) && finite(l.liftSlopes) && plane(l.frame) && plane(l.frameSlopes) && plane(l.frameCurvatures),
+      );
+    const dropped: Set<string> = new Set();
+    const kept: IAutoMovieHumanLoftChain[] = chains.filter((c: IAutoMovieHumanLoftChain): boolean => {
+      if (sound(c)) return true;
+      dropped.add(c.name);
+      diagnostics.push({ producer: `lane.${c.name}`, level: 6, contract: "finite chain", detail: `${c.name} holds a non-finite number in a layer and is left out` });
+      return false;
+    });
+    const joined: IAutoMovieHumanBodyCalibration.IMerge[] = merges.filter((m: IAutoMovieHumanBodyCalibration.IMerge): boolean => {
+      const numbers: boolean = Number.isFinite(m.length) && m.across.every((a: [number, number]): boolean => a.every(Number.isFinite)) && (m.partAcross ?? []).every((a: [number, number]): boolean => a.every(Number.isFinite));
+      if (numbers && !dropped.has(m.blend) && !dropped.has(m.host) && !dropped.has(m.part)) return true;
+      diagnostics.push({ producer: `lane.${m.blend}`, level: 6, contract: "finite chain", detail: `the merge of ${m.part} onto ${m.host} names a chain left out` });
+      return false;
+    });
+    return {
+      chains: kept.filter((c: IAutoMovieHumanLoftChain): boolean => !c.name.startsWith("blend.") || joined.some((m: IAutoMovieHumanBodyCalibration.IMerge): boolean => m.blend === c.name)),
+      merges: joined,
+      diagnostics,
+    };
   }
 
   /**
