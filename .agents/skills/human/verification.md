@@ -19,6 +19,10 @@ Compare it with the existing figure under the same conditions in every affected 
 
 View a piece alone in the [part view](screenshot.md#part-view) before wiring it, and the whole figure after.
 
+## Curves Against The Reference
+
+A part is only as right as the view curves it is lofted from, so judge those curves before any surface. Draw the reference figure in the viewer with every part's view curves and axis over it, each part in its own colour and each curve labelled with its part and view, from the front, side and top. Then go part by part in close-up and record, for each curve, where it leaves the reference skin, by how much, and which input, law, frame or construction choice put it there. Fix by those causes in one batch and draw the same close-ups again.
+
 ## Inspection Round
 
 Inspect the affected person and all affected parts under matching camera, light, material, resolution and renderer conditions, expanding to other people when the task requires it.
