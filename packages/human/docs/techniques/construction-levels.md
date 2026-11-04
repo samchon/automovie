@@ -14,8 +14,8 @@ The Human is built in levels. Each level reads only the levels below it and the 
 | 5. Apertures and cavities | holes that change the topology (lid opening, nostrils, oral fissure, ear canal) and the meshes behind them (globe, vestibule, oral cavity) | level 1 for their margins, the lofted skin of levels 2 to 4 at the trim | an aperture margin or a seam, a cavity mesh | `...Aperture`, `...Margin`, `...Nostril`, `...Mouth`, `...OralCavity` |
 | 6. Seams between chains | the boundary shared by two chains or by a chain and its appendage, owned by one and adopted by the other with a declared continuity (G1 or G2) | the owner's published jet (value, slope and curvature per millimetre of station) | the shared ring's jet; the adopting chain copies it unchanged | `...Seam...`, `...StationSolve`, `...Strip`, `...Patch` |
 | 7. Skin surface and images | the lofted, joined mesh, its normals, its chart and its procedural images | levels 1 to 6 as chains, events, appendages and apertures | the skin mesh, its coordinates, its UV chart and its images | `...BodySurface...`, `...SkinChart`, `...Skin...Field` |
-| 8. Hair and garments | the hair family (scalp hair cards, eyebrows, eyelashes) and garments attached to the skin; within the hair family a piece may read its siblings' published pieces | the published landmarks of level 1, the skin of level 7, and in the hair family the sibling hair pieces | their own meshes and attachments | `...Hair...`, `...Eyebrow...`, `...Eyelash...`, `...Garment...` |
-| 8a. Appearance (assembly) | the figure's look composed from the skin images, the hair family and the garments | every level below: composing them is its definition | the assembled look | `...Appearance...` |
+| 8. Hair | the hair family (scalp hair cards, eyebrows, eyelashes) attached to the skin; within the hair family a piece may read its siblings' published pieces | the published landmarks of level 1, the skin of level 7, and in the hair family the sibling hair pieces | their own meshes and attachments | `...Hair...`, `...Eyebrow...`, `...Eyelash...` |
+| 8a. Appearance (assembly) | the figure's look composed from the skin images and the hair family | every level below: composing them is its definition | the assembled look | `...Appearance...` |
 | 9. Rig, binding and pose | the skeleton's binding, weights and motion | the skin of level 7, the skeleton of level 1 | the bound rig and posed meshes | `...Rig`, `...Skeleton...`, `...Pose...` |
 
 ## Rules of reading
@@ -32,7 +32,7 @@ The Human is built in levels. Each level reads only the levels below it and the 
 
 | Where the contract breaks | What the figure gets | What is recorded |
 | --- | --- | --- |
-| an optional piece: an additive or subtractive piece, an aperture and its interior, a hair or garment piece | the piece's base: no piece over the base envelope; an aperture that cannot leave one closed loop leaves the skin closed (the mouth's seam lips meet) | an `AutoMovieHumanLoftContract.IDiagnostic` (producer, level, contract, message with its numbers) in the shape's `diagnostics` |
+| an optional piece: an additive or subtractive piece, an aperture and its interior, a hair piece | the piece's base: no piece over the base envelope; an aperture that cannot leave one closed loop leaves the skin closed (the mouth's seam lips meet) | an `AutoMovieHumanLoftContract.IDiagnostic` (producer, level, contract, message with its numbers) in the shape's `diagnostics` |
 | a base envelope's row (a section, a station list, a ring) | the neighbouring valid row's frame, by construction of the row rule | the same diagnostic, naming the chain and the layer |
 | a value contract at a shared module (`AutoMovieHumanLoftContract.stations`, `jet`, `ring`) | the producer catches it at its own level and degrades as above | the diagnostic |
 

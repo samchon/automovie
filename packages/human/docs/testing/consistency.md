@@ -675,7 +675,7 @@ PB coverage by person and family (first run, the core set: f1, f2, m1, m2, f-sma
 
 ### 4.23 Construction levels (LVL)
 
-The construction is built in levels ([construction levels](../techniques/construction-levels.md)): inputs and calibration, base envelopes, additive pieces, subtractive pieces, apertures, seams, skin, hair and garments, rig and pose. A level reads only the levels below it, and a piece never reads a sibling of its own level. The rows read the source's import edges, so they need no generation.
+The construction is built in levels ([construction levels](../techniques/construction-levels.md)): inputs and calibration, base envelopes, additive pieces, subtractive pieces, apertures, seams, skin, hair, rig and pose. A level reads only the levels below it, and a piece never reads a sibling of its own level. The rows read the source's import edges, so they need no generation.
 
 | Id | L | Read | Statement | Expectation | Catches | Red proof | State | Rk |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |

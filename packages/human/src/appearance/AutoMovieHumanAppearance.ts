@@ -18,7 +18,6 @@ import { AutoMovieHumanEyeball } from "./AutoMovieHumanEyeball";
 import { AutoMovieHumanEyebrow } from "./AutoMovieHumanEyebrow";
 import { AutoMovieHumanEyebrowMaterial } from "./AutoMovieHumanEyebrowMaterial";
 import { AutoMovieHumanEyelash } from "./AutoMovieHumanEyelash";
-import { AutoMovieHumanGarment } from "./AutoMovieHumanGarment";
 import { AutoMovieHumanHairCardMaterial } from "./AutoMovieHumanHairCardMaterial";
 import { AutoMovieHumanHairImage } from "./AutoMovieHumanHairImage";
 import { AutoMovieHumanHairStage } from "./AutoMovieHumanHairStage";
@@ -40,11 +39,9 @@ import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnato
  * - `human.hair.lashes.<side>` and `human.hair.brows.<side>`, when lashes
  *   and brows are requested;
  * - `human.hair.scalp` (opaque undercoat) and `human.hair.cards` (all
- *   scalp hair cards), when scalp hair is requested;
- * - `human.garment.<id>` for each requested underwear garment, see
- *   `AutoMovieHumanGarment`.
+ *   scalp hair cards), when scalp hair is requested.
  *
- * Material ids start with `human.eye.`, `human.hair.` or `human.garment.`; image ids are
+ * Material ids start with `human.eye.` or `human.hair.`; image ids are
  * `human.eye.iris.<color>`, `human.eye.sclera.vessels` and `human.hair.strands`. None of these collide
  * with the body's `human.skin.` and `human.construction.` namespaces, so
  * the outputs concatenate onto the body model's lists unchanged.
@@ -57,8 +54,9 @@ import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnato
  * length emits none. `appearance.lashPair` (colour, length) and
  * `appearance.browPair` (colour) dress each eye; omitted appearance emits
  * none. Skin colour and finish belong to `AutoMovieHumanSkin`, which
- * dresses the body's own skin parts. `appearance.underwear` dresses the
- * generated skin in tight garments; omitted appearance emits none.
+ * dresses the body's own skin parts. `appearance.underwear` emits nothing
+ * until a garment is lofted on the body's own sections: the earlier garment
+ * was cut from the skin's triangles, and the Human is built from its curves.
  *
  * The eye parts rest on the lid margins the body generator cut
  * (`AutoMovieHumanBodyApertures`), evaluated here again from the same
@@ -232,12 +230,6 @@ export namespace AutoMovieHumanAppearance {
         images.push(AutoMovieHumanHairImage.generate(), realised.mesh.coverage);
       }
     }
-
-    // Underwear is cut from the generated skin and laid over it.
-    const garment: AutoMovieHumanGarment.IOutput =
-      AutoMovieHumanGarment.generate(params.appearance?.underwear, body.parts);
-    parts.push(...garment.parts);
-    materials.push(...garment.materials);
 
     return { parts, materials, images, diagnostics };
   }

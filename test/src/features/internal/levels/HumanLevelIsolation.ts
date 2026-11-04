@@ -66,7 +66,7 @@ export namespace HumanLevelIsolation {
   export const MARKS: ReadonlyArray<readonly [number, RegExp]> = [
     [9, /(Rig|Skeleton|Pose|Binding)/],
     [8.5, /(Appearance)/],
-    [8, /(Hair|Garment|Eyebrow|Eyelash)/],
+    [8, /(Hair|Eyebrow|Eyelash)/],
     [7, /(BodySurface|SkinChart|Skin\w*Field)/],
     [6, /(Seam(?!Union|Carve)|StationSolve|Strip|Patch)/],
     [5, /(Aperture|Margin|Nostril|Mouth(?!Corner)|OralCavity)/],
