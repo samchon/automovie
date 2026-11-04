@@ -92,7 +92,7 @@ export namespace AutoMovieHumanBindingLoft {
             add(grid, node(grid, i, j), (1 - fu) / grid.phases);
             add(grid, node(grid, i + 1, j), fu / grid.phases);
           }
-        const top: [number, number][] = AutoMovieHumanBindingQuantize.strongest(sum);
+        const top: [number, number][] = AutoMovieHumanBindingQuantize.strongest(sum, touched);
         for (const slot of touched) sum[slot] = 0;
         touched.length = 0;
         return top;

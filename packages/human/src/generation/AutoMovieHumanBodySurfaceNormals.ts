@@ -29,7 +29,7 @@ export namespace AutoMovieHumanBodySurfaceNormals {
   ): number[] {
     const out: number[] = [...mesh];
     const cosine: number = Math.cos((AGREE * Math.PI) / 180);
-    const cache: Map<string, IStationJet> = new Map();
+    const cache: Map<number, Map<number, IStationJet>> = new Map();
     for (let v: number = 0; 3 * v + 2 < coordinates.length; v++) {
       const index: number = coordinates[3 * v]!;
       const s: number = coordinates[3 * v + 1]!;
@@ -50,11 +50,14 @@ export namespace AutoMovieHumanBodySurfaceNormals {
           out[3 * v + k] = (c < 0 ? -1 : 1) * n[k]!;
         continue;
       }
-      const key: string = index.toString() + ":" + s.toString();
-      let jet: IStationJet | undefined = cache.get(key);
+      // By chain and station (numbers, so a station's two zeros share an
+      // entry as their text did).
+      let stations: Map<number, IStationJet> | undefined = cache.get(index);
+      if (stations === undefined) cache.set(index, (stations = new Map()));
+      let jet: IStationJet | undefined = stations.get(s);
       if (jet === undefined) {
         jet = stationJet(target, s);
-        cache.set(key, jet);
+        stations.set(s, jet);
       }
       const p: [number, number, number, number] =
         AutoMovieLoftChain.section(target, jet.here, t);
@@ -150,9 +153,8 @@ export namespace AutoMovieHumanBodySurfaceNormals {
       const chain: number = coordinates[3 * v]!;
       const s: number = coordinates[3 * v + 1]!;
       if (!Number.isFinite(chain) || !Number.isFinite(s)) continue;
-      const d: number = Math.min(
-        ...rings[chain]!.map((r: number): number => Math.abs(s - r)),
-      );
+      let d: number = Infinity;
+      for (const r of rings[chain]!) d = Math.min(d, Math.abs(s - r));
       if (d >= BLEND) continue;
       const x: number = d / BLEND;
       weight[v] = 1 - x * x * (3 - 2 * x);
@@ -177,9 +179,14 @@ export namespace AutoMovieHumanBodySurfaceNormals {
       }
 
     const cosine: number = Math.cos((FOLD * Math.PI) / 180);
-    let current: number[] = [...normals];
+    // Each pass reads the last pass's normals and writes only the blended
+    // vertices, so their new values are kept aside and written after it.
+    const current: number[] = [...normals];
+    const changed: number[] = [];
+    const values: number[] = [];
     for (let pass: number = 0; pass < PASSES; pass++) {
-      const next: number[] = [...current];
+      changed.length = 0;
+      values.length = 0;
       for (const [v, set] of neighbours) {
         const n: [number, number, number] = [
           current[3 * v]!,
@@ -205,9 +212,12 @@ export namespace AutoMovieHumanBodySurfaceNormals {
         );
         const length: number = Math.hypot(b[0]!, b[1]!, b[2]!);
         if (!(length > 1e-12)) continue;
-        for (let i: number = 0; i < 3; i++) next[3 * v + i] = b[i]! / length;
+        changed.push(v);
+        for (let i: number = 0; i < 3; i++) values.push(b[i]! / length);
       }
-      current = next;
+      changed.forEach((v: number, j: number): void => {
+        for (let i: number = 0; i < 3; i++) current[3 * v + i] = values[3 * j + i]!;
+      });
     }
     return current;
   }

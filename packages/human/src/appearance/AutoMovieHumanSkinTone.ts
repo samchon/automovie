@@ -175,11 +175,8 @@ export namespace AutoMovieHumanSkinTone {
           n,
         );
         mottle(f, p, input.seed);
-        color.push(
-          ...table
-            .lookup(f.melanin, f.haemoglobin)
-            .map((c: number): number => c * f.shade),
-        );
+        const rgb: readonly number[] = table.lookup(f.melanin, f.haemoglobin);
+        color.push(rgb[0]! * f.shade, rgb[1]! * f.shade, rgb[2]! * f.shade);
         relief.push(f.relief);
         shade.push(f.shade);
       }

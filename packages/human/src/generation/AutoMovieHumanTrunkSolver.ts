@@ -68,8 +68,26 @@ export namespace AutoMovieHumanTrunkSolver {
    * @returns The column, landmarks, reliefs and shoulder pieces.
    */
   export function solve(fixed: IFixed): IAutoMovieHumanTrunkSolution {
-    return replay(fixed, converge(fixed));
+    // The old trunk's construction and the body lane's interim solve the
+    // same person's trunk from the same inputs object; the second takes the
+    // first's solution, which its readers never change.
+    const kept: { fixed: IFixed; solution: IAutoMovieHumanTrunkSolution } | undefined = SOLVED.get(fixed.inputs);
+    if (
+      kept !== undefined &&
+      kept.fixed.stature === fixed.stature &&
+      kept.fixed.crotch === fixed.crotch &&
+      kept.fixed.neck === fixed.neck &&
+      kept.fixed.thigh === fixed.thigh &&
+      kept.fixed.groinRatio === fixed.groinRatio
+    )
+      return kept.solution;
+    const solution: IAutoMovieHumanTrunkSolution = replay(fixed, converge(fixed));
+    SOLVED.set(fixed.inputs, { fixed: { ...fixed }, solution });
+    return solution;
   }
+
+  /** The last solution per inputs object, with what it was solved from. */
+  const SOLVED: WeakMap<IAutoMovieHumanTrunkInputs, { fixed: IFixed; solution: IAutoMovieHumanTrunkSolution }> = new WeakMap();
 
   /**
    * Close the tapes and the courses and give the state that closes them.

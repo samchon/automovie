@@ -15,13 +15,17 @@ export namespace AutoMovieHumanBindingQuantize {
    * The strongest four influences of a point, normalized.
    *
    * @param pulls Each bone's pull by slot; non-positive entries are absent.
+   * @param slots The only slots that may pull, when the caller knows them; they are read in ascending order, as a scan of every slot meets them, and their array is sorted in place.
    * @returns Four `[slot, weight]` pairs, strongest first, summing to one; fewer when fewer bones pull.
    */
-  export function strongest(pulls: Float64Array): [number, number][] {
+  export function strongest(pulls: Float64Array, slots?: number[]): [number, number][] {
     // The strongest four bones, the first met leading on a tie, kept in
     // order by insertion (one point at a time, so the buffers are reused).
+    if (slots !== undefined) slots.sort((a: number, b: number): number => a - b);
+    const count: number = slots === undefined ? pulls.length : slots.length;
     let n: number = 0;
-    for (let slot: number = 0; slot < pulls.length; slot++) {
+    for (let m: number = 0; m < count; m++) {
+      const slot: number = slots === undefined ? m : slots[m]!;
       const w: number = pulls[slot]!;
       if (w <= 0) continue;
       let at: number = n;
