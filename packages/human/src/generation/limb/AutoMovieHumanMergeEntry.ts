@@ -1,11 +1,8 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
-import { AutoMovieHumanSolidBlendChain } from "../../lofting/AutoMovieHumanSolidBlendChain";
-import type { AutoMovieHumanSolidJoin } from "../../lofting/AutoMovieHumanSolidJoin";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import { type AutoMovieLoftContract, AutoMovieSolidBlendChain, type AutoMovieSolidJoin, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 
 /**
- * A join published for the skin: its blend chain (`AutoMovieHumanSolidBlendChain.of`)
+ * A join published for the skin: its blend chain (`AutoMovieSolidBlendChain.of`)
  * and the calibration's merge entry that tells the solid tessellation which
  * host and part faces it trims and where (`IAutoMovieHumanBodyCalibration.IMerge`),
  * the rails, the host's direction past its rail (`across`) and the part's
@@ -16,13 +13,13 @@ import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalib
  * between its rails stand no wider apart than the part's own row spacing. The host and part chains are named, not
  * held: the tessellation finds them in `calibration.chains`, so they must
  * carry jets (a view-lofted chain does; an older chain through
- * `AutoMovieHumanSolidChain.framed`) and no event may name them.
+ * `AutoMovieSolidChain.framed`) and no event may name them.
  */
 export namespace AutoMovieHumanMergeEntry {
   /** A published join. */
   export interface IEntry {
     /** The blend chain, for `calibration.chains`. */
-    chain: IAutoMovieHumanLoftChain;
+    chain: IAutoMovieLoftChain;
 
     /** The merge entry, for `calibration.merges`. */
     merge: IAutoMovieHumanBodyCalibration.IMerge;
@@ -45,13 +42,13 @@ export namespace AutoMovieHumanMergeEntry {
     name: string,
     host: string,
     part: string,
-    join: AutoMovieHumanSolidJoin.IJoin,
+    join: AutoMovieSolidJoin.IJoin,
     columns: number,
     gap: number,
     diff: boolean,
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
+    diagnostics: AutoMovieLoftContract.IDiagnostic[],
   ): IEntry | null {
-    const blend: AutoMovieHumanSolidBlendChain.IBlend | null = AutoMovieHumanSolidBlendChain.of(name, join, columns);
+    const blend: AutoMovieSolidBlendChain.IBlend | null = AutoMovieSolidBlendChain.of(name, join, columns);
     if (blend === null) {
       diagnostics.push({ producer: `merge.${name}`, level: 6, contract: "blend", detail: `a rail fails at one of ${columns} columns of ${part} on ${host}` });
       return null;

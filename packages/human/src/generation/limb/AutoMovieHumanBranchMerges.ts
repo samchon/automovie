@@ -1,13 +1,9 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
-import type { AutoMovieHumanSolidJoin } from "../../lofting/AutoMovieHumanSolidJoin";
-import type { AutoMovieHumanSolidVector } from "../../lofting/AutoMovieHumanSolidVector";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
-import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanSolidSurface";
+import type { AutoMovieLoftContract, AutoMovieSolidJoin, AutoMovieSolidVector, IAutoMovieLoftChain, IAutoMovieSolidSurface } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanFoldJoin } from "./AutoMovieHumanFoldJoin";
 import { AutoMovieHumanMergeEntry } from "./AutoMovieHumanMergeEntry";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
+type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
  * Several branches merged onto one host side by side: the fingers onto the
@@ -28,10 +24,10 @@ export namespace AutoMovieHumanBranchMerges {
   /** One branch. */
   export interface IBranch {
     /** The branch's chain. */
-    chain: IAutoMovieHumanLoftChain;
+    chain: IAutoMovieLoftChain;
 
     /** Its surface. */
-    surface: IAutoMovieHumanSolidSurface;
+    surface: IAutoMovieSolidSurface;
 
     /** Its base's landmark on the host's skin (the knuckle's dorsal point), calibration mm. */
     landmark: Vec3;
@@ -46,7 +42,7 @@ export namespace AutoMovieHumanBranchMerges {
   /** The merged branches. */
   export interface IOutput {
     /** The blend chains. */
-    chains: IAutoMovieHumanLoftChain[];
+    chains: IAutoMovieLoftChain[];
 
     /** One merge entry per joined branch. */
     merges: IAutoMovieHumanBodyCalibration.IMerge[];
@@ -62,19 +58,19 @@ export namespace AutoMovieHumanBranchMerges {
    * @returns The blends and the merge entries.
    */
   export function create(
-    host: { chain: IAutoMovieHumanLoftChain; surface: IAutoMovieHumanSolidSurface },
+    host: { chain: IAutoMovieLoftChain; surface: IAutoMovieSolidSurface },
     branches: readonly IBranch[],
     limits: { count: number; tolerance: number; grazing: number; columns: number; gap: number },
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
+    diagnostics: AutoMovieLoftContract.IDiagnostic[],
   ): IOutput {
-    const chains: IAutoMovieHumanLoftChain[] = [];
+    const chains: IAutoMovieLoftChain[] = [];
     const merges: IAutoMovieHumanBodyCalibration.IMerge[] = [];
     branches.forEach((b: IBranch, i: number): void => {
       const nearest: number = Math.min(
         ...branches.filter((_: IBranch, j: number): boolean => j !== i).map((o: IBranch): number => Math.hypot(o.landmark[0] - b.landmark[0], o.landmark[1] - b.landmark[1], o.landmark[2] - b.landmark[2])),
       );
       const cap: number = Number.isFinite(nearest) ? nearest / 2 : b.radius;
-      const join: AutoMovieHumanSolidJoin.IResult = AutoMovieHumanFoldJoin.create({
+      const join: AutoMovieSolidJoin.IResult = AutoMovieHumanFoldJoin.create({
         part: b.surface,
         host: host.surface,
         landmark: b.landmark,

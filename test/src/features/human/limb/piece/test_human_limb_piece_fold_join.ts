@@ -1,11 +1,8 @@
 import { AutoMovieHumanFoldJoin } from "../../../../../../packages/human/src/generation/limb/AutoMovieHumanFoldJoin";
-import type { AutoMovieHumanSolidJoin } from "../../../../../../packages/human/src/lofting/AutoMovieHumanSolidJoin";
-import type { AutoMovieHumanSolidRail } from "../../../../../../packages/human/src/lofting/AutoMovieHumanSolidRail";
-import type { AutoMovieHumanSolidVector } from "../../../../../../packages/human/src/lofting/AutoMovieHumanSolidVector";
-import type { IAutoMovieHumanSolidSurface } from "../../../../../../packages/human/src/lofting/IAutoMovieHumanSolidSurface";
+import type { AutoMovieSolidJoin, AutoMovieSolidRail, AutoMovieSolidVector, IAutoMovieSolidSurface } from "@automovie/engine";
 import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
+type Vec3 = AutoMovieSolidVector.Vec3;
 const { cylinder, distance, dot, plane } = HumanSolidShapes;
 
 /**
@@ -22,17 +19,17 @@ const { cylinder, distance, dot, plane } = HumanSolidShapes;
 export function test_human_limb_piece_fold_join(): void {
   const failures: string[] = [];
   const R: number = 5;
-  const host: IAutoMovieHumanSolidSurface = plane("skin", [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
+  const host: IAutoMovieSolidSurface = plane("skin", [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
   const tilt: number = Math.PI / 6;
-  const upright: IAutoMovieHumanSolidSurface = cylinder("limb", [0, 0, -40], [0, 0, 1], [1, 0, 0], [0, 1, 0], 20);
+  const upright: IAutoMovieSolidSurface = cylinder("limb", [0, 0, -40], [0, 0, 1], [1, 0, 0], [0, 1, 0], 20);
   const d: Vec3 = [Math.sin(tilt), 0, Math.cos(tilt)];
   const e1: Vec3 = [Math.cos(tilt), 0, -Math.sin(tilt)];
-  const tilted: IAutoMovieHumanSolidSurface = cylinder("limb", [-40 * d[0], 0, -40 * d[2]], d, e1, [0, 1, 0], 20);
+  const tilted: IAutoMovieSolidSurface = cylinder("limb", [-40 * d[0], 0, -40 * d[2]], d, e1, [0, 1, 0], 20);
 
   // The landmark (20, 0, 0) stands on the upright curve and within 3.1 mm of
   // the tilted one (its phase-0 point is at x = 20 / cos 30deg), inside both
   // cylinders' basins for the foot.
-  const join = (part: IAutoMovieHumanSolidSurface, cap: number, landmark: Vec3 = [20, 0, 0]): AutoMovieHumanSolidJoin.IResult =>
+  const join = (part: IAutoMovieSolidSurface, cap: number, landmark: Vec3 = [20, 0, 0]): AutoMovieSolidJoin.IResult =>
     AutoMovieHumanFoldJoin.create({
       part,
       host,
@@ -44,7 +41,7 @@ export function test_human_limb_piece_fold_join(): void {
       tolerance: 1e-9,
       grazing: Math.asin(0.01),
     });
-  const chords = (result: AutoMovieHumanSolidJoin.IResult, name: string, expected: (phi: number) => number): number[] => {
+  const chords = (result: AutoMovieSolidJoin.IResult, name: string, expected: (phi: number) => number): number[] => {
     const out: number[] = [];
     if (result.join === null) {
       failures.push(`${name}: no join (${JSON.stringify(result.diagnostics)})`);
@@ -52,7 +49,7 @@ export function test_human_limb_piece_fold_join(): void {
     }
     for (let k: number = 0; k < 16; k++) {
       const phi: number = (2 * Math.PI * k) / 16;
-      const rail: AutoMovieHumanSolidRail.IRail | null = result.join.rail(phi);
+      const rail: AutoMovieSolidRail.IRail | null = result.join.rail(phi);
       if (rail === null) {
         failures.push(`${name}: no rail at phase ${phi}`);
         continue;
@@ -82,7 +79,7 @@ export function test_human_limb_piece_fold_join(): void {
   chords(join(upright, 2), "capped", (): number => 2);
 
   // Refused: a landmark far off both surfaces.
-  const far: AutoMovieHumanSolidJoin.IResult = join(upright, 100, [200, 200, 200]);
+  const far: AutoMovieSolidJoin.IResult = join(upright, 100, [200, 200, 200]);
   if (far.join !== null || far.diagnostics.length === 0) failures.push("refused: a far landmark still joined or gave no diagnostic");
 
   if (failures.length !== 0) throw new Error(`${failures.length} fold join findings:\n${failures.join("\n")}`);

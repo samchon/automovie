@@ -1,8 +1,9 @@
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
-import { AutoMovieHumanIllinois } from "../../lofting/AutoMovieHumanIllinois";
+import { AutoMovieIllinois } from "@automovie/engine";
 import { AutoMovieHumanLegSection } from "../AutoMovieHumanLegSection";
 import { AutoMovieHumanLegSites } from "../AutoMovieHumanLegSites";
 import { AutoMovieHumanLimbBonePlace } from "../AutoMovieHumanLimbBonePlace";
+import { AutoMovieHumanSuprapatella } from "../AutoMovieHumanSuprapatella";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import type { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
 
@@ -11,7 +12,9 @@ import type { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
  * for `AutoMovieHumanLegWalk`:
  *
  * - Heights: the thigh at the gluteal furrow (ANSUR 1988, the site ISO
- *   8559-1 5.3.20 seeks just below it); the knee at mid-patella, ANSUR II's
+ *   8559-1 5.3.20 seeks just below it); the lower thigh at the suprapatella
+ *   (`AutoMovieHumanSuprapatella`: mid-patella plus half the patella's
+ *   length); the knee at mid-patella, ANSUR II's
  *   midpatella height over stature by sex ({@link MIDPATELLA}, measured); the
  *   calf at ANSUR 1988's calf height share between the lateral malleolus and
  *   mid-patella (`AutoMovieHumanLegSites.calf`); the ankle's least girth at
@@ -69,6 +72,7 @@ export namespace AutoMovieHumanLegLaws {
     };
     const laws: Record<string, AutoMovieHumanLegWalk.ISiteLaw> = {
       thigh: law(measures.glutealFurrowHeight * scale, measures.thighCircumference * scale, AutoMovieHumanLegSites.thighDepth(measures) * scale),
+      lowerThigh: law(AutoMovieHumanSuprapatella.height(measures) * scale, measures.lowerThighCircumference * scale, null),
       knee: law(patella, measures.kneeCircumference * scale, null),
       calf: law(AutoMovieHumanLegSites.calf(measures, malleolus / scale, patella / scale) * scale, measures.calfCircumference * scale, null),
       ankle: law(ankle, measures.ankleCircumference * scale, null),
@@ -97,7 +101,7 @@ export namespace AutoMovieHumanLegLaws {
       const h: number = ((a - b) / (a + b)) ** 2;
       return Math.PI * (a + b) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
     };
-    const w: number | null = AutoMovieHumanIllinois.root((x: number): number => perimeter(x) - girth, 1e-6, girth, 1e-6, 100);
+    const w: number | null = AutoMovieIllinois.root((x: number): number => perimeter(x) - girth, 1e-6, girth, 1e-6, 100);
     return w ?? depth;
   }
 }

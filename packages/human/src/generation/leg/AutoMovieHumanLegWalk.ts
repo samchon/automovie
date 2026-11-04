@@ -20,8 +20,8 @@ type Vec3 = AutoMovieHumanLegBones.Vec3;
  * leave it once, between the dome and the nearest published site (the
  * merge's trace needs one crossing per phase): the merges trim the domes.
  *
- * Sites. The four published tapes the anatomy carries at their sites (ISO 8559-1 5.3.20 thigh
- * below the gluteal fold, 5.3.22 the knee
+ * Sites. The five published tapes the anatomy carries at their sites (ISO 8559-1 5.3.20 thigh
+ * below the gluteal fold, ANSUR II's lower thigh at the suprapatella, 5.3.22 the knee
  * at mid-patella, 5.3.24 the calf at its widest, 5.3.26 the ankle at its
  * least), each placed on its bone by its height and owning the section's
  * fullness there; each site's box (its anterior, lateral, posterior and
@@ -42,7 +42,7 @@ export namespace AutoMovieHumanLegWalk {
   }
 
   /** The sites, from the hip down. */
-  export const SITES: readonly string[] = ["thigh", "knee", "calf", "ankle"];
+  export const SITES: readonly string[] = ["thigh", "lowerThigh", "knee", "calf", "ankle"];
 
   /** Control points and ring phases of every section: 256, over four times the reference pack's about 57 spans per leg section (`generalization.md`, Leg), a multiple of 4. */
   export const ORDER: number = 256;

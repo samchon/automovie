@@ -3,7 +3,7 @@ import type { AutoMovieHumanSiteViewPart } from "../../../src/generation/limb/Au
 import { AutoMovieHumanWalkPart } from "../../../src/generation/limb/AutoMovieHumanWalkPart";
 import { AutoMovieHumanTrunkViewPart } from "../../../src/generation/trunk/AutoMovieHumanTrunkViewPart";
 import type { IAutoMovieHumanBodyCalibration } from "../../../src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IHumanDebugDocument } from "../../contracts/IHumanDebugDocument";
 import type { IHumanDebugPerson } from "../../people/IHumanDebugPerson";
 import { HumanDebugChainLoft } from "../HumanDebugChainLoft";
@@ -43,7 +43,7 @@ export const HumanDebugPieceBodyParts: IHumanDebugPiece = {
             : ((): never => {
                 throw new Error(`body.parts takes trunk, finger or limb, not ${which}`);
               })();
-    const chain: IAutoMovieHumanLoftChain | null = result.loft?.chain ?? null;
+    const chain: IAutoMovieLoftChain | null = result.loft?.chain ?? null;
     if (chain === null) throw new Error(`body.parts:${which} made no chain: ${JSON.stringify(result.diagnostics)}`);
     const calibration: IAutoMovieHumanBodyCalibration = {
       stature: 1628.5,

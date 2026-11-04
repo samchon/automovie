@@ -1,8 +1,9 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyPlaces } from "./AutoMovieHumanBodyPlaces";
+import { AutoMovieHumanBreastFootprint } from "./AutoMovieHumanBreastFootprint";
+import { AutoMovieHumanGlutealDome } from "./AutoMovieHumanGlutealDome";
 import { AutoMovieHumanFootPlaces } from "./AutoMovieHumanFootPlaces";
 import type { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
 import type { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
@@ -22,6 +23,7 @@ import { AutoMovieHumanLegGirth } from "./leg/AutoMovieHumanLegGirth";
 import { AutoMovieHumanLegLaws } from "./leg/AutoMovieHumanLegLaws";
 import { AutoMovieHumanChainBox } from "./limb/AutoMovieHumanChainBox";
 import type { AutoMovieHumanDigitWalk } from "./limb/AutoMovieHumanDigitWalk";
+import type { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 import { AutoMovieHumanTrunkLaws } from "./trunk/AutoMovieHumanTrunkLaws";
 import { AutoMovieHumanTrunkViews } from "./trunk/AutoMovieHumanTrunkViews";
 
@@ -61,7 +63,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
     trunk: AutoMovieHumanTrunkConstruction.IInputs;
 
     /** The neck chain `head`, which the old trunk solve stands under. */
-    neck: IAutoMovieHumanLoftChain;
+    neck: IAutoMovieLoftChain;
 
     /** The feet's dimensions, calibration mm. */
     feet: AutoMovieHumanFootConstruction.IInputs;
@@ -91,8 +93,8 @@ export namespace AutoMovieHumanBodyLaneInterim {
       if (found === undefined) throw new Error(`The skeleton lacks ${name}`);
       return found;
     };
-    const chain = (name: string): IAutoMovieHumanLoftChain => {
-      const found: IAutoMovieHumanLoftChain | undefined = input.old.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === name);
+    const chain = (name: string): IAutoMovieLoftChain => {
+      const found: IAutoMovieLoftChain | undefined = input.old.chains.find((c: IAutoMovieLoftChain): boolean => c.name === name);
       if (found === undefined) throw new Error(`Today's body lacks the chain ${name}`);
       return found;
     };
@@ -129,7 +131,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
         const walk: AutoMovieHumanDigitWalk.IInput = digitWalk(chainName, chain(chainName), centres);
         return { digit: walk, fold: { search: { phi: 0, from: 0, to: 0.5 }, radius: walk.law("base").breadth / 2 } };
       };
-      const toes: IAutoMovieHumanLoftChain[] = [1, 2, 3, 4, 5].map((k: number): IAutoMovieHumanLoftChain => chain(`toe.${name}.${k}`));
+      const toes: IAutoMovieLoftChain[] = [1, 2, 3, 4, 5].map((k: number): IAutoMovieLoftChain => chain(`toe.${name}.${k}`));
       return {
         leg: {
           bones: { hip, knee, ankle },
@@ -153,10 +155,10 @@ export namespace AutoMovieHumanBodyLaneInterim {
           }),
           digit(`thumb.${name}`, [bone(`${name}ThumbMetacarpal`).position, bone(`${name}ThumbProximal`).position, bone(`${name}ThumbDistal`).position, bone(`${name}ThumbDistal`).tip ?? bone(`${name}ThumbDistal`).position]),
         ],
-        toes: toes.map((toe: IAutoMovieHumanLoftChain): AutoMovieHumanBodyLane.IDigit => {
-          const a: Vec3 = AutoMovieHumanLoftChain.axis(toe, toe.layers[0]!.y);
-          const m: Vec3 = AutoMovieHumanLoftChain.axis(toe, (toe.layers[0]!.y + toe.layers[toe.layers.length - 1]!.y) / 2);
-          const e: Vec3 = AutoMovieHumanLoftChain.axis(toe, toe.layers[toe.layers.length - 1]!.y);
+        toes: toes.map((toe: IAutoMovieLoftChain): AutoMovieHumanBodyLane.IDigit => {
+          const a: Vec3 = AutoMovieLoftChain.axis(toe, toe.layers[0]!.y);
+          const m: Vec3 = AutoMovieLoftChain.axis(toe, (toe.layers[0]!.y + toe.layers[toe.layers.length - 1]!.y) / 2);
+          const e: Vec3 = AutoMovieLoftChain.axis(toe, toe.layers[toe.layers.length - 1]!.y);
           return digit(toe.name, [behind(a, m), m, e]);
         }),
       };
@@ -166,8 +168,8 @@ export namespace AutoMovieHumanBodyLaneInterim {
       trunk: {
         views: AutoMovieHumanTrunkViews.of(measures, input.crotch, input.scale, laws),
         tapes: { chest: measures.chestCircumference * input.scale, hip: measures.hipCircumference * input.scale },
-        breast: null,
-        gluteal: null,
+        breast: breast(solution, measures, input.scale, laws, radius),
+        gluteal: gluteal(solution, measures, input.scale, laws, radius),
       },
       sides: { left: side("left"), right: side("right") },
       gap: AutoMovieHumanTrunkRows.MAX_GAP,
@@ -217,6 +219,89 @@ export namespace AutoMovieHumanBodyLaneInterim {
     });
   }
 
+  /**
+   * The profile of today's trunk masses as the mass part's knots: today's
+   * domes rise as the bump `h = A (1 - rho^2)^3` over their footprint
+   * (`AutoMovieHumanTrunkFeatureProfile.bump`), so at the share `a` of the
+   * amplitude the footprint's radius has shrunk to `rho = sqrt(1 - a^(1/3))`,
+   * the same share on every edge.
+   */
+  const DOME: AutoMovieHumanTrunkBuild.IMassLaw["profile"] = [0.25, 0.5, 0.75, 0.95].map(
+    (a: number): AutoMovieHumanTrunkBuild.IMassLaw["profile"][number] => {
+      const rho: number = Math.sqrt(1 - a ** (1 / 3));
+      return { at: a, shares: [rho, rho, rho, rho] };
+    },
+  );
+
+  /**
+   * Interim accessor: the left breast's law from today's breast pieces: its
+   * axis through today's bust point (`IAutoMovieHumanTrunkLandmarks.bustPoint`),
+   * its footprint today's (`AutoMovieHumanBreastFootprint`: the lateral half
+   * width a share of the bust point's place off the midline, the lower reach
+   * to the inframammary fold and the upper reach a multiple of it), its
+   * profile today's dome. The amplitude is the published outline difference:
+   * the chest depth less the chest wall's at the underbust
+   * (`AutoMovieHumanChestWall`), so the base and the breast never count the
+   * bust twice; none where it is not positive. Owed laws: the breast's
+   * footprint and profile.
+   */
+  export function breast(
+    solution: IAutoMovieHumanTrunkSolution,
+    measures: IAutoMovieHumanBodyMeasures,
+    scale: number,
+    laws: AutoMovieHumanTrunkViews.ILaws,
+    fold: number,
+  ): AutoMovieHumanTrunkBuild.IMassLaw | null {
+    const l: IAutoMovieHumanTrunkSolution["landmarks"] = solution.landmarks;
+    const wall: number = laws.chestWall(measures.underbustCircumference * scale).depth;
+    const amplitude: number = measures.chestDepth * scale - wall;
+    if (!(amplitude > 0)) return null;
+    const width: number = solution.column.at(l.bust).width;
+    const print: AutoMovieHumanBreastFootprint.IFootprint = AutoMovieHumanBreastFootprint.create(Math.min(0.8 * width, (measures.bustPointWidth * scale) / 2), l.bust - l.fold);
+    return {
+      target: [l.bustPoint[0], l.bustPoint[1], l.bustPoint[2]],
+      up: [0, 1, 0],
+      footprint: [print.upper, print.half, print.lower, print.half],
+      amplitude,
+      profile: DOME,
+      shoulder: Math.SQRT2 - 1,
+      fold,
+    };
+  }
+
+  /**
+   * Interim accessor: the left gluteal mass's law from today's gluteal
+   * pieces: its centre on the base's back at the buttock point's height,
+   * across at today's apex share of the half width
+   * (`AutoMovieHumanGlutealDome.LATERAL`), its footprint today's (from
+   * `MEDIAL` to `OUTER` of the half width across, from the crotch up to
+   * iliocristale), its profile today's dome. The amplitude is the published
+   * outline difference, the buttock depth less the natural waist's (#3047).
+   * Owed laws: the gluteal mass's footprint and profile.
+   */
+  export function gluteal(
+    solution: IAutoMovieHumanTrunkSolution,
+    measures: IAutoMovieHumanBodyMeasures,
+    scale: number,
+    laws: AutoMovieHumanTrunkViews.ILaws,
+    fold: number,
+  ): AutoMovieHumanTrunkBuild.IMassLaw | null {
+    const l: IAutoMovieHumanTrunkSolution["landmarks"] = solution.landmarks;
+    const amplitude: number = (measures.buttockDepth - measures.waistDepth) * scale;
+    if (!(amplitude > 0)) return null;
+    const width: number = solution.column.at(l.buttock).width;
+    const D: typeof AutoMovieHumanGlutealDome = AutoMovieHumanGlutealDome;
+    return {
+      target: [laws.back(l.buttock), l.buttock, D.LATERAL * width],
+      up: [0, 1, 0],
+      footprint: [l.iliocristale - l.buttock, (D.OUTER - D.LATERAL) * width, l.buttock - l.crotch, (D.LATERAL - D.MEDIAL) * width],
+      amplitude,
+      profile: DOME,
+      shoulder: Math.SQRT2 - 1,
+      fold,
+    };
+  }
+
   /** Interim accessor: every fold's radius, the old crotch fold's softness (`AutoMovieHumanTrunkInguinalFold.softness`). Owed law: the subcutaneous layer at each fold. */
   export function foldRadius(solution: IAutoMovieHumanTrunkSolution): number {
     return AutoMovieHumanTrunkInguinalFold.softness(solution.pitch, AutoMovieHumanTrunkRows.MAX_GAP);
@@ -239,16 +324,16 @@ export namespace AutoMovieHumanBodyLaneInterim {
    * point falls outside today's section is left out. Owed laws: the deltoid's
    * site and box, the forearm's site and bone place, the palm's thickness.
    */
-  export function armSites(arm: IAutoMovieHumanLoftChain, palm: IAutoMovieHumanLoftChain, shoulder: Vec3, elbow: Vec3, wrist: Vec3, knuckle: Vec3): AutoMovieHumanArmWalk.ISiteLaw[] {
+  export function armSites(arm: IAutoMovieLoftChain, palm: IAutoMovieLoftChain, shoulder: Vec3, elbow: Vec3, wrist: Vec3, knuckle: Vec3): AutoMovieHumanArmWalk.ISiteLaw[] {
     const biceps: number = (1 / 2 - AutoMovieHumanArmBones.ACROMION) / (1 - AutoMovieHumanArmBones.ACROMION - AutoMovieHumanArmBones.RADIALE);
     const forearm: number = distance(wrist, elbow);
-    const places: [string, number, number, Vec3, Vec3, IAutoMovieHumanLoftChain][] = [
+    const places: [string, number, number, Vec3, Vec3, IAutoMovieLoftChain][] = [
       ["biceps", 1, biceps, shoulder, elbow, arm],
       ["elbow", 2, 0, elbow, wrist, arm],
       ["wrist", 2, 1 - AutoMovieHumanArmBones.STYLION_WRIST / forearm, elbow, wrist, arm],
       ["knuckles", 3, 1, wrist, knuckle, palm],
     ];
-    return places.flatMap(([site, b, share, from, to, on]: [string, number, number, Vec3, Vec3, IAutoMovieHumanLoftChain]): AutoMovieHumanArmWalk.ISiteLaw[] => {
+    return places.flatMap(([site, b, share, from, to, on]: [string, number, number, Vec3, Vec3, IAutoMovieLoftChain]): AutoMovieHumanArmWalk.ISiteLaw[] => {
       const point: Vec3 = lerp(from, to, share);
       const [u, v]: [Vec3, Vec3] = chart(from, to, [1, 0, 0]);
       const box: AutoMovieHumanChainBox.IBox | null = AutoMovieHumanChainBox.at(on, point, u, v);
@@ -271,8 +356,8 @@ export namespace AutoMovieHumanBodyLaneInterim {
    */
   export function foot(
     name: "left" | "right",
-    old: IAutoMovieHumanLoftChain,
-    toes: readonly IAutoMovieHumanLoftChain[],
+    old: IAutoMovieLoftChain,
+    toes: readonly IAutoMovieLoftChain[],
     d: AutoMovieHumanFootConstruction.IDimensions,
     ankle: Vec3,
     measures: IAutoMovieHumanBodyMeasures,
@@ -301,7 +386,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
     named.sort((p: [string, number], q: [string, number]): number => p[1] - q[1]);
     const kept: [string, number][] = [];
     for (const s of named) if (kept.length === 0 || (s[1] - kept[kept.length - 1]![1]) * d.length > AutoMovieHumanTrunkRows.MAX_GAP) kept.push(s);
-    const end: number = Math.max(...toes.map((t: IAutoMovieHumanLoftChain): number => share(AutoMovieHumanLoftChain.axis(t, t.layers[0]!.y))));
+    const end: number = Math.max(...toes.map((t: IAutoMovieLoftChain): number => share(AutoMovieLoftChain.axis(t, t.layers[0]!.y))));
 
     // The axis's height: half the lowest dorsum, read about today's axes.
     const dorsum: number[] = kept.flatMap(([, s]: [string, number]): number[] => {
@@ -330,8 +415,8 @@ export namespace AutoMovieHumanBodyLaneInterim {
    * today's chain has none. A site today's chain cannot box takes its
    * neighbour's law. Owed laws: the digits' breadths, depths and pulp.
    */
-  export function digitWalk(name: string, old: IAutoMovieHumanLoftChain, centres: Vec3[]): AutoMovieHumanDigitWalk.IInput {
-    const dorsal: Vec3 = AutoMovieHumanLoftChain.frame(old, old.layers[0]!.y).u;
+  export function digitWalk(name: string, old: IAutoMovieLoftChain, centres: Vec3[]): AutoMovieHumanDigitWalk.IInput {
+    const dorsal: Vec3 = AutoMovieLoftChain.frame(old, old.layers[0]!.y).u;
     const points: [string, Vec3, Vec3, Vec3][] = [["base", centres[0]!, centres[0]!, centres[1]!]];
     for (let k: number = 0; k + 1 < centres.length; k++) {
       points.push([`shaft ${k}`, lerp(centres[k]!, centres[k + 1]!, 0.5), centres[k]!, centres[k + 1]!]);

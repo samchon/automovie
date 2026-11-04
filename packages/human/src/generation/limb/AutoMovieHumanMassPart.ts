@@ -1,10 +1,8 @@
-import { AutoMovieHumanSolidVector } from "../../lofting/AutoMovieHumanSolidVector";
-import { AutoMovieHumanViewAxis } from "../../lofting/AutoMovieHumanViewAxis";
-import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanSolidSurface";
+import { AutoMovieSolidVector, AutoMovieViewAxis, type IAutoMovieSolidSurface } from "@automovie/engine";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
-const { add, cross, dot, scale, sub, unit } = AutoMovieHumanSolidVector;
+type Vec3 = AutoMovieSolidVector.Vec3;
+const { add, cross, dot, scale, sub, unit } = AutoMovieSolidVector;
 
 /**
  * A mass that rises from its host along the host's outward normal (a breast
@@ -46,7 +44,7 @@ export namespace AutoMovieHumanMassPart {
     name: string;
 
     /** The host. */
-    host: IAutoMovieHumanSolidSurface;
+    host: IAutoMovieSolidSurface;
 
     /** The mass's centre on the host, its chart point `[u, v]`. */
     centre: [number, number];
@@ -63,7 +61,7 @@ export namespace AutoMovieHumanMassPart {
     /** The profile law: shares of the amplitude in `(0, 1)` rising, each with the share of every footprint edge left there in `(0, 1]`. */
     profile: { at: number; shares: [number, number, number, number] }[];
 
-    /** The sourced conic shoulder of the sections, or the ellipse's (`AutoMovieHumanViewSection.ELLIPSE`), the least-information conic. */
+    /** The sourced conic shoulder of the sections, or the ellipse's (`AutoMovieViewSection.ELLIPSE`), the least-information conic. */
     shoulder: number;
 
     /** Control points of every section, a multiple of 4. */
@@ -91,7 +89,7 @@ export namespace AutoMovieHumanMassPart {
     });
 
     // The frame at the centre: the host's outward normal and the caller's up.
-    const j: IAutoMovieHumanSolidSurface.IJet = input.host.jet(input.centre[0], input.centre[1]);
+    const j: IAutoMovieSolidSurface.IJet = input.host.jet(input.centre[0], input.centre[1]);
     const raw: Vec3 | null = unit(cross(j.u, j.v));
     if (raw === null) return fail(`the host's chart degenerates at [${input.centre.join(", ")}]`);
     const n: Vec3 = scale(raw, input.host.orientation);
@@ -151,7 +149,7 @@ export namespace AutoMovieHumanMassPart {
     ];
     return AutoMovieHumanSiteViewPart.create({
       name: input.name,
-      axis: AutoMovieHumanViewAxis.straight(sub(j.p, scale(n, embed)), u, v),
+      axis: AutoMovieViewAxis.straight(sub(j.p, scale(n, embed)), u, v),
       sites,
       pole: { end: "top", station: embed + input.amplitude },
       order: input.order,

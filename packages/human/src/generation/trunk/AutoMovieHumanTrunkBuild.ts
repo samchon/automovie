@@ -1,10 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
-import type { AutoMovieHumanSolidJoin } from "../../lofting/AutoMovieHumanSolidJoin";
-import { AutoMovieHumanSolidFoot } from "../../lofting/AutoMovieHumanSolidFoot";
-import { AutoMovieHumanSolidVector } from "../../lofting/AutoMovieHumanSolidVector";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
-import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanSolidSurface";
+import { type AutoMovieLoftContract, type AutoMovieLoftFrame, type AutoMovieSolidJoin, AutoMovieSolidFoot, AutoMovieSolidVector, type IAutoMovieLoftChain, type IAutoMovieSolidSurface } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanFoldJoin } from "../limb/AutoMovieHumanFoldJoin";
 import { AutoMovieHumanMassPart } from "../limb/AutoMovieHumanMassPart";
@@ -14,8 +8,8 @@ import { AutoMovieHumanTrunkTape } from "./AutoMovieHumanTrunkTape";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
-const { add, scale } = AutoMovieHumanSolidVector;
+type Vec3 = AutoMovieSolidVector.Vec3;
+const { add, scale } = AutoMovieSolidVector;
 
 /**
  * The trunk subtree built and joined (#3047): the base lofted from its views,
@@ -91,19 +85,19 @@ export namespace AutoMovieHumanTrunkBuild {
   /** What the build publishes. */
   export interface IOutput {
     /** The base's chain, or null when it cannot be lofted. */
-    trunk: IAutoMovieHumanLoftChain | null;
+    trunk: IAutoMovieLoftChain | null;
 
     /** The base's surface, the host of the limbs' and the neck's merges, or null with the chain. */
-    surface: IAutoMovieHumanSolidSurface | null;
+    surface: IAutoMovieSolidSurface | null;
 
     /** The masses' chains and the blends' chains. */
-    chains: IAutoMovieHumanLoftChain[];
+    chains: IAutoMovieLoftChain[];
 
     /** One merge entry per joined mass. */
     merges: IAutoMovieHumanBodyCalibration.IMerge[];
 
     /** Every broken premise. */
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+    diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
   /** Traced points over each fold. */
@@ -136,8 +130,8 @@ export namespace AutoMovieHumanTrunkBuild {
    * @returns The chains, the merges and the diagnostics.
    */
   export function create(input: IInput): IOutput {
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
-    const out = (trunk: IAutoMovieHumanLoftChain | null, surface: IAutoMovieHumanSolidSurface | null, chains: IAutoMovieHumanLoftChain[], merges: IAutoMovieHumanBodyCalibration.IMerge[]): IOutput => ({ trunk, surface, chains, merges, diagnostics });
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+    const out = (trunk: IAutoMovieLoftChain | null, surface: IAutoMovieSolidSurface | null, chains: IAutoMovieLoftChain[], merges: IAutoMovieHumanBodyCalibration.IMerge[]): IOutput => ({ trunk, surface, chains, merges, diagnostics });
 
     // Pass 1: the base with the ellipse's shoulders, the masses on it.
     const first: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(input.views);
@@ -169,16 +163,16 @@ export namespace AutoMovieHumanTrunkBuild {
     };
     const base: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(solved);
     diagnostics.push(...base.diagnostics);
-    const trunk: IAutoMovieHumanLoftChain | null = base.loft?.chain ?? null;
-    const host: IAutoMovieHumanSolidSurface | null = base.loft?.surface ?? null;
+    const trunk: IAutoMovieLoftChain | null = base.loft?.chain ?? null;
+    const host: IAutoMovieSolidSurface | null = base.loft?.surface ?? null;
     if (trunk === null || host === null) return out(null, null, [], []);
 
     // Pass 2: the masses on the solved base, each merged along its fold.
-    const chains: IAutoMovieHumanLoftChain[] = [];
+    const chains: IAutoMovieLoftChain[] = [];
     const merges: IAutoMovieHumanBodyCalibration.IMerge[] = [];
     for (const m of masses(input, host, diagnostics)) {
       chains.push(m.chain);
-      const join: AutoMovieHumanSolidJoin.IResult = AutoMovieHumanFoldJoin.create({
+      const join: AutoMovieSolidJoin.IResult = AutoMovieHumanFoldJoin.create({
         part: m.surface,
         host,
         landmark: m.fold,
@@ -208,10 +202,10 @@ export namespace AutoMovieHumanTrunkBuild {
     law: IMassLaw;
 
     /** Its chain. */
-    chain: IAutoMovieHumanLoftChain;
+    chain: IAutoMovieLoftChain;
 
     /** Its surface. */
-    surface: IAutoMovieHumanSolidSurface;
+    surface: IAutoMovieSolidSurface;
 
     /** Its first and last station, mm. */
     stations: [number, number];
@@ -237,7 +231,7 @@ export namespace AutoMovieHumanTrunkBuild {
    * @param diagnostics Where a failed mass is recorded; a pass that only reads the masses for the tapes passes a list it drops.
    * @returns The masses that built.
    */
-  function masses(input: IInput, host: IAutoMovieHumanSolidSurface, diagnostics: AutoMovieHumanLoftContract.IDiagnostic[]): IMass[] {
+  function masses(input: IInput, host: IAutoMovieSolidSurface, diagnostics: AutoMovieLoftContract.IDiagnostic[]): IMass[] {
     const out: IMass[] = [];
     const pairs: ["breast" | "gluteal", IMassLaw | null][] = [
       ["breast", input.breast],
@@ -256,7 +250,7 @@ export namespace AutoMovieHumanTrunkBuild {
       for (const side of ["left", "right"] as const) {
         const own: IMassLaw = side === "left" ? law : mirror(law);
         const name: string = `${kind}.${side}`;
-        const foot: AutoMovieHumanSolidFoot.IFoot | null = AutoMovieHumanSolidFoot.of(host, own.target, guess(own.target), TOLERANCE);
+        const foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(host, own.target, guess(own.target), TOLERANCE);
         if (foot === null) {
           diagnostics.push({ producer: `mass.${name}`, level: 3, contract: "centre", detail: `no foot of the target [${own.target.join(", ")}] on the base` });
           continue;
@@ -280,9 +274,9 @@ export namespace AutoMovieHumanTrunkBuild {
         const footprintStation: number = built.part.front.positive.knots.find((k: { site: string }): boolean => k.site === "footprint")!.station;
 
         // The fold's landmark: the base under the footprint's lower edge.
-        const frame: AutoMovieHumanLoftFrame.IFrame = built.part.axis.at(footprintStation);
+        const frame: AutoMovieLoftFrame.IFrame = built.part.axis.at(footprintStation);
         const low: Vec3 = add(frame.origin as Vec3, scale(frame.u as Vec3, -own.footprint[2]));
-        const onBase: AutoMovieHumanSolidFoot.IFoot | null = AutoMovieHumanSolidFoot.of(host, low, [foot.u, foot.v], TOLERANCE);
+        const onBase: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(host, low, [foot.u, foot.v], TOLERANCE);
         if (onBase === null) {
           diagnostics.push({ producer: `mass.${name}`, level: 3, contract: "fold", detail: "no foot of the footprint's lower edge on the base" });
           continue;

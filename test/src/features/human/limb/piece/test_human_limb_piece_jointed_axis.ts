@@ -1,9 +1,8 @@
 import { AutoMovieHumanJointedAxis } from "../../../../../../packages/human/src/generation/limb/AutoMovieHumanJointedAxis";
-import type { AutoMovieHumanLoftFrame } from "../../../../../../packages/human/src/lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanSolidVector } from "../../../../../../packages/human/src/lofting/AutoMovieHumanSolidVector";
+import { type AutoMovieLoftFrame, AutoMovieSolidVector } from "@automovie/engine";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
-const { cross, dot, norm, scale, sub } = AutoMovieHumanSolidVector;
+type Vec3 = AutoMovieSolidVector.Vec3;
+const { cross, dot, norm, scale, sub } = AutoMovieSolidVector;
 
 /**
  * A limb's jointed axis runs straight along each bone, turns at each joint
@@ -39,7 +38,7 @@ export function test_human_limb_piece_jointed_axis(): void {
   const end: number = axis.stations[axis.stations.length - 1]!;
   const h: number = 0.5;
   const direction = (s: number): Vec3 => {
-    const f: AutoMovieHumanLoftFrame.IFrame = axis.at(s);
+    const f: AutoMovieLoftFrame.IFrame = axis.at(s);
     return cross(f.v as Vec3, f.u as Vec3);
   };
   // A C2 turn changes the direction's second difference between neighbours
@@ -51,7 +50,7 @@ export function test_human_limb_piece_jointed_axis(): void {
   const smooth: number = Math.max(...halves.map((half: number, i: number): number => (2 * angles[i]! * 60 * h) / (2 * half) ** 3));
   let previous: number | null = null;
   for (let s: number = h; s < end - h; s += h) {
-    const f: AutoMovieHumanLoftFrame.IFrame = axis.at(s);
+    const f: AutoMovieLoftFrame.IFrame = axis.at(s);
     const u: Vec3 = f.u as Vec3;
     const v: Vec3 = f.v as Vec3;
     if (Math.abs(norm(u) - 1) > 1e-9 || Math.abs(norm(v) - 1) > 1e-9 || Math.abs(dot(u, v)) > 1e-9) failures.push(`station ${s}: the chart axes are not orthonormal`);

@@ -1,9 +1,7 @@
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanSolidVector } from "../../lofting/AutoMovieHumanSolidVector";
-import type { AutoMovieHumanViewAxis } from "../../lofting/AutoMovieHumanViewAxis";
+import { type AutoMovieLoftFrame, AutoMovieSolidVector, type AutoMovieViewAxis } from "@automovie/engine";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
-const { add, cross, dot, norm, scale, sub } = AutoMovieHumanSolidVector;
+type Vec3 = AutoMovieSolidVector.Vec3;
+const { add, cross, dot, norm, scale, sub } = AutoMovieSolidVector;
 
 /**
  * The axis of one bone chain lofted as one walk (a leg over femur and tibia,
@@ -64,7 +62,7 @@ export namespace AutoMovieHumanJointedAxis {
   }
 
   /** A built axis with its joint stations. */
-  export interface IAxis extends AutoMovieHumanViewAxis.IAxis {
+  export interface IAxis extends AutoMovieViewAxis.IAxis {
     /** Station of every centre, mm: 0, then the summed bone lengths. */
     stations: number[];
   }
@@ -148,7 +146,7 @@ export namespace AutoMovieHumanJointedAxis {
 
     return {
       stations,
-      at: (station: number): AutoMovieHumanLoftFrame.IFrame => ({
+      at: (station: number): AutoMovieLoftFrame.IFrame => ({
         origin: origin(station),
         u: carried(station, u),
         v: carried(station, v),

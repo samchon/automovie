@@ -1,8 +1,8 @@
-import type { AutoMovieHumanSolidVector } from "../../lofting/AutoMovieHumanSolidVector";
+import type { AutoMovieSolidVector } from "@automovie/engine";
 import { AutoMovieHumanJointedAxis } from "./AutoMovieHumanJointedAxis";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
+type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
  * A part lofted as one walk over a bone chain (a digit over its phalanges, a
@@ -16,7 +16,7 @@ type Vec3 = AutoMovieHumanSolidVector.Vec3;
  * merges onto (the palm, the forefoot, the trunk), where the part stays open
  * because the merge trims it; the distal end is either open (continued by the
  * next part's merge) or closed by a G2 dome at the tip
- * (`IAutoMovieHumanViewPart.pole`, the zero knots the operator requires), the
+ * (`IAutoMovieViewPart.pole`, the zero knots the operator requires), the
  * tip standing past the last centre by the caller's distance (a fingertip's
  * pulp beyond the distal phalanx's end).
  */

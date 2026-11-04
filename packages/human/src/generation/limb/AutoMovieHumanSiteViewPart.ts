@@ -1,13 +1,9 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
-import type { AutoMovieHumanViewAxis } from "../../lofting/AutoMovieHumanViewAxis";
-import { AutoMovieHumanViewLoft } from "../../lofting/AutoMovieHumanViewLoft";
-import { AutoMovieHumanViewSection } from "../../lofting/AutoMovieHumanViewSection";
-import type { IAutoMovieHumanViewPart } from "../../lofting/IAutoMovieHumanViewPart";
+import { type AutoMovieLoftContract, type AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
 
 /**
  * A body part lofted from view knots at named sites: the composition every
  * body part shares between its own laws and the view-to-section operator
- * (`AutoMovieHumanViewLoft`), so the trunk, the limbs and the digits differ
+ * (`AutoMovieViewLoft`), so the trunk, the limbs and the digits differ
  * only in their axis and their knots.
  *
  * Knots. Each site stands at a station of the part's axis and gives the four
@@ -19,7 +15,7 @@ import type { IAutoMovieHumanViewPart } from "../../lofting/IAutoMovieHumanViewP
  *
  * Fullness by ownership. A tape's site gets its common conic shoulder solved
  * on that site's box by the Illinois rule on the taut-tape girth
- * (`AutoMovieHumanViewSection.solve`; a tape outside the box's reach keeps the
+ * (`AutoMovieViewSection.solve`; a tape outside the box's reach keeps the
  * reach's end with the operator's diagnostic); an untaped site keeps the
  * caller's sourced shoulder. Both become knots of one shoulder outline
  * (`kind: "shoulder"`), so one owner kind runs along the whole part; the
@@ -59,7 +55,7 @@ export namespace AutoMovieHumanSiteViewPart {
     name: string;
 
     /** The part's axis. */
-    axis: AutoMovieHumanViewAxis.IAxis;
+    axis: AutoMovieViewAxis.IAxis;
 
     /** The sites by strictly rising station, at least two besides a pole. */
     sites: ISite[];
@@ -68,7 +64,7 @@ export namespace AutoMovieHumanSiteViewPart {
     pole?: { end: "bottom" | "top"; station: number } | { end: "both"; bottom: number; top: number };
 
     /** Sourced departures of each quarter's shoulder, knots by station; absent means none. */
-    departures?: IAutoMovieHumanViewPart.IQuarters<IAutoMovieHumanViewPart.IOutline>;
+    departures?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>;
 
     /** Control points of every section, a multiple of 4. */
     order: number;
@@ -83,13 +79,13 @@ export namespace AutoMovieHumanSiteViewPart {
   /** The part and its loft. */
   export interface IResult {
     /** The view part handed to the operator, or null when the knots are malformed. */
-    part: IAutoMovieHumanViewPart | null;
+    part: IAutoMovieViewPart | null;
 
     /** The operator's result, or null with the part. */
-    loft: AutoMovieHumanViewLoft.IResult | null;
+    loft: AutoMovieViewLoft.IResult | null;
 
     /** Every broken premise. */
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+    diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
   /**
@@ -99,7 +95,7 @@ export namespace AutoMovieHumanSiteViewPart {
    * @returns The part, its loft and the diagnostics.
    */
   export function create(input: IInput): IResult {
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
     const producer: string = `view.${input.name}`;
     const fail = (contract: string, detail: string): IResult => {
       diagnostics.push({ producer, level: 2, contract, detail });
@@ -128,7 +124,7 @@ export namespace AutoMovieHumanSiteViewPart {
         shoulders.push(s.fullness.shoulder);
         continue;
       }
-      const solved: AutoMovieHumanViewSection.ISolved = AutoMovieHumanViewSection.solve(`${producer} ${s.site}`, { extents: [s.edges[0], s.edges[1], -s.edges[2], -s.edges[3]] }, s.fullness.girth);
+      const solved: AutoMovieViewSection.ISolved = AutoMovieViewSection.solve(`${producer} ${s.site}`, { extents: [s.edges[0], s.edges[1], -s.edges[2], -s.edges[3]] }, s.fullness.girth);
       diagnostics.push(...solved.diagnostics);
       if (solved.section === null) return fail("fullness", `site ${s.site}: no section fits the tape ${s.fullness.girth} mm`);
       shoulders.push(solved.section.shoulders[0]);
@@ -136,17 +132,17 @@ export namespace AutoMovieHumanSiteViewPart {
 
     // Each outline through its sites, each pole's knot at zero (the shoulder
     // repeats its neighbouring site's there).
-    const knots = (value: (s: ISite, k: number) => number, atBottom: number, atTop: number): IAutoMovieHumanViewPart.IOutline => {
-      const out: IAutoMovieHumanViewPart.IKnot[] = sites.map((s: ISite, k: number): IAutoMovieHumanViewPart.IKnot => ({ site: s.site, station: s.station, value: value(s, k) }));
+    const knots = (value: (s: ISite, k: number) => number, atBottom: number, atTop: number): IAutoMovieViewPart.IOutline => {
+      const out: IAutoMovieViewPart.IKnot[] = sites.map((s: ISite, k: number): IAutoMovieViewPart.IKnot => ({ site: s.site, station: s.station, value: value(s, k) }));
       if (bottom !== null) out.unshift({ site: "bottom pole", station: bottom, value: atBottom });
       if (top !== null) out.push({ site: "top pole", station: top, value: atTop });
       return { knots: out };
     };
-    const edge = (q: 0 | 1 | 2 | 3): IAutoMovieHumanViewPart.IOutline => knots((s: ISite): number => s.edges[q], 0, 0);
+    const edge = (q: 0 | 1 | 2 | 3): IAutoMovieViewPart.IOutline => knots((s: ISite): number => s.edges[q], 0, 0);
     const stationList: number[] = sites.map((s: ISite): number => s.station);
     if (bottom !== null) stationList.unshift(bottom);
     if (top !== null) stationList.push(top);
-    const part: IAutoMovieHumanViewPart = {
+    const part: IAutoMovieViewPart = {
       name: input.name,
       axis: input.axis,
       stations: subdivide(stationList, input.gap),
@@ -161,7 +157,7 @@ export namespace AutoMovieHumanSiteViewPart {
       order: input.order,
       samples: input.samples,
     };
-    const loft: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(part);
+    const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
     diagnostics.push(...loft.diagnostics);
     return { part, loft, diagnostics };
   }

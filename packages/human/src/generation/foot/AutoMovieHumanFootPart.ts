@@ -1,8 +1,7 @@
-import type { AutoMovieHumanSolidVector } from "../../lofting/AutoMovieHumanSolidVector";
-import { AutoMovieHumanViewAxis } from "../../lofting/AutoMovieHumanViewAxis";
+import { type AutoMovieSolidVector, AutoMovieViewAxis } from "@automovie/engine";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
+type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
  * One foot's body as a part lofted from its views (#3049): straight along the
@@ -80,7 +79,7 @@ export namespace AutoMovieHumanFootPart {
    */
   export function create(input: IInput): AutoMovieHumanSiteViewPart.IResult {
     // The chart: u up and v = up x along, so the stations advance along
-    // v x u = along (`AutoMovieHumanViewAxis.straight`). With the toes
+    // v x u = along (`AutoMovieViewAxis.straight`). With the toes
     // forward v points to the body's right: medial on the left foot, lateral
     // on the right. The laws give the left foot's edges as up, lateral, down,
     // medial, so the left foot's side edges swap into the chart and the
@@ -91,7 +90,7 @@ export namespace AutoMovieHumanFootPart {
     const swap = (e: [number, number, number, number]): [number, number, number, number] => (input.side === "right" ? e : [e[0], -e[3], e[2], -e[1]]);
     return AutoMovieHumanSiteViewPart.create({
       name: input.name,
-      axis: AutoMovieHumanViewAxis.straight(origin, up, v),
+      axis: AutoMovieViewAxis.straight(origin, up, v),
       sites: input.sites.map((s: { site: string; law: ISiteLaw }): AutoMovieHumanSiteViewPart.ISite => ({
         site: s.site,
         station: s.law.share * input.length,

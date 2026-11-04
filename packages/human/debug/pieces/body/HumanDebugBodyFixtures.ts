@@ -1,7 +1,7 @@
 import type { AutoMovieHumanDigitWalk } from "../../../src/generation/limb/AutoMovieHumanDigitWalk";
 import type { AutoMovieHumanWalkPart } from "../../../src/generation/limb/AutoMovieHumanWalkPart";
 import type { IAutoMovieHumanTrunkViews } from "../../../src/generation/trunk/IAutoMovieHumanTrunkViews";
-import { AutoMovieHumanViewSection } from "../../../src/lofting/AutoMovieHumanViewSection";
+import { AutoMovieViewSection } from "@automovie/engine";
 
 /**
  * Fixed inputs of the body lane's standalone parts, for the part view while
@@ -53,9 +53,9 @@ export namespace HumanDebugBodyFixtures {
       site("buttock", 833.7, 176.9, 232.9, -20, { girth: ellipse(176.9, 232.9) }),
       site("waist", 980.1, 149.95, 213.0, 0, { girth: ellipse(149.95, 213.0) }),
       site("chest", 1171.6, 134.65, 247.4, 10, { girth: ellipse(134.65, 247.4) }),
-      site("axilla", 1239.0, 134.65, 222.7, 5, { shoulder: AutoMovieHumanViewSection.ELLIPSE }),
+      site("axilla", 1239.0, 134.65, 222.7, 5, { shoulder: AutoMovieViewSection.ELLIPSE }),
       site("acromion", 1335.1, 187.65, 136.1, -10, { shoulder: 0.5 }),
-      site("top", 1435.7, 55, 110, -5, { shoulder: AutoMovieHumanViewSection.ELLIPSE }),
+      site("top", 1435.7, 55, 110, -5, { shoulder: AutoMovieViewSection.ELLIPSE }),
     ],
   };
 

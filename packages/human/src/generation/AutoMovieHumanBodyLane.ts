@@ -1,10 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
-import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
-import type { AutoMovieHumanSolidJoin } from "../lofting/AutoMovieHumanSolidJoin";
-import type { AutoMovieHumanSolidVector } from "../lofting/AutoMovieHumanSolidVector";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
-import type { IAutoMovieHumanSolidSurface } from "../lofting/IAutoMovieHumanSolidSurface";
+import { AutoMovieLoftChain, type AutoMovieLoftContract, type AutoMovieLoftFrame, type AutoMovieSolidJoin, type AutoMovieSolidVector, type IAutoMovieLoftChain, type IAutoMovieSolidSurface } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanArmWalk } from "./arm/AutoMovieHumanArmWalk";
 import type { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
@@ -19,7 +13,7 @@ import { AutoMovieHumanMergeEntry } from "./limb/AutoMovieHumanMergeEntry";
 import type { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
+type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
  * The body lane's subtree assembled (#3047 to #3051): every part built from
@@ -102,22 +96,22 @@ export namespace AutoMovieHumanBodyLane {
   /** The assembled subtree. */
   export interface IOutput {
     /** Every part's chain and every blend's. */
-    chains: IAutoMovieHumanLoftChain[];
+    chains: IAutoMovieLoftChain[];
 
     /** Every join's merge entry. */
     merges: IAutoMovieHumanBodyCalibration.IMerge[];
 
     /** Every broken premise. */
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+    diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
   /** A built part: its chain and its surface. */
   interface IBuilt {
     /** The chain. */
-    chain: IAutoMovieHumanLoftChain;
+    chain: IAutoMovieLoftChain;
 
     /** Its surface. */
-    surface: IAutoMovieHumanSolidSurface;
+    surface: IAutoMovieSolidSurface;
   }
 
   /** A digit's input and its web's fold. */
@@ -148,15 +142,15 @@ export namespace AutoMovieHumanBodyLane {
    * @returns The chains, the merges and the diagnostics.
    */
   export function create(input: IInput): IOutput {
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
-    const chains: IAutoMovieHumanLoftChain[] = [];
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+    const chains: IAutoMovieLoftChain[] = [];
     const merges: IAutoMovieHumanBodyCalibration.IMerge[] = [];
 
     // A built part's chain and surface, or null with its diagnostics.
     const built = (result: AutoMovieHumanSiteViewPart.IResult): IBuilt | null => {
       diagnostics.push(...result.diagnostics);
-      const chain: IAutoMovieHumanLoftChain | null = result.loft?.chain ?? null;
-      const surface: IAutoMovieHumanSolidSurface | null = result.loft?.surface ?? null;
+      const chain: IAutoMovieLoftChain | null = result.loft?.chain ?? null;
+      const surface: IAutoMovieSolidSurface | null = result.loft?.surface ?? null;
       if (chain === null || surface === null) return null;
       chains.push(chain);
       return { chain, surface };
@@ -176,7 +170,7 @@ export namespace AutoMovieHumanBodyLane {
     // One fold join, published.
     const join = (part: IBuilt, host: IBuilt, fold: IFold, cap: number, found: AutoMovieHumanFoldSeed.ISeed | null = seed(part, host, fold)): void => {
       if (found === null) return;
-      const result: AutoMovieHumanSolidJoin.IResult = AutoMovieHumanFoldJoin.create({
+      const result: AutoMovieSolidJoin.IResult = AutoMovieHumanFoldJoin.create({
         part: part.surface,
         host: host.surface,
         landmark: found.landmark,
@@ -272,16 +266,16 @@ export namespace AutoMovieHumanBodyLane {
    * @param diagnostics Where each dropped chain and merge is recorded.
    * @returns The finite chains and the merges whose chains all remain.
    */
-  function publishable(chains: IAutoMovieHumanLoftChain[], merges: IAutoMovieHumanBodyCalibration.IMerge[], diagnostics: AutoMovieHumanLoftContract.IDiagnostic[]): IOutput {
+  function publishable(chains: IAutoMovieLoftChain[], merges: IAutoMovieHumanBodyCalibration.IMerge[], diagnostics: AutoMovieLoftContract.IDiagnostic[]): IOutput {
     const finite = (values: readonly number[] | undefined): boolean => values === undefined || values.every(Number.isFinite);
-    const plane = (f: AutoMovieHumanLoftFrame.IFrame | undefined): boolean => f === undefined || [...f.origin, ...f.u, ...f.v].every(Number.isFinite);
-    const sound = (c: IAutoMovieHumanLoftChain): boolean =>
+    const plane = (f: AutoMovieLoftFrame.IFrame | undefined): boolean => f === undefined || [...f.origin, ...f.u, ...f.v].every(Number.isFinite);
+    const sound = (c: IAutoMovieLoftChain): boolean =>
       c.layers.every(
-        (l: IAutoMovieHumanLoftChain.ILayer): boolean =>
+        (l: IAutoMovieLoftChain.ILayer): boolean =>
           Number.isFinite(l.y) && finite(l.coefficients) && finite(l.slopes) && finite(l.curvatures) && finite(l.lift) && finite(l.liftSlopes) && plane(l.frame) && plane(l.frameSlopes) && plane(l.frameCurvatures),
       );
     const dropped: Set<string> = new Set();
-    const kept: IAutoMovieHumanLoftChain[] = chains.filter((c: IAutoMovieHumanLoftChain): boolean => {
+    const kept: IAutoMovieLoftChain[] = chains.filter((c: IAutoMovieLoftChain): boolean => {
       if (sound(c)) return true;
       dropped.add(c.name);
       diagnostics.push({ producer: `lane.${c.name}`, level: 6, contract: "finite chain", detail: `${c.name} holds a non-finite number in a layer and is left out` });
@@ -294,7 +288,7 @@ export namespace AutoMovieHumanBodyLane {
       return false;
     });
     return {
-      chains: kept.filter((c: IAutoMovieHumanLoftChain): boolean => !c.name.startsWith("blend.") || joined.some((m: IAutoMovieHumanBodyCalibration.IMerge): boolean => m.blend === c.name)),
+      chains: kept.filter((c: IAutoMovieLoftChain): boolean => !c.name.startsWith("blend.") || joined.some((m: IAutoMovieHumanBodyCalibration.IMerge): boolean => m.blend === c.name)),
       merges: joined,
       diagnostics,
     };
@@ -310,18 +304,18 @@ export namespace AutoMovieHumanBodyLane {
    * @param p The point, mm.
    * @returns `[station, phase]`.
    */
-  function nearest(host: IAutoMovieHumanLoftChain, p: Vec3): [number, number] {
+  function nearest(host: IAutoMovieLoftChain, p: Vec3): [number, number] {
     let best: number = host.layers[0]!.y;
     let gap: number = Infinity;
     for (const layer of host.layers) {
-      const o: Vec3 = AutoMovieHumanLoftChain.frame(host, layer.y).origin;
+      const o: Vec3 = AutoMovieLoftChain.frame(host, layer.y).origin;
       const d: number = Math.hypot(o[0] - p[0], o[1] - p[1], o[2] - p[2]);
       if (d < gap) {
         gap = d;
         best = layer.y;
       }
     }
-    const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(host, best);
+    const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(host, best);
     const r: Vec3 = [p[0] - f.origin[0], p[1] - f.origin[1], p[2] - f.origin[2]];
     const phase: number = Math.atan2(r[0] * f.v[0] + r[1] * f.v[1] + r[2] * f.v[2], r[0] * f.u[0] + r[1] * f.u[1] + r[2] * f.u[2]);
     return [best, phase < 0 ? phase + 2 * Math.PI : phase];

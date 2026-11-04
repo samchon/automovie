@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 
 type Vec3 = [number, number, number];
 
@@ -11,7 +10,7 @@ type Vec3 = [number, number, number];
  * every value is the old chain's own section.
  *
  * The old chain's station nearest the site is the one whose central axis
- * point (`AutoMovieHumanLoftChain.axis`, the section's centroid) stands
+ * point (`AutoMovieLoftChain.axis`, the section's centroid) stands
  * nearest the site's world point, found among the chain's layers and refined
  * by golden-section search between the neighbouring layers; its ring is read
  * at {@link PHASES} phases and projected on the new part's chart axes about
@@ -50,15 +49,15 @@ export namespace AutoMovieHumanChainBox {
    * @param centred Whether to measure about the old section's own axis point instead of the site's point (a site past the old chain's end, such as a toe's base inside the forefoot, takes the nearest old section's own box).
    * @returns The extents `[+u, +v, -u, -v]` about the point (the last two negative) and the section's mean conic shoulder, or null when the point lies outside the old section.
    */
-  export function at(chain: IAutoMovieHumanLoftChain, site: Vec3, u: Vec3, v: Vec3, centred: boolean = false): IBox | null {
+  export function at(chain: IAutoMovieLoftChain, site: Vec3, u: Vec3, v: Vec3, centred: boolean = false): IBox | null {
     const point0: Vec3 = site;
     const distance = (s: number): number => {
-      const a: Vec3 = AutoMovieHumanLoftChain.axis(chain, s);
+      const a: Vec3 = AutoMovieLoftChain.axis(chain, s);
       return Math.hypot(a[0] - point0[0], a[1] - point0[1], a[2] - point0[2]);
     };
 
     // The nearest layer, then golden-section search over its two intervals.
-    const layers: number[] = chain.layers.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y);
+    const layers: number[] = chain.layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
     let best: number = 0;
     for (let k: number = 1; k < layers.length; k++) if (distance(layers[k]!) < distance(layers[best]!)) best = k;
     let lo: number = layers[Math.max(0, best - 1)]!;
@@ -71,10 +70,10 @@ export namespace AutoMovieHumanChainBox {
       else lo = a;
     }
     const s: number = (lo + hi) / 2;
-    const point: Vec3 = centred ? AutoMovieHumanLoftChain.axis(chain, s) : site;
+    const point: Vec3 = centred ? AutoMovieLoftChain.axis(chain, s) : site;
 
     // The ring's extents along the new chart's axes about the point.
-    const ring: Vec3[] = AutoMovieHumanLoftChain.ring(
+    const ring: Vec3[] = AutoMovieLoftChain.ring(
       chain,
       s,
       Array.from({ length: PHASES }, (_: unknown, i: number): number => (2 * Math.PI * i) / PHASES),

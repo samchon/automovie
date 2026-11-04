@@ -1,13 +1,7 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
-import { AutoMovieHumanSolidFoot } from "../../lofting/AutoMovieHumanSolidFoot";
-import { AutoMovieHumanSolidIntersection } from "../../lofting/AutoMovieHumanSolidIntersection";
-import type { AutoMovieHumanSolidJoin } from "../../lofting/AutoMovieHumanSolidJoin";
-import { AutoMovieHumanSolidMerge } from "../../lofting/AutoMovieHumanSolidMerge";
-import { AutoMovieHumanSolidVector } from "../../lofting/AutoMovieHumanSolidVector";
-import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanSolidSurface";
+import { type AutoMovieLoftContract, AutoMovieSolidFoot, AutoMovieSolidIntersection, type AutoMovieSolidJoin, AutoMovieSolidMerge, AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
-const { cross, dot, scale, unit } = AutoMovieHumanSolidVector;
+type Vec3 = AutoMovieSolidVector.Vec3;
+const { cross, dot, scale, unit } = AutoMovieSolidVector;
 
 /**
  * A body part merged onto its host along an anatomical fold (the axilla, the
@@ -17,7 +11,7 @@ const { cross, dot, scale, unit } = AutoMovieHumanSolidVector;
  *
  * Seed. The fold's landmark (the axilla vault, the inguinal fold's front
  * point, cervicale) is a world point on both skins near their meeting; its
- * foot on each surface (`AutoMovieHumanSolidFoot`, from a guess in the
+ * foot on each surface (`AutoMovieSolidFoot`, from a guess in the
  * landmark's region) gives the trace's seed `(phi, s, y, theta)`, which the
  * trace refines by Newton onto the curve.
  *
@@ -45,10 +39,10 @@ export namespace AutoMovieHumanFoldJoin {
   /** What a fold join needs. */
   export interface IInput {
     /** The part (periodic phase): the limb, digit, neck or mass whose station lines leave the host across the fold. */
-    part: IAutoMovieHumanSolidSurface;
+    part: IAutoMovieSolidSurface;
 
     /** The host. */
-    host: IAutoMovieHumanSolidSurface;
+    host: IAutoMovieSolidSurface;
 
     /** The fold's landmark, a world point near both skins at the fold, mm. */
     landmark: Vec3;
@@ -67,10 +61,10 @@ export namespace AutoMovieHumanFoldJoin {
      * station lines leave the host across the fold); the angle about the
      * footprint's centre for a part lying along its host (a muscle head, a
      * groove), whose station lines cross the host twice or never
-     * (`AutoMovieHumanSolidIntersection.Parameter`). The radius and the cap
+     * (`AutoMovieSolidIntersection.Parameter`). The radius and the cap
      * are functions of it.
      */
-    parameter?: AutoMovieHumanSolidIntersection.Parameter;
+    parameter?: AutoMovieSolidIntersection.Parameter;
 
     /** Traced points over one turn, at least 8. */
     count: number;
@@ -88,21 +82,21 @@ export namespace AutoMovieHumanFoldJoin {
    * @param input The surfaces, the landmark, the fold's radius and cap, the trace's limits.
    * @returns The join and the diagnostics of every broken premise.
    */
-  export function create(input: IInput): AutoMovieHumanSolidJoin.IResult {
+  export function create(input: IInput): AutoMovieSolidJoin.IResult {
     const producer: string = `fold.${input.part.name}.${input.host.name}`;
-    const fail = (contract: string, detail: string, more: AutoMovieHumanLoftContract.IDiagnostic[] = []): AutoMovieHumanSolidJoin.IResult => ({
+    const fail = (contract: string, detail: string, more: AutoMovieLoftContract.IDiagnostic[] = []): AutoMovieSolidJoin.IResult => ({
       join: null,
       diagnostics: [...more, { producer, level: 6, contract, detail }],
     });
 
     // The seed: the landmark's feet on both surfaces.
-    const onPart: AutoMovieHumanSolidFoot.IFoot | null = AutoMovieHumanSolidFoot.of(input.part, input.landmark, input.guess.part, input.tolerance);
-    const onHost: AutoMovieHumanSolidFoot.IFoot | null = AutoMovieHumanSolidFoot.of(input.host, input.landmark, input.guess.host, input.tolerance);
+    const onPart: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(input.part, input.landmark, input.guess.part, input.tolerance);
+    const onHost: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(input.host, input.landmark, input.guess.host, input.tolerance);
     if (onPart === null || onHost === null) return fail("seed", `no foot of the landmark [${input.landmark.join(", ")}] on the ${onPart === null ? "part" : "host"}`);
-    const seed: AutoMovieHumanSolidIntersection.IInput["seed"] = { phi: onPart.v, s: onPart.u, y: onHost.u, theta: onHost.v };
+    const seed: AutoMovieSolidIntersection.IInput["seed"] = { phi: onPart.v, s: onPart.u, y: onHost.u, theta: onHost.v };
 
     // The curve first, so each phase's width reads both normals on it.
-    const traced: AutoMovieHumanSolidIntersection.IResult = AutoMovieHumanSolidIntersection.trace({
+    const traced: AutoMovieSolidIntersection.IResult = AutoMovieSolidIntersection.trace({
       part: input.part,
       host: input.host,
       seed,
@@ -112,11 +106,11 @@ export namespace AutoMovieHumanFoldJoin {
       grazing: input.grazing,
     });
     if (traced.curve === null) return fail("curve", "the fold traces no closed curve", traced.diagnostics);
-    const curve: AutoMovieHumanSolidIntersection.ICurve = traced.curve;
+    const curve: AutoMovieSolidIntersection.ICurve = traced.curve;
 
     // The fillet's chord per phase, capped.
     const width = (t: number): number => {
-      const p: AutoMovieHumanSolidIntersection.IPoint | null = curve.at(t);
+      const p: AutoMovieSolidIntersection.IPoint | null = curve.at(t);
       if (p === null) return input.cap(t);
       const a: Vec3 | null = outward(input.part, p.s, p.phi);
       const b: Vec3 | null = outward(input.host, p.y, p.theta);
@@ -125,7 +119,7 @@ export namespace AutoMovieHumanFoldJoin {
       return Math.min(input.radius(t) * Math.tan(beta / 2), input.cap(t));
     };
 
-    return AutoMovieHumanSolidMerge.create({
+    return AutoMovieSolidMerge.create({
       part: input.part,
       host: input.host,
       seed,
@@ -146,8 +140,8 @@ export namespace AutoMovieHumanFoldJoin {
    * @param v Second chart parameter.
    * @returns The normal.
    */
-  function outward(surface: IAutoMovieHumanSolidSurface, u: number, v: number): Vec3 | null {
-    const j: IAutoMovieHumanSolidSurface.IJet = surface.jet(u, v);
+  function outward(surface: IAutoMovieSolidSurface, u: number, v: number): Vec3 | null {
+    const j: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
     const n: Vec3 | null = unit(cross(j.u, j.v));
     return n === null ? null : scale(n, surface.orientation);
   }

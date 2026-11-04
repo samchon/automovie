@@ -1,8 +1,8 @@
-import type { AutoMovieHumanSolidVector } from "../../lofting/AutoMovieHumanSolidVector";
+import type { AutoMovieSolidVector } from "@automovie/engine";
 import type { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanWalkPart } from "./AutoMovieHumanWalkPart";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
+type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
  * A digit (a finger, the thumb, a toe) as one walk over its phalanges

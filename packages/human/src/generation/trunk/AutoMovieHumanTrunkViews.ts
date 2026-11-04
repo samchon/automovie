@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanBodyBox } from "../AutoMovieHumanBodyBox";
 import { AutoMovieHumanTrunkLandmarks } from "../AutoMovieHumanTrunkLandmarks";
-import { AutoMovieHumanViewSection } from "../../lofting/AutoMovieHumanViewSection";
+import { AutoMovieViewSection } from "@automovie/engine";
 import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
 
 /**
@@ -103,7 +103,7 @@ export namespace AutoMovieHumanTrunkViews {
     };
     const topHipBox: IBox = laws.lumbar(measures.highHipCircumference * scale);
     const underbust: IBox = laws.chestWall(measures.underbustCircumference * scale);
-    const ellipse: { shoulder: number } = { shoulder: AutoMovieHumanViewSection.ELLIPSE };
+    const ellipse: { shoulder: number } = { shoulder: AutoMovieViewSection.ELLIPSE };
 
     return {
       perineum: { y: crotch, x: laws.perineum },

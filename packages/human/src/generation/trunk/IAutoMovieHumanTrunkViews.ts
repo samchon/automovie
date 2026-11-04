@@ -59,7 +59,7 @@ export namespace IAutoMovieHumanTrunkViews {
     /**
      * What owns the section's fullness here: a taut-tape girth (mm) solved on
      * the site's box, or a sourced conic shoulder value in `(0, 1)` where no
-     * tape is taken (`AutoMovieHumanViewSection.ELLIPSE` is the ellipse).
+     * tape is taken (`AutoMovieViewSection.ELLIPSE` is the ellipse).
      */
     fullness: { girth: number } | { shoulder: number };
   }

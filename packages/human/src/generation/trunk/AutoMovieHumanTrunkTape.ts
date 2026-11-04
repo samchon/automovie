@@ -1,7 +1,4 @@
-import { AutoMovieHumanIllinois } from "../../lofting/AutoMovieHumanIllinois";
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
-import { AutoMovieHumanViewSection } from "../../lofting/AutoMovieHumanViewSection";
-import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanSolidSurface";
+import { AutoMovieIllinois, type AutoMovieLoftContract, AutoMovieViewSection, type IAutoMovieSolidSurface } from "@automovie/engine";
 
 /**
  * The trunk base's fullness at a tape site whose tape wraps the merged skin:
@@ -12,7 +9,7 @@ import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanS
  * hull's perimeter at the tape (#3047).
  *
  * The cut of the union at height `y` is the base's section there (its box and
- * shoulder, `AutoMovieHumanViewSection`) and each mass's own level cut. A mass
+ * shoulder, `AutoMovieViewSection`) and each mass's own level cut. A mass
  * is lofted along its host's normal, so its level cut is no chain section:
  * each of its station lines is sampled, every sign change of
  * `p_y(s, phi) - y` is refined by the Illinois rule, and every sample on the
@@ -34,7 +31,7 @@ export namespace AutoMovieHumanTrunkTape {
   /** A mass at the site. */
   export interface IMass {
     /** Its surface, `u` its station, `v` its phase. */
-    surface: IAutoMovieHumanSolidSurface;
+    surface: IAutoMovieSolidSurface;
 
     /** Its first and last station, mm. */
     stations: [number, number];
@@ -52,7 +49,7 @@ export namespace AutoMovieHumanTrunkTape {
     origin: [number, number];
 
     /** The base's box at the site. */
-    box: AutoMovieHumanViewSection.IBox;
+    box: AutoMovieViewSection.IBox;
 
     /** The masses whose level cuts the tape also wraps. */
     masses: IMass[];
@@ -70,7 +67,7 @@ export namespace AutoMovieHumanTrunkTape {
     shoulder: number | null;
 
     /** One diagnostic for a tape outside the reach or a box without a valid section. */
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+    diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
   /**
@@ -80,17 +77,17 @@ export namespace AutoMovieHumanTrunkTape {
    * @returns The shoulder and the diagnostics.
    */
   export function solve(input: IInput): IResult {
-    const reach: AutoMovieHumanViewSection.IRange | null = AutoMovieHumanViewSection.range(input.box);
+    const reach: AutoMovieViewSection.IRange | null = AutoMovieViewSection.range(input.box);
     if (reach === null)
       return { shoulder: null, diagnostics: [{ producer: input.producer, level: 2, contract: "tape", detail: `the box [${input.box.extents.join(", ")}] mm admits no valid section` }] };
 
     // The masses' cuts do not change with the base's shoulder: read them once.
     const cuts: [number, number][] = input.masses.flatMap((m: IMass): [number, number][] => cut(m, input.y));
     const perimeter = (r: number): number => {
-      const section: AutoMovieHumanViewSection.ISection = AutoMovieHumanViewSection.of(input.box, [r, r, r, r]);
+      const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(input.box, [r, r, r, r]);
       const points: [number, number][] = Array.from({ length: PHASES }, (_: unknown, i: number): [number, number] => {
         const phi: number = (2 * Math.PI * i) / PHASES;
-        const rho: number = AutoMovieHumanViewSection.radius(section, phi)[0];
+        const rho: number = AutoMovieViewSection.radius(section, phi)[0];
         return [input.origin[0] + rho * Math.cos(phi), input.origin[1] + rho * Math.sin(phi)];
       });
       return hull([...points, ...cuts]);
@@ -105,7 +102,7 @@ export namespace AutoMovieHumanTrunkTape {
     });
     if (input.tape <= low) return outside(lo, low);
     if (input.tape >= high) return outside(hi, high);
-    const r: number | null = AutoMovieHumanIllinois.root((s: number): number => perimeter(s) - input.tape, lo, hi, 1e-6, 100);
+    const r: number | null = AutoMovieIllinois.root((s: number): number => perimeter(s) - input.tape, lo, hi, 1e-6, 100);
     return r === null ? outside(lo, low) : { shoulder: r, diagnostics: [] };
   }
 
@@ -141,7 +138,7 @@ export namespace AutoMovieHumanTrunkTape {
         const fb: number = height(b);
         if (Math.abs(fb) <= ON_PLANE) out.push(point(b, phi));
         else if (fa * fb < 0 && Math.abs(fa) > ON_PLANE) {
-          const s: number | null = AutoMovieHumanIllinois.root(height, a, b, 1e-6, 100);
+          const s: number | null = AutoMovieIllinois.root(height, a, b, 1e-6, 100);
           if (s !== null) out.push(point(s, phi));
         }
         a = b;

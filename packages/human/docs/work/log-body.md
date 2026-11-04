@@ -218,3 +218,11 @@ Still owed before the body law can be wired (each named as a parameter in the bi
 | 16:04:47 | "Cannot read properties of undefined (reading '0')", no location in the 500 | not yet known | stack asked of the viewer worker through the supervisor |
 
 Remaining added: `IAutoMovieHumanBodyCalibration.legacy` (today's body for the rig's stickman radii and neutral rings), to go when those readers read the view parts' own axes.
+
+## Masses in, lower thigh owed (written 16:16:28, Get-Date; source saved, commit waits for the engine migration's commit)
+
+- Breasts and gluteal masses are built as mass parts merged onto the trunk (`AutoMovieHumanTrunkBuild`), on interim laws read from today's pieces (`AutoMovieHumanBodyLaneInterim.breast`, `.gluteal`): today's bust point and breast footprint (`AutoMovieHumanBreastFootprint`), today's gluteal centre and footprint shares (`AutoMovieHumanGlutealDome`), today's dome bump `(1 - rho^2)^3` as the profile's edge shares (`rho = sqrt(1 - a^(1/3))` at amplitude share `a`). The amplitudes are the published outline differences: chest depth less the chest wall's at the underbust, buttock depth less the waist's. Owed: the masses' footprint and profile laws (the input and laws worker's outline table).
+- The lower thigh's tape is a resolved input (`e486d6590`), but its site (ANSUR II's suprapatella level) has no height in the inputs or sources; asked of the input and laws worker. The leg keeps its four sites until it lands.
+- The core worker's move of the lofting modules into `@automovie/engine` is mid-flight in the tree (my files included, uncommitted); my commits wait for its commit so they carry only my lines.
+
+- Lower thigh back on the leg (16:24:15, Get-Date; saved, commit waits for the migration): its tape `lowerThighCircumference` at the suprapatella's height (`AutoMovieHumanSuprapatella.height`, `7d562e5f9`: mid-patella plus half the patella's length, Kafa et al. 2024), its box the leg section estimate; the leg has five sites again.

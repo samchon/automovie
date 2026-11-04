@@ -1,9 +1,7 @@
-import { AutoMovieHumanSolidFoot } from "../../lofting/AutoMovieHumanSolidFoot";
-import { AutoMovieHumanSolidVector } from "../../lofting/AutoMovieHumanSolidVector";
-import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanSolidSurface";
+import { AutoMovieSolidFoot, AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
-const { cross, dot, scale, sub, unit } = AutoMovieHumanSolidVector;
+type Vec3 = AutoMovieSolidVector.Vec3;
+const { cross, dot, scale, sub, unit } = AutoMovieSolidVector;
 
 /**
  * A fold join's seed where a part's station line crosses its host's skin: a
@@ -12,7 +10,7 @@ const { cross, dot, scale, sub, unit } = AutoMovieHumanSolidVector;
  *
  * Along one phase of the part, from its station inside the host to its
  * station outside, each station's point is placed against the host by its
- * foot on the host (`AutoMovieHumanSolidFoot`, warm-started from the previous
+ * foot on the host (`AutoMovieSolidFoot`, warm-started from the previous
  * station's foot) and the sign of its offset along the host's outward
  * normal there: negative inside, positive outside. The first sign change is
  * refined by bisection to the tolerance, so the seed is the station line's
@@ -52,8 +50,8 @@ export namespace AutoMovieHumanFoldSeed {
    * @returns The seed, or null when the line does not leave the host or a foot is lost.
    */
   export function of(
-    part: IAutoMovieHumanSolidSurface,
-    host: IAutoMovieHumanSolidSurface,
+    part: IAutoMovieSolidSurface,
+    host: IAutoMovieSolidSurface,
     phi: number,
     from: number,
     to: number,
@@ -61,11 +59,11 @@ export namespace AutoMovieHumanFoldSeed {
     tolerance: number,
   ): ISeed | null {
     let chart: [number, number] = guess;
-    const side = (s: number): { sign: number; foot: AutoMovieHumanSolidFoot.IFoot; point: Vec3 } | null => {
+    const side = (s: number): { sign: number; foot: AutoMovieSolidFoot.IFoot; point: Vec3 } | null => {
       const point: Vec3 = part.jet(s, phi).p as Vec3;
-      const foot: AutoMovieHumanSolidFoot.IFoot | null = AutoMovieHumanSolidFoot.of(host, point, chart, tolerance);
+      const foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(host, point, chart, tolerance);
       if (foot === null) return null;
-      const j: ReturnType<IAutoMovieHumanSolidSurface["jet"]> = host.jet(foot.u, foot.v);
+      const j: ReturnType<IAutoMovieSolidSurface["jet"]> = host.jet(foot.u, foot.v);
       const n: Vec3 | null = unit(cross(j.u, j.v));
       if (n === null) return null;
       chart = [foot.u, foot.v];
@@ -73,20 +71,20 @@ export namespace AutoMovieHumanFoldSeed {
     };
 
     let a: number = from;
-    const start: { sign: number; foot: AutoMovieHumanSolidFoot.IFoot; point: Vec3 } | null = side(a);
+    const start: { sign: number; foot: AutoMovieSolidFoot.IFoot; point: Vec3 } | null = side(a);
     if (start === null || start.sign > 0) return null;
     for (let k: number = 1; k <= SAMPLES; k++) {
       const b: number = from + ((to - from) * k) / SAMPLES;
-      const at: { sign: number; foot: AutoMovieHumanSolidFoot.IFoot; point: Vec3 } | null = side(b);
+      const at: { sign: number; foot: AutoMovieSolidFoot.IFoot; point: Vec3 } | null = side(b);
       if (at === null) return null;
       if (at.sign > 0) {
         // Bisect the bracket [a, b] to the crossing.
         let lo: number = a;
         let hi: number = b;
-        let last: { sign: number; foot: AutoMovieHumanSolidFoot.IFoot; point: Vec3 } = at;
+        let last: { sign: number; foot: AutoMovieSolidFoot.IFoot; point: Vec3 } = at;
         for (let i: number = 0; i < BISECTIONS; i++) {
           const m: number = (lo + hi) / 2;
-          const mid: { sign: number; foot: AutoMovieHumanSolidFoot.IFoot; point: Vec3 } | null = side(m);
+          const mid: { sign: number; foot: AutoMovieSolidFoot.IFoot; point: Vec3 } | null = side(m);
           if (mid === null) return null;
           if (mid.sign > 0) {
             hi = m;

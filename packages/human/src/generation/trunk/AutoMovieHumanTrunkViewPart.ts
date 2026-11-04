@@ -1,4 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkLevelAxis } from "./AutoMovieHumanTrunkLevelAxis";
 import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
@@ -50,7 +50,7 @@ export namespace AutoMovieHumanTrunkViewPart {
   export function create(views: IAutoMovieHumanTrunkViews): IResult {
     // A site whose back stands at or before its front has no depth, and one
     // at or under the perineum no place above the pole.
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
     for (const s of views.sites)
       if (!(s.front > s.back) || !(s.y > views.perineum.y))
         diagnostics.push({ producer: `view.${NAME}`, level: 2, contract: "sites", detail: `site ${s.site} at ${s.y} mm: front ${s.front} mm over back ${s.back} mm, perineum at ${views.perineum.y} mm` });

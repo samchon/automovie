@@ -18,7 +18,7 @@ import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeig
 import { AutoMovieHumanNeckConstruction } from "./AutoMovieHumanNeckConstruction";
 import { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanHeadAnatomy } from "./AutoMovieHumanHeadAnatomy";
@@ -125,8 +125,8 @@ export namespace AutoMovieHumanBodyLaw {
     const today: IAutoMovieHumanBodyCalibration = AutoMovieHumanEventJoin.reconcile(
       AutoMovieHumanLegConstruction.add(stood, inputs, skeleton),
     );
-    const neck: IAutoMovieHumanLoftChain | undefined = headed.body.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "head",
+    const neck: IAutoMovieLoftChain | undefined = headed.body.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "head",
     );
     if (neck === undefined) throw new Error("The body lane stands under the neck chain `head`");
 
@@ -147,7 +147,7 @@ export namespace AutoMovieHumanBodyLaw {
       }),
     );
     const headChains: Set<string> = new Set(
-      headed.body.chains.map((c: IAutoMovieHumanLoftChain): string => c.name),
+      headed.body.chains.map((c: IAutoMovieLoftChain): string => c.name),
     );
     const ownedByHead = (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
       headChains.has(e.parent) && e.splits.every((s: IAutoMovieHumanBodyCalibration.ISplit): boolean => headChains.has(s.child));
@@ -155,7 +155,7 @@ export namespace AutoMovieHumanBodyLaw {
       body: {
         ...today,
         chains: [
-          ...today.chains.filter((c: IAutoMovieHumanLoftChain): boolean => headChains.has(c.name)),
+          ...today.chains.filter((c: IAutoMovieLoftChain): boolean => headChains.has(c.name)),
           ...lane.chains,
         ],
         events: [

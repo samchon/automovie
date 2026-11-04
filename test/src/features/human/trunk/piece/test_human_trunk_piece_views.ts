@@ -1,8 +1,6 @@
 import { AutoMovieHumanTrunkViewPart } from "../../../../../../packages/human/src/generation/trunk/AutoMovieHumanTrunkViewPart";
 import type { IAutoMovieHumanTrunkViews } from "../../../../../../packages/human/src/generation/trunk/IAutoMovieHumanTrunkViews";
-import { AutoMovieHumanLoftChain } from "../../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import { AutoMovieHumanViewSection } from "../../../../../../packages/human/src/lofting/AutoMovieHumanViewSection";
-import type { IAutoMovieHumanLoftChain } from "../../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, AutoMovieViewSection, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * The trunk base lofted from its views holds every view knot at its site: the
@@ -10,7 +8,7 @@ import type { IAutoMovieHumanLoftChain } from "../../../../../../packages/human/
  * on the emitted chain, the chain closes at the perineum, and malformed views
  * or a tape its box cannot reach are reported, never thrown.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds `AutoMovieHumanTrunkViewPart.create` from made views of two people and reads the emitted `trunk` chain as an anthropometrist would, with `AutoMovieHumanLoftChain.ring` at each site's height over 2048 phases: the left and right lateral extremes (half breadth and its reflection), the forward and backward extremes (front and back profiles) and the convex hull's perimeter (the taut tape); it reads the ring 1 mm above the perineum against the perineum point. It catches a site that is not a layer, a profile or breadth placed off its knot, an axis that shifts the section, a tape solved on the wrong box, a side not reflected, and a bottom that does not close. Any construction whose emitted sections touch these knots passes, whatever it does between them.
+ * @evidence contracts/testing.md#behavioral-verification Builds `AutoMovieHumanTrunkViewPart.create` from made views of two people and reads the emitted `trunk` chain as an anthropometrist would, with `AutoMovieLoftChain.ring` at each site's height over 2048 phases: the left and right lateral extremes (half breadth and its reflection), the forward and backward extremes (front and back profiles) and the convex hull's perimeter (the taut tape); it reads the ring 1 mm above the perineum against the perineum point. It catches a site that is not a layer, a profile or breadth placed off its knot, an axis that shifts the section, a tape solved on the wrong box, a side not reflected, and a bottom that does not close. Any construction whose emitted sections touch these knots passes, whatever it does between them.
  * @evidence contracts/testing.md#independent-expectations Each expectation is the view's own knot, the input the construction must honour at its site (#3047 invariant). Limit 0.1 mm: the emitted section is the periodic cubic B-spline interpolating the operator's quintic polar section at 256 uniform angles, about 3.5 mm apart on these sections, whose interpolation error is of order `h^4 kappa^3`, far under 0.01 mm at the trunk's curvatures; the 2048-phase polygon's own shortfall on the perimeter, about `L h^2 kappa^2 / 24`, is likewise under 0.01 mm. The made people take ANSUR II's female and male means (`docs/sources/ansur-ii.md`: heights; chest, waist and hip breadth; chest, waist and buttock depth), each tape the Ramanujan perimeter of its box's ellipse or a fuller shoulder inside the box's reach; their forward places and the untaped sites' sizes are made and stated in the fixture. Oracle limit: it reads the sites only; the outlines between sites are the operator's (`test_human_lofting_view_section`).
  * @evidence contracts/testing.md#distinguishing-cases Green: both people, tapes at the ellipse and at a fuller shoulder, untaped sites with a given shoulder. Red proof: the same reading against views whose waist breadth, chest depth and hip tape are each moved by 1 mm must fail on exactly those three rows, so a 1 mm error cannot pass. Refused: a site below the perineum, a site whose back stands before its front, and a tape under its box's rhombus each give a diagnostic and no throw; the last still lofts at the reach's end. Whole-figure identity on the generated skin within ANSUR II's allowable errors is the trunk identity test's, once the trunk is wired.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_trunk_piece_views`; it lofts the part in process and starts no host, browser or GPU.
@@ -22,7 +20,7 @@ export function test_human_trunk_piece_views(): void {
   for (const person of PEOPLE) {
     const result: AutoMovieHumanTrunkViewPart.IResult = AutoMovieHumanTrunkViewPart.create(person.views);
     if (result.diagnostics.length !== 0) failures.push(`${person.name}: diagnostics ${JSON.stringify(result.diagnostics)}`);
-    const chain: IAutoMovieHumanLoftChain | null = result.loft?.chain ?? null;
+    const chain: IAutoMovieLoftChain | null = result.loft?.chain ?? null;
     if (chain === null) {
       failures.push(`${person.name}: no chain`);
       continue;
@@ -44,7 +42,7 @@ export function test_human_trunk_piece_views(): void {
             : s,
     ),
   };
-  const movedChain: IAutoMovieHumanLoftChain | null = AutoMovieHumanTrunkViewPart.create(moved).loft?.chain ?? null;
+  const movedChain: IAutoMovieLoftChain | null = AutoMovieHumanTrunkViewPart.create(moved).loft?.chain ?? null;
   if (movedChain === null) failures.push("red proof: the moved views made no chain");
   else {
     const red: string[] = read(base.name, movedChain, base.views)
@@ -108,7 +106,7 @@ interface IRow {
  * @param views The knots expected.
  * @returns One row per reading.
  */
-function read(name: string, chain: IAutoMovieHumanLoftChain, views: IAutoMovieHumanTrunkViews): IRow[] {
+function read(name: string, chain: IAutoMovieLoftChain, views: IAutoMovieHumanTrunkViews): IRow[] {
   const rows: IRow[] = [];
   const phases: number[] = Array.from({ length: PHASES }, (_: unknown, i: number): number => (2 * Math.PI * i) / PHASES);
   const row = (key: string, value: number, expected: number): void => {
@@ -116,7 +114,7 @@ function read(name: string, chain: IAutoMovieHumanLoftChain, views: IAutoMovieHu
     rows.push({ key, finding: Math.abs(off) <= LIMIT ? "" : `${name} ${key}: ${value.toFixed(3)} mm against ${expected.toFixed(3)} mm (${off.toFixed(3)})` });
   };
   for (const s of views.sites) {
-    const ring: [number, number, number][] = AutoMovieHumanLoftChain.ring(chain, s.y, phases);
+    const ring: [number, number, number][] = AutoMovieLoftChain.ring(chain, s.y, phases);
     const xs: number[] = ring.map((p: [number, number, number]): number => p[0]);
     const zs: number[] = ring.map((p: [number, number, number]): number => p[2]);
     row(`${s.site} half`, Math.max(...zs), s.half);
@@ -133,7 +131,7 @@ function read(name: string, chain: IAutoMovieHumanLoftChain, views: IAutoMovieHu
   if (pole === undefined || Math.hypot(pole[0] - at[0], pole[1] - at[1], pole[2] - at[2]) > 1e-6)
     rows.push({ key: "perineum", finding: `${name} perineum: pole ${JSON.stringify(chain.pole)} is not the bottom pole at ${JSON.stringify(at)}` });
   const reach = (y: number): number =>
-    Math.max(...AutoMovieHumanLoftChain.ring(chain, y, phases).map((p: [number, number, number]): number => Math.hypot(p[0] - at[0], p[2] - at[2])));
+    Math.max(...AutoMovieLoftChain.ring(chain, y, phases).map((p: [number, number, number]): number => Math.hypot(p[0] - at[0], p[2] - at[2])));
   const reaches: number[] = [1, 5, views.sites[0]!.y - views.perineum.y].map((d: number): number => reach(views.perineum.y + d));
   if (!(reaches[0]! < reaches[1]! && reaches[1]! < reaches[2]!))
     rows.push({ key: "perineum", finding: `${name} perineum: rings 1 mm, 5 mm and at the lowest site reach ${reaches.map((r: number): string => r.toFixed(3)).join(", ")} mm, not shrinking toward the pole` });
@@ -225,9 +223,9 @@ function person(
         site("buttock", m.buttock, m.hip / 2, m.buttockDepth, -20, { girth: ellipse(m.hip / 2, m.buttockDepth) }),
         site("waist", m.waist, m.waistBreadth / 2, m.waistDepth, 0, { girth: ellipse(m.waistBreadth / 2, m.waistDepth) }),
         site("chest", m.chest, chestHalf, m.chestDepth, 10, { girth: fuller }),
-        site("axilla", m.axilla, chestHalf, 0.9 * m.chestDepth, 5, { shoulder: AutoMovieHumanViewSection.ELLIPSE }),
+        site("axilla", m.axilla, chestHalf, 0.9 * m.chestDepth, 5, { shoulder: AutoMovieViewSection.ELLIPSE }),
         site("acromion", m.acromion, m.biacromial / 2 + 5, 0.55 * m.chestDepth, -10, { shoulder: 0.5 }),
-        site("top", m.cervicale + 40, 55, 110, -5, { shoulder: AutoMovieHumanViewSection.ELLIPSE }),
+        site("top", m.cervicale + 40, 55, 110, -5, { shoulder: AutoMovieViewSection.ELLIPSE }),
       ],
     },
   };
