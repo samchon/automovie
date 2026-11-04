@@ -94,25 +94,4 @@ export namespace AutoMovieHumanHeadNosePart {
       samples: SAMPLES,
     };
   }
-
-  /**
-   * The nose's ridge station and its phase where its section meets the face:
-   * at the station of the ridge's highest point, the phase whose point lies
-   * `depth` in front of the axis on the section's quarter ellipse.
-   *
-   * @param plan The landmark skeleton.
-   * @param depth The axis's depth behind the profile, mm.
-   * @returns The station and the phase.
-   */
-  export function seat(plan: IAutoMovieHumanHeadLayout, depth: number): [number, number] {
-    const face: AutoMovieHumanHeadPrior.IFace = AutoMovieHumanHeadPrior.PRIOR.face;
-    const profile: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(face.profileKnots, face.profile);
-    const dorsum: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(face.profileKnots, face.dorsum);
-    const v: number = 0.2;
-    const a: number = depth + Math.max(0, AutoMovieNaturalSpline.evaluate(profile, v)) * plan.noseLead;
-    const b: number = AutoMovieNaturalSpline.evaluate(dorsum, v) * plan.noseWidth;
-    // On the ellipse x = a cos t, z = b sin t; the point at x = depth.
-    const t: number = Math.acos(Math.min(1, depth / a));
-    return [plan.tip + v * (plan.nasion - plan.tip), Math.atan2(b * Math.sin(t), a * Math.cos(t))];
-  }
 }

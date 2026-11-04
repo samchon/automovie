@@ -99,6 +99,25 @@ Sweep 5's front and three-quarter requests failed in the body lane (`AutoMovieHu
 | L4 | lips: "no rail beside t", "the blend's normal reverses"; lids: blends fold, a walk lost; philtrum: "no rail (host width 0.45 mm)"; sulcus: no meeting | parts a few millimetres high over a strongly curved host: their blend widths (half their height) are under a millimetre and their blends fold over the host's curvature | next round, with the kernel: the blend width's floor against the host's curvature, and these parts' laws (#3053, #3055) |
 | L5 | the conchas' host rails a hundredth of a millimetre past the auricle's top layer; the alae's bases 0.3 mm outside the nose; the lobule's walk lost | the auricle is a dome whose crown pole the concha sits on; the alae sink by a sagitta estimated from their own extent, not the nose's tighter curvature | next round: the auricle as its own lofted fin (#3056), each inner part's sink from its parent's radius |
 
+## Overlay round 1 (f1, every head part alone, front, left and top; frames 18:20 to 18:47 on `39b6846a9`'s head files, `overlay-before/`; recorded 19:0x)
+
+`reference=f1&person=f1&part=<part>&referencePart=head`, front and left at `focus=reference.head*`, top with `referenceStyle=loft`. The side frame reads about 2.7 to 3.1 px per mm, the top about 4.1. `neck-front` failed (503: another lane's module graph broke the page); its side and top frames carry the finding.
+
+| Part | Where it leaves the skin | By | Why | Fix (`c00567691`) |
+| --- | --- | --- | --- | --- |
+| head.mass | sections under the tragion tilt; the lowest runs from behind the ear to under the chin; the side outline swings out behind the nape; the front outlines flare out past the jaw at the bottom | flare about 40 mm each side, back about 10 mm | the axis leaned to the neck ring through minimal rotation, so the planes under the tragion tilted and the cap's outlines were read on tilted planes | straight vertical axis through the skull's centre, every section level |
+| head.mass | vault, sides and top | within a few mm | holds | none |
+| neck | front about 25 mm inside the skin from the menton down; met the head along the nape and the jaw's underside | 25 mm | a round tube centred on the trunk ring's mean, merged under the head where the two skins are one | the neck is the head mass's own lower stretch: P runs the submental line to the cervical point (Sn-Gn'/C-Gn' = 1.2, Legan and Burstone 1980), then the neck front parallel to its back |
+| nose | as wide at the root as at the alae; bridge stands proud at the nasion; the lower half bulges below the tip; stem 37 mm into the face | 5 to 9 mm at the root, 10 mm below the subnasale | a symmetric half-ellipsoid between nasion and subnasale with the alar half width throughout | drawn from its views in level sections from the prior's profile and dorsum rows over the face's midline profile |
+| nose height | the subnasale stands about 10 mm under f1's | 10 mm | input: f1's parameters carry no nose height, so the 3D Facial Norms' 54.7 mm holds; not a construction fault | none (input) |
+| nose.lobule, alae, nostrils | follow the nose; the alae's stems cross the midline | 15 mm stems | each dome sank twice the sagitta of its own extent | sink by the nose's half width |
+| lip.upper, lip.lower | on the profile, about 5 mm under the reference's mouth | about 5 mm | the stomion hangs from the subnasale (above) | follows the nose height |
+| orbit | cutter stems 17 mm in front of the face | 17 mm | stem sank by the cutter's own extent | sink by the head mass's half width at the eye; the landmark on the head mass's own section (`frontAt`) |
+| brow | 7 to 8 mm in front of the skin | 7 to 8 mm | its height was the mid-supraorbital soft tissue depth, the depth over the bone, not a projection over the head mass | removed: no published projection |
+| lid.upper, lid.lower | 4 to 6 mm in front of the skin | 4 to 6 mm | stood the margin's lead over the bare head mass, the orbit not yet cut | the margin at the prior's recess behind the nasion's skin; seeded on the head mass's own section |
+| auricle | rim centre about 12 mm behind f1's; stems about 25 mm into the head | 12 mm | the rim's centre followed the tragion; the law places it at -0.1406 head lengths from the skull's centre | the rim's centre at `AutoMovieHumanEarPlace.FORWARD`; the residual against f1 is f1's own place against the four-person law |
+| philtrum, sulcus, conchas, antihelices | on their parents | small | hold, with their parents | none |
+
 ## Wiring the head into the figure (design, written 16:1x)
 
 The figure's head lane is `AutoMovieHumanHeadConstruction.apply`, which `AutoMovieHumanBodyLaw.calibrate` calls before the body lane stands the trunk under the neck chain `head`. The composed head enters it as:

@@ -4,35 +4,53 @@ import type {
   AutoMovieConstructionFullness,
   AutoMovieConstructionNode,
   IAutoMovieConstruction,
+  IAutoMovieConstructionCurvatureWidth,
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionOutline,
   IAutoMovieConstructionView,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieHumanHeadComposer } from "./AutoMovieHumanHeadComposer";
+import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
+import type { AutoMovieHumanHeadComposer } from "./AutoMovieHumanHeadComposer";
+import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 
 /**
- * The composed head as a construction tree (`IAutoMovieConstruction`), the
- * form the engine realizes once its kernel takes the tree: every part a view
+ * The composed head as a construction tree (`IAutoMovieConstruction`), which
+ * the engine realizes (`realizeAutoMovieConstruction`): every part a view
  * node, every merge and diff a join node, an inner part joined to its parent
  * nested inside that parent's join, all joined in build order onto the head
  * mass.
  *
- * Each view is read off the part the composer lofted: its stations, its
+ * Each view is read off the part the composer placed: its stations, its
  * outlines' knots and its fullness as they stand, its axis as the planes at
- * its stations (a straight axis when every plane shares its axes, else a
- * curved one through the planes' origins). Each join takes the seed and the
- * chord the composer traced it with, the phase parameter for a round
- * footprint and the arc parameter for one more than twice as long as wide.
- * Lengths are metres in the head's frame: the composer's calibration
+ * its stations (straight when parallel planes run along their normal, level
+ * when they are the world's level planes at the station's height, else
+ * curved through the planes' origins). Each join is seeded by the engine's
+ * search along the part's station line at the phase the part names, its
+ * blend's chord a share of each side's normal-section radius at every traced
+ * point, capped at half the lesser of the part's height and least half
+ * extent (`AutoMovieHumanSeamUnion.width`), with the phase parameter for a
+ * round footprint and the arc parameter for one more than twice as long as
+ * wide. Lengths are metres in the head's frame: the composer's calibration
  * millimetres over a thousand. The openings (eye fissures, nostrils, mouth)
- * enter as trims when the head is wired onto the tree; a join the composer
- * could not trace is left out, as the engine leaves it out. Compile-only.
+ * enter as trims next.
  */
 export namespace AutoMovieHumanHeadTree {
   /** Metres per calibration millimetre. */
   export const METRES: number = 1e-3;
+
+  /** Share of the normal-section radius each blend's chord takes at every traced point, the rolling ball's safe margin. */
+  export const SHARE: number = 0.5;
+
+  /** Traced points per join. */
+  export const COUNT: number = 64;
+
+  /** Largest gap accepted on a join's curve, mm. */
+  export const TOLERANCE: number = 0.05;
+
+  /** Least angle between the two tangent planes along a join's curve, radians. */
+  export const GRAZING: number = (5 * Math.PI) / 180;
 
   /** Rows of every blend between its rails. */
   export const ROWS: number = 4;
@@ -41,29 +59,21 @@ export namespace AutoMovieHumanHeadTree {
    * The head's tree.
    *
    * @param composed The composer's output.
-   * @returns The tree, or null when the head mass has no part to root it.
+   * @returns The tree.
    */
-  export function of(composed: AutoMovieHumanHeadComposer.IOutput): IAutoMovieConstruction | null {
-    if (composed.mass.chain === null) return null;
-
+  export function of(composed: AutoMovieHumanHeadComposer.IOutput): IAutoMovieConstruction {
     // Each part's subtree: its own view, joined in order by its inner parts.
     const subtree: Map<string, AutoMovieConstructionNode> = new Map();
-    const joins: AutoMovieHumanHeadComposer.IJoined[] = composed.parts;
-    for (const joined of joins) subtree.set(joined.feature.part.name, view(joined.feature.part));
-    for (const joined of joins) {
-      if (joined.feature.parent === "head.mass") continue;
-      const parent: AutoMovieConstructionNode | undefined = subtree.get(joined.feature.parent);
-      const node: IAutoMovieConstructionJoin | null = parent === undefined ? null : join(joined, parent, subtree.get(joined.feature.part.name)!);
-      if (node !== null) subtree.set(joined.feature.parent, node);
+    for (const placed of composed.parts) subtree.set(placed.feature.part.name, view(placed.feature.part));
+    for (const placed of composed.parts) {
+      if (placed.feature.parent === "head.mass") continue;
+      const parent: AutoMovieConstructionNode | undefined = subtree.get(placed.feature.parent);
+      if (parent !== undefined) subtree.set(placed.feature.parent, join(placed, parent, subtree.get(placed.feature.part.name)!));
     }
 
     // The head: the mass, every part straight on it joined in turn.
     let root: AutoMovieConstructionNode = view(composed.massPart);
-    for (const joined of joins) {
-      if (joined.feature.parent !== "head.mass") continue;
-      const node: IAutoMovieConstructionJoin | null = join(joined, root, subtree.get(joined.feature.part.name)!);
-      if (node !== null) root = node;
-    }
+    for (const placed of composed.parts) if (placed.feature.parent === "head.mass") root = join(placed, root, subtree.get(placed.feature.part.name)!);
     return { name: "head", root };
   }
 
@@ -83,35 +93,30 @@ export namespace AutoMovieHumanHeadTree {
     };
   }
 
-  /** A join node of a part onto its host, or null when the composer traced none. */
-  function join(
-    joined: AutoMovieHumanHeadComposer.IJoined,
-    host: AutoMovieConstructionNode,
-    part: AutoMovieConstructionNode,
-  ): IAutoMovieConstructionJoin | null {
-    if (joined.join === null || joined.seed === undefined || joined.width === undefined) return null;
-    const chord: number = joined.width * METRES;
+  /** A join node of a part onto its host. */
+  function join(placed: AutoMovieHumanHeadComposer.IPlaced, host: AutoMovieConstructionNode, part: AutoMovieConstructionNode): IAutoMovieConstructionJoin {
+    const feature: AutoMovieHumanHeadFeatures.IFeature = placed.feature;
+    const search: { phase: number; from: number; to: number } = feature.search ?? { phase: 0, from: 0, to: 1 };
+    const width: IAutoMovieConstructionCurvatureWidth = {
+      type: "curvature",
+      share: SHARE,
+      cap: AutoMovieHumanSeamUnion.width(feature.size[0], feature.size[1]) * METRES,
+    };
     return {
       type: "join",
-      kind: joined.feature.join,
-      name: `blend.${joined.feature.part.name}`,
+      kind: feature.join,
+      name: `blend.${feature.part.name}`,
       host,
       part,
-      seed: {
-        type: "point",
-        partFace: joined.feature.part.name,
-        hostFace: joined.feature.parent,
-        part: [joined.seed.part[0] * METRES, joined.seed.part[1]],
-        host: [joined.seed.host[0] * METRES, joined.seed.host[1]],
-      },
-      parameter: joined.feature.elongated === true ? { type: "arc" } : { type: "phase" },
-      partWidth: { type: "chord", value: chord },
-      hostWidth: { type: "chord", value: chord },
+      seed: { type: "search", partFace: feature.part.name, hostFace: feature.parent, phase: search.phase, from: search.from, to: search.to },
+      parameter: feature.elongated === true ? { type: "arc" } : { type: "phase" },
+      partWidth: width,
+      hostWidth: width,
       continuity: "G2",
-      count: AutoMovieHumanHeadComposer.COUNT,
+      count: COUNT,
       rows: ROWS,
-      tolerance: AutoMovieHumanHeadComposer.TOLERANCE * METRES,
-      grazing: AutoMovieHumanHeadComposer.GRAZING,
+      tolerance: TOLERANCE * METRES,
+      grazing: GRAZING,
     };
   }
 
@@ -120,10 +125,23 @@ export namespace AutoMovieHumanHeadTree {
     const frames: AutoMovieLoftFrame.IFrame[] = part.stations.map((s: number): AutoMovieLoftFrame.IFrame => part.axis.at(s));
     const first: AutoMovieLoftFrame.IFrame = frames[0]!;
     const same = (a: readonly number[], b: readonly number[]): boolean => Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!) < 1e-9;
-    const straight: boolean = frames.every((f: AutoMovieLoftFrame.IFrame): boolean => same(f.u, first.u) && same(f.v, first.v));
-    if (straight) {
-      const zero: AutoMovieLoftFrame.IFrame = part.axis.at(0);
-      return { type: "straight", origin: vector(zero.origin, METRES), u: vector(first.u, 1), v: vector(first.v, 1) };
+    const parallel: boolean = frames.every((f: AutoMovieLoftFrame.IFrame): boolean => same(f.u, first.u) && same(f.v, first.v));
+    // A straight axis: parallel planes whose origins run along their normal
+    // by the station.
+    const w: number[] = [first.v[1] * first.u[2] - first.v[2] * first.u[1], first.v[2] * first.u[0] - first.v[0] * first.u[2], first.v[0] * first.u[1] - first.v[1] * first.u[0]];
+    const zero: AutoMovieLoftFrame.IFrame = part.axis.at(0);
+    const straight: boolean =
+      parallel &&
+      frames.every((f: AutoMovieLoftFrame.IFrame, k: number): boolean => same(f.origin, [zero.origin[0] + w[0]! * part.stations[k]!, zero.origin[1] + w[1]! * part.stations[k]!, zero.origin[2] + w[2]! * part.stations[k]!]));
+    if (straight) return { type: "straight", origin: vector(zero.origin, METRES), u: vector(first.u, 1), v: vector(first.v, 1) };
+    // A level axis: the world's level planes at the station's height, the
+    // origin drifting.
+    const level: boolean = parallel && same(first.u, [1, 0, 0]) && same(first.v, [0, 0, 1]) && frames.every((f: AutoMovieLoftFrame.IFrame, k: number): boolean => Math.abs(f.origin[1] - part.stations[k]!) < 1e-9);
+    if (level) {
+      const course = (c: 0 | 2): IAutoMovieConstructionOutline => ({
+        knots: part.stations.map((s: number, k: number): { site: string; station: number; value: number } => ({ site: `${part.name}.${k}`, station: s * METRES, value: frames[k]!.origin[c] * METRES })),
+      });
+      return { type: "level", origin: { x: course(0), z: course(2) } };
     }
     return {
       type: "curved",

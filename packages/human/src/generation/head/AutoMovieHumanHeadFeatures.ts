@@ -53,11 +53,12 @@ export namespace AutoMovieHumanHeadFeatures {
     elongated?: boolean;
 
     /**
-     * The part's station and phase where its section meets the parent, for
-     * a part whose base is not one ring at its contact (the nose, along the
-     * face); absent, the base ring at phase 0.
+     * Where the engine searches the part's station line for its meeting
+     * with the parent (`IAutoMovieConstructionSearchSeed`): the phase and the
+     * shares of the station range walked; absent, phase 0 from the base
+     * (share 0) to the apex (share 1), which a dome crosses its parent on.
      */
-    seat?: [number, number];
+    search?: { phase: number; from: number; to: number };
   }
 
   /** Depth of a part's base inside the head mass, mm. */
@@ -79,16 +80,15 @@ export namespace AutoMovieHumanHeadFeatures {
     const middle: number = (plan.nasion + plan.tip) / 2;
     const fall: number = (plan.noseWidth * plan.noseWidth) / (2 * AutoMovieHumanHeadMassPart.halfWidth(plan, middle));
     const depth: number = INSET + 2 * fall;
-    const seat: [number, number] = AutoMovieHumanHeadNosePart.seat(plan, depth);
     out.push({
       part: AutoMovieHumanHeadNosePart.of(plan, depth),
       join: "merge",
-      seed: [AutoMovieHumanHeadMedianProfile.profileAt(plan, seat[0]), seat[0], 0],
+      seed: [AutoMovieHumanHeadMedianProfile.profileAt(plan, middle), middle, 0],
       contact: INSET,
       size: [plan.noseLead, plan.noseWidth],
       parent: "head.mass",
       elongated: true,
-      seat,
+      search: { phase: 0, from: 0.5, to: 0 },
     });
 
     // The lips, each over its own vermilion on the skull's profile.

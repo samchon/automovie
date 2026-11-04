@@ -1,8 +1,6 @@
-import { type AutoMovieLoftContract, type AutoMovieLoftFrame, AutoMovieSolidDiff, AutoMovieSolidFoot, type AutoMovieSolidJoin, AutoMovieSolidMerge, AutoMovieViewLoft, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
-import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
+import { type AutoMovieLoftContract, type AutoMovieLoftFrame, AutoMovieSolidFoot, AutoMovieViewLoft, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
-import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import { AutoMovieHumanHeadEarParts } from "./AutoMovieHumanHeadEarParts";
 import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
@@ -10,36 +8,21 @@ import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 import { AutoMovieHumanHeadMasses } from "./AutoMovieHumanHeadMasses";
 
 /**
- * The head subtree composed by the three operators: the head mass lofted
- * from its views (`AutoMovieHumanHeadMassPart`), and every face part lofted
- * from its own (`AutoMovieHumanHeadFeatures`) and merged onto it or cut from
- * it (`AutoMovieSolidMerge`, `AutoMovieSolidDiff`), each join
- * seeded at the part's landmark and blended over the part's own size
- * (`AutoMovieHumanSeamUnion.width`: half the lesser of its height and its
- * least half extent).
- *
- * Every join is made against the bare head mass, so each part's curve and
- * blend are its own; where two parts' blends meet (the lips and the nose at
- * the subnasale) the corner is a setback the kernel closes. First pass:
- * compile-only, read by the debug sweep before it is wired into generation.
+ * The head subtree's parts placed: the head mass lofted from its views
+ * (`AutoMovieHumanHeadMassPart`), and every face part drawn from its own
+ * (`AutoMovieHumanHeadFeatures` and kin), each stood on its parent's lofted
+ * skin by its landmark's foot there. The joins are not made here: the
+ * construction tree (`AutoMovieHumanHeadTree`) names each merge and diff,
+ * and the engine realizes them (`realizeAutoMovieConstruction`).
  */
 export namespace AutoMovieHumanHeadComposer {
-  /** A part with its loft and its join. */
-  export interface IJoined {
+  /** A placed part and its loft. */
+  export interface IPlaced {
     /** The part. */
     feature: AutoMovieHumanHeadFeatures.IFeature;
 
-    /** Its loft. */
+    /** Its loft, which the parts placed on it stand on. */
     loft: AutoMovieViewLoft.IResult;
-
-    /** Its join to the head mass, or null when either surface or the seed is missing. */
-    join: AutoMovieSolidJoin.IJoin | null;
-
-    /** The join's seed, the part's and the host's chart points `[station, phase]`, mm and radians; absent when no join was traced. */
-    seed?: { part: [number, number]; host: [number, number] };
-
-    /** The blend's chord on both sides, mm; absent when no join was traced. */
-    width?: number;
   }
 
   /** The composed head. */
@@ -50,8 +33,8 @@ export namespace AutoMovieHumanHeadComposer {
     /** The head mass's view part, the root of its construction tree (`AutoMovieHumanHeadTree`). */
     massPart: IAutoMovieViewPart;
 
-    /** Every face part, lofted and joined. */
-    parts: IJoined[];
+    /** Every face part, placed and lofted. */
+    parts: IPlaced[];
 
     /** Every broken premise, by producer. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
@@ -69,14 +52,8 @@ export namespace AutoMovieHumanHeadComposer {
     faceExponent?: number;
   }
 
-  /** Traced points per join. */
-  export const COUNT: number = 64;
-
-  /** Largest gap accepted on a join's curve, mm. */
+  /** Largest gap accepted on a landmark's foot, mm. */
   export const TOLERANCE: number = 0.05;
-
-  /** Least angle between the two tangent planes along a join's curve, radians. */
-  export const GRAZING: number = (5 * Math.PI) / 180;
 
   /**
    * Compose the head.
@@ -101,7 +78,7 @@ export namespace AutoMovieHumanHeadComposer {
     const mass: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(massPart);
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...mass.diagnostics];
 
-    // Parents before their inner parts, each joined to its parent's bare
+    // Parents before their inner parts, each stood on its parent's bare
     // surface.
     const surfaces: Map<string, IAutoMovieSolidSurface | null> = new Map([["head.mass", mass.surface]]);
     const features: AutoMovieHumanHeadFeatures.IFeature[] = [
@@ -111,7 +88,7 @@ export namespace AutoMovieHumanHeadComposer {
       ...AutoMovieHumanHeadInnerParts.of(plan),
     ];
     const views: Map<string, IAutoMovieViewPart> = new Map([["head.mass", massPart]]);
-    const parts: IJoined[] = features.map((placed: AutoMovieHumanHeadFeatures.IFeature): IJoined => {
+    const parts: IPlaced[] = features.map((placed: AutoMovieHumanHeadFeatures.IFeature): IPlaced => {
       // The seed: the landmark's foot on the parent, from the chart point
       // the landmark stands over in the parent's own frame.
       const host: IAutoMovieSolidSurface | null = surfaces.get(placed.parent) ?? null;
@@ -129,33 +106,8 @@ export namespace AutoMovieHumanHeadComposer {
       diagnostics.push(...loft.diagnostics);
       surfaces.set(feature.part.name, loft.surface);
       views.set(feature.part.name, feature.part);
-      if (host === null || loft.surface === null) return { feature, loft, join: null };
-      if (foot === null || parentView === undefined) {
-        diagnostics.push({ producer: `head.${feature.part.name}`, level: 2, contract: "seed", detail: `the landmark has no foot on ${feature.parent}` });
-        return { feature, loft, join: null };
-      }
-
-      // The part's seed: its base ring at phase 0 for a dome, or the station
-      // and phase the part names where its section meets the parent; the
-      // host's seed is that point's foot on the parent.
-      const [s, phi]: [number, number] = feature.seat ?? [feature.contact + sunk(feature.part), 0];
-      const at: [number, number, number] = loft.surface.jet(s, phi).p;
-      const hostFoot: AutoMovieSolidFoot.IFoot = AutoMovieSolidFoot.of(host, at, chartOf(parentView, at), TOLERANCE) ?? foot;
-      const width: number = AutoMovieHumanSeamUnion.width(feature.size[0], feature.size[1]);
-      const input: AutoMovieSolidJoin.IInput = {
-        part: loft.surface,
-        host,
-        seed: { phi, s, y: hostFoot.u, theta: hostFoot.v },
-        count: COUNT,
-        tolerance: TOLERANCE,
-        grazing: GRAZING,
-        width: { part: (): number => width, host: (): number => width },
-        ...(feature.elongated === true ? { parameter: { kind: "arc" as const } } : {}),
-      };
-      const result: AutoMovieSolidJoin.IResult =
-        feature.join === "merge" ? AutoMovieSolidMerge.create(input) : AutoMovieSolidDiff.create(input);
-      diagnostics.push(...result.diagnostics);
-      return { feature, loft, join: result.join, seed: { part: [input.seed.s, input.seed.phi], host: [hostFoot.u, hostFoot.v] }, width };
+      if (host !== null && foot === null) diagnostics.push({ producer: `head.${feature.part.name}`, level: 2, contract: "seed", detail: `the landmark has no foot on ${feature.parent}` });
+      return { feature, loft };
     });
 
     return { mass, massPart, parts, diagnostics };
@@ -213,9 +165,5 @@ export namespace AutoMovieHumanHeadComposer {
   /** Dot product. */
   function dot(a: readonly number[], b: readonly number[]): number {
     return a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
-  }
-  /** A dome's stem depth under its base: its station at the stem's top, zero for a part without a stem. */
-  function sunk(part: IAutoMovieViewPart): number {
-    return part.stations.length > AutoMovieHumanHeadDome.LAYERS + 1 ? part.stations[AutoMovieHumanHeadDome.STEM]! : 0;
   }
 }
