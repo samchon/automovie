@@ -259,7 +259,7 @@ export namespace ConstructionChecks {
     for (let m: number = 0; m < M; m++) {
       const [u, v]: [number, number, number, number] = trim.at((2 * Math.PI * m) / M);
       const miss: number = norm(sub(surface.jet(u, v).p, foot(m)));
-      if (!(miss <= tol)) out.push(`loop knot ${m} is ${miss} m from its landmark's foot (knot chart ${u}, ${v}; solved foot ${trim.feet[m]!.join(", ")})`);
+      if (!(miss <= tol)) out.push(`loop knot ${m} is ${miss} mm from its landmark's foot (knot chart ${u}, ${v}; solved foot ${trim.feet[m]!.join(", ")})`);
     }
     return out;
   }

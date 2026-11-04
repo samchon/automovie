@@ -112,6 +112,8 @@ export namespace AutoMovieSolidClip {
         }
       }
       if (low === null || high === null) return `no rail at the column ${low === null ? `t ${lo}` : `t ${hi}`} beside the crossing from face ${faces[k]} to face ${next}`;
+      if (index[low.hostFace] !== faces[k] || index[high.hostFace] !== next)
+        return `the rail's crossing from face ${faces[k]} to face ${next} lands on faces ${index[low.hostFace]} and ${index[high.hostFace]} (t ${lo} to ${hi})`;
       const crossing: IRailPoint = point(faces[k]!, [low.host[0], low.host[1]], (lo + hi) / 2 - blend.seed);
       crossing.faces.push(index[high.hostFace]!);
       crossing.chart.set(index[high.hostFace]!, [high.host[0], high.host[1]]);
