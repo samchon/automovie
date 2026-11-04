@@ -3,9 +3,9 @@
  * by one band of triangles: the edge of a face's kept grid cells nearest a
  * trim loop, and the loop's own vertices (the rail points the blend shares).
  *
- * Both sequences are read by one monotone parameter: the angle about the
- * loop's centre in the face's chart scaled to millimetres (a hole), or the
- * chart's periodic phase (a loop that winds round the face). Each is turned
+ * Both sequences are read by one monotone parameter, each its own
+ * normalised arclength from aligned starts (`AutoMovieHumanSolidMesh`), which
+ * holds for any simple cycle a clip leaves. Each is turned
  * to increase and started at its least parameter, and the band is the merge
  * of the two by that parameter (the zipper of contour tiling, Fuchs, Kedem
  * and Uselton, Optimal surface reconstruction from planar contours, CACM

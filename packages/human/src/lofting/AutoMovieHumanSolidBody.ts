@@ -1,0 +1,270 @@
+import type { AutoMovieHumanLoftContract } from "./AutoMovieHumanLoftContract";
+import { AutoMovieHumanSolidBlendChain } from "./AutoMovieHumanSolidBlendChain";
+import { AutoMovieHumanSolidChain } from "./AutoMovieHumanSolidChain";
+import { AutoMovieHumanSolidClip } from "./AutoMovieHumanSolidClip";
+import { AutoMovieHumanSolidCycle } from "./AutoMovieHumanSolidCycle";
+import { AutoMovieHumanSolidDiff } from "./AutoMovieHumanSolidDiff";
+import type { AutoMovieHumanSolidJoin } from "./AutoMovieHumanSolidJoin";
+import { AutoMovieHumanSolidMerge } from "./AutoMovieHumanSolidMerge";
+import { AutoMovieHumanSolidMesh } from "./AutoMovieHumanSolidMesh";
+import type { IAutoMovieHumanSolidAtlas } from "./IAutoMovieHumanSolidAtlas";
+import type { IAutoMovieHumanSolidSurface } from "./IAutoMovieHumanSolidSurface";
+
+/**
+ * A solid built by merges and diffs, as trimmed faces that share their
+ * boundaries: the base, every blend and every part, each a surface with its
+ * trim cycles in its own chart (`AutoMovieHumanSolidCycle`), the shared
+ * boundary vertices held once in the body's mesh.
+ *
+ * A merge ({@link merge}) traces its part against the body as an atlas
+ * ({@link atlas}), so its curve and its host rail cross from face to face
+ * (the thigh against the trunk and the gluteal mass, a malleolus on the
+ * shank-to-foot blend, the second breast against the first). It adds the
+ * blend face (the join's blend chain, its two rails its station-end
+ * cycles), gives the part face its rail cycle (a part merged again at its
+ * other end keeps both, a limb merged at its root and at its foot), and
+ * trims every host face the host rail runs over: a rail on one face adds its
+ * loop, a rail that crosses faces is clipped into each face it runs on
+ * (`AutoMovieHumanSolidClip`). Where two blends meet (the perineum, the
+ * webs, the cleavage), the later merge's rail simply runs over the earlier
+ * blend face, so no corner needs its own patch.
+ *
+ * {@link draw} tessellates every face on its own grid trimmed by its cycles
+ * (`AutoMovieHumanSolidMesh.face`), shared boundaries vertex for vertex.
+ */
+export namespace AutoMovieHumanSolidBody {
+  /** One face. */
+  export interface IFace {
+    /** The surface. */
+    surface: IAutoMovieHumanSolidSurface;
+
+    /** Grid stations of its tessellation, strictly increasing. */
+    stations: number[];
+
+    /** Grid phases of its tessellation, strictly increasing, one period's worth on a periodic face. */
+    phases: number[];
+
+    /** Its trim cycles. */
+    cycles: AutoMovieHumanSolidCycle.ICycle[];
+
+    /** Whether it is a diff's cutter, drawn facing into the cutter. */
+    inverted?: boolean;
+  }
+
+  /** The body. */
+  export interface IBody {
+    /** Name in diagnostics. */
+    name: string;
+
+    /** Its faces. */
+    faces: IFace[];
+
+    /** The shared vertices (and, after {@link draw}, the triangles). */
+    mesh: AutoMovieHumanSolidMesh.IMesh;
+
+    /** Every merge's published blend, in merge order. */
+    blends: AutoMovieHumanSolidBlendChain.IBlend[];
+  }
+
+  /** A face to add, before it has cycles. */
+  export interface IFaceInput {
+    /** The surface. */
+    surface: IAutoMovieHumanSolidSurface;
+
+    /** Grid stations. */
+    stations: number[];
+
+    /** Grid phases. */
+    phases: number[];
+  }
+
+  /** One merge or diff onto the body. */
+  export interface IMerge {
+    /** The blend chain's name. */
+    name: string;
+
+    /** Merge or diff. */
+    kind: "merge" | "diff";
+
+    /** The part: a new face, or the index of a face already in the body (a part merged again at its other end). */
+    part: IFaceInput | number;
+
+    /** The join's seed, parameter, trace limits and widths. */
+    join: Omit<AutoMovieHumanSolidJoin.IInput, "part" | "host">;
+
+    /** Columns of the published blend, a positive multiple of 4. */
+    count: number;
+
+    /** Grid stations of the blend face across its span, at least 1. */
+    rows: number;
+  }
+
+  /**
+   * A body of base faces, untrimmed.
+   *
+   * @param name Name in diagnostics.
+   * @param faces The base faces.
+   * @returns The body.
+   */
+  export function create(name: string, faces: IFaceInput[]): IBody {
+    return { name, faces: faces.map((f: IFaceInput): IFace => ({ ...f, cycles: [] })), mesh: AutoMovieHumanSolidMesh.create(), blends: [] };
+  }
+
+  /**
+   * The body as an atlas of its faces, leaving one out (the part of a merge
+   * that is already a face).
+   *
+   * @param body The body.
+   * @param without A face index to leave out, or -1.
+   * @returns The atlas and the body index of each atlas face.
+   */
+  export function atlas(body: IBody, without: number = -1): { atlas: IAutoMovieHumanSolidAtlas; index: number[] } {
+    const index: number[] = body.faces.map((_: IFace, k: number): number => k).filter((k: number): boolean => k !== without);
+    const back: Map<number, number> = new Map(index.map((k: number, i: number): [number, number] => [k, i]));
+    const face = (i: number): IFace => body.faces[index[i]!]!;
+    return {
+      index,
+      atlas: {
+        name: body.name,
+        faces: index.map((k: number): IAutoMovieHumanSolidSurface => body.faces[k]!.surface),
+        kept: (i: number, u: number, v: number): boolean => kept(face(i), u, v),
+        across: (i: number, u: number, v: number): { face: number; u: number; v: number } | null => {
+          // The nearest segment of a cycle the point lies past.
+          const f: IFace = face(i);
+          let best: { cycle: AutoMovieHumanSolidCycle.ICycle; foot: AutoMovieHumanSolidCycle.IFoot } | null = null;
+          for (const c of f.cycles) {
+            if (AutoMovieHumanSolidCycle.kept(c, u, v, f.surface.period)) continue;
+            const foot: AutoMovieHumanSolidCycle.IFoot = AutoMovieHumanSolidCycle.foot(c, u, v, f.surface.period);
+            if (best === null || foot.distance < best.foot.distance) best = { cycle: c, foot };
+          }
+          if (best === null) return null;
+          const n: AutoMovieHumanSolidCycle.INeighbour = best.cycle.neighbours[best.foot.segment]!;
+          const to: number | undefined = back.get(n.face);
+          if (to === undefined) return null;
+          const s: number = best.foot.share;
+          return { face: to, u: n.from[0] + s * (n.to[0] - n.from[0]), v: n.from[1] + s * (n.to[1] - n.from[1]) };
+        },
+      },
+    };
+  }
+
+  /**
+   * Merge or cut a part into the body.
+   *
+   * @param body The body; its faces, cycles and mesh grow in place.
+   * @param input The merge.
+   * @returns The published blend, or null with the diagnostics of every broken premise.
+   */
+  export function merge(body: IBody, input: IMerge): { blend: AutoMovieHumanSolidBlendChain.IBlend | null; diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] } {
+    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
+    const fail = (contract: string, detail: string): { blend: null; diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] } => {
+      diagnostics.push({ producer: `solid.body.${body.name}.${input.name}`, level: 6, contract, detail });
+      return { blend: null, diagnostics };
+    };
+
+    // The part's face, and the host as the atlas of every other face.
+    const known: number = typeof input.part === "number" ? input.part : -1;
+    const partSurface: IAutoMovieHumanSolidSurface = typeof input.part === "number" ? body.faces[input.part]!.surface : input.part.surface;
+    const { atlas: host, index }: { atlas: IAutoMovieHumanSolidAtlas; index: number[] } = atlas(body, known);
+    const created: AutoMovieHumanSolidJoin.IResult = (input.kind === "merge" ? AutoMovieHumanSolidMerge : AutoMovieHumanSolidDiff).create({ ...input.join, part: partSurface, host });
+    diagnostics.push(...created.diagnostics);
+    if (created.join === null) return { blend: null, diagnostics };
+    const join: AutoMovieHumanSolidJoin.IJoin = created.join;
+    const blend: AutoMovieHumanSolidBlendChain.IBlend | null = AutoMovieHumanSolidBlendChain.of(input.name, join, input.count);
+    if (blend === null) return fail("rails", "a column of the blend has no rail");
+    const blendSurface: IAutoMovieHumanSolidSurface | null = AutoMovieHumanSolidChain.surface(blend.chain);
+    if (blendSurface === null) return fail("blend surface", "the blend chain carries no jets");
+
+    // The faces: the part's (new or known) and the blend's.
+    const part: number = known >= 0 ? known : body.faces.push({ ...(input.part as IFaceInput), cycles: [], inverted: input.kind === "diff" }) - 1;
+    const blendFace: number = body.faces.length;
+    body.faces.push({
+      surface: blendSurface,
+      stations: Array.from({ length: input.rows + 1 }, (_: unknown, i: number): number => (blend.length * i) / input.rows),
+      phases: Array.from({ length: input.count }, (_: unknown, k: number): number => (2 * Math.PI * k) / input.count),
+      cycles: [],
+    });
+
+    // The host rail with the crossings between faces, and the part rail.
+    const rail: AutoMovieHumanSolidClip.IRailPoint[] | null = AutoMovieHumanSolidClip.rail(body, join, blend, index, input.count);
+    if (rail === null) return fail("rails", "the host rail's crossing between two faces could not be placed");
+    const partOwner: number = AutoMovieHumanSolidMesh.owner(body.mesh, partSurface);
+    const partVertices: number[] = blend.part.chart.map((c: [number, number]): number =>
+      AutoMovieHumanSolidMesh.vertex(body.mesh, partSurface.jet(c[0], c[1]).p, partOwner, c[0], c[1]),
+    );
+    const phase = (k: number): number => (2 * Math.PI * k) / input.count;
+
+    // The blend face's two station-end cycles.
+    body.faces[blendFace]!.cycles.push(
+      {
+        kind: "start",
+        vertices: rail.map((r: AutoMovieHumanSolidClip.IRailPoint): number => r.vertex),
+        chart: rail.map((r: AutoMovieHumanSolidClip.IRailPoint): [number, number] => [0, r.phase]),
+        neighbours: rail.map((r: AutoMovieHumanSolidClip.IRailPoint, k: number): AutoMovieHumanSolidCycle.INeighbour => {
+          const next: AutoMovieHumanSolidClip.IRailPoint = rail[(k + 1) % rail.length]!;
+          const face: number = r.faces.find((f: number): boolean => next.faces.includes(f)) ?? (r.faces[0] as number);
+          return { face, from: r.chart.get(face)!, to: next.chart.get(face)! };
+        }),
+      },
+      {
+        kind: "end",
+        vertices: partVertices,
+        chart: partVertices.map((_: number, k: number): [number, number] => [blend.length, phase(k)]),
+        neighbours: partVertices.map((_: number, k: number): AutoMovieHumanSolidCycle.INeighbour => ({
+          face: part,
+          from: blend.part.chart[k]!,
+          to: blend.part.chart[(k + 1) % partVertices.length]!,
+        })),
+      },
+    );
+
+    // The part face's rail cycle.
+    body.faces[part]!.cycles.push({
+      kind: blend.part.kind,
+      vertices: partVertices,
+      chart: blend.part.chart.map((c: [number, number]): [number, number] => [c[0], c[1]]),
+      neighbours: partVertices.map((_: number, k: number): AutoMovieHumanSolidCycle.INeighbour => ({
+        face: blendFace,
+        from: [blend.length, phase(k)],
+        to: [blend.length, phase((k + 1) % partVertices.length) + (k + 1 === partVertices.length ? 2 * Math.PI : 0)],
+      })),
+    });
+
+    // Every host face the rail runs over.
+    const clipped: string | null = AutoMovieHumanSolidClip.trim(body, rail, blendFace, blend.host.kind);
+    if (clipped !== null) return fail("trim", clipped);
+    body.blends.push(blend);
+    return { blend, diagnostics };
+  }
+
+  /**
+   * Tessellate every face.
+   *
+   * @param body The body; its mesh receives the triangles.
+   * @returns Each face's open ends (vertex cycles), by face.
+   */
+  export function draw(body: IBody): number[][][] {
+    return body.faces.map((f: IFace): number[][] =>
+      AutoMovieHumanSolidMesh.face(body.mesh, {
+        surface: f.surface,
+        stations: f.stations,
+        phases: f.phases,
+        loops: f.cycles.map((c: AutoMovieHumanSolidCycle.ICycle): AutoMovieHumanSolidMesh.ILoop => ({ kind: c.kind, vertices: c.vertices, chart: c.chart })),
+        inverted: f.inverted,
+      }),
+    );
+  }
+
+  /**
+   * Whether a chart point lies in a face's kept region: on the kept side of
+   * every cycle.
+   *
+   * @param face The face.
+   * @param u Its `u`.
+   * @param v Its `v`.
+   * @returns True when kept.
+   */
+  export function kept(face: IFace, u: number, v: number): boolean {
+    return face.cycles.every((c: AutoMovieHumanSolidCycle.ICycle): boolean => AutoMovieHumanSolidCycle.kept(c, u, v, face.surface.period));
+  }
+}

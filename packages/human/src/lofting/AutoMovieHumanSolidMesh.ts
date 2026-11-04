@@ -1,3 +1,4 @@
+import { AutoMovieHumanSolidCycle } from "./AutoMovieHumanSolidCycle";
 import { AutoMovieHumanSolidVector } from "./AutoMovieHumanSolidVector";
 import { AutoMovieHumanSolidZip } from "./AutoMovieHumanSolidZip";
 import type { IAutoMovieHumanSolidSurface } from "./IAutoMovieHumanSolidSurface";
@@ -315,11 +316,10 @@ export namespace AutoMovieHumanSolidMesh {
         }
       });
       if (best < 0) continue;
-      const cycle: number[] = open.splice(best, 1)[0]!;
-      const parameter = (p: readonly [number, number]): number => angle(loop, p, surface);
+      const cycle: number[] = aligned(mesh, loop.vertices, open.splice(best, 1)[0]!);
       const band: [number, number, number][] = AutoMovieHumanSolidZip.band(
-        { vertices: loop.vertices, angles: loop.chart.map(parameter) },
-        { vertices: cycle, angles: cycle.map((v: number): number => parameter(chart.get(v)!)) },
+        { vertices: loop.vertices, angles: arc(mesh, loop.vertices) },
+        { vertices: cycle, angles: arc(mesh, cycle) },
       );
       const p0: [number, number] = loop.chart[0]!;
       const o: Vec3 = outward(surface, p0[0], p0[1]);
@@ -357,8 +357,17 @@ export namespace AutoMovieHumanSolidMesh {
     return mesh.owners[c[0]!]!.point(c[1]!, c[2]!);
   }
 
-  /** A new vertex. */
-  function vertex(mesh: IMesh, p: Readonly<Vec3>, owner: number, a: number, b: number): number {
+  /**
+   * A new vertex of the mesh.
+   *
+   * @param mesh The mesh.
+   * @param p Its position, mm.
+   * @param owner Its owner's index.
+   * @param a Its owner coordinate `u`.
+   * @param b Its owner coordinate `v`.
+   * @returns Its index.
+   */
+  export function vertex(mesh: IMesh, p: Readonly<Vec3>, owner: number, a: number, b: number): number {
     mesh.positions.push(p[0], p[1], p[2]);
     mesh.coordinates.push(owner, a, b);
     return mesh.positions.length / 3 - 1;
@@ -407,43 +416,23 @@ export namespace AutoMovieHumanSolidMesh {
    * from it.
    */
   function keeps(loop: ILoop, u: number, v: number, jet: IAutoMovieHumanSolidSurface.IJet, margin: number, period: number | undefined): boolean {
+    if (!AutoMovieHumanSolidCycle.kept(loop, u, v, period)) return false;
+
+    // The least distance to the loop's segments in millimetres, each segment
+    // read on the branch of the point's phase nearest it.
     const E: number = dot(jet.u, jet.u);
     const F: number = dot(jet.u, jet.v);
     const G: number = dot(jet.v, jet.v);
     const n: number = loop.chart.length;
-    if (loop.kind === "hole") {
-      const w: number = shift(v, centre(loop)[1], period);
-      let inside: boolean = false;
-      let least: number = Infinity;
-      for (let k: number = 0; k < n; k++) {
-        const a: [number, number] = loop.chart[k]!;
-        const b: [number, number] = loop.chart[(k + 1) % n]!;
-        if (a[1] > w !== b[1] > w && u < a[0] + ((w - a[1]) * (b[0] - a[0])) / (b[1] - a[1])) inside = !inside;
-        least = Math.min(least, segment(u - a[0], w - a[1], b[0] - a[0], b[1] - a[1], E, F, G));
-      }
-      return !inside && least >= margin;
-    }
-
-    // A winding loop: its station at this phase, by the chart segment that
-    // spans the phase, against the kept side.
-    const bound: number = across(loop, v, period ?? 2 * Math.PI);
-    const gap: number = (loop.kind === "start" ? u - bound : bound - u) * Math.sqrt(E);
-    return gap >= margin;
-  }
-
-  /** The station a winding loop crosses a phase at, by linear interpolation in its chart. */
-  function across(loop: ILoop, v: number, period: number): number {
-    const n: number = loop.chart.length;
-    const v0: number = loop.chart[0]![1];
-    const span: number = loop.chart[n - 1]![1] - v0;
-    const sense: number = span >= 0 ? 1 : -1;
-    const local: number = v0 + sense * reduce(sense * (v - v0), period);
+    let least: number = Infinity;
     for (let k: number = 0; k < n; k++) {
       const a: [number, number] = loop.chart[k]!;
-      const b: [number, number] = k + 1 < n ? loop.chart[k + 1]! : [loop.chart[0]![0], loop.chart[0]![1] + sense * period];
-      if ((local - a[1]) * (local - b[1]) <= 0 && a[1] !== b[1]) return a[0] + ((local - a[1]) * (b[0] - a[0])) / (b[1] - a[1]);
+      const raw: [number, number] = loop.chart[(k + 1) % n]!;
+      const bv: number = AutoMovieHumanSolidCycle.shift(raw[1], a[1], period);
+      const w: number = AutoMovieHumanSolidCycle.shift(v, a[1], period);
+      least = Math.min(least, segment(u - a[0], w - a[1], raw[0] - a[0], bv - a[1], E, F, G));
     }
-    return loop.chart[0]![0];
+    return least >= margin;
   }
 
   /** The metric distance from a chart offset to a chart segment, mm. */
@@ -456,51 +445,47 @@ export namespace AutoMovieHumanSolidMesh {
     return Math.sqrt(Math.max(0, E * x * x + 2 * F * x * y + G * y * y));
   }
 
-  /** A loop's chart centre, the mean of its points. */
-  function centre(loop: ILoop): [number, number] {
-    let u: number = 0;
-    let v: number = 0;
-    for (const p of loop.chart) {
-      u += p[0];
-      v += p[1];
-    }
-    return [u / loop.chart.length, v / loop.chart.length];
-  }
-
-  /** A phase moved by whole periods nearest a reference. */
-  function shift(v: number, reference: number, period: number | undefined): number {
-    return period === undefined ? v : v + period * Math.round((reference - v) / period);
-  }
-
-  /** A value reduced to `[0, period)`. */
-  function reduce(x: number, period: number): number {
-    const r: number = x % period;
-    return r < 0 ? r + period : r;
-  }
-
-  /** The least chart distance from a loop's centre to a cycle's points, for matching a cycle to its loop. */
+  /** The mean chart distance from a cycle's points to a loop, for matching a drawn-cell cycle to its loop. */
   function nearest(loop: ILoop, points: readonly [number, number][], period: number | undefined): number {
-    if (loop.kind !== "hole") {
-      // A winding loop's cycle: the mean station gap.
-      let sum: number = 0;
-      for (const p of points) sum += Math.abs(p[0] - across(loop, p[1], period ?? 2 * Math.PI));
-      return sum / points.length;
-    }
-    const [cu, cv] = centre(loop);
     let sum: number = 0;
-    for (const p of points) sum += Math.hypot(p[0] - cu, shift(p[1], cv, period) - cv);
+    for (const p of points) sum += AutoMovieHumanSolidCycle.foot(loop, p[0], p[1], period).distance;
     return sum / points.length;
   }
 
   /**
-   * The zipper's parameter of a chart point about a loop: the angle about a
-   * hole's centre in the chart scaled to millimetres at the centre, or a
-   * winding loop's phase.
+   * The zipper's parameter of a closed vertex sequence: its cumulative length
+   * between its points from its first, over its whole length, times a turn.
+   * Arclength holds for any simple cycle a clip leaves, where an angle about
+   * a centre turns back on a cycle that is not star-shaped.
    */
-  function angle(loop: ILoop, p: readonly [number, number], surface: IAutoMovieHumanSolidSurface): number {
-    if (loop.kind !== "hole") return p[1];
-    const [cu, cv] = centre(loop);
-    const j: IAutoMovieHumanSolidSurface.IJet = surface.jet(cu, cv);
-    return Math.atan2((shift(p[1], cv, surface.period) - cv) * norm(j.v), (p[0] - cu) * norm(j.u));
+  function arc(mesh: IMesh, ids: readonly number[]): number[] {
+    const p = (v: number): Vec3 => [mesh.positions[3 * v]!, mesh.positions[3 * v + 1]!, mesh.positions[3 * v + 2]!];
+    const out: number[] = [0];
+    for (let k: number = 1; k < ids.length; k++) out.push(out[k - 1]! + norm(sub(p(ids[k]!), p(ids[k - 1]!))));
+    const total: number = out[ids.length - 1]! + norm(sub(p(ids[0]!), p(ids[ids.length - 1]!)));
+    return out.map((x: number): number => (total > 0 ? (2 * Math.PI * x) / total : 0));
+  }
+
+  /**
+   * A drawn-cell cycle turned and started to run with a loop: started at its
+   * vertex nearest the loop's first, and turned the way whose point a quarter
+   * of its length on lies nearer the loop's point a quarter on.
+   */
+  function aligned(mesh: IMesh, loop: readonly number[], cycle: readonly number[]): number[] {
+    const p = (v: number): Vec3 => [mesh.positions[3 * v]!, mesh.positions[3 * v + 1]!, mesh.positions[3 * v + 2]!];
+    const head: Vec3 = p(loop[0]!);
+    let start: number = 0;
+    cycle.forEach((v: number, k: number): void => {
+      if (norm(sub(p(v), head)) < norm(sub(p(cycle[start]!), head))) start = k;
+    });
+    const forward: number[] = cycle.map((_: number, k: number): number => cycle[(start + k) % cycle.length]!);
+    const backward: number[] = [forward[0]!, ...forward.slice(1).reverse()];
+    const quarter = (ids: readonly number[]): Vec3 => {
+      const a: number[] = arc(mesh, ids);
+      const k: number = a.findIndex((x: number): boolean => x >= Math.PI / 2);
+      return p(ids[k < 0 ? 0 : k]!);
+    };
+    const target: Vec3 = quarter(loop);
+    return norm(sub(quarter(forward), target)) <= norm(sub(quarter(backward), target)) ? forward : backward;
   }
 }
