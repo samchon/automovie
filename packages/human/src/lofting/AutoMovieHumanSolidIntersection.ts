@@ -1,5 +1,6 @@
 import type { AutoMovieHumanLoftContract } from "./AutoMovieHumanLoftContract";
 import { AutoMovieHumanSolidVector } from "./AutoMovieHumanSolidVector";
+import type { IAutoMovieHumanSolidAtlas } from "./IAutoMovieHumanSolidAtlas";
 import type { IAutoMovieHumanSolidSurface } from "./IAutoMovieHumanSolidSurface";
 
 type Vec3 = AutoMovieHumanSolidVector.Vec3;
@@ -75,7 +76,10 @@ export namespace AutoMovieHumanSolidIntersection {
     /** The part's station, its `u`. */
     s: number;
 
-    /** The host's `u`. */
+    /** The host face the point lies on: 0 for a single surface (`IAutoMovieHumanSolidAtlas`). */
+    face: number;
+
+    /** The host's `u`, on that face. */
     y: number;
 
     /** The host's `v`, unwrapped along the traced curve. */
@@ -153,10 +157,10 @@ export namespace AutoMovieHumanSolidIntersection {
     part: IAutoMovieHumanSolidSurface;
 
     /** The host. */
-    host: IAutoMovieHumanSolidSurface;
+    host: IAutoMovieHumanSolidSurface | IAutoMovieHumanSolidAtlas;
 
     /** The seed: the part's phase and `[s, y, theta]` near the curve there. */
-    seed: { phi: number; s: number; y: number; theta: number };
+    seed: { phi: number; s: number; y: number; theta: number; face?: number };
 
     /** The parameter; absent, the part's phase. */
     parameter?: Parameter;
@@ -193,7 +197,8 @@ export namespace AutoMovieHumanSolidIntersection {
    * @returns The curve and its diagnostics.
    */
   export function trace(input: IInput): IResult {
-    const { part, host, count, tolerance, grazing }: IInput = input;
+    const { part, count, tolerance, grazing }: IInput = input;
+    const host: IAutoMovieHumanSolidAtlas = atlas(input.host);
     const parameter: Parameter = input.parameter ?? { kind: "phase" };
     const producer: string = `solid.intersection.${part.name}.${host.name}`;
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
@@ -209,7 +214,7 @@ export namespace AutoMovieHumanSolidIntersection {
 
     // The seed's parameter, and the seed refined at it.
     const t0: number = parameter.kind === "phase" ? input.seed.phi : law.angle(part.jet(input.seed.s, input.seed.phi).p);
-    const first: IPoint | null = solve(part, host, law, t0, [input.seed.s, input.seed.phi, input.seed.y, input.seed.theta], tolerance);
+    const first: IPoint | null = solve(part, host, law, t0, [input.seed.s, input.seed.phi, input.seed.y, input.seed.theta], input.seed.face ?? 0, tolerance);
     if (first === null)
       return report("one loop per contact", `no meeting near the seed (phi ${input.seed.phi}, s ${input.seed.s}, y ${input.seed.y}, theta ${input.seed.theta})`);
 
@@ -226,16 +231,18 @@ export namespace AutoMovieHumanSolidIntersection {
 
     // Closure: the same part and host points after one turn, each phase
     // changed by whole periods.
-    const winding: number = host.period === undefined ? 0 : Math.round((current.theta - first.theta) / host.period);
-    const shift: number = host.period === undefined ? 0 : winding * host.period;
+    const home: IAutoMovieHumanSolidSurface = host.faces[first.face]!;
+    const same: boolean = current.face === first.face;
+    const winding: number = home.period === undefined || !same ? 0 : Math.round((current.theta - first.theta) / home.period);
+    const shift: number = home.period === undefined ? 0 : winding * home.period;
     const partWinding: number = Math.round((current.phi - first.phi) / part.period);
     const partShift: number = partWinding * part.period;
     const a0: IJet = part.jet(first.s, first.phi);
-    const b0: IJet = host.jet(first.y, first.theta);
+    const b0: IJet = home.jet(first.y, first.theta);
     const closed: number = Math.max(
       Math.abs(current.s - first.s) * norm(a0.u),
       Math.abs(current.phi - partShift - first.phi) * norm(a0.v),
-      Math.abs(current.y - first.y) * norm(b0.u),
+      same ? Math.abs(current.y - first.y) * norm(b0.u) : Infinity,
       Math.abs(current.theta - shift - first.theta) * norm(b0.v),
     );
     if (!(closed <= 10 * tolerance)) return report("one loop per contact", `the trace returns ${closed} mm from its start after one turn`);
@@ -243,7 +250,7 @@ export namespace AutoMovieHumanSolidIntersection {
     // Every traced point inside both surfaces' own ranges: past a chain's
     // end layer its reading is the end section held, not the surface.
     for (const p of points) {
-      const outside: string | null = beyond(part, p.s) ?? beyond(host, p.y);
+      const outside: string | null = beyond(part, p.s) ?? beyond(host.faces[p.face]!, p.y);
       if (outside !== null) return report("inside the layers", `at t ${p.t}: ${outside}; build the part far enough to cross its host inside both chains' layers`);
     }
 
@@ -324,6 +331,44 @@ export namespace AutoMovieHumanSolidIntersection {
   }
 
   /**
+   * A host as an atlas: itself, or a single surface as the atlas of one face
+   * whose region is all of its chart.
+   *
+   * @param host The host.
+   * @returns The atlas.
+   */
+  export function atlas(host: IAutoMovieHumanSolidSurface | IAutoMovieHumanSolidAtlas): IAutoMovieHumanSolidAtlas {
+    if ("faces" in host) return host;
+    return { name: host.name, faces: [host], kept: (): boolean => true, across: (): null => null };
+  }
+
+  /** Face changes one solve may make before it is lost. */
+  export const SWITCHES: number = 4;
+
+  /**
+   * One meeting point at a parameter on an atlas: Newton on one face, and
+   * where the host point leaves that face's kept region, again on the
+   * neighbour from the mapped point.
+   *
+   * @returns The point with its face, or null when a solve fails or the point
+   *   leaves through an open end.
+   */
+  function solve(part: IAutoMovieHumanSolidSurface, host: IAutoMovieHumanSolidAtlas, law: ILaw, t: number, guess: Readonly<Vec4>, face: number, tolerance: number): IPoint | null {
+    let f: number = face;
+    let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
+    for (let k: number = 0; k <= SWITCHES; k++) {
+      const p: IPoint | null = solveOn(part, host.faces[f]!, law, t, x, tolerance);
+      if (p === null) return null;
+      if (host.kept(f, p.y, p.theta)) return { ...p, face: f };
+      const next: { face: number; u: number; v: number } | null = host.across(f, p.y, p.theta);
+      if (next === null) return null;
+      f = next.face;
+      x = [p.s, p.phi, next.u, next.v];
+    }
+    return null;
+  }
+
+  /**
    * One meeting point at a parameter, by Newton from a guess, with its jets.
    *
    * @param part The attached part.
@@ -335,7 +380,7 @@ export namespace AutoMovieHumanSolidIntersection {
    * @returns The point, or null when Newton does not reach the tolerance
    *   within {@link STEPS} or `J` is singular at the solution.
    */
-  function solve(part: IAutoMovieHumanSolidSurface, host: IAutoMovieHumanSolidSurface, law: ILaw, t: number, guess: Readonly<Vec4>, tolerance: number): IPoint | null {
+  function solveOn(part: IAutoMovieHumanSolidSurface, host: IAutoMovieHumanSolidSurface, law: ILaw, t: number, guess: Readonly<Vec4>, tolerance: number): IPoint | null {
     let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
     let a: IJet = part.jet(x[0], x[1]);
     let b: IJet = host.jet(x[2], x[3]);
@@ -385,7 +430,7 @@ export namespace AutoMovieHumanSolidIntersection {
         b = by;
       }
     }
-    return point(a, b, law, t, x);
+    return point(a, b, law, t, x, 0);
   }
 
   /** The 4 by 4 Jacobian by rows: the meeting's three, then the parameter's. */
@@ -402,7 +447,7 @@ export namespace AutoMovieHumanSolidIntersection {
    *
    * @returns The point, or null when `J` is singular.
    */
-  function point(a: IJet, b: IJet, law: ILaw, t: number, x: Readonly<Vec4>): IPoint | null {
+  function point(a: IJet, b: IJet, law: ILaw, t: number, x: Readonly<Vec4>, face: number): IPoint | null {
     const J: number[][] = jacobian(a, b, law, t);
     const rate: number[] | null = AutoMovieHumanSolidVector.solve(J, [0, 0, 0, -law.gt(a.p, t)]);
     if (rate === null) return null;
@@ -433,6 +478,7 @@ export namespace AutoMovieHumanSolidIntersection {
 
     return {
       t,
+      face,
       s: x[0],
       phi: x[1],
       y: x[2],
@@ -457,7 +503,7 @@ export namespace AutoMovieHumanSolidIntersection {
    * @returns The point at the target, or null when a step is halved
    *   {@link HALVINGS} times without landing.
    */
-  function advance(part: IAutoMovieHumanSolidSurface, host: IAutoMovieHumanSolidSurface, law: ILaw, from: IPoint, target: number, tolerance: number): IPoint | null {
+  function advance(part: IAutoMovieHumanSolidSurface, host: IAutoMovieHumanSolidAtlas, law: ILaw, from: IPoint, target: number, tolerance: number): IPoint | null {
     let current: IPoint = from;
     let h: number = target - from.t;
     let halvings: number = 0;
@@ -472,7 +518,7 @@ export namespace AutoMovieHumanSolidIntersection {
         [(step * step) / 2, current.second],
       ]);
       const t: number = Math.abs(target - current.t - step) === 0 ? target : current.t + step;
-      const next: IPoint | null = solve(part, host, law, t, guess, tolerance);
+      const next: IPoint | null = solve(part, host, law, t, guess, current.face, tolerance);
       const length: number = norm(sub(predicted, current.point));
       if (next !== null && norm(sub(next.point, predicted)) <= 0.25 * length + 10 * tolerance) {
         current = next;

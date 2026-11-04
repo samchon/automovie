@@ -1,5 +1,6 @@
 import type { AutoMovieHumanSolidIntersection } from "./AutoMovieHumanSolidIntersection";
 import { AutoMovieHumanSolidVector } from "./AutoMovieHumanSolidVector";
+import type { IAutoMovieHumanSolidAtlas } from "./IAutoMovieHumanSolidAtlas";
 import type { IAutoMovieHumanSolidSurface } from "./IAutoMovieHumanSolidSurface";
 
 type Vec3 = AutoMovieHumanSolidVector.Vec3;
@@ -55,10 +56,13 @@ export namespace AutoMovieHumanSolidRail {
     /** The part's rail point, mm. */
     partPoint: Vec3;
 
-    /** The host's rail chart point `[y, theta]`. */
+    /** The host face its rail lies on (`IAutoMovieHumanSolidAtlas`); the curve's own face unless the offset crossed a trim. */
+    hostFace: number;
+
+    /** The host's rail chart point `[y, theta]` on that face. */
     host: [number, number];
 
-    /** The host's offset direction in its chart, from the curve's preimage toward the rail, the chart vector of unit world speed. */
+    /** The host's offset direction in its rail face's chart, toward and past the rail, the chart vector of unit world speed (at the preimage, or at the last crossing). */
     across: [number, number];
 
     /** The host's rail point, mm. */
@@ -74,11 +78,17 @@ export namespace AutoMovieHumanSolidRail {
   /** Newton steps of one offset. */
   export const STEPS: number = 40;
 
+  /** Faces one host rail may cross before it is refused. */
+  export const SWITCHES: number = 4;
+
+  /** Halvings that place an offset's crossing of a trim, to `2^-40` of the offset. */
+  export const CROSSING_BISECTIONS: number = 40;
+
   /**
    * The rails at a curve point.
    *
    * @param part The attached part.
-   * @param host The host.
+   * @param host The host as an atlas (`AutoMovieHumanSolidIntersection.atlas` for one surface).
    * @param curve The curve point with its preimages and their rates.
    * @param keep Which side of the host the part keeps: `outside` for a merge, `inside` for a diff.
    * @param partWidth Chord from the curve to the part's rail, mm, positive; or
@@ -92,7 +102,7 @@ export namespace AutoMovieHumanSolidRail {
    */
   export function at(
     part: IAutoMovieHumanSolidSurface,
-    host: IAutoMovieHumanSolidSurface,
+    host: IAutoMovieHumanSolidAtlas,
     curve: AutoMovieHumanSolidIntersection.IPoint,
     keep: Keep,
     partWidth: number | { station: number },
@@ -100,12 +110,13 @@ export namespace AutoMovieHumanSolidRail {
     mode: Mode = "station",
   ): IRail | null {
     const a: IJet = part.jet(curve.s, curve.phi);
-    const b: IJet = host.jet(curve.y, curve.theta);
+    const surface: IAutoMovieHumanSolidSurface = host.faces[curve.face]!;
+    const b: IJet = surface.jet(curve.y, curve.theta);
     const outA: Vec3 | null = unit(cross(a.u, a.v));
     const outB: Vec3 | null = unit(cross(b.u, b.v));
     if (outA === null || outB === null) return null;
     const nA: Vec3 = [outA[0] * part.orientation, outA[1] * part.orientation, outA[2] * part.orientation];
-    const nB: Vec3 = [outB[0] * host.orientation, outB[1] * host.orientation, outB[2] * host.orientation];
+    const nB: Vec3 = [outB[0] * surface.orientation, outB[1] * surface.orientation, outB[2] * surface.orientation];
 
     // The part's kept side: along its station, or square to the curve.
     let s: number;
@@ -137,14 +148,68 @@ export namespace AutoMovieHumanSolidRail {
       s = curve.s + lambda * e[0];
       phi = curve.phi + lambda * e[1];
     }
-
     // The host's direction square to the preimage, turned toward the
     // outside of the part.
     const across: [number, number] | null = square(b, [curve.rate[2], curve.rate[3]], nA, 1);
     if (across === null) return null;
-    const mu: number | null = offset((l: number): IJet => host.jet(curve.y + l * across[0], curve.theta + l * across[1]), across, curve.point, hostWidth);
+    const mu: number | null = offset((l: number): IJet => surface.jet(curve.y + l * across[0], curve.theta + l * across[1]), across, curve.point, hostWidth);
     if (mu === null) return null;
-    const hostChart: [number, number] = [curve.y + mu * across[0], curve.theta + mu * across[1]];
+    let face: number = curve.face;
+    let hostChart: [number, number] = [curve.y + mu * across[0], curve.theta + mu * across[1]];
+    let direction: [number, number] = across;
+
+    // An offset that leaves its face continues on the neighbour from the
+    // crossing, along the same world direction in the neighbour's chart.
+    for (let k: number = 0; k < SWITCHES && !host.kept(face, hostChart[0], hostChart[1]); k++) {
+      const from: [number, number] = k === 0 ? [curve.y, curve.theta] : hostChart;
+      const inside: (l: number) => boolean = (l: number): boolean =>
+        host.kept(face, from[0] + l * (hostChart[0] - from[0]), from[1] + l * (hostChart[1] - from[1]));
+      let lo: number = 0;
+      let hi: number = 1;
+      for (let i: number = 0; i < CROSSING_BISECTIONS; i++) {
+        const m: number = (lo + hi) / 2;
+        if (inside(m)) lo = m;
+        else hi = m;
+      }
+      const at: [number, number] = [from[0] + hi * (hostChart[0] - from[0]), from[1] + hi * (hostChart[1] - from[1])];
+      const here: IJet = host.faces[face]!.jet(at[0], at[1]);
+      const world: Vec3 = combine([
+        [direction[0], here.u],
+        [direction[1], here.v],
+      ]);
+      const next: { face: number; u: number; v: number } | null = host.across(face, at[0], at[1]);
+      if (next === null) return null;
+      const there: IJet = host.faces[next.face]!.jet(next.u, next.v);
+      const e: [number, number] | null = AutoMovieHumanSolidVector.solve2(
+        dot(there.u, there.u),
+        dot(there.u, there.v),
+        dot(there.u, there.v),
+        dot(there.v, there.v),
+        [dot(there.u, world), dot(there.v, world)],
+      );
+      if (e === null) return null;
+      const speed: number = norm(
+        combine([
+          [e[0], there.u],
+          [e[1], there.v],
+        ]),
+      );
+      if (!(speed > 0)) return null;
+      face = next.face;
+      direction = [e[0] / speed, e[1] / speed];
+      const onward: IAutoMovieHumanSolidSurface = host.faces[face]!;
+      const start: [number, number] = [next.u, next.v];
+      const nu: number | null = offset(
+        (l: number): IJet => onward.jet(start[0] + l * direction[0], start[1] + l * direction[1]),
+        direction,
+        curve.point,
+        hostWidth,
+        Math.max(0, hostWidth - norm(sub(there.p, curve.point))),
+      );
+      if (nu === null) return null;
+      hostChart = [start[0] + nu * direction[0], start[1] + nu * direction[1]];
+    }
+    if (!host.kept(face, hostChart[0], hostChart[1])) return null;
 
     return {
       curve,
@@ -153,9 +218,10 @@ export namespace AutoMovieHumanSolidRail {
       sigma,
       partAcross,
       partPoint: part.jet(s, phi).p,
+      hostFace: face,
       host: hostChart,
-      across,
-      hostPoint: host.jet(hostChart[0], hostChart[1]).p,
+      across: direction,
+      hostPoint: host.faces[face]!.jet(hostChart[0], hostChart[1]).p,
     };
   }
 
@@ -198,9 +264,10 @@ export namespace AutoMovieHumanSolidRail {
    * @param d The chart direction.
    * @param from The point the chord is measured from, mm.
    * @param width The chord, mm, positive.
+   * @param start The first guess of the chord still to travel from the direction's origin, mm; absent, `width`.
    * @returns The chart distance, or null when the solve fails or the width is not positive.
    */
-  function offset(along: (l: number) => IJet, d: readonly [number, number], from: Readonly<Vec3>, width: number): number | null {
+  function offset(along: (l: number) => IJet, d: readonly [number, number], from: Readonly<Vec3>, width: number, start?: number): number | null {
     if (!(width > 0)) return null;
     const j0: IJet = along(0);
     const speed: number = norm(combine([
@@ -208,7 +275,7 @@ export namespace AutoMovieHumanSolidRail {
       [d[1], j0.v],
     ]));
     if (!(speed > 0)) return null;
-    let l: number = width / speed;
+    let l: number = (start ?? width) / speed;
     for (let step: number = 0; step < STEPS; step++) {
       const j: IJet = along(l);
       const r: Vec3 = sub(j.p, from);

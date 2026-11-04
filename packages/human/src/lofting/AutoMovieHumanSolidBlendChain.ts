@@ -56,7 +56,15 @@ export namespace AutoMovieHumanSolidBlendChain {
      */
     across: [number, number][];
 
-    /** The part's kept side in its station: the part continues past its rail at `s + sigma d`, `d > 0`. */
+    /**
+     * The part's chart direction at each column from the curve's preimage
+     * toward its rail, of unit world speed at the preimage
+     * (`AutoMovieHumanSolidRail.IRail.partAcross`): the part continues past its
+     * rail along it.
+     */
+    partAcross: [number, number][];
+
+    /** The part's kept side in its station: the part continues past its rail at `s + sigma d`, `d > 0` (the phase parameter). */
     sigma: 1 | -1;
   }
 
@@ -121,8 +129,10 @@ export namespace AutoMovieHumanSolidBlendChain {
       host: {
         kind: join.curve.winding === 0 ? "hole" : r0.rail.across[0] > 0 ? "start" : "end",
         chart: columns.map((c: AutoMovieHumanSolidJoin.IColumn): [number, number] => [c.rail.host[0], c.rail.host[1]]),
+        faces: columns.map((c: AutoMovieHumanSolidJoin.IColumn): number => c.rail.hostFace),
       },
       across: columns.map((c: AutoMovieHumanSolidJoin.IColumn): [number, number] => [c.rail.across[0], c.rail.across[1]]),
+      partAcross: columns.map((c: AutoMovieHumanSolidJoin.IColumn): [number, number] => [c.rail.partAcross[0], c.rail.partAcross[1]]),
       sigma: r0.rail.sigma > 0 ? 1 : -1,
       part: {
         kind: join.curve.partWinding === 0 ? "hole" : r0.rail.sigma > 0 ? "start" : "end",

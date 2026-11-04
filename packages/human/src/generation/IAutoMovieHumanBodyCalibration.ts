@@ -178,6 +178,14 @@ export namespace IAutoMovieHumanBodyCalibration {
     /** The host's chart direction at each column toward and past its rail, of unit world speed (`AutoMovieHumanSolidBlendChain.IBlend.across`). */
     across: [number, number][];
 
+    /**
+     * The part's chart direction at each column toward and past its rail, of
+     * unit world speed (`AutoMovieHumanSolidBlendChain.IBlend.partAcross`):
+     * along its station under the phase parameter, square to the curve under
+     * the angle. Absent, the station direction `sigma`.
+     */
+    partAcross?: [number, number][];
+
     /** The part's kept side in its station (`AutoMovieHumanSolidBlendChain.IBlend.sigma`). */
     sigma: 1 | -1;
 

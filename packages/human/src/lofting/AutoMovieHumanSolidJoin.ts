@@ -4,6 +4,7 @@ import { AutoMovieHumanSolidIntersection } from "./AutoMovieHumanSolidIntersecti
 import { AutoMovieHumanSolidRail } from "./AutoMovieHumanSolidRail";
 import { AutoMovieHumanSolidRibbon } from "./AutoMovieHumanSolidRibbon";
 import { AutoMovieHumanSolidVector } from "./AutoMovieHumanSolidVector";
+import type { IAutoMovieHumanSolidAtlas } from "./IAutoMovieHumanSolidAtlas";
 import type { IAutoMovieHumanSolidSurface } from "./IAutoMovieHumanSolidSurface";
 
 type Vec3 = AutoMovieHumanSolidVector.Vec3;
@@ -85,8 +86,8 @@ export namespace AutoMovieHumanSolidJoin {
     /** The attached part or cutter, `v` periodic. */
     part: IAutoMovieHumanSolidSurface;
 
-    /** The host or base. */
-    host: IAutoMovieHumanSolidSurface;
+    /** The host or base: one surface, or an atlas of the faces of a solid already merged (`IAutoMovieHumanSolidAtlas`). */
+    host: IAutoMovieHumanSolidSurface | IAutoMovieHumanSolidAtlas;
 
     /** The intersection's seed, from the landmarks that locate the contact. */
     seed: AutoMovieHumanSolidIntersection.IInput["seed"];
@@ -146,6 +147,7 @@ export namespace AutoMovieHumanSolidJoin {
     const traced: AutoMovieHumanSolidIntersection.IResult = AutoMovieHumanSolidIntersection.trace(input);
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...traced.diagnostics];
     const producer: string = `solid.join.${input.part.name}.${input.host.name}`;
+    const host: IAutoMovieHumanSolidAtlas = AutoMovieHumanSolidIntersection.atlas(input.host);
     const fail = (contract: string, detail: string): IResult => {
       diagnostics.push({ producer, level: 6, contract, detail });
       return { join: null, diagnostics };
@@ -159,11 +161,11 @@ export namespace AutoMovieHumanSolidJoin {
 
     const rail = (t: number): AutoMovieHumanSolidRail.IRail | null => {
       const p: AutoMovieHumanSolidIntersection.IPoint | null = curve.at(t);
-      return p === null ? null : AutoMovieHumanSolidRail.at(input.part, input.host, p, keep, typeof input.width.part === "function" ? input.width.part(t) : input.width.part, input.width.host(t), mode);
+      return p === null ? null : AutoMovieHumanSolidRail.at(input.part, host, p, keep, typeof input.width.part === "function" ? input.width.part(t) : input.width.part, input.width.host(t), mode);
     };
     const column = (t: number): IColumn | null => {
       const r: AutoMovieHumanSolidRail.IRail | null = rail(t);
-      return r === null ? null : ribbons(input, r);
+      return r === null ? null : ribbons(input.part, host.faces[r.hostFace]!, r);
     };
     const loop = (count: number): [number, number][] | null => {
       const out: [number, number][] = [];
@@ -181,13 +183,15 @@ export namespace AutoMovieHumanSolidJoin {
       const c: IColumn | null = column(p.t);
       if (c === null) return fail("rails", `no rail at t ${p.t} (host width ${input.width.host(p.t)} mm)`);
       const outside: string | null =
-        AutoMovieHumanSolidIntersection.beyond(input.part, c.rail.s) ?? AutoMovieHumanSolidIntersection.beyond(input.host, c.rail.host[0]);
+        AutoMovieHumanSolidIntersection.beyond(input.part, c.rail.s) ?? AutoMovieHumanSolidIntersection.beyond(host.faces[c.rail.hostFace]!, c.rail.host[0]);
       if (outside !== null) return fail("inside the layers", `the rails at t ${p.t}: ${outside}`);
       columns.push(c);
     }
 
-    // The host's rail loop must stay simple in the chart.
-    const crossing: string | null = crossed(
+    // The host's rail loop must stay simple in the chart (read where it
+    // lies on one face; across faces each piece is clipped into its face).
+    const single: boolean = columns.every((c: IColumn): boolean => c.rail.hostFace === columns[0]!.rail.hostFace);
+    const crossing: string | null = !single ? null : crossed(
       columns.map((c: IColumn): [number, number] => c.rail.host),
       curve.winding === 0,
     );
@@ -218,20 +222,21 @@ export namespace AutoMovieHumanSolidJoin {
   /**
    * The two edge ribbons of a column from its rails.
    *
-   * @param input The surfaces.
+   * @param part The part.
+   * @param host The host face the rail lies on.
    * @param rail The rails.
    * @returns The column.
    */
-  function ribbons(input: IInput, rail: AutoMovieHumanSolidRail.IRail): IColumn {
+  function ribbons(part: IAutoMovieHumanSolidSurface, host: IAutoMovieHumanSolidSurface, rail: AutoMovieHumanSolidRail.IRail): IColumn {
     const chord: number = norm(sub(rail.partPoint, rail.hostPoint));
-    const b: IAutoMovieHumanSolidSurface.IJet = input.host.jet(rail.host[0], rail.host[1]);
+    const b: IAutoMovieHumanSolidSurface.IJet = host.jet(rail.host[0], rail.host[1]);
     const hostSpeed: number = norm(
       combine([
         [rail.across[0], b.u],
         [rail.across[1], b.v],
       ]),
     );
-    const a: IAutoMovieHumanSolidSurface.IJet = input.part.jet(rail.s, rail.phi);
+    const a: IAutoMovieHumanSolidSurface.IJet = part.jet(rail.s, rail.phi);
     const partSpeed: number = norm(
       combine([
         [rail.partAcross[0], a.u],
@@ -240,8 +245,8 @@ export namespace AutoMovieHumanSolidJoin {
     );
     return {
       rail,
-      start: AutoMovieHumanSolidRibbon.of(input.host, rail.host[0], rail.host[1], -rail.across[0], -rail.across[1], chord / hostSpeed),
-      end: AutoMovieHumanSolidRibbon.of(input.part, rail.s, rail.phi, rail.partAcross[0], rail.partAcross[1], chord / partSpeed),
+      start: AutoMovieHumanSolidRibbon.of(host, rail.host[0], rail.host[1], -rail.across[0], -rail.across[1], chord / hostSpeed),
+      end: AutoMovieHumanSolidRibbon.of(part, rail.s, rail.phi, rail.partAcross[0], rail.partAcross[1], chord / partSpeed),
     };
   }
 

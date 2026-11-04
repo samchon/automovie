@@ -93,6 +93,9 @@ export namespace AutoMovieHumanSolidMesh {
 
     /** Each point `[u, v]` on the face, `v` unwrapped along the loop, in loop order. */
     chart: [number, number][];
+
+    /** Each point's face on an atlas host (`AutoMovieHumanSolidRail.IRail.hostFace`); absent, every point on the one face. */
+    faces?: number[];
   }
 
   /** A face to draw. */
