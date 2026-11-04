@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 neck observer datum round (2026-11-05 04:23:56 +09:00, Get-Date)
+
+Directly compared the actual f1 body block and BodyAnatomy resolver/three height regressions with the public declarations, handbook pp. 139-140, complete HumanAnatomyNeckSites, Trunk identity rows and connected section/concavity/plane helpers. The existing observer uses a rig-axis least girth, projected base convex hull and posterior base concavity as C7. These differ from independently located infrathyroid/base/spinous-process definitions. The [audit](law-definition-audit.md#neck-public-authored-and-observed-definitions) records the whole cause batch; no existing input or observer is changed and no numerical failure is asserted.
+
+The supplied f1 neck/base tapes and three default landmark heights were distinguished without executing their resolved values. The retired reference-input test was read in Git but covers legs, so it does not establish the neck values' original source. Roos's named model/scaling passages and discussion/conclusion were reopened; its Adam's-apple wording and PCA landmark dependence do not supply the missing base scalar law. The wording's equivalence to its cited ANSUR II protocol is unverified, rather than asserted to be a newly proved physical difference. Intervening optimization methods and figure/table images remain unclaimed. HEAD, BODY and PERF received the metric/site mismatch together; it is not a new gate on the frozen curve round.
+
+At 04:24:40 the complete three-document diff was reviewed against those definitions, including the limited original-input provenance and physical-contact caveat. Whitespace checks were clean. No executable file, numerical table, test, public field or modeler source changed; no new run is required for this documentation-only boundary.
+
 ## #3062 consumer metadata follow-up (2026-11-05 04:09:04 +09:00, Get-Date)
 
 The complete six-law/record consumer search found one stale declaration ground after BODY's q migration: LimbBonePlace still described LegLaws as its current reader, although no production or test import remains. Corrected that namespace explanation and its own prohibited-shortcuts answer together. EarPlace, NeckSection, FootPlaces, ReferenceOutlines and ReferenceOutlineTypes still match the directly searched readers. No table, function, API, selector or executable expression changed.
