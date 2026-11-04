@@ -69,9 +69,16 @@ export namespace AutoMovieHumanBindingInputs {
     const joints: AutoMovieHumanJointCentres.IJoint[] =
       AutoMovieHumanJointCentres.derive(calibration.legacy ?? calibration);
     const skin: IAutoMovieHumanChainRings[] = rings(calibration, null);
+
+    // The neutral posture reads anatomy at heights on level chains: while the
+    // body lane's view parts carry stations along their own axes, it reads
+    // today's body (`IAutoMovieHumanBodyCalibration.legacy`, interim), as the
+    // skeleton's own neutral does; the binding keeps the published chains.
+    const neutralRings: IAutoMovieHumanChainRings[] =
+      calibration.legacy !== undefined ? rings(calibration.legacy, AutoMovieHumanNeutral.READS) : skin;
     const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.of(
       calibration,
-      (): AutoMovieHumanNeutral.ISource => ({ rings: skin, joints }),
+      (): AutoMovieHumanNeutral.ISource => ({ rings: neutralRings, joints }),
     );
     return {
       scale,
