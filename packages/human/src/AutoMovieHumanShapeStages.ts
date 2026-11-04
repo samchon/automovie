@@ -207,7 +207,7 @@ export namespace AutoMovieHumanShapeStages {
       ]),
     );
 
-    // The mouth's interior behind the rim the `mouth` aperture cut; a rim that
+    // The mouth's interior behind the `mouth` opening's rim; a rim that
     // breaks its contract leaves the mouth closed and is recorded, after what
     // the body law's pieces recorded.
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...(calibration.diagnostics ?? [])];
@@ -217,7 +217,7 @@ export namespace AutoMovieHumanShapeStages {
     const interior: AutoMovieHumanOralCavity.IOutput | null =
       calibration.mouth === undefined || opening === undefined
         ? null
-        : AutoMovieHumanOralCavityAttempt.attempt(surface.mesh, calibration.mouth, opening, scale, diagnostics);
+        : AutoMovieHumanOralCavityAttempt.attempt(surface.rims.get(opening.name), calibration.mouth, scale, diagnostics);
 
     const construction: IAutoMovieModelPart[] = curves.map(
       (curve: AutoMovieHumanBodyConstruction.ICurve): IAutoMovieModelPart =>

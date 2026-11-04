@@ -4,7 +4,6 @@ import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanApertureHoles } from "./AutoMovieHumanApertureHoles";
-import { AutoMovieHumanAperturePocket } from "./AutoMovieHumanAperturePocket";
 import { AutoMovieHumanBodyApertureIslands } from "./AutoMovieHumanBodyApertureIslands";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
 import { AutoMovieHumanEyelidSurface } from "./AutoMovieHumanEyelidSurface";
@@ -37,15 +36,6 @@ export namespace AutoMovieHumanBodyApertures {
 
   /** Distance around an opening's outline that still counts as near, mm. */
   const REACH: number = 2;
-
-  /**
-   * Distance from the outline within which a vertex lies on it, mm: a fifth
-   * of the 0.5 mm station spacing round an opening, so the margin leaves the
-   * outline by no more than the skin's own facets do. Twins 0.08 mm apart
-   * remain, but at 0.2 mm the skin vertices snapped onto the margin turned
-   * more of the pocket's first cells than the twins had.
-   */
-  const SNAP: number = 0.1;
 
   /**
    * Evaluate each aperture's margin once and find the globe behind it.
@@ -229,8 +219,10 @@ export namespace AutoMovieHumanBodyApertures {
   }
 
   /**
-   * Cut every opening out of the skin and close it: lids for eyes, pockets
-   * for the rest.
+   * Cut the eyes out of the skin and close them with their lids: the one
+   * opening still cut by position, because an eye's lid band crosses the ring
+   * between two head chains; every other opening is a trim loop on its base
+   * chain (`AutoMovieHumanApertureBase`).
    *
    * Each vertex takes the least {@link AutoMovieHumanLoftAperture.signed}
    * distance over the openings' cut outlines. Every triangle is clipped at
@@ -240,9 +232,7 @@ export namespace AutoMovieHumanBodyApertures {
    * connected and its open edge lies on the outline.
    *
    * The open edges of an eye form a loop on the lid band's outer edge,
-   * which {@link AutoMovieHumanEyelidSurface} continues into the lid. Nasal
-   * openings continue along regular cubic meridians into an inferred rounded
-   * closure, preserving the retained triangle's exterior tangent plane.
+   * which {@link AutoMovieHumanEyelidSurface} continues into the lid.
    * Pieces of skin the outline cuts off inside an opening are dropped.
    * New triangles take the group of the skin triangle on the open edge they
    * continue, so they render with the skin they belong to.
@@ -279,23 +269,6 @@ export namespace AutoMovieHumanBodyApertures {
         }
       });
     }
-
-    // A vertex within SNAP of the outline lies on it. The outline passes
-    // beside such a vertex across all of its edges at once, and their
-    // crossings stood 0.003 mm apart on the margin: each started its own
-    // meridian of a pocket, and the cells between those twins shaded as
-    // streaks round the opening. Read per vertex, the choice is the same from
-    // every edge, so the cut skin stays connected. Only an opening this module
-    // closes with a pocket is snapped: a skin vertex snapped beside a lid band
-    // kept the mesh normal of both and shaded 80 degrees off its neighbours,
-    // and an opening closed elsewhere finds its rim on the outline itself.
-    for (let v: number = 0; v < count; v++)
-      if (
-        Math.abs(value[v]!) <= SNAP &&
-        apertures[owner[v]!]!.lid === null &&
-        (apertures[owner[v]!]!.aperture.pocket ?? 0) > 0
-      )
-        value[v] = 0;
 
     // Margin vertices: originals exactly on the outline, and edge
     // crossings. A crossing remembers the kept vertex of its edge, from
@@ -453,34 +426,11 @@ export namespace AutoMovieHumanBodyApertures {
             emit,
           ),
         );
-      else if (prepared.aperture.pocket! > 0)
-        construction.push(
-          ...AutoMovieHumanAperturePocket.generate(
-            mesh,
-            prepared.aperture,
-            open[a]!,
-            emit,
-          ),
-        );
     });
     for (const [name, list] of added) {
       groups.push({ name, start: indices.length });
       indices.push(...list);
     }
-
-    // A seam's rim closes on its line, each side a hair off it.
-    apertures.forEach((prepared: IPrepared, a: number): void => {
-      const seam: IAutoMovieHumanLoftAperture["seam"] = prepared.aperture.seam;
-      if (seam === undefined) return;
-      const n: number = seam.contact.length - 1;
-      for (const v of new Set(open[a]!.flatMap((e: IAutoMovieHumanApertureEdge): number[] => [e.u, e.v]))) {
-        const u: number = Math.min(1, Math.abs(mesh.positions[3 * v + 2]!) / seam.width) * n;
-        const i: number = Math.min(n - 1, Math.floor(u));
-        const line: number = seam.contact[i]! + (u - i) * (seam.contact[i + 1]! - seam.contact[i]!);
-        const y: number = mesh.positions[3 * v + 1]!;
-        mesh.positions[3 * v + 1] = line + (y >= line ? seam.closed : -seam.closed);
-      }
-    });
 
     mesh.indices = indices;
     mesh.groups = groups;

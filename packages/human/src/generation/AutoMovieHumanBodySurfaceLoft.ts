@@ -1,7 +1,9 @@
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
+import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieHumanApertureSeam } from "./AutoMovieHumanApertureSeam";
 import { AutoMovieHumanAperturePocket } from "./AutoMovieHumanAperturePocket";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
@@ -169,23 +171,30 @@ export namespace AutoMovieHumanBodySurfaceLoft {
 
   /**
    * Close an opening on its base from its trim loop: the loop's vertices on
-   * the base, the zipper from the base's hole to them, and the lid band (an
-   * eye) built from the base's own derivative across the loop.
+   * the base (a slit's drawn on the line it closes on,
+   * `AutoMovieHumanApertureSeam`), the zipper from the base's hole to them,
+   * and the lid band (an eye) or the pocket (a nostril) built from the base's
+   * own derivative across the loop. The loop's points are kept as the
+   * opening's rim (`IAutoMovieHumanSurfaceContext.rims`).
    */
   export function open(
     context: IContext,
     base: IAutoMovieHumanLoftChain,
     prepared: AutoMovieHumanBodyApertures.IPrepared,
-    loop: [number, number][],
+    trim: [number, number][],
   ): IAutoMovieHumanConstructionPath[] {
-    const [edge, charts] = holeEdge(context, base.name, loop);
+    const [edge, charts] = holeEdge(context, base.name, trim);
+    // A slit's rim is drawn on the base as the line it closes on.
+    const seam: IAutoMovieHumanLoftAperture["seam"] = prepared.aperture.seam;
+    const loop: [number, number][] = seam === undefined ? trim : AutoMovieHumanApertureSeam.drawn(base, trim, seam);
     const index: number = context.indices.get(base.name)!;
     const middle: number = loop.reduce((a: number, p: [number, number]): number => a + p[0], 0) / loop.length;
     AutoMovieHumanLoftMesh.group(context.mesh, interval(base, middle, middle));
-    const ring: number[] = AutoMovieHumanLoftMesh.vertices(
-      context.mesh,
-      loop.map(([s, t]: [number, number]): [number, number, number] => AutoMovieHumanLoftChain.ring(base, s, [t])[0]!),
+    const rim: [number, number, number][] = loop.map(
+      ([s, t]: [number, number]): [number, number, number] => AutoMovieHumanLoftChain.ring(base, s, [t])[0]!,
     );
+    context.rims.set(prepared.aperture.name, rim);
+    const ring: number[] = AutoMovieHumanLoftMesh.vertices(context.mesh, rim);
     for (const [s, t] of loop) context.coordinates.push(index, s, ((t % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI));
     const reference = AutoMovieHumanBodyRoots.outward(base, loop[0]![0], loop[0]![1]);
     AutoMovieHumanBodyRoots.orient(context.mesh, reference, (): void =>
@@ -214,7 +223,7 @@ export namespace AutoMovieHumanBodySurfaceLoft {
       construction =
         lid !== null
           ? AutoMovieHumanEyelidSurface.loop(context.mesh, lid, ring, slopes, emit)
-          : AutoMovieHumanAperturePocket.loop(context.mesh, prepared.aperture, ring, slopes, emit);
+          : AutoMovieHumanAperturePocket.loop(context.mesh, prepared.aperture, ring, rim, slopes, emit);
     });
     // Vertices the closure added carry no loft coordinates.
     while (context.coordinates.length < context.mesh.positions.length) context.coordinates.push(NaN);

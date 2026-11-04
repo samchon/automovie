@@ -1,7 +1,6 @@
 import { AutoMovieHuman } from "../../../../../packages/human/src/AutoMovieHuman";
 import { AutoMovieHumanBodyLaw } from "../../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanBodySurface } from "../../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
-import { AutoMovieHumanOralCavity } from "../../../../../packages/human/src/generation/AutoMovieHumanOralCavity";
 import { AutoMovieHumanLoftAperture } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftAperture";
 import type { AutoMovieHumanLoftContract } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanLoftAperture } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftAperture";
@@ -23,8 +22,8 @@ type ISurface = AutoMovieHumanBodySurface.IOutput;
  * the whole figure's diagnostics (`AutoMovieHuman.diagnose`), each a piece
  * whose contract broke and was replaced by its base.
  *
- * The rim is read in the rim's own terms (`AutoMovieHumanOralCavity.rim`):
- * the skin's open edges whose two ends lie on the mouth's outline, or on a
+ * The rim the tessellation has is read from the skin's own output:
+ * its open edges whose two ends lie on the mouth's outline, or on a
  * closed seam's line a hair off it, grouped into connected components, each
  * with its edge count, whether it closes, its lateral range, its height range
  * against the contact line, its signed distance to the outline, and whether
@@ -103,13 +102,9 @@ export namespace HumanUniversality {
     const rim: string[] = opening === undefined ? ["no mouth aperture"] : components(surface, opening, law);
 
     // The rim's contract, which the public path records as the mouth's
-    // diagnostic instead of throwing; the throw here names the stage.
-    let message: string = "";
-    try {
-      if (opening !== undefined) AutoMovieHumanOralCavity.rim(surface.mesh, opening);
-    } catch (error) {
-      message = (error as Error).message;
-    }
+    // diagnostic; a missing trim loop here names the stage.
+    const message: string =
+      opening !== undefined && (surface.rims.get(opening.name)?.length ?? 0) < 3 ? "the skin closed no mouth trim loop" : "";
 
     // The whole figure along the public path, every recorded diagnostic.
     let diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];

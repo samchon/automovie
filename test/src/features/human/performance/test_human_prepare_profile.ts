@@ -178,7 +178,7 @@ function run(params: IAutoMovieHumanParameters): { stages: IStage[]; tally: stri
   const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...(calibration.diagnostics ?? [])];
   const opening: IAutoMovieHumanLoftAperture | undefined = calibration.apertures.find((a: IAutoMovieHumanLoftAperture): boolean => a.name === "mouth");
   const interior: AutoMovieHumanOralCavity.IOutput | null = timed("mouth interior", (): AutoMovieHumanOralCavity.IOutput | null =>
-    calibration.mouth === undefined || opening === undefined ? null : AutoMovieHumanOralCavityAttempt.attempt(surface.mesh, calibration.mouth, opening, scale, diagnostics),
+    calibration.mouth === undefined || opening === undefined ? null : AutoMovieHumanOralCavityAttempt.attempt(surface.rims.get(opening.name), calibration.mouth, scale, diagnostics),
   );
   const construction: IAutoMovieModelPart[] = timed("construction parts", (): IAutoMovieModelPart[] =>
     curves.map((curve: AutoMovieHumanBodyConstruction.ICurve): IAutoMovieModelPart =>

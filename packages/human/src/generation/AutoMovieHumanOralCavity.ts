@@ -1,19 +1,16 @@
 import type { IAutoMovieMaterial, IAutoMovieModelPart } from "@automovie/interface";
 
-import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import { AutoMovieHumanMouthPrior as Prior } from "./AutoMovieHumanMouthPrior";
 import { AutoMovieHumanOralCavityMesh as Mesh } from "./AutoMovieHumanOralCavityMesh";
 
 /**
- * The inside of the mouth as model parts: the cavity's lining from the skin's
- * cut rim, the upper and lower teeth with their gums, and the tongue, built
+ * The inside of the mouth as model parts: the cavity's lining from the
+ * mouth's rim on the skin, the upper and lower teeth with their gums, and the tongue, built
  * from `AutoMovieHumanMouth` in calibration millimetres and scaled to metres.
  *
  * - Lining, `human.mouth.lining`: one meridian from every vertex of the rim
- *   the `mouth` aperture leaves in the skin, through the lips' inner faces
+ *   of the `mouth` opening's trim loop on the skin, through the lips' inner faces
  *   pressed together just behind the slit, the vestibule's wall outside the
  *   front teeth, the molar section under the palate and over the floor, the
  *   oropharynx round the tongue's base, to a pole on the pharynx's back wall:
@@ -61,19 +58,18 @@ export namespace AutoMovieHumanOralCavity {
   /**
    * Build the interior of one mouth.
    *
-   * @param skin The cut skin in calibration mm, its `mouth` rim open.
+   * @param rim The `mouth` opening's rim on its base chain, its trim loop's
+   *   points in loop order (`AutoMovieHumanBodySurface.IOutput.rims`), mm.
    * @param mouth The person's mouth.
-   * @param aperture The `mouth` aperture that cut the rim.
    * @param scale Metres per calibration millimetre.
    */
   export function generate(
-    skin: AutoMovieHumanLoftMesh.IContext,
+    rim: readonly [number, number, number][],
     mouth: AutoMovieHumanMouth.IMouth,
-    aperture: IAutoMovieHumanLoftAperture,
     scale: number,
   ): IOutput {
     const meshes: [string, string, IMesh][] = [
-      ["human.mouth.lining", "human.mouth.mucosa", lining(skin, mouth, aperture)],
+      ["human.mouth.lining", "human.mouth.mucosa", lining(rim, mouth)],
       ["human.mouth.gum.upper", "human.mouth.mucosa", gum(mouth, "upper")],
       ["human.mouth.gum.lower", "human.mouth.mucosa", gum(mouth, "lower")],
       ["human.mouth.teeth.upper", "human.mouth.enamel", teeth(mouth, "upper")],
@@ -107,72 +103,6 @@ export namespace AutoMovieHumanOralCavity {
     };
   }
 
-  /**
-   * The rim the `mouth` aperture leaves: the skin's open edges whose two ends
-   * lie on its outline, as one loop in their own order.
-   */
-  export function rim(
-    skin: AutoMovieHumanLoftMesh.IContext,
-    aperture: IAutoMovieHumanLoftAperture,
-  ): number[] {
-    const outline: AutoMovieHumanLoftAperture.IOutline = AutoMovieHumanLoftAperture.outline(
-      aperture,
-      AutoMovieHumanLoftAperture.polyline(aperture),
-    );
-    const count: number = skin.positions.length / 3;
-    const on = new Map<number, boolean>();
-    const seam: IAutoMovieHumanLoftAperture["seam"] = aperture.seam;
-    const near = (v: number): boolean => {
-      let known: boolean | undefined = on.get(v);
-      if (known === undefined) {
-        const p: [number, number, number] = [
-          skin.positions[3 * v]!,
-          skin.positions[3 * v + 1]!,
-          skin.positions[3 * v + 2]!,
-        ];
-        if (seam !== undefined) {
-          // A closed seam's rim lies on its line, each side a hair off it.
-          const n: number = seam.contact.length - 1;
-          const u: number = Math.min(1, Math.abs(p[2]) / seam.width) * n;
-          const i: number = Math.min(n - 1, Math.floor(u));
-          const line: number =
-            seam.contact[i]! + (u - i) * (seam.contact[i + 1]! - seam.contact[i]!);
-          known =
-            Math.abs(Math.abs(p[1] - line) - seam.closed) < 1e-6 &&
-            Math.abs(AutoMovieHumanLoftAperture.signed(outline, p, 1)) < 1;
-        } else
-          known = Math.abs(AutoMovieHumanLoftAperture.signed(outline, p, 1)) < ON_RIM;
-        on.set(v, known);
-      }
-      return known;
-    };
-    const directed = new Set<number>();
-    for (let t: number = 0; t < skin.indices.length; t += 3)
-      for (let i: number = 0; i < 3; i++)
-        directed.add(skin.indices[t + i]! * count + skin.indices[t + ((i + 1) % 3)]!);
-    const next = new Map<number, number>();
-    for (let t: number = 0; t < skin.indices.length; t += 3)
-      for (let i: number = 0; i < 3; i++) {
-        const u: number = skin.indices[t + i]!;
-        const v: number = skin.indices[t + ((i + 1) % 3)]!;
-        if (directed.has(v * count + u)) continue;
-        if (near(u) && near(v)) next.set(u, v);
-      }
-    if (next.size === 0) throw new Error("The skin has no mouth rim");
-    const loop: number[] = [];
-    let current: number = next.keys().next().value!;
-    do {
-      if (loop.includes(current)) throw new Error("The mouth rim has a second loop");
-      loop.push(current);
-      const following: number | undefined = next.get(current);
-      if (following === undefined) throw new Error("The mouth rim is open");
-      current = following;
-    } while (current !== loop[0]);
-    if (loop.length !== next.size)
-      throw new Error(`The mouth rim has ${next.size - loop.length} edges off its loop`);
-    return loop;
-  }
-
   /** Angle of a rim point round the slit: 0 at the left cheilion, pi/2 on the upper lip. */
   export function angle(mouth: AutoMovieHumanMouth.IMouth, p: readonly number[]): number {
     const c: number = AutoMovieHumanMouth.contactAt(mouth, p[2]!);
@@ -181,11 +111,9 @@ export namespace AutoMovieHumanOralCavity {
 
   /** The lining's meridians, rim to pharynx. */
   function lining(
-    skin: AutoMovieHumanLoftMesh.IContext,
+    rim: readonly [number, number, number][],
     mouth: AutoMovieHumanMouth.IMouth,
-    aperture: IAutoMovieHumanLoftAperture,
   ): IMesh {
-    const loop: number[] = rim(skin, aperture);
     const v: AutoMovieHumanMouth.ISection = mouth.vestibule;
     const m: AutoMovieHumanMouth.ISection = mouth.molars;
     const pole: Vec3 = [mouth.pharynx[0], mouth.pharynx[1], 0];
@@ -201,12 +129,8 @@ export namespace AutoMovieHumanOralCavity {
     const positions: number[] = [];
     const colors: number[] = [];
     const rows: number = SPANS.reduce((a: number, b: number): number => a + b, 0);
-    for (const index of loop) {
-      const r: Vec3 = [
-        skin.positions[3 * index]!,
-        skin.positions[3 * index + 1]!,
-        skin.positions[3 * index + 2]!,
-      ];
+    for (const point of rim) {
+      const r: Vec3 = [point[0], point[1], point[2]];
       const t: number = angle(mouth, r);
       // The lips' inner faces press together across the slit, as deep behind
       // the rim as the slit is tall, each a tenth of the rim's own distance
@@ -232,7 +156,7 @@ export namespace AutoMovieHumanOralCavity {
     positions.push(...pole);
     colors.push(...shade(MUCOSA_COLOUR, 0));
     const indices: number[] = [];
-    const n: number = loop.length;
+    const n: number = rim.length;
     for (let i: number = 0; i < n; i++) {
       const a: number = i * rows;
       const b: number = ((i + 1) % n) * rows;
@@ -448,13 +372,6 @@ export namespace AutoMovieHumanOralCavity {
 
   /** Share of the rim's distance from the contact line the pressed inner faces keep from it. */
   export const PRESSED: number = 0.1;
-
-  /**
-   * Largest distance of a rim vertex from the slit's outline, mm: the cut
-   * keeps a vertex within 0.1 mm of an outline where it is and counts it on
-   * the outline (`AutoMovieHumanBodyApertures`), so the rim lies within that.
-   */
-  const ON_RIM: number = 0.15;
 
   /** Super-ellipse exponent of a crown's section: a rounded box. */
   const TOOTH_POWER: number = 3;

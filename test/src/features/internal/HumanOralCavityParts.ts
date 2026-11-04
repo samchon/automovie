@@ -28,7 +28,9 @@ export namespace HumanOralCavityParts {
     const surface: AutoMovieHumanBodySurface.IOutput = AutoMovieHumanBodySurface.generate(person.body, []);
 
     try {
-      return { interior: AutoMovieHumanOralCavity.generate(surface.mesh, mouth, aperture, 1) };
+      const rim: [number, number, number][] | undefined = surface.rims.get(aperture.name);
+      if (rim === undefined) return { interior: undefined };
+      return { interior: AutoMovieHumanOralCavity.generate(rim, mouth, 1) };
     } catch {
       // A mouth whose interior cannot be built shows nothing to count; the
       // teeth row then fails as unmeasured instead of hiding the others.
