@@ -2,6 +2,17 @@
 
 Written 2026-11-04 by reading the code only; nothing was run. It covers the path one f1 whole figure takes since the body lane became one construction tree on the engine (6c95c21b6). The figure went from 400 to 450 s up to about 600 s. Every cost below is an estimate from the code, there to be confirmed or refuted by measurement, and it names the standard technique the code departs from.
 
+## Measured outcome
+
+The performance investigator checked this list against a profile (`log-performance.md`):
+
+- f1 `prepare` took 1,015 s.
+- The whole body tree (lofts, traces, merges, draw) was 10.0 s of `calibrate`'s 38.3 s. This refutes the Newton-cascade risk below and agrees with the steady-state estimate.
+- The regression was the eyebrow's `AutoMovieHumanBrowProjector`, outside this read's path. For each head chain a hair point missed, it re-seeded a 1 mm × 256 grid of whole-section points: 594 s sampled. It is fixed in 530376915; the next run took 349 s on a loaded machine.
+- Item 2 was confirmed in the single-point reader path: `sampler`, `hermite` and `combine` took 63, 44 and 29 s in total. `AutoMovieLoftChain.point` is now lazy per control.
+- Item 5's repeated solves landed in 6d877c342, and the `MergeEntry.from` switch in 530376915.
+- Items 3, 4 and 8 are queued.
+
 ## The path and its counts
 
 `AutoMovieHumanShapeStages.shape` → `AutoMovieHumanBodyLaw.calibrate` → today's whole old body (`AutoMovieHumanEventJoin.reconcile(...)`, kept as `legacy`) → `AutoMovieHumanBodyLaneInterim.of` → `AutoMovieHumanBodyLane.create` → `AutoMovieHumanTrunkBuild.create` (two passes) and every part's `AutoMovieHumanSiteViewPart.create` → `AutoMovieHumanBodyTree.realize` → `realizeAutoMovieConstruction` → back in the shape stages `AutoMovieHumanBodySurface.generate`, which draws the merged skin again (`AutoMovieHumanBodySurfaceSolids.draw`).
