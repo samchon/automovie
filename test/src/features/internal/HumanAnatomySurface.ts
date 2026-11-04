@@ -229,13 +229,13 @@ const indexes: WeakMap<HumanAnatomy.ISkin, HumanAnatomySurfaceIndex> = new WeakM
 /**
  * Acquire lazily, publishing only a completed hierarchy so failures are not cached.
  *
- * @evidence contracts/common.md#principled-implementation Immutable skin identity defines one index's complete geometry; the weak map is an ephemeron, so its value's borrowed skin does not keep an otherwise unreachable key alive.
- * @evidence contracts/common.md#clear-and-simple-design One acquisition owner serves rays, penetration and distance queries.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no person name, pose alias or reach-dependent fallback.
- * @evidence contracts/common.md#meaningful-documentation Names lazy construction and failure publication semantics.
- * @evidence contracts/performance.md#efficient-algorithms A hit is one weak-map lookup; a miss builds one linear-storage primitive hierarchy with its documented split costs.
- * @evidence contracts/performance.md#reuse-equivalent-work Queries on the same immutable skin share the completed hierarchy; copied or posed skins acquire independent bounds.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Caches only after construction succeeds and adds no strong registry. Releasing every external skin reader makes the key and its index collectible; garbage-collection scheduling is not promised.
+ * Immutable skin identity defines one index's complete geometry; the weak map is an ephemeron, so its value's borrowed skin does not keep an otherwise unreachable key alive.
+ * One acquisition owner serves rays, penetration and distance queries.
+ * Uses no person name, pose alias or reach-dependent fallback.
+ * Names lazy construction and failure publication semantics.
+ * A hit is one weak-map lookup; a miss builds one linear-storage primitive hierarchy with its documented split costs.
+ * Queries on the same immutable skin share the completed hierarchy; copied or posed skins acquire independent bounds.
+ * Caches only after construction succeeds and adds no strong registry. Releasing every external skin reader makes the key and its index collectible; garbage-collection scheduling is not promised.
  */
 function indexOf(skin: HumanAnatomy.ISkin): HumanAnatomySurfaceIndex {
   let found: HumanAnatomySurfaceIndex | undefined = indexes.get(skin);

@@ -28,13 +28,13 @@ export class HumanAnatomySurfaceIndex {
    * Build one skin's bounds and leaf partition; an empty skin stays queryable.
    *
    * @param skin Immutable emitted coordinates and triangle indices.
-   * @evidence contracts/common.md#principled-implementation Delegates only hierarchy construction to the existing BVH and explicitly handles its empty-root representation in both queries.
-   * @evidence contracts/common.md#clear-and-simple-design Stores one borrowed skin and one acceleration owner.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Performs no generated-person selection or alternate geometry path.
-   * @evidence contracts/common.md#meaningful-documentation Names immutable ownership and empty-input behavior.
-   * @evidence contracts/performance.md#efficient-algorithms Builds bounds once; the BVH's centroid array is temporary and its typed retained capacity is linear in T.
-   * @evidence contracts/performance.md#reuse-equivalent-work Both query kinds read the same completed hierarchy.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Acquires only the hierarchy; the surface helper owns its lifetime under the immutable skin's weak key.
+   * Delegates only hierarchy construction to the existing BVH and explicitly handles its empty-root representation in both queries.
+   * Stores one borrowed skin and one acceleration owner.
+   * Performs no generated-person selection or alternate geometry path.
+   * Names immutable ownership and empty-input behavior.
+   * Builds bounds once; the BVH's centroid array is temporary and its typed retained capacity is linear in T.
+   * Both query kinds read the same completed hierarchy.
+   * Acquires only the hierarchy; the surface helper owns its lifetime under the immutable skin's weak key.
    */
   public constructor(private readonly skin: HumanAnatomy.ISkin) {
     this.tree = new HumanSkinIntegrityBvh(skin);
