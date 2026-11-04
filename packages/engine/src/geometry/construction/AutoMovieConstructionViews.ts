@@ -12,6 +12,7 @@ import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieViewAxis } from "./AutoMovieViewAxis";
 import { AutoMovieViewParallelAxis } from "./AutoMovieViewParallelAxis";
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
+import { rollAutoMovieViewAxis } from "./rollAutoMovieViewAxis";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
@@ -57,9 +58,9 @@ export namespace AutoMovieConstructionViews {
    * The frame function an axis record names.
    *
    * @param axis The axis, metres.
-   * @returns The axis in millimetres, or the admission rule it broke.
+   * @returns The axis in millimetres, or the admission rule it broke. An explicitly requested jointed material roll preserves the base origin/normal plane and scales its two physical stations once while retaining the caller's signed direction.
    *
-   * @evidence contracts/common.md#principled-implementation Dispatches the declared axis kind to its own frame owner, scaling origin lengths and station parameters once while leaving direction vectors unchanged.
+   * @evidence contracts/common.md#principled-implementation Dispatches the declared axis kind to its own frame owner, scaling origin lengths and station parameters once while leaving direction vectors unchanged; optional jointed roll delegates its same-unit stations and signed target to the material-frame owner.
    * @evidence contracts/common.md#clear-and-simple-design One closed-union switch preserves each source plane meaning; parallel planes use their original coordinate curves instead of tangent transport.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no inferred axis kind or sampled replacement frame and retains builder admission failures.
    * @evidence contracts/common.md#meaningful-documentation States metre input, millimetre output, unscaled directions and explicit builder failures.
@@ -81,12 +82,16 @@ export namespace AutoMovieConstructionViews {
           vector(axis.u),
           axis.step * SCALE,
         );
-      case "jointed":
-        return AutoMovieViewAxis.jointed(
+      case "jointed": {
+        const base: AutoMovieViewAxis.IAxis | string = AutoMovieViewAxis.jointed(
           axis.centres.map(point),
           axis.halves.map((h: number): number => h * SCALE),
           vector(axis.up),
         );
+        return typeof base === "string" || axis.roll === undefined
+          ? base
+          : rollAutoMovieViewAxis(base, axis.roll.from * SCALE, axis.roll.to * SCALE, vector(axis.roll.up));
+      }
       case "parallel":
         return AutoMovieViewParallelAxis.from(axis);
     }

@@ -22,6 +22,7 @@ export * from "./IAutoMovieConstructionFoldWidth";
 export * from "./IAutoMovieConstructionGirth";
 export * from "./IAutoMovieConstructionJoin";
 export * from "./IAutoMovieConstructionJointedAxis";
+export * from "./IAutoMovieConstructionAxisRoll";
 export * from "./IAutoMovieConstructionKnot";
 export * from "./IAutoMovieConstructionLevelAxis";
 export * from "./IAutoMovieConstructionLevelOrigin";

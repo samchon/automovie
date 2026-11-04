@@ -1,0 +1,67 @@
+import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
+import type { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
+import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
+
+/**
+ * Apply one explicitly requested C2 material rotation to an admitted base axis.
+ *
+ * Input stations are millimetres. At `to`, the target's normal-plane components determine the shortest signed angle from base u towards v, with positive pi for the exact half turn. The shared scalar source's two knots have zero normalized first/second jets, giving the quintic 10t^3-15t^4+6t^5 without another interpolator. Before from the base frame is returned unchanged; after to its constant material rotation is transported by that same base axis. Origin and normal plane are preserved throughout.
+ *
+ * Direction admission reuses the jointed initial-up policy: relative normal projection must exceed 1e-9, limiting projection condition number to below 1e9. This rejects some finite nonparallel directions. For endpoint components (c,s), their first-order angle perturbation is bounded by hypot(dc,ds)/hypot(c,s); a small projected norm amplifies input, frame and dot-product error. This numerical conditioning policy is not an anatomical tolerance, an exact-zero test or a universal absolute angle-accuracy guarantee. The supplied base must already be an admitted orthonormal C2 axis; this wrapper does not repair its centreline or provide final loft frame jets. Queries use finite stations.
+ *
+ * @evidence contracts/common.md#principled-implementation Projects the caller's signed direction into the actual endpoint normal plane and rotates the existing orthonormal u/v basis by a C2 scalar source; no centreline or tangent changes.
+ * @evidence contracts/common.md#clear-and-simple-design One prepared scalar rotation and one frame wrapper implement the single interval contract.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixed anatomical angle, sampled frame, finite-difference production jet, initial-up rotation or world-axis substitution is used; failed premises return their diagnostic.
+ * @evidence contracts/common.md#meaningful-documentation States millimetres, angle direction/half-turn convention, endpoint projection, shared quintic owner and constant relative transport.
+ * @evidence contracts/performance.md#efficient-algorithms Constant preparation plus a two-knot source; each query reads the base frame once, one scalar value and two trigonometric values.
+ * @evidence contracts/performance.md#reuse-equivalent-work Measures the endpoint angle and prepares its source once; every query reuses both and calls the original axis rather than rebuilding its course.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The wrapper retains its base axis and two-knot source only; frame vectors are invocation-local, and zero roll returns the base directly.
+ * @param base Admitted C2 orthonormal frame function.
+ * @param from Finite transition start station, mm.
+ * @param to Finite transition end station, mm, strictly greater than from.
+ * @param up Signed endpoint target in the construction frame; direction only.
+ * @returns Rotated axis or the named station/target/source admission failure.
+ */
+export function rollAutoMovieViewAxis(base: AutoMovieViewAxis.IAxis, from: number, to: number, up: AutoMovieSolidVector.Vec3): AutoMovieViewAxis.IAxis | string {
+  if (!Number.isFinite(from) || !Number.isFinite(to) || !(to > from) || !Number.isFinite(to - from)) return "material roll needs finite increasing stations with finite positive separation";
+  if (up.length !== 3 || !up.every(Number.isFinite)) return "material roll target is not a finite three-component direction";
+  const scale: number = Math.max(...up.map(Math.abs));
+  if (!(scale > 0)) return "material roll target is zero";
+  const target: AutoMovieSolidVector.Vec3 = up.map((value: number): number => value / scale) as AutoMovieSolidVector.Vec3;
+  const end: AutoMovieLoftFrame.IFrame = base.at(to);
+  if (end.u.length !== 3 || end.v.length !== 3 || ![...end.u, ...end.v].every(Number.isFinite)) return "material roll endpoint has no finite base normal plane";
+  const cosine: number = end.u.reduce((sum: number, value: number, i: number): number => sum + value * target[i]!, 0);
+  const sine: number = end.v.reduce((sum: number, value: number, i: number): number => sum + value * target[i]!, 0);
+  const projection: number = Math.hypot(cosine, sine);
+  const targetNorm: number = Math.hypot(...target);
+  if (!(projection > MINIMUM_RELATIVE_NORMAL * targetNorm)) return `material roll target relative normal projection ${projection / targetNorm} must exceed ${MINIMUM_RELATIVE_NORMAL} for direction conditioning`;
+  const measured: number = Math.atan2(sine, cosine);
+  const angle: number = measured === -Math.PI ? Math.PI : measured;
+  if (angle === 0) return base;
+  const source: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({ knots: [
+    { site: "material roll start", station: from, value: 0, jet: { first: 0, second: 0 } },
+    { site: "material roll end", station: to, value: angle, jet: { first: 0, second: 0 } },
+  ] });
+  if ("contract" in source) return `material roll ${source.contract}: ${source.detail}`;
+
+  return {
+    /** Preserve the base origin/normal plane while reading the prepared rotation at a finite station. */
+    at(station: number): AutoMovieLoftFrame.IFrame {
+      const frame: AutoMovieLoftFrame.IFrame = base.at(station);
+      if (station <= from) return frame;
+      const rotation: number | string = station >= to ? angle : AutoMovieViewOutline.value(source, station);
+      if (typeof rotation === "string") throw new Error(`material roll source: ${rotation}`);
+      const c: number = Math.cos(rotation);
+      const s: number = Math.sin(rotation);
+      return {
+        origin: frame.origin,
+        u: frame.u.map((value: number, i: number): number => c * value + s * frame.v[i]!) as AutoMovieSolidVector.Vec3,
+        v: frame.v.map((value: number, i: number): number => c * value - s * frame.u[i]!) as AutoMovieSolidVector.Vec3,
+      };
+    },
+  };
+}
+
+/** Existing jointed initial-up conditioning policy: projected direction length must exceed this share of the target length. This is a numerical admission limit, not geometric parallelism or an anatomical constant. */
+const MINIMUM_RELATIVE_NORMAL: number = 1e-9;

@@ -1,14 +1,20 @@
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+import { AutoMovieAxisDirection } from "./AutoMovieAxisDirection";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 const { add, cross, dot, scale, sub } = AutoMovieSolidVector;
 
 /** A vector scaled to length 1; a zero vector stays zero, which no regular axis meets. */
 function unit(a: Vec3): Vec3 {
-  const n: number = Math.hypot(a[0], a[1], a[2]);
-  return n > 0 ? scale(a, 1 / n) : a;
+  return AutoMovieAxisDirection.unit(a);
+}
+
+/** Unit projection in an admitted tangent's normal plane, with shared scale-safe numeric ownership. */
+function projectUnitDirection(a: Vec3, tangent: Vec3): Vec3 {
+  const projected: AutoMovieAxisDirection.IProjection = AutoMovieAxisDirection.project(a, tangent);
+  return AutoMovieAxisDirection.unit(projected.vector, projected.normalNorm);
 }
 
 /**
@@ -148,10 +154,12 @@ export namespace AutoMovieViewAxis {
    * `D = integral of t` over the turn is `d (t_in + t_out)`. The chart axis
    * `u` starts as `up` square to the first segment and turns with every
    * joint's rotation (minimal rotation for a planar turn), `v = u x t`.
+   * Subnormal or unrepresentable raw projections are recomputed after max-component
+   * direction scaling; ordinary projected norms retain their existing arithmetic.
    *
    * @param centres The first end, the joints and the last end, mm.
    * @param halves Each interior centre's finite nonnegative half arclength, mm; positive for a nonzero turn, ignored for an exactly straight joint.
-   * @param up The chart's first axis at the first segment.
+   * @param up The chart's first axis at the first segment, with finite norm and a normal projection longer than 1e-9 of its norm; this existing numerical conditioning policy is stricter than exact nonparallelism.
    * @returns The axis, or the broken admission rule.
    *
    * @evidence contracts/common.md#principled-implementation Transports a frame through quintic-angle turns parameterized by arclength; exact parallel segments have no turn or setback, while atan2 of normalized cross magnitude and dot retains representable small nonzero angles that acos(dot) can lose.
@@ -166,11 +174,12 @@ export namespace AutoMovieViewAxis {
     const c: ICourse | string = course(centres, halves);
     if (typeof c === "string") return c;
     const { directions, turns }: ICourse = c;
-    if (!up.every(Number.isFinite) || !Number.isFinite(Math.hypot(...up))) return "up is not a finite direction";
-    const u0: Vec3 = sub(up, scale(directions[0]!, dot(up, directions[0]!)));
-    const lu: number = Math.hypot(u0[0], u0[1], u0[2]);
-    if (!(lu > 1e-9 * Math.hypot(up[0], up[1], up[2]))) return "up lies along the first segment";
-    const first: Vec3 = scale(u0, 1 / lu);
+    const upNorm: number = Math.hypot(...up);
+    if (!up.every(Number.isFinite) || !Number.isFinite(upNorm) || !(upNorm > 0)) return "up is not a finite nonzero direction";
+    const projected: AutoMovieAxisDirection.IProjection = AutoMovieAxisDirection.project(up, directions[0]!, upNorm);
+    if (!Number.isFinite(projected.normalNorm)) return "up normal projection is not finitely representable";
+    if (!(projected.normalNorm > 1e-9 * projected.targetNorm)) return `up relative normal projection ${projected.normalNorm / projected.targetNorm} must exceed 1e-9 for direction conditioning`;
+    const first: Vec3 = AutoMovieAxisDirection.unit(projected.vector, projected.normalNorm);
 
     return {
       at: (station: number): AutoMovieLoftFrame.IFrame => {
@@ -277,7 +286,7 @@ export namespace AutoMovieViewAxis {
       const d: Vec3 = sub(centres[i + 1]!, centres[i]!);
       const l: number = Math.hypot(d[0], d[1], d[2]);
       if (!(l > 0 && Number.isFinite(l))) return `centres ${i} and ${i + 1} have no finite positive separation`;
-      directions.push(scale(d, 1 / l));
+      directions.push(AutoMovieAxisDirection.unit(d, l));
       lengths.push(l);
     }
 
@@ -292,7 +301,7 @@ export namespace AutoMovieViewAxis {
       const angle: number = Math.atan2(ln, dot(a, b));
       if (!(angle < Math.PI - 1e-9)) return `segments ${i - 1} and ${i} are opposite`;
       if (!(Number.isFinite(h) && h >= 0 && (angle === 0 || h > 0))) return `half length ${h} at centre ${i} must be finite and nonnegative, and positive for a nonzero turn`;
-      const axis: Vec3 = ln > 0 ? scale(n, 1 / ln) : [0, 0, 0];
+      const axis: Vec3 = ln > 0 ? AutoMovieAxisDirection.unit(n, ln) : [0, 0, 0];
       const turn: ITurn = { centre: i, half: angle === 0 ? 0 : h, angle, axis, setback: angle === 0 ? 0 : h, start: 0 };
       if (turn.angle > 0) {
         const displacement: Vec3 = integrate(a, turn, 2 * h);
@@ -404,6 +413,14 @@ export namespace AutoMovieViewAxis {
    * @param step Largest station step of the double reflection, mm, positive.
    * @returns The axis; stations past the end knots continue the spline's
    *   straight end tangents.
+   *
+   * @evidence contracts/common.md#principled-implementation Applies Wang et al.'s double-reflection RMF to the natural component splines and their analytic tangents, with scale-safe direction/reflection arithmetic. The caller supplies increasing finite knots, a regular nonzero tangent, a usable initial normal projection and a finite positive step. This numerical transported frame is not an exact frame-jet API or a repair of inadmissible curves.
+   * @evidence contracts/common.md#clear-and-simple-design Three prepared coordinate splines and one initial projected direction define station-local frame queries; no second curve or transport registry is introduced.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the original two Householder reflections rather than a fitted frame or world-axis substitution; exceptional norm scaling preserves the same reflection plane, and only an exactly zero chord retains the prior direction.
+   * @evidence contracts/common.md#meaningful-documentation States natural station interpolation, initial projection, step, tangent extension, caller premises and the numerical frame-value limitation.
+   * @evidence contracts/performance.md#efficient-algorithms Prepares three natural splines in linear knot work; each query marches ceil(abs(station-first)/step) steps and performs constant component-spline reads per step. Independent queries repeat this march, so distant stations or tiny steps can be expensive.
+   * @evidence contracts/performance.md#reuse-equivalent-work All queries share the prepared component splines and initial projected up; each independently reconstructs its transport from the first knot, without assuming another query's trajectory is equivalent.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned axis retains three knot-sized splines and fixed initial vectors. A query holds fixed-size working vectors while allocating transient vectors per step; it retains no station cache or external resource after returning.
    */
   export function minimal(knots: readonly IAxisKnot[], u: Vec3, step: number): IAxis {
     const stations: number[] = knots.map((k: IAxisKnot): number => k.station);
@@ -422,7 +439,7 @@ export namespace AutoMovieViewAxis {
     // The frame at the first knot: u square to the tangent there.
     const s0: number = stations[0]!;
     const t0: Vec3 = tangent(s0);
-    const u0: Vec3 = unit(sub(u, scale(t0, dot(u, t0))));
+    const u0: Vec3 = projectUnitDirection(u, t0);
 
     // Double reflection from (s, r) to s + h: reflect by the chord, then by
     // the difference of the reflected tangent and the new one.
@@ -433,12 +450,12 @@ export namespace AutoMovieViewAxis {
       const t1: Vec3 = tangent(s + h);
       const v1: Vec3 = sub(x1, x0);
       const c1: number = dot(v1, v1);
-      if (!(c1 > 0)) return r;
-      const rL: Vec3 = sub(r, scale(v1, (2 / c1) * dot(v1, r)));
-      const tL: Vec3 = sub(t, scale(v1, (2 / c1) * dot(v1, t)));
+      if (c1 === 0 && v1.every((value: number): boolean => value === 0)) return r;
+      const rL: Vec3 = AutoMovieAxisDirection.reflect(r, v1, c1);
+      const tL: Vec3 = AutoMovieAxisDirection.reflect(t, v1, c1);
       const v2: Vec3 = sub(t1, tL);
       const c2: number = dot(v2, v2);
-      return c2 > 0 ? sub(rL, scale(v2, (2 / c2) * dot(v2, rL))) : rL;
+      return AutoMovieAxisDirection.reflect(rL, v2, c2);
     };
 
     return {
@@ -451,7 +468,7 @@ export namespace AutoMovieViewAxis {
         let r: Vec3 = u0;
         for (let i: number = 0; i < n; i++) r = reflect(s0 + i * h, r, h);
         const t: Vec3 = tangent(station);
-        const ru: Vec3 = unit(sub(r, scale(t, dot(r, t))));
+        const ru: Vec3 = projectUnitDirection(r, t);
         return { origin: point(station), u: ru, v: cross(ru, t) };
       },
     };
