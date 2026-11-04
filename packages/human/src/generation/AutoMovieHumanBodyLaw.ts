@@ -7,6 +7,8 @@ import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyBox } from "./AutoMovieHumanBodyBox";
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
+import { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
+import { AutoMovieHumanBodyLaneInterim } from "./AutoMovieHumanBodyLaneInterim";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
@@ -16,6 +18,7 @@ import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeig
 import { AutoMovieHumanNeckConstruction } from "./AutoMovieHumanNeckConstruction";
 import { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanHeadAnatomy } from "./AutoMovieHumanHeadAnatomy";
@@ -82,11 +85,12 @@ export namespace AutoMovieHumanBodyLaw {
         LIPS,
         head,
       );
+    const crotchHeight: number = crotch(params, inputs);
     const standing: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanTrunkConstruction.apply(
         headed.body,
         trunkInputs,
-        crotch(params, inputs),
+        crotchHeight,
       );
 
     // The skeleton stands in the head, neck and trunk before any limb exists,
@@ -116,11 +120,56 @@ export namespace AutoMovieHumanBodyLaw {
         inputs,
         skeleton,
       );
+    // Today's body, kept as the interim source of the body lane's owed values
+    // and of the skeleton (`AutoMovieHumanBodyLaneInterim`).
+    const today: IAutoMovieHumanBodyCalibration = AutoMovieHumanEventJoin.reconcile(
+      AutoMovieHumanLegConstruction.add(stood, inputs, skeleton),
+    );
+    const neck: IAutoMovieHumanLoftChain | undefined = headed.body.chains.find(
+      (c: IAutoMovieHumanLoftChain): boolean => c.name === "head",
+    );
+    if (neck === undefined) throw new Error("The body lane stands under the neck chain `head`");
+
+    // The body lane: every body part from its views, joined by solid merges
+    // (#3047 to #3051), the trunk taking the neck's bottom ring by the head's
+    // down event at its far end.
+    const lane: AutoMovieHumanBodyLane.IOutput = AutoMovieHumanBodyLane.create(
+      AutoMovieHumanBodyLaneInterim.of({
+        params,
+        scale: inputs.scale,
+        stature: today.stature,
+        crotch: crotchHeight,
+        trunk: trunkInputs,
+        neck,
+        feet: footInputs,
+        skeleton,
+        old: today,
+      }),
+    );
+    const headChains: Set<string> = new Set(
+      headed.body.chains.map((c: IAutoMovieHumanLoftChain): string => c.name),
+    );
+    const ownedByHead = (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
+      headChains.has(e.parent) && e.splits.every((s: IAutoMovieHumanBodyCalibration.ISplit): boolean => headChains.has(s.child));
     return {
       body: {
-        ...AutoMovieHumanEventJoin.reconcile(
-          AutoMovieHumanLegConstruction.add(stood, inputs, skeleton),
-        ),
+        ...today,
+        chains: [
+          ...today.chains.filter((c: IAutoMovieHumanLoftChain): boolean => headChains.has(c.name)),
+          ...lane.chains,
+        ],
+        events: [
+          ...today.events.filter(ownedByHead),
+          { parent: "head", direction: "down", splits: [{ child: "trunk", arcs: [[0, 2 * Math.PI]] }] },
+        ],
+        poles: today.poles.filter((p: IAutoMovieHumanBodyCalibration.IPole): boolean => headChains.has(p.chain)),
+        merges: lane.merges,
+        appendages: undefined,
+
+        // Interim: today's nail windows name stations of today's digit
+        // chains, which the body lane replaces (remaining, `log-body.md`).
+        nails: undefined,
+        diagnostics: [...(today.diagnostics ?? []), ...lane.diagnostics],
         skeleton,
       },
       vermilion: headed.vermilion,
