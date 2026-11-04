@@ -41,3 +41,4 @@
 - Fix every defect you find, whatever an earlier figure had.
 - Survey a part's whole scope before changing it, hidden defects at seams and shared centres included, and change every affected piece and merge in one batch: a defect that lives in a join cannot be fixed from inside one piece, and fixing one structure at a time loops forever.
 - Use reference meshes and curves as observations for rules, and judge appearance against the original [photographs](screenshot.md#references).
+- Check a law estimated from observed people on people outside its fit, and replace it with a published source when one is found, because an estimate reproduces the people it came from.

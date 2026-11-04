@@ -11,8 +11,6 @@ The score is a set of CPU-only tests that generate the figure without a GPU. The
 | Validity across the parameter domain | every control at both ends of its declared range and combined extremes, declaring a range first where a control has none | Rejects non-finite values, collapsed or self-crossing sections, folds and open joins. |
 | Requested against generated dimensions | the input-identity audit ([Testing](testing.md#levels)) | Rejects a parameter with no or the wrong response. |
 
-A law generalizes when it comes from a published source or a derivation and passes these for every person, not when it reproduces the references ([Testing](testing.md#people)).
-
 ## Inspection
 
 Inspect a candidate's generating curves, skin and joins in the [viewer](screenshot.md) as soon as the tests and the score admit it, following [Visual Debugging](../3d-modeling/visual-debugging.md).
