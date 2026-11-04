@@ -127,3 +127,13 @@ At the supervisor's order, this campaign's input work ends here. These items mov
 - Every table and law labelled as estimated from the private reference set: each stays open until a published source replaces it.
 
 The nail plate size, listed as open at 16:23, landed later as `AutoMovieHumanNailPlate`.
+
+### Mass footprints (written 19:53, `date`)
+
+- At the body modeler's request and the supervisor's go, I wrote `test_human_estimate_mass_footprints`. The first run (19:38:27 to 19:40:32) gave amplitudes of 0.11 to 0.14 of stature. At the bust point's z, the profile ran off the skin onto the neck's base and the thigh's medial side. The reading now walks along the skin and stops at a step of more than 30 mm between sections. Second run, 19:46:29 to 19:51:07: passed.
+- `AutoMovieHumanReferenceOutlines.BREAST_FOOTPRINT` (women, f1 and f2, three sides) and `GLUTEAL_FOOTPRINT.female`/`.male` (f1 and f2; m1 and m2; four sides each), per stature with their SDs.
+- Breast: amplitude 0.0101 (SD 0.0058); up 0.0254 and down 0.0254; lateral 0.0102 and medial 0.0172.
+- Gluteal amplitude: 0.0076 in women and 0.0063 in men.
+- The lateral edge is where the setback reaches the amplitude. Because the chest wall curves back, it is the near bound of the base, not the anterior axillary line.
+- The women's gluteal down edge is spread almost as widely as its mean.
+- m2's breast reads no mass (0.0009 of stature).
