@@ -93,6 +93,9 @@ export namespace AutoMovieHumanTrunkBuild {
     /** The base's chain, or null when it cannot be lofted. */
     trunk: IAutoMovieHumanLoftChain | null;
 
+    /** The base's surface, the host of the limbs' and the neck's merges, or null with the chain. */
+    surface: IAutoMovieHumanSolidSurface | null;
+
     /** The masses' chains and the blends' chains. */
     chains: IAutoMovieHumanLoftChain[];
 
@@ -134,13 +137,13 @@ export namespace AutoMovieHumanTrunkBuild {
    */
   export function create(input: IInput): IOutput {
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
-    const out = (trunk: IAutoMovieHumanLoftChain | null, chains: IAutoMovieHumanLoftChain[], merges: IAutoMovieHumanBodyCalibration.IMerge[]): IOutput => ({ trunk, chains, merges, diagnostics });
+    const out = (trunk: IAutoMovieHumanLoftChain | null, surface: IAutoMovieHumanSolidSurface | null, chains: IAutoMovieHumanLoftChain[], merges: IAutoMovieHumanBodyCalibration.IMerge[]): IOutput => ({ trunk, surface, chains, merges, diagnostics });
 
     // Pass 1: the base with the ellipse's shoulders, the masses on it.
     const first: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(input.views);
     if (first.loft === null || first.loft.surface === null) {
       diagnostics.push(...first.diagnostics);
-      return out(null, [], []);
+      return out(null, null, [], []);
     }
     const masses1: IMass[] = masses(input, first.loft.surface, []);
 
@@ -168,7 +171,7 @@ export namespace AutoMovieHumanTrunkBuild {
     diagnostics.push(...base.diagnostics);
     const trunk: IAutoMovieHumanLoftChain | null = base.loft?.chain ?? null;
     const host: IAutoMovieHumanSolidSurface | null = base.loft?.surface ?? null;
-    if (trunk === null || host === null) return out(null, [], []);
+    if (trunk === null || host === null) return out(null, null, [], []);
 
     // Pass 2: the masses on the solved base, each merged along its fold.
     const chains: IAutoMovieHumanLoftChain[] = [];
@@ -193,7 +196,7 @@ export namespace AutoMovieHumanTrunkBuild {
       chains.push(entry.chain);
       merges.push(entry.merge);
     }
-    return out(trunk, chains, merges);
+    return out(trunk, host, chains, merges);
   }
 
   /** A built mass. */
