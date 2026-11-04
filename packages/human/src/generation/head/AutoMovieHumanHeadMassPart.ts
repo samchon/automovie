@@ -74,12 +74,17 @@ export namespace AutoMovieHumanHeadMassPart {
     // as the reference's skin is read.
     const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight([plan.centre, 0, 0], [1, 0, 0], [0, 0, 1]);
 
-    // The sites the outlines carry knots at, by station (the axis point's
+    // The sites the outlines carry knots at, by station: the profile's
+    // turns (the chin's front at the pogonion and its turn at the gnathion
+    // among them, which a spline from the stomion to the menton cut across)
+    // and the vault's; by station (the axis point's
     // height, the axis being near vertical).
     const sites: [string, number][] = [
       ["throat", throat],
       ["cervical", cervical(plan)[1]],
       ["menton", plan.menton],
+      ["gnathion", m.gnathion[1]],
+      ["pogonion", m.pogonion[1]],
       ["gonion", m.gonion[1]],
       ["stomion", plan.stomion],
       ["subnasale", plan.subnasale],

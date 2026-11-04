@@ -96,7 +96,9 @@ export namespace AutoMovieHumanHeadTree {
   /** A join node of a part onto its host. */
   function join(placed: AutoMovieHumanHeadComposer.IPlaced, host: AutoMovieConstructionNode, part: AutoMovieConstructionNode): IAutoMovieConstructionJoin {
     const feature: AutoMovieHumanHeadFeatures.IFeature = placed.feature;
-    const search: { phase: number; from: number; to: number } = feature.search ?? { phase: 0, from: 0, to: 1 };
+    // A dome crosses its parent between its base and its apex; a long one
+    // is searched across its middle, where its wall stands steepest.
+    const search: { phase: number; from: number; to: number } = feature.search ?? { phase: feature.elongated === true ? Math.PI / 2 : 0, from: 0, to: 1 };
     const width: IAutoMovieConstructionCurvatureWidth = {
       type: "curvature",
       share: SHARE,
