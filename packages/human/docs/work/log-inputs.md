@@ -27,3 +27,27 @@ A `pnpm install` started by another agent at 13:18:59 rewrote `node_modules` whi
 - So the trunk defaults are interim: ANSUR II model B on stature, BMI and age (`AutoMovieHumanBodyBreadths`, coefficients from `docs/sources/ansur-ii.md`), each held in its box. Pending, with code and citation ready in the readings: chest depth, hip breadth and buttock depth on their girths (ANSUR 1988), the natural waist by the navel section's law (ANSUR 1988), the bideltoid and bicristal predictors by R2, and the survey's own box fullness (`test_human_survey_box_consistency`).
 - Compile: my files clean in the shared test watch cycle that ended after 14:02:39 (its only errors `AutoMovieHumanApertureSpan.ts:426`, another worker's).
 - Trunk laws queued for the body modeler, module names agreed: `AutoMovieHumanLumbarSection.box`, `AutoMovieHumanChestWall.box` (Heinz 2003 reading written: `test_human_survey_chest_wall`), `AutoMovieHumanTrapeziusLine.of` (ANSUR 1988 reading written: `test_human_survey_shoulder_line`), `AutoMovieHumanBackProfile.at` (Ohlendorf et al. 2023, Sci Rep 13:873, PMC9845304, read through Europe PMC: kyphosis 56.28 / 51.29 and lordosis 49.02 / 31.96 degrees, thoracic bending 13.90 / 16.23 and lumbar bending 14.25 / 10.56 degrees, women / men, 21 to 60 years), `AutoMovieHumanNavel.size`; the calf's site reading written (`test_human_survey_calf_site`).
+
+### Laws landed after the survey readings (written 14:55, `date`)
+
+The supervisor ran my nine survey readings once in the owner's test window (14:26:02 to 14:30:04, 9 of 9 passed); I ran no test. Each number below cites its reading.
+
+| Commit | Law | Source |
+| --- | --- | --- |
+| `55f5543f1` | `AutoMovieHumanBackProfile` | Ohlendorf et al. 2023 rasterstereography, Gray 1918 column split; it predicts the published lumbar bending angle (14.24 against 14.25 degrees in women) |
+| `ffa2662a8`, `43f825d32` | `AutoMovieHumanLumbarSection` | ANSUR 1988 navel section lines |
+| `26ad32c75`, `7c2f2bdc6` | `AutoMovieHumanTrapeziusLine` | ANSUR 1988 run on biacromial breadth, person's heights |
+| `034b2e296`, `ab283ac60` | `AutoMovieHumanChestWall` | Heinz 2003 caliper thorax; a third of the girths exceed the caliper box, so the box is scaled at its ratio |
+| `36efc4ae9` | #3045 defaults by their girths' lines | ANSUR 1988 and II; the chest breadth takes ANSUR 1988's definition (577 of ANSUR II's men exceed their chest box) |
+| `6d0a739ae` | `waistHeight` input | ANSUR 1988 share of trochanterion to cervicale |
+| `f7336fdff` | foot girths, instep, crotch lengths as inputs | ANSUR II and 1988 |
+| `009dc2413` | `AutoMovieHumanLegSites` (calf site, thigh depth) | ANSUR 1988 calf height and thigh clearance |
+| `bd5004469` | `AutoMovieHumanLimbBonePlace` | Kanehisa and Fukunaga 2013 ultrasound muscle thickness |
+
+Open, with reasons:
+
+- Width-to-depth at limb tape sites other than the thigh: the surveys take no limb depth; the MRI and ultrasound studies of limb sections are behind publisher and PMC bot walls from this machine (only Europe PMC's open-access XML is reachable); de Leva 1996's radii of gyration give an impossible upper arm (115 by 39 mm), so they do not carry section shape.
+- The forearm's bone place: the open ultrasound source takes only an anterior forearm site.
+- Soft tissue over the acromion, epicondyles, malleoli and stylion: no reachable published thickness.
+- Cervicale's absolute forward place: the skeleton chain (SVA, S1 depth, C7 morphometry) needs vertebral morphometry I cannot reach; the supervisor directed reading it from skin measures, and the back profile gives cervicale relative to the PSIS skin, so the absolute place waits on the pelvis's skin landmark relative to the hip joints (Harrington 2007 needs a pelvic depth not in the surveys).
+- Violation recorded earlier stands (13:18:27, a stray `python -`, no code ran).
