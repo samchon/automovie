@@ -66,6 +66,14 @@ async function main(): Promise<void> {
     process.exit(1);
   }
   console.log(chalk.green("All tests passed."));
+
+  // A passing run ends its own process: a handle a test leaves open (a
+  // timer, a pool, a socket) kept passing runs alive on a shared machine
+  // after their result. The handles still open are named so their owner can
+  // be traced.
+  const open: string[] = process.getActiveResourcesInfo().filter((kind: string): boolean => kind !== "TTYWrap");
+  if (open.length !== 0) console.log(chalk.gray(`open handles at the end: ${open.join(", ")}`));
+  process.exit(0);
 }
 
 main().catch((error: unknown): void => {
