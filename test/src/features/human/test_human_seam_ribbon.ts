@@ -1,10 +1,7 @@
 import { AutoMovieHumanBodyStrip } from "../../../../packages/human/src/generation/AutoMovieHumanBodyStrip";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, AutoMovieSeamStation, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanSeam } from "../../../../packages/human/src/lofting/AutoMovieHumanSeam";
-import { AutoMovieHumanSeamStation } from "../../../../packages/human/src/lofting/AutoMovieHumanSeamStation";
-import { AutoMovieHumanSplineCurve } from "../../../../packages/human/src/lofting/AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanSeam } from "../../../../packages/human/src/lofting/IAutoMovieHumanSeam";
 import { HumanSeamObserver } from "../internal/HumanSeamObserver";
 
@@ -13,7 +10,7 @@ import { HumanSeamObserver } from "../internal/HumanSeamObserver";
  * G2 for any lean, and the appendage strip built through the shared module
  * meets both its appendage and its base G2.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds a quintic ribbon from a graph surface's seam jet with `AutoMovieHumanSeam.ribbon` at shares (1.3, 0.4) and (1, 0), and an appendage strip with `AutoMovieHumanBodyStrip.controls` and `point` between a 20 mm tube on a 100 mm column (both made C2 with `AutoMovieHumanSeamStation.continuous`) along a 25 mm root loop; reads every seam with `HumanSeamObserver.surface` from points in the plane normal to the seam. It catches a ribbon that leaves the owner's tangent plane or bends differently across the seam, and a strip whose edge rows miss either surface's position, tangent plane or normal curvature. Any ribbon passes that copies the owner's jet in the J4 form.
+ * @evidence contracts/testing.md#behavioral-verification Builds a quintic ribbon from a graph surface's seam jet with `AutoMovieHumanSeam.ribbon` at shares (1.3, 0.4) and (1, 0), and an appendage strip with `AutoMovieHumanBodyStrip.controls` and `point` between a 20 mm tube on a 100 mm column (both made C2 with `AutoMovieSeamStation.continuous`) along a 25 mm root loop; reads every seam with `HumanSeamObserver.surface` from points in the plane normal to the seam. It catches a ribbon that leaves the owner's tangent plane or bends differently across the seam, and a strip whose edge rows miss either surface's position, tangent plane or normal curvature. Any ribbon passes that copies the owner's jet in the J4 form.
  * @evidence contracts/testing.md#independent-expectations Expectations are closed forms of the made defect: a second cross derivative moved by e along the owner's unit normal reads `e / |q_w perp|^2`, a first cross derivative moved by e along it reads `atan(e / |q_w perp|)`, with `q_w perp` the cross derivative's part across the seam tangent, computed here from the analytic surface; the strip's third edge row moved by e along the tube's radius reads `27 e / l^2`, the clamped cubic's second derivative `6 (P2 - 2 P1 + P0) / (2 h^2)` over three spans, with the edge speed `l = 9 |P1 - P0|`. Limits are `HumanSeamObserver.exact(40, 0.005)` for the ribbon and `exact(530, 0.01)` for the strip, a hundred times the observer's rounding at each magnitude and step (truncation on the 30 mm quintic ribbon is near 1e-8 /mm at 0.005 mm), plus a millionth of the expected reading. Oracle limit: the strip is read at the tube's knot phases, where the B-spline circle's normal is its radius exactly; the strip's edge direction is read square to the loop's skin tangent (|cos| at most 1e-7, the finite tangent's 1e-6 rad step leaving 1e-9) and turning at most 1e-3 rad per 1e-4 rad of loop (a 25 mm circle turns its normal about 1e-4 rad there).
  * @evidence contracts/testing.md#distinguishing-cases Green: two leans of the ribbon, both strip edges at five knot phases including the loop's station extremes u = 0 and pi, where a strip turned in the chart alone (phase in radians against station in mm) read a 2.3e-4 /mm curvature step, left its loop 79 degrees off square and swung 90 degrees within 1e-4 rad. Red: the ribbon's bend and tilt each moved, the strip's third row moved. Refused: a ribbon with a non-positive cross share. Guides own `test_human_seam_section`, station seams and reflection `test_human_seam_station`; that the migrated strip draws the rows it drew before is proved bit for bit outside the suite, on the committed code paths.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_seam_ribbon`; it builds analytic surfaces and chains in process and starts no host, browser or GPU.
@@ -133,23 +130,23 @@ export const test_human_seam_ribbon: () => void = (): void => {
     ...Array.from({ length: N }, (_: unknown, i: number): number => radius * rho * Math.cos((2 * Math.PI * i) / N)),
     ...Array.from({ length: N }, (_: unknown, i: number): number => radius * rho * Math.sin((2 * Math.PI * i) / N)),
   ];
-  const chain: (name: string, layers: IAutoMovieHumanLoftChain.ILayer[]) => IAutoMovieHumanLoftChain = (
+  const chain: (name: string, layers: IAutoMovieLoftChain.ILayer[]) => IAutoMovieLoftChain = (
     name: string,
-    layers: IAutoMovieHumanLoftChain.ILayer[],
-  ): IAutoMovieHumanLoftChain =>
-    AutoMovieHumanSeamStation.continuous({ name, basis: "spline", order: N, rule: "polar", samples: 64, layers });
-  const base: IAutoMovieHumanLoftChain = chain(
+    layers: IAutoMovieLoftChain.ILayer[],
+  ): IAutoMovieLoftChain =>
+    AutoMovieSeamStation.continuous({ name, basis: "spline", order: N, rule: "polar", samples: 64, layers });
+  const base: IAutoMovieLoftChain = chain(
     "column",
-    [300, 400, 500, 600, 700].map((y: number): IAutoMovieHumanLoftChain.ILayer => ({
+    [300, 400, 500, 600, 700].map((y: number): IAutoMovieLoftChain.ILayer => ({
       y,
       frame: { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] },
       coefficients: circle(100),
       slopes: new Array<number>(2 * N).fill(0),
     })),
   );
-  const tube: IAutoMovieHumanLoftChain = chain(
+  const tube: IAutoMovieLoftChain = chain(
     "tube",
-    [0, 40, 80].map((s: number): IAutoMovieHumanLoftChain.ILayer => ({
+    [0, 40, 80].map((s: number): IAutoMovieLoftChain.ILayer => ({
       y: s,
       frame: { origin: [130 + s, 500, 0], u: [0, 1, 0], v: [0, 0, 1] },
       coefficients: circle(20),
@@ -187,13 +184,13 @@ export const test_human_seam_ribbon: () => void = (): void => {
       AutoMovieHumanBodyStrip.point(edit(rows(u), u) as [number, number, number][], w);
   const phase: (a: number) => number = (a: number): number => a / 20;
   const tubeSide: (a: number, sigma: number) => number[] = (a: number, sigma: number): number[] =>
-    AutoMovieHumanLoftChain.ring(tube, sigma, [phase(a)])[0]!;
+    AutoMovieLoftChain.ring(tube, sigma, [phase(a)])[0]!;
 
   // The base side follows the root loop the strip itself reads, its spline,
   // and leaves it away from the loop's centre.
   const baseSide: (a: number, sigma: number) => number[] = (a: number, sigma: number): number[] => {
-    const [s, t]: [number, number, number, number] = AutoMovieHumanSplineCurve.evaluate(root.root, N, phase(a));
-    return AutoMovieHumanLoftChain.ring(base, s + (sigma * (s - 500)) / 25, [t + (0.01 * sigma * t) / 0.25])[0]!;
+    const [s, t]: [number, number, number, number] = AutoMovieSplineCurve.evaluate(root.root, N, phase(a));
+    return AutoMovieLoftChain.ring(base, s + (sigma * (s - 500)) / 25, [t + (0.01 * sigma * t) / 0.25])[0]!;
   };
   const wide: HumanSeamObserver.ITolerance = HumanSeamObserver.exact(530, 0.01);
   const span: number = 40;

@@ -1,8 +1,7 @@
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanLoftAperture } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import { HumanCurveRing } from "./HumanCurveRing";
 import { HumanCurveConstants } from "./HumanCurveConstants";
 import { HumanCurveVector } from "./HumanCurveVector";
@@ -28,15 +27,15 @@ export namespace HumanCurveJaw {
     report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
     mandible: number | undefined,
   ): void {
-    const lower: IAutoMovieHumanLoftChain | undefined = body.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "head.lower",
+    const lower: IAutoMovieLoftChain | undefined = body.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "head.lower",
     );
     if (lower === undefined) return;
     const bottom: number = lower.layers[0]!.y;
     const top: number = lower.layers[lower.layers.length - 1]!.y;
     const half: number =
       mandible ??
-      Math.max(...AutoMovieHumanLoftChain.ring(lower, top, uniform(720)).map((p: V3): number => Math.abs(p[2])));
+      Math.max(...AutoMovieLoftChain.ring(lower, top, uniform(720)).map((p: V3): number => Math.abs(p[2])));
     const from: number = bottom + JAW_ABOVE_NECK * (top - bottom);
     for (const share of JAW_PLACES) {
       const line: [number, number][] = faceProfile(body, share * half, from, top);
@@ -107,13 +106,13 @@ export namespace HumanCurveJaw {
     const nostrils: IAutoMovieHumanLoftAperture[] = body.apertures.filter((a: IAutoMovieHumanLoftAperture): boolean =>
       /^nostril\./.test(a.name),
     );
-    const lower: IAutoMovieHumanLoftChain | undefined = body.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "head.lower",
+    const lower: IAutoMovieLoftChain | undefined = body.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "head.lower",
     );
     if (lower === undefined || nostrils.length === 0) return;
     const out: AutoMovieHumanBodySurface.IOutput = AutoMovieHumanBodySurface.generate({
       ...body,
-      chains: body.chains.filter((c: IAutoMovieHumanLoftChain): boolean => owned.test(c.name)),
+      chains: body.chains.filter((c: IAutoMovieLoftChain): boolean => owned.test(c.name)),
       events: body.events
         .filter((e: IAutoMovieHumanBodyCalibration.IEvent): boolean => owned.test(e.parent))
         .map((e: IAutoMovieHumanBodyCalibration.IEvent): IAutoMovieHumanBodyCalibration.IEvent => ({
@@ -145,7 +144,7 @@ export namespace HumanCurveJaw {
     const half: number =
       mandible ??
       Math.max(
-        ...AutoMovieHumanLoftChain.ring(lower, lower.layers[lower.layers.length - 1]!.y, uniform(720)).map(
+        ...AutoMovieLoftChain.ring(lower, lower.layers[lower.layers.length - 1]!.y, uniform(720)).map(
           (q: V3): number => Math.abs(q[2]),
         ),
       );
@@ -160,7 +159,7 @@ export namespace HumanCurveJaw {
       if (Math.abs(q[2]) < FACET_MOUTH[0]! * half && q[1] > nose - FACET_MOUTH[1]! * k) return false;
 
       // Back to the angle, which stands about the lower head's axis.
-      const axis: V3 = AutoMovieHumanLoftChain.axis(lower, Math.min(top, Math.max(bottom, q[1])));
+      const axis: V3 = AutoMovieLoftChain.axis(lower, Math.min(top, Math.max(bottom, q[1])));
       return q[0] > axis[0] - FACET_BACK * half;
     };
 

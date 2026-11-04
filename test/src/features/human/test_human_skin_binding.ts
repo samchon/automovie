@@ -1,6 +1,6 @@
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
 import type { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/AutoMovieHumanSkeleton";
@@ -164,7 +164,7 @@ function limbRings(
     .flatMap((chain): ILimbRing[] =>
       // The end layers are the hand's and the trunk's rings, not a limb's.
       chain.layers.slice(1, -1).map((layer): ILimbRing => {
-        const rest: V3[] = AutoMovieHumanLoftChain.ring(chain, layer.y, phases).map(
+        const rest: V3[] = AutoMovieLoftChain.ring(chain, layer.y, phases).map(
           (p: V3): V3 => [p[0] * scale, p[1] * scale, p[2] * scale],
         );
         return {
@@ -247,7 +247,7 @@ function auditHinges(
     const stops: { at: V3; share: number; radius: number }[] = [];
     for (let k: number = 0; k <= 96; k++) {
       const s: number = low + ((high - low) * k) / 96;
-      const ring: V3[] = AutoMovieHumanLoftChain.ring(chain, s, phases).map(
+      const ring: V3[] = AutoMovieLoftChain.ring(chain, s, phases).map(
         (p: V3): V3 => [p[0] * scale, p[1] * scale, p[2] * scale],
       );
       const skin = rig.bind(ring.flat());
@@ -326,7 +326,7 @@ function auditOwners(
     (_: unknown, i: number): number => (2 * Math.PI * i) / 48,
   );
   const bindRing = (chain: (typeof body.chains)[number], s: number) => {
-    const ring: V3[] = AutoMovieHumanLoftChain.ring(chain, s, phases).map(
+    const ring: V3[] = AutoMovieLoftChain.ring(chain, s, phases).map(
       (p: V3): V3 => [p[0] * scale, p[1] * scale, p[2] * scale],
     );
     return { ring, skin: rig.bind(ring.flat()) };
@@ -367,7 +367,7 @@ function auditOwners(
     const chain = body.chains.find((c): boolean => c.name === `foot.${side}`)!;
     let heel: V3 | null = null;
     for (const layer of chain.layers)
-      for (const p of AutoMovieHumanLoftChain.ring(chain, layer.y, phases))
+      for (const p of AutoMovieLoftChain.ring(chain, layer.y, phases))
         if (heel === null || p[0] * scale < heel[0]) heel = [p[0] * scale, p[1] * scale, p[2] * scale];
     const skin = rig.bind(heel!);
     const on: number = shareOf(skin, 0, [`${side}Foot`, `${side}Toes`]);

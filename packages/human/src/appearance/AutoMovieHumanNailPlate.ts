@@ -1,7 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanNailClosure } from "./AutoMovieHumanNailClosure";
 import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
 
@@ -61,7 +59,7 @@ export namespace AutoMovieHumanNailPlate {
    * @param nail The plate's window on it.
    * @returns The closed plate mesh in mm.
    */
-  export function generate(chain: IAutoMovieHumanLoftChain, nail: IAutoMovieHumanBodyCalibration.INail): IOutput {
+  export function generate(chain: IAutoMovieLoftChain, nail: IAutoMovieHumanBodyCalibration.INail): IOutput {
     const out: IOutput = { positions: [], normals: [], uvs: [], indices: [] };
     const length: number = Math.abs(nail.root - nail.edge);
     const bed: number[] = [];
@@ -123,10 +121,10 @@ export namespace AutoMovieHumanNailPlate {
    * dorsal half: bracketed between the dorsal phase and a quarter turn to
    * the side the offset's sign names, then closed by the Illinois rule.
    */
-  function across(chain: IAutoMovieHumanLoftChain, station: number, dorsal: Vec3, offset: number): number {
-    const sample: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(chain, station);
-    const frame: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(chain, station);
-    const centre: Vec3 = AutoMovieHumanLoftChain.axis(chain, station);
+  function across(chain: IAutoMovieLoftChain, station: number, dorsal: Vec3, offset: number): number {
+    const sample: (t: number) => Vec3 = AutoMovieLoftChain.sampler(chain, station);
+    const frame: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, station);
+    const centre: Vec3 = AutoMovieLoftChain.axis(chain, station);
     const axisNormal: Vec3 = V.normalize(V.cross(frame.v, frame.u));
     const up: Vec3 = V.normalize(V.sub(dorsal, V.scale(axisNormal, V.dot(dorsal, axisNormal))));
     const lateral: Vec3 = V.normalize(V.cross(axisNormal, up));
@@ -181,12 +179,12 @@ export namespace AutoMovieHumanNailPlate {
   }
 
   /** The chain's point at a station and phase. */
-  function point(chain: IAutoMovieHumanLoftChain, station: number, phase: number): Vec3 {
-    return AutoMovieHumanLoftChain.ring(chain, station, [phase])[0]! as Vec3;
+  function point(chain: IAutoMovieLoftChain, station: number, phase: number): Vec3 {
+    return AutoMovieLoftChain.ring(chain, station, [phase])[0]! as Vec3;
   }
 
   /** The chain's unit normal at a station and phase, turned to the dorsal side. */
-  function outward(chain: IAutoMovieHumanLoftChain, station: number, phase: number, dorsal: Vec3): Vec3 {
+  function outward(chain: IAutoMovieLoftChain, station: number, phase: number, dorsal: Vec3): Vec3 {
     const ds: Vec3 = V.sub(point(chain, station + STEP, phase), point(chain, station - STEP, phase));
     const dt: Vec3 = V.sub(point(chain, station, phase + STEP), point(chain, station, phase - STEP));
     const n: Vec3 = V.normalize(V.cross(ds, dt));

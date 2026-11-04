@@ -1,4 +1,4 @@
-import type { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParameter";
+import type { AutoMovieLoftParameter } from "@automovie/engine";
 
 /**
  * Named constants of the trunk construction: how each measure of the column's
@@ -33,7 +33,7 @@ export namespace AutoMovieHumanTrunkPrior {
     samples: number;
 
     /** Phase correspondence rule. */
-    rule: AutoMovieHumanLoftParameter.Rule;
+    rule: AutoMovieLoftParameter.Rule;
 
     /** Control points of a shoulder section. */
     shoulderOrder: number;
@@ -42,7 +42,7 @@ export namespace AutoMovieHumanTrunkPrior {
     shoulderSamples: number;
 
     /** Phase correspondence rule of the shoulders. */
-    shoulderRule: AutoMovieHumanLoftParameter.Rule;
+    shoulderRule: AutoMovieLoftParameter.Rule;
 
     /** Phases on the left where the arm's arc starts and ends. */
     arm: readonly [number, number];

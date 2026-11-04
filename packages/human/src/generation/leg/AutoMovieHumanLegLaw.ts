@@ -1,4 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "../../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
 import type { AutoMovieHumanLegConstruction } from "../AutoMovieHumanLegConstruction";
 import { AutoMovieHumanLegPrior } from "../AutoMovieHumanLegPrior";
@@ -61,19 +61,19 @@ export namespace AutoMovieHumanLegLaw {
     inputs: AutoMovieHumanLegConstruction.IInputs;
 
     /** Log-radius profile along the leg. */
-    profile: AutoMovieHumanNaturalSpline.ISpline;
+    profile: AutoMovieNaturalSpline.ISpline;
 
     /** Forward place of the centre along the leg. */
-    forward: AutoMovieHumanNaturalSpline.ISpline;
+    forward: AutoMovieNaturalSpline.ISpline;
 
     /** The axis's lateral curves. */
-    axis: AutoMovieHumanNaturalSpline.ISpline[];
+    axis: AutoMovieNaturalSpline.ISpline[];
 
     /** The shape's Fourier channels. */
-    shape: AutoMovieHumanNaturalSpline.ISpline[];
+    shape: AutoMovieNaturalSpline.ISpline[];
 
     /** The radius correction through the ankle and the three tapes. */
-    correction: AutoMovieHumanNaturalSpline.ISpline;
+    correction: AutoMovieNaturalSpline.ISpline;
 
     /** The ankle ring's radius less the law's, at each phase. */
     ankleResidual: number[];
@@ -131,17 +131,17 @@ export namespace AutoMovieHumanLegLaw {
       throw new Error("A leg needs a positive length and positive tapes");
 
     // The prior's channels.
-    const spline = (values: readonly number[]): AutoMovieHumanNaturalSpline.ISpline => AutoMovieHumanNaturalSpline.create(prior.stations, values);
-    const shape: AutoMovieHumanNaturalSpline.ISpline[] = prior.shape[0]!.map(
-      (_: number, k: number): AutoMovieHumanNaturalSpline.ISpline => spline(prior.shape.map((row: readonly number[]): number => row[k]!)),
+    const spline = (values: readonly number[]): AutoMovieNaturalSpline.ISpline => AutoMovieNaturalSpline.create(prior.stations, values);
+    const shape: AutoMovieNaturalSpline.ISpline[] = prior.shape[0]!.map(
+      (_: number, k: number): AutoMovieNaturalSpline.ISpline => spline(prior.shape.map((row: readonly number[]): number => row[k]!)),
     );
-    const profile: AutoMovieHumanNaturalSpline.ISpline = spline(prior.profile);
+    const profile: AutoMovieNaturalSpline.ISpline = spline(prior.profile);
 
     // Radius keys: the ankle ring's own radius, then each tape against the
     // hull of the section it wraps.
     const key = (u: number, girth: number, ratio: number): [number, number] => {
       const hull: number = AutoMovieHumanPolarSection.girth(unit(shape, u));
-      return [u, Math.log((girth * ratio) / hull / length) - AutoMovieHumanNaturalSpline.evaluate(profile, u)];
+      return [u, Math.log((girth * ratio) / hull / length) - AutoMovieNaturalSpline.evaluate(profile, u)];
     };
 
     // Above its tape the thigh keeps the tape's correction on the prior's own
@@ -149,7 +149,7 @@ export namespace AutoMovieHumanLegLaw {
     // the thigh, and only the last reach hands over to it.
     const thigh: [number, number] = key(prior.thigh.station, inputs.thigh, prior.thigh.ratio);
     const keys: [number, number][] = [
-      [0, Math.log(ankleSection.radius / length) - AutoMovieHumanNaturalSpline.evaluate(profile, 0)],
+      [0, Math.log(ankleSection.radius / length) - AutoMovieNaturalSpline.evaluate(profile, 0)],
       key(prior.calf.station, inputs.calf, prior.calf.ratio),
       key(prior.knee.station, inputs.knee, prior.knee.ratio),
       thigh,
@@ -168,7 +168,7 @@ export namespace AutoMovieHumanLegLaw {
       forward: spline(prior.forward),
       axis: axisCurves(),
       shape,
-      correction: AutoMovieHumanNaturalSpline.create(
+      correction: AutoMovieNaturalSpline.create(
         keys.map((k: [number, number]): number => k[0]),
         keys.map((k: [number, number]): number => k[1]),
       ),
@@ -206,16 +206,16 @@ export namespace AutoMovieHumanLegLaw {
   }
 
   /** The axis's lateral curves, one per term of the prior's line. */
-  export function axisCurves(): AutoMovieHumanNaturalSpline.ISpline[] {
+  export function axisCurves(): AutoMovieNaturalSpline.ISpline[] {
     const prior: AutoMovieHumanLegPrior.IPrior = AutoMovieHumanLegPrior.PRIOR;
     return [prior.lateral.offset, prior.lateral.leg, prior.lateral.hip, prior.lateral.sex].map(
-      (values: readonly number[]): AutoMovieHumanNaturalSpline.ISpline => AutoMovieHumanNaturalSpline.create(prior.stations, values),
+      (values: readonly number[]): AutoMovieNaturalSpline.ISpline => AutoMovieNaturalSpline.create(prior.stations, values),
     );
   }
 
   /** The axis's place off the midline at fraction u, calibration mm. */
-  export function lateral(axis: AutoMovieHumanNaturalSpline.ISpline[], u: number, length: number, inputs: AutoMovieHumanLegConstruction.IInputs): number {
-    const value = (i: number): number => AutoMovieHumanNaturalSpline.evaluate(axis[i]!, u);
+  export function lateral(axis: AutoMovieNaturalSpline.ISpline[], u: number, length: number, inputs: AutoMovieHumanLegConstruction.IInputs): number {
+    const value = (i: number): number => AutoMovieNaturalSpline.evaluate(axis[i]!, u);
     return value(0) * inputs.scale + value(1) * length + value(2) * inputs.hip + value(3) * inputs.sex * inputs.scale;
   }
 
@@ -228,8 +228,8 @@ export namespace AutoMovieHumanLegLaw {
   }
 
   /** Radii of the area-normalized prior shape at uniform phases. */
-  export function unit(shape: AutoMovieHumanNaturalSpline.ISpline[], u: number): number[] {
-    const f: number[] = shape.map((s: AutoMovieHumanNaturalSpline.ISpline): number => AutoMovieHumanNaturalSpline.evaluate(s, u));
+  export function unit(shape: AutoMovieNaturalSpline.ISpline[], u: number): number[] {
+    const f: number[] = shape.map((s: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(s, u));
     const raw: number[] = AutoMovieHumanLegSampling.PHASES.map((t: number): number => {
       let v: number = f[0]!;
       for (let k: number = 1; 2 * k < f.length; k++) v += f[2 * k - 1]! * Math.cos(k * t) + f[2 * k]! * Math.sin(k * t);
@@ -242,7 +242,7 @@ export namespace AutoMovieHumanLegLaw {
 
   /** The law's centre and radii at fraction u, canonical frame. */
   export function bare(family: IFamily, u: number): IBare {
-    const value = (s: AutoMovieHumanNaturalSpline.ISpline): number => AutoMovieHumanNaturalSpline.evaluate(s, u);
+    const value = (s: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(s, u);
     const L: number = family.length;
     const radii: number[] = unit(family.shape, u);
     const R: number = L * Math.exp(value(family.profile) + value(family.correction));

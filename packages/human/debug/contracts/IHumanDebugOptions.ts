@@ -126,11 +126,52 @@ export interface IHumanDebugOptions {
 
   /** Draw the body axes at the focus box corner. */
   axes: boolean;
+
+  /**
+   * Reference person of the view comparison (`f1`, `f2`, `m1`, `m2`), read at run time from the
+   * checkout's private `.references` pack; null shows no comparison. With a reference the subject
+   * is that person drawn as a translucent model under the view curves of every part built from the
+   * inputs of {@link person} (the reference itself when `person` is unset), and `piece` and `pose`
+   * are not read.
+   */
+  reference: string | null;
+
+  /** How the reference is drawn: `clay`, a surface lofted between its sections, or `loft`, its section curves. */
+  referenceStyle: "clay" | "loft";
+
+  /** Opacity of the reference's clay in (0, 1]. */
+  referenceOpacity: number;
+
+  /**
+   * The reference's pieces drawn, globs over its regions (`trunk`, `head`, `arm.left`, `hand.right`,
+   * `leg.left`, `foot.right`, or the pack's own labels such as `leg_l`) and over the compared parts'
+   * names (`nose`, `breast.left`), a part drawing the reference only within its box; `*` draws it
+   * whole.
+   */
+  referencePart: string[];
+
+  /** View parts whose curves the comparison draws, globs over part names such as `leg.left` or `head.*`. */
+  part: string[];
+
+  /** Which of each part's views the comparison draws: the front outline pair, the side outline pair and the top (the sections at the part's knot stations). */
+  views: IHumanDebugOptions.ViewKind[];
+
+  /** Draw each compared part's axis. */
+  axis: boolean;
+
+  /** Show the comparison's legend of part colours. */
+  legend: boolean;
+
+  /** Label every compared curve with its part and view (`nose · front+`), whatever `labels` says. */
+  viewLabels: boolean;
 }
 
 export namespace IHumanDebugOptions {
   /** What a curve is in the loft, read from the last segment of its id. */
   export type CurveKind = "section" | "axis" | "guide" | "path";
+
+  /** One view of a compared part: its front outline pair, its side outline pair, or its top. */
+  export type ViewKind = "front" | "side" | "top";
 
   /** One pattern and the colour it assigns. */
   export interface IColour {

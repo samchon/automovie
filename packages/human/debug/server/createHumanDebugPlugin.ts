@@ -14,6 +14,7 @@ import { HumanDebugCaptureSession } from "./HumanDebugCaptureSession";
 import { HumanDebugCompilerLog } from "./HumanDebugCompilerLog";
 import { HumanDebugGenerationSlot } from "./HumanDebugGenerationSlot";
 import { HumanDebugSourceHash } from "./HumanDebugSourceHash";
+import { HumanDebugStackMap } from "./HumanDebugStackMap";
 import type { IHumanDebugBatchItem } from "./IHumanDebugBatchItem";
 import type { IHumanDebugEnvironment } from "./IHumanDebugEnvironment";
 import type { IHumanDebugFrame } from "./IHumanDebugFrame";
@@ -37,11 +38,22 @@ const EXTRA: readonly string[] = ["fresh", "round", "cameras", "pieces", "keep"]
  */
 export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plugin {
   let origin: string = "http://127.0.0.1:" + environment.port;
-  const session: HumanDebugCaptureSession = new HumanDebugCaptureSession(environment, (): string => origin);
+  let vite: ViteDevServer | undefined;
+  const session: HumanDebugCaptureSession = new HumanDebugCaptureSession(
+    environment,
+    (): string => origin,
+    (text: string): Promise<string> =>
+      HumanDebugStackMap(text, async (served: string): Promise<string | null> => {
+        // The client transform the page ran, cached by Vite; its map leads back to the TypeScript source.
+        const map: { mappings?: string } | null | undefined = (await vite?.transformRequest(served))?.map;
+        return typeof map?.mappings === "string" ? map.mappings : null;
+      }),
+  );
   return {
     name: "automovie-human-debug",
     apply: "serve",
     configureServer(server: ViteDevServer): void {
+      vite = server;
       server.httpServer?.once("listening", (): void => {
         const address: ReturnType<NonNullable<typeof server.httpServer>["address"]> = server.httpServer!.address();
         if (address !== null && typeof address !== "string") origin = "http://127.0.0.1:" + address.port;
@@ -73,6 +85,13 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
       return json(response, { pid: process.pid, ...session.status(), slots: HumanDebugGenerationSlot.holders(environment.slotRoot) });
     if (url.pathname === HUMAN_DEBUG_ROUTES.index) return json(response, await index(server));
 
+    // A client that leaves before its frame starts takes the frame out of the queue.
+    let gone: boolean = false;
+    response.once("close", (): void => {
+      if (!response.writableEnded) gone = true;
+    });
+    const left: () => boolean = (): boolean => gone;
+
     const parsed: { options: IHumanDebugOptions; notices: string[] } = HumanDebugOptions.parse(url.searchParams, EXTRA);
     if (parsed.notices.length !== 0) return send(response, 400, "text/plain; charset=utf-8", parsed.notices.join("\n"));
     const nonce: string | null = url.searchParams.get("fresh");
@@ -88,7 +107,7 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
 
     if (image !== null) {
       // `keep=1` draws on the page's loaded source, so a series of frames shares one generation while files are saved.
-      const frame: IHumanDebugFrame = await session.frame(parsed.options, nonce, url.searchParams.get("keep") === "1");
+      const frame: IHumanDebugFrame = await session.frame(parsed.options, nonce, url.searchParams.get("keep") === "1", left);
       const headers: typeof HUMAN_DEBUG_ROUTES.headers = HUMAN_DEBUG_ROUTES.headers;
       response.setHeader(headers.source, frame.source);
       response.setHeader(headers.cache, frame.cache);
@@ -124,6 +143,7 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
         { ...parsed.options, person: batch[1]! },
         nonce,
         url.searchParams.get("keep") === "1",
+        left,
       );
       return json(response, { person: batch[1], round, directory, items });
     }

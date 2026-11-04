@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanSkeletonLaw } from "../generation/AutoMovieHumanSkeletonLaw";
 
 /**
@@ -32,14 +31,19 @@ export namespace AutoMovieHumanJointCentres {
     if (skeleton === undefined)
       throw new Error("The calibration carries no skeleton");
     const S: number = calibration.stature;
-    const chain = (name: string): IAutoMovieHumanLoftChain => {
-      const found: IAutoMovieHumanLoftChain | undefined =
-        calibration.chains.find(
-          (c: IAutoMovieHumanLoftChain): boolean => c.name === name,
-        );
-      if (found === undefined)
-        throw new Error(`Stickman skeleton needs the ${name} chain`);
-      return found;
+    // A part's chain, or its host's where the realization left the part out
+    // (a digit onto its hand or foot): the host's girth nearest the bone
+    // stands for it, so the rig still binds and the missing part is the
+    // realization's diagnostic, not the rig's failure.
+    const HOSTS: Readonly<Record<string, string>> = { finger: "arm", thumb: "arm", toe: "foot" };
+    const chain = (name: string): IAutoMovieLoftChain => {
+      const find = (n: string): IAutoMovieLoftChain | undefined => calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === n);
+      const found: IAutoMovieLoftChain | undefined = find(name);
+      if (found !== undefined) return found;
+      const [kind, side] = name.split(".");
+      const host: IAutoMovieLoftChain | undefined = HOSTS[kind!] !== undefined ? find(`${HOSTS[kind!]}.${side}`) : undefined;
+      if (host === undefined) throw new Error(`Stickman skeleton needs the ${name} chain`);
+      return host;
     };
     const byBone = new Map<string, AutoMovieHumanSkeletonLaw.IBone>(
       skeleton.map(
@@ -48,28 +52,34 @@ export namespace AutoMovieHumanJointCentres {
         ): [string, AutoMovieHumanSkeletonLaw.IBone] => [b.bone, b],
       ),
     );
-    const at = (bone: string): [number, number, number] => byBone.get(bone)!.position;
-    const middle = (c: IAutoMovieHumanLoftChain): number =>
-      girth(c, (start(c) + stop(c)) / 2);
+    // A bone's segment middle: its joint and its leaf tip, or the joint and
+    // the point it points to.
+    const middleOf = (bone: string): [number, number, number] => {
+      const b: AutoMovieHumanSkeletonLaw.IBone = byBone.get(bone)!;
+      const end: [number, number, number] = b.tip ?? b.toward;
+      return [(b.position[0] + end[0]) / 2, (b.position[1] + end[1]) / 2, (b.position[2] + end[2]) / 2];
+    };
+    // A chain's girth at the section whose axis point stands nearest a bone's
+    // segment middle: the view parts' stations run along their own axes, so
+    // a bone is found by place, not by height.
+    const around = (c: IAutoMovieLoftChain, bone: string): number => girth(c, nearest(c, middleOf(bone)));
+    const trunk: IAutoMovieLoftChain = chain("trunk");
 
-    // The neck read a third of the way up: lower it flares into the shoulders
-    // and higher it meets the jaw.
-    const neckBase: [number, number, number] = at("neck");
-    const occiput: [number, number, number] = at("head");
-    const neckRadius: number = girth(
-      chain("head.lower"),
-      neckBase[1] + (occiput[1] - neckBase[1]) / 3,
-    );
-    const headRadius: number = girth(
-      chain("head.middle"),
-      start(chain("head.middle")),
-    );
-    const trunk: IAutoMovieHumanLoftChain = chain("trunk");
+    // The head mass when the realization kept it; without it the neck takes
+    // the trunk's top ring (the neck seat) and the head the sphere through
+    // its own segment, half the segment's length.
+    const head: IAutoMovieLoftChain | undefined = calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "head.mass");
+    const segment = (bone: string): number => {
+      const b: AutoMovieHumanSkeletonLaw.IBone = byBone.get(bone)!;
+      const end: [number, number, number] = b.tip ?? b.toward;
+      return Math.hypot(end[0] - b.position[0], end[1] - b.position[1], end[2] - b.position[2]) / 2;
+    };
+    const headRadius: number = head !== undefined ? around(head, "head") : segment("head");
     const radius = (bone: string): number => {
       if (bone === "hips") return girth(trunk, 0.518 * S);
-      if (bone === "spine") return girth(trunk, at("spine")[1]);
+      if (bone === "spine") return girth(trunk, byBone.get("spine")!.position[1]);
       if (bone === "chest") return girth(trunk, stop(trunk));
-      if (bone === "neck" || bone === "atlas") return neckRadius;
+      if (bone === "neck" || bone === "atlas") return head !== undefined ? around(head, bone) : girth(trunk, stop(trunk));
       if (bone === "head") return headRadius;
       if (bone === "jaw") return headRadius * 0.12;
       if (bone.endsWith("Eye"))
@@ -79,45 +89,28 @@ export namespace AutoMovieHumanJointCentres {
         )!.radius;
       const side: "left" | "right" = bone.startsWith("left") ? "left" : "right";
       const part: string = bone.slice(side.length);
+      // The girdle's bones and the humerus take the arm's girth at the
+      // shoulder centre, the arm's top ring, as the shoulder's skin around
+      // them (the deltoid's breadth), so their reach covers the axilla.
       if (part === "Shoulder" || part === "Scapula" || part === "UpperArm") {
-        const arm: IAutoMovieHumanLoftChain = chain(`arm.${side}`);
-        return girth(arm, stop(arm));
+        const arm: IAutoMovieLoftChain = chain(`arm.${side}`);
+        return girth(arm, nearest(arm, byBone.get(`${side}UpperArm`)!.position));
       }
-      if (part === "LowerArm")
-        return girth(
-          chain(`arm.${side}`),
-          (at(`${side}LowerArm`)[1] + at(`${side}Hand`)[1]) / 2,
-        );
-      if (part === "Hand") return middle(chain(`hand.${side}.1`));
+      if (part === "LowerArm" || part === "Hand")
+        return around(chain(`arm.${side}`), bone);
       if (part.startsWith("Thumb"))
-        return (
-          middle(chain(`thumb.${side}`)) * (part === "ThumbDistal" ? 0.9 : 1)
-        );
+        return around(chain(`thumb.${side}`), bone);
       for (const [name, key] of FINGERS)
         if (part.startsWith(name))
-          return (
-            middle(chain(`finger.${side}.${key}`)) *
-            (part.endsWith("Distal") ? 0.9 : 1)
-          );
-      if (part === "UpperLeg") {
-        const leg: IAutoMovieHumanLoftChain = chain(`leg.${side}`);
-        return girth(leg, (at(`${side}LowerLeg`)[1] + stop(leg)) / 2);
-      }
-      if (part === "LowerLeg") {
-        const leg: IAutoMovieHumanLoftChain = chain(`leg.${side}`);
-        return girth(leg, (at(`${side}LowerLeg`)[1] + start(leg)) / 2);
-      }
+          return around(chain(`finger.${side}.${key}`), bone);
+      if (part === "UpperLeg" || part === "LowerLeg")
+        return around(chain(`leg.${side}`), bone);
       if (part === "Foot" || part === "Subtalar" || part === "Midfoot")
-        return (
-          middle(chain(`foot.${side}`)) * 0.6 * (part === "Midfoot" ? 0.8 : 1)
-        );
-      if (part.startsWith("Hallux")) return middle(chain(`toe.${side}.1`));
+        return around(chain(`foot.${side}`), bone) * 0.6 * (part === "Midfoot" ? 0.8 : 1);
+      if (part.startsWith("Hallux")) return around(chain(`toe.${side}.1`), bone);
       const toe: RegExpExecArray | null = /^Toe(\d)/.exec(part);
       if (toe !== null)
-        return (
-          middle(chain(`toe.${side}.${toe[1]}`)) *
-          (part.endsWith("Distal") ? 0.9 : 1)
-        );
+        return around(chain(`toe.${side}.${toe[1]}`), bone);
       throw new Error(`Stickman skeleton has no girth rule for ${bone}`);
     };
     return skeleton.map(
@@ -144,18 +137,33 @@ const PHASES: number[] = Array.from(
 );
 
 /** First station of a chain. */
-function start(chain: IAutoMovieHumanLoftChain): number {
+function start(chain: IAutoMovieLoftChain): number {
   return chain.layers[0]!.y;
 }
 
 /** Last station of a chain. */
-function stop(chain: IAutoMovieHumanLoftChain): number {
+function stop(chain: IAutoMovieLoftChain): number {
   return chain.layers[chain.layers.length - 1]!.y;
 }
 
+/** The chain's layer station whose axis point stands nearest a point. */
+function nearest(chain: IAutoMovieLoftChain, p: readonly [number, number, number]): number {
+  let best: number = start(chain);
+  let least: number = Infinity;
+  for (const layer of chain.layers) {
+    const a: [number, number, number] = AutoMovieLoftChain.axis(chain, layer.y);
+    const d: number = Math.hypot(a[0] - p[0], a[1] - p[1], a[2] - p[2]);
+    if (d < least) {
+      least = d;
+      best = layer.y;
+    }
+  }
+  return best;
+}
+
 /** Girth radius, perimeter / 2pi, of the section at a station clamped into the chain. */
-function girth(chain: IAutoMovieHumanLoftChain, s: number): number {
-  const ring: [number, number, number][] = AutoMovieHumanLoftChain.ring(
+function girth(chain: IAutoMovieLoftChain, s: number): number {
+  const ring: [number, number, number][] = AutoMovieLoftChain.ring(
     chain,
     Math.min(stop(chain), Math.max(start(chain), s)),
     PHASES,

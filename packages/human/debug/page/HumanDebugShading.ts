@@ -22,6 +22,9 @@ const PREFIX: string = "human.skin.";
  *   sqrt(|k| / p95), a display convention that keeps gentle curvature readable beside sharp. It is
  *   computed once per part over the part's own triangles, so a seam vertex sees half its ring.
  *
+ * The view comparison's reference parts (`human.skin.reference.*`) draw at `referenceOpacity`, every
+ * other part at `opacity`.
+ *
  * Each {@link apply} restores the built materials and releases what the previous apply made, so
  * styles never compound; {@link dispose} does the same once more and shows every part.
  */
@@ -84,8 +87,11 @@ export class HumanDebugShading {
       if (!entry.object.visible) continue;
       shown.add(entry.id);
       const colour: string | undefined = HumanDebugPattern.last(entry.id, options.partColor, PREFIX)?.colour;
+      // The view comparison's reference draws at its own opacity.
+      const opacity: number = entry.id.startsWith(PREFIX + "reference.") ? options.referenceOpacity : options.opacity;
       const key: string = [
         options.shade,
+        opacity,
         colour ?? "",
         options.shade === "curvature" ? entry.id : "",
         options.shade === "appearance" ? entry.mesh.uuid : "",
@@ -93,9 +99,9 @@ export class HumanDebugShading {
       let material: THREE.Material | undefined = shared.get(key);
       if (material === undefined) {
         material = this.material(entry, options.shade, colour, scale);
-        if (options.opacity < 1) {
+        if (opacity < 1) {
           material.transparent = true;
-          material.opacity = options.opacity;
+          material.opacity = opacity;
           material.depthWrite = false;
         }
         shared.set(key, material);

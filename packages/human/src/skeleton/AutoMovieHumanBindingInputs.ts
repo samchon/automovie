@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBindingLips } from "./IAutoMovieHumanBindingLips";
 import type { IAutoMovieHumanChainRings } from "./IAutoMovieHumanChainRings";
 import { AutoMovieHumanCrotchBinding } from "./AutoMovieHumanCrotchBinding";
@@ -69,9 +69,14 @@ export namespace AutoMovieHumanBindingInputs {
     const joints: AutoMovieHumanJointCentres.IJoint[] =
       AutoMovieHumanJointCentres.derive(calibration);
     const skin: IAutoMovieHumanChainRings[] = rings(calibration, null);
+
+    // The neutral posture reads anatomy at heights, so it takes the published
+    // chains whose stations are heights (`AutoMovieHumanNeutral.LEVEL`), as the
+    // skeleton's own neutral does.
+    const neutralRings: IAutoMovieHumanChainRings[] = rings(calibration, AutoMovieHumanNeutral.LEVEL);
     const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.of(
       calibration,
-      (): AutoMovieHumanNeutral.ISource => ({ rings: skin, joints }),
+      (): AutoMovieHumanNeutral.ISource => ({ rings: neutralRings, joints }),
     );
     return {
       scale,
@@ -132,7 +137,7 @@ export namespace AutoMovieHumanBindingInputs {
         );
         const points: number[] = [];
         for (const y of stations)
-          for (const p of AutoMovieHumanLoftChain.ring(chain, y, phases))
+          for (const p of AutoMovieLoftChain.ring(chain, y, phases))
             points.push(p[0], p[1], p[2]);
         return { chain: chain.name, phases: PHASES, stations, points };
       });

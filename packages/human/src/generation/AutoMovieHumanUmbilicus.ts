@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+import type { IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
 import type { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
@@ -42,7 +42,7 @@ export namespace AutoMovieHumanUmbilicus {
     frame: AutoMovieHumanTrunkFeatureFrame.IFrame,
     base: AutoMovieHumanTrunkReliefNet.Base,
     halfPhase: number,
-  ): IAutoMovieHumanRelief {
+  ): IAutoMovieLoftRelief {
     const R: number = AutoMovieHumanUmbilicalProfile.RADIUS;
 
     return AutoMovieHumanTrunkReliefNet.fromFeature(

@@ -2,7 +2,7 @@ import type { IAutoMovieHumanHandStarField } from "./IAutoMovieHumanHandStarFiel
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanMonotoneCubic } from "../../lofting/AutoMovieHumanMonotoneCubic";
-import { AutoMovieHumanNaturalSpline } from "../../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 
 type Vec3 = AutoMovieHumanHandVector.Vec3;
 const { smoother }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
@@ -21,8 +21,8 @@ export namespace AutoMovieHumanHandStar {
       stations: field.stations,
       splines: Array.from(
         { length: count },
-        (_: unknown, k: number): AutoMovieHumanNaturalSpline.ISpline =>
-          AutoMovieHumanNaturalSpline.create(
+        (_: unknown, k: number): AutoMovieNaturalSpline.ISpline =>
+          AutoMovieNaturalSpline.create(
             field.stations,
             field.series.map((row: readonly number[]): number => row[k]!),
           ),
@@ -41,8 +41,8 @@ export namespace AutoMovieHumanHandStar {
       Math.max(field.stations[0]!, a),
     );
     const v: number[] = field.splines.map(
-      (s: AutoMovieHumanNaturalSpline.ISpline): number =>
-        AutoMovieHumanNaturalSpline.evaluate(s, held),
+      (s: AutoMovieNaturalSpline.ISpline): number =>
+        AutoMovieNaturalSpline.evaluate(s, held),
     );
     let r: number = v[4]!;
     for (let k: number = 1; 4 + 2 * k < v.length; k++)

@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "./AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "./IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * Tessellation stations of a chain: where its rings are generated.
@@ -26,7 +25,7 @@ export namespace AutoMovieHumanLoftStations {
    * @returns Increasing stations including both ends.
    */
   export function bisect(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     from: number,
     to: number,
     tolerance: number,
@@ -43,7 +42,7 @@ export namespace AutoMovieHumanLoftStations {
     const marks: number[] = [
       from,
       ...chain.layers
-        .map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y)
+        .map((l: IAutoMovieLoftChain.ILayer): number => l.y)
         .filter((y: number): boolean => y > from && y < to),
       to,
     ];
@@ -51,7 +50,7 @@ export namespace AutoMovieHumanLoftStations {
     const out: number[] = [from];
     // Each interval's end sections are handed down to its halves, so every
     // station's section is evaluated once.
-    const at: (s: number) => Ring = (s: number): Ring => AutoMovieHumanLoftChain.ring(chain, s, probes);
+    const at: (s: number) => Ring = (s: number): Ring => AutoMovieLoftChain.ring(chain, s, probes);
     const split = (a: number, b: number, level: number, ra: Ring, rb: Ring): void => {
       const m: number = (a + b) / 2;
 

@@ -1,6 +1,4 @@
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
-import { AutoMovieHumanRelief } from "../network/AutoMovieHumanRelief";
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+import { AutoMovieSplineCurve, AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
 
@@ -24,17 +22,17 @@ export namespace AutoMovieHumanTrunkTapes {
    */
   export function points(
     s: AutoMovieHumanTrunkQuadrant.ISection,
-    reliefs: readonly IAutoMovieHumanRelief[],
+    reliefs: readonly IAutoMovieLoftRelief[],
     count: number = PHASES,
   ): [number, number][] {
     const c: number[] = AutoMovieHumanTrunkRing.controls(s);
     return Array.from({ length: count }, (_: unknown, i: number): [number, number] => {
       const t: number = (2 * Math.PI * i) / count;
-      const p: [number, number, number, number] = AutoMovieHumanSplineCurve.evaluate(c, AutoMovieHumanTrunkQuadrant.ORDER, t);
+      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(c, AutoMovieHumanTrunkQuadrant.ORDER, t);
       let x: number = p[0];
       let z: number = p[1];
       for (const r of reliefs) {
-        const d: number = AutoMovieHumanRelief.height(r, s.y, t)[0];
+        const d: number = AutoMovieLoftRelief.height(r, s.y, t)[0];
         x += d * r.axis[0];
         z += d * r.axis[2];
       }

@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { HumanAnatomy } from "../../../internal/HumanAnatomy";
 import { HumanCurveDigitGirth } from "../../../internal/curves/HumanCurveDigitGirth";
 import { HumanCurveDigitOrder } from "../../../internal/curves/HumanCurveDigitOrder";
@@ -68,7 +68,7 @@ function made(): string[] {
   const p: HumanPeople.IPerson = HumanPeople.person("f1");
   const k: number = HumanCurveRings.scale(p);
   const swollen: IAutoMovieHumanBodyCalibration = structuredClone(p.body);
-  for (const l of swollen.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "finger.left.little")!.layers) {
+  for (const l of swollen.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "finger.left.little")!.layers) {
     l.coefficients = l.coefficients.map((v: number): number => 2 * v);
     l.slopes = l.slopes.map((v: number): number => 2 * v);
   }

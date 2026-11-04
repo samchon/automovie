@@ -1,4 +1,4 @@
-import { AutoMovieHumanStationHermite } from "./AutoMovieHumanStationHermite";
+import { AutoMovieStationHermite } from "@automovie/engine";
 import type { IAutoMovieHumanSeam } from "./IAutoMovieHumanSeam";
 
 /**
@@ -190,8 +190,8 @@ export namespace AutoMovieHumanSeamPatch {
   export function evaluate(patch: IPatch, u: number, v: number): IJet {
     const r: 1 | 2 = patch.order;
     const quintic: boolean = r === 2;
-    const bu: number[][] = [0, 1, 2].map((o: number): number[] => AutoMovieHumanStationHermite.weights(u, 1, o as 0 | 1 | 2, quintic));
-    const bv: number[][] = [0, 1, 2].map((o: number): number[] => AutoMovieHumanStationHermite.weights(v, 1, o as 0 | 1 | 2, quintic));
+    const bu: number[][] = [0, 1, 2].map((o: number): number[] => AutoMovieStationHermite.weights(u, 1, o as 0 | 1 | 2, quintic));
+    const bv: number[][] = [0, 1, 2].map((o: number): number[] => AutoMovieStationHermite.weights(v, 1, o as 0 | 1 | 2, quintic));
 
     // Hermite basis of derivative order k at end e (0 or 1), differentiated o times.
     const basis = (b: number[][], e: number, k: number, o: number): number => b[o]![e === 0 ? k : 5 - k]!;

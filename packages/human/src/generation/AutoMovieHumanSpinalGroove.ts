@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+import type { IAutoMovieLoftRelief } from "@automovie/engine";
 import type { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanSpinalProfile } from "./AutoMovieHumanSpinalProfile";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
@@ -43,7 +43,7 @@ export namespace AutoMovieHumanSpinalGroove {
     half: number,
     base: AutoMovieHumanTrunkReliefNet.Base,
     halfPhase: number,
-  ): IAutoMovieHumanRelief {
+  ): IAutoMovieLoftRelief {
     return AutoMovieHumanTrunkReliefNet.fromFeature(
       "trunk.spinalGroove",
       feature(frame, half),

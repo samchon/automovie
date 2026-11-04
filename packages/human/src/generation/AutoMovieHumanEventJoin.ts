@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanEventJoinPlace } from "./AutoMovieHumanEventJoinPlace";
 import { AutoMovieHumanEventJoinRing } from "./AutoMovieHumanEventJoinRing";
 import { AutoMovieHumanEventJoinSlope } from "./AutoMovieHumanEventJoinSlope";
@@ -96,28 +96,28 @@ export namespace AutoMovieHumanEventJoin {
   export function reconcile(
     calibration: IAutoMovieHumanBodyCalibration,
   ): IAutoMovieHumanBodyCalibration {
-    const chains: Map<string, IAutoMovieHumanLoftChain> = new Map(
+    const chains: Map<string, IAutoMovieLoftChain> = new Map(
       calibration.chains.map(
-        (c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain] => [
+        (c: IAutoMovieLoftChain): [string, IAutoMovieLoftChain] => [
           c.name,
           c,
         ],
       ),
     );
-    const replaced: Map<string, IAutoMovieHumanLoftChain> = new Map();
+    const replaced: Map<string, IAutoMovieLoftChain> = new Map();
     for (const event of calibration.events) {
       // Children built in the parent's tangent plane are left as built: a
       // re-slope inside a rounded pinch bent it back into a crease.
       if (event.shared === true) continue;
-      const parent: IAutoMovieHumanLoftChain = chains.get(event.parent)!;
+      const parent: IAutoMovieLoftChain = chains.get(event.parent)!;
       for (const split of event.splits) {
         if (split.shared === true) continue;
-        const fitted: IAutoMovieHumanLoftChain | undefined = chains.get(
+        const fitted: IAutoMovieLoftChain | undefined = chains.get(
           split.child,
         );
         if (fitted === undefined)
           throw new Error(`Calibration lacks the ${split.child} chain`);
-        const child: IAutoMovieHumanLoftChain =
+        const child: IAutoMovieLoftChain =
           replaced.get(split.child) ?? fitted;
         replaced.set(
           split.child,
@@ -128,7 +128,7 @@ export namespace AutoMovieHumanEventJoin {
     return {
       ...calibration,
       chains: calibration.chains.map(
-        (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
+        (c: IAutoMovieLoftChain): IAutoMovieLoftChain =>
           replaced.get(c.name) ?? c,
       ),
     };
@@ -137,12 +137,12 @@ export namespace AutoMovieHumanEventJoin {
 
 /** Child chain moved onto the parent's ring and re-sloped. */
 function join(
-  parent: IAutoMovieHumanLoftChain,
-  child: IAutoMovieHumanLoftChain,
+  parent: IAutoMovieLoftChain,
+  child: IAutoMovieLoftChain,
   direction: "down" | "up",
   arcs: [number, number][],
   fillet: number,
-): IAutoMovieHumanLoftChain {
+): IAutoMovieLoftChain {
   if (child.basis !== "spline") return child;
   const ring: AutoMovieHumanEventJoinRing.IRing = AutoMovieHumanEventJoinRing.parentRing(parent, direction, arcs);
   return AutoMovieHumanEventJoinSlope.slope(parent, ring, AutoMovieHumanEventJoinPlace.place(ring, child, direction), direction, fillet);

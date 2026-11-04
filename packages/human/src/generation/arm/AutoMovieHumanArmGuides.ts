@@ -1,5 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "../../lofting/AutoMovieHumanNaturalSpline";
-import type { AutoMovieHumanPolarSector } from "../../lofting/AutoMovieHumanPolarSector";
+import { AutoMovieNaturalSpline, type AutoMoviePolarSector } from "@automovie/engine";
 import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
 import type { AutoMovieHumanArmTube } from "./AutoMovieHumanArmTube";
 
@@ -35,10 +34,10 @@ export namespace AutoMovieHumanArmGuides {
       }
 
     const xs: number[] = rows.map((r: IAutoMovieHumanArmPiece.IRow): number => r.s);
-    const splines: AutoMovieHumanNaturalSpline.ISpline[] = Array.from(
+    const splines: AutoMovieNaturalSpline.ISpline[] = Array.from(
       { length: CHANNELS },
-      (_: unknown, k: number): AutoMovieHumanNaturalSpline.ISpline =>
-        AutoMovieHumanNaturalSpline.create(
+      (_: unknown, k: number): AutoMovieNaturalSpline.ISpline =>
+        AutoMovieNaturalSpline.create(
           xs,
           rows.map((r: IAutoMovieHumanArmPiece.IRow): number => r.channels[k]!),
         ),
@@ -48,11 +47,11 @@ export namespace AutoMovieHumanArmGuides {
 
     return (s: number): AutoMovieHumanArmTube.IShape => {
       const at: number = Math.min(hi, Math.max(lo, s));
-      const v: number[] = splines.map((sp: AutoMovieHumanNaturalSpline.ISpline): number => AutoMovieHumanNaturalSpline.evaluate(sp, at));
+      const v: number[] = splines.map((sp: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(sp, at));
 
       return {
         guides: ANGLES.map(
-          (angle: number, j: number): AutoMovieHumanPolarSector.IGuide => ({
+          (angle: number, j: number): AutoMoviePolarSector.IGuide => ({
             angle,
             value: v[3 * j]!,
             slope: v[3 * j + 1]!,

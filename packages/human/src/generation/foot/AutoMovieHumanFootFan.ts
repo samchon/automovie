@@ -1,4 +1,4 @@
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
+import type { AutoMovieLoftFrame } from "@automovie/engine";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import type { AutoMovieHumanFootWebLine } from "./AutoMovieHumanFootWebLine";
 
@@ -25,7 +25,7 @@ type Vec3 = G.Vec3;
  */
 export namespace AutoMovieHumanFootFan {
   /** The plane at a station. */
-  export function plane(line: AutoMovieHumanFootWebLine.IWebLine, station: number): AutoMovieHumanLoftFrame.IFrame {
+  export function plane(line: AutoMovieHumanFootWebLine.IWebLine, station: number): AutoMovieLoftFrame.IFrame {
     const turn: { phi: number; theta: number } = angles(line, station);
     const phi: number = turn.phi;
     const theta: number = turn.theta;
@@ -58,7 +58,7 @@ export namespace AutoMovieHumanFootFan {
 
     // Inside it, the side of the plane a point is on changes once.
     const side = (s: number): number => {
-      const f: AutoMovieHumanLoftFrame.IFrame = plane(line, s);
+      const f: AutoMovieLoftFrame.IFrame = plane(line, s);
       return G.dot(r, G.cross(f.u, f.v));
     };
     let lo: number = line.square - w;

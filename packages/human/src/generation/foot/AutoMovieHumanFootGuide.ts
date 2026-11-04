@@ -1,5 +1,4 @@
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanSeamStation } from "../../lofting/AutoMovieHumanSeamStation";
+import { type AutoMovieLoftFrame, AutoMovieSeamStation } from "@automovie/engine";
 import { AutoMovieHumanFootFan } from "./AutoMovieHumanFootFan";
 import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
@@ -17,7 +16,7 @@ type Vec3 = G.Vec3;
  * plane's station and its place in that plane, and the place is the natural
  * cubic spline of the station through the knots' places smoothed to their own
  * scatter (`AutoMovieHumanFootGuideSmoothing`; the shared C2 rule,
- * `AutoMovieHumanSeamStation`). So the guide meets every plane once by
+ * `AutoMovieSeamStation`). So the guide meets every plane once by
  * construction, through the yaw fan, the hand-over and the turn alike, and its
  * place in the planes is C2; a guide over chord length climbed within a few
  * planes where it joined a vertical cut's low extreme to a horizontal cut's
@@ -95,7 +94,7 @@ export namespace AutoMovieHumanFootGuide {
     // Each knot read as its station and its place in that station's plane.
     const read: IKnot[] = list.map((p: Vec3): IKnot => {
       const station: number = AutoMovieHumanFootFan.station(line, p);
-      const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
+      const f: AutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
       const r: Vec3 = G.sub(p, f.origin);
 
       return { station, across: G.dot(r, f.v), up: G.dot(r, f.u) };
@@ -113,8 +112,8 @@ export namespace AutoMovieHumanFootGuide {
       t,
       kept.map((q: IKnot): number[] => [q.across, q.up]),
     );
-    const curvatures: number[][] = AutoMovieHumanSeamStation.curvatures(t, values);
-    const slopes: number[][] = AutoMovieHumanSeamStation.slopes(t, values, curvatures);
+    const curvatures: number[][] = AutoMovieSeamStation.curvatures(t, values);
+    const slopes: number[][] = AutoMovieSeamStation.slopes(t, values, curvatures);
 
     return { stations: t, values, slopes, curvatures };
   }
@@ -147,7 +146,7 @@ export namespace AutoMovieHumanFootGuide {
           (((a ** 3 - a) * g.curvatures[lo]![c]! + (b ** 3 - b) * g.curvatures[hi]![c]!) * h * h) / 6,
       ) as [number, number];
     }
-    const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
+    const f: AutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
 
     return G.plus(f.origin, G.plus(G.scale(f.v, q[0]), G.scale(f.u, q[1])));
   }

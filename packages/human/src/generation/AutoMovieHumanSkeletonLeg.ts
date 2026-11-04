@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanPolarSection } from "../lofting/AutoMovieHumanPolarSection";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanFootPrior } from "./AutoMovieHumanFootPrior";
 import type { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
 import { AutoMovieHumanLegPrior } from "./AutoMovieHumanLegPrior";
@@ -65,10 +64,10 @@ export namespace AutoMovieHumanSkeletonLeg {
         prior.ankle.fat * inputs.fat +
         prior.ankle.muscularity * inputs.muscularity) *
       inputs.scale;
-    const foot: IAutoMovieHumanLoftChain = footed.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === `foot.${side}`,
+    const foot: IAutoMovieLoftChain = footed.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === `foot.${side}`,
     )!;
-    const ankleRing: Vec3[] = AutoMovieHumanLoftChain.ring(
+    const ankleRing: Vec3[] = AutoMovieLoftChain.ring(
       foot,
       foot.layers[foot.layers.length - 1]!.y,
       LEG_PHASES,
@@ -125,8 +124,8 @@ export namespace AutoMovieHumanSkeletonLeg {
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
   ): Vec3[] {
-    const trunk: IAutoMovieHumanLoftChain = calibration.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk",
+    const trunk: IAutoMovieLoftChain = calibration.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "trunk",
     )!;
     const event: IAutoMovieHumanBodyCalibration.IEvent = calibration.events.find(
       (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
@@ -141,7 +140,7 @@ export namespace AutoMovieHumanSkeletonLeg {
       throw new Error(`The trunk's bottom ring gives no arc to leg.${side}`);
     return split.arcs.flatMap(([from, to]: [number, number]): Vec3[] => {
       const span: number = to >= from ? to - from : to + 2 * Math.PI - from;
-      return AutoMovieHumanLoftChain.ring(
+      return AutoMovieLoftChain.ring(
         trunk,
         trunk.layers[0]!.y,
         Array.from(

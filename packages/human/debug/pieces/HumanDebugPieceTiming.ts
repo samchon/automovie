@@ -4,7 +4,7 @@ import { AutoMovieHumanBodyLaw } from "../../src/generation/AutoMovieHumanBodyLa
 import { AutoMovieHumanBodySurface } from "../../src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "../../src/generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftMesh } from "../../src/lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../../src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanRig } from "../../src/skeleton/AutoMovieHumanRig";
 import type { IHumanDebugDocument } from "../contracts/IHumanDebugDocument";
 import type { IHumanDebugPerson } from "../people/IHumanDebugPerson";
@@ -110,7 +110,7 @@ export const HumanDebugPieceTiming: IHumanDebugPiece = {
         chains,
         vertices: surface.mesh.positions.length / 3,
         triangles: surface.mesh.indices.length / 3,
-        chainCount: calibration.chains.map((c: IAutoMovieHumanLoftChain): string => c.name).length,
+        chainCount: calibration.chains.map((c: IAutoMovieLoftChain): string => c.name).length,
       },
     };
   },

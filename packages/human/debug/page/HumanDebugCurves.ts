@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { HumanDebugOptions } from "../contracts/HumanDebugOptions";
+import { HumanDebugViewCurves } from "../compare/HumanDebugViewCurves";
 import { HumanDebugPattern } from "../contracts/HumanDebugPattern";
 import type { IHumanDebugDocument } from "../contracts/IHumanDebugDocument";
 import type { IHumanDebugOptions } from "../contracts/IHumanDebugOptions";
@@ -32,7 +33,9 @@ const COLOURS: Readonly<Record<IHumanDebugOptions.CurveKind, string>> = {
  * so the tube does not twist. The tube passes through the supplied points exactly; nothing is
  * refitted. A tube is built on first show and rebuilt only when its radius changes. Curves are
  * unlit so the light never washes them out; chain axes, which lie inside the body, and every curve
- * under `xray` draw through the surface.
+ * under `xray` draw through the surface. A curve's own colour, when its document gives one, stands
+ * over its kind's, and a compared part's curve (`HumanDebugViewCurves`) shows only while `part`
+ * names its part and `views` its view (`axis` its axis).
  */
 export class HumanDebugCurves {
   /** Root of every tube. */
@@ -76,7 +79,11 @@ export class HumanDebugCurves {
   public apply(options: IHumanDebugOptions): string[] {
     const shown: string[] = [];
     for (const [id, tube] of this.tubes) {
+      const view: ReturnType<typeof HumanDebugViewCurves.view> = HumanDebugViewCurves.view(id);
       tube.mesh.visible =
+        (view === null ||
+          (HumanDebugPattern.matches(view.part, options.part, "") &&
+            (view.view === "axis" ? options.axis : options.views.includes(view.view)))) &&
         options.kinds.includes(tube.kind) &&
         HumanDebugPattern.matches(id, options.curves, PREFIX) &&
         !HumanDebugPattern.matches(id, options.curveHide, PREFIX);
@@ -89,7 +96,7 @@ export class HumanDebugCurves {
         tube.radius = radius;
       }
       tube.mesh.material.color.set(
-        "#" + (HumanDebugPattern.last(id, options.curveColor, PREFIX)?.colour ?? COLOURS[tube.kind]),
+        "#" + (HumanDebugPattern.last(id, options.curveColor, PREFIX)?.colour ?? tube.curve.colour ?? COLOURS[tube.kind]),
       );
       const through: boolean = options.xray || tube.kind === "axis";
       tube.mesh.material.depthTest = !through;
@@ -100,16 +107,25 @@ export class HumanDebugCurves {
   }
 
   /**
-   * Label anchors of the shown curves the options label: the middle point of each.
+   * Label anchors of the shown curves the options label: the middle point of each, and every
+   * compared curve's own label (`HumanDebugViewCurves.label`) while `viewLabels` holds.
    *
-   * @param options Frame options; `labels`, `thick` and `curveColor` are read.
+   * @param options Frame options; `labels`, `viewLabels`, `thick` and `curveColor` are read.
    * @returns Id without its namespace, anchor in metres and CSS colour.
    */
   public labels(options: IHumanDebugOptions): { id: string; at: THREE.Vector3; colour: string }[] {
-    if (options.labels === "0") return [];
     const out: { id: string; at: THREE.Vector3; colour: string }[] = [];
     for (const [id, tube] of this.tubes) {
       if (!tube.mesh.visible) continue;
+
+      // A compared part's curve carries its part and view, at the place its view names.
+      const compared: { text: string; index: number } | null = HumanDebugViewCurves.label(id, tube.curve.points.length);
+      if (compared !== null || HumanDebugViewCurves.view(id) !== null) {
+        if (compared !== null && options.viewLabels)
+          out.push({ id: compared.text, at: new THREE.Vector3(...tube.curve.points[compared.index]!), colour: "#" + tube.mesh.material.color.getHexString() });
+        continue;
+      }
+      if (options.labels === "0") continue;
       if (
         options.labels === "marked" &&
         HumanDebugPattern.last(id, options.thick, PREFIX) === undefined &&

@@ -16,8 +16,6 @@ The raw-array observers read saved emitted coordinates and indices without impor
 - Check numerical support before reporting material strain. Positive finite triangle area does not establish a usable tangent basis. In the saved `tall` test output, bind-mesh `head.upper` faces 316430, 317065 and 329242 have basis conditions from approximately `2.43e13` to `8.62e14`; their readings in `neutral`, `demo` and `limit` remain unavailable, nine readings in total. These triangle addresses belong to that person's mesh. Preserve bind/posed corners, altitude ratio, conditioning, world-coordinate resolution and orthogonalization residual with the refusal. An arithmetic screen is an engineering guard, not a certified error bound or an anatomical allowance.
 - Assess thin faces by their actual numerical support rather than rejecting every thin triangle. In the saved `wide` test output, bind-mesh `ear.lobe.left` face 383720 has a basis condition of approximately 1129.95. Eighteen identity, right-angle rotation and uniform-scale controls across its six vertex permutations pass, as do six permutations of its actual `demo` posed map. The observed maximum principal stretch, approximately 140.862398820536 to 140.862398820538, belongs to that person's particular material face and pose; it supplies neither a universal clinical threshold nor a whole-body stretch claim.
 
-The maintained control is [raw reference comparison](../../../test/src/features/human/reference/surface/test_human_raw_reference_oracle.ts).
-
 The following sections describe construction rules by part. A better construction replaces any of them.
 
 ## Whole body

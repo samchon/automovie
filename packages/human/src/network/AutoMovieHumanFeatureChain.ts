@@ -1,6 +1,4 @@
-import { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanSeamStation } from "../lofting/AutoMovieHumanSeamStation";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftFrame, AutoMovieSeamStation, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanFeatureChain } from "./IAutoMovieHumanFeatureChain";
 
 /**
@@ -23,7 +21,7 @@ export namespace AutoMovieHumanFeatureChain {
    */
   export function expand(
     chain: IAutoMovieHumanFeatureChain,
-  ): IAutoMovieHumanLoftChain {
+  ): IAutoMovieLoftChain {
     const keys: readonly IAutoMovieHumanFeatureChain.IKey[] = chain.keys;
     if (keys.length < 2)
       throw new Error(`Feature chain ${chain.name} needs two keys`);
@@ -48,7 +46,7 @@ export namespace AutoMovieHumanFeatureChain {
         (
           k: IAutoMovieHumanFeatureChain.IKey,
           i: number,
-        ): IAutoMovieHumanLoftChain.ILayer => ({
+        ): IAutoMovieLoftChain.ILayer => ({
           y: k.station,
           ...(k.frame === undefined ? {} : { frame: k.frame }),
           coefficients: [...k.coefficients],
@@ -77,13 +75,13 @@ export namespace AutoMovieHumanFeatureChain {
    */
   export function compose(
     chains: readonly IAutoMovieHumanFeatureChain[],
-  ): IAutoMovieHumanLoftChain[] {
+  ): IAutoMovieLoftChain[] {
     const named: Map<string, IAutoMovieHumanFeatureChain> = new Map(
       chains.map(
         (c: IAutoMovieHumanFeatureChain): [string, IAutoMovieHumanFeatureChain] => [c.name, c],
       ),
     );
-    const done: Map<string, IAutoMovieHumanLoftChain> = new Map();
+    const done: Map<string, IAutoMovieLoftChain> = new Map();
     const open: Set<string> = new Set();
     const visit = (chain: IAutoMovieHumanFeatureChain): void => {
       if (done.has(chain.name)) return;
@@ -102,7 +100,7 @@ export namespace AutoMovieHumanFeatureChain {
     };
     chains.forEach(visit);
     return chains.map(
-      (c: IAutoMovieHumanFeatureChain): IAutoMovieHumanLoftChain => done.get(c.name)!,
+      (c: IAutoMovieHumanFeatureChain): IAutoMovieLoftChain => done.get(c.name)!,
     );
   }
 
@@ -120,8 +118,8 @@ export namespace AutoMovieHumanFeatureChain {
     t: readonly number[],
     values: readonly (readonly number[])[],
   ): number[][] {
-    // The shared station rule (AutoMovieHumanSeamStation) owns the solve.
-    return AutoMovieHumanSeamStation.curvatures(t, values);
+    // The shared station rule (AutoMovieSeamStation) owns the solve.
+    return AutoMovieSeamStation.curvatures(t, values);
   }
 
   /** First derivatives of the natural cubic spline at its stations, by the shared station rule. */
@@ -130,14 +128,14 @@ export namespace AutoMovieHumanFeatureChain {
     values: readonly (readonly number[])[],
     M?: readonly (readonly number[])[],
   ): number[][] {
-    return AutoMovieHumanSeamStation.slopes(t, values, M);
+    return AutoMovieSeamStation.slopes(t, values, M);
   }
 
   /** One chain's layers with their jets, its owners already expanded. */
   function jets(
     chain: IAutoMovieHumanFeatureChain,
-    done: ReadonlyMap<string, IAutoMovieHumanLoftChain>,
-  ): IAutoMovieHumanLoftChain {
+    done: ReadonlyMap<string, IAutoMovieLoftChain>,
+  ): IAutoMovieLoftChain {
     const keys: readonly IAutoMovieHumanFeatureChain.IKey[] = chain.keys;
     if (keys.length < 2)
       throw new Error(`Feature chain ${chain.name} needs two keys`);
@@ -147,8 +145,8 @@ export namespace AutoMovieHumanFeatureChain {
     );
     const ownerEnd = (
       share: IAutoMovieHumanFeatureChain.IShare,
-    ): IAutoMovieHumanLoftChain.ILayer => {
-      const owner: IAutoMovieHumanLoftChain = done.get(share.owner)!;
+    ): IAutoMovieLoftChain.ILayer => {
+      const owner: IAutoMovieLoftChain = done.get(share.owner)!;
       return share.end === "top"
         ? owner.layers[owner.layers.length - 1]!
         : owner.layers[0]!;
@@ -160,7 +158,7 @@ export namespace AutoMovieHumanFeatureChain {
     );
     const planes: number[][] = keys.map(
       (k: IAutoMovieHumanFeatureChain.IKey): number[] =>
-        flat(k.frame ?? AutoMovieHumanLoftFrame.horizontal(k.station)),
+        flat(k.frame ?? AutoMovieLoftFrame.horizontal(k.station)),
     );
 
     // A cap's keys, past its end key, take their planes from its formula.
@@ -172,13 +170,13 @@ export namespace AutoMovieHumanFeatureChain {
 
     // Shared ends copy the owner's key before the spline is solved, and
     // keep the owner's derivatives, signed into this chain's station.
-    const overrides: [number, AutoMovieHumanSeamStation.ICopy][] = [];
+    const overrides: [number, AutoMovieSeamStation.ICopy][] = [];
     for (const which of ["bottom", "top"] as const) {
       const share: IAutoMovieHumanFeatureChain.IShare | undefined = chain.ends?.[which];
       if (share === undefined) continue;
       if (chain.cap?.end === which)
         throw new Error(`Chain ${chain.name} both shares and caps its ${which} end`);
-      const end: IAutoMovieHumanLoftChain.ILayer = ownerEnd(share);
+      const end: IAutoMovieLoftChain.ILayer = ownerEnd(share);
       const index: number = which === "bottom" ? 0 : last;
       if (end.coefficients.length !== coefficients[index]!.length)
         throw new Error(`Chain ${chain.name} and ${share.owner} share a key of different control counts`);
@@ -186,7 +184,7 @@ export namespace AutoMovieHumanFeatureChain {
         throw new Error(`Owner ${share.owner} of ${chain.name} carries no jets`);
 
       // The owner publishes the layer; this chain copies it (rule J3).
-      const copied: AutoMovieHumanSeamStation.ICopy = AutoMovieHumanSeamStation.copy(
+      const copied: AutoMovieSeamStation.ICopy = AutoMovieSeamStation.copy(
         end,
         which === share.end ? -1 : 1,
       );
@@ -228,7 +226,7 @@ export namespace AutoMovieHumanFeatureChain {
       ...(chain.reliefs?.length ? { reliefs: chain.reliefs } : {}),
       ...(chain.cap === undefined ? {} : { pole: { end: chain.cap.end, point: chain.cap.pole } }),
       layers: keys.map(
-        (k: IAutoMovieHumanFeatureChain.IKey, i: number): IAutoMovieHumanLoftChain.ILayer => ({
+        (k: IAutoMovieHumanFeatureChain.IKey, i: number): IAutoMovieLoftChain.ILayer => ({
           y: k.station,
           frame: unflat(planes[i]!),
           coefficients: coefficients[i]!,
@@ -268,10 +266,10 @@ export namespace AutoMovieHumanFeatureChain {
     const beside: IAutoMovieHumanFeatureChain.IKey | undefined = keys[at - sigma];
     if (at < 0 || beside === undefined)
       throw new Error(`Cap of ${chain.name} has no end key with a base key beside it`);
-    const frameOf = (k: IAutoMovieHumanFeatureChain.IKey): AutoMovieHumanLoftFrame.IFrame =>
-      k.frame ?? AutoMovieHumanLoftFrame.horizontal(k.station);
-    const f: AutoMovieHumanLoftFrame.IFrame = frameOf(keys[at]!);
-    const g: AutoMovieHumanLoftFrame.IFrame = frameOf(beside);
+    const frameOf = (k: IAutoMovieHumanFeatureChain.IKey): AutoMovieLoftFrame.IFrame =>
+      k.frame ?? AutoMovieLoftFrame.horizontal(k.station);
+    const f: AutoMovieLoftFrame.IFrame = frameOf(keys[at]!);
+    const g: AutoMovieLoftFrame.IFrame = frameOf(beside);
     const w: number[] = [
       f.v[1] * f.u[2] - f.v[2] * f.u[1],
       f.v[2] * f.u[0] - f.v[0] * f.u[2],
@@ -312,12 +310,12 @@ export namespace AutoMovieHumanFeatureChain {
   }
 
   /** A plane as nine numbers `[origin, u, v]`. */
-  function flat(f: AutoMovieHumanLoftFrame.IFrame): number[] {
+  function flat(f: AutoMovieLoftFrame.IFrame): number[] {
     return [...f.origin, ...f.u, ...f.v];
   }
 
   /** A plane of nine numbers, its axes as given. */
-  function unflat(x: readonly number[]): AutoMovieHumanLoftFrame.IFrame {
+  function unflat(x: readonly number[]): AutoMovieLoftFrame.IFrame {
     return {
       origin: [x[0]!, x[1]!, x[2]!],
       u: [x[3]!, x[4]!, x[5]!],

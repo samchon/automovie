@@ -1,5 +1,5 @@
 import { AutoMovieHumanHorizontalChain } from "../lofting/AutoMovieHumanHorizontalChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanNeckPrior } from "./AutoMovieHumanNeckPrior";
 
 /**
@@ -36,7 +36,7 @@ export namespace AutoMovieHumanNeckConstruction {
    * @param inputs Tapes in calibration millimetres.
    * @returns The chain named `head`, whose top the head stands on.
    */
-  export function generate(inputs: IInputs): IAutoMovieHumanLoftChain {
+  export function generate(inputs: IInputs): IAutoMovieLoftChain {
     const prior: AutoMovieHumanNeckPrior.IPrior = AutoMovieHumanNeckPrior.PRIOR;
     if (!(inputs.neck > 0) || !(inputs.neckBase > 0))
       throw new Error("A neck needs positive tapes");

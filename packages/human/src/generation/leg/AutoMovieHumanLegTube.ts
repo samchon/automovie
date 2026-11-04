@@ -1,10 +1,9 @@
+import { AutoMovieHumanGuidePublish } from "../../lofting/AutoMovieHumanGuidePublish";
 import { AutoMovieHumanChordArc } from "../../lofting/AutoMovieHumanChordArc";
-import { AutoMovieHumanPolarSector } from "../../lofting/AutoMovieHumanPolarSector";
+import { AutoMoviePolarSector, AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanSeamCarve } from "../../lofting/AutoMovieHumanSeamCarve";
 import { AutoMovieHumanSeamKnot } from "../../lofting/AutoMovieHumanSeamKnot";
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
-import { AutoMovieHumanRelief } from "../../network/AutoMovieHumanRelief";
-import type { IAutoMovieHumanRelief } from "../../network/IAutoMovieHumanRelief";
 import { AutoMovieHumanLegGuides } from "./AutoMovieHumanLegGuides";
 import { AutoMovieHumanLegHull } from "./AutoMovieHumanLegHull";
 import type { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
@@ -37,7 +36,7 @@ export namespace AutoMovieHumanLegTube {
     girth: (s: number) => number;
 
     /** The reliefs, their windows on the chart (station in mm, phase in radians) and their axes in the section frame. */
-    reliefs: readonly IAutoMovieHumanRelief[];
+    reliefs: readonly IAutoMovieLoftRelief[];
 
     /** The neighbours' rings as the shape's first and last rows. */
     ends?: AutoMovieHumanLegGuides.IEnds;
@@ -76,7 +75,7 @@ export namespace AutoMovieHumanLegTube {
     return (s: number): ISection => {
       const own: AutoMovieHumanLegGuides.IShape = shape(s);
       const ends: AutoMovieHumanChordArc.IEnd[] = own.guides.map(
-        (g: AutoMovieHumanPolarSector.IGuide): AutoMovieHumanChordArc.IEnd => AutoMovieHumanPolarSector.publish(g),
+        (g: AutoMoviePolarSector.IGuide): AutoMovieHumanChordArc.IEnd => AutoMovieHumanGuidePublish.publish(g),
       );
       const count: number = ends.length;
 
@@ -97,7 +96,7 @@ export namespace AutoMovieHumanLegTube {
         const length: number = Math.hypot(p[0], p[1]);
         const e: [number, number] = [p[0] / length, p[1] / length];
         for (const r of input.reliefs) {
-          const height: number = AutoMovieHumanRelief.height(r, s, m * h)[0];
+          const height: number = AutoMovieLoftRelief.height(r, s, m * h)[0];
           if (height === 0) continue;
           const middle: number = r.phases[0] + (r.phases[1] - r.phases[0]) / 2;
           const additive: boolean = r.axis[0] * Math.cos(middle) + r.axis[2] * Math.sin(middle) > 0;

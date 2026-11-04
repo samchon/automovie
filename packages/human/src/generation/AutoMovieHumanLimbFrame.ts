@@ -1,6 +1,4 @@
-import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { type AutoMovieLoftFrame, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * Section frames of a limb lofted on its bones, and the layers they carry.
@@ -30,7 +28,7 @@ export namespace AutoMovieHumanLimbFrame {
     station: number;
 
     /** The section's plane. */
-    frame: AutoMovieHumanLoftFrame.IFrame;
+    frame: AutoMovieLoftFrame.IFrame;
 
     /** One world point per control point, in phase order. */
     ring: Vec3[];
@@ -60,14 +58,14 @@ export namespace AutoMovieHumanLimbFrame {
    * A frame from an origin, a normal toward increasing station and an
    * in-plane axis, completed so that the normal is `v x u`.
    */
-  export function frame(origin: Vec3, normal: Vec3, u: Vec3): AutoMovieHumanLoftFrame.IFrame {
+  export function frame(origin: Vec3, normal: Vec3, u: Vec3): AutoMovieLoftFrame.IFrame {
     const n: Vec3 = unit(normal);
     const a: Vec3 = orthogonal(u, n);
     return { origin, u: a, v: cross(a, n) };
   }
 
   /** The frame's normal `v x u`, toward increasing station. */
-  export function normal(f: AutoMovieHumanLoftFrame.IFrame): Vec3 {
+  export function normal(f: AutoMovieLoftFrame.IFrame): Vec3 {
     return cross(f.v, f.u);
   }
 
@@ -75,7 +73,7 @@ export namespace AutoMovieHumanLimbFrame {
    * The mirror image of a left-side frame across the midline (z to -z), with
    * `v` turned over so its normal still points up the chain.
    */
-  export function mirror(f: AutoMovieHumanLoftFrame.IFrame): AutoMovieHumanLoftFrame.IFrame {
+  export function mirror(f: AutoMovieLoftFrame.IFrame): AutoMovieLoftFrame.IFrame {
     return {
       origin: [f.origin[0], f.origin[1], -f.origin[2]],
       u: [f.u[0], f.u[1], -f.u[2]],
@@ -88,17 +86,17 @@ export namespace AutoMovieHumanLimbFrame {
     sample: ISample,
     order: number,
   ): { coefficients: number[]; lift: number[] } {
-    const f: AutoMovieHumanLoftFrame.IFrame = sample.frame;
+    const f: AutoMovieLoftFrame.IFrame = sample.frame;
     const n: Vec3 = normal(f);
     const local: Vec3[] = sample.ring.map((p: Vec3): Vec3 => {
       const d: Vec3 = sub(p, f.origin);
       return [dot(d, f.u), dot(d, f.v), dot(d, n)];
     });
     return {
-      coefficients: AutoMovieHumanSplineCurve.interpolate(
+      coefficients: AutoMovieSplineCurve.interpolate(
         local.map((q: Vec3): [number, number] => [q[0], q[1]]),
       ),
-      lift: AutoMovieHumanSplineCurve.interpolate(
+      lift: AutoMovieSplineCurve.interpolate(
         local.map((q: Vec3): [number, number] => [q[2], 0]),
       ).slice(0, order),
     };
@@ -115,14 +113,14 @@ export namespace AutoMovieHumanLimbFrame {
     before: ISample,
     after: ISample,
     order: number,
-  ): IAutoMovieHumanLoftChain.ILayer {
+  ): IAutoMovieLoftChain.ILayer {
     const h: ReturnType<typeof controls> = controls(here, order);
     const a: ReturnType<typeof controls> = controls(before, order);
     const b: ReturnType<typeof controls> = controls(after, order);
     const span: number = after.station - before.station;
     const slope = (lo: readonly number[], hi: readonly number[]): number[] =>
       lo.map((v: number, i: number): number => (hi[i]! - v) / span);
-    const flat = (f: AutoMovieHumanLoftFrame.IFrame): number[] => [...f.origin, ...f.u, ...f.v];
+    const flat = (f: AutoMovieLoftFrame.IFrame): number[] => [...f.origin, ...f.u, ...f.v];
     const d: number[] = slope(flat(before.frame), flat(after.frame));
     return {
       y: here.station,
@@ -147,14 +145,14 @@ export namespace AutoMovieHumanLimbFrame {
   export function layers(
     samples: readonly ISample[],
     order: number,
-  ): IAutoMovieHumanLoftChain.ILayer[] {
+  ): IAutoMovieLoftChain.ILayer[] {
     const values = samples.map((s: ISample): number[] => {
       const c = controls(s, order);
       return [...c.coefficients, ...c.lift, ...s.frame.origin, ...s.frame.u, ...s.frame.v];
     });
     const stations: number[] = samples.map((s: ISample): number => s.station);
     const width: number = 2 * order;
-    return samples.map((s: ISample, k: number): IAutoMovieHumanLoftChain.ILayer => {
+    return samples.map((s: ISample, k: number): IAutoMovieLoftChain.ILayer => {
       const d: number[] = derivative(stations, values, k);
       const own: number[] = values[k]!;
       return {

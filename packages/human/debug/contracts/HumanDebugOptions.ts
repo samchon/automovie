@@ -55,6 +55,15 @@ export namespace HumanDebugOptions {
       h: 0,
       ui: true,
       axes: false,
+      reference: null,
+      referenceStyle: "clay",
+      referenceOpacity: 0.35,
+      referencePart: ["*"],
+      part: ["*"],
+      views: [...VIEWS],
+      axis: true,
+      legend: true,
+      viewLabels: true,
     };
   }
 
@@ -153,6 +162,9 @@ export namespace HumanDebugOptions {
     "path",
   ];
 
+  /** Every view of a compared part, in canonical order. */
+  export const VIEWS: readonly IHumanDebugOptions.ViewKind[] = ["front", "side", "top"];
+
   /** Every variable's reader and writer, in canonical order. */
   const FIELDS: {
     [K in keyof IHumanDebugOptions]: HumanDebugOptionField<IHumanDebugOptions[K]>;
@@ -248,6 +260,17 @@ export namespace HumanDebugOptions {
     h: size(),
     ui: HumanDebugOptionField.flag(),
     axes: HumanDebugOptionField.flag(),
+    reference: HumanDebugOptionField.nullable(
+      HumanDebugOptionField.name(/^[A-Za-z0-9_-]+$/, "a reference id of the private pack, such as f1"),
+    ),
+    referenceStyle: HumanDebugOptionField.choice(["clay", "loft"] as const),
+    referenceOpacity: HumanDebugOptionField.number(0, 1, true),
+    referencePart: HumanDebugOptionField.globs(),
+    part: HumanDebugOptionField.globs(),
+    views: HumanDebugOptionField.words(VIEWS),
+    axis: HumanDebugOptionField.flag(),
+    legend: HumanDebugOptionField.flag(),
+    viewLabels: HumanDebugOptionField.flag(),
   };
 
   /** Variable names in canonical order. */

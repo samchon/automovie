@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * The neck's bottom ring as the shoulders read it. The neck owns this ring:
@@ -61,7 +60,7 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    * @param neck The neck chain, named `head`.
    * @returns Its landmarks and lateral outline.
    */
-  export function read(neck: IAutoMovieHumanLoftChain): ISeat {
+  export function read(neck: IAutoMovieLoftChain): ISeat {
     const y: number = neck.layers[0]!.y;
     const ring: [number, number, number][] = ringAt(neck, y);
 
@@ -89,7 +88,7 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    * @param y Height of the ring's bottom, mm.
    * @returns The outline's jet.
    */
-  export function lateral(neck: IAutoMovieHumanLoftChain, y: number): ILateral {
+  export function lateral(neck: IAutoMovieLoftChain, y: number): ILateral {
     const extreme = (h: number): number => Math.max(...ringAt(neck, h).map((p: [number, number, number]): number => p[2]));
     const z0: number = extreme(y);
     const z1: number = extreme(y + STEP);
@@ -112,9 +111,9 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    * @param neck The neck chain.
    * @returns A layer carrying the neck's jets at its bottom.
    */
-  export function layer(neck: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain.ILayer {
-    const a: IAutoMovieHumanLoftChain.ILayer = neck.layers[0]!;
-    const b: IAutoMovieHumanLoftChain.ILayer = neck.layers[1]!;
+  export function layer(neck: IAutoMovieLoftChain): IAutoMovieLoftChain.ILayer {
+    const a: IAutoMovieLoftChain.ILayer = neck.layers[0]!;
+    const b: IAutoMovieLoftChain.ILayer = neck.layers[1]!;
     const H: number = b.y - a.y;
 
     // A cubic Hermite interval of width H with end values f0, f1 and slopes
@@ -141,8 +140,8 @@ export namespace AutoMovieHumanTrunkNeckSeat {
    * @param y Height, mm.
    * @returns The ring's points.
    */
-  function ringAt(neck: IAutoMovieHumanLoftChain, y: number): [number, number, number][] {
-    return AutoMovieHumanLoftChain.ring(
+  function ringAt(neck: IAutoMovieLoftChain, y: number): [number, number, number][] {
+    return AutoMovieLoftChain.ring(
       neck,
       y,
       Array.from({ length: COUNT }, (_: unknown, i: number): number => (2 * Math.PI * i) / COUNT),

@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import type { HumanCurveFinding } from "./HumanCurveFinding";
 import { HumanCurveHand } from "./HumanCurveHand";
 import { HumanCurveRing } from "./HumanCurveRing";
@@ -33,7 +32,7 @@ export namespace HumanCurveFoot {
       (side: "left" | "right"): IHumanCurveFinding[] => {
         const root: string = `foot.${side}`;
         const layers: number =
-          body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === root)?.layers
+          body.chains.find((c: IAutoMovieLoftChain): boolean => c.name === root)?.layers
             .length ?? 0;
         return auditHandMesh(
           person,
@@ -52,7 +51,7 @@ export namespace HumanCurveFoot {
    * a turn spread over a few samples of a short layer slips under it.
    */
   export function auditRibs(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
   ): void {
     if (!/^(foot|forefoot|toe)\./.test(chain.name)) return;
@@ -63,7 +62,7 @@ export namespace HumanCurveFoot {
     const grid: V3[][] = Array.from(
       { length: count + 1 },
       (_: unknown, i: number): V3[] =>
-        AutoMovieHumanLoftChain.ring(chain, low + i * RIB_STEP, uniform(RIB_PHASES)),
+        AutoMovieLoftChain.ring(chain, low + i * RIB_STEP, uniform(RIB_PHASES)),
     );
     for (let j: number = 0; j < RIB_PHASES; j++)
       for (let i: number = 1; i < count; i++) {
@@ -96,23 +95,23 @@ export namespace HumanCurveFoot {
     for (const sign of ["left", "right"]) {
       const skin: V3[] = body.chains
         .filter(
-          (c: IAutoMovieHumanLoftChain): boolean =>
+          (c: IAutoMovieLoftChain): boolean =>
             new RegExp(`^(foot|forefoot)\\.${sign}`).test(c.name) && generated.test(c.name),
         )
-        .flatMap((c: IAutoMovieHumanLoftChain): V3[] => {
+        .flatMap((c: IAutoMovieLoftChain): V3[] => {
           const low: number = c.layers[0]!.y;
           const high: number = Math.min(c.layers[c.layers.length - 1]!.y, low + BALL_CHAIN);
           const count: number = Math.ceil((high - low) / BALL_STEP);
           return Array.from({ length: count + 1 }, (_: unknown, i: number): V3[] =>
-            AutoMovieHumanLoftChain.ring(c, Math.min(high, low + i * BALL_STEP), uniform(BALL_PHASES)),
+            AutoMovieLoftChain.ring(c, Math.min(high, low + i * BALL_STEP), uniform(BALL_PHASES)),
           ).flat();
         });
       if (skin.length === 0) continue;
-      const ankle: IAutoMovieHumanLoftChain = body.chains.find(
-        (c: IAutoMovieHumanLoftChain): boolean => c.name === `foot.${sign}`,
+      const ankle: IAutoMovieLoftChain = body.chains.find(
+        (c: IAutoMovieLoftChain): boolean => c.name === `foot.${sign}`,
       )!;
       const heel: V3 = centre(
-        AutoMovieHumanLoftChain.ring(
+        AutoMovieLoftChain.ring(
           ankle,
           ankle.layers[ankle.layers.length - 1]!.y,
           uniform(PHASES),
@@ -120,13 +119,13 @@ export namespace HumanCurveFoot {
       );
       for (const event of body.events) {
         if (!new RegExp(`^(foot|forefoot)\\.${sign}`).test(event.parent)) continue;
-        const parent: IAutoMovieHumanLoftChain | undefined = body.chains.find(
-          (c: IAutoMovieHumanLoftChain): boolean => c.name === event.parent,
+        const parent: IAutoMovieLoftChain | undefined = body.chains.find(
+          (c: IAutoMovieLoftChain): boolean => c.name === event.parent,
         );
         if (parent === undefined) continue;
         for (const split of event.splits) {
           if (split.arcs.length !== 1 || !/^toe\./.test(split.child)) continue;
-          const ends: V3[] = AutoMovieHumanLoftChain.ring(
+          const ends: V3[] = AutoMovieLoftChain.ring(
             parent,
             parent.layers[0]!.y,
             [split.arcs[0]![0], split.arcs[0]![1]],
@@ -165,29 +164,29 @@ export namespace HumanCurveFoot {
    */
   export function auditTips(
     body: IAutoMovieHumanBodyCalibration,
-    chains: readonly IAutoMovieHumanLoftChain[],
+    chains: readonly IAutoMovieLoftChain[],
     report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
   ): void {
     for (const pole of body.poles) {
       if (!pole.critical || !/^(toe|finger|thumb)\./.test(pole.chain)) continue;
-      const chain: IAutoMovieHumanLoftChain | undefined = chains.find(
-        (c: IAutoMovieHumanLoftChain): boolean => c.name === pole.chain,
+      const chain: IAutoMovieLoftChain | undefined = chains.find(
+        (c: IAutoMovieLoftChain): boolean => c.name === pole.chain,
       );
       if (chain === undefined) continue;
       const radii: number[] = chain.layers.map(
-        (l: IAutoMovieHumanLoftChain.ILayer): number =>
-          perimeter(AutoMovieHumanLoftChain.ring(chain, l.y, uniform(PHASES))) / (2 * Math.PI),
+        (l: IAutoMovieLoftChain.ILayer): number =>
+          perimeter(AutoMovieLoftChain.ring(chain, l.y, uniform(PHASES))) / (2 * Math.PI),
       );
       const median: number = [...radii].sort((p: number, q: number): number => p - q)[radii.length >> 1]!;
       const k: number = radii.findIndex((r: number): boolean => r >= DOME_FLOOR * median);
       if (k < 0) continue;
       const station: number = chain.layers[k]!.y;
-      const ring: V3[] = AutoMovieHumanLoftChain.ring(chain, station, uniform(PHASES));
+      const ring: V3[] = AutoMovieLoftChain.ring(chain, station, uniform(PHASES));
 
       // A chain that ends on the dome's own ring has no skin past it, so its tube
       // is read coming down to the ring.
       const last: boolean = k === 0;
-      const inner: V3[] = AutoMovieHumanLoftChain.ring(
+      const inner: V3[] = AutoMovieLoftChain.ring(
         chain,
         last ? station + NORMAL_STATION : station - NORMAL_STATION,
         uniform(PHASES),

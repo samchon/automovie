@@ -1,5 +1,4 @@
-import { AutoMovieHumanSeamStation } from "../lofting/AutoMovieHumanSeamStation";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieSeamStation, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * A head chain made C2 along its stations by the natural spline of every
@@ -9,7 +8,7 @@ import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftCha
 export namespace AutoMovieHumanHeadStationSolve {
   /**
    * A head chain made C2 along its stations by the natural spline of every
-   * coefficient (`AutoMovieHumanSeamStation.continuous`). With the neck chain
+   * coefficient (`AutoMovieSeamStation.continuous`). With the neck chain
    * given, the chain's bottom layer becomes the neck's top layer, its
    * coefficients, lift, slopes and curvatures, and keeps them through the
    * solve, so the head meets the neck with the neck's position, tangent and
@@ -22,15 +21,15 @@ export namespace AutoMovieHumanHeadStationSolve {
    * @returns The solved chain.
    */
   export function continuous(
-    chain: IAutoMovieHumanLoftChain,
-    neck: IAutoMovieHumanLoftChain | null,
-  ): IAutoMovieHumanLoftChain {
-    if (neck === null) return AutoMovieHumanSeamStation.continuous(chain);
-    const first: IAutoMovieHumanLoftChain.ILayer = chain.layers[0]!;
-    const shared: IAutoMovieHumanLoftChain.ILayer = topLayer(neck, first.y);
+    chain: IAutoMovieLoftChain,
+    neck: IAutoMovieLoftChain | null,
+  ): IAutoMovieLoftChain {
+    if (neck === null) return AutoMovieSeamStation.continuous(chain);
+    const first: IAutoMovieLoftChain.ILayer = chain.layers[0]!;
+    const shared: IAutoMovieLoftChain.ILayer = topLayer(neck, first.y);
     if (shared.coefficients.length !== first.coefficients.length)
       throw new Error(`The neck's top layer has ${shared.coefficients.length} coefficients and ${chain.name}'s bottom ${first.coefficients.length}`);
-    return AutoMovieHumanSeamStation.continuous(
+    return AutoMovieSeamStation.continuous(
       { ...chain, layers: [shared, ...chain.layers.slice(1)] },
       [0],
     );
@@ -59,10 +58,10 @@ export namespace AutoMovieHumanHeadStationSolve {
    * @param station The head chain's first station, mm.
    * @returns A copy of the neck's top layer at that station.
    */
-  function topLayer(neck: IAutoMovieHumanLoftChain, station: number): IAutoMovieHumanLoftChain.ILayer {
+  function topLayer(neck: IAutoMovieLoftChain, station: number): IAutoMovieLoftChain.ILayer {
     const n: number = neck.layers.length;
-    const a: IAutoMovieHumanLoftChain.ILayer = neck.layers[n - 2]!;
-    const b: IAutoMovieHumanLoftChain.ILayer = neck.layers[n - 1]!;
+    const a: IAutoMovieLoftChain.ILayer = neck.layers[n - 2]!;
+    const b: IAutoMovieLoftChain.ILayer = neck.layers[n - 1]!;
     const H: number = b.y - a.y;
     const curvatures: number[] = b.coefficients.map((f1: number, i: number): number =>
       b.curvatures !== undefined
@@ -70,7 +69,7 @@ export namespace AutoMovieHumanHeadStationSolve {
         : (6 * (a.coefficients[i]! - f1)) / (H * H) + (2 * a.slopes[i]! + 4 * b.slopes[i]!) / H,
     );
 
-    // One lift per control point (`AutoMovieHumanSeamStation`: half the
+    // One lift per control point (`AutoMovieSeamStation`: half the
     // coefficients), an absent lift being zero.
     const controls: number = b.coefficients.length / 2;
     const shift: number = b.y - station;

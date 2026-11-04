@@ -17,7 +17,7 @@ import type { IAutoMovieHumanSeam } from "./IAutoMovieHumanSeam";
  * and the map is invertible, `P0 = p - h^2 p'' / 6`,
  * `P+- = p + h^2 p'' / 3 +- h p'`. So a guide that owns a knot owns its
  * point, tangent and curvature exactly by writing three control points, which
- * the global inverse filter of `AutoMovieHumanSplineCurve.interpolate` cannot
+ * the global inverse filter of `AutoMovieSplineCurve.interpolate` cannot
  * do: there every control point depends on every sample. A sector between two
  * guide knots `g` and `g + k` keeps the control points `g + 2 .. g + k - 2`
  * of its own, `k - 3` of them, so a sector needs at least four spans to keep

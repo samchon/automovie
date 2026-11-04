@@ -33,9 +33,11 @@ Tests, CI, wiring, dependencies, `interface` core types, and the range-of-motion
 
 ## Scripts And Shared Checkouts
 
-Write every helper script in TypeScript as a tracked file and run it with `ttsx`. Logic, code, tests and scripts live only in tracked paths: a gitignored path holds captured evidence and data, never program code, and an experiment runs as a formal test, in the dedicated viewer, or with the compiler.
+Write every helper script in TypeScript as a tracked file and run it with `ttsx`. Keep all program code, tests and tools in tracked paths and use gitignored paths for captured evidence and data, because an ignored file escapes review and cannot be recovered. Run an experiment as a tracked test, through a package's tracked debug tool, or as a type check. End every process you start for one result once that result is read; a shared server or type-check watch keeps running for every agent.
 
-When several agents work in one checkout, give each its own scratch directory and server port, delete only inside its own directory, and commit with `git add` then `git commit --only <paths>`. A shared index lets one commit sweep another agent's files, and a recursive delete can wipe every agent's scratch.
+When several agents work in one checkout, give each its own scratch directory, delete only inside its own directory, and commit with `git add` then `git commit --only <paths>`. A shared index lets one commit sweep another agent's files, and a recursive delete can wipe every agent's scratch.
+
+A package's viewer runs as one server that every agent shares. Request one frame at a time, and restart the server only when its status shows an empty queue, because a restart drops every frame in flight and a second server competes for the same memory and CPU.
 
 ## Task Guides
 

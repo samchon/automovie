@@ -1,5 +1,5 @@
 import type { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
+import type { AutoMovieLoftFrame } from "@automovie/engine";
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 
 type Vec3 = AutoMovieHumanHandVector.Vec3;
@@ -17,9 +17,9 @@ export namespace AutoMovieHumanHandSide {
 
   /** A side's frame from the left frame's. */
   export function sidedFrame(
-    f: AutoMovieHumanLoftFrame.IFrame,
+    f: AutoMovieLoftFrame.IFrame,
     sign: 1 | -1,
-  ): AutoMovieHumanLoftFrame.IFrame {
+  ): AutoMovieLoftFrame.IFrame {
     return sign === 1 ? f : AutoMovieHumanLimbFrame.mirror(f);
   }
 

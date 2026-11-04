@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanAnatomyShared } from "../HumanAnatomyShared";
 import type { HumanCurveRings } from "./HumanCurveRings";
@@ -21,7 +21,7 @@ type IRow = HumanAnatomyAudit.IRow;
 export namespace HumanCurveDigitGirth {
   /** A digit's girth: its chain's widest section over the chain's first half, mm; NaN without a chain. */
   export function girth(body: IAutoMovieHumanBodyCalibration, chain: string, read: (name: string) => HumanCurveRings.IProfile): number {
-    if (!body.chains.some((c: IAutoMovieHumanLoftChain): boolean => c.name === chain)) return NaN;
+    if (!body.chains.some((c: IAutoMovieLoftChain): boolean => c.name === chain)) return NaN;
     const g: number[] = read(chain).girth;
     return Math.max(...g.slice(0, Math.max(1, Math.ceil(g.length / 2))));
   }

@@ -1,6 +1,7 @@
+import { AutoMovieHumanGuidePublish } from "../../lofting/AutoMovieHumanGuidePublish";
 import { AutoMovieHumanChordArc } from "../../lofting/AutoMovieHumanChordArc";
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
-import { AutoMovieHumanPolarSector } from "../../lofting/AutoMovieHumanPolarSector";
+import { AutoMoviePolarSector } from "@automovie/engine";
 import { AutoMovieHumanLegGuides } from "./AutoMovieHumanLegGuides";
 import { AutoMovieHumanLegHull } from "./AutoMovieHumanLegHull";
 
@@ -50,7 +51,7 @@ export namespace AutoMovieHumanLegRingRow {
 
     // Each guide: a quadratic in the angle offset by least squares over the
     // window, r = a + b d + c d^2, so rho = a, rho' = b, rho'' = 2 c.
-    const guides: AutoMovieHumanPolarSector.IGuide[] = AutoMovieHumanLegGuides.ANGLES.map((angle: number): AutoMovieHumanPolarSector.IGuide => {
+    const guides: AutoMoviePolarSector.IGuide[] = AutoMovieHumanLegGuides.ANGLES.map((angle: number): AutoMoviePolarSector.IGuide => {
       const d: number[] = Array.from({ length: SAMPLES }, (_: unknown, i: number): number => -HALF_WINDOW + (2 * HALF_WINDOW * i) / (SAMPLES - 1));
       const r: number[] = d.map((x: number): number => radius(angle + x));
       const [a, b, c]: [number, number, number] = quadratic(d, r);
@@ -58,7 +59,7 @@ export namespace AutoMovieHumanLegRingRow {
     });
 
     // Each sector: the ring's offset from the bare arc at its middle.
-    const ends: AutoMovieHumanChordArc.IEnd[] = guides.map((g: AutoMovieHumanPolarSector.IGuide): AutoMovieHumanChordArc.IEnd => AutoMovieHumanPolarSector.publish(g));
+    const ends: AutoMovieHumanChordArc.IEnd[] = guides.map((g: AutoMoviePolarSector.IGuide): AutoMovieHumanChordArc.IEnd => AutoMovieHumanGuidePublish.publish(g));
     const fullness: number[] = ends.map((a: AutoMovieHumanChordArc.IEnd, j: number): number => {
       const b: AutoMovieHumanChordArc.IEnd = ends[(j + 1) % ends.length]!;
       const p: number[] = AutoMovieHumanChordArc.jet(a, b, 0, 0.5)[0];

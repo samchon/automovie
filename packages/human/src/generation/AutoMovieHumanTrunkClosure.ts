@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+import type { IAutoMovieLoftRelief } from "@automovie/engine";
 import type { IAutoMovieHumanTrunkContext } from "./IAutoMovieHumanTrunkContext";
 import type { IAutoMovieHumanTrunkInputs } from "./IAutoMovieHumanTrunkInputs";
 import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection";
@@ -23,7 +23,7 @@ import { AutoMovieHumanTrunkTapes } from "./AutoMovieHumanTrunkTapes";
  */
 export namespace AutoMovieHumanTrunkClosure {
   /** A function of the column giving the reliefs that act at a tape's site. */
-  type Reliefs = (col: AutoMovieHumanTrunkColumn.IColumn) => IAutoMovieHumanRelief[];
+  type Reliefs = (col: AutoMovieHumanTrunkColumn.IColumn) => IAutoMovieLoftRelief[];
 
   /**
    * A section's tape at a height on a state, reliefs included.
@@ -49,7 +49,7 @@ export namespace AutoMovieHumanTrunkClosure {
   export function tapes(ctx: IAutoMovieHumanTrunkContext, st: IAutoMovieHumanTrunkState): void {
     const inputs: IAutoMovieHumanTrunkInputs = ctx.fixed.inputs;
     const h: AutoMovieHumanTrunkKeys.Heights = AutoMovieHumanTrunkKeys.heights(ctx, st);
-    const none: Reliefs = (): IAutoMovieHumanRelief[] => [];
+    const none: Reliefs = (): IAutoMovieLoftRelief[] => [];
     const close = (name: keyof IAutoMovieHumanTrunkState["widths"], tape: number, y: number, reliefs: Reliefs): void => {
       st.widths[name] = AutoMovieHumanTrunkTapes.solve(
         tape,
@@ -74,10 +74,10 @@ export namespace AutoMovieHumanTrunkClosure {
     // close all of that excess. The tape bridges between the bust points, so
     // the domes' projection is what their hull adds that excess with, not the
     // excess spread round the torso.
-    const chest = (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanRelief[] => {
+    const chest = (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieLoftRelief[] => {
       const sites: AutoMovieHumanTrunkFeatures.ISites = AutoMovieHumanTrunkKeys.sites(ctx, st, col);
 
-      return [...optional("trunk.breast", (): IAutoMovieHumanRelief[] => AutoMovieHumanTrunkFeatures.breasts(col, sites)), ...optional("trunk.scapula", (): IAutoMovieHumanRelief[] => AutoMovieHumanTrunkFeatures.scapulae(col, sites))];
+      return [...optional("trunk.breast", (): IAutoMovieLoftRelief[] => AutoMovieHumanTrunkFeatures.breasts(col, sites)), ...optional("trunk.scapula", (): IAutoMovieLoftRelief[] => AutoMovieHumanTrunkFeatures.scapulae(col, sites))];
     };
     const wall: number = inputs.underbust;
     st.projection = 0;
@@ -93,8 +93,8 @@ export namespace AutoMovieHumanTrunkClosure {
         },
         1,
       );
-    close("buttock", inputs.hip, ctx.buttock, (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanRelief[] =>
-      optional("trunk.buttock", (): IAutoMovieHumanRelief[] => AutoMovieHumanTrunkFeatures.buttocks(col, AutoMovieHumanTrunkKeys.sites(ctx, st, col))),
+    close("buttock", inputs.hip, ctx.buttock, (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieLoftRelief[] =>
+      optional("trunk.buttock", (): IAutoMovieLoftRelief[] => AutoMovieHumanTrunkFeatures.buttocks(col, AutoMovieHumanTrunkKeys.sites(ctx, st, col))),
     );
   }
 
@@ -107,7 +107,7 @@ export namespace AutoMovieHumanTrunkClosure {
    * @param make The feature's windows.
    * @returns The windows, or none.
    */
-  function optional(producer: string, make: () => IAutoMovieHumanRelief[]): IAutoMovieHumanRelief[] {
+  function optional(producer: string, make: () => IAutoMovieLoftRelief[]): IAutoMovieLoftRelief[] {
     return AutoMovieHumanTrunkFeatures.guarded(producer, 0, [], make);
   }
 
@@ -120,8 +120,8 @@ export namespace AutoMovieHumanTrunkClosure {
   export function courses(ctx: IAutoMovieHumanTrunkContext, st: IAutoMovieHumanTrunkState): void {
     const inputs: IAutoMovieHumanTrunkInputs = ctx.fixed.inputs;
     const column = (): AutoMovieHumanTrunkColumn.IColumn => AutoMovieHumanTrunkKeys.column(ctx, st);
-    const breasts = (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieHumanRelief[] =>
-      optional("trunk.breast", (): IAutoMovieHumanRelief[] => AutoMovieHumanTrunkFeatures.breasts(col, AutoMovieHumanTrunkKeys.sites(ctx, st, col)));
+    const breasts = (col: AutoMovieHumanTrunkColumn.IColumn): IAutoMovieLoftRelief[] =>
+      optional("trunk.breast", (): IAutoMovieLoftRelief[] => AutoMovieHumanTrunkFeatures.breasts(col, AutoMovieHumanTrunkKeys.sites(ctx, st, col)));
 
     // Neck to waist: the waist moves down as the back's length grows.
     st.waist = AutoMovieHumanTrunkSolve.bisect(
@@ -143,7 +143,7 @@ export namespace AutoMovieHumanTrunkClosure {
       (y: number): number => {
         st.bust = y;
         const col: AutoMovieHumanTrunkColumn.IColumn = column();
-        const reliefs: IAutoMovieHumanRelief[] = breasts(col);
+        const reliefs: IAutoMovieLoftRelief[] = breasts(col);
         const s: IAutoMovieHumanTrunkSection = col.at(AutoMovieHumanTrunkKeys.heights(ctx, st).bust);
         const lateral: number = Math.min(0.8 * s.width, inputs.bustSpan / 2);
         const point: [number, number, number] = AutoMovieHumanTrunkCourses.point(s, reliefs, lateral, "front");
@@ -176,7 +176,7 @@ export namespace AutoMovieHumanTrunkClosure {
       girth: (w: number): number => {
         st.groin = w;
 
-        return girthAt(ctx, st, ctx.fixed.crotch, (): IAutoMovieHumanRelief[] => []);
+        return girthAt(ctx, st, ctx.fixed.crotch, (): IAutoMovieLoftRelief[] => []);
       },
     });
   }

@@ -1,6 +1,4 @@
-﻿import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+﻿import { AutoMovieSplineCurve, type AutoMovieLoftContract, type IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanBreastDome } from "./AutoMovieHumanBreastDome";
 import { AutoMovieHumanBreastFootprint } from "./AutoMovieHumanBreastFootprint";
 import { AutoMovieHumanBreastFrame } from "./AutoMovieHumanBreastFrame";
@@ -101,7 +99,7 @@ export namespace AutoMovieHumanTrunkFeatures {
 
     for (let k: number = 0; k < 40; k++) {
       const mid: number = (lo + hi) / 2;
-      const zm: number = AutoMovieHumanSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, mid)[1];
+      const zm: number = AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, mid)[1];
 
       // Lateral place rises with phase on the front and falls with it on the back.
       if (zm < z === (side === "front")) lo = mid;
@@ -126,7 +124,7 @@ export namespace AutoMovieHumanTrunkFeatures {
         controls = AutoMovieHumanTrunkRing.controls(col.at(y));
         rings.set(y, controls);
       }
-      const p: [number, number, number, number] = AutoMovieHumanSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
+      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
 
       return [p[0], y, p[1]];
     };
@@ -152,7 +150,7 @@ export namespace AutoMovieHumanTrunkFeatures {
 
     // The breast's own frame stands on the wall at the bust point, along the wall's normal.
     const apex: [number, number, number] = AutoMovieHumanTrunkCourses.point(s, [], lateral, "front", controls);
-    const j: [number, number, number, number, number, number] = AutoMovieHumanSplineCurve.jet(
+    const j: [number, number, number, number, number, number] = AutoMovieSplineCurve.jet(
       controls,
       AutoMovieHumanTrunkQuadrant.ORDER,
       phaseAt(controls, "front", lateral),
@@ -173,7 +171,7 @@ export namespace AutoMovieHumanTrunkFeatures {
    * @param sites The landmark heights and tapes.
    * @returns The left and the right window.
    */
-  export function breasts(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieHumanRelief[] {
+  export function breasts(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieLoftRelief[] {
     const s: IAutoMovieHumanTrunkSection = col.at(sites.bust);
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
 
@@ -198,7 +196,7 @@ export namespace AutoMovieHumanTrunkFeatures {
     // The gluteal mass's own frame stands on the back wall at the buttock point.
     const lateral: number = AutoMovieHumanGlutealDome.LATERAL * s.width;
     const apex: [number, number, number] = AutoMovieHumanTrunkCourses.point(s, [], lateral, "back", controls);
-    const j: [number, number, number, number, number, number] = AutoMovieHumanSplineCurve.jet(
+    const j: [number, number, number, number, number, number] = AutoMovieSplineCurve.jet(
       controls,
       AutoMovieHumanTrunkQuadrant.ORDER,
       phaseAt(controls, "back", lateral),
@@ -221,7 +219,7 @@ export namespace AutoMovieHumanTrunkFeatures {
    * @param sites The landmark heights and the buttock's projection.
    * @returns The left and the right window; none when the base already has the buttock's depth.
    */
-  export function buttocks(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieHumanRelief[] {
+  export function buttocks(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieLoftRelief[] {
     const s: IAutoMovieHumanTrunkSection = col.at(sites.buttock);
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
 
@@ -238,14 +236,14 @@ export namespace AutoMovieHumanTrunkFeatures {
    * @param sites The landmark heights and the span.
    * @returns The left and the right window.
    */
-  export function scapulae(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieHumanRelief[] {
+  export function scapulae(col: AutoMovieHumanTrunkColumn.IColumn, sites: ISites): IAutoMovieLoftRelief[] {
     const s: IAutoMovieHumanTrunkSection = col.at(sites.axilla);
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
 
     // The mass's centre lies midway between the blade's borders on the back wall.
     const lateral: number = ((AutoMovieHumanScapularMass.MEDIAL + AutoMovieHumanScapularMass.OUTER) / 2) * s.width;
     const centre: [number, number, number] = AutoMovieHumanTrunkCourses.point(s, [], lateral, "back", controls);
-    const j: [number, number, number, number, number, number] = AutoMovieHumanSplineCurve.jet(
+    const j: [number, number, number, number, number, number] = AutoMovieSplineCurve.jet(
       controls,
       AutoMovieHumanTrunkQuadrant.ORDER,
       phaseAt(controls, "back", lateral),
@@ -273,8 +271,8 @@ export namespace AutoMovieHumanTrunkFeatures {
   export function midline(
     col: AutoMovieHumanTrunkColumn.IColumn,
     sites: ISites,
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [],
-  ): IAutoMovieHumanRelief[] {
+    diagnostics: AutoMovieLoftContract.IDiagnostic[] = [],
+  ): IAutoMovieLoftRelief[] {
     const rate = (y: number, index: number): number => AutoMovieHumanTrunkRing.speeds(col.at(y))[index]!;
     const base: AutoMovieHumanTrunkReliefNet.Base = baseSurface(col);
     const to: number = sites.axilla - 1;
@@ -282,17 +280,17 @@ export namespace AutoMovieHumanTrunkFeatures {
     const notch: AutoMovieHumanTrunkFeatureFrame.IFrame = AutoMovieHumanSternalNotch.frame(sites.neck, (y: number): number => col.at(y).front);
 
     return [
-      ...guarded("trunk.sternalNotch", SUBTRACTIVE, diagnostics, (): IAutoMovieHumanRelief[] => [
+      ...guarded("trunk.sternalNotch", SUBTRACTIVE, diagnostics, (): IAutoMovieLoftRelief[] => [
         AutoMovieHumanSternalNotch.create(notch, base, AutoMovieHumanSternalNotchProfile.HALF / rate(notch.origin[1], 0)),
       ]),
-      ...guarded("trunk.umbilicus", SUBTRACTIVE, diagnostics, (): IAutoMovieHumanRelief[] => [
+      ...guarded("trunk.umbilicus", SUBTRACTIVE, diagnostics, (): IAutoMovieLoftRelief[] => [
         AutoMovieHumanUmbilicus.create(
           AutoMovieHumanTrunkFeatureFrame.midline(sites.omphalion, col.at(sites.omphalion).front, "front"),
           base,
           AutoMovieHumanUmbilicalProfile.RADIUS / rate(sites.omphalion, 0),
         ),
       ]),
-      ...guarded("trunk.spinalGroove", SUBTRACTIVE, diagnostics, (): IAutoMovieHumanRelief[] => [
+      ...guarded("trunk.spinalGroove", SUBTRACTIVE, diagnostics, (): IAutoMovieLoftRelief[] => [
         AutoMovieHumanSpinalGroove.create(
           AutoMovieHumanTrunkFeatureFrame.midline(middle, col.at(middle).back, "back"),
           (to - sites.furrowFrom) / 2,
@@ -317,12 +315,12 @@ export namespace AutoMovieHumanTrunkFeatures {
   export function all(
     col: AutoMovieHumanTrunkColumn.IColumn,
     sites: ISites,
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [],
-  ): IAutoMovieHumanRelief[] {
+    diagnostics: AutoMovieLoftContract.IDiagnostic[] = [],
+  ): IAutoMovieLoftRelief[] {
     return [
-      ...guarded("trunk.breast", ADDITIVE, diagnostics, (): IAutoMovieHumanRelief[] => breasts(col, sites)),
-      ...guarded("trunk.scapula", ADDITIVE, diagnostics, (): IAutoMovieHumanRelief[] => scapulae(col, sites)),
-      ...guarded("trunk.buttock", ADDITIVE, diagnostics, (): IAutoMovieHumanRelief[] => buttocks(col, sites)),
+      ...guarded("trunk.breast", ADDITIVE, diagnostics, (): IAutoMovieLoftRelief[] => breasts(col, sites)),
+      ...guarded("trunk.scapula", ADDITIVE, diagnostics, (): IAutoMovieLoftRelief[] => scapulae(col, sites)),
+      ...guarded("trunk.buttock", ADDITIVE, diagnostics, (): IAutoMovieLoftRelief[] => buttocks(col, sites)),
       ...midline(col, sites, diagnostics),
     ];
   }
@@ -340,9 +338,9 @@ export namespace AutoMovieHumanTrunkFeatures {
   export function guarded(
     producer: string,
     level: number,
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
-    make: () => IAutoMovieHumanRelief[],
-  ): IAutoMovieHumanRelief[] {
+    diagnostics: AutoMovieLoftContract.IDiagnostic[],
+    make: () => IAutoMovieLoftRelief[],
+  ): IAutoMovieLoftRelief[] {
     try {
       return make();
     } catch (error) {

@@ -7,16 +7,13 @@ import type {
 
 import { AutoMovieHumanBodyApertures } from "../generation/AutoMovieHumanBodyApertures";
 import type { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
-import type { IAutoMovieHumanBrowAppearance } from "../structures/appearance/IAutoMovieHumanBrowAppearance";
 import type { IAutoMovieHumanEyelash } from "../structures/appearance/IAutoMovieHumanEyelash";
 import type { IAutoMovieHumanScalpHair } from "../structures/appearance/IAutoMovieHumanScalpHair";
 import { AutoMovieHumanIrisColor } from "../typings/AutoMovieHumanIrisColor";
 import { AutoMovieHumanConjunctiva } from "./AutoMovieHumanConjunctiva";
 import { AutoMovieHumanEyeball } from "./AutoMovieHumanEyeball";
-import { AutoMovieHumanEyebrow } from "./AutoMovieHumanEyebrow";
-import { AutoMovieHumanEyebrowMaterial } from "./AutoMovieHumanEyebrowMaterial";
 import { AutoMovieHumanEyelash } from "./AutoMovieHumanEyelash";
 import { AutoMovieHumanHairCardMaterial } from "./AutoMovieHumanHairCardMaterial";
 import { AutoMovieHumanHairImage } from "./AutoMovieHumanHairImage";
@@ -36,8 +33,7 @@ import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnato
  * - `human.eye.<side>.sclera`, `human.eye.<side>.iris`,
  *   `human.eye.<side>.cornea`, `human.eye.<side>.caruncle` and
  *   `human.eye.<side>.meniscus` for `side` in `left`, `right`;
- * - `human.hair.lashes.<side>` and `human.hair.brows.<side>`, when lashes
- *   and brows are requested;
+ * - `human.hair.lashes.<side>`, when lashes are requested;
  * - `human.hair.scalp` (opaque undercoat) and `human.hair.cards` (all
  *   scalp hair cards), when scalp hair is requested.
  *
@@ -51,10 +47,10 @@ import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnato
  * adults worldwide (a population convention for an unspecified input, not
  * an inference about the person). `appearance.hair` (style, colour,
  * length, curl, hairline) shapes scalp hair; omitted appearance or zero
- * length emits none. `appearance.lashPair` (colour, length) and
- * `appearance.browPair` (colour) dress each eye; omitted appearance emits
- * none. Skin colour and finish belong to `AutoMovieHumanSkin`, which
- * dresses the body's own skin parts. `appearance.underwear` emits nothing
+ * length emits none. `appearance.lashPair` (colour, length) dresses each eye; omitted appearance
+ * emits none. Skin colour and finish belong to `AutoMovieHumanSkin`, which
+ * dresses the body's own skin parts, the brows (`appearance.browPair`)
+ * painted into its texture among them. `appearance.underwear` emits nothing
  * until a garment is lofted on the body's own sections: the earlier garment
  * was cut from the skin's triangles, and the Human is built from its curves.
  *
@@ -80,7 +76,7 @@ export namespace AutoMovieHumanAppearance {
      * out (`docs/techniques/construction-levels.md`); empty for a sound
      * figure.
      */
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+    diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
   /**
@@ -103,7 +99,7 @@ export namespace AutoMovieHumanAppearance {
       ...AutoMovieHumanConjunctiva.materials(),
     ];
     const images: IAutoMovieImage[] = [image, sclera];
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
 
     // Lid margins of both eyes, the ones the body generator cut, in
     // calibration millimetres; the body is that calibration scaled
@@ -159,11 +155,12 @@ export namespace AutoMovieHumanAppearance {
           ),
         );
 
-      // Lashes on the lash line, and the brow on the generated skin above.
+      // Lashes on the lash line (the brows are painted into the skin's
+      // texture by `AutoMovieHumanSkin`).
       // One seed for both sides, so one canonical construction serves both
       // and equal inputs give mirror images (the canonical side reflected).
-      // Each side is still fed its own measured inputs (its own lid, lash and
-      // brow settings), never an average of the two sides' inputs; nothing
+      // Each side is still fed its own measured inputs (its own lid and lash
+      // settings), never an average of the two sides' inputs; nothing
       // but a declared per-side input may make the sides differ.
       const seed: number = 0x1a5;
       const lash: IAutoMovieHumanEyelash | undefined =
@@ -185,25 +182,6 @@ export namespace AutoMovieHumanAppearance {
           side,
         );
         parts.push(part(`human.hair.lashes.${side}`, material.id, lashes));
-        materials.push(material);
-      }
-      const brow: IAutoMovieHumanBrowAppearance | undefined =
-        params.appearance?.browPair[side];
-      const brows: IAutoMovieMesh | null =
-        brow === undefined
-          ? null
-          : AutoMovieHumanEyebrow.attempt(
-              lid,
-              body.calibration.chains,
-              scale,
-              seed + 1,
-              side,
-              diagnostics,
-            );
-      if (brow !== undefined && brows !== null && finite(brows)) {
-        const material: IAutoMovieMaterial =
-          AutoMovieHumanEyebrowMaterial.material(brow, side);
-        parts.push(part(`human.hair.brows.${side}`, material.id, brows));
         materials.push(material);
       }
     }

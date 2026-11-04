@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IHumanDebugDocument } from "../../contracts/IHumanDebugDocument";
 import type { IHumanDebugPerson } from "../../people/IHumanDebugPerson";
 import { HumanDebugChainLoft } from "../HumanDebugChainLoft";
@@ -26,8 +26,8 @@ export const HumanDebugPieceTrunkChains: IHumanDebugPiece = {
       throw new Error("trunk.chains takes trunk, upper or no argument; got " + argument);
     const kit: HumanDebugTrunkKit.IFixed = HumanDebugTrunkKit.of(person);
     const calibration: IAutoMovieHumanBodyCalibration = person.calibration();
-    const others: IAutoMovieHumanLoftChain[] = calibration.chains.filter(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name !== "trunk" && c.name !== "upper",
+    const others: IAutoMovieLoftChain[] = calibration.chains.filter(
+      (c: IAutoMovieLoftChain): boolean => c.name !== "trunk" && c.name !== "upper",
     );
     const document: IHumanDebugDocument = HumanDebugChainLoft.build(
       { ...calibration, chains: [...kit.chains, ...others] },
@@ -40,7 +40,7 @@ export const HumanDebugPieceTrunkChains: IHumanDebugPiece = {
         piece: "trunk.chains" + (argument === null ? "" : ":" + argument),
         person: person.alias,
         layers: Object.fromEntries(
-          kit.chains.map((c: IAutoMovieHumanLoftChain): [string, number] => [c.name, c.layers.length]),
+          kit.chains.map((c: IAutoMovieLoftChain): [string, number] => [c.name, c.layers.length]),
         ),
         samples: kit.chains[0].samples,
         solveMilliseconds: kit.milliseconds,

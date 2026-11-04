@@ -1,6 +1,6 @@
 import { AutoMovieHumanHorizontalChain } from "../lofting/AutoMovieHumanHorizontalChain";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanEarConstruction } from "./AutoMovieHumanEarConstruction";
 import type { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
 import { AutoMovieHumanHeadEarChains } from "./AutoMovieHumanHeadEarChains";
@@ -39,8 +39,8 @@ export namespace AutoMovieHumanHeadGenerate {
     calibration: IAutoMovieHumanBodyCalibration,
     inputs: AutoMovieHumanHeadConstruction.IInputs,
   ): IAutoMovieHumanHeadGenerated {
-    const neckChain: IAutoMovieHumanLoftChain = calibration.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "head",
+    const neckChain: IAutoMovieLoftChain = calibration.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "head",
     )!;
     const setup: IAutoMovieHumanHeadSetup = AutoMovieHumanHeadPass.prepare(neckChain, inputs);
     const compiled: IAutoMovieHumanHeadCompiled = setup.compiled;
@@ -91,7 +91,7 @@ export namespace AutoMovieHumanHeadGenerate {
       name: string,
       samples: number,
       stations: readonly number[],
-    ): IAutoMovieHumanLoftChain =>
+    ): IAutoMovieLoftChain =>
       AutoMovieHumanHorizontalChain.build(
         { name, order: AutoMovieHumanHeadStations.ORDER, samples, rule: "sagittal" },
         stations.map((s: number): Vec3[] => {
@@ -112,7 +112,7 @@ export namespace AutoMovieHumanHeadGenerate {
     const backPhase: number =
       (Math.PI * (AutoMovieHumanHeadEarRoots.SPLICE[0]! + AutoMovieHumanHeadEarRoots.SPLICE[1]! + AutoMovieHumanHeadEarRoots.SPLICE[2]!)) / half;
     const middleRings: Vec3[][] = middleStations.map(eared);
-    const middle: IAutoMovieHumanLoftChain = AutoMovieHumanHorizontalChain.build(
+    const middle: IAutoMovieLoftChain = AutoMovieHumanHorizontalChain.build(
       {
         name: "head.middle",
         order: AutoMovieHumanHeadEarRoots.ORDER_MIDDLE,

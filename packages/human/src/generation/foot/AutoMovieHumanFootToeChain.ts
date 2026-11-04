@@ -1,6 +1,4 @@
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanSeamStation } from "../../lofting/AutoMovieHumanSeamStation";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import { type AutoMovieLoftFrame, AutoMovieSeamStation, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
@@ -19,7 +17,7 @@ type Vec3 = G.Vec3;
  */
 export namespace AutoMovieHumanFootToeChain {
   /** A toe's chain for a side. */
-  export function of(t: AutoMovieHumanFootToeSpan.IToe, name: string, sign: 1 | -1): IAutoMovieHumanLoftChain {
+  export function of(t: AutoMovieHumanFootToeSpan.IToe, name: string, sign: 1 | -1): IAutoMovieLoftChain {
     // The section's axes: along the line, the foot's lateral made square to it,
     // up from the two, and across from up and the line.
     const lateral: Vec3 = G.unit(G.sub(t.lateral, G.scale(t.tangent, G.dot(t.lateral, t.tangent))));
@@ -36,7 +34,7 @@ export namespace AutoMovieHumanFootToeChain {
       );
     };
     const normal: Vec3 = G.scale(t.tangent, -1);
-    const frameAt = (s: number): AutoMovieHumanLoftFrame.IFrame =>
+    const frameAt = (s: number): AutoMovieLoftFrame.IFrame =>
       AutoMovieHumanLimbFrame.frame(G.plus(t.head, G.scale(t.tangent, s)), normal, up);
     const sample = (s: number, station: number): AutoMovieHumanLimbFrame.ISample =>
       AutoMovieHumanFootReflection.sample({ station, frame: frameAt(s), ring: ringAt(s) }, sign);
@@ -44,8 +42,8 @@ export namespace AutoMovieHumanFootToeChain {
     // Layers from the tip up; each one's slopes by a central difference of
     // the section's own construction over a short step along the line.
     const kept: number[] = AutoMovieHumanFootToeStations.of(t, t.sections);
-    const layers: IAutoMovieHumanLoftChain.ILayer[] = [...kept].reverse().map(
-      (s: number): IAutoMovieHumanLoftChain.ILayer => {
+    const layers: IAutoMovieLoftChain.ILayer[] = [...kept].reverse().map(
+      (s: number): IAutoMovieLoftChain.ILayer => {
         const station: number = t.cap - s;
         const here: AutoMovieHumanLimbFrame.ISample = sample(s, station);
         const before: AutoMovieHumanLimbFrame.ISample =
@@ -56,7 +54,7 @@ export namespace AutoMovieHumanFootToeChain {
       },
     );
 
-    return AutoMovieHumanSeamStation.continuous({ name, basis: "spline", order: t.order, samples: t.order, rule: "polar", layers });
+    return AutoMovieSeamStation.continuous({ name, basis: "spline", order: t.order, samples: t.order, rule: "polar", layers });
   }
 
   /**

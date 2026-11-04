@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import type { HumanCurveFinding } from "./HumanCurveFinding";
 import { HumanCurveRing } from "./HumanCurveRing";
 import { HumanCurveConstants } from "./HumanCurveConstants";
@@ -32,12 +31,12 @@ export namespace HumanCurvePlacement {
   ): IHumanCurveFinding[] {
     return ["leg.left", "leg.right"].flatMap(
       (name: string): IHumanCurveFinding[] => {
-        const leg: IAutoMovieHumanLoftChain = body.chains.find(
-          (c: IAutoMovieHumanLoftChain): boolean => c.name === name,
+        const leg: IAutoMovieLoftChain = body.chains.find(
+          (c: IAutoMovieLoftChain): boolean => c.name === name,
         )!;
         const station: number =
           leg.layers[leg.layers.length - 1]!.y - THIGH_TOP * body.stature;
-        const ring: V3[] = AutoMovieHumanLoftChain.ring(
+        const ring: V3[] = AutoMovieLoftChain.ring(
           leg,
           station,
           uniform(PHASES),
@@ -98,17 +97,17 @@ export namespace HumanCurvePlacement {
     const k: number = height / body.stature;
 
     // A chain counts as a part only while some ring of it encloses skin.
-    const present: IAutoMovieHumanLoftChain[] = body.chains.filter(
-      (c: IAutoMovieHumanLoftChain): boolean =>
+    const present: IAutoMovieLoftChain[] = body.chains.filter(
+      (c: IAutoMovieLoftChain): boolean =>
         c.layers.some(
-          (l: IAutoMovieHumanLoftChain.ILayer): boolean =>
-            perimeter(AutoMovieHumanLoftChain.ring(c, l.y, uniform(PHASES))) > 0,
+          (l: IAutoMovieLoftChain.ILayer): boolean =>
+            perimeter(AutoMovieLoftChain.ring(c, l.y, uniform(PHASES))) > 0,
         ),
     );
     for (const [label, pattern, least, most] of ANATOMY)
       for (const side of pattern.source.includes("<side>") ? ["left", "right"] : [""]) {
         const own: RegExp = new RegExp(pattern.source.replace("<side>", side));
-        const count: number = present.filter((c: IAutoMovieHumanLoftChain): boolean =>
+        const count: number = present.filter((c: IAutoMovieLoftChain): boolean =>
           own.test(c.name),
         ).length;
         if (count < least || count > most)
@@ -131,7 +130,7 @@ export namespace HumanCurvePlacement {
     };
     for (const chain of present) {
       for (const l of chain.layers)
-        for (const p of AutoMovieHumanLoftChain.ring(chain, l.y, uniform(PHASES)))
+        for (const p of AutoMovieLoftChain.ring(chain, l.y, uniform(PHASES)))
           visit(chain.name, p);
       if (chain.pole !== undefined) visit(chain.name, chain.pole.point);
     }
@@ -147,20 +146,20 @@ export namespace HumanCurvePlacement {
 
     // Below the armpit an arm hangs beside the trunk. The trunk's sections are
     // horizontal, so its station at a height is the section there.
-    const trunk: IAutoMovieHumanLoftChain | undefined = present.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk",
+    const trunk: IAutoMovieLoftChain | undefined = present.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "trunk",
     );
     if (trunk === undefined) return out;
     const low: number = trunk.layers[0]!.y;
     const high: number = trunk.layers[trunk.layers.length - 1]!.y;
-    for (const arm of present.filter((c: IAutoMovieHumanLoftChain): boolean =>
+    for (const arm of present.filter((c: IAutoMovieLoftChain): boolean =>
       /^arm\.(left|right)$/.test(c.name),
     )) {
       const within: V3[] = [];
       for (const l of arm.layers) {
-        const c: V3 = centre(AutoMovieHumanLoftChain.ring(arm, l.y, uniform(PHASES)));
+        const c: V3 = centre(AutoMovieLoftChain.ring(arm, l.y, uniform(PHASES)));
         if (c[1] < low || c[1] > high) continue;
-        const section: [number, number][] = AutoMovieHumanLoftChain.ring(
+        const section: [number, number][] = AutoMovieLoftChain.ring(
           trunk,
           c[1],
           uniform(PHASES),

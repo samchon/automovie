@@ -9,6 +9,10 @@
  * tasks, so a busy page never reads idle. A frame whose page added less than {@link LEAST} seconds of
  * task time over the last {@link WINDOW} milliseconds is stalled; on 2026-11-04 two frames held the
  * slot for over ten minutes that way, with no process computing, until the session was restarted.
+ *
+ * The reading needs a living renderer: a crashed one answers no call, and a page busy forever never
+ * answers one, so the capture session ends those frames by the page's crash event and by its frame
+ * budget instead.
  */
 export namespace HumanDebugStall {
   /** One reading of the page's main-thread work. */

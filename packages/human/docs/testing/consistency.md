@@ -2,7 +2,7 @@
 
 A consistency rule finds a logical contradiction in a generated person: a relation between parts that anatomy, geometry or the person's own inputs make impossible. Every rule holds for any supported person and takes its expectation from that person's inputs or from a cited published value. This catalog lists those rules, ranked by how many contradictions each finds, with where each is read and who implements it.
 
-The comparison with the MetaHuman reference bodies is a separate gross-defect layer, listed with its files in section 7.
+The comparison with the reference bodies was erased with the per-part tests on 2026-11-04 (#3057); section 7 records why.
 
 ## 1. How to test
 
@@ -51,7 +51,7 @@ Each rule is made red on a made defect of known size and green on a correct shap
 
 ### 1.6 Files
 
-Tests of this catalog live under `test/src/features/human/curves/`, by level and family: `profile/` (composed-curve profiles by region), `seam/`, `region/`, `input/` (input response and courses), `population/`, `layer/`, `skin/`, `integrity/` (curve soundness) and `reference/` (the removable layer). Piece tests live under `test/src/features/human/<region>/<piece>/`. Observers live under `test/src/features/internal/`, in sub-folders by area (`curves/` for the composed-curve readers). A test file is `test_human_<family>_<region>.ts` with one export named after it; every file stays under 500 lines and is documented to the contracts checklists. The runner discovers `test_*` functions in nested folders and filters by file name, so `pnpm test --include <name>` reaches every one. Run tests with `pnpm test --include <names...>`, which type-checks the project first.
+Tests of this catalog live under `test/src/features/human/curves/`, by level and family: `region/`, `input/` (input response and courses), `population/`, `skin/` and `integrity/` (curve soundness); the per-part `profile/`, `seam/`, `layer/`, `merge/` and `defect/` families and the piece tests under `test/src/features/human/<region>/<piece>/` were erased on 2026-11-04 (#3057), and the campaign's operator tests and whole-figure audits carry their rules as they land. Observers live under `test/src/features/internal/`, in sub-folders by area (`curves/` for the composed-curve readers). A test file is `test_human_<family>_<region>.ts` with one export named after it; every file stays under 500 lines and is documented to the contracts checklists. The runner discovers `test_*` functions in nested folders and filters by file name, so `pnpm test --include <name>` reaches every one. Run tests with `pnpm test --include <names...>`, which type-checks the project first.
 
 ## 2. Common statements, verified
 
@@ -759,4 +759,4 @@ Read and recorded under `packages/human/docs/sources/` before the rule that cite
 
 ## 7. The reference comparison layer
 
-The comparison with the private MetaHuman references is its own layer, held in `test/src/features/human/reference/` and `test/src/features/internal/reference/` and described with its files in [Reference comparison layer](reference-layer.md). Each reference check stands in for a logic rule above: shape between sites (PRO, SEC), part presence and closure (PLC, GEO-1), spikes and detached parts (GEO-1, CUR-3), sunk parts (KIN-SK-1, LMK-5), input response (IR).
+The comparison with the private references (f1, f2, m1, m2) was erased on 2026-11-04 with its helpers (#3057), by the owner's rule that the references are observations for reading laws, never an answer key: a closeness check rewards matching four people. The logic rules above carry what it stood in for, and no test reads a reference body.

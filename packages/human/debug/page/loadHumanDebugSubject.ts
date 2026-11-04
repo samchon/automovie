@@ -12,6 +12,7 @@ import { HUMAN_DEBUG_PIECES } from "../pieces/HUMAN_DEBUG_PIECES";
 import { HumanDebugTubeCentreline } from "../pieces/HumanDebugTubeCentreline";
 import type { IHumanDebugPiece } from "../pieces/IHumanDebugPiece";
 import { HumanDebugDocumentModel } from "./HumanDebugDocumentModel";
+import { loadHumanDebugCompare } from "./loadHumanDebugCompare";
 import { HumanDebugPose } from "./HumanDebugPose";
 import type { IHumanDebugSubject } from "./IHumanDebugSubject";
 
@@ -40,14 +41,17 @@ const PREPARED: Map<string, Singleton<IAutoMovieHumanPrepared>> = new Map();
  * @param person Person alias, or null for the first exported person.
  * @param piece `<name>` or `<name>:<argument>` of a registered piece, or null for the whole figure.
  * @param pose Pose name for the whole figure, `bind` or a key of `HUMAN_DEBUG_POSES`; a piece ignores it.
+ * @param reference The view comparison's reference id, style and drawn pieces (`loadHumanDebugCompare`), or null; with one, piece and pose are not read and the person defaults to the reference.
  * @returns The subject, owning its texture cache.
  */
 export async function loadHumanDebugSubject(
   person: string | null,
   piece: string | null,
   pose: string,
+  reference: { id: string; style: "clay" | "loft"; parts: string[] } | null = null,
 ): Promise<IHumanDebugSubject> {
   const started: number = performance.now();
+  if (reference !== null) return loadHumanDebugCompare(HumanDebugPeople.of(person ?? reference.id), reference);
   const who: IHumanDebugPerson = HumanDebugPeople.of(person);
   if (piece !== null) {
     const at: number = piece.indexOf(":");

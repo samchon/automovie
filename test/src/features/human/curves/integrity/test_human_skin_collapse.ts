@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanCurveCollapse } from "../../../internal/curves/HumanCurveCollapse";
 import { HumanAnatomy } from "../../../internal/HumanAnatomy";
 import { HumanAnatomyAudit } from "../../../internal/HumanAnatomyAudit";
@@ -33,14 +33,14 @@ export function test_human_skin_collapse(): void {
   const views: HumanAnatomy.IViews = HumanAnatomy.views("f1");
   const f1: HumanPeople.IPerson = views.person;
   const zeroed: IAutoMovieHumanBodyCalibration = structuredClone(f1.body);
-  const leg: IAutoMovieHumanLoftChain = zeroed.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "leg.left")!;
-  const mid: IAutoMovieHumanLoftChain.ILayer = leg.layers[Math.floor(leg.layers.length / 2)]!;
+  const leg: IAutoMovieLoftChain = zeroed.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "leg.left")!;
+  const mid: IAutoMovieLoftChain.ILayer = leg.layers[Math.floor(leg.layers.length / 2)]!;
   mid.coefficients = mid.coefficients.map((): number => 0);
   mid.slopes = mid.slopes.map((): number => 0);
   if (!failsOn(HumanCurveCollapse.rings("f1 zeroed", zeroed), "leg.left/")) failures.push("made zeroed layer on f1's leg.left: its ring row did not fail");
 
   const flat: IAutoMovieHumanBodyCalibration = structuredClone(f1.body);
-  const head: IAutoMovieHumanLoftChain = flat.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "head.upper")!;
+  const head: IAutoMovieLoftChain = flat.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "head.upper")!;
   if (head.basis !== "spline") failures.push("made flat lens: head.upper is not a spline chain, so its control points cannot be flattened");
   else {
     for (const l of head.layers) for (let j: number = head.order; j < 2 * head.order; j++) l.coefficients[j] = 0.05 * l.coefficients[j]!;

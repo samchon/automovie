@@ -1,7 +1,6 @@
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanLoftAperture } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import { HumanCurveRing } from "./HumanCurveRing";
 import { HumanCurveConstants } from "./HumanCurveConstants";
 
@@ -27,18 +26,18 @@ export namespace HumanCurveNose {
     const step: number = (2 * nostril.order + 1);
     const centre: number = nostril.coefficients[step]!;
     const lateral: number = Math.abs(nostril.coefficients[2 * step]!);
-    const chains: IAutoMovieHumanLoftChain[] = body.chains.filter(
-      (c: IAutoMovieHumanLoftChain): boolean => /^head\.(lower|middle)$/.test(c.name),
+    const chains: IAutoMovieLoftChain[] = body.chains.filter(
+      (c: IAutoMovieLoftChain): boolean => /^head\.(lower|middle)$/.test(c.name),
     );
 
     // The most forward skin of the lower and middle head at a height and a lateral place.
     const front: (y: number, z: number) => number | null = (y: number, z: number): number | null => {
-      const chain: IAutoMovieHumanLoftChain | undefined = chains.find(
-        (c: IAutoMovieHumanLoftChain): boolean =>
+      const chain: IAutoMovieLoftChain | undefined = chains.find(
+        (c: IAutoMovieLoftChain): boolean =>
           y >= c.layers[0]!.y && y <= c.layers[c.layers.length - 1]!.y,
       );
       if (chain === undefined) return null;
-      const ring: V3[] = AutoMovieHumanLoftChain.ring(chain, y, uniform(1440));
+      const ring: V3[] = AutoMovieLoftChain.ring(chain, y, uniform(1440));
       let best: number | null = null;
       ring.forEach((p: V3, i: number): void => {
         const q: V3 = ring[(i + 1) % ring.length]!;

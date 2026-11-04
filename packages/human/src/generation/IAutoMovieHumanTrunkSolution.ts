@@ -1,6 +1,4 @@
-﻿import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+﻿import type { AutoMovieLoftContract, IAutoMovieLoftChain, IAutoMovieLoftRelief } from "@automovie/engine";
 import type { AutoMovieHumanArmRootOval } from "./AutoMovieHumanArmRootOval";
 import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
 import type { AutoMovieHumanTrunkFeatures } from "./AutoMovieHumanTrunkFeatures";
@@ -22,10 +20,10 @@ export interface IAutoMovieHumanTrunkSolution {
   landmarks: IAutoMovieHumanTrunkLandmarks;
 
   /** The breasts, blades, buttocks, sternal notch, umbilicus and spinal furrow as relief windows on the trunk's chart. */
-  reliefs: IAutoMovieHumanRelief[];
+  reliefs: IAutoMovieLoftRelief[];
 
   /** The features that broke their contract and were left out, one diagnostic each. */
-  diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+  diagnostics: AutoMovieLoftContract.IDiagnostic[];
 
   /** The landmark heights and tapes the features stand on, which a feature piece reads alone. */
   sites: AutoMovieHumanTrunkFeatures.ISites;
@@ -34,7 +32,7 @@ export interface IAutoMovieHumanTrunkSolution {
   seat: AutoMovieHumanTrunkNeckSeat.ISeat;
 
   /** The neck chain, whose bottom layer the shoulders copy. */
-  neck: IAutoMovieHumanLoftChain;
+  neck: IAutoMovieLoftChain;
 
   /** The trapezius line from the shoulder point to the neck's ring. */
   line: IAutoMovieHumanShoulderOutline;

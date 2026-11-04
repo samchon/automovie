@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import { HumanCurveRing } from "./HumanCurveRing";
 import { HumanCurveConstants } from "./HumanCurveConstants";
 
@@ -21,10 +20,10 @@ export namespace HumanCurveSides {
     rebuild?: (chain: string, q: V3) => V3,
   ): void {
     for (const left of body.chains.filter(
-      (c: IAutoMovieHumanLoftChain): boolean => /^(arm|leg)\.left$/.test(c.name),
+      (c: IAutoMovieLoftChain): boolean => /^(arm|leg)\.left$/.test(c.name),
     )) {
-      const right: IAutoMovieHumanLoftChain | undefined = body.chains.find(
-        (c: IAutoMovieHumanLoftChain): boolean =>
+      const right: IAutoMovieLoftChain | undefined = body.chains.find(
+        (c: IAutoMovieLoftChain): boolean =>
           c.name === left.name.replace("left", "right"),
       );
       if (right === undefined || right.layers.length !== left.layers.length) {
@@ -32,9 +31,9 @@ export namespace HumanCurveSides {
         continue;
       }
       left.layers.forEach(
-        (l: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
-          const a: V3[] = AutoMovieHumanLoftChain.ring(left, l.y, uniform(PHASES));
-          const b: V3[] = AutoMovieHumanLoftChain.ring(
+        (l: IAutoMovieLoftChain.ILayer, k: number): void => {
+          const a: V3[] = AutoMovieLoftChain.ring(left, l.y, uniform(PHASES));
+          const b: V3[] = AutoMovieLoftChain.ring(
             right,
             right.layers[k]!.y,
             uniform(PHASES),

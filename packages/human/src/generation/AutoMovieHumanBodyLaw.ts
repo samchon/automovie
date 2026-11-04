@@ -4,17 +4,21 @@ import type { IAutoMovieHumanExtremityDimensions } from "../structures/body/IAut
 import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHumanLegIdentity";
 import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
+import { AutoMovieHumanBodyBox } from "./AutoMovieHumanBodyBox";
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
-import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
+import { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
+import { AutoMovieHumanBodyLaneInterim } from "./AutoMovieHumanBodyLaneInterim";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
+import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
 import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeight";
 import { AutoMovieHumanNeckConstruction } from "./AutoMovieHumanNeckConstruction";
 import { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanHeadAnatomy } from "./AutoMovieHumanHeadAnatomy";
@@ -55,33 +59,41 @@ export namespace AutoMovieHumanBodyLaw {
       params,
       inputs,
     );
+    const neckRing: IAutoMovieLoftChain = AutoMovieHumanNeckConstruction.generate({
+      top: AutoMovieHumanHeadConstruction.seat(head),
+      neck: head.neck,
+      neckBase: trunkInputs.neckBase,
+      sex: inputs.sex,
+      scale: inputs.scale,
+    });
+
+    // Interim: the old head assembly gives the trunk solve its neck chain and
+    // the eye globes; the figure's head is the head lane's subtree, realized
+    // with the body below.
     const headed: AutoMovieHumanHeadConstruction.IOutput =
       AutoMovieHumanHeadConstruction.apply(
         {
           stature: height,
-          chains: [
-            AutoMovieHumanNeckConstruction.generate({
-              top: AutoMovieHumanHeadConstruction.seat(head),
-              neck: head.neck,
-              neckBase: trunkInputs.neckBase,
-              sex: inputs.sex,
-              scale: inputs.scale,
-            }),
-          ],
+          chains: [neckRing],
           events: EVENTS,
           poles: [],
           apertures: [],
           eyes: [],
-          diagnostics: [],
+
+          // A contradiction among the person's trunk measures is reported at
+          // the input (`AutoMovieHumanBodyBox.diagnose`); the figure is still
+          // made, each section at the nearest end of its box's range.
+          diagnostics: AutoMovieHumanBodyBox.diagnose(AutoMovieHumanBodyAnatomy.resolve(params)),
         },
         LIPS,
         head,
       );
+    const crotchHeight: number = crotch(params, inputs);
     const standing: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanTrunkConstruction.apply(
         headed.body,
         trunkInputs,
-        crotch(params, inputs),
+        crotchHeight,
       );
 
     // The skeleton stands in the head, neck and trunk before any limb exists,
@@ -102,23 +114,54 @@ export namespace AutoMovieHumanBodyLaw {
         legs: inputs,
         ...(standing.trunk !== undefined ? { trunk: standing.trunk } : {}),
       });
-    const stood: IAutoMovieHumanBodyCalibration =
-      AutoMovieHumanLegConstruction.stand(
-        AutoMovieHumanFootConstruction.add(
-          AutoMovieHumanArmConstruction.add(standing, armInputs, skeleton),
-          footInputs,
-        ),
-        inputs,
+    const neck: IAutoMovieLoftChain | undefined = headed.body.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "head",
+    );
+    if (neck === undefined) throw new Error("The body lane stands under the neck chain `head`");
+
+    // The body lane: every body part from its views, joined by solid merges
+    // (#3047 to #3051), the trunk taking the neck's bottom ring by the head's
+    // down event at its far end.
+    // The head: its construction subtree (`AutoMovieHumanHeadLane`) on the
+    // neck ring, merged onto the trunk inside the body's one realization.
+    const headLane: AutoMovieHumanHeadLane.IOutput = AutoMovieHumanHeadLane.create(head, AutoMovieHumanBodyAnatomy.sexOf(params), neckRing);
+    const lane: AutoMovieHumanBodyLane.IOutput = AutoMovieHumanBodyLane.create({
+      ...AutoMovieHumanBodyLaneInterim.of({
+        params,
+        scale: inputs.scale,
+        stature: standing.stature,
+        crotch: crotchHeight,
+        trunk: trunkInputs,
+        neck,
+        feet: footInputs,
         skeleton,
-      );
+        arms: armInputs,
+      }),
+      head: headLane,
+    });
     return {
       body: {
-        ...AutoMovieHumanEventJoin.reconcile(
-          AutoMovieHumanLegConstruction.add(stood, inputs, skeleton),
-        ),
+        ...standing,
+        chains: lane.chains,
+        events: [],
+        poles: [],
+
+        // The openings stand on the old head's chains; the head lane's
+        // openings land as trims of its tree next. The eyes are the globes'
+        // frames alone (centre and radius), which the appearance seats.
+        apertures: [],
+        eyes: standing.eyes,
+        merges: undefined,
+        bodies: lane.bodies,
+        appendages: undefined,
+
+        // The nail windows named stations of the old digit chains; nail
+        // plates on the new digits remain (`log-body.md`).
+        nails: undefined,
+        diagnostics: [...(standing.diagnostics ?? []), ...lane.diagnostics],
         skeleton,
       },
-      vermilion: headed.vermilion,
+      vermilion: headLane.vermilion,
     };
   }
 
@@ -140,6 +183,27 @@ export namespace AutoMovieHumanBodyLaw {
     if (name === "masculineFeminine") return AutoMovieHumanBodyAnatomy.sexCoordinate(measures);
     if (name === "fat") return AutoMovieHumanBodyAnatomy.adiposity(measures);
     return 0;
+  }
+
+  /**
+   * The neck ring chain under the head, as {@link calibrate} builds it: the
+   * chain the head lane stands on (`AutoMovieHumanHeadLane`), which the
+   * figure no longer publishes.
+   *
+   * @param params Public input.
+   * @returns The neck ring chain, world mm.
+   */
+  export function neckRing(params: IAutoMovieHumanParameters): IAutoMovieLoftChain {
+    const height: number = statureOf(params);
+    const inputs: AutoMovieHumanLegConstruction.IInputs = tapes(params, height);
+    const head: AutoMovieHumanHeadConstruction.IInputs = headInputs(params);
+    return AutoMovieHumanNeckConstruction.generate({
+      top: AutoMovieHumanHeadConstruction.seat(head),
+      neck: head.neck,
+      neckBase: column(params, inputs).neckBase,
+      sex: inputs.sex,
+      scale: inputs.scale,
+    });
   }
 
   /**

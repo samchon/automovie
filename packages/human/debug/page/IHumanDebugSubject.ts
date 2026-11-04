@@ -28,6 +28,9 @@ export interface IHumanDebugSubject {
   /** Producer facts shown as given. */
   provenance: Record<string, unknown>;
 
+  /** The view comparison's part colours, by part name; absent for any other subject. */
+  legend?: { label: string; colour: string }[];
+
   /** Milliseconds the load took. */
   milliseconds: number;
 }

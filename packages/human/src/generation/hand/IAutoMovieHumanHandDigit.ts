@@ -1,4 +1,4 @@
-import type { AutoMovieHumanNaturalSpline } from "../../lofting/AutoMovieHumanNaturalSpline";
+import type { AutoMovieNaturalSpline } from "@automovie/engine";
 import type { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import type { IAutoMovieHumanHandClear } from "./IAutoMovieHumanHandClear";
 
@@ -15,7 +15,7 @@ export interface IAutoMovieHumanHandDigit {
   centre: Vec3;
 
   /** Natural splines of the line's three coordinates over the length along it, mm of the form. */
-  line: AutoMovieHumanNaturalSpline.ISpline[];
+  line: AutoMovieNaturalSpline.ISpline[];
 
   /** `[length, half width]` knots across the digit, mm of the form. */
   width: [number, number][];
