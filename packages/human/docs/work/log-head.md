@@ -28,6 +28,8 @@ Nose pit, read from frames (21:33:31; `head.parts:nose` = head mass plus nose, o
 - Not the cause: a vertical move (`9224f7f3e`) or the bottom pole. An open bottom changed nothing (nose2/merge-three.png) and was reverted.
 - Next: read the nose face's mesh triangles in the realization (owner `nose`) for count and winding, against the head mass's.
 
+Winding (21:50:32, `7d6b6f8d0`): `test_construction_level_winding` (a sphere merged onto the top of a sphere) reads 86.6 % of the part's skin triangles facing out on a straight axis and 88.5 % on a level axis. About 13 % face inward on both, so the cause is in the merge's tessellation, not the level axis; it is the likely cause of the nose pit and of the whole figure blank under single-sided material. The performance worker's lead (`log-performance.md`, `01c497492`): `AutoMovieSolidMesh.face` takes one emit sign for the whole face, and the trimmed cells next to the rail loop (the bridge and zip to the blend) are where a local flip can come from. The test stays red until fixed. Moved to #3062, step 2.
+
 Remaining, in order:
 
 1. **Eyes as parts of the head's tree** (owner, 21:0x: the eye is a module sharing the same logic as every other part). Design:
