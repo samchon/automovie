@@ -184,7 +184,14 @@ Run it from the repository root.
 - Each shot asks a new frame (a unique `fresh` nonce) and is kept as `<name>.png` only when the route answers `new-requested-frame` and the received bytes hash to `x-human-png-sha256`. `receipt.json` lists every kept shot: its file, URL, SHA-256 and the response headers, the source hash and capture time among them.
 - `keep=1` in a shot's text draws it on the page's loaded source, so a series of people shares one source while files are saved.
 - A failed shot keeps no PNG, adds one line with its cause to `<person>-FAILED.txt`, and the run goes on; the program then exits with code 1.
-- While the page works on a frame, the server reads its main-thread task time every 5 s (Chrome's `Performance.getMetrics`). A page that does no work for a minute while it holds the frame and the generation slot fails the frame with `Human debug page stalled` and the requests it still waits on, and is closed, so the slot is released and the next frame loads a fresh page (`debug/server/HumanDebugStall.ts`, proven by `test_human_debug_stall`). Such a cause in `<person>-FAILED.txt` is a viewer defect to trace before any visual claim. While the compile gate answers 503 or 409 the shot is asked again after `retry-after`, for up to 30 minutes. Requests carry no timeout, since changing the person takes minutes.
+- The page's work on a frame always ends, with the frame or with a failure that names the stage the frame was in (navigating, loading the modules and generating, applying options, taking the screenshot):
+  - `Human debug page crashed` at once when Chrome's renderer dies, most often out of JavaScript memory in a generation; the crash dump is under the browser profile's `Crashpad/reports`;
+  - `Human debug page closed` or `Human debug Chrome disconnected` at once;
+  - `Human debug frame exceeded its budget of 960 s` with the page's JavaScript stack, read by pausing its debugger; the budget is twice the slowest whole-person generation measured (481 s);
+  - `Human debug page stalled` with the requests it still waits on, when the page does no main-thread work for a minute: the server reads its task time every 5 s (Chrome's `Performance.getMetrics`, `debug/server/HumanDebugStall.ts`, proven by `test_human_debug_stall`).
+
+  Each closes the page, so the generation slot is released and the next frame loads a fresh page. A cause about the page's own generation (a crash, a stack in `src`) belongs to the generator; a stall or a hang without such a cause is a viewer defect to trace before any visual claim.
+- A request whose client leaves before its frame starts is dropped from the queue. `status.json` names the running frame's stage and every queued request with its wait, and the server log names what a new request is queued behind. While the compile gate answers 503 or 409 the shot is asked again after `retry-after`, for up to 30 minutes. Requests carry no timeout, since changing the person takes minutes.
 
 The owner's evidence set, each reference person from the front, the left and the back on one source:
 
@@ -198,7 +205,7 @@ node_modules\.bin\ttsx.CMD -P packages\human\tsconfig.debug.scripts.json package
 | --- | --- |
 | `/human-debug/index.json` | people, pieces with their arguments, batch entries, cameras, regions |
 | `/human-debug/source.json` | current source hash |
-| `/human-debug/status.json` | admitted requests, the page's source and subject, kept frames, generation slot holders |
+| `/human-debug/status.json` | admitted requests, the running frame with its stage and seconds, the queued requests in order with their waits, the page's source and subject, kept frames, generation slot holders |
 | `/human-debug/compiler.json` | the compile collector's latest cycle |
 
 The source hash covers the package's `src` and `debug` trees, the `src` tree of every workspace dependency in `packages/human/package.json`, the typed people, and the page and configuration files at the package root.

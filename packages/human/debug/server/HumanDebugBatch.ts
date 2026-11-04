@@ -27,6 +27,7 @@ import type { IHumanDebugFrame } from "./IHumanDebugFrame";
  * @param options Options every frame starts from.
  * @param nonce `fresh` nonce shared by the round's frames, or null.
  * @param keep Keep the page's loaded source from the first frame too, so batches of several people share one source.
+ * @param left Whether the client already left; the frames not yet started are then not drawn.
  * @returns One item per frame, in drawing order.
  */
 export async function HumanDebugBatch(
@@ -37,6 +38,7 @@ export async function HumanDebugBatch(
   options: IHumanDebugOptions,
   nonce: string | null,
   keep: boolean = false,
+  left: () => boolean = (): boolean => false,
 ): Promise<IHumanDebugBatchItem[]> {
   await fs.mkdir(directory, { recursive: true });
   const items: IHumanDebugBatchItem[] = [];
@@ -46,7 +48,7 @@ export async function HumanDebugBatch(
       try {
         // The first frame binds the batch to the current source; the rest keep it, so saves during the
         // batch never regenerate the person and every frame of the round shares one source.
-        const frame: IHumanDebugFrame = await session.frame({ ...options, piece, camera }, nonce, keep || items.length !== 0);
+        const frame: IHumanDebugFrame = await session.frame({ ...options, piece, camera }, nonce, keep || items.length !== 0, left);
         const png: string = path.join(directory, name + ".png");
         await fs.writeFile(png, frame.png);
         await fs.writeFile(

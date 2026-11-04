@@ -73,6 +73,13 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
       return json(response, { pid: process.pid, ...session.status(), slots: HumanDebugGenerationSlot.holders(environment.slotRoot) });
     if (url.pathname === HUMAN_DEBUG_ROUTES.index) return json(response, await index(server));
 
+    // A client that leaves before its frame starts takes the frame out of the queue.
+    let gone: boolean = false;
+    response.once("close", (): void => {
+      if (!response.writableEnded) gone = true;
+    });
+    const left: () => boolean = (): boolean => gone;
+
     const parsed: { options: IHumanDebugOptions; notices: string[] } = HumanDebugOptions.parse(url.searchParams, EXTRA);
     if (parsed.notices.length !== 0) return send(response, 400, "text/plain; charset=utf-8", parsed.notices.join("\n"));
     const nonce: string | null = url.searchParams.get("fresh");
@@ -88,7 +95,7 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
 
     if (image !== null) {
       // `keep=1` draws on the page's loaded source, so a series of frames shares one generation while files are saved.
-      const frame: IHumanDebugFrame = await session.frame(parsed.options, nonce, url.searchParams.get("keep") === "1");
+      const frame: IHumanDebugFrame = await session.frame(parsed.options, nonce, url.searchParams.get("keep") === "1", left);
       const headers: typeof HUMAN_DEBUG_ROUTES.headers = HUMAN_DEBUG_ROUTES.headers;
       response.setHeader(headers.source, frame.source);
       response.setHeader(headers.cache, frame.cache);
@@ -124,6 +131,7 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
         { ...parsed.options, person: batch[1]! },
         nonce,
         url.searchParams.get("keep") === "1",
+        left,
       );
       return json(response, { person: batch[1], round, directory, items });
     }
