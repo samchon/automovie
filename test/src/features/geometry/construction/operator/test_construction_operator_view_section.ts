@@ -241,7 +241,7 @@ function circle(a: [number, number], b: [number, number], c: [number, number]): 
 }
 
 /**
- * The reading step beside a guide: a sixteenth of the knot span on that side, so the farthest of the reader's points (eight steps) stays inside the one quintic span; 1e-3 rad when the section's knots are not given (a closed form) or the span is wider than 0.016 rad.
+ * The reading step beside a guide: a sixteenth of the knot span on that side, so the farthest of the reader's points (eight steps) stays inside the one quintic span; 2.5e-4 rad at most, and 1e-3 rad on a closed form whose knots are not given.
  *
  * @param at The guide's angle.
  * @param side -1 for the lower side, 1 for the upper.
@@ -250,6 +250,7 @@ function circle(a: [number, number], b: [number, number], c: [number, number]): 
  */
 function step(at: number, side: number, knots: readonly number[]): number {
   if (knots.length === 0) return 1e-3;
+  // Richardson leaves a term in h^3 of the quintic span's own derivatives, about 6e-6 of the curvature at 1e-3 rad; a quarter of that step takes it 64 times lower while the fit's rounding stays inside its bound.
   const turn: number = 2 * Math.PI;
   const wrap = (a: number): number => ((a % turn) + turn) % turn;
   let span: number = Infinity;
@@ -257,5 +258,5 @@ function step(at: number, side: number, knots: readonly number[]): number {
     const d: number = side > 0 ? wrap(k - at) : wrap(at - k);
     if (d > 1e-12 && d < span) span = d;
   }
-  return Math.min(1e-3, span / 16);
+  return Math.min(2.5e-4, span / 16);
 }

@@ -13,7 +13,7 @@ type V3 = [number, number, number];
  * surface G1 and G2 at its rail.
  *
  * Scenarios:
- * 1. A cylinder of radius 0.015 m along +z merged onto a cylinder of radius 0.03 m along +x, chords 0.006 m on each: the seam's traced points lie on both cylinders (the Steinmetz curve), each within 1e-9 of the part's size; the rails stand 0.006 m from the seam; at every blend column the blend's normal matches each surface's at its rail and its normal curvature across the rail matches the surface's, and no diagnostic is recorded.
+ * 1. A cylinder of radius 0.015 m along +z merged onto a cylinder of radius 0.03 m along +x, chords 0.006 m on each: the seam's traced points lie on both cylinders (the Steinmetz curve), each within the periodic cubic section spline's bound on the realized cylinders (16 points per section); the rails stand 0.006 m from the seam; at every blend column the blend's normal matches each surface's at its rail and its normal curvature across the rail matches the surface's, and no diagnostic is recorded.
  * 2. The same merge seeded by a search along the post's station line at phase pi / 2 (a `search` seed) traces the same seam, on both cylinders.
  * 3. Red: the rails read against declared chords of 0.007 m, the seam against a host cylinder 1 mm wider, and the blend's rails against the two surfaces swapped, each fail.
  *
@@ -38,7 +38,9 @@ export function test_construction_merge(): void {
   const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "made", root: tree }, { chord: 1e-4 });
   if (real.diagnostics.length !== 0) failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);
   const joined: AutoMovieConstructionRealization.IJoin = ConstructionRead.join(real, "blend.post");
-  failures.push(...ConstructionChecks.onBoth(seam(joined), onPost, onBeam(0), 1e-9 * R));
+  // The realized cylinders are periodic cubic B-splines through 16 points per section, so a seam point stands off the closed-form cylinders by up to that spline's bound on the larger radius, not by rounding.
+  const seamBound: number = ConstructionChecks.sectionSpline(R, 16);
+  failures.push(...ConstructionChecks.onBoth(seam(joined), onPost, onBeam(0), seamBound));
   // The join's curve and rails are in the kernel's millimetres; the seam above is read in metres.
   failures.push(...ConstructionChecks.chords(joined.join, (): number => 1000 * w, (): number => 1000 * w, 1e-6 * R));
 
@@ -56,7 +58,7 @@ export function test_construction_merge(): void {
   const searched: IAutoMovieConstructionJoin = { ...tree, seed: { type: "search", partFace: "post", hostFace: "beam", phase: Math.PI / 2, from: 0, to: 1 } };
   const found: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "made", root: searched }, { chord: 1e-4 });
   if (found.diagnostics.length !== 0) failures.push(`search seed: ${ConstructionRead.diagnostics(found)}`);
-  else failures.push(...ConstructionChecks.onBoth(seam(ConstructionRead.join(found, "blend.post")), onPost, onBeam(0), 1e-9 * R).map((f: string): string => `search seed: ${f}`));
+  else failures.push(...ConstructionChecks.onBoth(seam(ConstructionRead.join(found, "blend.post")), onPost, onBeam(0), seamBound).map((f: string): string => `search seed: ${f}`));
 
   if (failures.length !== 0) throw new Error(`${failures.length} merge failures:\n${failures.join("\n")}`);
 }
