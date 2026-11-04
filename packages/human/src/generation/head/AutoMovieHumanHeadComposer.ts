@@ -1,0 +1,102 @@
+import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
+import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
+import { AutoMovieHumanSolidDiff } from "../../lofting/AutoMovieHumanSolidDiff";
+import { AutoMovieHumanSolidFoot } from "../../lofting/AutoMovieHumanSolidFoot";
+import type { AutoMovieHumanSolidJoin } from "../../lofting/AutoMovieHumanSolidJoin";
+import { AutoMovieHumanSolidMerge } from "../../lofting/AutoMovieHumanSolidMerge";
+import { AutoMovieHumanViewLoft } from "../../lofting/AutoMovieHumanViewLoft";
+import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanSolidSurface";
+import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
+import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
+import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
+
+/**
+ * The head subtree composed by the three operators: the head mass lofted
+ * from its views (`AutoMovieHumanHeadMassPart`), and every face part lofted
+ * from its own (`AutoMovieHumanHeadFeatures`) and merged onto it or cut from
+ * it (`AutoMovieHumanSolidMerge`, `AutoMovieHumanSolidDiff`), each join
+ * seeded at the part's landmark and blended over the part's own size
+ * (`AutoMovieHumanSeamUnion.width`: half the lesser of its height and its
+ * least half extent).
+ *
+ * Every join is made against the bare head mass, so each part's curve and
+ * blend are its own; where two parts' blends meet (the lips and the nose at
+ * the subnasale) the corner is a setback the kernel closes. First pass:
+ * compile-only, read by the debug sweep before it is wired into generation.
+ */
+export namespace AutoMovieHumanHeadComposer {
+  /** A part with its loft and its join. */
+  export interface IJoined {
+    /** The part. */
+    feature: AutoMovieHumanHeadFeatures.IFeature;
+
+    /** Its loft. */
+    loft: AutoMovieHumanViewLoft.IResult;
+
+    /** Its join to the head mass, or null when either surface or the seed is missing. */
+    join: AutoMovieHumanSolidJoin.IJoin | null;
+  }
+
+  /** The composed head. */
+  export interface IOutput {
+    /** The head mass's loft. */
+    mass: AutoMovieHumanViewLoft.IResult;
+
+    /** Every face part, lofted and joined. */
+    parts: IJoined[];
+
+    /** Every broken premise, by producer. */
+    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+  }
+
+  /** Traced points per join. */
+  export const COUNT: number = 64;
+
+  /** Largest gap accepted on a join's curve, mm. */
+  export const TOLERANCE: number = 0.05;
+
+  /** Least angle between the two tangent planes along a join's curve, radians. */
+  export const GRAZING: number = (5 * Math.PI) / 180;
+
+  /**
+   * Compose the head.
+   *
+   * @param plan The landmark skeleton, the vault exponent solved.
+   * @param ears The two auricles' inputs, world mm.
+   */
+  export function compose(plan: IAutoMovieHumanHeadLayout, ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar }): IOutput {
+    const mass: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(AutoMovieHumanHeadMassPart.of(plan));
+    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...mass.diagnostics];
+    const host: IAutoMovieHumanSolidSurface | null = mass.surface;
+    const parts: IJoined[] = AutoMovieHumanHeadFeatures.of(plan, ears).map((feature: AutoMovieHumanHeadFeatures.IFeature): IJoined => {
+      const loft: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(feature.part);
+      diagnostics.push(...loft.diagnostics);
+      if (host === null || loft.surface === null) return { feature, loft, join: null };
+
+      // The seed: the landmark's foot on the head mass, from the station at
+      // its height and the phase toward it about the head's axis.
+      const guess: [number, number] = [feature.seed[1], Math.atan2(feature.seed[2], feature.seed[0] - plan.centre)];
+      const foot: AutoMovieHumanSolidFoot.IFoot | null = AutoMovieHumanSolidFoot.of(host, feature.seed, guess, TOLERANCE);
+      if (foot === null) {
+        diagnostics.push({ producer: `head.${feature.part.name}`, level: 2, contract: "seed", detail: "the landmark has no foot on the head mass" });
+        return { feature, loft, join: null };
+      }
+      const width: number = AutoMovieHumanSeamUnion.width(feature.size[0], feature.size[1]);
+      const input: AutoMovieHumanSolidJoin.IInput = {
+        part: loft.surface,
+        host,
+        seed: { phi: 0, s: feature.contact, y: foot.u, theta: foot.v },
+        count: COUNT,
+        tolerance: TOLERANCE,
+        grazing: GRAZING,
+        width: { part: (): number => width, host: (): number => width },
+      };
+      const result: AutoMovieHumanSolidJoin.IResult =
+        feature.join === "merge" ? AutoMovieHumanSolidMerge.create(input) : AutoMovieHumanSolidDiff.create(input);
+      diagnostics.push(...result.diagnostics);
+      return { feature, loft, join: result.join };
+    });
+    return { mass, parts, diagnostics };
+  }
+}
