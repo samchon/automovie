@@ -1,3 +1,4 @@
+export * from "./AutoMovieConstructionRealization";
 export * from "./AutoMovieHarmonicCurve";
 export * from "./AutoMovieIllinois";
 export * from "./AutoMovieLoftChain";
@@ -36,3 +37,4 @@ export * from "./IAutoMovieLoftRelief";
 export * from "./IAutoMovieSolidAtlas";
 export * from "./IAutoMovieSolidSurface";
 export * from "./IAutoMovieViewPart";
+export * from "./realizeAutoMovieConstruction";

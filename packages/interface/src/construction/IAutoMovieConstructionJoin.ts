@@ -3,7 +3,7 @@ import type { AutoMovieConstructionJoinKind } from "./AutoMovieConstructionJoinK
 import type { AutoMovieConstructionNode } from "./AutoMovieConstructionNode";
 import type { AutoMovieConstructionParameter } from "./AutoMovieConstructionParameter";
 import type { AutoMovieConstructionWidth } from "./AutoMovieConstructionWidth";
-import type { IAutoMovieConstructionSeed } from "./IAutoMovieConstructionSeed";
+import type { AutoMovieConstructionSeed } from "./AutoMovieConstructionSeed";
 
 /**
  * A part joined onto a host: a merge (the union of the two solids) or a diff (the part cut from the host), along the curve where their surfaces meet, with a blend of declared continuity between a rail on each.
@@ -34,7 +34,7 @@ export interface IAutoMovieConstructionJoin {
   part: AutoMovieConstructionNode;
 
   /** Where the trace starts, from the landmarks that locate the contact. */
-  seed: IAutoMovieConstructionSeed;
+  seed: AutoMovieConstructionSeed;
 
   /** The curve's parameter: how one turn of the loop is measured. */
   parameter: AutoMovieConstructionParameter;
