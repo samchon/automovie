@@ -1,4 +1,8 @@
+export * from "./AutoMovieConstructionContinuation";
 export * from "./AutoMovieConstructionRealization";
+export * from "./AutoMovieConstructionSeeds";
+export * from "./AutoMovieConstructionViews";
+export * from "./AutoMovieConstructionWidths";
 export * from "./AutoMovieHarmonicCurve";
 export * from "./AutoMovieIllinois";
 export * from "./AutoMovieLoftChain";
@@ -7,6 +11,7 @@ export * from "./AutoMovieLoftFrame";
 export * from "./AutoMovieLoftJet";
 export * from "./AutoMovieLoftParameter";
 export * from "./AutoMovieLoftRelief";
+export * from "./AutoMovieLoftStations";
 export * from "./AutoMovieNaturalSpline";
 export * from "./AutoMoviePolarSector";
 export * from "./AutoMovieSeamStation";

@@ -24,7 +24,7 @@ function unit(a: Vec3): Vec3 {
  * (`AutoMovieSeamStation.continuous`), which is exact for a straight
  * axis (a linear origin and constant axes).
  *
- * Three axes:
+ * Five axes:
  *
  * - {@link straight}: a part straight in its bone frame at the neutral pose
  *   (a limb segment, a phalanx, a nose), the plane moved along `v x u`.
@@ -36,6 +36,10 @@ function unit(a: Vec3): Vec3 {
  *   so a section never twists about the axis (Wang, Juttler, Zheng and Liu,
  *   Computation of rotation minimizing frames, ACM TOG 27(1), 2008: the
  *   double reflection method, fourth order in the step).
+ * - {@link level}: the level planes with their origin on a horizontal course
+ *   in height, for a part whose sections drift sideways with height.
+ * - {@link jointed}: a part straight along each segment and turning C2 at
+ *   each joint (a limb along its bones), its station the arclength.
  */
 export namespace AutoMovieViewAxis {
   /** A part's axis: the section plane at a station. */
@@ -85,6 +89,217 @@ export namespace AutoMovieViewAxis {
    */
   export function horizontal(): IAxis {
     return straight([0, 0, 0], [1, 0, 0], [0, 0, 1]);
+  }
+
+  /**
+   * The level plane at each world height, its origin on a horizontal course:
+   * `(x(s), s, z(s))` with `u = +X` and `v = +Z`, the course's two offsets
+   * natural cubic splines of the height, so the origin drifts C2 while every
+   * plane stays level.
+   *
+   * @param x The origin's `x` knots by strictly increasing height, mm.
+   * @param z The origin's `z` knots by strictly increasing height, mm.
+   * @returns The axis; past the end knots each offset continues straight.
+   */
+  export function level(x: readonly IAxisKnot1[], z: readonly IAxisKnot1[]): IAxis {
+    const spline = (knots: readonly IAxisKnot1[]): AutoMovieNaturalSpline.ISpline =>
+      AutoMovieNaturalSpline.create(
+        knots.map((k: IAxisKnot1): number => k.station),
+        knots.map((k: IAxisKnot1): number => k.value),
+      );
+    const sx: AutoMovieNaturalSpline.ISpline = spline(x);
+    const sz: AutoMovieNaturalSpline.ISpline = spline(z);
+    return {
+      at: (station: number): AutoMovieLoftFrame.IFrame => ({
+        origin: [AutoMovieNaturalSpline.evaluate(sx, station), station, AutoMovieNaturalSpline.evaluate(sz, station)],
+        u: [1, 0, 0],
+        v: [0, 0, 1],
+      }),
+    };
+  }
+
+  /** One knot of a scalar course: a value at a station. */
+  export interface IAxisKnot1 {
+    /** Station, mm, strictly increasing over the knots. */
+    station: number;
+
+    /** The value there, mm. */
+    value: number;
+  }
+
+  /**
+   * A jointed axis: straight along each segment between consecutive centres,
+   * and at each interior centre a turn from one segment's direction to the
+   * next about their common normal, the turned angle the quintic smoothstep
+   * `10 x^3 - 15 x^4 + 6 x^5` of the share `x` of the turn's arclength
+   * `2 h`, so the tangent and the frames are C2.
+   *
+   * The station is the arclength of the course from the first centre. The
+   * turn is symmetric about its corner's bisector, so it leaves the two
+   * segments' lines at the set-back `d` from the centre: its displacement
+   * `D = integral of t` over the turn is `d (t_in + t_out)`. The chart axis
+   * `u` starts as `up` square to the first segment and turns with every
+   * joint's rotation (minimal rotation for a planar turn), `v = u x t`.
+   *
+   * @param centres The first end, the joints and the last end, mm.
+   * @param halves Each interior centre's turn half length, mm, positive.
+   * @param up The chart's first axis at the first segment.
+   * @returns The axis, or the broken admission rule.
+   */
+  export function jointed(centres: readonly Vec3[], halves: readonly number[], up: Vec3): IAxis | string {
+    const m: number = centres.length;
+    if (m < 2) return `${m} centres, at least two needed`;
+    if (halves.length !== m - 2) return `${halves.length} half lengths for ${m - 2} interior centres`;
+    const directions: Vec3[] = [];
+    const lengths: number[] = [];
+    for (let i: number = 0; i + 1 < m; i++) {
+      const d: Vec3 = sub(centres[i + 1]!, centres[i]!);
+      const l: number = Math.hypot(d[0], d[1], d[2]);
+      if (!(l > 0)) return `centres ${i} and ${i + 1} coincide`;
+      directions.push(scale(d, 1 / l));
+      lengths.push(l);
+    }
+
+    // Each turn's axis, angle and set-back.
+    const turns: ITurn[] = [];
+    for (let i: number = 1; i + 1 < m; i++) {
+      const h: number = halves[i - 1]!;
+      if (!(h > 0)) return `half length ${h} at centre ${i} is not positive`;
+      const a: Vec3 = directions[i - 1]!;
+      const b: Vec3 = directions[i]!;
+      const c: number = Math.max(-1, Math.min(1, dot(a, b)));
+      const angle: number = Math.acos(c);
+      if (!(angle < Math.PI - 1e-9)) return `segments ${i - 1} and ${i} are opposite`;
+      const n: Vec3 = cross(a, b);
+      const ln: number = Math.hypot(n[0], n[1], n[2]);
+      const axis: Vec3 = ln > 0 ? scale(n, 1 / ln) : [0, 0, 0];
+      const turn: ITurn = { centre: i, half: h, angle: ln > 0 ? angle : 0, axis, setback: h, start: 0 };
+      if (turn.angle > 0) {
+        const displacement: Vec3 = integrate(a, turn, 2 * h);
+        // D = d (a + b): read d along the bisector a + b.
+        const bisector: Vec3 = add(a, b);
+        turn.setback = dot(displacement, bisector) / dot(bisector, bisector);
+      }
+      turns.push(turn);
+    }
+    for (let i: number = 0; i + 1 < m; i++) {
+      const before: number = i >= 1 ? turns[i - 1]!.setback : 0;
+      const after: number = i + 1 < m - 1 ? turns[i]!.setback : 0;
+      if (!(before + after < lengths[i]!)) return `the turns' set-backs ${before} and ${after} overrun segment ${i} of length ${lengths[i]}`;
+    }
+
+    // Arclength of each turn's start.
+    let s: number = 0;
+    for (let i: number = 0; i < turns.length; i++) {
+      const t: ITurn = turns[i]!;
+      const previous: number = i >= 1 ? turns[i - 1]!.setback : 0;
+      s += lengths[i]! - previous - t.setback;
+      t.start = s;
+      s += 2 * t.half;
+    }
+    const u0: Vec3 = sub(up, scale(directions[0]!, dot(up, directions[0]!)));
+    const lu: number = Math.hypot(u0[0], u0[1], u0[2]);
+    if (!(lu > 1e-9 * Math.hypot(up[0], up[1], up[2]))) return "up lies along the first segment";
+    const first: Vec3 = scale(u0, 1 / lu);
+
+    return {
+      at: (station: number): AutoMovieLoftFrame.IFrame => {
+        // Walk the segments and turns up to the station.
+        let point: Vec3 = [...centres[0]!];
+        let u: Vec3 = first;
+        let tangent: Vec3 = directions[0]!;
+        let at: number = 0;
+        for (let i: number = 0; i < turns.length; i++) {
+          const t: ITurn = turns[i]!;
+          if (station <= t.start) break;
+          point = add(point, scale(tangent, t.start - at));
+          at = t.start;
+          const share: number = Math.min(2 * t.half, station - at);
+          if (t.angle > 0) {
+            point = add(point, integrate(tangent, t, share));
+            const turned: number = t.angle * smoothstep(share / (2 * t.half));
+            u = rotate(u, t.axis, turned);
+            tangent = rotate(tangent, t.axis, turned);
+          } else point = add(point, scale(tangent, share));
+          at += share;
+          if (share < 2 * t.half) return frame(point, u, tangent);
+        }
+        return frame(add(point, scale(tangent, station - at)), u, tangent);
+      },
+    };
+  }
+
+  /** One turn of a jointed axis. */
+  interface ITurn {
+    /** Its centre's index. */
+    centre: number;
+
+    /** Half its arclength, mm. */
+    half: number;
+
+    /** The angle it turns, radians, 0 for parallel segments. */
+    angle: number;
+
+    /** The unit axis it turns about. */
+    axis: Vec3;
+
+    /** Its set-back from the centre along both segments, mm. */
+    setback: number;
+
+    /** The arclength where it starts, mm. */
+    start: number;
+  }
+
+  /** The plane square to a tangent, its first axis `u` and `v = u x t`. */
+  function frame(origin: Vec3, u: Vec3, tangent: Vec3): AutoMovieLoftFrame.IFrame {
+    return { origin, u: [...u], v: cross(u, tangent) };
+  }
+
+  /** `10 x^3 - 15 x^4 + 6 x^5` on `[0, 1]`. */
+  function smoothstep(x: number): number {
+    const c: number = Math.min(1, Math.max(0, x));
+    return c * c * c * (10 + c * (-15 + 6 * c));
+  }
+
+  /** A vector turned about a unit axis by an angle (Rodrigues). */
+  function rotate(a: Vec3, axis: Vec3, angle: number): Vec3 {
+    const c: number = Math.cos(angle);
+    const s: number = Math.sin(angle);
+    return add(add(scale(a, c), scale(cross(axis, a), s)), scale(axis, dot(axis, a) * (1 - c)));
+  }
+
+  /** Gauss-Legendre nodes and weights on `[-1, 1]`, ten points. */
+  const GAUSS: readonly (readonly [number, number])[] = [
+    [-0.9739065285171717, 0.0666713443086881],
+    [-0.8650633666889845, 0.1494513491505806],
+    [-0.6794095682990244, 0.219086362515982],
+    [-0.4333953941292472, 0.2692667193099963],
+    [-0.1488743389816312, 0.2955242247147529],
+    [0.1488743389816312, 0.2955242247147529],
+    [0.4333953941292472, 0.2692667193099963],
+    [0.6794095682990244, 0.219086362515982],
+    [0.8650633666889845, 0.1494513491505806],
+    [0.9739065285171717, 0.0666713443086881],
+  ];
+
+  /** Panels of the turn's displacement quadrature. */
+  const PANELS: number = 8;
+
+  /**
+   * The displacement along a turn from its start over an arclength: the
+   * integral of the turning tangent, by composite ten-point Gauss-Legendre
+   * on {@link PANELS} panels, exact to rounding for the smooth integrand.
+   */
+  function integrate(tangent: Vec3, turn: ITurn, length: number): Vec3 {
+    let sum: Vec3 = [0, 0, 0];
+    const width: number = length / PANELS;
+    for (let p: number = 0; p < PANELS; p++)
+      for (const [x, w] of GAUSS) {
+        const sigma: number = width * (p + (x + 1) / 2);
+        const turned: number = turn.angle * smoothstep(sigma / (2 * turn.half));
+        sum = add(sum, scale(rotate(tangent, turn.axis, turned), (w * width) / 2));
+      }
+    return sum;
   }
 
   /**

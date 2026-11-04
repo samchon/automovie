@@ -99,6 +99,18 @@ export namespace AutoMovieSolidBody {
     rows: number;
   }
 
+  /** A merge's outcome. */
+  export interface IMerged {
+    /** The published blend, or null when a premise broke. */
+    blend: AutoMovieSolidBlendChain.IBlend | null;
+
+    /** The join the blend spans, or null with the blend. */
+    join: AutoMovieSolidJoin.IJoin | null;
+
+    /** Every broken premise. */
+    diagnostics: AutoMovieLoftContract.IDiagnostic[];
+  }
+
   /**
    * A body of base faces, untrimmed.
    *
@@ -155,11 +167,11 @@ export namespace AutoMovieSolidBody {
    * @param input The merge.
    * @returns The published blend, or null with the diagnostics of every broken premise.
    */
-  export function merge(body: IBody, input: IMerge): { blend: AutoMovieSolidBlendChain.IBlend | null; diagnostics: AutoMovieLoftContract.IDiagnostic[] } {
+  export function merge(body: IBody, input: IMerge): IMerged {
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    const fail = (contract: string, detail: string): { blend: null; diagnostics: AutoMovieLoftContract.IDiagnostic[] } => {
+    const fail = (contract: string, detail: string): IMerged => {
       diagnostics.push({ producer: `solid.body.${body.name}.${input.name}`, level: 6, contract, detail });
-      return { blend: null, diagnostics };
+      return { blend: null, join: null, diagnostics };
     };
 
     // The part's face, and the host as the atlas of every other face.
@@ -168,7 +180,7 @@ export namespace AutoMovieSolidBody {
     const { atlas: host, index }: { atlas: IAutoMovieSolidAtlas; index: number[] } = atlas(body, known);
     const created: AutoMovieSolidJoin.IResult = (input.kind === "merge" ? AutoMovieSolidMerge : AutoMovieSolidDiff).create({ ...input.join, part: partSurface, host });
     diagnostics.push(...created.diagnostics);
-    if (created.join === null) return { blend: null, diagnostics };
+    if (created.join === null) return { blend: null, join: null, diagnostics };
     const join: AutoMovieSolidJoin.IJoin = created.join;
     const blend: AutoMovieSolidBlendChain.IBlend | null = AutoMovieSolidBlendChain.of(input.name, join, input.count);
     if (blend === null) return fail("rails", "a column of the blend has no rail");
@@ -234,7 +246,7 @@ export namespace AutoMovieSolidBody {
     const clipped: string | null = AutoMovieSolidClip.trim(body, rail, blendFace, blend.host.kind);
     if (clipped !== null) return fail("trim", clipped);
     body.blends.push(blend);
-    return { blend, diagnostics };
+    return { blend, join, diagnostics };
   }
 
   /**
