@@ -268,6 +268,7 @@ export namespace AutoMovieHumanArmConstruction {
         : sided(AutoMovieHumanArmShoulder.glenohumeral(calibration, side, inputs.upper), sign);
     const form: IAutoMovieHumanHandForm = AutoMovieHumanHandForm.form();
     const placed: Vec3 = AutoMovieHumanArmLaw.centreOf(centre, inputs, elbow);
+    const laws: Map<string, IAutoMovieHumanArmLaw> = new Map();
     const key: string = JSON.stringify([
       side,
       inputs[side],
@@ -298,8 +299,34 @@ export namespace AutoMovieHumanArmConstruction {
           given: inputs[side],
           circumference: inputs.circumference,
           wristTape: inputs.wrist,
-          makeArm: (m: IAutoMovieHumanHandScales): IAutoMovieHumanArmLaw => AutoMovieHumanArmLaw.of(ring, inputs, m, form, placed),
-          key,
+          makeArm: (m: IAutoMovieHumanHandScales): IAutoMovieHumanArmLaw => {
+            // Every solve starts from the same scales and the skin target
+            // rounds repeat them: one law per set of scales.
+            const known: string = JSON.stringify(m);
+            const found: IAutoMovieHumanArmLaw | undefined = laws.get(known);
+            if (found !== undefined) return found;
+            const law: IAutoMovieHumanArmLaw = AutoMovieHumanArmLaw.of(ring, inputs, m, form, placed);
+            laws.set(known, law);
+            return law;
+          },
+          // The skin targets are lengths of the hand's own section, which a
+          // reflection keeps: one side's measurement serves the other's mirror
+          // image, so their key leaves the side out and the lateral sign of
+          // the placement with it.
+          key: JSON.stringify([
+            inputs[side],
+            inputs.circumference,
+            inputs.wrist,
+            inputs.scale,
+            inputs.upper,
+            inputs.lower,
+            inputs.bicep,
+            inputs.elbow,
+            inputs.forearm,
+            [placed[0], placed[1], Math.abs(placed[2])],
+            [ring.centre[0], ring.centre[1], Math.abs(ring.centre[2])],
+            ring.radius,
+          ]),
           lofted: true,
         }),
       );

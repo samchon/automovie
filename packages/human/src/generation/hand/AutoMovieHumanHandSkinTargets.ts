@@ -58,7 +58,8 @@ export namespace AutoMovieHumanHandSkinTargets {
    * {@link SKIN_ROUNDS} rounds; the ratio of skin to chain changes little with
    * the scales, so each round shrinks the miss severalfold. Measured in the
    * left frame for either side, since the right is its reflection; cached per
-   * side and inputs, because the skeleton asks for the same bones first.
+   * mirror-free inputs, so one side serves the other's mirror image, and
+   * because the skeleton asks for the same bones first.
    */
   export function skinTargets(
     calibration: IAutoMovieHumanBodyCalibration,
