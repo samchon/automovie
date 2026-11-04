@@ -23,9 +23,13 @@ const { combine, cross, dot, norm, sub, unit } = AutoMovieHumanSolidVector;
  * stay its own phases and the part is only shortened: `s_A = s* + sigma lambda`,
  * `sigma` the sign of the part's kept side.
  *
- * Each offset is solved so that the rail lies the requested chord from the
- * curve point: `|S(c + lambda e) - C| = w` by Newton's method on `lambda`, so
- * a width law reads in millimetres of skin, not of chart.
+ * Each square offset then settles in the normal section: the rail point is
+ * where the surface meets the plane through the curve point spanned by the
+ * surface's normal and `S_* e` at the preimage, at the requested chord `w`
+ * from the curve point (a straight chart line from the preimage first, then
+ * Newton on the plane and the chord). So a width law reads in millimetres of
+ * skin, and the rail depends on the surfaces and the curve alone, not on how
+ * a chart is drawn; on a plane the section is the straight chart line.
  *
  * Kept sides: a merge keeps the part outside the host and the host outside the
  * part; a diff keeps the cutter inside the base and the base outside the
@@ -145,9 +149,12 @@ export namespace AutoMovieHumanSolidRail {
       sigma = e[0] >= 0 ? 1 : -1;
       const lambda: number | null = offset((l: number): IJet => part.jet(curve.s + l * e[0], curve.phi + l * e[1]), e, curve.point, partWidth);
       if (lambda === null) return null;
-      s = curve.s + lambda * e[0];
-      phi = curve.phi + lambda * e[1];
+      const refined: [number, number] | null = section(part, [curve.s + lambda * e[0], curve.phi + lambda * e[1]], curve.point, plane(a, e), partWidth);
+      if (refined === null) return null;
+      s = refined[0];
+      phi = refined[1];
     }
+
     // The host's direction square to the preimage, turned toward the
     // outside of the part.
     const across: [number, number] | null = square(b, [curve.rate[2], curve.rate[3]], nA, 1);
@@ -209,6 +216,12 @@ export namespace AutoMovieHumanSolidRail {
       if (nu === null) return null;
       hostChart = [start[0] + nu * direction[0], start[1] + nu * direction[1]];
     }
+
+    // The rail in the normal section through the curve point: the plane of
+    // the host's normal and its square direction at the preimage.
+    const settled: [number, number] | null = section(host.faces[face]!, hostChart, curve.point, plane(b, across), hostWidth);
+    if (settled === null) return null;
+    hostChart = settled;
     if (!host.kept(face, hostChart[0], hostChart[1])) return null;
 
     return {
@@ -223,6 +236,54 @@ export namespace AutoMovieHumanSolidRail {
       across: direction,
       hostPoint: host.faces[face]!.jet(hostChart[0], hostChart[1]).p,
     };
+  }
+
+  /**
+   * The unit normal of a rail's normal-section plane: the plane through the
+   * curve point spanned by the surface's normal and the image of the square
+   * direction at the preimage.
+   *
+   * @param j The surface's jet at the preimage.
+   * @param e The square direction in its chart.
+   * @returns The plane's unit normal.
+   */
+  function plane(j: IJet, e: readonly [number, number]): Vec3 {
+    const d: Vec3 = combine([
+      [e[0], j.u],
+      [e[1], j.v],
+    ]);
+    return unit(cross(cross(j.u, j.v), d)) ?? [0, 0, 0];
+  }
+
+  /**
+   * The point of a surface in a normal-section plane at a chord from a
+   * point, by Newton's method in the chart from a start near it: the two
+   * equations `(S - C) . m = 0` and `|S - C|^2 = w^2` in `(u, v)`. So a rail
+   * depends on the surface and the curve alone, not on how the chart is
+   * drawn.
+   *
+   * @param surface The surface.
+   * @param start The chart point to start from.
+   * @param from The curve point, mm.
+   * @param m The plane's unit normal.
+   * @param width The chord, mm.
+   * @returns The chart point, or null when Newton fails.
+   */
+  function section(surface: IAutoMovieHumanSolidSurface, start: readonly [number, number], from: Readonly<Vec3>, m: Readonly<Vec3>, width: number): [number, number] | null {
+    if (!(norm(m) > 0)) return null;
+    let x: [number, number] = [start[0], start[1]];
+    for (let step: number = 0; step < STEPS; step++) {
+      const j: IJet = surface.jet(x[0], x[1]);
+      const r: Vec3 = sub(j.p, from);
+      const f1: number = dot(r, m);
+      const f2: number = dot(r, r) - width * width;
+      const done: boolean = Math.abs(f1) <= 1e-12 * width && Math.abs(f2) <= 1e-12 * width * width;
+      const dx: [number, number] | null = AutoMovieHumanSolidVector.solve2(dot(j.u, m), dot(j.v, m), 2 * dot(r, j.u), 2 * dot(r, j.v), [-f1, -f2]);
+      if (dx === null) return null;
+      x = [x[0] + dx[0], x[1] + dx[1]];
+      if (done) return x;
+    }
+    return null;
   }
 
   /**
