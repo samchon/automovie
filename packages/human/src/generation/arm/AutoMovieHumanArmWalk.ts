@@ -17,7 +17,10 @@ type Vec3 = AutoMovieHumanArmBones.IBones["shoulder"];
  * phase), the glenohumeral centre, the elbow centre, the wrist centre
  * (`AutoMovieHumanArmBones`, de Leva's shares), the third metacarpal's head
  * (the caller's, from the hand's joints), and the dome's tip past it by the
- * palm's distal reach.
+ * palm's distal reach. The bones' directions are the bind pose's, a rig
+ * convention (the A-pose's abduction and the hand's carry), not any scanned
+ * posture, so the walk's line stands where the rig's arm hangs; the sections
+ * about it are the person's.
  *
  * Sites: each the caller's law with its place (bone and share), its box
  * (its four edges from the bone's axis in the walk's chart) and its

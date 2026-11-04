@@ -266,3 +266,13 @@ Before frames: `packages/human/.shots/body/r3/front-side.png` (front, outline pa
 | feet, toes | 18 to 21 mean, toes 3 to 12 | not judged worst; read after |  |
 
 Remaining after this batch: the bind skeleton's arm and hand places; the gluteal and breast footprints and profiles (today's, interim; the GLUTEAL and BREAST tables read setbacks, not footprints).
+
+## After frames and the open items (written 19:08, Get-Date)
+
+After `c35c8ee66` (frames `packages/human/.shots/body/r5/f1-front.png`, `f1-left.png`, `f1-top.png`, 18:44 to 18:46): the legs hold front and side (no crossing; trunk bias now +u -5, ±v -1, -u -19); the gluteal masses stand on the buttocks; the lobes over the shoulders remained, so `387cd3b30` stands an upper site at every trunk-table station (not yet judged: the viewer refuses the page since 19:03, `AutoMovieHumanFootSurface.ts` 500 from another lane's change).
+
+Open, with their reasons (owner's rule of 19:05: a departure with a stated anatomical reason stands; a crossing, a misplaced part or an unreasoned departure is a defect):
+- Top view polygons: the overlay's top camera draws every view curve, and the front and side outlines of a part seen from above project to straight polylines between their stations (the trunk's, the legs' and the masses' edges), which read as polygons and triangles; the section rings themselves are sampled from `AutoMovieViewSection.radius` at 48 phases. To confirm with `views=top` once the page loads; if a ring itself is a polygon, its shoulder sits at the chord (a tape under the box's reach), which the tape's diagnostic names.
+- Arms and hands: the arm's sections are the right size; its line departs from f1's by the bind pose. The joint centres follow de Leva 1996 (`arm/AutoMovieHumanArmBones`, glenohumeral under the shoulder point by 0.1044 of acromion-radiale, elbow and wrist along the bones), and the arm's abduction is the bind's A-pose, a rig convention, not f1's scan pose; a departure by the pose's angle has that reason. A departure at the shoulder centre itself (the glenohumeral standing under the skin's shoulder point, at the solved shoulder breadth) is still to be read on a close-up once the viewer loads.
+- Breasts: footprint and profile are today's (interim); the BREAST table reads setbacks, not footprints.
+- The body as one construction tree on `realizeAutoMovieConstruction`: questions sent to the core worker (jointed-axis stations, join identity in the realization, the side-pair sign).
