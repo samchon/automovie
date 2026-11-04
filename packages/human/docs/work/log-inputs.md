@@ -78,7 +78,7 @@ Findings to keep: the estimated cervicale reads on two people and the perineum's
 One program, the supervisor's, after the owner's fixed ttsx; I fill each table from its output:
 
 ```bash
-pnpm test --include test_human_estimate_trunk_outline test_human_estimate_head_outline test_human_estimate_arm_sections test_human_estimate_foot_outline test_human_estimate_face_profile test_human_estimate_masses test_human_estimate_ear_outline test_human_estimate_lid_margins test_human_estimate_digits test_human_estimate_nasion_ear test_human_estimate_sites
+pnpm test --include test_human_estimate_trunk_outline test_human_estimate_head_outline test_human_estimate_arm_sections test_human_estimate_foot_outline test_human_estimate_face_profile test_human_estimate_masses test_human_estimate_ear_outline test_human_estimate_lid_margins test_human_estimate_digits test_human_estimate_nasion_ear test_human_estimate_sites test_human_estimate_face_detail test_human_estimate_leg_split
 ```
 
 | Reading | Table it fills | Reader it replaces |
