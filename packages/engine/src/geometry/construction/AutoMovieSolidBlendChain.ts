@@ -43,10 +43,23 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * @evidence contracts/common.md#meaningful-documentation States the layers, their fields and the refusal.
  * @evidence contracts/performance.md#efficient-algorithms One column evaluation per published phase and O(n) spline interpolation per field.
  * @evidence contracts/performance.md#reuse-equivalent-work The columns are evaluated once and every field's spline is built from them.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the blend chain's layers only.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller retains the chain and per-column chart/direction/point/width arrays. Layers also reference shared mutable LEVEL/STILL factory records; no join or column cache is captured by the publication itself.
  */
 export namespace AutoMovieSolidBlendChain {
-  /** A published blend. */
+  /**
+   * A two-layer blend chain and the column-aligned trim/measurement records
+   * used by Body and Clip. Chain station is w*length in mm; chain phase phi
+   * names trace parameter seed+phi. Layer frame/zero-jet records are shared
+   * factory objects, so mutating them can affect other published blends.
+   *
+   * @evidence contracts/common.md#principled-implementation One column ordering ties the interpolated ribbon chain to its two rail charts, direction observations, intersection points and width readings; between-column interpolation is not an exact analytic-surface certificate.
+   * @evidence contracts/common.md#clear-and-simple-design A data record publishes geometry and its source correspondence without retaining the join's query API or another tessellated representation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type proves neither regular G2 contact nor global orientation/trim correctness. The producer's shared mutable frame records remain an ownership gap, not a guarantee of detached output.
+   * @evidence contracts/common.md#meaningful-documentation Gives the station/phase mapping, physical units, loop correspondence and shared-frame mutation consequence.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This publication shape performs no interpolation, search or tessellation; of owns those preparations.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no requests or effects; its source-aligned data are the producer's saved observations rather than a retained join cache.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns O(C) layer coefficients, rail/direction/point/width arrays for C columns; fixed shared frame records remain factory globals, and no join closure or query history is retained by IBlend.
+   */
   export interface IBlend {
     /** The chain. */
     chain: IAutoMovieLoftChain;
