@@ -2,6 +2,26 @@
 
 The body modeler's own log in the three-view campaign (#3044; body lane #3047 to #3051). Moved here from `modeler-log.md` on the supervisor's order (each worker keeps its own log file); `modeler-log.md` stays as the earlier history.
 
+## Empty skin, 21:14 (Get-Date)
+
+`test_human_limb_piece_body_finite` passes on f1 (21:11 to 21:13): every face of the realized body is a published chain with jets, and every boundary point evaluates finite. `AutoMovieHumanBodySurfaceSolids.draw` therefore draws the body: it finds every face's chain in the context, and pushes each face as a `<chain>/solid` group. So the empty frames do not come from the body's data. Next to read:
+- what `AutoMovieHumanShapeStages.shape` publishes from the surface's groups;
+- the page's part list for a whole figure (`parts` 705 at 20:40);
+- whether the trunk's head-down event (gone since `e7f7ef0dd`) or the rings left the mesh empty before the solids were drawn.
+
+## Plan: delete the old body and `calibration.legacy` (owner's order 21:2x; written 21:25, Get-Date)
+
+One commit, the figure loading before and after:
+
+1. Rig joint centres: `AutoMovieHumanJointCentres.derive(calibration.legacy ?? calibration)` (`skeleton/AutoMovieHumanSkeleton.ts`, `skeleton/AutoMovieHumanBindingInputs.ts`) reads today's chain names. Replace it with the centres the body lane already computes, published on the calibration as `joints`: shoulder (Rab, Petuskey and Bagley 2002), elbow and wrist (`arm/AutoMovieHumanArmBones`, de Leva), hip (Hara), knee and ankle (`leg/AutoMovieHumanLegBones`), and the digit centres (`limb/AutoMovieHumanDigitInterim` inputs).
+2. Neutral rings: `rings(calibration.legacy, AutoMovieHumanNeutral.READS)` (`AutoMovieHumanBindingInputs`). Read the same heights on the realized chains (`trunk`, `leg.*`, `arm.*`) through `AutoMovieLoftChain.ring`.
+3. Foot surface: `AutoMovieHumanFootSurface.derive(calibration.legacy ?? calibration, scale)` (`AutoMovieHumanSkeleton.ts:180`). Read the new `foot.*` view parts (heel, ball, axis) instead of today's foot chain.
+4. Eyes: `today.eyes` (head modeler's `bca85bdd0`). Take the head lane's eyeball record.
+5. Then remove `legacy` from `IAutoMovieHumanBodyCalibration` and the `today` construction from `AutoMovieHumanBodyLaw.calibrate`. The interim accessors that box today's chains need replacing first:
+   - `AutoMovieHumanArmInterim`, `AutoMovieHumanDigitInterim` and `AutoMovieHumanFootInterim` box today's chains. Swap them for the arm tables (`UPPER_ARM`, `FOREARM`), the digit and foot outline tables, or the reference-following readings of the owner's rule.
+   - `AutoMovieHumanBodyLaneInterim` reads the toe chains and the skeleton's bones.
+   - Without those replacements the arm, hands, foot and toes lose their boxes.
+
 ## Hand-over for the next campaign (written 21:05, Get-Date)
 
 State of the body lane at hand-over:
