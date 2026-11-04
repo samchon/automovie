@@ -138,3 +138,5 @@ Every reader of the old trunk that the trunk's wiring batch (#3047) changes in t
 | `debug/contracts/HUMAN_DEBUG_REGIONS`, `debug/pieces/HumanDebugPieceTiming`, `debug/pieces/trunk/*` | `upper` and `trunk` | `trunk` and the blends |
 
 Finding: the old arm and legs read the old trunk's rings and events, so the trunk cannot be swapped alone. The trunk's batch carries the arm and leg merges onto the new trunk (their tubes still the old chains, made jet-carrying by `AutoMovieHumanSolidChain.framed` and run on into the host), or the three wait for each other. Chosen: the trunk's batch merges the old arm and leg chains onto the new trunk, so each later limb batch only replaces its own tube.
+
+Violation recorded 14:14:40 (Get-Date): a Bash command of mine that edited `trunk/AutoMovieHumanTrunkBuild.ts` carried a stray `python -` between its `sed` and its `perl`. Python waited on standard input until I stopped my own background task (`boq0s8zd0`); it ran no code. The `sed` edits had applied; the `perl` deletion never ran and was made with the Edit tool instead. Correction: no interpreter appears in my commands; multi-step edits go through the Edit tool.
