@@ -1,4 +1,6 @@
+import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
 import type { AutoMovieHumanSolidJoin } from "../lofting/AutoMovieHumanSolidJoin";
 import type { AutoMovieHumanSolidVector } from "../lofting/AutoMovieHumanSolidVector";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
@@ -51,7 +53,7 @@ export namespace AutoMovieHumanBodyLane {
      * phase, the shares of its station range from inside the host to
      * outside it, and the host's chart guess at the start.
      */
-    search: { phi: number; from: number; to: number; host: [number, number] };
+    search: { phi: number; from: number; to: number; host?: [number, number] };
 
     /** The fold's radius, mm. */
     radius: number;
@@ -63,11 +65,11 @@ export namespace AutoMovieHumanBodyLane {
   /** One side's limbs and extremities. */
   export interface ISide {
     /** The leg's bones and its sites' laws. */
-    leg: { bones: AutoMovieHumanLegBones.IBones; law: (site: string) => AutoMovieHumanLegWalk.ISiteLaw; trunk: IFold; foot: IFold };
+    leg: { bones: Pick<AutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">; law: (site: string) => AutoMovieHumanLegWalk.ISiteLaw; trunk: IFold; foot: IFold };
 
     /** The arm's bones, the palm's last centre and reach, its sites' laws and joints, its fold onto the trunk. */
     arm: {
-      bones: AutoMovieHumanArmBones.IBones;
+      bones: Pick<AutoMovieHumanArmBones.IBones, "shoulder" | "elbow" | "wrist">;
       knuckle: Vec3;
       reach: number;
       sites: AutoMovieHumanArmWalk.ISiteLaw[];
@@ -165,7 +167,8 @@ export namespace AutoMovieHumanBodyLane {
       const first: number = part.chain.layers[0]!.y;
       const last: number = part.chain.layers[part.chain.layers.length - 1]!.y;
       const at = (share: number): number => first + share * (last - first);
-      const found: AutoMovieHumanFoldSeed.ISeed | null = AutoMovieHumanFoldSeed.of(part.surface, host.surface, fold.search.phi, at(fold.search.from), at(fold.search.to), fold.search.host, LIMITS.tolerance);
+      const start: Vec3 = part.surface.jet(at(fold.search.from), fold.search.phi).p as Vec3;
+      const found: AutoMovieHumanFoldSeed.ISeed | null = AutoMovieHumanFoldSeed.of(part.surface, host.surface, fold.search.phi, at(fold.search.from), at(fold.search.to), fold.search.host ?? nearest(host.chain, start), LIMITS.tolerance);
       if (found === null) diagnostics.push({ producer: `fold.${part.chain.name}.${host.chain.name}`, level: 6, contract: "seed", detail: `the part's station line at phase ${fold.search.phi} does not leave the host between shares ${fold.search.from} and ${fold.search.to}` });
       return found;
     };
@@ -254,5 +257,32 @@ export namespace AutoMovieHumanBodyLane {
       branches(foot, toes);
     }
     return { chains, merges, diagnostics };
+  }
+
+  /**
+   * A host's chart guess for a world point: the host layer whose plane's
+   * origin stands nearest the point, and the point's polar angle about that
+   * origin in the plane's axes (the phase of a view-lofted chain, `rule:
+   * "polar"`). A guess only: the seed's foot points refine it by Newton.
+   *
+   * @param host The host chain.
+   * @param p The point, mm.
+   * @returns `[station, phase]`.
+   */
+  function nearest(host: IAutoMovieHumanLoftChain, p: Vec3): [number, number] {
+    let best: number = host.layers[0]!.y;
+    let gap: number = Infinity;
+    for (const layer of host.layers) {
+      const o: Vec3 = AutoMovieHumanLoftChain.frame(host, layer.y).origin;
+      const d: number = Math.hypot(o[0] - p[0], o[1] - p[1], o[2] - p[2]);
+      if (d < gap) {
+        gap = d;
+        best = layer.y;
+      }
+    }
+    const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(host, best);
+    const r: Vec3 = [p[0] - f.origin[0], p[1] - f.origin[1], p[2] - f.origin[2]];
+    const phase: number = Math.atan2(r[0] * f.v[0] + r[1] * f.v[1] + r[2] * f.v[2], r[0] * f.u[0] + r[1] * f.u[1] + r[2] * f.u[2]);
+    return [best, phase < 0 ? phase + 2 * Math.PI : phase];
   }
 }

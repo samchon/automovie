@@ -54,7 +54,7 @@ export namespace AutoMovieHumanLegWalk {
    * @param gap Widest spacing between layers, mm.
    * @returns The part, its loft and the diagnostics.
    */
-  export function create(name: string, bones: AutoMovieHumanLegBones.IBones, law: (site: string) => ISiteLaw, gap: number): AutoMovieHumanSiteViewPart.IResult {
+  export function create(name: string, bones: Pick<AutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">, law: (site: string) => ISiteLaw, gap: number): AutoMovieHumanSiteViewPart.IResult {
     const laws: ISiteLaw[] = SITES.map((s: string): ISiteLaw => law(s));
     const reach = (l: ISiteLaw): number => Math.max(...l.edges.map(Math.abs));
     const along = (from: Vec3, to: Vec3, by: number): Vec3 => {

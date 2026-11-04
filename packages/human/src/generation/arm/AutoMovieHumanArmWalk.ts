@@ -66,7 +66,7 @@ export namespace AutoMovieHumanArmWalk {
    */
   export function create(
     name: string,
-    bones: AutoMovieHumanArmBones.IBones,
+    bones: Pick<AutoMovieHumanArmBones.IBones, "shoulder" | "elbow" | "wrist">,
     knuckle: Vec3,
     reach: number,
     sites: ISiteLaw[],

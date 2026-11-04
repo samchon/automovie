@@ -32,6 +32,9 @@ export namespace AutoMovieHumanChainBox {
 
     /** The mean conic shoulder of the four quarters, in `(0, 1)`. */
     shoulder: number;
+
+    /** The point the extents are measured about: the site's, or the old section's axis point when centred. */
+    centre: Vec3;
   }
 
   /** Golden-section steps refining the nearest station. */
@@ -44,12 +47,14 @@ export namespace AutoMovieHumanChainBox {
    * @param point The site's point on the new part's axis, calibration mm.
    * @param u The new part's chart `u` there, unit.
    * @param v Its chart `v`, unit.
+   * @param centred Whether to measure about the old section's own axis point instead of the site's point (a site past the old chain's end, such as a toe's base inside the forefoot, takes the nearest old section's own box).
    * @returns The extents `[+u, +v, -u, -v]` about the point (the last two negative) and the section's mean conic shoulder, or null when the point lies outside the old section.
    */
-  export function at(chain: IAutoMovieHumanLoftChain, point: Vec3, u: Vec3, v: Vec3): IBox | null {
+  export function at(chain: IAutoMovieHumanLoftChain, site: Vec3, u: Vec3, v: Vec3, centred: boolean = false): IBox | null {
+    const point0: Vec3 = site;
     const distance = (s: number): number => {
       const a: Vec3 = AutoMovieHumanLoftChain.axis(chain, s);
-      return Math.hypot(a[0] - point[0], a[1] - point[1], a[2] - point[2]);
+      return Math.hypot(a[0] - point0[0], a[1] - point0[1], a[2] - point0[2]);
     };
 
     // The nearest layer, then golden-section search over its two intervals.
@@ -66,6 +71,7 @@ export namespace AutoMovieHumanChainBox {
       else lo = a;
     }
     const s: number = (lo + hi) / 2;
+    const point: Vec3 = centred ? AutoMovieHumanLoftChain.axis(chain, s) : site;
 
     // The ring's extents along the new chart's axes about the point.
     const ring: Vec3[] = AutoMovieHumanLoftChain.ring(
@@ -96,6 +102,6 @@ export namespace AutoMovieHumanChainBox {
       return (reach * L) / (a * b) - 1;
     });
     const shoulder: number = shoulders.reduce((sum: number, r: number): number => sum + r, 0) / 4;
-    return { edges, shoulder: Math.min(1 - 1e-6, Math.max(1e-6, shoulder)) };
+    return { edges, shoulder: Math.min(1 - 1e-6, Math.max(1e-6, shoulder)), centre: point };
   }
 }
