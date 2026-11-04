@@ -4,6 +4,7 @@ export * from "./architecture";
 export * from "./cinematics";
 export * from "./drawing";
 export * from "./geometry";
+export * from "./construction";
 export * from "./color";
 export * from "./model";
 export * from "./skeleton";
