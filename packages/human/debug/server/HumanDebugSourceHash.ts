@@ -12,9 +12,9 @@ import type { IHumanDebugEnvironment } from "./IHumanDebugEnvironment";
  * package `packages/human/package.json` depends on, the typed people, and the page and
  * configuration files at the package root. Paths and bytes of every `.ts`, `.json` and `.html`
  * file enter the digest in sorted order, so an edit, an addition, a removal or a rename changes it;
- * modification times are never trusted. The hash observes the disk only: it does not prove which
- * bytes a running page loaded, which the capture session establishes by hashing before and after
- * the page loads its modules. Reads run 64 at a time, since sequential reads of some three thousand
+ * modification times are never trusted. The capture session compares this disk inventory before
+ * and after page loading to detect source edits. Freshness of Vite's served transformed modules
+ * requires separate verification. Reads run 64 at a time, since sequential reads of some three thousand
  * files take seconds on Windows.
  *
  * @param environment The server environment.

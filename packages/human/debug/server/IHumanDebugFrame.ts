@@ -5,7 +5,7 @@ export interface IHumanDebugFrame {
   /** PNG bytes of the page's `#viewport` element. */
   png: Buffer;
 
-  /** Hash of the source the page's modules were loaded from. */
+  /** Disk source inventory hash checked around the page's load, retained with this frame. */
   source: string;
 
   /** Canonical options the page drew. */
@@ -23,6 +23,6 @@ export interface IHumanDebugFrame {
   /** The page's report after the draw. */
   snapshot: IHumanDebugSnapshot;
 
-  /** Page loads the frame took; above one means saves interrupted loading. */
+  /** Frame attempts used; above one records a source-change or module-load retry. */
   attempts: number;
 }

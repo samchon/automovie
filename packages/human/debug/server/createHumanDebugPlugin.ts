@@ -44,7 +44,7 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
     (): string => origin,
     (text: string): Promise<string> =>
       HumanDebugStackMap(text, async (served: string): Promise<string | null> => {
-        // The client transform the page ran, cached by Vite; its map leads back to the TypeScript source.
+        // Vite's current transform map; it can differ from the page's executed module after a save.
         const map: { mappings?: string } | null | undefined = (await vite?.transformRequest(served))?.map;
         return typeof map?.mappings === "string" ? map.mappings : null;
       }),
