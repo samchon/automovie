@@ -32,25 +32,55 @@ export namespace AutoMovieHumanHeadMath {
    */
   export function outermost(h: (r: number) => number, reach: number): number {
     let lo: number = 0;
-    if (!(h(0) < 1)) {
-      // Golden-section search of the convex gauge's least value.
+    let fl: number = h(0) - 1;
+    if (!(fl < 0)) {
+      // Golden-section search of the convex gauge's least value, stopped at
+      // the first point inside the body: along a ray a convex body is one
+      // interval, so every inside point leads to the same outer root.
       let a: number = 0;
       let b: number = reach;
-      for (let i: number = 0; i < 40; i++) {
+      let inside: boolean = false;
+      for (let i: number = 0; i < 40 && !inside; i++) {
         const c: number = b - 0.618034 * (b - a);
         const d: number = a + 0.618034 * (b - a);
-        if (h(c) < h(d)) b = d;
+        const hc: number = h(c);
+        const hd: number = h(d);
+        if (hc < 1 || hd < 1) {
+          lo = hc <= hd ? c : d;
+          fl = Math.min(hc, hd) - 1;
+          inside = true;
+        } else if (hc < hd) b = d;
         else a = c;
       }
-      lo = (a + b) / 2;
-      if (!(h(lo) < 1)) return 0;
+      if (!inside) {
+        lo = (a + b) / 2;
+        fl = h(lo) - 1;
+        if (!(fl < 0)) return 0;
+      }
     }
     let hi: number = Math.max(lo + 1, reach);
-    while (h(hi) < 1) hi *= 2;
-    for (let i: number = 0; i < 48; i++) {
-      const mid: number = (lo + hi) / 2;
-      if (h(mid) < 1) lo = mid;
-      else hi = mid;
+    let fh: number = h(hi) - 1;
+    while (fh < 0) {
+      hi *= 2;
+      fh = h(hi) - 1;
+    }
+    // The crossing by the Illinois rule (regula falsi halving the stale end's
+    // value), the inside end returned as before, to 1e-10 mm.
+    let side: number = 0;
+    for (let i: number = 0; i < 100 && hi - lo > 1e-10; i++) {
+      const m: number = (lo * fh - hi * fl) / (fh - fl);
+      const fm: number = h(m) - 1;
+      if (fm < 0) {
+        lo = m;
+        fl = fm;
+        if (side === -1) fh /= 2;
+        side = -1;
+      } else {
+        hi = m;
+        fh = fm;
+        if (side === 1) fl /= 2;
+        side = 1;
+      }
     }
     return lo;
   }
