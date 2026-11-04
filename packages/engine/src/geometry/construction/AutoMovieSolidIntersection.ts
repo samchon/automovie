@@ -337,6 +337,9 @@ export namespace AutoMovieSolidIntersection {
   /** Resampled points of the arclength spline per traced point. */
   export const WALK_POINTS: number = 4;
 
+  /** Secant steps that close the equal-chord walk's last chord onto the others. */
+  export const CLOSING_STEPS: number = 6;
+
   /**
    * Walk the loop from the seed by pseudo-arclength continuation, once to
    * measure it and once in equal chords, and make the law of its arclength.
@@ -419,24 +422,42 @@ export namespace AutoMovieSolidIntersection {
     }
     if (!closed) return `the walk does not return to its start in ${WALK_STEPS * count} steps`;
 
-    // The second walk: equal chords of the length, the points of the spline.
+    // The second walk: equal chords whose last, closing the loop, matches the
+    // others. The first walk's length sums uneven steps, so `length / n`
+    // leaves the closing chord off by their difference; the chord is set by
+    // the secant method on that closing mismatch, a few walks at most.
     const n: number = WALK_POINTS * count;
-    const chord: number = length / n;
-    const points: Vec3[] = [start.point];
-    p = start;
-    T = T0;
-    previous = null;
-    for (let k: number = 1; k < n; k++) {
-      const next: IPoint | null = step(p, T, chord, previous);
-      if (next === null) return `the equal-chord walk is lost at step ${k} of ${n}`;
-      points.push(next.point);
-      previous = p;
-      p = next;
-      const t: Vec3 | null = tangent(p, T);
-      if (t === null) return `the surfaces touch at step ${k} of the equal-chord walk`;
-      T = t;
+    const equal: (chord: number) => Vec3[] | string = (chord: number): Vec3[] | string => {
+      const points: Vec3[] = [start.point];
+      let q: IPoint = start;
+      let along: Vec3 = T0;
+      let before: IPoint | null = null;
+      for (let k: number = 1; k < n; k++) {
+        const next: IPoint | null = step(q, along, chord, before);
+        if (next === null) return `the equal-chord walk is lost at step ${k} of ${n}`;
+        points.push(next.point);
+        before = q;
+        q = next;
+        const t: Vec3 | null = tangent(q, along);
+        if (t === null) return `the surfaces touch at step ${k} of the equal-chord walk`;
+        along = t;
+      }
+      return points;
+    };
+    const mismatch: (points: Vec3[], chord: number) => number = (points: Vec3[], chord: number): number => norm(sub(points[0]!, points[points.length - 1]!)) - chord;
+    let c0: number = length / n;
+    let p0: Vec3[] | string = equal(c0);
+    if (typeof p0 === "string") return p0;
+    let g0: number = mismatch(p0, c0);
+    let c1: number = c0 + g0 / n;
+    for (let i: number = 0; i < CLOSING_STEPS && Math.abs(g0) > 1e-9 * c0; i++) {
+      const p1: Vec3[] | string = equal(c1);
+      if (typeof p1 === "string") break;
+      const g1: number = mismatch(p1, c1);
+      const c2: number = g1 === g0 ? c1 : c1 - (g1 * (c1 - c0)) / (g1 - g0);
+      [c0, p0, g0, c1] = [c1, p1, g1, c2];
     }
-    return { law: AutoMovieSolidTraceLaw.arc(points), x: [start.s, start.phi, start.y, start.theta], face: start.face };
+    return { law: AutoMovieSolidTraceLaw.arc(p0), x: [start.s, start.phi, start.y, start.theta], face: start.face };
   }
 
   /**

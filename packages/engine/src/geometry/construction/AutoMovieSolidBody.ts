@@ -238,7 +238,8 @@ export namespace AutoMovieSolidBody {
       },
       {
         kind: "end",
-        vertices: partVertices,
+        // Its own copy: a later clip splices vertices into one face's cycle in place, which must not reach the other's.
+        vertices: partVertices.slice(),
         chart: partVertices.map((_: number, k: number): [number, number] => [blend.length, phase(k)]),
         neighbours: partVertices.map((_: number, k: number): AutoMovieSolidCycle.INeighbour => ({
           face: part,
