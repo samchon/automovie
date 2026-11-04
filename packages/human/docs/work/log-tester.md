@@ -142,3 +142,18 @@ Each edit: `git rm` the files, rerun the import-index fixpoint of the erasure (e
 | R5 digits | `curves/region/test_human_curves_region_digits.ts` | `internal/curves/HumanCurveDigitGirth`, `HumanCurveDigitOrder` | `docs/testing/consistency.md` | needs the digits in the anatomy table (girth order along each digit), written when the hand subtree (#3051) publishes its phalanges |
 
 Not retired by these audits: placement, skin integrity and collapse, the arm's clearance, `test_human_people`, the region tests of kinematics, segments, bones, order, ordering, shoulder and foot breadth, which read relations the audits do not yet carry; each gets a row of the anatomy table or stays, decided when its subtree lands.
+
+## Supervised audit pass 15:33:05 to about 15:40 (f1, f2, m1, m2, the wired body), triage (written 15:45:12, `date`)
+
+0 of 4 passed, 21 findings: 16 from one figure cause, 5 `proof` lines that are my audits' defects.
+
+| Finding | Cause | Owner and fix |
+| --- | --- | --- |
+| every person "could not be measured: Station X is outside chain leg.left" in all four audits (f1 -365.6, f2 -527.1, m1 -95.1, m2 -85.3) | the body law evaluates `leg.left` below its first layer while generating; the size varies by person, a station from another frame or origin | body modeler, sent |
+| `proof sound limbs: knee / thigh ... reads 0.796` | my call `max(l, 0, 0.5)` passed the half as the start share, so the thigh's maximum was read over the lower half | fixed: `max(l, 0, 0, 0.5)` |
+| `proof made swollen chain: no failing breadth, depth, girth profile row` (3) | a 10 percent swelling over a 20 mm spacing bends the breadth by about 0.48 mm and the girth by 1.2 mm per 2 mm squared, under both limits | fixed: 30 percent, which reads about 1.4 and 3.7 |
+| `proof offset layer: no failing centre-track row` | a 5 mm offset over 20 mm bends the track by about 0.08 /mm, under the crease bound | fixed: 15 mm, about 0.23 /mm |
+
+Written meanwhile (compile only): `test_human_audit_trunk` (`internal/audit/HumanTrunkTable`: depth over breadth at chest, waist and buttocks within ANSUR II's ranges, the bust forward of the chest wall, the natural waist the least girth between hip and underbust, lordosis and kyphosis on the finished trunk with its merged masses, one made defect per row); `internal/audit/HumanInputReadings` and catalogue entries for the new inputs (chest and buttock depth, waist breadth and depth at the waist height, natural waist height, hip breadth, the crotch lengths; the foot girths and instep length are listed but await their landmarks). The face rows wait: Farkas's ratio norms are not in the repository's sources and the two secondary tables found online could not be opened to verify them, and the head publishes nasion, exocanthion and ear roots only, not the zygion, gnathion, alare and cheilion the ratios need. The merge rows wait for `IMerge` to publish its parameter, declared widths and curve points (asked of the kernel).
+
+15:46:07 (`date`): owner order relayed: no supervised passes and no test runs until the owner calls for them, while the model is developed broadly. The pass list above stands for that call, with the owner's note that one `--include a b c` takes several names, so everything needing no person runs as one program (the ten operator tests with #3045's two input tests) and the person-level tests as one more (universality and the audits). The audits and the anatomy tables are kept in step with the modelers' work, compile-only.

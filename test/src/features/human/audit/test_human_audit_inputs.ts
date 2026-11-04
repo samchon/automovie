@@ -1,5 +1,6 @@
 import type { IAutoMovieHumanParameters } from "../../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { HumanInputIdentity } from "../../internal/audit/HumanInputIdentity";
+import { HumanInputReadings } from "../../internal/audit/HumanInputReadings";
 import { HumanAnatomyAudit } from "../../internal/HumanAnatomyAudit";
 import { HumanPeople } from "../../internal/HumanPeople";
 import { assertHumanProvenRows } from "../../internal/region/assertHumanProvenRows";
@@ -15,15 +16,18 @@ type IRow = HumanAnatomyAudit.IRow;
  * 1. Made readings on f1's inputs: a thigh girth row centred on the thigh input and inside its allowance reads the input back and passes; the same row outside its allowance fails; with no such row the thigh input fails as not read back; a row centred on another value does not read the input back; an input outside the catalogue fails as unknown; a body composition input gives no row.
  * 2. Every person of `HumanPeople`: the identity rows of every region observer (`HumanAnatomyAudit.REGIONS`) on the person's skin, matched to every numeric input of `body.anatomy`, `head` and `extremities` (`HumanInputIdentity.rows`), and every input not read back or outside its allowance listed by person and path.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds each person's skin views (`HumanAnatomyAudit.subject`), runs every region observer on them and matches their identity rows to the person's inputs by measure name, side and centre (`HumanInputIdentity`). It catches an input a merge, a diff or a relief moved off its value on the skin, an input no observer reads back, and a public input added without a reading; any skin that honours every input at its site within its allowance passes.
- * @evidence contracts/testing.md#independent-expectations Each expectation is the person's own input, with the allowance its observer row carries: ISO 20685-1:2018 Table 4 by measure (9 mm large girths, 4 mm small girths, 1 mm head and hand, 2 mm foot), 7 mm for trunk breadths and depths (ANSUR II's allowable error for chest breadth). Inputs that are no skin reading are named with their reason: a caliper breadth with tissue compressed, the bony breadths that place the skeleton, the body fat share, and the jaw's ranges of motion. Oracle limit: an input is matched to a row by its measure's name and the row's centre, so an observer that labels a reading under another measure's name would not be found and is listed as not read back.
+ * @evidence contracts/testing.md#behavioral-verification Builds each person's skin views (`HumanAnatomyAudit.subject`), runs every region observer on them and the trunk's own readings (`HumanInputReadings`: chest and buttock depth, waist breadth and depth at the waist height, natural waist height, hip breadth, the crotch lengths over the median skin), and matches their identity rows to the person's inputs by measure name, side and centre (`HumanInputIdentity`). It catches an input a merge, a diff or a relief moved off its value on the skin, an input no observer reads back, and a public input added without a reading; any skin that honours every input at its site within its allowance passes.
+ * @evidence contracts/testing.md#independent-expectations Each expectation is the person's own input, with the allowance its observer row carries: ISO 20685-1:2018 Table 4 by measure (9 mm large girths, 4 mm small girths, 1 mm head and hand, 2 mm foot), 7 mm for trunk breadths and depths (ANSUR II's allowable error for chest breadth), 10 mm for heights (ISO 20685-1's crotch height) and 7 mm for a tape over the trunk's median skin (the waist front length's). Inputs that are no skin reading are named with their reason: a caliper breadth with tissue compressed, the bony breadths that place the skeleton, the body fat share, and the jaw's ranges of motion. Oracle limit: an input is matched to a row by its measure's name and the row's centre, so an observer that labels a reading under another measure's name would not be found and is listed as not read back.
  * @evidence contracts/testing.md#distinguishing-cases Positive: a reading inside its allowance. Negative: a reading outside it, a missing reading, a reading centred elsewhere, an unknown input. Boundary: inputs without a site give no row. The observers' own sites and proofs belong to the anatomy and region tests; whether the input set is internally consistent to `test_human_input_box_consistency` and `test_human_people`.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_audit_inputs`, generating its people and their skins in process on the CPU with no renderer, browser or GPU; nothing is cached across tests.
  */
 export function test_human_audit_inputs(): void {
   assertHumanProvenRows("input identity", proofs, (name: string): IRow[] => {
     const subject: HumanAnatomyAudit.ISubject = HumanAnatomyAudit.subject(name);
-    const readings: IRow[] = Object.values(HumanAnatomyAudit.REGIONS).flatMap((region: (s: HumanAnatomyAudit.ISubject) => IRow[]): IRow[] => region(subject));
+    const readings: IRow[] = [
+      ...Object.values(HumanAnatomyAudit.REGIONS).flatMap((region: (s: HumanAnatomyAudit.ISubject) => IRow[]): IRow[] => region(subject)),
+      ...HumanInputReadings.rows(subject),
+    ];
     return HumanInputIdentity.rows(name, subject.params, readings);
   });
 }
