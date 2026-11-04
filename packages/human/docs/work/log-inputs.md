@@ -2,6 +2,18 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 current datum support round (2026-11-05 04:01:46 +09:00, Get-Date)
+
+BODY's concrete GH choice was checked against the public caliper pose and the exact projection identity: its shared longitudinal approximation closes AR in the declared straight measuring convention before bind transport. The actual current TrunkLandmarks, ArmBones/callers, LegLaws/MassPrior, FootInterim/Heads/ToeJoints, NeckConstruction/Layout/MassPart, fold accessor and engine width consumer were reread together. The [current checkpoint](law-definition-audit.md#current-datum-checkpoint-2026-11-05-040146-0900) separates the phenomena, roots, contributors and construction alternatives.
+
+Current source status supersedes the earlier reports: LegLaws now reads retained skin q rather than muscle shares, TrunkLandmarks has removed the independent Rab breadth offset, and toe tips are normalized by the pattern maximum. Remaining proof gaps are the continuous q/support range and datum transfer, the neck tape plane/actual C7 point, sampling-dependent fold softness, and shared skin/rig toe landmarks. HEAD confirmed the neck issues remain separate from its corrected clinical-C source batch. No old axis-crossing output is asserted current.
+
+Ali 2018's article through conclusion/Tables 1-9 and actual Figure 2 were read; its Table 8 quotes the original Maestro cascade, whose first difference is not the current zero. Patil 2017's complete article text, Figure 1 and Table 3 were directly read and provide optional bony phalanx shares, with the seated-radiograph/articular-point/skin-transfer limitations recorded. No new coefficient or unused data API was introduced. Primary PDFs/figures remain for modeler use; a shared image filename initially sent from memory was immediately corrected after checking the actual disk entry. Future handoffs use verified paths.
+
+No Human/Evidence run, private reading, fit, generated figure or other-person generation ran. At this clock debug's 03:59:14 cycle was complete; test's last completed cycle was 03:58:49 and its 04:01:15 rebuild was pending. These shared collectors were only read. The source-curve observations continue independently of this support round.
+
+At 04:04:19, reviewed the complete three-document diff and the current arm callers; source values, public fields and executable code are unchanged. Whitespace checks were clean. The shared cycles completed at test 04:03:12 and debug 04:02:40; no duplicate run was started. Removed only the verified owned JCDR landing-page HTML after resolving its PDF, without Force; source PDFs, text and modeler-use figures remain.
+
 ## #3062 served evidence cleanup (2026-11-05 03:37:59 +09:00, Get-Date)
 
 The supervisor directly reviewed the 6c3f99c4a5 three-document commit, Rab Table 3 and de Leva's Upper arm page. The actual 21 selected law hosts, resolved new namespace and absence of owned-path diagnostics were independently confirmed. That remains distinct from the bounded check's zero incoming-reference-unit count and the package-wide list/inspect exit 1. After the supervisor and PERF confirmed no remaining JSON use, removed only the three owned Evidence snapshots by their exact absolute paths without Force. The source-reading directory remains for HEAD's SHIN plot and BODY's arm-source use.
