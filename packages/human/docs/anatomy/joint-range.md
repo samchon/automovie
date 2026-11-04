@@ -4,9 +4,9 @@
 
 ## Conventions
 
-- Angles are clinical degrees from the anatomical neutral (upright, arms at the sides, palms forward, feet flat). The field name is the positive motion; the opposite motion is negative. The jaw is in millimetres at the incisors.
+- Angles are clinical degrees from the anatomical neutral: the Neutral-0 position every range of motion here is measured from (upright, arms hanging, thumbs forward, feet parallel, fingers extended; [DGUV F 4030](../sources/dguv-f4030-neutral-zero.md)). It is not the descriptive anatomical position, whose palms-forward forearm is this zero fully supinated (`forearm.pronation` -87.8; [OpenStax and Boundless](../sources/openstax-2022-anatomical-position.md)), because a measured range cannot change its zero without changing its meaning. The field name is the positive motion; the opposite motion is negative. The jaw is in millimetres at the incisors.
 - Left and right are the person's own. Lateral flexion and rotation are positive toward the left.
-- An omitted field is 0, so `{}` is the anatomical neutral: arms resting at the sides with straight elbows and the thumbs forward, fingers straight and the thumb beside the index, legs plumb, feet flat. The body is generated in an A-pose with relaxed hands; that posture is the skin's bind, reached from neutral by each bone's achieved offset, and is not a value of the pose.
+- An omitted field is 0, so `{}` is the anatomical neutral: arms resting at the sides with straight elbows and the thumbs forward, fingers straight and side by side, the thumb toward the index, legs hanging from the hips, feet flat and parallel. Where two skins would meet (the arm and the trunk, the two thighs, neighbouring fingers, the thumb and the palm), each joint takes the least separation from that line at which they touch and do not cross. Each joint of that posture is its own piece (`AutoMovieHumanNeutralShoulder`, `Elbow`, `Forearm`, `Wrist`, `ThumbCmc`, `Knuckle`, `Hip`, `Knee`, `Ankle` and the rest), composed by `AutoMovieHumanNeutral` ([binding regions](../techniques/binding-regions.md)). The body is generated in an A-pose with relaxed hands; that posture is the skin's bind, reached from neutral by each bone's achieved offset, and is not a value of the pose.
 - The forearm's zero is thumbs forward, the mid position its range is measured from.
 - Within a joint the degrees of freedom run sagittal, frontal, then transverse.
 
@@ -56,6 +56,8 @@ A measured value can replace a clamp only when its measurement frame, loading an
 
 The shoulder ranges are clinical shoulder-complex values that include the girdle's share, so a girdle field added on top can exceed what a person reaches. In the AAOS transcription, shoulder adduction and thumb CMC abduction were added by Hendriks and colleagues rather than supplied by AAOS; the source note keeps this distinction.
 
+Hip flexion is read between the thigh and the trunk, and the pelvis carries 7/24 of it by turning back, the midpoint of the quarter to third [Bohannon 1985](../sources/bohannon-1985-pelvic-thigh.md) measured, as far as the other hip's extension range lets the other thigh keep its place. The lumbar spine and both thighs hand that turn back, so every requested direction holds and only the pelvis and its skin turn; the hip joint itself turns about 94 degrees at a bilateral 132.
+
 Thoracic and lumbar subdivision and the knee-rotation scaling are modelling choices. A source for a total arc does not fix a subdivision or a flexion-dependent interpolation.
 
 ## Primary-source checks
@@ -88,7 +90,7 @@ Rules read the root's chains (head, neck and trunk), the feet in their own frame
 | thumb | CMC halfway from the wrist crease to the thumb branch, at the trapezium (convention); MCP one thumb metacarpal past it toward the branch, 0.711 × 0.774 × 0.459 of the wrist centre to the middle fingertip, the hand length less 2.3 mm, since the wrist centre lies that far distal of stylion ([Reddy 2024](../sources/reddy-2024-metacarpal-ct.md), [de Leva 1996](../sources/de-leva-1996.md)); IP halfway to the tip (convention) | derived |
 | fingers, lesser toes | 2:1:1 phalanx split, web halfway along the proximal phalanx | convention |
 | hallux | two equal phalanges, web halfway along the proximal | convention |
-| `*UpperLeg`, `*LowerLeg`, `*Foot` | hip centre; the leg prior's line at 0.2865 S; the stance, that line at the ankle, at 0.0405 S | derived |
+| `*UpperLeg`, `*LowerLeg`, `*Foot` | hip centre by Hara 2016 (lateral) under the crotch ring; the knee on the hip-to-ankle line at 0.2865 S; the ankle at the lateral malleolus under the stance | derived |
 | `*Subtalar`, `*Midfoot` | at the ankle; 0.4 of the way from the ankle to the mean MTP | convention |
 
 Bones use the engine humanoid names where they exist. `atlas`, `*Scapula`, `*Subtalar`, `*Midfoot`, `*HalluxProximal/Distal` and `*Toe2..5Proximal/Intermediate/Distal` are the Human's own, because the shared `AutoMovieHumanoidBone` vocabulary lacks them. The stickman runs its own forward kinematics instead of the engine's humanoid player, so the shared interface is unchanged.

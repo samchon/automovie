@@ -105,7 +105,8 @@ export function test_geometry_surface_frame_normalize(): void {
       vclose(forward, { x: 4, y: 6, z: 8 }) &&
       vclose(normal, { x: 0, y: 3, z: 4 }),
   );
-  const retained: IAutoMovieSweepFrame = normalizeAutoMovieSurfaceFrame(request);
+  const retained: IAutoMovieSweepFrame =
+    normalizeAutoMovieSurfaceFrame(request);
   origin.y = 7;
   forward.x = -4;
   const changed: IAutoMovieSweepFrame = normalizeAutoMovieSurfaceFrame(request);

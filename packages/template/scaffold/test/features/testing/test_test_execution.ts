@@ -14,13 +14,41 @@ import { assessTestExecution } from "../../helpers/assessTestExecution";
  */
 export function test_test_execution(): void {
   const started_at: string = "2026-01-01T00:00:00.000Z";
-  TestValidator.equals("zero elapsed", assessTestExecution({ error: null, started_at, completed_at: started_at }), { passed: true, elapsedMs: 0 });
-  TestValidator.equals("long elapsed", assessTestExecution({ error: null, started_at, completed_at: "2026-01-01T00:01:00.000Z" }), { passed: true, elapsedMs: 60000 });
-  TestValidator.equals("assertion failure", assessTestExecution({ error: new Error("failed assertion"), started_at, completed_at: started_at }), { passed: false, elapsedMs: 0 });
+  TestValidator.equals(
+    "zero elapsed",
+    assessTestExecution({ error: null, started_at, completed_at: started_at }),
+    { passed: true, elapsedMs: 0 },
+  );
+  TestValidator.equals(
+    "long elapsed",
+    assessTestExecution({
+      error: null,
+      started_at,
+      completed_at: "2026-01-01T00:01:00.000Z",
+    }),
+    { passed: true, elapsedMs: 60000 },
+  );
+  TestValidator.equals(
+    "assertion failure",
+    assessTestExecution({
+      error: new Error("failed assertion"),
+      started_at,
+      completed_at: started_at,
+    }),
+    { passed: false, elapsedMs: 0 },
+  );
   for (const [started, completed] of [
     ["invalid", started_at],
     [started_at, "invalid"],
     ["2026-01-01T00:01:00.000Z", started_at],
   ] as const)
-    TestValidator.equals("invalid timing", assessTestExecution({ error: null, started_at: started, completed_at: completed }), { passed: false, elapsedMs: null });
+    TestValidator.equals(
+      "invalid timing",
+      assessTestExecution({
+        error: null,
+        started_at: started,
+        completed_at: completed,
+      }),
+      { passed: false, elapsedMs: null },
+    );
 }

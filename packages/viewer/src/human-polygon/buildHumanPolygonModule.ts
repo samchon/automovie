@@ -226,7 +226,6 @@ export function buildHumanPolygonModule(
  * @evidence contracts/performance.md#bound-retention-and-release-resources Section objects belong to the caller; frontAt returns only a number or undefined and acquires no GPU handle or retained cache.
  */
 export namespace buildHumanPolygonModule {
-
   /**
    * One original polygon section, with physical half dimensions.
    *
@@ -239,7 +238,6 @@ export namespace buildHumanPolygonModule {
    * Bound retention and release resources: The construction caller owns these temporary vectors/records.
    */
   export interface ISection {
-
     /** Centre in the skeleton's registered rest frame. */
     centre: THREE.Vector3;
 

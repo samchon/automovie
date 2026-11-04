@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+
 import { LabTransport } from "../../../../src/motion-lab/LabTransport";
 
 /**
@@ -7,35 +8,62 @@ import { LabTransport } from "../../../../src/motion-lab/LabTransport";
  * @evidence contracts/testing.md#independent-cases Exercises full duration and a nonzero URL segment, invalid bounds and unrelated keys. The oracle retains actual evaluator arguments rather than formatted labels or range-input values, catching the former .903 quantization.
  */
 export function test_transport_exact_endpoints(): void {
-  const duration: number = .9039999999999999;
+  const duration: number = 0.9039999999999999;
   const samples: number[] = [];
-  const full: LabTransport = new LabTransport(duration, (seconds: number): void => { samples.push(seconds); });
+  const full: LabTransport = new LabTransport(
+    duration,
+    (seconds: number): void => {
+      samples.push(seconds);
+    },
+  );
   assert.equal(full.move("End"), true);
   assert.equal(full.seconds, duration);
   assert.equal(samples.at(-1), duration);
-  full.seek(.903);
+  full.seek(0.903);
   full.move("ArrowRight");
   assert.equal(samples.at(-1), duration);
   full.seek(duration);
   assert.equal(samples.at(-1), duration);
-  const bounds: { start: number; end: number } = LabTransport.bounds(duration, new URLSearchParams({ start: ".103", end: String(duration) }));
-  const segment: LabTransport = new LabTransport(duration, (seconds: number): void => { samples.push(seconds); }, bounds);
+  const bounds: { start: number; end: number } = LabTransport.bounds(
+    duration,
+    new URLSearchParams({ start: ".103", end: String(duration) }),
+  );
+  const segment: LabTransport = new LabTransport(
+    duration,
+    (seconds: number): void => {
+      samples.push(seconds);
+    },
+    bounds,
+  );
   segment.move("Home");
-  assert.equal(samples.at(-1), .103);
+  assert.equal(samples.at(-1), 0.103);
   segment.move("ArrowLeft");
-  assert.equal(samples.at(-1), .103);
+  assert.equal(samples.at(-1), 0.103);
   segment.move("End");
   assert.equal(samples.at(-1), duration);
   segment.play();
-  assert.equal(samples.at(-1), .103);
+  assert.equal(samples.at(-1), 0.103);
   assert.equal(segment.playing, true);
   segment.pause();
   const count: number = samples.length;
   assert.equal(segment.move("Tab"), false);
   assert.equal(samples.length, count);
-  assert.throws((): void => segment.seek(.1), /interval/u);
-  for (const query of ["start=", "end=NaN", "start=-1", "end=1", "start=.5&end=.4", "start=.3&end=.3"]) assert.throws((): unknown => LabTransport.bounds(duration, new URLSearchParams(query)));
-  assert.deepEqual(LabTransport.bounds(duration, new URLSearchParams()), { start: 0, end: duration });
+  assert.throws((): void => segment.seek(0.1), /interval/u);
+  for (const query of [
+    "start=",
+    "end=NaN",
+    "start=-1",
+    "end=1",
+    "start=.5&end=.4",
+    "start=.3&end=.3",
+  ])
+    assert.throws((): unknown =>
+      LabTransport.bounds(duration, new URLSearchParams(query)),
+    );
+  assert.deepEqual(LabTransport.bounds(duration, new URLSearchParams()), {
+    start: 0,
+    end: duration,
+  });
 }
 
 /**
@@ -44,14 +72,19 @@ export function test_transport_exact_endpoints(): void {
  * @evidence contracts/testing.md#independent-cases Separates input refusal from evaluator failure and verifies both preserve the committed clock. No actor, renderer or physical success is simulated by this clock-only contract.
  */
 export function test_transport_failed_sample(): void {
-  const transport: LabTransport = new LabTransport(1, (seconds: number): void => { if (seconds === 1) throw new Error("Unresolved sample"); });
-  transport.seek(.2);
+  const transport: LabTransport = new LabTransport(
+    1,
+    (seconds: number): void => {
+      if (seconds === 1) throw new Error("Unresolved sample");
+    },
+  );
+  transport.seek(0.2);
   transport.play();
   assert.throws((): void => transport.seek(1), /Unresolved sample/u);
-  assert.equal(transport.seconds, .2);
+  assert.equal(transport.seconds, 0.2);
   assert.equal(transport.playing, false);
   assert.throws((): void => transport.seek(Infinity));
-  assert.equal(transport.seconds, .2);
+  assert.equal(transport.seconds, 0.2);
   transport.seek(0);
   assert.equal(transport.seconds, 0);
 }

@@ -8,7 +8,9 @@ import type { LabSettings } from "./LabSettings";
 export interface LabPlayable {
   /** Requested reproducible module inputs. */ readonly settings: LabSettings;
   /** Complete display interval in seconds. */ readonly duration: number;
-  /** Constructor refusal, distinct from a healthy Viewer. */ readonly admissionError: string | null;
+  /** Constructor refusal, distinct from a healthy Viewer. */ readonly admissionError:
+    | string
+    | null;
   /**
    * Evaluate the same applied state at arbitrary local time.
    *

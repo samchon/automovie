@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import * as THREE from "three";
+
 import { createInspectionRing } from "../../../src/createInspectionRing";
 
 /**
@@ -28,10 +29,21 @@ export function test_ring_stage_layout(): void {
   close(layout.ropeRadius * 2, 0.036);
   assert.ok(layout.ropeRadius * 2 >= 0.03 && layout.ropeRadius * 2 <= 0.05);
   assert.equal(layout.ropes.length, 16);
-  assert.equal(new Set(layout.ropes.map((rope: createInspectionRing.Rope): string => rope.id)).size, 16);
+  assert.equal(
+    new Set(
+      layout.ropes.map((rope: createInspectionRing.Rope): string => rope.id),
+    ).size,
+    16,
+  );
   for (const [index, expected] of [0.4, 0.8, 1.2, 1.5].entries()) {
     close(layout.ropeHeights[index]!, expected);
-    assert.equal(layout.ropes.filter((rope: createInspectionRing.Rope): boolean => Math.abs(rope.centre[1] - expected) < 1e-12).length, 4);
+    assert.equal(
+      layout.ropes.filter(
+        (rope: createInspectionRing.Rope): boolean =>
+          Math.abs(rope.centre[1] - expected) < 1e-12,
+      ).length,
+      4,
+    );
   }
   for (const rope of layout.ropes) {
     const along: number = rope.axis === "x" ? 0 : 2;
@@ -45,11 +57,19 @@ export function test_ring_stage_layout(): void {
     assert.ok(rope.bounds.min[1] > layout.floorY);
   }
 
-  const neutral: readonly createInspectionRing.Corner[] = layout.corners.filter((corner: createInspectionRing.Corner): boolean => corner.role === "neutral");
+  const neutral: readonly createInspectionRing.Corner[] = layout.corners.filter(
+    (corner: createInspectionRing.Corner): boolean => corner.role === "neutral",
+  );
   assert.equal(layout.corners.length, 4);
   assert.equal(neutral.length, 2);
-  const northwest: createInspectionRing.Corner = neutral.find((corner: createInspectionRing.Corner): boolean => corner.id === "neutral-nw")!;
-  const southeast: createInspectionRing.Corner = neutral.find((corner: createInspectionRing.Corner): boolean => corner.id === "neutral-se")!;
+  const northwest: createInspectionRing.Corner = neutral.find(
+    (corner: createInspectionRing.Corner): boolean =>
+      corner.id === "neutral-nw",
+  )!;
+  const southeast: createInspectionRing.Corner = neutral.find(
+    (corner: createInspectionRing.Corner): boolean =>
+      corner.id === "neutral-se",
+  )!;
   close(northwest.postCentre[0], -3.1);
   close(northwest.postCentre[2], -3.1);
   close(southeast.postCentre[0], 3.1);
@@ -62,8 +82,12 @@ export function test_ring_stage_layout(): void {
     assert.equal(corner.actorId, null);
     assert.equal(corner.color, 0xf1f0e8);
   }
-  const red: createInspectionRing.Corner = layout.corners.find((corner: createInspectionRing.Corner): boolean => corner.role === "red")!;
-  const blue: createInspectionRing.Corner = layout.corners.find((corner: createInspectionRing.Corner): boolean => corner.role === "blue")!;
+  const red: createInspectionRing.Corner = layout.corners.find(
+    (corner: createInspectionRing.Corner): boolean => corner.role === "red",
+  )!;
+  const blue: createInspectionRing.Corner = layout.corners.find(
+    (corner: createInspectionRing.Corner): boolean => corner.role === "blue",
+  )!;
   assert.equal(red.actorId, "a");
   assert.equal(blue.actorId, "b");
   assert.equal(red.color, 0xc72c3b);
@@ -76,7 +100,10 @@ export function test_ring_stage_layout(): void {
     close(corner.padBounds.max[2] - corner.padBounds.min[2], 0.24);
     assert.ok(corner.padBounds.min[0] > -3.2 && corner.padBounds.max[0] < 3.2);
     assert.ok(corner.padBounds.min[2] > -3.2 && corner.padBounds.max[2] < 3.2);
-    assert.ok(Math.abs(corner.holdingPoint[0]) < 3 && Math.abs(corner.holdingPoint[2]) < 3);
+    assert.ok(
+      Math.abs(corner.holdingPoint[0]) < 3 &&
+        Math.abs(corner.holdingPoint[2]) < 3,
+    );
   }
 
   assert.equal(Reflect.set(layout, "floorY", 20), false);
@@ -88,7 +115,13 @@ export function test_ring_stage_layout(): void {
   assert.notEqual(layout, later);
   assert.notEqual(layout.ropes[0], later.ropes[0]);
   close(later.floorY, 0);
-  close(later.corners.find((corner: createInspectionRing.Corner): boolean => corner.id === "neutral-nw")!.holdingPoint[0], -2.65);
+  close(
+    later.corners.find(
+      (corner: createInspectionRing.Corner): boolean =>
+        corner.id === "neutral-nw",
+    )!.holdingPoint[0],
+    -2.65,
+  );
 }
 
 /**
@@ -110,27 +143,45 @@ export function test_ring_stage_geometry(): void {
     ring.object.updateMatrixWorld(true);
     bounds(ring.object.getObjectByName("canvas")!, layout.matBounds);
     bounds(ring.object.getObjectByName("apron")!, layout.apronBounds);
-    for (const rope of layout.ropes) bounds(ring.object.getObjectByName(rope.id)!, rope.bounds);
+    for (const rope of layout.ropes)
+      bounds(ring.object.getObjectByName(rope.id)!, rope.bounds);
     for (const corner of layout.corners) {
-      const pad: THREE.Mesh = ring.object.getObjectByName(`pad:${corner.id}`) as THREE.Mesh;
-      const post: THREE.Mesh = ring.object.getObjectByName(`post:${corner.id}`) as THREE.Mesh;
+      const pad: THREE.Mesh = ring.object.getObjectByName(
+        `pad:${corner.id}`,
+      ) as THREE.Mesh;
+      const post: THREE.Mesh = ring.object.getObjectByName(
+        `post:${corner.id}`,
+      ) as THREE.Mesh;
       assert.ok(pad instanceof THREE.Mesh && post instanceof THREE.Mesh);
       bounds(pad, corner.padBounds);
-      assert.equal((pad.material as THREE.MeshStandardMaterial).color.getHex(), corner.color);
-      assert.equal((post.material as THREE.MeshStandardMaterial).color.getHex(), corner.color);
+      assert.equal(
+        (pad.material as THREE.MeshStandardMaterial).color.getHex(),
+        corner.color,
+      );
+      assert.equal(
+        (post.material as THREE.MeshStandardMaterial).color.getHex(),
+        corner.color,
+      );
       close(post.position.y, 0.775);
       close(post.position.x, corner.postCentre[0]);
       close(post.position.z, corner.postCentre[2]);
     }
-    const bands: THREE.Object3D[] = ring.object.children.filter((child: THREE.Object3D): boolean => child.name.startsWith("rope-band:"));
+    const bands: THREE.Object3D[] = ring.object.children.filter(
+      (child: THREE.Object3D): boolean => child.name.startsWith("rope-band:"),
+    );
     assert.equal(bands.length, 8);
     for (const band of bands) {
       const box: THREE.Box3 = new THREE.Box3().setFromObject(band);
       close(box.min.y, 0.4);
       close(box.max.y, 1.5);
-      assert.ok(Math.abs(Math.abs(band.position.x) - 3.1) < 1e-12 || Math.abs(Math.abs(band.position.z) - 3.1) < 1e-12);
+      assert.ok(
+        Math.abs(Math.abs(band.position.x) - 3.1) < 1e-12 ||
+          Math.abs(Math.abs(band.position.z) - 3.1) < 1e-12,
+      );
     }
-  } finally { ring.dispose(); }
+  } finally {
+    ring.dispose();
+  }
 }
 
 /**
@@ -154,14 +205,23 @@ export function test_ring_stage_lifetime(): void {
   ring.object.traverse((child: THREE.Object3D): void => {
     if (!(child instanceof THREE.Mesh)) return;
     geometries.add(child.geometry);
-    for (const material of Array.isArray(child.material) ? child.material : [child.material]) materials.add(material);
+    for (const material of Array.isArray(child.material)
+      ? child.material
+      : [child.material])
+      materials.add(material);
   });
   assert.equal(geometries.size, 6);
   assert.equal(materials.size, 6);
   let geometryReleases: number = 0;
   let materialReleases: number = 0;
-  for (const geometry of geometries) geometry.addEventListener("dispose", (): void => { geometryReleases++; });
-  for (const material of materials) material.addEventListener("dispose", (): void => { materialReleases++; });
+  for (const geometry of geometries)
+    geometry.addEventListener("dispose", (): void => {
+      geometryReleases++;
+    });
+  for (const material of materials)
+    material.addEventListener("dispose", (): void => {
+      materialReleases++;
+    });
   ring.dispose();
   assert.equal(ring.object.parent, null);
   assert.equal(scene.children.length, 0);
@@ -193,58 +253,79 @@ export function test_ring_stage_disposal_failures(): void {
   ring.object.traverse((child: THREE.Object3D): void => {
     if (!(child instanceof THREE.Mesh)) return;
     geometries.add(child.geometry);
-    for (const material of Array.isArray(child.material) ? child.material : [child.material]) materials.add(material);
+    for (const material of Array.isArray(child.material)
+      ? child.material
+      : [child.material])
+      materials.add(material);
   });
   assert.equal(geometries.size, 6);
   assert.equal(materials.size, 6);
   const firstGeometry: THREE.BufferGeometry = [...geometries][0]!;
   const firstMaterial: THREE.Material = [...materials][0]!;
   const removalFailure: Error = new Error("Native ring removal failed");
-  const geometryFailure: Error = new Error("Native ring geometry retirement failed");
-  const materialFailure: Error = new Error("Native ring material retirement failed");
-  const releases: Map<THREE.BufferGeometry | THREE.Material, number> = new Map();
+  const geometryFailure: Error = new Error(
+    "Native ring geometry retirement failed",
+  );
+  const materialFailure: Error = new Error(
+    "Native ring material retirement failed",
+  );
+  const releases: Map<THREE.BufferGeometry | THREE.Material, number> =
+    new Map();
   let removals: number = 0;
   ring.object.addEventListener("removed", (): void => {
     removals++;
     ring.dispose();
     throw removalFailure;
   });
-  for (const geometry of geometries) geometry.addEventListener("dispose", (): void => {
-    releases.set(geometry, (releases.get(geometry) ?? 0) + 1);
-    ring.dispose();
-    if (geometry === firstGeometry) throw geometryFailure;
-  });
-  for (const material of materials) material.addEventListener("dispose", (): void => {
-    releases.set(material, (releases.get(material) ?? 0) + 1);
-    ring.dispose();
-    if (material === firstMaterial) throw materialFailure;
-  });
+  for (const geometry of geometries)
+    geometry.addEventListener("dispose", (): void => {
+      releases.set(geometry, (releases.get(geometry) ?? 0) + 1);
+      ring.dispose();
+      if (geometry === firstGeometry) throw geometryFailure;
+    });
+  for (const material of materials)
+    material.addEventListener("dispose", (): void => {
+      releases.set(material, (releases.get(material) ?? 0) + 1);
+      ring.dispose();
+      if (material === firstMaterial) throw materialFailure;
+    });
 
-  assert.throws((): void => ring.dispose(), (error: unknown): boolean => {
-    assert.ok(error instanceof AggregateError);
-    assert.equal(error.errors.length, 3);
-    assert.equal(error.errors[0], removalFailure);
-    assert.equal(error.errors[1], geometryFailure);
-    assert.equal(error.errors[2], materialFailure);
-    return true;
-  });
+  assert.throws(
+    (): void => ring.dispose(),
+    (error: unknown): boolean => {
+      assert.ok(error instanceof AggregateError);
+      assert.equal(error.errors.length, 3);
+      assert.equal(error.errors[0], removalFailure);
+      assert.equal(error.errors[1], geometryFailure);
+      assert.equal(error.errors[2], materialFailure);
+      return true;
+    },
+  );
   assert.equal(ring.object.parent, null);
   assert.equal(scene.children.length, 0);
   assert.equal(removals, 1);
-  for (const resource of [...geometries, ...materials]) assert.equal(releases.get(resource), 1);
+  for (const resource of [...geometries, ...materials])
+    assert.equal(releases.get(resource), 1);
   assert.doesNotThrow((): void => ring.dispose());
   assert.equal(removals, 1);
-  for (const resource of [...geometries, ...materials]) assert.equal(releases.get(resource), 1);
+  for (const resource of [...geometries, ...materials])
+    assert.equal(releases.get(resource), 1);
   close(ring.layout.floorY, 0);
 }
 
 /** Assert Float32 primitive coordinates within one micrometre of metre-valued dimensions. */
 function close(actual: number, expected: number): void {
-  assert.ok(Number.isFinite(actual) && Math.abs(actual - expected) <= 1e-6, `${actual} must be within 0.000001 m of ${expected}`);
+  assert.ok(
+    Number.isFinite(actual) && Math.abs(actual - expected) <= 1e-6,
+    `${actual} must be within 0.000001 m of ${expected}`,
+  );
 }
 
 /** Measure actual native primitive vertices after their world transform, without rendering. */
-function bounds(object: THREE.Object3D, expected: createInspectionRing.Bounds): void {
+function bounds(
+  object: THREE.Object3D,
+  expected: createInspectionRing.Bounds,
+): void {
   assert.ok(object instanceof THREE.Mesh);
   const actual: THREE.Box3 = new THREE.Box3().setFromObject(object);
   for (let axis: number = 0; axis < 3; axis++) {

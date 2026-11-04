@@ -1,4 +1,5 @@
 import type { IAutoMovieRenderSpec } from "@automovie/interface";
+
 import type { IAutoMovieHeadlessPage } from "../headlessCapture/IAutoMovieHeadlessPage";
 
 /**
@@ -52,7 +53,9 @@ export interface IAutoMovieViewerVideoOptions {
    * @evidence contracts/performance.md#reuse-equivalent-work Uses the same already navigated page and runtime as every captured frame; no duplicate scene preparation or independent browser session is required.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The renderer retains the callback only for its operation and closes its session after failure or cancellation. The caller owns files and other resources created by preparation and must bound or cancel its work.
    */
-  prepare?: (page: Pick<IAutoMovieHeadlessPage, "evaluate">) => Promise<{ audioMix?: string }>;
+  prepare?: (
+    page: Pick<IAutoMovieHeadlessPage, "evaluate">,
+  ) => Promise<{ audioMix?: string }>;
 
   /** Element whose actual PNG pixels are captured; defaults to #view. */
   viewSelector?: string;
@@ -89,5 +92,9 @@ export interface IAutoMovieViewerVideoOptions {
    * @evidence contracts/performance.md#reuse-equivalent-work Uses the existing frame index, capture clock and accumulated byte counter without rereading files or recapturing pixels.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns resources captured by its callback; the render promise retains the options during execution and attempts browser/session/file cleanup after a synchronous failure, reporting cleanup failures.
    */
-  onProgress?: (progress: { index: number; timeSeconds: number; bytes: number }) => void;
+  onProgress?: (progress: {
+    index: number;
+    timeSeconds: number;
+    bytes: number;
+  }) => void;
 }

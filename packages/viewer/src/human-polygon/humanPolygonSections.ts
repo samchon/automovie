@@ -15,7 +15,6 @@ import type { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
  * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary vectors transfer to the caller's selected sections; no retained cache or native resource is acquired.
  */
 export namespace humanPolygonSections {
-
   /**
    * Keep circle area pi*r*r when its lateral half-width becomes breadth.
    *

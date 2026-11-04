@@ -1,4 +1,5 @@
 import { AutoMovieHumanRigControls } from "@automovie/human";
+
 import type { MotionAction } from "./MotionAction";
 
 /**
@@ -37,14 +38,38 @@ export namespace MotionSupportChannels {
    * @evidence contracts/common.md#authoring-interface Invalid sides or policies refuse before selection. Planted yields hip3, knee2, ankle1 and subtalar1; authored yields the same six proximal controls. This does not assert either choice can realize a requested WORLD route or that a mode handoff is continuous.
    */
   export function select(side: MotionAction.Side, policy: Policy): Selection {
-    if ((side !== "left" && side !== "right") || (policy !== "planted" && policy !== "authored"))
-      throw new Error("Support channels require an anatomical side and explicit planted or authored policy");
+    if (
+      (side !== "left" && side !== "right") ||
+      (policy !== "planted" && policy !== "authored")
+    )
+      throw new Error(
+        "Support channels require an anatomical side and explicit planted or authored policy",
+      );
 
-    const leg: AutoMovieHumanRigControls.DegreeChannel[] = AutoMovieHumanRigControls.chain({ region: "leg", side });
-    const preserved: AutoMovieHumanRigControls.DegreeChannel[] = leg.filter((channel: AutoMovieHumanRigControls.DegreeChannel): boolean => channel.endsWith(".midfootSupination") || policy === "authored" && channel.endsWith(".subtalarInversion"));
-    for (const digit of ["hallux", "second", "third", "fourth", "fifth"] as const)
-      preserved.push(...AutoMovieHumanRigControls.chain({ region: "toe", side, digit }));
+    const leg: AutoMovieHumanRigControls.DegreeChannel[] =
+      AutoMovieHumanRigControls.chain({ region: "leg", side });
+    const preserved: AutoMovieHumanRigControls.DegreeChannel[] = leg.filter(
+      (channel: AutoMovieHumanRigControls.DegreeChannel): boolean =>
+        channel.endsWith(".midfootSupination") ||
+        (policy === "authored" && channel.endsWith(".subtalarInversion")),
+    );
+    for (const digit of [
+      "hallux",
+      "second",
+      "third",
+      "fourth",
+      "fifth",
+    ] as const)
+      preserved.push(
+        ...AutoMovieHumanRigControls.chain({ region: "toe", side, digit }),
+      );
 
-    return { channels: leg.filter((channel: AutoMovieHumanRigControls.DegreeChannel): boolean => !preserved.includes(channel)), preserved };
+    return {
+      channels: leg.filter(
+        (channel: AutoMovieHumanRigControls.DegreeChannel): boolean =>
+          !preserved.includes(channel),
+      ),
+      preserved,
+    };
   }
 }

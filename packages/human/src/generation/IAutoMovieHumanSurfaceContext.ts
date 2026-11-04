@@ -53,4 +53,9 @@ export interface IAutoMovieHumanSurfaceContext {
     string,
     { cells: [number, number, number, number][]; charts: Map<number, [number, number]> }
   >;
+  /**
+   * The rim of every opening closed from its trim loop, by the opening's name:
+   * the loop's points on its base chain, in loop order, mm.
+   */
+  rims: Map<string, [number, number, number][]>;
 }

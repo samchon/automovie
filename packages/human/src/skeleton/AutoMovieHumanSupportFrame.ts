@@ -1,4 +1,8 @@
-import { prepareAutoMovieSurfaceFrame, placeAutoMovieSurfaceFrame, type IAutoMoviePreparedSurfaceFrame } from "@automovie/engine";
+import {
+  type IAutoMoviePreparedSurfaceFrame,
+  placeAutoMovieSurfaceFrame,
+  prepareAutoMovieSurfaceFrame,
+} from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieHumanClinicalIk } from "./AutoMovieHumanClinicalIk";
@@ -43,51 +47,75 @@ export namespace AutoMovieHumanSupportFrame {
     referenceNormal: [number, number, number] = [0, 1, 0],
   ): (frame: IFrame) => AutoMovieHumanClinicalIk.ITarget[] {
     if (!Array.isArray(contacts) || contacts.length !== 3)
-      throw new Error("Human support requires exactly three actual contact points");
+      throw new Error(
+        "Human support requires exactly three actual contact points",
+      );
     const points: IPoint[] = contacts.map((point: IPoint): IPoint => {
       vector(point.localPoint);
       if (typeof point.bone !== "string" || point.bone.length === 0)
         throw new Error("Human support requires exact bone identities");
       return { bone: point.bone, localPoint: [...point.localPoint] };
     });
-    const positions: Math3D.Vector[] = points.map((point: IPoint): Math3D.Vector => {
-      const placement: AutoMovieHumanSkeleton.IPlacement | undefined = reference.posed.find(
-        (row: AutoMovieHumanSkeleton.IPlacement): boolean => row.bone === point.bone,
-      );
-      if (placement === undefined)
-        throw new Error(`Human support bone is absent: ${point.bone}`);
-      vector(placement.position);
-      return Math3D.add(placement.position, Math3D.rotate(placement.rotation, point.localPoint));
-    });
-    vector(referenceNormal);
-    const prepared: IAutoMoviePreparedSurfaceFrame = prepareAutoMovieSurfaceFrame(
-      [convert(positions[0]!), convert(positions[1]!), convert(positions[2]!)],
-      convert(referenceNormal),
+    const positions: Math3D.Vector[] = points.map(
+      (point: IPoint): Math3D.Vector => {
+        const placement: AutoMovieHumanSkeleton.IPlacement | undefined =
+          reference.posed.find(
+            (row: AutoMovieHumanSkeleton.IPlacement): boolean =>
+              row.bone === point.bone,
+          );
+        if (placement === undefined)
+          throw new Error(`Human support bone is absent: ${point.bone}`);
+        vector(placement.position);
+        return Math3D.add(
+          placement.position,
+          Math3D.rotate(placement.rotation, point.localPoint),
+        );
+      },
     );
+    vector(referenceNormal);
+    const prepared: IAutoMoviePreparedSurfaceFrame =
+      prepareAutoMovieSurfaceFrame(
+        [
+          convert(positions[0]!),
+          convert(positions[1]!),
+          convert(positions[2]!),
+        ],
+        convert(referenceNormal),
+      );
     return (frame: IFrame): AutoMovieHumanClinicalIk.ITarget[] => {
       vector(frame.origin);
       vector(frame.normal);
       vector(frame.forward);
-      const destinations: [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3] = placeAutoMovieSurfaceFrame(prepared, {
+      const destinations: [
+        IAutoMovieVector3,
+        IAutoMovieVector3,
+        IAutoMovieVector3,
+      ] = placeAutoMovieSurfaceFrame(prepared, {
         origin: convert(frame.origin),
         forward: convert(frame.forward),
         normal: convert(frame.normal),
       });
-      return points.map((point: IPoint, index: number): AutoMovieHumanClinicalIk.ITarget => {
-        const at: IAutoMovieVector3 = destinations[index]!;
-        return {
-          bone: point.bone,
-          localPoint: [...point.localPoint],
-          position: [at.x, at.y, at.z],
-        };
-      });
+      return points.map(
+        (point: IPoint, index: number): AutoMovieHumanClinicalIk.ITarget => {
+          const at: IAutoMovieVector3 = destinations[index]!;
+          return {
+            bone: point.bone,
+            localPoint: [...point.localPoint],
+            position: [at.x, at.y, at.z],
+          };
+        },
+      );
     };
   }
 }
 
 /** Reject malformed, nonfinite vectors before any constraint is constructed. */
 function vector(value: Math3D.Vector): void {
-  if (!Array.isArray(value) || value.length !== 3 || !value.every(Number.isFinite))
+  if (
+    !Array.isArray(value) ||
+    value.length !== 3 ||
+    !value.every(Number.isFinite)
+  )
     throw new Error("Human support requires finite metre/direction triples");
 }
 

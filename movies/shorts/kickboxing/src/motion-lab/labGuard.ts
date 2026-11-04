@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanPose } from "@automovie/human";
+
 import { inspectionGuard } from "../inspectionGuard";
 
 /**

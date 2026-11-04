@@ -1,4 +1,5 @@
 import type { IAutoMovieRenderSpec } from "@automovie/interface";
+
 import type { IAutoMovieRenderAdapters } from "../IAutoMovieRenderAdapters";
 import type { IAutoMovieRenderResult } from "../IAutoMovieRenderResult";
 import type { IAutoMovieHeadlessCaptureSession } from "../headlessCapture/IAutoMovieHeadlessCaptureSession";
@@ -32,23 +33,41 @@ export async function renderViewerVideoSession(options: {
     options.signal?.throwIfAborted();
     await options.prepare?.();
     options.signal?.throwIfAborted();
-    return await renderVideo(options.spec, options.durationSeconds, options.frameDir, options.outputPath, {
-      captureFrame: async (seconds: number, index: number, directory: string): Promise<string> => {
-        options.signal?.throwIfAborted();
-        const begun: number = performance.now();
-        const file: string = await options.session.captureFrame(seconds, index, directory);
-        options.onFrame?.(index, seconds, performance.now() - begun);
-        return file;
+    return await renderVideo(
+      options.spec,
+      options.durationSeconds,
+      options.frameDir,
+      options.outputPath,
+      {
+        captureFrame: async (
+          seconds: number,
+          index: number,
+          directory: string,
+        ): Promise<string> => {
+          options.signal?.throwIfAborted();
+          const begun: number = performance.now();
+          const file: string = await options.session.captureFrame(
+            seconds,
+            index,
+            directory,
+          );
+          options.onFrame?.(index, seconds, performance.now() - begun);
+          return file;
+        },
+        encode: async (args: string[], outputPath: string): Promise<string> => {
+          options.signal?.throwIfAborted();
+          return options.encode(args, outputPath);
+        },
       },
-      encode: async (args: string[], outputPath: string): Promise<string> => {
-        options.signal?.throwIfAborted();
-        return options.encode(args, outputPath);
-      },
-    });
+    );
   } catch (error) {
     failure = { error };
     throw error;
   } finally {
-    await preserveCleanupFailure(failure, "viewer video session", (): Promise<void> => options.session.close());
+    await preserveCleanupFailure(
+      failure,
+      "viewer video session",
+      (): Promise<void> => options.session.close(),
+    );
   }
 }

@@ -1,4 +1,7 @@
-import { AutoMovieHumanRigControls, type IAutoMovieHumanPose } from "@automovie/human";
+import {
+  AutoMovieHumanRigControls,
+  type IAutoMovieHumanPose,
+} from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../internal/predicates";
@@ -16,23 +19,96 @@ import { nclose, throwsError } from "../internal/predicates";
  * @evidence contracts/testing.md#distinguishing-cases Covers missing source and destination regions, different own sides, degree and millimetre fields, weights zero/one/quarter, out-of-range and nonfinite weights, a nonfinite source scalar and output mutation.
  * @evidence contracts/testing.md#execution-ownership One synchronous discoverable root unit invokes only canonical pose arithmetic and portable assertions; it prepares no body, native artifact, host or renderer.
  */
-export function test_human_pose_blend():void {
-  const from:IAutoMovieHumanPose={legs:{left:{hip:{flexion:40}},right:{}},head:{jaw:{opening:4}},pelvis:{rotation:160}};
-  const to:IAutoMovieHumanPose={arms:{left:{},right:{elbow:{flexion:80}}},head:{jaw:{opening:28}},pelvis:{rotation:-160}};
-  const pose:IAutoMovieHumanPose=AutoMovieHumanRigControls.blend(from,to,0.25);
-  TestValidator.predicate("omitted destination is neutral",nclose(pose.legs!.left.hip!.flexion!,30));
-  TestValidator.predicate("omitted source is neutral",nclose(pose.arms!.right.elbow!.flexion!,20));
-  TestValidator.predicate("jaw stays millimetres",nclose(pose.head!.jaw!.opening!,10));
-  TestValidator.predicate("clinical rotations are stated scalars",nclose(pose.pelvis!.rotation!,80));
-  TestValidator.predicate("zero endpoint",nclose(AutoMovieHumanRigControls.blend(from,to,0).legs!.left.hip!.flexion!,40));
-  TestValidator.predicate("one endpoint",nclose(AutoMovieHumanRigControls.blend(from,to,1).arms!.right.elbow!.flexion!,80));
-  pose.head!.jaw!.opening=52;
-  TestValidator.predicate("source ownership",nclose(from.head!.jaw!.opening!,4));
-  TestValidator.predicate("destination ownership",nclose(to.head!.jaw!.opening!,28));
-  for(const weight of [-0.01,1.01,NaN,Infinity])TestValidator.predicate("invalid weight refuses",throwsError(():void=>{AutoMovieHumanRigControls.blend(from,to,weight);}));
-  TestValidator.predicate("nonfinite channel refuses",throwsError(():void=>{AutoMovieHumanRigControls.blend({pelvis:{rotation:Infinity}},to,0.5);}));
-  const single:IAutoMovieHumanPose=AutoMovieHumanRigControls.blend({}, {arms:{left:{},right:{elbow:{flexion:80}}}},0.5);
-  TestValidator.predicate("one active arm retains bilateral structure",single.arms!==undefined&&single.arms.left!==undefined&&single.arms.right!==undefined);
-  const empty:IAutoMovieHumanPose=AutoMovieHumanRigControls.blend({}, {},0.5);
-  TestValidator.predicate("empty neutral retains no invented active region",empty.arms===undefined&&empty.legs===undefined);
+export function test_human_pose_blend(): void {
+  const from: IAutoMovieHumanPose = {
+    legs: { left: { hip: { flexion: 40 } }, right: {} },
+    head: { jaw: { opening: 4 } },
+    pelvis: { rotation: 160 },
+  };
+  const to: IAutoMovieHumanPose = {
+    arms: { left: {}, right: { elbow: { flexion: 80 } } },
+    head: { jaw: { opening: 28 } },
+    pelvis: { rotation: -160 },
+  };
+  const pose: IAutoMovieHumanPose = AutoMovieHumanRigControls.blend(
+    from,
+    to,
+    0.25,
+  );
+  TestValidator.predicate(
+    "omitted destination is neutral",
+    nclose(pose.legs!.left.hip!.flexion!, 30),
+  );
+  TestValidator.predicate(
+    "omitted source is neutral",
+    nclose(pose.arms!.right.elbow!.flexion!, 20),
+  );
+  TestValidator.predicate(
+    "jaw stays millimetres",
+    nclose(pose.head!.jaw!.opening!, 10),
+  );
+  TestValidator.predicate(
+    "clinical rotations are stated scalars",
+    nclose(pose.pelvis!.rotation!, 80),
+  );
+  TestValidator.predicate(
+    "zero endpoint",
+    nclose(
+      AutoMovieHumanRigControls.blend(from, to, 0).legs!.left.hip!.flexion!,
+      40,
+    ),
+  );
+  TestValidator.predicate(
+    "one endpoint",
+    nclose(
+      AutoMovieHumanRigControls.blend(from, to, 1).arms!.right.elbow!.flexion!,
+      80,
+    ),
+  );
+  pose.head!.jaw!.opening = 52;
+  TestValidator.predicate(
+    "source ownership",
+    nclose(from.head!.jaw!.opening!, 4),
+  );
+  TestValidator.predicate(
+    "destination ownership",
+    nclose(to.head!.jaw!.opening!, 28),
+  );
+  for (const weight of [-0.01, 1.01, NaN, Infinity])
+    TestValidator.predicate(
+      "invalid weight refuses",
+      throwsError((): void => {
+        AutoMovieHumanRigControls.blend(from, to, weight);
+      }),
+    );
+  TestValidator.predicate(
+    "nonfinite channel refuses",
+    throwsError((): void => {
+      AutoMovieHumanRigControls.blend(
+        { pelvis: { rotation: Infinity } },
+        to,
+        0.5,
+      );
+    }),
+  );
+  const single: IAutoMovieHumanPose = AutoMovieHumanRigControls.blend(
+    {},
+    { arms: { left: {}, right: { elbow: { flexion: 80 } } } },
+    0.5,
+  );
+  TestValidator.predicate(
+    "one active arm retains bilateral structure",
+    single.arms !== undefined &&
+      single.arms.left !== undefined &&
+      single.arms.right !== undefined,
+  );
+  const empty: IAutoMovieHumanPose = AutoMovieHumanRigControls.blend(
+    {},
+    {},
+    0.5,
+  );
+  TestValidator.predicate(
+    "empty neutral retains no invented active region",
+    empty.arms === undefined && empty.legs === undefined,
+  );
 }

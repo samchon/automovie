@@ -22,7 +22,11 @@ export namespace PunchTiming {
     /** Mean release-to-guard/reduced-acceleration duration. */
     retraction: number;
     /** Standard deviations of the three respective durations. */
-    standardDeviation: { delivery: number; contact: number; retraction: number };
+    standardDeviation: {
+      delivery: number;
+      contact: number;
+      retraction: number;
+    };
     /** Published total, retained independently of the phase sum. */
     reportedTotal: number;
     /** Separate preparation and post-guard settling were not measured. */
@@ -37,10 +41,58 @@ export namespace PunchTiming {
    */
   export function measurement(kind: PunchShape.Kind): Measurement {
     switch (kind) {
-      case "jab": return { delivery: .117, contact: .144, retraction: .262, standardDeviation: { delivery: .025, contact: .027, retraction: .042 }, reportedTotal: .523, unmeasuredPhases: ["preparation", "post-guard-recovery"] };
-      case "cross": return { delivery: .111, contact: .122, retraction: .169, standardDeviation: { delivery: .041, contact: .018, retraction: .041 }, reportedTotal: .402, unmeasuredPhases: ["preparation", "post-guard-recovery"] };
-      case "hook": return { delivery: .091, contact: .141, retraction: .168, standardDeviation: { delivery: .050, contact: .029, retraction: .097 }, reportedTotal: .441, unmeasuredPhases: ["preparation", "post-guard-recovery"] };
-      case "uppercut": return { delivery: .071, contact: .143, retraction: .171, standardDeviation: { delivery: .036, contact: .034, retraction: .033 }, reportedTotal: .385, unmeasuredPhases: ["preparation", "post-guard-recovery"] };
+      case "jab":
+        return {
+          delivery: 0.117,
+          contact: 0.144,
+          retraction: 0.262,
+          standardDeviation: {
+            delivery: 0.025,
+            contact: 0.027,
+            retraction: 0.042,
+          },
+          reportedTotal: 0.523,
+          unmeasuredPhases: ["preparation", "post-guard-recovery"],
+        };
+      case "cross":
+        return {
+          delivery: 0.111,
+          contact: 0.122,
+          retraction: 0.169,
+          standardDeviation: {
+            delivery: 0.041,
+            contact: 0.018,
+            retraction: 0.041,
+          },
+          reportedTotal: 0.402,
+          unmeasuredPhases: ["preparation", "post-guard-recovery"],
+        };
+      case "hook":
+        return {
+          delivery: 0.091,
+          contact: 0.141,
+          retraction: 0.168,
+          standardDeviation: {
+            delivery: 0.05,
+            contact: 0.029,
+            retraction: 0.097,
+          },
+          reportedTotal: 0.441,
+          unmeasuredPhases: ["preparation", "post-guard-recovery"],
+        };
+      case "uppercut":
+        return {
+          delivery: 0.071,
+          contact: 0.143,
+          retraction: 0.171,
+          standardDeviation: {
+            delivery: 0.036,
+            contact: 0.034,
+            retraction: 0.033,
+          },
+          reportedTotal: 0.385,
+          unmeasuredPhases: ["preparation", "post-guard-recovery"],
+        };
     }
   }
 
@@ -52,6 +104,12 @@ export namespace PunchTiming {
    */
   export function bagStudy2021(kind: PunchShape.Kind): MotionAction.Timing {
     const value: Measurement = measurement(kind);
-    return { preparation: 0, delivery: value.delivery, contact: value.contact, retraction: value.retraction, recovery: 0 };
+    return {
+      preparation: 0,
+      delivery: value.delivery,
+      contact: value.contact,
+      retraction: value.retraction,
+      recovery: 0,
+    };
   }
 }

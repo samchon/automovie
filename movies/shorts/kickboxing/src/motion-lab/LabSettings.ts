@@ -6,7 +6,18 @@
  */
 export interface LabSettings {
   /** Reusable action definition. */
-  action: "jab" | "cross" | "hook" | "uppercut" | "low-kick" | "body-kick" | "high-kick" | "step" | "defense" | "one-two" | "blocked-one-two";
+  action:
+    | "jab"
+    | "cross"
+    | "hook"
+    | "uppercut"
+    | "low-kick"
+    | "body-kick"
+    | "high-kick"
+    | "step"
+    | "defense"
+    | "one-two"
+    | "blocked-one-two";
   /** Acting man; either can consume the same definition. */
   actor: "a" | "b";
   /** Selected limb; jab/cross determine stance lead consistently. */

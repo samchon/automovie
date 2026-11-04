@@ -15,9 +15,20 @@ export namespace FilmExportPlan {
    */
   export function url(requested: string): string {
     const result: URL = new URL(requested);
-    if (result.protocol !== "http:" || !["127.0.0.1", "localhost", "[::1]"].includes(result.hostname))
+    if (
+      result.protocol !== "http:" ||
+      !["127.0.0.1", "localhost", "[::1]"].includes(result.hostname)
+    )
       throw new Error("Capture requires the inspected local Viewer URL");
-    for (const [key, value] of Object.entries({ capture: "1", cap: "1", w: "1280", h: "720", start: "0", end: String(FilmPlan.duration), speed: "1" }))
+    for (const [key, value] of Object.entries({
+      capture: "1",
+      cap: "1",
+      w: "1280",
+      h: "720",
+      start: "0",
+      end: String(FilmPlan.duration),
+      speed: "1",
+    }))
       result.searchParams.set(key, value);
     result.searchParams.delete("play");
     return result.href;
@@ -29,8 +40,21 @@ export namespace FilmExportPlan {
    * @evidence contracts/common.md#implementation-and-ownership Checks actual public host readiness and clock against the consumed FilmPlan, including every i/fps sample through the last half-open frame. No readiness bit is treated as visual or physical acceptance.
    * @evidence contracts/common.md#authoring-interface Supply values read from the same capture page after completed seek. A fifteen-second draft, fractional extent or unprepared runtime rejects; no default clock substitutes for missing facts.
    */
-  export function assertClock(host: { ready: boolean; durationSeconds: number; fps: number; frameCount: number }): void {
-    if (host.ready !== true || host.durationSeconds !== FilmPlan.duration || host.fps !== FilmPlan.fps || host.frameCount !== FilmPlan.frames || host.frameCount !== host.durationSeconds * host.fps)
-      throw new Error("Viewer does not expose the complete prepared FilmPlan clock");
+  export function assertClock(host: {
+    ready: boolean;
+    durationSeconds: number;
+    fps: number;
+    frameCount: number;
+  }): void {
+    if (
+      host.ready !== true ||
+      host.durationSeconds !== FilmPlan.duration ||
+      host.fps !== FilmPlan.fps ||
+      host.frameCount !== FilmPlan.frames ||
+      host.frameCount !== host.durationSeconds * host.fps
+    )
+      throw new Error(
+        "Viewer does not expose the complete prepared FilmPlan clock",
+      );
   }
 }

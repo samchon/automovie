@@ -12,7 +12,6 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains no buffers after return; temporary phase records live only during a zipper call.
  */
 export namespace humanPolygonTopology {
-
   /**
    * Caller-owned numerical buffers; positions retain the caller's units.
    *
@@ -25,7 +24,6 @@ export namespace humanPolygonTopology {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Buffer ownership remains with the assembler.
    */
   export interface IContext {
-
     /** Flat Cartesian positions in the assembler's metre frame. */
     positions: number[];
 

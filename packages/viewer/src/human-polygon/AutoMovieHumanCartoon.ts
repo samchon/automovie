@@ -11,7 +11,6 @@
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Caller-owned records acquire no native resources.
  */
 export namespace AutoMovieHumanCartoon {
-
   /**
    * Sided FACS intensities and optional named mouth actions.
    *
@@ -24,10 +23,8 @@ export namespace AutoMovieHumanCartoon {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Expression records own no geometry or native resources.
    */
   export interface IExpression {
-
     /** Omitted units are neutral; overlapping unit/side activations refuse. */
     units: {
-
       /** FACS action name; unsupported nonzero actions are reported. */
       unit: string;
 
@@ -40,7 +37,6 @@ export namespace AutoMovieHumanCartoon {
 
     /** Optional named lip actions; tongue/visemes are explicitly unsupported. */
     mouth?: {
-
       /** Named scalar or bilateral [0,1] mouth action intensities. */
       lips?: Partial<
         Record<
@@ -59,7 +55,6 @@ export namespace AutoMovieHumanCartoon {
           | "cheekPuff",
           | number
           | {
-
               /** Left intensity. */ left: number;
 
               /** Right intensity. */ right: number;
@@ -87,13 +82,10 @@ export namespace AutoMovieHumanCartoon {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Pose records own no native resource.
    */
   export interface IHeadPose {
-
     /** Gaze of each eye; omitted coordinates are zero degrees. */
     eyes?: {
-
       /** Anatomical left-eye gaze. */
       left?: {
-
         /** Degrees, positive upward. */
         vertical?: number;
 
@@ -103,7 +95,6 @@ export namespace AutoMovieHumanCartoon {
 
       /** Anatomical right-eye gaze. */
       right?: {
-
         /** Degrees, positive upward. */
         vertical?: number;
 
@@ -114,7 +105,6 @@ export namespace AutoMovieHumanCartoon {
 
     /** Jaw displacement at the incisors; omitted coordinates are zero mm. */
     jaw?: {
-
       /** Opening in millimetres. */
       opening?: number;
 

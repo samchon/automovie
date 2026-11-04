@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "plugins": [{ "transform": "typia/lib/transform", "finite": true }]
-  },
-  "files": ["src/human/admitHumanParameters.ts"],
-  "include": []
-}

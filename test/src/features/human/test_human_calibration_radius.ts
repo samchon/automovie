@@ -1,6 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieHumanHeadConstruction } from "../../../../packages/human/src/generation/AutoMovieHumanHeadConstruction";
+import { AutoMovieHumanHeadRadius } from "../../../../packages/human/src/generation/AutoMovieHumanHeadRadius";
+import { AutoMovieHumanHeadVault } from "../../../../packages/human/src/generation/AutoMovieHumanHeadVault";
+import type { IAutoMovieHumanHeadSection } from "../../../../packages/human/src/generation/IAutoMovieHumanHeadSection";
 import { nclose } from "../internal/predicates";
 
 /**
@@ -34,26 +36,47 @@ export function test_human_calibration_radius(): void {
           const A: number = (c / a) ** 2 + (s / b) ** 2;
           const B: number = (2 * ox * c) / (a * a);
           const C: number = (ox / a) ** 2 - 1;
-          const expected: number = (-B + Math.sqrt(B * B - 4 * A * C)) / (2 * A);
-          const section: AutoMovieHumanHeadConstruction.ISection = {
+          const expected: number =
+            (-B + Math.sqrt(B * B - 4 * A * C)) / (2 * A);
+          const section: IAutoMovieHumanHeadSection = {
             t: 0,
             tilt: 0,
             axis: 0,
             front: a,
+            crown: a,
             back: -a,
             width: b,
             waist: 0,
-            face: b,
-            shield: 0,
+            face: 0,
+            taper: 0,
+            brow: 0,
+            tube: 0,
+            union: 0,
             powerBack: 2,
             powerFace: 2,
             station: 0,
           };
           for (const guess of [0, a * 1e-4, a * 20]) {
-            const actual: number = AutoMovieHumanHeadConstruction.radius(section, ox, theta, guess);
+            const actual: number = AutoMovieHumanHeadRadius.radius(
+              section,
+              ox,
+              theta,
+              guess,
+            );
             const label: string = `${scale}/${breadth}/${offset}/${theta}/${guess}`;
-            if (!nclose(actual, expected, 2e-6)) defects.push(`${label}: analytic radius`);
-            if (!nclose(AutoMovieHumanHeadConstruction.field(section, ox + actual * c, actual * s), 1, 1e-7))
+            if (!nclose(actual, expected, 2e-6))
+              defects.push(`${label}: analytic radius`);
+            if (
+              !nclose(
+                AutoMovieHumanHeadVault.gauge(
+                  section,
+                  ox + actual * c,
+                  actual * s,
+                ),
+                1,
+                1e-7,
+              )
+            )
               defects.push(`${label}: surface closure`);
           }
         }

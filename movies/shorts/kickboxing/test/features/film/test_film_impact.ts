@@ -118,7 +118,8 @@ export function test_film_exchange_finishing_refusal(): void {
     const finish: Readonly<FilmPlan.Exchange> = FilmPlan.exchanges.at(-1)!;
     for (const impactSeconds of [150, 149.9]) {
       assert.throws(
-        (): FilmExchange => new FilmExchange({ ...finish, impactSeconds }, actors),
+        (): FilmExchange =>
+          new FilmExchange({ ...finish, impactSeconds }, actors),
         /Finishing impact requests require FilmFinish/,
       );
       for (const entry of before) {
@@ -127,7 +128,10 @@ export function test_film_exchange_finishing_refusal(): void {
         assert.equal(entry.actor.patches, entry.patches);
         assert.deepEqual(entry.actor.origin.toArray(), entry.origin);
         assert.equal(entry.actor.yaw, entry.yaw);
-        assert.deepEqual(entry.actor.person.object.position.toArray(), entry.position);
+        assert.deepEqual(
+          entry.actor.person.object.position.toArray(),
+          entry.position,
+        );
       }
     }
   } finally {

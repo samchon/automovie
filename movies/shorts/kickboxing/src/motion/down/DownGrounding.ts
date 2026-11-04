@@ -1,6 +1,12 @@
 import { Quaternion } from "@automovie/engine";
-import { AutoMovieHumanRigControls, type AutoMovieHumanSkeleton, type AutoMovieHumanSupportFrame, type IAutoMovieHumanPose } from "@automovie/human";
+import {
+  AutoMovieHumanRigControls,
+  type AutoMovieHumanSkeleton,
+  type AutoMovieHumanSupportFrame,
+  type IAutoMovieHumanPose,
+} from "@automovie/human";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
+
 import type { MotionAction } from "../core/MotionAction";
 
 /**
@@ -23,7 +29,13 @@ export class DownGrounding {
   /** Canonical interval in seconds; the final node is exactly duration. */
   public readonly stepSeconds: number;
   /** Construction only: excludes host fitting, world matrices, drawing and encoding. */
-  public readonly preparation: Readonly<{ milliseconds: number; vertices: number; canonicalNodes: number; evaluations: number; reusedShapes: number }>;
+  public readonly preparation: Readonly<{
+    milliseconds: number;
+    vertices: number;
+    canonicalNodes: number;
+    evaluations: number;
+    reusedShapes: number;
+  }>;
   /** Actual public FK calls during preparation and subsequent sampling. */
   private evaluations: number = 0;
   /** Exact whole-shape cache hits, not assumed numerical equivalence. */
@@ -36,31 +48,79 @@ export class DownGrounding {
    */
   public constructor(config: DownGrounding.Config) {
     const started: number = performance.now();
-    if (!Number.isFinite(config.duration) || config.duration <= 0 || !Number.isFinite(config.floorY) || !Number.isFinite(config.samplesPerSecond) || config.samplesPerSecond < 30 || config.samplesPerSecond > 240 || !config.points.length)
-      throw new Error("A grounded descent needs original vertices, a finite floor, positive duration and 30..240 canonical samples per second");
-    if (config.entryRoot.length !== 3 || !config.entryRoot.every(Number.isFinite)) throw new Error("Descent entry root must be finite metres");
-    this.points = config.points.map((point: AutoMovieHumanSupportFrame.IPoint): AutoMovieHumanSupportFrame.IPoint => {
-      if (!AutoMovieHumanRigControls.isJoint(point.bone) || point.localPoint.length !== 3 || !point.localPoint.every(Number.isFinite)) throw new Error("Descent surface requires finite original bone-bound vertices");
-      return { bone: point.bone, localPoint: [...point.localPoint] };
-    });
-    this.config = { ...config, entryRoot: [...config.entryRoot], points: this.points };
+    if (
+      !Number.isFinite(config.duration) ||
+      config.duration <= 0 ||
+      !Number.isFinite(config.floorY) ||
+      !Number.isFinite(config.samplesPerSecond) ||
+      config.samplesPerSecond < 30 ||
+      config.samplesPerSecond > 240 ||
+      !config.points.length
+    )
+      throw new Error(
+        "A grounded descent needs original vertices, a finite floor, positive duration and 30..240 canonical samples per second",
+      );
+    if (
+      config.entryRoot.length !== 3 ||
+      !config.entryRoot.every(Number.isFinite)
+    )
+      throw new Error("Descent entry root must be finite metres");
+    this.points = config.points.map(
+      (
+        point: AutoMovieHumanSupportFrame.IPoint,
+      ): AutoMovieHumanSupportFrame.IPoint => {
+        if (
+          !AutoMovieHumanRigControls.isJoint(point.bone) ||
+          point.localPoint.length !== 3 ||
+          !point.localPoint.every(Number.isFinite)
+        )
+          throw new Error(
+            "Descent surface requires finite original bone-bound vertices",
+          );
+        return { bone: point.bone, localPoint: [...point.localPoint] };
+      },
+    );
+    this.config = {
+      ...config,
+      entryRoot: [...config.entryRoot],
+      points: this.points,
+    };
     this.intervals = Math.ceil(config.duration * config.samplesPerSecond);
     this.stepSeconds = config.duration / this.intervals;
     const roots: MotionAction.Vec3[] = [[...config.entryRoot]];
     let previous: DownGrounding.Surface = this.surface(0);
     const expectedY: number = config.floorY - previous.minimum;
-    if (Math.abs(expectedY - config.entryRoot[1]) > .00025) throw new Error("Descent entry must already be grounded within the unchanged 0.25 mm contact tolerance");
+    if (Math.abs(expectedY - config.entryRoot[1]) > 0.00025)
+      throw new Error(
+        "Descent entry must already be grounded within the unchanged 0.25 mm contact tolerance",
+      );
     roots[0]![1] = expectedY;
     for (let index: number = 1; index <= this.intervals; index++) {
-      const current: DownGrounding.Surface = this.surface(index * this.stepSeconds);
-      const midpoint: DownGrounding.Surface = this.surface((index - .5) * this.stepSeconds);
+      const current: DownGrounding.Surface = this.surface(
+        index * this.stepSeconds,
+      );
+      const midpoint: DownGrounding.Surface = this.surface(
+        (index - 0.5) * this.stepSeconds,
+      );
       const contact: number = midpoint.lowest;
       const oldRoot: MotionAction.Vec3 = roots[index - 1]!;
-      roots.push([oldRoot[0] - (current.positions[contact]![0] - previous.positions[contact]![0]), config.floorY - current.minimum, oldRoot[2] - (current.positions[contact]![2] - previous.positions[contact]![2])]);
+      roots.push([
+        oldRoot[0] -
+          (current.positions[contact]![0] - previous.positions[contact]![0]),
+        config.floorY - current.minimum,
+        oldRoot[2] -
+          (current.positions[contact]![2] - previous.positions[contact]![2]),
+      ]);
       previous = current;
     }
     this.roots = roots;
-    this.preparation = Object.freeze({ milliseconds: performance.now() - started, vertices: this.points.length, canonicalNodes: roots.length, evaluations: this.evaluations, reusedShapes: this.reusedShapes });
+    this.preparation = Object.freeze({
+      milliseconds: performance.now() - started,
+      vertices: this.points.length,
+      canonicalNodes: roots.length,
+      evaluations: this.evaluations,
+      reusedShapes: this.reusedShapes,
+    });
   }
 
   /**
@@ -70,7 +130,8 @@ export class DownGrounding {
    * @evidence contracts/common.md#authoring-interface Returns detached metre tuples. The reported contact is an instantaneous rolling pivot, not a persistent planted material point or a measured force. Its material velocity is bounded only by the finite canonical quadrature and must be checked at h and h/2 through the real consumer.
    */
   public sample(seconds: number): DownGrounding.Placement {
-    if (!Number.isFinite(seconds)) throw new Error("Descent time must be finite local seconds");
+    if (!Number.isFinite(seconds))
+      throw new Error("Descent time must be finite local seconds");
     const time: number = Math.max(0, Math.min(this.config.duration, seconds));
     const coordinate: number = time / this.stepSeconds;
     const index: number = Math.min(this.intervals - 1, Math.floor(coordinate));
@@ -78,10 +139,25 @@ export class DownGrounding {
     const left: MotionAction.Vec3 = this.roots[index]!;
     const right: MotionAction.Vec3 = this.roots[index + 1]!;
     const surface: DownGrounding.Surface = this.surface(time);
-    const rootOffset: MotionAction.Vec3 = [left[0] + (right[0] - left[0]) * fraction, this.config.floorY - surface.minimum, left[2] + (right[2] - left[2]) * fraction];
-    const point: AutoMovieHumanSupportFrame.IPoint = this.points[surface.lowest]!;
+    const rootOffset: MotionAction.Vec3 = [
+      left[0] + (right[0] - left[0]) * fraction,
+      this.config.floorY - surface.minimum,
+      left[2] + (right[2] - left[2]) * fraction,
+    ];
+    const point: AutoMovieHumanSupportFrame.IPoint =
+      this.points[surface.lowest]!;
     const local: MotionAction.Vec3 = surface.positions[surface.lowest]!;
-    return { rootOffset, point: structuredClone(point), position: [local[0] + rootOffset[0], local[1] + rootOffset[1], local[2] + rootOffset[2]], floorMinimum: surface.minimum + rootOffset[1], canonicalStepSeconds: this.stepSeconds };
+    return {
+      rootOffset,
+      point: structuredClone(point),
+      position: [
+        local[0] + rootOffset[0],
+        local[1] + rootOffset[1],
+        local[2] + rootOffset[2],
+      ],
+      floorMinimum: surface.minimum + rootOffset[1],
+      canonicalStepSeconds: this.stepSeconds,
+    };
   }
 
   /** Evaluate the original rigid vertices in the rotated fixed actor-heading frame. */
@@ -89,30 +165,111 @@ export class DownGrounding {
     const shape: DownGrounding.Shape = this.config.shape(seconds);
     const key: string = JSON.stringify(shape);
     const cached: DownGrounding.Surface | undefined = this.surfaces.get(key);
-    if (cached) { this.reusedShapes++; return cached; }
-    const output: AutoMovieHumanSkeleton.IOutput = this.config.evaluate(shape.pose);
+    if (cached) {
+      this.reusedShapes++;
+      return cached;
+    }
+    const output: AutoMovieHumanSkeleton.IOutput = this.config.evaluate(
+      shape.pose,
+    );
     this.evaluations++;
-    if (output.clamped.length) throw new Error(`Descent authored clinical controls exceed native bounds: ${JSON.stringify(output.clamped)}`);
+    if (output.clamped.length)
+      throw new Error(
+        `Descent authored clinical controls exceed native bounds: ${JSON.stringify(output.clamped)}`,
+      );
     const rotation: AutoMovieHumanRigControls.Rotation = shape.rootRotation;
-    if (rotation.length !== 4 || !rotation.every(Number.isFinite) || Math.abs(Math.hypot(...rotation) - 1) > .000001) throw new Error("Descent root requires a unit local quaternion");
-    const root: IAutoMovieQuaternion = { x: rotation[0], y: rotation[1], z: rotation[2], w: rotation[3] };
-    const placements: Map<string, { origin: MotionAction.Vec3; x: MotionAction.Vec3; y: MotionAction.Vec3; z: MotionAction.Vec3 }> = new Map(output.posed.map((placement: AutoMovieHumanSkeleton.IPlacement): [string, { origin: MotionAction.Vec3; x: MotionAction.Vec3; y: MotionAction.Vec3; z: MotionAction.Vec3 }] => {
-      const combined: IAutoMovieQuaternion = Quaternion.multiply(root, { x: placement.rotation[0], y: placement.rotation[1], z: placement.rotation[2], w: placement.rotation[3] });
-      const q: AutoMovieHumanRigControls.Rotation = [combined.x, combined.y, combined.z, combined.w];
-      return [placement.bone, { origin: rotate(rotation, placement.position), x: rotate(q, [1, 0, 0]), y: rotate(q, [0, 1, 0]), z: rotate(q, [0, 0, 1]) }];
-    }));
+    if (
+      rotation.length !== 4 ||
+      !rotation.every(Number.isFinite) ||
+      Math.abs(Math.hypot(...rotation) - 1) > 0.000001
+    )
+      throw new Error("Descent root requires a unit local quaternion");
+    const root: IAutoMovieQuaternion = {
+      x: rotation[0],
+      y: rotation[1],
+      z: rotation[2],
+      w: rotation[3],
+    };
+    const placements: Map<
+      string,
+      {
+        origin: MotionAction.Vec3;
+        x: MotionAction.Vec3;
+        y: MotionAction.Vec3;
+        z: MotionAction.Vec3;
+      }
+    > = new Map(
+      output.posed.map(
+        (
+          placement: AutoMovieHumanSkeleton.IPlacement,
+        ): [
+          string,
+          {
+            origin: MotionAction.Vec3;
+            x: MotionAction.Vec3;
+            y: MotionAction.Vec3;
+            z: MotionAction.Vec3;
+          },
+        ] => {
+          const combined: IAutoMovieQuaternion = Quaternion.multiply(root, {
+            x: placement.rotation[0],
+            y: placement.rotation[1],
+            z: placement.rotation[2],
+            w: placement.rotation[3],
+          });
+          const q: AutoMovieHumanRigControls.Rotation = [
+            combined.x,
+            combined.y,
+            combined.z,
+            combined.w,
+          ];
+          return [
+            placement.bone,
+            {
+              origin: rotate(rotation, placement.position),
+              x: rotate(q, [1, 0, 0]),
+              y: rotate(q, [0, 1, 0]),
+              z: rotate(q, [0, 0, 1]),
+            },
+          ];
+        },
+      ),
+    );
     let minimum: number = Infinity;
     let lowest: number = -1;
-    const positions: MotionAction.Vec3[] = this.points.map((point: AutoMovieHumanSupportFrame.IPoint, index: number): MotionAction.Vec3 => {
-      const bone: { origin: MotionAction.Vec3; x: MotionAction.Vec3; y: MotionAction.Vec3; z: MotionAction.Vec3 } | undefined = placements.get(point.bone);
-      if (!bone) throw new Error(`Descent source has no public FK carrier ${point.bone}`);
-      const [x, y, z]: MotionAction.Vec3 = point.localPoint;
-      const position: MotionAction.Vec3 = [bone.origin[0] + bone.x[0] * x + bone.y[0] * y + bone.z[0] * z, bone.origin[1] + bone.x[1] * x + bone.y[1] * y + bone.z[1] * z, bone.origin[2] + bone.x[2] * x + bone.y[2] * y + bone.z[2] * z];
-      if (position[1] < minimum) { minimum = position[1]; lowest = index; }
-      return position;
-    });
+    const positions: MotionAction.Vec3[] = this.points.map(
+      (
+        point: AutoMovieHumanSupportFrame.IPoint,
+        index: number,
+      ): MotionAction.Vec3 => {
+        const bone:
+          | {
+              origin: MotionAction.Vec3;
+              x: MotionAction.Vec3;
+              y: MotionAction.Vec3;
+              z: MotionAction.Vec3;
+            }
+          | undefined = placements.get(point.bone);
+        if (!bone)
+          throw new Error(
+            `Descent source has no public FK carrier ${point.bone}`,
+          );
+        const [x, y, z]: MotionAction.Vec3 = point.localPoint;
+        const position: MotionAction.Vec3 = [
+          bone.origin[0] + bone.x[0] * x + bone.y[0] * y + bone.z[0] * z,
+          bone.origin[1] + bone.x[1] * x + bone.y[1] * y + bone.z[1] * z,
+          bone.origin[2] + bone.x[2] * x + bone.y[2] * y + bone.z[2] * z,
+        ];
+        if (position[1] < minimum) {
+          minimum = position[1];
+          lowest = index;
+        }
+        return position;
+      },
+    );
     const result: DownGrounding.Surface = { positions, minimum, lowest };
-    if (this.surfaces.size >= 2) this.surfaces.delete(this.surfaces.keys().next().value!);
+    if (this.surfaces.size >= 2)
+      this.surfaces.delete(this.surfaces.keys().next().value!);
     this.surfaces.set(key, result);
     return result;
   }
@@ -127,7 +284,10 @@ export namespace DownGrounding {
    * @evidence contracts/common.md#implementation-and-ownership The shape callback owns articulation and orientation; placement changes translation only and refuses native clinical clamps.
    * @evidence contracts/common.md#authoring-interface Pose uses public Human clinical units and rootRotation is a unit quaternion after the actor heading. Return independently owned data from a pure fixed-input sampler.
    */
-  export interface Shape { /** Public clinical units. */ pose: IAutoMovieHumanPose; /** Actor-local rigid orientation. */ rootRotation: AutoMovieHumanRigControls.Rotation }
+  export interface Shape {
+    /** Public clinical units. */ pose: IAutoMovieHumanPose;
+    /** Actor-local rigid orientation. */ rootRotation: AutoMovieHumanRigControls.Rotation;
+  }
   /**
    * Fixed inputs borrowed for this one immutable descent.
    * @evidence contracts/common.md#implementation-and-ownership Original rigid vertices and numerical values are copied; pure same-body FK and shape callbacks remain borrowed. No live actor, last frame, solver output, reduced proxy or film policy is used to derive the root grid.
@@ -165,12 +325,27 @@ export namespace DownGrounding {
    * @evidence contracts/common.md#implementation-and-ownership Stores only immutable internal rotated vertex coordinates and their actual minimum/index for a two-entry exact-shape cache. There is no achieved fit result or graphics resource.
    * @evidence contracts/common.md#authoring-interface Positions precede root translation in fixed actor-heading metres. The class never exposes or mutates the cached arrays through its public placement result.
    */
-  export interface Surface { /** Rotated points before root translation. */ positions: MotionAction.Vec3[]; /** Lowest height. */ minimum: number; /** Stable first minimum index. */ lowest: number }
+  export interface Surface {
+    /** Rotated points before root translation. */ positions: MotionAction.Vec3[];
+    /** Lowest height. */ minimum: number;
+    /** Stable first minimum index. */ lowest: number;
+  }
 }
 
 /** Rotate a metre tuple through the public Engine quaternion operation. */
-function rotate(rotation: readonly number[], point: MotionAction.Vec3): MotionAction.Vec3 {
-  const quaternion: IAutoMovieQuaternion = { x: rotation[0]!, y: rotation[1]!, z: rotation[2]!, w: rotation[3]! };
-  const result: { x: number; y: number; z: number } = Quaternion.rotateVector(quaternion, { x: point[0], y: point[1], z: point[2] });
+function rotate(
+  rotation: readonly number[],
+  point: MotionAction.Vec3,
+): MotionAction.Vec3 {
+  const quaternion: IAutoMovieQuaternion = {
+    x: rotation[0]!,
+    y: rotation[1]!,
+    z: rotation[2]!,
+    w: rotation[3]!,
+  };
+  const result: { x: number; y: number; z: number } = Quaternion.rotateVector(
+    quaternion,
+    { x: point[0], y: point[1], z: point[2] },
+  );
   return [result.x, result.y, result.z];
 }

@@ -168,14 +168,20 @@ export namespace AutoMovieHumanEyelid {
       dot(sub(p, globe.centre), globe.up),
     ]);
 
-    // Orientation: positive signed area is counter-clockwise in
-    // (lateral, up), whose outward normal is the tangent turned clockwise.
+    // Orientation: every margin runs counter-clockwise in (lateral, up), the
+    // right one as the declared reflection of the left (z to -z, t to -t), so
+    // the outward normal is the tangent turned clockwise. A margin that runs
+    // the other way was not built by that reflection.
     let area: number = 0;
     plane.forEach((a: [number, number], i: number): void => {
       const b: [number, number] = plane[(i + 1) % n]!;
       area += a[0] * b[1] - b[0] * a[1];
     });
-    const turn: number = area > 0 ? 1 : -1;
+    if (!(area > 0))
+      throw new Error(
+        `Lid margin ${aperture.name} runs clockwise; build it as the reflection of the canonical side`,
+      );
+    const turn: number = 1;
 
     // Canthi: the lateral extremes; the medial one lies nearer the
     // body's midline (z = 0 in the registered frame).

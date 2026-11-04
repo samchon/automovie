@@ -1,7 +1,8 @@
-import assert from "node:assert/strict";
 import { frameTimes } from "@automovie/render";
-import { FilmPlan } from "../../../src/film/FilmPlan";
+import assert from "node:assert/strict";
+
 import { FilmExportPlan } from "../../../src/export/FilmExportPlan";
+import { FilmPlan } from "../../../src/film/FilmPlan";
 
 /**
  * Keep the exported schedule on the same complete programme as the Viewer.
@@ -23,7 +24,11 @@ export function test_film_export_plan(): void {
   }
   assert.equal(times.at(-1), 5399 / 30);
   for (const host of ["127.0.0.1", "localhost", "[::1]"]) {
-    const result: URL = new URL(FilmExportPlan.url(`http://${host}:5211/inspect-011.html?start=5&end=15&speed=.25&play=1&model=polygon`));
+    const result: URL = new URL(
+      FilmExportPlan.url(
+        `http://${host}:5211/inspect-011.html?start=5&end=15&speed=.25&play=1&model=polygon`,
+      ),
+    );
     assert.equal(result.pathname, "/inspect-011.html");
     assert.equal(result.searchParams.get("model"), "polygon");
     assert.equal(result.searchParams.get("start"), "0");
@@ -33,10 +38,26 @@ export function test_film_export_plan(): void {
     assert.equal(result.searchParams.get("h"), "720");
     assert.equal(result.searchParams.has("play"), false);
   }
-  const clock: { ready: boolean; durationSeconds: number; fps: number; frameCount: number } = { ready: true, durationSeconds: 180, fps: 30, frameCount: 5400 };
+  const clock: {
+    ready: boolean;
+    durationSeconds: number;
+    fps: number;
+    frameCount: number;
+  } = { ready: true, durationSeconds: 180, fps: 30, frameCount: 5400 };
   FilmExportPlan.assertClock(clock);
-  for (const wrong of [{ ...clock, ready: false }, { ...clock, durationSeconds: 15, frameCount: 450 }, { ...clock, frameCount: 5399 }, { ...clock, fps: 24 }, { ...clock, durationSeconds: Number.NaN }])
+  for (const wrong of [
+    { ...clock, ready: false },
+    { ...clock, durationSeconds: 15, frameCount: 450 },
+    { ...clock, frameCount: 5399 },
+    { ...clock, fps: 24 },
+    { ...clock, durationSeconds: Number.NaN },
+  ])
     assert.throws((): void => FilmExportPlan.assertClock(wrong));
-  for (const route of ["https://127.0.0.1:5211/", "http://example.com/", "file:///viewer.html", "invalid"])
+  for (const route of [
+    "https://127.0.0.1:5211/",
+    "http://example.com/",
+    "file:///viewer.html",
+    "invalid",
+  ])
     assert.throws((): string => FilmExportPlan.url(route));
 }

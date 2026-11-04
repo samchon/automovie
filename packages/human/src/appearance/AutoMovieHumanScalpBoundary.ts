@@ -1,148 +1,114 @@
 import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCubic";
-import { AutoMovieHumanHairline } from "../typings/AutoMovieHumanHairline";
+import type { AutoMovieHumanHairline } from "../typings/AutoMovieHumanHairline";
+import { AutoMovieHumanHairlineApex } from "./AutoMovieHumanHairlineApex";
+import { AutoMovieHumanHairlineClass } from "./AutoMovieHumanHairlineClass";
+import { AutoMovieHumanHairlineEarBehind } from "./AutoMovieHumanHairlineEarBehind";
+import { AutoMovieHumanHairlineEarTop } from "./AutoMovieHumanHairlineEarTop";
+import { AutoMovieHumanHairlineFrontalLine } from "./AutoMovieHumanHairlineFrontalLine";
+import { AutoMovieHumanHairlineNape } from "./AutoMovieHumanHairlineNape";
+import { AutoMovieHumanHairlineSideburn } from "./AutoMovieHumanHairlineSideburn";
+import { AutoMovieHumanHairlineTemporalPeak } from "./AutoMovieHumanHairlineTemporalPeak";
+import { AutoMovieHumanHairlineTrichion } from "./AutoMovieHumanHairlineTrichion";
 import type { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
+import type { AutoMovieHumanScalpLandmarks } from "./AutoMovieHumanScalpLandmarks";
 
 /**
  * Hair-bearing boundary of the scalp as a height above eye level for each
  * azimuth around the head chart (see `AutoMovieHumanHeadField`).
  *
  * A head-skin point at azimuth `alpha` bears hair when its height above the
- * eyes' centres exceeds {@link height}. Heights scale with the generated
- * head's measured eye-to-vertex and eye-to-menton heights
- * ({@link measure}), so the boundary follows the scalp the head
- * generator makes, whatever its size or vault.
- * The boundary is mirror-symmetric (it reads `|alpha|`), and runs from the
- * frontal hairline (trichion) over the temples, down the sideburns in front
- * of the ear, over the ear and down behind it to the nape.
- *
- * Knots are conventions placed from these proportions, not measurements of
- * one person: trichion about 70 mm above eye level for a 216 mm head
- * (glabella about 12 mm above the eyes plus a forehead height tr-g near
- * 58 mm, the 55 to 61 mm of the adult means in `docs/anatomy/hair.md`);
- * sideburns reaching eye level; the margin over the ear about 28 mm above
- * eye level, clear of the auricle; the nape margin about 70 mm below eye
- * level. The five frontal shapes follow the class definitions of
- * Zhang 2026 (after Suzan et al.) in `docs/anatomy/hair.md`: `round` a
- * smooth arc; `rectangular` a flat front with a sharp temporal corner;
- * `mShaped` raised over the temples; `bellShaped` with the midline about
- * 2 cm higher; `triangular` descending almost straight from the midline to
- * the temples. Interpolation is monotone piecewise cubic
+ * eyes' centres exceeds {@link height}. The boundary is assembled from its
+ * zones, each built on the canonical side (+Z, azimuths 0 to 180 degrees)
+ * from the head's landmarks (`AutoMovieHumanScalpLandmarks`): the frontal
+ * line from the trichion to its apex on the exocanthion's plane
+ * (`AutoMovieHumanHairlineTrichion`, `AutoMovieHumanHairlineFrontalLine`,
+ * `AutoMovieHumanHairlineApex`), the temple down to the sideburn
+ * (`AutoMovieHumanHairlineTemporalPeak`, `AutoMovieHumanHairlineSideburn`),
+ * the margin over and behind the ear (`AutoMovieHumanHairlineEarTop`,
+ * `AutoMovieHumanHairlineEarBehind`) and the nape
+ * (`AutoMovieHumanHairlineNape`).
+ * The declared reflection is `alpha -> -alpha` (`z -> -z`): the boundary
+ * reads `|alpha|`. Interpolation is monotone piecewise cubic
  * (`AutoMovieHumanMonotoneCubic`), so the boundary never overshoots between
- * knots, and level at both ends: the knots run from the front midline
- * (0 degrees) to the back midline (180 degrees) of a boundary mirrored
- * across both, where any other end slope would fold into a cusp, a notch
- * at the parting of the frontal hairline.
+ * knots, and level at both ends: the front midline (0 degrees) and the back
+ * midline (180 degrees) are mirror lines, where any other slope would fold
+ * into a cusp, a notch at the parting of the frontal hairline.
  */
 export namespace AutoMovieHumanScalpBoundary {
+  /** The assembled boundary of one head and hairline class. */
+  export interface IBoundary {
+    /** `[azimuth degrees, height above the eyes mm]`, 0 to 180, increasing. */
+    knots: Array<[number, number]>;
+  }
+
+  /**
+   * Assemble the boundary from its zones.
+   *
+   * @param hairline Frontal hairline class
+   * @param field Head chart
+   * @param landmarks The head's landmarks
+   * @returns The boundary
+   */
+  export function build(
+    hairline: AutoMovieHumanHairline,
+    field: AutoMovieHumanHeadField.IField,
+    landmarks: AutoMovieHumanScalpLandmarks.ILandmarks,
+  ): IBoundary {
+    // The class's shape and the trichion, which the frontal line and the apex
+    // are scaled by.
+    const shape: AutoMovieHumanHairlineClass.IShape =
+      AutoMovieHumanHairlineClass.shape(hairline);
+    const middle: number =
+      AutoMovieHumanHairlineTrichion.height(hairline, field, landmarks) -
+      landmarks.eyeLevel;
+    const scale: number = AutoMovieHumanHairlineApex.scale(
+      shape,
+      field,
+      landmarks,
+      middle,
+    );
+
+    // Zones in azimuth order, each from its own piece.
+    const front: Array<[number, number]> = [
+      ...AutoMovieHumanHairlineTrichion.knots(shape, middle),
+      ...AutoMovieHumanHairlineFrontalLine.knots(shape, middle, scale),
+      ...AutoMovieHumanHairlineApex.knots(shape, middle, scale),
+    ];
+    const peak: [number, number] = AutoMovieHumanHairlineTemporalPeak.knot(
+      front[front.length - 1]!,
+    );
+    const zones: Array<[number, number]> = [
+      ...front,
+      peak,
+      ...AutoMovieHumanHairlineSideburn.knots(peak[0]),
+      AutoMovieHumanHairlineEarTop.knot(landmarks),
+      AutoMovieHumanHairlineEarBehind.knot(landmarks),
+      ...AutoMovieHumanHairlineNape.knots(landmarks),
+    ];
+    // A zone placed past its neighbour's azimuth on an unusual head keeps
+    // the order by standing a degree after it.
+    const knots: Array<[number, number]> = [];
+    for (const [degrees, h] of zones) {
+      const last: number = knots.length
+        ? knots[knots.length - 1]![0]
+        : -Infinity;
+      if (degrees >= 180 && last >= 179) continue;
+      knots.push([Math.min(180, Math.max(degrees, last + 1)), h]);
+    }
+    return { knots };
+  }
+
   /**
    * Boundary height above eye level at one azimuth.
    *
-   * The knots are fractions of the head height for an adult whose eyes lie
-   * half the head height below the vertex. The boundary scales them by the
-   * measured scalp instead: above the eyes by twice the chart's
-   * eye-to-vertex height, below them by twice its eye-to-menton height, so
-   * a head whose cranium rises less or more above the eyes keeps its
-   * hairline at the same share of the forehead and vault rather than at a
-   * fixed distance that a lower vault puts at the vertex. The two scales
-   * meet where the boundary crosses eye level, so it stays continuous.
-   *
-   * @param hairline Frontal hairline class
+   * @param boundary The assembled boundary
    * @param alpha Azimuth from the front (+X) toward +Z, radians
-   * @param scalp Measured eye-to-vertex and eye-to-menton heights, millimetres
    * @returns Height in millimetres above the eyes' centres
    */
-  export function height(
-    hairline: AutoMovieHumanHairline,
-    alpha: number,
-    scalp: IScalp,
-  ): number {
+  export function height(boundary: IBoundary, alpha: number): number {
     // Fold the azimuth into [0, 180] degrees: the boundary is symmetric.
     let degrees: number = Math.abs((alpha * 180) / Math.PI) % 360;
     if (degrees > 180) degrees = 360 - degrees;
-    const knots: Array<[number, number]> = [...FRONT[hairline], ...COMMON];
-    const share: number = AutoMovieHumanMonotoneCubic.interpolate(
-      knots,
-      degrees,
-    );
-    return 2 * share * (share >= 0 ? scalp.above : scalp.below);
-  }
-
-  /**
-   * Measure the scalp heights of a head chart: the vertex from the chart's
-   * skin, the eyes from the eye frames and the menton as the vertex less
-   * the head height parameter.
-   *
-   * @param field Head chart
-   * @returns Eye-to-vertex and eye-to-menton heights
-   */
-  export function measure(field: AutoMovieHumanHeadField.IField): IScalp {
-    return {
-      above: field.top - field.eyeLevel,
-      below: field.eyeLevel - (field.top - field.height),
-    };
-  }
-
-  /** Measured heights of the scalp about the eyes. */
-  export interface IScalp {
-    /** Vertex above the eyes' centres, millimetres. */
-    above: number;
-
-    /** Eyes' centres above the menton, millimetres. */
-    below: number;
+    return AutoMovieHumanMonotoneCubic.interpolate(boundary.knots, degrees);
   }
 }
-
-/** Frontal knots `[degrees, fraction of head height]` per hairline class. */
-const FRONT: Record<AutoMovieHumanHairline, Array<[number, number]>> = {
-  [AutoMovieHumanHairline.Round]: [
-    [0, 0.33],
-    [30, 0.31],
-    [50, 0.26],
-  ],
-  [AutoMovieHumanHairline.Rectangular]: [
-    [0, 0.31],
-    [30, 0.31],
-    [44, 0.3],
-    [52, 0.24],
-  ],
-  [AutoMovieHumanHairline.MShaped]: [
-    [0, 0.33],
-    [22, 0.36],
-    [36, 0.41],
-    [50, 0.3],
-  ],
-  // Zhang's "about 2 cm higher" is a trichion-glabella distance, which
-  // anthropometry takes straight across a forehead that slopes back, so it
-  // rises much less than 2 cm; adding 2 cm vertically (0.42) put the
-  // trichion within 15 mm of the vertex, where the rendered head read as
-  // bald. The midline here is about 1.5 cm higher along the forehead than
-  // the round class (0.37 against 0.33 on an adult midline profile), a
-  // convention of this prototype within that reading. A bell is a dome,
-  // nearly level over the central forehead before it falls to the temples,
-  // not a peak at the midline.
-  [AutoMovieHumanHairline.BellShaped]: [
-    [0, 0.37],
-    [16, 0.365],
-    [32, 0.33],
-    [46, 0.28],
-    [56, 0.23],
-  ],
-  [AutoMovieHumanHairline.Triangular]: [
-    [0, 0.38],
-    [25, 0.32],
-    [50, 0.25],
-  ],
-};
-
-/** Temple, sideburn, ear and nape knots shared by every class. */
-const COMMON: Array<[number, number]> = [
-  [64, 0.16],
-  [76, 0.0],
-  [86, 0.0],
-  [94, 0.13],
-  [108, 0.12],
-  [122, -0.08],
-  [140, -0.26],
-  [160, -0.32],
-  [180, -0.33],
-];

@@ -28,42 +28,116 @@ export function test_human_foot_preparation(): void {
   const defects: string[] = [];
   for (const name of ["f1", "m1"]) {
     const person: HumanPeople.IPerson = HumanPeople.person(name);
-    const plain: Skeleton.PoseEvaluator = Skeleton.prepare(person.params, { calibration: person.body });
-    const exterior: Skeleton.PoseEvaluator = Skeleton.prepare(person.params, { calibration: person.body, footSurface: true });
-    const poses: IAutoMovieHumanPose[] = [{}, { legs: { left: { ankle: { dorsiflexion: 8 }, foot: { subtalarInversion: 3, midfootSupination: 8, hallux: { mtpFlexion: 10 } } }, right: { ankle: { dorsiflexion: -12 }, foot: { subtalarInversion: -3, midfootSupination: -5, second: { mtpFlexion: 12 } } } } }, { legs: { left: { ankle: { dorsiflexion: 100 }, foot: { subtalarInversion: 8 } }, right: { foot: { midfootSupination: 100 } } } }];
+    const plain: Skeleton.PoseEvaluator = Skeleton.prepare(person.params, {
+      calibration: person.body,
+    });
+    const exterior: Skeleton.PoseEvaluator = Skeleton.prepare(person.params, {
+      calibration: person.body,
+      footSurface: true,
+    });
+    const poses: IAutoMovieHumanPose[] = [
+      {},
+      {
+        legs: {
+          left: {
+            ankle: { dorsiflexion: 8 },
+            foot: {
+              subtalarInversion: 3,
+              midfootSupination: 8,
+              hallux: { mtpFlexion: 10 },
+            },
+          },
+          right: {
+            ankle: { dorsiflexion: -12 },
+            foot: {
+              subtalarInversion: -3,
+              midfootSupination: -5,
+              second: { mtpFlexion: 12 },
+            },
+          },
+        },
+      },
+      {
+        legs: {
+          left: {
+            ankle: { dorsiflexion: 100 },
+            foot: { subtalarInversion: 8 },
+          },
+          right: { foot: { midfootSupination: 100 } },
+        },
+      },
+    ];
     for (const pose of poses) {
       const before: Skeleton.IOutput = plain(pose);
       const after: Skeleton.IOutput = exterior(pose);
-      if (before.footSurface !== undefined || after.footSurface === undefined) defects.push(`${name}: explicit opt-in admission`);
+      if (before.footSurface !== undefined || after.footSurface === undefined)
+        defects.push(`${name}: explicit opt-in admission`);
       for (let index: number = 0; index < before.bones.length; index++) {
         const a: Skeleton.IBone = before.bones[index]!;
         const b: Skeleton.IBone = after.bones[index]!;
-        if (a.bone !== b.bone || a.parent !== b.parent || !nclose(a.radius, b.radius, 0)) defects.push(`${name}/${a.bone}: changed rest rig identity`);
+        if (
+          a.bone !== b.bone ||
+          a.parent !== b.parent ||
+          !nclose(a.radius, b.radius, 0)
+        )
+          defects.push(`${name}/${a.bone}: changed rest rig identity`);
         for (let axis: number = 0; axis < 3; axis++)
-          if (!nclose(a.position[axis]!, b.position[axis]!, 0) || a.tip !== null && (b.tip === null || !nclose(a.tip[axis]!, b.tip[axis]!, 0))) defects.push(`${name}/${a.bone}: changed rest geometry`);
+          if (
+            !nclose(a.position[axis]!, b.position[axis]!, 0) ||
+            (a.tip !== null &&
+              (b.tip === null || !nclose(a.tip[axis]!, b.tip[axis]!, 0)))
+          )
+            defects.push(`${name}/${a.bone}: changed rest geometry`);
       }
       for (let index: number = 0; index < before.posed.length; index++) {
         const a: Skeleton.IPlacement = before.posed[index]!;
         const b: Skeleton.IPlacement = after.posed[index]!;
         for (let axis: number = 0; axis < 3; axis++)
-          if (!nclose(a.position[axis]!, b.position[axis]!, 0)) defects.push(`${name}/${a.bone}: changed clinical placement`);
+          if (!nclose(a.position[axis]!, b.position[axis]!, 0))
+            defects.push(`${name}/${a.bone}: changed clinical placement`);
         for (let axis: number = 0; axis < 4; axis++)
-          if (!nclose(a.rotation[axis]!, b.rotation[axis]!, 0)) defects.push(`${name}/${a.bone}: changed clinical rotation`);
+          if (!nclose(a.rotation[axis]!, b.rotation[axis]!, 0))
+            defects.push(`${name}/${a.bone}: changed clinical rotation`);
       }
-      if (after.clamped.length !== before.clamped.length) defects.push(`${name}: changed clamp population`);
+      if (after.clamped.length !== before.clamped.length)
+        defects.push(`${name}: changed clamp population`);
       before.clamped.forEach((clamp: Skeleton.IClamp, index: number): void => {
         const actual: Skeleton.IClamp | undefined = after.clamped[index];
-        if (actual === undefined || actual.path !== clamp.path || !nclose(actual.requested, clamp.requested, 0) || !nclose(actual.applied, clamp.applied, 0)) defects.push(`${name}: changed clinical clamp`);
+        if (
+          actual === undefined ||
+          actual.path !== clamp.path ||
+          !nclose(actual.requested, clamp.requested, 0) ||
+          !nclose(actual.applied, clamp.applied, 0)
+        )
+          defects.push(`${name}: changed clinical clamp`);
       });
     }
     const first: Skeleton.IOutput = exterior({});
     const second: Skeleton.IOutput = exterior({});
     const source: Readonly<Foot.IOutput> = first.footSurface!;
-    if (source !== second.footSurface || !Object.isFrozen(source) || !Object.isFrozen(source.left.hindfoot.courses[0]!.points[0])) defects.push(`${name}: source exterior is not safely reusable`);
-    if (!throwsError((): void => { source.left.hindfoot.courses[0]!.points[0]![0] += 1; })) defects.push(`${name}: caller could mutate shared source data`);
+    if (
+      source !== second.footSurface ||
+      !Object.isFrozen(source) ||
+      !Object.isFrozen(source.left.hindfoot.courses[0]!.points[0])
+    )
+      defects.push(`${name}: source exterior is not safely reusable`);
+    if (
+      !throwsError((): void => {
+        source.left.hindfoot.courses[0]!.points[0]![0] += 1;
+      })
+    )
+      defects.push(`${name}: caller could mutate shared source data`);
     const original: number = second.posed[0]!.position[0];
     first.posed[0]!.position[0] = original + 1;
-    if (!nclose(exterior({}).posed[0]!.position[0], original, 0) || !nclose(second.posed[0]!.position[0], original, 0)) defects.push(`${name}: aliased FK snapshot`);
+    if (
+      !nclose(exterior({}).posed[0]!.position[0], original, 0) ||
+      !nclose(second.posed[0]!.position[0], original, 0)
+    )
+      defects.push(`${name}: aliased FK snapshot`);
   }
-  TestValidator.equals("foot exterior preserves clinical rig and bounded ownership", defects, []);
+  TestValidator.equals(
+    "foot exterior preserves clinical rig and bounded ownership",
+    defects,
+    [],
+  );
 }

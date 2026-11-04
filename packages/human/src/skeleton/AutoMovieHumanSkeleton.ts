@@ -1,8 +1,10 @@
+import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanFootSurface } from "../generation/AutoMovieHumanFootSurface";
 import { AutoMovieHumanNeckSurface } from "../generation/AutoMovieHumanNeckSurface";
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import { AutoMovieHumanBindingInputs } from "./AutoMovieHumanBindingInputs";
 import { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
 import { AutoMovieHumanNeutral } from "./AutoMovieHumanNeutral";
 import { AutoMovieHumanPreparedKinematics as Kinematics } from "./AutoMovieHumanPreparedKinematics";
@@ -13,7 +15,7 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  * its forward kinematics under `params.pose`.
  *
  * Joint centres come from {@link AutoMovieHumanJointCentres}, scaled with the
- * body exactly as `AutoMovieHuman.generate` scales the skin (stature control
+ * body exactly as `AutoMovieHuman.generate` scales the skin (resolved stature
  * over calibration stature, millimetres to metres), so the rest skeleton
  * overlays the neutral skin. Bones use the engine's humanoid names where the
  * vocabulary has one; the scapula, atlas, subtalar, midfoot and per-toe bones
@@ -101,7 +103,7 @@ export namespace AutoMovieHumanSkeleton {
   /**
    * Derive the skeleton and pose it by `params.pose`.
    *
-   * @param params Public input; the stature control and `pose` are read.
+   * @param params Public input; resolved anatomy and `pose` are read.
    * @param clamp Clamp each field into its range of motion; false applies requests as given, for comparison.
    * @returns Rest bones, posed placements and the clamped fields.
    */
@@ -130,7 +132,10 @@ export namespace AutoMovieHumanSkeleton {
   /** One body's clinical evaluator; public full results always own fresh mutable snapshots. */
   export interface PoseEvaluator {
     /** Evaluate all bones, bind data, clamps and requested exterior snapshots. */
-    (pose?: NonNullable<IAutoMovieHumanParameters["pose"]>, clamp?: boolean): IOutput;
+    (
+      pose?: NonNullable<IAutoMovieHumanParameters["pose"]>,
+      clamp?: boolean,
+    ): IOutput;
 
     /** Compile exact existing output bones and their dependencies once; custom evaluators may omit this capability. */
     project?: (bones: readonly string[]) => ProjectionEvaluator;
@@ -160,9 +165,9 @@ export namespace AutoMovieHumanSkeleton {
       /** The body already calibrated from these same `params`, spared generating it again. */ calibration?: IAutoMovieHumanBodyCalibration;
     } = {},
   ): PoseEvaluator {
-    const height: number | null = params.body.controls.height.value;
-    if (height === null || !(height > 0))
-      throw new Error("Human stickman requires a positive height control");
+    const height: number = AutoMovieHumanBodyAnatomy.resolve(params).stature;
+    if (!(height > 0))
+      throw new Error("Human stickman requires a positive stature");
 
     // The skeleton is derived from the same calibration the skin is lofted
     // from, the shape law's output for these parameters.
@@ -170,34 +175,48 @@ export namespace AutoMovieHumanSkeleton {
       options.calibration ?? AutoMovieHumanBodyLaw.calibrate(params).body;
     const mmScale: number = height / calibration.stature;
     const scale: number = mmScale / 1000;
-    const footSurface: AutoMovieHumanFootSurface.IOutput | undefined = options.footSurface
-      ? AutoMovieHumanFootSurface.derive(calibration, scale)
-      : undefined;
+    const footSurface: AutoMovieHumanFootSurface.IOutput | undefined =
+      options.footSurface
+        ? AutoMovieHumanFootSurface.derive(calibration, scale)
+        : undefined;
     const neckSurface: AutoMovieHumanNeckSurface.IOutput | undefined =
       options.neckSurface
         ? AutoMovieHumanNeckSurface.derive(
             calibration,
             scale,
-            params.body.controls.neck.value,
-            params.body.controls.neckLength.value,
+            AutoMovieHumanBodyAnatomy.resolve(params).neckCircumference,
+            AutoMovieHumanBodyLaw.headInputs(params).neckLength,
           )
         : undefined;
 
     const bind: AutoMovieHumanJointCentres.IJoint[] =
       AutoMovieHumanJointCentres.derive(calibration);
-    const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.derive(
+    const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.of(
       calibration,
-      bind,
+      (): AutoMovieHumanNeutral.ISource => ({
+        rings: AutoMovieHumanBindingInputs.rings(
+          calibration,
+          AutoMovieHumanNeutral.READS,
+        ),
+        joints: bind,
+      }),
     );
     const joints: AutoMovieHumanJointCentres.IJoint[] = neutral.joints;
-    const kinematics: Kinematics.IPrepared = Kinematics.prepare(joints, neutral, scale, mmScale);
-    const rest: IBone[] = bind.map((joint: AutoMovieHumanJointCentres.IJoint): IBone => ({
-      bone: joint.bone,
-      parent: joint.parent,
-      position: Math3D.times(joint.position, scale),
-      tip: joint.tip === null ? null : Math3D.times(joint.tip, scale),
-      radius: joint.radius * scale,
-    }));
+    const kinematics: Kinematics.IPrepared = Kinematics.prepare(
+      joints,
+      neutral,
+      scale,
+      mmScale,
+    );
+    const rest: IBone[] = bind.map(
+      (joint: AutoMovieHumanJointCentres.IJoint): IBone => ({
+        bone: joint.bone,
+        parent: joint.parent,
+        position: Math3D.times(joint.position, scale),
+        tip: joint.tip === null ? null : Math3D.times(joint.tip, scale),
+        radius: joint.radius * scale,
+      }),
+    );
 
     const evaluate: PoseEvaluator = (
       input: NonNullable<IAutoMovieHumanParameters["pose"]> = {},
@@ -205,15 +224,19 @@ export namespace AutoMovieHumanSkeleton {
     ): IOutput => {
       const output: IProjection = kinematics.evaluate(input, clamp);
       return {
-        bones: rest.map((bone: IBone): IBone => ({
-          ...bone,
-          position: [...bone.position],
-          tip: bone.tip === null ? null : [...bone.tip],
-        })),
+        bones: rest.map(
+          (bone: IBone): IBone => ({
+            ...bone,
+            position: [...bone.position],
+            tip: bone.tip === null ? null : [...bone.tip],
+          }),
+        ),
         posed: output.posed,
         clamped: output.clamped,
-        ...(neckSurface === undefined ? {} : {neckSurface: structuredClone(neckSurface)}),
-        ...(footSurface === undefined ? {} : {footSurface}),
+        ...(neckSurface === undefined
+          ? {}
+          : { neckSurface: structuredClone(neckSurface) }),
+        ...(footSurface === undefined ? {} : { footSurface }),
       };
     };
     evaluate.project = (names: readonly string[]): ProjectionEvaluator => {

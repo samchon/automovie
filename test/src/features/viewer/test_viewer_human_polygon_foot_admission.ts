@@ -1,5 +1,8 @@
 import { AutoMovieHumanSkeleton as Skeleton } from "@automovie/human";
-import { type AutoMovieHumanPolygon as Polygon, buildHumanPolygon } from "@automovie/viewer/human-polygon";
+import {
+  type AutoMovieHumanPolygon as Polygon,
+  buildHumanPolygon,
+} from "@automovie/viewer/human-polygon";
 import { TestValidator } from "@nestia/e2e";
 
 import { HumanPeople } from "../internal/HumanPeople";
@@ -20,24 +23,87 @@ import { throwsError } from "../internal/predicates";
  */
 export function test_viewer_human_polygon_foot_admission(): void {
   const person: HumanPeople.IPerson = HumanPeople.person("m1");
-  const input: Polygon.IInput = Skeleton.prepare(person.params, { calibration: person.body, neckSurface: true, footSurface: true })({});
-  const changes: [string, (value: NonNullable<Polygon.IInput["footSurface"]>) => void][] = [
-    ["wrong source unit", (value: NonNullable<Polygon.IInput["footSurface"]>): void => { Reflect.set(value, "units", "millimetres"); }],
-    ["wrong side bone", (value: NonNullable<Polygon.IInput["footSurface"]>): void => { value.left.hindfoot.bone = "rightSubtalar"; }],
-    ["zero winding axis", (value: NonNullable<Polygon.IInput["footSurface"]>): void => { value.left.hindfoot.axis = [0, 0, 0]; }],
-    ["nonfinite source point", (value: NonNullable<Polygon.IInput["footSurface"]>): void => { value.left.hindfoot.courses[0]!.points[0]![0] = NaN; }],
-    ["missing course population", (value: NonNullable<Polygon.IInput["footSurface"]>): void => { value.left.hindfoot.courses.length = 1; }],
-    ["inconsistent ring", (value: NonNullable<Polygon.IInput["footSurface"]>): void => { value.left.hindfoot.courses[1]!.points.pop(); }],
-    ["changed shared seam", (value: NonNullable<Polygon.IInput["footSurface"]>): void => { value.left.forefoot.courses[0]!.points[0]![0] += 0.001; }],
-    ["out of range landmark", (value: NonNullable<Polygon.IInput["footSurface"]>): void => { value.left.landmarks.plantarHeel.point = 100000; }],
-    ["false source height", (value: NonNullable<Polygon.IInput["footSurface"]>): void => { value.left.support.landmarkHeights.medialBall += 0.001; }],
-    ["false source minimum", (value: NonNullable<Polygon.IInput["footSurface"]>): void => { value.right.support.minimumHeight -= 0.001; }],
+  const input: Polygon.IInput = Skeleton.prepare(person.params, {
+    calibration: person.body,
+    neckSurface: true,
+    footSurface: true,
+  })({});
+  const changes: [
+    string,
+    (value: NonNullable<Polygon.IInput["footSurface"]>) => void,
+  ][] = [
+    [
+      "wrong source unit",
+      (value: NonNullable<Polygon.IInput["footSurface"]>): void => {
+        Reflect.set(value, "units", "millimetres");
+      },
+    ],
+    [
+      "wrong side bone",
+      (value: NonNullable<Polygon.IInput["footSurface"]>): void => {
+        value.left.hindfoot.bone = "rightSubtalar";
+      },
+    ],
+    [
+      "zero winding axis",
+      (value: NonNullable<Polygon.IInput["footSurface"]>): void => {
+        value.left.hindfoot.axis = [0, 0, 0];
+      },
+    ],
+    [
+      "nonfinite source point",
+      (value: NonNullable<Polygon.IInput["footSurface"]>): void => {
+        value.left.hindfoot.courses[0]!.points[0]![0] = NaN;
+      },
+    ],
+    [
+      "missing course population",
+      (value: NonNullable<Polygon.IInput["footSurface"]>): void => {
+        value.left.hindfoot.courses.length = 1;
+      },
+    ],
+    [
+      "inconsistent ring",
+      (value: NonNullable<Polygon.IInput["footSurface"]>): void => {
+        value.left.hindfoot.courses[1]!.points.pop();
+      },
+    ],
+    [
+      "changed shared seam",
+      (value: NonNullable<Polygon.IInput["footSurface"]>): void => {
+        value.left.forefoot.courses[0]!.points[0]![0] += 0.001;
+      },
+    ],
+    [
+      "out of range landmark",
+      (value: NonNullable<Polygon.IInput["footSurface"]>): void => {
+        value.left.landmarks.plantarHeel.point = 100000;
+      },
+    ],
+    [
+      "false source height",
+      (value: NonNullable<Polygon.IInput["footSurface"]>): void => {
+        value.left.support.landmarkHeights.medialBall += 0.001;
+      },
+    ],
+    [
+      "false source minimum",
+      (value: NonNullable<Polygon.IInput["footSurface"]>): void => {
+        value.right.support.minimumHeight -= 0.001;
+      },
+    ],
   ];
   const admitted: string[] = [];
   for (const [name, change] of changes) {
-    const footSurface: NonNullable<Polygon.IInput["footSurface"]> = structuredClone(input.footSurface!);
+    const footSurface: NonNullable<Polygon.IInput["footSurface"]> =
+      structuredClone(input.footSurface!);
     change(footSurface);
-    if (!throwsError((): void => { buildHumanPolygon({ ...input, footSurface }).dispose(); })) admitted.push(name);
+    if (
+      !throwsError((): void => {
+        buildHumanPolygon({ ...input, footSurface }).dispose();
+      })
+    )
+      admitted.push(name);
   }
   TestValidator.equals("malformed original foot sources refuse", admitted, []);
 }

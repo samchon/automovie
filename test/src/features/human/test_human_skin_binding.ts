@@ -5,7 +5,7 @@ import { AutoMovieHumanLoftMesh } from "../../../../packages/human/src/lofting/A
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
 import type { AutoMovieHumanSkeleton } from "../../../../packages/human/src/skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
-import { HUMAN_STICKMAN_POSES } from "../../../../packages/human/dev/src/human-stickman/HUMAN_STICKMAN_POSES";
+import { HUMAN_DEBUG_POSES as HUMAN_STICKMAN_POSES } from "../../../../packages/human/debug/poses/HUMAN_DEBUG_POSES";
 import { HumanPeople } from "../internal/HumanPeople";
 
 type V3 = [number, number, number];
@@ -448,12 +448,34 @@ function blendedTurn(
  * Every skin vertex binds to the rig, and a pose moves the prepared skin.
  *
  * @evidence contracts/testing.md#behavioral-verification Binds the generated skin of two people, evaluates a bent elbow and knee through the public skeleton, and moves each vertex by the mesh's own weights. It catches a weight that does not sum to one, a seam whose copies disagree, a rest pose that moves anything, a limb that fails to follow its bone, and a side that pulls the other.
- * @evidence contracts/testing.md#independent-expectations The binding's contract and rigid-body kinematics supply every expectation: weights sum to one, equal places move equally, identity pose moves nothing, and a bent arm leaves the other leg still. The stretch bound is a coarse limit, so it catches a torn skin and says nothing of a joint's form.
+ * @evidence contracts/testing.md#independent-expectations The binding's contract and rigid-body kinematics supply every expectation: weights sum to one, equal places move equally, identity pose moves nothing, and a bent arm leaves the other leg still. The stretch bound is a coarse limit, so it catches a torn skin and says nothing of a joint's form. Proven red by f1's rig with every weight given whole to the heaviest bone, a hard cut at every hinge, which the hinge audit must fail.
  * @evidence contracts/testing.md#distinguishing-cases Contrasts rest against a bent left elbow and right knee, on a slender and a broad person, and reads every limb ring's girth and every region's turned-over triangles, digits included, at neutral, under the step-and-reach pose and under the range-limit pose, by the blend the model draws. The bind moves nothing; from neutral, skin on the bent limbs must move, skin on the far limbs must not, a limb must not thin, and the midline must keep nothing on a side's bones. Across every person it reads where each elbow and knee turns and over what length, and which bone holds the face, neck and heel. Skin-to-skin contact and penetration are not read here.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_skin_binding`, reading the people `HumanPeople` generates once per run and lofting their skin in process, with no renderer, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_skin_binding`, reading the people `HumanPeople` generates and lofting their skin in process, with no renderer, browser or GPU.
  */
 export const test_human_skin_binding = (): void => {
   const problems: string[] = [];
+
+  // Red proof: f1's rig with every vertex's weight given whole to its heaviest
+  // bone, a hard cut at every hinge, must fail the hinge audit.
+  {
+    const { body, scale, rig, evaluate } = HumanPeople.rigged("f1");
+    const at = new Map<string, V3>(evaluate({}).bones.map((b): [string, V3] => [b.bone, b.position]));
+    const cut: AutoMovieHumanRig.IRig = {
+      ...rig,
+      bind: (metres: readonly number[]): ReturnType<AutoMovieHumanRig.IRig["bind"]> => {
+        const skin: ReturnType<AutoMovieHumanRig.IRig["bind"]> = rig.bind(metres);
+        const weights: number[] = skin.weights.map((): number => 0);
+        for (let v: number = 0; v < weights.length / 4; v++) {
+          let k: number = 0;
+          for (let i: number = 1; i < 4; i++) if (skin.weights[4 * v + i]! > skin.weights[4 * v + k]!) k = i;
+          weights[4 * v + k] = 1;
+        }
+        return { ...skin, weights };
+      },
+    };
+    if (auditHinges("f1 made hard cut", body, scale, cut, at).length === 0) problems.push("proof: a rig with a hard cut at every hinge passes the hinge audit");
+  }
+
   for (const name of HumanPeople.names()) {
     const { body, scale, rig, evaluate } = HumanPeople.rigged(name);
     const at = new Map<string, V3>(
@@ -467,7 +489,7 @@ export const test_human_skin_binding = (): void => {
   for (const name of ["f1", "m2"]) {
     const { body, scale, rig, evaluate } = HumanPeople.rigged(name);
     const surface = AutoMovieHumanBodySurface.generate(body, []);
-    const pieces = AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals);
+    const pieces = AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals, surface.coordinates);
     const rings: ILimbRing[] = limbRings(body, scale, rig);
     const bind = worlds(rig);
     const neutral = worlds(rig, evaluate({}));

@@ -48,7 +48,6 @@ import { prepareHumanPolygonFootSurface } from "./prepareHumanPolygonFootSurface
 export function buildHumanPolygon(
   output: AutoMovieHumanPolygon.IInput,
   options: {
-
     /** RGB hex overrides for matching emitted parts; omitted parts retain clay. */
     partColors?: Readonly<Record<string, number>>;
   } = {},
@@ -130,7 +129,8 @@ export function buildHumanPolygon(
   };
   const neckRings: buildHumanPolygonModule.ISection[] =
     neckSurface.sections.map(exterior);
-  const footModules: ReturnType<typeof prepareHumanPolygonFootSurface> = prepareHumanPolygonFootSurface(output);
+  const footModules: ReturnType<typeof prepareHumanPolygonFootSurface> =
+    prepareHumanPolygonFootSurface(output);
 
   /**
    * Resolve an original construction joint or refuse its missing identity.
@@ -230,7 +230,11 @@ export function buildHumanPolygon(
       placements.get(bone.bone);
     if (placement === undefined)
       throw new Error(`Missing polygon placement: ${bone.bone}`);
-    const { group, diagnostic, part }: ReturnType<typeof buildHumanPolygonModule> = buildHumanPolygonModule(
+    const {
+      group,
+      diagnostic,
+      part,
+    }: ReturnType<typeof buildHumanPolygonModule> = buildHumanPolygonModule(
       bone,
       rings,
       placement,
@@ -306,7 +310,10 @@ export function buildHumanPolygon(
       children,
       neckSurface,
       neckRings,
-      [neckRings[neckRings.length - 1]!, ...neckSurface.headSections.map(exterior)],
+      [
+        neckRings[neckRings.length - 1]!,
+        ...neckSurface.headSections.map(exterior),
+      ],
       boneAt,
       add,
       groups,

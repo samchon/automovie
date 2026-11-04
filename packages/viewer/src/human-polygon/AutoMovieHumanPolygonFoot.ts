@@ -23,7 +23,11 @@ export namespace AutoMovieHumanPolygonFoot {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This union owns no reuse.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This union owns no resource.
    */
-  export type Bone = "leftSubtalar" | "rightSubtalar" | "leftMidfoot" | "rightMidfoot";
+  export type Bone =
+    | "leftSubtalar"
+    | "rightSubtalar"
+    | "leftMidfoot"
+    | "rightMidfoot";
 
   /**
    * Anatomical landmark identities supplied by the source construction.
@@ -69,8 +73,14 @@ export namespace AutoMovieHumanPolygonFoot {
   export interface ISide {
     /** Source ankle/heel-to-Midfoot courses, bound to Subtalar. */ hindfoot: IModule;
     /** Source Midfoot-to-metatarsal courses, bound to Midfoot. */ forefoot: IModule;
-    /** References to retained source course vertices. */ landmarks: Record<Landmark, ISourceLandmark>;
-    /** Registered rest source-course heights; excludes separately emitted toes. */ support: { minimumHeight: number; landmarkHeights: Record<Landmark, number> };
+    /** References to retained source course vertices. */ landmarks: Record<
+      Landmark,
+      ISourceLandmark
+    >;
+    /** Registered rest source-course heights; excludes separately emitted toes. */ support: {
+      minimumHeight: number;
+      landmarkHeights: Record<Landmark, number>;
+    };
   }
 
   /**
@@ -86,7 +96,11 @@ export namespace AutoMovieHumanPolygonFoot {
    */
   export interface IModule {
     /** Existing bone receiving this rigid module. */ bone: Bone;
-    /** Nonzero longitudinal source axis in registered body coordinates. */ axis: [number, number, number];
+    /** Nonzero longitudinal source axis in registered body coordinates. */ axis: [
+      number,
+      number,
+      number,
+    ];
     /** Original source sequence; each module retains a consistent point count. */ courses: ICourse[];
   }
 
@@ -104,7 +118,13 @@ export namespace AutoMovieHumanPolygonFoot {
   export interface ICourse extends AutoMovieHumanPolygon.IExteriorSection {
     /** Full extent along the canonical source section's first axis, metres. */ depth: number;
     /** Full extent along the canonical source section's second axis, metres. */ breadth: number;
-    /** Canonical calibrated source chain. */ chain: "foot.left" | "foot.right" | "forefoot.left.1" | "forefoot.right.1" | "forefoot.left.2" | "forefoot.right.2";
+    /** Canonical calibrated source chain. */ chain:
+      | "foot.left"
+      | "foot.right"
+      | "forefoot.left.1"
+      | "forefoot.right.1"
+      | "forefoot.left.2"
+      | "forefoot.right.2";
     /** Original source longitudinal station, millimetres. */ stationMm: number;
   }
 
@@ -139,7 +159,11 @@ export namespace AutoMovieHumanPolygonFoot {
   export interface IEmittedLandmark {
     /** Actual emitted mesh key in drawing.parts. */ readonly bone: Bone;
     /** Zero-based position-attribute vertex. */ readonly vertexIndex: number;
-    /** Actual Float32 position, before posed bone placement. */ readonly localPoint: readonly [number, number, number];
+    /** Actual Float32 position, before posed bone placement. */ readonly localPoint: readonly [
+      number,
+      number,
+      number,
+    ];
   }
 
   /**
@@ -155,7 +179,9 @@ export namespace AutoMovieHumanPolygonFoot {
    */
   export interface IPlantarSupport {
     /** Minimum initial body-frame Y over all emitted foot-descendant vertices, metres. */ readonly minimumHeight: number;
-    /** Initial body-frame Y of each actual named vertex, metres. */ readonly landmarkHeights: Readonly<Record<Landmark, number>>;
+    /** Initial body-frame Y of each actual named vertex, metres. */ readonly landmarkHeights: Readonly<
+      Record<Landmark, number>
+    >;
     /** Named vertices numerically coincident with the actual full-foot minimum. */ readonly contactLandmarks: readonly Landmark[];
     /** Float32 affine-evaluation uncertainty bound, metres; no physical clearance waiver. */ readonly measurementTolerance: number;
   }

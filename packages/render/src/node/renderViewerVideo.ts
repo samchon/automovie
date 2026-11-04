@@ -1,16 +1,28 @@
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, mkdtemp, rename, rm, unlink, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  rename,
+  rm,
+  unlink,
+  writeFile,
+} from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Browser, type Page, type ConsoleMessage } from "playwright-core";
+import {
+  type Browser,
+  type ConsoleMessage,
+  type Page,
+  chromium,
+} from "playwright-core";
 
-import { createHeadlessCaptureAdapter } from "../headlessCapture/createHeadlessCaptureAdapter";
-import type { IAutoMovieHeadlessCaptureSession } from "../headlessCapture/IAutoMovieHeadlessCaptureSession";
 import type { IAutoMovieRenderResult } from "../IAutoMovieRenderResult";
+import type { IAutoMovieHeadlessCaptureSession } from "../headlessCapture/IAutoMovieHeadlessCaptureSession";
+import { createHeadlessCaptureAdapter } from "../headlessCapture/createHeadlessCaptureAdapter";
 import type { IAutoMovieViewerVideoOptions } from "./IAutoMovieViewerVideoOptions";
 import type { IAutoMovieViewerVideoResult } from "./IAutoMovieViewerVideoResult";
 import { planViewerVideo } from "./planViewerVideo";
-import { runViewerVideoEncoder } from "./runViewerVideoEncoder";
 import { renderViewerVideoSession } from "./renderViewerVideoSession";
+import { runViewerVideoEncoder } from "./runViewerVideoEncoder";
 
 /**
  * Export actual completed Viewer pixels at i/fps, then encode them once with optional sound.
@@ -24,7 +36,9 @@ import { renderViewerVideoSession } from "./renderViewerVideoSession";
  * @evidence contracts/performance.md#reuse-equivalent-work One browser/page/session serves all frames; each distinct screenshot is captured once and the existing render schedule is shared with encoding metadata.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A unique child scratch directory and partial MP4 are owned exclusively; PNG scratch is removed on all outcomes and the MP4 replaces its destination only after successful encoding. Session/page/browser release is attempted after success, failure and abort; cleanup errors retain prior causes. Abort closes the browser and Node terminates an active encoder. Metadata is bounded by maxFrames, browser diagnostics by 16 entries and encoder stderr by 64 KiB.
  */
-export async function renderViewerVideo(options: IAutoMovieViewerVideoOptions): Promise<IAutoMovieViewerVideoResult> {
+export async function renderViewerVideo(
+  options: IAutoMovieViewerVideoOptions,
+): Promise<IAutoMovieViewerVideoResult> {
   planViewerVideo(options);
   options.signal?.throwIfAborted();
   const begun: number = performance.now();
@@ -44,34 +58,85 @@ export async function renderViewerVideo(options: IAutoMovieViewerVideoOptions): 
     closing ??= browser?.close() ?? Promise.resolve();
     return closing;
   };
-  const abort: () => void = (): void => { void closeBrowser().catch((error: unknown): void => { abortFailure = error; }); };
+  const abort: () => void = (): void => {
+    void closeBrowser().catch((error: unknown): void => {
+      abortFailure = error;
+    });
+  };
   try {
     await mkdir(options.frameDir, { recursive: true });
     scratch = await mkdtemp(path.join(options.frameDir, "viewer-video-"));
     await mkdir(path.dirname(options.outputPath), { recursive: true });
-    partial = path.join(path.dirname(options.outputPath), `.viewer-video-${randomUUID()}.mp4`);
-    let admitted: { frameCount: number; args: string[] } = planViewerVideo({ ...options, frameDir: scratch, outputPath: partial });
-    browser = await chromium.launch({ executablePath: options.chromeExecutable, headless: true, args: ["--autoplay-policy=no-user-gesture-required", "--disable-background-timer-throttling"] });
+    partial = path.join(
+      path.dirname(options.outputPath),
+      `.viewer-video-${randomUUID()}.mp4`,
+    );
+    let admitted: { frameCount: number; args: string[] } = planViewerVideo({
+      ...options,
+      frameDir: scratch,
+      outputPath: partial,
+    });
+    browser = await chromium.launch({
+      executablePath: options.chromeExecutable,
+      headless: true,
+      args: [
+        "--autoplay-policy=no-user-gesture-required",
+        "--disable-background-timer-throttling",
+      ],
+    });
     options.signal?.addEventListener("abort", abort, { once: true });
     options.signal?.throwIfAborted();
-    page = await browser.newPage({ viewport: { width: options.spec.frameFormat.width, height: options.spec.frameFormat.height }, deviceScaleFactor: 1 });
+    page = await browser.newPage({
+      viewport: {
+        width: options.spec.frameFormat.width,
+        height: options.spec.frameFormat.height,
+      },
+      deviceScaleFactor: 1,
+    });
     page.setDefaultTimeout(options.timeoutMs ?? 240000);
     page.setDefaultNavigationTimeout(options.timeoutMs ?? 240000);
-    const recordError: (message: string) => void = (message: string): void => { if (errors.length < 16) errors.push(message.slice(0, 4096)); };
+    const recordError: (message: string) => void = (message: string): void => {
+      if (errors.length < 16) errors.push(message.slice(0, 4096));
+    };
     page.on("pageerror", (error: Error): void => recordError(error.message));
-    page.on("console", (message: ConsoleMessage): void => { if (message.type() === "error") recordError(message.text()); });
+    page.on("console", (message: ConsoleMessage): void => {
+      if (message.type() === "error") recordError(message.text());
+    });
     let capturedBytes: number = 0;
     session = await createHeadlessCaptureAdapter({
-      page, url: options.url, viewSelector: options.viewSelector, hideSelector: options.hideSelector, seekFunction: options.seekFunction,
+      page,
+      url: options.url,
+      viewSelector: options.viewSelector,
+      hideSelector: options.hideSelector,
+      seekFunction: options.seekFunction,
       writeFrame: async (file: string, bytes: Uint8Array): Promise<void> => {
         options.signal?.throwIfAborted();
-        const png: Buffer = Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-        if (png.length < 24 || png.readUInt32BE(0) !== 0x89504e47 || png.readUInt32BE(12) !== 0x49484452 || png.readUInt32BE(16) !== options.spec.frameFormat.width || png.readUInt32BE(20) !== options.spec.frameFormat.height)
-          throw new Error("Captured PNG raster differs from the requested render spec");
+        const png: Buffer = Buffer.from(
+          bytes.buffer,
+          bytes.byteOffset,
+          bytes.byteLength,
+        );
+        if (
+          png.length < 24 ||
+          png.readUInt32BE(0) !== 0x89504e47 ||
+          png.readUInt32BE(12) !== 0x49484452 ||
+          png.readUInt32BE(16) !== options.spec.frameFormat.width ||
+          png.readUInt32BE(20) !== options.spec.frameFormat.height
+        )
+          throw new Error(
+            "Captured PNG raster differs from the requested render spec",
+          );
         capturedBytes += png.length;
-        if (capturedBytes > (options.maxFrameBytes ?? 8 * 1024 ** 3)) throw new Error("Viewer video exceeded maxFrameBytes");
+        if (capturedBytes > (options.maxFrameBytes ?? 8 * 1024 ** 3))
+          throw new Error("Viewer video exceeded maxFrameBytes");
         await writeFile(file, bytes);
-        captures.push({ index: captures.length, timeSeconds: captures.length / options.spec.frameFormat.fps, sha256: createHash("sha256").update(bytes).digest("hex"), bytes: bytes.length, captureMs: 0 });
+        captures.push({
+          index: captures.length,
+          timeSeconds: captures.length / options.spec.frameFormat.fps,
+          sha256: createHash("sha256").update(bytes).digest("hex"),
+          bytes: bytes.length,
+          captureMs: 0,
+        });
       },
     });
     let encodeMs: number = 0;
@@ -82,24 +147,45 @@ export async function renderViewerVideo(options: IAutoMovieViewerVideoOptions): 
     session = undefined;
     page = undefined;
     const result: IAutoMovieRenderResult = await renderViewerVideoSession({
-      session: owned, spec: options.spec, durationSeconds: options.durationSeconds, frameDir: scratch, outputPath: options.outputPath, signal: options.signal,
+      session: owned,
+      spec: options.spec,
+      durationSeconds: options.durationSeconds,
+      frameDir: scratch,
+      outputPath: options.outputPath,
+      signal: options.signal,
       prepare: async (): Promise<void> => {
         if (options.prepare === undefined) return;
         const started: number = performance.now();
-        const prepared: { audioMix?: string } = await options.prepare(preparedPage);
+        const prepared: { audioMix?: string } =
+          await options.prepare(preparedPage);
         prepareMs = performance.now() - started;
         options.signal?.throwIfAborted();
-        admitted = planViewerVideo({ ...options, audioMix: prepared.audioMix ?? options.audioMix, frameDir: scratch!, outputPath: partial! });
+        admitted = planViewerVideo({
+          ...options,
+          audioMix: prepared.audioMix ?? options.audioMix,
+          frameDir: scratch!,
+          outputPath: partial!,
+        });
       },
       onFrame: (index: number, seconds: number, captureMs: number): void => {
         captures[index]!.captureMs = captureMs;
-        if (errors.length > 0) throw new Error(`Viewer errors: ${errors.join("; ")}`);
-        options.onProgress?.({ index, timeSeconds: seconds, bytes: capturedBytes });
+        if (errors.length > 0)
+          throw new Error(`Viewer errors: ${errors.join("; ")}`);
+        options.onProgress?.({
+          index,
+          timeSeconds: seconds,
+          bytes: capturedBytes,
+        });
       },
       encode: async (): Promise<string> => {
         options.signal?.throwIfAborted();
         const started: number = performance.now();
-        encoderLog = await runViewerVideoEncoder(options.ffmpegExecutable, admitted.args, options.signal, options.encoderTimeoutMs);
+        encoderLog = await runViewerVideoEncoder(
+          options.ffmpegExecutable,
+          admitted.args,
+          options.signal,
+          options.encoderTimeoutMs,
+        );
         encodeMs = performance.now() - started;
         return options.outputPath;
       },
@@ -107,19 +193,51 @@ export async function renderViewerVideo(options: IAutoMovieViewerVideoOptions): 
     options.signal?.throwIfAborted();
     await rename(partial, options.outputPath);
     partial = undefined;
-    completed = { ...result, encodeArgs: admitted.args, captures, capturedBytes, encodeMs, prepareMs, encoderLog, totalMs: performance.now() - begun };
+    completed = {
+      ...result,
+      encodeArgs: admitted.args,
+      captures,
+      capturedBytes,
+      encodeMs,
+      prepareMs,
+      encoderLog,
+      totalMs: performance.now() - begun,
+    };
   } catch (error) {
     failure = { error };
   } finally {
     options.signal?.removeEventListener("abort", abort);
-    try { if (session !== undefined) await session.close(); else await page?.close(); } catch (error) { cleanupErrors.push(error); }
-    try { await closeBrowser(); } catch (error) { cleanupErrors.push(error); }
+    try {
+      if (session !== undefined) await session.close();
+      else await page?.close();
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
+    try {
+      await closeBrowser();
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
     if (abortFailure !== undefined) cleanupErrors.push(abortFailure);
-    try { if (scratch !== undefined) await rm(scratch, { recursive: true }); } catch (error) { cleanupErrors.push(error); }
-    try { if (partial !== undefined) await unlink(partial); } catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") cleanupErrors.push(error); }
+    try {
+      if (scratch !== undefined) await rm(scratch, { recursive: true });
+    } catch (error) {
+      cleanupErrors.push(error);
+    }
+    try {
+      if (partial !== undefined) await unlink(partial);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT")
+        cleanupErrors.push(error);
+    }
   }
-  if (cleanupErrors.length > 0) throw new AggregateError([...(failure === undefined ? [] : [failure.error]), ...cleanupErrors], "Viewer video cleanup failed");
+  if (cleanupErrors.length > 0)
+    throw new AggregateError(
+      [...(failure === undefined ? [] : [failure.error]), ...cleanupErrors],
+      "Viewer video cleanup failed",
+    );
   if (failure !== undefined) throw failure.error;
-  if (completed === undefined) throw new Error("Viewer video completed without a result");
+  if (completed === undefined)
+    throw new Error("Viewer video completed without a result");
   return completed;
 }

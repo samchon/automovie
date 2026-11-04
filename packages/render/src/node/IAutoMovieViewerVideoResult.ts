@@ -16,7 +16,13 @@ export interface IAutoMovieViewerVideoResult extends IAutoMovieRenderResult {
   encodeArgs: string[];
 
   /** Per-frame SHA-256 and elapsed capture milliseconds; PNG files have been removed. */
-  captures: { index: number; timeSeconds: number; sha256: string; bytes: number; captureMs: number }[];
+  captures: {
+    index: number;
+    timeSeconds: number;
+    sha256: string;
+    bytes: number;
+    captureMs: number;
+  }[];
 
   /** Sum of actual PNG byte lengths before release. */
   capturedBytes: number;

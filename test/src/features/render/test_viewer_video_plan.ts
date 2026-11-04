@@ -1,6 +1,7 @@
+import { TestValidator } from "@nestia/e2e";
+
 import type { IAutoMovieViewerVideoOptions } from "../../../../packages/render/src/node/IAutoMovieViewerVideoOptions";
 import { planViewerVideo } from "../../../../packages/render/src/node/planViewerVideo";
-import { TestValidator } from "@nestia/e2e";
 
 /**
  * Exact film clocks and stream mapping remain independent of browser execution.
@@ -16,27 +17,114 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/testing.md#execution-ownership Portable test calls planning only and starts no process, browser, GPU, installation or filesystem work.
  */
 export function test_viewer_video_plan(): void {
-  const options: IAutoMovieViewerVideoOptions = { url: "http://localhost:5173/?capture=1", spec: { target: "film", frameFormat: { width: 640, height: 480, fps: 24 }, toneMapping: "none", codec: "h264", pixelFormat: "yuv420p", crf: 18 }, durationSeconds: 1, frameDir: "/frames", outputPath: "/film.mp4", chromeExecutable: "/chrome", ffmpegExecutable: "/ffmpeg" };
+  const options: IAutoMovieViewerVideoOptions = {
+    url: "http://localhost:5173/?capture=1",
+    spec: {
+      target: "film",
+      frameFormat: { width: 640, height: 480, fps: 24 },
+      toneMapping: "none",
+      codec: "h264",
+      pixelFormat: "yuv420p",
+      crf: 18,
+    },
+    durationSeconds: 1,
+    frameDir: "/frames",
+    outputPath: "/film.mp4",
+    chromeExecutable: "/chrome",
+    ffmpegExecutable: "/ffmpeg",
+  };
   const silent: ReturnType<typeof planViewerVideo> = planViewerVideo(options);
   TestValidator.equals("24 exact frames", silent.frameCount, 24);
-  TestValidator.predicate("silent video only", silent.args.includes("-an") && silent.args.filter((value: string): boolean => value === "-i").length === 1);
-  TestValidator.equals("explicit video clock", silent.args.slice(silent.args.indexOf("-frames:v"), silent.args.indexOf("-frames:v") + 2), ["-frames:v", "24"]);
-  TestValidator.equals("singleton admitted", planViewerVideo({ ...options, durationSeconds: 1 / 24 }).frameCount, 1);
-  TestValidator.equals("fractional rate exact extent", planViewerVideo({ ...options, spec: { ...options.spec, frameFormat: { ...options.spec.frameFormat, fps: 2.5 } }, durationSeconds: 2 }).frameCount, 5);
-  const sound: ReturnType<typeof planViewerVideo> = planViewerVideo({ ...options, audioMix: "/complete mix.wav" });
-  TestValidator.equals("audio input precedes output codec", sound.args.slice(sound.args.indexOf("-c:v") - 2, sound.args.indexOf("-c:v")), ["-i", "/complete mix.wav"]);
-  TestValidator.predicate("explicit soundtrack extent", sound.args.includes("1:a:0") && sound.args.includes("apad") && !sound.args.includes("-shortest") && !sound.args.includes("-an"));
-  TestValidator.equals("explicit duration", sound.args.slice(-3), ["-t", "1", "/film.mp4"]);
+  TestValidator.predicate(
+    "silent video only",
+    silent.args.includes("-an") &&
+      silent.args.filter((value: string): boolean => value === "-i").length ===
+        1,
+  );
+  TestValidator.equals(
+    "explicit video clock",
+    silent.args.slice(
+      silent.args.indexOf("-frames:v"),
+      silent.args.indexOf("-frames:v") + 2,
+    ),
+    ["-frames:v", "24"],
+  );
+  TestValidator.equals(
+    "singleton admitted",
+    planViewerVideo({ ...options, durationSeconds: 1 / 24 }).frameCount,
+    1,
+  );
+  TestValidator.equals(
+    "fractional rate exact extent",
+    planViewerVideo({
+      ...options,
+      spec: {
+        ...options.spec,
+        frameFormat: { ...options.spec.frameFormat, fps: 2.5 },
+      },
+      durationSeconds: 2,
+    }).frameCount,
+    5,
+  );
+  const sound: ReturnType<typeof planViewerVideo> = planViewerVideo({
+    ...options,
+    audioMix: "/complete mix.wav",
+  });
+  TestValidator.equals(
+    "audio input precedes output codec",
+    sound.args.slice(
+      sound.args.indexOf("-c:v") - 2,
+      sound.args.indexOf("-c:v"),
+    ),
+    ["-i", "/complete mix.wav"],
+  );
+  TestValidator.predicate(
+    "explicit soundtrack extent",
+    sound.args.includes("1:a:0") &&
+      sound.args.includes("apad") &&
+      !sound.args.includes("-shortest") &&
+      !sound.args.includes("-an"),
+  );
+  TestValidator.equals("explicit duration", sound.args.slice(-3), [
+    "-t",
+    "1",
+    "/film.mp4",
+  ]);
   const invalid: IAutoMovieViewerVideoOptions[] = [
-    { ...options, durationSeconds: 0.1 }, { ...options, durationSeconds: 0 }, { ...options, durationSeconds: NaN }, { ...options, durationSeconds: Infinity },
-    { ...options, durationSeconds: Number.MAX_SAFE_INTEGER }, { ...options, maxFrames: 23 }, { ...options, maxFrameBytes: 0 }, { ...options, maxFrames: NaN }, { ...options, timeoutMs: Infinity },
-    { ...options, spec: { ...options.spec, frameFormat: { ...options.spec.frameFormat, width: 639 } } },
-    { ...options, spec: { ...options.spec, frameFormat: { ...options.spec.frameFormat, fps: 0 } } },
-    { ...options, url: "file:///film" }, { ...options, audioMix: "" }, { ...options, chromeExecutable: "" },
+    { ...options, durationSeconds: 0.1 },
+    { ...options, durationSeconds: 0 },
+    { ...options, durationSeconds: NaN },
+    { ...options, durationSeconds: Infinity },
+    { ...options, durationSeconds: Number.MAX_SAFE_INTEGER },
+    { ...options, maxFrames: 23 },
+    { ...options, maxFrameBytes: 0 },
+    { ...options, maxFrames: NaN },
+    { ...options, timeoutMs: Infinity },
+    {
+      ...options,
+      spec: {
+        ...options.spec,
+        frameFormat: { ...options.spec.frameFormat, width: 639 },
+      },
+    },
+    {
+      ...options,
+      spec: {
+        ...options.spec,
+        frameFormat: { ...options.spec.frameFormat, fps: 0 },
+      },
+    },
+    { ...options, url: "file:///film" },
+    { ...options, audioMix: "" },
+    { ...options, chromeExecutable: "" },
   ];
   for (const [index, bad] of invalid.entries()) {
     let refused: boolean = false;
-    try { planViewerVideo(bad); } catch { refused = true; }
+    try {
+      planViewerVideo(bad);
+    } catch {
+      refused = true;
+    }
     TestValidator.predicate(`invalid request ${index} refused`, refused);
   }
 }

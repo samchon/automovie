@@ -1,4 +1,4 @@
-import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { type ChildProcessWithoutNullStreams, spawn } from "node:child_process";
 
 /**
  * Run one FFmpeg process, retaining only the last 64 KiB of stderr. Cancellation
@@ -12,23 +12,47 @@ import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Encoding is an effectful single invocation and is not shared.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Owns one child until close; abort or the finite encoder timeout kills it, the timer clears on close, stdout is drained and stderr retention is capped at 65536 bytes.
  */
-export function runViewerVideoEncoder(executable: string, args: string[], signal?: AbortSignal, timeoutMs: number = 1800000): Promise<string> {
-  return new Promise<string>((resolve: (value: string) => void, reject: (reason: unknown) => void): void => {
-    const child: ChildProcessWithoutNullStreams = spawn(executable, args, { windowsHide: true, signal, stdio: "pipe" });
-    let diagnostic: Buffer = Buffer.alloc(0);
-    let failure: Error | undefined;
-    const timer: NodeJS.Timeout = setTimeout((): void => { failure = new Error("FFmpeg exceeded its encoder timeout"); child.kill(); }, timeoutMs);
-    child.stdin.end();
-    child.stdout.resume();
-    child.stderr.on("data", (chunk: Buffer): void => {
-      diagnostic = Buffer.from(Buffer.concat([diagnostic, chunk]).subarray(-65536));
-    });
-    child.on("error", (error: Error): void => { failure = error; });
-    child.on("close", (code: number | null): void => {
-      clearTimeout(timer);
-      if (failure !== undefined) reject(failure);
-      else if (code !== 0) reject(new Error(`FFmpeg exited ${code}: ${diagnostic.toString("utf8")}`));
-      else resolve(diagnostic.toString("utf8"));
-    });
-  });
+export function runViewerVideoEncoder(
+  executable: string,
+  args: string[],
+  signal?: AbortSignal,
+  timeoutMs: number = 1800000,
+): Promise<string> {
+  return new Promise<string>(
+    (
+      resolve: (value: string) => void,
+      reject: (reason: unknown) => void,
+    ): void => {
+      const child: ChildProcessWithoutNullStreams = spawn(executable, args, {
+        windowsHide: true,
+        signal,
+        stdio: "pipe",
+      });
+      let diagnostic: Buffer = Buffer.alloc(0);
+      let failure: Error | undefined;
+      const timer: NodeJS.Timeout = setTimeout((): void => {
+        failure = new Error("FFmpeg exceeded its encoder timeout");
+        child.kill();
+      }, timeoutMs);
+      child.stdin.end();
+      child.stdout.resume();
+      child.stderr.on("data", (chunk: Buffer): void => {
+        diagnostic = Buffer.from(
+          Buffer.concat([diagnostic, chunk]).subarray(-65536),
+        );
+      });
+      child.on("error", (error: Error): void => {
+        failure = error;
+      });
+      child.on("close", (code: number | null): void => {
+        clearTimeout(timer);
+        if (failure !== undefined) reject(failure);
+        else if (code !== 0)
+          reject(
+            new Error(`FFmpeg exited ${code}: ${diagnostic.toString("utf8")}`),
+          );
+        else resolve(diagnostic.toString("utf8"));
+      });
+    },
+  );
 }

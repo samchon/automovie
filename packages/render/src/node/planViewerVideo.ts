@@ -13,27 +13,116 @@ import type { IAutoMovieViewerVideoOptions } from "./IAutoMovieViewerVideoOption
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work Each request is admitted once and no effectful work is shared.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns only frame count and argument strings; acquires no native resource.
  */
-export function planViewerVideo(options: IAutoMovieViewerVideoOptions): { frameCount: number; args: string[] } {
-  const { fps, width, height }: IAutoMovieViewerVideoOptions["spec"]["frameFormat"] = options.spec.frameFormat;
+export function planViewerVideo(options: IAutoMovieViewerVideoOptions): {
+  frameCount: number;
+  args: string[];
+} {
+  const {
+    fps,
+    width,
+    height,
+  }: IAutoMovieViewerVideoOptions["spec"]["frameFormat"] =
+    options.spec.frameFormat;
   const frameCount: number = options.durationSeconds * fps;
-  if (!Number.isFinite(fps) || fps <= 0 || !Number.isFinite(options.durationSeconds) || options.durationSeconds <= 0 || !Number.isSafeInteger(frameCount) || frameCount < 1 || frameCount > (options.maxFrames ?? 1000000))
-    throw new Error("Viewer video requires a positive integral frame count within maxFrames");
-  if (![width, height].every((size: number): boolean => Number.isSafeInteger(size) && size > 0 && size % 2 === 0))
-    throw new Error("Viewer video requires positive even integer raster dimensions");
-  if (!Number.isSafeInteger(options.maxFrames ?? 1000000) || (options.maxFrames ?? 1000000) < 1 || !Number.isSafeInteger(options.maxFrameBytes ?? 8 * 1024 ** 3) || (options.maxFrameBytes ?? 8 * 1024 ** 3) < 1 || !Number.isFinite(options.timeoutMs ?? 240000) || (options.timeoutMs ?? 240000) <= 0)
-    throw new Error("Viewer video resource limits must be positive finite values");
-  if (!Number.isFinite(options.encoderTimeoutMs ?? 1800000) || (options.encoderTimeoutMs ?? 1800000) <= 0 || (options.encoderTimeoutMs ?? 1800000) > 2147483647)
-    throw new Error("Viewer video encoder timeout must fit a positive Node timer");
-  if (!Number.isFinite(options.spec.crf) || options.spec.crf < 0 || options.spec.crf > 51)
-    throw new Error("Viewer video H.264 CRF must be finite and within 0 through 51");
+  if (
+    !Number.isFinite(fps) ||
+    fps <= 0 ||
+    !Number.isFinite(options.durationSeconds) ||
+    options.durationSeconds <= 0 ||
+    !Number.isSafeInteger(frameCount) ||
+    frameCount < 1 ||
+    frameCount > (options.maxFrames ?? 1000000)
+  )
+    throw new Error(
+      "Viewer video requires a positive integral frame count within maxFrames",
+    );
+  if (
+    ![width, height].every(
+      (size: number): boolean =>
+        Number.isSafeInteger(size) && size > 0 && size % 2 === 0,
+    )
+  )
+    throw new Error(
+      "Viewer video requires positive even integer raster dimensions",
+    );
+  if (
+    !Number.isSafeInteger(options.maxFrames ?? 1000000) ||
+    (options.maxFrames ?? 1000000) < 1 ||
+    !Number.isSafeInteger(options.maxFrameBytes ?? 8 * 1024 ** 3) ||
+    (options.maxFrameBytes ?? 8 * 1024 ** 3) < 1 ||
+    !Number.isFinite(options.timeoutMs ?? 240000) ||
+    (options.timeoutMs ?? 240000) <= 0
+  )
+    throw new Error(
+      "Viewer video resource limits must be positive finite values",
+    );
+  if (
+    !Number.isFinite(options.encoderTimeoutMs ?? 1800000) ||
+    (options.encoderTimeoutMs ?? 1800000) <= 0 ||
+    (options.encoderTimeoutMs ?? 1800000) > 2147483647
+  )
+    throw new Error(
+      "Viewer video encoder timeout must fit a positive Node timer",
+    );
+  if (
+    !Number.isFinite(options.spec.crf) ||
+    options.spec.crf < 0 ||
+    options.spec.crf > 51
+  )
+    throw new Error(
+      "Viewer video H.264 CRF must be finite and within 0 through 51",
+    );
   if (!["http:", "https:"].includes(new URL(options.url).protocol))
     throw new Error("Viewer video URL must use HTTP or HTTPS");
-  for (const value of [options.frameDir, options.outputPath, options.chromeExecutable, options.ffmpegExecutable])
-    if (value.trim().length === 0) throw new Error("Viewer video paths must be nonempty");
+  for (const value of [
+    options.frameDir,
+    options.outputPath,
+    options.chromeExecutable,
+    options.ffmpegExecutable,
+  ])
+    if (value.trim().length === 0)
+      throw new Error("Viewer video paths must be nonempty");
   if (options.audioMix !== undefined && options.audioMix.trim().length === 0)
     throw new Error("Viewer video audioMix must be nonempty when supplied");
-  const base: string[] = ffmpegArgs(options.spec, `${options.frameDir}/${framePattern()}`, options.outputPath);
+  const base: string[] = ffmpegArgs(
+    options.spec,
+    `${options.frameDir}/${framePattern()}`,
+    options.outputPath,
+  );
   const codec: number = base.indexOf("-c:v");
-  const args: string[] = ["-v", "warning", ...base.slice(0, codec), ...(options.audioMix === undefined ? [] : ["-i", options.audioMix]), ...base.slice(codec, -1), "-threads", "4", "-preset", "medium", "-frames:v", String(frameCount), "-map", "0:v:0", ...(options.audioMix === undefined ? ["-an"] : ["-map", "1:a:0", "-af", "apad", "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2"]), "-t", String(options.durationSeconds), options.outputPath];
+  const args: string[] = [
+    "-v",
+    "warning",
+    ...base.slice(0, codec),
+    ...(options.audioMix === undefined ? [] : ["-i", options.audioMix]),
+    ...base.slice(codec, -1),
+    "-threads",
+    "4",
+    "-preset",
+    "medium",
+    "-frames:v",
+    String(frameCount),
+    "-map",
+    "0:v:0",
+    ...(options.audioMix === undefined
+      ? ["-an"]
+      : [
+          "-map",
+          "1:a:0",
+          "-af",
+          "apad",
+          "-c:a",
+          "aac",
+          "-b:a",
+          "192k",
+          "-ar",
+          "48000",
+          "-ac",
+          "2",
+        ]),
+    "-t",
+    String(options.durationSeconds),
+    options.outputPath,
+  ];
   return { frameCount, args };
 }

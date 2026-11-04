@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+
 import type { AutoMovieHumanPolygonFoot } from "./AutoMovieHumanPolygonFoot.js";
 
 /**
@@ -15,7 +16,6 @@ import type { AutoMovieHumanPolygonFoot } from "./AutoMovieHumanPolygonFoot.js";
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Resource ownership belongs to the builder and returned drawing, not these type declarations.
  */
 export namespace AutoMovieHumanPolygon {
-
   /**
    * A fixed body's rest joints and its evaluated placement in the body frame.
    *
@@ -28,7 +28,6 @@ export namespace AutoMovieHumanPolygon {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns descriptor arrays; the renderer copies geometry without acquiring a generator.
    */
   export interface IInput {
-
     /** Rest joints in registered body metres, parent before child. */
     bones: IBone[];
 
@@ -54,7 +53,6 @@ export namespace AutoMovieHumanPolygon {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This record owns no native resources.
    */
   export interface IBone {
-
     /** Stable evaluator bone identity. */
     bone: string;
 
@@ -83,7 +81,6 @@ export namespace AutoMovieHumanPolygon {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns its tuples.
    */
   export interface IPlacement {
-
     /** Stable bone identity, including joints outside the humanoid vocabulary. */
     bone: string;
 
@@ -106,7 +103,6 @@ export namespace AutoMovieHumanPolygon {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The input owns ordinary arrays and no renderer resource.
    */
   export interface IExteriorSection {
-
     /** Registered source course centre, metres. */
     centre: [number, number, number];
 
@@ -138,7 +134,6 @@ export namespace AutoMovieHumanPolygon {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This descriptor owns no native resources.
    */
   export interface IExterior {
-
     /** Source coordinates are in metres. */
     units: "metres";
 
@@ -153,7 +148,6 @@ export namespace AutoMovieHumanPolygon {
 
     /** Source crown terminal point rather than an invented terminal ring. */
     crown: {
-
       /** The drawing requires the top pole. */
       end: "top" | "bottom";
 
@@ -174,7 +168,6 @@ export namespace AutoMovieHumanPolygon {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The builder owns its geometry/material lifetime until dispose; caller-created attached faces and equipment remain separately owned.
    */
   export interface IDrawing {
-
     /** Actor-local root; the host applies actor placement through its parent. */
     object: THREE.Group;
 
@@ -194,14 +187,25 @@ export namespace AutoMovieHumanPolygon {
     bindings: ReadonlyMap<string, readonly THREE.Object3D[]>;
 
     /** Actual source-named emitted vertices when footSurface was supplied. */
-    readonly plantarLandmarks?: Readonly<Record<"left" | "right", Readonly<Record<AutoMovieHumanPolygonFoot.Landmark, AutoMovieHumanPolygonFoot.IEmittedLandmark>>>>;
+    readonly plantarLandmarks?: Readonly<
+      Record<
+        "left" | "right",
+        Readonly<
+          Record<
+            AutoMovieHumanPolygonFoot.Landmark,
+            AutoMovieHumanPolygonFoot.IEmittedLandmark
+          >
+        >
+      >
+    >;
 
     /** Full-foot initial placed reference, including toes; setPose does not redefine it. */
-    readonly plantarSupport?: Readonly<Record<"left" | "right", AutoMovieHumanPolygonFoot.IPlantarSupport>>;
+    readonly plantarSupport?: Readonly<
+      Record<"left" | "right", AutoMovieHumanPolygonFoot.IPlantarSupport>
+    >;
 
     /** Actual head group and its emitted, unposed local polygon extent. */
     head: {
-
       /** Attach a separately owned face or equipment in head-local metres. */
       object: THREE.Group;
 

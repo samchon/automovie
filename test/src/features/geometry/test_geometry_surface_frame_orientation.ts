@@ -29,10 +29,8 @@ export function test_geometry_surface_frame_orientation(): void {
     { x: -1, y: 0, z: 2 },
   ];
   for (const sign of [-1, 1]) {
-    const prepared: IAutoMoviePreparedSurfaceFrame = prepareAutoMovieSurfaceFrame(
-      source,
-      { x: 0, y: sign, z: 0 },
-    );
+    const prepared: IAutoMoviePreparedSurfaceFrame =
+      prepareAutoMovieSurfaceFrame(source, { x: 0, y: sign, z: 0 });
     const placed: IAutoMovieVector3[] = placeAutoMovieSurfaceFrame(prepared, {
       origin: { x: 0, y: 0, z: 0 },
       forward: { x: 1, y: 0, z: 0 },
@@ -65,7 +63,10 @@ export function test_geometry_surface_frame_orientation(): void {
     { x: -1, y: 0, z: -2 },
   ];
   for (let i: number = 0; i < 3; i++)
-    TestValidator.predicate(`YZ source point ${i}`, vclose(flattened[i], flatExpected[i]));
+    TestValidator.predicate(
+      `YZ source point ${i}`,
+      vclose(flattened[i], flatExpected[i]),
+    );
 
   const scale: number = 1e-180;
   const tiny: IAutoMoviePreparedSurfaceFrame = prepareAutoMovieSurfaceFrame([

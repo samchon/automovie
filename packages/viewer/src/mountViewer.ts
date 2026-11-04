@@ -3,8 +3,8 @@ import * as THREE from "three";
 import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompletedFrame.js";
 import type { IAutoMovieViewerHandle } from "./IAutoMovieViewerHandle.js";
 import type { IMountViewerOptions } from "./IMountViewerOptions.js";
-import { createViewerFrameControl } from "./createViewerFrameControl.js";
 import { createViewerDisplayClock } from "./createViewerDisplayClock.js";
+import { createViewerFrameControl } from "./createViewerFrameControl.js";
 import { createViewerViewportResize } from "./createViewerViewportResize.js";
 import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
@@ -55,12 +55,18 @@ export const mountViewer: (
   let scheduled: number | undefined;
   let frameControl: ReturnType<typeof createViewerFrameControl> | undefined;
   try {
-    const resize: ReturnType<typeof createViewerViewportResize> = createViewerViewportResize(renderer, camera);
-    const synchronizeViewport: () => boolean = (): boolean => resize(
-      canvas.clientWidth || 1,
-      canvas.clientHeight || 1,
-      options?.pixelRatio ?? (Number.isFinite(window.devicePixelRatio) && window.devicePixelRatio > 0 ? window.devicePixelRatio : 1),
-    );
+    const resize: ReturnType<typeof createViewerViewportResize> =
+      createViewerViewportResize(renderer, camera);
+    const synchronizeViewport: () => boolean = (): boolean =>
+      resize(
+        canvas.clientWidth || 1,
+        canvas.clientHeight || 1,
+        options?.pixelRatio ??
+          (Number.isFinite(window.devicePixelRatio) &&
+          window.devicePixelRatio > 0
+            ? window.devicePixelRatio
+            : 1),
+      );
     synchronizeViewport();
 
     let startMs: number | null = null;
@@ -74,16 +80,21 @@ export const mountViewer: (
     function active(): void {
       if (!running) throw new Error("The mounted viewer is closed.");
     }
-    const ownedControl: ReturnType<typeof createViewerFrameControl> = createViewerFrameControl({
-      camera,
-      currentSeconds: (): number => clock.current(),
-      assertActive: active,
-      rebase: (seconds: number): void => { timeOffset = seconds; startMs = null; },
-      redraw: (seconds: number): void => redraw(seconds),
-      freezeCompleted: options?.freezeCompleted,
-    });
+    const ownedControl: ReturnType<typeof createViewerFrameControl> =
+      createViewerFrameControl({
+        camera,
+        currentSeconds: (): number => clock.current(),
+        assertActive: active,
+        rebase: (seconds: number): void => {
+          timeOffset = seconds;
+          startMs = null;
+        },
+        redraw: (seconds: number): void => redraw(seconds),
+        freezeCompleted: options?.freezeCompleted,
+      });
     frameControl = ownedControl;
-    const control: NonNullable<IAutoMovieViewerCompletedFrame["control"]> = ownedControl.control;
+    const control: NonNullable<IAutoMovieViewerCompletedFrame["control"]> =
+      ownedControl.control;
     const draw: (seconds: number, explicitDraw?: boolean) => void = (
       seconds: number,
       explicitDraw: boolean = false,
@@ -123,7 +134,8 @@ export const mountViewer: (
       const completed:
         | Omit<IAutoMovieViewerCompletedFrame, "control">
         | undefined = options?.completedFrame?.() ?? ordinary;
-      if (completed !== undefined) publishCompleted(completed, seconds, explicitDraw);
+      if (completed !== undefined)
+        publishCompleted(completed, seconds, explicitDraw);
     };
     const publishCompleted: (
       completed: Omit<IAutoMovieViewerCompletedFrame, "control">,
@@ -135,12 +147,15 @@ export const mountViewer: (
       explicitDraw: boolean = false,
     ): void => {
       active();
+      if (!explicitDraw && completed === lastCompleted) return;
       if (
-        !explicitDraw && completed === lastCompleted
+        seconds !== undefined &&
+        completed.elapsedSeconds !== undefined &&
+        seconds !== completed.elapsedSeconds
       )
-        return;
-      if (seconds !== undefined && completed.elapsedSeconds !== undefined && seconds !== completed.elapsedSeconds)
-        throw new Error("Requested completion time differs from the original producer's completed time.");
+        throw new Error(
+          "Requested completion time differs from the original producer's completed time.",
+        );
 
       // An idle handled frame has not advanced the published viewport clock.
       const elapsedSeconds: number = clock.complete(
@@ -162,12 +177,18 @@ export const mountViewer: (
         redrawViewerCompletedFrame(seconds, {
           completedCount: (): number => completions,
           completedSeconds: (): number => clock.current(),
-          readFrame: (): Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined => options?.completedFrame?.(),
+          readFrame: ():
+            | Omit<IAutoMovieViewerCompletedFrame, "control">
+            | undefined => options?.completedFrame?.(),
           produce: (time: number): void => {
-            if (options?.redrawCompleted !== undefined) options.redrawCompleted(time);
+            if (options?.redrawCompleted !== undefined)
+              options.redrawCompleted(time);
             else draw(time, true);
           },
-          publish: (frame: Omit<IAutoMovieViewerCompletedFrame, "control">, time: number): void => publishCompleted(frame, time, true),
+          publish: (
+            frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
+            time: number,
+          ): void => publishCompleted(frame, time, true),
         });
       });
     };
@@ -186,7 +207,9 @@ export const mountViewer: (
       if (startMs === null) startMs = nowMs;
       try {
         if (synchronizeViewport() && completions > 0) redraw(clock.current());
-        ownedControl.frame((): void => draw(timeOffset + (nowMs - startMs!) / 1000));
+        ownedControl.frame((): void =>
+          draw(timeOffset + (nowMs - startMs!) / 1000),
+        );
         if (running) scheduled = requestAnimationFrame(loop);
       } catch (error) {
         restoreAutoMovieRenderModeState([stop], { error });
@@ -212,7 +235,9 @@ export const mountViewer: (
           running = false;
           if (scheduled !== undefined) cancelAnimationFrame(scheduled);
         },
-        (): void => { frameControl?.dispose(); },
+        (): void => {
+          frameControl?.dispose();
+        },
         (): void => {
           releaseViewerRenderer(renderer);
         },

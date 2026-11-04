@@ -156,7 +156,8 @@ export function test_film_victory_world_authority(): void {
     }
     for (const malformed of [[], [0.04, 0], [0.04, 0, 0, 0]])
       assert.throws(
-        (): FilmRoute => new FilmRoute(actor, malformed as MotionAction.Vec3, 0.8),
+        (): FilmRoute =>
+          new FilmRoute(actor, malformed as MotionAction.Vec3, 0.8),
         /finite horizontal three-tuple/,
       );
     assert.deepEqual(actor.patches.left.low.world, independent);

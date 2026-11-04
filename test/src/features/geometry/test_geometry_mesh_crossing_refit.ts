@@ -206,14 +206,18 @@ export function test_geometry_mesh_crossing_refit(): void {
   const mirrored: IAutoMovieMesh = placed(partitioned, cases[1]!.map);
   const mirroredPlane: IAutoMovieMesh = placed(plane, cases[1]!.map);
   const crossLeaves: IAutoMovieMeshCrossingQuery =
-    createAutoMovieMeshCrossingQuery(partitioned).withPositions(mirrored.positions);
+    createAutoMovieMeshCrossingQuery(partitioned).withPositions(
+      mirrored.positions,
+    );
   const acrossExpected: IAutoMovieMeshCrossing[] = [
     4, 5, 6, 7, 8, 9, 10, 11, 12, 0, 1, 2, 3,
-  ].map((other: number): IAutoMovieMeshCrossing => ({
-    triangle: 0,
-    other,
-    coplanar: false,
-  }));
+  ].map(
+    (other: number): IAutoMovieMeshCrossing => ({
+      triangle: 0,
+      other,
+      coplanar: false,
+    }),
+  );
 
   // Mean world extent is one; blade lows cross cell -1 at original ordinal4.
   TestValidator.equals(
@@ -223,7 +227,9 @@ export function test_geometry_mesh_crossing_refit(): void {
   );
   TestValidator.equals(
     "fresh multi-leaf world order",
-    createAutoMovieMeshCrossingQuery(mirrored)(mirroredPlane, { allPairs: true }),
+    createAutoMovieMeshCrossingQuery(mirrored)(mirroredPlane, {
+      allPairs: true,
+    }),
     acrossExpected,
   );
   TestValidator.equals(

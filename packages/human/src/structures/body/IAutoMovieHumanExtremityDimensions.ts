@@ -4,8 +4,9 @@ import type { IAutoMovieHumanLegIdentity } from "./IAutoMovieHumanLegIdentity";
 
 /** Independent hand and foot dimensions.
  * Lengths use millimetres. Omission declares the corresponding domain absent.
- * Source-geometric proxies retain their distinct acquisition meaning and do not
- * establish equivalence to the anatomical measurements of the identity fields.
+ * Each field is its identity field's anatomical measurement, taken on its own
+ * side; a value taken by another definition, such as a source mesh's own
+ * course, is a different measurement and does not belong here.
  */
 export interface IAutoMovieHumanExtremityDimensions {
   /** Independently supplied left and right hand lengths and breadth. */

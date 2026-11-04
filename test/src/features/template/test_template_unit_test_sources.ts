@@ -1,4 +1,7 @@
-import { type IAutoMovieScaffoldSourceEntry, renderScaffoldEntries } from "@automovie/template";
+import {
+  type IAutoMovieScaffoldSourceEntry,
+  renderScaffoldEntries,
+} from "@automovie/template";
 import { TestValidator } from "@nestia/e2e";
 import path from "node:path";
 
@@ -20,15 +23,18 @@ export function test_template_unit_test_sources(): void {
   const entries: IAutoMovieScaffoldSourceEntry[] = [
     {
       relative: path.join("test", "index.ts"),
-      content: 'import { DynamicExecutor } from "@nestia/e2e";\r\nconst title = "{{name}}";\r\n',
+      content:
+        'import { DynamicExecutor } from "@nestia/e2e";\r\nconst title = "{{name}}";\r\n',
     },
     {
       relative: path.join("test", "features", "clock", "test_clock.ts"),
-      content: 'import { clamp } from "../../../src/clamp";\r\nexport function test_clock(): void {}\r\n',
+      content:
+        'import { clamp } from "../../../src/clamp";\r\nexport function test_clock(): void {}\r\n',
     },
     {
       relative: path.join("src", "clamp.ts"),
-      content: '/** Closed interval [0, duration]; Δ is caller-owned. */\nexport const clamp = Math.min;\n',
+      content:
+        "/** Closed interval [0, duration]; Δ is caller-owned. */\nexport const clamp = Math.min;\n",
     },
     {
       relative: "tsconfig.json",
@@ -40,11 +46,15 @@ export function test_template_unit_test_sources(): void {
     },
   ];
   const expected: Record<string, string> = {
-    "test/index.ts": 'import { DynamicExecutor } from "@nestia/e2e";\nconst title = "unit-film";\n',
-    "test/features/clock/test_clock.ts": 'import { clamp } from "../../../src/clamp";\nexport function test_clock(): void {}\n',
-    "src/clamp.ts": '/** Closed interval [0, duration]; Δ is caller-owned. */\nexport const clamp = Math.min;\n',
+    "test/index.ts":
+      'import { DynamicExecutor } from "@nestia/e2e";\nconst title = "unit-film";\n',
+    "test/features/clock/test_clock.ts":
+      'import { clamp } from "../../../src/clamp";\nexport function test_clock(): void {}\n',
+    "src/clamp.ts":
+      "/** Closed interval [0, duration]; Δ is caller-owned. */\nexport const clamp = Math.min;\n",
     "tsconfig.json": '{ "compilerOptions": { "strict": true } }\n',
-    "tsconfig.test.json": '{ "extends": "./tsconfig.json", "include": ["test"] }\n',
+    "tsconfig.test.json":
+      '{ "extends": "./tsconfig.json", "include": ["test"] }\n',
   };
   const variables: Readonly<Record<string, string>> = { name: "unit-film" };
   const expectedEntries: [string, string][] = Object.entries(expected).sort(
@@ -52,8 +62,14 @@ export function test_template_unit_test_sources(): void {
       left < right ? -1 : left > right ? 1 : 0,
   );
   for (const sources of [entries, [...entries].reverse()]) {
-    const actual: Record<string, string> = renderScaffoldEntries(sources, variables);
-    TestValidator.predicate("prototype-safe source map", Object.getPrototypeOf(actual) === null);
+    const actual: Record<string, string> = renderScaffoldEntries(
+      sources,
+      variables,
+    );
+    TestValidator.predicate(
+      "prototype-safe source map",
+      Object.getPrototypeOf(actual) === null,
+    );
     TestValidator.equals(
       "nested source paths and bytes independent of input order",
       Object.entries(actual).sort(
@@ -63,10 +79,20 @@ export function test_template_unit_test_sources(): void {
       expectedEntries,
     );
   }
-  TestValidator.error("duplicate output path", (): Record<string, string> =>
-    renderScaffoldEntries([...entries, { ...entries[0]!, content: "different" }], variables),
+  TestValidator.error(
+    "duplicate output path",
+    (): Record<string, string> =>
+      renderScaffoldEntries(
+        [...entries, { ...entries[0]!, content: "different" }],
+        variables,
+      ),
   );
-  TestValidator.error("unknown source token", (): Record<string, string> =>
-    renderScaffoldEntries([{ relative: "test/index.ts", content: "{{unknown}}" }], variables),
+  TestValidator.error(
+    "unknown source token",
+    (): Record<string, string> =>
+      renderScaffoldEntries(
+        [{ relative: "test/index.ts", content: "{{unknown}}" }],
+        variables,
+      ),
   );
 }

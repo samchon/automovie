@@ -46,7 +46,7 @@ The viewer releases what it creates and leaves what the caller passes in. `dispo
 
 `updateAutoMovieComparisonCamera` derives one centred orthographic projection and a screen-right separation vector from a standalone perspective camera. Hosts can display unchanged subjects at equal opposite offsets with the same magnification and view direction, including profile views. The caller owns the reusable output camera/vector and subject placement; parented/scaled cameras, manual matrices and off-axis source lenses refuse.
 
-Human-specific bindings and diagnostic controls live in the unpublished [Human development app](../human/dev/README.md). The viewer consumes ordinary model and pose data and has no dependency on the Human generator.
+Human-specific bindings and diagnostic controls live in the Human package's [debug viewer](../human/debug/README.md). The viewer consumes ordinary model and pose data and has no dependency on the Human generator.
 
 The optional `human-polygon` entry owns the original development mannequin's geometry formulas and face drawing. `buildHumanPolygon(output, { partColors })` accepts the public Human skeleton/exterior output structurally, including custom string bone ids. Its `setPose({ posed })` admits the complete fixed rig before updating the actual surface and diagnostic groups. `parts`, `bones` and `bindings` expose those displayed objects by bone id. A mesh vertex or contact probe's local point is its registered rest point minus that bone's rest joint; the flat group's bind-relative body-frame placement and the host's actor-parent transform apply once. Pose updates refresh world matrices for paused inspection too. Rigid modules can overlap or separate at joints and do not certify continuous skin or collision clearance.
 

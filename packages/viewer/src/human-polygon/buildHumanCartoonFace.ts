@@ -32,7 +32,6 @@ import { mountHumanCartoonFace } from "./mountHumanCartoonFace.js";
  */
 export function buildHumanCartoonFace(
   head: {
-
     /** Actual head-local minimum in metres. */
     min: [number, number, number];
 
@@ -45,7 +44,6 @@ export function buildHumanCartoonFace(
   expression?: AutoMovieHumanCartoon.IExpression,
   pose?: AutoMovieHumanCartoon.IHeadPose,
 ): {
-
   /** Add once to the polygon head's already posed group. */
   object: THREE.Group;
 

@@ -1,9 +1,13 @@
+import type {
+  AutoMovieHumanSkeleton,
+  IAutoMovieHumanPose,
+} from "@automovie/human";
 import assert from "node:assert/strict";
-import type { AutoMovieHumanSkeleton, IAutoMovieHumanPose } from "@automovie/human";
 import * as THREE from "three";
+
+import { prepareLabHuman } from "../../../../src/motion-lab/prepareLabHuman";
 import type { MotionAction } from "../../../../src/motion/core/MotionAction";
 import { MotionRecovery } from "../../../../src/motion/core/MotionRecovery";
-import { prepareLabHuman } from "../../../../src/motion-lab/prepareLabHuman";
 
 /**
  * Preserve a real rigid lever during a ninety-degree clinical elbow return.
@@ -22,25 +26,91 @@ export function test_recovery_rigid_kinematics(): void {
   const before: string = JSON.stringify([input.start, input.goal]);
   const a: MotionAction.Vec3 = input.start.effectors[0]!.target;
   const b: MotionAction.Vec3 = input.start.effectors[1]!.target;
-  const goalA: MotionAction.Vec3 = input.goal.effectors.find((point: MotionAction.Effector): boolean => point.bone === "leftLowerArm" && point.localPoint === undefined)!.target;
-  const goalB: MotionAction.Vec3 = input.goal.effectors.find((point: MotionAction.Effector): boolean => point.bone === "leftLowerArm" && point.localPoint !== undefined)!.target;
-  const naive: number = new THREE.Vector3().fromArray(b).add(new THREE.Vector3(...goalB)).sub(new THREE.Vector3(...a)).sub(new THREE.Vector3(...goalA)).multiplyScalar(.5).length();
-  assert.ok(naive < .099, "Pointwise endpoint chords must expose the rotating-lever defect");
+  const goalA: MotionAction.Vec3 = input.goal.effectors.find(
+    (point: MotionAction.Effector): boolean =>
+      point.bone === "leftLowerArm" && point.localPoint === undefined,
+  )!.target;
+  const goalB: MotionAction.Vec3 = input.goal.effectors.find(
+    (point: MotionAction.Effector): boolean =>
+      point.bone === "leftLowerArm" && point.localPoint !== undefined,
+  )!.target;
+  const naive: number = new THREE.Vector3()
+    .fromArray(b)
+    .add(new THREE.Vector3(...goalB))
+    .sub(new THREE.Vector3(...a))
+    .sub(new THREE.Vector3(...goalA))
+    .multiplyScalar(0.5)
+    .length();
+  assert.ok(
+    naive < 0.099,
+    "Pointwise endpoint chords must expose the rotating-lever defect",
+  );
 
   for (const time of [7, 7.000001, 7.25, 7.5, 7.75, 7.999999, 8]) {
-    const sample: MotionAction.Sample = MotionRecovery.local(input.start, input.goal, time, 1, 7, input.kinematics);
-    const internal: MotionAction.Effector[] = sample.effectors.filter((point: MotionAction.Effector): boolean => point.bone === "leftLowerArm");
-    assert.ok(Math.abs(new THREE.Vector3(...internal[0]!.target).distanceTo(new THREE.Vector3(...internal[1]!.target)) - .1) < 1e-10);
-    for (const effector of internal) assert.ok(new THREE.Vector3(...effector.target).distanceTo(new THREE.Vector3(...point(input.evaluate(sample.pose), effector.bone, effector.localPoint))) < 1e-10);
-    const external: MotionAction.Effector = sample.effectors.find((effector: MotionAction.Effector): boolean => effector.bone === "rightHand")!;
+    const sample: MotionAction.Sample = MotionRecovery.local(
+      input.start,
+      input.goal,
+      time,
+      1,
+      7,
+      input.kinematics,
+    );
+    const internal: MotionAction.Effector[] = sample.effectors.filter(
+      (point: MotionAction.Effector): boolean => point.bone === "leftLowerArm",
+    );
+    assert.ok(
+      Math.abs(
+        new THREE.Vector3(...internal[0]!.target).distanceTo(
+          new THREE.Vector3(...internal[1]!.target),
+        ) - 0.1,
+      ) < 1e-10,
+    );
+    for (const effector of internal)
+      assert.ok(
+        new THREE.Vector3(...effector.target).distanceTo(
+          new THREE.Vector3(
+            ...point(
+              input.evaluate(sample.pose),
+              effector.bone,
+              effector.localPoint,
+            ),
+          ),
+        ) < 1e-10,
+      );
+    const external: MotionAction.Effector = sample.effectors.find(
+      (effector: MotionAction.Effector): boolean =>
+        effector.bone === "rightHand",
+    )!;
     if (time === 7.5) {
-      assert.ok(new THREE.Vector3(...external.target).distanceTo(new THREE.Vector3(9, 10, 11)) < 1e-12);
-      assert.ok(new THREE.Vector3(...external.target).add(new THREE.Vector3(...sample.rootOffset)).distanceTo(new THREE.Vector3(9.4, 10.1, 11)) < 1e-12);
+      assert.ok(
+        new THREE.Vector3(...external.target).distanceTo(
+          new THREE.Vector3(9, 10, 11),
+        ) < 1e-12,
+      );
+      assert.ok(
+        new THREE.Vector3(...external.target)
+          .add(new THREE.Vector3(...sample.rootOffset))
+          .distanceTo(new THREE.Vector3(9.4, 10.1, 11)) < 1e-12,
+      );
     }
     assert.deepEqual(sample.support.patches![0]!.world, [1, 0, 2]);
   }
-  const stop: MotionAction.Sample = MotionRecovery.local(input.start, input.goal, 7, 1, 7, input.kinematics);
-  const end: MotionAction.Sample = MotionRecovery.local(input.start, input.goal, 8, 1, 7, input.kinematics);
+  const stop: MotionAction.Sample = MotionRecovery.local(
+    input.start,
+    input.goal,
+    7,
+    1,
+    7,
+    input.kinematics,
+  );
+  const end: MotionAction.Sample = MotionRecovery.local(
+    input.start,
+    input.goal,
+    8,
+    1,
+    7,
+    input.kinematics,
+  );
   assert.deepEqual(stop.effectors, input.start.effectors);
   assert.deepEqual(end.effectors, input.goal.effectors);
   assert.deepEqual(end.pose, input.goal.pose);
@@ -62,14 +132,40 @@ export function test_recovery_rigid_kinematics(): void {
  */
 export function test_recovery_kinematic_identity(): void {
   const input: ReturnType<typeof fixture> = fixture();
-  const selected: MotionRecovery.Kinematics["effectors"][number] = input.kinematics.effectors[0]!;
-  assert.throws((): MotionAction.Sample => MotionRecovery.local(input.start, input.goal, 7.5, 1, 7, { ...input.kinematics, effectors: [{ ...selected, radius: .5 }] }), /identities/u);
-  assert.throws((): MotionAction.Sample => MotionRecovery.local(input.start, input.goal, 7.5, 1, 7, { ...input.kinematics, effectors: [selected, selected] }), /identities/u);
+  const selected: MotionRecovery.Kinematics["effectors"][number] =
+    input.kinematics.effectors[0]!;
+  assert.throws(
+    (): MotionAction.Sample =>
+      MotionRecovery.local(input.start, input.goal, 7.5, 1, 7, {
+        ...input.kinematics,
+        effectors: [{ ...selected, radius: 0.5 }],
+      }),
+    /identities/u,
+  );
+  assert.throws(
+    (): MotionAction.Sample =>
+      MotionRecovery.local(input.start, input.goal, 7.5, 1, 7, {
+        ...input.kinematics,
+        effectors: [selected, selected],
+      }),
+    /identities/u,
+  );
   const external: MotionAction.Effector = input.start.effectors[2]!;
-  assert.throws((): MotionAction.Sample => MotionRecovery.local(input.start, input.goal, 7.5, 1, 7, { ...input.kinematics, effectors: [external] }), /authored FK/u);
+  assert.throws(
+    (): MotionAction.Sample =>
+      MotionRecovery.local(input.start, input.goal, 7.5, 1, 7, {
+        ...input.kinematics,
+        effectors: [external],
+      }),
+    /authored FK/u,
+  );
   const duplicate: MotionAction.Sample = structuredClone(input.goal);
   duplicate.effectors[0] = structuredClone(duplicate.effectors[1]!);
-  assert.throws((): MotionAction.Sample => MotionRecovery.local(input.start, duplicate, 7.5, 1, 7, input.kinematics), /identities/u);
+  assert.throws(
+    (): MotionAction.Sample =>
+      MotionRecovery.local(input.start, duplicate, 7.5, 1, 7, input.kinematics),
+    /identities/u,
+  );
 }
 
 /**
@@ -84,15 +180,47 @@ export function test_recovery_kinematic_identity(): void {
  */
 export function test_recovery_receiver_local_clock(): void {
   const input: ReturnType<typeof fixture> = fixture();
-  const event: MotionAction.ContactEvent = { actionId: "incoming", actorId: "opponent", targetId: "receiver", time: 100, relation: "guard", point: [0, 1, 0], normal: [1, 0, 0] };
+  const event: MotionAction.ContactEvent = {
+    actionId: "incoming",
+    actorId: "opponent",
+    targetId: "receiver",
+    time: 100,
+    relation: "guard",
+    point: [0, 1, 0],
+    normal: [1, 0, 0],
+  };
   const state: MotionAction.ContactState = { event, sample: input.start };
-  assert.throws((): MotionAction.Sample => MotionRecovery.sample(state, input.goal, 7.5, 1, 7.1, input.kinematics), /timestamp/u);
-  const held: MotionAction.Sample = MotionRecovery.local(input.start, input.goal, 7.05, 1, 7.1, input.kinematics);
+  assert.throws(
+    (): MotionAction.Sample =>
+      MotionRecovery.sample(state, input.goal, 7.5, 1, 7.1, input.kinematics),
+    /timestamp/u,
+  );
+  const held: MotionAction.Sample = MotionRecovery.local(
+    input.start,
+    input.goal,
+    7.05,
+    1,
+    7.1,
+    input.kinematics,
+  );
   assert.equal(held.phase, "contact");
   assert.deepEqual(held.effectors, input.start.effectors);
   assert.deepEqual(held.pose, input.start.pose);
-  const matching: MotionAction.ContactState = { event: { ...event, time: 7 }, sample: input.start };
-  assert.deepEqual(MotionRecovery.sample(matching, input.goal, 7.5, 1, 7.1, input.kinematics), MotionRecovery.local(input.start, input.goal, 7.5, 1, 7.1, input.kinematics));
+  const matching: MotionAction.ContactState = {
+    event: { ...event, time: 7 },
+    sample: input.start,
+  };
+  assert.deepEqual(
+    MotionRecovery.sample(matching, input.goal, 7.5, 1, 7.1, input.kinematics),
+    MotionRecovery.local(
+      input.start,
+      input.goal,
+      7.5,
+      1,
+      7.1,
+      input.kinematics,
+    ),
+  );
   assert.equal(event.time, 100);
 }
 
@@ -108,45 +236,216 @@ export function test_recovery_receiver_local_clock(): void {
  * @evidence contracts/testing.md#independent-cases Literal ninety-degree quaternions, their negated representation and exact identity distinguish physical frame equivalence from a new orientation. Contacts and airborne branches must refuse at every endpoint or intermediate sample because this API owns limb return only.
  */
 export function test_recovery_support_and_root_boundary(): void {
-  const start: MotionAction.Sample = { pose: {}, rootOffset: [0, 0, 0], rootRotation: [0, Math.SQRT1_2, 0, Math.SQRT1_2], support: { kind: "feet", left: .5, right: .5 }, effectors: [], phase: "contact", elapsed: 1, progress: 0 };
-  const goal: MotionAction.Sample = { ...structuredClone(start), rootOffset: [.1, 0, 0], elapsed: 2, phase: "complete", progress: 1 };
-  const middle: MotionAction.Sample = MotionRecovery.local(start, goal, 1.5, 1, 1);
+  const start: MotionAction.Sample = {
+    pose: {},
+    rootOffset: [0, 0, 0],
+    rootRotation: [0, Math.SQRT1_2, 0, Math.SQRT1_2],
+    support: { kind: "feet", left: 0.5, right: 0.5 },
+    effectors: [],
+    phase: "contact",
+    elapsed: 1,
+    progress: 0,
+  };
+  const goal: MotionAction.Sample = {
+    ...structuredClone(start),
+    rootOffset: [0.1, 0, 0],
+    elapsed: 2,
+    phase: "complete",
+    progress: 1,
+  };
+  const middle: MotionAction.Sample = MotionRecovery.local(
+    start,
+    goal,
+    1.5,
+    1,
+    1,
+  );
   assert.deepEqual(middle.rootRotation, start.rootRotation);
   assert.equal(middle.support.kind, "feet");
   middle.rootRotation![1] = 0;
   assert.equal(start.rootRotation![1], Math.SQRT1_2);
-  const negative: MotionAction.Sample = { ...goal, rootRotation: [0, -Math.SQRT1_2, 0, -Math.SQRT1_2] };
-  assert.deepEqual(MotionRecovery.local(start, negative, 1.5, 1, 1).rootRotation, start.rootRotation);
+  const negative: MotionAction.Sample = {
+    ...goal,
+    rootRotation: [0, -Math.SQRT1_2, 0, -Math.SQRT1_2],
+  };
+  assert.deepEqual(
+    MotionRecovery.local(start, negative, 1.5, 1, 1).rootRotation,
+    start.rootRotation,
+  );
   const identity: MotionAction.Sample = { ...start, rootRotation: undefined };
-  assert.doesNotThrow((): MotionAction.Sample => MotionRecovery.local(identity, { ...goal, rootRotation: [0, 0, 0, 1] }, 1.5, 1, 1));
-  assert.throws((): MotionAction.Sample => MotionRecovery.local(start, { ...goal, rootRotation: [0, 0, 0, 1] }, 1.5, 1, 1), /same rigid root orientation/u);
-  assert.throws((): MotionAction.Sample => MotionRecovery.local(start, { ...goal, rootRotation: [0, 0, 0, 0] }, 1.5, 1, 1), /unit/u);
+  assert.doesNotThrow(
+    (): MotionAction.Sample =>
+      MotionRecovery.local(
+        identity,
+        { ...goal, rootRotation: [0, 0, 0, 1] },
+        1.5,
+        1,
+        1,
+      ),
+  );
+  assert.throws(
+    (): MotionAction.Sample =>
+      MotionRecovery.local(
+        start,
+        { ...goal, rootRotation: [0, 0, 0, 1] },
+        1.5,
+        1,
+        1,
+      ),
+    /same rigid root orientation/u,
+  );
+  assert.throws(
+    (): MotionAction.Sample =>
+      MotionRecovery.local(
+        start,
+        { ...goal, rootRotation: [0, 0, 0, 0] },
+        1.5,
+        1,
+        1,
+      ),
+    /unit/u,
+  );
   const supports: MotionAction.Support[] = [
     { kind: "airborne", left: 0, right: 0 },
-    { kind: "contacts", left: 0, right: 0, contacts: [{ id: "trunk", region: "trunk", bone: "chest", share: 1, localPoint: [0, 0, -.1], world: [0, 0, 0], mode: "planted" }] },
+    {
+      kind: "contacts",
+      left: 0,
+      right: 0,
+      contacts: [
+        {
+          id: "trunk",
+          region: "trunk",
+          bone: "chest",
+          share: 1,
+          localPoint: [0, 0, -0.1],
+          world: [0, 0, 0],
+          mode: "planted",
+        },
+      ],
+    },
   ];
-  for (const support of supports) for (const elapsed of [1, 1.5, 2]) {
-    assert.throws((): MotionAction.Sample => MotionRecovery.local({ ...start, support }, { ...goal, support }, elapsed, 1, 1), /foot support/u);
-    assert.throws((): MotionAction.Sample => MotionRecovery.local(start, { ...goal, support }, elapsed, 1, 1), /foot support/u);
-  }
+  for (const support of supports)
+    for (const elapsed of [1, 1.5, 2]) {
+      assert.throws(
+        (): MotionAction.Sample =>
+          MotionRecovery.local(
+            { ...start, support },
+            { ...goal, support },
+            elapsed,
+            1,
+            1,
+          ),
+        /foot support/u,
+      );
+      assert.throws(
+        (): MotionAction.Sample =>
+          MotionRecovery.local(start, { ...goal, support }, elapsed, 1, 1),
+        /foot support/u,
+      );
+    }
 }
 
 /** One cached actual anatomy supplies both endpoints; no actor or viewer state participates. */
-function fixture(): { evaluate: AutoMovieHumanSkeleton.PoseEvaluator; start: MotionAction.Sample; goal: MotionAction.Sample; kinematics: MotionRecovery.Kinematics } {
-  const evaluate: AutoMovieHumanSkeleton.PoseEvaluator = prepareLabHuman().evaluate;
-  const pose: IAutoMovieHumanPose = { arms: { left: { elbow: { flexion: 0 } }, right: {} } };
-  const endPose: IAutoMovieHumanPose = { arms: { left: { elbow: { flexion: 90 } }, right: {} } };
+function fixture(): {
+  evaluate: AutoMovieHumanSkeleton.PoseEvaluator;
+  start: MotionAction.Sample;
+  goal: MotionAction.Sample;
+  kinematics: MotionRecovery.Kinematics;
+} {
+  const evaluate: AutoMovieHumanSkeleton.PoseEvaluator =
+    prepareLabHuman().evaluate;
+  const pose: IAutoMovieHumanPose = {
+    arms: { left: { elbow: { flexion: 0 } }, right: {} },
+  };
+  const endPose: IAutoMovieHumanPose = {
+    arms: { left: { elbow: { flexion: 90 } }, right: {} },
+  };
   const output: AutoMovieHumanSkeleton.IOutput = evaluate(pose);
   const endOutput: AutoMovieHumanSkeleton.IOutput = evaluate(endPose);
-  const effectors: MotionAction.Effector[] = [undefined, [0, -.1, 0] as MotionAction.Vec3].map((localPoint: MotionAction.Vec3 | undefined): MotionAction.Effector => ({ bone: "leftLowerArm", ...(localPoint ? { localPoint } : {}), target: point(output, "leftLowerArm", localPoint), role: "guide", constraint: "hard", radius: 0 }));
-  const start: MotionAction.Sample = { pose, rootOffset: [.3, 0, .1], support: { left: .5, right: .5, patches: [{ side: "left", bone: "leftFoot", localPoint: [0, 0, 0], world: [1, 0, 2], mode: "planted", constraint: "hard" }] }, effectors: [...effectors, { bone: "rightHand", target: [8, 9, 10], role: "strike", radius: 0 }], phase: "contact", elapsed: 7, progress: 0 };
-  const endEffectors: MotionAction.Effector[] = [...effectors.map((effector: MotionAction.Effector): MotionAction.Effector => ({ ...effector, target: point(endOutput, effector.bone, effector.localPoint) })), { bone: "rightHand", target: [10, 11, 12], role: "strike", radius: 0 }];
-  const goal: MotionAction.Sample = { ...structuredClone(start), pose: endPose, rootOffset: [.5, .2, -.1], effectors: endEffectors.reverse(), phase: "complete", elapsed: 8, progress: 1 };
-  return { evaluate, start, goal, kinematics: { evaluatePose: evaluate, effectors: effectors.map(({ target: _target, ...identity }: MotionAction.Effector): MotionRecovery.Kinematics["effectors"][number] => identity) } };
+  const effectors: MotionAction.Effector[] = [
+    undefined,
+    [0, -0.1, 0] as MotionAction.Vec3,
+  ].map(
+    (localPoint: MotionAction.Vec3 | undefined): MotionAction.Effector => ({
+      bone: "leftLowerArm",
+      ...(localPoint ? { localPoint } : {}),
+      target: point(output, "leftLowerArm", localPoint),
+      role: "guide",
+      constraint: "hard",
+      radius: 0,
+    }),
+  );
+  const start: MotionAction.Sample = {
+    pose,
+    rootOffset: [0.3, 0, 0.1],
+    support: {
+      left: 0.5,
+      right: 0.5,
+      patches: [
+        {
+          side: "left",
+          bone: "leftFoot",
+          localPoint: [0, 0, 0],
+          world: [1, 0, 2],
+          mode: "planted",
+          constraint: "hard",
+        },
+      ],
+    },
+    effectors: [
+      ...effectors,
+      { bone: "rightHand", target: [8, 9, 10], role: "strike", radius: 0 },
+    ],
+    phase: "contact",
+    elapsed: 7,
+    progress: 0,
+  };
+  const endEffectors: MotionAction.Effector[] = [
+    ...effectors.map(
+      (effector: MotionAction.Effector): MotionAction.Effector => ({
+        ...effector,
+        target: point(endOutput, effector.bone, effector.localPoint),
+      }),
+    ),
+    { bone: "rightHand", target: [10, 11, 12], role: "strike", radius: 0 },
+  ];
+  const goal: MotionAction.Sample = {
+    ...structuredClone(start),
+    pose: endPose,
+    rootOffset: [0.5, 0.2, -0.1],
+    effectors: endEffectors.reverse(),
+    phase: "complete",
+    elapsed: 8,
+    progress: 1,
+  };
+  return {
+    evaluate,
+    start,
+    goal,
+    kinematics: {
+      evaluatePose: evaluate,
+      effectors: effectors.map(
+        ({
+          target: _target,
+          ...identity
+        }: MotionAction.Effector): MotionRecovery.Kinematics["effectors"][number] =>
+          identity,
+      ),
+    },
+  };
 }
 
 /** Independently transform actual placement/local coordinates with Three.js quaternion arithmetic. */
-function point(output: AutoMovieHumanSkeleton.IOutput, bone: MotionAction.Effector["bone"], local: MotionAction.Vec3 = [0, 0, 0]): MotionAction.Vec3 {
-  const placement: AutoMovieHumanSkeleton.IPlacement = output.posed.find((item: AutoMovieHumanSkeleton.IPlacement): boolean => item.bone === bone)!;
-  return new THREE.Vector3(...local).applyQuaternion(new THREE.Quaternion(...placement.rotation)).add(new THREE.Vector3(...placement.position)).toArray();
+function point(
+  output: AutoMovieHumanSkeleton.IOutput,
+  bone: MotionAction.Effector["bone"],
+  local: MotionAction.Vec3 = [0, 0, 0],
+): MotionAction.Vec3 {
+  const placement: AutoMovieHumanSkeleton.IPlacement = output.posed.find(
+    (item: AutoMovieHumanSkeleton.IPlacement): boolean => item.bone === bone,
+  )!;
+  return new THREE.Vector3(...local)
+    .applyQuaternion(new THREE.Quaternion(...placement.rotation))
+    .add(new THREE.Vector3(...placement.position))
+    .toArray();
 }

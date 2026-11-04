@@ -1,4 +1,9 @@
-import { AutoMovieHumanRigControls, type AutoMovieHumanClinicalIk, type AutoMovieHumanSkeleton, type IAutoMovieHumanPose } from "@automovie/human";
+import {
+  type AutoMovieHumanClinicalIk,
+  AutoMovieHumanRigControls,
+  type AutoMovieHumanSkeleton,
+  type IAutoMovieHumanPose,
+} from "@automovie/human";
 
 /**
  * Shared action-local inputs and observable requests for the motion laboratory.
@@ -13,7 +18,18 @@ export namespace MotionAction {
    * @evidence contracts/common.md#implementation-and-ownership Primitive leaves are retained as their exact input type before object recursion, including Human numeric intersections with range brands. Recursive readonly properties preserve tuple/object structure without mapping a branded number's methods into an object. Runtime ownership remains the producing instance's responsibility.
    * @evidence contracts/common.md#authoring-interface Use for immutable public snapshots, not a cast back to mutable inputs. Numeric units and brands survive the readonly view and a detached pose clone remains assignable to the public Human pose type; a producer must freeze or return detached copies to enforce runtime isolation.
    */
-  export type Immutable<T> = T extends string | number | boolean | bigint | symbol | null | undefined ? T : T extends object ? { readonly [K in keyof T]: Immutable<T[K]> } : T;
+  export type Immutable<T> = T extends
+    | string
+    | number
+    | boolean
+    | bigint
+    | symbol
+    | null
+    | undefined
+    ? T
+    : T extends object
+      ? { readonly [K in keyof T]: Immutable<T[K]> }
+      : T;
   /**
    * Three metre coordinates in the frame stated by the containing member.
    * @evidence contracts/common.md#implementation-and-ownership A fixed tuple carries a single point/vector without a runtime wrapper; the consuming member owns frame conversion.
@@ -31,7 +47,14 @@ export namespace MotionAction {
    * @evidence contracts/common.md#implementation-and-ownership Preparation, forward delivery, contact, limb return and body settling remain distinct measurable responsibilities.
    * @evidence contracts/common.md#authoring-interface A contact phase is timing intent; only ContactEvent records a detected encounter. Adjacent phases retain compatible actual point/frame goals and clinical endpoints; changing a phase does not certify a previously unresolved support or permit a pose jump.
    */
-  export type Phase = "idle" | "preparation" | "delivery" | "contact" | "retraction" | "recovery" | "complete";
+  export type Phase =
+    | "idle"
+    | "preparation"
+    | "delivery"
+    | "contact"
+    | "retraction"
+    | "recovery"
+    | "complete";
   /**
    * Consecutive durations, not absolute timestamps; delivery/retraction are positive.
    * @evidence contracts/common.md#implementation-and-ownership Distinct local durations let actual interception shorten forward delivery while preserving independent return and settling.
@@ -173,8 +196,22 @@ export namespace MotionAction {
    * @evidence contracts/common.md#authoring-interface Paired regions require anatomical side. Central hips, spine and chest omit it; hip contact can instead name a side's proximal upper-leg surface. Region identifies the retained surface, not a force or injury model.
    */
   export type GroundCarrier =
-    | { region: "foot"; side: Side; bone: Extract<AutoMovieHumanRigControls.Joint, `${Side}${"Foot" | "Subtalar" | "Midfoot" | `Hallux${string}` | `Toe${string}`}`> }
-    | { region: "hand"; side: Side; bone: Extract<AutoMovieHumanRigControls.Joint, `${Side}${"Hand" | `Thumb${string}` | `Index${string}` | `Middle${string}` | `Ring${string}` | `Little${string}`}`> }
+    | {
+        region: "foot";
+        side: Side;
+        bone: Extract<
+          AutoMovieHumanRigControls.Joint,
+          `${Side}${"Foot" | "Subtalar" | "Midfoot" | `Hallux${string}` | `Toe${string}`}`
+        >;
+      }
+    | {
+        region: "hand";
+        side: Side;
+        bone: Extract<
+          AutoMovieHumanRigControls.Joint,
+          `${Side}${"Hand" | `Thumb${string}` | `Index${string}` | `Middle${string}` | `Ring${string}` | `Little${string}`}`
+        >;
+      }
     | { region: "forearm" | "elbow"; side: Side; bone: `${Side}LowerArm` }
     | { region: "shoulder"; side: Side; bone: `${Side}UpperArm` }
     | { region: "knee"; side: Side; bone: `${Side}LowerLeg` }
@@ -187,14 +224,15 @@ export namespace MotionAction {
    * @evidence contracts/common.md#implementation-and-ownership Combines one explicit anatomical carrier with the existing independent point/frame request. A contact must be retained hard; actual surface identity, floor clearance and target residual remain the host's responsibility.
    * @evidence contracts/common.md#authoring-interface Id is unique within one support sample, share is finite nonnegative, and all contacts sum to one. Bone-local/world points are metres. This is requested support, not measured force, balance or swept collision proof.
    */
-  export type GroundContact = Omit<SupportPoint, "bone" | "mode"> & GroundCarrier & {
-    /** Stable contact identity across a retained interval. */
-    id: string;
-    /** Normalized nonnegative load intent. */
-    share: number;
-    /** Retained point or pivot; an unloaded trajectory belongs in patches. */
-    mode: "planted" | "pivot";
-  };
+  export type GroundContact = Omit<SupportPoint, "bone" | "mode"> &
+    GroundCarrier & {
+      /** Stable contact identity across a retained interval. */
+      id: string;
+      /** Normalized nonnegative load intent. */
+      share: number;
+      /** Retained point or pivot; an unloaded trajectory belongs in patches. */
+      mode: "planted" | "pivot";
+    };
   /**
    * Planned rigid foot frame and its same-pose actual floor-contact witness.
    * @evidence contracts/common.md#implementation-and-ownership Both patches derive from one authored public FK and every original same-side foot vertex. The fixed frame retains its own point identity and horizontal anchor; a separate minimum vertex supplies ground contact without moving the requested frame or copying an achieved solver result.
@@ -293,7 +331,12 @@ export namespace MotionAction {
    * @evidence contracts/common.md#implementation-and-ownership This deep-readonly projection reuses pose, authored controls, rigid root and support types without introducing a solver or a second task representation. A host realizes support first where the technique requests this boundary; the arm stage consumes that same realized body and root. Requested and applied placements remain separately observable.
    * @evidence contracts/common.md#authoring-interface A placement carries clinical Human units, actor-local root metres, optional unit root quaternion and original WORLD support anchors. The host validates actual geometry and every loaded carrier before publishing realized support. The type alone proves neither admission nor balance and never permits copying achieved geometry over the original request.
    */
-  export type BodyPlacement = Immutable<Pick<Sample, "pose" | "rootOffset" | "rootRotation" | "support" | "preservedChannels">>;
+  export type BodyPlacement = Immutable<
+    Pick<
+      Sample,
+      "pose" | "rootOffset" | "rootRotation" | "support" | "preservedChannels"
+    >
+  >;
   /**
    * First observed contact of one explicitly participating action pair.
    * @evidence contracts/common.md#implementation-and-ownership The query identifies the action, participants, relation and world witness; finite-sampling uncertainty remains in its receipt instead of becoming an automatic hit timestamp.
@@ -347,14 +390,20 @@ export namespace MotionAction {
      * @evidence contracts/common.md#implementation-and-ownership The host uses the borrowed same-body FK and all original foot vertices once. Frame preserves the supplied bone/local point, initialWorld and world X/Z while its authored orientation determines floor-compatible Y. A separate actual minimum vertex gives contact in that same planned placement; neither result comes from postsolve geometry or mutates actor, root, floor or source shape.
      * @evidence contracts/common.md#authoring-interface Inputs are authored clinical pose, requested actor-local metre root offset and one bone-local frame patch. Output frame is hard/free, contact hard/planted without orientation; the loaded side consumes contact once and never counts the frame as support. Contact identity follows actual equal-height minimum changes, while the frame identity/anchor stays fixed. Invalid or unsupported data refuses. Independent displayed-world point/frame, complete-foot floor, requested/applied root delta and phase continuity remain mandatory.
      */
-    supportFrame?: (authoredPose: IAutoMovieHumanPose, requestedRootOffset: Vec3, patch: SupportPatch) => SupportMeasurement;
+    supportFrame?: (
+      authoredPose: IAutoMovieHumanPose,
+      requestedRootOffset: Vec3,
+      patch: SupportPatch,
+    ) => SupportMeasurement;
     /**
      * Borrow the original bone-bound support frame targets in WORLD metres.
      *
      * @evidence contracts/common.md#implementation-and-ownership The host captures original carrier geometry, initial FK rotation and actor heading independently of mutable actor state. Planning and final fitting share the same original noncollinear three points for a declared rigid frame or the original single point for a plain contact; a contact alone never invents orientation. The callable reads the patch without mutation and returns independently owned target objects and coordinate tuples on every call; no achieved pose, root or later actor matrix can redefine them.
      * @evidence contracts/common.md#authoring-interface The input is a readonly original bone/local identity, WORLD anchor and optional frame rotation. Unlike a direct ClinicalIk request, each returned ITarget.position is WORLD metres: the consumer converts it exactly once into its requested evaluator frame before solving. Fixed bone/local identities and raw WORLD goals survive fitting and failure. Missing geometry or an unsupported identity refuses; consumers preserve planning residuals and independently verify displayed frame, complete-foot floor and per-foot load instead of treating this callback as physical admission. Borrow the function without cloning or serializing it.
      */
-    supportTargets?: (patch: Immutable<SupportPatch>) => readonly Immutable<AutoMovieHumanClinicalIk.ITarget>[];
+    supportTargets?: (
+      patch: Immutable<SupportPatch>,
+    ) => readonly Immutable<AutoMovieHumanClinicalIk.ITarget>[];
     /**
      * Borrow the host's same prepared support solve without changing the displayed actor.
      * @evidence contracts/common.md#implementation-and-ownership Uses the captured same-body FK, original full geometry, WORLD anchors and native solver limits also consumed by final placement. It returns actual pose/root with original support goals; failure retains the existing detached Error.cause diagnostics and never substitutes achieved anchors.
@@ -380,7 +429,15 @@ export namespace MotionAction {
    * @evidence contracts/common.md#authoring-interface Input and output retain the same readonly BodyPlacement structure and coordinate conventions. The producing host must separately record requested versus realized placements and validate native fitting, every loaded foot and floor before publishing realized support. Each invocation returns a fresh independent snapshot; original anchors and coordinates are copied exactly rather than replaced by achieved geometry.
    */
   export function snapshotBodyPlacement(source: BodyPlacement): BodyPlacement {
-    return structuredClone({ pose: source.pose, rootOffset: source.rootOffset, ...(source.rootRotation ? { rootRotation: source.rootRotation } : {}), ...(source.preservedChannels ? { preservedChannels: source.preservedChannels } : {}), support: source.support });
+    return structuredClone({
+      pose: source.pose,
+      rootOffset: source.rootOffset,
+      ...(source.rootRotation ? { rootRotation: source.rootRotation } : {}),
+      ...(source.preservedChannels
+        ? { preservedChannels: source.preservedChannels }
+        : {}),
+      support: source.support,
+    });
   }
   /**
    * Admit an actual support point's finite coordinates and optional rigid frame request.
@@ -389,7 +446,13 @@ export namespace MotionAction {
    * @evidence contracts/common.md#authoring-interface frameRotation uses unit x/y/z/w and world axes, rotating the measured initial plantar frame about this patch's single retained world point. Invalid dimensions, rotations or simultaneous yaw/quaternion throw without mutation.
    */
   export function validateSupportFrame(patch: Immutable<SupportPatch>): void {
-    if ((patch.side !== "left" && patch.side !== "right") || !carrierMatches("foot", patch.side, patch.bone)) throw new Error("Support foot must retain its own canonical foot carrier");
+    if (
+      (patch.side !== "left" && patch.side !== "right") ||
+      !carrierMatches("foot", patch.side, patch.bone)
+    )
+      throw new Error(
+        "Support foot must retain its own canonical foot carrier",
+      );
     validatePoint(patch);
   }
   /**
@@ -398,38 +461,93 @@ export namespace MotionAction {
    * @evidence contracts/common.md#authoring-interface Unknown branches, contradictory contact/flight records, duplicate contact ids and malformed shares refuse without mutation. Contact and airborne branches require exact zero legacy shares and free optional trajectories. Actual vertex identity, full geometry floor, target tolerance and balance remain separate host checks.
    */
   export function validateSupport(support: Immutable<Support>): void {
-    if (!support || ![undefined, "feet", "contacts", "airborne"].includes(support.kind)) throw new Error("Unknown support kind");
-    if (support.patches !== undefined && !Array.isArray(support.patches)) throw new Error("Support patches must be an array");
+    if (
+      !support ||
+      ![undefined, "feet", "contacts", "airborne"].includes(support.kind)
+    )
+      throw new Error("Unknown support kind");
+    if (support.patches !== undefined && !Array.isArray(support.patches))
+      throw new Error("Support patches must be an array");
     for (const patch of support.patches ?? []) validateSupportFrame(patch);
-    if (![support.left, support.right].every((share: number): boolean => Number.isFinite(share) && share >= 0)) throw new Error("Foot shares must be finite and nonnegative");
+    if (
+      ![support.left, support.right].every(
+        (share: number): boolean => Number.isFinite(share) && share >= 0,
+      )
+    )
+      throw new Error("Foot shares must be finite and nonnegative");
     if (support.kind === undefined || support.kind === "feet") {
-      if ("contacts" in support || Math.abs(support.left + support.right - 1) > 1e-9) throw new Error("Foot shares must sum to one without contact authority");
-      for (const side of ["left", "right"] as const) if (support[side] > 0 && support.patches !== undefined && !support.patches.some((patch: Immutable<SupportPatch>): boolean => patch.side === side && patch.mode !== "free")) throw new Error(`Loaded ${side} foot requires retained own-side support`);
+      if (
+        "contacts" in support ||
+        Math.abs(support.left + support.right - 1) > 1e-9
+      )
+        throw new Error(
+          "Foot shares must sum to one without contact authority",
+        );
+      for (const side of ["left", "right"] as const)
+        if (
+          support[side] > 0 &&
+          support.patches !== undefined &&
+          !support.patches.some(
+            (patch: Immutable<SupportPatch>): boolean =>
+              patch.side === side && patch.mode !== "free",
+          )
+        )
+          throw new Error(
+            `Loaded ${side} foot requires retained own-side support`,
+          );
       return;
     }
-    if (support.left !== 0 || support.right !== 0 || support.patches?.some((patch: Immutable<SupportPatch>): boolean => patch.mode !== "free")) throw new Error("Non-foot support requires zero legacy shares and free foot trajectories");
+    if (
+      support.left !== 0 ||
+      support.right !== 0 ||
+      support.patches?.some(
+        (patch: Immutable<SupportPatch>): boolean => patch.mode !== "free",
+      )
+    )
+      throw new Error(
+        "Non-foot support requires zero legacy shares and free foot trajectories",
+      );
     if (support.kind === "airborne") {
-      if ("contacts" in support) throw new Error("Airborne support cannot retain ground contacts");
+      if ("contacts" in support)
+        throw new Error("Airborne support cannot retain ground contacts");
       return;
     }
-    if (support.kind !== "contacts") throw new Error("Expected explicit contact support");
-    if (!Array.isArray(support.contacts) || !support.contacts.length) throw new Error("Contact support requires at least one retained contact");
+    if (support.kind !== "contacts")
+      throw new Error("Expected explicit contact support");
+    if (!Array.isArray(support.contacts) || !support.contacts.length)
+      throw new Error("Contact support requires at least one retained contact");
     const ids: Set<string> = new Set<string>();
     let total: number = 0;
     for (const contact of support.contacts) {
       validateGroundContact(contact);
-      if (ids.has(contact.id)) throw new Error("Ground contact ids must be unique");
-      ids.add(contact.id); total += contact.share;
+      if (ids.has(contact.id))
+        throw new Error("Ground contact ids must be unique");
+      ids.add(contact.id);
+      total += contact.share;
     }
-    if (!Number.isFinite(total) || Math.abs(total - 1) > 1e-9) throw new Error("Ground contact shares must sum to one");
+    if (!Number.isFinite(total) || Math.abs(total - 1) > 1e-9)
+      throw new Error("Ground contact shares must sum to one");
   }
   /**
    * Check one explicitly named anatomical ground carrier and retained hard target.
    * @evidence contracts/common.md#implementation-and-ownership Canonical Human identity and closed region mapping reject side swaps, foreign limbs and central-bone side labels before numerical fitting. It shares point/frame admission with original foot requests.
    * @evidence contracts/common.md#authoring-interface Id must be nonempty, share finite nonnegative, and mode planted or pivot. Source-vertex membership and actual world/floor agreement belong to the same actor's geometry consumer.
    */
-  export function validateGroundContact(contact: Immutable<GroundContact>): void {
-    if (!contact || typeof contact.id !== "string" || !contact.id.trim() || !Number.isFinite(contact.share) || contact.share < 0 || (contact.mode !== "planted" && contact.mode !== "pivot") || !carrierMatches(contact.region, contact.side, contact.bone)) throw new Error("Ground contact requires a named canonical anatomical carrier and nonnegative share");
+  export function validateGroundContact(
+    contact: Immutable<GroundContact>,
+  ): void {
+    if (
+      !contact ||
+      typeof contact.id !== "string" ||
+      !contact.id.trim() ||
+      !Number.isFinite(contact.share) ||
+      contact.share < 0 ||
+      (contact.mode !== "planted" && contact.mode !== "pivot") ||
+      !carrierMatches(contact.region, contact.side, contact.bone)
+    )
+      throw new Error(
+        "Ground contact requires a named canonical anatomical carrier and nonnegative share",
+      );
     validatePoint(contact);
   }
   /**
@@ -437,18 +555,56 @@ export namespace MotionAction {
    * @evidence contracts/common.md#implementation-and-ownership Reuses Human's 1e-6 unit-quaternion norm tolerance without normalizing malformed input. Root orientation adds a rigid placement, preserving clinical joint bounds.
    * @evidence contracts/common.md#authoring-interface Omitted means identity; otherwise x/y/z/w must be finite and unit. Actual world orientation is heading multiplied by this local quaternion. Root offset remains in the fixed heading frame.
    */
-  export function validateRootRotation(rotation: Immutable<AutoMovieHumanRigControls.Rotation> | undefined): void {
-    if (rotation !== undefined && (!Array.isArray(rotation) || rotation.length !== 4 || ![0, 1, 2, 3].every((index: number): boolean => Number.isFinite(rotation[index])) || Math.abs(Math.hypot(...rotation) - 1) > 1e-6)) throw new Error("Root rotation must be a unit actor-local quaternion");
+  export function validateRootRotation(
+    rotation: Immutable<AutoMovieHumanRigControls.Rotation> | undefined,
+  ): void {
+    if (
+      rotation !== undefined &&
+      (!Array.isArray(rotation) ||
+        rotation.length !== 4 ||
+        ![0, 1, 2, 3].every((index: number): boolean =>
+          Number.isFinite(rotation[index]),
+        ) ||
+        Math.abs(Math.hypot(...rotation) - 1) > 1e-6)
+    )
+      throw new Error("Root rotation must be a unit actor-local quaternion");
   }
   /** Share finite point/frame validation without assigning anatomical or load semantics. */
   function validatePoint(patch: Immutable<SupportPoint>): void {
     supportConstraint(patch);
-    const points: readonly (readonly number[])[] = [patch.localPoint, patch.world, ...(patch.initialWorld !== undefined ? [patch.initialWorld] : [])];
-    if (!points.every((point: readonly number[]): boolean => Array.isArray(point) && point.length === 3 && [0, 1, 2].every((index: number): boolean => Number.isFinite(point[index]))))
-      throw new Error("Support frame requires finite bone-local and world metre points");
-    if (patch.yawDegrees !== undefined && !Number.isFinite(patch.yawDegrees)) throw new Error("Support yaw must be finite degrees");
-    if (patch.frameRotation !== undefined && (patch.yawDegrees !== undefined || !Array.isArray(patch.frameRotation) || patch.frameRotation.length !== 4 || ![0, 1, 2, 3].every((index: number): boolean => Number.isFinite(patch.frameRotation![index])) || Math.abs(Math.hypot(...patch.frameRotation) - 1) > 1e-6))
-      throw new Error("Support frame requires one unit world quaternion or legacy yaw, never both");
+    const points: readonly (readonly number[])[] = [
+      patch.localPoint,
+      patch.world,
+      ...(patch.initialWorld !== undefined ? [patch.initialWorld] : []),
+    ];
+    if (
+      !points.every(
+        (point: readonly number[]): boolean =>
+          Array.isArray(point) &&
+          point.length === 3 &&
+          [0, 1, 2].every((index: number): boolean =>
+            Number.isFinite(point[index]),
+          ),
+      )
+    )
+      throw new Error(
+        "Support frame requires finite bone-local and world metre points",
+      );
+    if (patch.yawDegrees !== undefined && !Number.isFinite(patch.yawDegrees))
+      throw new Error("Support yaw must be finite degrees");
+    if (
+      patch.frameRotation !== undefined &&
+      (patch.yawDegrees !== undefined ||
+        !Array.isArray(patch.frameRotation) ||
+        patch.frameRotation.length !== 4 ||
+        ![0, 1, 2, 3].every((index: number): boolean =>
+          Number.isFinite(patch.frameRotation![index]),
+        ) ||
+        Math.abs(Math.hypot(...patch.frameRotation) - 1) > 1e-6)
+    )
+      throw new Error(
+        "Support frame requires one unit world quaternion or legacy yaw, never both",
+      );
   }
   /**
    * Admit fitting priority without interpreting an unloaded path as grounded support.
@@ -456,27 +612,51 @@ export namespace MotionAction {
    * @evidence contracts/common.md#implementation-and-ownership Resolves the existing free-soft/retained-hard defaults while allowing an explicitly hard unloaded trajectory. Invalid priorities and soft retained supports refuse; callers still own actual floor, geometry, load and phase-continuity verification.
    * @evidence contracts/common.md#authoring-interface Hard/soft chooses the public solver's physical or subordinate target collection, independently of mode. A free hard point can move above the floor and carries no ground reaction claim. Changing mode must not silently change the effective priority of a continuously retained target.
    */
-  export function supportConstraint(patch: Immutable<SupportPoint>): "hard" | "soft" {
-    if (!["planted", "pivot", "free"].includes(patch.mode) || patch.constraint !== undefined && patch.constraint !== "hard" && patch.constraint !== "soft")
-      throw new Error("Support role and target priority must use their declared alternatives");
-    const priority: "hard" | "soft" = patch.constraint ?? (patch.mode === "free" ? "soft" : "hard");
-    if (patch.mode !== "free" && priority !== "hard") throw new Error("Retained ground support requires hard point/frame enforcement");
+  export function supportConstraint(
+    patch: Immutable<SupportPoint>,
+  ): "hard" | "soft" {
+    if (
+      !["planted", "pivot", "free"].includes(patch.mode) ||
+      (patch.constraint !== undefined &&
+        patch.constraint !== "hard" &&
+        patch.constraint !== "soft")
+    )
+      throw new Error(
+        "Support role and target priority must use their declared alternatives",
+      );
+    const priority: "hard" | "soft" =
+      patch.constraint ?? (patch.mode === "free" ? "soft" : "hard");
+    if (patch.mode !== "free" && priority !== "hard")
+      throw new Error(
+        "Retained ground support requires hard point/frame enforcement",
+      );
     return priority;
   }
   /** Match canonical carrier regions before a host verifies the actor's actual emitted vertices. */
-  function carrierMatches(region: string, side: Side | undefined, bone: string): boolean {
+  function carrierMatches(
+    region: string,
+    side: Side | undefined,
+    bone: string,
+  ): boolean {
     if (!AutoMovieHumanRigControls.isJoint(bone)) return false;
-    if (region === "trunk") return side === undefined && (bone === "spine" || bone === "chest");
+    if (region === "trunk")
+      return side === undefined && (bone === "spine" || bone === "chest");
     if (region === "hip" && bone === "hips") return side === undefined;
-    if ((side !== "left" && side !== "right") || !bone.startsWith(side)) return false;
+    if ((side !== "left" && side !== "right") || !bone.startsWith(side))
+      return false;
     const suffix: string = bone.slice(side.length);
-    if (region === "foot") return /^(Foot|Subtalar|Midfoot|Hallux(Proximal|Distal)|Toe[2-5](Proximal|Intermediate|Distal))$/.test(suffix);
-    if (region === "hand") return /^(Hand|Thumb(Metacarpal|Proximal|Distal)|(Index|Middle|Ring|Little)(Proximal|Intermediate|Distal))$/.test(suffix);
-    if (region === "forearm" || region === "elbow") return suffix === "LowerArm";
+    if (region === "foot")
+      return /^(Foot|Subtalar|Midfoot|Hallux(Proximal|Distal)|Toe[2-5](Proximal|Intermediate|Distal))$/.test(
+        suffix,
+      );
+    if (region === "hand")
+      return /^(Hand|Thumb(Metacarpal|Proximal|Distal)|(Index|Middle|Ring|Little)(Proximal|Intermediate|Distal))$/.test(
+        suffix,
+      );
+    if (region === "forearm" || region === "elbow")
+      return suffix === "LowerArm";
     if (region === "shoulder") return suffix === "UpperArm";
     if (region === "knee") return suffix === "LowerLeg";
     return region === "hip" && suffix === "UpperLeg";
   }
 }
-
-

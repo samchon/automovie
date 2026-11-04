@@ -51,26 +51,83 @@ export namespace ContactResponse {
    * @evidence contracts/common.md#implementation-and-ownership A squared sine over each bounded interval gives zero offset and derivative at both boundaries. The query-specific normal approach value and authored compliance scales determine bounded amplitude; sampled crossings do not measure contact-patch velocity under receiver rotation/deformation. Miss and precontact inputs yield zero. This is authored response, not an integrated rigid-body solver.
    * @evidence contracts/common.md#authoring-interface Throws for malformed controls, elapsed time, speed or event normal. Repeated calls at the same contact/time return equivalent owned vectors; no event or sample is mutated and no handles are retained. Constant work and storage are independent of frame rate.
    */
-  export function sample(result: ContactTrace.Result, sinceContact: number, config: Config): Sample {
-    if (!Number.isFinite(sinceContact)) throw new Error("Contact response requires finite elapsed seconds.");
-    if (![config.attackerSeconds, config.receiverSeconds].every((value: number): boolean => Number.isFinite(value) && value > 0) || ![config.attackerGainSeconds, config.bodyGainSeconds, config.guardGainSeconds, config.maximumMetres].every((value: number): boolean => Number.isFinite(value) && value >= 0) || !Number.isFinite(config.grazeFraction) || config.grazeFraction < 0 || config.grazeFraction > 1) throw new Error("Invalid authored contact response controls.");
-    if (!result.event || sinceContact <= 0) return { attacker: [0, 0, 0], receiver: [0, 0, 0], active: false };
+  export function sample(
+    result: ContactTrace.Result,
+    sinceContact: number,
+    config: Config,
+  ): Sample {
+    if (!Number.isFinite(sinceContact))
+      throw new Error("Contact response requires finite elapsed seconds.");
+    if (
+      ![config.attackerSeconds, config.receiverSeconds].every(
+        (value: number): boolean => Number.isFinite(value) && value > 0,
+      ) ||
+      ![
+        config.attackerGainSeconds,
+        config.bodyGainSeconds,
+        config.guardGainSeconds,
+        config.maximumMetres,
+      ].every(
+        (value: number): boolean => Number.isFinite(value) && value >= 0,
+      ) ||
+      !Number.isFinite(config.grazeFraction) ||
+      config.grazeFraction < 0 ||
+      config.grazeFraction > 1
+    )
+      throw new Error("Invalid authored contact response controls.");
+    if (!result.event || sinceContact <= 0)
+      return { attacker: [0, 0, 0], receiver: [0, 0, 0], active: false };
     const normal: MotionAction.Vec3 = result.event.normal;
-    if (!normal.every(Number.isFinite) || Math.abs(Math.hypot(...normal) - 1) > 1e-8 || !Number.isFinite(result.approachMetresPerSecond) || result.approachMetresPerSecond < 0) throw new Error("Contact response requires a nonnegative query approach value and unit world normal.");
-    if (sinceContact >= Math.max(config.attackerSeconds, config.receiverSeconds)) return { attacker: [0, 0, 0], receiver: [0, 0, 0], active: false };
-    const attenuation: number = result.outcome === "graze" ? config.grazeFraction : 1;
-    const gain: number = result.event.relation === "body" || result.event.relation === "head" ? config.bodyGainSeconds : config.guardGainSeconds;
-    const attacker: number = Math.min(config.maximumMetres, result.approachMetresPerSecond * config.attackerGainSeconds) * attenuation * envelope(sinceContact, config.attackerSeconds);
-    const receiver: number = Math.min(config.maximumMetres, result.approachMetresPerSecond * gain) * attenuation * envelope(sinceContact, config.receiverSeconds);
+    if (
+      !normal.every(Number.isFinite) ||
+      Math.abs(Math.hypot(...normal) - 1) > 1e-8 ||
+      !Number.isFinite(result.approachMetresPerSecond) ||
+      result.approachMetresPerSecond < 0
+    )
+      throw new Error(
+        "Contact response requires a nonnegative query approach value and unit world normal.",
+      );
+    if (
+      sinceContact >= Math.max(config.attackerSeconds, config.receiverSeconds)
+    )
+      return { attacker: [0, 0, 0], receiver: [0, 0, 0], active: false };
+    const attenuation: number =
+      result.outcome === "graze" ? config.grazeFraction : 1;
+    const gain: number =
+      result.event.relation === "body" || result.event.relation === "head"
+        ? config.bodyGainSeconds
+        : config.guardGainSeconds;
+    const attacker: number =
+      Math.min(
+        config.maximumMetres,
+        result.approachMetresPerSecond * config.attackerGainSeconds,
+      ) *
+      attenuation *
+      envelope(sinceContact, config.attackerSeconds);
+    const receiver: number =
+      Math.min(config.maximumMetres, result.approachMetresPerSecond * gain) *
+      attenuation *
+      envelope(sinceContact, config.receiverSeconds);
     return {
-      attacker: [normal[0] * attacker, normal[1] * attacker, normal[2] * attacker],
-      receiver: [-normal[0] * receiver, -normal[1] * receiver, -normal[2] * receiver],
-      active: sinceContact < Math.max(config.attackerSeconds, config.receiverSeconds),
+      attacker: [
+        normal[0] * attacker,
+        normal[1] * attacker,
+        normal[2] * attacker,
+      ],
+      receiver: [
+        -normal[0] * receiver,
+        -normal[1] * receiver,
+        -normal[2] * receiver,
+      ],
+      active:
+        sinceContact < Math.max(config.attackerSeconds, config.receiverSeconds),
     };
   }
 
   /** Finite smooth displacement with exact zero at both interval endpoints. */
   function envelope(elapsed: number, duration: number): number {
-    return elapsed <= 0 || elapsed >= duration ? 0 : Math.sin(Math.PI * elapsed / duration) ** 2;
+    return elapsed <= 0 || elapsed >= duration
+      ? 0
+      : Math.sin((Math.PI * elapsed) / duration) ** 2;
   }
 }

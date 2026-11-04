@@ -1,0 +1,219 @@
+import type { IAutoMovieHumanChainRings } from "./IAutoMovieHumanChainRings";
+import type { IAutoMovieHumanNeutralBody } from "./IAutoMovieHumanNeutralBody";
+import { AutoMovieHumanNeutralTurn as Turn } from "./AutoMovieHumanNeutralTurn";
+import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
+
+/**
+ * The shoulder's neutral: the arm hanging at the side, resting against the
+ * trunk.
+ *
+ * A straight arm hung plumb from its shoulder would pass through the hip, so
+ * the resting angle is the least abduction at which the arm's own skin clears
+ * the trunk's and the leg's: at each depth under the shoulder the arm's own
+ * radius there (its skin's farthest distance from the bone line, read off the
+ * arm chain at the bind and carried onto the straightened arm) must reach no
+ * further toward the body than the body's skin at that depth.
+ * The bind's bend gives the elbow's plane, which neutral lays in the sagittal
+ * plane: the upper arm turns about its own axis until the forearm lies
+ * forward of it.
+ */
+export namespace AutoMovieHumanNeutralShoulder {
+  /** One shoulder's neutral. */
+  export interface IOutput {
+    /** The upper arm's world turn from the bind. */
+    turn: Math3D.Quaternion;
+
+    /** The arm's unit direction at neutral, from the shoulder down. */
+    down: Math3D.Vector;
+
+    /** The resting abduction from the plumb line, degrees. */
+    resting: number;
+  }
+
+  /**
+   * Derive one shoulder's neutral.
+   *
+   * @param body The bind skeleton.
+   * @param rings The skin of the trunk, the legs and the arms; the arm's own chain sizes it, the others are cleared.
+   * @param side Which arm.
+   * @returns The upper arm's turn, direction and resting angle.
+   */
+  export function derive(
+    body: IAutoMovieHumanNeutralBody,
+    rings: readonly IAutoMovieHumanChainRings[],
+    side: "left" | "right",
+  ): IOutput {
+    const s: number = side === "left" ? 1 : -1;
+    const angle: number = restingAngle(rings, body, side);
+    const radians: number = (angle * Math.PI) / 180;
+    const down: Math3D.Vector = [0, -Math.cos(radians), s * Math.sin(radians)];
+    const upper: Math3D.Vector = body.direction(`${side}UpperArm`);
+    const fore: Math3D.Vector = body.direction(`${side}LowerArm`);
+
+    // The elbow's plane is the forearm's lean off the humerus. A bind arm
+    // held straight has no such plane (the lean's length is zero and its
+    // direction undefined), and then the upper arm keeps its bind twist: the
+    // side carried is the body's forward direction, square to the humerus.
+    const lean: Math3D.Vector = Turn.perpendicular(fore, upper);
+    const bent: boolean = Math.hypot(...lean) > STRAIGHT;
+    const plane: Math3D.Vector = bent ? Math3D.unit(lean) : Math3D.unit(Turn.perpendicular(Turn.FORWARD, upper));
+    return {
+      turn: Turn.frame(upper, plane, down, bent ? Turn.FORWARD : plane),
+      down,
+      resting: angle,
+    };
+  }
+
+  /**
+   * The sine of the elbow's bend below which the bind arm counts as straight
+   * and has no elbow plane: one degree, far under any carrying or flexion
+   * angle a bind is built with, and far over the rounding of unit directions.
+   */
+  export const STRAIGHT: number = Math.sin(Math.PI / 180);
+
+  /** Width of a station bin of the arm's radius profile, mm. */
+  export const BIN: number = 5;
+
+  /**
+   * The least abduction at which the straight arm's skin clears the trunk and
+   * the leg beside it.
+   *
+   * The arm's own skin is read from where its chain leaves the trunk (its first
+   * ring, where the axilla makes them one surface and flesh gives) down to the
+   * fingertips: each skin point of the arm, the palm, the thumb and the fingers
+   * is carried onto the straightened arm by its station along its own bone (the
+   * humerus above the elbow, the forearm below and on past the wrist) and its distance from that bone. Without an arm chain the forearm's joint radius
+   * stands for the skin from the elbow down.
+   */
+  function restingAngle(
+    rings: readonly IAutoMovieHumanChainRings[],
+    body: IAutoMovieHumanNeutralBody,
+    side: "left" | "right",
+  ): number {
+    const s: number = side === "left" ? 1 : -1;
+    const at: (bone: string) => Math3D.Vector = (
+      bone: string,
+    ): Math3D.Vector => body.byBone.get(`${side}${bone}`)!.position;
+    const shoulder: Math3D.Vector = at("UpperArm");
+    const profile: IProfile = armProfile(rings, body, side);
+    const fore: number = profile.to;
+
+    // For each skin point of the trunk and this leg beside the arm, the sine
+    // of the angle from plumb at which the arm's skin at that depth touches it.
+    let widest: number = 0;
+    for (const chain of rings) {
+      if (chain.chain !== "trunk" && chain.chain !== `leg.${side}`) continue;
+      for (let k: number = 0; k < chain.points.length / 3; k++) {
+        const y: number = chain.points[3 * k + 1]!;
+        const z: number = chain.points[3 * k + 2]!;
+        const t: number = shoulder[1] - y;
+        // A depth of zero (a skin point level with the shoulder) bounds no
+        // angle: the arm's own skin starts below it.
+        if (!(t > 0) || t < profile.from || t > fore) continue;
+        widest = Math.max(widest, (s * z + profile.radius(t) - s * shoulder[2]) / t);
+      }
+    }
+    return (Math.asin(Math.min(1, widest)) * 180) / Math.PI;
+  }
+
+  /** The straight arm's radius along its length. */
+  interface IProfile {
+    /** Depth under the shoulder from which the arm's skin is its own, mm. */
+    from: number;
+
+    /** Depth under the shoulder to which the arm and hand reach, mm: the fingertips. */
+    to: number;
+
+    /**
+     * The arm's radius at a depth under the shoulder, mm.
+     *
+     * @param t Depth along the straight arm, mm.
+     */
+    radius(t: number): number;
+  }
+
+  /**
+   * The arm's radius profile from its own skin, or the forearm's joint radius
+   * from the elbow down when the rings hold no arm chain.
+   */
+  function armProfile(
+    rings: readonly IAutoMovieHumanChainRings[],
+    body: IAutoMovieHumanNeutralBody,
+    side: "left" | "right",
+  ): IProfile {
+    const at: (bone: string) => Math3D.Vector = (bone: string): Math3D.Vector => body.byBone.get(`${side}${bone}`)!.position;
+    const shoulder: Math3D.Vector = at("UpperArm");
+    const elbow: Math3D.Vector = at("LowerArm");
+    const upper: number = Turn.length(shoulder, elbow);
+    const arm: IAutoMovieHumanChainRings | undefined = rings.find((r: IAutoMovieHumanChainRings): boolean => r.chain === `arm.${side}`);
+    if (arm === undefined) {
+      const radius: number = body.byBone.get(`${side}LowerArm`)!.radius;
+      return { from: upper, to: upper + Turn.length(elbow, at("Hand")), radius: (): number => radius };
+    }
+    const humerus: Math3D.Vector = Math3D.unit(Math3D.sub(elbow, shoulder));
+    const forearm: Math3D.Vector = Math3D.unit(Math3D.sub(at("Hand"), elbow));
+
+    // Each skin point onto the straight arm: station and distance from the
+    // nearer bone line within that bone's span.
+    const reading: (p: Math3D.Vector) => [number, number] = (p: Math3D.Vector): [number, number] => {
+      const a: number = Turn.dot(Math3D.sub(p, shoulder), humerus);
+      const b: number = Turn.dot(Math3D.sub(p, elbow), forearm);
+      const da: number = Turn.length(p, Math3D.add(shoulder, [humerus[0] * a, humerus[1] * a, humerus[2] * a]));
+      const db: number = Turn.length(p, Math3D.add(elbow, [forearm[0] * b, forearm[1] * b, forearm[2] * b]));
+      return a <= upper && (b < 0 || da <= db) ? [a, da] : [upper + b, db];
+    };
+    const count: number = arm.points.length / 3;
+    const readings: [number, number][] = Array.from({ length: count }, (_: unknown, k: number): [number, number] =>
+      reading([arm.points[3 * k]!, arm.points[3 * k + 1]!, arm.points[3 * k + 2]!]),
+    );
+    const ringMeans: number[] = arm.stations.map((): number => 0);
+    readings.forEach(([t]: [number, number], k: number): void => {
+      const ring: number = Math.floor(k / arm.phases);
+      ringMeans[ring] = ringMeans[ring]! + t / arm.phases;
+    });
+
+    // The arm's own skin starts past the ring nearest the shoulder.
+    const root: number = ringMeans.indexOf(Math.min(...ringMeans));
+    let from: number = 0;
+    for (let j: number = root * arm.phases; j < (root + 1) * arm.phases; j++) from = Math.max(from, readings[j]![0]);
+
+    // The radius profile is the arm's own skin only. The root ring is the
+    // loop where the arm leaves the trunk, the axilla and the deltoid's
+    // spread round the joint, whose distance from the humerus is the
+    // junction's and not the arm's: read into the bins at the root's depth,
+    // it widens the arm there by the loop's spread, and at that small depth
+    // the spread alone asks for a wide abduction.
+    const bins: Map<number, number> = new Map();
+    readings.forEach(([t, r]: [number, number], k: number): void => {
+      if (Math.floor(k / arm.phases) === root) return;
+      const bin: number = Math.floor(t / BIN);
+      bins.set(bin, Math.max(bins.get(bin) ?? 0, r));
+    });
+
+    // The hand beyond the wrist clears the body too: its palm's, thumb's and
+    // fingers' skin carried onto the straight arm along the forearm's line.
+    // Read to the wrist alone, the arm rested its hand 5 mm into the hip.
+    const hand: RegExp = new RegExp(`^(hand\\.${side}\\.1|thumb\\.${side}|finger\\.${side}\\.\\w+)$`);
+    let to: number = Math.max(...readings.map(([t]: [number, number]): number => t));
+    for (const chain of rings) {
+      if (!hand.test(chain.chain)) continue;
+      for (let k: number = 0; k < chain.points.length / 3; k++) {
+        const p: Math3D.Vector = [chain.points[3 * k]!, chain.points[3 * k + 1]!, chain.points[3 * k + 2]!];
+        const b: number = Turn.dot(Math3D.sub(p, elbow), forearm);
+        const t: number = upper + b;
+        const r: number = Turn.length(p, Math3D.add(elbow, [forearm[0] * b, forearm[1] * b, forearm[2] * b]));
+        const bin: number = Math.floor(t / BIN);
+        bins.set(bin, Math.max(bins.get(bin) ?? 0, r));
+        to = Math.max(to, t);
+      }
+    }
+    return {
+      from,
+      to,
+      radius: (t: number): number => {
+        const bin: number = Math.floor(t / BIN);
+        return Math.max(bins.get(bin - 1) ?? 0, bins.get(bin) ?? 0, bins.get(bin + 1) ?? 0);
+      },
+    };
+  }
+}

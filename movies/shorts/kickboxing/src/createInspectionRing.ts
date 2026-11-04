@@ -13,12 +13,25 @@ export function createInspectionRing(): createInspectionRing.Result {
   const materials: THREE.Material[] = [];
   object.name = "kickboxing-ring";
 
-  const mat: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({ color: 0xc6c4bd, roughness: 0.98 });
-  const dark: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({ color: 0x171e27, roughness: 0.9 });
-  const rope: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({ color: 0xd6d9df, roughness: 0.8 });
+  const mat: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
+    color: 0xc6c4bd,
+    roughness: 0.98,
+  });
+  const dark: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
+    color: 0x171e27,
+    roughness: 0.9,
+  });
+  const rope: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
+    color: 0xd6d9df,
+    roughness: 0.8,
+  });
   materials.push(mat, dark, rope);
 
-  const floorGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(layout.matBounds.max[0] - layout.matBounds.min[0], layout.matBounds.max[1] - layout.matBounds.min[1], layout.matBounds.max[2] - layout.matBounds.min[2]);
+  const floorGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(
+    layout.matBounds.max[0] - layout.matBounds.min[0],
+    layout.matBounds.max[1] - layout.matBounds.min[1],
+    layout.matBounds.max[2] - layout.matBounds.min[2],
+  );
   geometries.push(floorGeometry);
   const floor: THREE.Mesh = new THREE.Mesh(floorGeometry, mat);
   floor.name = "canvas";
@@ -26,21 +39,38 @@ export function createInspectionRing(): createInspectionRing.Result {
   floor.receiveShadow = true;
   object.add(floor);
 
-  const apronGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(layout.apronBounds.max[0] - layout.apronBounds.min[0], layout.apronBounds.max[1] - layout.apronBounds.min[1], layout.apronBounds.max[2] - layout.apronBounds.min[2]);
+  const apronGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(
+    layout.apronBounds.max[0] - layout.apronBounds.min[0],
+    layout.apronBounds.max[1] - layout.apronBounds.min[1],
+    layout.apronBounds.max[2] - layout.apronBounds.min[2],
+  );
   geometries.push(apronGeometry);
   const apron: THREE.Mesh = new THREE.Mesh(apronGeometry, dark);
   apron.name = "apron";
-  apron.position.y = (layout.apronBounds.min[1] + layout.apronBounds.max[1]) / 2;
+  apron.position.y =
+    (layout.apronBounds.min[1] + layout.apronBounds.max[1]) / 2;
   object.add(apron);
 
-  const postGeometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(layout.postRadius, layout.postRadius, layout.postHeight, 10);
-  const padGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(...layout.padSize);
+  const postGeometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(
+    layout.postRadius,
+    layout.postRadius,
+    layout.postHeight,
+    10,
+  );
+  const padGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(
+    ...layout.padSize,
+  );
   geometries.push(postGeometry, padGeometry);
   const cornerMaterials: Map<number, THREE.MeshStandardMaterial> = new Map();
   for (const corner of layout.corners) {
-    let material: THREE.MeshStandardMaterial | undefined = cornerMaterials.get(corner.color);
+    let material: THREE.MeshStandardMaterial | undefined = cornerMaterials.get(
+      corner.color,
+    );
     if (!material) {
-      material = new THREE.MeshStandardMaterial({ color: corner.color, roughness: 0.86 });
+      material = new THREE.MeshStandardMaterial({
+        color: corner.color,
+        roughness: 0.86,
+      });
       cornerMaterials.set(corner.color, material);
       materials.push(material);
     }
@@ -53,7 +83,12 @@ export function createInspectionRing(): createInspectionRing.Result {
     object.add(post, pad);
   }
 
-  const ropeGeometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(layout.ropeRadius, layout.ropeRadius, layout.ropeSpan, 8);
+  const ropeGeometry: THREE.CylinderGeometry = new THREE.CylinderGeometry(
+    layout.ropeRadius,
+    layout.ropeRadius,
+    layout.ropeSpan,
+    8,
+  );
   geometries.push(ropeGeometry);
   for (const boundary of layout.ropes) {
     const mesh: THREE.Mesh = new THREE.Mesh(ropeGeometry, rope);
@@ -67,27 +102,56 @@ export function createInspectionRing(): createInspectionRing.Result {
   // Two bands per edge connect all four elevations without changing the span.
   const lowest: number = layout.ropeHeights[0];
   const highest: number = layout.ropeHeights[3];
-  const bandGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(0.035, highest - lowest, 0.035);
+  const bandGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(
+    0.035,
+    highest - lowest,
+    0.035,
+  );
   geometries.push(bandGeometry);
-  for (const axis of ["x", "z"] as const) for (const edge of [-layout.ropeSpan / 2, layout.ropeSpan / 2]) for (const along of [-layout.ropeSpan / 6, layout.ropeSpan / 6]) {
-    const band: THREE.Mesh = new THREE.Mesh(bandGeometry, rope);
-    band.name = `rope-band:${axis}:${edge}:${along}`;
-    band.position.set(axis === "x" ? along : edge, (lowest + highest) / 2, axis === "z" ? along : edge);
-    object.add(band);
-  }
+  for (const axis of ["x", "z"] as const)
+    for (const edge of [-layout.ropeSpan / 2, layout.ropeSpan / 2])
+      for (const along of [-layout.ropeSpan / 6, layout.ropeSpan / 6]) {
+        const band: THREE.Mesh = new THREE.Mesh(bandGeometry, rope);
+        band.name = `rope-band:${axis}:${edge}:${along}`;
+        band.position.set(
+          axis === "x" ? along : edge,
+          (lowest + highest) / 2,
+          axis === "z" ? along : edge,
+        );
+        object.add(band);
+      }
 
   let disposed: boolean = false;
-  return { object, layout, dispose: (): void => {
-    if (disposed) return;
+  return {
+    object,
+    layout,
+    dispose: (): void => {
+      if (disposed) return;
 
-    // Native removal and disposal listeners may reenter; retire before invoking them.
-    disposed = true;
-    const failures: unknown[] = [];
-    try { object.removeFromParent(); } catch (error: unknown) { failures.push(error); }
-    for (const geometry of geometries) try { geometry.dispose(); } catch (error: unknown) { failures.push(error); }
-    for (const material of materials) try { material.dispose(); } catch (error: unknown) { failures.push(error); }
-    if (failures.length) throw new AggregateError(failures, "Ring retirement failed");
-  } };
+      // Native removal and disposal listeners may reenter; retire before invoking them.
+      disposed = true;
+      const failures: unknown[] = [];
+      try {
+        object.removeFromParent();
+      } catch (error: unknown) {
+        failures.push(error);
+      }
+      for (const geometry of geometries)
+        try {
+          geometry.dispose();
+        } catch (error: unknown) {
+          failures.push(error);
+        }
+      for (const material of materials)
+        try {
+          material.dispose();
+        } catch (error: unknown) {
+          failures.push(error);
+        }
+      if (failures.length)
+        throw new AggregateError(failures, "Ring retirement failed");
+    },
+  };
 }
 
 /**
@@ -238,38 +302,117 @@ export namespace createInspectionRing {
     const postHeight: number = 1.55;
     const padY: number = 0.95;
     const padSize: Point = Object.freeze([0.24, 1.2, 0.24]);
-    const ropeHeights: readonly [number, number, number, number] = Object.freeze([0.4, 0.8, 1.2, 1.5]);
+    const ropeHeights: readonly [number, number, number, number] =
+      Object.freeze([0.4, 0.8, 1.2, 1.5]);
     const ropes: Rope[] = [];
-    for (const axis of ["x", "z"] as const) for (const edge of [-halfSpan, halfSpan]) for (const height of ropeHeights) {
-      const centre: Point = Object.freeze([axis === "x" ? 0 : edge, height, axis === "z" ? 0 : edge]);
-      ropes.push(Object.freeze({ id: `rope:${axis}:${edge}:${height}`, axis, centre, bounds: Object.freeze({
-        min: Object.freeze([axis === "x" ? -halfSpan : edge - ropeRadius, height - ropeRadius, axis === "z" ? -halfSpan : edge - ropeRadius]) as Point,
-        max: Object.freeze([axis === "x" ? halfSpan : edge + ropeRadius, height + ropeRadius, axis === "z" ? halfSpan : edge + ropeRadius]) as Point,
-      }) }));
-    }
+    for (const axis of ["x", "z"] as const)
+      for (const edge of [-halfSpan, halfSpan])
+        for (const height of ropeHeights) {
+          const centre: Point = Object.freeze([
+            axis === "x" ? 0 : edge,
+            height,
+            axis === "z" ? 0 : edge,
+          ]);
+          ropes.push(
+            Object.freeze({
+              id: `rope:${axis}:${edge}:${height}`,
+              axis,
+              centre,
+              bounds: Object.freeze({
+                min: Object.freeze([
+                  axis === "x" ? -halfSpan : edge - ropeRadius,
+                  height - ropeRadius,
+                  axis === "z" ? -halfSpan : edge - ropeRadius,
+                ]) as Point,
+                max: Object.freeze([
+                  axis === "x" ? halfSpan : edge + ropeRadius,
+                  height + ropeRadius,
+                  axis === "z" ? halfSpan : edge + ropeRadius,
+                ]) as Point,
+              }),
+            }),
+          );
+        }
 
-    const assignments: readonly (readonly [Corner["id"], Corner["role"], Corner["actorId"], number, number, number])[] = [
+    const assignments: readonly (readonly [
+      Corner["id"],
+      Corner["role"],
+      Corner["actorId"],
+      number,
+      number,
+      number,
+    ])[] = [
       ["red", "red", "a", 0xc72c3b, -1, 1],
       ["blue", "blue", "b", 0x159fc4, 1, -1],
       ["neutral-nw", "neutral", null, 0xf1f0e8, -1, -1],
       ["neutral-se", "neutral", null, 0xf1f0e8, 1, 1],
     ];
-    const corners: readonly Corner[] = Object.freeze(assignments.map(([id, role, actorId, color, xSign, zSign]: (typeof assignments)[number]): Corner => {
-      const padX: number = xSign * (halfSpan - postRadius);
-      const padZ: number = zSign * (halfSpan - postRadius);
-      return Object.freeze({ id, role, actorId, color,
-        postCentre: Object.freeze([xSign * halfSpan, postHeight / 2, zSign * halfSpan]) as Point,
-        padCentre: Object.freeze([padX, padY, padZ]) as Point,
-        padBounds: Object.freeze({ min: Object.freeze([padX - padSize[0] / 2, padY - padSize[1] / 2, padZ - padSize[2] / 2]) as Point, max: Object.freeze([padX + padSize[0] / 2, padY + padSize[1] / 2, padZ + padSize[2] / 2]) as Point }),
-        holdingPoint: Object.freeze([xSign * 2.65, 0, zSign * 2.65]) as Point,
-      });
-    }));
-    return Object.freeze({ floorY: 0,
-      matBounds: Object.freeze({ min: Object.freeze([-3.2, -0.15, -3.2]) as Point, max: Object.freeze([3.2, 0, 3.2]) as Point }),
-      apronBounds: Object.freeze({ min: Object.freeze([-3.3, -0.4, -3.3]) as Point, max: Object.freeze([3.3, -0.15, 3.3]) as Point }),
-      usableBounds: Object.freeze({ min: Object.freeze([-3, 0, -3]) as Point, max: Object.freeze([3, 0, 3]) as Point }),
-      ropeRadius, ropeSpan: halfSpan * 2, ropeHeights, postRadius, postHeight, padSize,
-      ropes: Object.freeze(ropes), corners,
+    const corners: readonly Corner[] = Object.freeze(
+      assignments.map(
+        ([
+          id,
+          role,
+          actorId,
+          color,
+          xSign,
+          zSign,
+        ]: (typeof assignments)[number]): Corner => {
+          const padX: number = xSign * (halfSpan - postRadius);
+          const padZ: number = zSign * (halfSpan - postRadius);
+          return Object.freeze({
+            id,
+            role,
+            actorId,
+            color,
+            postCentre: Object.freeze([
+              xSign * halfSpan,
+              postHeight / 2,
+              zSign * halfSpan,
+            ]) as Point,
+            padCentre: Object.freeze([padX, padY, padZ]) as Point,
+            padBounds: Object.freeze({
+              min: Object.freeze([
+                padX - padSize[0] / 2,
+                padY - padSize[1] / 2,
+                padZ - padSize[2] / 2,
+              ]) as Point,
+              max: Object.freeze([
+                padX + padSize[0] / 2,
+                padY + padSize[1] / 2,
+                padZ + padSize[2] / 2,
+              ]) as Point,
+            }),
+            holdingPoint: Object.freeze([
+              xSign * 2.65,
+              0,
+              zSign * 2.65,
+            ]) as Point,
+          });
+        },
+      ),
+    );
+    return Object.freeze({
+      floorY: 0,
+      matBounds: Object.freeze({
+        min: Object.freeze([-3.2, -0.15, -3.2]) as Point,
+        max: Object.freeze([3.2, 0, 3.2]) as Point,
+      }),
+      apronBounds: Object.freeze({
+        min: Object.freeze([-3.3, -0.4, -3.3]) as Point,
+        max: Object.freeze([3.3, -0.15, 3.3]) as Point,
+      }),
+      usableBounds: Object.freeze({
+        min: Object.freeze([-3, 0, -3]) as Point,
+        max: Object.freeze([3, 0, 3]) as Point,
+      }),
+      ropeRadius,
+      ropeSpan: halfSpan * 2,
+      ropeHeights,
+      postRadius,
+      postHeight,
+      padSize,
+      ropes: Object.freeze(ropes),
+      corners,
     });
   }
 }

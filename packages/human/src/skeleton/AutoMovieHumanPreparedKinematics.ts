@@ -1,6 +1,7 @@
 import type { IAutoMovieHumanPose } from "../structures/pose/IAutoMovieHumanPose";
 import type { AutoMovieHumanJointCentres as Centres } from "./AutoMovieHumanJointCentres";
 import { AutoMovieHumanNeutral as Neutral } from "./AutoMovieHumanNeutral";
+import { AutoMovieHumanPelvicShare } from "./AutoMovieHumanPelvicShare";
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
 import { AutoMovieHumanRigControls as Controls } from "./AutoMovieHumanRigControls";
 import type { AutoMovieHumanSkeleton as Skeleton } from "./AutoMovieHumanSkeleton";
@@ -20,7 +21,11 @@ export namespace AutoMovieHumanPreparedKinematics {
   /** Explicit body lifetime; no input poses or public output arrays are retained. */
   export interface IPrepared {
     /** Read every clinical channel and return independent placements and clamp rows. */
-    evaluate: (pose: IAutoMovieHumanPose, clamp: boolean, selection?: ISelection) => Skeleton.IProjection;
+    evaluate: (
+      pose: IAutoMovieHumanPose,
+      clamp: boolean,
+      selection?: ISelection,
+    ) => Skeleton.IProjection;
 
     /** Compile and admit a nonempty fixed set of existing bone identities once. */
     select: (bones: readonly string[]) => ISelection;
@@ -33,65 +38,129 @@ export namespace AutoMovieHumanPreparedKinematics {
    * escaping placement and clamp owns its arrays; neither accepted solver state
    * nor earlier public snapshots can be overwritten by subsequent trials.
    */
-  export function prepare(joints: Centres.IJoint[], neutral: Neutral.IOutput, scale: number, mmScale: number): IPrepared {
-    const byBone: Map<string, Centres.IJoint> = new Map(joints.map((joint: Centres.IJoint): [string, Centres.IJoint] => [joint.bone, joint]));
-    const indices: Map<string, number> = new Map(joints.map((joint: Centres.IJoint, index: number): [string, number] => [joint.bone, index]));
-    const directions: Map<string, M.Vector> = new Map(joints.map((joint: Centres.IJoint): [string, M.Vector] => [joint.bone, M.unit(M.sub(joint.toward, joint.position))]));
-    const bones: IBone[] = joints.map((joint: Centres.IJoint): IBone => ({
-      joint,
-      parent: joint.parent === null ? undefined : indices.get(joint.parent)!,
-      offset: joint.parent === null ? [0, 0, 0] : M.sub(joint.position, byBone.get(joint.parent)!.position),
-      axes: M.boneAxes(joint.bone, directions.get(joint.bone)!, byBone),
-      lowerArm: joint.bone.endsWith("LowerArm"),
-      hand: joint.bone.endsWith("Hand"),
-      scapula: joint.bone.endsWith("Scapula"),
-    }));
-    const channels: IChannel[] = AutoMovieHumanPoseChannels.flatMap((row: (typeof AutoMovieHumanPoseChannels)[number]): IChannel[] =>
-      (row[0].includes("<side>") ? ["left", "right"] : [""]).map((side: string): IChannel => {
-        const path: string = row[0].replace("<side>", side);
-        return {row, path, bone: row[1].replace("<side>", side), parts: path.split(".")};
+  export function prepare(
+    joints: Centres.IJoint[],
+    neutral: Neutral.IOutput,
+    scale: number,
+    mmScale: number,
+  ): IPrepared {
+    const byBone: Map<string, Centres.IJoint> = new Map(
+      joints.map((joint: Centres.IJoint): [string, Centres.IJoint] => [
+        joint.bone,
+        joint,
+      ]),
+    );
+    const indices: Map<string, number> = new Map(
+      joints.map((joint: Centres.IJoint, index: number): [string, number] => [
+        joint.bone,
+        index,
+      ]),
+    );
+    const directions: Map<string, M.Vector> = new Map(
+      joints.map((joint: Centres.IJoint): [string, M.Vector] => [
+        joint.bone,
+        M.unit(M.sub(joint.toward, joint.position)),
+      ]),
+    );
+    const bones: IBone[] = joints.map(
+      (joint: Centres.IJoint): IBone => ({
+        joint,
+        parent: joint.parent === null ? undefined : indices.get(joint.parent)!,
+        offset:
+          joint.parent === null
+            ? [0, 0, 0]
+            : M.sub(joint.position, byBone.get(joint.parent)!.position),
+        axes: M.boneAxes(joint.bone, directions.get(joint.bone)!, byBone),
+        lowerArm: joint.bone.endsWith("LowerArm"),
+        hand: joint.bone.endsWith("Hand"),
+        scapula: joint.bone.endsWith("Scapula"),
       }),
     );
+    const channels: IChannel[] = AutoMovieHumanPoseChannels.flatMap(
+      (row: (typeof AutoMovieHumanPoseChannels)[number]): IChannel[] =>
+        (row[0].includes("<side>") ? ["left", "right"] : [""]).map(
+          (side: string): IChannel => {
+            const path: string = row[0].replace("<side>", side);
+            return {
+              row,
+              path,
+              bone: row[1].replace("<side>", side),
+              parts: path.split("."),
+              sign: row[6] === true && side === "right" ? -row[3] : row[3],
+            };
+          },
+        ),
+    );
     const all: number[] = bones.map((_: IBone, index: number): number => index);
-    const locals: (ILocal | undefined)[] = new Array<ILocal | undefined>(bones.length);
-    const worlds: (IWorld | undefined)[] = new Array<IWorld | undefined>(bones.length);
+    const locals: (ILocal | undefined)[] = new Array<ILocal | undefined>(
+      bones.length,
+    );
+    const worlds: (IWorld | undefined)[] = new Array<IWorld | undefined>(
+      bones.length,
+    );
 
     return {
       select: (names: readonly string[]): ISelection => {
-        if (names.length === 0) throw new Error("Human FK projection requires existing bones");
+        if (names.length === 0)
+          throw new Error("Human FK projection requires existing bones");
         const output: Set<string> = new Set(names);
         const work: Set<number> = new Set();
         for (const name of output) {
           let index: number | undefined = indices.get(name);
-          if (index === undefined) throw new Error(`Human FK projection bone absent: ${name}`);
+          if (index === undefined)
+            throw new Error(`Human FK projection bone absent: ${name}`);
           while (index !== undefined && !work.has(index)) {
             work.add(index);
             index = bones[index]!.parent;
           }
         }
-        return {work: all.filter((index: number): boolean => work.has(index)), output};
+        return {
+          work: all.filter((index: number): boolean => work.has(index)),
+          output,
+        };
       },
-      evaluate: (input: IAutoMovieHumanPose, clamp: boolean, selection?: ISelection): Skeleton.IProjection => {
+      evaluate: (
+        input: IAutoMovieHumanPose,
+        clamp: boolean,
+        selection?: ISelection,
+      ): Skeleton.IProjection => {
         const rig: Map<string, Record<string, number>> = new Map();
         const clamped: Skeleton.IClamp[] = [];
-        for (const {row, path, bone, parts} of channels) {
+        for (const { row, path, bone, parts, sign } of channels) {
           const requested: number | undefined = read(input, parts);
           if (requested === undefined) continue;
           let min: number = row[4];
           let max: number = row[5];
           if (clamp && path.endsWith("knee.rotation")) {
-            const interval: {minimum: number; maximum: number} = Controls.bounds(Controls.channel(path), input);
+            const interval: { minimum: number; maximum: number } =
+              Controls.bounds(Controls.channel(path), input);
             min = interval.minimum;
             max = interval.maximum;
           }
-          const applied: number = clamp ? Math.min(max, Math.max(min, requested)) : requested;
-          if (applied !== requested) clamped.push({path, requested, applied});
+          const applied: number = clamp
+            ? Math.min(max, Math.max(min, requested))
+            : requested;
+          if (applied !== requested) clamped.push({ path, requested, applied });
           const axis: string = row[2];
-          const degrees: number = axis === "forward" || axis === "lateral" ? applied : path === "head.jaw.opening"
-            ? (applied / Math.hypot(...M.sub(byBone.get(bone)!.tip!, byBone.get(bone)!.position))) * (180 / Math.PI)
-            : applied;
-          const resting: number = axis === "abduction" ? (neutral.resting.get(bone) ?? 0) : 0;
-          const value: number = axis === "forward" || axis === "lateral" ? row[3] * applied : row[3] * degrees * (1 - resting / 180);
+          const degrees: number =
+            axis === "forward" || axis === "lateral"
+              ? applied
+              : path === "head.jaw.opening"
+                ? (applied /
+                    Math.hypot(
+                      ...M.sub(
+                        byBone.get(bone)!.tip!,
+                        byBone.get(bone)!.position,
+                      ),
+                    )) *
+                  (180 / Math.PI)
+                : applied;
+          const resting: number =
+            axis === "abduction" ? (neutral.resting.get(bone) ?? 0) : 0;
+          const value: number =
+            axis === "forward" || axis === "lateral"
+              ? sign * applied
+              : sign * degrees * (1 - resting / 180);
           const record: Record<string, number> = rig.get(bone) ?? {};
           record[axis] = value;
           rig.set(bone, record);
@@ -105,11 +174,31 @@ export namespace AutoMovieHumanPreparedKinematics {
           if (r === undefined) continue;
           const a: M.IAxes = bones[indices.get(arm)!]!.axes;
           const direction: M.Vector = directions.get(arm)!;
-          const raised: M.Vector = M.rotate(M.multiply(M.multiply(M.fromAxisAngle(a.twist, r.twist ?? 0), M.fromAxisAngle(a.abduction, r.abduction ?? 0)), M.fromAxisAngle(a.flexion, r.flexion ?? 0)), direction);
-          const over: number = fromVertical(raised) - Math.max(SETTING, fromVertical(direction));
-          if (over > 0) lifts.set(`${side}Shoulder`, (RHYTHM * over * over) / (over + EASE));
+          const raised: M.Vector = M.rotate(
+            M.multiply(
+              M.multiply(
+                M.fromAxisAngle(a.twist, r.twist ?? 0),
+                M.fromAxisAngle(a.abduction, r.abduction ?? 0),
+              ),
+              M.fromAxisAngle(a.flexion, r.flexion ?? 0),
+            ),
+            direction,
+          );
+          const over: number =
+            fromVertical(raised) - Math.max(SETTING, fromVertical(direction));
+          if (over > 0)
+            lifts.set(
+              `${side}Shoulder`,
+              (RHYTHM * over * over) / (over + EASE),
+            );
         }
 
+        // Both clinical hips drive the root even in a fixed-branch projection.
+        // Its immediate children return that turn, retaining requested directions.
+        const pelvicTilt: number = AutoMovieHumanPelvicShare.tilt(
+          rig.get("leftUpperLeg")?.flexion ?? 0,
+          rig.get("rightUpperLeg")?.flexion ?? 0,
+        );
         const posed: Skeleton.IPlacement[] = [];
         for (const index of selection?.work ?? all) {
           const compiled: IBone = bones[index]!;
@@ -122,39 +211,137 @@ export namespace AutoMovieHumanPreparedKinematics {
           const forward: number = r?.forward ?? 0;
           const lateral: number = r?.lateral ?? 0;
           const lift: number | undefined = lifts.get(j.bone);
-          const handTwist: number = compiled.hand ? (rig.get(j.parent!)?.twist ?? 0) : 0;
-          const back: M.Quaternion | undefined = compiled.parent === undefined ? undefined : locals[compiled.parent]?.back;
+          const handTwist: number = compiled.hand
+            ? (rig.get(j.parent!)?.twist ?? 0)
+            : 0;
+          const tilt: number = compiled.parent === undefined ? pelvicTilt : 0;
+          const back: M.Quaternion | undefined =
+            compiled.parent === undefined
+              ? undefined
+              : locals[compiled.parent]?.back;
           const cached: ILocal | undefined = locals[index];
           let local: M.Quaternion;
-          if (cached && cached.flexion === flexion && cached.abduction === abduction && cached.twist === twist && cached.forward === forward && cached.lateral === lateral && cached.lift === (lift ?? 0) && cached.handTwist === handTwist && sameBack(cached.incoming, back)) local = cached.rotation;
+          if (
+            cached &&
+            cached.flexion === flexion &&
+            cached.abduction === abduction &&
+            cached.twist === twist &&
+            cached.forward === forward &&
+            cached.lateral === lateral &&
+            cached.lift === (lift ?? 0) &&
+            cached.handTwist === handTwist &&
+            cached.tilt === tilt &&
+            sameBack(cached.incoming, back)
+          )
+            local = cached.rotation;
           else {
             const qf: M.Quaternion = M.fromAxisAngle(a.flexion, flexion);
             const qa: M.Quaternion = M.fromAxisAngle(a.abduction, abduction);
-            const qt: M.Quaternion = M.fromAxisAngle(a.twist, twist * (compiled.lowerArm ? 1 - Neutral.WRIST_TWIST : 1));
-            const own: M.Quaternion = compiled.lowerArm ? M.multiply(M.multiply(qa, qf), qt) : M.multiply(M.multiply(qt, qa), qf);
-            local = compiled.hand ? M.multiply(M.fromAxisAngle(bones[compiled.parent!]!.axes.twist, handTwist * Neutral.WRIST_TWIST), own) : own;
+            const qt: M.Quaternion = M.fromAxisAngle(
+              a.twist,
+              twist * (compiled.lowerArm ? 1 - Neutral.WRIST_TWIST : 1),
+            );
+            const own: M.Quaternion = compiled.lowerArm
+              ? M.multiply(M.multiply(qa, qf), qt)
+              : M.multiply(M.multiply(qt, qa), qf);
+            local = compiled.hand
+              ? M.multiply(
+                  M.fromAxisAngle(
+                    bones[compiled.parent!]!.axes.twist,
+                    handTwist * Neutral.WRIST_TWIST,
+                  ),
+                  own,
+                )
+              : own;
             let returned: M.Quaternion | undefined;
             if (lift !== undefined) {
-              const raised: M.Quaternion = M.multiply(M.multiply(qt, M.fromAxisAngle(a.abduction, abduction + lift)), qf);
-              returned = M.multiply([-raised[0], -raised[1], -raised[2], raised[3]], local);
+              const raised: M.Quaternion = M.multiply(
+                M.multiply(qt, M.fromAxisAngle(a.abduction, abduction + lift)),
+                qf,
+              );
+              returned = M.multiply(
+                [-raised[0], -raised[1], -raised[2], raised[3]],
+                local,
+              );
               local = raised;
             }
-            if (back !== undefined && compiled.scapula) local = M.multiply(back, local);
-            locals[index] = {flexion, abduction, twist, forward, lateral, lift: lift ?? 0, handTwist, incoming: back, rotation: local, back: returned};
+            if (
+              back !== undefined &&
+              (compiled.scapula ||
+                bones[compiled.parent!]!.parent === undefined)
+            )
+              local = M.multiply(back, local);
+            if (tilt > 0) {
+              const turned: M.Quaternion = M.multiply(
+                M.fromAxisAngle(a.flexion, -tilt),
+                local,
+              );
+              returned = M.multiply(
+                [-turned[0], -turned[1], -turned[2], turned[3]],
+                local,
+              );
+              local = turned;
+            }
+            locals[index] = {
+              flexion,
+              abduction,
+              twist,
+              forward,
+              lateral,
+              lift: lift ?? 0,
+              handTwist,
+              tilt,
+              incoming: back,
+              rotation: local,
+              back: returned,
+            };
           }
-          const parent: Skeleton.IPlacement | undefined = compiled.parent === undefined ? undefined : worlds[compiled.parent]!.placement;
+          const parent: Skeleton.IPlacement | undefined =
+            compiled.parent === undefined
+              ? undefined
+              : worlds[compiled.parent]!.placement;
           let previous: IWorld | undefined = worlds[index];
-          if (previous === undefined || previous.local !== local || previous.parent !== parent) {
-            const shifted: M.Vector = [compiled.offset[0] + forward * mmScale, compiled.offset[1], compiled.offset[2] + lateral * mmScale];
-            const placement: Skeleton.IPlacement = parent === undefined
-              ? {bone: j.bone, position: M.times(j.position, scale), rotation: local}
-              : {bone: j.bone, position: M.add(parent.position, M.times(M.rotate(parent.rotation, shifted), scale)), rotation: M.multiply(parent.rotation, local)};
-            previous = {local, parent, placement, bound: M.multiply(placement.rotation, neutral.turns.get(j.bone)!)};
+          if (
+            previous === undefined ||
+            previous.local !== local ||
+            previous.parent !== parent
+          ) {
+            const shifted: M.Vector = [
+              compiled.offset[0] + forward * mmScale,
+              compiled.offset[1],
+              compiled.offset[2] + lateral * mmScale,
+            ];
+            const placement: Skeleton.IPlacement =
+              parent === undefined
+                ? {
+                    bone: j.bone,
+                    position: M.times(j.position, scale),
+                    rotation: local,
+                  }
+                : {
+                    bone: j.bone,
+                    position: M.add(
+                      parent.position,
+                      M.times(M.rotate(parent.rotation, shifted), scale),
+                    ),
+                    rotation: M.multiply(parent.rotation, local),
+                  };
+            previous = {
+              local,
+              parent,
+              placement,
+              bound: M.multiply(placement.rotation, neutral.turns.get(j.bone)!),
+            };
             worlds[index] = previous;
           }
-          if (selection === undefined || selection.output.has(j.bone)) posed.push({bone: j.bone, position: [...previous.placement.position], rotation: [...previous.bound]});
+          if (selection === undefined || selection.output.has(j.bone))
+            posed.push({
+              bone: j.bone,
+              position: [...previous.placement.position],
+              rotation: [...previous.bound],
+            });
         }
-        return {posed, clamped};
+        return { posed, clamped };
       },
     };
   }
@@ -173,6 +360,9 @@ interface IChannel {
 
   /** Fixed object traversal; caller pose objects are never cached. */
   parts: readonly string[];
+
+  /** Axis sign after reflecting world-direction channels on the right. */
+  sign: number;
 }
 
 /** Compiled fixed anatomical metadata for a parent-before-child joint. */
@@ -222,6 +412,9 @@ interface ILocal {
   /** Parent forearm's applied twist, or zero. */
   handTwist: number;
 
+  /** Clinical hip share carried by the root, zero on other joints. */
+  tilt: number;
+
   /** Parent girdle's return quaternion, compared component by component. */
   incoming: M.Quaternion | undefined;
 
@@ -257,8 +450,19 @@ const SETTING: number = 30;
 const EASE: number = 10;
 
 /** Match the old scalar key's zero equivalence without allocating a joined string. */
-function sameBack(a: M.Quaternion | undefined, b: M.Quaternion | undefined): boolean {
-  return a === b || (a !== undefined && b !== undefined && a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3]);
+function sameBack(
+  a: M.Quaternion | undefined,
+  b: M.Quaternion | undefined,
+): boolean {
+  return (
+    a === b ||
+    (a !== undefined &&
+      b !== undefined &&
+      a[0] === b[0] &&
+      a[1] === b[1] &&
+      a[2] === b[2] &&
+      a[3] === b[3])
+  );
 }
 
 /** Arm elevation from the downward plumb line, preserving the original rhythm law. */

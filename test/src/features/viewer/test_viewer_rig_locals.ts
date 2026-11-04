@@ -149,7 +149,10 @@ export function test_viewer_rig_locals(): void {
       [
         "short translation",
         rest,
-        { ...root, translation: [0, 0] } as unknown as IAutoMovieRigLocalTransform,
+        {
+          ...root,
+          translation: [0, 0],
+        } as unknown as IAutoMovieRigLocalTransform,
       ],
       [
         "long quaternion",

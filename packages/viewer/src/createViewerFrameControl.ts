@@ -39,7 +39,8 @@ export function createViewerFrameControl(options: {
   frame: (produce: () => void) => void;
   dispose: () => void;
 } {
-  const cameraState: ReturnType<typeof createViewerCameraState> = createViewerCameraState(options.camera);
+  const cameraState: ReturnType<typeof createViewerCameraState> =
+    createViewerCameraState(options.camera);
   let leases: number = 0;
   let releaseProducer: ((resume: boolean) => void) | undefined;
   let closed: boolean = false;
@@ -52,24 +53,37 @@ export function createViewerFrameControl(options: {
   const control: NonNullable<IAutoMovieViewerCompletedFrame["control"]> = {
     capture: (): unknown => {
       active();
-      return { camera: cameraState.capture(), elapsedSeconds: options.currentSeconds() };
+      return {
+        camera: cameraState.capture(),
+        elapsedSeconds: options.currentSeconds(),
+      };
     },
     restore: (state: unknown): void => {
       active();
-      if (state === null || typeof state !== "object") throw new Error("Viewer transfer is not an object.");
+      if (state === null || typeof state !== "object")
+        throw new Error("Viewer transfer is not an object.");
       const seconds: unknown = Reflect.get(state, "elapsedSeconds");
-      if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < 0) throw new Error("Viewer transfer has no valid time.");
-      const previousCamera: ReturnType<typeof cameraState.capture> = cameraState.capture();
+      if (
+        typeof seconds !== "number" ||
+        !Number.isFinite(seconds) ||
+        seconds < 0
+      )
+        throw new Error("Viewer transfer has no valid time.");
+      const previousCamera: ReturnType<typeof cameraState.capture> =
+        cameraState.capture();
       const previousSeconds: number = options.currentSeconds();
       cameraState.restore(Reflect.get(state, "camera"));
       try {
         options.rebase(seconds);
         options.redraw(seconds);
       } catch (error) {
-        restoreAutoMovieRenderModeState([
-          (): void => cameraState.restore(previousCamera),
-          (): void => options.rebase(previousSeconds),
-        ], { error });
+        restoreAutoMovieRenderModeState(
+          [
+            (): void => cameraState.restore(previousCamera),
+            (): void => options.rebase(previousSeconds),
+          ],
+          { error },
+        );
       }
     },
     redraw: (): void => {
@@ -82,12 +96,15 @@ export function createViewerFrameControl(options: {
       ++leases;
       return restoreAutoMovieRenderModeOnce((): void => {
         if (closed || --leases !== 0) return;
-        const release: ((resume: boolean) => void) | undefined = releaseProducer;
+        const release: ((resume: boolean) => void) | undefined =
+          releaseProducer;
         releaseProducer = undefined;
         try {
           restoreAutoMovieRenderModeState([
             (): void => options.rebase(options.currentSeconds()),
-            (): void => { release?.(true); },
+            (): void => {
+              release?.(true);
+            },
           ]);
         } catch (error) {
           failure = { error };

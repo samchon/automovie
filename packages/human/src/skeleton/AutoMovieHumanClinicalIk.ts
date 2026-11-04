@@ -26,18 +26,21 @@ export namespace AutoMovieHumanClinicalIk {
    * refuse before projection selection; actual missing/degenerate FK refuses
    * when evaluated. Channel intervals intersect, rather than replace, ROM.
    */
-  export type IConstraint = ({
-    /** Intersect one selected clinical channel's original ROM, in degrees. */ kind: "channel";
-    /** Must occur in this request's selected channels. */ channel: Controls.DegreeChannel;
-  } | {
-    /** Signed perpendicular offset from a moving three-point line, in metres. */ kind: "line-offset";
-    /** Point whose perpendicular displacement is measured. */ point: IBonePoint;
-    /** Same-FK line; coincident endpoints refuse instead of inventing an axis. */ line: {
-      /** Moving line origin. */ origin: IBonePoint;
-      /** Second moving point defining direction. */ end: IBonePoint;
-    };
-    /** Evaluator-frame vector of unit norm, admitted within 1e-6. */ normal: Controls.MetrePoint;
-  }) & {
+  export type IConstraint = (
+    | {
+        /** Intersect one selected clinical channel's original ROM, in degrees. */ kind: "channel";
+        /** Must occur in this request's selected channels. */ channel: Controls.DegreeChannel;
+      }
+    | {
+        /** Signed perpendicular offset from a moving three-point line, in metres. */ kind: "line-offset";
+        /** Point whose perpendicular displacement is measured. */ point: IBonePoint;
+        /** Same-FK line; coincident endpoints refuse instead of inventing an axis. */ line: {
+          /** Moving line origin. */ origin: IBonePoint;
+          /** Second moving point defining direction. */ end: IBonePoint;
+        };
+        /** Evaluator-frame vector of unit norm, admitted within 1e-6. */ normal: Controls.MetrePoint;
+      }
+  ) & {
     /** Inclusive lower endpoint in the descriptor's units. */ minimum?: number;
     /** Inclusive upper endpoint in the descriptor's units. */ maximum?: number;
   };
@@ -54,15 +57,18 @@ export namespace AutoMovieHumanClinicalIk {
     localPoint?: Controls.MetrePoint;
   }
   /** Explicit work and precision budget for one small clinical chain. */
-  export type IRequest = ({
-    /** Named public clinical paths; each must be a registered degree channel. */
-    channels: readonly Controls.DegreeChannel[];
-    /** Explicit paths already select the anatomical work. */ chain?: never;
-  } | {
-    /** Anatomical selection instead of explicit channels; supplying both refuses. */
-    chain: Controls.Chain;
-    /** A chain already selects its canonical angular paths. */ channels?: never;
-  }) & {
+  export type IRequest = (
+    | {
+        /** Named public clinical paths; each must be a registered degree channel. */
+        channels: readonly Controls.DegreeChannel[];
+        /** Explicit paths already select the anatomical work. */ chain?: never;
+      }
+    | {
+        /** Anatomical selection instead of explicit channels; supplying both refuses. */
+        chain: Controls.Chain;
+        /** A chain already selects its canonical angular paths. */ channels?: never;
+      }
+  ) & {
     /** FK endpoints affected by those channels. */
     targets: ITarget[];
     /** Maximum Gauss-Newton updates, 1 through 16; default 4. */
@@ -117,16 +123,22 @@ export namespace AutoMovieHumanClinicalIk {
     request: IRequest,
   ): IResult {
     if ((request.chain === undefined) === (request.channels === undefined))
-      throw new Error("Clinical IK requires exactly one typed channel list or anatomical chain");
-    const selected: readonly Controls.DegreeChannel[] = request.chain ? Controls.chain(request.chain) : request.channels!;
-    if (!Array.isArray(selected)) throw new Error("Clinical IK requires a dense channel array");
+      throw new Error(
+        "Clinical IK requires exactly one typed channel list or anatomical chain",
+      );
+    const selected: readonly Controls.DegreeChannel[] = request.chain
+      ? Controls.chain(request.chain)
+      : request.channels!;
+    if (!Array.isArray(selected))
+      throw new Error("Clinical IK requires a dense channel array");
     const channels: [string, number, number][] = Array.from(selected).map(
       (path: string): [string, number, number] => {
         if (!Controls.isChannel(path))
           throw new Error(
             `Clinical IK requires a registered angular channel: ${path}`,
           );
-        const interval:{minimum:number;maximum:number}=Controls.bounds(path);
+        const interval: { minimum: number; maximum: number } =
+          Controls.bounds(path);
         return [path, interval.minimum, interval.maximum];
       },
     );
@@ -134,29 +146,53 @@ export namespace AutoMovieHumanClinicalIk {
       channels.length === 0 ||
       channels.length > 12 ||
       new Set(selected).size !== channels.length ||
-      !Array.isArray(request.targets) || request.targets.length === 0
+      !Array.isArray(request.targets) ||
+      request.targets.length === 0
     )
       throw new Error(
         "Clinical IK requires 1–12 unique channels and at least one target",
       );
-    if (!Array.from(request.targets).every((target: ITarget): boolean =>
-      target !== null && typeof target === "object" &&
-      typeof target.bone === "string" && target.bone.length > 0 &&
-      finitePoint(target.position) &&
-      (target.localPoint === undefined || finitePoint(target.localPoint)),
-    )) throw new Error("Clinical IK requires finite three-coordinate targets");
+    if (
+      !Array.from(request.targets).every(
+        (target: ITarget): boolean =>
+          target !== null &&
+          typeof target === "object" &&
+          typeof target.bone === "string" &&
+          target.bone.length > 0 &&
+          finitePoint(target.position) &&
+          (target.localPoint === undefined || finitePoint(target.localPoint)),
+      )
+    )
+      throw new Error("Clinical IK requires finite three-coordinate targets");
     const limit: number = request.iterations ?? 4;
     const tolerance: number = request.tolerance ?? 0.001;
-    if (!Number.isInteger(limit) || limit < 1 || limit > 16 || !Number.isFinite(tolerance) || !(tolerance > 0))
+    if (
+      !Number.isInteger(limit) ||
+      limit < 1 ||
+      limit > 16 ||
+      !Number.isFinite(tolerance) ||
+      !(tolerance > 0)
+    )
       throw new Error("Clinical IK budget or tolerance is invalid");
     const constraints: IConstraint[] = admit(request.constraints, channels);
-    const bones: string[] = [...new Set([...request.targets.map((target: ITarget): string => target.bone), ...constraints.flatMap((item: IConstraint): string[] => item.kind === "channel" ? [] : [item.point.bone, item.line.origin.bone, item.line.end.bone])])];
+    const bones: string[] = [
+      ...new Set([
+        ...request.targets.map((target: ITarget): string => target.bone),
+        ...constraints.flatMap((item: IConstraint): string[] =>
+          item.kind === "channel"
+            ? []
+            : [item.point.bone, item.line.origin.bone, item.line.end.bone],
+        ),
+      ]),
+    ];
     let trial: AutoMovieHumanSkeleton.ProjectionEvaluator = evaluate;
     if (evaluate.project) {
       try {
         trial = evaluate.project(bones);
       } catch (error: unknown) {
-        throw new Error(`Clinical IK target is missing or invalid: ${request.targets.map((target: ITarget): string => target.bone).join(", ")} (${String(error)})`);
+        throw new Error(
+          `Clinical IK target is missing or invalid: ${request.targets.map((target: ITarget): string => target.bone).join(", ")} (${String(error)})`,
+        );
       }
     }
     const pose: IAutoMovieHumanPose = AutoMovieHumanStateAdmission.pose(seed);
@@ -164,53 +200,92 @@ export namespace AutoMovieHumanClinicalIk {
       ([path, min, max]: [string, number, number]): number =>
         Math.max(min, Math.min(max, read(pose, path))),
     );
-    const apply: () => AutoMovieHumanSkeleton.IProjection = (): AutoMovieHumanSkeleton.IProjection => {
-      channels.forEach(([path]: [string, number, number], i: number): void =>
-        write(pose, path, values[i]!),
-      );
-      let candidate:AutoMovieHumanSkeleton.IProjection=trial(pose);
-      let normalized:boolean=false;
-      for(const clamp of candidate.clamped){
-        const index:number=selected.findIndex((path:Controls.DegreeChannel):boolean=>path===clamp.path);
-        if(index<0)continue;
-        values[index]=clamp.applied;write(pose,clamp.path,clamp.applied);normalized=true;
-      }
-      if(normalized)candidate=trial(pose);
-      return candidate;
-    };
+    const apply: () => AutoMovieHumanSkeleton.IProjection =
+      (): AutoMovieHumanSkeleton.IProjection => {
+        channels.forEach(([path]: [string, number, number], i: number): void =>
+          write(pose, path, values[i]!),
+        );
+        let candidate: AutoMovieHumanSkeleton.IProjection = trial(pose);
+        let normalized: boolean = false;
+        for (const clamp of candidate.clamped) {
+          const index: number = selected.findIndex(
+            (path: Controls.DegreeChannel): boolean => path === clamp.path,
+          );
+          if (index < 0) continue;
+          values[index] = clamp.applied;
+          write(pose, clamp.path, clamp.applied);
+          normalized = true;
+        }
+        if (normalized) candidate = trial(pose);
+        return candidate;
+      };
     let output: AutoMovieHumanSkeleton.IProjection = apply();
     let residual: number[] = errors(output, request.targets);
     let measured: number[] = measure(output, pose, constraints);
     let count: number = 0;
-    for (; count < limit && (maximum(residual) > tolerance || violation(measured, constraints) > 0); count++) {
+    for (
+      ;
+      count < limit &&
+      (maximum(residual) > tolerance || violation(measured, constraints) > 0);
+      count++
+    ) {
       const previous: number[] = [...values];
-      const intervals:{minimum:number;maximum:number}[]=selected.map((path:Controls.DegreeChannel, i:number):{minimum:number;maximum:number}=>{
-        const bounds:{minimum:number;maximum:number}=Controls.bounds(path,pose);
-        return {minimum:Math.max(bounds.minimum,channels[i]![1]),maximum:Math.min(bounds.maximum,channels[i]![2])};
-      });
-      if(intervals.some((interval:{minimum:number;maximum:number}):boolean=>interval.minimum>interval.maximum))break;
+      const intervals: { minimum: number; maximum: number }[] = selected.map(
+        (
+          path: Controls.DegreeChannel,
+          i: number,
+        ): { minimum: number; maximum: number } => {
+          const bounds: { minimum: number; maximum: number } = Controls.bounds(
+            path,
+            pose,
+          );
+          return {
+            minimum: Math.max(bounds.minimum, channels[i]![1]),
+            maximum: Math.min(bounds.maximum, channels[i]![2]),
+          };
+        },
+      );
+      if (
+        intervals.some(
+          (interval: { minimum: number; maximum: number }): boolean =>
+            interval.minimum > interval.maximum,
+        )
+      )
+        break;
       const constraintDerivatives: number[][] = [];
       const derivatives: number[][] = channels.map(
         (_: [string, number, number], column: number): number[] => {
-          values.splice(0,values.length,...previous);
+          values.splice(0, values.length, ...previous);
           const value: number = previous[column]!;
-          const interval:{minimum:number;maximum:number}=intervals[column]!;
-          const forward:number=Math.min(0.15,interval.maximum-value);
-          const backward:number=Math.min(0.15,value-interval.minimum);
-          const step:number=forward>=backward?forward:-backward;
-          if(Math.abs(step)<1e-10){constraintDerivatives.push(measured.map(():number=>0));return residual.map(():number=>0);}
-          values[column]=value+step;
-          const candidate:AutoMovieHumanSkeleton.IProjection=apply();
+          const interval: { minimum: number; maximum: number } =
+            intervals[column]!;
+          const forward: number = Math.min(0.15, interval.maximum - value);
+          const backward: number = Math.min(0.15, value - interval.minimum);
+          const step: number = forward >= backward ? forward : -backward;
+          if (Math.abs(step) < 1e-10) {
+            constraintDerivatives.push(measured.map((): number => 0));
+            return residual.map((): number => 0);
+          }
+          values[column] = value + step;
+          const candidate: AutoMovieHumanSkeleton.IProjection = apply();
           const moved: number[] = errors(candidate, request.targets);
-          const applied:number=values[column]!-value;
-          constraintDerivatives.push(measure(candidate, pose, constraints).map((v:number,i:number):number=>Math.abs(applied)<1e-10?0:(v-measured[i]!)/applied));
-          return moved.map(
-            (v: number, i: number): number => Math.abs(applied)<1e-10?0:(v-residual[i]!)/applied,
+          const applied: number = values[column]! - value;
+          constraintDerivatives.push(
+            measure(candidate, pose, constraints).map(
+              (v: number, i: number): number =>
+                Math.abs(applied) < 1e-10 ? 0 : (v - measured[i]!) / applied,
+            ),
+          );
+          return moved.map((v: number, i: number): number =>
+            Math.abs(applied) < 1e-10 ? 0 : (v - residual[i]!) / applied,
           );
         },
       );
-      values.splice(0,values.length,...previous);
-      channels.forEach(([path]:[string,number,number],index:number):void=>write(pose,path,previous[index]!));
+      values.splice(0, values.length, ...previous);
+      channels.forEach(
+        ([path]: [string, number, number], index: number): void =>
+          write(pose, path, previous[index]!),
+      );
       const matrix: number[][] = derivatives.map(
         (row: number[], i: number): number[] =>
           derivatives.map(
@@ -230,7 +305,18 @@ export namespace AutoMovieHumanClinicalIk {
             0,
           ),
       );
-      const delta: number[] = constraints.length === 0 ? linear(matrix, right) : constrained(derivatives, residual, constraintDerivatives, measured, constraints, previous, intervals);
+      const delta: number[] =
+        constraints.length === 0
+          ? linear(matrix, right)
+          : constrained(
+              derivatives,
+              residual,
+              constraintDerivatives,
+              measured,
+              constraints,
+              previous,
+              intervals,
+            );
       const scale: number = Math.min(
         1,
         12 / Math.max(12, ...delta.map(Math.abs)),
@@ -257,7 +343,11 @@ export namespace AutoMovieHumanClinicalIk {
           (sum: number, v: number): number => sum + v * v,
           0,
         );
-        if (constraintCost > 0 ? nextViolation < constraintCost : nextViolation === 0 && nextCost < cost) {
+        if (
+          constraintCost > 0
+            ? nextViolation < constraintCost
+            : nextViolation === 0 && nextCost < cost
+        ) {
           output = candidate;
           residual = next;
           measured = nextMeasured;
@@ -273,75 +363,185 @@ export namespace AutoMovieHumanClinicalIk {
         break;
       }
     }
-    for(const clamp of output.clamped){
-      if(!selected.some((path:Controls.DegreeChannel):boolean=>path===clamp.path))continue;
-      write(pose,clamp.path,clamp.applied);
+    for (const clamp of output.clamped) {
+      if (
+        !selected.some(
+          (path: Controls.DegreeChannel): boolean => path === clamp.path,
+        )
+      )
+        continue;
+      write(pose, clamp.path, clamp.applied);
     }
 
     // Only the final applied pose crosses the complete public snapshot boundary.
     const complete: AutoMovieHumanSkeleton.IOutput = evaluate(pose);
     residual = errors(complete, request.targets);
     measured = measure(complete, pose, constraints);
-    const constraintValues: {value:number;violation:number}[] = measured.map((value:number,i:number):{value:number;violation:number}=>({value,violation:distance(value,constraints[i]!)}));
-    return { pose, output: complete, error: maximum(residual), iterations: count, constraintValues, constraintsSatisfied: constraintValues.every((item:{value:number;violation:number}):boolean=>item.violation===0) };
+    const constraintValues: { value: number; violation: number }[] =
+      measured.map(
+        (value: number, i: number): { value: number; violation: number } => ({
+          value,
+          violation: distance(value, constraints[i]!),
+        }),
+      );
+    return {
+      pose,
+      output: complete,
+      error: maximum(residual),
+      iterations: count,
+      constraintValues,
+      constraintsSatisfied: constraintValues.every(
+        (item: { value: number; violation: number }): boolean =>
+          item.violation === 0,
+      ),
+    };
   }
 }
 
 /** Admit and copy dense descriptors before touching either evaluator capability. */
-function admit(input: readonly AutoMovieHumanClinicalIk.IConstraint[] | undefined, channels: [string,number,number][]): AutoMovieHumanClinicalIk.IConstraint[] {
+function admit(
+  input: readonly AutoMovieHumanClinicalIk.IConstraint[] | undefined,
+  channels: [string, number, number][],
+): AutoMovieHumanClinicalIk.IConstraint[] {
   if (input === undefined) return [];
-  if (!Array.isArray(input)) throw new Error("Clinical IK constraints require a dense array");
-  const ranges:[string,number,number][]=channels.map((row:[string,number,number]):[string,number,number]=>[...row]);
-  return Array.from(input).map((item:AutoMovieHumanClinicalIk.IConstraint):AutoMovieHumanClinicalIk.IConstraint=>{
-    if (!item || typeof item!=="object" || (item.minimum===undefined && item.maximum===undefined) ||
-      (item.minimum!==undefined && !Number.isFinite(item.minimum)) || (item.maximum!==undefined && !Number.isFinite(item.maximum)) || (item.minimum??-Infinity)>(item.maximum??Infinity))
-      throw new Error("Clinical IK constraint interval is invalid");
-    if(item.kind==="channel"){
-      const channel:[string,number,number]|undefined=ranges.find((row:[string,number,number]):boolean=>row[0]===item.channel);
-      if(!channel)throw new Error("Clinical IK constraint channel must be selected");
-      channel[1]=Math.max(channel[1],item.minimum??-Infinity);channel[2]=Math.min(channel[2],item.maximum??Infinity);
-      if(channel[1]>channel[2])throw new Error("Clinical IK channel constraint has no clinical range");
-      return {...item};
-    }
-    if(item.kind!=="line-offset" || !item.line || !bonePoint(item.point) || !bonePoint(item.line.origin) || !bonePoint(item.line.end) || !finitePoint(item.normal) || Math.abs(Math.hypot(...item.normal)-1)>1e-6)
-      throw new Error("Clinical IK line-offset requires finite bone points and a unit normal");
-    const copy:(point:AutoMovieHumanClinicalIk.IBonePoint)=>AutoMovieHumanClinicalIk.IBonePoint=(point:AutoMovieHumanClinicalIk.IBonePoint):AutoMovieHumanClinicalIk.IBonePoint=>({bone:point.bone,...(point.localPoint===undefined?{}:{localPoint:[...point.localPoint] as Controls.MetrePoint})});
-    return {...item,normal:[...item.normal],point:copy(item.point),line:{origin:copy(item.line.origin),end:copy(item.line.end)}};
-  });
+  if (!Array.isArray(input))
+    throw new Error("Clinical IK constraints require a dense array");
+  const ranges: [string, number, number][] = channels.map(
+    (row: [string, number, number]): [string, number, number] => [...row],
+  );
+  return Array.from(input).map(
+    (
+      item: AutoMovieHumanClinicalIk.IConstraint,
+    ): AutoMovieHumanClinicalIk.IConstraint => {
+      if (
+        !item ||
+        typeof item !== "object" ||
+        (item.minimum === undefined && item.maximum === undefined) ||
+        (item.minimum !== undefined && !Number.isFinite(item.minimum)) ||
+        (item.maximum !== undefined && !Number.isFinite(item.maximum)) ||
+        (item.minimum ?? -Infinity) > (item.maximum ?? Infinity)
+      )
+        throw new Error("Clinical IK constraint interval is invalid");
+      if (item.kind === "channel") {
+        const channel: [string, number, number] | undefined = ranges.find(
+          (row: [string, number, number]): boolean => row[0] === item.channel,
+        );
+        if (!channel)
+          throw new Error("Clinical IK constraint channel must be selected");
+        channel[1] = Math.max(channel[1], item.minimum ?? -Infinity);
+        channel[2] = Math.min(channel[2], item.maximum ?? Infinity);
+        if (channel[1] > channel[2])
+          throw new Error(
+            "Clinical IK channel constraint has no clinical range",
+          );
+        return { ...item };
+      }
+      if (
+        item.kind !== "line-offset" ||
+        !item.line ||
+        !bonePoint(item.point) ||
+        !bonePoint(item.line.origin) ||
+        !bonePoint(item.line.end) ||
+        !finitePoint(item.normal) ||
+        Math.abs(Math.hypot(...item.normal) - 1) > 1e-6
+      )
+        throw new Error(
+          "Clinical IK line-offset requires finite bone points and a unit normal",
+        );
+      const copy: (
+        point: AutoMovieHumanClinicalIk.IBonePoint,
+      ) => AutoMovieHumanClinicalIk.IBonePoint = (
+        point: AutoMovieHumanClinicalIk.IBonePoint,
+      ): AutoMovieHumanClinicalIk.IBonePoint => ({
+        bone: point.bone,
+        ...(point.localPoint === undefined
+          ? {}
+          : { localPoint: [...point.localPoint] as Controls.MetrePoint }),
+      });
+      return {
+        ...item,
+        normal: [...item.normal],
+        point: copy(item.point),
+        line: { origin: copy(item.line.origin), end: copy(item.line.end) },
+      };
+    },
+  );
 }
 
 /** Bone-point admission reads every coordinate, including sparse local tuples. */
-function bonePoint(value: unknown): value is AutoMovieHumanClinicalIk.IBonePoint {
-  if(!value || typeof value!=="object")return false;
-  const point:AutoMovieHumanClinicalIk.IBonePoint=value as AutoMovieHumanClinicalIk.IBonePoint;
-  return typeof point.bone==="string" && point.bone.length>0 && (point.localPoint===undefined || finitePoint(point.localPoint));
+function bonePoint(
+  value: unknown,
+): value is AutoMovieHumanClinicalIk.IBonePoint {
+  if (!value || typeof value !== "object") return false;
+  const point: AutoMovieHumanClinicalIk.IBonePoint =
+    value as AutoMovieHumanClinicalIk.IBonePoint;
+  return (
+    typeof point.bone === "string" &&
+    point.bone.length > 0 &&
+    (point.localPoint === undefined || finitePoint(point.localPoint))
+  );
 }
 
 /** Actual FK values; moving origins and moving line directions share one snapshot. */
-function measure(output:AutoMovieHumanSkeleton.IProjection,pose:IAutoMovieHumanPose,constraints:readonly AutoMovieHumanClinicalIk.IConstraint[]):number[]{
-  return constraints.map((item:AutoMovieHumanClinicalIk.IConstraint):number=>{
-    if(item.kind==="channel")return read(pose,item.channel);
-    const origin:Controls.MetrePoint=pointAt(output,item.line.origin);
-    const axis:Controls.MetrePoint=Math3D.sub(pointAt(output,item.line.end),origin);
-    const offset:Controls.MetrePoint=Math3D.sub(pointAt(output,item.point),origin);
-    const length:number=Math.hypot(...axis);
-    if(!(length>0) || !Number.isFinite(length))throw new Error("Clinical IK line-offset has a degenerate line");
-    const unit:number[]=axis.map((v:number):number=>v/length);
-    const along:number=offset.reduce((sum:number,v:number,i:number):number=>sum+v*unit[i]!,0);
-    const value:number=offset.reduce((sum:number,v:number,i:number):number=>sum+(v-unit[i]!*along)*item.normal[i]!,0);
-    if(!Number.isFinite(value))throw new Error("Clinical IK line-offset arithmetic is not finite");
-    return value;
-  });
+function measure(
+  output: AutoMovieHumanSkeleton.IProjection,
+  pose: IAutoMovieHumanPose,
+  constraints: readonly AutoMovieHumanClinicalIk.IConstraint[],
+): number[] {
+  return constraints.map(
+    (item: AutoMovieHumanClinicalIk.IConstraint): number => {
+      if (item.kind === "channel") return read(pose, item.channel);
+      const origin: Controls.MetrePoint = pointAt(output, item.line.origin);
+      const axis: Controls.MetrePoint = Math3D.sub(
+        pointAt(output, item.line.end),
+        origin,
+      );
+      const offset: Controls.MetrePoint = Math3D.sub(
+        pointAt(output, item.point),
+        origin,
+      );
+      const length: number = Math.hypot(...axis);
+      if (!(length > 0) || !Number.isFinite(length))
+        throw new Error("Clinical IK line-offset has a degenerate line");
+      const unit: number[] = axis.map((v: number): number => v / length);
+      const along: number = offset.reduce(
+        (sum: number, v: number, i: number): number => sum + v * unit[i]!,
+        0,
+      );
+      const value: number = offset.reduce(
+        (sum: number, v: number, i: number): number =>
+          sum + (v - unit[i]! * along) * item.normal[i]!,
+        0,
+      );
+      if (!Number.isFinite(value))
+        throw new Error("Clinical IK line-offset arithmetic is not finite");
+      return value;
+    },
+  );
 }
 
 /** Nonnegative physical interval distance, with no acceptance-band relaxation. */
-function distance(value:number,item:{minimum?:number;maximum?:number}):number{
-  return Math.max(0,(item.minimum??-Infinity)-value,value-(item.maximum??Infinity));
+function distance(
+  value: number,
+  item: { minimum?: number; maximum?: number },
+): number {
+  return Math.max(
+    0,
+    (item.minimum ?? -Infinity) - value,
+    value - (item.maximum ?? Infinity),
+  );
 }
 
 /** Squared violation merit is used only until all original intervals hold. */
-function violation(values:number[],constraints:readonly AutoMovieHumanClinicalIk.IConstraint[]):number{
-  return values.reduce((sum:number,value:number,i:number):number=>sum+distance(value,constraints[i]!)**2,0);
+function violation(
+  values: number[],
+  constraints: readonly AutoMovieHumanClinicalIk.IConstraint[],
+): number {
+  return values.reduce(
+    (sum: number, value: number, i: number): number =>
+      sum + distance(value, constraints[i]!) ** 2,
+    0,
+  );
 }
 
 /** Residual auxiliaries encode J*delta-rNew=-r with the original damping.
@@ -352,19 +552,63 @@ function violation(values:number[],constraints:readonly AutoMovieHumanClinicalIk
  * with actual final residuals. The caller caps the whole direction to twelve degrees
  * and checks nonlinear geometry, because a linearized row is not a certificate.
  */
-function constrained(jacobian:number[][],residual:number[],gradient:number[][],measured:number[],constraints:readonly AutoMovieHumanClinicalIk.IConstraint[],previous:number[],bounds:{minimum:number;maximum:number}[]):number[]{
-  const n:number=previous.length;
-  const ids:number[]=previous.map((_:number,i:number):number=>i);
-  const rows:IAutoMovieQuadraticRow[]=bounds.map((bound:{minimum:number;maximum:number},i:number):IAutoMovieQuadraticRow=>({indices:[i],weights:[1],lower:bound.minimum-previous[i]!,upper:bound.maximum-previous[i]!}));
-  for(let i:number=0;i<residual.length;i++)rows.push({indices:[...ids,n+i],weights:[...jacobian.map((column:number[]):number=>column[i]!),-1],lower:-residual[i]!,upper:-residual[i]!});
-  constraints.forEach((item:AutoMovieHumanClinicalIk.IConstraint,i:number):void=>{
-    rows.push({indices:ids,weights:gradient.map((column:number[]):number=>column[i]!),lower:item.minimum===undefined?null:item.minimum-measured[i]!,upper:item.maximum===undefined?null:item.maximum-measured[i]!});
-  });
-  const program:Parameters<typeof solveAutoMovieQuadraticProgram>[0]={diagonal:[...previous.map(():number=>.000002),...residual.map(():number=>1)],linear:new Array<number>(n+residual.length).fill(0),rows};
-  const native:ReturnType<typeof solveAutoMovieQuadraticProgram>=solveAutoMovieQuadraticProgram(program);
-  if(native.status!==1 || !native.primal.every(Number.isFinite))return previous.map(():number=>0);
-  const result:ReturnType<typeof refineAutoMovieQuadraticProgram>=refineAutoMovieQuadraticProgram(program,native,{tolerance:1e-12,maximumRefinements:8*program.diagonal.length});
-  return result.primal.slice(0,n);
+function constrained(
+  jacobian: number[][],
+  residual: number[],
+  gradient: number[][],
+  measured: number[],
+  constraints: readonly AutoMovieHumanClinicalIk.IConstraint[],
+  previous: number[],
+  bounds: { minimum: number; maximum: number }[],
+): number[] {
+  const n: number = previous.length;
+  const ids: number[] = previous.map((_: number, i: number): number => i);
+  const rows: IAutoMovieQuadraticRow[] = bounds.map(
+    (
+      bound: { minimum: number; maximum: number },
+      i: number,
+    ): IAutoMovieQuadraticRow => ({
+      indices: [i],
+      weights: [1],
+      lower: bound.minimum - previous[i]!,
+      upper: bound.maximum - previous[i]!,
+    }),
+  );
+  for (let i: number = 0; i < residual.length; i++)
+    rows.push({
+      indices: [...ids, n + i],
+      weights: [...jacobian.map((column: number[]): number => column[i]!), -1],
+      lower: -residual[i]!,
+      upper: -residual[i]!,
+    });
+  constraints.forEach(
+    (item: AutoMovieHumanClinicalIk.IConstraint, i: number): void => {
+      rows.push({
+        indices: ids,
+        weights: gradient.map((column: number[]): number => column[i]!),
+        lower: item.minimum === undefined ? null : item.minimum - measured[i]!,
+        upper: item.maximum === undefined ? null : item.maximum - measured[i]!,
+      });
+    },
+  );
+  const program: Parameters<typeof solveAutoMovieQuadraticProgram>[0] = {
+    diagonal: [
+      ...previous.map((): number => 0.000002),
+      ...residual.map((): number => 1),
+    ],
+    linear: new Array<number>(n + residual.length).fill(0),
+    rows,
+  };
+  const native: ReturnType<typeof solveAutoMovieQuadraticProgram> =
+    solveAutoMovieQuadraticProgram(program);
+  if (native.status !== 1 || !native.primal.every(Number.isFinite))
+    return previous.map((): number => 0);
+  const result: ReturnType<typeof refineAutoMovieQuadraticProgram> =
+    refineAutoMovieQuadraticProgram(program, native, {
+      tolerance: 1e-12,
+      maximumRefinements: 8 * program.diagonal.length,
+    });
+  return result.primal.slice(0, n);
 }
 
 /** Read a registered path without requiring clients to cast their pose. */
@@ -384,7 +628,13 @@ function write(pose: object, path: string, value: number): void {
   for (const part of parts.slice(0, -1)) {
     const child: unknown = Reflect.get(node, part);
     if (typeof child !== "object" || child === null)
-      Reflect.set(node, part, node===pose&&(part==="arms"||part==="legs")?{left:{},right:{}}:{});
+      Reflect.set(
+        node,
+        part,
+        node === pose && (part === "arms" || part === "legs")
+          ? { left: {}, right: {} }
+          : {},
+      );
     node = Reflect.get(node, part) as object;
   }
   Reflect.set(node, parts[parts.length - 1]!, value);
@@ -406,15 +656,38 @@ function errors(
 }
 
 /** Resolve an admitted rigid point and refuse invalid FK, never substitute an origin. */
-function pointAt(output:AutoMovieHumanSkeleton.IProjection,point:AutoMovieHumanClinicalIk.IBonePoint):Controls.MetrePoint{
-  const at:AutoMovieHumanSkeleton.IPlacement|undefined=output.posed.find((placement:AutoMovieHumanSkeleton.IPlacement):boolean=>placement.bone===point.bone);
-  if(!at || !finitePoint(at.position) || (point.localPoint!==undefined && (!Array.isArray(at.rotation) || at.rotation.length!==4 || ![0,1,2,3].every((axis:number):boolean=>Number.isFinite(at.rotation[axis])) || Math.abs(Math.hypot(...at.rotation)-1)>1e-6)))throw new Error(`Clinical IK target is missing or invalid: ${point.bone}`);
-  return point.localPoint===undefined?at.position:Math3D.add(at.position,Math3D.rotate(at.rotation,point.localPoint));
+function pointAt(
+  output: AutoMovieHumanSkeleton.IProjection,
+  point: AutoMovieHumanClinicalIk.IBonePoint,
+): Controls.MetrePoint {
+  const at: AutoMovieHumanSkeleton.IPlacement | undefined = output.posed.find(
+    (placement: AutoMovieHumanSkeleton.IPlacement): boolean =>
+      placement.bone === point.bone,
+  );
+  if (
+    !at ||
+    !finitePoint(at.position) ||
+    (point.localPoint !== undefined &&
+      (!Array.isArray(at.rotation) ||
+        at.rotation.length !== 4 ||
+        ![0, 1, 2, 3].every((axis: number): boolean =>
+          Number.isFinite(at.rotation[axis]),
+        ) ||
+        Math.abs(Math.hypot(...at.rotation) - 1) > 1e-6))
+  )
+    throw new Error(`Clinical IK target is missing or invalid: ${point.bone}`);
+  return point.localPoint === undefined
+    ? at.position
+    : Math3D.add(at.position, Math3D.rotate(at.rotation, point.localPoint));
 }
 
 /** Read each required coordinate so sparse arrays cannot skip admission. */
 function finitePoint(value: unknown): value is Controls.MetrePoint {
-  return Array.isArray(value) && value.length === 3 && [0, 1, 2].every((axis: number): boolean => Number.isFinite(value[axis]));
+  return (
+    Array.isArray(value) &&
+    value.length === 3 &&
+    [0, 1, 2].every((axis: number): boolean => Number.isFinite(value[axis]))
+  );
 }
 
 /** Largest three-dimensional target residual in metres. */
@@ -453,4 +726,3 @@ function linear(matrix: number[][], right: number[]): number[] {
   }
   return a.map((row: number[]): number => row[n]!);
 }
-

@@ -1,10 +1,11 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+
 import type { FilmPlan } from "../film/FilmPlan";
 import { AudioMix } from "./AudioMix";
 import { AudioPcm } from "./AudioPcm";
-import { MovieAudioAssets } from "./MovieAudioAssets";
 import type { MovieAudio } from "./MovieAudio";
+import { MovieAudioAssets } from "./MovieAudioAssets";
 
 /**
  * Write the same fixed complete PCM16 soundtrack that the Viewer prepares.
@@ -18,21 +19,60 @@ export async function renderFilmAudioMix(input: {
   /** Actual compiled mat arrivals, when a fall is requested. */ floorContacts?: readonly AudioMix.FloorContact[];
   /** New absolute soundtrack path with an existing parent. */ outputPath: string;
 }): Promise<MovieAudio.Manifest & { path: string }> {
-  if (!path.isAbsolute(input.outputPath)) throw new Error("Soundtrack outputPath must be absolute");
-  const cues: AudioMix.Cue[] = AudioMix.build(input.events, input.contacts, input.floorContacts);
+  if (!path.isAbsolute(input.outputPath))
+    throw new Error("Soundtrack outputPath must be absolute");
+  const cues: AudioMix.Cue[] = AudioMix.build(
+    input.events,
+    input.contacts,
+    input.floorContacts,
+  );
   const assets: MovieAudioAssets.Asset[] = MovieAudioAssets.select(cues);
-  const results: PromiseSettledResult<Float32Array>[] = await Promise.allSettled(assets.map(async (asset: MovieAudioAssets.Asset): Promise<Float32Array> => MovieAudioAssets.decode(asset, await readFile(new URL(asset.url)))));
-  const sources: Map<AudioMix.Source, Float32Array> = new Map<AudioMix.Source, Float32Array>();
+  const results: PromiseSettledResult<Float32Array>[] =
+    await Promise.allSettled(
+      assets.map(
+        async (asset: MovieAudioAssets.Asset): Promise<Float32Array> =>
+          MovieAudioAssets.decode(asset, await readFile(new URL(asset.url))),
+      ),
+    );
+  const sources: Map<AudioMix.Source, Float32Array> = new Map<
+    AudioMix.Source,
+    Float32Array
+  >();
   const errors: string[] = [];
-  results.forEach((result: PromiseSettledResult<Float32Array>, index: number): void => {
-    if (result.status === "rejected") errors.push(`${assets[index].id}: ${String(result.reason)}`);
-    else sources.set(assets[index].id, result.value);
-  });
+  results.forEach(
+    (result: PromiseSettledResult<Float32Array>, index: number): void => {
+      if (result.status === "rejected")
+        errors.push(`${assets[index].id}: ${String(result.reason)}`);
+      else sources.set(assets[index].id, result.value);
+    },
+  );
   if (errors.length > 0) throw new Error(errors.join("; "));
-  const mixed: ReturnType<typeof AudioMix.render> = AudioMix.render(cues, sources);
+  const mixed: ReturnType<typeof AudioMix.render> = AudioMix.render(
+    cues,
+    sources,
+  );
   const bytes: Uint8Array = AudioPcm.encode(mixed.left, mixed.right);
   const sha256: string = await MovieAudioAssets.digest(bytes);
-  const cueDigest: string = await MovieAudioAssets.digest(new TextEncoder().encode(JSON.stringify(cues)));
+  const cueDigest: string = await MovieAudioAssets.digest(
+    new TextEncoder().encode(JSON.stringify(cues)),
+  );
   await writeFile(input.outputPath, bytes, { flag: "wx" });
-  return { path: input.outputPath, durationSeconds: 180, sampleRate: 48000, channels: 2, sha256, cueDigest, peak: mixed.peak, cues, assets: assets.map((asset: MovieAudioAssets.Asset): { id: AudioMix.Source; sha256: string } => ({ id: asset.id, sha256: asset.sha256 })) };
+  return {
+    path: input.outputPath,
+    durationSeconds: 180,
+    sampleRate: 48000,
+    channels: 2,
+    sha256,
+    cueDigest,
+    peak: mixed.peak,
+    cues,
+    assets: assets.map(
+      (
+        asset: MovieAudioAssets.Asset,
+      ): { id: AudioMix.Source; sha256: string } => ({
+        id: asset.id,
+        sha256: asset.sha256,
+      }),
+    ),
+  };
 }

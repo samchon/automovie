@@ -50,7 +50,10 @@ export function test_geometry_surface_frame_rigid(): void {
 
   // Literal destination coordinates pin handedness as well as centroid movement.
   for (let i: number = 0; i < 3; i++)
-    TestValidator.predicate(`placed point ${i}`, vclose(placed[i], expected[i]));
+    TestValidator.predicate(
+      `placed point ${i}`,
+      vclose(placed[i], expected[i]),
+    );
 
   TestValidator.predicate(
     "all pairwise lengths remain the authored right triangle",
@@ -96,7 +99,10 @@ export function test_geometry_surface_frame_rigid(): void {
     prepared.frame,
   );
   for (let i: number = 0; i < 3; i++)
-    TestValidator.predicate(`source round trip ${i}`, vclose(restored[i], source[i]));
+    TestValidator.predicate(
+      `source round trip ${i}`,
+      vclose(restored[i], source[i]),
+    );
 
   // Preparation copies coordinates; each placement also owns its returned points.
   source[0].x = 999;
@@ -106,5 +112,8 @@ export function test_geometry_surface_frame_rigid(): void {
     target,
   );
   for (let i: number = 0; i < 3; i++)
-    TestValidator.predicate(`independent repeat ${i}`, vclose(repeated[i], expected[i]));
+    TestValidator.predicate(
+      `independent repeat ${i}`,
+      vclose(repeated[i], expected[i]),
+    );
 }

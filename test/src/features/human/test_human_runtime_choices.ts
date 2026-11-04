@@ -47,31 +47,135 @@ export function test_human_runtime_choices(): void {
       LidDroop: "lidDroop",
       EyesClosed: "eyesClosed",
     },
-    AutoMovieHumanExpressionSide: {Both: "both", Left: "left", Right: "right"},
-    AutoMovieHumanHairColor: {Black: "black", DarkBrown: "darkBrown", Brown: "brown", LightBrown: "lightBrown", Blond: "blond", Auburn: "auburn", Red: "red", Gray: "gray", White: "white"},
-    AutoMovieHumanHairCurl: {I: "I", II: "II", III: "III", IV: "IV", V: "V", VI: "VI", VII: "VII", VIII: "VIII"},
-    AutoMovieHumanHairline: {Round: "round", MShaped: "mShaped", Rectangular: "rectangular", BellShaped: "bellShaped", Triangular: "triangular"},
-    AutoMovieHumanHairStyle: {Crop: "crop", Short: "short", Bob: "bob"},
-    AutoMovieHumanIrisColor: {Blue: "blue", Gray: "gray", Green: "green", Hazel: "hazel", LightBrown: "lightBrown", Brown: "brown", DarkBrown: "darkBrown"},
-    AutoMovieHumanLowerUnderwear: {None: "none", Briefs: "briefs", BoxerBriefs: "boxerBriefs"},
-    AutoMovieHumanPopulation: {European: "european", EastAsian: "eastAsian", African: "african"},
-    AutoMovieHumanSex: {Female: "female", Male: "male"},
-    AutoMovieHumanUpperUnderwear: {None: "none", Bra: "bra"},
+    AutoMovieHumanExpressionSide: {
+      Both: "both",
+      Left: "left",
+      Right: "right",
+    },
+    AutoMovieHumanHairColor: {
+      Black: "black",
+      DarkBrown: "darkBrown",
+      Brown: "brown",
+      LightBrown: "lightBrown",
+      Blond: "blond",
+      Auburn: "auburn",
+      Red: "red",
+      Gray: "gray",
+      White: "white",
+    },
+    AutoMovieHumanHairCurl: {
+      I: "I",
+      II: "II",
+      III: "III",
+      IV: "IV",
+      V: "V",
+      VI: "VI",
+      VII: "VII",
+      VIII: "VIII",
+    },
+    AutoMovieHumanHairline: {
+      Round: "round",
+      MShaped: "mShaped",
+      Rectangular: "rectangular",
+      BellShaped: "bellShaped",
+      Triangular: "triangular",
+    },
+    AutoMovieHumanHairStyle: { Crop: "crop", Short: "short", Bob: "bob" },
+    AutoMovieHumanIrisColor: {
+      Blue: "blue",
+      Gray: "gray",
+      Green: "green",
+      Hazel: "hazel",
+      LightBrown: "lightBrown",
+      Brown: "brown",
+      DarkBrown: "darkBrown",
+    },
+    AutoMovieHumanLowerUnderwear: {
+      None: "none",
+      Briefs: "briefs",
+      BoxerBriefs: "boxerBriefs",
+    },
+    AutoMovieHumanPopulation: {
+      European: "european",
+      EastAsian: "eastAsian",
+      African: "african",
+    },
+    AutoMovieHumanSex: { Female: "female", Male: "male" },
+    AutoMovieHumanUpperUnderwear: { None: "none", Bra: "bra" },
   };
   for (const [name, members] of Object.entries(expected)) {
     const actual: unknown = Reflect.get(Human, name);
-    if (actual === null || typeof actual !== "object" || Array.isArray(actual)) throw new Error(`Public Human runtime choice is missing: ${name}`);
-    TestValidator.equals(`${name}: closed member names`, Object.keys(actual).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0), Object.keys(members).sort((a: string, b: string): number => a < b ? -1 : a > b ? 1 : 0));
+    if (actual === null || typeof actual !== "object" || Array.isArray(actual))
+      throw new Error(`Public Human runtime choice is missing: ${name}`);
+    TestValidator.equals(
+      `${name}: closed member names`,
+      Object.keys(actual).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+      Object.keys(members).sort((a: string, b: string): number =>
+        a < b ? -1 : a > b ? 1 : 0,
+      ),
+    );
     for (const [member, value] of Object.entries(members)) {
-      TestValidator.equals(`${name}.${member}: serialized value`, Reflect.get(actual, member), value);
+      TestValidator.equals(
+        `${name}.${member}: serialized value`,
+        Reflect.get(actual, member),
+        value,
+      );
     }
   }
 
-  const hair: Human.IAutoMovieHumanScalpHair = {style: Human.AutoMovieHumanHairStyle.Crop, color: Human.AutoMovieHumanHairColor.Black, length: 12, curl: Human.AutoMovieHumanHairCurl.II, hairline: Human.AutoMovieHumanHairline.Rectangular};
-  const underwear: Human.IAutoMovieHumanUnderwear = {bottom: Human.AutoMovieHumanLowerUnderwear.BoxerBriefs, top: Human.AutoMovieHumanUpperUnderwear.None, color: "#123456"};
-  const pigmentation: Human.IAutoMovieHumanPigmentation = {melanin: 0.1, eumelaninShare: 0.8, haemoglobin: 0.015, iris: Human.AutoMovieHumanIrisColor.Brown};
-  const activation: Human.IAutoMovieHumanActionUnitActivation = {unit: Human.AutoMovieHumanActionUnit.EyesClosed, side: Human.AutoMovieHumanExpressionSide.Both, intensity: 0};
-  const traits: Pick<Human.IAutoMovieHumanTraits, "sex" | "population"> = {sex: Human.AutoMovieHumanSex.Female, population: Human.AutoMovieHumanPopulation.EastAsian};
-  const serialized: string[] = [hair.style, hair.color, hair.curl, hair.hairline, underwear.bottom, underwear.top, pigmentation.iris, activation.unit, activation.side, traits.sex, traits.population];
-  TestValidator.equals("existing typed authoring values", serialized, ["crop", "black", "II", "rectangular", "boxerBriefs", "none", "brown", "eyesClosed", "both", "female", "eastAsian"]);
+  const hair: Human.IAutoMovieHumanScalpHair = {
+    style: Human.AutoMovieHumanHairStyle.Crop,
+    color: Human.AutoMovieHumanHairColor.Black,
+    length: 12,
+    curl: Human.AutoMovieHumanHairCurl.II,
+    hairline: Human.AutoMovieHumanHairline.Rectangular,
+  };
+  const underwear: Human.IAutoMovieHumanUnderwear = {
+    bottom: Human.AutoMovieHumanLowerUnderwear.BoxerBriefs,
+    top: Human.AutoMovieHumanUpperUnderwear.None,
+    color: "#123456",
+  };
+  const pigmentation: Human.IAutoMovieHumanPigmentation = {
+    melanin: 0.1,
+    eumelaninShare: 0.8,
+    haemoglobin: 0.015,
+    iris: Human.AutoMovieHumanIrisColor.Brown,
+  };
+  const activation: Human.IAutoMovieHumanActionUnitActivation = {
+    unit: Human.AutoMovieHumanActionUnit.EyesClosed,
+    side: Human.AutoMovieHumanExpressionSide.Both,
+    intensity: 0,
+  };
+  const traits: Pick<Human.IAutoMovieHumanTraits, "sex" | "population"> = {
+    sex: Human.AutoMovieHumanSex.Female,
+    population: Human.AutoMovieHumanPopulation.EastAsian,
+  };
+  const serialized: string[] = [
+    hair.style,
+    hair.color,
+    hair.curl,
+    hair.hairline,
+    underwear.bottom,
+    underwear.top,
+    pigmentation.iris,
+    activation.unit,
+    activation.side,
+    traits.sex,
+    traits.population,
+  ];
+  TestValidator.equals("existing typed authoring values", serialized, [
+    "crop",
+    "black",
+    "II",
+    "rectangular",
+    "boxerBriefs",
+    "none",
+    "brown",
+    "eyesClosed",
+    "both",
+    "female",
+    "eastAsian",
+  ]);
 }

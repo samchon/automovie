@@ -15,28 +15,53 @@ import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompleted
  * @evidence contracts/performance.md#reuse-equivalent-work Reuses the original completed observation but never reuses an old record to stand in for a new effect; distinct requested redraws invoke the producer separately.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Borrows callbacks and frame records only for this synchronous invocation and acquires no task, renderer or resource lease.
  */
-export function redrawViewerCompletedFrame(seconds: number, options: {
-  /** Actual completed publication count. */
-  completedCount: () => number;
-  /** Actual last completed scene seconds. */
-  completedSeconds: () => number;
-  /** Current original-producer observation, absent before any completed draw. */
-  readFrame: () => Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined;
-  /** Original draw; must throw if it refuses the requested state. */
-  produce: (seconds: number) => void;
-  /** Publish a newly supplied legacy producer observation at these seconds. */
-  publish: (frame: Omit<IAutoMovieViewerCompletedFrame, "control">, seconds: number) => void;
-}): void {
-  if (!Number.isFinite(seconds) || seconds < 0) throw new Error("A redraw requires finite nonnegative seconds.");
+export function redrawViewerCompletedFrame(
+  seconds: number,
+  options: {
+    /** Actual completed publication count. */
+    completedCount: () => number;
+    /** Actual last completed scene seconds. */
+    completedSeconds: () => number;
+    /** Current original-producer observation, absent before any completed draw. */
+    readFrame: () =>
+      | Omit<IAutoMovieViewerCompletedFrame, "control">
+      | undefined;
+    /** Original draw; must throw if it refuses the requested state. */
+    produce: (seconds: number) => void;
+    /** Publish a newly supplied legacy producer observation at these seconds. */
+    publish: (
+      frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
+      seconds: number,
+    ) => void;
+  },
+): void {
+  if (!Number.isFinite(seconds) || seconds < 0)
+    throw new Error("A redraw requires finite nonnegative seconds.");
   const before: number = options.completedCount();
-  const previous: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined = options.readFrame();
+  const previous: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined =
+    options.readFrame();
   options.produce(seconds);
   if (options.completedCount() === before) {
-    const current: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined = options.readFrame();
-    if (current === undefined || current === previous) throw new Error("The original viewer producer did not complete a new redraw.");
-    if (current.elapsedSeconds !== undefined && current.elapsedSeconds !== seconds) throw new Error("The original viewer producer completed a different scene time.");
+    const current: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined =
+      options.readFrame();
+    if (current === undefined || current === previous)
+      throw new Error(
+        "The original viewer producer did not complete a new redraw.",
+      );
+    if (
+      current.elapsedSeconds !== undefined &&
+      current.elapsedSeconds !== seconds
+    )
+      throw new Error(
+        "The original viewer producer completed a different scene time.",
+      );
     options.publish(current, seconds);
   }
-  if (options.completedCount() === before || options.completedSeconds() !== seconds)
-    throw new Error("The original viewer producer did not complete the requested scene time.");
+  if (
+    options.completedCount() === before ||
+    options.completedSeconds() !== seconds
+  )
+    throw new Error(
+      "The original viewer producer did not complete the requested scene time.",
+    );
 }

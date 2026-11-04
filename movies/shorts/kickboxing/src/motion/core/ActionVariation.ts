@@ -42,14 +42,37 @@ export namespace ActionVariation {
    */
   export function create(request: MotionAction.Request): Result {
     ActionClock.duration(request.timing);
-    if (![request.id, request.actorId, request.targetId].every((id: string): boolean => typeof id === "string" && id.trim().length > 0) || request.actorId === request.targetId)
-      throw new Error("Action requires distinct named actor and target identities");
-    if (![request.side, request.leadSide].every((side: string): boolean => side === "left" || side === "right"))
+    if (
+      ![request.id, request.actorId, request.targetId].every(
+        (id: string): boolean => typeof id === "string" && id.trim().length > 0,
+      ) ||
+      request.actorId === request.targetId
+    )
+      throw new Error(
+        "Action requires distinct named actor and target identities",
+      );
+    if (
+      ![request.side, request.leadSide].every(
+        (side: string): boolean => side === "left" || side === "right",
+      )
+    )
       throw new Error("Action requires anatomical acting and lead sides");
-    if (!Array.isArray(request.direction) || request.direction.length !== 3 || !request.direction.every(Number.isFinite) || !Number.isFinite(Math.hypot(...request.direction)) || Math.hypot(...request.direction) === 0)
+    if (
+      !Array.isArray(request.direction) ||
+      request.direction.length !== 3 ||
+      !request.direction.every(Number.isFinite) ||
+      !Number.isFinite(Math.hypot(...request.direction)) ||
+      Math.hypot(...request.direction) === 0
+    )
       throw new Error("Action requires a finite nonzero direction");
     const values: Values = sample(request.variation);
-    const timing: MotionAction.Timing = { preparation: request.timing.preparation * values.timingScale, delivery: request.timing.delivery * values.timingScale, contact: request.timing.contact * values.timingScale, retraction: request.timing.retraction * values.timingScale, recovery: request.timing.recovery * values.timingScale };
+    const timing: MotionAction.Timing = {
+      preparation: request.timing.preparation * values.timingScale,
+      delivery: request.timing.delivery * values.timingScale,
+      contact: request.timing.contact * values.timingScale,
+      retraction: request.timing.retraction * values.timingScale,
+      recovery: request.timing.recovery * values.timingScale,
+    };
     ActionClock.duration(timing);
     return { timing, aimOffset: values.aimOffset, amplitude: values.amplitude };
   }
@@ -60,9 +83,22 @@ export namespace ActionVariation {
    * @evidence contracts/common.md#authoring-interface Optional bounds have the same units and limits as action variation; omission returns exact unit scales and a zero offset.
    */
   export function sample(variation?: MotionAction.Variation): Values {
-    if (!variation) return { timingScale: 1, aimOffset: [0, 0, 0], amplitude: 1 };
-    if (!Number.isInteger(variation.seed) || variation.seed < 0 || variation.seed > 0xffffffff || ![variation.timingFraction, variation.amplitudeFraction].every((bound: number): boolean => Number.isFinite(bound) && bound >= 0 && bound < 1) || !Number.isFinite(variation.aimMetres) || variation.aimMetres < 0)
-      throw new Error("Action variation requires an unsigned seed and finite bounded deviations");
+    if (!variation)
+      return { timingScale: 1, aimOffset: [0, 0, 0], amplitude: 1 };
+    if (
+      !Number.isInteger(variation.seed) ||
+      variation.seed < 0 ||
+      variation.seed > 0xffffffff ||
+      ![variation.timingFraction, variation.amplitudeFraction].every(
+        (bound: number): boolean =>
+          Number.isFinite(bound) && bound >= 0 && bound < 1,
+      ) ||
+      !Number.isFinite(variation.aimMetres) ||
+      variation.aimMetres < 0
+    )
+      throw new Error(
+        "Action variation requires an unsigned seed and finite bounded deviations",
+      );
     let state: number = variation.seed;
     const next: () => number = (): number => {
       state = (state + 0x6d2b79f5) >>> 0;
@@ -74,6 +110,14 @@ export namespace ActionVariation {
     const vector: MotionAction.Vec3 = [next(), next(), next()];
     const divisor: number = Math.max(1, Math.hypot(...vector));
     const amplitude: number = 1 + next() * variation.amplitudeFraction;
-    return { timingScale: scale, aimOffset: [vector[0] / divisor * variation.aimMetres, vector[1] / divisor * variation.aimMetres, vector[2] / divisor * variation.aimMetres], amplitude };
+    return {
+      timingScale: scale,
+      aimOffset: [
+        (vector[0] / divisor) * variation.aimMetres,
+        (vector[1] / divisor) * variation.aimMetres,
+        (vector[2] / divisor) * variation.aimMetres,
+      ],
+      amplitude,
+    };
   }
 }

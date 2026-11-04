@@ -1,8 +1,9 @@
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import { AutoMovieHumanFaceTone } from "./AutoMovieHumanFaceTone";
 import type { AutoMovieHumanSkinChart } from "./AutoMovieHumanSkinChart";
-import { AutoMovieHumanSkinLandmarks } from "./AutoMovieHumanSkinLandmarks";
+import { AutoMovieHumanSkinChartSites } from "./AutoMovieHumanSkinChartSites";
 import { AutoMovieHumanSkinPigment } from "./AutoMovieHumanSkinPigment";
 import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
 import type { AutoMovieHumanVermilion } from "./AutoMovieHumanVermilion";
@@ -32,8 +33,9 @@ import type { IAutoMovieHumanSkinToneFactors } from "./IAutoMovieHumanSkinToneFa
  *   it) and behind its margin along the facing direction is darkened by up
  *   to 85 percent with depth (full at half the pocket depth) and takes no
  *   nose flush.
- * - Ears: a field about each ear's centroid, reaching 1.2 times its
- *   largest vertex distance, on the ear chains and the head around them.
+ * - Ears: a field about each ear's centroid, reaching 1.2 times the
+ *   largest distance of its chains' surface from it, on the ear chains and
+ *   the head around them.
  * - Hands: the palmar direction is derived from the hand, thumb and finger
  *   chain centroids; palmar skin of hand and finger chains, fading in
  *   proximally from the wrist end of the arm chain, and dorsal skin over the
@@ -87,6 +89,9 @@ export namespace AutoMovieHumanSkinTone {
     /** Charted skin pieces in mm. */
     pieces: readonly AutoMovieHumanSkinChart.IOutput[];
 
+    /** The calibration's chains in mm, which the landmarks are read on. */
+    chains: readonly IAutoMovieHumanLoftChain[];
+
     /** Eye globes in mm. */
     eyes: readonly IEye[];
 
@@ -117,8 +122,8 @@ export namespace AutoMovieHumanSkinTone {
 
   /**
    * The person's chromophores with the feminine shift: a feminine body's
-   * skin reads milky, paler and cooler, so with femininity `w` (the
-   * `masculineFeminine` control clamped to `[0, 1]`) melanin is multiplied
+   * skin reads milky, paler and cooler, so with femininity `w` (1 for a
+   * woman and 0 for a man, by the declared sex) melanin is multiplied
    * by `1 - 0.3 w`, haemoglobin by `1 - 0.15 w` and the carotenoid band by
    * `1 - 0.35 w`. The direction follows the lighter constitutive skin
    * reported for women (Jablonski and Chaplin 2000, J. Hum. Evol. 39,
@@ -150,8 +155,8 @@ export namespace AutoMovieHumanSkinTone {
   export function generate(input: IInput): IOutput {
     const table: AutoMovieHumanSkinPigment.ITable =
       AutoMovieHumanSkinPigment.table(input.pigmentation);
-    const landmarks: AutoMovieHumanSkinLandmarks.IOutput =
-      AutoMovieHumanSkinLandmarks.generate(input);
+    const landmarks: AutoMovieHumanSkinChartSites.IOutput =
+      AutoMovieHumanSkinChartSites.generate(input);
     const colors: number[][] = [];
     const reliefWeights: number[][] = [];
     const shades: number[][] = [];
@@ -202,7 +207,7 @@ const V: typeof AutoMovieHumanSkinVector = AutoMovieHumanSkinVector;
  * @returns Multipliers before mottling
  */
 function regional(
-  L: AutoMovieHumanSkinLandmarks.IOutput,
+  L: AutoMovieHumanSkinChartSites.IOutput,
   chain: string,
   p: Vec3,
   n: Vec3,
@@ -225,7 +230,7 @@ function regional(
     }
 
   const side: "left" | "right" = p[2] >= 0 ? "left" : "right";
-  const hand: AutoMovieHumanSkinLandmarks.IHand | undefined = L.hands.get(side);
+  const hand: AutoMovieHumanSkinChartSites.IHand | undefined = L.hands.get(side);
   const handChain: boolean =
     chain.startsWith("hand.") ||
     chain.startsWith("finger.") ||
@@ -257,7 +262,7 @@ function regional(
     }
   }
 
-  const elbow: AutoMovieHumanSkinLandmarks.IElbow | undefined =
+  const elbow: AutoMovieHumanSkinChartSites.IElbow | undefined =
     L.elbows.get(side);
   if (elbow !== undefined && chain.startsWith("arm.")) {
     const d: Vec3 = V.sub(p, elbow.point);

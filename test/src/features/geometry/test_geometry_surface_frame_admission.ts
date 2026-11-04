@@ -38,13 +38,20 @@ export function test_geometry_surface_frame_admission(): void {
     );
     TestValidator.predicate(
       `point count ${count} refuses`,
-      throwsError((): IAutoMoviePreparedSurfaceFrame => prepareAutoMovieSurfaceFrame(points)),
+      throwsError(
+        (): IAutoMoviePreparedSurfaceFrame =>
+          prepareAutoMovieSurfaceFrame(points),
+      ),
     );
   }
 
   const invalid: IAutoMovieVector3[][] = [
     [source[0], source[0], source[2]],
-    [{ x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1 }, { x: 2, y: 2, z: 2 }],
+    [
+      { x: 0, y: 0, z: 0 },
+      { x: 1, y: 1, z: 1 },
+      { x: 2, y: 2, z: 2 },
+    ],
     [{ ...source[0], x: NaN }, source[1], source[2]],
     [source[0], { ...source[1], y: Infinity }, source[2]],
     [source[0], source[1], { ...source[2], z: -Infinity }],
@@ -57,7 +64,10 @@ export function test_geometry_surface_frame_admission(): void {
   for (const points of invalid)
     TestValidator.predicate(
       "invalid source geometry refuses",
-      throwsError((): IAutoMoviePreparedSurfaceFrame => prepareAutoMovieSurfaceFrame(points)),
+      throwsError(
+        (): IAutoMoviePreparedSurfaceFrame =>
+          prepareAutoMovieSurfaceFrame(points),
+      ),
     );
 
   for (const normal of [
@@ -67,10 +77,14 @@ export function test_geometry_surface_frame_admission(): void {
   ])
     TestValidator.predicate(
       "invalid sign reference refuses",
-      throwsError((): IAutoMoviePreparedSurfaceFrame => prepareAutoMovieSurfaceFrame(source, normal)),
+      throwsError(
+        (): IAutoMoviePreparedSurfaceFrame =>
+          prepareAutoMovieSurfaceFrame(source, normal),
+      ),
     );
 
-  const prepared: IAutoMoviePreparedSurfaceFrame = prepareAutoMovieSurfaceFrame(source);
+  const prepared: IAutoMoviePreparedSurfaceFrame =
+    prepareAutoMovieSurfaceFrame(source);
   const target: IAutoMovieSurfaceFrame = {
     origin: { x: 0, y: 0, z: 0 },
     forward: { x: 1, y: 0, z: 0 },
@@ -87,7 +101,9 @@ export function test_geometry_surface_frame_admission(): void {
   for (const frame of invalidFrames)
     TestValidator.predicate(
       "invalid destination frame refuses",
-      throwsError((): IAutoMovieVector3[] => placeAutoMovieSurfaceFrame(prepared, frame)),
+      throwsError((): IAutoMovieVector3[] =>
+        placeAutoMovieSurfaceFrame(prepared, frame),
+      ),
     );
 
   const huge: IAutoMoviePreparedSurfaceFrame = prepareAutoMovieSurfaceFrame([
@@ -97,12 +113,20 @@ export function test_geometry_surface_frame_admission(): void {
   ]);
   TestValidator.predicate(
     "finite target and offsets cannot return infinity",
-    throwsError((): IAutoMovieVector3[] => placeAutoMovieSurfaceFrame(huge, {
-      ...target,
-      origin: { x: Number.MAX_VALUE, y: 0, z: 0 },
-    })),
+    throwsError((): IAutoMovieVector3[] =>
+      placeAutoMovieSurfaceFrame(huge, {
+        ...target,
+        origin: { x: Number.MAX_VALUE, y: 0, z: 0 },
+      }),
+    ),
   );
-  const recovered: IAutoMovieVector3[] = placeAutoMovieSurfaceFrame(prepared, target);
+  const recovered: IAutoMovieVector3[] = placeAutoMovieSurfaceFrame(
+    prepared,
+    target,
+  );
   for (let i: number = 0; i < 3; i++)
-    TestValidator.predicate(`valid after refusals ${i}`, vclose(recovered[i], source[i]));
+    TestValidator.predicate(
+      `valid after refusals ${i}`,
+      vclose(recovered[i], source[i]),
+    );
 }

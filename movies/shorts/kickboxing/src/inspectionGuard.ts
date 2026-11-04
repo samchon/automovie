@@ -1,4 +1,7 @@
-import type { IAutoMovieHumanPose, IAutoMovieHumanHandPose } from "@automovie/human";
+import type {
+  IAutoMovieHumanHandPose,
+  IAutoMovieHumanPose,
+} from "@automovie/human";
 
 /**
  * Starting authored guard for geometry inspection, before supported motion fitting.
@@ -8,7 +11,13 @@ import type { IAutoMovieHumanPose, IAutoMovieHumanHandPose } from "@automovie/hu
  */
 export function inspectionGuard(): IAutoMovieHumanPose {
   const hand: IAutoMovieHumanHandPose = {
-    thumb: { cmcFlexion: 10, cmcAbduction: 20, cmcOpposition: 30, mcpFlexion: 30, ipFlexion: 35 },
+    thumb: {
+      cmcFlexion: 10,
+      cmcAbduction: 20,
+      cmcOpposition: 30,
+      mcpFlexion: 30,
+      ipFlexion: 35,
+    },
     index: { mcpFlexion: 65, pipFlexion: 80, dipFlexion: 50 },
     middle: { mcpFlexion: 70, pipFlexion: 80, dipFlexion: 50 },
     ring: { mcpFlexion: 70, pipFlexion: 80, dipFlexion: 50 },
@@ -18,12 +27,30 @@ export function inspectionGuard(): IAutoMovieHumanPose {
     pelvis: { rotation: -20 },
     spine: { thoracic: { flexion: 6, rotation: 15 }, lumbar: { flexion: 3 } },
     arms: {
-      left: { shoulder: { flexion: 55, abduction: 12, rotation: -20 }, elbow: { flexion: 130 }, forearm: { pronation: 25 }, hand: structuredClone(hand) },
-      right: { shoulder: { flexion: 50, abduction: 10, rotation: -15 }, elbow: { flexion: 130 }, forearm: { pronation: 15 }, hand: structuredClone(hand) },
+      left: {
+        shoulder: { flexion: 55, abduction: 12, rotation: -20 },
+        elbow: { flexion: 130 },
+        forearm: { pronation: 25 },
+        hand: structuredClone(hand),
+      },
+      right: {
+        shoulder: { flexion: 50, abduction: 10, rotation: -15 },
+        elbow: { flexion: 130 },
+        forearm: { pronation: 15 },
+        hand: structuredClone(hand),
+      },
     },
     legs: {
-      left: { hip: { flexion: 25, abduction: 10, rotation: 5 }, knee: { flexion: 35 }, ankle: { dorsiflexion: 10 } },
-      right: { hip: { flexion: 3, abduction: 10, rotation: 5 }, knee: { flexion: 30 }, ankle: { dorsiflexion: 10 } },
+      left: {
+        hip: { flexion: 25, abduction: 10, rotation: 5 },
+        knee: { flexion: 35 },
+        ankle: { dorsiflexion: 10 },
+      },
+      right: {
+        hip: { flexion: 3, abduction: 10, rotation: 5 },
+        knee: { flexion: 30 },
+        ankle: { dorsiflexion: 10 },
+      },
     },
   };
 }

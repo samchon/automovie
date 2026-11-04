@@ -1,4 +1,8 @@
-import type { AutoMovieHumanRigControls, IAutoMovieHumanPose } from "@automovie/human";
+import type {
+  AutoMovieHumanRigControls,
+  IAutoMovieHumanPose,
+} from "@automovie/human";
+
 import type { MotionAction } from "../core/MotionAction";
 import { PunchAction } from "./PunchAction";
 import { PunchArm } from "./PunchArm";
@@ -44,7 +48,13 @@ export namespace PunchCombination {
      * @evidence contracts/common.md#implementation-and-ownership Uses original time offsets and explicit shared-body authority. Before cross begins only the original jab writes; afterwards both act on opposite arms while their independent contact branches remain intact.
      * @evidence contracts/common.md#authoring-interface Contexts are separate action-local interaction inputs. Optional actor-local bodyResponse belongs only to the cross and is identical to the shared body's request. originalTaskFrame retains that cross's source WORLD-terminal authority when released arms consume a different body frame. Returned writers are owned snapshots for applyArms; an unsupported shared pose remains a failure and is never fixed by resetting either arm.
      */
-    sample(seconds: number, contexts: { jab: MotionAction.Context; cross: MotionAction.Context }, placement: MotionAction.BodyPlacement, bodyResponse?: Readonly<MotionAction.Vec3>, originalTaskFrame?: MotionAction.Context["frame"]): Writer[];
+    sample(
+      seconds: number,
+      contexts: { jab: MotionAction.Context; cross: MotionAction.Context },
+      placement: MotionAction.BodyPlacement,
+      bodyResponse?: Readonly<MotionAction.Vec3>,
+      originalTaskFrame?: MotionAction.Context["frame"],
+    ): Writer[];
   }
 
   /**
@@ -54,33 +64,128 @@ export namespace PunchCombination {
    */
   export function create(input: Input): Instance {
     const { jab, cross, jabStart, crossStart }: Input = input;
-    if (jab.kind !== "jab" || cross.kind !== "cross" || !cross.continuation) throw new Error("A jab-cross combination requires an actual-entry cross");
-    if (![jabStart, crossStart].every(Number.isFinite) || crossStart <= jabStart) throw new Error("Combination clocks require ordered finite sequence starts");
-    if (jab.request.actorId !== cross.request.actorId || jab.request.id === cross.request.id || jab.request.side === cross.request.side || jab.request.leadSide !== cross.request.leadSide) throw new Error("Combination requires distinct own-side action writers for one stance and actor");
-    const jabReturn: MotionAction.Immutable<PunchContinuation.Entry> = PunchContinuation.createEntry(input.jabReturn, jab.request.side);
-    if (jabReturn.endSeconds > jabStart + jab.duration - crossStart + 1e-10) throw new Error("Jab continuation must keep the existing return deadline");
-    const duration: number = Math.max(jabStart + jab.duration, crossStart + cross.duration);
-    const sample: Instance["sample"] = (seconds: number, contexts: { jab: MotionAction.Context; cross: MotionAction.Context }, placement: MotionAction.BodyPlacement, bodyResponse?: Readonly<MotionAction.Vec3>, originalTaskFrame?: MotionAction.Context["frame"]): Writer[] => {
-      if (!Number.isFinite(seconds)) throw new Error("Combination requires finite sequence seconds");
-      const contact: MotionAction.ContactState | undefined = contexts.jab.contact;
-      const originalEnd: number = jabStart + (contact ? contact.event.time + jab.timing.contact + jab.timing.retraction + jab.timing.recovery : jab.duration);
-      if (Math.abs(crossStart + jabReturn.endSeconds - originalEnd) > 1e-10) throw new Error("Jab continuation deadline must equal its original effective contact clock");
+    if (jab.kind !== "jab" || cross.kind !== "cross" || !cross.continuation)
+      throw new Error("A jab-cross combination requires an actual-entry cross");
+    if (
+      ![jabStart, crossStart].every(Number.isFinite) ||
+      crossStart <= jabStart
+    )
+      throw new Error(
+        "Combination clocks require ordered finite sequence starts",
+      );
+    if (
+      jab.request.actorId !== cross.request.actorId ||
+      jab.request.id === cross.request.id ||
+      jab.request.side === cross.request.side ||
+      jab.request.leadSide !== cross.request.leadSide
+    )
+      throw new Error(
+        "Combination requires distinct own-side action writers for one stance and actor",
+      );
+    const jabReturn: MotionAction.Immutable<PunchContinuation.Entry> =
+      PunchContinuation.createEntry(input.jabReturn, jab.request.side);
+    if (jabReturn.endSeconds > jabStart + jab.duration - crossStart + 1e-10)
+      throw new Error(
+        "Jab continuation must keep the existing return deadline",
+      );
+    const duration: number = Math.max(
+      jabStart + jab.duration,
+      crossStart + cross.duration,
+    );
+    const sample: Instance["sample"] = (
+      seconds: number,
+      contexts: { jab: MotionAction.Context; cross: MotionAction.Context },
+      placement: MotionAction.BodyPlacement,
+      bodyResponse?: Readonly<MotionAction.Vec3>,
+      originalTaskFrame?: MotionAction.Context["frame"],
+    ): Writer[] => {
+      if (!Number.isFinite(seconds))
+        throw new Error("Combination requires finite sequence seconds");
+      const contact: MotionAction.ContactState | undefined =
+        contexts.jab.contact;
+      const originalEnd: number =
+        jabStart +
+        (contact
+          ? contact.event.time +
+            jab.timing.contact +
+            jab.timing.retraction +
+            jab.timing.recovery
+          : jab.duration);
+      if (Math.abs(crossStart + jabReturn.endSeconds - originalEnd) > 1e-10)
+        throw new Error(
+          "Jab continuation deadline must equal its original effective contact clock",
+        );
       const writers: Writer[] = [];
       if (seconds >= jabStart) {
-        const result: PunchAction.Sample = jab.sample(seconds - jabStart, contexts.jab, placement, seconds >= crossStart ? "shared" : undefined);
+        const result: PunchAction.Sample = jab.sample(
+          seconds - jabStart,
+          contexts.jab,
+          placement,
+          seconds >= crossStart ? "shared" : undefined,
+        );
         if (seconds >= crossStart && seconds <= originalEnd) {
-          if (result.phase !== "retraction" && result.phase !== "recovery" && result.phase !== "complete") throw new Error("Cross overlap requires the existing jab's released return");
-          result.pose = PunchContinuation.returnArm(jabReturn, seconds - crossStart, jab.request.side, contexts.jab.basePose, structuredClone(placement.pose) as IAutoMovieHumanPose);
-          result.effectors = PunchArm.frame(contexts.jab, result.pose, jab.request.side, false);
+          if (
+            result.phase !== "retraction" &&
+            result.phase !== "recovery" &&
+            result.phase !== "complete"
+          )
+            throw new Error(
+              "Cross overlap requires the existing jab's released return",
+            );
+          result.pose = PunchContinuation.returnArm(
+            jabReturn,
+            seconds - crossStart,
+            jab.request.side,
+            contexts.jab.basePose,
+            structuredClone(placement.pose) as IAutoMovieHumanPose,
+          );
+          result.effectors = PunchArm.frame(
+            contexts.jab,
+            result.pose,
+            jab.request.side,
+            false,
+          );
           if (seconds === crossStart) {
-            const expected: MotionAction.Vec3 = PunchContinuation.entryPoint(jabReturn, contexts.jab.frame);
-            const actual: MotionAction.Vec3 = result.effectors[0]!.target.map((value: number, index: number): number => value + result.rootOffset[index]!) as MotionAction.Vec3;
-            if (Math.hypot(...actual.map((value: number, index: number): number => value - expected[index]!)) > 1e-8) throw new Error("Jab return continuation must retain its actual WORLD entry");
+            const expected: MotionAction.Vec3 = PunchContinuation.entryPoint(
+              jabReturn,
+              contexts.jab.frame,
+            );
+            const actual: MotionAction.Vec3 = result.effectors[0]!.target.map(
+              (value: number, index: number): number =>
+                value + result.rootOffset[index]!,
+            ) as MotionAction.Vec3;
+            if (
+              Math.hypot(
+                ...actual.map(
+                  (value: number, index: number): number =>
+                    value - expected[index]!,
+                ),
+              ) > 1e-8
+            )
+              throw new Error(
+                "Jab return continuation must retain its actual WORLD entry",
+              );
           }
         }
-        writers.push({ side: jab.request.side, sample: result, channels: jab.armChannels });
+        writers.push({
+          side: jab.request.side,
+          sample: result,
+          channels: jab.armChannels,
+        });
       }
-      if (seconds >= crossStart) writers.push({ side: cross.request.side, sample: cross.sample(seconds - crossStart, contexts.cross, placement, "shared", bodyResponse, originalTaskFrame), channels: cross.armChannels });
+      if (seconds >= crossStart)
+        writers.push({
+          side: cross.request.side,
+          sample: cross.sample(
+            seconds - crossStart,
+            contexts.cross,
+            placement,
+            "shared",
+            bodyResponse,
+            originalTaskFrame,
+          ),
+          channels: cross.armChannels,
+        });
       return writers;
     };
     return Object.freeze({ duration, sample });

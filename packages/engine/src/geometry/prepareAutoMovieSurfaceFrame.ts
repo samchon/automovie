@@ -34,7 +34,9 @@ export function prepareAutoMovieSurfaceFrame(
         ![point.x, point.y, point.z].every(Number.isFinite),
     )
   )
-    throw new Error("Surface preparation requires exactly three finite points.");
+    throw new Error(
+      "Surface preparation requires exactly three finite points.",
+    );
 
   const first: IAutoMovieVector3 = Vector3.subtract(points[1], points[0]);
   const second: IAutoMovieVector3 = Vector3.subtract(points[2], points[0]);

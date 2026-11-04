@@ -1,7 +1,18 @@
 /**
  * Named constants of the neck construction: a ring per layer as harmonics, and
- * how its size follows the tapes. Fitted by
- * `test/src/executable/human-score/fitNeckPrior.ts`.
+ * how its size follows the tapes.
+ *
+ * Derivation: each of the four layers (bottom to top, `drop` millimetres under
+ * the top one) is a least-squares regression over the reference source's neck
+ * sections (f1, f2, m1, m2). A layer's half width and half depth are
+ * log-linear, `log(size / tape) = level + sex * s + gain * log(tape)`, in the
+ * neck tape read at that layer and the masculine-feminine control `s`; its
+ * forward centre is linear in `s`; its ring, normalized by those sizes, is the
+ * truncated Fourier series of the section's forward place, lateral place and
+ * height off the layer's mean over the uniform phase (20 harmonics). The values
+ * are fitted observations of four people, not a published population law; the
+ * fitting program is no longer kept, and a law that replaces them reads the
+ * neck at its ISO 8559-1 sites instead.
  */
 export namespace AutoMovieHumanNeckPrior {
   /** A size per layer. */

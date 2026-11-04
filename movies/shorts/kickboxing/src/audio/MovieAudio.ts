@@ -37,9 +37,14 @@ export class MovieAudio {
    * @evidence contracts/common.md#implementation-and-ownership AudioMix validates all matching contact and floor receipts atomically before this owner replaces its cues. Reconfiguration after preparation starts refuses, so prepared bytes cannot accidentally retain an earlier film plan.
    * @evidence contracts/common.md#authoring-interface Events and receipts use absolute film seconds. The caller must compile the complete scene successfully; partial runtime results cannot stand in for a complete admitted film.
    */
-  public configure(events: readonly FilmPlan.Event[], contacts: readonly AudioMix.Contact[], floorContacts: readonly AudioMix.FloorContact[] = []): void {
+  public configure(
+    events: readonly FilmPlan.Event[],
+    contacts: readonly AudioMix.Contact[],
+    floorContacts: readonly AudioMix.FloorContact[] = [],
+  ): void {
     this.assertOpen();
-    if (this.preparation !== null || this.buffer !== null) throw new Error("Configure movie audio before preparation");
+    if (this.preparation !== null || this.buffer !== null)
+      throw new Error("Configure movie audio before preparation");
     this.cues = AudioMix.build(events, contacts, floorContacts);
     this.state = "configured";
   }
@@ -54,12 +59,22 @@ export class MovieAudio {
     this.assertOpen();
     if (this.buffer !== null) return Promise.resolve();
     if (this.preparation !== null) return this.preparation;
-    if (this.cues === null) return Promise.reject(new Error("Configure complete movie audio before preparation"));
+    if (this.cues === null)
+      return Promise.reject(
+        new Error("Configure complete movie audio before preparation"),
+      );
     this.state = "loading";
-    this.preparation = this.load().catch((error: unknown): never => {
-      if (this.state !== "disposed") { this.state = "error"; this.error = error instanceof Error ? error.message : String(error); }
-      throw error;
-    }).finally((): void => { this.preparation = null; });
+    this.preparation = this.load()
+      .catch((error: unknown): never => {
+        if (this.state !== "disposed") {
+          this.state = "error";
+          this.error = error instanceof Error ? error.message : String(error);
+        }
+        throw error;
+      })
+      .finally((): void => {
+        this.preparation = null;
+      });
     return this.preparation;
   }
 
@@ -71,7 +86,17 @@ export class MovieAudio {
    */
   public async play(seconds: number, speed: number): Promise<void> {
     this.assertOpen();
-    if (!Number.isFinite(seconds) || seconds < 0 || seconds > 180 || !Number.isFinite(speed) || speed <= 0 || speed > 4) throw new Error("Movie audio requires seconds in [0,180] and speed in (0,4]");
+    if (
+      !Number.isFinite(seconds) ||
+      seconds < 0 ||
+      seconds > 180 ||
+      !Number.isFinite(speed) ||
+      speed <= 0 ||
+      speed > 4
+    )
+      throw new Error(
+        "Movie audio requires seconds in [0,180] and speed in (0,4]",
+      );
     this.pause();
     const generation: number = this.generation;
     const context: AudioContext = this.getContext();
@@ -79,13 +104,17 @@ export class MovieAudio {
     try {
       await Promise.all([resume, this.prepare()]);
       if (generation !== this.generation || this.state === "disposed") return;
-      if (context.state !== "running" || this.buffer === null) throw new Error(`Movie sound is not enabled: ${context.state}`);
+      if (context.state !== "running" || this.buffer === null)
+        throw new Error(`Movie sound is not enabled: ${context.state}`);
       if (seconds < 180) {
         const source: AudioBufferSourceNode = context.createBufferSource();
         source.buffer = this.buffer;
         source.playbackRate.value = speed;
         source.connect(context.destination);
-        source.onended = (): void => { source.disconnect(); if (this.active === source) this.active = null; };
+        source.onended = (): void => {
+          source.disconnect();
+          if (this.active === source) this.active = null;
+        };
         source.start(context.currentTime, seconds, 180 - seconds);
         this.active = source;
       }
@@ -109,8 +138,14 @@ export class MovieAudio {
   public pause(): void {
     if (this.state === "disposed") return;
     this.generation++;
-    if (this.active !== null) { this.active.onended = null; this.active.stop(); this.active.disconnect(); this.active = null; }
-    if (this.state !== "loading" && this.state !== "error") this.state = this.buffer === null ? "idle" : "paused";
+    if (this.active !== null) {
+      this.active.onended = null;
+      this.active.stop();
+      this.active.disconnect();
+      this.active = null;
+    }
+    if (this.state !== "loading" && this.state !== "error")
+      this.state = this.buffer === null ? "idle" : "paused";
   }
 
   /**
@@ -120,7 +155,8 @@ export class MovieAudio {
    * @evidence contracts/common.md#authoring-interface Calling before successful preparation refuses. These identities establish deterministic data equivalence, not listening, synchronization perception or physical contact truth.
    */
   public manifest(): MovieAudio.Manifest {
-    if (this.identity === null) throw new Error("Movie audio manifest is not prepared");
+    if (this.identity === null)
+      throw new Error("Movie audio manifest is not prepared");
     return structuredClone(this.identity);
   }
 
@@ -130,8 +166,22 @@ export class MovieAudio {
    * @evidence contracts/common.md#implementation-and-ownership Reports context permission, active source and exact prepared identities separately. A running context or correct digest never changes listening status into approval.
    * @evidence contracts/common.md#authoring-interface State and error describe this owner's last operation. The context may resample at the browser device boundary; the retained 48 kHz PCM16 remains the same input used by export.
    */
-  public diagnostics(): { state: string; contextState: string; error: string | null; active: boolean; listeningStatus: string; manifest: MovieAudio.Manifest | null } {
-    return { state: this.state, contextState: this.context?.state ?? "absent", error: this.error, active: this.active !== null, listeningStatus: "not-reviewed", manifest: this.identity === null ? null : structuredClone(this.identity) };
+  public diagnostics(): {
+    state: string;
+    contextState: string;
+    error: string | null;
+    active: boolean;
+    listeningStatus: string;
+    manifest: MovieAudio.Manifest | null;
+  } {
+    return {
+      state: this.state,
+      contextState: this.context?.state ?? "absent",
+      error: this.error,
+      active: this.active !== null,
+      listeningStatus: "not-reviewed",
+      manifest: this.identity === null ? null : structuredClone(this.identity),
+    };
   }
 
   /**
@@ -142,46 +192,107 @@ export class MovieAudio {
    */
   public dispose(): void {
     if (this.state === "disposed") return;
-    this.pause(); this.state = "disposed"; this.aborter.abort(); this.buffer = null; this.cues = null; this.identity = null;
-    if (this.context !== null) void this.context.close().catch((error: unknown): void => { this.error = String(error); });
+    this.pause();
+    this.state = "disposed";
+    this.aborter.abort();
+    this.buffer = null;
+    this.cues = null;
+    this.identity = null;
+    if (this.context !== null)
+      void this.context.close().catch((error: unknown): void => {
+        this.error = String(error);
+      });
   }
 
   /** Refuse terminal reuse before touching native resources. */
-  private assertOpen(): void { if (this.state === "disposed") throw new Error("MovieAudio is disposed"); }
+  private assertOpen(): void {
+    if (this.state === "disposed") throw new Error("MovieAudio is disposed");
+  }
 
   /** Allocate only this owner's 48 kHz context; no service or background timer. */
-  private getContext(): AudioContext { return this.context ??= new AudioContext({ sampleRate: 48000 }); }
+  private getContext(): AudioContext {
+    return (this.context ??= new AudioContext({ sampleRate: 48000 }));
+  }
 
   /** Collect every required source before producing one atomic complete mix. */
   private async load(): Promise<void> {
     if (this.cues === null) throw new Error("No movie cue list");
     const cues: AudioMix.Cue[] = structuredClone(this.cues);
     const assets: MovieAudioAssets.Asset[] = MovieAudioAssets.select(cues);
-    const results: PromiseSettledResult<Float32Array>[] = await Promise.allSettled(assets.map(async (asset: MovieAudioAssets.Asset): Promise<Float32Array> => {
-      const response: Response = await fetch(asset.url, { signal: this.aborter.signal });
-      if (!response.ok) throw new Error(`${asset.id}: HTTP ${response.status}`);
-      return MovieAudioAssets.decode(asset, new Uint8Array(await response.arrayBuffer()));
-    }));
+    const results: PromiseSettledResult<Float32Array>[] =
+      await Promise.allSettled(
+        assets.map(
+          async (asset: MovieAudioAssets.Asset): Promise<Float32Array> => {
+            const response: Response = await fetch(asset.url, {
+              signal: this.aborter.signal,
+            });
+            if (!response.ok)
+              throw new Error(`${asset.id}: HTTP ${response.status}`);
+            return MovieAudioAssets.decode(
+              asset,
+              new Uint8Array(await response.arrayBuffer()),
+            );
+          },
+        ),
+      );
     const errors: string[] = [];
-    const sources: Map<AudioMix.Source, Float32Array> = new Map<AudioMix.Source, Float32Array>();
-    results.forEach((result: PromiseSettledResult<Float32Array>, index: number): void => {
-      if (result.status === "rejected") errors.push(`${assets[index].id}: ${String(result.reason)}`);
-      else sources.set(assets[index].id, result.value);
-    });
+    const sources: Map<AudioMix.Source, Float32Array> = new Map<
+      AudioMix.Source,
+      Float32Array
+    >();
+    results.forEach(
+      (result: PromiseSettledResult<Float32Array>, index: number): void => {
+        if (result.status === "rejected")
+          errors.push(`${assets[index].id}: ${String(result.reason)}`);
+        else sources.set(assets[index].id, result.value);
+      },
+    );
     if (errors.length > 0) throw new Error(errors.join("; "));
-    const mixed: ReturnType<typeof AudioMix.render> = AudioMix.render(cues, sources);
+    const mixed: ReturnType<typeof AudioMix.render> = AudioMix.render(
+      cues,
+      sources,
+    );
     const bytes: Uint8Array = AudioPcm.encode(mixed.left, mixed.right);
     const sha256: string = await MovieAudioAssets.digest(bytes);
-    const cueDigest: string = await MovieAudioAssets.digest(new TextEncoder().encode(JSON.stringify(cues)));
-    if (this.aborter.signal.aborted) throw new Error("Movie audio preparation cancelled");
-    const buffer: AudioBuffer = this.getContext().createBuffer(2, mixed.left.length, 48000);
-    const pcm: DataView = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    const cueDigest: string = await MovieAudioAssets.digest(
+      new TextEncoder().encode(JSON.stringify(cues)),
+    );
+    if (this.aborter.signal.aborted)
+      throw new Error("Movie audio preparation cancelled");
+    const buffer: AudioBuffer = this.getContext().createBuffer(
+      2,
+      mixed.left.length,
+      48000,
+    );
+    const pcm: DataView = new DataView(
+      bytes.buffer,
+      bytes.byteOffset,
+      bytes.byteLength,
+    );
     for (let channel: number = 0; channel < 2; channel++) {
       const samples: Float32Array = buffer.getChannelData(channel);
-      for (let frame: number = 0; frame < samples.length; frame++) samples[frame] = pcm.getInt16(44 + frame * 4 + channel * 2, true) / 32768;
+      for (let frame: number = 0; frame < samples.length; frame++)
+        samples[frame] =
+          pcm.getInt16(44 + frame * 4 + channel * 2, true) / 32768;
     }
     this.buffer = buffer;
-    this.identity = { durationSeconds: 180, sampleRate: 48000, channels: 2, sha256, cueDigest, peak: mixed.peak, cues, assets: assets.map((asset: MovieAudioAssets.Asset): { id: AudioMix.Source; sha256: string } => ({ id: asset.id, sha256: asset.sha256 })) };
+    this.identity = {
+      durationSeconds: 180,
+      sampleRate: 48000,
+      channels: 2,
+      sha256,
+      cueDigest,
+      peak: mixed.peak,
+      cues,
+      assets: assets.map(
+        (
+          asset: MovieAudioAssets.Asset,
+        ): { id: AudioMix.Source; sha256: string } => ({
+          id: asset.id,
+          sha256: asset.sha256,
+        }),
+      ),
+    };
     this.state = "ready";
   }
 }
@@ -204,6 +315,9 @@ export namespace MovieAudio {
     /** Canonical ordered cue JSON identity. */ cueDigest: string;
     /** Measured pre-quantization peak. */ peak: number;
     /** Exact resolved audible requests. */ cues: AudioMix.Cue[];
-    /** Fixed derivative identities. */ assets: { id: AudioMix.Source; sha256: string }[];
+    /** Fixed derivative identities. */ assets: {
+      id: AudioMix.Source;
+      sha256: string;
+    }[];
   }
 }

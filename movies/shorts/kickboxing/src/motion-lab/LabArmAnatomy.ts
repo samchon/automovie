@@ -1,4 +1,5 @@
 import { AutoMovieHumanRigControls } from "@automovie/human";
+
 import type { MotionAction } from "../motion/core/MotionAction";
 
 /**
@@ -14,6 +15,12 @@ export namespace LabArmAnatomy {
    */
   export function contains(bone: string, side?: MotionAction.Side): boolean {
     if (!AutoMovieHumanRigControls.isJoint(bone)) return false;
-    return (side ? [side] : ["left", "right"]).some((candidate: string): boolean => bone.startsWith(candidate) && /^(Shoulder|Scapula|UpperArm|LowerArm|Hand|(?:Thumb|Index|Middle|Ring|Little)(?:Metacarpal|Proximal|Intermediate|Distal))$/u.test(bone.slice(candidate.length)));
+    return (side ? [side] : ["left", "right"]).some(
+      (candidate: string): boolean =>
+        bone.startsWith(candidate) &&
+        /^(Shoulder|Scapula|UpperArm|LowerArm|Hand|(?:Thumb|Index|Middle|Ring|Little)(?:Metacarpal|Proximal|Intermediate|Distal))$/u.test(
+          bone.slice(candidate.length),
+        ),
+    );
   }
 }

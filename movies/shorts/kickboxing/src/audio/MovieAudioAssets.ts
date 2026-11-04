@@ -1,6 +1,6 @@
 import manifest from "../../assets/audio/manifest.json" with { type: "json" };
-import { AudioPcm } from "./AudioPcm";
 import type { AudioMix } from "./AudioMix";
+import { AudioPcm } from "./AudioPcm";
 
 /**
  * Fixed adopted PCM assets and content identities for both soundtrack consumers.
@@ -35,10 +35,13 @@ export namespace MovieAudioAssets {
     air: new URL("../../assets/audio/pcm/air.wav", import.meta.url).href,
     fall: new URL("../../assets/audio/pcm/fall.wav", import.meta.url).href,
     crowd: new URL("../../assets/audio/pcm/crowd.wav", import.meta.url).href,
-    applause: new URL("../../assets/audio/pcm/applause.wav", import.meta.url).href,
+    applause: new URL("../../assets/audio/pcm/applause.wav", import.meta.url)
+      .href,
     down: new URL("../../assets/audio/pcm/down.wav", import.meta.url).href,
-    neutral: new URL("../../assets/audio/pcm/neutral.wav", import.meta.url).href,
-    decision: new URL("../../assets/audio/pcm/decision.wav", import.meta.url).href,
+    neutral: new URL("../../assets/audio/pcm/neutral.wav", import.meta.url)
+      .href,
+    decision: new URL("../../assets/audio/pcm/decision.wav", import.meta.url)
+      .href,
     count1: new URL("../../assets/audio/pcm/count1.wav", import.meta.url).href,
     count2: new URL("../../assets/audio/pcm/count2.wav", import.meta.url).href,
     count3: new URL("../../assets/audio/pcm/count3.wav", import.meta.url).href,
@@ -48,7 +51,8 @@ export namespace MovieAudioAssets {
     count7: new URL("../../assets/audio/pcm/count7.wav", import.meta.url).href,
     count8: new URL("../../assets/audio/pcm/count8.wav", import.meta.url).href,
     count9: new URL("../../assets/audio/pcm/count9.wav", import.meta.url).href,
-    count10: new URL("../../assets/audio/pcm/count10.wav", import.meta.url).href,
+    count10: new URL("../../assets/audio/pcm/count10.wav", import.meta.url)
+      .href,
   };
 
   /**
@@ -58,11 +62,21 @@ export namespace MovieAudioAssets {
    * @evidence contracts/common.md#authoring-interface Returned records are detached values ordered by source id. Supplying no cues returns no assets and does not allocate native or filesystem resources.
    */
   export function select(cues: readonly AudioMix.Cue[]): Asset[] {
-    return [...new Set(cues.map((cue: AudioMix.Cue): AudioMix.Source => cue.source))].sort((left: AudioMix.Source, right: AudioMix.Source): number => left < right ? -1 : left > right ? 1 : 0).map((id: AudioMix.Source): Asset => {
-      const record: { id: string; sha256: string } | undefined = manifest.assets.find((asset: { id: string }): boolean => asset.id === id);
-      if (record === undefined || !/^[a-f0-9]{64}$/u.test(record.sha256)) throw new Error(`Missing adopted audio source: ${id}`);
-      return { id, url: urls[id], sha256: record.sha256 };
-    });
+    return [
+      ...new Set(cues.map((cue: AudioMix.Cue): AudioMix.Source => cue.source)),
+    ]
+      .sort((left: AudioMix.Source, right: AudioMix.Source): number =>
+        left < right ? -1 : left > right ? 1 : 0,
+      )
+      .map((id: AudioMix.Source): Asset => {
+        const record: { id: string; sha256: string } | undefined =
+          manifest.assets.find(
+            (asset: { id: string }): boolean => asset.id === id,
+          );
+        if (record === undefined || !/^[a-f0-9]{64}$/u.test(record.sha256))
+          throw new Error(`Missing adopted audio source: ${id}`);
+        return { id, url: urls[id], sha256: record.sha256 };
+      });
   }
 
   /**
@@ -71,8 +85,12 @@ export namespace MovieAudioAssets {
    * @evidence contracts/common.md#implementation-and-ownership SHA-256 mismatch refuses before decoding. The consumer supplies its own fetched or read bytes, so this shared function imports no Node filesystem or browser-only transport.
    * @evidence contracts/common.md#authoring-interface Asset identifies the expected derivative. The returned mono samples belong to the caller; a successful digest or decoder result does not establish audible suitability.
    */
-  export async function decode(asset: Asset, bytes: Uint8Array): Promise<Float32Array> {
-    if (await digest(bytes) !== asset.sha256) throw new Error(`Audio derivative SHA-256 mismatch: ${asset.id}`);
+  export async function decode(
+    asset: Asset,
+    bytes: Uint8Array,
+  ): Promise<Float32Array> {
+    if ((await digest(bytes)) !== asset.sha256)
+      throw new Error(`Audio derivative SHA-256 mismatch: ${asset.id}`);
     return AudioPcm.decode(bytes);
   }
 
@@ -83,7 +101,12 @@ export namespace MovieAudioAssets {
    * @evidence contracts/common.md#authoring-interface Returns exactly 64 lowercase hexadecimal characters. The caller decides whether the digest identifies cue JSON, an adopted asset or complete WAV output.
    */
   export async function digest(bytes: Uint8Array): Promise<string> {
-    const digest: ArrayBuffer = await crypto.subtle.digest("SHA-256", Uint8Array.from(bytes).buffer);
-    return Array.from(new Uint8Array(digest), (value: number): string => value.toString(16).padStart(2, "0")).join("");
+    const digest: ArrayBuffer = await crypto.subtle.digest(
+      "SHA-256",
+      Uint8Array.from(bytes).buffer,
+    );
+    return Array.from(new Uint8Array(digest), (value: number): string =>
+      value.toString(16).padStart(2, "0"),
+    ).join("");
   }
 }

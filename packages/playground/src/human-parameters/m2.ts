@@ -4,9 +4,10 @@ import { AutoMovieHumanHairCurl } from "../../../human/src/typings/AutoMovieHuma
 import { AutoMovieHumanHairStyle } from "../../../human/src/typings/AutoMovieHumanHairStyle";
 import { AutoMovieHumanHairline } from "../../../human/src/typings/AutoMovieHumanHairline";
 import { AutoMovieHumanLowerUnderwear } from "../../../human/src/typings/AutoMovieHumanLowerUnderwear";
+import { AutoMovieHumanSex } from "../../../human/src/typings/AutoMovieHumanSex";
 import { AutoMovieHumanUpperUnderwear } from "../../../human/src/typings/AutoMovieHumanUpperUnderwear";
 
-/** Authored m2 example in the Human parameter units; null measurements remain unknown.
+/** Authored m2 example in the Human parameter units; an omitted measure takes its survey default.
  *
  * `appearance` transcribes the reference's requested appearance, `test/.shots/m2/appearance.json`,
  * field for field: `skin.{oiliness, wrinkles, seed}`, `hair.{style, color, length, curl, hairline}`,
@@ -18,159 +19,61 @@ import { AutoMovieHumanUpperUnderwear } from "../../../human/src/typings/AutoMov
  */
 export const m2: IAutoMovieHumanParameters = {
   body: {
-    controls: {
-      height: {
-        value: 1856.9737243652344,
-        pinned: true,
-      },
-      fat: {
-        value: -0.5832067131996155,
-        pinned: true,
-      },
-      masculineFeminine: {
-        value: -0.8181820511817932,
-        pinned: true,
-      },
-      muscularity: {
-        value: 0.3070158362388611,
-        pinned: true,
-      },
-      chest: {
-        value: 1126.5807342529297,
-        pinned: false,
-      },
-      bustSpan: {
-        value: 246.2342071533203,
-        pinned: false,
-      },
-      underbust: {
-        value: 1006.9091796875,
-        pinned: false,
-      },
-      frontInterscyeLength: {
-        value: 400.17303466796875,
-        pinned: false,
-      },
-      neckToWaist: {
-        value: 377.90287017822266,
-        pinned: false,
-      },
-      acrossShoulder: {
-        value: 377.3447799682617,
-        pinned: false,
-      },
-      shoulderToApex: {
-        value: 303.3722686767578,
-        pinned: false,
-      },
-      waist: {
-        value: 903.441162109375,
-        pinned: false,
-      },
-      hip: {
-        value: 1094.142074584961,
-        pinned: false,
-      },
-      highHip: {
-        value: 969.7705841064453,
-        pinned: false,
-      },
-      neckBase: {
-        value: 455.6153106689453,
-        pinned: false,
-      },
-      neck: {
-        value: 422.6400375366211,
-        pinned: false,
-      },
-      neckLength: {
-        value: 75.89990615844727,
-        pinned: false,
-      },
-      upperArmLength: {
-        value: 371.8878173828125,
-        pinned: false,
-      },
-      lowerArmLength: {
-        value: 276.3052558898926,
-        pinned: false,
-      },
-      bicep: {
-        value: 377.82127380371094,
-        pinned: false,
-      },
-      elbow: {
-        value: 299.7189521789551,
-        pinned: false,
-      },
-      wrist: {
-        value: 186.31258010864258,
-        pinned: false,
-      },
-      forearm: {
-        value: 299.83781814575195,
-        pinned: false,
-      },
-      inseam: {
-        value: 792.3451232910156,
-        pinned: false,
-      },
-      thigh: {
-        value: 611.2964248657227,
-        pinned: false,
-      },
-      knee: {
-        value: 378.81011962890625,
-        pinned: false,
-      },
-      calf: {
-        value: 412.2428512573242,
-        pinned: false,
-      },
-      handCircumference: {
-        value: 230.93168258666992,
-        pinned: false,
-      },
-    },
-    measurements: {
-      height: null,
-      chest: null,
-      bustSpan: null,
-      underbust: null,
-      frontInterscyeLength: null,
-      neckToWaist: null,
-      acrossShoulder: null,
-      shoulderToApex: null,
-      waist: null,
-      hip: null,
-      highHip: null,
-      neckBase: null,
-      neck: null,
-      neckLength: null,
-      upperArmLength: null,
-      lowerArmLength: null,
-      bicep: null,
-      elbow: null,
-      wrist: null,
-      forearm: null,
-      inseam: null,
-      thigh: null,
-      knee: null,
-      calf: null,
-      handCircumference: null,
-    },
-    diagnostics: {
-      rise: null,
-      shoulderHeight: null,
+    anatomy: {
+      // The reference person's sex, which selects the survey statistics its omitted measures derive from. Its own mesh shows no gluteal notch deeper than HumanAnatomyLegFold.SMOOTH (test_human_reference_inputs), so its gluteal furrow height, and with it the ISO 8559-1 5.3.20 thigh girth sought below the fold, take their defaults.
+      sex: AutoMovieHumanSex.Male,
+      stature: 1856.9737243652344,
+      // ISO 8559-1 5.3.4 bust (chest) girth: horizontal at the bust point, taut tape; measured on the reference.
+      chestCircumference: 1147.3762659298159,
+      bustPointWidth: 246.2342071533203,
+      // ISO 8559-1 5.3.8 under bust girth: horizontal at the inframammary fold, taut tape; measured on the reference.
+      underbustCircumference: 1046.5613586726363,
+      // ISO 8559-1 5.4.5 back neck point to waist: taut down the back's median skin from cervicale to the natural waist; measured on the reference.
+      backNeckToWaist: 436.6023518789452,
+      // ISO 8559-1 5.4.3 across back shoulder width: shoulder point to shoulder point through the back neck point, taut over the skin; measured on the reference by test_human_anatomy_course.
+      acrossBackShoulderWidth: 451.9,
+      sideNeckToBustPoint: 303.3722686767578,
+      // Natural waist girth (ANSUR 1988): horizontal least girth between rib and iliac crest, taut tape; measured on the reference.
+      waistCircumference: 911.0235737324305,
+      // ISO 8559-1 5.3.13 hip girth: horizontal at the buttock prominence, taut tape; measured on the reference.
+      hipCircumference: 1088.7478399938984,
+      // ISO 8559-1 5.3.12 top hip girth: horizontal midway between waist and hip levels, taut tape; measured on the reference.
+      highHipCircumference: 987.3755819911206,
+      // ISO 8559-1 5.3.3 neck base girth: over cervicale, the side neck points and the jugular notch, taut tape; measured on the reference.
+      neckBaseCircumference: 456.39789520530735,
+      // ISO 8559-1 5.3.2 neck girth: perpendicular to the neck axis, its least girth below the larynx, taut tape; measured on the reference.
+      neckCircumference: 418.3785770349084,
+      upperArmLength: 371.8878173828125,
+      forearmLength: 276.3052558898926,
+      // Relaxed upper arm girth (NHANES mid-upper arm): midway acromion to olecranon, perpendicular to the arm, right arm; measured on the reference.
+      upperArmCircumference: 390.8613092742273,
+      // Elbow girth (ANSUR 1988, extended): over the olecranon, right arm; measured on the reference.
+      elbowCircumference: 311.4362529841102,
+      // ANSUR II wrist girth over stylion, perpendicular to the forearm, right arm; measured on the reference.
+      wristCircumference: 197.05228410321232,
+      // Relaxed maximum forearm girth below the elbow, perpendicular to the forearm, right arm; measured on the reference.
+      forearmCircumference: 312.20074067803455,
+      inseam: 792.3451232910156,
+      // ISO 8559-1 5.3.22 knee girth: horizontal at mid-patella, right side; measured on the reference.
+      kneeCircumference: 383.1108939350745,
+      // ISO 8559-1 5.3.24 calf girth: horizontal maximum, right side; measured on the reference.
+      calfCircumference: 421.7880601887109,
+      // ANSUR II ankle circumference: the least horizontal girth of the leg above the malleoli, right side; read on the reference's own mesh by test_human_reference_inputs, from 0.25 S down to 0.05 S.
+      ankleCircumference: 260.7,
+      // Hand circumference at metacarpale (ANSUR 1988): over metacarpals II to V, thumb excluded, right hand; measured on the reference.
+      handCircumference: 245.522516595668,
     },
   },
   head: {
-    length: 198.9,
+    // Head length g-op (FaceBase maximum cranial length); measured on the reference.
+    length: 201.52431604089276,
     cephalicIndex: 83.6,
     circumference: 594.1,
     height: 210.1,
-    faceHeight: 124.8,
-    faceWidth: 128.9090674521467,
+    // Morphological face height n-gn (FaceBase); measured on the reference.
+    faceHeight: 125.40300847317029,
+    // Face width zy-zy (FaceBase maximum facial width); measured on the reference.
+    faceWidth: 156.38555526733398,
     mandibularWidth: 126.91175381064693,
     minimumFrontalWidth: 105.9,
     mouthOpening: 54,
@@ -178,24 +81,35 @@ export const m2: IAutoMovieHumanParameters = {
     face: {
       eyePair: {
         left: {
-          palpebralFissureLength: 33,
-          palpebralFissureHeight: 9.637908935546875,
+          // Palpebral fissure length en-ex (FaceBase), this side; measured on the reference.
+          palpebralFissureLength: 33.61787031437682,
+          // Palpebral fissure height, lid margin to lid margin at the pupil, this side; measured on the reference.
+          palpebralFissureHeight: 10.109533321427481,
         },
         right: {
-          palpebralFissureLength: 33,
-          palpebralFissureHeight: 10.83282470703125,
+          // Palpebral fissure length en-ex (FaceBase), this side; measured on the reference.
+          palpebralFissureLength: 33.68595635436452,
+          // Palpebral fissure height, lid margin to lid margin at the pupil, this side; measured on the reference.
+          palpebralFissureHeight: 9.80859834261776,
         },
       },
-      intercanthalWidth: 33,
+      // Intercanthal width en-en (FaceBase); measured on the reference.
+      intercanthalWidth: 32.31103597299708,
       nose: {
-        width: 41.8,
-        height: 58.4,
-        protrusion: 23.8,
+        // Nasal width al-al (FaceBase); measured on the reference.
+        width: 40.9725141603886,
+        // Nasal height n-sn (FaceBase); measured on the reference.
+        height: 58.424605905711935,
+        // Nasal protrusion sn-prn (FaceBase); measured on the reference.
+        protrusion: 23.60853841039552,
       },
       mouth: {
-        width: 58,
-        upperVermilionHeight: 6,
-        lowerVermilionHeight: 9,
+        // Mouth width ch-ch (FaceBase labial fissure width); measured on the reference.
+        width: 57,
+        // Upper vermilion height ls-sto (FaceBase); measured on the reference.
+        upperVermilionHeight: 7.958418063145457,
+        // Lower vermilion height sto-li (FaceBase); measured on the reference.
+        lowerVermilionHeight: 9.894008874736056,
       },
     },
     earPair: {
@@ -216,26 +130,34 @@ export const m2: IAutoMovieHumanParameters = {
       left: {
         palmLength: 125.2,
         handLength: 210,
-        handBreadth: 97.5,
+        // Hand breadth across metacarpals II to V (ANSUR II), this side; measured on the reference.
+        handBreadth: 103.0760400371471,
         thumbLength: 63.2,
       },
       right: {
         palmLength: 125.2,
         handLength: 210,
-        handBreadth: 97.5,
+        // Hand breadth across metacarpals II to V (ANSUR II), this side; measured on the reference.
+        handBreadth: 103.07613479645829,
         thumbLength: 63.2,
       },
     },
     feet: {
       left: {
-        footLength: 289.36373033403174,
-        footBreadth: 108.18090936868944,
-        ankleHeight: 89.92040930269248,
+        // Foot length along the foot axis, heel to longest toe (ISO 8559-1 5.5.5), this side; measured on the reference.
+        footLength: 290.4753163245989,
+        // Foot breadth across the metatarsal heads, across the foot axis, this side; measured on the reference.
+        footBreadth: 108.79692124024963,
+        // Lateral malleolus height by ISO 8559-1 5.7.6: the inside leg length is the crotch height less the outer ankle point's height, so this is the crotch height read on the reference (HumanAnatomyLegSites.crotchHeight, 871.1 mm) less the inseam (792.35 mm).
+        ankleHeight: 78.75,
       },
       right: {
-        footLength: 289.21792032003873,
-        footBreadth: 108.07010832672562,
-        ankleHeight: 89.86850824340534,
+        // Foot length along the foot axis, heel to longest toe (ISO 8559-1 5.5.5), this side; measured on the reference.
+        footLength: 290.47533074234366,
+        // Foot breadth across the metatarsal heads, across the foot axis, this side; measured on the reference.
+        footBreadth: 108.79691054529103,
+        // Lateral malleolus height by ISO 8559-1 5.7.6: the inside leg length is the crotch height less the outer ankle point's height, so this is the crotch height read on the reference (HumanAnatomyLegSites.crotchHeight, 871.1 mm) less the inseam (792.35 mm).
+        ankleHeight: 78.75,
       },
     },
   },

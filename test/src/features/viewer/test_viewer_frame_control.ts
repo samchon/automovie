@@ -20,7 +20,12 @@ import { nclose } from "../internal/predicates";
  * @evidence contracts/testing.md#execution-ownership Uses actual public controller and native CPU camera objects through declared producer ports; starts no browser, process, renderer or timer and replaces no global or foreign method.
  */
 export function test_viewer_frame_control(): void {
-  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(42, 1.5, 0.1, 100);
+  const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
+    42,
+    1.5,
+    0.1,
+    100,
+  );
   camera.position.set(1, 2, 3);
   let now: number = 1000;
   let previous: number = now;
@@ -31,29 +36,50 @@ export function test_viewer_frame_control(): void {
   let rebases: number = 0;
   let acquired: number = 0;
   const released: boolean[] = [];
-  const owner: ReturnType<typeof createViewerFrameControl> = createViewerFrameControl({
-    camera,
-    currentSeconds: (): number => seconds,
-    assertActive: (): void => {},
-    rebase: (): void => { ++rebases; },
-    redraw: (time: number): void => { seconds = time; previous = now; ++draws; },
-    freezeCompleted: (): ((resume: boolean) => void) => {
-      ++acquired;
-      paused = true;
-      return (resume: boolean): void => { released.push(resume); paused = false; previous = now; if (!resume) playing = false; };
-    },
-  });
-  const tick: () => void = (): void => owner.frame((): void => {
-    if (playing && !paused) seconds += (now - previous) / 1000;
-    previous = now;
-    ++draws;
-  });
+  const owner: ReturnType<typeof createViewerFrameControl> =
+    createViewerFrameControl({
+      camera,
+      currentSeconds: (): number => seconds,
+      assertActive: (): void => {},
+      rebase: (): void => {
+        ++rebases;
+      },
+      redraw: (time: number): void => {
+        seconds = time;
+        previous = now;
+        ++draws;
+      },
+      freezeCompleted: (): ((resume: boolean) => void) => {
+        ++acquired;
+        paused = true;
+        return (resume: boolean): void => {
+          released.push(resume);
+          paused = false;
+          previous = now;
+          if (!resume) playing = false;
+        };
+      },
+    });
+  const tick: () => void = (): void =>
+    owner.frame((): void => {
+      if (playing && !paused) seconds += (now - previous) / 1000;
+      previous = now;
+      ++draws;
+    });
   const saved: unknown = owner.control.capture();
   seconds = 10;
   camera.position.set(8, 9, 10);
   owner.control.restore(saved);
-  TestValidator.predicate("restored actual source seconds", nclose(seconds, 3, 0));
-  TestValidator.predicate("restored actual native camera", nclose(camera.position.x, 1, 0) && nclose(camera.position.y, 2, 0) && nclose(camera.position.z, 3, 0));
+  TestValidator.predicate(
+    "restored actual source seconds",
+    nclose(seconds, 3, 0),
+  );
+  TestValidator.predicate(
+    "restored actual native camera",
+    nclose(camera.position.x, 1, 0) &&
+      nclose(camera.position.y, 2, 0) &&
+      nclose(camera.position.z, 3, 0),
+  );
   TestValidator.equals("restore rebased once", rebases, 1);
   owner.control.redraw!();
   TestValidator.equals("paused original redraw completes", draws, 2);
@@ -67,7 +93,10 @@ export function test_viewer_frame_control(): void {
   owner.control.redraw!();
   seconds = 9;
   owner.control.restore(saved);
-  TestValidator.predicate("explicit frozen restore places source", nclose(seconds, 3, 0) && draws === 4);
+  TestValidator.predicate(
+    "explicit frozen restore places source",
+    nclose(seconds, 3, 0) && draws === 4,
+  );
   releaseFirst();
   releaseFirst();
   tick();
@@ -78,7 +107,10 @@ export function test_viewer_frame_control(): void {
   TestValidator.equals("one resumable source release", released, [true]);
   now += 100;
   tick();
-  TestValidator.predicate("resume excludes frozen wall time", nclose(seconds, 3.1, 1e-12));
+  TestValidator.predicate(
+    "resume excludes frozen wall time",
+    nclose(seconds, 3.1, 1e-12),
+  );
 
   const releasePaused: () => void = owner.control.freeze!();
   playing = false;
@@ -86,21 +118,46 @@ export function test_viewer_frame_control(): void {
   releasePaused();
   now += 100;
   tick();
-  TestValidator.predicate("desired pause survives release", nclose(seconds, 3.1, 1e-12));
+  TestValidator.predicate(
+    "desired pause survives release",
+    nclose(seconds, 3.1, 1e-12),
+  );
   const beforeDraws: number = draws;
   const beforeRebases: number = rebases;
-  for (const state of [null, { elapsedSeconds: -1 }, { elapsedSeconds: NaN }, { elapsedSeconds: 4, camera: {} }])
+  for (const state of [
+    null,
+    { elapsedSeconds: -1 },
+    { elapsedSeconds: NaN },
+    { elapsedSeconds: 4, camera: {} },
+  ])
     assert.throws((): void => owner.control.restore(state));
   TestValidator.equals("invalid transfer never draws", draws, beforeDraws);
-  TestValidator.equals("invalid transfer never rebases", rebases, beforeRebases);
-  TestValidator.predicate("invalid transfer preserves native camera", nclose(camera.position.x, 1, 0) && nclose(seconds, 3.1, 1e-12));
+  TestValidator.equals(
+    "invalid transfer never rebases",
+    rebases,
+    beforeRebases,
+  );
+  TestValidator.predicate(
+    "invalid transfer preserves native camera",
+    nclose(camera.position.x, 1, 0) && nclose(seconds, 3.1, 1e-12),
+  );
 
   const releaseTerminal: () => void = owner.control.freeze!();
   owner.control.freeze!();
   owner.dispose();
   owner.dispose();
   releaseTerminal();
-  TestValidator.equals("terminal lease does not resume", released, [true, true, false]);
-  for (const operation of [(): unknown => owner.control.capture(), (): void => owner.control.restore(saved), (): void => owner.control.redraw!(), (): unknown => owner.control.freeze!(), tick])
+  TestValidator.equals("terminal lease does not resume", released, [
+    true,
+    true,
+    false,
+  ]);
+  for (const operation of [
+    (): unknown => owner.control.capture(),
+    (): void => owner.control.restore(saved),
+    (): void => owner.control.redraw!(),
+    (): unknown => owner.control.freeze!(),
+    tick,
+  ])
     assert.throws(operation);
 }

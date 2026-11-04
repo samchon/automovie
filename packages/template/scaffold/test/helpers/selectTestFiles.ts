@@ -57,16 +57,23 @@ export function selectTestFiles(
   for (const key of ["include", "exclude"] as const)
     for (const term of selection[key])
       if (!names.some((name: string): boolean => name.includes(term)))
-        throw new Error(`--${key} term ${JSON.stringify(term)} matched no test.`);
+        throw new Error(
+          `--${key} term ${JSON.stringify(term)} matched no test.`,
+        );
 
   const selected: Set<string> = new Set(
     names.filter(
       (name: string): boolean =>
         (selection.include.length === 0 ||
-          selection.include.some((term: string): boolean => name.includes(term))) &&
-        selection.exclude.every((term: string): boolean => !name.includes(term)),
+          selection.include.some((term: string): boolean =>
+            name.includes(term),
+          )) &&
+        selection.exclude.every(
+          (term: string): boolean => !name.includes(term),
+        ),
     ),
   );
-  if (selected.size === 0) throw new Error("The test selection matched nothing.");
+  if (selected.size === 0)
+    throw new Error("The test selection matched nothing.");
   return selected;
 }

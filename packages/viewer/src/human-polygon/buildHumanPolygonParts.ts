@@ -159,9 +159,14 @@ export function buildHumanPolygonParts(
 
     const subtalar: AutoMovieHumanPolygon.IBone = boneAt(`${side}Subtalar`);
     const midfoot: AutoMovieHumanPolygon.IBone = boneAt(`${side}Midfoot`);
-    const hindfootSource: { axis: THREE.Vector3; courses: buildHumanPolygonModule.ISection[] } | undefined = footModules?.get(`${side}Subtalar`);
+    const hindfootSource:
+      | { axis: THREE.Vector3; courses: buildHumanPolygonModule.ISection[] }
+      | undefined = footModules?.get(`${side}Subtalar`);
     if (hindfootSource !== undefined) {
-      const forefootSource: { axis: THREE.Vector3; courses: buildHumanPolygonModule.ISection[] } = footModules!.get(`${side}Midfoot`)!;
+      const forefootSource: {
+        axis: THREE.Vector3;
+        courses: buildHumanPolygonModule.ISection[];
+      } = footModules!.get(`${side}Midfoot`)!;
       add(subtalar, hindfootSource.courses, hindfootSource.axis);
       add(midfoot, forefootSource.courses, forefootSource.axis);
       continue;

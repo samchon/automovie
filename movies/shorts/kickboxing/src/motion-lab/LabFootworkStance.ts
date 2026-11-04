@@ -9,5 +9,8 @@ import type { LabActor } from "./LabActor";
 export interface LabFootworkStance {
   /** Actual fitted source pose. */ pose: LabActor["basePose"];
   /** Actual source world root. */ origin: MotionAction.Vec3;
-  /** Same measured source sole for each anatomical side. */ patches: Record<MotionAction.Side, MotionAction.SupportPatch>;
+  /** Same measured source sole for each anatomical side. */ patches: Record<
+    MotionAction.Side,
+    MotionAction.SupportPatch
+  >;
 }

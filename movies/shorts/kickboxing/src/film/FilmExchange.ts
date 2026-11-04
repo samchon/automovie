@@ -141,11 +141,7 @@ export class FilmExchange {
           ];
         const other: LabActor = actors[mover === actors.a ? "b" : "a"];
         const sign: number = plan.seed % 2 === 0 ? 1 : -1;
-        this.exit = new FilmRoute(
-          mover,
-          [-0.025, 0, sign * 0.045],
-          remainder,
-        );
+        this.exit = new FilmRoute(mover, [-0.025, 0, sign * 0.045], remainder);
         this.exitClearance = ContactTrace.resolve({
           actionId: `${plan.id}:exit`,
           actorId: mover.id,

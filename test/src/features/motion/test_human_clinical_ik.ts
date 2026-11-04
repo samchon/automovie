@@ -1,7 +1,7 @@
 import {
   AutoMovieHumanClinicalIk,
-  AutoMovieHumanSupportFrame,
   type AutoMovieHumanSkeleton,
+  AutoMovieHumanSupportFrame,
   type IAutoMovieHumanPose,
 } from "@automovie/human";
 import { TestValidator } from "@nestia/e2e";
@@ -84,10 +84,8 @@ export function test_human_clinical_ik(): void {
 
   // A joint-centre-only implementation sees no error here. Two independent
   // surface points must rotate about an immobile joint to reach this frame.
-  const frame: AutoMovieHumanClinicalIk.IResult = AutoMovieHumanClinicalIk.solve(
-    rotating,
-    seed,
-    {
+  const frame: AutoMovieHumanClinicalIk.IResult =
+    AutoMovieHumanClinicalIk.solve(rotating, seed, {
       channels: ["legs.left.hip.flexion"],
       targets: [
         { bone: "leftFoot", localPoint: [0.2, 0, 0], position: [0, 0.2, 0] },
@@ -96,27 +94,65 @@ export function test_human_clinical_ik(): void {
       ],
       iterations: 16,
       tolerance: 0.00001,
-    },
+    });
+  TestValidator.predicate(
+    "geometry frame orientation",
+    nclose(frame.pose.legs!.left.hip!.flexion!, 90, 0.01),
   );
-  TestValidator.predicate("geometry frame orientation", nclose(frame.pose.legs!.left.hip!.flexion!, 90, 0.01));
   TestValidator.predicate("geometry frame residual", frame.error < 0.00001);
-  TestValidator.predicate("fixed joint origin", frame.output.posed[0]!.position.every((v: number): boolean => v === 0));
+  TestValidator.predicate(
+    "fixed joint origin",
+    frame.output.posed[0]!.position.every((v: number): boolean => v === 0),
+  );
 
-  const vertices: [AutoMovieHumanSupportFrame.IPoint, AutoMovieHumanSupportFrame.IPoint, AutoMovieHumanSupportFrame.IPoint] = [
+  const vertices: [
+    AutoMovieHumanSupportFrame.IPoint,
+    AutoMovieHumanSupportFrame.IPoint,
+    AutoMovieHumanSupportFrame.IPoint,
+  ] = [
     { bone: "leftFoot", localPoint: [0, 0, 0] },
     { bone: "leftFoot", localPoint: [0.2, 0, 0] },
     { bone: "leftFoot", localPoint: [0, 0, 0.1] },
   ];
-  const support: (destination: AutoMovieHumanSupportFrame.IFrame) => AutoMovieHumanClinicalIk.ITarget[] = AutoMovieHumanSupportFrame.prepare(
+  const support: (
+    destination: AutoMovieHumanSupportFrame.IFrame,
+  ) => AutoMovieHumanClinicalIk.ITarget[] = AutoMovieHumanSupportFrame.prepare(
     rotating({ legs: { left: { hip: { flexion: 20 } }, right: {} } }),
     vertices,
   );
   vertices[0].localPoint[0] = 9;
-  const targets: AutoMovieHumanClinicalIk.ITarget[] = support({ origin: [1, 0, 2], forward: [1, 0, 0], normal: [0, 1, 0] });
-  TestValidator.predicate("support uses bone rotation before preparing frame", nclose(targets[1]!.position[0] - targets[0]!.position[0], 0.2, 1e-12));
-  TestValidator.predicate("support plane targets actual points", targets.every((point: AutoMovieHumanClinicalIk.ITarget): boolean => Math.abs(point.position[1]) < 1e-12));
-  TestValidator.predicate("support centroid", nclose(targets.reduce((sum: number, point: AutoMovieHumanClinicalIk.ITarget): number => sum + point.position[0], 0) / 3, 1, 1e-12));
-  TestValidator.predicate("support copied local descriptors", targets[0]!.localPoint![0] === 0);
+  const targets: AutoMovieHumanClinicalIk.ITarget[] = support({
+    origin: [1, 0, 2],
+    forward: [1, 0, 0],
+    normal: [0, 1, 0],
+  });
+  TestValidator.predicate(
+    "support uses bone rotation before preparing frame",
+    nclose(targets[1]!.position[0] - targets[0]!.position[0], 0.2, 1e-12),
+  );
+  TestValidator.predicate(
+    "support plane targets actual points",
+    targets.every(
+      (point: AutoMovieHumanClinicalIk.ITarget): boolean =>
+        Math.abs(point.position[1]) < 1e-12,
+    ),
+  );
+  TestValidator.predicate(
+    "support centroid",
+    nclose(
+      targets.reduce(
+        (sum: number, point: AutoMovieHumanClinicalIk.ITarget): number =>
+          sum + point.position[0],
+        0,
+      ) / 3,
+      1,
+      1e-12,
+    ),
+  );
+  TestValidator.predicate(
+    "support copied local descriptors",
+    targets[0]!.localPoint![0] === 0,
+  );
 
   const unreachable: AutoMovieHumanClinicalIk.IResult =
     AutoMovieHumanClinicalIk.solve(spherical, seed, {
@@ -168,7 +204,10 @@ export function test_human_clinical_ik(): void {
 
   for (const invalid of [
     { ...request, channels: [] },
-    { ...request, channels: ["legs.left.hip.flexion", "legs.left.hip.flexion"] },
+    {
+      ...request,
+      channels: ["legs.left.hip.flexion", "legs.left.hip.flexion"],
+    },
     { ...request, channels: ["legs.left.noSuchJoint"] },
     { ...request, iterations: 17 },
     { ...request, tolerance: Infinity },
@@ -180,21 +219,40 @@ export function test_human_clinical_ik(): void {
     },
     {
       ...request,
-      targets: [{ bone: "leftFoot", position: target, localPoint: [0, Infinity, 0] as [number, number, number] }],
+      targets: [
+        {
+          bone: "leftFoot",
+          position: target,
+          localPoint: [0, Infinity, 0] as [number, number, number],
+        },
+      ],
     },
   ]) {
     TestValidator.predicate(
       "invalid request refused",
       throwsError((): void => {
-        AutoMovieHumanClinicalIk.solve(spherical, seed, invalid as unknown as AutoMovieHumanClinicalIk.IRequest);
+        AutoMovieHumanClinicalIk.solve(
+          spherical,
+          seed,
+          invalid as unknown as AutoMovieHumanClinicalIk.IRequest,
+        );
       }),
     );
   }
-  const malformed: AutoMovieHumanClinicalIk.ITarget = { bone: "leftFoot", position: [0, 0, 0] };
+  const malformed: AutoMovieHumanClinicalIk.ITarget = {
+    bone: "leftFoot",
+    position: [0, 0, 0],
+  };
   malformed.position.pop();
-  TestValidator.predicate("short coordinate target refused", throwsError((): void => {
-    AutoMovieHumanClinicalIk.solve(spherical, seed, { ...request, targets: [malformed] });
-  }));
+  TestValidator.predicate(
+    "short coordinate target refused",
+    throwsError((): void => {
+      AutoMovieHumanClinicalIk.solve(spherical, seed, {
+        ...request,
+        targets: [malformed],
+      });
+    }),
+  );
   TestValidator.equals(
     "failed requests preserve seed",
     JSON.stringify(seed),
@@ -229,7 +287,9 @@ function spherical(
 }
 
 /** Independent fixed joint with a clinical Z rotation; no IK helper computes its expected frame. */
-function rotating(pose: IAutoMovieHumanPose = {}): AutoMovieHumanSkeleton.IOutput {
+function rotating(
+  pose: IAutoMovieHumanPose = {},
+): AutoMovieHumanSkeleton.IOutput {
   const output: AutoMovieHumanSkeleton.IOutput = spherical({});
   const half: number = ((pose.legs?.left.hip?.flexion ?? 0) * Math.PI) / 360;
   output.posed[0]!.position = [0, 0, 0];

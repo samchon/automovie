@@ -28,29 +28,36 @@ export function test_human_loft_phase_endpoint(): void {
       for (const sign of [-1, 0, 1])
         for (let start: number = 0; start < 4; ++start) {
           const base: [number, number][] = [
-            [scale, sign * scale * Number.EPSILON / 16],
+            [scale, (sign * scale * Number.EPSILON) / 16],
             [0, scale],
             [-scale, 0],
             [0, -scale],
           ];
           const polygon: [number, number][] = Array.from(
             { length: 4 },
-            (_: unknown, i: number): [number, number] => [...base[(i + start) % 4]!],
+            (_: unknown, i: number): [number, number] => [
+              ...base[(i + start) % 4]!,
+            ],
           );
-          const phases: number[] = AutoMovieHumanLoftParameter.phases(rule, polygon);
+          const phases: number[] = AutoMovieHumanLoftParameter.phases(
+            rule,
+            polygon,
+          );
           const label: string = `${rule}/scale=${scale}/side=${sign}/start=${start}`;
           if (phases.length !== 4) defects.push(`${label}: point count`);
           for (let i: number = 0; i < 4; ++i) {
             const actual: number = phases[i]!;
-            const expected: number = ((i + start) % 4) * Math.PI / 2;
+            const expected: number = (((i + start) % 4) * Math.PI) / 2;
             const periodicError: number = Math.atan2(
               Math.sin(actual - expected),
               Math.cos(actual - expected),
             );
             if (!nclose(periodicError, 0, 1e-12))
               defects.push(`${label}: corner ${i} correspondence`);
-            if (!nclose(polygon[i]![0], base[(i + start) % 4]![0], 0) ||
-                !nclose(polygon[i]![1], base[(i + start) % 4]![1], 0))
+            if (
+              !nclose(polygon[i]![0], base[(i + start) % 4]![0], 0) ||
+              !nclose(polygon[i]![1], base[(i + start) % 4]![1], 0)
+            )
               defects.push(`${label}: corner ${i} source mutation`);
           }
         }

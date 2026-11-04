@@ -31,7 +31,6 @@ export function createHumanPolygonPalette(
   material: THREE.MeshStandardMaterial,
   partMeshes: ReadonlyMap<string, THREE.Mesh>,
 ): {
-
   /** Validate and replace colours; undefined restores the borrowed clay. */
   setPartColors: (colors?: Readonly<Record<string, number>>) => void;
 
@@ -146,7 +145,6 @@ export function createHumanPolygonPalette(
  * @evidence contracts/performance.md#bound-retention-and-release-resources The temporary values array is call-owned; validation retains no input map, geometry, material or cleanup task.
  */
 export namespace createHumanPolygonPalette {
-
   /**
    * Admit optional RGB overrides before allocation and during replacement.
    * Every supplied value, including an unmatched part entry, must be an integer

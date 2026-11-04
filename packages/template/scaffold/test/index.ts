@@ -34,7 +34,9 @@ async function main(): Promise<void> {
         assessTestExecution(execution);
       const timing: string =
         result.elapsedMs === null ? "invalid timing" : `${result.elapsedMs} ms`;
-      console.log(`${result.passed ? "PASS" : "FAIL"} ${execution.name} (${timing})`);
+      console.log(
+        `${result.passed ? "PASS" : "FAIL"} ${execution.name} (${timing})`,
+      );
     },
   });
 

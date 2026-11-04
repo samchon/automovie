@@ -37,4 +37,21 @@ export interface IAutoMovieHumanLoftAperture {
    * Absent, the opening is cut from the finished mesh by position.
    */
   base?: string;
+
+  /**
+   * The line a slit opening closes on at rest. After the cut every vertex
+   * of its rim moves onto that line, kept `closed` off it on its own side,
+   * so the opening is a seam whose two lips meet and stay apart by place.
+   * Absent leaves the rim where the cut put it.
+   */
+  seam?: {
+    /** Height of the line at shares 0, 1/n .. 1 of `width` from the midline, mm. */
+    contact: number[];
+
+    /** Half-width of the slit, mm; the line is level past it. */
+    width: number;
+
+    /** Distance each side of the rim keeps from the line, mm. */
+    closed: number;
+  };
 }

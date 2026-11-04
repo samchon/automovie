@@ -1,4 +1,5 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
+
 import type { MotionAction } from "../core/MotionAction";
 import { ContactGeometry } from "./ContactGeometry";
 
@@ -112,11 +113,28 @@ export namespace ContactTrace {
     /** Actual witness query method, without a continuous-articulation claim. */
     method: "sampled-crossing" | "translated-vertex-path" | null;
     /** Complete supplied mesh population and explicit clearance policy. */
-    participants: { attacks: { id: string; role: "strike" | "clearance" }[]; receivers: { id: string; relation: Receiver["relation"] }[] };
+    participants: {
+      attacks: { id: string; role: "strike" | "clearance" }[];
+      receivers: { id: string; relation: Receiver["relation"] }[];
+    };
     /** Actual captures, narrow-phase queries, proved current-box separations and query reuse work. */
-    work: { captures: number; crossings: number; rays: number; crossingBuilds: number; crossingRefits: number; rayBuilds: number; separatedPairs: number };
+    work: {
+      captures: number;
+      crossings: number;
+      rays: number;
+      crossingBuilds: number;
+      crossingRefits: number;
+      rayBuilds: number;
+      separatedPairs: number;
+    };
     /** CPU timings in milliseconds; host capture includes the host's own fitting/matrix work. */
-    profile: { hostCaptureMs: number; queryPreparationMs: number; crossingMs: number; raysMs: number; totalMs: number };
+    profile: {
+      hostCaptureMs: number;
+      queryPreparationMs: number;
+      crossingMs: number;
+      raysMs: number;
+      totalMs: number;
+    };
     /** Maximum observed receiver departure from translation between adjacent captures, metres. */
     receiverNontranslationMetres: number;
     /** Strict coplanar crossings without an attributed transverse point. */
@@ -190,98 +208,343 @@ export namespace ContactTrace {
     validate(options);
     const start: number = performance.now();
     const receipt: Receipt = {
-      stopAt: options.stopAt ?? "last-clear", stepSeconds: options.stepSeconds, lastClearTime: null, bracket: null, witnessTime: null, reactionTime: null, pair: null, method: null,
+      stopAt: options.stopAt ?? "last-clear",
+      stepSeconds: options.stepSeconds,
+      lastClearTime: null,
+      bracket: null,
+      witnessTime: null,
+      reactionTime: null,
+      pair: null,
+      method: null,
       participants: { attacks: [], receivers: [] },
-      work: { captures: 0, crossings: 0, rays: 0, crossingBuilds: 0, crossingRefits: 0, rayBuilds: 0, separatedPairs: 0 },
-      profile: { hostCaptureMs: 0, queryPreparationMs: 0, crossingMs: 0, raysMs: 0, totalMs: 0 },
-      receiverNontranslationMetres: 0, unlocalizedCrossings: 0,
+      work: {
+        captures: 0,
+        crossings: 0,
+        rays: 0,
+        crossingBuilds: 0,
+        crossingRefits: 0,
+        rayBuilds: 0,
+        separatedPairs: 0,
+      },
+      profile: {
+        hostCaptureMs: 0,
+        queryPreparationMs: 0,
+        crossingMs: 0,
+        raysMs: 0,
+        totalMs: 0,
+      },
+      receiverNontranslationMetres: 0,
+      unlocalizedCrossings: 0,
       limitations: [
         "Only enumerated actual surfaces participate. The host must supply complete attacking limbs and every possible preceding guard/head/body/check receiver; omitted geometry has no clearance claim.",
         "Referenced actual vertices follow piecewise linear paths between captures. Exactly translated receiver snapshots support vertex-segment rays; rotated/deformed receivers receive only finite endpoint/midpoint crossing checks.",
         "Vertex paths do not cover swept triangle interiors or all edge-edge contact; strict crossing queries omit mere touches and containment. No articulated continuous collision certificate is supplied.",
         "A strictly disjoint referenced world-coordinate box proves only that current triangles do not cross. It never suppresses a translated vertex path between the captures.",
         "Sampled-crossing incidence and response use mean attack-point displacement minus receiver-first-vertex displacement per local interval. Under receiver rotation/deformation this is a kinematic proxy, not actual contact-patch relative velocity; translated vertex rays instead use their sampled point-path velocity.",
-        options.stopAt === "first-witness" ? "The selected stop is a fresh actual capture at the original witness time, with the original first pair unchanged. Sampled crossings can already overlap and translated-ray contact can be a mere touch. No last-clear, penetration-depth, exact-contact or continuous-contact certificate is supplied; the host must inspect this displayed state." : "The event/reaction starts at the conservative last-clear sample. Point/normal belong to the separately recorded witness time inside the finite bracket, not exact first physical contact.",
+        options.stopAt === "first-witness"
+          ? "The selected stop is a fresh actual capture at the original witness time, with the original first pair unchanged. Sampled crossings can already overlap and translated-ray contact can be a mere touch. No last-clear, penetration-depth, exact-contact or continuous-contact certificate is supplied; the host must inspect this displayed state."
+          : "The event/reaction starts at the conservative last-clear sample. Point/normal belong to the separately recorded witness time inside the finite bracket, not exact first physical contact.",
         "Initial/unattributed coplanar overlap and incidental-clearance interception refuse; no relation or named actor supplies an exemption.",
         "Recovery and authored compliance offsets require actual host fitting and reinspection; this query supplies no force, balance, injury or material model.",
       ],
     };
     const capture: (time: number) => Frame = (time: number): Frame => {
-      if (++receipt.work.captures > options.maximumCaptures) throw new Error("Contact capture budget exhausted.");
+      if (++receipt.work.captures > options.maximumCaptures)
+        throw new Error("Contact capture budget exhausted.");
       const captureStart: number = performance.now();
       const frame: Frame = options.capture(time);
       receipt.profile.hostCaptureMs += performance.now() - captureStart;
-      if (frame.sample.elapsed !== time) throw new Error("Contact capture must report its actual local sample time.");
+      if (frame.sample.elapsed !== time)
+        throw new Error(
+          "Contact capture must report its actual local sample time.",
+        );
       validateFrame(frame);
       return frame;
     };
-    const queries: ContactGeometry.Session = ContactGeometry.create(receipt, capture);
+    const queries: ContactGeometry.Session = ContactGeometry.create(
+      receipt,
+      capture,
+    );
     let lowTime: number = options.start;
     let low: Frame = capture(lowTime);
-    const initial: ContactGeometry.Witness | null = queries.intercept(low, low, 0);
-    if (initial) throw new Error(`Delivery starts with an existing surface crossing: action ${options.actionId}, actors ${options.actorId}->${options.targetId}, pair ${initial.attack}->${initial.receiver}, ${initial.role}/${initial.relation}, local ${lowTime}s, receiver triangle ${initial.triangle}, world point [${initial.point.join(",")}]. Repair the initial configuration.`, { cause: refusalReceipt("initial-crossing", options, initial, lowTime, [lowTime, lowTime]) });
-    const intervals: number = Math.ceil((options.end - options.start) / options.stepSeconds);
+    const initial: ContactGeometry.Witness | null = queries.intercept(
+      low,
+      low,
+      0,
+    );
+    if (initial)
+      throw new Error(
+        `Delivery starts with an existing surface crossing: action ${options.actionId}, actors ${options.actorId}->${options.targetId}, pair ${initial.attack}->${initial.receiver}, ${initial.role}/${initial.relation}, local ${lowTime}s, receiver triangle ${initial.triangle}, world point [${initial.point.join(",")}]. Repair the initial configuration.`,
+        {
+          cause: refusalReceipt("initial-crossing", options, initial, lowTime, [
+            lowTime,
+            lowTime,
+          ]),
+        },
+      );
+    const intervals: number = Math.ceil(
+      (options.end - options.start) / options.stepSeconds,
+    );
     for (let index: number = 1; index <= intervals * 2; index++) {
-      let highTime: number = Math.min(options.end, options.start + index * options.stepSeconds / 2);
+      let highTime: number = Math.min(
+        options.end,
+        options.start + (index * options.stepSeconds) / 2,
+      );
       const high: Frame = capture(highTime);
-      let witness: ContactGeometry.Witness | null = queries.intercept(low, high, highTime - lowTime);
-      if (!witness) { lowTime = highTime; low = high; if (highTime === options.end) break; continue; }
-      for (let refinement: number = 0; refinement < options.refinementSteps; refinement++) {
+      let witness: ContactGeometry.Witness | null = queries.intercept(
+        low,
+        high,
+        highTime - lowTime,
+      );
+      if (!witness) {
+        lowTime = highTime;
+        low = high;
+        if (highTime === options.end) break;
+        continue;
+      }
+      for (
+        let refinement: number = 0;
+        refinement < options.refinementSteps;
+        refinement++
+      ) {
         const middleTime: number = (lowTime + highTime) / 2;
         const middle: Frame = capture(middleTime);
-        const earlier: ContactGeometry.Witness | null = queries.intercept(low, middle, middleTime - lowTime);
-        if (earlier) { highTime = middleTime; witness = earlier; }
-        else { lowTime = middleTime; low = middle; }
+        const earlier: ContactGeometry.Witness | null = queries.intercept(
+          low,
+          middle,
+          middleTime - lowTime,
+        );
+        if (earlier) {
+          highTime = middleTime;
+          witness = earlier;
+        } else {
+          lowTime = middleTime;
+          low = middle;
+        }
       }
-      if (witness.role === "clearance") throw new Error(`Unintended clearance contact: ${witness.attack} -> ${witness.receiver} at local ${lowTime}s; bracket [${lowTime}, ${highTime}].`, { cause: refusalReceipt("clearance-contact", options, witness, lowTime, [lowTime, highTime]) });
+      if (witness.role === "clearance")
+        throw new Error(
+          `Unintended clearance contact: ${witness.attack} -> ${witness.receiver} at local ${lowTime}s; bracket [${lowTime}, ${highTime}].`,
+          {
+            cause: refusalReceipt(
+              "clearance-contact",
+              options,
+              witness,
+              lowTime,
+              [lowTime, highTime],
+            ),
+          },
+        );
       const speed: number = Math.hypot(...witness.velocity);
-      const approach: number = Math.max(0, -(witness.velocity[0] * witness.normal[0] + witness.velocity[1] * witness.normal[1] + witness.velocity[2] * witness.normal[2]));
-      const grazing: boolean = speed > 0 && approach / speed < options.grazeCosine;
-      const stopTime: number = options.stopAt === "first-witness" ? witness.time : lowTime;
-      const stopped: Frame = options.stopAt === "first-witness" ? capture(stopTime) : low;
-      if (options.stopAt === "first-witness") validatePopulation(stopped, low, receipt.participants);
+      const approach: number = Math.max(
+        0,
+        -(
+          witness.velocity[0] * witness.normal[0] +
+          witness.velocity[1] * witness.normal[1] +
+          witness.velocity[2] * witness.normal[2]
+        ),
+      );
+      const grazing: boolean =
+        speed > 0 && approach / speed < options.grazeCosine;
+      const stopTime: number =
+        options.stopAt === "first-witness" ? witness.time : lowTime;
+      const stopped: Frame =
+        options.stopAt === "first-witness" ? capture(stopTime) : low;
+      if (options.stopAt === "first-witness")
+        validatePopulation(stopped, low, receipt.participants);
       receipt.bracket = [lowTime, highTime];
       receipt.lastClearTime = lowTime;
       receipt.witnessTime = witness.time;
       receipt.reactionTime = stopTime;
-      receipt.pair = { attack: witness.attack, receiver: witness.receiver, triangle: witness.triangle };
+      receipt.pair = {
+        attack: witness.attack,
+        receiver: witness.receiver,
+        triangle: witness.triangle,
+      };
       receipt.method = witness.method;
       receipt.profile.totalMs = performance.now() - start;
-      return { outcome: grazing ? "graze" : witness.relation === "body" || witness.relation === "head" ? "hit" : "block", event: { actionId: options.actionId, actorId: options.actorId, targetId: options.targetId, time: stopTime, relation: witness.relation, point: witness.point, normal: witness.normal }, stopTime, constrainedSample: options.stopAt === "first-witness" ? structuredClone(stopped.sample) : low.sample, approachMetresPerSecond: approach, receipt };
+      return {
+        outcome: grazing
+          ? "graze"
+          : witness.relation === "body" || witness.relation === "head"
+            ? "hit"
+            : "block",
+        event: {
+          actionId: options.actionId,
+          actorId: options.actorId,
+          targetId: options.targetId,
+          time: stopTime,
+          relation: witness.relation,
+          point: witness.point,
+          normal: witness.normal,
+        },
+        stopTime,
+        constrainedSample:
+          options.stopAt === "first-witness"
+            ? structuredClone(stopped.sample)
+            : low.sample,
+        approachMetresPerSecond: approach,
+        receipt,
+      };
     }
     receipt.profile.totalMs = performance.now() - start;
-    return { outcome: "miss", event: null, stopTime: null, constrainedSample: null, approachMetresPerSecond: 0, receipt };
+    return {
+      outcome: "miss",
+      event: null,
+      stopTime: null,
+      constrainedSample: null,
+      approachMetresPerSecond: 0,
+      receipt,
+    };
   }
 
   /** Copy the existing witness and bracket without retaining mutable producer storage. */
-  function refusalReceipt(kind: RefusalReceipt["kind"], options: Options, witness: ContactGeometry.Witness, time: number, bracket: [number, number]): RefusalReceipt {
-    return { kind, actionId: options.actionId, actorId: options.actorId, targetId: options.targetId, time, bracket: [bracket[0], bracket[1]], pair: { attack: witness.attack, receiver: witness.receiver, triangle: witness.triangle }, role: witness.role, relation: witness.relation, point: [witness.point[0], witness.point[1], witness.point[2]], normal: [witness.normal[0], witness.normal[1], witness.normal[2]], witnessTime: witness.time, method: witness.method };
+  function refusalReceipt(
+    kind: RefusalReceipt["kind"],
+    options: Options,
+    witness: ContactGeometry.Witness,
+    time: number,
+    bracket: [number, number],
+  ): RefusalReceipt {
+    return {
+      kind,
+      actionId: options.actionId,
+      actorId: options.actorId,
+      targetId: options.targetId,
+      time,
+      bracket: [bracket[0], bracket[1]],
+      pair: {
+        attack: witness.attack,
+        receiver: witness.receiver,
+        triangle: witness.triangle,
+      },
+      role: witness.role,
+      relation: witness.relation,
+      point: [witness.point[0], witness.point[1], witness.point[2]],
+      normal: [witness.normal[0], witness.normal[1], witness.normal[2]],
+      witnessTime: witness.time,
+      method: witness.method,
+    };
   }
 
   /** Refuse malformed author controls before touching host state. */
   function validate(options: Options): void {
-    if (!options.actionId || !options.actorId || !options.targetId || options.actorId === options.targetId) throw new Error("Contact needs distinct named participants and an action identity.");
-    if (![options.start, options.end, options.stepSeconds, options.grazeCosine].every(Number.isFinite) || options.start < 0 || options.end <= options.start || options.stepSeconds <= 0 || options.grazeCosine < 0 || options.grazeCosine > 1) throw new Error("Invalid contact interval, step or grazing threshold.");
-    if (!Number.isInteger(options.refinementSteps) || options.refinementSteps < 0 || options.refinementSteps > 24 || !Number.isSafeInteger(options.maximumCaptures) || options.maximumCaptures < 2) throw new Error("Invalid contact refinement or capture budget.");
-    if (options.stopAt !== undefined && options.stopAt !== "last-clear" && options.stopAt !== "first-witness") throw new Error("Contact stop policy must be last-clear or first-witness.");
+    if (
+      !options.actionId ||
+      !options.actorId ||
+      !options.targetId ||
+      options.actorId === options.targetId
+    )
+      throw new Error(
+        "Contact needs distinct named participants and an action identity.",
+      );
+    if (
+      ![
+        options.start,
+        options.end,
+        options.stepSeconds,
+        options.grazeCosine,
+      ].every(Number.isFinite) ||
+      options.start < 0 ||
+      options.end <= options.start ||
+      options.stepSeconds <= 0 ||
+      options.grazeCosine < 0 ||
+      options.grazeCosine > 1
+    )
+      throw new Error("Invalid contact interval, step or grazing threshold.");
+    if (
+      !Number.isInteger(options.refinementSteps) ||
+      options.refinementSteps < 0 ||
+      options.refinementSteps > 24 ||
+      !Number.isSafeInteger(options.maximumCaptures) ||
+      options.maximumCaptures < 2
+    )
+      throw new Error("Invalid contact refinement or capture budget.");
+    if (
+      options.stopAt !== undefined &&
+      options.stopAt !== "last-clear" &&
+      options.stopAt !== "first-witness"
+    )
+      throw new Error(
+        "Contact stop policy must be last-clear or first-witness.",
+      );
   }
   /** Verify the fresh witness capture retains every original participant without selecting or exempting pairs. */
-  function validatePopulation(frame: Frame, original: Frame, participants: Receipt["participants"]): void {
-    const attacks: Map<string, Attack> = new Map(frame.attacks.map((attack: Attack): [string, Attack] => [attack.id, attack]));
-    const receivers: Map<string, Receiver> = new Map(frame.receivers.map((receiver: Receiver): [string, Receiver] => [receiver.id, receiver]));
-    if (attacks.size !== frame.attacks.length || receivers.size !== frame.receivers.length || attacks.size !== participants.attacks.length || receivers.size !== participants.receivers.length || participants.attacks.some((attack: Receipt["participants"]["attacks"][number]): boolean => (attacks.get(attack.id)?.role ?? (attacks.has(attack.id) ? "strike" : undefined)) !== attack.role) || participants.receivers.some((receiver: Receipt["participants"]["receivers"][number]): boolean => receivers.get(receiver.id)?.relation !== receiver.relation)) throw new Error("Witness capture must retain the original contact participants and relations.");
-    for (const attack of original.attacks) validateWitnessMesh(attacks.get(attack.id)!.mesh, attack.mesh);
-    for (const receiver of original.receivers) validateWitnessMesh(receivers.get(receiver.id)!.mesh, receiver.mesh);
+  function validatePopulation(
+    frame: Frame,
+    original: Frame,
+    participants: Receipt["participants"],
+  ): void {
+    const attacks: Map<string, Attack> = new Map(
+      frame.attacks.map((attack: Attack): [string, Attack] => [
+        attack.id,
+        attack,
+      ]),
+    );
+    const receivers: Map<string, Receiver> = new Map(
+      frame.receivers.map((receiver: Receiver): [string, Receiver] => [
+        receiver.id,
+        receiver,
+      ]),
+    );
+    if (
+      attacks.size !== frame.attacks.length ||
+      receivers.size !== frame.receivers.length ||
+      attacks.size !== participants.attacks.length ||
+      receivers.size !== participants.receivers.length ||
+      participants.attacks.some(
+        (attack: Receipt["participants"]["attacks"][number]): boolean =>
+          (attacks.get(attack.id)?.role ??
+            (attacks.has(attack.id) ? "strike" : undefined)) !== attack.role,
+      ) ||
+      participants.receivers.some(
+        (receiver: Receipt["participants"]["receivers"][number]): boolean =>
+          receivers.get(receiver.id)?.relation !== receiver.relation,
+      )
+    )
+      throw new Error(
+        "Witness capture must retain the original contact participants and relations.",
+      );
+    for (const attack of original.attacks)
+      validateWitnessMesh(attacks.get(attack.id)!.mesh, attack.mesh);
+    for (const receiver of original.receivers)
+      validateWitnessMesh(receivers.get(receiver.id)!.mesh, receiver.mesh);
   }
   /** Keep the established finite-coordinate and fixed-addressing premise on the extra capture without running another contact query. */
-  function validateWitnessMesh(mesh: IAutoMovieMesh, original: IAutoMovieMesh): void {
-    if (mesh.positions.length !== original.positions.length || (mesh.indices === null) !== (original.indices === null) || mesh.indices?.length !== original.indices?.length) throw new Error("Witness capture must retain finite vertices and original contact topology.");
-    for (let index: number = 0; index < mesh.positions.length; index++) if (!Number.isFinite(mesh.positions[index])) throw new Error("Witness capture must retain finite vertices and original contact topology.");
-    for (let index: number = 0; index < (mesh.indices?.length ?? 0); index++) if (mesh.indices![index] !== original.indices![index]) throw new Error("Witness capture must retain finite vertices and original contact topology.");
+  function validateWitnessMesh(
+    mesh: IAutoMovieMesh,
+    original: IAutoMovieMesh,
+  ): void {
+    if (
+      mesh.positions.length !== original.positions.length ||
+      (mesh.indices === null) !== (original.indices === null) ||
+      mesh.indices?.length !== original.indices?.length
+    )
+      throw new Error(
+        "Witness capture must retain finite vertices and original contact topology.",
+      );
+    for (let index: number = 0; index < mesh.positions.length; index++)
+      if (!Number.isFinite(mesh.positions[index]))
+        throw new Error(
+          "Witness capture must retain finite vertices and original contact topology.",
+        );
+    for (let index: number = 0; index < (mesh.indices?.length ?? 0); index++)
+      if (mesh.indices![index] !== original.indices![index])
+        throw new Error(
+          "Witness capture must retain finite vertices and original contact topology.",
+        );
   }
   /** Refuse empty participant lists and nonfinite auxiliary actual points. */
   function validateFrame(frame: Frame): void {
-    if (!frame.attacks.length || !frame.receivers.length) throw new Error("Contact capture requires explicit nonempty attack and receiver lists.");
-    for (const attack of frame.attacks) for (const point of attack.points ?? []) if (point.length !== 3 || !point.every(Number.isFinite)) throw new Error("Actual contact points must be finite world-metre triples.");
+    if (!frame.attacks.length || !frame.receivers.length)
+      throw new Error(
+        "Contact capture requires explicit nonempty attack and receiver lists.",
+      );
+    for (const attack of frame.attacks)
+      for (const point of attack.points ?? [])
+        if (point.length !== 3 || !point.every(Number.isFinite))
+          throw new Error(
+            "Actual contact points must be finite world-metre triples.",
+          );
   }
 }

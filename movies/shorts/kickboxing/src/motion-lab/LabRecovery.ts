@@ -37,5 +37,9 @@ export interface LabRecovery {
    * @evidence contracts/common.md#implementation-and-ownership The implementation captures immutable source contexts and stopped samples once, binds their post-release clinical withdrawal to the supplied actor frame, and samples the original absolute action clocks. It never reinterprets an old external WORLD task in a new root. The result contains arm requests only and is independent of playback order, previous pose or FPS.
    * @evidence contracts/common.md#authoring-interface originalCaseSeconds must be finite and strictly greater than releasedSeconds. Placement uses consumingFrame actor-local metres and original WORLD support tasks. Returned writers must contain that exact placement's root/support values; same-side external defense conflicts require an explicit handoff or refusal. This port alone proves neither physical admission nor continuous viewing.
    */
-  sampleArms(originalCaseSeconds: number, realizedPlacement: MotionAction.BodyPlacement, consumingFrame: { origin: MotionAction.Vec3; yawRadians: number }): LabArmWriter[];
+  sampleArms(
+    originalCaseSeconds: number,
+    realizedPlacement: MotionAction.BodyPlacement,
+    consumingFrame: { origin: MotionAction.Vec3; yawRadians: number },
+  ): LabArmWriter[];
 }

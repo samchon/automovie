@@ -10,9 +10,15 @@ export class LabTransport {
    * @evidence contracts/common.md#implementation-and-ownership Rejects an absent clock and a retained old clock after selection failure before any evaluator or playback flag can change. Retaining the previous visible scene never admits the new request.
    * @evidence contracts/common.md#authoring-interface The host supplies its synchronous selection outcome. This pure guard returns the same loaded transport; it owns no renderer or actor and never creates a fallback clock.
    */
-  public static requireLoaded(transport: LabTransport | undefined, selectionLoaded: boolean): LabTransport {
+  public static requireLoaded(
+    transport: LabTransport | undefined,
+    selectionLoaded: boolean,
+  ): LabTransport {
     if (!transport) throw new Error("No action is loaded");
-    if (!selectionLoaded) throw new Error("The requested action was refused; the previous action is retained and paused");
+    if (!selectionLoaded)
+      throw new Error(
+        "The requested action was refused; the previous action is retained and paused",
+      );
     return transport;
   }
 
@@ -30,9 +36,26 @@ export class LabTransport {
   public readonly end: number;
 
   /** Bind one module case evaluator and its exact maximum local time. */
-  public constructor(public duration: number, private readonly evaluate: (seconds: number) => void, bounds: { start: number; end: number } = { start: 0, end: duration }) {
-    if (!Number.isFinite(duration) || duration <= 0 || !Number.isFinite(bounds.start) || !Number.isFinite(bounds.end) || bounds.start < 0 || bounds.end > duration || bounds.start >= bounds.end) throw new Error("Playback requires a finite nonempty interval within the action duration");
-    this.start = bounds.start; this.end = bounds.end; this.seconds = this.start;
+  public constructor(
+    public duration: number,
+    private readonly evaluate: (seconds: number) => void,
+    bounds: { start: number; end: number } = { start: 0, end: duration },
+  ) {
+    if (
+      !Number.isFinite(duration) ||
+      duration <= 0 ||
+      !Number.isFinite(bounds.start) ||
+      !Number.isFinite(bounds.end) ||
+      bounds.start < 0 ||
+      bounds.end > duration ||
+      bounds.start >= bounds.end
+    )
+      throw new Error(
+        "Playback requires a finite nonempty interval within the action duration",
+      );
+    this.start = bounds.start;
+    this.end = bounds.end;
+    this.seconds = this.start;
   }
 
   /**
@@ -40,14 +63,34 @@ export class LabTransport {
    * @evidence contracts/common.md#implementation-and-ownership Missing start/end default to zero/full duration; explicit empty, nonfinite, inverted or out-of-duration bounds refuse before sampling. No decimal grid rounds an endpoint.
    * @evidence contracts/common.md#authoring-interface URL parameters start and end use local seconds and the same closed interval as seek, keyboard and playback. This method creates no actor or renderer.
    */
-  public static bounds(duration: number, query: URLSearchParams): { start: number; end: number } {
-    const read: (name: string, fallback: number) => number = (name: string, fallback: number): number => {
+  public static bounds(
+    duration: number,
+    query: URLSearchParams,
+  ): { start: number; end: number } {
+    const read: (name: string, fallback: number) => number = (
+      name: string,
+      fallback: number,
+    ): number => {
       const value: string | null = query.get(name);
-      if (value !== null && !value.trim()) throw new Error(`URL ${name} must contain local seconds`);
+      if (value !== null && !value.trim())
+        throw new Error(`URL ${name} must contain local seconds`);
       return value === null ? fallback : Number(value);
     };
-    const bounds: { start: number; end: number } = { start: read("start", 0), end: read("end", duration) };
-    if (!Number.isFinite(duration) || !Number.isFinite(bounds.start) || !Number.isFinite(bounds.end) || bounds.start < 0 || bounds.end > duration || bounds.start >= bounds.end) throw new Error("URL start/end must form a nonempty interval within the action duration");
+    const bounds: { start: number; end: number } = {
+      start: read("start", 0),
+      end: read("end", duration),
+    };
+    if (
+      !Number.isFinite(duration) ||
+      !Number.isFinite(bounds.start) ||
+      !Number.isFinite(bounds.end) ||
+      bounds.start < 0 ||
+      bounds.end > duration ||
+      bounds.start >= bounds.end
+    )
+      throw new Error(
+        "URL start/end must form a nonempty interval within the action duration",
+      );
     return bounds;
   }
 
@@ -57,10 +100,23 @@ export class LabTransport {
    * @evidence contracts/common.md#authoring-interface Returns false for unrelated keys without evaluating. A recognized key pauses and samples through seek; no browser range-step rounding is used.
    */
   public move(key: string): boolean {
-    const increments: Record<string, number> = { ArrowLeft: -.001, ArrowDown: -.001, ArrowRight: .001, ArrowUp: .001, PageDown: -.1, PageUp: .1 };
+    const increments: Record<string, number> = {
+      ArrowLeft: -0.001,
+      ArrowDown: -0.001,
+      ArrowRight: 0.001,
+      ArrowUp: 0.001,
+      PageDown: -0.1,
+      PageUp: 0.1,
+    };
     const delta: number | undefined = increments[key];
     if (key !== "Home" && key !== "End" && delta === undefined) return false;
-    this.seek(key === "Home" ? this.start : key === "End" ? this.end : Math.max(this.start, Math.min(this.end, this.seconds + delta!)));
+    this.seek(
+      key === "Home"
+        ? this.start
+        : key === "End"
+          ? this.end
+          : Math.max(this.start, Math.min(this.end, this.seconds + delta!)),
+    );
     return true;
   }
 
@@ -80,7 +136,9 @@ export class LabTransport {
    * @evidence contracts/common.md#implementation-and-ownership Clears only the owned playback flag; the currently displayed sample remains unchanged.
    * @evidence contracts/common.md#authoring-interface Safe before or after playback and creates no resources.
    */
-  public pause(): void { this.playing = false; }
+  public pause(): void {
+    this.playing = false;
+  }
 
   /**
    * Seek exactly and pause, independent of previous sample history.
@@ -88,7 +146,8 @@ export class LabTransport {
    * @evidence contracts/common.md#authoring-interface Invalid time throws before evaluation; seeking pauses playback and does not imply physical admission. A failed evaluator cannot commit a new clock time.
    */
   public seek(seconds: number): void {
-    if (!Number.isFinite(seconds) || seconds < this.start || seconds > this.end) throw new Error("Seek must remain inside the selected playback interval");
+    if (!Number.isFinite(seconds) || seconds < this.start || seconds > this.end)
+      throw new Error("Seek must remain inside the selected playback interval");
     this.pause();
     this.evaluate(seconds);
     this.seconds = seconds;
@@ -102,7 +161,10 @@ export class LabTransport {
   public tick(): void {
     if (!this.playing) return;
     const now: number = performance.now();
-    const seconds: number = Math.min(this.end, this.seconds + (now - this.previous) / 1000 * this.speed);
+    const seconds: number = Math.min(
+      this.end,
+      this.seconds + ((now - this.previous) / 1000) * this.speed,
+    );
     this.previous = now;
     this.evaluate(seconds);
     this.seconds = seconds;

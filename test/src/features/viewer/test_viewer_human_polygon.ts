@@ -203,7 +203,9 @@ export function test_viewer_human_polygon(): void {
   for (const [index, posed] of invalid.entries()) {
     // An early valid write would visibly change hips before a late refusal.
     const attempted: AutoMovieHumanPolygon.IPlacement[] = posed.map(
-      (placement: AutoMovieHumanPolygon.IPlacement): AutoMovieHumanPolygon.IPlacement =>
+      (
+        placement: AutoMovieHumanPolygon.IPlacement,
+      ): AutoMovieHumanPolygon.IPlacement =>
         placement.bone === "hips"
           ? { ...placement, position: [9, 9, 9] }
           : placement,
@@ -215,8 +217,12 @@ export function test_viewer_human_polygon(): void {
     check(
       `invalid pose ${index} is atomic`,
       observed.every((object: THREE.Object3D, slot: number): boolean =>
-        [...object.position.toArray(), ...object.quaternion.toArray(), ...object.matrixWorld.elements].every(
-          (value: number, i: number): boolean => nclose(value, unchanged[slot]![i]!, 0),
+        [
+          ...object.position.toArray(),
+          ...object.quaternion.toArray(),
+          ...object.matrixWorld.elements,
+        ].every((value: number, i: number): boolean =>
+          nclose(value, unchanged[slot]![i]!, 0),
         ),
       ),
     );
@@ -230,8 +236,16 @@ export function test_viewer_human_polygon(): void {
     "actual front query remains source-owned",
     front !== undefined && nclose(front, 0.1, 1e-7),
   );
-  const neutralFace: ReturnType<typeof buildHumanCartoonFace> = buildHumanCartoonFace(drawing.head);
-  check("omitted expression draws neutral closed mouth", neutralFace.unsupported.length === 0 && neutralFace.object.children.some((object: THREE.Object3D): boolean => object.name === "human.cartoon.mouth.closed"));
+  const neutralFace: ReturnType<typeof buildHumanCartoonFace> =
+    buildHumanCartoonFace(drawing.head);
+  check(
+    "omitted expression draws neutral closed mouth",
+    neutralFace.unsupported.length === 0 &&
+      neutralFace.object.children.some(
+        (object: THREE.Object3D): boolean =>
+          object.name === "human.cartoon.mouth.closed",
+      ),
+  );
   neutralFace.dispose();
   const face: ReturnType<typeof buildHumanCartoonFace> = buildHumanCartoonFace(
     drawing.head,

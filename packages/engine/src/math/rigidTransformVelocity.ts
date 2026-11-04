@@ -37,20 +37,40 @@ export function rigidTransformVelocity(
 
   const admission: ViolationCollector = new ViolationCollector();
   for (const frame of [previous, current]) {
-    admission.finiteVector("translation", frame.translation, "WORLD translation");
-    if (![frame.rotation.x, frame.rotation.y, frame.rotation.z, frame.rotation.w].every(Number.isFinite))
-      throw new RangeError("Rigid velocity requires finite quaternion components");
+    admission.finiteVector(
+      "translation",
+      frame.translation,
+      "WORLD translation",
+    );
+    if (
+      ![
+        frame.rotation.x,
+        frame.rotation.y,
+        frame.rotation.z,
+        frame.rotation.w,
+      ].every(Number.isFinite)
+    )
+      throw new RangeError(
+        "Rigid velocity requires finite quaternion components",
+      );
     admission.unitQuaternion("rotation", frame.rotation, "WORLD rotation");
   }
   if (admission.items.length !== 0)
-    throw new RangeError("Rigid velocity requires finite translations and unit rotations");
+    throw new RangeError(
+      "Rigid velocity requires finite translations and unit rotations",
+    );
 
   // Left composition expresses the logarithm about WORLD axes, not old local axes.
   const relative: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(current.rotation, Quaternion.inverse(previous.rotation)),
+    Quaternion.multiply(
+      current.rotation,
+      Quaternion.inverse(previous.rotation),
+    ),
   );
   if (relative.w === 0)
-    throw new RangeError("Rigid velocity cannot choose an exact half-turn branch");
+    throw new RangeError(
+      "Rigid velocity cannot choose an exact half-turn branch",
+    );
   const sign: number = relative.w < 0 ? -1 : 1;
   const imaginary: IAutoMovieVector3 = {
     x: relative.x * sign,
@@ -70,14 +90,19 @@ export function rigidTransformVelocity(
     y: displacement.y / elapsedSeconds,
     z: displacement.z / elapsedSeconds,
   };
-  const angular: IAutoMovieVector3 = sine === 0
-    ? { x: 0, y: 0, z: 0 }
-    : {
-        x: ((imaginary.x / sine) * angle) / elapsedSeconds,
-        y: ((imaginary.y / sine) * angle) / elapsedSeconds,
-        z: ((imaginary.z / sine) * angle) / elapsedSeconds,
-      };
-  if (![...Object.values(linear), ...Object.values(angular)].every(Number.isFinite))
+  const angular: IAutoMovieVector3 =
+    sine === 0
+      ? { x: 0, y: 0, z: 0 }
+      : {
+          x: ((imaginary.x / sine) * angle) / elapsedSeconds,
+          y: ((imaginary.y / sine) * angle) / elapsedSeconds,
+          z: ((imaginary.z / sine) * angle) / elapsedSeconds,
+        };
+  if (
+    ![...Object.values(linear), ...Object.values(angular)].every(
+      Number.isFinite,
+    )
+  )
     throw new RangeError("Rigid velocity arithmetic is not representable");
   return { linear, angular };
 }

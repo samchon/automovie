@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+
 import { LabTransport } from "../../../../src/motion-lab/LabTransport";
 
 /**
@@ -14,16 +15,27 @@ import { LabTransport } from "../../../../src/motion-lab/LabTransport";
  */
 export function test_host_admission_requested_selection(): void {
   const calls: number[] = [];
-  const previous: LabTransport = new LabTransport(.74001, (seconds: number): void => { calls.push(seconds); });
-  previous.seek(.2);
-  assert.throws((): void => { LabTransport.requireLoaded(undefined, false).seek(.3); }, /No action is loaded/u);
-  assert.throws((): void => { LabTransport.requireLoaded(previous, false).play(); }, /requested action was refused/u);
-  assert.throws((): void => { LabTransport.requireLoaded(previous, false).seek(.3); }, /requested action was refused/u);
-  assert.equal(previous.seconds, .2);
+  const previous: LabTransport = new LabTransport(
+    0.74001,
+    (seconds: number): void => {
+      calls.push(seconds);
+    },
+  );
+  previous.seek(0.2);
+  assert.throws((): void => {
+    LabTransport.requireLoaded(undefined, false).seek(0.3);
+  }, /No action is loaded/u);
+  assert.throws((): void => {
+    LabTransport.requireLoaded(previous, false).play();
+  }, /requested action was refused/u);
+  assert.throws((): void => {
+    LabTransport.requireLoaded(previous, false).seek(0.3);
+  }, /requested action was refused/u);
+  assert.equal(previous.seconds, 0.2);
   assert.equal(previous.playing, false);
-  assert.deepEqual(calls, [.2]);
+  assert.deepEqual(calls, [0.2]);
   const loaded: LabTransport = LabTransport.requireLoaded(previous, true);
   assert.equal(loaded, previous);
-  loaded.seek(.74001);
-  assert.deepEqual(calls, [.2, .74001]);
+  loaded.seek(0.74001);
+  assert.deepEqual(calls, [0.2, 0.74001]);
 }

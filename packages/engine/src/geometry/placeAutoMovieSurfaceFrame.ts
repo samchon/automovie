@@ -34,7 +34,9 @@ export function placeAutoMovieSurfaceFrame(
         ![point.x, point.y, point.z].every(Number.isFinite),
     )
   )
-    throw new Error("Surface placement requires three finite prepared offsets.");
+    throw new Error(
+      "Surface placement requires three finite prepared offsets.",
+    );
 
   const basis: IAutoMovieSweepFrame = normalizeAutoMovieSurfaceFrame(target);
   const points: IAutoMovieVector3[] = prepared.offsets.map(

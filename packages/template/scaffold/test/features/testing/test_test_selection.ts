@@ -15,10 +15,19 @@ import { selectTestFiles } from "../../helpers/selectTestFiles";
  */
 export function test_test_selection(): void {
   const names: string[] = ["test_jab.ts", "test_cross.ts", "test_kick.ts"];
-  TestValidator.equals("default selection", [...selectTestFiles([], names)], names);
+  TestValidator.equals(
+    "default selection",
+    [...selectTestFiles([], names)],
+    names,
+  );
   TestValidator.equals(
     "include union and exclusion",
-    [...selectTestFiles(["--include", "jab", "cross", "--include=kick", "--exclude", "cross"], names)],
+    [
+      ...selectTestFiles(
+        ["--include", "jab", "cross", "--include=kick", "--exclude", "cross"],
+        names,
+      ),
+    ],
     ["test_jab.ts", "test_kick.ts"],
   );
   TestValidator.equals(
@@ -26,9 +35,21 @@ export function test_test_selection(): void {
     [...selectTestFiles(["--exclude=kick"], names)],
     ["test_jab.ts", "test_cross.ts"],
   );
-  TestValidator.equals("singleton", [...selectTestFiles([], ["test_one.ts"])], ["test_one.ts"]);
-  TestValidator.equals("duplicate basenames share selection", [...selectTestFiles(["--include=jab"], ["test_jab.ts", "test_jab.ts"])], ["test_jab.ts"]);
-  TestValidator.equals("input unchanged", names, ["test_jab.ts", "test_cross.ts", "test_kick.ts"]);
+  TestValidator.equals(
+    "singleton",
+    [...selectTestFiles([], ["test_one.ts"])],
+    ["test_one.ts"],
+  );
+  TestValidator.equals(
+    "duplicate basenames share selection",
+    [...selectTestFiles(["--include=jab"], ["test_jab.ts", "test_jab.ts"])],
+    ["test_jab.ts"],
+  );
+  TestValidator.equals("input unchanged", names, [
+    "test_jab.ts",
+    "test_cross.ts",
+    "test_kick.ts",
+  ]);
 
   for (const argv of [
     ["--unknown"],
@@ -43,8 +64,12 @@ export function test_test_selection(): void {
     ["--exclude=missing"],
     ["--include=jab", "--exclude=jab"],
   ])
-    TestValidator.error(`invalid selection ${JSON.stringify(argv)}`, (): Set<string> =>
-      selectTestFiles(argv, names),
+    TestValidator.error(
+      `invalid selection ${JSON.stringify(argv)}`,
+      (): Set<string> => selectTestFiles(argv, names),
     );
-  TestValidator.error("empty discovery", (): Set<string> => selectTestFiles([], []));
+  TestValidator.error(
+    "empty discovery",
+    (): Set<string> => selectTestFiles([], []),
+  );
 }
