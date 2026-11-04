@@ -56,11 +56,21 @@ export namespace AutoMovieHumanFoldJoin {
     /** Chart guesses `[u, v]` for the landmark's foot on the part and on the host, in the landmark's region. */
     guess: { part: [number, number]; host: [number, number] };
 
-    /** The fold's radius per part phase, mm, positive: the tissue that rolls into it. */
-    radius: (phi: number) => number;
+    /** The fold's radius per curve parameter, mm, positive: the tissue that rolls into it. */
+    radius: (t: number) => number;
 
-    /** The widest chord per part phase on either side, mm, positive. */
-    cap: (phi: number) => number;
+    /** The widest chord per curve parameter on either side, mm, positive. */
+    cap: (t: number) => number;
+
+    /**
+     * The curve's parameter: absent, the part's phase (a limb or a mass whose
+     * station lines leave the host across the fold); the angle about the
+     * footprint's centre for a part lying along its host (a muscle head, a
+     * groove), whose station lines cross the host twice or never
+     * (`AutoMovieHumanSolidIntersection.Parameter`). The radius and the cap
+     * are functions of it.
+     */
+    parameter?: AutoMovieHumanSolidIntersection.Parameter;
 
     /** Traced points over one turn, at least 8. */
     count: number;
@@ -96,6 +106,7 @@ export namespace AutoMovieHumanFoldJoin {
       part: input.part,
       host: input.host,
       seed,
+      ...(input.parameter !== undefined ? { parameter: input.parameter } : {}),
       count: input.count,
       tolerance: input.tolerance,
       grazing: input.grazing,
@@ -104,20 +115,21 @@ export namespace AutoMovieHumanFoldJoin {
     const curve: AutoMovieHumanSolidIntersection.ICurve = traced.curve;
 
     // The fillet's chord per phase, capped.
-    const width = (phi: number): number => {
-      const p: AutoMovieHumanSolidIntersection.IPoint | null = curve.at(phi);
-      if (p === null) return input.cap(phi);
+    const width = (t: number): number => {
+      const p: AutoMovieHumanSolidIntersection.IPoint | null = curve.at(t);
+      if (p === null) return input.cap(t);
       const a: Vec3 | null = outward(input.part, p.s, p.phi);
       const b: Vec3 | null = outward(input.host, p.y, p.theta);
-      if (a === null || b === null) return input.cap(phi);
+      if (a === null || b === null) return input.cap(t);
       const beta: number = Math.acos(Math.min(1, Math.max(-1, dot(a, b))));
-      return Math.min(input.radius(phi) * Math.tan(beta / 2), input.cap(phi));
+      return Math.min(input.radius(t) * Math.tan(beta / 2), input.cap(t));
     };
 
     return AutoMovieHumanSolidMerge.create({
       part: input.part,
       host: input.host,
       seed,
+      ...(input.parameter !== undefined ? { parameter: input.parameter } : {}),
       count: input.count,
       tolerance: input.tolerance,
       grazing: input.grazing,

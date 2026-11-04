@@ -66,6 +66,7 @@ export namespace AutoMovieHumanMergeEntry {
         hostLoop: blend.host,
         partLoop: blend.part,
         across: blend.across,
+        partAcross: blend.partAcross,
         sigma: blend.sigma,
         rows: Math.max(1, Math.ceil(blend.length / gap - 1e-9)),
         ...(diff ? { diff: true } : {}),
