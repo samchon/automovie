@@ -101,6 +101,7 @@ export namespace AutoMovieHumanHeadComposer {
         tolerance: TOLERANCE,
         grazing: GRAZING,
         width: { part: (): number => width, host: (): number => width },
+        ...(feature.elongated === true ? { parameter: { kind: "arc" as const } } : {}),
       };
       const result: AutoMovieHumanSolidJoin.IResult =
         feature.join === "merge" ? AutoMovieHumanSolidMerge.create(input) : AutoMovieHumanSolidDiff.create(input);

@@ -46,6 +46,13 @@ export namespace AutoMovieHumanHeadFeatures {
 
     /** The part it joins: `head.mass`, or another part's chain name. */
     parent: string;
+
+    /**
+     * Whether the part lies along its parent, long and thin (a lip, a lid, a
+     * groove), so its curve with the parent crosses the half planes about one
+     * centre twice and is traced by its own arclength.
+     */
+    elongated?: boolean;
   }
 
   /** Depth of a part's base inside the head mass, mm. */
@@ -149,6 +156,7 @@ export namespace AutoMovieHumanHeadFeatures {
       contact: INSET,
       size: [h - INSET, Math.min(...extents)],
       parent: "head.mass",
+      elongated: Math.max(...extents) > 2 * Math.min(...extents),
     };
   }
 

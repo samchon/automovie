@@ -10,6 +10,7 @@ import { HumanDebugPieceFootGuides } from "./foot/HumanDebugPieceFootGuides";
 import { HumanDebugPieceFootKnots } from "./foot/HumanDebugPieceFootKnots";
 import { HumanDebugPieceFootLoft } from "./foot/HumanDebugPieceFootLoft";
 import { HumanDebugPieceHairGuides } from "./hair/HumanDebugPieceHairGuides";
+import { HumanDebugPieceHeadParts } from "./head/HumanDebugPieceHeadParts";
 import { HumanDebugPieceShoulderOutline } from "./shoulder/HumanDebugPieceShoulderOutline";
 import { HumanDebugPieceShoulderOval } from "./shoulder/HumanDebugPieceShoulderOval";
 import { HumanDebugPieceTrunkChains } from "./trunk/HumanDebugPieceTrunkChains";
@@ -39,5 +40,6 @@ export const HUMAN_DEBUG_PIECES: readonly IHumanDebugPiece[] = [
   HumanDebugPieceFootBody,
   HumanDebugPieceFootLoft,
   HumanDebugPieceWebSaddle,
+  HumanDebugPieceHeadParts,
   HumanDebugPieceHairGuides,
 ];

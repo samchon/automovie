@@ -117,6 +117,7 @@ export namespace AutoMovieHumanHeadInnerParts {
       contact: INSET,
       size: [h - INSET, Math.min(...e)],
       parent,
+      elongated: Math.max(...e) > 2 * Math.min(...e),
     };
   }
 
