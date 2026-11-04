@@ -146,3 +146,29 @@ Violation recorded 14:14:40 (Get-Date): a Bash command of mine that edited `trun
 - Pushed since 14:03: `a12b05ae4` `limb/AutoMovieHumanMassPart` (a mass on its host's normal, embedded by twice the host's sagitta over the footprint); `c800132db` `trunk/AutoMovieHumanTrunkViews` (the base's sites from measures, laws passed in) and `trunk/AutoMovieHumanTrunkTape` (the base's shoulder at a tape over the merged skin, on the hull of the base's section and the masses' level cuts); `28a6423cb` `trunk/AutoMovieHumanTrunkBuild` (base, masses, two-pass tape closure, fold merges) and `limb/AutoMovieHumanMergeEntry`; `f420176fd` the fold join's curve parameter and `partAcross`, with `test_human_limb_piece_fold_join`. Every save read clean on the shared collectors before its commit (last: src 14:18:13, test 14:17:53).
 - Laws landed and read: `AutoMovieHumanBackProfile` (relative to cervicale), `AutoMovieHumanChestWall.box`, `AutoMovieHumanLumbarSection.box`, `AutoMovieHumanTrapeziusLine.of` (all taking `measures` first: the composer's `ILaws` binds them as closures).
 - Still blocking the trunk's wiring: cervicale's forward place in the body frame (asked of the input and laws worker: SVA, the pelvis's geometry, the hip centres), the perineum's place, the upper trunk's front profile, the neck base's box, the acromion's soft tissue, and the breasts' and gluteal masses' footprint and profile laws. Legs and arms: width-to-depth and the bone's place per tape site.
+
+## Foot (#3049) and hand (#3051) as standalone parts (written 14:24:23, Get-Date)
+
+Built (this batch): `limb/AutoMovieHumanWalkPart` (a jointed axis on joint centres with site knots placed by bone and share, an open base inside the host, a G2 dome at the tip) and `limb/AutoMovieHumanDigitWalk` (a digit, finger, thumb or toe, as one walk: knots at the knuckle, each phalanx's middle, each joint and the distal end; turns over each joint's own depth; the tip's dome past the distal phalanx's end by the pulp's reach). Laws are passed in by site, so the digit builds from the person's laws as they land.
+
+Sourced already: digit lengths (Greiner 1991, measured, by sex) and the joints' places along them (Buryanov and Kotiuk 2010 Table III, in `hand/AutoMovieHumanFingerBones`, `AutoMovieHumanThumbBones`, `AutoMovieHumanHandJoints`); the first metatarsal head at ANSUR II's ball-of-foot length and the rest by Maestro's cascade (`foot/AutoMovieHumanFootHeads`); the toes' lengths and breadths where `AutoMovieHumanFootToeSpan` and `AutoMovieHumanFootToeBreadth` cite a source (each re-read at wiring).
+
+Pending laws (for the input and laws worker; each replaces a reference fit or fills a missing knot):
+
+| Part | Law | Today |
+| --- | --- | --- |
+| finger, thumb | breadth and depth at the knuckle, the joints, the shafts and the distal end | `hand/AutoMovieHumanDigitSpan` shares observed on f1's sections (owner rule 3) |
+| finger, thumb | the dorsal share of the depth about the bone, and the pulp's reach past the distal phalanx | f1's sections |
+| finger, thumb | the neutral posture's joint angles (resting hand) | `hand/AutoMovieHumanHandPosture` (owner rule 3) |
+| palm | thickness profile from the wrist crease to the knuckles, the metacarpal arch (palmar quarters' departure) | `AutoMovieHumanArmPrior` hand rows |
+| foot | the foot's yaw (progression angle at standing), the ankle centre's place along the foot, each toe's head place across and height | `AutoMovieHumanFootPrior` (owner rule 3) |
+| foot | the dorsum's heights (at the ball, the instep, the ankle's front) and the sole's medial arch (from `navicularHeight`) | `AutoMovieHumanFootPrior`, plane cuts of the references |
+| foot | the forefoot's fullness (no ball or instep girth is an input), the heel's shape behind the ankle (`heelBreadth` gives its breadth) | the same |
+| toe | breadth and depth at its joints, the pulp's reach | `foot/AutoMovieHumanFootToePulp`, `AutoMovieHumanFootToeTaper` (each re-read) |
+
+Merges designed (built when their parts' laws land):
+
+- Shank onto foot: the leg's walk is the part (its station lines run down across the dorsum, the heel's top and both malleolar sides once each), the foot the host; seeded at the ankle's front on the dorsum (the instep under the ankle centre). No fat layer is published at the ankle, so the fold's radius R is the soft tissue over the malleoli (pending with the soft tissue law); capped at half the foot's breadth at the ankle. The leg runs past the ankle centre to its open end inside the heel.
+- Each finger onto the palm's distal cap, the thumb onto the palm's radial side, each toe onto the forefoot's distal cap: `AutoMovieHumanFoldJoin` with the phase parameter (their station lines leave the host across the web), seeded at the digit's knuckle's dorsal skin point, R the smaller neighbour's half breadth at the web, capped at half the gap to the neighbour's base (the webs' corners are gap 3).
+- Thenar and hypothenar masses, the calf's and the arm's muscle heads: `AutoMovieHumanMassPart` merged by `AutoMovieHumanFoldJoin` with the angle parameter (they lie along their host), once their footprint laws exist.
+- Kernel gap 8 (sent): the foot needs G2 domes at both ends, the heel and the forefoot's distal cap; a view part takes one pole.
