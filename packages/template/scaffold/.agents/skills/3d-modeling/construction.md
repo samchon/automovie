@@ -4,15 +4,13 @@ Use this branch when crafting or changing a form from curves, sections or parame
 
 ## Derive everything from the generating definition
 
-For a loft, keep sections, guides and their parameter directions related through one generating definition; for another representation, retain its corresponding sketches, fields or procedural structure.
-
-Derive every geometric quantity of the form from that definition: placements, attachments, skin weights, texture coordinates, measurements and the joins between parts are evaluated on its curves, sections, parametric surfaces and their frames. Tessellation is the last step, made for renderers and exporters, and nothing is read back from it. A quantity found by reading, searching, clipping, ray casting or relaxing the form's own triangles or vertices moves whenever the detail setting changes and is no function of the form's inputs, so a placement or measurement silently drifts between the preview and the final render.
+For a loft, keep sections, guides and their parameter directions related through one generating definition; for another representation, retain its corresponding sketches, fields or procedural structure. Evaluate every geometric quantity of the form on that definition's curves, sections, parametric surfaces and frames: placements, attachments, skin weights, texture coordinates, measurements and the joins between parts. Tessellation is the last step, made for renderers and exporters, and nothing is read back from it. A quantity found by reading, searching, clipping, ray casting or relaxing the form's own triangles or vertices moves with the detail setting, so it drifts between the preview and the final render and answers to no input.
 
 This governs a crafted form only. A directly used or generated mesh, the weights of an imported mesh under [rigging](rigging.md), and a fixed source observed for [recovery](recovery.md) have no generating definition to evaluate, so their own triangles are what is measured.
 
 ## Evaluate the definition efficiently
 
-Set up each station or segment once, with its coefficients and derivatives, and evaluate each point from that setup in constant time. Invert a parametrization with a table or an analytic step, such as Newton's method on the analytic derivative, rather than a long bisection over full evaluations. Solve a dimension on the part it controls instead of regenerating the whole form inside the solver loop. Slow generation lengthens every [inspection round](inspection.md), and a round that costs too much invites local patches in place of repairs at the cause.
+Set up each section or segment once, with its coefficients and derivatives, and evaluate each point from that setup in constant time. Invert a parametrization with a table or an analytic step, such as Newton's method on the analytic derivative, rather than a long bisection over full evaluations. Solve a dimension on the part it controls instead of regenerating the whole form inside a solver loop. Slow generation lengthens every [inspection round](inspection.md), and a round that costs too much invites local patches in place of repairs at the cause.
 
 ## Keep stylization a separate layer
 
