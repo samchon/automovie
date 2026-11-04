@@ -145,7 +145,15 @@ export namespace AutoMovieHumanHeadComposer {
   }
 
   /** A part moved rigidly by an offset: every plane of its axis carried along. */
-  function moved(part: IAutoMovieViewPart, by: readonly number[]): IAutoMovieViewPart {
+  function moved(part: IAutoMovieViewPart, offset: readonly number[]): IAutoMovieViewPart {
+    // A part in level sections (the nose) keeps its stations as heights: it
+    // moves only across them. Carried up or down, its planes no longer stood
+    // at their stations' heights, the tree wrote it as a curved axis whose
+    // phase ran the other way round, and the engine kept the nose's inside,
+    // a recess in the face.
+    const a: AutoMovieLoftFrame.IFrame = part.axis.at(part.stations[0]!);
+    const level: boolean = a.u[0] === 1 && a.v[2] === 1 && Math.abs(a.origin[1] - part.stations[0]!) < 1e-9;
+    const by: readonly number[] = level ? [offset[0]!, 0, offset[2]!] : offset;
     return {
       ...part,
       axis: {
