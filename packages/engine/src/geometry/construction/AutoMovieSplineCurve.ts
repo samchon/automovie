@@ -85,8 +85,9 @@ export namespace AutoMovieSplineCurve {
    * Control points of the spline through N points at phases `2pi m / N`.
    *
    * The curve at a knot is `(P_{i-1} + 4 P_i + P_{i+1}) / 6`. The inverse of
-   * that periodic filter is `sqrt(3) (sqrt(3) - 2)^|k|`, which is negligible
-   * after 14 neighbours, so a smooth section costs O(N) rather than the
+   * that periodic filter is `sqrt(3) (sqrt(3) - 2)^|k|`, whose 32nd weight is
+   * under `1e-18`, so the knots are met to rounding (14 neighbours left `3e-9`
+   * of the radius off a guide) and a section costs O(N) rather than the
    * O(N^2) of {@link project}.
    *
    * @param samples Points `[x, z]`, one per control point.
@@ -317,7 +318,7 @@ function turnsOf(count: number): ITurns {
 
 /** Weights of the inverse knot filter by distance. */
 const FILTER: number[] = Array.from(
-  { length: 15 },
+  { length: 33 },
   (_: unknown, k: number): number =>
     Math.sqrt(3) * (Math.sqrt(3) - 2) ** k,
 );

@@ -1,5 +1,6 @@
 import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieSolidFoot } from "./AutoMovieSolidFoot";
+import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
@@ -122,6 +123,8 @@ export namespace AutoMovieSolidTrim {
     for (let m: number = 0; m < landmarks.length; m++) {
       const foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(surface, landmarks[m]!, guesses[m]!, tolerance);
       if (foot === null) return fail("landmark foot", `no foot for landmark ${m} at ${landmarks[m]!.join(", ")}`);
+      const outside: string | null = AutoMovieSolidIntersection.beyond(surface, foot.u);
+      if (outside !== null) return fail("landmark foot", `landmark ${m}'s foot lies past the face: ${outside}`);
       feet.push([foot.u, foot.v]);
     }
     const loop: number[] = AutoMovieSplineCurve.interpolate(feet);
