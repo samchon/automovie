@@ -213,6 +213,11 @@ export namespace AutoMovieSolidClip {
     const cycle: AutoMovieSolidCycle.ICycle = inPlace[0];
     const ia: number = cycle.vertices.indexOf(entry.vertex);
     const ib: number = cycle.vertices.indexOf(exit.vertex);
+    if (ia < 0 || ib < 0) return `the rail's run on face ${f.surface.name} does not meet its trim at both ends (entry at ${ia}, exit at ${ib})`;
+    const off: IRailPoint | undefined = run.find((p: IRailPoint): boolean => !p.chart.has(face));
+    if (off !== undefined) return `the rail's run on face ${f.surface.name} holds a point at phase ${off.phase} with no chart on that face (faces ${off.faces.join(", ")})`;
+    const short: boolean = cycle.chart.length !== cycle.vertices.length || cycle.neighbours.length !== cycle.vertices.length;
+    if (short) return `face ${f.surface.name}'s trim holds ${cycle.vertices.length} vertices, ${cycle.chart.length} chart points and ${cycle.neighbours.length} neighbours`;
 
     // The two candidates: the arc from the exit round to the entry, then the
     // run; or the arc from the entry to the exit, then the run backwards.

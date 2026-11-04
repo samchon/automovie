@@ -124,6 +124,9 @@ export namespace AutoMovieSolidJoin {
     /** Least angle between the tangent planes along the curve, radians. */
     grazing: number;
 
+    /** The curve already traced from this seed on these surfaces with this parameter, count and tolerance, when the caller traced it to read a width law from it; absent, the join traces it. */
+    curve?: AutoMovieSolidIntersection.ICurve;
+
     /** Width laws in the curve's parameter: chords from the curve to each rail, mm, positive. */
     width: {
       /**
@@ -158,7 +161,7 @@ export namespace AutoMovieSolidJoin {
    * @returns The join and its diagnostics.
    */
   export function create(input: IInput, keep: AutoMovieSolidRail.Keep): IResult {
-    const traced: AutoMovieSolidIntersection.IResult = AutoMovieSolidIntersection.trace(input);
+    const traced: AutoMovieSolidIntersection.IResult = input.curve !== undefined ? { curve: input.curve, diagnostics: [] } : AutoMovieSolidIntersection.trace(input);
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...traced.diagnostics];
     const producer: string = `solid.join.${input.part.name}.${input.host.name}`;
     const host: IAutoMovieSolidAtlas = AutoMovieSolidIntersection.atlas(input.host);
@@ -173,9 +176,16 @@ export namespace AutoMovieSolidJoin {
     const t0: number = curve.points[0]!.t;
     const mode: AutoMovieSolidRail.Mode = input.parameter === undefined || input.parameter.kind === "phase" ? "station" : "square";
 
+    // Rails by parameter, solved once: the join's checks, the blend's columns and the clip ask for the same
+    // parameters (the traced points' and the columns', bitwise the same values), and callers only read them.
+    const rails: Map<number, AutoMovieSolidRail.IRail | null> = new Map();
     const rail = (t: number): AutoMovieSolidRail.IRail | null => {
+      const known: AutoMovieSolidRail.IRail | null | undefined = rails.get(t);
+      if (known !== undefined) return known;
       const p: AutoMovieSolidIntersection.IPoint | null = curve.at(t);
-      return p === null ? null : AutoMovieSolidRail.at(input.part, host, p, keep, typeof input.width.part === "function" ? input.width.part(t) : input.width.part, input.width.host(t), mode);
+      const solved: AutoMovieSolidRail.IRail | null = p === null ? null : AutoMovieSolidRail.at(input.part, host, p, keep, typeof input.width.part === "function" ? input.width.part(t) : input.width.part, input.width.host(t), mode);
+      rails.set(t, solved);
+      return solved;
     };
     const column = (t: number): IColumn | null => {
       const r: AutoMovieSolidRail.IRail | null = rail(t);

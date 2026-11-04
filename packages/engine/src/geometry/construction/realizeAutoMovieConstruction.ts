@@ -143,7 +143,7 @@ export function realizeAutoMovieConstruction(
       name: node.name,
       kind: node.kind,
       part: partIndex,
-      join: { seed, parameter, count: node.count, tolerance, grazing: node.grazing, width },
+      join: { seed, parameter, count: node.count, tolerance, grazing: node.grazing, width, ...(traced === null ? {} : { curve: traced.curve }) },
       count: node.count,
       rows: node.rows,
     });
