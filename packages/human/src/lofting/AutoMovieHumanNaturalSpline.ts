@@ -83,4 +83,35 @@ export namespace AutoMovieHumanNaturalSpline {
           t * (curvatures[k]! / 2 + (t * (curvatures[k + 1]! - curvatures[k]!)) / (6 * h)))
     );
   }
+
+  /**
+   * First and second derivatives at x of the same piecewise cubic as
+   * {@link evaluate}: on an interval `S' = slope + M_k t + (M_{k+1} - M_k) t^2 / (2 h)`
+   * and `S'' = M_k + (M_{k+1} - M_k) t / h`; beyond the end knots the straight
+   * end tangent, with no curvature.
+   *
+   * @param spline The spline.
+   * @param x Abscissa.
+   * @returns `[S'(x), S''(x)]`.
+   */
+  export function derivative(spline: ISpline, x: number): [number, number] {
+    const { xs, ys, curvatures } = spline;
+    const n: number = xs.length;
+    let k: number = n - 2;
+    for (let i: number = 0; i + 1 < n; i++)
+      if (x <= xs[i + 1]!) {
+        k = i;
+        break;
+      }
+    const h: number = xs[k + 1]! - xs[k]!;
+    const t: number = Math.min(h, Math.max(0, x - xs[k]!));
+    const slope: number =
+      (ys[k + 1]! - ys[k]!) / h -
+      (h * (2 * curvatures[k]! + curvatures[k + 1]!)) / 6;
+    const inside: boolean = x >= xs[0]! && x <= xs[n - 1]!;
+    return [
+      slope + curvatures[k]! * t + ((curvatures[k + 1]! - curvatures[k]!) * t * t) / (2 * h),
+      inside ? curvatures[k]! + ((curvatures[k + 1]! - curvatures[k]!) * t) / h : 0,
+    ];
+  }
 }

@@ -47,6 +47,13 @@ export namespace AutoMovieHumanSolidJoin {
     /** Which side of the host the part keeps. */
     keep: AutoMovieHumanSolidRail.Keep;
 
+    /**
+     * The continuity the merged skin keeps across both rails: G2, because the
+     * blend copies each surface's whole parametric 2-jet along its rail
+     * (`AutoMovieHumanSolidBlend`).
+     */
+    continuity: "G2";
+
     /** The rails at a part phase, or null where a solve fails there. */
     rail(phi: number): AutoMovieHumanSolidRail.IRail | null;
 
@@ -187,7 +194,7 @@ export namespace AutoMovieHumanSolidJoin {
       }
     }
 
-    return { join: { curve, keep, rail, column, loop }, diagnostics };
+    return { join: { curve, keep, continuity: "G2", rail, column, loop }, diagnostics };
   }
 
   /**

@@ -653,3 +653,16 @@ Axilla (torso with each arm):
 Head joins (neck to head `HeadNeckBase.neckFade`, `HeadJawJoin.jawed`, `HeadRadius`'s face with the cranium, the eye trims still clipped by `AutoMovieHumanLoftAperture`): these wait until the head is lofted as parametric chains (survey row 9). The eyes' lid band straddles the `head.middle`/`head.upper` ring, so a chart trim (`AutoMovieHumanSolidTrim`) needs the head as one chain.
 
 Operator tests (`test/src/features/human/solid/`) have not run (runs on hold). When they are allowed, each is proved red on its made defect: the merge test's bent ribbon already reads its closed form, and the intersection, diff and trim tests carry refused cases.
+
+## Kernel worker (three-view campaign, #3046; section started 13:23:44, `date`)
+
+Paths I own and commit: `packages/human/src/lofting/` (the view-to-section operator files `IAutoMovieHumanViewPart`, `AutoMovieHumanViewAxis`, `AutoMovieHumanViewSection`, `AutoMovieHumanViewLoft`, `AutoMovieHumanIllinois`; the solid operators `AutoMovieHumanSolid*`; `AutoMovieHumanNaturalSpline.derivative`; the `view` field of `IAutoMovieHumanLoftChain.ILayer`), `packages/human/docs/techniques/view-section-lofting.md` when written, and this section. Collectors started 13:07:17 (`Get-Date`): human `ttsc --noEmit --watch -p tsconfig.debug.json` launcher process id 22208, test `ttsc --noEmit --watch` launcher process id 56092; logs in my scratch directory outside the checkout.
+
+### Design (written before the interface commit)
+
+- Box: at each station the four outlines (natural cubic splines in station through named knots, signed chart coordinates of the `+u`, `-u`, `+v`, `-v` edges) give four positive half extents about the axis.
+- Guides at 0, pi/2, pi, 3pi/2: radius the half extent, angular slope 0 (tangent to the side exactly then), curvature shared by both quarters: the mean of the two quarters' conic end curvatures `a / (2 w^2 b^2)`, `w = r / (1 - r)` (rational quadratic Bezier end curvature); the mean is the least-squares compromise and gives the ellipse's `a / b^2` for a symmetric box at `r = sqrt(2) - 1`.
+- Fullness: one conic shoulder `r` per quarter (Liming); the quintic polar sector's bump is solved so the section passes through the conic's shoulder point `(1 + r)(a, b)/2`. The girth owner solves one common `r` (plus sourced departures) by the Illinois rule on the section's length, over the valid range (positive radius, convex, inside the box) found by bisection from the ellipse's shoulder; outside it the end shape and one diagnostic.
+- Output: each section as the periodic cubic B-spline through `order` (multiple of 4) points at uniform polar angles, so each guide is a knot; layers framed by the part's axis (straight, horizontal twin, or minimal rotation by double reflection), made C2 by `AutoMovieHumanSeamStation.continuous`; every layer carries `view` (box, shoulders, guide curvatures) so audits know which layers the guide-touch rule applies to (tester's question, answered by message).
+- Merge and diff for lofted hosts: `AutoMovieHumanSolidChain.framed` gives an unframed chain (trunk, neck) its level planes with exact plane jets, or the C2 twin through its layers; `IJoin.continuity` declares G2.
+- Tests: the tester writes the #3046 operator tests (#3044 team table); oracle cases sent to the tester and stated in the JSDoc.

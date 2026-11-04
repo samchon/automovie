@@ -129,5 +129,27 @@ export namespace IAutoMovieHumanLoftChain {
 
     /** Second station derivatives of the plane's components; with `frameSlopes`, the quintic rule. */
     frameCurvatures?: AutoMovieHumanLoftFrame.IFrame;
+
+    /**
+     * The view box and shoulders the view-to-section operator
+     * (`AutoMovieHumanViewLoft`) drew this layer from; present exactly on
+     * layers it emitted. The section touches the box at the guide phases 0,
+     * `pi / 2`, `pi` and `3 pi / 2`: the point there is the outline's value
+     * on its chart axis (a knot of the section's B-spline), so an audit reads
+     * the guide-touch rule on the layers that carry it.
+     */
+    view?: IAutoMovieHumanLoftChain.IView;
+  }
+
+  /** What a view-lofted layer was drawn from. */
+  export interface IView {
+    /** Half extents of the box from the axis along `+u`, `+v`, `-u` and `-v`, mm, positive. */
+    extents: [number, number, number, number];
+
+    /** Each quarter's conic shoulder, quarter `q` from guide `q` to guide `q + 1`; `sqrt(2) - 1` the ellipse. */
+    shoulders: [number, number, number, number];
+
+    /** The shared curvature of the section at each guide, 1 per mm. */
+    curvatures: [number, number, number, number];
   }
 }

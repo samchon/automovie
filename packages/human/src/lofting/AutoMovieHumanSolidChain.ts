@@ -1,5 +1,7 @@
 import { AutoMovieHumanLoftChain } from "./AutoMovieHumanLoftChain";
+import { AutoMovieHumanLoftFrame } from "./AutoMovieHumanLoftFrame";
 import { AutoMovieHumanLoftJet } from "./AutoMovieHumanLoftJet";
+import { AutoMovieHumanSeamStation } from "./AutoMovieHumanSeamStation";
 import { AutoMovieHumanSolidVector } from "./AutoMovieHumanSolidVector";
 import type { IAutoMovieHumanLoftChain } from "./IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanSolidSurface } from "./IAutoMovieHumanSolidSurface";
@@ -23,6 +25,50 @@ import type { IAutoMovieHumanSolidSurface } from "./IAutoMovieHumanSolidSurface"
  * keeps its body on the other side, so its sign is turned.
  */
 export namespace AutoMovieHumanSolidChain {
+  /**
+   * The chain's twin that carries jets, so a host built without them (the
+   * trunk's and the neck's horizontal layers, an arm chain not made C2) reads
+   * as a solid surface.
+   *
+   * Each unframed layer takes its own plane, the level plane at its height
+   * (`AutoMovieHumanLoftFrame.horizontal`), which is where the chain already
+   * draws it. A chain whose layers all carry their coefficients' curvatures
+   * and are all unframed keeps every coefficient jet, and its planes take
+   * their exact station derivatives (the origin rising 1 mm per mm, the axes
+   * fixed), so the twin is the same surface. Otherwise every coefficient and
+   * plane is made C2 by its natural spline through the layers
+   * (`AutoMovieHumanSeamStation.continuous`): the principal sections stay,
+   * and between layers the twin is the C2 surface through them.
+   *
+   * @param chain The chain; never modified.
+   * @returns The twin, which {@link surface} accepts.
+   */
+  export function framed(chain: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain {
+    if (AutoMovieHumanLoftJet.carries(chain)) return chain;
+    const exact: boolean = chain.layers.every((l: IAutoMovieHumanLoftChain.ILayer): boolean => l.frame === undefined && l.curvatures !== undefined);
+    if (exact)
+      return {
+        ...chain,
+        layers: chain.layers.map(
+          (l: IAutoMovieHumanLoftChain.ILayer): IAutoMovieHumanLoftChain.ILayer => ({
+            ...l,
+            frame: AutoMovieHumanLoftFrame.horizontal(l.y),
+            frameSlopes: { origin: [0, 1, 0], u: [0, 0, 0], v: [0, 0, 0] },
+            frameCurvatures: { origin: [0, 0, 0], u: [0, 0, 0], v: [0, 0, 0] },
+          }),
+        ),
+      };
+    return AutoMovieHumanSeamStation.continuous({
+      ...chain,
+      layers: chain.layers.map(
+        (l: IAutoMovieHumanLoftChain.ILayer): IAutoMovieHumanLoftChain.ILayer => ({
+          ...l,
+          frame: l.frame ?? AutoMovieHumanLoftFrame.horizontal(l.y),
+        }),
+      ),
+    });
+  }
+
   /**
    * The chain as a solid surface, or null when it does not carry jets or its
    * middle section is degenerate (its point at its centre).
