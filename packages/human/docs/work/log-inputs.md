@@ -2,6 +2,18 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 current source-constraint handoff (2026-11-05 04:42:51 +09:00, Get-Date)
+
+Read all ten completion rows and both failures of BODY's completed 42291 log: 8/10 in 289141 ms. Remaining findings are bilateral sampled median crossings of 0.402802 mm and missing independent reference support at the chosen head/trunk planes. AR closure, sole and longest-toe length were not the failing findings. The actual frame/edge counterexamples, source LegWalk median rule and fixed-frame versus moving-frame distinctions were delivered together to BODY/CORE; no new test ran.
+
+BODY's next toe-root proposal was compared with the complete FootPrior/Frame/Heads/ToeLines and the existing four-reference anatomy note. The exact global-support u transfer, local-course inclusion condition, retained cascade convention and missing original head-reader provenance are recorded in the [audit](law-definition-audit.md#modeler-handoff-definitions). The current foot normalizer now uses engine critical stations with its actual named sites/poles; its conditional complete-section interpretation is separate from new root placement and final loft fidelity. No toe coefficient or implementation was supplied here; BODY owns the actual shared record.
+
+The installed Evidence 0.8.2 inspect/check contracts, parser and README were directly read for Comparison's request. Inspect takes one target; check's only-selection accepts several canonical targets. The unchanged proposal selects src type/function declarations, so debug sources cannot be counted automatically passed. Existing PERF JSONs were verified present but remain old snapshots; this worker started no new Evidence run and changed no selector. HEAD still requires the SHIN plot, and current foot/arm materials remain for modeler use.
+
+Before committing, CORE identified a missing parameter premise in this worker's affine Bernstein-bound handoff. The complete ViewParameter source was then directly read: the actual both-pole source is polynomial in theta, while physical station is a half-sine square. The station-affine control formula cannot be applied unchanged. Corrected the modeler/supervisor messages and audit in the same batch; no failed implementation or new constraint API was introduced. A separate conic-curvature kink was likewise limited to the current interior-correction derivative risk, not claimed to prove all C2 representations impossible.
+
+The complete two-document diff, native conic endpoint formula and parameter inverse were reviewed. CORE received the derived compatible-quarter condition and the distinct finite-layer interpolation alternative, not a requested new builder. Whitespace checks were clean. No source file, numeric table or public API changed, and no repeated verification run was needed for this prose/mathematical contract topic.
+
 ## #3062 neck observer datum round (2026-11-05 04:23:56 +09:00, Get-Date)
 
 Directly compared the actual f1 body block and BodyAnatomy resolver/three height regressions with the public declarations, handbook pp. 139-140, complete HumanAnatomyNeckSites, Trunk identity rows and connected section/concavity/plane helpers. The existing observer uses a rig-axis least girth, projected base convex hull and posterior base concavity as C7. These differ from independently located infrathyroid/base/spinous-process definitions. The [audit](law-definition-audit.md#neck-public-authored-and-observed-definitions) records the whole cause batch; no existing input or observer is changed and no numerical failure is asserted.
