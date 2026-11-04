@@ -4,6 +4,7 @@ import type { IAutoMovieHumanExtremityDimensions } from "../structures/body/IAut
 import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHumanLegIdentity";
 import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
+import { AutoMovieHumanBodyBox } from "./AutoMovieHumanBodyBox";
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
@@ -72,7 +73,11 @@ export namespace AutoMovieHumanBodyLaw {
           poles: [],
           apertures: [],
           eyes: [],
-          diagnostics: [],
+
+          // A contradiction among the person's trunk measures is reported at
+          // the input (`AutoMovieHumanBodyBox.diagnose`); the figure is still
+          // made, each section at the nearest end of its box's range.
+          diagnostics: AutoMovieHumanBodyBox.diagnose(AutoMovieHumanBodyAnatomy.resolve(params)),
         },
         LIPS,
         head,

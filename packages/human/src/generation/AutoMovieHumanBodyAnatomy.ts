@@ -2,6 +2,9 @@ import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanPar
 import type { IAutoMovieHumanBodyAnatomy } from "../structures/body/IAutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
+import { AutoMovieHumanBodyBox } from "./AutoMovieHumanBodyBox";
+import { AutoMovieHumanBodyBreadths } from "./AutoMovieHumanBodyBreadths";
+import { AutoMovieHumanBodyFat } from "./AutoMovieHumanBodyFat";
 import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 
 /**
@@ -16,7 +19,12 @@ import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures"
  * crotch, a breadth of the foot or hand that segment's own measure. Every
  * coefficient is an ordinary least squares fit of the named survey's public
  * data by sex, listed with its source and its coefficient of determination in
- * `packages/human/docs/work/parameter-anatomy-survey.md`.
+ * `packages/human/docs/work/parameter-anatomy-survey.md`, and the trunk's
+ * breadths and depths are reproduced by the survey readings under
+ * `test/src/features/human/survey/`. At the chest, the natural waist and the
+ * hip, the breadth, depth and girth defaults are held inside the range the
+ * supplied measures leave in their box (`AutoMovieHumanBodyBox.place`), so a
+ * default never causes a contradiction.
  */
 export namespace AutoMovieHumanBodyAnatomy {
   /**
@@ -39,10 +47,55 @@ export namespace AutoMovieHumanBodyAnatomy {
     // midway between the waist and hip levels and takes the girths' mean.
     const tape = (name: TapeControl): number =>
       given[TAPE_FIELD[name]] ?? line(TAPE_ON_STATURE[name], stature);
-    const waist: number = tape("waist");
-    const hip: number = tape("hip");
+
+    // The trunk's breadths and depths default by ANSUR II's model B lines
+    // (`AutoMovieHumanBodyBreadths`), which read the fat percentage: the
+    // person's, or its Navy estimate on the tapes as supplied or lined on
+    // stature, before any box holds a girth.
+    const fat: number = given.bodyFatPercentage ?? AutoMovieHumanBodyFat.navy(sex, stature, tape("neck"), tape("waist"), tape("hip"));
+    const model = (name: keyof typeof AutoMovieHumanBodyBreadths.TRUNK_MODEL): number =>
+      AutoMovieHumanBodyBreadths.model(name, sex, stature, fat);
+
+    // Each trunk level's breadth, depth and girth: the person's, else the
+    // girth's line on stature and the breadth's and depth's defaults, every
+    // default then held inside the box range the supplied measures leave
+    // (`AutoMovieHumanBodyBox.place`).
+    const box = (
+      level: AutoMovieHumanBodyBox.Level,
+      control: TapeControl,
+      breadth: (girth: number) => number,
+      depth: (girth: number) => number,
+    ): { breadth: number; depth: number; girth: number } => {
+      const fields: AutoMovieHumanBodyBox.IFields = AutoMovieHumanBodyBox.FIELDS[level];
+      return AutoMovieHumanBodyBox.place(
+        { breadth: given[fields.breadth], depth: given[fields.depth], girth: given[fields.girth] },
+        tape(control),
+        breadth,
+        depth,
+      );
+    };
+    const chest: { breadth: number; depth: number; girth: number } = box(
+      "chest",
+      "chest",
+      (g: number): number => line(CHEST_BREADTH_ON_CHEST, g),
+      (): number => model("chestDepth"),
+    );
+    const natural: { breadth: number; depth: number; girth: number } = box(
+      "waist",
+      "waist",
+      (): number => model("waistBreadth"),
+      (): number => model("waistDepth"),
+    );
+    const pelvis: { breadth: number; depth: number; girth: number } = box(
+      "hip",
+      "hip",
+      (): number => model("hipBreadth"),
+      (): number => model("buttockDepth"),
+    );
+    const waist: number = natural.girth;
+    const hip: number = pelvis.girth;
     const t = {
-      chest: tape("chest"),
+      chest: chest.girth,
       underbust: tape("underbust"),
       waist,
       highHip: given.highHipCircumference ?? (waist + hip) / 2,
@@ -114,7 +167,14 @@ export namespace AutoMovieHumanBodyAnatomy {
       sideNeckPointHeight: given.sideNeckPointHeight ?? line(SIDE_NECK_POINT_HEIGHT_ON_STATURE, stature),
       suprasternaleHeight: given.suprasternaleHeight ?? line(SUPRASTERNALE_HEIGHT_ON_STATURE, stature),
       axillaHeight: given.axillaHeight ?? line(AXILLA_HEIGHT_ON_STATURE, stature),
-      chestBreadth: given.chestBreadth ?? line(CHEST_BREADTH_ON_CHEST, t.chest),
+      chestBreadth: chest.breadth,
+      chestDepth: chest.depth,
+      waistBreadth: natural.breadth,
+      waistDepth: natural.depth,
+      hipBreadth: pelvis.breadth,
+      buttockDepth: pelvis.depth,
+      bideltoidBreadth: given.bideltoidBreadth ?? model("bideltoidBreadth"),
+      bicristalBreadth: given.bicristalBreadth ?? model("bicristalBreadth"),
       elbowBreadth: given.elbowBreadth ?? line(ELBOW_BREADTH_ON_FOREARM, t.forearm),
       wristBreadth: given.wristBreadth ?? line(WRIST_BREADTH_ON_WRIST, t.wrist),
       kneeBreadth: given.kneeBreadth ?? line(KNEE_BREADTH_ON_KNEE, t.knee),
@@ -124,7 +184,7 @@ export namespace AutoMovieHumanBodyAnatomy {
       ballOfFootLength: given.ballOfFootLength ?? line(BALL_OF_FOOT_ON_FOOT_LENGTH, footLength),
       glutealFurrowHeight: given.glutealFurrowHeight ?? line(GLUTEAL_FURROW_ON_CROTCH, t.inseam + ankle),
       thumbBreadth: given.thumbBreadth ?? line(THUMB_ON_HAND_BREADTH, handBreadth),
-      bodyFatPercentage: given.bodyFatPercentage ?? navy(sex, stature, t.neck, t.waist, t.hip),
+      bodyFatPercentage: given.bodyFatPercentage ?? AutoMovieHumanBodyFat.navy(sex, stature, t.neck, t.waist, t.hip),
     };
   }
 
@@ -289,18 +349,6 @@ export namespace AutoMovieHumanBodyAnatomy {
     { a: 7.62, b: 0.1827 },
   ];
 
-  /**
-   * Men's natural waist on omphalion waist and buttock circumference, mm:
-   * `natural = 106.84 + 0.7868 omphalion + 0.0554 buttock`, ANSUR 1988, R2
-   * 0.92 (`docs/sources/ansur-1988.md`). Inverted, it gives the navel-level
-   * abdomen the men's circumference estimate reads.
-   */
-  export const MEN_NATURAL_WAIST: { readonly a: number; readonly omphalion: number; readonly buttock: number } = {
-    a: 106.84,
-    omphalion: 0.7868,
-    buttock: 0.0554,
-  };
-
   /** Mean stature by sex, mm, the default of an unknown height: ANSUR II, 1628.5 and 1756.2. */
   export const STATURE: readonly [number, number] = [1628.5, 1756.2];
 
@@ -420,32 +468,3 @@ export namespace AutoMovieHumanBodyAnatomy {
     | "calf";
 }
 
-/**
- * The US Navy circumference estimate of body fat percentage (Hodgdon and
- * Beckett 1984), in its centimetre form with Siri's density equation: women
- * from the natural waist, hip and neck, men from the navel-level abdomen and
- * neck, both with stature. The neck girth is taken below the larynx, as the
- * neck control is.
- */
-function navy(sex: AutoMovieHumanSex, stature: number, neckGirth: number, waist: number, hip: number): number {
-  const cm = (mm: number): number => mm / 10;
-  const neck: number = cm(neckGirth);
-  const percent: number =
-    sex === AutoMovieHumanSex.Female
-      ? 495 / (1.29579 - 0.35004 * Math.log10(cm(waist + hip) - neck) + 0.221 * Math.log10(cm(stature))) - 450
-      : 495 /
-          (1.0324 -
-            0.19077 *
-              Math.log10(
-                cm(
-                  (waist - AutoMovieHumanBodyAnatomy.MEN_NATURAL_WAIST.a - AutoMovieHumanBodyAnatomy.MEN_NATURAL_WAIST.buttock * hip) /
-                    AutoMovieHumanBodyAnatomy.MEN_NATURAL_WAIST.omphalion,
-                ) - neck,
-              ) +
-            0.15456 * Math.log10(cm(stature))) -
-        450;
-
-  // The typed field's bounds hold the estimate: a tape set no adult shows
-  // would otherwise leave them.
-  return Math.min(70, Math.max(3, percent));
-}

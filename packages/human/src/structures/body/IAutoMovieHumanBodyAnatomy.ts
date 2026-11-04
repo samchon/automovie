@@ -150,6 +150,70 @@ export interface IAutoMovieHumanBodyAnatomy {
   chestBreadth?: number & tags.Minimum<150> & tags.Maximum<500>;
 
   /**
+   * Chest depth: horizontal, from the most anterior point of the chest, the
+   * bust in women, to the back, at the chest circumference's level, standing
+   * (ANSUR 1988 and ANSUR II chest depth). With the chest breadth it is the
+   * chest's box, the side outline's knot at that level. ANSUR II: 247.4 and
+   * 253.8 (means).
+   */
+  chestDepth?: number & tags.Minimum<30> & tags.Maximum<700>;
+
+  /**
+   * Waist breadth: the torso's horizontal breadth at the natural waist, the
+   * waist circumference's level, standing, tissue uncompressed; the front
+   * outline's knot there. No survey takes it at this level: ANSUR 1988 and
+   * ANSUR II take the waist breadth at the navel (ANSUR II: 299.9 and 326.4,
+   * means), so the default is a derivation from the navel section, held
+   * inside the natural waist girth's box.
+   */
+  waistBreadth?: number & tags.Minimum<40> & tags.Maximum<800>;
+
+  /**
+   * Waist depth: horizontal, abdomen to back, at the natural waist, the waist
+   * circumference's level, standing; the side outline's knot there. No survey
+   * takes it at this level (ANSUR II at the navel: 213.0 and 237.8, means), so
+   * the default is a derivation from the navel section, held inside the
+   * natural waist girth's box.
+   */
+  waistDepth?: number & tags.Minimum<30> & tags.Maximum<800>;
+
+  /**
+   * Hip breadth: the maximum horizontal breadth across the hips, between the
+   * most lateral points of the buttocks, standing, soft tissue included (ISO
+   * 7250-1 6.1.12 hip breadth, standing; ANSUR 1988 and ANSUR II hip breadth).
+   * It is the front outline's knot at its own widest level. ANSUR II: 353.8
+   * (26.7) and 345.7 (24.2).
+   */
+  hipBreadth?: number & tags.Minimum<80> & tags.Maximum<800>;
+
+  /**
+   * Buttock depth: horizontal, from the abdomen to the buttocks' maximum
+   * posterior protrusion, at the buttock circumference's level, standing
+   * (ANSUR 1988 and ANSUR II buttock depth). It is the side outline's knot at
+   * that level. ANSUR II: 232.9 (24.3) and 245.8 (26.5).
+   */
+  buttockDepth?: number & tags.Minimum<30> & tags.Maximum<800>;
+
+  /**
+   * Bideltoid breadth: the maximum horizontal breadth across the deltoid
+   * muscles, upper arms hanging against the sides, a soft-tissue breadth
+   * (ISO 7250-1 6.2.8; ANSUR 1988 and ANSUR II bideltoid breadth, seated). It
+   * is the arms' lateral outline at the deltoids, the shoulder width the front
+   * view shows; bideltoid over hip breadth is 1.28 in ANSUR II women and 1.48
+   * in men, the outline's V-taper. ANSUR II: 450.3 (28.7) and 510.4 (32.5).
+   */
+  bideltoidBreadth?: number & tags.Minimum<90> & tags.Maximum<900>;
+
+  /**
+   * Bicristal breadth: between the highest palpable points of the two iliac
+   * crests, tissue firmly compressed, a bony breadth by caliper (ANSUR II
+   * bicristal breadth; ANSUR 1988 takes none). It places the iliac crests in
+   * the skeleton and is not a knot of the skin's outline. ANSUR II: 273.3
+   * (22.3) and 275.4 (17.5).
+   */
+  bicristalBreadth?: number & tags.Minimum<50> & tags.Maximum<500>;
+
+  /**
    * Humerus biepicondylar breadth: between the medial and lateral epicondyles
    * of the humerus, elbow flexed 90 degrees, caliper with firm pressure (ISAK
    * humerus breadth; NHANES III elbow breadth). It is the bone the elbow's

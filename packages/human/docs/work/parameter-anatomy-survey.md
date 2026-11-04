@@ -243,3 +243,45 @@ Remaining:
 - **Gluteal fold observer.** The fold does not read as a notch on the standing references, so the furrow height and the 5.3.20 thigh site need another published landmark rule.
 - **Head inputs.** `head` stays a required full record, although `AutoMovieHumanHeadAnatomy.resolve` already gives every field a default. Making it optional field by field means moving the population builder and the head tests onto the resolver.
 - **Not designed.** Regional subcutaneous fat defaults and the appendicular lean mass index.
+
+## Trunk breadths and depths and their boxes
+
+Every published breadth and depth of the trunk is a public input in `body.anatomy`, optional, with its definition, unit and population figures in `IAutoMovieHumanBodyAnatomy`, and `IAutoMovieHumanBodyIdentity` (with the arm and leg identities) now takes every measure the anatomy also declares from that declaration, so no measure has two ranges.
+
+| Field | Definition | Site, the outline knot it is | F / M, mm (ANSUR II) |
+| --- | --- | --- | --- |
+| `chestBreadth` | across the rib cage under the arms, caliper, tissue compressed | front outline at the chest circumference's level | 269.3 / 289.4 (means) |
+| `chestDepth` | most anterior point of the chest (the bust) to the back | side outline at the chest circumference's level | 247.4 / 253.8 (means) |
+| `waistBreadth`, `waistDepth` | the torso's breadth and depth at the natural waist | front and side outlines at the natural waist | no survey at that level; at the navel 299.9 / 326.4 and 213.0 / 237.8 |
+| `hipBreadth` | the most lateral points of the buttocks, standing (ISO 7250-1 6.1.12) | front outline at its own widest level | 353.8 (26.7) / 345.7 (24.2) |
+| `buttockDepth` | abdomen to the buttocks' greatest posterior protrusion | side outline at the buttock circumference's level | 232.9 (24.3) / 245.8 (26.5) |
+| `bideltoidBreadth` | across the deltoids, upper arms hanging (ISO 7250-1 6.2.8) | the arms' lateral outline at the deltoids | 450.3 (28.7) / 510.4 (32.5) |
+| `bicristalBreadth` | iliac crest to iliac crest, tissue firmly compressed | the skeleton's iliac crests, not a skin knot | 273.3 (22.3) / 275.4 (17.5) |
+
+Sources corrected (owner-approved derivations): ANSUR 1988's public data takes its waist breadth and depth at the navel (`WAIST_BRTH_OMPHALION`, `WAIST_DEPTH-OMPHALION`), as ANSUR II does, so no survey gives the natural waist's; ANSUR 1988 takes no bicristal breadth (`BISPINOUS_BRTH` is between the anterior superior iliac spines).
+
+### The box check
+
+At the chest, the natural waist and the hip (hip breadth with buttock depth and the hip girth), a convex section touching all four sides of its W by D box has a taut-tape girth from `2 sqrt(W^2 + D^2)` (the rhombus through the touch points, the shortest closed path visiting the four sides) to `2 (W + D)` (the box). `AutoMovieHumanBodyBox` holds the three boxes:
+
+- `place`: every omitted measure is placed inside the range the supplied ones leave. A defaulted girth is held in the box; both sides defaulted beside a supplied girth are scaled together; one side defaulted is held in `G / 2 - W` to `sqrt(G^2 / 4 - W^2)`; all supplied, nothing moves.
+- `diagnose`: one diagnostic per level whose supplied measures contradict (producer `human.inputs`, level 1), seeded into the calibration's diagnostics by `AutoMovieHumanBodyLaw.calibrate`; the figure is still made.
+- `of`: each box's tape held at the nearest end of the range and its fullness in it, 0 at the rhombus and 1 at the box, for the trunk's fullness solve.
+
+`test_human_input_box_consistency` reads every person and the made cases (consistent, each sign of contradiction, each omission) against the range it computes from its own geometry.
+
+### Defaults
+
+| Field | Default now | Survey, R2 | Chosen law, waiting on its reading |
+| --- | --- | --- | --- |
+| `chestBreadth` | 43.06 + 0.2608 chest / -8.67 + 0.3330 chest | ANSUR 1988, 0.71 / 0.81 | kept |
+| `chestDepth` | ANSUR II model B on stature, BMI and age | ANSUR II, 0.70 / 0.79 | ANSUR 1988 chest depth on chest circumference (`test_human_survey_trunk_breadths`) |
+| `waistBreadth`, `waistDepth` | ANSUR II model B at the navel, held in the natural girth's box | ANSUR II, 0.70 / 0.80 and 0.73 / 0.81 | the navel section's law, ANSUR 1988 omphalion breadth and depth on omphalion girth, evaluated at the natural girth (`test_human_survey_waist_section`) |
+| `hipBreadth` | ANSUR II model B | ANSUR II, 0.69 / 0.72 | ANSUR 1988 hip breadth on buttock circumference |
+| `buttockDepth` | ANSUR II model B | ANSUR II, 0.79 / 0.83 | ANSUR 1988 buttock depth on buttock circumference |
+| `bideltoidBreadth` | ANSUR II model B | ANSUR II, 0.76 / 0.79 | the Human input with the best R2 among chest, waist and buttock girths, stature and biacromial breadth (ANSUR 1988) |
+| `bicristalBreadth` | ANSUR II model B | ANSUR II, 0.48 / 0.50 | the Human input with the best R2 among buttock girth and stature (ANSUR II) |
+
+Model B reads stature, the body mass index the fat percentage implies (Deurenberg et al. 1991, at ANSUR II's mean age 28.9 / 30.2, held in the fit's 17 to 40 kg/m2) and age (`AutoMovieHumanBodyBreadths`). The owner suspended test runs before the survey readings ran, so the girth lines' coefficients are pending: when the readings run, each chosen line replaces its model B default with its coefficients and R2 recorded here. Every default, model B or girth line, is held in its box.
+
+The references f1, f2, m1 and m2 keep the new fields at their defaults: the reference tests are retired, and the tester's input-identity audit reads each skin measure (chest depth, waist breadth and depth, hip breadth, buttock depth, bideltoid breadth once the arms hang) on the generated skin within 7 mm, ANSUR II's allowable error for chest breadth.
