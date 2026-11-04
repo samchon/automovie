@@ -49,6 +49,6 @@ Derive every limit from the person's inputs, a published source or geometry, nev
 
 Run tests on the CPU with `pnpm test --include <names...>`; the viewer serves inspection.
 
-While several workers share one tree, run a test program only in a pass the coordinating agent schedules, one program at a time, after the shared type check reads green, and end its process tree once its result is read. A run started alone competes for the one CPU and reads a tree others are editing, so its result belongs to no state anyone can name.
+Put every test a question needs into one `--include`, because each program compiles the whole project before its first test. Run it once the shared type check reads green, and end its process tree once its result is read.
 
 After a clean run, judge the look in the [inspection round](verification.md#inspection-round).
