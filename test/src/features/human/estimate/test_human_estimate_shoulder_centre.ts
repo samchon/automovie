@@ -50,11 +50,17 @@ export function test_human_estimate_shoulder_centre(): void {
     const forearm: number | undefined = params.body.anatomy.forearmLength;
     const acromial: number | undefined = params.body.anatomy.acromialHeight;
     const biacromial: number | undefined = params.body.anatomy.biacromialBreadth;
-    if (forearm === undefined || acromial === undefined || biacromial === undefined) continue;
+    if (forearm === undefined || acromial === undefined || biacromial === undefined) {
+      console.log(`${id}: forearm ${forearm}, acromial height ${acromial}, biacromial ${biacromial}; left out`);
+      continue;
+    }
     const height: number = acromial - RAB * biacromial;
     const points: (V3 | null)[] = (["arm_l", "arm_r"] as const).map((region: "arm_l" | "arm_r"): V3 | null => line(id, region, forearm, height));
     const [left, right] = points;
-    if (left === null || right === null || left === undefined || right === undefined) continue;
+    if (left === null || right === null || left === undefined || right === undefined) {
+      console.log(`${id}: an upper arm reads no centre line (left ${left === null ? "none" : "read"}, right ${right === null ? "none" : "read"}); left out`);
+      continue;
+    }
     spans.push(Math.abs(left[2] - right[2]) / 2 / biacromial);
     const mean: number = (left[0] + right[0]) / 2;
     forwards.push((left[0] - mean) / biacromial, (right[0] - mean) / biacromial);

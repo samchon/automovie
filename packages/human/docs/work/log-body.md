@@ -2,6 +2,38 @@
 
 The body modeler's own log in the three-view campaign (#3044; body lane #3047 to #3051). Moved here from `modeler-log.md` on the supervisor's order (each worker keeps its own log file); `modeler-log.md` stays as the earlier history.
 
+## Hand-over for the next campaign (written 21:05, Get-Date)
+
+State of the body lane at hand-over:
+
+- Construction: the body lane is one construction tree realized by `realizeAutoMovieConstruction` (`AutoMovieHumanBodyTree`, `AutoMovieHumanBodyLane`). Masses go on the trunk, then the head lane's subtree (head modeler, `e7f7ef0dd`), then each leg with its foot and toes, then each arm with its digits. The calibration carries the realized body in `calibration.bodies` (`7a5e4d7ad`); the per-join merge records are gone.
+- Empty whole-figure skin: open, cause not found.
+  - Every f1 whole-figure surface frame since 19:16 is empty, posed and `pose=bind` alike. At `focus=head*` the page reads "Nothing is shown", so no visible mesh is drawn at all; this is not only out-of-frame bounds.
+  - The curve overlays of the same figure draw.
+  - Next step: run `test_human_limb_piece_body_finite` (saved, never run; `ttsx` was blocked at 21:00 by the engine's `AutoMovieLoftJet` work in progress). It names any body boundary point that evaluates non-finite.
+  - Then read `AutoMovieHumanBodySurfaceSolids.draw` on `calibration.bodies`. A body whose face chains its `surface()` cannot find is skipped whole, with the diagnostic "body …: … carries no jets or is missing".
+  - Other suspects in the 19:16 window: the master merge `1dbb79942` (grounding and skeleton reading `legacy`) and the body's axis records `04323563e`.
+- Shoulder centre: placed at 17 % of the biacromial breadth below the acromion (Rab, Petuskey and Bagley 2002, `b081bd587`). The arm tube now overlaps the reference arm but still sits about half a diameter high (`.shots/body/r9/arm-front.png`).
+  - The medial placement is open. `test_human_estimate_shoulder_centre` printed "none" at 20:59: no person read. The file now prints why each person is left out; rerun it with `--include human_estimate_shoulder_centre`, then put its half span into `AutoMovieHumanTrunkLandmarks.glenohumeral` with its reason.
+- Legs: hold numerically (mean 16 to 20 mm).
+  - The front views show the inner-thigh lines meeting at the median plane, then bowing past it between the thigh and the lower thigh, and the side view a back bulge behind the thigh. Neither is explained.
+  - The knots are unchanged since 18:44, and the side-pair sign was checked against the engine's `v = u x t`.
+- Trunk: mean 18 mm, bias -u -3.6 after the mass footprints (`063ed44b4`).
+  - Shoulder lobes: the neck seat and the trunk-table upper sites (`387cd3b30`) reduced them. They were never judged on a frame since.
+  - The chest and buttock rings were straight-sided while the masses ate the tapes; judge again after `063ed44b4`.
+- Masses: footprints and amplitudes from `BREAST_FOOTPRINT` and `GLUTEAL_FOOTPRINT` (2 to 4 people; the women's gluteal down edge is unreliable and capped at the crotch). The breasts are small (about 17 mm amplitude).
+- Hands and fingers: their axes are the bind skeleton's (de Leva centres, the A-pose's carry), and the hands end about 100 mm lateral of f1's. Their shape and posture should follow the reference curves; no reading of them exists.
+- Interim values still read from today's construction:
+  - the trunk solve (re-solved in `AutoMovieHumanBodyLaneInterim.of`, performance item K5);
+  - the neck seat's height;
+  - fold radii (the old crotch fold's softness);
+  - the arm boxes (today's chains, centred);
+  - the foot's boxes and forefoot end;
+  - the digits' boxes;
+  - the toe centres;
+  - the joint centres (bind skeleton);
+  - `legacy` for the rig (A11: build only what the rig reads).
+
 ## Construction map, phase 0 (section started 13:38:02, Get-Date; moved here at the supervisor's order)
 
 Phase 0, design only: no construction code. Read before writing: #3044, #3047 to #3051, #3045, #3046, `modeler-log.md`'s hand-off, next-campaign and merge-and-diff sections, the human and 3d-modeling skills, `surface-composition.md`, `subtractive-pieces.md`, `seam-registry.md`, `section-chain-lofting.md`, `generalization.md` (trunk, leg, foot, arm and hand), the trunk, leg, arm, foot and hand sources, and the kernel's interfaces committed in `8194f8923` (`IAutoMovieHumanViewPart`, `AutoMovieHumanViewAxis`, `AutoMovieHumanViewSection`, `AutoMovieHumanViewLoft`, `AutoMovieHumanSolidChain.framed`, `IJoin.continuity`).
