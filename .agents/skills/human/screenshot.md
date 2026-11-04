@@ -1,6 +1,6 @@
 # Screenshots
 
-Use the Human debug viewer, by default `http://127.0.0.1:5197`. Start, stop or restart the viewer as needed without approval. From `packages/human`, start the viewer with `pnpm debug` and its compile collector with `pnpm ttsc --noEmit --watch -p tsconfig.debug.json`. An open page refreshes when a file is saved, and nothing generates or captures while the compile collector reports an error. The [debug README](../../../packages/human/debug/README.md) documents every route, variable and header.
+Use the Human debug viewer, by default `http://127.0.0.1:5197`. Start, stop or restart the viewer as needed without approval. From `packages/human`, start the viewer with `pnpm debug` and its compile collector with `pnpm ttsc --noEmit --watch -p tsconfig.debug.json`. An open page keeps its loaded source until it is reloaded, and nothing generates or captures while the compile collector reports an error. The [debug README](../../../packages/human/debug/README.md) documents every route, variable and header.
 
 | Use | Path under the viewer endpoint |
 | --- | --- |

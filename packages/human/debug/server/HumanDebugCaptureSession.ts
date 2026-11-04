@@ -36,7 +36,7 @@ const FRAME: number = 900_000;
  * Frames are serialized through one queue. A frame is bound to one source: before the page loads,
  * the session hashes the source (`HumanDebugSourceHash`), and the page reads the hash again once
  * every module has evaluated, before it generates; equal hashes mean the page runs entirely on
- * those bytes, and the capture page blocks Vite's update socket, so later saves cannot reach it. A later frame
+ * those bytes, and Vite's update socket is off (`server.hmr: false`), so later saves cannot reach it. A later frame
  * reuses the page while the disk still hashes the same; otherwise the page loads again, unless the
  * frame asks to keep the loaded source (`keep`, as every batch frame after the first does), so one
  * batch draws all its frames from one generation on one source however often files are saved. A save

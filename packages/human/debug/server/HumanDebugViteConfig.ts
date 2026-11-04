@@ -15,9 +15,9 @@ const ENVIRONMENT: IHumanDebugEnvironment = HumanDebugEnvironment(DIRECTORY);
 /**
  * The Vite configuration of the debug viewer, served from the Human package directory.
  *
- * An open page reloads when a file it loaded is saved: Vite's update socket reaches it, and no
- * module accepts a hot update, so every change is a full reload. A capture page blocks that
- * socket, so its frames stay bound to the source they were loaded from. The watcher covers the
+ * A page keeps the source it loaded until it is reloaded by hand or by a capture's own request:
+ * Vite's update socket is off (`server.hmr: false`), so a save reaches no open page, and the
+ * watcher still invalidates the served modules, so a reload loads the saved source. The watcher covers the
  * files the server serves, never the evidence and compiler folders a capture writes into. Vite
  * restarts the server itself when its configuration file or a module the configuration imports
  * changes (`vite.config.ts`, `debug/server`, `debug/contracts`, `debug/poses`).
@@ -39,6 +39,9 @@ export const HumanDebugViteConfig: UserConfig = defineConfig({
     port: ENVIRONMENT.port,
     strictPort: true,
     open: false,
+    // No update socket: a save reloads no open page; a reload by hand or a
+    // capture's own request loads the saved source.
+    hmr: false,
     fs: { allow: [ENVIRONMENT.repository] },
     watch: { ignored: ["**/.tmp/**", "**/.shots/**", "**/.ttsc/**", "**/dev/**", "**/lib/**", "**/docs/**", "**/*.md"] },
   },
