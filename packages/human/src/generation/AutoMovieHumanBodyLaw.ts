@@ -171,6 +171,10 @@ export namespace AutoMovieHumanBodyLaw {
         nails: undefined,
         diagnostics: [...(today.diagnostics ?? []), ...lane.diagnostics],
         skeleton,
+
+        // Interim: today's body for the rig's readers of anatomy at heights
+        // (remaining, `log-body.md`).
+        legacy: { ...today, skeleton },
       },
       vermilion: headed.vermilion,
     };

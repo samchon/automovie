@@ -76,6 +76,16 @@ export interface IAutoMovieHumanBodyCalibration {
   merges?: IAutoMovieHumanBodyCalibration.IMerge[];
 
   /**
+   * Interim (remaining, `docs/work/log-body.md`): today's body as the old
+   * constructions build it, for the rig's readers that still read anatomy at
+   * heights on level chains (the stickman's joint radii and the neutral
+   * posture's rings) while the body lane's view parts carry stations along
+   * their own axes. The binding reads the published chains. Absent on a
+   * calibration without the body lane.
+   */
+  legacy?: IAutoMovieHumanBodyCalibration;
+
+  /**
    * Solids built as bodies of trimmed faces (`AutoMovieHumanSolidBody`):
    * merges onto merged hosts, whose rails cross faces, published with
    * `AutoMovieHumanSolidBody.publish`. Every face is a chain of `chains`

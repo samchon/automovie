@@ -154,11 +154,11 @@ export namespace AutoMovieHumanSkeleton {
         : undefined;
 
     const bind: AutoMovieHumanJointCentres.IJoint[] =
-      AutoMovieHumanJointCentres.derive(calibration);
+      AutoMovieHumanJointCentres.derive(calibration.legacy ?? calibration);
     const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.of(
       calibration,
       (): AutoMovieHumanNeutral.ISource => ({
-        rings: AutoMovieHumanBindingInputs.rings(calibration, AutoMovieHumanNeutral.READS),
+        rings: AutoMovieHumanBindingInputs.rings(calibration.legacy ?? calibration, AutoMovieHumanNeutral.READS),
         joints: bind,
       }),
     );

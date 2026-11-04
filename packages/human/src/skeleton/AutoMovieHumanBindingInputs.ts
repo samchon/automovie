@@ -67,7 +67,7 @@ export namespace AutoMovieHumanBindingInputs {
     scale: number,
   ): IInputs {
     const joints: AutoMovieHumanJointCentres.IJoint[] =
-      AutoMovieHumanJointCentres.derive(calibration);
+      AutoMovieHumanJointCentres.derive(calibration.legacy ?? calibration);
     const skin: IAutoMovieHumanChainRings[] = rings(calibration, null);
     const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.of(
       calibration,
