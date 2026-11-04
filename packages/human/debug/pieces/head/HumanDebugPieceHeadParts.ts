@@ -124,7 +124,13 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
       seen.set(match[1]!, k);
       return { ...part, id: `${match[1]!}/${SOLID + k}` };
     });
-    return { ...document, parts, provenance: { ...document.provenance, piece: `head.parts:${which}`, diagnostics } };
+    // The joins' and seeds' failures first, then the view sections', so the
+    // header's cut keeps the ones a composed view needs.
+    const ordered: AutoMovieLoftContract.IDiagnostic[] = [
+      ...diagnostics.filter((d: AutoMovieLoftContract.IDiagnostic): boolean => !d.producer.startsWith("view.")),
+      ...diagnostics.filter((d: AutoMovieLoftContract.IDiagnostic): boolean => d.producer.startsWith("view.")),
+    ];
+    return { ...document, parts, provenance: { ...document.provenance, piece: `head.parts:${which}`, diagnostics: ordered } };
   },
 };
 

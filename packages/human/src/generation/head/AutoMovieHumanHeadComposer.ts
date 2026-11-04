@@ -1,4 +1,4 @@
-import { type AutoMovieLoftContract, AutoMovieSolidDiff, AutoMovieSolidFoot, type AutoMovieSolidJoin, AutoMovieSolidMerge, AutoMovieViewLoft, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
+import { type AutoMovieLoftContract, type AutoMovieLoftFrame, AutoMovieSolidDiff, AutoMovieSolidFoot, type AutoMovieSolidJoin, AutoMovieSolidMerge, AutoMovieViewLoft, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
@@ -35,12 +35,21 @@ export namespace AutoMovieHumanHeadComposer {
 
     /** Its join to the head mass, or null when either surface or the seed is missing. */
     join: AutoMovieSolidJoin.IJoin | null;
+
+    /** The join's seed, the part's and the host's chart points `[station, phase]`, mm and radians; absent when no join was traced. */
+    seed?: { part: [number, number]; host: [number, number] };
+
+    /** The blend's chord on both sides, mm; absent when no join was traced. */
+    width?: number;
   }
 
   /** The composed head. */
   export interface IOutput {
     /** The head mass's loft. */
     mass: AutoMovieViewLoft.IResult;
+
+    /** The head mass's view part, the root of its construction tree (`AutoMovieHumanHeadTree`). */
+    massPart: IAutoMovieViewPart;
 
     /** The neck merged under the head mass, when its chain is given. */
     neck: IJoined | null;
@@ -92,7 +101,8 @@ export namespace AutoMovieHumanHeadComposer {
       places?.tragion === undefined
         ? skeleton
         : { ...skeleton, landmarks: { ...skeleton.landmarks, tragion: [skeleton.landmarks.tragion[0], places.tragion] } };
-    const mass: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(AutoMovieHumanHeadMassPart.of(plan, places?.faceExponent));
+    const massPart: IAutoMovieViewPart = AutoMovieHumanHeadMassPart.of(plan, places?.faceExponent);
+    const mass: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(massPart);
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...mass.diagnostics];
 
     // Parents before their inner parts, each joined to its parent's bare
@@ -104,23 +114,28 @@ export namespace AutoMovieHumanHeadComposer {
       ...AutoMovieHumanHeadEarParts.of(plan, ears, places?.ears),
       ...AutoMovieHumanHeadInnerParts.of(plan),
     ];
-    const parts: IJoined[] = features.map((feature: AutoMovieHumanHeadFeatures.IFeature): IJoined => {
+    const views: Map<string, IAutoMovieViewPart> = new Map([["head.mass", massPart]]);
+    const parts: IJoined[] = features.map((placed: AutoMovieHumanHeadFeatures.IFeature): IJoined => {
+      // The seed: the landmark's foot on the parent, from the chart point
+      // the landmark stands over in the parent's own frame.
+      const host: IAutoMovieSolidSurface | null = surfaces.get(placed.parent) ?? null;
+      const parentView: IAutoMovieViewPart | undefined = views.get(placed.parent);
+      const foot: AutoMovieSolidFoot.IFoot | null =
+        host === null || parentView === undefined ? null : AutoMovieSolidFoot.of(host, placed.seed, chartOf(parentView, placed.seed), TOLERANCE);
+
+      // The part stands on its parent's surface: moved by its landmark's
+      // offset from that foot, since a landmark placed from the skeleton
+      // (the midline profile at an off-midline part, a frame's guessed
+      // place) lies in front of or behind the parent's actual skin.
+      const feature: AutoMovieHumanHeadFeatures.IFeature =
+        foot === null ? placed : { ...placed, part: moved(placed.part, sub(foot.point, placed.seed)), seed: [foot.point[0], foot.point[1], foot.point[2]] };
       const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(feature.part);
       diagnostics.push(...loft.diagnostics);
       surfaces.set(feature.part.name, loft.surface);
-      const host: IAutoMovieSolidSurface | null = surfaces.get(feature.parent) ?? null;
+      views.set(feature.part.name, feature.part);
       if (host === null || loft.surface === null) return { feature, loft, join: null };
-
-      // The seed: the landmark's foot on the parent, on the head mass from
-      // the station at its height and the phase toward it about the head's
-      // axis, on a parent part from the middle of its base.
-      const guess: [number, number] =
-        feature.parent === "head.mass"
-          ? [feature.seed[1], Math.atan2(feature.seed[2], feature.seed[0] - plan.centre)]
-          : [AutoMovieHumanHeadFeatures.INSET, Math.atan2(feature.seed[2], feature.seed[0])];
-      const foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(host, feature.seed, guess, TOLERANCE);
       if (foot === null) {
-        diagnostics.push({ producer: `head.${feature.part.name}`, level: 2, contract: "seed", detail: "the landmark has no foot on the head mass" });
+        diagnostics.push({ producer: `head.${feature.part.name}`, level: 2, contract: "seed", detail: `the landmark has no foot on ${feature.parent}` });
         return { feature, loft, join: null };
       }
       const width: number = AutoMovieHumanSeamUnion.width(feature.size[0], feature.size[1]);
@@ -137,7 +152,7 @@ export namespace AutoMovieHumanHeadComposer {
       const result: AutoMovieSolidJoin.IResult =
         feature.join === "merge" ? AutoMovieSolidMerge.create(input) : AutoMovieSolidDiff.create(input);
       diagnostics.push(...result.diagnostics);
-      return { feature, loft, join: result.join };
+      return { feature, loft, join: result.join, seed: { part: [input.seed.s, input.seed.phi], host: [foot.u, foot.v] }, width };
     });
 
     // The neck: merged under the head mass, its top inside it, seeded at the
@@ -172,12 +187,52 @@ export namespace AutoMovieHumanHeadComposer {
           width: { part: (): number => width, host: (): number => width },
         });
         diagnostics.push(...result.diagnostics);
-        neck = { feature, loft, join: result.join };
+        neck = { feature, loft, join: result.join, seed: { part: [top, Math.PI], host: [foot.u, foot.v] }, width };
       }
     }
-    return { mass, neck, parts, diagnostics };
+    return { mass, massPart, neck, parts, diagnostics };
   }
 
+
+  /**
+   * The chart point `[station, phase]` a point stands over in a part's own
+   * frame: the station where the point's offset along the axis vanishes from
+   * the plane at station 0 (straight parts; the head mass's stations are
+   * heights), and its polar angle in that plane from `u` toward `v`.
+   */
+  function chartOf(part: IAutoMovieViewPart, p: readonly number[]): [number, number] {
+    const zero: AutoMovieLoftFrame.IFrame = part.axis.at(0);
+    const one: AutoMovieLoftFrame.IFrame = part.axis.at(1);
+    const w: number[] = sub(one.origin, zero.origin);
+    const d: number[] = sub(p, zero.origin);
+    const station: number = dot(d, w) / Math.max(1e-12, dot(w, w));
+    const frame: AutoMovieLoftFrame.IFrame = part.axis.at(station);
+    const r: number[] = sub(p, frame.origin);
+    return [station, Math.atan2(dot(r, frame.v), dot(r, frame.u))];
+  }
+
+  /** A part moved rigidly by an offset: every plane of its axis carried along. */
+  function moved(part: IAutoMovieViewPart, by: readonly number[]): IAutoMovieViewPart {
+    return {
+      ...part,
+      axis: {
+        at: (station: number): AutoMovieLoftFrame.IFrame => {
+          const f: AutoMovieLoftFrame.IFrame = part.axis.at(station);
+          return { ...f, origin: [f.origin[0] + by[0]!, f.origin[1] + by[1]!, f.origin[2] + by[2]!] };
+        },
+      },
+    };
+  }
+
+  /** Difference of two points. */
+  function sub(a: readonly number[], b: readonly number[]): [number, number, number] {
+    return [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
+  }
+
+  /** Dot product. */
+  function dot(a: readonly number[], b: readonly number[]): number {
+    return a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
+  }
   /** A dome's stem depth under its base: its station at the stem's top, zero for a part without a stem. */
   function sunk(part: IAutoMovieViewPart): number {
     return part.stations.length > AutoMovieHumanHeadDome.LAYERS + 1 ? part.stations[AutoMovieHumanHeadDome.STEM]! : 0;

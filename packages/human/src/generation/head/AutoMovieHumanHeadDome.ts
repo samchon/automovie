@@ -51,6 +51,9 @@ export namespace AutoMovieHumanHeadDome {
     host?: number;
   }
 
+  /** Profile exponent of a part lower than its least half extent. */
+  export const SHALLOW: number = 4;
+
   /** Layers of the sunk stem under the base. */
   export const STEM: number = 4;
 
@@ -73,11 +76,18 @@ export namespace AutoMovieHumanHeadDome {
     const w: [number, number, number] = dome.outward;
     const u: [number, number, number] = dome.along;
     const v: [number, number, number] = [u[1] * w[2] - u[2] * w[1], u[2] * w[0] - u[0] * w[2], u[0] * w[1] - u[1] * w[0]];
-    // A sunk stem under the base, as wide as the base, as deep as the host
-    // falls away under the footprint (its sagitta), so the base lies inside
-    // the host across the whole footprint; the dome rises from the base as
-    // before, so the part above the host keeps its shape.
-    const sink: number = sagitta(dome);
+    // A sunk stem under the base, as wide as the base, twice as deep as the
+    // host falls away under the footprint (its sagitta), so the base lies
+    // inside the host across the whole footprint even where the host curves
+    // faster than the estimate; the stem is hidden inside the host, and the
+    // dome rises from the base as before, so the part above keeps its shape.
+    const sink: number = 2 * sagitta(dome);
+
+    // A part lower than its least half extent meets its host at a shallow
+    // angle near its base, under the joins' grazing bound for a groove or a
+    // lip; its profile is made quartic, so its wall stands up steeply from
+    // the base while its crown keeps its height.
+    const profile: number = dome.height < Math.min(...dome.extents) ? Math.max(dome.profile, SHALLOW) : dome.profile;
     const origin: [number, number, number] = [dome.origin[0] - sink * w[0], dome.origin[1] - sink * w[1], dome.origin[2] - sink * w[2]];
     const rise: number = Math.max(1e-3, dome.height);
     const h: number = sink + rise;
@@ -87,7 +97,7 @@ export namespace AutoMovieHumanHeadDome {
       knots: stations.map((s: number, k: number): IAutoMovieViewPart.IKnot => ({
         site: `${dome.name}.${k}`,
         station: s,
-        value: k === stations.length - 1 ? 0 : s <= sink ? sign * e0 : sign * e0 * (1 - ((s - sink) / rise) ** dome.profile) ** (1 / dome.profile),
+        value: k === stations.length - 1 ? 0 : s <= sink ? sign * e0 : sign * e0 * (1 - ((s - sink) / rise) ** profile) ** (1 / profile),
       })),
     });
     return {

@@ -71,6 +71,22 @@ At 16:07 I decoded a viewer response header with a `python -c` one-liner. Owner 
 | H8 | the head mass's bottom sections concave, a negative front half extent | below the menton P's submental line runs back behind the axis before the neck ring's height | the head mass ends where the submental line meets the neck's front (the neck ring's centre plus its radius), inside the neck |
 | H9 | the neck's merge under the head mass is near tangent at the front | the head mass's open bottom meets the neck's front by construction | read again after H8; the head mass closing inside the neck is the next step if it stays tangent |
 
+## Whole figure, 16:32 frame (`f1-whole2.png`) and 17:37 request (recorded 17:5x)
+
+The bulbous mass with two bumps beside the neck is the body lane's gluteal masses standing at head height, not the head. The f1 request at 17:37:42 failed with "Opening nostril.left lies on no chain or pair of chains sharing a ring: margin on 3 chains: gluteal.left, head.middle, head.lower": the chain `gluteal.left` passes through the left nostril. Reported to the supervisor for the body lane at 17:40. `piece=region:head` (17:36 to 17:37, no openings) shows two flat wing-like discs at the ear lobes' level and spikes trailing back from the jaw; the engine's `AutoMovieLoftChain` and `AutoMovieLoftFrame` are line for line the pre-move files, so the move did not cause them. They are to be read again in the whole figure once the gluteal stands where it belongs.
+
+## Sweep 4 (composed head on f1, 17:39:58 to 17:44:49; read after, `packages/human/.shots/head/sweep4/`)
+
+The nose, both orbits and the ears' blends draw; the brow, lips, lids, philtrum, sulcus and the nose's and ear's inner parts do not. The provenance names each:
+
+| # | Phenomenon | Cause | Fix (one batch) |
+| --- | --- | --- | --- |
+| K1 | brow ridges: "u -5.9 lies outside its layers" | their base stood at the midline profile's depth while the brow sits 30 mm off the midline, where the face has turned back, so the base lay in front of the skin | every part is moved by its landmark's offset from the landmark's foot on the parent before it is lofted, so it stands on the parent's actual skin |
+| K2 | the nose's lobule, alae and nostrils: "no meeting near the seed" | their seed's chart guess on the nose took a world angle for the nose's own phase | the guess is the chart point the landmark stands over in the parent's own frame (`chartOf`) |
+| K3 | the concha: "auricle's u 34.8 outside its layers 0 to 34.6"; the antihelix and the auricle's base a fraction of a millimetre outside | the concha's landmark stood at the rim's height, past the auricle's crown; the bases sank by only one sagitta | K1 places the concha on the auricle's skin; every stem sinks twice the host's sagitta |
+| K4 | lips: "no rail" and "the blend's normal reverses"; philtrum and sulcus: "no meeting near the seed"; lids: rail past the lid's crown | each part is far lower than it is wide, so its wall meets the host at a few degrees, under the grazing bound | a part lower than its least half extent takes a quartic profile, its wall standing up steeply from its base |
+| K5 | the upper lip refused at every station, "past side 1 by 0.0025 mm" | the operator's quintic overshot an elongated box | the kernel worker's engine fix (more conic spans, a containment tolerance), landing with its next commit |
+
 ## Wiring the head into the figure (design, written 16:1x)
 
 The figure's head lane is `AutoMovieHumanHeadConstruction.apply`, which `AutoMovieHumanBodyLaw.calibrate` calls before the body lane stands the trunk under the neck chain `head`. The composed head enters it as:
