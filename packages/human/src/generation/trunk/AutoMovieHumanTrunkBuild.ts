@@ -32,7 +32,7 @@ const { add, scale } = AutoMovieSolidVector;
  * and medial naming, and the side's lateral direction (+Z on the left, -Z on
  * the right) handed to the part, which reads off its own frame which chart
  * side is lateral. Each stands on the base at the foot of its target (the
- * bust point, the buttock's most posterior point), along the base's normal
+ * bust point, the buttock's most posterior point), along the base's normal levelled
  * there.
  *
  * Folds. Each mass merges onto the base by `AutoMovieHumanFoldJoin`, seeded
@@ -261,6 +261,7 @@ export namespace AutoMovieHumanTrunkBuild {
           host,
           centre: [foot.u, foot.v],
           up: own.up,
+          level: true,
           lateral: [0, 0, side === "left" ? 1 : -1],
           footprint: own.footprint,
           amplitude: own.amplitude,

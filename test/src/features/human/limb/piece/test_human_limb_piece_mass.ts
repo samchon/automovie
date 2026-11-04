@@ -7,11 +7,12 @@ const { cylinder, plane } = HumanSolidShapes;
 
 /**
  * A mass rises from its host along the host's outward normal: its footprint
- * reads back at the host's surface on the caller's lateral side, it starts inside the host by twice the
- * host's drop over the footprint by its circle of curvature (or a tenth of its amplitude, whichever is
- * more), and its apex closes at the amplitude over the host.
+ * reads back at the host's surface on the caller's lateral side, it starts
+ * inside the host by the host's drop over the footprint by its circle of
+ * curvature plus a tenth of its amplitude, and its apex closes at the
+ * amplitude over the host.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds `AutoMovieHumanMassPart.create` on two closed-form hosts and reads the emitted chain with `AutoMovieLoftChain.ring` over 1024 phases: on the plane z = 0 (outward +z), a mass at (10, 20) with footprint edges 30, 25, 40 and 20 mm along +x, +y, -x and -y (the up direction +x, the lateral +y) and amplitude 24 mm: the ring at the footprint's station against the four edges in the plane, the chain's start 2.4 mm under the plane (a tenth of the amplitude, the plane having no sagitta), and the pole at (10, 20, 24); on a cylinder of radius 100 mm about the y axis, outward, a mass on its top with footprint 30 mm all round and amplitude 10 mm: the start under the surface by twice the sagitta `R - sqrt(R^2 - e^2) = 100 - sqrt(100^2 - 30^2) = 4.606 mm`, so 9.212 mm. It catches a mass off its host's normal, a mass that runs into its host instead of out of it (the pole under the plane), a footprint read in the wrong frame, order or side, a mass that starts above the host (its curve would not cross inside its layers) and an apex at the wrong height.
+ * @evidence contracts/testing.md#behavioral-verification Builds `AutoMovieHumanMassPart.create` on two closed-form hosts and reads the emitted chain with `AutoMovieLoftChain.ring` over 1024 phases: on the plane z = 0 (outward +z), a mass at (10, 20) with footprint edges 30, 25, 40 and 20 mm along +x, +y, -x and -y (the up direction +x, the lateral +y) and amplitude 24 mm: the ring at the footprint's station against the four edges in the plane, the chain's start 2.4 mm under the plane (a tenth of the amplitude over the plane's zero drop), and the pole at (10, 20, 24); on a cylinder of radius 100 mm about the y axis, outward, a mass on its top with footprint 30 mm all round and amplitude 10 mm: the start under the surface by the sagitta `R - sqrt(R^2 - e^2) = 100 - sqrt(100^2 - 30^2) = 4.606 mm` plus a tenth of the amplitude, so 5.606 mm. It catches a mass off its host's normal, a mass that runs into its host instead of out of it (the pole under the plane), a footprint read in the wrong frame, order or side, a mass that starts above the host (its curve would not cross inside its layers) and an apex at the wrong height.
  * @evidence contracts/testing.md#independent-expectations Closed forms: the plane's normal is +z everywhere and its sagitta zero; the cylinder's normal curvature is `1 / 100` per mm across its axis and zero along it, so the largest sagitta over a 30 mm edge is its circle's `100 - sqrt(100^2 - 30^2) = 4.606 mm`. The footprint's edges are the section's extremes along the frame's `u` (+x) and `v` (`u x n` = -y, the medial side, so the lateral edge reads on +y), read 0.05 mm (the B-spline's interpolation error at 128 controls on a section of this size, and more).
  * @evidence contracts/testing.md#distinguishing-cases Green: the plane and the cylinder. Refused: an up direction along the host's normal, a zero amplitude and a profile whose shares do not rise each give no part and one diagnostic. The merge onto the host is `test_human_limb_piece_fold_join`'s.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_limb_piece_mass`; closed-form hosts, no host process, browser or GPU.
@@ -52,7 +53,7 @@ export function test_human_limb_piece_mass(): void {
     if (pole === undefined || Math.hypot(pole[0] - 10, pole[1] - 20, pole[2] - 24) > 1e-6) failures.push(`plane apex: ${JSON.stringify(chain.pole)} against [10, 20, 24]`);
   }
 
-  // The cylinder: the start under twice the sagitta.
+  // The cylinder: the start under the sagitta and the margin.
   const drum: IAutoMovieSolidSurface = cylinder("host", [0, -200, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0], 100);
   const onDrum: AutoMovieHumanSiteViewPart.IResult = build(drum, [200, 0], [0, 1, 0], [1, 0, 1], [30, 30, 30, 30], 10);
   const drumChain: IAutoMovieLoftChain | null = onDrum.loft?.chain ?? null;
@@ -61,7 +62,7 @@ export function test_human_limb_piece_mass(): void {
     const p: [number, number, number] = AutoMovieLoftChain.ring(drumChain, drumChain.layers[0]!.y, [0])[0]!;
     const radial: number = Math.hypot(p[0], p[2]);
     const depth: number = 100 - radial;
-    const want: number = 2 * (100 - Math.sqrt(100 ** 2 - 30 ** 2));
+    const want: number = 100 - Math.sqrt(100 ** 2 - 30 ** 2) + 10 / 10;
     if (Math.abs(depth - want) > 0.05 * want) failures.push(`cylinder start: ${depth} mm under the surface at the axis' foot, against ${want} mm`);
   }
 

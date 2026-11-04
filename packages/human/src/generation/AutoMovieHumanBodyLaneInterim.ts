@@ -13,7 +13,7 @@ import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolutio
 import { AutoMovieHumanArmInterim } from "./arm/AutoMovieHumanArmInterim";
 import type { AutoMovieHumanArmWalk } from "./arm/AutoMovieHumanArmWalk";
 import { AutoMovieHumanFootInterim } from "./foot/AutoMovieHumanFootInterim";
-import { AutoMovieHumanLegInterim } from "./leg/AutoMovieHumanLegInterim";
+import { AutoMovieHumanLegSites } from "./AutoMovieHumanLegSites";
 import { AutoMovieHumanLegLaws } from "./leg/AutoMovieHumanLegLaws";
 import { AutoMovieHumanDigitInterim } from "./limb/AutoMovieHumanDigitInterim";
 import type { AutoMovieHumanDigitWalk } from "./limb/AutoMovieHumanDigitWalk";
@@ -30,7 +30,7 @@ type Vec3 = [number, number, number];
  * construction that produces them today, listed as remaining, never refit).
  * Every owed value comes from one named interim accessor
  * (`AutoMovieHumanTrunkInterim`, `AutoMovieHumanMassInterim`,
- * `AutoMovieHumanLegInterim`, `AutoMovieHumanArmInterim`,
+ * `AutoMovieHumanArmInterim`,
  * `AutoMovieHumanFootInterim`, `AutoMovieHumanDigitInterim`), each reading today's
  * construction (the old trunk solve, the bind skeleton, the old foot frame
  * and prior, today's limb, foot, hand and digit chains) with no number of
@@ -106,8 +106,12 @@ export namespace AutoMovieHumanBodyLaneInterim {
       perineum: placed.perineum,
       upper,
     });
-    const first: AutoMovieHumanTrunkViews.ILaws = AutoMovieHumanTrunkLaws.of(measures, input.scale, pending([]));
-    const laws: AutoMovieHumanTrunkViews.ILaws = AutoMovieHumanTrunkLaws.of(measures, input.scale, pending(AutoMovieHumanTrunkInterim.upperSites(solution, first)));
+    const laws: AutoMovieHumanTrunkViews.ILaws = AutoMovieHumanTrunkLaws.of(
+      measures,
+      input.scale,
+      input.crotch,
+      pending(AutoMovieHumanTrunkInterim.upperSites(solution, measures, input.scale, input.crotch, input.stature, placed.cervicale)),
+    );
 
     const side = (name: "left" | "right"): AutoMovieHumanBodyLane.ISide => {
       const hip: Vec3 = bone(`${name}UpperLeg`).position;
@@ -133,7 +137,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
       return {
         leg: {
           bones: { hip, knee, ankle },
-          law: AutoMovieHumanLegLaws.of(measures, input.scale, knee[1], ankle[1], AutoMovieHumanLegInterim.ankleSite(knee[1], ankle[1]), input.crotch),
+          law: AutoMovieHumanLegLaws.of(measures, input.scale, knee[1], ankle[1], AutoMovieHumanLegSites.ankle(ankle[1]), input.crotch, name),
           trunk: fold(0, 0.5),
           foot: fold(1, 0.85),
         },

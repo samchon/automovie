@@ -19,7 +19,11 @@ export namespace AutoMovieHumanArmInterim {
    * - RADIALE)` of the humerus, de Leva's shares in `AutoMovieHumanArmBones`),
    * the elbow at its centre, the wrist at stylion (`STYLION_WRIST` short of the
    * wrist centre), the knuckles at the third metacarpal's head. A site whose
-   * point falls outside today's section is left out. Owed laws: the deltoid's
+   * point falls outside today's section is left out. Each box is read about
+   * today's section's own axis point, so the site takes today's size and the
+   * bone line its place: today's arm does not stand on the bind skeleton's bone
+   * (it runs a radius off it, on its upper side), and reading its extents
+   * about the bone carried that offset into the walk. Owed laws: the deltoid's
    * site and box, the forearm's site and bone place, the palm's thickness.
    *
    * @param arm Today's arm chain.
@@ -42,7 +46,7 @@ export namespace AutoMovieHumanArmInterim {
     return places.flatMap(([site, b, share, from, to, on]: [string, number, number, Vec3, Vec3, IAutoMovieLoftChain]): AutoMovieHumanArmWalk.ISiteLaw[] => {
       const point: Vec3 = AutoMovieHumanSegmentChart.lerp(from, to, share);
       const [u, v]: [Vec3, Vec3] = AutoMovieHumanSegmentChart.of(from, to, [1, 0, 0]);
-      const box: AutoMovieHumanChainBox.IBox | null = AutoMovieHumanChainBox.at(on, point, u, v);
+      const box: AutoMovieHumanChainBox.IBox | null = AutoMovieHumanChainBox.at(on, point, u, v, true);
       return box === null ? [] : [{ site, bone: b, share, edges: box.edges, fullness: { shoulder: box.shoulder } }];
     });
   }

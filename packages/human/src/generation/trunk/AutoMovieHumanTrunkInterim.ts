@@ -2,7 +2,7 @@ import { AutoMovieHumanBodyPlaces } from "../AutoMovieHumanBodyPlaces";
 import { AutoMovieHumanTrunkInguinalFold } from "../AutoMovieHumanTrunkInguinalFold";
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
-import type { IAutoMovieHumanTrunkSection } from "../IAutoMovieHumanTrunkSection";
+import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import type { IAutoMovieHumanTrunkSolution } from "../IAutoMovieHumanTrunkSolution";
 import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
 
@@ -32,33 +32,55 @@ export namespace AutoMovieHumanTrunkInterim {
   }
 
   /**
-   * Interim accessor: the trunk's sites above the chest (the axilla, the
-   * shoulder point, the neck seat), each the old column's half width and
-   * depth there, its front the landed back profile plus that depth, its
-   * shoulder the old quadrants' superellipse read as a conic: a superellipse
-   * `|x|^n + |z|^n = 1` crosses its box's diagonal at `2^(-1/n)` of the
-   * corner and the conic at `(1 + r) / 2`, so `r = 2^(1 - 1/n) - 1` (the
-   * ellipse's `sqrt(2) - 1` at `n = 2`), `n` the mean of the old front and
-   * back squareness. The last site stands at the neck seat, the neck's
-   * bottom ring, where the trunk takes the neck's ring by the head's down
-   * event. Owed laws: the upper trunk's front profile, the neck base's box,
-   * the acromion's soft tissue.
+   * The trunk's sites above the chest. The axilla and the shoulder point at
+   * the old solve's heights take the trunk outline table
+   * (`AutoMovieHumanReferenceOutlines.TRUNK`, estimated from the private
+   * reference set: no published source carries the upper trunk's outline)
+   * at their share of crotch to cervicale: the half breadth, the front and
+   * the back forward of cervicale's back point, each per stature, and the
+   * shoulder the mean of the front and back quarters' (the table's 0 chord
+   * to 1 box is the conic shoulder). The last site is the neck seat, the
+   * neck's bottom ring, where the trunk takes the neck's ring by the head's
+   * down event: its half width and its front and back midline points are the
+   * ring's own (`AutoMovieHumanTrunkNeckSeat`), so the trunk's top meets the
+   * ring it continues. Remaining: the neck seat's height is the old solve's.
    *
-   * @param solution The old trunk's solve.
-   * @param laws The trunk's laws, for the back profile.
-   * @returns The upper sites.
+   * @param solution The old trunk's solve, for the heights and the neck seat.
+   * @param measures The person's measures, world mm.
+   * @param scale Calibration millimetres per world millimetre.
+   * @param crotch The crotch's height, calibration mm.
+   * @param stature The stature, calibration mm.
+   * @param cervicale Cervicale's back point's forward place, calibration mm.
+   * @returns The upper sites, by rising height.
    */
-  export function upperSites(solution: IAutoMovieHumanTrunkSolution, laws: AutoMovieHumanTrunkViews.ILaws): AutoMovieHumanTrunkViews.ILaws["upper"] {
-    const heights: [string, number][] = [
-      ["axilla", solution.landmarks.axilla],
-      ["shoulder", solution.landmarks.shoulder[1]],
-      ["neck", solution.seat.y],
+  export function upperSites(
+    solution: IAutoMovieHumanTrunkSolution,
+    measures: IAutoMovieHumanBodyMeasures,
+    scale: number,
+    crotch: number,
+    stature: number,
+    cervicale: number,
+  ): AutoMovieHumanTrunkViews.ILaws["upper"] {
+    const T: typeof AutoMovieHumanReferenceOutlines = AutoMovieHumanReferenceOutlines;
+    const top: number = measures.cervicaleHeight * scale;
+    const table = (site: string, y: number): AutoMovieHumanTrunkViews.ILaws["upper"][number] => {
+      const share: number = (y - crotch) / (top - crotch);
+      const read = (column: string): number => T.at(T.TRUNK, column, share);
+      return {
+        site,
+        y,
+        half: read("halfBreadth") * stature,
+        front: cervicale + read("front") * stature,
+        back: cervicale + read("back") * stature,
+        shoulder: (read("shoulderFront") + read("shoulderBack")) / 2,
+      };
+    };
+    const seat: IAutoMovieHumanTrunkSolution["seat"] = solution.seat;
+    return [
+      table("axilla", solution.landmarks.axilla),
+      table("shoulder", solution.landmarks.shoulder[1]),
+      { site: "neck", y: seat.y, half: seat.width, front: seat.front[0], back: seat.back[0], shoulder: table("neck", seat.y).shoulder },
     ];
-    return heights.map(([site, y]: [string, number]): AutoMovieHumanTrunkViews.ILaws["upper"][number] => {
-      const s: IAutoMovieHumanTrunkSection = solution.column.at(y);
-      const n: number = (s.squareFront + s.squareBack) / 2;
-      return { site, y, half: s.width, front: laws.back(y) + (s.front - s.back), shoulder: 2 ** (1 - 1 / n) - 1 };
-    });
   }
 
   /**

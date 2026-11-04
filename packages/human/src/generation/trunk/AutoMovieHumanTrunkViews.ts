@@ -34,15 +34,18 @@ import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
  * is the chest wall's at the underbust (the breast's amplitude is the chest
  * depth less that depth, so the base takes the remainder). At the buttock its
  * depth is the natural waist's (the gluteal amplitude is the buttock depth
- * less the waist depth) and its back the back profile's median, the sacrum,
- * on which the two gluteal masses stand apart. Those two sites' tapes wrap
+ * less the waist depth): the caller's back line there is the gluteal apex
+ * (`ILaws.back`, the median section's back extreme), so the base's back
+ * stands the amplitude in front of it and its front the buttock depth, and
+ * the two gluteal masses stand on it apart. Those two sites' tapes wrap
  * the merged skin, so their fullness is solved by the trunk's assembly on the
  * hull of the base's and the masses' sections; here they carry the ellipse's
  * shoulder (the least-information conic) to start from. The waist's, the top
  * hip's and the underbust's tapes wrap the base alone and are its owners.
  *
  * Above the chest no breadth or depth is published: the caller's `ILaws.upper`
- * gives each upper site's half breadth and front, its sourced shoulder too.
+ * gives each upper site's half breadth, front and back (the back profile's
+ * where it gives none), its sourced shoulder too.
  */
 export namespace AutoMovieHumanTrunkViews {
   /** A breadth and depth of a level, mm. */
@@ -56,7 +59,7 @@ export namespace AutoMovieHumanTrunkViews {
 
   /** The laws the views read beyond the published measures, each a pure function of the person in calibration millimetres. */
   export interface ILaws {
-    /** The back median's forward place at a height, mm. */
+    /** The back's forward place at a height, mm: the median section's back extreme, the gluteal apex at the buttock. */
     back(y: number): number;
 
     /** The navel section's box at a girth (top hip). */
@@ -68,8 +71,8 @@ export namespace AutoMovieHumanTrunkViews {
     /** The perineum's forward place, mm. */
     perineum: number;
 
-    /** The sites above the chest, by rising height: each with its half breadth, front and sourced shoulder; the last the trunk's open top inside the neck. */
-    upper: { site: string; y: number; half: number; front: number; shoulder: number }[];
+    /** The sites above the chest, by rising height: each with its half breadth, front, back (the back profile's where absent) and sourced shoulder; the last the trunk's open top inside the neck. */
+    upper: { site: string; y: number; half: number; front: number; back?: number; shoulder: number }[];
   }
 
   /**
@@ -108,14 +111,18 @@ export namespace AutoMovieHumanTrunkViews {
     return {
       perineum: { y: crotch, x: laws.perineum },
       sites: [
-        site("buttock", buttock, (boxes.hip.breadth * scale) / 2, boxes.waist.depth * scale, ellipse),
+        {
+          ...site("buttock", buttock, (boxes.hip.breadth * scale) / 2, boxes.waist.depth * scale, ellipse),
+          back: laws.back(buttock) + (measures.buttockDepth - measures.waistDepth) * scale,
+          front: laws.back(buttock) + measures.buttockDepth * scale,
+        },
         site("topHip", topHip, topHipBox.breadth / 2, topHipBox.depth, { girth: measures.highHipCircumference * scale }),
         site("waist", waist, (boxes.waist.breadth * scale) / 2, boxes.waist.depth * scale, { girth: boxes.waist.tape * scale }),
         site("underbust", fold, underbust.breadth / 2, underbust.depth, { girth: measures.underbustCircumference * scale }),
         site("chest", chest, (boxes.chest.breadth * scale) / 2, underbust.depth, ellipse),
         ...laws.upper.map(
           (u: ILaws["upper"][number]): IAutoMovieHumanTrunkViews.ISite => {
-            const back: number = laws.back(u.y);
+            const back: number = u.back ?? laws.back(u.y);
             return { site: u.site, y: u.y, half: u.half, front: u.front, back, fullness: { shoulder: u.shoulder } };
           },
         ),

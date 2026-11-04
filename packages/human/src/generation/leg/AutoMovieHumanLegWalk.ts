@@ -25,7 +25,8 @@ type Vec3 = AutoMovieHumanLegBones.Vec3;
  * at mid-patella, 5.3.24 the calf at its widest, 5.3.26 the ankle at its
  * least), each placed on its bone by its height and owning the section's
  * fullness there; each site's box (its anterior, lateral, posterior and
- * medial edges from the bone's axis) is the caller's law, and the knee's
+ * medial edges from the bone's axis) is the caller's law, its edge toward the
+ * median plane stopped at the plane (a leg and its mirror never cross), and the knee's
  * depth sets the knee's turn.
  */
 export namespace AutoMovieHumanLegWalk {
@@ -72,8 +73,17 @@ export namespace AutoMovieHumanLegWalk {
       height >= bones.knee[1]
         ? { bone: 1, share: (bones.hip[1] - height) / (bones.hip[1] - bones.knee[1]) }
         : { bone: 2, share: (bones.knee[1] - height) / (bones.knee[1] - bones.ankle[1]) };
+    // A leg and its mirror (J6) meet at the median plane and never cross it:
+    // a site's edge toward the plane stops there, measured from the bone's
+    // line at the site.
+    const median = (height: number, edges: [number, number, number, number]): [number, number, number, number] => {
+      const { bone, share } = place(height);
+      const [from, to]: [Vec3, Vec3] = bone === 1 ? [bones.hip, bones.knee] : [bones.knee, bones.ankle];
+      const z: number = from[2] + share * (to[2] - from[2]);
+      return z > 0 ? [edges[0], edges[1], edges[2], Math.max(edges[3], -z)] : z < 0 ? [edges[0], Math.min(edges[1], -z), edges[2], edges[3]] : edges;
+    };
     const sites: AutoMovieHumanWalkPart.ISite[] = [
-      ...SITES.map((s: string, k: number): AutoMovieHumanWalkPart.ISite => ({ site: s, ...place(laws[k]!.height), edges: laws[k]!.edges, fullness: { girth: laws[k]!.girth } })),
+      ...SITES.map((s: string, k: number): AutoMovieHumanWalkPart.ISite => ({ site: s, ...place(laws[k]!.height), edges: median(laws[k]!.height, laws[k]!.edges), fullness: { girth: laws[k]!.girth } })),
     ];
     const knee: ISiteLaw = laws[SITES.indexOf("knee")]!;
     return AutoMovieHumanWalkPart.create({

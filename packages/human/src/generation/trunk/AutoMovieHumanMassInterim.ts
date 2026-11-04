@@ -72,8 +72,8 @@ export namespace AutoMovieHumanMassInterim {
 
   /**
    * Interim accessor: the left gluteal mass's law from today's gluteal
-   * pieces: its centre on the base's back at the buttock point's height,
-   * across at today's apex share of the half width
+   * pieces: its target the gluteal apex (the trunk's back line at the
+   * buttock point's height, `AutoMovieHumanTrunkLaws`), across at today's apex share of the half width
    * (`AutoMovieHumanGlutealDome.LATERAL`), its footprint today's (from
    * `MEDIAL` to `OUTER` of the half width across, from the crotch up to
    * iliocristale), its profile today's dome. The amplitude is the published
