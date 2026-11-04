@@ -52,18 +52,24 @@ export namespace AutoMovieHumanHeadEarParts {
       ];
       const auricle: string = `auricle.${side}`;
 
-      // The auricle: a fin standing out of the head. Its base sinks as far
-      // as the head's side falls away under it: the head mass's half width at
-      // the ear's centre less its half width at the lobule's foot, since the
-      // head narrows from the tragion down to the jaw; the radius whose
-      // sagitta over the ear's half length is that drop.
+      // The auricle: a fin standing out of the head, its base along the
+      // head's side (the frame leans with it). Its base sinks by the side's
+      // fall under the footprint: along the ear the front-view outline's
+      // radius of curvature `(1 + L'^2)^(3/2) / |L''|`, across it the head's
+      // half width there, the larger sagitta of the two, written as the one
+      // radius that gives it over the ear's half length. A base square to the
+      // lateral axis instead sank as far as the head narrows to the jaw, a
+      // stem 25 mm into the head.
       const half: number = f.length / 2;
-      const drop: number = Math.max(
-        0,
-        AutoMovieHumanHeadMassPart.halfWidth(plan, f.centre[1]) - AutoMovieHumanHeadMassPart.halfWidth(plan, f.centre[1] - half * f.a[1]),
-      );
+      const y: number = f.centre[1];
+      const L = (h: number): number => AutoMovieHumanHeadMassPart.halfWidth(plan, h);
+      const d1: number = (L(y + 1) - L(y - 1)) / 2;
+      const d2: number = Math.abs(L(y + 1) - 2 * L(y) + L(y - 1));
+      const along: number = d2 > 1e-9 ? (half * half * d2) / (2 * (1 + d1 * d1) ** 1.5) : 0;
+      const across: number = (f.breadth / 2) ** 2 / (2 * L(y));
+      const sag: number = Math.max(along, across);
       out.push(
-        part(auricle, "head.mass", "merge", at(0, 0, -INSET), f.n, f.a, [half, f.breadth / 2, half, f.breadth / 2], INSET + f.protrusion, 4, at(0, 0, 0), drop > 0 ? (half * half) / (2 * drop) : undefined),
+        part(auricle, "head.mass", "merge", at(0, 0, -INSET), f.n, f.a, [half, f.breadth / 2, half, f.breadth / 2], INSET + f.protrusion, 4, at(0, 0, 0), sag > 0 ? (half * half) / (2 * sag) : undefined),
       );
 
       // The rims along the chord's back, each its ring's distance in.

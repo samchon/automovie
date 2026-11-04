@@ -3,6 +3,7 @@ import { AutoMovieHumanEarPlace } from "../AutoMovieHumanEarPlace";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 
 /**
  * One auricle's own frame (`docs/techniques/ear-pieces.md`): `n` the head's
@@ -63,17 +64,23 @@ export namespace AutoMovieHumanHeadEarFrame {
     const k: number = plan.scale;
     const length: number = ear.length * k;
     const breadth: number = ear.breadth * k;
-    const a: [number, number, number] = [-Math.sin(LEAN), Math.cos(LEAN), 0];
-    const b: [number, number, number] = [Math.cos(LEAN), Math.sin(LEAN), 0];
+    const a0: [number, number, number] = [-Math.sin(LEAN), Math.cos(LEAN), 0];
+    const b0: [number, number, number] = [Math.cos(LEAN), Math.sin(LEAN), 0];
     const z: number = sign * (plan.breadth / 2) * AutoMovieHumanHeadPrior.PRIOR.frame.base;
-    const base: [number, number, number] = [m.tragion[0], top === undefined ? plan.subnasale : top - a[1] * length, z];
+    const base: [number, number, number] = [m.tragion[0], top === undefined ? plan.subnasale : top - a0[1] * length, z];
+    const centreY: number = base[1] + (a0[1] * length) / 2 - (b0[1] * breadth) / 2;
+
+    // The head's side under the ear leans in as the head narrows to the jaw:
+    // the front-view outline L's slope at the ear's centre tilts the side's
+    // outward normal `(0, -L', sign)`, and the ear's axes are turned with it
+    // so the auricle's base lies along the side, not across it.
+    const slope: number = (AutoMovieHumanHeadMassPart.halfWidth(plan, centreY + STEP) - AutoMovieHumanHeadMassPart.halfWidth(plan, centreY - STEP)) / (2 * STEP);
+    const n: [number, number, number] = unit([0, -slope, sign]);
+    const a: [number, number, number] = unit(minus(a0, n));
+    const b: [number, number, number] = unit(minus(minus(b0, n), a));
     return {
-      centre: [
-        plan.centre + AutoMovieHumanEarPlace.FORWARD.centre * plan.length,
-        base[1] + (a[1] * length) / 2 - (b[1] * breadth) / 2,
-        z,
-      ],
-      n: [0, 0, sign],
+      centre: [plan.centre + AutoMovieHumanEarPlace.FORWARD.centre * plan.length, centreY, z],
+      n,
       a,
       b,
       length,
@@ -81,5 +88,20 @@ export namespace AutoMovieHumanHeadEarFrame {
       protrusion: ear.protrusion * k,
       scale: length / (PRIOR_LENGTH * k),
     };
+  }
+
+  /** Height step of the outline's slope, mm. */
+  export const STEP: number = 1;
+
+  /** A vector scaled to length 1. */
+  function unit(v: readonly number[]): [number, number, number] {
+    const l: number = Math.hypot(v[0]!, v[1]!, v[2]!) || 1;
+    return [v[0]! / l, v[1]! / l, v[2]! / l];
+  }
+
+  /** A vector less its part along a unit vector. */
+  function minus(v: readonly number[], u: readonly number[]): [number, number, number] {
+    const d: number = v[0]! * u[0]! + v[1]! * u[1]! + v[2]! * u[2]!;
+    return [v[0]! - d * u[0]!, v[1]! - d * u[1]!, v[2]! - d * u[2]!];
   }
 }

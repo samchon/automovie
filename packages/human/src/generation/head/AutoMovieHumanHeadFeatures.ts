@@ -9,20 +9,20 @@ import { AutoMovieHumanHeadNosePart } from "./AutoMovieHumanHeadNosePart";
 
 /**
  * The face's parts that join the head mass, each drawn from its views in its
- * own frame (`AutoMovieHumanHeadDome`), with the operator that joins it and
- * the landmark that seeds the join.
+ * own frame, with the operator that joins it and the landmark it stands on.
  *
  * | Part | Views from | Join |
  * | --- | --- | --- |
- * | nose | nasion to subnasale, half `nose.width`, protrusion to pronasale | merge |
- * | upper and lower lip | half `mouth.width`, each vermilion height, the lips' leads | merge |
- * | orbit, each side | the fissure's length and height about its place, the lid margin's recess and the socket | diff |
+ * | nose | level sections over the face's midline profile: the prior's profile and dorsum rows from the tip to the nasion, times the nose's lead and half width (`AutoMovieHumanHeadNosePart`) | merge |
+ * | upper and lower lip | a dome (`AutoMovieHumanHeadDome`) over each vermilion on the midline profile: half `mouth.width`, the vermilion's height, the lip's lead | merge |
+ * | orbit, each side | a dome cutter over the fissure's place on the head mass's own section (`AutoMovieHumanHeadMassPart.frontAt`): the fissure's length and height, back to the lid margin (`face.eyeRecess` behind the nasion's skin) | diff |
  *
- * The brow ridge, forehead eminence, malar eminence, cheek and chin pad are
- * declared with amplitude 0 today (`AutoMovieHumanHeadBrow.AMPLITUDE` and
- * kin), so they contribute no part until their laws give them a projection.
- * First pass: crude frames from the landmark skeleton; each part's own laws
- * (#3053 to #3056) replace them.
+ * Each dome's stem sinks twice the sagitta its host's radius leaves under
+ * its footprint (`AutoMovieHumanHeadDome.sagitta`), so its base lies inside
+ * the host. The brow ridge, forehead eminence, malar eminence, cheek and
+ * chin pad have no part: P already passes their skin, or no law gives their
+ * projection over the head mass (`AutoMovieHumanHeadMasses`). Each part's own
+ * laws (#3053 to #3056) refine these.
  */
 export namespace AutoMovieHumanHeadFeatures {
   /** A part, its join and its seed. */
