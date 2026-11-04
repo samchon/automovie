@@ -72,3 +72,18 @@ The trace solves four equations in `(s, phi, y, theta)`: the meeting and the dec
 ### Gap 8: a view part closed at both ends (built 14:22 to 14:25, written 14:31:04, `date`)
 
 `IAutoMovieHumanViewPart.pole: "both"`: zero knots required at both end stations; toward both poles the outlines and the girth are natural splines in `acos(1 - 2 (s - s_0) / (s_1 - s_0))` (= 2 asin of the root of the share from either end, odd in the root there, smooth between), cap rings and the ellipse blend at each end, the second pole on the new `IAutoMovieHumanLoftChain.opposite`; `AutoMovieHumanBodySurfaceSolids` closes an open end on `pole` or `opposite`. Shared src watch green at its 2:24:58 and 2:25:17 cycles. Paused 14:25 to 14:30 by the supervisor for a supervised test run.
+
+### Gaps 1, 3, 4: the body of trimmed faces (built 14:31 to 14:41, written 14:52:19, `date`)
+
+`AutoMovieHumanSolidBody` (faces with trim cycles, `create`, `atlas`, `merge`, `draw`), `AutoMovieHumanSolidClip` (the host rail laid onto the body's faces with its crossings placed by bisection of the curve parameter; a rail on one face adds its loop, a rail over several faces is cut into runs and each run replaces the removed arc of the cycle it crosses), `AutoMovieHumanSolidCycle` (cycle membership: crossing number for holes, crossing parity along the phase line for winding cycles, so a clipped detour counts right). `AutoMovieHumanSolidMesh`: its keep test reads `AutoMovieHumanSolidCycle`, and its zipper runs on arclength from aligned starts instead of the angle about a loop's centre. Shared src watch green at its 2:49:38 cycle.
+- Violation recorded 14:52:19 (`date`): my 14:40:48 save of `AutoMovieHumanSolidBody.ts` held `?? r.faces[0]!` (TS17113), and the shared src watch stayed red on it while the supervisor's test run waited; fixed at 14:41:52 on the supervisor's order. Correction: I read the shared src watch after every save before I continue, and assemble no new file without its type check on my own scratch reading of the operators it calls.
+
+### The supervised operator run (14:42:19 to 14:45:27): triage with the tester (written 14:52:19)
+
+| Finding | Owner | Cause | Fix |
+| --- | --- | --- | --- |
+| view section: no valid range at the ellipse's shoulder on aspect 2:1 and above and on asymmetric boxes; concave sections; the chain and girth tests failing with it; the ellipse bound of thousands of mm | operator | one quintic with one bump per quarter cannot follow a conic whose polar radius turns within an angle of order b/a | each quarter's conic guides at four equal steps of its rational quadratic's parameter, with exact polar jets (`AutoMovieHumanViewSection.conic`, `ISection.knots`); error of order `(pi/8)^6/720` of the radius at every aspect; saved 14:50:30, green |
+| guide curvature 2e-4 off by a three-point circle across a guide | test | the section is C2, its third derivative jumps at a guide, and a symmetric three-point reading carries that jump at order h | read each side's curvature one-sided (the tester) |
+| angle merge: part rail 0.5 to 0.8 mm off the vertical great circle | operator | the offset walked a straight chart line, which depends on the part's parameterisation | rails in the normal section (the plane of the surface normal and the square direction at the preimage), next |
+| diff test: the merge of the same pair | open | the next run prints its diagnostics or rail point | read then |
+| diff rim convexity at share 1, trim stencil tolerance | test | G2 makes the rim match the bowl's concave curvature at the bowl's rail; the stencil's truncation was left out of the tolerance | the tester |

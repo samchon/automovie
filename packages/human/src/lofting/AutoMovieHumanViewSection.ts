@@ -43,22 +43,32 @@ type Quarters<T> = IAutoMovieHumanViewPart.IQuarters<T>;
  * ellipse's shoulder in every quarter gives both quarters `a / b^2`, the
  * centred ellipse's own curvature.
  *
- * The quarter's fullness. Between its guides the quarter is the quintic
- * Hermite of both guides' jets plus its bump `f B(xi)`
- * (`AutoMovieHumanPolarSector`), and `f` is solved so the quintic passes
- * through the conic's shoulder point at its polar angle `atan2(b, a)`. So
- * every quarter is the conic's touch, curvature and shoulder carried by a
- * quintic that is C2 across every guide; a raw conic arc would meet its
- * neighbour only C1, and a quarter superellipse of exponent above 2 has zero
- * curvature at its guide, a flat stripe along it.
+ * The quarter's fullness. Inside its quarter the section follows its conic:
+ * the conic's points at the parameters `t = j / M` of its rational
+ * quadratic, `j = 1 .. M - 1`, are guides too, each with the conic's own
+ * radius and its first and second derivatives in the polar angle, and
+ * between any two guides the section is the quintic Hermite of their jets
+ * (`AutoMovieHumanPolarSector`, every bump zero), so it is C2 across every
+ * guide. Uniform steps of the conic's parameter crowd the polar angles where
+ * the radius turns fastest: near the end of a long half extent `a` over a
+ * short `b` the radius varies over an angle of order `b / a`, and the
+ * parameter step maps to an angle step of the same order, so the
+ * interpolation error, which grows as the sixth power of the step over that
+ * scale, does not grow with the box's aspect. A raw conic arc would meet its
+ * neighbour only C1, a quarter superellipse of exponent above 2 has zero
+ * curvature at its guide (a flat stripe along it), and one quintic with one
+ * bump per quarter cannot follow a conic of aspect two or more without
+ * turning concave.
  *
  * Reach. A shoulder is valid when the section stays star-shaped (a positive
  * radius), convex (the taut tape lies on it) and inside its box (the outlines
- * stay its extremes). Under that, the taut-tape girth is the section's length
- * and rises with the shoulder; the box bounds it between `2 sqrt(W^2 + D^2)`
- * (the rhombus) and `2 (W + D)` (the rectangle), `W` and `D` the box's
- * breadth and depth, and the quintic reaches the open part of that range its
- * valid shoulders span ({@link range}).
+ * stay its extremes); the conic is all three for every shoulder in `(0, 1)`,
+ * and the section follows it to the interpolation error. Under that, the
+ * taut-tape girth is the section's length and rises with the shoulder (the
+ * conics nest as the middle weight grows); the box bounds it between
+ * `2 sqrt(W^2 + D^2)` (the rhombus) and `2 (W + D)` (the rectangle), `W` and
+ * `D` the box's breadth and depth, and the section reaches the open part of
+ * that range its valid shoulders span ({@link range}).
  */
 export namespace AutoMovieHumanViewSection {
   /** The conic shoulder of the ellipse, `sqrt(2) - 1`. */
@@ -81,7 +91,10 @@ export namespace AutoMovieHumanViewSection {
     /** The four guides at 0, `pi / 2`, `pi`, `3 pi / 2`: radius, angular slope 0 and the shared curvature. */
     guides: Quarters<AutoMovieHumanPolarSector.IGuide>;
 
-    /** Each quarter's bump amplitude in `AutoMovieHumanPolarSector`'s sense, mm. */
+    /** Every guide by increasing angle: the four main guides and each quarter's conic guides between them. */
+    knots: AutoMovieHumanPolarSector.IGuide[];
+
+    /** Each quarter's bump amplitude in `AutoMovieHumanPolarSector`'s sense: zero, the conic guides carry the fullness. */
     fullness: Quarters<number>;
 
     /** The taut-tape girth, the section's length while it is convex, mm. */
@@ -151,23 +164,71 @@ export namespace AutoMovieHumanViewSection {
       }),
     ) as Quarters<AutoMovieHumanPolarSector.IGuide>;
 
-    // Each bump puts the quintic through its conic's shoulder point.
-    const zero: number[] = [0, 0, 0, 0];
-    const fullness: Quarters<number> = [0, 1, 2, 3].map((q: number): number => {
-      const a: number = e[q]!;
-      const b: number = e[(q + 1) % 4]!;
-      const xi: number = Math.atan2(b, a) / QUARTER;
-      const target: number = ((1 + shoulders[q]!) * Math.hypot(a, b)) / 2;
-      const hermite: number = AutoMovieHumanPolarSector.radius(guides, zero, guides[q]!.angle + xi * QUARTER)[0];
-      return (target - hermite) / bump(xi);
-    }) as Quarters<number>;
+    // Each quarter's conic guides between its main guides.
+    const knots: AutoMovieHumanPolarSector.IGuide[] = [];
+    for (let q: number = 0; q < 4; q++) {
+      knots.push(guides[q]!);
+      for (let j: number = 1; j < CONIC_SPANS; j++) knots.push(conic(e[q]!, e[(q + 1) % 4]!, shoulders[q]!, j / CONIC_SPANS, guides[q]!.angle));
+    }
 
-    const section: ISection = { box, shoulders: [...shoulders], guides, fullness, girth: 0, diagonals: [0, 0, 0, 0] };
+    const section: ISection = { box, shoulders: [...shoulders], guides, knots, fullness: [0, 0, 0, 0], girth: 0, diagonals: [0, 0, 0, 0] };
     section.diagonals = [0, 1, 2, 3].map(
       (q: number): number => radius(section, guides[q]!.angle + Math.atan2(e[(q + 1) % 4]!, e[q]!))[0],
     ) as Quarters<number>;
     section.girth = length(section);
     return section;
+  }
+
+  /**
+   * A conic's guide: the point of a quarter's rational quadratic at a
+   * parameter, as a polar radius with its first and second derivatives in the
+   * angle.
+   *
+   * In the quarter's own axes the conic is `C(t) = N(t) / D(t)` with
+   * `N = (1 - t)^2 P0 + 2 w t (1 - t) P1 + t^2 P2`,
+   * `D = (1 - t)^2 + 2 w t (1 - t) + t^2`, `P0 = (a, 0)`, `P1 = (a, b)`,
+   * `P2 = (0, b)` and `w = r / (1 - r)`. With `rho = |C|` and
+   * `psi = atan2(y, x)`: `rho_t = C . C_t / rho`, `psi_t = (C x C_t) / rho^2`,
+   * `rho_tt = (|C_t|^2 + C . C_tt - rho_t^2) / rho`,
+   * `psi_tt = (C x C_tt) / rho^2 - 2 psi_t rho_t / rho`, and in the angle
+   * `rho_psi = rho_t / psi_t`, `rho_psipsi = (rho_tt psi_t - rho_t psi_tt) / psi_t^3`.
+   *
+   * @param a The half extent along the quarter's first guide.
+   * @param b The half extent along its second.
+   * @param r The quarter's shoulder, inside `(0, 1)`.
+   * @param t The conic's parameter, inside `(0, 1)`.
+   * @param start The quarter's first guide angle.
+   * @returns The guide.
+   */
+  export function conic(a: number, b: number, r: number, t: number, start: number): AutoMovieHumanPolarSector.IGuide {
+    const w: number = r / (1 - r);
+    const s: number = 1 - t;
+
+    // Numerator and denominator with their first two derivatives in t.
+    const N: [number, number] = [s * s * a + 2 * w * t * s * a, 2 * w * t * s * b + t * t * b];
+    const N1: [number, number] = [-2 * s * a + 2 * w * (1 - 2 * t) * a, 2 * w * (1 - 2 * t) * b + 2 * t * b];
+    const N2: [number, number] = [2 * a - 4 * w * a, -4 * w * b + 2 * b];
+    const D: number = s * s + 2 * w * t * s + t * t;
+    const D1: number = -2 * s + 2 * w * (1 - 2 * t) + 2 * t;
+    const D2: number = 4 - 4 * w;
+
+    // The quotient rule for C, C_t and C_tt.
+    const C: [number, number] = [N[0] / D, N[1] / D];
+    const C1: [number, number] = [(N1[0] - C[0] * D1) / D, (N1[1] - C[1] * D1) / D];
+    const C2: [number, number] = [(N2[0] - 2 * C1[0] * D1 - C[0] * D2) / D, (N2[1] - 2 * C1[1] * D1 - C[1] * D2) / D];
+
+    // Polar radius and angle with their t derivatives, then the chain rule.
+    const rho: number = Math.hypot(C[0], C[1]);
+    const rt: number = (C[0] * C1[0] + C[1] * C1[1]) / rho;
+    const pt: number = (C[0] * C1[1] - C[1] * C1[0]) / (rho * rho);
+    const rtt: number = (C1[0] * C1[0] + C1[1] * C1[1] + C[0] * C2[0] + C[1] * C2[1] - rt * rt) / rho;
+    const ptt: number = (C[0] * C2[1] - C[1] * C2[0]) / (rho * rho) - (2 * pt * rt) / rho;
+    return {
+      angle: start + Math.atan2(C[1], C[0]),
+      value: rho,
+      slope: rt / pt,
+      curvature: (rtt * pt - rt * ptt) / (pt * pt * pt),
+    };
   }
 
   /**
@@ -178,7 +239,7 @@ export namespace AutoMovieHumanViewSection {
    * @returns `[rho, rho_phi, rho_phiphi]`.
    */
   export function radius(section: ISection, phi: number): AutoMovieHumanPolarSector.Jet {
-    return AutoMovieHumanPolarSector.radius(section.guides, section.fullness, phi);
+    return AutoMovieHumanPolarSector.radius(section.knots, zeros(section.knots.length), phi);
   }
 
   /**
@@ -330,9 +391,27 @@ export namespace AutoMovieHumanViewSection {
 /** A quarter turn. */
 const QUARTER: number = Math.PI / 2;
 
-/** `64 xi^3 (1 - xi)^3`, the polar sector's bump. */
-function bump(xi: number): number {
-  return 64 * xi ** 3 * (1 - xi) ** 3;
+/**
+ * Spans of each quarter's conic between guides: its parameter in four equal
+ * steps. The interpolation error of a quintic Hermite span grows as the sixth
+ * power of its angle over the angle the radius turns in, and the parameter's
+ * steps follow that angle at every aspect, so four steps of a quarter turn of
+ * the conic's parameter leave an error of order `(pi / 8)^6 / 720`, about
+ * `5e-6`, of the radius whatever the box's aspect.
+ */
+const CONIC_SPANS: number = 4;
+
+/** Zero fullness for each count of guides, made once. */
+const ZEROS: Map<number, number[]> = new Map();
+
+/** Zero fullness for a count of guides. */
+function zeros(n: number): number[] {
+  let z: number[] | undefined = ZEROS.get(n);
+  if (z === undefined) {
+    z = new Array<number>(n).fill(0);
+    ZEROS.set(n, z);
+  }
+  return z;
 }
 
 /**
