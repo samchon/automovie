@@ -10,9 +10,7 @@ The deviation is a diagnostic that finds causes, never a target to fit one perso
 
 ## Inspection Round
 
-Inspect a candidate's generating curves, skin and joins following [Visual Debugging](../3d-modeling/visual-debugging.md), and compare it with the existing figure under the same conditions in every affected region and join, including changed inputs. View a piece alone ([Frames](screenshot.md#frames)) before wiring it, and the whole figure after. Keep partial work visible and mark what is unverified.
-
-Inspect the affected person and all affected parts under matching camera, light, shading, size and renderer conditions, expanding to other people when the task requires it. Every variable below is a URL variable of the [debug viewer](screenshot.md).
+Inspect the candidate's generating curves, skin and joins following [Visual Debugging](../3d-modeling/visual-debugging.md), for the affected person and all affected parts, and compare it with the existing figure under matching camera, light, shading, size and renderer conditions in every affected region and join, including changed inputs. Expand to other people when the task requires it, view a piece alone ([Frames](screenshot.md#frames)) before wiring it, and keep partial work visible with what is unverified marked. Every variable below is a URL variable of the [debug viewer](screenshot.md).
 
 1. View the whole person from every `camera`, once with `curves=none`, once with the curves over the surface and once with `parts=none`, and with `shade=appearance`, in the anatomical neutral, at `pose=bind` and in the supported poses. Check normal human proportions, silhouettes, and missing or disconnected anatomy.
 2. View the face with `shade=appearance` and `focus=head*`.
@@ -21,7 +19,7 @@ Inspect the affected person and all affected parts under matching camera, light,
    - Find the skin part `human.skin.<chain>/<k>` that carries it by showing and colouring candidates with `parts` and `partColor`.
    - Show sections `<chain>/<k>`, `<chain>/<k+1>` and `<chain>/axis` alone with `curves`, and frame them with `focus`.
    - Read their curvature with `shade=curvature` and their names with `labels=1`.
-5. Write every finding, with its cause, into the round's findings table, and record each that outlives the round in the Human package's documentation.
+5. Write every finding, with its cause, into the round's findings table.
 
 ## Render Audit
 

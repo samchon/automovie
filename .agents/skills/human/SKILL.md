@@ -28,7 +28,7 @@ Work in [correction rounds](../3d-modeling/visual-debugging.md#correction-rounds
 5. Fix every row in one batch under the [construction rules](construction.md), after reviewing the diff against them, and give each fixed defect a test that fails if it returns.
 6. Confirm with the [tests](testing.md), and record what the round taught in the Human package's documentation.
 
-Derive every fix and every expectation from the person's inputs, a published source, geometry, or a law derived from them, because a special case or an unsourced number fits one symptom and breaks the population. Measure the data and choose the construction yourself; when a round disproves a construction, choose another.
+Derive every fix and every expectation from the person's inputs, published or derived laws, geometry, or normalized tables aggregated over the whole reference set, because a special case or an unsourced number fits one symptom and breaks the population. Measure the data and choose the construction yourself; when a round disproves a construction, choose another.
 
 Finish the anatomical neutral and the bind before any other pose: every motion starts from them, so a defect left at neutral returns in every pose.
 

@@ -1,8 +1,8 @@
 # Screenshots
 
-The Human debug viewer serves `http://127.0.0.1:5197`, started from `packages/human` with `pnpm debug`, detached from the shell that starts it. Its [README](../../../packages/human/debug/README.md) owns every route, URL variable, header and piece. It is the package's one shared viewer under development's [Scripts And Shared Checkouts](../development/SKILL.md#scripts-and-shared-checkouts): start it when none answers, and restart it only when `/human-debug/status.json` shows an empty queue.
+The Human debug viewer serves `http://127.0.0.1:5197`. It is the package's one shared viewer under development's [Scripts And Shared Checkouts](../development/SKILL.md#scripts-and-shared-checkouts): when none answers, start it from `packages/human` with `pnpm debug`, detached from the shell that starts it, and read its queue at `/human-debug/status.json`. Its [README](../../../packages/human/debug/README.md) owns every route, URL variable, header and piece.
 
-The viewer strips types and draws even while its type-check watch reports errors, showing the watch's latest cycle in its compile panel and in each frame's `x-human-compile` header. Its watch is `pnpm ttsc --noEmit --watch -p tsconfig.debug.json` from `packages/human`, beside the test watch of development's [Type Checking](../development/validation.md#type-checking); read its state beside every capture. An open page keeps the source it loaded until it is reloaded.
+The viewer strips types and draws even while its type-check watch, which the README calls its compile collector, reports errors, showing the watch's latest cycle in its compile panel and in each frame's `x-human-compile` header. Its watch is `pnpm ttsc --noEmit --watch -p tsconfig.debug.json` from `packages/human`, beside the test watch of development's [Type Checking](../development/validation.md#type-checking); read its state beside every capture. An open page keeps the source it loaded until it is reloaded.
 
 | Use | Path under the viewer endpoint |
 | --- | --- |

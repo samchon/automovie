@@ -4,7 +4,7 @@ A Human test cross-checks the generated person against anatomy, geometry and its
 
 ## Levels
 
-Test the geometry as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) describes, the mechanism once where it lives and the figure as a whole, so a defect of shared mathematics is found once and a part's change rewrites no test.
+Test the geometry as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) describes. Test the mechanism once where it lives and the figure as a whole, so a defect of shared mathematics is found once and a part's change rewrites no test.
 
 | Level | Reads | Expectation from |
 | --- | --- | --- |
