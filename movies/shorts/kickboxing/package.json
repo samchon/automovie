@@ -30,9 +30,9 @@
   },
   "devDependencies": {
     "@automovie/evidence": "workspace:^",
-    "@ttsc/lint": "^0.35.0",
+    "@ttsc/lint": "^0.36.2",
     "@types/node": "^22.19.17",
-    "ttsc": "^0.35.0",
+    "ttsc": "^0.36.2",
     "typescript": "^7.0.2",
     "@wrtnlabs/evidence": "^0.8.2",
     "vite": "catalog:vite",
