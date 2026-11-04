@@ -18,7 +18,7 @@ The audits read:
 | Audit | Checks | Expectation from |
 | --- | --- | --- |
 | Sections | each section closed, simple, star-shaped about its axis, curvature continuous round the ring, touching its outline box at the guides where it was lofted from views; breadth, depth and girth fair along the stations | geometry; the declared box |
-| Seams and blends | gap, normal angle and normal-curvature jump across every declared seam and every merge's two rails, read in the plane normal to the seam | the declared continuity, within the gap the facets hide, the class A normal angle and the curvature jump that turns the normal visibly over one vertex spacing |
+| Seams and blends | gap, normal angle and normal-curvature jump across every declared seam and every merge's two rails, read in the plane normal to the seam | the declared continuity, within bounds each test derives and states: a gap below the tessellation's chord error, a normal angle below the smallest crease shading shows, and a curvature jump that turns the normal by less than that angle over one vertex spacing |
 | Surface health | steps, ripples, folds and the section centres' track over every chain | the crease bound (no turn tighter than the smallest radius smooth skin takes) and what any closed surface is |
 | Placement | every part present, crown at stature, sole on the floor, every limb outside the trunk | what any body must have |
 | Input identity | every public input measured on the finished skin at its published site, or the reason it is no skin reading | the input, within its ISO 20685-1 allowance |
@@ -38,9 +38,9 @@ Derive every limit from the person's inputs, a published source or geometry, nev
 - Cut the finished curves through, not only along their lines: stations along an axis, up and down runs, the places and shares of extrema.
 - Express an expectation as the person's own intrinsic profile: a lean person has no folds, and a crease stands only at an anatomical site with a depth bounded by the person's fat.
 - Prove each check red on a made defect and green on a correct shape, and take the made defect at a size the check's limit can see. A reading must move by a known change of its input.
-- Give each limit its own anatomical or geometric basis, and widen an exact limit by the reader's own truncation where the shape bends within the stencil. Keep the limit when the figure fails it.
+- Give each limit its own anatomical or geometric basis, and widen the limit of a finite-difference reading by that difference's own truncation error. Keep the limit when the figure fails it.
 - Audit everything before failing, listing every finding by person, part, region and direction.
-- Build every person, derived view and fixture inside the test that needs it and cache nothing across tests, so nothing outlives its test. Put each test in the folder of its level.
+- Build every person, derived view and fixture inside the test that needs it, so no test reads state another test left or changed. Put each test in the folder of its level.
 - Record a measure that cannot be an independent check, with the reason, instead of inventing a site for it.
 - When the viewer shows a defect no test listed, add the reading that lists it to the audit or table that owns its class.
 - When a test and the viewer disagree, suspect both: check the observer's site and limit against the definition before trusting either, because a wrong test steers every change that passes it.
