@@ -1,6 +1,6 @@
 ---
 name: documentation
-description: Owns the writing rules and writes READMEs and doc comments. Use before writing or changing a README or a doc comment, and with prompting before changing AGENTS.md or a skill.
+description: Owns the writing rules for technical documents, READMEs and doc comments. Use before writing or changing one, and with prompting before changing AGENTS.md or a skill.
 ---
 
 # Documentation
@@ -11,8 +11,8 @@ Every document follows [Writing](writing.md).
 
 ## READMEs
 
-A README is for the package's user: what it is, when to use it, installation, the smallest working setup, and its public surface. Take every code example from code that runs.
+A README is for the user of its project or package: what it is, when to use it, how to set it up, the smallest working use, and its public surface. Take every code example from code that runs.
 
 ## Doc Comments
 
-JSDoc follows [Writing](writing.md). What a public declaration's comment must say is the documentation question of the [contracts](../contracts/) checklist it answers.
+JSDoc follows [Writing](writing.md); the project's development skill names what a public declaration's comment must say.

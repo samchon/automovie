@@ -22,4 +22,4 @@ A source-module boundary need not cut the rendered surface. Put shared dimension
 
 ## Explanation
 
-Modular code exposes the dependency graph, while comments preserve the premises and reasons that its calculations alone do not show. Document the public contracts and implementation under the documentation question of the [contracts](../contracts/) checklist they answer, using the [documentation skill](../documentation/SKILL.md)'s writing rules, so a later agent can follow why the parts fit before changing them.
+Modular code exposes the dependency graph, while comments preserve the premises and reasons that its calculations alone do not show. Document the public contracts and implementation as the project's development skill requires, with the [documentation skill](../documentation/SKILL.md)'s writing rules, so a later agent can follow why the parts fit before changing them.

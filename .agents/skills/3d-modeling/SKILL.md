@@ -16,4 +16,4 @@ An asset is reproducible, rigged when it moves, and judged on screen. The projec
 - Read [Research](research.md) when selecting external geometry or rig acquisition.
 - Read [Visual Debugging](visual-debugging.md) before planning a correction or judging any visual result.
 
-Installed package documentation owns data formats and callable behavior. Completed generation, fitting, compilation or tests establish no visual result.
+Package documentation owns data formats and callable behavior. Completed generation, fitting, compilation or tests establish no visual result.

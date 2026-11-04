@@ -1,6 +1,6 @@
 # Asset handoff
 
-For a model or visual export, inspect it through the recipient's intended consumer, required views and promised controls. Use [3D rendered-use inspection](../3d-modeling/visual-debugging.md) for shape, contact, deformation and motion at the intended scale and budget. Directly retained or generated assets are valid choices when they supply the required behavior; Human and Recovery are optional capabilities.
+For a model or visual export, inspect it through the recipient's intended consumer, required views and promised controls. Inspect shape, contact, deformation and motion by [visual debugging](../3d-modeling/visual-debugging.md), at the uses, scale and budget that [commissioned-use inspection](../production/assets.md#inspect-the-commissioned-use) sets. Directly retained or generated assets are valid choices when they supply the required behavior; Human and Recovery are optional capabilities.
 
 For standalone audio, use [audio acquisition and listening](../audio/acquisition.md) on the actual delivered files; picture is required only when video is commissioned.
 

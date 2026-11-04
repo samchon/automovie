@@ -57,7 +57,7 @@ Test each construction operator alone against an analytic oracle on made inputs,
 
 ## Stylization
 
-Express stylization, such as exaggerated proportions or fantasy features, as a separate layer of transforms over the generating curves and parts rather than as edits inside their construction. The base construction and its tests then stay valid underneath, and every repair to the base reaches the stylized variant. Record an adopted stylization with the project's decisions.
+Express stylization, such as exaggerated proportions or fantasy features, as a separate layer of transforms over the generating curves and parts rather than as edits inside their construction. The base construction and its tests then stay valid underneath, and every repair to the base reaches the stylized variant. Record an adopted stylization where the project records its decisions.
 
 ## Order Of Work
 
