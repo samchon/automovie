@@ -114,3 +114,27 @@ Laws needed from the input and laws worker, each with a published source or a de
 - Correction to the map: `AutoMovieHumanSpinalProfile` is the furrow's cross profile, not the back's posture line; the posture inputs are read nowhere in generation, so the trunk's side view waits on the input and laws worker's `AutoMovieHumanBackProfile` (rasterstereography normal values, source pending).
 - Law module names agreed with the input and laws worker: `AutoMovieHumanLumbarSection.box`, `AutoMovieHumanChestWall.box`, `AutoMovieHumanTrapeziusLine.of` (renamed from `ShoulderLine`, which is my existing file), `AutoMovieHumanBackProfile.at`, `AutoMovieHumanNavel.size`. Neck base knots agreed with the head modeler (`neckBase.cervicale`, `.suprasternale`, `.sideNeck`, plus `girthHeight` and `sideNeckLateral` as values).
 - Operator finding 6: a pole closes with natural-spline outlines, which reach the axis at a finite slope, so a pole on level stations is a cone's tip, not a dome (a smooth cap needs the outline to rise as the square root of the distance from the pole). It matters where a pole is visible: the trunk's perineum between the thighs, the fingertips, the toe tips, the heel. Sent to the supervisor for the kernel worker.
+
+## Wiring survey for the trunk's batch (read before 14:04:35, Get-Date; grep over `src` and `debug`)
+
+Every reader of the old trunk that the trunk's wiring batch (#3047) changes in the same commit, with what it reads and what it takes instead:
+
+| Reader | Reads today | Takes after the batch |
+| --- | --- | --- |
+| `AutoMovieHumanBodyLaw` (`calibrate`, `EVENTS`, `ARM_ARC`) | the neck built first, the trunk under it, events `head` down to `upper`, `upper` down to `trunk` and both arms, `trunk` down to the legs | the trunk built first from its views, the neck merged onto it (head modeler), no trunk or limb events; merges in `calibration.merges` |
+| `AutoMovieHumanTrunkConstruction`, `TrunkSolver`, `TrunkChains`, `TrunkNeckSeat`, `TrunkFixed`, `IAutoMovieHumanTrunkSolution`, `IAutoMovieHumanTrunkContext` | the solved column and the neck's bottom layer | `trunk/AutoMovieHumanTrunkViewPart` from `trunk/` views-from-measures; retired |
+| `IAutoMovieHumanTrunkLandmarks` (`calibration.trunk`), `AutoMovieHumanTrunkLandmarks.axisAt` | crotch, cervicale, buttock, iliocristale, omphalion, waist, fold, bust, axilla, shoulder, glenohumeral, bust point, axis | the same names from the views (sites' heights, the level axis's origin as `axis`), plus `neckBase` (agreed with the head modeler) |
+| `AutoMovieHumanSkeletonLaw` (lines 129 to 202) | `chain("trunk")`, `chain("upper")` (the glenohumeral's axis place), the neck's bottom end as the neck base | the trunk's landmarks (`axis`, `glenohumeral`, `neckBase`) |
+| `AutoMovieHumanSkeletonLeg.crotchRing` | the trunk-down event's arcs of the bottom ring | the leg's hip centre from `AutoMovieHumanLegBones` alone; the ring goes |
+| `AutoMovieHumanSkeletonShoulder.rootRadius` | the upper-down event's arm arc of the shoulder ring | the arm's own radius at its first site (its tape), no ring |
+| `skeleton/AutoMovieHumanJointCentres` | `girth(trunk, ...)` at three heights | the same reads on the new `trunk` chain (a level chain, so `girth` at a height still reads a horizontal section) |
+| `skeleton/AutoMovieHumanCrotchBinding.height` | the trunk's lowest midline point over its layers | the same on the new chain (its pole is the perineum) |
+| `skeleton/AutoMovieHumanNeutralShoulder` | skin parts `trunk` and `leg.<side>` | add the merge blends' chains to its parts |
+| `arm/AutoMovieHumanArmScye`, `arm/AutoMovieHumanArmShoulder`, `AutoMovieHumanArmConstruction` | `upper` and its down event (the scye ring, the glenohumeral) | the trunk's landmarks and the arm's merge (#3050); until #3050 lands the old arm stays on the old trunk, so the trunk's batch and the arm's are one batch, or the arm is merged in the trunk's batch |
+| `leg/AutoMovieHumanLegChain` (line 109), `leg/AutoMovieHumanLegCrotchRoot` | the trunk chain and its down event | the leg's merge (#3048); same coupling as the arm |
+| `AutoMovieHumanNeckSurface.derive` (line 218) | `upper` as the shoulder envelope | `trunk` (the head modeler's file: tell it) |
+| `AutoMovieHumanBodyGirth` (line 78) | `chains.get("trunk")` for its tape solve | retired with the girth scaling |
+| `appearance/AutoMovieHumanSkinChart` (107), `appearance/AutoMovieHumanSkinMarks` (282, 304) | the chain names `upper` and `trunk` as the trunk family | `trunk` alone, plus the blends' chain names in the trunk family |
+| `debug/contracts/HUMAN_DEBUG_REGIONS`, `debug/pieces/HumanDebugPieceTiming`, `debug/pieces/trunk/*` | `upper` and `trunk` | `trunk` and the blends |
+
+Finding: the old arm and legs read the old trunk's rings and events, so the trunk cannot be swapped alone. The trunk's batch carries the arm and leg merges onto the new trunk (their tubes still the old chains, made jet-carrying by `AutoMovieHumanSolidChain.framed` and run on into the host), or the three wait for each other. Chosen: the trunk's batch merges the old arm and leg chains onto the new trunk, so each later limb batch only replaces its own tube.
