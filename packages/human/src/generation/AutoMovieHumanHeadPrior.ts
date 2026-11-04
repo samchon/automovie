@@ -311,11 +311,8 @@ export namespace AutoMovieHumanHeadPrior {
     /** Arch's half-length behind the gonion, in half mandibular widths. */
     back: number;
 
-    /** Width of the blend with the face and the neck, millimetres. */
-    blend: number;
-
     /**
-     * Width of that blend under the border, millimetres at no fat: the hollow
+     * Width of the jaw's blend with the neck under the border, millimetres at no fat: the hollow
      * where the skin under the jaw meets the neck at the cervicomental angle,
      * which the sections cross nearly along that skin.
      */
@@ -430,7 +427,6 @@ export namespace AutoMovieHumanHeadPrior {
       taper: 0.62,
       inset: 1,
       back: 0.5,
-      blend: 6,
       throat: 24,
     },
     ear: {

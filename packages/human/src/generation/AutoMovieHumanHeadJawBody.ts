@@ -1,3 +1,4 @@
+import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadSubmental } from "./AutoMovieHumanHeadSubmental";
@@ -197,7 +198,7 @@ export namespace AutoMovieHumanHeadJawBody {
       draft: 1 / Math.tan(fall),
       round,
       taper: j.taper,
-      blend: j.blend * k,
+      blend: AutoMovieHumanSeamUnion.width(plan.stomion - plan.border, back / 2),
       throat: j.throat * soft * k,
     };
   }
