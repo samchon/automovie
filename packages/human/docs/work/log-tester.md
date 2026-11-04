@@ -81,3 +81,16 @@ Violation 14:30:45 (`date`): a shell command I sent to edit this log began with 
 14:39:57 (`date`): the anatomy table gained the mirror row (SYM-1, `HumanCurveMirror`'s bound); the surface audit gained the centre track (CUR-4, the crease bound on the sections' centres, proven on a layer offset 5 mm). CUR-2 (layer spacing at most doubling) is not carried: uneven spacing is no defect of a C2 surface, its bound came from the old leg row rule, and the steps it stood for are read by the profile and step rows. Shared watch: clean at the cycle started 14:37:41, after my last save.
 
 Violation (same entry): the shared test watch's cycle started 14:33:33 read `HumanAnatomyTable.ts` between my edit that used `HumanAnatomyMirror` and the save of its import (TS2304), a red state under the rule to save only compiling states. From here an edit and the imports it needs go in one save.
+
+## Phase 2 retirement map (written 14:40:20, `date`; each retirement waits for its subtree and for one run that shows the replacement red on the retired file's own made defect)
+
+| Kept file | Replacement | Made defect to show red there |
+| --- | --- | --- |
+| `curves/integrity/test_human_curve_{arm,foot,hand,head,leg,trunk}` | `test_human_audit_sections`, `_surface`, `_seams` | its own proof, the part's middle layers swollen 30 percent (girth profile, meridian step) |
+| `curves/integrity/test_human_curves_rings` | `_sections` (girth profile, star), `_anatomy` (SYM-1) | a shank layer swollen 10 percent; a reflected finger control point; a right shank 5 percent fuller |
+| `curves/integrity/test_human_curves_rings_centre` | `_surface` (CUR-4) | an offset layer |
+| `curves/region/test_human_curves_region_calf`, `_digits` (digit girth order) | `_anatomy` | the calf belly's lateral reach; the digit order once the hand rows land |
+| `test_human_anatomy_{arm,leg,foot,hand,head,trunk}` identity rows | `_inputs` (which reads them through the region observers until the observers move into it) | an input moved by its allowance plus 1 mm |
+| `test_human_seam_{patch,ribbon,section,station}` | stay while their modules stay in `lofting/` | none |
+
+Kept as they are (#3057 item 6): pose and rig, mouth, nails, universality, levels, performance, memory, the debug stall, the solid and view operator tests, `test_human_people`, `test_human_curve_placement`, `test_human_skin_integrity` and `_posed`, `test_human_skin_collapse`, `test_human_arm_clearance`.
