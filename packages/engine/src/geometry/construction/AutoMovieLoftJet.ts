@@ -30,12 +30,22 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * @evidence contracts/common.md#clear-and-simple-design One jet record and one evaluation per station and phase; `carries` states when a chain has the jets it needs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No derivative is a finite difference; a chain without its jets is refused by `carries`.
  * @evidence contracts/common.md#meaningful-documentation States each jet component and the terms of its product rule.
- * @evidence contracts/performance.md#efficient-algorithms Constant work per point beyond the section's span evaluation.
- * @evidence contracts/performance.md#reuse-equivalent-work A recent-station cache reuses a station's interval readings across phases.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The cache holds a fixed number of stations.
+ * @evidence contracts/performance.md#efficient-algorithms A spline station combines only the four controls needed by a phase, once per visited control; its holey arrays and bitmap still allocate O(N) space. Other inputs retain eager combination.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each of the last eight inserted stations shares its Hermite weights, frame, visited controls and lift preparation across phases; hits do not reorder this cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources A weak chain key owns at most eight station records, each with O(N) control storage; eviction releases that record, and returned jets own fresh vectors.
  */
 export namespace AutoMovieLoftJet {
-  /** Point and partial derivatives, world mm per mm of station and per radian of phase. */
+  /**
+   * Point and partial derivatives, world mm per mm of station and per radian of phase.
+   *
+   * @evidence contracts/common.md#principled-implementation Names the point and all five first/second partial derivatives of one surface chart reading.
+   * @evidence contracts/common.md#clear-and-simple-design Six vector fields carry value and derivative orders without hidden computed state.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Describes exact chart derivatives; the type itself does not validate their numerical correctness or finiteness.
+   * @evidence contracts/common.md#meaningful-documentation Each field names its derivative; station uses mm and phase radians.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This interface has no runtime algorithm; at owns its computation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This value record coordinates no operations and owns no cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns six returned vectors; the interface acquires no resource.
+   */
   export interface IJet {
     /** Surface point. */
     p: V;
@@ -59,6 +69,15 @@ export namespace AutoMovieLoftJet {
   /**
    * Whether every layer of a chain carries the plane, its station
    * derivatives and the coefficients' second derivatives a jet needs.
+   * This presence predicate does not validate basis, lengths or numeric values.
+   *
+   * @evidence contracts/common.md#principled-implementation Requires curvature and all three frame derivative orders on every layer before a caller chooses analytic jets.
+   * @evidence contracts/common.md#clear-and-simple-design One short-circuiting every over the layer fields, without constructing a parallel model.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Tests field presence only, including the ordinary every semantics for an empty layer list; it is not a complete chain validator.
+   * @evidence contracts/common.md#meaningful-documentation Lists the required fields and the validation this predicate does not perform.
+   * @evidence contracts/performance.md#efficient-algorithms At most O(L) presence checks for L layers, stopping at the first incomplete layer and allocating no result collection.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure presence predicate coordinates no requests or reusable station preparation; at owns that cache.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Reads the supplied chain and retains nothing after returning its boolean.
    */
   export function carries(chain: IAutoMovieLoftChain): boolean {
     return chain.layers.every(
@@ -76,6 +95,14 @@ export namespace AutoMovieLoftJet {
    * @param chain Chain that {@link carries} jets.
    * @param s Station within the chain.
    * @param t Phase, radians.
+   *
+   * @evidence contracts/common.md#principled-implementation Combines the station Hermite and periodic cubic section jets with the written product rule, then adds lift and relief derivatives.
+   * @evidence contracts/common.md#clear-and-simple-design Station preparation is shared; phase evaluation still uses the existing spline jet reader.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps the Hermite summation order, phase wrapping, interval bounds and returned vector ownership; no sampled derivative replaces a jet.
+   * @evidence contracts/common.md#meaningful-documentation States station and phase units and the surface product rule above.
+   * @evidence contracts/performance.md#efficient-algorithms On a spline, a phase fills at most four previously unread controls in three derivative rows, including lift when present; array allocation remains linear in order.
+   * @evidence contracts/performance.md#reuse-equivalent-work Station weights, frame and lift directions are prepared once, and each visited control is combined once while its station remains cached.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Uses the weak-key eight-station insertion cache and returns fresh mutable jet vectors, never a cached output jet.
    */
   export function at(
     chain: IAutoMovieLoftChain,
@@ -85,11 +112,13 @@ export namespace AutoMovieLoftJet {
     // The station's part (its section coefficients and plane with their two
     // station derivatives) is the same for every phase, so the last stations
     // read per chain are kept; a chain is never changed once built.
-    const { a, b, u, H, c, f }: IStation = stationOf(chain, s);
+    const station: IStation = stationOf(chain, s);
+    const { c, f }: IStation = station;
 
     // Section values in the plane: x, z and their phase derivatives at the
     // value, the station slope and the station curvature of the coefficients.
     const n: number = chain.order;
+    fill(station, n, t);
     const q0: J = AutoMovieSplineCurve.jet(c[0]!, n, t);
     const q1: J = AutoMovieSplineCurve.jet(c[1]!, n, t);
     const q2: J = AutoMovieSplineCurve.jet(c[2]!, n, t);
@@ -143,7 +172,7 @@ export namespace AutoMovieLoftJet {
 
     // The lift a shape law writes moves points along w = v x u by the station
     // Hermite of its values, quintic where it carries curvatures, as in AutoMovieLoftChain.ring.
-    if (a.lift !== undefined || b.lift !== undefined) lift(jet, a, b, u, H, n, t, U, W);
+    if (station.lift !== undefined) lift(jet, station.lift, n, t);
 
     // Reliefs move points along their fixed axes.
     for (const relief of chain.reliefs ?? []) {
@@ -160,25 +189,32 @@ export namespace AutoMovieLoftJet {
     return jet;
   }
 
-  /** A station's part of a jet: its layers, place between them, and combined coefficients and plane. */
-  interface IStation {
-    /** Lower layer. */
-    a: IAutoMovieLoftChain.ILayer;
-
-    /** Upper layer. */
-    b: IAutoMovieLoftChain.ILayer;
-
-    /** Share of the interval. */
-    u: number;
-
-    /** Interval width, mm. */
-    H: number;
-
-    /** Section coefficients and their first and second station derivatives. */
+  /** One interval's endpoint arrays, weights and combined derivative rows. */
+  interface IControls {
+    /** Lower endpoint, unchanged for the immutable chain's lifetime. */
+    a: AutoMovieStationHermite.IEnd;
+    /** Upper endpoint. */
+    b: AutoMovieStationHermite.IEnd;
+    /** Value, slope and curvature interpolation weights. */
+    weights: number[][];
+    /** Three coefficient rows; lazy rows contain holes until their support is read. */
     c: number[][];
+  }
 
+  /** A station's plane, section controls and optional lift controls. */
+  interface IStation extends IControls {
     /** Plane and its first and second station derivatives. */
     f: number[][];
+    /** One byte per spline control; absent for the original eager path. */
+    filled?: Uint8Array;
+    /** Lift preparation, independent of phase. */
+    lift?: ILift;
+  }
+
+  /** Lift rows use identical x/z blocks for the existing spline reader. */
+  interface ILift extends IControls {
+    /** Normal direction and its first two station derivatives. */
+    directions: V[];
   }
 
   /** Stations kept per chain. */
@@ -212,21 +248,100 @@ export namespace AutoMovieLoftJet {
       slope: b.slopes,
       curvature: b.curvatures!,
     };
-    const c: number[][] = w.map((x: number[]): number[] =>
-      AutoMovieStationHermite.combine(ca, cb, x),
-    );
+    const n: number = chain.order;
+    const lazy: boolean = chain.basis === "spline" && Number.isInteger(n) && n > 0 &&
+      a.coefficients.length === 2 * n && b.coefficients.length === 2 * n &&
+      liftFits(a, n) && liftFits(b, n);
+    const c: number[][] = w.map((x: number[]): number[] => lazy
+      ? new Array<number>(2 * n)
+      : AutoMovieStationHermite.combine(ca, cb, x));
     const fa: AutoMovieStationHermite.IEnd = AutoMovieStationHermite.frameEnd(a);
     const fb: AutoMovieStationHermite.IEnd = AutoMovieStationHermite.frameEnd(b);
     const f: number[][] = w.map((x: number[]): number[] =>
       AutoMovieStationHermite.combine(fa, fb, x),
     );
-    const station: IStation = { a, b, u, H, c, f };
+    const station: IStation = { a: ca, b: cb, weights: w, c, f };
+    if (lazy) station.filled = new Uint8Array(n);
+    if (a.lift !== undefined || b.lift !== undefined) {
+      const zero: number[] = new Array<number>(n).fill(0);
+      const quintic: boolean = a.liftCurvatures !== undefined && b.liftCurvatures !== undefined;
+      const ea: AutoMovieStationHermite.IEnd = {
+        value: a.lift ?? zero, slope: a.liftSlopes ?? zero,
+        ...(quintic ? { curvature: a.liftCurvatures! } : {}),
+      };
+      const eb: AutoMovieStationHermite.IEnd = {
+        value: b.lift ?? zero, slope: b.liftSlopes ?? zero,
+        ...(quintic ? { curvature: b.liftCurvatures! } : {}),
+      };
+      const weights: number[][] = [0, 1, 2].map((order: number): number[] =>
+        AutoMovieStationHermite.weights(u, H, order as 0 | 1 | 2, quintic));
+      const rows: number[][] = weights.map((x: number[]): number[] => {
+        if (lazy) return new Array<number>(2 * n);
+        const row: number[] = AutoMovieStationHermite.combine(ea, eb, x);
+        return [...row, ...row];
+      });
+      const U: V[] = f.map((x: number[]): V => [x[3]!, x[4]!, x[5]!]);
+      const W: V[] = f.map((x: number[]): V => [x[6]!, x[7]!, x[8]!]);
+      station.lift = { a: ea, b: eb, weights, c: rows, directions: [
+        cross(W[0]!, U[0]!),
+        sum(cross(W[1]!, U[0]!), cross(W[0]!, U[1]!)),
+        sum(cross(W[2]!, U[0]!), scale(cross(W[1]!, U[1]!), 2), cross(W[0]!, U[2]!)),
+      ] };
+    }
     kept.unshift({ s, station });
     if (kept.length > RECENT) kept.pop();
     return station;
   }
 
-  /** Unit normal `P_t x P_s` of a jet, or null where the surface is singular. */
+  /** Keep malformed lift layouts on the old doubled-row path; this does not reject an input. */
+  function liftFits(layer: IAutoMovieLoftChain.ILayer, n: number): boolean {
+    return (layer.lift === undefined || layer.lift.length === n) &&
+      (layer.liftSlopes === undefined || layer.liftSlopes.length === n) &&
+      (layer.liftCurvatures === undefined || layer.liftCurvatures.length === n);
+  }
+
+  /** Fill the same periodic support read by SplineCurve.jet, without changing its arithmetic. */
+  function fill(station: IStation, n: number, t: number): void {
+    if (station.filled === undefined) return;
+    const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * n;
+    const i: number = Math.min(n - 1, Math.floor(u));
+    for (let offset: number = -1; offset <= 2; offset++) {
+      const j: number = (i + offset + n) % n;
+      if (station.filled[j] === 1) continue;
+      for (let order: number = 0; order < 3; order++) {
+        const w: number[] = station.weights[order]!;
+        station.c[order]![j] = scalar(station.a, station.b, w, j);
+        station.c[order]![n + j] = scalar(station.a, station.b, w, n + j);
+        if (station.lift !== undefined) {
+          const l: ILift = station.lift;
+          const value: number = scalar(l.a, l.b, l.weights[order]!, j);
+          l.c[order]![j] = value;
+          l.c[order]![n + j] = value;
+        }
+      }
+      station.filled[j] = 1;
+    }
+  }
+
+  /** One component, in exactly StationHermite.combine's left-associated summation order. */
+  function scalar(a: AutoMovieStationHermite.IEnd, b: AutoMovieStationHermite.IEnd, w: readonly number[], k: number): number {
+    return w[0]! * a.value[k]! + w[1]! * a.slope[k]! +
+      (a.curvature === undefined ? 0 : w[2]! * a.curvature[k]!) +
+      (b.curvature === undefined ? 0 : w[3]! * b.curvature[k]!) +
+      w[4]! * b.slope[k]! + w[5]! * b.value[k]!;
+  }
+
+  /**
+   * Unit normal `P_t x P_s` of a finite jet, or null when its length is at most 1e-12.
+   *
+   * @evidence contracts/common.md#principled-implementation Normalizes the chart tangent cross product in its existing t-cross-s orientation.
+   * @evidence contracts/common.md#clear-and-simple-design One cross product and length test return a fresh unit vector or null.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps the 1e-12 singularity threshold and does not invent a direction at a collapsed pole; the caller supplies finite derivatives.
+   * @evidence contracts/common.md#meaningful-documentation States orientation, the finite-input premise and the numerical singularity test.
+   * @evidence contracts/performance.md#efficient-algorithms Constant arithmetic on two three-component derivatives, independent of chain order.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure vector operation coordinates no repeated work and returns no cached mutable vector.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Owns no retained state or handles; its returned vector belongs to the caller.
+   */
   export function normal(jet: IJet): V | null {
     const n: V = cross(jet.t, jet.s);
     const l: number = Math.hypot(n[0], n[1], n[2]);
@@ -247,42 +362,15 @@ type J = [number, number, number, number, number, number];
  */
 function lift(
   jet: AutoMovieLoftJet.IJet,
-  a: IAutoMovieLoftChain.ILayer,
-  b: IAutoMovieLoftChain.ILayer,
-  u: number,
-  H: number,
+  prepared: { c: number[][]; directions: V[] },
   n: number,
   t: number,
-  U: V[],
-  W: V[],
 ): void {
-  const zero: number[] = new Array<number>(n).fill(0);
-  const quintic: boolean = a.liftCurvatures !== undefined && b.liftCurvatures !== undefined;
-  const ea: AutoMovieStationHermite.IEnd = {
-    value: a.lift ?? zero,
-    slope: a.liftSlopes ?? zero,
-    ...(quintic ? { curvature: a.liftCurvatures! } : {}),
-  };
-  const eb: AutoMovieStationHermite.IEnd = {
-    value: b.lift ?? zero,
-    slope: b.liftSlopes ?? zero,
-    ...(quintic ? { curvature: b.liftCurvatures! } : {}),
-  };
-  const l: number[][] = [0, 1, 2].map((order: number): number[] =>
-    AutoMovieStationHermite.combine(
-      ea,
-      eb,
-      AutoMovieStationHermite.weights(u, H, order as 0 | 1 | 2, quintic),
-    ),
-  );
-
   // The lift values interpolate over phase as the x block of a section.
-  const h: J[] = l.map(
-    (x: number[]): J => AutoMovieSplineCurve.jet([...x, ...x], n, t),
+  const h: J[] = prepared.c.map(
+    (x: number[]): J => AutoMovieSplineCurve.jet(x, n, t),
   );
-  const w0: V = cross(W[0]!, U[0]!);
-  const w1: V = sum(cross(W[1]!, U[0]!), cross(W[0]!, U[1]!));
-  const w2: V = sum(cross(W[2]!, U[0]!), scale(cross(W[1]!, U[1]!), 2), cross(W[0]!, U[2]!));
+  const [w0, w1, w2] = prepared.directions as [V, V, V];
   jet.p = sum(jet.p, scale(w0, h[0]![0]));
   jet.s = sum(jet.s, scale(w0, h[1]![0]), scale(w1, h[0]![0]));
   jet.t = sum(jet.t, scale(w0, h[0]![2]));
