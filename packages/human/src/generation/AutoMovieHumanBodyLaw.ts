@@ -161,10 +161,11 @@ export namespace AutoMovieHumanBodyLaw {
         events: [],
         poles: [],
 
-        // The openings and eyes stand on the old head's chains; the head
-        // lane's openings land as trims of its tree next.
+        // The openings stand on the old head's chains; the head lane's
+        // openings land as trims of its tree next. The eyes are the globes'
+        // frames alone (centre and radius), which the appearance seats.
         apertures: [],
-        eyes: [],
+        eyes: today.eyes,
         merges: undefined,
         bodies: lane.bodies,
         appendages: undefined,
