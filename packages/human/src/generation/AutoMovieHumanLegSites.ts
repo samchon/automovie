@@ -3,7 +3,8 @@ import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures"
 
 /**
  * The leg's surveyed sites and depth: where the calf's greatest girth stands,
- * and the thigh's depth at its tape site.
+ * where the ankle's least girth stands (a reference estimate,
+ * {@link ANKLE_ON_MALLEOLUS}) and the thigh's depth at its tape site.
  *
  * Calf site: ANSUR 1988 (Gordon et al. 1989; 2,208 women and 1,774 men)
  * takes the calf height, the floor to the level of the calf circumference
@@ -52,5 +53,24 @@ export namespace AutoMovieHumanLegSites {
   export function thighDepth(measures: IAutoMovieHumanBodyMeasures): number {
     const fit: { readonly a: number; readonly b: number } = THIGH_DEPTH_ON_THIGH[measures.sex === AutoMovieHumanSex.Female ? 0 : 1];
     return fit.a + fit.b * measures.thighCircumference;
+  }
+
+  /**
+   * The ankle's least girth above the floor per lateral malleolus height (ISO
+   * 8559-1 5.3.26, the minimum leg girth above the malleoli). Estimated from
+   * the private reference set; no published source found:
+   * `test_human_estimate_sites` reads 1.913 (SD 0.138) on eight legs of four
+   * people, 0.0747 (SD 0.0057) of stature.
+   */
+  export const ANKLE_ON_MALLEOLUS: number = 1.913;
+
+  /**
+   * The ankle's least girth's height.
+   *
+   * @param malleolus Lateral malleolus height, mm.
+   * @returns The least girth's level above the floor, mm.
+   */
+  export function ankle(malleolus: number): number {
+    return ANKLE_ON_MALLEOLUS * malleolus;
   }
 }
