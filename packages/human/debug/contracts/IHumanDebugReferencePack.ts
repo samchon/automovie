@@ -5,8 +5,9 @@
  *
  * The frame is the pack's: millimetres, forward +X, up +Y, the body's left +Z, floor at y = 0, which
  * is the viewer's body frame. Each closed curve of a section is a loop of points: the pack's cubic
- * Hermite spans read as their start points and midpoints, which follow the fitted curve within its
- * fit tolerance. Open arcs and curves the pack's own audit marks broken are left out, and a region
+ * Hermite spans read as their start points and midpoints: this display polyline carries no claimed
+ * approximation bound from the original fit tolerance. Valid open arcs retain their final endpoint
+ * and stay open; only curves the pack's audit marks broken are left out. A region
  * keeps one section per `step` millimetres of height, the lowest of each run.
  */
 export interface IHumanDebugReferencePack {
@@ -40,5 +41,8 @@ export namespace IHumanDebugReferencePack {
 
     /** Closed loops, each as flat `x, z` pairs in mm rounded to 0.1 mm; the section's height is every point's y. */
     loops: number[][];
+
+    /** Open skin arcs as flat `x, z` pairs in mm, including both endpoints; absent means none. */
+    arcs?: number[][];
   }
 }

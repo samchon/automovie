@@ -16,9 +16,9 @@ const RING: number = 48;
  * At every emitted station of a part, in person millimetres (the calibration scaled by the
  * person's stature about the floor):
  *
- * - edges: where the reference's piece around the axis is found, each of the four outline edges
+ * - edges: where the reference cut's heuristic candidate around the axis is found, each of the four outline edges
  *   (`+u`, `+v`, `-u`, `-v`, the front pair then the side pair) minus the reference's extreme on
- *   that side, positive where the built curve stands outside the skin, also as a share of the
+ *   that side, positive where the built extent exceeds that candidate's, also as a share of the
  *   reference's breadth (front edges) or depth (side edges) there;
  * - touches: the distance from each of the four touch points to the nearest reference skin in the
  *   cut, read for every part, a face part merged into the head included;
@@ -28,6 +28,9 @@ const RING: number = 48;
  * Each part's row keeps the largest and the mean absolute value of each over its stations and the
  * station of the largest edge deviation, as its share of the part's station span and its nearest
  * named site. Rows hold aggregates only, never a reference coordinate.
+ * The cut's 9/12-sector and 10 mm linkage rules do not prove closure or containment; slab
+ * projection and incomplete source arcs make these approximate diagnostics, not exact
+ * three-dimensional skin distances or anatomical acceptance.
  */
 export namespace HumanDebugViewDeviation {
   /** One part's aggregates. */
@@ -44,10 +47,10 @@ export namespace HumanDebugViewDeviation {
     /** Stations where the reference's piece around the axis was found. */
     surrounded: number;
 
-    /** Largest and mean absolute edge deviation, mm, and the largest as a share of breadth or depth; null without a surrounded station. */
+    /** Largest and mean absolute candidate-edge deviation, mm, and share of candidate breadth/depth; null without a heuristic candidate. */
     edge: { max: number; mean: number; share: number; edge: string; at: number; site: string } | null;
 
-    /** Mean signed deviation of each edge `[+u, +v, -u, -v]`, mm (positive: built outside); null without a surrounded station. */
+    /** Mean signed candidate-edge deviation `[+u, +v, -u, -v]`, mm (positive: larger built extent); null without a heuristic candidate. */
     bias: [number, number, number, number] | null;
 
     /** Largest and mean distance of the four touch points to the skin, mm. */
