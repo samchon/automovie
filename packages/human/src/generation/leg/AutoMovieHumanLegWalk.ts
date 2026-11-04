@@ -15,8 +15,10 @@ type Vec3 = AutoMovieHumanLegBones.Vec3;
  * thigh site's largest edge, so the tube's top lies inside the pelvis at every
  * phase (the hip centre itself stands about that deep under the skin); below
  * the ankle centre it runs on along the tibia's line by the ankle site's
- * largest edge, inside the heel. Those runs carry the nearest site's box, a
- * construction never seen: the merges trim them.
+ * largest edge, inside the heel. Each run closes in a G2 dome whose tip is that
+ * end point, so the station lines start inside the host at every phase and
+ * leave it once, between the dome and the nearest published site (the
+ * merge's trace needs one crossing per phase): the merges trim the domes.
  *
  * Sites. The four published tapes the anatomy carries at their sites (ISO 8559-1 5.3.20 thigh
  * below the gluteal fold, 5.3.22 the knee
@@ -71,9 +73,7 @@ export namespace AutoMovieHumanLegWalk {
         ? { bone: 1, share: (bones.hip[1] - height) / (bones.hip[1] - bones.knee[1]) }
         : { bone: 2, share: (bones.knee[1] - height) / (bones.knee[1] - bones.ankle[1]) };
     const sites: AutoMovieHumanWalkPart.ISite[] = [
-      { site: "top", bone: 0, share: 0, edges: laws[0]!.edges, fullness: { girth: laws[0]!.girth } },
       ...SITES.map((s: string, k: number): AutoMovieHumanWalkPart.ISite => ({ site: s, ...place(laws[k]!.height), edges: laws[k]!.edges, fullness: { girth: laws[k]!.girth } })),
-      { site: "bottom", bone: 3, share: 1, edges: laws[laws.length - 1]!.edges, fullness: { girth: laws[laws.length - 1]!.girth } },
     ];
     const knee: ISiteLaw = laws[SITES.indexOf("knee")]!;
     return AutoMovieHumanWalkPart.create({
@@ -85,6 +85,11 @@ export namespace AutoMovieHumanLegWalk {
       joints: [{ half: 1 }, { half: (knee.edges[0] - knee.edges[2]) / 2 }, { half: 1 }],
       u: [1, 0, 0],
       sites,
+
+      // Both ends close in domes inside their hosts (the pelvis above, the
+      // heel below), so every phase leaves each host once.
+      base: true,
+      tip: 0,
       order: ORDER,
       samples: ORDER,
       gap,

@@ -76,7 +76,7 @@ export namespace AutoMovieHumanDigitWalk {
 
     // The base (the knuckle, inside the host); then each bone's middle and
     // its distal joint; the end is the distal phalanx's end.
-    const sites: AutoMovieHumanWalkPart.ISite[] = [site("base", 0, 0, input.law("base"))];
+    const sites: AutoMovieHumanWalkPart.ISite[] = [];
     for (let b: number = 0; b < bones; b++) {
       sites.push(site(`shaft ${b}`, b, 0.5, input.law(`shaft ${b}`)));
       sites.push(b + 1 < bones ? site(`joint ${b + 1}`, b + 1, 0, input.law(`joint ${b + 1}`)) : site("end", b, 1, input.law("end")));
@@ -91,6 +91,9 @@ export namespace AutoMovieHumanDigitWalk {
       u: input.dorsal,
       sites,
       tip: input.tip,
+
+      // The knuckle closes in a dome inside the palm or the forefoot.
+      base: true,
       order: input.order,
       samples: input.order,
       gap: input.gap,

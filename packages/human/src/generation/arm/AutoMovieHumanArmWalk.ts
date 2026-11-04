@@ -87,10 +87,12 @@ export namespace AutoMovieHumanArmWalk {
       joints: [{ half: 1 }, { half: joints.elbow / 2 }, { half: joints.wrist / 2 }],
       u: [1, 0, 0],
       sites: [
-        { site: "top", bone: 0, share: 0, edges: deltoid.edges, fullness: deltoid.fullness },
         ...laws.map((l: ISiteLaw): AutoMovieHumanWalkPart.ISite => ({ site: l.site, bone: l.bone, share: l.share, edges: l.edges, fullness: l.fullness })),
       ],
       tip: reach,
+
+      // The top closes in a dome inside the girdle.
+      base: true,
       order: ORDER,
       samples: ORDER,
       gap,

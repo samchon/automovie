@@ -56,7 +56,16 @@ export namespace AutoMovieHumanWalkPart {
     /** The sites, by rising place along the walk. */
     sites: ISite[];
 
-    /** The tip's distance past the last centre, mm, where the walk closes in a dome; absent, the distal end is open. */
+    /**
+     * Whether the walk closes at its first centre in a G2 dome: the base of a
+     * part whose inner end lies inside its host (a limb in the trunk, a digit
+     * in the palm), so its station lines start inside the host at every phase
+     * and leave it once, as the merge's trace needs. No site may stand at the
+     * first centre then. Absent, the base is an open section.
+     */
+    base?: boolean;
+
+    /** The tip's distance past the last centre, mm (zero closes at the last centre itself), where the walk closes in a dome; absent, the distal end is open. */
     tip?: number;
 
     /** Control points of every section, a multiple of 4. */
@@ -98,10 +107,25 @@ export namespace AutoMovieHumanWalkPart {
       name: input.name,
       axis,
       sites,
-      ...(input.tip !== undefined ? { pole: { end: "top" as const, station: end + input.tip } } : {}),
+      ...pole(input, end),
       order: input.order,
       samples: input.samples,
       gap: input.gap,
     });
+  }
+
+  /**
+   * The walk's closing domes: at the first centre (station 0) for a base
+   * inside its host, at the tip past the last centre, or both.
+   *
+   * @param input The walk.
+   * @param end The last centre's station, mm.
+   * @returns The site part's pole, or nothing for two open ends.
+   */
+  function pole(input: IInput, end: number): Pick<AutoMovieHumanSiteViewPart.IInput, "pole"> {
+    if (input.base === true && input.tip !== undefined) return { pole: { end: "both", bottom: 0, top: end + input.tip } };
+    if (input.base === true) return { pole: { end: "bottom", station: 0 } };
+    if (input.tip !== undefined) return { pole: { end: "top", station: end + input.tip } };
+    return {};
   }
 }
