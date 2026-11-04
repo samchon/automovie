@@ -54,6 +54,14 @@ Continue the confirmed round with a neighbouring group by replacing that command
 part=nose*,lip.*;curves=view.nose*/*,view.lip.*/*;views=front,side,top;keep=1
 ```
 
+Return to the whole source definition over clay in that frozen round by replacing the selection fields together, so the earlier nose, hidden ids or disabled axis cannot leave a partial overview:
+
+```text
+referenceStyle=clay;referencePart=*;part=*;parts=reference.*;hide=none;curves=view.*;curveHide=none;kinds=section,axis,guide,path;views=front,side,top;axis=1;focus=none;keep=1
+```
+
+For the whole reference's section curves instead, set `referenceStyle=loft;parts=none;curves=reference.*/*,view.*` with the other whole-selection fields retained. Repeat the individual, group and whole selections at the cameras below; the whole overview does not replace the earlier readings.
+
 Continue the same frozen round with one top ring over the reference's own curves:
 
 ```powershell
