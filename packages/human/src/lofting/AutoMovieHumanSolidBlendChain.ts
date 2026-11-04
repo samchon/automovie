@@ -25,7 +25,7 @@ type Vec3 = AutoMovieHumanSolidVector.Vec3;
  * with its height as the lift, carried by the same quintic rule
  * (`IAutoMovieHumanLoftChain.ILayer.liftCurvatures`). In phase every
  * quantity is the periodic cubic B-spline through the columns at `count`
- * uniform part phases from the trace's seed, the chain's phase `t - seed`.
+ * uniform curve parameters from the trace's seed, the chain's phase `t - seed`.
  *
  * So at every column the chain is the blend exactly (to the B-spline
  * interpolation filter's rounding), including both ribbons' 2-jets, and
@@ -40,7 +40,7 @@ export namespace AutoMovieHumanSolidBlendChain {
     /** Its station span `L`, mm: the share `w` is `station / L`. */
     length: number;
 
-    /** The part phase of the chain's phase 0, radians. */
+    /** The curve parameter of the chain's phase 0, radians (`AutoMovieHumanSolidIntersection.IPoint.t`). */
     seed: number;
 
     /** The host's rail at the columns, as a trim of the host's face. */
@@ -69,7 +69,7 @@ export namespace AutoMovieHumanSolidBlendChain {
    * @returns The blend, or null when a rail fails at a column.
    */
   export function of(name: string, join: AutoMovieHumanSolidJoin.IJoin, count: number): IBlend | null {
-    const seed: number = join.curve.points[0]!.phi;
+    const seed: number = join.curve.points[0]!.t;
     const columns: AutoMovieHumanSolidJoin.IColumn[] = [];
     for (let k: number = 0; k < count; k++) {
       const c: AutoMovieHumanSolidJoin.IColumn | null = join.column(seed + (2 * Math.PI * k) / count);
@@ -125,8 +125,8 @@ export namespace AutoMovieHumanSolidBlendChain {
       across: columns.map((c: AutoMovieHumanSolidJoin.IColumn): [number, number] => [c.rail.across[0], c.rail.across[1]]),
       sigma: r0.rail.sigma > 0 ? 1 : -1,
       part: {
-        kind: r0.rail.sigma > 0 ? "start" : "end",
-        chart: columns.map((c: AutoMovieHumanSolidJoin.IColumn, k: number): [number, number] => [c.rail.s, seed + (2 * Math.PI * k) / count]),
+        kind: join.curve.partWinding === 0 ? "hole" : r0.rail.sigma > 0 ? "start" : "end",
+        chart: columns.map((c: AutoMovieHumanSolidJoin.IColumn): [number, number] => [c.rail.s, c.rail.phi]),
       },
     };
   }

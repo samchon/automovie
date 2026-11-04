@@ -13,16 +13,19 @@ const { combine, cross, dot, norm, sub } = AutoMovieHumanSolidVector;
 /**
  * The composition the solid merge and the solid diff share: the intersection
  * curve, the two rails on the kept sides and the G2 blend between them, as
- * exact functions of the part's phase.
+ * exact functions of the curve's parameter.
  *
- * Every evaluation at a part phase `phi` corrects the curve there by Newton
+ * Every evaluation at a curve parameter `t` (the part's phase, or the angle
+ * about the footprint's axis; `AutoMovieHumanSolidIntersection.Parameter`)
+ * corrects the curve there by Newton
  * (`AutoMovieHumanSolidIntersection.ICurve.at`), solves both rails from it
  * (`AutoMovieHumanSolidRail.at`) and reads both ribbons from the surfaces
  * (`AutoMovieHumanSolidRibbon.of`), so the blend is a smooth function of
- * `phi` wherever the curve and the width laws are; nothing is interpolated
+ * `t` wherever the curve and the width laws are; nothing is interpolated
  * between traced points. The host's ribbon starts the blend (`w = 0`) leaving
  * the host past its rail toward the curve; the part's ends it (`w = 1`)
- * arriving along the part's station line on its kept side. Each ribbon's scale
+ * arriving along the part's offset direction on its kept side (its station
+ * line under the phase parameter). Each ribbon's scale
  * is the chord between the rails over its cross derivative's length (as
  * `AutoMovieHumanLimbRootStrip`), so the column runs at chord speed at both
  * ends.
@@ -56,12 +59,12 @@ export namespace AutoMovieHumanSolidJoin {
     continuity: "G2";
 
     /** The rails at a part phase, or null where a solve fails there. */
-    rail(phi: number): AutoMovieHumanSolidRail.IRail | null;
+    rail(t: number): AutoMovieHumanSolidRail.IRail | null;
 
     /** The blend column's two ribbons at a part phase, host first, or null where the rails fail. */
-    column(phi: number): IColumn | null;
+    column(t: number): IColumn | null;
 
-    /** The host's rail as a chart loop `[y, theta]` at `count` uniform part phases from the seed, or null where a rail fails between the traced points. */
+    /** The host's rail as a chart loop `[y, theta]` at `count` uniform parameters from the seed's, or null where a rail fails between the traced points. */
     loop(count: number): [number, number][] | null;
   }
 
@@ -88,6 +91,15 @@ export namespace AutoMovieHumanSolidJoin {
     /** The intersection's seed, from the landmarks that locate the contact. */
     seed: AutoMovieHumanSolidIntersection.IInput["seed"];
 
+    /**
+     * The curve's parameter; absent, the part's phase. Under the angle
+     * parameter the part's rail leaves the curve square to it in the part's
+     * chart (`AutoMovieHumanSolidRail` mode `square`), so a part lying along
+     * its host is trimmed round its footprint; the widths are then laws of the
+     * angle.
+     */
+    parameter?: AutoMovieHumanSolidIntersection.Parameter;
+
     /** Traced points over one turn, at least 8. */
     count: number;
 
@@ -97,17 +109,17 @@ export namespace AutoMovieHumanSolidJoin {
     /** Least angle between the tangent planes along the curve, radians. */
     grazing: number;
 
-    /** Width laws in the part's phase: chords from the curve to each rail, mm, positive. */
+    /** Width laws in the curve's parameter: chords from the curve to each rail, mm, positive. */
     width: {
       /**
-       * On the part: a chord per phase, or `{ station }`, the part's rail at
+       * On the part: a chord per parameter, or `{ station }` (phase parameter only), the part's rail at
        * one station for every phase, where a lofted part's first own section
        * stands, beyond the curve's farthest reach along the part.
        */
-      part: ((phi: number) => number) | { station: number };
+      part: ((t: number) => number) | { station: number };
 
       /** On the host. */
-      host(phi: number): number;
+      host(t: number): number;
     };
   }
 
@@ -141,20 +153,22 @@ export namespace AutoMovieHumanSolidJoin {
     if (traced.curve === null) return { join: null, diagnostics };
     if (diagnostics.length !== 0) return { join: null, diagnostics };
     const curve: AutoMovieHumanSolidIntersection.ICurve = traced.curve;
-    const period: number = input.part.period!;
+    const period: number = 2 * Math.PI;
+    const t0: number = curve.points[0]!.t;
+    const mode: AutoMovieHumanSolidRail.Mode = input.parameter?.kind === "angle" ? "square" : "station";
 
-    const rail = (phi: number): AutoMovieHumanSolidRail.IRail | null => {
-      const p: AutoMovieHumanSolidIntersection.IPoint | null = curve.at(phi);
-      return p === null ? null : AutoMovieHumanSolidRail.at(input.part, input.host, p, keep, typeof input.width.part === "function" ? input.width.part(phi) : input.width.part, input.width.host(phi));
+    const rail = (t: number): AutoMovieHumanSolidRail.IRail | null => {
+      const p: AutoMovieHumanSolidIntersection.IPoint | null = curve.at(t);
+      return p === null ? null : AutoMovieHumanSolidRail.at(input.part, input.host, p, keep, typeof input.width.part === "function" ? input.width.part(t) : input.width.part, input.width.host(t), mode);
     };
-    const column = (phi: number): IColumn | null => {
-      const r: AutoMovieHumanSolidRail.IRail | null = rail(phi);
+    const column = (t: number): IColumn | null => {
+      const r: AutoMovieHumanSolidRail.IRail | null = rail(t);
       return r === null ? null : ribbons(input, r);
     };
     const loop = (count: number): [number, number][] | null => {
       const out: [number, number][] = [];
       for (let i: number = 0; i < count; i++) {
-        const r: AutoMovieHumanSolidRail.IRail | null = rail(input.seed.phi + (period * i) / count);
+        const r: AutoMovieHumanSolidRail.IRail | null = rail(t0 + (period * i) / count);
         if (r === null) return null;
         out.push(r.host);
       }
@@ -164,11 +178,11 @@ export namespace AutoMovieHumanSolidJoin {
     // Every traced point carries both rails.
     const columns: IColumn[] = [];
     for (const p of curve.points) {
-      const c: IColumn | null = column(p.phi);
-      if (c === null) return fail("rails", `no rail at phi ${p.phi} (host width ${input.width.host(p.phi)} mm)`);
+      const c: IColumn | null = column(p.t);
+      if (c === null) return fail("rails", `no rail at t ${p.t} (host width ${input.width.host(p.t)} mm)`);
       const outside: string | null =
         AutoMovieHumanSolidIntersection.beyond(input.part, c.rail.s) ?? AutoMovieHumanSolidIntersection.beyond(input.host, c.rail.host[0]);
-      if (outside !== null) return fail("inside the layers", `the rails at phi ${p.phi}: ${outside}`);
+      if (outside !== null) return fail("inside the layers", `the rails at t ${p.t}: ${outside}`);
       columns.push(c);
     }
 
@@ -182,9 +196,9 @@ export namespace AutoMovieHumanSolidJoin {
     // The blend's normal must not reverse along a column.
     const step: number = period / (16 * curve.points.length);
     for (const c of columns) {
-      const before: IColumn | null = column(c.rail.curve.phi - step);
-      const after: IColumn | null = column(c.rail.curve.phi + step);
-      if (before === null || after === null) return fail("rails", `no rail beside phi ${c.rail.curve.phi}`);
+      const before: IColumn | null = column(c.rail.curve.t - step);
+      const after: IColumn | null = column(c.rail.curve.t + step);
+      if (before === null || after === null) return fail("rails", `no rail beside t ${c.rail.curve.t}`);
       let previous: Vec3 | null = null;
       for (let k: number = 0; k <= FOLD_SHARES; k++) {
         const w: number = k / FOLD_SHARES;
@@ -193,7 +207,7 @@ export namespace AutoMovieHumanSolidJoin {
           AutoMovieHumanSolidBlend.jet(before.start, before.end, w).point,
         );
         const n: Vec3 = cross(along, AutoMovieHumanSolidBlend.jet(c.start, c.end, w).first);
-        if (previous !== null && !(dot(previous, n) > 0)) return fail("unfolded blend", `the blend's normal reverses at phi ${c.rail.curve.phi}, share ${w}`);
+        if (previous !== null && !(dot(previous, n) > 0)) return fail("unfolded blend", `the blend's normal reverses at t ${c.rail.curve.t}, share ${w}`);
         previous = n;
       }
     }
@@ -217,11 +231,17 @@ export namespace AutoMovieHumanSolidJoin {
         [rail.across[1], b.v],
       ]),
     );
-    const partSpeed: number = norm(input.part.jet(rail.s, rail.curve.phi).u);
+    const a: IAutoMovieHumanSolidSurface.IJet = input.part.jet(rail.s, rail.phi);
+    const partSpeed: number = norm(
+      combine([
+        [rail.partAcross[0], a.u],
+        [rail.partAcross[1], a.v],
+      ]),
+    );
     return {
       rail,
       start: AutoMovieHumanSolidRibbon.of(input.host, rail.host[0], rail.host[1], -rail.across[0], -rail.across[1], chord / hostSpeed),
-      end: AutoMovieHumanSolidRibbon.of(input.part, rail.s, rail.curve.phi, rail.sigma, 0, chord / partSpeed),
+      end: AutoMovieHumanSolidRibbon.of(input.part, rail.s, rail.phi, rail.partAcross[0], rail.partAcross[1], chord / partSpeed),
     };
   }
 

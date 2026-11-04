@@ -141,4 +141,38 @@ export namespace AutoMovieHumanSolidVector {
     if (!(Math.abs(det) > 1e-14 * (Math.abs(a * d) + Math.abs(b * c)))) return null;
     return [(r[0] * d - b * r[1]) / det, (a * r[1] - c * r[0]) / det];
   }
+
+  /**
+   * The solution of a square system `M x = b` by Gaussian elimination with
+   * partial pivoting, for the 4 by 4 systems of a curve traced by a declared
+   * parameter.
+   *
+   * @param rows The matrix by rows, square; not modified.
+   * @param b Right-hand side.
+   * @returns `x`, or null when a pivot falls under `1e-14` of the largest
+   *   entry of the matrix (the rows nearly dependent).
+   */
+  export function solve(rows: readonly (readonly number[])[], b: readonly number[]): number[] | null {
+    const n: number = rows.length;
+    const m: number[][] = rows.map((r: readonly number[], i: number): number[] => [...r, b[i]!]);
+    let largest: number = 0;
+    for (const r of rows) for (const x of r) largest = Math.max(largest, Math.abs(x));
+    for (let c: number = 0; c < n; c++) {
+      let p: number = c;
+      for (let r: number = c + 1; r < n; r++) if (Math.abs(m[r]![c]!) > Math.abs(m[p]![c]!)) p = r;
+      if (!(Math.abs(m[p]![c]!) > 1e-14 * largest)) return null;
+      [m[c], m[p]] = [m[p]!, m[c]!];
+      for (let r: number = c + 1; r < n; r++) {
+        const f: number = m[r]![c]! / m[c]![c]!;
+        for (let k: number = c; k <= n; k++) m[r]![k]! -= f * m[c]![k]!;
+      }
+    }
+    const x: number[] = new Array<number>(n).fill(0);
+    for (let r: number = n - 1; r >= 0; r--) {
+      let sum: number = m[r]![n]!;
+      for (let k: number = r + 1; k < n; k++) sum -= m[r]![k]! * x[k]!;
+      x[r] = sum / m[r]![r]!;
+    }
+    return x;
+  }
 }
