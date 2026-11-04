@@ -135,9 +135,7 @@ export function test_human_foot_surface(): void {
         );
       for (const chain of person.body.chains.filter(
         (item: IAutoMovieHumanLoftChain): boolean =>
-          item.name === `foot.${side}` ||
-          item.name === `forefoot.${side}.1` ||
-          item.name === `forefoot.${side}.2`,
+          item.name === `foot.${side}`,
       ))
         for (const layer of chain.layers)
           if (

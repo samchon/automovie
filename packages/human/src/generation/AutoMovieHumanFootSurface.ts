@@ -8,8 +8,9 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * final calibrated FootConstruction law as the skin. No skin mesh is built.
  * The source fan carries the ankle around the calcaneus to the ball. Its
  * course at the existing Midfoot joint's longitudinal coordinate belongs to
- * both rigid modules; the forefoot continues along the canonical forefoot
- * chains. Rigid articulation can open this seam, as in the original display.
+ * both rigid modules; the forefoot continues along the same canonical foot
+ * chain to its web ring, where the independently articulated toe chains
+ * begin. Rigid articulation can open this seam, as in the original display.
  * Named plantar samples identify anatomy, not guaranteed floor contacts.
  */
 export namespace AutoMovieHumanFootSurface {
@@ -19,8 +20,8 @@ export namespace AutoMovieHumanFootSurface {
   /** Anatomical side, independent of a production's actor identity. */
   export type Side = "left" | "right";
 
-  /** Canonical foot chains, excluding independently articulated toes. */
-  export type Chain = `foot.${Side}` | `forefoot.${Side}.${1 | 2}`;
+  /** Canonical foot chain, excluding the independently articulated toe chains. */
+  export type Chain = `foot.${Side}`;
 
   /** The three anatomical plantar samples the original renderer retains. */
   export type Landmark = "plantarHeel" | "medialBall" | "lateralBall";
@@ -207,22 +208,6 @@ function side(
       )
       .reverse(),
   ];
-  for (const ordinal of [1, 2] as const) {
-    const source: IAutoMovieHumanLoftChain = chain(
-      `forefoot.${own}.${ordinal}`,
-    );
-    front.push(
-      ...source.layers
-        .map(
-          (layer: IAutoMovieHumanLoftChain.ILayer): IAddress => ({
-            chain: source,
-            station: layer.y,
-          }),
-        )
-        .reverse(),
-    );
-  }
-
   // The heel is plantar skin posterior to the ankle, not an ankle-tube vertex.
   let heel: { course: number; result: IMinimum } | undefined;
   for (let course: number = 0; course < hind.length; course++) {

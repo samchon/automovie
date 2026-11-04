@@ -118,13 +118,9 @@ export namespace AutoMovieHumanPolygonFoot {
   export interface ICourse extends AutoMovieHumanPolygon.IExteriorSection {
     /** Full extent along the canonical source section's first axis, metres. */ depth: number;
     /** Full extent along the canonical source section's second axis, metres. */ breadth: number;
-    /** Canonical calibrated source chain. */ chain:
+    /** Canonical calibrated source chain; toes articulate on their own chains. */ chain:
       | "foot.left"
-      | "foot.right"
-      | "forefoot.left.1"
-      | "forefoot.right.1"
-      | "forefoot.left.2"
-      | "forefoot.right.2";
+      | "foot.right";
     /** Original source longitudinal station, millimetres. */ stationMm: number;
   }
 

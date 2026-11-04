@@ -76,11 +76,7 @@ export function prepareHumanPolygonFootSurface(
           course.displayCoordinates.length !== count ||
           !course.sourcePhases.every(Number.isFinite) ||
           !course.displayCoordinates.every(Number.isFinite) ||
-          ![
-            `foot.${side}`,
-            `forefoot.${side}.1`,
-            `forefoot.${side}.2`,
-          ].includes(course.chain)
+          course.chain !== `foot.${side}`
         )
           throw new Error(
             `Invalid polygon foot source course: ${side}.${name}`,

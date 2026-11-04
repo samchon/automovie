@@ -18,7 +18,7 @@ import { nclose } from "../internal/nclose";
  * @evidence contracts/testing.md#distinguishing-cases Covers all three actual consumer resolutions, fractional radius, representable radii from 1e-30 to 1e30 and subminimum/fractional segment normalization. The separate public Engine test owns manifold admission after rigid transforms and invalid input refusal.
  * @evidence contracts/testing.md#execution-ownership The named discoverable unit executes portable Three buffers and public Viewer source without a process, browser, GPU, installation or renderer. Each allocated geometry is retired in finally; no cases are registered dynamically.
  */
-export function test_viewer_closed_sphere_geometry_channels(): void {
+export function test_viewer_closed_sphere_geometry(): void {
   for (const [radius, sourceWidth, sourceHeight] of [
     [1, 16, 12],
     [1, 12, 8],
