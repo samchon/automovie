@@ -9,6 +9,14 @@ const { add, cross, dot, scale, sub } = AutoMovieSolidVector;
  * The parameter laws of an intersection trace (`AutoMovieSolidIntersection`): the fourth equation `g(P, phi, t) = 0` that fixes which point of the curve a parameter `t` names, with the derivatives the trace's Newton step and its second-order prediction read.
  *
  * The part's phase gives `g = phi - t`; the angle about a footprint's axis gives `g = (P - c) . m(t)`, `m` the half plane's normal; the loop's own arclength gives `g = (P - Q(t)) . Q'(t)`, the point's foot on the periodic cubic B-spline through equal-chord points of the walked loop.
+ *
+ * @evidence contracts/common.md#principled-implementation Each parameter is one scalar equation with exact derivatives, so the trace's Newton and its second-order prediction see the same law.
+ * @evidence contracts/common.md#clear-and-simple-design One law interface and one builder per parameter kind.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A degenerate angle axis returns null instead of a made reference.
+ * @evidence contracts/common.md#meaningful-documentation States each law, its derivatives and its parameter's meaning.
+ * @evidence contracts/performance.md#efficient-algorithms Each law term is constant work; the arc law evaluates one spline span.
+ * @evidence contracts/performance.md#reuse-equivalent-work The arc law's control points are interpolated once per walked loop.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains its control points or axis only.
  */
 export namespace AutoMovieSolidTraceLaw {
   /** A parameter's equation with its derivatives. */

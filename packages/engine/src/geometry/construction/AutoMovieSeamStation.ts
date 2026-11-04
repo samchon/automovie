@@ -18,6 +18,14 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * A layer shared with another chain is the owner's: the neighbour copies the
  * owner's layer and its derivatives, signed into its own station direction
  * ({@link copy}), and keeps them through the solve.
+ *
+ * @evidence contracts/common.md#principled-implementation A chain's station jets come from the natural spline of each field through its layers, so the chain is C2 in station by construction.
+ * @evidence contracts/common.md#clear-and-simple-design One function makes a chain continuous, keeping the layers a caller names.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Layers too close for a stable spline are refused by the station contract, not merged.
+ * @evidence contracts/common.md#meaningful-documentation States which fields get jets, which layers are kept and the station premise.
+ * @evidence contracts/performance.md#efficient-algorithms One tridiagonal solve per field component, linear in the layers.
+ * @evidence contracts/performance.md#reuse-equivalent-work The station spacing is factored once and shared by every component's solve.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Produces one new layer list; the input chain is not retained.
  */
 export namespace AutoMovieSeamStation {
   /**
@@ -170,7 +178,7 @@ export namespace AutoMovieSeamStation {
     const t: AutoMovieLoftContract.Stations = AutoMovieLoftContract.stations(
       chain.name,
       rows.map((l: IAutoMovieLoftChain.ILayer): number => l.y),
-      AutoMovieLoftContract.LEAST_SPLINE_GAP,
+      AutoMovieLoftContract.splineGap(rows.map((l: IAutoMovieLoftChain.ILayer): number => l.y)),
     );
     const kept: Set<number> = new Set(keep);
     const values: number[][] = rows.map((l: IAutoMovieLoftChain.ILayer): number[] => [...l.coefficients]);

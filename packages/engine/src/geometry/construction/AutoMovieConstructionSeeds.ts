@@ -13,6 +13,14 @@ const { norm, scale, solve3, sub } = AutoMovieSolidVector;
  * A join's seed record as the trace's seed (`AutoMovieSolidIntersection.IInput.seed`), in millimetres.
  *
  * A point seed is its two chart points. A search seed walks the part face's station line at its phase between its two shares, one step per span between the part chain's consecutive stations, takes each step's foot on the host face and solves the meeting `P(s, phase) = H(y, theta)` for `(s, y, theta)` by Newton's method from it; the first meeting whose station lies between the shares is the seed.
+ *
+ * @evidence contracts/common.md#principled-implementation A search seed is the crossing of one station line of the part with the host, a three-unknown meeting solved by Newton from each step's foot, so the seed lies on the true intersection whatever stations the loft produced.
+ * @evidence contracts/common.md#clear-and-simple-design A point seed maps directly; a search walks the stated shares at the chain's own layer stations, one foot and one Newton solve per step.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The search stays on the stated station line between the stated shares and reports a miss; it never scans the whole surface or falls back to a point.
+ * @evidence contracts/common.md#meaningful-documentation States both seed kinds, the walk, its steps, the solve and the failure message.
+ * @evidence contracts/performance.md#efficient-algorithms Steps equal the chain's layers in the range; each step costs one foot (with a coarse grid start only when no earlier foot exists) and at most STEPS Newton iterations.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each step's foot starts from the previous step's foot, so the grid search runs once per seed in the usual case.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps one guess and one iterate; returns the seed and retains nothing.
  */
 export namespace AutoMovieConstructionSeeds {
   /** Newton steps of one meeting solve. */

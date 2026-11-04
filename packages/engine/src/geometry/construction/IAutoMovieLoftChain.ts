@@ -8,6 +8,14 @@ import type { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 /**
  * Principal-layer data of one chain, as published by the observation fitter
  * and consumed by {@link AutoMovieLoftChain}.
+ *
+ * @evidence contracts/common.md#principled-implementation A chain is its principal layers with their station jets, the data every reading of the loft is a function of.
+ * @evidence contracts/common.md#clear-and-simple-design One record of layers and the chain's basis, order, rule, samples and poles.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional jets are absent rather than zero-filled, so a reader knows which rule applies.
+ * @evidence contracts/common.md#meaningful-documentation States every field, its unit and what its absence means.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; its readers' costs are on `AutoMovieLoftChain`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record; reuse lives in its readers' caches.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record's size is its layers', owned by its producer.
  */
 export interface IAutoMovieLoftChain {
   /** Stable chain name used for part ids and diagnostics. */

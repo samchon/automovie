@@ -22,6 +22,14 @@ const { combine } = AutoMovieSolidVector;
  * set by its caller, as the chord between the rails over the cross
  * derivative's length, so the column runs at about unit chord speed and
  * bulges by neither end's own parameter speed.
+ *
+ * @evidence contracts/common.md#principled-implementation Each blend column is the quintic Hermite of the two ribbons' 2-jets, so it meets both surfaces G2.
+ * @evidence contracts/common.md#clear-and-simple-design One jet function of the two ribbons and the share across.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The ribbons' lengths are the caller's laws; the column does not rescale them to hide a fold.
+ * @evidence contracts/common.md#meaningful-documentation States the basis, the ribbons' roles and their scaling.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work per evaluation from the six basis weights.
+ * @evidence contracts/performance.md#reuse-equivalent-work The basis is evaluated once per share and applied to all three derivative orders.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns three vectors and retains nothing.
  */
 export namespace AutoMovieSolidBlend {
   /** A column's point and its first and second derivatives in `w`. */

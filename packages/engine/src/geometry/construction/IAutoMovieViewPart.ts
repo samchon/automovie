@@ -23,6 +23,14 @@ import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
  * Ownership (fairing by ownership): the outlines own the extremes, the girth
  * or the fullness law owns the quarters' fullness, and the diagonals are
  * observations only (`AutoMovieViewSection.ISection.diagonals`).
+ *
+ * @evidence contracts/common.md#principled-implementation A part is drawn by its front and side outlines about its own axis with a fullness owner, the inputs of conic lofting.
+ * @evidence contracts/common.md#clear-and-simple-design One record of axis, stations, two outline pairs, fullness, pole, order and samples.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Departures need a published source or derivation and are never fitted to a reference.
+ * @evidence contracts/common.md#meaningful-documentation States the frame, the views, the ownership of extremes and fullness, and the pole's dome.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; lofting cost is on `AutoMovieViewLoft`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record without computed state.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Its knots are owned by its producer.
  */
 export interface IAutoMovieViewPart {
   /** Chain name of the lofted part, such as `trunk`, `leg.left` or `nose`. */

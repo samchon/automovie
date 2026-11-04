@@ -8,6 +8,14 @@ import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
  * over `[0, n - 3]` and control point `i` shapes the spans `i - 3 .. i`.
  * The three outer rings of control points being zero, the height and its
  * first and second derivatives vanish at and beyond the window's edge.
+ *
+ * @evidence contracts/common.md#principled-implementation A relief is a height over a window of the chain's chart with a smooth falloff, added along the surface normal, so features ride on their host's surface.
+ * @evidence contracts/common.md#clear-and-simple-design One height function of station and phase per relief record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Outside its window a relief is exactly zero; it never moves the host elsewhere.
+ * @evidence contracts/common.md#meaningful-documentation States the window, the falloff and the height's derivatives.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work per evaluation, with an early zero outside the window.
+ * @evidence contracts/performance.md#reuse-equivalent-work The window test runs before any profile evaluation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns tuples and retains nothing.
  */
 export namespace AutoMovieLoftRelief {
   /**

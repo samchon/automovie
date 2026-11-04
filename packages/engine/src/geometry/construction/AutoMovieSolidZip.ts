@@ -13,6 +13,14 @@
  * sequence is used by exactly one triangle of the band, so with the cells on
  * one side and the blend on the other each is shared by two triangles and
  * the seam is closed with no vertex but the two sequences'.
+ *
+ * @evidence contracts/common.md#principled-implementation Two vertex sequences are stitched by merging their arclength parameters, which never crosses itself on any simple pair of cycles.
+ * @evidence contracts/common.md#clear-and-simple-design One zipper from two parameterised sequences to triangles.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Sequences are aligned by their starts and turns, not by nearest-vertex matching.
+ * @evidence contracts/common.md#meaningful-documentation States the parameter and the merge rule.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in the two sequences' lengths.
+ * @evidence contracts/performance.md#reuse-equivalent-work The parameters are computed once by the caller.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the triangle list only.
  */
 export namespace AutoMovieSolidZip {
   /** One sequence: vertex indices and their parameters, in the same order. */

@@ -25,6 +25,14 @@ const { combine } = AutoMovieSolidVector;
  * derivative is the `phi` derivative of the copied `first`, which is `g`'s
  * mixed derivative too. So the blend meets the surface G2 along the rail by
  * construction, for any direction field transversal to the rail.
+ *
+ * @evidence contracts/common.md#principled-implementation A ribbon is a surface's 2-jet along a rail in the across direction, the data a G2 blend matches.
+ * @evidence contracts/common.md#clear-and-simple-design One ribbon record of point, first and second across derivatives.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The derivatives are the surface's own jets along the square direction.
+ * @evidence contracts/common.md#meaningful-documentation States the three fields and their scale.
+ * @evidence contracts/performance.md#efficient-algorithms One surface jet per ribbon.
+ * @evidence contracts/performance.md#reuse-equivalent-work The rail's jet is reused for the ribbon.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Three vectors per ribbon.
  */
 export namespace AutoMovieSolidRibbon {
   /** A surface's jet across a rail at one point. */

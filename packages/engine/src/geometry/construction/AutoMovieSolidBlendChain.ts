@@ -1,4 +1,3 @@
-import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
@@ -34,6 +33,14 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * leave the surfaces' tangent planes there by about `(spacing / R)^2 / 8`,
  * the spacing the columns' distance along a rail and `R` the surface's
  * smaller radius of curvature, so the column count is chosen from that bound.
+ *
+ * @evidence contracts/common.md#principled-implementation A join's blend is published as a two-layer chain whose layers carry the rails' sections and the across jets, so the blend reads as any other chain's surface.
+ * @evidence contracts/common.md#clear-and-simple-design One builder from a join and a column count.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A column with a non-finite jet makes the blend refused, never published.
+ * @evidence contracts/common.md#meaningful-documentation States the layers, their fields and the refusal.
+ * @evidence contracts/performance.md#efficient-algorithms One column evaluation per published phase and O(n) spline interpolation per field.
+ * @evidence contracts/performance.md#reuse-equivalent-work The columns are evaluated once and every field's spline is built from them.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the blend chain's layers only.
  */
 export namespace AutoMovieSolidBlendChain {
   /** A published blend. */
@@ -103,10 +110,11 @@ export namespace AutoMovieSolidBlendChain {
       columns.push(c);
     }
 
-    // The station span: the mean chord, never under the spline's least gap.
+    // The station span: the mean chord between the rails.
     let chord: number = 0;
     for (const c of columns) chord += Math.hypot(...([0, 1, 2].map((i: number): number => c.end.point[i]! - c.start.point[i]!)));
-    const L: number = Math.max(AutoMovieLoftContract.LEAST_SPLINE_GAP, chord / count);
+    const L: number = chord / count;
+    if (!(L > 0)) return null;
 
     const layer = (y: number, pick: (c: AutoMovieSolidJoin.IColumn) => [Vec3, Vec3, Vec3]): IAutoMovieLoftChain.ILayer => {
       const rows: [Vec3, Vec3, Vec3][] = columns.map(pick);

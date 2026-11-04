@@ -31,6 +31,14 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  *
  * {@link draw} tessellates every face on its own grid trimmed by its cycles
  * (`AutoMovieSolidMesh.face`), shared boundaries vertex for vertex.
+ *
+ * @evidence contracts/common.md#principled-implementation A merged solid is a set of trimmed faces sharing boundary vertices, and each merge traces against all faces as one atlas, so a later part can meet an earlier blend.
+ * @evidence contracts/common.md#clear-and-simple-design Create, merge, draw and publish over one body record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A merge whose rail or trim fails returns its diagnostic and no blend; no face is patched to close a gap.
+ * @evidence contracts/common.md#meaningful-documentation States the faces, their cycles, the merge's steps and the published form.
+ * @evidence contracts/performance.md#efficient-algorithms Each merge traces once and clips only the faces its rail crosses; drawing tessellates each face once.
+ * @evidence contracts/performance.md#reuse-equivalent-work Boundary vertices are created once in the shared mesh and referenced by every face that meets them.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The body owns its faces and mesh; publishing copies only the cycle points.
  */
 export namespace AutoMovieSolidBody {
   /** One face. */

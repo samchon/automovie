@@ -9,6 +9,14 @@
  * size; each reports a singular system by returning null, and the caller
  * decides what a singular system means (a tangential contact, a degenerate
  * chart), so no solve guesses past it.
+ *
+ * @evidence contracts/common.md#principled-implementation The three-vector algebra and small linear solves the operators share, with pivoting and a relative singularity test.
+ * @evidence contracts/common.md#clear-and-simple-design Plain functions on tuples.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A singular system returns null rather than a regularised answer.
+ * @evidence contracts/common.md#meaningful-documentation States each operation and the singularity tests.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work per call; the general solve is Gaussian elimination with partial pivoting.
+ * @evidence contracts/performance.md#reuse-equivalent-work Callers keep the returned tuples instead of recomputing them.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fresh tuples and holds nothing.
  */
 export namespace AutoMovieSolidVector {
   /** A world point or direction, mm. */

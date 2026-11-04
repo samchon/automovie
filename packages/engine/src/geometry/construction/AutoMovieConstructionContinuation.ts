@@ -5,6 +5,14 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * A continuation's shared end layer: the host chain's end layer re-expressed as the part chain's end layer, so the part's chain carries the host's section and both its station derivatives at the shared ring and the two faces are C2 across it.
  *
  * The part's stations leave the ring the way the host's continue it when the two ends differ (a host's top under a part's bottom): the layer is copied as it is. When the two ends are the same (top on top, bottom on bottom), the part's stations run against the host's, so the part's layer is the host's in the frame `(u, -v)`, whose normal `v x u` is reversed: its control points are reindexed `m -> -m mod N` with their `z` negated, which keeps every point of the ring and its counter-clockwise turn about the new normal; the phase `psi` on the part is then `-psi` on the host. First station derivatives change sign with the station's direction, second ones do not; the lift along the normal changes sign with the normal.
+ *
+ * @evidence contracts/common.md#principled-implementation The part's end layer becomes the host's section with its station jets signed into the part's station direction, so both chains share one ring and are C2 across it by the station rule they both use; a reversed pair reindexes control points so the ring keeps its counter-clockwise turn about the new normal.
+ * @evidence contracts/common.md#clear-and-simple-design A sign of the two ends and one layer transform cover all four end pairings.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A pole end, a control point mismatch or a non-spline basis is refused with its reason; the part's section is replaced, never faded toward the host's.
+ * @evidence contracts/common.md#meaningful-documentation States when the layer is copied as it is and when reversed, the reindexing, the phase relation and which derivatives change sign.
+ * @evidence contracts/performance.md#efficient-algorithms The transform is linear in the layer's control points, one pass per field.
+ * @evidence contracts/performance.md#reuse-equivalent-work The part chain's other layers are shared with the lofted chain by a shallow copy of the layer list.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates one replaced layer and one layer list per continuation; nothing is cached.
  */
 export namespace AutoMovieConstructionContinuation {
   /**

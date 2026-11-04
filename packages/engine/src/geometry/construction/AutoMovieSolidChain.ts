@@ -23,6 +23,14 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * the sign of `S_u x S_v` against the direction from the section's centre to
  * the point. A chain that bounds a hole (`mirrored`, its sections clockwise)
  * keeps its body on the other side, so its sign is turned.
+ *
+ * @evidence contracts/common.md#principled-implementation A lofted chain becomes a solid surface with station as `u` and phase as `v`, its jets the chain's own and its outward sign read once on a regular point.
+ * @evidence contracts/common.md#clear-and-simple-design Two functions: the framed twin of a chain and its surface.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Past the layers the surface continues by its end jet's Taylor expansion and its domain reports any point found there.
+ * @evidence contracts/common.md#meaningful-documentation States the chart, the orientation rule, the domain and the extension past the ends.
+ * @evidence contracts/performance.md#efficient-algorithms One chain jet evaluation per surface jet.
+ * @evidence contracts/performance.md#reuse-equivalent-work A chain that already carries its jets is returned as it is by `framed`.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The surface keeps a reference to the chain and nothing else.
  */
 export namespace AutoMovieSolidChain {
   /**

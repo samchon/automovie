@@ -35,6 +35,14 @@ const { cross, dot, norm, sub } = AutoMovieSolidVector;
  * the face of its chain); {@link evaluate} reads them back. Every triangle
  * turns outward: counter-clockwise seen from the solid's outside, the
  * viewer's front-face rule.
+ *
+ * @evidence contracts/common.md#principled-implementation Each face is tessellated on its own grid, trimmed by its loops with a metric margin, and zipped to its loops on arclength, so shared boundaries are the same vertices on both sides.
+ * @evidence contracts/common.md#clear-and-simple-design One mesh record; face, seam, close and bridge add triangles to it.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Triangles are turned outward by the face's orientation, never by a guessed winding.
+ * @evidence contracts/common.md#meaningful-documentation States the grid, the loops' kinds, the zipper and the outward rule.
+ * @evidence contracts/performance.md#efficient-algorithms Linear in grid cells and loop vertices per face.
+ * @evidence contracts/performance.md#reuse-equivalent-work Owners are registered once per surface and grid jets evaluated once per vertex.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Flat number arrays hold the mesh; per-face scratch ends with the face.
  */
 export namespace AutoMovieSolidMesh {
   /** What a coordinate is read on. */

@@ -70,6 +70,14 @@ const { add, cross, dot, norm, scale, sub } = AutoMovieSolidVector;
  * level sets: at a tangential contact (normals parallel), or where the curve
  * turns along the part's stations (phase) or along the half plane (angle).
  * Each is reported, never stepped over.
+ *
+ * @evidence contracts/common.md#principled-implementation The curve is traced by continuation in a declared parameter from one seed, each point Newton's solution of the four meeting equations, so the trace follows one loop of the true intersection.
+ * @evidence contracts/common.md#clear-and-simple-design One trace entry with its curve and point records; the laws and solves live in their own files.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A loop that does not close, a tangential contact or a point outside a surface's domain is reported; nothing is smoothed over.
+ * @evidence contracts/common.md#meaningful-documentation States the equations, the parameter kinds, the trace's checks and the curve's readings.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed number of traced points per turn, each a few Newton steps from its prediction.
+ * @evidence contracts/performance.md#reuse-equivalent-work The curve's `at` corrects from the nearest traced point instead of retracing.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the traced points and the law for the curve's lifetime.
  */
 export namespace AutoMovieSolidIntersection {
   /** One point of the curve with both preimages and their parameter jets. */

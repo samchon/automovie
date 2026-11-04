@@ -40,6 +40,14 @@ function unit(a: Vec3): Vec3 {
  *   in height, for a part whose sections drift sideways with height.
  * - {@link jointed}: a part straight along each segment and turning C2 at
  *   each joint (a limb along its bones), its station the arclength.
+ *
+ * @evidence contracts/common.md#principled-implementation Sections lie square to the part's own axis: straight, level, curved by minimal rotation, or jointed with C2 smoothstep turns, so no section twists about the axis.
+ * @evidence contracts/common.md#clear-and-simple-design One axis interface and one builder per axis kind.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An inadmissible jointed axis returns its rule; the turn is never shortened to fit.
+ * @evidence contracts/common.md#meaningful-documentation States each axis's frame, station and continuity.
+ * @evidence contracts/performance.md#efficient-algorithms Straight and level frames are constant work; the curved axis marches bounded steps; the jointed axis integrates each turn by fixed Gauss-Legendre panels.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each jointed turn's set-back is integrated once when the axis is built.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the axis's knots, splines or turns only.
  */
 export namespace AutoMovieViewAxis {
   /** A part's axis: the section plane at a station. */

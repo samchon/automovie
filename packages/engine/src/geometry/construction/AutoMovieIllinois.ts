@@ -7,6 +7,14 @@
  *
  * The bracket's ends must give values of opposite signs (or one zero), and
  * the root found stays inside it, so a monotone function gives its one root.
+ *
+ * @evidence contracts/common.md#principled-implementation The Illinois variant of regula falsi keeps a bracket and converges superlinearly on a monotone residual, the girth solve's case.
+ * @evidence contracts/common.md#clear-and-simple-design One bracketed root finder with a tolerance and an iteration bound.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A bracket without a sign change is reported, never widened silently.
+ * @evidence contracts/common.md#meaningful-documentation States the bracket premise, the halving rule and the stop condition.
+ * @evidence contracts/performance.md#efficient-algorithms Superlinear convergence with one residual evaluation per step.
+ * @evidence contracts/performance.md#reuse-equivalent-work The retained end's residual is reused, halved, instead of re-evaluated.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps two bracket ends and their residuals only.
  */
 export namespace AutoMovieIllinois {
   /**

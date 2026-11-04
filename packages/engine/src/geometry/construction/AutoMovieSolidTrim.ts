@@ -34,6 +34,14 @@ const { dot } = AutoMovieSolidVector;
  * one chart sheet of the surface (no seam of its periodic phase inside the
  * opening's span, or the phases unwrapped by the guesses), and dense enough
  * that the interpolant does not cross itself, which is checked.
+ *
+ * @evidence contracts/common.md#principled-implementation A trim loop is the periodic cubic B-spline through the landmarks' feet in the face's chart, C2 in the chart and on the surface.
+ * @evidence contracts/common.md#clear-and-simple-design One create function from landmarks and guesses to the trim and its readings.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A landmark without a foot or a self-crossing loop is reported, never repaired.
+ * @evidence contracts/common.md#meaningful-documentation States the loop's layout, its inside test and its ribbon.
+ * @evidence contracts/performance.md#efficient-algorithms One foot per landmark and a polygon of DENSITY samples per span for the inside test.
+ * @evidence contracts/performance.md#reuse-equivalent-work The inside polygon is built once per trim.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the loop's control points and polygon.
  */
 export namespace AutoMovieSolidTrim {
   /** A trim loop on a surface. */

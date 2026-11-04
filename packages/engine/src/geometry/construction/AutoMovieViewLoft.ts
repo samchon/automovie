@@ -37,6 +37,14 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
  * out of the chain with one diagnostic naming the part, the station and the
  * numbers; a girth outside the box's reach keeps the reach's end shape with
  * one diagnostic. Fewer than two surviving stations give no chain.
+ *
+ * @evidence contracts/common.md#principled-implementation A part's sections come from its four outlines and its fullness owner at each station, lofted into one C2 chain whose layers read back the outlines at their sites.
+ * @evidence contracts/common.md#clear-and-simple-design One create function from a view part to its chain, surface, sections and diagnostics.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A broken station is left out with its diagnostic; no section is replaced by a fallback shape.
+ * @evidence contracts/common.md#meaningful-documentation States the inputs' premises, the poles' domes and the result's fields.
+ * @evidence contracts/performance.md#efficient-algorithms One section solve per station plus the poles' added rings.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each outline's spline is built once and read at every station.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the chain and the emitted sections.
  */
 export namespace AutoMovieViewLoft {
   /** The operator's result. */
@@ -90,7 +98,7 @@ export namespace AutoMovieViewLoft {
     }
     const rising = (values: readonly number[]): boolean =>
       values.length >= 2 &&
-      values.every((v: number, i: number): boolean => Number.isFinite(v) && (i === 0 || v - values[i - 1]! >= AutoMovieLoftContract.LEAST_SPLINE_GAP));
+      values.every((v: number, i: number): boolean => Number.isFinite(v) && (i === 0 || (v > values[i - 1]! && v - values[i - 1]! >= AutoMovieLoftContract.splineGap(values))));
     if (!rising(part.stations)) {
       report("stations", `stations [${part.stations.join(", ")}] are not at least two strictly increasing finite values`);
       return empty();

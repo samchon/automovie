@@ -15,6 +15,14 @@ const { cross, dot, norm, scale } = AutoMovieSolidVector;
  * A join's width records as the kernel's width laws in millimetres (`AutoMovieSolidJoin.IInput.width`).
  *
  * A constant chord is one value; a chord table is the periodic cubic B-spline through its values at uniform curve parameters from 0. The two laws read from the surfaces, the fold's `R tan(beta / 2)` and the curvature's `share / |k|`, are evaluated at every point of the traced curve and read between them by the periodic cubic B-spline through those values from the seed's parameter, so every law is C2 round the loop. A `station` width is the part's fixed rail station under the phase parameter and is refused anywhere else.
+ *
+ * @evidence contracts/common.md#principled-implementation The fold law is the rolling ball's tangent length `R tan(beta / 2)` and the curvature law a share of the normal-section radius `1 / |k|` from `II(d, d) / I(d, d)`, both read at the traced points and interpolated C2 round the loop.
+ * @evidence contracts/common.md#clear-and-simple-design One law builder per width kind; the two surface-read kinds share one traced curve and one periodic spline.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A station width outside the phase parameter or on the host, a share outside (0, 1) and non-positive chords are refused with their reason; no width is clamped into range.
+ * @evidence contracts/common.md#meaningful-documentation States each kind's law, where it is evaluated and how it is interpolated.
+ * @evidence contracts/performance.md#efficient-algorithms One jet per traced point per surface-read law, and an O(n) periodic spline interpolation.
+ * @evidence contracts/performance.md#reuse-equivalent-work The traced curve is shared by both sides' laws.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Each law retains its control points only, for the join's lifetime.
  */
 export namespace AutoMovieConstructionWidths {
   /** What the surface-read laws need: the traced curve and the two sides. */

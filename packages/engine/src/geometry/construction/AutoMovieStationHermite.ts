@@ -20,6 +20,14 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * derivatives changes no interval of the spline; it only lets an interval
  * end on a neighbour's derivatives (a shared key, a cap's end key), which
  * the redesign plan's section 2 requires for C2 joins.
+ *
+ * @evidence contracts/common.md#principled-implementation Between layers a value moves by the cubic or quintic Hermite of its values and station jets, C1 or C2 by construction.
+ * @evidence contracts/common.md#clear-and-simple-design One basis per order and one interval evaluation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The quintic is used only where both layers carry second jets.
+ * @evidence contracts/common.md#meaningful-documentation States both bases and when each applies.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work per value from precomputed weights.
+ * @evidence contracts/performance.md#reuse-equivalent-work The weights of one station are shared by every coefficient of the interval.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns weights or values and holds nothing.
  */
 export namespace AutoMovieStationHermite {
   /** A layer's value, slope and optional curvature for one array. */

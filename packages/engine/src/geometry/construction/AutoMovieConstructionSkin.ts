@@ -8,6 +8,14 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * A realized construction's skin: every face's open end that its chain closes in a pole closed by a fan to the pole, and the body's mesh returned in the tree's metres with its owners as face names. An end with neither a pole nor a shared ring stays open.
+ *
+ * @evidence contracts/common.md#principled-implementation A pole end is closed by the fan to the chain's own pole point, the cap the dome's construction converges to, and the mesh is scaled to metres once at the boundary where the kernel's millimetres leave it.
+ * @evidence contracts/common.md#clear-and-simple-design Two functions: close the pole ends, then return the mesh in the tree's unit.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts An open end with neither a pole nor a shared ring stays open rather than being capped by a made fan.
+ * @evidence contracts/common.md#meaningful-documentation States which ends close, which stay open and the returned mesh's units and owners.
+ * @evidence contracts/performance.md#efficient-algorithms One pass over each face's open cycles and one linear copy of the mesh arrays.
+ * @evidence contracts/performance.md#reuse-equivalent-work Chains are found by their surface through one map built per call.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned arrays are the realization's own; the face map is released with the call.
  */
 export namespace AutoMovieConstructionSkin {
   /**

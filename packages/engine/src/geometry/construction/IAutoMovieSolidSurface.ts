@@ -12,6 +12,14 @@ import type { AutoMovieSolidVector } from "./AutoMovieSolidVector";
  * The derivatives must be the map's own, analytic or of a smooth fit, because
  * the intersection's tangent and curvature and the blend's G2 edges are built
  * from them; a difference across a step of the map would throw both.
+ *
+ * @evidence contracts/common.md#principled-implementation The solid operators need only a smooth chart with exact 2-jets, its period, orientation and domain, so any surface that supplies them can be merged, cut or trimmed.
+ * @evidence contracts/common.md#clear-and-simple-design One jet function and three properties.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The jets must be the map's own; finite differences would break the trace and the G2 blend.
+ * @evidence contracts/common.md#meaningful-documentation States the chart, the jet, the orientation rule and the domain.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms An interface; costs are its implementations'.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work No state of its own.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retention is its implementation's.
  */
 export interface IAutoMovieSolidSurface {
   /** Name in diagnostics, such as `arm.left` or `trunk`. */

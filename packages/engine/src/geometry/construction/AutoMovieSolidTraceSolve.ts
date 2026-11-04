@@ -13,6 +13,14 @@ const { combine, cross, dot, norm, sub } = AutoMovieSolidVector;
 
 /**
  * The meeting points of an intersection trace (`AutoMovieSolidIntersection`): Newton's method on the four equations `A(s, phi) = B(y, theta)` and the parameter law, on one host face or across an atlas's faces where the host point leaves one, each point's first and second rates in `t` by the implicit function theorem, and the continuation step from one point to the next with its halving.
+ *
+ * @evidence contracts/common.md#principled-implementation Each traced point solves the four meeting equations by Newton, its rates come from the implicit function theorem, and continuation halves a step that fails or jumps.
+ * @evidence contracts/common.md#clear-and-simple-design Solve on an atlas, solve on a face, advance and shift.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A step halved past its bound returns null; no point is accepted off the curve.
+ * @evidence contracts/common.md#meaningful-documentation States the equations, the face switches and the halving rule.
+ * @evidence contracts/performance.md#efficient-algorithms At most STEPS Newton steps per point and SWITCHES face changes.
+ * @evidence contracts/performance.md#reuse-equivalent-work The Jacobian at the solution serves both rate computations.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds one iterate and returns one point.
  */
 export namespace AutoMovieSolidTraceSolve {
   /** Newton steps per solve. */

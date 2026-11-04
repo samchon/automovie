@@ -23,6 +23,14 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * that keeps a point just past the rail and removes a point just before it
  * (the clipping of one boundary by another of Weiler and Atherton, Hidden
  * surface removal using polygon area sorting, SIGGRAPH 1977).
+ *
+ * @evidence contracts/common.md#principled-implementation A rail that crosses faces is clipped into each face as a run that replaces the cycle arc it cuts off, the Weiler-Atherton clipping of one boundary by another.
+ * @evidence contracts/common.md#clear-and-simple-design The rail with its crossings, then one clip per run per face.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A run whose side test keeps neither candidate is reported; no cycle is chosen by default.
+ * @evidence contracts/common.md#meaningful-documentation States the crossing search, the two candidates and the side test.
+ * @evidence contracts/performance.md#efficient-algorithms Crossings are placed by bisection to a fixed depth and each clip is linear in its cycle.
+ * @evidence contracts/performance.md#reuse-equivalent-work Rail points are vertices of the shared mesh, created once.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Replaces cycles in place; scratch arrays end with the call.
  */
 export namespace AutoMovieSolidClip {
   /** One point of a host rail on the body. */

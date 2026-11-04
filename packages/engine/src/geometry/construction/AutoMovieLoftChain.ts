@@ -45,6 +45,14 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * The constant terms `(x0(y), z0(y))` are the section centroids, so the
  * chain's central axis is the Hermite curve `(x0(y), y, z0(y))` of the same
  * function rather than a separate polyline.
+ *
+ * @evidence contracts/common.md#principled-implementation A chain is evaluated from its principal layers by the station Hermite rule on coefficients, lift and frame, so every station between layers is the C2 surface through them.
+ * @evidence contracts/common.md#clear-and-simple-design The chain's readings (coefficients, derivatives, frame, axis, section, ring, point) are functions of one record.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A station outside the layers is reported, never clamped into them silently.
+ * @evidence contracts/common.md#meaningful-documentation States the interpolation rule per field and the meaning of each reading.
+ * @evidence contracts/performance.md#efficient-algorithms Each reading brackets its interval by binary search and evaluates one Hermite span.
+ * @evidence contracts/performance.md#reuse-equivalent-work A sampler reads one station's section and frame once and evaluates many phases from them.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The sampler's small recent-station cache is bounded by a fixed count.
  */
 export namespace AutoMovieLoftChain {
   /**

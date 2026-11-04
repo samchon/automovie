@@ -38,6 +38,14 @@ const { combine, cross, dot, norm, sub, unit } = AutoMovieSolidVector;
  * `S_* e` against the part's outward normal. Both need the surfaces to cross,
  * not touch: where a direction lies in the other's tangent plane no rail
  * exists and null returns.
+ *
+ * @evidence contracts/common.md#principled-implementation A rail point is where the surface meets the normal section through the curve point at the declared chord, so a width reads in millimetres of skin whatever the chart.
+ * @evidence contracts/common.md#clear-and-simple-design One rail record per curve point and one create function per keep side.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Where the directions are tangent to the other surface no rail exists and null returns.
+ * @evidence contracts/common.md#meaningful-documentation States the square offset, the normal section, the modes and the kept sides.
+ * @evidence contracts/performance.md#efficient-algorithms A few Newton steps per rail from a first-order start.
+ * @evidence contracts/performance.md#reuse-equivalent-work The square direction's jet seeds both the offset and the section solve.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one record per point and retains nothing.
  */
 export namespace AutoMovieSolidRail {
   /** The rails at one curve point. */

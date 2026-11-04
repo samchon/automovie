@@ -5,6 +5,14 @@
  * It carries a sparse anatomical law along a chain: a few stations hold the
  * named numbers and the spline evaluates them at any layer, so layers can be
  * as dense as the surface needs while the independent numbers stay few.
+ *
+ * @evidence contracts/common.md#principled-implementation The natural cubic spline is the C2 interpolant of least bending, with zero end curvature, so a few named values carry a whole curve.
+ * @evidence contracts/common.md#clear-and-simple-design One prepared record and evaluate and derivative functions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Beyond the ends the curve continues as its straight end tangent, as the natural end condition implies, not as a clamped value.
+ * @evidence contracts/common.md#meaningful-documentation States the end condition, the extrapolation and the derivatives returned.
+ * @evidence contracts/performance.md#efficient-algorithms The tridiagonal system is solved in linear time; evaluation scans the knots once.
+ * @evidence contracts/performance.md#reuse-equivalent-work Knot curvatures are solved once and reused by every evaluation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the knots and one curvature array.
  */
 export namespace AutoMovieNaturalSpline {
   /** A spline prepared for evaluation. */

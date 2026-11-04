@@ -20,6 +20,14 @@
  *
  * Every check throws; none clamps, so a broken producer is named where it
  * broke the contract.
+ *
+ * @evidence contracts/common.md#principled-implementation The contracts a chain's producers meet (station spacing, finite jets, ring shape) are checked where data enters the kernel, so a later operator can rely on them.
+ * @evidence contracts/common.md#clear-and-simple-design One diagnostic record and one checker per contract.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A broken contract returns a diagnostic; no value is clamped into compliance.
+ * @evidence contracts/common.md#meaningful-documentation States each contract, its bound and why the bound has that size.
+ * @evidence contracts/performance.md#efficient-algorithms Every check is linear in the values it reads.
+ * @evidence contracts/performance.md#reuse-equivalent-work A checked station list is returned for the caller to keep using.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Diagnostics are the only allocation and belong to the caller.
  */
 export namespace AutoMovieLoftContract {
   /**
@@ -125,10 +133,22 @@ export namespace AutoMovieLoftContract {
 
   /**
    * Least rise between two stations of a chain made C2 by its natural spline,
-   * mm: the spline divides by the gaps and their squares, and a micrometre
-   * keeps those far within a double's range for millimetre coefficients.
+   * as a share of the stations' whole span: the spline divides by the gaps and
+   * their squares, and a millionth of the span keeps those far within a
+   * double's range at any part size (a micrometre on a metre-long part, a
+   * nanometre on a millimetre-long one).
    */
-  export const LEAST_SPLINE_GAP: number = 1e-3;
+  export const SPLINE_GAP_SHARE: number = 1e-6;
+
+  /**
+   * The least rise between two stations of a spline chain over these stations.
+   *
+   * @param values The stations, increasing, at least two.
+   * @returns {@link SPLINE_GAP_SHARE} of their span, mm.
+   */
+  export function splineGap(values: readonly number[]): number {
+    return SPLINE_GAP_SHARE * Math.abs(values[values.length - 1]! - values[0]!);
+  }
 
   /**
    * Largest magnitude of a station jet that the contract accepts: the largest

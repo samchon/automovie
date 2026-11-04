@@ -28,6 +28,14 @@
  *   section is a contact of several children, such as a palm whose fingers
  *   touch: the contact point is passed twice, and a polar angle would give
  *   both passes the same phase while arclength separates them.
+ *
+ * @evidence contracts/common.md#principled-implementation Phase correspondence between sections follows the declared rule (polar angle, arclength or anchored halves), so the same phase names corresponding points along the chain.
+ * @evidence contracts/common.md#clear-and-simple-design One rule union and one mapping per rule.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A degenerate outline (zero area or length) is reported rather than given an arbitrary phase.
+ * @evidence contracts/common.md#meaningful-documentation States each rule and what it keeps fixed.
+ * @evidence contracts/performance.md#efficient-algorithms Each mapping is linear in the outline's points.
+ * @evidence contracts/performance.md#reuse-equivalent-work Cumulative lengths are computed once per outline and searched per phase.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds one cumulative array per mapped outline for the call.
  */
 export namespace AutoMovieLoftParameter {
   /** Name of a correspondence rule. */

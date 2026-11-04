@@ -23,6 +23,14 @@
  *
  * Coefficient layout for N control points is
  * `[x_0, ..., x_{N-1}, z_0, ..., z_{N-1}]`, `2N` numbers in total.
+ *
+ * @evidence contracts/common.md#principled-implementation A section as a uniform periodic cubic B-spline is C2 in phase, and interpolation uses the periodic filter of the B-spline's inverse.
+ * @evidence contracts/common.md#clear-and-simple-design One coefficient layout and evaluate, jet, interpolate and project functions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Derivatives are the basis's own, scaled exactly by the phase's period.
+ * @evidence contracts/common.md#meaningful-documentation States the layout, the knot phases and the filter's truncation.
+ * @evidence contracts/performance.md#efficient-algorithms Evaluation reads four control points; interpolation is O(N) by the truncated filter.
+ * @evidence contracts/performance.md#reuse-equivalent-work The filter's weights are computed once at module load.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns tuples or one coefficient array.
  */
 export namespace AutoMovieSplineCurve {
   /** Offset of the z block in the coefficient array of N control points. */

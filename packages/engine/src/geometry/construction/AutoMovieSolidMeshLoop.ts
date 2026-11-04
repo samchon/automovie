@@ -10,6 +10,14 @@ const { dot, norm, sub } = AutoMovieSolidVector;
 
 /**
  * The trim-loop readings of a face's tessellation (`AutoMovieSolidMesh.face`): which grid vertices a loop keeps with a metric margin, which drawn-cell cycle belongs to which loop, and the arclength parameter and alignment the zipper (`AutoMovieSolidZip`) stitches a loop to its cycle by.
+ *
+ * @evidence contracts/common.md#principled-implementation A grid vertex is kept only beyond a metric margin from every loop, distances measured in the surface's first fundamental form, and loops meet cycles by arclength.
+ * @evidence contracts/common.md#clear-and-simple-design Four readings: keeps, nearest, arc and aligned.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Distances are metric, not chart distances, so a stretched chart does not move the margin.
+ * @evidence contracts/common.md#meaningful-documentation States each reading's measure and use.
+ * @evidence contracts/performance.md#efficient-algorithms Each reading is linear in the loop or cycle.
+ * @evidence contracts/performance.md#reuse-equivalent-work The metric coefficients are read once per vertex for all segments.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns numbers or index arrays and retains nothing.
  */
 export namespace AutoMovieSolidMeshLoop {
   /**

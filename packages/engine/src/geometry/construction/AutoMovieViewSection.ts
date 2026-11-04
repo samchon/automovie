@@ -72,6 +72,14 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
  * `2 sqrt(W^2 + D^2)` (the rhombus) and `2 (W + D)` (the rectangle), `W` and
  * `D` the box's breadth and depth, and the section reaches the open part of
  * that range its valid shoulders span ({@link range}).
+ *
+ * @evidence contracts/common.md#principled-implementation A section touches its box at the four guides with each quarter a conic of the stated shoulder, carried between guides by the quintic polar sector, and a girth fixes the common shoulder by Illinois on the hull's perimeter.
+ * @evidence contracts/common.md#clear-and-simple-design One section record and one create function per station's box and fullness.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A girth outside the reach keeps the reach's end and reports it; a section past its box is refused.
+ * @evidence contracts/common.md#meaningful-documentation States the guides, the conic, the girth's reach and every check's tolerance.
+ * @evidence contracts/performance.md#efficient-algorithms CONIC_SPANS sectors per quarter and a bounded Illinois solve for the girth.
+ * @evidence contracts/performance.md#reuse-equivalent-work Zero fullness arrays are made once per guide count.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the section's knots and guides only.
  */
 export namespace AutoMovieViewSection {
   /** The conic shoulder of the ellipse, `sqrt(2) - 1`. */

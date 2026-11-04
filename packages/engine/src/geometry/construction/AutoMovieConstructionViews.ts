@@ -16,6 +16,14 @@ import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
  * A construction tree's view part as the view-to-section operator's input (`IAutoMovieViewPart`): the tree's metres turned into the kernel's millimetres once, its axis record turned into the frame function it names, and its closed unions into the operator's own records.
  *
  * Lengths (stations, chart coordinates, girths, axis points, steps) are scaled by {@link SCALE}; shares, departures and directions are not.
+ *
+ * @evidence contracts/common.md#principled-implementation The tree's metres become the kernel's millimetres in one place with one factor, and each closed union maps to the operator's own record by its discriminant, so no length is scaled twice or not at all.
+ * @evidence contracts/common.md#clear-and-simple-design One converter per record kind: part, frame, parameter, point and direction.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Shares, departures and directions are left unscaled because they carry no length; an inadmissible axis returns its rule, not a substitute frame.
+ * @evidence contracts/common.md#meaningful-documentation States the scale, what it applies to and what it does not.
+ * @evidence contracts/performance.md#efficient-algorithms Every conversion is linear in the knots it copies.
+ * @evidence contracts/performance.md#reuse-equivalent-work A view is converted once per realization, and its frame function is built once and shared by every station.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The converted records belong to the caller; nothing is cached here.
  */
 export namespace AutoMovieConstructionViews {
   /** Millimetres per metre: the kernel's unit over the tree's. */

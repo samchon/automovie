@@ -26,6 +26,14 @@ import { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
  * webs), their host rails must not cross; the caller caps each width at half
  * the gap between the curves, and a corner past that is a setback closed by
  * `AutoMovieHumanSeamPatch`.
+ *
+ * @evidence contracts/common.md#principled-implementation A merge is the join that keeps the part outside the host and the host outside the part.
+ * @evidence contracts/common.md#clear-and-simple-design One call into the shared join with the outside keep.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Every failure is the join's diagnostic; nothing is retried.
+ * @evidence contracts/common.md#meaningful-documentation States the kept sides and the join it composes.
+ * @evidence contracts/performance.md#efficient-algorithms Costs exactly one join.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares the diff's code path.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the join result and keeps nothing.
  */
 export namespace AutoMovieSolidMerge {
   /**

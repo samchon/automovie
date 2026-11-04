@@ -41,6 +41,14 @@
  * plane (the underside of the chin, the nape, the upper lip) each jump was a
  * crease of up to four degrees along the layer. Without angular velocities
  * the interpolation is slerp.
+ *
+ * @evidence contracts/common.md#principled-implementation A section plane is an origin and an orthonormal pair; between layers it moves by the rotation Hermite or by its components' jets, so the plane turns smoothly with the chain.
+ * @evidence contracts/common.md#clear-and-simple-design One frame record and its operations: horizontal, interpolation, normal and rotation helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Axes are interpolated by rotation or by their declared jets, never renormalised after a linear blend.
+ * @evidence contracts/common.md#meaningful-documentation States the frame's axes, the normal convention and both interpolation rules.
+ * @evidence contracts/performance.md#efficient-algorithms Each operation is constant time on three-vectors.
+ * @evidence contracts/performance.md#reuse-equivalent-work Rotation quaternions are built once per interval reading.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fresh small records and holds nothing.
  */
 export namespace AutoMovieLoftFrame {
   /** A section plane in world millimetres. */

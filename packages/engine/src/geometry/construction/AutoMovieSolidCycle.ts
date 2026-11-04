@@ -10,6 +10,14 @@
  * or below it. Membership is read in the chart: the crossing number of the
  * cycle's polygon for a hole (its phases moved by whole periods to the
  * cycle's own), the cycle's station at the point's phase for a winding cycle.
+ *
+ * @evidence contracts/common.md#principled-implementation Which side a trim keeps is read by crossing parity on the cycle's own chart polygon, each segment on the phase branch nearest the point, so periodic faces read correctly.
+ * @evidence contracts/common.md#clear-and-simple-design One cycle record and its readings: kept, station, foot, centre and shift.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A cycle that turns back in phase is counted by parity, not by an assumed monotone order.
+ * @evidence contracts/common.md#meaningful-documentation States the three kinds and which side each keeps.
+ * @evidence contracts/performance.md#efficient-algorithms Every reading is linear in the cycle's vertices.
+ * @evidence contracts/performance.md#reuse-equivalent-work A hole's centre is computed once per reading and shared by its segments.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Readings allocate only their small results.
  */
 export namespace AutoMovieSolidCycle {
   /** One cycle. */

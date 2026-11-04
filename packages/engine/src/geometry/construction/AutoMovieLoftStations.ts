@@ -5,6 +5,14 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * Tessellation stations of a chain: where a face's grid rings stand.
  *
  * Every principal layer inside the range is a station, since it is a shape event. Each remaining interval is split at its midpoint while the section there departs from the straight band between the interval's end sections by more than the chord tolerance at any probe phase, and both halves are examined the same way. That departure is the error a flat band of triangles makes there, so curved stretches refine and straight ones stay coarse; `depth` bounds the recursion, so a pathological interval yields an explicit coarse band instead of unbounded work.
+ *
+ * @evidence contracts/common.md#principled-implementation A band is refined where its midpoint section departs from the flat band between its end sections by more than the chord tolerance, the physical error of that band of triangles.
+ * @evidence contracts/common.md#clear-and-simple-design One recursive bisection with the principal layers as fixed marks.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The depth bound yields an explicit coarse band rather than unbounded work or a fitted station set.
+ * @evidence contracts/common.md#meaningful-documentation States the error measure, the fixed marks and the depth bound.
+ * @evidence contracts/performance.md#efficient-algorithms One ring of PROBES points per tested midpoint; bisection stops where the error is met.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each interval's end rings are handed to its halves, so every station's ring is evaluated once.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds the rings of one recursion path and the output stations.
  */
 export namespace AutoMovieLoftStations {
   /** Probe phases of the band test, enough to resolve a section of the orders the view loft emits. */

@@ -9,6 +9,14 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * What a construction's walk builds besides the body (`realizeAutoMovieConstruction`), and its rollback: a snapshot of the body's faces, cycles, mesh and the walk's lists taken before a part is built, restored when the node attaching that part breaks a premise, so the part's whole subtree is left out and its host stands as it was.
+ *
+ * @evidence contracts/common.md#principled-implementation Leaving a broken join out means restoring the body to its state before the part was built: the faces, cycles, cutter flags, mesh lengths and the walk's lists are truncated or restored from one snapshot.
+ * @evidence contracts/common.md#clear-and-simple-design One state record for the walk, one snapshot record, and snap and restore as inverse functions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Cycles are deep-copied before a join so a clip that edits them in place is undone exactly; nothing is patched back by hand.
+ * @evidence contracts/common.md#meaningful-documentation States what the walk keeps, what the snapshot records and what the rollback restores.
+ * @evidence contracts/performance.md#efficient-algorithms A snapshot copies the cycles once and records array lengths; a restore truncates in place.
+ * @evidence contracts/performance.md#reuse-equivalent-work The mesh's arrays are truncated rather than rebuilt, so vertices before the snapshot are kept as they are.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources One cycle copy is held per open join and released when the join settles.
  */
 export namespace AutoMovieConstructionState {
   /** What the walk builds besides the body. */

@@ -42,6 +42,14 @@ const { combine, cross, dot, norm, sub } = AutoMovieSolidVector;
  * not cross itself in the chart (a width past the rail's radius of curvature
  * folds it); the blend's normal does not reverse along any column (a fold of
  * the blend between the rails).
+ *
+ * @evidence contracts/common.md#principled-implementation A join composes the trace, the rails at the declared chords and the G2 blend columns, and checks each premise (simple rail, unfolded blend, domains) before it is published.
+ * @evidence contracts/common.md#clear-and-simple-design One input record, one create function with the keep side, one result.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A broken premise returns no join; widths are never shrunk to pass.
+ * @evidence contracts/common.md#meaningful-documentation States each premise, its check and the readings of the published join.
+ * @evidence contracts/performance.md#efficient-algorithms One rail solve per column plus the fold check's fixed shares.
+ * @evidence contracts/performance.md#reuse-equivalent-work Columns are computed once and reused by the crossing and fold checks.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The join keeps its curve and width laws; checks' scratch ends with the call.
  */
 export namespace AutoMovieSolidJoin {
   /** A composed join. */

@@ -16,6 +16,14 @@
  * The window and the control net are the relief's transformation handles: a
  * gain on the net changes the feature's projection, a change of window its
  * extent.
+ *
+ * @evidence contracts/common.md#principled-implementation A feature is a height over a window of its host's chart, so it is carried by the host's surface.
+ * @evidence contracts/common.md#clear-and-simple-design One record of window, profile and axes.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The window bounds the feature exactly; nothing leaks outside it.
+ * @evidence contracts/common.md#meaningful-documentation States each field and its unit.
+ * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; evaluation cost is on `AutoMovieLoftRelief`.
+ * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record without computed state.
+ * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Constant size, owned by its chain.
  */
 export interface IAutoMovieLoftRelief {
   /** Name, for diagnostics and part ids. */

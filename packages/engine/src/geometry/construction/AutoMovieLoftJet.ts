@@ -25,6 +25,14 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  *
  * The strips, the trims' and lids' cross derivatives and the shading
  * normals read these instead of differences of sampled points.
+ *
+ * @evidence contracts/common.md#principled-implementation The chain's surface 2-jet is assembled from the station jets of coefficients, frame and lift by the product rule, so merge, diff and trim read exact first and second derivatives.
+ * @evidence contracts/common.md#clear-and-simple-design One jet record and one evaluation per station and phase; `carries` states when a chain has the jets it needs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No derivative is a finite difference; a chain without its jets is refused by `carries`.
+ * @evidence contracts/common.md#meaningful-documentation States each jet component and the terms of its product rule.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work per point beyond the section's span evaluation.
+ * @evidence contracts/performance.md#reuse-equivalent-work A recent-station cache reuses a station's interval readings across phases.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The cache holds a fixed number of stations.
  */
 export namespace AutoMovieLoftJet {
   /** Point and partial derivatives, world mm per mm of station and per radian of phase. */

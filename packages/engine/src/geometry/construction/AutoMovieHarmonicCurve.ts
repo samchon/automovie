@@ -22,6 +22,14 @@
  * Coefficient layout for order K is
  * `[x0, x1c, x1s, ..., xKc, xKs, z0, z1c, z1s, ..., zKc, zKs]`,
  * `2 * (2K + 1)` numbers in total.
+ *
+ * @evidence contracts/common.md#principled-implementation A section as a truncated Fourier series is the band-limited closed curve its harmonics define, with exact phase derivatives from the same coefficients.
+ * @evidence contracts/common.md#clear-and-simple-design One coefficient layout, evaluated with its derivatives by one routine.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Derivatives are the series' own, never differences of sampled points.
+ * @evidence contracts/common.md#meaningful-documentation States the coefficient layout, the harmonic order and the derivatives returned.
+ * @evidence contracts/performance.md#efficient-algorithms Evaluation is linear in the harmonic order by the angle-addition recurrence.
+ * @evidence contracts/performance.md#reuse-equivalent-work The sine and cosine of each harmonic are advanced from the previous instead of recomputed.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fixed-size tuples and allocates no buffers per call.
  */
 export namespace AutoMovieHarmonicCurve {
   /** Number of coefficients of one coordinate series of the given order. */

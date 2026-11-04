@@ -23,6 +23,14 @@
  *
  * Angles are radians and run counter-clockwise in the section's own
  * `(x, z)` chart: the point at `phi` is `rho (cos phi, sin phi)`.
+ *
+ * @evidence contracts/common.md#principled-implementation Between guides a section is the quintic polar Hermite of the guides' exact polar jets, so it touches its box at the guides with matching curvature.
+ * @evidence contracts/common.md#clear-and-simple-design One guide record and one sector evaluation in polar form.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The guides' jets are the conic's exact derivatives, never estimated from neighbours.
+ * @evidence contracts/common.md#meaningful-documentation States the guide's jet, the Hermite basis and the angle convention.
+ * @evidence contracts/performance.md#efficient-algorithms Horner evaluation of the quintic without allocation.
+ * @evidence contracts/performance.md#reuse-equivalent-work The sector's coefficients are formed once per guide pair.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the coefficients only.
  */
 export namespace AutoMoviePolarSector {
   /** A guide: a fixed angle owning the radius and its two angle derivatives. */

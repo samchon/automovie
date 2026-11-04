@@ -23,6 +23,14 @@ const { dot, norm, sub } = AutoMovieSolidVector;
  * point's distance from the surface's medial axis can reach a local foot on
  * the other side, which the caller avoids by seeding from the landmark's own
  * region.
+ *
+ * @evidence contracts/common.md#principled-implementation A point's foot on a surface is where the residual is square to both tangents, solved by Newton on the two tangential equations.
+ * @evidence contracts/common.md#clear-and-simple-design One function from a world point and a chart guess to the foot.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts A solve that does not converge returns null; no nearest sample stands in.
+ * @evidence contracts/common.md#meaningful-documentation States the residual, the tolerance and the failure.
+ * @evidence contracts/performance.md#efficient-algorithms Quadratic convergence, at most STEPS jets.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each step's jet serves both the residual and the Newton system.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds the iterate only.
  */
 export namespace AutoMovieSolidFoot {
   /** A foot point. */

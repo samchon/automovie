@@ -20,6 +20,14 @@ import { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
  * graph. A cut through the skin (an eye fissure, the mouth) is a trim in the
  * skin's chart (`AutoMovieSolidTrim`), not a diff, because nothing is
  * left behind it to blend to.
+ *
+ * @evidence contracts/common.md#principled-implementation A diff is the join that keeps the cutter's wall inside the base and the base outside the cutter, blended G2 like a merge.
+ * @evidence contracts/common.md#clear-and-simple-design One call into the shared join with the inside keep.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The kept sides come from the surfaces' normals; a cutter that misses the base is reported.
+ * @evidence contracts/common.md#meaningful-documentation States the kept sides and what the join provides.
+ * @evidence contracts/performance.md#efficient-algorithms Costs exactly one join.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares the merge's trace, rail and blend code.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the join result and keeps nothing.
  */
 export namespace AutoMovieSolidDiff {
   /**

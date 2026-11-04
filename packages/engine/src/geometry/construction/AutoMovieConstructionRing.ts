@@ -5,6 +5,14 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
  * A continuation's shared ring on the body: its vertices on the host face's end section at uniform host phases, a winding cycle of the host face there, and the same vertices as a winding cycle of the part face at the matching part phases (the host's phase, or its negative when the part's stations run against the host's), so the two faces are drawn onto one ring vertex for vertex.
+ *
+ * @evidence contracts/common.md#principled-implementation The ring's vertices are evaluated once on the host's end section and given to both faces as winding cycles, so the two tessellations meet vertex for vertex instead of being stitched after the fact.
+ * @evidence contracts/common.md#clear-and-simple-design One record names both faces, their end stations, cycle kinds, the ring's count and the phase sign; one function adds the vertices and both cycles.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No vertex is welded by distance; the part's cycle lists the host's vertex indices at the phases that evaluate to them.
+ * @evidence contracts/common.md#meaningful-documentation States where the vertices lie, both cycles, the part's phase order and the sign's meaning.
+ * @evidence contracts/performance.md#efficient-algorithms One surface evaluation per ring vertex and linear cycle construction.
+ * @evidence contracts/performance.md#reuse-equivalent-work The same vertex indices serve both faces' cycles.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Adds only the ring's vertices and two cycles to the body; no scratch outlives the call.
  */
 export namespace AutoMovieConstructionRing {
   /** A continuation's shared ring. */
