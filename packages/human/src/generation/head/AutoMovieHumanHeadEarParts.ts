@@ -5,6 +5,7 @@ import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import { AutoMovieHumanHeadEarFrame } from "./AutoMovieHumanHeadEarFrame";
 import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
+import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 
 /**
  * Each auricle and the parts inside it, in the ear's own frame
@@ -51,9 +52,18 @@ export namespace AutoMovieHumanHeadEarParts {
       ];
       const auricle: string = `auricle.${side}`;
 
-      // The auricle: a fin standing out of the head.
+      // The auricle: a fin standing out of the head. Its base sinks as far
+      // as the head's side falls away under it: the head mass's half width at
+      // the ear's centre less its half width at the lobule's foot, since the
+      // head narrows from the tragion down to the jaw; the radius whose
+      // sagitta over the ear's half length is that drop.
+      const half: number = f.length / 2;
+      const drop: number = Math.max(
+        0,
+        AutoMovieHumanHeadMassPart.halfWidth(plan, f.centre[1]) - AutoMovieHumanHeadMassPart.halfWidth(plan, f.centre[1] - half * f.a[1]),
+      );
       out.push(
-        part(auricle, "head.mass", "merge", at(0, 0, -INSET), f.n, f.a, [f.length / 2, f.breadth / 2, f.length / 2, f.breadth / 2], INSET + f.protrusion, 4, at(0, 0, 0)),
+        part(auricle, "head.mass", "merge", at(0, 0, -INSET), f.n, f.a, [half, f.breadth / 2, half, f.breadth / 2], INSET + f.protrusion, 4, at(0, 0, 0), drop > 0 ? (half * half) / (2 * drop) : undefined),
       );
 
       // The rims along the chord's back, each its ring's distance in.
@@ -91,11 +101,12 @@ export namespace AutoMovieHumanHeadEarParts {
     height: number,
     profile: number,
     seed: [number, number, number],
+    host?: number,
   ): AutoMovieHumanHeadFeatures.IFeature {
     const h: number = Math.max(INSET + 0.5, height);
     const e: [number, number, number, number] = extents.map((x: number): number => Math.max(0.5, Math.abs(x))) as [number, number, number, number];
     return {
-      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents: e, height: h, profile, shoulder: AutoMovieViewSection.ELLIPSE }),
+      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents: e, height: h, profile, shoulder: AutoMovieViewSection.ELLIPSE, ...(host === undefined ? {} : { host }) }),
       join,
       seed,
       contact: INSET,

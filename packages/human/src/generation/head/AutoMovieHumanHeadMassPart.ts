@@ -35,9 +35,9 @@ import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
  *   vault's over the forehead.
  *
  * The top is a pole at the vertex, every outline reaching 0 there; the bottom
- * is open where P's submental line meets the neck's front, inside the neck
- * the head mass is merged onto; a bottom at the neck ring put the front
- * behind the axis (a negative half extent) and turned the sections concave.
+ * is open at the menton's height, inside the neck the head mass is merged
+ * onto; a bottom lower down put the front of P, the submental line, within a
+ * few millimetres of the axis and turned the sections concave.
  * First pass: compile-only, not wired into generation.
  */
 export namespace AutoMovieHumanHeadMassPart {
@@ -61,10 +61,10 @@ export namespace AutoMovieHumanHeadMassPart {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const g: number = m.glabella[1];
 
-    // The open bottom: where P's submental line meets the neck's front,
-    // under which the neck alone owns the skin and the head mass would turn
-    // behind its own axis.
-    const throat: number = meeting(plan);
+    // The open bottom at the menton's height: under it the front of P (the
+    // submental line) closes on the axis within a few millimetres and the
+    // sections turned concave; the neck owns the skin under it.
+    const throat: number = plan.menton;
     const top: number = plan.vertex - g;
 
     // The axis in the side view: straight over the tragion, leaning below.
@@ -237,24 +237,6 @@ export namespace AutoMovieHumanHeadMassPart {
       else hi = mid;
     }
     return (lo + hi) / 2;
-  }
-
-  /**
-   * The height where P's submental line meets the neck's front (the neck
-   * ring's centre plus its radius), by bisection between the neck ring and
-   * the menton; the neck ring's height when P never comes that far back.
-   */
-  function meeting(plan: IAutoMovieHumanHeadLayout): number {
-    const front: number = plan.neck.x + plan.neck.radius;
-    let lo: number = plan.y0;
-    let hi: number = plan.menton;
-    if (median(plan, lo) >= front) return lo;
-    for (let k: number = 0; k < 60; k++) {
-      const mid: number = (lo + hi) / 2;
-      if (median(plan, mid) < front) lo = mid;
-      else hi = mid;
-    }
-    return hi;
   }
 
   /** The quintic smoothstep, C2 at both ends. */
