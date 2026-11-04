@@ -3,6 +3,7 @@ import type { IAutoMovieConstructionView } from "@automovie/interface";
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadLandmarks } from "../AutoMovieHumanHeadLandmarks";
+import { AutoMovieHumanHeadCaliper } from "./AutoMovieHumanHeadCaliper";
 import { AutoMovieHumanHeadEarParts } from "./AutoMovieHumanHeadEarParts";
 import { AutoMovieHumanHeadEyeParts } from "./AutoMovieHumanHeadEyeParts";
 import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
@@ -97,10 +98,11 @@ export namespace AutoMovieHumanHeadComposer {
     places?: IPlaces,
   ): IOutput {
     // The tragion at its published drop from the vertex, when given.
-    const plan: IAutoMovieHumanHeadLayout =
+    const placed: IAutoMovieHumanHeadLayout =
       places?.tragion === undefined
         ? skeleton
         : AutoMovieHumanHeadLandmarks.atTragion(skeleton, places.tragion);
+    const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadCaliper.close(placed, neckBase, places?.faceExponent);
     const declared: { part: IAutoMovieViewPart; view: IAutoMovieConstructionView } = AutoMovieHumanHeadTree.source(AutoMovieHumanHeadMassPart.of(plan, places?.faceExponent, neckBase));
     const massPart: IAutoMovieViewPart = declared.part;
     const mass: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(massPart);

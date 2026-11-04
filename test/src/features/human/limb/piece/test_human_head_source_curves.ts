@@ -29,7 +29,7 @@ import { HumanPeople } from "../../../internal/HumanPeople";
  * 1. Original signed edges retain finite orthonormal frames at knots,
  * isolated scalar extrema and span middles, including both asymmetric sides.
  * 2. Public cranial breadth and ft/zy/go widths reach actual source points;
- * local posterior calipers cannot exceed the supplied maximum head length.
+ * local and closed-domain stationary posterior calipers preserve public L.
  * 3. Nasal, lip, c-j/sa-sba and own eye chords keep their definitions;
  * closed-lip contacts and primary Bernstein upper curves agree through spans.
  * 4. Actual declarations replay at three physical scales. Independent eye
@@ -177,6 +177,28 @@ export function test_human_head_source_curves(): void {
   });
   console.log(`head local cranial caliper: ${JSON.stringify({ glabella, selectedHeight: plan.nasion, publicLength: inputs.head.length * bodyScale, readings: caliper, scope: "local cranial neighbourhood of the existing selected point; not a full-vault maximum or a neck-inclusive domain" })}`);
   check("local cranial caliper exceeds public maximum", Math.max(0, ...caliper.map((reading: { distance: number }): number => reading.distance - inputs.head.length * bodyScale)), 0);
+  const posterior: AutoMovieViewOutline.IOutline = massSource.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === "front.negative")!.outline!;
+  const cranialStart: number = mass.front.negative.knots.find((k: IAutoMovieViewPart.IKnot): boolean => k.site === "tragion")!.station;
+  const cranialEnd: number = last("head.mass");
+  const graphOrigin: number = mass.axis.at(glabella[1]).origin[0];
+  const distanceStations: number[] | string = AutoMovieViewOutline.distanceStations(posterior, glabella[1], glabella[0] - graphOrigin, [cranialStart, cranialEnd]);
+  if (typeof distanceStations === "string") findings.push(`actual posterior caliper query: ${distanceStations}`);
+  else {
+    const stations: number[] = [...new Set([...distanceStations, ...samples(posterior).filter((station: number): boolean => station >= cranialStart && station <= cranialEnd)])];
+    let maximum: number = 0;
+    let maximumPoint: [number, number, number] = [NaN, NaN, NaN];
+    let frameError: number = 0;
+    for (const station of stations) {
+      const back: [number, number, number] = point("head.mass", "front.negative", station);
+      const origin: [number, number, number] = mass.axis.at(station).origin;
+      frameError = Math.max(frameError, Math.abs(origin[0] - graphOrigin), Math.abs(origin[1] - station), Math.abs(origin[2]));
+      const chord: number = distance(glabella, back);
+      if (chord > maximum) { maximum = chord; maximumPoint = back; }
+    }
+    check("actual posterior fixed caliper chart", frameError, 0);
+    check("actual posterior cranial maximum caliper", maximum, inputs.head.length * bodyScale);
+    console.log(`head maximum cranial caliper: ${JSON.stringify({ domain: [cranialStart, cranialEnd], candidates: stations.length, glabella, maximumPoint, maximum, scope: "actual original source; closed retained cranial-base-to-crown domain and numerical critical candidates, not an anatomical region certificate or final skin" })}`);
+  }
   for (const [name, height] of [
     ["retained mean-site proxy", plan.y0],
     ["resolved cervicale", inputs.neckBase.cervicaleHeight * bodyScale],
