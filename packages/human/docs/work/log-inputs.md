@@ -51,3 +51,12 @@ Open, with reasons:
 - Soft tissue over the acromion, epicondyles, malleoli and stylion: no reachable published thickness.
 - Cervicale's absolute forward place: the skeleton chain (SVA, S1 depth, C7 morphometry) needs vertebral morphometry I cannot reach; the supervisor directed reading it from skin measures, and the back profile gives cervicale relative to the PSIS skin, so the absolute place waits on the pelvis's skin landmark relative to the hip joints (Harrington 2007 needs a pelvic depth not in the surveys).
 - Violation recorded earlier stands (13:18:27, a stray `python -`, no code ran).
+
+### Open items searched after the supervisor's 14:58 list (written 15:08, `date`)
+
+Searches through Europe PMC's open-access full text (the one reachable route; DTIC, nature.com, thieme and PMC's own pages refuse this machine):
+
+- Hand: landed `7f7f0c800`, `AutoMovieHumanDigitJoints` (Rastgoo Balov et al. 2026, PMC13039577: every digit's breadth and girth at its two distal joints, 51 women and 49 men). Still open: the joints' depths (no open source tabulates them; each is bounded by its box), the palm's thickness profile and metacarpal arch, and a resting posture (the open kinematics papers found record tasks, not rest). Greiner 1991 (DTIC ADA244533), which tabulates digit breadths and depths, answers 403.
+- Foot: the open 3D scan studies found (PMC11633873, PMC13687573, PMC12206372) define instep height and ball measures but carry their values in tables the open XML does not hold. Yaw, malleolar centre, metatarsal head places and forefoot height stay open. Landed earlier: `AutoMovieHumanFootArch`, the foot girths and instep length as inputs.
+- Limb width-to-depth and soft tissue over bony landmarks: the open ultrasound studies found give subcutaneous fat at fat sites (PMC7018793, athletes) or muscle thickness (`AutoMovieHumanLimbBonePlace`), not section depth or soft tissue over the acromion, epicondyles, malleoli or stylion. Open.
+- Cervicale's forward place: PMC3991691 (skin markers against upright MRI of the back) is a lead for the soft tissue over the spinous processes; the pelvis's skin landmarks against the hip joints were not found open. Open.
