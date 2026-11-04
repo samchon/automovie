@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 C7 source checkpoint completed (2026-11-05 05:45:01 +09:00, Get-Date)
+
+Directly read CORE's completed `material-roll-boundary-consumer-full-round.log`: start 05:38:24, 42/48 in 124,154 ms, exit 1. Both head questions pass in 895/581 ms; the adopted C7 height, actual mass stature and menton-to-vertex height have zero delta, while mass/neck posterior-point separation is 8.8817841970e-15 mm. The head source findings are empty. All six failing-case names remain, including the unchanged bilateral median counterexamples. This is the log's completed result, not a claim that this worker reaped CORE's process or ran another test.
+
+The source note/audit now replace their earlier pending C7 status with this named-point observation. The adopted phase's anatomical identity, two neck tapes, final skin and viewer acceptance remain separate. Read test 05:39:51 and debug 05:39:15 completed watch cycles. No TypeScript, geometry, matrix, source value, viewer module or running process was changed by this documentation reconciliation.
+
+At 05:45:52 +09:00 (Get-Date), completed the full three-document diff review against the source assertions and retained failure scope. `git diff --check` was clean; no additional execution was started.
+
 ## #3062 hand, foot and neck consumer follow-up (2026-11-05 05:37:46 +09:00, Get-Date)
 
 Read the actual pure HandBones/public ArmIdentity/HandJoints and retained de Leva, Buryanov and Reddy notes, then directly read ANSUR sections 5.2.36/6.4.45/6.4.66, printed pp. 60/121/142 as text. The hand/palm protocols use axis-parallel calipers in straight measuring poses; palm ends at the most proximal digit III base crease. They are not bind arclength or an MCP/web measurement. BODY confirmed the current independent crease-course interpretation and the retained shared 1.5 mm forearm WJC origin, distinct from the hand-specific 2.2/2.4 mm rows. No source value was changed.
