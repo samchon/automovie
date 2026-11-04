@@ -78,7 +78,7 @@ Findings to keep: the estimated cervicale reads on two people and the perineum's
 One program, the supervisor's, after the owner's fixed ttsx; I fill each table from its output:
 
 ```bash
-pnpm test --include test_human_estimate_trunk_outline test_human_estimate_head_outline test_human_estimate_arm_sections test_human_estimate_foot_outline test_human_estimate_face_profile test_human_estimate_masses test_human_estimate_ear_outline test_human_estimate_lid_margins test_human_estimate_digits test_human_estimate_nasion_ear test_human_estimate_sites test_human_estimate_face_detail test_human_estimate_leg_split
+pnpm test --include test_human_estimate_trunk_outline test_human_estimate_head_outline test_human_estimate_arm_sections test_human_estimate_foot_outline test_human_estimate_face_profile test_human_estimate_masses test_human_estimate_ear_outline test_human_estimate_lid_margins test_human_estimate_digits test_human_estimate_nasion_ear test_human_estimate_sites test_human_estimate_face_detail test_human_estimate_leg_split test_human_estimate_thigh_split
 ```
 
 | Reading | Table it fills | Reader it replaces |
@@ -91,3 +91,10 @@ pnpm test --include test_human_estimate_trunk_outline test_human_estimate_head_o
 | `test_human_estimate_masses` | breast and gluteal profiles about their points, vertical and horizontal | the masses' footprint and profile |
 
 Added at the supervisor's 16:00 order: `test_human_estimate_ear_outline` (the ear's side outline, its rim standing clear of the head projected onto the sagittal plane), `test_human_estimate_lid_margins` (the fissure's outline and the margins' forward places from the skin arcs' ends near the eyes), `test_human_estimate_digits` (each hand's digit chains reprojected normal to their axes, with each person's hands recorded as holding or not). The palm's thickness and the named digits' posture wait on what the digit reading shows.
+
+### Thigh split, suprapatella and the fold radii's lead (written 16:23, `date`)
+
+- `test_human_estimate_thigh_split` (pending run): the thigh's lateral share about the femur's line, the line placed by Hara 2016's hip centre (from leg length, read as the trochanterion height) and de Leva 1996's knee centre, the split read on the curves.
+- `AutoMovieHumanSuprapatella.height(measures)`: mid-patella (ANSUR II's share of stature) plus half the patella's length, 38.83 mm over 168 dry patellae (Kafa et al. 2024, Cureus, PMC11157160), the lower thigh tape's site.
+- Fold radii, lead: Störchle et al. 2018 (Sci Rep 8:16268, PMC6214952) measured the mean subcutaneous fat thickness over 216 sites, 3.69 mm in ten young men, and its relation to the subcutaneous fat's volume over the body's surface area; a fold's radius as the local layer's thickness needs the layer by site from the fat percentage, which those ten men alone do not give. Open; the eight-site atlas's site table (Störchle 2017, Ultrasound Med Biol) is the next source to read.
+- Nail plate size: open, no source read yet.
