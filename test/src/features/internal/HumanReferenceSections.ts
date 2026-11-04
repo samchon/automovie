@@ -138,6 +138,11 @@ export namespace HumanReferenceSections {
       // The Hermite midpoint: (start + end) / 2 + h (startDerivative - endDerivative) / 8.
       out.push([0, 1, 2].map((k: number): number => (s.start[k]! + s.end[k]!) / 2 + (h * (s.startDerivative[k]! - s.endDerivative[k]!)) / 8) as V3);
     });
+
+    // The last span's end closes the polygon of a closed curve (a repeated
+    // point) and is an open arc's far end, which a margin reading needs.
+    const last: ICurve["spans"][number] | undefined = curve.spans[curve.spans.length - 1];
+    if (last !== undefined) out.push(last.end);
     return out;
   }
 

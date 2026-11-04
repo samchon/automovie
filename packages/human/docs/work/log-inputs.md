@@ -78,7 +78,7 @@ Findings to keep: the estimated cervicale reads on two people and the perineum's
 One program, the supervisor's, after the owner's fixed ttsx; I fill each table from its output:
 
 ```bash
-pnpm test --include test_human_estimate_trunk_outline test_human_estimate_head_outline test_human_estimate_arm_sections test_human_estimate_foot_outline test_human_estimate_face_profile test_human_estimate_masses
+pnpm test --include test_human_estimate_trunk_outline test_human_estimate_head_outline test_human_estimate_arm_sections test_human_estimate_foot_outline test_human_estimate_face_profile test_human_estimate_masses test_human_estimate_ear_outline test_human_estimate_lid_margins test_human_estimate_digits
 ```
 
 | Reading | Table it fills | Reader it replaces |
@@ -90,4 +90,4 @@ pnpm test --include test_human_estimate_trunk_outline test_human_estimate_head_o
 | `test_human_estimate_face_profile` | the face's midline profile (nose, lips, chin) and front contour setback across the face (cheek, malar) | the head prior's profile and relief rows |
 | `test_human_estimate_masses` | breast and gluteal profiles about their points, vertical and horizontal | the masses' footprint and profile |
 
-Still without a reading: the lids (their curves are open arcs of separate shells in the pack) and the ear's outline (it needs sections normal to the head's side, which only a resection of the arcs gives); the digits and the hand's posture (only f1 carries sections normal to them).
+Added at the supervisor's 16:00 order: `test_human_estimate_ear_outline` (the ear's side outline, its rim standing clear of the head projected onto the sagittal plane), `test_human_estimate_lid_margins` (the fissure's outline and the margins' forward places from the skin arcs' ends near the eyes), `test_human_estimate_digits` (each hand's digit chains reprojected normal to their axes, with each person's hands recorded as holding or not). The palm's thickness and the named digits' posture wait on what the digit reading shows.
