@@ -191,7 +191,8 @@ Run it from the repository root.
   - `Human debug page stalled` with the requests it still waits on, when the page does no main-thread work for a minute: the server reads its task time every 5 s (Chrome's `Performance.getMetrics`, `debug/server/HumanDebugStall.ts`, proven by `test_human_debug_stall`).
 
   Each closes the page, so the generation slot is released and the next frame loads a fresh page. A cause about the page's own generation (a crash, a stack in `src`) belongs to the generator; a stall or a hang without such a cause is a viewer defect to trace before any visual claim.
-- A request whose client leaves before its frame starts is dropped from the queue. `status.json` names the running frame's stage and every queued request with its wait, and the server log names what a new request is queued behind. While the compile gate answers 503 or 409 the shot is asked again after `retry-after`, for up to 30 minutes. Requests carry no timeout, since changing the person takes minutes.
+- A request whose client leaves before its frame starts is dropped from the queue. `status.json` names the running frame's stage and every queued request with its wait, and the server log names what a new request is queued behind.
+- A subject that throws in the page fails its frame with the page's whole stack. Every address in it is rewritten through Vite's source map of that module to the TypeScript file, line and column, relative to `packages/human` (`src/generation/<file>.ts:<line>:<column>`); an address without a map keeps the served numbers and is marked `(unmapped)`. A page whose modules do not load (a missing import, a syntax error) fails with every module the server refused, each with Vite's message and the file, line and column it names. The same text is the HTTP 500 body, the server log's `[human-debug]` line, and an entry of `status.json`'s `failures` (the latest eight, newest first, with time, options and stage). While the compile gate answers 503 or 409 the shot is asked again after `retry-after`, for up to 30 minutes. Requests carry no timeout, since changing the person takes minutes.
 
 The owner's evidence set, each reference person from the front, the left and the back on one source:
 
@@ -205,7 +206,7 @@ node_modules\.bin\ttsx.CMD -P packages\human\tsconfig.debug.scripts.json package
 | --- | --- |
 | `/human-debug/index.json` | people, pieces with their arguments, batch entries, cameras, regions |
 | `/human-debug/source.json` | current source hash |
-| `/human-debug/status.json` | admitted requests, the running frame with its stage and seconds, the queued requests in order with their waits, the page's source and subject, kept frames, generation slot holders |
+| `/human-debug/status.json` | admitted requests, the running frame with its stage and seconds, the queued requests in order with their waits, the latest eight failures with their mapped stacks, the page's source and subject, kept frames, generation slot holders |
 | `/human-debug/compiler.json` | the compile collector's latest cycle |
 
 The source hash covers the package's `src` and `debug` trees, the `src` tree of every workspace dependency in `packages/human/package.json`, the typed people, and the page and configuration files at the package root.

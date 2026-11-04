@@ -190,9 +190,11 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
         2,
       );
     } catch (error) {
-      // The stack names the failing site; a capture's server log receives this text.
-      console.error(error instanceof Error ? (error.stack ?? error.message) : String(error));
-      messages = [...messages, error instanceof Error ? error.message : String(error)];
+      // The stack names the failing site; the notice carries it whole, so a capture's failure, its
+      // server log line and the status route's last failures name the file and line.
+      const text: string = error instanceof Error ? (error.stack ?? error.message) : String(error);
+      console.error(text);
+      messages = [...messages, text];
     }
     const query: string = HumanDebugOptions.write(options);
     history.replaceState(null, "", location.pathname + (query === "" ? "" : "?" + query) + location.hash);

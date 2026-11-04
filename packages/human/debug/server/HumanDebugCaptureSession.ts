@@ -1,6 +1,6 @@
 import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
 import { createHash } from "node:crypto";
-import { type Browser, type CDPSession, type ConsoleMessage, type Page, type Request, chromium } from "playwright-core";
+import { type Browser, type CDPSession, type ConsoleMessage, type Page, type Request, type Response, chromium } from "playwright-core";
 
 import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
 import { HumanDebugOptions } from "../contracts/HumanDebugOptions";
@@ -40,6 +40,9 @@ const GRACE: number = 10_000;
 /** Call frames named when a frame overruns its budget. */
 const DEPTH: number = 12;
 
+/** Failed requests the status route keeps. */
+const FAILURES: number = 8;
+
 /**
  * One resident headless Chrome page that draws every frame the image and batch routes ask for.
  *
@@ -66,7 +69,9 @@ const DEPTH: number = 12;
  *
  * Each of these closes the page (and Chrome, when the page does not close), so the slot is released
  * and the next frame loads a fresh page. A request whose client left before its frame started is
- * dropped from the queue. `status` names the running frame's stage and every queued request. A
+ * dropped from the queue. `status` names the running frame's stage, every queued request and the
+ * latest failures. A failure's page stack (a subject that threw, a budget overrun) is rewritten to the
+ * TypeScript files and lines (`HumanDebugStackMap`) before it is answered, logged and kept. A
  * software renderer is refused. PNGs are kept per source and canonical options up to 256 MiB, and
  * `fresh` with a new nonce always draws again.
  */
@@ -82,16 +87,21 @@ export class HumanDebugCaptureSession {
   private readonly waiting: Set<HumanDebugCaptureSession.IWork> = new Set();
   private readonly frames: Map<string, IHumanDebugFrame & { nonce: string | null }> = new Map();
   private readonly pending: Set<string> = new Set();
+  private readonly failures: HumanDebugCaptureSession.IStatus.IFailure[] = [];
+  private broken: string[] = [];
+  private reads: Promise<void>[] = [];
 
   /**
    * Prepare the session; nothing starts until the first frame.
    *
    * @param environment Server environment.
    * @param origin The server's own origin, read when the first frame starts.
+   * @param stacks Rewrites the page module addresses of a failure's text to their TypeScript file and line.
    */
   public constructor(
     private readonly environment: IHumanDebugEnvironment,
     private readonly origin: () => string,
+    private readonly stacks: (text: string) => Promise<string> = (text: string): Promise<string> => Promise.resolve(text),
   ) {}
 
   /** Admitted work, without acquiring anything: the running frame's stage and the queued requests in order. */
@@ -113,6 +123,7 @@ export class HumanDebugCaptureSession {
       source: this.source ?? null,
       subject: this.subject ?? null,
       frames: this.frames.size,
+      failures: [...this.failures],
     };
   }
 
@@ -164,6 +175,14 @@ export class HumanDebugCaptureSession {
       });
     try {
       return await drawn;
+    } catch (error) {
+      // The failure's page stack is mapped to the TypeScript sources once, here, so the answer,
+      // the server log and the status route all name the same file and line.
+      const failure: Error = error instanceof Error ? error : new Error(String(error));
+      failure.message = await this.stacks(failure.message).catch((): string => failure.message);
+      this.failures.unshift({ failedUtc: new Date().toISOString(), query, stage: work.stage, error: failure.message });
+      this.failures.splice(FAILURES);
+      throw failure;
     } finally {
       this.waiting.delete(work);
       this.admitted--;
@@ -268,6 +287,8 @@ export class HumanDebugCaptureSession {
     // The page generates its first subject right after its modules evaluate, before `load` would
     // fire, so the navigation waits only for the response.
     work.stage = "navigating";
+    this.broken = [];
+    this.reads = [];
     await page.goto(this.origin() + HUMAN_DEBUG_ROUTES.page + "?" + query, { waitUntil: "commit", timeout: MOUNT });
 
     // The handle exists once every static import has evaluated; the module script's error marker
@@ -288,7 +309,14 @@ export class HumanDebugCaptureSession {
       .then((handle: { jsonValue(): Promise<string | null> }): Promise<string | null> => handle.jsonValue())
       .then((value: string | null): string => value ?? "missing")
       .catch((error: unknown): string => "failed: " + String(error));
-    if (mounted !== "mounted") throw new Error("Human source changed: the page did not mount (" + mounted + ")");
+    if (mounted !== "mounted") {
+      // The modules the server refused (a missing import, a syntax error) name the cause.
+      await Promise.race([Promise.all(this.reads), delay(GRACE)]);
+      throw new Error(
+        "Human source changed: the page did not mount (" + mounted + ")" +
+          (this.broken.length === 0 ? "" : "; refused modules:\n" + this.broken.slice(0, 8).join("\n")),
+      );
+    }
     const snapshot: IHumanDebugSnapshot = await this.watched(
       page.evaluate(
         (): Promise<IHumanDebugSnapshot> => (window as unknown as { __humanDebug: { ready: Promise<IHumanDebugSnapshot> } }).__humanDebug.ready,
@@ -465,6 +493,20 @@ export class HumanDebugCaptureSession {
     page.on("requestfinished", (request: Request): void => void this.pending.delete(request.url()));
     page.on("requestfailed", (request: Request): void => void this.pending.delete(request.url()));
 
+    // A module the server refuses answers with Vite's error page, whose error names the file and line.
+    page.on("response", (response: Response): void => {
+      if (response.status() < 400) return;
+      const address: string = response.url().replace(/^https?:\/\/[^/]+/, "");
+      this.reads.push(
+        response
+          .text()
+          .catch((): string => "")
+          .then((body: string): void => {
+            if (this.broken.length < 16) this.broken.push(address + " " + response.status() + HumanDebugCaptureSession.refusal(body));
+          }),
+      );
+    });
+
     // The page logs every failed load with its stack; the server log is where a frame's cause is read.
     page.on("console", (message: ConsoleMessage): void => {
       if (message.type() === "error") console.error("[human-debug page]", message.text());
@@ -523,9 +565,27 @@ export namespace HumanDebugCaptureSession {
 
     /** Kept frames. */
     frames: number;
+
+    /** The latest failed requests, newest first. */
+    failures: IStatus.IFailure[];
   }
 
   export namespace IStatus {
+    /** One failed request: its cause, page stack mapped to the TypeScript sources. */
+    export interface IFailure {
+      /** UTC time it failed. */
+      failedUtc: string;
+
+      /** Canonical options. */
+      query: string;
+
+      /** The stage it was in. */
+      stage: string;
+
+      /** The failure's message, with the page's stack when the page threw. */
+      error: string;
+    }
+
     /** One admitted request as `status` reports it. */
     export interface IWork {
       /** Canonical options. */
@@ -543,6 +603,27 @@ export namespace HumanDebugCaptureSession {
   }
 
   /**
+   * The cause Vite's error page states for a refused module: its message and the file, line and
+   * column it names, read from the error the page embeds; empty when the body holds none.
+   *
+   * @param body Response body of the refused request.
+   * @returns `: <message> (<file>:<line>:<column>)`, or empty.
+   */
+  export function refusal(body: string): string {
+    const embedded: RegExpExecArray | null = /const error = (\{.*\})\s*$/m.exec(body);
+    if (embedded === null) return "";
+    try {
+      const error: { message?: unknown; id?: unknown; loc?: { file?: unknown; line?: unknown; column?: unknown } } = JSON.parse(embedded[1]!);
+      const file: unknown = error.loc?.file ?? error.id;
+      const at: string =
+        typeof file === "string" ? " (" + file + (typeof error.loc?.line === "number" ? ":" + error.loc.line + ":" + String(error.loc.column) : "") + ")" : "";
+      return typeof error.message === "string" ? ": " + error.message + at : at;
+    } catch {
+      return "";
+    }
+  }
+
+  /**
    * The page's JavaScript stack, read by pausing its debugger, which interrupts even a page busy in
    * one long task; null when Chrome does not answer within the grace period.
    *
@@ -555,14 +636,14 @@ export namespace HumanDebugCaptureSession {
       const paused: Promise<string> = new Promise<string>((resolve: (value: string) => void): void => {
         cdp.once(
           "Debugger.paused",
-          (event: { callFrames: { functionName: string; url: string; location: { lineNumber: number } }[] }): void =>
+          (event: { callFrames: { functionName: string; url: string; location: { lineNumber: number; columnNumber?: number } }[] }): void =>
             resolve(
               event.callFrames
                 .slice(0, DEPTH)
                 .map(
-                  (frame: { functionName: string; url: string; location: { lineNumber: number } }): string =>
+                  (frame: { functionName: string; url: string; location: { lineNumber: number; columnNumber?: number } }): string =>
                     (frame.functionName || "<anonymous>") +
-                    " (" + frame.url.replace(/^https?:\/\/[^/]+/, "").replace(/\?.*$/, "") + ":" + (frame.location.lineNumber + 1) + ")",
+                    " (" + frame.url + ":" + (frame.location.lineNumber + 1) + ":" + ((frame.location.columnNumber ?? 0) + 1) + ")",
                 )
                 .join(" <- "),
             ),

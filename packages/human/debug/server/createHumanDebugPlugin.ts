@@ -14,6 +14,7 @@ import { HumanDebugCaptureSession } from "./HumanDebugCaptureSession";
 import { HumanDebugCompilerLog } from "./HumanDebugCompilerLog";
 import { HumanDebugGenerationSlot } from "./HumanDebugGenerationSlot";
 import { HumanDebugSourceHash } from "./HumanDebugSourceHash";
+import { HumanDebugStackMap } from "./HumanDebugStackMap";
 import type { IHumanDebugBatchItem } from "./IHumanDebugBatchItem";
 import type { IHumanDebugEnvironment } from "./IHumanDebugEnvironment";
 import type { IHumanDebugFrame } from "./IHumanDebugFrame";
@@ -37,11 +38,22 @@ const EXTRA: readonly string[] = ["fresh", "round", "cameras", "pieces", "keep"]
  */
 export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plugin {
   let origin: string = "http://127.0.0.1:" + environment.port;
-  const session: HumanDebugCaptureSession = new HumanDebugCaptureSession(environment, (): string => origin);
+  let vite: ViteDevServer | undefined;
+  const session: HumanDebugCaptureSession = new HumanDebugCaptureSession(
+    environment,
+    (): string => origin,
+    (text: string): Promise<string> =>
+      HumanDebugStackMap(text, async (served: string): Promise<string | null> => {
+        // The client transform the page ran, cached by Vite; its map leads back to the TypeScript source.
+        const map: { mappings?: string } | null | undefined = (await vite?.transformRequest(served))?.map;
+        return typeof map?.mappings === "string" ? map.mappings : null;
+      }),
+  );
   return {
     name: "automovie-human-debug",
     apply: "serve",
     configureServer(server: ViteDevServer): void {
+      vite = server;
       server.httpServer?.once("listening", (): void => {
         const address: ReturnType<NonNullable<typeof server.httpServer>["address"]> = server.httpServer!.address();
         if (address !== null && typeof address !== "string") origin = "http://127.0.0.1:" + address.port;
