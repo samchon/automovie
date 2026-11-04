@@ -1,119 +1,53 @@
-import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
-
-import { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
-import { AutoMovieHumanHeadField } from "./AutoMovieHumanHeadField";
+import type { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
+import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 
 /**
- * Projection of face-plane points onto the head skin along the line of
- * sight: the frontmost crossing, with the skin's interpolated normal.
+ * Projection of face-plane points onto the head's lofted skin along the line
+ * of sight: the head chain's point whose place in the face plane is the
+ * given one, the frontmost where two chains hold it, with the chain's own
+ * normal. Each point is solved on the chain's parameters by Newton's method
+ * from the last point's solution (the trim loop's rule,
+ * `AutoMovieHumanBodyRoots.trim`); no triangle is read.
  */
 export class AutoMovieHumanBrowProjector {
-  /** Borrow the factory's generated triangle index and its calibration-mm face frame. */
+  /** Keep the head chains and the calibration-mm face frame. */
   private constructor(
-    private readonly triangles: Float64Array,
-    private readonly grid: Map<number, number[]>,
+    private readonly chains: readonly IAutoMovieHumanLoftChain[],
     private readonly g: AutoMovieHumanEyelid.IGlobe,
     private readonly origin: AutoMovieHumanEyelid.Point,
     private readonly temple: AutoMovieHumanEyelid.Point,
   ) {}
 
-  /** Cell size of the face-plane index, mm. */
-  private static readonly CELL: number = 2;
+  /** The last solution per chain, the next point's start. */
+  private readonly last: Map<IAutoMovieHumanLoftChain, [number, number]> = new Map();
+
+  /** Largest in-plane miss of a solution, mm. */
+  private static readonly MISS: number = 0.05;
 
   /**
-   * Index the head skin triangles near the brow.
+   * A projector on the head's chains.
    *
-   * @returns The projector, or null without head skin
+   * @param chains The calibration's chains, mm.
+   * @param g The eye's globe frame.
+   * @param origin The face plane's origin, mm.
+   * @param temple Unit direction toward the temple in the face plane.
+   * @returns The projector, or null without a head chain
    */
   public static create(
-    parts: readonly IAutoMovieModelPart[],
-    scale: number,
+    chains: readonly IAutoMovieHumanLoftChain[],
     g: AutoMovieHumanEyelid.IGlobe,
     origin: AutoMovieHumanEyelid.Point,
     temple: AutoMovieHumanEyelid.Point,
   ): AutoMovieHumanBrowProjector | null {
-    const E: typeof AutoMovieHumanEyelid = AutoMovieHumanEyelid;
-    const data: number[] = [];
-    const grid: Map<number, number[]> = new Map();
-    for (const part of parts) {
-      if (
-        !AutoMovieHumanHeadField.owns(part.id) ||
-        part.geometry.type !== "mesh"
-      )
-        continue;
-      const mesh: IAutoMovieMesh = part.geometry.mesh;
-      const p: number[] = mesh.positions;
-      const nrm: number[] | null = mesh.normals;
-      const index: number[] | null = mesh.indices;
-      const count: number = index === null ? p.length / 3 : index.length;
-      for (let t: number = 0; t < count; t += 3) {
-        const corners: number[] = [0, 1, 2].map((k: number): number =>
-          index === null ? t + k : index[t + k]!,
-        );
-        const pts: AutoMovieHumanEyelid.Point[] = corners.map(
-          (v: number): AutoMovieHumanEyelid.Point => [
-            p[3 * v]! / scale,
-            p[3 * v + 1]! / scale,
-            p[3 * v + 2]! / scale,
-          ],
-        );
-        const plane: [number, number][] = pts.map(
-          (q: AutoMovieHumanEyelid.Point): [number, number] => [
-            E.dot(E.sub(q, origin), temple),
-            E.dot(E.sub(q, origin), g.up),
-          ],
-        );
-        const lo: [number, number] = [
-          Math.min(...plane.map((q: [number, number]): number => q[0])),
-          Math.min(...plane.map((q: [number, number]): number => q[1])),
-        ];
-        const hi: [number, number] = [
-          Math.max(...plane.map((q: [number, number]): number => q[0])),
-          Math.max(...plane.map((q: [number, number]): number => q[1])),
-        ];
-        if (hi[0] < -15 || lo[0] > 60 || hi[1] < 5 || lo[1] > 45) continue;
-        const id: number = data.length / 18;
-        for (let k: number = 0; k < 3; k++) {
-          data.push(...pts[k]!);
-          const v: number = corners[k]!;
-          const n: AutoMovieHumanEyelid.Point =
-            nrm === null
-              ? [0, 0, 0]
-              : [nrm[3 * v]!, nrm[3 * v + 1]!, nrm[3 * v + 2]!];
-          data.push(...n);
-        }
-        for (
-          let i: number = Math.floor(lo[0] / AutoMovieHumanBrowProjector.CELL);
-          i <= Math.floor(hi[0] / AutoMovieHumanBrowProjector.CELL);
-          i++
-        )
-          for (
-            let j: number = Math.floor(
-              lo[1] / AutoMovieHumanBrowProjector.CELL,
-            );
-            j <= Math.floor(hi[1] / AutoMovieHumanBrowProjector.CELL);
-            j++
-          ) {
-            const key: number = i * 4096 + j;
-            const list: number[] = grid.get(key) ?? [];
-            list.push(id);
-            grid.set(key, list);
-          }
-      }
-    }
-    if (data.length === 0) return null;
-    return new AutoMovieHumanBrowProjector(
-      Float64Array.from(data),
-      grid,
-      g,
-      origin,
-      temple,
+    const head: IAutoMovieHumanLoftChain[] = chains.filter(
+      (c: IAutoMovieHumanLoftChain): boolean => c.name === "head" || c.name.startsWith("head."),
     );
+    return head.length === 0 ? null : new AutoMovieHumanBrowProjector(head, g, origin, temple);
   }
 
   /**
-   * Frontmost skin crossing of the line of sight through a face-plane
-   * point.
+   * Frontmost skin point on the line of sight through a face-plane point.
    *
    * @param a Distance toward the temple from the origin, mm
    * @param h Height above the origin, mm
@@ -126,71 +60,99 @@ export class AutoMovieHumanBrowProjector {
     point: AutoMovieHumanEyelid.Point;
     normal: AutoMovieHumanEyelid.Point;
   } | null {
-    const E: typeof AutoMovieHumanEyelid = AutoMovieHumanEyelid;
-    const list: number[] | undefined = this.grid.get(
-      Math.floor(a / AutoMovieHumanBrowProjector.CELL) * 4096 +
-        Math.floor(h / AutoMovieHumanBrowProjector.CELL),
-    );
-    if (list === undefined) return null;
-    let best: {
-      point: AutoMovieHumanEyelid.Point;
-      normal: AutoMovieHumanEyelid.Point;
-    } | null = null;
+    let best: { point: AutoMovieHumanEyelid.Point; normal: AutoMovieHumanEyelid.Point } | null = null;
     let front: number = -Infinity;
-    const d: Float64Array = this.triangles;
-    for (const id of list) {
-      const o: number = id * 18;
-      const P: (k: number) => AutoMovieHumanEyelid.Point = (
-        k: number,
-      ): AutoMovieHumanEyelid.Point => [
-        d[o + 6 * k]!,
-        d[o + 6 * k + 1]!,
-        d[o + 6 * k + 2]!,
-      ];
-      const Nn: (k: number) => AutoMovieHumanEyelid.Point = (
-        k: number,
-      ): AutoMovieHumanEyelid.Point => [
-        d[o + 6 * k + 3]!,
-        d[o + 6 * k + 4]!,
-        d[o + 6 * k + 5]!,
-      ];
-      const q: [number, number][] = [0, 1, 2].map(
-        (k: number): [number, number] => [
-          E.dot(E.sub(P(k), this.origin), this.temple),
-          E.dot(E.sub(P(k), this.origin), this.g.up),
-        ],
-      );
-      const det: number =
-        (q[1]![0] - q[0]![0]) * (q[2]![1] - q[0]![1]) -
-        (q[2]![0] - q[0]![0]) * (q[1]![1] - q[0]![1]);
-      if (Math.abs(det) < 1e-12) continue;
-      const u: number =
-        ((a - q[0]![0]) * (q[2]![1] - q[0]![1]) -
-          (q[2]![0] - q[0]![0]) * (h - q[0]![1])) /
-        det;
-      const v: number =
-        ((q[1]![0] - q[0]![0]) * (h - q[0]![1]) -
-          (a - q[0]![0]) * (q[1]![1] - q[0]![1])) /
-        det;
-      if (u < -1e-9 || v < -1e-9 || u + v > 1 + 1e-9) continue;
-      const point: AutoMovieHumanEyelid.Point = E.add(
-        E.add(E.scale(P(0), 1 - u - v), E.scale(P(1), u)),
-        E.scale(P(2), v),
-      );
-      const depth: number = E.dot(point, this.g.forward);
+    for (const chain of this.chains) {
+      const solved: [number, number] | null = this.solve(chain, a, h);
+      if (solved === null) continue;
+      const p: [number, number, number] = AutoMovieHumanLoftChain.point(chain, solved[0], solved[1]);
+      const depth: number = dot(p, this.g.forward);
       if (depth <= front) continue;
       front = depth;
-      let normal: AutoMovieHumanEyelid.Point = E.normalize(
-        E.add(
-          E.add(E.scale(Nn(0), 1 - u - v), E.scale(Nn(1), u)),
-          E.scale(Nn(2), v),
-        ),
-      );
-      if (E.dot(normal, normal) < 0.5)
-        normal = E.normalize(E.cross(E.sub(P(1), P(0)), E.sub(P(2), P(0))));
-      if (E.dot(normal, this.g.forward) < 0) normal = E.scale(normal, -1);
-      best = { point, normal };
+      best = { point: p, normal: this.normal(chain, solved[0], solved[1]) };
     }
     return best;
   }
+
+  /** The chain's parameters whose point has the face-plane place `(a, h)`, or null. */
+  private solve(chain: IAutoMovieHumanLoftChain, a: number, h: number): [number, number] | null {
+    const ys: number[] = chain.layers.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y);
+    const lowest: number = Math.min(...ys);
+    const highest: number = Math.max(...ys);
+    const place: (s: number, t: number) => [number, number, number] = (s: number, t: number): [number, number, number] => {
+      const p: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s, t);
+      const r: [number, number, number] = [p[0] - this.origin[0], p[1] - this.origin[1], p[2] - this.origin[2]];
+      return [dot(r, this.temple), dot(r, this.g.up), dot(p, this.g.forward)];
+    };
+    let [s, t]: [number, number] = this.last.get(chain) ?? this.seed(a, h, lowest, highest, place);
+    for (let k: number = 0; k < 30; k++) {
+      const [x, y] = place(s, t);
+      const rx: number = x - a;
+      const ry: number = y - h;
+      if (Math.hypot(rx, ry) < 1e-4) break;
+      const ds: number = s + 0.01 <= highest ? 0.01 : -0.01;
+      const ps: [number, number, number] = place(s + ds, t);
+      const pt: [number, number, number] = place(s, t + 1e-4);
+      const j11: number = (ps[0] - x) / ds;
+      const j21: number = (ps[1] - y) / ds;
+      const j12: number = (pt[0] - x) / 1e-4;
+      const j22: number = (pt[1] - y) / 1e-4;
+      const det: number = j11 * j22 - j12 * j21;
+      if (Math.abs(det) < 1e-12) break;
+      let step: [number, number] = [(-rx * j22 + ry * j12) / det, (rx * j21 - ry * j11) / det];
+      // Bound the step to a millimetre of skin.
+      const length: number = Math.hypot(step[0], step[1] * 50);
+      if (length > 1) step = [step[0] / length, step[1] / length];
+      s = Math.min(highest, Math.max(lowest, s + step[0]));
+      t += step[1];
+    }
+    const [x, y, depth] = place(s, t);
+    if (!(Math.hypot(x - a, y - h) <= AutoMovieHumanBrowProjector.MISS) || !(depth >= place(s, t + Math.PI)[2])) {
+      this.last.delete(chain);
+      return null;
+    }
+    this.last.set(chain, [s, t]);
+    return [s, t];
+  }
+
+  /** A start for a chain: its forward-facing grid point nearest the face-plane place. */
+  private seed(
+    a: number,
+    h: number,
+    lowest: number,
+    highest: number,
+    place: (s: number, t: number) => [number, number, number],
+  ): [number, number] {
+    let best: [number, number] = [(lowest + highest) / 2, 0];
+    let least: number = Infinity;
+    for (let s: number = lowest; s <= highest; s += 1)
+      for (let i: number = 0; i < 256; i++) {
+        const t: number = (2 * Math.PI * i) / 256;
+        const [x, y, depth] = place(s, t);
+        const d: number = Math.hypot(x - a, y - h) - 1e-3 * depth;
+        if (d < least) {
+          least = d;
+          best = [s, t];
+        }
+      }
+    return best;
+  }
+
+  /** The chain's unit normal at its parameters, turned to face forward. */
+  private normal(chain: IAutoMovieHumanLoftChain, s: number, t: number): AutoMovieHumanEyelid.Point {
+    const p: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s, t);
+    const ps: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s + 0.01, t);
+    const pt: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s, t + 1e-4);
+    const ds: number[] = [ps[0] - p[0], ps[1] - p[1], ps[2] - p[2]];
+    const dt: number[] = [pt[0] - p[0], pt[1] - p[1], pt[2] - p[2]];
+    const n: number[] = [ds[1]! * dt[2]! - ds[2]! * dt[1]!, ds[2]! * dt[0]! - ds[0]! * dt[2]!, ds[0]! * dt[1]! - ds[1]! * dt[0]!];
+    const l: number = Math.hypot(n[0]!, n[1]!, n[2]!) || 1;
+    const sign: number = dot(n as [number, number, number], this.g.forward) < 0 ? -1 : 1;
+    return [(sign * n[0]!) / l, (sign * n[1]!) / l, (sign * n[2]!) / l];
+  }
+}
+
+/** Dot product of two 3-vectors. */
+function dot(a: readonly number[], b: readonly number[]): number {
+  return a[0]! * b[0]! + a[1]! * b[1]! + a[2]! * b[2]!;
 }

@@ -194,7 +194,7 @@ export namespace AutoMovieHumanAppearance {
           ? null
           : AutoMovieHumanEyebrow.attempt(
               lid,
-              body.parts,
+              body.calibration.chains,
               scale,
               seed + 1,
               side,

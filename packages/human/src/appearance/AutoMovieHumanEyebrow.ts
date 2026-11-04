@@ -1,7 +1,8 @@
-import type { IAutoMovieMesh, IAutoMovieModelPart } from "@automovie/interface";
+import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
 import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import { AutoMovieHumanBrowProjector } from "./AutoMovieHumanBrowProjector";
 import { AutoMovieHumanEyebrowBody } from "./AutoMovieHumanEyebrowBody";
@@ -42,7 +43,7 @@ export namespace AutoMovieHumanEyebrow {
    * brow skin and the defect is recorded, never thrown past this level.
    *
    * @param lid The eye's lid margin in calibration millimetres
-   * @param parts Generated body parts in model units, for the head skin
+   * @param chains The calibration's chains in mm, for the head skin
    * @param scale Calibration millimetre to model unit factor
    * @param seed Seed of the hair placement, one for both eyes so they mirror
    * @param side The eye's side, for the diagnostic
@@ -51,14 +52,14 @@ export namespace AutoMovieHumanEyebrow {
    */
   export function attempt(
     lid: AutoMovieHumanEyelid.ILid,
-    parts: readonly IAutoMovieModelPart[],
+    chains: readonly IAutoMovieHumanLoftChain[],
     scale: number,
     seed: number,
     side: "left" | "right",
     diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
   ): IAutoMovieMesh | null {
     try {
-      return generate(lid, parts, scale, seed);
+      return generate(lid, chains, scale, seed);
     } catch (error) {
       diagnostics.push({
         producer: `human.hair.brows.${side}`,
@@ -74,14 +75,14 @@ export namespace AutoMovieHumanEyebrow {
    * Build one brow.
    *
    * @param lid The eye's lid margin in calibration millimetres
-   * @param parts Generated body parts in model units, for the head skin
+   * @param chains The calibration's chains in mm, for the head skin
    * @param scale Calibration millimetre to model unit factor
    * @param seed Seed of the hair placement, one for both eyes so they mirror
    * @returns Brow strands in model units, or null without head skin
    */
   export function generate(
     lid: AutoMovieHumanEyelid.ILid,
-    parts: readonly IAutoMovieModelPart[],
+    chains: readonly IAutoMovieHumanLoftChain[],
     scale: number,
     seed: number,
   ): IAutoMovieMesh | null {
@@ -93,11 +94,10 @@ export namespace AutoMovieHumanEyebrow {
       AutoMovieHumanEyebrowPlacement.controls(frame);
     const length: number = controls[controls.length - 1]!.a - controls[0]!.a;
 
-    // Head skin in calibration mm, indexed in the face plane.
+    // The head's lofted skin in calibration mm, solved in the face plane.
     const skin: AutoMovieHumanBrowProjector | null =
       AutoMovieHumanBrowProjector.create(
-        parts,
-        scale,
+        chains,
         frame.globe,
         frame.medial,
         frame.temple,
