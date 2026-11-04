@@ -4,17 +4,14 @@ The [tests](testing.md) and the score reject, and the viewer accepts. A candidat
 
 ## Score
 
-The score is a set of CPU-only tests that generate the figure without a GPU; those that read the private references run locally. They report:
+The score is a set of CPU-only tests that generate the figure without a GPU. They report:
 
 | Measure | Reads | Meaning |
 | --- | --- | --- |
 | Validity across the parameter domain | every control at both ends of its declared range and combined extremes, declaring a range first where a control has none | Rejects non-finite values, collapsed or self-crossing sections, folds and open joins. |
-| Requested against generated dimensions | public measurement definitions | Rejects a parameter with no or the wrong response. |
-| Held-out surface distance per part | the reference meshes | Rejects a law that does not generalize. |
+| Requested against generated dimensions | the input-identity audit ([Testing](testing.md#levels)) | Rejects a parameter with no or the wrong response. |
 
-For the held-out distance, build the law without one person, generate that person from public parameters alone, and measure along the reference surface normal, reporting RMS and the 95th percentile.
-
-Print the stature-only distance beside it; a law must beat that baseline. Hold out whole people, because neighbouring rows of one mesh predict each other.
+A law generalizes when it comes from a published source or a derivation and passes these for every person, not when it reproduces the references ([Testing](testing.md#people)).
 
 ## Inspection
 
