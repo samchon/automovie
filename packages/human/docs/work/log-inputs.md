@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 heel metric definitions recorded (2026-11-05 06:26:15 +09:00, Get-Date)
+
+For BODY's three remaining foot inputs, directly read complete ANSUR handbook sections 6.4.49/6.4.50, printed pp. 125/126, then rendered and personally opened both original figures. Heel breadth uses ordinary near-table heel support points with medial-side caliper alignment and a separate missing-points fallback. Heel-ankle tape crosses heel-ground contact/front ankle junction and spans hollows. Neither is one arbitrary horizontal cut, and the 2011 text is not asserted identical to the public heel field's 1988 citation. BODY independently reread the text and confirmed the three fields remain unconsumed in its frozen B snapshot. The source note/audit record the sites, metric limits and reading scope; no new implementation or runtime was requested.
+
+The task-owned Cho Figure 1 and these two ANSUR PNGs remain for shared direct reading, along with the original handbook and existing SHIN/Ali/Patil material. Poppler used the dedicated absolute runtime-temp and f1 environment. After it finished, verified that exact directory was ordinary/non-reparse and empty (zero children), then removed it with literal-path Remove-Item without Force or recursion. Test-Path confirms its absence. CORE99716 and the viewer were untouched.
+
+At 06:27:32 +09:00 (Get-Date), completed the full three-document diff review against the primary text, figures and current consumer boundary. The matrix also records the completed Cho Figure 1 reading without promoting its unread tables. `git diff --check` was clean; no TypeScript, numerical source or new functional execution changed.
+
 ## #3062 source metadata save coordinated (2026-11-05 06:21:39 +09:00, Get-Date)
 
 CORE explicitly confirmed its next shared invocation had not started and released the two pending JSDoc changes. Saved them together by 06:18:28: SHIN's supplied height is pupil-aligned margin separation, not absolute pupil elevation; TOES records horizontal-loop foot-axis projections, with gap packing and the composite apex labelled as construction proxies. Complete diff review confirms comments only: no cell, arithmetic expression, function, annotation target or API changed. ReferenceOutlines and FootPlaces are 468/132 lines; whitespace checks are clean. CORE received the save time without an added watch barrier or duplicate invocation.

@@ -4,7 +4,7 @@ Hotzman J et al. *Measurer's Handbook: US Army and Marine Corps Anthropometric S
 
 ## Direct reading
 
-Printed pp. 33-34, 83-84, 112-115 and 139-140 were read; rendered figures on pp. 83/84/112/113 were also inspected. A later hand-datum follow-up directly read sections 5.2.36, 6.4.45 and 6.4.66, printed pp. 60, 121 and 142, as text only. PDF page numbers are ten greater. This is not a complete handbook reading.
+Printed pp. 33-34, 83-84, 112-115 and 139-140 were read; rendered figures on pp. 83/84/112/113 were also inspected. A later hand-datum follow-up directly read sections 5.2.36, 6.4.45 and 6.4.66, printed pp. 60, 121 and 142, as text only. The heel follow-up read the complete text and rendered figures of sections 6.4.49/6.4.50, printed pp. 125-126. PDF page numbers are ten greater. This is not a complete handbook reading.
 
 ## Definitions and use
 
@@ -27,3 +27,11 @@ Section 5.2.36, printed p. 60, defines stylion at the inferior radius and transf
 Palm length, section 6.4.66/p. 142, uses the ventral stylion and centre of digit III's base crease, choosing the most proximal crease if several exist. The forearm is horizontal, the hand straight and palm up, digit III parallel to the forearm, and the caliper beam parallel to that axis. The endpoint is a skin crease, not a web or MCP centre. Neither protocol defines an already flexed bind's Euclidean distance or bone-chain arclength.
 
 Human's current pure HandBones uses a shared 1.5 mm stylion-to-WJC placement from the forearm, independent de Leva WJC-to-MET3/WJC-to-DAC3 ratios and a separate public crease locus carried onto the proximal-phalanx course in bind. The source's hand-specific Table 2 offsets are instead 2.2/2.4 mm; preserving one common wrist is a retained transfer approximation, not an assertion that the rows agree. MET3-to-MCP-centre and interarticular-length-to-joint-centre transfers remain proxies. No offset, hand shape or measurement value was changed in this follow-up.
+
+## Heel metrics follow-up, campaign #3062
+
+Heel breadth, p. 126, is a maximum horizontal caliper distance at or posterior to the lateral malleolus. Its ordinary procedure locates the protruding medial/lateral heel points just above the table; the fixed blade is parallel to the foot's medial side. The photograph and plan diagram show those support points. This is not a maximum over all ankle heights or automatically the Brannock foot-axis breadth. Where heel points are absent, the text names a separate fallback at the level of the most protruding lateral malleolus point; the figure does not independently define a new coordinate axis for that fallback. Human's public heel field cites the 1988 survey, so identity with every detail of this 2011 protocol has not been established here.
+
+Heel-ankle circumference, p. 125, passes the heel's first table-contact point and the drawn front-ankle dorsal juncture. The photograph and schematic show a diagonal course. The tape spans hollows, so it need not follow every concavity of a surface-intersection curve. For a chosen piecewise contact/bridge tape, length is the sum of contact-arc lengths and straight bridge lengths; this geometric identity does not choose its complete 3D course. Ball circumference, p. 83, separately passes the I/V metatarsophalangeal protrusions. Replacing either with one horizontal section or declaring an arbitrary oblique plane as the original protocol would change its definition.
+
+At this source checkpoint FootInterim consumes instep and ball lengths, but not heel breadth, ball circumference or heel-ankle circumference. The modeler's B toe-chart repair and its current shared runtime are not claimed to consume or close these three measures.
