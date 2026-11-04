@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 source chart and p2 definition follow-up (2026-11-05 06:09:42 +09:00, Get-Date)
+
+The supervisor approved BODY's B foot chart after the retained datum review. Directly reread both complete retained sites/foot-outline readers, without execution. Corrected my commentary's imprecise parallel-cut description: the observations are horizontal skin loops expressed in foot-axis along/across coordinates, not toe-normal widths. Supplied the fixed-plane identity `dot(P-heel,along)=q`, its calibration-mm/orthonormal-basis premises and the existing chart handedness. This supports the actual B source representation; the extra extrema API is no longer its prerequisite. Across-origin interpolation, rig, overlap, group B and ball tape remain distinct.
+
+The actual saved A define/attachments/FootPart adapter and complete source observer had also been read, including the full dorsal-support root-depth proxy and the sampled whole-toe projections. Their point sharing and diagnostic limits were confirmed without calling that discarded toe-normal chart accepted. Following the ear's anchor supplied the t-n squared-distance transfer and actual top-endpoint closure equations to HEAD. For p2, directly reopened Cho's Measurements/caption and personally viewed Figure 1A/B; no specified world vector or arbitrary-normal equivalence follows. The source note preserves the limit. Its task-owned primary figure remains for HEAD's direct reading; the temporary publisher HTML has served its image-link discovery.
+
+At 06:12:02 +09:00 (Get-Date), completed the whole three-document diff review and clean `git diff --check`. Verified and removed only the exact ordinary task-owned publisher HTML with literal-path Remove-Item without Force; Test-Path confirms it absent and the shared figure present. No generated person, private data reading, new source value or additional test was introduced.
+
 ## #3062 ear source definition round (2026-11-05 05:54:34 +09:00, Get-Date)
 
 Directly read complete current EarFrame/Plate/Ridge/Parts and their Lane-to-Composer top transfer/source assertions. Gathered four related findings before any shape correction: computed FORWARD centre.x is not consumed by the plate; the old centreY plus new projected axis/free-end stand does not identically close passed ear-top height; internal protrusion projection does not prove actual scalp distance; all three ridge courses taper to zero at the shared fork. The audit states exact equations, contributors and proof boundaries. HEAD and the supervisor received all four as one source-cause round. No reference measurement, new coefficient, modeler edit, render or test was made here.

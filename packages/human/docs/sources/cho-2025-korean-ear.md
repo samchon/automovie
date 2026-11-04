@@ -14,6 +14,12 @@ CC BY-NC 4.0. Numbers are facts.
 
 The [publisher's methods and Figure 1](https://doi.org/10.3346/jkms.2025.40.e107) define ear width as otobasion superius to the posterior contour, perpendicular to the superaurale-subaurale line (c-j). The actual public [`IAutoMovieHumanEar.breadth`](../../src/structures/head/IAutoMovieHumanEar.ts) uses this definition. An earlier version of this note incorrectly called the public measure pra-pa; that was a failure to check the declaration against the technique note. Conchal length is concha superior to intertragic notch (g-h); conchal width is porion to the strongest antihelical curvature (b-k). Protrusion is the scalp distance at superaurale or tragal level. None supplies a rolled helix course, crural fork or conchal floor depth.
 
+## Protrusion direction follow-up, campaign #3062
+
+The publisher's Measurements passage and Figure 1 caption were directly reopened, and [Figure 1A/B](https://jkms.org/ArticleImage/0063JKMS/jkms-40-e107-g001-m.jpg) was personally opened. The caption calls p1/p2 scalp distances "vertical distances" at superaurale/tragal levels. Panel B draws p2 between the scalp and auricular contours, horizontally in the image and parallel to p1. No world coordinate axes, three-dimensional measuring plane, nearest-surface algorithm or vector formula for a constructed head normal is specified there. The schematic's image direction must not silently become a world-axis or arbitrary-normal law.
+
+Human's current plate identity `dot(posterior-attachment,n)=P` closes an internal projection. To interpret it as scalp-to-rim protrusion, the two actual source endpoints and the chosen measurement direction must also be identified. The original does not establish that an attachment proxy lies on the scalp or that a frontal-silhouette-derived n is that measurement direction. These are geometric construction/proof choices; no new offset or protrusion value is adopted by this reading.
+
 ## Values, mean (SD) mm (left / right where both given)
 
 | Measure | Men | Women |
