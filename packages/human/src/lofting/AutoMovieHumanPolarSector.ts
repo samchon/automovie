@@ -61,13 +61,19 @@ export namespace AutoMovieHumanPolarSector {
     if (guides.length < 2 || fullness.length !== guides.length)
       throw new Error("A polar section needs two guides and one fullness per sector");
     const n: number = guides.length;
-    const at: number = wrap(phi - guides[0]!.angle) + guides[0]!.angle;
-    let j: number = n - 1;
-    for (let k: number = 0; k + 1 < n; k++)
-      if (at < guides[k + 1]!.angle) {
-        j = k;
-        break;
-      }
+    const first: number = guides[0]!.angle;
+    const at: number = wrap(phi - first) + first;
+
+    // The sector by bisection on the increasing guide angles: the last guide
+    // at or below the angle, or the last guide for the closing sector.
+    let lo: number = 0;
+    let hi: number = n;
+    while (hi - lo > 1) {
+      const m: number = (lo + hi) >> 1;
+      if (guides[m]!.angle <= at) lo = m;
+      else hi = m;
+    }
+    const j: number = lo;
     const a: IGuide = guides[j]!;
     const b: IGuide = guides[(j + 1) % n]!;
     const width: number = j + 1 < n ? b.angle - a.angle : b.angle + TWO_PI - a.angle;
@@ -108,19 +114,54 @@ export namespace AutoMovieHumanPolarSector {
     return AutoMovieHumanSeam.publish(p, d1, d2);
   }
 
-  /** One sector's radius jet at share `xi` of its width. */
+  /**
+   * One sector's radius jet at share `xi` of its width: the quintic Hermite
+   * basis and the bump with their first two derivatives written out by
+   * Horner's rule, so a call allocates only its result.
+   */
   function sector(a: IGuide, b: IGuide, width: number, full: number, xi: number): Jet {
     const D: number = width;
-    const w: number[][] = [0, 1, 2].map((k: number): number[] => BASIS.map((p: readonly number[]): number => poly(p, xi, k)));
-    const bump: number[] = [0, 1, 2].map((k: number): number => poly(BUMP, xi, k));
-    const values: number[] = [a.value, D * a.slope, D * D * a.curvature, b.value, D * b.slope, D * D * b.curvature];
-    const out: Jet = [0, 0, 0];
-    for (let k: number = 0; k < 3; k++) {
-      let v: number = full * bump[k]!;
-      for (let i: number = 0; i < 6; i++) v += w[k]![i]! * values[i]!;
-      out[k] = v / D ** k;
-    }
-    return out;
+    const x: number = xi;
+    const x2: number = x * x;
+
+    // Values, first and second derivatives in xi of the six basis functions.
+    const h0: number = 1 + x2 * x * (-10 + x * (15 - 6 * x));
+    const h0d: number = x2 * (-30 + x * (60 - 30 * x));
+    const h0dd: number = x * (-60 + x * (180 - 120 * x));
+    const h1: number = x + x2 * x * (-6 + x * (8 - 3 * x));
+    const h1d: number = 1 + x2 * (-18 + x * (32 - 15 * x));
+    const h1dd: number = x * (-36 + x * (96 - 60 * x));
+    const h2: number = x2 * (0.5 + x * (-1.5 + x * (1.5 - 0.5 * x)));
+    const h2d: number = x * (1 + x * (-4.5 + x * (6 - 2.5 * x)));
+    const h2dd: number = 1 + x * (-9 + x * (18 - 10 * x));
+    const h3: number = 1 - h0;
+    const h3d: number = -h0d;
+    const h3dd: number = -h0dd;
+    const h4: number = x2 * x * (-4 + x * (7 - 3 * x));
+    const h4d: number = x2 * (-12 + x * (28 - 15 * x));
+    const h4dd: number = x * (-24 + x * (84 - 60 * x));
+    const h5: number = x2 * x * (0.5 + x * (-1 + 0.5 * x));
+    const h5d: number = x2 * (1.5 + x * (-4 + 2.5 * x));
+    const h5dd: number = x * (3 + x * (-12 + 10 * x));
+
+    // The bump 64 xi^3 (1 - xi)^3 and its derivatives.
+    const s: number = 1 - x;
+    const bump: number = 64 * x2 * x * s * s * s;
+    const bumpd: number = 192 * x2 * s * s * (1 - 2 * x);
+    const bumpdd: number = 384 * x * s * (1 - 5 * x + 5 * x2);
+
+    // The guides' jets scaled to the unit share.
+    const v0: number = a.value;
+    const v1: number = D * a.slope;
+    const v2: number = D * D * a.curvature;
+    const v3: number = b.value;
+    const v4: number = D * b.slope;
+    const v5: number = D * D * b.curvature;
+    return [
+      h0 * v0 + h1 * v1 + h2 * v2 + h3 * v3 + h4 * v4 + h5 * v5 + full * bump,
+      (h0d * v0 + h1d * v1 + h2d * v2 + h3d * v3 + h4d * v4 + h5d * v5 + full * bumpd) / D,
+      (h0dd * v0 + h1dd * v1 + h2dd * v2 + h3dd * v3 + h4dd * v4 + h5dd * v5 + full * bumpdd) / (D * D),
+    ];
   }
 }
 
@@ -131,31 +172,4 @@ const TWO_PI: number = 2 * Math.PI;
 function wrap(t: number): number {
   const r: number = t % TWO_PI;
   return r < 0 ? r + TWO_PI : r;
-}
-
-/**
- * The quintic Hermite basis on `[0, 1]` as polynomial coefficients from the
- * constant term: value, first and second derivative at 0, then at 1.
- */
-const BASIS: readonly (readonly number[])[] = [
-  [1, 0, 0, -10, 15, -6],
-  [0, 1, 0, -6, 8, -3],
-  [0, 0, 0.5, -1.5, 1.5, -0.5],
-  [0, 0, 0, 10, -15, 6],
-  [0, 0, 0, -4, 7, -3],
-  [0, 0, 0, 0.5, -1, 0.5],
-];
-
-/** `64 xi^3 (1 - xi)^3`: zero with two derivatives at both ends, 1 at the middle. */
-const BUMP: readonly number[] = [0, 0, 0, 64, -192, 192, -64];
-
-/** A polynomial's k-th derivative at x, coefficients from the constant term. */
-function poly(c: readonly number[], x: number, k: number): number {
-  let sum: number = 0;
-  for (let i: number = k; i < c.length; i++) {
-    let f: number = 1;
-    for (let j: number = 0; j < k; j++) f *= i - j;
-    sum += f * c[i]! * x ** (i - k);
-  }
-  return sum;
 }

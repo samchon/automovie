@@ -160,8 +160,15 @@ export namespace IAutoMovieHumanBodyCalibration {
     /** The blend chain's name, in `chains`. */
     blend: string;
 
-    /** The host chain's name. */
+    /** The host chain's name: the face the whole host rail lies on, unless `hostChains` names each column's. */
     host: string;
+
+    /**
+     * The host chain of each column of `hostLoop`, for a rail that crosses the
+     * faces of a merged body (`AutoMovieHumanSolidBody`): column `k`'s chart
+     * point lies on chain `hostChains[k]`. Absent, every column is on `host`.
+     */
+    hostChains?: string[];
 
     /** The part chain's name. */
     part: string;

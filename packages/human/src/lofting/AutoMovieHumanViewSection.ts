@@ -153,6 +153,24 @@ export namespace AutoMovieHumanViewSection {
    * @returns The section; its validity is {@link fault}'s.
    */
   export function of(box: IBox, shoulders: Quarters<number>): ISection {
+    const section: ISection = bare(box, shoulders);
+    const e: Quarters<number> = box.extents;
+    section.diagonals = [0, 1, 2, 3].map(
+      (q: number): number => radius(section, section.guides[q]!.angle + Math.atan2(e[(q + 1) % 4]!, e[q]!))[0],
+    ) as Quarters<number>;
+    section.girth = length(section);
+    return section;
+  }
+
+  /**
+   * A section's guides alone, its girth and diagonals left at zero: what the
+   * validity check reads, so the range's bisection pays no quadrature.
+   *
+   * @param box The box, every extent positive.
+   * @param shoulders Each quarter's shoulder, inside `(0, 1)`.
+   * @returns The section without its measures.
+   */
+  export function bare(box: IBox, shoulders: Quarters<number>): ISection {
     const e: Quarters<number> = box.extents;
     const kappa: Quarters<number> = curvatures(box, shoulders);
     const guides: Quarters<AutoMovieHumanPolarSector.IGuide> = [0, 1, 2, 3].map(
@@ -171,12 +189,7 @@ export namespace AutoMovieHumanViewSection {
       for (let j: number = 1; j < CONIC_SPANS; j++) knots.push(conic(e[q]!, e[(q + 1) % 4]!, shoulders[q]!, j / CONIC_SPANS, guides[q]!.angle));
     }
 
-    const section: ISection = { box, shoulders: [...shoulders], guides, knots, fullness: [0, 0, 0, 0], girth: 0, diagonals: [0, 0, 0, 0] };
-    section.diagonals = [0, 1, 2, 3].map(
-      (q: number): number => radius(section, guides[q]!.angle + Math.atan2(e[(q + 1) % 4]!, e[q]!))[0],
-    ) as Quarters<number>;
-    section.girth = length(section);
-    return section;
+    return { box, shoulders: [...shoulders], guides, knots, fullness: [0, 0, 0, 0], girth: 0, diagonals: [0, 0, 0, 0] };
   }
 
   /**
@@ -307,14 +320,20 @@ export namespace AutoMovieHumanViewSection {
     const at = (r: number): ISection | null => {
       const s: Quarters<number> = departures.map((d: number): number => r + d) as Quarters<number>;
       if (!s.every((x: number): boolean => x > 0 && x < 1)) return null;
-      const section: ISection = of(box, s);
+      const section: ISection = bare(box, s);
       return fault(section) === null ? section : null;
     };
     if (at(ELLIPSE) === null) return null;
+
+    // Halvings to the shoulder share whose girth change stays inside the
+    // solve's tolerance: the girth spans less than the rectangle's 2 (W + D)
+    // over the shoulders.
+    const e: Quarters<number> = box.extents;
+    const steps: number = Math.ceil(Math.log2((2 * (e[0] + e[1] + e[2] + e[3])) / GIRTH_TOLERANCE));
     const edge = (inside: number, outside: number): number => {
       let a: number = inside;
       let b: number = outside;
-      for (let i: number = 0; i < BISECTIONS; i++) {
+      for (let i: number = 0; i < steps; i++) {
         const m: number = (a + b) / 2;
         if (at(m) !== null) a = m;
         else b = m;
@@ -323,7 +342,8 @@ export namespace AutoMovieHumanViewSection {
     };
     const lo: number = edge(ELLIPSE, 0);
     const hi: number = edge(ELLIPSE, 1);
-    return { shoulder: [lo, hi], girth: [at(lo)!.girth, at(hi)!.girth] };
+    const shaped = (r: number): ISection => of(box, departures.map((d: number): number => r + d) as Quarters<number>);
+    return { shoulder: [lo, hi], girth: [shaped(lo).girth, shaped(hi).girth] };
   }
 
   /**
@@ -449,8 +469,6 @@ const CONVEX: number = 1e-12;
 /** Relative rounding allowed past a side, the extent its scale; a touch is exact at the guide. */
 const INSIDE: number = 1e-12;
 
-/** Halvings of the shoulder interval for the range's ends, to `2^-48` of a share. */
-const BISECTIONS: number = 48;
 
 /** Accepted girth error of the solve, mm: a thousandth of a micrometre. */
 const GIRTH_TOLERANCE: number = 1e-6;
