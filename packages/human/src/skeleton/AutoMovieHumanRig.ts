@@ -7,8 +7,10 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanBindingTree } from "./IAutoMovieHumanBindingTree";
 import { AutoMovieHumanBindingInfluence } from "./AutoMovieHumanBindingInfluence";
+import { AutoMovieHumanBindingLoft } from "./AutoMovieHumanBindingLoft";
 import { AutoMovieHumanBindingInputs } from "./AutoMovieHumanBindingInputs";
 import { AutoMovieHumanBindingTree } from "./AutoMovieHumanBindingTree";
 import type { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
@@ -47,11 +49,16 @@ export namespace AutoMovieHumanRig {
      *
      * @param positions Vertices in metres, grouped in threes.
      * @param bone Bind every vertex to this bone alone, for a rigid part.
+     * @param coordinates The vertices' loft coordinates `[chain, station,
+     *   phase]`, three per vertex: a vertex that has them takes its chain's
+     *   binding there (`AutoMovieHumanBindingLoft`); one whose chain or station
+     *   is NaN is read at its place.
      * @returns Four influences per vertex.
      */
     bind(
       positions: readonly number[],
       bone?: AutoMovieHumanoidBone,
+      coordinates?: readonly number[],
     ): IAutoMovieMeshSkin;
   }
 
@@ -72,17 +79,20 @@ export namespace AutoMovieHumanRig {
     calibration: IAutoMovieHumanBodyCalibration,
     scale: number,
   ): IRig {
-    return fromInputs(AutoMovieHumanBindingInputs.derive(calibration, scale));
+    return fromInputs(AutoMovieHumanBindingInputs.derive(calibration, scale), calibration.chains);
   }
 
   /**
    * Prepare the rig of one body from its fixed binding inputs alone.
    *
    * @param inputs The body's binding inputs.
+   * @param chains The calibration's chains in mm, whose parameters a vertex's
+   *   loft coordinates name; empty binds every vertex at its place.
    * @returns The rig and its binder.
    */
   export function fromInputs(
     inputs: AutoMovieHumanBindingInputs.IInputs,
+    chains: readonly IAutoMovieHumanLoftChain[] = [],
   ): IRig {
     const scale: number = inputs.scale;
     const joints: AutoMovieHumanJointCentres.IJoint[] = inputs.joints;
@@ -161,11 +171,18 @@ export namespace AutoMovieHumanRig {
       (bone: string): number => index.get(AutoMovieHumanRigBones.named(bone))!,
       index.size,
     );
+    const lofted: AutoMovieHumanBindingLoft.IBinder = AutoMovieHumanBindingLoft.create(
+      chains,
+      scale,
+      (p: [number, number, number]): Float64Array => AutoMovieHumanBindingInfluence.pull(p, tree, bones.length),
+      bones.length,
+    );
     return {
       skeleton,
       bind: (
         positions: readonly number[],
         bone?: AutoMovieHumanoidBone,
+        coordinates?: readonly number[],
       ): IAutoMovieMeshSkin => {
         const count: number = positions.length / 3;
         const boneIndices: number[] = new Array<number>(4 * count).fill(0);
@@ -177,6 +194,9 @@ export namespace AutoMovieHumanRig {
             continue;
           }
           const top: [number, number][] =
+            (coordinates === undefined
+              ? null
+              : lofted.at(coordinates[3 * v]!, coordinates[3 * v + 1]!, coordinates[3 * v + 2]!)) ??
             AutoMovieHumanBindingInfluence.influences(
               [positions[3 * v]!, positions[3 * v + 1]!, positions[3 * v + 2]!],
               tree,
@@ -193,17 +213,21 @@ export namespace AutoMovieHumanRig {
   }
 
   /**
-   * Give every part a skin. Construction curves take the same place-based
-   * binding, so they stay on the skin they generate under any pose, and rigid
-   * features ride one bone.
+   * Give every part a skin. A part whose vertices carry loft coordinates (the
+   * skin's pieces, the construction curves drawn on its chains) takes its
+   * chains' binding at those parameters, so a curve stays on the skin it
+   * draws under any pose; rigid features ride one bone; any other vertex is
+   * read at its place.
    *
    * @param parts The model's parts, in metres.
    * @param rig The body's rig.
+   * @param coordinates Loft coordinates of the parts that carry them, by part id, three per vertex.
    * @returns The parts bound to the rig.
    */
   export function dress(
     parts: readonly IAutoMovieModelPart[],
     rig: IRig,
+    coordinates: ReadonlyMap<string, readonly number[]> = new Map(),
   ): IAutoMovieModelPart[] {
     return parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart => {
       if (part.geometry.type !== "mesh") return part;
@@ -215,7 +239,7 @@ export namespace AutoMovieHumanRig {
           mesh: {
             ...mesh,
             skin: {
-              ...rig.bind(mesh.positions, AutoMovieHumanRigBones.rigid(part.id)),
+              ...rig.bind(mesh.positions, AutoMovieHumanRigBones.rigid(part.id), coordinates.get(part.id)),
               method: BLEND,
             },
           },

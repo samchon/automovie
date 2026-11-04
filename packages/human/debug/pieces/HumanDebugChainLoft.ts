@@ -43,6 +43,7 @@ export namespace HumanDebugChainLoft {
     const pieces: AutoMovieHumanLoftMesh.IPiece[] = AutoMovieHumanLoftMesh.split(
       surface.mesh,
       surface.normals,
+      surface.coordinates,
     );
     const tubes: AutoMovieHumanBodyConstruction.ICurve[] =
       AutoMovieHumanBodyConstruction.generate(subset, surface.construction);

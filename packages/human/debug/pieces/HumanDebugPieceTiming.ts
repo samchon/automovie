@@ -47,7 +47,7 @@ export const HumanDebugPieceTiming: IHumanDebugPiece = {
     );
     const pieces: AutoMovieHumanLoftMesh.IPiece[] = time(
       "split",
-      (): AutoMovieHumanLoftMesh.IPiece[] => AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals),
+      (): AutoMovieHumanLoftMesh.IPiece[] => AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals, surface.coordinates),
     );
     time(
       "construction",

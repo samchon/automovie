@@ -53,6 +53,9 @@ export namespace AutoMovieHumanShapeStages {
     /** Construction parts in model metres. */
     construction: IAutoMovieModelPart[];
 
+    /** Loft coordinates of the construction parts' vertices, by part id, three per vertex. */
+    coordinates: Map<string, number[]>;
+
     /** Rig bound to the calibration. */
     rig: AutoMovieHumanRig.IRig;
 
@@ -122,9 +125,14 @@ export namespace AutoMovieHumanShapeStages {
    *
    * @param parts Parts at the bind
    * @param shape Shape whose rig binds them
+   * @param coordinates Loft coordinates of the dressing's parts by part id, beside the shape's own construction parts'
    * @returns Bound parts, in the order given
    */
-  export function bind(parts: IAutoMovieModelPart[], shape: IShape): IAutoMovieModelPart[] {
+  export function bind(
+    parts: IAutoMovieModelPart[],
+    shape: IShape,
+    coordinates: ReadonlyMap<string, readonly number[]> = new Map(),
+  ): IAutoMovieModelPart[] {
     const fresh: IAutoMovieModelPart[] = [];
     const out: (IAutoMovieModelPart | null)[] = parts.map((part: IAutoMovieModelPart): IAutoMovieModelPart | null => {
       if (part.geometry.type !== "mesh") return part;
@@ -135,7 +143,11 @@ export namespace AutoMovieHumanShapeStages {
       }
       return { ...part, geometry: { ...part.geometry, mesh } };
     });
-    const dressed: IAutoMovieModelPart[] = AutoMovieHumanRig.dress(fresh, shape.rig);
+    const dressed: IAutoMovieModelPart[] = AutoMovieHumanRig.dress(
+      fresh,
+      shape.rig,
+      new Map<string, readonly number[]>([...shape.coordinates, ...coordinates]),
+    );
     dressed.forEach((part: IAutoMovieModelPart, k: number): void => {
       const source: IAutoMovieModelPart = fresh[k]!;
       if (part.geometry.type !== "mesh" || source.geometry.type !== "mesh") return;
@@ -181,7 +193,7 @@ export namespace AutoMovieHumanShapeStages {
       [0, 1, 2].map((k: number): number => Math.max(...ends.map((p: [number, number, number]): number => p[k]!)) + 3) as [number, number, number],
     ];
     const surface: AutoMovieHumanBodySurface.IOutput = AutoMovieHumanBodySurface.generate(calibration, [box]);
-    const skin: AutoMovieHumanLoftMesh.IPiece[] = AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals);
+    const skin: AutoMovieHumanLoftMesh.IPiece[] = AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals, surface.coordinates);
     const curves: AutoMovieHumanBodyConstruction.ICurve[] = AutoMovieHumanBodyConstruction.generate(calibration, surface.construction);
 
     const vermilion: AutoMovieHumanVermilion.IBoundary = AutoMovieHumanVermilion.prepare(lips);
@@ -226,6 +238,9 @@ export namespace AutoMovieHumanShapeStages {
       vermilion,
       interior,
       construction,
+      coordinates: new Map(
+        curves.map((curve: AutoMovieHumanBodyConstruction.ICurve): [string, number[]] => ["human.construction." + curve.id, curve.coordinates]),
+      ),
       rig,
       diagnostics,
       dressings: [],

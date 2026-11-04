@@ -234,7 +234,7 @@ function construct(params: IAutoMovieHumanParameters): IConstructed {
     id: "automovie-human",
     name: "Human",
     origin: "generated",
-    parts: AutoMovieHumanShapeStages.bind([...body, ...appearance.parts], shapes),
+    parts: AutoMovieHumanShapeStages.bind([...body, ...appearance.parts], shapes, dressed.coordinates),
     skeleton: rig.skeleton,
     body: null,
     materials: [

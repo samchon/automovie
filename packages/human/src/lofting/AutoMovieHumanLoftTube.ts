@@ -10,7 +10,7 @@ import { AutoMovieHumanLoftMesh } from "./AutoMovieHumanLoftMesh";
  */
 export namespace AutoMovieHumanLoftTube {
   /** Number of vertices around each tube cross-section. */
-  const SIDES: number = 4;
+  export const SIDES: number = 4;
 
   /**
    * Append a tube along a polyline.

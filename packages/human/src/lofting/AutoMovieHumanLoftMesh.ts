@@ -46,6 +46,13 @@ export namespace AutoMovieHumanLoftMesh {
 
     /** Flat triangle indices into this piece's vertices. */
     indices: number[];
+
+    /**
+     * Flat loft coordinates `[chain, station, phase]` of each vertex, copied
+     * from the whole mesh's (`AutoMovieHumanBodySurface.IOutput.coordinates`);
+     * NaN where the vertex's owner publishes none.
+     */
+    coordinates: number[];
   }
 
   /** Empty buffers. */
@@ -79,8 +86,9 @@ export namespace AutoMovieHumanLoftMesh {
    *
    * @param context Mesh with groups.
    * @param normals Unit normals of the whole mesh, from {@link normals}.
+   * @param coordinates Loft coordinates of the whole mesh, three per vertex.
    */
-  export function split(context: IContext, normals: readonly number[]): IPiece[] {
+  export function split(context: IContext, normals: readonly number[], coordinates: readonly number[]): IPiece[] {
     const pieces: Map<string, { piece: IPiece; remap: Map<number, number> }> =
       new Map();
 
@@ -93,7 +101,7 @@ export namespace AutoMovieHumanLoftMesh {
           pieces.get(g.name);
         if (entry === undefined) {
           entry = {
-            piece: { name: g.name, positions: [], normals: [], indices: [] },
+            piece: { name: g.name, positions: [], normals: [], indices: [], coordinates: [] },
             remap: new Map(),
           };
           pieces.set(g.name, entry);
@@ -115,6 +123,11 @@ export namespace AutoMovieHumanLoftMesh {
               normals[3 * v]!,
               normals[3 * v + 1]!,
               normals[3 * v + 2]!,
+            );
+            entry.piece.coordinates.push(
+              coordinates[3 * v] ?? NaN,
+              coordinates[3 * v + 1] ?? NaN,
+              coordinates[3 * v + 2] ?? NaN,
             );
           }
           entry.piece.indices.push(local);

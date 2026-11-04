@@ -489,7 +489,7 @@ export const test_human_skin_binding = (): void => {
   for (const name of ["f1", "m2"]) {
     const { body, scale, rig, evaluate } = HumanPeople.rigged(name);
     const surface = AutoMovieHumanBodySurface.generate(body, []);
-    const pieces = AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals);
+    const pieces = AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals, surface.coordinates);
     const rings: ILimbRing[] = limbRings(body, scale, rig);
     const bind = worlds(rig);
     const neutral = worlds(rig, evaluate({}));

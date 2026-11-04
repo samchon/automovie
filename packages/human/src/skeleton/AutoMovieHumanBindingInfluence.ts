@@ -34,6 +34,23 @@ export namespace AutoMovieHumanBindingInfluence {
     tree: IAutoMovieHumanBindingTree,
     count: number,
   ): [number, number][] {
+    return AutoMovieHumanBindingQuantize.strongest(pull(p, tree, count));
+  }
+
+  /**
+   * Every bone's pull on a point, before the strongest four are taken: the
+   * quantity a binding read on a grid blends between its nodes.
+   *
+   * @param p The point, metres.
+   * @param tree The binding tree.
+   * @param count Rig bones, the length of the pull table.
+   * @returns Each bone's pull by rig slot, summing to one.
+   */
+  export function pull(
+    p: Math3D.Vector,
+    tree: IAutoMovieHumanBindingTree,
+    count: number,
+  ): Float64Array {
     const pulls: Float64Array = new Float64Array(count);
 
     // An arm takes what lies nearer its own capsules than the trunk's. Behind
@@ -55,7 +72,7 @@ export namespace AutoMovieHumanBindingInfluence {
       if (onward > 0) spread(arm.limb, onward, p, pulls);
     }
     if (trunk > 0) spread(tree.root, trunk, p, pulls);
-    return AutoMovieHumanBindingQuantize.strongest(pulls);
+    return pulls;
   }
 
   /** Hand a limb's mass down its tree. */

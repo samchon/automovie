@@ -319,6 +319,7 @@ export namespace AutoMovieHumanSkinChartFlatten {
     const band: number = bandOf(piece.name);
     const positions: number[] = [...piece.positions];
     const normals: number[] = [...piece.normals];
+    const coordinates: number[] = [...piece.coordinates];
     const uvs: number[] = [];
     const cylinder: Array<[number, number, number]> = [];
     const count: number = piece.positions.length / 3;
@@ -351,12 +352,13 @@ export namespace AutoMovieHumanSkinChartFlatten {
           copies.set(v, copy);
           positions.push(...V.at(piece.positions, v));
           normals.push(...V.at(piece.normals, v));
+          coordinates.push(...V.at(piece.coordinates, v));
           uvs.push(...evaluate(axis, grid, at[0], at[1], at[2] + 2 * Math.PI));
         }
         indices[t + e] = copy;
       }
     }
-    return { name: piece.name, positions, normals, indices, uvs };
+    return { name: piece.name, positions, normals, indices, coordinates, uvs };
   }
 
   /**

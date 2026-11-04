@@ -73,6 +73,9 @@ export namespace AutoMovieHumanSkinChart {
 
     /** Flat triangle indices. */
     indices: number[];
+
+    /** Flat loft coordinates `[chain, station, phase]`, three per vertex; NaN where the owner publishes none. */
+    coordinates: number[];
   }
 
   /** A piece with texture coordinates and its cut vertices duplicated. */

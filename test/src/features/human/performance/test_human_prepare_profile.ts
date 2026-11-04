@@ -169,7 +169,7 @@ function run(params: IAutoMovieHumanParameters): { stages: IStage[]; tally: stri
     [0, 1, 2].map((k: number): number => Math.max(...ends.map((p: [number, number, number]): number => p[k]!)) + 3) as [number, number, number],
   ];
   const surface: AutoMovieHumanBodySurface.IOutput = timed("surface (loft, seams, apertures)", (): AutoMovieHumanBodySurface.IOutput => AutoMovieHumanBodySurface.generate(calibration, [box]));
-  const skin: AutoMovieHumanLoftMesh.IPiece[] = timed("skin split", (): AutoMovieHumanLoftMesh.IPiece[] => AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals));
+  const skin: AutoMovieHumanLoftMesh.IPiece[] = timed("skin split", (): AutoMovieHumanLoftMesh.IPiece[] => AutoMovieHumanLoftMesh.split(surface.mesh, surface.normals, surface.coordinates));
   const vermilion: AutoMovieHumanVermilion.IBoundary = AutoMovieHumanVermilion.prepare(law.vermilion);
   const curves: AutoMovieHumanBodyConstruction.ICurve[] = timed("construction curves", (): AutoMovieHumanBodyConstruction.ICurve[] => [
     ...AutoMovieHumanBodyConstruction.generate(calibration, surface.construction),
@@ -192,7 +192,7 @@ function run(params: IAutoMovieHumanParameters): { stages: IStage[]; tally: stri
     ),
   );
   const rig: AutoMovieHumanRig.IRig = timed("rig", (): AutoMovieHumanRig.IRig => AutoMovieHumanRig.prepare(calibration, scale));
-  const shape: AutoMovieHumanShapeStages.IShape = { calibration, scale, skin, vermilion, interior, construction, rig, diagnostics, dressings: [], bound: new WeakMap() };
+  const shape: AutoMovieHumanShapeStages.IShape = { calibration, scale, skin, vermilion, interior, construction, coordinates: new Map(curves.map((curve: AutoMovieHumanBodyConstruction.ICurve): [string, number[]] => ["human.construction." + curve.id, curve.coordinates])), rig, diagnostics, dressings: [], bound: new WeakMap() };
 
   // AutoMovieHuman construct
   const dressed: AutoMovieHumanSkin.IOutput = timed("skin dressing", (): AutoMovieHumanSkin.IOutput =>
@@ -207,7 +207,7 @@ function run(params: IAutoMovieHumanParameters): { stages: IStage[]; tally: stri
     AutoMovieHumanAppearance.generate(params, { eyePair: { left: eye("left"), right: eye("right") }, parts: body, calibration }),
   );
   const parts: IAutoMovieModelPart[] = [...body, ...appearance.parts];
-  timed("binding (rig dress)", (): IAutoMovieModelPart[] => AutoMovieHumanShapeStages.bind(parts, shape));
+  timed("binding (rig dress)", (): IAutoMovieModelPart[] => AutoMovieHumanShapeStages.bind(parts, shape, dressed.coordinates));
   timed("pose evaluator", (): AutoMovieHumanSkeleton.PoseEvaluator => AutoMovieHumanSkeleton.prepare(params, { calibration }));
   return { stages, tally: meshes(parts) };
 }

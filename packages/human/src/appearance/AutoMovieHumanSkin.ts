@@ -110,6 +110,12 @@ export namespace AutoMovieHumanSkin {
 
     /** Images the materials sample. */
     images: IAutoMovieImage[];
+
+    /**
+     * Loft coordinates `[chain, station, phase]` of the skin and cavity parts'
+     * vertices, by part id, three per vertex: what the rig binds them by.
+     */
+    coordinates: Map<string, number[]>;
   }
 
   /** Chromophores of an unspecified person; a convention. */
@@ -316,6 +322,9 @@ export namespace AutoMovieHumanSkin {
       images.push(marks.image);
     }
 
+    const byName: Map<string, AutoMovieHumanSkinChart.IOutput> = new Map(
+      pieces.map((piece: AutoMovieHumanSkinChart.IOutput): [string, AutoMovieHumanSkinChart.IOutput] => [piece.name, piece]),
+    );
     const nails: AutoMovieHumanNail.IOutput = AutoMovieHumanNail.generate(
       props.chains,
       props.nails,
@@ -339,6 +348,12 @@ export namespace AutoMovieHumanSkin {
       doubleSided: false,
     };
     return {
+      coordinates: new Map(
+        parts.map((p: IAutoMovieModelPart): [string, number[]] => [
+          p.id,
+          byName.get(p.id.slice(p.id.startsWith("human.skin.") ? "human.skin.".length : "human.cavity.".length))!.coordinates,
+        ]),
+      ),
       parts: [...parts, ...nails.parts],
       materials: [
         material,
