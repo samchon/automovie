@@ -8,7 +8,11 @@ CC BY-NC 4.0. Numbers are facts.
 
 ## Population and protocol
 
-631 Korean adults (331 men, 300 women), 20 to 92 years, roughly 50 per sex per decade, from facial 3D CT taken for other reasons at six hospitals; soft-tissue landmarks on CT reconstructions. Grade: measured.
+631 Korean adults (331 men, 300 women), 20 to 92 years, from facial 3D CT taken for other reasons; soft-tissue landmarks on CT reconstructions. The abstract says six hospitals; the participants and measurement methods say eight. Grade: measured.
+
+## Measurement definitions
+
+The [publisher's methods and Figure 1](https://doi.org/10.3346/jkms.2025.40.e107) define ear width as otobasion superius to the posterior contour, perpendicular to the superaurale-subaurale line (c-j). The actual public [`IAutoMovieHumanEar.breadth`](../../src/structures/head/IAutoMovieHumanEar.ts) uses this definition. An earlier version of this note incorrectly called the public measure pra-pa; that was a failure to check the declaration against the technique note. Conchal length is concha superior to intertragic notch (g-h); conchal width is porion to the strongest antihelical curvature (b-k). Protrusion is the scalp distance at superaurale or tragal level. None supplies a rolled helix course, crural fork or conchal floor depth.
 
 ## Values, mean (SD) mm (left / right where both given)
 
