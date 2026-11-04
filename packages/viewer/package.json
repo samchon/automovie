@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./human-polygon": "./src/human-polygon/index.ts",
     "./node": "./src/node/index.ts",
     "./package.json": "./package.json",
     "./process/ProcessOwnership": "./src/process/ProcessOwnership.ts",
@@ -37,6 +38,10 @@
       ".": {
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
+      },
+      "./human-polygon": {
+        "types": "./lib/human-polygon/index.d.ts",
+        "default": "./lib/human-polygon/index.js"
       },
       "./node": {
         "types": "./lib/node/index.d.ts",

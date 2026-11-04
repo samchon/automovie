@@ -27,26 +27,30 @@ export namespace AutoMovieHumanMouthArch {
    * The upper arch: its half length is the quadrant's crown widths, and its
    * first molars' mesiobuccal cusps, a quarter of the molar past its mesial
    * face, stand the adult intermolar width apart. Two conditions fix width
-   * and depth; both are monotone in the depth over width, so nested
-   * bisection finds them.
+   * and depth. For a fixed depth/width ratio every sampled chord scales with
+   * width, so its unit-width length fixes width directly. Bisection retains
+   * the original ratio interval, 60 iterations and 2000-chord cusp walk.
    *
    * @param teeth One quadrant's crowns from the central incisor back.
    * @returns The arch.
    */
   export function arch(teeth: readonly Prior.ITooth[]): IArch {
-    const total: number = teeth.reduce((s: number, t: Prior.ITooth): number => s + t.width, 0);
+    const total: number = teeth.reduce(
+      (s: number, t: Prior.ITooth): number => s + t.width,
+      0,
+    );
     const cusp: number =
-      teeth.slice(0, 5).reduce((s: number, t: Prior.ITooth): number => s + t.width, 0) +
+      teeth
+        .slice(0, 5)
+        .reduce((s: number, t: Prior.ITooth): number => s + t.width, 0) +
       teeth[5]!.width / 4;
-    const sized = (ratio: number): IArch => {
-      let lo: number = 1;
-      let hi: number = 4 * total;
-      for (let k: number = 0; k < 60; k++) {
-        const w: number = (lo + hi) / 2;
-        if (halfLength({ width: w, depth: ratio * w }) < total) lo = w;
-        else hi = w;
-      }
-      const w: number = (lo + hi) / 2;
+    const sized: (ratio: number) => IArch = (ratio: number): IArch => {
+      // Chord lengths are positively homogeneous in width. Keep the former
+      // solve's bounds, including saturation, without remeasuring 60 scales.
+      const w: number = Math.min(
+        4 * total,
+        Math.max(1, total / halfLength({ width: 1, depth: ratio })),
+      );
       return { width: w, depth: ratio * w };
     };
     let lo: number = 0.1;
@@ -102,8 +106,12 @@ export namespace AutoMovieHumanMouthArch {
         // the premolars and molars.
         const overlap: number =
           crown.kind === "incisor" ? 1 : crown.kind === "canine" ? 0.5 : 0;
-        const tip: number = edge[1] + cant * (edge[0] - x) + (jaw === "lower" ? Prior.OVERBITE * overlap : 0);
-        const neck: number = jaw === "upper" ? tip + crown.height : tip - crown.height;
+        const tip: number =
+          edge[1] +
+          cant * (edge[0] - x) +
+          (jaw === "lower" ? Prior.OVERBITE * overlap : 0);
+        const neck: number =
+          jaw === "upper" ? tip + crown.height : tip - crown.height;
         out.push({
           name: `${jaw}.${side > 0 ? "left" : "right"}.${crown.name}`,
           crown,

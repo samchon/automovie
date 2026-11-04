@@ -3,11 +3,6 @@ import {
   createEvidenceConfig,
 } from "@automovie/evidence";
 import {
-  type IProductionPassValidation,
-  analyzeProductionPass,
-  getProductionEvidenceConfigProps,
-} from "@automovie/evidence/narrative";
-import {
   EvidenceChecker,
   type IEvidenceCheckAnalysis,
   type IEvidenceConfig,
@@ -24,14 +19,14 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  *
  * Scenarios:
  * 1. Actual default source/test claims reject missing answers and accept complete answers beside unfinished narrative.
- * 2. A reviewed short enters directly through the public facade without user-supplied gate or lifecycle fields.
- * 3. Work ownership is derived from one record; its missing answer blocks the selected pass and an inactive owner is refused.
- * 4. Project option edits preserve implementation identity, and default claim objects are independent across calls.
+ * 2. A reviewed short evaluates its native graph through the public configuration.
+ * 3. An additional ordinary native claim exposes its missing answer.
+ * 4. Default claim objects remain independent across calls.
  * 5. An omitted outline stage follows activated settings and rejects an unanswered outline principle.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the public workspace package facade and native Evidence checker against real TypeScript and Markdown files, then checks a complete short pass, an unanswered exact-owner work claim, and an unanswered outline under settings-only activation. It catches narrative imposed on coding, lost engineering duties, incorrect stage inheritance or owner derivation, and project-local runtime hashing.
+ * @evidence contracts/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage and outline stage inheritance.
  * @evidence contracts/testing.md#independent-expectations Four explicitly authored engineering answers satisfy the shipped two-question source/test checklists; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass.
- * @evidence contracts/testing.md#distinguishing-cases Missing versus complete engineering/outline answers, coding versus explicit short/long narrative, valid versus inactive work owner, absolute versus relative location, and independent default objects are covered. Existing nine production tests retain complete long-form, topology, snapshot, review, transfer and alias cases.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection and independent default objects.
  * @evidence contracts/testing.md#execution-ownership Runs in-process through workspace source exports with temporary files beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
  */
 export async function test_template_evidence_package(): Promise<void> {
@@ -84,10 +79,6 @@ export async function test_template_evidence_package(): Promise<void> {
       createEvidenceConfigPlan(config, configFile),
     );
     assert.equal(missing.report.success, false);
-    assert.throws(
-      (): unknown => getProductionEvidenceConfigProps(config),
-      /narrative/i,
-    );
     ProductionWorkflowFixture.write(
       coding,
       "src/add.ts",
@@ -142,36 +133,17 @@ export async function test_template_evidence_package(): Promise<void> {
       },
     });
     await ProductionWorkflowFixture.certify(narrative, selected);
-    const ready: IProductionPassValidation = await analyzeProductionPass(
-      selected,
-      path.join(narrative, "evidence.config.ts"),
-      { layer: "screenplay", pass: "naturalness" },
-    );
-    assert.equal(ready.approvalStructureReady, true, JSON.stringify(ready));
-    const identity: string =
-      getProductionEvidenceConfigProps(selected).gate.harnessVersion;
-    ProductionWorkflowFixture.write(
-      narrative,
-      "evidence.config.ts",
-      "// A changed authoring option is not a changed library implementation.\n",
-    );
-    const draft: IEvidenceConfig = createEvidenceConfig({
-      location: narrative,
-      narrative: { mode: "short" },
-    });
+    const ready: IEvidenceCheckAnalysis =
+      await ProductionWorkflowFixture.evaluate(narrative, selected.claims);
     assert.equal(
-      getProductionEvidenceConfigProps(draft).gate.harnessVersion,
-      identity,
+      ready.report.success,
+      true,
+      JSON.stringify(ready.report.diagnostics),
     );
-    assert.equal(
-      getProductionEvidenceConfigProps(draft).construction.screenplay,
-      "disabled",
-    );
-
     ProductionWorkflowFixture.write(
       narrative,
       ".agents/skills/contracts/story/work/extra/cues.md",
-      "# Additional work\n\n## Fixed cue {#fixed-cue}\n\nThe selected scene must establish the commissioned cue.\n",
+      "# Additional work\n\n## Fixed cue {#fixed-cue}\n\nEstablish the commissioned cue.\n",
     );
     const extended: IEvidenceConfig = createEvidenceConfig({
       location: narrative,
@@ -180,55 +152,30 @@ export async function test_template_evidence_package(): Promise<void> {
         construction: { screenplay: "evidence" },
         claims: [
           {
-            layer: "screenplay",
-            pass: "construction",
-            claim: {
-              name: "commissioned cue",
+            name: "commissioned cue",
+            type: "markdown",
+            root: "docs/body",
+            files: ["screenplay/001-part/001-scene.md"],
+            symbol: "h2",
+            reference: {
               type: "markdown",
-              root: "docs/body",
-              files: ["screenplay/001-part/001-scene.md"],
+              root: ".agents/skills/contracts/story/work/extra",
+              files: ["cues.md"],
               symbol: "h2",
-              reference: {
-                type: "markdown",
-                root: ".agents/skills/contracts/story/work/extra",
-                files: ["cues.md"],
-                symbol: "h2",
-                checklist: true,
-              },
+              checklist: true,
             },
           },
         ],
       },
     });
-    const blocked: IProductionPassValidation = await analyzeProductionPass(
-      extended,
-      path.join(narrative, "evidence.config.ts"),
-      { layer: "screenplay", pass: "construction" },
-    );
-    assert.equal(blocked.rereadReady, false);
-    assert.ok(blocked.blockingDiagnostics.length > 0);
-    assert.throws(
-      (): IEvidenceConfig =>
-        createEvidenceConfig({
-          location: narrative,
-          narrative: {
-            mode: "short",
-            claims: [
-              {
-                layer: "settings",
-                pass: "construction",
-                claim: {
-                  name: "inactive owner",
-                  type: "markdown",
-                  files: ["unused.md"],
-                  symbol: "h2",
-                  reference: [],
-                },
-              },
-            ],
-          },
-        }),
-      /claim|scope|owner|layer|active/i,
+    const blocked: IEvidenceCheckAnalysis =
+      await ProductionWorkflowFixture.evaluate(narrative, extended.claims);
+    assert.equal(blocked.report.success, false);
+    assert.ok(
+      blocked.report.diagnostics.some(
+        (finding: { code: string }): boolean =>
+          finding.code === "graph-checklist-missing",
+      ),
     );
 
     // Settings activation must activate an omitted outline through the public facade.
@@ -263,12 +210,16 @@ export async function test_template_evidence_package(): Promise<void> {
     assert.equal(unanswered.report.success, false);
     assert.ok(
       unanswered.report.diagnostics.some(
-        (diagnostic: IEvidenceCheckAnalysis["report"]["diagnostics"][number]): boolean =>
+        (
+          diagnostic: IEvidenceCheckAnalysis["report"]["diagnostics"][number],
+        ): boolean =>
           diagnostic.code === "graph-checklist-missing" &&
-          diagnostic.claim === settings.claims.findIndex(
-            (claim: IEvidenceConfig["claims"][number]): boolean =>
-              claim.name === "settings outline parts answer their own principle checklist",
-          ),
+          diagnostic.claim ===
+            settings.claims.findIndex(
+              (claim: IEvidenceConfig["claims"][number]): boolean =>
+                claim.name ===
+                "settings outline parts answer their own principle checklist",
+            ),
       ),
       JSON.stringify(unanswered.report.diagnostics),
     );

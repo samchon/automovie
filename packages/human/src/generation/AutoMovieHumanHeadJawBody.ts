@@ -22,7 +22,12 @@ export namespace AutoMovieHumanHeadJawBody {
    * from the cheek to the angle as the masseter does, while its front, whose
    * skin faces forward, stays where the chin is.
    */
-  export function arch(m: IAutoMovieHumanHeadMandible, x: number, y: number, z: number): number {
+  export function arch(
+    m: IAutoMovieHumanHeadMandible,
+    x: number,
+    y: number,
+    z: number,
+  ): number {
     const h: number = (y - m.menton - (m.chin - x) * m.slope) * m.cos;
     // Smooth through the border, so the lean starts inside its rounding.
     const over: number = (Math.hypot(h, m.round) + h - m.round) / 2;
@@ -53,16 +58,22 @@ export namespace AutoMovieHumanHeadJawBody {
    * Where a ray from the arch's origin leaves its left half, and the
    * outline's outward normal there: `[distance, nx, nz]`, for `uz >= 0`.
    */
-  function exit(m: IAutoMovieHumanHeadMandible, ux: number, uz: number): [number, number, number] {
+  function exit(
+    m: IAutoMovieHumanHeadMandible,
+    ux: number,
+    uz: number,
+  ): [number, number, number] {
     const [sx, sz] = m.side;
     const along: number = ux * sx + uz * sz;
     if (along > 1e-12) {
-      const t: number = ((m.start[0] - m.origin) * sx + m.start[1] * sz) / along;
+      const t: number =
+        ((m.start[0] - m.origin) * sx + m.start[1] * sz) / along;
       const qx: number = m.origin + t * ux;
       const qz: number = t * uz;
       const ex: number = m.end[0] - m.start[0];
       const ez: number = m.end[1] - m.start[1];
-      const f: number = ((qx - m.start[0]) * ex + (qz - m.start[1]) * ez) / (ex * ex + ez * ez);
+      const f: number =
+        ((qx - m.start[0]) * ex + (qz - m.start[1]) * ez) / (ex * ex + ez * ez);
       if (f >= 0 && f <= 1) return [t, sx, sz];
     }
     const centre: number = m.front - m.radius;
@@ -78,7 +89,8 @@ export namespace AutoMovieHumanHeadJawBody {
     const a2: number = (ux / m.back) ** 2 + (uz / m.width) ** 2;
     const b2: number = (2 * g * ux) / m.back ** 2;
     const c2: number = (g / m.back) ** 2 - 1;
-    const t: number = (-b2 + Math.sqrt(Math.max(0, b2 * b2 - 4 * a2 * c2))) / (2 * a2);
+    const t: number =
+      (-b2 + Math.sqrt(Math.max(0, b2 * b2 - 4 * a2 * c2))) / (2 * a2);
     const gx: number = (m.origin + t * ux - m.gonion) / m.back ** 2;
     const gz: number = (t * uz) / m.width ** 2;
     const n: number = Math.hypot(gx, gz) || 1;
@@ -102,19 +114,36 @@ export namespace AutoMovieHumanHeadJawBody {
     y: number,
     z: number,
   ): number {
-    const plan: number = arch(m, x, y, z);
+    return mandibleAt(m, x, y, arch(m, x, y, z));
+  }
+
+  /** Finish the jaw distance from the already evaluated plan distance, mm. */
+  export function mandibleAt(
+    m: IAutoMovieHumanHeadMandible,
+    x: number,
+    y: number,
+    plan: number,
+  ): number {
     const line: number = m.menton + (m.chin - x) * m.slope;
     const below: number = (line - y) * m.cos;
     const behind: number =
       (m.gonion - x) * m.lean[0] - (y - m.gonionY) * m.lean[1];
-    const border: number = AutoMovieHumanHeadMath.rounded(below, behind, m.round * m.taper);
+    const border: number = AutoMovieHumanHeadMath.rounded(
+      below,
+      behind,
+      m.round * m.taper,
+    );
     const under: number = (plan + m.draft * border) / Math.hypot(1, m.draft);
 
     // The turn under is an ellipse: its radius is the taper times the round
     // where it leaves the jaw's side, which the layers cross nearly square, and
     // the round over the taper squared where it runs into the underside, which
     // they cross at under 20 degrees, a layer spanning 4 mm of it.
-    const side: number = AutoMovieHumanHeadMath.rounded(m.taper * plan, under, m.round);
+    const side: number = AutoMovieHumanHeadMath.rounded(
+      m.taper * plan,
+      under,
+      m.round,
+    );
     const top: number = (y - line - m.height) * m.cos;
     return AutoMovieHumanHeadMath.rounded(side, top, JAW_TOP * m.round);
   }
@@ -152,7 +181,10 @@ export namespace AutoMovieHumanHeadJawBody {
     // The chin turns with the curvature of the parabola through the chin's
     // front and both gonions, the arch form of the mandible's base; the sides
     // run straight from it to the ellipse about the gonions, tangent to both.
-    const radius: number = Math.min(0.9 * half, half ** 2 / (2 * (front - gonion)));
+    const radius: number = Math.min(
+      0.9 * half,
+      half ** 2 / (2 * (front - gonion)),
+    );
     const centre: number = front - radius;
     const gap = (phi: number): number =>
       centre * Math.sin(phi) +
@@ -198,13 +230,19 @@ export namespace AutoMovieHumanHeadJawBody {
       draft: 1 / Math.tan(fall),
       round,
       taper: j.taper,
-      blend: AutoMovieHumanSeamUnion.width(plan.stomion - plan.border, back / 2),
+      blend: AutoMovieHumanSeamUnion.width(
+        plan.stomion - plan.border,
+        back / 2,
+      ),
       throat: j.throat * soft * k,
     };
   }
 
   /** Growth of the jaw's soft tissue with fat, from the prior's at none. */
-  export function softness(j: AutoMovieHumanHeadPrior.IMandible, fat: number): number {
+  export function softness(
+    j: AutoMovieHumanHeadPrior.IMandible,
+    fat: number,
+  ): number {
     return Math.exp(j.fat * fat);
   }
 }

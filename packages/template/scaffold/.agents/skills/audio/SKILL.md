@@ -5,7 +5,7 @@ description: Acquires and verifies speech, music, effects, and ambience for this
 
 # Audio
 
-Apply only the commissioned sound scope recorded in [production decisions](../production/profile.md); an instance or screenplay request does not trigger a soundtrack or provider setup. Use supplied recordings or the user's chosen provider first. When acquiring, adopting, arranging, or checking audio, follow [acquisition and listening](acquisition.md). If local speech setup is requested, read [local speech](local-speech.md); an existing setup approval remains sufficient.
+Apply only the commissioned sound scope recorded in [production decisions](../production/profile.md); an instance or screenplay request does not trigger a soundtrack or provider setup. Use supplied recordings or the user's chosen provider first. Follow [acquisition and listening](acquisition.md), [sound effects](sound-effects.md) for Foley and designed sounds, and [local speech](local-speech.md) when local speech setup is requested; an existing setup approval remains sufficient.
 
 Acquire audio before finalizing its timing, adopt the resulting bytes with their provenance, then connect them through the installed package APIs and this production's host. Generation stays outside deterministic replay. Hand accepted takes and measured timing to [editing and finishing](../production/finishing.md); recheck synchronization when that edit changes the take or picture. Source changes follow [development](../development/SKILL.md), and [contracts](../evidence/SKILL.md) owns how production commitments are recorded.
 

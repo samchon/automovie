@@ -5,7 +5,6 @@ import type { IProductionConfigProps } from "../../IProductionConfigProps";
 import type { ProductionStage } from "../../ProductionStage";
 import { createNarrativeUnitFiles } from "../../createNarrativeUnitFiles";
 import { hasNaturalness } from "../hasNaturalness";
-import { ownClaim } from "../ownClaim";
 import { createCoverageReference } from "../references/createCoverageReference";
 import { createLanguagePrincipleReferences } from "../references/createLanguagePrincipleReferences";
 import { createLineageReference } from "../references/createLineageReference";
@@ -40,7 +39,7 @@ import { createSettingCoverageClaim } from "./createSettingCoverageClaim";
  * @evidence contracts/common.md#meaningful-documentation The prose distinguishes unit/population duties, layer-specific parents and body versus working hosts; nearby comments explain topology capture and frozen-reference ownership.
  * @evidence contracts/performance.md#efficient-algorithms A fixed number of claims and reference families are constructed per layer; helper existence probes dominate most layers, while treatments and compact screenplay also enumerate settings files for coverage, whose scans and sorting scale with the installed canon.
  * @evidence contracts/performance.md#reuse-equivalent-work Unit/topology selectors, parent-reference builders and scalar stages are reused within the construction; each build refreshes filesystem-dependent contract/canon observations instead of retaining stale config results.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned claim graph owns its bounded layer-family objects plus settings-derived references when applicable; ownClaim records ownership weakly, and no filesystem handle or background task remains open.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned native claims own their layer-family objects and any settings-derived references; synchronous discovery leaves no filesystem handle or background task open.
  */
 export function createLayerClaims(
   props: IProductionConfigProps,
@@ -98,39 +97,31 @@ export function createLayerClaims(
 
   const inherits: string =
     layer === "settings" ? "" : ", and account for the layers they inherit";
-  const construction: {
-    readonly layer: AuthoredLayer;
-    readonly pass: "construction";
-    readonly kind: "generated";
-  } = { layer, pass: "construction", kind: "generated" } as const;
-  const unit: IEvidenceClaim = ownClaim(
-    {
-      name: `${layer} H2 units answer their principle checklists${inherits}`,
-      type: "markdown",
-      root: passRoot("draft"),
-      files: topology,
-      symbol: "h2",
-      disabled,
-      reference: [
-        ...createPrincipleReferences({
-          location: props.location,
-          layer,
-          gate: "layer",
-        }),
-        ...createLanguagePrincipleReferences({
-          location: props.location,
-          layer,
-          gate: "layer",
-        }),
-        ...(layer === "settings"
-          ? []
-          : [createUpstreamReference(props.location, layer)]),
-        ...expression,
-        ...parents("h2"),
-      ],
-    },
-    { ...construction, authored: true },
-  );
+  const unit: IEvidenceClaim = {
+    name: `${layer} H2 units answer their principle checklists${inherits}`,
+    type: "markdown",
+    root: passRoot("draft"),
+    files: topology,
+    symbol: "h2",
+    disabled,
+    reference: [
+      ...createPrincipleReferences({
+        location: props.location,
+        layer,
+        gate: "layer",
+      }),
+      ...createLanguagePrincipleReferences({
+        location: props.location,
+        layer,
+        gate: "layer",
+      }),
+      ...(layer === "settings"
+        ? []
+        : [createUpstreamReference(props.location, layer)]),
+      ...expression,
+      ...parents("h2"),
+    ],
+  };
 
   // The revision snapshot is a reference, not another authored edition.
   const second: ProductionStage = hasNaturalness(layer)
@@ -138,33 +129,27 @@ export function createLayerClaims(
     : "disabled";
   const surface: IEvidenceClaim[] = hasNaturalness(layer)
     ? [
-        ownClaim(
-          {
-            name: `${layer} final files preserve their draft lineage for naturalness`,
-            type: "markdown",
-            root: passRoot("final"),
-            files,
-            symbol: "file",
-            disabled: second === "disabled",
-            reference: [createLineageReference(files, "file", "revision")],
-          },
-          { layer, pass: "naturalness", kind: "generated" },
-        ),
-        ownClaim(
-          {
-            name: `${layer} final H2 units answer their naturalness checklists`,
-            type: "markdown",
-            root: passRoot("final"),
-            files: topology,
-            symbol: "h2",
-            disabled: second === "disabled",
-            reference: [
-              createLineageReference(topology, "h2", "revision"),
-              ...naturalness,
-            ],
-          },
-          { layer, pass: "naturalness", kind: "generated", authored: true },
-        ),
+        {
+          name: `${layer} final files preserve their draft lineage for naturalness`,
+          type: "markdown",
+          root: passRoot("final"),
+          files,
+          symbol: "file",
+          disabled: second === "disabled",
+          reference: [createLineageReference(files, "file", "revision")],
+        },
+        {
+          name: `${layer} final H2 units answer their naturalness checklists`,
+          type: "markdown",
+          root: passRoot("final"),
+          files: topology,
+          symbol: "h2",
+          disabled: second === "disabled",
+          reference: [
+            createLineageReference(topology, "h2", "revision"),
+            ...naturalness,
+          ],
+        },
       ]
     : [];
   if (layer === "settings") return [unit, ...surface];
@@ -175,20 +160,17 @@ export function createLayerClaims(
       ? createSettingCoverageClaim(props, layer)
       : undefined;
   return [
-    ownClaim(
-      {
-        name: `${layer} unit files account for the layers they inherit`,
-        type: "markdown",
-        root: passRoot("draft"),
-        files,
-        symbol: "file",
-        disabled,
-        reference: parents("file"),
-      },
-      construction,
-    ),
+    {
+      name: `${layer} unit files account for the layers they inherit`,
+      type: "markdown",
+      root: passRoot("draft"),
+      files,
+      symbol: "file",
+      disabled,
+      reference: parents("file"),
+    },
     unit,
     ...surface,
-    ...(coverage === undefined ? [] : [ownClaim(coverage, construction)]),
+    ...(coverage === undefined ? [] : [coverage]),
   ];
 }

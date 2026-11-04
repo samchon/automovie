@@ -9,6 +9,9 @@ export interface IAutoMovieHumanHeadSides {
 
   /** The right side's control points, `[x, y, z]` with `z <= 0`. */
   right: Vec3[];
+
+  /** Last solved radius for extending a cached prefix; absent on independently supplied cuts. */
+  radius?: number;
 }
 
 /** A point. */

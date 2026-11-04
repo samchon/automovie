@@ -1,9 +1,9 @@
 import type { ProductionStage } from "./ProductionStage";
 
 /**
- * Sets each layer's construction stage and upstream approval dependency.
+ * Selects each layer's construction stage and its native parent references.
  *
- * @evidence contracts/common.md#principled-implementation The stage object supplies route-selected construction layers and a long-route outline override; long screenplay requires scripts and treatments, compact screenplay requires settings, and direct short screenplay has no invented parents.
+ * @evidence contracts/common.md#principled-implementation The stage object selects route-specific construction claims and a long-route outline override; native references carry the actual parents, while independent review judges their completion.
  * @evidence contracts/common.md#clear-and-simple-design Scalar layer stages and the optional outline override express the actual construction chain without an alternate scripts edition.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Runtime source validation rejects invalid stages and unsupported tuples rather than treating the interface as proof of validity.
  * @evidence contracts/common.md#meaningful-documentation Members define the long-route outline fallback and actual screenplay prerequisites for all three narrative routes.

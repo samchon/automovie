@@ -5,7 +5,7 @@
  *
  * The choice names a body of published survey data, not the person's identity or detailed measurements. It supplies no automatic dimensions or pigmentation.
  */
-export const enum AutoMovieHumanPopulation {
+export enum AutoMovieHumanPopulation {
   /** European ancestry, as in the US 3D Facial Norms and the White subsample of US surveys. */
   European = "european",
 

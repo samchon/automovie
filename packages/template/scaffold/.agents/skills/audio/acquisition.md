@@ -1,12 +1,12 @@
 # Audio acquisition
 
-Speech generation and recording happen outside deterministic replay; installed package contracts own admitted audio formats and mixing capabilities. Read the installed packages' READMEs, public types, and this production's host before wiring acquisition output into a render. The presence of a decoder or mixer does not establish that this project's delivery entry point uses it.
+Audio generation and recording happen outside deterministic replay; installed package contracts own admitted audio formats and mixing capabilities. Read the installed packages' READMEs, public types, and this production's host before wiring acquisition output into a render. The presence of a decoder or mixer does not establish that this project's delivery entry point uses it.
 
 Apply the chosen output and sound scope from [production decisions](../production/profile.md). Required sound can accompany a commissioned motion hint or finished direct 3D film; neither route requires a particular provider. Keep API/local choices and setup authority there, actual setup/run commands in README, variable names in .env.example, secrets in a Git-ignored .env, and integration implementation in source. A saved environment file alone does not wire the host.
 
 ## Choose a source
 
-Use the user's supplied assets or chosen provider first. When no source is chosen, compare the options against the required language, performance, privacy, cost, available hardware, and turnaround; no provider is required by this scaffold.
+Use the user's supplied assets or chosen provider first. Follow [production research](../production/research.md) when studying reference sounds or source claims. When no source is chosen, compare the options against the required language, performance, privacy, cost, available hardware, and turnaround; no provider is required by this scaffold.
 
 | Source | When it fits | Operational reference |
 | --- | --- | --- |
@@ -16,11 +16,13 @@ Use the user's supplied assets or chosen provider first. When no source is chose
 
 Use existing connectors, command-line tools, and provider interfaces before adding acquisition code. Keep credentials outside production source and asset records.
 
+Check each asset's actual license against commercial use, adaptation, attribution and the intended delivery. Permission to synchronize sound with a film differs from permission to publish its raw files in source, a library or a template. A free download does not establish either right.
+
 ## Adopt a take
 
-Keep the accepted audio in project-owned static assets, for example `public/audio`, and record its source, usage rights, content digest, and any generation or conversion settings alongside the production's asset records. A regeneration becomes a new take until reviewed; a seed alone does not preserve the accepted bytes.
+Keep accepted bytes in project-owned asset storage with access allowed by their license; use public assets only when redistribution is permitted. Record the creator, source and license links, required attribution, content digest, and generation or edit settings alongside the production's asset records. A regeneration becomes a new take until reviewed; a seed alone does not preserve the accepted bytes.
 
-Use the installed decoder's admitted format when converting a provider's output; its public contract owns codec, channel, and sample-rate support. Preserve the original when conversion changes the audio, and record which bytes enter the render. Measure durations and trims from those bytes rather than text length or requested synthesis duration.
+Use the installed decoder's admitted format when converting a provider's output; its public contract owns codec, channel, and sample-rate support. Preserve the original and identify edited derivatives and the bytes entering the render. Measure durations and trims from those bytes rather than text length or requested synthesis duration.
 
 Place dialogue, captions, mouth motion, cuts, and sound cues against the accepted performance and the production's clock. When a line does not fit, choose an intentional edit to the take, script, or shot; verify any time fitting by listening to its result. Keep recognition or alignment output tied to the accepted take, since editing its bytes can invalidate those timings.
 

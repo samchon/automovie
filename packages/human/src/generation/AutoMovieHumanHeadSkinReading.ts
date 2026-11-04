@@ -16,21 +16,45 @@ import type { IAutoMovieHumanHeadSurface } from "./IAutoMovieHumanHeadSurface";
  */
 export namespace AutoMovieHumanHeadSkinReading {
   /** Widest half-width of the section at a station, before its reliefs. */
-  export function widest(compiled: IAutoMovieHumanHeadCompiled, plan: IAutoMovieHumanHeadLayout, s: number): number {
-    const m: IAutoMovieHumanHeadSection = AutoMovieHumanHeadSection.section(compiled, plan, s);
+  export function widest(
+    compiled: IAutoMovieHumanHeadCompiled,
+    plan: IAutoMovieHumanHeadLayout,
+    s: number,
+  ): number {
+    const m: IAutoMovieHumanHeadSection = AutoMovieHumanHeadSection.section(
+      compiled,
+      plan,
+      s,
+    );
     const ox: number = (m.front + m.back) / 2;
     let out: number = 0;
     for (let j: number = 0; j <= AutoMovieHumanHeadSection.ANGLES / 4; j++) {
-      const theta: number = (4 * Math.PI * j) / AutoMovieHumanHeadSection.ANGLES;
-      out = Math.max(out, AutoMovieHumanHeadRadius.radius(m, ox, theta) * Math.sin(theta));
+      const theta: number =
+        (4 * Math.PI * j) / AutoMovieHumanHeadSection.ANGLES;
+      out = Math.max(
+        out,
+        AutoMovieHumanHeadRadius.radius(m, ox, theta) * Math.sin(theta),
+      );
     }
     return out;
   }
 
   /** Forward coordinate of the skin at a world height and lateral place. */
-  export function frontAt(surface: IAutoMovieHumanHeadSurface, y: number, z: number): number {
-    const m: IAutoMovieHumanHeadSection = AutoMovieHumanHeadSection.section(surface.compiled, surface.plan, y);
-    const c: IAutoMovieHumanHeadSides = AutoMovieHumanHeadSkin.sides(surface, y - 100 * Math.sin(m.tilt));
+  export function frontAt(
+    surface: IAutoMovieHumanHeadSurface,
+    y: number,
+    z: number,
+  ): number {
+    const m: IAutoMovieHumanHeadSection = AutoMovieHumanHeadSection.section(
+      surface.compiled,
+      surface.plan,
+      y,
+    );
+    const c: IAutoMovieHumanHeadSides = AutoMovieHumanHeadSkin.sides(
+      surface,
+      y - 100 * Math.sin(m.tilt),
+      AutoMovieHumanHeadSection.ANGLES / 2,
+    );
     const list: Vec3[] = z >= 0 ? c.left : c.right;
     let best: Vec3 = list[0]!;
     for (const p of list.slice(0, AutoMovieHumanHeadSection.ANGLES / 2))
@@ -39,9 +63,17 @@ export namespace AutoMovieHumanHeadSkinReading {
   }
 
   /** The skin's midline point of the section at station s, `[x, y]`: front, or back. */
-  export function midline(surface: IAutoMovieHumanHeadSurface, s: number, back: boolean = false): P2 {
+  export function midline(
+    surface: IAutoMovieHumanHeadSurface,
+    s: number,
+    back: boolean = false,
+  ): P2 {
     const { compiled, plan } = surface;
-    const m: IAutoMovieHumanHeadSection = AutoMovieHumanHeadSection.section(compiled, plan, s);
+    const m: IAutoMovieHumanHeadSection = AutoMovieHumanHeadSection.section(
+      compiled,
+      plan,
+      s,
+    );
     const ox: number = (m.front + m.back) / 2;
     const [fade, run, bend] = AutoMovieHumanHeadNeckBase.neckFade(plan, s);
     const cos: number = Math.cos(m.tilt);
@@ -50,9 +82,21 @@ export namespace AutoMovieHumanHeadSkinReading {
     const sign: number = back ? -1 : 1;
     const r0: number =
       AutoMovieHumanHeadRadius.radius(m, ox, back ? Math.PI : 0) +
-      fade * surface.neckLeft[j]! + run * surface.slopeLeft[j]! + bend * surface.curveLeft[j]!;
+      fade * surface.neckLeft[j]! +
+      run * surface.slopeLeft[j]! +
+      bend * surface.curveLeft[j]!;
     const xi: number = ox + sign * r0;
-    const xi1: number = ox + sign * AutoMovieHumanHeadRelief.merged(surface, r0, xi * cos, s + xi * sin, 0, 1);
+    const xi1: number =
+      ox +
+      sign *
+        AutoMovieHumanHeadRelief.merged(
+          surface,
+          r0,
+          xi * cos,
+          s + xi * sin,
+          0,
+          1,
+        );
     return [xi1 * cos, s + xi1 * sin + fade * surface.riseLeft[j]!];
   }
 

@@ -55,7 +55,11 @@ export interface IAutoMovieViewerCompletedFrame {
     /** Synchronously redraw through the original producer or report failure. */
     redraw?: () => void;
 
-    /** Freeze an owned playback clock while retaining its live rendered view. */
+    /**
+     * Hold animation while retaining the completed view. Nested leases release
+     * independently; only the last normal release resumes the owning clock.
+     * Explicit redraw/restoration remains available during the hold.
+     */
     freeze?: () => () => void;
   };
 }

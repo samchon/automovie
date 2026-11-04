@@ -1,28 +1,23 @@
-import type { IEvidenceClaim } from "@wrtnlabs/evidence";
-
 import type { AuthoredLayer } from "../../AuthoredLayer";
 import type { IProductionConfigProps } from "../../IProductionConfigProps";
-import type { ProductionGatePass } from "../../ProductionGatePass";
 import { AUTHORED_LAYERS } from "../AUTHORED_LAYERS";
-import { assertSupportClaims } from "../assertSupportClaims";
 import { hasNaturalness } from "../hasNaturalness";
 import { productionLayers } from "../productionLayers";
 
 /**
- * Validates the exact claim scopes and each layer's stage names.
+ * Checks supported narrative routes and stage option shapes before graph creation.
  *
- * @evidence contracts/common.md#principled-implementation Runtime configuration is admitted only when route, lifecycle, stage vocabulary, exact custom-claim scope and support/authored boundaries agree; unsupported tuple shapes, duplicate names and work-owned review requirements throw before claim construction.
- * @evidence contracts/common.md#clear-and-simple-design One admission boundary checks related route/stage/scope invariants before factories materialize claims, while assertSupportClaims owns physical support-tree isolation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Asset routing has no narrative work claims, direct short authors screenplay alone and compact short adds only settings and screenplay alone has a separate naturalness pass; these are declared production routes rather than consumer-specific repairs.
- * @evidence contracts/common.md#meaningful-documentation The comment names scope and stage validation, and every throw identifies its invalid route, relation, stage, tuple or ownership condition.
- * @evidence contracts/performance.md#efficient-algorithms For c custom claims, s scope entries and r references, repeated scope/name searches cost O(c*s + r); support validation additionally scans protected directories/aliases and compares selector prefixes against captured boundaries, so filesystem size and path resolution can dominate.
- * @evidence contracts/performance.md#reuse-equivalent-work The fixed layer vocabulary and scalar stage vocabulary are shared across checks; live support-tree admission is refreshed for each config build, and no stale acceptance result is cached across contract/filesystem changes.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Names and filtered scope arrays are local and scale with custom configuration; support traversal owns only synchronous observations and temporary visited sets, with no retained handle, task or admission cache.
+ * @evidence contracts/common.md#principled-implementation Routes admit only their authored layers, long work alone admits an outline, and each supported stage is disabled or evidence.
+ * @evidence contracts/common.md#clear-and-simple-design A single shape check precedes graph expansion; native Evidence owns claim and reference evaluation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The same route and stage vocabulary applies to every production; it does not inspect graph results or confer approval.
+ * @evidence contracts/common.md#meaningful-documentation Errors identify unsupported routes, layers, outline choices and stage values.
+ * @evidence contracts/performance.md#efficient-algorithms The closed four-layer vocabulary bounds validation to constant time and storage.
+ * @evidence contracts/performance.md#reuse-equivalent-work The fixed vocabularies are reused within one call; there is no expensive computation or cross-call cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Only local scalar values and the route array are allocated; no file handle or task is acquired.
  */
 export function assertProductionEvidenceSources(
   props: IProductionConfigProps,
 ): void {
-  assertSupportClaims(props);
   if (!["long", "short", "short-with-settings", "asset"].includes(props.mode))
     throw new Error("Unknown production route.");
   const routed: readonly AuthoredLayer[] = productionLayers(props);
@@ -42,53 +37,6 @@ export function assertProductionEvidenceSources(
     throw new Error(
       "Asset productions use supportClaims rather than narrative claims.",
     );
-  if (props.lifecycle !== "independent-evidence-v1")
-    throw new Error("Unknown production evidence lifecycle.");
-  if (!Array.isArray(props.gate?.claimScopes))
-    throw new Error("Evidence-only work claims require exact gate scopes.");
-  const names: Set<string> = new Set<string>();
-  for (const claim of props.claims ?? []) {
-    const scopes: {
-      name: string;
-      layer: AuthoredLayer;
-      pass: ProductionGatePass;
-    }[] = props.gate.claimScopes.filter(
-      (scope: {
-        name: string;
-        layer: AuthoredLayer;
-        pass: ProductionGatePass;
-      }): boolean => scope.name === claim.name,
-    );
-    if (typeof claim.name !== "string" || scopes.length !== 1)
-      throw new Error("Every work claim needs one exact gate scope.");
-    if (names.has(claim.name))
-      throw new Error("Work claim names must be unique.");
-    names.add(claim.name);
-    for (const reference of Array.isArray(claim.reference)
-      ? claim.reference
-      : [claim.reference])
-      if (reference.requireReview === true)
-        throw new Error("Work claims cannot require review rows.");
-  }
-  for (const scope of props.gate.claimScopes) {
-    if (
-      !AUTHORED_LAYERS.includes(scope.layer) ||
-      (scope.pass !== "construction" && scope.pass !== "naturalness")
-    )
-      throw new Error("Unknown work claim layer/pass scope.");
-    if (scope.pass === "naturalness" && !hasNaturalness(scope.layer))
-      throw new Error(
-        "Only screenplay has a naturalness pass; scripts finish in construction.",
-      );
-    if (!routed.includes(scope.layer))
-      throw new Error("A work claim cannot own an inactive production layer.");
-    if (
-      !(props.claims ?? []).some(
-        (claim: IEvidenceClaim): boolean => claim.name === scope.name,
-      )
-    )
-      throw new Error("Gate scope names an absent work claim.");
-  }
   if (
     props.construction.index !== undefined &&
     props.construction.index !== "disabled" &&

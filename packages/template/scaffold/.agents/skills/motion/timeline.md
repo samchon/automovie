@@ -6,6 +6,8 @@ Use the installed engine and render planners for the selected timeline and captu
 
 Keep output frame identity, output time, shot-local time and simulation time distinct. Resolve them through the admitted plan instead of accumulating elapsed wall time or reproducing trim and overlap arithmetic in the host. Where a transition evaluates two shots, apply each shot's own local time and state. Keep captions and accepted sound on the same assembled timeline; a repeated shot or trimmed entry does not necessarily restart its source performance.
 
+Compose verified action instances by their local phase markers and parameters, leaving technique calculations with their modules. Carry the actual exit pose, velocity, support and interaction state into a compatible successor, including overlapping actions where their controls permit it. Synchronize interacting participants and consequential sound to the same resolved contact or release event; each participant retains its own path and state. Inspect these joins through the real consumer, since concatenation or blending alone does not establish continuity.
+
 Use the installed schedule's endpoint and rounding rules. Verify the first and last included frames, both sides of cuts, trim boundaries and transition overlaps against the actual plan. A duration in seconds alone does not establish the encoded frame count or preserve the final action.
 
 ## Separate sampling from retained state

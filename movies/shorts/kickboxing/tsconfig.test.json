@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "transform": "@ttsc/lint",
+        "enabled": false
+      }
+    ]
+  },
+  "include": [
+    "test/index.ts",
+    "test/features"
+  ]
+}

@@ -1,11 +1,11 @@
 # Settings index population obligations
 
-The complete settings index answers once against all of its sections and actual settings files. Individual sections cannot establish whole-index coverage.
+The complete index answers once per question against all sections and actual settings files; individual sections cannot establish whole-index coverage.
 
 ## Does the index give every subject one clear reference home? {#canonical-navigation}
 
-Can a reader predict the next location from a stated organizing axis at each sibling level, distinguish each group's reference purpose, and reach every actual settings owner? Time, region, or subject arrangements may vary by level when their purpose is clear. Report overlapping group promises, missing or stale files, duplicated authority, and subjects scattered without routes to their owner. Different access routes may link the same canonical subject without copying its facts. Keep independent facts addressable while dependent attributes remain together.
+Can a reader predict the next location from each sibling level's stated organizing axis, distinguish group purposes and reach every actual owner? Time, region and subject arrangements may vary by level when explained. Report overlapping promises, missing or stale files, duplicate authority and scattered subjects without owner routes. Multiple access routes may link one canonical subject without copying facts; independent facts stay addressable and dependent attributes together.
 
 ## Does its order and size support finding rather than rereading? {#reference-order}
 
-Do work promises and prerequisite concepts precede dependent detail and synthesis, with an overview and exact routes where concepts depend on each other? Does the top level remain scannable, with additional depth justified by the reader's questions? Section, file, and fact are a useful default rather than a compulsory directory schema or fixed group count. The test is whether a reader can find and understand the required fact without guessing a hidden owner, traversing unexplained levels, or reassembling copied fragments. Reference order must not silently change the audience's event or reveal order.
+Do work promises and prerequisites precede dependent detail and synthesis, with overview and exact routes for circular dependencies? Keep the top level scannable and justify depth by readers' questions. Section, file and fact are a useful default, not a compulsory schema or group count. A reader must find and understand the needed fact without guessing owners, traversing unexplained levels or reassembling copied fragments. Reference order does not change audience event or reveal order.

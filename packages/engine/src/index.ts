@@ -88,6 +88,7 @@ export { Vector3 } from "./math/Vector3";
 export { mixSeed } from "./math/mixSeed";
 export { seededValue } from "./math/seededValue";
 export { Quaternion } from "./math/Quaternion";
+export { rigidTransformVelocity } from "./math/rigidTransformVelocity";
 export { Matrix4 } from "./math/Matrix4";
 export { cofactorAutoMovieJacobian } from "./math/cofactorAutoMovieJacobian";
 export type { IAutoMovieJacobianCofactor } from "./math/IAutoMovieJacobianCofactor";

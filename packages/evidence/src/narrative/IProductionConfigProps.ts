@@ -3,27 +3,19 @@ import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 import type { IProductionConstruction } from "./IProductionConstruction";
 import type { IProductionLayerStages } from "./IProductionLayerStages";
 import type { NarrativeScope } from "./NarrativeScope";
-import type { IProductionGatePolicy } from "./ProductionGate";
 
 /**
- * Sets up one production's evidence config.
+ * Selects narrative claim families, their stages and additional native claims.
  *
- * Give the package location, each pass's stage per layer, the gate policy, and
- * any claims used only by this production. Stages enable structural evidence; an independent reader
- * decides creative completion after the reported prerequisites are ready.
- *
- * @evidence contracts/common.md#principled-implementation The lifecycle-discriminated object combines route, filesystem root, scope, stage maps, runtime identity and extra claims; stage values select structural checks rather than creative approval.
- * @evidence contracts/common.md#clear-and-simple-design One lifecycle object groups route, package root, scope, stages, runtime identity and extra claims for coherent factory validation.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The factory validates route/stage/claim scope coherence; no stage or writer-editable identity grants creative approval.
- * @evidence contracts/common.md#meaningful-documentation Members state absolute package location, support independence, pass ownership and screenplay upstream selection.
- * @evidenceExclude contracts/performance.md#efficient-algorithms Narrative configuration inputs is erased at runtime; producing and consuming functions account for concrete traversal and allocation.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Narrative configuration inputs declares data and coordinates no reusable effects; consumers own equivalence and invalidation.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Narrative configuration inputs acquires no resource or retained state; concrete owners determine instance bytes and lifetimes.
+ * @evidence contracts/common.md#principled-implementation The route, absolute location, authored scope and stage maps select native narrative respondents; extra claims and engineering support remain ordinary native claims.
+ * @evidence contracts/common.md#clear-and-simple-design One configuration object groups the options needed by the shared claim collector.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Stages select structural evidence and never certify creative completion; native Evidence evaluates the resulting graph.
+ * @evidence contracts/common.md#meaningful-documentation Members explain route, location, scope, stages and additive claims; the production owns independent creative review.
+ * @evidence contracts/performance.md#efficient-algorithms This erased interface performs no computation; its collector accounts for discovery and allocation.
+ * @evidence contracts/performance.md#reuse-equivalent-work This erased interface owns no cache or coordinated computation.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources This erased interface acquires no handles or background tasks.
  */
 export interface IProductionConfigProps {
-  /** Names the evidence lifecycle; it does not issue creative approvals. */
-  lifecycle: "independent-evidence-v1";
-
   /** Chooses four-layer long work, direct short screenplay, compact settings plus screenplay, or standalone assets. */
   mode: "long" | "short" | "short-with-settings" | "asset";
 
@@ -41,7 +33,7 @@ export interface IProductionConfigProps {
   narrativeScope: NarrativeScope;
 
   /**
-   * Sets each layer's construction stage and upstream approval dependency.
+   * Selects each layer's construction claims and actual parent references.
    *
    * It owns what the layer says: the principles each unit answers for itself
    * and the population duties the layer's own material settles.
@@ -56,9 +48,6 @@ export interface IProductionConfigProps {
    * finish within construction.
    */
   naturalness: IProductionLayerStages;
-
-  /** Versions the gate runtime and assigns every work claim to one layer and pass. */
-  gate: IProductionGatePolicy;
 
   /**
    * Adds claims used only by this production.

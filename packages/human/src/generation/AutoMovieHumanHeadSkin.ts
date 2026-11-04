@@ -14,19 +14,35 @@ import type { IAutoMovieHumanHeadSurface } from "./IAutoMovieHumanHeadSurface";
  * place and the widest half width.
  */
 export namespace AutoMovieHumanHeadSkin {
-  /** Cut the section at station s. */
-  export function sides(surface: IAutoMovieHumanHeadSurface, s: number): IAutoMovieHumanHeadSides {
+  /** Cut the requested prefix at station s; whole-chain consumers take every phase. */
+  export function sides(
+    surface: IAutoMovieHumanHeadSurface,
+    s: number,
+    count: number = AutoMovieHumanHeadSection.ANGLES + 1,
+  ): IAutoMovieHumanHeadSides {
     const known: IAutoMovieHumanHeadSides | undefined = surface.cut.get(s);
-    if (known !== undefined) return known;
-    const out: IAutoMovieHumanHeadSides = cut(surface, s);
+    if (known !== undefined && known.left.length >= count) return known;
+    const out: IAutoMovieHumanHeadSides = cut(surface, s, count, known);
     surface.cut.set(s, out);
     return out;
   }
 
   /** The section at station s, its reliefs on. */
-  function cut(surface: IAutoMovieHumanHeadSurface, s: number): IAutoMovieHumanHeadSides {
-    const { compiled, plan } = surface;
-    const m: IAutoMovieHumanHeadSection = AutoMovieHumanHeadSection.section(compiled, plan, s);
+  function cut(
+    surface: IAutoMovieHumanHeadSurface,
+    s: number,
+    count: number,
+    known?: IAutoMovieHumanHeadSides,
+  ): IAutoMovieHumanHeadSides {
+    const {
+      compiled,
+      plan,
+    }: Pick<IAutoMovieHumanHeadSurface, "compiled" | "plan"> = surface;
+    const m: IAutoMovieHumanHeadSection = AutoMovieHumanHeadSection.section(
+      compiled,
+      plan,
+      s,
+    );
     const ox: number = (m.front + m.back) / 2;
     // The neck ring's difference from the law hands over as a cubic Hermite
     // span: the ring's own place and slope at its start, nothing at the end.
@@ -37,16 +53,25 @@ export namespace AutoMovieHumanHeadSkin {
     const [fade, run, bend] = AutoMovieHumanHeadNeckBase.neckFade(plan, s);
     const cos: number = Math.cos(m.tilt);
     const sin: number = Math.sin(m.tilt);
-    const left: Vec3[] = new Array<Vec3>(AutoMovieHumanHeadSection.ANGLES + 1);
-    const right: Vec3[] = new Array<Vec3>(AutoMovieHumanHeadSection.ANGLES + 1);
-    let guess: number = 0;
-    for (let j: number = 0; j <= AutoMovieHumanHeadSection.ANGLES; j++) {
+
+    // Landmark probes use only the anterior prefix. A later whole ring extends
+    // the same solved phases with the original continuation's warm start.
+    const left: Vec3[] = known?.left ?? [];
+    const right: Vec3[] = known?.right ?? [];
+    let guess: number = known?.radius ?? 0;
+    for (let j: number = left.length; j < count; j++) {
       const theta: number = (Math.PI * j) / AutoMovieHumanHeadSection.ANGLES;
       const r: number = AutoMovieHumanHeadRadius.radius(m, ox, theta, guess);
       guess = r;
       const c: number = Math.cos(theta);
       const n: number = Math.sin(theta);
-      const emit = (
+      const emit: (
+        delta: number,
+        slope: number,
+        curve: number,
+        rise: number,
+        sign: 1 | -1,
+      ) => Vec3 = (
         delta: number,
         slope: number,
         curve: number,
@@ -58,14 +83,33 @@ export namespace AutoMovieHumanHeadSkin {
         const z: number = sign * r0 * n;
         const x: number = xi * cos;
         const y: number = s + xi * sin;
-        const r1: number = AutoMovieHumanHeadRelief.merged(surface, r0, x, y, z, sign);
+        const r1: number = AutoMovieHumanHeadRelief.merged(
+          surface,
+          r0,
+          x,
+          y,
+          z,
+          sign,
+        );
         const xi1: number = ox + r1 * c;
         return [xi1 * cos, s + xi1 * sin + fade * rise, sign * r1 * n];
       };
-      left[j] = emit(surface.neckLeft[j]!, surface.slopeLeft[j]!, surface.curveLeft[j]!, surface.riseLeft[j]!, 1);
-      right[j] = emit(surface.neckRight[j]!, surface.slopeRight[j]!, surface.curveRight[j]!, surface.riseRight[j]!, -1);
+      left[j] = emit(
+        surface.neckLeft[j]!,
+        surface.slopeLeft[j]!,
+        surface.curveLeft[j]!,
+        surface.riseLeft[j]!,
+        1,
+      );
+      right[j] = emit(
+        surface.neckRight[j]!,
+        surface.slopeRight[j]!,
+        surface.curveRight[j]!,
+        surface.riseRight[j]!,
+        -1,
+      );
     }
-    return { left, right };
+    return { left, right, radius: guess };
   }
 }
 

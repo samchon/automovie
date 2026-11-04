@@ -1,18 +1,19 @@
-import type { IAutoMovieNarrativeClaim } from "./IAutoMovieNarrativeClaim";
+import type { IEvidenceClaim } from "@wrtnlabs/evidence";
+
 import type { IProductionConstruction } from "./narrative/IProductionConstruction";
 import type { IProductionLayerStages } from "./narrative/IProductionLayerStages";
 import type { NarrativeScope } from "./narrative/NarrativeScope";
 
 /**
- * Opts into the long-form or direct-screenplay evidence lifecycle.
+ * Opts into narrative evidence using native claims and selected authored stages.
  *
- * @evidence contracts/common.md#principled-implementation Mode chooses the actual inherited layers; omitted stages draft complete bodies with evidence disabled, and omitted scope selects the complete work.
- * @evidence contracts/common.md#clear-and-simple-design Author choices are separate from package-derived lifecycle and runtime identities.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Partial stages supply defaults rather than waiving required creative passes or issuing an approval.
- * @evidence contracts/common.md#meaningful-documentation Fields state the defaults, short-route meaning, and exact claim ownership; the underlying stage and scope types retain their constraints.
- * @evidenceExclude contracts/performance.md#efficient-algorithms A configuration type selects no processing strategy.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work A configuration type owns no computation cache.
- * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A configuration type acquires no resources.
+ * @evidence contracts/common.md#principled-implementation Mode chooses the actual layers; omitted stages remain disabled drafts, and omitted scope selects the complete work.
+ * @evidence contracts/common.md#clear-and-simple-design Narrative options extend the engineering configuration without a parallel claim-owner representation.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Additional claims use the native Evidence shape and preserve their own selectors, references and review settings.
+ * @evidence contracts/common.md#meaningful-documentation Fields define the route, stage defaults, authored scope and ordinary additional claims.
+ * @evidence contracts/performance.md#efficient-algorithms This erased interface chooses no algorithm; composition owns runtime traversal.
+ * @evidence contracts/performance.md#reuse-equivalent-work This erased interface coordinates no computation or retained cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources This erased interface owns no handles, tasks or resource lifetime.
  */
 export interface IAutoMovieNarrativeProps {
   /** Long retains four layers; short enters at screenplay; short-with-settings first establishes compact canon without treatments, scripts or an outline. */
@@ -27,6 +28,6 @@ export interface IAutoMovieNarrativeProps {
   /** Defaults to the complete work; a pilot must identify its exact first part. */
   scope?: NarrativeScope;
 
-  /** Additional work-specific claims, each with its owning layer and pass. */
-  claims?: IAutoMovieNarrativeClaim[];
+  /** Additional native claims for the production's actual respondents. */
+  claims?: IEvidenceClaim[];
 }

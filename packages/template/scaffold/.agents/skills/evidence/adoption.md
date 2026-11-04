@@ -6,7 +6,7 @@ Compare the adopted instructions, material, and requested deliverable with exist
 
 For a new duty, identify its distinct requirement, the narrowest honest respondent population, an observable desired difference, a representative failure, and the basis for requiring it. Group requirements judged together rather than copying one rule into several owners or the screenplay. Adopt the question and its actual population, layer, and pass together through [evidence configuration](configuration.md).
 
-A question includes its falsifiable failure and the legitimate neighboring form it protects. Judge enough and too much of the same achievement in that same question: more detail, clarity or expressiveness can displace the recipient's needed experience. Require quoted actual achievement and remaining loss rather than an unsupported claim of balance or inapplicability; graph configuration owns real exclusion permissions. A later question must not cancel an earlier demand for maximum detail.
+A question states the achievement, why its recipient needs it, its observable failure and the legitimate neighboring form it protects. Judge sufficient and excessive detail together: more explanation or emphasis can displace the required experience. Its examples define what to compare, not ingredients to insert into every unit. Require actual support for achievement and remaining loss; graph configuration owns exclusion permissions.
 
 ## Preserve the work's actual language
 
@@ -26,6 +26,6 @@ When adopting, changing, merging, or retiring a question, update its owners and 
 
 ## Retain provenance
 
-The production workflow and story contracts adapt [`wrtnlabs/novels` skills](https://github.com/wrtnlabs/novels/tree/13c60af339cc6f97dda67e40be055c94aa9bb144/packages/template/scaffold/.agents/skills) at commit `13c60af339cc6f97dda67e40be055c94aa9bb144`; retain their MIT notice in [LICENSE.novels](../LICENSE.novels). The installed `@automovie/evidence` package owns the reusable adapted graph, checking implementation, and its source notice.
+The production workflow and story contracts adapt [`wrtnlabs/novels` skills](https://github.com/wrtnlabs/novels/tree/13c60af339cc6f97dda67e40be055c94aa9bb144/packages/template/scaffold/.agents/skills), with workflow and recipient-oriented revision principles compared against [the later scaffold](https://github.com/wrtnlabs/novels/tree/08d6898321e4a6488aa1cfd5c297a3bee49e3382/packages/template/scaffold/.agents/skills). Retain their MIT notice in [LICENSE.novels](../LICENSE.novels). Installed `@automovie/evidence` owns the adapted graph, checking implementation and its separate source notice.
 
 Video realization replaces final prose with image, sound, performance, and editing decisions; actual performance and delivery promises replace novel length recommendations. The upstream reader-book exporter and central baseline migration commands belong to that distribution system. Installed production instructions, contracts, configuration, and authored files remain project property. These distribution choices waive no creative pass or check; short direct entry and standalone assets keep their explicit routes.
