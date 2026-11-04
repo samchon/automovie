@@ -1,6 +1,6 @@
 # Stage the screenplay for the camera
 
-Use this branch when a screenplay or standalone performance becomes executable scenes, or when blocking, cameras or shot continuity changes. Read the actual source decisions and [production scope](../production/profile.md). [Asset workflows](../3d-modeling/workflows.md) owns representations, [frame evaluation](timeline.md) owns time sampling, and production owns the final edit. A shot list or an animated object without the required exchange does not realize a scene.
+Use this branch when a screenplay or standalone performance becomes executable scenes, or when blocking, cameras or shot continuity changes. Read the actual source decisions and [production scope](../production/profile.md). [Asset work](../production/assets.md) chooses representations, [frame evaluation](timeline.md) owns time sampling, and production owns the final edit. A shot list or an animated object without the required exchange does not realize a scene.
 
 ## Decide the observable performance
 
@@ -26,4 +26,4 @@ Inspect required subjects, contact, gesture and reaction at the delivered aspect
 
 For continuing action, preserve positions, facing, pose, attachments and prop possession across the actual shot boundary, together with relevant velocity, gait/contact phase and sound. A different camera angle must not reset the same performance. A story-time jump can establish a new state deliberately; edit time and story time remain distinct.
 
-Inspect the complete sequence at its adopted representation under [rendered-use inspection](../3d-modeling/inspection.md), including reactions and both sides of joins, before detail upgrades. Keep the executed source, current observations and unresolved limits with their actual consumers. Hand accepted shots to [finishing](../production/finishing.md); [conditioning](../production/conditioning.md) owns any commissioned companion passes. Narrative changes preserve the [closed-proof boundary](../screenwriting/repair.md#closed-passes).
+Inspect the complete sequence at its adopted representation under [rendered-use inspection](../3d-modeling/visual-debugging.md), including reactions and both sides of joins, before detail upgrades. Keep the executed source, current observations and unresolved limits with their actual consumers. Hand accepted shots to [finishing](../production/finishing.md); [conditioning](../production/conditioning.md) owns any commissioned companion passes. Narrative changes preserve the [closed-proof boundary](../screenwriting/repair.md#closed-passes).

@@ -1,6 +1,6 @@
-# Asset and rigging references
+# Research
 
-Use primary sources to choose a method and understand its limits, then read the installed contracts and inspect the actual result. These references supply options, not installed features, mandatory dependencies or reproduced benchmark results. External model/code/data licenses and hardware support are separate checks at adoption; a research preview is not the production's accepted asset.
+Use primary sources to choose a method and understand its limits, then read the installed contracts and inspect the actual result. These references supply options, not installed features, mandatory dependencies or reproduced benchmark results. External model/code/data licenses and hardware support are separate checks at adoption; a research preview is not an accepted asset.
 
 | Primary source | Decision informed here |
 | --- | --- |
@@ -12,4 +12,4 @@ Use primary sources to choose a method and understand its limits, then read the 
 | [Hunyuan3D](https://github.com/Tencent-Hunyuan/Hunyuan3D-2) | Shape/material generation may provide a fixed source for direct use or supported recovery; select based on required edits and deformation |
 | [SMPL](https://smpl.is.tue.mpg.de/) and [AMASS](https://amass.is.tue.mpg.de/) | Parametric bodies and motion collections carry their own skeleton, pose, shape and rights conventions; do not assume equivalence with AutoMovie's Human or a generic imported rig |
 
-[Asset workflows](workflows.md), [rigging](rigging.md) and [inspection](inspection.md) own application. [Motion references](../motion/research.md) cover retargeting and contact. Compare source and reconstruction independently where recovery is chosen; research claims never waive fixed-source provenance or rendered-use checks.
+[Diffusion](diffusion.md), [Recovery](recovery.md), [Rigging](rigging.md) and [Visual Debugging](visual-debugging.md) own application. Research claims never waive fixed-source provenance or rendered-use checks.

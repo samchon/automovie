@@ -9,7 +9,7 @@ Read the request, project-root [PROJECT.md](../../../PROJECT.md), current source
 
 Use [screenwriting](../screenwriting/SKILL.md) for narrative planning, writing and revision. An asset-only task has no narrative pipeline. The requested output determines which asset and [delivery questions](../contracts/delivery.md) apply; [contracts](../evidence/SKILL.md) owns their adoption and [evidence configuration](../evidence/configuration.md) owns technical graph changes.
 
-For commissioned video, [motion](../motion/SKILL.md) programs the main scenes' performance and staging for the complete edit. Simple figures and coarse objects can carry it; choose representations through [3D modeling](../3d-modeling/SKILL.md) and commissioned sound through [audio](../audio/SKILL.md). A motion hint needs no finished diffusion film, and a requested direct 3D film needs no diffusion step. Stills and pilot clips cannot complete a whole-video commission.
+For commissioned video, [motion](../motion/SKILL.md) programs the main scenes' performance and staging for the complete edit. Simple figures and coarse objects can carry it; choose representations through [asset work](assets.md) with [3D modeling](../3d-modeling/SKILL.md), and commissioned sound through [audio](../audio/SKILL.md). A motion hint needs no finished diffusion film, and a requested direct 3D film needs no diffusion step. Stills and pilot clips cannot complete a whole-video commission.
 
 Choose the production task directly:
 
@@ -18,6 +18,7 @@ Choose the production task directly:
 | Establish scope, decisions and setup authority | [Project context](profile.md) |
 | Coordinate sustained work, inspect runs or resume a stopped handoff | [Campaign execution](campaign.md) |
 | Organize source, supplied material and consumers | [Layout and intake](layout.md) |
+| Scope, order and accept the 3D assets a commission needs | [Asset work](assets.md) |
 | Prepare a whole motion hint and aligned control channels | [Conditioning handoff](conditioning.md) |
 | Use a selected generator and adopt its actual video takes | [Video generation](generation.md) |
 | Assemble shots/takes, wire the real host, encode and hand off | [Editing and finishing](finishing.md) |

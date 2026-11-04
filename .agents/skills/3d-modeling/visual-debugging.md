@@ -6,7 +6,7 @@ Readiness or numerical success proves no appearance; only an observed render doe
 
 Recover a broken video or 3D viewer before other work. Confirm the current displayed artifact and relevant controls, seek/playback and capture through the actual consumer, and protect other owners' processes meanwhile. Repair missing engine, interface, viewer or render capability at its reusable owner, then reconnect the production and apply explicit instruction sync for changed guidance; a build or server response alone does not prove recovery.
 
-Inspect the actual consumer with current source on a hardware renderer, recording source, input, renderer, and view.
+Inspect the actual consumer with current source on a hardware renderer, recording the source revision, asset identities, input, time or pose, camera, renderer and detail settings needed to repeat the observation.
 
 ## Correction Rounds
 
@@ -26,6 +26,8 @@ Front and side alone hide oblique sections and junctions, and close-ups that eac
 - assembled neighbors and distance;
 - the motion states: rest, intermediate, supported extremes, return, and shape-motion combinations.
 
+A result says which use it was checked for; broader reuse needs broader view and motion coverage.
+
 ## Construction
 
 Judge a surface only with the construction that generated it, because the surface shows the symptom and the construction shows the value that causes it:
@@ -41,6 +43,10 @@ Every set of views, whole sweeps and each defect's close-up alike, shows the sam
 ## Light And Material
 
 Judge form under raking light with fine material detail such as normal maps turned off, and judge materials and lighting in beauty. Use structural passes only for the quantities they document.
+
+## Cost
+
+Measure rendering cost at the intended resolution, asset population and motion load. When a lower-specification host is a requirement, observe that host or report it as untested; a coarser mesh alone does not establish acceptable memory or frame time. Keep measured budgets and accepted visual compromises with the project's decisions.
 
 ## Confirmation
 

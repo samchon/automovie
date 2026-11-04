@@ -2,7 +2,7 @@
 
 A crafted form is code: named dimensions and formulas that the engine turns into geometry the same way every time.
 
-Organize its parts and groups by [Modularization](modularization.md).
+Organize its parts and groups by [Modularization](modularization.md), and test its construction under [testing](../development/testing.md).
 
 ## Representation
 
@@ -25,6 +25,12 @@ A coding agent works under four limits, and each favors these representations ov
 - It cannot see the surface while it edits, so local edits keep a fix where it was made, while moving a hand-placed vertex disturbs neighbors it cannot see.
 - It judges a render it did not draw, so a construction drawn beside the surface, such as sections, sketches, or a generation skeleton, traces each defect to the value that made it, while a hand-placed mesh has no construction to trace.
 
+## Generating Definition
+
+Keep a loft's sections, guides and parameter directions related through one generating definition, and another representation's sketches, fields or procedural structure likewise. Evaluate every geometric quantity of the form on that definition: placements, attachments, skin weights, texture coordinates, measurements and the joins between parts. Measure the displayed surface as the definition evaluates it, such as a subdivision limit surface rather than its cage. Tessellation is the last step, made for renderers and exporters, and nothing is read back from it; a quantity found by reading, searching, clipping, ray casting or relaxing the emitted triangles moves with the detail setting, so it drifts between preview and final render and answers to no input.
+
+A directly used or generated mesh, an imported mesh's weights under [Rigging](rigging.md), and a fixed source observed for [Recovery](recovery.md) have no generating definition, so their own triangles are what is measured.
+
 ## Dimensions
 
 Construct positions in each part's local frame from named dimensions and dimensionless ratios tied to shared axes, landmarks and boundaries. Express related curves as a parameterized family with shared dimensions and constraints, keeping independent measurements as independent parameters.
@@ -41,10 +47,18 @@ Let the number of emitted primitives follow the resolution setting, not the numb
 
 On a subdivision surface, place extraordinary vertices where curvature is low and keep them at valence 3 or 5 where the layout allows, because higher valences and clustered poles leave visible pinches on the limit surface.
 
+## Evaluation
+
+Set up each section or segment once, with its coefficients and derivatives, and evaluate each point from that setup in constant time. Invert a parametrization with a table or an analytic step, such as Newton's method on the analytic derivative, rather than a long bisection over full evaluations. Solve a dimension on the part it controls instead of regenerating the whole form inside a solver loop. Slow generation lengthens every [correction round](visual-debugging.md#correction-rounds), and a round that costs too much invites local patches in place of repairs at the cause.
+
+## Stylization
+
+Express stylization, such as exaggerated proportions or fantasy features, as a separate layer of transforms over the generating curves and parts rather than as edits inside their construction. The base construction and its tests then stay valid underneath, and every repair to the base reaches the stylized variant. Record an adopted stylization with the project's decisions.
+
 ## Order Of Work
 
 Build the whole form first, then each finer detail as the block-out of a smaller region placed on the coarser form, so a coarse change carries its details with it.
 
 Scale orders construction and inspection, never correction. Each [correction round](visual-debugging.md#correction-rounds) inspects the whole form and every finer region, neighbor and close-up, then fixes every cause it found in one combined change; a traced cause at a finer scale is fixed in that round, not saved for a later round or scale.
 
-Measure on the geometry that is displayed, such as a subdivision limit surface rather than its cage. Regenerate anything derived when its basis changes, and repair an unsound representation at its foundation instead of stacking corrections on it.
+Regenerate anything derived when its basis changes, and repair an unsound representation at its foundation instead of stacking corrections on it.
