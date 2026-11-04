@@ -65,9 +65,9 @@ export namespace AutoMovieHumanHeadEarParts {
       const L = (h: number): number => AutoMovieHumanHeadMassPart.halfWidth(plan, h);
       const d1: number = (L(y + 1) - L(y - 1)) / 2;
       const d2: number = Math.abs(L(y + 1) - 2 * L(y) + L(y - 1));
-      const along: number = d2 > 1e-9 ? (half * half * d2) / (2 * (1 + d1 * d1) ** 1.5) : 0;
+      const lengthwise: number = d2 > 1e-9 ? (half * half * d2) / (2 * (1 + d1 * d1) ** 1.5) : 0;
       const across: number = (f.breadth / 2) ** 2 / (2 * L(y));
-      const sag: number = Math.max(along, across);
+      const sag: number = Math.max(lengthwise, across);
       out.push(
         part(auricle, "head.mass", "merge", at(0, 0, -INSET), f.n, f.a, [half, f.breadth / 2, half, f.breadth / 2], INSET + f.protrusion, 4, at(0, 0, 0), sag > 0 ? (half * half) / (2 * sag) : undefined),
       );
