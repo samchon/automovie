@@ -7,7 +7,7 @@
  * Nothing here reads the operator: every value is a function of the box's
  * half axes, so a test compares the operator's section with these numbers.
  */
-export namespace HumanViewOracle {
+export namespace ConstructionViewOracle {
   /** Taylor coefficients kept, orders 0 to 7: the spans' interpolation bound reads the sixth derivative. */
   export const ORDER: number = 7;
 

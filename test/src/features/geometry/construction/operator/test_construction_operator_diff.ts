@@ -1,6 +1,6 @@
 import { type AutoMovieLoftContract, AutoMovieSolidBlend, AutoMovieSolidDiff, type AutoMovieSolidJoin, AutoMovieSolidMerge, type AutoMovieSolidRail, type AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
-import { HumanSeamObserver } from "../../internal/HumanSeamObserver";
-import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
+import { HumanSeamObserver } from "../../../internal/HumanSeamObserver";
+import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 const { cross, distance, dot, plane, sphere, sum } = HumanSolidShapes;
@@ -12,10 +12,10 @@ const { cross, distance, dot, plane, sphere, sum } = HumanSolidShapes;
  *
  * @evidence contracts/testing.md#behavioral-verification Subtracts a 10 mm sphere centred 6 mm under the plane z = 0 (the solid below it, so the recess is 4 mm deep) with `AutoMovieSolidDiff.create`, rim widths 2 mm on the sphere and 3 mm on the plane, and reads `IJoin.curve`, `IJoin.rail` and `IJoin.column` with `AutoMovieSolidBlend.jet`; reads both rails with `HumanSeamObserver.surface` from points alone, and reads the rim's normal curvature along its columns against its outward normal. It catches a rim at the wrong radius, a rail on the wrong side of either surface (the plane kept inside the sphere or the sphere kept above the plane), a rim that breaks G2 at either rail, and an edge left sharp or turned concave between the rails. Any diff passes whose curve, rails and blend meet these closed forms.
  * @evidence contracts/testing.md#independent-expectations Expectations are closed forms: the rim circle of radius `sqrt(R^2 - (R - d)^2)` = 8 mm at z = 0; the plane's rail the circle of radius 8 + 3 mm (a radial chord on the plane); the sphere's rail at polar angle `s* + 2 asin(w / 2R)` from the sphere's top, the chord w = 2 mm along the meridian below the plane; the rim's normal curvature `k_n = q_ww . n / |q_w|^2` against the solid's outward normal n is the plane's 0 at the plane's rail and the bowl's 1 / R at the bowl's (the recess floor is concave from outside), with a convex run between them, a rounded edge. Limits: points 1e-9 mm, a thousand times the 1e-12 mm solve tolerance; seam readings `HumanSeamObserver.exact(20, 0.002)`, a hundred times the observer's rounding at 20 mm and a 0.002 mm stencil, whose truncation on a rim of chord near 4 mm stays near 1e-9 per mm; the rim's end curvatures to 1e-6 per mm, the normal taken from a 1e-4 rad difference along the rim.
- * @evidence contracts/testing.md#distinguishing-cases Green: readings at phases 0, 1.3, 3 and 5. Red: the same configuration composed as a merge (`AutoMovieSolidMerge` keeps the part outside) must put the sphere's rail above the plane, the side a diff must not keep. Refused: a cutter that misses the base (centred 20 mm under it) must return no join with a diagnostic. The intersection's accuracy is `test_human_solid_intersection`'s; the merge's widths `test_human_solid_merge`'s.
+ * @evidence contracts/testing.md#distinguishing-cases Green: readings at phases 0, 1.3, 3 and 5. Red: the same configuration composed as a merge (`AutoMovieSolidMerge` keeps the part outside) must put the sphere's rail above the plane, the side a diff must not keep. Refused: a cutter that misses the base (centred 20 mm under it) must return no join with a diagnostic. The intersection's accuracy is `test_construction_operator_intersection`'s; the merge's widths `test_construction_operator_merge`'s.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_solid_diff`; it builds closed-form surfaces in process and starts no host, browser or GPU.
  */
-export function test_human_solid_diff(): void {
+export function test_construction_operator_diff(): void {
   const failures: string[] = [];
   const R: number = 10;
   const depth: number = 4;

@@ -1,6 +1,6 @@
 import { type AutoMovieLoftContract, AutoMovieSolidBlend, type AutoMovieSolidJoin, AutoMovieSolidMerge, type AutoMovieSolidRail, type AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
-import { HumanSeamObserver } from "../../internal/HumanSeamObserver";
-import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
+import { HumanSeamObserver } from "../../../internal/HumanSeamObserver";
+import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 const { cylinder, distance, plane, sum } = HumanSolidShapes;
@@ -13,10 +13,10 @@ const { cylinder, distance, plane, sum } = HumanSolidShapes;
  *
  * @evidence contracts/testing.md#behavioral-verification Merges a 20 mm cylinder along z onto the plane z = 0 (the solid below it) with `AutoMovieSolidMerge.create`, constant widths of 8 mm and a host width law `6 + 2 cos 2 phi`, and reads `IJoin.rail` and `IJoin.column` with `AutoMovieSolidBlend.jet`; reads both rails with `HumanSeamObserver.surface` from points alone, the plane continued past its rail and the cylinder past its own. It catches a rail on the wrong side or at the wrong chord, a blend that breaks position, tangent plane or normal curvature at either rail, a blend that is not rotationally symmetric for a symmetric input, and a width law that is not obeyed at every phase. Any merge passes whose rails and blend satisfy those closed forms.
  * @evidence contracts/testing.md#independent-expectations Expectations are closed forms of the configuration: the intersection is the circle of radius 20 at z = 0; the part's rail is the cylinder's circle at z = w_A (a chord along a straight generator); the host's rail is the circle of radius 20 + w_B(phi) (a chord along a straight radial line); a constant-width blend's columns are one column turned about z, so the radius and height at a share agree across phases. A second cross derivative moved by e along the cylinder's normal at its rail reads a normal curvature jump `e / |q_w|^2`, `q_w` the ribbon's cross derivative, square to the rail there. Limits: points 1e-9 mm, a thousand times the 1e-12 mm solve tolerance; seam readings `HumanSeamObserver.exact(40, 0.005)`, a hundred times the observer's rounding at 40 mm and a 0.005 mm stencil, whose truncation on a blend of chord near 11 mm stays near 1e-9 per mm.
- * @evidence contracts/testing.md#distinguishing-cases Green: constant and varying host widths, readings at phases 0, 1, 2.5 and 4. Red: the made curvature defect at the part's rail must read its closed form. Refused: a host width of zero leaves no rail and must return no join with a diagnostic, and a fixed part station inside the host must return no join; a fixed station on the kept side must give that section as the rail. The intersection's own accuracy is `test_human_solid_intersection`'s; the diff's kept sides are `test_human_solid_diff`'s.
+ * @evidence contracts/testing.md#distinguishing-cases Green: constant and varying host widths, readings at phases 0, 1, 2.5 and 4. Red: the made curvature defect at the part's rail must read its closed form. Refused: a host width of zero leaves no rail and must return no join with a diagnostic, and a fixed part station inside the host must return no join; a fixed station on the kept side must give that section as the rail. The intersection's own accuracy is `test_construction_operator_intersection`'s; the diff's kept sides are `test_construction_operator_diff`'s.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_solid_merge`; it builds closed-form surfaces in process and starts no host, browser or GPU.
  */
-export function test_human_solid_merge(): void {
+export function test_construction_operator_merge(): void {
   const failures: string[] = [];
   const r: number = 20;
   const part: IAutoMovieSolidSurface = cylinder("column", [0, 0, 0], [0, 0, 1], [1, 0, 0], [0, 1, 0], r);

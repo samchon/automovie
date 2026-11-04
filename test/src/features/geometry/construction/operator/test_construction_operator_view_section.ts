@@ -1,5 +1,5 @@
 import { type AutoMoviePolarSector, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
-import { HumanViewOracle } from "../../internal/lofting/HumanViewOracle";
+import { ConstructionViewOracle } from "../../../internal/construction/ConstructionViewOracle";
 
 type Quarters = IAutoMovieViewPart.IQuarters<number>;
 type Jet = AutoMoviePolarSector.Jet;
@@ -23,11 +23,11 @@ const SPANS: number = 4;
  * 3. Continuity: sections with a different shoulder in each quarter (departures of 0.01 and 0.02 about the middle of the reach they leave) on a square and a 30 by 20 mm box are C2 across each guide (the one-sided limits of the radius and both its derivatives, each extrapolated to the guide, agree); a made jet joining two ellipses of different depth at a guide must fail on its curvature.
  *
  * @evidence contracts/testing.md#behavioral-verification Builds sections with `AutoMovieViewSection.of` and `.range` and reads them through `.radius`, `.curvatures` and `ISection.girth`. It catches a section that departs from the ellipse at the ellipse's shoulder, a guide whose radius, slope or curvature is not the box's and the declared law's, a section that crosses the box side it should touch, and a curvature jump at a guide between two quarters; any construction that touches the box at its guides with the declared curvature and is C2 there passes.
- * @evidence contracts/testing.md#independent-expectations Expectations are closed forms independent of the operator: the ellipse's polar radius and exact derivatives by Taylor arithmetic and its perimeter by the AGM (`HumanViewOracle`); the quintic Hermite remainder of each knot span (`max|rho^(6)| h^6 / (720 * 64)`), the knots at the guides and at the conic's points of parameter 1/4, 2/4 and 3/4, whose exact jets the ellipse at its shoulder has (that conic is the ellipse); the girth bound `2 pi max|w| E` from the length's first variation, taken one and a half times for its second-order terms; the guide curvature law the operator publishes (#3046: each guide the smaller of its quarters' conic end curvatures `a / (2 w^2 b^2)`, `w = r / (1 - r)`, so no quarter must straighten back out); a polar curve's curvature `(rho^2 + 2 rho'^2 - rho rho'') / (rho^2 + rho'^2)^(3/2)`, read here from the circles through the guide's point and points 1e-3, 2e-3 and 4e-3 rad into each sector (inside its first conic span), extrapolated twice to zero step so a jump of the third derivative at a guide does not enter and the circle fit's rounding, of order `eps rho / h^2`, stays near 1e-9 of the curvature. Rounding limits are 1e-12 of the extent on values and 1e-9 on the second derivative. Oracle limits: the shoulder's own share of the girth is the round-trip test's.
- * @evidence contracts/testing.md#distinguishing-cases Square, long and tall boxes, asymmetric boxes, shoulders near both ends of each box's range and at its middle, one shoulder per quarter; red on the fuller ellipses, a sloped guide, a turned ellipse and a curvature step. The girth solve, monotonicity, reach and diagnostics belong to `test_human_lofting_view_section_girth`; the chain, its knots and its station continuity to `test_human_lofting_view_section_chain`.
+ * @evidence contracts/testing.md#independent-expectations Expectations are closed forms independent of the operator: the ellipse's polar radius and exact derivatives by Taylor arithmetic and its perimeter by the AGM (`ConstructionViewOracle`); the quintic Hermite remainder of each knot span (`max|rho^(6)| h^6 / (720 * 64)`), the knots at the guides and at the conic's points of parameter 1/4, 2/4 and 3/4, whose exact jets the ellipse at its shoulder has (that conic is the ellipse); the girth bound `2 pi max|w| E` from the length's first variation, taken one and a half times for its second-order terms; the guide curvature law the operator publishes (#3046: each guide the smaller of its quarters' conic end curvatures `a / (2 w^2 b^2)`, `w = r / (1 - r)`, so no quarter must straighten back out); a polar curve's curvature `(rho^2 + 2 rho'^2 - rho rho'') / (rho^2 + rho'^2)^(3/2)`, read here from the circles through the guide's point and points 1e-3, 2e-3 and 4e-3 rad into each sector (inside its first conic span), extrapolated twice to zero step so a jump of the third derivative at a guide does not enter and the circle fit's rounding, of order `eps rho / h^2`, stays near 1e-9 of the curvature. Rounding limits are 1e-12 of the extent on values and 1e-9 on the second derivative. Oracle limits: the shoulder's own share of the girth is the round-trip test's.
+ * @evidence contracts/testing.md#distinguishing-cases Square, long and tall boxes, asymmetric boxes, shoulders near both ends of each box's range and at its middle, one shoulder per quarter; red on the fuller ellipses, a sloped guide, a turned ellipse and a curvature step. The girth solve, monotonicity, reach and diagnostics belong to `test_construction_operator_view_section_girth`; the chain, its knots and its station continuity to `test_construction_operator_view_section_chain`.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_lofting_view_section`; it builds closed-form boxes in process, generates no person and starts no host, browser or GPU.
  */
-export function test_human_lofting_view_section(): void {
+export function test_construction_operator_view_section(): void {
   const failures: string[] = [];
   const E: number = AutoMovieViewSection.ELLIPSE;
 
@@ -40,12 +40,12 @@ export function test_human_lofting_view_section(): void {
     [25, 25],
   ] as [number, number][]) {
     const box: AutoMovieViewSection.IBox = { extents: [a, b, a, b] };
-    const bound: number = HumanViewOracle.bound(a, b, SPANS);
+    const bound: number = ConstructionViewOracle.bound(a, b, SPANS);
     const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(box, [E, E, E, E]);
     const error: number = radiusError(section, a, b);
     if (!(error <= bound)) failures.push(`ellipse ${a} by ${b}: radius error ${error} mm over the interpolation bound ${bound} mm`);
-    const girth: number = 1.5 * 2 * Math.PI * HumanViewOracle.weight(a, b, 512) * bound + 1e-9;
-    const perimeter: number = HumanViewOracle.perimeter(a, b);
+    const girth: number = 1.5 * 2 * Math.PI * ConstructionViewOracle.weight(a, b, 512) * bound + 1e-9;
+    const perimeter: number = ConstructionViewOracle.perimeter(a, b);
     if (!(Math.abs(section.girth - perimeter) <= girth)) failures.push(`ellipse ${a} by ${b}: girth ${section.girth} against the perimeter ${perimeter} mm, limit ${girth} mm`);
     const kappa: Quarters = AutoMovieViewSection.curvatures(box, [E, E, E, E]);
     [a / (b * b), b / (a * a), a / (b * b), b / (a * a)].forEach((want: number, g: number): void => {
@@ -86,14 +86,14 @@ export function test_human_lofting_view_section(): void {
   // Touch, red: a guide with a slope, and the ellipse turned 20 degrees.
   const ellipse: Quarters = [30, 20, 30, 20];
   const sloped: (phi: number) => Jet = (phi: number): Jet => {
-    const d: number[] = HumanViewOracle.derivatives(30, 20, phi);
+    const d: number[] = ConstructionViewOracle.derivatives(30, 20, phi);
     return [d[0]! + 0.01 * 30 * Math.sin(phi), d[1]! + 0.01 * 30 * Math.cos(phi), d[2]! - 0.01 * 30 * Math.sin(phi)];
   };
   const kappa: Quarters = [30 / 400, 20 / 900, 30 / 400, 20 / 900];
-  if (touch("made", (phi: number): Jet => HumanViewOracle.derivatives(30, 20, phi) as Jet, ellipse, kappa).length !== 0) failures.push("touch: the closed-form ellipse fails the touch reader");
+  if (touch("made", (phi: number): Jet => ConstructionViewOracle.derivatives(30, 20, phi) as Jet, ellipse, kappa).length !== 0) failures.push("touch: the closed-form ellipse fails the touch reader");
   if (touch("made", sloped, ellipse, kappa).length === 0) failures.push("touch: a guide sloped 0.01 passes the touch reader");
   const turn: number = (20 * Math.PI) / 180;
-  if (touch("made", (phi: number): Jet => HumanViewOracle.derivatives(30, 20, phi - turn) as Jet, ellipse, kappa).length === 0) failures.push("touch: the ellipse turned 20 degrees passes the touch reader");
+  if (touch("made", (phi: number): Jet => ConstructionViewOracle.derivatives(30, 20, phi - turn) as Jet, ellipse, kappa).length === 0) failures.push("touch: the ellipse turned 20 degrees passes the touch reader");
 
   // 3. Continuity across every guide with a different shoulder in each
   // quarter: sourced departures of 0.01 and 0.02 about the middle of the
@@ -128,10 +128,10 @@ export function test_human_lofting_view_section(): void {
   // Continuity, red: two ellipses of depth 20 and 24 mm meeting at guide 0.
   const joined: (phi: number) => Jet = (phi: number): Jet => {
     const wrapped: number = ((phi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-    return HumanViewOracle.derivatives(30, wrapped < Math.PI ? 20 : 24, phi).slice(0, 3) as Jet;
+    return ConstructionViewOracle.derivatives(30, wrapped < Math.PI ? 20 : 24, phi).slice(0, 3) as Jet;
   };
   if (continuity("made", joined, [30, 20, 30, 24]).length === 0) failures.push("continuity: a curvature step at guide 0 passes the continuity reader");
-  if (continuity("made", (phi: number): Jet => HumanViewOracle.derivatives(30, 20, phi).slice(0, 3) as Jet, ellipse).length !== 0) failures.push("continuity: the closed-form ellipse fails the continuity reader");
+  if (continuity("made", (phi: number): Jet => ConstructionViewOracle.derivatives(30, 20, phi).slice(0, 3) as Jet, ellipse).length !== 0) failures.push("continuity: the closed-form ellipse fails the continuity reader");
 
   if (failures.length !== 0) throw new Error(`${failures.length} view section failures:\n${failures.join("\n")}`);
 }
@@ -141,7 +141,7 @@ function radiusError(section: AutoMovieViewSection.ISection, a: number, b: numbe
   let worst: number = 0;
   for (let i: number = 0; i < 4096; i++) {
     const phi: number = (2 * Math.PI * i) / 4096;
-    worst = Math.max(worst, Math.abs(AutoMovieViewSection.radius(section, phi)[0] - HumanViewOracle.radius(a, b, phi)));
+    worst = Math.max(worst, Math.abs(AutoMovieViewSection.radius(section, phi)[0] - ConstructionViewOracle.radius(a, b, phi)));
   }
   return worst;
 }

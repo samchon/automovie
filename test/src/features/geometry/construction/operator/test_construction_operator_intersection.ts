@@ -1,5 +1,5 @@
 import { type AutoMovieLoftContract, AutoMovieSolidIntersection, type AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
-import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
+import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 const { cylinder, distance, plane, sphere } = HumanSolidShapes;
@@ -11,10 +11,10 @@ const { cylinder, distance, plane, sphere } = HumanSolidShapes;
  *
  * @evidence contracts/testing.md#behavioral-verification Traces with `AutoMovieSolidIntersection.trace` and reads `ICurve.points` and `ICurve.at` for four closed-form pairs: a 6 mm cylinder along z through a 10 mm cylinder along x (the Steinmetz curve), a 5 mm cylinder at 40 degrees to a plane (an ellipse), two spheres of 10 and 8 mm with centres 12 mm apart (a circle), and two spheres 30 mm apart (no meeting), plus the two cylinders of equal radius (a tangential contact). It catches a curve off either surface, wrong preimages, a tangent or curvature that is not the curve's own, a loop that is not closed, a contact reported as transversal, and a curve invented where none exists. Any tracer passes that finds the true curve at every phase.
  * @evidence contracts/testing.md#independent-expectations Expectations are the pairs' closed forms: the Steinmetz curve `(r cos t, r sin t, sqrt(R^2 - r^2 sin^2 t))` with `z' = -r^2 sin 2t / 2z` and `z'' = (-r^2 cos 2t - z'^2) / z`, the host preimage `y = r cos t`, `theta = atan2(z, r sin t)`; the plane's ellipse `x = -r cos t / sin a`, `y = r sin t` with semi-axes `r / sin a` and `r`; the spheres' circle in the plane `z = (R1^2 - R2^2 + c^2) / 2c` of radius `sqrt(R1^2 - z^2)`. Limits are 1e-9 mm on points and 1e-8 relative on derivatives, a thousand times the 1e-12 mm solve tolerance on 10 mm magnitudes. Oracle limit: the closed forms hold only on the traced branch (the Steinmetz curve's upper loop, `z > 0`), which the seed selects.
- * @evidence contracts/testing.md#distinguishing-cases Green: three transversal pairs at every traced point and at off-sample phases through `at`. Red: the equal-radius cylinders, whose two loops touch where the tangent planes coincide, must yield a diagnostic; the far spheres must yield no curve and a diagnostic; a trace asked for fewer than 8 points is refused. Rails, blends and trims own their tests (`test_human_solid_merge`, `test_human_solid_diff`, `test_human_solid_trim`).
+ * @evidence contracts/testing.md#distinguishing-cases Green: three transversal pairs at every traced point and at off-sample phases through `at`. Red: the equal-radius cylinders, whose two loops touch where the tangent planes coincide, must yield a diagnostic; the far spheres must yield no curve and a diagnostic; a trace asked for fewer than 8 points is refused. Rails, blends and trims own their tests (`test_construction_operator_merge`, `test_construction_operator_diff`, `test_construction_operator_trim`).
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_solid_intersection`; it builds closed-form surfaces in process and starts no host, browser or GPU.
  */
-export function test_human_solid_intersection(): void {
+export function test_construction_operator_intersection(): void {
   const failures: string[] = [];
   const tolerance: number = 1e-12;
   const near = (label: string, got: number, want: number, limit: number): void => {

@@ -1,7 +1,7 @@
 import { type AutoMovieLoftContract, AutoMovieSolidBlendChain, AutoMovieSolidIntersection, type AutoMovieSolidJoin, AutoMovieSolidMerge, type AutoMovieSolidRail, type AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
-import { HumanSeamAudit } from "../../internal/audit/HumanSeamAudit";
-import { HumanAnatomyAudit } from "../../internal/HumanAnatomyAudit";
-import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
+import { HumanSeamAudit } from "../../../internal/audit/HumanSeamAudit";
+import { HumanAnatomyAudit } from "../../../internal/HumanAnatomyAudit";
+import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 
@@ -18,10 +18,10 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  *
  * @evidence contracts/testing.md#behavioral-verification Calls `AutoMovieSolidIntersection.trace` with the phase and the angle parameter, `AutoMovieSolidMerge.create` with the angle parameter and `AutoMovieSolidBlendChain.of`, and reads `ICurve.at`, `IJoin.rail` and the blend's seams. It catches a trace that follows the part's phase where its station lines cross the host twice, a curve off the circle or with a wrong tangent or curvature, a rail off its chord, and a blend that does not meet both surfaces G2; any operator that traces the true circle by angle and rails it by its chords passes.
  * @evidence contracts/testing.md#independent-expectations The closed forms the kernel worker published with the angle parameter (7551ad58f): the curve `rho (cos t, sin t, 0)`, `rho = sqrt(R^2 - h^2)`, tangent `rho (-sin t, cos t, 0)`, second `-rho (cos t, sin t, 0)`; the host rail the circle of radius `rho + w_host`; the part rail at `alpha1 = alpha0 + 2 asin(w_part / 2R)` from `alpha0 = atan2(-h, rho)` in the vertical plane through the centre, `c + R (cos alpha1 (cos t, sin t, 0) + sin alpha1 (0, 0, 1))`, because a chord `w` on a great circle of radius `R` subtends `2 asin(w / 2R)`. Limits: 1e-9 mm on points and 1e-8 of the radius on derivatives, as the intersection test; the seams under `HumanSeamAudit`'s rendered-skin limits at a 2 mm spacing. Oracle limit: one sphere and one plane; other contacts along a host are the subtrees' joins, read by the seam audit.
- * @evidence contracts/testing.md#distinguishing-cases Positive: the angle trace and its merge. Negative: the phase trace of the same pair, and the rail reader against a shifted centre. The phase-parameter cases (Steinmetz, cylinder on plane) belong to `test_human_solid_intersection` and `test_human_solid_merge`.
+ * @evidence contracts/testing.md#distinguishing-cases Positive: the angle trace and its merge. Negative: the phase trace of the same pair, and the rail reader against a shifted centre. The phase-parameter cases (Steinmetz, cylinder on plane) belong to `test_construction_operator_intersection` and `test_construction_operator_merge`.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_solid_merge_angle`; it builds closed-form surfaces in process, generates no person and starts no host, browser or GPU.
  */
-export function test_human_solid_merge_angle(): void {
+export function test_construction_operator_merge_angle(): void {
   const failures: string[] = [];
   const R: number = 20;
   const h: number = 8;

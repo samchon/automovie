@@ -1,6 +1,6 @@
 import { AutoMovieSolidBlend, type AutoMovieSolidRibbon, AutoMovieSolidTrim, type AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
-import { HumanSeamObserver } from "../../internal/HumanSeamObserver";
-import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
+import { HumanSeamObserver } from "../../../internal/HumanSeamObserver";
+import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 const { cylinder, distance, dot, plane, sum } = HumanSolidShapes;
@@ -12,10 +12,10 @@ const { cylinder, distance, dot, plane, sum } = HumanSolidShapes;
  *
  * @evidence contracts/testing.md#behavioral-verification Builds trims with `AutoMovieSolidTrim.create` from 12 landmarks on a 5 mm circle on the plane z = 0, lifted 0.7 mm off it, and from 10 landmarks round a point of a 10 mm cylinder; reads `ITrim.at`, `ITrim.inside` and `ITrim.ribbon`, and blends the plane's ribbon to a rim curve 2 mm under the margin with `AutoMovieSolidBlend.jet`, read with `HumanSeamObserver.surface`. It catches a loop off its landmarks' feet, an inside test that misses the opening or claims the skin, a phase branch that hides the opening, a ribbon that points away from the opening, a rim that breaks G2 with the skin, and a margin of too few landmarks accepted. Any trim passes whose loop interpolates the feet and whose ribbon is the skin's own jet toward the hole.
  * @evidence contracts/testing.md#independent-expectations Expectations are closed forms: a point lifted along the plane's normal has its foot straight under it, so the feet are the circle's points; the opening is the disc about the circle's centre, so its centre and a point 4.9 mm out are inside and points 5.1 mm and 12 mm out are not (the cubic interpolant of 12 points of a circle departs from it by under 1e-3 of its radius); the ribbon at a knot points to the centre within 1e-3 rad. Limits: the loop at its knots within 1e-6 mm of the feet, the periodic filter's 14-neighbour truncation leaving about 1e-8 of the coordinates; seam readings `HumanSeamObserver.exact(20, 0.005)` plus the stencils' truncation, `h^4 f5 / 5` on the slope and `5 h^3 f5 / 6` on the second derivative, f5 the rim quintic's fifth derivative from its two ribbons (about 32 per mm^5 for a rim turning 2 mm down over 2 mm).
- * @evidence contracts/testing.md#distinguishing-cases Green: the plane's loop and its rim, the cylinder's loop read on the phase branch two pi away. Red: points 5.1 and 12 mm from the centre and the cylinder's far side must read as skin. Refused: three landmarks. The blend's response to a bent ribbon is `test_human_solid_merge`'s; merge and diff own their rails.
+ * @evidence contracts/testing.md#distinguishing-cases Green: the plane's loop and its rim, the cylinder's loop read on the phase branch two pi away. Red: points 5.1 and 12 mm from the centre and the cylinder's far side must read as skin. Refused: three landmarks. The blend's response to a bent ribbon is `test_construction_operator_merge`'s; merge and diff own their rails.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_solid_trim`; it builds closed-form surfaces in process and starts no host, browser or GPU.
  */
-export function test_human_solid_trim(): void {
+export function test_construction_operator_trim(): void {
   const failures: string[] = [];
   const skin: IAutoMovieSolidSurface = plane("skin", [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
   const centre: [number, number] = [3, -2];

@@ -1,5 +1,5 @@
 import { type AutoMovieLoftContract, AutoMovieSolidBody, AutoMovieSolidMesh, type AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
-import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
+import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 type IMerged = ReturnType<typeof AutoMovieSolidBody.merge>;
@@ -18,10 +18,10 @@ const { cross, cylinder, distance, dot, plane } = HumanSolidShapes;
  *
  * @evidence contracts/testing.md#behavioral-verification Builds the body with `AutoMovieSolidBody.create`, `.merge` twice and `.draw`, and reads the blends' host rail faces and the mesh's triangles, positions and coordinates alone (`AutoMovieSolidMesh.evaluate`). It catches a merge that cannot trace across faces, a seam drawn twice or not at all (an edge used once inside the skin or more than twice), a face turned against its neighbours, a vertex whose coordinates name another point, and a duplicate vertex at a seam; any body whose faces share their boundaries vertex for vertex and face out passes.
  * @evidence contracts/testing.md#independent-expectations The expectations are what a closed oriented two-manifold with boundary is (each interior edge in two triangles, opposite in direction; a connected orientable skin is outward everywhere once it is outward on one face, the floor's `+z`), and the owner coordinates' contract (a vertex's coordinates evaluate to its own point, within 1e-9 mm). The beam's bottom line at height 3 lies between the floor and the column's part rail at 6 mm, so its curve meets the column's blend there and the column's face above it; this is the kernel worker's suggested case for merging onto a merged body (b84ae180d). Oracle limit: the curve's own shape is read by the intersection and merge tests, not here.
- * @evidence contracts/testing.md#distinguishing-cases Positive: the two-merge body. Negative: the turned, dropped and moved made meshes. Single merges and their rails belong to `test_human_solid_merge` and `test_human_solid_mesh`; continuity at the rails to the seam audit.
+ * @evidence contracts/testing.md#distinguishing-cases Positive: the two-merge body. Negative: the turned, dropped and moved made meshes. Single merges and their rails belong to `test_construction_operator_merge` and `test_construction_operator_mesh`; continuity at the rails to the seam audit.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_solid_body`; it builds closed-form surfaces in process, generates no person and starts no host, browser or GPU.
  */
-export function test_human_solid_body(): void {
+export function test_construction_operator_body(): void {
   const failures: string[] = [];
   const range: (from: number, to: number, step: number) => number[] = (from: number, to: number, step: number): number[] =>
     Array.from({ length: Math.round((to - from) / step) + 1 }, (_: unknown, i: number): number => from + i * step);

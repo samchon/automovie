@@ -1,5 +1,5 @@
 import { type AutoMovieLoftContract, type AutoMovieSolidJoin, AutoMovieSolidBlend, AutoMovieSolidBlendChain, AutoMovieSolidChain, AutoMovieSolidMerge, AutoMovieSolidMesh, type AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
-import { HumanSolidShapes } from "../../internal/HumanSolidShapes";
+import { HumanSolidShapes } from "../../../internal/HumanSolidShapes";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 const { cross, cylinder, distance, dot, plane } = HumanSolidShapes;
@@ -14,7 +14,7 @@ const { cross, cylinder, distance, dot, plane } = HumanSolidShapes;
  * @evidence contracts/testing.md#distinguishing-cases Green: the merged mesh. Red: three made defects on copies of it must each be listed by the check they break: one host rail vertex duplicated into the blend's row (an unshared seam), one triangle turned, and one vertex's coordinate moved by 0.01 radians.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_solid_mesh`; it builds closed-form surfaces in process and starts no host, browser or GPU.
  */
-export function test_human_solid_mesh(): void {
+export function test_construction_operator_mesh(): void {
   const failures: string[] = [];
   const r: number = 20;
   const part: IAutoMovieSolidSurface = cylinder("column", [0, 0, 0], [0, 0, 1], [1, 0, 0], [0, 1, 0], r);
