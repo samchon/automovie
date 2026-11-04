@@ -183,7 +183,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   export const FOOT: ITable = {
     reading: "test_human_estimate_foot_outline",
     normalization: "heel/toe selected by body-X extrema; shares of their planar Euclidean span; lateral/medial maxima and highest/lowest section in an along-axis +/-4 mm band, per that span",
-    consumers: "foot/AutoMovieHumanFootInterim.of, toes and acrossScale; subsequent curve extrema remain the consumer's responsibility",
+    consumers: "foot/AutoMovieHumanFootInterim.define (host, attachments and retained supports); FootBreadth reads the actual group source to own its public-breadth scale",
     columns: ["lateral", "medial", "dorsum", "plantar"],
     rows: [
       { share: 0, values: { "lateral": 0.0434, "medial": 0.0477, "dorsum": 0.1296, "plantar": 0.0776 }, spreads: { "lateral": 0.0088, "medial": 0.013, "dorsum": 0.0297, "plantar": 0.0347 } },

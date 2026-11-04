@@ -31,3 +31,7 @@ Ordinary least squares by sex, per-side breadth in mm on a girth in mm: elbow br
 ## Limits
 
 A small, physically active sample: its thigh and other soft-tissue girths spread less than the Army surveys', so its bands are narrower than a general population's. Its knee girth is taken slightly flexed and its forearm girth palm up, near but not equal to ISO 8559-1 5.3.22 and the relaxed forearm girth.
+
+## Direct protocol follow-up, campaign #3062
+
+The original [JSE article](https://jse.amstat.org/v11n2/datasets.heinz.html), sections 2/3 and complete variable Appendix, was directly reopened. Limb diameters are paired sums, with firm tissue compression; paired limb girth rows average both sides. Forearm specifies extension/palm-up without locating a maximum station. Knee is slightly flexed over the patella. The common tape method delegates further detail to Behnke/Wilmore, not newly read here. These definitions do not turn Human's supplied right-side relaxed maximum or horizontal midpatella tape into those cohort observations; the distinction is retained in the complete input audit. No data rerun, new regression or coefficient was made.

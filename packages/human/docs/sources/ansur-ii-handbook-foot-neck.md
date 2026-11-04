@@ -4,7 +4,7 @@ Hotzman J et al. *Measurer's Handbook: US Army and Marine Corps Anthropometric S
 
 ## Direct reading
 
-Printed pp. 33-34, 83-84, 112-115 and 139-140 were read; rendered figures on pp. 83/84/112/113 were also inspected. A later hand-datum follow-up directly read sections 5.2.36, 6.4.45 and 6.4.66, printed pp. 60, 121 and 142, as text only. The heel follow-up read the complete text and rendered figures of sections 6.4.49/6.4.50, printed pp. 125-126. The neck-site follow-up directly read the complete section 5.2.18/p. 40 and reopened pp. 139-140 as text, without claiming their figures. PDF page numbers are ten greater. This is not a complete handbook reading.
+Printed pp. 33-34, 83-85, 112-115 and 139-140 were read; rendered figures on pp. 83/84/112/113 were also inspected. Later hand/head follow-ups read complete sections 5.2.36, 6.4.43-48 and 6.4.66, printed pp. 60, 119-124 and 142, as text only. The heel follow-up read the complete text and rendered figures of sections 6.4.49/6.4.50, printed pp. 125-126. The neck-site follow-up directly read complete section 5.2.18/p. 40 and reopened pp. 139-140 as text, without claiming their figures. The shoulder-width follow-up directly read complete sections 6.1.2/6.4.12, printed pp. 74/88, as text only. PDF page numbers are ten greater. This is not a complete handbook reading.
 
 ## Definitions and use
 
@@ -34,7 +34,21 @@ Section 5.2.36, printed p. 60, defines stylion at the inferior radius and transf
 
 Palm length, section 6.4.66/p. 142, uses the ventral stylion and centre of digit III's base crease, choosing the most proximal crease if several exist. The forearm is horizontal, the hand straight and palm up, digit III parallel to the forearm, and the caliper beam parallel to that axis. The endpoint is a skin crease, not a web or MCP centre. Neither protocol defines an already flexed bind's Euclidean distance or bone-chain arclength.
 
+Sections 6.4.43/44, pp. 119/120, were also directly read as complete text. Hand breadth is between metacarpale II/V landmarks, and the tape passes those same landmarks. Both use the hand-length table pose, with fingers together and thumb away; breadth is not the entire hand/finger union maximum. A radial section-width identity is not automatically that landmark chord. Human's tape cites 1988, so this reading does not silently prove every 2011 detail identical.
+
 Human's current pure HandBones uses a shared 1.5 mm stylion-to-WJC placement from the forearm, independent de Leva WJC-to-MET3/WJC-to-DAC3 ratios and a separate public crease locus carried onto the proximal-phalanx course in bind. The source's hand-specific Table 2 offsets are instead 2.2/2.4 mm; preserving one common wrist is a retained transfer approximation, not an assertion that the rows agree. MET3-to-MCP-centre and interarticular-length-to-joint-centre transfers remain proxies. No offset, hand shape or measurement value was changed in this follow-up.
+
+## Bideltoid source constraint, campaign #3062
+
+Section 6.4.12/p. 88 measures the greatest horizontal skin breadth over the deltoid muscles. The caliper moves up/down to find the maximum, lightly contacting both sides; the named deltoid landmarks are explicitly not used. Measurements below the deltoids' lower borders are excluded. Shoulders keep their position and the reading is at the maximum point of quiet respiration. The sitting position in section 6.1.2/p. 74 keeps the upper arms loosely down and shoulders relaxed, then specifies 90-degree elbow flexion with straight hands/palms inward. Human's public breadth names the same soft-tissue maximum; the AR/RS straight-arm measuring convention must not silently replace this dimension's posture.
+
+The current public-to-source check finds the field preserved/defaulted by BodyAnatomy but absent from BodyLaw.arms and ArmConstruction.IInputs. ArmInterim starts at biceps. ArmWalk's variable named deltoid therefore reads that biceps box, and its bideltoid comment is not an actual field consumer. TrunkInterim's upper half-breadths use biacromial/2 and an upper-arm circumference radius, not bideltoid. No active original curve currently owns this input.
+
+For a symmetric upper-arm-down measuring construction, let gZ be the GH centre's lateral coordinate and r(s) the bone-relative lateral deltoid support. The maximum-width constraint is `B=2*(gZ+max r(s))`, so `max r=B/2-gZ`; with the current zero-medial-offset GH convention this is `(B-biacromial)/2`. This is a geometric measurement identity, not a law selecting the peak's station, AP extent, tape or fullness. A bind-pose width or one biceps cut cannot substitute for that maximum. BODY owns the missing source and any separate posture transfer; no new source coefficient or geometry is supplied by this reading.
+
+## Head tape follow-up, campaign #3062
+
+Complete section 6.4.47, printed p. 123, was directly read as text. The seated tape seeks the maximum above the ear attachments, passes just above the brow ridges and around the back, and compresses the hair. Its plane is higher anteriorly than posteriorly, without side tilt. This is not the current horizontal glabella-height Lamé loop. The public maximum-course definition, f1's g/op comment and the current source solve remain separate; the protocol supplies no numerical tilt angle. FaceBase's separately read five-caliper list contains no circumference. No tape angle, source course or input value was changed here, and the page's figure was not newly opened.
 
 ## Heel metrics follow-up, campaign #3062
 
