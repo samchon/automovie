@@ -2,6 +2,16 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 source-representation correction (2026-11-05 07:52:41 +09:00, Get-Date)
+
+The supervisor stopped and resumed this worker after the full-input audit's lateral-scaling explanation was published without following the complete production section representation. The initial HEAD message held axis/AP extents/fullness fixed and treated `b*g=W/2` as the production constraint; the audit likewise claimed lateral-coordinate scaling for a fixed quarter shape. That omitted the difference between a frozen normalized affine template and the engine's actual rebuild. Both handoffs were corrected in Korean before this follow-up. No geometry or executable change was made by this worker.
+
+Directly read the complete current AutoMovieViewSection, its construction export, and PolarSector.radius/sector after following HeadMassPart.sectionAt/sideAt. The exported owner prepares shared-curvature conic guides and evaluates polar quintics; the separate SectionConic candidate is not that consumer. The audit withdraws general production lateral scaling and keeps only actual `Z_source(x_i,y_i)=+/-W_i/2`. Fixed-template affine algebra remains explicitly conditional. No source-form, neighbour, tape or regional-extremum preservation is guaranteed by that point equation.
+
+Also read the complete analytic HeadBackProfile and the actual HeadLandmarks op/reach and HeadMassPart sampling consumers. Preserved the squared-distance derivative identity while separating the analytic zero handover slope from the emitted outline/origin spline derivative. The observed local longer chord remains evidence; the formula is not a new global maximum result, cranial domain or geometry correction. This follow-up changes only this log and the law audit; it adds no invocation, fit, source value, API or modeler edit.
+
+The subsequently saved HeadSectionConstraints helper was read completely. Its residuals do re-prepare the actual exported bare/radius owner. Returned one related contract limit: fixed posterior shoulder inputs do not guarantee unchanged posterior polar spans, because shared guide curvature also depends on the anterior inputs. The audit dates the full-input delivery inventory to its inspection snapshot rather than treating later unverified saves as observations. No modeler correction or execution was blocked by this reading.
+
 ## #3062 full existing-input inspection (2026-11-05 07:42:02 +09:00, Get-Date)
 
 Directly reopened the complete f1 and reachable public declarations: 55 body fields (24 supplied/31 defaulted), 14 supplied sided extremity leaves, 25 supplied static head leaves and two supplied capacities outside resting-shape work. Read BODY's full source matrix and HEAD's full delivery matrix, cross-checked the missing/retired routes and actual trunk/head consumers, and connected both canonical per-leaf tables in the law audit. Its common protocol/cause tables distinguish emission, anatomical identity, independent checking and final skin. They do not count 96 passing tests or extend the old identity types into new inputs.
