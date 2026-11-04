@@ -6,7 +6,7 @@ The viewer finds defects and accepts a candidate, and the [tests](testing.md) co
 
 A part is only as right as the view curves it is lofted from, so judge those curves before any surface. Draw the reference figure with every part's view curves and axis over it, each part in its own colour and each curve labelled with its part and view, from the front, side and top, using the view comparison's `reference`, `part`, `referencePart`, `views` and `viewLabels` variables in the [debug README](../../../packages/human/debug/README.md). Then go part by part in close-up and record, for each curve, where it leaves the reference skin, by how much, and which input, law, frame or construction choice put it there.
 
-The deviation is a diagnostic that finds causes, never a target to fit one person. A shape comes from the person's inputs, published or derived laws, and normalized tables derived from the references and aggregated over the whole reference set.
+The deviation is a diagnostic that finds causes, never a target to fit one person. A shape comes from the person's inputs, published or derived laws, and normalized tables derived from the references and aggregated over the whole reference set, and every curve's source states that reason in its doc comment. A curve may therefore rightly depart from one reference where its law reads the anatomy differently, such as a calf or wrist girth or the size of the head, breasts or buttocks; the comparison catches the curve whose reason fails, one that leaves the skin absurdly, crosses a neighbour or misplaces its part.
 
 ## Inspection Round
 
