@@ -37,6 +37,8 @@ From Gray 1918 and Bridgman ([gray-1918](../sources/gray-1918.md), [bridgman-192
 - Sole: abductor digiti minimi a narrow rounded elevation laterally, abductor hallucis a lesser one medially; the heel and ball pads bear weight, the arch does not.
 - When the foot lands, the lateral (heel) side strikes first and the foot settles inward.
 
+In the construction a toe is a digit on the finger's plan: its own chain on its own line, tapered by the digit span law from its web (halfway along its proximal phalanx) through its joints to its cap, its nail side flattening, its distal pad the fingertip pulp's bump resting on the floor; its first own section stands past its own clefts by the blend width of its own size, and the web surface from the body's ring adapts to it. The dorsum's height at a cleft is the quarter ellipse from the crest (level tangent) to the lateral border (upright tangent), so each cleft's web is as deep as the forefoot is thick there. Where the lateral border's extreme changes bone (heel wall to malleolus), the guide has no knot and its spline bridges the two prominences.
+
 ## f1 reference observation
 
 Measured on Recovery Hermite sections of the f1 reference mesh with 0.5 mm cross planes, separations refined to 0.01 mm. It is one specimen in a standing neutral pose and makes no population claim. Positions run along each foot's footprint principal axis from the heel's rearmost point, as fractions of that foot's length L. The axis turns 8.3 deg (left, +Z) and 11.4 deg (right) outward from +X; L is 245.1 mm (left) and 243.6 mm (right). The minimum horizontal ankle girth is 205 mm at 113.5 and 112.5 mm height.
@@ -54,6 +56,26 @@ Measured on Recovery Hermite sections of the f1 reference mesh with 0.5 mm cross
 | Hallux tip | 1 | 1 |
 
 The toes separate lateral first, and the hallux is the longest toe of both feet. The toes rest on the floor with neighbouring plantar pads nearly touching, while the dorsal clefts reach the separation planes. A separation is where the cutting plane passes the web's saddle.
+
+## Four references by exact plane cuts
+
+Read on the left feet of f1, f2, m1 and m2 by exact cuts of their meshes, in the footprint's principal frame (along from the rearmost point over foot length L, across from the forefoot's medial extreme over breadth B, heights over L below the ankle and over the lateral malleolus height H in the column). Each value is one specimen's reading or the median of four; a median with any one person left out is the middle of the other three, so it lies within the four readings shown. These are the construction's knots where no published value exists (`AutoMovieHumanFootPrior`, marked "reference median").
+
+| Measure | f1 | f2 | m1 | m2 | median |
+| --- | --- | --- | --- | --- | --- |
+| Medial extreme (first metatarsal head), a | 0.725 | 0.729 | 0.713 | 0.713 | 0.719 (ANSUR II: 0.739 / 0.741) |
+| Lateral extreme (fifth head), a | 0.640 | 0.648 | 0.625 | 0.625 | 0.633 (Maestro from 0.74: 0.653) |
+| Footprint axis out of +X, deg | 8.2 | 9.4 | 10.2 | 11.1 | 9.8 |
+| Dorsal crest at a = 0.5, 0.6, 0.7, 0.8 (y/L) | 0.258 0.210 0.164 0.122 | 0.271 0.219 0.171 0.126 | 0.258 0.210 0.164 0.120 | 0.243 0.195 0.152 0.114 | 0.258 0.210 0.164 0.121 |
+| Plantar contact across at a = 0.3, 0.5, 0.7 (u) | 0.46 to 0.72, 0.64 to 0.84, 0.22 to 0.93 | 0.44 to 0.71, 0.62 to 0.82, 0.18 to 0.91 | 0.37 to 0.72, 0.58 to 0.85, 0.20 to 0.92 | 0.31 to 0.78, 0.33 to 0.91, 0.17 to 0.91 | 0.41 to 0.72, 0.60 to 0.85, 0.19 to 0.91 |
+| Heel's rearmost height (y/L) | 0.08 to 0.10 | 0.08 to 0.10 | 0.08 to 0.10 | 0.08 to 0.10 | 0.09 |
+| Column at the ankle ring (1.46 H): back, front (a) | 0.034, 0.362 | 0.045, 0.378 | 0.057, 0.398 | 0.045, 0.376 | 0.045, 0.377 |
+| Lateral extreme's greatest reach, height (y/L) | 0.28 | 0.30 | 0.26 | 0.20 to 0.24 | 0.27 (H / L 0.28) |
+| Medial extreme's greatest reach, height (y/L) | 0.30 | 0.30 | 0.28 to 0.30 | 0.30 | 0.30 |
+
+Toes, by vertical cuts square to the axis: each toe is its own loop by 0.775 L (fifth), 0.81 (fourth) and 0.85 (first to third). Breadths at their roots over L: hallux 0.102 (pulp 0.113 at 0.9 L), second 0.066, third 0.058, fourth 0.057, fifth 0.052; neighbouring toes touch. Tips: 1, 0.985, 0.945, 0.89 and 0.82 L. The lateral malleolus barely stands out of the lateral extremes' line (0.5 to 1.5 mm on f1, f2 and m1), and m2 is flat-footed (its medial midfoot reaches the floor); m2's lateral malleolus height input, 89.9 mm, lies 3.4 SD above the ANSUR II men's mean and reads about 0.31 L against 0.25 to 0.28 on the others.
+
+Published foot-shape values searched and not yet used: instep height at fixed shares of foot length (3D scanner studies) and the arch height point at 50 % of foot length; each would replace a crest or medial knot once read in full.
 
 ## Range of motion
 

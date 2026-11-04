@@ -33,6 +33,38 @@ From Gray 1918 and Bridgman ([gray-1918](../sources/gray-1918.md), [bridgman-192
 - The thumb's basal (carpometacarpal) joint is a saddle; its metacarpal sits at an angle to the palm, never flat with it; the thumb pad reaches the middle joint of the index finger.
 - Third metacarpal styloid process: a dorsal prominence about 4 cm distal to the dorsal radial tubercle (Gray).
 
+## Phalanges and web heights
+
+Radiographs of 66 adults ([buryanov-2010-hand-segments](../sources/buryanov-2010-hand-segments.md)), measured; shares derived.
+
+- Interarticular lengths, distal phalanx with the tip's soft tissue: index 39.8, 22.4, 19.7 mm; middle 44.6, 26.3, 21.4; ring 41.4, 25.7, 21.3; little 32.7, 18.1, 19.7; thumb proximal 31.6, distal with tip 27.3. The middle and distal phalanges are not equal: the middle phalanx is 1.1 (little) to 1.5 (middle, ring) times the distal one.
+- Joints from the web, as shares of the web-to-tip length: PIP at 0.41 (index), 0.41 (middle), 0.38 (ring), 0.34 (little); DIP at 0.72, 0.74, 0.72, 0.66. The web stands 15 to 25 % of that length above the MCP joint space, highest at the little finger.
+- A finger's external length from its web to its tip over the middle finger's (Buryanov and Kotiuk, the tip and distal phalanx of Table I over their Table III share): index 0.872, ring 0.927, little 0.716. Greiner 1991 measures from the centre of the proximal palmar flexion crease and gives 0.900, 0.940, 0.764; the two datums differ, and the construction measures from the web, so it takes Buryanov's.
+
+## Capture posture
+
+The generated bind is the captured standing posture with relaxed hands, a pose convention and not a shape. Its angles were read on the four reference bodies along each finger's own sections, with PIP and DIP placed by the shares above, one shared value per joint (degrees, toward the palm; spread toward the thumb's side):
+
+| Finger | Proximal phalanx from the hand's axis | Spread | PIP | DIP |
+| --- | --- | --- | --- | --- |
+| Index | 19.6 | 3.0 | 9.3 | -3.3 |
+| Middle | 12.8 | -0.8 | 23.9 | -6.9 |
+| Ring | 21.1 | -12.8 | 18.5 | -7.6 |
+| Little | 35.4 | -12.9 | 6.0 | -7.6 |
+
+Holding one person out moves a flexion or spread by at most 3.8 degrees, a DIP by up to 7.8. The DIPs rest slightly extended, so the active-flexion coupling of DIP to two thirds of PIP does not describe this posture. The ring and little fingers fan toward the little finger's side.
+
+The thumb rests on the same rule as the fingers, every digit at one share of its joints' ranges: the fingers' mean proximal flexion is 22.2 degrees of the MCP's 80 (AAOS), their mean PIP flexion 14.4 of 90, so the thumb's MCP rests at 0.278 of its 50 degrees (13.9) and its IP at 0.160 of its 80 (12.8), each about its own bone from the metacarpal. The one reference thumb walked alone (f1, proximal phalanx about 22 degrees from the hand's axis, which includes the metacarpal's own tilt) is a check of the rule, not an input.
+
+## Section shape on the reference
+
+Read on f1's bone-normal digit sections (left hand, `limbs/<digit>_l-v3`), depths measured from the bone axis toward the palm and the back of the hand, in the hand's frame. One person in its captured posture, so a shape prior and not a population value.
+
+- Palmar depth over dorsal depth: about 1.2 over the proximal phalanges (index 1.1 to 1.3, middle 1.15 to 1.35, ring 1.1 to 1.3, little 0.8 to 1.2), about 1.1 over the middle phalanges (index 1.3 to 1.45, middle 0.93 to 1.0, ring 1.0, little 1.15), and over the distal phalanx rising toward the nail bed's middle (index to 3 near the tip, middle and ring 1.5, little 2.1) before the tip rounds. The palmar pad is the fuller half; the dorsal skin thins over the nail bed.
+- Half width over half depth is near 1 over the proximal phalanx (index 9.1 mm wide against 9.5 and 7.5 mm deep), so a finger's proximal section is nearly round, not flattened.
+- Girth falls monotonically from the root to the tip on every finger (index 56 to 43 mm, middle 57 to 44 mm over P1 and P2): this relaxed capture shows no swelling at PIP or DIP above the shafts at the sections' 2 mm spacing (no step above 0.3 mm), so a joint's swelling is held at the upper bound that reading allows, 4 % of the joint's radius.
+- Curvature at the side points and apexes read by three points 1.5 mm apart scatters by a factor of two between neighbouring stations; it is not used as a constant. The section takes the half ellipses' apexes and the side speed `sqrt(h_p h_d)` that makes the two halves meet G2 at the side points.
+
 ## Form
 
 - Two masses: the hand proper and the thumb's pyramidal base (thenar), which is larger and rounder than the long narrow hypothenar eminence.
@@ -41,6 +73,8 @@ From Gray 1918 and Bridgman ([gray-1918](../sources/gray-1918.md), [bridgman-192
 - Wrist width is twice its thickness, narrower where it joins the forearm, with a step down from the back of the forearm over the wrist to the hand.
 - Finger segments step down from one to the next, bridged by wedges; joints are square, shafts narrower, tips triangular; the middle joint of each finger is the largest. The nail sits in a horseshoe of skin that begins behind its root and bevels below its end.
 - Palmar skin is thick and tied to the palmar aponeurosis; dorsal skin is loose and wrinkles over the interphalangeal joints in extension.
+
+The construction follows these parts as pieces on their own axes: a finger's section along its bones is the phalanx span law (shares of the root half width 1.0, 0.9, 0.76 and 0.6 at the web, PIP, DIP and the cap's start; dorsal depth falling faster than palmar, the nail side flattening), with the joint swellings, the pulp and the nail fold as volume-adding bumps, the flexion creases as declared recesses, and the nail plate's transverse arch setting the dorsal midline's curvature over the plate. The palm carries the interosseous valleys (recesses on the back), the hypothenar (a bump on the palmar side) and the aponeurosis pad (the palmar face at least the pad's half ellipse).
 
 ## Range of motion
 
@@ -61,9 +95,10 @@ Finger widths must fit inside the measured hand breadth. Packing unequal MCP ski
 
 ## Open questions
 
-- Phalanx lengths as fractions of hand length for each finger: Buchholz et al. 1992 and Buryanov and Kotiuk 2010 were inaccessible.
+- Phalanx lengths as fractions of hand length: Buchholz et al. 1992 remains unread; Buryanov and Kotiuk 2010 gives absolute lengths and shares of the finger, not of hand length.
+- Ring and little fingers: on the reference bodies, measured from their more distal web along their own sections, they are 0.82 to 0.87 and 0.62 to 0.65 of the middle finger. Part of the gap to Greiner's 0.940 and 0.764 is his crease datum; Buryanov's web datum gives 0.927 and 0.716. The rest is open: a finger between two webs is read from the more distal one by the observer, and which web Buryanov's X-ray shadow marks for the ring finger is not stated.
 - Nail plate dimensions and curvature.
 - Positions of the metacarpal bases (the carpometacarpal line) and of the thumb's carpometacarpal joint: no measured source, so the bases are taken level.
 - Child metacarpal proportions: none read, so adult CT ratios are held.
-- Finger abduction ranges and the coupling of DIP to PIP flexion.
+- Finger abduction ranges.
 - `AutoMovieHumanoidBone` has no bones for metacarpals two to five, so palm arching (cupping) cannot be posed; either `interface` gains metacarpal bones or Human keeps an internal palm arch.

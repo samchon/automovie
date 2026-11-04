@@ -42,6 +42,14 @@ export namespace AutoMovieHumanBodyConstruction {
 
     /** Tube mesh in mm, registered frame. */
     mesh: AutoMovieHumanLoftMesh.IContext;
+
+    /**
+     * Loft coordinates `[chain, station, phase]` of each tube vertex: those of
+     * the curve point it surrounds (a section's at its station and phase, a
+     * guide's at its phase, an axis point's at its station with phase NaN).
+     * Empty for a path, which no chain parameter names.
+     */
+    coordinates: number[];
   }
 
   /** Points evaluated along each section curve. */
@@ -78,7 +86,7 @@ export namespace AutoMovieHumanBodyConstruction {
     );
     const out: ICurve[] = [];
 
-    for (const chain of calibration.chains) {
+    calibration.chains.forEach((chain: IAutoMovieHumanLoftChain, c: number): void => {
       // One closed tube per principal layer.
       chain.layers.forEach(
         (layer: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
@@ -94,6 +102,7 @@ export namespace AutoMovieHumanBodyConstruction {
             id: chain.name + "/" + k.toString(),
             kind: "section",
             mesh,
+            coordinates: around(phases.map((t: number): [number, number, number] => [c, layer.y, t])),
           });
         },
       );
@@ -102,10 +111,16 @@ export namespace AutoMovieHumanBodyConstruction {
       const mesh: AutoMovieHumanLoftMesh.IContext =
         AutoMovieHumanLoftMesh.create();
       AutoMovieHumanLoftTube.sweep(mesh, axis(chain), false, AXIS_RADIUS);
-      out.push({ id: chain.name + "/axis", kind: "axis", mesh });
+      out.push({
+        id: chain.name + "/axis",
+        kind: "axis",
+        mesh,
+        coordinates: around(axisStations(chain).map((s: number): [number, number, number] => [c, s, NaN])),
+      });
 
       // Guides: fixed-phase curves along the chain.
-      guides(chain).forEach(
+      const drawn: IGuides = guides(chain);
+      drawn.curves.forEach(
         (points: [number, number, number][], j: number): void => {
           const tube: AutoMovieHumanLoftMesh.IContext =
             AutoMovieHumanLoftMesh.create();
@@ -114,10 +129,11 @@ export namespace AutoMovieHumanBodyConstruction {
             id: chain.name + "/g" + j.toString(),
             kind: "guide",
             mesh: tube,
+            coordinates: around(drawn.stations.map((s: number): [number, number, number] => [c, s, drawn.phases[j]!])),
           });
         },
       );
-    }
+    });
     return [...out, ...drawPaths(paths)];
   }
 
@@ -142,7 +158,7 @@ export namespace AutoMovieHumanBodyConstruction {
         path.closed,
         GUIDE_RADIUS,
       );
-      out.push({ id: path.id, kind: "guide", mesh });
+      out.push({ id: path.id, kind: "guide", mesh, coordinates: [] });
     }
     return out;
   }
@@ -151,9 +167,7 @@ export namespace AutoMovieHumanBodyConstruction {
    * Fixed-phase curves of a chain, one per guide phase, each sampled at
    * about one station per millimetre between its end layers.
    */
-  function guides(
-    chain: IAutoMovieHumanLoftChain,
-  ): [number, number, number][][] {
+  function guides(chain: IAutoMovieHumanLoftChain): IGuides {
     const bottom: number = chain.layers[0]!.y;
     const top: number = chain.layers[chain.layers.length - 1]!.y;
     const probe: [number, number, number][] = chain.layers.flatMap(
@@ -187,34 +201,48 @@ export namespace AutoMovieHumanBodyConstruction {
       (_: unknown, j: number): number => (2 * Math.PI * j) / count,
     );
     const steps: number = Math.min(600, Math.max(16, Math.round(top - bottom)));
-    const rings: [number, number, number][][] = Array.from(
-      { length: steps + 1 },
-      (_: unknown, i: number): [number, number, number][] =>
-        AutoMovieHumanLoftChain.ring(
-          chain,
-          bottom + ((top - bottom) * i) / steps,
-          phases,
+    const stations: number[] = Array.from({ length: steps + 1 }, (_: unknown, i: number): number => bottom + ((top - bottom) * i) / steps);
+    const rings: [number, number, number][][] = stations.map(
+      (s: number): [number, number, number][] => AutoMovieHumanLoftChain.ring(chain, s, phases),
+    );
+    return {
+      phases,
+      stations,
+      curves: phases.map((_: number, j: number): [number, number, number][] =>
+        rings.map(
+          (ring: [number, number, number][]): [number, number, number] =>
+            ring[j]!,
         ),
-    );
-    return phases.map((_: number, j: number): [number, number, number][] =>
-      rings.map(
-        (ring: [number, number, number][]): [number, number, number] =>
-          ring[j]!,
       ),
-    );
+    };
+  }
+
+  /** A chain's guides: their phases, the stations they are sampled at, and their points. */
+  interface IGuides {
+    /** One phase per guide. */
+    phases: number[];
+
+    /** Stations every guide is sampled at, mm. */
+    stations: number[];
+
+    /** Each guide's points at those stations. */
+    curves: [number, number, number][][];
+  }
+
+  /** Each curve point's loft coordinates repeated for the tube vertices round it. */
+  function around(points: readonly [number, number, number][]): number[] {
+    return points.flatMap((p: [number, number, number]): number[] => Array.from({ length: AutoMovieHumanLoftTube.SIDES }, (): number[] => [...p]).flat());
   }
 
   /** Axis points from the chain's bottom to its top layer. */
   function axis(chain: IAutoMovieHumanLoftChain): [number, number, number][] {
+    return axisStations(chain).map((s: number): [number, number, number] => AutoMovieHumanLoftChain.axis(chain, s));
+  }
+
+  /** The stations of a chain's axis points, evenly from its bottom to its top layer. */
+  function axisStations(chain: IAutoMovieHumanLoftChain): number[] {
     const bottom: number = chain.layers[0]!.y;
     const top: number = chain.layers[chain.layers.length - 1]!.y;
-
-    return Array.from(
-      { length: AXIS_POINTS },
-      (_: unknown, i: number): [number, number, number] => {
-        const s: number = bottom + ((top - bottom) * i) / (AXIS_POINTS - 1);
-        return AutoMovieHumanLoftChain.axis(chain, s);
-      },
-    );
+    return Array.from({ length: AXIS_POINTS }, (_: unknown, i: number): number => bottom + ((top - bottom) * i) / (AXIS_POINTS - 1));
   }
 }

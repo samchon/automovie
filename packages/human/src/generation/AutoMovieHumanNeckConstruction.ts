@@ -51,6 +51,16 @@ export namespace AutoMovieHumanNeckConstruction {
     const size = (s: AutoMovieHumanNeckPrior.ISize, k: number): number =>
       inputs.scale *
       Math.exp(s.level[k]! + s.sex[k]! * inputs.sex + s.gain[k]! * logs(k));
+
+    // Every layer is the neck's own ring at its girth: its perimeter is the
+    // girth interpolated log-linearly from the neck base tape (ISO 8559-1,
+    // through the side-neck points and the cervicale) at the bottom to the
+    // neck tape at the top, its shape the layer's own harmonics at the neck's
+    // depth over width at its top. The trapezius slope beyond the side-neck
+    // point is the shoulder line's (`AutoMovieHumanShoulderLine`), which
+    // copies the bottom layer: the prior's lower layers had spread onto it,
+    // to a half width of 158 mm on f1 against the base girth's 60.
+    const aspect: number = size(prior.depth, last) / size(prior.width, last);
     return AutoMovieHumanHorizontalChain.build(
       {
         name: "head",
@@ -63,8 +73,9 @@ export namespace AutoMovieHumanNeckConstruction {
           ring: AutoMovieHumanNeckPrior.IRing,
           k: number,
         ): [number, number, number][] => {
-          const width: number = size(prior.width, k);
-          const depth: number = size(prior.depth, k);
+          const girth: number = inputs.scale * Math.exp(logs(k));
+          const width: number = girth / perimeter(ring, aspect, prior.order);
+          const depth: number = aspect * width;
           const place: number =
             (prior.place.level[k]! + prior.place.sex[k]! * inputs.sex) *
             inputs.scale;
@@ -84,6 +95,27 @@ export namespace AutoMovieHumanNeckConstruction {
       ),
     );
   }
+}
+
+/**
+ * Perimeter of a ring's normalized shape at unit half width and the given
+ * depth over width, the polygon of its points at the ring's controls.
+ *
+ * @param ring The ring's harmonics.
+ * @param aspect Half depth over half width.
+ * @param order Points round the ring.
+ * @returns Perimeter in half widths.
+ */
+function perimeter(ring: AutoMovieHumanNeckPrior.IRing, aspect: number, order: number): number {
+  let sum: number = 0;
+  let last: [number, number] = [aspect * even(ring.x, 0), odd(ring.z, 0)];
+  for (let j: number = 1; j <= order; j++) {
+    const t: number = (2 * Math.PI * j) / order;
+    const p: [number, number] = [aspect * even(ring.x, t), odd(ring.z, t)];
+    sum += Math.hypot(p[0] - last[0], p[1] - last[1]);
+    last = p;
+  }
+  return sum;
 }
 
 /** Sum of cosines from the constant term. */

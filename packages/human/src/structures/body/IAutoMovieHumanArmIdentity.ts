@@ -15,17 +15,17 @@ export interface IAutoMovieHumanArmIdentity {
   forearmLength: number & tags.Minimum<40> & tags.Maximum<500>;
 
   /**
-   * Hand length: the wrist crease at stylion to the tip of the middle finger, millimetres.
+   * Hand length: the wrist crease at stylion to the tip of the middle finger, millimetres (ANSUR II hand length; women 181.1, SD 10.1, men 193.3, SD 9.9).
    */
   handLength: number & tags.Minimum<40> & tags.Maximum<300>;
 
   /**
-   * Hand breadth across the heads of the second to fifth metacarpals, millimetres.
+   * Hand breadth across the heads of the second to fifth metacarpals, millimetres (ANSUR II hand breadth; women 78.2, SD 3.8, men 88.3, SD 4.4).
    */
   handBreadth: number & tags.Minimum<20> & tags.Maximum<160>;
 
   /**
-   * Palm length: stylion to the palmar crease at the base of the middle finger, millimetres, as ANSUR II measures it. This endpoint is the skin crease; its correspondence to a metacarpophalangeal joint centre is not specified.
+   * Palm length: stylion to the palmar crease at the base of the middle finger, millimetres, as ANSUR II measures it (women 108.7, SD 5.9, men 116.5, SD 6.2). This endpoint is the skin crease; its correspondence to a metacarpophalangeal joint centre is not specified.
    */
   palmLength: number & tags.Minimum<20> & tags.Maximum<200>;
 

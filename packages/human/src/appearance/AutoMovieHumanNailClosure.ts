@@ -3,7 +3,8 @@ import { AutoMovieHumanSkinVector as V } from "./AutoMovieHumanSkinVector";
 /** Physical walls and underside of a nail plate, attached to its generated skin bed. */
 export namespace AutoMovieHumanNailClosure {
   /**
-   * Close a top grid against the exact ray intersections that located it.
+   * Close a top grid against the bed it was lifted from, the digit chain's
+   * own surface (`AutoMovieHumanNailPlate`).
    * The top keeps its thickness. Side walls span to the skin rather than
    * hiding a clearance with alpha; the reversed bed closes the volume.
    */

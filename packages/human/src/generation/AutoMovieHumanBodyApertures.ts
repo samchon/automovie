@@ -3,7 +3,8 @@ import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
-import { AutoMovieHumanAperturePocket } from "./AutoMovieHumanAperturePocket";
+import { AutoMovieHumanApertureHoles } from "./AutoMovieHumanApertureHoles";
+import { AutoMovieHumanBodyApertureIslands } from "./AutoMovieHumanBodyApertureIslands";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
 import { AutoMovieHumanEyelidSurface } from "./AutoMovieHumanEyelidSurface";
 import type { IAutoMovieHumanApertureEdge } from "./IAutoMovieHumanApertureEdge";
@@ -35,15 +36,6 @@ export namespace AutoMovieHumanBodyApertures {
 
   /** Distance around an opening's outline that still counts as near, mm. */
   const REACH: number = 2;
-
-  /**
-   * Distance from the outline within which a vertex lies on it, mm: a fifth
-   * of the 0.5 mm station spacing round an opening, so the margin leaves the
-   * outline by no more than the skin's own facets do. Twins 0.08 mm apart
-   * remain, but at 0.2 mm the skin vertices snapped onto the margin turned
-   * more of the pocket's first cells than the twins had.
-   */
-  const SNAP: number = 0.1;
 
   /**
    * Evaluate each aperture's margin once and find the globe behind it.
@@ -181,7 +173,24 @@ export namespace AutoMovieHumanBodyApertures {
               AutoMovieHumanLoftAperture.signed(a.outline, p, REACH) < REACH,
           ),
       );
-    return split(heights, near);
+
+    // Between two rows a skin point near an opening rises by at most half
+    // the opening's own thickness (`AutoMovieHumanApertureHoles`), so every
+    // column crosses it in at least two rows and no row bridges it: a tilted
+    // section's front points rise faster than its station.
+    const half: number[] = apertures.map((a: IPrepared): number => AutoMovieHumanApertureHoles.thickness(a.outline) / 2);
+    const count = (a: number, b: number): number => {
+      const lo: [number, number, number][] = AutoMovieHumanLoftChain.ring(target, a, phases);
+      const hi: [number, number, number][] = AutoMovieHumanLoftChain.ring(target, b, phases);
+      let steps: number = Math.ceil((b - a) / SPACING);
+      for (let i: number = 0; i < lo.length; i++)
+        apertures.forEach((p: IPrepared, k: number): void => {
+          if (half[k]! > 0 && AutoMovieHumanLoftAperture.signed(p.outline, lo[i]!, REACH) < REACH)
+            steps = Math.max(steps, Math.ceil(Math.abs(hi[i]![1] - lo[i]![1]) / half[k]!));
+        });
+      return steps;
+    };
+    return split(heights, near, count);
   }
 
   /**
@@ -191,24 +200,29 @@ export namespace AutoMovieHumanBodyApertures {
   function split(
     heights: readonly number[],
     near: (s: number) => boolean,
+    count: (a: number, b: number) => number = (a: number, b: number): number => Math.ceil((b - a) / SPACING),
   ): number[] {
     const out: number[] = [heights[0]!];
     const marked: boolean[] = heights.map(near);
     for (let k: number = 0; k + 1 < heights.length; k++) {
       const a: number = heights[k]!;
       const b: number = heights[k + 1]!;
-      const steps: number = Math.ceil((b - a) / SPACING);
-      if (steps > 1 && (marked[k] || marked[k + 1] || near((a + b) / 2)))
-        for (let i: number = 1; i < steps; i++)
-          out.push(a + ((b - a) * i) / steps);
+      // An interval no longer than the spacing whose ends are not near is not
+      // near in the middle either: the reach round an opening is wider.
+      if (marked[k] || marked[k + 1] || (b - a > SPACING && near((a + b) / 2))) {
+        const steps: number = count(a, b);
+        for (let i: number = 1; i < steps; i++) out.push(a + ((b - a) * i) / steps);
+      }
       out.push(b);
     }
     return out;
   }
 
   /**
-   * Cut every opening out of the skin and close it: lids for eyes, pockets
-   * for the rest.
+   * Cut the eyes out of the skin and close them with their lids: the one
+   * opening still cut by position, because an eye's lid band crosses the ring
+   * between two head chains; every other opening is a trim loop on its base
+   * chain (`AutoMovieHumanApertureBase`).
    *
    * Each vertex takes the least {@link AutoMovieHumanLoftAperture.signed}
    * distance over the openings' cut outlines. Every triangle is clipped at
@@ -218,9 +232,7 @@ export namespace AutoMovieHumanBodyApertures {
    * connected and its open edge lies on the outline.
    *
    * The open edges of an eye form a loop on the lid band's outer edge,
-   * which {@link AutoMovieHumanEyelidSurface} continues into the lid. Nasal
-   * openings continue along regular cubic meridians into an inferred rounded
-   * closure, preserving the retained triangle's exterior tangent plane.
+   * which {@link AutoMovieHumanEyelidSurface} continues into the lid.
    * Pieces of skin the outline cuts off inside an opening are dropped.
    * New triangles take the group of the skin triangle on the open edge they
    * continue, so they render with the skin they belong to.
@@ -257,23 +269,6 @@ export namespace AutoMovieHumanBodyApertures {
         }
       });
     }
-
-    // A vertex within SNAP of the outline lies on it. The outline passes
-    // beside such a vertex across all of its edges at once, and their
-    // crossings stood 0.003 mm apart on the margin: each started its own
-    // meridian of a pocket, and the cells between those twins shaded as
-    // streaks round the opening. Read per vertex, the choice is the same from
-    // every edge, so the cut skin stays connected. Only an opening this module
-    // closes with a pocket is snapped: a skin vertex snapped beside a lid band
-    // kept the mesh normal of both and shaded 80 degrees off its neighbours,
-    // and an opening closed elsewhere finds its rim on the outline itself.
-    for (let v: number = 0; v < count; v++)
-      if (
-        Math.abs(value[v]!) <= SNAP &&
-        apertures[owner[v]!]!.lid === null &&
-        (apertures[owner[v]!]!.aperture.pocket ?? 0) > 0
-      )
-        value[v] = 0;
 
     // Margin vertices: originals exactly on the outline, and edge
     // crossings. A crossing remembers the kept vertex of its edge, from
@@ -382,7 +377,7 @@ export namespace AutoMovieHumanBodyApertures {
     // triangles 0.6 mm round beside the right medial canthus), whose own
     // boundary would be a second margin loop; such islands are dropped.
     const total: number = mesh.positions.length / 3;
-    islands(indices, faces, groups, total);
+    AutoMovieHumanBodyApertureIslands.islands(indices, faces, groups, total);
 
     // Open margin edges per opening: directed edges whose reverse no
     // triangle uses, with the group of their triangle.
@@ -431,15 +426,6 @@ export namespace AutoMovieHumanBodyApertures {
             emit,
           ),
         );
-      else if (prepared.aperture.pocket! > 0)
-        construction.push(
-          ...AutoMovieHumanAperturePocket.generate(
-            mesh,
-            prepared.aperture,
-            open[a]!,
-            emit,
-          ),
-        );
     });
     for (const [name, list] of added) {
       groups.push({ name, start: indices.length });
@@ -449,61 +435,5 @@ export namespace AutoMovieHumanBodyApertures {
     mesh.indices = indices;
     mesh.groups = groups;
     return construction;
-  }
-
-  /** Fewest triangles a connected piece of clipped skin keeps. */
-  const ISLAND: number = 64;
-
-  /**
-   * Remove, in place, the triangles of connected pieces smaller than
-   * {@link ISLAND} triangles, keeping the groups' order and their starts.
-   */
-  function islands(
-    indices: number[],
-    faces: string[],
-    groups: { name: string; start: number }[],
-    count: number,
-  ): void {
-    const parent: Int32Array = new Int32Array(count);
-    for (let v: number = 0; v < count; v++) parent[v] = v;
-    const find = (v: number): number => {
-      while (parent[v] !== v) {
-        parent[v] = parent[parent[v]!]!;
-        v = parent[v]!;
-      }
-      return v;
-    };
-    for (let t: number = 0; t < indices.length; t += 3)
-      for (let i: number = 1; i < 3; i++) {
-        const a: number = find(indices[t]!);
-        const b: number = find(indices[t + i]!);
-        if (a !== b) parent[a] = b;
-      }
-    const size: Map<number, number> = new Map();
-    for (let t: number = 0; t < indices.length; t += 3) {
-      const root: number = find(indices[t]!);
-      size.set(root, (size.get(root) ?? 0) + 1);
-    }
-    if ([...size.values()].every((n: number): boolean => n >= ISLAND)) return;
-
-    // Compact the kept triangles forward, group by group.
-    let write: number = 0;
-    const ends: number[] = groups.map(
-      (_: unknown, k: number): number => groups[k + 1]?.start ?? indices.length,
-    );
-    groups.forEach((g: { name: string; start: number }, k: number): void => {
-      const from: number = g.start;
-      g.start = write;
-      for (let t: number = from; t < ends[k]!; t += 3) {
-        if (size.get(find(indices[t]!))! < ISLAND) continue;
-        indices[write] = indices[t]!;
-        indices[write + 1] = indices[t + 1]!;
-        indices[write + 2] = indices[t + 2]!;
-        faces[write / 3] = faces[t / 3]!;
-        write += 3;
-      }
-    });
-    indices.length = write;
-    faces.length = write / 3;
   }
 }

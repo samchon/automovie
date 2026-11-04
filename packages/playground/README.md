@@ -25,4 +25,4 @@ pnpm --filter @automovie/playground preview   # dist/ at http://127.0.0.1:4173
 
 Open `human.html`, choose a typed example, edit body controls in their public units and select Apply. The page uses `AutoMovieHuman.generate` and the generic `buildModel` renderer; it generates only after Apply. Download saves the edited parameter document.
 
-Construction views, curve selection, mannequin motion, compiler diagnostics and Human PNG routes live in the unpublished [Human development app](../human/dev/README.md). Run `pnpm --filter @automovie/human dev` from the repository root to open that app on port 5196.
+Construction views, curve selection, part views, compiler diagnostics and Human PNG routes live in the Human package's [debug viewer](../human/debug/README.md). Run `pnpm debug` in `packages/human` to open it on port 5197.

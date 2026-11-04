@@ -1,7 +1,9 @@
+import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
+import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandmarks";
 
 /**
  * Shared shape coefficients (theta) of the generated body surface.
@@ -46,6 +48,17 @@ export interface IAutoMovieHumanBodyCalibration {
   eyes: IAutoMovieHumanBodyCalibration.IEye[];
 
   /**
+   * Contracts the body law's pieces broke while building this calibration,
+   * each piece degraded to its base (`construction-levels.md`, Totality and
+   * diagnostics). The body law creates the list once and every stage that
+   * spreads the calibration shares it, so a piece records into it where it
+   * degrades; `AutoMovieHuman.generate` carries it into the shape's own
+   * diagnostics. A calibration built by hand, as a part viewer's or a test's,
+   * may leave it out.
+   */
+  diagnostics?: AutoMovieHumanLoftContract.IDiagnostic[];
+
+  /**
    * Chains rooted in a closed loop on another chain's surface (an auricle on
    * the head, a limb on the trunk) instead of sharing a contact ring. Absent
    * means none.
@@ -64,8 +77,71 @@ export interface IAutoMovieHumanBodyCalibration {
    * Absent on a calibration whose head has no generated mouth.
    */
   mouth?: AutoMovieHumanMouth.IMouth;
+
+  /**
+   * The head's landmarks as its construction solved them, so parts placed on
+   * the head (hair, garments) attach through landmarks instead of
+   * coordinates. Absent on a calibration whose head is not generated.
+   */
+  head?: IAutoMovieHumanBodyCalibration.IHeadLandmarks;
+
+  /**
+   * The trunk's landmarks as its solve placed them, left side: the shoulders'
+   * arm arc stands on their glenohumeral centre, so the arm and the skeleton
+   * stand on the same centre instead of reading one off the skin. Absent on a
+   * calibration whose trunk is not generated.
+   */
+  trunk?: IAutoMovieHumanTrunkLandmarks;
+
+  /**
+   * The nail plates, one per digit chain: a window of the digit chain's own
+   * surface from the plate's root to its free edge, as wide as the plate
+   * (`AutoMovieHumanNailPlate`). The skin's nail parts are that window of the
+   * chain lifted by the plate's thickness. Absent on a calibration without
+   * digits.
+   */
+  nails?: IAutoMovieHumanBodyCalibration.INail[];
 }
 export namespace IAutoMovieHumanBodyCalibration {
+  /** A nail plate's window on its digit chain. */
+  export interface INail {
+    /** Digit chain the plate lies on, e.g. `finger.left.index`. */
+    chain: string;
+
+    /** Chain station of the plate's root (the cuticle), mm. */
+    root: number;
+
+    /** Chain station of the plate's free edge, mm. */
+    edge: number;
+
+    /** Width of the plate edge to edge, mm. */
+    width: number;
+
+    /** Unit dorsal direction at the root: the side of the chain the plate lies on. */
+    dorsal: [number, number, number];
+  }
+
+  /** Head landmarks on the skin, `[x, y, z]` calibration millimetres. */
+  export interface IHeadLandmarks {
+    /** Vertex, the crown's highest point on the midline. */
+    vertex: [number, number, number];
+
+    /** Glabella, the forehead's most prominent midline point. */
+    glabella: [number, number, number];
+
+    /** Soft-tissue nasion. */
+    nasion: [number, number, number];
+
+    /** Exocanthion of each eye, the right one the left's reflection. */
+    exocanthion: Record<"left" | "right", [number, number, number]>;
+
+    /** Ear roots, otobasion superius and inferius, each side. */
+    otobasion: Record<
+      "left" | "right",
+      { superius: [number, number, number]; inferius: [number, number, number] }
+    >;
+  }
+
   /**
    * One appendage: a chain whose end meets a closed root loop on its base
    * chain through a transition strip.
@@ -193,6 +269,14 @@ export namespace IAutoMovieHumanBodyCalibration {
      * children share the vertex at a pinch.
      */
     arcs: [number, number][];
+
+    /**
+     * This child already leaves the contact by its own construction with the
+     * parent's jet across it, as a limb's root strip does, so the join leaves it
+     * as built while it still settles the event's other children. Absent, the
+     * event's own `shared` decides.
+     */
+    shared?: true;
   }
 
   /** Surface pole closing a chain end. */

@@ -1,6 +1,7 @@
 import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
 
 import { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
+import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanEyelash } from "../structures/appearance/IAutoMovieHumanEyelash";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import { AutoMovieHumanHairShade } from "./AutoMovieHumanHairShade";
@@ -52,12 +53,47 @@ export namespace AutoMovieHumanEyelash {
   const TIP: number = 0.008;
 
   /**
+   * Build both lash rows of one eye, or nothing and one diagnostic when they
+   * break their contract: lashes are an optional piece of level 8
+   * (`docs/techniques/construction-levels.md`), so the figure keeps its bare
+   * lid and the defect is recorded, never thrown past this level.
+   *
+   * @param lid Lid margin in calibration millimetres
+   * @param lash Lash input; its `length` is the longest upper lash in mm
+   * @param scale Calibration millimetre to model unit factor
+   * @param seed Seed of the per-lash variation, one for both eyes so they mirror
+   * @param side The eye's side, for the diagnostic
+   * @param diagnostics The list a broken contract is recorded in
+   * @returns Lash tubes in model units, or null
+   */
+  export function attempt(
+    lid: AutoMovieHumanEyelid.ILid,
+    lash: IAutoMovieHumanEyelash,
+    scale: number,
+    seed: number,
+    side: "left" | "right",
+    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
+  ): IAutoMovieMesh | null {
+    try {
+      return generate(lid, lash, scale, seed);
+    } catch (error) {
+      diagnostics.push({
+        producer: `human.hair.lashes.${side}`,
+        level: 8,
+        contract: "the lash rows build on the lid margin",
+        detail: error instanceof Error ? error.message : String(error),
+      });
+      return null;
+    }
+  }
+
+  /**
    * Build both lash rows of one eye.
    *
    * @param lid Lid margin in calibration millimetres
    * @param lash Lash input; its `length` is the longest upper lash in mm
    * @param scale Calibration millimetre to model unit factor
-   * @param seed Seed of the per-lash variation, distinct per eye
+   * @param seed Seed of the per-lash variation, one for both eyes so they mirror
    * @returns Lash tubes in model units, or null for zero length
    */
   export function generate(

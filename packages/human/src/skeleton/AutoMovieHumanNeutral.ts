@@ -1,6 +1,16 @@
+import { Singleton } from "tstl";
+
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import type { IAutoMovieHumanChainRings } from "./IAutoMovieHumanChainRings";
+import type { IAutoMovieHumanNeutralBody } from "./IAutoMovieHumanNeutralBody";
 import type { AutoMovieHumanJointCentres } from "./AutoMovieHumanJointCentres";
+import { AutoMovieHumanNeutralAnkle } from "./AutoMovieHumanNeutralAnkle";
+import { AutoMovieHumanNeutralForearm } from "./AutoMovieHumanNeutralForearm";
+import { AutoMovieHumanNeutralHip } from "./AutoMovieHumanNeutralHip";
+import { AutoMovieHumanNeutralKnuckle } from "./AutoMovieHumanNeutralKnuckle";
+import { AutoMovieHumanNeutralShoulder } from "./AutoMovieHumanNeutralShoulder";
+import { AutoMovieHumanNeutralThumbCmc } from "./AutoMovieHumanNeutralThumbCmc";
+import { AutoMovieHumanNeutralTurn } from "./AutoMovieHumanNeutralTurn";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 
 /**
@@ -8,24 +18,32 @@ import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMa
  *
  * Generation achieves a posture: an A-pose with relaxed hands. That posture is
  * an observation and the skin's bind, not a clinical zero. Neutral is the
- * standing body the clinical angles are measured from, reached from the bind by
- * one rotation per bone, and those rotations are the body's achieved offset. A
- * bone that no rule below names rides its parent, so its offset is zero.
+ * standing body the clinical angles are measured from (the Neutral-0 position
+ * of DGUV F 4030: upright, arms hanging, thumbs forward, feet parallel), reached
+ * from the bind by one rotation per bone, and those rotations are the body's
+ * achieved offset. A bone that no piece names rides its parent, so its offset
+ * is zero. Each joint's rule is its own piece, composed here parent before
+ * child; a hinge whose neutral is straight on its parent (Neutral-0: extension
+ * is the zero of flexion) is `AutoMovieHumanNeutralTurn.straighten` of its bone
+ * along the limb's line:
  *
- * - Arm: at the side, resting against the trunk. A straight arm hung plumb from
- *   its shoulder would pass through the hip, so the resting angle is the least
- *   abduction that clears this body's own skin.
- * - Elbow, wrist, fingers: straight. The bind's bend gives the elbow's plane,
- *   which neutral lays in the sagittal plane.
- * - Thumb: beside the index metacarpal, turned about its carpometacarpal joint
- *   at the trapezium, its phalanges straight.
- * - Forearm: thumb forward, the mid position its range of motion is measured
- *   from, not palms forward. The turn is shared between elbow and wrist.
- * - Leg: plumb under the hip with the knee forward, sole level, the foot on the
- *   heading tibial torsion gives it. Toes keep their place on the floor, which
- *   puts the metatarsophalangeal joints at zero.
- * - Spine, neck, head, jaw, eyes, girdle: as they stand. A standing column is its
- *   own neutral, and no reference says otherwise.
+ * - Arm: {@link AutoMovieHumanNeutralShoulder} (resting at the side),
+ *   the elbow straight (the forearm on the arm's line),
+ *   {@link AutoMovieHumanNeutralForearm} (thumbs forward) and the wrist straight
+ *   (the hand on the forearm's line, before the forearm's twist).
+ * - Thumb: {@link AutoMovieHumanNeutralThumbCmc} (toward the index
+ *   metacarpal, clear of the hand), and its two hinges straight on
+ *   the line it lies along.
+ * - Fingers: {@link AutoMovieHumanNeutralKnuckle},
+ *   its two interphalangeal hinges straight, the finger straight on the hand, parted by the
+ *   least spread at which neighbours do not cross.
+ * - Leg: {@link AutoMovieHumanNeutralHip} (the least abduction at which the
+ *   thighs do not cross), the knee straight (the shank plumb under
+ *   the knee) and
+ *   {@link AutoMovieHumanNeutralAnkle} (the sole level, the foot straight ahead).
+ * - Spine, neck, head, jaw, eyes, girdle: as they stand. A standing column is
+ *   its own neutral, and the head is built in the Frankfort plane, so no
+ *   reference says otherwise.
  *
  * The rig's rest stays the bind, since a skin has one rest frame: neutral is a
  * pose of the rig, and every clinical pose is a further pose of neutral.
@@ -39,15 +57,18 @@ export namespace AutoMovieHumanNeutral {
     /** Each bone's world turn from bind to neutral: the achieved offset, inverted. */
     turns: Map<string, Math3D.Quaternion>;
 
-    /** Each arm's resting abduction from the plumb line, degrees. */
+    /** Each upper arm's and thigh's resting abduction from the plumb line, degrees, by bone. */
     resting: Map<string, number>;
 
     /** Each forearm's achieved pronation from thumbs forward, degrees. */
     forearms: Map<string, number>;
   }
 
+  /** The chains of skin the neutral reads, so a caller samples no more. */
+  export const READS: RegExp = /^(trunk|(leg|arm)\.(left|right)|hand\.(left|right)\.1|thumb\.(left|right)|finger\.(left|right)\.\w+)$/;
+
   /** Share of the forearm's twist the wrist carries. */
-  export const WRIST_TWIST: number = 0.5;
+  export const WRIST_TWIST: number = AutoMovieHumanNeutralForearm.WRIST_TWIST;
 
   /** One bone's segment frame at neutral. */
   export interface IFrame {
@@ -81,16 +102,15 @@ export namespace AutoMovieHumanNeutral {
   export function frames(
     joints: readonly AutoMovieHumanJointCentres.IJoint[],
   ): IFrame[] {
-    const byBone = new Map<string, AutoMovieHumanJointCentres.IJoint>(
+    const byBone: Map<string, AutoMovieHumanJointCentres.IJoint> = new Map(
       joints.map(
-        (j: AutoMovieHumanJointCentres.IJoint): [string, AutoMovieHumanJointCentres.IJoint] => [
-          j.bone,
-          j,
-        ],
+        (
+          j: AutoMovieHumanJointCentres.IJoint,
+        ): [string, AutoMovieHumanJointCentres.IJoint] => [j.bone, j],
       ),
     );
     return joints.map((j: AutoMovieHumanJointCentres.IJoint): IFrame => {
-      const d: Vector = Math3D.unit(Math3D.sub(j.toward, j.position));
+      const d: Math3D.Vector = Math3D.unit(Math3D.sub(j.toward, j.position));
       return {
         bone: j.bone,
         parent: j.parent,
@@ -101,133 +121,150 @@ export namespace AutoMovieHumanNeutral {
     });
   }
 
+  /** What a body's neutral is derived from: its skin's rings and its bind skeleton. */
+  export interface ISource {
+    /** The skin as rings; at least the chains {@link READS} names. */
+    rings: readonly IAutoMovieHumanChainRings[];
+
+    /** The bind skeleton. */
+    joints: readonly AutoMovieHumanJointCentres.IJoint[];
+  }
+
+  /**
+   * Each calibration's neutral, derived once. The skeleton's pose evaluator
+   * and the rig's binding both stand on the same body's neutral, and each
+   * derived it again: the separating pieces scan the skin's rings, so the
+   * second derivation repeated the whole scan for the same answer. The key
+   * is the calibration object itself, so a body generated again is a new key
+   * and an old body's entry goes with it.
+   */
+  const CACHE: WeakMap<IAutoMovieHumanBodyCalibration, Singleton<IOutput>> = new WeakMap();
+
+  /**
+   * One calibrated body's neutral, derived at its first request and shared by
+   * every later one.
+   *
+   * The neutral reads only the chains {@link READS} names, by name, and the
+   * bind skeleton, which is a function of the calibration alone, so every
+   * caller's source gives the same neutral and the first one's is kept.
+   *
+   * @param calibration The body.
+   * @param source Its rings and bind skeleton, read only on the first request.
+   * @returns The neutral; callers read it and do not change it.
+   */
+  export function of(calibration: IAutoMovieHumanBodyCalibration, source: () => ISource): IOutput {
+    let cached: Singleton<IOutput> | undefined = CACHE.get(calibration);
+    if (cached === undefined) {
+      cached = new Singleton((): IOutput => {
+        const read: ISource = source();
+        return derive(read.rings, read.joints);
+      });
+      CACHE.set(calibration, cached);
+    }
+    return cached.get();
+  }
+
   /**
    * Derive one body's neutral.
    *
-   * @param calibration The body whose skin the resting arm must clear.
+   * @param rings The body's skin as rings, which the resting limbs and digits must clear; the chains read are named by {@link READS}.
    * @param joints Its bind skeleton.
    * @returns The neutral skeleton and the turns that reach it.
    */
   export function derive(
-    calibration: IAutoMovieHumanBodyCalibration,
+    rings: readonly IAutoMovieHumanChainRings[],
     joints: readonly AutoMovieHumanJointCentres.IJoint[],
   ): IOutput {
-    const byBone = new Map<string, AutoMovieHumanJointCentres.IJoint>(
-      joints.map(
-        (j: AutoMovieHumanJointCentres.IJoint): [string, AutoMovieHumanJointCentres.IJoint] => [
-          j.bone,
-          j,
-        ],
-      ),
-    );
-    const direction = (bone: string): Vector => {
-      const j: AutoMovieHumanJointCentres.IJoint = byBone.get(bone)!;
-      return Math3D.unit(Math3D.sub(j.toward, j.position));
-    };
-    const between2 = (from: string, to: string): Vector =>
-      Math3D.sub(byBone.get(to)!.position, byBone.get(from)!.position);
+    const body: IAutoMovieHumanNeutralBody = AutoMovieHumanNeutralTurn.body(joints);
 
-    const named = new Map<string, Math3D.Quaternion>();
-    const resting = new Map<string, number>();
-    const forearms = new Map<string, number>();
+    // Each joint's piece names the turn of the bone it owns, parent first.
+    const named: Map<string, Math3D.Quaternion> = new Map();
+    const resting: Map<string, number> = new Map();
+    const forearms: Map<string, number> = new Map();
     for (const side of ["left", "right"] as const) {
-      const s: number = side === "left" ? 1 : -1;
-
-      // The arm lays its bend forward and hangs at its resting angle.
-      const angle: number = restingAngle(calibration, byBone, side);
-      resting.set(`${side}UpperArm`, angle);
-      const radians: number = (angle * Math.PI) / 180;
-      const down: Vector = [0, -Math.cos(radians), s * Math.sin(radians)];
-      const upper: Vector = direction(`${side}UpperArm`);
-      const fore: Vector = direction(`${side}LowerArm`);
-      const qUpper: Math3D.Quaternion = frame(
-        upper,
-        Math3D.unit(perpendicular(fore, upper)),
-        down,
-        FORWARD,
-      );
-      const qStraight: Math3D.Quaternion = Math3D.multiply(
-        arc(Math3D.rotate(qUpper, fore), down),
-        qUpper,
-      );
-      const qHandBent: Math3D.Quaternion = Math3D.multiply(
-        arc(Math3D.rotate(qStraight, direction(`${side}Hand`)), down),
-        qStraight,
-      );
-
-      // The hand's radial side comes to the front; the turn is the achieved
-      // forearm rotation.
-      const radial: Vector = Math3D.unit(
-        perpendicular(
-          Math3D.rotate(
-            qHandBent,
-            between2(`${side}LittleProximal`, `${side}IndexProximal`),
-          ),
-          down,
-        ),
-      );
-      const rotation: number = Math.atan2(
-        dot(cross(radial, FORWARD), down),
-        dot(radial, FORWARD),
-      );
-      forearms.set(`${side}LowerArm`, (s * rotation * 180) / Math.PI);
-      const twist = (share: number): Math3D.Quaternion =>
-        Math3D.fromAxisAngle(down, (rotation * share * 180) / Math.PI);
-      const qHand: Math3D.Quaternion = Math3D.multiply(twist(1), qHandBent);
-      named.set(`${side}UpperArm`, qUpper);
-      named.set(
-        `${side}LowerArm`,
-        Math3D.multiply(twist(1 - WRIST_TWIST), qStraight),
-      );
-      named.set(`${side}Hand`, qHand);
-
-      // The thumb turns about its trapezium until it lies beside the index
-      // metacarpal, its phalanges straight on it.
-      const index: Vector = Math3D.unit(
-        Math3D.rotate(qHand, between2(`${side}Hand`, `${side}IndexProximal`)),
-      );
-      let thumb: Math3D.Quaternion = qHand;
-      for (const phalanx of ["Metacarpal", "Proximal", "Distal"]) {
-        const bone: string = `${side}Thumb${phalanx}`;
-        thumb = Math3D.multiply(
-          arc(Math3D.rotate(thumb, direction(bone)), index),
-          thumb,
+      const shoulder: AutoMovieHumanNeutralShoulder.IOutput =
+        AutoMovieHumanNeutralShoulder.derive(body, rings, side);
+      const straight: Math3D.Quaternion = AutoMovieHumanNeutralTurn.straighten(body, `${side}LowerArm`, shoulder.turn, shoulder.down);
+      const bent: Math3D.Quaternion = AutoMovieHumanNeutralTurn.straighten(body, `${side}Hand`, straight, shoulder.down);
+      const forearm: AutoMovieHumanNeutralForearm.IOutput =
+        AutoMovieHumanNeutralForearm.derive(
+          body,
+          side,
+          straight,
+          bent,
+          shoulder.down,
         );
-        named.set(bone, thumb);
+      resting.set(`${side}UpperArm`, shoulder.resting);
+      forearms.set(`${side}LowerArm`, forearm.pronation);
+      named.set(`${side}UpperArm`, shoulder.turn);
+      named.set(`${side}LowerArm`, forearm.lower);
+      named.set(`${side}Hand`, forearm.hand);
+
+      // The thumb lies as near the index metacarpal's line as its skin stays
+      // out of the hand's, each joint straight on the one before.
+      const line: Math3D.Vector = AutoMovieHumanNeutralThumbCmc.line(
+        body,
+        rings,
+        side,
+        forearm.hand,
+      );
+      const cmc: Math3D.Quaternion = AutoMovieHumanNeutralThumbCmc.derive(
+        body,
+        side,
+        forearm.hand,
+        line,
+      );
+      const mcp: Math3D.Quaternion = AutoMovieHumanNeutralTurn.straighten(body, `${side}ThumbProximal`, cmc, line);
+      named.set(`${side}ThumbMetacarpal`, cmc);
+      named.set(`${side}ThumbProximal`, mcp);
+      named.set(
+        `${side}ThumbDistal`,
+        AutoMovieHumanNeutralTurn.straighten(body, `${side}ThumbDistal`, mcp, line),
+      );
+
+      // Each finger lies along the hand, the neighbours parted by the least
+      // spread at which their skins do not cross.
+      const lines: Map<string, Math3D.Vector> = AutoMovieHumanNeutralKnuckle.lines(
+        body,
+        rings,
+        side,
+        forearm.hand,
+        shoulder.down,
+      );
+      for (const finger of AutoMovieHumanNeutralKnuckle.FINGERS) {
+        const along: Math3D.Vector = lines.get(finger)!;
+        const proximal: Math3D.Quaternion = AutoMovieHumanNeutralKnuckle.derive(
+          body,
+          side,
+          finger,
+          forearm.hand,
+          along,
+        );
+        const middle: Math3D.Quaternion = AutoMovieHumanNeutralTurn.straighten(body, `${side}${finger}Intermediate`, proximal, along);
+        named.set(`${side}${finger}Proximal`, proximal);
+        named.set(`${side}${finger}Intermediate`, middle);
+        named.set(
+          `${side}${finger}Distal`,
+          AutoMovieHumanNeutralTurn.straighten(body, `${side}${finger}Distal`, middle, along),
+        );
       }
 
-      // Each finger lies along the hand, every phalanx straight on the one
-      // before.
-      for (const finger of ["Index", "Middle", "Ring", "Little"]) {
-        let previous: Math3D.Quaternion = qHand;
-        for (const phalanx of ["Proximal", "Intermediate", "Distal"]) {
-          const bone: string = `${side}${finger}${phalanx}`;
-          previous = Math3D.multiply(
-            arc(Math3D.rotate(previous, direction(bone)), down),
-            previous,
-          );
-          named.set(bone, previous);
-        }
-      }
-
-      // The leg hangs plumb by the shortest turn, keeping its forward knee, and
-      // the foot keeps the floor and its heading: a foot turned out under a
-      // forward knee is tibial torsion, not hip rotation.
-      const qThigh: Math3D.Quaternion = arc(direction(`${side}UpperLeg`), DOWN);
-      named.set(`${side}UpperLeg`, qThigh);
+      // The leg hangs at the least abduction at which the thighs do not
+      // cross, by the shortest turn, keeping its forward knee.
+      const hip: AutoMovieHumanNeutralHip.IOutput = AutoMovieHumanNeutralHip.derive(body, rings, side);
+      const thigh: Math3D.Quaternion = hip.turn;
+      resting.set(`${side}UpperLeg`, hip.resting);
+      named.set(`${side}UpperLeg`, thigh);
       named.set(
         `${side}LowerLeg`,
-        Math3D.multiply(
-          arc(Math3D.rotate(qThigh, direction(`${side}LowerLeg`)), DOWN),
-          qThigh,
-        ),
+        AutoMovieHumanNeutralTurn.straighten(body, `${side}LowerLeg`, thigh, AutoMovieHumanNeutralTurn.DOWN),
       );
-      named.set(`${side}Foot`, [0, 0, 0, 1]);
+      named.set(`${side}Foot`, AutoMovieHumanNeutralAnkle.derive(body, side));
     }
 
     // Everything else rides its parent.
-    const turns = new Map<string, Math3D.Quaternion>();
-    const places = new Map<string, Vector>();
+    const turns: Map<string, Math3D.Quaternion> = new Map();
+    const places: Map<string, Math3D.Vector> = new Map();
     for (const j of joints) {
       const parent: string | null = j.parent;
       const above: Math3D.Quaternion =
@@ -241,7 +278,7 @@ export namespace AutoMovieHumanNeutral {
               places.get(parent)!,
               Math3D.rotate(
                 above,
-                Math3D.sub(j.position, byBone.get(parent)!.position),
+                Math3D.sub(j.position, body.byBone.get(parent)!.position),
               ),
             ),
       );
@@ -252,15 +289,17 @@ export namespace AutoMovieHumanNeutral {
     const fall: number =
       ankles.reduce(
         (a: number, b: string): number =>
-          a + byBone.get(b)!.position[1] - places.get(b)![1],
+          a + body.byBone.get(b)!.position[1] - places.get(b)![1],
         0,
       ) / ankles.length;
     return {
       joints: joints.map(
         (j: AutoMovieHumanJointCentres.IJoint): AutoMovieHumanJointCentres.IJoint => {
-          const at: Vector = Math3D.add(places.get(j.bone)!, [0, fall, 0]);
+          const at: Math3D.Vector = Math3D.add(places.get(j.bone)!, [0, fall, 0]);
           const turn: Math3D.Quaternion = turns.get(j.bone)!;
-          const moved = (p: Vector): Vector =>
+          const moved: (p: Math3D.Vector) => Math3D.Vector = (
+            p: Math3D.Vector,
+          ): Math3D.Vector =>
             Math3D.add(at, Math3D.rotate(turn, Math3D.sub(p, j.position)));
           return {
             ...j,
@@ -275,104 +314,4 @@ export namespace AutoMovieHumanNeutral {
       forearms,
     };
   }
-
-  /**
-   * The least abduction that lets a straight forearm pass the waist and hip.
-   *
-   * The skin is read from the elbow down. Above it the arm rests on the ribs,
-   * and flesh there gives: at the axilla they are one surface.
-   */
-  function restingAngle(
-    calibration: IAutoMovieHumanBodyCalibration,
-    byBone: ReadonlyMap<string, AutoMovieHumanJointCentres.IJoint>,
-    side: "left" | "right",
-  ): number {
-    const s: number = side === "left" ? 1 : -1;
-    const at = (bone: string): AutoMovieHumanJointCentres.IJoint =>
-      byBone.get(`${side}${bone}`)!;
-    const shoulder: Vector = at("UpperArm").position;
-    const upper: number = length(shoulder, at("LowerArm").position);
-    const fore: number = upper + length(at("LowerArm").position, at("Hand").position);
-    const radius: number = at("LowerArm").radius;
-
-    let widest: number = 0;
-    for (const chain of calibration.chains) {
-      if (chain.name !== "trunk" && chain.name !== `leg.${side}`) continue;
-      for (const layer of chain.layers)
-        for (const p of AutoMovieHumanLoftChain.ring(chain, layer.y, PHASES)) {
-          const t: number = shoulder[1] - p[1];
-          if (t < upper || t > fore) continue;
-          widest = Math.max(widest, (s * p[2] + radius - s * shoulder[2]) / t);
-        }
-    }
-    return (Math.asin(Math.min(1, widest)) * 180) / Math.PI;
-  }
-}
-
-type Vector = Math3D.Vector;
-
-/** Forward in the registered frame. */
-const FORWARD: Vector = [1, 0, 0];
-
-/** Down in the registered frame. */
-const DOWN: Vector = [0, -1, 0];
-
-/** Phases sampling a section when clearing the arm. */
-const PHASES: number[] = Array.from(
-  { length: 48 },
-  (_: unknown, i: number): number => (2 * Math.PI * i) / 48,
-);
-
-function dot(a: Vector, b: Vector): number {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-
-function cross(a: Vector, b: Vector): Vector {
-  return [
-    a[1] * b[2] - a[2] * b[1],
-    a[2] * b[0] - a[0] * b[2],
-    a[0] * b[1] - a[1] * b[0],
-  ];
-}
-
-/** Distance between two points. */
-function length(a: Vector, b: Vector): number {
-  return Math.hypot(...Math3D.sub(a, b));
-}
-
-/** The part of v square to unit n. */
-function perpendicular(v: Vector, n: Vector): Vector {
-  return Math3D.sub(v, Math3D.times(n, dot(v, n)));
-}
-
-/** The shortest turn from one direction to another. */
-function arc(from: Vector, to: Vector): Math3D.Quaternion {
-  const a: Vector = Math3D.unit(from);
-  const b: Vector = Math3D.unit(to);
-  const c: Vector = cross(a, b);
-  const q: [number, number, number, number] = [c[0], c[1], c[2], 1 + dot(a, b)];
-  const n: number = Math.hypot(...q);
-  return [q[0] / n, q[1] / n, q[2] / n, q[3] / n];
-}
-
-/** The turn taking one direction and a square side to another pair. */
-function frame(
-  from: Vector,
-  side: Vector,
-  to: Vector,
-  toSide: Vector,
-): Math3D.Quaternion {
-  const first: Math3D.Quaternion = arc(from, to);
-  const carried: Vector = Math3D.unit(
-    perpendicular(Math3D.rotate(first, side), to),
-  );
-  const wanted: Vector = Math3D.unit(perpendicular(toSide, to));
-  const angle: number = Math.atan2(
-    dot(cross(carried, wanted), to),
-    dot(carried, wanted),
-  );
-  return Math3D.multiply(
-    Math3D.fromAxisAngle(to, (angle * 180) / Math.PI),
-    first,
-  );
 }

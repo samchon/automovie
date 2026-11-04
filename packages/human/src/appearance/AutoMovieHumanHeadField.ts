@@ -2,6 +2,7 @@ import type { IAutoMovieModelPart } from "@automovie/interface";
 
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanAppearanceBody } from "./IAutoMovieHumanAppearanceBody";
+import { AutoMovieHumanHeadAnatomy } from "../generation/AutoMovieHumanHeadAnatomy";
 
 /**
  * Star-shaped chart of the generated head skin about a centre inside the
@@ -74,7 +75,7 @@ export namespace AutoMovieHumanHeadField {
     if (triangles.length === 0)
       throw new Error("Human head field needs head skin parts");
 
-    const height: number = params.head.height;
+    const height: number = AutoMovieHumanHeadAnatomy.resolve(params).height;
     const eyeLevel: number =
       ((body.eyePair.left.centre[1] + body.eyePair.right.centre[1]) / 2) * 1000;
 

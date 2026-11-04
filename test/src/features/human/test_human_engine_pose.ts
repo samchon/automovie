@@ -2,7 +2,7 @@ import { resolvePose } from "../../../../packages/engine/src/kinematics/resolveP
 import { AutoMovieHumanPoseChannels } from "../../../../packages/human/src/skeleton/AutoMovieHumanPoseChannels";
 import { AutoMovieHumanRig } from "../../../../packages/human/src/skeleton/AutoMovieHumanRig";
 import type { IAutoMovieHumanPose } from "../../../../packages/human/src/structures/pose/IAutoMovieHumanPose";
-import { HUMAN_STICKMAN_POSES } from "../../../../packages/human/dev/src/human-stickman/HUMAN_STICKMAN_POSES";
+import { HUMAN_DEBUG_POSES as HUMAN_STICKMAN_POSES } from "../../../../packages/human/debug/poses/HUMAN_DEBUG_POSES";
 import { HumanPeople } from "../internal/HumanPeople";
 
 /** Distance between the two kinematics a bone may show, metres. */
@@ -48,10 +48,12 @@ function field(path: string, value: number): IAutoMovieHumanPose {
 /**
  * Every field's zero, both ends, mirror and clamp on every person, and the
  * clinical angle a limb's bones reach, read from the placements alone.
+ *
+ * @param name Name in findings.
+ * @param evaluate The person's pose evaluator; a made one in the red proof.
  */
-function auditRange(name: string): string[] {
+function auditRange(name: string, evaluate: HumanPeople.IRigged["evaluate"] = HumanPeople.rigged(name).evaluate): string[] {
   const out: string[] = [];
-  const { evaluate } = HumanPeople.rigged(name);
   const rest = evaluate({});
   const placed = (o: typeof rest, bone: string): V3 =>
     o.posed.find((p): boolean => p.bone === bone)!.position;
@@ -178,12 +180,19 @@ function auditRange(name: string): string[] {
  * A Human pose reaches the engine as its own clinical pose, not a cast.
  *
  * @evidence contracts/testing.md#behavioral-verification Converts evaluated poses through the public adapter and runs the engine's own forward kinematics on the rig, comparing every bone's world place with the Human skeleton's. It catches a wrong axis, order, handedness, angle unit or root.
- * @evidence contracts/testing.md#independent-expectations The Human skeleton's placements are computed by separate code from the engine's FK, so the two disagree if the adapter is wrong; the rig's composition is the premise both share.
+ * @evidence contracts/testing.md#independent-expectations The Human skeleton's placements are computed by separate code from the engine's FK, so the two disagree if the adapter is wrong; the rig's composition is the premise both share. Proven red by an evaluator that ignores its pose and returns the neutral, which the range audit must fail.
  * @evidence contracts/testing.md#distinguishing-cases Runs neutral, the step-and-reach pose and the range-limit pose on a slender and a broad person, across forearms with their distal twist and every other joint. A bone the adapter reports as translated is exempt, because the engine's rig has no channel for it, and its descendants with it. On every person it also reads that `{}` is the anatomical neutral, that a field at zero is the field left out, both ends, clamp and left-right mirror, and the clinical angle the elbows, knees, shoulders and hips reach from the placements alone, so a wrong sign, a zero taken from the achieved posture or a turn in a tilted plane each shows as an angle or a mirror off.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_engine_pose`, importing pure engine kinematics, reading the people `HumanPeople` generates once per run and starting no renderer or host.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_engine_pose`, importing pure engine kinematics, reading the people `HumanPeople` generates and starting no renderer or host.
  */
 export const test_human_engine_pose = (): void => {
   const problems: string[] = [];
+
+  // Red proof: an evaluator that ignores its pose and returns the neutral must
+  // fail the range audit.
+  const f1: HumanPeople.IRigged = HumanPeople.rigged("f1");
+  const neutral: ReturnType<HumanPeople.IRigged["evaluate"]> = f1.evaluate({});
+  if (auditRange("f1 made frozen", (): ReturnType<HumanPeople.IRigged["evaluate"]> => neutral).length === 0) problems.push("proof: an evaluator that ignores its pose passes the range audit");
+
   for (const name of HumanPeople.names()) problems.push(...auditRange(name));
   for (const name of ["f1", "m2"]) {
     const { rig, evaluate } = HumanPeople.rigged(name);

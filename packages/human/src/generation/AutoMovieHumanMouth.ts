@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import { AutoMovieHumanMouthArch } from "./AutoMovieHumanMouthArch";
 import { AutoMovieHumanMouthPrior as Prior } from "./AutoMovieHumanMouthPrior";
 
 /**
@@ -226,11 +227,11 @@ export namespace AutoMovieHumanMouth {
 
     // The cusp line runs a quarter of each crown's depth inside its labial or
     // buccal face; the upper's passes through the central incisors' edges.
-    const upperArch: IArch = arch(Prior.UPPER);
+    const upperArch: AutoMovieHumanMouthArch.IArch = AutoMovieHumanMouthArch.arch(Prior.UPPER);
     const start: number = labial - Prior.UPPER[0]!.depth / 4;
     const teeth: ITooth[] = [
-      ...place(Prior.UPPER, upperArch, 0, start, edge, cant, "upper"),
-      ...place(
+      ...AutoMovieHumanMouthArch.place(Prior.UPPER, upperArch, 0, start, edge, cant, "upper"),
+      ...AutoMovieHumanMouthArch.place(
         Prior.LOWER,
         upperArch,
         Prior.OVERJET,
@@ -426,192 +427,31 @@ export namespace AutoMovieHumanMouth {
       coefficients,
       forward: [1, 0, 0],
       depth: DEPTH,
+      // The lips meet at rest: the rim the slit leaves closes on the contact
+      // line, its two sides a hair apart by place for the jaw's binding.
+      seam: { contact: mouth.contact, width: mouth.width, closed: CLOSED },
     };
-  }
-
-  /** A beta arch fitted to one quadrant's teeth. */
-  interface IArch {
-    /** Full width between the arch's ends. */
-    width: number;
-
-    /** Depth from the ends' line to the front. */
-    depth: number;
-  }
-
-  /** Point of the beta arch in plan at a lateral place: `[lateral, depth]`. */
-  function beta(a: IArch, lateral: number): number {
-    const s: number = lateral / a.width;
-    const q: number = Math.max(0, (0.5 + s) * (0.5 - s));
-    return BETA * a.depth * q ** Prior.ARCH_POWER;
-  }
-
-  /** A place on an arch in plan: lateral, depth forward of the ends' line, unit tangent and outward normal. */
-  interface IStep {
-    lateral: number;
-    depth: number;
-    along: [number, number];
-    out: [number, number];
-  }
-
-  /**
-   * The place an arc length from the midline along the curve parallel to an
-   * arch, inset toward its inside; the arch's own curve for no inset. Walked
-   * in fine chords, since the beta arch has no closed arc length.
-   */
-  function walk(a: IArch, length: number, inset: number = 0): IStep {
-    const steps: number = 2000;
-    const half: number = a.width / 2;
-    const at = (lateral: number): IStep => {
-      const h: number = half / steps;
-      const l0: number = Math.max(0, lateral - h);
-      const l1: number = Math.min(half, lateral + h);
-      const dl: number = l1 - l0;
-      const dd: number = beta(a, l1) - beta(a, l0);
-      const n: number = Math.hypot(dl, dd) || 1;
-      const along: [number, number] = [dl / n, dd / n];
-      // The arch is convex toward the front, so outward is the tangent turned
-      // toward the front and the side.
-      const out: [number, number] = [-along[1], along[0]];
-      return {
-        lateral: lateral - inset * out[0],
-        depth: beta(a, lateral) - inset * out[1],
-        along,
-        out,
-      };
-    };
-    let travelled: number = 0;
-    let previous: IStep = at(0);
-    for (let i: number = 1; i <= steps; i++) {
-      const point: IStep = at((half * i) / steps);
-      const d: number = Math.hypot(
-        point.lateral - previous.lateral,
-        point.depth - previous.depth,
-      );
-      if (travelled + d >= length || i === steps) {
-        const f: number = d > 0 ? Math.min(1, (length - travelled) / d) : 0;
-        return {
-          lateral: previous.lateral + f * (point.lateral - previous.lateral),
-          depth: previous.depth + f * (point.depth - previous.depth),
-          along: point.along,
-          out: point.out,
-        };
-      }
-      travelled += d;
-      previous = point;
-    }
-    throw new Error("Unreachable arch walk");
-  }
-
-  /** Half arc length of an arch. */
-  function halfLength(a: IArch): number {
-    let travelled: number = 0;
-    let previous: [number, number] = [0, beta(a, 0)];
-    const steps: number = 2000;
-    for (let i: number = 1; i <= steps; i++) {
-      const lateral: number = (a.width / 2) * (i / steps);
-      const point: [number, number] = [lateral, beta(a, lateral)];
-      travelled += Math.hypot(point[0] - previous[0], point[1] - previous[1]);
-      previous = point;
-    }
-    return travelled;
-  }
-
-  /**
-   * The upper arch: its half length is the quadrant's crown widths, and its
-   * first molars' mesiobuccal cusps, a quarter of the molar past its mesial
-   * face, stand the adult intermolar width apart. Two conditions fix width
-   * and depth; both are monotone in the depth over width, so nested
-   * bisection finds them.
-   */
-  function arch(teeth: readonly Prior.ITooth[]): IArch {
-    const total: number = teeth.reduce((s: number, t: Prior.ITooth): number => s + t.width, 0);
-    const cusp: number =
-      teeth.slice(0, 5).reduce((s: number, t: Prior.ITooth): number => s + t.width, 0) +
-      teeth[5]!.width / 4;
-    const sized = (ratio: number): IArch => {
-      let lo: number = 1;
-      let hi: number = 4 * total;
-      for (let k: number = 0; k < 60; k++) {
-        const w: number = (lo + hi) / 2;
-        if (halfLength({ width: w, depth: ratio * w }) < total) lo = w;
-        else hi = w;
-      }
-      const w: number = (lo + hi) / 2;
-      return { width: w, depth: ratio * w };
-    };
-    let lo: number = 0.1;
-    let hi: number = 2;
-    for (let k: number = 0; k < 60; k++) {
-      const r: number = (lo + hi) / 2;
-      // A deeper arch for the same length is narrower at the molars.
-      if (walk(sized(r), cusp).lateral * 2 > Prior.INTERMOLAR) lo = r;
-      else hi = r;
-    }
-    return sized((lo + hi) / 2);
-  }
-
-  /** Teeth of one jaw, both sides, on the upper arch inset by an offset. */
-  function place(
-    crowns: readonly Prior.ITooth[],
-    upper: IArch,
-    inset: number,
-    start: number,
-    edge: [number, number],
-    cant: number,
-    jaw: "upper" | "lower",
-  ): ITooth[] {
-    const out: ITooth[] = [];
-    const front: number = beta(upper, 0);
-    for (const side of [1, -1] as const) {
-      let length: number = 0;
-      crowns.forEach((crown: Prior.ITooth): void => {
-        // The lower cusp line is the upper's moved inward by the overjet, and
-        // its teeth stand side by side along it from the midline. A crown's
-        // centre lies a quarter of its depth inside the cusp line.
-        const centre: IStep = walk(upper, length + crown.width / 2, inset);
-        length += crown.width;
-        const inside: number = crown.depth / 4;
-        const lateral: number = centre.lateral - centre.out[0] * inside;
-        const depth: number = centre.depth - centre.out[1] * inside;
-        const x: number = start - (front - depth);
-        // Upper tips sit on the occlusal plane through the incisal edge; lower
-        // incisors overlap them by the overbite, fading to cusps meeting at
-        // the premolars and molars.
-        const overlap: number =
-          crown.kind === "incisor" ? 1 : crown.kind === "canine" ? 0.5 : 0;
-        const tip: number = edge[1] + cant * (edge[0] - x) + (jaw === "lower" ? Prior.OVERBITE * overlap : 0);
-        const neck: number = jaw === "upper" ? tip + crown.height : tip - crown.height;
-        out.push({
-          name: `${jaw}.${side > 0 ? "left" : "right"}.${crown.name}`,
-          crown,
-          jaw,
-          neck: [x, neck, side * lateral],
-          axis: jaw === "upper" ? [0, -1, 0] : [0, 1, 0],
-          along: unit([centre.along[1], 0, side * centre.along[0]]),
-          out: unit([centre.out[1], 0, side * centre.out[0]]),
-        });
-      });
-    }
-    return out;
-  }
-
-  function unit(v: [number, number, number]): [number, number, number] {
-    const l: number = Math.hypot(...v) || 1;
-    return [v[0] / l, v[1] / l, v[2] / l];
   }
 
   /** Samples of the contact line across the half width. */
   const SAMPLES: number = 16;
 
-  /** Station spacing the skin takes near an opening, mm. */
-  const PITCH: number = 0.5;
+  /**
+   * Station spacing the skin takes near an opening, mm: the finest station
+   * pitch any head chain takes (`AutoMovieHumanHeadStationDensity`).
+   */
+  export const PITCH: number = 0.5;
 
   /** Highest harmonic of the slit's margin. */
   const ORDER: number = 128;
 
+  /**
+   * Distance each side of the closed rim keeps from the contact line, mm:
+   * far under any skin edge, and over the float32 resolution of a head's
+   * coordinates, so the two sides stay apart in every consumer.
+   */
+  export const CLOSED: number = 0.02;
+
   /** Depth tolerance of the slit's inside test, mm. */
   const DEPTH: number = 3;
-
-  /** Normalisation of the beta arch, so its front lies at its depth (Braun et al. 1998). */
-  const BETA: number = 3.0314;
 }

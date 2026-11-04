@@ -74,34 +74,10 @@ export namespace AutoMovieHumanLoftJet {
     s: number,
     t: number,
   ): IJet {
-    const [lo, hi] = AutoMovieHumanLoftChain.bracket(chain, s);
-    const a: IAutoMovieHumanLoftChain.ILayer = chain.layers[lo]!;
-    const b: IAutoMovieHumanLoftChain.ILayer = chain.layers[hi]!;
-    const H: number = b.y - a.y;
-    const u: number = Math.min(1, Math.max(0, (s - a.y) / H));
-    const w: number[][] = [0, 1, 2].map((order: number): number[] =>
-      AutoMovieHumanStationHermite.weights(u, H, order as 0 | 1 | 2, true),
-    );
-
-    // Section coefficients and plane, each with its two station derivatives.
-    const ca: AutoMovieHumanStationHermite.IEnd = {
-      value: a.coefficients,
-      slope: a.slopes,
-      curvature: a.curvatures!,
-    };
-    const cb: AutoMovieHumanStationHermite.IEnd = {
-      value: b.coefficients,
-      slope: b.slopes,
-      curvature: b.curvatures!,
-    };
-    const c: number[][] = w.map((x: number[]): number[] =>
-      AutoMovieHumanStationHermite.combine(ca, cb, x),
-    );
-    const fa: AutoMovieHumanStationHermite.IEnd = AutoMovieHumanStationHermite.frameEnd(a);
-    const fb: AutoMovieHumanStationHermite.IEnd = AutoMovieHumanStationHermite.frameEnd(b);
-    const f: number[][] = w.map((x: number[]): number[] =>
-      AutoMovieHumanStationHermite.combine(fa, fb, x),
-    );
+    // The station's part (its section coefficients and plane with their two
+    // station derivatives) is the same for every phase, so the last stations
+    // read per chain are kept; a chain is never changed once built.
+    const { a, b, u, H, c, f }: IStation = stationOf(chain, s);
 
     // Section values in the plane: x, z and their phase derivatives at the
     // value, the station slope and the station curvature of the coefficients.
@@ -157,6 +133,72 @@ export namespace AutoMovieHumanLoftJet {
       jet.tt = sum(jet.tt, scale(e, h[5]!));
     }
     return jet;
+  }
+
+  /** A station's part of a jet: its layers, place between them, and combined coefficients and plane. */
+  interface IStation {
+    /** Lower layer. */
+    a: IAutoMovieHumanLoftChain.ILayer;
+
+    /** Upper layer. */
+    b: IAutoMovieHumanLoftChain.ILayer;
+
+    /** Share of the interval. */
+    u: number;
+
+    /** Interval width, mm. */
+    H: number;
+
+    /** Section coefficients and their first and second station derivatives. */
+    c: number[][];
+
+    /** Plane and its first and second station derivatives. */
+    f: number[][];
+  }
+
+  /** Stations kept per chain. */
+  const RECENT: number = 8;
+
+  /** The kept stations, by chain. */
+  const STATIONS: WeakMap<IAutoMovieHumanLoftChain, { s: number; station: IStation }[]> = new WeakMap();
+
+  /** A station's part of a jet, kept for the chain's last stations. */
+  function stationOf(chain: IAutoMovieHumanLoftChain, s: number): IStation {
+    let kept: { s: number; station: IStation }[] | undefined = STATIONS.get(chain);
+    if (kept === undefined) STATIONS.set(chain, (kept = []));
+    for (const entry of kept) if (entry.s === s) return entry.station;
+    const [lo, hi] = AutoMovieHumanLoftChain.bracket(chain, s);
+    const a: IAutoMovieHumanLoftChain.ILayer = chain.layers[lo]!;
+    const b: IAutoMovieHumanLoftChain.ILayer = chain.layers[hi]!;
+    const H: number = b.y - a.y;
+    const u: number = Math.min(1, Math.max(0, (s - a.y) / H));
+    const w: number[][] = [0, 1, 2].map((order: number): number[] =>
+      AutoMovieHumanStationHermite.weights(u, H, order as 0 | 1 | 2, true),
+    );
+
+    // Section coefficients and plane, each with its two station derivatives.
+    const ca: AutoMovieHumanStationHermite.IEnd = {
+      value: a.coefficients,
+      slope: a.slopes,
+      curvature: a.curvatures!,
+    };
+    const cb: AutoMovieHumanStationHermite.IEnd = {
+      value: b.coefficients,
+      slope: b.slopes,
+      curvature: b.curvatures!,
+    };
+    const c: number[][] = w.map((x: number[]): number[] =>
+      AutoMovieHumanStationHermite.combine(ca, cb, x),
+    );
+    const fa: AutoMovieHumanStationHermite.IEnd = AutoMovieHumanStationHermite.frameEnd(a);
+    const fb: AutoMovieHumanStationHermite.IEnd = AutoMovieHumanStationHermite.frameEnd(b);
+    const f: number[][] = w.map((x: number[]): number[] =>
+      AutoMovieHumanStationHermite.combine(fa, fb, x),
+    );
+    const station: IStation = { a, b, u, H, c, f };
+    kept.unshift({ s, station });
+    if (kept.length > RECENT) kept.pop();
+    return station;
   }
 
   /** Unit normal `P_t x P_s` of a jet, or null where the surface is singular. */

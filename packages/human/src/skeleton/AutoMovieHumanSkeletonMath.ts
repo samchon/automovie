@@ -66,15 +66,18 @@ export namespace AutoMovieHumanSkeletonMath {
     if (["hips", "spine", "chest", "neck", "atlas", "head"].includes(bone))
       return toward(FORWARD, times(LEFT, -1), -1);
     if (bone === "jaw") return toward(times(UP, -1), LEFT, 1);
+    // A side's axes are the left's reflected as axial vectors (-M a for the
+    // mirror M across the median plane), so a twist's sign flips with the side
+    // and a pose and its side-swapped mirror move the skin as mirror images.
     if (bone.endsWith("Eye"))
-      return { flexion: LEFT, abduction: FORWARD, twist: times(UP, -1) };
+      return { flexion: LEFT, abduction: times(FORWARD, s), twist: times(UP, -s) };
     if (bone.endsWith("Scapula"))
       return {
         flexion: times(FORWARD, -s),
-        abduction: UP,
-        twist: times(LEFT, s),
+        abduction: times(UP, s),
+        twist: LEFT,
       };
-    if (bone.endsWith("Shoulder")) return toward(FORWARD, UP, 1);
+    if (bone.endsWith("Shoulder")) return toward(FORWARD, UP, s);
     if (bone.endsWith("UpperArm") || bone.endsWith("UpperLeg"))
       return toward(FORWARD, times(LEFT, s), s);
     if (bone.endsWith("LowerArm")) return toward(FORWARD, times(LEFT, s), -s);
@@ -90,7 +93,7 @@ export namespace AutoMovieHumanSkeletonMath {
       return toward(
         times(UP, -1),
         times(LEFT, bone.includes("Hallux") ? -s : s),
-        1,
+        s,
       );
 
     // Hand and digits: palmar and radial directions of this hand at rest.
@@ -105,10 +108,10 @@ export namespace AutoMovieHumanSkeletonMath {
       return toward(
         times(radial, -1),
         palmar,
-        bone.endsWith("Metacarpal") ? -s : 1,
+        bone.endsWith("Metacarpal") ? -s : s,
       );
     const ulnar: boolean = bone.includes("Ring") || bone.includes("Little");
-    return toward(palmar, times(radial, ulnar ? -1 : 1), 1);
+    return toward(palmar, times(radial, ulnar ? -1 : 1), s);
   }
 
   /** Quaternion of a turn by `degrees` about a unit axis. */

@@ -17,15 +17,15 @@ export interface IAutoMovieHumanLegIdentity {
   shankLength: number & tags.Minimum<60> & tags.Maximum<700>;
 
   /**
-   * Lateral malleolus height: the lateral malleolus landmark, the most laterally prominent point of the fibula's lower end, above the standing surface, millimetres.
+   * Lateral malleolus height: the lateral malleolus landmark, the most laterally prominent point of the fibula's lower end, above the standing surface, millimetres (ANSUR II; women 62.7, SD 5.1, men 72.9, SD 5.7).
    */
   ankleHeight: number & tags.Minimum<15> & tags.Maximum<150>;
 
-  /** Foot length: the back of the heel to the tip of the longest toe, millimetres. */
+  /** Foot length: the back of the heel to the tip of the longest toe, millimetres (ISO 8559-1 5.5.5; ANSUR II women 246.3, SD 12.4, men 271.2, SD 13.1). */
   footLength: number & tags.Minimum<50> & tags.Maximum<400>;
 
   /**
-   * Foot breadth: the maximum breadth across the metatarsal heads, millimetres.
+   * Foot breadth: the maximum breadth across the metatarsal heads, millimetres (ISO 8559-1 5.5.6; ANSUR II women 92.7, SD 4.8, men 101.9, SD 5.2).
    */
   footBreadth: number & tags.Minimum<20> & tags.Maximum<180>;
 

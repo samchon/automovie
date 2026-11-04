@@ -4,10 +4,10 @@ import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
 /** Transverse eyelid profiles constrained by their generating skin boundary jets. */
 export namespace AutoMovieHumanEyelidProfile {
   /**
-   * Reach of the lid's tuck under the lid from the posterior edge, mm.
-   * The tuck stands for the conjunctiva lining the lid; any line of sight
-   * past the posterior edge meets the globe first, so the tuck only has to
-   * reach inside it.
+   * Depth of the lid's tuck inside the globe's surface behind the posterior
+   * edge, mm. The tuck stands for the conjunctiva lining the lid; any line of
+   * sight past the posterior edge meets the globe first, so the tuck only has
+   * to reach inside it.
    */
   const TUCK: number = 1.5;
 
@@ -135,17 +135,20 @@ export namespace AutoMovieHumanEyelidProfile {
       [(outU + 0) / 2, (outX + contact) / 2],
       [0, contact],
     ];
-    // The tuck runs from the posterior edge under the lid, just inside the
-    // globe's surface, as the conjunctiva lining the lid lies on the eye;
-    // where the margin passes the globe, toward its silhouette behind its
-    // centre.
+    // The tuck runs from the posterior edge straight back along the line of
+    // sight, just inside the globe's surface, as the conjunctiva lining the
+    // lid folds back onto the eye; where the margin passes the globe, behind
+    // its centre. It never leaves the margin's own projection, so the skin's
+    // opening is the margin, canthus to canthus. A tuck that reached under
+    // the lid by its depth widened the opening by twice that, and one pulled
+    // in onto the globe's silhouette, a 24 mm circle, put the canthi of a
+    // 28 to 33 mm fissure inside it: 23.28 mm on every person.
     const radial: number = AutoMovieHumanEyeGlobe.dimensions.radial;
     const into: number = E.smoothstep(0.75 * radial, 0.95 * radial, s.rho);
-    const under: number = Math.min(s.rho + TUCK, 0.97 * radial);
-    const tuckRho: number =
-      (1 - into) * under + into * Math.min(s.rho, 0.97 * radial);
+    const tuckRho: number = s.rho;
     const tuckX: number =
-      (1 - into) * (AutoMovieHumanEyeGlobe.anterior(under) - 0.15) +
+      (1 - into) *
+        (AutoMovieHumanEyeGlobe.anterior(Math.min(s.rho, 0.95 * radial)) - TUCK) +
       into * -TUCK;
     const lost = (u: number): AutoMovieHumanEyelid.Point => {
       const q: number = Math.min(1, Math.max(0, (u - edgeU) / span));

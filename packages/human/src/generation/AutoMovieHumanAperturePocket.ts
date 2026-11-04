@@ -1,8 +1,6 @@
-import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
 import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
 import { AutoMovieHumanApertureConstruction } from "./AutoMovieHumanApertureConstruction";
-import { AutoMovieHumanSkinProjection } from "./AutoMovieHumanSkinProjection";
 import type { IAutoMovieHumanApertureEdge } from "./IAutoMovieHumanApertureEdge";
 import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
 
@@ -93,218 +91,6 @@ export namespace AutoMovieHumanAperturePocket {
   }
 
   /**
-   * Each rim vertex's last control: on a circle about the pole, half the
-   * rim's mean distance from the opening's axis, at the vertex's share of the
-   * rim's length round from a phase that best keeps each vertex's own
-   * bearing. Last controls at half the vertex's own offset shrank the rim's
-   * shape whole toward the pole, so a teardrop kept its narrow ends at every
-   * depth, and since a homothety keeps angles, the walls there turned as
-   * sharply between two meridians mid-depth as the rim does at the skin: 40
-   * to 50 degrees. On a circle the pocket rounds as it deepens. Empty when the
-   * rim is not one loop.
-   */
-  function landings(
-    vertices: readonly number[],
-    owners: ReadonlyMap<number, IAutoMovieHumanApertureEdge>,
-    inwards: ReadonlyMap<number, [number, number]>,
-    tip: readonly number[],
-    outline: AutoMovieHumanLoftAperture.IOutline,
-  ): Map<number, number[]> {
-    const out: Map<number, number[]> = new Map();
-    const order: number[] = [vertices[0]!];
-    for (let k: number = 1; k < vertices.length; k++) {
-      const next: number | undefined = owners.get(order[k - 1]!)?.v;
-      if (next === undefined || next === vertices[0]) break;
-      order.push(next);
-    }
-    if (order.length !== vertices.length) return out;
-    const flat = (v: number): [number, number] => {
-      const w: [number, number] = inwards.get(v)!;
-      return [-w[0], -w[1]];
-    };
-    const arc: number[] = [0];
-    let area: number = 0;
-    order.forEach((v: number, k: number): void => {
-      const a: [number, number] = flat(v);
-      const b: [number, number] = flat(order[(k + 1) % order.length]!);
-      area += a[0] * b[1] - a[1] * b[0];
-      arc.push(arc[k]! + Math.hypot(b[0] - a[0], b[1] - a[1]));
-    });
-    const total: number = arc[order.length]!;
-    if (!(total > 0)) return out;
-    const sense: number = area >= 0 ? 1 : -1;
-    let cx: number = 0;
-    let cy: number = 0;
-    let mean: number = 0;
-    order.forEach((v: number, k: number): void => {
-      const a: [number, number] = flat(v);
-      const bearing: number =
-        Math.atan2(a[1], a[0]) - (sense * 2 * Math.PI * arc[k]!) / total;
-      cx += Math.cos(bearing);
-      cy += Math.sin(bearing);
-      mean += Math.hypot(a[0], a[1]) / order.length;
-    });
-    const start: number = Math.atan2(cy, cx);
-    order.forEach((v: number, k: number): void => {
-      const phi: number = start + (sense * 2 * Math.PI * arc[k]!) / total;
-      out.set(
-        v,
-        tip.map(
-          (value: number, a: number): number =>
-            value +
-            (mean / 2) *
-              (Math.cos(phi) * outline.lateral[a]! + Math.sin(phi) * outline.up[a]!),
-        ),
-      );
-    });
-    return out;
-  }
-
-  /**
-   * Close a cut rim using cubic meridians with its exterior transverse jet.
-   * The first control follows the source triangle's tangent plane. The last
-   * control lies in the pole's plane perpendicular to the aperture axis,
-   * giving every meridian the same limiting tangent plane at the pole.
-   */
-  export function generate(
-    mesh: AutoMovieHumanLoftMesh.IContext,
-    aperture: IAutoMovieHumanLoftAperture,
-    open: readonly IAutoMovieHumanApertureEdge[],
-    emit: (name: string, ...corners: number[]) => void,
-  ): IAutoMovieHumanConstructionPath[] {
-    if (open.length === 0) return [];
-    const vertices: number[] = [
-      ...new Set(
-        open.flatMap((e: IAutoMovieHumanApertureEdge): number[] => [e.u, e.v]),
-      ),
-    ];
-    const centre: number[] = [0, 1, 2].map(
-      (a: number): number =>
-        vertices.reduce(
-          (sum: number, v: number): number => sum + mesh.positions[3 * v + a]!,
-          0,
-        ) / vertices.length,
-    );
-    const outline: AutoMovieHumanLoftAperture.IOutline =
-      AutoMovieHumanLoftAperture.outline(
-        aperture,
-        AutoMovieHumanLoftAperture.polyline(aperture),
-      );
-    const owners: Map<number, IAutoMovieHumanApertureEdge> = new Map(
-      open.map(
-        (
-          e: IAutoMovieHumanApertureEdge,
-        ): [number, IAutoMovieHumanApertureEdge] => [e.u, e],
-      ),
-    );
-    const tip: number[] = centre.map(
-      (v: number, a: number): number =>
-        v - aperture.forward[a]! * aperture.pocket!,
-    );
-    const pole: number = mesh.positions.length / 3;
-    mesh.positions.push(...tip);
-    // Depth slope of the exterior toward the opening at every rim vertex,
-    // from the rim's jets, whose gradients are averaged along the rim
-    // (`AutoMovieHumanSkinProjection.rim`): one triangle's affine jet
-    // differs from the next by the facet noise of the cut, and meridians
-    // started at those angles shaded the walls as facets and a bright
-    // streak.
-    const inwards: Map<number, [number, number]> = new Map();
-    const slopes: Map<number, number> = new Map();
-    const jets: Map<number, AutoMovieHumanSkinProjection.IJet> =
-      AutoMovieHumanSkinProjection.rim(mesh, open, outline);
-    for (const v of vertices) {
-      const p: number[] = [0, 1, 2].map(
-        (a: number): number => mesh.positions[3 * v + a]!,
-      );
-      const hit: AutoMovieHumanSkinProjection.IJet = jets.get(
-        owners.get(v)!.u,
-      )!;
-      const inward: [number, number] = [outline.lateral, outline.up].map(
-        (axis: readonly number[]): number =>
-          p.reduce(
-            (sum: number, value: number, a: number): number =>
-              sum + (centre[a]! - value) * axis[a]!,
-            0,
-          ),
-      ) as [number, number];
-      inwards.set(v, inward);
-      slopes.set(v, hit.gradient[0] * inward[0] + hit.gradient[1] * inward[1]);
-    }
-
-    const landing: Map<number, number[]> = landings(
-      vertices,
-      owners,
-      inwards,
-      tip,
-      outline,
-    );
-    const controls: IControls[] = vertices.map((v: number): IControls => {
-      const p: number[] = [0, 1, 2].map(
-        (a: number): number => mesh.positions[3 * v + a]!,
-      );
-      const inward: [number, number] = inwards.get(v)!;
-      const axial: number = slopes.get(v)!;
-      const radial: number[] = [0, 1, 2].map(
-        (a: number): number =>
-          inward[0] * outline.lateral[a]! + inward[1] * outline.up[a]!,
-      );
-      const tangent: number[] = radial.map(
-        (value: number, a: number): number =>
-          value + axial * outline.forward[a]!,
-      );
-      const length: number = Math.hypot(
-        ...p.map((value: number, a: number): number => tip[a]! - value),
-      );
-      const speed: number = Math.hypot(...tangent);
-      if (!(speed > 0))
-        throw new Error(
-          `Nasal rim has no transverse tangent: ${aperture.name}`,
-        );
-
-      // A near-vertical exterior has a large depth derivative in the
-      // projected chart, not an arbitrarily long physical handle. Preserve
-      // its tangent plane using a unit direction, the handle no longer than
-      // the closure's chord over three or the rim's way to the axis allows.
-      const handle: number = Math.min(
-        length / 3,
-        HANDLE * Math.hypot(inward[0], inward[1]),
-      );
-      const first: number[] = p.map(
-        (value: number, a: number): number =>
-          value + (tangent[a]! * handle) / speed,
-      );
-      const last: number[] =
-        landing.get(v) ??
-        tip.map((value: number, a: number): number => value - radial[a]! / 2);
-      return [p, first, last, tip];
-    });
-    const rings: Map<number, number[]> = new Map();
-    meridians(controls).forEach((points: number[][], i: number): void => {
-      const row: number[] = [vertices[i]!];
-      for (const point of points) {
-        row.push(mesh.positions.length / 3);
-        mesh.positions.push(...point);
-      }
-      row.push(pole);
-      rings.set(vertices[i]!, row);
-    });
-    for (const edge of open) {
-      const u: number[] = rings.get(edge.u)!;
-      const v: number[] = rings.get(edge.v)!;
-      for (let k: number = 0; k + 1 < STEPS; k++)
-        emit(edge.name, v[k]!, u[k]!, u[k + 1]!, v[k]!, u[k + 1]!, v[k + 1]!);
-      emit(edge.name, v[STEPS - 1]!, u[STEPS - 1]!, pole);
-    }
-    return AutoMovieHumanApertureConstruction.generate(
-      mesh,
-      aperture.name,
-      open,
-      rings,
-    );
-  }
-
-  /**
    * Close an opening's trim loop on its base with the same cubic meridians,
    * each starting along the base surface's own tangent into the opening
    * (the reverse of its unit tangent across the loop, away from it), so the
@@ -313,6 +99,7 @@ export namespace AutoMovieHumanAperturePocket {
    * @param mesh Mesh buffers to grow.
    * @param aperture The opening.
    * @param ring Loop vertices in order.
+   * @param rim The loop's points on its base chain, in the same order, mm.
    * @param slopes Unit tangent of the base across the loop, away from the
    *   opening, at each loop vertex.
    * @param emit Triangle sink.
@@ -321,17 +108,18 @@ export namespace AutoMovieHumanAperturePocket {
     mesh: AutoMovieHumanLoftMesh.IContext,
     aperture: IAutoMovieHumanLoftAperture,
     ring: readonly number[],
+    rim: readonly [number, number, number][],
     slopes: readonly [number, number, number][],
     emit: (name: string, ...corners: number[]) => void,
   ): IAutoMovieHumanConstructionPath[] {
     const centre: number[] = [0, 1, 2].map(
-      (a: number): number => ring.reduce((sum: number, v: number): number => sum + mesh.positions[3 * v + a]!, 0) / ring.length,
+      (a: number): number => rim.reduce((sum: number, p: [number, number, number]): number => sum + p[a]!, 0) / rim.length,
     );
     const tip: number[] = centre.map((v: number, a: number): number => v - aperture.forward[a]! * aperture.pocket!);
     const pole: number = mesh.positions.length / 3;
     mesh.positions.push(...tip);
-    const controls: IControls[] = ring.map((v: number, i: number): IControls => {
-      const p: number[] = [0, 1, 2].map((a: number): number => mesh.positions[3 * v + a]!);
+    const controls: IControls[] = ring.map((_: number, i: number): IControls => {
+      const p: number[] = [...rim[i]!];
       const tangent: number[] = slopes[i]!.map((x: number): number => -x);
       const length: number = Math.hypot(...p.map((value: number, a: number): number => tip[a]! - value));
       // The pole's tangent plane is across the aperture axis: the last

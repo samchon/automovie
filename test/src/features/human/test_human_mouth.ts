@@ -31,10 +31,10 @@ const LARGEST: number = 25;
  * Every person's mouth opens along the lips, holds its interior inside the
  * head, and speaks every viseme without tearing or leaving the face.
  *
- * @evidence contracts/testing.md#behavioral-verification Generates the skin of all nine people, finds the rim the mouth's aperture cuts, builds the lining, teeth, gums and tongue from it, binds the rim to the rig and opens the jaw, and evaluates every viseme's field over the skin and the tongue. It catches a rim that is not one loop, interior parts that leave the head, a rim that the jaw and the head share, lips that stay sealed or tear when the jaw opens, and a viseme whose field is not finite, not local or does not move the lips at all.
- * @evidence contracts/testing.md#independent-expectations Topology (one closed rim), containment (a point inside a closed skin is crossed an odd number of times by a ray), rigid kinematics of a hinge (an opening of 20 mm at the incisors parts lips that ride the head and the jaw) and the field's own locality supply every expectation; no coordinate of a person enters. The stretch and displacement bounds are coarse limits for a torn or flying skin.
+ * @evidence contracts/testing.md#behavioral-verification Generates the skin of all nine people, takes the mouth opening's rim on its base chain (its trim loop), builds the lining, teeth, gums and tongue from it, binds the rim to the rig and opens the jaw, and evaluates every viseme's field over the skin and the tongue. It catches a rim that is not one loop, interior parts that leave the head, a rim that the jaw and the head share, lips that stay sealed or tear when the jaw opens, and a viseme whose field is not finite, not local or does not move the lips at all.
+ * @evidence contracts/testing.md#independent-expectations Topology (one closed rim), containment (a point inside a closed skin is crossed an odd number of times by a ray), rigid kinematics of a hinge (an opening of 20 mm at the incisors parts lips that ride the head and the jaw) and the field's own locality supply every expectation; no coordinate of a person enters. The stretch and displacement bounds are coarse limits for a torn or flying skin. The containment reading is proven red on the first person: every interior point moved 0.13 S forward of the face must read outside.
  * @evidence contracts/testing.md#distinguishing-cases Contrasts the four references with stature, girth and masculine ends; reads the upper and lower rims apart, every interior part, the closed mouth against a 20 mm opening, and all fifteen visemes, with protrusion of the tongue for th allowed past the teeth.
- * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_mouth`, reading the people `HumanPeople` generates once per run and lofting their skin in process, with no renderer, browser or GPU.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_mouth`, reading the people `HumanPeople` generates and lofting their skin in process, with no renderer, browser or GPU.
  */
 export const test_human_mouth = (): void => {
   const problems: string[] = [];
@@ -56,15 +56,29 @@ export const test_human_mouth = (): void => {
       [0, 1, 2].map((k: number): number => Math.max(...ends.map((p: number[]): number => p[k]!)) + 3) as [number, number, number],
     ];
     const surface = AutoMovieHumanBodySurface.generate(body, [box]);
-    let loop: number[];
-    try {
-      loop = AutoMovieHumanOralCavity.rim(surface.mesh, aperture);
-    } catch (error) {
-      problems.push(`${name} ${(error as Error).message}`);
+    const loop: V3[] | undefined = surface.rims.get(aperture.name);
+    if (loop === undefined || loop.length < 3) {
+      problems.push(`${name} the skin closed no mouth trim loop`);
       continue;
     }
     const skin: Skin = index(surface.mesh.positions, surface.mesh.indices, mouth);
-    const interior = AutoMovieHumanOralCavity.generate(surface.mesh, mouth, aperture, 1);
+
+    // Red proof of the containment reading: each tooth point moved a head's
+    // length forward of the face must read outside the skin.
+    const interior = AutoMovieHumanOralCavity.generate(loop, mouth, 1);
+    if (name === HumanPeople.names()[0]) {
+      const reach: number = 0.13 * body.stature;
+      const made: number = interior.parts
+        .filter((part): boolean => part.geometry.type === "mesh" && part.id !== "human.mouth.lining")
+        .reduce((n: number, part): number => {
+          if (part.geometry.type !== "mesh") return n;
+          const p: number[] = part.geometry.mesh.positions;
+          let inside: number = 0;
+          for (let v: number = 0; v < p.length; v += 3) if (!(under(skin, [p[v]! + reach, p[v + 1]!, p[v + 2]!]) < 0)) inside++;
+          return n + inside;
+        }, 0);
+      if (made > 0) problems.push(`proof: ${made} interior points moved ${reach.toFixed(0)} mm forward of the face still read inside the skin`);
+    }
     for (const part of interior.parts) {
       if (part.geometry.type !== "mesh" || part.id === "human.mouth.lining") continue;
       const p: number[] = part.geometry.mesh.positions;
@@ -81,11 +95,7 @@ export const test_human_mouth = (): void => {
 
     // The rim: the upper lip rides the head, the lower the jaw, over the
     // middle half of the mouth; toward the corners the opening narrows.
-    const rim: V3[] = loop.map((v: number): V3 => [
-      surface.mesh.positions[3 * v]!,
-      surface.mesh.positions[3 * v + 1]!,
-      surface.mesh.positions[3 * v + 2]!,
-    ]);
+    const rim: V3[] = loop;
     const bound = rig.bind(rim.flatMap((p: V3): number[] => p.map((c: number): number => c * scale)));
     const jawShare = (i: number): number => {
       let s: number = 0;

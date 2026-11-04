@@ -5,7 +5,9 @@ import type {
   IAutoMovieTextureReference,
 } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanSkinAppearance } from "../structures/appearance/IAutoMovieHumanSkinAppearance";
 import { AutoMovieHumanNail } from "./AutoMovieHumanNail";
@@ -15,6 +17,8 @@ import { AutoMovieHumanSkinMarks } from "./AutoMovieHumanSkinMarks";
 import { AutoMovieHumanSkinPigment } from "./AutoMovieHumanSkinPigment";
 import { AutoMovieHumanSkinTone } from "./AutoMovieHumanSkinTone";
 import type { AutoMovieHumanVermilion } from "./AutoMovieHumanVermilion";
+import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnatomy";
+import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 
 /**
  * The skin's parts, material and images: the generated skin pieces dressed
@@ -52,7 +56,7 @@ import type { AutoMovieHumanVermilion } from "./AutoMovieHumanVermilion";
  *   specular lobe lit the pocket walls as bright streaks.
  *
  * Inputs: `pigmentation.{melanin, eumelaninShare, haemoglobin}`, shifted
- * milky by `body.controls.masculineFeminine` through
+ * milky for a woman (`AutoMovieHumanBodyAnatomy.resolve`'s sex) through
  * `AutoMovieHumanSkinTone.milky`, and
  * `appearance.skin.{oiliness, wrinkles, seed}`. An omitted `pigmentation`
  * uses melanin 0.008, eumelanin share 0.6 and haemoglobin 0.01, a fair,
@@ -82,6 +86,12 @@ export namespace AutoMovieHumanSkin {
 
     /** Millimetre-to-model factor including the stature scale. */
     scale: number;
+
+    /** The calibration's chains in mm, which the nail plates lie on. */
+    chains: readonly IAutoMovieHumanLoftChain[];
+
+    /** The nail plates' windows on their digit chains. */
+    nails: readonly IAutoMovieHumanBodyCalibration.INail[];
   }
 
   /** Dressed skin. */
@@ -100,6 +110,12 @@ export namespace AutoMovieHumanSkin {
 
     /** Images the materials sample. */
     images: IAutoMovieImage[];
+
+    /**
+     * Loft coordinates `[chain, station, phase]` of the skin and cavity parts'
+     * vertices, by part id, three per vertex: what the rig binds them by.
+     */
+    coordinates: Map<string, number[]>;
   }
 
   /** Chromophores of an unspecified person; a convention. */
@@ -119,10 +135,7 @@ export namespace AutoMovieHumanSkin {
     const skin: IAutoMovieHumanSkinAppearance | undefined =
       props.params.appearance?.skin;
     const oiliness: number = skin?.oiliness ?? 0.3;
-    const femininity: number = Math.min(
-      1,
-      Math.max(0, props.params.body.controls.masculineFeminine.value ?? 0),
-    );
+    const femininity: number = AutoMovieHumanBodyAnatomy.resolve(props.params).sex === AutoMovieHumanSex.Female ? 1 : 0;
     const pigmentation: AutoMovieHumanSkinPigment.IChromophores =
       AutoMovieHumanSkinTone.milky(
         props.params.pigmentation ?? defaultPigmentation,
@@ -130,11 +143,12 @@ export namespace AutoMovieHumanSkin {
       );
     const wrinkles: number = skin?.wrinkles ?? 0;
     const pieces: AutoMovieHumanSkinChart.IOutput[] =
-      AutoMovieHumanSkinChart.generate(props.pieces);
+      AutoMovieHumanSkinChart.generate(props.pieces, props.chains);
     const tone: AutoMovieHumanSkinTone.IOutput =
       AutoMovieHumanSkinTone.generate({
         vermilion: props.vermilion,
         pieces,
+        chains: props.chains,
         eyes: props.eyes,
         apertures: props.apertures,
         stature: props.stature,
@@ -309,8 +323,12 @@ export namespace AutoMovieHumanSkin {
       images.push(marks.image);
     }
 
+    const byName: Map<string, AutoMovieHumanSkinChart.IOutput> = new Map(
+      pieces.map((piece: AutoMovieHumanSkinChart.IOutput): [string, AutoMovieHumanSkinChart.IOutput] => [piece.name, piece]),
+    );
     const nails: AutoMovieHumanNail.IOutput = AutoMovieHumanNail.generate(
-      pieces,
+      props.chains,
+      props.nails,
       props.scale,
       albedo,
     );
@@ -331,6 +349,12 @@ export namespace AutoMovieHumanSkin {
       doubleSided: false,
     };
     return {
+      coordinates: new Map(
+        parts.map((p: IAutoMovieModelPart): [string, number[]] => [
+          p.id,
+          byName.get(p.id.slice(p.id.startsWith("human.skin.") ? "human.skin.".length : "human.cavity.".length))!.coordinates,
+        ]),
+      ),
       parts: [...parts, ...nails.parts],
       materials: [
         material,

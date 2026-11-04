@@ -1,5 +1,6 @@
 import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftJet } from "../lofting/AutoMovieHumanLoftJet";
+import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
@@ -78,10 +79,9 @@ export namespace AutoMovieHumanBodyStrip {
     const out: V[] = new Array<V>(n);
 
     // Edge rows from the clamped B-spline's end derivatives.
-    const a1: V = scale(c.a1, c.l);
-    const a2: V = scale(c.a2, c.l * c.l);
-    const c1: V = scale(c.c1, c.l);
-    const c2: V = scale(c.c2, c.l * c.l);
+    // Each edge's arclength jet, copied at the edge speed l (rule J1).
+    const [, a1, a2] = AutoMovieHumanSeam.adopt({ point: c.A, tangent: c.a1, curvature: c.a2 }, c.l) as unknown as [V, V, V];
+    const [, c1, c2] = AutoMovieHumanSeam.adopt({ point: c.C, tangent: c.c1, curvature: c.c2 }, c.l) as unknown as [V, V, V];
     out[0] = c.A;
     out[1] = add(c.A, scale(a1, h / 3));
     out[2] = add(c.A, scale(a1, h), scale(a2, (h * h) / 3));
@@ -192,7 +192,7 @@ export namespace AutoMovieHumanBodyStrip {
 
   /** Surface point of a chain at a chart point, the station clamped into the chain. */
   export function surface(chain: IAutoMovieHumanLoftChain, s: number, t: number): V {
-    return AutoMovieHumanLoftChain.ring(chain, clamp(chain, s), [t])[0]!;
+    return AutoMovieHumanLoftChain.point(chain, clamp(chain, s), t);
   }
 
   /**
@@ -222,9 +222,35 @@ export namespace AutoMovieHumanBodyStrip {
     const C: V = surface(base, s, t);
 
     // Chart direction across the loop, away from its inside: the tangent
-    // (dt, ds) in (phase, station) turned clockwise, (ds, -dt).
-    const [c1, c2] = across(base, s, t, sense * ds, -sense * dt);
+    // (dt, ds) in (phase, station) turned clockwise, (ds, -dt), made square
+    // to the loop on the skin by the base's metric (rule J4 with alpha 1).
+    // Turned in the chart alone, it stood far off square wherever phase and
+    // station differ in scale, and swung through a right angle within 1e-4
+    // rad of the loop's station extremes.
+    const [wt, ws] = AutoMovieHumanSeam.square(metric(base, s, t), [sense * ds, -sense * dt], [dt, ds]);
+    const [c1, c2] = across(base, s, t, wt, ws);
     return { A, a1, a2, C, c1, c2, l: root.reach * Math.hypot(...add(C, scale(A, -1))) };
+  }
+
+  /**
+   * First fundamental form `[P_t . P_t, P_t . P_s, P_s . P_s]` of a chain at
+   * a chart point, phase first: from its jet where it carries one, otherwise
+   * from central differences of its points over {@link H} mm of station and
+   * 1e-4 rad of phase.
+   */
+  function metric(chain: IAutoMovieHumanLoftChain, s: number, t: number): [number, number, number] {
+    let Pt: V;
+    let Ps: V;
+    if (AutoMovieHumanLoftJet.carries(chain)) {
+      const j: AutoMovieHumanLoftJet.IJet = AutoMovieHumanLoftJet.at(chain, clamp(chain, s), t);
+      Pt = j.t;
+      Ps = j.s;
+    } else {
+      Pt = scale(add(surface(chain, s, t + 1e-4), scale(surface(chain, s, t - 1e-4), -1)), 1 / 2e-4);
+      Ps = scale(add(surface(chain, s + H, t), scale(surface(chain, s - H, t), -1)), 1 / (2 * H));
+    }
+    const dot = (a: V, b: V): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+    return [dot(Pt, Pt), dot(Pt, Ps), dot(Ps, Ps)];
   }
 
   /**
@@ -294,10 +320,7 @@ export namespace AutoMovieHumanBodyStrip {
    * tangent.
    */
   function arcLength(d1: V, d2: V): [V, V] {
-    const speed: number = Math.hypot(...d1) || 1;
-    const T: V = scale(d1, 1 / speed);
-    const along: number = (d2[0] * T[0] + d2[1] * T[1] + d2[2] * T[2]) / speed;
-    return [T, scale(add(d2, scale(T, -along * speed)), 1 / (speed * speed))];
+    return AutoMovieHumanSeam.arc(d1, d2) as unknown as [V, V];
   }
 
   /** Station step of the difference derivatives, mm. */

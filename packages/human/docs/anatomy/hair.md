@@ -20,6 +20,12 @@ Preferred proportions for women: hair-bearing height over trichion-glabella fore
 
 Forehead height tr-g: Kenyan men 61.4 mm, women 55.4; South African women 60.2 mm. Forehead height tr-n: Kenyan 72.2 and 67.5 mm, Nigerian 69.1 mm ([virdi-2019-kenyan-face](../sources/virdi-2019-kenyan-face.md), [wilson-2023-south-african-women](../sources/wilson-2023-south-african-women.md), [adekunle-2022-nigerian-3d](../sources/adekunle-2022-nigerian-3d.md)). Virdi also relays North American white tr-n values, which do not follow the tr-g protocol.
 
+Forehead over lower face (derived from Virdi's table): tr-n / sn-me is 0.980 and 0.924 for North American white women and men, 0.971 and 0.945 for Kenyan women and men, 0.938 and 0.913 for African American women and men; mean 0.945. It varies far less across these groups than tr-n itself (63.0 to 72.2 mm) or tr-n / n-sn (1.22 to 1.42), and it is the classical canon of facial thirds, which hairline design uses with the forehead set 5 to 7 mm longer than the lower third from the mid-brow ([jung-2014-female-hairline-correction](../sources/jung-2014-female-hairline-correction.md)).
+
+Lateral landmarks of the frontal line (design rules, conventional): the temporal recession's apex aligns with the lateral canthus in the frontal view, and the temporal point lies at least 2 cm from the brow's tail, about 1 cm behind the canthus's vertical (Jung and Yun 2014, after Nusbaum); in Garg's rule of eight the frontotemporal point stands above the lateral canthus and the temporal peak 5/8 of the way from it down to the canthus ([garg-2017-hairline-design](../sources/garg-2017-hairline-design.md), surface distances, men with hair loss).
+
+Transition zone: about 1 cm of single hairs at 50 to 60 per cm2 before the full density; exit angles rise from 15 to 20 degrees at the sideburn to 60 to 90 degrees beside the parting (Jung and Yun 2014).
+
 ## Scalp coverage
 
 | Site | Density (hairs/cm²) | Diameter (μm) | Population | Grade | Source |
@@ -34,9 +40,21 @@ Forehead height tr-g: Kenyan men 61.4 mm, women 55.4; South African women 60.2 m
 
 In the Thai sample density does not differ by sex and falls about 6 percent from the 20s to the 60s, while diameter holds near 80 μm. Temporoparietal density is about 18 percent lower than the vertex. Hair density and diameter constrain coverage but do not give a card count, because a card represents a bundle.
 
+What the scalp shows follows from them (derived): fibres of diameter d rooted at density rho occlude the scalp as independent random occluders, so the share of scalp seen through hair is exp(-tau), tau the projected fibre area per scalp area of the hair lying over it. Beside a parting the hair rooted between the line and a point at distance x lies over it, tau = rho d x, so the scalp is half seen at x = ln 2 / (rho d): 5.6 mm at the Thai mean (152.8 per cm2, 80.6 μm) and 3.8 mm at the quoted Caucasian frontal density. A parting is a graded line a few millimetres wide on each side, not a strip.
+
+The hair also shades the scalp it leaves visible (derived): diffuse light from the hemisphere above reaches the scalp along rays at angle theta from the normal, each crossing the optical depth tau along the slant path tau / cos(theta). The cosine-weighted mean of the transmittance is `L = 2 * E3(tau)`, E3 the third exponential integral, 1 for bare scalp and about a third where the scalp is half seen (tau = ln 2). The scalp layer's alpha is therefore `1 - T * L`, the hidden share plus the shade on what is seen. The shade assumes sky light; a single directional light replaces `L` by `exp(-tau / cos(theta_light))`.
+
 ## Curl
 
 The L'Oréal classification has eight types, I to VIII, defined from curve diameter, curl index, number of waves and number of twists ([callender-2026-curl-classification](../sources/callender-2026-curl-classification.md)). Types I to IV are separated by curve diameter; types V to VIII (curly and coily) also by curl index, waves and twists. The class thresholds were not in the text read. A helix radius and pitch can serve as guide controls, but the class label alone neither determines them nor requires a helical representation.
+
+## Standing hair
+
+Hair leaves the scalp at an angle over the surface, and the angle rises toward the top of the head (Jung and Yun 2014, measured on patients; [jung-2014-female-hairline-correction](../sources/jung-2014-female-hairline-correction.md)): 15 to 20 degrees at the sideburn and the temporal point, 20 to 30 at the supratemporal line, 30 to 45 at the lateral frontal line, 45 to 60 at the central frontal line, 60 to 90 beside the parting. The generator takes the midpoint of each range and places the zones along the hairline from the front midline to the sideburn by convention. The angles are measured at the hairline, so they act in its transition zone and fade into the mass with the root's feather; inside the mass the comb and the hair above lay a fibre down, which a free cantilever does not represent. Applied by azimuth to every root, they stood a 50 mm crop 34 mm high along the front midline and a 70 mm short cut 63 mm high along its side parting (the 60 to 90 degrees beside a parting), a crest like a mohawk.
+
+How far a fibre stands before gravity bends it follows from its own stiffness and weight. A fibre of Young's modulus E and diameter d has the bending stiffness E pi d^4 / 64 and, at density rho, the weight per length rho g pi d^2 / 4; their ratio is the cube of one length, the gravitational bending length `(E d^2 / (16 rho g))^(1/3)`, about 50 mm for E near 4 GPa, d = 80.6 μm and rho = 1.32 g per cm3 (modulus and density are values relayed from the hair-science literature, not read here). A fibre of length l clamped at the exit angle theta0 is bent at its root with the curvature `kappa = l^2 cos(theta0) / (2 lambda^3)`; bent at that curvature it rises to the apex `(1 - cos theta0) / kappa` and comes down onto the hair under it after the arc `2 theta0 / kappa` (first-order closure: the curvature kept at its root value). For a 300 mm bob a fibre at 75 degrees peaks 8.0 mm over the scalp and lands 28 mm from its root, at the central frontal line (52.5 degrees) 1.8 mm and 8.4 mm; 70 mm hair at the central frontal line would land only after 154 mm, so it stands about 33 mm high at its tip, as a short cut's front does. A closure that kept the height once reached let the parting's hair ride 14 mm over the mass for its whole length, a crest of card edges along the parting. The stiffness depends on the physical length of the hair, not on the arc a guide integrates: using the feathered length of the hairline's edge made the short edge hairs stand straight and stick out like antennae, and using a bob's integration budget (1.6 times its length, so every root reaches the level cut) made its hair 2.56 times too limp, standing 5 mm beside the parting instead of 14.
+
+A card shorter than it is wide is a patch, not a strand: it shows neither a root band nor a tip band, only a dark fleck apart from the hair (the two black dots at the frontotemporal corners were such cards). The minimum card length is the card's width.
 
 ## Brows
 
@@ -64,6 +82,7 @@ From [aumond-2018-eyelash](../sources/aumond-2018-eyelash.md) (measured, relayed
 ## Open questions
 
 - European-ancestry tr-g and East Asian forehead height (trichion position) by sex and age, and male pattern recession by age (Norwood stages).
+- The nape hairline's height and the margin over the auricle (no published distance found; both are conventions in the generator).
 - A primary multi-ethnic scalp density source; the current data come from one Thai study with secondary comparison values.
 - L'Oréal curl class thresholds.
 - Lash length by lid position (centre longer than ends) and lift angles by ancestry; the Thibaut study cited by Aumond was not read.

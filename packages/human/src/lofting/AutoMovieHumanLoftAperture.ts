@@ -104,6 +104,9 @@ export namespace AutoMovieHumanLoftAperture {
 
     /** Bounding box of `points`: `[lateral, up]` minimum then maximum. */
     box: [number, number, number, number];
+
+    /** The segments of `points` by cell and by row, for {@link signed}. */
+    grid: IGrid;
   }
 
   /** Project a dense margin along the aperture's `forward` axis. */
@@ -151,6 +154,7 @@ export namespace AutoMovieHumanLoftAperture {
       points,
       window: [near - aperture.depth, far + aperture.depth],
       box,
+      grid: gridOf(points, box),
     };
   }
 
@@ -187,35 +191,118 @@ export namespace AutoMovieHumanLoftAperture {
     )
       return Infinity;
 
-    // Nearest segment, and the even-odd ray test in the same pass.
-    let nearest: number = Infinity;
-    let odd: boolean = false;
     const points: [number, number][] = outline.points;
-    for (
-      let i: number = 0, j: number = points.length - 1;
-      i < points.length;
-      j = i++
-    ) {
-      const a: [number, number] = points[j]!;
-      const c: [number, number] = points[i]!;
-      const du: number = c[0] - a[0];
-      const dv: number = c[1] - a[1];
-      const l: number = du * du + dv * dv;
-      const w: number =
-        l > 0
-          ? Math.min(1, Math.max(0, ((u - a[0]) * du + (v - a[1]) * dv) / l))
-          : 0;
-      nearest = Math.min(
-        nearest,
-        (a[0] + w * du - u) ** 2 + (a[1] + w * dv - v) ** 2,
-      );
-      if (
-        a[1] > v !== c[1] > v &&
-        u < ((c[0] - a[0]) * (v - a[1])) / (c[1] - a[1]) + a[0]
-      )
-        odd = !odd;
+    const n: number = points.length;
+    const g: IGrid = outline.grid;
+
+    // The even-odd ray test over the segments of the point's row band: a
+    // segment the horizontal ray through `v` crosses has one end above `v`
+    // and the other at or below it, so its rows contain `v`'s row; outside
+    // the grid's rows no segment straddles `v`.
+    let odd: boolean = false;
+    const row: number = Math.floor((v - g.origin[1]) / g.size);
+    if (row >= 0 && row < g.rows)
+      for (const i of g.bands[row]!) {
+        const a: [number, number] = points[(i + n - 1) % n]!;
+        const c: [number, number] = points[i]!;
+        if (a[1] > v !== c[1] > v && u < ((c[0] - a[0]) * (v - a[1])) / (c[1] - a[1]) + a[0]) odd = !odd;
+      }
+
+    // The nearest segment, over rings of cells round the point's cell: the
+    // cells outside ring r lie at least the point's distance to the square of
+    // rings 0 to r away, so once the best squared distance is within that,
+    // no unread segment is nearer. The same formula over a subset that holds
+    // the nearest gives the full scan's value exactly.
+    const cu: number = Math.min(g.columns - 1, Math.max(0, Math.floor((u - g.origin[0]) / g.size)));
+    const cv: number = Math.min(g.rows - 1, Math.max(0, Math.floor((v - g.origin[1]) / g.size)));
+    let nearest: number = Infinity;
+    for (let r: number = 0; ; r++) {
+      for (let w: number = cv - r; w <= cv + r; w++) {
+        if (w < 0 || w >= g.rows) continue;
+        const edge: boolean = w === cv - r || w === cv + r;
+        for (let c: number = cu - r; c <= cu + r; c += edge || r === 0 ? 1 : 2 * r) {
+          if (c < 0 || c >= g.columns) continue;
+          for (const i of g.cells[w * g.columns + c]!) nearest = Math.min(nearest, squared(points[(i + n - 1) % n]!, points[i]!, u, v));
+        }
+      }
+      const left: number = g.origin[0] + (cu - r) * g.size;
+      const right: number = g.origin[0] + (cu + r + 1) * g.size;
+      const bottom: number = g.origin[1] + (cv - r) * g.size;
+      const top: number = g.origin[1] + (cv + r + 1) * g.size;
+      const inside: boolean = u >= left && u <= right && v >= bottom && v <= top;
+      const bound: number = inside ? Math.min(u - left, right - u, v - bottom, top - v) : 0;
+      if (nearest <= bound * bound) break;
+      if (cu - r <= 0 && cu + r >= g.columns - 1 && cv - r <= 0 && cv + r >= g.rows - 1) break;
     }
     return odd ? -Math.sqrt(nearest) : Math.sqrt(nearest);
+  }
+
+  /**
+   * A square grid of cells over an outline's bounding box, each cell listing
+   * the segments whose bounding box overlaps it, and each row of cells (a
+   * band) listing the segments whose height range overlaps it. Segment `i`
+   * runs from point `i - 1` (the last for `i = 0`) to point `i`.
+   */
+  export interface IGrid {
+    /** Lower corner `[lateral, up]` of the first cell, mm. */
+    origin: [number, number];
+
+    /** Side of a cell, mm. */
+    size: number;
+
+    /** Cells across. */
+    columns: number;
+
+    /** Cells up. */
+    rows: number;
+
+    /** Segments per cell, row by row. */
+    cells: number[][];
+
+    /** Segments per row of cells. */
+    bands: number[][];
+  }
+
+  /**
+   * The grid of an outline: about `sqrt(n)` cells along its longer side for
+   * `n` segments, so a dense margin puts a few segments in each cell it
+   * crosses.
+   *
+   * @param points The projected margin.
+   * @param box Its bounding box `[lateral, up]` minimum then maximum.
+   */
+  function gridOf(points: readonly [number, number][], box: readonly [number, number, number, number]): IGrid {
+    const n: number = points.length;
+    const side: number = Math.max(1, Math.ceil(Math.sqrt(n)));
+    const size: number = Math.max(box[2] - box[0], box[3] - box[1], 1e-9) / side;
+    const columns: number = Math.max(1, Math.ceil((box[2] - box[0]) / size));
+    const rows: number = Math.max(1, Math.ceil((box[3] - box[1]) / size));
+    const cells: number[][] = Array.from({ length: columns * rows }, (): number[] => []);
+    const bands: number[][] = Array.from({ length: rows }, (): number[] => []);
+    const column = (u: number): number => Math.min(columns - 1, Math.max(0, Math.floor((u - box[0]) / size)));
+    const rowOf = (v: number): number => Math.min(rows - 1, Math.max(0, Math.floor((v - box[1]) / size)));
+    for (let i: number = 0; i < n; i++) {
+      const a: [number, number] = points[(i + n - 1) % n]!;
+      const c: [number, number] = points[i]!;
+      const c0: number = column(Math.min(a[0], c[0]));
+      const c1: number = column(Math.max(a[0], c[0]));
+      const r0: number = rowOf(Math.min(a[1], c[1]));
+      const r1: number = rowOf(Math.max(a[1], c[1]));
+      for (let w: number = r0; w <= r1; w++) {
+        bands[w]!.push(i);
+        for (let k: number = c0; k <= c1; k++) cells[w * columns + k]!.push(i);
+      }
+    }
+    return { origin: [box[0], box[1]], size, columns, rows, cells, bands };
+  }
+
+  /** Squared distance from `(u, v)` to the segment from `a` to `c`. */
+  function squared(a: readonly [number, number], c: readonly [number, number], u: number, v: number): number {
+    const du: number = c[0] - a[0];
+    const dv: number = c[1] - a[1];
+    const l: number = du * du + dv * dv;
+    const w: number = l > 0 ? Math.min(1, Math.max(0, ((u - a[0]) * du + (v - a[1]) * dv) / l)) : 0;
+    return (a[0] + w * du - u) ** 2 + (a[1] + w * dv - v) ** 2;
   }
 
   /**

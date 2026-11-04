@@ -60,14 +60,12 @@ export namespace AutoMovieHumanEyeball {
    * Build one eye.
    *
    * @param props.eye Globe frame from the body generator
-   * @param props.uvTurn Rotation of the iris image about the pupil, in turns; a different value per side keeps the two irises from repeating each other
-   * @param props.mirror Whether the sclera image is mirrored left to right (z to -z), so both eyes keep its vessels on the same anatomical sides
+   * @param props.mirror Whether this eye is the reflection of the canonical left one (z to -z): its sclera and iris images are mirrored, so both eyes keep their vessels and iris features on the same anatomical sides
    * @param props.lid Lid margin of this eye, which shades the globe; null leaves it unshaded
    * @returns Sclera, iris and cornea meshes
    */
   export function generate(props: {
     eye: IAutoMovieHumanAppearanceBody.IEye;
-    uvTurn: number;
     mirror: boolean;
     lid: AutoMovieHumanEyelid.ILid | null;
     /** Calibration millimetres to model metres, as used by the skin. */
@@ -143,18 +141,16 @@ export namespace AutoMovieHumanEyeball {
 
     // The iris image covers the limbus disc; u and v span its diameter so
     // the image's inscribed circle is the limbus. Row zero samples v = 0.
-    const turn: number = 2 * Math.PI * props.uvTurn;
-    const cosT: number = Math.cos(turn);
-    const sinT: number = Math.sin(turn);
+    // The reflected eye reads the image mirrored, z to -z, as its sclera does.
+    const flip: number = props.mirror ? -1 : 1;
     const irisUv: (x: number, y: number, z: number) => [number, number] = (
       _x: number,
       y: number,
       z: number,
-    ): [number, number] => {
-      const ry: number = (y * cosT + z * sinT) / d.limbusRadius;
-      const rz: number = (z * cosT - y * sinT) / d.limbusRadius;
-      return [0.5 + 0.5 * rz, 0.5 - 0.5 * ry];
-    };
+    ): [number, number] => [
+      0.5 + (0.5 * flip * z) / d.limbusRadius,
+      0.5 - (0.5 * y) / d.limbusRadius,
+    ];
 
     return {
       sclera: AutoMovieHumanRevolution.mesh({
