@@ -1,24 +1,24 @@
-import { AutoMovieLoftChain, type AutoMovieLoftContract, type AutoMovieLoftFrame, type AutoMovieSolidJoin, type AutoMovieSolidVector, type IAutoMovieLoftChain, type IAutoMovieSolidSurface } from "@automovie/engine";
+import type { AutoMovieLoftContract, AutoMovieLoftFrame, AutoMovieSolidVector, IAutoMovieLoftChain } from "@automovie/engine";
+import type { AutoMovieConstructionNode, IAutoMovieConstructionView } from "@automovie/interface";
+import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanArmWalk } from "./arm/AutoMovieHumanArmWalk";
 import type { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
 import { AutoMovieHumanFootPart } from "./foot/AutoMovieHumanFootPart";
 import type { AutoMovieHumanLegBones } from "./leg/AutoMovieHumanLegBones";
 import { AutoMovieHumanLegWalk } from "./leg/AutoMovieHumanLegWalk";
-import { AutoMovieHumanBranchMerges } from "./limb/AutoMovieHumanBranchMerges";
 import { AutoMovieHumanDigitWalk } from "./limb/AutoMovieHumanDigitWalk";
-import { AutoMovieHumanFoldJoin } from "./limb/AutoMovieHumanFoldJoin";
-import { AutoMovieHumanFoldSeed } from "./limb/AutoMovieHumanFoldSeed";
-import { AutoMovieHumanMergeEntry } from "./limb/AutoMovieHumanMergeEntry";
 import type { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
- * The body lane's subtree assembled (#3047 to #3051): every part built from
- * its views and every join made, published as chains and merge entries for
- * the calibration, from the laws the caller binds.
+ * The body lane's subtree (#3047 to #3051) as one construction tree realized
+ * by the engine (`AutoMovieHumanBodyTree`): every part a view node built from
+ * its views, every join a merge node with a search seed and fold widths,
+ * published as chains and merge entries for the calibration, from the laws
+ * the caller binds.
  *
  * Parts: the trunk with its breasts and gluteal masses
  * (`AutoMovieHumanTrunkBuild`), each leg as one walk over femur and tibia
@@ -26,28 +26,27 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * (`AutoMovieHumanArmWalk`), each foot (`AutoMovieHumanFootPart`), each
  * finger, thumb and toe as one walk (`AutoMovieHumanDigitWalk`).
  *
- * Joins, each a solid merge along its fold (`AutoMovieHumanFoldJoin`), the
- * part being the solid whose station lines leave the host across the fold:
- * each leg onto the trunk (seeded at the inguinal fold, R the thigh's front
- * fat layer, capped at half the gap between the two legs' seeds so their
- * rails never cross at the perineum), each arm onto the trunk (seeded at the
- * axilla vault, R the arm's back fat layer and the chest's), each leg's
- * shank onto its foot (seeded at the ankle's front), the fingers onto the
- * arm's palm and the toes onto the foot (`AutoMovieHumanBranchMerges`).
+ * Joins, the part being the solid whose station lines leave the host across
+ * the fold, the host the whole subtree built before it: the masses onto the
+ * trunk; each toe onto its foot, the leg onto that foot (seeded at the
+ * ankle's front), and the leg with its foot onto the trunk (seeded at the
+ * inguinal fold, R the thigh's front fat layer, capped at half the gap between
+ * the two hip centres so the two legs' rails never cross at the perineum);
+ * each digit onto its arm's palm, and the arm with its hand onto the trunk
+ * (seeded at the axilla vault). A digit's or a toe's web is capped at half
+ * the gap to its nearest neighbour's base, so neighbouring webs' rails never
+ * cross.
  *
  * A part that fails is left out with its diagnostics, and every join that
  * names it is skipped, so the rest still assembles (`construction.md`:
- * generation never fails for a valid person).
+ * generation never fails for a valid person); the engine leaves out a join
+ * that cannot keep its premises with its part's subtree, and names it.
  */
 export namespace AutoMovieHumanBodyLane {
   /** A join's seed search and fold, calibration mm. */
   export interface IFold {
-    /**
-     * Where the seed is searched (`AutoMovieHumanFoldSeed`): the part's
-     * phase, the shares of its station range from inside the host to
-     * outside it, and the host's chart guess at the start.
-     */
-    search: { phi: number; from: number; to: number; host?: [number, number] };
+    /** Where the seed is searched: the part's phase and the shares of its station range from inside the host to outside it. */
+    search: { phi: number; from: number; to: number };
 
     /** The fold's radius, mm. */
     radius: number;
@@ -105,15 +104,6 @@ export namespace AutoMovieHumanBodyLane {
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
-  /** A built part: its chain and its surface. */
-  interface IBuilt {
-    /** The chain. */
-    chain: IAutoMovieLoftChain;
-
-    /** Its surface. */
-    surface: IAutoMovieSolidSurface;
-  }
-
   /** A digit's input and its web's fold. */
   export interface IDigit {
     /** The digit. */
@@ -123,17 +113,13 @@ export namespace AutoMovieHumanBodyLane {
     fold: IFold;
   }
 
-  /** A built digit, or null where it failed, with its fold. */
-  interface IBranch {
-    /** The digit's part. */
-    part: IBuilt | null;
-
-    /** Its web's fold. */
-    fold: IFold;
-  }
-
-  /** The joins' trace limits and sampling, as the trunk's masses take them (`AutoMovieHumanTrunkBuild`). */
-  const LIMITS: { count: number; tolerance: number; grazing: number; columns: number } = { count: 64, tolerance: 1e-6, grazing: Math.asin(0.01), columns: 64 };
+  /**
+   * The joins' trace limits: 64 traced points and blend columns per fold; a
+   * curve gap far under the sections' own representation error (about
+   * 0.01 mm); and the least angle between the two skins, asin(0.01), under
+   * which that error `e` moves the curve by `e / sin(alpha)` past 1 mm.
+   */
+  const LIMITS: Omit<AutoMovieHumanBodyTree.ILimits, "gap"> = { count: 64, tolerance: 1e-6, grazing: Math.asin(0.01) };
 
   /**
    * Assemble the body lane.
@@ -143,114 +129,65 @@ export namespace AutoMovieHumanBodyLane {
    */
   export function create(input: IInput): IOutput {
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    const chains: IAutoMovieLoftChain[] = [];
-    const merges: IAutoMovieHumanBodyCalibration.IMerge[] = [];
-
-    // A built part's chain and surface, or null with its diagnostics.
-    const built = (result: AutoMovieHumanSiteViewPart.IResult): IBuilt | null => {
+    const limits: AutoMovieHumanBodyTree.ILimits = { ...LIMITS, gap: input.gap };
+    const view = (result: AutoMovieHumanSiteViewPart.IResult): IAutoMovieConstructionView | null => {
       diagnostics.push(...result.diagnostics);
-      const chain: IAutoMovieLoftChain | null = result.loft?.chain ?? null;
-      const surface: IAutoMovieSolidSurface | null = result.loft?.surface ?? null;
-      if (chain === null || surface === null) return null;
-      chains.push(chain);
-      return { chain, surface };
+      return result.view;
     };
-
-    // A fold's seed on the built part and host.
-    const seed = (part: IBuilt, host: IBuilt, fold: IFold): AutoMovieHumanFoldSeed.ISeed | null => {
-      const first: number = part.chain.layers[0]!.y;
-      const last: number = part.chain.layers[part.chain.layers.length - 1]!.y;
-      const at = (share: number): number => first + share * (last - first);
-      const start: Vec3 = part.surface.jet(at(fold.search.from), fold.search.phi).p as Vec3;
-      const found: AutoMovieHumanFoldSeed.ISeed | null = AutoMovieHumanFoldSeed.of(part.surface, host.surface, fold.search.phi, at(fold.search.from), at(fold.search.to), fold.search.host ?? nearest(host.chain, start), LIMITS.tolerance);
-      if (found === null) diagnostics.push({ producer: `fold.${part.chain.name}.${host.chain.name}`, level: 6, contract: "seed", detail: `the part's station line at phase ${fold.search.phi} does not leave the host between shares ${fold.search.from} and ${fold.search.to}` });
-      return found;
-    };
-
-    // One fold join, published.
-    const join = (part: IBuilt, host: IBuilt, fold: IFold, cap: number, found: AutoMovieHumanFoldSeed.ISeed | null = seed(part, host, fold)): void => {
-      if (found === null) return;
-      const result: AutoMovieSolidJoin.IResult = AutoMovieHumanFoldJoin.create({
-        part: part.surface,
-        host: host.surface,
-        landmark: found.landmark,
-        guess: found.guess,
-        radius: (): number => fold.radius,
-        cap: (): number => fold.cap ?? cap,
-        count: LIMITS.count,
-        tolerance: LIMITS.tolerance,
-        grazing: LIMITS.grazing,
-      });
-      diagnostics.push(...result.diagnostics);
-      if (result.join === null) return;
-      const entry: AutoMovieHumanMergeEntry.IEntry | null = AutoMovieHumanMergeEntry.of(`blend.${part.chain.name}.${host.chain.name}`, host.chain.name, part.chain.name, result.join, LIMITS.columns, input.gap, false, diagnostics);
-      if (entry === null) return;
-      chains.push(entry.chain);
-      merges.push(entry.merge);
-    };
+    const fold = (part: AutoMovieConstructionNode, partFace: string, hostFace: string, f: IFold, cap: number): AutoMovieHumanBodyTree.IFold => ({
+      part,
+      partFace,
+      hostFace,
+      search: { phase: f.search.phi, from: f.search.from, to: f.search.to },
+      radius: f.radius,
+      cap: f.cap ?? cap,
+    });
 
     // The trunk and its masses.
     const trunk: AutoMovieHumanTrunkBuild.IOutput = AutoMovieHumanTrunkBuild.create(input.trunk);
     diagnostics.push(...trunk.diagnostics);
-    if (trunk.trunk !== null) chains.push(trunk.trunk);
-    chains.push(...trunk.chains);
-    merges.push(...trunk.merges);
-    const host: IBuilt | null = trunk.trunk !== null && trunk.surface !== null ? { chain: trunk.trunk, surface: trunk.surface } : null;
+    if (trunk.trunk === null) return publishable([], [], diagnostics);
+    let root: AutoMovieConstructionNode = trunk.trunk;
+    for (const mass of trunk.masses) root = AutoMovieHumanBodyTree.join(root, mass, limits);
 
-    // Every side's parts first: the legs' seeds are needed together.
-    const parts: Record<"left" | "right", { leg: IBuilt | null; arm: IBuilt | null; foot: IBuilt | null; fingers: IBranch[]; toes: IBranch[] }> = {
-      left: build("left"),
-      right: build("right"),
-    };
-    function build(name: "left" | "right"): { leg: IBuilt | null; arm: IBuilt | null; foot: IBuilt | null; fingers: IBranch[]; toes: IBranch[] } {
-      const side: ISide = input.sides[name];
-      const digits = (list: IDigit[]): IBranch[] => list.map((d: IDigit): IBranch => ({ part: built(AutoMovieHumanDigitWalk.create(d.digit)), fold: d.fold }));
-      return {
-        leg: built(AutoMovieHumanLegWalk.create(`leg.${name}`, side.leg.bones, side.leg.law, input.gap)),
-        arm: built(AutoMovieHumanArmWalk.create(`arm.${name}`, side.arm.bones, side.arm.knuckle, side.arm.reach, side.arm.sites, side.arm.joints, input.gap)),
-        foot: built(AutoMovieHumanFootPart.create(side.foot)),
-        fingers: digits(side.fingers),
-        toes: digits(side.toes),
-      };
-    }
-
-    // The legs' seeds stand either side of the perineum: half their gap caps
-    // both legs' chords, so the two host rails never cross.
-    const legSeeds: Record<"left" | "right", AutoMovieHumanFoldSeed.ISeed | null> = {
-      left: parts.left.leg !== null && host !== null ? seed(parts.left.leg, host, input.sides.left.leg.trunk) : null,
-      right: parts.right.leg !== null && host !== null ? seed(parts.right.leg, host, input.sides.right.leg.trunk) : null,
-    };
-    const a: Vec3 | undefined = legSeeds.left?.landmark;
-    const b: Vec3 | undefined = legSeeds.right?.landmark;
-    const perineum: number = a !== undefined && b !== undefined ? Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) / 2 : input.sides.left.leg.trunk.radius;
+    // The legs' rails stay either side of the perineum.
+    const hips: [Vec3, Vec3] = [input.sides.left.leg.bones.hip, input.sides.right.leg.bones.hip];
+    const perineum: number = distance(hips[0], hips[1]) / 2;
 
     for (const name of ["left", "right"] as const) {
       const side: ISide = input.sides[name];
-      const { leg, arm, foot, fingers, toes } = parts[name];
 
-      // The joins of the side, each skipped where a part is missing.
-      if (leg !== null && host !== null) join(leg, host, side.leg.trunk, perineum, legSeeds[name]);
-      if (arm !== null && host !== null) join(arm, host, side.arm.trunk, side.arm.trunk.radius);
-      if (leg !== null && foot !== null) join(leg, foot, side.leg.foot, side.leg.foot.radius);
-      const branches = (on: IBuilt | null, list: IBranch[]): void => {
-        if (on === null) return;
-        const out: AutoMovieHumanBranchMerges.IOutput = AutoMovieHumanBranchMerges.create(
-          on,
-          list.flatMap((branch: IBranch): AutoMovieHumanBranchMerges.IBranch[] => {
-            if (branch.part === null) return [];
-            const found: AutoMovieHumanFoldSeed.ISeed | null = seed(branch.part, on, branch.fold);
-            return found === null ? [] : [{ chain: branch.part.chain, surface: branch.part.surface, landmark: found.landmark, guess: found.guess, radius: branch.fold.radius }];
-          }),
-          { ...LIMITS, gap: input.gap },
-          diagnostics,
-        );
-        chains.push(...out.chains);
-        merges.push(...out.merges);
+      // A host and its digits: each web capped at half the gap to its
+      // nearest neighbour's base.
+      const branches = (host: IAutoMovieConstructionView, list: IDigit[]): AutoMovieConstructionNode => {
+        let tree: AutoMovieConstructionNode = host;
+        list.forEach((d: IDigit): void => {
+          const digit: IAutoMovieConstructionView | null = view(AutoMovieHumanDigitWalk.create(d.digit));
+          if (digit === null) return;
+          const base: Vec3 = d.digit.centres[0]!;
+          const nearest: number = Math.min(...list.filter((o: IDigit): boolean => o !== d).map((o: IDigit): number => distance(base, o.digit.centres[0]!)));
+          tree = AutoMovieHumanBodyTree.join(tree, fold(digit, digit.name, host.name, d.fold, Number.isFinite(nearest) ? nearest / 2 : d.fold.radius), limits);
+        });
+        return tree;
       };
-      branches(arm, fingers);
-      branches(foot, toes);
+
+      // The leg on its foot and toes, then onto the trunk.
+      const leg: IAutoMovieConstructionView | null = view(AutoMovieHumanLegWalk.create(`leg.${name}`, side.leg.bones, side.leg.law, input.gap));
+      const foot: IAutoMovieConstructionView | null = view(AutoMovieHumanFootPart.create(side.foot));
+      if (leg !== null) {
+        const lower: AutoMovieConstructionNode =
+          foot === null ? leg : AutoMovieHumanBodyTree.join(branches(foot, side.toes), fold(leg, leg.name, foot.name, side.leg.foot, side.leg.foot.radius), limits);
+        root = AutoMovieHumanBodyTree.join(root, fold(lower, leg.name, trunk.trunk.name, side.leg.trunk, perineum), limits);
+      }
+
+      // The arm with its hand onto the trunk.
+      const arm: IAutoMovieConstructionView | null = view(
+        AutoMovieHumanArmWalk.create(`arm.${name}`, side.arm.bones, side.arm.knuckle, side.arm.reach, side.arm.sites, side.arm.joints, input.gap),
+      );
+      if (arm !== null) root = AutoMovieHumanBodyTree.join(root, fold(branches(arm, side.fingers), arm.name, trunk.trunk.name, side.arm.trunk, side.arm.trunk.radius), limits);
     }
-    return publishable(chains, merges, diagnostics);
+    const realized: AutoMovieHumanBodyTree.IOutput = AutoMovieHumanBodyTree.realize("body", root, limits, diagnostics);
+    return publishable(realized.chains, realized.merges, diagnostics);
   }
 
   /**
@@ -294,30 +231,8 @@ export namespace AutoMovieHumanBodyLane {
     };
   }
 
-  /**
-   * A host's chart guess for a world point: the host layer whose plane's
-   * origin stands nearest the point, and the point's polar angle about that
-   * origin in the plane's axes (the phase of a view-lofted chain, `rule:
-   * "polar"`). A guess only: the seed's foot points refine it by Newton.
-   *
-   * @param host The host chain.
-   * @param p The point, mm.
-   * @returns `[station, phase]`.
-   */
-  function nearest(host: IAutoMovieLoftChain, p: Vec3): [number, number] {
-    let best: number = host.layers[0]!.y;
-    let gap: number = Infinity;
-    for (const layer of host.layers) {
-      const o: Vec3 = AutoMovieLoftChain.frame(host, layer.y).origin;
-      const d: number = Math.hypot(o[0] - p[0], o[1] - p[1], o[2] - p[2]);
-      if (d < gap) {
-        gap = d;
-        best = layer.y;
-      }
-    }
-    const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(host, best);
-    const r: Vec3 = [p[0] - f.origin[0], p[1] - f.origin[1], p[2] - f.origin[2]];
-    const phase: number = Math.atan2(r[0] * f.v[0] + r[1] * f.v[1] + r[2] * f.v[2], r[0] * f.u[0] + r[1] * f.u[1] + r[2] * f.u[2]);
-    return [best, phase < 0 ? phase + 2 * Math.PI : phase];
+  /** The distance of two points, mm. */
+  function distance(a: Vec3, b: Vec3): number {
+    return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
   }
 }

@@ -9,7 +9,7 @@ const { add, cross, dot, scale, sub, unit } = AutoMovieSolidVector;
  * A mass that rises from its host along the host's outward normal (a breast
  * on the chest wall, a gluteal mass on the pelvis, the patella on the knee,
  * the olecranon on the elbow), lofted as a straight part in its own frame and
- * merged onto the host by `AutoMovieHumanFoldJoin`, so the fold under it (the
+ * merged onto the host by a fold join of the body's tree (`AutoMovieHumanBodyTree`), so the fold under it (the
  * inframammary fold, the gluteal fold) is the merge's blend (#3044,
  * construction step 2; #3047, #3048, #3050).
  *

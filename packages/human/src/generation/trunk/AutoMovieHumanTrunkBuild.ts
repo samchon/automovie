@@ -1,15 +1,13 @@
-import { type AutoMovieLoftContract, type AutoMovieLoftFrame, type AutoMovieSolidJoin, AutoMovieSolidFoot, AutoMovieSolidVector, type IAutoMovieLoftChain, type IAutoMovieSolidSurface } from "@automovie/engine";
-import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanFoldJoin } from "../limb/AutoMovieHumanFoldJoin";
+import { type AutoMovieLoftContract, AutoMovieSolidFoot, type AutoMovieSolidVector, type IAutoMovieLoftChain, type IAutoMovieSolidSurface } from "@automovie/engine";
+import type { IAutoMovieConstructionView } from "@automovie/interface";
+import type { AutoMovieHumanBodyTree } from "../AutoMovieHumanBodyTree";
 import { AutoMovieHumanMassPart } from "../limb/AutoMovieHumanMassPart";
-import { AutoMovieHumanMergeEntry } from "../limb/AutoMovieHumanMergeEntry";
 import type { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkTape } from "./AutoMovieHumanTrunkTape";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
-const { add, scale } = AutoMovieSolidVector;
 
 /**
  * The trunk subtree built and joined (#3047): the base lofted from its views,
@@ -35,8 +33,9 @@ const { add, scale } = AutoMovieSolidVector;
  * bust point, the buttock's most posterior point), along the base's normal levelled
  * there.
  *
- * Folds. Each mass merges onto the base by `AutoMovieHumanFoldJoin`, seeded
- * at its footprint's lower edge on the base, its fold radius the caller's fat
+ * Folds. Each mass is a fold onto the base for the body's construction tree
+ * (`AutoMovieHumanBodyTree`), its seed searched along the mass's lower station
+ * line (the footprint's lower edge) from inside the base out, its fold radius the caller's fat
  * layer, its width capped at half its smallest footprint edge (a fillet wider
  * than that swallows the mass) and at the gap from its footprint's medial edge
  * to the median plane (beyond it the pair's rails cross: the cleavage and the
@@ -85,27 +84,15 @@ export namespace AutoMovieHumanTrunkBuild {
 
   /** What the build publishes. */
   export interface IOutput {
-    /** The base's chain, or null when it cannot be lofted. */
-    trunk: IAutoMovieLoftChain | null;
+    /** The base's view node, or null when it cannot be lofted. */
+    trunk: IAutoMovieConstructionView | null;
 
-    /** The base's surface, the host of the limbs' and the neck's merges, or null with the chain. */
-    surface: IAutoMovieSolidSurface | null;
-
-    /** The masses' chains and the blends' chains. */
-    chains: IAutoMovieLoftChain[];
-
-    /** One merge entry per joined mass. */
-    merges: IAutoMovieHumanBodyCalibration.IMerge[];
+    /** Each mass's fold onto the base, for the body's tree. */
+    masses: AutoMovieHumanBodyTree.IFold[];
 
     /** Every broken premise. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
-
-  /** Traced points over each fold. */
-  const COUNT: number = 64;
-
-  /** Blend columns of each fold, a multiple of 4. */
-  const COLUMNS: number = 64;
 
   /** Section controls and ring phases of a mass. */
   const MASS_ORDER: number = 128;
@@ -117,14 +104,6 @@ export namespace AutoMovieHumanTrunkBuild {
   const TOLERANCE: number = 1e-6;
 
   /**
-   * Least angle between the two skins along a fold, radians: where they meet
-   * at angle `alpha`, the sections' representation error `e` (0.01 mm) moves
-   * the curve by `e / sin(alpha)`, which stays under 1 mm only while
-   * `alpha >= asin(0.01)`. Derived.
-   */
-  const GRAZING: number = Math.asin(0.01);
-
-  /**
    * Build the trunk subtree.
    *
    * @param input The views, the merged tapes and the masses' laws.
@@ -132,13 +111,13 @@ export namespace AutoMovieHumanTrunkBuild {
    */
   export function create(input: IInput): IOutput {
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    const out = (trunk: IAutoMovieLoftChain | null, surface: IAutoMovieSolidSurface | null, chains: IAutoMovieLoftChain[], merges: IAutoMovieHumanBodyCalibration.IMerge[]): IOutput => ({ trunk, surface, chains, merges, diagnostics });
+    const out = (trunk: IAutoMovieConstructionView | null, masses: AutoMovieHumanBodyTree.IFold[]): IOutput => ({ trunk, masses, diagnostics });
 
     // Pass 1: the base with the ellipse's shoulders, the masses on it.
     const first: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(input.views);
     if (first.loft === null || first.loft.surface === null) {
       diagnostics.push(...first.diagnostics);
-      return out(null, null, [], []);
+      return out(null, []);
     }
     const masses1: IMass[] = masses(input, first.loft.surface, []);
 
@@ -164,34 +143,23 @@ export namespace AutoMovieHumanTrunkBuild {
     };
     const base: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(solved);
     diagnostics.push(...base.diagnostics);
-    const trunk: IAutoMovieLoftChain | null = base.loft?.chain ?? null;
     const host: IAutoMovieSolidSurface | null = base.loft?.surface ?? null;
-    if (trunk === null || host === null) return out(null, null, [], []);
+    if (base.view === null || host === null) return out(null, []);
 
-    // Pass 2: the masses on the solved base, each merged along its fold.
-    const chains: IAutoMovieLoftChain[] = [];
-    const merges: IAutoMovieHumanBodyCalibration.IMerge[] = [];
-    for (const m of masses(input, host, diagnostics)) {
-      chains.push(m.chain);
-      const join: AutoMovieSolidJoin.IResult = AutoMovieHumanFoldJoin.create({
-        part: m.surface,
-        host,
-        landmark: m.fold,
-        guess: { part: [m.footprintStation, Math.PI], host: m.hostGuess },
-        radius: (): number => m.law.fold,
-        cap: (): number => m.cap,
-        count: COUNT,
-        tolerance: TOLERANCE,
-        grazing: GRAZING,
-      });
-      diagnostics.push(...join.diagnostics);
-      if (join.join === null) continue;
-      const entry: AutoMovieHumanMergeEntry.IEntry | null = AutoMovieHumanMergeEntry.of(`blend.${m.chain.name}`, trunk.name, m.chain.name, join.join, COLUMNS, AutoMovieHumanTrunkViewPart.GAP, false, diagnostics);
-      if (entry === null) continue;
-      chains.push(entry.chain);
-      merges.push(entry.merge);
-    }
-    return out(trunk, host, chains, merges);
+    // Pass 2: the masses on the solved base, each a fold onto it whose seed
+    // is searched along the mass's lower station line (phase pi, the
+    // footprint's lower edge) from inside the base out to the apex.
+    const folds: AutoMovieHumanBodyTree.IFold[] = masses(input, host, diagnostics).map(
+      (m: IMass): AutoMovieHumanBodyTree.IFold => ({
+        part: m.view,
+        partFace: m.chain.name,
+        hostFace: AutoMovieHumanTrunkViewPart.NAME,
+        search: { phase: Math.PI, from: 0, to: 1 },
+        radius: m.law.fold,
+        cap: m.cap,
+      }),
+    );
+    return out(base.view, folds);
   }
 
   /** A built mass. */
@@ -211,14 +179,8 @@ export namespace AutoMovieHumanTrunkBuild {
     /** Its first and last station, mm. */
     stations: [number, number];
 
-    /** The station of its footprint at the base's surface, mm. */
-    footprintStation: number;
-
-    /** The fold's seed landmark: the footprint's lower edge on the base. */
-    fold: Vec3;
-
-    /** The base's chart guess at the landmark. */
-    hostGuess: [number, number];
+    /** Its view node. */
+    view: IAutoMovieConstructionView;
 
     /** The fold's width cap, mm. */
     cap: number;
@@ -273,26 +235,15 @@ export namespace AutoMovieHumanTrunkBuild {
         });
         diagnostics.push(...built.diagnostics);
         if (built.loft?.chain === null || built.loft?.chain === undefined || built.loft.surface === null || built.part === null) continue;
+            if (built.view === null) continue;
         const stations: number[] = built.part.stations;
-        const footprintStation: number = built.part.front.positive.knots.find((k: { site: string }): boolean => k.site === "footprint")!.station;
-
-        // The fold's landmark: the base under the footprint's lower edge.
-        const frame: AutoMovieLoftFrame.IFrame = built.part.axis.at(footprintStation);
-        const low: Vec3 = add(frame.origin as Vec3, scale(frame.u as Vec3, -own.footprint[2]));
-        const onBase: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(host, low, [foot.u, foot.v], TOLERANCE);
-        if (onBase === null) {
-          diagnostics.push({ producer: `mass.${name}`, level: 3, contract: "fold", detail: "no foot of the footprint's lower edge on the base" });
-          continue;
-        }
         out.push({
           kind,
           law: own,
           chain: built.loft.chain,
           surface: built.loft.surface,
+          view: built.view,
           stations: [stations[0]!, stations[stations.length - 1]!],
-          footprintStation,
-          fold: onBase.point as Vec3,
-          hostGuess: [onBase.u, onBase.v],
           cap: Math.min(Math.min(...own.footprint) / 2, clearance),
         });
       }
