@@ -40,8 +40,9 @@ export namespace AutoMovieHumanReferenceOutlines {
    * Sex assignment is inferred by matching the published widths and peaks.
    * `head/AutoMovieHumanHeadEyeParts` maps the chord and its residual to the
    * supplied endpoints and pupil-height constraint; this is upper margin only.
-   * That consumer samples the cubic into loft knots; their subsequent spline
-   * is a numerical approximation, not the unchanged analytic cubic.
+   * Its normalized source parameter is Bezier t: mapped values and first/
+   * second jets declare that same cubic, not a sparse natural-spline refit.
+   * Final loft interpolation and the separate AP/lower courses remain distinct.
    * Source and limitations: `docs/sources/shin-2025-upper-eyelid-contour.md`.
    */
   export const SHIN_UPPER_LID: Readonly<Record<"female" | "male", readonly [readonly [number, number], readonly [number, number], readonly [number, number], readonly [number, number]]>> = {

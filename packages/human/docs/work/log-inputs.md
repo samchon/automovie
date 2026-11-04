@@ -2,6 +2,18 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 exact upper-source consumer metadata (2026-11-05 04:50:02 +09:00, Get-Date)
+
+After HEAD confirmed 4691 ended/reaped and released metadata saves, directly read the current EyeParts, exact-upper-source-round log, independent Bernstein expectation and engine parameter/Hermite preparation. Both head questions passed, 56853 ms total; source 850 ms and records 766 ms. Two spans with nine samples each observed mapped-upper maxima 2.2792811e-13/4.5474735e-13 mm and findings were empty. The unchanged numerical bound is not an anatomical allowance or a whole-domain binary64 proof.
+
+The source now preserves original Bezier t through the normalized angle map and authored value/first/second jets; the former sampled natural-refit explanation is corrected in the shared record, source note and audit together. The real-arithmetic uniqueness proof, actual finite observations and separate final-loft/AP/lower/placement boundaries are stated. Native counts confirm 411 left plus 409 right producer diagnostics and 820 concavity messages in the preserved raw log, superseding the old 26-count snapshot. Four eye studies remain outside the skin tree; PNG/reference acceptance remains absent.
+
+Only owned metadata changed: ReferenceOutlines JSDoc and the three documents. All controls, numeric cells, types, functions and public APIs remain unchanged. SHIN's plot remains because HEAD still has not completed its direct source-front visual comparison. No new test, Evidence run, private reading, generation or fit was launched here.
+
+At 04:51:14 the full four-file diff, normalized-parameter wording and directly read observations were reviewed together; no additional discrepancy remained. Whitespace checks were clean. The code-file diff contains JSDoc only, and its 467 lines remain below the file limit. The old automated Evidence snapshot is not relabelled as a fresh run.
+
+The existing shared collectors read at 04:52:52 had completed test 04:52:08 and debug 04:51:46. No duplicate collector or new runtime test was started for these comment/document changes.
+
 ## #3062 current source-constraint handoff (2026-11-05 04:42:51 +09:00, Get-Date)
 
 Read all ten completion rows and both failures of BODY's completed 42291 log: 8/10 in 289141 ms. Remaining findings are bilateral sampled median crossings of 0.402802 mm and missing independent reference support at the chosen head/trunk planes. AR closure, sole and longest-toe length were not the failing findings. The actual frame/edge counterexamples, source LegWalk median rule and fixed-frame versus moving-frame distinctions were delivered together to BODY/CORE; no new test ran.
