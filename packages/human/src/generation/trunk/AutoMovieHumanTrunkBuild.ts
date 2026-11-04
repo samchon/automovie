@@ -28,9 +28,10 @@ const { add, scale } = AutoMovieSolidVector;
  *
  * Masses. Each side is the same construction from the left side's law
  * mirrored (J6): the target point and the up direction reflected in the
- * median plane, the footprint's and profile's lateral and medial edges
- * swapped, because the part's `v = n x u` turns from lateral on the left to
- * medial on the right. Each stands on the base at the foot of its target (the
+ * median plane, the footprint and profile kept in their up, lateral, down
+ * and medial naming, and the side's lateral direction (+Z on the left, -Z on
+ * the right) handed to the part, which reads off its own frame which chart
+ * side is lateral. Each stands on the base at the foot of its target (the
  * bust point, the buttock's most posterior point), along the base's normal
  * there.
  *
@@ -260,6 +261,7 @@ export namespace AutoMovieHumanTrunkBuild {
           host,
           centre: [foot.u, foot.v],
           up: own.up,
+          lateral: [0, 0, side === "left" ? 1 : -1],
           footprint: own.footprint,
           amplitude: own.amplitude,
           profile: own.profile,
@@ -299,21 +301,14 @@ export namespace AutoMovieHumanTrunkBuild {
 
   /**
    * A left law on the right side (J6): the target and up reflected in the
-   * median plane, the lateral and medial edges swapped.
+   * median plane; the edges keep their lateral and medial naming.
    *
    * @param law The left side's law.
    * @returns The right side's.
    */
   function mirror(law: IMassLaw): IMassLaw {
     const flip = (p: Vec3): Vec3 => [p[0], p[1], -p[2]];
-    const swap = (e: [number, number, number, number]): [number, number, number, number] => [e[0], e[3], e[2], e[1]];
-    return {
-      ...law,
-      target: flip(law.target),
-      up: flip(law.up),
-      footprint: swap(law.footprint),
-      profile: law.profile.map((p: IMassLaw["profile"][number]): IMassLaw["profile"][number] => ({ at: p.at, shares: swap(p.shares) })),
-    };
+    return { ...law, target: flip(law.target), up: flip(law.up) };
   }
 
   /**

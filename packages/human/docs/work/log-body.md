@@ -187,7 +187,7 @@ Still owed before the body law can be wired (each named as a parameter in the bi
 
 ### Interim accessors (remaining: each read from today's construction, no new number; swap each for its law when it lands)
 
-| Accessor (in `AutoMovieHumanBodyLaneInterim` unless named) | Reads today | Owed law |
+| Accessor (owner after the 17:41 split: `trunk/AutoMovieHumanTrunkInterim` places, upperSites, foldRadius; `trunk/AutoMovieHumanMassInterim` breast, gluteal; `leg/AutoMovieHumanLegInterim` ankleSite; `arm/AutoMovieHumanArmInterim` sites; `foot/AutoMovieHumanFootInterim` of; `limb/AutoMovieHumanDigitInterim` walk, toeCentres) | Reads today | Owed law |
 | --- | --- | --- |
 | `cervicaleForward` | the old trunk solve's neck seat back point | cervicale's forward place in the body frame (SVA, pelvis, hip centres) |
 | `perineumForward` | the old column's mid-depth at the crotch | the perineum on the median section by the crotch lengths (`crotchLength`, `posteriorCrotchLength`, landed as inputs) |
@@ -199,7 +199,7 @@ Still owed before the body law can be wired (each named as a parameter in the bi
 | `digitWalk` (every finger, thumb and toe) | today's digit chains' boxes about their own axes, their frames' `u` as dorsal, their poles | the digits' breadths and depths (partly landed: `AutoMovieHumanDigitJoints` breadth and girth at two joints), the pulp's reach |
 | joint centres of the limbs and digits | the bind skeleton (`AutoMovieHumanSkeletonLaw`, derived from today's trunk) | the skeleton from the new trunk's landmarks |
 | toe centres | today's toe chains' axes (base moved back half the first segment into the forefoot) | the toes' heads and lines (`AutoMovieHumanFootPrior` today) |
-| masses (breasts, gluteal masses) | none: `null`, the base flat | footprint and profile laws; the merges onto merged hosts now exist (`AutoMovieHumanSolidBody`, `7e81c0523`) |
+| masses (breasts, gluteal masses) | today's bust point, breast footprint, gluteal centre and footprint shares, dome bump (`AutoMovieHumanMassInterim`) | footprint and profile laws |
 | nails | none: dropped with today's digit chains | nail plates on the new digit chains |
 | the neck | today's `head` chain by the head's down event | the head modeler's neck part merged onto the trunk |
 
@@ -226,3 +226,17 @@ Remaining added: `IAutoMovieHumanBodyCalibration.legacy` (today's body for the r
 - The core worker's move of the lofting modules into `@automovie/engine` is mid-flight in the tree (my files included, uncommitted); my commits wait for its commit so they carry only my lines.
 
 - Lower thigh back on the leg (16:24:15, Get-Date; saved, commit waits for the migration): its tape `lowerThighCircumference` at the suprapatella's height (`AutoMovieHumanSuprapatella.height`, `7d562e5f9`: mid-patella plus half the patella's length, Kafa et al. 2024), its box the leg section estimate; the leg has five sites again.
+
+## Masses at head height and the interim split (written 17:54, Get-Date; viewer frame on 5197 at 17:46)
+
+Violation recorded: `AutoMovieHumanBodyLaneInterim.ts` reached 500 lines in `df4929bed` (rule: fewer than 500 lines, one export). Split by responsibility in the next commit: the composer stays (`of`, 174 lines); the accessors move to their owners, one namespace each with JSDoc (the table above names them); the segment chart, `lerp` and `distance` the arm and digit accessors share go to `limb/AutoMovieHumanSegmentChart`.
+
+Evidence, all gathered before the change: since 17:37 the f1 whole figure throws at the left nostril's opening ("margin on 3 chains: gluteal.left, head.middle, head.lower"); the frame `chains:trunk,gluteal.left,breast.left` (17:46) drew `gluteal.left` with 149 layers (about 520 mm at the 3.5 mm gap, against an amplitude of a few centimetres) on an axis tilted up through the body, `breast.left` with 42.
+
+| Phenomenon | Cause | Fix |
+| --- | --- | --- |
+| the masses run into their host, the gluteal ones up through the trunk to the face | `AutoMovieHumanMassPart` set `v = n x u`; the straight axis advances along `v x u = -n`, so every mass's stations ran inward from a start already inside | `v = u x n`, so stations run out along `n` (the mass test's pole over the plane already expected this) |
+| the gluteal mass's start sank hundreds of millimetres | the embed's sagitta `kappa e^2 / 2` grows without bound where a footprint edge reaches past the host's turn (the lower edge to the crotch, where the base closes on the perineum) | the circle of curvature's sagitta `R - sqrt(R^2 - e^2)`, an edge past `R` dropping `R` |
+| left gluteal's lateral and medial edges swapped (the right breast's too, after the mirror's swap) | `+v` turns side with the normal (forward on a breast, back on a gluteal mass), so no fixed swap per side is right | the part takes the caller's lateral direction and maps lateral and medial by its own frame; the trunk's mirror reflects target and up only |
+
+Remaining unchanged: the masses' laws are interim (`AutoMovieHumanMassInterim`).
