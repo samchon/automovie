@@ -42,7 +42,7 @@ export function test_construction_affine_support(): void {
         contains(failures, `negative scalar ${length}/${sign}`, negative, station, 2e-11 * length);
       }
       const clipped: number[] | string = AutoMovieViewOutline.supportStations(source, slope, 1, [station / 2, station * 0.75]);
-      const expectedCuts: number[] = [station / 2, ...source.knots.map((k): number => k.station).filter((s: number): boolean => s > station / 2 && s < station * 0.75), station * 0.75];
+      const expectedCuts: number[] = [station / 2, ...source.knots.map((k: AutoMovieViewOutline.IOutline["knots"][number]): number => k.station).filter((s: number): boolean => s > station / 2 && s < station * 0.75), station * 0.75];
       if (typeof clipped === "string" || clipped.length !== expectedCuts.length || !clipped.every(Number.isFinite) || clipped.some((s: number, i: number): boolean => s !== expectedCuts[i])) failures.push(`partial domain ${length}/${sign}: ${clipped}, expected ${expectedCuts}`);
     }
     if (JSON.stringify(source.knots) !== before) failures.push("support changed its prepared input");
@@ -57,9 +57,9 @@ export function test_construction_affine_support(): void {
   }
 
   const middle: number = Math.PI / 2;
-  const primitive = (x: number): number => -x + x ** 3 / 6 - x ** 5 / 120;
-  const first = (x: number): number => -1 + x * x / 2 - x ** 4 / 24;
-  const second = (x: number): number => x - x ** 3 / 6;
+  const primitive: (x: number) => number = (x: number): number => -x + x ** 3 / 6 - x ** 5 / 120;
+  const first: (x: number) => number = (x: number): number => -1 + x * x / 2 - x ** 4 / 24;
+  const second: (x: number) => number = (x: number): number => x - x ** 3 / 6;
   const quintic: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({ parameter: { type: "angle", bottom: 0, top: 2 }, knots: [-middle, middle].map((x: number, i: number): AutoMovieViewOutline.IOutline["knots"][number] => ({ site: `quintic ${i}`, station: 2 * i, value: primitive(x), jet: { first: Math.PI * first(x), second: Math.PI ** 2 * second(x) } })) });
   if ("detail" in quintic) failures.push(`quintic source: ${quintic.detail}`);
   else contains(failures, "sixth-multiplicity source critical", AutoMovieViewOutline.supportStations(quintic, 1), 1, 2e-9);

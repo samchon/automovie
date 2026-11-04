@@ -1,5 +1,11 @@
 # Kernel worker log
 
+## Explicit-type completion after affine delivery (2026-11-05 07:07:50 +09:00, Get-Date)
+
+Rechecked all five paths of 17bf82c30 against the declaration rules. The new local evaluation/recursion function variables, source destructuring, named-knot map parameters and independent polynomial function variables lacked explicit type annotations. One batch added those erased annotations only, without changing any expression, equation, parameter, source query, branch or test expectation. This is a source-rule correction after delivery, not another functional result. The verified 86844 37/42 result and its actual-BODY handoff remain the preceding semantic snapshot; no duplicate functional round was started for erased types.
+
+Test 07:04:10 and debug 07:06:03 completed clean after the 07:03:49 annotation save. The completed `affine-support-explicit-types-evidence-{engine,test}.log` inspections have zero unsupported/new affine-host diagnostics and zero Test errors; Engine has 147 remaining old omissions while the contract assistant's separate second documentation batch progresses. The reduced count is not an affine runtime improvement. The material topic 851b6291a8 and affine feature 17bf82c30 remain separate from this completion, the pending actual coupled breadth result and all disconnected conic/region candidates. Viewer HTTP and server operations remain zero.
+
 ## Affine support independent result and bounded handoff (2026-11-05 07:01:09 +09:00, Get-Date)
 
 The complete invocation 86844 finished and was reaped with exit 1: 37/42 in 125,350 ms, program start 06:54:42. New affine support passes in 11 ms; the disconnected source-conic test, including the original near-ellipse trunk and all twelve asymmetric auricle boxes at three scales, passes in 177 ms. Jet, section-chain and material direction pass in 101/912/21 ms. All five old assertion bodies are byte-identical to 99716, including their order and numbers; no construction failure is erased by this new source API. The earlier 26306 remains an assertion-free compiler failure.

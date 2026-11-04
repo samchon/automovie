@@ -34,7 +34,7 @@ export function rootsAutoMovieViewSinPolynomial(coefficients: readonly number[],
     amplitudes.push(amplitudes[order - 1]! * span);
     if (!Number.isFinite(amplitudes[order]!) || amplitudes[order] === 0) return "affine source trigonometric derivatives are not finitely representable";
   }
-  const value = (order: number, t: number): number => {
+  const value: (order: number, t: number) => number = (order: number, t: number): number => {
     let result: number = 0;
     const row: readonly number[] = rows[order]!;
     for (let i: number = row.length - 1; i >= 0; i--) result = result * t + row[i]!;
@@ -42,7 +42,7 @@ export function rootsAutoMovieViewSinPolynomial(coefficients: readonly number[],
     const wave: number = order % 2 === 0 ? Math.sin(angle) : Math.cos(angle);
     return result + (order % 4 < 2 ? 1 : -1) * amplitudes[order]! * wave;
   };
-  const roots = (order: number): number[] => {
+  const roots: (order: number) => number[] = (order: number): number[] => {
     if (order === polynomial.length) {
       const angle: number = order % 2 === 0 ? 0 : Math.PI / 2;
       const root: number = (angle - offset) / span;

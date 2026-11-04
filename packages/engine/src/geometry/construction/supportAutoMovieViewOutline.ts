@@ -23,8 +23,8 @@ import { rootsAutoMovieViewSinPolynomial } from "./rootsAutoMovieViewSinPolynomi
  */
 export function supportAutoMovieViewOutline(outline: AutoMovieViewOutline.IOutline, slope: number, valueScale: number, domain: readonly [number, number]): number[] | string {
   if (!Number.isFinite(slope) || !Number.isFinite(valueScale) || domain.length !== 2 || !domain.every(Number.isFinite) || !(domain[0] < domain[1]) || domain[0] < outline.domain[0] || domain[1] > outline.domain[1]) return "affine source support needs finite coefficients and an increasing closed domain within its source knots";
-  const { xs, ys, curvatures } = outline.spline;
-  const result: number[] = [domain[0], ...outline.knots.map((k): number => k.station).filter((s: number): boolean => s > domain[0] && s < domain[1]), domain[1]];
+  const { xs, ys, curvatures }: AutoMovieViewOutline.IOutline["spline"] = outline.spline;
+  const result: number[] = [domain[0], ...outline.knots.map((k: AutoMovieViewOutline.IOutline["knots"][number]): number => k.station).filter((s: number): boolean => s > domain[0] && s < domain[1]), domain[1]];
   const start: number = AutoMovieViewParameter.at(outline.parameter, domain[0]);
   const end: number = AutoMovieViewParameter.at(outline.parameter, domain[1]);
   for (let i: number = 0; i + 1 < xs.length; i++) {
