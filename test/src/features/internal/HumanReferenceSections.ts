@@ -45,6 +45,9 @@ export namespace HumanReferenceSections {
     /** The top of the legs. */
     crotchMm: number;
 
+    /** The top of the arms. */
+    armpitMm: number;
+
     /** The narrowest single leg loop above the foot, left. */
     ankle_lMm: number;
 
