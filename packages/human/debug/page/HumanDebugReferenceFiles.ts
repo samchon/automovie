@@ -54,7 +54,7 @@ export async function HumanDebugReferenceFiles(id: string, step: number): Promis
     REGIONS.map(async (name: string): Promise<IHumanDebugReferencePack.IRegion> => {
       const files: string[] = Object.keys(FILES)
         .filter((file: string): boolean => file.includes(`/curves/${id}/sections/${name}/`))
-        .sort();
+        .sort((a: string, b: string): number => a.localeCompare(b));
       const sections: IHumanDebugReferencePack.ISection[] = [];
       for (const file of files) {
         const document: { sections: { coordinateMm: number; curves: { kind: string; quality?: { status: string }; curve: ICurve }[] }[] } = await (

@@ -29,6 +29,8 @@ export function HumanDebugViewTap<T>(run: () => T): { value: T; records: HumanDe
     target.create = original;
   }
 }
+
+/** The records {@link HumanDebugViewTap} keeps. */
 export namespace HumanDebugViewTap {
   /** One lofted part. */
   export interface IRecord {
