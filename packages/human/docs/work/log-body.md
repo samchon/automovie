@@ -9,6 +9,12 @@ The body modeler's own log in the three-view campaign (#3044; body lane #3047 to
 - the page's part list for a whole figure (`parts` 705 at 20:40);
 - whether the trunk's head-down event (gone since `e7f7ef0dd`) or the rings left the mesh empty before the solids were drawn.
 
+## Empty skin, 21:22 (Get-Date)
+
+`test_human_limb_piece_skin_pieces` (f1, 21:18 to 21:21): the body surface generates 27 pieces and 663,790 triangles. Every piece has triangles, and every vertex is finite, within [-101.4, -4.5, -548.9] to [287.3, 1437.3, 548.9] mm. So the generated skin is whole and finite, and the empty frames come after generation: in the rig, the instance, or the viewer's subject.
+- The skin's top at 1437 mm is below f1's vertex. The head's faces did not reach this surface, although the head lane is joined into the body's tree since `e7f7ef0dd`; read why.
+- Next: the viewer's subject for the whole figure. It may hide the `<chain>/solid` pieces, choke on one piece's vertex count (the realized body's chord), or skin them to NaN through the legacy binding.
+
 ## Plan: delete the old body and `calibration.legacy` (owner's order 21:2x; written 21:25, Get-Date)
 
 One commit, the figure loading before and after:
