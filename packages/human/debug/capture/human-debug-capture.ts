@@ -30,8 +30,9 @@ import { parseHumanDebugCaptureArguments } from "./parseHumanDebugCaptureArgumen
  * its URL, its bytes' SHA-256 and the route's headers (source hash, capture time). A shot that
  * fails keeps no PNG and adds one line with its cause to `<person>-FAILED.txt`, named by the
  * shot's `person` variable, and the run goes on to the next shot and ends with exit code 1. While
- * the route answers 503 (a save landed while the frame's page loaded its modules) the shot is
- * asked again after the answer's `retry-after`, for up to {@link GATE_WAIT}. Requests use
+ * the route answers 503, the shot is asked again after the answer's `retry-after`, for up to
+ * {@link GATE_WAIT}. That status alone does not establish why the server could not serve it.
+ * Requests use
  * `node:http` without a timeout, because one person's generation takes minutes, longer than
  * `fetch`'s header timeout. The program draws nothing itself: the server's resident page draws
  * every frame.
@@ -117,9 +118,9 @@ async function capture(url: string, file: string): Promise<IReceiptRow> {
 }
 
 /**
- * GET a frame, waiting while the route answers 503: a save landed while the
- * frame's page loaded its modules, so the frame is asked again after the
- * answer's `retry-after` (10 s when absent) until {@link GATE_WAIT} has passed.
+ * GET a frame, waiting while the route answers 503. Ask again after its
+ * `retry-after` (10 s when absent) until {@link GATE_WAIT} has passed; this
+ * caller does not classify the server's source, module or shutdown cause.
  *
  * @param url The frame's address.
  * @returns The first answer that is not a 503, or the last one.

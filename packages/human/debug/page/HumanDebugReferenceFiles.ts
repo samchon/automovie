@@ -91,13 +91,10 @@ export async function HumanDebugReferenceFiles(id: string, step: number): Promis
 /**
  * Span starts and midpoints, plus an open curve's last endpoint, as flat `x, z` pairs rounded to 0.1 mm.
  *
- * @evidence contracts/common.md#principled-implementation Uses the Hermite midpoint identity with each span's declared phase width; a closed path wraps to its first point, while an open one needs the last recorded end explicitly.
- * @evidence contracts/common.md#clear-and-simple-design One sampler serves both closure kinds without changing their source coordinates or fitting between curves.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains the existing display rounding and missing-width convention of zero; adds no closure edge or source-specific correction.
- * @evidence contracts/common.md#meaningful-documentation States flat coordinate order, mm rounding and endpoint ownership.
- * @evidence contracts/performance.md#efficient-algorithms One O(H) pass emits two sampled points per Hermite span and one extra endpoint for an open path.
- * @evidence contracts/performance.md#reuse-equivalent-work Reads each span's supplied values directly; no generated Human or second interpolation solve is used.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one O(H) array and retains no source span or scratch state after the call.
+ * Uses the Hermite midpoint identity with each span's declared phase width, or zero when absent.
+ * A closed path wraps to its first point; an open path retains its last recorded endpoint without
+ * adding a closure edge. Source coordinates are sampled directly without fitting between curves.
+ * One O(H) pass returns two points per span and one extra open endpoint; no source span is retained.
  */
 function sample(curve: ICurve, closed: boolean): number[] {
   const out: number[] = [];
