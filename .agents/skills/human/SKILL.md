@@ -1,11 +1,11 @@
 ---
 name: human
-description: Generates every Human person from one reusable construction from anatomical centres, frames and dimensions, judged in the viewer against the reference overlay and confirmed by tests that cross-check the generated skin against anatomy and its inputs. Use with 3d-modeling for Human geometry, the Human viewer or its renders.
+description: Generates every Human person as one construction tree of parts lofted from their front, side and top view curves and realized by the engine, judged in the viewer against the reference overlay and confirmed by tests that cross-check the generated skin against anatomy and its inputs. Use with 3d-modeling for Human geometry, the Human viewer or its renders.
 ---
 
 # Human
 
-Generate every supported person from parameters by one reusable construction. Find the major anatomical centres, draw lofting curves from them, and construct each following layer up to the next centre by any anatomically and scientifically sound equation, recurrence or recursion.
+Generate every supported person from parameters by one reusable construction. Find the major anatomical centres and axes, and draw each part's front, side and top view curves from them by anatomically and scientifically sound equations, recurrences or recursions. Then compose the parts into one [construction tree](construction.md#tree), which the engine realizes into the skin.
 
 The tasks and their order live in the issue tracker. An explicit stop overrides every instruction here.
 
@@ -34,7 +34,7 @@ Finish the anatomical neutral and the bind before any other pose: every motion s
 
 ## Files
 
-- [Construction](construction.md): what a construction contains and how it consumes inputs.
+- [Construction](construction.md): the construction tree, its parts and how they consume inputs.
 - [Testing](testing.md): which tests to write, how to write and run them.
 - [Verification](verification.md): the reference overlay, the inspection round and the render audit.
 - [Screenshot](screenshot.md): the viewer, its routes and the reference sources.

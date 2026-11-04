@@ -8,7 +8,7 @@ Test the geometry as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) 
 
 | Level | Reads | Expectation from |
 | --- | --- | --- |
-| Operator | each shared operator alone (lofting a part from its views, solid merge, solid diff, trims, the merged body) on made inputs, with no person generated | analytic oracles: closed forms, interpolation remainders and the operator's published contract |
+| Operator | each shared operator alone (lofting a part from its views, solid merge, solid diff, trims, the merged body, the realization of a whole construction tree) on made inputs, with no person generated | analytic oracles: closed forms, interpolation remainders and the operator's published contract |
 | Audit | every section, declared seam and blend, chain surface and public input of every person, by one data-driven engine per class | geometry and the person's own inputs (below) |
 | Anatomy | one table of relations the construction does not guarantee by itself, read on the finished curves, each row naming its source | published anatomy and population ranges |
 | Pose and subsystems | the posed skin under the rig's binding, and each subsystem's declared behaviour | skin's failure strain, published joint ranges, the subsystem's declared error |
