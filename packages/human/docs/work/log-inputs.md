@@ -112,3 +112,18 @@ The outline tables wait in `AutoMovieHumanReferenceOutlines` (empty rows; `at(ta
 - Left open as too spread: the orbit's brow and cheek lead (0.023, SD 0.133; -0.034, SD 0.150), the nostrils (0.120, SD 0.106; 0.145, SD 0.136), the digits (the chains hold on one person's hands only; depth over breadth about 0.5, SD 0.2), and the fold radii (gluteal SD above the mean; axilla 0.2 mm, which is not a radius; groin 0.26 of stature, SD 0.09, of unclear meaning).
 - 18:12:35 to 18:14:48: the rerun of the lid and nasion readings stopped at compile. The errors were in the engine's `AutoMovieConstructionRing.ts` and `AutoMovieConstructionState.ts`, which are not my files.
 - Rerun 18:36:39 to 18:41:26 (`Get-Date`): the lid, nasion and sites readings passed 3 of 3. The rerun first stopped twice on other agents' edits: a parse error in `AutoMovieHumanMassPart.ts` at 18:22:58, and the `lofting` folder deleted during discovery at 18:29:45. FISSURE is filled. Its forward column is kept at every station (SD 0.012 to 0.034). Upper and lower are kept only near the canthi, because the middle of the fissure reads both lids on some eyes (SD 0.27 to 0.48). `AutoMovieHumanFootPlaces.TOES` now uses each toe's foremost point: tips 0.968, 0.978, 0.935, 0.873 and 0.788 of the foot length (SD 0.013 to 0.021). The nasion's depth behind the glabella reads -0.0027 (SD 0.0407) face heights: no depth, with a spread fifteen times the mean. That law stays open. The glabella's rise reads 0.151 (SD 0.045), above the published law's 0.08 to 0.11, and the published law stays.
+
+### Open items handed to issue #3062 (written 18:52, `date`)
+
+At the supervisor's order, this campaign's input work ends here. These items move to the next campaign, issue #3062:
+
+- #3045's acceptance: the universality check over the new trunk inputs has not run, so #3045 stays open.
+- The nasion's depth behind the glabella: the reference reading gives no depth (-0.0027 face heights, SD 0.0407), and no published source has been found.
+- The orbit's brow and cheek lead ahead of the lids, and the nostrils' breadth and depth: the reference spread is as large as the mean or larger.
+- The digits' depth over breadth and their bend: the reference chains are usable on one person's hands only; Greiner's digit depths are behind DTIC, which this machine cannot reach.
+- The fold radii (groin, gluteal, ankle, axilla): the readings do not give a usable radius. The lead is a fat layer by body site from the fat percentage; the Störchle 2017 atlas has not been read.
+- Width-to-depth at the limb tape sites other than the thigh and shank, the soft tissue over bony landmarks, the forearm's bone place, and cervicale's forward place against a published source: still unpublished or unreachable, with the leads above (PMC3991691 for cervicale).
+- The FISSURE margins between 0.3 and 0.7 of the fissure: the reading picks up both lids on some eyes, so these heights were left out. A rule that separates the upper lid from the lower lid would fill them.
+- Every table and law labelled as estimated from the private reference set: each stays open until a published source replaces it.
+
+The nail plate size, listed as open at 16:23, landed later as `AutoMovieHumanNailPlate`.
