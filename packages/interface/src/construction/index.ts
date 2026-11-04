@@ -14,6 +14,7 @@ export * from "./IAutoMovieConstructionAxisKnot";
 export * from "./IAutoMovieConstructionChord";
 export * from "./IAutoMovieConstructionChordTable";
 export * from "./IAutoMovieConstructionContinuation";
+export * from "./IAutoMovieConstructionCurvatureWidth";
 export * from "./IAutoMovieConstructionCurvedAxis";
 export * from "./IAutoMovieConstructionDiagnostic";
 export * from "./IAutoMovieConstructionFoldWidth";
