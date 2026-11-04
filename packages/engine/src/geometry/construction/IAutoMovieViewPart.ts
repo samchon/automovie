@@ -1,3 +1,5 @@
+import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+
 import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
 
 /**
@@ -92,13 +94,22 @@ export namespace IAutoMovieViewPart {
   }
 
   /**
-   * A curve in station through named knots: the natural cubic spline, C2,
-   * of least bending through them, at least two knots by strictly increasing
-   * station.
+   * A natural source cubic through at least two named knots in increasing station, C2 in its selected parameter. Radial closure selects its pole parameter by default; a nonclosing world-coordinate parameter imposes no zero scalar value.
+   *
+   * @evidence contracts/common.md#principled-implementation A natural cubic interpolates named values in the declared source coordinate; parameter and radial closure have separate owners.
+   * @evidence contracts/common.md#clear-and-simple-design A knot list and optional source parameter serve the same scalar evaluator for outlines and origins.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A world parameter endpoint does not invent a radial zero or station-finite derivative.
+   * @evidence contracts/common.md#meaningful-documentation States source parameter, kernel endpoint units and closure separation.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Source data has no runtime algorithm; ViewOutline prepares it.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Source data coordinates no requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The producer owns its source knots; the evaluator copies them.
    */
   export interface IOutline {
     /** Knots by strictly increasing station. */
     knots: IKnot[];
+
+    /** Optional source parameter, with endpoint station lengths in kernel millimetres; choosing it does not impose a zero scalar value. */
+    parameter?: AutoMovieConstructionOutlineParameter;
   }
 
   /**

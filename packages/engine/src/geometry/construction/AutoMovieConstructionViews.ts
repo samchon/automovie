@@ -10,6 +10,8 @@ import type {
 
 import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieViewAxis } from "./AutoMovieViewAxis";
+import { AutoMovieViewParallelAxis } from "./AutoMovieViewParallelAxis";
+import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
@@ -56,6 +58,14 @@ export namespace AutoMovieConstructionViews {
    *
    * @param axis The axis, metres.
    * @returns The axis in millimetres, or the admission rule it broke.
+   *
+   * @evidence contracts/common.md#principled-implementation Dispatches the declared axis kind to its own frame owner, scaling origin lengths and station parameters once while leaving direction vectors unchanged.
+   * @evidence contracts/common.md#clear-and-simple-design One closed-union switch preserves each source plane meaning; parallel planes use their original coordinate curves instead of tangent transport.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no inferred axis kind or sampled replacement frame and retains builder admission failures.
+   * @evidence contracts/common.md#meaningful-documentation States metre input, millimetre output, unscaled directions and explicit builder failures.
+   * @evidence contracts/performance.md#efficient-algorithms Copies each declared knot once before the chosen builder's preparation; it performs no source sampling or mesh realization.
+   * @evidence contracts/performance.md#reuse-equivalent-work Returns one prepared frame function for all stations of the converted view.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Converted data belongs to the returned axis builder; the dispatch retains no global state.
    */
   export function frame(axis: AutoMovieConstructionAxis): AutoMovieViewAxis.IAxis | string {
     switch (axis.type) {
@@ -77,6 +87,8 @@ export namespace AutoMovieConstructionViews {
           axis.halves.map((h: number): number => h * SCALE),
           vector(axis.up),
         );
+      case "parallel":
+        return AutoMovieViewParallelAxis.from(axis);
     }
   }
 
@@ -112,14 +124,22 @@ export namespace AutoMovieConstructionViews {
     return [p.x, p.y, p.z];
   }
 
-  /** An outline of lengths in millimetres. */
+  /**
+   * An original length-valued outline in millimetres, with its source parameter preserved.
+   *
+   * Converts source station, scalar and parameter-endpoint lengths together by the metre-to-millimetre factor through the shared outline owner. Named knots and parameter identity survive without sampling. One linear knot copy and constant parameter conversion produce caller-owned data; the helper retains nothing and coordinates no effectful work.
+   */
   function length(outline: IAutoMovieConstructionOutline): IAutoMovieViewPart.IOutline {
-    return { knots: outline.knots.map((k) => ({ site: k.site, station: k.station * SCALE, value: k.value * SCALE })) };
+    return AutoMovieViewOutline.scale(outline, SCALE, SCALE);
   }
 
-  /** An outline of shares, its stations in millimetres. */
+  /**
+   * An original dimensionless outline, with only station and parameter-endpoint lengths converted to millimetres.
+   *
+   * Converts station and source-parameter endpoints once through the same owner as length outlines, preserving dimensionless values with a unit scalar factor. It neither scales a fullness share nor infers a parameter from sections. One linear knot copy and constant parameter conversion produce caller-owned data, with no retained state or effectful work to coordinate.
+   */
   function share(outline: IAutoMovieConstructionOutline): IAutoMovieViewPart.IOutline {
-    return { knots: outline.knots.map((k) => ({ site: k.site, station: k.station * SCALE, value: k.value })) };
+    return AutoMovieViewOutline.scale(outline, SCALE, 1);
   }
 
   /** A scalar course of lengths in millimetres. */

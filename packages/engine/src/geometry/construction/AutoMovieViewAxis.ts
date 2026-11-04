@@ -264,13 +264,7 @@ export namespace AutoMovieViewAxis {
   /**
    * The course through the centres, or the broken admission rule.
    *
-   * @evidence contracts/common.md#principled-implementation Integrates the unit tangent of each nonzero quintic-angle turn to obtain its bisector setback and arclength placement; an exact zero-angle joint contributes no turn or setback.
-   * @evidence contracts/common.md#clear-and-simple-design One course preparation serves jointed frame evaluation and public straight runs.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Finite centres, separations and nonnegative halves are required; nonzero angles require positive half length and overrun is refused rather than shortened.
-   * @evidence contracts/common.md#meaningful-documentation States explicit failure, arclength ownership and zero-turn treatment beside the calculations.
-   * @evidence contracts/performance.md#efficient-algorithms Linear passes in centre count and fixed quadrature per nonzero turn; exact straight joints need no quadrature.
-   * @evidence contracts/performance.md#reuse-equivalent-work Computes each complete turn setback once for the returned course's consumers.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Owns O(n) directions, lengths and turns; failure releases the local arrays and success transfers them to the caller.
+   * Integrates each nonzero quintic-angle unit tangent to its bisector setback and arclength placement; an exact zero joint contributes no turn or setback. This one preparation serves jointed frames and straight runs. Finite centres/separations and nonnegative halves are required, nonzero turns require positive halves, and an overrun is refused rather than shortened. Linear centre passes and fixed nonzero-turn quadrature compute each setback once; straight joints need no quadrature. The O(n) local arrays are released on failure or transferred to the successful caller. Public jointed/runs own the checklist answers for this private preparation.
    */
   function course(centres: readonly Vec3[], halves: readonly number[]): ICourse | string {
     const m: number = centres.length;

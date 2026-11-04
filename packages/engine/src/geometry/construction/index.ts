@@ -45,6 +45,8 @@ export * from "./AutoMovieViewAxis";
 export * from "./AutoMovieViewCurves";
 export * from "./AutoMovieViewLoft";
 export * from "./AutoMovieViewOutline";
+export * from "./AutoMovieViewParallelAxis";
+export * from "./AutoMovieViewParameter";
 export * from "./AutoMovieViewSection";
 export * from "./IAutoMovieLoftChain";
 export * from "./IAutoMovieLoftRelief";

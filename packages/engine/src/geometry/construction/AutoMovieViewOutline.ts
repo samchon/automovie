@@ -1,11 +1,14 @@
+import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
+import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
- * The source outline shared by view lofting and inspection: a natural cubic in station, or in the root-distance parameter at one closing pole and the corresponding angle at two poles.
+ * The scalar source shared by lofting, origin placement and inspection: a natural cubic in station or an explicitly selected root-distance/angle parameter. A closing part supplies its pole parameter by default and separately requires zero radial knots.
  *
- * This is the input curve, before section admission and coefficient interpolation. A natural cubic can overshoot its knot values; neither a half-space bound nor equality with the final loft between layers is asserted. An endpoint position is finite at a pole, while its station derivatives can diverge. The parameter derivatives remain available there and the station jet is explicitly absent.
+ * This is the input curve, before section admission and coefficient interpolation. A natural cubic can overshoot its knot values; neither a half-space bound nor equality with the final loft between layers is asserted. A source parameter endpoint may have a nonzero finite value while its station derivatives diverge. Parameter derivatives remain available there; zero scalar values belong only to actual part closure.
  *
  * @evidence contracts/common.md#principled-implementation Uses the existing natural spline and the published pole parameter, with analytic chain-rule derivatives; the two-pole parameter is 2 asin(sqrt((s-bottom)/(top-bottom))).
  * @evidence contracts/common.md#clear-and-simple-design One admission function and one reading function serve both construction and source-curve inspection.
@@ -56,6 +59,9 @@ export namespace AutoMovieViewOutline {
     /** Closing stations, copied at admission. */
     ends: Readonly<IEnds>;
 
+    /** Admitted scalar interpolation parameter; its endpoints need not have zero values unless ends separately closes the part. */
+    parameter: AutoMovieConstructionOutlineParameter | undefined;
+
     /** Natural spline in the admitted parameter. */
     spline: AutoMovieNaturalSpline.ISpline;
   }
@@ -73,7 +79,7 @@ export namespace AutoMovieViewOutline {
    */
   export interface IFailure {
     /** Existing construction diagnostic contract. */
-    contract: "outline" | "pole knot";
+    contract: "outline" | "pole knot" | "pole parameter";
 
     /** The original premise and its input numbers. */
     detail: string;
@@ -94,7 +100,7 @@ export namespace AutoMovieViewOutline {
     /** Requested station, millimetres. */
     station: number;
 
-    /** Station itself for an open curve, otherwise the pole parameter. */
+    /** Station itself by default, otherwise the selected root/angle parameter. */
     parameter: number;
 
     /** Source scalar, with the outline's own units. */
@@ -103,14 +109,14 @@ export namespace AutoMovieViewOutline {
     /** First and second derivatives in the spline parameter, including at a pole. */
     parameterJet: readonly [number, number];
 
-    /** First and second derivatives in station, absent at a singular pole or when their magnitude cannot be represented finitely. */
+    /** First and second derivatives in station, absent at a singular parameter endpoint or when their magnitude cannot be represented finitely. */
     stationJet: readonly [number, number] | null;
 
     /** Why the station jet is present or absent; a finite source point is not discarded for an unrepresentable derivative. */
-    stationJetStatus: "regular" | "singular-pole" | "nonfinite";
+    stationJetStatus: "regular" | "singular-pole" | "singular-parameter" | "nonfinite";
 
-    /** Whether the reading is inside the knot span, its endpoint, a parameter-tangent extension past an open end, or a closing pole. */
-    location: "interior" | "endpoint" | "extension" | "pole";
+    /** Knot-span location, parameter-tangent extension, radial closing pole, or a nonclosing singular parameter endpoint. */
+    location: "interior" | "endpoint" | "extension" | "pole" | "parameter-endpoint";
   }
 
   /**
@@ -138,7 +144,14 @@ export namespace AutoMovieViewOutline {
         return { contract: "pole knot", detail: `its ${end} knot ${knot.site}@${knot.station}=${knot.value} is not 0 at the finite pole station ${tip}` };
     }
     if (ends.bottom !== undefined && ends.top !== undefined && !(ends.top > ends.bottom)) return { contract: "pole knot", detail: "the top pole does not stand above the bottom pole" };
-    const parameters: number[] = xs.map((s: number): number => parameter(ends, s));
+    const inferred: AutoMovieConstructionOutlineParameter | undefined = ends.bottom !== undefined && ends.top !== undefined ? { type: "angle", bottom: ends.bottom, top: ends.top } : ends.bottom !== undefined ? { type: "root", end: "bottom", pole: ends.bottom } : ends.top !== undefined ? { type: "root", end: "top", pole: ends.top } : undefined;
+    const chosen: AutoMovieConstructionOutlineParameter | undefined | string = AutoMovieViewParameter.prepare(outline.parameter ?? inferred);
+    if (typeof chosen === "string") return { contract: "outline", detail: chosen };
+    if (inferred !== undefined && outline.parameter !== undefined) {
+      const same: boolean = inferred.type === "angle" ? chosen?.type === "angle" && chosen.bottom === inferred.bottom && chosen.top === inferred.top : chosen?.type === "root" && chosen.end === inferred.end && chosen.pole === inferred.pole;
+      if (!same) return { contract: "pole parameter", detail: "the explicit source parameter does not match the closing part's pole parameter" };
+    }
+    const parameters: number[] = xs.map((s: number): number => AutoMovieViewParameter.at(chosen, s));
     if (!parameters.every((s: number, i: number): boolean => Number.isFinite(s) && (i === 0 || (s > parameters[i - 1]! && Number.isFinite(s - parameters[i - 1]!))))) return { contract: "outline", detail: "source parameters do not increase by finite intervals through the source knots" };
     const spline: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(parameters, knots.map((k: IAutoMovieViewPart.IKnot): number => k.value));
     if (!spline.curvatures.every(Number.isFinite)) return { contract: "outline", detail: "the source spline has a nonfinite parameter curvature" };
@@ -149,7 +162,7 @@ export namespace AutoMovieViewOutline {
       if (![h * (m1 - m0) / 2, h * m0, (knots[i + 1]!.value - knots[i]!.value) / h - h * (2 * m0 + m1) / 6].every(Number.isFinite))
         return { contract: "outline", detail: `source interval ${i} has unrepresentable cubic derivative coefficients` };
     }
-    return { knots, domain: [xs[0]!, xs[xs.length - 1]!], ends: { ...ends }, spline };
+    return { knots, domain: [xs[0]!, xs[xs.length - 1]!], ends: { ...ends }, parameter: chosen, spline };
   }
 
   /**
@@ -184,8 +197,7 @@ export namespace AutoMovieViewOutline {
       }
       for (const root of roots) if (root > 0 && root < 1) {
         const x: number = xs[i]! + root * h;
-        const { bottom, top } = outline.ends;
-        const s: number = bottom !== undefined && top !== undefined ? bottom + (top - bottom) * Math.sin(x / 2) ** 2 : bottom !== undefined ? bottom + x * x : top !== undefined ? top - x * x : x;
+        const s: number = AutoMovieViewParameter.station(outline.parameter, x);
         if (Number.isFinite(s)) stations.push(s);
       }
     }
@@ -204,8 +216,8 @@ export namespace AutoMovieViewOutline {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing and returns a scalar or failure string.
    */
   export function value(outline: IOutline, station: number): number | string {
-    const x: number = parameter(outline.ends, station);
-    if (!Number.isFinite(x)) return `station ${station} is not finite inside the closing domain`;
+    const x: number = AutoMovieViewParameter.at(outline.parameter, station);
+    if (!Number.isFinite(x)) return `station ${station} is not finite inside the source parameter domain`;
     const y: number = valueAt(outline, station, x);
     return Number.isFinite(y) ? y : `station ${station} has a nonfinite source value`;
   }
@@ -223,66 +235,46 @@ export namespace AutoMovieViewOutline {
    */
   export function at(outline: IOutline, station: number): IReading | string {
     const { bottom, top } = outline.ends;
-    const x: number = parameter(outline.ends, station);
-    if (!Number.isFinite(x)) return `station ${station} is not finite inside the closing domain`;
+    const x: number = AutoMovieViewParameter.at(outline.parameter, station);
+    if (!Number.isFinite(x)) return `station ${station} is not finite inside the source parameter domain`;
     const pole: boolean = station === bottom || station === top;
     const value: number = valueAt(outline, station, x);
     const jet: [number, number] = AutoMovieNaturalSpline.derivative(outline.spline, x);
     if (!Number.isFinite(value) || !jet.every(Number.isFinite)) return `station ${station} has a nonfinite source value or parameter jet`;
+    const change: [number, number] | null = AutoMovieViewParameter.jet(outline.parameter, station);
     let stationJet: [number, number] | null = null;
-    let stationJetStatus: IReading["stationJetStatus"] = "singular-pole";
-    if (!pole) {
-      let first: number = 1;
-      let second: number = 0;
-      if (bottom !== undefined && top !== undefined) {
-        const product: number = (station - bottom) * (top - station);
-        first = 1 / Math.sqrt(product);
-        second = (2 * station - bottom - top) / (2 * product ** 1.5);
-      } else if (bottom !== undefined || top !== undefined) {
-        const distance: number = bottom !== undefined ? station - bottom : top! - station;
-        first = 1 / (2 * Math.sqrt(distance));
-        second = (bottom !== undefined ? -1 : 1) / (4 * distance ** 1.5);
-      }
-      stationJet = [jet[0] * first, jet[1] * first * first + jet[0] * second];
+    let stationJetStatus: IReading["stationJetStatus"] = pole ? "singular-pole" : "singular-parameter";
+    if (change !== null && !pole) {
+      stationJet = [jet[0] * change[0], jet[1] * change[0] * change[0] + jet[0] * change[1]];
       stationJetStatus = stationJet.every(Number.isFinite) ? "regular" : "nonfinite";
       if (stationJetStatus === "nonfinite") stationJet = null;
     }
     const [lo, hi] = outline.domain;
-    return { station, parameter: x, value, parameterJet: jet, stationJet, stationJetStatus, location: pole ? "pole" : station < lo || station > hi ? "extension" : station === lo || station === hi ? "endpoint" : "interior" };
+    return { station, parameter: x, value, parameterJet: jet, stationJet, stationJetStatus, location: pole ? "pole" : change === null ? "parameter-endpoint" : station < lo || station > hi ? "extension" : station === lo || station === hi ? "endpoint" : "interior" };
   }
 
   /**
-   * The pole change of parameter, with a finite-domain check and symmetric end evaluation.
+   * Convert source units without changing the interpolation coordinate or scalar meaning.
    *
-   * @evidence contracts/common.md#principled-implementation The two-pole angle is acos(1-2q), evaluated by its equivalent root/asin expression from the nearer endpoint to avoid cancellation near either pole; single poles use their signed square root.
-   * @evidence contracts/common.md#clear-and-simple-design One parameter owner is shared by admission, value and jet readings.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects readings beyond a closing endpoint rather than clamping them; the equivalent formula is not claimed bit-identical to acos.
-   * @evidence contracts/common.md#meaningful-documentation States the numerical reason for the equivalent expression and its finite-domain premise.
-   * @evidence contracts/performance.md#efficient-algorithms Constant arithmetic and one square root/asin for two poles.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure scalar transformation has no coordinated work to cache.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Holds no state or resources.
+   * @evidence contracts/common.md#principled-implementation Scales knot stations and parameter endpoints together, and scalar values by their own factor, preserving normalized root/angle locations under a positive station unit change.
+   * @evidence contracts/common.md#clear-and-simple-design One conversion owner serves tree-to-kernel and kernel-to-tree source records.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves site identities and the declared parameter; no station sampling or implicit radial zero is introduced.
+   * @evidence contracts/common.md#meaningful-documentation States independent station/value scales and finite-factor premise.
+   * @evidence contracts/performance.md#efficient-algorithms O(n) knot copying and constant parameter conversion.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Converts one record once, with no effectful work to share.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fresh source knots and a copied parameter; no input object is retained.
    */
-  function parameter(ends: Readonly<IEnds>, s: number): number {
-    if (!Number.isFinite(s) || (ends.bottom !== undefined && s < ends.bottom) || (ends.top !== undefined && s > ends.top)) return NaN;
-    if (ends.bottom !== undefined && ends.top !== undefined) {
-      const span: number = ends.top - ends.bottom;
-      return s - ends.bottom <= ends.top - s ? 2 * Math.asin(Math.sqrt((s - ends.bottom) / span)) : Math.PI - 2 * Math.asin(Math.sqrt((ends.top - s) / span));
-    }
-    if (ends.bottom !== undefined) return Math.sqrt(s - ends.bottom);
-    if (ends.top !== undefined) return -Math.sqrt(ends.top - s);
-    return s;
+  export function scale(outline: IAutoMovieViewPart.IOutline, stationScale: number, valueScale: number): IAutoMovieViewPart.IOutline {
+    if (!(Number.isFinite(stationScale) && stationScale > 0 && Number.isFinite(valueScale))) throw new Error("outline unit conversion needs finite factors and a positive station scale");
+    const p: AutoMovieConstructionOutlineParameter | undefined = outline.parameter;
+    const converted: AutoMovieConstructionOutlineParameter | undefined = p === undefined ? undefined : p.type === "root" ? { ...p, pole: p.pole * stationScale } : { ...p, bottom: p.bottom * stationScale, top: p.top * stationScale };
+    return { knots: outline.knots.map((k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({ site: k.site, station: k.station * stationScale, value: k.value * valueScale })), ...(converted === undefined ? {} : { parameter: converted }) };
   }
 
   /**
    * Source value at an already admitted query parameter; pole zeros are source input rather than evaluated cancellation.
    *
-   * @evidence contracts/common.md#principled-implementation Returns the checked zero knot at a pole and otherwise evaluates the prepared natural spline in the shared parameter.
-   * @evidence contracts/common.md#clear-and-simple-design One scalar helper keeps value and at from choosing different source points.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Only the exact declared pole uses its zero input; nearby points remain spline readings.
-   * @evidence contracts/common.md#meaningful-documentation States the admitted-parameter premise and exact endpoint meaning.
-   * @evidence contracts/performance.md#efficient-algorithms One O(n) spline scan, or constant work for an exact pole.
-   * @evidence contracts/performance.md#reuse-equivalent-work Uses the caller's prepared spline and already computed parameter.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains no state and returns one scalar.
+   * Returns the checked zero input only at an exact closing pole; nearby points use the caller's prepared natural spline and already admitted parameter. The shared scalar helper keeps value and at on the same source point. It performs one O(n) value scan, or constant work at the exact pole, and retains no state.
    */
   function valueAt(outline: IOutline, station: number, x: number): number {
     return station === outline.ends.bottom || station === outline.ends.top ? 0 : AutoMovieNaturalSpline.evaluate(outline.spline, x);
