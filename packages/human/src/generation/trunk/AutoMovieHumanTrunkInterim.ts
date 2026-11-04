@@ -4,6 +4,8 @@ import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import type { IAutoMovieHumanTrunkSolution } from "../IAutoMovieHumanTrunkSolution";
+import { AutoMovieHumanTrunkLandmarks } from "../AutoMovieHumanTrunkLandmarks";
+import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
 
 /**
@@ -32,11 +34,16 @@ export namespace AutoMovieHumanTrunkInterim {
   }
 
   /**
-   * The trunk's sites above the chest. The axilla and the shoulder point at
-   * the old solve's heights take the trunk outline table
-   * (`AutoMovieHumanReferenceOutlines.TRUNK`, estimated from the private
-   * reference set: no published source carries the upper trunk's outline)
-   * at their share of crotch to cervicale: the half breadth, the front and
+   * The trunk's sites above the chest: one at every station of the trunk
+   * outline table (`AutoMovieHumanReferenceOutlines.TRUNK`, estimated from
+   * the private reference set: no published source carries the upper
+   * trunk's outline) between the chest site and the neck seat, a layer
+   * spacing clear of both (`AutoMovieHumanTrunkViewPart.GAP`; a closer site
+   * leaves a thin interval the station rule prints as a ring). Two sites
+   * alone (the axilla and the shoulder point) left the natural spline to
+   * bridge the shoulders' near-level top to the neck, and it overshot into
+   * lobes over the shoulders; the table's stations carry that slope knot by
+   * knot. Each takes, at its share of crotch to cervicale, the half breadth, the front and
    * the back forward of cervicale's back point, each per stature, and the
    * shoulder the mean of the front and back quarters' (the table's 0 chord
    * to 1 box is the conic shoulder). The last site is the neck seat, the
@@ -76,9 +83,14 @@ export namespace AutoMovieHumanTrunkInterim {
       };
     };
     const seat: IAutoMovieHumanTrunkSolution["seat"] = solution.seat;
+    const chest: number = AutoMovieHumanTrunkLandmarks.at(crotch, top, AutoMovieHumanTrunkLandmarks.CHEST);
+    const gap: number = AutoMovieHumanTrunkViewPart.GAP;
+    const stations: number[] = T.TRUNK.rows
+      .filter((r: AutoMovieHumanReferenceOutlines.IRow): boolean => r.values["halfBreadth"] !== undefined)
+      .map((r: AutoMovieHumanReferenceOutlines.IRow): number => crotch + r.share * (top - crotch))
+      .filter((y: number): boolean => y > chest + gap && y < seat.y - gap);
     return [
-      table("axilla", solution.landmarks.axilla),
-      table("shoulder", solution.landmarks.shoulder[1]),
+      ...stations.map((y: number): AutoMovieHumanTrunkViews.ILaws["upper"][number] => table(`upper ${((y - crotch) / (top - crotch)).toFixed(2)}`, y)),
       { site: "neck", y: seat.y, half: seat.width, front: seat.front[0], back: seat.back[0], shoulder: table("neck", seat.y).shoulder },
     ];
   }
