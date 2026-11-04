@@ -2,21 +2,22 @@ import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface
 
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
+import { AutoMovieViewHermite } from "./AutoMovieViewHermite";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
- * The scalar source shared by lofting, origin placement and inspection: a natural cubic in station or an explicitly selected root-distance/angle parameter. A closing part supplies its pole parameter by default and separately requires zero radial knots.
+ * The scalar source shared by lofting, origin placement and inspection: a default natural cubic or explicitly requested C2 quintic knot jets/range, in station or a selected root-distance/angle parameter. A closing part supplies its pole parameter by default and separately requires zero radial knots.
  *
- * This is the input curve, before section admission and coefficient interpolation. A natural cubic can overshoot its knot values; neither a half-space bound nor equality with the final loft between layers is asserted. A source parameter endpoint may have a nonzero finite value while its station derivatives diverge. Parameter derivatives remain available there; zero scalar values belong only to actual part closure.
+ * This is the input curve, before section admission and coefficient interpolation. A natural cubic can overshoot its knots; an admitted requested range bounds only the scalar on its knot span. A moving world half-space and equality with the final loft between layers are not asserted. A source parameter endpoint may have a nonzero finite value while its station derivatives diverge. Parameter derivatives remain available there; radial zero belongs only to actual part closure.
  *
- * @evidence contracts/common.md#principled-implementation Uses the existing natural spline and the published pole parameter, with analytic chain-rule derivatives; the two-pole parameter is 2 asin(sqrt((s-bottom)/(top-bottom))).
+ * @evidence contracts/common.md#principled-implementation Uses the existing natural spline by default, requested shared-jet quintics only when explicit, and the published source parameter with analytic chain-rule derivatives. The two-pole parameter is 2 asin(sqrt((s-bottom)/(top-bottom))).
  * @evidence contracts/common.md#clear-and-simple-design One admission function and one reading function serve both construction and source-curve inspection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses malformed knots, missing zero pole knots and readings beyond a pole; no knot sorting, range clamp or finite derivative is invented at a singular endpoint.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes the input curve from the final loft and station derivatives from parameter derivatives at a pole.
- * @evidence contracts/performance.md#efficient-algorithms Preparation and each spline reading are linear in the outline's knots, using the existing tridiagonal solve.
- * @evidence contracts/performance.md#reuse-equivalent-work Prepares one spline and reuses its curvatures for every station.
- * @evidence contracts/performance.md#bound-retention-and-release-resources A prepared outline owns one knot copy and one spline; no global cache retains a part.
+ * @evidence contracts/performance.md#efficient-algorithms Preparation uses the linear natural solve and optional linear Hermite preparation. Value/jet queries scan natural knots or binary-search a prepared quintic span; critical inspection visits the source once with bounded-degree root work.
+ * @evidence contracts/performance.md#reuse-equivalent-work Prepares natural curvatures and any requested quintic coefficients once for all scalar, jet and critical-station queries.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources A source owns one knot copy, natural spline and optional O(n) Hermite jets/coefficients; no global cache retains a part.
  */
 export namespace AutoMovieViewOutline {
   /**
@@ -64,6 +65,9 @@ export namespace AutoMovieViewOutline {
 
     /** Natural spline in the admitted parameter. */
     spline: AutoMovieNaturalSpline.ISpline;
+
+    /** Optional explicitly requested shared-jet/range quintic preparation; absent keeps the original natural cubic unchanged. */
+    hermite?: AutoMovieViewHermite.ICurve;
   }
 
   /**
@@ -122,7 +126,7 @@ export namespace AutoMovieViewOutline {
   /**
    * Prepare the original knots, returning a named premise failure rather than a replacement curve.
    *
-   * @evidence contracts/common.md#principled-implementation Admits finite ordered knots with the existing relative spline gap, checks zero pole knots, and solves the existing natural cubic in the source parameter; finite interval arithmetic is required.
+   * @evidence contracts/common.md#principled-implementation Admits finite ordered knots, zero radial pole knots and source parameter, then prepares the existing natural spline. Explicit jet/range data alone selects shared-jet quintics through their owning validator; interval arithmetic must be representable.
    * @evidence contracts/common.md#clear-and-simple-design One admission path serves open and both pole forms and returns the existing diagnostic contract on failure.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not sort, merge, clamp or replace malformed knots, and refuses unrepresentable parameter intervals or cubic coefficients.
    * @evidence contracts/common.md#meaningful-documentation Documents source ownership, pole units, explicit failures and the lack of a half-space guarantee.
@@ -131,7 +135,7 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns O(n) copied knots and spline arrays; temporary parameter arrays belong to that preparation and no global state retains the source.
    */
   export function create(outline: IAutoMovieViewPart.IOutline, ends: Readonly<IEnds> = {}): IOutline | IFailure {
-    const knots: IAutoMovieViewPart.IKnot[] = outline.knots.map((k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({ ...k }));
+    const knots: IAutoMovieViewPart.IKnot[] = outline.knots.map((k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({ ...k, ...(k.jet === undefined ? {} : { jet: { ...k.jet } }) }));
     const xs: number[] = knots.map((k: IAutoMovieViewPart.IKnot): number => k.station);
     const gap: number = AutoMovieLoftContract.splineGap(xs);
     if (knots.length < 2 || !knots.every((k: IAutoMovieViewPart.IKnot, i: number): boolean => Number.isFinite(k.station) && Number.isFinite(k.value) && (i === 0 || (k.station > xs[i - 1]! && k.station - xs[i - 1]! >= gap))))
@@ -162,21 +166,25 @@ export namespace AutoMovieViewOutline {
       if (![h * (m1 - m0) / 2, h * m0, (knots[i + 1]!.value - knots[i]!.value) / h - h * (2 * m0 + m1) / 6].every(Number.isFinite))
         return { contract: "outline", detail: `source interval ${i} has unrepresentable cubic derivative coefficients` };
     }
-    return { knots, domain: [xs[0]!, xs[xs.length - 1]!], ends: { ...ends }, parameter: chosen, spline };
+    const requested: boolean = outline.range !== undefined || knots.some((k: IAutoMovieViewPart.IKnot): boolean => k.jet !== undefined);
+    const hermite: AutoMovieViewHermite.ICurve | string | undefined = requested ? AutoMovieViewHermite.create(spline, knots, outline.range) : undefined;
+    if (typeof hermite === "string") return { contract: "outline", detail: hermite };
+    return { knots, domain: [xs[0]!, xs[xs.length - 1]!], ends: { ...ends }, parameter: chosen, spline, ...(hermite === undefined ? {} : { hermite }) };
   }
 
   /**
-   * Isolated interior zero-slope stations of the source cubic spans, for inspection sampling alongside every named knot. A constant span has no isolated extremum. The quadratic is solved in a normalized interval and its pole parameter is inverted analytically; neither sections nor sampled extrema are used.
+   * Isolated interior zero-slope stations of source spans, alongside every named knot. Constant spans have no isolated roots. Natural cubic derivative quadratics and requested quintic derivative quartics have separate bounded-degree solvers; source parameters are inverted analytically, never inferred from sections.
    *
-   * @evidence contracts/common.md#principled-implementation Solves each cubic derivative's normalized quadratic with the cancellation-avoiding q formula, retaining roots strictly inside each source span and analytically inverting the pole parameter. Results are binary64 observations, not interval certificates.
+   * @evidence contracts/common.md#principled-implementation Solves natural cubic derivative quadratics with the cancellation-avoiding q formula; explicit quintics delegate to their monotone-partition derivative-root owner. Both retain only interior roots and invert the same source parameter. These binary64 observations are not interval certificates.
    * @evidence contracts/common.md#clear-and-simple-design Returns only additional interior sampling stations; the caller already owns all named knots.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Constant spans yield no invented isolated root; no sampled fitting or extrema clamp is used.
    * @evidence contracts/common.md#meaningful-documentation States excluded knot endpoints, constant-span meaning and the numerical proof limit.
-   * @evidence contracts/performance.md#efficient-algorithms One O(n) span pass followed by O(n log n) sorting of at most two roots per span; the complete source must be visited to find every isolated critical station.
+   * @evidence contracts/performance.md#efficient-algorithms One span pass plus bounded degree-four root work for requested quintics; the natural path sorts at most two roots per span. Whole-source work is O(n log n) or less, with no source-value sampling grid.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reads one prepared source once; callers can retain this derived sample list while the source stays unchanged.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary roots and the returned list are bounded by two per source span and are not cached globally.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Natural spans return at most two roots; requested quintics can retain near-zero partition candidates, bounded by fifteen observations per span. No list is cached globally.
    */
   export function criticalStations(outline: IOutline): number[] {
+    if (outline.hermite !== undefined) return AutoMovieViewHermite.critical(outline.hermite).map((x: number): number => AutoMovieViewParameter.station(outline.parameter, x)).filter(Number.isFinite);
     const { xs, ys, curvatures } = outline.spline;
     const stations: number[] = [];
     for (let i: number = 0; i + 1 < xs.length; i++) {
@@ -207,11 +215,11 @@ export namespace AutoMovieViewOutline {
   /**
    * Value-only source reading for production callers that need no derivative or reading record.
    *
-   * @evidence contracts/common.md#principled-implementation Uses the same admitted parameter and scalar natural spline as at, including exact zero pole values and parameter-tangent extension at an open end.
+   * @evidence contracts/common.md#principled-implementation Uses the same admitted natural or requested quintic source as at, including exact radial pole zeros and parameter-tangent extension at an open end.
    * @evidence contracts/common.md#clear-and-simple-design A scalar or explicit failure avoids constructing a jet record for lofting.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Out-of-domain and nonfinite values remain failures; no range or endpoint-neighbour clamp is applied.
    * @evidence contracts/common.md#meaningful-documentation States the value-only use and the shared source semantics.
-   * @evidence contracts/performance.md#efficient-algorithms One O(n) natural-spline value scan, with no derivative scan, arrays or reading object on a successful query.
+   * @evidence contracts/performance.md#efficient-algorithms One O(n) natural scan or O(log n) prepared-quintic search, with no derivative scan, arrays or reading record on a successful query.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the admitted spline and shared parameter/value helpers; changing knots requires a new preparation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing and returns a scalar or failure string.
    */
@@ -225,11 +233,11 @@ export namespace AutoMovieViewOutline {
   /**
    * Read the original curve and analytic scalar jets; outside a closing domain returns its premise failure.
    *
-   * @evidence contracts/common.md#principled-implementation Reads the shared source scalar and natural spline derivatives, applying the exact first/second chain rule for single-root or two-pole angle parameters.
+   * @evidence contracts/common.md#principled-implementation Reads the shared natural or requested quintic scalar and analytic parameter derivatives, applying the exact first/second chain rule for root/angle parameters.
    * @evidence contracts/common.md#clear-and-simple-design One qualified reading supplies both parameter and station jets; value serves callers needing only a scalar.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Pole station jets are absent, overflowing jets are named nonfinite, and a finite value is retained; no finite-difference derivative or substituted point is used.
    * @evidence contracts/common.md#meaningful-documentation Documents derivative units, pole status and source versus final-loft meaning.
-   * @evidence contracts/performance.md#efficient-algorithms Two O(n) scans use the existing natural value and derivative primitives; the extra derivative work is confined to callers requesting a full reading.
+   * @evidence contracts/performance.md#efficient-algorithms Two O(n) natural scans or O(log n) quintic searches supply value and derivatives; callers needing only a scalar avoid this derivative work.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the source curvature solve and the shared parameter/value helpers; no mutable evaluation cache is introduced.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one fixed-size reading and jets, retaining no previous query.
    */
@@ -239,7 +247,7 @@ export namespace AutoMovieViewOutline {
     if (!Number.isFinite(x)) return `station ${station} is not finite inside the source parameter domain`;
     const pole: boolean = station === bottom || station === top;
     const value: number = valueAt(outline, station, x);
-    const jet: [number, number] = AutoMovieNaturalSpline.derivative(outline.spline, x);
+    const jet: [number, number] = outline.hermite === undefined ? AutoMovieNaturalSpline.derivative(outline.spline, x) : AutoMovieViewHermite.derivative(outline.hermite, x);
     if (!Number.isFinite(value) || !jet.every(Number.isFinite)) return `station ${station} has a nonfinite source value or parameter jet`;
     const change: [number, number] | null = AutoMovieViewParameter.jet(outline.parameter, station);
     let stationJet: [number, number] | null = null;
@@ -256,7 +264,7 @@ export namespace AutoMovieViewOutline {
   /**
    * Convert source units without changing the interpolation coordinate or scalar meaning.
    *
-   * @evidence contracts/common.md#principled-implementation Scales knot stations and parameter endpoints together, and scalar values by their own factor, preserving normalized root/angle locations under a positive station unit change.
+   * @evidence contracts/common.md#principled-implementation Scales stations and parameter endpoints together; values, normalized jets and range bounds use their scalar factor. A negative scalar factor exchanges lower/upper bounds, preserving the same source under unit conversion.
    * @evidence contracts/common.md#clear-and-simple-design One conversion owner serves tree-to-kernel and kernel-to-tree source records.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves site identities and the declared parameter; no station sampling or implicit radial zero is introduced.
    * @evidence contracts/common.md#meaningful-documentation States independent station/value scales and finite-factor premise.
@@ -268,15 +276,16 @@ export namespace AutoMovieViewOutline {
     if (!(Number.isFinite(stationScale) && stationScale > 0 && Number.isFinite(valueScale))) throw new Error("outline unit conversion needs finite factors and a positive station scale");
     const p: AutoMovieConstructionOutlineParameter | undefined = outline.parameter;
     const converted: AutoMovieConstructionOutlineParameter | undefined = p === undefined ? undefined : p.type === "root" ? { ...p, pole: p.pole * stationScale } : { ...p, bottom: p.bottom * stationScale, top: p.top * stationScale };
-    return { knots: outline.knots.map((k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({ site: k.site, station: k.station * stationScale, value: k.value * valueScale })), ...(converted === undefined ? {} : { parameter: converted }) };
+    const range: IAutoMovieViewPart.IOutline["range"] = outline.range === undefined ? undefined : valueScale >= 0 ? { minimum: outline.range.minimum === null ? null : outline.range.minimum * valueScale, maximum: outline.range.maximum === null ? null : outline.range.maximum * valueScale } : { minimum: outline.range.maximum === null ? null : outline.range.maximum * valueScale, maximum: outline.range.minimum === null ? null : outline.range.minimum * valueScale };
+    return { knots: outline.knots.map((k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({ site: k.site, station: k.station * stationScale, value: k.value * valueScale, ...(k.jet === undefined ? {} : { jet: { first: k.jet.first === null ? null : k.jet.first * valueScale, second: k.jet.second === null ? null : k.jet.second * valueScale } }) })), ...(converted === undefined ? {} : { parameter: converted }), ...(range === undefined ? {} : { range }) };
   }
 
   /**
    * Source value at an already admitted query parameter; pole zeros are source input rather than evaluated cancellation.
    *
-   * Returns the checked zero input only at an exact closing pole; nearby points use the caller's prepared natural spline and already admitted parameter. The shared scalar helper keeps value and at on the same source point. It performs one O(n) value scan, or constant work at the exact pole, and retains no state.
+   * Returns the checked zero input only at an exact closing pole; nearby points read the same prepared natural or requested quintic source. It keeps value and at on the same point, uses the already admitted parameter, performs an O(n) natural scan or O(log n) quintic search, and retains no state.
    */
   function valueAt(outline: IOutline, station: number, x: number): number {
-    return station === outline.ends.bottom || station === outline.ends.top ? 0 : AutoMovieNaturalSpline.evaluate(outline.spline, x);
+    return station === outline.ends.bottom || station === outline.ends.top ? 0 : outline.hermite === undefined ? AutoMovieNaturalSpline.evaluate(outline.spline, x) : AutoMovieViewHermite.value(outline.hermite, x);
   }
 }

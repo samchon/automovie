@@ -27,6 +27,8 @@ export * from "./IAutoMovieConstructionLevelAxis";
 export * from "./IAutoMovieConstructionLevelOrigin";
 export * from "./IAutoMovieConstructionOutline";
 export * from "./IAutoMovieConstructionOutlinePair";
+export * from "./IAutoMovieConstructionOutlineJet";
+export * from "./IAutoMovieConstructionOutlineRange";
 export * from "./IAutoMovieConstructionParallelAxis";
 export * from "./IAutoMovieConstructionParallelOrigin";
 export * from "./IAutoMovieConstructionPhaseParameter";

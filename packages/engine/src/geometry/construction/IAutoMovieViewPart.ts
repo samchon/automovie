@@ -1,4 +1,4 @@
-import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface";
+import type { AutoMovieConstructionOutlineParameter, IAutoMovieConstructionOutlineJet, IAutoMovieConstructionOutlineRange } from "@automovie/interface";
 
 import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
 
@@ -81,7 +81,17 @@ export interface IAutoMovieViewPart {
   samples: number;
 }
 export namespace IAutoMovieViewPart {
-  /** One knot of an outline or a law: a value at a named site's station. */
+  /**
+   * One named source value, with optional first/second derivatives in the whole source's normalized interpolation parameter.
+   *
+   * @evidence contracts/common.md#principled-implementation Site/station/value remain source identities; explicit normalized jets supply shared knot tangency and curvature without observing an emitted section.
+   * @evidence contracts/common.md#clear-and-simple-design Three required measurement fields and one optional two-component jet serve all scalar owners.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither site spelling nor mesh output determines a jet; null starts from the natural value and only a separately requested wholly-unauthored range filter may change it.
+   * @evidence contracts/common.md#meaningful-documentation States millimetre station and scalar/normalized-jet units.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This input record has no runtime algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The input schedules no computation.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The producer owns the input; source admission copies it.
+   */
   export interface IKnot {
     /** The measurement site, such as `stylion` or `waist`, for diagnostics and identity tests. */
     site: string;
@@ -91,12 +101,15 @@ export namespace IAutoMovieViewPart {
 
     /** The value at the site: a chart coordinate in mm, a girth in mm, or a shoulder share. */
     value: number;
+
+    /** Optional first/second derivatives in the whole outline's normalized source parameter, with the value's units. */
+    jet?: IAutoMovieConstructionOutlineJet;
   }
 
   /**
-   * A natural source cubic through at least two named knots in increasing station, C2 in its selected parameter. Radial closure selects its pole parameter by default; a nonclosing world-coordinate parameter imposes no zero scalar value.
+   * A scalar source through at least two named knots in increasing station: the default natural cubic, or explicitly requested shared-jet/range quintics, C2 within the closed source span in its selected parameter. Radial closure selects its pole parameter by default; a nonclosing coordinate parameter imposes no zero value. Tangent extension of an authored nonzero end curvature is only C1.
    *
-   * @evidence contracts/common.md#principled-implementation A natural cubic interpolates named values in the declared source coordinate; parameter and radial closure have separate owners.
+   * @evidence contracts/common.md#principled-implementation Natural interpolation remains the default; explicit shared first/second jets or a sufficient scalar control-hull bound select C2 quintics in the same source parameter. Radial closure is separate.
    * @evidence contracts/common.md#clear-and-simple-design A knot list and optional source parameter serve the same scalar evaluator for outlines and origins.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A world parameter endpoint does not invent a radial zero or station-finite derivative.
    * @evidence contracts/common.md#meaningful-documentation States source parameter, kernel endpoint units and closure separation.
@@ -110,6 +123,9 @@ export namespace IAutoMovieViewPart {
 
     /** Optional source parameter, with endpoint station lengths in kernel millimetres; choosing it does not impose a zero scalar value. */
     parameter?: AutoMovieConstructionOutlineParameter;
+
+    /** Optional sufficient control-hull bound on the closed scalar knot span, in the value's units; no world-frame or extension bound is implied. */
+    range?: IAutoMovieConstructionOutlineRange;
   }
 
   /**
