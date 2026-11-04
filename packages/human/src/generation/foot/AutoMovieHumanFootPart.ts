@@ -1,4 +1,5 @@
-import { type AutoMovieSolidVector, AutoMovieViewAxis } from "@automovie/engine";
+import type { AutoMovieSolidVector } from "@automovie/engine";
+import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
@@ -90,7 +91,7 @@ export namespace AutoMovieHumanFootPart {
     const swap = (e: [number, number, number, number]): [number, number, number, number] => (input.side === "right" ? e : [e[0], -e[3], e[2], -e[1]]);
     return AutoMovieHumanSiteViewPart.create({
       name: input.name,
-      axis: AutoMovieViewAxis.straight(origin, up, v),
+      axis: { type: "straight", origin: AutoMovieHumanConstructionView.point(origin), u: AutoMovieHumanConstructionView.direction(up), v: AutoMovieHumanConstructionView.direction(v) },
       sites: input.sites.map((s: { site: string; law: ISiteLaw }): AutoMovieHumanSiteViewPart.ISite => ({
         site: s.site,
         station: s.law.share * input.length,

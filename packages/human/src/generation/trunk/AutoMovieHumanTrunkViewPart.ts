@@ -1,6 +1,7 @@
 import type { AutoMovieLoftContract } from "@automovie/engine";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
-import { AutoMovieHumanTrunkLevelAxis } from "./AutoMovieHumanTrunkLevelAxis";
+import type { IAutoMovieConstructionKnot, IAutoMovieConstructionLevelAxis } from "@automovie/interface";
+import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
 
 /**
@@ -9,7 +10,9 @@ import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
  * its open top inside the neck, every station a level section that touches
  * the box of the front view's half breadth and the side view's two profiles.
  *
- * Views to the kernel's chart. The axis is level (`AutoMovieHumanTrunkLevelAxis`),
+ * Views to the kernel's chart. The axis is level, its origin on the mid-depth
+ * course (`IAutoMovieConstructionLevelAxis`, the natural spline of the
+ * sites' mid-depths in height),
  * `u` forward and `v` left, so the kernel's `front` pair (the extremes along
  * `u`) is the anatomical side view and its `side` pair (along `v`) the
  * anatomical front view. Every edge is given relative to the axis's origin,
@@ -54,13 +57,13 @@ export namespace AutoMovieHumanTrunkViewPart {
     for (const s of views.sites)
       if (!(s.front > s.back) || !(s.y > views.perineum.y))
         diagnostics.push({ producer: `view.${NAME}`, level: 2, contract: "sites", detail: `site ${s.site} at ${s.y} mm: front ${s.front} mm over back ${s.back} mm, perineum at ${views.perineum.y} mm` });
-    if (diagnostics.length !== 0) return { part: null, loft: null, diagnostics };
+    if (diagnostics.length !== 0) return { part: null, loft: null, view: null, diagnostics };
 
     return AutoMovieHumanSiteViewPart.create({
       name: NAME,
-      axis: AutoMovieHumanTrunkLevelAxis.create([
-        { y: views.perineum.y, x: views.perineum.x },
-        ...views.sites.map((s: IAutoMovieHumanTrunkViews.ISite): AutoMovieHumanTrunkLevelAxis.IKnot => ({ y: s.y, x: (s.front + s.back) / 2 })),
+      axis: level([
+        { site: "perineum", y: views.perineum.y, x: views.perineum.x },
+        ...views.sites.map((s: IAutoMovieHumanTrunkViews.ISite): { site: string; y: number; x: number } => ({ site: s.site, y: s.y, x: (s.front + s.back) / 2 })),
       ]),
       sites: views.sites.map((s: IAutoMovieHumanTrunkViews.ISite): AutoMovieHumanSiteViewPart.ISite => {
         const depth: number = (s.front - s.back) / 2;
@@ -71,5 +74,24 @@ export namespace AutoMovieHumanTrunkViewPart {
       samples: SAMPLES,
       gap: GAP,
     });
+  }
+
+  /**
+   * The level axis record whose origin runs on the mid-depth course: its `x`
+   * the natural spline of the knots' forward places in height, its `z` the
+   * median plane.
+   *
+   * @param knots The course's knots by rising height, mm.
+   * @returns The axis record, metres.
+   */
+  function level(knots: readonly { site: string; y: number; x: number }[]): IAutoMovieConstructionLevelAxis {
+    const M: number = AutoMovieHumanConstructionView.METRES;
+    return {
+      type: "level",
+      origin: {
+        x: { knots: knots.map((k: { site: string; y: number; x: number }): IAutoMovieConstructionKnot => ({ site: k.site, station: k.y * M, value: k.x * M })) },
+        z: { knots: knots.map((k: { site: string; y: number; x: number }): IAutoMovieConstructionKnot => ({ site: k.site, station: k.y * M, value: 0 })) },
+      },
+    };
   }
 }

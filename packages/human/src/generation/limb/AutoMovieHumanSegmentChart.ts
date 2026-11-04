@@ -3,7 +3,7 @@ type Vec3 = [number, number, number];
 /**
  * The chart square to a bone segment that the interim accessors box today's
  * chains in (`AutoMovieHumanArmInterim`, `AutoMovieHumanDigitInterim`), with
- * the two point helpers they share. Its `v` follows `AutoMovieHumanJointedAxis`
+ * the two point helpers they share. Its `v` is the walk's chart before the engine's (`AutoMovieHumanWalkPart`)
  * (`v = d x u`), so a box read here lands on the walk's own chart.
  */
 export namespace AutoMovieHumanSegmentChart {

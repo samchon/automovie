@@ -1,4 +1,6 @@
-import { type AutoMovieLoftContract, type AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieConstructionViews, type AutoMovieLoftContract, type AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import type { AutoMovieConstructionAxis, IAutoMovieConstructionView } from "@automovie/interface";
+import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 
 /**
  * A body part lofted from view knots at named sites: the composition every
@@ -54,8 +56,8 @@ export namespace AutoMovieHumanSiteViewPart {
     /** Chain name of the part. */
     name: string;
 
-    /** The part's axis. */
-    axis: AutoMovieViewAxis.IAxis;
+    /** The part's axis as the construction tree's record, metres; the operator's frame is the engine's own reading of it (`AutoMovieConstructionViews.frame`), so the part lofted here is the part the tree realizes. */
+    axis: AutoMovieConstructionAxis;
 
     /** The sites by strictly rising station, at least two besides a pole. */
     sites: ISite[];
@@ -84,6 +86,9 @@ export namespace AutoMovieHumanSiteViewPart {
     /** The operator's result, or null with the part. */
     loft: AutoMovieViewLoft.IResult | null;
 
+    /** The part as the construction tree's view record, metres, or null with the part. */
+    view: IAutoMovieConstructionView | null;
+
     /** Every broken premise. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
@@ -99,8 +104,11 @@ export namespace AutoMovieHumanSiteViewPart {
     const producer: string = `view.${input.name}`;
     const fail = (contract: string, detail: string): IResult => {
       diagnostics.push({ producer, level: 2, contract, detail });
-      return { part: null, loft: null, diagnostics };
+      return { part: null, loft: null, view: null, diagnostics };
     };
+
+    const frame: AutoMovieViewAxis.IAxis | string = AutoMovieConstructionViews.frame(input.axis);
+    if (typeof frame === "string") return fail("axis", frame);
 
     // The sites rise, each box holds its axis, and a pole lies beyond them.
     const sites: ISite[] = input.sites;
@@ -144,7 +152,7 @@ export namespace AutoMovieHumanSiteViewPart {
     if (top !== null) stationList.push(top);
     const part: IAutoMovieViewPart = {
       name: input.name,
-      axis: input.axis,
+      axis: frame,
       stations: subdivide(stationList, input.gap),
       front: { positive: edge(0), negative: edge(2) },
       side: { positive: edge(1), negative: edge(3) },
@@ -159,7 +167,7 @@ export namespace AutoMovieHumanSiteViewPart {
     };
     const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
     diagnostics.push(...loft.diagnostics);
-    return { part, loft, diagnostics };
+    return { part, loft, view: AutoMovieHumanConstructionView.of(part, input.axis), diagnostics };
   }
 
   /**

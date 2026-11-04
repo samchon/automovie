@@ -1,4 +1,5 @@
-import { AutoMovieSolidVector, AutoMovieViewAxis, type IAutoMovieSolidSurface } from "@automovie/engine";
+import { AutoMovieSolidVector, type IAutoMovieSolidSurface } from "@automovie/engine";
+import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
@@ -111,6 +112,7 @@ export namespace AutoMovieHumanMassPart {
     const fail = (detail: string): AutoMovieHumanSiteViewPart.IResult => ({
       part: null,
       loft: null,
+      view: null,
       diagnostics: [{ producer, level: 3, contract: "mass", detail }],
     });
 
@@ -197,7 +199,7 @@ export namespace AutoMovieHumanMassPart {
     ];
     return AutoMovieHumanSiteViewPart.create({
       name: input.name,
-      axis: AutoMovieViewAxis.straight(sub(j.p, scale(n, embed)), u, v),
+      axis: { type: "straight", origin: AutoMovieHumanConstructionView.point(sub(j.p, scale(n, embed))), u: AutoMovieHumanConstructionView.direction(u), v: AutoMovieHumanConstructionView.direction(v) },
       sites,
       pole: { end: "top", station: embed + input.amplitude },
       order: input.order,
