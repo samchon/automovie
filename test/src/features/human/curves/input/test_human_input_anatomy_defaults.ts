@@ -7,18 +7,15 @@ import { HumanPeople } from "../../../internal/HumanPeople";
 /**
  * Measures with no survey distribution to band them: the sex itself, the top
  * hip girth and the across back shoulder width, which no survey takes, the
- * relaxed upper arm girth, whose NHANES tables give means only, the
- * natural-waist breadth and depth, which no survey takes at that level, and
- * the chest depth, whose ANSUR II SD is not recorded yet
- * (`test_human_survey_trunk_breadths` prints it). Their place inside their
- * girth's box is `test_human_input_box_consistency`'s.
+ * relaxed upper arm girth, whose NHANES tables give means only, and the
+ * natural-waist breadth and depth, which no survey takes at that level (their
+ * place inside their girth's box is `test_human_input_box_consistency`'s).
  */
 type Unsurveyed =
   | "sex"
   | "highHipCircumference"
   | "acrossBackShoulderWidth"
   | "upperArmCircumference"
-  | "chestDepth"
   | "waistBreadth"
   | "waistDepth";
 
@@ -58,9 +55,10 @@ const SURVEY: Record<Exclude<keyof IAutoMovieHumanBodyAnatomy, Unsurveyed>, Dist
   axillaHeight: [[1239.0, 55.8], [1329.1, 59.5]],
   chestBreadth: [[279.6, 19.7], [321.5, 25.5]],
   waistHeight: [[1056.5, 51.7], [1127.1, 52.0]],
-  hipBreadth: [[353.8, 26.7], [345.7, 24.2]],
-  buttockDepth: [[232.9, 24.3], [245.8, 26.5]],
-  bideltoidBreadth: [[450.3, 28.7], [510.4, 32.5]],
+  chestDepth: [[239.4, 21.1], [243.2, 21.5]],
+  hipBreadth: [[342.7, 22.4], [341.8, 20.3]],
+  buttockDepth: [[227.1, 21.0], [248.6, 20.7]],
+  bideltoidBreadth: [[432.6, 22.6], [491.8, 25.9]],
   bicristalBreadth: [[273.3, 22.3], [275.4, 17.5]],
   elbowBreadth: [[61.9, 4.2], [72.3, 4.4]],
   wristBreadth: [[49.4, 3.3], [56.3, 3.2]],
@@ -88,7 +86,7 @@ const BAND: number = 4;
  * name.
  *
  * @evidence contracts/testing.md#behavioral-verification Resolves `AutoMovieHumanBodyAnatomy.resolve` on the public inputs of every person of `HumanPeople.everyone()` (the four references and every population end, 66 people) and reads each banded measure (stature, the trunk, arm and leg tapes and lengths, the skeletal breadths, the landmark heights and the fat percentage) against its sex's survey mean plus and minus 4 SD; resolves f1 and m1 with every tape and length unknown and reads the stature lines' defaults against the same bands; resolves f1 again with every measure supplied as a distinct value and reads each back unchanged; and reads the resolved sex against the sex whose statistics `HumanPeople.sex` says the person satisfies. It fails with every person and measure that misses, a NaN or an infinite value included. It catches a regression coefficient typed in the wrong unit or for the wrong sex, a predictor read from the wrong control, a supplied value the resolver overwrites, and a sex taken from the wrong sign.
- * @evidence contracts/testing.md#independent-expectations The bands are the surveys' own distributions, not the regressions: ANSUR 1988 (the trunk girths and courses, elbow, hand, proximal thigh and knee girths, inseam, side neck point, suprasternale and natural waist heights, biacromial, chest breadth, bimalleolar, heel, gluteal furrow, thumb), ANSUR II (stature, neck, wrist and calf girths, the arm segments, acromial, cervicale, axilla heights, ankle circumference, ball of foot, hip breadth, buttock depth, bideltoid and bicristal breadths) and Heinz et al. 2003 (forearm girth; elbow, wrist and knee bone breadths, per side); the top hip girth, the across back shoulder width, the relaxed upper arm girth, the natural-waist breadth and depth and the chest depth have no recorded SD and are not banded (the last three are held in their box by `test_human_input_box_consistency`), each recorded in `packages/human/docs/work/parameter-anatomy-survey.md`; body fat percentage takes the NHANES DXA adult range (Kelly et al. 2009) widened to 8 and 7 points SD. No construction constant or generated geometry enters. Oracle limits: the band checks plausibility, not a person's true measure, which only a measurement gives.
+ * @evidence contracts/testing.md#independent-expectations The bands are the surveys' own distributions, not the regressions: ANSUR 1988 (the trunk girths and courses, elbow, hand, proximal thigh and knee girths, inseam, side neck point, suprasternale and natural waist heights, chest depth, hip breadth, buttock depth, bideltoid breadth, biacromial, chest breadth, bimalleolar, heel, gluteal furrow, thumb), ANSUR II (stature, neck, wrist and calf girths, the arm segments, acromial, cervicale, axilla heights, ankle circumference, ball of foot, bicristal breadth) and Heinz et al. 2003 (forearm girth; elbow, wrist and knee bone breadths, per side); the top hip girth, the across back shoulder width, the relaxed upper arm girth, and the natural-waist breadth and depth have no surveyed SD and are not banded (the last two are held in their box by `test_human_input_box_consistency`), each recorded in `packages/human/docs/work/parameter-anatomy-survey.md`; body fat percentage takes the NHANES DXA adult range (Kelly et al. 2009) widened to 8 and 7 points SD. No construction constant or generated geometry enters. Oracle limits: the band checks plausibility, not a person's true measure, which only a measurement gives.
  * @evidence contracts/testing.md#distinguishing-cases Women and men at both stature and girth ends exercise both coefficient tables at their extremes; the supplied-value case is the negative case of every default. The test also proves its band rejects the errors it exists for: f1's wrist breadth by the women's line with a ten-fold slope (439.4 mm) and with the girth in centimetres (9.7 mm) both fall outside 49.4 plus and minus 13.2, and f1 declared male resolves the men's elbow breadth (65.4 mm, not 61.8) from the same forearm girth.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_input_anatomy_defaults`, reading public inputs only, with no generation, renderer, browser or GPU.
  */

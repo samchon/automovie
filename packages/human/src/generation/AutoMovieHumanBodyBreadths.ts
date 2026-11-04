@@ -1,97 +1,99 @@
-import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
-
 /**
- * Defaults of the trunk's published breadths and depths that
- * `AutoMovieHumanBodyAnatomy.resolve` reads before holding them inside each
- * level's box (`AutoMovieHumanBodyBox.place`): ANSUR II model B lines on
- * stature, body mass index and age.
+ * Defaults of the trunk's published breadths and depths: each measure's
+ * ordinary least squares line by sex on the girth that wraps its own level,
+ * fitted on the public working databases, which `AutoMovieHumanBodyAnatomy.resolve`
+ * reads before holding them inside each level's box
+ * (`AutoMovieHumanBodyBox.place`).
+ *
+ * Surveys: ANSUR 1988 (Gordon et al. 1989, NATICK/TR-89/044; 2,208 women and
+ * 1,774 men, `docs/sources/ansur-1988.md`) and ANSUR II (Gordon et al. 2014,
+ * NATICK/TR-15/007; 1,986 women and 4,082 men, `docs/sources/ansur-ii.md`).
+ * Every line is reproduced by `test_human_survey_trunk_breadths` and
+ * `test_human_survey_waist_section` (`test/src/features/human/survey/`), which
+ * print the coefficients, R2 and residual SD from the public files.
  */
 export namespace AutoMovieHumanBodyBreadths {
-  /** One sex's ANSUR II model B line, `a + stature S + bmi BMI + age A`, mm, S in mm, BMI in kg/m2, A in years. */
-  export interface IModel {
+  /** One sex's straight line `a + b x`, mm. */
+  export interface ILine {
     /** Intercept, mm. */
     a: number;
 
-    /** Per millimetre of stature. */
-    stature: number;
-
-    /** Per kg/m2 of body mass index. */
-    bmi: number;
-
-    /** Per year of age. */
-    age: number;
+    /** Slope, mm per mm of the predictor. */
+    b: number;
   }
 
   /**
-   * The trunk's breadths and depths on stature, body mass index and age, mm:
-   * ANSUR II model B, ordinary least squares by sex on the public working
-   * databases (`docs/sources/ansur-ii.md`, "Model B girth regressions"; R2
-   * 0.48 to 0.83). Chest depth at the chest point, waist breadth and depth at
-   * omphalion, hip breadth, buttock depth at the buttock point, bideltoid and
-   * bicristal breadths. Interim: these defaults stand until the girth lines of
-   * the survey readings under `test/src/features/human/survey/` are run, the
-   * chosen law (each measure on the girth of its own level, and the
-   * natural waist's by the navel section's law at the natural girth); the
-   * box placement (`AutoMovieHumanBodyBox.place`) then holds each default
-   * inside the person's own girth's range, which carries the waist's
-   * omphalion breadth and depth to the natural waist's girth.
+   * Chest depth (`CHEST_DEPTH`) on chest circumference (`CHEST_CIRC`), ANSUR
+   * 1988: R2 0.81 and 0.80, residual SD 9.2 and 9.6 mm.
    */
-  export const TRUNK_MODEL: Readonly<
-    Record<"chestDepth" | "waistBreadth" | "waistDepth" | "hipBreadth" | "buttockDepth" | "bideltoidBreadth" | "bicristalBreadth", readonly [IModel, IModel]>
-  > = {
-    chestDepth: [
-      { a: -46.2, stature: 0.0795, bmi: 6.08, age: 0.32 },
-      { a: -52.5, stature: 0.0842, bmi: 5.35, age: 0.35 },
-    ],
-    waistBreadth: [
-      { a: -88.3, stature: 0.1193, bmi: 7.28, age: 0.28 },
-      { a: -100.8, stature: 0.1257, bmi: 7.21, age: 0.22 },
-    ],
-    waistDepth: [
-      { a: -71.3, stature: 0.0539, bmi: 7.28, age: 0.38 },
-      { a: -119.5, stature: 0.0798, bmi: 6.96, age: 0.81 },
-    ],
-    hipBreadth: [
-      { a: -25.7, stature: 0.1443, bmi: 5.59, age: 0.07 },
-      { a: -14.9, stature: 0.1345, bmi: 4.59, age: -0.09 },
-    ],
-    buttockDepth: [
-      { a: -40.5, stature: 0.074, bmi: 5.88, age: 0.1 },
-      { a: -59.5, stature: 0.0822, bmi: 5.75, age: 0.06 },
-    ],
-    bideltoidBreadth: [
-      { a: 54.6, stature: 0.1411, bmi: 6.58, age: -0.07 },
-      { a: 65.5, stature: 0.1476, bmi: 6.72, age: -0.01 },
-    ],
-    bicristalBreadth: [
-      { a: -22.7, stature: 0.1229, bmi: 3.5, age: 0.23 },
-      { a: -8.4, stature: 0.1291, bmi: 2.19, age: -0.11 },
-    ],
-  };
-
-  /** ANSUR II's mean age by sex, years, 28.9 and 30.2 (`docs/sources/ansur-ii.md`): the age the model B lines are read at. */
-  export const ANSUR_II_AGE: readonly [number, number] = [28.9, 30.2];
-
-  /** The body mass index range the model B lines were fitted over, kg/m2 (`docs/sources/ansur-ii.md`). */
-  export const ANSUR_II_BMI: readonly [number, number] = [17, 40];
+  export const CHEST_DEPTH_ON_CHEST: readonly [ILine, ILine] = [
+    { a: -31.82, b: 0.299 },
+    { a: -32.32, b: 0.2779 },
+  ];
 
   /**
-   * One measure's model B default for a person: the body mass index the fat
-   * percentage implies by Deurenberg et al.'s relation (1991, Br J Nutr
-   * 65(2):105-114: percent fat = 1.2 BMI + 0.23 age - 10.8 male - 5.4), held
-   * in the lines' fitted range, read at ANSUR II's mean age of the sex.
-   *
-   * @param name The measure.
-   * @param sex The person's sex, which selects the line.
-   * @param stature Stature, mm.
-   * @param fat Body fat percentage.
-   * @returns The measure, mm.
+   * The navel section's breadth (`WAIST_BRTH_OMPHALION`) on its own girth
+   * (`WAIST_CIRC-OMPHALION`), ANSUR 1988: R2 0.91 and 0.92, residual SD 8.4
+   * and 8.0 mm. No survey takes a breadth at the natural waist, so the natural
+   * waist's default is this line at the natural waist girth, the derivation
+   * premised on the lumbar section keeping the navel section's law over the
+   * 74 (SD 21) and 68 (18) mm between the two levels; evaluated at each
+   * surveyed natural girth it gives 268.0 (20.6) and 302.1 (23.6) mm, and no
+   * subject's natural girth falls outside the derived box.
    */
-  export function model(name: keyof typeof TRUNK_MODEL, sex: AutoMovieHumanSex, stature: number, fat: number): number {
-    const k: 0 | 1 = sex === AutoMovieHumanSex.Female ? 0 : 1;
-    const age: number = ANSUR_II_AGE[k];
-    const bmi: number = Math.min(ANSUR_II_BMI[1], Math.max(ANSUR_II_BMI[0], (fat - 0.23 * age + 10.8 * k + 5.4) / 1.2));
-    const m: IModel = TRUNK_MODEL[name][k];
-    return m.a + m.stature * stature + m.bmi * bmi + m.age * age;
-  }
+  export const WAIST_BREADTH_ON_WAIST: readonly [ILine, ILine] = [
+    { a: 31.41, b: 0.3261 },
+    { a: 34.5, b: 0.3186 },
+  ];
+
+  /**
+   * The navel section's depth (`WAIST_DEPTH-OMPHALION`) on its girth, ANSUR
+   * 1988: R2 0.85 and 0.87, residual SD 9.7 and 9.1 mm; at the natural waist
+   * as {@link WAIST_BREADTH_ON_WAIST}, 185.6 (17.5) and 220.0 (20.5) mm.
+   */
+  export const WAIST_DEPTH_ON_WAIST: readonly [ILine, ILine] = [
+    { a: -15.4, b: 0.277 },
+    { a: -12.23, b: 0.2765 },
+  ];
+
+  /**
+   * Hip breadth (`HIP_BRTH`) on buttock circumference (`BUTTOCK_CIRC`), ANSUR
+   * 1988: R2 0.84 and 0.81, residual SD 9.1 and 8.7 mm.
+   */
+  export const HIP_BREADTH_ON_HIP: readonly [ILine, ILine] = [
+    { a: 13.45, b: 0.3406 },
+    { a: 52.6, b: 0.294 },
+  ];
+
+  /**
+   * Buttock depth (`BUTT_DEPTH`) on buttock circumference, ANSUR 1988: R2
+   * 0.64 and 0.77, residual SD 12.6 and 10.0 mm.
+   */
+  export const BUTTOCK_DEPTH_ON_HIP: readonly [ILine, ILine] = [
+    { a: -42.22, b: 0.2785 },
+    { a: -39.29, b: 0.2927 },
+  ];
+
+  /**
+   * Bideltoid breadth (`BIDELTOID_BRTH`) on chest circumference, ANSUR 1988:
+   * R2 0.59 and 0.70, residual SD 14.6 and 14.3 mm, the best of the Human's
+   * inputs (the natural waist and buttock girths 0.54 and 0.49 in women,
+   * biacromial breadth 0.40, stature 0.14). The shoulder circumference over
+   * the deltoids would predict it at 0.86 and 0.87, but is not an input.
+   */
+  export const BIDELTOID_ON_CHEST: readonly [ILine, ILine] = [
+    { a: 185.09, b: 0.2729 },
+    { a: 180.94, b: 0.3135 },
+  ];
+
+  /**
+   * Bicristal breadth (`bicristalbreadth`) on hip breadth (`hipbreadth`),
+   * ANSUR II, since ANSUR 1988 takes none: R2 0.49 and 0.51, residual SD 15.9
+   * and 12.3 mm, the best of the Human's inputs (the buttock girth 0.45 and
+   * 0.42, stature 0.15 and 0.26).
+   */
+  export const BICRISTAL_ON_HIP_BREADTH: readonly [ILine, ILine] = [
+    { a: 67.19, b: 0.5825 },
+    { a: 96.96, b: 0.5162 },
+  ];
 }

@@ -144,8 +144,13 @@ export interface IAutoMovieHumanBodyAnatomy {
 
   /**
    * Chest breadth: across the rib cage under the arms at the chest
-   * circumference's level, tissue compressed, by caliper (ANSUR II chest
-   * breadth). ANSUR 1988: 279.6 (19.7) and 321.5 (25.5).
+   * circumference's level, by beam caliper at the maximum point of quiet
+   * respiration (ANSUR 1988 chest breadth), the front outline's knot there.
+   * ANSUR 1988: 279.6 (19.7) and 321.5 (25.5). ANSUR II takes its chest
+   * breadth at maximum inspiration with tissue compressed, a different
+   * measure: 577 of its 4,082 men have a chest girth above the box of that
+   * breadth and their chest depth, against none in ANSUR 1988
+   * (`test_human_survey_box_consistency`).
    */
   chestBreadth?: number & tags.Minimum<150> & tags.Maximum<500>;
 
@@ -153,7 +158,8 @@ export interface IAutoMovieHumanBodyAnatomy {
    * Chest depth: horizontal, from the most anterior point of the chest, the
    * bust in women, to the back, at the chest circumference's level, standing
    * (ANSUR 1988 and ANSUR II chest depth). With the chest breadth it is the
-   * chest's box, the side outline's knot at that level. ANSUR II: 247.4 and
+   * chest's box, the side outline's knot at that level. ANSUR 1988: 239.4
+   * (21.1) and 243.2 (21.5); ANSUR II: 247.4 and
    * 253.8 (means).
    */
   chestDepth?: number & tags.Minimum<30> & tags.Maximum<700>;
@@ -173,8 +179,9 @@ export interface IAutoMovieHumanBodyAnatomy {
    * waist circumference's level, standing, tissue uncompressed; the front
    * outline's knot there. No survey takes it at this level: ANSUR 1988 and
    * ANSUR II take the waist breadth at the navel (ANSUR II: 299.9 and 326.4,
-   * means), so the default is a derivation from the navel section, held
-   * inside the natural waist girth's box.
+   * means), so the default is a derivation: the navel section's
+   * breadth-on-girth law (ANSUR 1988) at the natural waist girth, 268.0 (20.6)
+   * and 302.1 (23.6) at the surveyed natural girths.
    */
   waistBreadth?: number & tags.Minimum<40> & tags.Maximum<800>;
 
@@ -182,8 +189,9 @@ export interface IAutoMovieHumanBodyAnatomy {
    * Waist depth: horizontal, abdomen to back, at the natural waist, the waist
    * circumference's level, standing; the side outline's knot there. No survey
    * takes it at this level (ANSUR II at the navel: 213.0 and 237.8, means), so
-   * the default is a derivation from the navel section, held inside the
-   * natural waist girth's box.
+   * the default is the navel section's depth-on-girth law (ANSUR 1988) at the
+   * natural waist girth, 185.6 (17.5) and 220.0 (20.5) at the surveyed natural
+   * girths.
    */
   waistDepth?: number & tags.Minimum<30> & tags.Maximum<800>;
 
@@ -191,7 +199,8 @@ export interface IAutoMovieHumanBodyAnatomy {
    * Hip breadth: the maximum horizontal breadth across the hips, between the
    * most lateral points of the buttocks, standing, soft tissue included (ISO
    * 7250-1 6.1.12 hip breadth, standing; ANSUR 1988 and ANSUR II hip breadth).
-   * It is the front outline's knot at its own widest level. ANSUR II: 353.8
+   * It is the front outline's knot at its own widest level. ANSUR 1988:
+   * 342.7 (22.4) and 341.8 (20.3); ANSUR II: 353.8
    * (26.7) and 345.7 (24.2).
    */
   hipBreadth?: number & tags.Minimum<80> & tags.Maximum<800>;
@@ -200,7 +209,8 @@ export interface IAutoMovieHumanBodyAnatomy {
    * Buttock depth: horizontal, from the abdomen to the buttocks' maximum
    * posterior protrusion, at the buttock circumference's level, standing
    * (ANSUR 1988 and ANSUR II buttock depth). It is the side outline's knot at
-   * that level. ANSUR II: 232.9 (24.3) and 245.8 (26.5).
+   * that level. ANSUR 1988: 227.1 (21.0) and 248.6 (20.7); ANSUR II: 232.9
+   * (24.3) and 245.8 (26.5).
    */
   buttockDepth?: number & tags.Minimum<30> & tags.Maximum<800>;
 
@@ -210,7 +220,8 @@ export interface IAutoMovieHumanBodyAnatomy {
    * (ISO 7250-1 6.2.8; ANSUR 1988 and ANSUR II bideltoid breadth, seated). It
    * is the arms' lateral outline at the deltoids, the shoulder width the front
    * view shows; bideltoid over hip breadth is 1.28 in ANSUR II women and 1.48
-   * in men, the outline's V-taper. ANSUR II: 450.3 (28.7) and 510.4 (32.5).
+   * in men, the outline's V-taper. ANSUR 1988: 432.6 (22.6) and 491.8
+   * (25.9); ANSUR II: 450.3 (28.7) and 510.4 (32.5).
    */
   bideltoidBreadth?: number & tags.Minimum<90> & tags.Maximum<900>;
 

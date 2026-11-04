@@ -48,50 +48,29 @@ export namespace AutoMovieHumanBodyAnatomy {
     const tape = (name: TapeControl): number =>
       given[TAPE_FIELD[name]] ?? line(TAPE_ON_STATURE[name], stature);
 
-    // The trunk's breadths and depths default by ANSUR II's model B lines
-    // (`AutoMovieHumanBodyBreadths`), which read the fat percentage: the
-    // person's, or its Navy estimate on the tapes as supplied or lined on
-    // stature, before any box holds a girth.
-    const fat: number = given.bodyFatPercentage ?? AutoMovieHumanBodyFat.navy(sex, stature, tape("neck"), tape("waist"), tape("hip"));
-    const model = (name: keyof typeof AutoMovieHumanBodyBreadths.TRUNK_MODEL): number =>
-      AutoMovieHumanBodyBreadths.model(name, sex, stature, fat);
-
     // Each trunk level's breadth, depth and girth: the person's, else the
-    // girth's line on stature and the breadth's and depth's defaults, every
-    // default then held inside the box range the supplied measures leave
+    // girth's line on stature and the breadth's and depth's lines on the
+    // girth of their own level (`AutoMovieHumanBodyBreadths`), every default
+    // then held inside the box range the supplied measures leave
     // (`AutoMovieHumanBodyBox.place`).
+    const B: typeof AutoMovieHumanBodyBreadths = AutoMovieHumanBodyBreadths;
     const box = (
       level: AutoMovieHumanBodyBox.Level,
       control: TapeControl,
-      breadth: (girth: number) => number,
-      depth: (girth: number) => number,
+      breadth: readonly [ILine, ILine],
+      depth: readonly [ILine, ILine],
     ): { breadth: number; depth: number; girth: number } => {
       const fields: AutoMovieHumanBodyBox.IFields = AutoMovieHumanBodyBox.FIELDS[level];
       return AutoMovieHumanBodyBox.place(
         { breadth: given[fields.breadth], depth: given[fields.depth], girth: given[fields.girth] },
         tape(control),
-        breadth,
-        depth,
+        (g: number): number => line(breadth, g),
+        (g: number): number => line(depth, g),
       );
     };
-    const chest: { breadth: number; depth: number; girth: number } = box(
-      "chest",
-      "chest",
-      (g: number): number => line(CHEST_BREADTH_ON_CHEST, g),
-      (): number => model("chestDepth"),
-    );
-    const natural: { breadth: number; depth: number; girth: number } = box(
-      "waist",
-      "waist",
-      (): number => model("waistBreadth"),
-      (): number => model("waistDepth"),
-    );
-    const pelvis: { breadth: number; depth: number; girth: number } = box(
-      "hip",
-      "hip",
-      (): number => model("hipBreadth"),
-      (): number => model("buttockDepth"),
-    );
+    const chest: { breadth: number; depth: number; girth: number } = box("chest", "chest", CHEST_BREADTH_ON_CHEST, B.CHEST_DEPTH_ON_CHEST);
+    const natural: { breadth: number; depth: number; girth: number } = box("waist", "waist", B.WAIST_BREADTH_ON_WAIST, B.WAIST_DEPTH_ON_WAIST);
+    const pelvis: { breadth: number; depth: number; girth: number } = box("hip", "hip", B.HIP_BREADTH_ON_HIP, B.BUTTOCK_DEPTH_ON_HIP);
     const waist: number = natural.girth;
     const hip: number = pelvis.girth;
     const t = {
@@ -182,8 +161,8 @@ export namespace AutoMovieHumanBodyAnatomy {
       waistDepth: natural.depth,
       hipBreadth: pelvis.breadth,
       buttockDepth: pelvis.depth,
-      bideltoidBreadth: given.bideltoidBreadth ?? model("bideltoidBreadth"),
-      bicristalBreadth: given.bicristalBreadth ?? model("bicristalBreadth"),
+      bideltoidBreadth: given.bideltoidBreadth ?? line(B.BIDELTOID_ON_CHEST, t.chest),
+      bicristalBreadth: given.bicristalBreadth ?? line(B.BICRISTAL_ON_HIP_BREADTH, pelvis.breadth),
       elbowBreadth: given.elbowBreadth ?? line(ELBOW_BREADTH_ON_FOREARM, t.forearm),
       wristBreadth: given.wristBreadth ?? line(WRIST_BREADTH_ON_WRIST, t.wrist),
       kneeBreadth: given.kneeBreadth ?? line(KNEE_BREADTH_ON_KNEE, t.knee),

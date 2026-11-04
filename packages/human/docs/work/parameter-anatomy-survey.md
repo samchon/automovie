@@ -272,17 +272,24 @@ At the chest, the natural waist and the hip (hip breadth with buttock depth and 
 
 ### Defaults
 
-| Field | Default now | Survey, R2 | Chosen law, waiting on its reading |
-| --- | --- | --- | --- |
-| `chestBreadth` | 43.06 + 0.2608 chest / -8.67 + 0.3330 chest | ANSUR 1988, 0.71 / 0.81 | kept |
-| `chestDepth` | ANSUR II model B on stature, BMI and age | ANSUR II, 0.70 / 0.79 | ANSUR 1988 chest depth on chest circumference (`test_human_survey_trunk_breadths`) |
-| `waistBreadth`, `waistDepth` | ANSUR II model B at the navel, held in the natural girth's box | ANSUR II, 0.70 / 0.80 and 0.73 / 0.81 | the navel section's law, ANSUR 1988 omphalion breadth and depth on omphalion girth, evaluated at the natural girth (`test_human_survey_waist_section`) |
-| `hipBreadth` | ANSUR II model B | ANSUR II, 0.69 / 0.72 | ANSUR 1988 hip breadth on buttock circumference |
-| `buttockDepth` | ANSUR II model B | ANSUR II, 0.79 / 0.83 | ANSUR 1988 buttock depth on buttock circumference |
-| `bideltoidBreadth` | ANSUR II model B | ANSUR II, 0.76 / 0.79 | the Human input with the best R2 among chest, waist and buttock girths, stature and biacromial breadth (ANSUR 1988) |
-| `bicristalBreadth` | ANSUR II model B | ANSUR II, 0.48 / 0.50 | the Human input with the best R2 among buttock girth and stature (ANSUR II) |
+Each is an ordinary least squares line by sex on the girth of its own level, printed by `test_human_survey_trunk_breadths` and `test_human_survey_waist_section` (run 14:26 to 14:30 on 2026-11-04 by the supervisor in the owner's test window), and held in its box.
 
-Model B reads stature, the body mass index the fat percentage implies (Deurenberg et al. 1991, at ANSUR II's mean age 28.9 / 30.2, held in the fit's 17 to 40 kg/m2) and age (`AutoMovieHumanBodyBreadths`). The owner suspended test runs before the survey readings ran, so the girth lines' coefficients are pending: when the readings run, each chosen line replaces its model B default with its coefficients and R2 recorded here. Every default, model B or girth line, is held in its box.
+| Field | Default, women / men | Survey, R2 |
+| --- | --- | --- |
+| `chestBreadth` | 43.06 + 0.2608 chest / -8.67 + 0.3330 chest | ANSUR 1988, 0.71 / 0.81 |
+| `chestDepth` | -31.82 + 0.2990 chest / -32.32 + 0.2779 chest | ANSUR 1988, 0.81 / 0.80 |
+| `waistBreadth` | 31.41 + 0.3261 waist / 34.50 + 0.3186 waist | ANSUR 1988 navel section on its own girth, 0.91 / 0.92, evaluated at the natural girth (derivation) |
+| `waistDepth` | -15.40 + 0.2770 waist / -12.23 + 0.2765 waist | ANSUR 1988 navel section, 0.85 / 0.87, at the natural girth (derivation) |
+| `hipBreadth` | 13.45 + 0.3406 hip / 52.60 + 0.2940 hip | ANSUR 1988, 0.84 / 0.81 |
+| `buttockDepth` | -42.22 + 0.2785 hip / -39.29 + 0.2927 hip | ANSUR 1988, 0.64 / 0.77 |
+| `bideltoidBreadth` | 185.09 + 0.2729 chest / 180.94 + 0.3135 chest | ANSUR 1988, 0.59 / 0.70 (the shoulder circumference, not an input, would give 0.86 / 0.87) |
+| `bicristalBreadth` | 67.19 + 0.5825 hip breadth / 96.96 + 0.5162 hip breadth | ANSUR II, 0.49 / 0.51 (buttock girth 0.45 / 0.42) |
+
+The natural waist's derivation, evaluated at every surveyed natural girth, gives breadth 268.0 (20.6) / 302.1 (23.6) and depth 185.6 (17.5) / 220.0 (20.5), and no subject's natural girth falls outside the derived box; the natural level stands 74.4 (21.0) / 68.3 (17.7) mm above the navel's.
+
+### The survey's own girths in their boxes
+
+`test_human_survey_box_consistency` reads every subject's girth against the box of their own breadth and depth. ANSUR 1988: chest, navel waist and hip all inside, but one woman's navel girth under its rhombus; fullness (0 the rhombus, 1 the box) 0.567 (0.071) / 0.575 (0.070) at the chest, 0.298 (0.054) / 0.314 (0.046) at the navel, 0.457 (0.053) / 0.412 (0.047) at the hip. ANSUR II: 577 of 4,082 men's chest girths above the box, because its chest breadth is taken at maximum inspiration with tissue compressed; navel and hip inside, fullness 0.432 / 0.413 and 0.535 / 0.512. The Human's `chestBreadth` therefore carries ANSUR 1988's definition and line.
 
 The references f1, f2, m1 and m2 keep the new fields at their defaults: the reference tests are retired, and the tester's input-identity audit reads each skin measure (chest depth, waist breadth and depth, hip breadth, buttock depth, bideltoid breadth once the arms hang) on the generated skin within 7 mm, ANSUR II's allowable error for chest breadth.
 
