@@ -1,5 +1,9 @@
 # Kernel worker log
 
+## Zero-turn topic review (2026-11-05 02:11:18 +09:00, Get-Date)
+
+The zero-turn topic's final self-review read the full changed interface, jointed/runs/course consumers and the complete independent unit. The refined complete round has already passed its finite/count and mixed-course observations and the actual f1 missing-toe counterexample is removed. No further runtime change was needed. Two acknowledgment overstatements were corrected: atan2 retains representable small normalized-vector angles, not arbitrary real angles, and frame queries still repeat quadrature on completed nonzero turns. No quadrature speedup is claimed. This independently validated topic is committed after the shared source evaluator; no mesh correction, source bound or full-rig pass is included.
+
 ## Evaluator topic review and refined zero-turn proof (2026-11-05 02:09:14 +09:00, Get-Date)
 
 The shared original evaluator's self-review followed both value and jet paths, pole/extension and critical-station arithmetic, ViewLoft admission/section/chain consumers, the comparison curve/crop/loader and their independent tests. Comparison's real consumer round completed 5/5 (`.shots/comparison_xhigh/source-viewer-round-tests.log`, 314,191 ms; original display 27 ms, Core source 64 ms, cache 110,341 ms). It exercises original edges when raw sections fail, actual frames, extrema, finite poles, stable raw top indices and reference crops without copying the source interpolation. This is a curve-display/standalone calibration consumer, not a successful full Human rig or a rendered shape acceptance. No new open finding was found on this evaluator topic. Existing mesh, axis, pole-surface, world-bound and modeling issues remain separate and open. The source evaluator is the prerequisite commit for Comparison's consumer topic.

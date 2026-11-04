@@ -150,14 +150,23 @@ export namespace AutoMovieViewAxis {
    * joint's rotation (minimal rotation for a planar turn), `v = u x t`.
    *
    * @param centres The first end, the joints and the last end, mm.
-   * @param halves Each interior centre's turn half length, mm, positive.
+   * @param halves Each interior centre's finite nonnegative half arclength, mm; positive for a nonzero turn, ignored for an exactly straight joint.
    * @param up The chart's first axis at the first segment.
    * @returns The axis, or the broken admission rule.
+   *
+   * @evidence contracts/common.md#principled-implementation Transports a frame through quintic-angle turns parameterized by arclength; exact parallel segments have no turn or setback, while atan2 of normalized cross magnitude and dot retains representable small nonzero angles that acos(dot) can lose.
+   * @evidence contracts/common.md#clear-and-simple-design Uses one admitted course for frames and published straight runs.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A nonzero turn requires positive half arclength; exact zero turns consume no length and near-parallel turns are not thresholded away.
+   * @evidence contracts/common.md#meaningful-documentation States arclength, initial frame, turn law, setback and explicit admission failure.
+   * @evidence contracts/performance.md#efficient-algorithms Course preparation is linear in centres with fixed quadrature per nonzero turn; a frame query walks preceding turns and repeats fixed quadrature for each nonzero one, including completed turns.
+   * @evidence contracts/performance.md#reuse-equivalent-work Prepares each turn's angle, axis and full setback once for all frame queries.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned axis owns its finite course arrays; frame query vectors are local and no global cache retains an axis.
    */
   export function jointed(centres: readonly Vec3[], halves: readonly number[], up: Vec3): IAxis | string {
     const c: ICourse | string = course(centres, halves);
     if (typeof c === "string") return c;
     const { directions, turns }: ICourse = c;
+    if (!up.every(Number.isFinite) || !Number.isFinite(Math.hypot(...up))) return "up is not a finite direction";
     const u0: Vec3 = sub(up, scale(directions[0]!, dot(up, directions[0]!)));
     const lu: number = Math.hypot(u0[0], u0[1], u0[2]);
     if (!(lu > 1e-9 * Math.hypot(up[0], up[1], up[2]))) return "up lies along the first segment";
@@ -252,17 +261,28 @@ export namespace AutoMovieViewAxis {
     turns: ITurn[];
   }
 
-  /** The course through the centres, or the broken admission rule. */
+  /**
+   * The course through the centres, or the broken admission rule.
+   *
+   * @evidence contracts/common.md#principled-implementation Integrates the unit tangent of each nonzero quintic-angle turn to obtain its bisector setback and arclength placement; an exact zero-angle joint contributes no turn or setback.
+   * @evidence contracts/common.md#clear-and-simple-design One course preparation serves jointed frame evaluation and public straight runs.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Finite centres, separations and nonnegative halves are required; nonzero angles require positive half length and overrun is refused rather than shortened.
+   * @evidence contracts/common.md#meaningful-documentation States explicit failure, arclength ownership and zero-turn treatment beside the calculations.
+   * @evidence contracts/performance.md#efficient-algorithms Linear passes in centre count and fixed quadrature per nonzero turn; exact straight joints need no quadrature.
+   * @evidence contracts/performance.md#reuse-equivalent-work Computes each complete turn setback once for the returned course's consumers.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Owns O(n) directions, lengths and turns; failure releases the local arrays and success transfers them to the caller.
+   */
   function course(centres: readonly Vec3[], halves: readonly number[]): ICourse | string {
     const m: number = centres.length;
     if (m < 2) return `${m} centres, at least two needed`;
+    if (!centres.every((p: Vec3): boolean => p.every(Number.isFinite))) return "joint centres are not finite";
     if (halves.length !== m - 2) return `${halves.length} half lengths for ${m - 2} interior centres`;
     const directions: Vec3[] = [];
     const lengths: number[] = [];
     for (let i: number = 0; i + 1 < m; i++) {
       const d: Vec3 = sub(centres[i + 1]!, centres[i]!);
       const l: number = Math.hypot(d[0], d[1], d[2]);
-      if (!(l > 0)) return `centres ${i} and ${i + 1} coincide`;
+      if (!(l > 0 && Number.isFinite(l))) return `centres ${i} and ${i + 1} have no finite positive separation`;
       directions.push(scale(d, 1 / l));
       lengths.push(l);
     }
@@ -271,16 +291,15 @@ export namespace AutoMovieViewAxis {
     const turns: ITurn[] = [];
     for (let i: number = 1; i + 1 < m; i++) {
       const h: number = halves[i - 1]!;
-      if (!(h > 0)) return `half length ${h} at centre ${i} is not positive`;
       const a: Vec3 = directions[i - 1]!;
       const b: Vec3 = directions[i]!;
-      const c: number = Math.max(-1, Math.min(1, dot(a, b)));
-      const angle: number = Math.acos(c);
-      if (!(angle < Math.PI - 1e-9)) return `segments ${i - 1} and ${i} are opposite`;
       const n: Vec3 = cross(a, b);
       const ln: number = Math.hypot(n[0], n[1], n[2]);
+      const angle: number = Math.atan2(ln, dot(a, b));
+      if (!(angle < Math.PI - 1e-9)) return `segments ${i - 1} and ${i} are opposite`;
+      if (!(Number.isFinite(h) && h >= 0 && (angle === 0 || h > 0))) return `half length ${h} at centre ${i} must be finite and nonnegative, and positive for a nonzero turn`;
       const axis: Vec3 = ln > 0 ? scale(n, 1 / ln) : [0, 0, 0];
-      const turn: ITurn = { centre: i, half: h, angle: ln > 0 ? angle : 0, axis, setback: h, start: 0 };
+      const turn: ITurn = { centre: i, half: angle === 0 ? 0 : h, angle, axis, setback: angle === 0 ? 0 : h, start: 0 };
       if (turn.angle > 0) {
         const displacement: Vec3 = integrate(a, turn, 2 * h);
         // D = d (a + b): read d along the bisector a + b.
