@@ -184,6 +184,17 @@ HEAD withdrew the simplified reach=L/2 hypothesis before reporting a shape defec
 
 For the actual defined glabella G and posterior profile P(y)=(x(y),y), `d|P-G|^2/dy=2*((x-gx)*x'+y-gy)`. At the current named occiput y=n, x'=0 and `gy=n+p.glabella*FH`, so the derivative is `-2*p.glabella*FH`. If that height difference is nonzero and the point is interior to the eligible cranial domain, it is not a stationary maximum of the caliper distance. This is a condition on the named generating profile; it does not identify a measured f1 opisthocranion or prescribe a fitted correction. HEAD received both the proof and its domain premise.
 
+## Ear source-consumer round, 2026-11-05 05:54:34 +09:00
+
+Read the complete current EarFrame, EarPlate, EarRidge and EarParts, the Lane-to-Composer ear-top transfer, and the independent source assertions. These are source identities and missing proof boundaries, not a new f1 reference reading or a claim about unviewed appearance. All four were handed to HEAD in one cause round before any corrective save by this worker.
+
+| Phenomenon | Root and contributing definition | Required distinction |
+| --- | --- | --- |
+| The private forward estimate is assigned but does not place the new plate | Frame computes `centre.x` from EarPlace.FORWARD.centre. Plate.root instead uses `tragion.x+s*a.x+n*n.x` and reads only centre.y/z; no current head consumer of centre.x was found. | A syntactic read of the estimate is not effective source placement. The frame's "published place" wording also misclassifies the private estimate. HEAD owns its placement choice; this worker does not prescribe restoring an inactive coefficient. |
+| The ear-top target is not algebraically closed by the new endpoint | For passed top T, old `centreY=T-L*a0.y/2-B*b0.y/2`; Plate's actual upper endpoint is `centreY+L*a.y/2+stand*n.y` after the axis projection and free-end stand. | The difference is `L*(a.y-a0.y)/2-B*b0.y/2+stand*n.y`, not an identity of zero. Existing sa-sba/c-j assertions do not check this height. Close the chosen law on its actual named point rather than add a fitted cancellation. |
+| Protrusion currently closes an internal projection | The tragal half-chord and flare make `dot(posterior-attachment,n)=P`. | Actual scalp membership of the attachment and correspondence of n to the public p2 measurement direction are not established by that identity. The current independent source case has no protrusion observation. This is a metric/site proof gap, not a measured scalp-distance error. |
+| The three fork courses share a point but have zero cross section there | Antihelix ends at forkPoint and both crura start there. EarRidge sets all four endpoint supports to zero with both poles. | Shared axis points do not supply a nonzero raised fork. Whether the parent merge produces the required junction remains unverified; no new radius or source course was invented here. |
+
 ## Modeler handoff definitions
 
 ### Actual consumer follow-up, 2026-11-05 05:37:46 +09:00

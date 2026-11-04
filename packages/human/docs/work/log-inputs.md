@@ -2,6 +2,18 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 ear source definition round (2026-11-05 05:54:34 +09:00, Get-Date)
+
+Directly read complete current EarFrame/Plate/Ridge/Parts and their Lane-to-Composer top transfer/source assertions. Gathered four related findings before any shape correction: computed FORWARD centre.x is not consumed by the plate; the old centreY plus new projected axis/free-end stand does not identically close passed ear-top height; internal protrusion projection does not prove actual scalp distance; all three ridge courses taper to zero at the shared fork. The audit states exact equations, contributors and proof boundaries. HEAD and the supervisor received all four as one source-cause round. No reference measurement, new coefficient, modeler edit, render or test was made here.
+
+BODY also supplied its next exact FootInterim.define record boundary. Global metatarsal supports/transverse scale and each generated root/apex/walk are shared with one foot definition; rig registration remains separate. Returned comments request explicit root-centre versus surface-contact meaning and calibration-mm stations, with actual source-course Y/depth rather than an unrelated linear-table reading. This is an API review before the owned modeler's save, not implementation or acceptance of the new toe geometry.
+
+At 05:56:03 +09:00 (Get-Date), completed the two-document diff review and a complete search of the head frame's current consumer references. The findings remain bounded to the inspected source, with no claimed viewer or reference result; `git diff --check` was clean. Git mutation is deferred until the supervisor coordinates the shared index after the earlier observed lock collision.
+
+## #3062 arm protocol image use ended (2026-11-05 05:47:17 +09:00, Get-Date)
+
+After BODY confirmed its use ended, verified the exact absolute task-owned ansur-arm-089.png path and ordinary-file/non-reparse attributes, then removed that one PNG with literal-path Remove-Item without Force. Test-Path confirms it is absent and the original ANSUR PDF/text plus HEAD's still-needed SHIN plot remain present. Ali/Patil material is also retained for the open foot definitions. No recursive cleanup, junction, source change or other worker's evidence was involved.
+
 ## #3062 C7 source checkpoint completed (2026-11-05 05:45:01 +09:00, Get-Date)
 
 Directly read CORE's completed `material-roll-boundary-consumer-full-round.log`: start 05:38:24, 42/48 in 124,154 ms, exit 1. Both head questions pass in 895/581 ms; the adopted C7 height, actual mass stature and menton-to-vertex height have zero delta, while mass/neck posterior-point separation is 8.8817841970e-15 mm. The head source findings are empty. All six failing-case names remain, including the unchanged bilateral median counterexamples. This is the log's completed result, not a claim that this worker reaped CORE's process or ran another test.
