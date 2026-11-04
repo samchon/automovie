@@ -136,17 +136,42 @@ export namespace AutoMovieHumanBodySurfacePhases {
       },
     );
 
-    // Nearest sample, then the nearest point on its two chords.
+    // Cumulative chord length of the dense samples: a sample closes on a
+    // point by no more than the curve's length to it.
+    const along: number[] = [0];
+    for (let k: number = 1; k < n; k++)
+      along.push(along[k - 1]! + Math.hypot(curve[k]![0] - curve[k - 1]![0], curve[k]![1] - curve[k - 1]![1]));
+
+    // Nearest sample, then the nearest point on its two chords. The ring is
+    // walked in order, so the last point's sample bounds the scan from the
+    // first step and the length bound passes over the rest; the nearest
+    // sample is the one the full scan finds.
+    let previous: number = -1;
     const projected: number[] = outline.map((p: [number, number]): number => {
       let best: number = 0;
       let distance: number = Infinity;
-      curve.forEach((q: [number, number], k: number): void => {
+      if (previous >= 0) {
+        best = previous;
+        distance = (curve[previous]![0] - p[0]) ** 2 + (curve[previous]![1] - p[1]) ** 2;
+      }
+      for (let k: number = 0; k < n; ) {
+        const q: [number, number] = curve[k]!;
         const d: number = (q[0] - p[0]) ** 2 + (q[1] - p[1]) ** 2;
         if (d < distance) {
           distance = d;
           best = k;
         }
-      });
+        const reach: number = along[k]! + Math.sqrt(d) - Math.sqrt(distance) - 1e-9;
+        let low: number = k + 1;
+        let high: number = n;
+        while (low < high) {
+          const middle: number = (low + high) >> 1;
+          if (along[middle]! < reach) low = middle + 1;
+          else high = middle;
+        }
+        k = low;
+      }
+      previous = best;
       let phase: number = best;
       let closest: number = Infinity;
       for (const k of [best - 1, best]) {

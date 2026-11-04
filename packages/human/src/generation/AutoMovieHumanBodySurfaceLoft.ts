@@ -191,7 +191,7 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     const middle: number = loop.reduce((a: number, p: [number, number]): number => a + p[0], 0) / loop.length;
     AutoMovieHumanLoftMesh.group(context.mesh, interval(base, middle, middle));
     const rim: [number, number, number][] = loop.map(
-      ([s, t]: [number, number]): [number, number, number] => AutoMovieHumanLoftChain.ring(base, s, [t])[0]!,
+      ([s, t]: [number, number]): [number, number, number] => AutoMovieHumanLoftChain.point(base, s, t),
     );
     context.rims.set(prepared.aperture.name, rim);
     const ring: number[] = AutoMovieHumanLoftMesh.vertices(context.mesh, rim);

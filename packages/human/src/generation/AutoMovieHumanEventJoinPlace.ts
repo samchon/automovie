@@ -40,9 +40,12 @@ export namespace AutoMovieHumanEventJoinPlace {
     );
 
     // World move of every end point; zero off the arcs or off the ring.
+    // Consecutive end points lie near consecutive parent samples.
+    let last: number | undefined;
     const moves: Vec3[] = AutoMovieHumanLoftChain.ring(child, sc, phases).map(
       (p: Vec3): Vec3 => {
-        const [tau, q, distance] = nearest(ring, p);
+        const [tau, q, distance, found] = nearest(ring, p, last);
+        last = found;
         const w: number = ring.weight(tau) * (1 - smooth((distance - 0.5) / FAR));
         return scale(sub(q, p), w);
       },

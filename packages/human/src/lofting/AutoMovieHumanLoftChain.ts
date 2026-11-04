@@ -454,6 +454,33 @@ export namespace AutoMovieHumanLoftChain {
     };
   }
 
+  /**
+   * One world point of the chain at station s and phase t. Readers of single
+   * points (a strip's columns, a trim loop's rim, a difference across a
+   * loop) meet the same few stations again and again, so the samplers of the
+   * last {@link RECENT} stations read per chain are kept; a chain is never
+   * changed once built, so a kept sampler stays its station's.
+   *
+   * @param chain Chain to evaluate.
+   * @param s Station within the chain.
+   * @param t Phase in radians.
+   */
+  export function point(chain: IAutoMovieHumanLoftChain, s: number, t: number): [number, number, number] {
+    let kept: { s: number; at: (t: number) => [number, number, number] }[] | undefined = SAMPLERS.get(chain);
+    if (kept === undefined) SAMPLERS.set(chain, (kept = []));
+    for (const entry of kept) if (entry.s === s) return entry.at(t);
+    const at: (t: number) => [number, number, number] = sampler(chain, s);
+    kept.unshift({ s, at });
+    if (kept.length > RECENT) kept.pop();
+    return at(t);
+  }
+
+  /** Stations whose samplers {@link point} keeps per chain. */
+  const RECENT: number = 8;
+
+  /** The kept samplers, by chain. */
+  const SAMPLERS: WeakMap<IAutoMovieHumanLoftChain, { s: number; at: (t: number) => [number, number, number] }[]> = new WeakMap();
+
   /** Unit normal `v x u` of a section frame: up for a horizontal frame. */
   function normal(f: AutoMovieHumanLoftFrame.IFrame): [number, number, number] {
     return [

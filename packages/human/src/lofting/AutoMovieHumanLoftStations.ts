@@ -49,13 +49,14 @@ export namespace AutoMovieHumanLoftStations {
     ];
 
     const out: number[] = [from];
-    const split = (a: number, b: number, level: number): void => {
+    // Each interval's end sections are handed down to its halves, so every
+    // station's section is evaluated once.
+    const at: (s: number) => Ring = (s: number): Ring => AutoMovieHumanLoftChain.ring(chain, s, probes);
+    const split = (a: number, b: number, level: number, ra: Ring, rb: Ring): void => {
       const m: number = (a + b) / 2;
 
       if (level < depth) {
-        const ra: [number, number, number][] = AutoMovieHumanLoftChain.ring(chain, a, probes);
-        const rb: [number, number, number][] = AutoMovieHumanLoftChain.ring(chain, b, probes);
-        const rm: [number, number, number][] = AutoMovieHumanLoftChain.ring(chain, m, probes);
+        const rm: Ring = at(m);
 
         // Largest distance between the midpoint section and the average of
         // its end sections, i.e. the flat band's sagitta. For horizontal
@@ -73,16 +74,23 @@ export namespace AutoMovieHumanLoftStations {
         });
 
         if (error > tolerance) {
-          split(a, m, level + 1);
-          split(m, b, level + 1);
+          split(a, m, level + 1, ra, rm);
+          split(m, b, level + 1, rm, rb);
           return;
         }
       }
       out.push(b);
     };
 
-    for (let i: number = 1; i < marks.length; i++)
-      split(marks[i - 1]!, marks[i]!, 0);
+    let last: Ring = at(marks[0]!);
+    for (let i: number = 1; i < marks.length; i++) {
+      const next: Ring = at(marks[i]!);
+      split(marks[i - 1]!, marks[i]!, 0, last, next);
+      last = next;
+    }
     return out;
   }
 }
+
+/** A section's points at the probe phases, mm. */
+type Ring = [number, number, number][];

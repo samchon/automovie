@@ -192,7 +192,7 @@ export namespace AutoMovieHumanBodyStrip {
 
   /** Surface point of a chain at a chart point, the station clamped into the chain. */
   export function surface(chain: IAutoMovieHumanLoftChain, s: number, t: number): V {
-    return AutoMovieHumanLoftChain.ring(chain, clamp(chain, s), [t])[0]!;
+    return AutoMovieHumanLoftChain.point(chain, clamp(chain, s), t);
   }
 
   /**

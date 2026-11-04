@@ -91,6 +91,8 @@ export namespace AutoMovieHumanEventJoinSlope {
         )) /
       (2 * Math.PI);
     const most: number = reach > 0 ? (27 * BULGE) / (4 * reach) : 0;
+    // Consecutive child points lie near consecutive parent samples.
+    let last: number | undefined;
     for (let i: number = 0; i < Q; i++) {
       const t: number = (2 * Math.PI * i) / Q;
       const s: [number, number, number, number] = AutoMovieHumanLoftChain.section(
@@ -101,7 +103,8 @@ export namespace AutoMovieHumanEventJoinSlope {
       const p: Vec3 = onChild(t);
 
       // Nearest parent sample, then the parent's jets there.
-      const [tau, , distance] = nearest(ring, p);
+      const [tau, , distance, found] = nearest(ring, p, last);
+      last = found;
       // Both guards fade rather than switch: a change that turns on and off from
       // one sample to the next prints ribs across the seam.
       const w: number = ring.weight(tau) * (1 - smooth((distance - 0.5) / FAR));

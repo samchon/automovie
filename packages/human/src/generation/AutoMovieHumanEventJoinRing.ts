@@ -79,12 +79,25 @@ export namespace AutoMovieHumanEventJoinRing {
     return { sp, points: ring, length, weight };
   }
 
-  /** Nearest point of a dense ring to p: its phase, the point on the closer neighbouring segment, and the distance. */
-  export function nearest(ring: IRing, p: Vec3): [number, Vec3, number] {
+  /**
+   * Nearest point of a dense ring to p: its phase, the point on the closer
+   * neighbouring segment, the distance, and the nearest sample's index.
+   * A caller walking a ring in order passes the sample it found last as
+   * `guess`: its distance bounds the scan from the first step, so the arc
+   * length bound passes over almost every sample.
+   */
+  export function nearest(ring: IRing, p: Vec3, guess?: number): [number, Vec3, number, number] {
     const n: number = ring.points.length;
     let best: number = 0;
     let distance: number = Infinity;
     let bound: number = Infinity;
+    if (guess !== undefined && guess >= 0 && guess < n) {
+      const g: Vec3 = ring.points[guess]!;
+      const square: number = (g[0] - p[0]) ** 2 + (g[1] - p[1]) ** 2 + (g[2] - p[2]) ** 2;
+      best = guess;
+      distance = Math.sqrt(square);
+      bound = square * (1 + 1e-9);
+    }
     for (let j: number = 0; j < n; ) {
       const q: Vec3 = ring.points[j]!;
       const x: number = q[0] - p[0];
@@ -131,6 +144,6 @@ export namespace AutoMovieHumanEventJoinRing {
         point = q;
       }
     }
-    return [(2 * Math.PI * best) / n, point, distance];
+    return [(2 * Math.PI * best) / n, point, distance, best];
   }
 }
