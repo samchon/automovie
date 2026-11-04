@@ -196,7 +196,8 @@ export namespace AutoMovieHumanBodySurfaceSolids {
     const offset: number = context.mesh.positions.length / 3;
     while (context.coordinates.length < 3 * offset) context.coordinates.push(NaN);
     const chainOf: number[] = mesh.owners.map((o: AutoMovieHumanSolidMesh.IOwner): number => context.indices.get(o.name)!);
-    context.mesh.positions.push(...mesh.positions);
+    // One by one: a spread of a whole mesh's buffer overflows the call stack.
+    for (const x of mesh.positions) context.mesh.positions.push(x);
     for (let v: number = 0; v < mesh.coordinates.length / 3; v++) {
       const owner: number = mesh.coordinates[3 * v]!;
       context.coordinates.push(Number.isFinite(owner) ? chainOf[owner]! : NaN, mesh.coordinates[3 * v + 1]!, mesh.coordinates[3 * v + 2]!);

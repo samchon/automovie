@@ -95,6 +95,11 @@ export namespace AutoMovieHumanSolidBlendChain {
     for (let k: number = 0; k < count; k++) {
       const c: AutoMovieHumanSolidJoin.IColumn | null = join.column(seed + (2 * Math.PI * k) / count);
       if (c === null) return null;
+
+      // A column with a non-finite rail or ribbon (a solve that failed
+      // silently) is refused, never published into a chain.
+      const finite = (v: readonly number[]): boolean => v.every((x: number): boolean => Number.isFinite(x));
+      if (!(finite(c.start.point) && finite(c.start.first) && finite(c.start.second) && finite(c.end.point) && finite(c.end.first) && finite(c.end.second))) return null;
       columns.push(c);
     }
 
