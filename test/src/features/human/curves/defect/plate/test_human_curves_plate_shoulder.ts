@@ -18,7 +18,7 @@ const A: typeof HumanAnatomy = HumanAnatomy;
  * buttock's rearmost outline has one maximum and only comes forward from it.
  *
  * Scenarios:
- * 1. Red proof on f1: a plate made on the highest skin 10 to 20 mm lateral of the left shoulder point, lifted to stand 3 mm over the point and pushed 8 mm outward over a 20 mm patch, reads past both shoulder bounds; a 15 mm lump 0.06 S above the left hip joint, pushed back to stand 3 mm behind the outline one radius under it, reads past the buttock bound; the unedited rows read below the made ones.
+ * 1. Red proof on f1: a plate made on the highest skin 10 to 20 mm lateral of the left shoulder point, lifted to stand 3 mm over the point and pushed outward past the unedited widening by 3 mm over a 20 mm patch, reads past both shoulder bounds; a 15 mm lump 0.06 S above the left hip joint, pushed back to stand 3 mm behind the outline one radius under it, reads past the buttock bound; the unedited rows read below the made ones.
  * 2. Every person of `HumanPeople`: both shoulders and both buttocks, every row past its bound listed by person, side and height.
  *
  * @evidence contracts/testing.md#behavioral-verification Bins every skin vertex of one half body in 2 mm heights (`HumanCurveSilhouette`): the frontal half width and the highest skin lateral of the shoulder point (the skin over the shoulder joint, `HumanAnatomyCourseLandmarks.shoulderPoint`) on the neutral skin, and the rearmost reach behind the hip joint from 0.04 S below it to 0.08 S above it on the bind skin, trunk and own leg only. It catches the wing plates projecting sideways above f2's shoulders and the lump behind f2's buttocks that the 02:50 frames show, whatever their width, which a chord-sharpness rule misses when the plate is broad.
@@ -58,8 +58,13 @@ function proof(): string[] {
   // so a fixed lift from a centre under the skin read below it.
   const seat: V3 | null = highest(neutral, point, 10, 20);
   if (seat === null) return ["proof: f1 has no skin 10 to 20 mm lateral of its left shoulder point"];
-  const plate: HumanAnatomy.ISkin = moved(neutral, seat, 20, [0, point[1] - seat[1] + PROUD, 8]);
+
+  // It is pushed out past the row's own unedited widening by the same margin,
+  // so the widening's maximum moves to the plate wherever the unedited
+  // skin's own worst site stands (a fixed 8 mm push read 4.05 against 4.05).
   const before: IRow[] = HumanCurveSilhouette.shoulder("f1", neutral, S, "left");
+  const widening: number = Math.max(0, before[1]?.value ?? 0);
+  const plate: HumanAnatomy.ISkin = moved(neutral, seat, 20, [0, point[1] - seat[1] + PROUD, widening + PROUD]);
   const after: IRow[] = HumanCurveSilhouette.shoulder("f1 made plate", plate, S, "left");
   after.forEach((r: IRow, i: number): void => {
     if (HumanAnatomyAudit.passes(r) || !(r.value > before[i]!.value)) out.push(`proof: made plate reads ${r.value.toFixed(2)} (unedited ${before[i]!.value.toFixed(2)}) on ${r.site}, expected past ${r.high}`);
@@ -75,6 +80,10 @@ function proof(): string[] {
   const above: number = 0.06 * S;
   const back: number = rearmost(bind, hip, above);
   const under: number = rearmost(bind, hip, above - LUMP);
+  if (!(back > 0) || !(under > 0)) {
+    out.push(`proof: f1 has no skin behind the left hip joint ${above.toFixed(0)} or ${(above - LUMP).toFixed(0)} mm above it to stand the made lump on`);
+    return out;
+  }
   const lump: HumanAnatomy.ISkin = moved(bind, [hip[0] - back, hip[1] + above, hip[2]], LUMP, [-(under - back + PROUD), 0, 0]);
   const flat: IRow = HumanCurveSilhouette.buttock("f1", bind, S, "left");
   const made: IRow = HumanCurveSilhouette.buttock("f1 made lump", lump, S, "left");
