@@ -1,7 +1,6 @@
-import type { AutoMovieLoftContract, AutoMovieLoftFrame, AutoMovieSolidVector, IAutoMovieLoftChain } from "@automovie/engine";
+import type { AutoMovieLoftContract, AutoMovieLoftFrame, AutoMovieSolidBody, AutoMovieSolidVector, IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieConstructionNode, IAutoMovieConstructionView } from "@automovie/interface";
 import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanArmWalk } from "./arm/AutoMovieHumanArmWalk";
 import type { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
 import { AutoMovieHumanFootPart } from "./foot/AutoMovieHumanFootPart";
@@ -17,7 +16,7 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * The body lane's subtree (#3047 to #3051) as one construction tree realized
  * by the engine (`AutoMovieHumanBodyTree`): every part a view node built from
  * its views, every join a merge node with a search seed and fold widths,
- * published as chains and merge entries for the calibration, from the laws
+ * published as chains and the realized body for the calibration, from the laws
  * the caller binds.
  *
  * Parts: the trunk with its breasts and gluteal masses
@@ -97,8 +96,8 @@ export namespace AutoMovieHumanBodyLane {
     /** Every part's chain and every blend's. */
     chains: IAutoMovieLoftChain[];
 
-    /** Every join's merge entry. */
-    merges: IAutoMovieHumanBodyCalibration.IMerge[];
+    /** The realized body of trimmed faces, every face a chain of `chains`. */
+    bodies: AutoMovieSolidBody.IPublished[];
 
     /** Every broken premise. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
@@ -125,7 +124,7 @@ export namespace AutoMovieHumanBodyLane {
    * Assemble the body lane.
    *
    * @param input The trunk, both sides' parts and their folds.
-   * @returns The chains, the merges and the diagnostics.
+   * @returns The chains, the realized body and the diagnostics.
    */
   export function create(input: IInput): IOutput {
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
@@ -187,23 +186,27 @@ export namespace AutoMovieHumanBodyLane {
       if (arm !== null) root = AutoMovieHumanBodyTree.join(root, fold(branches(arm, side.fingers), arm.name, trunk.trunk.name, side.arm.trunk, side.arm.trunk.radius), limits);
     }
     const realized: AutoMovieHumanBodyTree.IOutput = AutoMovieHumanBodyTree.realize("body", root, limits, diagnostics);
-    return publishable(realized.chains, realized.merges, diagnostics);
+    return publishable(realized.chains, [realized.body], diagnostics);
   }
 
   /**
-   * The chains and merges that can be published: a chain holding a
+   * The chains and bodies that can be published: a chain holding a
    * non-finite number in any layer (a section, a slope, a curvature, a plane
    * or its station derivatives) is left out with one diagnostic, and every
-   * merge naming it with it, because the skin's station bisection over such a
+   * body naming it with it, because the skin's station bisection over such a
    * chain never meets its tolerance (`construction.md`: a piece that cannot
    * keep its contract records one diagnostic and the figure is still made).
    *
    * @param chains The built chains.
-   * @param merges The built merges.
-   * @param diagnostics Where each dropped chain and merge is recorded.
-   * @returns The finite chains and the merges whose chains all remain.
+   * @param bodies The realized bodies; one naming a chain left out is left out with it.
+   * @param diagnostics Where each dropped chain and body is recorded.
+   * @returns The finite chains and the bodies whose chains all remain.
    */
-  function publishable(chains: IAutoMovieLoftChain[], merges: IAutoMovieHumanBodyCalibration.IMerge[], diagnostics: AutoMovieLoftContract.IDiagnostic[]): IOutput {
+  function publishable(
+    chains: IAutoMovieLoftChain[],
+    bodies: AutoMovieSolidBody.IPublished[],
+    diagnostics: AutoMovieLoftContract.IDiagnostic[],
+  ): IOutput {
     const finite = (values: readonly number[] | undefined): boolean => values === undefined || values.every(Number.isFinite);
     const plane = (f: AutoMovieLoftFrame.IFrame | undefined): boolean => f === undefined || [...f.origin, ...f.u, ...f.v].every(Number.isFinite);
     const sound = (c: IAutoMovieLoftChain): boolean =>
@@ -218,15 +221,14 @@ export namespace AutoMovieHumanBodyLane {
       diagnostics.push({ producer: `lane.${c.name}`, level: 6, contract: "finite chain", detail: `${c.name} holds a non-finite number in a layer and is left out` });
       return false;
     });
-    const joined: IAutoMovieHumanBodyCalibration.IMerge[] = merges.filter((m: IAutoMovieHumanBodyCalibration.IMerge): boolean => {
-      const numbers: boolean = Number.isFinite(m.length) && m.across.every((a: [number, number]): boolean => a.every(Number.isFinite)) && (m.partAcross ?? []).every((a: [number, number]): boolean => a.every(Number.isFinite));
-      if (numbers && !dropped.has(m.blend) && !dropped.has(m.host) && !dropped.has(m.part)) return true;
-      diagnostics.push({ producer: `lane.${m.blend}`, level: 6, contract: "finite chain", detail: `the merge of ${m.part} onto ${m.host} names a chain left out` });
-      return false;
-    });
     return {
-      chains: kept.filter((c: IAutoMovieLoftChain): boolean => !c.name.startsWith("blend.") || joined.some((m: IAutoMovieHumanBodyCalibration.IMerge): boolean => m.blend === c.name)),
-      merges: joined,
+      chains: kept,
+      bodies: bodies.filter((b: AutoMovieSolidBody.IPublished): boolean => {
+        const lost: string[] = b.faces.map((f: AutoMovieSolidBody.IPublished["faces"][number]): string => f.chain).filter((n: string): boolean => dropped.has(n));
+        if (lost.length === 0) return true;
+        diagnostics.push({ producer: `lane.${b.name}`, level: 6, contract: "finite chain", detail: `the body names ${lost.join(", ")}, chains left out, so it is left out` });
+        return false;
+      }),
       diagnostics,
     };
   }

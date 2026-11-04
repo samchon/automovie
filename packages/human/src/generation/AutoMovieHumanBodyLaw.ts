@@ -163,7 +163,8 @@ export namespace AutoMovieHumanBodyLaw {
           { parent: "head", direction: "down", splits: [{ child: "trunk", arcs: [[0, 2 * Math.PI]] }] },
         ],
         poles: today.poles.filter((p: IAutoMovieHumanBodyCalibration.IPole): boolean => headChains.has(p.chain)),
-        merges: lane.merges,
+        merges: undefined,
+        bodies: lane.bodies,
         appendages: undefined,
 
         // Interim: today's nail windows name stations of today's digit

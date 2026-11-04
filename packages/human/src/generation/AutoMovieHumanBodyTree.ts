@@ -1,8 +1,6 @@
-import { type AutoMovieConstructionRealization, type AutoMovieLoftContract, type IAutoMovieLoftChain, realizeAutoMovieConstruction } from "@automovie/engine";
+import { type AutoMovieConstructionRealization, type AutoMovieLoftContract, type AutoMovieSolidBody, type IAutoMovieLoftChain, realizeAutoMovieConstruction } from "@automovie/engine";
 import type { AutoMovieConstructionNode, IAutoMovieConstructionDiagnostic, IAutoMovieConstructionJoin } from "@automovie/interface";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanConstructionView } from "./limb/AutoMovieHumanConstructionView";
-import { AutoMovieHumanMergeEntry } from "./limb/AutoMovieHumanMergeEntry";
 
 /**
  * The body's construction tree (#3044, construction step 2; #3047 to #3051)
@@ -13,12 +11,12 @@ import { AutoMovieHumanMergeEntry } from "./limb/AutoMovieHumanMergeEntry";
  * hosts already share. The engine traces, blends, trims and draws; this
  * module only names the tree and publishes what the engine returns.
  *
- * Publication (the join adapter): the calibration's merge record names the
- * blend, its host chain and its part chain. Each realized join carries its
- * node's name and its seed's faces (`AutoMovieConstructionRealization.IJoin`),
- * so its record is the join's blend on the seed's host face and part face; a
- * curve that crosses onto a neighbouring host face is still recorded on the
- * face its seed named.
+ * Publication: the realized body of trimmed faces as the engine published it
+ * (`IAutoMovieHumanBodyCalibration.bodies`), its faces the parts' chains and
+ * the joins' blend chains, every shared boundary one set of points. A join's
+ * curve may cross from the face its seed named onto a neighbouring host face
+ * (a leg's fold onto a gluteal mass's blend); the body keeps those crossings,
+ * which a per-join merge record on one host face cannot.
  */
 export namespace AutoMovieHumanBodyTree {
   /** One fold's join onto the subtree built so far, calibration mm. */
@@ -62,8 +60,8 @@ export namespace AutoMovieHumanBodyTree {
     /** Every part's chain, then every blend's. */
     chains: IAutoMovieLoftChain[];
 
-    /** Every join's merge record. */
-    merges: IAutoMovieHumanBodyCalibration.IMerge[];
+    /** The realized body of trimmed faces sharing their boundaries, as the calibration publishes it (`IAutoMovieHumanBodyCalibration.bodies`). */
+    body: AutoMovieSolidBody.IPublished;
   }
 
   /**
@@ -102,22 +100,15 @@ export namespace AutoMovieHumanBodyTree {
    * @param root The subtree.
    * @param limits The trace limits and the skin's chord.
    * @param diagnostics Where every premise the tree could not keep is recorded.
-   * @returns The chains and merge records.
+   * @returns The chains and the realized body.
    */
   export function realize(name: string, root: AutoMovieConstructionNode, limits: ILimits, diagnostics: AutoMovieLoftContract.IDiagnostic[]): IOutput {
     const result: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name, root }, { chord: limits.gap * AutoMovieHumanConstructionView.METRES });
     diagnostics.push(
       ...result.diagnostics.map((d: IAutoMovieConstructionDiagnostic): AutoMovieLoftContract.IDiagnostic => ({ producer: `tree.${d.node}`, level: 3, contract: d.contract, detail: d.detail })),
     );
-    const chains: IAutoMovieLoftChain[] = [...result.chains];
-    const merges: IAutoMovieHumanBodyCalibration.IMerge[] = [];
-    // Each join's blend as the realization built it (named as its node, on
-    // the node's columns), not solved again.
-    for (const j of result.joins) {
-      const entry: AutoMovieHumanMergeEntry.IEntry = AutoMovieHumanMergeEntry.from(j.hostFace, j.partFace, j.blend, limits.gap, false);
-      chains.push(entry.chain);
-      merges.push(entry.merge);
-    }
-    return { chains, merges };
+    // Each join's blend as the realization built it, named as its node, a
+    // face of the realized body beside the parts' faces.
+    return { chains: [...result.chains, ...result.joins.map((j: AutoMovieConstructionRealization.IJoin): IAutoMovieLoftChain => j.blend.chain)], body: result.body };
   }
 }
