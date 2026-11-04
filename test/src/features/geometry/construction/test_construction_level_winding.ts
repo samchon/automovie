@@ -12,8 +12,8 @@ type V3 = [number, number, number];
  * pointing away from the part's centre.
  *
  * Scenarios:
- * 1. A sphere of radius 0.02 m centred 0.05 m along +x, on a straight axis (u = +x, v = +z, stations along +y), merged onto a sphere of radius 0.05 m at the origin: at least 95 % of the part's triangles face away from its centre.
- * 2. The same part on a level axis (the world's level planes at the station's height, its origin's course 0.05 m in x and 0 in z): the same share faces out. The head's nose, the only level-axis part of the head, rendered as a pit (log-head.md, nose1/merge-three.png) while every straight-axis part rendered right.
+ * 1. A sphere of radius 0.02 m centred 0.05 m along +y (on the host's top), on a straight axis (u = +x, v = +z, stations along +y), merged onto a sphere of radius 0.05 m at the origin: at least 95 % of the part's triangles face away from its centre.
+ * 2. The same part on a level axis (the world's level planes at the station's height, its origin's course 0 in x and z, its stations the heights): the same share faces out. The head's nose, the only level-axis part of the head, rendered as a pit (log-head.md, nose1/merge-three.png) while every straight-axis part rendered right.
  * 3. Red: the straight part's triangles read with their winding turned, which face inward, fail the same share.
  *
  * @evidence contracts/testing.md#behavioral-verification Realizes each merge with `realizeAutoMovieConstruction` and reads the one skin it draws (`IRealization.mesh`): each triangle's owner (the face that evaluates its first vertex) and its normal from its corners in index order. It catches a face whose triangles are wound against its outward side, which a renderer culls and shows as a hole; any skin wound outward passes.
@@ -25,13 +25,18 @@ export function test_construction_level_winding(): void {
   const failures: string[] = [];
   const R: number = 0.05;
   const r: number = 0.02;
-  const centre: V3 = [0.05, 0, 0];
+  const centre: V3 = [0, 0.05, 0];
   const host: AutoMovieConstructionNode = ConstructionShapes.ellipsoid("host", { origin: { x: 0, y: 0, z: 0 }, u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 } }, R, R, R);
-  const straight: IAutoMovieConstructionView = ConstructionShapes.ellipsoid("part", { origin: { x: centre[0], y: 0, z: 0 }, u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 } }, r, r, r);
+  const straight: IAutoMovieConstructionView = ConstructionShapes.ellipsoid("part", { origin: { x: 0, y: centre[1], z: 0 }, u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 } }, r, r, r);
+  // The level twin: stations are heights, so every station of the straight
+  // part (centred at station 0) moves up by the centre's height.
+  const lift: (value: unknown, key?: string) => unknown = (value: unknown, key?: string): unknown =>
+    Array.isArray(value) ? value.map((v: unknown): unknown => lift(v, key)) : typeof value === "object" && value !== null ? Object.fromEntries(Object.entries(value).map(([k, v]: [string, unknown]): [string, unknown] => [k, lift(v, k)])) : typeof value === "number" && (key === "station" || key === "stations") ? value + centre[1] : value;
+  const raised: IAutoMovieConstructionView = lift(straight) as IAutoMovieConstructionView;
   const course: (value: number) => IAutoMovieConstructionOutline = (value: number): IAutoMovieConstructionOutline => ({
-    knots: straight.stations.map((s: number, k: number): { site: string; station: number; value: number } => ({ site: `part.${k}`, station: s, value })),
+    knots: (lift(straight.stations, "stations") as number[]).map((s: number, k: number): { site: string; station: number; value: number } => ({ site: `part.${k}`, station: s, value })),
   });
-  const level: IAutoMovieConstructionView = { ...straight, axis: { type: "level", origin: { x: course(centre[0]), z: course(0) } } };
+  const level: IAutoMovieConstructionView = { ...raised, axis: { type: "level", origin: { x: course(0), z: course(0) } } };
 
   const outward: (part: IAutoMovieConstructionView, turned: boolean) => number = (part: IAutoMovieConstructionView, turned: boolean): number => {
     const real: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction(
@@ -43,7 +48,7 @@ export function test_construction_level_winding(): void {
           name: "blend.part",
           host,
           part,
-          seed: { type: "search", partFace: "part", hostFace: "host", phase: Math.PI, from: 0.5, to: 1 },
+          seed: { type: "search", partFace: "part", hostFace: "host", phase: 0, from: 0, to: 0.5 },
           parameter: { type: "phase" },
           partWidth: { type: "chord", value: 0.003 },
           hostWidth: { type: "chord", value: 0.003 },
