@@ -43,6 +43,9 @@ export namespace AutoMovieHumanHeadTree {
   /** Share of the normal-section radius each blend's chord takes at every traced point, the rolling ball's safe margin. */
   export const SHARE: number = 0.5;
 
+  /** Share of the station distance to a rail surface's nearer end each blend's chord stays within, so no rail runs past a part's pole (the nose's columella, the auricle's apex under the concha). */
+  export const END: number = 0.5;
+
   /** Traced points per join. */
   export const COUNT: number = 64;
 
@@ -103,6 +106,7 @@ export namespace AutoMovieHumanHeadTree {
       type: "curvature",
       share: SHARE,
       cap: AutoMovieHumanSeamUnion.width(feature.size[0], feature.size[1]) * METRES,
+      end: END,
     };
     return {
       type: "join",
