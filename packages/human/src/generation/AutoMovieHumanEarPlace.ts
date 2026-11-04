@@ -16,8 +16,8 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  * and 31.9 (2.5) mm.
  * The retained ANSUR survey and the public Cho CT ear length use distinct
  * protocols; this file does not establish their orientation equivalence.
- * HeadLane currently uses aboveTragion and HeadEarFrame reads FORWARD.centre.
- * The forward and concha helpers have no current production caller.
+ * HeadLane and its source observer use aboveTragion. The current EarFrame
+ * no longer reads FORWARD; forward and concha have no production caller.
  *
  * @evidence contracts/common.md#principled-implementation Separates the retained ANSUR length regression from private normalized placement/depth estimates and states the public-length protocol transfer's limit.
  * @evidence contracts/common.md#clear-and-simple-design Owns the three fixed records and their scalar conversions; head builders own their frame and auricular course.
@@ -82,7 +82,7 @@ export namespace AutoMovieHumanEarPlace {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no fit, hidden adjustment or assertion that a builder's distinct origin is identical.
    * @evidence contracts/common.md#meaningful-documentation Names the rim points, signed direction, millimetres, source datum and inactive helper status.
    * @evidence contracts/performance.md#efficient-algorithms Two multiplications and one fixed-size result allocation take constant time and space.
-   * @evidence contracts/performance.md#reuse-equivalent-work Uses the same fixed FORWARD record read directly by HeadEarFrame; it retains no input-dependent result cache.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reads the one fixed FORWARD record; this currently unused conversion retains no input-dependent result cache.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh caller-owned two-number object; the helper retains neither it nor the head input.
    */
   export function forward(head: IAutoMovieHumanHeadIdentity): { front: number; centre: number } {
