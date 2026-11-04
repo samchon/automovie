@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 hand, foot and neck consumer follow-up (2026-11-05 05:37:46 +09:00, Get-Date)
+
+Read the actual pure HandBones/public ArmIdentity/HandJoints and retained de Leva, Buryanov and Reddy notes, then directly read ANSUR sections 5.2.36/6.4.45/6.4.66, printed pp. 60/121/142 as text. The hand/palm protocols use axis-parallel calipers in straight measuring poses; palm ends at the most proximal digit III base crease. They are not bind arclength or an MCP/web measurement. BODY confirmed the current independent crease-course interpretation and the retained shared 1.5 mm forearm WJC origin, distinct from the hand-specific 2.2/2.4 mm rows. No source value was changed.
+
+The same inspection read FootInterim, old FootFrame/Heads, public foot/ball/heel fields and the new display-only FootCourse. Bare FootPart support-width closure covers a narrower verification scope than toe-root group breadth; actual surface along projections, not only skew section-axis stations, define that region. The adopted C7 point's mean-lift correction, separate backLevel and actual mass source sharing were also followed through their consumers. No new definition conflict was found in that named-point connection, but its execution remains pending in CORE's actual 64952 round. Modeler geometry, source freeze, viewer and active processes were preserved. Existing source material remains needed and retained.
+
+At 05:39:26 +09:00 (Get-Date), completed the full three-document diff review and corrected wording that could conflate verification scope with a measured breadth difference. `git diff --check` was clean. No new test or render was started for these definitions.
+
 ## #3062 photo-pupil consumer reconciliation (2026-11-05 05:26:22 +09:00, Get-Date)
 
 Read the actual saved EyeParts affine controls, station/jet definitions and independent Bernstein/photo-origin observer against the completed shared 57353 log. Both head questions passed in 764/547 ms; the full round stayed 41/47, with all six failures retained by CORE. Read all 28 original head diagnostic rows (14 per side), all symmetric ellipse-section concavity. They are not cleared by the source observer. Independent upper-source sample maxima were 2.2781733182e-13/2.2792811098e-13 mm, both photo-origin errors zero, and source findings empty.
