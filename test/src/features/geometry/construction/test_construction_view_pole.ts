@@ -33,7 +33,15 @@ export function test_construction_view_pole(): void {
   const points: V3[] = Array.from({ length: real.mesh.positions.length / 3 }, (_: unknown, v: number): V3 => [real.mesh.positions[3 * v]!, real.mesh.positions[3 * v + 1]!, real.mesh.positions[3 * v + 2]!]);
   const bound: number = ConstructionChecks.poleSpline(Math.max(a, b), c, egg.stations) + ConstructionChecks.sectionSpline(Math.max(a, b), egg.order) + 1e-9 * c;
   const off: number = ConstructionChecks.ellipsoid(points, frame, a, b, c);
-  if (!(off <= bound)) failures.push(`the skin stands ${off} m from the ellipsoid, over the bound ${bound} m`);
+  if (!(off <= bound)) {
+    // The worst vertex's place on its face, so the failure names where the skin leaves the ellipsoid.
+    let worst: number = 0;
+    points.forEach((p: V3, v: number): void => {
+      if (ConstructionChecks.ellipsoid([p], frame, a, b, c) > ConstructionChecks.ellipsoid([points[worst]!], frame, a, b, c)) worst = v;
+    });
+    const at: number[] = real.mesh.coordinates.slice(3 * worst, 3 * worst + 3);
+    failures.push(`the skin stands ${off} m from the ellipsoid, over the bound ${bound} m, at vertex ${worst} (station ${at[1]} mm, phase ${at[2]} on ${real.mesh.owners[at[0]!] ?? "a pole"})`);
+  }
   failures.push(...closed(real.mesh.indices));
 
   // Red: vertices pushed 1 mm outward, and a triangle dropped.

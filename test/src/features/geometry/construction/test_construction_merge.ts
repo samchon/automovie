@@ -48,11 +48,15 @@ export function test_construction_merge(): void {
   if (ConstructionChecks.chords(joined.join, (): number => 1000 * (w + 0.001), (): number => 1000 * (w + 0.001), 1e-6 * R).length === 0) failures.push("proof: rails read against 0.007 m chords pass");
   if (ConstructionChecks.onBoth(seam(joined), onPost, onBeam(0.001), 1e-9 * R).length === 0) failures.push("proof: the seam reads on a host 1 mm wider");
 
-  // G1 and G2 at both rails, at the blend's columns, from the surfaces' exact jets; the blend equals both
-  // surfaces' 2-jets there to the B-spline filter's rounding, about 1e-8 relative, so the limits stand a hundred times above it.
+  // G1 and G2 at both rails, at the blend's columns, from the surfaces' exact jets. The published blend is a
+  // periodic spline through its 48 columns, so its derivative along a rail is the spline's, not the rail's own:
+  // the join documents it leaving the tangent planes by about `(spacing / R)^2 / 8`, spacing the column spacing on
+  // the rail and R the smaller radius (the post's), which bounds the normals' angle and, over R, the curvatures.
+  const spacing: number = (2 * Math.PI * (r + w)) / 48;
+  const plane: number = (spacing / r) ** 2 / 8;
   const [blend, beam, post]: [IAutoMovieSolidSurface, IAutoMovieSolidSurface, IAutoMovieSolidSurface] = [ConstructionRead.surface(real, "blend.post"), ConstructionRead.surface(real, "beam"), ConstructionRead.surface(real, "post")];
-  failures.push(...ConstructionChecks.rails(joined.blend, blend, beam, post, 1e-6, 1e-6 / (1000 * r)));
-  if (ConstructionChecks.rails(joined.blend, blend, post, beam, 1e-6, 1e-6 / (1000 * r)).length === 0) failures.push("proof: the rails read G2 against the swapped surfaces");
+  failures.push(...ConstructionChecks.rails(joined.blend, blend, beam, post, plane, plane / (1000 * r)));
+  if (ConstructionChecks.rails(joined.blend, blend, post, beam, plane, plane / (1000 * r)).length === 0) failures.push("proof: the rails read G2 against the swapped surfaces");
 
   // A search seed along the post's station line at phase pi / 2 finds the same seam.
   const searched: IAutoMovieConstructionJoin = { ...tree, seed: { type: "search", partFace: "post", hostFace: "beam", phase: Math.PI / 2, from: 0, to: 1 } };

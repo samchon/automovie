@@ -1,4 +1,4 @@
-import type { AutoMovieSolidBlendChain, AutoMovieSolidJoin, AutoMovieSolidTrim, IAutoMovieSolidSurface } from "@automovie/engine";
+import type { AutoMovieSolidBlendChain, AutoMovieSolidIntersection, AutoMovieSolidJoin, AutoMovieSolidTrim, IAutoMovieSolidSurface } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { ConstructionShapes } from "./ConstructionShapes";
@@ -113,7 +113,8 @@ export namespace ConstructionChecks {
     for (const point of join.curve.points) {
       const rail: ReturnType<AutoMovieSolidJoin.IJoin["rail"]> = join.rail(point.t);
       if (rail === null) {
-        out.push(`no rail at t ${point.t}`);
+        const back: AutoMovieSolidIntersection.IPoint | null = join.curve.at(point.t);
+        out.push(`no rail at t ${point.t} (the curve at t ${back === null ? "fails" : `is ${Math.hypot(back.point[0] - point.point[0], back.point[1] - point.point[1], back.point[2] - point.point[2])} mm from the traced point`})`);
         continue;
       }
       const dp: number = norm(sub(rail.partPoint, rail.curve.point));
@@ -258,7 +259,7 @@ export namespace ConstructionChecks {
     for (let m: number = 0; m < M; m++) {
       const [u, v]: [number, number, number, number] = trim.at((2 * Math.PI * m) / M);
       const miss: number = norm(sub(surface.jet(u, v).p, foot(m)));
-      if (!(miss <= tol)) out.push(`loop knot ${m} is ${miss} m from its landmark's foot`);
+      if (!(miss <= tol)) out.push(`loop knot ${m} is ${miss} m from its landmark's foot (knot chart ${u}, ${v}; solved foot ${trim.feet[m]!.join(", ")})`);
     }
     return out;
   }
