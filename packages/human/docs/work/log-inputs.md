@@ -60,3 +60,15 @@ Searches through Europe PMC's open-access full text (the one reachable route; DT
 - Foot: the open 3D scan studies found (PMC11633873, PMC13687573, PMC12206372) define instep height and ball measures but carry their values in tables the open XML does not hold. Yaw, malleolar centre, metatarsal head places and forefoot height stay open. Landed earlier: `AutoMovieHumanFootArch`, the foot girths and instep length as inputs.
 - Limb width-to-depth and soft tissue over bony landmarks: the open ultrasound studies found give subcutaneous fat at fat sites (PMC7018793, athletes) or muscle thickness (`AutoMovieHumanLimbBonePlace`), not section depth or soft tissue over the acromion, epicondyles, malleoli or stylion. Open.
 - Cervicale's forward place: PMC3991691 (skin markers against upright MRI of the back) is a lead for the soft tissue over the spinous processes; the pelvis's skin landmarks against the hip joints were not found open. Open.
+
+### Pass 2 and the reference-curve estimates (written 15:52, `date`)
+
+The supervisor's pass 2 (owner's window) ran `test_human_input_anatomy_defaults` and `test_human_input_box_consistency` (2 of 2 passed) and my three readings (3 of 3). #3045's universality item hit a tool error and waits; #3045 stays open until it passes. The owner then stopped all test runs until he calls for them.
+
+The owner approved estimates from the private reference curves (`.references/curves`), aggregated over the four people as normalized ratios, labelled "estimated from the private reference set; no published source found", read by tracked tests that print only aggregates (`test/src/features/human/estimate/`, loader `test/src/features/internal/HumanReferenceSections.ts`, shape reader `HumanSectionShape.ts`; no curve or person's value enters the repository).
+
+Landed after pass 2: `AutoMovieHumanHeadArcs` (584342f8b), `AutoMovieHumanEarPlace` (9983af64e), `AutoMovieHumanBodyPlaces` (c77eab89c, estimate), `AutoMovieHumanLegSection` (64bac6ae2, estimate), `AutoMovieHumanFootPlaces` (b8a809ffa, estimate), `AutoMovieHumanGlabellaHeight` (75cb7e3e0, derivation), `AutoMovieHumanFacePlan` (1a3118666, derivation), `AutoMovieHumanFaceTissue` (f8659dee7, the 2023 T-Table), `AutoMovieHumanDigitJoints` (7f7f0c800).
+
+Readings written, numbers pending the owner's window: `test_human_estimate_trunk_outline`, `test_human_estimate_head_outline` (d3ee94885), `test_human_estimate_arm_sections`, `test_human_estimate_foot_outline` (5a8e27b00). Still to write: the masses' footprints, the face's malar, nose, lips, lids and ear outlines, the digits.
+
+Findings to keep: the estimated cervicale reads on two people and the perineum's spread (SD 0.034 of stature) equals its mean; the leg's breadth over depth is 0.81 at the ankle and 0.90 to 1.00 elsewhere, with a fullness near 0.25 (an ellipse's); the foot's dorsum at half its length reads 0.209 of its length on the references against Williams and McClay's published 0.214.
