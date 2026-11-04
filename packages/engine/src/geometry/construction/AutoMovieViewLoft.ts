@@ -1,6 +1,6 @@
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
-import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
+import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
@@ -47,7 +47,17 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the chain and the emitted sections.
  */
 export namespace AutoMovieViewLoft {
-  /** The operator's result. */
+  /**
+   * The operator's result.
+   *
+   * @evidence contracts/common.md#principled-implementation Separates the final loft chain/surface from admitted sections, source diagnostics and the declared phase/station continuity.
+   * @evidence contracts/common.md#clear-and-simple-design Nullable final geometry and retained sections/diagnostics express partial and total admission failures.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing chain remains null; surviving sections are not described as the complete original source curve.
+   * @evidence contracts/common.md#meaningful-documentation Members state null cases, section identity and continuity.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Result data has no algorithm; create owns realization cost.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Result data coordinates no requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The caller owns the returned chain, sections and diagnostics.
+   */
   export interface IResult {
     /** The chain under the part's name, or null when fewer than two stations survive. */
     chain: IAutoMovieLoftChain | null;
@@ -65,7 +75,17 @@ export namespace AutoMovieViewLoft {
     continuity: { phase: "C2"; station: "C2" };
   }
 
-  /** One emitted station. */
+  /**
+   * One emitted station.
+   *
+   * @evidence contracts/common.md#principled-implementation Stores one admitted section with its station and actual input plane, before final coefficient/frame interpolation.
+   * @evidence contracts/common.md#clear-and-simple-design Station, frame and section preserve the section owner's inputs and result.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not claim an emitted section exists at a failed station or closing pole.
+   * @evidence contracts/common.md#meaningful-documentation Members distinguish source station units, plane and admitted section.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms Section data has no algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Section data coordinates no requests.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The containing loft result owns the section and frame.
+   */
   export interface IStation {
     /** Station, mm. */
     station: number;
@@ -82,6 +102,14 @@ export namespace AutoMovieViewLoft {
    *
    * @param part The part.
    * @returns The chain, its surface, its sections and its diagnostics.
+   *
+   * @evidence contracts/common.md#principled-implementation Reads every outline through the shared natural/pole source owner, solves its section at each station, interpolates the periodic phase coefficients and makes their station jets C2 with SeamStation.
+   * @evidence contracts/common.md#clear-and-simple-design Source admission, section construction and final chain construction remain consecutive stages with explicit diagnostics.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Invalid source/fullness/sections retain their diagnostics; no mesh-derived outline or fallback section is introduced.
+   * @evidence contracts/common.md#meaningful-documentation The namespace describes ownership, totality, the pole rule and the final coefficient interpolation; source values use the value-only owner.
+   * @evidence contracts/performance.md#efficient-algorithms Each source spline is prepared once, then each station performs value-only reads and a section solve; phase interpolation is performed once per surviving section.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses prepared source curvatures across all station values and delegates the shared final station factorization to SeamStation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Source preparation and temporary section samples are call-local; the returned chain and sections own retained output and no cross-part cache is added.
    */
   export function create(part: IAutoMovieViewPart): IResult {
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
@@ -109,42 +137,24 @@ export namespace AutoMovieViewLoft {
     const closes: ("bottom" | "top")[] = part.pole === "both" ? ["bottom", "top"] : part.pole === undefined ? [] : [part.pole];
     const tips: number[] = closes.map((end: "bottom" | "top"): number => (end === "bottom" ? first : last));
 
-    // Toward a pole an outline runs in a parameter that grows as the square
-    // root of the distance from it, so it meets the axis square to it: sigma =
-    // +-sqrt(|s - s_pole|) for one pole, and for two the angle
-    // acos(1 - 2 (s - s_0) / (s_1 - s_0)), which is 2 asin(sqrt) of the share
-    // from either end, odd in the square root there and smooth between.
-    const sigma = (s: number): number => {
-      if (closes.length === 2) return Math.acos(Math.min(1, Math.max(-1, 1 - (2 * (s - first)) / (last - first))));
-      if (closes.length === 1) return (closes[0] === "bottom" ? 1 : -1) * Math.sqrt(Math.abs(s - tips[0]!));
-      return s;
-    };
+    // Lofting and source inspection share the same admitted curve and pole
+    // parameter; section admission never changes the original outline.
     const curve = (name: string, outline: IAutoMovieViewPart.IOutline, closing: boolean = false): ((s: number) => number) | null => {
-      const xs: number[] = outline.knots.map((k: IAutoMovieViewPart.IKnot): number => k.station);
-      if (!rising(xs) || !outline.knots.every((k: IAutoMovieViewPart.IKnot): boolean => Number.isFinite(k.value))) {
-        report("outline", `${name}: knots ${outline.knots.map((k: IAutoMovieViewPart.IKnot): string => `${k.site}@${k.station}=${k.value}`).join(", ")} are not finite by strictly increasing station`);
+      const ends: AutoMovieViewOutline.IEnds = {};
+      if (closing) for (const end of closes) ends[end] = end === "bottom" ? first : last;
+      const prepared: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline, ends);
+      if ("detail" in prepared) {
+        report(prepared.contract, `${name}: ${prepared.detail}`);
         return null;
       }
-      if (!closing || closes.length === 0) {
-        const spline: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
-          xs,
-          outline.knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
-        );
-        return (s: number): number => AutoMovieNaturalSpline.evaluate(spline, s);
-      }
-      for (const end of closes) {
-        const k: IAutoMovieViewPart.IKnot = end === "bottom" ? outline.knots[0]! : outline.knots[outline.knots.length - 1]!;
-        const tip: number = end === "bottom" ? first : last;
-        if (k.station !== tip || k.value !== 0) {
-          report("pole knot", `${name}: its ${end} knot ${k.site}@${k.station}=${k.value} is not 0 at the pole's station ${tip}`);
-          return null;
+      return (s: number): number => {
+        const value: number | string = AutoMovieViewOutline.value(prepared, s);
+        if (typeof value === "string") {
+          report("outline", `${name}: ${value}`);
+          return NaN;
         }
-      }
-      const spline: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
-        xs.map(sigma),
-        outline.knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
-      );
-      return (s: number): number => AutoMovieNaturalSpline.evaluate(spline, sigma(s));
+        return value;
+      };
     };
     const quarters = (name: string, outlines: Quarters<IAutoMovieViewPart.IOutline> | undefined): ((s: number) => Quarters<number>) | null => {
       if (outlines === undefined) return (): Quarters<number> => [0, 0, 0, 0];
