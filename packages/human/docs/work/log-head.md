@@ -118,6 +118,10 @@ Sweep 5's front and three-quarter requests failed in the body lane (`AutoMovieHu
 | auricle | rim centre about 12 mm behind f1's; stems about 25 mm into the head | 12 mm | the rim's centre followed the tragion; the law places it at -0.1406 head lengths from the skull's centre | the rim's centre at `AutoMovieHumanEarPlace.FORWARD`; the residual against f1 is f1's own place against the four-person law |
 | philtrum, sulcus, conchas, antihelices | on their parents | small | hold, with their parents | none |
 
+## Violation 20:02 (recorded 20:14:33)
+
+`7cf8c57bd` (20:03) was committed while the collectors read red on my own file: a second `along` in `AutoMovieHumanHeadEarParts.ts` (TS2451, no-redeclare). I read the test collector's last cycle, which other lanes' errors had failed, and missed my own line. The audit stopped it at 20:09, and `d547849a1` (20:13) renames it. Both the debug and test collectors were clean at 20:12 and 20:13. From now on I read the collectors' cycle after every save, my own files first.
+
 ## Wiring the head into the figure (design, written 16:1x)
 
 The figure's head lane is `AutoMovieHumanHeadConstruction.apply`, which `AutoMovieHumanBodyLaw.calibrate` calls before the body lane stands the trunk under the neck chain `head`. The composed head enters it as:
