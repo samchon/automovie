@@ -12,11 +12,11 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  *
  * Scenarios:
  * 1. A straight part of half axes 0.03 by 0.02 m, its girth knots the ellipse's AGM perimeter: at every knot station the realized section's taut tape (its convex hull's perimeter at 1024 phases) is the girth, and its points stand on the ellipse, each within the section spline's error bound, with no diagnostic.
- * 2. Red: the realized section read against a girth 1 mm larger misses it.
+ * 2. Red: the realized section read against a girth three of its tolerances larger misses it.
  *
  * @evidence contracts/testing.md#behavioral-verification Realizes the part with `realizeAutoMovieConstruction` and reads its surface at the knot stations. It catches a girth owner that is not honoured (a shoulder solved against another measure, a section not convex where the tape lies) and an ellipse box whose girth-solved section is not the ellipse; any construction that solves the one shoulder giving the girth passes.
  * @evidence contracts/testing.md#independent-expectations The ellipse's perimeter by the AGM (`ConstructionShapes.Oracle.perimeter`); one girth gives one shoulder (the perimeter rises with it, `IAutoMovieConstructionGirth`), so the ellipse's perimeter gives the ellipse's shoulder; the periodic cubic section through `order` points errs by at most `5 (2 pi / n)^4 a / 384`, and a polygon of 1024 sides under-reads a perimeter by under 4e-6 of it. Oracle limit: the girth solve's own tolerance, 1e-9 of the girth, stands far below the section's error.
- * @evidence contracts/testing.md#distinguishing-cases Positive: the ellipse's girth. Negative: a girth 1 mm off. A girth outside the reach belongs to `test_construction_diagnostics`; the touch at the guides to `test_construction_view_touch`.
+ * @evidence contracts/testing.md#distinguishing-cases Positive: the ellipse's girth. Negative: a girth three tolerances off. A girth outside the reach belongs to `test_construction_diagnostics`; the touch at the guides to `test_construction_view_touch`.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include construction_view_girth`; it realizes made trees in process and starts no host, browser or GPU.
  */
 export function test_construction_view_girth(): void {
@@ -34,7 +34,7 @@ export function test_construction_view_girth(): void {
   // The kernel's surfaces are in millimetres; the fixture's closed forms in metres.
   const surface: IAutoMovieSolidSurface = ConstructionRead.metres(ConstructionRead.surface(real, "band"));
 
-  const bound: number = ConstructionChecks.sectionSpline(a, part.order);
+  const bound: number = ConstructionChecks.polarSpline(a, b, part.order);
   const tape: (s: number) => number = (s: number): number => hull(Array.from({ length: 1024 }, (_: unknown, k: number): [number, number] => ConstructionChecks.chart(frame, s, surface.jet(s, (2 * Math.PI * k) / 1024).p)));
   for (const s of part.stations) {
     const read: number = tape(s);
@@ -45,9 +45,10 @@ export function test_construction_view_girth(): void {
       if (!(off <= bound)) failures.push(`station ${s} phase ${k}: ${off} m off the ellipse`);
     }
   }
-
-  // Red: the same section read against a girth 1 mm larger.
-  if (Math.abs(tape(part.stations[2]!) - (perimeter + 0.001)) <= 2 * Math.PI * bound + 4e-6 * perimeter) failures.push("proof: a girth 1 mm larger reads as honoured");
+  // Red: the same section read against a girth three tolerances larger (the tolerance is the section spline's
+  // own bound, about a millimetre on this 30 by 20 mm ellipse at 16 points), which the reader must refuse.
+  const wrong: number = 3 * (2 * Math.PI * bound + 4e-6 * perimeter);
+  if (Math.abs(tape(part.stations[2]!) - (perimeter + wrong)) <= 2 * Math.PI * bound + 4e-6 * perimeter) failures.push(`proof: a girth ${wrong} m larger reads as honoured`);
   if (failures.length !== 0) throw new Error(`${failures.length} girth failures:\n${failures.slice(0, 20).join("\n")}`);
 }
 

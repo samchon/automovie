@@ -1,5 +1,5 @@
 import { realizeAutoMovieConstruction, type AutoMovieConstructionRealization, type AutoMovieSolidIntersection } from "@automovie/engine";
-import type { AutoMovieConstructionNode, IAutoMovieVector3 } from "@automovie/interface";
+import type { AutoMovieConstructionNode, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
 
 import { ConstructionChecks } from "../../internal/construction/ConstructionChecks";
 import { ConstructionRead } from "../../internal/construction/ConstructionRead";
@@ -25,14 +25,14 @@ export function test_construction_diff(): void {
   const [R, r, d]: [number, number, number] = [0.04, 0.015, 0.04];
   const plane: number = (R * R - r * r + d * d) / (2 * d);
   const ring: number = Math.sqrt(R * R - plane * plane);
-  const host: AutoMovieConstructionNode = ConstructionShapes.ellipsoid("ball", ConstructionShapes.DOWN, R, R, R);
+  const ball: AutoMovieConstructionNode = ConstructionShapes.ellipsoid("ball", ConstructionShapes.DOWN, R, R, R);
   const cutter: AutoMovieConstructionNode = ConstructionShapes.ellipsoid("dimple", { origin: { x: d, y: 0, z: 0 }, u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 1, z: 0 } }, r, r, r);
 
   // The seam's top point (plane, 0, ring): on the cutter at station -ring (stations run along -z) and phase pi, on the host at station -ring and phase 0.
   const tree: AutoMovieConstructionNode = ConstructionShapes.join(
     "diff",
     "dimple.cut",
-    host,
+    ball,
     cutter,
     { partFace: "dimple", hostFace: "ball", part: [-ring + 0.0005, Math.PI], host: [-ring + 0.0005, 0.01] },
     { part: { type: "chord", value: 0.002 }, host: { type: "chord", value: 0.002 } },
@@ -47,8 +47,11 @@ export function test_construction_diff(): void {
     const centre: IAutoMovieVector3 = { x: d, y: 0, z: 0 };
     // The traced curve is in the kernel's millimetres; the spheres' closed forms in metres.
     const points: V3[] = joined.join.curve.points.map((q: AutoMovieSolidIntersection.IPoint): V3 => [q.point[0] / 1000, q.point[1] / 1000, q.point[2] / 1000]);
-    failures.push(...ConstructionChecks.onBoth(points, (p: V3): number => Math.hypot(...p) - R, (p: V3): number => Math.hypot(p[0] - d, p[1], p[2]) - r, 1e-9 * R));
-    failures.push(...ConstructionChecks.outside(real.mesh, new Set(["ball"]), centre, r, 1e-9 * R));
+    // Each realized sphere stands off its closed form by its own approximation: the pole spline over its stations and the section spline over its 16 points.
+    const shape: (view: AutoMovieConstructionNode, radius: number) => number = (view: AutoMovieConstructionNode, radius: number): number => ConstructionChecks.poleSpline(radius, radius, (view as IAutoMovieConstructionView).stations) + ConstructionChecks.polarSpline(radius, radius, (view as IAutoMovieConstructionView).order);
+    const bound: number = Math.max(shape(ball, R), shape(cutter, r));
+    failures.push(...ConstructionChecks.onBoth(points, (p: V3): number => Math.hypot(...p) - R, (p: V3): number => Math.hypot(p[0] - d, p[1], p[2]) - r, bound));
+    failures.push(...ConstructionChecks.outside(real.mesh, new Set(["ball"]), centre, r, bound));
 
     // Red: a host vertex moved to the cutter's centre.
     const host: number = real.mesh.owners.indexOf("ball");

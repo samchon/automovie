@@ -104,6 +104,30 @@ export namespace ConstructionChecks {
   }
 
   /**
+   * The periodic cubic spline's error bound on an ellipse's section drawn through `n` points at uniform polar angles, as the view loft samples it, metres: `5 h^4 max|P''''| / 384` with `h = 2 pi / n`, `P(phi) = rho(phi) (cos phi, sin phi)` and `rho = a b / sqrt(b^2 cos^2 phi + a^2 sin^2 phi)`. The polar angle is not the ellipse's eccentric angle, so `|P''''|` exceeds the larger half extent once the ellipse is elongated; it is read here by the fourth central difference of the closed form at 4096 angles, step 1e-3 rad, whose truncation and rounding stay far under the bound.
+   *
+   * @param a The half extent along the first axis, metres.
+   * @param b The half extent along the second, metres.
+   * @param n The section's points.
+   * @returns The bound, metres.
+   */
+  export function polarSpline(a: number, b: number, n: number): number {
+    const P: (phi: number) => [number, number] = (phi: number): [number, number] => {
+      const rho: number = (a * b) / Math.sqrt((b * Math.cos(phi)) ** 2 + (a * Math.sin(phi)) ** 2);
+      return [rho * Math.cos(phi), rho * Math.sin(phi)];
+    };
+    const d: number = 1e-3;
+    let worst: number = 0;
+    for (let i: number = 0; i < 4096; i++) {
+      const phi: number = (2 * Math.PI * i) / 4096;
+      const p: [number, number][] = [-2, -1, 0, 1, 2].map((k: number): [number, number] => P(phi + k * d));
+      const fourth: (c: 0 | 1) => number = (c: 0 | 1): number => (p[0]![c] - 4 * p[1]![c] + 6 * p[2]![c] - 4 * p[3]![c] + p[4]![c]) / d ** 4;
+      worst = Math.max(worst, Math.hypot(fourth(0), fourth(1)));
+    }
+    return (5 * (2 * Math.PI / n) ** 4 * worst) / 384;
+  }
+
+  /**
    * A join's rails at their declared chords: at each traced point the
    * part's and the host's rail points stand the declared chord from the
    * curve's point (`AutoMovieConstructionWidth`).

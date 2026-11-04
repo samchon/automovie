@@ -31,7 +31,7 @@ export function test_construction_view_pole(): void {
   if (real.diagnostics.length !== 0) failures.push(`diagnostics: ${ConstructionRead.diagnostics(real)}`);
 
   const points: V3[] = Array.from({ length: real.mesh.positions.length / 3 }, (_: unknown, v: number): V3 => [real.mesh.positions[3 * v]!, real.mesh.positions[3 * v + 1]!, real.mesh.positions[3 * v + 2]!]);
-  const bound: number = ConstructionChecks.poleSpline(Math.max(a, b), c, egg.stations) + ConstructionChecks.sectionSpline(Math.max(a, b), egg.order) + 1e-9 * c;
+  const bound: number = ConstructionChecks.poleSpline(Math.max(a, b), c, egg.stations) + ConstructionChecks.polarSpline(a, b, egg.order) + 1e-9 * c;
   const off: number = ConstructionChecks.ellipsoid(points, frame, a, b, c);
   if (!(off <= bound)) {
     // The worst vertex's place on its face, so the failure names where the skin leaves the ellipsoid.

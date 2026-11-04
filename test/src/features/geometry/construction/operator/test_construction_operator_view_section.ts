@@ -198,8 +198,10 @@ function touch(label: string, jet: (phi: number) => Jet, extents: Quarters, kapp
       const r1: number = 2 * c1 - c2;
       const r2: number = 2 * c2 - c4;
       const read: number = Math.abs((4 * r1 - r2) / 3);
-      // The fit's rounding, of order `eps rho / h^2` in curvature, amplified by the extrapolation.
-      if (!(Math.abs(read - kappa[g]!) <= 1e-6 * kappa[g]! + 1e3 * Number.EPSILON * e / (d * d))) out.push(`${label} guide ${g}: point curvature ${read} on its ${side < 0 ? "lower" : "upper"} side against the declared ${kappa[g]}`);
+      // The fit's rounding, of order `eps rho / h^2` in curvature, amplified by the extrapolation, and the
+      // extrapolation's own remainder, read a posteriori from its two first-stage values: near a guide whose
+      // two quarters' curvatures differ tenfold the span's curvature turns fast and that remainder dominates.
+      if (!(Math.abs(read - kappa[g]!) <= 1e-6 * kappa[g]! + 1e3 * Number.EPSILON * e / (d * d) + Math.abs(r1 - r2))) out.push(`${label} guide ${g}: point curvature ${read} on its ${side < 0 ? "lower" : "upper"} side against the declared ${kappa[g]}`);
     }
 
     // No point past the side the guide touches.
