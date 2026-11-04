@@ -157,7 +157,7 @@ export namespace AutoMovieHumanSolidJoin {
     const curve: AutoMovieHumanSolidIntersection.ICurve = traced.curve;
     const period: number = 2 * Math.PI;
     const t0: number = curve.points[0]!.t;
-    const mode: AutoMovieHumanSolidRail.Mode = input.parameter?.kind === "angle" ? "square" : "station";
+    const mode: AutoMovieHumanSolidRail.Mode = input.parameter === undefined || input.parameter.kind === "phase" ? "station" : "square";
 
     const rail = (t: number): AutoMovieHumanSolidRail.IRail | null => {
       const p: AutoMovieHumanSolidIntersection.IPoint | null = curve.at(t);

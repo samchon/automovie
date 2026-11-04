@@ -1,5 +1,6 @@
 import type { AutoMovieHumanLoftContract } from "./AutoMovieHumanLoftContract";
 import { AutoMovieHumanSolidVector } from "./AutoMovieHumanSolidVector";
+import { AutoMovieHumanSplineCurve } from "./AutoMovieHumanSplineCurve";
 import type { IAutoMovieHumanSolidAtlas } from "./IAutoMovieHumanSolidAtlas";
 import type { IAutoMovieHumanSolidSurface } from "./IAutoMovieHumanSolidSurface";
 
@@ -24,7 +25,7 @@ const { add, combine, cross, dot, norm, scale, sub } = AutoMovieHumanSolidVector
  *
  * by Newton's method with the Jacobian `J = [A_s, A_phi, -B_y, -B_theta; grad g]`
  * (Patrikalakis, Maekawa and Cho, Shape Interrogation for CAD and
- * Manufacturing, ch. 5). Two parameters:
+ * Manufacturing, ch. 5). Three parameters:
  *
  * - `phase`: `g = phi - t`, the part's phase. Each phase's station line
  *   crosses the host once near the curve: a limb, a digit, the neck.
@@ -35,6 +36,11 @@ const { add, combine, cross, dot, norm, scale, sub } = AutoMovieHumanSolidVector
  *   (a groove, a muscle head, a crease, a nail fold), whose station lines run
  *   along the host and cross it twice or never, is traced so, since every
  *   half plane about its footprint's centre meets the curve once.
+ * - `arc`: the curve's own arclength, for a long thin part along its host
+ *   (a lid, a lip, a helix rim, a groove) whose half planes about any one
+ *   centre cross its curve twice; the loop is first walked by
+ *   pseudo-arclength continuation (Allgower and Georg, Numerical
+ *   Continuation Methods, 1990, ch. 2) to make the law of its arclength.
  *
  * Differentiating `F(x(t)) = 0` and `g(x(t), t) = 0` gives the curve's exact
  * jet by the implicit function theorem, with no difference of traced points:
@@ -118,6 +124,19 @@ export namespace AutoMovieHumanSolidIntersection {
 
         /** The direction of `t = 0`; its part along `normal` is removed. */
         reference: Vec3;
+      }
+    | {
+        /**
+         * The curve's own arclength over its whole length, times a turn: for a
+         * long thin part lying along its host (a lid, a lip, a helix rim, a
+         * groove), whose half planes about one centre cross its curve twice.
+         * The loop is walked first by pseudo-arclength continuation (each
+         * step on the plane square to the curve's tangent at the predicted
+         * point), then walked again in equal chords of its length, and the
+         * parameter of a point is its foot on the periodic cubic B-spline
+         * through those points: `(P - Q(t)) . Q'(t) = 0`.
+         */
+        kind: "arc";
       };
 
   /** A traced closed loop. */
@@ -208,13 +227,25 @@ export namespace AutoMovieHumanSolidIntersection {
     };
     if (part.period === undefined) return report("periodic part", `${part.name} has no periodic phase`);
     if (!(count >= 8)) return report("trace count", `${count} points per turn, under 8`);
-    const law: ILaw | null = lawOf(parameter);
-    if (law === null) return report("parameter", "the angle parameter's normal and reference are parallel or zero");
     const turn: number = 2 * Math.PI;
 
-    // The seed's parameter, and the seed refined at it.
-    const t0: number = parameter.kind === "phase" ? input.seed.phi : law.angle(part.jet(input.seed.s, input.seed.phi).p);
-    const first: IPoint | null = solve(part, host, law, t0, [input.seed.s, input.seed.phi, input.seed.y, input.seed.theta], input.seed.face ?? 0, tolerance);
+    // The parameter's law, the seed's parameter and the seed refined at it.
+    let law: ILaw;
+    let t0: number;
+    let first: IPoint | null;
+    if (parameter.kind === "arc") {
+      const walked: IWalk | string = walk(part, host, input, count, tolerance);
+      if (typeof walked === "string") return report("traced loop", walked);
+      law = walked.law;
+      t0 = 0;
+      first = solve(part, host, law, 0, walked.x, walked.face, tolerance);
+    } else {
+      const made: ILaw | null = lawOf(parameter);
+      if (made === null) return report("parameter", "the angle parameter's normal and reference are parallel or zero");
+      law = made;
+      t0 = parameter.kind === "phase" ? input.seed.phi : law.angle(part.jet(input.seed.s, input.seed.phi).p);
+      first = solve(part, host, law, t0, [input.seed.s, input.seed.phi, input.seed.y, input.seed.theta], input.seed.face ?? 0, tolerance);
+    }
     if (first === null)
       return report("one loop per contact", `no meeting near the seed (phi ${input.seed.phi}, s ${input.seed.s}, y ${input.seed.y}, theta ${input.seed.theta})`);
 
@@ -303,8 +334,188 @@ export namespace AutoMovieHumanSolidIntersection {
     angle(p: Vec3): number;
   }
 
+  /** A walked loop: its arclength law and the start the trace begins at. */
+  interface IWalk {
+    /** The law of `t`, the loop's arclength over its length times a turn. */
+    law: ILaw;
+
+    /** `[s, phi, y, theta]` at `t = 0`. */
+    x: Vec4;
+
+    /** The host face at `t = 0`. */
+    face: number;
+  }
+
+  /** Steps one walk may take per traced point before it is lost. */
+  export const WALK_STEPS: number = 64;
+
+  /** Resampled points of the arclength spline per traced point. */
+  export const WALK_POINTS: number = 4;
+
+  /**
+   * Walk the loop from the seed by pseudo-arclength continuation, once to
+   * measure it and once in equal chords, and make the law of its arclength.
+   *
+   * Each step predicts `P + h T` along the curve's unit tangent
+   * `T = n_A x n_B` (turned with the previous) and corrects on the plane
+   * square to `T` through the prediction; the first walk halves a step that
+   * fails or lands more than a quarter step off, and ends where the start
+   * lies ahead within a step; the second takes `WALK_POINTS * count` equal
+   * steps of that length. The first step's length is the arc a part ring
+   * step covers there, `|A_phi| 2 pi / count`.
+   *
+   * @returns The walk, or why it failed.
+   */
+  function walk(part: IAutoMovieHumanSolidSurface, host: IAutoMovieHumanSolidAtlas, input: IInput, count: number, tolerance: number): IWalk | string {
+    const tangent = (p: IPoint, along: Vec3 | null): Vec3 | null => {
+      const a: IJet = part.jet(p.s, p.phi);
+      const b: IJet = host.faces[p.face]!.jet(p.y, p.theta);
+      const t: Vec3 | null = AutoMovieHumanSolidVector.unit(cross(cross(a.u, a.v), cross(b.u, b.v)));
+      if (t === null) return null;
+      return along !== null && dot(t, along) < 0 ? scale(t, -1) : t;
+    };
+    const across = (c: Vec3, m: Vec3): ILaw => ({
+      g: (p: Vec3): number => dot(sub(p, c), m),
+      grad: (): [Vec3, number] => [m, 0],
+      gt: (): number => 0,
+      extra: (): number => 0,
+      angle: (): number => 0,
+    });
+
+    // The seed refined on the plane through it square to the curve.
+    const face0: number = input.seed.face ?? 0;
+    const x0: Vec4 = [input.seed.s, input.seed.phi, input.seed.y, input.seed.theta];
+    const a0: IJet = part.jet(x0[0], x0[1]);
+    const b0: IJet = host.faces[face0]!.jet(x0[2], x0[3]);
+    const t0: Vec3 | null = AutoMovieHumanSolidVector.unit(cross(cross(a0.u, a0.v), cross(b0.u, b0.v)));
+    if (t0 === null) return "the surfaces touch at the seed";
+    const start: IPoint | null = solve(part, host, across(a0.p, t0), 0, x0, face0, tolerance);
+    if (start === null) return "no meeting near the seed";
+    const T0: Vec3 = tangent(start, t0) ?? t0;
+
+    // One step of length h from a point along its tangent.
+    const step = (p: IPoint, T: Vec3, h: number, previous: IPoint | null): IPoint | null => {
+      const predicted: Vec3 = add(p.point, scale(T, h));
+      const x: Vec4 = [p.s, p.phi, p.y, p.theta];
+      const guess: Vec4 =
+        previous === null || previous.face !== p.face
+          ? x
+          : [2 * x[0] - previous.s, 2 * x[1] - previous.phi, 2 * x[2] - previous.y, 2 * x[3] - previous.theta];
+      const next: IPoint | null = solve(part, host, across(predicted, T), 0, guess, p.face, tolerance);
+      return next !== null && norm(sub(next.point, predicted)) <= 0.25 * h + 10 * tolerance ? next : null;
+    };
+
+    // The first walk: the loop's length.
+    let h: number = (norm(a0.v) * 2 * Math.PI) / count;
+    let p: IPoint = start;
+    let T: Vec3 = T0;
+    let previous: IPoint | null = null;
+    let length: number = 0;
+    let closed: boolean = false;
+    for (let k: number = 0; k < WALK_STEPS * count; k++) {
+      const ahead: Vec3 = sub(start.point, p.point);
+      if (k > 2 && norm(ahead) <= h && dot(ahead, T) > 0) {
+        length += norm(ahead);
+        closed = true;
+        break;
+      }
+      let next: IPoint | null = null;
+      for (let halving: number = 0; halving < HALVINGS && next === null; halving++) {
+        next = step(p, T, h, previous);
+        if (next === null) h /= 2;
+      }
+      if (next === null) return `lost after ${length} mm of the walk`;
+      length += norm(sub(next.point, p.point));
+      previous = p;
+      p = next;
+      const t: Vec3 | null = tangent(p, T);
+      if (t === null) return `the surfaces touch ${length} mm along the walk`;
+      T = t;
+    }
+    if (!closed) return `the walk does not return to its start in ${WALK_STEPS * count} steps`;
+
+    // The second walk: equal chords of the length, the points of the spline.
+    const n: number = WALK_POINTS * count;
+    const chord: number = length / n;
+    const points: Vec3[] = [start.point];
+    p = start;
+    T = T0;
+    previous = null;
+    for (let k: number = 1; k < n; k++) {
+      const next: IPoint | null = step(p, T, chord, previous);
+      if (next === null) return `the equal-chord walk is lost at step ${k} of ${n}`;
+      points.push(next.point);
+      previous = p;
+      p = next;
+      const t: Vec3 | null = tangent(p, T);
+      if (t === null) return `the surfaces touch at step ${k} of the equal-chord walk`;
+      T = t;
+    }
+    return { law: arcLaw(points), x: [start.s, start.phi, start.y, start.theta], face: start.face };
+  }
+
+  /**
+   * The law of a loop's arclength through its equal-chord points: the
+   * periodic cubic B-spline `Q` through them (`AutoMovieHumanSplineCurve`'s
+   * interpolation, component by component), and `g = (P - Q(t)) . Q'(t)`,
+   * whose zero is the point's foot on `Q`. With `P' = A_s s' + A_phi phi'`:
+   * `g_t = -Q' . Q' + (P - Q) . Q''` and, past the terms of `J x''` and
+   * `Q_A . Q'`, `d^2 g / dt^2` keeps `2 P' . Q'' - 3 Q' . Q'' + (P - Q) . Q'''`.
+   */
+  function arcLaw(points: readonly Vec3[]): ILaw {
+    const n: number = points.length;
+    const xy: number[] = AutoMovieHumanSplineCurve.interpolate(points.map((p: Vec3): [number, number] => [p[0], p[1]]));
+    const z: number[] = AutoMovieHumanSplineCurve.interpolate(points.map((p: Vec3): [number, number] => [p[2], 0]));
+    const control: Vec3[] = Array.from({ length: n }, (_: unknown, k: number): Vec3 => [xy[k]!, xy[n + k]!, z[k]!]);
+    const at = (t: number): [Vec3, Vec3, Vec3, Vec3] => {
+      const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * n;
+      const i: number = Math.min(n - 1, Math.floor(u));
+      const f: number = u - i;
+      const g: number = 1 - f;
+      const k: number = n / (2 * Math.PI);
+      const w: number[][] = [
+        [(g * g * g) / 6, (3 * f * f * f - 6 * f * f + 4) / 6, (-3 * f * f * f + 3 * f * f + 3 * f + 1) / 6, (f * f * f) / 6],
+        [(-g * g) / 2, (3 * f * f - 4 * f) / 2, (-3 * f * f + 2 * f + 1) / 2, (f * f) / 2],
+        [g, 3 * f - 2, 1 - 3 * f, f],
+        [-1, 3, -3, 1],
+      ];
+      const out: [Vec3, Vec3, Vec3, Vec3] = [
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+        [0, 0, 0],
+      ];
+      for (let d: number = 0; d < 4; d++)
+        for (let j: number = 0; j < 4; j++) {
+          const c: Vec3 = control[(((i - 1 + j) % n) + n) % n]!;
+          const s: number = w[d]![j]! * k ** d;
+          out[d]![0] += s * c[0];
+          out[d]![1] += s * c[1];
+          out[d]![2] += s * c[2];
+        }
+      return out;
+    };
+    return {
+      g: (p: Vec3, _phi: number, t: number): number => {
+        const [q, q1] = at(t);
+        return dot(sub(p, q), q1);
+      },
+      grad: (t: number): [Vec3, number] => [at(t)[1], 0],
+      gt: (p: Vec3, t: number): number => {
+        const [q, q1, q2] = at(t);
+        return -dot(q1, q1) + dot(sub(p, q), q2);
+      },
+      extra: (p: Vec3, dp: Vec3, t: number): number => {
+        const [q, q1, q2, q3] = at(t);
+        return 2 * dot(dp, q2) - 3 * dot(q1, q2) + dot(sub(p, q), q3);
+      },
+      angle: (): number => 0,
+    };
+  }
+
   /** The law of a parameter, or null for a degenerate axis. */
   function lawOf(parameter: Parameter): ILaw | null {
+    if (parameter.kind === "arc") return null;
     if (parameter.kind === "phase")
       return {
         g: (_p: Vec3, phi: number, t: number): number => phi - t,
