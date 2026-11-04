@@ -17,7 +17,7 @@ type Knots = [number, number][];
  *
  * Scenarios:
  * 1. A made leg (thigh 560 mm at the hip falling to a 370 mm knee, a 360 mm calf belly at 0.35 of the shank, a 215 mm least ankle at 0.88) and a made arm (a 265 mm forearm belly, a 160 mm least wrist at the wrist joint) pass every row for a woman.
- * 2. Each row fails on its own made defect: a 420 mm thigh (knee over thigh), a 450 mm calf (calf over knee), a 290 mm least ankle (ankle over calf), a least ankle at 0.6 of the shank and a least wrist 50 mm above the wrist joint (narrowest at the landmark), a second calf belly (one belly), a 12 mm rise in the taper (monotone taper), a 220 mm wrist (wrist over elbow), a knee centre outside its section (bone inside). A right leg identical to the left passes the mirror row; one whose calf belly is 40 mm fuller fails it.
+ * 2. Each row fails on its own made defect: a 420 mm thigh (knee over thigh), a 450 mm calf (calf over knee), a 290 mm least ankle (ankle over calf), a least ankle at 0.6 of the shank and a least wrist 50 mm above the wrist joint (narrowest at the landmark), a second calf belly and a second forearm belly (one belly), a 12 mm rise in the calf's and in the forearm's taper (monotone taper), a 220 mm wrist (wrist over elbow), and the knee, ankle, elbow and wrist centres each outside its section (bone inside). A right leg identical to the left passes the mirror row; one whose calf belly is 40 mm fuller fails it.
  * 3. Every person of `HumanPeople`: both legs and both arms of the generated body, every row of `HumanAnatomyTable.TABLE` and each pair's mirror row (`HumanAnatomyTable.mirror`, against the person's own left-right input difference), every failing row listed by person, limb and relation.
  *
  * @evidence contracts/testing.md#behavioral-verification Generates each person through the public body law and reads each limb chain's taut-tape girth every 2 mm by its own evaluator (`HumanCurveRings.of`), its joints' stations as the sections whose centres lie nearest the bind skeleton's joint centres, and the sections at the knee or elbow and the ankle or wrist (`HumanAnatomyTable.limbs`). It catches a limb whose girths stand out of the population's order, a narrowest ankle or wrist away from its landmark, a second belly, a wobbling taper and a bone out of its skin; any limb shaped as anatomy describes passes, whatever its size.
@@ -71,7 +71,12 @@ function proofs(): string[] {
     ["PRO-one-belly", made("leg", thigh, [[0, 370], [0.1, 350], [0.35, 360], [0.5, 320], [0.65, 355], [0.88, 215], [1, 240], [1.03, 245]], [5, 0])],
     ["PRO-taper", made("leg", thigh, [[0, 370], [0.1, 350], [0.35, 360], [0.6, 280], [0.68, 292], [0.88, 215], [1, 240], [1.03, 245]], [5, 0])],
     ["ORD-AR-wrist/elbow", made("arm", upper, [[0, 250], [0.3, 265], [1, 220], [1.04, 230]], [5, 0])],
+    ["PRO-one-belly", made("arm", upper, [[0, 250], [0.3, 265], [0.45, 235], [0.6, 262], [1, 160], [1.04, 170]], [5, 0])],
+    ["PRO-taper", made("arm", upper, [[0, 250], [0.3, 265], [0.6, 200], [0.68, 212], [1, 160], [1.04, 170]], [5, 0])],
     ["BONE-inside", made("leg", thigh, shank, [70, 0])],
+    ["BONE-inside", made("leg", thigh, shank, [5, 0], [45, 0])],
+    ["BONE-inside", made("arm", upper, fore, [50, 0])],
+    ["BONE-inside", made("arm", upper, fore, [5, 0], [30, 0])],
   ];
   for (const [id, limb] of defects)
     if (!HumanAnatomyTable.rows("made", [limb], "female").some((r: IRow): boolean => r.site.endsWith(`(${id})`) && !HumanAnatomyAudit.passes(r))) out.push(`made defect: no failing ${id} row on the ${limb.kind}`);
@@ -91,9 +96,10 @@ function proofs(): string[] {
  * run between its knots (shares of its segment, monotone between knots), the
  * distal knots carried past the distal joint where they reach beyond 1; the
  * sections at the middle and distal joints circles of radius girth over
- * `2 pi`, the middle joint at `offset` from the circle's centre.
+ * `2 pi`, the middle joint at `offset` and the distal joint at `end` from
+ * their circles' centres.
  */
-function made(kind: "leg" | "arm", proximal: Knots, distal: Knots, offset: [number, number]): HumanAnatomyTable.ILimb {
+function made(kind: "leg" | "arm", proximal: Knots, distal: Knots, offset: [number, number], end: [number, number] = [0, 0]): HumanAnatomyTable.ILimb {
   const step: number = 2;
   const [a, b]: [number, number] = kind === "leg" ? [200, 200] : [150, 130];
   const beyond: number = Math.round((distal[distal.length - 1]![0] - 1) * b);
@@ -108,7 +114,7 @@ function made(kind: "leg" | "arm", proximal: Knots, distal: Knots, offset: [numb
     step,
     sections: [
       { ring: circle(girth[a]!), joint: offset, label: kind === "leg" ? "knee" : "elbow" },
-      { ring: circle(girth[a + b]!), joint: [0, 0], label: kind === "leg" ? "ankle" : "wrist" },
+      { ring: circle(girth[a + b]!), joint: end, label: kind === "leg" ? "ankle" : "wrist" },
     ],
   };
 }

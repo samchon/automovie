@@ -115,3 +115,30 @@ The test fixes are in one batch; the next supervised run checks them with the ke
 14:59:35 (`date`): the kernel confirmed findings 1 and 3 as operator defects and fixed them (`a0ec6ac90` conic guides, `65fafe9bb` normal-section rails); finding 2 was my test's (a symmetric three-point circle straddling a third-derivative jump), now read one side at a time. The ellipse oracle now bounds each knot span's quintic Hermite (`max|rho^(6)| h^6 / (720 * 64)`), and the 0.02-fuller red proof is back on every box. New operator test `test_human_solid_body` for `AutoMovieHumanSolidBody` (`b84ae180d`): a column on a floor, a beam across the column's face and blend; watertight, outward, coordinates read back, red on a turned or dropped triangle and a moved coordinate. Asked the kernel for the host chain per column in `IMerge`, since a rail across faces cannot be read on one host chain.
 
 Violation 15:01:58 (`date`): the shared test watch's cycle started 14:59:18 read `HumanSeamAudit.ts` red (TS2304 `turn`): a multi-line `sed` insert collapsed into one comment line and dropped the declaration it carried. Repaired within two minutes by the Edit tool. From here multi-line source edits go through the Edit tool only, never `sed` inserts. Change itself: `HumanSeamAudit.merges` reads each host column on its own chain (`IMerge.hostChains`, the kernel's field), with a first-order model of the rail toward same-chain neighbours.
+
+## Next supervised pass, in order (written after the triage; one test program at a time, each tree ended when its result is read)
+
+| Step | What | Command | Needs |
+| --- | --- | --- | --- |
+| 1 | the ten operator tests, no person | `pnpm test --include test_human_solid_intersection test_human_solid_merge test_human_solid_merge_angle test_human_solid_diff test_human_solid_trim test_human_solid_mesh test_human_solid_body test_human_lofting_view_section test_human_lofting_view_section_chain test_human_lofting_view_section_girth` | nothing (`--include test_human_solid_merge` also reaches `_merge_angle`, and `test_human_lofting_view_section` its two siblings; listed for clarity) |
+| 2 | #3045's input tests | `pnpm test --include test_human_input_anatomy_defaults test_human_input_box_consistency` | the input worker's last save compiling |
+| 3 | universality on the references | `AUTOMOVIE_HUMAN_PEOPLE=f1,f2,m1,m2 pnpm test --include test_human_universality` | the head modeler's trim repair; the filter also reaches `test_human_universality_sample`, which samples its own set (`AUTOMOVIE_HUMAN_SAMPLE`) and is ended unread if step 3's own result already fails at the skin |
+| 4 | the curve audits, body law only | `AUTOMOVIE_HUMAN_PEOPLE=f1,f2,m1,m2 pnpm test --include test_human_audit_sections test_human_audit_seams test_human_audit_surface test_human_audit_anatomy` | nothing beyond generation by the body law |
+| 5 | the input-identity audit, on the skin | `AUTOMOVIE_HUMAN_PEOPLE=f1,f2,m1,m2 pnpm test --include test_human_audit_inputs` | step 3 green (the skin builds) |
+| 6 | the same audits on the core set | steps 4 and 5 without `AUTOMOVIE_HUMAN_PEOPLE` | steps 4 and 5 read |
+
+Every audit lists all its findings before it fails; a failing audit on the figure is a work list for the subtrees, and only a made-proof line (`proof ...`) is a defect of the audit itself.
+
+## Phase 2 retirements, ready edits (each waits for its subtree and for one run showing the replacement red on the retired file's own made defect)
+
+Each edit: `git rm` the files, rerun the import-index fixpoint of the erasure (every helper whose importers are all gone goes too), and fix the citations listed.
+
+| Retirement | `git rm` (under `test/src/features/human/`) | Helpers expected to fall with it | Citations to fix | Red proof to show first |
+| --- | --- | --- | --- | --- |
+| R1 curve soundness per part | `curves/integrity/test_human_curve_{arm,foot,hand,head,leg,trunk}.ts` | `internal/HumanCurveBody`, `HumanCurveHand`, `HumanCurveFoot`, `HumanCurveJaw`, `HumanCurveNose`, `HumanCurveEar`, `HumanCurveJoin` and the rules only they import (`test_human_curve_placement` keeps `assertHumanCurves` and `HumanCurvePlacement`) | `packages/human/docs/work/modeler-log.md` (history, left as it is) | the part's middle layers swollen 30 percent fail `test_human_audit_sections` (girth profile) and `test_human_audit_surface` (step) on that part's chains |
+| R2 rings | `curves/integrity/test_human_curves_rings.ts` | `internal/curves/HumanCurveRingAudit` | `test_human_curves_rings_centre`, `test_human_skin_collapse` doc comments; `docs/testing/consistency.md` (CUR-2, CUR-3, SEC-4, SYM-1 rows) | a shank layer swollen 10 percent (girth profile), a reflected finger control point (star), a right shank 5 percent fuller (`test_human_audit_anatomy` SYM-1) |
+| R3 centre track | `curves/integrity/test_human_curves_rings_centre.ts` | `internal/curves/HumanCurveCentreTrack` | `docs/testing/consistency.md` (CUR-4) | an offset layer fails `test_human_audit_surface` CUR-4 |
+| R4 calf contour | `curves/region/test_human_curves_region_calf.ts` | `internal/curves/HumanCurveCalfContour` | `docs/testing/consistency.md` (OBS-LG-1) | needs a row first: the calf's lateral reach against its medial is not yet in the anatomy table (OBS-LG-1), so this retirement waits for that row |
+| R5 digits | `curves/region/test_human_curves_region_digits.ts` | `internal/curves/HumanCurveDigitGirth`, `HumanCurveDigitOrder` | `docs/testing/consistency.md` | needs the digits in the anatomy table (girth order along each digit), written when the hand subtree (#3051) publishes its phalanges |
+
+Not retired by these audits: placement, skin integrity and collapse, the arm's clearance, `test_human_people`, the region tests of kinematics, segments, bones, order, ordering, shoulder and foot breadth, which read relations the audits do not yet carry; each gets a row of the anatomy table or stays, decided when its subtree lands.
