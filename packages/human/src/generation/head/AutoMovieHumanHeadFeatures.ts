@@ -2,9 +2,10 @@ import { type IAutoMovieViewPart, AutoMovieViewSection } from "@automovie/engine
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import type { IAutoMovieHumanHeadEyeOpening } from "../IAutoMovieHumanHeadEyeOpening";
-import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
+import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
+import { AutoMovieHumanHeadNosePart } from "./AutoMovieHumanHeadNosePart";
 
 /**
  * The face's parts that join the head mass, each drawn from its views in its
@@ -50,6 +51,13 @@ export namespace AutoMovieHumanHeadFeatures {
      * centre twice and is traced by its own arclength.
      */
     elongated?: boolean;
+
+    /**
+     * The part's station and phase where its section meets the parent, for
+     * a part whose base is not one ring at its contact (the nose, along the
+     * face); absent, the base ring at phase 0.
+     */
+    seat?: [number, number];
   }
 
   /** Depth of a part's base inside the head mass, mm. */
@@ -62,23 +70,31 @@ export namespace AutoMovieHumanHeadFeatures {
    * @returns The parts, both sides of a pair each built in its own frame.
    */
   export function of(plan: IAutoMovieHumanHeadLayout): IFeature[] {
-    const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const k: number = plan.scale;
     const out: IFeature[] = [];
 
-    // The nose: from nasion to subnasale on the skull's profile.
-    const up: [number, number] = unit2([m.nasion[0] - m.subnasale[0], m.nasion[1] - m.subnasale[1]]);
-    const forward: [number, number, number] = [up[1], -up[0], 0];
-    const half: number = Math.hypot(m.nasion[0] - m.subnasale[0], m.nasion[1] - m.subnasale[1]) / 2;
-    const middle: [number, number] = [(m.nasion[0] + m.subnasale[0]) / 2, (m.nasion[1] + m.subnasale[1]) / 2];
-    const noseBase: [number, number, number] = [middle[0] - INSET * forward[0], middle[1] - INSET * forward[1], 0];
-    const tip: number = (m.pronasale[0] - noseBase[0]) * forward[0] + (m.pronasale[1] - noseBase[1]) * forward[1];
-    out.push(dome("nose", "merge", noseBase, forward, [up[0], up[1], 0], [half, plan.noseWidth, half, plan.noseWidth], tip, 2, [middle[0], middle[1], 0]));
+    // The nose's body from its views (`AutoMovieHumanHeadNosePart`), its axis
+    // the inset and twice the face's sagitta under its half width behind the
+    // profile, so its sides lie inside the face where the face turns back.
+    const middle: number = (plan.nasion + plan.tip) / 2;
+    const fall: number = (plan.noseWidth * plan.noseWidth) / (2 * AutoMovieHumanHeadMassPart.halfWidth(plan, middle));
+    const depth: number = INSET + 2 * fall;
+    const seat: [number, number] = AutoMovieHumanHeadNosePart.seat(plan, depth);
+    out.push({
+      part: AutoMovieHumanHeadNosePart.of(plan, depth),
+      join: "merge",
+      seed: [AutoMovieHumanHeadMedianProfile.profileAt(plan, seat[0]), seat[0], 0],
+      contact: INSET,
+      size: [plan.noseLead, plan.noseWidth],
+      parent: "head.mass",
+      elongated: true,
+      seat,
+    });
 
     // The lips, each over its own vermilion on the skull's profile.
     const lip = (name: string, y: number, height: number, lead: number): void => {
       const x: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, y);
-      out.push(dome(name, "merge", [x - INSET, y, 0], [1, 0, 0], [0, 0, 1], [plan.mouthWidth, height / 2, plan.mouthWidth, height / 2], lead + INSET, 2, [x, y, 0]));
+      out.push(dome(name, "merge", [x - INSET, y, 0], [1, 0, 0], [0, 0, 1], [plan.mouthWidth, height / 2, plan.mouthWidth, height / 2], lead + INSET, 2, [x, y, 0], AutoMovieHumanHeadMassPart.halfWidth(plan, y)));
     };
     lip("lip.upper", plan.stomion + plan.upperLip / 2, plan.upperLip, plan.lips[0]);
     lip("lip.lower", plan.stomion - plan.lowerLip / 2, plan.lowerLip, plan.lips[1]);
@@ -86,9 +102,14 @@ export namespace AutoMovieHumanHeadFeatures {
     // The orbits: cutters from in front of the lid margin back to the socket.
     const face: AutoMovieHumanHeadPrior.IFace = AutoMovieHumanHeadPrior.PRIOR.face;
     const orbit = (side: "left" | "right", sign: 1 | -1, eye: IAutoMovieHumanHeadEyeOpening): void => {
-      const front: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion);
       const z: number = sign * eye.place;
-      const depth: number = (face.eyeRecess + face.socket) * k;
+      const front: number = AutoMovieHumanHeadMassPart.frontAt(plan, plan.eye, z);
+
+      // The socket's floor stands the lid margin's recess and the socket behind
+      // the nasion's skin (the prior's definition), so the cutter reaches it
+      // from the skin in front of the eye.
+      const floor: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) - (face.eyeRecess + face.socket) * k;
+      const depth: number = Math.max(INSET, front - floor);
       out.push(
         dome(
           `orbit.${side}`,
@@ -100,6 +121,7 @@ export namespace AutoMovieHumanHeadFeatures {
           depth + INSET,
           2,
           [front, plan.eye, z],
+          AutoMovieHumanHeadMassPart.halfWidth(plan, plan.eye),
         ),
       );
     };
@@ -120,10 +142,11 @@ export namespace AutoMovieHumanHeadFeatures {
     height: number,
     profile: number,
     seed: [number, number, number],
+    host?: number,
   ): IFeature {
     const h: number = Math.max(INSET + 0.5, height);
     return {
-      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents, height: h, profile, shoulder: AutoMovieViewSection.ELLIPSE }),
+      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents, height: h, profile, shoulder: AutoMovieViewSection.ELLIPSE, ...(host === undefined ? {} : { host }) }),
       join,
       seed,
       contact: INSET,
@@ -131,11 +154,5 @@ export namespace AutoMovieHumanHeadFeatures {
       parent: "head.mass",
       elongated: Math.max(...extents) > 2 * Math.min(...extents),
     };
-  }
-
-  /** A plane vector scaled to length 1. */
-  function unit2(a: [number, number]): [number, number] {
-    const l: number = Math.hypot(a[0], a[1]) || 1;
-    return [a[0] / l, a[1] / l];
   }
 }

@@ -23,11 +23,10 @@ import type { IHumanDebugPiece } from "../IHumanDebugPiece";
  * landmark skeleton, through the production surface and construction
  * (`HumanDebugChainLoft`), before they are wired into a person:
  *
- * - `all`: the neck, the head mass, every face part and every join's blend;
- * - `mass`: the head mass alone;
- * - `neck`: the neck alone;
+ * - `all`: the head mass and its neck, every face part and every join's blend;
+ * - `mass`: the head mass and its neck alone;
  * - `parts`: the face parts alone, without the head mass;
- * - `composed`: the head mass with the neck and every part joined straight
+ * - `composed`: the head mass with every part joined straight
  *   to it drawn trimmed by the solid tessellation (`calibration.merges`).
  *
  * The skeleton is the head pass's first build, without the secant passes
@@ -36,8 +35,8 @@ import type { IHumanDebugPiece } from "../IHumanDebugPiece";
 export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
   name: "head.parts",
   region: "head",
-  description: "The head lane's view parts (neck, head mass, face parts and their joins) lofted alone from the person's landmark skeleton.",
-  arguments: ["all", "mass", "neck", "parts", "composed"],
+  description: "The head lane's view parts (head mass with its neck, face parts and their joins) lofted alone from the person's landmark skeleton.",
+  arguments: ["all", "mass", "parts", "composed"],
   build(person: IHumanDebugPerson, argument: string | null): IHumanDebugDocument {
     const which: string = argument ?? "all";
     const base: IAutoMovieHumanBodyCalibration = person.calibration();
@@ -63,8 +62,6 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
 
     // The chains each argument shows.
     const chains: (IAutoMovieLoftChain | null)[] = [];
-    if (which === "all" || which === "neck") chains.push(composed.neck?.loft.chain ?? null);
-    if (which === "all") chains.push(blend("neck", composed.neck?.join ?? null));
     if (which === "all" || which === "mass") chains.push(composed.mass.chain);
     if (which === "all" || which === "parts")
       for (const joined of composed.parts) {
@@ -78,7 +75,7 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
     const merges: IAutoMovieHumanBodyCalibration.IMerge[] = [];
     if (which === "composed") {
       chains.push(composed.mass.chain);
-      const joins: AutoMovieHumanHeadComposer.IJoined[] = [...(composed.neck === null ? [] : [composed.neck]), ...composed.parts];
+      const joins: AutoMovieHumanHeadComposer.IJoined[] = composed.parts;
       for (const joined of joins) {
         if (joined.feature.parent !== "head.mass" || joined.join === null || joined.loft.chain === null) continue;
         const entry: AutoMovieHumanMergeEntry.IEntry | null = AutoMovieHumanMergeEntry.of(

@@ -8,7 +8,6 @@ import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 import { AutoMovieHumanHeadMasses } from "./AutoMovieHumanHeadMasses";
-import { AutoMovieHumanNeckPart } from "./AutoMovieHumanNeckPart";
 
 /**
  * The head subtree composed by the three operators: the head mass lofted
@@ -51,9 +50,6 @@ export namespace AutoMovieHumanHeadComposer {
     /** The head mass's view part, the root of its construction tree (`AutoMovieHumanHeadTree`). */
     massPart: IAutoMovieViewPart;
 
-    /** The neck merged under the head mass, when its chain is given. */
-    neck: IJoined | null;
-
     /** Every face part, lofted and joined. */
     parts: IJoined[];
 
@@ -87,7 +83,7 @@ export namespace AutoMovieHumanHeadComposer {
    *
    * @param skeleton The landmark skeleton, the vault exponent solved.
    * @param ears The two auricles' inputs, world mm.
-   * @param neckChain The neck chain, whose bottom layer the neck part starts at inside the trunk; absent, no neck.
+   * @param neckChain The neck chain, whose bottom layer the head mass's neck starts at inside the trunk; absent, the neck ring's height.
    * @param places Heights the published laws give, calibration mm; absent, the skeleton's own.
    */
   export function compose(
@@ -101,7 +97,7 @@ export namespace AutoMovieHumanHeadComposer {
       places?.tragion === undefined
         ? skeleton
         : { ...skeleton, landmarks: { ...skeleton.landmarks, tragion: [skeleton.landmarks.tragion[0], places.tragion] } };
-    const massPart: IAutoMovieViewPart = AutoMovieHumanHeadMassPart.of(plan, places?.faceExponent);
+    const massPart: IAutoMovieViewPart = AutoMovieHumanHeadMassPart.of(plan, places?.faceExponent, neckChain?.layers[0]?.y);
     const mass: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(massPart);
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...mass.diagnostics];
 
@@ -134,15 +130,22 @@ export namespace AutoMovieHumanHeadComposer {
       surfaces.set(feature.part.name, loft.surface);
       views.set(feature.part.name, feature.part);
       if (host === null || loft.surface === null) return { feature, loft, join: null };
-      if (foot === null) {
+      if (foot === null || parentView === undefined) {
         diagnostics.push({ producer: `head.${feature.part.name}`, level: 2, contract: "seed", detail: `the landmark has no foot on ${feature.parent}` });
         return { feature, loft, join: null };
       }
+
+      // The part's seed: its base ring at phase 0 for a dome, or the station
+      // and phase the part names where its section meets the parent; the
+      // host's seed is that point's foot on the parent.
+      const [s, phi]: [number, number] = feature.seat ?? [feature.contact + sunk(feature.part), 0];
+      const at: [number, number, number] = loft.surface.jet(s, phi).p;
+      const hostFoot: AutoMovieSolidFoot.IFoot = AutoMovieSolidFoot.of(host, at, chartOf(parentView, at), TOLERANCE) ?? foot;
       const width: number = AutoMovieHumanSeamUnion.width(feature.size[0], feature.size[1]);
       const input: AutoMovieSolidJoin.IInput = {
         part: loft.surface,
         host,
-        seed: { phi: 0, s: feature.contact + sunk(feature.part), y: foot.u, theta: foot.v },
+        seed: { phi, s, y: hostFoot.u, theta: hostFoot.v },
         count: COUNT,
         tolerance: TOLERANCE,
         grazing: GRAZING,
@@ -152,62 +155,38 @@ export namespace AutoMovieHumanHeadComposer {
       const result: AutoMovieSolidJoin.IResult =
         feature.join === "merge" ? AutoMovieSolidMerge.create(input) : AutoMovieSolidDiff.create(input);
       diagnostics.push(...result.diagnostics);
-      return { feature, loft, join: result.join, seed: { part: [input.seed.s, input.seed.phi], host: [foot.u, foot.v] }, width };
+      return { feature, loft, join: result.join, seed: { part: [input.seed.s, input.seed.phi], host: [hostFoot.u, hostFoot.v] }, width };
     });
 
-    // The neck: merged under the head mass, its top inside it, seeded at the
-    // neck's back at the menton's height, its blend from the neck tube's radius.
-    let neck: IJoined | null = null;
-    if (neckChain !== undefined) {
-      // The neck runs up past the menton by its radius, into the head mass's
-      // cap, and meets it round the cap's side at the menton's height.
-      const part: IAutoMovieViewPart = AutoMovieHumanNeckPart.of(plan.neck, neckChain.layers[0]!.y, plan.menton + plan.neck.radius);
-      const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
-      diagnostics.push(...loft.diagnostics);
-      const top: number = plan.menton;
-      const back: [number, number, number] = [plan.neck.back + plan.neck.backSlope * (top - plan.neck.level), top, 0];
-      const feature: AutoMovieHumanHeadFeatures.IFeature = {
-        part,
-        join: "merge",
-        seed: back,
-        contact: top,
-        size: [plan.neck.radius, plan.neck.radius],
-        parent: "head.mass",
-      };
-      const foot: AutoMovieSolidFoot.IFoot | null =
-        mass.surface === null ? null : AutoMovieSolidFoot.of(mass.surface, back, [top, Math.PI], TOLERANCE);
-      if (loft.surface === null || mass.surface === null || foot === null) neck = { feature, loft, join: null };
-      else {
-        const width: number = AutoMovieHumanSeamUnion.width(plan.neck.radius, plan.neck.radius);
-        const result: AutoMovieSolidJoin.IResult = AutoMovieSolidMerge.create({
-          part: loft.surface,
-          host: mass.surface,
-          seed: { phi: Math.PI, s: top, y: foot.u, theta: foot.v },
-          count: COUNT,
-          tolerance: TOLERANCE,
-          grazing: GRAZING,
-          width: { part: (): number => width, host: (): number => width },
-        });
-        diagnostics.push(...result.diagnostics);
-        neck = { feature, loft, join: result.join, seed: { part: [top, Math.PI], host: [foot.u, foot.v] }, width };
-      }
-    }
-    return { mass, massPart, neck, parts, diagnostics };
+    return { mass, massPart, parts, diagnostics };
   }
-
 
   /**
    * The chart point `[station, phase]` a point stands over in a part's own
-   * frame: the station where the point's offset along the axis vanishes from
-   * the plane at station 0 (straight parts; the head mass's stations are
-   * heights), and its polar angle in that plane from `u` toward `v`.
+   * frame: the station whose plane holds the point, found by bisection of
+   * the point's offset along the plane's normal `v x u` over the part's
+   * stations (a level axis drifts, so no one direction serves), and its
+   * polar angle in that plane from `u` toward `v`.
    */
   function chartOf(part: IAutoMovieViewPart, p: readonly number[]): [number, number] {
-    const zero: AutoMovieLoftFrame.IFrame = part.axis.at(0);
-    const one: AutoMovieLoftFrame.IFrame = part.axis.at(1);
-    const w: number[] = sub(one.origin, zero.origin);
-    const d: number[] = sub(p, zero.origin);
-    const station: number = dot(d, w) / Math.max(1e-12, dot(w, w));
+    const offset = (s: number): number => {
+      const f: AutoMovieLoftFrame.IFrame = part.axis.at(s);
+      const n: number[] = [f.v[1] * f.u[2] - f.v[2] * f.u[1], f.v[2] * f.u[0] - f.v[0] * f.u[2], f.v[0] * f.u[1] - f.v[1] * f.u[0]];
+      return dot(sub(p, f.origin), n);
+    };
+    let lo: number = part.stations[0]!;
+    let hi: number = part.stations[part.stations.length - 1]!;
+    let station: number;
+    if (offset(lo) <= 0) station = lo;
+    else if (offset(hi) >= 0) station = hi;
+    else {
+      for (let k: number = 0; k < 60; k++) {
+        const mid: number = (lo + hi) / 2;
+        if (offset(mid) > 0) lo = mid;
+        else hi = mid;
+      }
+      station = (lo + hi) / 2;
+    }
     const frame: AutoMovieLoftFrame.IFrame = part.axis.at(station);
     const r: number[] = sub(p, frame.origin);
     return [station, Math.atan2(dot(r, frame.v), dot(r, frame.u))];

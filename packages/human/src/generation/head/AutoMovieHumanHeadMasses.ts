@@ -1,6 +1,4 @@
 import { AutoMovieViewSection } from "@automovie/engine";
-import { AutoMovieHumanFaceTissue } from "../AutoMovieHumanFaceTissue";
-import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
@@ -13,15 +11,17 @@ import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
  *
  * | Mass | Amplitude | Footprint |
  * | --- | --- | --- |
- * | brow ridge, each side | the soft tissue at the mid-supraorbital point (`AutoMovieHumanFaceTissue`) | the fissure's length across, the glabella over the fissure's centre up and down |
  * | zygoma, each side | half zy-zy less the head mass's half width at the zygion's height, the breadth the front-view outline leaves to it | the zygion to the tragion along, the fissure's centre to the zygion up and down |
  *
- * The chin pad and the forehead have no part: the median profile P already
+ * The chin pad, the forehead and the brow ridge have no part. P already
  * passes the soft-tissue pogonion and glabella, so their projection over the
- * head mass is zero by construction. The malar eminence and the cheek have
- * no measure that the outlines leave room for, so they stay at amplitude 0
- * until a law gives them a projection over the head mass. First pass:
- * compile-only.
+ * head mass is zero by construction. The brow ridge's only measure, the soft
+ * tissue at the mid-supraorbital point, is the depth over the bone, not a
+ * projection over the head mass, whose skin already holds it; read as a
+ * height it stood the brows 7 to 8 mm in front of the reference skin. The
+ * malar eminence and the cheek have no measure that the outlines leave
+ * room for, so they stay at amplitude 0 until a law gives them a projection
+ * over the head mass. First pass: compile-only.
  */
 export namespace AutoMovieHumanHeadMasses {
   /** Depth of a mass's base inside the head mass, mm. */
@@ -38,16 +38,6 @@ export namespace AutoMovieHumanHeadMasses {
     const out: AutoMovieHumanHeadFeatures.IFeature[] = [];
     for (const sign of [1, -1] as const) {
       const side: string = sign > 0 ? "left" : "right";
-      const eye = sign > 0 ? plan.left : plan.right;
-
-      // The brow ridge over the fissure's centre, at the glabella's height.
-      const browY: number = m.glabella[1];
-      const browX: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, browY);
-      const brow: number = AutoMovieHumanFaceTissue.depth("midSupraorbital");
-      const half: number = (m.glabella[1] - plan.eye) / 2;
-      out.push(
-        mass(`brow.${side}`, [browX - INSET, browY, sign * eye.place], [1, 0, 0], [0, 0, sign], [eye.length / 2, half, eye.length / 2, half], brow, [browX, browY, sign * eye.place]),
-      );
 
       // The zygoma: the breadth zy-zy asks for beyond the head mass there.
       const zy: [number, number] = m.zygion;

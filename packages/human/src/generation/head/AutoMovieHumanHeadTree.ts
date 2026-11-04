@@ -48,7 +48,7 @@ export namespace AutoMovieHumanHeadTree {
 
     // Each part's subtree: its own view, joined in order by its inner parts.
     const subtree: Map<string, AutoMovieConstructionNode> = new Map();
-    const joins: AutoMovieHumanHeadComposer.IJoined[] = [...(composed.neck === null ? [] : [composed.neck]), ...composed.parts];
+    const joins: AutoMovieHumanHeadComposer.IJoined[] = composed.parts;
     for (const joined of joins) subtree.set(joined.feature.part.name, view(joined.feature.part));
     for (const joined of joins) {
       if (joined.feature.parent === "head.mass") continue;

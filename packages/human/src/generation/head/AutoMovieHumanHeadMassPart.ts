@@ -7,26 +7,26 @@ import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmar
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 
 /**
- * The head mass (cranium and face without the nose, lips, brow ridge, chin
- * pad and ears) as a part drawn from its three views, the input of the
+ * The head mass and its neck (cranium, face and neck without the nose,
+ * lips and ears) as a part drawn from its three views, the input of the
  * view-to-section operator (`AutoMovieViewLoft`).
  *
  * - Side view: P, the median front profile of the skull and face
  *   (`AutoMovieHumanHeadMedianProfile`), continued under the menton along
- *   the submental line at the lower face-throat angle (Sn-Gn'-C, Legan and
- *   Burstone 1980) to the neck's level; B, the median back profile
- *   (`AutoMovieHumanHeadBackProfile`).
+ *   the submental line at the lower face-throat angle (Sn-Gn'-C, 100
+ *   degrees) to the cervical point C, whose depth from the gnathion is the
+ *   lower face's height over the lower vertical height-depth ratio
+ *   (Sn-Gn' / C-Gn' = 1.2; Legan and Burstone 1980), and under C the neck's
+ *   front, parallel to its back; B, the median back profile
+ *   (`AutoMovieHumanHeadBackProfile`), down the nape to the neck ring.
  * - Front view: L, the head's front-view silhouette, one outline through
  *   the vertex, the eurion's level (half the head breadth), the tragion's
  *   (half the cranial base width t-t), the gonion's (half go-go) and the
- *   neck ring (the neck tube's radius).
- * - Axis: straight up through the skull's centre from the tragion's height
- *   to the vertex, leaning below to the neck ring's centre, carried by
- *   minimal rotation; its binormal is the head's lateral axis, so every
- *   plane holds `z`. A bend within a few centimetres of height (through L's
- *   forward place at the tragion and the gonion) swept neighbouring planes
- *   across each other and creased the mass, so L's forward place is an
- *   observation, not the axis.
+ *   neck ring (the neck tape's radius).
+ * - Axis: straight up through the skull's centre, so every section is
+ *   level, as the reference skin is read. An axis leaning to the neck tilted
+ *   the sections under the tragion, so the lowest ran from behind the ear to
+ *   under the chin and their outlines flared out past the jaw.
  * - Fullness: the vault's quarters take the conic shoulder of the
  *   super-ellipse whose exponent closes the head circumference
  *   (`AutoMovieHumanHeadVault.closing`, `r = 2^(1 - 1/n) - 1`, the share of
@@ -35,11 +35,12 @@ import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
  *   vault's over the forehead.
  *
  * The top is a pole at the vertex, every outline reaching 0 there. The
- * bottom is a cap under the menton, inside the neck, closing on a pole as
- * deep as half the least half extent there: a bottom open at a lower level
- * put the front of P, the submental line, within a few millimetres of the
- * axis and turned the sections concave, and an open bottom gave the neck no
- * closed loop to meet the head mass along.
+ * bottom is open at the neck's base, inside the trunk: the neck is the head
+ * mass's own lower stretch, not a part merged under it, since a neck tube
+ * merged under the head met it along the nape and the jaw's underside,
+ * where the two skins are one, and traced no clean loop. A submental line
+ * carried on below C put P within a few millimetres of the axis and turned
+ * the sections concave; the neck's front under C keeps them convex.
  * First pass: compile-only, not wired into generation.
  */
 export namespace AutoMovieHumanHeadMassPart {
@@ -49,9 +50,6 @@ export namespace AutoMovieHumanHeadMassPart {
   /** Ring samples of the emitted chain. */
   export const SAMPLES: number = 256;
 
-  /** Layers of the cap under the menton. */
-  export const CAP: number = 6;
-
   /** Largest station step between layers, mm. */
   export const SPACING: number = 2;
 
@@ -60,35 +58,27 @@ export namespace AutoMovieHumanHeadMassPart {
    *
    * @param plan The landmark skeleton, the vault exponent solved.
    * @param faceExponent The face plan's super-ellipse exponent (`AutoMovieHumanFacePlan.exponent`); absent, the head prior's row.
+   * @param bottom The neck base's station, inside the trunk; absent, the neck ring's height.
    * @returns The part, chain name `head.mass`.
    */
-  export function of(plan: IAutoMovieHumanHeadLayout, faceExponent?: number): IAutoMovieViewPart {
+  export function of(plan: IAutoMovieHumanHeadLayout, faceExponent?: number, bottom?: number): IAutoMovieViewPart {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const g: number = m.glabella[1];
 
-    // The open bottom at the menton's height: under it the front of P (the
-    // submental line) closes on the axis within a few millimetres and the
-    // sections turned concave; the neck owns the skin under it.
-    const throat: number = plan.menton;
+    // The bottom: open at the neck's base, inside the trunk the head mass
+    // and its neck are merged onto; the neck is this part's lower stretch.
+    const throat: number = Math.min(bottom ?? plan.y0, cervical(plan)[1] - SPACING);
     const top: number = plan.vertex - g;
 
-    // The axis in the side view: straight over the tragion, leaning below.
-    const axisKnots: [string, number, number][] = [
-      ["throat", throat, plan.neck.x],
-      ["tragion", m.tragion[1], plan.centre],
-      ["glabella", g, plan.centre],
-      ["vertex", plan.vertex, plan.centre],
-    ];
-    const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.minimal(
-      axisKnots.map(([, y, x]: [string, number, number]): AutoMovieViewAxis.IAxisKnot => ({ station: y, point: [x, y, 0] })),
-      [1, 0, 0],
-      1,
-    );
+    // The axis: straight up through the skull's centre, every section level
+    // as the reference's skin is read.
+    const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.straight([plan.centre, 0, 0], [1, 0, 0], [0, 0, 1]);
 
     // The sites the outlines carry knots at, by station (the axis point's
     // height, the axis being near vertical).
     const sites: [string, number][] = [
       ["throat", throat],
+      ["cervical", cervical(plan)[1]],
       ["menton", plan.menton],
       ["gonion", m.gonion[1]],
       ["stomion", plan.stomion],
@@ -128,13 +118,6 @@ export namespace AutoMovieHumanHeadMassPart {
       right[right.length - 1]!.value = 0;
     }
 
-    // A closed bottom inside the neck, so the neck meets the head mass along
-    // one loop round its side: a cap under the menton as deep as half the
-    // least half extent there, every outline falling to the bottom pole.
-    const least: number = Math.min(front[0]!.value, -back[0]!.value, left[0]!.value, -right[0]!.value);
-    const cap: number = front[0]!.station - least / 2;
-    for (const o of [front, back, left, right]) o.unshift({ site: "cap", station: cap, value: 0 });
-
     // The quarters' fullness: the vault's shoulder, the face's in front
     // under the nasion, returning to the vault's over the forehead.
     const vault: number = shoulder(plan.vault);
@@ -167,13 +150,10 @@ export namespace AutoMovieHumanHeadMassPart {
     }
     stations.push(last);
 
-    // The cap under the menton: its own layers down to the bottom pole.
-    const capped: number[] = [...Array.from({ length: CAP }, (_: unknown, k: number): number => cap + ((first - cap) * k) / CAP), ...stations];
-
     return {
       name: "head.mass",
       axis,
-      stations: capped,
+      stations,
       front: { positive: { knots: front }, negative: { knots: back } },
       side: { positive: { knots: left }, negative: { knots: right } },
       fullness: {
@@ -181,7 +161,7 @@ export namespace AutoMovieHumanHeadMassPart {
         shoulder: flatAt(vault),
         departures: [faceDeparture, flatAt(0), flatAt(0), faceDeparture],
       },
-      pole: "both",
+      pole: "top",
       order: ORDER,
       samples: SAMPLES,
     };
@@ -210,9 +190,75 @@ export namespace AutoMovieHumanHeadMassPart {
     const run: number = Math.cos(throat);
     const fall: number = Math.sin(throat);
 
-    // Along the submental line from the menton, x falls back as y falls.
+    // Along the submental line from the menton, x falls back as y falls, to
+    // the cervical point; under it the neck's front, parallel to its back.
+    const c: [number, number] = cervical(plan);
+    if (y < c[1]) return c[0] + plan.neck.backSlope * (y - c[1]);
     const start: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.menton);
     return fall < -1e-6 ? start + ((plan.menton - y) * run) / -fall : start - (plan.menton - y);
+  }
+
+  /**
+   * The cervical point C, where the submental line meets the neck's front:
+   * on the line from the menton at the lower face-throat angle (Sn-Gn'-C),
+   * the lower face's height `Sn-Gn'` over the lower vertical height-depth
+   * ratio (Legan and Burstone 1980, `Sn-Gn' / C-Gn' = 1.2`) from the
+   * gnathion.
+   *
+   * @param plan The landmark skeleton.
+   * @returns `[x, y]`, mm.
+   */
+  export function cervical(plan: IAutoMovieHumanHeadLayout): [number, number] {
+    const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
+    const up: number = Math.atan2(m.subnasale[1] - m.gnathion[1], m.subnasale[0] - m.gnathion[0]);
+    const throat: number = up + (AutoMovieHumanHeadPrior.PRIOR.mandible.throatAngle * Math.PI) / 180;
+    const depth: number = Math.hypot(m.subnasale[0] - m.gnathion[0], m.subnasale[1] - m.gnathion[1]) / HEIGHT_DEPTH;
+    const start: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.menton);
+    return [start + depth * Math.cos(throat), plan.menton + depth * Math.sin(throat)];
+  }
+
+  /** Lower vertical height-depth ratio `Sn-Gn' / C-Gn'` (Legan and Burstone 1980). */
+  export const HEIGHT_DEPTH: number = 1.2;
+
+  /**
+   * The head mass's skin in front at a height and a lateral place: the
+   * forward place where its own section at that height (the box of P, B and
+   * L about the skull's centre, the face's shoulder in front under the nasion
+   * and the vault's over the forehead) passes the lateral place, found on the
+   * section's polar curve by bisection of its lateral coordinate over the
+   * front quarter. A face part off the midline (a brow, a lid, an orbit)
+   * stands on this, not on the midline profile, since the face turns back
+   * from the midline toward its sides. Read at the level section, which the
+   * head mass's sections are above the tragion.
+   *
+   * @param plan The landmark skeleton, the vault exponent solved.
+   * @param y Height, mm.
+   * @param z Lateral place, mm; its side does not matter.
+   * @param faceExponent The face plan's exponent; absent, the head prior's row.
+   * @returns Forward place, mm; the midline profile's when `z` lies past the section's side.
+   */
+  export function frontAt(plan: IAutoMovieHumanHeadLayout, y: number, z: number, faceExponent?: number): number {
+    const front: number = Math.max(1e-3, median(plan, y) - plan.centre);
+    const back: number = Math.max(1e-3, plan.centre - AutoMovieHumanHeadBackProfile.at(AutoMovieHumanHeadVault.backProfile(plan), y));
+    const side: number = Math.max(1e-3, halfWidth(plan, y));
+    const g: number = plan.landmarks.glabella[1];
+    const vault: number = shoulder(plan.vault);
+    const face: number = shoulder(faceExponent ?? AutoMovieHumanHeadPrior.PRIOR.frame.plan);
+    const share: number = smooth((y - plan.nasion) / Math.max(1, g + 0.35 * (plan.vertex - g) - plan.nasion));
+    const fore: number = face + (vault - face) * share;
+    const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of({ extents: [front, side, back, side] }, [fore, vault, vault, fore]);
+    const lateral = (phi: number): number => AutoMovieViewSection.radius(section, phi)[0] * Math.sin(phi);
+    const target: number = Math.abs(z);
+    if (!(target < side)) return plan.centre + front;
+    let lo: number = 0;
+    let hi: number = Math.PI / 2;
+    for (let k: number = 0; k < 50; k++) {
+      const mid: number = (lo + hi) / 2;
+      if (lateral(mid) < target) lo = mid;
+      else hi = mid;
+    }
+    const phi: number = (lo + hi) / 2;
+    return plan.centre + AutoMovieViewSection.radius(section, phi)[0] * Math.cos(phi);
   }
 
   /**

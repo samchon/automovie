@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
+import { AutoMovieHumanEarPlace } from "../AutoMovieHumanEarPlace";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
@@ -9,9 +10,11 @@ import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
  * vertical by Banks and Cheney's 15 to 20 degrees (17.5), `b` forward square
  * to both; superaurale its published height over the tragion (or subaurale
  * at the subnasale's height under the tragion),
- * superaurale the ear length up the long axis from it, the auricle's chord
- * running back from the tragion by its breadth. The rims and hollows of the
- * prior's rows are written for a 31 mm ear and scale with the ear's length.
+ * superaurale the ear length up the long axis from it; the rim's centre at
+ * its published place behind the skull's centre
+ * (`AutoMovieHumanEarPlace.FORWARD`, a share of the head length), the
+ * auricle's chord its breadth across. The rims and hollows of the prior's
+ * rows are written for a 31 mm ear and scale with the ear's length.
  */
 export namespace AutoMovieHumanHeadEarFrame {
   /** An auricle's frame and sizes, calibration mm. */
@@ -66,7 +69,7 @@ export namespace AutoMovieHumanHeadEarFrame {
     const base: [number, number, number] = [m.tragion[0], top === undefined ? plan.subnasale : top - a[1] * length, z];
     return {
       centre: [
-        base[0] + (a[0] * length) / 2 - (b[0] * breadth) / 2,
+        plan.centre + AutoMovieHumanEarPlace.FORWARD.centre * plan.length,
         base[1] + (a[1] * length) / 2 - (b[1] * breadth) / 2,
         z,
       ],

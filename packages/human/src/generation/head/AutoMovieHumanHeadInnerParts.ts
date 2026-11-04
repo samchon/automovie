@@ -6,6 +6,7 @@ import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmar
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
+import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 
 /**
  * The parts inside the face's parts, each joined to its own parent part:
@@ -48,17 +49,17 @@ export namespace AutoMovieHumanHeadInnerParts {
     const tip: [number, number, number] = [m.pronasale[0], m.pronasale[1], 0];
     out.push(
       part("nose.lobule", "nose", "merge", sub(tip, scale(forward, INSET + f.tipBall[2]! * plan.noseWidth / 2)), forward, up,
-        [f.tipBall[2]! * plan.noseWidth, f.tipBall[2]! * plan.noseWidth, f.tipBall[2]! * plan.noseWidth, f.tipBall[2]! * plan.noseWidth], INSET + f.tipBall[2]! * plan.noseWidth / 2, tip),
+        [f.tipBall[2]! * plan.noseWidth, f.tipBall[2]! * plan.noseWidth, f.tipBall[2]! * plan.noseWidth, f.tipBall[2]! * plan.noseWidth], INSET + f.tipBall[2]! * plan.noseWidth / 2, tip, plan.noseWidth),
     );
     for (const sign of [1, -1] as const) {
       const side: string = sign > 0 ? "left" : "right";
       const centre: [number, number, number] = [m.subnasale[0] + f.nostrilCentre[0]! * plan.noseLead, m.subnasale[1] + f.ala[2]! * (m.pronasale[1] - m.subnasale[1]), sign * plan.noseWidth * f.ala[1]!];
       const half: number = f.ala[5]! * plan.noseWidth;
-      out.push(part(`nose.ala.${side}`, "nose", "merge", sub(centre, [0, 0, sign * INSET]), [0, 0, sign], up, [f.ala[3]! * NH, half, f.ala[4]! * NH, half], INSET + half, centre));
+      out.push(part(`nose.ala.${side}`, "nose", "merge", sub(centre, [0, 0, sign * INSET]), [0, 0, sign], up, [f.ala[3]! * NH, half, f.ala[4]! * NH, half], INSET + half, centre, plan.noseWidth));
       const nostril: [number, number, number] = [m.subnasale[0] + f.nostrilCentre[0]! * plan.noseLead, m.subnasale[1], sign * f.nostrilCentre[1]! * plan.noseWidth];
       out.push(
         part(`nose.nostril.${side}`, "nose", "diff", [nostril[0], nostril[1] - INSET, nostril[2]], [0, 1, 0], [1, 0, 0],
-          [f.nostrilSize[0]! * plan.noseWidth, f.nostrilSize[1]! * plan.noseWidth, f.nostrilSize[0]! * plan.noseWidth, f.nostrilSize[1]! * plan.noseWidth], INSET + 8.8 * k, nostril),
+          [f.nostrilSize[0]! * plan.noseWidth, f.nostrilSize[1]! * plan.noseWidth, f.nostrilSize[0]! * plan.noseWidth, f.nostrilSize[1]! * plan.noseWidth], INSET + 8.8 * k, nostril, plan.noseWidth),
       );
     }
 
@@ -77,16 +78,21 @@ export namespace AutoMovieHumanHeadInnerParts {
       part("sulcus.mentolabial", "head.mass", "diff", [slX + INSET, sl, 0], [-1, 0, 0], [0, 0, 1],
         [plan.mouthWidth, sulcus, plan.mouthWidth, sulcus], INSET + sulcus, [slX, sl, 0]),
     );
-
-    // The lids over each globe, inside the orbit's recess.
-    const front: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion);
+    // The lids over each globe, inside the orbit's recess: each margin stands
+    // the prior's recess behind the nasion's skin (`face.eyeRecess`), or at
+    // the head mass's skin in front of the eye where that lies further back;
+    // the lid rises the margin's lead from its base behind the margin. The
+    // landmark is the skin in front of the eye, so the lid keeps its place.
+    const nasion: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion);
     const lid = (side: "left" | "right", sign: 1 | -1, eye: IAutoMovieHumanHeadEyeOpening): void => {
-      const x: number = front - f.eyeRecess * k;
+      const skin: number = AutoMovieHumanHeadMassPart.frontAt(plan, plan.eye, sign * eye.place);
+      const margin: number = Math.min(skin, nasion - f.eyeRecess * k);
+      const height: number = INSET + f.marginForward * k;
       for (const [name, dy] of [["upper", 1], ["lower", -1]] as const) {
         const y: number = plan.eye + (dy * eye.height) / 2;
         out.push(
-          part(`lid.${name}.${side}`, "head.mass", "merge", [x - INSET, y + (dy * eye.height) / 2, sign * eye.place], [1, 0, 0], [0, 0, sign],
-            [eye.length / 2, eye.height / 2, eye.length / 2, eye.height / 2], INSET + f.marginForward * k, [x, y, sign * eye.place]),
+          part(`lid.${name}.${side}`, "head.mass", "merge", [margin - height, y + (dy * eye.height) / 2, sign * eye.place], [1, 0, 0], [0, 0, sign],
+            [eye.length / 2, eye.height / 2, eye.length / 2, eye.height / 2], height, [skin, y, sign * eye.place], AutoMovieHumanHeadMassPart.halfWidth(plan, plan.eye)),
         );
       }
     };
@@ -107,11 +113,12 @@ export namespace AutoMovieHumanHeadInnerParts {
     extents: [number, number, number, number],
     height: number,
     seed: [number, number, number],
+    host?: number,
   ): AutoMovieHumanHeadFeatures.IFeature {
     const h: number = Math.max(INSET + 0.5, height);
     const e: [number, number, number, number] = extents.map((x: number): number => Math.max(0.5, Math.abs(x))) as [number, number, number, number];
     return {
-      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents: e, height: h, profile: 2, shoulder: AutoMovieViewSection.ELLIPSE }),
+      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents: e, height: h, profile: 2, shoulder: AutoMovieViewSection.ELLIPSE, ...(host === undefined ? {} : { host }) }),
       join,
       seed,
       contact: INSET,
