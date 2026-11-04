@@ -1,30 +1,23 @@
 # Screenshots
 
-Use the Human debug viewer, by default `http://127.0.0.1:5197`. Start, stop or restart the viewer as needed without approval. From `packages/human`, start one shared viewer with `pnpm debug`, detached from the shell that starts it. The viewer's code lies outside the test program, so its compile collector is `pnpm ttsc --noEmit --watch -p tsconfig.debug.json` from `packages/human`, beside the test collector of development's [Type Checking](../development/validation.md#type-checking); the viewer draws whatever that collector reports while it shows the collector's state. An open page keeps its loaded source until it is reloaded, and a change to the server's own option parser takes effect only after a restart. The [debug README](../../../packages/human/debug/README.md) documents every route, variable and header.
+The Human debug viewer serves `http://127.0.0.1:5197`, started from `packages/human` with `pnpm debug`, detached from the shell that starts it. Its [README](../../../packages/human/debug/README.md) owns every route, URL variable, header and piece. It is the package's one shared viewer under development's [Scripts And Shared Checkouts](../development/SKILL.md#scripts-and-shared-checkouts): start it when none answers, and restart it only when `/human-debug/status.json` shows an empty queue.
+
+The viewer strips types and draws even while its type-check watch reports errors, showing the watch's latest cycle in its compile panel and in each frame's `x-human-compile` header. Its watch is `pnpm ttsc --noEmit --watch -p tsconfig.debug.json` from `packages/human`, beside the test watch of development's [Type Checking](../development/validation.md#type-checking); read its state beside every capture. An open page keeps the source it loaded until it is reloaded.
 
 | Use | Path under the viewer endpoint |
 | --- | --- |
-| Interactive page | `/debug.html?person=f1`, a piece with `&piece=<name>` |
+| Interactive page | `/debug.html?person=f1`, one piece alone with `&piece=<name>` |
 | PNG | `/human-debug/images/<name>.png?person=f1&<variables>&fresh=<nonce>` |
 | Every part of a person | `/human-debug/batch/<person>.json?round=<name>` |
+| View curves over a reference | `/debug.html?reference=f1` with the README's view-comparison variables |
 
-## Free View
+## Frames
 
-Every option is a URL variable listed in the debug README: `person`, `piece`, `parts`, `hide`, `partColor`, `curves`, `curveHide`, `kinds`, `curveWidth`, `thick`, `curveColor`, `xray`, `labels`, `camera`, `az`, `el`, `dist`, `target`, `fov`, `ortho`, `focus`, `shade`, `light`, `lightSide`, `lightEl`, `opacity`, `wire`, `normals`, `normalLength`, `section`, `sectionAt`, `sectionFlip`, `bg`, `w`, `h`. The surface alone is `curves=none`, the curves alone `parts=none`, and hair or underwear hide with `hide=<pattern>`.
-
-- Give every new frame a unique `fresh` nonce.
-- Accept a frame as new only when `x-human-cache` is `new-requested-frame`.
-- Keep its `x-human-captured-utc`, `x-human-png-sha256` and `x-human-source-sha256` headers; the last names the source the frame reflects.
-
-## Part View
-
-View one piece or part alone in the component page of the development viewer. It shows a supplied document of parts with their surfaces and generating curves, and every option is a URL variable: the visibility and colour of each part, the visibility, thickness and colour of each curve, the camera, the shading, the raking light and the section. Build the document from a piece's standalone entry with fixed inputs, so a piece is seen in seconds without generating the whole body. The [debug README](../../../packages/human/debug/README.md) lists the variables, the piece registry and the piece contract.
-
-## Running
-
-- Start the viewer and its collector with the commands above, and read the collector's state beside every capture.
-- A frame's `x-human-source-sha256` is the source hash at module load, and a later save does not change a frame already made; a retry count above one shows a save during loading.
+- The surface alone is `curves=none`, the curves alone `parts=none`, and hair or underwear hide with `hide=<pattern>`.
+- A registered piece (`piece=<name>`) builds alone from the person's inputs, so it is judged without the whole body.
+- Give every new frame a unique `fresh` nonce, and accept it as new only when `x-human-cache` is `new-requested-frame`.
+- Keep its `x-human-captured-utc`, `x-human-png-sha256` and `x-human-source-sha256` headers. The source hash is taken when the page loads its modules, so a later save does not change a frame already made, and `x-human-load-attempts` above 1 shows a save during loading.
 
 ## References
 
-Reference outputs live in `test/.shots/<alias>/`, selected by `test/.shots/manifest.json`: `captures.json` indexes the original photographs, `recovery/screenshots/index.json` the Recovery renders, and `hermite-curves.json.gz` holds the saved curves.
+Reference outputs live in `test/.shots/<alias>/`, selected by `test/.shots/manifest.json`: `captures.json` indexes the original photographs, `recovery/screenshots/index.json` the Recovery renders, and `hermite-curves.json.gz` holds the saved curves. The view comparison reads the private section pack under `.references/curves/<alias>/`.
