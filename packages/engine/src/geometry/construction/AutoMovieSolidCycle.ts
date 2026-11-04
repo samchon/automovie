@@ -14,10 +14,10 @@
  * @evidence contracts/common.md#principled-implementation Which side a trim keeps is read by crossing parity on the cycle's own chart polygon, each segment on the phase branch nearest the point, so periodic faces read correctly.
  * @evidence contracts/common.md#clear-and-simple-design One cycle record and its readings: kept, station, foot, centre and shift.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A cycle that turns back in phase is counted by parity, not by an assumed monotone order.
- * @evidence contracts/common.md#meaningful-documentation States the three kinds and which side each keeps.
- * @evidence contracts/performance.md#efficient-algorithms Every reading is linear in the cycle's vertices.
- * @evidence contracts/performance.md#reuse-equivalent-work A hole's centre is computed once per reading and shared by its segments.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Readings allocate only their small results.
+ * @evidence contracts/common.md#meaningful-documentation States the four kinds and which side each keeps.
+ * @evidence contracts/performance.md#efficient-algorithms Kept, station, foot and centre scan S vertices; shift is constant time and preparation stores O(S) values.
+ * @evidence contracts/performance.md#reuse-equivalent-work Raw readings compute the centre per query; prepared readings reuse invariant centre/endpoints for one unchanged cycle.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Raw readings retain nothing; prepared closures retain O(S) scratch only until their caller drops them.
  */
 export namespace AutoMovieSolidCycle {
   /** One cycle. */
@@ -67,11 +67,53 @@ export namespace AutoMovieSolidCycle {
    * @param v The point's `v`.
    * @param period The face's phase period; absent for a face that is not periodic.
    * @returns True on the kept side.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses crossing parity in the existing chart branches for all four cycle kinds.
+   * @evidence contracts/common.md#clear-and-simple-design Delegates to the same predicate as the prepared reader, without retained state.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps every original inequality and half-period tie; no curve or boundary is moved.
+   * @evidence contracts/common.md#meaningful-documentation The inclusive 'on cycle' wording has an existing strict-parity boundary gap, recorded separately; preparation does not claim to fix it.
+   * @evidence contracts/performance.md#efficient-algorithms Scans S edges, plus the hole/island centre scan, in O(S) time.
+   * @evidence contracts/performance.md#reuse-equivalent-work This live reading caches nothing; prepare is the face-local repeated-query path.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a boolean and retains no input or scratch after the call.
    */
   export function kept(cycle: Pick<ICycle, "kind" | "chart">, u: number, v: number, period: number | undefined): boolean {
+    return read(cycle, u, v, period);
+  }
+
+  /**
+   * Repeated kept-side readings while kind, chart and period remain unchanged.
+   * Polygon boundary ties are exactly kept's existing strict comparisons;
+   * this does not establish the documented inclusive-boundary contract.
+   *
+   * @evidence contracts/common.md#principled-implementation Reuses only cycle-invariant centre/endpoints; the shared reader retains the existing parity comparisons.
+   * @evidence contracts/common.md#clear-and-simple-design One preparation and one shared predicate serve repeated chart queries without a spatial index.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps the period fallback, Math.round ties and strict crossing tests; the existing exact-boundary contract gap is not repaired here.
+   * @evidence contracts/common.md#meaningful-documentation States the unchanged-input lifetime and the existing boundary-tie limitation.
+   * @evidence contracts/performance.md#efficient-algorithms O(S) preparation and O(S) per query for S edges; cached endpoints avoid per-query tuple allocation.
+   * @evidence contracts/performance.md#reuse-equivalent-work The caller keeps cycle kind/chart and period unchanged while using the reader; a new face creates a new reader after edits or rollback.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned closure owns O(S) endpoint scratch, with no global cache; dropping the reader releases those references.
+   */
+  export function prepare(cycle: Pick<ICycle, "kind" | "chart">, period: number | undefined): (u: number, v: number) => boolean {
+    const prepared: IPrepared = cycle.kind === "hole" || cycle.kind === "island"
+      ? { centreV: centre(cycle)[1] }
+      : { ends: cycle.chart.map((a: [number, number], k: number): [number, number] => {
+          const raw: [number, number] = cycle.chart[(k + 1) % cycle.chart.length]!;
+          return [raw[0], shift(raw[1], a[1], period ?? 2 * Math.PI)];
+        }) };
+    return (u: number, v: number): boolean => read(cycle, u, v, period, prepared);
+  }
+
+  /** Cycle-invariant values; coordinates and kind are owned unchanged by the caller. */
+  interface IPrepared {
+    /** Mean v for hole/island parity, including NaN on an empty chart. */ centreV?: number;
+    /** Winding endpoints on their first point's nearest phase branch. */ ends?: [number, number][];
+  }
+
+  /** The original parity and tie arithmetic, with optional invariant values. */
+  function read(cycle: Pick<ICycle, "kind" | "chart">, u: number, v: number, period: number | undefined, prepared?: IPrepared): boolean {
     const n: number = cycle.chart.length;
     if (cycle.kind === "hole" || cycle.kind === "island") {
-      const w: number = shift(v, centre(cycle)[1], period);
+      const w: number = shift(v, prepared === undefined ? centre(cycle)[1] : prepared.centreV!, period);
       let inside: boolean = false;
       for (let k: number = 0; k < n; k++) {
         const a: [number, number] = cycle.chart[k]!;
@@ -91,7 +133,7 @@ export namespace AutoMovieSolidCycle {
     for (let k: number = 0; k < n; k++) {
       const a: [number, number] = cycle.chart[k]!;
       const raw: [number, number] = cycle.chart[(k + 1) % n]!;
-      const b: [number, number] = [raw[0], shift(raw[1], a[1], p)];
+      const b: [number, number] = prepared === undefined ? [raw[0], shift(raw[1], a[1], p)] : prepared.ends![k]!;
       const w: number = shift(v, (a[1] + b[1]) / 2, p);
       if (a[1] > w === b[1] > w) continue;
       const x: number = a[0] + ((w - a[1]) * (b[0] - a[0])) / (b[1] - a[1]);

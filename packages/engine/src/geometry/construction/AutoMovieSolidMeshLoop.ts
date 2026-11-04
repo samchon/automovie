@@ -12,12 +12,12 @@ const { dot, norm, sub } = AutoMovieSolidVector;
  * The trim-loop readings of a face's tessellation (`AutoMovieSolidMesh.face`): which grid vertices a loop keeps with a metric margin, which drawn-cell cycle belongs to which loop, and the arclength parameter and alignment the zipper (`AutoMovieSolidZip`) stitches a loop to its cycle by.
  *
  * @evidence contracts/common.md#principled-implementation A grid vertex is kept only beyond a metric margin from every loop, distances measured in the surface's first fundamental form, and loops meet cycles by arclength.
- * @evidence contracts/common.md#clear-and-simple-design Four readings: keeps, nearest, arc and aligned.
+ * @evidence contracts/common.md#clear-and-simple-design A face-local prepared classifier plus the live keeps, nearest, arc and aligned readings.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Distances are metric, not chart distances, so a stretched chart does not move the margin.
  * @evidence contracts/common.md#meaningful-documentation States each reading's measure and use.
- * @evidence contracts/performance.md#efficient-algorithms Each reading is linear in the loop or cycle.
- * @evidence contracts/performance.md#reuse-equivalent-work The metric coefficients are read once per vertex for all segments.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returns numbers or index arrays and retains nothing.
+ * @evidence contracts/performance.md#efficient-algorithms Live and prepared queries scan their loops; preparation is O(S+L) for S total edges and L loops, and face classification remains O(V(S+L)) for V grid vertices.
+ * @evidence contracts/performance.md#reuse-equivalent-work Prepared queries share each point's metric across eligible loops and reuse numerical loop invariants; raw readings remain live.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Live readings retain nothing; prepared closures own O(S+L) face-local scratch until dropped, with no global cache.
  */
 export namespace AutoMovieSolidMeshLoop {
   /**
@@ -31,25 +31,159 @@ export namespace AutoMovieSolidMeshLoop {
    * @param margin The least distance from the loop, mm.
    * @param period The face's phase period, or undefined.
    * @returns True when the vertex is kept at the margin.
+   *
+   * @evidence contracts/common.md#principled-implementation Combines existing kept-side parity with the first-fundamental-form distance to every segment.
+   * @evidence contracts/common.md#clear-and-simple-design The live public reading shares its scalar metric minimum with prepared face queries.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the same local metric, phase shifts, sqrt/clamp and inclusive margin comparison; no geodesic or world-distance substitute is used.
+   * @evidence contracts/common.md#meaningful-documentation Names chart inputs, jet-derived metric and world-mm margin; parity boundary ties remain the existing predicate's.
+   * @evidence contracts/performance.md#efficient-algorithms O(S) time for S edges, with metric coefficients computed once per call; prepare amortizes invariant work across a face.
+   * @evidence contracts/performance.md#reuse-equivalent-work This live API caches nothing and sees current mutable input; prepared face snapshots have a separate lifetime.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a boolean and retains no input or scratch after returning.
    */
   export function keeps(loop: ILoop, u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number, period: number | undefined): boolean {
     if (!AutoMovieSolidCycle.kept(loop, u, v, period)) return false;
 
-    // The least distance to the loop's segments in millimetres, each segment
-    // read on the branch of the point's phase nearest it.
+    return minimum(loop, u, v, jet, margin, period);
+  }
+
+  /**
+   * Compile the same classification for one synchronous face's unchanged inputs.
+   * Data-valued charts are copied lazily when their loop is first reached.
+   * Accessors, inherited entries and unsuitable data use the original live walk.
+   * Eligibility inspection invokes no ordinary object's getters; proxies with
+   * non-transparent reads or effectful descriptor traps are outside this premise.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the same parity, metric projection and margin comparisons as keeps; copied chart values change no geometry.
+   * @evidence contracts/common.md#clear-and-simple-design One face-local closure owns lazy loop preparation; no global cache or spatial index is introduced.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves loop order, eager fallback, both distinct periodic rules, full metric scan, sqrt and equality; no tolerance or curve is changed.
+   * @evidence contracts/common.md#meaningful-documentation States numerical snapshot ownership, accessor fallback and the supported descriptor premise.
+   * @evidence contracts/performance.md#efficient-algorithms Preparation and queries are O(S+L) for S total edges and L loops; invariant shifts/tuples and repeated point metrics are reused.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each new face owns new preparation after edits or rollback; eligible input and jet values stay unchanged while read.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Captures O(S+L) scratch for L loops until the returned reader is dropped; the face retains it only through its synchronous call.
+   */
+  export function prepare(loops: readonly ILoop[], period: number | undefined): Classifier {
+    const raw: Classifier = (u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number): boolean =>
+      loops.every((l: ILoop): boolean => keeps(l, u, v, jet, margin, period));
+    const states: (IState | undefined)[] = new Array<IState | undefined>(loops.length);
+    try {
+      for (let k: number = 0; k < loops.length; k++) {
+        const entry: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(loops, String(k));
+        if (entry === undefined) { if (k in loops) return raw; continue; }
+        if (!("value" in entry)) return raw;
+        states[k] = { input: entry.value as ILoop, checked: false };
+      }
+    } catch { return raw; }
+    let eager: boolean = period !== undefined && (!Number.isFinite(period) || period <= 0);
+    return (u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number): boolean => {
+      if (eager) return raw(u, v, jet, margin);
+      let metric: IAutoMovieSolidSurface.IJet | undefined;
+      let E: number = 0;
+      let F: number = 0;
+      let G: number = 0;
+      for (const state of states) {
+        if (state === undefined) continue;
+        if (!state.checked) {
+          state.chart = snapshot(state.input);
+          state.checked = true;
+          if (state.chart !== null) state.side = AutoMovieSolidCycle.prepare(state.chart, period);
+        }
+        if (state.chart === null) { eager = true; return raw(u, v, jet, margin); }
+        if (!state.side!(u, v)) return false;
+        if (metric === undefined) {
+          if (typeof u !== "number" || typeof v !== "number" || typeof margin !== "number" || !plainJet(jet)) {
+            eager = true;
+            return raw(u, v, jet, margin);
+          }
+          metric = jet;
+          E = dot(jet.u, jet.u);
+          F = dot(jet.u, jet.v);
+          G = dot(jet.v, jet.v);
+        }
+        if (state.deltas === undefined) {
+          const chart: [number, number][] = state.chart!.chart;
+          state.deltas = new Float64Array(2 * chart.length);
+          for (let k: number = 0; k < chart.length; k++) {
+            const a: [number, number] = chart[k]!;
+            const b: [number, number] = chart[(k + 1) % chart.length]!;
+            state.deltas[2 * k] = b[0] - a[0];
+            state.deltas[2 * k + 1] = AutoMovieSolidCycle.shift(b[1], a[1], period) - a[1];
+          }
+        }
+        if (!(distance(state.chart!, u, v, E, F, G, period, state.deltas) >= margin)) return false;
+      }
+      return true;
+    };
+  }
+
+  /** A point classifier in chart coordinates, with a world-mm margin. */
+  type Classifier = (u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number) => boolean;
+  /** The numerical fields the parity and metric readings consume. */
+  type Chart = Pick<ILoop, "kind" | "chart">;
+  /** Scratch owned by one prepared face, never published into a body. */
+  interface IState {
+    /** Original input for live fallback. */ input: ILoop;
+    /** Whether snapshot eligibility was inspected. */ checked: boolean;
+    /** Copied numerical chart, or null for live fallback. */ chart?: Chart | null;
+    /** Existing kept-side predicate over that copy. */ side?: (u: number, v: number) => boolean;
+    /** Metric segment differences, dx/dy per edge. */ deltas?: Float64Array;
+  }
+
+  /** Copy only own data-valued numerical fields, without invoking ordinary getters. */
+  function snapshot(loop: ILoop): Chart | null {
+    try {
+      const kind: unknown = Object.getOwnPropertyDescriptor(loop, "kind")?.value;
+      const source: unknown = Object.getOwnPropertyDescriptor(loop, "chart")?.value;
+      if (!(kind === "hole" || kind === "island" || kind === "start" || kind === "end") || !Array.isArray(source)) return null;
+      const chart: [number, number][] = [];
+      for (let k: number = 0; k < source.length; k++) {
+        const point: unknown = Object.getOwnPropertyDescriptor(source, String(k))?.value;
+        if (!Array.isArray(point)) return null;
+        const x: unknown = Object.getOwnPropertyDescriptor(point, "0")?.value;
+        const y: unknown = Object.getOwnPropertyDescriptor(point, "1")?.value;
+        if (typeof x !== "number" || typeof y !== "number" || !Number.isFinite(x) || !Number.isFinite(y)) return null;
+        chart.push([x, y]);
+      }
+      return { kind, chart };
+    } catch { return null; }
+  }
+
+  /** Metric sharing applies only to stable ordinary numerical vector fields. */
+  function plainJet(jet: IAutoMovieSolidSurface.IJet): boolean {
+    try {
+      for (const name of ["u", "v"]) {
+        const axis: unknown = Object.getOwnPropertyDescriptor(jet, name)?.value;
+        if (!Array.isArray(axis)) return false;
+        for (let k: number = 0; k < 3; k++) {
+          const value: unknown = Object.getOwnPropertyDescriptor(axis, String(k))?.value;
+          if (typeof value !== "number" || !Number.isFinite(value)) return false;
+        }
+      }
+      return true;
+    } catch { return false; }
+  }
+
+  /** Live metric reading after kept-side acceptance, preserving its original operation order. */
+  function minimum(loop: Pick<ILoop, "chart">, u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number, period: number | undefined): boolean {
     const E: number = dot(jet.u, jet.u);
     const F: number = dot(jet.u, jet.v);
     const G: number = dot(jet.v, jet.v);
+    return distance(loop, u, v, E, F, G, period) >= margin;
+  }
+
+  /** Full segment minimum; optional differences are the same subtractions prepared once. */
+  function distance(loop: Pick<ILoop, "chart">, u: number, v: number, E: number, F: number, G: number, period: number | undefined, deltas?: Float64Array): number {
     const n: number = loop.chart.length;
     let least: number = Infinity;
     for (let k: number = 0; k < n; k++) {
       const a: [number, number] = loop.chart[k]!;
       const raw: [number, number] = loop.chart[(k + 1) % n]!;
-      const bv: number = AutoMovieSolidCycle.shift(raw[1], a[1], period);
+      const bv: number | undefined = deltas === undefined ? AutoMovieSolidCycle.shift(raw[1], a[1], period) : undefined;
       const w: number = AutoMovieSolidCycle.shift(v, a[1], period);
-      least = Math.min(least, segment(u - a[0], w - a[1], raw[0] - a[0], bv - a[1], E, F, G));
+      least = Math.min(least, segment(u - a[0], w - a[1],
+        deltas === undefined ? raw[0] - a[0] : deltas[2 * k]!,
+        deltas === undefined ? bv! - a[1] : deltas[2 * k + 1]!, E, F, G));
     }
-    return least >= margin;
+    return least;
   }
 
   /** The metric distance from a chart offset to a chart segment, mm. */
