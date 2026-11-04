@@ -101,12 +101,30 @@ export namespace AutoMovieHumanHeadMassPart {
       (site: [string, number], i: number): boolean => i === 0 || site[1] - sites[i - 1]![1] > 0.5,
     );
 
-    // Each site's plane and the outlines' values there.
+    // Layers: every site and as many even steps between as keep them within
+    // the spacing.
+    const first: number = knotted[0]![1];
+    const last: number = knotted[knotted.length - 1]![1];
+    const stations: number[] = [];
+    for (let i: number = 0; i + 1 < knotted.length; i++) {
+      const a: number = knotted[i]![1];
+      const b: number = knotted[i + 1]![1];
+      const n: number = Math.max(1, Math.ceil((b - a) / SPACING));
+      for (let k: number = 0; k < n; k++) stations.push(a + ((b - a) * k) / n);
+    }
+    stations.push(last);
+
+    // Every layer's plane and the outlines' values there, so each outline
+    // follows P, B and L at the layers' spacing: knots at the sites alone let
+    // the spline swing across the jaw's turn to the neck and carried the
+    // neck's front behind the axis.
     const front: IAutoMovieViewPart.IKnot[] = [];
     const back: IAutoMovieViewPart.IKnot[] = [];
     const left: IAutoMovieViewPart.IKnot[] = [];
     const right: IAutoMovieViewPart.IKnot[] = [];
-    for (const [site, station] of knotted) {
+    const named: Map<number, string> = new Map(knotted.map(([site, station]: [string, number]): [number, string] => [station, site]));
+    for (const [k, station] of stations.entries()) {
+      const site: string = named.get(station) ?? `head.${k}`;
       const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
       const atPole: boolean = site === "vertex";
       const p: number = atPole ? 0 : reach(frame, 1, (y: number): number => median(plan, y));
@@ -128,8 +146,6 @@ export namespace AutoMovieHumanHeadMassPart {
     // under the nasion, returning to the vault's over the forehead.
     const vault: number = shoulder(plan.vault);
     const face: number = shoulder(faceExponent ?? AutoMovieHumanHeadPrior.PRIOR.frame.plan);
-    const first: number = knotted[0]![1];
-    const last: number = knotted[knotted.length - 1]![1];
     const flatAt = (value: number): IAutoMovieViewPart.IOutline => ({
       knots: [
         { site: knotted[0]![0], station: first, value },
@@ -145,16 +161,6 @@ export namespace AutoMovieHumanHeadMassPart {
       ].filter((k: IAutoMovieViewPart.IKnot, i: number, all: IAutoMovieViewPart.IKnot[]): boolean => i === 0 || k.station > all[i - 1]!.station),
     };
 
-    // Layers: every site and as many even steps between as keep them within
-    // the spacing.
-    const stations: number[] = [];
-    for (let i: number = 0; i + 1 < knotted.length; i++) {
-      const a: number = knotted[i]![1];
-      const b: number = knotted[i + 1]![1];
-      const n: number = Math.max(1, Math.ceil((b - a) / SPACING));
-      for (let k: number = 0; k < n; k++) stations.push(a + ((b - a) * k) / n);
-    }
-    stations.push(last);
 
     return {
       name: "head.mass",
