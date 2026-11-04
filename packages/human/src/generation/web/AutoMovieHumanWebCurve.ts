@@ -18,8 +18,11 @@ export namespace AutoMovieHumanWebCurve {
   /** Samples of a column read for its levels. */
   const LEVEL_SAMPLES: number = 256;
 
-  /** Bisections of a level's bracket on the curve's own parameter. */
-  const BISECTIONS: number = 40;
+  /** Most Illinois steps of a level's bracket on the curve's own parameter. */
+  const STEPS: number = 40;
+
+  /** Depth within which a point lies on its level, mm. */
+  const LEVEL: number = 1e-9;
 
   /**
    * A station curve's jet at a chain's end ring from three samples a step `H`
@@ -62,17 +65,42 @@ export namespace AutoMovieHumanWebCurve {
         else hi = mid;
       }
       // The curve's own point at that depth between the two samples that
-      // bracket it, by bisection of its parameter, so the reading is as
-      // smooth as the curve.
+      // bracket it, by the Illinois rule on its parameter (regula falsi that
+      // halves the stale end's value), so the reading is as smooth as the
+      // curve and takes a few evaluations instead of forty.
       let a: number = lo / LEVEL_SAMPLES;
       let b: number = hi / LEVEL_SAMPLES;
-      for (let i: number = 0; i < BISECTIONS; i++) {
-        const m: number = (a + b) / 2;
-        if (dot(sub(curve(m), start), direction) < goal) a = m;
-        else b = m;
+      let fa: number = dot(sub(samples[lo]!, start), direction) - goal;
+      let fb: number = dot(sub(samples[hi]!, start), direction) - goal;
+      if (!(fa < 0) || !(fb >= 0)) {
+        // The running maximum bracketed a dip: bisect as before.
+        for (let i: number = 0; i < STEPS; i++) {
+          const m: number = (a + b) / 2;
+          if (dot(sub(curve(m), start), direction) < goal) a = m;
+          else b = m;
+        }
+        return curve((a + b) / 2);
       }
-
-      return curve((a + b) / 2);
+      let side: number = 0;
+      let point: Vec3 = samples[hi]!;
+      for (let i: number = 0; i < STEPS; i++) {
+        const m: number = (a * fb - b * fa) / (fb - fa);
+        point = curve(m);
+        const fm: number = dot(sub(point, start), direction) - goal;
+        if (Math.abs(fm) <= LEVEL || b - a <= 1e-15) return point;
+        if (fm < 0) {
+          a = m;
+          fa = fm;
+          if (side === -1) fb /= 2;
+          side = -1;
+        } else {
+          b = m;
+          fb = fm;
+          if (side === 1) fa /= 2;
+          side = 1;
+        }
+      }
+      return point;
     };
   }
 }
