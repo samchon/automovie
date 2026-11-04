@@ -11,11 +11,12 @@
  * shank's mass lies well behind its bone and comes forward toward the ankle,
  * where the calf's bellies give way to their tendon.
  *
- * Measured: the mean of f1, f2, m1 and m2's level `leg_l` sections read
- * against their own rigs (`test_human_reference_limb_mass`), by bins a tenth
- * of the segment long, each person's own reading predicted within about 0.025
- * by the other three. The proximal tenth of the thigh lies above the crotch
- * and carries no section; the joints' own tenths are left out.
+ * Fitted on the references, so a prior awaiting a published law: the mean of
+ * f1, f2, m1 and m2's level `leg_l` sections read against their own rigs
+ * (by a reference reading since erased with the reference tests), by bins a
+ * tenth of the segment long, each person's own reading predicted within about
+ * 0.025 by the other three. The proximal tenth of the thigh lies above the
+ * crotch and carries no section; the joints' own tenths are left out.
  */
 export namespace AutoMovieHumanLegMassPrior {
   /** One row: the bin's centre as a share from the proximal joint, and the front share there. */
