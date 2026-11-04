@@ -2,8 +2,8 @@ import type { AutoMovieHarmonicCurve } from "./AutoMovieHarmonicCurve";
 import type { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import type { AutoMovieLoftParameter } from "./AutoMovieLoftParameter";
-import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
 import type { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
+import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
 
 /**
  * Principal-layer data of one chain, as published by the observation fitter
@@ -47,6 +47,17 @@ export interface IAutoMovieLoftChain {
    * clockwise ring order the zipper expects. Absent means an ordinary tube.
    */
   mirrored?: boolean;
+
+  /**
+   * Explicit outward sign of `S_station x S_phase`, when the producer knows
+   * the oriented boundary it continues (a join's blend). Absent, a tube's
+   * radial direction and mirrored flag decide it. This sign takes precedence
+   * over mirrored. Reversing one chart coordinate or reflecting world space
+   * reverses it; orientation-preserving rigid motion and translation keep it.
+   * The producer still owns regularity of the connected surface: a sign is
+   * not a certificate that its chart has no degenerate or folded point.
+   */
+  orientation?: 1 | -1;
 
   /**
    * Number of uniform phases of the chain's own rings.

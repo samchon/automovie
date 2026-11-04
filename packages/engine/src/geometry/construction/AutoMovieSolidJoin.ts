@@ -7,9 +7,17 @@ import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
+/** World point or chart derivative in the source surface's units. */
 type Vec3 = AutoMovieSolidVector.Vec3;
+
+/** Analytic boundary jet carried by one side of a blend. */
 type IRibbon = AutoMovieSolidRibbon.IRibbon;
-const { combine, cross, dot, norm, sub } = AutoMovieSolidVector;
+
+/** Shared vector operations preserve the existing arithmetic and allocation owners. */
+const { combine, cross, dot, norm, sub }: Pick<
+  typeof AutoMovieSolidVector,
+  "combine" | "cross" | "dot" | "norm" | "sub"
+> = AutoMovieSolidVector;
 
 /**
  * The composition the solid merge and the solid diff share: the intersection
@@ -47,9 +55,9 @@ const { combine, cross, dot, norm, sub } = AutoMovieSolidVector;
  * @evidence contracts/common.md#clear-and-simple-design One input record, one create function with the keep side, one result.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A broken premise returns no join; widths are never shrunk to pass.
  * @evidence contracts/common.md#meaningful-documentation States each premise, its check and the readings of the published join.
- * @evidence contracts/performance.md#efficient-algorithms One rail solve per column plus the fold check's fixed shares.
- * @evidence contracts/performance.md#reuse-equivalent-work Columns are computed once and reused by the crossing and fold checks.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The join keeps its curve and width laws; checks' scratch ends with the call.
+ * @evidence contracts/performance.md#efficient-algorithms For N traced points, checks read O(N) columns and fixed fold shares plus an O(N^2) crossing scan; each uncached parameter may invoke curve correction and a rail solve.
+ * @evidence contracts/performance.md#reuse-equivalent-work Rails, including null failures, are cached by exact numeric parameter. Columns and ribbons are rebuilt and reread surface jets on each request; no claim of once-only column preparation is made.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned join retains its curve, width/surface closures and parameter-to-rail Map until released. Arbitrarily many distinct queried parameters can grow that Map without an explicit bound; check arrays themselves are call-local.
  */
 export namespace AutoMovieSolidJoin {
   /** A composed join. */
@@ -83,7 +91,17 @@ export namespace AutoMovieSolidJoin {
     widths(t: number): { host: number; part: number | null };
   }
 
-  /** The blend's two edge ribbons at one part phase. */
+  /**
+   * The blend's two edge ribbons and outward source at one curve parameter.
+   *
+   * @evidence contracts/common.md#principled-implementation The actual rail identifies the two analytic surface ribbons; the host rail's oriented chart cross product declares the blend's outward side independently of its storage origin.
+   * @evidence contracts/common.md#clear-and-simple-design One value record keeps rail identity, both boundary 2-jets and their host outward direction together.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No mesh-derived normal or tube-centre guess is stored. This type alone does not validate finiteness or prove unfolding.
+   * @evidence contracts/common.md#meaningful-documentation Members state host/part order, blend shares and the unnormalized analytic outward meaning.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This record has no runtime algorithm; create and the ribbon owner perform its preparation.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This record coordinates no requests; the join owns rail caching and does not cache whole columns.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns two fresh ribbon records and one outward vector while the rail is borrowed from the join's parameter cache.
+   */
   export interface IColumn {
     /** The rails it runs between. */
     rail: AutoMovieSolidRail.IRail;
@@ -93,6 +111,9 @@ export namespace AutoMovieSolidJoin {
 
     /** The part's ribbon, `w = 1`. */
     end: IRibbon;
+
+    /** World direction cross(host.u,host.v)*host.orientation at the host rail; unnormalized, with magnitude inherited from that chart's units. */
+    outward: Vec3;
   }
 
   /** What a join needs. */
@@ -160,12 +181,27 @@ export namespace AutoMovieSolidJoin {
    * @param keep `outside` for a merge, `inside` for a diff.
    * @returns The join and its diagnostics.
    */
-  export function create(input: IInput, keep: AutoMovieSolidRail.Keep): IResult {
-    const traced: AutoMovieSolidIntersection.IResult = input.curve !== undefined ? { curve: input.curve, diagnostics: [] } : AutoMovieSolidIntersection.trace(input);
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...traced.diagnostics];
+  export function create(
+    input: IInput,
+    keep: AutoMovieSolidRail.Keep,
+  ): IResult {
+    const traced: AutoMovieSolidIntersection.IResult =
+      input.curve !== undefined
+        ? { curve: input.curve, diagnostics: [] }
+        : AutoMovieSolidIntersection.trace(input);
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [
+      ...traced.diagnostics,
+    ];
     const producer: string = `solid.join.${input.part.name}.${input.host.name}`;
-    const host: IAutoMovieSolidAtlas = AutoMovieSolidIntersection.atlas(input.host);
-    const fail = (contract: string, detail: string): IResult => {
+    const host: IAutoMovieSolidAtlas = AutoMovieSolidIntersection.atlas(
+      input.host,
+    );
+
+    /** Append this failed premise without claiming rollback of any caller-owned body. */
+    const fail: (contract: string, detail: string) => IResult = (
+      contract: string,
+      detail: string,
+    ): IResult => {
       diagnostics.push({ producer, level: 6, contract, detail });
       return { join: null, diagnostics };
     };
@@ -174,27 +210,53 @@ export namespace AutoMovieSolidJoin {
     const curve: AutoMovieSolidIntersection.ICurve = traced.curve;
     const period: number = 2 * Math.PI;
     const t0: number = curve.points[0]!.t;
-    const mode: AutoMovieSolidRail.Mode = input.parameter === undefined || input.parameter.kind === "phase" ? "station" : "square";
+    const mode: AutoMovieSolidRail.Mode =
+      input.parameter === undefined || input.parameter.kind === "phase"
+        ? "station"
+        : "square";
 
     // Rails by parameter, solved once: the join's checks, the blend's columns and the clip ask for the same
     // parameters (the traced points' and the columns', bitwise the same values), and callers only read them.
     const rails: Map<number, AutoMovieSolidRail.IRail | null> = new Map();
-    const rail = (t: number): AutoMovieSolidRail.IRail | null => {
+
+    /** Exact parameter identity reuses a rail or its null solve failure for this join's lifetime. */
+    const rail: IJoin["rail"] = (t: number): AutoMovieSolidRail.IRail | null => {
       const known: AutoMovieSolidRail.IRail | null | undefined = rails.get(t);
       if (known !== undefined) return known;
       const p: AutoMovieSolidIntersection.IPoint | null = curve.at(t);
-      const solved: AutoMovieSolidRail.IRail | null = p === null ? null : AutoMovieSolidRail.at(input.part, host, p, keep, typeof input.width.part === "function" ? input.width.part(t) : input.width.part, input.width.host(t), mode);
+      const solved: AutoMovieSolidRail.IRail | null =
+        p === null
+          ? null
+          : AutoMovieSolidRail.at(
+              input.part,
+              host,
+              p,
+              keep,
+              typeof input.width.part === "function"
+                ? input.width.part(t)
+                : input.width.part,
+              input.width.host(t),
+              mode,
+            );
       rails.set(t, solved);
       return solved;
     };
-    const column = (t: number): IColumn | null => {
+
+    /** Rebuild both surface ribbons at the cached rail; columns themselves are not cached. */
+    const column: IJoin["column"] = (t: number): IColumn | null => {
       const r: AutoMovieSolidRail.IRail | null = rail(t);
-      return r === null ? null : ribbons(input.part, host.faces[r.hostFace]!, r);
+      return r === null
+        ? null
+        : ribbons(input.part, host.faces[r.hostFace]!, r);
     };
-    const loop = (count: number): [number, number][] | null => {
+
+    /** Read the host rail loop at the caller's uniform phase population. */
+    const loop: IJoin["loop"] = (count: number): [number, number][] | null => {
       const out: [number, number][] = [];
       for (let i: number = 0; i < count; i++) {
-        const r: AutoMovieSolidRail.IRail | null = rail(t0 + (period * i) / count);
+        const r: AutoMovieSolidRail.IRail | null = rail(
+          t0 + (period * i) / count,
+        );
         if (r === null) return null;
         out.push(r.host);
       }
@@ -205,28 +267,46 @@ export namespace AutoMovieSolidJoin {
     const columns: IColumn[] = [];
     for (const p of curve.points) {
       const c: IColumn | null = column(p.t);
-      if (c === null) return fail("rails", `no rail at t ${p.t} (host width ${input.width.host(p.t)} mm)`);
+      if (c === null)
+        return fail(
+          "rails",
+          `no rail at t ${p.t} (host width ${input.width.host(p.t)} mm)`,
+        );
       const outside: string | null =
-        AutoMovieSolidIntersection.beyond(input.part, c.rail.s) ?? AutoMovieSolidIntersection.beyond(host.faces[c.rail.hostFace]!, c.rail.host[0]);
-      if (outside !== null) return fail("inside the layers", `the rails at t ${p.t}: ${outside}`);
+        AutoMovieSolidIntersection.beyond(input.part, c.rail.s) ??
+        AutoMovieSolidIntersection.beyond(
+          host.faces[c.rail.hostFace]!,
+          c.rail.host[0],
+        );
+      if (outside !== null)
+        return fail("inside the layers", `the rails at t ${p.t}: ${outside}`);
       columns.push(c);
     }
 
     // The host's rail loop must stay simple in the chart (read where it
     // lies on one face; across faces each piece is clipped into its face).
-    const single: boolean = columns.every((c: IColumn): boolean => c.rail.hostFace === columns[0]!.rail.hostFace);
-    const crossing: string | null = !single ? null : crossed(
-      columns.map((c: IColumn): [number, number] => c.rail.host),
-      curve.winding === 0,
+    const single: boolean = columns.every(
+      (c: IColumn): boolean => c.rail.hostFace === columns[0]!.rail.hostFace,
     );
-    if (crossing !== null) return fail("simple rail", `the host's rail crosses itself ${crossing}; a width passes the rail's radius of curvature`);
+    const crossing: string | null = !single
+      ? null
+      : crossed(
+          columns.map((c: IColumn): [number, number] => c.rail.host),
+          curve.winding === 0,
+        );
+    if (crossing !== null)
+      return fail(
+        "simple rail",
+        `the host's rail crosses itself ${crossing}; a width passes the rail's radius of curvature`,
+      );
 
     // The blend's normal must not reverse along a column.
     const step: number = period / (16 * curve.points.length);
     for (const c of columns) {
       const before: IColumn | null = column(c.rail.curve.t - step);
       const after: IColumn | null = column(c.rail.curve.t + step);
-      if (before === null || after === null) return fail("rails", `no rail beside t ${c.rail.curve.t}`);
+      if (before === null || after === null)
+        return fail("rails", `no rail beside t ${c.rail.curve.t}`);
       let previous: Vec3 | null = null;
       for (let k: number = 0; k <= FOLD_SHARES; k++) {
         const w: number = k / FOLD_SHARES;
@@ -234,17 +314,31 @@ export namespace AutoMovieSolidJoin {
           AutoMovieSolidBlend.jet(after.start, after.end, w).point,
           AutoMovieSolidBlend.jet(before.start, before.end, w).point,
         );
-        const n: Vec3 = cross(along, AutoMovieSolidBlend.jet(c.start, c.end, w).first);
-        if (previous !== null && !(dot(previous, n) > 0)) return fail("unfolded blend", `the blend's normal reverses at t ${c.rail.curve.t}, share ${w}`);
+        const n: Vec3 = cross(
+          along,
+          AutoMovieSolidBlend.jet(c.start, c.end, w).first,
+        );
+        if (previous !== null && !(dot(previous, n) > 0))
+          return fail(
+            "unfolded blend",
+            `the blend's normal reverses at t ${c.rail.curve.t}, share ${w}`,
+          );
         previous = n;
       }
     }
 
-    const widths = (t: number): { host: number; part: number | null } => ({
+
+    /** Read the original chord laws; a fixed-station part has no varying part chord. */
+    const widths: IJoin["widths"] = (
+      t: number,
+    ): { host: number; part: number | null } => ({
       host: input.width.host(t),
       part: typeof input.width.part === "function" ? input.width.part(t) : null,
     });
-    return { join: { curve, keep, continuity: "G2", rail, column, loop, widths }, diagnostics };
+    return {
+      join: { curve, keep, continuity: "G2", rail, column, loop, widths },
+      diagnostics,
+    };
   }
 
   /**
@@ -255,7 +349,11 @@ export namespace AutoMovieSolidJoin {
    * @param rail The rails.
    * @returns The column.
    */
-  function ribbons(part: IAutoMovieSolidSurface, host: IAutoMovieSolidSurface, rail: AutoMovieSolidRail.IRail): IColumn {
+  function ribbons(
+    part: IAutoMovieSolidSurface,
+    host: IAutoMovieSolidSurface,
+    rail: AutoMovieSolidRail.IRail,
+  ): IColumn {
     const chord: number = norm(sub(rail.partPoint, rail.hostPoint));
     const b: IAutoMovieSolidSurface.IJet = host.jet(rail.host[0], rail.host[1]);
     const hostSpeed: number = norm(
@@ -273,8 +371,25 @@ export namespace AutoMovieSolidJoin {
     );
     return {
       rail,
-      start: AutoMovieSolidRibbon.of(host, rail.host[0], rail.host[1], -rail.across[0], -rail.across[1], chord / hostSpeed),
-      end: AutoMovieSolidRibbon.of(part, rail.s, rail.phi, rail.partAcross[0], rail.partAcross[1], chord / partSpeed),
+      start: AutoMovieSolidRibbon.of(
+        host,
+        rail.host[0],
+        rail.host[1],
+        -rail.across[0],
+        -rail.across[1],
+        chord / hostSpeed,
+      ),
+      end: AutoMovieSolidRibbon.of(
+        part,
+        rail.s,
+        rail.phi,
+        rail.partAcross[0],
+        rail.partAcross[1],
+        chord / partSpeed,
+      ),
+      outward: cross(b.u, b.v).map(
+        (x: number): number => x * host.orientation,
+      ) as Vec3,
     };
   }
 
@@ -290,11 +405,23 @@ export namespace AutoMovieSolidJoin {
    *   once across the period instead of enclosing a region.
    * @returns A description of the first crossing, or null when simple.
    */
-  function crossed(points: readonly [number, number][], closed: boolean): string | null {
+  function crossed(
+    points: readonly [number, number][],
+    closed: boolean,
+  ): string | null {
     const n: number = points.length;
     const edges: number = closed ? n : n - 1;
-    const turn = (a: readonly [number, number], b: readonly [number, number], c: readonly [number, number]): number =>
-      (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+
+    /** Oriented chart cross product used by the existing strict crossing test. */
+    const turn: (
+      a: readonly [number, number],
+      b: readonly [number, number],
+      c: readonly [number, number],
+    ) => number = (
+      a: readonly [number, number],
+      b: readonly [number, number],
+      c: readonly [number, number],
+    ): number => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
     for (let i: number = 0; i < edges; i++) {
       const a: [number, number] = points[i]!;
       const b: [number, number] = points[(i + 1) % n]!;
@@ -302,7 +429,11 @@ export namespace AutoMovieSolidJoin {
         if (closed && i === 0 && j === n - 1) continue;
         const c: [number, number] = points[j]!;
         const d: [number, number] = points[(j + 1) % n]!;
-        if (turn(a, b, c) * turn(a, b, d) < 0 && turn(c, d, a) * turn(c, d, b) < 0) return `between edges ${i} and ${j}`;
+        if (
+          turn(a, b, c) * turn(a, b, d) < 0 &&
+          turn(c, d, a) * turn(c, d, b) < 0
+        )
+          return `between edges ${i} and ${j}`;
       }
     }
     return null;
