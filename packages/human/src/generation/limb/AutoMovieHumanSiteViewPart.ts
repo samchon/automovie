@@ -64,8 +64,8 @@ export namespace AutoMovieHumanSiteViewPart {
     /** The sites by strictly rising station, at least two besides a pole. */
     sites: ISite[];
 
-    /** A closing point: the station below the first site (`bottom`) or above the last (`top`) where every edge meets the axis. Absent, both ends are open sections. */
-    pole?: { end: "bottom" | "top"; station: number };
+    /** Closing points, each a G2 dome where every edge meets the axis: the station below the first site (`bottom`), above the last (`top`), or both (the foot's heel and forefoot cap). Absent, both ends are open sections. */
+    pole?: { end: "bottom" | "top"; station: number } | { end: "both"; bottom: number; top: number };
 
     /** Sourced departures of each quarter's shoulder, knots by station; absent means none. */
     departures?: IAutoMovieHumanViewPart.IQuarters<IAutoMovieHumanViewPart.IOutline>;
@@ -114,9 +114,12 @@ export namespace AutoMovieHumanSiteViewPart {
       if (k > 0 && !(s.station > sites[k - 1]!.station)) return fail("sites", `site ${s.site} at ${s.station} mm does not rise above ${sites[k - 1]!.site}`);
       if (!(s.edges[0] > 0 && s.edges[1] > 0 && s.edges[2] < 0 && s.edges[3] < 0)) return fail("sites", `site ${s.site}: edges [${s.edges.join(", ")}] mm do not hold the axis inside the box`);
     }
+    // The closing stations, each beyond its end's site.
     const pole: IInput["pole"] = input.pole;
-    if (pole !== undefined && (pole.end === "bottom" ? !(pole.station < sites[0]!.station) : !(pole.station > sites[sites.length - 1]!.station)))
-      return fail("pole", `the ${pole.end} pole at ${pole.station} mm does not lie beyond the sites`);
+    const bottom: number | null = pole === undefined || pole.end === "top" ? null : pole.end === "both" ? pole.bottom : pole.station;
+    const top: number | null = pole === undefined || pole.end === "bottom" ? null : pole.end === "both" ? pole.top : pole.station;
+    if (bottom !== null && !(bottom < sites[0]!.station)) return fail("pole", `the bottom pole at ${bottom} mm does not lie below the first site`);
+    if (top !== null && !(top > sites[sites.length - 1]!.station)) return fail("pole", `the top pole at ${top} mm does not lie above the last site`);
 
     // The common shoulder at each site: solved from its tape, or given.
     const shoulders: number[] = [];
@@ -131,20 +134,18 @@ export namespace AutoMovieHumanSiteViewPart {
       shoulders.push(solved.section.shoulders[0]);
     }
 
-    // Each outline through its sites, the pole's knot at zero.
-    const knots = (value: (s: ISite, k: number) => number, atPole: number): IAutoMovieHumanViewPart.IOutline => {
+    // Each outline through its sites, each pole's knot at zero (the shoulder
+    // repeats its neighbouring site's there).
+    const knots = (value: (s: ISite, k: number) => number, atBottom: number, atTop: number): IAutoMovieHumanViewPart.IOutline => {
       const out: IAutoMovieHumanViewPart.IKnot[] = sites.map((s: ISite, k: number): IAutoMovieHumanViewPart.IKnot => ({ site: s.site, station: s.station, value: value(s, k) }));
-      if (pole === undefined) return { knots: out };
-      const end: IAutoMovieHumanViewPart.IKnot = { site: `${pole.end} pole`, station: pole.station, value: atPole };
-      return { knots: pole.end === "bottom" ? [end, ...out] : [...out, end] };
+      if (bottom !== null) out.unshift({ site: "bottom pole", station: bottom, value: atBottom });
+      if (top !== null) out.push({ site: "top pole", station: top, value: atTop });
+      return { knots: out };
     };
-    const edge = (q: 0 | 1 | 2 | 3): IAutoMovieHumanViewPart.IOutline => knots((s: ISite): number => s.edges[q], 0);
-    const neighbour: number = pole?.end === "top" ? shoulders[shoulders.length - 1]! : shoulders[0]!;
+    const edge = (q: 0 | 1 | 2 | 3): IAutoMovieHumanViewPart.IOutline => knots((s: ISite): number => s.edges[q], 0, 0);
     const stationList: number[] = sites.map((s: ISite): number => s.station);
-    if (pole !== undefined) {
-      if (pole.end === "bottom") stationList.unshift(pole.station);
-      else stationList.push(pole.station);
-    }
+    if (bottom !== null) stationList.unshift(bottom);
+    if (top !== null) stationList.push(top);
     const part: IAutoMovieHumanViewPart = {
       name: input.name,
       axis: input.axis,
@@ -153,7 +154,7 @@ export namespace AutoMovieHumanSiteViewPart {
       side: { positive: edge(1), negative: edge(3) },
       fullness: {
         kind: "shoulder",
-        shoulder: knots((_: ISite, k: number): number => shoulders[k]!, neighbour),
+        shoulder: knots((_: ISite, k: number): number => shoulders[k]!, shoulders[0]!, shoulders[shoulders.length - 1]!),
         ...(input.departures !== undefined ? { departures: input.departures } : {}),
       },
       ...(pole !== undefined ? { pole: pole.end } : {}),
