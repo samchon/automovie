@@ -7,7 +7,7 @@ import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import type { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 import { AutoMovieHumanTrunkRows } from "./AutoMovieHumanTrunkRows";
 import { AutoMovieHumanTrunkSolver } from "./AutoMovieHumanTrunkSolver";
-import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import type { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
 import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolution";
 import { AutoMovieHumanArmInterim } from "./arm/AutoMovieHumanArmInterim";
@@ -28,14 +28,13 @@ type Vec3 = [number, number, number];
  * The body lane's input for a person while some of its laws are still owed
  * (#3044's rule for priors the campaign has not yet replaced: read from the
  * construction that produces them today, listed as remaining, never refit).
- * Every owed value comes from one named interim accessor
- * (`AutoMovieHumanTrunkInterim`, `AutoMovieHumanMassInterim`,
- * `AutoMovieHumanArmInterim`,
- * `AutoMovieHumanFootInterim`, `AutoMovieHumanDigitInterim`), each reading today's
- * construction (the old trunk solve, the bind skeleton, the old foot frame
- * and prior, today's limb, foot, hand and digit chains) with no number of
- * its own, and each is swapped for its law the moment the input and laws
- * worker lands it (`log-body.md`, "Interim accessors").
+ * The trunk's owed values come from the old trunk's solve
+ * (`AutoMovieHumanTrunkInterim`, `AutoMovieHumanMassInterim`), and the
+ * joint centres from the bind skeleton. The arm, the digits, the foot and the
+ * toes take their sections from the person's tapes, the published digit
+ * joints and the reference set's outline tables
+ * (`AutoMovieHumanArmInterim`, `AutoMovieHumanDigitInterim`,
+ * `AutoMovieHumanFootInterim`); no old limb chain is read (`log-body.md`).
  *
  * Published values and landed laws are read as they are: the trunk's boxes,
  * heights and back profile (`AutoMovieHumanTrunkViews`, `AutoMovieHumanTrunkLaws`),
@@ -69,8 +68,8 @@ export namespace AutoMovieHumanBodyLaneInterim {
     /** The bind skeleton. */
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[];
 
-    /** Today's whole body with its limb, foot, hand and digit chains. */
-    old: IAutoMovieHumanBodyCalibration;
+    /** The arms' tapes and the hands' dimensions, calibration mm. */
+    arms: AutoMovieHumanArmConstruction.IInputs;
   }
 
   /** The fingers, as the skeleton and the chains name them. */
@@ -89,11 +88,6 @@ export namespace AutoMovieHumanBodyLaneInterim {
     const bone = (name: string): AutoMovieHumanSkeletonLaw.IBone => {
       const found: AutoMovieHumanSkeletonLaw.IBone | undefined = input.skeleton.find((b: AutoMovieHumanSkeletonLaw.IBone): boolean => b.bone === name);
       if (found === undefined) throw new Error(`The skeleton lacks ${name}`);
-      return found;
-    };
-    const chain = (name: string): IAutoMovieLoftChain => {
-      const found: IAutoMovieLoftChain | undefined = input.old.chains.find((c: IAutoMovieLoftChain): boolean => c.name === name);
-      if (found === undefined) throw new Error(`Today's body lacks the chain ${name}`);
       return found;
     };
 
@@ -123,17 +117,28 @@ export namespace AutoMovieHumanBodyLaneInterim {
       const knuckle: Vec3 = bone(`${name}MiddleProximal`).position;
       const fold = (from: number, to: number): AutoMovieHumanBodyLane.IFold => ({ search: { phi: 0, from, to }, radius });
 
-      // The arm and palm's sites, each box read on today's arm and palm.
-      const arm: AutoMovieHumanArmWalk.ISiteLaw[] = AutoMovieHumanArmInterim.sites(chain(`arm.${name}`), chain(`hand.${name}.1`), shoulder, elbow, wrist, knuckle);
+      // The arm and palm's sites from the person's tapes.
+      const arm: AutoMovieHumanArmWalk.ISiteLaw[] = AutoMovieHumanArmInterim.sites(name, input.arms, elbow, wrist);
       const depth = (site: string): number => {
         const s: AutoMovieHumanArmWalk.ISiteLaw | undefined = arm.find((l: AutoMovieHumanArmWalk.ISiteLaw): boolean => l.site === site);
         return s === undefined ? 0 : s.edges[0] - s.edges[2];
       };
-      const digit = (chainName: string, centres: Vec3[]): AutoMovieHumanBodyLane.IDigit => {
-        const walk: AutoMovieHumanDigitWalk.IInput = AutoMovieHumanDigitInterim.walk(chainName, chain(chainName), centres);
-        return { digit: walk, fold: { search: { phi: 0, from: 0, to: 0.5 }, radius: walk.law("base").breadth / 2 } };
+      const branch = (walk: AutoMovieHumanDigitWalk.IInput): AutoMovieHumanBodyLane.IDigit => ({ digit: walk, fold: { search: { phi: 0, from: 0, to: 0.5 }, radius: walk.law("base").breadth / 2 } });
+
+      // The back of the hand: square to the knuckle line (index to little)
+      // and the middle finger, on the side away from the body's median plane,
+      // where the hanging hand's back faces.
+      const across: Vec3 = sub(bone(`${name}IndexProximal`).position, bone(`${name}LittleProximal`).position);
+      const along: Vec3 = sub(bone(`${name}MiddleIntermediate`).position, knuckle);
+      const normal: Vec3 = unit([across[1] * along[2] - across[2] * along[1], across[2] * along[0] - across[0] * along[2], across[0] * along[1] - across[1] * along[0]]);
+      const dorsal: Vec3 = normal[2] * (name === "left" ? 1 : -1) >= 0 ? normal : [-normal[0], -normal[1], -normal[2]];
+      const handLength: number = (name === "left" ? input.arms.left : input.arms.right).length / input.scale;
+      const finger = (f: "Index" | "Middle" | "Ring" | "Little", digit: 2 | 3 | 4 | 5): AutoMovieHumanBodyLane.IDigit => {
+        const distal: AutoMovieHumanSkeletonLaw.IBone = bone(`${name}${f}Distal`);
+        const centres: Vec3[] = [bone(`${name}${f}Proximal`).position, bone(`${name}${f}Intermediate`).position, distal.position, distal.tip ?? distal.position];
+        return branch(AutoMovieHumanDigitInterim.finger(`finger.${name}.${f.toLowerCase()}`, centres, dorsal, measures.sex, handLength, digit, input.scale));
       };
-      const toes: IAutoMovieLoftChain[] = [1, 2, 3, 4, 5].map((k: number): IAutoMovieLoftChain => chain(`toe.${name}.${k}`));
+      const thumb: AutoMovieHumanSkeletonLaw.IBone = bone(`${name}ThumbDistal`);
       return {
         leg: {
           bones: { hip, knee, ankle },
@@ -149,15 +154,22 @@ export namespace AutoMovieHumanBodyLaneInterim {
           joints: { elbow: depth("elbow"), wrist: depth("wrist") },
           trunk: fold(0, 0.4),
         },
-        foot: AutoMovieHumanFootInterim.of(name, chain(`foot.${name}`), toes, input.feet[name], ankle, measures, input.scale),
+        foot: AutoMovieHumanFootInterim.of(name, input.feet[name], ankle, measures, input.scale),
         fingers: [
-          ...FINGERS.map((f: string): AutoMovieHumanBodyLane.IDigit => {
-            const distal: AutoMovieHumanSkeletonLaw.IBone = bone(`${name}${f}Distal`);
-            return digit(`finger.${name}.${f.toLowerCase()}`, [bone(`${name}${f}Proximal`).position, bone(`${name}${f}Intermediate`).position, distal.position, distal.tip ?? distal.position]);
-          }),
-          digit(`thumb.${name}`, [bone(`${name}ThumbMetacarpal`).position, bone(`${name}ThumbProximal`).position, bone(`${name}ThumbDistal`).position, bone(`${name}ThumbDistal`).tip ?? bone(`${name}ThumbDistal`).position]),
+          ...FINGERS.map((f: "Index" | "Middle" | "Ring" | "Little", k: number): AutoMovieHumanBodyLane.IDigit => finger(f, (k + 2) as 2 | 3 | 4 | 5)),
+          branch(
+            AutoMovieHumanDigitInterim.finger(
+              `thumb.${name}`,
+              [bone(`${name}ThumbMetacarpal`).position, bone(`${name}ThumbProximal`).position, thumb.position, thumb.tip ?? thumb.position],
+              dorsal,
+              measures.sex,
+              handLength,
+              1,
+              input.scale,
+            ),
+          ),
         ],
-        toes: toes.map((toe: IAutoMovieLoftChain): AutoMovieHumanBodyLane.IDigit => digit(toe.name, AutoMovieHumanDigitInterim.toeCentres(toe))),
+        toes: AutoMovieHumanFootInterim.toes(name, input.feet[name], ankle, measures, input.scale).map(branch),
       };
     };
 
@@ -174,5 +186,16 @@ export namespace AutoMovieHumanBodyLaneInterim {
       sides: { left: side("left"), right: side("right") },
       gap: AutoMovieHumanTrunkRows.MAX_GAP,
     };
+  }
+
+  /** a - b. */
+  function sub(a: readonly number[], b: readonly number[]): Vec3 {
+    return [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
+  }
+
+  /** a / |a|. */
+  function unit(a: Vec3): Vec3 {
+    const n: number = Math.hypot(a[0], a[1], a[2]);
+    return n > 0 ? [a[0] / n, a[1] / n, a[2] / n] : [0, 0, 1];
   }
 }

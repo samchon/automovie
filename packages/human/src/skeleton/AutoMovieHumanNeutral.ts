@@ -67,6 +67,14 @@ export namespace AutoMovieHumanNeutral {
   /** The chains of skin the neutral reads, so a caller samples no more. */
   export const READS: RegExp = /^(trunk|(leg|arm)\.(left|right)|hand\.(left|right)\.1|thumb\.(left|right)|finger\.(left|right)\.\w+)$/;
 
+  /**
+   * The chains of {@link READS} whose stations are heights (the level trunk):
+   * the body lane's limbs and digits carry stations along their own axes, so
+   * the neutral's reads at heights take only these, and the limb and digit
+   * clearances fall back to their bind directions as for an absent chain.
+   */
+  export const LEVEL: RegExp = /^trunk$/;
+
   /** Share of the forearm's twist the wrist carries. */
   export const WRIST_TWIST: number = AutoMovieHumanNeutralForearm.WRIST_TWIST;
 

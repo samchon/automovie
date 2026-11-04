@@ -1,53 +1,79 @@
-import type { IAutoMovieLoftChain } from "@automovie/engine";
-import { AutoMovieHumanChainBox } from "../limb/AutoMovieHumanChainBox";
-import { AutoMovieHumanSegmentChart } from "../limb/AutoMovieHumanSegmentChart";
+import { AutoMovieIllinois } from "@automovie/engine";
+import type { AutoMovieHumanArmConstruction } from "../AutoMovieHumanArmConstruction";
+import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import type { AutoMovieHumanArmWalk } from "./AutoMovieHumanArmWalk";
 
 type Vec3 = [number, number, number];
 
 /**
- * The arm's interim site laws (#3044's rule for priors the campaign has not
- * yet replaced; `log-body.md`, "Interim accessors"): each site's box read on
- * today's arm and palm chains, swapped for the arm's laws when they land.
+ * The arm's site laws from the person's tapes. Each section's four extents
+ * about its centre come from the reference set's arm sections per girth
+ * (`AutoMovieHumanReferenceOutlines.UPPER_ARM`, `FOREARM`; estimated from the
+ * private reference set: no published source gives a limb section's shape),
+ * each times the site's published tape, and each tape owns its fullness.
+ *
+ * Sites:
+ * - the biceps midway acromion to olecranon (from the glenohumeral centre,
+ *   `(1/2 - ACROMION) / (1 - ACROMION - RADIALE)` of the humerus, de Leva's
+ *   shares in `AutoMovieHumanArmBones`), the upper arm's table at half its
+ *   length;
+ * - the elbow at its centre;
+ * - the wrist at stylion (`STYLION_WRIST` short of the wrist centre);
+ * - the knuckles at the third metacarpal's head: the hand's breadth across,
+ *   and the depth whose inscribed ellipse runs the hand's tape. No published
+ *   source splits the palm's depth about the bone, so it is split evenly.
+ *
+ * The walk's chart `v` (`t x u`) is lateral on the left arm and medial on the
+ * right, so each side takes its lateral and medial extents on its own side.
  */
 export namespace AutoMovieHumanArmInterim {
   /**
-   * Interim accessor: the arm's and palm's site boxes read on today's arm and
-   * palm chains (`AutoMovieHumanChainBox`): the biceps midway acromion to
-   * olecranon (from the glenohumeral centre `(1/2 - ACROMION) / (1 - ACROMION
-   * - RADIALE)` of the humerus, de Leva's shares in `AutoMovieHumanArmBones`),
-   * the elbow at its centre, the wrist at stylion (`STYLION_WRIST` short of the
-   * wrist centre), the knuckles at the third metacarpal's head. A site whose
-   * point falls outside today's section is left out. Each box is read about
-   * today's section's own axis point, so the site takes today's size and the
-   * bone line its place: today's arm does not stand on the bind skeleton's bone
-   * (it runs a radius off it, on its upper side), and reading its extents
-   * about the bone carried that offset into the walk. Owed laws: the deltoid's
-   * site and box, the forearm's site and bone place, the palm's thickness.
+   * The arm's site laws.
    *
-   * @param arm Today's arm chain.
-   * @param palm Today's palm chain.
-   * @param shoulder The glenohumeral centre.
+   * @param side The arm.
+   * @param inputs The arm's tapes and the hands' dimensions, calibration mm.
    * @param elbow The elbow centre.
    * @param wrist The wrist centre.
-   * @param knuckle The third metacarpal's head.
-   * @returns The site laws that box.
+   * @returns The site laws.
    */
-  export function sites(arm: IAutoMovieLoftChain, palm: IAutoMovieLoftChain, shoulder: Vec3, elbow: Vec3, wrist: Vec3, knuckle: Vec3): AutoMovieHumanArmWalk.ISiteLaw[] {
+  export function sites(side: "left" | "right", inputs: AutoMovieHumanArmConstruction.IInputs, elbow: Vec3, wrist: Vec3): AutoMovieHumanArmWalk.ISiteLaw[] {
+    const T: typeof AutoMovieHumanReferenceOutlines = AutoMovieHumanReferenceOutlines;
     const biceps: number = (1 / 2 - AutoMovieHumanArmBones.ACROMION) / (1 - AutoMovieHumanArmBones.ACROMION - AutoMovieHumanArmBones.RADIALE);
-    const forearm: number = AutoMovieHumanSegmentChart.distance(wrist, elbow);
-    const places: [string, number, number, Vec3, Vec3, IAutoMovieLoftChain][] = [
-      ["biceps", 1, biceps, shoulder, elbow, arm],
-      ["elbow", 2, 0, elbow, wrist, arm],
-      ["wrist", 2, 1 - AutoMovieHumanArmBones.STYLION_WRIST / forearm, elbow, wrist, arm],
-      ["knuckles", 3, 1, wrist, knuckle, palm],
+    const forearm: number = Math.hypot(wrist[0] - elbow[0], wrist[1] - elbow[1], wrist[2] - elbow[2]);
+    const box = (table: AutoMovieHumanReferenceOutlines.ITable, share: number, girth: number): [number, number, number, number] => {
+      const read = (column: string): number => T.at(table, column, share) * girth;
+      const lateral: number = read("lateral");
+      const medial: number = read("medial");
+      const [plus, minus]: [number, number] = side === "left" ? [lateral, medial] : [medial, lateral];
+      return [read("anterior"), plus, -read("posterior"), -minus];
+    };
+    const hand: AutoMovieHumanArmConstruction.IHand = side === "left" ? inputs.left : inputs.right;
+    const depth: number = ellipseDepth(hand.breadth, inputs.circumference);
+    return [
+      { site: "biceps", bone: 1, share: biceps, edges: box(T.UPPER_ARM, 0.5, inputs.bicep), fullness: { girth: inputs.bicep } },
+      { site: "elbow", bone: 2, share: 0, edges: box(T.FOREARM, 1, inputs.elbow), fullness: { girth: inputs.elbow } },
+      { site: "wrist", bone: 2, share: 1 - AutoMovieHumanArmBones.STYLION_WRIST / forearm, edges: box(T.FOREARM, 0, inputs.wrist), fullness: { girth: inputs.wrist } },
+      { site: "knuckles", bone: 3, share: 1, edges: [depth / 2, hand.breadth / 2, -depth / 2, -hand.breadth / 2], fullness: { girth: inputs.circumference } },
     ];
-    return places.flatMap(([site, b, share, from, to, on]: [string, number, number, Vec3, Vec3, IAutoMovieLoftChain]): AutoMovieHumanArmWalk.ISiteLaw[] => {
-      const point: Vec3 = AutoMovieHumanSegmentChart.lerp(from, to, share);
-      const [u, v]: [Vec3, Vec3] = AutoMovieHumanSegmentChart.of(from, to, [1, 0, 0]);
-      const box: AutoMovieHumanChainBox.IBox | null = AutoMovieHumanChainBox.at(on, point, u, v, true);
-      return box === null ? [] : [{ site, bone: b, share, edges: box.edges, fullness: { shoulder: box.shoulder } }];
-    });
+  }
+
+  /**
+   * The depth whose inscribed ellipse with a breadth runs a tape: the root of
+   * Ramanujan's second approximation by the Illinois rule, between a sliver
+   * and the circle's reach; the breadth itself where the tape cannot be met.
+   *
+   * @param breadth The whole breadth, mm.
+   * @param girth The tape, mm.
+   * @returns The whole depth, mm.
+   */
+  export function ellipseDepth(breadth: number, girth: number): number {
+    const perimeter = (d: number): number => {
+      const a: number = breadth / 2;
+      const b: number = d / 2;
+      const h: number = ((a - b) / (a + b)) ** 2;
+      return Math.PI * (a + b) * (1 + (3 * h) / (10 + Math.sqrt(4 - 3 * h)));
+    };
+    return AutoMovieIllinois.root((d: number): number => perimeter(d) - girth, 1e-6, girth, 1e-6, 100) ?? breadth;
   }
 }

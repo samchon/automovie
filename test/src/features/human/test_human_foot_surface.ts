@@ -30,9 +30,8 @@ export function test_human_foot_surface(): void {
   const defects: string[] = [];
   for (const name of ["f1", "m1", "tall", "short"]) {
     const person: HumanPeople.IPerson = HumanPeople.person(name);
-    // The foot is a rig reader of anatomy at heights, so it reads the body the
-    // skeleton passes it: the interim legacy construction where one exists.
-    const body: IAutoMovieHumanBodyCalibration = person.body.legacy ?? person.body;
+    // The foot reads the body the skeleton passes it: the published body.
+    const body: IAutoMovieHumanBodyCalibration = person.body;
     const source: Foot.IOutput = Foot.derive(body, 0.001);
     const doubled: Foot.IOutput = Foot.derive(body, 0.002);
     for (const side of ["left", "right"] as const) {

@@ -9,7 +9,6 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
 import { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
 import { AutoMovieHumanBodyLaneInterim } from "./AutoMovieHumanBodyLaneInterim";
-import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
 import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
@@ -68,9 +67,9 @@ export namespace AutoMovieHumanBodyLaw {
       scale: inputs.scale,
     });
 
-    // Interim: the old head assembly feeds only today's body, which the rig
-    // still reads (`legacy`); the figure's head is the head lane's subtree,
-    // realized with the body below.
+    // Interim: the old head assembly gives the trunk solve its neck chain and
+    // the eye globes; the figure's head is the head lane's subtree, realized
+    // with the body below.
     const headed: AutoMovieHumanHeadConstruction.IOutput =
       AutoMovieHumanHeadConstruction.apply(
         {
@@ -115,20 +114,6 @@ export namespace AutoMovieHumanBodyLaw {
         legs: inputs,
         ...(standing.trunk !== undefined ? { trunk: standing.trunk } : {}),
       });
-    const stood: IAutoMovieHumanBodyCalibration =
-      AutoMovieHumanLegConstruction.stand(
-        AutoMovieHumanFootConstruction.add(
-          AutoMovieHumanArmConstruction.add(standing, armInputs, skeleton),
-          footInputs,
-        ),
-        inputs,
-        skeleton,
-      );
-    // Today's body, kept as the interim source of the body lane's owed values
-    // and of the skeleton (`AutoMovieHumanBodyLaneInterim`).
-    const today: IAutoMovieHumanBodyCalibration = AutoMovieHumanEventJoin.reconcile(
-      AutoMovieHumanLegConstruction.add(stood, inputs, skeleton),
-    );
     const neck: IAutoMovieLoftChain | undefined = headed.body.chains.find(
       (c: IAutoMovieLoftChain): boolean => c.name === "head",
     );
@@ -144,19 +129,19 @@ export namespace AutoMovieHumanBodyLaw {
       ...AutoMovieHumanBodyLaneInterim.of({
         params,
         scale: inputs.scale,
-        stature: today.stature,
+        stature: standing.stature,
         crotch: crotchHeight,
         trunk: trunkInputs,
         neck,
         feet: footInputs,
         skeleton,
-        old: today,
+        arms: armInputs,
       }),
       head: headLane,
     });
     return {
       body: {
-        ...today,
+        ...standing,
         chains: lane.chains,
         events: [],
         poles: [],
@@ -165,20 +150,16 @@ export namespace AutoMovieHumanBodyLaw {
         // openings land as trims of its tree next. The eyes are the globes'
         // frames alone (centre and radius), which the appearance seats.
         apertures: [],
-        eyes: today.eyes,
+        eyes: standing.eyes,
         merges: undefined,
         bodies: lane.bodies,
         appendages: undefined,
 
-        // Interim: today's nail windows name stations of today's digit
-        // chains, which the body lane replaces (remaining, `log-body.md`).
+        // The nail windows named stations of the old digit chains; nail
+        // plates on the new digits remain (`log-body.md`).
         nails: undefined,
-        diagnostics: [...(today.diagnostics ?? []), ...lane.diagnostics],
+        diagnostics: [...(standing.diagnostics ?? []), ...lane.diagnostics],
         skeleton,
-
-        // Interim: today's body for the rig's readers of anatomy at heights
-        // (remaining, `log-body.md`).
-        legacy: { ...today, skeleton },
       },
       vermilion: headLane.vermilion,
     };

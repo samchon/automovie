@@ -92,7 +92,12 @@ export namespace AutoMovieHumanBindingLoft {
             add(grid, node(grid, i, j), (1 - fu) / grid.phases);
             add(grid, node(grid, i + 1, j), fu / grid.phases);
           }
-        const top: [number, number][] = AutoMovieHumanBindingQuantize.strongest(sum, touched);
+        let top: [number, number][];
+        try {
+          top = AutoMovieHumanBindingQuantize.strongest(sum, touched);
+        } catch (error) {
+          throw new TypeError(`${(error as Error).message}: chain ${chain.name} at station ${station}, phase ${phase}`);
+        }
         for (const slot of touched) sum[slot] = 0;
         touched.length = 0;
         return top;

@@ -177,7 +177,7 @@ export namespace AutoMovieHumanSkeleton {
     const scale: number = mmScale / 1000;
     const footSurface: AutoMovieHumanFootSurface.IOutput | undefined =
       options.footSurface
-        ? AutoMovieHumanFootSurface.derive(calibration.legacy ?? calibration, scale)
+        ? AutoMovieHumanFootSurface.derive(calibration, scale)
         : undefined;
     const neckSurface: AutoMovieHumanNeckSurface.IOutput | undefined =
       options.neckSurface
@@ -190,13 +190,13 @@ export namespace AutoMovieHumanSkeleton {
         : undefined;
 
     const bind: AutoMovieHumanJointCentres.IJoint[] =
-      AutoMovieHumanJointCentres.derive(calibration.legacy ?? calibration);
+      AutoMovieHumanJointCentres.derive(calibration);
     const neutral: AutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.of(
       calibration,
       (): AutoMovieHumanNeutral.ISource => ({
         rings: AutoMovieHumanBindingInputs.rings(
-          calibration.legacy ?? calibration,
-          AutoMovieHumanNeutral.READS,
+          calibration,
+          AutoMovieHumanNeutral.LEVEL,
         ),
         joints: bind,
       }),
