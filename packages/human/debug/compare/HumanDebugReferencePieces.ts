@@ -1,8 +1,9 @@
 import { HumanDebugPattern } from "../contracts/HumanDebugPattern";
-import type { HumanDebugViewParts } from "./HumanDebugViewParts";
+import type { IHumanDebugDocument } from "../contracts/IHumanDebugDocument";
 
-/** The pack's region labels by the names `referencePart` reads them by. */
+/** Exact reference labels and aliases; native body stays body rather than a pack region. */
 const ALIASES: Readonly<Record<string, string>> = {
+  body: "body",
   trunk: "trunk",
   head: "head",
   arm_l: "arm.left",
@@ -24,45 +25,72 @@ const MARGIN: number = 15;
  * A glob that names a region of the pack (`trunk`, `head`, `arm.left`, `hand.right`, `leg.left`,
  * `foot.right`, or the pack's own label such as `leg_l`) draws that region whole. A glob that names
  * a compared part (`nose`, `breast.left`, `lid.*`) draws every region's skin within that part's box:
- * the box of its loft's outline edges over all its stations, in person millimetres, widened by
- * {@link MARGIN} mm. `*` draws the whole reference.
+ * the box of its displayed source curves, including source edges whose loft sections failed, in person millimetres, widened by
+ * {@link MARGIN} mm. Native `body` selects only that exact mesh; pack `trunk` does not rename it.
+ * `*` draws the whole reference.
  *
  * @param patterns The `referencePart` globs.
- * @param built The person's parts.
+ * @param curves The person's displayed view curves in metres, before visibility selection.
  * @returns Whether a point of a region, pack mm, is drawn.
+ *
+ * @evidence contracts/common.md#principled-implementation Region names select whole private regions; compared-part names select their actual displayed source-curve bounds, so section rejection cannot remove a valid original outline's reference crop.
+ * @evidence contracts/common.md#clear-and-simple-design Reuses the curve producer's coordinates instead of evaluating or reconstructing a second outline.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds only the existing 15 mm display margin and no generated shape, missing curve or fitted source coordinate.
+ * @evidence contracts/common.md#meaningful-documentation States metre input, millimetre crop space, source ownership and whole-region aliases.
+ * @evidence contracts/performance.md#efficient-algorithms One O(P) pass groups P curve points by part; each returned predicate call tests at most B selected part boxes after the whole-region set lookup.
+ * @evidence contracts/performance.md#reuse-equivalent-work Borrows the already drawn source coordinates and calculates each selected part's box once for this request.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The closure retains only whole-region names and O(B) fresh boxes, not source curves, lofts, file records or renderer resources.
  */
 export function HumanDebugReferencePieces(
   patterns: readonly string[],
-  built: HumanDebugViewParts.IOutput,
+  curves: readonly IHumanDebugDocument.ICurve[],
 ): (region: string, x: number, y: number, z: number) => boolean {
   const whole: Set<string> = new Set(
     Object.entries(ALIASES)
-      .filter(([label, alias]: [string, string]): boolean => HumanDebugPattern.matches(label, patterns, "") || HumanDebugPattern.matches(alias, patterns, ""))
+      .filter(
+        ([label, alias]: [string, string]): boolean =>
+          HumanDebugPattern.matches(label, patterns, "") ||
+          HumanDebugPattern.matches(alias, patterns, ""),
+      )
       .map(([label]: [string, string]): string => label),
   );
-  const boxes: [number[], number[]][] = [];
-  for (const p of built.parts) {
-    if (!HumanDebugPattern.matches(p.name, patterns, "") || p.loft.sections.length === 0) continue;
-    const low: number[] = [Infinity, Infinity, Infinity];
-    const high: number[] = [-Infinity, -Infinity, -Infinity];
-    for (const s of p.loft.sections) {
-      const e: readonly number[] = s.section.box.extents;
-      const touches: [readonly number[], number][] = [
-        [s.frame.u, e[0]!],
-        [s.frame.v, e[1]!],
-        [s.frame.u, -e[2]!],
-        [s.frame.v, -e[3]!],
-      ];
-      for (const [d, r] of touches)
-        for (let c: number = 0; c < 3; c++) {
-          const value: number = (s.frame.origin[c]! + d[c]! * r) * built.scale;
-          low[c] = Math.min(low[c]!, value);
-          high[c] = Math.max(high[c]!, value);
-        }
-    }
-    boxes.push([low.map((v: number): number => v - MARGIN), high.map((v: number): number => v + MARGIN)]);
+  const grouped: Map<string, [number[], number[]]> = new Map();
+  const prefix: string = "human.construction.view.";
+  for (const curve of curves) {
+    if (!curve.id.startsWith(prefix)) continue;
+    const name: string = curve.id.slice(
+      prefix.length,
+      curve.id.lastIndexOf("/"),
+    );
+    if (!HumanDebugPattern.matches(name, patterns, "")) continue;
+    const [low, high]: [number[], number[]] = grouped.get(name) ?? [
+      [Infinity, Infinity, Infinity],
+      [-Infinity, -Infinity, -Infinity],
+    ];
+    for (const point of curve.points)
+      for (let c: number = 0; c < 3; c++) {
+        const value: number = point[c]! * 1000;
+        low[c] = Math.min(low[c]!, value);
+        high[c] = Math.max(high[c]!, value);
+      }
+    if (low.every(Number.isFinite) && high.every(Number.isFinite))
+      grouped.set(name, [low, high]);
   }
+  const boxes: [number[], number[]][] = [...grouped.values()].map(
+    ([low, high]: [number[], number[]]): [number[], number[]] => [
+      low.map((v: number): number => v - MARGIN),
+      high.map((v: number): number => v + MARGIN),
+    ],
+  );
   return (region: string, x: number, y: number, z: number): boolean =>
     whole.has(region) ||
-    boxes.some(([low, high]: [number[], number[]]): boolean => x >= low[0]! && x <= high[0]! && y >= low[1]! && y <= high[1]! && z >= low[2]! && z <= high[2]!);
+    boxes.some(
+      ([low, high]: [number[], number[]]): boolean =>
+        x >= low[0]! &&
+        x <= high[0]! &&
+        y >= low[1]! &&
+        y <= high[1]! &&
+        z >= low[2]! &&
+        z <= high[2]!,
+    );
 }

@@ -87,6 +87,7 @@ export namespace AutoMovieHumanHeadPass {
       x: cx,
       radius: (inputs.neck * scale) / (2 * Math.PI),
       back: rearOf(flat),
+      backLevel: ring[ring.length / 2]![1],
       backSlope: (rearOf(flat) - rearOf(under)) / drop,
     };
 

@@ -94,7 +94,7 @@ export namespace AutoMovieHumanHeadVault {
       reach: plan.reach,
       occiput: plan.landmarks.occiput,
       vertex: plan.vertex,
-      ring: { y: plan.y0, x: plan.neck.back, slope: plan.neck.backSlope },
+      ring: { y: plan.neck.backLevel, x: plan.neck.back, slope: plan.neck.backSlope },
     };
   }
 

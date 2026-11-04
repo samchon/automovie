@@ -2,7 +2,9 @@ import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
 import { AutoMovieHumanLegSection } from "../AutoMovieHumanLegSection";
 import { AutoMovieHumanLegSites } from "../AutoMovieHumanLegSites";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
-import { AutoMovieHumanLimbBonePlace } from "../AutoMovieHumanLimbBonePlace";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
+import { AutoMovieHumanLegBones } from "./AutoMovieHumanLegBones";
+import { AutoMovieHumanLegMassPrior } from "./AutoMovieHumanLegMassPrior";
 import { AutoMovieHumanSuprapatella } from "../AutoMovieHumanSuprapatella";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import type { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
@@ -24,9 +26,14 @@ import type { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
  *   compressed, short of the standing thigh's), so every box is
  *   the estimated breadth over depth at the site's share of the
  *   ankle-to-crotch span (`AutoMovieHumanLegSection`, estimated from the
- *   private reference set). Each box splits its depth about the bone by the
- *   muscle's front share (`AutoMovieHumanLimbBonePlace`: thigh above the
- *   knee centre, lower leg below) and its breadth by the lateral share about
+ *   private reference set). Each box splits its whole skin depth by the
+ *   retained skin-support front share (`AutoMovieHumanLegMassPrior`), not
+ *   a one-site muscle-thickness ratio. Those old level, sampled body-X
+ *   supports and reference-rig lines transfer here to the current pure
+ *   bone-normal chart as an explicit proxy. A natural C2 profile connects
+ *   the actual segment-share rows across their unmeasured knee gap; values
+ *   beyond the outer rows are held, with no invented joint measurement.
+ *   The breadth splits by the lateral share about
  *   the bone line (`AutoMovieHumanReferenceOutlines.THIGH_SPLIT` from the
  *   knee toward the crotch, `SHANK_SPLIT` from the ankle's site to the knee,
  *   estimated from the private reference set; no published source), the
@@ -42,7 +49,7 @@ export namespace AutoMovieHumanLegLaws {
    *
    * @param measures The person's resolved measures, world mm.
    * @param scale Calibration millimetres per world millimetre.
-   * @param knee The knee centre's height, calibration mm (where the femur's front share gives way to the tibia's).
+   * @param knee The knee centre's height, calibration mm, placing the segment-share prior rows.
    * @param malleolus The lateral malleolus' height, calibration mm.
    * @param ankle The ankle's least girth's height, calibration mm (pending law).
    * @param crotch The crotch's height, calibration mm, the top of the span the leg's section estimate is read on.
@@ -60,7 +67,13 @@ export namespace AutoMovieHumanLegLaws {
   ): (site: string) => AutoMovieHumanLegWalk.ISiteLaw {
     const female: boolean = measures.sex === AutoMovieHumanSex.Female;
     const patella: number = MIDPATELLA[female ? 0 : 1] * measures.stature * scale;
-    const frontShare = (height: number): number => AutoMovieHumanLimbBonePlace.front(height >= knee ? "thigh" : "lowerLeg", measures.sex);
+    const hip: number = AutoMovieHumanLegBones.HIP * measures.stature * scale;
+    const rows: { height: number; value: number }[] = [
+      ...AutoMovieHumanLegMassPrior.THIGH.map((row: AutoMovieHumanLegMassPrior.IRow): { height: number; value: number } => ({ height: hip + row.share * (knee - hip), value: row.front })),
+      ...AutoMovieHumanLegMassPrior.SHANK.map((row: AutoMovieHumanLegMassPrior.IRow): { height: number; value: number } => ({ height: knee + row.share * (malleolus - knee), value: row.front })),
+    ].sort((a: { height: number }, b: { height: number }): number => a.height - b.height);
+    const skin: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(rows.map((row: { height: number }): number => row.height), rows.map((row: { value: number }): number => row.value));
+    const frontShare = (height: number): number => AutoMovieNaturalSpline.evaluate(skin, Math.max(rows[0]!.height, Math.min(rows.at(-1)!.height, height)));
 
     // The lateral share of the breadth about the bone line: the thigh's from
     // the knee centre toward the crotch, the shank's from the ankle's site to

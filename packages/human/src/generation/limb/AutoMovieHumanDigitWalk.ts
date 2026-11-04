@@ -1,6 +1,7 @@
 import type { AutoMovieSolidVector } from "@automovie/engine";
 import type { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanWalkPart } from "./AutoMovieHumanWalkPart";
+import { AutoMovieHumanJointTurn } from "./AutoMovieHumanJointTurn";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 
@@ -19,9 +20,9 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * about the bone by the caller's dorsal share, and the two side edges split
  * the breadth evenly about the bone (a phalanx's cross-section is symmetric
  * about its own median plane to the precision of the published breadths,
- * which are taken across it). A joint's turn spans the joint's own depth,
- * the skin's distance over the joint centre, as a joint bends the skin over
- * about that length.
+ * which are taken across it). A joint's half depth defines the minimum
+ * axis bend radius; JointTurn converts it and the actual angle into the
+ * engine's half arclength. Radius and arclength are different quantities.
  */
 export namespace AutoMovieHumanDigitWalk {
   /** A digit's laws at one site. */
@@ -37,6 +38,8 @@ export namespace AutoMovieHumanDigitWalk {
 
     /** The sourced conic shoulder of the section there. */
     shoulder: number;
+    /** Optional original edge jets in the digit's normalized source parameter. */
+    jets?: AutoMovieHumanSiteViewPart.ISite["jets"];
   }
 
   /** What a digit is built from. */
@@ -52,6 +55,8 @@ export namespace AutoMovieHumanDigitWalk {
 
     /** The pulp's reach past the distal phalanx's end to the tip, mm. */
     tip: number;
+    /** Optional closed-span scalar bounds in this digit's material chart. */
+    ranges?: AutoMovieHumanSiteViewPart.IInput["ranges"];
 
     /** The laws at a site: `base`, `joint <k>` (k from 1, the first joint after the base), `shaft <k>` (the middle of bone k from 0), `end`. */
     law(site: string): ISiteLaw;
@@ -72,7 +77,7 @@ export namespace AutoMovieHumanDigitWalk {
   export function create(input: IInput): AutoMovieHumanSiteViewPart.IResult {
     const bones: number = input.centres.length - 1;
     const box = (law: ISiteLaw): [number, number, number, number] => [law.depth * law.dorsal, law.breadth / 2, -law.depth * (1 - law.dorsal), -law.breadth / 2];
-    const site = (name: string, bone: number, share: number, law: ISiteLaw): AutoMovieHumanWalkPart.ISite => ({ site: name, bone, share, edges: box(law), fullness: { shoulder: law.shoulder } });
+    const site = (name: string, bone: number, share: number, law: ISiteLaw): AutoMovieHumanWalkPart.ISite => ({ site: name, bone, share, edges: box(law), fullness: { shoulder: law.shoulder }, ...(law.jets === undefined ? {} : { jets: law.jets }) });
 
     // The base (the knuckle, inside the host); then each bone's middle and
     // its distal joint; the end is the distal phalanx's end.
@@ -82,14 +87,15 @@ export namespace AutoMovieHumanDigitWalk {
       sites.push(b + 1 < bones ? site(`joint ${b + 1}`, b + 1, 0, input.law(`joint ${b + 1}`)) : site("end", b, 1, input.law("end")));
     }
 
-    // Each interior joint turns over its own depth.
-    const joints: { half: number }[] = Array.from({ length: bones - 1 }, (_: unknown, k: number): { half: number } => ({ half: input.law(`joint ${k + 1}`).depth / 2 }));
+    // The same radius produces a shorter turn at a smaller anatomical angle.
+    const joints: { half: number }[] = Array.from({ length: bones - 1 }, (_: unknown, k: number): { half: number } => ({ half: AutoMovieHumanJointTurn.half(input.centres[k]!, input.centres[k + 1]!, input.centres[k + 2]!, input.law(`joint ${k + 1}`).depth / 2) }));
     return AutoMovieHumanWalkPart.create({
       name: input.name,
       centres: input.centres,
       joints,
       u: input.dorsal,
       sites,
+      ...(input.ranges === undefined ? {} : { ranges: input.ranges }),
       tip: input.tip,
 
       // The knuckle closes in a dome inside the palm or the forefoot.

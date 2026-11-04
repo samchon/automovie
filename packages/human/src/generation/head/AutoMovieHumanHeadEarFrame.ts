@@ -1,107 +1,90 @@
+import { AutoMovieViewCurves, AutoMovieViewOutline, type IAutoMovieViewPart } from "@automovie/engine";
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
-import { AutoMovieHumanEarPlace } from "../AutoMovieHumanEarPlace";
-import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
-import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 
 /**
- * One auricle's own frame (`docs/techniques/ear-pieces.md`): `n` the head's
- * outward side at the tragion, `a` the ear's long axis leaning back from the
- * vertical by Banks and Cheney's 15 to 20 degrees (17.5), `b` forward square
- * to both; superaurale its published height over the tragion (or subaurale
- * at the subnasale's height under the tragion),
- * superaurale the ear length up the long axis from it; the rim's centre at
- * its published place behind the skull's centre
- * (`AutoMovieHumanEarPlace.FORWARD`, a share of the head length), the
- * auricle's chord its breadth across. The rims and hollows of the prior's
- * rows are written for a 31 mm ear and scale with the ear's length.
+ * The auricle's own measurement chord and fixed orientation site.
+ * The retained 17.5-degree sagittal lean is projected into the side-outline
+ * tangent plane at the selected tragion height. That height is fixed before
+ * placing the endpoints; changing the ear's centre cannot change this normal.
+ * The plate uses horizontal section planes, independently of this tilted
+ * sa-sba chord, so its highest/lowest points can own the global Y extrema.
+ *
+ * @evidence contracts/common.md#principled-implementation Reads the identical head source's original side derivative at a named orientation site and keeps the tilted measurement chord distinct from the section normal.
+ * @evidence contracts/common.md#clear-and-simple-design Returns one frame and the independent ear dimensions; the plate owns actual attachment points.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no unused private forward-centre estimate, emitted mesh, finite-difference silhouette or fitted placement.
+ * @evidence contracts/common.md#meaningful-documentation States the retained lean, orientation convention, dimensions and global-height ownership.
+ * @evidence contracts/performance.md#efficient-algorithms One shared source preparation and one analytic derivative read.
+ * @evidence contracts/performance.md#reuse-equivalent-work The plate and relief builders share the returned frame.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fixed-size vectors/scalars and retains no head source globally.
  */
 export namespace AutoMovieHumanHeadEarFrame {
-  /** An auricle's frame and sizes, calibration mm. */
+  /** Own-side dimensions and orientation in calibration mm. */
   export interface IFrame {
-    /** The auricle's centre, midway along its long axis and its chord, on the head's side. */
-    centre: [number, number, number];
-
-    /** Outward from the head. */
+    /** Outward side-outline normal at the selected tragion height. */
     n: [number, number, number];
-
-    /** Up the long axis. */
+    /** Unit sa-sba chord direction, upward. */
     a: [number, number, number];
-
-    /** Forward along the chord. */
+    /** Forward unit direction perpendicular to a and n. */
     b: [number, number, number];
-
-    /** Ear length sa-sba. */
+    /** Selected highest superaurale height. */
+    top: number;
+    /** Lowest subaurale height, top - length*a.y. */
+    bottom: number;
+    /** Public sa-sba chord length. */
     length: number;
-
-    /** Ear breadth. */
+    /** Public c-j chord length. */
     breadth: number;
-
-    /** Protrusion of the rim from the head. */
+    /** Public scalp-to-rim distance at the tragal level. */
     protrusion: number;
-
-    /** Millimetres of this ear per millimetre of the prior's 31 mm ear. */
+    /** Retained relief-row scale, world breadth/31 mm. */
     scale: number;
+    /** Own side, positive left and negative right. */
+    sign: 1 | -1;
   }
 
-  /** Lean of the long axis back from the vertical, radians. */
-  export const LEAN: number = (17.5 * Math.PI) / 180;
-
-  /** The ear length the prior's rim and hollow rows are written for, mm. */
-  export const PRIOR_LENGTH: number = 31;
+  /** Retained 17.5-degree sagittal lean within Banks/Cheney's 15-20 range. */
+  export const LEAN: number = 17.5 * Math.PI / 180;
+  /** Original relief-row breadth, world mm. */
+  export const PRIOR_BREADTH: number = 31;
 
   /**
-   * One side's frame.
+   * Orient once at tragion and place the chosen highest/lowest endpoints.
+   * The derivative belongs to the original side guide, not a finished scalp
+   * normal or a published individual auricular orientation.
    *
-   * @param plan The landmark skeleton.
-   * @param sign 1 for the left ear, -1 for the right.
-   * @param ear The ear's inputs, world mm.
-   * @param top The auricle's top (superaurale) height, calibration mm, from `AutoMovieHumanEarPlace.aboveTragion`; absent, subaurale stands at the subnasale's height.
+   * @evidence contracts/common.md#principled-implementation Uses the actual source station derivative and closes endpoint height span from the public tilted chord length.
+   * @evidence contracts/common.md#clear-and-simple-design Orientation and endpoint placement are explicit separate operations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects unavailable derivatives instead of choosing an epsilon normal.
+   * @evidence contracts/common.md#meaningful-documentation Separates the orientation convention from measured dimensions and section planes.
+   * @evidence contracts/performance.md#efficient-algorithms Bounded vector arithmetic follows one prepared source read.
+   * @evidence contracts/performance.md#reuse-equivalent-work One frame serves the plate and all its reliefs.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only returned vectors/scalars survive the call.
    */
-  export function of(plan: IAutoMovieHumanHeadLayout, sign: 1 | -1, ear: IAutoMovieHumanEar, top?: number): IFrame {
-    const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
-    const k: number = plan.scale;
-    const length: number = ear.length * k;
-    const breadth: number = ear.breadth * k;
-    const a0: [number, number, number] = [-Math.sin(LEAN), Math.cos(LEAN), 0];
-    const b0: [number, number, number] = [Math.cos(LEAN), Math.sin(LEAN), 0];
-    const z: number = sign * (plan.breadth / 2) * AutoMovieHumanHeadPrior.PRIOR.frame.base;
-    const base: [number, number, number] = [m.tragion[0], top === undefined ? plan.subnasale : top - a0[1] * length, z];
-    const centreY: number = base[1] + (a0[1] * length) / 2 - (b0[1] * breadth) / 2;
-
-    // The head's side under the ear leans in as the head narrows to the jaw:
-    // the front-view outline L's slope at the ear's centre tilts the side's
-    // outward normal `(0, -L', sign)`, and the ear's axes are turned with it
-    // so the auricle's base lies along the side, not across it.
-    const slope: number = (AutoMovieHumanHeadMassPart.halfWidth(plan, centreY + STEP) - AutoMovieHumanHeadMassPart.halfWidth(plan, centreY - STEP)) / (2 * STEP);
-    const n: [number, number, number] = unit([0, -slope, sign]);
-    const a: [number, number, number] = unit(minus(a0, n));
-    const b: [number, number, number] = unit(minus(minus(b0, n), a));
-    return {
-      centre: [plan.centre + AutoMovieHumanEarPlace.FORWARD.centre * plan.length, centreY, z],
-      n,
-      a,
-      b,
-      length,
-      breadth,
-      protrusion: ear.protrusion * k,
-      scale: length / (PRIOR_LENGTH * k),
-    };
+  export function of(plan: IAutoMovieHumanHeadLayout, mass: IAutoMovieViewPart, sign: 1 | -1, ear: IAutoMovieHumanEar, top?: number): IFrame {
+    const source: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(mass);
+    const outline: AutoMovieViewOutline.IOutline | null = source.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === "side.positive")?.outline ?? null;
+    if (outline === null) throw new Error("Ear orientation needs the actual original head side guide");
+    const reading: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(outline, plan.landmarks.tragion[1]);
+    if (typeof reading === "string" || reading.stationJet === null) throw new Error("Ear orientation needs a finite side-guide derivative at tragion");
+    const n: [number, number, number] = unit([0, -reading.stationJet[0], sign]);
+    const a: [number, number, number] = unit(reject([-Math.sin(LEAN), Math.cos(LEAN), 0], n));
+    const b: [number, number, number] = unit(reject(reject([Math.cos(LEAN), Math.sin(LEAN), 0], n), a));
+    const length: number = ear.length * plan.scale;
+    const highest: number = top ?? plan.subnasale + length * a[1];
+    return { n, a, b, top: highest, bottom: highest - length * a[1], length, breadth: ear.breadth * plan.scale, protrusion: ear.protrusion * plan.scale, scale: ear.breadth / PRIOR_BREADTH, sign };
   }
 
-  /** Height step of the outline's slope, mm. */
-  export const STEP: number = 1;
-
-  /** A vector scaled to length 1. */
-  function unit(v: readonly number[]): [number, number, number] {
-    const l: number = Math.hypot(v[0]!, v[1]!, v[2]!) || 1;
-    return [v[0]! / l, v[1]! / l, v[2]! / l];
+  /** Normalize a nondegenerate geometric vector. */
+  function unit(v: [number, number, number]): [number, number, number] {
+    const length: number = Math.hypot(...v);
+    if (!(length > 0 && Number.isFinite(length))) throw new Error("Ear frame has a degenerate orientation");
+    return [v[0] / length, v[1] / length, v[2] / length];
   }
 
-  /** A vector less its part along a unit vector. */
-  function minus(v: readonly number[], u: readonly number[]): [number, number, number] {
-    const d: number = v[0]! * u[0]! + v[1]! * u[1]! + v[2]! * u[2]!;
-    return [v[0]! - d * u[0]!, v[1]! - d * u[1]!, v[2]! - d * u[2]!];
+  /** Remove the component along a unit vector. */
+  function reject(v: [number, number, number], u: [number, number, number]): [number, number, number] {
+    const dot: number = v[0] * u[0] + v[1] * u[1] + v[2] * u[2];
+    return [v[0] - dot * u[0], v[1] - dot * u[1], v[2] - dot * u[2]];
   }
 }

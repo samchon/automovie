@@ -121,7 +121,7 @@ A piece is one file under `debug/pieces/` exporting one `IHumanDebugPiece` and l
 | `foot.body` | the body from its sections and the five toes from their spans, before lofting |
 | `foot.loft` | the left foot and toes lofted alone from the foot construction |
 | `web.saddle` | two seam patches over an analytic translational surface sized from the person's second toe; boundary curves and a comparison grid |
-| `head.parts[:all\|mass\|parts\|composed\|nose\|nose.alone]` | `mass`/`parts`/`nose.alone` are raw lofts; `all` adds the realization's chain and blend lofts; `composed` is the realized head and `nose` its head-mass/nose merge. This builder first requests the person's whole calibration; default `all` |
+| `head.parts[:all\|mass\|parts\|composed\|nose\|nose.alone]` | `mass`/`parts`/`nose.alone` are raw lofts; `all` adds the realization's chain and blend lofts; `composed` is the realized head and `nose` its head-mass/nose merge. Reads public head inputs and the shared pure neck source without whole-person calibration; default `all` |
 | `hair.guides[:<every>]` | the scalp hair the production hair stage builds on the generated figure at the bind: head and ear skin, `human.hair.cards` and `human.hair.scalp` as parts, every `<every>`-th guide (default all) as a curve `human.construction.hair.<left\|right>/g<root>` (left for a canonical root, right for its mirror); it generates the whole figure, so it takes minutes |
 
 A chain end whose parent chain is not lofted closes as a flat fan at its axis: that lid is the cut, not anatomy.
@@ -153,7 +153,7 @@ The legs example selects the native body's mesh. With section fallback, use `par
 
 ## Image route
 
-`GET /human-debug/images/<name>.png?<variables>&fresh=<nonce>` answers the PNG of the page's `#viewport` drawn with those variables. `keep=1` draws on the source the page has loaded even if files were saved since, so a series of frames shares one generation; `x-human-source-sha256` then names that loaded source. `<name>` is any file name of letters, digits, `.`, `_` and `-`; it labels the request and plays no part in the frame. `ui` is forced to `0`. An unset `w` or `h` becomes 1200, so a frame's size is fixed by its URL. A variable the parser rejects answers HTTP 400 with every notice.
+`GET /human-debug/images/<name>.png?<variables>&fresh=<nonce>` answers the PNG of the page's `#viewport` drawn with those variables. `keep=1` draws on the source the page has loaded even if files were saved since, so a series of frames shares one generation. `x-human-source-sha256` records the disk source inventory checked when that page loaded; served transformed dependencies require separate verification. `<name>` is any file name of letters, digits, `.`, `_` and `-`; it labels the request and plays no part in the frame. `ui` is forced to `0`. An unset `w` or `h` becomes 1200, so a frame's size is fixed by its URL. A variable the parser rejects answers HTTP 400 with every notice.
 
 | Header | Meaning |
 | --- | --- |

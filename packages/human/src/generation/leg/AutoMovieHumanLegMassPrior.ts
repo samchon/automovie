@@ -13,10 +13,21 @@
  *
  * Fitted on the references, so a prior awaiting a published law: the mean of
  * f1, f2, m1 and m2's level `leg_l` sections read against their own rigs
- * (by a reference reading since erased with the reference tests), by bins a
+ * (by the historical reference reader), by bins a
  * tenth of the segment long, each person's own reading predicted within about
  * 0.025 by the other three. The proximal tenth of the thigh lies above the
  * crotch and carries no section; the joints' own tenths are left out.
+ *
+ * The deleted reader remains in git at 3672a547f0, path
+ * test/src/features/human/reference/curves/test_human_reference_limb_mass.ts.
+ * It sampled each cubic section span eight times, took the longest level
+ * loop's body-X supports and used q=(front-boneX)/(front-back), with boneX
+ * linearly interpolated on that reference's old rig. Its quality="all"
+ * included suspect/broken source curves. This is sampled support, not an
+ * exact continuous extreme, and does not establish the present pure joints
+ * or bone-normal frame. Transferring q to that frame remains a placement
+ * proxy. The retained table's final aggregation weighting was not recovered
+ * by finding this reader; no new fit or private person reading was made.
  */
 export namespace AutoMovieHumanLegMassPrior {
   /** One row: the bin's centre as a share from the proximal joint, and the front share there. */

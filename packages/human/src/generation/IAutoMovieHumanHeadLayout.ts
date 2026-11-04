@@ -15,7 +15,7 @@ export interface IAutoMovieHumanHeadLayout {
   /** Fat control. */
   fat: number;
 
-  /** Neck ring's height. */
+  /** Neck section's mean height, distinct from its posterior C7 point. */
   y0: number;
 
   /** The neck ring. */
@@ -42,7 +42,7 @@ export interface IAutoMovieHumanHeadLayout {
   /** Vertex. */
   vertex: number;
 
-  /** Skull centre ahead of the origin, midway from glabella to opisthocranion. */
+  /** Retained cranial axis ahead of the origin; the chosen g/op chord need not place it at their midpoint. */
   centre: number;
 
   /** Head length, glabella to opisthocranion. */
@@ -54,27 +54,26 @@ export interface IAutoMovieHumanHeadLayout {
   /** Face height. */
   faceHeight: number;
 
-  /** Face's half width at the zygion, solved. */
+  /** Target half face width at the generating zygion, resolved from the public zy-zy caliper. */
   faceWidth: number;
 
-  /** Half the mandibular width, solved at the gonion's skin. */
+  /** Target half mandibular width at the generating gonion; source emission is checked independently. */
   mandibularWidth: number;
 
   /** Half the minimum frontal width. */
   frontalWidth: number;
 
   /**
-   * Exponent of the cranium's plan, which closes the head circumference: 2 in
-   * the layout, solved on the cranium's own outline by
-   * `AutoMovieHumanHeadVault.closing` once the layout stands, since that outline
-   * is a base envelope the layout precedes.
+   * Exponent of the retained horizontal Lame proxy at glabella, solved by
+   * AutoMovieHumanHeadVault.closing. Its conic conversion and the public
+   * oblique maximum tape are separate, unfinished closure contracts.
    */
   vault: number;
 
-  /** Head circumference the vault closes, calibration mm, with its correction. */
+  /** Public head-tape target, calibration mm, with the retired correction. */
   tape: number;
 
-  /** The vault's reach behind its centre at the opisthocranion, solved for g-op. */
+  /** Retained posterior reach; chosen-point chord closure is not a maximum-caliper certificate. */
   reach: number;
 
   /** Half nose width: the alar lobules' half span. */
@@ -98,10 +97,10 @@ export interface IAutoMovieHumanHeadLayout {
   /** Lips' forward leads over the face at the middles of their vermilions. */
   lips: [number, number];
 
-  /** Rest gap of the lips. */
+  /** Retained multiple of maximum incisal mouth-opening capacity; unused by the resting source, not a rest lip gap. */
   gap: number;
 
-  /** Fullness of the jaw joint in front of the ear. */
+  /** Retained multiple of lateral incisal excursion capacity; unused by the resting source, not measured joint fullness. */
   joint: number;
 
   /** Left eye. */

@@ -3,13 +3,13 @@ import { AutoMovieHumanBodyLaw } from "../../../src/generation/AutoMovieHumanBod
 import { AutoMovieHumanEarPlace } from "../../../src/generation/AutoMovieHumanEarPlace";
 import { AutoMovieHumanFacePlan } from "../../../src/generation/AutoMovieHumanFacePlan";
 import { AutoMovieHumanHeadArcs } from "../../../src/generation/AutoMovieHumanHeadArcs";
-import type { AutoMovieHumanHeadConstruction } from "../../../src/generation/AutoMovieHumanHeadConstruction";
-import { AutoMovieHumanHeadLandmarks } from "../../../src/generation/AutoMovieHumanHeadLandmarks";
-import { AutoMovieHumanHeadPass } from "../../../src/generation/AutoMovieHumanHeadPass";
+import { AutoMovieHumanNeckSource } from "../../../src/generation/AutoMovieHumanNeckSource";
+import { AutoMovieHumanHeadLayout } from "../../../src/generation/head/AutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadComposer } from "../../../src/generation/head/AutoMovieHumanHeadComposer";
 import { AutoMovieHumanHeadTree } from "../../../src/generation/head/AutoMovieHumanHeadTree";
 import type { IAutoMovieHumanBodyCalibration } from "../../../src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanHeadBuilt } from "../../../src/generation/IAutoMovieHumanHeadBuilt";
+import type { IAutoMovieHumanHeadInputs } from "../../../src/generation/IAutoMovieHumanHeadInputs";
+import type { IAutoMovieHumanHeadLayout } from "../../../src/generation/IAutoMovieHumanHeadLayout";
 import { type AutoMovieConstructionRealization, type AutoMovieLoftContract, type IAutoMovieLoftChain, realizeAutoMovieConstruction } from "@automovie/engine";
 import type { IAutoMovieHumanEar } from "../../../src/structures/head/IAutoMovieHumanEar";
 import type { AutoMovieHumanSex } from "../../../src/typings/AutoMovieHumanSex";
@@ -32,8 +32,8 @@ import type { IHumanDebugPiece } from "../IHumanDebugPiece";
  *   realized by the engine (`realizeAutoMovieConstruction`): its one skin,
  *   and each face's curves.
  *
- * The skeleton is the head pass's first build, without the secant passes
- * that solve the inputs' measures on the old skin.
+ * The skeleton is the production lane's anatomical layout from the neck's
+ * generating curves, without constructing the old radial head.
  */
 export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
   name: "head.parts",
@@ -42,16 +42,15 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
   arguments: ["all", "mass", "parts", "composed", "nose", "nose.alone"],
   build(person: IHumanDebugPerson, argument: string | null): IHumanDebugDocument {
     const which: string = argument ?? "all";
-    const base: IAutoMovieHumanBodyCalibration = person.calibration();
-    const neckChain: IAutoMovieLoftChain = AutoMovieHumanBodyLaw.neckRing(person.parameters);
-    const inputs: AutoMovieHumanHeadConstruction.IInputs = AutoMovieHumanBodyLaw.headInputs(person.parameters);
-    const built: IAutoMovieHumanHeadBuilt = AutoMovieHumanHeadPass.build(AutoMovieHumanHeadPass.prepare(neckChain, inputs), AutoMovieHumanHeadLandmarks.NONE);
+    const inputs: IAutoMovieHumanHeadInputs = AutoMovieHumanBodyLaw.headInputs(person.parameters);
+    const neck: AutoMovieHumanNeckSource.IOutput = AutoMovieHumanNeckSource.of(inputs, AutoMovieHumanBodyLaw.limbInputs(person.parameters).legs.scale);
+    const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadLayout.create(neck, inputs);
     // The tragion and the auricles' tops at their published places.
     const sex: AutoMovieHumanSex = AutoMovieHumanBodyAnatomy.sexOf(person.parameters);
-    const k: number = built.plan.scale;
-    const tragion: number = built.plan.vertex - AutoMovieHumanHeadArcs.tragionDrop(inputs.head, sex) * k;
+    const k: number = plan.scale;
+    const tragion: number = plan.vertex - AutoMovieHumanHeadArcs.tragionDrop(inputs.head, sex) * k;
     const top = (ear: IAutoMovieHumanEar): number => tragion + AutoMovieHumanEarPlace.aboveTragion(ear, sex) * k;
-    const composed: AutoMovieHumanHeadComposer.IOutput = AutoMovieHumanHeadComposer.compose(built.plan, inputs.head.earPair, neckChain, {
+    const composed: AutoMovieHumanHeadComposer.IOutput = AutoMovieHumanHeadComposer.compose(plan, inputs.head.earPair, neck.bottom[1], {
       tragion,
       ears: { left: top(inputs.head.earPair.left), right: top(inputs.head.earPair.right) },
       faceExponent: AutoMovieHumanFacePlan.exponent(inputs.head, sex),
@@ -62,7 +61,10 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
     // head's construction tree realized by the engine.
     const chains: (IAutoMovieLoftChain | null)[] = [];
     if (which === "mass") chains.push(composed.mass.chain);
-    if (which === "parts") for (const placed of composed.parts) chains.push(placed.loft.chain);
+    if (which === "parts") {
+      for (const placed of composed.parts) chains.push(placed.loft.chain);
+      for (const study of composed.studies) chains.push(study.loft.chain);
+    }
     if (which === "nose.alone") chains.push(...composed.parts.filter((p: AutoMovieHumanHeadComposer.IPlaced): boolean => p.feature.part.name === "nose").map((p: AutoMovieHumanHeadComposer.IPlaced): IAutoMovieLoftChain | null => p.loft.chain));
     // `nose`: the head mass and the nose alone, one merge.
     const subset: AutoMovieHumanHeadComposer.IOutput =
@@ -78,7 +80,7 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
     const shown: IAutoMovieLoftChain[] = chains.filter((c: IAutoMovieLoftChain | null): c is IAutoMovieLoftChain => c !== null);
     if (!shown.length) throw new Error(`head.parts:${which} made no chain: ${JSON.stringify(diagnostics)}`);
     const calibration: IAutoMovieHumanBodyCalibration = {
-      stature: base.stature,
+      stature: plan.vertex,
       chains: shown,
       events: [],
       poles: [],

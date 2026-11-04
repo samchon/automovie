@@ -41,14 +41,22 @@ const PREPARED: Map<string, Singleton<IAutoMovieHumanPrepared>> = new Map();
  * @param person Person alias, or null for the first exported person.
  * @param piece `<name>` or `<name>:<argument>` of a registered piece, or null for the whole figure.
  * @param pose Pose name for the whole figure, `bind` or a key of `HUMAN_DEBUG_POSES`; a piece ignores it.
- * @param reference The view comparison's reference id, style and drawn pieces (`loadHumanDebugCompare`), or null; with one, piece and pose are not read and the person defaults to the reference.
+ * @param reference The comparison's id, style, reference crop and compared-part diagnostic scope, or null; with one, piece/pose are ignored and person defaults to reference.
  * @returns The subject, owning its texture cache.
+ *
+ * @evidence contracts/common.md#principled-implementation Routes comparison scope to its real source-definition loader and keeps ordinary prepared-person, production pose and registered-piece paths intact.
+ * @evidence contracts/common.md#clear-and-simple-design One dispatch boundary returns the common subject contract; comparison, piece and final figure keep their own construction owners.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses existing production builders and typed people without an alternate preview generator, fixture or skipped final-figure check.
+ * @evidence contracts/common.md#meaningful-documentation Names production preparation, pose, texture ownership and separate comparison scope.
+ * @evidence contracts/performance.md#efficient-algorithms Work follows the chosen producer and its mesh/pose/texture size; comparison owns its reference and selected-station costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Existing per-alias Singleton preparation serves pose changes; comparison reuses its separate page-owned equivalent-input source cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Prepared CPU figures stay in the existing alias map until module unload. Returned subjects own their primed textures for the view to retire; this dispatch adds no retained reference or GPU cache.
  */
 export async function loadHumanDebugSubject(
   person: string | null,
   piece: string | null,
   pose: string,
-  reference: { id: string; style: "clay" | "loft"; parts: string[] } | null = null,
+  reference: { id: string; style: "clay" | "loft"; parts: string[]; comparedParts: string[] } | null = null,
 ): Promise<IHumanDebugSubject> {
   const started: number = performance.now();
   if (reference !== null) return loadHumanDebugCompare(HumanDebugPeople.of(person ?? reference.id), reference);

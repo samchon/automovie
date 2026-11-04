@@ -1,4 +1,4 @@
-import type { AutoMovieLoftFrame, IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieConstructionViews, AutoMovieViewOutline, AutoMovieViewParallelAxis, type AutoMovieLoftFrame, type IAutoMovieViewPart } from "@automovie/engine";
 import type {
   AutoMovieConstructionAxis,
   AutoMovieConstructionFullness,
@@ -22,11 +22,11 @@ import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
  * nested inside that parent's join, all joined in build order onto the head
  * mass.
  *
- * Each view is read off the part the composer placed: its stations, its
- * outlines' knots and its fullness as they stand, its axis as the planes at
- * its stations (straight when parallel planes run along their normal, level
- * when they are the world's level planes at the station's height, else
- * curved through the planes' origins). Each join is seeded by the engine's
+ * Each view is the authoritative metre declaration the composer already
+ * used to evaluate that part, not a second serialization of decoded mm.
+ * At the initial authoring boundary, an axis retains its original parallel
+ * coordinate declaration when available; the older straight/level/curved
+ * source adapter serves the other builders. Each join is seeded by the engine's
  * search along the part's station line at the phase the part names, its
  * blend's chord a share of each side's normal-section radius at every traced
  * point, capped at half the lesser of the part's height and least half
@@ -67,7 +67,7 @@ export namespace AutoMovieHumanHeadTree {
   export function of(composed: AutoMovieHumanHeadComposer.IOutput): IAutoMovieConstruction {
     // Each part's subtree: its own view, joined in order by its inner parts.
     const subtree: Map<string, AutoMovieConstructionNode> = new Map();
-    for (const placed of composed.parts) subtree.set(placed.feature.part.name, view(placed.feature.part));
+    for (const placed of composed.parts) subtree.set(placed.feature.part.name, placed.view);
     for (const placed of composed.parts) {
       if (placed.feature.parent === "head.mass") continue;
       const parent: AutoMovieConstructionNode | undefined = subtree.get(placed.feature.parent);
@@ -75,9 +75,29 @@ export namespace AutoMovieHumanHeadTree {
     }
 
     // The head: the mass, every part straight on it joined in turn.
-    let root: AutoMovieConstructionNode = view(composed.massPart);
+    let root: AutoMovieConstructionNode = composed.massView;
     for (const placed of composed.parts) if (placed.feature.parent === "head.mass") root = join(placed, root, subtree.get(placed.feature.part.name)!);
     return { name: "head", root };
+  }
+
+  /**
+   * Declare one source in metres once, then evaluate its actual bare views
+   * from that same declaration. Pole stations, outlines and origin parameters
+   * therefore share one unit path before any raw loft is constructed.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the existing source serializer once and the engine's construction-view evaluator, making the authoritative metre record the common input of bare source and production tree.
+   * @evidence contracts/common.md#clear-and-simple-design Returns the declaration and evaluated part explicitly; no registry, global cache or inferred output correction is introduced.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not clamp endpoints, widen an oracle, fit a reference or recover a declaration from an emitted skin. A failed source conversion remains a named error.
+   * @evidence contracts/common.md#meaningful-documentation States the original mm authoring boundary, authoritative metre declaration, evaluated-mm part and shared lifetime.
+   * @evidence contracts/performance.md#efficient-algorithms One linear declaration conversion and engine source-axis preparation precede the existing loft; no part is lofted twice.
+   * @evidence contracts/performance.md#reuse-equivalent-work The caller retains this exact declaration for Tree.of instead of serializing the evaluated mm part again.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns two call-owned records with no global retention; the engine owns factory-axis metadata.
+   */
+  export function source(part: IAutoMovieViewPart): { part: IAutoMovieViewPart; view: IAutoMovieConstructionView } {
+    const declaration: IAutoMovieConstructionView = view(part);
+    const evaluated: IAutoMovieViewPart | string = AutoMovieConstructionViews.part(declaration);
+    if (typeof evaluated === "string") throw new Error(`Head source ${part.name}: ${evaluated}`);
+    return { part: evaluated, view: declaration };
   }
 
   /** A part's view node, in metres. */
@@ -128,6 +148,8 @@ export namespace AutoMovieHumanHeadTree {
 
   /** The axis as the planes at the part's stations. */
   function axis(part: IAutoMovieViewPart): AutoMovieConstructionAxis {
+    const original: AutoMovieConstructionAxis | null = AutoMovieViewParallelAxis.source(part.axis);
+    if (original !== null) return original;
     const frames: AutoMovieLoftFrame.IFrame[] = part.stations.map((s: number): AutoMovieLoftFrame.IFrame => part.axis.at(s));
     const first: AutoMovieLoftFrame.IFrame = frames[0]!;
     const same = (a: readonly number[], b: readonly number[]): boolean => Math.hypot(a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!) < 1e-9;
@@ -162,24 +184,12 @@ export namespace AutoMovieHumanHeadTree {
 
   /** An outline's knots, in metres. */
   function outline(o: IAutoMovieViewPart.IOutline): IAutoMovieConstructionOutline {
-    return {
-      knots: o.knots.map((k: IAutoMovieViewPart.IKnot): { site: string; station: number; value: number } => ({
-        site: k.site,
-        station: k.station * METRES,
-        value: k.value * METRES,
-      })),
-    };
+    return AutoMovieViewOutline.scale(o, METRES, METRES);
   }
 
   /** A shoulder law's knots, stations in metres and shares as they are. */
   function shares(o: IAutoMovieViewPart.IOutline): IAutoMovieConstructionOutline {
-    return {
-      knots: o.knots.map((k: IAutoMovieViewPart.IKnot): { site: string; station: number; value: number } => ({
-        site: k.site,
-        station: k.station * METRES,
-        value: k.value,
-      })),
-    };
+    return AutoMovieViewOutline.scale(o, METRES, 1);
   }
 
   /** The fullness owner. */

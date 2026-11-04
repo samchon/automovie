@@ -4,12 +4,14 @@ import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
 import { AutoMovieHumanArmWalk } from "./arm/AutoMovieHumanArmWalk";
 import type { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
 import { AutoMovieHumanFootPart } from "./foot/AutoMovieHumanFootPart";
+import { AutoMovieHumanToePart } from "./foot/AutoMovieHumanToePart";
 import type { AutoMovieHumanLegBones } from "./leg/AutoMovieHumanLegBones";
 import { AutoMovieHumanLegWalk } from "./leg/AutoMovieHumanLegWalk";
 import type { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanDigitWalk } from "./limb/AutoMovieHumanDigitWalk";
 import type { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
+import type { IAutoMovieHumanTrunkViews } from "./trunk/IAutoMovieHumanTrunkViews";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 
@@ -24,13 +26,14 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * (`AutoMovieHumanTrunkBuild`), each leg as one walk over femur and tibia
  * (`AutoMovieHumanLegWalk`), each arm with its palm as one walk
  * (`AutoMovieHumanArmWalk`), each foot (`AutoMovieHumanFootPart`), each
- * finger, thumb and toe as one walk (`AutoMovieHumanDigitWalk`).
+ * finger and thumb as a joint-normal walk (`AutoMovieHumanDigitWalk`), and
+ * each toe in its fixed foot-axis observation planes (`AutoMovieHumanToePart`).
  *
  * Joins, the part being the solid whose station lines leave the host across
  * the fold, the host the whole subtree built before it: the masses onto the
  * trunk; each toe onto its foot, the leg onto that foot (seeded at the
  * ankle's front), and the leg with its foot onto the trunk (seeded at the
- * inguinal fold, R the thigh's front fat layer, capped at half the gap between
+ * inguinal fold, R the caller's operational join softness, capped at half the gap between
  * the two hip centres so the two legs' rails never cross at the perineum);
  * each digit onto its arm's palm, and the arm with its hand onto the trunk
  * (seeded at the axilla vault). A digit's or a toe's web is capped at half
@@ -64,6 +67,10 @@ export namespace AutoMovieHumanBodyLane {
     arm: {
       bones: Pick<AutoMovieHumanArmBones.IBones, "shoulder" | "elbow" | "wrist">;
       knuckle: Vec3;
+      /** Palmar base-crease locus from the person's independent palm length. */
+      crease?: Vec3;
+      /** Actual radial hand-across direction for the WJC-to-MCP3 material transition. */
+      radial: Vec3;
       reach: number;
       sites: AutoMovieHumanArmWalk.ISiteLaw[];
       joints: { elbow: number; wrist: number };
@@ -77,11 +84,14 @@ export namespace AutoMovieHumanBodyLane {
     fingers: IDigit[];
 
     /** The toes, each with its web's fold onto the forefoot. */
-    toes: IDigit[];
+    toes: IToe[];
   }
 
   /** What the lane is built from. */
   export interface IInput {
+    /** Earlier anatomical source failures, retained verbatim before any tree or join operation. */
+    diagnostics?: readonly AutoMovieLoftContract.IDiagnostic[];
+
     /** The trunk's build. */
     trunk: AutoMovieHumanTrunkBuild.IInput;
 
@@ -107,12 +117,43 @@ export namespace AutoMovieHumanBodyLane {
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
+  /** The actual production tree and source diagnostics, before any solid realization. */
+  export interface IDefinition {
+    /** The assembled production tree; null when its trunk definition failed. */
+    root: AutoMovieConstructionNode | null;
+    /** The exact limits the production realization consumes. */
+    limits: AutoMovieHumanBodyTree.ILimits;
+    /** Source-builder and tree-assembly premises; final join diagnostics do not exist yet. */
+    diagnostics: AutoMovieLoftContract.IDiagnostic[];
+    /** Actual named builder results, including null admissions and views absent from the final tree. */
+    sources: AutoMovieHumanSiteViewPart.ISource[];
+  }
+
   /** A digit's input and its web's fold. */
   export interface IDigit {
     /** The digit. */
     digit: AutoMovieHumanDigitWalk.IInput;
 
     /** Its web's fold onto the host. */
+    fold: IFold;
+  }
+
+  /**
+   * A toe's foot-axis skin source and its declared fold onto the forefoot.
+   *
+   * @evidence contracts/common.md#principled-implementation Keeps the fixed foot-observation source separate from a finger's joint-normal input.
+   * @evidence contracts/common.md#clear-and-simple-design One toe input and fold are sufficient for the existing branch assembly.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No final join success, skeletal registration or missing-source substitute is encoded.
+   * @evidence contracts/common.md#meaningful-documentation States source-plane ownership and distinguishes the pending fold from a realized attachment.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This declaration owns no algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The branch builder owns source construction and sharing.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The definition caller owns the record and its source input.
+   */
+  export interface IToe {
+    /** Fixed observation-plane input, distinct from a finger's bone-normal walk. */
+    toe: AutoMovieHumanToePart.IInput;
+
+    /** The source attachment's fold declaration; final realization remains separate. */
     fold: IFold;
   }
 
@@ -125,15 +166,50 @@ export namespace AutoMovieHumanBodyLane {
   const LIMITS: Omit<AutoMovieHumanBodyTree.ILimits, "gap"> = { count: 64, tolerance: 1e-6, grazing: Math.asin(0.01) };
 
   /**
-   * Assemble the body lane.
+   * Assemble and fully realize the body lane through its shared definition.
    *
    * @param input The trunk, both sides' parts and their folds.
    * @returns The chains, the realized body and the diagnostics.
    */
   export function create(input: IInput): IOutput {
-    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+    return realize(define(input));
+  }
+
+  /**
+   * Realize the exact production root returned by define, without rebuilding its parts.
+   *
+   * @evidence contracts/common.md#principled-implementation Sends the supplied definition's identical root and limits to the existing body-tree realizer.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps full solid realization separate from source construction.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing trunk retains its real failure and empty publication; no fixture or substitute surface is made.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes definition diagnostics from new final-realization diagnostics.
+   * @evidence contracts/performance.md#efficient-algorithms Performs one realization without rebuilding source lofts.
+   * @evidence contracts/performance.md#reuse-equivalent-work Consumes the already assembled tree and source diagnostics.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Copies diagnostics before realization so the borrowed definition remains unmodified.
+   */
+  export function realize(definition: IDefinition): IOutput {
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...definition.diagnostics];
+    if (definition.root === null) return publishable([], [], diagnostics);
+    const realized: AutoMovieHumanBodyTree.IOutput = AutoMovieHumanBodyTree.realize("body", definition.root, definition.limits, diagnostics);
+    return publishable(realized.chains, [realized.body], diagnostics);
+  }
+
+  /**
+   * Build the production source parts and tree, without realizing joins or final skin.
+   *
+   * @evidence contracts/common.md#principled-implementation Runs the same anatomical source builders and fold declarations that create fully realizes.
+   * @evidence contracts/common.md#clear-and-simple-design Returns one explicit production definition rather than a partial calibration.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no alternative geometry, fixture, intermediate throw or fake successful body.
+   * @evidence contracts/common.md#meaningful-documentation A null root and source diagnostics preserve construction failures; final joins have not run.
+   * @evidence contracts/performance.md#efficient-algorithms Constructs each required source part once and assembles a linear-size tree.
+   * @evidence contracts/performance.md#reuse-equivalent-work Source inspection and full production realization share this exact stage.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned definition records without caching a person or mesh.
+   */
+  export function define(input: IInput): IDefinition {
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...(input.diagnostics ?? [])];
+    const sources: AutoMovieHumanSiteViewPart.ISource[] = [];
     const limits: AutoMovieHumanBodyTree.ILimits = { ...LIMITS, gap: input.gap };
-    const view = (result: AutoMovieHumanSiteViewPart.IResult): IAutoMovieConstructionView | null => {
+    const view = (name: string, result: AutoMovieHumanSiteViewPart.IResult): IAutoMovieConstructionView | null => {
+      sources.push({ name, result });
       diagnostics.push(...result.diagnostics);
       return result.view;
     };
@@ -146,15 +222,28 @@ export namespace AutoMovieHumanBodyLane {
       cap: f.cap ?? cap,
     });
 
-    // The trunk and its masses.
-    const trunk: AutoMovieHumanTrunkBuild.IOutput = AutoMovieHumanTrunkBuild.create(input.trunk);
+    // The trunk ends inside the head, rather than on an open neck ring.
+    // A dome one inscribed neck-section radius high gives the fold host
+    // surface above its crossing. Its pole lies on the head mass's own axis,
+    // strictly below its crown, where every head outline encloses that axis.
+    // The merge trims the hidden upper host region away along all its phases.
+    const neck: IAutoMovieHumanTrunkViews.ISite | undefined = input.trunk.views.sites.at(-1);
+    let trunkInput: AutoMovieHumanTrunkBuild.IInput = input.trunk;
+    if (input.head !== undefined && neck !== undefined) {
+      const y: number = neck.y + Math.min(neck.half, (neck.front - neck.back) / 2);
+      if (y < input.head.skeleton.crown[1])
+        trunkInput = { ...input.trunk, top: { x: input.head.skeleton.crown[0], y } };
+      else
+        diagnostics.push({ producer: "lane.trunk", level: 2, contract: "top closure", detail: `the neck dome at ${y} mm does not lie below the head crown at ${input.head.skeleton.crown[1]} mm` });
+    }
+    const trunk: AutoMovieHumanTrunkBuild.IOutput = AutoMovieHumanTrunkBuild.create(trunkInput);
+    sources.push(...trunk.sources);
     diagnostics.push(...trunk.diagnostics);
-    if (trunk.trunk === null) return publishable([], [], diagnostics);
-    let root: AutoMovieConstructionNode = trunk.trunk;
-    for (const mass of trunk.masses) root = AutoMovieHumanBodyTree.join(root, mass, limits);
+    let root: AutoMovieConstructionNode | null = trunk.trunk;
+    for (const mass of trunk.masses) if (root !== null) root = AutoMovieHumanBodyTree.join(root, mass, limits);
 
     // The head merged onto the trunk's top, inside the head mass's neck.
-    if (input.head !== undefined)
+    if (input.head !== undefined && root !== null && trunk.trunk !== null)
       root = AutoMovieHumanBodyTree.join(
         root,
         { part: input.head.root, partFace: input.head.face, hostFace: trunk.trunk.name, search: input.head.search, radius: input.head.radius, cap: input.head.cap },
@@ -170,35 +259,38 @@ export namespace AutoMovieHumanBodyLane {
 
       // A host and its digits: each web capped at half the gap to its
       // nearest neighbour's base.
-      const branches = (host: IAutoMovieConstructionView, list: IDigit[]): AutoMovieConstructionNode => {
-        let tree: AutoMovieConstructionNode = host;
-        list.forEach((d: IDigit): void => {
-          const digit: IAutoMovieConstructionView | null = view(AutoMovieHumanDigitWalk.create(d.digit));
-          if (digit === null) return;
-          const base: Vec3 = d.digit.centres[0]!;
-          const nearest: number = Math.min(...list.filter((o: IDigit): boolean => o !== d).map((o: IDigit): number => distance(base, o.digit.centres[0]!)));
+      const branches = (host: IAutoMovieConstructionView | null, list: readonly (IDigit | IToe)[]): AutoMovieConstructionNode | null => {
+        let tree: AutoMovieConstructionNode | null = host;
+        const baseOf = (source: IDigit | IToe): Vec3 => "toe" in source ? source.toe.centres[0]! : source.digit.centres[0]!;
+        list.forEach((d: IDigit | IToe): void => {
+          const digit: IAutoMovieConstructionView | null = "toe" in d ? view(d.toe.name, AutoMovieHumanToePart.create(d.toe)) : view(d.digit.name, AutoMovieHumanDigitWalk.create(d.digit));
+          if (digit === null || tree === null || host === null) return;
+          const base: Vec3 = baseOf(d);
+          const nearest: number = Math.min(...list.filter((o: IDigit | IToe): boolean => o !== d).map((o: IDigit | IToe): number => distance(base, baseOf(o))));
           tree = AutoMovieHumanBodyTree.join(tree, fold(digit, digit.name, host.name, d.fold, Number.isFinite(nearest) ? nearest / 2 : d.fold.radius), limits);
         });
         return tree;
       };
 
       // The leg on its foot and toes, then onto the trunk.
-      const leg: IAutoMovieConstructionView | null = view(AutoMovieHumanLegWalk.create(`leg.${name}`, side.leg.bones, side.leg.law, input.gap));
-      const foot: IAutoMovieConstructionView | null = view(AutoMovieHumanFootPart.create(side.foot));
-      if (leg !== null) {
+      const leg: IAutoMovieConstructionView | null = view(`leg.${name}`, AutoMovieHumanLegWalk.create(`leg.${name}`, side.leg.bones, side.leg.law, input.gap));
+      const foot: IAutoMovieConstructionView | null = view(side.foot.name, AutoMovieHumanFootPart.create(side.foot));
+      const toes: AutoMovieConstructionNode | null = branches(foot, side.toes);
+      if (leg !== null && root !== null && trunk.trunk !== null) {
         const lower: AutoMovieConstructionNode =
-          foot === null ? leg : AutoMovieHumanBodyTree.join(branches(foot, side.toes), fold(leg, leg.name, foot.name, side.leg.foot, side.leg.foot.radius), limits);
+          foot === null || toes === null ? leg : AutoMovieHumanBodyTree.join(toes, fold(leg, leg.name, foot.name, side.leg.foot, side.leg.foot.radius), limits);
         root = AutoMovieHumanBodyTree.join(root, fold(lower, leg.name, trunk.trunk.name, side.leg.trunk, perineum), limits);
       }
 
       // The arm with its hand onto the trunk.
       const arm: IAutoMovieConstructionView | null = view(
-        AutoMovieHumanArmWalk.create(`arm.${name}`, side.arm.bones, side.arm.knuckle, side.arm.reach, side.arm.sites, side.arm.joints, input.gap),
+        `arm.${name}`,
+        AutoMovieHumanArmWalk.create(`arm.${name}`, side.arm.bones, side.arm.knuckle, side.arm.reach, side.arm.sites, side.arm.joints, input.gap, side.arm.crease, side.arm.radial),
       );
-      if (arm !== null) root = AutoMovieHumanBodyTree.join(root, fold(branches(arm, side.fingers), arm.name, trunk.trunk.name, side.arm.trunk, side.arm.trunk.radius), limits);
+      const fingers: AutoMovieConstructionNode | null = branches(arm, side.fingers);
+      if (arm !== null && fingers !== null && root !== null && trunk.trunk !== null) root = AutoMovieHumanBodyTree.join(root, fold(fingers, arm.name, trunk.trunk.name, side.arm.trunk, side.arm.trunk.radius), limits);
     }
-    const realized: AutoMovieHumanBodyTree.IOutput = AutoMovieHumanBodyTree.realize("body", root, limits, diagnostics);
-    return publishable(realized.chains, [realized.body], diagnostics);
+    return { root, limits, diagnostics, sources };
   }
 
   /**

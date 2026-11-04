@@ -1,9 +1,9 @@
 import { AutoMovieViewSection } from "@automovie/engine";
-import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
+import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
 import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 
 /**
@@ -18,9 +18,11 @@ import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
  * | mentolabial sulcus | head mass | diff | Legan and Burstone's sulcus depth (`profile.sulcus`) at the sublabiale |
  * | helix, antihelix, concha, each side | auricle | merge, diff | drawn in the ear's own frame (`AutoMovieHumanHeadEarParts`) |
  *
- * Sizes come from the head prior's rows as they stand; the prior's
- * replacement by published laws (#3045's worker) and each part's own laws
- * (#3053 to #3056) replace them. First pass: compile-only.
+ * Nasal sizes retain declared prior ratios of the supplied nasal triangle.
+ * Philtrum uses the actual source Sn-ls chord. The labiomental depth is
+ * perpendicular to the actual source Li-Pg line (Legan/Burstone 1980),
+ * with its midpoint and footprint still geometric placement conventions.
+ * These raw cutters establish neither a through opening nor a lining.
  */
 export namespace AutoMovieHumanHeadInnerParts {
   /** Depth of an inner part's base inside its parent, mm. */
@@ -39,6 +41,7 @@ export namespace AutoMovieHumanHeadInnerParts {
     const f: AutoMovieHumanHeadPrior.IFace = prior.face;
     const out: AutoMovieHumanHeadFeatures.IFeature[] = [];
     const NH: number = plan.nasion - plan.subnasale;
+    const nasalForward: number = m.pronasale[0] - m.subnasale[0];
 
     // The nose's frame: up along the dorsum's chord, forward square to it.
     const up: [number, number, number] = unit([m.nasion[0] - m.subnasale[0], m.nasion[1] - m.subnasale[1], 0]);
@@ -50,10 +53,12 @@ export namespace AutoMovieHumanHeadInnerParts {
     );
     for (const sign of [1, -1] as const) {
       const side: string = sign > 0 ? "left" : "right";
-      const centre: [number, number, number] = [m.subnasale[0] + f.nostrilCentre[0]! * plan.noseLead, m.subnasale[1] + f.ala[2]! * (m.pronasale[1] - m.subnasale[1]), sign * plan.noseWidth * f.ala[1]!];
       const half: number = f.ala[5]! * plan.noseWidth;
+      // The lateral apex is alare. Both sides share x/y, so these two
+      // apices are exactly the supplied Euclidean al-al width apart.
+      const centre: [number, number, number] = [m.subnasale[0] + f.nostrilCentre[0]! * nasalForward, m.subnasale[1] + f.ala[2]! * (m.pronasale[1] - m.subnasale[1]), sign * (plan.noseWidth - half)];
       out.push(part(`nose.ala.${side}`, "nose", "merge", sub(centre, [0, 0, sign * INSET]), [0, 0, sign], up, [f.ala[3]! * NH, half, f.ala[4]! * NH, half], INSET + half, centre, plan.noseWidth));
-      const nostril: [number, number, number] = [m.subnasale[0] + f.nostrilCentre[0]! * plan.noseLead, m.subnasale[1], sign * f.nostrilCentre[1]! * plan.noseWidth];
+      const nostril: [number, number, number] = [m.subnasale[0] + f.nostrilCentre[0]! * nasalForward, m.subnasale[1], sign * f.nostrilCentre[1]! * plan.noseWidth];
       out.push(
         part(`nose.nostril.${side}`, "nose", "diff", [nostril[0], nostril[1] - INSET, nostril[2]], [0, 1, 0], [1, 0, 0],
           [f.nostrilSize[0]! * plan.noseWidth, f.nostrilSize[1]! * plan.noseWidth, f.nostrilSize[0]! * plan.noseWidth, f.nostrilSize[1]! * plan.noseWidth], INSET + 8.8 * k, nostril, plan.noseWidth),
@@ -61,19 +66,23 @@ export namespace AutoMovieHumanHeadInnerParts {
     }
 
     // The philtral groove and the mentolabial sulcus, cut from the head mass.
-    const ls: number = plan.stomion + plan.upperLip;
-    const philtrumY: number = (plan.subnasale + ls) / 2;
-    const philtrumX: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, philtrumY);
+    const ls: [number, number, number] = AutoMovieHumanHeadLipPart.midline(plan, true);
+    const philtral: [number, number, number] = unit([m.subnasale[0] - ls[0], m.subnasale[1] - ls[1], 0]);
+    const philtralInward: [number, number, number] = [-philtral[1], philtral[0], 0];
+    const philtralCentre: [number, number, number] = [(m.subnasale[0] + ls[0]) / 2, (m.subnasale[1] + ls[1]) / 2, 0];
+    const philtralHalf: number = Math.hypot(m.subnasale[0] - ls[0], m.subnasale[1] - ls[1]) / 2;
     out.push(
-      part("philtrum", "head.mass", "diff", [philtrumX + INSET, philtrumY, 0], [-1, 0, 0], [0, 1, 0],
-        [(plan.subnasale - ls) / 2, f.philtrum[1]! * k, (plan.subnasale - ls) / 2, f.philtrum[1]! * k], INSET + f.philtrum[0]! * k, [philtrumX, philtrumY, 0]),
+      part("philtrum", "head.mass", "diff", sub(philtralCentre, scale(philtralInward, INSET)), philtralInward, philtral,
+        [philtralHalf, f.philtrum[1]! * k, philtralHalf, f.philtrum[1]! * k], INSET + f.philtrum[0]! * k, philtralCentre),
     );
-    const sl: number = (plan.stomion - plan.lowerLip + m.pogonion[1]) / 2;
-    const slX: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, sl);
+    const li: [number, number, number] = AutoMovieHumanHeadLipPart.midline(plan, false);
+    const lowerChord: [number, number, number] = unit([li[0] - m.pogonion[0], li[1] - m.pogonion[1], 0]);
+    const sulcusInward: [number, number, number] = [-lowerChord[1], lowerChord[0], 0];
+    const sulcusCentre: [number, number, number] = [(li[0] + m.pogonion[0]) / 2, (li[1] + m.pogonion[1]) / 2, 0];
     const sulcus: number = prior.profile.sulcus * (plan.faceHeight / prior.profile.unit);
     out.push(
-      part("sulcus.mentolabial", "head.mass", "diff", [slX + INSET, sl, 0], [-1, 0, 0], [0, 0, 1],
-        [plan.mouthWidth, sulcus, plan.mouthWidth, sulcus], INSET + sulcus, [slX, sl, 0]),
+      part("sulcus.mentolabial", "head.mass", "diff", sub(sulcusCentre, scale(sulcusInward, INSET)), sulcusInward, [0, 0, 1],
+        [plan.mouthWidth, sulcus, plan.mouthWidth, sulcus], INSET + sulcus, sulcusCentre),
     );
 
     return out;

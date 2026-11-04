@@ -9,15 +9,18 @@
  * from those landmarks along the segment axis: the shoulder centre 33.7 (F) /
  * 34.5 (M) mm distal of the acromion and the elbow centre 13.9 / 14.3 mm
  * proximal of radiale, both read off acromion-radiale with the arm adducted,
- * whose Table 4 lengths are 322.7 and 330.5 mm; the wrist centre 1.5 mm distal
+ * whose reconstructed lengths are 322.7 and 330.5 mm (Table 4 joint-centre
+ * lengths plus Table 2 landmark offsets); the wrist centre 1.5 mm distal
  * of stylion. As shares of the adducted acromion-radiale both sexes agree,
  * 0.1044 and 0.0432 (33.7 / 322.7 = 0.10443, 34.5 / 330.5 = 0.10439; 13.9 /
- * 322.7 = 0.04307, 14.3 / 330.5 = 0.04327), so one proportional rule holds for
- * every person and scales to children as de Leva's offsets scale with segment
- * length (`docs/anatomy/skeleton.md`).
+ * 322.7 = 0.04307, 14.3 / 330.5 = 0.04327). These retained ratios are
+ * approximations: Table 2, Fig.1, Table 4 and the Upper arm text contain
+ * differing mean reconstructions; the Upper arm text states AR 324.1 / 331.8
+ * mm. They are not one exact individual regression
+ * (`docs/work/law-definition-audit.md`, Arm measurement closure).
  *
- * In the hanging arm acromion, shoulder centre, elbow centre and radiale are
- * collinear, so the humerus' joint-centre length is acromion-radiale less
+ * In the model's straight neutral measuring convention those longitudinal
+ * projections are collinear, so joint-centre length is acromion-radiale less
  * both shares, `0.8524 AR`; a bone's length does not change with posture, so
  * the bind's A-pose keeps it. Radiale belongs to the radius and turns with the
  * forearm: it stands `0.0432 AR` past the elbow centre along the forearm, and
@@ -97,7 +100,8 @@ export namespace AutoMovieHumanArmBones {
 
   /**
    * The shoulder centre's distance below the acromion as a share of
-   * acromion-radiale (de Leva 1996 Table 2 over Table 4's adducted length).
+   * acromion-radiale (de Leva 1996 Table 2 over the reconstruction from
+   * Table 4 joint-centre lengths plus Table 2 landmark offsets).
    */
   export const ACROMION: number = 0.1044;
 

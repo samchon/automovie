@@ -1,6 +1,7 @@
 import type { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanWalkPart } from "../limb/AutoMovieHumanWalkPart";
 import type { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
+import { AutoMovieHumanJointTurn } from "../limb/AutoMovieHumanJointTurn";
 
 type Vec3 = AutoMovieHumanArmBones.IBones["shoulder"];
 
@@ -28,6 +29,11 @@ type Vec3 = AutoMovieHumanArmBones.IBones["shoulder"];
  * acromion to olecranon, the elbow tape at the epicondyles, the forearm's
  * greatest tape, the wrist tape at stylion, the palm's wrist crease and its
  * knuckle line (`handBreadth`, `handCircumference`).
+ * The chart uses base rotation-minimizing transport through WJC. When the
+ * caller supplies the hand's radial direction, the engine joins a signed
+ * C2 material roll from WJC to MCP3, then carries that constant relative
+ * roll with the base frame. The MCP target is projected into its actual
+ * normal plane; this is not a fixed angle or a new projection at every site.
  */
 export namespace AutoMovieHumanArmWalk {
   /** One site's law: its name, place, box and owner. */
@@ -41,7 +47,7 @@ export namespace AutoMovieHumanArmWalk {
     /** Share of the bone from its proximal centre. */
     share: number;
 
-    /** The box's edges from the bone's axis in the walk's chart, calibration mm: along `+u` (forward on the humerus, carried along the walk without spin, so on the palm it faces where the neutral forearm's rotation turns it), along `+v`, along `-u`, along `-v`. */
+    /** Signed edges [+u,+v,-u,-v] from the course axis, calibration mm. Base RMF carries forward +u through WJC; an explicitly supplied hand target adds the WJC-to-MCP3 material roll, making palm +u radial and +v its palmar/dorsal short direction. */
     edges: [number, number, number, number];
 
     /** A tape solved on the box, or a sourced shoulder. */
@@ -61,10 +67,12 @@ export namespace AutoMovieHumanArmWalk {
    * @param name The chain's name, `arm.left` or `arm.right`.
    * @param bones The side's arm bones.
    * @param knuckle The third metacarpal's head, the palm's last centre.
-   * @param reach The palm's distal cap's reach past that head to the dome's tip, mm.
+   * @param reach The palm's distal cap reach past the final centre, half its anatomical palmar/dorsal depth rather than its radial breadth, mm.
    * @param sites The sites by rising place, the first standing nearest the shoulder (its box also fills the run inside the girdle).
    * @param joints The elbow's and the wrist's depths, mm, their turns' lengths.
    * @param gap Widest spacing between layers, mm.
+   * @param crease Independent public palm-crease locus, when supplied.
+   * @param radial Signed hand-across direction at MCP3; its endpoint normal-plane projection defines the C2 WJC-to-MCP3 roll, held relative to the base RMF afterward. Omission retains the base frame throughout.
    * @returns The part, its loft and the diagnostics.
    */
   export function create(
@@ -75,6 +83,8 @@ export namespace AutoMovieHumanArmWalk {
     sites: ISiteLaw[],
     joints: { elbow: number; wrist: number },
     gap: number,
+    crease?: Vec3,
+    radial?: Vec3,
   ): AutoMovieHumanSiteViewPart.IResult {
     const laws: ISiteLaw[] = sites;
     const deltoid: ISiteLaw = laws[0]!;
@@ -83,15 +93,16 @@ export namespace AutoMovieHumanArmWalk {
     const top: Vec3 = [0, 1, 2].map((c: number): number => bones.shoulder[c]! + ((bones.shoulder[c]! - bones.elbow[c]!) * run) / d) as Vec3;
     return AutoMovieHumanWalkPart.create({
       name,
-      centres: [top, bones.shoulder, bones.elbow, bones.wrist, knuckle],
+      centres: [top, bones.shoulder, bones.elbow, bones.wrist, knuckle, ...(crease === undefined ? [] : [crease])],
 
       // The glenohumeral centre continues the humerus straight; the elbow and
       // the wrist turn over half their depths each side.
-      joints: [{ half: 1 }, { half: joints.elbow / 2 }, { half: joints.wrist / 2 }],
+      joints: [{ half: 1 }, { half: joints.elbow / 2 }, { half: joints.wrist / 2 }, ...(crease === undefined ? [] : [{ half: AutoMovieHumanJointTurn.half(bones.wrist, knuckle, crease, reach) }])],
       u: [1, 0, 0],
       sites: [
         ...laws.map((l: ISiteLaw): AutoMovieHumanWalkPart.ISite => ({ site: l.site, bone: l.bone, share: l.share, edges: l.edges, fullness: l.fullness })),
       ],
+      ...(radial === undefined ? {} : { roll: { from: { bone: 3, share: 0 }, to: { bone: 3, share: 1 }, up: radial } }),
       tip: reach,
 
       // The top closes in a dome inside the girdle.

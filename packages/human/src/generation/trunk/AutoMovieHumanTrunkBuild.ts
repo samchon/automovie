@@ -35,8 +35,8 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  *
  * Folds. Each mass is a fold onto the base for the body's construction tree
  * (`AutoMovieHumanBodyTree`), its seed searched along the mass's lower station
- * line (the footprint's lower edge) from inside the base out, its fold radius the caller's fat
- * layer, its width capped at half its smallest footprint edge (a fillet wider
+ * line (the footprint's lower edge) from inside the base out, its fold radius
+ * the caller's declared join softness, its width capped at half its smallest footprint edge (a fillet wider
  * than that swallows the mass) and at the gap from its footprint's medial edge
  * to the median plane (beyond it the pair's rails cross: the cleavage and the
  * cleft are corners the two-part merge does not close, operator gap 3). A
@@ -63,7 +63,7 @@ export namespace AutoMovieHumanTrunkBuild {
     /** Sourced conic shoulder of its sections. */
     shoulder: number;
 
-    /** The fold's radius under it: its fat layer, mm. */
+    /** Declared geometric join radius, mm; the current interim caller derives operational softness from sampling pitch, not fat thickness. */
     fold: number;
   }
 
@@ -71,6 +71,9 @@ export namespace AutoMovieHumanTrunkBuild {
   export interface IInput {
     /** The base's views (`AutoMovieHumanTrunkViews.of`). */
     views: IAutoMovieHumanTrunkViews;
+
+    /** Hidden closure on the head mass's axis, inside its neck. Absent for a standalone trunk whose last neck section stays open. */
+    top?: AutoMovieHumanTrunkViewPart.ITop;
 
     /** The tapes that wrap the merged skin, mm: the chest over the breasts, the hip over the gluteal masses. */
     tapes: { chest: number; hip: number };
@@ -92,6 +95,9 @@ export namespace AutoMovieHumanTrunkBuild {
 
     /** Every broken premise. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
+
+    /** Actual builder results in production order, including both tape passes and failed admissions. */
+    sources: AutoMovieHumanSiteViewPart.ISource[];
   }
 
   /** Section controls and ring phases of a mass. */
@@ -111,15 +117,17 @@ export namespace AutoMovieHumanTrunkBuild {
    */
   export function create(input: IInput): IOutput {
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    const out = (trunk: IAutoMovieConstructionView | null, masses: AutoMovieHumanBodyTree.IFold[]): IOutput => ({ trunk, masses, diagnostics });
+    const sources: AutoMovieHumanSiteViewPart.ISource[] = [];
+    const out = (trunk: IAutoMovieConstructionView | null, masses: AutoMovieHumanBodyTree.IFold[]): IOutput => ({ trunk, masses, diagnostics, sources });
 
     // Pass 1: the base with the ellipse's shoulders, the masses on it.
-    const first: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(input.views);
+    const first: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(input.views, input.top);
+    sources.push({ name: AutoMovieHumanTrunkViewPart.NAME, result: first });
     if (first.loft === null || first.loft.surface === null) {
       diagnostics.push(...first.diagnostics);
       return out(null, []);
     }
-    const masses1: IMass[] = masses(input, first.loft.surface, []);
+    const masses1: IMass[] = masses(input, first.loft.surface, [], sources);
 
     // The tapes over the merged skin set the base's shoulders at the chest and
     // the buttock; the base again with them.
@@ -141,7 +149,8 @@ export namespace AutoMovieHumanTrunkBuild {
         return tape.shoulder === null ? s : { ...s, fullness: { shoulder: tape.shoulder } };
       }),
     };
-    const base: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(solved);
+    const base: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(solved, input.top);
+    sources.push({ name: AutoMovieHumanTrunkViewPart.NAME, result: base });
     diagnostics.push(...base.diagnostics);
     const host: IAutoMovieSolidSurface | null = base.loft?.surface ?? null;
     if (base.view === null || host === null) return out(null, []);
@@ -149,7 +158,7 @@ export namespace AutoMovieHumanTrunkBuild {
     // Pass 2: the masses on the solved base, each a fold onto it whose seed
     // is searched along the mass's lower station line (phase pi, the
     // footprint's lower edge) from inside the base out to the apex.
-    const folds: AutoMovieHumanBodyTree.IFold[] = masses(input, host, diagnostics).map(
+    const folds: AutoMovieHumanBodyTree.IFold[] = masses(input, host, diagnostics, sources).map(
       (m: IMass): AutoMovieHumanBodyTree.IFold => ({
         part: m.view,
         partFace: m.chain.name,
@@ -192,9 +201,10 @@ export namespace AutoMovieHumanTrunkBuild {
    * @param input The laws.
    * @param host The base's surface.
    * @param diagnostics Where a failed mass is recorded; a pass that only reads the masses for the tapes passes a list it drops.
+   * @param sources The actual source results, including failed and intermediate tape-pass attempts.
    * @returns The masses that built.
    */
-  function masses(input: IInput, host: IAutoMovieSolidSurface, diagnostics: AutoMovieLoftContract.IDiagnostic[]): IMass[] {
+  function masses(input: IInput, host: IAutoMovieSolidSurface, diagnostics: AutoMovieLoftContract.IDiagnostic[], sources: AutoMovieHumanSiteViewPart.ISource[]): IMass[] {
     const out: IMass[] = [];
     const pairs: ["breast" | "gluteal", IMassLaw | null][] = [
       ["breast", input.breast],
@@ -233,9 +243,10 @@ export namespace AutoMovieHumanTrunkBuild {
           samples: MASS_ORDER,
           gap: AutoMovieHumanTrunkViewPart.GAP,
         });
+        sources.push({ name, result: built });
         diagnostics.push(...built.diagnostics);
         if (built.loft?.chain === null || built.loft?.chain === undefined || built.loft.surface === null || built.part === null) continue;
-            if (built.view === null) continue;
+        if (built.view === null) continue;
         const stations: number[] = built.part.stations;
         out.push({
           kind,
