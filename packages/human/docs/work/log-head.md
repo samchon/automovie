@@ -36,6 +36,7 @@ Winding fixes (22:23:16):
 - Open: the straight case's 8 % inward triangles (0 to 0.6 radii above the part's centre), so the test stays red; the nose blend's groove.
 
 Head missing from the figure (22:38:07): `test_human_head_on_trunk` (f1) reads no published `head.mass` and `tree.blend.head.mass.trunk: seed: the part's station line at phase 0 meets the host nowhere between stations 1437.3 and 1515.2 mm`. The head mass opened at the neck base, where the trunk's open top also ends, so the two never overlapped and the body lane left the head subtree out. The head mass now reaches a neck radius under the neck base (this commit). Its result was not read before the stop; rerun `--include human_head_on_trunk`. If the trunk's top ring is wider than the head's neck there, the head still passes through the open top without crossing it, and the trunk's top needs closing inside the head.
+After `f47f0e819` the seed is found, but the fold runs past the trunk's top: `tree.blend.head.mass.trunk: inside the layers: at t 1.865: trunk's u 1438.04 lies outside its layers 804.9 to 1437.29`. The crossing hugs the trunk's top ring, so the trunk's top ring and the head's neck there are about one size. Next: close or narrow the trunk's top inside the head's neck (body lane), or widen the head's neck under the neck base, so the curve stands below the trunk's last layer.
 
 Remaining, in order:
 
