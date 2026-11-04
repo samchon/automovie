@@ -116,8 +116,8 @@ export namespace AutoMovieHumanLoftJet {
       tt: sum(scale(U[0]!, q0[4]), scale(W[0]!, q0[5])),
     };
 
-    // The lift a shape law writes moves points along w = v x u by the cubic
-    // Hermite of its values, as in AutoMovieHumanLoftChain.ring.
+    // The lift a shape law writes moves points along w = v x u by the station
+    // Hermite of its values, quintic where it carries curvatures, as in AutoMovieHumanLoftChain.ring.
     if (a.lift !== undefined || b.lift !== undefined) lift(jet, a, b, u, H, n, t, U, W);
 
     // Reliefs move points along their fixed axes.
@@ -216,7 +216,8 @@ type V = [number, number, number];
 type J = [number, number, number, number, number, number];
 
 /**
- * Add the lift `h(s, t) w(s)` and its derivatives to a jet, `w = v x u`
+ * Add the lift `h(s, t) w(s)` and its derivatives to a jet, `w = v x u`;
+ * the lift takes the quintic rule where both layers carry its curvatures,
  * with `w' = v' x u + v x u'` and `w'' = v'' x u + 2 v' x u' + v x u''`.
  */
 function lift(
@@ -231,19 +232,22 @@ function lift(
   W: V[],
 ): void {
   const zero: number[] = new Array<number>(n).fill(0);
+  const quintic: boolean = a.liftCurvatures !== undefined && b.liftCurvatures !== undefined;
   const ea: AutoMovieHumanStationHermite.IEnd = {
     value: a.lift ?? zero,
     slope: a.liftSlopes ?? zero,
+    ...(quintic ? { curvature: a.liftCurvatures! } : {}),
   };
   const eb: AutoMovieHumanStationHermite.IEnd = {
     value: b.lift ?? zero,
     slope: b.liftSlopes ?? zero,
+    ...(quintic ? { curvature: b.liftCurvatures! } : {}),
   };
   const l: number[][] = [0, 1, 2].map((order: number): number[] =>
     AutoMovieHumanStationHermite.combine(
       ea,
       eb,
-      AutoMovieHumanStationHermite.weights(u, H, order as 0 | 1 | 2, false),
+      AutoMovieHumanStationHermite.weights(u, H, order as 0 | 1 | 2, quintic),
     ),
   );
 

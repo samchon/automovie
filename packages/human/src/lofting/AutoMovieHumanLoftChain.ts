@@ -161,14 +161,12 @@ export namespace AutoMovieHumanLoftChain {
 
     // Layers that carry second derivatives (a feature chain expanded with
     // its jets) take the quintic rule; the cubic below stays as it was.
-    if (
-      pick === sectionArrays &&
-      a.curvatures !== undefined &&
-      b.curvatures !== undefined
-    )
+    const ac: number[] | undefined = pick === sectionArrays ? a.curvatures : a.liftCurvatures;
+    const bc: number[] | undefined = pick === sectionArrays ? b.curvatures : b.liftCurvatures;
+    if (ac !== undefined && bc !== undefined)
       return AutoMovieHumanStationHermite.combine(
-        { value: av, slope: am, curvature: a.curvatures },
-        { value: bv, slope: bm, curvature: b.curvatures },
+        { value: av, slope: am, curvature: ac },
+        { value: bv, slope: bm, curvature: bc },
         AutoMovieHumanStationHermite.weights(u, H, differentiate ? 1 : 0, true),
       );
 

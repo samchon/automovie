@@ -1,21 +1,22 @@
-import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
-import { AutoMovieHumanApertureBase } from "./AutoMovieHumanApertureBase";
+import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfaceContact } from "./AutoMovieHumanBodySurfaceContact";
 import { AutoMovieHumanBodySurfaceLoft } from "./AutoMovieHumanBodySurfaceLoft";
 import { AutoMovieHumanBodySurfaceNormals } from "./AutoMovieHumanBodySurfaceNormals";
+import { AutoMovieHumanBodySurfaceOpening } from "./AutoMovieHumanBodySurfaceOpening";
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
+import { AutoMovieHumanBodySurfaceSolids } from "./AutoMovieHumanBodySurfaceSolids";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
 import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
 const { ringBlend, surfaceNormals } = AutoMovieHumanBodySurfaceNormals;
 const { contact, held, WEBS } = AutoMovieHumanBodySurfaceContact;
-const { join, loft, LOOP, open } = AutoMovieHumanBodySurfaceLoft;
+const { join, loft, LOOP } = AutoMovieHumanBodySurfaceLoft;
 const { chain } = AutoMovieHumanBodySurfaceRead;
 const { domed } = AutoMovieHumanBodySurfacePoles;
 
@@ -132,34 +133,36 @@ export namespace AutoMovieHumanBodySurface {
       });
       context.roots.set(appendage.base, list);
     }
-    // Every opening is a trim loop on its base chain: the declared one, or the
-    // chain that holds it (`AutoMovieHumanApertureBase`). Only an eye, whose lid
-    // band's outline crosses the ring between two head chains, is still cut by
-    // position until the head is one chain.
-    const based: AutoMovieHumanBodyApertures.IPrepared[] = [];
+    // Every opening but an eye is a trim on its base chains: the declared
+    // one, or the chains that hold it, split at the ring two of them share
+    // (`AutoMovieHumanApertureSpan`). An eye is still cut by position, its
+    // lid band built for that cut, until the head is one chain (#3053).
+    const spans: [AutoMovieHumanBodyApertures.IPrepared, AutoMovieHumanApertureSpan.ISpan][] = [];
     for (const opening of context.apertures) {
-      const found: AutoMovieHumanApertureBase.IBase | null =
+      if (opening.lid !== null) continue;
+      const span: AutoMovieHumanApertureSpan.ISpan | string = AutoMovieHumanApertureSpan.of(
+        opening,
         opening.aperture.base !== undefined && context.chains.has(opening.aperture.base)
-          ? {
-              chain: chain(context, opening.aperture.base),
-              loop: AutoMovieHumanBodyRoots.trim(
-                chain(context, opening.aperture.base),
-                opening.outline,
-                AutoMovieHumanLoftAperture.range(AutoMovieHumanLoftAperture.polyline(opening.aperture)),
-              ),
-            }
-          : AutoMovieHumanApertureBase.of(opening, calibration.chains);
-      if (found === null) {
-        if (opening.lid === null) throw new Error(`Opening ${opening.aperture.name} lies on no single chain`);
-        continue;
+          ? [chain(context, opening.aperture.base)]
+          : calibration.chains,
+        calibration.events,
+      );
+      if (typeof span === "string")
+        throw new Error(`Opening ${opening.aperture.name} lies on no chain or pair of chains sharing a ring: ${span}`);
+      spans.push([opening, span]);
+      for (const [name, loop] of span.loops) {
+        const list = context.roots.get(name) ?? [];
+        list.push({
+          opening,
+          loop,
+          span: span.chains.length > 1 ? AutoMovieHumanApertureSpan.key(opening.aperture.name) : undefined,
+        });
+        context.roots.set(name, list);
       }
-      based.push(opening);
-      const list = context.roots.get(found.chain.name) ?? [];
-      list.push({ opening, loop: found.loop });
-      context.roots.set(found.chain.name, list);
     }
     context.apertures = context.apertures.filter(
-      (p: AutoMovieHumanBodyApertures.IPrepared): boolean => !based.includes(p),
+      (p: AutoMovieHumanBodyApertures.IPrepared): boolean =>
+        !spans.some(([q]: [AutoMovieHumanBodyApertures.IPrepared, AutoMovieHumanApertureSpan.ISpan]): boolean => q === p),
     );
 
     // 1-2. Contact rings and the boundaries they define on both sides.
@@ -167,16 +170,19 @@ export namespace AutoMovieHumanBodySurface {
 
     // 3. Every chain between its two boundaries; bases leave their root
     // loops open.
-    for (const target of calibration.chains) loft(context, target);
+    const solids: Set<string> = AutoMovieHumanBodySurfaceSolids.names(calibration);
+    for (const target of calibration.chains) if (!solids.has(target.name)) loft(context, target);
+
+    // 3a. The solids: every chain a merge names, drawn as trimmed faces and
+    // blends with their rails shared.
+    calibration.diagnostics?.push(...AutoMovieHumanBodySurfaceSolids.draw(context, calibration));
 
     // 3b. Every appendage joined to its base through its strip, and every
     // opening on a base closed from its trim loop.
     for (const appendage of calibration.appendages ?? []) join(context, appendage);
     const construction: IAutoMovieHumanConstructionPath[] = [];
-    for (const [name, roots] of context.roots)
-      for (const r of roots)
-        if (r.opening !== undefined)
-          construction.push(...open(context, chain(context, name), r.opening, r.loop));
+    for (const [opening, span] of spans)
+      construction.push(...AutoMovieHumanBodySurfaceOpening.open(context, opening, span, calibration.events));
 
     // 4. The eyes: the skin over each is clipped away by position, and the
     // lid margins tucked onto the globes.

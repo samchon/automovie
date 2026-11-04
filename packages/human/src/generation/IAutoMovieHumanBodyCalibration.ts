@@ -1,5 +1,6 @@
 import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import type { AutoMovieHumanSolidMesh } from "../lofting/AutoMovieHumanSolidMesh";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
@@ -64,6 +65,14 @@ export interface IAutoMovieHumanBodyCalibration {
    * means none.
    */
   appendages?: IAutoMovieHumanBodyCalibration.IAppendage[];
+
+  /**
+   * Solid merges and diffs drawn by the solid tessellation
+   * (`AutoMovieHumanBodySurfaceSolids`): each a join's blend published as a
+   * chain between a host chain and a part chain. Every chain a merge names is
+   * drawn as a trimmed face, not by events or rings. Absent means none.
+   */
+  merges?: IAutoMovieHumanBodyCalibration.IMerge[];
 
   /**
    * The bind skeleton the limbs were lofted on, placed before any limb skin
@@ -140,6 +149,37 @@ export namespace IAutoMovieHumanBodyCalibration {
       "left" | "right",
       { superius: [number, number, number]; inferius: [number, number, number] }
     >;
+  }
+
+  /**
+   * One solid join as published data: its blend chain
+   * (`AutoMovieHumanSolidBlendChain`) and the two rails as trim loops of
+   * their faces, column `k` of each loop at the blend's phase `2 pi k / n`.
+   */
+  export interface IMerge {
+    /** The blend chain's name, in `chains`. */
+    blend: string;
+
+    /** The host chain's name. */
+    host: string;
+
+    /** The part chain's name. */
+    part: string;
+
+    /** The blend chain's station span, mm. */
+    length: number;
+
+    /** The host's rail as a trim of the host's face. */
+    hostLoop: AutoMovieHumanSolidMesh.ILoopChart;
+
+    /** The part's rail as a trim of the part's face. */
+    partLoop: AutoMovieHumanSolidMesh.ILoopChart;
+
+    /** Rows of the blend between its rails, at least 1. */
+    rows: number;
+
+    /** Whether the join is a diff, whose part face (the cutter's wall) faces into the cutter. Absent, a merge. */
+    diff?: boolean;
   }
 
   /**

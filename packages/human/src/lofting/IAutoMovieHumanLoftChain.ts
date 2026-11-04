@@ -111,6 +111,13 @@ export namespace IAutoMovieHumanLoftChain {
     liftSlopes?: number[];
 
     /**
+     * Second station derivative of every `lift` value. When both layers of an
+     * interval carry it, the lift takes the quintic rule as the coefficients
+     * do with `curvatures`; absent, the cubic Hermite of values and slopes.
+     */
+    liftCurvatures?: number[];
+
+    /**
      * Second station derivative of every coefficient. When both layers of
      * an interval carry it, the interval is the quintic Hermite of their
      * values, slopes and these (`AutoMovieHumanStationHermite`); absent,
