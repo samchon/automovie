@@ -189,6 +189,13 @@ export namespace AutoMovieHumanSolidIntersection {
     );
     if (!(closed <= 10 * tolerance)) return report("one loop per contact", `the trace returns ${closed} mm from its start after one turn`);
 
+    // Every traced point inside both surfaces' own ranges: past a chain's
+    // end layer its reading is the end section held, not the surface.
+    for (const p of points) {
+      const outside: string | null = beyond(part, p.s) ?? beyond(host, p.y);
+      if (outside !== null) return report("inside the layers", `at phi ${p.phi}: ${outside}; build the part far enough to cross its host inside both chains' layers`);
+    }
+
     // Tangential contacts along the loop.
     for (const p of points)
       if (p.angle < grazing)
@@ -205,6 +212,19 @@ export namespace AutoMovieHumanSolidIntersection {
       return p === null ? null : shifted(p, turns * shift, turns * period);
     };
     return { curve: { part: part.name, host: host.name, points, winding, at }, diagnostics };
+  }
+
+  /**
+   * Where a surface's `u` lies past its declared domain, if it does.
+   *
+   * @param surface The surface.
+   * @param u Its first chart parameter.
+   * @returns A description with the numbers, or null inside the domain or without one.
+   */
+  export function beyond(surface: IAutoMovieHumanSolidSurface, u: number): string | null {
+    const d: [number, number] | undefined = surface.domain;
+    if (d === undefined || (u >= d[0] && u <= d[1])) return null;
+    return `${surface.name}'s u ${u} lies outside its layers ${d[0]} to ${d[1]}`;
   }
 
   /**

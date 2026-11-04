@@ -38,6 +38,14 @@ export interface IAutoMovieHumanSolidSurface {
    * in. The operators read which side of one surface the other keeps from it.
    */
   orientation: 1 | -1;
+
+  /**
+   * The range of `u` the surface owns, such as a chain's first and last
+   * layer stations. A chain's jet past them is its end section held, not
+   * the surface, so a curve or rail found there is reported. Absent, every
+   * `u` is the surface's own.
+   */
+  domain?: [number, number];
 }
 export namespace IAutoMovieHumanSolidSurface {
   /** A surface's point and partial derivatives at one chart point, world mm per unit of each parameter. */

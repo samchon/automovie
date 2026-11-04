@@ -93,6 +93,7 @@ export namespace AutoMovieHumanSolidChain {
     return {
       name: chain.name,
       period: 2 * Math.PI,
+      domain: [first, last],
       orientation: sign,
       jet: (u: number, v: number): IAutoMovieHumanSolidSurface.IJet => {
         const q: AutoMovieHumanLoftJet.IJet = AutoMovieHumanLoftJet.at(chain, u, v);

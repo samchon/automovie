@@ -33,7 +33,8 @@ const { combine, cross, dot, norm, sub } = AutoMovieHumanSolidVector;
  * tessellated from shared points.
  *
  * Checks, each a diagnostic and a null join: the curve traces one closed loop
- * transversally; every traced point has both rails; the host's rail loop does
+ * transversally; every traced point has both rails, each inside its surface's
+ * declared domain (a chain's layers); the host's rail loop does
  * not cross itself in the chart (a width past the rail's radius of curvature
  * folds it); the blend's normal does not reverse along any column (a fold of
  * the blend between the rails).
@@ -165,6 +166,9 @@ export namespace AutoMovieHumanSolidJoin {
     for (const p of curve.points) {
       const c: IColumn | null = column(p.phi);
       if (c === null) return fail("rails", `no rail at phi ${p.phi} (host width ${input.width.host(p.phi)} mm)`);
+      const outside: string | null =
+        AutoMovieHumanSolidIntersection.beyond(input.part, c.rail.s) ?? AutoMovieHumanSolidIntersection.beyond(input.host, c.rail.host[0]);
+      if (outside !== null) return fail("inside the layers", `the rails at phi ${p.phi}: ${outside}`);
       columns.push(c);
     }
 
