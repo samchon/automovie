@@ -188,7 +188,7 @@ export namespace AutoMovieHumanTrunkSolver {
       ctx.shoulderY,
       st.shoulderZ,
     ];
-    const glenohumeral: [number, number, number] = AutoMovieHumanTrunkLandmarks.glenohumeral(shoulder, inputs.upperArm);
+    const glenohumeral: [number, number, number] = AutoMovieHumanTrunkLandmarks.glenohumeral(shoulder, inputs.biacromial);
     const line: IAutoMovieHumanShoulderOutline = AutoMovieHumanShoulderLine.create(
       { y: ctx.shoulderY, z: st.shoulderZ },
       ctx.seat.lateral,
