@@ -39,4 +39,10 @@ export interface IAutoMovieHumanHandFinger {
 
   /** The windows of its narrow reliefs along the line, which its stations resolve. */
   windows: readonly AutoMovieHumanDigitProfile.IWindow[];
+
+  /**
+   * Its nail plate along the line: the root and free edge lengths, the
+   * plate's width, and the unit dorsal direction at the root, left frame.
+   */
+  nail: { root: number; edge: number; width: number; dorsal: Vec3 };
 }

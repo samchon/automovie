@@ -1,6 +1,7 @@
 import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
 import { AutoMovieHumanSeamStation } from "../../lofting/AutoMovieHumanSeamStation";
 import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootReflection } from "./AutoMovieHumanFootReflection";
@@ -56,6 +57,27 @@ export namespace AutoMovieHumanFootToeChain {
     );
 
     return AutoMovieHumanSeamStation.continuous({ name, basis: "spline", order: t.order, samples: t.order, rule: "polar", layers });
+  }
+
+  /**
+   * A toe's nail plate on its chain: the chain's station is the length back
+   * from the cap, and the plate lies on the section's dorsal side, its `up`.
+   *
+   * @param t The toe's span.
+   * @param name The toe chain's name for the side.
+   * @param sign 1 for the left side, -1 for the right.
+   */
+  export function nail(t: AutoMovieHumanFootToeSpan.IToe, name: string, sign: 1 | -1): IAutoMovieHumanBodyCalibration.INail {
+    const lateral: Vec3 = G.unit(G.sub(t.lateral, G.scale(t.tangent, G.dot(t.lateral, t.tangent))));
+    const dorsal: Vec3 = G.cross(t.tangent, lateral);
+    const up: Vec3 = dorsal[1] >= 0 ? dorsal : G.scale(dorsal, -1);
+    return {
+      chain: name,
+      root: t.cap - t.nail.root,
+      edge: Math.max(0, t.cap - t.nail.edge),
+      width: t.nail.width,
+      dorsal: G.sided(up, sign),
+    };
   }
 }
 

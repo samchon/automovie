@@ -5,7 +5,9 @@ import type {
   IAutoMovieTextureReference,
 } from "@automovie/interface";
 
+import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanSkinAppearance } from "../structures/appearance/IAutoMovieHumanSkinAppearance";
 import { AutoMovieHumanNail } from "./AutoMovieHumanNail";
@@ -84,6 +86,12 @@ export namespace AutoMovieHumanSkin {
 
     /** Millimetre-to-model factor including the stature scale. */
     scale: number;
+
+    /** The calibration's chains in mm, which the nail plates lie on. */
+    chains: readonly IAutoMovieHumanLoftChain[];
+
+    /** The nail plates' windows on their digit chains. */
+    nails: readonly IAutoMovieHumanBodyCalibration.INail[];
   }
 
   /** Dressed skin. */
@@ -309,7 +317,8 @@ export namespace AutoMovieHumanSkin {
     }
 
     const nails: AutoMovieHumanNail.IOutput = AutoMovieHumanNail.generate(
-      pieces,
+      props.chains,
+      props.nails,
       props.scale,
       albedo,
     );

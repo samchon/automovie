@@ -139,15 +139,38 @@ export namespace AutoMovieHumanDigitProfile {
    * @param input The digit's base and loci.
    */
   function plateOf(input: IInput): AutoMovieHumanNailPlate.ISize {
+    return AutoMovieHumanNailPlate.size(plateInput(input));
+  }
+
+  /**
+   * The nail plate's window along the line: its root, its free edge at the
+   * cap's start, and its width, the window the skin's nail part takes on the
+   * digit's chain.
+   *
+   * @param input The digit's base and loci.
+   */
+  export function nail(input: IInput): { root: number; edge: number; width: number } {
+    const plate: AutoMovieHumanNailPlate.ISize = plateOf(input);
+
+    return { root: input.cap - plate.length, edge: input.cap, width: plate.width };
+  }
+
+  /**
+   * The plate's inputs in its own chart: only the distal phalanx's length and
+   * the section's width at the root are read.
+   *
+   * @param input The digit's base and loci.
+   */
+  function plateInput(input: IInput): AutoMovieHumanNailPlate.IInput {
     const distal: number = input.length - input.joints[1];
 
-    return AutoMovieHumanNailPlate.size({
+    return {
       origin: [0, 0, 0],
       along: [1, 0, 0],
       normal: [0, 0, 1],
       phalanx: distal,
       width: 2 * input.base(input.cap - AutoMovieHumanNailPlate.LENGTH_SHARE * distal)[0],
-    });
+    };
   }
 
   /**

@@ -88,6 +88,10 @@ export namespace AutoMovieHumanFootConstruction {
         ...calibration.poles,
         ...feet.flatMap((f: IFoot): IAutoMovieHumanBodyCalibration.IPole[] => f.poles),
       ],
+      nails: [
+        ...(calibration.nails ?? []),
+        ...feet.flatMap((f: IFoot): IAutoMovieHumanBodyCalibration.INail[] => f.nails),
+      ],
     };
   }
 
@@ -134,6 +138,7 @@ export namespace AutoMovieHumanFootConstruction {
     chains: IAutoMovieHumanLoftChain[];
     events: IAutoMovieHumanBodyCalibration.IEvent[];
     poles: IAutoMovieHumanBodyCalibration.IPole[];
+    nails: IAutoMovieHumanBodyCalibration.INail[];
   }
 
   /**
@@ -195,6 +200,7 @@ export namespace AutoMovieHumanFootConstruction {
           point: G.sided(t.pole, sign),
         }),
       ),
+      nails: toes.map((t: AutoMovieHumanFootToeSpan.IToe): IAutoMovieHumanBodyCalibration.INail => AutoMovieHumanFootToeChain.nail(t, name(t.name), sign)),
     };
   }
 }

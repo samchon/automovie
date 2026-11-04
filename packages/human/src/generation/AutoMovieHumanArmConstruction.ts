@@ -160,6 +160,9 @@ export namespace AutoMovieHumanArmConstruction {
     /** The digits' poles. */
     poles: IAutoMovieHumanBodyCalibration.IPole[];
 
+    /** The digits' nail plates. */
+    nails: IAutoMovieHumanBodyCalibration.INail[];
+
     /** The bone landmarks. */
     bones: IBones;
   }
@@ -186,6 +189,7 @@ export namespace AutoMovieHumanArmConstruction {
       chains: [...calibration.chains, ...limbs.flatMap((l: ILimb): IAutoMovieHumanLoftChain[] => l.chains)],
       events: [...calibration.events, ...events()],
       poles: [...calibration.poles, ...limbs.flatMap((l: ILimb): IAutoMovieHumanBodyCalibration.IPole[] => l.poles)],
+      nails: [...(calibration.nails ?? []), ...limbs.flatMap((l: ILimb): IAutoMovieHumanBodyCalibration.INail[] => l.nails)],
     };
   }
 
@@ -306,11 +310,12 @@ export namespace AutoMovieHumanArmConstruction {
       thumb: built.thumb,
       digits: built.lines,
     };
-    if (!lofted) return { chains: [], poles: [], bones: landmarks };
+    if (!lofted) return { chains: [], poles: [], nails: [], bones: landmarks };
 
     return {
       chains: [AutoMovieHumanArmLayers.of(built.law, side, sign), ...built.digits.slice(0, 1), built.palm!, ...built.digits.slice(1)],
       poles: built.poles,
+      nails: built.nails,
       bones: landmarks,
     };
   }

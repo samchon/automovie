@@ -92,8 +92,35 @@ export interface IAutoMovieHumanBodyCalibration {
    * calibration whose trunk is not generated.
    */
   trunk?: IAutoMovieHumanTrunkLandmarks;
+
+  /**
+   * The nail plates, one per digit chain: a window of the digit chain's own
+   * surface from the plate's root to its free edge, as wide as the plate
+   * (`AutoMovieHumanNailPlate`). The skin's nail parts are that window of the
+   * chain lifted by the plate's thickness. Absent on a calibration without
+   * digits.
+   */
+  nails?: IAutoMovieHumanBodyCalibration.INail[];
 }
 export namespace IAutoMovieHumanBodyCalibration {
+  /** A nail plate's window on its digit chain. */
+  export interface INail {
+    /** Digit chain the plate lies on, e.g. `finger.left.index`. */
+    chain: string;
+
+    /** Chain station of the plate's root (the cuticle), mm. */
+    root: number;
+
+    /** Chain station of the plate's free edge, mm. */
+    edge: number;
+
+    /** Width of the plate edge to edge, mm. */
+    width: number;
+
+    /** Unit dorsal direction at the root: the side of the chain the plate lies on. */
+    dorsal: [number, number, number];
+  }
+
   /** Head landmarks on the skin, `[x, y, z]` calibration millimetres. */
   export interface IHeadLandmarks {
     /** Vertex, the crown's highest point on the midline. */

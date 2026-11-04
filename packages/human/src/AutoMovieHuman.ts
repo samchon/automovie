@@ -132,7 +132,7 @@ interface IConstructed {
   /**
    * Contracts optional pieces broke while the figure was made, each piece
    * replaced by its base: the shape's (mouth, body pieces) and the
-   * appearance's (hair, brows, lashes, garments). Empty for a sound figure.
+   * appearance's (hair, brows, lashes). Empty for a sound figure.
    */
   diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
 }
@@ -185,6 +185,8 @@ function construct(params: IAutoMovieHumanParameters): IConstructed {
           apertures: calibration.apertures,
           stature: calibration.stature,
           scale,
+          chains: calibration.chains,
+          nails: calibration.nails ?? [],
         });
   dressings.unshift({ key: dressing, output: dressed });
   dressings.length = Math.min(dressings.length, AutoMovieHumanShapeStages.KEPT);

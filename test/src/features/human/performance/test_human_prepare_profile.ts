@@ -196,7 +196,7 @@ function run(params: IAutoMovieHumanParameters): { stages: IStage[]; tally: stri
 
   // AutoMovieHuman construct
   const dressed: AutoMovieHumanSkin.IOutput = timed("skin dressing", (): AutoMovieHumanSkin.IOutput =>
-    AutoMovieHumanSkin.generate({ vermilion, params, pieces: skin, eyes: calibration.eyes, apertures: calibration.apertures, stature: calibration.stature, scale }),
+    AutoMovieHumanSkin.generate({ vermilion, params, pieces: skin, eyes: calibration.eyes, apertures: calibration.apertures, stature: calibration.stature, scale, chains: calibration.chains, nails: calibration.nails ?? [] }),
   );
   const body: IAutoMovieModelPart[] = [...dressed.parts, ...(interior?.parts ?? []), ...construction];
   const eye: (side: "left" | "right") => IAutoMovieHumanAppearanceBody.IEye = (side: "left" | "right"): IAutoMovieHumanAppearanceBody.IEye => {
@@ -337,7 +337,7 @@ function report(name: string, stages: IStage[], profile: IProfile, coverage: ISc
  * The bound meshes by family (the first three segments of the part id), with
  * their parts, vertices, distinct vertex places and triangles, and whether
  * the binding reads each vertex's place or rides one bone; then the digit
- * chains' triangles, which every nail ray tests in turn.
+ * chains' triangles.
  */
 function meshes(parts: IAutoMovieModelPart[]): string[] {
   const families: Map<string, [number, number, number, number, boolean]> = new Map<string, [number, number, number, number, boolean]>();

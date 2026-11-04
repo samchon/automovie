@@ -6,6 +6,7 @@ import { AutoMovieHumanFootToeBreadth } from "./AutoMovieHumanFootToeBreadth";
 import { AutoMovieHumanFootToeCap } from "./AutoMovieHumanFootToeCap";
 import type { AutoMovieHumanFootToeLines } from "./AutoMovieHumanFootToeLines";
 import { AutoMovieHumanHandWindow } from "../hand/AutoMovieHumanHandWindow";
+import { AutoMovieHumanNailPlate } from "../hand/AutoMovieHumanNailPlate";
 import { AutoMovieHumanFootToeRoot } from "./AutoMovieHumanFootToeRoot";
 import { AutoMovieHumanFootToeShaft } from "./AutoMovieHumanFootToeShaft";
 import { AutoMovieHumanFootToeTaper } from "./AutoMovieHumanFootToeTaper";
@@ -63,6 +64,9 @@ export namespace AutoMovieHumanFootToeSpan {
 
     /** The foot's lateral direction. */
     lateral: Vec3;
+
+    /** Its nail plate along the line: root and free edge lengths, and width, mm. */
+    nail: { root: number; edge: number; width: number };
   }
 
   /** A toe's span. */
@@ -111,6 +115,16 @@ export namespace AutoMovieHumanFootToeSpan {
       cap,
     );
 
+    // The nail plate on the distal phalanx, from the joint to the apex: the
+    // fingers' plate law (`AutoMovieHumanNailPlate`), its free edge at the cap.
+    const plate: AutoMovieHumanNailPlate.ISize = AutoMovieHumanNailPlate.size({
+      origin: [0, 0, 0],
+      along: [1, 0, 0],
+      normal: [0, 0, 1],
+      phalanx: breadth.length - joint,
+      width: 2 * size(cap - AutoMovieHumanNailPlate.LENGTH_SHARE * (breadth.length - joint))[0],
+    });
+
     return {
       name: t.name,
       order: t.order,
@@ -122,6 +136,7 @@ export namespace AutoMovieHumanFootToeSpan {
       cap,
       pole: breadth.tip,
       lateral: input.frame.lateral,
+      nail: { root: cap - plate.length, edge: cap, width: plate.width },
     };
   }
 }

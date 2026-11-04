@@ -1,25 +1,29 @@
+import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
+import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanNailClosure } from "./AutoMovieHumanNailClosure";
-import type { AutoMovieHumanSkinChart } from "./AutoMovieHumanSkinChart";
 import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
-import type { IAutoMovieHumanNailFrame } from "./IAutoMovieHumanNailFrame";
 
-/** Closed nail plates sampled from the actual generated distal skin. */
+/**
+ * A closed nail plate on its digit chain's own surface.
+ *
+ * The plate is a window of the digit chain (`IAutoMovieHumanBodyCalibration.INail`):
+ * from the plate's root station to its free edge, and across it, at every
+ * station, the stretch of the chain's ring whose offset from the ring's
+ * dorsal point along the plate's lateral axis is within half the plate's
+ * width. Each bed point is the chain evaluated at its station and at the
+ * phase that offset solves for on that ring; the top is the bed lifted by
+ * the plate's thickness along the chain's own normal. Nothing is read from
+ * the skin's triangles.
+ *
+ * The grid follows the cuticle arc, the lateral folds and the rounded free
+ * edge of the nail image's outline, and the plate's thickness fades to zero
+ * over a seating band at the cuticle and the lateral folds, where the plate
+ * enters the skin; only the free edge keeps its thickness. Thickness,
+ * outline and band are conventions, not measurements.
+ */
 export namespace AutoMovieHumanNailPlate {
-  /** Point or direction in mm. */
-  type Vec3 = AutoMovieHumanSkinVector.Vec3;
-
-  /** Vector arithmetic. */
-  const V: typeof AutoMovieHumanSkinVector = AutoMovieHumanSkinVector;
-
-  /** Plate height above the skin in mm. */
-  const THICKNESS: number = 0.45;
-
-  /** Grid of one plate: samples along the digit and around it. */
-  const ALONG: number = 14;
-
-  /** Samples around the digit. */
-  const AROUND: number = 11;
-
   /** Plate mesh in mm. */
   export interface IOutput {
     /** Flat positions in mm. */
@@ -35,328 +39,163 @@ export namespace AutoMovieHumanNailPlate {
     indices: number[];
   }
 
+  /** Plate height above the skin in mm: a convention. */
+  const THICKNESS: number = 0.45;
+
+  /** Width of the seating band at the cuticle and the lateral folds, mm: a convention. */
+  const SEATING: number = 0.8;
+
+  /** Rows of one plate, cuticle to free edge. */
+  const ALONG: number = 14;
+
+  /** Columns of one plate, edge to edge. */
+  const AROUND: number = 11;
+
+  /** Station and phase step of the surface's numerical derivatives. */
+  const STEP: number = 1e-3;
+
   /**
-   * Plate of one nail: rays from the digit axis meet its triangles.
+   * One nail's plate on its digit chain.
    *
-   * @param list The digit chain's pieces
-   * @param digit The digit's frame
-   * @param kind Finger, thumb or toe
-   * @returns The plate mesh
+   * @param chain The digit chain, calibration mm.
+   * @param nail The plate's window on it.
+   * @returns The closed plate mesh in mm.
    */
-  export function generate(
-    list: readonly AutoMovieHumanSkinChart.IOutput[],
-    digit: IAutoMovieHumanNailFrame,
-    kind: "finger" | "thumb" | "toe",
-  ): IOutput {
-    const toe: boolean = kind === "toe";
-    const r: number = digit.radius;
-    const distal: number = digit.tip - (toe ? 0.45 : 0.35) * r;
-    const length: number = (toe ? 1.25 : 1.6) * r;
-    const halfAngle: number = toe ? 0.68 : 0.7;
-    const side: Vec3 = V.cross(digit.axis, digit.dorsal);
+  export function generate(chain: IAutoMovieHumanLoftChain, nail: IAutoMovieHumanBodyCalibration.INail): IOutput {
     const out: IOutput = { positions: [], normals: [], uvs: [], indices: [] };
-
-    // A straight local axis fitted through the section centroids of the
-    // rows, so the plate does not jump where a window gains or loses vertices.
-    const stations: number[] = [];
-    const centres: Vec3[] = [];
-    for (let i: number = 0; i < ALONG; ++i) {
-      stations.push(distal - length * (1 - i / (ALONG - 1)));
-      centres.push(section(list, digit, stations[i]!));
-    }
-    const line: (station: number) => Vec3 = fitLine(stations, centres);
-
-    // Per row: ray hits around the nail, a quadratic across the nail through
-    // the trusted hits (within 35 percent of the row median), then the whole
-    // row pushed out by its largest positive residual so the smooth plate
-    // never dips under a facet.
-    const grid: Vec3[] = [];
-    const directions: Vec3[] = [];
+    const length: number = Math.abs(nail.root - nail.edge);
     const bed: number[] = [];
-    const bedNormals: number[] = [];
-    const coordinates: number[] = [];
-    for (let i: number = 0; i < ALONG; ++i) {
-      const ts: number[] = [];
-      const ds: number[] = [];
-      const rowDirections: Vec3[] = [];
+    const bedNormals: Vec3[] = [];
+    const coordinates: [number, number][] = [];
+    for (let i: number = 0; i < ALONG; ++i)
       for (let j: number = 0; j < AROUND; ++j) {
-        // The geometric boundary is the image's actual nail outline. Its
-        // cuticle and free-edge arcs are not an alpha cut through a detached
-        // rectangular sheet, so the physical side wall has the same boundary.
+        // The image's outline: the cuticle arc, the lateral folds and the
+        // rounded free edge, in the plate's own coordinates.
         const t: number = 0.88 * (-1 + (2 * j) / (AROUND - 1));
         const proximal: number = 0.04 + 0.2 * t * t;
         const free: number = 0.99 - 0.16 * Math.abs(t) ** 2.5;
         const v: number = proximal + ((free - proximal) * i) / (ALONG - 1);
-        const origin: Vec3 = line(distal - length * (1 - v));
-        const phi: number = t * halfAngle;
-        const direction: Vec3 = V.add(
-          V.scale(digit.dorsal, Math.cos(phi)),
-          V.scale(side, Math.sin(phi)),
-        );
-        const hit: [Vec3, Vec3] | null = cast(list, origin, direction);
-        if (hit === null)
-          throw new Error("Nail outline lacks generated digit skin");
-        bed.push(...hit[0]);
-        bedNormals.push(...hit[1]);
-        coordinates.push((t + 1) / 2, v);
-        rowDirections.push(direction);
-        ts.push(t);
-        ds.push(V.norm(V.sub(hit[0], origin)));
+        const station: number = nail.root + v * (nail.edge - nail.root);
+        const phase: number = across(chain, station, nail.dorsal, (t * nail.width) / 2);
+        const p: Vec3 = point(chain, station, phase);
+        bed.push(...p);
+        bedNormals.push(outward(chain, station, phase, nail.dorsal));
+        coordinates.push([(t + 1) / 2, v]);
       }
-      const known: number[] = ds
-        .filter((d: number): boolean => !Number.isNaN(d))
-        .sort((a: number, b: number): number => a - b);
-      const median: number =
-        known.length === 0 ? r : known[Math.floor(known.length / 2)]!;
-      const trusted: boolean[] = ds.map(
-        (d: number): boolean =>
-          !Number.isNaN(d) && Math.abs(d - median) <= 0.35 * median,
-      );
-      const fit: (t: number) => number = fitQuadratic(ts, ds, trusted, median);
-      let lift: number = 0;
-      ds.forEach((d: number, j: number): void => {
-        if (trusted[j]) lift = Math.max(lift, d - fit(ts[j]!));
-      });
-      for (let j: number = 0; j < AROUND; ++j) {
-        const v: number = coordinates[2 * (i * AROUND + j) + 1]!;
-        const origin: Vec3 = line(distal - length * (1 - v));
-        // A plate enters the proximal and lateral skin folds instead of
-        // exposing a vertical box wall around its entire perimeter. The
-        // physical 0.8 mm seating band has zero thickness and zero thickness
-        // derivative at those three contact edges. Only the distal edge
-        // retains a free plate thickness; these are shared anatomical
-        // conventions, independent of a person's identity.
-        const proximalDistance: number = (i / (ALONG - 1)) * length;
-        const lateralDistance: number =
-          (Math.min(j, AROUND - 1 - j) * (1.76 * halfAngle * r)) / (AROUND - 1);
-        const seating: number = V.smooth(
-          Math.min(proximalDistance, lateralDistance) / 0.8,
-        );
-        const depth: number =
-          ds[j]! + seating * (fit(ts[j]!) + lift + THICKNESS - ds[j]!);
-        grid.push(V.add(origin, V.scale(rowDirections[j]!, depth)));
-        directions.push(rowDirections[j]!);
-      }
-    }
 
-    // Normals of the smooth plate, outward along the rays.
+    // The top: the bed lifted along its normal, the lift fading to zero over
+    // the seating band at the cuticle and the lateral folds.
     for (let i: number = 0; i < ALONG; ++i)
       for (let j: number = 0; j < AROUND; ++j) {
-        const at: (a: number, b: number) => Vec3 = (
-          a: number,
-          b: number,
-        ): Vec3 =>
-          grid[
-            Math.min(ALONG - 1, Math.max(0, a)) * AROUND +
-              Math.min(AROUND - 1, Math.max(0, b))
-          ]!;
-        const along: Vec3 = V.sub(at(i + 1, j), at(i - 1, j));
-        const around: Vec3 = V.sub(at(i, j + 1), at(i, j - 1));
-        let normal: Vec3 = V.normalize(V.cross(along, around));
-        if (V.dot(normal, directions[i * AROUND + j]!) < 0)
-          normal = V.scale(normal, -1);
-        if (i === 0 || j === 0 || j === AROUND - 1)
-          normal = V.at(bedNormals, i * AROUND + j);
-        out.positions.push(...grid[i * AROUND + j]!);
-        out.normals.push(...normal);
-        out.uvs.push(
-          coordinates[2 * (i * AROUND + j)]!,
-          coordinates[2 * (i * AROUND + j) + 1]!,
-        );
+        const k: number = i * AROUND + j;
+        const proximalDistance: number = (i / (ALONG - 1)) * length;
+        const lateralDistance: number = (Math.min(j, AROUND - 1 - j) * 0.88 * nail.width) / (AROUND - 1);
+        const seating: number = V.smooth(Math.min(proximalDistance, lateralDistance) / SEATING);
+        const n: Vec3 = bedNormals[k]!;
+        out.positions.push(...V.add(V.at(bed, k), V.scale(n, seating * THICKNESS)));
+        out.normals.push(...n);
+        out.uvs.push(...coordinates[k]!);
       }
 
-    // Counter-clockwise seen from outside: along the axis then around it
-    // turns inward, so each quad is wound around-then-along.
+    // Counter-clockwise seen from outside: a quad wound across, then along,
+    // faces along (across x along), which the surface's own derivatives at
+    // the plate's centre compare with its outward normal once.
+    const centre: number = Math.floor(ALONG / 2) * AROUND + Math.floor(AROUND / 2);
+    const acrossRate: Vec3 = V.sub(V.at(bed, centre + 1), V.at(bed, centre - 1));
+    const alongRate: Vec3 = V.sub(V.at(bed, centre + AROUND), V.at(bed, centre - AROUND));
+    const forward: boolean = V.dot(V.cross(acrossRate, alongRate), bedNormals[centre]!) >= 0;
     for (let i: number = 0; i + 1 < ALONG; ++i)
       for (let j: number = 0; j + 1 < AROUND; ++j) {
         const a: number = i * AROUND + j;
         const b: number = a + 1;
         const c: number = a + AROUND;
         const d: number = c + 1;
-        out.indices.push(a, b, c, c, b, d);
+        if (forward) out.indices.push(a, b, c, c, b, d);
+        else out.indices.push(a, c, b, c, d, b);
       }
     AutoMovieHumanNailClosure.append(out, bed, ALONG, AROUND);
     return out;
   }
 
   /**
-   * Least-squares line through points given at stations.
-   *
-   * @param stations Stations in mm
-   * @param points Points at the stations
-   * @returns Point on the fitted line at a station
+   * The phase of the chain's ring at a station whose point stands `offset`
+   * from the ring's dorsal point along the plate's lateral axis, on the
+   * dorsal half: bracketed between the dorsal phase and a quarter turn to
+   * the side the offset's sign names, then closed by the Illinois rule.
    */
-  function fitLine(
-    stations: readonly number[],
-    points: readonly Vec3[],
-  ): (station: number) => Vec3 {
-    const n: number = stations.length;
-    const ms: number =
-      stations.reduce((a: number, b: number): number => a + b, 0) / n;
-    const mp: Vec3 = V.scale(
-      points.reduce((a: Vec3, b: Vec3): Vec3 => V.add(a, b), [0, 0, 0]),
-      1 / n,
-    );
-    let ss: number = 0;
-    let slope: Vec3 = [0, 0, 0];
-    stations.forEach((s: number, i: number): void => {
-      ss += (s - ms) ** 2;
-      slope = V.add(slope, V.scale(V.sub(points[i]!, mp), s - ms));
-    });
-    const b: Vec3 = ss > 0 ? V.scale(slope, 1 / ss) : [0, 0, 0];
-    return (station: number): Vec3 => V.add(mp, V.scale(b, station - ms));
-  }
+  function across(chain: IAutoMovieHumanLoftChain, station: number, dorsal: Vec3, offset: number): number {
+    const sample: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(chain, station);
+    const frame: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(chain, station);
+    const centre: Vec3 = AutoMovieHumanLoftChain.axis(chain, station);
+    const axisNormal: Vec3 = V.normalize(V.cross(frame.v, frame.u));
+    const up: Vec3 = V.normalize(V.sub(dorsal, V.scale(axisNormal, V.dot(dorsal, axisNormal))));
+    const lateral: Vec3 = V.normalize(V.cross(axisNormal, up));
 
-  /**
-   * Least-squares quadratic through the trusted samples of a row; with fewer
-   * than three, a constant.
-   *
-   * @param ts Sample positions across the nail in `[-1, 1]`
-   * @param ds Sample distances, NaN where missing
-   * @param trusted Which samples to fit
-   * @param fallback Constant used without trusted samples
-   * @returns Fitted distance at a position
-   */
-  function fitQuadratic(
-    ts: readonly number[],
-    ds: readonly number[],
-    trusted: readonly boolean[],
-    fallback: number,
-  ): (t: number) => number {
-    // Normal equations of d = c0 + c1 t + c2 t^2.
-    const m: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-    const y: number[] = [0, 0, 0];
-    let count: number = 0;
-    ts.forEach((t: number, j: number): void => {
-      if (!trusted[j]) return;
-      const basis: number[] = [1, t, t * t];
-      for (let a: number = 0; a < 3; ++a) {
-        y[a]! += basis[a]! * ds[j]!;
-        for (let b: number = 0; b < 3; ++b)
-          m[a * 3 + b]! += basis[a]! * basis[b]!;
+    // The polar rule's phase is the angle about the axis in the frame.
+    const start: number = phaseToward(sample, centre, up, Math.atan2(V.dot(up, frame.v), V.dot(up, frame.u)));
+    if (offset === 0) return start;
+    const apex: Vec3 = sample(start);
+    const g: (t: number) => number = (t: number): number => V.dot(V.sub(sample(t), apex), lateral) - offset;
+    let a: number = start;
+    let b: number = start + Math.PI / 2;
+    if (Math.sign(g(b)) === Math.sign(g(a))) b = start - Math.PI / 2;
+    let ga: number = g(a);
+    let gb: number = g(b);
+    let side: number = 0;
+    for (let k: number = 0; k < 60 && Math.abs(b - a) > 1e-9; k++) {
+      const c: number = (a * gb - b * ga) / (gb - ga);
+      const gc: number = g(c);
+      if (Math.abs(gc) < 1e-6) return c;
+      if (Math.sign(gc) === Math.sign(gb)) {
+        b = c;
+        gb = gc;
+        if (side === -1) ga /= 2;
+        side = -1;
+      } else {
+        a = c;
+        ga = gc;
+        if (side === 1) gb /= 2;
+        side = 1;
       }
-      count += 1;
-    });
-    if (count < 3) {
-      const mean: number = count === 0 ? fallback : y[0]! / m[0]!;
-      return (): number => mean;
     }
-    const c: number[] = solve3(m, y);
-    return (t: number): number => c[0]! + c[1]! * t + c[2]! * t * t;
+    return (a + b) / 2;
   }
 
   /**
-   * Solve a 3 by 3 linear system by Cramer's rule.
-   *
-   * @param m Row-major matrix
-   * @param y Right-hand side
-   * @returns Solution
+   * The phase near `guess` whose point lies farthest along `up` from the
+   * axis: the ring's dorsal point, by Newton's rule on the height's phase
+   * derivative from the polar guess.
    */
-  function solve3(m: readonly number[], y: readonly number[]): number[] {
-    const det: (a: readonly number[]) => number = (
-      a: readonly number[],
-    ): number =>
-      a[0]! * (a[4]! * a[8]! - a[5]! * a[7]!) -
-      a[1]! * (a[3]! * a[8]! - a[5]! * a[6]!) +
-      a[2]! * (a[3]! * a[7]! - a[4]! * a[6]!);
-    const d: number = det(m);
-    return [0, 1, 2].map((k: number): number => {
-      const a: number[] = [...m];
-      for (let r: number = 0; r < 3; ++r) a[r * 3 + k] = y[r]!;
-      return Math.abs(d) < 1e-12
-        ? k === 0
-          ? y[0]! / Math.max(1, m[0]!)
-          : 0
-        : det(a) / d;
-    });
-  }
-
-  /**
-   * Centroid of the digit's cross-section at a station: the mean of its
-   * vertices within a third of a radius (at least 1.2 mm) of the station,
-   * widening the window until some are found. Rays start there rather than on
-   * the straight axis, which leaves a curled toe or a bent fingertip.
-   *
-   * @param list The digit chain's pieces
-   * @param digit The digit's frame
-   * @param station Station along the axis in mm
-   * @returns Section centroid
-   */
-  function section(
-    list: readonly AutoMovieHumanSkinChart.IOutput[],
-    digit: IAutoMovieHumanNailFrame,
-    station: number,
-  ): Vec3 {
-    for (
-      let window: number = Math.max(1.2, digit.radius / 3);
-      window < 4 * digit.radius;
-      window *= 2
-    ) {
-      const sum: Vec3 = [0, 0, 0];
-      let count: number = 0;
-      for (const piece of list)
-        for (let i: number = 0; i < piece.positions.length / 3; ++i) {
-          const p: Vec3 = V.at(piece.positions, i);
-          const s: number = V.dot(V.sub(p, digit.origin), digit.axis);
-          if (Math.abs(s - station) > window) continue;
-          sum[0] += p[0];
-          sum[1] += p[1];
-          sum[2] += p[2];
-          count += 1;
-        }
-      if (count >= 3) return V.scale(sum, 1 / count);
+  function phaseToward(sample: (t: number) => Vec3, centre: Vec3, up: Vec3, guess: number): number {
+    const height: (t: number) => number = (t: number): number => V.dot(V.sub(sample(t), centre), up);
+    let t: number = guess;
+    for (let k: number = 0; k < 20; k++) {
+      const d1: number = (height(t + STEP) - height(t - STEP)) / (2 * STEP);
+      const d2: number = (height(t + STEP) - 2 * height(t) + height(t - STEP)) / (STEP * STEP);
+      if (!(d2 < 0)) break;
+      const step: number = -d1 / d2;
+      t += Math.max(-0.2, Math.min(0.2, step));
+      if (Math.abs(step) < 1e-9) break;
     }
-    return V.add(digit.origin, V.scale(digit.axis, station));
+    return t;
   }
 
-  /**
-   * Nearest forward intersection of a ray with some pieces' triangles
-   * (Moller-Trumbore), with the barycentric interpolation of the vertex
-   * normals there.
-   *
-   * @param list Pieces in mm
-   * @param origin Ray origin
-   * @param direction Unit ray direction
-   * @returns Hit point and unit normal, or null
-   */
-  function cast(
-    list: readonly AutoMovieHumanSkinChart.IOutput[],
-    origin: Vec3,
-    direction: Vec3,
-  ): [Vec3, Vec3] | null {
-    let best: number = Infinity;
-    let result: [Vec3, Vec3] | null = null;
-    for (const piece of list)
-      for (let t: number = 0; t < piece.indices.length; t += 3) {
-        const ia: number = piece.indices[t]!;
-        const ib: number = piece.indices[t + 1]!;
-        const ic: number = piece.indices[t + 2]!;
-        const a: Vec3 = V.at(piece.positions, ia);
-        const e1: Vec3 = V.sub(V.at(piece.positions, ib), a);
-        const e2: Vec3 = V.sub(V.at(piece.positions, ic), a);
-        const p: Vec3 = V.cross(direction, e2);
-        const det: number = V.dot(e1, p);
-        if (Math.abs(det) < 1e-12) continue;
-        const q: Vec3 = V.sub(origin, a);
-        const u: number = V.dot(q, p) / det;
-        if (u < 0 || u > 1) continue;
-        const w: Vec3 = V.cross(q, e1);
-        const v: number = V.dot(direction, w) / det;
-        if (v < 0 || u + v > 1) continue;
-        const distance: number = V.dot(e2, w) / det;
-        if (distance <= 0 || distance >= best) continue;
-        best = distance;
-        const n: Vec3 = V.normalize(
-          V.add(
-            V.scale(V.at(piece.normals, ia), 1 - u - v),
-            V.add(
-              V.scale(V.at(piece.normals, ib), u),
-              V.scale(V.at(piece.normals, ic), v),
-            ),
-          ),
-        );
-        result = [V.add(origin, V.scale(direction, distance)), n];
-      }
-    return result;
+  /** The chain's point at a station and phase. */
+  function point(chain: IAutoMovieHumanLoftChain, station: number, phase: number): Vec3 {
+    return AutoMovieHumanLoftChain.ring(chain, station, [phase])[0]! as Vec3;
+  }
+
+  /** The chain's unit normal at a station and phase, turned to the dorsal side. */
+  function outward(chain: IAutoMovieHumanLoftChain, station: number, phase: number, dorsal: Vec3): Vec3 {
+    const ds: Vec3 = V.sub(point(chain, station + STEP, phase), point(chain, station - STEP, phase));
+    const dt: Vec3 = V.sub(point(chain, station, phase + STEP), point(chain, station, phase - STEP));
+    const n: Vec3 = V.normalize(V.cross(ds, dt));
+    return V.dot(n, dorsal) < 0 ? V.scale(n, -1) : n;
   }
 }
+
+/** Point or direction in mm. */
+type Vec3 = AutoMovieHumanSkinVector.Vec3;
+
+/** Vector arithmetic. */
+const V: typeof AutoMovieHumanSkinVector = AutoMovieHumanSkinVector;

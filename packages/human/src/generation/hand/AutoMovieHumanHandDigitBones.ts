@@ -144,6 +144,13 @@ export namespace AutoMovieHumanHandDigitBones {
       cap - 3,
       Math.max(rootAt, web + AutoMovieHumanSeamUnion.width((webShape.palmar + webShape.dorsal) / 2, webShape.width)),
     );
+    // The nail plate's window; its dorsal side is the section's -y
+    // (`AutoMovieHumanDigitSection`), the ring's -n.
+    const plate: { root: number; edge: number; width: number } = AutoMovieHumanDigitProfile.nail(profile);
+    const plateTangent: Vec3 = line.tangent(plate.root);
+    const plateNormal: Vec3 = cross(across(across_, plateTangent), plateTangent);
+    const plateLength: number = norm(plateNormal) || 1;
+    const dorsal: Vec3 = [-plateNormal[0] / plateLength, -plateNormal[1] / plateLength, -plateNormal[2] / plateLength];
     return {
       joints: joints.map((s: number): Vec3 => line.at(s)),
       points: line.points,
@@ -156,6 +163,7 @@ export namespace AutoMovieHumanHandDigitBones {
       pole,
       external: length,
       windows: AutoMovieHumanDigitProfile.windows(profile),
+      nail: { ...plate, dorsal },
     };
   }
 

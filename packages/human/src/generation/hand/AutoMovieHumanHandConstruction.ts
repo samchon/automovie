@@ -87,6 +87,9 @@ export namespace AutoMovieHumanHandConstruction {
 
     /** The digits' poles, thumb first; empty when not lofted. */
     poles: IAutoMovieHumanBodyCalibration.IPole[];
+
+    /** The digits' nail plates on their chains, thumb first; empty when not lofted. */
+    nails: IAutoMovieHumanBodyCalibration.INail[];
   }
 
   /** A digit's published centre line. */
@@ -161,7 +164,7 @@ export namespace AutoMovieHumanHandConstruction {
       cmc: AutoMovieHumanHandSide.sided(joints.cmc, sign),
       mcp: AutoMovieHumanHandSide.sided(joints.mcps[0]!, sign),
     };
-    if (!input.lofted) return { measures, law, joints, lines, thumb, palm: null, digits: [], poles: [] };
+    if (!input.lofted) return { measures, law, joints, lines, thumb, palm: null, digits: [], poles: [], nails: [] };
 
     // The chains, from the same bones, in the left frame reflected to the side.
     const map = (q: readonly [number, number, number]): Vec3 => AutoMovieHumanHandMap.handPoint(q, measures, law.wrist);
@@ -184,6 +187,18 @@ export namespace AutoMovieHumanHandConstruction {
           point: AutoMovieHumanHandSide.sided(fingers[i]!.pole, sign),
         }),
       ),
+      // A digit chain's station is the length back from its cap
+      // (`AutoMovieHumanHandDigitChain`), along the straight distal line.
+      nails: hand.digits.map((_: IAutoMovieHumanHandDigit, i: number): IAutoMovieHumanBodyCalibration.INail => {
+        const own: IAutoMovieHumanHandFinger = fingers[i]!;
+        return {
+          chain: prior.digits[i]!.name.replace("{side}", input.side),
+          root: own.cap - own.nail.root,
+          edge: Math.max(0, own.cap - own.nail.edge),
+          width: own.nail.width,
+          dorsal: AutoMovieHumanHandSide.sided(own.nail.dorsal, sign),
+        };
+      }),
     };
   }
 
