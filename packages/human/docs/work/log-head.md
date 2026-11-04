@@ -30,6 +30,11 @@ Nose pit, read from frames (21:33:31; `head.parts:nose` = head mass plus nose, o
 
 Winding (21:50:32, `7d6b6f8d0`): `test_construction_level_winding` (a sphere merged onto the top of a sphere) reads 86.6 % of the part's skin triangles facing out on a straight axis and 88.5 % on a level axis. About 13 % face inward on both, so the cause is in the merge's tessellation, not the level axis; it is the likely cause of the nose pit and of the whole figure blank under single-sided material. The performance worker's lead (`log-performance.md`, `01c497492`): `AutoMovieSolidMesh.face` takes one emit sign for the whole face, and the trimmed cells next to the rail loop (the bridge and zip to the blend) are where a local flip can come from. The test stays red until fixed. Moved to #3062, step 2.
 
+Winding fixes (22:23:16):
+- `0cc784ff4`: AutoMovieSolidMesh turned a closed band (blend, zip band, pole fan) as a whole by its largest triangle against the outward normal at one fixed point of the loop. On the loop's far side that turned it inward. The normal is now read over the tested triangle. test_construction_level_winding: level 88.5 % -> passes; straight 86.6 % -> 92.0 %.
+- `de625b57c`: a merged part's rail that does not wind round its phase was always a hole, so the part kept the outside of the region its rail encloses. That was the nose pit. It is now an island when a step from the rail along partAcross enters the region. The nose's ridge stands in the opening (nose4/merge-three.png); the blend round it still reads as a groove.
+- Open: the straight case's 8 % inward triangles (0 to 0.6 radii above the part's centre), so the test stays red; the nose blend's groove.
+
 Remaining, in order:
 
 1. **Eyes as parts of the head's tree** (owner, 21:0x: the eye is a module sharing the same logic as every other part). Design:
