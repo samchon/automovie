@@ -2,6 +2,16 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 head-length protocol support (2026-11-05 05:15:26 +09:00, Get-Date)
+
+HEAD asked for the existing primary head-length definition before adding an oracle. Directly read ANSUR handbook section 6.4.48/printed p. 124, the public HeadIdentity and FaceBase's additional-caliper section. The maximum is a glabella-fixed, vertically searched posterior midsagittal caliper distance, not an AP projection; FaceBase delegates finer manual details to an unread book and lists maximum cranial length separately from its 29 surface distances. The source note/audit preserve these scopes separately, without a new paper search or raw-data reading.
+
+The complete current HeadVault and relevant landmark return were then checked: reach already has a chosen g/op height correction, so HEAD withdrew its simplified reach=L/2 hypothesis before any shape/oracle save. A chosen chord and a maximum over posterior cranial candidates are different claims; the lower neck stretch is not part of that vault domain. The complete historical ear reader at 85c463a3 also confirms normalization by public head length, with AP span used for centre selection only. No new source value, modeler code, fixture or generation was made here. The FaceBase measure JSON was inaccessible through the web tool; no definition was inferred from that failed retrieval.
+
+The complete HeadBackProfile and glabella/occiput assignments were subsequently read. The named posterior point has dx/dy=0 at y=n while glabella has a nonzero height offset; the audit derives the resulting nonzero caliper-distance derivative under an interior-domain premise. This is a symbolic source condition, not a new observation or anatomy coefficient. HEAD and the supervisor received the entire protocol/consumer/derivative distinction together.
+
+At 05:23:32 +09:00 (Get-Date), completed the three-file diff review in bounded outputs and rechecked the actual public declaration, landmark assignments, full BackProfile and handbook protocol text. `git diff --check` was clean. This prose-only topic changes no executable source or numerical data; no generation or test was started for it.
+
 ## #3062 arm source-material use ended (2026-11-05 04:56:19 +09:00, Get-Date)
 
 After BODY explicitly confirmed its de Leva/Rab use ended and the supervisor's direct review was already complete, verified the nine absolute task-owned PDF/text/PNG paths and their ordinary file attributes, then removed them without Force. The remaining directory listing and both filename-prefix counts confirm their absence. No recursive removal or junction was involved. ANSUR/Ali/Patil material remains for the current neck/toe definitions; HEAD's SHIN plot was checked present and remains needed for its source-front comparison. No observer, generated figure, active run or another worker's scratch was touched.

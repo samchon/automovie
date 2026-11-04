@@ -38,6 +38,12 @@ Summary-level data are "non-controlled and open to all users" under the FaceBase
 
 Landmark definitions (FaceBase technical notes): nasion at the nasofrontal suture at the level of the upper lid creases; subnasale at the apex of the nasolabial angle; stomion on the labial fissure midline; gnathion where the chin contour turns downward; alar curvature point on the alar crease; crista philtri where the philtral columns meet the vermilion; tragion at the notch above the tragus.
 
+## Head-length protocol boundary, campaign #3062
+
+The official [Technical Notes](https://www.facebase.org/resources/human/facial_norms/notes/), Additional Anthropometric Measurements, was directly reopened. Maximum cranial length is one of five spreading-caliper measurements, distinct from the 29 Euclidean distances derived from 3D facial landmarks. The notes delegate the detailed manual method to Kolar and Salter (1997); that book has not been read here.
+
+The already retained [ANSUR handbook](https://tools.openlab.psu.edu/publicData/ANSURII-TR11-017.pdf), section 6.4.48, printed p. 124, was directly read as a separate primary protocol. It fixes one tip at glabella and moves the other vertically over the posterior head in the midsagittal plane to obtain the maximum caliper measurement. It does not fix opisthocranion at glabella's height or define an AP projection. This supports the distinction between a chosen g-op chord and the posterior-vault maximum, without proving every detail of FaceBase's delegated protocol identical. The candidate domain excludes the head mass's separate lower neck stretch; no new contour measurement or coefficient was adopted.
+
 ## Adult values, ages 20 to 40 pooled (derived from the published per-age means)
 
 Pooled with the exact formula N = Σn, M = Σ(n·m)/N, V = Σ((n-1)s² + n(m-M)²)/(N-1). Millimetres; paired left and right measures are averaged.
