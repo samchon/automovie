@@ -10,6 +10,12 @@ State. The figure's head is `AutoMovieHumanHeadTree`, realized with the body by 
 - `AutoMovieHumanBodyLaw` no longer publishes the old head's chains, events, poles or openings.
 - The old head assembly (`AutoMovieHumanHeadConstruction.apply`) still runs, only for today's body: the rig reads it through `legacy`, and the eye globes come from it.
 
+Update 21:14:16 (`7de9846ea`):
+- With the end bound the nose, both conchas and the mentolabial sulcus join on f1 (round6/c.png).
+- Still out: nose.lobule (trace lost), nose.ala.left (seed) and nose.ala.right (inside the layers), the helices (walk does not close), and orbit.left ("host rail's crossing between two faces could not be placed", for the kernel).
+- Performance A2: the old head's 0.5 mm ring refinement runs only on published openings, which the figure no longer publishes (`e7f7ef0dd`), so the 1.4 M-vertex head is gone from the figure.
+- The profile test's red line (`AutoMovieTextureBinding.asset`) is not the eye record and is not the head lane's.
+
 Remaining, in order:
 
 1. **Eyes as parts of the head's tree** (owner, 21:0x: the eye is a module sharing the same logic as every other part). Design:
