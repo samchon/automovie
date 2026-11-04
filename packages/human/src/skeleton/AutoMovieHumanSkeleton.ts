@@ -196,7 +196,7 @@ export namespace AutoMovieHumanSkeleton {
       (): AutoMovieHumanNeutral.ISource => ({
         rings: AutoMovieHumanBindingInputs.rings(
           calibration,
-          AutoMovieHumanNeutral.READS,
+          AutoMovieHumanNeutral.LEVEL,
         ),
         joints: bind,
       }),

@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * How the skeleton reads the chains it stands in: a chain's first and last
@@ -21,31 +20,31 @@ export namespace AutoMovieHumanSkeletonChain {
   export const RING: number = 512;
 
   /** First station of a chain. */
-  export function start(chain: IAutoMovieHumanLoftChain): number {
+  export function start(chain: IAutoMovieLoftChain): number {
     return chain.layers[0]!.y;
   }
 
   /** Last station of a chain. */
-  export function stop(chain: IAutoMovieHumanLoftChain): number {
+  export function stop(chain: IAutoMovieLoftChain): number {
     return chain.layers[chain.layers.length - 1]!.y;
   }
 
   /** Axis point at a station, clamped into the chain. */
-  export function axis(chain: IAutoMovieHumanLoftChain, s: number): Vec3 {
-    return AutoMovieHumanLoftChain.axis(
+  export function axis(chain: IAutoMovieLoftChain, s: number): Vec3 {
+    return AutoMovieLoftChain.axis(
       chain,
       Math.min(stop(chain), Math.max(start(chain), s)),
     );
   }
 
   /** Axis point at a chain end. */
-  export function end(chain: IAutoMovieHumanLoftChain, which: "top" | "bottom"): Vec3 {
+  export function end(chain: IAutoMovieLoftChain, which: "top" | "bottom"): Vec3 {
     return axis(chain, which === "top" ? stop(chain) : start(chain));
   }
 
   /** Girth radius, perimeter / 2pi, of the section at a station clamped into the chain. */
-  export function girth(chain: IAutoMovieHumanLoftChain, s: number): number {
-    const ring: Vec3[] = AutoMovieHumanLoftChain.ring(
+  export function girth(chain: IAutoMovieLoftChain, s: number): number {
+    const ring: Vec3[] = AutoMovieLoftChain.ring(
       chain,
       Math.min(stop(chain), Math.max(start(chain), s)),
       PHASES,

@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { HumanAnatomy } from "../HumanAnatomy";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanCurveRings } from "./HumanCurveRings";
@@ -41,9 +40,9 @@ export namespace HumanCurveCollapse {
   export const CHAINS: RegExp = /^(?!ear\.)/;
 
   /** The rings of one chain at every layer and between layers. */
-  export function stations(chain: IAutoMovieHumanLoftChain): number[] {
+  export function stations(chain: IAutoMovieLoftChain): number[] {
     const out: number[] = [];
-    const L: IAutoMovieHumanLoftChain.ILayer[] = chain.layers;
+    const L: IAutoMovieLoftChain.ILayer[] = chain.layers;
     for (let i: number = 0; i < L.length; i++) {
       out.push(L[i]!.y);
       if (i + 1 < L.length) out.push((L[i]!.y + L[i + 1]!.y) / 2);
@@ -58,12 +57,12 @@ export namespace HumanCurveCollapse {
   /** The ring rows of every chain of a body: one per chain, its least quotient and where. */
   export function rings(person: string, body: IAutoMovieHumanBodyCalibration): IRow[] {
     return body.chains
-      .filter((c: IAutoMovieHumanLoftChain): boolean => CHAINS.test(c.name))
-      .flatMap((c: IAutoMovieHumanLoftChain, order: number): IRow[] => [ring(person, c, order), boxed(person, body.stature, c, order)]);
+      .filter((c: IAutoMovieLoftChain): boolean => CHAINS.test(c.name))
+      .flatMap((c: IAutoMovieLoftChain, order: number): IRow[] => [ring(person, c, order), boxed(person, body.stature, c, order)]);
   }
 
   /** One chain's rings outside the person's standing box: a flung ring fails at the chain, before any skin is lofted. */
-  export function boxed(person: string, S: number, c: IAutoMovieHumanLoftChain, order: number): IRow {
+  export function boxed(person: string, S: number, c: IAutoMovieLoftChain, order: number): IRow {
     let outside: number = 0;
     let read: number = 0;
     let far: number = 0;
@@ -71,7 +70,7 @@ export namespace HumanCurveCollapse {
     for (const s of stations(c)) {
       read++;
       let worst: number = 0;
-      for (const p of AutoMovieHumanLoftChain.ring(c, s, HumanCurveRings.PHASES) as V3[])
+      for (const p of AutoMovieLoftChain.ring(c, s, HumanCurveRings.PHASES) as V3[])
         if (p.every(Number.isFinite)) worst = Math.max(worst, Math.abs(p[0]) - BOX * S, Math.abs(p[2]) - BOX * S, p[1] - (1 + FLOOR) * S, -p[1] - FLOOR * S);
       if (worst > 0) {
         outside++;
@@ -84,7 +83,7 @@ export namespace HumanCurveCollapse {
   }
 
   /** One chain's ring row: its least isoperimetric quotient, where, and how many rings fall under the floor. */
-  function ring(person: string, c: IAutoMovieHumanLoftChain, order: number): IRow {
+  function ring(person: string, c: IAutoMovieLoftChain, order: number): IRow {
     let least: number = Infinity;
     let at: number = NaN;
     let k: number = -1;
@@ -92,7 +91,7 @@ export namespace HumanCurveCollapse {
     let read: number = 0;
     const layers: number[] = [];
     for (const s of stations(c)) {
-      const points: V3[] = AutoMovieHumanLoftChain.ring(c, s, HumanCurveRings.PHASES) as V3[];
+      const points: V3[] = AutoMovieLoftChain.ring(c, s, HumanCurveRings.PHASES) as V3[];
       const q: number = points.every((p: V3): boolean => p.every(Number.isFinite)) ? quotient(points) : NaN;
       read++;
       if (!(q >= QUOTIENT)) {
@@ -130,10 +129,10 @@ export namespace HumanCurveCollapse {
       }
     }
     body.chains
-      .filter((c: IAutoMovieHumanLoftChain): boolean => CHAINS.test(c.name))
-      .forEach((c: IAutoMovieHumanLoftChain, order: number): void => {
+      .filter((c: IAutoMovieLoftChain): boolean => CHAINS.test(c.name))
+      .forEach((c: IAutoMovieLoftChain, order: number): void => {
         const own: Map<string, [V3, V3]> = new Map();
-        for (const s of stations(c)) for (const p of AutoMovieHumanLoftChain.ring(c, s, HumanCurveRings.PHASES) as V3[]) if (p.every(Number.isFinite)) grow(own, c.name, p);
+        for (const s of stations(c)) for (const p of AutoMovieLoftChain.ring(c, s, HumanCurveRings.PHASES) as V3[]) if (p.every(Number.isFinite)) grow(own, c.name, p);
         const ring: [V3, V3] | undefined = own.get(c.name);
         const mesh: [V3, V3] | undefined = boxes.get(c.name);
         for (let axis: number = 0; axis < 3; axis++) {
@@ -206,7 +205,7 @@ export namespace HumanCurveCollapse {
 }
 
 /** The layer interval holding a station. */
-function layerOf(chain: IAutoMovieHumanLoftChain, station: number): number {
+function layerOf(chain: IAutoMovieLoftChain, station: number): number {
   let k: number = 0;
   while (k + 1 < chain.layers.length && chain.layers[k + 1]!.y <= station) k++;
   return k;

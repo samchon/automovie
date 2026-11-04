@@ -1,4 +1,4 @@
-import type { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParameter";
+import type { AutoMovieLoftParameter } from "@automovie/engine";
 import { AutoMovieHumanHandPosture } from "./hand/AutoMovieHumanHandPosture";
 import type { IAutoMovieHumanHandFingerPosture } from "./hand/IAutoMovieHumanHandFingerPosture";
 import type { IAutoMovieHumanHandThumbPosture } from "./hand/IAutoMovieHumanHandThumbPosture";
@@ -31,7 +31,7 @@ export namespace AutoMovieHumanArmPrior {
     samples: number;
 
     /** Phase correspondence rule. */
-    rule: AutoMovieHumanLoftParameter.Rule;
+    rule: AutoMovieLoftParameter.Rule;
 
     /** Heights of the layers above the hand: 0 at the wrist, 1 at the shoulder. */
     heights: readonly number[];

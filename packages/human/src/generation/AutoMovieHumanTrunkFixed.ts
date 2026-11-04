@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
@@ -31,8 +31,8 @@ export namespace AutoMovieHumanTrunkFixed {
    */
   export function of(params: IAutoMovieHumanParameters): AutoMovieHumanTrunkSolver.IFixed {
     const body: IAutoMovieHumanBodyCalibration = AutoMovieHumanBodyLaw.calibrate(params).body;
-    const chain = (name: string): IAutoMovieHumanLoftChain => {
-      const found: IAutoMovieHumanLoftChain | undefined = body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === name);
+    const chain = (name: string): IAutoMovieLoftChain => {
+      const found: IAutoMovieLoftChain | undefined = body.chains.find((c: IAutoMovieLoftChain): boolean => c.name === name);
       if (found === undefined) throw new Error(`The body law gave no chain ${name}`);
       return found;
     };

@@ -1,4 +1,4 @@
-import type { AutoMovieHumanNaturalSpline } from "../../lofting/AutoMovieHumanNaturalSpline";
+import type { AutoMovieNaturalSpline } from "@automovie/engine";
 
 /**
  * A star read at any station: the natural splines, along the hand, of the
@@ -10,5 +10,5 @@ export interface IAutoMovieHumanHandStarField {
   stations: readonly number[];
 
   /** One natural spline per series column, over the stations. */
-  splines: AutoMovieHumanNaturalSpline.ISpline[];
+  splines: AutoMovieNaturalSpline.ISpline[];
 }

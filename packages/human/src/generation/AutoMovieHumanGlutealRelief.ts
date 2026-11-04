@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+import type { IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
 import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
 
@@ -28,7 +28,7 @@ export namespace AutoMovieHumanGlutealRelief {
    * @param input The dome, the base and the phase map.
    * @returns The left and the right window; none when the dome has no height.
    */
-  export function create(input: IInput): IAutoMovieHumanRelief[] {
+  export function create(input: IInput): IAutoMovieLoftRelief[] {
     const dome: IAutoMovieHumanTrunkFeature = input.dome;
     if (!(dome.height(dome.apex[0], dome.apex[1]) > 0)) return [];
     const o: [number, number, number] = dome.frame.origin;
@@ -43,7 +43,7 @@ export namespace AutoMovieHumanGlutealRelief {
       (o[1] - stations[0]) / (stations[1] - stations[0]),
       (input.phaseOf(lateralOf(dome.apex[0])) - phases[0]) / (phases[1] - phases[0]),
     ];
-    const left: IAutoMovieHumanRelief = AutoMovieHumanTrunkReliefNet.fromFeature(
+    const left: IAutoMovieLoftRelief = AutoMovieHumanTrunkReliefNet.fromFeature(
       "trunk.buttock.left",
       dome,
       { stations, phases, apex },

@@ -1,0 +1,309 @@
+import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
+import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
+import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
+import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
+import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
+
+/**
+ * A chain's surface point with its exact first and second derivatives in
+ * station and phase.
+ *
+ * A chain expanded with its jets (every layer carrying its plane, the
+ * plane's station derivatives and the coefficients' second derivatives)
+ * is, between two layers, `P(s, t) = o(s) + x(s, t) u(s) + z(s, t) v(s)`
+ * with every factor a quintic in station and the section a periodic cubic
+ * B-spline in phase (the redesign plan's section 2), plus a lift along
+ * `w = v x u` and its reliefs along their axes. Each derivative is then the
+ * product rule over those factors, each factor's derivative exact:
+ *
+ * ```text
+ * P_s  = o' + x_s u + x u' + z_s v + z v'
+ * P_ss = o'' + x_ss u + 2 x_s u' + x u'' + (the same in z, v)
+ * P_st = x_st u + x_t u' + z_st v + z_t v'
+ * P_t  = x_t u + z_t v,   P_tt = x_tt u + z_tt v
+ * ```
+ *
+ * The strips, the trims' and lids' cross derivatives and the shading
+ * normals read these instead of differences of sampled points.
+ *
+ * @evidence contracts/common.md#principled-implementation The chain's surface 2-jet is assembled from the station jets of coefficients, frame and lift by the product rule, so merge, diff and trim read exact first and second derivatives.
+ * @evidence contracts/common.md#clear-and-simple-design One jet record and one evaluation per station and phase; `carries` states when a chain has the jets it needs.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No derivative is a finite difference; a chain without its jets is refused by `carries`.
+ * @evidence contracts/common.md#meaningful-documentation States each jet component and the terms of its product rule.
+ * @evidence contracts/performance.md#efficient-algorithms Constant work per point beyond the section's span evaluation.
+ * @evidence contracts/performance.md#reuse-equivalent-work A recent-station cache reuses a station's interval readings across phases.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The cache holds a fixed number of stations.
+ */
+export namespace AutoMovieLoftJet {
+  /** Point and partial derivatives, world mm per mm of station and per radian of phase. */
+  export interface IJet {
+    /** Surface point. */
+    p: V;
+
+    /** First station derivative. */
+    s: V;
+
+    /** First phase derivative. */
+    t: V;
+
+    /** Second station derivative. */
+    ss: V;
+
+    /** Mixed derivative. */
+    st: V;
+
+    /** Second phase derivative. */
+    tt: V;
+  }
+
+  /**
+   * Whether every layer of a chain carries the plane, its station
+   * derivatives and the coefficients' second derivatives a jet needs.
+   */
+  export function carries(chain: IAutoMovieLoftChain): boolean {
+    return chain.layers.every(
+      (l: IAutoMovieLoftChain.ILayer): boolean =>
+        l.curvatures !== undefined &&
+        l.frame !== undefined &&
+        l.frameSlopes !== undefined &&
+        l.frameCurvatures !== undefined,
+    );
+  }
+
+  /**
+   * Jet of a chain at a chart point.
+   *
+   * @param chain Chain that {@link carries} jets.
+   * @param s Station within the chain.
+   * @param t Phase, radians.
+   */
+  export function at(
+    chain: IAutoMovieLoftChain,
+    s: number,
+    t: number,
+  ): IJet {
+    // The station's part (its section coefficients and plane with their two
+    // station derivatives) is the same for every phase, so the last stations
+    // read per chain are kept; a chain is never changed once built.
+    const { a, b, u, H, c, f }: IStation = stationOf(chain, s);
+
+    // Section values in the plane: x, z and their phase derivatives at the
+    // value, the station slope and the station curvature of the coefficients.
+    const n: number = chain.order;
+    const q0: J = AutoMovieSplineCurve.jet(c[0]!, n, t);
+    const q1: J = AutoMovieSplineCurve.jet(c[1]!, n, t);
+    const q2: J = AutoMovieSplineCurve.jet(c[2]!, n, t);
+    const [f0, f1, f2] = f as [number[], number[], number[]];
+    const o: V[] = [
+      [f0[0]!, f0[1]!, f0[2]!],
+      [f1[0]!, f1[1]!, f1[2]!],
+      [f2[0]!, f2[1]!, f2[2]!],
+    ];
+    const U: V[] = [
+      [f0[3]!, f0[4]!, f0[5]!],
+      [f1[3]!, f1[4]!, f1[5]!],
+      [f2[3]!, f2[4]!, f2[5]!],
+    ];
+    const W: V[] = [
+      [f0[6]!, f0[7]!, f0[8]!],
+      [f1[6]!, f1[7]!, f1[8]!],
+      [f2[6]!, f2[7]!, f2[8]!],
+    ];
+
+    // Each component written out: the product rule over the plane's axes
+    // and the section's values, with no intermediate vectors.
+    const p: V = [0, 0, 0];
+    const ds: V = [0, 0, 0];
+    const dt: V = [0, 0, 0];
+    const dss: V = [0, 0, 0];
+    const dst: V = [0, 0, 0];
+    const dtt: V = [0, 0, 0];
+    for (let k: number = 0; k < 3; k++) {
+      const u0: number = U[0]![k]!;
+      const u1: number = U[1]![k]!;
+      const u2: number = U[2]![k]!;
+      const w0: number = W[0]![k]!;
+      const w1: number = W[1]![k]!;
+      const w2: number = W[2]![k]!;
+      p[k] = o[0]![k]! + u0 * q0[0] + w0 * q0[1];
+      ds[k] = o[1]![k]! + u0 * q1[0] + u1 * q0[0] + w0 * q1[1] + w1 * q0[1];
+      dt[k] = u0 * q0[2] + w0 * q0[3];
+      dss[k] = o[2]![k]! + u0 * q2[0] + 2 * u1 * q1[0] + u2 * q0[0] + w0 * q2[1] + 2 * w1 * q1[1] + w2 * q0[1];
+      dst[k] = u0 * q1[2] + u1 * q0[2] + w0 * q1[3] + w1 * q0[3];
+      dtt[k] = u0 * q0[4] + w0 * q0[5];
+    }
+    const jet: IJet = {
+      p,
+      s: ds,
+      t: dt,
+      ss: dss,
+      st: dst,
+      tt: dtt,
+    };
+
+    // The lift a shape law writes moves points along w = v x u by the station
+    // Hermite of its values, quintic where it carries curvatures, as in AutoMovieLoftChain.ring.
+    if (a.lift !== undefined || b.lift !== undefined) lift(jet, a, b, u, H, n, t, U, W);
+
+    // Reliefs move points along their fixed axes.
+    for (const relief of chain.reliefs ?? []) {
+      const h: number[] = AutoMovieLoftRelief.jet(relief, s, t);
+      if (h.every((x: number): boolean => x === 0)) continue;
+      const e: V = relief.axis;
+      jet.p = sum(jet.p, scale(e, h[0]!));
+      jet.s = sum(jet.s, scale(e, h[1]!));
+      jet.t = sum(jet.t, scale(e, h[2]!));
+      jet.ss = sum(jet.ss, scale(e, h[3]!));
+      jet.st = sum(jet.st, scale(e, h[4]!));
+      jet.tt = sum(jet.tt, scale(e, h[5]!));
+    }
+    return jet;
+  }
+
+  /** A station's part of a jet: its layers, place between them, and combined coefficients and plane. */
+  interface IStation {
+    /** Lower layer. */
+    a: IAutoMovieLoftChain.ILayer;
+
+    /** Upper layer. */
+    b: IAutoMovieLoftChain.ILayer;
+
+    /** Share of the interval. */
+    u: number;
+
+    /** Interval width, mm. */
+    H: number;
+
+    /** Section coefficients and their first and second station derivatives. */
+    c: number[][];
+
+    /** Plane and its first and second station derivatives. */
+    f: number[][];
+  }
+
+  /** Stations kept per chain. */
+  const RECENT: number = 8;
+
+  /** The kept stations, by chain. */
+  const STATIONS: WeakMap<IAutoMovieLoftChain, { s: number; station: IStation }[]> = new WeakMap();
+
+  /** A station's part of a jet, kept for the chain's last stations. */
+  function stationOf(chain: IAutoMovieLoftChain, s: number): IStation {
+    let kept: { s: number; station: IStation }[] | undefined = STATIONS.get(chain);
+    if (kept === undefined) STATIONS.set(chain, (kept = []));
+    for (const entry of kept) if (entry.s === s) return entry.station;
+    const [lo, hi] = AutoMovieLoftChain.bracket(chain, s);
+    const a: IAutoMovieLoftChain.ILayer = chain.layers[lo]!;
+    const b: IAutoMovieLoftChain.ILayer = chain.layers[hi]!;
+    const H: number = b.y - a.y;
+    const u: number = Math.min(1, Math.max(0, (s - a.y) / H));
+    const w: number[][] = [0, 1, 2].map((order: number): number[] =>
+      AutoMovieStationHermite.weights(u, H, order as 0 | 1 | 2, true),
+    );
+
+    // Section coefficients and plane, each with its two station derivatives.
+    const ca: AutoMovieStationHermite.IEnd = {
+      value: a.coefficients,
+      slope: a.slopes,
+      curvature: a.curvatures!,
+    };
+    const cb: AutoMovieStationHermite.IEnd = {
+      value: b.coefficients,
+      slope: b.slopes,
+      curvature: b.curvatures!,
+    };
+    const c: number[][] = w.map((x: number[]): number[] =>
+      AutoMovieStationHermite.combine(ca, cb, x),
+    );
+    const fa: AutoMovieStationHermite.IEnd = AutoMovieStationHermite.frameEnd(a);
+    const fb: AutoMovieStationHermite.IEnd = AutoMovieStationHermite.frameEnd(b);
+    const f: number[][] = w.map((x: number[]): number[] =>
+      AutoMovieStationHermite.combine(fa, fb, x),
+    );
+    const station: IStation = { a, b, u, H, c, f };
+    kept.unshift({ s, station });
+    if (kept.length > RECENT) kept.pop();
+    return station;
+  }
+
+  /** Unit normal `P_t x P_s` of a jet, or null where the surface is singular. */
+  export function normal(jet: IJet): V | null {
+    const n: V = cross(jet.t, jet.s);
+    const l: number = Math.hypot(n[0], n[1], n[2]);
+    return l > 1e-12 ? [n[0] / l, n[1] / l, n[2] / l] : null;
+  }
+}
+
+/** A world vector, mm. */
+type V = [number, number, number];
+
+/** A section's `[x, z, x_t, z_t, x_tt, z_tt]` at one phase. */
+type J = [number, number, number, number, number, number];
+
+/**
+ * Add the lift `h(s, t) w(s)` and its derivatives to a jet, `w = v x u`;
+ * the lift takes the quintic rule where both layers carry its curvatures,
+ * with `w' = v' x u + v x u'` and `w'' = v'' x u + 2 v' x u' + v x u''`.
+ */
+function lift(
+  jet: AutoMovieLoftJet.IJet,
+  a: IAutoMovieLoftChain.ILayer,
+  b: IAutoMovieLoftChain.ILayer,
+  u: number,
+  H: number,
+  n: number,
+  t: number,
+  U: V[],
+  W: V[],
+): void {
+  const zero: number[] = new Array<number>(n).fill(0);
+  const quintic: boolean = a.liftCurvatures !== undefined && b.liftCurvatures !== undefined;
+  const ea: AutoMovieStationHermite.IEnd = {
+    value: a.lift ?? zero,
+    slope: a.liftSlopes ?? zero,
+    ...(quintic ? { curvature: a.liftCurvatures! } : {}),
+  };
+  const eb: AutoMovieStationHermite.IEnd = {
+    value: b.lift ?? zero,
+    slope: b.liftSlopes ?? zero,
+    ...(quintic ? { curvature: b.liftCurvatures! } : {}),
+  };
+  const l: number[][] = [0, 1, 2].map((order: number): number[] =>
+    AutoMovieStationHermite.combine(
+      ea,
+      eb,
+      AutoMovieStationHermite.weights(u, H, order as 0 | 1 | 2, quintic),
+    ),
+  );
+
+  // The lift values interpolate over phase as the x block of a section.
+  const h: J[] = l.map(
+    (x: number[]): J => AutoMovieSplineCurve.jet([...x, ...x], n, t),
+  );
+  const w0: V = cross(W[0]!, U[0]!);
+  const w1: V = sum(cross(W[1]!, U[0]!), cross(W[0]!, U[1]!));
+  const w2: V = sum(cross(W[2]!, U[0]!), scale(cross(W[1]!, U[1]!), 2), cross(W[0]!, U[2]!));
+  jet.p = sum(jet.p, scale(w0, h[0]![0]));
+  jet.s = sum(jet.s, scale(w0, h[1]![0]), scale(w1, h[0]![0]));
+  jet.t = sum(jet.t, scale(w0, h[0]![2]));
+  jet.ss = sum(jet.ss, scale(w0, h[2]![0]), scale(w1, 2 * h[1]![0]), scale(w2, h[0]![0]));
+  jet.st = sum(jet.st, scale(w0, h[1]![2]), scale(w1, h[0]![2]));
+  jet.tt = sum(jet.tt, scale(w0, h[0]![4]));
+}
+
+/** Sum of vectors. */
+function sum(...vs: V[]): V {
+  const out: V = [0, 0, 0];
+  for (const v of vs) for (let k: number = 0; k < 3; k++) out[k] += v[k]!;
+  return out;
+}
+
+/** Vector times a scalar. */
+function scale(v: readonly number[], k: number): V {
+  return [v[0]! * k, v[1]! * k, v[2]! * k];
+}
+
+/** Cross product. */
+function cross(a: V, b: V): V {
+  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+}

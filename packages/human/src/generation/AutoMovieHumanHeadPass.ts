@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanPolarSection } from "../lofting/AutoMovieHumanPolarSection";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanEarConstruction } from "./AutoMovieHumanEarConstruction";
 import type { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
 import { AutoMovieHumanHeadJawBody } from "./AutoMovieHumanHeadJawBody";
@@ -34,7 +33,7 @@ export namespace AutoMovieHumanHeadPass {
    * @returns The head's fixed inputs.
    */
   export function prepare(
-    neckChain: IAutoMovieHumanLoftChain,
+    neckChain: IAutoMovieLoftChain,
     inputs: AutoMovieHumanHeadConstruction.IInputs,
   ): IAutoMovieHumanHeadSetup {
     const compiled: IAutoMovieHumanHeadCompiled = AutoMovieHumanHeadLandmarks.compile();
@@ -44,7 +43,7 @@ export namespace AutoMovieHumanHeadPass {
       { length: 720 },
       (_: unknown, i: number): number => (2 * Math.PI * i) / 720,
     );
-    const ring: [number, number, number][] = AutoMovieHumanLoftChain.ring(neckChain, top, dense);
+    const ring: [number, number, number][] = AutoMovieLoftChain.ring(neckChain, top, dense);
     const xs: number[] = ring.map((p: [number, number, number]): number => p[0]);
     const level: number = AutoMovieHumanHeadMath.mean(
       ring.map((p: [number, number, number]): number => p[1]),
@@ -61,7 +60,7 @@ export namespace AutoMovieHumanHeadPass {
       AutoMovieHumanHeadNeckBase.NECK_STEP * scale,
       (top - neckChain.layers[0]!.y) / 2,
     );
-    const beneath: [number, number, number][] = AutoMovieHumanLoftChain.ring(
+    const beneath: [number, number, number][] = AutoMovieLoftChain.ring(
       neckChain,
       top - step,
       dense,
@@ -93,7 +92,7 @@ export namespace AutoMovieHumanHeadPass {
 
     // The ring twice the step under the top ring, so the neck's second
     // derivative with height reaches the head's hand-over with its slope.
-    const lower: [number, number][] = AutoMovieHumanLoftChain.ring(neckChain, top - 2 * step, dense).map(
+    const lower: [number, number][] = AutoMovieLoftChain.ring(neckChain, top - 2 * step, dense).map(
       (p: [number, number, number]): [number, number] => [p[0], p[2]],
     );
     return { inputs, compiled, neck, scale, ring, flat, under, drop, lower };

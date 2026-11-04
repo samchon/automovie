@@ -1,6 +1,6 @@
 import type { AutoMovieHumanPolygon } from "@automovie/viewer/human-polygon";
 
-/** Synthetic rest joints and source courses for portable polygon rendering tests. */
+/** Synthetic rest joints for portable polygon rendering tests; the polygon reads the skeleton alone. */
 export function createHumanPolygonFixture(): AutoMovieHumanPolygon.IInput {
   const bones: AutoMovieHumanPolygon.IBone[] = [];
   const add: (
@@ -22,7 +22,7 @@ export function createHumanPolygonFixture(): AutoMovieHumanPolygon.IInput {
   add("spine", "hips", [0, 1.1, 0], 0.07);
   add("chest", "spine", [0, 1.3, 0], 0.08);
   add("neck", "chest", [0, 1.5, 0], 0.04);
-  add("head", "neck", [0, 1.6, 0], 0.08);
+  add("head", "neck", [0, 1.6, 0], 0.08, [0, 1.78, 0]);
   for (const side of ["left", "right"]) {
     const sign: number = side === "left" ? 1 : -1;
     add(`${side}UpperArm`, "chest", [0, 1.4, sign * 0.2]);
@@ -56,28 +56,6 @@ export function createHumanPolygonFixture(): AutoMovieHumanPolygon.IInput {
       sign * 0.12,
     ]);
   }
-  const phases: number[] = Array.from(
-    { length: 8 },
-    (_: unknown, i: number): number => (i * Math.PI) / 4,
-  );
-  const section: (
-    y: number,
-    radius: number,
-  ) => AutoMovieHumanPolygon.IExteriorSection = (
-    y: number,
-    radius: number,
-  ): AutoMovieHumanPolygon.IExteriorSection => ({
-    centre: [0, y, 0],
-    breadth: radius * 2,
-    depth: radius * 2,
-    points: phases.map((phase: number): [number, number, number] => [
-      radius * Math.cos(phase),
-      y,
-      radius * Math.sin(phase),
-    ]),
-    sourcePhases: phases.slice(),
-    displayCoordinates: phases.slice(),
-  });
   return {
     bones,
     posed: bones.map(
@@ -89,14 +67,5 @@ export function createHumanPolygonFixture(): AutoMovieHumanPolygon.IInput {
         rotation: [0, 0, 0, 1],
       }),
     ),
-    neckSurface: {
-      units: "metres",
-      phases,
-      sections: [1.45, 1.48, 1.51, 1.55].map(
-        (y: number): AutoMovieHumanPolygon.IExteriorSection => section(y, 0.04),
-      ),
-      headSections: [section(1.62, 0.1), section(1.7, 0.1)],
-      crown: { end: "top", point: [0, 1.78, 0] },
-    },
   };
 }

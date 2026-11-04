@@ -1,9 +1,13 @@
 import { tags } from "typia";
 
+import type { IAutoMovieHumanBodyAnatomy } from "./IAutoMovieHumanBodyAnatomy";
+
 /**
  * One leg, measured standing.
  *
  * Thigh length, shank length and ankle height are vertical height intervals in the same standing-surface datum. Their sum is the trochanterion height of that leg, the top of the greater trochanter above the standing surface.
+ *
+ * A measure `IAutoMovieHumanBodyAnatomy` also declares (the right side there) takes its range from that declaration, so no measure has two ranges.
  */
 export interface IAutoMovieHumanLegIdentity {
   /**
@@ -42,13 +46,13 @@ export interface IAutoMovieHumanLegIdentity {
   /**
    * Lower thigh circumference at suprapatella, the upper border of the patella, perpendicular to the thigh axis, millimetres, as ANSUR II measures it.
    */
-  lowerThighCircumference: number & tags.Minimum<80> & tags.Maximum<900>;
+  lowerThighCircumference: NonNullable<IAutoMovieHumanBodyAnatomy["lowerThighCircumference"]>;
 
   /** Maximum horizontal calf circumference, millimetres. */
-  calfCircumference: number & tags.Minimum<90> & tags.Maximum<800>;
+  calfCircumference: NonNullable<IAutoMovieHumanBodyAnatomy["calfCircumference"]>;
 
   /** Minimum horizontal ankle circumference above the malleoli, millimetres. */
-  ankleCircumference: number & tags.Minimum<60> & tags.Maximum<450>;
+  ankleCircumference: NonNullable<IAutoMovieHumanBodyAnatomy["ankleCircumference"]>;
 
   /**
    * Hip flexion, the thigh raised forward, degrees. Goniometric, as in the CDC normal joint range of motion study (Soucie et al. 2011, Haemophilia 17(3)): means of 127 to 141 degrees by age and sex.

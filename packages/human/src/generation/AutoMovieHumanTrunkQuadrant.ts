@@ -1,5 +1,5 @@
 ﻿import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
-import { AutoMovieHumanStationHermite } from "../lofting/AutoMovieHumanStationHermite";
+import { AutoMovieStationHermite } from "@automovie/engine";
 import type { IAutoMovieHumanSeam } from "../lofting/IAutoMovieHumanSeam";
 import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection";
 
@@ -260,7 +260,7 @@ export namespace AutoMovieHumanTrunkQuadrant {
     // The station rule's quintic weights over a unit interval, ordered
     // [f_a, f'_a, f''_a, f''_b, f'_b, f_b].
     const value = (order: 0 | 1 | 2): number[] => {
-      const w: number[] = AutoMovieHumanStationHermite.weights(u, 1, order, true);
+      const w: number[] = AutoMovieStationHermite.weights(u, 1, order, true);
 
       return [0, 1].map(
         (k: number): number =>

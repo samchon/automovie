@@ -2,6 +2,7 @@ import { HumanDebugPieceChains } from "./HumanDebugPieceChains";
 import { HumanDebugPieceRegion } from "./HumanDebugPieceRegion";
 import { HumanDebugPieceTiming } from "./HumanDebugPieceTiming";
 import { HumanDebugPieceWeb } from "./HumanDebugPieceWeb";
+import { HumanDebugPieceBodyParts } from "./body/HumanDebugPieceBodyParts";
 import { HumanDebugPieceFootArcs } from "./foot/HumanDebugPieceFootArcs";
 import { HumanDebugPieceFootBody } from "./foot/HumanDebugPieceFootBody";
 import { HumanDebugPieceFootCentres } from "./foot/HumanDebugPieceFootCentres";
@@ -9,6 +10,7 @@ import { HumanDebugPieceFootGuides } from "./foot/HumanDebugPieceFootGuides";
 import { HumanDebugPieceFootKnots } from "./foot/HumanDebugPieceFootKnots";
 import { HumanDebugPieceFootLoft } from "./foot/HumanDebugPieceFootLoft";
 import { HumanDebugPieceHairGuides } from "./hair/HumanDebugPieceHairGuides";
+import { HumanDebugPieceHeadParts } from "./head/HumanDebugPieceHeadParts";
 import { HumanDebugPieceShoulderOutline } from "./shoulder/HumanDebugPieceShoulderOutline";
 import { HumanDebugPieceShoulderOval } from "./shoulder/HumanDebugPieceShoulderOval";
 import { HumanDebugPieceTrunkChains } from "./trunk/HumanDebugPieceTrunkChains";
@@ -26,6 +28,7 @@ export const HUMAN_DEBUG_PIECES: readonly IHumanDebugPiece[] = [
   HumanDebugPieceRegion,
   HumanDebugPieceWeb,
   HumanDebugPieceTiming,
+  HumanDebugPieceBodyParts,
   HumanDebugPieceTrunkLandmarks,
   HumanDebugPieceTrunkChains,
   HumanDebugPieceShoulderOutline,
@@ -37,5 +40,6 @@ export const HUMAN_DEBUG_PIECES: readonly IHumanDebugPiece[] = [
   HumanDebugPieceFootBody,
   HumanDebugPieceFootLoft,
   HumanDebugPieceWebSaddle,
+  HumanDebugPieceHeadParts,
   HumanDebugPieceHairGuides,
 ];

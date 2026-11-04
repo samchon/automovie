@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanEventJoinVector } from "./AutoMovieHumanEventJoinVector";
 
 type Vec3 = AutoMovieHumanEventJoinVector.Vec3;
@@ -35,7 +34,7 @@ export namespace AutoMovieHumanEventJoinRing {
 
   /** The parent's ring at an event and the weight of its phases on the child's arcs. */
   export function parentRing(
-    parent: IAutoMovieHumanLoftChain,
+    parent: IAutoMovieLoftChain,
     direction: "down" | "up",
     arcs: [number, number][],
   ): IRing {
@@ -43,7 +42,7 @@ export namespace AutoMovieHumanEventJoinRing {
     const sp: number =
       direction === "down" ? parent.layers[0]!.y : parent.layers[last]!.y;
     const n: number = RING;
-    const ring: Vec3[] = AutoMovieHumanLoftChain.ring(
+    const ring: Vec3[] = AutoMovieLoftChain.ring(
       parent,
       sp,
       Array.from(

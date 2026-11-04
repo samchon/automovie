@@ -1,6 +1,5 @@
 import { AutoMovieHumanHorizontalChain } from "../lofting/AutoMovieHumanHorizontalChain";
-import { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParameter";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftParameter, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanEarConstruction } from "./AutoMovieHumanEarConstruction";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import type { IAutoMovieHumanHeadLoopLayer } from "./IAutoMovieHumanHeadLoopLayer";
@@ -23,12 +22,12 @@ export namespace AutoMovieHumanHeadEarLoop {
    * @returns The ring at `order` uniform phases and the loop's own phases.
    */
   export function phased(
-    rule: IAutoMovieHumanLoftChain["rule"],
+    rule: IAutoMovieLoftChain["rule"],
     loop: readonly P2[],
     order: number,
     mirrored: boolean,
   ): { ring: P2[]; phases: number[] } {
-    const t: number[] = AutoMovieHumanLoftParameter.phases(
+    const t: number[] = AutoMovieLoftParameter.phases(
       rule,
       mirrored ? loop.map((p: P2): P2 => [p[0], -p[1]]) : loop,
     );
@@ -88,11 +87,11 @@ export namespace AutoMovieHumanHeadEarLoop {
   export function chainOf(
     name: string,
     order: number,
-    rule: IAutoMovieHumanLoftChain["rule"],
+    rule: IAutoMovieLoftChain["rule"],
     mirrored: boolean,
     layers: readonly IAutoMovieHumanHeadLoopLayer[],
-  ): IAutoMovieHumanLoftChain {
-    const chain: IAutoMovieHumanLoftChain = AutoMovieHumanHorizontalChain.build(
+  ): IAutoMovieLoftChain {
+    const chain: IAutoMovieLoftChain = AutoMovieHumanHorizontalChain.build(
       { name, order, samples: order, rule },
       layers.map((l: IAutoMovieHumanHeadLoopLayer): Vec3[] =>
         (rule === "arclength"

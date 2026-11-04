@@ -9,7 +9,7 @@ import type { AutoMovieHumanArmStation } from "./AutoMovieHumanArmStation";
  * section angle, and the four sectors between them (anterolateral,
  * posterolateral, posteromedial, anteromedial), each the fullness of the
  * sector's curve beyond the quintic Hermite of its two bounding lines
- * (`AutoMovieHumanPolarSector`), all in units of the section's girth over
+ * (`AutoMoviePolarSector`), all in units of the section's girth over
  * 2 pi. A line is the sector rule's guide: the sectors on either side meet it
  * with its own point, tangent and curvature. Values are the medians of the
  * four references f1, f2, m1 and m2, read on each skin square to its own bone

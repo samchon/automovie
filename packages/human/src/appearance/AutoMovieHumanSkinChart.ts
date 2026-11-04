@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanSkinChartGrid } from "./AutoMovieHumanSkinChartGrid";
 import { AutoMovieHumanSkinChartPack } from "./AutoMovieHumanSkinChartPack";
 
@@ -69,8 +68,8 @@ export namespace AutoMovieHumanSkinChart {
    * @param chains The calibration's chains in mm, in calibration order
    * @returns The pieces in the same order, with coordinates
    */
-  export function generate(pieces: readonly IPiece[], chains: readonly IAutoMovieHumanLoftChain[]): IOutput[] {
-    const index: Map<string, number> = new Map(chains.map((c: IAutoMovieHumanLoftChain, i: number): [string, number] => [c.name, i]));
+  export function generate(pieces: readonly IPiece[], chains: readonly IAutoMovieLoftChain[]): IOutput[] {
+    const index: Map<string, number> = new Map(chains.map((c: IAutoMovieLoftChain, i: number): [string, number] => [c.name, i]));
     const groups: Map<string, number[]> = new Map();
     pieces.forEach((piece: IPiece, i: number): void => {
       const key: string = chartOf(chainOf(piece.name));
@@ -116,15 +115,15 @@ export namespace AutoMovieHumanSkinChart {
   function gridsOf(
     key: string,
     members: readonly number[],
-    chains: readonly IAutoMovieHumanLoftChain[],
+    chains: readonly IAutoMovieLoftChain[],
   ): Map<number, AutoMovieHumanSkinChartGrid.IGrid> {
-    const lowest: (c: number) => number = (c: number): number => Math.min(...chains[c]!.layers.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y));
+    const lowest: (c: number) => number = (c: number): number => Math.min(...chains[c]!.layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y));
     const ordered: number[] = [...members].sort((a: number, b: number): number => lowest(a) - lowest(b));
     const family: boolean = key === "head" || key === "trunk";
     const grids: Map<number, AutoMovieHumanSkinChartGrid.IGrid> = new Map();
     let previous: AutoMovieHumanSkinChartGrid.IGrid | null = null;
     for (const c of ordered) {
-      const chain: IAutoMovieHumanLoftChain = chains[c]!;
+      const chain: IAutoMovieLoftChain = chains[c]!;
       const reference: [number, number, number] = family ? [1, 0, 0] : referenceOf(chain);
       const below: ((u: number) => number) | null =
         family && previous !== null && Math.abs(previous.from + previous.step * (previous.stations - 1) - lowest(c)) <= AutoMovieHumanSkinChartGrid.STEP
@@ -138,10 +137,10 @@ export namespace AutoMovieHumanSkinChart {
   }
 
   /** A chain's reference: `+X` square to its axis, or `+Y` for an axis that runs forward. */
-  function referenceOf(chain: IAutoMovieHumanLoftChain): [number, number, number] {
-    const ys: number[] = chain.layers.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y);
-    const a: [number, number, number] = AutoMovieHumanLoftChain.axis(chain, Math.min(...ys));
-    const b: [number, number, number] = AutoMovieHumanLoftChain.axis(chain, Math.max(...ys));
+  function referenceOf(chain: IAutoMovieLoftChain): [number, number, number] {
+    const ys: number[] = chain.layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
+    const a: [number, number, number] = AutoMovieLoftChain.axis(chain, Math.min(...ys));
+    const b: [number, number, number] = AutoMovieLoftChain.axis(chain, Math.max(...ys));
     const d: number[] = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
     const l: number = Math.hypot(d[0]!, d[1]!, d[2]!) || 1;
     const axis: number[] = d.map((x: number): number => x / l);

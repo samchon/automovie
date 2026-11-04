@@ -46,12 +46,7 @@ export class InspectionPerson {
     color: number,
     prepared?: AutoMovieHumanSkeleton.PoseEvaluator,
   ) {
-    this.evaluate =
-      prepared ??
-      AutoMovieHumanSkeleton.prepare(parameters, {
-        neckSurface: true,
-        footSurface: true,
-      });
+    this.evaluate = prepared ?? AutoMovieHumanSkeleton.prepare(parameters);
     this.neutral = this.evaluate({});
     this.output = this.neutral;
     const colors: Record<string, number> = Object.fromEntries(

@@ -291,7 +291,7 @@ export namespace BoutScript {
       side: "right",
       windup: 0.23,
       recovery: 0.27,
-      range: 0.94,
+      range: 0.92,
       target: "body",
     },
     "body-hook": {

@@ -5,7 +5,7 @@ import path from "node:path";
 import { AutoMovieHumanBodyLaw } from "../../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanBodySurface } from "../../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { HumanPeople } from "../../internal/HumanPeople";
 
@@ -119,8 +119,8 @@ function size(calibration: IAutoMovieHumanBodyCalibration, surface: AutoMovieHum
     rings.set(k, (rings.get(k) ?? 0) + 1);
   }
   const kinds: Map<string, [number, number, number, number]> = new Map<string, [number, number, number, number]>();
-  calibration.chains.forEach((c: IAutoMovieHumanLoftChain): void => {
-    const jets: boolean = c.layers.every((l: IAutoMovieHumanLoftChain.ILayer): boolean => l.curvatures !== undefined && l.frameCurvatures !== undefined);
+  calibration.chains.forEach((c: IAutoMovieLoftChain): void => {
+    const jets: boolean = c.layers.every((l: IAutoMovieLoftChain.ILayer): boolean => l.curvatures !== undefined && l.frameCurvatures !== undefined);
     const kind: string = `${c.basis ?? "harmonic"}${jets ? " with jets" : ""}`;
     const entry: [number, number, number, number] = kinds.get(kind) ?? [0, 0, 0, 0];
     entry[0] += 1;
@@ -132,7 +132,7 @@ function size(calibration: IAutoMovieHumanBodyCalibration, surface: AutoMovieHum
   const perRing: number[] = [...rings.values()];
   const out: string[] = [
     `vertices ${vertices}, triangles ${triangles}, lofted vertices ${lofted}, rings ${rings.size}, vertices per ring mean ${(lofted / Math.max(1, rings.size)).toFixed(1)} max ${Math.max(0, ...perRing)}`,
-    `chains ${calibration.chains.length}, events ${calibration.events.length}, layers ${calibration.chains.reduce((s: number, c: IAutoMovieHumanLoftChain): number => s + c.layers.length, 0)}`,
+    `chains ${calibration.chains.length}, events ${calibration.events.length}, layers ${calibration.chains.reduce((s: number, c: IAutoMovieLoftChain): number => s + c.layers.length, 0)}`,
   ];
   for (const [kind, [count, layers, order, samples]] of kinds)
     out.push(`  ${kind.padEnd(22)} chains ${String(count).padEnd(4)} layers ${String(layers).padEnd(6)} mean order ${(order / count).toFixed(1).padEnd(7)} mean ring samples ${(samples / count).toFixed(1)}`);

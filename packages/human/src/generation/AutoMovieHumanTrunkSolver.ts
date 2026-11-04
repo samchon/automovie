@@ -1,6 +1,4 @@
-﻿import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+﻿import type { AutoMovieLoftContract, IAutoMovieLoftChain, IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanBreastProfile } from "./AutoMovieHumanBreastProfile";
 import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
 import { AutoMovieHumanShoulderLine } from "./AutoMovieHumanShoulderLine";
@@ -45,7 +43,7 @@ export namespace AutoMovieHumanTrunkSolver {
     crotch: number;
 
     /** The neck chain, named `head`. */
-    neck: IAutoMovieHumanLoftChain;
+    neck: IAutoMovieLoftChain;
 
     /** The thigh tape, mm, for the groin width; absent, the references' median ratio is used. */
     thigh?: number;
@@ -70,8 +68,26 @@ export namespace AutoMovieHumanTrunkSolver {
    * @returns The column, landmarks, reliefs and shoulder pieces.
    */
   export function solve(fixed: IFixed): IAutoMovieHumanTrunkSolution {
-    return replay(fixed, converge(fixed));
+    // The old trunk's construction and the body lane's interim solve the
+    // same person's trunk from the same inputs object; the second takes the
+    // first's solution, which its readers never change.
+    const kept: { fixed: IFixed; solution: IAutoMovieHumanTrunkSolution } | undefined = SOLVED.get(fixed.inputs);
+    if (
+      kept !== undefined &&
+      kept.fixed.stature === fixed.stature &&
+      kept.fixed.crotch === fixed.crotch &&
+      kept.fixed.neck === fixed.neck &&
+      kept.fixed.thigh === fixed.thigh &&
+      kept.fixed.groinRatio === fixed.groinRatio
+    )
+      return kept.solution;
+    const solution: IAutoMovieHumanTrunkSolution = replay(fixed, converge(fixed));
+    SOLVED.set(fixed.inputs, { fixed: { ...fixed }, solution });
+    return solution;
   }
+
+  /** The last solution per inputs object, with what it was solved from. */
+  const SOLVED: WeakMap<IAutoMovieHumanTrunkInputs, { fixed: IFixed; solution: IAutoMovieHumanTrunkSolution }> = new WeakMap();
 
   /**
    * Close the tapes and the courses and give the state that closes them.
@@ -183,14 +199,14 @@ export namespace AutoMovieHumanTrunkSolver {
     const col: AutoMovieHumanTrunkColumn.IColumn = AutoMovieHumanTrunkKeys.column(ctx, st);
     const h: AutoMovieHumanTrunkKeys.Heights = AutoMovieHumanTrunkKeys.heights(ctx, st);
     const where: AutoMovieHumanTrunkFeatures.ISites = AutoMovieHumanTrunkKeys.sites(ctx, st, col);
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
-    const reliefs: IAutoMovieHumanRelief[] = AutoMovieHumanTrunkFeatures.all(col, where, diagnostics);
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+    const reliefs: IAutoMovieLoftRelief[] = AutoMovieHumanTrunkFeatures.all(col, where, diagnostics);
     const shoulder: [number, number, number] = [
       AutoMovieHumanTrunkShapes.SHOULDER.middle * ctx.fixed.stature,
       ctx.shoulderY,
       st.shoulderZ,
     ];
-    const glenohumeral: [number, number, number] = AutoMovieHumanTrunkLandmarks.glenohumeral(shoulder, inputs.upperArm);
+    const glenohumeral: [number, number, number] = AutoMovieHumanTrunkLandmarks.glenohumeral(shoulder, inputs.biacromial);
     const line: IAutoMovieHumanShoulderOutline = AutoMovieHumanShoulderLine.create(
       { y: ctx.shoulderY, z: st.shoulderZ },
       ctx.seat.lateral,

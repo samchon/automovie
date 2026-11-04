@@ -9,6 +9,7 @@ import type { IHumanDebugOptions } from "../contracts/IHumanDebugOptions";
 import type { IHumanDebugSnapshot } from "../contracts/IHumanDebugSnapshot";
 import { HumanDebugCompilerPanel } from "./HumanDebugCompilerPanel";
 import { HumanDebugControls } from "./HumanDebugControls";
+import { HumanDebugLegend } from "./HumanDebugLegend";
 import { HumanDebugStage } from "./HumanDebugStage";
 import { HumanDebugView } from "./HumanDebugView";
 import { loadHumanDebugSubject } from "./loadHumanDebugSubject";
@@ -39,6 +40,8 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
   const noticeBox: HTMLDivElement = element("notices");
   const status: HTMLPreElement = element("status");
   const address: HTMLInputElement = element("url");
+  const legend: HTMLDivElement = document.createElement("div");
+  viewport.append(legend);
   const first: { options: IHumanDebugOptions; notices: string[] } = HumanDebugOptions.parse(
     new URLSearchParams(location.search),
   );
@@ -140,9 +143,16 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
     loaded = null;
     element<HTMLElement>("app").classList.toggle("bare", !options.ui);
     try {
-      // A piece has no pose, so its key ignores the pose variable.
+      // A piece has no pose, so its key ignores the pose variable; a comparison is keyed by its
+      // person (the reference when unset), reference, style and drawn pieces.
       const pose: string | null = options.piece === null ? options.pose : null;
-      const key: string = JSON.stringify([options.person, options.piece, pose]);
+      const reference: { id: string; style: "clay" | "loft"; parts: string[] } | null =
+        options.reference === null ? null : { id: options.reference, style: options.referenceStyle, parts: options.referencePart };
+      const key: string = JSON.stringify(
+        reference === null
+          ? [options.person, options.piece, pose]
+          : [options.person ?? reference.id, "reference:" + reference.id + ":" + reference.style + ":" + reference.parts.join(","), null],
+      );
       if (
         view === undefined ||
         JSON.stringify([view.subject.key.person, view.subject.key.piece, view.subject.key.pose]) !== key
@@ -151,6 +161,7 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
         view = undefined;
         await previous?.dispose();
         labels.replaceChildren();
+        legend.replaceChildren();
 
         // The subject is generated from the type-stripped source whatever the compile collector
         // reports; its state is shown beside the frame as information.
@@ -160,7 +171,7 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
         status.textContent =
           "불러오는 중: " + (options.person ?? "(첫 사람)") + " " + (options.piece ?? "전신 " + options.pose);
         const started: number = performance.now();
-        view = new HumanDebugView(await loadHumanDebugSubject(options.person, options.piece, options.pose));
+        view = new HumanDebugView(await loadHumanDebugSubject(options.person, options.piece, options.pose, reference));
         loaded = performance.now() - started;
         stage.content.add(view.object, view.overlays);
         const inventory: { parts: string[]; curves: string[] } = view.inventory();
@@ -168,6 +179,7 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
         framed = "";
       }
       const shown: { parts: string[]; curves: string[] } = view.apply(options);
+      HumanDebugLegend(legend, view.subject.legend, options);
       const focus: THREE.Box3 = view.focus(options);
       if (focus.isEmpty()) messages = [...messages, "Nothing is shown; the camera keeps its place"];
       else {
@@ -190,9 +202,11 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
         2,
       );
     } catch (error) {
-      // The stack names the failing site; a capture's server log receives this text.
-      console.error(error instanceof Error ? (error.stack ?? error.message) : String(error));
-      messages = [...messages, error instanceof Error ? error.message : String(error)];
+      // The stack names the failing site; the notice carries it whole, so a capture's failure, its
+      // server log line and the status route's last failures name the file and line.
+      const text: string = error instanceof Error ? (error.stack ?? error.message) : String(error);
+      console.error(text);
+      messages = [...messages, text];
     }
     const query: string = HumanDebugOptions.write(options);
     history.replaceState(null, "", location.pathname + (query === "" ? "" : "?" + query) + location.hash);

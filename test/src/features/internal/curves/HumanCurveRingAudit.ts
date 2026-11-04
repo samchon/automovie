@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanAnatomy } from "../HumanAnatomy";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanCurveRings } from "./HumanCurveRings";
@@ -53,7 +52,7 @@ export namespace HumanCurveRingAudit {
       };
 
       // CUR-2: spacing ratios between neighbouring layer intervals.
-      const y: number[] = chain.layers.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y);
+      const y: number[] = chain.layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
       let ratio: number = 1;
       let at: number = 0;
       for (let i: number = 1; i + 1 < y.length; i++) {
@@ -84,8 +83,8 @@ export namespace HumanCurveRingAudit {
 
       // SEC-4 at every layer of a star-shaped chain.
       if (STAR.test(name))
-        chain.layers.forEach((l: IAutoMovieHumanLoftChain.ILayer, i: number): void => {
-          const ring: V3[] = AutoMovieHumanLoftChain.ring(chain, l.y, HumanCurveRings.PHASES) as V3[];
+        chain.layers.forEach((l: IAutoMovieLoftChain.ILayer, i: number): void => {
+          const ring: V3[] = AutoMovieLoftChain.ring(chain, l.y, HumanCurveRings.PHASES) as V3[];
           row(`/${i} ring points turning backward round its centre (SEC-4)`, backward(ring), 0, 0, "points");
         });
     }

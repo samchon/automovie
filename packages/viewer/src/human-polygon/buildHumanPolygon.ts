@@ -6,42 +6,33 @@ import { applyHumanPolygonPose } from "./applyHumanPolygonPose.js";
 import { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
 import { buildHumanPolygonParts } from "./buildHumanPolygonParts.js";
 import { createHumanPolygonPalette } from "./createHumanPolygonPalette.js";
-import { measureHumanPolygonFootSupport } from "./measureHumanPolygonFootSupport.js";
-import { prepareHumanPolygonFootSurface } from "./prepareHumanPolygonFootSurface.js";
+import { humanPolygonSections as Sections } from "./humanPolygonSections.js";
 
 /**
  * Draw a rigid polygon blockout from the generated skeleton, in metres.
  *
- * Procedural body modules use eight-sided sections at their selected levels.
- * The default Human exterior supplies four neck courses and two head courses;
- * the public adapter retains every supplied course and its admitted source
- * points, including point counts other than eight. Joint spans set torso, palm
- * and legacy foot breadth; skin girth radii set procedural thickness. Optional
- * Human foot courses replace only the existing Subtalar/Midfoot sections,
- * preserving all source points and their separate joint bindings. Neck/head
- * exterior courses and crown come from the same prepared body,
- * independently of rig radii and head bevels. Source perimeter measurements
- * are distinct from the sampled display polygon's perimeter. Each rest-space module is
- * moved once by its bone's world placement. Adjacent rigid modules can overlap
+ * Every module is procedural and comes from the skeleton alone: joint
+ * positions, tips and skin girth radii, never the Human's skin surfaces, so the
+ * polygon figure keeps working however the realistic skin is built. Modules
+ * use eight-sided sections at their selected levels. Joint spans set torso,
+ * palm and foot breadth; girth radii set thickness; the neck runs from the
+ * neck joint to the head joint and the head closes on the head's tip. Each
+ * rest-space module is moved once by its bone's world placement. Adjacent rigid modules can overlap
  * or separate when posed; this is not skin binding or a watertight skin.
  *
  * The head attachment uses the head joint's rest axes: +X forward, +Y up and
  * +Z left. Its bounds describe the emitted polygon, before the posed transform.
  * The caller may attach a face to `head.object` in that same local frame.
- * Opted-in feet expose actual Float32 landmark addresses and fixed initial
- * placed heights over every emitted foot descendant, including toes. Named
- * landmarks need not share the minimum; numerical coincidence is not a live
- * support or collision certificate. Posing does not redefine this reference.
  *
- * @param output Generated bones, placements, required neck/head exterior and optional source foot courses.
+ * @param output Generated bones and placements.
  * @param options Optional display colours keyed by emitted bone name; unmatched palette entries are unused.
  * @returns Owned surface, actual bone/mesh registries, pose/palette ports, generating sections, head attachment and cleanup. Local probe points use registered rest point minus the corresponding rest joint; actor-root placement belongs to the parent.
  *
- * @evidence contracts/common.md#principled-implementation Procedural dimensions come from skeleton joints, tips and girth radii; neck/head and optional articulated feet retain actual prepared source courses. Foot source addresses identify actual emitted Float32 vertices; initial full-foot/toe heights are measured from the actual placed mesh population. Source display correspondence controls only existing zipper connectivity.
+ * @evidence contracts/common.md#principled-implementation Every dimension comes from skeleton joints, tips and girth radii; no skin surface of the realistic Human is read, so a change in how the Human lofts its skin cannot break the blockout.
  * @evidence contracts/common.md#clear-and-simple-design One section loft draws each rigid module; body-frame placements are consumed once without rebuilding forward kinematics, actual string bone registries expose the same mesh frames, and setPose atomically updates surface and diagnostics.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts All admitted source neck/head/foot courses retain their supplied point populations, including at least three points per consistent module ring. Defaults are not public upper bounds. No source flattening, hidden dimension adjustment, dense replacement, landmark hull inference or assumed three-point floor enters the drawing; rigid shared seams can open when posed.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixture dimension or imitated skin enters the drawing; missing joints refuse; rigid shared seams can open when posed.
  * @evidence contracts/common.md#meaningful-documentation Documents the LOD, units, head attachment frame, rigid-joint limitations and sticky palette/resource retirement failures.
- * @evidence contracts/performance.md#efficient-algorithms Bone/child/placement maps are built once for B bones. Course conversion, ring assembly, zipper joining and normal generation follow actual emitted vertices V and triangles T, with O(B+V+T) construction work/storage; source course and point counts are not bounded by the procedural body's eight-sided sampling.
+ * @evidence contracts/performance.md#efficient-algorithms Bone/child/placement maps are built once for B bones. Ring assembly, zipper joining and normal generation follow emitted vertices V and triangles T, with O(B+V+T) construction work/storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Parts share the default clay and diagnostic materials; matching RGB overrides share one current material, and sections reuse emitted ring positions.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A completed palette becomes owned before the previous pool retires. Independent cleanup attempts every remaining resource and detach operation once; retirement failures remain sticky, reject further colour changes and retain bounded uncertain owners without retry.
  */
@@ -75,62 +66,10 @@ export function buildHumanPolygon(
   }
   for (const placement of output.posed)
     placements.set(placement.bone, placement);
-  const neckSurface: Readonly<AutoMovieHumanPolygon.IExterior> | undefined =
-    output.neckSurface;
-  if (
-    neckSurface === undefined ||
-    neckSurface.units !== "metres" ||
-    neckSurface.sections.length < 2 ||
-    neckSurface.headSections?.length !== 2 ||
-    neckSurface.phases.length < 3 ||
-    neckSurface.crown?.end !== "top" ||
-    !neckSurface.crown.point.every(Number.isFinite)
-  )
-    throw new Error(
-      "Polygon neck and head require the prepared exterior descriptor",
-    );
-
-  /**
-   * Preserve source points while adapting their full extents to half dimensions.
-   *
-   * Principled implementation: Copies actual source course points and centre, halves full extents and retains display correspondence without changing coordinates.
-   * Clear and simple design: One adapter feeds the existing module section contract.
-   * Prohibited implementation shortcuts: No source point is fitted, resampled or resized.
-   * Meaningful documentation: States point preservation and full-to-half extent conversion.
-   * Efficient algorithms: O(N) admission/copy for N supplied course points.
-   * Reuse equivalent work: Reuses source display coordinates and prepares each course once per drawing.
-   * Bound retention and release resources: Copied vectors transfer to construction; no generator or native resource is retained.
-   */
-  const exterior: (
-    source: AutoMovieHumanPolygon.IExteriorSection,
-  ) => buildHumanPolygonModule.ISection = (
-    source: AutoMovieHumanPolygon.IExteriorSection,
-  ): buildHumanPolygonModule.ISection => {
-    if (
-      source.points.length < 3 ||
-      source.sourcePhases.length !== source.points.length ||
-      source.displayCoordinates.length !== source.points.length ||
-      !source.sourcePhases.every(Number.isFinite) ||
-      !source.displayCoordinates.every(Number.isFinite)
-    )
-      throw new Error(
-        "Exterior points require their source phases and display coordinates",
-      );
-    return {
-      centre: new THREE.Vector3(...source.centre),
-      depth: source.depth / 2,
-      breadth: source.breadth / 2,
-      points: source.points.map(
-        (point: [number, number, number]): THREE.Vector3 =>
-          new THREE.Vector3(...point),
-      ),
-      displayCoordinates: source.displayCoordinates,
-    };
-  };
-  const neckRings: buildHumanPolygonModule.ISection[] =
-    neckSurface.sections.map(exterior);
-  const footModules: ReturnType<typeof prepareHumanPolygonFootSurface> =
-    prepareHumanPolygonFootSurface(output);
+  // The neck and head are drawn from their own joints like every other segment.
+  const skeletal: ReturnType<typeof skeletalNeckAndHead> =
+    skeletalNeckAndHead(bones);
+  const neckRings: buildHumanPolygonModule.ISection[] = skeletal.neck;
 
   /**
    * Resolve an original construction joint or refuse its missing identity.
@@ -303,21 +242,16 @@ export function buildHumanPolygon(
   let headObject: THREE.Group;
   let headMesh: THREE.Mesh;
   let headBox: THREE.Box3;
-  let plantar: ReturnType<typeof measureHumanPolygonFootSupport>;
   try {
     ({ headObject, headMesh, headBox } = buildHumanPolygonParts(
       output,
       children,
-      neckSurface,
+      skeletal.crown,
       neckRings,
-      [
-        neckRings[neckRings.length - 1]!,
-        ...neckSurface.headSections.map(exterior),
-      ],
+      [neckRings[neckRings.length - 1]!, ...skeletal.head],
       boneAt,
       add,
       groups,
-      footModules,
     ));
     // Non-emitted driving joints remain real scene nodes for attachments and
     // world-space inspection, using the same admitted evaluator placements.
@@ -331,7 +265,6 @@ export function buildHumanPolygon(
     }
     setPartColors(options.partColors);
     applyHumanPolygonPose(object, bindings, required, output);
-    plantar = measureHumanPolygonFootSupport(output, partMeshes);
   } catch (error: unknown) {
     dispose({ error });
     throw error;
@@ -343,7 +276,6 @@ export function buildHumanPolygon(
     parts: partMeshes,
     bones: groups,
     bindings,
-    ...plantar,
     setPose: (pose: Pick<AutoMovieHumanPolygon.IInput, "posed">): void => {
       if (disposed) throw new Error("Polygon drawing is disposed");
       applyHumanPolygonPose(object, bindings, required, pose);
@@ -357,5 +289,61 @@ export function buildHumanPolygon(
         buildHumanPolygonModule.frontAt(headMesh.geometry, headBox, y, z),
     },
     dispose,
+  };
+}
+
+/**
+ * Neck and head rings from their own joints: a two-ring neck from the neck joint
+ * to the head joint, and a head that widens to the head segment's girth radius
+ * and closes on the head's tip (two girth radii above the joint when no tip).
+ *
+ * @evidence contracts/common.md#principled-implementation Uses only joint positions, girth radii and the head tip, as every procedural segment does; the 0.35/0.75 head heights and 0.92/0.85/0.8 narrowing are display conventions that round the skull, not measured anatomy.
+ * @evidence contracts/common.md#clear-and-simple-design One local helper feeds the existing module sections and crown pole.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No skin surface is imitated; missing neck or head joints refuse.
+ * @evidence contracts/common.md#meaningful-documentation States ring placement, the display convention and the units (registered bind metres).
+ * @evidence contracts/performance.md#efficient-algorithms Constant work over two joints.
+ * @evidence contracts/performance.md#reuse-equivalent-work Called once per drawing.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns plain vectors owned by the assembled module; nothing is retained.
+ */
+function skeletalNeckAndHead(
+  bones: ReadonlyMap<string, AutoMovieHumanPolygon.IBone>,
+): {
+  neck: buildHumanPolygonModule.ISection[];
+  head: buildHumanPolygonModule.ISection[];
+  crown: [number, number, number];
+} {
+  const neck: AutoMovieHumanPolygon.IBone | undefined = bones.get("neck");
+  const head: AutoMovieHumanPolygon.IBone | undefined = bones.get("head");
+  if (!neck || !head)
+    throw new Error("Polygon neck and head require the neck and head joints");
+  const crown: [number, number, number] = head.tip ?? [
+    head.position[0],
+    head.position[1] + 2 * head.radius,
+    head.position[2],
+  ];
+  const base: THREE.Vector3 = new THREE.Vector3(...head.position);
+  const top: THREE.Vector3 = new THREE.Vector3(...crown);
+  return {
+    neck: [
+      Sections.section(
+        new THREE.Vector3(...neck.position),
+        neck.radius,
+        neck.radius,
+      ),
+      Sections.section(base.clone(), neck.radius * 0.92, neck.radius * 0.92),
+    ],
+    head: [
+      Sections.section(
+        base.clone().lerp(top, 0.35),
+        head.radius,
+        head.radius * 0.92,
+      ),
+      Sections.section(
+        base.clone().lerp(top, 0.75),
+        head.radius * 0.85,
+        head.radius * 0.8,
+      ),
+    ],
+    crown,
   };
 }

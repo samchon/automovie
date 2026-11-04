@@ -3,13 +3,13 @@ import * as THREE from "three";
 import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
 import type { buildHumanPolygonModule } from "./buildHumanPolygonModule.js";
 import { humanPolygonSections as Sections } from "./humanPolygonSections.js";
-import type { prepareHumanPolygonFootSurface } from "./prepareHumanPolygonFootSurface.js";
 
 /**
- * Select the original mannequin's rigid modules. Optional source feet feed the
- * same Subtalar/Midfoot assembler; omission retains the procedural foot shape.
+ * Select the original mannequin's rigid modules, every one procedural from the
+ * skeleton: torso rings from joint spans, neck and head rings and crown supplied
+ * by the caller from the neck and head joints, palms and feet from their joints.
  *
- * @evidence contracts/common.md#principled-implementation Preserves original torso/palm boundaries, girth-derived sections, leaf bevels and source neck/head courses. Optional source feet replace only existing Subtalar/Midfoot sections with all admitted courses and the same independent bindings; legacy omission and separately articulated toe geometry retain original formulas. The supplied existing assembler owns local emission and placement.
+ * @evidence contracts/common.md#principled-implementation Preserves original torso/palm boundaries, girth-derived sections, leaf bevels and the procedural Subtalar/Midfoot foot; the neck and head rings come from their joints. The supplied existing assembler owns local emission and placement.
  * @evidence contracts/common.md#clear-and-simple-design Separates unchanged body module selection from drawing lifecycle, palette and pose application; it borrows the existing bone maps and add callback.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No cancelled sparse model, fitted dimensions, new anatomy coefficient or authored pose enters this promotion.
  * @evidence contracts/common.md#meaningful-documentation Records original construction preservation and the supplied assembler's responsibility; source comments retain shared-boundary and custom driving-joint premises.
@@ -20,7 +20,7 @@ import type { prepareHumanPolygonFootSurface } from "./prepareHumanPolygonFootSu
 export function buildHumanPolygonParts(
   output: AutoMovieHumanPolygon.IInput,
   children: ReadonlyMap<string, AutoMovieHumanPolygon.IBone[]>,
-  neckSurface: Readonly<AutoMovieHumanPolygon.IExterior>,
+  crown: [number, number, number],
   neckRings: buildHumanPolygonModule.ISection[],
   headRings: buildHumanPolygonModule.ISection[],
   boneAt: (name: string) => AutoMovieHumanPolygon.IBone,
@@ -32,7 +32,6 @@ export function buildHumanPolygonParts(
     topPole?: [number, number, number],
   ) => THREE.Group,
   groups: ReadonlyMap<string, THREE.Group>,
-  footModules: ReturnType<typeof prepareHumanPolygonFootSurface>,
 ): { headObject: THREE.Group; headMesh: THREE.Mesh; headBox: THREE.Box3 } {
   // Shared horizontal boundaries keep the rest torso's adjoining modules aligned.
   const hips: AutoMovieHumanPolygon.IBone = boneAt("hips");
@@ -99,7 +98,7 @@ export function buildHumanPolygonParts(
     headRings,
     UP,
     undefined,
-    neckSurface.crown.point,
+    crown,
   );
   const headMesh: THREE.Mesh = headObject.children[0] as THREE.Mesh;
   headMesh.geometry.computeBoundingBox();
@@ -159,18 +158,6 @@ export function buildHumanPolygonParts(
 
     const subtalar: AutoMovieHumanPolygon.IBone = boneAt(`${side}Subtalar`);
     const midfoot: AutoMovieHumanPolygon.IBone = boneAt(`${side}Midfoot`);
-    const hindfootSource:
-      | { axis: THREE.Vector3; courses: buildHumanPolygonModule.ISection[] }
-      | undefined = footModules?.get(`${side}Subtalar`);
-    if (hindfootSource !== undefined) {
-      const forefootSource: {
-        axis: THREE.Vector3;
-        courses: buildHumanPolygonModule.ISection[];
-      } = footModules!.get(`${side}Midfoot`)!;
-      add(subtalar, hindfootSource.courses, hindfootSource.axis);
-      add(midfoot, forefootSource.courses, forefootSource.axis);
-      continue;
-    }
     const toes: AutoMovieHumanPolygon.IBone[] =
       children.get(midfoot.bone) ?? [];
     const toeCentre: THREE.Vector3 = Sections.average(toes);

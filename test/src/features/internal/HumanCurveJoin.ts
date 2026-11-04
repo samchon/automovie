@@ -1,7 +1,6 @@
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanPoseChannels } from "../../../../packages/human/src/skeleton/AutoMovieHumanPoseChannels";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import { HumanCurveRing } from "./HumanCurveRing";
 import { HumanCurveVector } from "./HumanCurveVector";
 import { HumanCurveConstants } from "./HumanCurveConstants";
@@ -19,27 +18,27 @@ export namespace HumanCurveJoin {
     generated: RegExp,
     report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
   ): void {
-    const chains: Map<string, IAutoMovieHumanLoftChain> = new Map(
+    const chains: Map<string, IAutoMovieLoftChain> = new Map(
       body.chains.map(
-        (c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain] => [
+        (c: IAutoMovieLoftChain): [string, IAutoMovieLoftChain] => [
           c.name,
           c,
         ],
       ),
     );
-    const find: (n: string) => IAutoMovieHumanLoftChain = (n: string): IAutoMovieHumanLoftChain => chains.get(n)!;
+    const find: (n: string) => IAutoMovieLoftChain = (n: string): IAutoMovieLoftChain => chains.get(n)!;
     for (const event of body.events) {
       // A web's children meet the parent through the web's own surface, which
       // the mesh rules read; their ends stand apart from its ring by design.
       if (event.web === true) continue;
-      const parent: IAutoMovieHumanLoftChain = find(event.parent);
+      const parent: IAutoMovieLoftChain = find(event.parent);
       const down: boolean = event.direction === "down";
       const end: number = down
         ? parent.layers[0]!.y
         : parent.layers[parent.layers.length - 1]!.y;
       const into: number = end + (down ? 1 : -1) * Math.min(REACH, length(parent) / 2);
       for (const split of event.splits) {
-        const child: IAutoMovieHumanLoftChain = find(split.child);
+        const child: IAutoMovieLoftChain = find(split.child);
         if (!generated.test(child.name) && !generated.test(parent.name)) continue;
         const region: string = `${event.parent} > ${child.name}`;
         const tip: number = down
@@ -47,8 +46,8 @@ export namespace HumanCurveJoin {
           : child.layers[0]!.y;
         const away: number = tip + (down ? -1 : 1) * Math.min(REACH, length(child) / 2);
         const fine: number[] = uniform(720);
-        const own: V3[] = AutoMovieHumanLoftChain.ring(child, tip, fine);
-        const next: V3[] = AutoMovieHumanLoftChain.ring(child, away, fine);
+        const own: V3[] = AutoMovieLoftChain.ring(child, tip, fine);
+        const next: V3[] = AutoMovieLoftChain.ring(child, away, fine);
         for (const [from, to] of split.arcs) {
           const span: number = to >= from ? to - from : to + 2 * Math.PI - from;
           const count: number = 48;
@@ -57,8 +56,8 @@ export namespace HumanCurveJoin {
             (_: unknown, i: number): number =>
               from + (span * (i + 0.5)) / count,
           );
-          const ring: V3[] = AutoMovieHumanLoftChain.ring(parent, end, phases);
-          const inner: V3[] = AutoMovieHumanLoftChain.ring(parent, into, phases);
+          const ring: V3[] = AutoMovieLoftChain.ring(parent, end, phases);
+          const inner: V3[] = AutoMovieLoftChain.ring(parent, into, phases);
           const facing: number[] = [];
           ring.forEach((p: V3, i: number): void => {
             let best: number = Infinity;
@@ -140,25 +139,25 @@ export namespace HumanCurveJoin {
     generated: RegExp,
     report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
   ): void {
-    const find: (n: string) => IAutoMovieHumanLoftChain | undefined = (n: string): IAutoMovieHumanLoftChain | undefined =>
-      body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === n);
-    const trunk: IAutoMovieHumanLoftChain | undefined = find("trunk");
-    const upper: IAutoMovieHumanLoftChain | undefined = find("upper");
+    const find: (n: string) => IAutoMovieLoftChain | undefined = (n: string): IAutoMovieLoftChain | undefined =>
+      body.chains.find((c: IAutoMovieLoftChain): boolean => c.name === n);
+    const trunk: IAutoMovieLoftChain | undefined = find("trunk");
+    const upper: IAutoMovieLoftChain | undefined = find("upper");
     if (trunk === undefined || upper === undefined) return;
     const seam: number = trunk.layers[0]!.y;
     if (generated.test("trunk")) {
       const fine: number[] = uniform(720);
       const reach: number = THIGH_TOP * body.stature;
       const side: number = Math.max(
-        ...AutoMovieHumanLoftChain.ring(trunk, seam, fine).map(
+        ...AutoMovieLoftChain.ring(trunk, seam, fine).map(
           (p: V3): number => p[2],
         ),
       );
 
       // The rearmost place of a chain's ring at a height, at the shelf's lateral plane.
-      const rear: (chain: IAutoMovieHumanLoftChain, y: number) => number = (chain: IAutoMovieHumanLoftChain, y: number): number =>
-        rearAt(AutoMovieHumanLoftChain.ring(chain, y, fine), SHELF_PLANE * side);
-      const leg: IAutoMovieHumanLoftChain | undefined = find("leg.left");
+      const rear: (chain: IAutoMovieLoftChain, y: number) => number = (chain: IAutoMovieLoftChain, y: number): number =>
+        rearAt(AutoMovieLoftChain.ring(chain, y, fine), SHELF_PLANE * side);
+      const leg: IAutoMovieLoftChain | undefined = find("leg.left");
       if (leg !== undefined) {
         const at: number = rear(leg, seam);
         const below: number = rear(leg, seam - reach) - at;
@@ -168,7 +167,7 @@ export namespace HumanCurveJoin {
           report("trunk", "shelf", "rear of the crotch ring", ratio, SHELF, [at, seam, SHELF_PLANE * side]);
       }
       const spacing: number = (2 * Math.PI) / trunk.order;
-      const [tip, next]: [V3, V3] = AutoMovieHumanLoftChain.ring(trunk, seam, [
+      const [tip, next]: [V3, V3] = AutoMovieLoftChain.ring(trunk, seam, [
         Math.PI,
         Math.PI - spacing,
       ]) as [V3, V3];
@@ -182,8 +181,8 @@ export namespace HumanCurveJoin {
       );
 
       // The median turn of a chain's normals between two stations, degrees.
-      const turn: (chain: IAutoMovieHumanLoftChain, a: number, b: number) => number = (
-        chain: IAutoMovieHumanLoftChain,
+      const turn: (chain: IAutoMovieLoftChain, a: number, b: number) => number = (
+        chain: IAutoMovieLoftChain,
         a: number,
         b: number,
       ): number => {
@@ -212,11 +211,11 @@ export namespace HumanCurveJoin {
       const count: number = per * trunk.order;
       const pitched: number[] = uniform(count);
       const pinch: number = (TEETH_PINCH * 2 * Math.PI) / trunk.order;
-      trunk.layers.forEach((l: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
+      trunk.layers.forEach((l: IAutoMovieLoftChain.ILayer, k: number): void => {
         const stations: number[] =
           k === 0 ? [l.y] : [(l.y + trunk.layers[k - 1]!.y) / 2, l.y];
         for (const s of stations) {
-          const ring: V3[] = AutoMovieHumanLoftChain.ring(trunk, s, pitched);
+          const ring: V3[] = AutoMovieLoftChain.ring(trunk, s, pitched);
           const heading: number[] = ring.map((p: V3, i: number): number => {
             const q: V3 = ring[(i + 1) % count]!;
             return Math.atan2(q[2] - p[2], q[0] - p[0]);
@@ -234,11 +233,11 @@ export namespace HumanCurveJoin {
       });
     }
     for (const name of ["leg.left", "leg.right"]) {
-      const leg: IAutoMovieHumanLoftChain | undefined = find(name);
+      const leg: IAutoMovieLoftChain | undefined = find(name);
       if (leg === undefined || !generated.test(name)) continue;
       const top: number = leg.layers[leg.layers.length - 1]!.y;
       for (const share of STREAK_SHARES) {
-        const ring: V3[] = AutoMovieHumanLoftChain.ring(
+        const ring: V3[] = AutoMovieLoftChain.ring(
           leg,
           top - share * body.stature,
           uniform(512),
@@ -277,8 +276,8 @@ export namespace HumanCurveJoin {
     generated: RegExp,
     report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
   ): void {
-    const trunk: IAutoMovieHumanLoftChain | undefined = body.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk",
+    const trunk: IAutoMovieLoftChain | undefined = body.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "trunk",
     );
     const event: IAutoMovieHumanBodyCalibration.IEvent | undefined = body.events.find(
       (e: IAutoMovieHumanBodyCalibration.IEvent): boolean => e.parent === "trunk" && e.direction === "down",
@@ -288,8 +287,8 @@ export namespace HumanCurveJoin {
     );
     for (const side of ["left", "right"]) {
       const name: string = `leg.${side}`;
-      const leg: IAutoMovieHumanLoftChain | undefined = body.chains.find(
-        (c: IAutoMovieHumanLoftChain): boolean => c.name === name,
+      const leg: IAutoMovieLoftChain | undefined = body.chains.find(
+        (c: IAutoMovieLoftChain): boolean => c.name === name,
       );
       if (leg === undefined || !generated.test(name)) continue;
       const low: number = leg.layers[0]!.y;
@@ -302,14 +301,14 @@ export namespace HumanCurveJoin {
       if (knee !== undefined && flexion !== undefined && knee[1] > low && knee[1] < top) {
         const range: number = flexion[5] - flexion[4];
         const depth: number = Math.min(
-          ...AutoMovieHumanLoftChain.ring(leg, knee[1], uniform(PHASES)).map((p: V3): number => distance(p, knee)),
+          ...AutoMovieLoftChain.ring(leg, knee[1], uniform(PHASES)).map((p: V3): number => distance(p, knee)),
         );
         const half: number = BEND * depth;
         const ramp: (s: number) => number = (s: number): number => {
           const y: number = (Math.min(1, Math.max(-1, (s - knee[1]) / half)) + 1) / 2;
           return y * y * y * (y * (6 * y - 15) + 10);
         };
-        leg.layers.forEach((l: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
+        leg.layers.forEach((l: IAutoMovieLoftChain.ILayer, k: number): void => {
           if (k === 0) return;
           const turn: number = range * (ramp(l.y) - ramp(leg.layers[k - 1]!.y));
           if (turn > ALIAS) report(name, "rows", `layer ${band(k)}`, turn, ALIAS, knee);
@@ -321,10 +320,10 @@ export namespace HumanCurveJoin {
         (s: IAutoMovieHumanBodyCalibration.ISplit): boolean => s.child === name,
       );
       if (trunk === undefined || split === undefined) continue;
-      const pinches: V3[] = AutoMovieHumanLoftChain.ring(trunk, trunk.layers[0]!.y, split.arcs.flat());
+      const pinches: V3[] = AutoMovieLoftChain.ring(trunk, trunk.layers[0]!.y, split.arcs.flat());
       const phases: number[] = uniform(CORNER_PHASES);
       for (let d: number = CORNER_FROM; d <= THIGH_TOP * body.stature && top - d > low; d += CORNER_STEP) {
-        const ring: V3[] = AutoMovieHumanLoftChain.ring(leg, top - d, phases);
+        const ring: V3[] = AutoMovieLoftChain.ring(leg, top - d, phases);
         const n: number = ring.length;
         const walk: (from: number, step: number) => V3 = (from: number, step: number): V3 => {
           let gone: number = 0;

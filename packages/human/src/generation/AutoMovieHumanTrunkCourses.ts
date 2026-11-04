@@ -1,6 +1,4 @@
-﻿import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
-import { AutoMovieHumanRelief } from "../network/AutoMovieHumanRelief";
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+﻿import { AutoMovieSplineCurve, AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 import { AutoMovieHumanTrunkRing } from "./AutoMovieHumanTrunkRing";
 import type { AutoMovieHumanTrunkColumn } from "./AutoMovieHumanTrunkColumn";
@@ -64,7 +62,7 @@ export namespace AutoMovieHumanTrunkCourses {
   /** The skin point of a section at a lateral place, front (phases 0 to L) or back (L to S), reliefs included. */
   export function point(
     s: AutoMovieHumanTrunkQuadrant.ISection,
-    reliefs: readonly IAutoMovieHumanRelief[],
+    reliefs: readonly IAutoMovieLoftRelief[],
     z: number,
     side: AutoMovieHumanTrunkQuadrant.Side,
     controls: number[] = AutoMovieHumanTrunkRing.controls(s),
@@ -74,7 +72,7 @@ export namespace AutoMovieHumanTrunkCourses {
     // Phase rises with z on the front and falls with it on the back.
     let lo: number = side === "front" ? 0 : L;
     let hi: number = side === "front" ? L : S;
-    const zAt = (t: number): number => AutoMovieHumanSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t)[1];
+    const zAt = (t: number): number => AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t)[1];
     for (let k: number = 0; k < 40; k++) {
       const mid: number = (lo + hi) / 2;
       const rising: boolean = side === "front";
@@ -82,12 +80,12 @@ export namespace AutoMovieHumanTrunkCourses {
       else hi = mid;
     }
     const t: number = (lo + hi) / 2;
-    const p: [number, number, number, number] = AutoMovieHumanSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
+    const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
     let x: number = p[0];
     let y: number = s.y;
     let zz: number = p[1];
     for (const r of reliefs) {
-      const d: number = AutoMovieHumanRelief.height(r, s.y, t)[0];
+      const d: number = AutoMovieLoftRelief.height(r, s.y, t)[0];
       x += d * r.axis[0];
       y += d * r.axis[1];
       zz += d * r.axis[2];
@@ -101,7 +99,7 @@ export namespace AutoMovieHumanTrunkCourses {
    */
   export function sideNeckToBust(
     column: AutoMovieHumanTrunkColumn.IColumn,
-    reliefs: readonly IAutoMovieHumanRelief[],
+    reliefs: readonly IAutoMovieLoftRelief[],
     neck: V3,
     bust: V3,
   ): number {
@@ -137,15 +135,15 @@ export namespace AutoMovieHumanTrunkCourses {
    * ISO 8559-1 5.4.7, across front width: between the anterior axillary fold
    * points over the front of the section at the axilla, taut.
    */
-  export function acrossFront(s: AutoMovieHumanTrunkQuadrant.ISection, reliefs: readonly IAutoMovieHumanRelief[]): number {
+  export function acrossFront(s: AutoMovieHumanTrunkQuadrant.ISection, reliefs: readonly IAutoMovieLoftRelief[]): number {
     const controls: number[] = AutoMovieHumanTrunkRing.controls(s);
     const A: number = AutoMovieHumanTrunkQuadrant.phase(AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary);
     const at = (t: number): V3 => {
-      const p: [number, number, number, number] = AutoMovieHumanSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
+      const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(controls, AutoMovieHumanTrunkQuadrant.ORDER, t);
       let x: number = p[0];
       let z: number = p[1];
       for (const r of reliefs) {
-        const d: number = AutoMovieHumanRelief.height(r, s.y, t)[0];
+        const d: number = AutoMovieLoftRelief.height(r, s.y, t)[0];
         x += d * r.axis[0];
         z += d * r.axis[2];
       }

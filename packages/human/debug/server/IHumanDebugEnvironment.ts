@@ -12,7 +12,7 @@ export interface IHumanDebugEnvironment {
   /** Server port. */
   port: number;
 
-  /** Log of the separate `ttsc --watch -p tsconfig.debug.json` run. */
+  /** Log of the viewer's compile collector, `ttsc --noEmit --watch -p tsconfig.debug.json` in `packages/human`. */
   checkLog: string;
 
   /** Concurrent person generations allowed on the machine. */

@@ -1,8 +1,6 @@
 import type { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanBodyStrip } from "./AutoMovieHumanBodyStrip";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -28,7 +26,7 @@ export namespace AutoMovieHumanBodyRoots {
     u: number,
     winding: number = 0,
   ): [number, number, number, number] {
-    const [s, t, ds, dt] = AutoMovieHumanSplineCurve.evaluate(root, root.length / 2, u);
+    const [s, t, ds, dt] = AutoMovieSplineCurve.evaluate(root, root.length / 2, u);
     return [s, t + winding * u, ds, dt + winding];
   }
 
@@ -65,9 +63,14 @@ export namespace AutoMovieHumanBodyRoots {
 
   /** A winding loop's station at a phase, between its samples ordered by phase. */
   export function station(loop: readonly [number, number][], t: number): number {
-    const sorted: [number, number][] = loop
-      .map((p: [number, number]): [number, number] => [wrap(p[1]), p[0]])
-      .sort((a: [number, number], b: [number, number]): number => a[0] - b[0]);
+    // A loop never changes once built, so its samples are ordered by phase once.
+    let sorted: [number, number][] | undefined = SORTED.get(loop);
+    if (sorted === undefined) {
+      sorted = loop
+        .map((p: [number, number]): [number, number] => [wrap(p[1]), p[0]])
+        .sort((a: [number, number], b: [number, number]): number => a[0] - b[0]);
+      SORTED.set(loop, sorted);
+    }
     const x: number = wrap(t);
     let k: number = sorted.findIndex((p: [number, number]): boolean => p[0] > x);
     if (k < 0) k = 0;
@@ -89,9 +92,25 @@ export namespace AutoMovieHumanBodyRoots {
     s: number,
     t: number,
   ): boolean {
-    const centre: number =
-      loop.reduce((sum: number, p: [number, number]): number => sum + p[1], 0) /
-      loop.length;
+    // A loop never changes once built, so its mean phase and station range
+    // are read once; a station outside the range crosses no edge.
+    let shape: IShape | undefined = SHAPES.get(loop);
+    if (shape === undefined) {
+      let low: number = Infinity;
+      let high: number = -Infinity;
+      for (const p of loop) {
+        low = Math.min(low, p[0]);
+        high = Math.max(high, p[0]);
+      }
+      shape = {
+        centre: loop.reduce((sum: number, p: [number, number]): number => sum + p[1], 0) / loop.length,
+        low,
+        high,
+      };
+      SHAPES.set(loop, shape);
+    }
+    if (s >= shape.high || s < shape.low) return false;
+    const centre: number = shape.centre;
     const phase: number =
       t + 2 * Math.PI * Math.round((centre - t) / (2 * Math.PI));
     let crossings: boolean = false;
@@ -126,9 +145,9 @@ export namespace AutoMovieHumanBodyRoots {
   export function join(
     mesh: AutoMovieHumanLoftMesh.IContext,
     coordinates: number[],
-    base: IAutoMovieHumanLoftChain,
+    base: IAutoMovieLoftChain,
     baseIndex: number,
-    appendage: IAutoMovieHumanLoftChain,
+    appendage: IAutoMovieLoftChain,
     root: IAutoMovieHumanBodyCalibration.IAppendage,
     ring: readonly number[],
     phases: readonly number[],
@@ -203,7 +222,7 @@ export namespace AutoMovieHumanBodyRoots {
    * @returns `[station, phase]` per outline point.
    */
   export function trim(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     outline: AutoMovieHumanLoftAperture.IOutline,
     heights: [number, number],
   ): [number, number][] {
@@ -235,10 +254,13 @@ export namespace AutoMovieHumanBodyRoots {
         const ra: number = a - target[0];
         const rb: number = b - target[1];
         if (Math.hypot(ra, rb) < 1e-4) break;
-        const ps = project(s + 0.01, t);
+        // The station's difference stays inside the chain: one-sided
+        // backward at its top layer, where a forward step would leave it.
+        const h: number = s + 0.01 <= y1 ? 0.01 : -0.01;
+        const ps = project(s + h, t);
         const pt = project(s, t + 1e-4);
-        const j11: number = (ps[0] - a) / 0.01;
-        const j21: number = (ps[1] - b) / 0.01;
+        const j11: number = (ps[0] - a) / h;
+        const j21: number = (ps[1] - b) / h;
         const j12: number = (pt[0] - a) / 1e-4;
         const j22: number = (pt[1] - b) / 1e-4;
         const det: number = j11 * j22 - j12 * j21;
@@ -281,6 +303,24 @@ const H: number = 0.05;
 
 const sub = (a: V, b: V): V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 
+/** A loop's mean phase and station range. */
+interface IShape {
+  /** Mean phase, radians. */
+  centre: number;
+
+  /** Least station, mm. */
+  low: number;
+
+  /** Greatest station, mm. */
+  high: number;
+}
+
+/** Each loop's mean phase and station range, read once. */
+const SHAPES: WeakMap<readonly [number, number][], IShape> = new WeakMap();
+
+/** Each loop's samples as `[phase, station]` ordered by phase, read once. */
+const SORTED: WeakMap<readonly [number, number][], [number, number][]> = new WeakMap();
+
 /** Phase reduced to `[0, 2 pi)`. */
 function wrap(t: number): number {
   const r: number = t % (2 * Math.PI);
@@ -299,11 +339,11 @@ function polygonArea(loop: readonly [number, number][]): number {
 }
 
 /** Surface point of a chain at a chart point, the station clamped into it. */
-const at: (chain: IAutoMovieHumanLoftChain, s: number, t: number) => V =
+const at: (chain: IAutoMovieLoftChain, s: number, t: number) => V =
   AutoMovieHumanBodyStrip.surface;
 
 /** Unit outward surface normal of a chain at a chart point: away from its axis. */
-function normal(chain: IAutoMovieHumanLoftChain, s: number, t: number): V {
+function normal(chain: IAutoMovieLoftChain, s: number, t: number): V {
   const ds: V = sub(at(chain, s + H, t), at(chain, s - H, t));
   const dt: V = sub(at(chain, s, t + 1e-3), at(chain, s, t - 1e-3));
   const n: V = [
@@ -315,7 +355,7 @@ function normal(chain: IAutoMovieHumanLoftChain, s: number, t: number): V {
   const p: V = at(chain, s, t);
   const y0: number = chain.layers[0]!.y;
   const y1: number = chain.layers[chain.layers.length - 1]!.y;
-  const c: V = AutoMovieHumanLoftChain.axis(chain, Math.min(y1, Math.max(y0, s)));
+  const c: V = AutoMovieLoftChain.axis(chain, Math.min(y1, Math.max(y0, s)));
   const sign: number = (p[0] - c[0]) * n[0] + (p[1] - c[1]) * n[1] + (p[2] - c[2]) * n[2] < 0 ? -1 : 1;
   return [(sign * n[0]) / l, (sign * n[1]) / l, (sign * n[2]) / l];
 }
@@ -355,7 +395,8 @@ function oriented(
  * Zipper between two closed vertex loops in one chart: the root loop and
  * the hole's edge round it. Both are put in the same orientation and
  * started at their nearest pair, then merged by the share of their chart
- * perimeter walked so far.
+ * perimeter walked so far. The chart's second coordinate is a phase of
+ * `period` (a chain's), or not periodic for `Infinity` (an opening's plane).
  */
 function seam(
   mesh: AutoMovieHumanLoftMesh.IContext,
@@ -363,15 +404,14 @@ function seam(
   innerCharts: readonly [number, number][],
   outer: readonly number[],
   outerCharts: readonly [number, number][],
+  period: number = 2 * Math.PI,
 ): void {
   // Phases of both loops on the branch of the inner loop's mean.
   const centre: number =
     innerCharts.reduce((a: number, p: [number, number]): number => a + p[1], 0) /
     innerCharts.length;
-  const near = (p: [number, number]): [number, number] => [
-    p[0],
-    p[1] + 2 * Math.PI * Math.round((centre - p[1]) / (2 * Math.PI)),
-  ];
+  const near = (p: [number, number]): [number, number] =>
+    Number.isFinite(period) ? [p[0], p[1] + period * Math.round((centre - p[1]) / period)] : [p[0], p[1]];
   const I: [number, number][] = innerCharts.map(near);
   let O: [number, number][] = outerCharts.map(near);
   let outerVertices: number[] = [...outer];

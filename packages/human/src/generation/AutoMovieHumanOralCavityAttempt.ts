@@ -1,4 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import { AutoMovieHumanOralCavity } from "./AutoMovieHumanOralCavity";
 
@@ -22,7 +22,7 @@ export namespace AutoMovieHumanOralCavityAttempt {
     rim: readonly [number, number, number][] | undefined,
     mouth: AutoMovieHumanMouth.IMouth,
     scale: number,
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
+    diagnostics: AutoMovieLoftContract.IDiagnostic[],
   ): AutoMovieHumanOralCavity.IOutput | null {
     try {
       if (rim === undefined || rim.length < 3) throw new Error("The skin closed no mouth trim loop");

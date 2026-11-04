@@ -1,4 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "../../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
 
 /**
@@ -74,11 +74,11 @@ export namespace AutoMovieHumanLegCentreLine {
       { at: input.knee, offset: 0 },
       { at: input.crotch.at, offset: high[0] },
     ].sort((a: { at: number; offset: number }, b: { at: number; offset: number }): number => a.at - b.at);
-    const u: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
+    const u: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       forward.map((m: { at: number; offset: number }): number => m.at),
       forward.map((m: { at: number; offset: number }): number => m.offset),
     );
-    const v: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create([input.ankle.at, input.knee, input.crotch.at], [low[1], 0, high[1]]);
-    return (s: number): [number, number] => [AutoMovieHumanNaturalSpline.evaluate(u, s), AutoMovieHumanNaturalSpline.evaluate(v, s)];
+    const v: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create([input.ankle.at, input.knee, input.crotch.at], [low[1], 0, high[1]]);
+    return (s: number): [number, number] => [AutoMovieNaturalSpline.evaluate(u, s), AutoMovieNaturalSpline.evaluate(v, s)];
   }
 }

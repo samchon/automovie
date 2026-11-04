@@ -6,7 +6,7 @@ A named part makes a change local; a group makes its members move and change tog
 
 Split an asset into fine named parts and group them as the object is assembled and moves. A part owns its shape; a group references its members rather than copying their shapes, so editing a member cannot leave a second definition behind.
 
-For placement and motion, a group is a node with children: its frame is the pivot of its subtree and its rotation limit is the subtree's range of motion. Put the frame on the real axis, such as a hinge, and link across branches with a driver, never a second parent, so a member's transform has one owner.
+For placement and motion, a group is a node with children: its frame is the pivot of its subtree and its rotation limit is the subtree's range of motion. Put the frame on the real axis, such as a hinge, and link across branches with a driver, never a second parent, so a member's transform has one owner. A rigid member moves through its transform; a deforming one needs the [rig](rigging.md) its performance requires.
 
 ## Frames And Connections
 
@@ -22,4 +22,4 @@ A source-module boundary need not cut the rendered surface. Put shared dimension
 
 ## Explanation
 
-Modular code exposes the dependency graph, while comments preserve the premises and reasons that its calculations alone do not show. Apply [Meaningful documentation](../contracts/common.md#meaningful-documentation) to the public contracts and implementation, using the [documentation skill](../documentation/SKILL.md)'s writing rules, so a later agent can follow why the parts fit before changing them.
+Modular code exposes the dependency graph, while comments preserve the premises and reasons that its calculations alone do not show. Document the public contracts and implementation as the project's development skill requires, with the [documentation skill](../documentation/SKILL.md)'s writing rules, so a later agent can follow why the parts fit before changing them.

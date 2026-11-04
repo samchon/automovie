@@ -1,4 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 
 /** The prior's curves prepared. */
@@ -7,8 +7,8 @@ export interface IAutoMovieHumanHeadCompiled {
   prior: AutoMovieHumanHeadPrior.IPrior;
 
   /** Nose's profile along the dorsum. */
-  profile: AutoMovieHumanNaturalSpline.ISpline;
+  profile: AutoMovieNaturalSpline.ISpline;
 
   /** Nose's dorsum along the station. */
-  dorsum: AutoMovieHumanNaturalSpline.ISpline;
+  dorsum: AutoMovieNaturalSpline.ISpline;
 }

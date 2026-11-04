@@ -1,7 +1,6 @@
 import { AutoMovieHumanSeamCarve } from "../lofting/AutoMovieHumanSeamCarve";
 import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
-import { AutoMovieHumanRelief } from "../network/AutoMovieHumanRelief";
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+import { AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
 
@@ -9,7 +8,7 @@ import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature"
  * The merge of a feature into the trunk: a relief window over the trunk's
  * chart whose control net is the feature's height sampled at the base surface.
  *
- * A window's net has its three outer rings zero (`IAutoMovieHumanRelief`), so
+ * A window's net has its three outer rings zero (`IAutoMovieLoftRelief`), so
  * the relief's height, slope and curvature vanish at the window's edge (rule
  * J7). With n controls control k peaks at the window fraction `(k - 1) / (n -
  * 3)`, so the inner controls `3 .. n - 4` span `2 / (n - 3)` to `(n - 5) / (n -
@@ -63,7 +62,7 @@ export namespace AutoMovieHumanTrunkReliefNet {
     feature: IAutoMovieHumanTrunkFeature,
     window: IWindow,
     base: Base,
-  ): IAutoMovieHumanRelief {
+  ): IAutoMovieLoftRelief {
     const n: number = COUNT;
     const grow: number = 2 / (n - 7);
     const first: number = 2 / (n - 3);
@@ -120,7 +119,7 @@ export namespace AutoMovieHumanTrunkReliefNet {
         const [u, v]: [number, number, number] = AutoMovieHumanTrunkFeatureFrame.local(feature.frame, base(drawn(s), turned(t)));
         heights.push(feature.height(u, v));
       }
-    const relief: IAutoMovieHumanRelief = {
+    const relief: IAutoMovieLoftRelief = {
       name,
       stations,
       phases,
@@ -131,7 +130,7 @@ export namespace AutoMovieHumanTrunkReliefNet {
     };
 
     // Scale the net so the evaluated relief reaches the feature's height at the apex.
-    const reached: number = AutoMovieHumanRelief.height(relief, apexS, apexT)[0];
+    const reached: number = AutoMovieLoftRelief.height(relief, apexS, apexT)[0];
     const wanted: number = feature.height(feature.apex[0], feature.apex[1]);
     const gain: number = reached !== 0 ? wanted / reached : 0;
     const scaled: number[] = heights.map((h: number): number => h * gain);
@@ -157,7 +156,7 @@ export namespace AutoMovieHumanTrunkReliefNet {
    * @param name The right relief's name.
    * @returns The right relief.
    */
-  export function mirror(relief: IAutoMovieHumanRelief, name: string): IAutoMovieHumanRelief {
+  export function mirror(relief: IAutoMovieLoftRelief, name: string): IAutoMovieLoftRelief {
     const n: number = relief.columns;
     const heights: number[] = [];
 

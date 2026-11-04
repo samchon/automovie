@@ -8,7 +8,7 @@ import { AutoMovieHumanShapeStages } from "./AutoMovieHumanShapeStages";
 import type { IAutoMovieHumanBodyCalibration } from "./generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanStateAdmission } from "./instance/AutoMovieHumanStateAdmission";
 import type { IAutoMovieHumanPrepared } from "./instance/IAutoMovieHumanPrepared";
-import type { AutoMovieHumanLoftContract } from "./lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import type { AutoMovieHumanRig } from "./skeleton/AutoMovieHumanRig";
 import { AutoMovieHumanSkeleton } from "./skeleton/AutoMovieHumanSkeleton";
 import type { IAutoMovieHumanGenerated } from "./structures/IAutoMovieHumanGenerated";
@@ -84,7 +84,7 @@ export class AutoMovieHuman {
    * @param params Complete public input.
    * @returns The diagnostics, in the order the stages recorded them.
    */
-  public static diagnose(params: IAutoMovieHumanParameters): AutoMovieHumanLoftContract.IDiagnostic[] {
+  public static diagnose(params: IAutoMovieHumanParameters): AutoMovieLoftContract.IDiagnostic[] {
     return construct(params).diagnostics;
   }
 
@@ -134,7 +134,7 @@ interface IConstructed {
    * replaced by its base: the shape's (mouth, body pieces) and the
    * appearance's (hair, brows, lashes). Empty for a sound figure.
    */
-  diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+  diagnostics: AutoMovieLoftContract.IDiagnostic[];
 }
 
 /**

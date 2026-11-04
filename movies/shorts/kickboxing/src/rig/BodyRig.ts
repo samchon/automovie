@@ -70,10 +70,8 @@ export class BodyRig {
   private readonly order: Map<string, number>;
 
   public constructor(parameters: IAutoMovieHumanParameters) {
-    this.evaluate = AutoMovieHumanSkeleton.prepare(parameters, {
-      neckSurface: true,
-      footSurface: true,
-    });
+    // The polygon figure draws from the skeleton alone, so no skin descriptor is requested.
+    this.evaluate = AutoMovieHumanSkeleton.prepare(parameters);
     this.neutral = this.evaluate({});
     const bones: string[] = ["hips", "chest", "neck", "head"];
     for (const side of ["left", "right"] as const)

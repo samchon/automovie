@@ -1,5 +1,4 @@
-import { AutoMovieHumanSeamStation } from "../lofting/AutoMovieHumanSeamStation";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieSeamStation, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanShoulderRing } from "./AutoMovieHumanShoulderRing";
 import { AutoMovieHumanTrunkNeckSeat } from "./AutoMovieHumanTrunkNeckSeat";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
@@ -42,7 +41,7 @@ export namespace AutoMovieHumanTrunkChains {
     samples: number;
 
     /** Phase correspondence rule. */
-    rule: IAutoMovieHumanLoftChain["rule"];
+    rule: IAutoMovieLoftChain["rule"];
   }
 
   /**
@@ -52,9 +51,9 @@ export namespace AutoMovieHumanTrunkChains {
    * @param sampling The chains' ring sampling.
    * @returns `trunk` and `upper`, bottom first.
    */
-  export function build(solution: IAutoMovieHumanTrunkSolution, sampling: ISampling): [IAutoMovieHumanLoftChain, IAutoMovieHumanLoftChain] {
+  export function build(solution: IAutoMovieHumanTrunkSolution, sampling: ISampling): [IAutoMovieLoftChain, IAutoMovieLoftChain] {
     const l: IAutoMovieHumanTrunkLandmarks = solution.landmarks;
-    const top: IAutoMovieHumanLoftChain.ILayer = AutoMovieHumanTrunkNeckSeat.layer(solution.neck);
+    const top: IAutoMovieLoftChain.ILayer = AutoMovieHumanTrunkNeckSeat.layer(solution.neck);
     const spacing = (): number => AutoMovieHumanTrunkRows.MAX_GAP;
 
     // Rows of each chain between its ends, the landmarks kept; the vault is
@@ -80,15 +79,15 @@ export namespace AutoMovieHumanTrunkChains {
 
     // A family: its rings at the vault and above it, the neck's layer on top,
     // under the station rule with the neck's copied layer kept.
-    const family = (name: string, ring: (y: number) => number[]): IAutoMovieHumanLoftChain => {
-      const layers: IAutoMovieHumanLoftChain.ILayer[] = rows.map((y: number, k: number): IAutoMovieHumanLoftChain.ILayer => {
+    const family = (name: string, ring: (y: number) => number[]): IAutoMovieLoftChain => {
+      const layers: IAutoMovieLoftChain.ILayer[] = rows.map((y: number, k: number): IAutoMovieLoftChain.ILayer => {
         if (k === rows.length - 1) return top;
         const coefficients: number[] = k < vault ? torso[k]! : ring(y);
 
         return { y, coefficients, slopes: new Array<number>(coefficients.length).fill(0) };
       });
 
-      return AutoMovieHumanSeamStation.continuous(
+      return AutoMovieSeamStation.continuous(
         {
           name,
           basis: "spline",
@@ -104,10 +103,10 @@ export namespace AutoMovieHumanTrunkChains {
 
     // The trunk's family reads the torso at the vault and the shoulders' wall
     // without the arm above it; the shoulders' family its own ring from the vault up.
-    const trunk: IAutoMovieHumanLoftChain = family("trunk", (y: number): number[] =>
+    const trunk: IAutoMovieLoftChain = family("trunk", (y: number): number[] =>
       y <= l.axilla ? torso[vault]! : AutoMovieHumanShoulderRing.wall(shoulder, y),
     );
-    const upper: IAutoMovieHumanLoftChain = family("upper", (y: number): number[] => AutoMovieHumanShoulderRing.controls(shoulder, y));
+    const upper: IAutoMovieLoftChain = family("upper", (y: number): number[] => AutoMovieHumanShoulderRing.controls(shoulder, y));
 
     return [
       { ...trunk, layers: trunk.layers.slice(0, vault + 1) },

@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain as Loft } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain as Loft, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -8,9 +7,8 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * final calibrated FootConstruction law as the skin. No skin mesh is built.
  * The source fan carries the ankle around the calcaneus to the ball. Its
  * course at the existing Midfoot joint's longitudinal coordinate belongs to
- * both rigid modules; the forefoot continues along the same canonical foot
- * chain to its web ring, where the independently articulated toe chains
- * begin. Rigid articulation can open this seam, as in the original display.
+ * both rigid modules; the forefoot continues along the canonical forefoot
+ * chains. Rigid articulation can open this seam, as in the original display.
  * Named plantar samples identify anatomy, not guaranteed floor contacts.
  */
 export namespace AutoMovieHumanFootSurface {
@@ -20,8 +18,8 @@ export namespace AutoMovieHumanFootSurface {
   /** Anatomical side, independent of a production's actor identity. */
   export type Side = "left" | "right";
 
-  /** Canonical foot chain, excluding the independently articulated toe chains. */
-  export type Chain = `foot.${Side}`;
+  /** Canonical foot chains, excluding independently articulated toes. */
+  export type Chain = `foot.${Side}` | `forefoot.${Side}.${1 | 2}`;
 
   /** The three anatomical plantar samples the original renderer retains. */
   export type Landmark = "plantarHeel" | "medialBall" | "lateralBall";
@@ -124,7 +122,7 @@ export namespace AutoMovieHumanFootSurface {
 
 /** Exact source chain and material address used before a display ring exists. */
 interface IAddress {
-  /** Source chain. */ chain: IAutoMovieHumanLoftChain;
+  /** Source chain. */ chain: IAutoMovieLoftChain;
 
   /** Calibration-mm station. */ station: number;
 }
@@ -160,16 +158,16 @@ function side(
   };
   const chain: (
     name: AutoMovieHumanFootSurface.Chain,
-  ) => IAutoMovieHumanLoftChain = (
+  ) => IAutoMovieLoftChain = (
     name: AutoMovieHumanFootSurface.Chain,
-  ): IAutoMovieHumanLoftChain => {
-    const found: IAutoMovieHumanLoftChain | undefined = body.chains.find(
-      (item: IAutoMovieHumanLoftChain): boolean => item.name === name,
+  ): IAutoMovieLoftChain => {
+    const found: IAutoMovieLoftChain | undefined = body.chains.find(
+      (item: IAutoMovieLoftChain): boolean => item.name === name,
     );
     if (found === undefined) throw new Error(`Foot exterior lacks ${name}`);
     return found;
   };
-  const foot: IAutoMovieHumanLoftChain = chain(`foot.${own}`);
+  const foot: IAutoMovieLoftChain = chain(`foot.${own}`);
   const ankle: AutoMovieHumanFootSurface.Vector = joint("Foot").position;
   const ball: AutoMovieHumanFootSurface.Vector = joint("Foot").toward;
   const forward: AutoMovieHumanFootSurface.Vector = unit([
@@ -183,10 +181,10 @@ function side(
   const split: number = crossing(foot, along, along(joint("Midfoot").position));
   const hind: IAddress[] = foot.layers
     .filter(
-      (layer: IAutoMovieHumanLoftChain.ILayer): boolean => layer.y > split,
+      (layer: IAutoMovieLoftChain.ILayer): boolean => layer.y > split,
     )
     .map(
-      (layer: IAutoMovieHumanLoftChain.ILayer): IAddress => ({
+      (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
         chain: foot,
         station: layer.y,
       }),
@@ -198,16 +196,32 @@ function side(
     seam,
     ...foot.layers
       .filter(
-        (layer: IAutoMovieHumanLoftChain.ILayer): boolean => layer.y < split,
+        (layer: IAutoMovieLoftChain.ILayer): boolean => layer.y < split,
       )
       .map(
-        (layer: IAutoMovieHumanLoftChain.ILayer): IAddress => ({
+        (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
           chain: foot,
           station: layer.y,
         }),
       )
       .reverse(),
   ];
+  for (const ordinal of [1, 2] as const) {
+    const source: IAutoMovieLoftChain = chain(
+      `forefoot.${own}.${ordinal}`,
+    );
+    front.push(
+      ...source.layers
+        .map(
+          (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
+            chain: source,
+            station: layer.y,
+          }),
+        )
+        .reverse(),
+    );
+  }
+
   // The heel is plantar skin posterior to the ankle, not an ankle-tube vertex.
   let heel: { course: number; result: IMinimum } | undefined;
   for (let course: number = 0; course < hind.length; course++) {
@@ -375,7 +389,7 @@ function side(
 
 /** First source-axis crossing from the ball toward the ankle; no surface is moved. */
 function crossing(
-  chain: IAutoMovieHumanLoftChain,
+  chain: IAutoMovieLoftChain,
   along: (point: AutoMovieHumanFootSurface.Vector) => number,
   target: number,
 ): number {

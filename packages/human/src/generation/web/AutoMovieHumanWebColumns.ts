@@ -1,5 +1,4 @@
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import { type AutoMovieLoftFrame, type IAutoMovieLoftChain, AutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanSeam } from "../../lofting/IAutoMovieHumanSeam";
 import type { IAutoMovieHumanWeb } from "./IAutoMovieHumanWeb";
 import type { IAutoMovieHumanWebBranch } from "./IAutoMovieHumanWebBranch";
@@ -9,7 +8,6 @@ import type { IAutoMovieHumanWebColumns } from "./IAutoMovieHumanWebColumns";
 import type { IAutoMovieHumanWebCrests } from "./IAutoMovieHumanWebCrests";
 import type { IAutoMovieHumanWebInput } from "./IAutoMovieHumanWebInput";
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
-import { AutoMovieHumanLoftChain } from "../../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
 
@@ -68,16 +66,16 @@ export namespace AutoMovieHumanWebColumns {
 
     // Every child's columns, before the rows are counted.
     const children: IAutoMovieHumanWebBranch[] = input.shares.map((share: IAutoMovieHumanWebInput.IShare): IAutoMovieHumanWebBranch => {
-      const child: IAutoMovieHumanLoftChain = input.chain(share.name);
+      const child: IAutoMovieLoftChain = input.chain(share.name);
       const sc: number = down ? child.layers[child.layers.length - 1]!.y : child.layers[0]!.y;
-      const onChild: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(child, sc);
-      const inChild: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(child, sc + (down ? -H : H));
+      const onChild: (t: number) => Vec3 = AutoMovieLoftChain.sampler(child, sc);
+      const inChild: (t: number) => Vec3 = AutoMovieLoftChain.sampler(child, sc + (down ? -H : H));
       const into = (t: number): Vec3 => unit(sub(inChild(t), onChild(t)));
       // The child's station curve at a phase, entering it from its end ring.
-      const deepChild: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(child, sc + (down ? -2 * H : 2 * H));
+      const deepChild: (t: number) => Vec3 = AutoMovieLoftChain.sampler(child, sc + (down ? -2 * H : 2 * H));
       const childJet = (t: number): IAutoMovieHumanSeam.IArcJet => leaving(onChild(t), inChild(t), deepChild(t), 1);
-      const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(child, sc);
-      const O: Vec3 = AutoMovieHumanLoftChain.axis(child, sc);
+      const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(child, sc);
+      const O: Vec3 = AutoMovieLoftChain.axis(child, sc);
       const angle = (p: Vec3): number => Math.atan2(dot(sub(p, O), f.v), dot(sub(p, O), f.u));
 
       // The section's angle at every phase, unwrapped in the sense phase turns.

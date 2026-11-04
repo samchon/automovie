@@ -2,7 +2,7 @@
 
 ## Review contiguous segments
 
-During implementation, review each completed short segment in the production's actual moving Viewer before extending it. Use the adopted scene, actors, equipment, view and frame clock, with required sound connected through the actual host. [Motion](../motion/SKILL.md) owns segment scope and continuation; [rendered-use inspection](../3d-modeling/inspection.md) owns repeatable observation conditions and cost measurement.
+During implementation, review each completed short segment in the production's actual moving Viewer before extending it. Use the adopted scene, actors, equipment, view and frame clock, with required sound connected through the actual host. [Motion](../motion/SKILL.md) owns segment scope and continuation; [visual debugging](../3d-modeling/visual-debugging.md) owns repeatable observation conditions and cost measurement.
 
 Watch the entire segment continuously at normal speed and listen when sound is commissioned. Operate play/pause and the seek/interval controls promised by the host, then replay consequential exchanges, contacts and joins at reduced speed where needed. Gather visible action, reactions, support/contact, camera, sound, console/errors and performance observations in one round before editing. Stills, advancing time logs, sampled poses and unwatched recordings cannot establish continuous playback.
 

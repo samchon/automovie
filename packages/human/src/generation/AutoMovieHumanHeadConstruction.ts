@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHermiteCurve";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
 import { AutoMovieHumanHeadGenerate } from "./AutoMovieHumanHeadGenerate";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
@@ -98,9 +98,9 @@ export namespace AutoMovieHumanHeadConstruction {
     inputs: IInputs,
   ): IOutput {
     const head: IAutoMovieHumanHeadGenerated = AutoMovieHumanHeadGenerate.generate(calibration, inputs);
-    const generated: Map<string, IAutoMovieHumanLoftChain> = new Map(
+    const generated: Map<string, IAutoMovieLoftChain> = new Map(
       head.chains.map(
-        (c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain] => [
+        (c: IAutoMovieLoftChain): [string, IAutoMovieLoftChain] => [
           c.name,
           c,
         ],
@@ -112,10 +112,10 @@ export namespace AutoMovieHumanHeadConstruction {
         stature: head.stature,
         chains: [
           ...calibration.chains
-            .filter((c: IAutoMovieHumanLoftChain): boolean => !owns(c.name)),
+            .filter((c: IAutoMovieLoftChain): boolean => !owns(c.name)),
           ...head.chains,
         ].map(
-          (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
+          (c: IAutoMovieLoftChain): IAutoMovieLoftChain =>
             generated.get(c.name) ?? c,
         ),
         events: [

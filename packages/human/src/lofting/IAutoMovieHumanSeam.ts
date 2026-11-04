@@ -16,7 +16,7 @@
  *   the curvature vector).
  *
  * A relief window needs no declaration: its height, slope and curvature
- * vanish at the window's edge by construction (`IAutoMovieHumanRelief`).
+ * vanish at the window's edge by construction (`IAutoMovieLoftRelief`).
  */
 export interface IAutoMovieHumanSeam {
   /** Seam identity in findings, such as `hand.web-2` or `head.face/P`. */

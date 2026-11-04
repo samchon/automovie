@@ -1,5 +1,5 @@
 import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
+import { AutoMovieSplineCurve } from "@automovie/engine";
 import type { IAutoMovieHumanSeam } from "../lofting/IAutoMovieHumanSeam";
 import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 
@@ -49,7 +49,7 @@ export namespace AutoMovieHumanTrunkCrotchRing {
       return {
         phases,
         jets: phases.map((t: number): IAutoMovieHumanSeam.IArcJet => {
-          const j: [number, number, number, number, number, number] = AutoMovieHumanSplineCurve.jet(
+          const j: [number, number, number, number, number, number] = AutoMovieSplineCurve.jet(
             controls,
             AutoMovieHumanTrunkQuadrant.ORDER,
             t,

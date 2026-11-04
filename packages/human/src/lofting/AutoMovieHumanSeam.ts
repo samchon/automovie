@@ -24,7 +24,7 @@ import type { IAutoMovieHumanSeam } from "./IAutoMovieHumanSeam";
  *   the plane normal to the seam's tangent ({@link measure}).
  *
  * Knot jets and sector assembly (J2) live in `AutoMovieHumanSeamKnot`, and
- * the station rule along a chain (J3) in `AutoMovieHumanSeamStation`.
+ * the station rule along a chain (J3) in `AutoMovieSeamStation`.
  * Vectors are plain arrays of any dimension unless a function says 3.
  */
 export namespace AutoMovieHumanSeam {

@@ -1,7 +1,6 @@
-import type { AutoMovieHumanSolidVector } from "../../../../packages/human/src/lofting/AutoMovieHumanSolidVector";
-import type { IAutoMovieHumanSolidSurface } from "../../../../packages/human/src/lofting/IAutoMovieHumanSolidSurface";
+import type { AutoMovieSolidVector, IAutoMovieSolidSurface } from "@automovie/engine";
 
-type Vec3 = AutoMovieHumanSolidVector.Vec3;
+type Vec3 = AutoMovieSolidVector.Vec3;
 
 /**
  * Closed-form solid surfaces for the solid operators' tests: a cylinder, a
@@ -25,7 +24,7 @@ export namespace HumanSolidShapes {
    * @param r Radius, mm.
    * @returns The surface.
    */
-  export function cylinder(name: string, o: Vec3, d: Vec3, e1: Vec3, e2: Vec3, r: number): IAutoMovieHumanSolidSurface {
+  export function cylinder(name: string, o: Vec3, d: Vec3, e1: Vec3, e2: Vec3, r: number): IAutoMovieSolidSurface {
     // `S_u x S_v = r (d x (-sin e1 + cos e2))`, which for a right-handed
     // (d, e1, e2) is `-r (cos e1 + sin e2)`, into the axis.
     const handed: number = dot(cross(d, e1), e2);
@@ -33,7 +32,7 @@ export namespace HumanSolidShapes {
       name,
       period: 2 * Math.PI,
       orientation: handed > 0 ? -1 : 1,
-      jet: (s: number, phi: number): IAutoMovieHumanSolidSurface.IJet => {
+      jet: (s: number, phi: number): IAutoMovieSolidSurface.IJet => {
         const c: number = Math.cos(phi);
         const n: number = Math.sin(phi);
         return {
@@ -58,11 +57,11 @@ export namespace HumanSolidShapes {
    * @param out The outward side, any vector off the plane.
    * @returns The surface.
    */
-  export function plane(name: string, o: Vec3, a: Vec3, b: Vec3, out: Vec3): IAutoMovieHumanSolidSurface {
+  export function plane(name: string, o: Vec3, a: Vec3, b: Vec3, out: Vec3): IAutoMovieSolidSurface {
     return {
       name,
       orientation: dot(cross(a, b), out) > 0 ? 1 : -1,
-      jet: (u: number, v: number): IAutoMovieHumanSolidSurface.IJet => ({
+      jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => ({
         p: sum([1, o], [u, a], [v, b]),
         u: [a[0], a[1], a[2]],
         v: [b[0], b[1], b[2]],
@@ -86,7 +85,7 @@ export namespace HumanSolidShapes {
    * @param R Radius, mm.
    * @returns The surface.
    */
-  export function sphere(name: string, c: Vec3, e1: Vec3, e2: Vec3, e3: Vec3, R: number): IAutoMovieHumanSolidSurface {
+  export function sphere(name: string, c: Vec3, e1: Vec3, e2: Vec3, e3: Vec3, R: number): IAutoMovieSolidSurface {
     // At s = pi / 2, phi = 0: `S_u x S_v = R^2 (-e3) x e2`, which is `R^2 e1`,
     // outward, for a right-handed (e1, e2, e3).
     const handed: number = dot(cross(e1, e2), e3);
@@ -94,7 +93,7 @@ export namespace HumanSolidShapes {
       name,
       period: 2 * Math.PI,
       orientation: handed > 0 ? 1 : -1,
-      jet: (s: number, phi: number): IAutoMovieHumanSolidSurface.IJet => {
+      jet: (s: number, phi: number): IAutoMovieSolidSurface.IJet => {
         const cs: number = Math.cos(s);
         const ss: number = Math.sin(s);
         const cp: number = Math.cos(phi);

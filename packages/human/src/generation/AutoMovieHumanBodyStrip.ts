@@ -1,8 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import { AutoMovieHumanLoftJet } from "../lofting/AutoMovieHumanLoftJet";
+import { AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
@@ -66,8 +63,8 @@ export namespace AutoMovieHumanBodyStrip {
    * @param sense Turning sense of the loop in the (phase, station) plane.
    */
   export function controls(
-    base: IAutoMovieHumanLoftChain,
-    appendage: IAutoMovieHumanLoftChain,
+    base: IAutoMovieLoftChain,
+    appendage: IAutoMovieLoftChain,
     root: IAutoMovieHumanBodyCalibration.IAppendage,
     u: number,
     sense: number,
@@ -107,8 +104,8 @@ export namespace AutoMovieHumanBodyStrip {
         const e3: V = cross(e1, normal);
         const M: number = row.length / 3;
         const ab: [number, number, number, number] =
-          AutoMovieHumanSplineCurve.evaluate(row.slice(0, 2 * M), M, u);
-        const cc: number = AutoMovieHumanSplineCurve.evaluate(
+          AutoMovieSplineCurve.evaluate(row.slice(0, 2 * M), M, u);
+        const cc: number = AutoMovieSplineCurve.evaluate(
           [...row.slice(2 * M), ...row.slice(2 * M)],
           M,
           u,
@@ -165,14 +162,14 @@ export namespace AutoMovieHumanBodyStrip {
    * points over about {@link H} mm.
    */
   export function across(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     s: number,
     t: number,
     dt: number,
     ds: number,
   ): [V, V] {
-    if (AutoMovieHumanLoftJet.carries(chain)) {
-      const j: AutoMovieHumanLoftJet.IJet = AutoMovieHumanLoftJet.at(chain, clamp(chain, s), t);
+    if (AutoMovieLoftJet.carries(chain)) {
+      const j: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, clamp(chain, s), t);
       return arcLength(
         add(scale(j.s, ds), scale(j.t, dt)),
         add(scale(j.ss, ds * ds), scale(j.st, 2 * ds * dt), scale(j.tt, dt * dt)),
@@ -191,8 +188,8 @@ export namespace AutoMovieHumanBodyStrip {
   }
 
   /** Surface point of a chain at a chart point, the station clamped into the chain. */
-  export function surface(chain: IAutoMovieHumanLoftChain, s: number, t: number): V {
-    return AutoMovieHumanLoftChain.point(chain, clamp(chain, s), t);
+  export function surface(chain: IAutoMovieLoftChain, s: number, t: number): V {
+    return AutoMovieLoftChain.point(chain, clamp(chain, s), t);
   }
 
   /**
@@ -201,8 +198,8 @@ export namespace AutoMovieHumanBodyStrip {
    * across the loop away from the hole, and the edge length.
    */
   function column(
-    base: IAutoMovieHumanLoftChain,
-    appendage: IAutoMovieHumanLoftChain,
+    base: IAutoMovieLoftChain,
+    appendage: IAutoMovieLoftChain,
     root: IAutoMovieHumanBodyCalibration.IAppendage,
     u: number,
     sense: number,
@@ -214,7 +211,7 @@ export namespace AutoMovieHumanBodyStrip {
     const outward: number = root.end === "bottom" ? -1 : 1;
     const A: V = surface(appendage, end, u);
     const [a1, a2] = station(appendage, end, u, outward);
-    const [s, remainder, ds, dr] = AutoMovieHumanSplineCurve.evaluate(root.root, root.root.length / 2, u);
+    const [s, remainder, ds, dr] = AutoMovieSplineCurve.evaluate(root.root, root.root.length / 2, u);
     // A loop winding round the base's cap pole turns its phase once.
     const winding: number = root.winding ?? 0;
     const t: number = remainder + winding * u;
@@ -238,11 +235,11 @@ export namespace AutoMovieHumanBodyStrip {
    * from central differences of its points over {@link H} mm of station and
    * 1e-4 rad of phase.
    */
-  function metric(chain: IAutoMovieHumanLoftChain, s: number, t: number): [number, number, number] {
+  function metric(chain: IAutoMovieLoftChain, s: number, t: number): [number, number, number] {
     let Pt: V;
     let Ps: V;
-    if (AutoMovieHumanLoftJet.carries(chain)) {
-      const j: AutoMovieHumanLoftJet.IJet = AutoMovieHumanLoftJet.at(chain, clamp(chain, s), t);
+    if (AutoMovieLoftJet.carries(chain)) {
+      const j: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, clamp(chain, s), t);
       Pt = j.t;
       Ps = j.s;
     } else {
@@ -296,13 +293,13 @@ export namespace AutoMovieHumanBodyStrip {
    * from one-sided differences into the chain.
    */
   function station(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     end: number,
     u: number,
     outward: number,
   ): [V, V] {
-    if (AutoMovieHumanLoftJet.carries(chain)) {
-      const j: AutoMovieHumanLoftJet.IJet = AutoMovieHumanLoftJet.at(chain, end, u);
+    if (AutoMovieLoftJet.carries(chain)) {
+      const j: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(chain, end, u);
       return arcLength(scale(j.s, outward), j.ss);
     }
     const p0: V = surface(chain, end, u);
@@ -331,7 +328,7 @@ export namespace AutoMovieHumanBodyStrip {
 type V = [number, number, number];
 
 /** A station clamped into a chain's range. */
-function clamp(chain: IAutoMovieHumanLoftChain, s: number): number {
+function clamp(chain: IAutoMovieLoftChain, s: number): number {
   return Math.min(chain.layers[chain.layers.length - 1]!.y, Math.max(chain.layers[0]!.y, s));
 }
 

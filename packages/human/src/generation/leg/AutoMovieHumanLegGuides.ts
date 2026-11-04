@@ -1,4 +1,4 @@
-import type { AutoMovieHumanPolarSector } from "../../lofting/AutoMovieHumanPolarSector";
+import type { AutoMoviePolarSector } from "@automovie/engine";
 import { AutoMovieHumanLegProfile } from "./AutoMovieHumanLegProfile";
 import { AutoMovieHumanLegSectionRows } from "./AutoMovieHumanLegSectionRows";
 import type { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
@@ -16,7 +16,7 @@ export namespace AutoMovieHumanLegGuides {
   /** The guides and the sectors of a section at one station. */
   export interface IShape {
     /** The eight guides by increasing angle. */
-    guides: AutoMovieHumanPolarSector.IGuide[];
+    guides: AutoMoviePolarSector.IGuide[];
 
     /** One fullness per guide: sector `j` follows guide `j`. */
     fullness: number[];
@@ -54,7 +54,7 @@ export namespace AutoMovieHumanLegGuides {
     const guideEnds: (j: number) => AutoMovieHumanLegProfile.IEnds = (j: number): AutoMovieHumanLegProfile.IEnds => {
       const row: (e: IEnd | undefined) => AutoMovieHumanLegProfile.IEnd | undefined = (e: IEnd | undefined): AutoMovieHumanLegProfile.IEnd | undefined => {
         if (e === undefined) return undefined;
-        const g: AutoMovieHumanPolarSector.IGuide = e.shape.guides[j]!;
+        const g: AutoMoviePolarSector.IGuide = e.shape.guides[j]!;
         return { at: e.at, values: [g.value, g.slope, g.curvature] };
       };
       return { bottom: row(ends.bottom), top: row(ends.top) };
@@ -64,15 +64,15 @@ export namespace AutoMovieHumanLegGuides {
         e === undefined ? undefined : { at: e.at, values: [e.shape.fullness[j]!] };
       return { bottom: row(ends.bottom), top: row(ends.top) };
     };
-    const guides: ((s: number) => AutoMovieHumanPolarSector.IGuide)[] = AutoMovieHumanLegSectionRows.GUIDES.map(
-      (g: AutoMovieHumanLegSectionRows.IGuide, j: number): ((s: number) => AutoMovieHumanPolarSector.IGuide) => profile(g, bones, guideEnds(j)),
+    const guides: ((s: number) => AutoMoviePolarSector.IGuide)[] = AutoMovieHumanLegSectionRows.GUIDES.map(
+      (g: AutoMovieHumanLegSectionRows.IGuide, j: number): ((s: number) => AutoMoviePolarSector.IGuide) => profile(g, bones, guideEnds(j)),
     );
     const fullness: AutoMovieHumanLegProfile.Channel[] = AutoMovieHumanLegSectionRows.SECTORS.map(
       (sector: AutoMovieHumanLegSectionRows.ISector, j: number): AutoMovieHumanLegProfile.Channel =>
         AutoMovieHumanLegProfile.channel([...sector.shankRows, ...sector.thighRows], bones, 0, sectorEnds(j)),
     );
     return (s: number): IShape => ({
-      guides: guides.map((g: (s: number) => AutoMovieHumanPolarSector.IGuide): AutoMovieHumanPolarSector.IGuide => g(s)),
+      guides: guides.map((g: (s: number) => AutoMoviePolarSector.IGuide): AutoMoviePolarSector.IGuide => g(s)),
       fullness: fullness.map((f: AutoMovieHumanLegProfile.Channel): number => f(s)),
     });
   }
@@ -90,12 +90,12 @@ export namespace AutoMovieHumanLegGuides {
     guide: AutoMovieHumanLegSectionRows.IGuide,
     bones: AutoMovieHumanLegStations.IBones,
     ends: AutoMovieHumanLegProfile.IEnds,
-  ): (s: number) => AutoMovieHumanPolarSector.IGuide {
+  ): (s: number) => AutoMoviePolarSector.IGuide {
     const value: AutoMovieHumanLegProfile.Channel = AutoMovieHumanLegProfile.channel(guide.rows, bones, 0, ends);
     const slope: AutoMovieHumanLegProfile.Channel = AutoMovieHumanLegProfile.channel(guide.rows, bones, 1, ends);
     const curvature: AutoMovieHumanLegProfile.Channel = AutoMovieHumanLegProfile.channel(guide.rows, bones, 2, ends);
 
-    return (s: number): AutoMovieHumanPolarSector.IGuide => ({
+    return (s: number): AutoMoviePolarSector.IGuide => ({
       angle: guide.angle,
       value: value(s),
       slope: slope(s),

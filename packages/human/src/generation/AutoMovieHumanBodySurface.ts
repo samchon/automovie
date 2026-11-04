@@ -1,21 +1,22 @@
-import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
-import { AutoMovieHumanApertureBase } from "./AutoMovieHumanApertureBase";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfaceContact } from "./AutoMovieHumanBodySurfaceContact";
 import { AutoMovieHumanBodySurfaceLoft } from "./AutoMovieHumanBodySurfaceLoft";
 import { AutoMovieHumanBodySurfaceNormals } from "./AutoMovieHumanBodySurfaceNormals";
+import { AutoMovieHumanBodySurfaceOpening } from "./AutoMovieHumanBodySurfaceOpening";
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
+import { AutoMovieHumanBodySurfaceSolids } from "./AutoMovieHumanBodySurfaceSolids";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
 import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
 const { ringBlend, surfaceNormals } = AutoMovieHumanBodySurfaceNormals;
 const { contact, held, WEBS } = AutoMovieHumanBodySurfaceContact;
-const { join, loft, LOOP, open } = AutoMovieHumanBodySurfaceLoft;
+const { join, loft, LOOP } = AutoMovieHumanBodySurfaceLoft;
 const { chain } = AutoMovieHumanBodySurfaceRead;
 const { domed } = AutoMovieHumanBodySurfacePoles;
 
@@ -86,7 +87,7 @@ export namespace AutoMovieHumanBodySurface {
       mesh: AutoMovieHumanLoftMesh.create(),
       chains: new Map(
         calibration.chains.map(
-          (c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain] => [
+          (c: IAutoMovieLoftChain): [string, IAutoMovieLoftChain] => [
             c.name,
             c,
           ],
@@ -112,7 +113,7 @@ export namespace AutoMovieHumanBodySurface {
       details,
       indices: new Map(
         calibration.chains.map(
-          (c: IAutoMovieHumanLoftChain, i: number): [string, number] => [
+          (c: IAutoMovieLoftChain, i: number): [string, number] => [
             c.name,
             i,
           ],
@@ -132,55 +133,56 @@ export namespace AutoMovieHumanBodySurface {
       });
       context.roots.set(appendage.base, list);
     }
-    // Every opening is a trim loop on its base chain: the declared one, or the
-    // chain that holds it (`AutoMovieHumanApertureBase`). Only an eye, whose lid
-    // band's outline crosses the ring between two head chains, is still cut by
-    // position until the head is one chain.
-    const based: AutoMovieHumanBodyApertures.IPrepared[] = [];
+    // Every opening is a trim on its base chains: the declared one, or the
+    // chains that hold it, split at the ring two of them share
+    // (`AutoMovieHumanApertureSpan`); an eye's along its lid band's outer
+    // edge, one rim point per lid sample, which the lid band's columns start
+    // from. The openings stay listed for the rows refined near them.
+    const spans: [AutoMovieHumanBodyApertures.IPrepared, AutoMovieHumanApertureSpan.ISpan][] = [];
     for (const opening of context.apertures) {
-      const found: AutoMovieHumanApertureBase.IBase | null =
+      const span: AutoMovieHumanApertureSpan.ISpan | string = AutoMovieHumanApertureSpan.of(
+        opening,
         opening.aperture.base !== undefined && context.chains.has(opening.aperture.base)
-          ? {
-              chain: chain(context, opening.aperture.base),
-              loop: AutoMovieHumanBodyRoots.trim(
-                chain(context, opening.aperture.base),
-                opening.outline,
-                AutoMovieHumanLoftAperture.range(AutoMovieHumanLoftAperture.polyline(opening.aperture)),
-              ),
-            }
-          : AutoMovieHumanApertureBase.of(opening, calibration.chains);
-      if (found === null) {
-        if (opening.lid === null) throw new Error(`Opening ${opening.aperture.name} lies on no single chain`);
-        continue;
+          ? [chain(context, opening.aperture.base)]
+          : calibration.chains,
+        calibration.events,
+      );
+      if (typeof span === "string")
+        throw new Error(`Opening ${opening.aperture.name} lies on no chain or pair of chains sharing a ring: ${span}`);
+      if (opening.lid !== null && span.points.length !== opening.edge.length)
+        throw new Error(
+          `Opening ${opening.aperture.name}: ${opening.edge.length - span.points.length} of ${opening.edge.length} lid band edge points have no foot on the skin`,
+        );
+      spans.push([opening, span]);
+      for (const [name, loop] of span.loops) {
+        const list = context.roots.get(name) ?? [];
+        list.push({
+          opening,
+          loop,
+          span: span.chains.length > 1 ? AutoMovieHumanApertureSpan.key(opening.aperture.name) : undefined,
+        });
+        context.roots.set(name, list);
       }
-      based.push(opening);
-      const list = context.roots.get(found.chain.name) ?? [];
-      list.push({ opening, loop: found.loop });
-      context.roots.set(found.chain.name, list);
     }
-    context.apertures = context.apertures.filter(
-      (p: AutoMovieHumanBodyApertures.IPrepared): boolean => !based.includes(p),
-    );
 
     // 1-2. Contact rings and the boundaries they define on both sides.
     for (const event of calibration.events) contact(context, event);
 
     // 3. Every chain between its two boundaries; bases leave their root
     // loops open.
-    for (const target of calibration.chains) loft(context, target);
+    const solids: Set<string> = AutoMovieHumanBodySurfaceSolids.names(calibration);
+    for (const target of calibration.chains) if (!solids.has(target.name)) loft(context, target);
+
+    // 3a. The solids: every chain a merge names, drawn as trimmed faces and
+    // blends with their rails shared.
+    calibration.diagnostics?.push(...AutoMovieHumanBodySurfaceSolids.draw(context, calibration));
 
     // 3b. Every appendage joined to its base through its strip, and every
     // opening on a base closed from its trim loop.
     for (const appendage of calibration.appendages ?? []) join(context, appendage);
     const construction: IAutoMovieHumanConstructionPath[] = [];
-    for (const [name, roots] of context.roots)
-      for (const r of roots)
-        if (r.opening !== undefined)
-          construction.push(...open(context, chain(context, name), r.opening, r.loop));
-
-    // 4. The eyes: the skin over each is clipped away by position, and the
-    // lid margins tucked onto the globes.
-    construction.push(...AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures));
+    for (const [opening, span] of spans)
+      construction.push(...AutoMovieHumanBodySurfaceOpening.open(context, opening, span, calibration.events));
     construction.push(...(WEBS.get(context.mesh) ?? []));
 
     const faces: number[] = AutoMovieHumanLoftMesh.normals(context.mesh);
