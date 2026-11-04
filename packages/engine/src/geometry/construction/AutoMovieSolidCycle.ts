@@ -23,7 +23,7 @@ export namespace AutoMovieSolidCycle {
   /** One cycle. */
   export interface ICycle {
     /** Which side the face keeps. */
-    kind: "hole" | "start" | "end";
+    kind: "hole" | "island" | "start" | "end";
 
     /** Mesh vertex indices, in cycle order. */
     vertices: number[];
@@ -70,7 +70,7 @@ export namespace AutoMovieSolidCycle {
    */
   export function kept(cycle: Pick<ICycle, "kind" | "chart">, u: number, v: number, period: number | undefined): boolean {
     const n: number = cycle.chart.length;
-    if (cycle.kind === "hole") {
+    if (cycle.kind === "hole" || cycle.kind === "island") {
       const w: number = shift(v, centre(cycle)[1], period);
       let inside: boolean = false;
       for (let k: number = 0; k < n; k++) {
@@ -78,7 +78,7 @@ export namespace AutoMovieSolidCycle {
         const b: [number, number] = cycle.chart[(k + 1) % n]!;
         if (a[1] > w !== b[1] > w && u < a[0] + ((w - a[1]) * (b[0] - a[0])) / (b[1] - a[1])) inside = !inside;
       }
-      return !inside;
+      return cycle.kind === "island" ? inside : !inside;
     }
 
     // A winding cycle: the parity of its crossings with the ray from the

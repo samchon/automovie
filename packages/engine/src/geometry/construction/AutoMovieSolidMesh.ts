@@ -80,13 +80,16 @@ export namespace AutoMovieSolidMesh {
    *
    * - `hole`: a closed loop enclosing a region of the chart; the face keeps
    *   its outside.
+   * - `island`: a closed loop enclosing a region of the chart; the face keeps
+   *   its inside (a merged part that crosses its host along a loop that does
+   *   not wind round the part's phase, as a nose along the face).
    * - `start`: a loop winding once round the face's periodic phase; the face
    *   keeps the stations above it.
    * - `end`: the same, keeping the stations below it.
    */
   export interface ILoop {
     /** Which side the face keeps. */
-    kind: "hole" | "start" | "end";
+    kind: "hole" | "island" | "start" | "end";
 
     /** Vertex indices, in loop order. */
     vertices: number[];

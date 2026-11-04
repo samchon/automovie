@@ -3,6 +3,7 @@ import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import type { AutoMovieSolidJoin } from "./AutoMovieSolidJoin";
 import type { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import type { AutoMovieSolidVector } from "./AutoMovieSolidVector";
+import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
@@ -148,6 +149,22 @@ export namespace AutoMovieSolidBlendChain {
     };
 
     const r0: AutoMovieSolidJoin.IColumn = columns[0]!;
+
+    // A part's rail that does not wind round its phase encloses a region of
+    // its chart; the part keeps the side its rail stands toward from the
+    // curve (`partAcross`): inside when a step that way from the rail enters
+    // the region (an island, as a nose along the face), else outside (a
+    // hole). Taken as a hole always, a part whose kept skin lay inside was
+    // drawn turned inside out, a pit where it should stand out.
+    const partChart: [number, number][] = columns.map((c: AutoMovieSolidJoin.IColumn): [number, number] => [c.rail.s, c.rail.phi]);
+    const island: () => boolean = (): boolean => {
+      const a: [number, number] = r0.rail.partAcross;
+      const l: number = Math.hypot(a[0], a[1]);
+      if (!(l > 0)) return false;
+      const span: number = Math.max(...partChart.map((p: [number, number]): number => Math.hypot(p[0] - r0.rail.s, p[1] - r0.rail.phi)));
+      const step: number = (1e-3 * span) / l;
+      return !AutoMovieSolidCycle.kept({ kind: "hole", chart: partChart }, r0.rail.s + step * a[0], r0.rail.phi + step * a[1], 2 * Math.PI);
+    };
     return {
       chain,
       length: L,
@@ -167,8 +184,8 @@ export namespace AutoMovieSolidBlendChain {
       parameter: join.curve.parameter.kind,
       sigma: r0.rail.sigma > 0 ? 1 : -1,
       part: {
-        kind: join.curve.partWinding === 0 ? "hole" : r0.rail.sigma > 0 ? "start" : "end",
-        chart: columns.map((c: AutoMovieSolidJoin.IColumn): [number, number] => [c.rail.s, c.rail.phi]),
+        kind: join.curve.partWinding === 0 ? (island() ? "island" : "hole") : r0.rail.sigma > 0 ? "start" : "end",
+        chart: partChart,
       },
     };
   }
