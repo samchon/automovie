@@ -4,6 +4,7 @@ import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieViewHermite } from "./AutoMovieViewHermite";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
+import { distanceAutoMovieViewOutline } from "./distanceAutoMovieViewOutline";
 import { supportAutoMovieViewOutline } from "./supportAutoMovieViewOutline";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
@@ -226,6 +227,21 @@ export namespace AutoMovieViewOutline {
    */
   export function supportStations(outline: IOutline, slope: number, valueScale: number = 1, domain: readonly [number, number] = outline.domain): number[] | string {
     return supportAutoMovieViewOutline(outline, slope, valueScale, domain);
+  }
+
+  /**
+   * Candidate stations for squared distance from the original scalar graph to a fixed point in the same orthonormal chart and length units.
+   *
+   * @evidence contracts/common.md#principled-implementation Delegates differentiation of (station-targetStation)^2+(source-targetValue)^2 in the original station/root parameter; the caller establishes the fixed chart and common units.
+   * @evidence contracts/common.md#clear-and-simple-design One scalar-graph query returns closed-domain endpoints, named knots and numerical critical candidates without interpreting a world frame.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Angle parameters fail explicitly; moving frames and general three-dimensional compositions are outside this scalar signature. No source fitting, clamping or certified maximum is substituted.
+   * @evidence contracts/common.md#meaningful-documentation The distance owner states the target/domain units, singleton meaning, polynomial degrees and binary64 limits.
+   * @evidence contracts/performance.md#efficient-algorithms Visits n source spans with degree at most nine root work, then sorts O(n) candidates in O(n log n); the distance owner states the bounded per-span root cost.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the admitted natural/Hermite coefficients and the exact source parameter inverse.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns an invocation-owned station list or failure string and retains no new state.
+   */
+  export function distanceStations(outline: IOutline, targetStation: number, targetValue: number, domain: readonly [number, number]): number[] | string {
+    return distanceAutoMovieViewOutline(outline, targetStation, targetValue, domain);
   }
 
   /**

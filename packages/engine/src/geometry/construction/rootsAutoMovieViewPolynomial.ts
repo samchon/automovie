@@ -1,18 +1,19 @@
 /**
- * Isolated binary64 roots of a source derivative polynomial of degree at most four inside the unit interval.
+ * Binary64 root candidates of a source polynomial of degree at most nine inside the unit interval.
  *
- * Derivative roots partition monotone intervals before 60 bisections. A cut whose residual is within 64 epsilon times the normalized coefficient sum is retained as a multiple-root observation. Constant polynomials have no isolated roots. This is inspection sampling, not an interval certificate.
+ * Derivative-root candidates partition intervals before 60 bisections. A cut whose residual is within 64 epsilon times the normalized coefficient sum is retained as a multiple-root observation. Constant polynomials have no isolated roots. Ill-conditioned or nearby multiple roots need not be separated; near-zero cuts may add observations. This is not an interval certificate or a root-completeness guarantee.
  *
  * @evidence contracts/common.md#principled-implementation Recursively partitions at derivative roots, then bisects every sign-changing monotone interval and retains near-zero partition cuts for repeated roots.
- * @evidence contracts/common.md#clear-and-simple-design One bounded-degree helper supplies the additional sample parameters of quintic source spans.
+ * @evidence contracts/common.md#clear-and-simple-design One bounded-degree helper supplies source critical and squared-distance candidates while preserving the existing arithmetic for degrees at most four.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not fit sampled values or label a zero polynomial's continuum as isolated roots; its floating residual test is stated rather than presented as certification.
  * @evidence contracts/common.md#meaningful-documentation States coefficient order, degree/domain, iterations, residual allowance and numerical proof limit.
- * @evidence contracts/performance.md#efficient-algorithms Degree is at most four; recursion depth and monotone intervals are bounded by that degree, with 60 bisections per sign change.
+ * @evidence contracts/performance.md#efficient-algorithms Degree d is at most nine; a conservative candidate bound is 2^d-1 because residual observations may exceed d. Horner evaluation and 60 bisections give O(60*d*2^d) work including the derivative recursion, plus bounded candidate sorting.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work One pure observation schedules no reusable effects; the caller can retain its source critical stations.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Recursion and arrays are bounded by degree and invocation-local; the returned scalar roots retain no curve.
- * @param coefficients Finite coefficients in increasing power order, at most five.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Depth at most nine and O(2^d+d^2) invocation-local candidate/coefficient storage retain no curve; at most 511 candidates are returned.
+ * @param coefficients Finite coefficients in increasing power order, at most ten; empty or constant rows return no isolated roots. Invalid rows throw RangeError.
  */
 export function rootsAutoMovieViewPolynomial(coefficients: readonly number[]): number[] {
+  if (coefficients.length > 10 || !coefficients.every(Number.isFinite)) throw new RangeError("source polynomial roots need at most ten finite coefficients (degree at most nine)");
   const magnitude: number = Math.max(...coefficients.map(Math.abs));
   if (magnitude === 0) return [];
   const c: number[] = coefficients.map((v: number): number => v / magnitude);
