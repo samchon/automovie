@@ -290,3 +290,219 @@ Downstream per-vertex stages scale with the resulting grid; the modeler log meas
 5. Time in `AutoMovieSolidMesh.face` classification (`:248-256`) for both draws.
 
 `debug/pieces/HumanDebugPieceTiming.ts` already times `calibrate`, `surface`, `skinChart` and `rig` per person. Splitting `calibrate` there by the stages above answers 2 and 3.
+
+# The rest of `prepare`, read the same way
+
+Read on 2026-11-04 after the investigator's profile (`log-performance.md`). Run 2 of f1 `prepare`, taken after 530376915 on a loaded machine, took 349 s:
+
+| Stage | Time |
+| --- | --- |
+| calibrate | 81 s |
+| surface | 55 s |
+| skin dressing | 48 s |
+| appearance | 136 s, of which 87 s is the brow |
+| binding | 21 s |
+
+Run 1 spent 279 s of 1,023 s sampled in garbage collection, and the head's skin is 1.4M vertices and 2.26M triangles.
+
+What I read for this part: appearance (brows, lashes, hair stage and its fields, skin chart, tone, marks, images), binding and the rig, surface normals and aperture refinement, the viewer's subject and capture path, and the PNG encoder.
+
+What is not here:
+
+- Garments: erased from generation (`modeler-log.md`, triangle survey row 1).
+- Nails: now on their digit chains, not read in depth.
+- Eyeball, conjunctiva and the eye images: read for loop size only; nothing large.
+- Items the investigator already lists are cited by their P, K or V number rather than repeated.
+
+Ranked by expected saving per f1 figure.
+
+### A1. The brow's remaining 87 s: every hair point is solved on every head chain by finite-difference Newton
+
+**Where.** `appearance/AutoMovieHumanBrowProjector.ts`. Each brow places up to 1,100 hairs (`AutoMovieHumanEyebrow.ts:36, 108`), each hair 6 points, and each point calls `project`. `project` runs `solve` on every head chain, the neck chain `head` included (`:64`):
+
+- up to 30 iterations (`:84`);
+- each iteration takes 3 whole `AutoMovieLoftChain.point` reads, because the Jacobian is a finite difference (`:90`) that only converges linearly near the 1e-4 mm stop;
+- the depth check takes another read (`place(s, t + π)`), and the normal 3 more.
+
+A chain that misses drops its warm start, so its next point re-seeds by a linear scan of that chain's whole 1 mm × 256 grid (`:146`, about 60,000 nodes). `solve` also rebuilds and spreads the layer list on every call (`:78`).
+
+**Cost.** About 13,000 points per brow × 4 chains × up to 95 reads, plus grid scans: the 87 s, mostly `sampler` and `hermite` (P7).
+
+**Standard.**
+
+- **Point inversion.** The NURBS Book §6.1 runs Newton on the exact first derivatives (`AutoMovieLoftJet.at`), which converges quadratically in 3 or 4 steps, after one coarse start.
+- **Seeding.** A coarse start comes from a bucketed grid, not a linear scan.
+- **Culling.** A query is tried only on the surfaces whose bounding box in the query plane contains it.
+
+**Fix:**
+
+- Compute each chain's bounding box in face-plane `(a, h)` once from its seed grid and skip chains that cannot hold `(a, h)`. The neck never qualifies.
+- Bucket the grid by `(a, h)` for an O(1) seed.
+- Solve with the analytic jet.
+- Hoist `ys` and its range per chain.
+- Better still, tabulate the brow patch (about 60 by 25 mm) once at 0.25 mm as an `(a, h) → (chain, s, t)` map, so each point is one lookup plus one or two Newton steps.
+
+**Expected saving.** 70 to 85 s.
+
+### A2. The head's 1.4M-vertex skin: whole rings refined at 0.5 mm near every opening (P5's mechanism, with the standard)
+
+**Where.** `generation/AutoMovieHumanBodyApertures.ts:35` (`SPACING` 0.5 mm) and `:38` (`REACH` 2 mm). `refine` and `split` (`:141-200`), called from `AutoMovieHumanBodySurfaceLoft.ts:45`, split every station interval whose end or middle ring passes within 2 mm of an opening into 0.5 mm steps. Each new station is a full ring at the chain's own samples, all phases round the head, though an opening covers a small phase window: an eye about 30 mm of a roughly 560 mm girth. The face's openings cover most of the head's height (lids, nostrils, mouth, ears), so most head rings are refined.
+
+**Cost.** This one mechanism drives:
+
+- the surface stage (55 s), the split, and the skin dressing (48 s: chart, tone, marks);
+- the binding (21 s, over 2.9M vertices);
+- the head and shoulder fields (A4, A5), the normals (A6) and much of the 279 s of garbage collection;
+- the viewer's posing and its frame.
+
+**Standard.** Adaptive tessellation refines only where the chordal deviation or a trim curve requires it, in a restricted quadtree, so the refinement stays local in both parameters:
+
+- Piegl and Tiller 1998, *Geometry-based triangulation of trimmed NURBS surfaces*, *CAD* 30(1).
+- Kumar and Manocha 1995, *CAD* 27(7).
+- OpenCASCADE `BRepMesh` (deflection-driven, with the trim polygons as constraints).
+
+**Fix.** Refine the station interval only in the phase window the opening's chart box covers, widened by `REACH`. That means a local subgrid there, joined to the coarse ring by a zipped band of triangles, as `AutoMovieSolidMesh.face` already does for its trims. Elsewhere the ring stays at its chain's own sampling.
+
+**Expected saving.** The head back to about this morning's density (the whole skin was 690,000 vertices) would roughly halve the surface, dressing and binding stages: about 40 to 60 s, plus garbage collection.
+
+### A3. Garbage collection (279 s of 1,023 s in run 1): mesh attributes in `number[]` and allocation per element
+
+**Where.** A sweep of the per-vertex and per-triangle hot loops:
+
+- `appearance/AutoMovieHumanSkin.ts:171`: per triangle, `indices.slice(t, t + 3)`, then `every`, then `push(...tri)`, over about 4.5M triangles.
+- `AutoMovieHumanSkinChart.ts:205-213`: four full spread copies (`[...piece.positions]` and the like), then a `corners`, `us` and `map` array plus `Math.max(...)` spreads per triangle.
+- `AutoMovieHumanSkinChartGrid.ts:119`: four `[node, weight]` tuples per `at` call, one call per vertex.
+- `AutoMovieHumanSkinTone.ts:177-182`: `V.at` vectors, plus `color.push(...table.lookup().map())` per vertex.
+- `skeleton/AutoMovieHumanRig.ts:188-189`: `number[]` bone indices and weights for 2.9M vertices.
+- `AutoMovieHumanSkin.ts`: `positions.map` and `uvs.map` copies per part; a piece with a cavity copies them twice.
+
+**Standard.** Structure-of-arrays buffers with fixed element types (`Float32Array` for positions, normals, uvs, colours and weights; `Uint16Array` or `Uint8Array` for bone indices; `Uint32Array` for indices), written in place with scalar arithmetic, as every engine's mesh path does (three.js `BufferAttribute`, glTF accessors).
+
+**Fix.** Typed buffers end to end from the tessellation to the model part, and scalar loops at these sites.
+
+**Expected saving.** A large share of the garbage-collection time: 10 to 40 s, before A2 shrinks the counts.
+
+### A4. The head field casts 8,192 rays against a soup of all 2.26M head triangles built as `number[]`
+
+**Where.** `appearance/AutoMovieHumanHeadField.ts`:
+
+- `collect` (`:216-226`) copies every head triangle corner into one `number[]` (about 20M numbers), one `push` at a time, de-indexing shared vertices.
+- `cast` (`:245`) then makes three `atan2`, one `hypot`, an array, a sort (`:266`) and a gaps array per triangle, and pushes each triangle into every bin it may cover.
+
+**Standard.**
+
+- Compute the angles once per vertex, not per triangle corner (about 6 times fewer).
+- Read the index buffer in place.
+- Use typed arrays.
+- Or derive the radial depth map from the head chains themselves. The modeler log's triangle survey, row 11, already names the lofted chains as the owner.
+
+**Expected saving.** 2 to 6 s, more while A2 stands.
+
+### A5. The shoulder field walks every skin triangle of the whole body with an array per triangle
+
+**Where.** `appearance/AutoMovieHumanShoulderField.ts:72-81`: every `human.skin.*` part, every triangle, a fresh 9-number array (`:80`), and only then the height cull. The field covers a 360 by 520 mm box from 600 mm under the head's top down to the menton.
+
+**Standard.** Cull whole parts first by bounding box, then scan-convert triangles into the height grid (a z-buffer) with no per-triangle allocation.
+
+**Expected saving.** 1 to 4 s.
+
+### A6. The ring-blend normals copy the whole normal array 16 times and key a cache by string
+
+**Where.** `generation/AutoMovieHumanBodySurfaceNormals.ts`:
+
+- `:182`: each of `PASSES` = 16 passes copies the entire normal array (`[...current]`, about 8.7M numbers) to update the band vertices.
+- `:153-154`: per vertex, `Math.min(...rings.map())`.
+- `:53`: per vertex, a string key `index:s` for the station cache.
+- `surfaceNormals` copies the whole mesh first (`[...mesh]`).
+
+**Standard.** Jacobi smoothing over a vertex subset updates two scratch buffers sized to the subset. The station cache is keyed by `(chain, station)` numerically, or replaced by row-order traversal, which already hits.
+
+**Expected saving.** 1 to 3 s.
+
+### A7. Skin tone: four noise octaves and allocation per vertex over 2.9M vertices
+
+**Where.** `appearance/AutoMovieHumanSkinTone.ts:163-185`: `regional` (chain-gated, fine), then `mottle` with four `value3` octaves, and `push(...map)`. `AutoMovieHumanFaceTone.apply` adds its own fields per head vertex.
+
+**Standard.** Shading that varies on 16 to 40 mm wavelengths is evaluated on the chart grid (`AutoMovieHumanSkinChartGrid`, 2 mm) or baked into a texture and read per vertex, not recomputed per vertex.
+
+**Fix.** Evaluate the mottle at the chart grid's nodes once per chain and interpolate per vertex. Write the colours into a `Float32Array`.
+
+**Expected saving.** 2 to 5 s while A2 stands.
+
+### A8. Binding: the strongest-four scan reads every bone per vertex, and the construction curves are bound only to be unbound by the viewer
+
+**Where:**
+
+- `skeleton/AutoMovieHumanBindingQuantize.ts:24`: `strongest` scans all bones (about 65) per vertex, where at most 16 slots were touched (`AutoMovieHumanBindingLoft.create`'s `touched`).
+- `AutoMovieHumanShapeStages.ts:222-231`: every construction curve becomes a tube mesh part with loft coordinates. `AutoMovieHumanRig.dress` (`:227`) binds those thousands of parts per vertex.
+- The viewer then drops every skin and rebuilds each curve's polyline from its tube's vertices (`debug/page/loadHumanDebugSubject.ts:110`, `HumanDebugTubeCentreline`).
+
+**Standard.** Partial selection over the touched set. A curve is carried as its polyline, bound per point if needed, and tubed only at draw time.
+
+**Fix:**
+
+- Pass `touched` to `strongest`.
+- Publish the construction curves as polylines (`curve.coordinates` already holds their loft coordinates) and tube them in the viewer.
+
+**Expected saving.** 2 to 5 s in binding and in the page.
+
+### A9. Skin marks: a 2048² `Float64Array` and one full triangle pass per kind with arrays per triangle
+
+**Where.** `appearance/AutoMovieHumanSkinMarks.ts:100` allocates `N * N * 3` doubles (about 100 MB). `eachTriangle` (`:105, 111`, and `:348` builds `ids`, `p` and `uv` arrays per triangle) runs over all triangles once for the area and once per requested kind. The 12.6 MB image is then written as a stored, uncompressed PNG (`engine/src/render/encodeAutoMoviePng.ts`, zlib stored blocks) and base64'd into a string of about 17 MB that the page decodes again.
+
+**Standard.**
+
+- A `Float32Array`, or an 8-bit multiplier where the marks' dynamic range allows.
+- One triangle pass that serves all kinds.
+- Deflate-compressed PNG (`zlib.deflateSync` in Node, `CompressionStream` in the browser), or raw typed-array textures in memory without base64.
+
+**Expected saving.** 1 to 3 s when marks are requested, plus memory.
+
+### A10. The viewer: generation on the page's main thread, CPU posing, base64 images
+
+**Where:**
+
+- V1 and V2 in the investigator's log.
+- `debug/page/loadHumanDebugSubject.ts:85` runs `AutoMovieHuman.prepare` on the page's main thread, which is what stalls it (`modeler-log.md`). `:91` poses every part on the CPU (`HumanDebugPose.apply`) for each posed frame.
+- Textures arrive as base64 PNG strings (A9).
+
+**Standard.**
+
+- Generation in a Web Worker, with the meshes returned as transferable typed arrays.
+- Posing by GPU skinning, which the model already carries (`IAutoMovieMeshSkin`, `method: BLEND`).
+- Textures as typed arrays.
+
+**Expected saving.** No change to `prepare` itself, but a viewer that keeps responding and frames that do not re-pose on the CPU.
+
+### A11. The legacy body and the head construction inside calibrate (calibrate was 38 s in run 1)
+
+**Legacy body.** Item 1 of the first list: the old limbs, the reconcile and the hand meshes, built for the interim and the rig.
+
+**Head construction.** It took 11.4 s in run 1. It still solves each head section as an implicit field root-solved along rays (`modeler-log.md`, triangle survey row 9). The standard, which the survey names as the head's owner, is section curves through the landmarks and courses, evaluated directly.
+
+**Expected saving.** Together, most of calibrate's non-lane time (about 25 s of 38 s), subject to the owner's call on retiring `legacy`.
+
+### A12. Smaller items seen on the way
+
+- **Hair cache key.** `AutoMovieHumanHairStage` checks its chart cache with `same()`, which compares every position and index of every head skin part (`:173-193`). That is O(V) per call. A content hash computed once with the mesh would do.
+- **Skin chart grid.** `AutoMovieHumanSkinChartGrid.locate` seeds by scanning every fourth node and then runs 8 finite-difference Newton steps of 3 `point` reads each. It is used only for vertices without loft coordinates (pole apexes), so it is cheap now.
+- **Normals cache.** `AutoMovieHumanBodySurfaceNormals.surfaceNormals` reads `AutoMovieLoftJet.at` per vertex in mesh order, so the station cache hits. It stays cheap once K7 keeps the lift with the station.
+
+## The combined list for the measuring worker
+
+The first part's items 1 to 12 and this part's A1 to A12 are disjoint. In expected saving after the investigator's P1 to P4 and K2 to K3:
+
+1. A1, the brow: 70 to 85 s.
+2. A2/P5, local refinement at openings: 40 to 60 s plus garbage collection.
+3. A3, typed buffers: 10 to 40 s.
+4. P2, poles `cells` (30.6 s; the investigator's), with the same standard as item 4 of the first part (scanline intervals and per-loop data read once).
+5. A11 and item 1, the legacy body and the head sections: about 25 s.
+6. A4, the head field: 2 to 6 s.
+7. A7, the tone: 2 to 5 s.
+8. A8, binding and curves: 2 to 5 s.
+9. Item 2 and P7, local-span evaluation in `stationOf`: 5 to 10 s inside the realization and the tape.
+10. A5, the shoulder field: 1 to 4 s.
+11. A6, the normals: 1 to 3 s.
+12. A9, the marks: 1 to 3 s.
+13. Items 3, 4 and 8 of the first part, already queued.
+14. A10, the viewer.
