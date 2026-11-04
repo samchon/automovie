@@ -2,6 +2,12 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 served evidence cleanup (2026-11-05 03:37:59 +09:00, Get-Date)
+
+The supervisor directly reviewed the 6c3f99c4a5 three-document commit, Rab Table 3 and de Leva's Upper arm page. The actual 21 selected law hosts, resolved new namespace and absence of owned-path diagnostics were independently confirmed. That remains distinct from the bounded check's zero incoming-reference-unit count and the package-wide list/inspect exit 1. After the supervisor and PERF confirmed no remaining JSON use, removed only the three owned Evidence snapshots by their exact absolute paths without Force. The source-reading directory remains for HEAD's SHIN plot and BODY's arm-source use.
+
+A bounded alternative search distinguished Campbell's prediction and TCS papers. Only the author prediction abstract was read; the linked thesis download was denied. An unrelated guessed PubMed target was discarded, with no factual claim or adopted coefficient from it. The reading matrix and BODY handoff explicitly leave the unverified regression inputs/equation open; further retrieval is not a prerequisite for the existing measurement-closure contract or current curve observation. No source, geometry, public input, numeric table or test changed.
+
 ## #3062 arm datum cause batch (2026-11-05 03:32:18 +09:00, Get-Date)
 
 BODY requested the shoulder/arm-length definition comparison. The complete current ArmBones and TrunkLandmarks, public arm identity and body fields, source note, trunk record, all bone-placement callers and related ACROMION consumers were directly read. The [audit](law-definition-audit.md#arm-measurement-closure) separates public caliper length, clinical shoulder estimates and the exact projection closure. BODY received the root incompatibility and all linked consumers together; no builder or coefficient changed here.
