@@ -48,7 +48,7 @@ function level(): string[] {
     const misses: string[] = [];
     for (const s of stations)
       for (let k: number = 0; k < 32; k++) {
-        const p: V3 = surface.jet(1000 * s, (2 * Math.PI * k) / 32).p as V3;
+        const p: V3 = surface.jet(s, (2 * Math.PI * k) / 32).p as V3;
         const [x, z]: [number, number] = course(s);
         const height: number = Math.abs(p[1] - s);
         const radius: number = Math.abs(Math.hypot(p[0] - (x + shift), p[2] - z) - r);
@@ -126,7 +126,7 @@ function jointed(): string[] {
   const bound: number = ConstructionChecks.polarSpline(r, r, limb.order) + 1e-9 * 0.2;
   const along: number = 0.05;
   const station: number = runs[1]!.start / 1000 + (along - d);
-  const points: V3[] = Array.from({ length: 4 }, (_: unknown, g: number): V3 => surface.jet(1000 * station, (g * Math.PI) / 2).p as V3);
+  const points: V3[] = Array.from({ length: 4 }, (_: unknown, g: number): V3 => surface.jet(station, (g * Math.PI) / 2).p as V3);
   const centre: V3 = [0, 1, 2].map((c: number): number => points.reduce((sum: number, p: V3): number => sum + p[c]!, 0) / 4) as V3;
   const offLine: number = Math.hypot(centre[0] - along, centre[1], centre[2] + 0.1);
   if (!(offLine <= bound)) out.push(`jointed: the section at ${along} m along the second segment is centred ${offLine} m off its line`);
