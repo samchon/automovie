@@ -99,10 +99,10 @@ export async function test_human_surface_resources(): Promise<void> {
  * Read real scalar results as well as resource counters, collecting every
  * numerical inconsistency without asserting that this person's anatomy passes.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls global distance twice and each signed-axis ray twice on the actual skin, catching nonfinite distances, mismatched hit/count results and unstable repeat reads.
- * @evidence contracts/testing.md#independent-expectations Every ray hit is a point on some triangle, so global nearest distance is no greater. A nonempty finite mesh has a finite nonnegative nearest distance; a zero count has no nearest hit, and a positive count has a positive finite one. Repeated immutable-input queries have the same scalar results. No inside/outside parity or anatomy tolerance is inferred.
- * @evidence contracts/testing.md#distinguishing-cases Both signs of all axes, two bind probes and every retained pose are read; zero-hit rays may legitimately return Infinity. All findings are collected until the owning resource test finishes.
- * @evidence contracts/testing.md#execution-ownership Synchronous CPU queries retain only scalar results and finding strings, with O(1) scratch independent of the mesh's population or extent.
+ * Calls global distance twice and each signed-axis ray twice on the actual skin, catching nonfinite distances, mismatched hit/count results and unstable repeat reads.
+ * Every ray hit is a point on some triangle, so global nearest distance is no greater. A nonempty finite mesh has a finite nonnegative nearest distance; a zero count has no nearest hit, and a positive count has a positive finite one. Repeated immutable-input queries have the same scalar results. No inside/outside parity or anatomy tolerance is inferred.
+ * Both signs of all axes, two bind probes and every retained pose are read; zero-hit rays may legitimately return Infinity. All findings are collected until the owning resource test finishes.
+ * Synchronous CPU queries retain only scalar results and finding strings, with O(1) scratch independent of the mesh's population or extent.
  */
 function observe(skin: HumanAnatomy.ISkin, p: HumanAnatomy.V3, failures: string[]): void {
   const distance: number = HumanAnatomySurface.distances(skin, [p])[0]!;
@@ -121,10 +121,10 @@ function observe(skin: HumanAnatomy.ISkin, p: HumanAnatomy.V3, failures: string[
 /**
  * Hash all existing position bytes through a zero-copy Buffer view.
  *
- * @evidence contracts/testing.md#behavioral-verification Detects mutation anywhere in an earlier returned skin after later pose requests.
- * @evidence contracts/testing.md#independent-expectations The observer's immutable-output contract requires the same bytes before and after unrelated requests; no stored generated snapshot is an oracle.
- * @evidence contracts/testing.md#distinguishing-cases Reads every component, including a change outside the first vertex, and preserves the original buffer.
- * @evidence contracts/testing.md#execution-ownership Local synchronous CPU hashing of the existing buffer with a borrowed byte view, retaining only a digest string.
+ * Detects mutation anywhere in an earlier returned skin after later pose requests.
+ * The observer's immutable-output contract requires the same bytes before and after unrelated requests; no stored generated snapshot is an oracle.
+ * Reads every component, including a change outside the first vertex, and preserves the original buffer.
+ * Local synchronous CPU hashing of the existing buffer with a borrowed byte view, retaining only a digest string.
  */
 function digest(positions: Float64Array): string {
   return createHash("sha256").update(Buffer.from(positions.buffer, positions.byteOffset, positions.byteLength)).digest("hex");
@@ -134,10 +134,10 @@ function digest(positions: Float64Array): string {
  * Derive old grid entries by summing bounding-box cell populations, using only
  * scalar scratch instead of allocating the cells being investigated.
  *
- * @evidence contracts/testing.md#behavioral-verification Reports the old strategy's required entries before the real queries acquire their hierarchy.
- * @evidence contracts/testing.md#independent-expectations A closed integer interval has floor(max/cell)-floor(min/cell)+1 cells; Cartesian products give the three projected rectangles and the volume box.
- * @evidence contracts/testing.md#distinguishing-cases Reads every emitted indexed triangle, including long triangles and negative coordinates, for the historical 4 mm ray and 6 mm distance cells formerly used by the real audit consumers.
- * @evidence contracts/testing.md#execution-ownership A local synchronous O(T) diagnostic with O(1) scratch, called only by the resource reading.
+ * Reports the old strategy's required entries before the real queries acquire their hierarchy.
+ * A closed integer interval has floor(max/cell)-floor(min/cell)+1 cells; Cartesian products give the three projected rectangles and the volume box.
+ * Reads every emitted indexed triangle, including long triangles and negative coordinates, for the historical 4 mm ray and 6 mm distance cells formerly used by the real audit consumers.
+ * A local synchronous O(T) diagnostic with O(1) scratch, called only by the resource reading.
  */
 function references(skin: HumanAnatomy.ISkin): { ray: number; distance: number } {
   let ray: number = 0;
@@ -155,10 +155,10 @@ function references(skin: HumanAnatomy.ISkin): { ray: number; distance: number }
 /**
  * Count integer cells along one coordinate of a triangle's bounding box.
  *
- * @evidence contracts/testing.md#behavioral-verification Supplies scalar spans to the resource reading, allocating no per-triangle arrays.
- * @evidence contracts/testing.md#independent-expectations Inclusive integer interval cardinality, including a maximum exactly on a cell boundary.
- * @evidence contracts/testing.md#distinguishing-cases Uses indexed corners, all axes, negative coordinates and each queried cell width.
- * @evidence contracts/testing.md#execution-ownership A local pure CPU arithmetic helper owned by human_surface_resources.
+ * Supplies scalar spans to the resource reading, allocating no per-triangle arrays.
+ * Inclusive integer interval cardinality, including a maximum exactly on a cell boundary.
+ * Uses indexed corners, all axes, negative coordinates and each queried cell width.
+ * A local pure CPU arithmetic helper owned by human_surface_resources.
  */
 function span(skin: HumanAnatomy.ISkin, t: number, axis: number, cell: number): number {
   const a: number = skin.P[3 * skin.I[t]! + axis]!;

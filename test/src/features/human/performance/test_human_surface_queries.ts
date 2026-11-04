@@ -155,10 +155,10 @@ export function test_human_surface_queries(): void {
 /**
  * Three independently specified rigid frames preserve Euclidean distance.
  *
- * @evidence contracts/testing.md#behavioral-verification Moves each literal triangle and probe together before the real leaf and hierarchy queries.
- * @evidence contracts/testing.md#independent-expectations Axis permutations, sign flips and a common translation preserve the Euclidean norm; no observer calculation supplies this transform.
- * @evidence contracts/testing.md#distinguishing-cases Identity and two translated axis changes move the collapsed and thin fixtures off their original plane without changing the analytic expectations.
- * @evidence contracts/testing.md#execution-ownership Local synchronous tuple arithmetic with no generation, cache, process or retained state.
+ * Moves each literal triangle and probe together before the real leaf and hierarchy queries.
+ * Axis permutations, sign flips and a common translation preserve the Euclidean norm; no observer calculation supplies this transform.
+ * Identity and two translated axis changes move the collapsed and thin fixtures off their original plane without changing the analytic expectations.
+ * Local synchronous tuple arithmetic with no generation, cache, process or retained state.
  */
 function rigid(p: Point, frame: number): Point {
   if (frame === 0) return [...p];
@@ -169,10 +169,10 @@ function rigid(p: Point, frame: number): Point {
 /**
  * A mesh fixture has no generated joints or anatomical chain dependencies.
  *
- * @evidence contracts/testing.md#behavioral-verification Constructs only the declared observer input; the owning test exercises its ray and distance results.
- * @evidence contracts/testing.md#independent-expectations Copies literal coordinates and indices without reading the observer or generating a person.
- * @evidence contracts/testing.md#distinguishing-cases Supplies both the empty and single-triangle inputs as well as the cube's topology.
- * @evidence contracts/testing.md#execution-ownership A local synchronous fixture constructor owned by test_human_surface_queries, with no host or retained cache.
+ * Constructs only the declared observer input; the owning test exercises its ray and distance results.
+ * Copies literal coordinates and indices without reading the observer or generating a person.
+ * Supplies both the empty and single-triangle inputs as well as the cube's topology.
+ * A local synchronous fixture constructor owned by test_human_surface_queries, with no host or retained cache.
  */
 function mesh(positions: number[], indices: number[]): Skin {
   return { name: "made", P: Float64Array.from(positions), I: Uint32Array.from(indices), tri: new Int32Array(indices.length / 3), chains: ["made"], joints: new Map() };
@@ -181,10 +181,10 @@ function mesh(positions: number[], indices: number[]): Skin {
 /**
  * Six planar square faces, each split across its diagonal.
  *
- * @evidence contracts/testing.md#behavioral-verification Supplies the closed mesh whose signed-axis exits and plane distances the owning test measures.
- * @evidence contracts/testing.md#independent-expectations Its eight corners are the independent Cartesian product of plus/minus the requested half side, and its twelve triangles cover the six boundary squares.
- * @evidence contracts/testing.md#distinguishing-cases Called at four coordinate scales and for near/far queries; empty and singleton fixtures are separate.
- * @evidence contracts/testing.md#execution-ownership One call-owned literal-topology CPU fixture used only by test_human_surface_queries.
+ * Supplies the closed mesh whose signed-axis exits and plane distances the owning test measures.
+ * Its eight corners are the independent Cartesian product of plus/minus the requested half side, and its twelve triangles cover the six boundary squares.
+ * Called at four coordinate scales and for near/far queries; empty and singleton fixtures are separate.
+ * One call-owned literal-topology CPU fixture used only by test_human_surface_queries.
  */
 function cube(radius: number): Skin {
   const positions: number[] = [];
@@ -196,10 +196,10 @@ function cube(radius: number): Skin {
  * Number of triangle references the former 4 mm ray grid must store, derived
  * from each projected bounding rectangle without allocating its cells.
  *
- * @evidence contracts/testing.md#behavioral-verification Reports the old acceleration strategy's resident-reference population beside the actual query resource reading; it asserts no timing or memory threshold.
- * @evidence contracts/testing.md#independent-expectations Counts the integer cells intersected by each projected bounding rectangle from its extrema. Query correctness comes from the owning test's plane equations, not this diagnostic count.
- * @evidence contracts/testing.md#distinguishing-cases Reports each of four scaled cubes with the same triangle population, distinguishing coordinate-area growth from triangle-count growth.
- * @evidence contracts/testing.md#execution-ownership A local allocation-free-in-cell-count diagnostic owned by the synchronous CPU query test.
+ * Reports the old acceleration strategy's resident-reference population beside the actual query resource reading; it asserts no timing or memory threshold.
+ * Counts the integer cells intersected by each projected bounding rectangle from its extrema. Query correctness comes from the owning test's plane equations, not this diagnostic count.
+ * Reports each of four scaled cubes with the same triangle population, distinguishing coordinate-area growth from triangle-count growth.
+ * A local allocation-free-in-cell-count diagnostic owned by the synchronous CPU query test.
  */
 function rayReferences(skin: Skin): number {
   let references: number = 0;
