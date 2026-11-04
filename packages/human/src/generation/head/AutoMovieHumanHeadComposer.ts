@@ -156,14 +156,16 @@ export namespace AutoMovieHumanHeadComposer {
     });
 
     // The neck: merged under the head mass, its top inside it, seeded at the
-    // back of the neck's top layer, its blend from the neck tube's radius.
+    // neck's back at the menton's height, its blend from the neck tube's radius.
     let neck: IJoined | null = null;
     if (neckChain !== undefined) {
-      const part: IAutoMovieViewPart = AutoMovieHumanNeckPart.of(plan.neck, neckChain.layers[0]!.y, plan.menton);
+      // The neck runs up past the menton by its radius, into the head mass's
+      // cap, and meets it round the cap's side at the menton's height.
+      const part: IAutoMovieViewPart = AutoMovieHumanNeckPart.of(plan.neck, neckChain.layers[0]!.y, plan.menton + plan.neck.radius);
       const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
       diagnostics.push(...loft.diagnostics);
-      const top: number = neckChain.layers[neckChain.layers.length - 1]!.y;
-      const back: [number, number, number] = [plan.neck.back, plan.y0, 0];
+      const top: number = plan.menton;
+      const back: [number, number, number] = [plan.neck.back + plan.neck.backSlope * (top - plan.neck.level), top, 0];
       const feature: AutoMovieHumanHeadFeatures.IFeature = {
         part,
         join: "merge",
@@ -173,7 +175,7 @@ export namespace AutoMovieHumanHeadComposer {
         parent: "head.mass",
       };
       const foot: AutoMovieSolidFoot.IFoot | null =
-        mass.surface === null ? null : AutoMovieSolidFoot.of(mass.surface, back, [plan.y0, Math.PI], TOLERANCE);
+        mass.surface === null ? null : AutoMovieSolidFoot.of(mass.surface, back, [top, Math.PI], TOLERANCE);
       if (loft.surface === null || mass.surface === null || foot === null) neck = { feature, loft, join: null };
       else {
         const width: number = AutoMovieHumanSeamUnion.width(plan.neck.radius, plan.neck.radius);

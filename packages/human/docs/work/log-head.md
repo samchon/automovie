@@ -87,6 +87,18 @@ The nose, both orbits and the ears' blends draw; the brow, lips, lids, philtrum,
 | K4 | lips: "no rail" and "the blend's normal reverses"; philtrum and sulcus: "no meeting near the seed"; lids: rail past the lid's crown | each part is far lower than it is wide, so its wall meets the host at a few degrees, under the grazing bound | a part lower than its least half extent takes a quartic profile, its wall standing up steeply from its base |
 | K5 | the upper lip refused at every station, "past side 1 by 0.0025 mm" | the operator's quintic overshot an elongated box | the kernel worker's engine fix (more conic spans, a containment tolerance), landing with its next commit |
 
+## Sweeps 5 and 6 (composed head on f1, 17:5x; read after, `sweep5/`, `sweep6/`)
+
+Sweep 5's front and three-quarter requests failed in the body lane (`AutoMovieHumanMassPart.create` from `AutoMovieHumanTrunkBuild`, reached through `person.calibration()`); its left frame and sweep 6 drew. After K1 to K4 the brows, the orbits, the nose and the auricles join; the lips, lids, philtrum, sulcus, the nose's lobule and alae, the conchas and the neck do not:
+
+| # | Phenomenon | Cause | Fix |
+| --- | --- | --- | --- |
+| L1 | the neck: "the trace returns 359 mm from its start" (sweep 5), then "no meeting near the seed" (sweep 6) | the head mass was open at its bottom; once closed, the neck's seed stood at the neck ring, under the cap | `4108ab763` closes the head mass in a cap under the menton; the neck now runs up past the menton by its radius and is seeded at its back at the menton's height |
+| L2 | the orbits' rails past their tips (sweep 5) | the orbit's landmark stood at the socket's depth, so moving the cutter onto the skin by it carried the cutter out | `4108ab763`: the landmark is the skin in front of the eye |
+| L3 | a flat plate behind the head's bottom (sweep 6, three-quarter) | to read with the neck merged over it | next round |
+| L4 | lips: "no rail beside t", "the blend's normal reverses"; lids: blends fold, a walk lost; philtrum: "no rail (host width 0.45 mm)"; sulcus: no meeting | parts a few millimetres high over a strongly curved host: their blend widths (half their height) are under a millimetre and their blends fold over the host's curvature | next round, with the kernel: the blend width's floor against the host's curvature, and these parts' laws (#3053, #3055) |
+| L5 | the conchas' host rails a hundredth of a millimetre past the auricle's top layer; the alae's bases 0.3 mm outside the nose; the lobule's walk lost | the auricle is a dome whose crown pole the concha sits on; the alae sink by a sagitta estimated from their own extent, not the nose's tighter curvature | next round: the auricle as its own lofted fin (#3056), each inner part's sink from its parent's radius |
+
 ## Wiring the head into the figure (design, written 16:1x)
 
 The figure's head lane is `AutoMovieHumanHeadConstruction.apply`, which `AutoMovieHumanBodyLaw.calibrate` calls before the body lane stands the trunk under the neck chain `head`. The composed head enters it as:
