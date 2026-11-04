@@ -1,12 +1,14 @@
 import type {
   AutoMovieConstructionAxis,
   AutoMovieConstructionFullness,
+  AutoMovieConstructionParameter,
   IAutoMovieConstructionOutline,
   IAutoMovieConstructionOutlinePair,
   IAutoMovieConstructionView,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieViewAxis } from "./AutoMovieViewAxis";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
@@ -67,6 +69,28 @@ export namespace AutoMovieConstructionViews {
           axis.halves.map((h: number): number => h * SCALE),
           vector(axis.up),
         );
+    }
+  }
+
+  /**
+   * A join curve's parameter record as the trace's parameter, the angle's centre in millimetres.
+   *
+   * @param p The parameter, metres.
+   * @returns The kernel's parameter.
+   */
+  export function parameter(p: AutoMovieConstructionParameter): AutoMovieSolidIntersection.Parameter {
+    switch (p.type) {
+      case "phase":
+        return { kind: "phase" };
+      case "arc":
+        return { kind: "arc" };
+      case "angle":
+        return {
+          kind: "angle",
+          centre: point(p.centre),
+          normal: vector(p.normal),
+          reference: vector(p.reference),
+        };
     }
   }
 
