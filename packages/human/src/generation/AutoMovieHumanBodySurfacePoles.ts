@@ -286,24 +286,11 @@ export namespace AutoMovieHumanBodySurfacePoles {
     s1: number,
     phases: readonly number[],
   ): void {
-    const roots = context.roots.get(target.name);
-    if (roots === undefined) {
+    const holed: ((corners: readonly [number, number][]) => string | null) | null = holing(context, target);
+    if (holed === null) {
       AutoMovieHumanLoftMesh.band(context.mesh, lower, upper);
       return;
     }
-    let hole = context.holes.get(target.name);
-    if (hole === undefined) {
-      hole = { cells: [], charts: new Map() };
-      context.holes.set(target.name, hole);
-    }
-    // A loop winding round the cap pole leaves out the chart beyond it.
-    const toward: number = target.pole?.end === "bottom" ? -1 : 1;
-    const inside = (s: number, t: number): boolean =>
-      roots.some((r): boolean =>
-        r.appendage?.winding !== undefined
-          ? AutoMovieHumanBodyRoots.beyond(r.loop, s, t, toward)
-          : AutoMovieHumanBodyRoots.inside(r.loop, s, t),
-      );
     const n: number = lower.length;
     for (let i: number = 0; i < n; i++) {
       const j: number = (i + 1) % n;
@@ -313,22 +300,108 @@ export namespace AutoMovieHumanBodySurfacePoles {
         [s1, phases[j]!],
         [s1, phases[i]!],
       ];
-      if (corners.some(([s, t]): boolean => inside(s, t))) {
-        const v: [number, number, number, number] = [
-          lower[i]!,
-          lower[j]!,
-          upper[j]!,
-          upper[i]!,
-        ];
-        hole.cells.push(v);
-        v.forEach((x: number, c: number): void => {
-          hole!.charts.set(x, corners[c]!);
-        });
+      const key: string | null = holed(corners);
+      if (key !== null) {
+        leave(context, target, key, [lower[i]!, lower[j]!, upper[j]!, upper[i]!], corners);
         continue;
       }
       context.mesh.indices.push(lower[i]!, upper[i]!, lower[j]!);
       context.mesh.indices.push(lower[j]!, upper[i]!, upper[j]!);
     }
+  }
+
+  /**
+   * Zipper between two rings of different phase sets (a child's band next to
+   * the ring it inherits), leaving out every triangle with a corner inside
+   * one of the chain's root loops, as {@link cells} does for a band. A trim
+   * that spans the ring two chains share reaches into this band, so the
+   * opening's hole runs on across the ring without a strip of skin left in
+   * it.
+   */
+  export function zipped(
+    context: IContext,
+    target: IAutoMovieHumanLoftChain,
+    lower: readonly number[],
+    lowerPhases: readonly number[],
+    upper: readonly number[],
+    upperPhases: readonly number[],
+    s0: number,
+    s1: number,
+  ): void {
+    const holed: ((corners: readonly [number, number][]) => string | null) | null = holing(context, target);
+    if (holed === null) {
+      AutoMovieHumanLoftMesh.zipper(context.mesh, lower, lowerPhases, upper, upperPhases);
+      return;
+    }
+
+    // Every ring vertex's chart point, then the zipper's triangles sorted
+    // into the skin and the holes.
+    const charts: Map<number, [number, number]> = new Map();
+    lower.forEach((v: number, i: number): void => {
+      charts.set(v, [s0, lowerPhases[i]!]);
+    });
+    upper.forEach((v: number, i: number): void => {
+      charts.set(v, [s1, upperPhases[i]!]);
+    });
+    const start: number = context.mesh.indices.length;
+    AutoMovieHumanLoftMesh.zipper(context.mesh, lower, lowerPhases, upper, upperPhases);
+    const made: number[] = context.mesh.indices.splice(start);
+    for (let k: number = 0; k < made.length; k += 3) {
+      const triangle: number[] = [made[k]!, made[k + 1]!, made[k + 2]!];
+      const corners: [number, number][] = triangle.map((v: number): [number, number] => charts.get(v)!);
+      const key: string | null = holed(corners);
+      if (key !== null) leave(context, target, key, triangle, corners);
+      else context.mesh.indices.push(...triangle);
+    }
+  }
+
+  /**
+   * The test that sorts a chain's cells: the key of the hole a cell with a
+   * corner inside one of the chain's root loops belongs to (the chain's name,
+   * or the span key of an opening spanning two chains), null for skin; null
+   * itself when the chain has no loops.
+   */
+  function holing(
+    context: IContext,
+    target: IAutoMovieHumanLoftChain,
+  ): ((corners: readonly [number, number][]) => string | null) | null {
+    const roots = context.roots.get(target.name);
+    if (roots === undefined) return null;
+
+    // A loop winding round the cap pole leaves out the chart beyond it.
+    const toward: number = target.pole?.end === "bottom" ? -1 : 1;
+    return (corners: readonly [number, number][]): string | null => {
+      for (const r of roots)
+        if (
+          corners.some(([s, t]: [number, number]): boolean =>
+            r.appendage?.winding !== undefined
+              ? AutoMovieHumanBodyRoots.beyond(r.loop, s, t, toward)
+              : AutoMovieHumanBodyRoots.inside(r.loop, s, t),
+          )
+        )
+          return r.span ?? target.name;
+      return null;
+    };
+  }
+
+  /** Record a left-out cell in its hole, with its corners' chart points and chain. */
+  function leave(
+    context: IContext,
+    target: IAutoMovieHumanLoftChain,
+    key: string,
+    vertices: readonly number[],
+    corners: readonly [number, number][],
+  ): void {
+    let hole = context.holes.get(key);
+    if (hole === undefined) {
+      hole = { cells: [], charts: new Map(), owners: new Map() };
+      context.holes.set(key, hole);
+    }
+    hole.cells.push([...vertices]);
+    vertices.forEach((x: number, c: number): void => {
+      hole!.charts.set(x, corners[c]!);
+      hole!.owners.set(x, target.name);
+    });
   }
 
   /** Resolved boundary of a chain end; ends without an event are poles. */

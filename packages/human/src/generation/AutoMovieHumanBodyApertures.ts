@@ -222,7 +222,7 @@ export namespace AutoMovieHumanBodyApertures {
    * Cut the eyes out of the skin and close them with their lids: the one
    * opening still cut by position, because an eye's lid band crosses the ring
    * between two head chains; every other opening is a trim loop on its base
-   * chain (`AutoMovieHumanApertureBase`).
+   * chains (`AutoMovieHumanApertureSpan`).
    *
    * Each vertex takes the least {@link AutoMovieHumanLoftAperture.signed}
    * distance over the openings' cut outlines. Every triangle is clipped at
