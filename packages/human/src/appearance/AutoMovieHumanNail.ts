@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanNailImage } from "./AutoMovieHumanNailImage";
 import { AutoMovieHumanNailPlate } from "./AutoMovieHumanNailPlate";
 
@@ -58,17 +58,17 @@ export namespace AutoMovieHumanNail {
    * @returns Parts, material and images
    */
   export function generate(
-    chains: readonly IAutoMovieHumanLoftChain[],
+    chains: readonly IAutoMovieLoftChain[],
     nails: readonly IAutoMovieHumanBodyCalibration.INail[],
     scale: number,
     albedo: readonly [number, number, number],
   ): IOutput {
-    const byName: Map<string, IAutoMovieHumanLoftChain> = new Map(
-      chains.map((c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain] => [c.name, c]),
+    const byName: Map<string, IAutoMovieLoftChain> = new Map(
+      chains.map((c: IAutoMovieLoftChain): [string, IAutoMovieLoftChain] => [c.name, c]),
     );
     const parts: IAutoMovieModelPart[] = [];
     for (const nail of nails) {
-      const chain: IAutoMovieHumanLoftChain | undefined = byName.get(nail.chain);
+      const chain: IAutoMovieLoftChain | undefined = byName.get(nail.chain);
       const id: string | null = idOf(nail.chain);
       if (chain === undefined || id === null) continue;
       const mesh: AutoMovieHumanNailPlate.IOutput = AutoMovieHumanNailPlate.generate(chain, nail);

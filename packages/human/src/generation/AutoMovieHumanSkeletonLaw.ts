@@ -3,7 +3,7 @@ import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction
 import type { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
 import { AutoMovieHumanTrunkLandmarks } from "./AutoMovieHumanTrunkLandmarks";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanSkeletonChain } from "./AutoMovieHumanSkeletonChain";
 import { AutoMovieHumanSkeletonLeg } from "./AutoMovieHumanSkeletonLeg";
 import { AutoMovieHumanSkeletonShoulder } from "./AutoMovieHumanSkeletonShoulder";
@@ -88,9 +88,9 @@ export namespace AutoMovieHumanSkeletonLaw {
     const S: number = root.stature;
     const footed: IAutoMovieHumanBodyCalibration =
       AutoMovieHumanFootConstruction.add(root, inputs.feet);
-    const chain = (name: string): IAutoMovieHumanLoftChain => {
-      const found: IAutoMovieHumanLoftChain | undefined = footed.chains.find(
-        (c: IAutoMovieHumanLoftChain): boolean => c.name === name,
+    const chain = (name: string): IAutoMovieLoftChain => {
+      const found: IAutoMovieLoftChain | undefined = footed.chains.find(
+        (c: IAutoMovieLoftChain): boolean => c.name === name,
       );
       if (found === undefined)
         throw new Error(`The skeleton needs the ${name} chain`);
@@ -126,8 +126,8 @@ export namespace AutoMovieHumanSkeletonLaw {
     };
 
     // Trunk column: hip centres, de Leva trunk boundaries, neck base.
-    const trunk: IAutoMovieHumanLoftChain = chain("trunk");
-    const upper: IAutoMovieHumanLoftChain = chain("upper");
+    const trunk: IAutoMovieLoftChain = chain("trunk");
+    const upper: IAutoMovieLoftChain = chain("upper");
     const hipY: number = HIP * S;
     const pelvis: Vec3 = lerp(legs.left.hip, legs.right.hip, 0.5);
     const span: number = CERVICALE * S;
@@ -139,7 +139,7 @@ export namespace AutoMovieHumanSkeletonLaw {
     const thoracic: Vec3 = spineAt(hipY + XIPHION * span);
 
     // The neck owns the ring it shares with the shoulders.
-    const neck: IAutoMovieHumanLoftChain = chain("head");
+    const neck: IAutoMovieLoftChain = chain("head");
     const neckBase: Vec3 = end(neck, "bottom");
     const lobe = (side: string): Vec3 =>
       end(chain(`ear.lobe.${side}`), "bottom");

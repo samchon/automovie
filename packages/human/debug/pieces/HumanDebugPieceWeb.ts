@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { HUMAN_DEBUG_REGIONS } from "../contracts/HUMAN_DEBUG_REGIONS";
 import { HumanDebugPattern } from "../contracts/HumanDebugPattern";
 import type { IHumanDebugDocument } from "../contracts/IHumanDebugDocument";
@@ -37,7 +37,7 @@ export const HumanDebugPieceWeb: IHumanDebugPiece = {
 
     // The interval each lofted chain's web cells are grouped into.
     const layers: Map<string, number> = new Map(
-      calibration.chains.map((chain: IAutoMovieHumanLoftChain): [string, number] => [chain.name, chain.layers.length]),
+      calibration.chains.map((chain: IAutoMovieLoftChain): [string, number] => [chain.name, chain.layers.length]),
     );
     const kept: Map<string, string> = new Map();
     for (const event of events)

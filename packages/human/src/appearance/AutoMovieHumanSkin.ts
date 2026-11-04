@@ -7,7 +7,7 @@ import type {
 
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanSkinAppearance } from "../structures/appearance/IAutoMovieHumanSkinAppearance";
 import { AutoMovieHumanNail } from "./AutoMovieHumanNail";
@@ -88,7 +88,7 @@ export namespace AutoMovieHumanSkin {
     scale: number;
 
     /** The calibration's chains in mm, which the nail plates lie on. */
-    chains: readonly IAutoMovieHumanLoftChain[];
+    chains: readonly IAutoMovieLoftChain[];
 
     /** The nail plates' windows on their digit chains. */
     nails: readonly IAutoMovieHumanBodyCalibration.INail[];

@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * Tape measures of a calibrated body: girths of chain sections and the
@@ -48,8 +47,8 @@ export namespace AutoMovieHumanBodyGirth {
    *   lift included.
    * @param s Station inside the chain.
    */
-  export function at(chain: IAutoMovieHumanLoftChain, s: number): number {
-    const ring: [number, number, number][] = AutoMovieHumanLoftChain.ring(
+  export function at(chain: IAutoMovieLoftChain, s: number): number {
+    const ring: [number, number, number][] = AutoMovieLoftChain.ring(
       chain,
       s,
       PHASES,
@@ -72,10 +71,10 @@ export namespace AutoMovieHumanBodyGirth {
    * @param crotch Station of the crotch event, mm.
    */
   export function stations(
-    chains: Map<string, IAutoMovieHumanLoftChain>,
+    chains: Map<string, IAutoMovieLoftChain>,
     crotch: number,
   ): IStations {
-    const trunk: IAutoMovieHumanLoftChain = chains.get("trunk")!;
+    const trunk: IAutoMovieLoftChain = chains.get("trunk")!;
     const top: number = end(trunk, "top");
     const hip: number = extreme(trunk, crotch + 10, crotch + 200, 1);
     const waist: number = extreme(trunk, hip + 60, hip + 400, -1);
@@ -121,7 +120,7 @@ const PHASES: number[] = Array.from(
 );
 
 /** Station of a chain end, mm. */
-function end(chain: IAutoMovieHumanLoftChain, side: "bottom" | "top"): number {
+function end(chain: IAutoMovieLoftChain, side: "bottom" | "top"): number {
   return side === "bottom"
     ? chain.layers[0]!.y
     : chain.layers[chain.layers.length - 1]!.y;
@@ -132,7 +131,7 @@ function end(chain: IAutoMovieHumanLoftChain, side: "bottom" | "top"): number {
  * clamped into the chain, scanned at 2 mm and refined at 0.25 mm.
  */
 function extreme(
-  chain: IAutoMovieHumanLoftChain,
+  chain: IAutoMovieLoftChain,
   from: number,
   to: number,
   sign: 1 | -1,
@@ -160,7 +159,7 @@ function extreme(
  * (+X), scanned at 2 mm: the bust apex on the trunk.
  */
 function apex(
-  chain: IAutoMovieHumanLoftChain,
+  chain: IAutoMovieLoftChain,
   from: number,
   to: number,
 ): number {
@@ -170,7 +169,7 @@ function apex(
   let front: number = -Infinity;
   for (let s: number = lo; s <= hi; s += 2) {
     const x: number = Math.max(
-      ...AutoMovieHumanLoftChain.ring(chain, s, PHASES).map(
+      ...AutoMovieLoftChain.ring(chain, s, PHASES).map(
         (p: [number, number, number]): number => p[0],
       ),
     );

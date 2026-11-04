@@ -7,7 +7,7 @@ import type {
 
 import { AutoMovieHumanBodyApertures } from "../generation/AutoMovieHumanBodyApertures";
 import type { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanBrowAppearance } from "../structures/appearance/IAutoMovieHumanBrowAppearance";
 import type { IAutoMovieHumanEyelash } from "../structures/appearance/IAutoMovieHumanEyelash";
@@ -80,7 +80,7 @@ export namespace AutoMovieHumanAppearance {
      * out (`docs/techniques/construction-levels.md`); empty for a sound
      * figure.
      */
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+    diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
   /**
@@ -103,7 +103,7 @@ export namespace AutoMovieHumanAppearance {
       ...AutoMovieHumanConjunctiva.materials(),
     ];
     const images: IAutoMovieImage[] = [image, sclera];
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
 
     // Lid margins of both eyes, the ones the body generator cut, in
     // calibration millimetres; the body is that calibration scaled

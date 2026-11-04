@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import { AutoMovieHumanFaceTone } from "./AutoMovieHumanFaceTone";
 import type { AutoMovieHumanSkinChart } from "./AutoMovieHumanSkinChart";
@@ -90,7 +90,7 @@ export namespace AutoMovieHumanSkinTone {
     pieces: readonly AutoMovieHumanSkinChart.IOutput[];
 
     /** The calibration's chains in mm, which the landmarks are read on. */
-    chains: readonly IAutoMovieHumanLoftChain[];
+    chains: readonly IAutoMovieLoftChain[];
 
     /** Eye globes in mm. */
     eyes: readonly IEye[];

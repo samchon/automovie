@@ -1,9 +1,6 @@
-import { AutoMovieHumanNaturalSpline } from "../../lofting/AutoMovieHumanNaturalSpline";
-import { AutoMovieHumanPolarSector } from "../../lofting/AutoMovieHumanPolarSector";
+import { AutoMovieNaturalSpline, AutoMoviePolarSector, AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanSeamKnot } from "../../lofting/AutoMovieHumanSeamKnot";
-import { AutoMovieHumanRelief } from "../../network/AutoMovieHumanRelief";
-import type { IAutoMovieHumanRelief } from "../../network/IAutoMovieHumanRelief";
 import type { AutoMovieHumanArmAxis } from "./AutoMovieHumanArmAxis";
 import { AutoMovieHumanArmGuides } from "./AutoMovieHumanArmGuides";
 
@@ -16,7 +13,7 @@ import { AutoMovieHumanArmGuides } from "./AutoMovieHumanArmGuides";
  * ```
  *
  * with `rho` the polar sector section of the guides' and sectors' channels at
- * `s` (`AutoMovieHumanPolarSector`), the reliefs windows in `(s, theta)`
+ * `s` (`AutoMoviePolarSector`), the reliefs windows in `(s, theta)`
  * whose height, slope and curvature vanish at their edges, and `K(s)` the
  * scale that makes the section's hull, a taut tape, measure the girth the
  * span law asks for at `s`. So a girth input is honoured at its site on this
@@ -28,7 +25,7 @@ export namespace AutoMovieHumanArmTube {
   /** A section's normalised shape at a walk length. */
   export interface IShape {
     /** The guides by increasing angle. */
-    guides: AutoMovieHumanPolarSector.IGuide[];
+    guides: AutoMoviePolarSector.IGuide[];
 
     /** One per guide. */
     fullness: number[];
@@ -72,7 +69,7 @@ export namespace AutoMovieHumanArmTube {
   export function build(
     axis: AutoMovieHumanArmAxis.IAxis,
     shape: (s: number) => IShape,
-    reliefs: readonly IAutoMovieHumanRelief[],
+    reliefs: readonly IAutoMovieLoftRelief[],
     target: (s: number) => number,
     from: number,
     to: number,
@@ -83,10 +80,10 @@ export namespace AutoMovieHumanArmTube {
     // so a guide can publish its jet.
     const unitRadius = (s: number, theta: number): [number, number, number] => {
       const own: IShape = shape(s);
-      const r: [number, number, number] = AutoMovieHumanPolarSector.radius(own.guides, own.fullness, theta);
+      const r: [number, number, number] = AutoMoviePolarSector.radius(own.guides, own.fullness, theta);
 
       for (const relief of reliefs) {
-        const j: number[] = AutoMovieHumanRelief.jet(relief, s, theta);
+        const j: number[] = AutoMovieLoftRelief.jet(relief, s, theta);
         r[0] += j[0]!;
         r[1] += j[2]!;
         r[2] += j[5]!;
@@ -125,8 +122,8 @@ export namespace AutoMovieHumanArmTube {
     const count: number = Math.max(2, Math.ceil((to - from) / GRID));
     const xs: number[] = Array.from({ length: count + 1 }, (_: unknown, i: number): number => from + ((to - from) * i) / count);
     const ks: number[] = xs.map((s: number): number => target(s) / unitHull(s));
-    const spline: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(xs, ks);
-    const scale = (s: number): number => AutoMovieHumanNaturalSpline.evaluate(spline, Math.min(to, Math.max(from, s)));
+    const spline: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(xs, ks);
+    const scale = (s: number): number => AutoMovieNaturalSpline.evaluate(spline, Math.min(to, Math.max(from, s)));
 
     // The section's axes: forward across the heading, and the heading crossed
     // with forward, which is lateral on the left side.
@@ -175,7 +172,7 @@ export namespace AutoMovieHumanArmTube {
   export function controls(tube: ITube, s: number, count: number): Vec3[] {
     const knots: number = count / AutoMovieHumanArmGuides.ANGLES.length;
     if (!Number.isInteger(knots)) throw new Error(`An arm section of ${count} control points cannot hold its guides at knots`);
-    const jet = (theta: number): AutoMovieHumanSeamKnot.Jet => AutoMovieHumanPolarSector.point(tube.radius(s, theta), theta);
+    const jet = (theta: number): AutoMovieHumanSeamKnot.Jet => AutoMoviePolarSector.point(tube.radius(s, theta), theta);
     const guides: AutoMovieHumanSeamKnot.IGuide[] = AutoMovieHumanArmGuides.ANGLES.map(
       (angle: number, j: number): AutoMovieHumanSeamKnot.IGuide => {
         const [p, d1, d2] = jet(angle);

@@ -1,5 +1,5 @@
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
@@ -87,7 +87,7 @@ export namespace AutoMovieHumanBodySurface {
       mesh: AutoMovieHumanLoftMesh.create(),
       chains: new Map(
         calibration.chains.map(
-          (c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain] => [
+          (c: IAutoMovieLoftChain): [string, IAutoMovieLoftChain] => [
             c.name,
             c,
           ],
@@ -113,7 +113,7 @@ export namespace AutoMovieHumanBodySurface {
       details,
       indices: new Map(
         calibration.chains.map(
-          (c: IAutoMovieHumanLoftChain, i: number): [string, number] => [
+          (c: IAutoMovieLoftChain, i: number): [string, number] => [
             c.name,
             i,
           ],

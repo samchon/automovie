@@ -1,4 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 import type { IAutoMovieHumanHeadEyeOpening } from "./IAutoMovieHumanHeadEyeOpening";
 import type { IAutoMovieHumanHeadLandmarks } from "./IAutoMovieHumanHeadLandmarks";
 import type { IAutoMovieHumanHeadMandible } from "./IAutoMovieHumanHeadMandible";
@@ -111,7 +111,7 @@ export interface IAutoMovieHumanHeadLayout {
   right: IAutoMovieHumanHeadEyeOpening;
 
   /** Station map. */
-  station: AutoMovieHumanNaturalSpline.ISpline;
+  station: AutoMovieNaturalSpline.ISpline;
 
   /** Columella's rise above the horizontal, radians. */
   columella: number;
@@ -123,7 +123,7 @@ export interface IAutoMovieHumanHeadLayout {
   landmarks: IAutoMovieHumanHeadLandmarks;
 
   /** The midline profile's departure from the vault's ellipse along the height. */
-  profile: AutoMovieHumanNaturalSpline.ISpline;
+  profile: AutoMovieNaturalSpline.ISpline;
 
   /** The jaw, once the chin and the ears are placed. */
   mandible?: IAutoMovieHumanHeadMandible;

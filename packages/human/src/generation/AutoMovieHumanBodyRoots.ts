@@ -1,8 +1,6 @@
 import type { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanBodyStrip } from "./AutoMovieHumanBodyStrip";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -28,7 +26,7 @@ export namespace AutoMovieHumanBodyRoots {
     u: number,
     winding: number = 0,
   ): [number, number, number, number] {
-    const [s, t, ds, dt] = AutoMovieHumanSplineCurve.evaluate(root, root.length / 2, u);
+    const [s, t, ds, dt] = AutoMovieSplineCurve.evaluate(root, root.length / 2, u);
     return [s, t + winding * u, ds, dt + winding];
   }
 
@@ -126,9 +124,9 @@ export namespace AutoMovieHumanBodyRoots {
   export function join(
     mesh: AutoMovieHumanLoftMesh.IContext,
     coordinates: number[],
-    base: IAutoMovieHumanLoftChain,
+    base: IAutoMovieLoftChain,
     baseIndex: number,
-    appendage: IAutoMovieHumanLoftChain,
+    appendage: IAutoMovieLoftChain,
     root: IAutoMovieHumanBodyCalibration.IAppendage,
     ring: readonly number[],
     phases: readonly number[],
@@ -203,7 +201,7 @@ export namespace AutoMovieHumanBodyRoots {
    * @returns `[station, phase]` per outline point.
    */
   export function trim(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     outline: AutoMovieHumanLoftAperture.IOutline,
     heights: [number, number],
   ): [number, number][] {
@@ -302,11 +300,11 @@ function polygonArea(loop: readonly [number, number][]): number {
 }
 
 /** Surface point of a chain at a chart point, the station clamped into it. */
-const at: (chain: IAutoMovieHumanLoftChain, s: number, t: number) => V =
+const at: (chain: IAutoMovieLoftChain, s: number, t: number) => V =
   AutoMovieHumanBodyStrip.surface;
 
 /** Unit outward surface normal of a chain at a chart point: away from its axis. */
-function normal(chain: IAutoMovieHumanLoftChain, s: number, t: number): V {
+function normal(chain: IAutoMovieLoftChain, s: number, t: number): V {
   const ds: V = sub(at(chain, s + H, t), at(chain, s - H, t));
   const dt: V = sub(at(chain, s, t + 1e-3), at(chain, s, t - 1e-3));
   const n: V = [
@@ -318,7 +316,7 @@ function normal(chain: IAutoMovieHumanLoftChain, s: number, t: number): V {
   const p: V = at(chain, s, t);
   const y0: number = chain.layers[0]!.y;
   const y1: number = chain.layers[chain.layers.length - 1]!.y;
-  const c: V = AutoMovieHumanLoftChain.axis(chain, Math.min(y1, Math.max(y0, s)));
+  const c: V = AutoMovieLoftChain.axis(chain, Math.min(y1, Math.max(y0, s)));
   const sign: number = (p[0] - c[0]) * n[0] + (p[1] - c[1]) * n[1] + (p[2] - c[2]) * n[2] < 0 ? -1 : 1;
   return [(sign * n[0]) / l, (sign * n[1]) / l, (sign * n[2]) / l];
 }

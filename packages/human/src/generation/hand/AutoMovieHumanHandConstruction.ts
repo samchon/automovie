@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanHandDigitChain } from "./AutoMovieHumanHandDigitChain";
@@ -80,10 +80,10 @@ export namespace AutoMovieHumanHandConstruction {
     thumb: { cmc: Vec3; mcp: Vec3 };
 
     /** The palm's chain, absent when not lofted. */
-    palm: IAutoMovieHumanLoftChain | null;
+    palm: IAutoMovieLoftChain | null;
 
     /** The digits' chains, thumb first; empty when not lofted. */
-    digits: IAutoMovieHumanLoftChain[];
+    digits: IAutoMovieLoftChain[];
 
     /** The digits' poles, thumb first; empty when not lofted. */
     poles: IAutoMovieHumanBodyCalibration.IPole[];
@@ -176,7 +176,7 @@ export namespace AutoMovieHumanHandConstruction {
       thumb,
       palm: AutoMovieHumanHandPalm.palmOf(hand, map, input.side, sign),
       digits: hand.digits.map(
-        (d: IAutoMovieHumanHandDigit, i: number): IAutoMovieHumanLoftChain =>
+        (d: IAutoMovieHumanHandDigit, i: number): IAutoMovieLoftChain =>
           AutoMovieHumanHandDigitChain.fingerOf(d, i, fingers[i]!, input.side, sign),
       ),
       poles: hand.digits.map(

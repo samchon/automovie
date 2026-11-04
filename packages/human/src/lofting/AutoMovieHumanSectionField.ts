@@ -1,4 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "./AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 
 /**
  * A chain's surface as a continuous field in station and phase.
@@ -24,7 +24,7 @@ export namespace AutoMovieHumanSectionField {
   /** A field ready to read. */
   export interface ICompiled {
     /** One spline per series number. */
-    splines: AutoMovieHumanNaturalSpline.ISpline[];
+    splines: AutoMovieNaturalSpline.ISpline[];
 
     /** Numbers of one coordinate's series. */
     width: number;
@@ -36,8 +36,8 @@ export namespace AutoMovieHumanSectionField {
     return {
       splines: Array.from(
         { length: count },
-        (_: unknown, k: number): AutoMovieHumanNaturalSpline.ISpline =>
-          AutoMovieHumanNaturalSpline.create(
+        (_: unknown, k: number): AutoMovieNaturalSpline.ISpline =>
+          AutoMovieNaturalSpline.create(
             field.stations,
             field.series.map((row: readonly number[]): number => row[k]!),
           ),
@@ -49,8 +49,8 @@ export namespace AutoMovieHumanSectionField {
   /** Series numbers at a station, for reading several phases. */
   export function section(field: ICompiled, station: number): number[] {
     return field.splines.map(
-      (s: AutoMovieHumanNaturalSpline.ISpline): number =>
-        AutoMovieHumanNaturalSpline.evaluate(s, station),
+      (s: AutoMovieNaturalSpline.ISpline): number =>
+        AutoMovieNaturalSpline.evaluate(s, station),
     );
   }
 

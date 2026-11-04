@@ -1,5 +1,5 @@
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhases";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodyWeb } from "./AutoMovieHumanBodyWeb";
@@ -32,7 +32,7 @@ export namespace AutoMovieHumanBodySurfaceContact {
     context: IContext,
     event: IAutoMovieHumanBodyCalibration.IEvent,
   ): void {
-    const parent: IAutoMovieHumanLoftChain = chain(context, event.parent);
+    const parent: IAutoMovieLoftChain = chain(context, event.parent);
     const parentEnd: "bottom" | "top" =
       event.direction === "down" ? "bottom" : "top";
     const childEnd: "bottom" | "top" =
@@ -65,7 +65,7 @@ export namespace AutoMovieHumanBodySurfaceContact {
       const built: AutoMovieHumanBodyWeb.IResult = AutoMovieHumanBodyWeb.build({
         mesh: context.mesh,
         coordinates: context.coordinates,
-        chain: (name: string): IAutoMovieHumanLoftChain => chain(context, name),
+        chain: (name: string): IAutoMovieLoftChain => chain(context, name),
         index: (name: string): number => context.indices.get(name)!,
         parent,
         down: event.direction === "down",

@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanApertureSeam } from "./AutoMovieHumanApertureSeam";
 import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
 import { AutoMovieHumanAperturePocket } from "./AutoMovieHumanAperturePocket";
@@ -52,19 +51,19 @@ export namespace AutoMovieHumanBodySurfaceOpening {
         : AutoMovieHumanApertureSeam.drawn(
             span.points,
             seam,
-            (name: string): IAutoMovieHumanLoftChain => chain(context, name),
-            (name: string, end: "bottom" | "top", t: number): IAutoMovieHumanLoftChain | null => beyond(context, events, name, end, t),
+            (name: string): IAutoMovieLoftChain => chain(context, name),
+            (name: string, end: "bottom" | "top", t: number): IAutoMovieLoftChain | null => beyond(context, events, name, end, t),
           );
     const single: boolean =
       span.chains.length === 1 && points.every((p: IPoint): boolean => p.chain === span.chains[0]);
-    const base: IAutoMovieHumanLoftChain = chain(context, span.chains[0]!);
+    const base: IAutoMovieLoftChain = chain(context, span.chains[0]!);
     const own: IPoint[] = points.filter((p: IPoint): boolean => p.chain === base.name);
     const middle: number = own.reduce((a: number, p: IPoint): number => a + p.s, 0) / Math.max(1, own.length);
     AutoMovieHumanLoftMesh.group(context.mesh, interval(base, middle, middle));
 
     // The rim's vertices, each the surface at its own chain's chart point.
     const rim: [number, number, number][] = points.map(
-      (p: IPoint): [number, number, number] => AutoMovieHumanLoftChain.point(chain(context, p.chain), p.s, p.t),
+      (p: IPoint): [number, number, number] => AutoMovieLoftChain.point(chain(context, p.chain), p.s, p.t),
     );
     context.rims.set(prepared.aperture.name, rim);
     const ring: number[] = AutoMovieHumanLoftMesh.vertices(context.mesh, rim);
@@ -149,7 +148,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     name: string,
     end: "bottom" | "top",
     t: number,
-  ): IAutoMovieHumanLoftChain | null {
+  ): IAutoMovieLoftChain | null {
     const two: number = 2 * Math.PI;
     const phase: number = ((t % two) + two) % two;
     const holds = (arc: [number, number]): boolean =>
@@ -192,7 +191,7 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     if (hole === undefined) throw new Error(`Hole ${key} was not left`);
     const place = (v: number): [number, number] => {
       const [s, t] = hole.charts.get(v)!;
-      return flat(AutoMovieHumanLoftChain.point(chain(context, hole.owners.get(v)!), s, t));
+      return flat(AutoMovieLoftChain.point(chain(context, hole.owners.get(v)!), s, t));
     };
     const centre: [number, number] = rim.reduce(
       (a: [number, number], p: [number, number]): [number, number] => [a[0] + p[0] / rim.length, a[1] + p[1] / rim.length],

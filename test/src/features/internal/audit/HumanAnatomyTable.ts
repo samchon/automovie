@@ -1,8 +1,6 @@
 import type { AutoMovieHumanSkeletonLaw } from "../../../../../packages/human/src/generation/AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import { AutoMovieHumanLoftFrame } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftFrame";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, AutoMovieLoftFrame, type IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanCurveProfile } from "../curves/HumanCurveProfile";
 import { HumanCurveRings } from "../curves/HumanCurveRings";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
@@ -199,7 +197,7 @@ export namespace HumanAnatomyTable {
     for (const kind of ["leg", "arm"] as const)
       for (const side of ["left", "right"] as const) {
         const name: string = `${kind}.${side}`;
-        const chain: IAutoMovieHumanLoftChain | undefined = body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === name);
+        const chain: IAutoMovieLoftChain | undefined = body.chains.find((c: IAutoMovieLoftChain): boolean => c.name === name);
         if (chain === undefined) throw new Error(`the body carries no ${name} chain`);
         const profile: HumanCurveRings.IProfile = HumanCurveRings.of(body, name, k);
         const bones: string[] = kind === "leg" ? ["UpperLeg", "LowerLeg", "Foot"] : ["UpperArm", "LowerArm", "Hand"];
@@ -211,9 +209,9 @@ export namespace HumanAnatomyTable {
         const joints: [number, number, number] = centres.map((c: V3): number => nearest(profile.centre, c)) as [number, number, number];
         const sections: { ring: P2[]; joint: P2; label: string }[] = [1, 2].map((j: number): { ring: P2[]; joint: P2; label: string } => {
           const s: number = profile.stations[joints[j]!]! / k;
-          const frame: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(chain, s);
-          const ring: P2[] = AutoMovieHumanLoftChain.ring(chain, s, HumanCurveRings.PHASES).map((p: [number, number, number]): P2 => scale(AutoMovieHumanLoftFrame.local(frame, p), k));
-          return { ring, joint: scale(AutoMovieHumanLoftFrame.local(frame, centres[j]!.map((v: number): number => v / k) as V3), k), label: j === 1 ? (kind === "leg" ? "knee" : "elbow") : kind === "leg" ? "ankle" : "wrist" };
+          const frame: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, s);
+          const ring: P2[] = AutoMovieLoftChain.ring(chain, s, HumanCurveRings.PHASES).map((p: [number, number, number]): P2 => scale(AutoMovieLoftFrame.local(frame, p), k));
+          return { ring, joint: scale(AutoMovieLoftFrame.local(frame, centres[j]!.map((v: number): number => v / k) as V3), k), label: j === 1 ? (kind === "leg" ? "knee" : "elbow") : kind === "leg" ? "ankle" : "wrist" };
         });
         // The shank's frontal contours: each section's reach across the body (z, the body's left +Z) from the knee-to-ankle line.
         let contours: { share: number[]; medial: number[]; lateral: number[] } | undefined;
@@ -225,7 +223,7 @@ export namespace HumanAnatomyTable {
             const along: number = (i - joints[1]) / (joints[2] - joints[1]);
             if (along < 0.1 || along > 0.6) continue;
             const axis: number = knee[2] + along * (ankle[2] - knee[2]);
-            const across: number[] = AutoMovieHumanLoftChain.ring(chain, profile.stations[i]! / k, HumanCurveRings.PHASES).map((p: [number, number, number]): number => outward * (p[2] * k - axis));
+            const across: number[] = AutoMovieLoftChain.ring(chain, profile.stations[i]! / k, HumanCurveRings.PHASES).map((p: [number, number, number]): number => outward * (p[2] * k - axis));
             contours.share.push(along);
             contours.lateral.push(Math.max(...across));
             contours.medial.push(-Math.min(...across));

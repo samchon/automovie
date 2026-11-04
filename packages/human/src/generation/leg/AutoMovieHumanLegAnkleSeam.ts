@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
 import type { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
@@ -25,8 +24,8 @@ export namespace AutoMovieHumanLegAnkleSeam {
    * @returns The ring at the leg's phases, one point per phase.
    */
   export function ring(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): Vec3[] {
-    const foot: IAutoMovieHumanLoftChain = calibration.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === `foot.${side}`)!;
-    return AutoMovieHumanLoftChain.ring(foot, foot.layers[foot.layers.length - 1]!.y, AutoMovieHumanLegSampling.PHASES);
+    const foot: IAutoMovieLoftChain = calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === `foot.${side}`)!;
+    return AutoMovieLoftChain.ring(foot, foot.layers[foot.layers.length - 1]!.y, AutoMovieHumanLegSampling.PHASES);
   }
 
   /**

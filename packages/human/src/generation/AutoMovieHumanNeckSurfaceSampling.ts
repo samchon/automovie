@@ -1,7 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParameter";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieLoftParameter, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanNeckSurface } from "./AutoMovieHumanNeckSurface";
 
 /**
@@ -29,16 +26,16 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Dense and unscaled points are local temporaries; output frame vectors and points are independent copies without chain references.
    */
   export function section(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     station: number,
     requestedHeight: number,
     phases: readonly number[],
     scale: number,
   ): AutoMovieHumanNeckSurface.ISection {
     const points: AutoMovieHumanNeckSurface.Vector[] =
-      AutoMovieHumanLoftChain.ring(chain, station, phases);
+      AutoMovieLoftChain.ring(chain, station, phases);
     const dense: AutoMovieHumanNeckSurface.Vector[] =
-      AutoMovieHumanLoftChain.ring(chain, station, MEASURE_PHASES);
+      AutoMovieLoftChain.ring(chain, station, MEASURE_PHASES);
     let circumference: number = 0;
     let minX: number = Infinity;
     let maxX: number = -Infinity;
@@ -58,7 +55,7 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
       minZ = Math.min(minZ, point[2]);
       maxZ = Math.max(maxZ, point[2]);
     }
-    const frame: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(
+    const frame: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(
       chain,
       station,
     );
@@ -66,7 +63,7 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
       chain: chain.name,
       stationMm: station,
       requestedHeight: requestedHeight * scale,
-      centre: scaled(AutoMovieHumanLoftChain.axis(chain, station), scale),
+      centre: scaled(AutoMovieLoftChain.axis(chain, station), scale),
       frame: {
         origin: scaled(frame.origin, scale),
         u: [...frame.u],
@@ -78,9 +75,9 @@ export namespace AutoMovieHumanNeckSurfaceSampling {
         ): AutoMovieHumanNeckSurface.Vector => scaled(point, scale),
       ),
       sourcePhases: [...phases],
-      displayCoordinates: AutoMovieHumanLoftParameter.phases(
+      displayCoordinates: AutoMovieLoftParameter.phases(
         "arclength",
-        AutoMovieHumanLoftChain.local(chain, station, points),
+        AutoMovieLoftChain.local(chain, station, points),
       ),
       circumference: circumference * scale,
       breadth: (maxZ - minZ) * scale,

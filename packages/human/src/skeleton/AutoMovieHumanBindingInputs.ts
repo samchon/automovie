@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBindingLips } from "./IAutoMovieHumanBindingLips";
 import type { IAutoMovieHumanChainRings } from "./IAutoMovieHumanChainRings";
 import { AutoMovieHumanCrotchBinding } from "./AutoMovieHumanCrotchBinding";
@@ -139,7 +139,7 @@ export namespace AutoMovieHumanBindingInputs {
         );
         const points: number[] = [];
         for (const y of stations)
-          for (const p of AutoMovieHumanLoftChain.ring(chain, y, phases))
+          for (const p of AutoMovieLoftChain.ring(chain, y, phases))
             points.push(p[0], p[1], p[2]);
         return { chain: chain.name, phases: PHASES, stations, points };
       });

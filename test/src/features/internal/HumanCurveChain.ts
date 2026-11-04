@@ -1,6 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import type { AutoMovieHumanLoftFrame } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftFrame";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, type IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanCurveFoot } from "./HumanCurveFoot";
 import { HumanCurveRing } from "./HumanCurveRing";
 import { HumanCurveVector } from "./HumanCurveVector";
@@ -16,12 +14,12 @@ const { ALIAS, ALIAS_FRONT, BAND, BAND_FLOOR, CAP, CREASE, FACE_CREASE, FACE_RIP
 export namespace HumanCurveChain {
   /** A chain's own values, rings and surface. */
   export function auditChain(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
   ): void {
     const name: string = chain.name;
     const finite: boolean = chain.layers.every(
-      (l: IAutoMovieHumanLoftChain.ILayer): boolean =>
+      (l: IAutoMovieLoftChain.ILayer): boolean =>
         [...l.coefficients, ...l.slopes, ...(l.lift ?? [])].every(Number.isFinite),
     );
     if (!finite) {
@@ -29,7 +27,7 @@ export namespace HumanCurveChain {
       return;
     }
     chain.layers.forEach(
-      (l: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
+      (l: IAutoMovieLoftChain.ILayer, k: number): void => {
         if (k > 0 && !(l.y > chain.layers[k - 1]!.y))
           report(name, "stations", `layer ${k}`, chain.layers[k - 1]!.y - l.y, 0);
       },
@@ -38,8 +36,8 @@ export namespace HumanCurveChain {
     const pinched: boolean = /^(hand|foot|forefoot|ear)\./.test(name);
     const face: boolean = /^head\./.test(name);
     const rings: V3[][] = chain.layers.map(
-      (l: IAutoMovieHumanLoftChain.ILayer): V3[] =>
-        AutoMovieHumanLoftChain.ring(chain, l.y, uniform(PHASES)),
+      (l: IAutoMovieLoftChain.ILayer): V3[] =>
+        AutoMovieLoftChain.ring(chain, l.y, uniform(PHASES)),
     );
     const perimeters: number[] = rings.map(perimeter);
 
@@ -74,8 +72,8 @@ export namespace HumanCurveChain {
     // most of a corner in one control, so the mesh's cells alias it into teeth.
     if (/^head\.(lower|middle|upper)$/.test(name))
       chain.layers.forEach(
-        (l: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
-          const ring: V3[] = AutoMovieHumanLoftChain.ring(chain, l.y, uniform(chain.order));
+        (l: IAutoMovieLoftChain.ILayer, k: number): void => {
+          const ring: V3[] = AutoMovieLoftChain.ring(chain, l.y, uniform(chain.order));
           const c: V3 = centre(ring);
           ring.forEach((p: V3, j: number): void => {
             if (Math.abs(Math.atan2(p[2] - c[2], p[0] - c[0])) > ALIAS_FRONT) return;
@@ -91,7 +89,7 @@ export namespace HumanCurveChain {
 
     // Control slopes against what the ring's width can need.
     chain.layers.forEach(
-      (l: IAutoMovieHumanLoftChain.ILayer, k: number): void => {
+      (l: IAutoMovieLoftChain.ILayer, k: number): void => {
         const limit: number =
           (face ? FACE_SLOPE : SLOPE) *
           Math.max(1, perimeters[k]! / SLOPE_GIRTH);
@@ -104,7 +102,7 @@ export namespace HumanCurveChain {
 
     // The surface between layers.
     const stations: number[] = chain.layers.flatMap(
-      (l: IAutoMovieHumanLoftChain.ILayer, k: number): number[] =>
+      (l: IAutoMovieLoftChain.ILayer, k: number): number[] =>
         k === 0
           ? [l.y]
           : Array.from(
@@ -115,7 +113,7 @@ export namespace HumanCurveChain {
             ),
     );
     const grid: V3[][] = stations.map((s: number): V3[] =>
-      AutoMovieHumanLoftChain.ring(chain, s, uniform(PHASES)),
+      AutoMovieLoftChain.ring(chain, s, uniform(PHASES)),
     );
 
     // The layer interval a sampled station belongs to.
@@ -198,7 +196,7 @@ export namespace HumanCurveChain {
    * noise.
    */
   function auditRidges(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
   ): void {
     if (!/^(trunk|upper|leg\.|arm\.)/.test(chain.name)) return;
@@ -209,7 +207,7 @@ export namespace HumanCurveChain {
     const rings: V3[][] = Array.from(
       { length: count + 1 },
       (_: unknown, i: number): V3[] =>
-        AutoMovieHumanLoftChain.ring(chain, low + i * RIDGE_STEP, uniform(PHASES)),
+        AutoMovieLoftChain.ring(chain, low + i * RIDGE_STEP, uniform(PHASES)),
     );
 
     // Across the shoulders only the torso's faces have a bearing: the arm's root
@@ -223,7 +221,7 @@ export namespace HumanCurveChain {
     // on a chain without frames and across the bone on a limb lofted in them.
     const table: number[][] = rings.map((ring: V3[], i: number): number[] => {
       const c: V3 = centre(ring);
-      const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(chain, low + i * RIDGE_STEP);
+      const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(chain, low + i * RIDGE_STEP);
       const flat: [number, number][] = ring.map((p: V3): [number, number] => [
         dot(sub(p, c), f.u),
         dot(sub(p, c), f.v),

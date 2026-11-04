@@ -1,6 +1,4 @@
-import { AutoMovieHumanLoftContract } from "./AutoMovieHumanLoftContract";
-import { AutoMovieHumanSplineCurve } from "./AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "./IAutoMovieHumanLoftChain";
+import { AutoMovieLoftContract, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * A chain of horizontal layers from rings of world points.
@@ -8,7 +6,7 @@ import type { IAutoMovieHumanLoftChain } from "./IAutoMovieHumanLoftChain";
  * A generated ring need not lie in a plane: its layer sits at the station it
  * was cut at, or at the ring's mean height when no station is given, and
  * `lift` carries the rest. The layers' stations and rings are checked by
- * `AutoMovieHumanLoftContract`: each layer at least the least gap over the
+ * `AutoMovieLoftContract`: each layer at least the least gap over the
  * last, each ring finite with a non-zero area, or the build throws naming the
  * chain and the layer. Station slopes are the three-point derivative over the
  * neighbouring layers, on both sides of a layer.
@@ -26,7 +24,7 @@ export namespace AutoMovieHumanHorizontalChain {
     samples: number;
 
     /** Phase correspondence rule. */
-    rule: IAutoMovieHumanLoftChain["rule"];
+    rule: IAutoMovieLoftChain["rule"];
   }
 
   /**
@@ -41,7 +39,7 @@ export namespace AutoMovieHumanHorizontalChain {
    *   on tilted planes: such a ring's mean height need not rise with the
    *   station it was cut at. Absent, each layer stands at its ring's mean height.
    * @throws When a ring is not finite or encloses no area, or a layer stands
-   *   less than the least gap over the last (`AutoMovieHumanLoftContract`),
+   *   less than the least gap over the last (`AutoMovieLoftContract`),
    *   naming the chain and the layer.
    */
   export function build(
@@ -49,15 +47,15 @@ export namespace AutoMovieHumanHorizontalChain {
     rings: readonly (readonly (readonly [number, number, number])[])[],
     beyond?: readonly (readonly [number, number, number])[],
     stations?: readonly number[],
-  ): IAutoMovieHumanLoftChain {
+  ): IAutoMovieLoftChain {
     const all: readonly (readonly (readonly [number, number, number])[])[] =
       beyond === undefined ? rings : [...rings, beyond];
     if (stations !== undefined && stations.length !== all.length)
       throw new Error(`${shape.name}: ${all.length} rings and ${stations.length} stations`);
     all.forEach((ring: readonly (readonly [number, number, number])[], k: number): void => {
-      AutoMovieHumanLoftContract.ring(shape.name, k, ring);
+      AutoMovieLoftContract.ring(shape.name, k, ring);
     });
-    const heights: AutoMovieHumanLoftContract.Stations = AutoMovieHumanLoftContract.stations(
+    const heights: AutoMovieLoftContract.Stations = AutoMovieLoftContract.stations(
       shape.name,
       all.map(
         (ring: readonly (readonly [number, number, number])[], k: number): number =>
@@ -65,14 +63,14 @@ export namespace AutoMovieHumanHorizontalChain {
             ? stations[k]!
             : ring.reduce((s: number, p: readonly [number, number, number]): number => s + p[1], 0) / ring.length,
       ),
-      AutoMovieHumanLoftContract.LEAST_LAYER_GAP,
+      AutoMovieLoftContract.LEAST_LAYER_GAP,
     );
     const controls = all.map(
       (
         ring: readonly (readonly [number, number, number])[],
         k: number,
       ): { coefficients: number[]; lift: number[] } => ({
-        coefficients: AutoMovieHumanSplineCurve.interpolate(
+        coefficients: AutoMovieSplineCurve.interpolate(
           ring.map(
             (p: readonly [number, number, number]): [number, number] => [
               p[0],
@@ -80,7 +78,7 @@ export namespace AutoMovieHumanHorizontalChain {
             ],
           ),
         ),
-        lift: AutoMovieHumanSplineCurve.interpolate(
+        lift: AutoMovieSplineCurve.interpolate(
           ring.map(
             (p: readonly [number, number, number]): [number, number] => [
               p[1] - heights[k]!,
@@ -94,7 +92,7 @@ export namespace AutoMovieHumanHorizontalChain {
       ...shape,
       basis: "spline",
       layers: heights.slice(0, rings.length).map(
-        (y: number, k: number): IAutoMovieHumanLoftChain.ILayer => ({
+        (y: number, k: number): IAutoMovieLoftChain.ILayer => ({
           y,
           coefficients: controls[k]!.coefficients,
           slopes: derivative(

@@ -1,10 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import type { AutoMovieHumanSolidBlendChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanSolidBlendChain";
-import type { AutoMovieHumanSolidJoin } from "../../../../../packages/human/src/lofting/AutoMovieHumanSolidJoin";
-import type { AutoMovieHumanSolidRail } from "../../../../../packages/human/src/lofting/AutoMovieHumanSolidRail";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
-import type { IAutoMovieHumanSolidSurface } from "../../../../../packages/human/src/lofting/IAutoMovieHumanSolidSurface";
+import { AutoMovieLoftChain, type AutoMovieSolidBlendChain, type AutoMovieSolidJoin, type AutoMovieSolidRail, type IAutoMovieLoftChain, type IAutoMovieSolidSurface } from "@automovie/engine";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanSeamObserver } from "../HumanSeamObserver";
 
@@ -23,7 +18,7 @@ type IRow = HumanAnatomyAudit.IRow;
  *
  * A solid merge or diff declares two seams (`join`): the blend chain at its
  * host end against the host past its rail, and at its part end against the
- * part past its rail, both G2 (`AutoMovieHumanSolidJoin`).
+ * part past its rail, both G2 (`AutoMovieSolidJoin`).
  */
 export namespace HumanSeamAudit {
   /** One declared seam. */
@@ -114,7 +109,7 @@ export namespace HumanSeamAudit {
    * The two seams of a published join: the blend chain against the host at
    * the host's rail and against the part at the part's rail, both G2 as the
    * join declares. The seam parameter is the curve's own `t` (the part's phase under the `phase` parameter, an angle about an axis under `angle`); the blend chain's
-   * phase is that less the blend's seed (`AutoMovieHumanSolidBlendChain`).
+   * phase is that less the blend's seed (`AutoMovieSolidBlendChain`).
    * Past its rail the host is read along the rail's chart offset direction,
    * which has unit world speed and points away from the curve into the kept
    * host; the part along its rail's own chart direction `partAcross` (unit world speed, past the rail on its kept side).
@@ -128,18 +123,18 @@ export namespace HumanSeamAudit {
    */
   export function join(
     name: string,
-    join: AutoMovieHumanSolidJoin.IJoin,
-    blend: AutoMovieHumanSolidBlendChain.IBlend,
-    host: IAutoMovieHumanSolidSurface,
-    part: IAutoMovieHumanSolidSurface,
+    join: AutoMovieSolidJoin.IJoin,
+    blend: AutoMovieSolidBlendChain.IBlend,
+    host: IAutoMovieSolidSurface,
+    part: IAutoMovieSolidSurface,
     step: number,
   ): ISeam[] {
-    const rail: (phi: number) => AutoMovieHumanSolidRail.IRail = (phi: number): AutoMovieHumanSolidRail.IRail => {
-      const r: AutoMovieHumanSolidRail.IRail | null = join.rail(phi);
+    const rail: (phi: number) => AutoMovieSolidRail.IRail = (phi: number): AutoMovieSolidRail.IRail => {
+      const r: AutoMovieSolidRail.IRail | null = join.rail(phi);
       if (r === null) throw new Error(`${name}: no rail at curve parameter ${phi}`);
       return r;
     };
-    const along: (s: number, phi: number) => number[] = (s: number, phi: number): number[] => AutoMovieHumanLoftChain.point(blend.chain, s, phi - blend.seed);
+    const along: (s: number, phi: number) => number[] = (s: number, phi: number): number[] => AutoMovieLoftChain.point(blend.chain, s, phi - blend.seed);
     const from: number = blend.seed;
     const to: number = blend.seed + 2 * Math.PI;
     return [
@@ -148,7 +143,7 @@ export namespace HumanSeamAudit {
         continuity: "G2",
         owner: (phi: number, sigma: number): number[] => along(sigma, phi),
         neighbour: (phi: number, sigma: number): number[] => {
-          const r: AutoMovieHumanSolidRail.IRail = rail(phi);
+          const r: AutoMovieSolidRail.IRail = rail(phi);
           return [...host.jet(r.host[0] + sigma * r.across[0], r.host[1] + sigma * r.across[1]).p];
         },
         from,
@@ -160,7 +155,7 @@ export namespace HumanSeamAudit {
         continuity: "G2",
         owner: (phi: number, sigma: number): number[] => along(blend.length - sigma, phi),
         neighbour: (phi: number, sigma: number): number[] => {
-          const r: AutoMovieHumanSolidRail.IRail = rail(phi);
+          const r: AutoMovieSolidRail.IRail = rail(phi);
           return [...part.jet(r.s + sigma * r.partAcross[0], r.phi + sigma * r.partAcross[1]).p];
         },
         from,
@@ -191,15 +186,15 @@ export namespace HumanSeamAudit {
    * @throws {Error} When a merge names a chain the body does not carry.
    */
   export function merges(body: IAutoMovieHumanBodyCalibration, step: number): ISeam[] {
-    const named: (name: string) => IAutoMovieHumanLoftChain = (name: string): IAutoMovieHumanLoftChain => {
-      const c: IAutoMovieHumanLoftChain | undefined = body.chains.find((x: IAutoMovieHumanLoftChain): boolean => x.name === name);
+    const named: (name: string) => IAutoMovieLoftChain = (name: string): IAutoMovieLoftChain => {
+      const c: IAutoMovieLoftChain | undefined = body.chains.find((x: IAutoMovieLoftChain): boolean => x.name === name);
       if (c === undefined) throw new Error(`a merge names the chain ${name}, which the body does not carry`);
       return c;
     };
     return (body.merges ?? []).flatMap((m: IAutoMovieHumanBodyCalibration.IMerge): ISeam[] => {
-      const blend: IAutoMovieHumanLoftChain = named(m.blend);
-      const host: IAutoMovieHumanLoftChain = named(m.host);
-      const part: IAutoMovieHumanLoftChain = named(m.part);
+      const blend: IAutoMovieLoftChain = named(m.blend);
+      const host: IAutoMovieLoftChain = named(m.host);
+      const part: IAutoMovieLoftChain = named(m.part);
       const count: number = m.hostLoop.chart.length;
       const columns: number[] = Array.from({ length: count }, (_: unknown, k: number): number => (2 * Math.PI * k) / count);
       const hostAt: (a: number) => number[] = periodic([...m.hostLoop.chart.map((p: [number, number]): number[] => [...p]), ...m.across.map((d: [number, number]): number[] => [...d])], count, [1]);
@@ -207,7 +202,7 @@ export namespace HumanSeamAudit {
       // On a rail across faces, column k's chart point lies on chain hostChains[k]; near a column
       // its rail is carried to first order by the chart slope toward its neighbours on the same
       // chain (central where both are, one-sided where one is), its offset direction held.
-      const local: (a: number) => [IAutoMovieHumanLoftChain, number, number, number, number] = (a: number): [IAutoMovieHumanLoftChain, number, number, number, number] => {
+      const local: (a: number) => [IAutoMovieLoftChain, number, number, number, number] = (a: number): [IAutoMovieLoftChain, number, number, number, number] => {
         const width: number = (2 * Math.PI) / count;
         const k: number = ((Math.round(a / width) % count) + count) % count;
         const on: string = m.hostChains![k]!;
@@ -238,15 +233,15 @@ export namespace HumanSeamAudit {
         {
           name: `${m.blend} (${kind} of ${m.part} with ${m.host}) host rail`,
           continuity: "G2",
-          owner: (a: number, sigma: number): number[] => AutoMovieHumanLoftChain.point(blend, sigma, a),
+          owner: (a: number, sigma: number): number[] => AutoMovieLoftChain.point(blend, sigma, a),
           neighbour: (a: number, sigma: number): number[] => {
             // A rail that crosses faces is read on each column's own chain, by the local model of its column.
             if (m.hostChains !== undefined) {
-              const [chain, y, theta, dy, dt]: [IAutoMovieHumanLoftChain, number, number, number, number] = local(a);
-              return AutoMovieHumanLoftChain.point(chain, y + sigma * dy, theta + sigma * dt);
+              const [chain, y, theta, dy, dt]: [IAutoMovieLoftChain, number, number, number, number] = local(a);
+              return AutoMovieLoftChain.point(chain, y + sigma * dy, theta + sigma * dt);
             }
             const [y, theta, dy, dt]: number[] = hostAt(a);
-            return AutoMovieHumanLoftChain.point(host, y! + sigma * dy!, theta! + sigma * dt!);
+            return AutoMovieLoftChain.point(host, y! + sigma * dy!, theta! + sigma * dt!);
           },
           from: 0,
           to: 2 * Math.PI,
@@ -256,10 +251,10 @@ export namespace HumanSeamAudit {
         {
           name: `${m.blend} (${kind} of ${m.part} with ${m.host}) part rail`,
           continuity: "G2",
-          owner: (a: number, sigma: number): number[] => AutoMovieHumanLoftChain.point(blend, m.length - sigma, a),
+          owner: (a: number, sigma: number): number[] => AutoMovieLoftChain.point(blend, m.length - sigma, a),
           neighbour: (a: number, sigma: number): number[] => {
             const [s, t, ds, dt]: number[] = partAt(a);
-            return AutoMovieHumanLoftChain.point(part, s! + sigma * ds!, t! + sigma * dt!);
+            return AutoMovieLoftChain.point(part, s! + sigma * ds!, t! + sigma * dt!);
           },
           from: 0,
           to: 2 * Math.PI,

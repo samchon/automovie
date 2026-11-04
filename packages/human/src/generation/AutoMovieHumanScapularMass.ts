@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+import type { IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureProfile";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
@@ -82,7 +82,7 @@ export namespace AutoMovieHumanScapularMass {
    * @param input The centre, the wall's tangent and the sizes.
    * @returns The left and the right window.
    */
-  export function create(input: IInput): IAutoMovieHumanRelief[] {
+  export function create(input: IInput): IAutoMovieLoftRelief[] {
     const mass: IAutoMovieHumanTrunkFeature = feature(input);
     const o: [number, number, number] = mass.frame.origin;
     const stations: [number, number] = [o[1] + mass.reach.v[0], o[1] + mass.reach.v[1]];
@@ -95,7 +95,7 @@ export namespace AutoMovieHumanScapularMass {
       (o[1] - stations[0]) / (stations[1] - stations[0]),
       (input.phaseOf(o[2]) - phases[0]) / (phases[1] - phases[0]),
     ];
-    const left: IAutoMovieHumanRelief = AutoMovieHumanTrunkReliefNet.fromFeature("trunk.scapula.left", mass, { stations, phases, apex }, input.base);
+    const left: IAutoMovieLoftRelief = AutoMovieHumanTrunkReliefNet.fromFeature("trunk.scapula.left", mass, { stations, phases, apex }, input.base);
 
     return [left, AutoMovieHumanTrunkReliefNet.mirror(left, "trunk.scapula.right")];
   }

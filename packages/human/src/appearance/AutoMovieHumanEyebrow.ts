@@ -1,8 +1,7 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
 import { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { AutoMovieLoftContract, IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import { AutoMovieHumanBrowProjector } from "./AutoMovieHumanBrowProjector";
 import { AutoMovieHumanEyebrowBody } from "./AutoMovieHumanEyebrowBody";
@@ -52,11 +51,11 @@ export namespace AutoMovieHumanEyebrow {
    */
   export function attempt(
     lid: AutoMovieHumanEyelid.ILid,
-    chains: readonly IAutoMovieHumanLoftChain[],
+    chains: readonly IAutoMovieLoftChain[],
     scale: number,
     seed: number,
     side: "left" | "right",
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
+    diagnostics: AutoMovieLoftContract.IDiagnostic[],
   ): IAutoMovieMesh | null {
     try {
       return generate(lid, chains, scale, seed);
@@ -82,7 +81,7 @@ export namespace AutoMovieHumanEyebrow {
    */
   export function generate(
     lid: AutoMovieHumanEyelid.ILid,
-    chains: readonly IAutoMovieHumanLoftChain[],
+    chains: readonly IAutoMovieLoftChain[],
     scale: number,
     seed: number,
   ): IAutoMovieMesh | null {

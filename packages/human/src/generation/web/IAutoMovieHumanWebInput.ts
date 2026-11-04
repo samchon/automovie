@@ -1,5 +1,5 @@
 import type { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * What a web needs from the surface being built: the skin buffers, the
@@ -13,13 +13,13 @@ export interface IAutoMovieHumanWebInput {
   coordinates: number[];
 
   /** Chain by name. */
-  chain: (name: string) => IAutoMovieHumanLoftChain;
+  chain: (name: string) => IAutoMovieLoftChain;
 
   /** Calibration index of a chain. */
   index: (name: string) => number;
 
   /** Parent chain. */
-  parent: IAutoMovieHumanLoftChain;
+  parent: IAutoMovieLoftChain;
 
   /** Whether the children lie below the parent's bottom ring. */
   down: boolean;

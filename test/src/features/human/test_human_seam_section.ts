@@ -1,6 +1,6 @@
 import { AutoMovieHumanSeam } from "../../../../packages/human/src/lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanSeamKnot } from "../../../../packages/human/src/lofting/AutoMovieHumanSeamKnot";
-import { AutoMovieHumanSplineCurve } from "../../../../packages/human/src/lofting/AutoMovieHumanSplineCurve";
+import { AutoMovieSplineCurve } from "@automovie/engine";
 import type { IAutoMovieHumanSeam } from "../../../../packages/human/src/lofting/IAutoMovieHumanSeam";
 import { HumanSeamObserver } from "../internal/HumanSeamObserver";
 
@@ -10,8 +10,8 @@ import { HumanSeamObserver } from "../internal/HumanSeamObserver";
  * whatever the neighbour's parameter speed.
  *
  * @evidence contracts/testing.md#behavioral-verification Assembles a 32-control section of a circle (radius 40 mm, centre (5, -3)) from four guides at knots 0, 6, 15 and 23 and the circle's own arcs between them with `AutoMovieHumanSeamKnot.assemble`, evaluates it with the chain's own spline evaluator, and reads each guide with `HumanSeamObserver.curve` from points alone; it also publishes and copies curve jets with `AutoMovieHumanSeam.publish` and `adopt`, round-trips knot jets with `knot` and `controls`, and reads two tangent circles of different radii. It catches a guide whose spline misses its published jet, a sector assembly that leaves a corner or curvature step at a guide, a copy whose geometry changes with the neighbour's speed, a wrong J2 inverse and an observer that cannot see a tangent-continuous curvature step. Any section passes whose guides carry their published jets and whose spline is C2.
- * @evidence contracts/testing.md#independent-expectations Expectations come from the circle itself and from closed forms: at a guide the spline must have the circle's point, tangent and curvature vector `-(p - c) / R^2`; a published tangent turned by 1e-3 rad must read 1e-3 rad against the circle, a curvature vector moved by 2e-3 /mm along the normal 2e-3 /mm, a point moved 0.05 mm a 0.05 mm gap; two circles of radii 40 and 25 mm tangent at a point read a curvature step of `1/25 - 1/40`. The spline's values come from `AutoMovieHumanSplineCurve`, the chain's representation, not from the assembly under test. Readings from points are judged by `HumanSeamObserver.exact(46, 0.04)`, a hundred times the observer's rounding at that magnitude and step; jets read straight from the spline by 1e-12 relative, since assembly and evaluation are a few dozen double operations. Oracle limit: the observer resolves a curvature step only above about 2e-8 /mm at that step.
- * @evidence contracts/testing.md#distinguishing-cases Green: the exact circle at every guide; the J2 map and its inverse round trip both ways, each derivative order alone, at spacings 2pi/32, 0.05, 0.5 and 2; copies at speeds 0.5 and 3 with accelerations 0 and 2; tangent circles declared G1 pass. Red with exact numbers: turned tangent, moved curvature, moved point, tangent circles declared G2. The same circle samples through the global `AutoMovieHumanSplineCurve.interpolate` filter miss the guide's curvature, the path the assembly replaces. Refused: three spans between guides, guides out of order, a sector count other than the guide count, a copy at a negative speed. Seams of loft chains along their stations, reflection and surface ribbons are owned by `test_human_seam_station` and `test_human_seam_ribbon`.
+ * @evidence contracts/testing.md#independent-expectations Expectations come from the circle itself and from closed forms: at a guide the spline must have the circle's point, tangent and curvature vector `-(p - c) / R^2`; a published tangent turned by 1e-3 rad must read 1e-3 rad against the circle, a curvature vector moved by 2e-3 /mm along the normal 2e-3 /mm, a point moved 0.05 mm a 0.05 mm gap; two circles of radii 40 and 25 mm tangent at a point read a curvature step of `1/25 - 1/40`. The spline's values come from `AutoMovieSplineCurve`, the chain's representation, not from the assembly under test. Readings from points are judged by `HumanSeamObserver.exact(46, 0.04)`, a hundred times the observer's rounding at that magnitude and step; jets read straight from the spline by 1e-12 relative, since assembly and evaluation are a few dozen double operations. Oracle limit: the observer resolves a curvature step only above about 2e-8 /mm at that step.
+ * @evidence contracts/testing.md#distinguishing-cases Green: the exact circle at every guide; the J2 map and its inverse round trip both ways, each derivative order alone, at spacings 2pi/32, 0.05, 0.5 and 2; copies at speeds 0.5 and 3 with accelerations 0 and 2; tangent circles declared G1 pass. Red with exact numbers: turned tangent, moved curvature, moved point, tangent circles declared G2. The same circle samples through the global `AutoMovieSplineCurve.interpolate` filter miss the guide's curvature, the path the assembly replaces. Refused: three spans between guides, guides out of order, a sector count other than the guide count, a copy at a negative speed. Seams of loft chains along their stations, reflection and surface ribbons are owned by `test_human_seam_station` and `test_human_seam_ribbon`.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_seam_section`; it builds only analytic curves in process and starts no host, browser or GPU.
  */
 export const test_human_seam_section: () => void = (): void => {
@@ -65,14 +65,14 @@ export const test_human_seam_section: () => void = (): void => {
   const point: (c: readonly number[]) => (t: number) => number[] =
     (c: readonly number[]): ((t: number) => number[]) =>
     (t: number): number[] => {
-      const e: number[] = AutoMovieHumanSplineCurve.evaluate(c, N, t);
+      const e: number[] = AutoMovieSplineCurve.evaluate(c, N, t);
       return [e[0]!, e[1]!];
     };
   const jetOf: (c: readonly number[], t: number) => IAutoMovieHumanSeam.IArcJet = (
     c: readonly number[],
     t: number,
   ): IAutoMovieHumanSeam.IArcJet => {
-    const j: number[] = AutoMovieHumanSplineCurve.jet(c, N, t);
+    const j: number[] = AutoMovieSplineCurve.jet(c, N, t);
     return AutoMovieHumanSeam.publish([j[0]!, j[1]!], [j[2]!, j[3]!], [j[4]!, j[5]!]);
   };
   const step: number = 1e-3;
@@ -104,7 +104,7 @@ export const test_human_seam_section: () => void = (): void => {
   }
 
   // The global filter cannot honour the guide's curvature.
-  const filtered: number[] = AutoMovieHumanSplineCurve.interpolate(
+  const filtered: number[] = AutoMovieSplineCurve.interpolate(
     Array.from({ length: N }, (_: unknown, k: number): [number, number] => {
       const p: number[] = circle(phase(k))[0];
       return [p[0]!, p[1]!];
@@ -189,7 +189,7 @@ export const test_human_seam_section: () => void = (): void => {
   const kj: AutoMovieHumanSeamKnot.Jet = AutoMovieHumanSeamKnot.knot(
     [exact[N - 1]!, exact[2 * N - 1]!], [exact[0]!, exact[N]!], [exact[1]!, exact[N + 1]!], h,
   );
-  const sj: number[] = AutoMovieHumanSplineCurve.jet(exact, N, 0);
+  const sj: number[] = AutoMovieSplineCurve.jet(exact, N, 0);
   close("J2 knot jet against the spline", [...kj[0], ...kj[1], ...kj[2]], sj, 1e-9 * R);
 
   // The observer itself: tangent circles of radii 40 and 25 meet G1, not G2.

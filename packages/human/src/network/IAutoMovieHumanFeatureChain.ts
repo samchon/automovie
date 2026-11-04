@@ -1,6 +1,4 @@
-import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
-import type { AutoMovieHumanLoftParameter } from "../lofting/AutoMovieHumanLoftParameter";
-import type { IAutoMovieHumanRelief } from "./IAutoMovieHumanRelief";
+import type { AutoMovieLoftFrame, AutoMovieLoftParameter, IAutoMovieLoftRelief } from "@automovie/engine";
 
 /**
  * A chain stored as its key sections only.
@@ -20,7 +18,7 @@ export interface IAutoMovieHumanFeatureChain {
   order: number;
 
   /** Phase correspondence rule of the generated chain. */
-  rule: AutoMovieHumanLoftParameter.Rule;
+  rule: AutoMovieLoftParameter.Rule;
 
   /** Number of uniform phases of the generated chain's own rings. */
   samples: number;
@@ -29,7 +27,7 @@ export interface IAutoMovieHumanFeatureChain {
   keys: IAutoMovieHumanFeatureChain.IKey[];
 
   /** Reliefs over the chain's surface; absent means none. */
-  reliefs?: IAutoMovieHumanRelief[];
+  reliefs?: IAutoMovieLoftRelief[];
 
   /**
    * Ends whose key is shared with a neighbouring chain that owns it (the
@@ -95,13 +93,13 @@ export namespace IAutoMovieHumanFeatureChain {
 
     /**
      * Section plane; absent means horizontal at the station. Between keys
-     * the plane moves as `AutoMovieHumanLoftChain.frame` interpolates it.
+     * the plane moves as `AutoMovieLoftChain.frame` interpolates it.
      */
-    frame?: AutoMovieHumanLoftFrame.IFrame;
+    frame?: AutoMovieLoftFrame.IFrame;
 
     /**
      * Control points `[x_0 .. x_{N-1}, z_0 .. z_{N-1}]` in the section plane,
-     * mm, the layout of `AutoMovieHumanSplineCurve`.
+     * mm, the layout of `AutoMovieSplineCurve`.
      */
     coefficients: number[];
   }

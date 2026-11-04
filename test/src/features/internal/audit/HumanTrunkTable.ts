@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanAnatomyShared } from "../HumanAnatomyShared";
 import { HumanAnatomyVector } from "../HumanAnatomyVector";
@@ -101,13 +100,13 @@ export namespace HumanTrunkTable {
    * @throws {Error} When the body carries no trunk chain or no trunk landmarks.
    */
   export function reading(body: IAutoMovieHumanBodyCalibration, k: number): IReading {
-    const base: IAutoMovieHumanLoftChain | undefined = body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk");
+    const base: IAutoMovieLoftChain | undefined = body.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "trunk");
     if (base === undefined || body.trunk === undefined) throw new Error("the body carries no trunk chain or trunk landmarks");
     const names: Set<string> = new Set(["trunk"]);
     for (const m of body.merges ?? []) if (m.host === "trunk" || (m.hostChains ?? []).includes("trunk")) [m.part, m.blend].forEach((n: string): void => void names.add(n));
     const grids: { base: boolean; grid: [number, number, number][][] }[] = body.chains
-      .filter((c: IAutoMovieHumanLoftChain): boolean => names.has(c.name))
-      .map((c: IAutoMovieHumanLoftChain): { base: boolean; grid: [number, number, number][][] } => ({ base: c === base, grid: grid(c, k) }));
+      .filter((c: IAutoMovieLoftChain): boolean => names.has(c.name))
+      .map((c: IAutoMovieLoftChain): { base: boolean; grid: [number, number, number][][] } => ({ base: c === base, grid: grid(c, k) }));
     const l: NonNullable<IAutoMovieHumanBodyCalibration["trunk"]> = body.trunk;
     return {
       levels: { buttock: l.buttock * k, waist: l.waist * k, fold: l.fold * k, bust: l.bust * k, cervicale: l.cervicale * k },
@@ -117,13 +116,13 @@ export namespace HumanTrunkTable {
   }
 
   /** A chain's points on a 1 mm station by 96-phase grid, in the input's millimetres. */
-  function grid(c: IAutoMovieHumanLoftChain, k: number): [number, number, number][][] {
+  function grid(c: IAutoMovieLoftChain, k: number): [number, number, number][][] {
     const first: number = c.layers[0]!.y;
     const last: number = c.layers[c.layers.length - 1]!.y;
     const count: number = Math.max(1, Math.round((last - first) * k));
     const phases: number[] = Array.from({ length: 96 }, (_: unknown, j: number): number => (2 * Math.PI * j) / 96);
     return Array.from({ length: count + 1 }, (_: unknown, i: number): [number, number, number][] =>
-      AutoMovieHumanLoftChain.ring(c, first + ((last - first) * i) / count, phases).map((p: [number, number, number]): [number, number, number] => [p[0] * k, p[1] * k, p[2] * k]),
+      AutoMovieLoftChain.ring(c, first + ((last - first) * i) / count, phases).map((p: [number, number, number]): [number, number, number] => [p[0] * k, p[1] * k, p[2] * k]),
     );
   }
 

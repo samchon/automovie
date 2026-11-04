@@ -1,8 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftContract";
-import { AutoMovieHumanSolidBlendChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanSolidBlendChain";
-import { AutoMovieHumanSolidMerge } from "../../../../../packages/human/src/lofting/AutoMovieHumanSolidMerge";
-import type { AutoMovieHumanSolidJoin } from "../../../../../packages/human/src/lofting/AutoMovieHumanSolidJoin";
-import type { IAutoMovieHumanSolidSurface } from "../../../../../packages/human/src/lofting/IAutoMovieHumanSolidSurface";
+import { type AutoMovieLoftContract, AutoMovieSolidBlendChain, AutoMovieSolidMerge, type AutoMovieSolidJoin, type IAutoMovieSolidSurface } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
 import { HumanCurveRings } from "../../internal/curves/HumanCurveRings";
 import { HumanInputs } from "../../internal/HumanInputs";
@@ -22,11 +18,11 @@ type IRow = HumanAnatomyAudit.IRow;
  * Scenarios:
  * 1. A 30 mm sphere cut at its equator, declared G2: every row passes.
  * 2. The lower half pushed out 2 mm fails the gap; the lower half a cone flaring 20 degrees fails the normal angle; the lower half a cylinder of the sphere's radius (tangent, but flat in its meridian) passes the gap and the angle and fails the normal-curvature jump.
- * 3. A 20 mm cylinder merged onto a plane (`AutoMovieHumanSolidMerge`, 8 mm chords), its blend published as a chain (`AutoMovieHumanSolidBlendChain`): both rails' seams (`HumanSeamAudit.join`) pass every G2 row; the same blend read with its seed off by 0.3 rad fails the gap.
+ * 3. A 20 mm cylinder merged onto a plane (`AutoMovieSolidMerge`, 8 mm chords), its blend published as a chain (`AutoMovieSolidBlendChain`): both rails' seams (`HumanSeamAudit.join`) pass every G2 row; the same blend read with its seed off by 0.3 rad fails the gap.
  * 4. Every person of `HumanPeople`: every merge and diff the body publishes (`IAutoMovieHumanBodyCalibration.merges`) is read at both rails, at its blend's columns, through `HumanSeamAudit.merges`, and every failing row is listed by person and seam; a body that publishes no merge yet contributes no row.
  *
  * @evidence contracts/testing.md#behavioral-verification Reads made seams, a real merge's published blend and every person's published merges (`HumanSeamAudit.merges`) through `HumanSeamAudit.rows`, which reads each side in the plane normal to the seam by `HumanSeamObserver.surface` at 48 seam parameters. It catches a crack between two sides, a crease where their normals turn, and a curvature step where a G2 seam is only tangent, and, through the join adapter, a blend chain that does not land on its host or part where the join's rails say; any pair of sides that meet with the continuity they declare passes.
- * @evidence contracts/testing.md#independent-expectations The made sides are closed forms whose continuity is known: the sphere's halves are one smooth surface; the pushed half stands 2 mm off; the cone's normal turns by its 20 degree flare; the cylinder shares the sphere's tangent plane at the equator while its meridian curvature is 0 against the sphere's 1 / 30 mm. Limits: the gap the facets hide, the sagitta `h^2 / 8R` of a 2 mm vertex spacing on the crease bound's 12.5 mm radius (0.04 mm); the class A 0.1 degree; 0.1 degree over the 2 mm spacing for the curvature jump. The merge is G2 by its construction (`AutoMovieHumanSolidJoin`), so its seams must pass, and a blend read 0.3 rad off its seed misses the host by the rail circle's chord. Oracle limit: 48 readings per seam, so a defect narrower than a fiftieth of the seam can fall between them.
+ * @evidence contracts/testing.md#independent-expectations The made sides are closed forms whose continuity is known: the sphere's halves are one smooth surface; the pushed half stands 2 mm off; the cone's normal turns by its 20 degree flare; the cylinder shares the sphere's tangent plane at the equator while its meridian curvature is 0 against the sphere's 1 / 30 mm. Limits: the gap the facets hide, the sagitta `h^2 / 8R` of a 2 mm vertex spacing on the crease bound's 12.5 mm radius (0.04 mm); the class A 0.1 degree; 0.1 degree over the 2 mm spacing for the curvature jump. The merge is G2 by its construction (`AutoMovieSolidJoin`), so its seams must pass, and a blend read 0.3 rad off its seed misses the host by the rail circle's chord. Oracle limit: 48 readings per seam, so a defect narrower than a fiftieth of the seam can fall between them.
  * @evidence contracts/testing.md#distinguishing-cases Positive: the sphere and the merge. Negative: the crack, the kink and the step, each required to fail its own row and, for the step, to pass the rows below it. The figure's seams are every published merge's two rails, each at its own vertex spacing (the blend's station span over its rows); the operators' own G2 at both rails with exact limits belongs to `test_human_solid_merge` and `test_human_solid_diff`, section invariants to `test_human_audit_sections`.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_audit_seams`; it builds closed-form surfaces and generates its people in process (body law only), and starts no host, browser or GPU.
  */
@@ -76,9 +72,9 @@ function proofs(): string[] {
 
   // 3. A real merge's rails, through the join adapter.
   const r: number = 20;
-  const part: IAutoMovieHumanSolidSurface = HumanSolidShapes.cylinder("column", [0, 0, 0], [0, 0, 1], [1, 0, 0], [0, 1, 0], r);
-  const host: IAutoMovieHumanSolidSurface = HumanSolidShapes.plane("floor", [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
-  const merged: AutoMovieHumanSolidJoin.IResult = AutoMovieHumanSolidMerge.create({
+  const part: IAutoMovieSolidSurface = HumanSolidShapes.cylinder("column", [0, 0, 0], [0, 0, 1], [1, 0, 0], [0, 1, 0], r);
+  const host: IAutoMovieSolidSurface = HumanSolidShapes.plane("floor", [0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
+  const merged: AutoMovieSolidJoin.IResult = AutoMovieSolidMerge.create({
     part,
     host,
     seed: { phi: 0, s: 0.5, y: r - 0.4, theta: 0.3 },
@@ -87,8 +83,8 @@ function proofs(): string[] {
     grazing: 0.05,
     width: { part: (): number => 8, host: (): number => 8 },
   });
-  const blend: AutoMovieHumanSolidBlendChain.IBlend | null = merged.join === null ? null : AutoMovieHumanSolidBlendChain.of("blend.made", merged.join, 48);
-  if (merged.join === null || blend === null) failures.push(`merge: no join or blend (${merged.diagnostics.map((d: AutoMovieHumanLoftContract.IDiagnostic): string => d.detail).join("; ")})`);
+  const blend: AutoMovieSolidBlendChain.IBlend | null = merged.join === null ? null : AutoMovieSolidBlendChain.of("blend.made", merged.join, 48);
+  if (merged.join === null || blend === null) failures.push(`merge: no join or blend (${merged.diagnostics.map((d: AutoMovieLoftContract.IDiagnostic): string => d.detail).join("; ")})`);
   else {
     const rows: IRow[] = HumanSeamAudit.rows("made", HumanSeamAudit.join("blend.made", merged.join, blend, host, part, 0.01), options);
     for (const x of rows.filter((y: IRow): boolean => !HumanAnatomyAudit.passes(y))) failures.push(`merge: ${x.site} reads ${x.value} ${x.unit}`);

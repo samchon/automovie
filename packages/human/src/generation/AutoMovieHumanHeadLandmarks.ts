@@ -1,4 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
 import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
 import type { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
@@ -27,11 +27,11 @@ export namespace AutoMovieHumanHeadLandmarks {
   ): IAutoMovieHumanHeadCompiled {
     return {
       prior,
-      profile: AutoMovieHumanNaturalSpline.create(
+      profile: AutoMovieNaturalSpline.create(
         prior.face.profileKnots,
         prior.face.profile,
       ),
-      dorsum: AutoMovieHumanNaturalSpline.create(
+      dorsum: AutoMovieNaturalSpline.create(
         prior.face.profileKnots,
         prior.face.dorsum,
       ),
@@ -152,12 +152,12 @@ export namespace AutoMovieHumanHeadLandmarks {
       [g + 0.7 * top, ellipse(g + 0.7 * top)],
       [vertex, ellipse(vertex)],
     ];
-    const profile: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
+    const profile: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       knots.map((p2: P2): number => p2[0]),
       knots.map((p2: P2): number => p2[1] - ellipse(p2[0])),
     );
     const along = (y: number): number =>
-      ellipse(y) + AutoMovieHumanNaturalSpline.evaluate(profile, y);
+      ellipse(y) + AutoMovieNaturalSpline.evaluate(profile, y);
 
     // Beside the midline: the tragion the upper facial depth behind the
     // nasion at the cranial base's half width; the zygion on the arch in
@@ -192,7 +192,7 @@ export namespace AutoMovieHumanHeadLandmarks {
     const lead: number = prn[0] - along(prn[1]);
     // The ball and the ridge meet at the tip by a soft maximum, which stands
     // out of the lead by the ridge's share there.
-    const ridge: number = AutoMovieHumanNaturalSpline.evaluate(compiled.profile, 0);
+    const ridge: number = AutoMovieNaturalSpline.evaluate(compiled.profile, 0);
     const tipUnion: number = (ridge ** AutoMovieHumanHeadNose.NOSE + 1) ** (1 / AutoMovieHumanHeadNose.NOSE);
     const plan: IAutoMovieHumanHeadLayout = {
       scale: k,
@@ -231,7 +231,7 @@ export namespace AutoMovieHumanHeadLandmarks {
       joint: f.joint * head.mandibularLaterotrusion * k,
       left: opening(head.face.eyePair.left),
       right: opening(head.face.eyePair.right),
-      station: AutoMovieHumanNaturalSpline.create(
+      station: AutoMovieNaturalSpline.create(
         [y0, menton, sn, eye, vertex],
         [0, 1, 2, 3, 4],
       ),

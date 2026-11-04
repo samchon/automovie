@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanEventJoinRing } from "../AutoMovieHumanEventJoinRing";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLimbRootStrip } from "../AutoMovieHumanLimbRootStrip";
@@ -66,7 +65,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
   /** The trunk and the phase arcs of its bottom ring that one leg takes. */
   export interface IArcs {
     /** The trunk chain, owner of the ring. */
-    trunk: IAutoMovieHumanLoftChain;
+    trunk: IAutoMovieLoftChain;
 
     /** The arcs `[from, to]` of the trunk's phases the leg takes, radians. */
     arcs: [number, number][];
@@ -79,7 +78,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
    * @param side The leg's side.
    */
   export function arcs(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): IArcs {
-    const trunk: IAutoMovieHumanLoftChain = calibration.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk")!;
+    const trunk: IAutoMovieLoftChain = calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "trunk")!;
     const event: IAutoMovieHumanBodyCalibration.IEvent = calibration.events.find(
       (e: IAutoMovieHumanBodyCalibration.IEvent): boolean => e.parent === "trunk" && e.direction === "down",
     )!;
@@ -99,7 +98,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
   export function ring(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): Vec3[] {
     const taken: IArcs = arcs(calibration, side);
     return taken.arcs.flatMap(([from, to]: [number, number]): Vec3[] =>
-      AutoMovieHumanLoftChain.ring(taken.trunk, taken.trunk.layers[0]!.y, phases(from, to)),
+      AutoMovieLoftChain.ring(taken.trunk, taken.trunk.layers[0]!.y, phases(from, to)),
     );
   }
 
@@ -113,7 +112,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
    */
   export function of(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right", sign: 1 | -1, centre: [number, number]): IRoot {
     const taken: IArcs = arcs(calibration, side);
-    const trunk: IAutoMovieHumanLoftChain = taken.trunk;
+    const trunk: IAutoMovieLoftChain = taken.trunk;
     const y: number = trunk.layers[0]!.y;
     const ringPhases: number[] = taken.arcs.flatMap(([from, to]: [number, number]): number[] => phases(from, to));
 
@@ -123,7 +122,7 @@ export namespace AutoMovieHumanLegCrotchRoot {
     const row: (run: number) => Vec3[] = (run: number): Vec3[] => {
       let found: Vec3[] | undefined = rows.get(run);
       if (found === undefined)
-        rows.set(run, (found = AutoMovieHumanLoftChain.ring(trunk, y - run, ringPhases).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]])));
+        rows.set(run, (found = AutoMovieLoftChain.ring(trunk, y - run, ringPhases).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]])));
       return found;
     };
     const jets: AutoMovieHumanLimbRootStrip.IJet[] = ringPhases.map(

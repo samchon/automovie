@@ -1,7 +1,7 @@
 import { AutoMovieHumanBodyAnatomy } from "../../../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyBox } from "../../../../../../packages/human/src/generation/AutoMovieHumanBodyBox";
 import type { IAutoMovieHumanBodyMeasures } from "../../../../../../packages/human/src/generation/IAutoMovieHumanBodyMeasures";
-import type { AutoMovieHumanLoftContract } from "../../../../../../packages/human/src/lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../../../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanBodyAnatomy } from "../../../../../../packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy";
 import { HumanPeople } from "../../../internal/HumanPeople";
@@ -54,8 +54,8 @@ export function test_human_input_box_consistency(): void {
     for (const l of LEVELS)
       if (!inside(m, l))
         failed.push(`${name} ${l.level}: girth ${(m[l.girth] as number).toFixed(1)} outside ${range(m[l.breadth] as number, m[l.depth] as number).map((v: number): string => v.toFixed(1)).join(" to ")}`);
-    const notes: AutoMovieHumanLoftContract.IDiagnostic[] = AutoMovieHumanBodyBox.diagnose(m);
-    if (notes.length !== 0) failed.push(`${name}: ${notes.length} diagnostics, ${notes.map((n: AutoMovieHumanLoftContract.IDiagnostic): string => n.detail).join("; ")}`);
+    const notes: AutoMovieLoftContract.IDiagnostic[] = AutoMovieHumanBodyBox.diagnose(m);
+    if (notes.length !== 0) failed.push(`${name}: ${notes.length} diagnostics, ${notes.map((n: AutoMovieLoftContract.IDiagnostic): string => n.detail).join("; ")}`);
   }
 
   const f1: IAutoMovieHumanParameters = HumanPeople.params("f1");
@@ -79,9 +79,9 @@ export function test_human_input_box_consistency(): void {
       ["below the rhombus", 0.95 * low, low, 0],
     ] as const) {
       const made: IAutoMovieHumanBodyMeasures = resolved(f1, { ...f1.body.anatomy, [l.breadth]: w, [l.depth]: d, [l.girth]: girth });
-      const notes: AutoMovieHumanLoftContract.IDiagnostic[] = AutoMovieHumanBodyBox.diagnose(made);
+      const notes: AutoMovieLoftContract.IDiagnostic[] = AutoMovieHumanBodyBox.diagnose(made);
       if (notes.length !== 1 || !notes[0]!.detail.startsWith(`${l.level}:`) || notes[0]!.producer !== "human.inputs")
-        failed.push(`f1 ${l.level} girth ${sign}: ${notes.length} diagnostics (${notes.map((n: AutoMovieHumanLoftContract.IDiagnostic): string => n.detail).join("; ")}), not one naming ${l.level}`);
+        failed.push(`f1 ${l.level} girth ${sign}: ${notes.length} diagnostics (${notes.map((n: AutoMovieLoftContract.IDiagnostic): string => n.detail).join("; ")}), not one naming ${l.level}`);
       const box: AutoMovieHumanBodyBox.IBox | undefined = AutoMovieHumanBodyBox.of(made).find((b: AutoMovieHumanBodyBox.IBox): boolean => b.level === l.level);
       if (box === undefined || Math.abs(box.tape - end) > ROUNDING || Math.abs(box.fullness - fullness) > 1e-9)
         failed.push(`f1 ${l.level} girth ${sign}: section takes ${box?.tape.toFixed(1)} mm (fullness ${box?.fullness.toFixed(3)}), not the ${sign === "above the box" ? "box" : "rhombus"} ${end.toFixed(1)}`);

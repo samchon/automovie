@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import { HumanCurveVector } from "./HumanCurveVector";
 import { HumanCurveConstants } from "./HumanCurveConstants";
 
@@ -71,13 +70,13 @@ export namespace HumanCurveRing {
     high: number,
   ): [number, number][] {
     const out: [number, number][] = [];
-    for (const chain of body.chains.filter((c: IAutoMovieHumanLoftChain): boolean =>
+    for (const chain of body.chains.filter((c: IAutoMovieLoftChain): boolean =>
       /^head\.(lower|middle)$/.test(c.name),
     )) {
       const bottom: number = chain.layers[0]!.y;
       const top: number = chain.layers[chain.layers.length - 1]!.y;
       for (let s: number = bottom; s <= top; s += PROFILE_STEP) {
-        const ring: V3[] = AutoMovieHumanLoftChain.ring(chain, s, uniform(1440));
+        const ring: V3[] = AutoMovieLoftChain.ring(chain, s, uniform(1440));
         let best: [number, number] | null = null;
         ring.forEach((p: V3, i: number): void => {
           const q: V3 = ring[(i + 1) % ring.length]!;
@@ -94,13 +93,13 @@ export namespace HumanCurveRing {
 
   /** Unit normals of a chain's surface at one station and given phases. */
   export function normalsOf(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     station: number,
     phases: number[],
   ): V3[] {
     // The ring at a station with every phase moved by a shift.
     const at: (s: number, shift: number) => V3[] = (s: number, shift: number): V3[] =>
-      AutoMovieHumanLoftChain.ring(
+      AutoMovieLoftChain.ring(
         chain,
         s,
         phases.map((t: number): number => t + shift),
@@ -116,7 +115,7 @@ export namespace HumanCurveRing {
   }
 
   /** Station span of a chain. */
-  export function length(chain: IAutoMovieHumanLoftChain): number {
+  export function length(chain: IAutoMovieLoftChain): number {
     return chain.layers[chain.layers.length - 1]!.y - chain.layers[0]!.y;
   }
 

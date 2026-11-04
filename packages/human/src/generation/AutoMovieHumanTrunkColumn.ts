@@ -1,5 +1,5 @@
 ﻿import { AutoMovieHumanMonotoneCubic } from "../lofting/AutoMovieHumanMonotoneCubic";
-import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 import type { IAutoMovieHumanTrunkKey } from "./IAutoMovieHumanTrunkKey";
 import type { IAutoMovieHumanTrunkSection } from "./IAutoMovieHumanTrunkSection";
 import { AutoMovieHumanTrunkGlutealCleft } from "./AutoMovieHumanTrunkGlutealCleft";
@@ -39,12 +39,12 @@ export namespace AutoMovieHumanTrunkColumn {
   export function create(keys: IAutoMovieHumanTrunkKey[], crotch: number, soft: number): IColumn {
     const spline = (pick: (k: IAutoMovieHumanTrunkKey) => number | null): ((y: number) => number) => {
       const used: IAutoMovieHumanTrunkKey[] = keys.filter((k: IAutoMovieHumanTrunkKey): boolean => pick(k) !== null);
-      const s: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
+      const s: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
         used.map((k: IAutoMovieHumanTrunkKey): number => k.y),
         used.map((k: IAutoMovieHumanTrunkKey): number => pick(k)!),
       );
 
-      return (y: number): number => AutoMovieHumanNaturalSpline.evaluate(s, y);
+      return (y: number): number => AutoMovieNaturalSpline.evaluate(s, y);
     };
     const widthKnots: [number, number][] = keys.map((k: IAutoMovieHumanTrunkKey): [number, number] => [k.y, k.width]);
     const width = (y: number): number => AutoMovieHumanMonotoneCubic.interpolate(widthKnots, y);

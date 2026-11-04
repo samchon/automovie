@@ -1,6 +1,6 @@
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfacePhases } from "./AutoMovieHumanBodySurfacePhases";
@@ -25,7 +25,7 @@ export namespace AutoMovieHumanBodySurfaceLoft {
    * boundary is generated at the end height, or at the dome base of a
    * rounded pole, and closed at its pole.
    */
-  export function loft(context: IContext, target: IAutoMovieHumanLoftChain): void {
+  export function loft(context: IContext, target: IAutoMovieLoftChain): void {
     const phases: number[] = ownPhases(context, target);
     const bottom: IBoundary = boundary(context, target, "bottom");
     const top: IBoundary = boundary(context, target, "top");
@@ -140,8 +140,8 @@ export namespace AutoMovieHumanBodySurfaceLoft {
     context: IContext,
     appendage: IAutoMovieHumanBodyCalibration.IAppendage,
   ): void {
-    const base: IAutoMovieHumanLoftChain = chain(context, appendage.base);
-    const own: IAutoMovieHumanLoftChain = chain(context, appendage.chain);
+    const base: IAutoMovieLoftChain = chain(context, appendage.base);
+    const own: IAutoMovieLoftChain = chain(context, appendage.chain);
     const end = context.ends.get(appendage.chain);
     if (end === undefined)
       throw new Error(`Appendage ${appendage.chain} has no root on ${appendage.base}`);

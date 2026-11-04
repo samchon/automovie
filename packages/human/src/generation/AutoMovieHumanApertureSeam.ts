@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanApertureSpan } from "./AutoMovieHumanApertureSpan";
 
 /**
@@ -34,8 +33,8 @@ export namespace AutoMovieHumanApertureSeam {
   export function drawn(
     points: readonly AutoMovieHumanApertureSpan.IPoint[],
     seam: NonNullable<IAutoMovieHumanLoftAperture["seam"]>,
-    chainOf: (name: string) => IAutoMovieHumanLoftChain,
-    across: (name: string, end: "bottom" | "top", t: number) => IAutoMovieHumanLoftChain | null,
+    chainOf: (name: string) => IAutoMovieLoftChain,
+    across: (name: string, end: "bottom" | "top", t: number) => IAutoMovieLoftChain | null,
   ): AutoMovieHumanApertureSpan.IPoint[] {
     const n: number = seam.contact.length - 1;
     const line = (z: number): number => {
@@ -44,20 +43,20 @@ export namespace AutoMovieHumanApertureSeam {
       return seam.contact[i]! + (u - i) * (seam.contact[i + 1]! - seam.contact[i]!);
     };
     return points.map((p: AutoMovieHumanApertureSpan.IPoint): AutoMovieHumanApertureSpan.IPoint => {
-      let chain: IAutoMovieHumanLoftChain = chainOf(p.chain);
+      let chain: IAutoMovieLoftChain = chainOf(p.chain);
       let s: number = p.s;
       let t: number = p.t;
-      const start: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s, t);
+      const start: [number, number, number] = AutoMovieLoftChain.point(chain, s, t);
       const side: number = start[1] >= line(start[2]) ? 1 : -1;
       let crossed: boolean = false;
       for (let k: number = 0; k < STEPS; k++) {
         const y0: number = chain.layers[0]!.y;
         const y1: number = chain.layers[chain.layers.length - 1]!.y;
-        const q: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s, t);
+        const q: [number, number, number] = AutoMovieLoftChain.point(chain, s, t);
         const miss: number = q[1] - (line(q[2]) + side * seam.closed);
         if (Math.abs(miss) < 1e-6) break;
         const h: number = s + STEP <= y1 ? STEP : -STEP;
-        const r: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s + h, t);
+        const r: [number, number, number] = AutoMovieLoftChain.point(chain, s + h, t);
         const rate: number = (r[1] - line(r[2]) - (q[1] - line(q[2]))) / h;
         if (!(Math.abs(rate) > 1e-9)) break;
         const next: number = s - miss / rate;
@@ -69,12 +68,12 @@ export namespace AutoMovieHumanApertureSeam {
         // Past the chain's end: on through the ring into the neighbour, once.
         const end: "bottom" | "top" = next > y1 ? "top" : "bottom";
         const ring: number = end === "top" ? y1 : y0;
-        const beyond: IAutoMovieHumanLoftChain | null = crossed ? null : across(chain.name, end, t);
+        const beyond: IAutoMovieLoftChain | null = crossed ? null : across(chain.name, end, t);
         if (beyond === null) {
           s = ring;
           continue;
         }
-        const point: [number, number, number] = AutoMovieHumanLoftChain.point(chain, ring, t);
+        const point: [number, number, number] = AutoMovieLoftChain.point(chain, ring, t);
         t = AutoMovieHumanApertureSpan.phaseOf(beyond, ring, point, t);
         chain = beyond;
         s = ring;

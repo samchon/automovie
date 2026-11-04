@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 
@@ -29,8 +28,8 @@ export namespace AutoMovieHumanArmShoulder {
     side: "left" | "right",
     acromionRadiale: number,
   ): Vec3 {
-    const upper: IAutoMovieHumanLoftChain = calibration.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "upper",
+    const upper: IAutoMovieLoftChain = calibration.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "upper",
     )!;
     const s: number = side === "left" ? 1 : -1;
     const lo: number = upper.layers[0]!.y;
@@ -38,7 +37,7 @@ export namespace AutoMovieHumanArmShoulder {
     const radius: number = rootRadius(upper, calibration, side);
     const below: number = AutoMovieHumanArmBones.ACROMION * acromionRadiale;
     const deltoid = (y: number): Vec3 => {
-      const cap: Vec3[] = AutoMovieHumanLoftChain.ring(upper, Math.min(hi, Math.max(lo, y)), PHASES).filter(
+      const cap: Vec3[] = AutoMovieLoftChain.ring(upper, Math.min(hi, Math.max(lo, y)), PHASES).filter(
         (p: Vec3): boolean => s * p[2] > 0,
       );
       const lateral: number = Math.max(...cap.map((p: Vec3): number => s * p[2]));
@@ -51,10 +50,10 @@ export namespace AutoMovieHumanArmShoulder {
     const top = (x: number, z: number, from: number): number => {
       let a: number = Math.max(lo, from);
       let b: number = hi;
-      if (!inside(AutoMovieHumanLoftChain.ring(upper, a, PHASES), x, z)) return a;
+      if (!inside(AutoMovieLoftChain.ring(upper, a, PHASES), x, z)) return a;
       for (let i: number = 0; i < STEPS; i++) {
         const m: number = (a + b) / 2;
-        if (inside(AutoMovieHumanLoftChain.ring(upper, m, PHASES), x, z)) a = m;
+        if (inside(AutoMovieLoftChain.ring(upper, m, PHASES), x, z)) a = m;
         else b = m;
       }
       return (a + b) / 2;
@@ -99,7 +98,7 @@ function inside(ring: readonly Vec3[], x: number, z: number): boolean {
 
 /** Girth radius of the arm's root: its arc of the shoulder ring, closed. */
 function rootRadius(
-  upper: IAutoMovieHumanLoftChain,
+  upper: IAutoMovieLoftChain,
   calibration: IAutoMovieHumanBodyCalibration,
   side: "left" | "right",
 ): number {
@@ -110,7 +109,7 @@ function rootRadius(
     .find((sp: IAutoMovieHumanBodyCalibration.ISplit): boolean => sp.child === `arm.${side}`)!
     .arcs.flatMap(([from, to]: [number, number]): Vec3[] => {
       const span: number = to >= from ? to - from : to + 2 * Math.PI - from;
-      return AutoMovieHumanLoftChain.ring(
+      return AutoMovieLoftChain.ring(
         upper,
         upper.layers[0]!.y,
         Array.from({ length: RING }, (_: unknown, i: number): number => from + (span * i) / RING),

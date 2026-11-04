@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /**
@@ -18,7 +18,7 @@ export namespace AutoMovieHumanBodyTree {
   export function order(calibration: IAutoMovieHumanBodyCalibration): string[] {
     const parents: Map<string, Set<string>> = new Map(
       calibration.chains.map(
-        (c: IAutoMovieHumanLoftChain): [string, Set<string>] => [
+        (c: IAutoMovieLoftChain): [string, Set<string>] => [
           c.name,
           new Set(),
         ],

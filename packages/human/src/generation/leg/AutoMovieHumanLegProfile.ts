@@ -1,4 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "../../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
 
 /**
@@ -112,13 +112,13 @@ export namespace AutoMovieHumanLegProfile {
       if (!Number.isFinite(placed[i]!.value)) throw new Error(`A landmark row lacks channel ${k}`);
       if (i > 0 && !(placed[i]!.at > placed[i - 1]!.at)) throw new Error("Two landmark rows stand at one height");
     }
-    const spline: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
+    const spline: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       placed.map((p: IKnot): number => p.at),
       placed.map((p: IKnot): number => p.value),
     );
     const low: number = placed[0]!.at;
     const high: number = placed[placed.length - 1]!.at;
-    return (s: number): number => AutoMovieHumanNaturalSpline.evaluate(spline, Math.min(high, Math.max(low, s)));
+    return (s: number): number => AutoMovieNaturalSpline.evaluate(spline, Math.min(high, Math.max(low, s)));
   }
 
   /**

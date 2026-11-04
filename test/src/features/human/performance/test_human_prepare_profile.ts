@@ -16,7 +16,7 @@ import { AutoMovieHumanBodySurface } from "../../../../../packages/human/src/gen
 import type { AutoMovieHumanOralCavity } from "../../../../../packages/human/src/generation/AutoMovieHumanOralCavity";
 import { AutoMovieHumanOralCavityAttempt } from "../../../../../packages/human/src/generation/AutoMovieHumanOralCavityAttempt";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { AutoMovieHumanLoftContract } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftAperture } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftAperture";
 import { AutoMovieHumanRig } from "../../../../../packages/human/src/skeleton/AutoMovieHumanRig";
@@ -93,8 +93,8 @@ const SUSPECTS: string[] = [
   "AutoMovieHumanTrunkSolver.ts",
   "AutoMovieHumanNeutralShoulder.ts",
   "AutoMovieHumanSeam.ts",
-  "AutoMovieHumanStationHermite.ts",
-  "AutoMovieHumanLoftChain.ts",
+  "AutoMovieStationHermite.ts",
+  "AutoMovieLoftChain.ts",
   "AutoMovieHumanBodySurfaceLoft.ts",
 ];
 
@@ -175,7 +175,7 @@ function run(params: IAutoMovieHumanParameters): { stages: IStage[]; tally: stri
     ...AutoMovieHumanBodyConstruction.generate(calibration, surface.construction),
     ...AutoMovieHumanBodyConstruction.paths([{ id: law.vermilion.chain + "/" + law.vermilion.name.replaceAll(".", "_"), points: vermilion.points, closed: true }]),
   ]);
-  const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...(calibration.diagnostics ?? [])];
+  const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...(calibration.diagnostics ?? [])];
   const opening: IAutoMovieHumanLoftAperture | undefined = calibration.apertures.find((a: IAutoMovieHumanLoftAperture): boolean => a.name === "mouth");
   const interior: AutoMovieHumanOralCavity.IOutput | null = timed("mouth interior", (): AutoMovieHumanOralCavity.IOutput | null =>
     calibration.mouth === undefined || opening === undefined ? null : AutoMovieHumanOralCavityAttempt.attempt(surface.rims.get(opening.name), calibration.mouth, scale, diagnostics),

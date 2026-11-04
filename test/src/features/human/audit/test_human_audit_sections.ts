@@ -1,5 +1,4 @@
-import { AutoMovieHumanSplineCurve } from "../../../../../packages/human/src/lofting/AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanSectionAudit } from "../../internal/audit/HumanSectionAudit";
 import { HumanSectionReading } from "../../internal/audit/HumanSectionReading";
 import { HumanCurveRings } from "../../internal/curves/HumanCurveRings";
@@ -88,12 +87,12 @@ function proofs(): string[] {
  * the middle layer scaled by `swell`. Slopes are zero, as for a cylinder of
  * constant section, so a swollen layer is a local bulge.
  */
-function madeChain(curve: HumanSectionReading.Curve, swell: number): IAutoMovieHumanLoftChain {
+function madeChain(curve: HumanSectionReading.Curve, swell: number): IAutoMovieLoftChain {
   const n: number = 48;
-  const layers: IAutoMovieHumanLoftChain.ILayer[] = Array.from({ length: 9 }, (_: unknown, i: number): IAutoMovieHumanLoftChain.ILayer => {
+  const layers: IAutoMovieLoftChain.ILayer[] = Array.from({ length: 9 }, (_: unknown, i: number): IAutoMovieLoftChain.ILayer => {
     const scale: number = i === 4 ? swell : 1;
     const samples: P2[] = HumanSectionReading.sample(curve, n).map(([x, z]: P2): P2 => [scale * x, scale * z]);
-    const coefficients: number[] = AutoMovieHumanSplineCurve.interpolate(samples);
+    const coefficients: number[] = AutoMovieSplineCurve.interpolate(samples);
     // Every layer declares the box of the axis-aligned 40 by 25 mm ellipse,
     // with the ellipse's shoulders and guide curvatures `a / b^2`.
     return {

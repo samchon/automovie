@@ -1,4 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
 import type { AutoMovieHumanLegConstruction } from "../AutoMovieHumanLegConstruction";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
@@ -87,7 +87,7 @@ export namespace AutoMovieHumanLegSectionLaw {
     sign: 1 | -1,
     inputs: AutoMovieHumanLegConstruction.IInputs,
     bones: AutoMovieHumanLegStations.IBones,
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [],
+    diagnostics: AutoMovieLoftContract.IDiagnostic[] = [],
   ): ILaw {
     const planar: (ring: readonly Vec3[]) => [number, number][] = (ring: readonly Vec3[]): [number, number][] =>
       ring.map((p: Vec3): [number, number] => [p[0], p[2]]);

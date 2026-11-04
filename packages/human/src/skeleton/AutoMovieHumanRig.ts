@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBindingTree } from "./IAutoMovieHumanBindingTree";
 import { AutoMovieHumanBindingInfluence } from "./AutoMovieHumanBindingInfluence";
 import { AutoMovieHumanBindingLoft } from "./AutoMovieHumanBindingLoft";
@@ -92,7 +92,7 @@ export namespace AutoMovieHumanRig {
    */
   export function fromInputs(
     inputs: AutoMovieHumanBindingInputs.IInputs,
-    chains: readonly IAutoMovieHumanLoftChain[] = [],
+    chains: readonly IAutoMovieLoftChain[] = [],
   ): IRig {
     const scale: number = inputs.scale;
     const joints: AutoMovieHumanJointCentres.IJoint[] = inputs.joints;

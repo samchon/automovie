@@ -1,8 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanLoftJet } from "../lofting/AutoMovieHumanLoftJet";
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
 /** The skin's normals: each vertex's station jet and the blend of the normals of rings shared between chains. */
@@ -39,12 +35,12 @@ export namespace AutoMovieHumanBodySurfaceNormals {
       const s: number = coordinates[3 * v + 1]!;
       const t: number = coordinates[3 * v + 2]!;
       if (!Number.isFinite(index) || !Number.isFinite(t)) continue;
-      const target: IAutoMovieHumanLoftChain = calibration.chains[index]!;
+      const target: IAutoMovieLoftChain = calibration.chains[index]!;
 
       // A chain with jets has its exact normal, oriented with the mesh's.
-      if (AutoMovieHumanLoftJet.carries(target)) {
-        const n: [number, number, number] | null = AutoMovieHumanLoftJet.normal(
-          AutoMovieHumanLoftJet.at(target, s, t),
+      if (AutoMovieLoftJet.carries(target)) {
+        const n: [number, number, number] | null = AutoMovieLoftJet.normal(
+          AutoMovieLoftJet.at(target, s, t),
         );
         if (n === null) continue;
         const c: number =
@@ -61,14 +57,14 @@ export namespace AutoMovieHumanBodySurfaceNormals {
         cache.set(key, jet);
       }
       const p: [number, number, number, number] =
-        AutoMovieHumanLoftChain.section(target, jet.here, t);
+        AutoMovieLoftChain.section(target, jet.here, t);
       const a: [number, number, number] = place(target, jet.lo, t);
       const b: [number, number, number] = place(target, jet.hi, t);
       const dt: number[] = [0, 1, 2].map(
         (k: number): number => jet.frame.u[k]! * p[2] + jet.frame.v[k]! * p[3],
       );
       if (jet.lift !== null) {
-        const l: number = AutoMovieHumanSplineCurve.evaluate(
+        const l: number = AutoMovieSplineCurve.evaluate(
           jet.lift,
           target.order,
           t,
@@ -121,7 +117,7 @@ export namespace AutoMovieHumanBodySurfaceNormals {
     // Event ring stations of every chain, by calibration index.
     const index: Map<string, number> = new Map(
       calibration.chains.map(
-        (c: IAutoMovieHumanLoftChain, i: number): [string, number] => [
+        (c: IAutoMovieLoftChain, i: number): [string, number] => [
           c.name,
           i,
         ],
@@ -129,7 +125,7 @@ export namespace AutoMovieHumanBodySurfaceNormals {
     );
     const rings: number[][] = calibration.chains.map((): number[] => []);
     for (const event of calibration.events) {
-      const parent: IAutoMovieHumanLoftChain =
+      const parent: IAutoMovieLoftChain =
         calibration.chains[index.get(event.parent)!]!;
       rings[index.get(event.parent)!]!.push(
         event.direction === "down"
@@ -137,7 +133,7 @@ export namespace AutoMovieHumanBodySurfaceNormals {
           : parent.layers[parent.layers.length - 1]!.y,
       );
       for (const split of event.splits) {
-        const child: IAutoMovieHumanLoftChain =
+        const child: IAutoMovieLoftChain =
           calibration.chains[index.get(split.child)!]!;
         rings[index.get(split.child)!]!.push(
           event.direction === "down"
@@ -237,7 +233,7 @@ export namespace AutoMovieHumanBodySurfaceNormals {
     here: number[];
 
     /** The section's frame at the station. */
-    frame: AutoMovieHumanLoftFrame.IFrame;
+    frame: AutoMovieLoftFrame.IFrame;
 
     /** The frame's normal, `v x u`, along the station. */
     normal: [number, number, number];
@@ -258,7 +254,7 @@ export namespace AutoMovieHumanBodySurfaceNormals {
     coefficients: number[];
 
     /** The section's frame. */
-    frame: AutoMovieHumanLoftFrame.IFrame;
+    frame: AutoMovieLoftFrame.IFrame;
 
     /** The section's lift off its plane, doubled for the spline, or null. */
     lift: number[] | null;
@@ -266,21 +262,21 @@ export namespace AutoMovieHumanBodySurfaceNormals {
 
   /** Sections at a station and STEP mm to either side, clamped into the chain. */
   export function stationJet(
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     s: number,
   ): IStationJet {
     const bottom: number = target.layers[0]!.y;
     const top: number = target.layers[target.layers.length - 1]!.y;
     const sample = (y: number): IStationSample => {
-      const l: number[] | null = AutoMovieHumanLoftChain.lift(target, y);
+      const l: number[] | null = AutoMovieLoftChain.lift(target, y);
       return {
-        coefficients: AutoMovieHumanLoftChain.coefficients(target, y),
-        frame: AutoMovieHumanLoftChain.frame(target, y),
+        coefficients: AutoMovieLoftChain.coefficients(target, y),
+        frame: AutoMovieLoftChain.frame(target, y),
         lift: l === null ? null : [...l, ...l],
       };
     };
     const here: IStationSample = sample(s);
-    const f: AutoMovieHumanLoftFrame.IFrame = here.frame;
+    const f: AutoMovieLoftFrame.IFrame = here.frame;
     return {
       here: here.coefficients,
       frame: f,
@@ -297,27 +293,27 @@ export namespace AutoMovieHumanBodySurfaceNormals {
 
   /** World point of a phase on a sampled station. */
   export function place(
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     sample: IStationSample,
     t: number,
   ): [number, number, number] {
-    const p: [number, number, number, number] = AutoMovieHumanLoftChain.section(
+    const p: [number, number, number, number] = AutoMovieLoftChain.section(
       target,
       sample.coefficients,
       t,
     );
-    const q: [number, number, number] = AutoMovieHumanLoftFrame.place(
+    const q: [number, number, number] = AutoMovieLoftFrame.place(
       sample.frame,
       p[0],
       p[1],
     );
     if (sample.lift === null) return q;
-    const h: number = AutoMovieHumanSplineCurve.evaluate(
+    const h: number = AutoMovieSplineCurve.evaluate(
       sample.lift,
       target.order,
       t,
     )[0];
-    const f: AutoMovieHumanLoftFrame.IFrame = sample.frame;
+    const f: AutoMovieLoftFrame.IFrame = sample.frame;
     const n: [number, number, number] = [
       f.v[1] * f.u[2] - f.v[2] * f.u[1],
       f.v[2] * f.u[0] - f.v[0] * f.u[2],

@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanTrunkChains } from "./AutoMovieHumanTrunkChains";
 import { AutoMovieHumanTrunkSolver } from "./AutoMovieHumanTrunkSolver";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
@@ -37,8 +37,8 @@ export namespace AutoMovieHumanTrunkConstruction {
     inputs: IInputs,
     floor: number,
   ): IAutoMovieHumanBodyCalibration {
-    const neck: IAutoMovieHumanLoftChain | undefined = calibration.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "head",
+    const neck: IAutoMovieLoftChain | undefined = calibration.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "head",
     );
     if (neck === undefined) throw new Error("A trunk stands under the neck chain `head`");
 
@@ -48,12 +48,12 @@ export namespace AutoMovieHumanTrunkConstruction {
       crotch: floor,
       neck,
     });
-    const made: IAutoMovieHumanLoftChain[] = AutoMovieHumanTrunkChains.build(solution, {
+    const made: IAutoMovieLoftChain[] = AutoMovieHumanTrunkChains.build(solution, {
       samples: SAMPLES,
       rule: "sagittal",
     });
-    const others: IAutoMovieHumanLoftChain[] = calibration.chains.filter(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name !== "trunk" && c.name !== "upper",
+    const others: IAutoMovieLoftChain[] = calibration.chains.filter(
+      (c: IAutoMovieLoftChain): boolean => c.name !== "trunk" && c.name !== "upper",
     );
 
     return {

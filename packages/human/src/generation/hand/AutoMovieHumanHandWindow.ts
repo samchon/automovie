@@ -3,7 +3,7 @@
  * its centre and zero, with its first and second derivatives, at its edge.
  *
  * A relief that grows out of a skin without a seam must vanish with its
- * slope and curvature at its window's edge (`IAutoMovieHumanRelief`, rule J7
+ * slope and curvature at its window's edge (`IAutoMovieLoftRelief`, rule J7
  * of the shared seam module). The bump `(1 - x^2)^3` does: it has a triple
  * zero at `x = +-1`, so the base skin and the relief meet C2 there. Every
  * joint swelling, digital crease, fingertip pulp, nail fold and eminence of

@@ -1,7 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import { AutoMovieHumanLoftFrame } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftFrame";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, AutoMovieLoftFrame, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanAnatomyShared } from "../HumanAnatomyShared";
 import { HumanAnatomyVector } from "../HumanAnatomyVector";
@@ -15,7 +13,7 @@ type P2 = HumanSectionReading.P2;
  * The section-curve invariants of #3057, one data-driven audit over every
  * section of every chain of a body: the same rules for the trunk, a limb, a
  * phalanx or an ear, read on the delivered chains by their own public
- * evaluator (`AutoMovieHumanLoftChain.sampler`, `.frame`) and measured in
+ * evaluator (`AutoMovieLoftChain.sampler`, `.frame`) and measured in
  * each section's own plane, so no rule names a part or recomputes a law.
  *
  * At every layer and midway between neighbouring layers each section is
@@ -76,11 +74,11 @@ export namespace HumanSectionAudit {
 
   /** Every invariant row of every chain of a body. */
   export function rows(person: string, body: IAutoMovieHumanBodyCalibration, options: IOptions): IRow[] {
-    return body.chains.flatMap((c: IAutoMovieHumanLoftChain): IRow[] => chain(person, c, options));
+    return body.chains.flatMap((c: IAutoMovieLoftChain): IRow[] => chain(person, c, options));
   }
 
   /** Every invariant row of one chain. */
-  export function chain(person: string, c: IAutoMovieHumanLoftChain, options: IOptions): IRow[] {
+  export function chain(person: string, c: IAutoMovieLoftChain, options: IOptions): IRow[] {
     const out: IRow[] = [];
     const k: number = options.k;
     const row: (site: string, value: number, low: number, high: number, unit: string) => void = (site: string, value: number, low: number, high: number, unit: string): void => {
@@ -92,10 +90,10 @@ export namespace HumanSectionAudit {
     // Whole-section readings at every layer and midway between layers. A
     // layer the view operator drew carries its box (`ILayer.view`); a
     // midway section is guided when both of its layers are.
-    const whole: [string, number, IAutoMovieHumanLoftChain.IView | null, boolean][] = [];
-    c.layers.forEach((l: IAutoMovieHumanLoftChain.ILayer, i: number): void => {
+    const whole: [string, number, IAutoMovieLoftChain.IView | null, boolean][] = [];
+    c.layers.forEach((l: IAutoMovieLoftChain.ILayer, i: number): void => {
       whole.push([`/${i}`, l.y, l.view ?? null, l.view !== undefined]);
-      const next: IAutoMovieHumanLoftChain.ILayer | undefined = c.layers[i + 1];
+      const next: IAutoMovieLoftChain.ILayer | undefined = c.layers[i + 1];
       if (next !== undefined) whole.push([`/${i}.5`, (l.y + next.y) / 2, null, l.view !== undefined && next.view !== undefined]);
     });
     for (const [label, s, view, guided] of whole) {
@@ -165,10 +163,10 @@ export namespace HumanSectionAudit {
    * station projected on the station's frame, so a lift out of the plane is
    * dropped and the planar shape is what is read.
    */
-  export function section(c: IAutoMovieHumanLoftChain, s: number): HumanSectionReading.Curve {
-    const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(c, s);
-    const point: (t: number) => [number, number, number] = AutoMovieHumanLoftChain.sampler(c, s);
-    return (t: number): P2 => AutoMovieHumanLoftFrame.local(f, point(t));
+  export function section(c: IAutoMovieLoftChain, s: number): HumanSectionReading.Curve {
+    const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(c, s);
+    const point: (t: number) => [number, number, number] = AutoMovieLoftChain.sampler(c, s);
+    return (t: number): P2 => AutoMovieLoftFrame.local(f, point(t));
   }
 
   /** The largest absolute second difference of a profile away from its ends, and its index. */

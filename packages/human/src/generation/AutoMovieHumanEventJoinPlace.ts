@@ -1,7 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanEventJoinRing } from "./AutoMovieHumanEventJoinRing";
 import { AutoMovieHumanEventJoinVector } from "./AutoMovieHumanEventJoinVector";
 
@@ -26,9 +23,9 @@ export namespace AutoMovieHumanEventJoinPlace {
   /** Child chain with its end ring moved onto the parent's, faded over its first layers. */
   export function place(
     ring: IRing,
-    child: IAutoMovieHumanLoftChain,
+    child: IAutoMovieLoftChain,
     direction: "down" | "up",
-  ): IAutoMovieHumanLoftChain {
+  ): IAutoMovieLoftChain {
     const k: number = direction === "down" ? child.layers.length - 1 : 0;
     const step: number = direction === "down" ? -1 : 1;
     const sc: number = child.layers[k]!.y;
@@ -42,7 +39,7 @@ export namespace AutoMovieHumanEventJoinPlace {
     // World move of every end point; zero off the arcs or off the ring.
     // Consecutive end points lie near consecutive parent samples.
     let last: number | undefined;
-    const moves: Vec3[] = AutoMovieHumanLoftChain.ring(child, sc, phases).map(
+    const moves: Vec3[] = AutoMovieLoftChain.ring(child, sc, phases).map(
       (p: Vec3): Vec3 => {
         const [tau, q, distance, found] = nearest(ring, p, last);
         last = found;
@@ -60,11 +57,11 @@ export namespace AutoMovieHumanEventJoinPlace {
         ? 1.5 * Math.abs(child.layers[second]!.y - sc)
         : 0,
     );
-    const layers: IAutoMovieHumanLoftChain.ILayer[] = child.layers.map(
+    const layers: IAutoMovieLoftChain.ILayer[] = child.layers.map(
       (
-        layer: IAutoMovieHumanLoftChain.ILayer,
+        layer: IAutoMovieLoftChain.ILayer,
         j: number,
-      ): IAutoMovieHumanLoftChain.ILayer => {
+      ): IAutoMovieLoftChain.ILayer => {
         const sigma: number = Math.abs(layer.y - sc);
         if (sigma >= reach) return layer;
         // Fade f(sigma) = 1 - smooth(sigma / reach) and its station derivative,
@@ -72,7 +69,7 @@ export namespace AutoMovieHumanEventJoinPlace {
         const x: number = sigma / reach;
         const fade: number = 1 - smooth(x);
         const rate: number = (-6 * x * (1 - x) * step) / reach;
-        const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(
+        const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(
           child,
           layer.y,
         );
@@ -82,8 +79,8 @@ export namespace AutoMovieHumanEventJoinPlace {
         const slopes: [number, number][] = moves.map(
           (m: Vec3): [number, number] => [rate * dot(m, f.u), rate * dot(m, f.v)],
         );
-        const dc: number[] = AutoMovieHumanSplineCurve.project(values, N);
-        const dm: number[] = AutoMovieHumanSplineCurve.project(slopes, N);
+        const dc: number[] = AutoMovieSplineCurve.project(values, N);
+        const dm: number[] = AutoMovieSplineCurve.project(slopes, N);
 
         // The law lifts sections off their planes, so part of a gap lies
         // along the frame normal and moves the lift instead.
@@ -93,13 +90,13 @@ export namespace AutoMovieHumanEventJoinPlace {
           layer.lift !== undefined ||
           across.some((v: number): boolean => Math.abs(v) > 1e-3);
         const dl: number[] = lifted
-          ? AutoMovieHumanSplineCurve.project(
+          ? AutoMovieSplineCurve.project(
               across.map((v: number): [number, number] => [fade * v, fade * v]),
               N,
             ).slice(0, N)
           : [];
         const dr: number[] = lifted
-          ? AutoMovieHumanSplineCurve.project(
+          ? AutoMovieSplineCurve.project(
               across.map((v: number): [number, number] => [rate * v, rate * v]),
               N,
             ).slice(0, N)

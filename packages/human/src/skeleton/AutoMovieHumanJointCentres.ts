@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanSkeletonLaw } from "../generation/AutoMovieHumanSkeletonLaw";
 
 /**
@@ -32,10 +31,10 @@ export namespace AutoMovieHumanJointCentres {
     if (skeleton === undefined)
       throw new Error("The calibration carries no skeleton");
     const S: number = calibration.stature;
-    const chain = (name: string): IAutoMovieHumanLoftChain => {
-      const found: IAutoMovieHumanLoftChain | undefined =
+    const chain = (name: string): IAutoMovieLoftChain => {
+      const found: IAutoMovieLoftChain | undefined =
         calibration.chains.find(
-          (c: IAutoMovieHumanLoftChain): boolean => c.name === name,
+          (c: IAutoMovieLoftChain): boolean => c.name === name,
         );
       if (found === undefined)
         throw new Error(`Stickman skeleton needs the ${name} chain`);
@@ -49,7 +48,7 @@ export namespace AutoMovieHumanJointCentres {
       ),
     );
     const at = (bone: string): [number, number, number] => byBone.get(bone)!.position;
-    const middle = (c: IAutoMovieHumanLoftChain): number =>
+    const middle = (c: IAutoMovieLoftChain): number =>
       girth(c, (start(c) + stop(c)) / 2);
 
     // The neck read a third of the way up: lower it flares into the shoulders
@@ -64,7 +63,7 @@ export namespace AutoMovieHumanJointCentres {
       chain("head.middle"),
       start(chain("head.middle")),
     );
-    const trunk: IAutoMovieHumanLoftChain = chain("trunk");
+    const trunk: IAutoMovieLoftChain = chain("trunk");
     const radius = (bone: string): number => {
       if (bone === "hips") return girth(trunk, 0.518 * S);
       if (bone === "spine") return girth(trunk, at("spine")[1]);
@@ -80,7 +79,7 @@ export namespace AutoMovieHumanJointCentres {
       const side: "left" | "right" = bone.startsWith("left") ? "left" : "right";
       const part: string = bone.slice(side.length);
       if (part === "Shoulder" || part === "Scapula" || part === "UpperArm") {
-        const arm: IAutoMovieHumanLoftChain = chain(`arm.${side}`);
+        const arm: IAutoMovieLoftChain = chain(`arm.${side}`);
         return girth(arm, stop(arm));
       }
       if (part === "LowerArm")
@@ -100,11 +99,11 @@ export namespace AutoMovieHumanJointCentres {
             (part.endsWith("Distal") ? 0.9 : 1)
           );
       if (part === "UpperLeg") {
-        const leg: IAutoMovieHumanLoftChain = chain(`leg.${side}`);
+        const leg: IAutoMovieLoftChain = chain(`leg.${side}`);
         return girth(leg, (at(`${side}LowerLeg`)[1] + stop(leg)) / 2);
       }
       if (part === "LowerLeg") {
-        const leg: IAutoMovieHumanLoftChain = chain(`leg.${side}`);
+        const leg: IAutoMovieLoftChain = chain(`leg.${side}`);
         return girth(leg, (at(`${side}LowerLeg`)[1] + start(leg)) / 2);
       }
       if (part === "Foot" || part === "Subtalar" || part === "Midfoot")
@@ -144,18 +143,18 @@ const PHASES: number[] = Array.from(
 );
 
 /** First station of a chain. */
-function start(chain: IAutoMovieHumanLoftChain): number {
+function start(chain: IAutoMovieLoftChain): number {
   return chain.layers[0]!.y;
 }
 
 /** Last station of a chain. */
-function stop(chain: IAutoMovieHumanLoftChain): number {
+function stop(chain: IAutoMovieLoftChain): number {
   return chain.layers[chain.layers.length - 1]!.y;
 }
 
 /** Girth radius, perimeter / 2pi, of the section at a station clamped into the chain. */
-function girth(chain: IAutoMovieHumanLoftChain, s: number): number {
-  const ring: [number, number, number][] = AutoMovieHumanLoftChain.ring(
+function girth(chain: IAutoMovieLoftChain, s: number): number {
+  const ring: [number, number, number][] = AutoMovieLoftChain.ring(
     chain,
     Math.min(stop(chain), Math.max(start(chain), s)),
     PHASES,

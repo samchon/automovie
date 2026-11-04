@@ -1,7 +1,7 @@
 import type { IAutoMovieMaterial, IAutoMovieMesh } from "@automovie/interface";
 
 import { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import type { IAutoMovieHumanEyelash } from "../structures/appearance/IAutoMovieHumanEyelash";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import { AutoMovieHumanHairShade } from "./AutoMovieHumanHairShade";
@@ -72,7 +72,7 @@ export namespace AutoMovieHumanEyelash {
     scale: number,
     seed: number,
     side: "left" | "right",
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
+    diagnostics: AutoMovieLoftContract.IDiagnostic[],
   ): IAutoMovieMesh | null {
     try {
       return generate(lid, lash, scale, seed);

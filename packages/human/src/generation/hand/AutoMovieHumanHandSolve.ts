@@ -1,4 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import type { IAutoMovieHumanHandFinger } from "./IAutoMovieHumanHandFinger";
 import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
 import type { IAutoMovieHumanHandJoints } from "./IAutoMovieHumanHandJoints";
@@ -65,7 +65,7 @@ export namespace AutoMovieHumanHandSolve {
     wristTape: number,
     makeArm: (measures: IAutoMovieHumanHandScales) => A,
     targets?: { breadth: number; girth: number },
-    diagnostics?: AutoMovieHumanLoftContract.IDiagnostic[],
+    diagnostics?: AutoMovieLoftContract.IDiagnostic[],
   ): ISolved<A> {
     const widest: number = Math.max(
       ...hand.palmRings.map((r: readonly Vec3[]): number =>

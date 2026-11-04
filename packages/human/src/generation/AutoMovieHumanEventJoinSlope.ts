@@ -1,8 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { AutoMovieHumanLoftFrame } from "../lofting/AutoMovieHumanLoftFrame";
+import { AutoMovieLoftChain, type AutoMovieLoftFrame, AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanSeam } from "../lofting/AutoMovieHumanSeam";
-import { AutoMovieHumanSplineCurve } from "../lofting/AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanEventJoinPlace } from "./AutoMovieHumanEventJoinPlace";
 import { AutoMovieHumanEventJoinRing } from "./AutoMovieHumanEventJoinRing";
 import { AutoMovieHumanEventJoinVector } from "./AutoMovieHumanEventJoinVector";
@@ -28,12 +25,12 @@ export namespace AutoMovieHumanEventJoinSlope {
 
   /** Child chain with its end layer at the event re-sloped. */
   export function slope(
-    parent: IAutoMovieHumanLoftChain,
+    parent: IAutoMovieLoftChain,
     ring: IRing,
-    child: IAutoMovieHumanLoftChain,
+    child: IAutoMovieLoftChain,
     direction: "down" | "up",
     fillet: number,
-  ): IAutoMovieHumanLoftChain {
+  ): IAutoMovieLoftChain {
     const sp: number = ring.sp;
     const k: number = direction === "down" ? child.layers.length - 1 : 0;
     const sc: number = child.layers[k]!.y;
@@ -41,16 +38,16 @@ export namespace AutoMovieHumanEventJoinSlope {
     // In-plane slope changes at uniform child phases, 4 per control point.
     const N: number = child.order;
     const Q: number = 4 * N;
-    const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(
+    const f: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(
       child,
       sc,
     );
     const normal: Vec3 = cross(f.v, f.u);
-    const c: number[] = AutoMovieHumanLoftChain.coefficients(child, sc);
+    const c: number[] = AutoMovieLoftChain.coefficients(child, sc);
     const h: number = 0.02;
     const inward: number = direction === "down" ? -1 : 1;
     const previous: number = child.layers[k + inward]!.y;
-    const inner: Vec3[] = AutoMovieHumanLoftChain.ring(
+    const inner: Vec3[] = AutoMovieLoftChain.ring(
       child,
       previous,
       Array.from(
@@ -58,19 +55,19 @@ export namespace AutoMovieHumanEventJoinSlope {
         (_: unknown, i: number): number => (2 * Math.PI * i) / Q,
       ),
     );
-    const onParent: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    const onParent: (t: number) => Vec3 = AutoMovieLoftChain.sampler(
       parent,
       sp,
     );
-    const insideParent: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    const insideParent: (t: number) => Vec3 = AutoMovieLoftChain.sampler(
       parent,
       sp - inward * h,
     );
-    const onChild: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    const onChild: (t: number) => Vec3 = AutoMovieLoftChain.sampler(
       child,
       sc,
     );
-    const insideChild: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(
+    const insideChild: (t: number) => Vec3 = AutoMovieLoftChain.sampler(
       child,
       sc + inward * h,
     );
@@ -95,7 +92,7 @@ export namespace AutoMovieHumanEventJoinSlope {
     let last: number | undefined;
     for (let i: number = 0; i < Q; i++) {
       const t: number = (2 * Math.PI * i) / Q;
-      const s: [number, number, number, number] = AutoMovieHumanLoftChain.section(
+      const s: [number, number, number, number] = AutoMovieLoftChain.section(
         child,
         c,
         t,
@@ -146,9 +143,9 @@ export namespace AutoMovieHumanEventJoinSlope {
       samples.push([dot(delta, f.u), dot(delta, f.v)]);
       spread.push(scale(m, Math.max(-most, Math.min(most, alpha))));
     }
-    const change: number[] = AutoMovieHumanSplineCurve.project(samples, N);
+    const change: number[] = AutoMovieSplineCurve.project(samples, N);
 
-    const layers: IAutoMovieHumanLoftChain.ILayer[] = [...child.layers];
+    const layers: IAutoMovieLoftChain.ILayer[] = [...child.layers];
     layers[k] = {
       ...layers[k]!,
       slopes: layers[k]!.slopes.map(
@@ -156,24 +153,24 @@ export namespace AutoMovieHumanEventJoinSlope {
       ),
     };
     child.layers.forEach(
-      (layer: IAutoMovieHumanLoftChain.ILayer, j: number): void => {
+      (layer: IAutoMovieLoftChain.ILayer, j: number): void => {
         const sigma: number = Math.abs(layer.y - sc);
         if (j === k || sigma >= reach) return;
         const x: number = sigma / reach;
         const lean: number = sigma * (1 - x) ** 2;
         const rate: number = inward * (1 - x) * (1 - 3 * x);
-        const g: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(
+        const g: AutoMovieLoftFrame.IFrame = AutoMovieLoftChain.frame(
           child,
           layer.y,
         );
-        const moved: number[] = AutoMovieHumanSplineCurve.project(
+        const moved: number[] = AutoMovieSplineCurve.project(
           spread.map((d: Vec3): [number, number] => [
             lean * dot(d, g.u),
             lean * dot(d, g.v),
           ]),
           N,
         );
-        const turned: number[] = AutoMovieHumanSplineCurve.project(
+        const turned: number[] = AutoMovieSplineCurve.project(
           spread.map((d: Vec3): [number, number] => [
             rate * dot(d, g.u),
             rate * dot(d, g.v),

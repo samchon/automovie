@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanBodyRoots } from "./AutoMovieHumanBodyRoots";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
@@ -20,7 +19,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
    */
   export function pole(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     end: "top" | "bottom",
     ring: number[],
   ): void {
@@ -30,7 +29,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
     const point: [number, number, number] =
       (target.pole?.end === end ? target.pole.point : undefined) ??
       calibrated?.point ??
-      AutoMovieHumanLoftChain.axis(target, y);
+      AutoMovieLoftChain.axis(target, y);
 
     AutoMovieHumanLoftMesh.group(
       context.mesh,
@@ -173,19 +172,19 @@ export namespace AutoMovieHumanBodySurfacePoles {
    */
   export function domeBase(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     end: "top" | "bottom",
   ): number | null {
     const calibrated: IAutoMovieHumanBodyCalibration.IPole | undefined =
       context.poles.get(target.name + ":" + end);
     if (calibrated?.critical !== true) return null;
-    const layers: readonly IAutoMovieHumanLoftChain.ILayer[] = target.layers;
+    const layers: readonly IAutoMovieLoftChain.ILayer[] = target.layers;
     const probes: number[] = Array.from(
       { length: 32 },
       (_: unknown, i: number): number => (2 * Math.PI * i) / 32,
     );
     const measure = (y: number): [number, [number, number, number]] => {
-      const ring: [number, number, number][] = AutoMovieHumanLoftChain.ring(
+      const ring: [number, number, number][] = AutoMovieLoftChain.ring(
         target,
         y,
         probes,
@@ -206,7 +205,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
       return [radius, c];
     };
     const radii: number[] = layers.map(
-      (l: IAutoMovieHumanLoftChain.ILayer): number => measure(l.y)[0],
+      (l: IAutoMovieLoftChain.ILayer): number => measure(l.y)[0],
     );
     const sorted: number[] = [...radii].sort(
       (a: number, b: number): number => a - b,
@@ -279,7 +278,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
    */
   export function cells(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     lower: readonly number[],
     upper: readonly number[],
     s0: number,
@@ -320,7 +319,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
    */
   export function zipped(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     lower: readonly number[],
     lowerPhases: readonly number[],
     upper: readonly number[],
@@ -363,7 +362,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
    */
   function holing(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
   ): ((corners: readonly [number, number][]) => string | null) | null {
     const roots = context.roots.get(target.name);
     if (roots === undefined) return null;
@@ -387,7 +386,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
   /** Record a left-out cell in its hole, with its corners' chart points and chain. */
   function leave(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     key: string,
     vertices: readonly number[],
     corners: readonly [number, number][],
@@ -407,7 +406,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
   /** Resolved boundary of a chain end; ends without an event are poles. */
   export function boundary(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     end: "bottom" | "top",
   ): IBoundary {
     const resolved: IBoundary | undefined = context.boundaries.get(

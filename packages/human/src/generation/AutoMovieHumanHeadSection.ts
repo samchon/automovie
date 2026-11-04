@@ -1,4 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanHeadBackProfile } from "./AutoMovieHumanHeadBackProfile";
 import { AutoMovieHumanHeadFaceBoundary } from "./AutoMovieHumanHeadFaceBoundary";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
@@ -28,7 +28,7 @@ export namespace AutoMovieHumanHeadSection {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const t: number = Math.min(
       4,
-      Math.max(0, AutoMovieHumanNaturalSpline.evaluate(plan.station, s)),
+      Math.max(0, AutoMovieNaturalSpline.evaluate(plan.station, s)),
     );
     const tilt: number = tiltOf(compiled.prior.tilt, t);
     const cos: number = Math.cos(tilt);

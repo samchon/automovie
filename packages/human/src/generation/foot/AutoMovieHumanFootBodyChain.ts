@@ -1,6 +1,4 @@
-import type { IAutoMovieHumanRelief } from "../../network/IAutoMovieHumanRelief";
-import { AutoMovieHumanSeamStation } from "../../lofting/AutoMovieHumanSeamStation";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import { type IAutoMovieLoftRelief, AutoMovieSeamStation, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanFootBody } from "./AutoMovieHumanFootBody";
 import { AutoMovieHumanFootReflection } from "./AutoMovieHumanFootReflection";
@@ -19,14 +17,14 @@ export namespace AutoMovieHumanFootBodyChain {
     body: AutoMovieHumanFootBody.IBody,
     name: string,
     sign: 1 | -1,
-    reliefs: IAutoMovieHumanRelief[],
-  ): IAutoMovieHumanLoftChain {
+    reliefs: IAutoMovieLoftRelief[],
+  ): IAutoMovieLoftChain {
     const order: number = AutoMovieHumanFootBody.ORDER;
     const last: number = body.stations.length - 1;
     const sided = (station: number): AutoMovieHumanLimbFrame.ISample =>
       AutoMovieHumanFootReflection.sample(body.sample(station), sign);
-    const layers: IAutoMovieHumanLoftChain.ILayer[] = body.stations.map(
-      (station: number, j: number): IAutoMovieHumanLoftChain.ILayer => {
+    const layers: IAutoMovieLoftChain.ILayer[] = body.stations.map(
+      (station: number, j: number): IAutoMovieLoftChain.ILayer => {
         const here: AutoMovieHumanLimbFrame.ISample = sided(station);
         const lo: number = j === 0 ? station : station - STEP;
         const hi: number = j === last ? station : station + STEP;
@@ -49,7 +47,7 @@ export namespace AutoMovieHumanFootBodyChain {
     // coefficient, lift and plane component the natural spline through its
     // layers, so the hand-over from the yaw fan to the turn fan at the square
     // plane is a C2 change of plane, not a switch.
-    return AutoMovieHumanSeamStation.continuous({ name, basis: "spline", order, samples: order, rule: "arclength", layers, reliefs });
+    return AutoMovieSeamStation.continuous({ name, basis: "spline", order, samples: order, rule: "arclength", layers, reliefs });
   }
 }
 

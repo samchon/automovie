@@ -1,5 +1,4 @@
-import { AutoMovieHumanSplineCurve } from "../../../../../packages/human/src/lofting/AutoMovieHumanSplineCurve";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieSplineCurve, type IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanSurfaceAudit } from "../../internal/audit/HumanSurfaceAudit";
 import { HumanCurveRings } from "../../internal/curves/HumanCurveRings";
 import { HumanAnatomyAudit } from "../../internal/HumanAnatomyAudit";
@@ -18,7 +17,7 @@ type IRow = HumanAnatomyAudit.IRow;
  * 2. The same tube with a ripple 2 mm peak to peak at a 6 mm wavelength fails the ripple row; with one layer doubled in radius 20 mm from its neighbours it fails the step row; with one layer's section wound backwards it fails the fold row; with one layer's plane offset 15 mm sideways it fails the centre-track row.
  * 3. Every person of `HumanPeople`: every chain is read by `HumanSurfaceAudit.rows`, and every failing row is listed by person, chain, phase and place.
  *
- * @evidence contracts/testing.md#behavioral-verification Generates each person through the public body law and reads every delivered chain's points by its own evaluator (`AutoMovieHumanLoftChain.ring`) every 1 mm of station at 48 phases: each meridian, resampled every 1 mm of arc, for its sharpest turn over a 10 mm chord and for alternating turning runs shorter than that chord; each cell of the station-phase grid for its normal's sense against the chain's dominant outward sense; the track of the sections' centres for its sharpest turn over the same chord. It catches a step, rim or groove across a part, a rippled or banded meridian, and a surface turned over on itself; a smooth tube of any girth profile passes.
+ * @evidence contracts/testing.md#behavioral-verification Generates each person through the public body law and reads every delivered chain's points by its own evaluator (`AutoMovieLoftChain.ring`) every 1 mm of station at 48 phases: each meridian, resampled every 1 mm of arc, for its sharpest turn over a 10 mm chord and for alternating turning runs shorter than that chord; each cell of the station-phase grid for its normal's sense against the chain's dominant outward sense; the track of the sections' centres for its sharpest turn over the same chord. It catches a step, rim or groove across a part, a rippled or banded meridian, and a surface turned over on itself; a smooth tube of any girth profile passes.
  * @evidence contracts/testing.md#independent-expectations The bounds are the catalog's definitions, not this construction's values: the crease bound (`HumanAnatomyShared.CREASE`, the sagitta over a 10 mm chord past the 12.5 mm radius' 1.04 mm, at most 1 mm); a ripple is an alternation of turning sense within that 10 mm chord, the shortest feature the catalog resolves, each run turning past the class A 0.1 degree; a closed tube's cells all face one way. Proven on made tubes: the smooth swelling's least radius of meridian curvature is far above 7 mm; the ripple's runs are 3 mm long; the doubled layer turns its meridian at a radius of a few millimetres; the reversed ring's cells face inward; the offset layer tents the centre track by 15 mm over 20 mm, a turn of about 0.23 /mm. Oracle limits: 48 meridians, so a crease narrower than a 48th of a ring can fall between them; 5 mm at each chain end are left to the seam and cap readers.
  * @evidence contracts/testing.md#distinguishing-cases Positive: the smooth tube. Negative: the ripple, the step and the reversed ring, each on its own row. Self-crossing sections belong to `test_human_audit_sections`; seams and blends to `test_human_audit_seams`; whether a crease is anatomical (a fold at a named site) to the anatomy audit.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_audit_surface`, building its made tubes and generating its people in process on the CPU (body law only) with no renderer, browser or GPU; nothing is cached across tests.
@@ -49,14 +48,14 @@ function proofs(): string[] {
   if (!failing(rippled, "RIB")) out.push("rippled tube: no failing ripple row");
 
   // A layer doubled in radius between neighbours 20 mm away.
-  const stepped: IAutoMovieHumanLoftChain = tube(swell, 20, false);
-  const middle: IAutoMovieHumanLoftChain.ILayer = stepped.layers[2]!;
+  const stepped: IAutoMovieLoftChain = tube(swell, 20, false);
+  const middle: IAutoMovieLoftChain.ILayer = stepped.layers[2]!;
   middle.coefficients = middle.coefficients.map((c: number): number => 2 * c);
   middle.slopes = middle.slopes.map((c: number): number => 2 * c);
   if (!failing(HumanSurfaceAudit.chain("made", stepped, 1), "STEP")) out.push("stepped tube: no failing step row");
 
   // One layer's plane offset 15 mm sideways between neighbours 20 mm away (5 mm stays under the crease bound: the track's smoothstep bends by about 0.08 /mm).
-  const offset: IAutoMovieHumanLoftChain = tube(swell, 20, false);
+  const offset: IAutoMovieLoftChain = tube(swell, 20, false);
   offset.layers[2]!.frame!.origin[0] = 15;
   if (!failing(HumanSurfaceAudit.chain("made", offset, 1), "CUR-4")) out.push("offset layer: no failing centre-track row");
 
@@ -72,15 +71,15 @@ function proofs(): string[] {
  * scaled by `r'(y) / r(y)`. With `reversed`, the middle layer's section runs
  * clockwise.
  */
-function tube(radius: (y: number) => [number, number], spacing: number, reversed: boolean): IAutoMovieHumanLoftChain {
+function tube(radius: (y: number) => [number, number], spacing: number, reversed: boolean): IAutoMovieLoftChain {
   const n: number = 48;
   const count: number = Math.round(100 / spacing);
-  const layers: IAutoMovieHumanLoftChain.ILayer[] = Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieHumanLoftChain.ILayer => {
+  const layers: IAutoMovieLoftChain.ILayer[] = Array.from({ length: count + 1 }, (_: unknown, i: number): IAutoMovieLoftChain.ILayer => {
     const y: number = i * spacing;
     const [r, d]: [number, number] = radius(y);
     const turn: number = reversed && i === Math.floor(count / 2) ? -1 : 1;
     const samples: [number, number][] = Array.from({ length: n }, (_: unknown, m: number): [number, number] => [r * Math.cos((2 * Math.PI * m) / n), turn * r * Math.sin((2 * Math.PI * m) / n)]);
-    const coefficients: number[] = AutoMovieHumanSplineCurve.interpolate(samples);
+    const coefficients: number[] = AutoMovieSplineCurve.interpolate(samples);
     return {
       y,
       frame: { origin: [0, y, 0], u: [1, 0, 0], v: [0, 0, 1] },

@@ -1,5 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { AutoMovieLoftContract, IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLegChain } from "./leg/AutoMovieHumanLegChain";
@@ -80,11 +79,11 @@ export namespace AutoMovieHumanLegConstruction {
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
     // The body law's shared list: a leg records where it degrades.
-    const found: AutoMovieHumanLoftContract.IDiagnostic[] = calibration.diagnostics ?? [];
+    const found: AutoMovieLoftContract.IDiagnostic[] = calibration.diagnostics ?? [];
     return {
       ...calibration,
       chains: calibration.chains.map(
-        (c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain =>
+        (c: IAutoMovieLoftChain): IAutoMovieLoftChain =>
           c.name === "leg.left"
             ? AutoMovieHumanLegChain.of(calibration, "left", inputs, skeleton, found)
             : c.name === "leg.right"
@@ -122,8 +121,8 @@ export namespace AutoMovieHumanLegConstruction {
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
     // The body law's shared list: a leg records where it degrades.
-    const found: AutoMovieHumanLoftContract.IDiagnostic[] = calibration.diagnostics ?? [];
-    const chains: IAutoMovieHumanLoftChain[] = [
+    const found: AutoMovieLoftContract.IDiagnostic[] = calibration.diagnostics ?? [];
+    const chains: IAutoMovieLoftChain[] = [
       AutoMovieHumanLegChain.of(calibration, "right", inputs, skeleton, found),
       AutoMovieHumanLegChain.of(calibration, "left", inputs, skeleton, found),
     ];

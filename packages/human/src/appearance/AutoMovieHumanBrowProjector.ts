@@ -1,6 +1,5 @@
 import type { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * Projection of face-plane points onto the head's lofted skin along the line
@@ -13,14 +12,14 @@ import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftCha
 export class AutoMovieHumanBrowProjector {
   /** Keep the head chains and the calibration-mm face frame. */
   private constructor(
-    private readonly chains: readonly IAutoMovieHumanLoftChain[],
+    private readonly chains: readonly IAutoMovieLoftChain[],
     private readonly g: AutoMovieHumanEyelid.IGlobe,
     private readonly origin: AutoMovieHumanEyelid.Point,
     private readonly temple: AutoMovieHumanEyelid.Point,
   ) {}
 
   /** The last solution per chain, the next point's start. */
-  private readonly last: Map<IAutoMovieHumanLoftChain, [number, number]> = new Map();
+  private readonly last: Map<IAutoMovieLoftChain, [number, number]> = new Map();
 
   /** Largest in-plane miss of a solution, mm. */
   private static readonly MISS: number = 0.05;
@@ -35,13 +34,13 @@ export class AutoMovieHumanBrowProjector {
    * @returns The projector, or null without a head chain
    */
   public static create(
-    chains: readonly IAutoMovieHumanLoftChain[],
+    chains: readonly IAutoMovieLoftChain[],
     g: AutoMovieHumanEyelid.IGlobe,
     origin: AutoMovieHumanEyelid.Point,
     temple: AutoMovieHumanEyelid.Point,
   ): AutoMovieHumanBrowProjector | null {
-    const head: IAutoMovieHumanLoftChain[] = chains.filter(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "head" || c.name.startsWith("head."),
+    const head: IAutoMovieLoftChain[] = chains.filter(
+      (c: IAutoMovieLoftChain): boolean => c.name === "head" || c.name.startsWith("head."),
     );
     return head.length === 0 ? null : new AutoMovieHumanBrowProjector(head, g, origin, temple);
   }
@@ -65,7 +64,7 @@ export class AutoMovieHumanBrowProjector {
     for (const chain of this.chains) {
       const solved: [number, number] | null = this.solve(chain, a, h);
       if (solved === null) continue;
-      const p: [number, number, number] = AutoMovieHumanLoftChain.point(chain, solved[0], solved[1]);
+      const p: [number, number, number] = AutoMovieLoftChain.point(chain, solved[0], solved[1]);
       const depth: number = dot(p, this.g.forward);
       if (depth <= front) continue;
       front = depth;
@@ -75,12 +74,12 @@ export class AutoMovieHumanBrowProjector {
   }
 
   /** The chain's parameters whose point has the face-plane place `(a, h)`, or null. */
-  private solve(chain: IAutoMovieHumanLoftChain, a: number, h: number): [number, number] | null {
-    const ys: number[] = chain.layers.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y);
+  private solve(chain: IAutoMovieLoftChain, a: number, h: number): [number, number] | null {
+    const ys: number[] = chain.layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
     const lowest: number = Math.min(...ys);
     const highest: number = Math.max(...ys);
     const place: (s: number, t: number) => [number, number, number] = (s: number, t: number): [number, number, number] => {
-      const p: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s, t);
+      const p: [number, number, number] = AutoMovieLoftChain.point(chain, s, t);
       const r: [number, number, number] = [p[0] - this.origin[0], p[1] - this.origin[1], p[2] - this.origin[2]];
       return [dot(r, this.temple), dot(r, this.g.up), dot(p, this.g.forward)];
     };
@@ -139,10 +138,10 @@ export class AutoMovieHumanBrowProjector {
   }
 
   /** The chain's unit normal at its parameters, turned to face forward. */
-  private normal(chain: IAutoMovieHumanLoftChain, s: number, t: number): AutoMovieHumanEyelid.Point {
-    const p: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s, t);
-    const ps: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s + 0.01, t);
-    const pt: [number, number, number] = AutoMovieHumanLoftChain.point(chain, s, t + 1e-4);
+  private normal(chain: IAutoMovieLoftChain, s: number, t: number): AutoMovieHumanEyelid.Point {
+    const p: [number, number, number] = AutoMovieLoftChain.point(chain, s, t);
+    const ps: [number, number, number] = AutoMovieLoftChain.point(chain, s + 0.01, t);
+    const pt: [number, number, number] = AutoMovieLoftChain.point(chain, s, t + 1e-4);
     const ds: number[] = [ps[0] - p[0], ps[1] - p[1], ps[2] - p[2]];
     const dt: number[] = [pt[0] - p[0], pt[1] - p[1], pt[2] - p[2]];
     const n: number[] = [ds[1]! * dt[2]! - ds[2]! * dt[1]!, ds[2]! * dt[0]! - ds[0]! * dt[2]!, ds[0]! * dt[1]! - ds[1]! * dt[0]!];

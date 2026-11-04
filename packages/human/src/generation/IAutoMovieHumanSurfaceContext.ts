@@ -1,5 +1,5 @@
 import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanSurfaceBoundary } from "./IAutoMovieHumanSurfaceBoundary";
@@ -9,7 +9,7 @@ export interface IAutoMovieHumanSurfaceContext {
   /** Skin buffers shared by all chains, in calibration millimetres. */
   mesh: AutoMovieHumanLoftMesh.IContext;
   /** Calibration chains indexed by their source graph identity. */
-  chains: Map<string, IAutoMovieHumanLoftChain>;
+  chains: Map<string, IAutoMovieLoftChain>;
   /** Parent/child contact events. */
   events: IAutoMovieHumanBodyCalibration.IEvent[];
   /** Calibrated poles indexed by chain name and end. */

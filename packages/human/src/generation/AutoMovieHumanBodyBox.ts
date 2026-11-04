@@ -1,4 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 
 /**
@@ -132,11 +132,11 @@ export namespace AutoMovieHumanBodyBox {
    * @param measures A person's resolved measures.
    * @returns The contradictions, producer `human.inputs`, level 1.
    */
-  export function diagnose(measures: IAutoMovieHumanBodyMeasures): AutoMovieHumanLoftContract.IDiagnostic[] {
+  export function diagnose(measures: IAutoMovieHumanBodyMeasures): AutoMovieLoftContract.IDiagnostic[] {
     return of(measures)
       .filter((b: IBox): boolean => !(b.girth >= b.rhombus - ROUNDING && b.girth <= b.box + ROUNDING))
       .map(
-        (b: IBox): AutoMovieHumanLoftContract.IDiagnostic => ({
+        (b: IBox): AutoMovieLoftContract.IDiagnostic => ({
           producer: "human.inputs",
           level: 1,
           contract: `the ${b.level} girth lies inside its breadth and depth's box`,

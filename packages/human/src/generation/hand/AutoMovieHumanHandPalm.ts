@@ -1,6 +1,5 @@
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
+import type { AutoMovieLoftFrame, IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
@@ -22,7 +21,7 @@ export namespace AutoMovieHumanHandPalm {
     map: (q: readonly [number, number, number]) => Vec3,
     side: "left" | "right",
     sign: 1 | -1,
-  ): IAutoMovieHumanLoftChain {
+  ): IAutoMovieLoftChain {
     const prior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
     const along: Vec3 = [...prior.along];
     const normal: Vec3 = scale(along, -1);
@@ -34,7 +33,7 @@ export namespace AutoMovieHumanHandPalm {
       (ring: readonly Vec3[]): AutoMovieHumanLimbFrame.ISample => {
         const points: Vec3[] = AutoMovieHumanPalmRelief.ring(hand.digits, ring, start).map((q: Vec3): Vec3 => map(q));
         const c: Vec3 = [mean(points, 0), mean(points, 1), mean(points, 2)];
-        const frame: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLimbFrame.frame(
+        const frame: AutoMovieLoftFrame.IFrame = AutoMovieHumanLimbFrame.frame(
           c,
           normal,
           [...prior.through],

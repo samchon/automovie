@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanNeckSurfaceSampling } from "./AutoMovieHumanNeckSurfaceSampling";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -214,8 +213,8 @@ export namespace AutoMovieHumanNeckSurface {
     if (!(Number.isFinite(scale) && scale > 0))
       throw new Error("Neck exterior requires a positive physical scale");
 
-    const upper: IAutoMovieHumanLoftChain | undefined = body.chains.find(
-      (chain: IAutoMovieHumanLoftChain): boolean => chain.name === "upper",
+    const upper: IAutoMovieLoftChain | undefined = body.chains.find(
+      (chain: IAutoMovieLoftChain): boolean => chain.name === "upper",
     );
     if (upper === undefined)
       throw new Error("Neck exterior requires the shoulder envelope");
@@ -233,7 +232,7 @@ export namespace AutoMovieHumanNeckSurface {
       (_: unknown, i: number): number => (2 * Math.PI * i) / 8,
     );
     const lowerStation: number = upper.layers[upper.layers.length - 1]!.y;
-    const lowerHeight: number = AutoMovieHumanLoftChain.axis(
+    const lowerHeight: number = AutoMovieLoftChain.axis(
       upper,
       lowerStation,
     )[1];
@@ -245,8 +244,8 @@ export namespace AutoMovieHumanNeckSurface {
       scale,
     );
 
-    const chains: IAutoMovieHumanLoftChain[] = body.chains.filter(
-      (chain: IAutoMovieHumanLoftChain): boolean =>
+    const chains: IAutoMovieLoftChain[] = body.chains.filter(
+      (chain: IAutoMovieLoftChain): boolean =>
         chain.name === "head" || chain.name === "head.lower",
     );
     const length: number = publicLengthMm / 1000 / scale;
@@ -300,8 +299,8 @@ export namespace AutoMovieHumanNeckSurface {
         "Head exterior display requires its source crown above the neck",
       );
 
-    const headChains: IAutoMovieHumanLoftChain[] = body.chains.filter(
-      (chain: IAutoMovieHumanLoftChain): boolean =>
+    const headChains: IAutoMovieLoftChain[] = body.chains.filter(
+      (chain: IAutoMovieLoftChain): boolean =>
         ["head", "head.lower", "head.middle", "head.upper"].includes(
           chain.name,
         ),
@@ -358,7 +357,7 @@ export namespace AutoMovieHumanNeckSurface {
  */
 interface ICourse {
   /** Actual chain owning the address. */
-  chain: IAutoMovieHumanLoftChain;
+  chain: IAutoMovieLoftChain;
 
   /** Source material station in calibration mm. */
   station: number;
@@ -379,12 +378,12 @@ interface ICourse {
  * @evidence contracts/performance.md#bound-retention-and-release-resources Root references remain in the local array until return or throw; no chain reference enters the returned display descriptor.
  */
 function course(
-  chains: readonly IAutoMovieHumanLoftChain[],
+  chains: readonly IAutoMovieLoftChain[],
   height: number,
 ): ICourse {
   const roots: ICourse[] = [];
-  const add: (chain: IAutoMovieHumanLoftChain, station: number) => void = (
-    chain: IAutoMovieHumanLoftChain,
+  const add: (chain: IAutoMovieLoftChain, station: number) => void = (
+    chain: IAutoMovieLoftChain,
     station: number,
   ): void => {
     if (
@@ -400,8 +399,8 @@ function course(
     for (let i: number = 1; i < chain.layers.length; ++i) {
       let lo: number = chain.layers[i - 1]!.y;
       let hi: number = chain.layers[i]!.y;
-      let a: number = AutoMovieHumanLoftChain.axis(chain, lo)[1] - height;
-      const b: number = AutoMovieHumanLoftChain.axis(chain, hi)[1] - height;
+      let a: number = AutoMovieLoftChain.axis(chain, lo)[1] - height;
+      const b: number = AutoMovieLoftChain.axis(chain, hi)[1] - height;
       if (Math.abs(a) <= 1e-6) add(chain, lo);
       if (Math.abs(b) <= 1e-6) add(chain, hi);
       if (Math.abs(a) <= 1e-6 || Math.abs(b) <= 1e-6 || a * b >= 0) continue;
@@ -410,7 +409,7 @@ function course(
       for (let iteration: number = 0; iteration < 64; ++iteration) {
         const mid: number = (lo + hi) / 2;
         const value: number =
-          AutoMovieHumanLoftChain.axis(chain, mid)[1] - height;
+          AutoMovieLoftChain.axis(chain, mid)[1] - height;
         if (Math.abs(value) <= 1e-6 || hi - lo <= 1e-6) {
           hi = mid;
           lo = mid;

@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanAnatomyShared } from "../HumanAnatomyShared";
 
@@ -52,17 +51,17 @@ export namespace HumanSurfaceAudit {
 
   /** Every surface-health row of every chain of a body. */
   export function rows(person: string, body: IAutoMovieHumanBodyCalibration, k: number): IRow[] {
-    return body.chains.flatMap((c: IAutoMovieHumanLoftChain): IRow[] => chain(person, c, k));
+    return body.chains.flatMap((c: IAutoMovieLoftChain): IRow[] => chain(person, c, k));
   }
 
   /** The surface-health rows of one chain. */
-  export function chain(person: string, c: IAutoMovieHumanLoftChain, k: number): IRow[] {
+  export function chain(person: string, c: IAutoMovieLoftChain, k: number): IRow[] {
     const first: number = c.layers[0]!.y;
     const last: number = c.layers[c.layers.length - 1]!.y;
     const count: number = Math.max(2, Math.round(((last - first) * k) / 1));
     const stations: number[] = Array.from({ length: count + 1 }, (_: unknown, i: number): number => first + ((last - first) * i) / count);
     const phases: number[] = Array.from({ length: MERIDIANS }, (_: unknown, m: number): number => (2 * Math.PI * m) / MERIDIANS);
-    const rings: V3[][] = stations.map((s: number): V3[] => AutoMovieHumanLoftChain.ring(c, s, phases).map((p: [number, number, number]): V3 => [p[0] * k, p[1] * k, p[2] * k]));
+    const rings: V3[][] = stations.map((s: number): V3[] => AutoMovieLoftChain.ring(c, s, phases).map((p: [number, number, number]): V3 => [p[0] * k, p[1] * k, p[2] * k]));
 
     let step: [number, string] = [0, "none"];
     let ripple: [number, string] = [0, "none"];

@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLimbRootStrip } from "../AutoMovieHumanLimbRootStrip";
 import { AutoMovieHumanHandSide } from "../hand/AutoMovieHumanHandSide";
@@ -59,8 +58,8 @@ export namespace AutoMovieHumanArmScye {
    */
   export function of(calibration: IAutoMovieHumanBodyCalibration, side: "left" | "right"): IRing {
     const sign: 1 | -1 = side === "left" ? 1 : -1;
-    const upper: IAutoMovieHumanLoftChain | undefined = calibration.chains.find(
-      (c: IAutoMovieHumanLoftChain): boolean => c.name === "upper",
+    const upper: IAutoMovieLoftChain | undefined = calibration.chains.find(
+      (c: IAutoMovieLoftChain): boolean => c.name === "upper",
     );
     const event: IAutoMovieHumanBodyCalibration.IEvent | undefined = calibration.events.find(
       (e: IAutoMovieHumanBodyCalibration.IEvent): boolean => e.parent === "upper" && e.direction === "down",
@@ -82,7 +81,7 @@ export namespace AutoMovieHumanArmScye {
     const row: (run: number) => Vec3[] = (run: number): Vec3[] => {
       let found: Vec3[] | undefined = rows.get(run);
       if (found === undefined)
-        rows.set(run, (found = AutoMovieHumanLoftChain.ring(upper, bottom - run, phases).map((p: Vec3): Vec3 => sided(p, sign))));
+        rows.set(run, (found = AutoMovieLoftChain.ring(upper, bottom - run, phases).map((p: Vec3): Vec3 => sided(p, sign))));
       return found;
     };
     const jets: AutoMovieHumanLimbRootStrip.IJet[] = phases.map(

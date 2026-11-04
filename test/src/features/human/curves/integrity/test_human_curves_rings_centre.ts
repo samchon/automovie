@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanLoftChain } from "../../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanCurveCentreTrack } from "../../../internal/curves/HumanCurveCentreTrack";
 import { HumanCurveRings } from "../../../internal/curves/HumanCurveRings";
 import type { HumanAnatomy } from "../../../internal/HumanAnatomy";
@@ -52,7 +52,7 @@ export function test_human_curves_rings_centre(): void {
   for (const name of HumanPeople.names()) {
     try {
       const p: HumanPeople.IPerson = HumanPeople.person(name);
-      const chains: string[] = p.body.chains.map((c: IAutoMovieHumanLoftChain): string => c.name);
+      const chains: string[] = p.body.chains.map((c: IAutoMovieLoftChain): string => c.name);
       for (const r of HumanCurveCentreTrack.rows(name, chains, (chain: string): HumanCurveRings.IProfile => HumanCurveRings.profile(p, chain)))
         if (!HumanAnatomyAudit.passes(r)) failures.push(`${r.person.padEnd(14)} ${r.site}: ${r.value.toFixed(2)} mm over ${r.high}`);
     } catch (error) {

@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
@@ -155,7 +155,7 @@ export namespace AutoMovieHumanArmConstruction {
   /** One side's chains, poles and bone landmarks. */
   interface ILimb {
     /** The arm's, palm's and digits' chains. */
-    chains: IAutoMovieHumanLoftChain[];
+    chains: IAutoMovieLoftChain[];
 
     /** The digits' poles. */
     poles: IAutoMovieHumanBodyCalibration.IPole[];
@@ -186,7 +186,7 @@ export namespace AutoMovieHumanArmConstruction {
 
     return {
       ...calibration,
-      chains: [...calibration.chains, ...limbs.flatMap((l: ILimb): IAutoMovieHumanLoftChain[] => l.chains)],
+      chains: [...calibration.chains, ...limbs.flatMap((l: ILimb): IAutoMovieLoftChain[] => l.chains)],
       events: [...calibration.events, ...events()],
       poles: [...calibration.poles, ...limbs.flatMap((l: ILimb): IAutoMovieHumanBodyCalibration.IPole[] => l.poles)],
       nails: [...(calibration.nails ?? []), ...limbs.flatMap((l: ILimb): IAutoMovieHumanBodyCalibration.INail[] => l.nails)],

@@ -1,6 +1,4 @@
-﻿import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+﻿import type { AutoMovieLoftContract, IAutoMovieLoftChain, IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanBreastProfile } from "./AutoMovieHumanBreastProfile";
 import { AutoMovieHumanShoulderCap } from "./AutoMovieHumanShoulderCap";
 import { AutoMovieHumanShoulderLine } from "./AutoMovieHumanShoulderLine";
@@ -45,7 +43,7 @@ export namespace AutoMovieHumanTrunkSolver {
     crotch: number;
 
     /** The neck chain, named `head`. */
-    neck: IAutoMovieHumanLoftChain;
+    neck: IAutoMovieLoftChain;
 
     /** The thigh tape, mm, for the groin width; absent, the references' median ratio is used. */
     thigh?: number;
@@ -183,8 +181,8 @@ export namespace AutoMovieHumanTrunkSolver {
     const col: AutoMovieHumanTrunkColumn.IColumn = AutoMovieHumanTrunkKeys.column(ctx, st);
     const h: AutoMovieHumanTrunkKeys.Heights = AutoMovieHumanTrunkKeys.heights(ctx, st);
     const where: AutoMovieHumanTrunkFeatures.ISites = AutoMovieHumanTrunkKeys.sites(ctx, st, col);
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [];
-    const reliefs: IAutoMovieHumanRelief[] = AutoMovieHumanTrunkFeatures.all(col, where, diagnostics);
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+    const reliefs: IAutoMovieLoftRelief[] = AutoMovieHumanTrunkFeatures.all(col, where, diagnostics);
     const shoulder: [number, number, number] = [
       AutoMovieHumanTrunkShapes.SHOULDER.middle * ctx.fixed.stature,
       ctx.shoulderY,

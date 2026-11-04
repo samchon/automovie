@@ -5,7 +5,7 @@ import { AutoMovieHumanTrunkFixed } from "../../../src/generation/AutoMovieHuman
 import { AutoMovieHumanTrunkQuadrant } from "../../../src/generation/AutoMovieHumanTrunkQuadrant";
 import { AutoMovieHumanTrunkSolver } from "../../../src/generation/AutoMovieHumanTrunkSolver";
 import type { IAutoMovieHumanTrunkSolution } from "../../../src/generation/IAutoMovieHumanTrunkSolution";
-import type { IAutoMovieHumanLoftChain } from "../../../src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IHumanDebugPerson } from "../../people/IHumanDebugPerson";
 
 /**
@@ -29,7 +29,7 @@ export namespace HumanDebugTrunkKit {
     solution: IAutoMovieHumanTrunkSolution;
 
     /** The chains `trunk` (crotch to axilla vault) and `upper` (vault to the neck's ring). */
-    chains: [IAutoMovieHumanLoftChain, IAutoMovieHumanLoftChain];
+    chains: [IAutoMovieLoftChain, IAutoMovieLoftChain];
 
     /** Milliseconds the solve and the chains took. */
     milliseconds: number;
@@ -63,7 +63,7 @@ export namespace HumanDebugTrunkKit {
     const started: number = performance.now();
     const fixed: AutoMovieHumanTrunkSolver.IFixed = AutoMovieHumanTrunkFixed.of(person.parameters);
     const solution: IAutoMovieHumanTrunkSolution = AutoMovieHumanTrunkSolver.solve(fixed);
-    const chains: [IAutoMovieHumanLoftChain, IAutoMovieHumanLoftChain] = AutoMovieHumanTrunkChains.build(solution, {
+    const chains: [IAutoMovieLoftChain, IAutoMovieLoftChain] = AutoMovieHumanTrunkChains.build(solution, {
       samples: 2 * AutoMovieHumanTrunkQuadrant.ORDER,
       rule: "sagittal",
     });

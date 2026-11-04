@@ -1,5 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
+import type { AutoMovieLoftContract, AutoMovieLoftFrame } from "@automovie/engine";
 import type { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanFootArc } from "./AutoMovieHumanFootArc";
 import { AutoMovieHumanFootFan } from "./AutoMovieHumanFootFan";
@@ -57,7 +56,7 @@ export namespace AutoMovieHumanFootBody {
     guides: IGuides;
 
     /** The list a degraded section records into; a part viewer may leave it out. */
-    diagnostics?: AutoMovieHumanLoftContract.IDiagnostic[];
+    diagnostics?: AutoMovieLoftContract.IDiagnostic[];
 
     /** The producer named in a diagnostic, such as `foot.left`. */
     producer?: string;
@@ -87,7 +86,7 @@ export namespace AutoMovieHumanFootBody {
     ring: Vec3[];
 
     /** The section's plane. */
-    frame: AutoMovieHumanLoftFrame.IFrame;
+    frame: AutoMovieLoftFrame.IFrame;
 
     /** Phases on the upper and lower boundaries where the across coordinate is `v`. */
     pinches: (v: number) => { dorsal: number; plantar: number };
@@ -112,7 +111,7 @@ export namespace AutoMovieHumanFootBody {
     const corner: number = AutoMovieHumanFootHeelCorner.height(input.frame);
 
     // A broken contract degrades and is recorded once per kind and place.
-    const sink: AutoMovieHumanLoftContract.IDiagnostic[] = input.diagnostics ?? [];
+    const sink: AutoMovieLoftContract.IDiagnostic[] = input.diagnostics ?? [];
     const recorded: Set<string> = new Set();
     const record = (contract: string, detail: string): void => {
       if (recorded.has(detail)) return;
@@ -122,7 +121,7 @@ export namespace AutoMovieHumanFootBody {
 
     // The section at a station, or why its premise fails there.
     const attempt = (station: number, force: boolean): ISection | string => {
-      const frame: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
+      const frame: AutoMovieLoftFrame.IFrame = AutoMovieHumanFootFan.plane(line, station);
       const local = (p: Vec3): Vec2 => {
         const r: Vec3 = G.sub(p, line.origin);
 
