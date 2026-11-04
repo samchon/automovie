@@ -120,3 +120,62 @@ Engine plan: the kernel moves to `packages/engine/src/geometry/construction` und
 - Violation, 18:18 audit: the split saved `AutoMovieConstructionState.ts` and `AutoMovieConstructionRing.ts` without JSDoc on their exported properties, and both collectors read red (22 errors) until 18:21. Correction: every property documented, both collectors confirmed complete (test 6:21:31, debug 6:20:38) before the commit; from here a new file is saved complete with its JSDoc.
 - `5e7039cdd`: the rail solves' residual is a share of the chord plus the coordinates' magnitude, and the clip's side test a share of the rail's spacing (the philtrum and upper lip "no rail" lines).
 - Open: `AutoMovieSolidIntersection.ts` (748 lines) and `AutoMovieSolidMesh.ts` (519) exceed the file limit since the move; the evidence tags on the moved kernel; the operator tests' move.
+
+### Core tests and coverage (owner's order: the core owns every construction test; written 19:25, `date`)
+
+Runs, one `pnpm test -- --include construction_` each: 19:00:38 12 of 23 passed; 19:08:53 to 19:12:51 16 of 23 passed. Fixes between and after them, each committed and pushed:
+
+| Finding (run) | Cause | Fix |
+|---|---|---|
+| view_touch: guides 6.3e-9 of the radius off the box | the periodic interpolation filter stopped at 14 neighbours | 32 neighbours, `24558d62a`; passes |
+| girth reach inverted (1373 mm on a 60 by 40 box); chain, girth, view_girth | guides at equal steps of the conic's parameter put a near-straight quarter's whole turn inside its first span, the quintic dived | guides at equal polar angle plus tangent turn, `1c04200b6`; chain and girth pass |
+| view_girth: tape 0.07 mm under the girth | the length's panels crossed knots where the radius is only C2 | Gauss-Legendre per knot span, `2bed42207` (not yet run) |
+| view_section point curvature (115, then 42) | test: the reader stepped past the first knot span, then a Richardson remainder at 1e-3 rad | steps of a sixteenth of the span, at most 2.5e-4 rad, rounding bound, `6feb3f69e`, `7d73a42b4` |
+| diagnostics: transversal contact, chord of zero | test cases | the tester's planned cases, `6feb3f69e`; passes |
+| landmark foot past the face accepted | kernel: no domain check on a trim's feet | `landmark foot` diagnostic, `24558d62a` |
+| merge seam 7.6e-7 m off the cylinders | test: lofted sections are 16-point cubic splines | seam within `sectionSpline(R, 16)`, `7d73a42b4` (not yet run) |
+| determinism scaled indices | passed at 19:08 after the guide and gap changes | none needed |
+
+Open after the 19:08 run (kernel unless stated):
+1. operator body and the head's `blend.lip.lower`: "the host rail's crossing between two faces could not be placed" (`AutoMovieSolidClip.rail`); `AutoMovieSolidBody.merge` is not atomic, so the failed merge leaves its blend face and the skin draws rings twice. Next: probe `join.rail` at the bisection's midpoints on the body test's second merge.
+2. merge spec: `join.rail(t)` null for traced t in [pi, 2 pi) although the join was created; host rail normals 1e-5 to 8e-5 rad off the blend's. Next: compare `curve.at(t)` with the traced point at the same t.
+3. trim spec: the loop's knots 0.83 to 1.16 mm from the closed-form feet, growing with phase about 7.7 mm per rad, zero at phase 0. Next: read `trim.feet[m]` against the closed form and `at(2 pi m / M)` against `feet[m]` separately.
+4. view_pole and the diff's cutter: the skin 1.08e-4 m off the ellipsoid against a bound of 1.44e-5 m; suspect the chain's station interpolation near the pole, where the radius goes as the root of the distance. Next: report the worst vertex's station and phase.
+5. diff spec seam: the cutter sphere 2e-5 m off; the same as 4 plus the section spline's bound (test).
+6. Engine evidence check: 244 namespace-member hosts in the moved kernel lack their seven tags (outside the kernel: none).
+7. `LEAST_LAYER_GAP` stays a millimetre constant: only human producers use it; making it relative changes their contract.
+
+Coverage table (interface and engine construction API against the test that exercises it, with its made red case):
+
+| Row | Test | Red case | State |
+|---|---|---|---|
+| view part, girth fullness | view_girth, operator view_section_girth | girths outside the reach | covered |
+| shoulder fullness | operator view_section (section level) | diagnostics `shoulder` | realize-level positive missing |
+| top fullness | none | none | missing |
+| departures | operator view_section_girth | made falling readings | covered |
+| pole bottom / top / both | view_pole (one ellipsoid) | diagnostics `pole knot` | `both` explicit row missing |
+| straight axis | every spec | turned ellipse | covered |
+| level axis, null origin | operator view_section_chain | none | red case missing |
+| level axis, origin course | none | none | missing |
+| curved axis | operator view_section_chain | none | red case missing |
+| jointed axis, `runs` | none | none | missing |
+| merge, phase parameter | merge, operator merge | wider host, wrong chords | covered |
+| angle parameter | operator merge_angle | phase trace of the same pair | covered |
+| arc parameter | operator intersection | none at realize level | realize-level missing |
+| diff | diff, operator diff | merge of the same pair | covered |
+| point seed / search seed | merge (both) | diagnostics `seed`, `one loop per contact` | covered |
+| chord / station widths | merge, operator merge | wrong chords; station inside the host | covered |
+| chords table | none | none | missing |
+| fold width | none | none | missing |
+| curvature width | none | none | missing |
+| width diagnostics | diagnostics `width` | station on the host, zero chord | covered |
+| continuation | continuation | diagnostics `shared end` | covered |
+| trim | trim, operator trim | shifted feet; `margin landmarks`, `landmark foot` | covered |
+| nesting, any node as root | nesting | none | covered |
+| determinism and scale | determinism | none | covered |
+| admission refusals | diagnostics (4 trees, skin chord 0) | each refused | covered |
+| rollback of a failed join | none | none | missing |
+| pole fan closure, skin | view_pole, operator mesh/body | none | covered with open item 4 |
+| loft stations bisection | indirect (every skin) | none | missing |
+
+Missing rows to write, each with an analytic shape, exact expectations and a made red case: top fullness, both poles, level origin course, jointed axis with its runs, arc parameter through the realization, chords table, fold width, curvature width, rollback of a failed join, loft stations.
