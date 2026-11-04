@@ -105,3 +105,52 @@ Total 48.
 ## Note for the supervisor
 
 The owner's order that agents never run tests themselves (tests only in supervisor windows) appears in no skill, while `human/testing.md` `Running` and the SKILL Order tell the worker to run `pnpm test`. If the order is standing, it is a campaign rule for the brief, not a skill principle; if it is meant to bind every session, its owner is development `Validation`.
+
+Resolved by the coordinator: the order is superseded, and the skills keep only the one-`--include` rule.
+
+## Applied
+
+The coordinator's decisions on the forks: a package's viewer is one shared server (general rule in development, Human route in `human/screenshot.md`); the Human order is build, view curves over the reference, one surface sweep, one findings table, one batch of fixes by cause, confirming tests; the reference deviation is a diagnostic, and shapes come from inputs, published or derived laws and normalized tables aggregated over the reference set; the shared-skill rule moves to prompting. The prompting guide for the current model was read in full before editing.
+
+All 48 rows were applied, one commit per cause:
+
+| Cause | Commit | Files |
+| --- | --- | --- |
+| B, shared viewer, one watch per program, tracked code | `6c351e740` | development `SKILL.md`, `validation.md`; human `workspace.md` |
+| A, the debug viewer in the inspection and captures | `6bb73df07` | human `screenshot.md`, `verification.md` |
+| C, one Human order (with C3, C4, D2, F4, F8 on the same lines) | `9732735f8` | human `SKILL.md`, `verification.md`, `testing.md` |
+| D, one owner per rule | `3f01d0c50` | human `construction.md`, `verification.md`, `testing.md`; 3d-modeling `crafting.md`; scaffold development `testing.md`, `SKILL.md`; template `README.md` |
+| E, shared skills worded for every project | `466918e8d` | prompting, documentation, 3d-modeling `SKILL.md`, `crafting.md`, `modularization.md`, `visual-debugging.md`, `rigging.md`, `research.md`; scaffold skill; scaffold development `SKILL.md`, review `assets.md`, `source.md`, motion `staging.md`, `timeline.md` |
+| F, defined terms in the Human construction and tests | `e2b73e127` | human `construction.md`, `testing.md` |
+
+Two rows were applied differently from the table's proposal, by the author's judgment:
+
+- E7: `research.md` keeps its table of primary sources, because routing a method choice to its primary sources is that guide's whole job and `SKILL.md` routes to it; the table loses its slash pairs, its one version-suffixed label and its negative phrasing. `rigging.md` drops both external links, including the version-pinned Blender manual, and is rewritten without slash pairs or repeated disclaimers.
+- F7: the per-test fixture rule stays and gets its reason (no test reads state another test left or changed) instead of allowing a shared cache.
+
+The scaffold's synced copies were rebuilt with the package's documented `build:instructions` step (`ttsx --no-plugins build/syncScaffoldInstructions.ts`): it synced 4 shared items into `packages/template/lib/skills`, and the copies equal their repository sources.
+
+## Review rounds
+
+Each round read every edited file whole, with its siblings, checked each link and anchor (`#frames`, `#order`, `#curves-against-the-reference`, `#inspection-round`, `#tests` in crafting and validation, `#type-checking`, `#scripts-and-shared-checkouts`, `#authoring-interface`, `#inspect-the-commissioned-use`), and searched the instructions for the retired terms (`verification.md#score`, `#part-view`, `#free-view`, `resident collector`, `shared type check`, `documentation question`, `H2 question`, the retired scaffold `inspection.md` and `workflows.md`).
+
+### Round 1
+
+| # | File | Finding | Fix |
+| --- | --- | --- | --- |
+| R1-1 | `human/verification.md` Inspection Round | Two opening paragraphs restated the same scope and conditions. | Merged into one. |
+| R1-2 | `human/verification.md` step 5 and `human/SKILL.md` Order step 6 | Both recorded the round's lessons in the package documentation. | Step 5 writes the findings table only; the Order owns the record. |
+| R1-3 | `human/testing.md` Levels | The Crafting link and the Human rule ran together in one ungrammatical sentence. | Split into two sentences. |
+| R1-4 | `human/SKILL.md` Order | The sourcing rule omitted the reference-set tables that `verification.md` allows, so the two disagreed. | Added "normalized tables aggregated over the whole reference set". |
+| R1-5 | `development/SKILL.md` | "End every process you start" contradicted the shared viewer and watch that stay running. | Limited to processes started for one result. |
+| R1-6 | `human/screenshot.md` | Restated development's restart rule and said "started" twice. | States the Human route and queue only. |
+| R1-7 | `human/screenshot.md` | The skill's "type-check watch" had no mapping to the debug README's "compile collector". | Names the README's term once. |
+| R1-8 | scaffold `development/SKILL.md` | The added doc-comment clause broke the list item's grammar. | Rewritten as three parallel verbs. |
+
+Committed as `e4db3fb8d`.
+
+### Round 2
+
+Read again: development `SKILL.md`, `validation.md`; human `SKILL.md`, `construction.md`, `screenshot.md`, `testing.md`, `verification.md`, `workspace.md`; prompting; documentation; 3d-modeling `SKILL.md`, `crafting.md`, `modularization.md`, `visual-debugging.md`, `rigging.md`, `research.md`; scaffold skill; scaffold development `SKILL.md`, `testing.md`, review `assets.md`, `source.md`, motion `staging.md`, `timeline.md`; template `README.md`. Every link and anchor resolves, the retired-term search returns only the debug README's own wording (outside this scope), and the remaining "never" clauses each name a concrete pattern with its reason. No findings.
+
+Out of scope and left as is: `packages/human/debug/README.md` still says "compile collector"; another agent has uncommitted changes in it.
