@@ -50,6 +50,15 @@ export namespace HumanAnatomyTable {
 
     /** The distal segment's sections at its middle and distal joints, each its polygon in its plane and the joint there, input mm. */
     sections: { ring: P2[]; joint: P2; label: string }[];
+
+    /**
+     * A shank's frontal contours over the calf's span, 0.1 to 0.6 of the way
+     * from the knee joint to the ankle joint: at each 2 mm station its share
+     * of that way and its section's greatest reach across the body from the
+     * joint axis, toward the midline (medial) and away from it (lateral),
+     * input mm. Absent on an arm.
+     */
+    contours?: { share: number[]; medial: number[]; lateral: number[] };
   }
 
   /** One relation of the table. */
@@ -121,6 +130,17 @@ export namespace HumanAnatomyTable {
       id: "BONE-inside",
       source: "the bone inside its skin (testing skill, anatomical facts): the middle and distal joint centres lie inside the limb's section at their stations",
       read: (person: string, l: ILimb): IRow[] => l.sections.map((s: { ring: P2[]; joint: P2; label: string }): IRow => row(person, l, `${s.label} joint centre outside its section`, inside(s.ring, s.joint) ? 0 : 1, 0, 0, "")),
+    },
+    {
+      id: "OBS-LG-1",
+      source: "the gastrocnemius' medial head is the larger, its fibres extending lower than the lateral's, and the medial border the more prominent (Gray 1918), so seen from the front the shank's medial contour reaches farthest below where its lateral contour does",
+      read: (person: string, l: ILimb): IRow[] => {
+        const c: { share: number[]; medial: number[]; lateral: number[] } | undefined = l.contours;
+        if (c === undefined || c.share.length === 0) return [];
+        const medial: number = c.share[HumanCurveProfile.argmax(c.medial, 0, c.medial.length - 1)]!;
+        const lateral: number = c.share[HumanCurveProfile.argmax(c.lateral, 0, c.lateral.length - 1)]!;
+        return [row(person, l, "medial contour's greatest reach below the lateral's, share of the shank", medial - lateral, 0, 1, "")];
+      },
     },
   ];
 
@@ -195,7 +215,23 @@ export namespace HumanAnatomyTable {
           const ring: P2[] = AutoMovieHumanLoftChain.ring(chain, s, HumanCurveRings.PHASES).map((p: [number, number, number]): P2 => scale(AutoMovieHumanLoftFrame.local(frame, p), k));
           return { ring, joint: scale(AutoMovieHumanLoftFrame.local(frame, centres[j]!.map((v: number): number => v / k) as V3), k), label: j === 1 ? (kind === "leg" ? "knee" : "elbow") : kind === "leg" ? "ankle" : "wrist" };
         });
-        out.push({ kind, side, girth: profile.girth, joints, step: HumanCurveRings.STEP, sections });
+        // The shank's frontal contours: each section's reach across the body (z, the body's left +Z) from the knee-to-ankle line.
+        let contours: { share: number[]; medial: number[]; lateral: number[] } | undefined;
+        if (kind === "leg") {
+          contours = { share: [], medial: [], lateral: [] };
+          const outward: number = side === "left" ? 1 : -1;
+          const [knee, ankle]: V3[] = [centres[1]!, centres[2]!];
+          for (let i: number = Math.min(joints[1], joints[2]); i <= Math.max(joints[1], joints[2]); i++) {
+            const along: number = (i - joints[1]) / (joints[2] - joints[1]);
+            if (along < 0.1 || along > 0.6) continue;
+            const axis: number = knee[2] + along * (ankle[2] - knee[2]);
+            const across: number[] = AutoMovieHumanLoftChain.ring(chain, profile.stations[i]! / k, HumanCurveRings.PHASES).map((p: [number, number, number]): number => outward * (p[2] * k - axis));
+            contours.share.push(along);
+            contours.lateral.push(Math.max(...across));
+            contours.medial.push(-Math.min(...across));
+          }
+        }
+        out.push({ kind, side, girth: profile.girth, joints, step: HumanCurveRings.STEP, sections, ...(contours !== undefined ? { contours } : {}) });
       }
     return out;
   }
