@@ -9,13 +9,13 @@ type IMesh = AutoMovieSolidMesh.IMesh;
 const { dot, norm, sub } = AutoMovieSolidVector;
 
 /**
- * The trim-loop readings of a face's tessellation (`AutoMovieSolidMesh.face`): which grid vertices a loop keeps with a metric margin, which drawn-cell cycle belongs to which loop, and the arclength parameter and alignment the zipper (`AutoMovieSolidZip`) stitches a loop to its cycle by.
+ * The trim-loop readings of a face's tessellation (`AutoMovieSolidMesh.face`): which grid vertices a loop keeps with a local metric margin, how chart-distance scores rank drawn-cell cycles, and the polyline-chord parameter and heuristic alignment the zipper (`AutoMovieSolidZip`) uses for stitching.
  *
- * @evidence contracts/common.md#principled-implementation A grid vertex is kept only beyond a metric margin from every loop, distances measured in the surface's first fundamental form, and loops meet cycles by arclength.
+ * @evidence contracts/common.md#principled-implementation Kept-side parity and the point jet's first fundamental form define the local margin; chart means rank boundary candidates and world polyline chords parameterize the later zipper, without a general correspondence proof.
  * @evidence contracts/common.md#clear-and-simple-design A face-local prepared classifier plus the live keeps, nearest, arc and aligned readings.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Distances are metric, not chart distances, so a stretched chart does not move the margin.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Margin projections use a local metric, whereas nearest deliberately ranks raw chart distances. Neither that ranking nor discrete-quarter alignment certifies a globally correct boundary match.
  * @evidence contracts/common.md#meaningful-documentation States each reading's measure and use.
- * @evidence contracts/performance.md#efficient-algorithms Live and prepared queries scan their loops; preparation is O(S+L) for S total edges and L loops, and face classification remains O(V(S+L)) for V grid vertices.
+ * @evidence contracts/performance.md#efficient-algorithms Classification prepares O(S+L) data and scans O(V(S+L)) work for V grid points, S edges and L loops. Matching also scores O(P*S) point/segment pairs per candidate; alignment and arc scans are linear in their vertex counts.
  * @evidence contracts/performance.md#reuse-equivalent-work Prepared queries share each point's metric across eligible loops and reuse numerical loop invariants; raw readings remain live.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Live readings retain nothing; prepared closures own O(S+L) face-local scratch until dropped, with no global cache.
  */
@@ -40,7 +40,14 @@ export namespace AutoMovieSolidMeshLoop {
    * @evidence contracts/performance.md#reuse-equivalent-work This live API caches nothing and sees current mutable input; prepared face snapshots have a separate lifetime.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a boolean and retains no input or scratch after returning.
    */
-  export function keeps(loop: ILoop, u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number, period: number | undefined): boolean {
+  export function keeps(
+    loop: ILoop,
+    u: number,
+    v: number,
+    jet: IAutoMovieSolidSurface.IJet,
+    margin: number,
+    period: number | undefined,
+  ): boolean {
     if (!AutoMovieSolidCycle.kept(loop, u, v, period)) return false;
 
     return minimum(loop, u, v, jet, margin, period);
@@ -61,20 +68,42 @@ export namespace AutoMovieSolidMeshLoop {
    * @evidence contracts/performance.md#reuse-equivalent-work Each new face owns new preparation after edits or rollback; eligible input and jet values stay unchanged while read.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Captures O(S+L) scratch for L loops until the returned reader is dropped; the face retains it only through its synchronous call.
    */
-  export function prepare(loops: readonly ILoop[], period: number | undefined): Classifier {
-    const raw: Classifier = (u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number): boolean =>
+  export function prepare(
+    loops: readonly ILoop[],
+    period: number | undefined,
+  ): Classifier {
+    const raw: Classifier = (
+      u: number,
+      v: number,
+      jet: IAutoMovieSolidSurface.IJet,
+      margin: number,
+    ): boolean =>
       loops.every((l: ILoop): boolean => keeps(l, u, v, jet, margin, period));
-    const states: (IState | undefined)[] = new Array<IState | undefined>(loops.length);
+    const states: (IState | undefined)[] = new Array<IState | undefined>(
+      loops.length,
+    );
     try {
       for (let k: number = 0; k < loops.length; k++) {
-        const entry: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(loops, String(k));
-        if (entry === undefined) { if (k in loops) return raw; continue; }
+        const entry: PropertyDescriptor | undefined =
+          Object.getOwnPropertyDescriptor(loops, String(k));
+        if (entry === undefined) {
+          if (k in loops) return raw;
+          continue;
+        }
         if (!("value" in entry)) return raw;
         states[k] = { input: entry.value as ILoop, checked: false };
       }
-    } catch { return raw; }
-    let eager: boolean = period !== undefined && (!Number.isFinite(period) || period <= 0);
-    return (u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number): boolean => {
+    } catch {
+      return raw;
+    }
+    let eager: boolean =
+      period !== undefined && (!Number.isFinite(period) || period <= 0);
+    return (
+      u: number,
+      v: number,
+      jet: IAutoMovieSolidSurface.IJet,
+      margin: number,
+    ): boolean => {
       if (eager) return raw(u, v, jet, margin);
       let metric: IAutoMovieSolidSurface.IJet | undefined;
       let E: number = 0;
@@ -85,12 +114,21 @@ export namespace AutoMovieSolidMeshLoop {
         if (!state.checked) {
           state.chart = snapshot(state.input);
           state.checked = true;
-          if (state.chart !== null) state.side = AutoMovieSolidCycle.prepare(state.chart, period);
+          if (state.chart !== null)
+            state.side = AutoMovieSolidCycle.prepare(state.chart, period);
         }
-        if (state.chart === null) { eager = true; return raw(u, v, jet, margin); }
+        if (state.chart === null) {
+          eager = true;
+          return raw(u, v, jet, margin);
+        }
         if (!state.side!(u, v)) return false;
         if (metric === undefined) {
-          if (typeof u !== "number" || typeof v !== "number" || typeof margin !== "number" || !plainJet(jet)) {
+          if (
+            typeof u !== "number" ||
+            typeof v !== "number" ||
+            typeof margin !== "number" ||
+            !plainJet(jet)
+          ) {
             eager = true;
             return raw(u, v, jet, margin);
           }
@@ -106,17 +144,29 @@ export namespace AutoMovieSolidMeshLoop {
             const a: [number, number] = chart[k]!;
             const b: [number, number] = chart[(k + 1) % chart.length]!;
             state.deltas[2 * k] = b[0] - a[0];
-            state.deltas[2 * k + 1] = AutoMovieSolidCycle.shift(b[1], a[1], period) - a[1];
+            state.deltas[2 * k + 1] =
+              AutoMovieSolidCycle.shift(b[1], a[1], period) - a[1];
           }
         }
-        if (!(distance(state.chart!, u, v, E, F, G, period, state.deltas) >= margin)) return false;
+        if (
+          !(
+            distance(state.chart!, u, v, E, F, G, period, state.deltas) >=
+            margin
+          )
+        )
+          return false;
       }
       return true;
     };
   }
 
   /** A point classifier in chart coordinates, with a world-mm margin. */
-  type Classifier = (u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number) => boolean;
+  type Classifier = (
+    u: number,
+    v: number,
+    jet: IAutoMovieSolidSurface.IJet,
+    margin: number,
+  ) => boolean;
   /** The numerical fields the parity and metric readings consume. */
   type Chart = Pick<ILoop, "kind" | "chart">;
   /** Scratch owned by one prepared face, never published into a body. */
@@ -124,27 +174,56 @@ export namespace AutoMovieSolidMeshLoop {
     /** Original input for live fallback. */ input: ILoop;
     /** Whether snapshot eligibility was inspected. */ checked: boolean;
     /** Copied numerical chart, or null for live fallback. */ chart?: Chart | null;
-    /** Existing kept-side predicate over that copy. */ side?: (u: number, v: number) => boolean;
+    /** Existing kept-side predicate over that copy. */ side?: (
+      u: number,
+      v: number,
+    ) => boolean;
     /** Metric segment differences, dx/dy per edge. */ deltas?: Float64Array;
   }
 
   /** Copy only own data-valued numerical fields, without invoking ordinary getters. */
   function snapshot(loop: ILoop): Chart | null {
     try {
-      const kind: unknown = Object.getOwnPropertyDescriptor(loop, "kind")?.value;
-      const source: unknown = Object.getOwnPropertyDescriptor(loop, "chart")?.value;
-      if (!(kind === "hole" || kind === "island" || kind === "start" || kind === "end") || !Array.isArray(source)) return null;
+      const kind: unknown = Object.getOwnPropertyDescriptor(
+        loop,
+        "kind",
+      )?.value;
+      const source: unknown = Object.getOwnPropertyDescriptor(
+        loop,
+        "chart",
+      )?.value;
+      if (
+        !(
+          kind === "hole" ||
+          kind === "island" ||
+          kind === "start" ||
+          kind === "end"
+        ) ||
+        !Array.isArray(source)
+      )
+        return null;
       const chart: [number, number][] = [];
       for (let k: number = 0; k < source.length; k++) {
-        const point: unknown = Object.getOwnPropertyDescriptor(source, String(k))?.value;
+        const point: unknown = Object.getOwnPropertyDescriptor(
+          source,
+          String(k),
+        )?.value;
         if (!Array.isArray(point)) return null;
         const x: unknown = Object.getOwnPropertyDescriptor(point, "0")?.value;
         const y: unknown = Object.getOwnPropertyDescriptor(point, "1")?.value;
-        if (typeof x !== "number" || typeof y !== "number" || !Number.isFinite(x) || !Number.isFinite(y)) return null;
+        if (
+          typeof x !== "number" ||
+          typeof y !== "number" ||
+          !Number.isFinite(x) ||
+          !Number.isFinite(y)
+        )
+          return null;
         chart.push([x, y]);
       }
       return { kind, chart };
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }
 
   /** Metric sharing applies only to stable ordinary numerical vector fields. */
@@ -154,16 +233,29 @@ export namespace AutoMovieSolidMeshLoop {
         const axis: unknown = Object.getOwnPropertyDescriptor(jet, name)?.value;
         if (!Array.isArray(axis)) return false;
         for (let k: number = 0; k < 3; k++) {
-          const value: unknown = Object.getOwnPropertyDescriptor(axis, String(k))?.value;
-          if (typeof value !== "number" || !Number.isFinite(value)) return false;
+          const value: unknown = Object.getOwnPropertyDescriptor(
+            axis,
+            String(k),
+          )?.value;
+          if (typeof value !== "number" || !Number.isFinite(value))
+            return false;
         }
       }
       return true;
-    } catch { return false; }
+    } catch {
+      return false;
+    }
   }
 
   /** Live metric reading after kept-side acceptance, preserving its original operation order. */
-  function minimum(loop: Pick<ILoop, "chart">, u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number, period: number | undefined): boolean {
+  function minimum(
+    loop: Pick<ILoop, "chart">,
+    u: number,
+    v: number,
+    jet: IAutoMovieSolidSurface.IJet,
+    margin: number,
+    period: number | undefined,
+  ): boolean {
     const E: number = dot(jet.u, jet.u);
     const F: number = dot(jet.u, jet.v);
     const G: number = dot(jet.v, jet.v);
@@ -171,23 +263,52 @@ export namespace AutoMovieSolidMeshLoop {
   }
 
   /** Full segment minimum; optional differences are the same subtractions prepared once. */
-  function distance(loop: Pick<ILoop, "chart">, u: number, v: number, E: number, F: number, G: number, period: number | undefined, deltas?: Float64Array): number {
+  function distance(
+    loop: Pick<ILoop, "chart">,
+    u: number,
+    v: number,
+    E: number,
+    F: number,
+    G: number,
+    period: number | undefined,
+    deltas?: Float64Array,
+  ): number {
     const n: number = loop.chart.length;
     let least: number = Infinity;
     for (let k: number = 0; k < n; k++) {
       const a: [number, number] = loop.chart[k]!;
       const raw: [number, number] = loop.chart[(k + 1) % n]!;
-      const bv: number | undefined = deltas === undefined ? AutoMovieSolidCycle.shift(raw[1], a[1], period) : undefined;
+      const bv: number | undefined =
+        deltas === undefined
+          ? AutoMovieSolidCycle.shift(raw[1], a[1], period)
+          : undefined;
       const w: number = AutoMovieSolidCycle.shift(v, a[1], period);
-      least = Math.min(least, segment(u - a[0], w - a[1],
-        deltas === undefined ? raw[0] - a[0] : deltas[2 * k]!,
-        deltas === undefined ? bv! - a[1] : deltas[2 * k + 1]!, E, F, G));
+      least = Math.min(
+        least,
+        segment(
+          u - a[0],
+          w - a[1],
+          deltas === undefined ? raw[0] - a[0] : deltas[2 * k]!,
+          deltas === undefined ? bv! - a[1] : deltas[2 * k + 1]!,
+          E,
+          F,
+          G,
+        ),
+      );
     }
     return least;
   }
 
   /** The metric distance from a chart offset to a chart segment, mm. */
-  function segment(px: number, py: number, dx: number, dy: number, E: number, F: number, G: number): number {
+  function segment(
+    px: number,
+    py: number,
+    dx: number,
+    dy: number,
+    E: number,
+    F: number,
+    G: number,
+  ): number {
     const dd: number = E * dx * dx + 2 * F * dx * dy + G * dy * dy;
     const pd: number = E * px * dx + F * (px * dy + py * dx) + G * py * dy;
     const t: number = dd > 0 ? Math.min(1, Math.max(0, pd / dd)) : 0;
@@ -203,10 +324,26 @@ export namespace AutoMovieSolidMeshLoop {
    * @param points The cycle's chart points.
    * @param period The face's phase period, or undefined.
    * @returns The mean distance.
+   *   Coordinates use their raw chart units, so this ranking is not a
+   *   world-distance or topology certificate. No points gives NaN; no loop
+   *   segments gives infinite distance for each nonempty point query.
+   *
+   * @evidence contracts/common.md#principled-implementation Averages each drawn-cycle point's nearest polygon-segment chart distance to rank candidate boundaries in Mesh.face, using Cycle.foot's periodic branch conventions.
+   * @evidence contracts/common.md#clear-and-simple-design One mean score separates candidate ranking from the later world-space starting/direction alignment.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal point weighting and mixed chart-coordinate units remain the implemented heuristic; the score does not prove corresponding topology or globally optimal cycle assignment.
+   * @evidence contracts/common.md#meaningful-documentation States chart-distance meaning, matching role and the empty-input NaN/infinite limits.
+   * @evidence contracts/performance.md#efficient-algorithms O(P*S) work for P cycle points and S loop segments: every foot compares all segments without an index to find its chart minimum, and Mesh.face repeats the score across candidate cycles.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This independent score retains no spatial index or prior foot; no effectful requests are coordinated.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a scalar; per-query foot records are temporary, with no loop, point list or score cache retained after the call.
    */
-  export function nearest(loop: ILoop, points: readonly [number, number][], period: number | undefined): number {
+  export function nearest(
+    loop: ILoop,
+    points: readonly [number, number][],
+    period: number | undefined,
+  ): number {
     let sum: number = 0;
-    for (const p of points) sum += AutoMovieSolidCycle.foot(loop, p[0], p[1], period).distance;
+    for (const p of points)
+      sum += AutoMovieSolidCycle.foot(loop, p[0], p[1], period).distance;
     return sum / points.length;
   }
 
@@ -219,13 +356,33 @@ export namespace AutoMovieSolidMeshLoop {
    * @param mesh The mesh holding the vertices.
    * @param ids The sequence's vertices.
    * @returns Each vertex's parameter, radians from 0.
+   *   The sequence must be nonempty with valid mesh indices. This is closed
+   *   polyline chord length, not smooth-surface arclength. A total that does
+   *   not compare above zero takes the all-zero branch; positive infinity
+   *   still enters normalization and is not validated here.
+   *
+   * @evidence contracts/common.md#principled-implementation Accumulates world-position chord lengths, includes the closing edge and normalizes the cumulative distances to one turn for Zip's monotone parameter walk.
+   * @evidence contracts/common.md#clear-and-simple-design One cumulative array and a closing total describe the existing vertex sequence without fitting or sampling a new curve.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not claim exact smooth-curve arclength or validate indices/simplicity; a total that is not above zero produces zero parameters rather than a repaired polygon.
+   * @evidence contracts/common.md#meaningful-documentation Gives world-chord meaning, radians, nonempty/index premises and degenerate-total behavior.
+   * @evidence contracts/performance.md#efficient-algorithms O(N) position/chord work and O(N) output for N vertices, including the final closing edge.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each call rebuilds cumulative lengths; aligned's quarter queries and the later Zip inputs currently repeat those arc reads rather than share a prepared result.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh N-entry parameter array; intermediate positions and the cumulative array are call-local, with no mesh or vertex list retained globally.
    */
   export function arc(mesh: IMesh, ids: readonly number[]): number[] {
-    const p = (v: number): Vec3 => [mesh.positions[3 * v]!, mesh.positions[3 * v + 1]!, mesh.positions[3 * v + 2]!];
+    const p = (v: number): Vec3 => [
+      mesh.positions[3 * v]!,
+      mesh.positions[3 * v + 1]!,
+      mesh.positions[3 * v + 2]!,
+    ];
     const out: number[] = [0];
-    for (let k: number = 1; k < ids.length; k++) out.push(out[k - 1]! + norm(sub(p(ids[k]!), p(ids[k - 1]!))));
-    const total: number = out[ids.length - 1]! + norm(sub(p(ids[0]!), p(ids[ids.length - 1]!)));
-    return out.map((x: number): number => (total > 0 ? (2 * Math.PI * x) / total : 0));
+    for (let k: number = 1; k < ids.length; k++)
+      out.push(out[k - 1]! + norm(sub(p(ids[k]!), p(ids[k - 1]!))));
+    const total: number =
+      out[ids.length - 1]! + norm(sub(p(ids[0]!), p(ids[ids.length - 1]!)));
+    return out.map((x: number): number =>
+      total > 0 ? (2 * Math.PI * x) / total : 0,
+    );
   }
 
   /**
@@ -237,15 +394,37 @@ export namespace AutoMovieSolidMeshLoop {
    * @param loop The loop's vertices.
    * @param cycle The cycle's vertices.
    * @returns The cycle, started and turned to run with the loop.
+   *   Both sequences must be nonempty with valid mesh indices. The quarter
+   *   observation is the first existing vertex at or beyond a quarter turn,
+   *   falling back to the first vertex if none reaches it; it is not an
+   *   interpolated quarter point or proof of boundary correspondence.
+   *
+   * @evidence contracts/common.md#principled-implementation Starts at the world vertex nearest the loop's first point, then compares forward/backward quarter-vertex distances to choose one traversal for the zipper.
+   * @evidence contracts/common.md#clear-and-simple-design Two reordered candidate arrays expose the heuristic's two choices without moving any vertex or changing its owner coordinates.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Ties keep the earlier start and choose forward; nearest-start and discrete-quarter tests do not certify matching topology, smooth arclength or a globally best alignment.
+   * @evidence contracts/common.md#meaningful-documentation States valid nonempty inputs, world-space comparison and the discrete quarter/fallback convention.
+   * @evidence contracts/performance.md#efficient-algorithms O(L+C) scans for loop length L and cycle length C, with two C-entry candidate arrays and three cumulative arc readings; no pairwise alignment search is used.
+   * @evidence contracts/performance.md#reuse-equivalent-work The loop's quarter is shared between direction comparisons, but candidate arcs and the current best start distance are recomputed, and Mesh.face later rebuilds the chosen arcs for Zip.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one fresh reordered cycle; the unchosen array, arc arrays and point vectors are call-local, with no retained mesh, reader or cross-face cache.
    */
-  export function aligned(mesh: IMesh, loop: readonly number[], cycle: readonly number[]): number[] {
-    const p = (v: number): Vec3 => [mesh.positions[3 * v]!, mesh.positions[3 * v + 1]!, mesh.positions[3 * v + 2]!];
+  export function aligned(
+    mesh: IMesh,
+    loop: readonly number[],
+    cycle: readonly number[],
+  ): number[] {
+    const p = (v: number): Vec3 => [
+      mesh.positions[3 * v]!,
+      mesh.positions[3 * v + 1]!,
+      mesh.positions[3 * v + 2]!,
+    ];
     const head: Vec3 = p(loop[0]!);
     let start: number = 0;
     cycle.forEach((v: number, k: number): void => {
       if (norm(sub(p(v), head)) < norm(sub(p(cycle[start]!), head))) start = k;
     });
-    const forward: number[] = cycle.map((_: number, k: number): number => cycle[(start + k) % cycle.length]!);
+    const forward: number[] = cycle.map(
+      (_: number, k: number): number => cycle[(start + k) % cycle.length]!,
+    );
     const backward: number[] = [forward[0]!, ...forward.slice(1).reverse()];
     const quarter = (ids: readonly number[]): Vec3 => {
       const a: number[] = arc(mesh, ids);
@@ -253,6 +432,9 @@ export namespace AutoMovieSolidMeshLoop {
       return p(ids[k < 0 ? 0 : k]!);
     };
     const target: Vec3 = quarter(loop);
-    return norm(sub(quarter(forward), target)) <= norm(sub(quarter(backward), target)) ? forward : backward;
+    return norm(sub(quarter(forward), target)) <=
+      norm(sub(quarter(backward), target))
+      ? forward
+      : backward;
   }
 }
