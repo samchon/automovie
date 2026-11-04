@@ -1,4 +1,4 @@
-import type { IAutoMovieModelPart } from "@automovie/interface";
+import type { IAutoMovieMaterial, IAutoMovieMaterialOverlay, IAutoMovieModelPart } from "@automovie/interface";
 import fs from "node:fs";
 import inspector from "node:inspector";
 import path from "node:path";
@@ -216,7 +216,11 @@ function run(params: IAutoMovieHumanParameters): { stages: IStage[]; tally: stri
   const parts: IAutoMovieModelPart[] = [...body, ...appearance.parts];
   timed("binding (rig dress)", (): IAutoMovieModelPart[] => AutoMovieHumanShapeStages.bind(parts, shape, dressed.coordinates));
   timed("pose evaluator", (): AutoMovieHumanSkeleton.PoseEvaluator => AutoMovieHumanSkeleton.prepare(params, { calibration }));
-  return { stages, tally: meshes(parts) };
+  // The skin material's overlays (seeded marks, painted brows) by image.
+  const overlays: string[] = dressed.materials.flatMap((m: IAutoMovieMaterial): string[] =>
+    (m.overlays ?? []).map((o: IAutoMovieMaterialOverlay): string => `${m.id} overlay ${o.blend} ${typeof o.baseColorTexture === "string" ? o.baseColorTexture : o.baseColorTexture.asset}`),
+  );
+  return { stages, tally: [...meshes(parts), "", "=== skin overlays ===", ...overlays] };
 }
 
 /** This thread's CPU time, milliseconds; the process's where the thread clock is missing. */

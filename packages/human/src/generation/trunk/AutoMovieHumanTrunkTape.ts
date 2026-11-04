@@ -122,21 +122,32 @@ export namespace AutoMovieHumanTrunkTape {
       const p: readonly number[] = mass.surface.jet(s, phi).p;
       return [p[0]!, p[2]!];
     };
+    // Every station line's samples, read station by station so a station's
+    // part of the surface jet serves all its phases: `[x, y, z]` per sample.
+    const samples: Float64Array = new Float64Array(3 * (LINE_SAMPLES + 1) * PHASES);
+    for (let k: number = 0; k <= LINE_SAMPLES; k++) {
+      const s: number = k === 0 ? s0 : s0 + ((s1 - s0) * k) / LINE_SAMPLES;
+      for (let i: number = 0; i < PHASES; i++) {
+        const p: readonly number[] = mass.surface.jet(s, (2 * Math.PI * i) / PHASES).p;
+        samples.set([p[0]!, p[1]!, p[2]!], 3 * (k * PHASES + i));
+      }
+    }
     for (let i: number = 0; i < PHASES; i++) {
       const phi: number = (2 * Math.PI * i) / PHASES;
       const height = (s: number): number => mass.surface.jet(s, phi).p[1] - y;
+      const at = (k: number): number => 3 * (k * PHASES + i);
 
       // A station line may cross the plane more than once, or lie in it (a
       // mass whose axis is level, cut at its own centre's height), and the
       // apex's pole stands on it: sample the line, refine every sign change,
       // and keep every sample that lies on the plane.
       let a: number = s0;
-      let fa: number = height(a);
-      if (Math.abs(fa) <= ON_PLANE) out.push(point(a, phi));
+      let fa: number = samples[at(0) + 1]! - y;
+      if (Math.abs(fa) <= ON_PLANE) out.push([samples[at(0)]!, samples[at(0) + 2]!]);
       for (let k: number = 1; k <= LINE_SAMPLES; k++) {
         const b: number = s0 + ((s1 - s0) * k) / LINE_SAMPLES;
-        const fb: number = height(b);
-        if (Math.abs(fb) <= ON_PLANE) out.push(point(b, phi));
+        const fb: number = samples[at(k) + 1]! - y;
+        if (Math.abs(fb) <= ON_PLANE) out.push([samples[at(k)]!, samples[at(k) + 2]!]);
         else if (fa * fb < 0 && Math.abs(fa) > ON_PLANE) {
           const s: number | null = AutoMovieIllinois.root(height, a, b, 1e-6, 100);
           if (s !== null) out.push(point(s, phi));

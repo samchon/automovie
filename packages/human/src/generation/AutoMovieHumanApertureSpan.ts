@@ -321,23 +321,36 @@ export namespace AutoMovieHumanApertureSpan {
       const along: number = dot(v, forward);
       return [v[0]! - along * forward[0]!, v[1]! - along * forward[1]!, v[2]! - along * forward[2]!];
     };
-    // A coarse search of the front-most skin nearest a margin point's line.
-    const seed = (target: readonly number[]): [number, number] => {
-      let found: [number, number] = [Math.min(y1, Math.max(y0, (stations[0] + stations[1]) / 2)), 0];
-      let best: number = Infinity;
+    // The coarse search's grid, its points read once for every margin point
+    // (a solve that stalls searches again): every half millimetre of the
+    // window by 512 phases, `[s, t, x, y, z]` rows.
+    let grid: Float64Array | null = null;
+    const points = (): Float64Array => {
+      if (grid !== null) return grid;
+      const rows: number[] = [];
       for (let s: number = Math.max(y0, stations[0] - REACH); s <= Math.min(y1, stations[1] + REACH); s += 0.5)
         for (let i: number = 0; i < 512; i++) {
           const t: number = (2 * Math.PI * i) / 512;
           const p: [number, number, number] = AutoMovieLoftChain.point(chain, s, t);
-          const off: number[] = [p[0] - target[0]!, p[1] - target[1]!, p[2] - target[2]!];
-
-          // Front-most skin only: the opening's own side of the head.
-          const d: number = Math.hypot(...square(off)) - 1e-3 * dot(off, forward);
-          if (d < best) {
-            best = d;
-            found = [s, t];
-          }
+          rows.push(s, t, p[0], p[1], p[2]);
         }
+      return (grid = Float64Array.from(rows));
+    };
+    // A coarse search of the front-most skin nearest a margin point's line.
+    const seed = (target: readonly number[]): [number, number] => {
+      let found: [number, number] = [Math.min(y1, Math.max(y0, (stations[0] + stations[1]) / 2)), 0];
+      let best: number = Infinity;
+      const g: Float64Array = points();
+      for (let k: number = 0; k < g.length; k += 5) {
+        const off: number[] = [g[k + 2]! - target[0]!, g[k + 3]! - target[1]!, g[k + 4]! - target[2]!];
+
+        // Front-most skin only: the opening's own side of the head.
+        const d: number = Math.hypot(...square(off)) - 1e-3 * dot(off, forward);
+        if (d < best) {
+          best = d;
+          found = [g[k]!, g[k + 1]!];
+        }
+      }
       return found;
     };
 
