@@ -177,7 +177,7 @@ export namespace AutoMovieHumanSkeleton {
     const scale: number = mmScale / 1000;
     const footSurface: AutoMovieHumanFootSurface.IOutput | undefined =
       options.footSurface
-        ? AutoMovieHumanFootSurface.derive(calibration, scale)
+        ? AutoMovieHumanFootSurface.derive(calibration.legacy ?? calibration, scale)
         : undefined;
     const neckSurface: AutoMovieHumanNeckSurface.IOutput | undefined =
       options.neckSurface

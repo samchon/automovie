@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain as Loft } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain as Loft, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -123,7 +122,7 @@ export namespace AutoMovieHumanFootSurface {
 
 /** Exact source chain and material address used before a display ring exists. */
 interface IAddress {
-  /** Source chain. */ chain: IAutoMovieHumanLoftChain;
+  /** Source chain. */ chain: IAutoMovieLoftChain;
 
   /** Calibration-mm station. */ station: number;
 }
@@ -159,16 +158,16 @@ function side(
   };
   const chain: (
     name: AutoMovieHumanFootSurface.Chain,
-  ) => IAutoMovieHumanLoftChain = (
+  ) => IAutoMovieLoftChain = (
     name: AutoMovieHumanFootSurface.Chain,
-  ): IAutoMovieHumanLoftChain => {
-    const found: IAutoMovieHumanLoftChain | undefined = body.chains.find(
-      (item: IAutoMovieHumanLoftChain): boolean => item.name === name,
+  ): IAutoMovieLoftChain => {
+    const found: IAutoMovieLoftChain | undefined = body.chains.find(
+      (item: IAutoMovieLoftChain): boolean => item.name === name,
     );
     if (found === undefined) throw new Error(`Foot exterior lacks ${name}`);
     return found;
   };
-  const foot: IAutoMovieHumanLoftChain = chain(`foot.${own}`);
+  const foot: IAutoMovieLoftChain = chain(`foot.${own}`);
   const ankle: AutoMovieHumanFootSurface.Vector = joint("Foot").position;
   const ball: AutoMovieHumanFootSurface.Vector = joint("Foot").toward;
   const forward: AutoMovieHumanFootSurface.Vector = unit([
@@ -182,10 +181,10 @@ function side(
   const split: number = crossing(foot, along, along(joint("Midfoot").position));
   const hind: IAddress[] = foot.layers
     .filter(
-      (layer: IAutoMovieHumanLoftChain.ILayer): boolean => layer.y > split,
+      (layer: IAutoMovieLoftChain.ILayer): boolean => layer.y > split,
     )
     .map(
-      (layer: IAutoMovieHumanLoftChain.ILayer): IAddress => ({
+      (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
         chain: foot,
         station: layer.y,
       }),
@@ -197,10 +196,10 @@ function side(
     seam,
     ...foot.layers
       .filter(
-        (layer: IAutoMovieHumanLoftChain.ILayer): boolean => layer.y < split,
+        (layer: IAutoMovieLoftChain.ILayer): boolean => layer.y < split,
       )
       .map(
-        (layer: IAutoMovieHumanLoftChain.ILayer): IAddress => ({
+        (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
           chain: foot,
           station: layer.y,
         }),
@@ -208,13 +207,13 @@ function side(
       .reverse(),
   ];
   for (const ordinal of [1, 2] as const) {
-    const source: IAutoMovieHumanLoftChain = chain(
+    const source: IAutoMovieLoftChain = chain(
       `forefoot.${own}.${ordinal}`,
     );
     front.push(
       ...source.layers
         .map(
-          (layer: IAutoMovieHumanLoftChain.ILayer): IAddress => ({
+          (layer: IAutoMovieLoftChain.ILayer): IAddress => ({
             chain: source,
             station: layer.y,
           }),
@@ -390,7 +389,7 @@ function side(
 
 /** First source-axis crossing from the ball toward the ankle; no surface is moved. */
 function crossing(
-  chain: IAutoMovieHumanLoftChain,
+  chain: IAutoMovieLoftChain,
   along: (point: AutoMovieHumanFootSurface.Vector) => number,
   target: number,
 ): number {

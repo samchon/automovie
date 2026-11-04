@@ -2,8 +2,8 @@ import { TestValidator } from "@nestia/e2e";
 
 import { AutoMovieHumanFootSurface as Foot } from "../../../../packages/human/src/generation/AutoMovieHumanFootSurface";
 import type { AutoMovieHumanSkeletonLaw } from "../../../../packages/human/src/generation/AutoMovieHumanSkeletonLaw";
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanPeople } from "../internal/HumanPeople";
 import { nclose, throwsError } from "../internal/predicates";
 
@@ -30,14 +30,17 @@ export function test_human_foot_surface(): void {
   const defects: string[] = [];
   for (const name of ["f1", "m1", "tall", "short"]) {
     const person: HumanPeople.IPerson = HumanPeople.person(name);
-    const source: Foot.IOutput = Foot.derive(person.body, 0.001);
-    const doubled: Foot.IOutput = Foot.derive(person.body, 0.002);
+    // The foot is a rig reader of anatomy at heights, so it reads the body the
+    // skeleton passes it: the interim legacy construction where one exists.
+    const body: IAutoMovieHumanBodyCalibration = person.body.legacy ?? person.body;
+    const source: Foot.IOutput = Foot.derive(body, 0.001);
+    const doubled: Foot.IOutput = Foot.derive(body, 0.002);
     for (const side of ["left", "right"] as const) {
       const own: Foot.ISide = source[side];
       const joint: (part: string) => AutoMovieHumanSkeletonLaw.IBone = (
         part: string,
       ): AutoMovieHumanSkeletonLaw.IBone =>
-        person.body.skeleton!.find(
+        body.skeleton!.find(
           (bone: AutoMovieHumanSkeletonLaw.IBone): boolean =>
             bone.bone === `${side}${part}`,
         )!;
@@ -90,11 +93,11 @@ export function test_human_foot_surface(): void {
       for (const module of ["hindfoot", "forefoot"] as const)
         own[module].courses.forEach(
           (course: Foot.ICourse, courseIndex: number): void => {
-            const chain: IAutoMovieHumanLoftChain = person.body.chains.find(
-              (item: IAutoMovieHumanLoftChain): boolean =>
+            const chain: IAutoMovieLoftChain = body.chains.find(
+              (item: IAutoMovieLoftChain): boolean =>
                 item.name === course.chain,
             )!;
-            const measured: Foot.Vector[] = AutoMovieHumanLoftChain.ring(
+            const measured: Foot.Vector[] = AutoMovieLoftChain.ring(
               chain,
               course.stationMm,
               course.sourcePhases,
@@ -133,8 +136,8 @@ export function test_human_foot_surface(): void {
               defects.push(`${name}/${side}: changed dimension scaling`);
           },
         );
-      for (const chain of person.body.chains.filter(
-        (item: IAutoMovieHumanLoftChain): boolean =>
+      for (const chain of body.chains.filter(
+        (item: IAutoMovieLoftChain): boolean =>
           item.name === `foot.${side}` ||
           item.name === `forefoot.${side}.1` ||
           item.name === `forefoot.${side}.2`,
@@ -162,7 +165,7 @@ export function test_human_foot_surface(): void {
     for (const scale of [0, -1, NaN, Infinity])
       if (
         !throwsError((): void => {
-          Foot.derive(person.body, scale);
+          Foot.derive(body, scale);
         })
       )
         defects.push(`${name}: admitted invalid physical scale ${scale}`);
