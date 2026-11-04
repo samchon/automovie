@@ -20,7 +20,7 @@ type V3 = [number, number, number];
  *
  * Scenarios:
  * 1. A straight 200 mm part with outline and girth knots at stations 0, 100 and 200 and layers every 20 mm: no diagnostic, a chain and a solid surface, continuity declared C2 in phase and station, every layer carrying its box, and at each knot station the chain's own points at the four guide phases on the outlines' values and the section's girth on the girth knot; the same reader with any extent 0.5 mm off must fail.
- * 2. Station continuity: at every interior layer the chain's point and both station derivatives, read by `AutoMovieHumanLoftJet.at` just below and above the layer and extrapolated to it, agree; a copy with one layer's station curvature moved must fail the same reader.
+ * 2. Station continuity: at every interior layer the chain's point and both station derivatives, read by `AutoMovieHumanLoftJet.at` just below and above the layer and extrapolated to it, agree; the chain below a layer joined to a copy with that layer's station curvature moved by 0.01 above it must fail the same reader.
  * 3. A front medial knot moved across the lateral outline at station 100 gives an `outline order` diagnostic there and leaves every broken station out with one diagnostic each (`outline order` or `half extent`); a side edge on the wrong side of the axis gives `half extent` at every station and no chain; an order of 10 gives `order` and no chain; one station gives `stations` and no chain.
  * 4. A part closing at its top in a pole: the tip station carries no layer and the chain carries the axis point there as its pole.
  *
@@ -56,12 +56,17 @@ export function test_human_lofting_view_section_chain(): void {
     }
     if (knot(chain, 100, extentsAt(made, 100).map((e: number, g: number): number => (g === 1 ? e + 0.5 : e)) as Quarters).length === 0) failures.push("proof: an extent 0.5 mm off passes the knot reader");
 
-    // 2. C2 in station at every interior layer, and red on a moved curvature.
-    for (let i: number = 1; i + 1 < chain.layers.length; i++) failures.push(...station(chain, chain.layers[i]!.y));
+    // 2. C2 in station at every interior layer, and red on a made break: the
+    // chain read below a layer and a copy with that layer's station
+    // curvature moved by 0.01 read above it (a chain's layers share their
+    // jets, so a real break can only be made across two chains).
+    const own = (c: IAutoMovieHumanLoftChain): ((s: number, t: number) => AutoMovieHumanLoftJet.IJet) => (s: number, t: number): AutoMovieHumanLoftJet.IJet => AutoMovieHumanLoftJet.at(c, s, t);
+    for (let i: number = 1; i + 1 < chain.layers.length; i++) failures.push(...station(own(chain), chain.layers[i]!.y));
     const bent: IAutoMovieHumanLoftChain = structuredClone(chain);
     const layer: IAutoMovieHumanLoftChain.ILayer = bent.layers[5]!;
-    layer.curvatures = (layer.curvatures ?? layer.coefficients.map((): number => 0)).map((c: number, k: number): number => (k === 0 ? c + 0.01 : c));
-    if (station(bent, layer.y).length === 0) failures.push("proof: a layer's station curvature moved by 0.01 passes the station reader");
+    layer.curvatures = layer.curvatures!.map((c: number, k: number): number => (k === 0 ? c + 0.01 : c));
+    const broken = (s: number, t: number): AutoMovieHumanLoftJet.IJet => (s < layer.y ? AutoMovieHumanLoftJet.at(chain, s, t) : AutoMovieHumanLoftJet.at(bent, s, t));
+    if (station(broken, layer.y).length === 0) failures.push("proof: a station curvature that steps by 0.01 at a layer passes the station reader");
   }
 
   // 3. Broken inputs, each reported.
@@ -71,7 +76,10 @@ export function test_human_lofting_view_section_chain(): void {
   const order: AutoMovieHumanLoftContract.IDiagnostic[] = c.diagnostics.filter((d: AutoMovieHumanLoftContract.IDiagnostic): boolean => d.contract === "outline order");
   if (!order.some((d: AutoMovieHumanLoftContract.IDiagnostic): boolean => d.detail.includes("station 100 mm"))) failures.push("crossed outline: no outline order diagnostic at station 100");
   if (c.chain !== null && c.chain.layers.some((l: IAutoMovieHumanLoftChain.ILayer): boolean => l.y === 100)) failures.push("crossed outline: station 100 kept in the chain");
-  const dropped: number = c.diagnostics.filter((d: AutoMovieHumanLoftContract.IDiagnostic): boolean => d.contract === "outline order" || d.contract === "half extent").length;
+  const dropped: number = c.diagnostics.filter(
+    (d: AutoMovieHumanLoftContract.IDiagnostic): boolean =>
+      d.contract === "outline order" || d.contract === "half extent" || d.contract === "view section" || d.contract === "shoulder",
+  ).length;
   if (c.chain !== null && c.chain.layers.length + dropped !== crossed.stations.length) failures.push(`crossed outline: ${c.chain.layers.length} layers and ${dropped} dropped-station diagnostics for ${crossed.stations.length} stations`);
   const outside: IAutoMovieHumanViewPart = part();
   for (const k of outside.side.negative.knots) k.value = 5;
@@ -149,7 +157,12 @@ function knot(chain: IAutoMovieHumanLoftChain, s: number, extents: Quarters): st
     const [x, z]: [number, number] = AutoMovieHumanLoftFrame.local(f, point((g * Math.PI) / 2));
     const want: [number, number] = [[extents[0], 0], [0, extents[1]], [-extents[2], 0], [0, -extents[3]]][g] as [number, number];
     const miss: number = Math.hypot(x - want[0], z - want[1]);
-    if (!(miss <= 1e-9)) out.push(`station ${s} guide ${g}: chain point (${x}, ${z}) is ${miss} mm from the outline point (${want.join(", ")})`);
+    // The section B-spline interpolates its points through the periodic
+    // filter truncated at 14 neighbours (`AutoMovieHumanSplineCurve.interpolate`):
+    // its points stand off by at most `2 sqrt 3 (2 - sqrt 3)^14 / (sqrt 3 - 1)`,
+    // under 5e-8, of the largest extent.
+    const limit: number = 5e-8 * Math.max(...extents);
+    if (!(miss <= limit)) out.push(`station ${s} guide ${g}: chain point (${x}, ${z}) is ${miss} mm from the outline point (${want.join(", ")})`);
   }
   return out;
 }
@@ -160,13 +173,13 @@ function knot(chain: IAutoMovieHumanLoftChain, s: number, extents: Quarters): st
  * 1 and 2 micrometres on each side, agree within 1e-7 (mm, mm per mm, mm per
  * mm squared).
  */
-function station(chain: IAutoMovieHumanLoftChain, y: number): string[] {
+function station(jet: (s: number, t: number) => AutoMovieHumanLoftJet.IJet, y: number): string[] {
   const out: string[] = [];
   const h: number = 1e-3;
   for (let i: number = 0; i < 8; i++) {
     const t: number = (2 * Math.PI * i) / 8 + 0.1;
     const read: (s: number) => V3[] = (s: number): V3[] => {
-      const j: AutoMovieHumanLoftJet.IJet = AutoMovieHumanLoftJet.at(chain, s, t);
+      const j: AutoMovieHumanLoftJet.IJet = jet(s, t);
       return [j.p, j.s, j.ss] as V3[];
     };
     const [b1, b2, a1, a2]: V3[][] = [read(y - h), read(y - 2 * h), read(y + h), read(y + 2 * h)];

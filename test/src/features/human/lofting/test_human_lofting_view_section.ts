@@ -21,11 +21,11 @@ const SPANS: number = 4;
  *
  * Scenarios:
  * 1. Ellipse: boxes of half axes 30 by 20, 20 by 30, 60 by 20, 20 by 60 and 25 by 25 mm at the shoulder `sqrt(2) - 1` in every quarter: the radius within the knot spans' Hermite bound of the closed-form ellipse at 4096 angles, the girth within the bound's first-order effect of the ellipse's AGM perimeter, each guide's curvature the ellipse's `a / b^2`; on every box a section with every shoulder 0.02 fuller must exceed the bound.
- * 2. Touch: boxes of aspect 1:3 to 3:1 and two asymmetric boxes, at three shoulders across each box's valid range: at every guide the radius is the half extent, the angular slope zero, the curvature the declared mean of the two quarters' conic curvatures (read from the jet and, independently, from the section's points on each side of the guide, extrapolated to zero step), and the section never passes the side it touches; a made jet with a slope of 0.01 at a guide, and the ellipse turned 20 degrees, must fail.
+ * 2. Touch: boxes of aspect 1:3 to 3:1 and two asymmetric boxes, at three shoulders across each box's valid range: at every guide the radius is the half extent, the angular slope zero, the curvature the declared smaller of the two quarters' conic curvatures (read from the jet and, independently, from the section's points on each side of the guide, extrapolated to zero step), and the section never passes the side it touches; a made jet with a slope of 0.01 at a guide, and the ellipse turned 20 degrees, must fail.
  * 3. Continuity: sections with a different shoulder in each quarter (departures of 0.01 and 0.02 about the middle of the reach they leave) on a square and a 30 by 20 mm box are C2 across each guide (the one-sided limits of the radius and both its derivatives, each extrapolated to the guide, agree); a made jet joining two ellipses of different depth at a guide must fail on its curvature.
  *
  * @evidence contracts/testing.md#behavioral-verification Builds sections with `AutoMovieHumanViewSection.of` and `.range` and reads them through `.radius`, `.curvatures` and `ISection.girth`. It catches a section that departs from the ellipse at the ellipse's shoulder, a guide whose radius, slope or curvature is not the box's and the declared law's, a section that crosses the box side it should touch, and a curvature jump at a guide between two quarters; any construction that touches the box at its guides with the declared curvature and is C2 there passes.
- * @evidence contracts/testing.md#independent-expectations Expectations are closed forms independent of the operator: the ellipse's polar radius and exact derivatives by Taylor arithmetic and its perimeter by the AGM (`HumanViewOracle`); the quintic Hermite remainder of each knot span (`max|rho^(6)| h^6 / (720 * 64)`), the knots at the guides and at the conic's points of parameter 1/4, 2/4 and 3/4, whose exact jets the ellipse at its shoulder has (that conic is the ellipse); the girth bound `2 pi max|w| E` from the length's first variation, taken one and a half times for its second-order terms; the guide curvature law the operator publishes (#3046: each guide the mean of its quarters' conic end curvatures `a / (2 w^2 b^2)`, `w = r / (1 - r)`); a polar curve's curvature `(rho^2 + 2 rho'^2 - rho rho'') / (rho^2 + rho'^2)^(3/2)`, read here from the circles through the guide's point and two points 2e-5 and 4e-5 rad into each sector, extrapolated to zero step so a jump of the third derivative at a guide does not enter. Rounding limits are 1e-12 of the extent on values and 1e-9 on the second derivative. Oracle limits: the shoulder's own share of the girth is the round-trip test's.
+ * @evidence contracts/testing.md#independent-expectations Expectations are closed forms independent of the operator: the ellipse's polar radius and exact derivatives by Taylor arithmetic and its perimeter by the AGM (`HumanViewOracle`); the quintic Hermite remainder of each knot span (`max|rho^(6)| h^6 / (720 * 64)`), the knots at the guides and at the conic's points of parameter 1/4, 2/4 and 3/4, whose exact jets the ellipse at its shoulder has (that conic is the ellipse); the girth bound `2 pi max|w| E` from the length's first variation, taken one and a half times for its second-order terms; the guide curvature law the operator publishes (#3046: each guide the smaller of its quarters' conic end curvatures `a / (2 w^2 b^2)`, `w = r / (1 - r)`, so no quarter must straighten back out); a polar curve's curvature `(rho^2 + 2 rho'^2 - rho rho'') / (rho^2 + rho'^2)^(3/2)`, read here from the circles through the guide's point and points 1e-3, 2e-3 and 4e-3 rad into each sector (inside its first conic span), extrapolated twice to zero step so a jump of the third derivative at a guide does not enter and the circle fit's rounding, of order `eps rho / h^2`, stays near 1e-9 of the curvature. Rounding limits are 1e-12 of the extent on values and 1e-9 on the second derivative. Oracle limits: the shoulder's own share of the girth is the round-trip test's.
  * @evidence contracts/testing.md#distinguishing-cases Square, long and tall boxes, asymmetric boxes, shoulders near both ends of each box's range and at its middle, one shoulder per quarter; red on the fuller ellipses, a sloped guide, a turned ellipse and a curvature step. The girth solve, monotonicity, reach and diagnostics belong to `test_human_lofting_view_section_girth`; the chain, its knots and its station continuity to `test_human_lofting_view_section_chain`.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_lofting_view_section`; it builds closed-form boxes in process, generates no person and starts no host, browser or GPU.
  */
@@ -150,7 +150,7 @@ function radiusError(section: AutoMovieHumanViewSection.ISection, a: number, b: 
 
 /**
  * The declared guide curvature law (#3046): guide `g`'s curvature is the
- * mean of its two quarters' conic end curvatures, each `along / (2 w^2 across^2)`
+ * smaller of its two quarters' conic end curvatures (the flatter quarter's), each `along / (2 w^2 across^2)`
  * with `w = r / (1 - r)`.
  */
 function law(e: Quarters, r: Quarters): Quarters {
@@ -158,7 +158,7 @@ function law(e: Quarters, r: Quarters): Quarters {
     const w: number = r[q]! / (1 - r[q]!);
     return along / (2 * w * w * across * across);
   };
-  return [0, 1, 2, 3].map((g: number): number => (conic((g + 3) % 4, e[g]!, e[(g + 3) % 4]!) + conic(g, e[g]!, e[(g + 1) % 4]!)) / 2) as Quarters;
+  return [0, 1, 2, 3].map((g: number): number => Math.min(conic((g + 3) % 4, e[g]!, e[(g + 3) % 4]!), conic(g, e[g]!, e[(g + 1) % 4]!))) as Quarters;
 }
 
 /**
@@ -179,20 +179,24 @@ function touch(label: string, jet: (phi: number) => Jet, extents: Quarters, kapp
     if (!(Math.abs(curvature - kappa[g]!) <= 1e-9 * kappa[g]!)) out.push(`${label} guide ${g}: jet curvature ${curvature} against the declared ${kappa[g]}`);
 
     // The curvature from the section's points alone, one side at a time: the
-    // circle through the guide's point and two points 2e-5 and 4e-5 rad into
-    // one sector errs by a term in the step (the sector's third derivative,
-    // which may jump at a guide), so the circles of the step and twice it are
-    // extrapolated to zero step (Richardson), leaving a term in the step's
-    // square, about 1e-9 of the curvature.
+    // circle through the guide's point and the points h and 2h into one
+    // sector errs by terms in h and h^2 (the sector's third derivative may
+    // jump at a guide), so the circles of h, 2h and 4h are extrapolated twice
+    // to zero step (Richardson), leaving a term in h^3. A step of 1e-3 rad
+    // keeps the circle fit's rounding, of order 1e-16 rho / h^2, near 1e-9 of
+    // the curvature, where the earlier 2e-5 rad step left it near 1e-5.
     const p: (phi: number) => [number, number] = (phi: number): [number, number] => {
       const rho: number = jet(phi)[0];
       return [rho * Math.cos(phi), rho * Math.sin(phi)];
     };
     for (const side of [-1, 1]) {
-      const d: number = side * 2e-5;
-      const one: number = circle(p(at), p(at + d), p(at + 2 * d));
-      const two: number = circle(p(at), p(at + 2 * d), p(at + 4 * d));
-      const read: number = Math.abs(2 * one - two);
+      const d: number = side * 1e-3;
+      const c1: number = circle(p(at), p(at + d), p(at + 2 * d));
+      const c2: number = circle(p(at), p(at + 2 * d), p(at + 4 * d));
+      const c4: number = circle(p(at), p(at + 4 * d), p(at + 8 * d));
+      const r1: number = 2 * c1 - c2;
+      const r2: number = 2 * c2 - c4;
+      const read: number = Math.abs((4 * r1 - r2) / 3);
       if (!(Math.abs(read - kappa[g]!) <= 1e-6 * kappa[g]!)) out.push(`${label} guide ${g}: point curvature ${read} on its ${side < 0 ? "lower" : "upper"} side against the declared ${kappa[g]}`);
     }
 

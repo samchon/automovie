@@ -93,7 +93,11 @@ export function test_human_solid_merge_angle(): void {
     }
     const shifted: AutoMovieHumanSolidRail.IRail | null = join.rail(0.7);
     if (shifted !== null && HumanSolidShapes.distance(shifted.partPoint, rail([0, 0, h + 1], R, h + 1, Math.sqrt(R * R - (h + 1) ** 2), 5, 0.7)) <= 1e-9) failures.push("proof: the part rail reads the same against a centre 1 mm higher");
-    const blend: AutoMovieHumanSolidBlendChain.IBlend | null = AutoMovieHumanSolidBlendChain.of("blend.ball", join, 48);
+    // Between its columns the blend chain is the B-spline of its columns' data,
+    // whose interpolated ribbon leaves the sphere's tangent plane by about
+    // (spacing / R)^2 / 8 (AutoMovieHumanSolidBlendChain): 192 columns put the
+    // spacing near 0.5 mm on this rail and that angle under 1e-4 rad.
+    const blend: AutoMovieHumanSolidBlendChain.IBlend | null = AutoMovieHumanSolidBlendChain.of("blend.ball", join, 192);
     if (blend === null) failures.push("merge: no blend chain");
     else {
       if (blend.part.kind !== "hole") failures.push(`merge: the part loop is a ${blend.part.kind}, expected a hole`);
