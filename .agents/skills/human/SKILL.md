@@ -28,6 +28,10 @@ Work in [correction rounds](../3d-modeling/visual-debugging.md#correction-rounds
 5. Fix every row in one batch under the [construction rules](construction.md), after reviewing the diff against them, and give each fixed defect a test that fails if it returns.
 6. Confirm with the [tests](testing.md), and record what the round taught in the Human package's documentation.
 
+Fix in one batch by default, because fixes chosen together see each other. Fix one cause alone first only when the batch would break together in a chain, or a local fix is clearly the safer step, and say which in the round's table.
+
+When a construction resists, do not force it: research how the problem is solved elsewhere, generate alternatives, compare them on the frames and the numbers, and move to the better one; a round that only retries the same idea is lost.
+
 Derive every fix and every expectation from the person's inputs, published or derived laws, geometry, or normalized tables aggregated over the whole reference set, because a special case or an unsourced number fits one symptom and breaks the population. Measure the data and choose the construction yourself; when a round disproves a construction, choose another.
 
 Finish the anatomical neutral and the bind before any other pose: every motion starts from them, so a defect left at neutral returns in every pose.
