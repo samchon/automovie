@@ -11,10 +11,11 @@ import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
  *
  * Sources, site by site:
  *
- * - Heights: the crotch (the caller's, ISO 8559-1 5.7.6), the buttock point,
- *   the chest point and ISO 8559-1's waist level (midway between the tenth
- *   rib and iliocristale) as ANSUR II shares of the crotch-to-cervicale span
- *   (`AutoMovieHumanTrunkLandmarks`, measured or derived there); the top hip
+ * - Heights: the crotch (the caller's, ISO 8559-1 5.7.6), the buttock point
+ *   and the chest point as ANSUR II shares of the crotch-to-cervicale span
+ *   (`AutoMovieHumanTrunkLandmarks`, measured there); the natural waist at
+ *   the person's `waistHeight` (the 1988 Army survey's natural waist, where
+ *   its breadth and depth are taken); the top hip
  *   midway between the waist and the hip (ISO 8559-1 5.3.12); the
  *   inframammary fold two intercostal spaces under the chest point (Gray
  *   1918, `AutoMovieHumanTrunkLandmarks.FOLD_DROP`, conventional); the
@@ -89,7 +90,7 @@ export namespace AutoMovieHumanTrunkViews {
 
     // Heights of the published sites.
     const buttock: number = at(AutoMovieHumanTrunkLandmarks.BUTTOCK);
-    const waist: number = at(AutoMovieHumanTrunkLandmarks.WAIST);
+    const waist: number = measures.waistHeight * scale;
     const chest: number = at(AutoMovieHumanTrunkLandmarks.CHEST);
     const fold: number = chest - AutoMovieHumanTrunkLandmarks.FOLD_DROP * (cervicale - crotch);
     const topHip: number = (buttock + waist) / 2;
