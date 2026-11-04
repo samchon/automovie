@@ -12,7 +12,7 @@ After the coarse representation and any commissioned motion work, upgrade only o
 
 | Workflow | When it fits | Production responsibility |
 | --- | --- | --- |
-| Construct from dimensions, curves, lofted sections, primitives, or procedural rules | Shape or variation needs direct authoring control | Keep meaningful parameters and the construction that generates the surface |
+| Construct from dimensions, curves, lofted sections, primitives, or procedural rules | Shape or variation needs direct authoring control | Keep meaningful parameters and the construction that generates the surface, under [form construction](construction.md) |
 | Recover a fixed mesh or supported image observations | The source supplies a shape whose recovered representation needs editing or regeneration | Preserve acquisition and registration, save recovered coefficients, and judge the independent reconstruction |
 | Use an existing or generated asset directly | Its supported geometry, materials, rig, and clips already meet the task | Preserve the admitted bytes and adapt placement, performance, and appearance through supported controls |
 
@@ -22,7 +22,7 @@ Freeze selected external bytes and their sidecars with hashes, source identity, 
 
 ## Construct And Assemble
 
-Use named dimensions and local frames for authored shapes. For a loft, keep sections, guides, and their parameter directions related through one generating definition; for another representation, retain its corresponding sketches, fields, or procedural structure. Keep defining shape independent of tessellation so a detail setting does not silently change identity or dimensions.
+Use named dimensions and local frames for authored shapes, and generate each part's surface and the quantities on it under [form construction](construction.md).
 
 Give each part, placement, shared boundary, and motion driver one owner. Assemble through parent frames and shared attachment definitions so a proportion or pivot edit carries dependent parts with it. Rigid objects can move through transforms; deforming objects need the supported rig or deformation controls their performance requires. Reusing a supplied rig can be more appropriate than reconstructing a surface and losing its existing animation behavior.
 
