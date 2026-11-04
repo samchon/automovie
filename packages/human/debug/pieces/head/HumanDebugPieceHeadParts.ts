@@ -41,8 +41,7 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
   build(person: IHumanDebugPerson, argument: string | null): IHumanDebugDocument {
     const which: string = argument ?? "all";
     const base: IAutoMovieHumanBodyCalibration = person.calibration();
-    const neckChain: IAutoMovieLoftChain | undefined = base.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "head");
-    if (neckChain === undefined) throw new Error("head.parts: the calibration has no neck chain `head`");
+    const neckChain: IAutoMovieLoftChain = AutoMovieHumanBodyLaw.neckRing(person.parameters);
     const inputs: AutoMovieHumanHeadConstruction.IInputs = AutoMovieHumanBodyLaw.headInputs(person.parameters);
     const built: IAutoMovieHumanHeadBuilt = AutoMovieHumanHeadPass.build(AutoMovieHumanHeadPass.prepare(neckChain, inputs), AutoMovieHumanHeadLandmarks.NONE);
     // The tragion and the auricles' tops at their published places.

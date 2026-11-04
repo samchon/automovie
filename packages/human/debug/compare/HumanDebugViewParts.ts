@@ -68,7 +68,7 @@ export namespace HumanDebugViewParts {
     );
     const records: HumanDebugViewTap.IRecord[] = [...body.records];
     let headFailure: string | null = null;
-    const neckChain: IAutoMovieLoftChain | undefined = body.value.body.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "head");
+    const neckChain: IAutoMovieLoftChain | undefined = AutoMovieHumanBodyLaw.neckRing(parameters);
     if (neckChain === undefined) headFailure = "the calibration has no neck chain `head`";
     else
       try {

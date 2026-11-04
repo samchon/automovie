@@ -205,6 +205,27 @@ export namespace AutoMovieHumanBodyLaw {
   }
 
   /**
+   * The neck ring chain under the head, as {@link calibrate} builds it: the
+   * chain the head lane stands on (`AutoMovieHumanHeadLane`), which the
+   * figure no longer publishes.
+   *
+   * @param params Public input.
+   * @returns The neck ring chain, world mm.
+   */
+  export function neckRing(params: IAutoMovieHumanParameters): IAutoMovieLoftChain {
+    const height: number = statureOf(params);
+    const inputs: AutoMovieHumanLegConstruction.IInputs = tapes(params, height);
+    const head: AutoMovieHumanHeadConstruction.IInputs = headInputs(params);
+    return AutoMovieHumanNeckConstruction.generate({
+      top: AutoMovieHumanHeadConstruction.seat(head),
+      neck: head.neck,
+      neckBase: column(params, inputs).neckBase,
+      sex: inputs.sex,
+      scale: inputs.scale,
+    });
+  }
+
+  /**
    * The head's inputs of a person, as {@link calibrate} builds the head: the
    * head identity, stature, neck length (the control, else its default from the
    * cervicale height), neck girth and the sex and fat sliders. A standalone head
