@@ -2,7 +2,7 @@
 
 ## Type Checking
 
-Read type errors from one resident collector, `pnpm ttsc --noEmit --watch` in `test/`. The test project imports every package, so its cycle checks them all, and every agent in the checkout reads that one log. Further collectors over the same sources compete for the same plugin cache and CPU and find nothing it does not.
+Read type errors from one resident collector, `pnpm ttsc --noEmit --watch` in `test/`. The test project imports every package, so its cycle checks them all, and every agent in the checkout reads that one log. Add a collector only for code the test program does not import, such as a package's debug viewer, under that code's own tsconfig; further collectors over the same sources compete for the same plugin cache and CPU and find nothing it does not.
 
 ## Tests
 
