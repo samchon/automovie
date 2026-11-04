@@ -208,3 +208,13 @@ Still owed before the body law can be wired (each named as a parameter in the bi
 - Tester's finding (supervised audit pass, program 15:33:05): `AutoMovieHumanBodyLaw.calibrate` threw for f1, f2, m1, m2, "Station X is outside chain leg.left" (X = -365, -527, -95, -85). Cause, mine: the leg's run above its thigh site carried the thigh's whole box into the pelvis, its lateral side outside the trunk on some phases, so no crossing existed within the leg's stations and the trace's Newton ran past the leg's top; it broke rule 8 of the map. Fix `ee36f8b49`: every walk's inner end closes in a G2 dome inside its host (legs in the pelvis and heel, arms in the girdle, digits at the knuckle). Cause, the kernel's: the trace's Newton read a chain past its layers and threw; the kernel made the jet total (`0d800ca20`).
 - Swaps `592193f7c` (estimates from the private reference set, owner's order; no published source found): `perineumForward` and `cervicaleForward` replaced by `places` (`AutoMovieHumanBodyPlaces`, forward of the ankle centres' midpoint); the leg's unpublished depths by `AutoMovieHumanLegSection.box`; the foot's axis and heel by `AutoMovieHumanFootPlaces` (yaw, ankle place). Remaining in the interim table: `upperSites`, `foldRadius`, `ankleSite`, `armSites`, the foot's boxes and forefoot end, `digitWalk`, the skeleton's joint centres, the toe centres, masses, nails, the neck.
 - f1 generation check before the fix: the frame's request ended at 15:50:18 with the connection reset (curl exit 56) on the throwing source; rerun on `592193f7c` started 15:55.
+
+## Generation round on f1 (written 16:06:21, Get-Date; viewer frames on 5197, one at a time)
+
+| Frame (request start) | Failure | Cause | Fix |
+| --- | --- | --- | --- |
+| 15:54:47 | Maximum call stack size exceeded in `AutoMovieHumanBodySurfaceSolids.draw` (viewer worker's stack) | the kernel's mesh copy spread a full figure's positions into one call | kernel; mine `d0e747aff` drops non-finite chains as a defence |
+| 16:00:55 | "Stickman skeleton needs the hand.left.1 chain" | `AutoMovieHumanJointCentres` and the neutral posture's rings read today's chain names with heights as stations | `37fbfd9ce`: the calibration carries today's body as `legacy` (remaining), those readers take it; the binding reads the published chains |
+| 16:04:47 | "Cannot read properties of undefined (reading '0')", no location in the 500 | not yet known | stack asked of the viewer worker through the supervisor |
+
+Remaining added: `IAutoMovieHumanBodyCalibration.legacy` (today's body for the rig's stickman radii and neutral rings), to go when those readers read the view parts' own axes.
