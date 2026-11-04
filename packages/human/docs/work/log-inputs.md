@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 photo-pupil consumer reconciliation (2026-11-05 05:26:22 +09:00, Get-Date)
+
+Read the actual saved EyeParts affine controls, station/jet definitions and independent Bernstein/photo-origin observer against the completed shared 57353 log. Both head questions passed in 764/547 ms; the full round stayed 41/47, with all six failures retained by CORE. Read all 28 original head diagnostic rows (14 per side), all symmetric ellipse-section concavity. They are not cleared by the source observer. Independent upper-source sample maxima were 2.2781733182e-13/2.2792811098e-13 mm, both photo-origin errors zero, and source findings empty.
+
+The source note/audit now distinguish the identical affine image of photo (0,0) from the superseded chord-pupil convention and state the actual `L*sin(pi*t/2)^2` station. The supplied eye height is pupil-aligned margin separation, not independent absolute pupil elevation. The 4691/820 result is dated history; 57353/28 is the later completed snapshot, not a conic repair. The later C7 candidate and current source/tree material-roll connection are pending the next CORE invocation. Four eye studies remain outside skin and no new PNG is claimed. This documentation batch changes no source matrix, executable expression, modeler file or generated data. The registry's shorter JSDoc wording will be aligned only when the current source freeze is released; no TypeScript save or duplicate test is introduced here.
+
+At 05:27:41 +09:00 (Get-Date), completed the entire three-file diff review against the actual mapping, observer and dated results; `git diff --check` was clean. No new test or render was needed for this prose-only reconciliation.
+
 ## #3062 head-length protocol support (2026-11-05 05:15:26 +09:00, Get-Date)
 
 HEAD asked for the existing primary head-length definition before adding an oracle. Directly read ANSUR handbook section 6.4.48/printed p. 124, the public HeadIdentity and FaceBase's additional-caliper section. The maximum is a glabella-fixed, vertically searched posterior midsagittal caliper distance, not an AP projection; FaceBase delegates finer manual details to an unread book and lists maximum cranial length separately from its 29 surface distances. The source note/audit preserve these scopes separately, without a new paper search or raw-data reading.
