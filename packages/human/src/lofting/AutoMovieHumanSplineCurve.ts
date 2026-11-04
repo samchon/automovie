@@ -46,23 +46,31 @@ export namespace AutoMovieHumanSplineCurve {
     const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * count;
     const i: number = Math.min(count - 1, Math.floor(u));
     const f: number = u - i;
-    const w: number[] = weights(f);
-    const d: number[] = derivatives(f);
+    const g: number = 1 - f;
+
+    // The four weights and their derivatives, written out.
+    const w0: number = (g * g * g) / 6;
+    const w1: number = (3 * f * f * f - 6 * f * f + 4) / 6;
+    const w2: number = (-3 * f * f * f + 3 * f * f + 3 * f + 1) / 6;
+    const w3: number = (f * f * f) / 6;
+    const d0: number = -(g * g) / 2;
+    const d1: number = (3 * f * f - 4 * f) / 2;
+    const d2: number = (-3 * f * f + 2 * f + 1) / 2;
+    const d3: number = (f * f) / 2;
+    const j0: number = (i - 1 + count) % count;
+    const j1: number = i % count;
+    const j2: number = (i + 1) % count;
+    const j3: number = (i + 2) % count;
+    const c: readonly number[] = coefficients;
 
     // Chain rule: du/dt = N / 2pi.
     const scale: number = count / (2 * Math.PI);
-    let x: number = 0;
-    let z: number = 0;
-    let dx: number = 0;
-    let dz: number = 0;
-    for (let k: number = 0; k < 4; k++) {
-      const j: number = (((i - 1 + k) % count) + count) % count;
-      x += w[k]! * coefficients[j]!;
-      z += w[k]! * coefficients[count + j]!;
-      dx += d[k]! * coefficients[j]!;
-      dz += d[k]! * coefficients[count + j]!;
-    }
-    return [x, z, dx * scale, dz * scale];
+    return [
+      w0 * c[j0]! + w1 * c[j1]! + w2 * c[j2]! + w3 * c[j3]!,
+      w0 * c[count + j0]! + w1 * c[count + j1]! + w2 * c[count + j2]! + w3 * c[count + j3]!,
+      (d0 * c[j0]! + d1 * c[j1]! + d2 * c[j2]! + d3 * c[j3]!) * scale,
+      (d0 * c[count + j0]! + d1 * c[count + j1]! + d2 * c[count + j2]! + d3 * c[count + j3]!) * scale,
+    ];
   }
 
   /**
@@ -112,23 +120,44 @@ export namespace AutoMovieHumanSplineCurve {
     const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * count;
     const i: number = Math.min(count - 1, Math.floor(u));
     const f: number = u - i;
-    const w: number[] = weights(f);
-    const d: number[] = derivatives(f);
-    const dd: number[] = [1 - f, 3 * f - 2, 1 - 3 * f, f];
+    const g: number = 1 - f;
+
+    // The four weights with their first and second derivatives, written out.
+    const w0: number = (g * g * g) / 6;
+    const w1: number = (3 * f * f * f - 6 * f * f + 4) / 6;
+    const w2: number = (-3 * f * f * f + 3 * f * f + 3 * f + 1) / 6;
+    const w3: number = (f * f * f) / 6;
+    const d0: number = -(g * g) / 2;
+    const d1: number = (3 * f * f - 4 * f) / 2;
+    const d2: number = (-3 * f * f + 2 * f + 1) / 2;
+    const d3: number = (f * f) / 2;
+    const e0: number = g;
+    const e1: number = 3 * f - 2;
+    const e2: number = 1 - 3 * f;
+    const e3: number = f;
+    const j0: number = (i - 1 + count) % count;
+    const j1: number = i % count;
+    const j2: number = (i + 1) % count;
+    const j3: number = (i + 2) % count;
+    const c: readonly number[] = coefficients;
+    const x0: number = c[j0]!;
+    const x1: number = c[j1]!;
+    const x2: number = c[j2]!;
+    const x3: number = c[j3]!;
+    const z0: number = c[count + j0]!;
+    const z1: number = c[count + j1]!;
+    const z2: number = c[count + j2]!;
+    const z3: number = c[count + j3]!;
     const scale: number = count / (2 * Math.PI);
-    const out: [number, number, number, number, number, number] = [0, 0, 0, 0, 0, 0];
-    for (let k: number = 0; k < 4; k++) {
-      const j: number = (((i - 1 + k) % count) + count) % count;
-      const x: number = coefficients[j]!;
-      const z: number = coefficients[count + j]!;
-      out[0] += w[k]! * x;
-      out[1] += w[k]! * z;
-      out[2] += d[k]! * x * scale;
-      out[3] += d[k]! * z * scale;
-      out[4] += dd[k]! * x * scale * scale;
-      out[5] += dd[k]! * z * scale * scale;
-    }
-    return out;
+    const scale2: number = scale * scale;
+    return [
+      w0 * x0 + w1 * x1 + w2 * x2 + w3 * x3,
+      w0 * z0 + w1 * z1 + w2 * z2 + w3 * z3,
+      (d0 * x0 + d1 * x1 + d2 * x2 + d3 * x3) * scale,
+      (d0 * z0 + d1 * z1 + d2 * z2 + d3 * z3) * scale,
+      (e0 * x0 + e1 * x1 + e2 * x2 + e3 * x3) * scale2,
+      (e0 * z0 + e1 * z1 + e2 * z2 + e3 * z3) * scale2,
+    ];
   }
 
   /**
@@ -248,17 +277,6 @@ export namespace AutoMovieHumanSplineCurve {
       (3 * f * f * f - 6 * f * f + 4) / 6,
       (-3 * f * f * f + 3 * f * f + 3 * f + 1) / 6,
       (f * f * f) / 6,
-    ];
-  }
-
-  /** Derivatives of the weights with respect to f. */
-  function derivatives(f: number): number[] {
-    const g: number = 1 - f;
-    return [
-      -(g * g) / 2,
-      (3 * f * f - 4 * f) / 2,
-      (-3 * f * f + 2 * f + 1) / 2,
-      (f * f) / 2,
     ];
   }
 }
