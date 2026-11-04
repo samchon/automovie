@@ -346,6 +346,34 @@ export namespace AutoMovieHumanSolidMesh {
   }
 
   /**
+   * The band between a ring another tessellation drew (an event's contact
+   * ring, shared with the ring loft by vertex index) and a face's open
+   * drawn-cell edge beside it: the same zipper as a trim loop's
+   * (`AutoMovieHumanSolidZip` on arclength from aligned starts), turned
+   * outward. Nothing is added to the mesh; the caller adds the triangles
+   * where the ring's vertices live.
+   *
+   * @param mesh A mesh whose positions hold both sequences' vertices.
+   * @param ring The ring's vertices, in its own order.
+   * @param cycle The face's open edge.
+   * @param out The outward normal of the face near the band.
+   * @returns The triangles, outward.
+   */
+  export function bridge(mesh: IMesh, ring: readonly number[], cycle: readonly number[], out: Readonly<Vec3>): [number, number, number][] {
+    const turned: number[] = aligned(mesh, ring, cycle);
+    const band: [number, number, number][] = AutoMovieHumanSolidZip.band(
+      { vertices: [...ring], angles: arc(mesh, ring) },
+      { vertices: turned, angles: arc(mesh, turned) },
+    );
+    let best: Vec3 = [0, 0, 0];
+    for (const t of band) {
+      const n: Vec3 = normal(mesh, t);
+      if (norm(n) > norm(best)) best = n;
+    }
+    return dot(best, out) < 0 ? band.map(([a, b, c]: [number, number, number]): [number, number, number] => [a, c, b]) : band;
+  }
+
+  /**
    * The point an owner's coordinates name.
    *
    * @param mesh The mesh.

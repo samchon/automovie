@@ -3,10 +3,11 @@ import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
 import { AutoMovieHumanSolidChain } from "../lofting/AutoMovieHumanSolidChain";
 import { AutoMovieHumanSolidMesh } from "../lofting/AutoMovieHumanSolidMesh";
-import type { AutoMovieHumanSolidVector } from "../lofting/AutoMovieHumanSolidVector";
+import { AutoMovieHumanSolidVector } from "../lofting/AutoMovieHumanSolidVector";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanSolidSurface } from "../lofting/IAutoMovieHumanSolidSurface";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import type { IAutoMovieHumanSurfaceBoundary } from "./IAutoMovieHumanSurfaceBoundary";
 import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
 type Vec3 = AutoMovieHumanSolidVector.Vec3;
@@ -20,7 +21,11 @@ type Vec3 = AutoMovieHumanSolidVector.Vec3;
  * and its blend chain's rows between them); then each host and part chain
  * once as a face on its own grid, the bisection stations of the body's chord
  * tolerance (`AutoMovieHumanLoftStations.bisect`) and its own uniform
- * phases, trimmed by every rail that lies on it. A face's end left open by
+ * phases, trimmed by every rail that lies on it. A face's end that an event
+ * owns (a contact ring of the ring loft, today's neck on a new trunk) keeps
+ * that ring: the face stops a station short and its edge is bridged to the
+ * ring's shared vertices (`AutoMovieHumanSolidMesh.bridge`), so the two
+ * tessellations meet watertight. A face's end left open by
  * its trims closes on the chain's pole by a fan, the apex's phase NaN as for
  * every pole of the body. Every other vertex carries
  * `[chain, station, phase]` on the chain that evaluated it, the blend's on
@@ -103,22 +108,46 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       if (m.diff === true) inverted.add(m.part);
     }
 
-    // Then every host and part chain as one trimmed face.
+    // Then every host and part chain as one trimmed face. An end that an
+    // event owns (a contact ring at the chain's far end, made before this
+    // step by the events' ring loft) keeps that ring: the face's grid stops
+    // one station short of it and its edge there is bridged to the ring's
+    // shared vertices.
     const poles: { at: number; chain: string; station: number; point: Vec3 }[] = [];
+    const bridges: { chain: string; ring: number[]; cycle: number[]; out: Vec3 }[] = [];
     for (const [name, trims] of loops) {
       const chain: IAutoMovieHumanLoftChain = context.chains.get(name)!;
       const s: IAutoMovieHumanSolidSurface = surfaces.get(name)!;
       const first: number = chain.layers[0]!.y;
       const last: number = chain.layers[chain.layers.length - 1]!.y;
-      const stations: number[] = AutoMovieHumanLoftStations.bisect(chain, first, last, context.tolerance);
+      const ringOf = (end: "bottom" | "top"): number[] | null => {
+        const b: IAutoMovieHumanSurfaceBoundary | undefined = context.boundaries.get(`${name}:${end}`);
+        return b !== undefined && (b.kind === "own" || b.kind === "inherited") ? b.ring : null;
+      };
+      const rings: { bottom: number[] | null; top: number[] | null } = { bottom: ringOf("bottom"), top: ringOf("top") };
+      let stations: number[] = AutoMovieHumanLoftStations.bisect(chain, first, last, context.tolerance);
+      if (rings.bottom !== null) stations = stations.slice(1);
+      if (rings.top !== null) stations = stations.slice(0, -1);
+      if (stations.length < 2) {
+        report("closed face", `${name}: its event rings leave ${stations.length} stations of its own`);
+        continue;
+      }
       const phases: number[] = Array.from({ length: chain.samples }, (_: unknown, k: number): number => (2 * Math.PI * k) / chain.samples);
       groups.push({ name: `${name}/solid`, start: mesh.indices.length });
       const open: number[][] = AutoMovieHumanSolidMesh.face(mesh, { surface: s, stations, phases, loops: trims, inverted: inverted.has(name) });
 
-      // An open end closes on the chain's pole, or is reported.
+      // An open end meets its event's ring, closes on the chain's pole, or is reported.
       for (const cycle of open) {
         const station: number = mesh.coordinates[3 * cycle[0]! + 1]!;
         const end: "bottom" | "top" = Math.abs(station - first) <= Math.abs(station - last) ? "bottom" : "top";
+        const ring: number[] | null = rings[end];
+        if (ring !== null) {
+          const j: IAutoMovieHumanSolidSurface.IJet = s.jet(station, mesh.coordinates[3 * cycle[0]! + 2]!);
+          const n: Vec3 = AutoMovieHumanSolidVector.cross(j.u, j.v);
+          const sign: number = s.orientation * (inverted.has(name) ? -1 : 1);
+          bridges.push({ chain: name, ring, cycle, out: [n[0] * sign, n[1] * sign, n[2] * sign] });
+          continue;
+        }
         const pole: IAutoMovieHumanLoftChain["pole"] = chain.pole?.end === end ? chain.pole : chain.opposite?.end === end ? chain.opposite : undefined;
         if (pole === undefined) {
           report("closed face", `${name}: its ${end} end at station ${station} mm is left open by its trims and has no pole`);
@@ -151,6 +180,19 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       const end: number = groups[k + 1]?.start ?? mesh.indices.length;
       for (let i: number = g.start; i < end; i++) context.mesh.indices.push(mesh.indices[i]! + offset);
     });
+
+    // The bands to the event rings, on the body's buffers where the rings live.
+    const view: AutoMovieHumanSolidMesh.IMesh = { positions: context.mesh.positions, indices: [], coordinates: [], owners: [] };
+    for (const b of bridges) {
+      AutoMovieHumanLoftMesh.group(context.mesh, `${b.chain}/solid`);
+      const band: [number, number, number][] = AutoMovieHumanSolidMesh.bridge(
+        view,
+        b.ring,
+        b.cycle.map((v: number): number => v + offset),
+        b.out,
+      );
+      for (const t of band) context.mesh.indices.push(t[0], t[1], t[2]);
+    }
     return diagnostics;
   }
 }
