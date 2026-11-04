@@ -81,7 +81,7 @@ export namespace HumanAnatomyTable {
     {
       id: "ORD-LG-knee/thigh",
       source: "knee over thigh girth within ANSUR 1988's 1st to 99th percentile by sex (HumanPopulationAudit, \"knee / thigh\")",
-      read: (person: string, l: ILimb, sex: "female" | "male"): IRow[] => (l.kind !== "leg" ? [] : [band(person, l, "knee / thigh", at(l, 1) / max(l, 0, 0.5), sex)]),
+      read: (person: string, l: ILimb, sex: "female" | "male"): IRow[] => (l.kind !== "leg" ? [] : [band(person, l, "knee / thigh", at(l, 1) / max(l, 0, 0, 0.5), sex)]),
     },
     {
       id: "ORD-LG-calf/knee",
