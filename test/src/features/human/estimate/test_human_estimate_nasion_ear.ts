@@ -17,7 +17,8 @@ type V3 = HumanReferenceSections.V3;
  * mm of the median plane): the nasion is the deepest point (least x) between
  * the nose's root and the forehead, sought within a face height's fifth of
  * the nasion's height (the face height, input, above the menton, the head
- * height, input, under the vertex); the glabella the most anterior point
+ * height, input, under the vertex), among the rows whose front stands within
+ * 40 mm of the foremost; the glabella the most anterior point
  * within 40 mm above it. The ear's front and centre: at the tragion's height
  * (`AutoMovieHumanHeadArcs.tragionDrop` under the vertex), the ear's rim
  * standing clear of the head (farther from the median plane than half the
@@ -61,13 +62,19 @@ export function test_human_estimate_nasion_ear(): void {
 
     // The nasion: the midline's deepest point near its height; the glabella:
     // the most anterior within 40 mm above.
+    // A row whose front skin the pack lacks reads its midline at the back of
+    // the head; only rows within 40 mm of the foremost front count.
     const reach: number = params.head.faceHeight / 5;
+    const near: HumanReferenceSections.ISection[] = rows.filter((s: HumanReferenceSections.ISection): boolean => Math.abs(s.y - nasionLevel) <= reach);
+    const foremost: number = near.reduce((a: number, s: HumanReferenceSections.ISection): number => {
+      const x: number = midFront(s);
+      return Number.isFinite(x) ? Math.max(a, x) : a;
+    }, -Infinity);
     let nasion: { y: number; x: number } | null = null;
-    for (const s of rows)
-      if (Math.abs(s.y - nasionLevel) <= reach) {
-        const x: number = midFront(s);
-        if (Number.isFinite(x) && (nasion === null || x < nasion.x)) nasion = { y: s.y, x };
-      }
+    for (const s of near) {
+      const x: number = midFront(s);
+      if (Number.isFinite(x) && x >= foremost - 40 && (nasion === null || x < nasion.x)) nasion = { y: s.y, x };
+    }
     if (nasion !== null) {
       let glabella: { y: number; x: number } | null = null;
       for (const s of rows)

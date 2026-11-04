@@ -16,9 +16,11 @@ type V3 = HumanReferenceSections.V3;
  *   girth, above the floor per the reference's lateral malleolus height
  *   (`ankleHeight`, input) and per stature.
  * - The toes' heads: on each foot's sections below 25 mm, the loops ahead of
- *   0.7 of the foot's length (the toes, parted from the forefoot), each
- *   loop's foremost point along the foot's axis and its centre across it, per
- *   foot length, ordered medial to lateral; the count of toes read per foot.
+ *   0.7 of the foot's length (the toes, parted from the forefoot), one toe
+ *   per place across: its foremost point over its sections along the axis
+ *   from the heel's rearmost to the foot's foremost point, and its first
+ *   loop's centre across that axis toward the little toe, per foot length,
+ *   ordered medial to lateral; the count of toes read per foot.
  * - The neck's box at its tape site: between the neck's lowest skin above
  *   cervicale's height (stature times ANSUR II's share) and the menton (the
  *   vertex less the head height, input), the section of least taut girth
@@ -93,7 +95,9 @@ export function test_human_estimate_sites(): void {
           if (!l.points.every((p: V3): boolean => along(p) >= 0.7 * length)) continue;
           const tip: number = Math.max(...l.points.map(along));
           const centre: number = l.points.map(across).reduce((a: number, b: number): number => a + b, 0) / l.points.length;
-          if (!toes.some((t: { tip: number; across: number }): boolean => Math.abs(t.across - centre) < 6)) toes.push({ tip, across: centre });
+          const same: { tip: number; across: number } | undefined = toes.find((t: { tip: number; across: number }): boolean => Math.abs(t.across - centre) < 6);
+          if (same === undefined) toes.push({ tip, across: centre });
+          else same.tip = Math.max(same.tip, tip);
         }
       toeCount.push(toes.length);
       if (toes.length !== 5) continue;

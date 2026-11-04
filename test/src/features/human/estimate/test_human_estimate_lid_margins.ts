@@ -59,7 +59,7 @@ export function test_human_estimate_lid_margins(): void {
       const rows: HumanReferenceSections.ISection[] = HumanReferenceSections.sections(id, "head", [nasion - 2 * eye.palpebralFissureHeight, nasion + eye.palpebralFissureHeight]);
       const all: V3[] = rows.flatMap((s: HumanReferenceSections.ISection): V3[] => [...s.loops, ...s.arcs].flatMap((l: HumanReferenceSections.ILoop): V3[] => l.points));
       if (all.length === 0) continue;
-      const face: number = Math.max(...all.map((p: V3): number => p[0]));
+      const face: number = all.reduce((a: number, p: V3): number => Math.max(a, p[0]), -Infinity);
       const ends: V3[] = rows.flatMap((s: HumanReferenceSections.ISection): V3[] =>
         s.arcs.flatMap((a: HumanReferenceSections.ILoop): V3[] => [a.points[0]!, a.points[a.points.length - 1]!]),
       ).filter((p: V3): boolean => side * p[2] >= 8 && side * p[2] <= 60 && p[0] >= face - 40);
