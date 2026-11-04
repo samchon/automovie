@@ -72,6 +72,20 @@ export interface IAutoMovieHumanLoftChain {
     /** The pole, mm. */
     point: [number, number, number];
   };
+
+  /**
+   * The pole of the other end of a chain closed at both (a foot from heel
+   * to forefoot cap), as `pole`; the solid tessellation
+   * (`AutoMovieHumanBodySurfaceSolids`) closes both ends, the ring loft only
+   * `pole`'s. Absent for a chain open at its other end.
+   */
+  opposite?: {
+    /** The chain's end the pole closes, the other than `pole`'s. */
+    end: "bottom" | "top";
+
+    /** The pole, mm. */
+    point: [number, number, number];
+  };
 }
 export namespace IAutoMovieHumanLoftChain {
   /** One principal layer: a shape event of the chain. */

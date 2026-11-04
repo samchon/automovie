@@ -119,14 +119,15 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       for (const cycle of open) {
         const station: number = mesh.coordinates[3 * cycle[0]! + 1]!;
         const end: "bottom" | "top" = Math.abs(station - first) <= Math.abs(station - last) ? "bottom" : "top";
-        if (chain.pole === undefined || chain.pole.end !== end) {
+        const pole: IAutoMovieHumanLoftChain["pole"] = chain.pole?.end === end ? chain.pole : chain.opposite?.end === end ? chain.opposite : undefined;
+        if (pole === undefined) {
           report("closed face", `${name}: its ${end} end at station ${station} mm is left open by its trims and has no pole`);
           continue;
         }
         const apex: number = mesh.positions.length / 3;
-        mesh.positions.push(...chain.pole.point);
+        mesh.positions.push(...pole.point);
         mesh.coordinates.push(NaN, NaN, NaN);
-        poles.push({ at: apex, chain: name, station: end === "bottom" ? first : last, point: chain.pole.point });
+        poles.push({ at: apex, chain: name, station: end === "bottom" ? first : last, point: pole.point });
         const fan: [number, number, number][] = cycle.map((v: number, k: number): [number, number, number] => [v, cycle[(k + 1) % cycle.length]!, apex]);
         AutoMovieHumanSolidMesh.close(mesh, fan, s, inverted.has(name));
       }

@@ -95,31 +95,42 @@ export namespace AutoMovieHumanViewLoft {
       report("stations", `stations [${part.stations.join(", ")}] are not at least two strictly increasing finite values`);
       return empty();
     }
-    // The pole's end station closes in a point and carries no section.
+    // The poles' end stations close in points and carry no section.
     const first: number = part.stations[0]!;
     const last: number = part.stations[part.stations.length - 1]!;
-    const tip: number | null = part.pole === "bottom" ? first : part.pole === "top" ? last : null;
+    const closes: ("bottom" | "top")[] = part.pole === "both" ? ["bottom", "top"] : part.pole === undefined ? [] : [part.pole];
+    const tips: number[] = closes.map((end: "bottom" | "top"): number => (end === "bottom" ? first : last));
 
-    // Toward a pole an outline runs in sigma = sqrt of the distance from the
-    // pole (signed to rise with station), so it meets the axis square to it.
-    const sigma = (s: number): number => (tip === null ? s : (part.pole === "bottom" ? 1 : -1) * Math.sqrt(Math.abs(s - tip)));
+    // Toward a pole an outline runs in a parameter that grows as the square
+    // root of the distance from it, so it meets the axis square to it: sigma =
+    // +-sqrt(|s - s_pole|) for one pole, and for two the angle
+    // acos(1 - 2 (s - s_0) / (s_1 - s_0)), which is 2 asin(sqrt) of the share
+    // from either end, odd in the square root there and smooth between.
+    const sigma = (s: number): number => {
+      if (closes.length === 2) return Math.acos(Math.min(1, Math.max(-1, 1 - (2 * (s - first)) / (last - first))));
+      if (closes.length === 1) return (closes[0] === "bottom" ? 1 : -1) * Math.sqrt(Math.abs(s - tips[0]!));
+      return s;
+    };
     const curve = (name: string, outline: IAutoMovieHumanViewPart.IOutline, closing: boolean = false): ((s: number) => number) | null => {
       const xs: number[] = outline.knots.map((k: IAutoMovieHumanViewPart.IKnot): number => k.station);
       if (!rising(xs) || !outline.knots.every((k: IAutoMovieHumanViewPart.IKnot): boolean => Number.isFinite(k.value))) {
         report("outline", `${name}: knots ${outline.knots.map((k: IAutoMovieHumanViewPart.IKnot): string => `${k.site}@${k.station}=${k.value}`).join(", ")} are not finite by strictly increasing station`);
         return null;
       }
-      if (!closing || tip === null) {
+      if (!closing || closes.length === 0) {
         const spline: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
           xs,
           outline.knots.map((k: IAutoMovieHumanViewPart.IKnot): number => k.value),
         );
         return (s: number): number => AutoMovieHumanNaturalSpline.evaluate(spline, s);
       }
-      const end: IAutoMovieHumanViewPart.IKnot = part.pole === "bottom" ? outline.knots[0]! : outline.knots[outline.knots.length - 1]!;
-      if (end.station !== tip || end.value !== 0) {
-        report("pole knot", `${name}: its ${part.pole} knot ${end.site}@${end.station}=${end.value} is not 0 at the pole's station ${tip}`);
-        return null;
+      for (const end of closes) {
+        const k: IAutoMovieHumanViewPart.IKnot = end === "bottom" ? outline.knots[0]! : outline.knots[outline.knots.length - 1]!;
+        const tip: number = end === "bottom" ? first : last;
+        if (k.station !== tip || k.value !== 0) {
+          report("pole knot", `${name}: its ${end} knot ${k.site}@${k.station}=${k.value} is not 0 at the pole's station ${tip}`);
+          return null;
+        }
       }
       const spline: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
         xs.map(sigma),
@@ -146,37 +157,39 @@ export namespace AutoMovieHumanViewLoft {
       fullness.kind === "top" ? quarters("top shoulder", fullness.shoulders) : quarters("departure", fullness.departures);
     if (lateral === null || medial === null || ahead === null || behind === null || owner === null || shoulders === null) return empty();
 
-    // The cap: between the pole and the given station nearest it, rings at
-    // equal steps of sigma (equal arc steps on a dome, whose arc grows as
-    // sigma from its apex), as many as the cap's mean half extent holds of
-    // the part's mean station gap. Inside the cap span (the pole to the
-    // nearest other outline knot) the shoulders reach the ellipse's at the
-    // pole by the quintic smoothstep: a dome is G2 at its apex only when its
-    // sections there tend to ellipses, the level sets of the osculating
-    // paraboloid.
-    const given: number[] = part.stations.filter((s: number): boolean => s !== tip);
+    // Each cap: between its pole and the given station nearest it, rings at
+    // equal steps of the root of the distance (equal arc steps on a dome,
+    // whose arc grows so from its apex), as many as the cap's mean half
+    // extent holds of the part's mean station gap. Inside the cap span (the
+    // pole to the nearest other outline knot) the shoulders reach the
+    // ellipse's at the pole by the quintic smoothstep: a dome is G2 at its
+    // apex only when its sections there tend to ellipses, the level sets of
+    // the osculating paraboloid.
+    const given: number[] = part.stations.filter((s: number): boolean => !tips.includes(s));
     let stations: number[] = given;
-    let cap: (s: number) => number = (): number => 0;
-    if (tip !== null && given.length > 0) {
-      const near: number = part.pole === "bottom" ? given[0]! : given[given.length - 1]!;
+    const caps: ((s: number) => number)[] = [];
+    const knots: number[] = [part.front.positive, part.front.negative, part.side.positive, part.side.negative].flatMap(
+      (o: IAutoMovieHumanViewPart.IOutline): number[] => o.knots.map((k: IAutoMovieHumanViewPart.IKnot): number => k.station),
+    );
+    const gap: number = (last - first) / (part.stations.length - 1);
+    for (const tip of given.length > 0 ? tips : []) {
+      const near: number = tip === first ? given[0]! : given[given.length - 1]!;
       const halves: number[] = [lateral(near), ahead(near), -medial(near), -behind(near)];
       const mean: number = halves.reduce((a: number, b: number): number => a + b, 0) / 4;
-      const gap: number = (last - first) / (part.stations.length - 1);
       const rings: number = Math.max(0, Math.ceil(mean / gap) - 1);
       const added: number[] = Array.from({ length: rings }, (_: unknown, j: number): number => {
         const share: number = (j + 1) / (rings + 1);
         return tip + (near - tip) * share * share;
       });
-      stations = [...given, ...added].sort((a: number, b: number): number => a - b);
-      const knots: number[] = [part.front.positive, part.front.negative, part.side.positive, part.side.negative]
-        .flatMap((o: IAutoMovieHumanViewPart.IOutline): number[] => o.knots.map((k: IAutoMovieHumanViewPart.IKnot): number => k.station))
-        .filter((s: number): boolean => s !== tip);
-      const span: number = Math.min(...knots.map((s: number): number => Math.abs(s - tip)));
-      cap = (s: number): number => {
+      stations = [...stations, ...added];
+      const span: number = Math.min(...knots.filter((s: number): boolean => !tips.includes(s)).map((s: number): number => Math.abs(s - tip)));
+      caps.push((s: number): number => {
         const x: number = Math.min(1, Math.abs(s - tip) / span);
         return 1 - x * x * x * (10 - 15 * x + 6 * x * x);
-      };
+      });
     }
+    stations.sort((a: number, b: number): number => a - b);
+    const cap = (s: number): number => Math.max(0, ...caps.map((c: (s: number) => number): number => c(s)));
     const domed = (r: Quarters<number>, s: number): Quarters<number> => {
       const w: number = cap(s);
       return w === 0 ? r : (r.map((x: number): number => x + w * (AutoMovieHumanViewSection.ELLIPSE - x)) as Quarters<number>);
@@ -249,8 +262,9 @@ export namespace AutoMovieHumanViewLoft {
         },
       };
     });
-    const pole: IAutoMovieHumanLoftChain["pole"] =
-      tip === null ? undefined : { end: part.pole!, point: [...part.axis.at(tip).origin] };
+    const poles: { end: "bottom" | "top"; point: [number, number, number] }[] = closes.map(
+      (end: "bottom" | "top", k: number): { end: "bottom" | "top"; point: [number, number, number] } => ({ end, point: [...part.axis.at(tips[k]!).origin] }),
+    );
     const chain: IAutoMovieHumanLoftChain = AutoMovieHumanSeamStation.continuous({
       name: part.name,
       basis: "spline",
@@ -258,7 +272,8 @@ export namespace AutoMovieHumanViewLoft {
       rule: "polar",
       samples: part.samples,
       layers,
-      ...(pole !== undefined ? { pole } : {}),
+      ...(poles[0] !== undefined ? { pole: poles[0] } : {}),
+      ...(poles[1] !== undefined ? { opposite: poles[1] } : {}),
     });
     const surface: IAutoMovieHumanSolidSurface | null = AutoMovieHumanSolidChain.surface(chain);
     if (surface === null) report("solid surface", "the chain does not read as a solid surface (no jets or a degenerate middle section)");

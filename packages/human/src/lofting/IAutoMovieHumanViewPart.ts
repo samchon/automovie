@@ -49,7 +49,8 @@ export interface IAutoMovieHumanViewPart {
   fullness: IAutoMovieHumanViewPart.Fullness;
 
   /**
-   * The end that closes in a point (a fingertip, a toe tip, the heel, the
+   * The end that closes in a point, or both ends (`both`: a foot from the
+   * heel to its forefoot cap; a fingertip, a toe tip, the heel, the
    * perineum's cap), where all four outlines and the girth have a knot of
    * value 0 at that end's station. The chain then carries that point as its
    * `pole`, closed as a G2 dome: toward the pole every outline and the girth
@@ -61,7 +62,7 @@ export interface IAutoMovieHumanViewPart {
    * rings are added at equal steps of `sigma` between the nearest given
    * station and the pole. Absent, both ends are open sections.
    */
-  pole?: "bottom" | "top";
+  pole?: "bottom" | "top" | "both";
 
   /** Control points of every section's periodic cubic B-spline, a positive multiple of 4 so each guide stands on a knot. */
   order: number;
