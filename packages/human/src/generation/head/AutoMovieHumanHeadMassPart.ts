@@ -68,7 +68,10 @@ export namespace AutoMovieHumanHeadMassPart {
 
     // The bottom: open at the neck's base, inside the trunk the head mass
     // and its neck are merged onto; the neck is this part's lower stretch.
-    const throat: number = Math.min(bottom ?? plan.y0, cervical(plan)[1] - SPACING);
+    // It reaches a neck radius under the neck base, so the trunk's open top
+    // stands inside it and the trunk crosses it there: opening at the neck
+    // base itself, the head met the trunk nowhere and the body left it out.
+    const throat: number = Math.min((bottom ?? plan.y0) - plan.neck.radius, cervical(plan)[1] - SPACING);
     const top: number = plan.vertex - g;
 
     // The axis: straight up through the skull's centre, every section level

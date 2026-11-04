@@ -35,6 +35,8 @@ Winding fixes (22:23:16):
 - `de625b57c`: a merged part's rail that does not wind round its phase was always a hole, so the part kept the outside of the region its rail encloses. That was the nose pit. It is now an island when a step from the rail along partAcross enters the region. The nose's ridge stands in the opening (nose4/merge-three.png); the blend round it still reads as a groove.
 - Open: the straight case's 8 % inward triangles (0 to 0.6 radii above the part's centre), so the test stays red; the nose blend's groove.
 
+Head missing from the figure (22:38:07): `test_human_head_on_trunk` (f1) reads no published `head.mass` and `tree.blend.head.mass.trunk: seed: the part's station line at phase 0 meets the host nowhere between stations 1437.3 and 1515.2 mm`. The head mass opened at the neck base, where the trunk's open top also ends, so the two never overlapped and the body lane left the head subtree out. The head mass now reaches a neck radius under the neck base (this commit). Its result was not read before the stop; rerun `--include human_head_on_trunk`. If the trunk's top ring is wider than the head's neck there, the head still passes through the open top without crossing it, and the trunk's top needs closing inside the head.
+
 Remaining, in order:
 
 1. **Eyes as parts of the head's tree** (owner, 21:0x: the eye is a module sharing the same logic as every other part). Design:
