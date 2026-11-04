@@ -350,6 +350,69 @@ export namespace AutoMovieHumanReferenceOutlines {
     ],
   };
 
+  /** One mass's footprint on the trunk wall: its amplitude and four edges. */
+  export interface IFootprint {
+    /** The reading test that prints it. */
+    reading: string;
+
+    /** What each value is a share of, and how the edges are found. */
+    normalization: string;
+
+    /** The parts that read it. */
+    consumers: string;
+
+    /** The people and sides the values come from. */
+    people: string;
+
+    /** Each value's mean. */
+    values: Readonly<Record<"amplitude" | "up" | "down" | "lateral" | "medial" | "halfPointWidth", number>>;
+
+    /** Each value's SD over the sides. */
+    spreads: Readonly<Record<"amplitude" | "up" | "down" | "lateral" | "medial" | "halfPointWidth", number>>;
+  }
+
+  /**
+   * The breast's footprint about the bust point, women. The lateral edge is
+   * where the setback reaches the amplitude, and the chest wall curves back
+   * laterally, so the lateral edge is the near bound of the base, not the
+   * anterior axillary line.
+   */
+  export const BREAST_FOOTPRINT: IFootprint = {
+    reading: "test_human_estimate_mass_footprints",
+    normalization:
+      "per stature; amplitude the bust point's projection over the wall's line (the inframammary fold to the back hull's first vertex above, in the point's sagittal plane); up and down the edges' heights from the bust point along that profile; lateral and medial the distances in the bust's section to where the setback reaches the amplitude; halfPointWidth the bust point's distance from the median plane",
+    consumers: "AutoMovieHumanBreastFootprint (the base's extent and the mass's amplitude)",
+    people: "two women (f1, f2), three sides; m2's one breast reads 0.0009 of stature, no mass",
+    values: { amplitude: 0.0101, up: 0.0254, down: 0.0254, lateral: 0.0102, medial: 0.0172, halfPointWidth: 0.0374 },
+    spreads: { amplitude: 0.0058, up: 0.0068, down: 0.0089, lateral: 0.0027, medial: 0.0141, halfPointWidth: 0.0017 },
+  };
+
+  /**
+   * The gluteal mass's footprint about the buttock's most posterior point,
+   * women and men apart, as {@link BREAST_FOOTPRINT}: the wall's line runs
+   * from the gluteal fold to the back hull's first vertex toward iliocristale,
+   * the medial edge toward the cleft. The down edge's spread is near its
+   * mean in women (the fold reads at varying depth on the leg's sections).
+   */
+  export const GLUTEAL_FOOTPRINT: { readonly female: IFootprint; readonly male: IFootprint } = {
+    female: {
+      reading: "test_human_estimate_mass_footprints",
+      normalization: "as BREAST_FOOTPRINT, about the buttock's most posterior point, per stature",
+      consumers: "the gluteal part's footprint and amplitude",
+      people: "two women (f1, f2), four sides",
+      values: { amplitude: 0.0076, up: 0.0359, down: 0.0581, lateral: 0.0244, medial: 0.0167, halfPointWidth: 0.0327 },
+      spreads: { amplitude: 0.0051, up: 0.0103, down: 0.0518, lateral: 0.0052, medial: 0.0109, halfPointWidth: 0.0003 },
+    },
+    male: {
+      reading: "test_human_estimate_mass_footprints",
+      normalization: "as BREAST_FOOTPRINT, about the buttock's most posterior point, per stature",
+      consumers: "the gluteal part's footprint and amplitude",
+      people: "two men (m1, m2), four sides",
+      values: { amplitude: 0.0063, up: 0.0253, down: 0.0365, lateral: 0.0194, medial: 0.0208, halfPointWidth: 0.0293 },
+      spreads: { amplitude: 0.0048, up: 0.0049, down: 0.0204, lateral: 0.0099, medial: 0.0029, halfPointWidth: 0.0037 },
+    },
+  };
+
   /**
    * A table's column at a share, linear between the rows that keep the column
    * and held beyond them.
