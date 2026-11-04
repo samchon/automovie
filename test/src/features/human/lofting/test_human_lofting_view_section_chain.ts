@@ -1,0 +1,179 @@
+import type { AutoMovieHumanLoftContract } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftContract";
+import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieHumanLoftFrame } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftFrame";
+import { AutoMovieHumanLoftJet } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftJet";
+import { AutoMovieHumanViewAxis } from "../../../../../packages/human/src/lofting/AutoMovieHumanViewAxis";
+import { AutoMovieHumanViewLoft } from "../../../../../packages/human/src/lofting/AutoMovieHumanViewLoft";
+import { AutoMovieHumanViewSection } from "../../../../../packages/human/src/lofting/AutoMovieHumanViewSection";
+import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieHumanViewPart } from "../../../../../packages/human/src/lofting/IAutoMovieHumanViewPart";
+
+type Quarters = IAutoMovieHumanViewPart.IQuarters<number>;
+type V3 = [number, number, number];
+
+/**
+ * The view-to-section operator lofts a part from its four outlines and its
+ * girth into a chain whose sections read back every outline knot at its
+ * guides and its girth at its girth knots, C2 in station, marked as view
+ * layers and readable as a solid surface; a broken box, a bad order or too
+ * few stations is reported, never thrown.
+ *
+ * Scenarios:
+ * 1. A straight 200 mm part with outline and girth knots at stations 0, 100 and 200 and layers every 20 mm: no diagnostic, a chain and a solid surface, continuity declared C2 in phase and station, every layer carrying its box, and at each knot station the chain's own points at the four guide phases on the outlines' values and the section's girth on the girth knot; the same reader with any extent 0.5 mm off must fail.
+ * 2. Station continuity: at every interior layer the chain's point and both station derivatives, read by `AutoMovieHumanLoftJet.at` just below and above the layer and extrapolated to it, agree; a copy with one layer's station curvature moved must fail the same reader.
+ * 3. A front medial knot moved across the lateral outline at station 100 gives an `outline order` diagnostic there and leaves every broken station out with one diagnostic each (`outline order` or `half extent`); a side edge on the wrong side of the axis gives `half extent` at every station and no chain; an order of 10 gives `order` and no chain; one station gives `stations` and no chain.
+ * 4. A part closing at its top in a pole: the tip station carries no layer and the chain carries the axis point there as its pole.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Calls `AutoMovieHumanViewLoft.create` on made parts and reads the result's chain through the public chain evaluators (`AutoMovieHumanLoftChain.sampler`, `.frame`, `AutoMovieHumanLoftFrame.local`, `AutoMovieHumanLoftJet.at`), its sections' girths, its surface, continuity and diagnostics. It catches a section that misses its outline at a knot, a girth knot not honoured, a chain that steps in curvature across a layer, a layer without its box, and a broken input thrown or silently built; any operator that honours its knots, is C2 in station and reports what it drops passes.
+ * @evidence contracts/testing.md#independent-expectations Expectations are the part's own inputs: the outline knots' values at their stations (the outlines own the extremes) and the girth knots (the girth owns the fullness), within rounding (1e-9 mm on points, the solve's 1e-6 mm on girths); C2 in station is read by second-order extrapolation from 1 and 2 micrometres on each side, whose truncation is below 1e-9 of the chain's fourth station derivative, against 1e-7 mm per mm squared; the diagnostics' contract names are the operator's published ones (#3046 item 7). The girth knots are put mid-reach of each knot's box (`AutoMovieHumanViewSection.range`) so the input is valid by construction. Oracle limits: between knots the outlines are the natural spline's and the girth's reach is not re-derived, so values there are read only through continuity.
+ * @evidence contracts/testing.md#distinguishing-cases Positive: a valid tapering part and one closing in a pole. Negative: an outline crossing its opposite, an axis outside the box, an order not a multiple of 4, a single station, and the made copies with a moved extent or curvature. The section's shape belongs to `test_human_lofting_view_section`, the girth solve to `test_human_lofting_view_section_girth`; whole-figure section invariants to `test_human_audit_sections`.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_lofting_view_section_chain`; it builds made parts in process, generates no person and starts no host, browser or GPU.
+ */
+export function test_human_lofting_view_section_chain(): void {
+  const failures: string[] = [];
+
+  // 1. A valid part.
+  const made: IAutoMovieHumanViewPart = part();
+  const result: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(made);
+  if (result.diagnostics.length !== 0) failures.push(`valid part: diagnostics ${result.diagnostics.map((d: AutoMovieHumanLoftContract.IDiagnostic): string => `${d.contract}: ${d.detail}`).join("; ")}`);
+  if (result.surface === null) failures.push("valid part: no solid surface");
+  if (result.continuity.phase !== "C2" || result.continuity.station !== "C2") failures.push(`valid part: continuity ${JSON.stringify(result.continuity)}`);
+  const chain: IAutoMovieHumanLoftChain | null = result.chain;
+  if (chain === null) failures.push("valid part: no chain");
+  else {
+    if (chain.layers.length !== made.stations.length) failures.push(`valid part: ${chain.layers.length} layers for ${made.stations.length} stations`);
+    chain.layers.forEach((l: IAutoMovieHumanLoftChain.ILayer, i: number): void => {
+      if (l.view === undefined) failures.push(`valid part: layer ${i} carries no box`);
+    });
+    for (const s of [0, 100, 200]) {
+      const want: Quarters = extentsAt(made, s);
+      failures.push(...knot(chain, s, want));
+      const view: IAutoMovieHumanLoftChain.IView | undefined = chain.layers.find((l: IAutoMovieHumanLoftChain.ILayer): boolean => l.y === s)?.view;
+      if (view === undefined || view.extents.some((e: number, g: number): boolean => !(Math.abs(e - want[g]!) <= 1e-12 * want[g]!))) failures.push(`station ${s}: declared box [${view?.extents.join(", ")}] against the outlines [${want.join(", ")}]`);
+      const section: AutoMovieHumanViewLoft.IStation | undefined = result.sections.find((x: AutoMovieHumanViewLoft.IStation): boolean => x.station === s);
+      const g: number = girthAt(made, s);
+      if (section === undefined || !(Math.abs(section.section.girth - g) <= 1e-6)) failures.push(`station ${s}: girth ${section?.section.girth} against the knot ${g} mm`);
+    }
+    if (knot(chain, 100, extentsAt(made, 100).map((e: number, g: number): number => (g === 1 ? e + 0.5 : e)) as Quarters).length === 0) failures.push("proof: an extent 0.5 mm off passes the knot reader");
+
+    // 2. C2 in station at every interior layer, and red on a moved curvature.
+    for (let i: number = 1; i + 1 < chain.layers.length; i++) failures.push(...station(chain, chain.layers[i]!.y));
+    const bent: IAutoMovieHumanLoftChain = structuredClone(chain);
+    const layer: IAutoMovieHumanLoftChain.ILayer = bent.layers[5]!;
+    layer.curvatures = (layer.curvatures ?? layer.coefficients.map((): number => 0)).map((c: number, k: number): number => (k === 0 ? c + 0.01 : c));
+    if (station(bent, layer.y).length === 0) failures.push("proof: a layer's station curvature moved by 0.01 passes the station reader");
+  }
+
+  // 3. Broken inputs, each reported.
+  const crossed: IAutoMovieHumanViewPart = part();
+  crossed.front.negative.knots[1]!.value = 55;
+  const c: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(crossed);
+  const order: AutoMovieHumanLoftContract.IDiagnostic[] = c.diagnostics.filter((d: AutoMovieHumanLoftContract.IDiagnostic): boolean => d.contract === "outline order");
+  if (!order.some((d: AutoMovieHumanLoftContract.IDiagnostic): boolean => d.detail.includes("station 100 mm"))) failures.push("crossed outline: no outline order diagnostic at station 100");
+  if (c.chain !== null && c.chain.layers.some((l: IAutoMovieHumanLoftChain.ILayer): boolean => l.y === 100)) failures.push("crossed outline: station 100 kept in the chain");
+  const dropped: number = c.diagnostics.filter((d: AutoMovieHumanLoftContract.IDiagnostic): boolean => d.contract === "outline order" || d.contract === "half extent").length;
+  if (c.chain !== null && c.chain.layers.length + dropped !== crossed.stations.length) failures.push(`crossed outline: ${c.chain.layers.length} layers and ${dropped} dropped-station diagnostics for ${crossed.stations.length} stations`);
+  const outside: IAutoMovieHumanViewPart = part();
+  for (const k of outside.side.negative.knots) k.value = 5;
+  const o: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(outside);
+  if (o.chain !== null) failures.push("axis outside the box: a chain is built");
+  if (o.diagnostics.filter((d: AutoMovieHumanLoftContract.IDiagnostic): boolean => d.contract === "half extent").length !== outside.stations.length) failures.push(`axis outside the box: ${o.diagnostics.length} diagnostics, expected one half extent per station`);
+  const odd: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create({ ...part(), order: 10 });
+  if (odd.chain !== null || !odd.diagnostics.some((d: AutoMovieHumanLoftContract.IDiagnostic): boolean => d.contract === "order")) failures.push("order 10: no order diagnostic, or a chain");
+  const single: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create({ ...part(), stations: [100] });
+  if (single.chain !== null || !single.diagnostics.some((d: AutoMovieHumanLoftContract.IDiagnostic): boolean => d.contract === "stations")) failures.push("one station: no stations diagnostic, or a chain");
+
+  // 4. A part closing at its top in a pole.
+  const tipped: IAutoMovieHumanViewPart = { ...part([50, 30, -38, -26], [0, 0, 0, 0]), pole: "top" };
+  const t: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(tipped);
+  if (t.chain === null) failures.push(`pole: no chain (${t.diagnostics.map((d: AutoMovieHumanLoftContract.IDiagnostic): string => d.detail).join("; ")})`);
+  else {
+    if (t.chain.layers.some((l: IAutoMovieHumanLoftChain.ILayer): boolean => l.y === 200)) failures.push("pole: the tip station carries a layer");
+    const p: V3 | undefined = t.chain.pole?.point;
+    if (t.chain.pole?.end !== "top" || p === undefined || Math.hypot(p[0], p[1] - 200, p[2]) > 1e-12) failures.push(`pole: ${JSON.stringify(t.chain.pole)}, expected the axis point [0, 200, 0] at the top`);
+  }
+
+  if (failures.length !== 0) throw new Error(`${failures.length} view loft failures:\n${failures.join("\n")}`);
+}
+
+/**
+ * A straight part along `+y` from 0 to 200 mm, its plane's `u` along `+x` and
+ * `v` along `+z`, layers every 20 mm. Outline knots at 0, 100 and 200 mm:
+ * the front edges and side edges as given at 100 mm and tapering to 0.8 at
+ * 0 and 0.7 at 200 mm unless the top knot is given; the girth knots
+ * mid-reach of each knot's box, or 0 where the box closes.
+ */
+function part(middle: Quarters = [50, 30, -38, -26], top?: Quarters): IAutoMovieHumanViewPart {
+  const at: Quarters[] = [middle.map((v: number): number => 0.8 * v) as Quarters, middle, top ?? (middle.map((v: number): number => 0.7 * v) as Quarters)];
+  const stations: number[] = [0, 100, 200];
+  const outline: (g: number) => IAutoMovieHumanViewPart.IOutline = (g: number): IAutoMovieHumanViewPart.IOutline => ({
+    knots: stations.map((s: number, i: number): IAutoMovieHumanViewPart.IKnot => ({ site: `made ${i}`, station: s, value: at[i]![g]! })),
+  });
+  const girth: IAutoMovieHumanViewPart.IOutline = {
+    knots: stations.map((s: number, i: number): IAutoMovieHumanViewPart.IKnot => {
+      const e: Quarters = [at[i]![0], at[i]![1], -at[i]![2], -at[i]![3]];
+      const range: AutoMovieHumanViewSection.IRange | null = e.every((x: number): boolean => x > 0) ? AutoMovieHumanViewSection.range({ extents: e }) : null;
+      return { site: `made girth ${i}`, station: s, value: range === null ? 0 : (range.girth[0] + range.girth[1]) / 2 };
+    }),
+  };
+  return {
+    name: "made",
+    axis: AutoMovieHumanViewAxis.straight([0, 0, 0], [1, 0, 0], [0, 0, 1]),
+    stations: Array.from({ length: 11 }, (_: unknown, i: number): number => 20 * i),
+    front: { positive: outline(0), negative: outline(2) },
+    side: { positive: outline(1), negative: outline(3) },
+    fullness: { kind: "girth", girth },
+    order: 16,
+    samples: 64,
+  };
+}
+
+/** The box's half extents a part's knots give at a knot station. */
+function extentsAt(p: IAutoMovieHumanViewPart, s: number): Quarters {
+  const value: (o: IAutoMovieHumanViewPart.IOutline) => number = (o: IAutoMovieHumanViewPart.IOutline): number => o.knots.find((k: IAutoMovieHumanViewPart.IKnot): boolean => k.station === s)!.value;
+  return [value(p.front.positive), value(p.side.positive), -value(p.front.negative), -value(p.side.negative)];
+}
+
+/** The girth knot's value at a knot station. */
+function girthAt(p: IAutoMovieHumanViewPart, s: number): number {
+  if (p.fullness.kind !== "girth") throw new Error("the made part's fullness is its girth");
+  return p.fullness.girth.knots.find((k: IAutoMovieHumanViewPart.IKnot): boolean => k.station === s)!.value;
+}
+
+/** Every failure of the chain's own points at the four guide phases to stand on the box's sides at a station. */
+function knot(chain: IAutoMovieHumanLoftChain, s: number, extents: Quarters): string[] {
+  const out: string[] = [];
+  const f: AutoMovieHumanLoftFrame.IFrame = AutoMovieHumanLoftChain.frame(chain, s);
+  const point: (t: number) => V3 = AutoMovieHumanLoftChain.sampler(chain, s);
+  for (let g: number = 0; g < 4; g++) {
+    const [x, z]: [number, number] = AutoMovieHumanLoftFrame.local(f, point((g * Math.PI) / 2));
+    const want: [number, number] = [[extents[0], 0], [0, extents[1]], [-extents[2], 0], [0, -extents[3]]][g] as [number, number];
+    const miss: number = Math.hypot(x - want[0], z - want[1]);
+    if (!(miss <= 1e-9)) out.push(`station ${s} guide ${g}: chain point (${x}, ${z}) is ${miss} mm from the outline point (${want.join(", ")})`);
+  }
+  return out;
+}
+
+/**
+ * Every C2 failure across one station: the point, the first and the second
+ * station derivatives at eight phases, each extrapolated to the station from
+ * 1 and 2 micrometres on each side, agree within 1e-7 (mm, mm per mm, mm per
+ * mm squared).
+ */
+function station(chain: IAutoMovieHumanLoftChain, y: number): string[] {
+  const out: string[] = [];
+  const h: number = 1e-3;
+  for (let i: number = 0; i < 8; i++) {
+    const t: number = (2 * Math.PI * i) / 8 + 0.1;
+    const read: (s: number) => V3[] = (s: number): V3[] => {
+      const j: AutoMovieHumanLoftJet.IJet = AutoMovieHumanLoftJet.at(chain, s, t);
+      return [j.p, j.s, j.ss] as V3[];
+    };
+    const [b1, b2, a1, a2]: V3[][] = [read(y - h), read(y - 2 * h), read(y + h), read(y + 2 * h)];
+    ["point", "station slope", "station curvature"].forEach((name: string, k: number): void => {
+      const step: number = Math.hypot(...[0, 1, 2].map((c: number): number => 2 * b1![k]![c]! - b2![k]![c]! - (2 * a1![k]![c]! - a2![k]![c]!)));
+      if (!(step <= 1e-7)) out.push(`station ${y} phase ${t.toFixed(2)}: ${name} steps by ${step}`);
+    });
+  }
+  return out;
+}

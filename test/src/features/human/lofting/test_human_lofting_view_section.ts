@@ -1,0 +1,209 @@
+import type { AutoMovieHumanPolarSector } from "../../../../../packages/human/src/lofting/AutoMovieHumanPolarSector";
+import { AutoMovieHumanViewSection } from "../../../../../packages/human/src/lofting/AutoMovieHumanViewSection";
+import type { IAutoMovieHumanViewPart } from "../../../../../packages/human/src/lofting/IAutoMovieHumanViewPart";
+import { HumanViewOracle } from "../../internal/lofting/HumanViewOracle";
+
+type Quarters = IAutoMovieHumanViewPart.IQuarters<number>;
+type Jet = AutoMovieHumanPolarSector.Jet;
+
+/**
+ * The view section reproduces the centred ellipse at the ellipse's shoulder,
+ * touches its box at the four guides with zero angular slope and its declared
+ * curvature, and is C2 across every guide whatever its quarters' fullness.
+ *
+ * Scenarios:
+ * 1. Ellipse: boxes of half axes 30 by 20, 20 by 30, 60 by 20, 20 by 60 and 25 by 25 mm at the shoulder `sqrt(2) - 1` in every quarter: the radius within the quarter's Hermite interpolation bound of the closed-form ellipse at 4096 angles, the girth within the bound's first-order effect of the ellipse's AGM perimeter, each guide's curvature the ellipse's `a / b^2`; the same boxes with every shoulder 0.02 fuller must exceed the radius bound.
+ * 2. Touch: boxes of aspect 1:3 to 3:1 and two asymmetric boxes, at three shoulders across each box's valid range: at every guide the radius is the half extent, the angular slope zero, the curvature the declared mean of the two quarters' conic curvatures (read from the jet and, independently, from three section points 1e-4 rad apart), and the section never passes the side it touches; a made jet with a slope of 0.01 at a guide, and the ellipse turned 20 degrees, must fail.
+ * 3. Continuity: sections with four different shoulders on the asymmetric boxes are C2 across each guide (the one-sided limits of the radius and both its derivatives, each extrapolated to the guide, agree); a made jet joining two ellipses of different depth at a guide must fail on its curvature.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Builds sections with `AutoMovieHumanViewSection.of` and `.range` and reads them through `.radius`, `.curvatures` and `ISection.girth`. It catches a section that departs from the ellipse at the ellipse's shoulder, a guide whose radius, slope or curvature is not the box's and the declared law's, a section that crosses the box side it should touch, and a curvature jump at a guide between two quarters; any construction that touches the box at its guides with the declared curvature and is C2 there passes.
+ * @evidence contracts/testing.md#independent-expectations Expectations are closed forms independent of the operator: the ellipse's polar radius and exact derivatives by Taylor arithmetic and its perimeter by the AGM (`HumanViewOracle`); the Hermite remainder of seven conditions over a quarter (`rho^(7) / 7! h^7 xi^3 (xi - 1)^3 (xi - xi_s)`), whose conditions all hold for the ellipse at its shoulder (the shoulder point `(a, b) / sqrt(2)` is on it, its guide curvature is `a / b^2`); the girth bound `2 pi max|w| E` from the length's first variation, taken one and a half times for its second-order terms; the guide curvature law the operator publishes (#3046: each guide the mean of its quarters' conic end curvatures `a / (2 w^2 b^2)`, `w = r / (1 - r)`); a polar curve's curvature `(rho^2 + 2 rho'^2 - rho rho'') / (rho^2 + rho'^2)^(3/2)`, read here from the circle through three points. Rounding limits are 1e-12 of the extent on values and 1e-9 on the second derivative. Oracle limit: the shoulder's own share of the girth is the round-trip test's.
+ * @evidence contracts/testing.md#distinguishing-cases Square, long and tall boxes, asymmetric boxes, shoulders near both ends of each box's range and at its middle, one shoulder per quarter; red on the fuller ellipse, a sloped guide, a turned ellipse and a curvature step. The girth solve, monotonicity, reach and diagnostics belong to `test_human_lofting_view_section_girth`; the chain, its knots and its station continuity to `test_human_lofting_view_section_chain`.
+ * @evidence contracts/testing.md#execution-ownership A discoverable synchronous CPU unit reached by `--include human_lofting_view_section`; it builds closed-form boxes in process, generates no person and starts no host, browser or GPU.
+ */
+export function test_human_lofting_view_section(): void {
+  const failures: string[] = [];
+  const E: number = AutoMovieHumanViewSection.ELLIPSE;
+
+  // 1. Ellipse.
+  for (const [a, b] of [
+    [30, 20],
+    [20, 30],
+    [60, 20],
+    [20, 60],
+    [25, 25],
+  ] as [number, number][]) {
+    const box: AutoMovieHumanViewSection.IBox = { extents: [a, b, a, b] };
+    const bound: number = HumanViewOracle.bound(a, b);
+    const section: AutoMovieHumanViewSection.ISection = AutoMovieHumanViewSection.of(box, [E, E, E, E]);
+    const error: number = radiusError(section, a, b);
+    if (!(error <= bound)) failures.push(`ellipse ${a} by ${b}: radius error ${error} mm over the interpolation bound ${bound} mm`);
+    const girth: number = 1.5 * 2 * Math.PI * HumanViewOracle.weight(a, b, 512) * bound + 1e-9;
+    const perimeter: number = HumanViewOracle.perimeter(a, b);
+    if (!(Math.abs(section.girth - perimeter) <= girth)) failures.push(`ellipse ${a} by ${b}: girth ${section.girth} against the perimeter ${perimeter} mm, limit ${girth} mm`);
+    const kappa: Quarters = AutoMovieHumanViewSection.curvatures(box, [E, E, E, E]);
+    [a / (b * b), b / (a * a), a / (b * b), b / (a * a)].forEach((want: number, g: number): void => {
+      if (!(Math.abs(kappa[g]! - want) <= 1e-12 * want)) failures.push(`ellipse ${a} by ${b}: guide ${g} curvature ${kappa[g]} against a / b^2 ${want}`);
+    });
+    const fuller: number = radiusError(AutoMovieHumanViewSection.of(box, [E + 0.02, E + 0.02, E + 0.02, E + 0.02]), a, b);
+    if (!(fuller > bound)) failures.push(`ellipse ${a} by ${b}: the 0.02 fuller section reads ${fuller} mm, inside the bound ${bound} mm`);
+  }
+
+  // 2. Touch, on boxes of every aspect and two asymmetric ones.
+  const boxes: Quarters[] = [
+    [20 / 3, 20, 20 / 3, 20],
+    [10, 20, 10, 20],
+    [20, 20, 20, 20],
+    [40, 20, 40, 20],
+    [60, 20, 60, 20],
+    [30, 12, 18, 25],
+    [12, 40, 20, 8],
+  ];
+  for (const extents of boxes) {
+    const box: AutoMovieHumanViewSection.IBox = { extents };
+    const range: AutoMovieHumanViewSection.IRange | null = AutoMovieHumanViewSection.range(box);
+    if (range === null) {
+      failures.push(`box [${extents.join(", ")}]: no valid range at the ellipse's shoulder`);
+      continue;
+    }
+    for (const share of [0.1, 0.5, 0.9]) {
+      const r: number = range.shoulder[0] + share * (range.shoulder[1] - range.shoulder[0]);
+      const shoulders: Quarters = [r, r, r, r];
+      const section: AutoMovieHumanViewSection.ISection = AutoMovieHumanViewSection.of(box, shoulders);
+      const label: string = `box [${extents.map((e: number): string => e.toFixed(2)).join(", ")}] at shoulder ${r.toFixed(4)}`;
+      failures.push(...touch(label, (phi: number): Jet => AutoMovieHumanViewSection.radius(section, phi), extents, law(extents, shoulders)));
+    }
+  }
+
+  // Touch, red: a guide with a slope, and the ellipse turned 20 degrees.
+  const ellipse: Quarters = [30, 20, 30, 20];
+  const sloped: (phi: number) => Jet = (phi: number): Jet => {
+    const d: number[] = HumanViewOracle.derivatives(30, 20, phi);
+    return [d[0]! + 0.01 * 30 * Math.sin(phi), d[1]! + 0.01 * 30 * Math.cos(phi), d[2]! - 0.01 * 30 * Math.sin(phi)];
+  };
+  const kappa: Quarters = [30 / 400, 20 / 900, 30 / 400, 20 / 900];
+  if (touch("made", (phi: number): Jet => HumanViewOracle.derivatives(30, 20, phi) as Jet, ellipse, kappa).length !== 0) failures.push("touch: the closed-form ellipse fails the touch reader");
+  if (touch("made", sloped, ellipse, kappa).length === 0) failures.push("touch: a guide sloped 0.01 passes the touch reader");
+  const turn: number = (20 * Math.PI) / 180;
+  if (touch("made", (phi: number): Jet => HumanViewOracle.derivatives(30, 20, phi - turn) as Jet, ellipse, kappa).length === 0) failures.push("touch: the ellipse turned 20 degrees passes the touch reader");
+
+  // 3. Continuity across every guide for any shoulders.
+  for (const [extents, shoulders] of [
+    [
+      [30, 12, 18, 25],
+      [0.3, 0.5, 0.45, 0.35],
+    ],
+    [
+      [12, 40, 20, 8],
+      [0.45, 0.35, 0.4, 0.5],
+    ],
+    [
+      [30, 20, 30, 20],
+      [0.25, 0.55, 0.3, 0.5],
+    ],
+  ] as [Quarters, Quarters][]) {
+    const section: AutoMovieHumanViewSection.ISection = AutoMovieHumanViewSection.of({ extents }, shoulders);
+    const fault: string | null = AutoMovieHumanViewSection.fault(section);
+    if (fault !== null) {
+      failures.push(`continuity: shoulders [${shoulders.join(", ")}] on [${extents.join(", ")}] are not a valid section: ${fault}`);
+      continue;
+    }
+    failures.push(...continuity(`shoulders [${shoulders.join(", ")}] on [${extents.join(", ")}]`, (phi: number): Jet => AutoMovieHumanViewSection.radius(section, phi), extents));
+  }
+
+  // Continuity, red: two ellipses of depth 20 and 24 mm meeting at guide 0.
+  const joined: (phi: number) => Jet = (phi: number): Jet => {
+    const wrapped: number = ((phi % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+    return HumanViewOracle.derivatives(30, wrapped < Math.PI ? 20 : 24, phi).slice(0, 3) as Jet;
+  };
+  if (continuity("made", joined, [30, 20, 30, 24]).length === 0) failures.push("continuity: a curvature step at guide 0 passes the continuity reader");
+  if (continuity("made", (phi: number): Jet => HumanViewOracle.derivatives(30, 20, phi).slice(0, 3) as Jet, ellipse).length !== 0) failures.push("continuity: the closed-form ellipse fails the continuity reader");
+
+  if (failures.length !== 0) throw new Error(`${failures.length} view section failures:\n${failures.join("\n")}`);
+}
+
+/** The largest radius difference from the closed-form ellipse over 4096 angles, mm. */
+function radiusError(section: AutoMovieHumanViewSection.ISection, a: number, b: number): number {
+  let worst: number = 0;
+  for (let i: number = 0; i < 4096; i++) {
+    const phi: number = (2 * Math.PI * i) / 4096;
+    worst = Math.max(worst, Math.abs(AutoMovieHumanViewSection.radius(section, phi)[0] - HumanViewOracle.radius(a, b, phi)));
+  }
+  return worst;
+}
+
+/**
+ * The declared guide curvature law (#3046): guide `g`'s curvature is the
+ * mean of its two quarters' conic end curvatures, each `along / (2 w^2 across^2)`
+ * with `w = r / (1 - r)`.
+ */
+function law(e: Quarters, r: Quarters): Quarters {
+  const conic: (q: number, along: number, across: number) => number = (q: number, along: number, across: number): number => {
+    const w: number = r[q]! / (1 - r[q]!);
+    return along / (2 * w * w * across * across);
+  };
+  return [0, 1, 2, 3].map((g: number): number => (conic((g + 3) % 4, e[g]!, e[(g + 3) % 4]!) + conic(g, e[g]!, e[(g + 1) % 4]!)) / 2) as Quarters;
+}
+
+/**
+ * Every touch failure of a radius jet at the four guides: the radius is the
+ * half extent, the slope zero, the jet's curvature and the curvature of the
+ * circle through three points 1e-4 rad apart are the declared one, and no
+ * point of the section passes the side its guide touches.
+ */
+function touch(label: string, jet: (phi: number) => Jet, extents: Quarters, kappa: Quarters): string[] {
+  const out: string[] = [];
+  for (let g: number = 0; g < 4; g++) {
+    const at: number = (g * Math.PI) / 2;
+    const e: number = extents[g]!;
+    const [r, r1, r2]: Jet = jet(at);
+    if (!(Math.abs(r - e) <= 1e-12 * e * 10)) out.push(`${label} guide ${g}: radius ${r} against the half extent ${e}`);
+    if (!(Math.abs(r1) <= 1e-12 * e * 10)) out.push(`${label} guide ${g}: angular slope ${r1}`);
+    const curvature: number = (r * r + 2 * r1 * r1 - r * r2) / (r * r + r1 * r1) ** 1.5;
+    if (!(Math.abs(curvature - kappa[g]!) <= 1e-9 * kappa[g]!)) out.push(`${label} guide ${g}: jet curvature ${curvature} against the declared ${kappa[g]}`);
+
+    // The circle through three points of the section, independent of its derivatives.
+    const p: (phi: number) => [number, number] = (phi: number): [number, number] => {
+      const rho: number = jet(phi)[0];
+      return [rho * Math.cos(phi), rho * Math.sin(phi)];
+    };
+    const menger: number = circle(p(at - 1e-4), p(at), p(at + 1e-4));
+    if (!(Math.abs(menger - kappa[g]!) <= 1e-5 * kappa[g]!)) out.push(`${label} guide ${g}: point curvature ${menger} against the declared ${kappa[g]}`);
+
+    // No point past the side the guide touches.
+    let reach: number = -Infinity;
+    for (let i: number = 0; i < 4096; i++) {
+      const phi: number = (2 * Math.PI * i) / 4096;
+      reach = Math.max(reach, jet(phi)[0] * Math.cos(phi - at));
+    }
+    if (!(reach <= e * (1 + 1e-12))) out.push(`${label} guide ${g}: the section reaches ${reach} past its side at ${e}`);
+  }
+  return out;
+}
+
+/**
+ * Every continuity failure at the four guides: each side's radius, slope and
+ * second derivative extrapolated linearly to the guide from 1e-5 and 2e-5 rad
+ * away (second-order accurate), so the two one-sided limits of a C2 jet agree
+ * to about `1e-10` of its fourth derivative and a step stands out whole.
+ */
+function continuity(label: string, jet: (phi: number) => Jet, extents: Quarters): string[] {
+  const out: string[] = [];
+  const h: number = 1e-5;
+  for (let g: number = 0; g < 4; g++) {
+    const at: number = (g * Math.PI) / 2;
+    const left: Jet = jet(at - h).map((v: number, k: number): number => 2 * v - jet(at - 2 * h)[k]!) as Jet;
+    const right: Jet = jet(at + h).map((v: number, k: number): number => 2 * v - jet(at + 2 * h)[k]!) as Jet;
+    ["radius", "slope", "second derivative"].forEach((name: string, k: number): void => {
+      const step: number = Math.abs(left[k]! - right[k]!);
+      if (!(step <= 1e-6 * extents[g]!)) out.push(`${label} guide ${g}: ${name} steps by ${step}`);
+    });
+  }
+  return out;
+}
+
+/** Signed curvature of the circle through three points, 1/mm. */
+function circle(a: [number, number], b: [number, number], c: [number, number]): number {
+  const cross: number = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+  return (2 * cross) / (Math.hypot(b[0] - a[0], b[1] - a[1]) * Math.hypot(c[0] - b[0], c[1] - b[1]) * Math.hypot(a[0] - c[0], a[1] - c[1]));
+}
