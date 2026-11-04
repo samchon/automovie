@@ -106,8 +106,9 @@ export namespace AutoMovieHumanFootPlaces {
    * foremost point, and its first loop's vertex-mean across that axis
    * toward the little toe, per foot length.
    *
-   * `test_human_estimate_sites` reads them on four feet, the loops below 25 mm
-   * ahead of 0.7 of the foot's length, each toe's tip the foremost over its
+   * `test_human_estimate_sites` reads foot-axis projections of horizontal
+   * skin loops on four feet, below 25 mm and ahead of 0.7 of the foot's
+   * length, each toe's tip the foremost over its
    * sections; SDs: tip 0.021, 0.018, 0.021, 0.020 and
    * 0.013, across 0.008, 0.006, 0.002, 0.007 and 0.008. The sections part six
    * loops per foot on average (SD 1.1), so the feet where they part other
@@ -117,6 +118,9 @@ export namespace AutoMovieHumanFootPlaces {
    * centres. Reusing their across centres for a rig requires a separate
    * placement convention. The independent public breadth is applied by the
    * consumer; these retained ratios are still normalized by foot length.
+   * Across means are not toe-normal breadths; gap-based width packing is a
+   * construction proxy. Combining the along maximum and first-loop across
+   * mean gives a generated apex proxy, not an observed three-dimensional tip.
    */
   export const TOES: readonly { readonly tip: number; readonly across: number }[] = [
     { tip: 0.9681, across: 0.0072 },

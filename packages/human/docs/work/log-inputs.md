@@ -2,6 +2,12 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 source metadata save coordinated (2026-11-05 06:21:39 +09:00, Get-Date)
+
+CORE explicitly confirmed its next shared invocation had not started and released the two pending JSDoc changes. Saved them together by 06:18:28: SHIN's supplied height is pupil-aligned margin separation, not absolute pupil elevation; TOES records horizontal-loop foot-axis projections, with gap packing and the composite apex labelled as construction proxies. Complete diff review confirms comments only: no cell, arithmetic expression, function, annotation target or API changed. ReferenceOutlines and FootPlaces are 468/132 lines; whitespace checks are clean. CORE received the save time without an added watch barrier or duplicate invocation.
+
+The existing test watch completed its 06:19:03 cycle after that save. Debug completed 06:18:40, then its 06:19:38 cycle reported five diagnostics in Comparison's two page-lifetime files; the subsequent 06:20:55 cycle was still rebuilding at this observation. Those full diagnostics were sent to its owner, without editing the files or claiming a current global clean. This worker holds its subsequent TypeScript saves to preserve CORE's round; it imposes no global source freeze on other owners.
+
 ## #3062 source chart and p2 definition follow-up (2026-11-05 06:09:42 +09:00, Get-Date)
 
 The supervisor approved BODY's B foot chart after the retained datum review. Directly reread both complete retained sites/foot-outline readers, without execution. Corrected my commentary's imprecise parallel-cut description: the observations are horizontal skin loops expressed in foot-axis along/across coordinates, not toe-normal widths. Supplied the fixed-plane identity `dot(P-heel,along)=q`, its calibration-mm/orthonormal-basis premises and the existing chart handedness. This supports the actual B source representation; the extra extrema API is no longer its prerequisite. Across-origin interpolation, rig, overlap, group B and ball tape remain distinct.

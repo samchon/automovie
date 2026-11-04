@@ -39,7 +39,8 @@ export namespace AutoMovieHumanReferenceOutlines {
    * commissure to lateral canthus, not an unoccluded 3D en-ex measurement.
    * Sex assignment is inferred by matching the published widths and peaks.
    * `head/AutoMovieHumanHeadEyeParts` maps the chord and its residual to the
-   * supplied endpoints and pupil-height constraint; this is upper margin only.
+   * supplied 3D endpoint chord and pupil-aligned margin separation; this is
+   * upper margin only, not an absolute pupil-elevation measurement.
    * Its normalized source parameter is Bezier t: mapped values and first/
    * second jets declare that same cubic, not a sparse natural-spline refit.
    * Final loft interpolation and the separate AP/lower courses remain distinct.
