@@ -1,6 +1,6 @@
-import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import type { AutoMovieConstructionRealization } from "./AutoMovieConstructionRealization";
 import type { AutoMovieConstructionState } from "./AutoMovieConstructionState";
+import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import type { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
@@ -13,7 +13,7 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * @evidence contracts/common.md#clear-and-simple-design Two functions: close the pole ends, then return the mesh in the tree's unit.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts An open end with neither a pole nor a shared ring stays open rather than being capped by a made fan.
  * @evidence contracts/common.md#meaningful-documentation States which ends close, which stay open and the returned mesh's units and owners.
- * @evidence contracts/performance.md#efficient-algorithms One pass over each face's open cycles and one linear copy of the mesh arrays.
+ * @evidence contracts/performance.md#efficient-algorithms A surface-identity map connects chains to faces; each mapped face also performs a linear mesh-owner lookup, pole fans visit their boundary vertices and mesh output copies flat arrays once.
  * @evidence contracts/performance.md#reuse-equivalent-work Chains are found by their surface through one map built per call.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The returned arrays are the realization's own; the face map is released with the call.
  */
@@ -24,10 +24,30 @@ export namespace AutoMovieConstructionSkin {
    * @param body The drawn body; its mesh receives the fans.
    * @param state The walk's chains and their surfaces.
    * @param open Each face's open ends, as `AutoMovieSolidBody.draw` returns them.
+   *
+   * @evidence contracts/common.md#principled-implementation Maps original chain surfaces by identity, classifies each nonempty returned open cycle by its first vertex station's nearer end and fans it to that end's declared pole.
+   * @evidence contracts/common.md#clear-and-simple-design Cap selection stays at the chain/body boundary while SolidMesh owns vertex insertion and orientation-aware triangle emission.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Skips non-chain faces and ends without a pole; assumes draw's unzipped cycles are genuine endpoint cycles with compatible chart coordinates, rather than independently proving that property here.
+   * @evidence contracts/common.md#meaningful-documentation States body mutation, input open-cycle provenance, pole-only closure and open-end preservation.
+   * @evidence contracts/performance.md#efficient-algorithms Chain-map construction and boundary-fan work are linear in their inputs; each mapped face additionally scans up to R existing mesh owners, so F such faces can pay O(FR) lookup work.
+   * @evidence contracts/performance.md#reuse-equivalent-work One surface-to-chain map serves all faces; existing ring vertices are reused by fans rather than copied as a second boundary.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The local map and fan arrays die after the call; the body retains emitted apex vertices/triangles and any newly registered surface owner for its own lifetime.
    */
-  export function close(body: AutoMovieSolidBody.IBody, state: AutoMovieConstructionState.IState, open: readonly number[][][]): void {
+  export function close(
+    body: AutoMovieSolidBody.IBody,
+    state: AutoMovieConstructionState.IState,
+    open: readonly number[][][],
+  ): void {
     const chainOf: Map<IAutoMovieSolidSurface, IAutoMovieLoftChain> = new Map(
-      state.chainSurfaces.map((s: IAutoMovieSolidSurface, i: number): [IAutoMovieSolidSurface, IAutoMovieLoftChain] => [s, state.chainList[i]!]),
+      state.chainSurfaces.map(
+        (
+          s: IAutoMovieSolidSurface,
+          i: number,
+        ): [IAutoMovieSolidSurface, IAutoMovieLoftChain] => [
+          s,
+          state.chainList[i]!,
+        ],
+      ),
     );
     body.faces.forEach((f: AutoMovieSolidBody.IFace, i: number): void => {
       const chain: IAutoMovieLoftChain | undefined = chainOf.get(f.surface);
@@ -38,12 +58,37 @@ export namespace AutoMovieConstructionSkin {
       for (const cycle of open[i] ?? []) {
         if (cycle.length === 0) continue;
         const station: number = body.mesh.coordinates[3 * cycle[0]! + 1]!;
-        const end: "bottom" | "top" = Math.abs(station - first) <= Math.abs(station - last) ? "bottom" : "top";
-        const pole: IAutoMovieLoftChain["pole"] = chain.pole?.end === end ? chain.pole : chain.opposite?.end === end ? chain.opposite : undefined;
+        const end: "bottom" | "top" =
+          Math.abs(station - first) <= Math.abs(station - last)
+            ? "bottom"
+            : "top";
+        const pole: IAutoMovieLoftChain["pole"] =
+          chain.pole?.end === end
+            ? chain.pole
+            : chain.opposite?.end === end
+              ? chain.opposite
+              : undefined;
         if (pole === undefined) continue;
-        const apex: number = AutoMovieSolidMesh.vertex(body.mesh, pole.point, owner, end === "bottom" ? first : last, 0);
-        const fan: [number, number, number][] = cycle.map((v: number, k: number): [number, number, number] => [v, cycle[(k + 1) % cycle.length]!, apex]);
-        AutoMovieSolidMesh.close(body.mesh, fan, f.surface, f.inverted === true);
+        const apex: number = AutoMovieSolidMesh.vertex(
+          body.mesh,
+          pole.point,
+          owner,
+          end === "bottom" ? first : last,
+          0,
+        );
+        const fan: [number, number, number][] = cycle.map(
+          (v: number, k: number): [number, number, number] => [
+            v,
+            cycle[(k + 1) % cycle.length]!,
+            apex,
+          ],
+        );
+        AutoMovieSolidMesh.close(
+          body.mesh,
+          fan,
+          f.surface,
+          f.inverted === true,
+        );
       }
     });
   }
@@ -53,14 +98,28 @@ export namespace AutoMovieConstructionSkin {
    *
    * @param body The drawn body.
    * @returns The skin: positions in metres, coordinates in the faces' charts, owners as face names.
+   *
+   * @evidence contracts/common.md#principled-implementation Divides world positions by the shared mm-per-metre scale and copies indices/chart coordinates while projecting owner records to their names.
+   * @evidence contracts/common.md#clear-and-simple-design One output adapter owns physical unit conversion without changing chart units or rebuilding triangles.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves the emitted topology/winding and clips coordinate copying to the position-derived vertex count; it does not repair geometry or certify a closed skin.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes metre positions from unchanged owner-chart coordinates and names the returned owner labels.
+   * @evidence contracts/performance.md#efficient-algorithms Linear O(V+T+F) copying for V vertices, T triangles and F owners allocates the required detached output arrays.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses the already drawn body arrays once rather than retessellating; owner closures are replaced by names because this output requires labels only.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh position/index/coordinate/name arrays sized by this mesh; the adapter retains neither body nor surface closures globally.
    */
-  export function mesh(body: AutoMovieSolidBody.IBody): AutoMovieConstructionRealization.IMesh {
+  export function mesh(
+    body: AutoMovieSolidBody.IBody,
+  ): AutoMovieConstructionRealization.IMesh {
     const vertices: number = body.mesh.positions.length / 3;
     return {
-      positions: body.mesh.positions.map((x: number): number => x / AutoMovieConstructionViews.SCALE),
+      positions: body.mesh.positions.map(
+        (x: number): number => x / AutoMovieConstructionViews.SCALE,
+      ),
       indices: body.mesh.indices.slice(),
       coordinates: body.mesh.coordinates.slice(0, 3 * vertices),
-      owners: body.mesh.owners.map((o: AutoMovieSolidMesh.IOwner): string => o.name),
+      owners: body.mesh.owners.map(
+        (o: AutoMovieSolidMesh.IOwner): string => o.name,
+      ),
     };
   }
 }
