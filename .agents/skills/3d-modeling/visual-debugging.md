@@ -12,6 +12,10 @@ Inspect the actual consumer with current source on a hardware renderer, recordin
 
 Before editing, inspect the whole affected asset at every scale, moving the camera freely through whole views, regions, neighbors and close-ups from every needed direction, and write down every observed defect with its construction and comparison conditions. Trace causes through generation and display, including shared boundaries and derived outputs. Where causes or their interactions are unclear, plan the controlled comparisons that separate them as one set, run the whole set without changing the source, and record the results. Map each proposed change to all defects and parts it affects.
 
+Inspect each defining curve and part in isolation against the reference, then choose groups that share boundaries or affect one another and inspect them together against that reference, before judging the assembly. Keep enough reference visible to read placement and depth; a hidden reference, an empty selection or separate passing close-ups establishes no relationship between neighbours. Repeat the individual and grouped selections from front, side and top, around the back and from high and low obliques as the form requires.
+
+For a form defined by original 2D views, establish those curves' placement and form before accepting the algorithm's lofting curves and realized surface. A completed observation round is not a passed construction: correct all its defining-curve causes together and repeat that comparison before advancing, because a smooth downstream surface can still express the wrong input.
+
 Fix all identified causes in one combined change at their sources, and judge it on the assembled asset. A cause that crosses a part boundary is changed by both owners in the same round. Editing after each observed defect, changing one value and rendering to see its effect, rendering after each single fix, and leaving a traced cause to a later round or finer scale are the whack-a-mole patterns this procedure replaces, however cheap a render is.
 
 Rerun the original comparison across every affected part, view, identity, resolution and motion state, checking both the recorded defects and regressions. Account for every recorded defect before accepting the round; new or unexplained defects keep it open.
@@ -38,7 +42,7 @@ Judge a surface only with the construction that generated it, because the surfac
 - an implicit surface's primitives;
 - a field's defining curves.
 
-Every set of views, whole sweeps and each defect's close-up alike, shows the same cameras three times: surface, construction over the surface, and construction alone.
+Every set of views, whole sweeps, selected parts, neighbour groups and each defect's close-up alike, shows the same cameras three times: surface, construction over the surface, and construction alone. Keep the reference in the comparison passes and distinguish source definitions, unconnected studies, raw operands and realized joins. An uncomputed surface is unavailable evidence; hiding a joining surface can create a false defect. Verify the selected ids and observation stage through the actual viewer controls.
 
 ## Light And Material
 
