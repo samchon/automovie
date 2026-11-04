@@ -240,3 +240,5 @@ Evidence, all gathered before the change: since 17:37 the f1 whole figure throws
 | left gluteal's lateral and medial edges swapped (the right breast's too, after the mirror's swap) | `+v` turns side with the normal (forward on a breast, back on a gluteal mass), so no fixed swap per side is right | the part takes the caller's lateral direction and maps lateral and medial by its own frame; the trunk's mirror reflects target and up only |
 
 Remaining unchanged: the masses' laws are interim (`AutoMovieHumanMassInterim`).
+
+Frame after `912af898e` (requested 17:56:43, delivered 18:05:02, Get-Date; `person=f1`, whole figure, left camera): the figure generates again, the nostril's opening no longer meets a mass. Read off the frame, for the next round's evidence (judged on the reference overlay once it lands, before any change): a mass stands far out behind the lower back, above the buttock's height (about the elbows', the wrists lower); a bulge stands out in front of the belly at the same height; the breasts stand on the chest with pointed apices; the head and hair are the head modeler's.
