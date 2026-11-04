@@ -288,12 +288,53 @@ export interface IAutoMovieHumanBodyAnatomy {
   ballOfFootLength?: number & tags.Minimum<100> & tags.Maximum<300>;
 
   /**
+   * Ball-of-foot circumference: the girth of the foot over the first and fifth
+   * metatarsal heads, standing (ANSUR II ball of foot circumference). It wraps
+   * the forefoot's section at the metatarsal heads, so it fixes the forefoot's
+   * fullness with the foot breadth there. ANSUR II: 228.1 (11.8) and 252.0
+   * (12.9).
+   */
+  ballOfFootCircumference?: number & tags.Minimum<120> & tags.Maximum<400>;
+
+  /**
+   * Heel-ankle circumference: the girth round the back of the heel and over
+   * the front of the ankle at the instep's crease, standing (ANSUR II heel
+   * ankle circumference); the foot's diagonal girth, which bounds the dorsum's
+   * height at the ankle's front. ANSUR II: 310.3 (15.3) and 343.5 (16.6).
+   */
+  heelAnkleCircumference?: number & tags.Minimum<180> & tags.Maximum<500>;
+
+  /**
+   * Instep length: the back of the heel to the instep's highest point, along
+   * the foot's axis, standing (ANSUR 1988 instep length). It places the
+   * dorsum's crest. ANSUR 1988: 179.4 (9.6) and 196.0 (10.5).
+   */
+  instepLength?: number & tags.Minimum<90> & tags.Maximum<300>;
+
+  /**
    * Gluteal furrow height: the lowest point of the gluteal fold above the
    * standing surface (ANSUR 1988 gluteal furrow height). The ISO 8559-1
    * 5.3.20 thigh girth is sought just below this level. ANSUR 1988: 744.3
    * (43.0) and 814.4 (45.6).
    */
   glutealFurrowHeight?: number & tags.Minimum<350> & tags.Maximum<1200>;
+
+  /**
+   * Crotch length: from the navel's level at the front midline, down over the
+   * skin through the crotch and up the back midline to the same level
+   * (ANSUR II crotch length, omphalion). With its posterior part it places the
+   * perineum along the trunk's median section. ANSUR II: 620.8 (42.4) and
+   * 622.3 (46.7).
+   */
+  crotchLength?: number & tags.Minimum<250> & tags.Maximum<1400>;
+
+  /**
+   * Posterior crotch length: the crotch length's part from the crotch point
+   * up the back midline to the navel's level (ANSUR II crotch length,
+   * posterior, omphalion); less than the crotch length. ANSUR II: 341.9 (28.6)
+   * and 355.9 (29.5), 0.551 (SD 0.033) and 0.573 (0.037) of the crotch length.
+   */
+  posteriorCrotchLength?: number & tags.Minimum<120> & tags.Maximum<800>;
 
   /**
    * Thumb breadth: the maximum breadth of the thumb at its interphalangeal

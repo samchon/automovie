@@ -296,3 +296,22 @@ The references f1, f2, m1 and m2 keep the new fields at their defaults: the refe
 ### Natural waist height
 
 `waistHeight` (ANSUR 1988 waist height, natural indentation; 1056.5 (51.7) / 1127.1 (52.0)) is the site of the waist's breadth, depth and girth, now a public input. Omitted, it stands at ANSUR 1988's per-subject share of the span from trochanterion to cervicale, 0.3564 (SD 0.0335) / 0.3361 (0.0218) (`docs/sources/ansur-1988.md`), with trochanterion on ANSUR II's stature line (-126.9 + 0.5970 S / -169.9 + 0.6098 S, R2 0.74 / 0.72) and the person's cervicale. `test_human_survey_pelvis` prints its stature, tenth rib and iliocristale lines for when a direct line is wanted.
+
+### Foot girths and the crotch's course
+
+New optional inputs in `body.anatomy`, each defaulting by its best surveyed predictor among the Human's inputs (`AutoMovieHumanBodyCourses`; `test_human_survey_foot`, `test_human_survey_pelvis`):
+
+| Field | Definition | F / M mean (SD), mm | Default, women / men | R2 |
+| --- | --- | --- | --- | --- |
+| `ballOfFootCircumference` | ANSUR II, over the first and fifth metatarsal heads | 228.1 (11.8) / 252.0 (12.9) | 32.00 + 2.1153 foot breadth / 33.53 + 2.1450 | 0.74 / 0.75 |
+| `heelAnkleCircumference` | ANSUR II, round the heel and over the ankle's front | 310.3 (15.3) / 343.5 (16.6) | 66.90 + 0.9883 foot length / 70.49 + 1.0067 | 0.64 / 0.63 |
+| `instepLength` | ANSUR 1988, heel to the instep's highest point | 179.4 (9.6) / 196.0 (10.5) | -2.44 + 0.7440 foot length / -1.65 + 0.7329 | 0.90 / 0.84 |
+| `crotchLength` | ANSUR II, navel level front through the crotch to the navel level back | 620.8 (42.4) / 622.3 (46.7) | 256.23 + 0.3570 hip girth / 179.88 + 0.4340 | 0.41 / 0.51 |
+| `posteriorCrotchLength` | ANSUR II, the crotch length's part behind the crotch point | 341.9 (28.6) / 355.9 (29.5) | 0.5509 / 0.5728 of the crotch length (SD 0.033 / 0.037) | lines 0.13 to 0.16 |
+
+A posterior part supplied alone sets the whole by the same share. The perineum's forward place is a derivation the trunk applies: the point of the median section where the two arc lengths from the navel's level, front and back, meet.
+
+### Limb sites and the thigh's depth
+
+- Calf's greatest girth (ISO 8559-1 5.3.24 site): ANSUR 1988 calf height, 316.1 (24.0) / 353.4 (23.7) mm, stands at 0.6414 (0.0345) / 0.6537 (0.0269) of the way from the lateral malleolus to mid-patella (`test_human_survey_calf_site`; on stature R2 0.46 / 0.55).
+- Thigh depth: the surveys take one limb depth, the thigh clearance (seated, the thigh's thickness from the seat). On the ANSUR 1988 proximal thigh girth (the Human's `thighCircumference`): 32.27 + 0.2183 g / 37.12 + 0.2197 g, R2 0.66 / 0.74; it is 0.862 / 0.887 of the depth a circle of that girth would have (seated and compressed under the thigh; ANSUR II 0.857 / 0.908) (`test_human_survey_thigh_depth`).

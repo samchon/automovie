@@ -4,6 +4,7 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanBodyBox } from "./AutoMovieHumanBodyBox";
 import { AutoMovieHumanBodyBreadths } from "./AutoMovieHumanBodyBreadths";
+import { AutoMovieHumanBodyCourses } from "./AutoMovieHumanBodyCourses";
 import { AutoMovieHumanBodyFat } from "./AutoMovieHumanBodyFat";
 import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
 
@@ -122,6 +123,18 @@ export namespace AutoMovieHumanBodyAnatomy {
       hands === undefined
         ? line(HAND_BREADTH_ON_HAND_CIRCUMFERENCE, t.handCircumference)
         : (hands.left.handBreadth + hands.right.handBreadth) / 2;
+
+    // The foot's girths and instep and the crotch's course default by their
+    // surveyed lines and share (`AutoMovieHumanBodyCourses`). A crotch length
+    // supplied alone keeps the surveyed posterior share of it, and a posterior
+    // part supplied alone sets the whole by the same share, so a default never
+    // stands shorter than its own part.
+    const C: typeof AutoMovieHumanBodyCourses = AutoMovieHumanBodyCourses;
+    const crotchLength: number =
+      given.crotchLength ??
+      (given.posteriorCrotchLength === undefined
+        ? line(C.CROTCH_ON_HIP, t.hip)
+        : given.posteriorCrotchLength / C.POSTERIOR_CROTCH_SHARE[k]);
     return {
       stature,
       chestCircumference: t.chest,
@@ -170,7 +183,12 @@ export namespace AutoMovieHumanBodyAnatomy {
       ankleCircumference: given.ankleCircumference ?? line(ANKLE_ON_CALF, t.calf),
       heelBreadth: given.heelBreadth ?? line(HEEL_ON_FOOT_BREADTH, footBreadth),
       ballOfFootLength: given.ballOfFootLength ?? line(BALL_OF_FOOT_ON_FOOT_LENGTH, footLength),
+      ballOfFootCircumference: given.ballOfFootCircumference ?? line(C.BALL_OF_FOOT_ON_FOOT_BREADTH, footBreadth),
+      heelAnkleCircumference: given.heelAnkleCircumference ?? line(C.HEEL_ANKLE_ON_FOOT_LENGTH, footLength),
+      instepLength: given.instepLength ?? line(C.INSTEP_ON_FOOT_LENGTH, footLength),
       glutealFurrowHeight: given.glutealFurrowHeight ?? line(GLUTEAL_FURROW_ON_CROTCH, t.inseam + ankle),
+      crotchLength,
+      posteriorCrotchLength: given.posteriorCrotchLength ?? C.POSTERIOR_CROTCH_SHARE[k] * crotchLength,
       thumbBreadth: given.thumbBreadth ?? line(THUMB_ON_HAND_BREADTH, handBreadth),
       bodyFatPercentage: given.bodyFatPercentage ?? AutoMovieHumanBodyFat.navy(sex, stature, t.neck, t.waist, t.hip),
     };

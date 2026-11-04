@@ -63,7 +63,12 @@ export namespace HumanEditorMeasureFields {
     ankleCircumference: "발목 최소 둘레",
     heelBreadth: "발꿈치 너비",
     ballOfFootLength: "발볼 길이",
+    ballOfFootCircumference: "발볼 둘레",
+    heelAnkleCircumference: "발꿈치-발목 둘레",
+    instepLength: "발등 길이",
     glutealFurrowHeight: "볼기 고랑 높이",
+    crotchLength: "샅 길이",
+    posteriorCrotchLength: "뒤 샅 길이",
     thumbBreadth: "엄지 너비",
     bodyFatPercentage: "체지방률(%)",
   };
