@@ -27,8 +27,11 @@ type Vec3 = AutoMovieHumanArmBones.IBones["shoulder"];
  * knuckle line (`handBreadth`, `handCircumference`).
  */
 export namespace AutoMovieHumanArmWalk {
-  /** One site's law. */
+  /** One site's law: its name, place, box and owner. */
   export interface ISiteLaw {
+    /** The measurement site, named in diagnostics. */
+    site: string;
+
     /** Bone: 1 the humerus, 2 the forearm, 3 the third metacarpal (0 is the run inside the girdle). */
     bone: number;
 
@@ -43,6 +46,7 @@ export namespace AutoMovieHumanArmWalk {
   }
 
   /** The sites, from the shoulder to the knuckles. */
+  /** The published sites, from the shoulder to the knuckles; a caller may give fewer while a law is owed. */
   export const SITES: readonly string[] = ["deltoid", "biceps", "elbow", "forearm", "wrist", "crease", "knuckles"];
 
   /** Control points and ring phases of every section, a multiple of 4: the trunk's density, over the reference arm's spans. */
@@ -55,7 +59,7 @@ export namespace AutoMovieHumanArmWalk {
    * @param bones The side's arm bones.
    * @param knuckle The third metacarpal's head, the palm's last centre.
    * @param reach The palm's distal cap's reach past that head to the dome's tip, mm.
-   * @param law Each site's law, by the names of {@link SITES}.
+   * @param sites The sites by rising place, the first standing nearest the shoulder (its box also fills the run inside the girdle).
    * @param joints The elbow's and the wrist's depths, mm, their turns' lengths.
    * @param gap Widest spacing between layers, mm.
    * @returns The part, its loft and the diagnostics.
@@ -65,11 +69,11 @@ export namespace AutoMovieHumanArmWalk {
     bones: AutoMovieHumanArmBones.IBones,
     knuckle: Vec3,
     reach: number,
-    law: (site: string) => ISiteLaw,
+    sites: ISiteLaw[],
     joints: { elbow: number; wrist: number },
     gap: number,
   ): AutoMovieHumanSiteViewPart.IResult {
-    const laws: ISiteLaw[] = SITES.map((s: string): ISiteLaw => law(s));
+    const laws: ISiteLaw[] = sites;
     const deltoid: ISiteLaw = laws[0]!;
     const run: number = Math.max(...deltoid.edges.map(Math.abs));
     const d: number = Math.hypot(...([0, 1, 2].map((c: number): number => bones.shoulder[c]! - bones.elbow[c]!) as [number, number, number]));
@@ -84,7 +88,7 @@ export namespace AutoMovieHumanArmWalk {
       u: [1, 0, 0],
       sites: [
         { site: "top", bone: 0, share: 0, edges: deltoid.edges, fullness: deltoid.fullness },
-        ...SITES.map((s: string, k: number): AutoMovieHumanWalkPart.ISite => ({ site: s, bone: laws[k]!.bone, share: laws[k]!.share, edges: laws[k]!.edges, fullness: laws[k]!.fullness })),
+        ...laws.map((l: ISiteLaw): AutoMovieHumanWalkPart.ISite => ({ site: l.site, bone: l.bone, share: l.share, edges: l.edges, fullness: l.fullness })),
       ],
       tip: reach,
       order: ORDER,

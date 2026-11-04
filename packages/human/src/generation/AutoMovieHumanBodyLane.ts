@@ -12,6 +12,7 @@ import { AutoMovieHumanLegWalk } from "./leg/AutoMovieHumanLegWalk";
 import { AutoMovieHumanBranchMerges } from "./limb/AutoMovieHumanBranchMerges";
 import { AutoMovieHumanDigitWalk } from "./limb/AutoMovieHumanDigitWalk";
 import { AutoMovieHumanFoldJoin } from "./limb/AutoMovieHumanFoldJoin";
+import { AutoMovieHumanFoldSeed } from "./limb/AutoMovieHumanFoldSeed";
 import { AutoMovieHumanMergeEntry } from "./limb/AutoMovieHumanMergeEntry";
 import type { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
@@ -43,13 +44,14 @@ type Vec3 = AutoMovieHumanSolidVector.Vec3;
  * generation never fails for a valid person).
  */
 export namespace AutoMovieHumanBodyLane {
-  /** A join's seed and fold, calibration mm. */
+  /** A join's seed search and fold, calibration mm. */
   export interface IFold {
-    /** The fold's landmark on both skins. */
-    landmark: Vec3;
-
-    /** Chart guesses of its foot on the part and on the host. */
-    guess: { part: [number, number]; host: [number, number] };
+    /**
+     * Where the seed is searched (`AutoMovieHumanFoldSeed`): the part's
+     * phase, the shares of its station range from inside the host to
+     * outside it, and the host's chart guess at the start.
+     */
+    search: { phi: number; from: number; to: number; host: [number, number] };
 
     /** The fold's radius, mm. */
     radius: number;
@@ -68,7 +70,7 @@ export namespace AutoMovieHumanBodyLane {
       bones: AutoMovieHumanArmBones.IBones;
       knuckle: Vec3;
       reach: number;
-      law: (site: string) => AutoMovieHumanArmWalk.ISiteLaw;
+      sites: AutoMovieHumanArmWalk.ISiteLaw[];
       joints: { elbow: number; wrist: number };
       trunk: IFold;
     };
@@ -158,13 +160,24 @@ export namespace AutoMovieHumanBodyLane {
       return { chain, surface };
     };
 
+    // A fold's seed on the built part and host.
+    const seed = (part: IBuilt, host: IBuilt, fold: IFold): AutoMovieHumanFoldSeed.ISeed | null => {
+      const first: number = part.chain.layers[0]!.y;
+      const last: number = part.chain.layers[part.chain.layers.length - 1]!.y;
+      const at = (share: number): number => first + share * (last - first);
+      const found: AutoMovieHumanFoldSeed.ISeed | null = AutoMovieHumanFoldSeed.of(part.surface, host.surface, fold.search.phi, at(fold.search.from), at(fold.search.to), fold.search.host, LIMITS.tolerance);
+      if (found === null) diagnostics.push({ producer: `fold.${part.chain.name}.${host.chain.name}`, level: 6, contract: "seed", detail: `the part's station line at phase ${fold.search.phi} does not leave the host between shares ${fold.search.from} and ${fold.search.to}` });
+      return found;
+    };
+
     // One fold join, published.
-    const join = (part: IBuilt, host: IBuilt, fold: IFold, cap: number): void => {
+    const join = (part: IBuilt, host: IBuilt, fold: IFold, cap: number, found: AutoMovieHumanFoldSeed.ISeed | null = seed(part, host, fold)): void => {
+      if (found === null) return;
       const result: AutoMovieHumanSolidJoin.IResult = AutoMovieHumanFoldJoin.create({
         part: part.surface,
         host: host.surface,
-        landmark: fold.landmark,
-        guess: fold.guess,
+        landmark: found.landmark,
+        guess: found.guess,
         radius: (): number => fold.radius,
         cap: (): number => fold.cap ?? cap,
         count: LIMITS.count,
@@ -187,33 +200,50 @@ export namespace AutoMovieHumanBodyLane {
     merges.push(...trunk.merges);
     const host: IBuilt | null = trunk.trunk !== null && trunk.surface !== null ? { chain: trunk.trunk, surface: trunk.surface } : null;
 
+    // Every side's parts first: the legs' seeds are needed together.
+    const parts: Record<"left" | "right", { leg: IBuilt | null; arm: IBuilt | null; foot: IBuilt | null; fingers: IBranch[]; toes: IBranch[] }> = {
+      left: build("left"),
+      right: build("right"),
+    };
+    function build(name: "left" | "right"): { leg: IBuilt | null; arm: IBuilt | null; foot: IBuilt | null; fingers: IBranch[]; toes: IBranch[] } {
+      const side: ISide = input.sides[name];
+      const digits = (list: IDigit[]): IBranch[] => list.map((d: IDigit): IBranch => ({ part: built(AutoMovieHumanDigitWalk.create(d.digit)), fold: d.fold }));
+      return {
+        leg: built(AutoMovieHumanLegWalk.create(`leg.${name}`, side.leg.bones, side.leg.law, input.gap)),
+        arm: built(AutoMovieHumanArmWalk.create(`arm.${name}`, side.arm.bones, side.arm.knuckle, side.arm.reach, side.arm.sites, side.arm.joints, input.gap)),
+        foot: built(AutoMovieHumanFootPart.create(side.foot)),
+        fingers: digits(side.fingers),
+        toes: digits(side.toes),
+      };
+    }
+
     // The legs' seeds stand either side of the perineum: half their gap caps
     // both legs' chords, so the two host rails never cross.
-    const seeds: Vec3[] = (["left", "right"] as const).map((s: "left" | "right"): Vec3 => input.sides[s].leg.trunk.landmark);
-    const perineum: number = Math.hypot(seeds[0]![0] - seeds[1]![0], seeds[0]![1] - seeds[1]![1], seeds[0]![2] - seeds[1]![2]) / 2;
+    const legSeeds: Record<"left" | "right", AutoMovieHumanFoldSeed.ISeed | null> = {
+      left: parts.left.leg !== null && host !== null ? seed(parts.left.leg, host, input.sides.left.leg.trunk) : null,
+      right: parts.right.leg !== null && host !== null ? seed(parts.right.leg, host, input.sides.right.leg.trunk) : null,
+    };
+    const a: Vec3 | undefined = legSeeds.left?.landmark;
+    const b: Vec3 | undefined = legSeeds.right?.landmark;
+    const perineum: number = a !== undefined && b !== undefined ? Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) / 2 : input.sides.left.leg.trunk.radius;
 
     for (const name of ["left", "right"] as const) {
       const side: ISide = input.sides[name];
-
-      // The parts of the side.
-      const leg: IBuilt | null = built(AutoMovieHumanLegWalk.create(`leg.${name}`, side.leg.bones, side.leg.law, input.gap));
-      const arm: IBuilt | null = built(AutoMovieHumanArmWalk.create(`arm.${name}`, side.arm.bones, side.arm.knuckle, side.arm.reach, side.arm.law, side.arm.joints, input.gap));
-      const foot: IBuilt | null = built(AutoMovieHumanFootPart.create(side.foot));
-      const digits = (list: IDigit[]): IBranch[] => list.map((d: IDigit): IBranch => ({ part: built(AutoMovieHumanDigitWalk.create(d.digit)), fold: d.fold }));
-      const fingers: IBranch[] = digits(side.fingers);
-      const toes: IBranch[] = digits(side.toes);
+      const { leg, arm, foot, fingers, toes } = parts[name];
 
       // The joins of the side, each skipped where a part is missing.
-      if (leg !== null && host !== null) join(leg, host, side.leg.trunk, perineum);
+      if (leg !== null && host !== null) join(leg, host, side.leg.trunk, perineum, legSeeds[name]);
       if (arm !== null && host !== null) join(arm, host, side.arm.trunk, side.arm.trunk.radius);
       if (leg !== null && foot !== null) join(leg, foot, side.leg.foot, side.leg.foot.radius);
       const branches = (on: IBuilt | null, list: IBranch[]): void => {
         if (on === null) return;
         const out: AutoMovieHumanBranchMerges.IOutput = AutoMovieHumanBranchMerges.create(
           on,
-          list.flatMap((b: IBranch): AutoMovieHumanBranchMerges.IBranch[] =>
-            b.part === null ? [] : [{ chain: b.part.chain, surface: b.part.surface, landmark: b.fold.landmark, guess: b.fold.guess, radius: b.fold.radius }],
-          ),
+          list.flatMap((branch: IBranch): AutoMovieHumanBranchMerges.IBranch[] => {
+            if (branch.part === null) return [];
+            const found: AutoMovieHumanFoldSeed.ISeed | null = seed(branch.part, on, branch.fold);
+            return found === null ? [] : [{ chain: branch.part.chain, surface: branch.part.surface, landmark: found.landmark, guess: found.guess, radius: branch.fold.radius }];
+          }),
           { ...LIMITS, gap: input.gap },
           diagnostics,
         );
