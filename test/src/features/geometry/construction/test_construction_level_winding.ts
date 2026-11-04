@@ -26,6 +26,7 @@ export function test_construction_level_winding(): void {
   const R: number = 0.05;
   const r: number = 0.02;
   const centre: V3 = [0, 0.05, 0];
+  const SHARE: number = 0.95;
   const host: AutoMovieConstructionNode = ConstructionShapes.ellipsoid("host", { origin: { x: 0, y: 0, z: 0 }, u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 } }, R, R, R);
   const straight: IAutoMovieConstructionView = ConstructionShapes.ellipsoid("part", { origin: { x: 0, y: centre[1], z: 0 }, u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 } }, r, r, r);
   // The level twin: stations are heights, so every station of the straight
@@ -69,6 +70,7 @@ export function test_construction_level_winding(): void {
     }
     const at: (v: number) => V3 = (v: number): V3 => [m.positions[3 * v]!, m.positions[3 * v + 1]!, m.positions[3 * v + 2]!];
     let out: number = 0;
+    const inward: number[] = [];
     let all: number = 0;
     for (let t: number = 0; t < m.indices.length; t += 3) {
       if (m.coordinates[3 * m.indices[t]!] !== owner) continue;
@@ -81,11 +83,13 @@ export function test_construction_level_winding(): void {
       const g: V3 = [(a[0] + b[0] + c[0]) / 3 - centre[0], (a[1] + b[1] + c[1]) / 3 - centre[1], (a[2] + b[2] + c[2]) / 3 - centre[2]];
       all++;
       if (n[0] * g[0] + n[1] * g[1] + n[2] * g[2] > 0) out++;
+      else inward.push(g[1] / r);
     }
+    if (!turned && all > 0 && out / all < SHARE) failures.push(`  inward triangles at heights ${[...new Set(inward.map((h: number): string => h.toFixed(1)))].join(", ")} part radii from the centre`);
     return all === 0 ? 0 : out / all;
   };
 
-  const SHARE: number = 0.95;
+
   const s: number = outward(straight, false);
   if (!(s >= SHARE)) failures.push(`straight part: ${(s * 100).toFixed(1)} % of its triangles face out`);
   const l: number = outward(level, false);

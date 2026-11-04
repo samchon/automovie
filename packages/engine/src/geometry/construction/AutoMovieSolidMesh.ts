@@ -4,7 +4,7 @@ import { AutoMovieSolidZip } from "./AutoMovieSolidZip";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
-const { cross, dot, norm, sub } = AutoMovieSolidVector;
+const { cross, dot, norm, scale, sub } = AutoMovieSolidVector;
 
 /**
  * The tessellation of solids joined by merge and diff: each face's kept
@@ -206,7 +206,7 @@ export namespace AutoMovieSolidMesh {
       return ids;
     });
 
-    // The blend's quads, turned to the host's outward side at the first.
+    // The blend's quads, turned to the host's outward side at the tested quad's column.
     const triangles: [number, number, number][] = [];
     for (let k: number = 0; k < count; k++)
       for (let i: number = 0; i < seam.rows; i++) {
@@ -216,8 +216,10 @@ export namespace AutoMovieSolidMesh {
         const d: number = grid[k]![i + 1]!;
         triangles.push([a, b, c], [a, c, d]);
       }
-    const h0: [number, number] = seam.hostLoop.chart[0]!;
-    emit(mesh, triangles, outward(seam.host, h0[0], h0[1]));
+    emit(mesh, triangles, (t: number): Vec3 => {
+      const h: [number, number] = seam.hostLoop.chart[Math.floor(t / (2 * seam.rows))]!;
+      return outward(seam.host, h[0], h[1]);
+    });
 
     return {
       host: { kind: seam.hostLoop.kind, vertices: grid.map((g: number[]): number => g[0]!), chart: seam.hostLoop.chart },
@@ -329,17 +331,16 @@ export namespace AutoMovieSolidMesh {
         { vertices: loop.vertices, angles: AutoMovieSolidMeshLoop.arc(mesh, loop.vertices) },
         { vertices: cycle, angles: AutoMovieSolidMeshLoop.arc(mesh, cycle) },
       );
-      const p0: [number, number] = loop.chart[0]!;
-      const o: Vec3 = outward(surface, p0[0], p0[1]);
-      emit(mesh, band, input.inverted === true ? [-o[0], -o[1], -o[2]] : o);
+      const sign: number = input.inverted === true ? -1 : 1;
+      emit(mesh, band, (k: number): Vec3 => scale(facing(mesh, surface, band[k]!), sign));
     }
     return open;
   }
 
   /**
    * A closure's triangles added outward, such as the fan from a face's open
-   * end to its pole: tested once against the face's outward normal at the
-   * coordinates of the first triangle's first vertex.
+   * end to its pole: tested once, its largest triangle against the face's
+   * outward normal at that triangle's first vertex.
    *
    * @param mesh The mesh.
    * @param triangles One turning sense, their first vertex on the face.
@@ -348,9 +349,8 @@ export namespace AutoMovieSolidMesh {
    */
   export function close(mesh: IMesh, triangles: readonly [number, number, number][], surface: IAutoMovieSolidSurface, inverted: boolean): void {
     if (triangles.length === 0) return;
-    const v: number = triangles[0]![0];
-    const o: Vec3 = outward(surface, mesh.coordinates[3 * v + 1]!, mesh.coordinates[3 * v + 2]!);
-    emit(mesh, triangles, inverted ? [-o[0], -o[1], -o[2]] : o);
+    const sign: number = inverted ? -1 : 1;
+    emit(mesh, triangles, (k: number): Vec3 => scale(facing(mesh, surface, triangles[k]!), sign));
   }
 
   /**
@@ -410,26 +410,35 @@ export namespace AutoMovieSolidMesh {
   }
 
   /**
-   * Triangles added turned outward: as given when `sign` is positive or the
-   * set is already known outward (`known`), else each turned when its normal
-   * faces against `sign`'s reference.
+   * Triangles added turned outward: as given when the set is known outward
+   * (`known`, the sign the face's orientation), else turned as a whole when
+   * the largest triangle's normal faces against the outward normal at that
+   * triangle's own place (`reference`). A set of one turning sense round a
+   * closed loop (a blend, a zip band, a fan to a pole) faces every way, so
+   * the outward normal is read where the tested triangle stands: read at one
+   * fixed point of the loop it turned the whole set inward whenever the
+   * largest triangle lay on the loop's far side, about an eighth of a merged
+   * part's skin.
    *
    * @param mesh The mesh.
    * @param triangles One turning sense in their parameter plane.
-   * @param sign A face's orientation (`known`), or an outward normal to test the largest triangle against.
+   * @param sign A face's orientation (`known`), or the outward normal at a triangle of the set.
    * @param known Whether `sign` is the orientation itself.
    */
-  function emit(mesh: IMesh, triangles: readonly [number, number, number][], sign: number | Vec3, known: boolean = false): void {
+  function emit(mesh: IMesh, triangles: readonly [number, number, number][], sign: number | ((t: number) => Vec3), known: boolean = false): void {
     let flip: boolean;
     if (known || typeof sign === "number") flip = (sign as number) < 0;
     else {
-      // The largest triangle's normal against the reference.
-      let best: Vec3 = [0, 0, 0];
-      for (const t of triangles) {
-        const n: Vec3 = normal(mesh, t);
-        if (norm(n) > norm(best)) best = n;
-      }
-      flip = dot(best, sign) < 0;
+      let best: number = -1;
+      let size: number = 0;
+      triangles.forEach((t: readonly [number, number, number], k: number): void => {
+        const n: number = norm(normal(mesh, t));
+        if (n > size) {
+          size = n;
+          best = k;
+        }
+      });
+      flip = best >= 0 && dot(normal(mesh, triangles[best]!), sign(best)) < 0;
     }
     for (const [a, b, c] of triangles) mesh.indices.push(...(flip ? [a, c, b] : [a, b, c]));
   }
@@ -438,6 +447,21 @@ export namespace AutoMovieSolidMesh {
   function normal(mesh: IMesh, t: readonly [number, number, number]): Vec3 {
     const p = (k: number): Vec3 => [mesh.positions[3 * k]!, mesh.positions[3 * k + 1]!, mesh.positions[3 * k + 2]!];
     return cross(sub(p(t[1]), p(t[0])), sub(p(t[2]), p(t[0])));
+  }
+
+  /**
+   * A face's outward normal over a triangle: the sum of the face's outward
+   * normals at its corners' chart points on that face, so a corner on a
+   * pole, where the chart's normal vanishes, leaves the others to decide.
+   */
+  function facing(mesh: IMesh, surface: IAutoMovieSolidSurface, t: readonly [number, number, number]): Vec3 {
+    const n: Vec3 = [0, 0, 0];
+    for (const v of t) {
+      const o: Vec3 = outward(surface, mesh.coordinates[3 * v + 1]!, mesh.coordinates[3 * v + 2]!);
+      const l: number = norm(o);
+      if (l > 0) for (let c: number = 0; c < 3; c++) n[c] = n[c]! + o[c]! / l;
+    }
+    return n;
   }
 
   /** A surface's outward normal at a chart point. */
