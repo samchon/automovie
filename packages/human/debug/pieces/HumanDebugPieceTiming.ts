@@ -66,7 +66,7 @@ export const HumanDebugPieceTiming: IHumanDebugPiece = {
     for (const [key, members] of charts) {
       const started: number = performance.now();
       try {
-        AutoMovieHumanSkinChart.generate(members);
+        AutoMovieHumanSkinChart.generate(members, calibration.chains);
         chartTimes[key] = Math.round(performance.now() - started);
       } catch (error) {
         chartTimes[key] = "failed after " + Math.round(performance.now() - started) + " ms: " + String(error);

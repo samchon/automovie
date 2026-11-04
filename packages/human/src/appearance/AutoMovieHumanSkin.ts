@@ -143,7 +143,7 @@ export namespace AutoMovieHumanSkin {
       );
     const wrinkles: number = skin?.wrinkles ?? 0;
     const pieces: AutoMovieHumanSkinChart.IOutput[] =
-      AutoMovieHumanSkinChart.generate(props.pieces);
+      AutoMovieHumanSkinChart.generate(props.pieces, props.chains);
     const tone: AutoMovieHumanSkinTone.IOutput =
       AutoMovieHumanSkinTone.generate({
         vermilion: props.vermilion,
