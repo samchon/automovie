@@ -1,0 +1,29 @@
+# Input and laws worker log
+
+The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
+
+## Input and laws worker, #3045 and the prior replacements (appended 13:39, `date`)
+
+Paths I edit and commit: `packages/human/src/structures/body/IAutoMovieHumanBodyAnatomy.ts`, `IAutoMovieHumanBodyIdentity.ts`, `IAutoMovieHumanArmIdentity.ts`, `IAutoMovieHumanLegIdentity.ts`; `packages/human/src/generation/AutoMovieHumanBodyAnatomy.ts`, `AutoMovieHumanBodyBox.ts`, `AutoMovieHumanBodyFat.ts`, the one seeding line in `AutoMovieHumanBodyLaw.calibrate`; `packages/playground/src/human-editor/HumanEditorMeasureFields.ts` and `packages/playground/src/human-parameters/<alias>.ts`; `test/src/features/internal/HumanSurveyData.ts`, `test/src/features/human/survey/`, `test/src/features/human/curves/input/test_human_input_anatomy_defaults.ts`, `test_human_input_box_consistency.ts`, `test/src/features/human/reference/anatomy/test_human_reference_inputs.ts`; then each prior file of owner rule 3 as I replace it; `packages/human/docs/work/parameter-anatomy-survey.md`.
+
+Collectors: human `ttsc --noEmit --watch -p tsconfig.debug.json` process 34464 and test `ttsc --noEmit --watch` process 55332, both started 13:11:44 (Get-Date), logs in my scratchpad outside the checkout.
+
+Design (#3045):
+
+- Source correction: ANSUR 1988's public data takes its waist breadth and depth at the navel (`WAIST_BRTH_OMPHALION`, `WAIST_DEPTH-OMPHALION`), not at the natural waist, and takes no bicristal breadth (`BISPINOUS_BRTH` is between the anterior superior iliac spines). Supervisor approved: the natural-waist breadth and depth are the navel section's law (breadth and depth on the girth of the same level, ANSUR 1988 by sex) evaluated at the natural-waist girth, a derivation with its assumption recorded; bicristal from ANSUR II; the bideltoid predictor the Human input with the best R2. #3045's body was corrected and read back.
+- Each fit is a tracked reading test under `test/src/features/human/survey/` (supervisor order: not a helper under `debug/`), fetching the public files into memory through `test/src/features/internal/HumanSurveyData.ts`; no data is stored.
+- `AutoMovieHumanBodyBox`: the chest, natural-waist and hip boxes, the taut-tape range `2 sqrt(W^2 + D^2)` to `2 (W + D)`, `place` (every default held inside the range the supplied measures leave), `diagnose` (one level-1 diagnostic per contradicted level, producer `human.inputs`), `of` (each box's tape held at the nearest end and its fullness in the range for the trunk's solve). `AutoMovieHumanBodyLaw.calibrate` seeds the calibration's diagnostics with it.
+- `IAutoMovieHumanBodyIdentity` now takes every measure the anatomy also declares from `IAutoMovieHumanBodyAnatomy` (`Required<Pick<...>>`; its `buttockCircumference` is the anatomy's `hipCircumference`), and the arm and leg identities type their shared girths and lengths from it, so no measure has two ranges.
+- `AutoMovieHumanBodyAnatomy.ts` would pass 500 lines, so the Navy fat estimate moved to `AutoMovieHumanBodyFat.ts` unchanged.
+
+Violation 13:18:27 (`date`): one of my Bash commands began with a stray `python -`, which waited on its input until I stopped the task; it ran no code, and the edit chained after it did not apply. No Python ran; every helper here is TypeScript.
+
+A `pnpm install` started by another agent at 13:18:59 rewrote `node_modules` while my first survey run compiled, so that run stopped on missing modules; the rerun started 13:22:46 has waited on the ttsc plugin cache locks held by other processes since.
+
+### #3045 state before its first commit (written 14:04, `date`)
+
+- Owner orders relayed: no own ttsc (my collectors 34464 and 55332 were already gone at 13:44:27 when I went to stop them; compile state from the three shared logs in `packages/human/.shots/debug/` only); no test runs until relayed; reference tests retired (my edits to `test_human_reference_inputs` reverted, the tester deleted it in 30732a487; #3045's step 5 and acceptance edited accordingly and read back).
+- Test runs attempted before the stop: 13:11 (stopped by another agent's `pnpm install` at 13:18:59), 13:22 (stopped on another worker's type error), 13:40 and 13:46 with `--noCheck` (refused by ttsx), 13:53 (refused by ttsx 0.36's emit provenance check). No survey reading has printed.
+- So the trunk defaults are interim: ANSUR II model B on stature, BMI and age (`AutoMovieHumanBodyBreadths`, coefficients from `docs/sources/ansur-ii.md`), each held in its box. Pending, with code and citation ready in the readings: chest depth, hip breadth and buttock depth on their girths (ANSUR 1988), the natural waist by the navel section's law (ANSUR 1988), the bideltoid and bicristal predictors by R2, and the survey's own box fullness (`test_human_survey_box_consistency`).
+- Compile: my files clean in the shared test watch cycle that ended after 14:02:39 (its only errors `AutoMovieHumanApertureSpan.ts:426`, another worker's).
+- Trunk laws queued for the body modeler, module names agreed: `AutoMovieHumanLumbarSection.box`, `AutoMovieHumanChestWall.box` (Heinz 2003 reading written: `test_human_survey_chest_wall`), `AutoMovieHumanTrapeziusLine.of` (ANSUR 1988 reading written: `test_human_survey_shoulder_line`), `AutoMovieHumanBackProfile.at` (Ohlendorf et al. 2023, Sci Rep 13:873, PMC9845304, read through Europe PMC: kyphosis 56.28 / 51.29 and lordosis 49.02 / 31.96 degrees, thoracic bending 13.90 / 16.23 and lumbar bending 14.25 / 10.56 degrees, women / men, 21 to 60 years), `AutoMovieHumanNavel.size`; the calf's site reading written (`test_human_survey_calf_site`).
