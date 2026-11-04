@@ -1,0 +1,142 @@
+import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
+import { AutoMovieHumanSolidFoot } from "../../lofting/AutoMovieHumanSolidFoot";
+import { AutoMovieHumanSolidIntersection } from "../../lofting/AutoMovieHumanSolidIntersection";
+import type { AutoMovieHumanSolidJoin } from "../../lofting/AutoMovieHumanSolidJoin";
+import { AutoMovieHumanSolidMerge } from "../../lofting/AutoMovieHumanSolidMerge";
+import { AutoMovieHumanSolidVector } from "../../lofting/AutoMovieHumanSolidVector";
+import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanSolidSurface";
+
+type Vec3 = AutoMovieHumanSolidVector.Vec3;
+const { cross, dot, scale, unit } = AutoMovieHumanSolidVector;
+
+/**
+ * A body part merged onto its host along an anatomical fold (the axilla, the
+ * groin and gluteal folds, the neck base, a breast's inframammary fold, a
+ * digit's web): the solid merge seeded at the fold's landmark, its blend as
+ * wide on each side as the fillet the soft tissue rolls into.
+ *
+ * Seed. The fold's landmark (the axilla vault, the inguinal fold's front
+ * point, cervicale) is a world point on both skins near their meeting; its
+ * foot on each surface (`AutoMovieHumanSolidFoot`, from a guess in the
+ * landmark's region) gives the trace's seed `(phi, s, y, theta)`, which the
+ * trace refines by Newton onto the curve.
+ *
+ * Width. Two surfaces whose outward normals turn by `beta` across their
+ * intersection curve meet a circle of radius `R` that touches both at the
+ * distance `R tan(beta / 2)` from the curve on each (the fillet between two
+ * faces at dihedral angle `pi - beta`: its tangent length is
+ * `R / tan((pi - beta) / 2)`). `R` is the tissue that rolls into the fold,
+ * the caller's law per phase (the subcutaneous layer at the site,
+ * `IAutoMovieHumanSubcutaneousFat`, or a digit's half breadth at a web), so a
+ * lean person's fold is narrow and a full one's wide, and a near-tangent
+ * contact (the lateral hip, `beta` small) takes a narrow blend because the
+ * two skins already nearly agree there. `beta` is read at the curve's point
+ * of each phase from both surfaces' exact jets (`n = orientation (S_u x S_v)`
+ * normalized), so the width is a smooth function of the phase wherever the
+ * curve is. The caller's cap per phase bounds it (half the gap to a
+ * neighbouring merge's host rail, the part's length to its first section
+ * clear of the host), since a fillet wider than either folds the rail.
+ *
+ * Every failure is the operators' diagnostics and a null join: no foot for
+ * the landmark, no closed transversal curve, a rail that crosses itself, a
+ * folded blend.
+ */
+export namespace AutoMovieHumanFoldJoin {
+  /** What a fold join needs. */
+  export interface IInput {
+    /** The part (periodic phase): the limb, digit, neck or mass whose station lines leave the host across the fold. */
+    part: IAutoMovieHumanSolidSurface;
+
+    /** The host. */
+    host: IAutoMovieHumanSolidSurface;
+
+    /** The fold's landmark, a world point near both skins at the fold, mm. */
+    landmark: Vec3;
+
+    /** Chart guesses `[u, v]` for the landmark's foot on the part and on the host, in the landmark's region. */
+    guess: { part: [number, number]; host: [number, number] };
+
+    /** The fold's radius per part phase, mm, positive: the tissue that rolls into it. */
+    radius: (phi: number) => number;
+
+    /** The widest chord per part phase on either side, mm, positive. */
+    cap: (phi: number) => number;
+
+    /** Traced points over one turn, at least 8. */
+    count: number;
+
+    /** Largest gap accepted on the curve and on a foot, mm. */
+    tolerance: number;
+
+    /** Least angle between the tangent planes along the curve, radians. */
+    grazing: number;
+  }
+
+  /**
+   * Merge the part onto its host along the fold.
+   *
+   * @param input The surfaces, the landmark, the fold's radius and cap, the trace's limits.
+   * @returns The join and the diagnostics of every broken premise.
+   */
+  export function create(input: IInput): AutoMovieHumanSolidJoin.IResult {
+    const producer: string = `fold.${input.part.name}.${input.host.name}`;
+    const fail = (contract: string, detail: string, more: AutoMovieHumanLoftContract.IDiagnostic[] = []): AutoMovieHumanSolidJoin.IResult => ({
+      join: null,
+      diagnostics: [...more, { producer, level: 6, contract, detail }],
+    });
+
+    // The seed: the landmark's feet on both surfaces.
+    const onPart: AutoMovieHumanSolidFoot.IFoot | null = AutoMovieHumanSolidFoot.of(input.part, input.landmark, input.guess.part, input.tolerance);
+    const onHost: AutoMovieHumanSolidFoot.IFoot | null = AutoMovieHumanSolidFoot.of(input.host, input.landmark, input.guess.host, input.tolerance);
+    if (onPart === null || onHost === null) return fail("seed", `no foot of the landmark [${input.landmark.join(", ")}] on the ${onPart === null ? "part" : "host"}`);
+    const seed: AutoMovieHumanSolidIntersection.IInput["seed"] = { phi: onPart.v, s: onPart.u, y: onHost.u, theta: onHost.v };
+
+    // The curve first, so each phase's width reads both normals on it.
+    const traced: AutoMovieHumanSolidIntersection.IResult = AutoMovieHumanSolidIntersection.trace({
+      part: input.part,
+      host: input.host,
+      seed,
+      count: input.count,
+      tolerance: input.tolerance,
+      grazing: input.grazing,
+    });
+    if (traced.curve === null) return fail("curve", "the fold traces no closed curve", traced.diagnostics);
+    const curve: AutoMovieHumanSolidIntersection.ICurve = traced.curve;
+
+    // The fillet's chord per phase, capped.
+    const width = (phi: number): number => {
+      const p: AutoMovieHumanSolidIntersection.IPoint | null = curve.at(phi);
+      if (p === null) return input.cap(phi);
+      const a: Vec3 | null = outward(input.part, p.s, p.phi);
+      const b: Vec3 | null = outward(input.host, p.y, p.theta);
+      if (a === null || b === null) return input.cap(phi);
+      const beta: number = Math.acos(Math.min(1, Math.max(-1, dot(a, b))));
+      return Math.min(input.radius(phi) * Math.tan(beta / 2), input.cap(phi));
+    };
+
+    return AutoMovieHumanSolidMerge.create({
+      part: input.part,
+      host: input.host,
+      seed,
+      count: input.count,
+      tolerance: input.tolerance,
+      grazing: input.grazing,
+      width: { part: width, host: width },
+    });
+  }
+
+  /**
+   * A surface's outward unit normal at a chart point, or null where its
+   * chart degenerates.
+   *
+   * @param surface The surface.
+   * @param u First chart parameter.
+   * @param v Second chart parameter.
+   * @returns The normal.
+   */
+  function outward(surface: IAutoMovieHumanSolidSurface, u: number, v: number): Vec3 | null {
+    const j: IAutoMovieHumanSolidSurface.IJet = surface.jet(u, v);
+    const n: Vec3 | null = unit(cross(j.u, j.v));
+    return n === null ? null : scale(n, surface.orientation);
+  }
+}
