@@ -233,7 +233,31 @@ export namespace AutoMovieSolidRail {
     const settled: [number, number] | null = section(host.faces[face]!, hostChart, curve.point, plane(b, across), hostWidth);
     if (settled === null) return null;
     hostChart = settled;
-    if (!host.kept(face, hostChart[0], hostChart[1])) return null;
+    // A rail that the normal section settles a hair across a face's boundary
+    // (a rail point at the crossing itself, as the clip's bisection asks for)
+    // belongs to the neighbour: map it across and settle it there.
+    if (!host.kept(face, hostChart[0], hostChart[1])) {
+      const here: IJet = host.faces[face]!.jet(hostChart[0], hostChart[1]);
+      const world: Vec3 = combine([
+        [direction[0], here.u],
+        [direction[1], here.v],
+      ]);
+      const next: { face: number; u: number; v: number } | null = host.across(face, hostChart[0], hostChart[1]);
+      if (next === null) return null;
+      const again: [number, number] | null = section(host.faces[next.face]!, [next.u, next.v], curve.point, plane(b, across), hostWidth);
+      if (again === null || !host.kept(next.face, again[0], again[1])) return null;
+      const there: IJet = host.faces[next.face]!.jet(again[0], again[1]);
+      const e: [number, number] | null = AutoMovieSolidVector.solve2(dot(there.u, there.u), dot(there.u, there.v), dot(there.u, there.v), dot(there.v, there.v), [dot(there.u, world), dot(there.v, world)]);
+      if (e === null) return null;
+      const speed: number = norm(combine([
+        [e[0], there.u],
+        [e[1], there.v],
+      ]));
+      if (!(speed > 0)) return null;
+      face = next.face;
+      hostChart = again;
+      direction = [e[0] / speed, e[1] / speed];
+    }
 
     return {
       curve,

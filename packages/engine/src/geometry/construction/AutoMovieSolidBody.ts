@@ -141,7 +141,10 @@ export namespace AutoMovieSolidBody {
   export function atlas(body: IBody, without: number = -1): { atlas: IAutoMovieSolidAtlas; index: number[] } {
     const index: number[] = body.faces.map((_: IFace, k: number): number => k).filter((k: number): boolean => k !== without);
     const back: Map<number, number> = new Map(index.map((k: number, i: number): [number, number] => [k, i]));
-    const face = (i: number): IFace => body.faces[index[i]!]!;
+    // The faces as they stand now: a join keeps reading this atlas after the
+    // merge trims its host, and must still see the host untrimmed there.
+    const frozen: IFace[] = index.map((k: number): IFace => ({ ...body.faces[k]!, cycles: body.faces[k]!.cycles.map(copy) }));
+    const face = (i: number): IFace => frozen[i]!;
     return {
       index,
       atlas: {
@@ -173,12 +176,19 @@ export namespace AutoMovieSolidBody {
    *
    * @param body The body; its faces, cycles and mesh grow in place.
    * @param input The merge.
-   * @returns The published blend, or null with the diagnostics of every broken premise.
+   * @returns The published blend, or null with the diagnostics of every broken premise; a merge that breaks one leaves the body exactly as it was (its faces, their cycles and the mesh).
    */
   export function merge(body: IBody, input: IMerge): IMerged {
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
+    // What a broken premise restores: a failed merge leaves no blend face, cycle or vertex behind.
+    const faceCount: number = body.faces.length;
+    const cycles: AutoMovieSolidCycle.ICycle[][] = body.faces.map((f: IFace): AutoMovieSolidCycle.ICycle[] => f.cycles.map(copy));
+    const lengths: [number, number, number, number] = [body.mesh.positions.length, body.mesh.coordinates.length, body.mesh.indices.length, body.mesh.owners.length];
     const fail = (contract: string, detail: string): IMerged => {
       diagnostics.push({ producer: `solid.body.${body.name}.${input.name}`, level: 6, contract, detail });
+      body.faces.length = faceCount;
+      body.faces.forEach((f: IFace, i: number): void => void (f.cycles = cycles[i]!));
+      [body.mesh.positions.length, body.mesh.coordinates.length, body.mesh.indices.length, body.mesh.owners.length] = lengths;
       return { blend: null, join: null, diagnostics };
     };
 
@@ -206,8 +216,8 @@ export namespace AutoMovieSolidBody {
     });
 
     // The host rail with the crossings between faces, and the part rail.
-    const rail: AutoMovieSolidClip.IRailPoint[] | null = AutoMovieSolidClip.rail(body, join, blend, index, input.count);
-    if (rail === null) return fail("rails", "the host rail's crossing between two faces could not be placed");
+    const rail: AutoMovieSolidClip.IRailPoint[] | string = AutoMovieSolidClip.rail(body, join, blend, index, input.count);
+    if (typeof rail === "string") return fail("rails", `the host rail's crossing between two faces could not be placed: ${rail}`);
     const partOwner: number = AutoMovieSolidMesh.owner(body.mesh, partSurface);
     const partVertices: number[] = blend.part.chart.map((c: [number, number]): number =>
       AutoMovieSolidMesh.vertex(body.mesh, partSurface.jet(c[0], c[1]).p, partOwner, c[0], c[1]),
@@ -347,4 +357,14 @@ export namespace AutoMovieSolidBody {
   export function kept(face: IFace, u: number, v: number): boolean {
     return face.cycles.every((c: AutoMovieSolidCycle.ICycle): boolean => AutoMovieSolidCycle.kept(c, u, v, face.surface.period));
   }
+}
+
+/** A deep copy of a trim cycle, so later clips that edit cycles in place leave it as it was. */
+function copy(c: AutoMovieSolidCycle.ICycle): AutoMovieSolidCycle.ICycle {
+  return {
+    kind: c.kind,
+    vertices: c.vertices.slice(),
+    chart: c.chart.map((p: [number, number]): [number, number] => [p[0], p[1]]),
+    neighbours: c.neighbours.map((n: AutoMovieSolidCycle.INeighbour): AutoMovieSolidCycle.INeighbour => ({ face: n.face, from: [n.from[0], n.from[1]], to: [n.to[0], n.to[1]] })),
+  };
 }

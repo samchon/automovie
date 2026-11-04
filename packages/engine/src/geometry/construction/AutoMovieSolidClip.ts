@@ -66,7 +66,7 @@ export namespace AutoMovieSolidClip {
    * @param blend Its published blend.
    * @param index The body face of each atlas face the join was traced on.
    * @param count The blend's columns.
-   * @returns The points in rail order, or null when a crossing's rail fails.
+   * @returns The points in rail order, or where a crossing's rail fails.
    */
   export function rail(
     body: AutoMovieSolidBody.IBody,
@@ -74,7 +74,7 @@ export namespace AutoMovieSolidClip {
     blend: AutoMovieSolidBlendChain.IBlend,
     index: number[],
     count: number,
-  ): IRailPoint[] | null {
+  ): IRailPoint[] | string {
     const faces: number[] = (blend.host.faces ?? blend.host.chart.map((): number => 0)).map((f: number): number => index[f]!);
     const point = (face: number, chart: [number, number], phase: number, across?: [number, number]): IRailPoint => {
       const surface: IAutoMovieSolidSurface = body.faces[face]!.surface;
@@ -96,7 +96,13 @@ export namespace AutoMovieSolidClip {
       for (let i: number = 0; i < BISECTIONS && low !== null && high !== null; i++) {
         const m: number = (lo + hi) / 2;
         const r: AutoMovieSolidRail.IRail | null = join.rail(m);
-        if (r === null) return null;
+        // At the crossing itself the rail may stand on the boundary of both
+        // faces and settle on neither; once the bracket is a millionth of a
+        // column the two ends already place the crossing.
+        if (r === null) {
+          if (hi - lo <= (1e-6 * 2 * Math.PI) / count) break;
+          return `no rail at t ${m}, between the columns at t ${lo} and ${hi} where the rail leaves face ${faces[k]} for face ${next}`;
+        }
         if (index[r.hostFace] === faces[k]) {
           lo = m;
           low = r;
@@ -105,7 +111,7 @@ export namespace AutoMovieSolidClip {
           high = r;
         }
       }
-      if (low === null || high === null) return null;
+      if (low === null || high === null) return `no rail at the column ${low === null ? `t ${lo}` : `t ${hi}`} beside the crossing from face ${faces[k]} to face ${next}`;
       const crossing: IRailPoint = point(faces[k]!, [low.host[0], low.host[1]], (lo + hi) / 2 - blend.seed);
       crossing.faces.push(index[high.hostFace]!);
       crossing.chart.set(index[high.hostFace]!, [high.host[0], high.host[1]]);
