@@ -55,7 +55,7 @@ export namespace AutoMovieHumanApertureSpan {
     /** The chains, the one holding the most points first. */
     chains: string[];
 
-    /** The rim points in margin order, crossings of a shared ring included. */
+    /** The rim: the feet of the kept margin points, in margin order. */
     points: IPoint[];
 
     /** Each chain's polygon `[station, phase]` for the cells it leaves out, closed past the shared ring. */
@@ -85,7 +85,7 @@ export namespace AutoMovieHumanApertureSpan {
     chains: readonly IAutoMovieHumanLoftChain[],
     events: readonly IAutoMovieHumanBodyCalibration.IEvent[],
   ): ISpan | string {
-    const margin: [number, number, number][] = AutoMovieHumanLoftAperture.polyline(prepared.aperture);
+    const margin: readonly [number, number, number][] = prepared.edge;
     const range: [number, number] = AutoMovieHumanLoftAperture.range(margin);
     const tolerance: number = prepared.aperture.depth;
 
@@ -157,15 +157,15 @@ export namespace AutoMovieHumanApertureSpan {
     const owner: IAutoMovieHumanLoftChain = byName.get(ring.owner)!;
     const neighbour: IAutoMovieHumanLoftChain = byName.get(ring.neighbour)!;
 
-    // The rim with a crossing on the ring between every two kept points on
+    // The loop with a crossing on the ring between every two kept points on
     // different chains: the owner's ring point nearest the margin's chord
     // there, copied by the neighbour.
-    const points: IPoint[] = [];
+    const sequence: IPoint[] = [];
     for (let k: number = 0; k < kept.length; k++) {
       const i: number = kept[k]!;
       const j: number = kept[(k + 1) % kept.length]!;
       const p: IPoint = at(i);
-      points.push(p);
+      sequence.push(p);
       if (owners[j] === owners[i]) continue;
       const q: IPoint = at(j);
       const a: [number, number, number] = margin[i]!;
@@ -173,7 +173,7 @@ export namespace AutoMovieHumanApertureSpan {
       const t: number = nearest(owner, ring.station, (x: readonly number[]): number => chord(x, a, b), (p.chain === ring.owner ? p : q).t);
       const point: [number, number, number] = AutoMovieHumanLoftChain.point(owner, ring.station, t);
       const other: number = phaseOf(neighbour, ring.station, point, (p.chain === ring.neighbour ? p : q).t);
-      points.push({
+      sequence.push({
         chain: ring.owner,
         s: ring.station,
         t,
@@ -189,20 +189,20 @@ export namespace AutoMovieHumanApertureSpan {
       const polygon: [number, number][] = [];
       const chart = (p: IPoint): [number, number] | null =>
         p.chain === name ? [p.s, p.t] : p.also?.chain === name ? [p.also.s, p.also.t] : null;
-      const start: number = points.findIndex((p: IPoint): boolean => p.chain === name && p.also === undefined);
-      for (let k: number = 0; k < points.length; k++) {
-        const p: IPoint = points[(start + k) % points.length]!;
+      const start: number = sequence.findIndex((p: IPoint): boolean => p.chain === name && p.also === undefined);
+      for (let k: number = 0; k < sequence.length; k++) {
+        const p: IPoint = sequence[(start + k) % sequence.length]!;
         const c: [number, number] | null = chart(p);
         if (c === null) continue;
-        const before: IPoint = points[(start + k - 1 + points.length) % points.length]!;
-        const after: IPoint = points[(start + k + 1) % points.length]!;
+        const before: IPoint = sequence[(start + k - 1 + sequence.length) % sequence.length]!;
+        const after: IPoint = sequence[(start + k + 1) % sequence.length]!;
         if (p.also !== undefined && chart(before) === null) polygon.push([ring.station + away * PAST, c[1]]);
         polygon.push(c);
         if (p.also !== undefined && chart(after) === null) polygon.push([ring.station + away * PAST, c[1]]);
       }
       loops.set(name, polygon);
     }
-    return { chains: names, points, loops };
+    return { chains: names, points: kept.map(at), loops };
   }
 
   /**

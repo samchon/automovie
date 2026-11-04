@@ -133,13 +133,13 @@ export namespace AutoMovieHumanBodySurface {
       });
       context.roots.set(appendage.base, list);
     }
-    // Every opening but an eye is a trim on its base chains: the declared
-    // one, or the chains that hold it, split at the ring two of them share
-    // (`AutoMovieHumanApertureSpan`). An eye is still cut by position, its
-    // lid band built for that cut, until the head is one chain (#3053).
+    // Every opening is a trim on its base chains: the declared one, or the
+    // chains that hold it, split at the ring two of them share
+    // (`AutoMovieHumanApertureSpan`); an eye's along its lid band's outer
+    // edge, one rim point per lid sample, which the lid band's columns start
+    // from. The openings stay listed for the rows refined near them.
     const spans: [AutoMovieHumanBodyApertures.IPrepared, AutoMovieHumanApertureSpan.ISpan][] = [];
     for (const opening of context.apertures) {
-      if (opening.lid !== null) continue;
       const span: AutoMovieHumanApertureSpan.ISpan | string = AutoMovieHumanApertureSpan.of(
         opening,
         opening.aperture.base !== undefined && context.chains.has(opening.aperture.base)
@@ -149,6 +149,10 @@ export namespace AutoMovieHumanBodySurface {
       );
       if (typeof span === "string")
         throw new Error(`Opening ${opening.aperture.name} lies on no chain or pair of chains sharing a ring: ${span}`);
+      if (opening.lid !== null && span.points.length !== opening.edge.length)
+        throw new Error(
+          `Opening ${opening.aperture.name}: ${opening.edge.length - span.points.length} of ${opening.edge.length} lid band edge points have no foot on the skin`,
+        );
       spans.push([opening, span]);
       for (const [name, loop] of span.loops) {
         const list = context.roots.get(name) ?? [];
@@ -160,10 +164,6 @@ export namespace AutoMovieHumanBodySurface {
         context.roots.set(name, list);
       }
     }
-    context.apertures = context.apertures.filter(
-      (p: AutoMovieHumanBodyApertures.IPrepared): boolean =>
-        !spans.some(([q]: [AutoMovieHumanBodyApertures.IPrepared, AutoMovieHumanApertureSpan.ISpan]): boolean => q === p),
-    );
 
     // 1-2. Contact rings and the boundaries they define on both sides.
     for (const event of calibration.events) contact(context, event);
@@ -183,10 +183,6 @@ export namespace AutoMovieHumanBodySurface {
     const construction: IAutoMovieHumanConstructionPath[] = [];
     for (const [opening, span] of spans)
       construction.push(...AutoMovieHumanBodySurfaceOpening.open(context, opening, span, calibration.events));
-
-    // 4. The eyes: the skin over each is clipped away by position, and the
-    // lid margins tucked onto the globes.
-    construction.push(...AutoMovieHumanBodyApertures.cut(context.mesh, context.apertures));
     construction.push(...(WEBS.get(context.mesh) ?? []));
 
     const faces: number[] = AutoMovieHumanLoftMesh.normals(context.mesh);
