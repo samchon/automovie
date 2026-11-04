@@ -2,6 +2,30 @@
 
 The head lane of campaign #3044: #3052 head and neck, #3053 eye, #3054 nose, #3055 lips, #3056 ear. This file is the head modeler's own log; nobody else writes in it.
 
+## For the next campaign (written 21:03:11, after `bca85bdd0`)
+
+State. The figure's head is `AutoMovieHumanHeadTree`, realized with the body by `realizeAutoMovieConstruction`:
+- `AutoMovieHumanHeadLane` builds the subtree on the neck ring.
+- `AutoMovieHumanBodyLane` merges it onto the trunk after the trunk's masses.
+- `AutoMovieHumanBodyLaw` no longer publishes the old head's chains, events, poles or openings.
+- The old head assembly (`AutoMovieHumanHeadConstruction.apply`) still runs, only for today's body: the rig reads it through `legacy`, and the eye globes come from it.
+
+Remaining, in order:
+
+1. **Eyes as parts of the head's tree** (owner, 21:0x: the eye is a module sharing the same logic as every other part). Design:
+   - The globe is a view part: a sphere of the globe's radius, its centre behind the fissure at the prior's recess. It joins nothing; it is a part of its own in the tree, so the skin and the appearance read the same record.
+   - Each lid is a view part over the globe, its margin at the fissure's edge. It merges onto the orbit's cut wall: a root-level join after the orbit's diff, with hostFace the orbit part, its base sunk behind the cut's floor so its station line crosses the cut.
+   - The fissure is an `IAutoMovieConstructionTrim` through both lids.
+   - `calibration.eyes` is then read off the globe parts, and `today.eyes` goes. The same applies to the mouth slit and the nostrils as trims.
+   - The orbit then cuts back to the socket again (`face.socket`), since the globe fills it.
+2. **Nose fold**: `blend.nose` folds at t 0.39, share 0.875, near the columella's pole. The kernel's end bound (`6ae205b2d`, `END` 0.5 in the tree) was added for it; re-read the realization's diagnostics. The lobule, alae and nostrils wait on the nose.
+3. **Helices**: "the walk does not return to its start in 4096 steps", a near-tangent stretch along the auricle's face. Check whether the rim crosses the auricle there; a rim standing proud of the face by its row's height should cross.
+4. **Conchas**: rails past the auricle's apex; covered by the end bound, to re-read.
+5. **Mentolabial sulcus**: a diff groove whose blend folds at t pi/2, share 0.75. The kernel suggests a fold width (R tan(beta/2)) on the part side.
+6. **Openings**: mouth slit, nostrils and fissures as trims of the tree (`IAutoMovieConstructionTrim`); `apertures` are published empty until then.
+7. **Overlay round on the whole figure**: every head part from front, side and top on f1, judged by its stated reason (source JSDoc), never fitted to f1.
+8. **Old head assembly**: delete it once the rig reads the published chains rather than `legacy`, and the eyes come from the tree.
+
 ## Paths I edit and commit
 
 - `packages/human/src/generation/`: `AutoMovieHumanHead*`, `IAutoMovieHumanHead*`, `AutoMovieHumanNeck*` (with `AutoMovieHumanNeckConstruction`, supervisor 13:4x), `AutoMovieHumanEye*`, `AutoMovieHumanEyelid*`, `AutoMovieHumanEar*`, `AutoMovieHumanMouth*`, `AutoMovieHumanOralCavity*`, the opening files (`AutoMovieHumanApertureSpan`, `AutoMovieHumanApertureSeam`, `AutoMovieHumanBodySurfaceOpening`, and the aperture parts of `AutoMovieHumanBodySurface`, `...SurfaceLoft`, `...SurfacePoles`, `...BodyRoots`, `IAutoMovieHumanSurfaceContext`), and new head parts under `generation/head/`.
