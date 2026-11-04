@@ -72,3 +72,22 @@ Landed after pass 2: `AutoMovieHumanHeadArcs` (584342f8b), `AutoMovieHumanEarPla
 Readings written, numbers pending the owner's window: `test_human_estimate_trunk_outline`, `test_human_estimate_head_outline` (d3ee94885), `test_human_estimate_arm_sections`, `test_human_estimate_foot_outline` (5a8e27b00). Still to write: the masses' footprints, the face's malar, nose, lips, lids and ear outlines, the digits.
 
 Findings to keep: the estimated cervicale reads on two people and the perineum's spread (SD 0.034 of stature) equals its mean; the leg's breadth over depth is 0.81 at the ankle and 0.90 to 1.00 elsewhere, with a fullness near 0.25 (an ellipse's); the foot's dorsum at half its length reads 0.209 of its length on the references against Williams and McClay's published 0.214.
+
+### Readings waiting for the next run (written 15:58, `date`)
+
+One program, the supervisor's, after the owner's fixed ttsx; I fill each table from its output:
+
+```bash
+pnpm test --include test_human_estimate_trunk_outline test_human_estimate_head_outline test_human_estimate_arm_sections test_human_estimate_foot_outline test_human_estimate_face_profile test_human_estimate_masses
+```
+
+| Reading | Table it fills | Reader it replaces |
+| --- | --- | --- |
+| `test_human_estimate_trunk_outline` | trunk half breadth, front and back places, quarter shoulders by share of crotch to cervicale | the body modeler's upperSites, cervicaleForward, perineumForward |
+| `test_human_estimate_head_outline` | head mass P, B, L and quarter shoulders by share of menton to vertex | the head prior's outline rows |
+| `test_human_estimate_arm_sections` | arm's four extents per girth and shoulders along forearm and upper arm | the body modeler's armSites |
+| `test_human_estimate_foot_outline` | foot's lateral and medial edges, dorsum and plantar heights along its axis | foot() |
+| `test_human_estimate_face_profile` | the face's midline profile (nose, lips, chin) and front contour setback across the face (cheek, malar) | the head prior's profile and relief rows |
+| `test_human_estimate_masses` | breast and gluteal profiles about their points, vertical and horizontal | the masses' footprint and profile |
+
+Still without a reading: the lids (their curves are open arcs of separate shells in the pack) and the ear's outline (it needs sections normal to the head's side, which only a resection of the arcs gives); the digits and the hand's posture (only f1 carries sections normal to them).
