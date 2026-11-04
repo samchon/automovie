@@ -9,6 +9,16 @@ The body modeler's own log in the three-view campaign (#3044; body lane #3047 to
 - the page's part list for a whole figure (`parts` 705 at 20:40);
 - whether the trunk's head-down event (gone since `e7f7ef0dd`) or the rings left the mesh empty before the solids were drawn.
 
+## Empty skin found, 21:35 (Get-Date)
+
+The same f1 whole figure renders with `shade=normals` (`packages/human/.shots/body/r10/normals.png`, posed, front), while the default appearance shading leaves it blank. So the blank skin is the appearance material, not the geometry, the rig or `legacy`. Owner of the fix: whoever owns `appearance/AutoMovieHumanSkin` and its tone and texture; the brows were painted into it at 21:05, and the eyebrow projector was reworked during the 19:xx window.
+
+The normals frame also shows, for the body:
+- the head missing (only the eyeballs stand);
+- the shoulders' top a wide rounded box (the lobes);
+- a sliver hanging from the left thigh to the knee;
+- a seam ring at the hips.
+
 ## Empty skin, 21:22 (Get-Date)
 
 `test_human_limb_piece_skin_pieces` (f1, 21:18 to 21:21): the body surface generates 27 pieces and 663,790 triangles. Every piece has triangles, and every vertex is finite, within [-101.4, -4.5, -548.9] to [287.3, 1437.3, 548.9] mm. So the generated skin is whole and finite, and the empty frames come after generation: in the rig, the instance, or the viewer's subject.
