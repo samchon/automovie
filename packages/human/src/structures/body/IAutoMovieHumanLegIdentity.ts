@@ -46,7 +46,7 @@ export interface IAutoMovieHumanLegIdentity {
   /**
    * Lower thigh circumference at suprapatella, the upper border of the patella, perpendicular to the thigh axis, millimetres, as ANSUR II measures it.
    */
-  lowerThighCircumference: number & tags.Minimum<80> & tags.Maximum<900>;
+  lowerThighCircumference: NonNullable<IAutoMovieHumanBodyAnatomy["lowerThighCircumference"]>;
 
   /** Maximum horizontal calf circumference, millimetres. */
   calfCircumference: NonNullable<IAutoMovieHumanBodyAnatomy["calfCircumference"]>;

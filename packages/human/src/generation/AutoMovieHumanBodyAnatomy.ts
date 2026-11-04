@@ -135,6 +135,7 @@ export namespace AutoMovieHumanBodyAnatomy {
       (given.posteriorCrotchLength === undefined
         ? line(C.CROTCH_ON_HIP, t.hip)
         : given.posteriorCrotchLength / C.POSTERIOR_CROTCH_SHARE[k]);
+    const fat: number = given.bodyFatPercentage ?? AutoMovieHumanBodyFat.navy(sex, stature, t.neck, t.waist, t.hip);
     return {
       stature,
       chestCircumference: t.chest,
@@ -158,6 +159,7 @@ export namespace AutoMovieHumanBodyAnatomy {
       handCircumference: t.handCircumference,
       inseam: t.inseam,
       thighCircumference: t.thigh,
+      lowerThighCircumference: given.lowerThighCircumference ?? C.lowerThigh(k, stature, fat),
       kneeCircumference: t.knee,
       calfCircumference: t.calf,
       sex,
@@ -190,7 +192,7 @@ export namespace AutoMovieHumanBodyAnatomy {
       crotchLength,
       posteriorCrotchLength: given.posteriorCrotchLength ?? C.POSTERIOR_CROTCH_SHARE[k] * crotchLength,
       thumbBreadth: given.thumbBreadth ?? line(THUMB_ON_HAND_BREADTH, handBreadth),
-      bodyFatPercentage: given.bodyFatPercentage ?? AutoMovieHumanBodyFat.navy(sex, stature, t.neck, t.waist, t.hip),
+      bodyFatPercentage: fat,
     };
   }
 

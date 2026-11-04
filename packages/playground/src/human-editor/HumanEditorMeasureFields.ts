@@ -39,6 +39,7 @@ export namespace HumanEditorMeasureFields {
     handCircumference: "손둘레",
     inseam: "다리 안쪽 길이",
     thighCircumference: "허벅지둘레",
+    lowerThighCircumference: "무릎 위 허벅지둘레",
     kneeCircumference: "무릎둘레",
     calfCircumference: "종아리둘레",
     biacromialBreadth: "어깨뼈 너비",

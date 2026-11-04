@@ -90,6 +90,14 @@ export interface IAutoMovieHumanBodyAnatomy {
   /** Thigh girth: horizontal at the widest part of the thigh below the gluteal fold (ISO 8559-1 5.3.20; ANSUR 1988 proximal thigh circumference, just below the gluteal furrow). ANSUR 1988: 580.3 (45.1) and 596.5 (49.3). */
   thighCircumference?: number & tags.Minimum<120> & tags.Maximum<1300>;
 
+  /**
+   * Lower thigh circumference: at suprapatella, the upper border of the
+   * patella, perpendicular to the thigh's axis, standing (ANSUR II lower thigh
+   * circumference). It is the thigh's tape just above the knee. ANSUR II:
+   * 400.7 (35.2) and 409.3 (31.9).
+   */
+  lowerThighCircumference?: number & tags.Minimum<80> & tags.Maximum<900>;
+
   /** Knee girth: horizontal at mid-patella (ISO 8559-1 5.3.22; ANSUR 1988 knee circumference). ANSUR 1988: 365.2 (23.3) and 386.4 (22.1). */
   kneeCircumference?: number & tags.Minimum<80> & tags.Maximum<900>;
 

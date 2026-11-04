@@ -315,3 +315,7 @@ A posterior part supplied alone sets the whole by the same share. The perineum's
 
 - Calf's greatest girth (ISO 8559-1 5.3.24 site): ANSUR 1988 calf height, 316.1 (24.0) / 353.4 (23.7) mm, stands at 0.6414 (0.0345) / 0.6537 (0.0269) of the way from the lateral malleolus to mid-patella (`test_human_survey_calf_site`; on stature R2 0.46 / 0.55).
 - Thigh depth: the surveys take one limb depth, the thigh clearance (seated, the thigh's thickness from the seat). On the ANSUR 1988 proximal thigh girth (the Human's `thighCircumference`): 32.27 + 0.2183 g / 37.12 + 0.2197 g, R2 0.66 / 0.74; it is 0.862 / 0.887 of the depth a circle of that girth would have (seated and compressed under the thigh; ANSUR II 0.857 / 0.908) (`test_human_survey_thigh_depth`).
+
+### Lower thigh girth
+
+`lowerThighCircumference` (ANSUR II, at suprapatella, perpendicular to the thigh; 400.7 (35.2) / 409.3 (31.9)) is a public input for the thigh's tape above the knee. Omitted, it is ANSUR II's model B on stature, the BMI the fat percentage implies (Deurenberg et al. 1991) and ANSUR II's mean age: -45.2 + 0.1538 S + 8.00 BMI - 0.30 age / -11.8 + 0.1383 S + 6.75 BMI - 0.29 age, R2 0.71 / 0.79 (`AutoMovieHumanBodyCourses.lowerThigh`).
