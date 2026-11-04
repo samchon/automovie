@@ -24,8 +24,8 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Layers too close for a stable spline are refused by the station contract, not merged.
  * @evidence contracts/common.md#meaningful-documentation States which fields get jets, which layers are kept and the station premise.
  * @evidence contracts/performance.md#efficient-algorithms One tridiagonal solve per field component, linear in the layers.
- * @evidence contracts/performance.md#reuse-equivalent-work The station spacing is factored once and shared by every component's solve.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Produces one new layer list; the input chain is not retained.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each curvature call computes one station-gap array; elimination coefficients are recalculated per component, and supplied curvature results are reused by slopes.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The returned chain shares unchanged fields and kept layers with its input and owns new derivative arrays; solve scratch is call-local and no module cache retains a chain.
  */
 export namespace AutoMovieSeamStation {
   /**
@@ -37,6 +37,14 @@ export namespace AutoMovieSeamStation {
    * @param t Strictly increasing stations, at least two.
    * @param values Values per station.
    * @returns Second derivatives per station.
+   *
+   * @evidence contracts/common.md#principled-implementation Thomas elimination solves each component's natural-cubic curvature system with zero endpoint second derivatives; matching finite rows and strictly increasing well-scaled stations are caller premises.
+   * @evidence contracts/common.md#clear-and-simple-design The same station system is traversed componentwise into one station-by-component output table.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not merge knots, regularize a zero gap or validate row widths; fewer than three stations receive the natural zero-curvature table.
+   * @evidence contracts/common.md#meaningful-documentation States the natural boundary condition, increasing-station premise and output indexing.
+   * @evidence contracts/performance.md#efficient-algorithms O(LW) time and output for L stations and W components, plus O(L) gap/elimination scratch, avoid a dense solve.
+   * @evidence contracts/performance.md#reuse-equivalent-work Shares one gap array across columns and reuses scratch arrays, but recalculates the modified upper coefficients per column; no shared factorization is claimed.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the new L-by-W curvature table escapes; gap and two elimination arrays die with the call.
    */
   export function curvatures(
     t: readonly number[],
@@ -85,6 +93,14 @@ export namespace AutoMovieSeamStation {
    * @param t Strictly increasing stations, at least two.
    * @param values Values per station.
    * @param M Second derivatives from {@link curvatures}.
+   *
+   * @evidence contracts/common.md#principled-implementation Evaluates the natural cubic's endpoint derivative from secant and adjacent curvatures, using the right interval except at the final station.
+   * @evidence contracts/common.md#clear-and-simple-design One table mapping handles all stations/components and accepts already solved curvatures.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses supplied M as given or solves it once by default; no slope clipping or finite-difference replacement hides an inconsistent table.
+   * @evidence contracts/common.md#meaningful-documentation Gives the final-station interval convention and provenance of the curvature argument.
+   * @evidence contracts/performance.md#efficient-algorithms O(LW) derivative work/output; omitting M additionally pays one O(LW) curvature solve and its temporary storage.
+   * @evidence contracts/performance.md#reuse-equivalent-work Callers continuous and the coefficient/plane branches pass their existing curvature table, avoiding its second solve; default M owns the one required preparation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a new slope table without retaining inputs; a default curvature table becomes unreachable after this synchronous call.
    */
   export function slopes(
     t: readonly number[],
@@ -97,8 +113,7 @@ export namespace AutoMovieSeamStation {
       const lo: number = Math.min(i, n - 2);
       const h: number = t[lo + 1]! - t[lo]!;
       return values[i]!.map((_v: number, col: number): number => {
-        const secant: number =
-          (values[lo + 1]![col]! - values[lo]![col]!) / h;
+        const secant: number = (values[lo + 1]![col]! - values[lo]![col]!) / h;
         return i === lo
           ? secant - (h * (2 * M[lo]![col]! + M[lo + 1]![col]!)) / 6
           : secant + (h * (M[lo]![col]! + 2 * M[lo + 1]![col]!)) / 6;
@@ -106,7 +121,17 @@ export namespace AutoMovieSeamStation {
     });
   }
 
-  /** A shared layer's jet as the neighbour copies it. */
+  /**
+   * A shared layer's copied section/plane values and station derivatives.
+   *
+   * @evidence contracts/common.md#principled-implementation The record carries the owner's boundary data and both derivative orders after conversion to a neighbour's station direction.
+   * @evidence contracts/common.md#clear-and-simple-design Six arrays separate section coefficients from flattened plane values and their derivatives.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type certifies neither matching widths nor geometric equality; copy's producer premises and the continuation operator own those checks.
+   * @evidence contracts/common.md#meaningful-documentation Names the nine-component plane layout, first-derivative sign and squared second-derivative factor.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This data interface executes no copy or solve.
+   * @evidence contracts/performance.md#reuse-equivalent-work A neighbour can retain the copied boundary jet instead of independently estimating derivatives at that shared ring.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The receiving chain owns O(W) section arrays and three nine-entry plane arrays until that boundary data is released; no process cache is added.
+   */
   export interface ICopy {
     /** The owner's coefficients. */
     coefficients: number[];
@@ -137,6 +162,14 @@ export namespace AutoMovieSeamStation {
    *
    * @param owner The owner's layer, carrying its jets (curvatures and plane slopes).
    * @param factor Station direction of the neighbour relative to the owner, 1 or -1.
+   *
+   * @evidence contracts/common.md#principled-implementation The station chain rule multiplies first derivatives by factor and second derivatives by factor squared; factors 1/-1 express the declared continuation orientations.
+   * @evidence contracts/common.md#clear-and-simple-design One explicit record copies section and plane data into the neighbour's boundary representation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Throws for absent owner curvatures/frame slopes; frame curvatures and valid factor are additional caller premises, not independently checked or synthesized.
+   * @evidence contracts/common.md#meaningful-documentation Explains orientation sign, required boundary jets and the horizontal fallback for an absent geometric frame.
+   * @evidence contracts/performance.md#efficient-algorithms O(W) section-copy work and fixed nine-component plane work allocate only the returned record's arrays and local flattening intermediates.
+   * @evidence contracts/performance.md#reuse-equivalent-work Takes the owner's actual boundary values and jets rather than re-solving a neighbour-local estimate.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned arrays own their copied numbers, without retaining the owner layer; transient flattened arrays remain call-local.
    */
   export function copy(
     owner: IAutoMovieLoftChain.ILayer,
@@ -148,8 +181,12 @@ export namespace AutoMovieSeamStation {
       coefficients: [...owner.coefficients],
       plane: flat(owner.frame ?? horizontal(owner.y)),
       slopes: owner.slopes.map((v: number): number => v * factor),
-      curvatures: owner.curvatures.map((v: number): number => v * factor * factor),
-      frameSlopes: flat(owner.frameSlopes).map((v: number): number => v * factor),
+      curvatures: owner.curvatures.map(
+        (v: number): number => v * factor * factor,
+      ),
+      frameSlopes: flat(owner.frameSlopes).map(
+        (v: number): number => v * factor,
+      ),
       frameCurvatures: flat(owner.frameCurvatures!).map(
         (v: number): number => v * factor * factor,
       ),
@@ -169,6 +206,14 @@ export namespace AutoMovieSeamStation {
    * @param chain Chain to solve; not modified.
    * @param keep Indices of layers whose derivatives are owned elsewhere.
    * @returns A copy whose layers carry slopes and curvatures (and plane jets when framed).
+   *
+   * @evidence contracts/common.md#principled-implementation Admits station spacing and solves natural-cubic coefficient/optional lift/plane derivatives; kept boundary derivatives are preserved, so intervals touching a kept jet follow that jet rather than an unmodified global natural spline.
+   * @evidence contracts/common.md#clear-and-simple-design One coordinator owns spacing, field preparation and selective layer replacement while curvatures/slopes own the tridiagonal mathematics.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects kept layers without coefficient curvatures and nonfinite new coefficient jets; lifted/framed field widths and remaining jet completeness are producer premises, not silently repaired.
+   * @evidence contracts/common.md#meaningful-documentation States unchanged principal values, kept-layer identity, optional field behavior and the new layer-table return.
+   * @evidence contracts/performance.md#efficient-algorithms O(LW) field work/output plus O(L) keep/station storage; each field's natural solve is linear, though elimination factors are rebuilt per component.
+   * @evidence contracts/performance.md#reuse-equivalent-work Coefficient and plane slopes reuse their curvature tables; lift slopes prepare theirs once, while shared input fields and kept layer objects remain the original values.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned chain owns new derivative arrays and shares kept layers/other chain fields; temporary station, value and solver tables are not retained by the module.
    */
   export function continuous(
     chain: IAutoMovieLoftChain,
@@ -178,53 +223,103 @@ export namespace AutoMovieSeamStation {
     const t: AutoMovieLoftContract.Stations = AutoMovieLoftContract.stations(
       chain.name,
       rows.map((l: IAutoMovieLoftChain.ILayer): number => l.y),
-      AutoMovieLoftContract.splineGap(rows.map((l: IAutoMovieLoftChain.ILayer): number => l.y)),
+      AutoMovieLoftContract.splineGap(
+        rows.map((l: IAutoMovieLoftChain.ILayer): number => l.y),
+      ),
     );
     const kept: Set<number> = new Set(keep);
-    const values: number[][] = rows.map((l: IAutoMovieLoftChain.ILayer): number[] => [...l.coefficients]);
+    const values: number[][] = rows.map(
+      (l: IAutoMovieLoftChain.ILayer): number[] => [...l.coefficients],
+    );
     const cM: number[][] = curvatures(t, values);
     const cS: number[][] = slopes(t, values, cM);
 
     // A lift absent on a layer is zero there, as the chain reads it.
-    const lifted: boolean = rows.some((l: IAutoMovieLoftChain.ILayer): boolean => l.lift !== undefined);
-    const lifts: number[][] = rows.map((l: IAutoMovieLoftChain.ILayer): number[] =>
-      l.lift !== undefined ? [...l.lift] : new Array<number>(l.coefficients.length / 2).fill(0),
+    const lifted: boolean = rows.some(
+      (l: IAutoMovieLoftChain.ILayer): boolean => l.lift !== undefined,
+    );
+    const lifts: number[][] = rows.map(
+      (l: IAutoMovieLoftChain.ILayer): number[] =>
+        l.lift !== undefined
+          ? [...l.lift]
+          : new Array<number>(l.coefficients.length / 2).fill(0),
     );
     const lS: number[][] = lifted ? slopes(t, lifts) : [];
 
     // Planes move by the spline only when every layer states its plane.
-    const framed: boolean = rows.every((l: IAutoMovieLoftChain.ILayer): boolean => l.frame !== undefined);
-    const planes: number[][] = framed ? rows.map((l: IAutoMovieLoftChain.ILayer): number[] => flat(l.frame!)) : [];
+    const framed: boolean = rows.every(
+      (l: IAutoMovieLoftChain.ILayer): boolean => l.frame !== undefined,
+    );
+    const planes: number[][] = framed
+      ? rows.map((l: IAutoMovieLoftChain.ILayer): number[] => flat(l.frame!))
+      : [];
     const pM: number[][] = framed ? curvatures(t, planes) : [];
     const pS: number[][] = framed ? slopes(t, planes, pM) : [];
 
     return {
       ...chain,
-      layers: rows.map((l: IAutoMovieLoftChain.ILayer, k: number): IAutoMovieLoftChain.ILayer => {
-        if (kept.has(k)) {
-          if (l.curvatures === undefined)
-            throw new Error(`Kept layer ${k} of ${chain.name} carries no curvatures`);
-          return l;
-        }
-        AutoMovieLoftContract.jet(`${chain.name} layer ${k} slopes`, cS[k]!, AutoMovieLoftContract.FINITE);
-        AutoMovieLoftContract.jet(`${chain.name} layer ${k} curvatures`, cM[k]!, AutoMovieLoftContract.FINITE);
-        return {
-          ...l,
-          slopes: cS[k]!,
-          curvatures: cM[k]!,
-          ...(lifted ? { lift: lifts[k]!, liftSlopes: lS[k]! } : {}),
-          ...(framed ? { frameSlopes: unflat(pS[k]!), frameCurvatures: unflat(pM[k]!) } : {}),
-        };
-      }),
+      layers: rows.map(
+        (
+          l: IAutoMovieLoftChain.ILayer,
+          k: number,
+        ): IAutoMovieLoftChain.ILayer => {
+          if (kept.has(k)) {
+            if (l.curvatures === undefined)
+              throw new Error(
+                `Kept layer ${k} of ${chain.name} carries no curvatures`,
+              );
+            return l;
+          }
+          AutoMovieLoftContract.jet(
+            `${chain.name} layer ${k} slopes`,
+            cS[k]!,
+            AutoMovieLoftContract.FINITE,
+          );
+          AutoMovieLoftContract.jet(
+            `${chain.name} layer ${k} curvatures`,
+            cM[k]!,
+            AutoMovieLoftContract.FINITE,
+          );
+          return {
+            ...l,
+            slopes: cS[k]!,
+            curvatures: cM[k]!,
+            ...(lifted ? { lift: lifts[k]!, liftSlopes: lS[k]! } : {}),
+            ...(framed
+              ? { frameSlopes: unflat(pS[k]!), frameCurvatures: unflat(pM[k]!) }
+              : {}),
+          };
+        },
+      ),
     };
   }
 
-  /** A plane as nine numbers `[origin, u, v]`. */
+  /**
+   * Copy a plane or plane-derivative record to nine numbers `[origin, u, v]`.
+   *
+   * @evidence contracts/common.md#principled-implementation Concatenation preserves all nine components and their declared origin/u/v order.
+   * @evidence contracts/common.md#clear-and-simple-design One conversion exposes the component layout used by the station solver.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not normalize derivative axes or reinterpret their units.
+   * @evidence contracts/common.md#meaningful-documentation States flattening order and that derivative-valued records use the same conversion.
+   * @evidence contracts/performance.md#efficient-algorithms Copies nine components in constant work and storage.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A fixed record conversion owns no coordinated preparation or cache.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The fresh array owns its numbers without retaining the input tuples.
+   */
   export function flat(f: AutoMovieLoftFrame.IFrame): number[] {
     return [...f.origin, ...f.u, ...f.v];
   }
 
-  /** A plane of nine numbers, its axes as given. */
+  /**
+   * Copy nine `[origin, u, v]` components into a frame-shaped record, preserving axes as given.
+   *
+   * @evidence contracts/common.md#principled-implementation Groups the fixed nine-component station layout into the original three triples.
+   * @evidence contracts/common.md#clear-and-simple-design This is the direct inverse layout conversion of flat, without a second frame representation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Assumes nine supplied entries and preserves their values; no normalization or finite-value admission changes derivative fields.
+   * @evidence contracts/common.md#meaningful-documentation Names array order and the unnormalized-axis ownership convention.
+   * @evidence contracts/performance.md#efficient-algorithms Nine reads and three fixed triples take constant work and space.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This representation conversion coordinates no repeated solve or cache.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned record owns its three tuples and retains no input array.
+   */
   export function unflat(x: readonly number[]): AutoMovieLoftFrame.IFrame {
     return {
       origin: [x[0]!, x[1]!, x[2]!],
