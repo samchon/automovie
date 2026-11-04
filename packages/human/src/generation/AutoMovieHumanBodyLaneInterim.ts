@@ -2,9 +2,10 @@ import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
 import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
+import { AutoMovieHumanBodyPlaces } from "./AutoMovieHumanBodyPlaces";
+import { AutoMovieHumanFootPlaces } from "./AutoMovieHumanFootPlaces";
 import type { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
 import type { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
-import { AutoMovieHumanFootPrior } from "./AutoMovieHumanFootPrior";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import type { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
 import { AutoMovieHumanTrunkInguinalFold } from "./AutoMovieHumanTrunkInguinalFold";
@@ -17,7 +18,6 @@ import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolutio
 import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
 import type { AutoMovieHumanArmWalk } from "./arm/AutoMovieHumanArmWalk";
 import type { AutoMovieHumanFootPart } from "./foot/AutoMovieHumanFootPart";
-import { AutoMovieHumanFootFrame } from "./foot/AutoMovieHumanFootFrame";
 import { AutoMovieHumanLegGirth } from "./leg/AutoMovieHumanLegGirth";
 import { AutoMovieHumanLegLaws } from "./leg/AutoMovieHumanLegLaws";
 import { AutoMovieHumanChainBox } from "./limb/AutoMovieHumanChainBox";
@@ -99,9 +99,11 @@ export namespace AutoMovieHumanBodyLaneInterim {
 
     // The trunk: the published boxes and the landed laws, the owed values
     // read on the old trunk's solve.
+    const ankles: number = (bone("leftFoot").position[0] + bone("rightFoot").position[0]) / 2;
+    const placed: { cervicale: number; perineum: number } = places(measures, input.scale, ankles);
     const pending = (upper: AutoMovieHumanTrunkViews.ILaws["upper"]): AutoMovieHumanTrunkLaws.IPending => ({
-      cervicale: cervicaleForward(solution),
-      perineum: perineumForward(solution, input.crotch),
+      cervicale: placed.cervicale,
+      perineum: placed.perineum,
       upper,
     });
     const first: AutoMovieHumanTrunkViews.ILaws = AutoMovieHumanTrunkLaws.of(measures, input.scale, pending([]));
@@ -131,7 +133,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
       return {
         leg: {
           bones: { hip, knee, ankle },
-          law: AutoMovieHumanLegLaws.of(measures, input.scale, knee[1], ankle[1], ankleSite(knee[1], ankle[1])),
+          law: AutoMovieHumanLegLaws.of(measures, input.scale, knee[1], ankle[1], ankleSite(knee[1], ankle[1]), input.crotch),
           trunk: fold(0, 0.5),
           foot: fold(1, 0.85),
         },
@@ -172,15 +174,21 @@ export namespace AutoMovieHumanBodyLaneInterim {
     };
   }
 
-  /** Interim accessor: cervicale's forward place, the old trunk's (the neck seat's back point). Owed law: cervicale in the body frame. */
-  export function cervicaleForward(solution: IAutoMovieHumanTrunkSolution): number {
-    return solution.seat.back[0];
-  }
-
-  /** Interim accessor: the perineum's forward place, the old column's mid-depth at the crotch. Owed law: the median section by the crotch lengths. */
-  export function perineumForward(solution: IAutoMovieHumanTrunkSolution, crotch: number): number {
-    const s: IAutoMovieHumanTrunkSection = solution.column.at(crotch);
-    return (s.front + s.back) / 2;
+  /**
+   * Cervicale's and the perineum's forward places: forward of the ankle
+   * centres' midpoint by their stature shares (`AutoMovieHumanBodyPlaces`,
+   * estimated from the private reference set: no published source found).
+   *
+   * @param measures The person's measures, world mm.
+   * @param scale Calibration millimetres per world millimetre.
+   * @param ankles The two ankle centres' mean forward place, calibration mm.
+   * @returns Both forward places, calibration mm.
+   */
+  export function places(measures: IAutoMovieHumanBodyMeasures, scale: number, ankles: number): { cervicale: number; perineum: number } {
+    return {
+      cervicale: ankles + AutoMovieHumanBodyPlaces.cervicale(measures) * scale,
+      perineum: ankles + AutoMovieHumanBodyPlaces.perineum(measures) * scale,
+    };
   }
 
   /**
@@ -249,10 +257,10 @@ export namespace AutoMovieHumanBodyLaneInterim {
   }
 
   /**
-   * Interim accessor: a foot's sites read on today's foot chain
-   * (`AutoMovieHumanChainBox`), on the old foot frame's axis (its yaw and
-   * the heel's across place, `AutoMovieHumanFootPrior`), placed at the ankle
-   * centre (the frame's origin): the heel half-way to the ankle's place, the
+   * Interim accessor: a foot's sites' boxes read on today's foot chain
+   * (`AutoMovieHumanChainBox`), on the foot's axis by its estimated yaw and
+   * ankle place (`AutoMovieHumanFootPlaces`) through the ankle centre: the
+   * heel half-way to the ankle's place, the
    * ankle's place, the instep (`instepLength`) and the ball
    * (`ballOfFootLength`), closing at the heel (pternion) and at the toes'
    * first rings, the farthest along the foot. Sites closer than the layer
@@ -270,14 +278,14 @@ export namespace AutoMovieHumanBodyLaneInterim {
     measures: IAutoMovieHumanBodyMeasures,
     scale: number,
   ): AutoMovieHumanFootPart.IInput {
-    const frame: AutoMovieHumanFootFrame.IFrame = AutoMovieHumanFootFrame.of(d);
-    const prior: AutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
+    // The foot's axis turned out by its yaw, the heel behind the ankle
+    // centre by the ankle's place along the foot (`AutoMovieHumanFootPlaces`,
+    // estimated from the private reference set: no published source found).
     const sign: number = name === "left" ? 1 : -1;
-    const world = (p: Vec3): Vec3 => [p[0] + ankle[0], p[1], sign * p[2] + ankle[2]];
-    const heel: Vec3 = world(frame.at(0, prior.ankle[1], 0));
-    const toward: Vec3 = world(frame.at(1, prior.ankle[1], 0));
-    const L: number = Math.hypot(toward[0] - heel[0], toward[2] - heel[2]);
-    const along: Vec3 = [(toward[0] - heel[0]) / L, 0, (toward[2] - heel[2]) / L];
+    const yaw: number = (AutoMovieHumanFootPlaces.YAW * Math.PI) / 180;
+    const along: Vec3 = [Math.cos(yaw), 0, sign * Math.sin(yaw)];
+    const back: number = AutoMovieHumanFootPlaces.ankle(d.length / scale) * scale;
+    const heel: Vec3 = [ankle[0] - along[0] * back, 0, ankle[2] - along[2] * back];
     const up: Vec3 = [0, 1, 0];
     const v: Vec3 = [along[2], 0, -along[0]];
     const at = (share: number, h: number): Vec3 => [heel[0] + along[0] * share * d.length, h, heel[2] + along[2] * share * d.length];
@@ -285,8 +293,8 @@ export namespace AutoMovieHumanBodyLaneInterim {
 
     // The sites by rising share, merged where closer than a layer apart.
     const named: [string, number][] = [
-      ["heel", prior.ankle[0] / 2],
-      ["ankle", prior.ankle[0]],
+      ["heel", back / d.length / 2],
+      ["ankle", back / d.length],
       ["instep", (measures.instepLength * scale) / d.length],
       ["ball", (measures.ballOfFootLength * scale) / d.length],
     ];
