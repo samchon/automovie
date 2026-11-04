@@ -4,7 +4,7 @@ A Human test cross-checks the generated person against anatomy, geometry and its
 
 ## Levels
 
-Test the mechanism once where it lives and the figure as a whole, so a defect of shared mathematics is found once and a part's change rewrites no test.
+Test the geometry as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) describes, the mechanism once where it lives and the figure as a whole, so a defect of shared mathematics is found once and a part's change rewrites no test.
 
 | Level | Reads | Expectation from |
 | --- | --- | --- |
@@ -27,7 +27,7 @@ Give an anatomy row only a relation the laws or their sources could get wrong, s
 
 ## People
 
-Run every person-level test on whole people: the references, and people at the population ends of every length, breadth and sex, each internally consistent.
+Run every person-level test on whole people, each internally consistent: the references, people at the population ends of every length, breadth and sex, and every public input at both ends of its declared range and in combined extremes, declaring a range first where an input has none.
 
 Derive every limit from the person's inputs, a published source or geometry, never from closeness to a reference body, because such a check rewards matching a few people and fails the population.
 

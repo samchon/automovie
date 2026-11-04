@@ -2,15 +2,6 @@
 
 The viewer finds defects and accepts a candidate, and the [tests](testing.md) confirm it, in the Human skill's [order](SKILL.md#order). A candidate needs both, because numbers alone do not establish a sound human shape and the viewer shows defects no test reads yet.
 
-## Score
-
-The score is a set of CPU-only tests that generate the figure without a GPU. They report:
-
-| Measure | Reads | Meaning |
-| --- | --- | --- |
-| Validity across the parameter domain | every control at both ends of its declared range and combined extremes, declaring a range first where a control has none | Rejects non-finite values, collapsed or self-crossing sections, folds and open joins. |
-| Requested against generated dimensions | the input-identity audit ([Testing](testing.md#levels)) | Rejects a parameter with no or the wrong response. |
-
 ## Curves Against The Reference
 
 A part is only as right as the view curves it is lofted from, so judge those curves before any surface. Draw the reference figure with every part's view curves and axis over it, each part in its own colour and each curve labelled with its part and view, from the front, side and top, using the view comparison's `reference`, `part`, `referencePart`, `views` and `viewLabels` variables in the [debug README](../../../packages/human/debug/README.md). Then go part by part in close-up and record, for each curve, where it leaves the reference skin, by how much, and which input, law, frame or construction choice put it there.

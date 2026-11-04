@@ -2,7 +2,7 @@
 
 A crafted form is code: named dimensions and formulas that the engine turns into geometry the same way every time.
 
-Organize its parts and groups by [Modularization](modularization.md), and test its construction under [testing](../development/testing.md).
+Organize its parts and groups by [Modularization](modularization.md), and test its construction as [Tests](#tests) describes, within the project's [testing](../development/testing.md) rules.
 
 ## Representation
 
@@ -50,6 +50,10 @@ On a subdivision surface, place extraordinary vertices where curvature is low an
 ## Evaluation
 
 Set up each section or segment once, with its coefficients and derivatives, and evaluate each point from that setup in constant time. Invert a parametrization with a table or an analytic step, such as Newton's method on the analytic derivative, rather than a long bisection over full evaluations. Solve a dimension on the part it controls instead of regenerating the whole form inside a solver loop. Slow generation lengthens every [correction round](visual-debugging.md#correction-rounds), and a round that costs too much invites local patches in place of repairs at the cause.
+
+## Tests
+
+Test each construction operator alone against an analytic oracle on made inputs, such as the intersection of two orthogonal cylinders against the Steinmetz curve, or a blend's declared continuity at both of its rails. Audit invariants generically over every section and join of the finished form: each section closed and free of self-intersection, each surface continuous, and the declared continuity held across each join. Check each input on the finished form at its own definition, such as a measurement taken at its site the way it is defined. A per-part test that recomputes the construction's formulas passes whatever the construction does.
 
 ## Stylization
 
