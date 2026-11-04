@@ -49,9 +49,17 @@ export interface IAutoMovieHumanViewPart {
   fullness: IAutoMovieHumanViewPart.Fullness;
 
   /**
-   * The end that closes in a point (a fingertip, a pole of a cap), where all
-   * four outlines reach the axis at the last or first station. The chain then
-   * carries that point as its `pole`. Absent, both ends are open sections.
+   * The end that closes in a point (a fingertip, a toe tip, the heel, the
+   * perineum's cap), where all four outlines and the girth have a knot of
+   * value 0 at that end's station. The chain then carries that point as its
+   * `pole`, closed as a G2 dome: toward the pole every outline and the girth
+   * run as natural splines in `sigma = sqrt(|s - s_pole|)`, so each meets the
+   * axis square to it with no second-order term in `sigma` (the natural end
+   * condition), which makes the profile's square smooth in the distance, the
+   * form of a smooth cap; the shoulders reach the ellipse's at the pole by a
+   * quintic smoothstep over the span to the nearest other outline knot, and
+   * rings are added at equal steps of `sigma` between the nearest given
+   * station and the pole. Absent, both ends are open sections.
    */
   pole?: "bottom" | "top";
 

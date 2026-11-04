@@ -95,17 +95,37 @@ export namespace AutoMovieHumanViewLoft {
       report("stations", `stations [${part.stations.join(", ")}] are not at least two strictly increasing finite values`);
       return empty();
     }
-    const curve = (name: string, outline: IAutoMovieHumanViewPart.IOutline): ((s: number) => number) | null => {
+    // The pole's end station closes in a point and carries no section.
+    const first: number = part.stations[0]!;
+    const last: number = part.stations[part.stations.length - 1]!;
+    const tip: number | null = part.pole === "bottom" ? first : part.pole === "top" ? last : null;
+
+    // Toward a pole an outline runs in sigma = sqrt of the distance from the
+    // pole (signed to rise with station), so it meets the axis square to it.
+    const sigma = (s: number): number => (tip === null ? s : (part.pole === "bottom" ? 1 : -1) * Math.sqrt(Math.abs(s - tip)));
+    const curve = (name: string, outline: IAutoMovieHumanViewPart.IOutline, closing: boolean = false): ((s: number) => number) | null => {
       const xs: number[] = outline.knots.map((k: IAutoMovieHumanViewPart.IKnot): number => k.station);
       if (!rising(xs) || !outline.knots.every((k: IAutoMovieHumanViewPart.IKnot): boolean => Number.isFinite(k.value))) {
         report("outline", `${name}: knots ${outline.knots.map((k: IAutoMovieHumanViewPart.IKnot): string => `${k.site}@${k.station}=${k.value}`).join(", ")} are not finite by strictly increasing station`);
         return null;
       }
+      if (!closing || tip === null) {
+        const spline: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
+          xs,
+          outline.knots.map((k: IAutoMovieHumanViewPart.IKnot): number => k.value),
+        );
+        return (s: number): number => AutoMovieHumanNaturalSpline.evaluate(spline, s);
+      }
+      const end: IAutoMovieHumanViewPart.IKnot = part.pole === "bottom" ? outline.knots[0]! : outline.knots[outline.knots.length - 1]!;
+      if (end.station !== tip || end.value !== 0) {
+        report("pole knot", `${name}: its ${part.pole} knot ${end.site}@${end.station}=${end.value} is not 0 at the pole's station ${tip}`);
+        return null;
+      }
       const spline: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
-        xs,
+        xs.map(sigma),
         outline.knots.map((k: IAutoMovieHumanViewPart.IKnot): number => k.value),
       );
-      return (s: number): number => AutoMovieHumanNaturalSpline.evaluate(spline, s);
+      return (s: number): number => AutoMovieHumanNaturalSpline.evaluate(spline, sigma(s));
     };
     const quarters = (name: string, outlines: Quarters<IAutoMovieHumanViewPart.IOutline> | undefined): ((s: number) => Quarters<number>) | null => {
       if (outlines === undefined) return (): Quarters<number> => [0, 0, 0, 0];
@@ -115,25 +135,55 @@ export namespace AutoMovieHumanViewLoft {
       if (qs.some((q: ((s: number) => number) | null): boolean => q === null)) return null;
       return (s: number): Quarters<number> => qs.map((q: ((s: number) => number) | null): number => q!(s)) as Quarters<number>;
     };
-    const lateral: ((s: number) => number) | null = curve("front positive", part.front.positive);
-    const medial: ((s: number) => number) | null = curve("front negative", part.front.negative);
-    const ahead: ((s: number) => number) | null = curve("side positive", part.side.positive);
-    const behind: ((s: number) => number) | null = curve("side negative", part.side.negative);
+    const lateral: ((s: number) => number) | null = curve("front positive", part.front.positive, true);
+    const medial: ((s: number) => number) | null = curve("front negative", part.front.negative, true);
+    const ahead: ((s: number) => number) | null = curve("side positive", part.side.positive, true);
+    const behind: ((s: number) => number) | null = curve("side negative", part.side.negative, true);
     const fullness: IAutoMovieHumanViewPart.Fullness = part.fullness;
     const owner: ((s: number) => number) | null =
-      fullness.kind === "girth" ? curve("girth", fullness.girth) : fullness.kind === "shoulder" ? curve("shoulder", fullness.shoulder) : (): number => 0;
+      fullness.kind === "girth" ? curve("girth", fullness.girth, true) : fullness.kind === "shoulder" ? curve("shoulder", fullness.shoulder) : (): number => 0;
     const shoulders: ((s: number) => Quarters<number>) | null =
       fullness.kind === "top" ? quarters("top shoulder", fullness.shoulders) : quarters("departure", fullness.departures);
     if (lateral === null || medial === null || ahead === null || behind === null || owner === null || shoulders === null) return empty();
 
-    // The pole's end station closes in a point and carries no section.
-    const first: number = part.stations[0]!;
-    const last: number = part.stations[part.stations.length - 1]!;
-    const tip: number | null = part.pole === "bottom" ? first : part.pole === "top" ? last : null;
+    // The cap: between the pole and the given station nearest it, rings at
+    // equal steps of sigma (equal arc steps on a dome, whose arc grows as
+    // sigma from its apex), as many as the cap's mean half extent holds of
+    // the part's mean station gap. Inside the cap span (the pole to the
+    // nearest other outline knot) the shoulders reach the ellipse's at the
+    // pole by the quintic smoothstep: a dome is G2 at its apex only when its
+    // sections there tend to ellipses, the level sets of the osculating
+    // paraboloid.
+    const given: number[] = part.stations.filter((s: number): boolean => s !== tip);
+    let stations: number[] = given;
+    let cap: (s: number) => number = (): number => 0;
+    if (tip !== null && given.length > 0) {
+      const near: number = part.pole === "bottom" ? given[0]! : given[given.length - 1]!;
+      const halves: number[] = [lateral(near), ahead(near), -medial(near), -behind(near)];
+      const mean: number = halves.reduce((a: number, b: number): number => a + b, 0) / 4;
+      const gap: number = (last - first) / (part.stations.length - 1);
+      const rings: number = Math.max(0, Math.ceil(mean / gap) - 1);
+      const added: number[] = Array.from({ length: rings }, (_: unknown, j: number): number => {
+        const share: number = (j + 1) / (rings + 1);
+        return tip + (near - tip) * share * share;
+      });
+      stations = [...given, ...added].sort((a: number, b: number): number => a - b);
+      const knots: number[] = [part.front.positive, part.front.negative, part.side.positive, part.side.negative]
+        .flatMap((o: IAutoMovieHumanViewPart.IOutline): number[] => o.knots.map((k: IAutoMovieHumanViewPart.IKnot): number => k.station))
+        .filter((s: number): boolean => s !== tip);
+      const span: number = Math.min(...knots.map((s: number): number => Math.abs(s - tip)));
+      cap = (s: number): number => {
+        const x: number = Math.min(1, Math.abs(s - tip) / span);
+        return 1 - x * x * x * (10 - 15 * x + 6 * x * x);
+      };
+    }
+    const domed = (r: Quarters<number>, s: number): Quarters<number> => {
+      const w: number = cap(s);
+      return w === 0 ? r : (r.map((x: number): number => x + w * (AutoMovieHumanViewSection.ELLIPSE - x)) as Quarters<number>);
+    };
 
     const sections: IStation[] = [];
-    for (const s of part.stations) {
-      if (s === tip) continue;
+    for (const s of stations) {
       const at: string = `station ${s} mm`;
 
       // The box: each outline on its own side of the axis, and the opposite
@@ -155,9 +205,9 @@ export namespace AutoMovieHumanViewLoft {
       if (fullness.kind === "girth") {
         const solved: AutoMovieHumanViewSection.ISolved = AutoMovieHumanViewSection.solve(`${producer} ${at}`, box, owner(s), shoulders(s));
         diagnostics.push(...solved.diagnostics);
-        section = solved.section;
+        section = solved.section !== null && cap(s) > 0 ? AutoMovieHumanViewSection.of(box, domed(solved.section.shoulders, s)) : solved.section;
       } else {
-        const r: Quarters<number> = shoulders(s).map((d: number): number => (fullness.kind === "top" ? d : owner(s) + d)) as Quarters<number>;
+        const r: Quarters<number> = domed(shoulders(s).map((d: number): number => (fullness.kind === "top" ? d : owner(s) + d)) as Quarters<number>, s);
         if (!r.every((x: number): boolean => x > 0 && x < 1)) {
           report("shoulder", `${at}: shoulders [${r.join(", ")}] outside (0, 1)`);
           continue;

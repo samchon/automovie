@@ -175,6 +175,12 @@ export namespace IAutoMovieHumanBodyCalibration {
     /** The part's rail as a trim of the part's face. */
     partLoop: AutoMovieHumanSolidMesh.ILoopChart;
 
+    /** The host's chart direction at each column toward and past its rail, of unit world speed (`AutoMovieHumanSolidBlendChain.IBlend.across`). */
+    across: [number, number][];
+
+    /** The part's kept side in its station (`AutoMovieHumanSolidBlendChain.IBlend.sigma`). */
+    sigma: 1 | -1;
+
     /** Rows of the blend between its rails, at least 1. */
     rows: number;
 

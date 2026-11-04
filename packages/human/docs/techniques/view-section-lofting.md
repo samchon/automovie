@@ -39,7 +39,7 @@ Each section is written as the periodic cubic B-spline through its points at `or
 
 - The touch points lie on the chart axes through the part's axis. A section whose extreme lies off those lines is drawn about a different axis point.
 - Between two layers the section is the station spline of the layers' coefficients, not a new solve, so a girth or an outline reads back exactly only at a layer. Every knot station must therefore be a layer.
-- A tip (`pole`) closes by the chain's pole fan from the last ring.
+- A tip (`pole`) closes as a dome. Toward the pole every outline and the girth run as natural splines in `sigma = sqrt(|s - s_pole|)`, through a knot of 0 at the pole, so each meets the axis square to it. The natural end condition leaves no `sigma^2` term, so the profile's square is smooth in the distance, which is the form of a smooth cap. The shoulders reach the ellipse's at the pole by a quintic smoothstep over the span to the nearest other outline knot: a cap is G2 at its apex only when its sections there tend to the ellipses of its osculating paraboloid. Rings are added at equal steps of `sigma` (equal arc steps near the apex), as many as the nearest station's mean half extent holds of the part's mean station gap, and the last ring closes on the pole by the skin's fan.
 
 ## Sources
 
