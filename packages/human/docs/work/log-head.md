@@ -122,6 +122,16 @@ Sweep 5's front and three-quarter requests failed in the body lane (`AutoMovieHu
 
 `7cf8c57bd` (20:03) was committed while the collectors read red on my own file: a second `along` in `AutoMovieHumanHeadEarParts.ts` (TS2451, no-redeclare). I read the test collector's last cycle, which other lanes' errors had failed, and missed my own line. The audit stopped it at 20:09, and `d547849a1` (20:13) renames it. Both the debug and test collectors were clean at 20:12 and 20:13. From now on I read the collectors' cycle after every save, my own files first.
 
+## Realized head, rounds 4 and 5 (f1 `piece=head.parts:composed&curves=none`, 20:1x and 20:3x to 20:41; `round4/`, `round5/`; recorded 20:41:33)
+
+| Finding | Cause | Fix |
+| --- | --- | --- |
+| a brim under the jaw; neck stations 1443 to 1467 mm left out with a negative front half extent | the neck's front ran parallel to the back's slope (the trapezius'), and the outlines were knotted only at the profile's sites, so the spline swung across the jaw's turn to the neck | `366e4e6e4` stands the front plumb under C; `c60edc980` knots every layer. The neck is continuous in round 5 |
+| the nose and its lobule, alae and nostrils absent | `blend.nose` folds at t 0.39, share 0.875, at the columella's base near the nose's bottom pole | sent to the kernel 20:42 (a rail past the pole, the conchas' case) |
+| helices, conchas, mentolabial sulcus not joined | helix walk does not close; concha rails past the auricle's apex; sulcus blend folds | sent to the kernel 20:42 |
+| lower lip joined | kernel's crossing fix (`686624637`) | none |
+| the jaw's underside nearly level into the plumb neck | P runs the submental line at Sn-Gn'-C 100 degrees to C (Legan and Burstone), about 9 mm under the menton | none: the law's reading |
+
 ## Wiring the head into the figure (design, written 16:1x)
 
 The figure's head lane is `AutoMovieHumanHeadConstruction.apply`, which `AutoMovieHumanBodyLaw.calibrate` calls before the body lane stands the trunk under the neck chain `head`. The composed head enters it as:
