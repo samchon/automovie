@@ -16,7 +16,6 @@ import { AutoMovieHumanLegTube } from "./AutoMovieHumanLegTube";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
 
 type Vec3 = AutoMovieHumanLegVector.Vec3;
-const { fifth } = AutoMovieHumanLegVector;
 
 /**
  * The leg's section law: at every station the tube of
@@ -28,12 +27,13 @@ const { fifth } = AutoMovieHumanLegVector;
  * ({@link AutoMovieHumanLegRingRow}): each guide's jet, each sector's fullness
  * and the ring's taut girth stand at the ring's station, so the shape and the
  * girth leave each ring with the ring's own values and the natural splines
- * carry them to the first landmark rows. What eight guides cannot hold of the
- * ankle ring (the residual of its radius and its height off its plane) is
- * carried from the ring to the first landmark row by the smootherstep, which
- * is flat to the second derivative at both ends; at the crotch the trunk's
- * rounded ring and its jet are joined to the law over the same span by the
- * root strip the leg chain composes (`AutoMovieHumanLimbRootStrip`).
+ * carry them to the first landmark rows. Over the span from each ring to its
+ * first landmark row the leg chain composes a root strip
+ * (`AutoMovieHumanLimbRootStrip`): from the foot's ankle ring with the foot's
+ * jet, and from the trunk's rounded crotch ring with the trunk's jet, each to
+ * the law's own section there. The residual the eight guides could not hold of
+ * the ankle ring had been faded to the law by a smootherstep, the registry's
+ * "two fits and a fade".
  * Both spans are the distance from the ring to the first landmark row kept
  * beside it, so no share of the leg's length enters.
  */
@@ -55,17 +55,11 @@ export namespace AutoMovieHumanLegSectionLaw {
     /** The crotch arc's centroid, `[x, z]`, the centre its phases are read about. */
     crotchCentre: [number, number];
 
-    /** Span over which the ankle ring's residual is carried, mm. */
+    /** Span of the root strip from the ankle ring up to the law's own section, mm. */
     ankleReach: number;
 
     /** Span of the root strip from the crotch ring to the law's own section, mm. */
     crotchReach: number;
-
-    /** The ankle ring's radius less the tube's at each leg phase, mm. */
-    ankleResidual: number[];
-
-    /** The ankle ring's height off its plane at each leg phase, mm. */
-    ankleLift: number[];
 
     /** The girth law, mm. */
     girth: (s: number) => number;
@@ -139,12 +133,7 @@ export namespace AutoMovieHumanLegSectionLaw {
       reliefs: AutoMovieHumanLegReliefs.of(bones, girth, [bottom, top], crotchReach, diagnostics, inputs.furrow),
       ends: { bottom: { at: bottom, shape: low.shape }, top: { at: top, shape: high.shape } },
     });
-
-    // The ankle ring against the tube at the ring: radius and height off the plane.
-    const start: number[] = radii(tube(bottom));
-    const ankleResidual: number[] = AutoMovieHumanLegAnkleSeam.residual(ankle, ankleCentre, start);
-    const ankleLift: number[] = AutoMovieHumanLegAnkleSeam.lift(ankle, ankleCentre, ankleWorld, bottom);
-    return { bottom, top, ankleWorld, ankleCentre, crotchCentre, ankleReach, crotchReach, ankleResidual, ankleLift, girth, tube, root };
+    return { bottom, top, ankleWorld, ankleCentre, crotchCentre, ankleReach, crotchReach, girth, tube, root };
   }
 
   /**
@@ -166,13 +155,10 @@ export namespace AutoMovieHumanLegSectionLaw {
    */
   export function points(law: ILaw, s: number, frame: AutoMovieHumanLegAxis.IFrame, centre: readonly [number, number]): Vec3[] {
     const r: number[] = radii(law.tube(s));
-    const w: number = 1 - fifth((s - law.bottom) / law.ankleReach);
     return AutoMovieHumanLegSampling.PHASES.map((t: number, m: number): Vec3 => {
-      const radius: number = r[m]! + w * law.ankleResidual[m]!;
-      const x: number = centre[0] + radius * Math.cos(t);
-      const z: number = centre[1] + radius * Math.sin(t);
-      const h: number = w * law.ankleLift[m]!;
-      return [0, 1, 2].map((c: number): number => frame.origin[c]! + x * frame.u[c]! + z * frame.v[c]! + h * frame.n[c]!) as Vec3;
+      const x: number = centre[0] + r[m]! * Math.cos(t);
+      const z: number = centre[1] + r[m]! * Math.sin(t);
+      return [0, 1, 2].map((c: number): number => frame.origin[c]! + x * frame.u[c]! + z * frame.v[c]!) as Vec3;
     });
   }
 }

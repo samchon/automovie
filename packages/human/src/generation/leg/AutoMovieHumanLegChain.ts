@@ -1,3 +1,4 @@
+import { AutoMovieHumanLoftChain } from "../../lofting/AutoMovieHumanLoftChain";
 import { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
 import { AutoMovieHumanSeamStation } from "../../lofting/AutoMovieHumanSeamStation";
 import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
@@ -142,7 +143,38 @@ export namespace AutoMovieHumanLegChain {
         (_: Vec3, m: number): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.jet((run: number): Vec3 => ownAt(run)[m]!, reach, CURVE_STEP),
       ),
     });
-    const section: (s: number) => AutoMovieHumanLegSection.ISection = (s: number): AutoMovieHumanLegSection.ISection => AutoMovieHumanLegSection.of(law, frames, centre, strip.ring, s);
+
+    // The root strip from the foot's ankle ring, which the foot owns, with the
+    // foot's jet up across the ring (its chain read at the leg's phases a run
+    // under its top layer), to the law's own section at the ankle reach.
+    const foot: IAutoMovieHumanLoftChain = calibration.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === `foot.${side}`)!;
+    const footTop: number = foot.layers[foot.layers.length - 1]!.y;
+    const footRows: Map<number, Vec3[]> = new Map<number, Vec3[]>();
+    const footAt: (run: number) => Vec3[] = (run: number): Vec3[] => {
+      let found: Vec3[] | undefined = footRows.get(run);
+      if (found === undefined)
+        footRows.set(run, (found = AutoMovieHumanLoftChain.ring(foot, footTop + run, AutoMovieHumanLegSampling.PHASES).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]])));
+      return found;
+    };
+    const ankleReach: number = law.ankleReach;
+    const upAt: (run: number) => Vec3[] = (run: number): Vec3[] => ownAt(law.top - law.bottom - run);
+    const footJets: AutoMovieHumanLimbRootStrip.IJet[] = AutoMovieHumanLegSampling.PHASES.map(
+      (_: number, m: number): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.edge((run: number): Vec3 => footAt(run)[m]!, 0, -ANKLE_STEP),
+    );
+    const ankleEnds: AutoMovieHumanLimbRootStrip.IJet[] = upAt(ankleReach).map(
+      (_: Vec3, m: number): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.jet((run: number): Vec3 => upAt(run)[m]!, ankleReach, CURVE_STEP),
+    );
+
+    // Each column starts where the ray from the ankle ring's centre through the
+    // leg's own point crosses the ring: the foot's own phases need not run in
+    // the leg's order.
+    const ankleCentre: Vec3 = [law.ankleCentre[0], law.bottom, law.ankleCentre[1]];
+    const ankle: AutoMovieHumanLimbRootStrip.IStrip = AutoMovieHumanLimbRootStrip.strip({
+      start: ankleEnds.map((e: AutoMovieHumanLimbRootStrip.IJet): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.under(ankleCentre, footJets, e.point)),
+      end: ankleEnds,
+    });
+    const section: (s: number) => AutoMovieHumanLegSection.ISection = (s: number): AutoMovieHumanLegSection.ISection =>
+      AutoMovieHumanLegSection.of(law, frames, centre, strip.ring, ankle.ring, s);
     const last: number = stations.length - 1;
     const built: (IAutoMovieHumanLoftChain.ILayer | null)[] = stations.map((s: number, k: number): IAutoMovieHumanLoftChain.ILayer | null => {
       const here: AutoMovieHumanLegSection.ISection = section(s);
@@ -237,6 +269,13 @@ export namespace AutoMovieHumanLegChain {
 
   /** Station step of the section differences, mm. */
   export const STEP: number = 0.05;
+
+  /**
+   * Station step of the one-sided differences of the foot's chain under its
+   * top ring, mm: three steps span under a millimetre, inside the foot's last
+   * station span, where its station spline is one cubic.
+   */
+  export const ANKLE_STEP: number = 0.25;
 
   /**
    * Station step of the rings' one-sided second differences, mm: ten section

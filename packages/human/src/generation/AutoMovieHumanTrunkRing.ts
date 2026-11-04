@@ -41,9 +41,19 @@ export namespace AutoMovieHumanTrunkRing {
       return own;
     });
 
-    return GUIDES.map((_: unknown, j: number): number =>
+    const speeds: number[] = GUIDES.map((_: unknown, j: number): number =>
       j === 0 ? rates[0]! : j === GUIDES.length - 1 ? rates[rates.length - 1]! : (rates[j - 1]! + rates[j]!) / 2,
     );
+
+    // The arc's lateral guide stands on the arm's ellipse, where no torso
+    // flank reaches: it runs at the arc's own speed, the mean of its two
+    // sectors' path rates, while the axillary guides keep the torso's, so the
+    // trunk's top ring still agrees with the ring outside the arc. At the
+    // torso's speed a guide standing out at the abducted arm closed a long
+    // chord slowly, and the arc drew two straight wings meeting at a beak
+    // outside the arm (the shoulders' blades).
+    if (arc !== undefined) speeds[3] = (arc.rates[0]! + arc.rates[1]!) / 2;
+    return speeds;
   }
 
   /**

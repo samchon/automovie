@@ -123,6 +123,53 @@ export namespace AutoMovieHumanLimbRootStrip {
   }
 
   /**
+   * An owner ring's jet where the ray from a centre toward a point's level
+   * projection meets the ring's outline, the jets interpolated along the
+   * outline's edge there. The strip pairs each column by this crossing, so a
+   * column runs from the owner's ring to the limb's own point along one ray,
+   * whatever order the owner's own phases run in: paired by phase index, the
+   * foot's ring and the leg's section ran in opposite orders on one side and
+   * twisted the ankle into an hourglass.
+   *
+   * @param centre The ring's centre, mm.
+   * @param ring The ring's jets, closed, in outline order.
+   * @param toward A point of the limb's own section.
+   * @returns The jet at the crossing; the first jet where no edge is crossed.
+   */
+  export function under(centre: Vec3, ring: readonly IJet[], toward: Vec3): IJet {
+    const dx: number = toward[0] - centre[0];
+    const dz: number = toward[2] - centre[2];
+    const l: number = Math.hypot(dx, dz) || 1;
+    const ux: number = dx / l;
+    const uz: number = dz / l;
+    const n: number = ring.length;
+    const mix: (a: Vec3, b: Vec3, f: number) => Vec3 = (a: Vec3, b: Vec3, f: number): Vec3 => [a[0] + f * (b[0] - a[0]), a[1] + f * (b[1] - a[1]), a[2] + f * (b[2] - a[2])];
+    let best: number = -1;
+    let found: IJet = ring[0]!;
+
+    for (let i: number = 0; i < n; i++) {
+      const a: IJet = ring[i]!;
+      const b: IJet = ring[(i + 1) % n]!;
+      const p: Vec3 = a.point;
+      const ex: number = b.point[0] - p[0];
+      const ez: number = b.point[2] - p[2];
+      const den: number = ux * ez - uz * ex;
+
+      if (Math.abs(den) < 1e-12) continue;
+
+      const r: number = ((p[0] - centre[0]) * ez - (p[2] - centre[2]) * ex) / den;
+      const f: number = ((p[0] - centre[0]) * uz - (p[2] - centre[2]) * ux) / den;
+
+      if (r > 0 && f >= 0 && f <= 1 && r > best) {
+        best = r;
+        found = { point: mix(a.point, b.point, f), first: mix(a.first, b.first, f), second: mix(a.second, b.second, f) };
+      }
+    }
+
+    return found;
+  }
+
+  /**
    * The quintic Hermite basis at a share: the weights of the start point, its
    * first and second derivatives, the end's second and first derivatives and
    * the end point, each derivative per unit share.

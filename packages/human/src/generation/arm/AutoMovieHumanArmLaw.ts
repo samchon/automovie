@@ -10,7 +10,7 @@ import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import { AutoMovieHumanArmGirth } from "./AutoMovieHumanArmGirth";
 import { AutoMovieHumanArmGuides } from "./AutoMovieHumanArmGuides";
 import { AutoMovieHumanArmPieces } from "./AutoMovieHumanArmPieces";
-import { AutoMovieHumanArmScye } from "./AutoMovieHumanArmScye";
+import type { AutoMovieHumanArmScye } from "./AutoMovieHumanArmScye";
 import { AutoMovieHumanArmTube } from "./AutoMovieHumanArmTube";
 import type { IAutoMovieHumanArmLaw } from "./IAutoMovieHumanArmLaw";
 import type { IAutoMovieHumanArmPiece } from "./IAutoMovieHumanArmPiece";
@@ -280,7 +280,7 @@ export namespace AutoMovieHumanArmLaw {
         AutoMovieHumanLimbRootStrip.jet((s: number): Vec3 => tube.surface(s, angle(t)), ownWalk, JET_READ * inputs.scale),
     );
     const starts: AutoMovieHumanLimbRootStrip.IJet[] = ends.map(
-      (e: AutoMovieHumanLimbRootStrip.IJet): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanArmScye.under(ring, e.point),
+      (e: AutoMovieHumanLimbRootStrip.IJet): AutoMovieHumanLimbRootStrip.IJet => AutoMovieHumanLimbRootStrip.under(ring.centre, ring.jets, e.point),
     );
 
     // The strip's parameter runs as its mean chord, so its layers are spaced
