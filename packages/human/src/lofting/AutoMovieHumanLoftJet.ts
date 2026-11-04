@@ -85,35 +85,52 @@ export namespace AutoMovieHumanLoftJet {
     const q0: J = AutoMovieHumanSplineCurve.jet(c[0]!, n, t);
     const q1: J = AutoMovieHumanSplineCurve.jet(c[1]!, n, t);
     const q2: J = AutoMovieHumanSplineCurve.jet(c[2]!, n, t);
-    const o: V[] = f.map((x: number[]): V => [x[0]!, x[1]!, x[2]!]);
-    const U: V[] = f.map((x: number[]): V => [x[3]!, x[4]!, x[5]!]);
-    const W: V[] = f.map((x: number[]): V => [x[6]!, x[7]!, x[8]!]);
+    const [f0, f1, f2] = f as [number[], number[], number[]];
+    const o: V[] = [
+      [f0[0]!, f0[1]!, f0[2]!],
+      [f1[0]!, f1[1]!, f1[2]!],
+      [f2[0]!, f2[1]!, f2[2]!],
+    ];
+    const U: V[] = [
+      [f0[3]!, f0[4]!, f0[5]!],
+      [f1[3]!, f1[4]!, f1[5]!],
+      [f2[3]!, f2[4]!, f2[5]!],
+    ];
+    const W: V[] = [
+      [f0[6]!, f0[7]!, f0[8]!],
+      [f1[6]!, f1[7]!, f1[8]!],
+      [f2[6]!, f2[7]!, f2[8]!],
+    ];
+
+    // Each component written out: the product rule over the plane's axes
+    // and the section's values, with no intermediate vectors.
+    const p: V = [0, 0, 0];
+    const ds: V = [0, 0, 0];
+    const dt: V = [0, 0, 0];
+    const dss: V = [0, 0, 0];
+    const dst: V = [0, 0, 0];
+    const dtt: V = [0, 0, 0];
+    for (let k: number = 0; k < 3; k++) {
+      const u0: number = U[0]![k]!;
+      const u1: number = U[1]![k]!;
+      const u2: number = U[2]![k]!;
+      const w0: number = W[0]![k]!;
+      const w1: number = W[1]![k]!;
+      const w2: number = W[2]![k]!;
+      p[k] = o[0]![k]! + u0 * q0[0] + w0 * q0[1];
+      ds[k] = o[1]![k]! + u0 * q1[0] + u1 * q0[0] + w0 * q1[1] + w1 * q0[1];
+      dt[k] = u0 * q0[2] + w0 * q0[3];
+      dss[k] = o[2]![k]! + u0 * q2[0] + 2 * u1 * q1[0] + u2 * q0[0] + w0 * q2[1] + 2 * w1 * q1[1] + w2 * q0[1];
+      dst[k] = u0 * q1[2] + u1 * q0[2] + w0 * q1[3] + w1 * q0[3];
+      dtt[k] = u0 * q0[4] + w0 * q0[5];
+    }
     const jet: IJet = {
-      p: sum(o[0]!, scale(U[0]!, q0[0]), scale(W[0]!, q0[1])),
-      s: sum(
-        o[1]!,
-        scale(U[0]!, q1[0]),
-        scale(U[1]!, q0[0]),
-        scale(W[0]!, q1[1]),
-        scale(W[1]!, q0[1]),
-      ),
-      t: sum(scale(U[0]!, q0[2]), scale(W[0]!, q0[3])),
-      ss: sum(
-        o[2]!,
-        scale(U[0]!, q2[0]),
-        scale(U[1]!, 2 * q1[0]),
-        scale(U[2]!, q0[0]),
-        scale(W[0]!, q2[1]),
-        scale(W[1]!, 2 * q1[1]),
-        scale(W[2]!, q0[1]),
-      ),
-      st: sum(
-        scale(U[0]!, q1[2]),
-        scale(U[1]!, q0[2]),
-        scale(W[0]!, q1[3]),
-        scale(W[1]!, q0[3]),
-      ),
-      tt: sum(scale(U[0]!, q0[4]), scale(W[0]!, q0[5])),
+      p,
+      s: ds,
+      t: dt,
+      ss: dss,
+      st: dst,
+      tt: dtt,
     };
 
     // The lift a shape law writes moves points along w = v x u by the station
