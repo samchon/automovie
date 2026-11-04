@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 arm datum cause batch (2026-11-05 03:32:18 +09:00, Get-Date)
+
+BODY requested the shoulder/arm-length definition comparison. The complete current ArmBones and TrunkLandmarks, public arm identity and body fields, source note, trunk record, all bone-placement callers and related ACROMION consumers were directly read. The [audit](law-definition-audit.md#arm-measurement-closure) separates public caliper length, clinical shoulder estimates and the exact projection closure. BODY received the root incompatibility and all linked consumers together; no builder or coefficient changed here.
+
+Downloaded the primary de Leva PDF and directly opened rendered pp. 1225-1229; read Rab's named methods/offset/sensitivity sections and personally opened Table 3. The existing de Leva note's incorrect reconstructed-length attribution is corrected from those pages. ANSUR printed pp. 79/144 text and page 79's figure were directly read. The PDF skill was applied for visual table/footnote verification; no authoring or new helper program was used. Primary files and PNGs are preserved while BODY independently reads them.
+
+HEAD confirmed only the SHIN S3 plot still needs preservation for its forthcoming source-curve comparison; its other old scratch is no longer needed by that batch. This is use-end confirmation, not a claim of full reading. The eight completed-use foot PNGs/SURVE/Gao/S3-docx files were removed by exact verified absolute paths without Force; the plot, new arm materials and handbook remain. The three Evidence JSONs still await supervisor review. The last cycles read at 03:27:47 were test 03:24:09 and debug 03:22:21, both complete; no new collector, Human generation, private data reading or fit ran.
+
 ## #3062 historical q definition recovered (2026-11-05 03:19:15 +09:00, Get-Date)
 
 After committing the declaration topic as 7046eaf3c8, read the deleted limb-mass reader in Git to resolve its missing datum rather than start a private reading. The complete reader at 3672a547f0 is identical to the last pre-deletion blob d7057fa2e574622a76753fdbc14520f3e23539b5. The connected polyline/phase-length implementations were also directly read. The [audit](law-definition-audit.md#historical-q-definition-recovered-without-execution) now supersedes the earlier support-versus-chord uncertainty with the actual sampled-support definition.
