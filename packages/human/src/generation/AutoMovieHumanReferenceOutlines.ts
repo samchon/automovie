@@ -12,7 +12,7 @@
  * per-stature mass tables: at most its mean's magnitude); a station whose
  * reading fell apart across the people, as where the pack's arcs miss a
  * side, leaves that cell out and the column reads through from its
- * neighbours. A table whose rows are empty waits for its reading's run,
+ * neighbours. A table whose rows are empty would wait for its reading's run,
  * and its reader reports that rather than inventing a shape.
  *
  * Scaling: every value is a share of one of the person's own measures, named
@@ -279,7 +279,19 @@ export namespace AutoMovieHumanReferenceOutlines {
     normalization: "share of the fissure length; upper and lower margin heights per fissure height; forward per fissure length",
     consumers: "the lids' fissure outline and profile",
     columns: ["upper", "lower", "forward"],
-    rows: [],
+    rows: [
+      { share: 0, values: { "upper": 0.076, "lower": -0.241, "forward": 0.121 }, spreads: { "upper": 0.061, "lower": 0.123, "forward": 0.015 } },
+      { share: 0.1, values: { "upper": 0.299, "lower": -0.277, "forward": 0.132 }, spreads: { "upper": 0.078, "lower": 0.144, "forward": 0.012 } },
+      { share: 0.2, values: { "upper": 0.471, "forward": 0.171 }, spreads: { "upper": 0.089, "forward": 0.015 } },
+      { share: 0.3, values: { "forward": 0.204 }, spreads: { "forward": 0.022 } },
+      { share: 0.4, values: { "forward": 0.225 }, spreads: { "forward": 0.028 } },
+      { share: 0.5, values: { "forward": 0.229 }, spreads: { "forward": 0.034 } },
+      { share: 0.6, values: { "forward": 0.192 }, spreads: { "forward": 0.028 } },
+      { share: 0.7, values: { "forward": 0.15 }, spreads: { "forward": 0.028 } },
+      { share: 0.8, values: { "upper": 0.587, "forward": 0.087 }, spreads: { "upper": 0.143, "forward": 0.034 } },
+      { share: 0.9, values: { "upper": 0.515, "lower": -0.27, "forward": -0.012 }, spreads: { "upper": 0.122, "lower": 0.123, "forward": 0.028 } },
+      { share: 1, values: { "upper": 0.369, "lower": -0.119, "forward": -0.088 }, spreads: { "upper": 0.098, "lower": 0.044, "forward": 0.02 } },
+    ],
   };
 
   /** The lips' front-view half width, subnasale 0 to the lower lip's foot 1. */

@@ -1,5 +1,6 @@
 /**
- * The standing foot's yaw, the ankle centre's place along it and the
+ * The standing foot's yaw, the ankle centre's place along it, the toes' heads
+ * ({@link TOES}, from `test_human_estimate_sites`) and the
  * forefoot's dorsum heights: the foot part's frame and side-view knots the
  * published foot measures leave open.
  *
@@ -61,4 +62,25 @@ export namespace AutoMovieHumanFootPlaces {
     }
     return rows[rows.length - 1]!.height * footLength;
   }
+
+  /**
+   * The toes' heads, medial (the hallux) to lateral: each toe's foremost point
+   * ahead of the heel along the axis from the heel's rearmost to the foot's
+   * foremost point, and its centre across that axis
+   * toward the little toe, per foot length.
+   *
+   * `test_human_estimate_sites` reads them on four feet, the loops below 25 mm
+   * ahead of 0.7 of the foot's length, each toe's tip the foremost over its
+   * sections; SDs: tip 0.021, 0.018, 0.021, 0.020 and
+   * 0.013, across 0.008, 0.006, 0.002, 0.007 and 0.008. The sections part six
+   * loops per foot on average (SD 1.1), so the feet where they part other
+   * than five are left out.
+   */
+  export const TOES: readonly { readonly tip: number; readonly across: number }[] = [
+    { tip: 0.9681, across: 0.0072 },
+    { tip: 0.9782, across: 0.1119 },
+    { tip: 0.9354, across: 0.1639 },
+    { tip: 0.8726, across: 0.2209 },
+    { tip: 0.7883, across: 0.2574 },
+  ];
 }
