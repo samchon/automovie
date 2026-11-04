@@ -10,9 +10,11 @@ import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanS
 import type { IAutoMovieHumanViewPart } from "../../lofting/IAutoMovieHumanViewPart";
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+import { AutoMovieHumanHeadEarParts } from "./AutoMovieHumanHeadEarParts";
 import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
+import { AutoMovieHumanHeadMasses } from "./AutoMovieHumanHeadMasses";
 import { AutoMovieHumanNeckPart } from "./AutoMovieHumanNeckPart";
 
 /**
@@ -83,7 +85,12 @@ export namespace AutoMovieHumanHeadComposer {
     // Parents before their inner parts, each joined to its parent's bare
     // surface.
     const surfaces: Map<string, IAutoMovieHumanSolidSurface | null> = new Map([["head.mass", mass.surface]]);
-    const features: AutoMovieHumanHeadFeatures.IFeature[] = [...AutoMovieHumanHeadFeatures.of(plan, ears), ...AutoMovieHumanHeadInnerParts.of(plan)];
+    const features: AutoMovieHumanHeadFeatures.IFeature[] = [
+      ...AutoMovieHumanHeadFeatures.of(plan),
+      ...AutoMovieHumanHeadMasses.of(plan),
+      ...AutoMovieHumanHeadEarParts.of(plan, ears),
+      ...AutoMovieHumanHeadInnerParts.of(plan),
+    ];
     const parts: IJoined[] = features.map((feature: AutoMovieHumanHeadFeatures.IFeature): IJoined => {
       const loft: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(feature.part);
       diagnostics.push(...loft.diagnostics);

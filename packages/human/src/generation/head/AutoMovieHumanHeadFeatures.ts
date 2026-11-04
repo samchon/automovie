@@ -1,6 +1,5 @@
 import type { IAutoMovieHumanViewPart } from "../../lofting/IAutoMovieHumanViewPart";
 import { AutoMovieHumanViewSection } from "../../lofting/AutoMovieHumanViewSection";
-import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import type { IAutoMovieHumanHeadEyeOpening } from "../IAutoMovieHumanHeadEyeOpening";
@@ -18,7 +17,6 @@ import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
  * | nose | nasion to subnasale, half `nose.width`, protrusion to pronasale | merge |
  * | upper and lower lip | half `mouth.width`, each vermilion height, the lips' leads | merge |
  * | orbit, each side | the fissure's length and height about its place, the lid margin's recess and the socket | diff |
- * | auricle, each side | `ear.length`, `ear.breadth`, `ear.protrusion`, the long axis leaning back from the vertical | merge |
  *
  * The brow ridge, forehead eminence, malar eminence, cheek and chin pad are
  * declared with amplitude 0 today (`AutoMovieHumanHeadBrow.AMPLITUDE` and
@@ -58,17 +56,13 @@ export namespace AutoMovieHumanHeadFeatures {
   /** Depth of a part's base inside the head mass, mm. */
   export const INSET: number = 3;
 
-  /** The lean of the auricle's long axis back from the vertical, radians (Banks and Cheney, 15 to 20 degrees). */
-  export const EAR_LEAN: number = (17.5 * Math.PI) / 180;
-
   /**
    * Every face part of a person.
    *
    * @param plan The landmark skeleton.
-   * @param ears The two auricles' inputs, world mm.
    * @returns The parts, both sides of a pair each built in its own frame.
    */
-  export function of(plan: IAutoMovieHumanHeadLayout, ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar }): IFeature[] {
+  export function of(plan: IAutoMovieHumanHeadLayout): IFeature[] {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const k: number = plan.scale;
     const out: IFeature[] = [];
@@ -113,26 +107,6 @@ export namespace AutoMovieHumanHeadFeatures {
     orbit("left", 1, plan.left);
     orbit("right", -1, plan.right);
 
-    // The auricles: fins standing out of the head at the tragion.
-    const ear = (side: "left" | "right", sign: 1 | -1, input: IAutoMovieHumanEar): void => {
-      const z: number = sign * (plan.breadth / 2) * AutoMovieHumanHeadPrior.PRIOR.frame.base;
-      const along: [number, number, number] = [-Math.sin(EAR_LEAN), Math.cos(EAR_LEAN), 0];
-      out.push(
-        dome(
-          `auricle.${side}`,
-          "merge",
-          [m.tragion[0], m.tragion[1], z - sign * INSET],
-          [0, 0, sign],
-          along,
-          [(input.length * k) / 2, (input.breadth * k) / 2, (input.length * k) / 2, (input.breadth * k) / 2],
-          input.protrusion * k + INSET,
-          4,
-          [m.tragion[0], m.tragion[1], z],
-        ),
-      );
-    };
-    ear("left", 1, ears.left);
-    ear("right", -1, ears.right);
     return out;
   }
 

@@ -18,7 +18,7 @@ import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
  * | philtral groove | head mass | diff | the philtrum's depth and half width (`face.philtrum`), subnasale to labrale superius |
  * | mentolabial sulcus | head mass | diff | Legan and Burstone's sulcus depth (`profile.sulcus`) at the sublabiale |
  * | upper and lower lid, each side | head mass, in the orbit | merge | the fissure's length and height, the margin's lead over the globe (`face.marginForward`) |
- * | helix, antihelix, concha, each side | auricle | merge, diff | not drawn yet: they need the auricle's own frame (#3056) |
+ * | helix, antihelix, concha, each side | auricle | merge, diff | drawn in the ear's own frame (`AutoMovieHumanHeadEarParts`) |
  *
  * Sizes come from the head prior's rows as they stand; the prior's
  * replacement by published laws (#3045's worker) and each part's own laws

@@ -59,7 +59,6 @@ export namespace AutoMovieHumanHeadMassPart {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const g: number = m.glabella[1];
     const top: number = plan.vertex - g;
-    const base: number = AutoMovieHumanHeadPrior.PRIOR.frame.base;
 
     // The axis in the side view: L's forward place at its knots.
     const axisKnots: [string, number, number][] = [
@@ -105,7 +104,7 @@ export namespace AutoMovieHumanHeadMassPart {
       const atPole: boolean = site === "vertex";
       const p: number = atPole ? 0 : reach(frame, 1, (y: number): number => median(plan, y));
       const b: number = atPole ? 0 : reach(frame, -1, (y: number): number => AutoMovieHumanHeadBackProfile.at(AutoMovieHumanHeadVault.backProfile(plan), y));
-      const l: number = atPole ? 0 : lateral(plan, frame.origin[1], base);
+      const l: number = atPole ? 0 : halfWidth(plan, frame.origin[1]);
       front.push({ site, station, value: Math.max(1e-3, p) });
       back.push({ site, station, value: -Math.max(1e-3, b) });
       left.push({ site, station, value: Math.max(1e-3, l) });
@@ -195,8 +194,15 @@ export namespace AutoMovieHumanHeadMassPart {
     return fall < -1e-6 ? start + ((plan.menton - y) * run) / -fall : start - (plan.menton - y);
   }
 
-  /** The front-view silhouette's half width at a height. */
-  function lateral(plan: IAutoMovieHumanHeadLayout, y: number, base: number): number {
+  /**
+   * The front-view silhouette L's half width at a height: the parts merged
+   * onto the head mass add to it (the zygoma at the zygion).
+   *
+   * @param plan The landmark skeleton.
+   * @param y Height, mm.
+   */
+  export function halfWidth(plan: IAutoMovieHumanHeadLayout, y: number): number {
+    const base: number = AutoMovieHumanHeadPrior.PRIOR.frame.base;
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const tragion: number = m.tragion[1];
     if (y >= tragion) return (plan.breadth / 2) * AutoMovieHumanHeadVault.cranialWidth(plan, y);
