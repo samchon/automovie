@@ -159,6 +159,16 @@ export interface IAutoMovieHumanBodyAnatomy {
   chestDepth?: number & tags.Minimum<30> & tags.Maximum<700>;
 
   /**
+   * Natural waist height: the level of the waist circumference above the
+   * standing surface (ANSUR 1988 waist height, natural indentation: the
+   * torso's greatest lateral indentation, or midway between the tenth rib and
+   * iliocristale where none is clear). The waist breadth and depth are taken
+   * at this level. ANSUR 1988: 1056.5 (51.7) and 1127.1 (52.0), at or just
+   * above the tenth rib (1044 and 1121) and 74 and 68 mm above the navel.
+   */
+  waistHeight?: number & tags.Minimum<150> & tags.Maximum<1600>;
+
+  /**
    * Waist breadth: the torso's horizontal breadth at the natural waist, the
    * waist circumference's level, standing, tissue uncompressed; the front
    * outline's knot there. No survey takes it at this level: ANSUR 1988 and

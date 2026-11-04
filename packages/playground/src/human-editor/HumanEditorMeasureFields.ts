@@ -49,6 +49,7 @@ export namespace HumanEditorMeasureFields {
     axillaHeight: "겨드랑이 높이",
     chestBreadth: "가슴 너비",
     chestDepth: "가슴 두께",
+    waistHeight: "허리 높이",
     waistBreadth: "허리 너비",
     waistDepth: "허리 두께",
     hipBreadth: "엉덩이 너비",

@@ -285,3 +285,7 @@ At the chest, the natural waist and the hip (hip breadth with buttock depth and 
 Model B reads stature, the body mass index the fat percentage implies (Deurenberg et al. 1991, at ANSUR II's mean age 28.9 / 30.2, held in the fit's 17 to 40 kg/m2) and age (`AutoMovieHumanBodyBreadths`). The owner suspended test runs before the survey readings ran, so the girth lines' coefficients are pending: when the readings run, each chosen line replaces its model B default with its coefficients and R2 recorded here. Every default, model B or girth line, is held in its box.
 
 The references f1, f2, m1 and m2 keep the new fields at their defaults: the reference tests are retired, and the tester's input-identity audit reads each skin measure (chest depth, waist breadth and depth, hip breadth, buttock depth, bideltoid breadth once the arms hang) on the generated skin within 7 mm, ANSUR II's allowable error for chest breadth.
+
+### Natural waist height
+
+`waistHeight` (ANSUR 1988 waist height, natural indentation; 1056.5 (51.7) / 1127.1 (52.0)) is the site of the waist's breadth, depth and girth, now a public input. Omitted, it stands at ANSUR 1988's per-subject share of the span from trochanterion to cervicale, 0.3564 (SD 0.0335) / 0.3361 (0.0218) (`docs/sources/ansur-1988.md`), with trochanterion on ANSUR II's stature line (-126.9 + 0.5970 S / -169.9 + 0.6098 S, R2 0.74 / 0.72) and the person's cervicale. `test_human_survey_pelvis` prints its stature, tenth rib and iliocristale lines for when a direct line is wanted.

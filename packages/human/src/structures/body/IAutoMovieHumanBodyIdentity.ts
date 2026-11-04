@@ -31,6 +31,7 @@ export interface IAutoMovieHumanBodyIdentity
       | "chestDepth"
       | "underbustCircumference"
       | "waistCircumference"
+      | "waistHeight"
       | "waistBreadth"
       | "waistDepth"
       | "hipCircumference"
@@ -56,11 +57,6 @@ export interface IAutoMovieHumanBodyIdentity
    * Thyroid angle: the internal angle between the two laminae of the thyroid cartilage at the level of the vocal folds, degrees. The narrower the angle, the further the laryngeal prominence, the Adam's apple, projects in front of the neck. On computed tomography of 283 people aged 8 to 20 the female mean stayed between 91 and 97 degrees at every age while the male mean fell from 92 to 67, most steeply at 14 to 15 years (Glikson et al. 2017, Laryngoscope 127(10):E354-E358); adult cadaver larynges measure 74.4 in men and 92.4 in women (Rawal et al. 2014, Natl J Integr Res Med 5(3)).
    */
   thyroidAngle: number & tags.Minimum<40> & tags.Maximum<140>;
-
-  /**
-   * Natural waist height: the level of the waist circumference above the standing surface, millimetres. In the 1988 Army survey it averaged 1056 mm in women and 1127 mm in men, at or just above the tenth rib (1044 and 1121 mm) rather than midway down to the iliac crest (989 and 1073 mm), and 74 and 68 mm above the navel. The waist breadth and depth are taken at this level.
-   */
-  waistHeight: number & tags.Minimum<150> & tags.Maximum<1600>;
 
   /** How the spine, pelvis and head stand in the side view. */
   posture: IAutoMovieHumanPosture;

@@ -119,6 +119,14 @@ export namespace AutoMovieHumanBodyAnatomy {
     };
     const biacromialBreadth: number = given.biacromialBreadth ?? line(BIACROMIAL_ON_STATURE, stature);
 
+    // The natural waist stands at its surveyed share of the span from
+    // trochanterion (on stature) to the person's cervicale.
+    const waistHeight = (): number => {
+      const cervicale: number = given.cervicaleHeight ?? line(CERVICALE_HEIGHT_ON_STATURE, stature);
+      const trochanterion: number = line(TROCHANTERION_HEIGHT_ON_STATURE, stature);
+      return trochanterion + WAIST_HEIGHT_SHARE[k] * (cervicale - trochanterion);
+    };
+
     // The crotch by ISO 8559-1 5.7.6: the inside leg over the outer ankle
     // point, as the leg's construction places it.
     const feet: NonNullable<IAutoMovieHumanParameters["extremities"]>["feet"] = params.extremities?.feet;
@@ -167,6 +175,7 @@ export namespace AutoMovieHumanBodyAnatomy {
       sideNeckPointHeight: given.sideNeckPointHeight ?? line(SIDE_NECK_POINT_HEIGHT_ON_STATURE, stature),
       suprasternaleHeight: given.suprasternaleHeight ?? line(SUPRASTERNALE_HEIGHT_ON_STATURE, stature),
       axillaHeight: given.axillaHeight ?? line(AXILLA_HEIGHT_ON_STATURE, stature),
+      waistHeight: given.waistHeight ?? waistHeight(),
       chestBreadth: chest.breadth,
       chestDepth: chest.depth,
       waistBreadth: natural.breadth,
@@ -273,6 +282,24 @@ export namespace AutoMovieHumanBodyAnatomy {
     { a: -79.86, b: 0.8655 },
     { a: -89.26, b: 0.8701 },
   ];
+
+  /**
+   * Trochanterion height on stature, mm; ANSUR II, R2 0.74 and 0.72
+   * (`docs/sources/ansur-ii.md`): the lower end of the span the natural waist
+   * height is read on.
+   */
+  export const TROCHANTERION_HEIGHT_ON_STATURE: readonly [ILine, ILine] = [
+    { a: -126.9, b: 0.597 },
+    { a: -169.9, b: 0.6098 },
+  ];
+
+  /**
+   * The natural waist's place on the span from trochanterion to cervicale,
+   * women and men: ANSUR 1988, 0.3564 (SD 0.0335) and 0.3361 (0.0218), the
+   * per-subject share's mean (`docs/sources/ansur-1988.md`). The default of an
+   * unknown natural waist height is this share of the person's own span.
+   */
+  export const WAIST_HEIGHT_SHARE: readonly [number, number] = [0.3564, 0.3361];
 
   /** Axilla height on stature, mm; ANSUR II. */
   export const AXILLA_HEIGHT_ON_STATURE: readonly [ILine, ILine] = [
