@@ -11,7 +11,7 @@ import { HumanDebugTubeCentreline } from "./HumanDebugTubeCentreline";
  * Loft the chains a set of globs names, alone, into a component document.
  *
  * The calibration is cut to the named chains, the events those chains parent (keeping only splits
- * into named children) and their poles, with no apertures or appendages. The production
+ * into named children) and their poles, with no apertures, appendages or solid joins. The production
  * `AutoMovieHumanBodySurface.generate` lofts exactly those chains and
  * `AutoMovieHumanBodyConstruction.generate` draws the same sections, axes, guides and web paths the
  * whole person draws. An end whose parent chain was cut away has no event, so the loft closes it as
@@ -128,6 +128,14 @@ export namespace HumanDebugChainLoft {
    * @param calibration Whole-person calibration, mm.
    * @param owned Chain-name predicate.
    * @returns The subset; it shares the original's records, which stay unmutated.
+   *
+   * @evidence contracts/common.md#principled-implementation A raw operand selection filters chains, their owned event splits and poles, then removes whole-body solid records, apertures and appendages so the surface consumer lofts those operands independently.
+   * @evidence contracts/common.md#clear-and-simple-design The existing subset owner clears the topology it cannot carry; no alternate generator or rendered-face workaround is introduced.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Names no person or fixture and rejects a selection matching no chain with its original inventory.
+   * @evidence contracts/common.md#meaningful-documentation States shared read-only chain records and the raw-before-join meaning; copied diagnostics prevent the inspection consumer from appending into the original list.
+   * @evidence contracts/performance.md#efficient-algorithms One scan each of chains, events/splits, poles and diagnostics, plus the ownership predicate's cost, replaces no geometric calculation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Shares the selected generating chains and pole records without copying their coefficient arrays; only event wrappers and diagnostic-list ownership change.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned selection arrays bounded by the input inventory and owns no retained cache, renderer or process.
    */
   export function select(
     calibration: IAutoMovieHumanBodyCalibration,
@@ -156,6 +164,9 @@ export namespace HumanDebugChainLoft {
       poles: calibration.poles.filter((p: IAutoMovieHumanBodyCalibration.IPole): boolean => owned(p.chain)),
       apertures: [],
       appendages: undefined,
+      merges: [],
+      bodies: [],
+      diagnostics: [...(calibration.diagnostics ?? [])],
     };
   }
 
