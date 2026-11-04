@@ -1,4 +1,7 @@
+import { AutoMovieHumanBodyAnatomy } from "../../../src/generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../../../src/generation/AutoMovieHumanBodyLaw";
+import { AutoMovieHumanEarPlace } from "../../../src/generation/AutoMovieHumanEarPlace";
+import { AutoMovieHumanHeadArcs } from "../../../src/generation/AutoMovieHumanHeadArcs";
 import type { AutoMovieHumanHeadConstruction } from "../../../src/generation/AutoMovieHumanHeadConstruction";
 import { AutoMovieHumanHeadLandmarks } from "../../../src/generation/AutoMovieHumanHeadLandmarks";
 import { AutoMovieHumanHeadPass } from "../../../src/generation/AutoMovieHumanHeadPass";
@@ -9,6 +12,8 @@ import type { AutoMovieHumanLoftContract } from "../../../src/lofting/AutoMovieH
 import { AutoMovieHumanSolidBlendChain } from "../../../src/lofting/AutoMovieHumanSolidBlendChain";
 import type { AutoMovieHumanSolidJoin } from "../../../src/lofting/AutoMovieHumanSolidJoin";
 import type { IAutoMovieHumanLoftChain } from "../../../src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieHumanEar } from "../../../src/structures/head/IAutoMovieHumanEar";
+import type { AutoMovieHumanSex } from "../../../src/typings/AutoMovieHumanSex";
 import type { IHumanDebugDocument } from "../../contracts/IHumanDebugDocument";
 import type { IHumanDebugPerson } from "../../people/IHumanDebugPerson";
 import { HumanDebugChainLoft } from "../HumanDebugChainLoft";
@@ -39,7 +44,15 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
     if (neckChain === undefined) throw new Error("head.parts: the calibration has no neck chain `head`");
     const inputs: AutoMovieHumanHeadConstruction.IInputs = AutoMovieHumanBodyLaw.headInputs(person.parameters);
     const built: IAutoMovieHumanHeadBuilt = AutoMovieHumanHeadPass.build(AutoMovieHumanHeadPass.prepare(neckChain, inputs), AutoMovieHumanHeadLandmarks.NONE);
-    const composed: AutoMovieHumanHeadComposer.IOutput = AutoMovieHumanHeadComposer.compose(built.plan, inputs.head.earPair, neckChain);
+    // The tragion and the auricles' tops at their published places.
+    const sex: AutoMovieHumanSex = AutoMovieHumanBodyAnatomy.sexOf(person.parameters);
+    const k: number = built.plan.scale;
+    const tragion: number = built.plan.vertex - AutoMovieHumanHeadArcs.tragionDrop(inputs.head, sex) * k;
+    const top = (ear: IAutoMovieHumanEar): number => tragion + AutoMovieHumanEarPlace.aboveTragion(ear, sex) * k;
+    const composed: AutoMovieHumanHeadComposer.IOutput = AutoMovieHumanHeadComposer.compose(built.plan, inputs.head.earPair, neckChain, {
+      tragion,
+      ears: { left: top(inputs.head.earPair.left), right: top(inputs.head.earPair.right) },
+    });
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...composed.diagnostics];
 
     // A join's blend as a chain of its own.

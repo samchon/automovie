@@ -30,14 +30,19 @@ export namespace AutoMovieHumanHeadEarParts {
    *
    * @param plan The landmark skeleton.
    * @param ears The two auricles' inputs, world mm.
+   * @param tops Each auricle's top height, calibration mm, from its published place over the tragion.
    */
-  export function of(plan: IAutoMovieHumanHeadLayout, ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar }): AutoMovieHumanHeadFeatures.IFeature[] {
+  export function of(
+    plan: IAutoMovieHumanHeadLayout,
+    ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar },
+    tops?: { left: number; right: number },
+  ): AutoMovieHumanHeadFeatures.IFeature[] {
     const prior: AutoMovieHumanHeadPrior.IEar = AutoMovieHumanHeadPrior.PRIOR.ear;
     const k: number = plan.scale;
     const out: AutoMovieHumanHeadFeatures.IFeature[] = [];
     for (const sign of [1, -1] as const) {
       const side: string = sign > 0 ? "left" : "right";
-      const f: AutoMovieHumanHeadEarFrame.IFrame = AutoMovieHumanHeadEarFrame.of(plan, sign, sign > 0 ? ears.left : ears.right);
+      const f: AutoMovieHumanHeadEarFrame.IFrame = AutoMovieHumanHeadEarFrame.of(plan, sign, sign > 0 ? ears.left : ears.right, tops === undefined ? undefined : sign > 0 ? tops.left : tops.right);
       const s: number = f.scale * k;
       const at = (along: number, back: number, out_: number): [number, number, number] => [
         f.centre[0] + along * f.a[0] - back * f.b[0] + out_ * f.n[0],

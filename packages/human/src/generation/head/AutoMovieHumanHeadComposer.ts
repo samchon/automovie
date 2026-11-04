@@ -59,6 +59,15 @@ export namespace AutoMovieHumanHeadComposer {
     diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
   }
 
+  /** Heights the published laws give, calibration mm. */
+  export interface IPlaces {
+    /** The tragion's height, from its drop under the vertex (`AutoMovieHumanHeadArcs.tragionDrop`). */
+    tragion?: number;
+
+    /** Each auricle's top, from its height over the tragion (`AutoMovieHumanEarPlace.aboveTragion`). */
+    ears?: { left: number; right: number };
+  }
+
   /** Traced points per join. */
   export const COUNT: number = 64;
 
@@ -71,24 +80,32 @@ export namespace AutoMovieHumanHeadComposer {
   /**
    * Compose the head.
    *
-   * @param plan The landmark skeleton, the vault exponent solved.
+   * @param skeleton The landmark skeleton, the vault exponent solved.
    * @param ears The two auricles' inputs, world mm.
    * @param neckChain The neck chain whose views the neck part reads; absent, no neck.
+   * @param places Heights the published laws give, calibration mm; absent, the skeleton's own.
    */
   export function compose(
-    plan: IAutoMovieHumanHeadLayout,
+    skeleton: IAutoMovieHumanHeadLayout,
     ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar },
     neckChain?: IAutoMovieHumanLoftChain,
+    places?: IPlaces,
   ): IOutput {
+    // The tragion at its published drop from the vertex, when given.
+    const plan: IAutoMovieHumanHeadLayout =
+      places?.tragion === undefined
+        ? skeleton
+        : { ...skeleton, landmarks: { ...skeleton.landmarks, tragion: [skeleton.landmarks.tragion[0], places.tragion] } };
     const mass: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(AutoMovieHumanHeadMassPart.of(plan));
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...mass.diagnostics];
+
     // Parents before their inner parts, each joined to its parent's bare
     // surface.
     const surfaces: Map<string, IAutoMovieHumanSolidSurface | null> = new Map([["head.mass", mass.surface]]);
     const features: AutoMovieHumanHeadFeatures.IFeature[] = [
       ...AutoMovieHumanHeadFeatures.of(plan),
       ...AutoMovieHumanHeadMasses.of(plan),
-      ...AutoMovieHumanHeadEarParts.of(plan, ears),
+      ...AutoMovieHumanHeadEarParts.of(plan, ears, places?.ears),
       ...AutoMovieHumanHeadInnerParts.of(plan),
     ];
     const parts: IJoined[] = features.map((feature: AutoMovieHumanHeadFeatures.IFeature): IJoined => {
