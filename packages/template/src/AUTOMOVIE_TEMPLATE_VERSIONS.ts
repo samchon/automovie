@@ -27,9 +27,9 @@ export const AUTOMOVIE_TEMPLATE_VERSIONS: Record<string, string> = {
   threeTypes: "^0.186.0",
   vite: "^5.4.10",
   nodeTypes: "^22.19.17",
-  ttsc: "^0.36.0",
-  ttscLint: "^0.36.0",
+  ttsc: "^0.36.1",
+  ttscLint: "^0.36.1",
   evidenceCli: "^0.8.2",
-  evidenceLint: "^0.36.0",
+  evidenceLint: "^0.36.1",
   typescript: "^7.0.2",
 };
