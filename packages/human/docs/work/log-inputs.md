@@ -2,6 +2,10 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 arm source-material use ended (2026-11-05 04:56:19 +09:00, Get-Date)
+
+After BODY explicitly confirmed its de Leva/Rab use ended and the supervisor's direct review was already complete, verified the nine absolute task-owned PDF/text/PNG paths and their ordinary file attributes, then removed them without Force. The remaining directory listing and both filename-prefix counts confirm their absence. No recursive removal or junction was involved. ANSUR/Ali/Patil material remains for the current neck/toe definitions; HEAD's SHIN plot was checked present and remains needed for its source-front comparison. No observer, generated figure, active run or another worker's scratch was touched.
+
 ## #3062 exact upper-source consumer metadata (2026-11-05 04:50:02 +09:00, Get-Date)
 
 After HEAD confirmed 4691 ended/reaped and released metadata saves, directly read the current EyeParts, exact-upper-source-round log, independent Bernstein expectation and engine parameter/Hermite preparation. Both head questions passed, 56853 ms total; source 850 ms and records 766 ms. Two spans with nine samples each observed mapped-upper maxima 2.2792811e-13/4.5474735e-13 mm and findings were empty. The unchanged numerical bound is not an anatomical allowance or a whole-domain binary64 proof.
