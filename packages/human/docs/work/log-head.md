@@ -16,6 +16,12 @@ Update 21:14:16 (`7de9846ea`):
 - Performance A2: the old head's 0.5 mm ring refinement runs only on published openings, which the figure no longer publishes (`e7f7ef0dd`), so the 1.4 M-vertex head is gone from the figure.
 - The profile test's red line (`AutoMovieTextureBinding.asset`) is not the eye record and is not the head lane's.
 
+Update 21:19:58 (`9224f7f3e`):
+- The nose in profile (round7/left.png) stands out as a ridge, but from three-quarter it reads as a pit with lit inner walls (round7/c.png). That looks like its faces rendered inside out: it is the only level-axis part, and every straight-axis part renders right. Sent to the kernel worker 21:20.
+- `9224f7f3e` (a level part moves only across its heights) did not change that frame, so a vertical move was not the cause.
+- orbit.left: "host rail's crossing between two faces could not be placed", sent to the kernel.
+- The profile test's `AutoMovieTextureBinding.asset` line is in the perf worker's test (`8feef93e7`); the type has had no `asset` since #2888.
+
 Remaining, in order:
 
 1. **Eyes as parts of the head's tree** (owner, 21:0x: the eye is a module sharing the same logic as every other part). Design:
