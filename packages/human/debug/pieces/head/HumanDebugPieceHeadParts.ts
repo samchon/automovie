@@ -26,6 +26,8 @@ import type { IHumanDebugPiece } from "../IHumanDebugPiece";
  * - `all`: the realized head's every face and every join's blend, as chains;
  * - `mass`: the head mass and its neck alone;
  * - `parts`: the face parts alone, without the head mass;
+ * - `nose`: the head mass and the nose alone, one merge, realized as `composed`;
+ * - `nose.alone`: the nose's own loft, without the merge;
  * - `composed`: the head's construction tree (`AutoMovieHumanHeadTree`)
  *   realized by the engine (`realizeAutoMovieConstruction`): its one skin,
  *   and each face's curves.
@@ -37,7 +39,7 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
   name: "head.parts",
   region: "head",
   description: "The head lane's view parts (head mass with its neck, face parts and their joins) lofted alone from the person's landmark skeleton.",
-  arguments: ["all", "mass", "parts", "composed"],
+  arguments: ["all", "mass", "parts", "composed", "nose", "nose.alone"],
   build(person: IHumanDebugPerson, argument: string | null): IHumanDebugDocument {
     const which: string = argument ?? "all";
     const base: IAutoMovieHumanBodyCalibration = person.calibration();
@@ -61,13 +63,17 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
     const chains: (IAutoMovieLoftChain | null)[] = [];
     if (which === "mass") chains.push(composed.mass.chain);
     if (which === "parts") for (const placed of composed.parts) chains.push(placed.loft.chain);
+    if (which === "nose.alone") chains.push(...composed.parts.filter((p: AutoMovieHumanHeadComposer.IPlaced): boolean => p.feature.part.name === "nose").map((p: AutoMovieHumanHeadComposer.IPlaced): IAutoMovieLoftChain | null => p.loft.chain));
+    // `nose`: the head mass and the nose alone, one merge.
+    const subset: AutoMovieHumanHeadComposer.IOutput =
+      which === "nose" ? { ...composed, parts: composed.parts.filter((p: AutoMovieHumanHeadComposer.IPlaced): boolean => p.feature.part.name === "nose") } : composed;
     let skin: IHumanDebugDocument.IPart[] = [];
-    if (which === "all" || which === "composed") {
-      const realized: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction(AutoMovieHumanHeadTree.of(composed), { chord: CHORD });
+    if (which === "all" || which === "composed" || which === "nose") {
+      const realized: AutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction(AutoMovieHumanHeadTree.of(subset), { chord: CHORD });
       for (const d of realized.diagnostics) diagnostics.push({ producer: `construction.${d.node}`, level: 6, contract: d.contract, detail: d.detail });
       chains.push(...realized.chains);
       if (which === "all") for (const j of realized.joins) chains.push(j.blend.chain);
-      if (which === "composed") skin = faces(realized.mesh);
+      if (which !== "all") skin = faces(realized.mesh);
     }
     const shown: IAutoMovieLoftChain[] = chains.filter((c: IAutoMovieLoftChain | null): c is IAutoMovieLoftChain => c !== null);
     if (!shown.length) throw new Error(`head.parts:${which} made no chain: ${JSON.stringify(diagnostics)}`);
@@ -90,12 +96,13 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
     // there keeps its own lofted part.
     const byFace: Map<string, IHumanDebugDocument.IPart> = new Map(skin.map((part: IHumanDebugDocument.IPart): [string, IHumanDebugDocument.IPart] => [part.id.slice(PREFIX.length, part.id.lastIndexOf("/")), part]));
     const kept: IHumanDebugDocument.IPart[] = [];
-    for (const part of which === "composed" ? document.parts : []) {
+    const skinned: boolean = which === "composed" || which === "nose";
+    for (const part of skinned ? document.parts : []) {
       const face: IHumanDebugDocument.IPart | undefined = byFace.get(part.id.slice(PREFIX.length, part.id.lastIndexOf("/")));
       if (face === undefined) kept.push(part);
       else face.curves.push(...part.curves);
     }
-    const parts: IHumanDebugDocument.IPart[] = which === "composed" ? [...kept, ...skin] : document.parts;
+    const parts: IHumanDebugDocument.IPart[] = skinned ? [...kept, ...skin] : document.parts;
 
     // The joins' and seeds' failures first, then the view sections', so the
     // header's cut keeps the ones a composed view needs.

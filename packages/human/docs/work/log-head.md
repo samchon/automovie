@@ -22,6 +22,12 @@ Update 21:19:58 (`9224f7f3e`):
 - orbit.left: "host rail's crossing between two faces could not be placed", sent to the kernel.
 - The profile test's `AutoMovieTextureBinding.asset` line is in the perf worker's test (`8feef93e7`); the type has had no `asset` since #2888.
 
+Nose pit, read from frames (21:33:31; `head.parts:nose` = head mass plus nose, one merge, and `head.parts:nose.alone`; `nose1/`, `nose2/`):
+- Alone (nose1/alone-three.png), the nose's loft is whole: a closed body round its axis, its back reaching the axis depth behind the face.
+- Merged (nose1/merge-three.png): the head mass's skin is cut away over the nose's footprint, which is the right host side for a merge. The nose's outer surface is not seen from outside, though its sections show inside the hole. So the face is present but its triangles face inward (back-face culled), or the kept part region is not drawn.
+- Not the cause: a vertical move (`9224f7f3e`) or the bottom pole. An open bottom changed nothing (nose2/merge-three.png) and was reverted.
+- Next: read the nose face's mesh triangles in the realization (owner `nose`) for count and winding, against the head mass's.
+
 Remaining, in order:
 
 1. **Eyes as parts of the head's tree** (owner, 21:0x: the eye is a module sharing the same logic as every other part). Design:
