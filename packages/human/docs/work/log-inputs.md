@@ -2,6 +2,14 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 historical q definition recovered (2026-11-05 03:19:15 +09:00, Get-Date)
+
+After committing the declaration topic as 7046eaf3c8, read the deleted limb-mass reader in Git to resolve its missing datum rather than start a private reading. The complete reader at 3672a547f0 is identical to the last pre-deletion blob d7057fa2e574622a76753fdbc14520f3e23539b5. The connected polyline/phase-length implementations were also directly read. The [audit](law-definition-audit.md#historical-q-definition-recovered-without-execution) now supersedes the earlier support-versus-chord uncertainty with the actual sampled-support definition.
+
+The reader takes horizontal leg_l's longest-by-phase closed loop, including all quality statuses, samples each Hermite span at eight local parameters and uses global body-X extrema. Its bone is the same-height linear interpolation of historical rig origins. BODY received this q definition, exact source locations, its frame/bins, the continuous-extremum and current-skeleton transfer limits, and the unverified final table aggregation weights. No source reader was restored/executed, no private coordinate was accessed and no new fit or generation ran. The modeler's current observation continues independently.
+
+The prior declaration commit's actual nine-path diff/stat/SHA and attribution were delivered to the supervisor; no independent push was made. Runtime-temp was removed after all three CLI runs ended, its exact resolved task path and absence of reparse points were checked, and Test-Path returned false. Three Evidence JSONs remain for supervisor review; published source-reading data awaits HEAD's use-end confirmation. The latest shared completed cycles are test 03:17:26 and debug 03:17:32, with later rebuilds ongoing; no duplicate collector was started.
+
 ## #3062 declaration-ground review (2026-11-05 03:11:46 +09:00, Get-Date)
 
 The complete six-file declaration/consumer round and its cause table are recorded in the [audit](law-definition-audit.md#declaration-ground-cause-batch-2026-11-05). Corrected the muscle-versus-skin placement explanation, distinct foot normalizers, stale registry readers and O(c+n)/call-local lifetime grounds in one batch. No coefficient, measurement cell, curve algorithm or modeler builder changed. The approved ReferenceOutlineTypes owns the three exact record shapes through a type-only import; existing qualified names remain aliases. Its 101 lines and the registry's 466 both meet the file limit.
