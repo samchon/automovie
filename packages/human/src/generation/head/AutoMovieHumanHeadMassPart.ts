@@ -17,7 +17,8 @@ import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
  *   degrees) to the cervical point C, whose depth from the gnathion is the
  *   lower face's height over the lower vertical height-depth ratio
  *   (Sn-Gn' / C-Gn' = 1.2; Legan and Burstone 1980), and under C the neck's
- *   front, parallel to its back; B, the median back profile
+ *   front standing plumb, since the back's slope from the trunk ring is
+ *   the trapezius' and carried the front behind the axis; B, the median back profile
  *   (`AutoMovieHumanHeadBackProfile`), down the nape to the neck ring.
  * - Front view: L, the head's front-view silhouette, one outline through
  *   the vertex, the eurion's level (half the head breadth), the tragion's
@@ -196,9 +197,9 @@ export namespace AutoMovieHumanHeadMassPart {
     const fall: number = Math.sin(throat);
 
     // Along the submental line from the menton, x falls back as y falls, to
-    // the cervical point; under it the neck's front, parallel to its back.
+    // the cervical point; under it the neck's front stands plumb.
     const c: [number, number] = cervical(plan);
-    if (y < c[1]) return c[0] + plan.neck.backSlope * (y - c[1]);
+    if (y < c[1]) return c[0];
     const start: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.menton);
     return fall < -1e-6 ? start + ((plan.menton - y) * run) / -fall : start - (plan.menton - y);
   }
