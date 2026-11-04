@@ -97,10 +97,15 @@ export namespace AutoMovieConstructionWidths {
       }
       case "curvature": {
         if (!(width.share > 0 && width.share < 1 && width.cap > 0)) return `the ${side} curvature share ${width.share} must lie inside (0, 1) and its cap ${width.cap} m be positive`;
+        if (width.end !== null && !(width.end > 0 && width.end < 1)) return `the ${side} curvature end share ${width.end} must lie inside (0, 1)`;
         if (curve === null) return "the curvature width has no traced curve";
         const values: number[] = curve.curve.points.map((p: AutoMovieSolidIntersection.IPoint): number => {
           const k: number = side === "part" ? across(curve.part.jet(p.s, p.phi), p.tangent) : across(curve.host.faces[p.face]!.jet(p.y, p.theta), p.tangent);
-          const cap: number = width.cap * S;
+          // The end bound: a share of the station distance to the rail surface's nearer end, so a rail near a pole stays on the surface.
+          const surface: IAutoMovieSolidSurface = side === "part" ? curve.part : curve.host.faces[p.face]!;
+          const station: number = side === "part" ? p.s : p.y;
+          const reach: number = surface.domain === undefined || width.end === null ? Infinity : width.end * Math.min(station - surface.domain[0], surface.domain[1] - station);
+          const cap: number = Math.min(width.cap * S, Math.max(0, reach));
           return k > 0 ? Math.min(cap, width.share / k) : cap;
         });
         return periodic(values, curve.curve.points[0]!.t);

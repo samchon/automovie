@@ -80,7 +80,7 @@ export function test_construction_widths(): void {
 
   // 3. The curvature width on the host.
   const share: number = 0.2;
-  const curved: AutoMovieConstructionRealization.IJoin | null = joined(merge({ part: { type: "chord", value: 0.006 }, host: { type: "curvature", share, cap: 0.008 } }), "curvature");
+  const curved: AutoMovieConstructionRealization.IJoin | null = joined(merge({ part: { type: "chord", value: 0.006 }, host: { type: "curvature", share, cap: 0.008, end: null } }), "curvature");
   if (curved !== null) {
     const law: (s: number) => (p: AutoMovieSolidIntersection.IPoint) => number = (s: number): ((p: AutoMovieSolidIntersection.IPoint) => number) => (p: AutoMovieSolidIntersection.IPoint): number => {
       // The beam's axis is +x; its outward normal at the point is radial in y and z.
