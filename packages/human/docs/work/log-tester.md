@@ -59,3 +59,19 @@ Committed as `572892a9e` (`date` 13:49:31 just before the commit): 134 test and 
 Correction 13:49:43 (`date`): `572892a9e` recorded the erasure as "Done 13:58", a time not read from a clock; the clock read 13:49:31 at the commit. Now stated as read.
 
 13:52:07 (`date`): the input and laws worker reverted its uncommitted edits to `test_human_reference_inputs` and released it; its rows (#3045's new trunk breadths and depths read on the skin at their sites, 7 mm allowance, ANSUR II's allowable error for chest breadth; `chestBreadth` and `bicristalBreadth` are no skin readings) move into the input-identity audit. Deleted with the four `internal/reference/bodies/` helpers it alone imported, so nothing under `reference/` remains.
+
+## Operator tests and generic audits, written (recorded 14:11:50, `date`; not run: the owner ordered no test runs until relayed)
+
+Compile read only from the shared watch log `packages/human/.shots/debug/ttsc-test-watch.log` (owner order: no ttsc of my own; my collector 3508 was left to the helper that replaced every watcher).
+
+| File | What it checks | Red proof on |
+| --- | --- | --- |
+| `human/lofting/test_human_lofting_view_section` | ellipse at `sqrt(2) - 1` within the quarter's Hermite remainder of the closed form (seventh derivative by Taylor arithmetic, `internal/lofting/HumanViewOracle`), girth against the AGM perimeter, guide touch (radius, zero slope, declared curvature from the jet and from three points, never past its side) on boxes 1:3 to 3:1 and asymmetric, C2 across guides | a 0.02 fuller ellipse, a sloped guide, a turned ellipse, a curvature step |
+| `human/lofting/test_human_lofting_view_section_girth` | reach inside the rhombus and rectangle girths, monotone girth, round trip within the solve's tolerance over the girth's slope (also with departures), one `girth in reach` diagnostic each way, one `view section` diagnostic for a box without a section | a falling sequence, a shoulder 0.01 off |
+| `human/lofting/test_human_lofting_view_section_chain` | `AutoMovieHumanViewLoft.create`: knots read back at the guide phases, girth knots, every layer's `view`, surface and declared continuity, C2 in station, `outline order`, `half extent`, `order`, `stations`, a pole | an extent 0.5 mm off, a moved station curvature |
+| `human/audit/test_human_audit_sections` (`internal/audit/HumanSectionAudit`, `HumanSectionReading`) | every section of every chain: closure, simple, curvature continuity by refinement, guide touch on `ILayer.view` layers, star about the axis; breadth, depth and girth fair along stations | figure-eight, fold, stadium, turned and open sections; turned and swollen made chains |
+| `human/audit/test_human_audit_seams` (`internal/audit/HumanSeamAudit`) | every published merge and diff (`IAutoMovieHumanBodyCalibration.merges`): both rails G2 at the blend's columns; gap within the facets' chordal error, class A angle, curvature jump | a 2 mm crack, a 20 degree cone, a G1-only cylinder, a blend read 0.3 rad off its seed |
+| `human/audit/test_human_audit_surface` (`internal/audit/HumanSurfaceAudit`) | every chain: meridian steps past the crease bound, ripples finer than the 10 mm chord, folded cells | a ripple, a doubled layer, a reversed ring |
+| `human/audit/test_human_audit_inputs` (`internal/audit/HumanInputIdentity`) | every numeric input of `body.anatomy`, `head` and `extremities` read back by a region observer's identity row, or its reason for not being a skin reading | a reading out of allowance, a missing one, one centred elsewhere, an unknown input |
+
+Still to write: the table-driven anatomy audit on the finished curves (the supervisor relayed the owner's order during the erasure), and the retirement of per-part files it and these audits replace (Phase 2). Placement stays in `test_human_curve_placement` until the surface and anatomy audits absorb it.
