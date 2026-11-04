@@ -27,8 +27,17 @@ export namespace AutoMovieConstructionRealization {
     chord: number;
   }
 
-  /** A join that kept its premises. */
+  /** A join that kept its premises, named as its node and its two seed faces. */
   export interface IJoin {
+    /** The join node's name, which also names its blend's chain and face. */
+    name: string;
+
+    /** The host face the trace started on (`seed.hostFace`); the curve may cross onto neighbouring faces. */
+    hostFace: string;
+
+    /** The part face that meets the host (`seed.partFace`). */
+    partFace: string;
+
     /** The join's traced curve, rails and columns, millimetres. */
     join: AutoMovieSolidJoin.IJoin;
 

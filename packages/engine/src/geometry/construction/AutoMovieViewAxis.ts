@@ -155,6 +155,105 @@ export namespace AutoMovieViewAxis {
    * @returns The axis, or the broken admission rule.
    */
   export function jointed(centres: readonly Vec3[], halves: readonly number[], up: Vec3): IAxis | string {
+    const c: ICourse | string = course(centres, halves);
+    if (typeof c === "string") return c;
+    const { directions, turns }: ICourse = c;
+    const u0: Vec3 = sub(up, scale(directions[0]!, dot(up, directions[0]!)));
+    const lu: number = Math.hypot(u0[0], u0[1], u0[2]);
+    if (!(lu > 1e-9 * Math.hypot(up[0], up[1], up[2]))) return "up lies along the first segment";
+    const first: Vec3 = scale(u0, 1 / lu);
+
+    return {
+      at: (station: number): AutoMovieLoftFrame.IFrame => {
+        // Walk the segments and turns up to the station.
+        let point: Vec3 = [...centres[0]!];
+        let u: Vec3 = first;
+        let tangent: Vec3 = directions[0]!;
+        let at: number = 0;
+        for (let i: number = 0; i < turns.length; i++) {
+          const t: ITurn = turns[i]!;
+          if (station <= t.start) break;
+          point = add(point, scale(tangent, t.start - at));
+          at = t.start;
+          const share: number = Math.min(2 * t.half, station - at);
+          if (t.angle > 0) {
+            point = add(point, integrate(tangent, t, share));
+            const turned: number = t.angle * smoothstep(share / (2 * t.half));
+            u = rotate(u, t.axis, turned);
+            tangent = rotate(tangent, t.axis, turned);
+          } else point = add(point, scale(tangent, share));
+          at += share;
+          if (share < 2 * t.half) return frame(point, u, tangent);
+        }
+        return frame(add(point, scale(tangent, station - at)), u, tangent);
+      },
+    };
+  }
+
+  /**
+   * One segment's straight run on a jointed axis: where along the segment the course runs on its line, and the stations there. Outside the run the course is in a turn and cuts the corner inside the segment's line.
+   *
+   * @evidence contracts/common.md#principled-implementation A point at a distance along a segment's straight run stands at the run's start station plus that distance past the run's start, because the course is the segment's own line there and its station is arclength.
+   * @evidence contracts/common.md#clear-and-simple-design Four numbers: the run's two ends as distances from the segment's first centre and as stations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A point inside a turn has no station on the segment's line; the run says where that begins rather than guessing one.
+   * @evidence contracts/common.md#meaningful-documentation States each field, its unit and what lies outside the run.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; `runs` builds it.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record without computed state.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Four numbers per segment, owned by the caller.
+   */
+  export interface IRun {
+    /** Distance from the segment's first centre where the run starts, mm: the previous turn's set-back, 0 on the first segment. */
+    from: number;
+
+    /** Distance from the segment's first centre where the run ends, mm: the segment's length less the next turn's set-back. */
+    to: number;
+
+    /** The station at `from`, mm. */
+    start: number;
+
+    /** The station at `to`, mm. */
+    end: number;
+  }
+
+  /**
+   * Each segment's straight run on a jointed axis, so a caller places a site given as a share of a bone at its station: the station of the point at distance `x` along segment `i` is `start + (x - from)` for `x` in `[from, to]`.
+   *
+   * @evidence contracts/common.md#principled-implementation The runs come from the same course the axis frames are read from (its turns' set-backs and arclengths), so a station placed by a run is the station `jointed` reads at that point.
+   * @evidence contracts/common.md#clear-and-simple-design One run per segment from the same centres and half lengths `jointed` takes.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts An inadmissible course returns its rule exactly as `jointed` does.
+   * @evidence contracts/common.md#meaningful-documentation States the runs, the station formula and the failure.
+   * @evidence contracts/performance.md#efficient-algorithms One course build: a fixed Gauss-Legendre quadrature per turn and a linear pass over the segments.
+   * @evidence contracts/performance.md#reuse-equivalent-work Shares the course builder with `jointed` instead of repeating the set-back integral.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the runs; the course is released with the call.
+   * @param centres The first end, the joints and the last end, mm.
+   * @param halves Each interior centre's turn half length, mm.
+   * @returns The runs, or the broken admission rule.
+   */
+  export function runs(centres: readonly Vec3[], halves: readonly number[]): IRun[] | string {
+    const c: ICourse | string = course(centres, halves);
+    if (typeof c === "string") return c;
+    return c.lengths.map((length: number, i: number): IRun => {
+      const before: number = i >= 1 ? c.turns[i - 1]!.setback : 0;
+      const after: number = i < c.turns.length ? c.turns[i]!.setback : 0;
+      const start: number = i === 0 ? 0 : c.turns[i - 1]!.start + 2 * c.turns[i - 1]!.half;
+      return { from: before, to: length - after, start, end: start + length - before - after };
+    });
+  }
+
+  /** A jointed course: its segments' directions and lengths and its turns. */
+  interface ICourse {
+    /** Each segment's unit direction. */
+    directions: Vec3[];
+
+    /** Each segment's length, mm. */
+    lengths: number[];
+
+    /** Each interior centre's turn. */
+    turns: ITurn[];
+  }
+
+  /** The course through the centres, or the broken admission rule. */
+  function course(centres: readonly Vec3[], halves: readonly number[]): ICourse | string {
     const m: number = centres.length;
     if (m < 2) return `${m} centres, at least two needed`;
     if (halves.length !== m - 2) return `${halves.length} half lengths for ${m - 2} interior centres`;
@@ -205,36 +304,7 @@ export namespace AutoMovieViewAxis {
       t.start = s;
       s += 2 * t.half;
     }
-    const u0: Vec3 = sub(up, scale(directions[0]!, dot(up, directions[0]!)));
-    const lu: number = Math.hypot(u0[0], u0[1], u0[2]);
-    if (!(lu > 1e-9 * Math.hypot(up[0], up[1], up[2]))) return "up lies along the first segment";
-    const first: Vec3 = scale(u0, 1 / lu);
-
-    return {
-      at: (station: number): AutoMovieLoftFrame.IFrame => {
-        // Walk the segments and turns up to the station.
-        let point: Vec3 = [...centres[0]!];
-        let u: Vec3 = first;
-        let tangent: Vec3 = directions[0]!;
-        let at: number = 0;
-        for (let i: number = 0; i < turns.length; i++) {
-          const t: ITurn = turns[i]!;
-          if (station <= t.start) break;
-          point = add(point, scale(tangent, t.start - at));
-          at = t.start;
-          const share: number = Math.min(2 * t.half, station - at);
-          if (t.angle > 0) {
-            point = add(point, integrate(tangent, t, share));
-            const turned: number = t.angle * smoothstep(share / (2 * t.half));
-            u = rotate(u, t.axis, turned);
-            tangent = rotate(tangent, t.axis, turned);
-          } else point = add(point, scale(tangent, share));
-          at += share;
-          if (share < 2 * t.half) return frame(point, u, tangent);
-        }
-        return frame(add(point, scale(tangent, station - at)), u, tangent);
-      },
-    };
+    return { directions, lengths, turns };
   }
 
   /** One turn of a jointed axis. */

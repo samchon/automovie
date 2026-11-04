@@ -152,7 +152,7 @@ export function realizeAutoMovieConstruction(
     const blendFace: number = body.faces.length - 1;
     state.faces.set(node.name, blendFace);
     state.blendSurfaces.push(body.faces[blendFace]!.surface);
-    state.joins.push({ join: merged.join, blend: merged.blend });
+    state.joins.push({ name: node.name, hostFace: node.seed.hostFace, partFace: node.seed.partFace, join: merged.join, blend: merged.blend });
   };
 
   const continuation = (node: IAutoMovieConstructionContinuation): void => {
