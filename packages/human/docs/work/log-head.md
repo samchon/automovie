@@ -31,6 +31,19 @@ The eyes were the last opening clipped from the skin's triangles (`AutoMovieHuma
 - `generation/head/AutoMovieHumanHeadMassPart.ts`: the head mass as an `IAutoMovieHumanViewPart` from P (with the submental line at Sn-Gn'-C), B and L. The axis runs along L's forward place by minimal rotation. The vault's quarters take the conic shoulder of the circumference-closing exponent; the face's front quarters take the face plan's exponent under the nasion, a prior row still to be replaced. Top pole at the vertex. Not wired.
 - `generation/head/AutoMovieHumanNeckPart.ts`: the neck as a view part, its views read off today's neck chain at its layers. Ellipse shoulder. Not wired. Interface to the body modeler: merged onto the trunk through the trunk's merge entry, seeded at cervicale and suprasternale.
 
+## Head parts, first pass complete (recorded 15:5x from git times)
+
+| Commit | Time | Parts |
+| --- | --- | --- |
+| `ec593c8a3` | 15:06:01 | shared dome; nose, lips, orbits; the composer |
+| `3bded98f8` | 15:09:03 | tip lobule, alae, nostrils, philtral groove, mentolabial sulcus, lids |
+| `4325dde05` | 15:13:22 | `piece=head.parts[:all\|mass\|neck\|parts]`; parts twice as long as wide traced by arclength |
+| `797f4e72c` | 15:16:03 | the neck merged under the head mass |
+| `6d1b4358f` | 15:20:21 | the auricle in its own frame with helix, antihelix and concha; brow ridge (tissue depth at the mid-supraorbital point); zygoma (zy-zy beyond the head mass's outline) |
+| `792f61e87` | 15:46:29 | the tragion and the auricles' tops at their published places (`AutoMovieHumanHeadArcs.tragionDrop`, `AutoMovieHumanEarPlace.aboveTragion`) |
+
+The sweep has not run. Request `f1-all-front` went in at 15:37:44 and had no bytes by 15:44:01. The viewer worker found the server's only slot held since 14:38:36 by a dead page: my `person=f1&focus=head*` frame, whose renderer ran out of memory at 14:46 in `AutoMovieHumanHeadField.collect` during the hair stage. That frame ran on my eye-trim source of 14:13 to 14:49, which trims the eyes and refines the rows near every opening. Whether that source grew the head's skin enough to cause the crash is not known; a frame from the same source and query had been written at 14:38. Waiting for the reference-derived outline tables I asked the laws worker for (head mass P, B, L and quarter fullness; malar and cheek; nose; lips; lids; ear).
+
 ## Construction map of the head subtree (design, written from 13:48:14, Get-Date)
 
 Designed against the kernel's interfaces committed in `8194f8923`: a part is an `IAutoMovieHumanViewPart` (axis `straight`, `horizontal` or `minimal`; stations; the `front` pair, the extremes along the section's `u`; the `side` pair, the extremes along `v`; fullness by `girth`, `shoulder` or `top`; an optional `pole`), lofted by `AutoMovieHumanViewLoft.create` into a chain and a solid surface; parts join by `AutoMovieHumanSolidMerge` and `AutoMovieHumanSolidDiff` (`AutoMovieHumanSolidJoin`: part with periodic phase, host, a seed, width laws per part phase); openings are `AutoMovieHumanSolidTrim` loops. Frame of the head: x forward, y up, z left, the Frankfort plane level, calibration millimetres; every paired part is built for the left side and reflected (`z -> -z`, phase run backward).
