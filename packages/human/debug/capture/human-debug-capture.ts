@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
@@ -21,7 +21,9 @@ import { parseHumanDebugCaptureArguments } from "./parseHumanDebugCaptureArgumen
  * replaces its variables; `;` separates variables because the Windows shim of ttsx reads `&` as a
  * command separator. The text is checked by `HumanDebugOptions` before any request, so a typo
  * fails here; `keep=1` passes through to the route, so a series of shots is drawn on one loaded
- * source. Every shot asks a new frame (a unique `fresh` nonce unless the text gives one).
+ * source. Every shot asks a new frame (a UUID `fresh` nonce unless the text gives one).
+ * The nonce is independent of the file name: valid shot names can contain dots or exceed
+ * the frame nonce's sixty-four-character bound.
  *
  * A shot is kept only when the route answers `new-requested-frame` and the bytes received hash to
  * `x-human-png-sha256`; it is written as `<name>.png`, and `receipt.json` lists every kept shot with
@@ -44,7 +46,7 @@ async function main(): Promise<void> {
     for (const [name, value] of new URLSearchParams(shot.query)) query.set(name, value);
     const checked: { notices: string[] } = HumanDebugOptions.parse(query, ["fresh", "keep"]);
     if (checked.notices.length !== 0) throw new Error("Shot " + shot.name + ": " + checked.notices.join("; "));
-    if (!query.has("fresh")) query.set("fresh", shot.name + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2));
+    if (!query.has("fresh")) query.set("fresh", randomUUID());
     const url: string = parsed.origin + HUMAN_DEBUG_ROUTES.images + shot.name + ".png?" + query.toString();
     try {
       const row: IReceiptRow = await capture(url, path.join(parsed.out, shot.name + ".png"));
