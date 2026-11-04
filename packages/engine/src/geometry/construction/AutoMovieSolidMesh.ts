@@ -1,4 +1,4 @@
-import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
+import { AutoMovieSolidMeshLoop } from "./AutoMovieSolidMeshLoop";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import { AutoMovieSolidZip } from "./AutoMovieSolidZip";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
@@ -244,7 +244,7 @@ export namespace AutoMovieSolidMesh {
         const dv: number = Math.abs(vNext - v);
         const j0: IAutoMovieSolidSurface.IJet = jets[i]![j]!;
         const margin: number = 0.5 * Math.min(norm(j0.u) * du, norm(j0.v) * dv);
-        return loops.every((l: ILoop): boolean => keeps(l, u, v, j0, margin, surface.period));
+        return loops.every((l: ILoop): boolean => AutoMovieSolidMeshLoop.keeps(l, u, v, j0, margin, surface.period));
       }),
     );
 
@@ -309,17 +309,17 @@ export namespace AutoMovieSolidMesh {
       let best: number = -1;
       let distance: number = Infinity;
       open.forEach((cycle: number[], k: number): void => {
-        const d: number = nearest(loop, cycle.map((v: number): [number, number] => chart.get(v)!), surface.period);
+        const d: number = AutoMovieSolidMeshLoop.nearest(loop, cycle.map((v: number): [number, number] => chart.get(v)!), surface.period);
         if (d < distance) {
           distance = d;
           best = k;
         }
       });
       if (best < 0) continue;
-      const cycle: number[] = aligned(mesh, loop.vertices, open.splice(best, 1)[0]!);
+      const cycle: number[] = AutoMovieSolidMeshLoop.aligned(mesh, loop.vertices, open.splice(best, 1)[0]!);
       const band: [number, number, number][] = AutoMovieSolidZip.band(
-        { vertices: loop.vertices, angles: arc(mesh, loop.vertices) },
-        { vertices: cycle, angles: arc(mesh, cycle) },
+        { vertices: loop.vertices, angles: AutoMovieSolidMeshLoop.arc(mesh, loop.vertices) },
+        { vertices: cycle, angles: AutoMovieSolidMeshLoop.arc(mesh, cycle) },
       );
       const p0: [number, number] = loop.chart[0]!;
       const o: Vec3 = outward(surface, p0[0], p0[1]);
@@ -360,10 +360,10 @@ export namespace AutoMovieSolidMesh {
    * @returns The triangles, outward.
    */
   export function bridge(mesh: IMesh, ring: readonly number[], cycle: readonly number[], out: Readonly<Vec3>): [number, number, number][] {
-    const turned: number[] = aligned(mesh, ring, cycle);
+    const turned: number[] = AutoMovieSolidMeshLoop.aligned(mesh, ring, cycle);
     const band: [number, number, number][] = AutoMovieSolidZip.band(
-      { vertices: [...ring], angles: arc(mesh, ring) },
-      { vertices: turned, angles: arc(mesh, turned) },
+      { vertices: [...ring], angles: AutoMovieSolidMeshLoop.arc(mesh, ring) },
+      { vertices: turned, angles: AutoMovieSolidMeshLoop.arc(mesh, turned) },
     );
     let best: Vec3 = [0, 0, 0];
     for (const t of band) {
@@ -439,81 +439,4 @@ export namespace AutoMovieSolidMesh {
     return [n[0] * surface.orientation, n[1] * surface.orientation, n[2] * surface.orientation];
   }
 
-  /**
-   * Whether a grid vertex lies on a loop's kept side, at least `margin` mm
-   * from it.
-   */
-  function keeps(loop: ILoop, u: number, v: number, jet: IAutoMovieSolidSurface.IJet, margin: number, period: number | undefined): boolean {
-    if (!AutoMovieSolidCycle.kept(loop, u, v, period)) return false;
-
-    // The least distance to the loop's segments in millimetres, each segment
-    // read on the branch of the point's phase nearest it.
-    const E: number = dot(jet.u, jet.u);
-    const F: number = dot(jet.u, jet.v);
-    const G: number = dot(jet.v, jet.v);
-    const n: number = loop.chart.length;
-    let least: number = Infinity;
-    for (let k: number = 0; k < n; k++) {
-      const a: [number, number] = loop.chart[k]!;
-      const raw: [number, number] = loop.chart[(k + 1) % n]!;
-      const bv: number = AutoMovieSolidCycle.shift(raw[1], a[1], period);
-      const w: number = AutoMovieSolidCycle.shift(v, a[1], period);
-      least = Math.min(least, segment(u - a[0], w - a[1], raw[0] - a[0], bv - a[1], E, F, G));
-    }
-    return least >= margin;
-  }
-
-  /** The metric distance from a chart offset to a chart segment, mm. */
-  function segment(px: number, py: number, dx: number, dy: number, E: number, F: number, G: number): number {
-    const dd: number = E * dx * dx + 2 * F * dx * dy + G * dy * dy;
-    const pd: number = E * px * dx + F * (px * dy + py * dx) + G * py * dy;
-    const t: number = dd > 0 ? Math.min(1, Math.max(0, pd / dd)) : 0;
-    const x: number = px - t * dx;
-    const y: number = py - t * dy;
-    return Math.sqrt(Math.max(0, E * x * x + 2 * F * x * y + G * y * y));
-  }
-
-  /** The mean chart distance from a cycle's points to a loop, for matching a drawn-cell cycle to its loop. */
-  function nearest(loop: ILoop, points: readonly [number, number][], period: number | undefined): number {
-    let sum: number = 0;
-    for (const p of points) sum += AutoMovieSolidCycle.foot(loop, p[0], p[1], period).distance;
-    return sum / points.length;
-  }
-
-  /**
-   * The zipper's parameter of a closed vertex sequence: its cumulative length
-   * between its points from its first, over its whole length, times a turn.
-   * Arclength holds for any simple cycle a clip leaves, where an angle about
-   * a centre turns back on a cycle that is not star-shaped.
-   */
-  function arc(mesh: IMesh, ids: readonly number[]): number[] {
-    const p = (v: number): Vec3 => [mesh.positions[3 * v]!, mesh.positions[3 * v + 1]!, mesh.positions[3 * v + 2]!];
-    const out: number[] = [0];
-    for (let k: number = 1; k < ids.length; k++) out.push(out[k - 1]! + norm(sub(p(ids[k]!), p(ids[k - 1]!))));
-    const total: number = out[ids.length - 1]! + norm(sub(p(ids[0]!), p(ids[ids.length - 1]!)));
-    return out.map((x: number): number => (total > 0 ? (2 * Math.PI * x) / total : 0));
-  }
-
-  /**
-   * A drawn-cell cycle turned and started to run with a loop: started at its
-   * vertex nearest the loop's first, and turned the way whose point a quarter
-   * of its length on lies nearer the loop's point a quarter on.
-   */
-  function aligned(mesh: IMesh, loop: readonly number[], cycle: readonly number[]): number[] {
-    const p = (v: number): Vec3 => [mesh.positions[3 * v]!, mesh.positions[3 * v + 1]!, mesh.positions[3 * v + 2]!];
-    const head: Vec3 = p(loop[0]!);
-    let start: number = 0;
-    cycle.forEach((v: number, k: number): void => {
-      if (norm(sub(p(v), head)) < norm(sub(p(cycle[start]!), head))) start = k;
-    });
-    const forward: number[] = cycle.map((_: number, k: number): number => cycle[(start + k) % cycle.length]!);
-    const backward: number[] = [forward[0]!, ...forward.slice(1).reverse()];
-    const quarter = (ids: readonly number[]): Vec3 => {
-      const a: number[] = arc(mesh, ids);
-      const k: number = a.findIndex((x: number): boolean => x >= Math.PI / 2);
-      return p(ids[k < 0 ? 0 : k]!);
-    };
-    const target: Vec3 = quarter(loop);
-    return norm(sub(quarter(forward), target)) <= norm(sub(quarter(backward), target)) ? forward : backward;
-  }
 }

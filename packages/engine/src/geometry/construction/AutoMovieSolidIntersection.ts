@@ -1,13 +1,14 @@
 import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
+import { AutoMovieSolidTraceLaw } from "./AutoMovieSolidTraceLaw";
+import { AutoMovieSolidTraceSolve } from "./AutoMovieSolidTraceSolve";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
-import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 type Vec4 = [number, number, number, number];
 type IJet = IAutoMovieSolidSurface.IJet;
-const { add, combine, cross, dot, norm, scale, sub } = AutoMovieSolidVector;
+const { add, cross, dot, norm, scale, sub } = AutoMovieSolidVector;
 
 /**
  * The curve where an attached part's surface meets its host's: the
@@ -203,12 +204,6 @@ export namespace AutoMovieSolidIntersection {
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
-  /** Newton steps per solve. */
-  export const STEPS: number = 40;
-
-  /** Halvings of one continuation step before the trace is lost. */
-  export const HALVINGS: number = 24;
-
   /**
    * Trace the closed curve from its seed.
    *
@@ -230,7 +225,7 @@ export namespace AutoMovieSolidIntersection {
     const turn: number = 2 * Math.PI;
 
     // The parameter's law, the seed's parameter and the seed refined at it.
-    let law: ILaw;
+    let law: AutoMovieSolidTraceLaw.ILaw;
     let t0: number;
     let first: IPoint | null;
     if (parameter.kind === "arc") {
@@ -238,13 +233,13 @@ export namespace AutoMovieSolidIntersection {
       if (typeof walked === "string") return report("traced loop", walked);
       law = walked.law;
       t0 = 0;
-      first = solve(part, host, law, 0, walked.x, walked.face, tolerance);
+      first = AutoMovieSolidTraceSolve.solve(part, host, law, 0, walked.x, walked.face, tolerance);
     } else {
-      const made: ILaw | null = lawOf(parameter);
+      const made: AutoMovieSolidTraceLaw.ILaw | null = AutoMovieSolidTraceLaw.of(parameter);
       if (made === null) return report("parameter", "the angle parameter's normal and reference are parallel or zero");
       law = made;
       t0 = parameter.kind === "phase" ? input.seed.phi : law.angle(part.jet(input.seed.s, input.seed.phi).p);
-      first = solve(part, host, law, t0, [input.seed.s, input.seed.phi, input.seed.y, input.seed.theta], input.seed.face ?? 0, tolerance);
+      first = AutoMovieSolidTraceSolve.solve(part, host, law, t0, [input.seed.s, input.seed.phi, input.seed.y, input.seed.theta], input.seed.face ?? 0, tolerance);
     }
     if (first === null)
       return report("one loop per contact", `no meeting near the seed (phi ${input.seed.phi}, s ${input.seed.s}, y ${input.seed.y}, theta ${input.seed.theta})`);
@@ -254,7 +249,7 @@ export namespace AutoMovieSolidIntersection {
     let current: IPoint = first;
     for (let i: number = 1; i <= count; i++) {
       const target: number = t0 + (turn * i) / count;
-      const next: IPoint | null = advance(part, host, law, current, target, tolerance);
+      const next: IPoint | null = AutoMovieSolidTraceSolve.advance(part, host, law, current, target, tolerance);
       if (next === null) return report("traced loop", `lost at t ${current.t}, toward ${target}`);
       current = next;
       if (i < count) points.push(next);
@@ -296,9 +291,9 @@ export namespace AutoMovieSolidIntersection {
       const turns: number = Math.floor((t - t0) / turn);
       const local: number = t - turns * turn;
       const k: number = Math.round(((local - t0) / turn) * count);
-      const from: IPoint = k >= count ? shifted(points[0]!, shift, partShift, turn) : points[k]!;
-      const p: IPoint | null = advance(part, host, law, from, local, tolerance);
-      return p === null ? null : shifted(p, turns * shift, turns * partShift, turns * turn);
+      const from: IPoint = k >= count ? AutoMovieSolidTraceSolve.shifted(points[0]!, shift, partShift, turn) : points[k]!;
+      const p: IPoint | null = AutoMovieSolidTraceSolve.advance(part, host, law, from, local, tolerance);
+      return p === null ? null : AutoMovieSolidTraceSolve.shifted(p, turns * shift, turns * partShift, turns * turn);
     };
     return { curve: { part: part.name, host: host.name, parameter, points, winding, partWinding, at }, diagnostics };
   }
@@ -316,28 +311,10 @@ export namespace AutoMovieSolidIntersection {
     return `${surface.name}'s u ${u} lies outside its layers ${d[0]} to ${d[1]}`;
   }
 
-  /** A parameter's equation with its derivatives. */
-  interface ILaw {
-    /** `g(P, phi, t)`. */
-    g(p: Vec3, phi: number, t: number): number;
-
-    /** `[dg/dP, dg/dphi]`: the gradient in the point and the direct phase term. */
-    grad(t: number): [Vec3, number];
-
-    /** `dg/dt`. */
-    gt(p: Vec3, t: number): number;
-
-    /** `Q_g` without the part's second-order term: `2 P' . m' + (P - c) . m''`; its `Q_A . m` is added by the caller with `grad`. */
-    extra(p: Vec3, dp: Vec3, t: number): number;
-
-    /** The parameter of a point. */
-    angle(p: Vec3): number;
-  }
-
   /** A walked loop: its arclength law and the start the trace begins at. */
   interface IWalk {
     /** The law of `t`, the loop's arclength over its length times a turn. */
-    law: ILaw;
+    law: AutoMovieSolidTraceLaw.ILaw;
 
     /** `[s, phi, y, theta]` at `t = 0`. */
     x: Vec4;
@@ -374,7 +351,7 @@ export namespace AutoMovieSolidIntersection {
       if (t === null) return null;
       return along !== null && dot(t, along) < 0 ? scale(t, -1) : t;
     };
-    const across = (c: Vec3, m: Vec3): ILaw => ({
+    const across = (c: Vec3, m: Vec3): AutoMovieSolidTraceLaw.ILaw => ({
       g: (p: Vec3): number => dot(sub(p, c), m),
       grad: (): [Vec3, number] => [m, 0],
       gt: (): number => 0,
@@ -389,7 +366,7 @@ export namespace AutoMovieSolidIntersection {
     const b0: IJet = host.faces[face0]!.jet(x0[2], x0[3]);
     const t0: Vec3 | null = AutoMovieSolidVector.unit(cross(cross(a0.u, a0.v), cross(b0.u, b0.v)));
     if (t0 === null) return "the surfaces touch at the seed";
-    const start: IPoint | null = solve(part, host, across(a0.p, t0), 0, x0, face0, tolerance);
+    const start: IPoint | null = AutoMovieSolidTraceSolve.solve(part, host, across(a0.p, t0), 0, x0, face0, tolerance);
     if (start === null) return "no meeting near the seed";
     const T0: Vec3 = tangent(start, t0) ?? t0;
 
@@ -401,7 +378,7 @@ export namespace AutoMovieSolidIntersection {
         previous === null || previous.face !== p.face
           ? x
           : [2 * x[0] - previous.s, 2 * x[1] - previous.phi, 2 * x[2] - previous.y, 2 * x[3] - previous.theta];
-      const next: IPoint | null = solve(part, host, across(predicted, T), 0, guess, p.face, tolerance);
+      const next: IPoint | null = AutoMovieSolidTraceSolve.solve(part, host, across(predicted, T), 0, guess, p.face, tolerance);
       return next !== null && norm(sub(next.point, predicted)) <= 0.25 * h + 10 * tolerance ? next : null;
     };
 
@@ -420,7 +397,7 @@ export namespace AutoMovieSolidIntersection {
         break;
       }
       let next: IPoint | null = null;
-      for (let halving: number = 0; halving < HALVINGS && next === null; halving++) {
+      for (let halving: number = 0; halving < AutoMovieSolidTraceSolve.HALVINGS && next === null; halving++) {
         next = step(p, T, h, previous);
         if (next === null) h /= 2;
       }
@@ -451,94 +428,7 @@ export namespace AutoMovieSolidIntersection {
       if (t === null) return `the surfaces touch at step ${k} of the equal-chord walk`;
       T = t;
     }
-    return { law: arcLaw(points), x: [start.s, start.phi, start.y, start.theta], face: start.face };
-  }
-
-  /**
-   * The law of a loop's arclength through its equal-chord points: the
-   * periodic cubic B-spline `Q` through them (`AutoMovieSplineCurve`'s
-   * interpolation, component by component), and `g = (P - Q(t)) . Q'(t)`,
-   * whose zero is the point's foot on `Q`. With `P' = A_s s' + A_phi phi'`:
-   * `g_t = -Q' . Q' + (P - Q) . Q''` and, past the terms of `J x''` and
-   * `Q_A . Q'`, `d^2 g / dt^2` keeps `2 P' . Q'' - 3 Q' . Q'' + (P - Q) . Q'''`.
-   */
-  function arcLaw(points: readonly Vec3[]): ILaw {
-    const n: number = points.length;
-    const xy: number[] = AutoMovieSplineCurve.interpolate(points.map((p: Vec3): [number, number] => [p[0], p[1]]));
-    const z: number[] = AutoMovieSplineCurve.interpolate(points.map((p: Vec3): [number, number] => [p[2], 0]));
-    const control: Vec3[] = Array.from({ length: n }, (_: unknown, k: number): Vec3 => [xy[k]!, xy[n + k]!, z[k]!]);
-    const at = (t: number): [Vec3, Vec3, Vec3, Vec3] => {
-      const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * n;
-      const i: number = Math.min(n - 1, Math.floor(u));
-      const f: number = u - i;
-      const g: number = 1 - f;
-      const k: number = n / (2 * Math.PI);
-      const w: number[][] = [
-        [(g * g * g) / 6, (3 * f * f * f - 6 * f * f + 4) / 6, (-3 * f * f * f + 3 * f * f + 3 * f + 1) / 6, (f * f * f) / 6],
-        [(-g * g) / 2, (3 * f * f - 4 * f) / 2, (-3 * f * f + 2 * f + 1) / 2, (f * f) / 2],
-        [g, 3 * f - 2, 1 - 3 * f, f],
-        [-1, 3, -3, 1],
-      ];
-      const out: [Vec3, Vec3, Vec3, Vec3] = [
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-        [0, 0, 0],
-      ];
-      for (let d: number = 0; d < 4; d++)
-        for (let j: number = 0; j < 4; j++) {
-          const c: Vec3 = control[(((i - 1 + j) % n) + n) % n]!;
-          const s: number = w[d]![j]! * k ** d;
-          out[d]![0] += s * c[0];
-          out[d]![1] += s * c[1];
-          out[d]![2] += s * c[2];
-        }
-      return out;
-    };
-    return {
-      g: (p: Vec3, _phi: number, t: number): number => {
-        const [q, q1] = at(t);
-        return dot(sub(p, q), q1);
-      },
-      grad: (t: number): [Vec3, number] => [at(t)[1], 0],
-      gt: (p: Vec3, t: number): number => {
-        const [q, q1, q2] = at(t);
-        return -dot(q1, q1) + dot(sub(p, q), q2);
-      },
-      extra: (p: Vec3, dp: Vec3, t: number): number => {
-        const [q, q1, q2, q3] = at(t);
-        return 2 * dot(dp, q2) - 3 * dot(q1, q2) + dot(sub(p, q), q3);
-      },
-      angle: (): number => 0,
-    };
-  }
-
-  /** The law of a parameter, or null for a degenerate axis. */
-  function lawOf(parameter: Parameter): ILaw | null {
-    if (parameter.kind === "arc") return null;
-    if (parameter.kind === "phase")
-      return {
-        g: (_p: Vec3, phi: number, t: number): number => phi - t,
-        grad: (): [Vec3, number] => [[0, 0, 0], 1],
-        gt: (): number => -1,
-        extra: (): number => 0,
-        angle: (): number => 0,
-      };
-    const n: Vec3 | null = AutoMovieSolidVector.unit(parameter.normal);
-    if (n === null) return null;
-    const e1: Vec3 | null = AutoMovieSolidVector.unit(sub(parameter.reference, scale(n, dot(parameter.reference, n))));
-    if (e1 === null) return null;
-    const e2: Vec3 = cross(n, e1);
-    const c: Vec3 = parameter.centre;
-    const d = (t: number): Vec3 => add(scale(e1, Math.cos(t)), scale(e2, Math.sin(t)));
-    const m = (t: number): Vec3 => add(scale(e1, -Math.sin(t)), scale(e2, Math.cos(t)));
-    return {
-      g: (p: Vec3, _phi: number, t: number): number => dot(sub(p, c), m(t)),
-      grad: (t: number): [Vec3, number] => [m(t), 0],
-      gt: (p: Vec3, t: number): number => -dot(sub(p, c), d(t)),
-      extra: (p: Vec3, dp: Vec3, t: number): number => -2 * dot(dp, d(t)) - dot(sub(p, c), m(t)),
-      angle: (p: Vec3): number => Math.atan2(dot(sub(p, c), e2), dot(sub(p, c), e1)),
-    };
+    return { law: AutoMovieSolidTraceLaw.arc(points), x: [start.s, start.phi, start.y, start.theta], face: start.face };
   }
 
   /**
@@ -553,196 +443,4 @@ export namespace AutoMovieSolidIntersection {
     return { name: host.name, faces: [host], kept: (): boolean => true, across: (): null => null };
   }
 
-  /** Face changes one solve may make before it is lost. */
-  export const SWITCHES: number = 4;
-
-  /**
-   * One meeting point at a parameter on an atlas: Newton on one face, and
-   * where the host point leaves that face's kept region, again on the
-   * neighbour from the mapped point.
-   *
-   * @returns The point with its face, or null when a solve fails or the point
-   *   leaves through an open end.
-   */
-  function solve(part: IAutoMovieSolidSurface, host: IAutoMovieSolidAtlas, law: ILaw, t: number, guess: Readonly<Vec4>, face: number, tolerance: number): IPoint | null {
-    let f: number = face;
-    let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
-    for (let k: number = 0; k <= SWITCHES; k++) {
-      const p: IPoint | null = solveOn(part, host.faces[f]!, law, t, x, tolerance);
-      if (p === null) return null;
-      if (host.kept(f, p.y, p.theta)) return { ...p, face: f };
-      const next: { face: number; u: number; v: number } | null = host.across(f, p.y, p.theta);
-      if (next === null) return null;
-      f = next.face;
-      x = [p.s, p.phi, next.u, next.v];
-    }
-    return null;
-  }
-
-  /**
-   * One meeting point at a parameter, by Newton from a guess, with its jets.
-   *
-   * @param part The attached part.
-   * @param host The host.
-   * @param law The parameter's equation.
-   * @param t The parameter.
-   * @param guess `[s, phi, y, theta]` to start from.
-   * @param tolerance Largest gap accepted, mm.
-   * @returns The point, or null when Newton does not reach the tolerance
-   *   within {@link STEPS} or `J` is singular at the solution.
-   */
-  function solveOn(part: IAutoMovieSolidSurface, host: IAutoMovieSolidSurface, law: ILaw, t: number, guess: Readonly<Vec4>, tolerance: number): IPoint | null {
-    let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
-    let a: IJet = part.jet(x[0], x[1]);
-    let b: IJet = host.jet(x[2], x[3]);
-    const residual = (aj: IJet, bj: IJet, xs: Vec4): number[] => [...sub(aj.p, bj.p), law.g(aj.p, xs[1], t)];
-    const size = (r: number[]): number => Math.hypot(...r);
-    let r: number[] = residual(a, b, x);
-    let gap: number = size(r);
-
-    for (let step: number = 0; step < STEPS && !(gap <= tolerance); step++) {
-      const dx: number[] | null = AutoMovieSolidVector.solve(jacobian(a, b, law, t), r.map((v: number): number => -v));
-      if (dx === null) return null;
-
-      // A backtracking line search keeps every step a descent of the residual.
-      let k: number = 1;
-      let moved: boolean = false;
-      for (let halving: number = 0; halving < 20; halving++, k /= 2) {
-        const y: Vec4 = [x[0] + k * dx[0]!, x[1] + k * dx[1]!, x[2] + k * dx[2]!, x[3] + k * dx[3]!];
-        const ay: IJet = part.jet(y[0], y[1]);
-        const by: IJet = host.jet(y[2], y[3]);
-        const ry: number[] = residual(ay, by, y);
-        if (size(ry) < gap) {
-          x = y;
-          a = ay;
-          b = by;
-          r = ry;
-          gap = size(ry);
-          moved = true;
-          break;
-        }
-      }
-      if (!moved) return null;
-    }
-    if (!(gap <= tolerance)) return null;
-
-    // One more Newton step past the tolerance, kept only if it does not
-    // widen the residual: near the root it takes the residual to rounding, so
-    // the curve read at neighbouring parameters carries no solver noise for
-    // the blend's derivatives to amplify.
-    const polish: number[] | null = AutoMovieSolidVector.solve(jacobian(a, b, law, t), r.map((v: number): number => -v));
-    if (polish !== null) {
-      const y: Vec4 = [x[0] + polish[0]!, x[1] + polish[1]!, x[2] + polish[2]!, x[3] + polish[3]!];
-      const ay: IJet = part.jet(y[0], y[1]);
-      const by: IJet = host.jet(y[2], y[3]);
-      if (size(residual(ay, by, y)) <= gap) {
-        x = y;
-        a = ay;
-        b = by;
-      }
-    }
-    return point(a, b, law, t, x, 0);
-  }
-
-  /** The 4 by 4 Jacobian by rows: the meeting's three, then the parameter's. */
-  function jacobian(a: IJet, b: IJet, law: ILaw, t: number): number[][] {
-    const [gp, gphi]: [Vec3, number] = law.grad(t);
-    return [
-      ...[0, 1, 2].map((i: number): number[] => [a.u[i]!, a.v[i]!, -b.u[i]!, -b.v[i]!]),
-      [dot(gp, a.u), dot(gp, a.v) + gphi, 0, 0],
-    ];
-  }
-
-  /**
-   * The point's jets from the two surfaces' jets at a solution.
-   *
-   * @returns The point, or null when `J` is singular.
-   */
-  function point(a: IJet, b: IJet, law: ILaw, t: number, x: Readonly<Vec4>, face: number): IPoint | null {
-    const J: number[][] = jacobian(a, b, law, t);
-    const rate: number[] | null = AutoMovieSolidVector.solve(J, [0, 0, 0, -law.gt(a.p, t)]);
-    if (rate === null) return null;
-    const [ds, dp, dy, dt] = rate as Vec4;
-    const qa: Vec3 = combine([
-      [ds * ds, a.uu],
-      [2 * ds * dp, a.uv],
-      [dp * dp, a.vv],
-    ]);
-    const qb: Vec3 = combine([
-      [dy * dy, b.uu],
-      [2 * dy * dt, b.uv],
-      [dt * dt, b.vv],
-    ]);
-    const tangent: Vec3 = combine([
-      [ds, a.u],
-      [dp, a.v],
-    ]);
-    const qg: number = dot(law.grad(t)[0], qa) + law.extra(a.p, tangent, t);
-    const q: Vec3 = sub(qa, qb);
-    const rate2: number[] | null = AutoMovieSolidVector.solve(J, [-q[0], -q[1], -q[2], -qg]);
-    if (rate2 === null) return null;
-
-    // The angle between the tangent planes from the normals' cross product.
-    const na: Vec3 = cross(a.u, a.v);
-    const nb: Vec3 = cross(b.u, b.v);
-    const sine: number = norm(cross(na, nb)) / (norm(na) * norm(nb));
-
-    return {
-      t,
-      face,
-      s: x[0],
-      phi: x[1],
-      y: x[2],
-      theta: x[3],
-      point: a.p,
-      tangent,
-      second: combine([
-        [1, qa],
-        [rate2[0]!, a.u],
-        [rate2[1]!, a.v],
-      ]),
-      rate: rate as Vec4,
-      rate2: rate2 as Vec4,
-      angle: Math.asin(Math.min(1, sine)),
-    };
-  }
-
-  /**
-   * Continue from a point to a target parameter by predicted and corrected
-   * steps, halving a step that fails or jumps.
-   *
-   * @returns The point at the target, or null when a step is halved
-   *   {@link HALVINGS} times without landing.
-   */
-  function advance(part: IAutoMovieSolidSurface, host: IAutoMovieSolidAtlas, law: ILaw, from: IPoint, target: number, tolerance: number): IPoint | null {
-    let current: IPoint = from;
-    let h: number = target - from.t;
-    let halvings: number = 0;
-
-    while (current.t !== target) {
-      const step: number = Math.abs(target - current.t) < Math.abs(h) ? target - current.t : h;
-      const x0: Vec4 = [current.s, current.phi, current.y, current.theta];
-      const guess: Vec4 = x0.map((v: number, i: number): number => v + current.rate[i]! * step + (current.rate2[i]! * step * step) / 2) as Vec4;
-      const predicted: Vec3 = combine([
-        [1, current.point],
-        [step, current.tangent],
-        [(step * step) / 2, current.second],
-      ]);
-      const t: number = Math.abs(target - current.t - step) === 0 ? target : current.t + step;
-      const next: IPoint | null = solve(part, host, law, t, guess, current.face, tolerance);
-      const length: number = norm(sub(predicted, current.point));
-      if (next !== null && norm(sub(next.point, predicted)) <= 0.25 * length + 10 * tolerance) {
-        current = next;
-        continue;
-      }
-      if (++halvings > HALVINGS) return null;
-      h = step / 2;
-    }
-    return current;
-  }
-
-  /** A point moved by whole turns: its host phase, part phase and parameter shifted. */
-  function shifted(p: IPoint, theta: number, phi: number, t: number): IPoint {
-    return theta === 0 && phi === 0 && t === 0 ? p : { ...p, theta: p.theta + theta, phi: p.phi + phi, t: p.t + t };
-  }
 }
