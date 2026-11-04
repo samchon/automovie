@@ -415,14 +415,9 @@ export namespace AutoMovieViewSection {
 const QUARTER: number = Math.PI / 2;
 
 /**
- * Spans of each quarter's conic between guides: its parameter in four equal
- * steps. The interpolation error of a quintic Hermite span grows as the sixth
- * power of its angle over the angle the radius turns in, and the parameter's
- * steps follow that angle at every aspect, so four steps of a quarter turn of
- * the conic's parameter leave an error of order `(pi / 8)^6 / 720`, about
- * `5e-6`, of the radius whatever the box's aspect.
+ * Spans of each quarter's conic between guides: its parameter in sixteen equal steps. The interpolation error of a quintic Hermite span grows as the sixth power of its angle over the angle the radius turns in, and the parameter's steps follow that angle. Four steps left about `5e-4` of the short half extent on a 4.3 to 1 box (a lip's), which crossed the box's short side by 2.5 micrometres at the ellipse's shoulder; sixteen steps take that down `4^6 = 4096` times, to about `1e-7`.
  */
-const CONIC_SPANS: number = 4;
+const CONIC_SPANS: number = 16;
 
 /** Zero fullness for each count of guides, made once. */
 const ZEROS: Map<number, number[]> = new Map();
@@ -469,8 +464,8 @@ const CHECKS: number = 96;
 /** Relative rounding allowed on the convexity numerator, `rho^2` its scale. */
 const CONVEX: number = 1e-12;
 
-/** Relative rounding allowed past a side, the extent its scale; a touch is exact at the guide. */
-const INSIDE: number = 1e-12;
+/** Excess allowed past a side, the extent its scale: ten times the sixteen-span interpolation error (`CONIC_SPANS`), since only the touch at a guide is exact and the quintic may cross the side between guides by that error. */
+const INSIDE: number = 1e-6;
 
 
 /** Accepted girth error of the solve, mm: a thousandth of a micrometre. */
