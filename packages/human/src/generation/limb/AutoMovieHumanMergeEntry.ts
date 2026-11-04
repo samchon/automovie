@@ -53,6 +53,22 @@ export namespace AutoMovieHumanMergeEntry {
       diagnostics.push({ producer: `merge.${name}`, level: 6, contract: "blend", detail: `a rail fails at one of ${columns} columns of ${part} on ${host}` });
       return null;
     }
+    return from(host, part, blend, gap, diff);
+  }
+
+  /**
+   * Publish a join whose blend is already built, as the construction tree's
+   * realization returns it (`AutoMovieConstructionRealization.IJoin.blend`),
+   * so its columns are not solved again.
+   *
+   * @param host The host chain's name.
+   * @param part The part chain's name.
+   * @param blend The join's blend, named as its chain.
+   * @param gap Widest spacing between the blend's rows, mm: the rows are the fewest that keep it, at least 1.
+   * @param diff Whether the join is a diff.
+   * @returns The entry.
+   */
+  export function from(host: string, part: string, blend: AutoMovieSolidBlendChain.IBlend, gap: number, diff: boolean): IEntry {
     return {
       chain: blend.chain,
       merge: {

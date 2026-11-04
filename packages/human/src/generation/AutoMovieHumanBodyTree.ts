@@ -111,9 +111,10 @@ export namespace AutoMovieHumanBodyTree {
     );
     const chains: IAutoMovieLoftChain[] = [...result.chains];
     const merges: IAutoMovieHumanBodyCalibration.IMerge[] = [];
+    // Each join's blend as the realization built it (named as its node, on
+    // the node's columns), not solved again.
     for (const j of result.joins) {
-      const entry: AutoMovieHumanMergeEntry.IEntry | null = AutoMovieHumanMergeEntry.of(j.name, j.hostFace, j.partFace, j.join, limits.count, limits.gap, false, diagnostics);
-      if (entry === null) continue;
+      const entry: AutoMovieHumanMergeEntry.IEntry = AutoMovieHumanMergeEntry.from(j.hostFace, j.partFace, j.blend, limits.gap, false);
       chains.push(entry.chain);
       merges.push(entry.merge);
     }

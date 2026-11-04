@@ -83,7 +83,7 @@ export class AutoMovieHumanBrowProjector {
       const r: [number, number, number] = [p[0] - this.origin[0], p[1] - this.origin[1], p[2] - this.origin[2]];
       return [dot(r, this.temple), dot(r, this.g.up), dot(p, this.g.forward)];
     };
-    let [s, t]: [number, number] = this.last.get(chain) ?? this.seed(a, h, lowest, highest, place);
+    let [s, t]: [number, number] = this.last.get(chain) ?? this.seed(chain, a, h, lowest, highest, place);
     for (let k: number = 0; k < 30; k++) {
       const [x, y] = place(s, t);
       const rx: number = x - a;
@@ -114,26 +114,44 @@ export class AutoMovieHumanBrowProjector {
     return [s, t];
   }
 
+  /**
+   * Each chain's seed grid, its places read once: every millimetre of station
+   * from the lowest layer by 256 phases, as `[s, t, x, y, depth]` rows. A
+   * chain that misses a point is seeded again at the next one, so the grid is
+   * kept for the projector's life rather than evaluated per seed.
+   */
+  private readonly grids: Map<IAutoMovieLoftChain, Float64Array> = new Map();
+
   /** A start for a chain: its forward-facing grid point nearest the face-plane place. */
   private seed(
+    chain: IAutoMovieLoftChain,
     a: number,
     h: number,
     lowest: number,
     highest: number,
     place: (s: number, t: number) => [number, number, number],
   ): [number, number] {
+    let grid: Float64Array | undefined = this.grids.get(chain);
+    if (grid === undefined) {
+      const rows: number[] = [];
+      for (let s: number = lowest; s <= highest; s += 1)
+        for (let i: number = 0; i < 256; i++) {
+          const t: number = (2 * Math.PI * i) / 256;
+          const [x, y, depth] = place(s, t);
+          rows.push(s, t, x, y, depth);
+        }
+      grid = Float64Array.from(rows);
+      this.grids.set(chain, grid);
+    }
     let best: [number, number] = [(lowest + highest) / 2, 0];
     let least: number = Infinity;
-    for (let s: number = lowest; s <= highest; s += 1)
-      for (let i: number = 0; i < 256; i++) {
-        const t: number = (2 * Math.PI * i) / 256;
-        const [x, y, depth] = place(s, t);
-        const d: number = Math.hypot(x - a, y - h) - 1e-3 * depth;
-        if (d < least) {
-          least = d;
-          best = [s, t];
-        }
+    for (let k: number = 0; k < grid.length; k += 5) {
+      const d: number = Math.hypot(grid[k + 2]! - a, grid[k + 3]! - h) - 1e-3 * grid[k + 4]!;
+      if (d < least) {
+        least = d;
+        best = [grid[k]!, grid[k + 1]!];
       }
+    }
     return best;
   }
 

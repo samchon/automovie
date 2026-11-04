@@ -63,9 +63,14 @@ export namespace AutoMovieHumanBodyRoots {
 
   /** A winding loop's station at a phase, between its samples ordered by phase. */
   export function station(loop: readonly [number, number][], t: number): number {
-    const sorted: [number, number][] = loop
-      .map((p: [number, number]): [number, number] => [wrap(p[1]), p[0]])
-      .sort((a: [number, number], b: [number, number]): number => a[0] - b[0]);
+    // A loop never changes once built, so its samples are ordered by phase once.
+    let sorted: [number, number][] | undefined = SORTED.get(loop);
+    if (sorted === undefined) {
+      sorted = loop
+        .map((p: [number, number]): [number, number] => [wrap(p[1]), p[0]])
+        .sort((a: [number, number], b: [number, number]): number => a[0] - b[0]);
+      SORTED.set(loop, sorted);
+    }
     const x: number = wrap(t);
     let k: number = sorted.findIndex((p: [number, number]): boolean => p[0] > x);
     if (k < 0) k = 0;
@@ -87,9 +92,25 @@ export namespace AutoMovieHumanBodyRoots {
     s: number,
     t: number,
   ): boolean {
-    const centre: number =
-      loop.reduce((sum: number, p: [number, number]): number => sum + p[1], 0) /
-      loop.length;
+    // A loop never changes once built, so its mean phase and station range
+    // are read once; a station outside the range crosses no edge.
+    let shape: IShape | undefined = SHAPES.get(loop);
+    if (shape === undefined) {
+      let low: number = Infinity;
+      let high: number = -Infinity;
+      for (const p of loop) {
+        low = Math.min(low, p[0]);
+        high = Math.max(high, p[0]);
+      }
+      shape = {
+        centre: loop.reduce((sum: number, p: [number, number]): number => sum + p[1], 0) / loop.length,
+        low,
+        high,
+      };
+      SHAPES.set(loop, shape);
+    }
+    if (s >= shape.high || s < shape.low) return false;
+    const centre: number = shape.centre;
     const phase: number =
       t + 2 * Math.PI * Math.round((centre - t) / (2 * Math.PI));
     let crossings: boolean = false;
@@ -281,6 +302,24 @@ type V = [number, number, number];
 const H: number = 0.05;
 
 const sub = (a: V, b: V): V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+
+/** A loop's mean phase and station range. */
+interface IShape {
+  /** Mean phase, radians. */
+  centre: number;
+
+  /** Least station, mm. */
+  low: number;
+
+  /** Greatest station, mm. */
+  high: number;
+}
+
+/** Each loop's mean phase and station range, read once. */
+const SHAPES: WeakMap<readonly [number, number][], IShape> = new WeakMap();
+
+/** Each loop's samples as `[phase, station]` ordered by phase, read once. */
+const SORTED: WeakMap<readonly [number, number][], [number, number][]> = new WeakMap();
 
 /** Phase reduced to `[0, 2 pi)`. */
 function wrap(t: number): number {

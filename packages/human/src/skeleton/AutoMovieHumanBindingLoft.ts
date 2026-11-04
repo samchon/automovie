@@ -125,6 +125,9 @@ export namespace AutoMovieHumanBindingLoft {
 
     /** Each node's pulls of those bones. */
     weights: Float32Array;
+
+    /** Each row's section sampler, made on the row's first read and shared by its nodes. */
+    rows: Map<number, (t: number) => [number, number, number]>;
   }
 
   /** The node at a station row and phase column. */
@@ -156,6 +159,7 @@ export namespace AutoMovieHumanBindingLoft {
       done: new Uint8Array(nodes),
       slots: new Int16Array(nodes * KEPT).fill(-1),
       weights: new Float32Array(nodes * KEPT),
+      rows: new Map(),
     };
   }
 
@@ -176,7 +180,9 @@ export namespace AutoMovieHumanBindingLoft {
   function fill(grid: IGrid, n: number, scale: number, read: Reader): void {
     const i: number = Math.floor(n / grid.phases);
     const j: number = n % grid.phases;
-    const p: [number, number, number] = AutoMovieLoftChain.ring(grid.chain, grid.from + i * grid.step, [(2 * Math.PI * j) / grid.phases])[0]!;
+    let row: ((t: number) => [number, number, number]) | undefined = grid.rows.get(i);
+    if (row === undefined) grid.rows.set(i, (row = AutoMovieLoftChain.sampler(grid.chain, grid.from + i * grid.step)));
+    const p: [number, number, number] = row((2 * Math.PI * j) / grid.phases);
     const pulls: Float64Array = read([p[0] * scale, p[1] * scale, p[2] * scale]);
     let kept: number = 0;
     for (let slot: number = 0; slot < pulls.length; slot++) {
