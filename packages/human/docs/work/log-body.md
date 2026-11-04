@@ -180,3 +180,25 @@ Pushed since 14:25: `440a4ae3f` the site builder's two-pole closure, the `body.p
 Bound now: the trunk's back profile (relative), lumbar and chest-wall boxes, `waistHeight`; the leg's four anatomy tapes at their sites (gluteal furrow, ANSUR II mid-patella, ANSUR 1988 calf height), the thigh's published depth, the circle of the tape where no depth is published, the muscle's front share about the bone.
 
 Still owed before the body law can be wired (each named as a parameter in the bindings, never a guessed value): cervicale's and the perineum's forward places (the perineum by the crotch lengths on my profiles once cervicale stands), the trunk's sites above the chest, the breasts' and gluteal masses' footprints and profiles (both pairs may stay out: `null` keeps a flat base), the ankle's least-girth height, the lower thigh's tape in the anatomy; the arm's deltoid site and box, its forearm's girth site and bone place, the palm's thickness; the foot's yaw, ankle place, toes' heads and dorsum; the digits' breadths, depths and posture.
+
+## Body subtree wired (written 15:19:22, Get-Date; commit times from git)
+
+`c11ba0c37` wires `AutoMovieHumanBodyLane` into `AutoMovieHumanBodyLaw.calibrate` over `AutoMovieHumanBodyLaneInterim` (`a930a439d`): the trunk, its limbs merged on along their folds, the arms with their palms, the feet, the fingers and toes; the trunk takes the neck's bottom ring by the head's down event at its far end (the kernel's `3a3a85641`). Today's body is still built as the interim source and for the bind skeleton; its trunk, limb, foot, hand and digit chains and events are no longer published.
+
+### Interim accessors (remaining: each read from today's construction, no new number; swap each for its law when it lands)
+
+| Accessor (in `AutoMovieHumanBodyLaneInterim` unless named) | Reads today | Owed law |
+| --- | --- | --- |
+| `cervicaleForward` | the old trunk solve's neck seat back point | cervicale's forward place in the body frame (SVA, pelvis, hip centres) |
+| `perineumForward` | the old column's mid-depth at the crotch | the perineum on the median section by the crotch lengths (`crotchLength`, `posteriorCrotchLength`, landed as inputs) |
+| `upperSites` (axilla, shoulder point, neck seat) | the old column's half width, depth and quadrant squareness (as a conic, `r = 2^(1 - 1/n) - 1`) | the upper trunk's front profile, the neck base's box, the acromion's soft tissue |
+| `foldRadius` (every fold) | the old crotch fold's softness (`AutoMovieHumanTrunkInguinalFold.softness`) | the subcutaneous layer at each fold (no fat layer is a generation input) |
+| `ankleSite` | the old shank law's least row (`AutoMovieHumanLegGirth.SHANK`) | the ankle's least-girth site |
+| `armSites` (biceps, elbow, wrist, knuckles boxes) | today's arm and palm chains (`limb/AutoMovieHumanChainBox`) | width-to-depth and bone place at the arm's tape sites (the girth-alone circle where none is published), the deltoid's site and box (`bideltoidBreadth` unread), the forearm's greatest-girth site, the palm's thickness |
+| `foot` (heel, ankle, instep, ball boxes; axis; forefoot end) | today's foot chain, the old foot frame's yaw and the heel's across place (`AutoMovieHumanFootPrior`) | the foot's yaw, the ankle's place along the foot, the dorsum's heights (partly landed: `AutoMovieHumanFootArch`), the forefoot's end |
+| `digitWalk` (every finger, thumb and toe) | today's digit chains' boxes about their own axes, their frames' `u` as dorsal, their poles | the digits' breadths and depths (partly landed: `AutoMovieHumanDigitJoints` breadth and girth at two joints), the pulp's reach |
+| joint centres of the limbs and digits | the bind skeleton (`AutoMovieHumanSkeletonLaw`, derived from today's trunk) | the skeleton from the new trunk's landmarks |
+| toe centres | today's toe chains' axes (base moved back half the first segment into the forefoot) | the toes' heads and lines (`AutoMovieHumanFootPrior` today) |
+| masses (breasts, gluteal masses) | none: `null`, the base flat | footprint and profile laws; the merges onto merged hosts now exist (`AutoMovieHumanSolidBody`, `7e81c0523`) |
+| nails | none: dropped with today's digit chains | nail plates on the new digit chains |
+| the neck | today's `head` chain by the head's down event | the head modeler's neck part merged onto the trunk |
