@@ -5,12 +5,15 @@ import { AutoMovieHumanSolidFoot } from "../../lofting/AutoMovieHumanSolidFoot";
 import type { AutoMovieHumanSolidJoin } from "../../lofting/AutoMovieHumanSolidJoin";
 import { AutoMovieHumanSolidMerge } from "../../lofting/AutoMovieHumanSolidMerge";
 import { AutoMovieHumanViewLoft } from "../../lofting/AutoMovieHumanViewLoft";
+import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanSolidSurface";
+import type { IAutoMovieHumanViewPart } from "../../lofting/IAutoMovieHumanViewPart";
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
+import { AutoMovieHumanNeckPart } from "./AutoMovieHumanNeckPart";
 
 /**
  * The head subtree composed by the three operators: the head mass lofted
@@ -44,6 +47,9 @@ export namespace AutoMovieHumanHeadComposer {
     /** The head mass's loft. */
     mass: AutoMovieHumanViewLoft.IResult;
 
+    /** The neck merged under the head mass, when its chain is given. */
+    neck: IJoined | null;
+
     /** Every face part, lofted and joined. */
     parts: IJoined[];
 
@@ -65,8 +71,13 @@ export namespace AutoMovieHumanHeadComposer {
    *
    * @param plan The landmark skeleton, the vault exponent solved.
    * @param ears The two auricles' inputs, world mm.
+   * @param neckChain The neck chain whose views the neck part reads; absent, no neck.
    */
-  export function compose(plan: IAutoMovieHumanHeadLayout, ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar }): IOutput {
+  export function compose(
+    plan: IAutoMovieHumanHeadLayout,
+    ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar },
+    neckChain?: IAutoMovieHumanLoftChain,
+  ): IOutput {
     const mass: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(AutoMovieHumanHeadMassPart.of(plan));
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...mass.diagnostics];
     // Parents before their inner parts, each joined to its parent's bare
@@ -108,6 +119,42 @@ export namespace AutoMovieHumanHeadComposer {
       diagnostics.push(...result.diagnostics);
       return { feature, loft, join: result.join };
     });
-    return { mass, parts, diagnostics };
+
+    // The neck: merged under the head mass, its top inside it, seeded at the
+    // back of the neck's top layer, its blend from the neck tube's radius.
+    let neck: IJoined | null = null;
+    if (neckChain !== undefined) {
+      const part: IAutoMovieHumanViewPart = AutoMovieHumanNeckPart.of(neckChain);
+      const loft: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(part);
+      diagnostics.push(...loft.diagnostics);
+      const top: number = neckChain.layers[neckChain.layers.length - 1]!.y;
+      const back: [number, number, number] = [plan.neck.back, plan.y0, 0];
+      const feature: AutoMovieHumanHeadFeatures.IFeature = {
+        part,
+        join: "merge",
+        seed: back,
+        contact: top,
+        size: [plan.neck.radius, plan.neck.radius],
+        parent: "head.mass",
+      };
+      const foot: AutoMovieHumanSolidFoot.IFoot | null =
+        mass.surface === null ? null : AutoMovieHumanSolidFoot.of(mass.surface, back, [plan.y0, Math.PI], TOLERANCE);
+      if (loft.surface === null || mass.surface === null || foot === null) neck = { feature, loft, join: null };
+      else {
+        const width: number = AutoMovieHumanSeamUnion.width(plan.neck.radius, plan.neck.radius);
+        const result: AutoMovieHumanSolidJoin.IResult = AutoMovieHumanSolidMerge.create({
+          part: loft.surface,
+          host: mass.surface,
+          seed: { phi: Math.PI, s: top, y: foot.u, theta: foot.v },
+          count: COUNT,
+          tolerance: TOLERANCE,
+          grazing: GRAZING,
+          width: { part: (): number => width, host: (): number => width },
+        });
+        diagnostics.push(...result.diagnostics);
+        neck = { feature, loft, join: result.join };
+      }
+    }
+    return { mass, neck, parts, diagnostics };
   }
 }

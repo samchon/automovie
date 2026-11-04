@@ -3,12 +3,11 @@ import type { AutoMovieHumanHeadConstruction } from "../../../src/generation/Aut
 import { AutoMovieHumanHeadLandmarks } from "../../../src/generation/AutoMovieHumanHeadLandmarks";
 import { AutoMovieHumanHeadPass } from "../../../src/generation/AutoMovieHumanHeadPass";
 import { AutoMovieHumanHeadComposer } from "../../../src/generation/head/AutoMovieHumanHeadComposer";
-import { AutoMovieHumanNeckPart } from "../../../src/generation/head/AutoMovieHumanNeckPart";
 import type { IAutoMovieHumanBodyCalibration } from "../../../src/generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanHeadBuilt } from "../../../src/generation/IAutoMovieHumanHeadBuilt";
 import type { AutoMovieHumanLoftContract } from "../../../src/lofting/AutoMovieHumanLoftContract";
 import { AutoMovieHumanSolidBlendChain } from "../../../src/lofting/AutoMovieHumanSolidBlendChain";
-import { AutoMovieHumanViewLoft } from "../../../src/lofting/AutoMovieHumanViewLoft";
+import type { AutoMovieHumanSolidJoin } from "../../../src/lofting/AutoMovieHumanSolidJoin";
 import type { IAutoMovieHumanLoftChain } from "../../../src/lofting/IAutoMovieHumanLoftChain";
 import type { IHumanDebugDocument } from "../../contracts/IHumanDebugDocument";
 import type { IHumanDebugPerson } from "../../people/IHumanDebugPerson";
@@ -40,25 +39,28 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
     if (neckChain === undefined) throw new Error("head.parts: the calibration has no neck chain `head`");
     const inputs: AutoMovieHumanHeadConstruction.IInputs = AutoMovieHumanBodyLaw.headInputs(person.parameters);
     const built: IAutoMovieHumanHeadBuilt = AutoMovieHumanHeadPass.build(AutoMovieHumanHeadPass.prepare(neckChain, inputs), AutoMovieHumanHeadLandmarks.NONE);
-    const composed: AutoMovieHumanHeadComposer.IOutput = AutoMovieHumanHeadComposer.compose(built.plan, inputs.head.earPair);
-    const neck: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(AutoMovieHumanNeckPart.of(neckChain));
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...composed.diagnostics, ...neck.diagnostics];
+    const composed: AutoMovieHumanHeadComposer.IOutput = AutoMovieHumanHeadComposer.compose(built.plan, inputs.head.earPair, neckChain);
+    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...composed.diagnostics];
+
+    // A join's blend as a chain of its own.
+    const blend = (name: string, join: AutoMovieHumanSolidJoin.IJoin | null): IAutoMovieHumanLoftChain | null =>
+      join === null ? null : (AutoMovieHumanSolidBlendChain.of(`${name}.blend`, join, AutoMovieHumanHeadComposer.COUNT)?.chain ?? null);
 
     // The chains each argument shows.
-    const chains: IAutoMovieHumanLoftChain[] = [];
-    if ((which === "all" || which === "neck") && neck.chain !== null) chains.push(neck.chain);
-    if ((which === "all" || which === "mass") && composed.mass.chain !== null) chains.push(composed.mass.chain);
+    const chains: (IAutoMovieHumanLoftChain | null)[] = [];
+    if (which === "all" || which === "neck") chains.push(composed.neck?.loft.chain ?? null);
+    if (which === "all") chains.push(blend("neck", composed.neck?.join ?? null));
+    if (which === "all" || which === "mass") chains.push(composed.mass.chain);
     if (which === "all" || which === "parts")
       for (const joined of composed.parts) {
-        if (joined.loft.chain !== null) chains.push(joined.loft.chain);
-        if (which !== "all" || joined.join === null) continue;
-        const blend: AutoMovieHumanSolidBlendChain.IBlend | null = AutoMovieHumanSolidBlendChain.of(`${joined.feature.part.name}.blend`, joined.join, AutoMovieHumanHeadComposer.COUNT);
-        if (blend !== null) chains.push(blend.chain);
+        chains.push(joined.loft.chain);
+        if (which === "all") chains.push(blend(joined.feature.part.name, joined.join));
       }
-    if (!chains.length) throw new Error(`head.parts:${which} made no chain: ${JSON.stringify(diagnostics)}`);
+    const shown: IAutoMovieHumanLoftChain[] = chains.filter((c: IAutoMovieHumanLoftChain | null): c is IAutoMovieHumanLoftChain => c !== null);
+    if (!shown.length) throw new Error(`head.parts:${which} made no chain: ${JSON.stringify(diagnostics)}`);
     const calibration: IAutoMovieHumanBodyCalibration = {
       stature: base.stature,
-      chains,
+      chains: shown,
       events: [],
       poles: [],
       apertures: [],
@@ -67,7 +69,7 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
     };
     const document: IHumanDebugDocument = HumanDebugChainLoft.build(
       calibration,
-      chains.map((c: IAutoMovieHumanLoftChain): string => c.name),
+      shown.map((c: IAutoMovieHumanLoftChain): string => c.name),
     );
     return { ...document, provenance: { ...document.provenance, piece: `head.parts:${which}`, diagnostics } };
   },
