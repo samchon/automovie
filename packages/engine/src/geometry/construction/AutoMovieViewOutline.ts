@@ -4,6 +4,7 @@ import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieViewHermite } from "./AutoMovieViewHermite";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
+import { supportAutoMovieViewOutline } from "./supportAutoMovieViewOutline";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
@@ -210,6 +211,21 @@ export namespace AutoMovieViewOutline {
       }
     }
     return [...new Set(stations)].sort((a: number, b: number): number => a - b);
+  }
+
+  /**
+   * Candidate support stations of slope*s+valueScale*source(s) on a closed source subdomain.
+   *
+   * @evidence contracts/common.md#principled-implementation Delegates analytic affine-station plus original-source differentiation to the fixed-chart support owner, retaining the actual pole sine term and binary64 critical-root limitations.
+   * @evidence contracts/common.md#clear-and-simple-design One source API exposes endpoint/knot/critical candidates for a fixed affine origin; no world-frame or moving-axis interpreter is added.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not replace the original curve, use sampled maxima, clamp roots or claim interval-certified extrema.
+   * @evidence contracts/common.md#meaningful-documentation The support owner specifies coefficient units, closed subdomain, constant-offset independence, returned candidates and numerical failures.
+   * @evidence contracts/performance.md#efficient-algorithms One linear span pass with bounded-degree root work and sorting of O(n) candidates.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses this admitted source's natural/Hermite preparation and parameter inverse.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns only caller-owned station candidates or a failure string; retains no new state.
+   */
+  export function supportStations(outline: IOutline, slope: number, valueScale: number = 1, domain: readonly [number, number] = outline.domain): number[] | string {
+    return supportAutoMovieViewOutline(outline, slope, valueScale, domain);
   }
 
   /**
