@@ -51,13 +51,20 @@ export namespace AutoMovieHumanChordArc {
     const hi: number[][] = [[...b.point], b.tangent.map((v: number): number => length * v), b.curvature.map((v: number): number => length * length * v)];
     const out: Jet = [[0, 0], [0, 0], [0, 0]];
     const outward: number[] = [c[1]! / length, -c[0]! / length];
-    for (let k: number = 0; k < 3; k++)
-      for (let d: number = 0; d < 2; d++) {
-        let v: number = fullness * outward[d]! * poly(BUMP, xi, k);
-        const given: number[] = [lo[0]![d]!, lo[1]![d]!, lo[2]![d]!, hi[0]![d]!, hi[1]![d]!, hi[2]![d]!];
-        for (let i: number = 0; i < 6; i++) v += given[i]! * poly(BASIS[i]!, xi, k);
-        out[k]![d] = v;
-      }
+    for (let k: number = 0; k < 3; k++) {
+      // Each basis polynomial's k-th derivative at xi, once for both axes.
+      const bump: number = horner(DERIVED_BUMP[k]!, xi);
+      const basis: number[] = DERIVED_BASIS[k]!.map((p: readonly number[]): number => horner(p, xi));
+      for (let d: number = 0; d < 2; d++)
+        out[k]![d] =
+          fullness * outward[d]! * bump +
+          lo[0]![d]! * basis[0]! +
+          lo[1]![d]! * basis[1]! +
+          lo[2]![d]! * basis[2]! +
+          hi[0]![d]! * basis[3]! +
+          hi[1]![d]! * basis[4]! +
+          hi[2]![d]! * basis[5]!;
+    }
     return out;
   }
 
@@ -93,14 +100,27 @@ export namespace AutoMovieHumanChordArc {
   /** `64 xi^3 (1 - xi)^3`: zero with two derivatives at both ends, 1 at the middle. */
   const BUMP: readonly number[] = [0, 0, 0, 64, -192, 192, -64];
 
-  /** A polynomial's k-th derivative at x, coefficients from the constant term. */
-  function poly(c: readonly number[], x: number, k: number): number {
-    let sum: number = 0;
+  /** A polynomial's k-th derivative's coefficients, from the constant term. */
+  function derive(c: readonly number[], k: number): number[] {
+    const out: number[] = [];
     for (let i: number = k; i < c.length; i++) {
       let f: number = 1;
       for (let j: number = 0; j < k; j++) f *= i - j;
-      sum += f * c[i]! * x ** (i - k);
+      out.push(f * c[i]!);
     }
+    return out;
+  }
+
+  /** A polynomial at x by Horner's rule, coefficients from the constant term. */
+  function horner(c: readonly number[], x: number): number {
+    let sum: number = 0;
+    for (let i: number = c.length - 1; i >= 0; i--) sum = sum * x + c[i]!;
     return sum;
   }
+
+  /** The basis' value, first and second derivative polynomials. */
+  const DERIVED_BASIS: readonly (readonly (readonly number[])[])[] = [0, 1, 2].map((k: number): number[][] => BASIS.map((c: readonly number[]): number[] => derive(c, k)));
+
+  /** The bump's value, first and second derivative polynomials. */
+  const DERIVED_BUMP: readonly (readonly number[])[] = [0, 1, 2].map((k: number): number[] => derive(BUMP, k));
 }
