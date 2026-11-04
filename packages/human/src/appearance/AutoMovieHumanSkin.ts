@@ -148,6 +148,7 @@ export namespace AutoMovieHumanSkin {
       AutoMovieHumanSkinTone.generate({
         vermilion: props.vermilion,
         pieces,
+        chains: props.chains,
         eyes: props.eyes,
         apertures: props.apertures,
         stature: props.stature,

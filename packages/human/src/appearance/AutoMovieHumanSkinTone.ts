@@ -1,4 +1,5 @@
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
+import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanAppearanceNoise } from "./AutoMovieHumanAppearanceNoise";
 import { AutoMovieHumanFaceTone } from "./AutoMovieHumanFaceTone";
 import type { AutoMovieHumanSkinChart } from "./AutoMovieHumanSkinChart";
@@ -32,8 +33,9 @@ import type { IAutoMovieHumanSkinToneFactors } from "./IAutoMovieHumanSkinToneFa
  *   it) and behind its margin along the facing direction is darkened by up
  *   to 85 percent with depth (full at half the pocket depth) and takes no
  *   nose flush.
- * - Ears: a field about each ear's centroid, reaching 1.2 times its
- *   largest vertex distance, on the ear chains and the head around them.
+ * - Ears: a field about each ear's centroid, reaching 1.2 times the
+ *   largest distance of its chains' surface from it, on the ear chains and
+ *   the head around them.
  * - Hands: the palmar direction is derived from the hand, thumb and finger
  *   chain centroids; palmar skin of hand and finger chains, fading in
  *   proximally from the wrist end of the arm chain, and dorsal skin over the
@@ -86,6 +88,9 @@ export namespace AutoMovieHumanSkinTone {
     vermilion: AutoMovieHumanVermilion.IBoundary;
     /** Charted skin pieces in mm. */
     pieces: readonly AutoMovieHumanSkinChart.IOutput[];
+
+    /** The calibration's chains in mm, which the landmarks are read on. */
+    chains: readonly IAutoMovieHumanLoftChain[];
 
     /** Eye globes in mm. */
     eyes: readonly IEye[];
