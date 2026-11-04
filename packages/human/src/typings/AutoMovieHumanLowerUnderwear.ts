@@ -1,5 +1,5 @@
 /** Closed lower underwear choices; serialized values are unchanged. */
-export const enum AutoMovieHumanLowerUnderwear {
+export enum AutoMovieHumanLowerUnderwear {
   /** none choice. */
   None = "none",
 

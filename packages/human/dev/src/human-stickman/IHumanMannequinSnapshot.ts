@@ -83,6 +83,8 @@ export interface IHumanMannequinSnapshot {
   headDrivers: Skeleton.IBone[];
   /** Independent rest neck descriptor, without applying the current pose again. */
   neckSurface: Skeleton.IOutput["neckSurface"];
+  /** Canonical foot courses and actual plantar source addresses, copied for inspection. */
+  footSurface: Skeleton.IOutput["footSurface"];
   /** Existing blockout qualification and actual emitted mesh counts. */
   unsupported: readonly string[];
   /** Blockout representation qualifier, without realistic continuous-skin claims. */

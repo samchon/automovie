@@ -12,12 +12,12 @@ import { createHumanStickmanVisual } from "./createHumanStickmanVisual";
 /**
  * Existing playground name for one public Human facade with local example drawings.
  * The reusable transport/Three binding live in their optional package entries;
- * authored motions and original polygon/cartoon construction stay here.
+ * polygon/cartoon construction comes from Viewer; authored motions stay here.
  * Builder ownership transfers on entry, including cleanup after failed construction.
  *
  * @evidence contracts/common.md#principled-implementation Delegates control to the public facade and passes fresh example definitions plus structural references to the original builders.
  * @evidence contracts/common.md#clear-and-simple-design This constructor is the page's thin composition point; it owns no clock, FK, interpolation, clinical mapping or geometry generator.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts No optional library path imports playground content, and no builder buffers or authored coordinates move into product packages.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No optional library path imports development files; the optional drawing entry consumes caller descriptors while authored example motion definitions remain local.
  * @evidence contracts/common.md#meaningful-documentation States package/example responsibilities and transferred builder failure cleanup.
  * @evidence contracts/performance.md#efficient-algorithms Construction assembles fixed example definitions and existing drawing slots once; inherited controls do the runtime work.
  * @evidence contracts/performance.md#reuse-equivalent-work One public facade consumes one prepared body and drawing, retaining clips for that body without regenerating shape.

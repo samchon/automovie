@@ -283,9 +283,8 @@ const BRANCHES: ReadonlySet<string> = new Set(
 );
 
 /**
- * Every action unit name. The unit type is a `const enum` with no runtime
- * object, so the names are listed here and the record's key type makes the
- * compiler refuse a list that misses or invents one.
+ * Every admitted action-unit value. This explicit record is exhaustive over
+ * the public runtime enum, so its key type refuses missing or invented values.
  */
 const UNITS: ReadonlySet<string> = new Set<string>(
   Object.keys({

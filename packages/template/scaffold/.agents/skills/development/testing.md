@@ -1,9 +1,11 @@
 # Testing
 
-Test a promised behavior through its actual consumer or computed output. Take expectations and tolerances from the request, physical requirements, or an independent reference. Installed packages own their validation APIs; choose the checks that reach this production's geometry, motion, continuity, timing, or media behavior.
+Give each module pure-logic unit tests for its behavioral contract. Supply explicit in-memory inputs and dependencies, observe deterministic outputs or state transitions, and take expectations and tolerances from the request, physical requirements or an independent reference. Cover the module's meaningful input boundaries, timing, state, numerical error and failure conditions. Installed packages own their validation APIs.
 
-Keep visual and listening judgments in [review](../review/SKILL.md). A source pattern or output copied into expectations does not supply an independent oracle. Inventory, byte or pixel assertions are useful when they check an actual promised behavior against independently established expectations; they cannot establish unobserved visual quality or replace listening. Add tests where a failure could violate a production promise; do not invent tests for a screenplay or to populate an empty suite.
+Verify integration through the actual consumer separately, keeping Viewer playback, visual and listening judgments in [review](../review/SKILL.md). A source pattern or output copied into expectations does not supply an independent oracle. A unit test establishes its observed logic, while the real host establishes the rendered or heard result.
 
-Put cases in `test/<domain>/test_<name>.ts` as exported `test_*` functions, synchronous or returning `Promise<void>`, with assertions from `node:assert/strict`. [`test/index.ts`](../../../test/index.ts) discovers them. Keep helpers outside those files or unexported. Each exported function answers the [testing checklist](../contracts/testing.md).
+Put cases in `test/features/<domain>/test_<name>.ts` as named exported `test_*` functions returning `void` or `Promise<void>`, with assertions from `node:assert/strict` or `TestValidator` from `@nestia/e2e`. [`test/index.ts`](../../../test/index.ts) discovers and reports them. Keep helpers outside those files or unexported. Each exported function answers the [testing checklist](../contracts/testing.md).
+
+Run the pure TypeScript suite through [`tsconfig.test.json`](../../../tsconfig.test.json) with `npm test`, or select a feature with `npm test -- --include <substring>` and optionally `--exclude <substring>`. An empty suite, invalid or unmatched selection, or import or test failure leaves the run unsuccessful; report the executed cases and totals.
 
 Cover the decisions and boundaries the test owns, including intended exceptions. Let the complete round finish, group failures by cause, and repair the source with [development](SKILL.md).

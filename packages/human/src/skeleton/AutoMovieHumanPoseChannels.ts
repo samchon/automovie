@@ -1,25 +1,6 @@
-/**
- * Every degree of freedom of `IAutoMovieHumanPose`, top to bottom, with the
- * stickman bone and axis it turns and its range of motion.
- *
- * Each row is `[path, bone, axis, sign, min, max]`. `path` is the field's
- * dotted path in the pose and `bone` the stickman bone; `<side>` stands for
- * `left` or `right` in both. `axis` names the bone's clinical axis (see
- * `AutoMovieHumanSkeleton`), or a jaw translation (`forward`, `lateral`);
- * `sign` maps the field's positive motion onto that axis. `min` and `max` are
- * the same range of motion as the field's type tags, in degrees, or
- * millimetres for the jaw; the field comments and
- * `docs/anatomy/joint-range.md` give their sources.
- */
-export const AutoMovieHumanPoseChannels: readonly [
-  path: string,
-  bone: string,
-  axis: "flexion" | "abduction" | "twist" | "forward" | "lateral",
-  sign: 1 | -1,
-  min: number,
-  max: number,
-][] = ((): Channel[] => {
-  const rows: Channel[] = [
+import type { AutoMovieHumanRigControls as Controls } from "./AutoMovieHumanRigControls";
+/** Existing head, neck, shoulder and thumb rows preserve literal joint identities. */
+const INITIAL = [
     ["head.eyes.<side>.vertical", "<side>Eye", "flexion", 1, -30, 30],
     ["head.eyes.<side>.horizontal", "<side>Eye", "twist", 1, -45, 45],
     ["head.jaw.opening", "jaw", "flexion", 1, 0, 52.9],
@@ -130,49 +111,16 @@ export const AutoMovieHumanPoseChannels: readonly [
       0,
       80,
     ],
-  ];
-  for (const [key, bone] of [
+  ] as const satisfies readonly (readonly [Controls.ChannelTemplate, string, "flexion"|"abduction"|"twist"|"forward"|"lateral", 1|-1, number, number])[];
+/** Existing finger construction inputs are shared by runtime rows and their joint types. */
+const FINGERS = [
     ["index", "Index"],
     ["middle", "Middle"],
     ["ring", "Ring"],
     ["little", "Little"],
-  ] as const)
-    rows.push(
-      [
-        `arms.<side>.hand.${key}.mcpFlexion`,
-        `<side>${bone}Proximal`,
-        "flexion",
-        1,
-        0,
-        80,
-      ],
-      [
-        `arms.<side>.hand.${key}.mcpAbduction`,
-        `<side>${bone}Proximal`,
-        "abduction",
-        1,
-        -20,
-        20,
-      ],
-      [
-        `arms.<side>.hand.${key}.pipFlexion`,
-        `<side>${bone}Intermediate`,
-        "flexion",
-        1,
-        0,
-        90,
-      ],
-      [
-        `arms.<side>.hand.${key}.dipFlexion`,
-        `<side>${bone}Distal`,
-        "flexion",
-        1,
-        0,
-        65,
-      ],
-    );
-  rows.push(
-    ["spine.thoracic.flexion", "chest", "flexion", 1, -10, 30],
+  ] as const satisfies readonly (readonly [string,string])[];
+/** Existing axial, pelvis, leg and foot rows preserve literal joint identities. */
+const AXIAL = [["spine.thoracic.flexion", "chest", "flexion", 1, -10, 30],
     ["spine.thoracic.lateralFlexion", "chest", "abduction", -1, -15, 15],
     ["spine.thoracic.rotation", "chest", "twist", 1, -40, 40],
     ["spine.lumbar.flexion", "spine", "flexion", 1, -15, 50],
@@ -233,14 +181,67 @@ export const AutoMovieHumanPoseChannels: readonly [
       1,
       0,
       90,
-    ],
-  );
-  for (const [key, n] of [
+    ]] as const satisfies readonly (readonly [Controls.ChannelTemplate, string, "flexion"|"abduction"|"twist"|"forward"|"lateral", 1|-1, number, number])[];
+/** Existing toe construction inputs are shared by runtime rows and their joint types. */
+const TOES = [
     ["second", 2],
     ["third", 3],
     ["fourth", 4],
     ["fifth", 5],
-  ] as const)
+  ] as const satisfies readonly (readonly [string,number])[];
+/**
+ * Every degree of freedom of `IAutoMovieHumanPose`, top to bottom, with the
+ * stickman bone and axis it turns and its range of motion.
+ *
+ * Each row is `[path, bone, axis, sign, min, max]`. `path` is the field's
+ * dotted path in the pose and `bone` the stickman bone; `<side>` stands for
+ * `left` or `right` in both. `axis` names the bone's clinical axis (see
+ * `AutoMovieHumanSkeleton`), or a jaw translation (`forward`, `lateral`);
+ * `sign` maps the field's positive motion onto that axis. `min` and `max` are
+ * the same range of motion as the field's type tags, in degrees, or
+ * millimetres for the jaw; the field comments and
+ * `docs/anatomy/joint-range.md` give their sources.
+ */
+
+export const AutoMovieHumanPoseChannels: readonly Channel[] = ((): Channel[] => {
+  const rows: Channel[] = [...INITIAL];
+  for (const [key, bone] of FINGERS)
+    rows.push(
+      [
+        `arms.<side>.hand.${key}.mcpFlexion`,
+        `<side>${bone}Proximal`,
+        "flexion",
+        1,
+        0,
+        80,
+      ],
+      [
+        `arms.<side>.hand.${key}.mcpAbduction`,
+        `<side>${bone}Proximal`,
+        "abduction",
+        1,
+        -20,
+        20,
+      ],
+      [
+        `arms.<side>.hand.${key}.pipFlexion`,
+        `<side>${bone}Intermediate`,
+        "flexion",
+        1,
+        0,
+        90,
+      ],
+      [
+        `arms.<side>.hand.${key}.dipFlexion`,
+        `<side>${bone}Distal`,
+        "flexion",
+        1,
+        0,
+        65,
+      ],
+    );
+  rows.push(...AXIAL);
+  for (const [key, n] of TOES)
     rows.push(
       [
         `legs.<side>.foot.${key}.mtpFlexion`,
@@ -277,13 +278,7 @@ export const AutoMovieHumanPoseChannels: readonly [
     );
   return rows;
 })();
-
-/** One pose channel: `[path, bone, axis, sign, min, max]`, see {@link AutoMovieHumanPoseChannels}. */
-type Channel = [
-  path: string,
-  bone: string,
-  axis: "flexion" | "abduction" | "twist" | "forward" | "lateral",
-  sign: 1 | -1,
-  min: number,
-  max: number,
-];
+/** Canonical generating inputs supply all finger and toe joint spellings. */
+type GeneratedJoint = `<side>${(typeof FINGERS)[number][1]}${"Proximal"|"Intermediate"|"Distal"}` | `<side>Toe${(typeof TOES)[number][1]}${"Proximal"|"Intermediate"|"Distal"}`;
+/** The canonical table has finite paths/joints, clinical signs and sourced ranges. */
+type Channel = readonly [path:Controls.ChannelTemplate,bone:(typeof INITIAL)[number][1]|(typeof AXIAL)[number][1]|GeneratedJoint,axis:"flexion"|"abduction"|"twist"|"forward"|"lateral",sign:1|-1,min:number,max:number];

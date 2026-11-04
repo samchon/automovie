@@ -1,6 +1,6 @@
 # Edit, render and hand off
 
-Use this branch to turn commissioned shots or accepted media into the actual delivered video, including a whole motion hint. A standalone asset follows [asset handoff](../review/assets.md); a screenplay-only commission requires no invented render. Read [project context](profile.md), actual source and media, and installed engine, viewer, render and ingest documentation. The production supplies its real host and adapters; a schedule or an encoder argument list is not an executed render.
+Turn commissioned shots or accepted media into the complete delivered video. A standalone asset follows [asset handoff](../review/assets.md); a screenplay-only commission ends with its text duties. Read [project context](profile.md), actual source and media, and installed runtime documentation. Use a verified available host or implement the needed adapter; a schedule or encoder argument list is not an executed render.
 
 ## Assemble the commissioned work
 
@@ -9,6 +9,8 @@ Keep the required screenplay-unit, executable-shot and actual-edit relationships
 For a motion hint or companion controls, use [conditioning handoff](conditioning.md) to preserve their actual channel meanings, frame/camera alignment and accepted control bytes through conversion and delivery. A viewing encode or picture transition does not certify categorical or quantitative control values.
 
 Give the edit one timeline owner. Select shots or takes, order, in/out points, transitions and intended pauses from the work's audience experience, preserving required performance and information. [Motion timing](../motion/timeline.md) owns frame schedules, shot-local time, stateful evaluation and replay. [Audio](../audio/SKILL.md) supplies accepted recordings and measured timing; place sound, captions and required mouth motion against those exact performances. A new take, trim, speed change or cut requires rechecking the affected timing and neighboring continuity. Do not use an estimate or an inaudible placeholder as the final performance.
+
+Develop staging through [contiguous moving-review segments](../review/video.md#review-contiguous-segments), extending from the accepted end state and checking each shared boundary. Segment acceptance supports the next implementation step; the whole assembled film still needs its own continuous picture-and-sound review before delivery.
 
 ## Prove the actual output path
 

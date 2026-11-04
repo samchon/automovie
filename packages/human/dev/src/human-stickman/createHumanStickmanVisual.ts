@@ -19,8 +19,8 @@ import type { buildHumanStickman } from "./buildHumanStickman";
  * Input/build refusal leaves the current face intact. Retirement failure makes
  * face updates terminal, cleans the replacement once and remains a disposal cause.
  *
- * @evidence contracts/common.md#principled-implementation Original polygon/section groups bind by their declared bone names, and the existing stickman builder's documented rest-bone order supplies its groups; all geometry and face construction remain with those owners.
- * @evidence contracts/common.md#clear-and-simple-design One playground adapter exposes structural slots and explicit face/disposal callbacks without exporting the example builders or choreography as library content.
+ * @evidence contracts/common.md#principled-implementation Actual polygon/section groups come from the optional public drawing's bone registry, and the existing stickman builder's documented rest-bone order supplies its groups; all geometry and face construction remain with those owners.
+ * @evidence contracts/common.md#clear-and-simple-design One development adapter exposes structural slots and explicit face/disposal callbacks; Viewer owns the original polygon/cartoon construction while example choreography stays local.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No new body form, clinical bone cast, animation sampler or renderer is constructed; only a container and explicit references assemble existing drawings.
  * @evidence contracts/common.md#meaningful-documentation States transfer ownership, builder identity premises, immutable face replacement and sticky disposal failure behavior.
  * @evidence contracts/performance.md#efficient-algorithms Construction scans bounded builder groups per rest bone; explicit face construction has its existing drawing cost and no frame callback is introduced.
@@ -47,14 +47,7 @@ export function createHumanStickmanVisual(
     throw new Error("Stickman binding does not match its rest prototype");
   for (const [index, bone] of options.rest.bones.entries()) {
     const objects: THREE.Object3D[] = [];
-    for (const group of [polygon?.surface, polygon?.sections]) {
-      const suffix: string = group === polygon?.sections ? ".sections" : "";
-      const target: THREE.Object3D | undefined = group?.children.find(
-        (child: THREE.Object3D): boolean =>
-          child.name === `human.polygon.${bone.bone}${suffix}`,
-      );
-      if (target !== undefined) objects.push(target);
-    }
+    objects.push(...(polygon?.bindings.get(bone.bone) ?? []));
     if (stickman !== undefined) objects.push(stickman.object.children[index]!);
     if (objects.length !== 0) bindings.push({ bone: bone.bone, objects });
   }

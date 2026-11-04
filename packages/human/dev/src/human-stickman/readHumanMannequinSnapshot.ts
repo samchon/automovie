@@ -155,6 +155,7 @@ export function readHumanMannequinSnapshot(
       ),
     ),
     neckSurface: structuredClone(rest.neckSurface),
+    footSurface: rest.footSurface === undefined ? undefined : structuredClone(rest.footSurface),
     rig: rest.bones.map(
       (bone: Skeleton.IBone): IHumanMannequinSnapshot["rig"][number] => {
         const node: THREE.Object3D | undefined =

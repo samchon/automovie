@@ -1,8 +1,6 @@
 import {
-  type IProductionClaimOwner,
   type IProductionConfigProps,
   createProductionConfig,
-  getProductionClaimOwners,
   stripNaturalnessComments,
 } from "@automovie/evidence/narrative";
 import {
@@ -13,6 +11,7 @@ import {
   type IEvidenceDeclaration,
   type IEvidenceGraphClaim,
   type IEvidenceHost,
+  type IEvidenceReference,
   type IEvidenceSourceFile,
   createEvidenceConfigPlan,
 } from "@wrtnlabs/evidence";
@@ -36,13 +35,12 @@ export class ProductionWorkflowFixture {
     fs.writeFileSync(target, text, "utf8");
   }
 
-  /** Returns a disabled lifecycle; tests explicitly open their own passes. */
+  /** Returns disabled narrative options; tests explicitly open their own stages. */
   public static props(
     root: string,
     mode: "long" | "short" | "short-with-settings" | "asset" = "long",
   ): IProductionConfigProps {
     return {
-      lifecycle: "independent-evidence-v1",
       mode,
       location: root,
       narrativeScope: { mode: "complete-work" },
@@ -53,11 +51,6 @@ export class ProductionWorkflowFixture {
         screenplay: "disabled",
       },
       naturalness: { screenplay: "disabled" },
-      gate: {
-        harnessVersion: "fixture-harness",
-        compilerVersion: "fixture-compiler",
-        claimScopes: [],
-      },
       claims: [],
     };
   }
@@ -275,34 +268,40 @@ export class ProductionWorkflowFixture {
     return props;
   }
 
-  /** Records active review tokens from fresh props or an original factory config. */
+  /** Records active review tokens from production options or an ordinary native config. */
   public static async certify(
     root: string,
     input: IProductionConfigProps | IEvidenceConfig,
   ): Promise<void> {
     const config: IEvidenceConfig =
-      "lifecycle" in input ? createProductionConfig(input) : input;
-    const owners: IProductionClaimOwner[] = getProductionClaimOwners(config);
+      "construction" in input ? createProductionConfig(input) : input;
     const analysis: IEvidenceCheckAnalysis =
       await ProductionWorkflowFixture.evaluate(root, config.claims);
-    for (const owner of owners.filter(
-      (candidate: IProductionClaimOwner): boolean =>
-        candidate.kind === "review" &&
-        config.claims[candidate.index].disabled !== true,
-    )) {
+    for (const [index, claim] of config.claims.entries()) {
+      const references: IEvidenceReference[] = Array.isArray(claim.reference)
+        ? claim.reference
+        : [claim.reference];
+      if (
+        claim.disabled === true ||
+        !references.some(
+          (reference: IEvidenceReference): boolean =>
+            reference.requireReview === true,
+        )
+      )
+        continue;
       const result:
         | IEvidenceCheckAnalysis["graph"]["claims"][number]
         | undefined = analysis.graph.claims.find(
         (
           candidate: IEvidenceCheckAnalysis["graph"]["claims"][number],
-        ): boolean => candidate.claim === owner.index,
+        ): boolean => candidate.claim === index,
       );
       if ((result?.obligations[0]?.edges.length ?? 0) === 0)
         throw new Error(
-          `Fixture review has no captured fingerprint: ${owner.layer}/${owner.pass}\n${JSON.stringify(analysis.report.diagnostics)}`,
+          `Fixture review has no captured fingerprint: ${index}\n${JSON.stringify(analysis.report.diagnostics)}`,
         );
       const input: IEvidenceGraphClaim = analysis.graphInput.claims.find(
-        (claim: IEvidenceGraphClaim): boolean => claim.index === owner.index,
+        (claim: IEvidenceGraphClaim): boolean => claim.index === index,
       )!;
       const updated: Map<string, string> = new Map();
       for (const edge of result!.obligations[0].edges) {

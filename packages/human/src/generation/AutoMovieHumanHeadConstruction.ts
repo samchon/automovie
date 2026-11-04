@@ -611,17 +611,18 @@ export namespace AutoMovieHumanHeadConstruction {
     const sin: number = Math.sin(section.tilt);
     // The march steps no further than the widest blend can reach.
     const k: number = Math.max(m.blend, m.throat);
-    const join = (r: number): [number, number] => {
+    const join: (r: number) => [number, number] = (r: number): [number, number] => {
       const xi: number = ox + r * c;
       const x: number = xi * cos;
       const y: number = section.station + xi * sin;
-      const d: number = mandible(m, x, y, r * n);
-      return [softMin(r - base, d, blendAt(m, x, y, r * n)), d];
+      const plan: number = arch(m, x, y, r * n);
+      const d: number = mandibleAt(m, x, y, plan);
+      return [softMin(r - base, d, blendAt(m, x, y, plan)), d];
     };
     let inside: number = -1;
     let outside: number = -1;
     for (let r: number = base, i: number = 0; i < 400; i++) {
-      const [v, d] = join(r);
+      const [v, d]: [number, number] = join(r);
       if (v < 0) {
         inside = r;
         outside = -1;
@@ -650,9 +651,9 @@ export namespace AutoMovieHumanHeadConstruction {
    * round of the arch the throat's width would swell the chin's sides, where
    * the jaw and the face meet nearly flush, and round the border away.
    */
-  function blendAt(m: IMandible, x: number, y: number, z: number): number {
+  function blendAt(m: IMandible, x: number, y: number, plan: number): number {
     const below: number = (m.menton + (m.chin - x) * m.slope - y) * m.cos;
-    const inside: number = -arch(m, x, y, z);
+    const inside: number = -plan;
     return (
       m.blend +
       (m.throat - m.blend) *
@@ -750,7 +751,11 @@ export namespace AutoMovieHumanHeadConstruction {
     y: number,
     z: number,
   ): number {
-    const plan: number = arch(m, x, y, z);
+    return mandibleAt(m, x, y, arch(m, x, y, z));
+  }
+
+  /** Finish the jaw distance from the already evaluated plan distance, mm. */
+  function mandibleAt(m: IMandible, x: number, y: number, plan: number): number {
     const line: number = m.menton + (m.chin - x) * m.slope;
     const below: number = (line - y) * m.cos;
     const behind: number =
@@ -888,22 +893,28 @@ export namespace AutoMovieHumanHeadConstruction {
 
   /** A section's two sides, each from the front to the back of the midline. */
   interface ISides {
+    /** Left prefix at consecutive phase indices from zero. */
     left: Vec3[];
+
+    /** Right prefix at the same phase indices as the left. */
     right: Vec3[];
+
+    /** Last solved radius, preserving the next phase's original warm start. */
+    radius: number;
   }
 
-  /** Cut the section at station s. */
-  function sides(surface: ISurface, s: number): ISides {
+  /** Cut only the requested prefix; full chain consumers request every phase. */
+  function sides(surface: ISurface, s: number, count: number = ANGLES + 1): ISides {
     const known: ISides | undefined = surface.cut.get(s);
-    if (known !== undefined) return known;
-    const out: ISides = cut(surface, s);
+    if (known !== undefined && known.left.length >= count) return known;
+    const out: ISides = cut(surface, s, count, known);
     surface.cut.set(s, out);
     return out;
   }
 
   /** The section at station s, its reliefs on. */
-  function cut(surface: ISurface, s: number): ISides {
-    const { compiled, plan } = surface;
+  function cut(surface: ISurface, s: number, count: number, known?: ISides): ISides {
+    const { compiled, plan }: Pick<ISurface, "compiled" | "plan"> = surface;
     const m: ISection = section(compiled, plan, s);
     const ox: number = (m.front + m.back) / 2;
     // The neck ring's difference from the law hands over as a cubic Hermite
@@ -917,16 +928,19 @@ export namespace AutoMovieHumanHeadConstruction {
     const run: number = (s - plan.y0) * (1 - along) ** 2;
     const cos: number = Math.cos(m.tilt);
     const sin: number = Math.sin(m.tilt);
-    const left: Vec3[] = new Array<Vec3>(ANGLES + 1);
-    const right: Vec3[] = new Array<Vec3>(ANGLES + 1);
-    let guess: number = 0;
-    for (let j: number = 0; j <= ANGLES; j++) {
+
+    // Landmark probes use only the anterior prefix. Keep solved phases so a
+    // later whole ring extends the same sequence, with the same warm starts.
+    const left: Vec3[] = known?.left ?? [];
+    const right: Vec3[] = known?.right ?? [];
+    let guess: number = known?.radius ?? 0;
+    for (let j: number = left.length; j < count; j++) {
       const theta: number = (Math.PI * j) / ANGLES;
       const r: number = radius(m, ox, theta, guess);
       guess = r;
       const c: number = Math.cos(theta);
       const n: number = Math.sin(theta);
-      const emit = (
+      const emit: (delta: number, slope: number, rise: number, sign: 1 | -1) => Vec3 = (
         delta: number,
         slope: number,
         rise: number,
@@ -945,7 +959,7 @@ export namespace AutoMovieHumanHeadConstruction {
       left[j] = emit(surface.neckLeft[j]!, surface.slopeLeft[j]!, surface.riseLeft[j]!, 1);
       right[j] = emit(surface.neckRight[j]!, surface.slopeRight[j]!, surface.riseRight[j]!, -1);
     }
-    return { left, right };
+    return { left, right, radius: guess };
   }
 
   /** Radial height of the named features at a point of the base surface. */
@@ -2177,7 +2191,7 @@ export namespace AutoMovieHumanHeadConstruction {
   /** Forward coordinate of the skin at a world height and lateral place. */
   function frontAt(surface: ISurface, y: number, z: number): number {
     const m: ISection = section(surface.compiled, surface.plan, y);
-    const c: ISides = sides(surface, y - 100 * Math.sin(m.tilt));
+    const c: ISides = sides(surface, y - 100 * Math.sin(m.tilt), ANGLES / 2);
     const list: Vec3[] = z >= 0 ? c.left : c.right;
     let best: Vec3 = list[0]!;
     for (const p of list.slice(0, ANGLES / 2))

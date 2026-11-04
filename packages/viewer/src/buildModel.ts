@@ -36,6 +36,9 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * the mesh is flagged so guide passes patch the materials they swap in. Every
  * skinned part is an {@link AutoMovieSkinnedMesh} of its skin's method, so
  * bounds, culling, raycasts and vertex queries read the blend the shader draws.
+ * Parts with the same ordered joint slots share one skeleton and bone texture
+ * within this model; each mesh retains its own bind matrix and blend method.
+ * Separate model builds own independent skeletons and pose state.
  *
  * A mesh's morph targets reach `morphTargetDictionary` by name, so
  * {@link applyExpression} drives them, and its driven targets are recorded on
@@ -67,11 +70,11 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * guarantee and leaves degenerate UVs on their existing fallback.
  *
  * @evidence contracts/common.md#principled-implementation Builds admitted semantic bone rest TR and part TRS, binds skin joints or rigid attached bones, selects linear or dual quaternion skinning per skin through the material shader patch and matching shadow materials, realizes geometry/PBR through their canonical owners and derives vertex tangents only for anisotropic rigid, morph-free, normal-map-free indexed normal/UV geometry. Nonfinite/zero derived axes discard the new attribute; mapped/deforming or unsupported geometry retains its existing derivative-frame limitations. Consistent source normals remain a premise; this is not a MikkTSpace bake guarantee. AttachedBone intentionally takes precedence over skin, bone rest scale is unit by engine convention and complete finite/unique hierarchy/material admission remains upstream.
- * @evidence contracts/common.md#clear-and-simple-design Owns one model graph plus semantic bone/part registries and shares material variants by definition id with vertex-color/relief/skinning-method flags and one patched shadow pair per dual quaternion mesh; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
+ * @evidence contracts/common.md#clear-and-simple-design Owns one model graph plus semantic bone/part registries, one skeleton per ordered joint list, material variants by definition id with vertex-color/relief/skinning-method flags and one patched shadow pair per dual quaternion mesh; geometry, physical-vertex mapping, material shading and imported appearances remain separate producers.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing referenced skin/attached bones throw rather than producing frozen geometry; missing material definitions currently select the ordinary default material, so this producer is not a substitute for complete source admission. No anatomical fixture names, patched Three methods or extra UV channels choose output.
- * @evidence contracts/common.md#meaningful-documentation Documents rigid-versus-skin precedence, the dual quaternion material and shadow variants, morph target naming and the driven-target record, bone lookup, texture resolver/binding-private ownership, first-acquisition rollback and result transfer; comments give the shared engine unit bone-scale convention.
- * @evidence contracts/performance.md#efficient-algorithms Builds B bones and P parts with id maps, one geometry per part and one material per encountered definition/colored/weighted/skinning-method variant plus two shadow materials per dual quaternion skinned part. Typed buffer work scales with vertices/indices; eligible anisotropic geometry adds one O(V+I) native tangent pass, an owned four-component attribute and O(V) temporary accumulation. Skin binding updates the graph for each skinned part, so repeated skin parts may add repeated hierarchy work.
- * @evidence contracts/performance.md#reuse-equivalent-work Shares existing material variants across matching part flags and borrows primed texture bindings; each bone/part graph is independent because Object3D parent/pose state cannot be reused across placements without explicit clone ownership.
+ * @evidence contracts/common.md#meaningful-documentation Documents rigid-versus-skin precedence, ordered-joint skeleton sharing with per-mesh bind state, the dual quaternion material and shadow variants, morph target naming and the driven-target record, bone lookup, texture resolver/binding-private ownership, first-acquisition rollback and result transfer; comments give the shared engine unit bone-scale convention.
+ * @evidence contracts/performance.md#efficient-algorithms Builds B bones and P parts with id maps, updates the rest hierarchy once, allocates one skeleton per unique ordered joint list and updates only each newly attached skin's own world matrix before explicit binding. Joint-key construction costs O(J) per skin with J palette slots; inverse and GPU matrix storage costs O(sum of unique palette lengths), without a growing graph traversal per part. One geometry per part, one material per encountered definition/colored/weighted/skinning-method variant and two shadow materials per dual quaternion skin remain. Typed buffer work scales with vertices/indices; eligible anisotropic geometry adds one O(V+I) tangent pass, an owned four-component attribute and O(V) temporary accumulation.
+ * @evidence contracts/performance.md#reuse-equivalent-work Shares skeletons only inside this build when ordered joint identifiers match, because those slots resolve to the same Bone objects and unchanged rest-world inverse matrices; per-mesh bind matrices and blend methods stay independent. Shares material variants across matching part flags and borrows primed texture bindings; separate builds own independent bone/part graphs and skeletons because pose state cannot be shared across placements.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Registers created geometry/material/shadow material/skeleton immediately within construction rollback and transfers the complete model graph/registries on success; resolver textures stay externally owned. The returned record provides no universal disposer, so its scene/runtime owner must enumerate physical resources including skin skeleton state when retiring it.
  */
 export const buildModel: (
@@ -125,6 +128,12 @@ export const buildModel: (
           (parent ?? group).add(bone);
         }
       }
+
+      // Inverse binds depend on bone rest worlds, which no part changes.
+      // Establish them once before adding any skin instead of revisiting the
+      // growing part graph for every mesh.
+      group.updateMatrixWorld(true);
+      const skeletons: Map<string, THREE.Skeleton> = new Map();
 
       const definitions: Map<string, IAutoMovieMaterial> = new Map(
         model.materials.map(
@@ -250,23 +259,33 @@ export const buildModel: (
         if (part.transform !== null) applyTransform(mesh, part.transform);
 
         if (mesh instanceof THREE.SkinnedMesh && skin !== null) {
-          const jointBones: THREE.Bone<THREE.Object3DEventMap>[] =
-            skin.joints.map(
-              (
-                joint: AutoMovieHumanoidBone,
-              ): THREE.Bone<THREE.Object3DEventMap> => {
-                const bone: THREE.Bone<THREE.Object3DEventMap> | undefined =
-                  bones.get(joint);
-                if (bone === undefined)
-                  throw new Error(
-                    `part "${part.id}" skin references missing bone "${joint}"`,
-                  );
-                return bone;
-              },
-            );
+          const palette: string = JSON.stringify(skin.joints);
+          let skeleton: THREE.Skeleton | undefined = skeletons.get(palette);
+          if (skeleton === undefined) {
+            const jointBones: THREE.Bone<THREE.Object3DEventMap>[] =
+              skin.joints.map(
+                (
+                  joint: AutoMovieHumanoidBone,
+                ): THREE.Bone<THREE.Object3DEventMap> => {
+                  const bone: THREE.Bone<THREE.Object3DEventMap> | undefined =
+                    bones.get(joint);
+                  if (bone === undefined)
+                    throw new Error(
+                      `part "${part.id}" skin references missing bone "${joint}"`,
+                    );
+                  return bone;
+                },
+              );
+            skeleton = own(new THREE.Skeleton(jointBones));
+            skeletons.set(palette, skeleton);
+          }
           group.add(mesh);
-          group.updateMatrixWorld(true);
-          mesh.bind(own(new THREE.Skeleton(jointBones)));
+
+          // A palette's inverse binds are shared, but a mesh's authored TRS
+          // determines its own bind matrix. Passing it explicitly also avoids
+          // Three recalculating the shared inverses for each mesh.
+          mesh.updateMatrixWorld(true);
+          mesh.bind(skeleton, mesh.matrixWorld);
           mesh.normalizeSkinWeights();
           if (dualQuaternion) {
             // The depth and distance passes would otherwise draw this skin

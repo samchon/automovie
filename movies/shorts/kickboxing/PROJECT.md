@@ -1,0 +1,13 @@
+# Kickboxing
+
+Deliver a complete 180-second direct 3D film for [issue 3040](https://github.com/samchon/automovie/issues/3040), with runnable source, a working browser Viewer, actual playback review and a fully decoded final video. The film covers the beginning of a scheduled three-minute round, its knockout and the aftermath through exactly 180 seconds.
+
+Use the compact [individual settings](docs/body/settings) followed by [one continuous screenplay scene](docs/body/screenplay/kickboxing.md), with meaningful H3 action groups for fifteen-second review intervals. The consumed [FilmPlan](src/film/FilmPlan.ts) owns the executable action placements, camera and event clock. Runtime modules realize the chosen support, contact, response and recovery; native contact receipts distinguish intended targets from actual encounters.
+
+Both fighters are highly trained adult men, 180 cm and 80 kg. A wears red; B wears cyan and navy. They step into a lead-glove touch, then fight immediately through changing initiative, range and angles. A's left high roundhouse reaches B's right lateral head or jaw at 150.000 seconds. A stops attacking, clears B and reaches the farthest neutral corner through supported steps. Once A is inside and watching ring center, the count opens at 157: One at 158 through Ten at 167. B fails to stand. The referee signals knockout at 167.6; A celebrates from 168.1 through 180 while keeping clear of B.
+
+The visible referee is an adult man with an independent body, voice and support. His start, knockdown, corner, count and result performances must appear and sound in the film. The fall uses connected knee, pelvis, trunk, shoulder and head motion, followed by body-supported recovery attempts. No attack follows the knockdown, and no medical mechanism is asserted.
+
+The original Human polygon figure is the default. The requested optional real-man appearance must share the same proportions, rig, contacts and motion; it remains an unverified delivery requirement until its actual consumer works. Reusable anatomy, typed rigging, Viewer and Render capability belong to their packages; kickboxing choreography belongs to this production.
+
+Develop and review reusable actions before assembling their sequence. Test pure timing, ownership, continuation and interaction logic, inspect actual displayed geometry through public APIs, then review the film in successive fifteen-second intervals. Complete normal-speed playback, slow exchange/KO review, listening and whole-file decoding establish delivery. Source checks, screenshots and authored timings establish their narrower scopes. Everything stored in this repository is English. Diffusion is outside this commission unless requested.

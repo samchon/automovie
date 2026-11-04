@@ -1,23 +1,62 @@
-// Run every exported `test_*` function of each `test_*.ts` file under this
-// directory through `node:test`. Exported functions keep each test addressable
-// by the `@evidence` checklist; an empty directory passes with no tests.
-import { readdirSync } from "node:fs";
-import { basename, join, sep } from "node:path";
-import test from "node:test";
-import { pathToFileURL } from "node:url";
+import { DynamicExecutor } from "@nestia/e2e";
+import path from "node:path";
+import process from "node:process";
 
-const root: string = import.meta.dirname;
-const files: string[] = readdirSync(root, { recursive: true, encoding: "utf8" })
-  .filter((file: string): boolean => /^test_.+\.ts$/.test(basename(file)))
-  .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0));
-for (const file of files) {
-  const loaded: Record<string, unknown> = await import(
-    pathToFileURL(join(root, file)).href
+import { assessTestExecution } from "./helpers/assessTestExecution";
+import { selectTestFiles } from "./helpers/selectTestFiles";
+
+/** Discover selected pure unit tests, finish every case, then report failures. */
+async function main(): Promise<void> {
+  console.log("AutoMovie Production Unit Tests");
+
+  const discovery: DynamicExecutor.IProps<[]> = {
+    prefix: "test_",
+    location: path.join(import.meta.dirname, "features"),
+    parameters: (): [] => [],
+    extension: "ts",
+  };
+  const names: string[] = [];
+
+  // The discovery pass never imports tests, including excluded modules.
+  await DynamicExecutor.validate({
+    ...discovery,
+    filter: (name: string): boolean => {
+      names.push(name);
+      return false;
+    },
+  });
+  const selected: Set<string> = selectTestFiles(process.argv.slice(2), names);
+  const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
+    ...discovery,
+    filter: (name: string): boolean => selected.has(name),
+    onComplete: (execution: DynamicExecutor.IExecution): void => {
+      const result: ReturnType<typeof assessTestExecution> =
+        assessTestExecution(execution);
+      const timing: string =
+        result.elapsedMs === null ? "invalid timing" : `${result.elapsedMs} ms`;
+      console.log(`${result.passed ? "PASS" : "FAIL"} ${execution.name} (${timing})`);
+    },
+  });
+
+  if (report.executions.length === 0)
+    throw new Error("The selected files exported no test functions.");
+
+  const failures: DynamicExecutor.IExecution[] = report.executions.filter(
+    (execution: DynamicExecutor.IExecution): boolean =>
+      !assessTestExecution(execution).passed,
   );
-  for (const [name, value] of Object.entries(loaded))
-    if (name.startsWith("test_") && typeof value === "function")
-      void test(
-        `${file.split(sep).join("/")}: ${name}`,
-        value as () => void | Promise<void>,
-      );
+  console.log(
+    `${report.executions.length - failures.length}/${report.executions.length} passed in ${report.time.toLocaleString()} ms`,
+  );
+  for (const failure of failures)
+    console.error(failure.name, {
+      assertion: failure.error,
+      timing: assessTestExecution(failure).elapsedMs,
+    });
+  if (failures.length !== 0) process.exitCode = 1;
 }
+
+main().catch((error: unknown): void => {
+  console.error(error);
+  process.exitCode = 1;
+});

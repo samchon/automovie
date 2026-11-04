@@ -1,7 +1,7 @@
 # Final screenplay requirement discovery
 
-The final screenplay discovery result answers for the complete declared audiovisual plan, including a short work that starts directly at this layer.
+The discovery result covers the complete declared audiovisual plan, including direct shorts, under the [common discovery boundary](common.md#shared-work-boundary).
 
 ## Is its observed audiovisual form owned and testable? {#screenplay-requirements}
 
-Find positive choices in audience distance and access, image and sound relationships, performance, dialogue incompletion, rhythm, duration, scene and compression, motif transformation, transitions, exits, captions, notation, and register not already owned by active requirements. Describe how they function and fail in this work; cinematic, poetic, immersive, a genre, or a mood alone does not distinguish a form. Do not excuse every defect as style or describe only what happens while ignoring how it is experienced. Separate adoption of a creative choice from its natural realization and preserve its repair boundaries. Answer the [common discovery boundary](common.md#shared-work-boundary) for findings, already covered choices, actual inspected negatives, and scope still open.
+Find uncovered positive choices in audience distance and access, image-sound relations, performance, dialogue incompletion, rhythm, duration, scene and compression, motif transformation, transitions, exits, captions, notation and register. Show how they function and fail here: cinematic, poetic, immersive, genre and mood labels alone distinguish no form. Judge adoption separately from natural realization; style cannot excuse every defect, and events alone cannot describe their audience experience.

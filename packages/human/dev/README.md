@@ -28,3 +28,9 @@ A new frame requires `x-human-cache: new-requested-frame`. Keep its UTC timestam
 The capture session generates lazily and serializes its own work. Coordinate separate CPU audits and browser sessions across the shared machine: at most two people may generate simultaneously. Stop only task-owned processes. Historical evidence and private reference inputs remain in their existing ignored directories.
 
 Human package `files` and `exports` exclude this entire directory. Runtime source must never import it. Playground's ordinary parameter editor owns end-user editing and uses the public generator and generic model renderer; development diagnostics stay here.
+
+## Browser automation
+
+The checkout's `.codex/config.toml` registers the pinned `@playwright/mcp` development dependency. Its executable path is local machine configuration. In a trusted checkout, install dependencies with `pnpm install`, set `--executable-path` to your installed Chrome, restart the MCP connection in Codex settings, and check `/mcp` for `playwright`. It opens isolated headless Chrome without sharing your browser profile; automatic captures go to `.cache/playwright-mcp`.
+
+Use `browser_navigate` with the current viewer URL, then inspect controls and captures through the MCP tools. Close the owned browser with `browser_close` when the inspection ends. A configured server or an advancing playback clock does not establish a visual motion review.

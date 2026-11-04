@@ -14,7 +14,7 @@ Keep generation outside frame evaluation and deterministic replay. Bind each req
 
 Retain downloaded outputs and necessary sidecars in project-owned fixed assets with their content digests, source relationships and usage terms. A transient URL, seed or completed job is not the accepted take. Preserve originals separately from conversions, trims, retiming or other derivatives, and identify the exact take the actual consumer uses. Use supported decoding and delivery paths; add only the integration the production needs through [development](../development/SKILL.md).
 
-Inspect every candidate take before adoption, collecting the whole batch's observed defects before repairing their causes together. A rejected take remains rejected; a retry is a new candidate. If a result loses a required action, changes identity or forces an unapproved event, repair the source, request or take selection at its owner instead of concealing it with a cut.
+Inspect every candidate take before adoption, collecting the batch's observed causes and retained achievements before correction. A retry is a new candidate with its own identity. If a result loses required action, identity or causality, repair the source, request or take selection at its owner and inspect the affected neighbors; a cut cannot substitute for the missing performance.
 
 ## Hand accepted media to the edit
 

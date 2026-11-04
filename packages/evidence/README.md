@@ -1,10 +1,10 @@
 # @automovie/evidence
 
-Configure engineering evidence and optional narrative validation with one object. The package owns graph composition, runtime identity, captured-input validation, and pass reporting. Each production owns its instructions, checklists, creative bodies, evidence, and review records.
+Compose native Evidence claims for engineering and optional narrative work. Each production owns its instructions, contracts, creative bodies, evidence and independent reviews.
 
 ## Configuration
 
-Export the result directly from the project's `evidence.config.ts`:
+Export one configuration from `evidence.config.ts`:
 
 ```ts
 import { createEvidenceConfig } from "@automovie/evidence";
@@ -12,91 +12,33 @@ import { createEvidenceConfig } from "@automovie/evidence";
 export default createEvidenceConfig({ location: import.meta.dirname });
 ```
 
-This default selects exported source types/functions under `src/**/*.ts` against `.agents/skills/contracts/common.md`, and exported test functions under `test/**/test_*.ts` against `contracts/testing.md`. It selects no narrative and needs no story files, mode, or stage flags. `location` is the absolute project directory; native Evidence resolves the selected files relative to the authored config file.
+The default selects exported source types/functions under `src/**/*.ts` against `.agents/skills/contracts/common.md`, and exported test functions under `test/**/test_*.ts` against `contracts/testing.md`. It selects no narrative. Location is the absolute project directory; native Evidence resolves selected inputs relative to the authored configuration.
 
-For a video, add `narrative` to that same object. This short-form example activates a complete final screenplay's two evidence passes:
+Add narrative when commissioned:
 
 ```ts
-import { createEvidenceConfig } from "@automovie/evidence";
-
 export default createEvidenceConfig({
   location: import.meta.dirname,
   narrative: {
-    mode: "short",
-    construction: { screenplay: "evidence" },
+    mode: "short-with-settings",
+    construction: { settings: "evidence", screenplay: "evidence" },
     naturalness: { screenplay: "evidence" },
   },
 });
 ```
 
-Use `mode: "short-with-settings"` when a short needs separately reviewed character, object or location facts. Its active construction layers are settings and screenplay, and its sole expression pass is screenplay. It requires no treatments, scripts or settings outline. Scene H2s cite actual compact-canon dependencies; settings changes invalidate the prerequisite review, and missing settings cannot produce readiness. `mode: "short"` remains the no-settings direct route.
+Use `short` for direct screenplay, `short-with-settings` for compact canon plus screenplay, and `long` for settings → treatments → scripts → screenplay. Unspecified stages remain disabled drafts. Scripts completes content and expression within construction; screenplay alone has a separate naturalness pass. An omitted outline stage follows settings. Complete work is the default scope; an explicitly commissioned first-part pilot selects its exact part.
 
-Choose `mode: "long"` for settings → treatments → scripts → final screenplay. Unspecified construction and expression layers are disabled drafts; an omitted outline stage follows settings. Unspecified scope is the complete work. Compose a complete draft before activating its evidence. Scripts finishes content and expression together in construction; settings and treatments also finish within construction. Only final screenplay retains a separate naturalness pass. Long screenplay requires treatments and scripts construction. A disabled stage or passing graph never grants creative approval.
+## Native checking
 
-The factory derives lifecycle and actual implementation/compiler identities. Callers do not supply synthetic gate hashes or parallel ownership arrays. Narrative creation resolves the project's installed `ttsc` and the package's actual Evidence dependency; it rejects `TTSC_BINARY` overrides. Changing project options does not change the library implementation digest.
+Run `pnpm evidence` to evaluate every enabled claim and reference. Native Evidence owns coverage, checklist completeness, relationship cardinality and current fingerprint reviews. Exit codes are 0 for a complete analysis without errors, 1 for graph violations, and 2 for invalid configuration or incomplete analysis. A passing graph does not grant creative or delivered-output acceptance, and an inactive population does not establish that work exists.
 
-The [input type](src/IAutoMovieEvidenceConfigProps.ts) and [narrative options](src/IAutoMovieNarrativeProps.ts) own option details. Supplied `claims` replace the default engineering claims; use `createEngineeringClaims()` when appending to them. Defaults are fresh objects, and supplied claim graphs and stage options are copied during creation. Keep the returned narrative config unchanged after submission; validation requires its original factory identity.
+Use `pnpm evidence list` to find configured targets, `pnpm evidence inspect <target>` to inspect them, and `pnpm evidence graph` to export the graph. Native `--only <targets...>` checks named configured units and their descendants after complete analysis; `--shallow` omits descendants. Counts, diagnostics and status then describe that selected scope. Read the installed `@wrtnlabs/evidence` documentation for selectors, addresses, annotations, detached evidence and fingerprints.
 
-## Work and language requirements
+## Extending the graph
 
-Production-owned language and work questions live under `.agents/skills/contracts/story/{language,work}`. The shared graph retains unit principles, population obligations, discovery, upstream repair, expression revision, and independent review. Each extra narrative claim carries its native `claim` with a unique name, plus the exact owning `layer` and `pass`, in one [record](src/IAutoMovieNarrativeClaim.ts). The factory derives the matching claim scope. Inactive owners, duplicate names, and unsupported pass ownership are rejected.
+Top-level `claims` replaces the engineering defaults; use `createEngineeringClaims()` when extending them. `narrative.claims` appends ordinary `IEvidenceClaim[]` without changing the baseline. Native claim/reference fields determine respondents and relationships.
 
-Built-in language discovery uses `language/discovery/questions.md`. Unit questions use `language/principles/` for construction and `language/naturalness/` for expression; population questions use `language/obligations/` and `language/naturalness/obligations/`. Each family discovers installed `common.md`, `narratives.md` for treatments/scripts/screenplay, `realized.md` for scripts/screenplay, and the current `<layer>.md`. Expression families apply to scripts construction and screenplay naturalness, including their language-specific unit questions and file-level population duties. Other filenames are not discovered automatically.
+The `@automovie/evidence/narrative` entry exports narrative selectors, graph factories and local contract helpers. Construction evidence uses detached carriers under `docs/evidence/construction/{files,units}`. Screenplay naturalness uses working text under `docs/naturalness`, preserving its frozen construction lineage under `docs/revision`. Existing review claims compare their actual authored H2s with native current fingerprints; independent reviewers own their judgments.
 
-The advanced builders [createPackageChecklistClaim](src/narrative/createPackageChecklistClaim.ts) and [createPackagePopulationContract](src/narrative/createPackagePopulationContract.ts) distinguish work-local unit/file duties from obligations answered once per complete layer; attach each returned claim to its actual layer and pass through the same record.
-
-Adopt scripts expression contracts with `pass: "draft"` and scripts construction; screenplay expression contracts use `pass: "final"` and screenplay naturalness. The contract directory does not choose its pass. Migrate legacy `naturalness.scripts` by removing that key and answering script expression in construction; replace a screenplay `[stage, boolean]` source tuple with its scalar stage. Both legacy forms are rejected, as are scripts final-pass contracts and scripts naturalness checks. Keep historical frozen/working scripts and proof at their original identities; they remain protected authored inputs, not active revision populations or new approvals.
-
-Global engineering claims cannot consume authored body, revision, naturalness, evidence, review, instructions, or story-contract inputs. That protection includes physical/logical aliases and regular-file hard links throughout those trees, including inactive layers, disabled descendants, and material outside a selected pilot. Duties consuming protected material belong to explicitly owned narrative claims. Independent copied bytes remain independent files.
-
-Installed `@wrtnlabs/evidence` documentation owns native selectors, annotation syntax, relationship constraints, and review fingerprints. The `@automovie/evidence/narrative` entry exports the graph, pass-analysis, contract, and metadata-rewrite primitives for advanced consumers; its declarations own their exact inputs and ownership requirements.
-
-## Narrative files
-
-| Path | Owner |
-| --- | --- |
-| `docs/instructions/*.md` | Adopted requirements |
-| `docs/body/settings/001-topic.md` or `settings/001-subject/001-topic.md` | Canon; flat and classified layouts cannot mix |
-| `docs/body/settings/outline/index.md` | Canon outline |
-| `docs/body/treatments/001-event.md` | Flat event sequence |
-| `docs/body/{scripts,screenplay}/001-part/001-scene.md` | Scene execution and final audiovisual realization |
-| `docs/evidence/construction/{files,units}/<layer>/<relative-file>.md` | Detached construction answers |
-| `docs/revision/screenplay/<relative-file>.md` | Frozen construction |
-| `docs/naturalness/screenplay/<relative-file>.md` | Working expression edition and comment evidence |
-| `docs/review/{draft,final}/<layer>/round-N/<relative-file>.md` | Current unit reviews |
-| `docs/review/{draft,final}/<layer>/round-N/verdict/index.md` | Whole selected population verdict |
-
-Narrative scene files use one leading H1 and H2 units, contiguous numbered paths, and no deeper headings. Long body parts have `index.md` navigation with current ordered scene links and titles. Long screenplay preserves script paths, titles, anchors, order, and the exact cited counterpart. An absent short, frozen, or working index is optional; a provided working index requires its body counterpart and exact promotion with comments removed. Matching visible H2 titles remain valid when explicit anchors distinguish their units.
-
-A first-part pilot uses the exact selected part in `narrative.scope`. Settings remains work-wide; event and scene coverage follows the declared slice. Restore complete-work scope and complete populations before claiming whole-work completion. Production skills and guides own composition, independent reading, upstream repair, and actual delivery procedures.
-
-## Pass command
-
-The generated project's `production.check.ts` supplies its original config and arguments to `runProductionCheck`, then uses the returned exit status:
-
-```ts
-import { runProductionCheck } from "@automovie/evidence";
-
-import config from "./evidence.config";
-
-process.exitCode = await runProductionCheck({
-  config,
-  args: process.argv.slice(2),
-});
-```
-
-Its project command accepts `--layer <settings|treatments|scripts|screenplay>` and `--pass <construction|naturalness>`; naturalness is available only for screenplay. The command evaluates the original complete native graph, preserving `packageReport` and `packageSuccess`. `rereadReady` identifies a pass ready for independent reading; `approvalStructureReady` additionally requires current unit reviews, a population verdict, valid topology and lineage, and completed transfers. Neither field issues a creative verdict or proves a rendered film realizes the screenplay.
-
-`scopeIssues` reports captured-input structural failures. `pendingNaturalnessTransfers` compares working text, with every HTML comment removed, to the corresponding captured body bytes. A pending current promotion can permit a working-text reread but blocks structural readiness for completion and downstream consumption. Exit status 1 can therefore coexist with `rereadReady: true`; inspect the reported prerequisites before choosing review or repair.
-
-Construction reviews still target current body bytes, including after expression transfer. A stale required upstream review blocks `rereadReady`; an absent current review or verdict separately blocks `approvalStructureReady`. `frozenDownstreamDiagnostics` classifies nonrequired downstream duties, not historical closure. The API has no durable closed-edition or completed-transfer lineage: a later semantic body repair can therefore remain a pending transfer even after an initial exact promotion. These states remain failed checks; the current API cannot certify strict completion while they persist.
-
-The checker exposes no separate status for a manuscript handed off with mechanical limits; such a handoff leaves native failure and readiness fields unchanged.
-
-Analysis captures physical aliases and protected identities during evaluation. Reclassifying an `analyzeProductionPass` result with the same original config reads only that capture, even after later filesystem changes. A raw native evaluation or different config cannot supply missing provenance. Reevaluate to inspect changed inputs. No wrapper rewrites native graph success to conceal a frozen downstream failure.
-
-## Provenance and development
-
-The narrative implementation adapts [`wrtnlabs/novels` config](https://github.com/wrtnlabs/novels/tree/a26ab06ebf31ee5b2aa85979fce1881b2898be7e/packages/config/src) and [CLI structure checks](https://github.com/wrtnlabs/novels/tree/a26ab06ebf31ee5b2aa85979fce1881b2898be7e/packages/cli/src/internal) at `a26ab06ebf31ee5b2aa85979fce1881b2898be7e`, replacing the final prose layer with audiovisual screenplay. The original MIT notice is retained in [LICENSE.novels](LICENSE.novels). The generated project's skills and contracts retain their own upstream notice and responsibility map.
-
-Node 22.23.2 or newer is required. Workspace development uses `pnpm --filter @automovie/evidence build` and `pnpm --filter @automovie/evidence evidence`. Tests call workspace source exports and the real Evidence APIs in-process; installing a generated consumer is not their execution layer.
+`stripNaturalnessComments` removes HTML comments while retaining other bytes. `verifyEvidenceMetadataRewrite` checks an explicitly owned metadata-only rewrite against protected authored bytes. Neither helper evaluates narrative approval.

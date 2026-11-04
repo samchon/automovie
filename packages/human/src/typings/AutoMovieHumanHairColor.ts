@@ -3,7 +3,7 @@
  *
  * Natural hair colour follows the amounts of eumelanin (brown to black) and pheomelanin (red to yellow) in the cortex, and grey and white follow their loss with age. The choice is a colour category, not a measured pigment concentration. Hair, brows and lashes each take their own choice, because dyed hair and natural brows differ.
  */
-export const enum AutoMovieHumanHairColor {
+export enum AutoMovieHumanHairColor {
   /** Very much eumelanin. */
   Black = "black",
 

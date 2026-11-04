@@ -4,7 +4,7 @@ import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogV
 /**
  * Build the version table behind the scaffold's `{{version:<key>}}` tokens.
  *
- * Workspace package ranges are copied unchanged. Every external dependency is read from the pnpm catalog that owns it: `media` for the media and runtime libraries, `three`, `vite`, `utils` for `@types/node`, `samchon` for the compiler, lint, and evidence tools, and `typescript`. For `@huggingface/transformers`, `kokoro-js`, and `onnxruntime-node`, whose runtime graphs must agree on one exact version, a leading `^` or `~` is removed; any other range form is kept as written.
+ * Workspace package ranges are copied unchanged. Every external dependency is read from the pnpm catalog that owns it: `media` for the media and runtime libraries, `three`, `vite`, `utils` for `@types/node`, `samchon` for the compiler, lint, evidence and test tools, and `typescript`. For `@huggingface/transformers`, `kokoro-js`, and `onnxruntime-node`, whose runtime graphs must agree on one exact version, a leading `^` or `~` is removed; any other range form is kept as written.
  *
  * @param props The manifest text and the workspace package ranges.
  * @returns The table keyed by token name, such as `engine` or `kokoroJs`.
@@ -14,9 +14,9 @@ import { createAutoMovieCatalogVersionResolver } from "./createAutoMovieCatalogV
  * @evidence contracts/common.md#clear-and-simple-design The function owns only the mapping from token names to catalog entries; YAML reading belongs to `createAutoMovieCatalogVersionResolver`, and file access to the build script.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The exact-version rule applies to the three named runtime packages by their catalog names because their graphs need one version, and no value is hard-coded; every version comes from the inputs.
  * @evidence contracts/common.md#meaningful-documentation The comment states which catalog owns each group, which entries become exact and how, the keys of the result, and what throws.
- * @evidence contracts/performance.md#efficient-algorithms The manifest is parsed once; each of eighteen lookups scans the direct keys of the root, catalogs mapping and requested catalog, including alias resolution where needed. The fixed lookup count keeps total work linear in manifest size, with one parsed document and twenty-nine result strings.
- * @evidence contracts/performance.md#reuse-equivalent-work All eighteen lookups share one resolver and therefore one parsed document of `props.workspace`, the only input they depend on; nothing outlives the call, so no invalidation is needed.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The resolver and its parsed document are released when the function returns; only the result table, twenty-nine strings, is retained by the caller.
+ * @evidence contracts/performance.md#efficient-algorithms The manifest is parsed once; each of nineteen lookups scans the direct keys of the root, catalogs mapping and requested catalog, including alias resolution where needed. The fixed lookup count keeps total work linear in manifest size, with one parsed document and thirty result strings.
+ * @evidence contracts/performance.md#reuse-equivalent-work All nineteen lookups share one resolver and therefore one parsed document of `props.workspace`, the only input they depend on; nothing outlives the call, so no invalidation is needed.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The resolver and its parsed document are released when the function returns; only the result table, thirty strings, is retained by the caller.
  */
 export const resolveAutoMovieTemplateDependencyVersions: (
   props: IAutoMovieTemplateDependencyVersionsProps,
@@ -57,6 +57,7 @@ export const resolveAutoMovieTemplateDependencyVersions: (
     threeTypes: catalogVersion("three", "@types/three"),
     vite: catalogVersion("vite", "vite"),
     nodeTypes: catalogVersion("utils", "@types/node"),
+    nestiaE2e: catalogVersion("samchon", "@nestia/e2e"),
     ttsc: catalogVersion("samchon", "ttsc"),
     ttscLint: catalogVersion("samchon", "@ttsc/lint"),
     evidenceCli: catalogVersion("samchon", "@wrtnlabs/evidence"),

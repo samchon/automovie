@@ -3,7 +3,7 @@
  *
  * The choice describes an iris colour category rather than a measured pigment concentration or a stroma pattern.
  */
-export const enum AutoMovieHumanIrisColor {
+export enum AutoMovieHumanIrisColor {
   /** Blue iris. */
   Blue = "blue",
 

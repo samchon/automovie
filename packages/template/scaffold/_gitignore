@@ -1,6 +1,9 @@
 node_modules/
 lib/
 dist/
+/docs/revision/
+/docs/naturalness/
+/references/private/
 *.log
 .DS_Store
 .wiki/

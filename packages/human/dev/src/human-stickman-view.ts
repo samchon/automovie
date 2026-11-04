@@ -132,6 +132,7 @@ async function bootstrapHumanStickman(): Promise<void> {
     const prepared: ReturnType<typeof AutoMovieHumanSkeleton.prepare> =
       AutoMovieHumanSkeleton.prepare(base, {
         neckSurface: style === "polygon",
+        footSurface: style === "polygon",
       });
     traceHumanViewerPhase("mannequin.prepare.ready", "mannequin");
     const bodyPreparations: number = 1;

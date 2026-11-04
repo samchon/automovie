@@ -2,7 +2,7 @@
  * Mirrors selected manuscript files under detached construction evidence.
  *
  * @evidence contracts/common.md#principled-implementation Each body-relative selector is placed under detached construction files or units according to its host symbol, preserving a leading exclusion marker around the qualified selector.
- * @evidence contracts/common.md#clear-and-simple-design One selector transform serves factory ownership and package claim builders, so detached file/H2 evidence use the same carrier layout.
+ * @evidence contracts/common.md#clear-and-simple-design One selector transform serves the native graph collector and package claim builders, so detached file/H2 evidence use the same carrier layout.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Files and units are explicit native host distinctions; negative selectors keep their original exclusion semantics instead of widening coverage.
  * @evidence contracts/common.md#meaningful-documentation The comment states the detached construction mirror, and the typed symbol input selects the documented file-versus-unit carrier.
  * @evidence contracts/performance.md#efficient-algorithms For n selectors with total text length p, one mapping pass costs O(n + p) text work and allocates n qualified strings; manuscript contents are not read.

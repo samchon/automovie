@@ -42,8 +42,8 @@ export interface IAutoMovieHeadlessCaptureOptions {
 
   /**
    * Name of the page global that moves the viewer to a time in seconds;
-   * `__afSeek` by default. The adapter does not await anything the hook
-   * returns, so the hook must finish rendering synchronously.
+   * `__afSeek` by default. The adapter awaits synchronous or asynchronous
+   * completion; the hook must finish placement and rendering before completion.
    */
   seekFunction?: string;
 

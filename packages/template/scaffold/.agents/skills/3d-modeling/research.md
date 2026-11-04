@@ -1,6 +1,6 @@
 # Asset and rigging references
 
-Use primary sources to choose a method and understand its limits, then read the installed contracts and inspect the actual result. These references supply options, not installed features, mandatory dependencies or reproduced benchmark results. External model/code/data licenses and hardware support are separate checks at adoption; a research preview is not the production's accepted asset.
+Follow [production research](../production/research.md) to inspect original visual evidence, retain local references and derive supported constraints. The sources below inform method selection, not installed features, mandatory dependencies or reproduced benchmark results. External model/code/data licenses and hardware support are separate checks at adoption; a research preview is not the production's accepted asset.
 
 | Primary source | Decision informed here |
 | --- | --- |
