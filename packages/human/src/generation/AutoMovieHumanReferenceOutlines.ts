@@ -140,7 +140,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   /** The forearm's section along it, wrist 0 to elbow 1. */
   export const FOREARM: ITable = {
     reading: "test_human_estimate_arm_sections",
-    normalization: "share of wrist to elbow; the four extents about the section's centre per girth; shoulders 0 chord to 1 box",
+    normalization: "lowest arm cut as wrist proxy to inferred elbow at supplied RS along the line of loop point means; A-pose loops projected normal to that line; extents about the point mean per projected convex hull girth, not a measured bone axis; shoulders 0 chord to 1 box",
     consumers: "arm/AutoMovieHumanArmInterim.sites (forearm and wrist boxes)",
     columns: ["anterior", "lateral", "posterior", "medial", "shoulderFront", "shoulderBack"],
     rows: [
@@ -161,7 +161,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   /** The upper arm's section along it, elbow 0 to the axilla 1. */
   export const UPPER_ARM: ITable = {
     reading: "test_human_estimate_arm_sections",
-    normalization: "share of elbow to the axilla; the four extents per girth; shoulders 0 chord to 1 box",
+    normalization: "inferred elbow to axilla top along the line of loop point means, not humeral joint length; A-pose loops projected normal to that line; extents about the point mean per projected convex hull girth, without a measured bone offset; shoulders 0 chord to 1 box",
     consumers: "arm/AutoMovieHumanArmInterim.sites (upper-arm boxes)",
     columns: ["anterior", "lateral", "posterior", "medial", "shoulderFront", "shoulderBack"],
     rows: [
