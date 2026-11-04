@@ -2,11 +2,11 @@
 
 ## Type Checking
 
-Read type errors from one resident collector, `pnpm ttsc --noEmit --watch` in `test/`. The test project imports every package, so its cycle checks them all, and every agent in the checkout reads that one log. Add a collector only for code the test program does not import, such as a package's debug viewer, under that code's own tsconfig; further collectors over the same sources compete for the same plugin cache and CPU and find nothing it does not.
+Read type errors from the running watch of the program that compiles the code, and start one only where none runs. `pnpm ttsc --noEmit --watch` in `test/` checks every package the tests import; code outside that program, such as a package's debug viewer, has its own watch under its own tsconfig, documented beside that code. Every agent in the checkout reads the running watch's log, because a second watch over the same program competes for the plugin cache and CPU and finds nothing more.
 
 ## Tests
 
-Follow any task-specific test-code prohibition and use its required verification instead. Where tests are permitted, prove a change first with the narrowest test that fails without it (`pnpm test --include <name>`). Then run the affected tests locally and let CI run the full suites.
+Follow any task-specific test-code prohibition and use its required verification instead. Where tests are permitted, prove a change first with the narrowest test that fails without it, then run the affected tests, and let CI run the full suites. Put every test one run needs into one `pnpm test --include <names...>`, because each run compiles the whole project before its first test.
 
 ## Visual Changes
 
