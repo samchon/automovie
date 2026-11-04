@@ -21,9 +21,9 @@ import { loadHumanDebugSubject } from "./loadHumanDebugSubject";
  * orbiting writes `az`, `el`, `dist` and `target`. A subject (person and piece) is loaded once and
  * kept while only display options change; changing the person or piece disposes it and loads the
  * next. Rejected values keep their defaults and are listed in the notice box, and a failed load
- * leaves nothing of the previous subject on screen. A subject is generated only on a passed compile
- * (`HumanDebugCompilerPanel.read`); otherwise the notice box shows the compiler's messages and the
- * page tries again every 3 s.
+ * leaves nothing of the previous subject on screen. A subject is generated from the type-stripped source whatever the compile
+ * collector reports (`HumanDebugCompilerPanel.read`); a cycle that has not passed is named in the
+ * notice box.
  *
  * @returns The automation handle, also published as `window.__humanDebug`.
  */
@@ -60,7 +60,6 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
   let loaded: number | null = null;
   let source: string | null = null;
   let drawn: () => void = (): void => {};
-  let retry: ReturnType<typeof setTimeout> | undefined;
   const size: { width: number; height: number } = { width: 0, height: 0 };
 
   // Draw on demand; labels follow the camera after every draw.
@@ -153,18 +152,11 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
         await previous?.dispose();
         labels.replaceChildren();
 
-        // Nothing is generated on a failed or unfinished compile; the page shows the messages and
-        // tries again every 3 s until a cycle passes.
+        // The subject is generated from the type-stripped source whatever the compile collector
+        // reports; its state is shown beside the frame as information.
         const compile: IHumanDebugCompilerState = await HumanDebugCompilerPanel.read();
-        if (compile.phase !== "passed") {
-          // A capture page (`ui=0`) never retries by itself: its server asks again.
-          clearTimeout(retry);
-          if (options.ui) retry = setTimeout((): void => void apply(options, []), RETRY);
-          throw new Error(
-            "Compile " + compile.phase + " (" + (compile.cycle ?? "no cycle") + "); nothing is generated until it passes.\n" +
-              compile.output,
-          );
-        }
+        if (compile.phase !== "passed")
+          messages.push("Compile " + compile.phase + " (" + (compile.cycle ?? "no cycle") + "); drawn from the type-stripped source.");
         status.textContent =
           "불러오는 중: " + (options.person ?? "(첫 사람)") + " " + (options.piece ?? "전신 " + options.pose);
         const started: number = performance.now();
@@ -275,5 +267,3 @@ export function mountHumanDebugPage(): IHumanDebugAutomation {
   return automation;
 }
 
-/** Milliseconds a page blocked by the compile waits before it reads the compile again. */
-const RETRY: number = 3000;

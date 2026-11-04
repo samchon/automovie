@@ -26,6 +26,7 @@ export const HUMAN_DEBUG_ROUTES: {
     readonly gpu: string;
     readonly notices: string;
     readonly provenance: string;
+    readonly compile: string;
   };
 } = {
   // The default port lies outside the workers' own range 5200 to 5299; `AUTOMOVIE_HUMAN_PORT`
@@ -49,5 +50,6 @@ export const HUMAN_DEBUG_ROUTES: {
     gpu: "x-human-gpu",
     notices: "x-human-notices",
     provenance: "x-human-provenance",
+    compile: "x-human-compile",
   },
 };

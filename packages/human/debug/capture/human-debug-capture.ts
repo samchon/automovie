@@ -28,7 +28,7 @@ import { parseHumanDebugCaptureArguments } from "./parseHumanDebugCaptureArgumen
  * its URL, its bytes' SHA-256 and the route's headers (source hash, capture time). A shot that
  * fails keeps no PNG and adds one line with its cause to `<person>-FAILED.txt`, named by the
  * shot's `person` variable, and the run goes on to the next shot and ends with exit code 1. While
- * the viewer's compile gate is shut (HTTP 503 during a check, 409 after a failed one) the shot is
+ * the route answers 503 (a save landed while the frame's page loaded its modules) the shot is
  * asked again after the answer's `retry-after`, for up to {@link GATE_WAIT}. Requests use
  * `node:http` without a timeout, because one person's generation takes minutes, longer than
  * `fetch`'s header timeout. The program draws nothing itself: the server's resident page draws
@@ -61,7 +61,7 @@ async function main(): Promise<void> {
   if (failed) process.exitCode = 1;
 }
 
-/** How long a shot waits for the compile gate to open, ms: a save's check takes seconds, a repair minutes. */
+/** How long a shot waits while its route answers 503, ms: a burst of saves can last minutes. */
 const GATE_WAIT: number = 30 * 60 * 1000;
 
 /** One kept shot of the receipt. */
@@ -115,19 +115,18 @@ async function capture(url: string, file: string): Promise<IReceiptRow> {
 }
 
 /**
- * GET a frame, waiting while the viewer's compile gate is shut: the route
- * answers 503 while the collector checks a save and 409 after a failed check,
- * and draws nothing then, so the frame is asked again after the answer's
- * `retry-after` (10 s when absent) until {@link GATE_WAIT} has passed.
+ * GET a frame, waiting while the route answers 503: a save landed while the
+ * frame's page loaded its modules, so the frame is asked again after the
+ * answer's `retry-after` (10 s when absent) until {@link GATE_WAIT} has passed.
  *
  * @param url The frame's address.
- * @returns The first answer that is not a shut gate, or the last one.
+ * @returns The first answer that is not a 503, or the last one.
  */
 async function gated(url: string): Promise<IAnswer> {
   const until: number = Date.now() + GATE_WAIT;
   for (;;) {
     const answer: IAnswer = await get(url);
-    if ((answer.status !== 503 && answer.status !== 409) || Date.now() > until) return answer;
+    if (answer.status !== 503 || Date.now() > until) return answer;
     const after: number = Number(answer.headers["retry-after"]);
     await new Promise<boolean>((resolve: (done: boolean) => void): void => {
       setTimeout((): void => resolve(true), 1000 * (Number.isFinite(after) && after > 0 ? after : 10));

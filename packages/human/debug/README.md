@@ -25,7 +25,7 @@ pnpm ttsc --noEmit --watch -p tsconfig.debug.json >> .shots\debug\ttsc-debug-wat
 
 The first command serves the viewer on `http://127.0.0.1:5197`. `AUTOMOVIE_HUMAN_PORT` selects another port, from 1024 to 65535, and each port gets its own dependency cache. The second command is the compile collector. Its log is the default of `AUTOMOVIE_HUMAN_CHECK_LOG`, and the page's corner panel and `/human-debug/compiler.json` report its latest cycle. `pnpm debug:check` runs the same check once.
 
-Vite strips types and checks none; the compile collector checks them. Nothing is generated on a failed or unfinished compile: while the collector's latest cycle (`/human-debug/compiler.json`) is checking, failed or missing, the page shows the compiler's messages and generates nothing until a cycle passes, the image and batch routes answer 503 with `retry-after` while it checks and 409 after a failed cycle, each with the messages.
+Vite strips types and checks none; the compile collector checks them. The viewer draws from the type-stripped source whatever the collector reports and shows its state: the compile panel and, while the latest cycle (`/human-debug/compiler.json`) has not passed, a notice name the cycle, and the image and batch routes carry it in `x-human-compile`.
 
 An open page keeps the source it loaded until it is reloaded by hand or by a capture's own request: Vite's update socket is off (`server.hmr: false`), so a save reaches no page, and the watcher still invalidates the served modules, so a reload loads the saved source. A frame stays bound to the source its page loaded. The file watcher ignores `.shots`, `docs`, `dev`, `lib` and Markdown. Vite restarts the server when its configuration file or a module the configuration imports changes (`vite.config.ts`, `debug/server`, `debug/contracts`, `debug/poses`); a restart closes the capture session and its page. The compile panel reads `/human-debug/compiler.json` when the page loads, when the panel is opened, and every 3 s while a compile blocks generation.
 
@@ -129,6 +129,7 @@ A chain end whose parent chain is not lofted closes as a flat fan at its axis: t
 | `x-human-gpu` | WebGL renderer string; a software renderer is refused |
 | `x-human-notices` | URI-encoded page notices, one per line |
 | `x-human-provenance` | URI-encoded JSON of the subject's provenance (pose, stage milliseconds, counts), cut at 7000 characters |
+| `x-human-compile` | the compile collector's latest cycle as `<phase> <cycle>`, information only |
 
 Examples (PowerShell from `packages/human`):
 

@@ -28,9 +28,9 @@ const EXTRA: readonly string[] = ["fresh", "round", "cameras", "pieces", "keep"]
  * failure is logged on the server and answered with its cause: a source change during a frame is
  * HTTP 503 with `retry-after`, a rejected request 400, anything else 500 with the message. The
  * registries are read through Vite's SSR loader, so the index and batch lists follow the source as
- * it stands. The image and batch routes draw only on a passed compile: while the compile
- * collector's latest cycle is still checking (or its log is missing) they answer 503 with
- * `retry-after`, and after a failed cycle 409, each with the compiler's messages.
+ * it stands. The image and batch routes draw from the
+ * type-stripped source whatever the compile collector reports, and carry its latest cycle's
+ * state in `x-human-compile` (`<phase> <cycle>`) as information.
  *
  * @param environment Server environment.
  * @returns The plugin.
@@ -80,18 +80,10 @@ export function createHumanDebugPlugin(environment: IHumanDebugEnvironment): Plu
     const image: RegExpExecArray | null = new RegExp("^" + HUMAN_DEBUG_ROUTES.images + "([A-Za-z0-9_.-]+)\\.png$").exec(url.pathname);
     const batch: RegExpExecArray | null = new RegExp("^" + HUMAN_DEBUG_ROUTES.batch + "([A-Za-z_][A-Za-z0-9_]*)\\.json$").exec(url.pathname);
 
-    // Nothing is drawn on a failed or unfinished compile; the answer carries the compiler's messages.
+    // The compile collector's state rides along as information; the frame is drawn whatever it is.
     if (image !== null || batch !== null) {
       const compile: IHumanDebugCompilerState = HumanDebugCompilerLog(environment.checkLog);
-      if (compile.phase !== "passed") {
-        if (compile.phase !== "failed") response.setHeader("retry-after", "5");
-        return send(
-          response,
-          compile.phase === "failed" ? 409 : 503,
-          "text/plain; charset=utf-8",
-          "Human debug compile " + compile.phase + " (" + (compile.cycle ?? "no cycle") + "); nothing is drawn.\n" + compile.output,
-        );
-      }
+      response.setHeader(HUMAN_DEBUG_ROUTES.headers.compile, compile.phase + " " + (compile.cycle ?? "no-cycle"));
     }
 
     if (image !== null) {

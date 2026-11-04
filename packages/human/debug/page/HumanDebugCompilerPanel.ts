@@ -2,9 +2,9 @@ import { HUMAN_DEBUG_ROUTES } from "../contracts/HUMAN_DEBUG_ROUTES";
 import type { IHumanDebugCompilerState } from "../contracts/IHumanDebugCompilerState";
 
 /**
- * A corner panel showing the separate type checker's latest cycle, and the read the page gates on.
+ * A corner panel showing the separate type checker's latest cycle, and the read the page reports.
  *
- * The page generates only on a passed cycle (`read`); until then it shows the compiler's messages.
+ * The page generates whatever the cycle (`read`) and names a cycle that has not passed in its notices.
  * The panel reads the compiler route when the page loads and again whenever it is opened, and it
  * starts open while the cycle failed.
  */
