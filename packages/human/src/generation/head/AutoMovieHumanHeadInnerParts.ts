@@ -1,4 +1,4 @@
-import { AutoMovieHumanViewSection } from "../../lofting/AutoMovieHumanViewSection";
+import { AutoMovieViewSection } from "@automovie/engine";
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import type { IAutoMovieHumanHeadEyeOpening } from "../IAutoMovieHumanHeadEyeOpening";
@@ -12,7 +12,7 @@ import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
  *
  * | Part | Parent | Join | Size from |
  * | --- | --- | --- | --- |
- * | tip lobule | nose | merge | the tip ball (`face.tipBall`) about the pronasale |
+ * | tip lobule | nose | merge | round, as wide as the tip ball's breadth (`face.tipBall[2]` half nose widths) about the pronasale |
  * | ala, each side | nose | merge | the alar lobule (`face.ala`) beside the subnasale at half `nose.width` |
  * | nostril, each side | nose | diff | the nostril's size and centre in the base (`face.nostrilSize`, `face.nostrilCentre`) |
  * | philtral groove | head mass | diff | the philtrum's depth and half width (`face.philtrum`), subnasale to labrale superius |
@@ -48,7 +48,7 @@ export namespace AutoMovieHumanHeadInnerParts {
     const tip: [number, number, number] = [m.pronasale[0], m.pronasale[1], 0];
     out.push(
       part("nose.lobule", "nose", "merge", sub(tip, scale(forward, INSET + f.tipBall[2]! * plan.noseWidth / 2)), forward, up,
-        [f.tipBall[1]! * NH, f.tipBall[2]! * plan.noseWidth, f.tipBall[0]! * NH, f.tipBall[2]! * plan.noseWidth], INSET + f.tipBall[2]! * plan.noseWidth / 2, tip),
+        [f.tipBall[2]! * plan.noseWidth, f.tipBall[2]! * plan.noseWidth, f.tipBall[2]! * plan.noseWidth, f.tipBall[2]! * plan.noseWidth], INSET + f.tipBall[2]! * plan.noseWidth / 2, tip),
     );
     for (const sign of [1, -1] as const) {
       const side: string = sign > 0 ? "left" : "right";
@@ -111,7 +111,7 @@ export namespace AutoMovieHumanHeadInnerParts {
     const h: number = Math.max(INSET + 0.5, height);
     const e: [number, number, number, number] = extents.map((x: number): number => Math.max(0.5, Math.abs(x))) as [number, number, number, number];
     return {
-      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents: e, height: h, profile: 2, shoulder: AutoMovieHumanViewSection.ELLIPSE }),
+      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents: e, height: h, profile: 2, shoulder: AutoMovieViewSection.ELLIPSE }),
       join,
       seed,
       contact: INSET,

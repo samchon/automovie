@@ -1,15 +1,8 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
+import { type AutoMovieLoftContract, AutoMovieSolidDiff, AutoMovieSolidFoot, type AutoMovieSolidJoin, AutoMovieSolidMerge, AutoMovieViewLoft, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
-import { AutoMovieHumanSolidDiff } from "../../lofting/AutoMovieHumanSolidDiff";
-import { AutoMovieHumanSolidFoot } from "../../lofting/AutoMovieHumanSolidFoot";
-import type { AutoMovieHumanSolidJoin } from "../../lofting/AutoMovieHumanSolidJoin";
-import { AutoMovieHumanSolidMerge } from "../../lofting/AutoMovieHumanSolidMerge";
-import { AutoMovieHumanViewLoft } from "../../lofting/AutoMovieHumanViewLoft";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
-import type { IAutoMovieHumanSolidSurface } from "../../lofting/IAutoMovieHumanSolidSurface";
-import type { IAutoMovieHumanViewPart } from "../../lofting/IAutoMovieHumanViewPart";
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
+import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import { AutoMovieHumanHeadEarParts } from "./AutoMovieHumanHeadEarParts";
 import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
@@ -21,7 +14,7 @@ import { AutoMovieHumanNeckPart } from "./AutoMovieHumanNeckPart";
  * The head subtree composed by the three operators: the head mass lofted
  * from its views (`AutoMovieHumanHeadMassPart`), and every face part lofted
  * from its own (`AutoMovieHumanHeadFeatures`) and merged onto it or cut from
- * it (`AutoMovieHumanSolidMerge`, `AutoMovieHumanSolidDiff`), each join
+ * it (`AutoMovieSolidMerge`, `AutoMovieSolidDiff`), each join
  * seeded at the part's landmark and blended over the part's own size
  * (`AutoMovieHumanSeamUnion.width`: half the lesser of its height and its
  * least half extent).
@@ -38,16 +31,16 @@ export namespace AutoMovieHumanHeadComposer {
     feature: AutoMovieHumanHeadFeatures.IFeature;
 
     /** Its loft. */
-    loft: AutoMovieHumanViewLoft.IResult;
+    loft: AutoMovieViewLoft.IResult;
 
     /** Its join to the head mass, or null when either surface or the seed is missing. */
-    join: AutoMovieHumanSolidJoin.IJoin | null;
+    join: AutoMovieSolidJoin.IJoin | null;
   }
 
   /** The composed head. */
   export interface IOutput {
     /** The head mass's loft. */
-    mass: AutoMovieHumanViewLoft.IResult;
+    mass: AutoMovieViewLoft.IResult;
 
     /** The neck merged under the head mass, when its chain is given. */
     neck: IJoined | null;
@@ -56,7 +49,7 @@ export namespace AutoMovieHumanHeadComposer {
     parts: IJoined[];
 
     /** Every broken premise, by producer. */
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+    diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
   /** Heights the published laws give, calibration mm. */
@@ -85,13 +78,13 @@ export namespace AutoMovieHumanHeadComposer {
    *
    * @param skeleton The landmark skeleton, the vault exponent solved.
    * @param ears The two auricles' inputs, world mm.
-   * @param neckChain The neck chain whose views the neck part reads; absent, no neck.
+   * @param neckChain The neck chain, whose bottom layer the neck part starts at inside the trunk; absent, no neck.
    * @param places Heights the published laws give, calibration mm; absent, the skeleton's own.
    */
   export function compose(
     skeleton: IAutoMovieHumanHeadLayout,
     ears: { left: IAutoMovieHumanEar; right: IAutoMovieHumanEar },
-    neckChain?: IAutoMovieHumanLoftChain,
+    neckChain?: IAutoMovieLoftChain,
     places?: IPlaces,
   ): IOutput {
     // The tragion at its published drop from the vertex, when given.
@@ -99,12 +92,12 @@ export namespace AutoMovieHumanHeadComposer {
       places?.tragion === undefined
         ? skeleton
         : { ...skeleton, landmarks: { ...skeleton.landmarks, tragion: [skeleton.landmarks.tragion[0], places.tragion] } };
-    const mass: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(AutoMovieHumanHeadMassPart.of(plan, places?.faceExponent));
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...mass.diagnostics];
+    const mass: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(AutoMovieHumanHeadMassPart.of(plan, places?.faceExponent));
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...mass.diagnostics];
 
     // Parents before their inner parts, each joined to its parent's bare
     // surface.
-    const surfaces: Map<string, IAutoMovieHumanSolidSurface | null> = new Map([["head.mass", mass.surface]]);
+    const surfaces: Map<string, IAutoMovieSolidSurface | null> = new Map([["head.mass", mass.surface]]);
     const features: AutoMovieHumanHeadFeatures.IFeature[] = [
       ...AutoMovieHumanHeadFeatures.of(plan),
       ...AutoMovieHumanHeadMasses.of(plan),
@@ -112,10 +105,10 @@ export namespace AutoMovieHumanHeadComposer {
       ...AutoMovieHumanHeadInnerParts.of(plan),
     ];
     const parts: IJoined[] = features.map((feature: AutoMovieHumanHeadFeatures.IFeature): IJoined => {
-      const loft: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(feature.part);
+      const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(feature.part);
       diagnostics.push(...loft.diagnostics);
       surfaces.set(feature.part.name, loft.surface);
-      const host: IAutoMovieHumanSolidSurface | null = surfaces.get(feature.parent) ?? null;
+      const host: IAutoMovieSolidSurface | null = surfaces.get(feature.parent) ?? null;
       if (host === null || loft.surface === null) return { feature, loft, join: null };
 
       // The seed: the landmark's foot on the parent, on the head mass from
@@ -125,24 +118,24 @@ export namespace AutoMovieHumanHeadComposer {
         feature.parent === "head.mass"
           ? [feature.seed[1], Math.atan2(feature.seed[2], feature.seed[0] - plan.centre)]
           : [AutoMovieHumanHeadFeatures.INSET, Math.atan2(feature.seed[2], feature.seed[0])];
-      const foot: AutoMovieHumanSolidFoot.IFoot | null = AutoMovieHumanSolidFoot.of(host, feature.seed, guess, TOLERANCE);
+      const foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(host, feature.seed, guess, TOLERANCE);
       if (foot === null) {
         diagnostics.push({ producer: `head.${feature.part.name}`, level: 2, contract: "seed", detail: "the landmark has no foot on the head mass" });
         return { feature, loft, join: null };
       }
       const width: number = AutoMovieHumanSeamUnion.width(feature.size[0], feature.size[1]);
-      const input: AutoMovieHumanSolidJoin.IInput = {
+      const input: AutoMovieSolidJoin.IInput = {
         part: loft.surface,
         host,
-        seed: { phi: 0, s: feature.contact, y: foot.u, theta: foot.v },
+        seed: { phi: 0, s: feature.contact + sunk(feature.part), y: foot.u, theta: foot.v },
         count: COUNT,
         tolerance: TOLERANCE,
         grazing: GRAZING,
         width: { part: (): number => width, host: (): number => width },
         ...(feature.elongated === true ? { parameter: { kind: "arc" as const } } : {}),
       };
-      const result: AutoMovieHumanSolidJoin.IResult =
-        feature.join === "merge" ? AutoMovieHumanSolidMerge.create(input) : AutoMovieHumanSolidDiff.create(input);
+      const result: AutoMovieSolidJoin.IResult =
+        feature.join === "merge" ? AutoMovieSolidMerge.create(input) : AutoMovieSolidDiff.create(input);
       diagnostics.push(...result.diagnostics);
       return { feature, loft, join: result.join };
     });
@@ -151,8 +144,8 @@ export namespace AutoMovieHumanHeadComposer {
     // back of the neck's top layer, its blend from the neck tube's radius.
     let neck: IJoined | null = null;
     if (neckChain !== undefined) {
-      const part: IAutoMovieHumanViewPart = AutoMovieHumanNeckPart.of(neckChain);
-      const loft: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(part);
+      const part: IAutoMovieViewPart = AutoMovieHumanNeckPart.of(plan.neck, neckChain.layers[0]!.y, plan.menton);
+      const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
       diagnostics.push(...loft.diagnostics);
       const top: number = neckChain.layers[neckChain.layers.length - 1]!.y;
       const back: [number, number, number] = [plan.neck.back, plan.y0, 0];
@@ -164,12 +157,12 @@ export namespace AutoMovieHumanHeadComposer {
         size: [plan.neck.radius, plan.neck.radius],
         parent: "head.mass",
       };
-      const foot: AutoMovieHumanSolidFoot.IFoot | null =
-        mass.surface === null ? null : AutoMovieHumanSolidFoot.of(mass.surface, back, [plan.y0, Math.PI], TOLERANCE);
+      const foot: AutoMovieSolidFoot.IFoot | null =
+        mass.surface === null ? null : AutoMovieSolidFoot.of(mass.surface, back, [plan.y0, Math.PI], TOLERANCE);
       if (loft.surface === null || mass.surface === null || foot === null) neck = { feature, loft, join: null };
       else {
         const width: number = AutoMovieHumanSeamUnion.width(plan.neck.radius, plan.neck.radius);
-        const result: AutoMovieHumanSolidJoin.IResult = AutoMovieHumanSolidMerge.create({
+        const result: AutoMovieSolidJoin.IResult = AutoMovieSolidMerge.create({
           part: loft.surface,
           host: mass.surface,
           seed: { phi: Math.PI, s: top, y: foot.u, theta: foot.v },
@@ -183,5 +176,10 @@ export namespace AutoMovieHumanHeadComposer {
       }
     }
     return { mass, neck, parts, diagnostics };
+  }
+
+  /** A dome's stem depth under its base: its station at the stem's top, zero for a part without a stem. */
+  function sunk(part: IAutoMovieViewPart): number {
+    return part.stations.length > AutoMovieHumanHeadDome.LAYERS + 1 ? part.stations[AutoMovieHumanHeadDome.STEM]! : 0;
   }
 }

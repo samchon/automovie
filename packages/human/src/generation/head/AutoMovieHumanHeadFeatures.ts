@@ -1,5 +1,4 @@
-import type { IAutoMovieHumanViewPart } from "../../lofting/IAutoMovieHumanViewPart";
-import { AutoMovieHumanViewSection } from "../../lofting/AutoMovieHumanViewSection";
+import { type IAutoMovieViewPart, AutoMovieViewSection } from "@automovie/engine";
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import type { IAutoMovieHumanHeadEyeOpening } from "../IAutoMovieHumanHeadEyeOpening";
@@ -28,7 +27,7 @@ export namespace AutoMovieHumanHeadFeatures {
   /** A part, its join and its seed. */
   export interface IFeature {
     /** The part's views. */
-    part: IAutoMovieHumanViewPart;
+    part: IAutoMovieViewPart;
 
     /** Added to the head mass, or cut from it. */
     join: "merge" | "diff";
@@ -124,7 +123,7 @@ export namespace AutoMovieHumanHeadFeatures {
   ): IFeature {
     const h: number = Math.max(INSET + 0.5, height);
     return {
-      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents, height: h, profile, shoulder: AutoMovieHumanViewSection.ELLIPSE }),
+      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents, height: h, profile, shoulder: AutoMovieViewSection.ELLIPSE }),
       join,
       seed,
       contact: INSET,

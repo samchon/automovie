@@ -1,8 +1,6 @@
 import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
-import { AutoMovieHumanApertureHoles } from "./AutoMovieHumanApertureHoles";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -115,13 +113,13 @@ export namespace AutoMovieHumanBodyApertures {
    */
   export function detail(
     boxes: readonly [[number, number, number], [number, number, number]][],
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     heights: readonly number[],
     phases: readonly number[],
   ): number[] {
     if (!boxes.length) return [...heights];
     const near: (s: number) => boolean = (s: number): boolean =>
-      AutoMovieHumanLoftChain.ring(target, s, phases).some(
+      AutoMovieLoftChain.ring(target, s, phases).some(
         (p: [number, number, number]): boolean =>
           boxes.some(
             ([lo, hi]: [
@@ -154,13 +152,13 @@ export namespace AutoMovieHumanBodyApertures {
    */
   export function refine(
     apertures: readonly IPrepared[],
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     heights: readonly number[],
     phases: readonly number[],
   ): number[] {
     if (!apertures.length) return [...heights];
     const near: (s: number) => boolean = (s: number): boolean =>
-      AutoMovieHumanLoftChain.ring(target, s, phases).some(
+      AutoMovieLoftChain.ring(target, s, phases).some(
         (p: [number, number, number]): boolean =>
           apertures.some(
             (a: IPrepared): boolean =>
@@ -168,23 +166,11 @@ export namespace AutoMovieHumanBodyApertures {
           ),
       );
 
-    // Between two rows a skin point near an opening rises by at most half
-    // the opening's own thickness (`AutoMovieHumanApertureHoles`), so every
-    // column crosses it in at least two rows and no row bridges it: a tilted
-    // section's front points rise faster than its station.
-    const half: number[] = apertures.map((a: IPrepared): number => AutoMovieHumanApertureHoles.thickness(a.outline) / 2);
-    const count = (a: number, b: number): number => {
-      const lo: [number, number, number][] = AutoMovieHumanLoftChain.ring(target, a, phases);
-      const hi: [number, number, number][] = AutoMovieHumanLoftChain.ring(target, b, phases);
-      let steps: number = Math.ceil((b - a) / SPACING);
-      for (let i: number = 0; i < lo.length; i++)
-        apertures.forEach((p: IPrepared, k: number): void => {
-          if (half[k]! > 0 && AutoMovieHumanLoftAperture.signed(p.outline, lo[i]!, REACH) < REACH)
-            steps = Math.max(steps, Math.ceil(Math.abs(hi[i]![1] - lo[i]![1]) / half[k]!));
-        });
-      return steps;
-    };
-    return split(heights, near, count);
+    // Rows near an opening at the spacing: the opening is a trim loop in its
+    // base's chart, so no row has to resolve a slit's thickness as the cut by
+    // position once needed; rows at half a thin slit's thickness multiplied
+    // the rows near it without bound.
+    return split(heights, near);
   }
 
   /**

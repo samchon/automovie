@@ -1,7 +1,4 @@
-import { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanViewAxis } from "../../lofting/AutoMovieHumanViewAxis";
-import { AutoMovieHumanViewSection } from "../../lofting/AutoMovieHumanViewSection";
-import type { IAutoMovieHumanViewPart } from "../../lofting/IAutoMovieHumanViewPart";
+import { AutoMovieLoftFrame, AutoMovieViewAxis, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
 import { AutoMovieHumanHeadBackProfile } from "../AutoMovieHumanHeadBackProfile";
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
@@ -12,7 +9,7 @@ import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 /**
  * The head mass (cranium and face without the nose, lips, brow ridge, chin
  * pad and ears) as a part drawn from its three views, the input of the
- * view-to-section operator (`AutoMovieHumanViewLoft`).
+ * view-to-section operator (`AutoMovieViewLoft`).
  *
  * - Side view: P, the median front profile of the skull and face
  *   (`AutoMovieHumanHeadMedianProfile`), continued under the menton along
@@ -23,11 +20,13 @@ import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
  *   the vertex, the eurion's level (half the head breadth), the tragion's
  *   (half the cranial base width t-t), the gonion's (half go-go) and the
  *   neck ring (the neck tube's radius).
- * - Axis: the operator's lateral touches lie on the chart axis through the
- *   part's axis, so the axis runs, in the side view, along L's forward
- *   place (the skull's centre over the eurion, the tragion, the gonion, the
- *   neck's centre), carried by minimal rotation; its binormal is the head's
- *   lateral axis, so every plane holds `z`.
+ * - Axis: straight up through the skull's centre from the tragion's height
+ *   to the vertex, leaning below to the neck ring's centre, carried by
+ *   minimal rotation; its binormal is the head's lateral axis, so every
+ *   plane holds `z`. A bend within a few centimetres of height (through L's
+ *   forward place at the tragion and the gonion) swept neighbouring planes
+ *   across each other and creased the mass, so L's forward place is an
+ *   observation, not the axis.
  * - Fullness: the vault's quarters take the conic shoulder of the
  *   super-ellipse whose exponent closes the head circumference
  *   (`AutoMovieHumanHeadVault.closing`, `r = 2^(1 - 1/n) - 1`, the share of
@@ -36,7 +35,9 @@ import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
  *   vault's over the forehead.
  *
  * The top is a pole at the vertex, every outline reaching 0 there; the bottom
- * is open at the neck ring, inside the neck the head mass is merged onto.
+ * is open where P's submental line meets the neck's front, inside the neck
+ * the head mass is merged onto; a bottom at the neck ring put the front
+ * behind the axis (a negative half extent) and turned the sections concave.
  * First pass: compile-only, not wired into generation.
  */
 export namespace AutoMovieHumanHeadMassPart {
@@ -56,21 +57,25 @@ export namespace AutoMovieHumanHeadMassPart {
    * @param faceExponent The face plan's super-ellipse exponent (`AutoMovieHumanFacePlan.exponent`); absent, the head prior's row.
    * @returns The part, chain name `head.mass`.
    */
-  export function of(plan: IAutoMovieHumanHeadLayout, faceExponent?: number): IAutoMovieHumanViewPart {
+  export function of(plan: IAutoMovieHumanHeadLayout, faceExponent?: number): IAutoMovieViewPart {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const g: number = m.glabella[1];
+
+    // The open bottom: where P's submental line meets the neck's front,
+    // under which the neck alone owns the skin and the head mass would turn
+    // behind its own axis.
+    const throat: number = meeting(plan);
     const top: number = plan.vertex - g;
 
-    // The axis in the side view: L's forward place at its knots.
+    // The axis in the side view: straight over the tragion, leaning below.
     const axisKnots: [string, number, number][] = [
-      ["neck", plan.y0, plan.neck.x],
-      ["gonion", m.gonion[1], m.gonion[0]],
-      ["tragion", m.tragion[1], m.tragion[0]],
+      ["throat", throat, plan.neck.x],
+      ["tragion", m.tragion[1], plan.centre],
       ["glabella", g, plan.centre],
       ["vertex", plan.vertex, plan.centre],
     ];
-    const axis: AutoMovieHumanViewAxis.IAxis = AutoMovieHumanViewAxis.minimal(
-      axisKnots.map(([, y, x]: [string, number, number]): AutoMovieHumanViewAxis.IAxisKnot => ({ station: y, point: [x, y, 0] })),
+    const axis: AutoMovieViewAxis.IAxis = AutoMovieViewAxis.minimal(
+      axisKnots.map(([, y, x]: [string, number, number]): AutoMovieViewAxis.IAxisKnot => ({ station: y, point: [x, y, 0] })),
       [1, 0, 0],
       1,
     );
@@ -78,7 +83,7 @@ export namespace AutoMovieHumanHeadMassPart {
     // The sites the outlines carry knots at, by station (the axis point's
     // height, the axis being near vertical).
     const sites: [string, number][] = [
-      ["neck", plan.y0],
+      ["throat", throat],
       ["menton", plan.menton],
       ["gonion", m.gonion[1]],
       ["stomion", plan.stomion],
@@ -96,12 +101,12 @@ export namespace AutoMovieHumanHeadMassPart {
     );
 
     // Each site's plane and the outlines' values there.
-    const front: IAutoMovieHumanViewPart.IKnot[] = [];
-    const back: IAutoMovieHumanViewPart.IKnot[] = [];
-    const left: IAutoMovieHumanViewPart.IKnot[] = [];
-    const right: IAutoMovieHumanViewPart.IKnot[] = [];
+    const front: IAutoMovieViewPart.IKnot[] = [];
+    const back: IAutoMovieViewPart.IKnot[] = [];
+    const left: IAutoMovieViewPart.IKnot[] = [];
+    const right: IAutoMovieViewPart.IKnot[] = [];
     for (const [site, station] of knotted) {
-      const frame: AutoMovieHumanLoftFrame.IFrame = axis.at(station);
+      const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
       const atPole: boolean = site === "vertex";
       const p: number = atPole ? 0 : reach(frame, 1, (y: number): number => median(plan, y));
       const b: number = atPole ? 0 : reach(frame, -1, (y: number): number => AutoMovieHumanHeadBackProfile.at(AutoMovieHumanHeadVault.backProfile(plan), y));
@@ -124,19 +129,19 @@ export namespace AutoMovieHumanHeadMassPart {
     const face: number = shoulder(faceExponent ?? AutoMovieHumanHeadPrior.PRIOR.frame.plan);
     const first: number = knotted[0]![1];
     const last: number = knotted[knotted.length - 1]![1];
-    const flatAt = (value: number): IAutoMovieHumanViewPart.IOutline => ({
+    const flatAt = (value: number): IAutoMovieViewPart.IOutline => ({
       knots: [
         { site: knotted[0]![0], station: first, value },
         { site: knotted[knotted.length - 1]![0], station: last, value },
       ],
     });
-    const faceDeparture: IAutoMovieHumanViewPart.IOutline = {
+    const faceDeparture: IAutoMovieViewPart.IOutline = {
       knots: [
         { site: knotted[0]![0], station: first, value: face - vault },
         { site: "nasion", station: plan.nasion, value: face - vault },
         { site: "vault.lower", station: g + 0.35 * top, value: 0 },
         { site: knotted[knotted.length - 1]![0], station: last, value: 0 },
-      ].filter((k: IAutoMovieHumanViewPart.IKnot, i: number, all: IAutoMovieHumanViewPart.IKnot[]): boolean => i === 0 || k.station > all[i - 1]!.station),
+      ].filter((k: IAutoMovieViewPart.IKnot, i: number, all: IAutoMovieViewPart.IKnot[]): boolean => i === 0 || k.station > all[i - 1]!.station),
     };
 
     // Layers: every site and as many even steps between as keep them within
@@ -174,7 +179,7 @@ export namespace AutoMovieHumanHeadMassPart {
    * @param n The exponent, 2 for the ellipse.
    */
   export function shoulder(n: number): number {
-    return Math.max(AutoMovieHumanViewSection.ELLIPSE / 4, Math.min(0.95, 2 ** (1 - 1 / n) - 1));
+    return Math.max(AutoMovieViewSection.ELLIPSE / 4, Math.min(0.95, 2 ** (1 - 1 / n) - 1));
   }
 
   /**
@@ -218,7 +223,7 @@ export namespace AutoMovieHumanHeadMassPart {
    * origin to a side-view curve `x(y)` in the sagittal plane, by bisection on
    * the trace of the plane there.
    */
-  function reach(frame: AutoMovieHumanLoftFrame.IFrame, sign: 1 | -1, curve: (y: number) => number): number {
+  function reach(frame: AutoMovieLoftFrame.IFrame, sign: 1 | -1, curve: (y: number) => number): number {
     const ux: number = sign * frame.u[0];
     const uy: number = sign * frame.u[1];
     const f = (l: number): number => sign * (curve(frame.origin[1] + l * uy) - (frame.origin[0] + l * ux));
@@ -232,6 +237,24 @@ export namespace AutoMovieHumanHeadMassPart {
       else hi = mid;
     }
     return (lo + hi) / 2;
+  }
+
+  /**
+   * The height where P's submental line meets the neck's front (the neck
+   * ring's centre plus its radius), by bisection between the neck ring and
+   * the menton; the neck ring's height when P never comes that far back.
+   */
+  function meeting(plan: IAutoMovieHumanHeadLayout): number {
+    const front: number = plan.neck.x + plan.neck.radius;
+    let lo: number = plan.y0;
+    let hi: number = plan.menton;
+    if (median(plan, lo) >= front) return lo;
+    for (let k: number = 0; k < 60; k++) {
+      const mid: number = (lo + hi) / 2;
+      if (median(plan, mid) < front) lo = mid;
+      else hi = mid;
+    }
+    return hi;
   }
 
   /** The quintic smoothstep, C2 at both ends. */

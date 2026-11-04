@@ -1,4 +1,4 @@
-import { AutoMovieHumanViewSection } from "../../lofting/AutoMovieHumanViewSection";
+import { AutoMovieViewSection } from "@automovie/engine";
 import { AutoMovieHumanFaceTissue } from "../AutoMovieHumanFaceTissue";
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
@@ -74,7 +74,7 @@ export namespace AutoMovieHumanHeadMasses {
   ): AutoMovieHumanHeadFeatures.IFeature {
     const height: number = INSET + amplitude;
     return {
-      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents, height, profile: 2, shoulder: AutoMovieHumanViewSection.ELLIPSE }),
+      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents, height, profile: 2, shoulder: AutoMovieViewSection.ELLIPSE }),
       join: "merge",
       seed,
       contact: INSET,

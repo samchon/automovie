@@ -9,10 +9,8 @@ import { AutoMovieHumanHeadPass } from "../../../src/generation/AutoMovieHumanHe
 import { AutoMovieHumanHeadComposer } from "../../../src/generation/head/AutoMovieHumanHeadComposer";
 import type { IAutoMovieHumanBodyCalibration } from "../../../src/generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanHeadBuilt } from "../../../src/generation/IAutoMovieHumanHeadBuilt";
-import type { AutoMovieHumanLoftContract } from "../../../src/lofting/AutoMovieHumanLoftContract";
-import { AutoMovieHumanSolidBlendChain } from "../../../src/lofting/AutoMovieHumanSolidBlendChain";
-import type { AutoMovieHumanSolidJoin } from "../../../src/lofting/AutoMovieHumanSolidJoin";
-import type { IAutoMovieHumanLoftChain } from "../../../src/lofting/IAutoMovieHumanLoftChain";
+import { type AutoMovieLoftContract, AutoMovieSolidBlendChain, type AutoMovieSolidJoin, type IAutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieHumanMergeEntry } from "../../../src/generation/limb/AutoMovieHumanMergeEntry";
 import type { IAutoMovieHumanEar } from "../../../src/structures/head/IAutoMovieHumanEar";
 import type { AutoMovieHumanSex } from "../../../src/typings/AutoMovieHumanSex";
 import type { IHumanDebugDocument } from "../../contracts/IHumanDebugDocument";
@@ -28,7 +26,9 @@ import type { IHumanDebugPiece } from "../IHumanDebugPiece";
  * - `all`: the neck, the head mass, every face part and every join's blend;
  * - `mass`: the head mass alone;
  * - `neck`: the neck alone;
- * - `parts`: the face parts alone, without the head mass.
+ * - `parts`: the face parts alone, without the head mass;
+ * - `composed`: the head mass with the neck and every part joined straight
+ *   to it drawn trimmed by the solid tessellation (`calibration.merges`).
  *
  * The skeleton is the head pass's first build, without the secant passes
  * that solve the inputs' measures on the old skin.
@@ -37,11 +37,11 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
   name: "head.parts",
   region: "head",
   description: "The head lane's view parts (neck, head mass, face parts and their joins) lofted alone from the person's landmark skeleton.",
-  arguments: ["all", "mass", "neck", "parts"],
+  arguments: ["all", "mass", "neck", "parts", "composed"],
   build(person: IHumanDebugPerson, argument: string | null): IHumanDebugDocument {
     const which: string = argument ?? "all";
     const base: IAutoMovieHumanBodyCalibration = person.calibration();
-    const neckChain: IAutoMovieHumanLoftChain | undefined = base.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "head");
+    const neckChain: IAutoMovieLoftChain | undefined = base.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "head");
     if (neckChain === undefined) throw new Error("head.parts: the calibration has no neck chain `head`");
     const inputs: AutoMovieHumanHeadConstruction.IInputs = AutoMovieHumanBodyLaw.headInputs(person.parameters);
     const built: IAutoMovieHumanHeadBuilt = AutoMovieHumanHeadPass.build(AutoMovieHumanHeadPass.prepare(neckChain, inputs), AutoMovieHumanHeadLandmarks.NONE);
@@ -55,14 +55,14 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
       ears: { left: top(inputs.head.earPair.left), right: top(inputs.head.earPair.right) },
       faceExponent: AutoMovieHumanFacePlan.exponent(inputs.head, sex),
     });
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...composed.diagnostics];
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...composed.diagnostics];
 
     // A join's blend as a chain of its own.
-    const blend = (name: string, join: AutoMovieHumanSolidJoin.IJoin | null): IAutoMovieHumanLoftChain | null =>
-      join === null ? null : (AutoMovieHumanSolidBlendChain.of(`${name}.blend`, join, AutoMovieHumanHeadComposer.COUNT)?.chain ?? null);
+    const blend = (name: string, join: AutoMovieSolidJoin.IJoin | null): IAutoMovieLoftChain | null =>
+      join === null ? null : (AutoMovieSolidBlendChain.of(`${name}.blend`, join, AutoMovieHumanHeadComposer.COUNT)?.chain ?? null);
 
     // The chains each argument shows.
-    const chains: (IAutoMovieHumanLoftChain | null)[] = [];
+    const chains: (IAutoMovieLoftChain | null)[] = [];
     if (which === "all" || which === "neck") chains.push(composed.neck?.loft.chain ?? null);
     if (which === "all") chains.push(blend("neck", composed.neck?.join ?? null));
     if (which === "all" || which === "mass") chains.push(composed.mass.chain);
@@ -71,7 +71,32 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
         chains.push(joined.loft.chain);
         if (which === "all") chains.push(blend(joined.feature.part.name, joined.join));
       }
-    const shown: IAutoMovieHumanLoftChain[] = chains.filter((c: IAutoMovieHumanLoftChain | null): c is IAutoMovieHumanLoftChain => c !== null);
+
+    // The composed head: the mass with every part joined straight to it
+    // published as a merge entry, so the solid tessellation draws the host and
+    // the part trimmed at their rails and the blend between them.
+    const merges: IAutoMovieHumanBodyCalibration.IMerge[] = [];
+    if (which === "composed") {
+      chains.push(composed.mass.chain);
+      const joins: AutoMovieHumanHeadComposer.IJoined[] = [...(composed.neck === null ? [] : [composed.neck]), ...composed.parts];
+      for (const joined of joins) {
+        if (joined.feature.parent !== "head.mass" || joined.join === null || joined.loft.chain === null) continue;
+        const entry: AutoMovieHumanMergeEntry.IEntry | null = AutoMovieHumanMergeEntry.of(
+          `blend.${joined.feature.part.name}`,
+          "head.mass",
+          joined.feature.part.name,
+          joined.join,
+          AutoMovieHumanHeadComposer.COUNT,
+          1,
+          joined.feature.join === "diff",
+          diagnostics,
+        );
+        if (entry === null) continue;
+        chains.push(joined.loft.chain, entry.chain);
+        merges.push(entry.merge);
+      }
+    }
+    const shown: IAutoMovieLoftChain[] = chains.filter((c: IAutoMovieLoftChain | null): c is IAutoMovieLoftChain => c !== null);
     if (!shown.length) throw new Error(`head.parts:${which} made no chain: ${JSON.stringify(diagnostics)}`);
     const calibration: IAutoMovieHumanBodyCalibration = {
       stature: base.stature,
@@ -80,12 +105,28 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
       poles: [],
       apertures: [],
       eyes: [],
+      ...(merges.length ? { merges } : {}),
       diagnostics,
     };
     const document: IHumanDebugDocument = HumanDebugChainLoft.build(
       calibration,
-      shown.map((c: IAutoMovieHumanLoftChain): string => c.name),
+      shown.map((c: IAutoMovieLoftChain): string => c.name),
     );
-    return { ...document, provenance: { ...document.provenance, piece: `head.parts:${which}`, diagnostics } };
+    // The solid tessellation groups a trimmed face as `<chain>/solid`, which
+    // the document's `<chain>/<k>` ids do not admit and which repeats once per
+    // trim: each such part takes an interval number of its own past the
+    // chain's lofted intervals.
+    const seen: Map<string, number> = new Map();
+    const parts: IHumanDebugDocument.IPart[] = document.parts.map((part: IHumanDebugDocument.IPart): IHumanDebugDocument.IPart => {
+      const match: RegExpMatchArray | null = part.id.match(/^(.*)\/solid$/);
+      if (match === null) return part;
+      const k: number = (seen.get(match[1]!) ?? 0) + 1;
+      seen.set(match[1]!, k);
+      return { ...part, id: `${match[1]!}/${SOLID + k}` };
+    });
+    return { ...document, parts, provenance: { ...document.provenance, piece: `head.parts:${which}`, diagnostics } };
   },
 };
+
+/** The first interval number a trimmed face's part takes, past any chain's lofted intervals. */
+const SOLID: number = 9000;

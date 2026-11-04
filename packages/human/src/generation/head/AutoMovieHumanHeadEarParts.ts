@@ -1,4 +1,4 @@
-import { AutoMovieHumanViewSection } from "../../lofting/AutoMovieHumanViewSection";
+import { AutoMovieViewSection } from "@automovie/engine";
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
@@ -95,7 +95,7 @@ export namespace AutoMovieHumanHeadEarParts {
     const h: number = Math.max(INSET + 0.5, height);
     const e: [number, number, number, number] = extents.map((x: number): number => Math.max(0.5, Math.abs(x))) as [number, number, number, number];
     return {
-      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents: e, height: h, profile, shoulder: AutoMovieHumanViewSection.ELLIPSE }),
+      part: AutoMovieHumanHeadDome.of({ name, origin, outward, along, extents: e, height: h, profile, shoulder: AutoMovieViewSection.ELLIPSE }),
       join,
       seed,
       contact: INSET,
