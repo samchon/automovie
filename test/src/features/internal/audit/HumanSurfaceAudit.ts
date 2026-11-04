@@ -26,6 +26,10 @@ type IRow = HumanAnatomyAudit.IRow;
  *   most of its cells take, read from the section's centroid outward), where
  *   the surface has turned over on itself.
  *
+ * - Centre track (CUR-4): the section centres resampled every 1 mm keep the
+ *   same crease bound, since a turn of the centre is carried by the outline
+ *   on at least one side; an offset layer reads as a tent in the track.
+ *
  * Self-crossing rings are the section audit's (`HumanSectionAudit`); seams
  * and blends the seam audit's; 5 mm at each chain end, where a ring closes to
  * a pole or a join takes over, are left to those.
@@ -70,10 +74,19 @@ export namespace HumanSurfaceAudit {
       if (r.count > ripple[0]) ripple = [r.count, `phase ${phases[m]!.toFixed(3)}, ${r.at.toFixed(0)} mm along`];
     }
     const folds: { count: number; at: string } = folded(rings, stations.map((s: number): number => s * k));
+
+    // The section centres' track (CUR-4): a turn of the centre is carried by the outline on one side, so it keeps the meridians' crease bound.
+    const centres: V3[] = rings.map((ring: V3[]): V3 => {
+      const mean: V3 = [0, 0, 0];
+      for (const p of ring) for (let i: number = 0; i < 3; i++) mean[i]! += p[i]! / ring.length;
+      return mean;
+    });
+    const track: { value: number; at: number } = sharpest(resample(centres, 1));
     return [
       { person, site: `${c.name} meridian step: sagitta over ${CHORD} mm past the 12.5 mm radius, worst at ${step[1]} (STEP)`, value: step[0], low: 0, high: HumanAnatomyShared.CREASE, unit: "mm" },
       { person, site: `${c.name} meridian ripple: alternating runs shorter than ${CHORD} mm, most at ${ripple[1]} (RIB)`, value: ripple[0], low: 0, high: 0, unit: "runs" },
       { person, site: `${c.name} folded cells facing against the chain's outward sense, first at ${folds.at} (FOLD)`, value: folds.count, low: 0, high: 0, unit: "cells" },
+      { person, site: `${c.name} centre track: sagitta over ${CHORD} mm past the 12.5 mm radius, at ${track.at.toFixed(0)} mm along (CUR-4)`, value: track.value, low: 0, high: HumanAnatomyShared.CREASE, unit: "mm" },
     ];
   }
 

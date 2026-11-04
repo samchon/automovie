@@ -6,6 +6,7 @@ import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src
 import { HumanCurveProfile } from "../curves/HumanCurveProfile";
 import { HumanCurveRings } from "../curves/HumanCurveRings";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
+import { HumanAnatomyMirror } from "../HumanAnatomyMirror";
 import { HumanAnatomyShared } from "../HumanAnatomyShared";
 import { HumanPopulationAudit } from "../HumanPopulationAudit";
 
@@ -126,6 +127,41 @@ export namespace HumanAnatomyTable {
   /** Every row of every relation on every limb of a body. */
   export function rows(person: string, limbs: readonly ILimb[], sex: "female" | "male"): IRow[] {
     return limbs.flatMap((l: ILimb): IRow[] => TABLE.flatMap((r: IRelation): IRow[] => r.read(person, l, sex).map((x: IRow): IRow => ({ ...x, site: `${x.site} (${r.id})` }))));
+  }
+
+  /**
+   * Left against right (SYM-1): each left limb's girth profile, aligned with
+   * its right twin's from their proximal joints, agrees station by station
+   * within the mirror bound of `HumanCurveMirror`: the anatomy audits' 0.5 mm
+   * mirror distance round the ring (`2 pi 0.5` mm of girth, `HumanAnatomyMirror.MIRROR`)
+   * plus `pi` times the person's largest left-right input difference, so a
+   * person whose sides differ by input is read against that difference.
+   *
+   * @param person Name in rows.
+   * @param limbs The person's limbs.
+   * @param difference The largest left-right difference of the person's paired inputs, mm (`HumanCurveMirror.difference`).
+   */
+  export function mirror(person: string, limbs: readonly ILimb[], difference: number): IRow[] {
+    const bound: number = 2 * Math.PI * HumanAnatomyMirror.MIRROR + Math.PI * difference;
+    const out: IRow[] = [];
+    for (const left of limbs.filter((l: ILimb): boolean => l.side === "left")) {
+      const right: ILimb | undefined = limbs.find((l: ILimb): boolean => l.side === "right" && l.kind === left.kind);
+      if (right === undefined) continue;
+      const along: (l: ILimb) => number[] = (l: ILimb): number[] => (l.joints[2] >= l.joints[0] ? l.girth.slice(l.joints[0]) : l.girth.slice(0, l.joints[0] + 1).reverse());
+      const a: number[] = along(left);
+      const b: number[] = along(right);
+      let worst: number = 0;
+      let at: number = 0;
+      for (let i: number = 0; i < Math.min(a.length, b.length); i++) {
+        const d: number = Math.abs(a[i]! - b[i]!);
+        if (d > worst) {
+          worst = d;
+          at = i;
+        }
+      }
+      out.push({ person, site: `${left.kind}.left against ${left.kind}.right: largest girth difference from the proximal joint, at ${(at * left.step).toFixed(0)} mm (SYM-1)`, value: worst, low: 0, high: bound, unit: "mm" });
+    }
+    return out;
   }
 
   /**

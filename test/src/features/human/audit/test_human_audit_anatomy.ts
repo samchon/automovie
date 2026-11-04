@@ -1,4 +1,5 @@
 import { HumanAnatomyTable } from "../../internal/audit/HumanAnatomyTable";
+import { HumanCurveMirror } from "../../internal/curves/HumanCurveMirror";
 import { HumanCurveRings } from "../../internal/curves/HumanCurveRings";
 import { HumanAnatomyAudit } from "../../internal/HumanAnatomyAudit";
 import { HumanPeople } from "../../internal/HumanPeople";
@@ -12,22 +13,23 @@ type Knots = [number, number][];
  * does not guarantee by itself: girth order along the limb within population
  * bands, the narrowest ankle and wrist at their landmarks, one belly per
  * muscle group, a monotone taper from the belly to the least girth, and the
- * joint centres inside their sections.
+ * joint centres inside their sections, and each limb's girth profile its mirror twin's.
  *
  * Scenarios:
  * 1. A made leg (thigh 560 mm at the hip falling to a 370 mm knee, a 360 mm calf belly at 0.35 of the shank, a 215 mm least ankle at 0.88) and a made arm (a 265 mm forearm belly, a 160 mm least wrist at the wrist joint) pass every row for a woman.
- * 2. Each row fails on its own made defect: a 420 mm thigh (knee over thigh), a 450 mm calf (calf over knee), a 290 mm least ankle (ankle over calf), a least ankle at 0.6 of the shank and a least wrist 50 mm above the wrist joint (narrowest at the landmark), a second calf belly (one belly), a 12 mm rise in the taper (monotone taper), a 220 mm wrist (wrist over elbow), a knee centre outside its section (bone inside).
- * 3. Every person of `HumanPeople`: both legs and both arms of the generated body, every row of `HumanAnatomyTable.TABLE`, every failing row listed by person, limb and relation.
+ * 2. Each row fails on its own made defect: a 420 mm thigh (knee over thigh), a 450 mm calf (calf over knee), a 290 mm least ankle (ankle over calf), a least ankle at 0.6 of the shank and a least wrist 50 mm above the wrist joint (narrowest at the landmark), a second calf belly (one belly), a 12 mm rise in the taper (monotone taper), a 220 mm wrist (wrist over elbow), a knee centre outside its section (bone inside). A right leg identical to the left passes the mirror row; one whose calf belly is 40 mm fuller fails it.
+ * 3. Every person of `HumanPeople`: both legs and both arms of the generated body, every row of `HumanAnatomyTable.TABLE` and each pair's mirror row (`HumanAnatomyTable.mirror`, against the person's own left-right input difference), every failing row listed by person, limb and relation.
  *
  * @evidence contracts/testing.md#behavioral-verification Generates each person through the public body law and reads each limb chain's taut-tape girth every 2 mm by its own evaluator (`HumanCurveRings.of`), its joints' stations as the sections whose centres lie nearest the bind skeleton's joint centres, and the sections at the knee or elbow and the ankle or wrist (`HumanAnatomyTable.limbs`). It catches a limb whose girths stand out of the population's order, a narrowest ankle or wrist away from its landmark, a second belly, a wobbling taper and a bone out of its skin; any limb shaped as anatomy describes passes, whatever its size.
- * @evidence contracts/testing.md#independent-expectations Each row names its source: the ANSUR 1988 ratio bands by sex (`HumanPopulationAudit.RELATIONS`: knee over thigh, calf over knee, wrist over elbow); ANSUR II's least ankle over calf, 0.439 to 0.719; the landmark windows of consistency.md 3.1 (L6, 0.75 to 0.97 of the shank) and 3.2 (A5, 30 mm proximal to 10 mm distal of stylion, Gray 1918); one belly per muscle group and a monotone taper within ISO 20685-1's 4 mm small-girth error (consistency.md 1.2); the bone inside its skin. No construction constant enters. Oracle limits: joints are placed on the profile by nearest section centre, so a joint off its limb's axis lands at the nearest section; the population bands bind the figure's ratios, not each input.
+ * @evidence contracts/testing.md#independent-expectations Each row names its source: the ANSUR 1988 ratio bands by sex (`HumanPopulationAudit.RELATIONS`: knee over thigh, calf over knee, wrist over elbow); ANSUR II's least ankle over calf, 0.439 to 0.719; the landmark windows of consistency.md 3.1 (L6, 0.75 to 0.97 of the shank) and 3.2 (A5, 30 mm proximal to 10 mm distal of stylion, Gray 1918); one belly per muscle group and a monotone taper within ISO 20685-1's 4 mm small-girth error (consistency.md 1.2); the bone inside its skin; the mirror bound of SYM-1 (`HumanCurveMirror`, 0.5 mm round the ring plus pi times the person's largest left-right input difference). No construction constant enters. Oracle limits: joints are placed on the profile by nearest section centre, so a joint off its limb's axis lands at the nearest section; the population bands bind the figure's ratios, not each input.
  * @evidence contracts/testing.md#distinguishing-cases Positive: the made leg and arm. Negative: one defect per row, each required to fail that row. The person pass reads both sexes and the population ends. Inputs read back on the skin belong to `test_human_audit_inputs`; section shape to `test_human_audit_sections`; the input set's own population relations to `test_human_people`.
  * @evidence contracts/testing.md#execution-ownership A discoverable synchronous unit reached by `--include human_audit_anatomy`, building its made limbs and generating its people in process on the CPU (body law only) with no renderer, browser or GPU; nothing is cached across tests.
  */
 export function test_human_audit_anatomy(): void {
   assertHumanProvenRows("anatomy relation", proofs, (name: string): IRow[] => {
     const p: HumanPeople.IPerson = HumanPeople.person(name);
-    return HumanAnatomyTable.rows(name, HumanAnatomyTable.limbs(p.body, HumanCurveRings.scale(p)), HumanPeople.sex(name));
+    const limbs: HumanAnatomyTable.ILimb[] = HumanAnatomyTable.limbs(p.body, HumanCurveRings.scale(p));
+    return [...HumanAnatomyTable.rows(name, limbs, HumanPeople.sex(name)), ...HumanAnatomyTable.mirror(name, limbs, HumanCurveMirror.difference(p.params))];
   });
 }
 
@@ -73,6 +75,13 @@ function proofs(): string[] {
   ];
   for (const [id, limb] of defects)
     if (!HumanAnatomyTable.rows("made", [limb], "female").some((r: IRow): boolean => r.site.endsWith(`(${id})`) && !HumanAnatomyAudit.passes(r))) out.push(`made defect: no failing ${id} row on the ${limb.kind}`);
+
+  // Mirror: a right leg identical to the left passes; one whose calf belly is 40 mm fuller fails at no input difference.
+  const twin: HumanAnatomyTable.ILimb = { ...made("leg", thigh, shank, [5, 0]), side: "right" };
+  const fuller: HumanAnatomyTable.ILimb = { ...made("leg", thigh, [[0, 370], [0.1, 350], [0.35, 400], [0.88, 215], [1, 240], [1.03, 245]], [5, 0]), side: "right" };
+  const left: HumanAnatomyTable.ILimb = made("leg", thigh, shank, [5, 0]);
+  if (HumanAnatomyTable.mirror("made", [left, twin], 0).some((r: IRow): boolean => !HumanAnatomyAudit.passes(r))) out.push("mirror: identical sides fail");
+  if (!HumanAnatomyTable.mirror("made", [left, fuller], 0).some((r: IRow): boolean => !HumanAnatomyAudit.passes(r))) out.push("mirror: a right calf 40 mm fuller passes");
   return out;
 }
 
