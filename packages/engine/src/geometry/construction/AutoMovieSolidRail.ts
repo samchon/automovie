@@ -82,6 +82,9 @@ export namespace AutoMovieSolidRail {
   /** Newton steps of one offset. */
   export const STEPS: number = 40;
 
+  /** Relative residual a rail solve accepts, of the chord plus the curve point's distance from the origin: rounding grows with the coordinates, so a sub-millimetre chord far from the origin converges as a large one does. */
+  export const ROUNDING: number = 1e-12;
+
   /** Faces one host rail may cross before it is refused. */
   export const SWITCHES: number = 4;
 
@@ -271,13 +274,16 @@ export namespace AutoMovieSolidRail {
    */
   function section(surface: IAutoMovieSolidSurface, start: readonly [number, number], from: Readonly<Vec3>, m: Readonly<Vec3>, width: number): [number, number] | null {
     if (!(norm(m) > 0)) return null;
+    // Rounding grows with the coordinates, not with the chord: a sub-millimetre
+    // chord far from the origin still converges to the coordinates' precision.
+    const scale: number = width + norm(from);
     let x: [number, number] = [start[0], start[1]];
     for (let step: number = 0; step < STEPS; step++) {
       const j: IJet = surface.jet(x[0], x[1]);
       const r: Vec3 = sub(j.p, from);
       const f1: number = dot(r, m);
       const f2: number = dot(r, r) - width * width;
-      const done: boolean = Math.abs(f1) <= 1e-12 * width && Math.abs(f2) <= 1e-12 * width * width;
+      const done: boolean = Math.abs(f1) <= ROUNDING * scale && Math.abs(f2) <= 2 * width * ROUNDING * scale;
       const dx: [number, number] | null = AutoMovieSolidVector.solve2(dot(j.u, m), dot(j.v, m), 2 * dot(r, j.u), 2 * dot(r, j.v), [-f1, -f2]);
       if (dx === null) return null;
       x = [x[0] + dx[0], x[1] + dx[1]];
@@ -350,7 +356,7 @@ export namespace AutoMovieSolidRail {
 
       // Converged: one last step takes the miss from the tolerance to
       // rounding, so neighbouring rail points carry no solver noise.
-      const converged: boolean = Math.abs(miss) <= 1e-12 * width;
+      const converged: boolean = Math.abs(miss) <= ROUNDING * (width + norm(from));
       l -= miss / rate;
       if (converged) return l;
     }

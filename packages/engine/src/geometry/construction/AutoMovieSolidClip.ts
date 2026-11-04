@@ -46,8 +46,8 @@ export namespace AutoMovieSolidClip {
   /** Halvings of the parameter interval that place a crossing, to `2^-40` of a column's span. */
   export const BISECTIONS: number = 40;
 
-  /** Chart distance of the test points either side of the rail, mm (the offset direction has unit world speed). */
-  export const SIDE: number = 0.05;
+  /** Distance of the test points either side of the rail, as a share of the rail's spacing beside the probe (the offset direction has unit world speed), so the test stays inside the rail's own cell at any size. */
+  export const SIDE: number = 0.25;
 
   /**
    * The host rail's points with the crossings between faces, each a vertex
@@ -233,10 +233,14 @@ export namespace AutoMovieSolidClip {
     const probe: IRailPoint | undefined = inner[Math.floor(inner.length / 2)];
     let chosen: AutoMovieSolidCycle.ICycle = one;
     if (probe !== undefined && probe.across !== undefined) {
+      const at = (p: IRailPoint): number[] => body.mesh.positions.slice(3 * p.vertex, 3 * p.vertex + 3);
+      const gap = (a: IRailPoint, b: IRailPoint): number => Math.hypot(...[0, 1, 2].map((i: number): number => at(a)[i]! - at(b)[i]!));
+      const index: number = run.indexOf(probe);
+      const side: number = SIDE * Math.min(gap(probe, run[index - 1]!), gap(probe, run[index + 1]!));
       const c: [number, number] = probe.chart.get(face)!;
       const e: [number, number] = probe.across;
       const keeps = (k: AutoMovieSolidCycle.ICycle): boolean =>
-        AutoMovieSolidCycle.kept(k, c[0] + SIDE * e[0], c[1] + SIDE * e[1], period) && !AutoMovieSolidCycle.kept(k, c[0] - SIDE * e[0], c[1] - SIDE * e[1], period);
+        AutoMovieSolidCycle.kept(k, c[0] + side * e[0], c[1] + side * e[1], period) && !AutoMovieSolidCycle.kept(k, c[0] - side * e[0], c[1] - side * e[1], period);
       if (keeps(two) && !keeps(one)) chosen = two;
       else if (!keeps(one)) return `neither side of the rail's run on face ${f.surface.name} keeps the face past the rail`;
     }
