@@ -79,7 +79,7 @@ export function test_construction_operator_view_section(): void {
       const shoulders: Quarters = [r, r, r, r];
       const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(box, shoulders);
       const label: string = `box [${extents.map((e: number): string => e.toFixed(2)).join(", ")}] at shoulder ${r.toFixed(4)}`;
-      failures.push(...touch(label, (phi: number): Jet => AutoMovieViewSection.radius(section, phi), extents, law(extents, shoulders)));
+      failures.push(...touch(label, (phi: number): Jet => AutoMovieViewSection.radius(section, phi), extents, law(extents, shoulders), section.knots.map((k: AutoMoviePolarSector.IGuide): number => k.angle)));
     }
   }
 
@@ -165,7 +165,7 @@ function law(e: Quarters, r: Quarters): Quarters {
  * circles through the section's points on each side, extrapolated to zero step, are the declared one, and no
  * point of the section passes the side its guide touches.
  */
-function touch(label: string, jet: (phi: number) => Jet, extents: Quarters, kappa: Quarters): string[] {
+function touch(label: string, jet: (phi: number) => Jet, extents: Quarters, kappa: Quarters, knots: readonly number[] = []): string[] {
   const out: string[] = [];
   for (let g: number = 0; g < 4; g++) {
     const at: number = (g * Math.PI) / 2;
@@ -180,7 +180,10 @@ function touch(label: string, jet: (phi: number) => Jet, extents: Quarters, kapp
     // circle through the guide's point and the points h and 2h into one
     // sector errs by terms in h and h^2 (the sector's third derivative may
     // jump at a guide), so the circles of h, 2h and 4h are extrapolated twice
-    // to zero step (Richardson), leaving a term in h^3. A step of 1e-3 rad
+    // to zero step (Richardson), leaving a term in h^3. The step is a
+    // sixteenth of the knot span beside the guide (or 1e-3 rad on a closed
+    // form), so the farthest point, 8h, stays inside that span where the
+    // section is one quintic; a step of 1e-3 rad
     // keeps the circle fit's rounding, of order 1e-16 rho / h^2, near 1e-9 of
     // the curvature, where the earlier 2e-5 rad step left it near 1e-5.
     const p: (phi: number) => [number, number] = (phi: number): [number, number] => {
@@ -188,14 +191,15 @@ function touch(label: string, jet: (phi: number) => Jet, extents: Quarters, kapp
       return [rho * Math.cos(phi), rho * Math.sin(phi)];
     };
     for (const side of [-1, 1]) {
-      const d: number = side * 1e-3;
+      const d: number = side * step(at, side, knots);
       const c1: number = circle(p(at), p(at + d), p(at + 2 * d));
       const c2: number = circle(p(at), p(at + 2 * d), p(at + 4 * d));
       const c4: number = circle(p(at), p(at + 4 * d), p(at + 8 * d));
       const r1: number = 2 * c1 - c2;
       const r2: number = 2 * c2 - c4;
       const read: number = Math.abs((4 * r1 - r2) / 3);
-      if (!(Math.abs(read - kappa[g]!) <= 1e-6 * kappa[g]!)) out.push(`${label} guide ${g}: point curvature ${read} on its ${side < 0 ? "lower" : "upper"} side against the declared ${kappa[g]}`);
+      // The fit's rounding, of order `eps rho / h^2` in curvature, amplified by the extrapolation.
+      if (!(Math.abs(read - kappa[g]!) <= 1e-6 * kappa[g]! + 1e3 * Number.EPSILON * e / (d * d))) out.push(`${label} guide ${g}: point curvature ${read} on its ${side < 0 ? "lower" : "upper"} side against the declared ${kappa[g]}`);
     }
 
     // No point past the side the guide touches.
@@ -234,4 +238,24 @@ function continuity(label: string, jet: (phi: number) => Jet, extents: Quarters)
 function circle(a: [number, number], b: [number, number], c: [number, number]): number {
   const cross: number = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
   return (2 * cross) / (Math.hypot(b[0] - a[0], b[1] - a[1]) * Math.hypot(c[0] - b[0], c[1] - b[1]) * Math.hypot(a[0] - c[0], a[1] - c[1]));
+}
+
+/**
+ * The reading step beside a guide: a sixteenth of the knot span on that side, so the farthest of the reader's points (eight steps) stays inside the one quintic span; 1e-3 rad when the section's knots are not given (a closed form) or the span is wider than 0.016 rad.
+ *
+ * @param at The guide's angle.
+ * @param side -1 for the lower side, 1 for the upper.
+ * @param knots The section's knot angles, increasing from the first guide over one turn.
+ * @returns The step, radians, positive.
+ */
+function step(at: number, side: number, knots: readonly number[]): number {
+  if (knots.length === 0) return 1e-3;
+  const turn: number = 2 * Math.PI;
+  const wrap = (a: number): number => ((a % turn) + turn) % turn;
+  let span: number = Infinity;
+  for (const k of knots) {
+    const d: number = side > 0 ? wrap(k - at) : wrap(at - k);
+    if (d > 1e-12 && d < span) span = d;
+  }
+  return Math.min(1e-3, span / 16);
 }

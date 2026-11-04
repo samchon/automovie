@@ -19,7 +19,7 @@ import { ConstructionShapes } from "../../internal/construction/ConstructionShap
  * Scenarios:
  * 1. A clean four-part assembly records no diagnostic.
  * 2. Each made tree with a broken premise records its contract on its node: an order of 10 (`order`), stations out of order (`stations`), an outline's knots out of order (`outline`), a pole without its zero knot (`pole knot`), a front edge crossing its opposite (`outline order`), a box not holding its axis (`half extent`), a girth past the box's rectangle (`girth in reach`), a shoulder of 1.2 (`shoulder`), a post that never meets its beam from a point seed (`one loop per contact`) and from a search seed (`seed`), two equal cylinders touching (`transversal contact`), a station width on a host (`width`), a continuation from a pole end (`shared end`), a trim of three landmarks (`margin landmarks`), a trim landmark a metre past its face's end (`landmark foot`).
- * 3. Each inadmissible tree throws instead of realizing: two parts of one name, a seed naming no face of its subtree, a chord of zero, a node of an unknown kind.
+ * 3. Each inadmissible tree throws instead of realizing: two parts of one name, a seed naming no face of its subtree, a node of an unknown kind, and a skin chord tolerance of zero.
  *
  * @evidence contracts/testing.md#behavioral-verification Realizes each made tree with `realizeAutoMovieConstruction` and reads its diagnostics' `node` and `contract`, or catches its refusal. It catches a broken premise that throws instead of being recorded, one recorded on the wrong node or under the wrong contract, an inadmissible tree realized as if it were sound, and a clean tree that records something; any realization that refuses what its admission states and names every broken premise passes.
  * @evidence contracts/testing.md#independent-expectations Each contract and its trigger are the kernel's published list (its answers on the core move: the view loft's, the trace's, the join's, the continuation's, the trim's and the realization's own contracts, and its admission refusals) and the interface types' rules (`IAutoMovieConstructionView`, `IAutoMovieConstructionJoin`, `IAutoMovieConstructionContinuation`, `IAutoMovieConstructionTrim`, `AutoMovieConstructionPole`, `IAutoMovieConstructionStationWidth`). Oracle limit: a bad tree may record further contracts its first breach causes; the test requires its own contract on its own node, not that it is the only one.
@@ -61,6 +61,13 @@ export function test_construction_diagnostics(): void {
     }
     if (realized !== null) failures.push(`${what}: realized instead of refused (recorded: ${realized})`);
   }
+  let tolerated: boolean = true;
+  try {
+    realizeAutoMovieConstruction({ name: "made", root: ConstructionShapes.assembly(1, "left") }, { chord: 0 });
+  } catch {
+    tolerated = false;
+  }
+  if (tolerated) failures.push("a skin chord tolerance of zero: realized instead of refused");
   if (failures.length !== 0) throw new Error(`${failures.length} diagnostic failures:\n${failures.join("\n")}`);
 }
 
@@ -79,6 +86,8 @@ function broken(): [string, string, AutoMovieConstructionNode][] {
     [0, 0.1].map((s: number, i: number): IAutoMovieConstructionKnot => ({ site: `${site} ${i}`, station: s, value }));
   const left: IAutoMovieConstructionJoin = ConstructionShapes.assembly(1, "left") as IAutoMovieConstructionJoin;
   left.hostWidth = { type: "station", value: 0.01 };
+  const flat: IAutoMovieConstructionJoin = ConstructionShapes.assembly(1, "left") as IAutoMovieConstructionJoin;
+  flat.partWidth = { type: "chord", value: 0 };
   return [
     ["order", "tube", edit((t: IAutoMovieConstructionView): void => void (t.order = 10))],
     ["stations", "tube", edit((t: IAutoMovieConstructionView): void => void ([t.stations[2], t.stations[3]] = [t.stations[3]!, t.stations[2]!]))],
@@ -92,6 +101,7 @@ function broken(): [string, string, AutoMovieConstructionNode][] {
     ["seed", "blend.post", apart("search")],
     ["transversal contact", "blend.even", even()],
     ["width", "blend.nail", left],
+    ["width", "blend.nail", flat],
     ["shared end", "neck", { type: "continue", name: "neck", host: egg(), hostFace: "egg", hostEnd: "top", part: tube(), partFace: "tube", partEnd: "bottom" }],
     ["margin landmarks", "slot", slot(3, 0)],
     ["landmark foot", "slot", slot(8, 1)],
@@ -104,12 +114,9 @@ function refused(): [string, AutoMovieConstructionNode][] {
   (twice.part as IAutoMovieConstructionView).name = "post";
   const nowhere: IAutoMovieConstructionJoin = ConstructionShapes.assembly(1, "left") as IAutoMovieConstructionJoin;
   nowhere.seed = { ...nowhere.seed, hostFace: "nothing" };
-  const flat: IAutoMovieConstructionJoin = ConstructionShapes.assembly(1, "left") as IAutoMovieConstructionJoin;
-  flat.partWidth = { type: "chord", value: 0 };
   return [
     ["two parts named post", twice],
     ["a seed naming no face", nowhere],
-    ["a chord of zero", flat],
     ["a node of an unknown kind", { type: "group", name: "g" } as unknown as AutoMovieConstructionNode],
   ];
 }
@@ -123,11 +130,11 @@ function apart(seed: "point" | "search"): AutoMovieConstructionNode {
   return join;
 }
 
-/** Two cylinders of equal radius 0.02 m crossing at right angles: their surfaces touch along lines, a tangential contact. */
+/** A beam of radius 0.03 m and a post of 0.02997 m crossing it square: a transversal trace whose least contact angle, acos(r / R) = 0.0447 rad at the post's sides, falls under the 0.05 rad grazing limit. */
 function even(): AutoMovieConstructionNode {
-  const beam: IAutoMovieConstructionView = ConstructionShapes.cylinder("beam", { origin: { x: -0.1, y: 0, z: 0 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } }, 0.02, 0.2);
-  const post: IAutoMovieConstructionView = ConstructionShapes.cylinder("post", { origin: { x: 0, y: 0, z: 0 }, u: { x: 0, y: 1, z: 0 }, v: { x: 1, y: 0, z: 0 } }, 0.02, 0.08);
-  return ConstructionShapes.join("merge", "blend.even", beam, post, { partFace: "post", hostFace: "beam", part: [0.02, Math.PI / 2], host: [0.12, 0.01] }, { part: { type: "chord", value: 0.005 }, host: { type: "chord", value: 0.005 } });
+  const beam: IAutoMovieConstructionView = ConstructionShapes.cylinder("beam", { origin: { x: -0.1, y: 0, z: 0 }, u: { x: 0, y: 0, z: 1 }, v: { x: 0, y: 1, z: 0 } }, 0.03, 0.2);
+  const post: IAutoMovieConstructionView = ConstructionShapes.cylinder("post", { origin: { x: 0, y: 0, z: 0 }, u: { x: 0, y: 1, z: 0 }, v: { x: 1, y: 0, z: 0 } }, 0.02997, 0.08);
+  return ConstructionShapes.join("merge", "blend.even", beam, post, { partFace: "post", hostFace: "beam", part: [0.03, Math.PI / 2], host: [0.12997, 0.01] }, { part: { type: "chord", value: 0.005 }, host: { type: "chord", value: 0.005 } });
 }
 
 /**
