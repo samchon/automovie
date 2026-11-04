@@ -1,12 +1,10 @@
 import { AutoMovieViewSection } from "@automovie/engine";
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
-import type { IAutoMovieHumanHeadEyeOpening } from "../IAutoMovieHumanHeadEyeOpening";
 import type { IAutoMovieHumanHeadLandmarks } from "../IAutoMovieHumanHeadLandmarks";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadDome } from "./AutoMovieHumanHeadDome";
 import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
-import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
 
 /**
  * The parts inside the face's parts, each joined to its own parent part:
@@ -18,7 +16,6 @@ import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
  * | nostril, each side | nose | diff | the nostril's size and centre in the base (`face.nostrilSize`, `face.nostrilCentre`) |
  * | philtral groove | head mass | diff | the philtrum's depth and half width (`face.philtrum`), subnasale to labrale superius |
  * | mentolabial sulcus | head mass | diff | Legan and Burstone's sulcus depth (`profile.sulcus`) at the sublabiale |
- * | upper and lower lid, each side | head mass, in the orbit | merge | the fissure's length and height, the margin's lead over the globe (`face.marginForward`) |
  * | helix, antihelix, concha, each side | auricle | merge, diff | drawn in the ear's own frame (`AutoMovieHumanHeadEarParts`) |
  *
  * Sizes come from the head prior's rows as they stand; the prior's
@@ -78,26 +75,6 @@ export namespace AutoMovieHumanHeadInnerParts {
       part("sulcus.mentolabial", "head.mass", "diff", [slX + INSET, sl, 0], [-1, 0, 0], [0, 0, 1],
         [plan.mouthWidth, sulcus, plan.mouthWidth, sulcus], INSET + sulcus, [slX, sl, 0]),
     );
-    // The lids over each globe, inside the orbit's recess: each margin stands
-    // the prior's recess behind the nasion's skin (`face.eyeRecess`), or at
-    // the head mass's skin in front of the eye where that lies further back;
-    // the lid rises the margin's lead from its base behind the margin. The
-    // landmark is the skin in front of the eye, so the lid keeps its place.
-    const nasion: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion);
-    const lid = (side: "left" | "right", sign: 1 | -1, eye: IAutoMovieHumanHeadEyeOpening): void => {
-      const skin: number = AutoMovieHumanHeadMassPart.frontAt(plan, plan.eye, sign * eye.place);
-      const margin: number = Math.min(skin, nasion - f.eyeRecess * k);
-      const height: number = INSET + f.marginForward * k;
-      for (const [name, dy] of [["upper", 1], ["lower", -1]] as const) {
-        const y: number = plan.eye + (dy * eye.height) / 2;
-        out.push(
-          part(`lid.${name}.${side}`, "head.mass", "merge", [margin - height, y + (dy * eye.height) / 2, sign * eye.place], [1, 0, 0], [0, 0, sign],
-            [eye.length / 2, eye.height / 2, eye.length / 2, eye.height / 2], height, [skin, y, sign * eye.place], AutoMovieHumanHeadMassPart.halfWidth(plan, plan.eye)),
-        );
-      }
-    };
-    lid("left", 1, plan.left);
-    lid("right", -1, plan.right);
 
     return out;
   }

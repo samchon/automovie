@@ -99,16 +99,18 @@ export namespace AutoMovieHumanHeadFeatures {
     lip("lip.upper", plan.stomion + plan.upperLip / 2, plan.upperLip, plan.lips[0]);
     lip("lip.lower", plan.stomion - plan.lowerLip / 2, plan.lowerLip, plan.lips[1]);
 
-    // The orbits: cutters from in front of the lid margin back to the socket.
+    // The orbits: cutters from in front of the skin back to the lid margin.
     const face: AutoMovieHumanHeadPrior.IFace = AutoMovieHumanHeadPrior.PRIOR.face;
     const orbit = (side: "left" | "right", sign: 1 | -1, eye: IAutoMovieHumanHeadEyeOpening): void => {
       const z: number = sign * eye.place;
       const front: number = AutoMovieHumanHeadMassPart.frontAt(plan, plan.eye, z);
 
-      // The socket's floor stands the lid margin's recess and the socket behind
-      // the nasion's skin (the prior's definition), so the cutter reaches it
-      // from the skin in front of the eye.
-      const floor: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) - (face.eyeRecess + face.socket) * k;
+      // The cutter reaches the lid margin, the prior's recess behind the
+      // nasion's skin (`face.eyeRecess`): the closed lids over the globe are
+      // the floor it leaves, so the head has no lid parts of its own. Lids
+      // standing inside the bare head mass met nothing to join, and a cut to
+      // the bony socket left a pit the globe is not there to fill.
+      const floor: number = AutoMovieHumanHeadMedianProfile.profileAt(plan, plan.nasion) - face.eyeRecess * k;
       const depth: number = Math.max(INSET, front - floor);
       out.push(
         dome(
