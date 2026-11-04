@@ -30,14 +30,14 @@ import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
  *   caller's back profile law (`ILaws.back`), the front the back plus the
  *   site's base depth.
  *
- * The base is drawn without its protrusions (#3047). At the chest its depth
- * is the chest wall's at the underbust (the breast's amplitude is the chest
- * depth less that depth, so the base takes the remainder). At the buttock its
- * depth is the natural waist's (the gluteal amplitude is the buttock depth
- * less the waist depth): the caller's back line there is the gluteal apex
- * (`ILaws.back`, the median section's back extreme), so the base's back
- * stands the amplitude in front of it and its front the buttock depth, and
- * the two gluteal masses stand on it apart. Those two sites' tapes wrap
+ * The base is drawn without its protrusions (#3047): the caller gives each
+ * mass's amplitude, and the base stands it behind the mass's point, so the
+ * point keeps the published depth. At the chest the base's depth is the
+ * chest depth less the breast's amplitude (the whole chest depth for a man,
+ * whose chest carries none). At the buttock the caller's back line is the
+ * gluteal apex (`ILaws.back`, the median section's back extreme), so the
+ * base's back stands the gluteal amplitude in front of it and its front the
+ * buttock depth, and the two gluteal masses stand on it apart. Those two sites' tapes wrap
  * the merged skin, so their fullness is solved by the trunk's assembly on the
  * hull of the base's and the masses' sections; here they carry the ellipse's
  * shoulder (the least-information conic) to start from. The waist's, the top
@@ -82,9 +82,10 @@ export namespace AutoMovieHumanTrunkViews {
    * @param crotch The crotch's height, calibration mm.
    * @param scale Calibration millimetres per world millimetre.
    * @param laws The laws beyond the measures, in calibration mm.
+   * @param amplitudes The breast's and the gluteal mass's amplitudes, calibration mm: the base stands each behind its mass's point, so the point keeps the published chest and buttock depths.
    * @returns The perineum and the sites by rising height.
    */
-  export function of(measures: IAutoMovieHumanBodyMeasures, crotch: number, scale: number, laws: ILaws): IAutoMovieHumanTrunkViews {
+  export function of(measures: IAutoMovieHumanBodyMeasures, crotch: number, scale: number, laws: ILaws, amplitudes: { breast: number; gluteal: number }): IAutoMovieHumanTrunkViews {
     const cervicale: number = measures.cervicaleHeight * scale;
     const at = (share: number): number => AutoMovieHumanTrunkLandmarks.at(crotch, cervicale, share);
     const boxes: Record<AutoMovieHumanBodyBox.Level, AutoMovieHumanBodyBox.IBox> = Object.fromEntries(
@@ -112,14 +113,14 @@ export namespace AutoMovieHumanTrunkViews {
       perineum: { y: crotch, x: laws.perineum },
       sites: [
         {
-          ...site("buttock", buttock, (boxes.hip.breadth * scale) / 2, boxes.waist.depth * scale, ellipse),
-          back: laws.back(buttock) + (measures.buttockDepth - measures.waistDepth) * scale,
+          ...site("buttock", buttock, (boxes.hip.breadth * scale) / 2, boxes.hip.depth * scale - amplitudes.gluteal, ellipse),
+          back: laws.back(buttock) + amplitudes.gluteal,
           front: laws.back(buttock) + measures.buttockDepth * scale,
         },
         site("topHip", topHip, topHipBox.breadth / 2, topHipBox.depth, { girth: measures.highHipCircumference * scale }),
         site("waist", waist, (boxes.waist.breadth * scale) / 2, boxes.waist.depth * scale, { girth: boxes.waist.tape * scale }),
         site("underbust", fold, underbust.breadth / 2, underbust.depth, { girth: measures.underbustCircumference * scale }),
-        site("chest", chest, (boxes.chest.breadth * scale) / 2, underbust.depth, ellipse),
+        site("chest", chest, (boxes.chest.breadth * scale) / 2, boxes.chest.depth * scale - amplitudes.breast, ellipse),
         ...laws.upper.map(
           (u: ILaws["upper"][number]): IAutoMovieHumanTrunkViews.ISite => {
             const back: number = u.back ?? laws.back(u.y);

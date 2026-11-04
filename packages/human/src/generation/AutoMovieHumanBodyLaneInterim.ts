@@ -163,9 +163,12 @@ export namespace AutoMovieHumanBodyLaneInterim {
 
     return {
       trunk: {
-        views: AutoMovieHumanTrunkViews.of(measures, input.crotch, input.scale, laws),
+        views: AutoMovieHumanTrunkViews.of(measures, input.crotch, input.scale, laws, {
+          breast: AutoMovieHumanMassInterim.breastAmplitude(measures, input.scale),
+          gluteal: AutoMovieHumanMassInterim.glutealAmplitude(measures, input.scale),
+        }),
         tapes: { chest: measures.chestCircumference * input.scale, hip: measures.hipCircumference * input.scale },
-        breast: AutoMovieHumanMassInterim.breast(solution, measures, input.scale, laws, radius),
+        breast: AutoMovieHumanMassInterim.breast(solution, measures, input.scale, radius),
         gluteal: AutoMovieHumanMassInterim.gluteal(solution, measures, input.scale, laws, radius),
       },
       sides: { left: side("left"), right: side("right") },
