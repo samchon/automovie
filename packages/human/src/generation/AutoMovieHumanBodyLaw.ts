@@ -12,6 +12,7 @@ import { AutoMovieHumanBodyLaneInterim } from "./AutoMovieHumanBodyLaneInterim";
 import { AutoMovieHumanEventJoin } from "./AutoMovieHumanEventJoin";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
+import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
 import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeight";
@@ -59,19 +60,22 @@ export namespace AutoMovieHumanBodyLaw {
       params,
       inputs,
     );
+    const neckRing: IAutoMovieLoftChain = AutoMovieHumanNeckConstruction.generate({
+      top: AutoMovieHumanHeadConstruction.seat(head),
+      neck: head.neck,
+      neckBase: trunkInputs.neckBase,
+      sex: inputs.sex,
+      scale: inputs.scale,
+    });
+
+    // Interim: the old head assembly feeds only today's body, which the rig
+    // still reads (`legacy`); the figure's head is the head lane's subtree,
+    // realized with the body below.
     const headed: AutoMovieHumanHeadConstruction.IOutput =
       AutoMovieHumanHeadConstruction.apply(
         {
           stature: height,
-          chains: [
-            AutoMovieHumanNeckConstruction.generate({
-              top: AutoMovieHumanHeadConstruction.seat(head),
-              neck: head.neck,
-              neckBase: trunkInputs.neckBase,
-              sex: inputs.sex,
-              scale: inputs.scale,
-            }),
-          ],
+          chains: [neckRing],
           events: EVENTS,
           poles: [],
           apertures: [],
@@ -133,8 +137,11 @@ export namespace AutoMovieHumanBodyLaw {
     // The body lane: every body part from its views, joined by solid merges
     // (#3047 to #3051), the trunk taking the neck's bottom ring by the head's
     // down event at its far end.
-    const lane: AutoMovieHumanBodyLane.IOutput = AutoMovieHumanBodyLane.create(
-      AutoMovieHumanBodyLaneInterim.of({
+    // The head: its construction subtree (`AutoMovieHumanHeadLane`) on the
+    // neck ring, merged onto the trunk inside the body's one realization.
+    const headLane: AutoMovieHumanHeadLane.IOutput = AutoMovieHumanHeadLane.create(head, AutoMovieHumanBodyAnatomy.sexOf(params), neckRing);
+    const lane: AutoMovieHumanBodyLane.IOutput = AutoMovieHumanBodyLane.create({
+      ...AutoMovieHumanBodyLaneInterim.of({
         params,
         scale: inputs.scale,
         stature: today.stature,
@@ -145,24 +152,19 @@ export namespace AutoMovieHumanBodyLaw {
         skeleton,
         old: today,
       }),
-    );
-    const headChains: Set<string> = new Set(
-      headed.body.chains.map((c: IAutoMovieLoftChain): string => c.name),
-    );
-    const ownedByHead = (e: IAutoMovieHumanBodyCalibration.IEvent): boolean =>
-      headChains.has(e.parent) && e.splits.every((s: IAutoMovieHumanBodyCalibration.ISplit): boolean => headChains.has(s.child));
+      head: headLane,
+    });
     return {
       body: {
         ...today,
-        chains: [
-          ...today.chains.filter((c: IAutoMovieLoftChain): boolean => headChains.has(c.name)),
-          ...lane.chains,
-        ],
-        events: [
-          ...today.events.filter(ownedByHead),
-          { parent: "head", direction: "down", splits: [{ child: "trunk", arcs: [[0, 2 * Math.PI]] }] },
-        ],
-        poles: today.poles.filter((p: IAutoMovieHumanBodyCalibration.IPole): boolean => headChains.has(p.chain)),
+        chains: lane.chains,
+        events: [],
+        poles: [],
+
+        // The openings and eyes stand on the old head's chains; the head
+        // lane's openings land as trims of its tree next.
+        apertures: [],
+        eyes: [],
         merges: undefined,
         bodies: lane.bodies,
         appendages: undefined,
@@ -177,7 +179,7 @@ export namespace AutoMovieHumanBodyLaw {
         // (remaining, `log-body.md`).
         legacy: { ...today, skeleton },
       },
-      vermilion: headed.vermilion,
+      vermilion: headLane.vermilion,
     };
   }
 

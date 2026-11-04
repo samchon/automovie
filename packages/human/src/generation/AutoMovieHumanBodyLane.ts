@@ -6,6 +6,7 @@ import type { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
 import { AutoMovieHumanFootPart } from "./foot/AutoMovieHumanFootPart";
 import type { AutoMovieHumanLegBones } from "./leg/AutoMovieHumanLegBones";
 import { AutoMovieHumanLegWalk } from "./leg/AutoMovieHumanLegWalk";
+import type { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanDigitWalk } from "./limb/AutoMovieHumanDigitWalk";
 import type { AutoMovieHumanSiteViewPart } from "./limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
@@ -89,6 +90,9 @@ export namespace AutoMovieHumanBodyLane {
 
     /** Widest spacing between layers of the limbs, mm. */
     gap: number;
+
+    /** The head's subtree and its fold onto the trunk (`AutoMovieHumanHeadLane`); absent, no head. */
+    head?: AutoMovieHumanHeadLane.IOutput;
   }
 
   /** The assembled subtree. */
@@ -148,6 +152,14 @@ export namespace AutoMovieHumanBodyLane {
     if (trunk.trunk === null) return publishable([], [], diagnostics);
     let root: AutoMovieConstructionNode = trunk.trunk;
     for (const mass of trunk.masses) root = AutoMovieHumanBodyTree.join(root, mass, limits);
+
+    // The head merged onto the trunk's top, inside the head mass's neck.
+    if (input.head !== undefined)
+      root = AutoMovieHumanBodyTree.join(
+        root,
+        { part: input.head.root, partFace: input.head.face, hostFace: trunk.trunk.name, search: input.head.search, radius: input.head.radius, cap: input.head.cap },
+        limits,
+      );
 
     // The legs' rails stay either side of the perineum.
     const hips: [Vec3, Vec3] = [input.sides.left.leg.bones.hip, input.sides.right.leg.bones.hip];
