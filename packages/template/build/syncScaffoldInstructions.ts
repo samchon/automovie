@@ -1,33 +1,28 @@
-// Copy the repository's production-neutral instructions into the scaffold,
-// so a generated production inherits them verbatim instead of a hand copy.
-import { copyFileSync, mkdirSync } from "node:fs";
+// Copy the repository skill items the scaffold's `$<name>` placeholders name
+// into `lib/skills`, where the scaffold reader ships them in the placeholders'
+// place, so a generated production inherits them verbatim instead of a hand copy.
+import { cpSync, mkdirSync, rmSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
+import { listAutoMovieScaffoldFiles } from "../src/listAutoMovieScaffoldFiles";
+import { scaffoldSharedSkillPath } from "../src/scaffoldSharedSkillPath";
+
 const HERE: string = __dirname;
-const ROOT: string = resolve(HERE, "../../..");
+const ROOT_SKILLS: string = resolve(HERE, "../../../.agents/skills");
 const SCAFFOLD: string = resolve(HERE, "../scaffold");
 
-/**
- * Repository instruction files a production shares unchanged, with explicit
- * source and destination paths. Only content without repository-specific links
- * belongs here; the scaffold owns every other instruction it ships. The copies
- * are ignored by git, so the root `.gitignore` lists their destination paths.
- */
-const SHARED: readonly { source: string; destination: string }[] = [
-  {
-    source: ".agents/skills/development/repair.md",
-    destination: ".agents/skills/development/repair.md",
-  },
-  {
-    source: ".agents/skills/documentation/writing.md",
-    destination: ".agents/skills/development/writing.md",
-  },
-];
+// `lib/skills` is the directory `src/scaffoldSharedSkillDirectory.ts` reads;
+// it is rebuilt whole so an item a placeholder no longer names cannot ship.
+const DESTINATION: string = resolve(HERE, "../lib/skills");
 
-for (const entry of SHARED) {
-  const source: string = resolve(ROOT, entry.source);
-  const destination: string = resolve(SCAFFOLD, entry.destination);
+rmSync(DESTINATION, { force: true, recursive: true });
+let count: number = 0;
+for (const relative of listAutoMovieScaffoldFiles(SCAFFOLD)) {
+  const shared: string | null = scaffoldSharedSkillPath(relative);
+  if (shared === null) continue;
+  const destination: string = resolve(DESTINATION, shared);
   mkdirSync(dirname(destination), { recursive: true });
-  copyFileSync(source, destination);
+  cpSync(resolve(ROOT_SKILLS, shared), destination, { recursive: true });
+  count++;
 }
-console.log(`synced ${SHARED.length} scaffold instruction paths`);
+console.log(`synced ${count} shared scaffold skill items`);

@@ -40,8 +40,13 @@ Read [PROJECT.md](PROJECT.md) for the adopted scope, then enter the requested ta
 
 ### Implementation and evidence
 
-- [development](.agents/skills/development/SKILL.md): production implementation, integrations, behavioral tests and technical documentation.
+- [development](.agents/skills/development/SKILL.md): production implementation, integrations and behavioral tests.
 - [evidence](.agents/skills/evidence/SKILL.md): requirements, question ownership, evidence answers, graph configuration, scope and actual parent relationships.
+
+### Writing
+
+- [documentation](.agents/skills/documentation/SKILL.md): writing a README, technical document, evidence prose or doc comment; creative bodies follow screenwriting.
+- [prompting](.agents/skills/prompting/SKILL.md): changing `AGENTS.md`, `CLAUDE.md`, or a skill.
 
 ### Assessment
 

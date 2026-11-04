@@ -1,6 +1,6 @@
 ---
 name: prompting
-description: Defines common prompt-writing principles for AGENTS.md, CLAUDE.md and skills. Use before changing agent instructions; scaffold-prompting owns production skill and contract design.
+description: Defines common prompt-writing principles for AGENTS.md, CLAUDE.md and skills. Use before changing agent instructions.
 ---
 
 # Prompting
@@ -17,9 +17,7 @@ A skill gives a job's goal, order, and boundaries, and points to the checklists 
 
 Give each rule one owner and update its callers when moving it, so a task receives one consistent requirement. Group judgments the agent can make together; split when their task, respondent or repair owner differs. Keep overall achievement distinct from passing its detailed tests.
 
-Use [scaffold-prompting](../scaffold-prompting/SKILL.md) for the strategy and contract design of instructions shipped to productions. Repository engineering questions remain with [contracts](../contracts/SKILL.md); production questions must use respondents that can establish their actual creative or media result.
-
-An agent does not reliably follow long, detailed, or conditional prose, so a rule that every declaration must meet belongs in a [contracts](../contracts/SKILL.md) checklist as an H2 question. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete.
+An agent does not reliably follow long, detailed, or conditional prose, so a rule that every declaration must meet belongs in a [contracts](../contracts/) checklist as an H2 question. Evidence makes each selected declaration answer it, and [review](../review/SKILL.md) checks that the answer is true and complete.
 
 ## Layout
 

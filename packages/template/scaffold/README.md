@@ -39,7 +39,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 
 ## Project files
 
-- `.agents/skills` holds eight task entry points, their directly linked resources and contracts. `AGENTS.md` groups creation, implementation/evidence and assessment; `screenwriting` selects its current stage, rewriting, evidence or repair procedure.
+- `.agents/skills` holds ten task entry points, their directly linked resources and contracts. `AGENTS.md` groups creation, implementation/evidence, writing and assessment; `screenwriting` selects its current stage, rewriting, evidence or repair procedure.
 - `PROJECT.md` holds the project overview, commissioned scope, current choices, constraints and setup authority.
 - `docs/instructions` holds creative writing requirements; other `docs` locations hold bodies, working editions, evidence and reviews when needed. [Layout and intake](.agents/skills/production/layout.md) explains their owners.
 - `src` holds executable source and actual host entries, with optional provider or local-tool code in `src/integrations`; `test` holds tests and their runner; `public` holds retained fixed media.
