@@ -197,7 +197,7 @@ export namespace AutoMovieViewSection {
     const knots: AutoMoviePolarSector.IGuide[] = [];
     for (let q: number = 0; q < 4; q++) {
       knots.push(guides[q]!);
-      for (let j: number = 1; j < CONIC_SPANS; j++) knots.push(conic(e[q]!, e[(q + 1) % 4]!, shoulders[q]!, j / CONIC_SPANS, guides[q]!.angle));
+      for (let j: number = 1; j < CONIC_SPANS; j++) knots.push(conic(e[q]!, e[(q + 1) % 4]!, shoulders[q]!, turned(e[q]!, e[(q + 1) % 4]!, shoulders[q]!, j / CONIC_SPANS), guides[q]!.angle));
     }
 
     return { box, shoulders: [...shoulders], guides, knots, fullness: [0, 0, 0, 0], girth: 0, diagonals: [0, 0, 0, 0] };
@@ -423,9 +423,41 @@ export namespace AutoMovieViewSection {
 const QUARTER: number = Math.PI / 2;
 
 /**
- * Spans of each quarter's conic between guides: its parameter in sixteen equal steps. The interpolation error of a quintic Hermite span grows as the sixth power of its angle over the angle the radius turns in, and the parameter's steps follow that angle. Four steps left about `5e-4` of the short half extent on a 4.3 to 1 box (a lip's), which crossed the box's short side by 2.5 micrometres at the ellipse's shoulder; sixteen steps take that down `4^6 = 4096` times, to about `1e-7`.
+ * Spans of each quarter's conic between guides: each span takes an equal sixteenth of the conic's polar angle plus its tangent's turn, which run from 0 to a quarter turn each (`turned`), so no span covers more than a sixteenth of a quarter turn of either. The interpolation error of a quintic Hermite span grows as the sixth power of the angles it spans, so this bounds every span alike: a full conic's spans stay near `1e-7` of the short half extent (a 4.3 to 1 lip box crossed its side by 2.5 micrometres at four spans), and a nearly straight quarter (a shoulder near 0, its turn packed into an angle of order `r b / a` at each touch) gets its guides inside that corner instead of across it, where equal steps of the conic's parameter left the quintic diving by hundreds of millimetres and a 60 by 40 box measured 1373 mm round.
  */
 const CONIC_SPANS: number = 16;
+
+/** Halvings of the conic's parameter interval that place a guide by its tangent's turn, to `2^-60` of the interval. */
+const TURN_BISECTIONS: number = 60;
+
+/**
+ * The conic's parameter where its polar angle plus its tangent's turn from the first touch reach a share of a half turn: the rational quadratic of `conic`, its point's angle `atan2(N_v, N_u)` and its tangent's turn `atan2(C'_v, C'_u) - pi / 2` from the quotient rule, both monotone on a convex arc, so bisection finds it.
+ *
+ * @param a The half extent along the quarter's first guide.
+ * @param b The half extent along its second.
+ * @param r The quarter's shoulder.
+ * @param share The share of the half turn, inside `(0, 1)`.
+ * @returns The parameter, inside `(0, 1)`.
+ */
+function turned(a: number, b: number, r: number, share: number): number {
+  const w: number = r / (1 - r);
+  const target: number = share * 2 * QUARTER;
+  let low: number = 0;
+  let high: number = 1;
+  for (let k: number = 0; k < TURN_BISECTIONS; k++) {
+    const t: number = (low + high) / 2;
+    const s: number = 1 - t;
+    const D: number = s * s + 2 * w * t * s + t * t;
+    const D1: number = -2 * s + 2 * w * (1 - 2 * t) + 2 * t;
+    const N: [number, number] = [s * s * a + 2 * w * t * s * a, 2 * w * t * s * b + t * t * b];
+    const N1: [number, number] = [-2 * s * a + 2 * w * (1 - 2 * t) * a, 2 * w * (1 - 2 * t) * b + 2 * t * b];
+    const du: number = N1[0] * D - N[0] * D1;
+    const dv: number = N1[1] * D - N[1] * D1;
+    if (Math.atan2(dv, du) - QUARTER + Math.atan2(N[1], N[0]) < target) low = t;
+    else high = t;
+  }
+  return (low + high) / 2;
+}
 
 /** Zero fullness for each count of guides, made once. */
 const ZEROS: Map<number, number[]> = new Map();
