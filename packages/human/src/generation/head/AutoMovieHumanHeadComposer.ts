@@ -66,6 +66,9 @@ export namespace AutoMovieHumanHeadComposer {
 
     /** Each auricle's top, from its height over the tragion (`AutoMovieHumanEarPlace.aboveTragion`). */
     ears?: { left: number; right: number };
+
+    /** The face plan's super-ellipse exponent (`AutoMovieHumanFacePlan.exponent`). */
+    faceExponent?: number;
   }
 
   /** Traced points per join. */
@@ -96,7 +99,7 @@ export namespace AutoMovieHumanHeadComposer {
       places?.tragion === undefined
         ? skeleton
         : { ...skeleton, landmarks: { ...skeleton.landmarks, tragion: [skeleton.landmarks.tragion[0], places.tragion] } };
-    const mass: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(AutoMovieHumanHeadMassPart.of(plan));
+    const mass: AutoMovieHumanViewLoft.IResult = AutoMovieHumanViewLoft.create(AutoMovieHumanHeadMassPart.of(plan, places?.faceExponent));
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...mass.diagnostics];
 
     // Parents before their inner parts, each joined to its parent's bare

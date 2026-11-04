@@ -53,9 +53,10 @@ export namespace AutoMovieHumanHeadMassPart {
    * The head mass as a view part.
    *
    * @param plan The landmark skeleton, the vault exponent solved.
+   * @param faceExponent The face plan's super-ellipse exponent (`AutoMovieHumanFacePlan.exponent`); absent, the head prior's row.
    * @returns The part, chain name `head.mass`.
    */
-  export function of(plan: IAutoMovieHumanHeadLayout): IAutoMovieHumanViewPart {
+  export function of(plan: IAutoMovieHumanHeadLayout, faceExponent?: number): IAutoMovieHumanViewPart {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const g: number = m.glabella[1];
     const top: number = plan.vertex - g;
@@ -120,7 +121,7 @@ export namespace AutoMovieHumanHeadMassPart {
     // The quarters' fullness: the vault's shoulder, the face's in front
     // under the nasion, returning to the vault's over the forehead.
     const vault: number = shoulder(plan.vault);
-    const face: number = shoulder(AutoMovieHumanHeadPrior.PRIOR.frame.plan);
+    const face: number = shoulder(faceExponent ?? AutoMovieHumanHeadPrior.PRIOR.frame.plan);
     const first: number = knotted[0]![1];
     const last: number = knotted[knotted.length - 1]![1];
     const flatAt = (value: number): IAutoMovieHumanViewPart.IOutline => ({

@@ -1,6 +1,7 @@
 import { AutoMovieHumanBodyAnatomy } from "../../../src/generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../../../src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanEarPlace } from "../../../src/generation/AutoMovieHumanEarPlace";
+import { AutoMovieHumanFacePlan } from "../../../src/generation/AutoMovieHumanFacePlan";
 import { AutoMovieHumanHeadArcs } from "../../../src/generation/AutoMovieHumanHeadArcs";
 import type { AutoMovieHumanHeadConstruction } from "../../../src/generation/AutoMovieHumanHeadConstruction";
 import { AutoMovieHumanHeadLandmarks } from "../../../src/generation/AutoMovieHumanHeadLandmarks";
@@ -52,6 +53,7 @@ export const HumanDebugPieceHeadParts: IHumanDebugPiece = {
     const composed: AutoMovieHumanHeadComposer.IOutput = AutoMovieHumanHeadComposer.compose(built.plan, inputs.head.earPair, neckChain, {
       tragion,
       ears: { left: top(inputs.head.earPair.left), right: top(inputs.head.earPair.right) },
+      faceExponent: AutoMovieHumanFacePlan.exponent(inputs.head, sex),
     });
     const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...composed.diagnostics];
 
