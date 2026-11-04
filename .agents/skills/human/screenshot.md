@@ -31,8 +31,10 @@ $env:TMP = $captureTemp
 $capture = 'packages/human/debug/capture/human-debug-capture.ts'
 $config = 'packages/human/tsconfig.debug.scripts.json'
 $out = 'packages/human/.shots/comparison/curve-selection'
-node_modules\.bin\ttsx.CMD -P $config $capture --out $out --base 'person=f1;reference=f1;referenceStyle=clay;referencePart=*;parts=reference.head*;part=nose;curves=view.nose/front.pos;views=front;axis=0;viewLabels=0;legend=0;ortho=1;w=900;h=900;keep=1' --shot 'nose-one-curve:camera=left'
+node_modules\.bin\ttsx.CMD -P $config $capture --out $out --base 'person=f1;reference=f1;referenceStyle=clay;referencePart=*;parts=reference.head*;part=nose;curves=view.nose/front.pos;views=front;axis=0;viewLabels=0;legend=0;ortho=1;w=900;h=900;keep=0' --shot 'nose-one-curve:camera=left'
 ```
+
+After the first receipt confirms the intended source, use `keep=1` for the remaining selections in that frozen round. `keep=0` checks disk identity; it does not verify the freshness of cached transformed dependencies. Start a new source round with `keep=0` rather than inheriting the continuation examples below.
 
 `part` selects compared view parts, `referencePart` selects or crops the reference, `parts` selects rendered meshes and `curves` selects curve ids. A compared curve is `human.construction.view.<part>/<front.pos|front.neg|side.pos|side.neg|top.<k>|axis>`; only `human.construction.` may be omitted, so `view.` stays. The clay reference is a mesh: `parts=none` would hide it. Change the example's curve id to inspect every edge and ring individually, with `views` admitting that curve and `axis=1` when selecting its axis.
 
@@ -46,13 +48,13 @@ The comparison's front and side curves read the engine's shared original-outline
 
 `view.<part>/top.<k>` belongs to the section owner's raw fullness at front-positive source knot index `k`; a rejected section leaves that index unavailable with its diagnostic, and a closing pole has a point rather than a top ring. The ordinary person or piece view's `<chain>/<k>` sections and guides belong to the final loft. Read `curveProducers` and the source hash before judging the curves: an older resident page can still carry the former surviving-section display. Briefly enable `viewLabels=1` to establish each id (including `top.<k>`), then turn labels off; inspect both signs separately, every available top ring and the axis, without substituting a curve pair or a completed capture list for [2D acceptance](verification.md#curves-against-the-reference).
 
-Show a neighbouring group together by replacing that command's `part`, `curves` and `views`:
+Continue the confirmed round with a neighbouring group by replacing that command's `part`, `curves`, `views` and `keep`:
 
 ```text
-part=nose*,lip.*;curves=view.nose*/*,view.lip.*/*;views=front,side,top
+part=nose*,lip.*;curves=view.nose*/*,view.lip.*/*;views=front,side,top;keep=1
 ```
 
-For one top ring over the reference's own curves:
+Continue the same frozen round with one top ring over the reference's own curves:
 
 ```powershell
 node_modules\.bin\ttsx.CMD -P $config $capture --out "${out}-top" --base 'person=f1;reference=f1;referenceStyle=loft;referencePart=*;parts=none;part=nose;curves=reference.head/*,view.nose/top.10;views=top;axis=0;viewLabels=0;legend=0;ortho=1;w=900;h=900;keep=1' --shot 'nose-one-top-ring:camera=top'
@@ -64,7 +66,7 @@ In the ordinary generated-person view, omit `reference` and select actual skin i
 
 Repeat each selection with `camera=front`, `left`, `top`, `back`, `bottom` and needed obliques; `az=45;el=20` is one free-camera example. Keep camera, target, projection, light and size identical between compared passes. `focus` fits visible mesh ids, `target=x,y,z` sets the target in mm and `dist` sets the distance in mm. For matched surface/overlay/construction passes, use perspective (`ortho=0`) and retain explicit `az`, `el`, `target` and `dist` from the viewer's orbit URL or the batch receipt's camera record, converting its metres to mm. Visibility changes can refit an orthographic frame, and changing `dist` does not zoom it.
 
-The image receipt preserves headers and the canonical query; its provenance header can be truncated, so use the batch snapshot for full diagnostics, matched ids and camera placement. A single reference selection can use `/human-debug/batch/f1.json?round=<unique-name>&pieces=whole&cameras=left&reference=f1&part=nose&curves=view.nose/front.pos&views=front&axis=0&keep=1&fresh=<unique-nonce>`; keep the same reference style and regions as the ongoing round. Open its saved PNG and read `snapshot.shown`, `snapshot.camera`, provenance and source before making the [judgment](verification.md).
+The image receipt preserves headers and the canonical query; its provenance header can be truncated, so use the batch snapshot for full diagnostics, matched ids and camera placement. To continue the confirmed frozen round, a single reference selection can use `/human-debug/batch/f1.json?round=<unique-name>&pieces=whole&cameras=left&reference=f1&part=nose&curves=view.nose/front.pos&views=front&axis=0&keep=1&fresh=<unique-nonce>`; keep the same reference style and regions as that round. If this batch starts a new source round instead, set `keep=0` for its first frame. Open its saved PNG and read `snapshot.shown`, `snapshot.camera`, provenance and source before making the [judgment](verification.md).
 
 ## References
 
