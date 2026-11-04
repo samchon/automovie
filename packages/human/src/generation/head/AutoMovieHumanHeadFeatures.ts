@@ -99,7 +99,7 @@ export namespace AutoMovieHumanHeadFeatures {
           [eye.length / 2, eye.height, eye.length / 2, eye.height],
           depth + INSET,
           2,
-          [front - face.eyeRecess * k, plan.eye, z],
+          [front, plan.eye, z],
         ),
       );
     };

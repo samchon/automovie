@@ -34,10 +34,12 @@ import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
  *   depart to the face plan's exponent under the nasion and return to the
  *   vault's over the forehead.
  *
- * The top is a pole at the vertex, every outline reaching 0 there; the bottom
- * is open at the menton's height, inside the neck the head mass is merged
- * onto; a bottom lower down put the front of P, the submental line, within a
- * few millimetres of the axis and turned the sections concave.
+ * The top is a pole at the vertex, every outline reaching 0 there. The
+ * bottom is a cap under the menton, inside the neck, closing on a pole as
+ * deep as half the least half extent there: a bottom open at a lower level
+ * put the front of P, the submental line, within a few millimetres of the
+ * axis and turned the sections concave, and an open bottom gave the neck no
+ * closed loop to meet the head mass along.
  * First pass: compile-only, not wired into generation.
  */
 export namespace AutoMovieHumanHeadMassPart {
@@ -46,6 +48,9 @@ export namespace AutoMovieHumanHeadMassPart {
 
   /** Ring samples of the emitted chain. */
   export const SAMPLES: number = 256;
+
+  /** Layers of the cap under the menton. */
+  export const CAP: number = 6;
 
   /** Largest station step between layers, mm. */
   export const SPACING: number = 2;
@@ -123,6 +128,13 @@ export namespace AutoMovieHumanHeadMassPart {
       right[right.length - 1]!.value = 0;
     }
 
+    // A closed bottom inside the neck, so the neck meets the head mass along
+    // one loop round its side: a cap under the menton as deep as half the
+    // least half extent there, every outline falling to the bottom pole.
+    const least: number = Math.min(front[0]!.value, -back[0]!.value, left[0]!.value, -right[0]!.value);
+    const cap: number = front[0]!.station - least / 2;
+    for (const o of [front, back, left, right]) o.unshift({ site: "cap", station: cap, value: 0 });
+
     // The quarters' fullness: the vault's shoulder, the face's in front
     // under the nasion, returning to the vault's over the forehead.
     const vault: number = shoulder(plan.vault);
@@ -155,10 +167,13 @@ export namespace AutoMovieHumanHeadMassPart {
     }
     stations.push(last);
 
+    // The cap under the menton: its own layers down to the bottom pole.
+    const capped: number[] = [...Array.from({ length: CAP }, (_: unknown, k: number): number => cap + ((first - cap) * k) / CAP), ...stations];
+
     return {
       name: "head.mass",
       axis,
-      stations,
+      stations: capped,
       front: { positive: { knots: front }, negative: { knots: back } },
       side: { positive: { knots: left }, negative: { knots: right } },
       fullness: {
@@ -166,7 +181,7 @@ export namespace AutoMovieHumanHeadMassPart {
         shoulder: flatAt(vault),
         departures: [faceDeparture, flatAt(0), flatAt(0), faceDeparture],
       },
-      pole: "top",
+      pole: "both",
       order: ORDER,
       samples: SAMPLES,
     };
