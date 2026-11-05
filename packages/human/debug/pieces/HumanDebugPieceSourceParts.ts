@@ -19,6 +19,10 @@ import type { IHumanDebugPiece } from "./IHumanDebugPiece";
  * source results are selected by name; their actual loft.chain references go
  * unchanged to the existing ChainLoft surface/construction consumer. Studies
  * and definition-only parts remain explicitly separate from tree members.
+ * The reserved `tree` argument selects exactly observation.treeParts by name,
+ * excluding unconnected studies and definition-only records, without a fixed
+ * person-specific inventory. Missing tree lofts remain unavailable. Subtractive
+ * operands are positive raw lofts here; no Boolean difference is performed.
  *
  * Only this newly generated document's positions receive the source-to-person
  * scale about the floor; normals, indices and borrowed chain frames/sources
@@ -35,22 +39,26 @@ import type { IHumanDebugPiece } from "./IHumanDebugPiece";
 export const HumanDebugPieceSourceParts: IHumanDebugPiece = {
   name: "source.parts",
   region: "body",
-  description: "Named actual production source parts lofted together before joins, without whole-person calibration; default trunk.",
-  arguments: ["trunk", "arm.left,thumb.left", "arm.right,thumb.right"],
+  description: "Named actual production source parts lofted together before joins; tree selects the current production tree, and the default is trunk.",
+  arguments: ["tree", "trunk", "arm.left,thumb.left", "arm.right,thumb.right"],
   build(person: IHumanDebugPerson, argument: string | null): IHumanDebugDocument {
     const parsed: { value: string[] } | string =
       HumanDebugOptionField.globs().read(argument ?? "trunk");
     if (typeof parsed === "string") throw new Error(`source.parts: ${parsed}`);
     const globs: string[] = parsed.value;
     if (globs.length === 0) throw new Error("source.parts needs at least one part-name glob");
-    const expressions: RegExp[] = globs.map(HumanDebugPattern.expression);
-    const matches: (name: string) => boolean = (name: string): boolean =>
-      expressions.some((expression: RegExp): boolean => expression.test(name));
+    const treeOnly: boolean = globs.length === 1 && globs[0] === "tree";
 
     const started: number = performance.now();
     const source: HumanDebugViewParts.IOutput =
       HUMAN_DEBUG_VIEW_PARTS.get(person.alias, person.parameters);
     const defined: number = performance.now();
+    const tree: Set<string> = new Set(source.observation.treeParts);
+    const expressions: RegExp[] = globs.map(HumanDebugPattern.expression);
+    const matches: (name: string) => boolean = (name: string): boolean =>
+      treeOnly
+        ? tree.has(name)
+        : expressions.some((expression: RegExp): boolean => expression.test(name));
     const names: string[] = [
       ...source.parts.map((part: HumanDebugViewParts.IPart): string => part.name),
       ...source.observation.unavailableParts,
@@ -59,7 +67,10 @@ export const HumanDebugPieceSourceParts: IHumanDebugPiece = {
       (part: HumanDebugViewParts.IPart): boolean => matches(part.name),
     );
     const chains: IAutoMovieLoftChain[] = [];
-    const unavailable: string[] = source.observation.unavailableParts.filter(matches);
+    const unavailable: string[] = treeOnly
+      ? source.observation.treeParts.filter((name: string): boolean =>
+          !selected.some((part: HumanDebugViewParts.IPart): boolean => part.name === name))
+      : source.observation.unavailableParts.filter(matches);
     for (const part of selected) {
       const chain: IAutoMovieLoftChain | null = part.loft?.chain ?? null;
       if (chain === null) unavailable.push(part.name);
@@ -105,6 +116,7 @@ export const HumanDebugPieceSourceParts: IHumanDebugPiece = {
         producer: "HumanDebugPieceSourceParts -> HumanDebugChainLoft",
         piece: "source.parts:" + globs.join(","),
         person: person.alias,
+        selection: treeOnly ? "production-tree" : "part-name-globs",
         observation: {
           stage: "prejoin-part-loft",
           finalRealization: "not-run",
@@ -115,7 +127,7 @@ export const HumanDebugPieceSourceParts: IHumanDebugPiece = {
         },
         scale: source.scale,
         selected: selected.map((part: HumanDebugViewParts.IPart): string => part.name),
-        unmatchedGlobs: globs.filter((_glob: string, index: number): boolean =>
+        unmatchedGlobs: treeOnly ? [] : globs.filter((_glob: string, index: number): boolean =>
           !names.some((name: string): boolean => expressions[index]!.test(name))),
         milliseconds: { source: Math.round(defined - started), loft: Math.round(performance.now() - defined) },
         loft: document.provenance,
