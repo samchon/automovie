@@ -19,7 +19,7 @@ Human debugging UI and capture tooling belong in `packages/human/debug`, which t
 
 ## Order
 
-Work in [correction rounds](../3d-modeling/visual-debugging.md#correction-rounds) over the whole figure, each in this order:
+Work in [correction rounds](../3d-modeling/visual-debugging.md#correction-rounds) over the whole figure, using the [part-by-part transition](verification.md#curves-against-the-reference) from accepted 2D definitions to 3D inspection while gathering the round:
 
 1. Build: the code type-checks clean in its [watch](../development/validation.md#type-checking) and the figure generates.
 2. Curves: judge every part's [view curves over the reference](verification.md#curves-against-the-reference).
