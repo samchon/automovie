@@ -24,6 +24,13 @@ export class FilmActor {
   /** Equipment and garment disposers. */
   private readonly equipment: (() => void)[] = [];
 
+  /** Review overlay of joint points and parent–child sticks; absent unless requested. */
+  private skeleton?: {
+    points: THREE.Points;
+    sticks: THREE.LineSegments;
+    pairs: readonly (readonly [string, string])[];
+  };
+
   public constructor(
     public readonly id: "a" | "b" | "referee",
     public readonly rig: BodyRig,
@@ -52,6 +59,82 @@ export class FilmActor {
     this.person.object.position.set(...root.position);
     this.person.object.quaternion.set(...root.rotation);
     this.person.pose(pose);
+    if (this.skeleton) this.updateRig();
+  }
+
+  /**
+   * Draw the skeleton over the figure: a point at every joint and a stick from each
+   * joint to its parent, always on top, for motion review.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Reads the same FK output the polygon is drawn from (body-frame joint placements under the actor group), so the sticks show exactly what the solver produced. One point cloud and one line set per actor, rewritten in place on every placement.
+   * @evidence contracts/common.md#authoring-interface Idempotent; review-only, the delivered film never calls it. `dispose` frees it.
+   */
+  public showRig(): void {
+    if (this.skeleton) return;
+    const output: AutoMovieHumanSkeleton.IOutput = this.person.output;
+    const pairs: (readonly [string, string])[] = output.bones
+      .filter((bone) => bone.parent !== null)
+      .map((bone) => [bone.parent!, bone.bone] as const);
+    const overlay = (material: THREE.Material): THREE.Material => {
+      material.depthTest = false;
+      material.transparent = true;
+      return material;
+    };
+    const points: THREE.Points = new THREE.Points(
+      new THREE.BufferGeometry().setAttribute(
+        "position",
+        new THREE.BufferAttribute(new Float32Array(output.posed.length * 3), 3),
+      ),
+      overlay(
+        new THREE.PointsMaterial({
+          color: 0xffe14d,
+          size: 5,
+          sizeAttenuation: false,
+        }),
+      ),
+    );
+    const sticks: THREE.LineSegments = new THREE.LineSegments(
+      new THREE.BufferGeometry().setAttribute(
+        "position",
+        new THREE.BufferAttribute(new Float32Array(pairs.length * 6), 3),
+      ),
+      overlay(new THREE.LineBasicMaterial({ color: 0x7cff6b })),
+    );
+    for (const object of [points, sticks]) {
+      object.renderOrder = 1000;
+      object.frustumCulled = false;
+      this.person.object.add(object);
+    }
+    this.skeleton = { points, sticks, pairs };
+    this.updateRig();
+  }
+
+  /** Rewrite the overlay from the current FK output. */
+  private updateRig(): void {
+    const rig = this.skeleton!;
+    const posed: Map<string, readonly number[]> = new Map(
+      this.person.output.posed.map((placement) => [
+        placement.bone,
+        placement.position,
+      ]),
+    );
+    const points = rig.points.geometry.getAttribute(
+      "position",
+    ) as THREE.BufferAttribute;
+    this.person.output.posed.forEach((placement, index: number): void => {
+      points.setXYZ(index, ...(placement.position as [number, number, number]));
+    });
+    points.needsUpdate = true;
+    const sticks = rig.sticks.geometry.getAttribute(
+      "position",
+    ) as THREE.BufferAttribute;
+    rig.pairs.forEach(([parent, child], index: number): void => {
+      const from: readonly number[] = posed.get(parent) ?? [0, 0, 0];
+      const to: readonly number[] = posed.get(child) ?? from;
+      sticks.setXYZ(2 * index, from[0]!, from[1]!, from[2]!);
+      sticks.setXYZ(2 * index + 1, to[0]!, to[1]!, to[2]!);
+    });
+    sticks.needsUpdate = true;
   }
 
   /**
@@ -109,6 +192,12 @@ export class FilmActor {
    */
   public dispose(): void {
     for (const dispose of this.equipment.splice(0)) dispose();
+    if (this.skeleton)
+      for (const object of [this.skeleton.points, this.skeleton.sticks]) {
+        object.removeFromParent();
+        object.geometry.dispose();
+        (object.material as THREE.Material).dispose();
+      }
     this.person.dispose();
   }
 }

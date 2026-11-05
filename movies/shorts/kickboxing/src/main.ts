@@ -296,8 +296,11 @@ const bootstrap: Promise<void> = (async (): Promise<void> => {
         "URL requires 0 <= start < end <= 180 and speed .25, .5 or 1",
       );
     runtime = new FilmRuntime();
-    for (const actor of Object.values(runtime.actors))
+    for (const actor of Object.values(runtime.actors)) {
       scene.add(actor.person.object);
+      // Review-only skeleton overlay (joint points and sticks): `?rig=1`.
+      if (params.get("rig") === "1") actor.showRig();
+    }
     dirty = true;
     const sourceStarted: number = performance.now();
     await runtime.prepare(

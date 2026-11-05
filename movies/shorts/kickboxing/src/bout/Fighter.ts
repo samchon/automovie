@@ -69,7 +69,7 @@ export class Fighter {
       heading: (t: number): number => this.stance(t).heading,
       busy,
       duration: 0.18,
-      threshold: 0.07,
+      threshold: 0.055,
       overlap: 0.05,
       height: 0.05,
       lead: "left",
@@ -387,8 +387,17 @@ export namespace Fighter {
     // The support hip admits only 20° of adduction, so a lead-leg head kick tilts the
     // pelvis moderately and lifts the leg through hip flexion and abduction instead.
     frame.pelvis.obliquity += sign * (8 + (right ? 45 : 14) * lean) * k;
-    frame.lumbar.lateral += sign * -1 * (5 + 10 * lean) * k;
-    frame.thoracic.lateral += sign * -1 * 9 * lean * k;
+    // The hiked pelvis tips the trunk away from the kicking leg (positive lateral
+    // flexion bends toward the person's left). A rear-leg kick bends the spine back
+    // over the support foot, leaving about 17° of lean for a body kick; the head
+    // kick lets the spine follow the pelvis into a full lean-back.
+    if (right) {
+      frame.lumbar.lateral += sign * (5 + 12 * lean) * k;
+      frame.thoracic.lateral += sign * 9 * lean * k;
+    } else {
+      frame.lumbar.lateral += -sign * (5 + 10 * lean) * k;
+      frame.thoracic.lateral += -sign * 9 * lean * k;
+    }
 
     // Seed the kicking leg near a roundhouse shape (hip flexed, abducted, internally
     // rotated) so the solver never falls into an extended or externally rotated branch.

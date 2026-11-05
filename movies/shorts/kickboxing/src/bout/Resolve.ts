@@ -69,9 +69,10 @@ export namespace Resolve {
       let trunk: BodyRig.Trunk = rig.trunk(pose, root);
 
       // Support reach: a body cannot travel farther from a planted foot than its leg
-      // reaches. Pull the root back toward any planted ankle goal beyond 97% of the leg,
-      // so planted feet never slide or lift because the authored body overran them.
-      const reach: number = 0.97 * (rig.legLengths[0] + rig.legLengths[1]);
+      // reaches. Pull the root back toward any planted ankle goal beyond 95% of the leg
+      // (the rest is left for the hip's extension limit in a driving rear leg), so
+      // planted feet never slide or lift because the authored body overran them.
+      const reach: number = 0.95 * (rig.legLengths[0] + rig.legLengths[1]);
       const pull: Vec3.Value = (["left", "right"] as const).reduce(
         (sum: Vec3.Value, side: "left" | "right"): Vec3.Value => {
           const leg: FighterBody.Leg = frame.legs[side];
@@ -431,12 +432,18 @@ export namespace Resolve {
             GLOVE * 1.95,
           );
         if (action.technique === "uppercut") {
+          // Rise into the underside of the covering glove, a quarter of the way in
+          // from it toward the midline, touching it whatever the guard's width.
           const mid: Vec3.Value = Vec3.lerp(
             passive(o, "left").point,
             passive(o, "right").point,
             0.5,
           );
-          return Vec3.add(mid, [0, -GLOVE * 1.9, 0]);
+          return Vec3.add(Vec3.lerp(passive(o, receiver).point, mid, 0.25), [
+            0,
+            -GLOVE,
+            0,
+          ]);
         }
         return along(passive(o, receiver).point, GLOVE * 1.95);
       }

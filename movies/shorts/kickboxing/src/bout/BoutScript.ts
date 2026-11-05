@@ -303,27 +303,31 @@ export namespace BoutScript {
     },
     "low-kick": {
       side: "right",
-      windup: 0.36,
+      windup: 0.3,
       recovery: 0.4,
       range: 0.95,
       target: "leg",
     },
     "body-kick": {
       side: "right",
-      windup: 0.4,
+      windup: 0.34,
       recovery: 0.45,
       range: 0.9,
       target: "body",
     },
     "high-kick": {
       side: "left",
-      windup: 0.5,
+      windup: 0.44,
       recovery: 0.5,
       range: 0.78,
       target: "head",
     },
   });
 
-  /** Stance-origin distance when neither fighter is attacking, metres. */
-  export const neutralRange: number = 1.62;
+  /**
+   * Stance-origin distance when neither fighter is attacking, metres: outside
+   * kicking range, so every exchange needs a step in and the heads stay about
+   * 1.6 m apart between exchanges.
+   */
+  export const neutralRange: number = 1.82;
 }

@@ -10,7 +10,7 @@ import { BoutScript } from "./BoutScript";
  * into the range its technique needs, then returns. Both advances are smooth,
  * so the footstep generator turns them into discrete supported steps.
  *
- * @evidence contracts/common.md#implementation-and-ownership Closed-form in film time (Catmull–Rom geography plus plateau envelopes per attack), so any second evaluates without history and seek equals playback. When both fighters close at once (a counter during the other's recovery) their combined closing is capped so the pair never collapses below the shortest technique range.
+ * @evidence contracts/common.md#implementation-and-ownership Closed-form in film time (Catmull–Rom geography plus plateau envelopes per attack), so any second evaluates without history and seek equals playback. When both fighters close at once (a counter during the other's recovery) their combined closing is capped at the deeper single need, so the pair is never closer than the attack in flight needs.
  * @evidence contracts/common.md#authoring-interface Returns world X/Z metres and headings in radians (three.js sign, 0 faces +X). Valid for the exchanges up to the knockout; the aftermath owns later placement.
  */
 export namespace Blocking {
@@ -56,13 +56,16 @@ export namespace Blocking {
       const kick: boolean = action.technique.endsWith("kick");
       const need: number = Math.max(0, BoutScript.neutralRange - spec.range);
 
-      // A kick steps in first and only then unloads the leg; a punch closes while it extends.
+      // A kick steps in first and only then unloads the leg; a punch's step lands just
+      // before the fist so the rear foot has followed by contact. The attacker steps
+      // back out right after recovering, so the pair is only in range while an
+      // exchange is live.
       const arrive: number = kick
         ? action.at - spec.windup - 0.04
-        : action.at - 0.08;
+        : action.at - 0.16;
       const start: number =
-        arrive - (kick ? 0.3 + 0.55 * need : 0.34 + spec.windup);
-      const end: number = action.at + spec.recovery + 0.6;
+        arrive - (kick ? 0.3 + 0.55 * need : 0.26 + 0.3 * need + spec.windup);
+      const end: number = action.at + spec.recovery + (kick ? 0.5 : 0.35);
       if (t <= start || t >= end) continue;
       const hold: number = kick
         ? action.at + spec.recovery + 0.08
@@ -77,10 +80,10 @@ export namespace Blocking {
       advance[action.actor] = Math.max(advance[action.actor], need * weight);
     }
 
-    // Cap simultaneous closing to the larger single need plus a little.
+    // Cap simultaneous closing to the larger single need, so a fighter stepping in
+    // during the other's attack never jams it inside its own range.
     const total: number = advance.a + advance.b;
-    const allowed: number =
-      Math.max(advance.a, advance.b) + 0.25 * Math.min(advance.a, advance.b);
+    const allowed: number = Math.max(advance.a, advance.b);
     const factor: number = total > 1e-9 ? allowed / total : 0;
     let half: number = BoutScript.neutralRange / 2;
     let a: number = half - advance.a * factor;

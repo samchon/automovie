@@ -24,7 +24,7 @@ pnpm --filter kickboxing exec ttsx -P tsconfig.json scripts/capture.ts http://12
 pnpm --filter kickboxing exec ttsx -P tsconfig.json scripts/play.ts http://127.0.0.1:5199/ 30 .cache/playback
 ```
 
-`capture.ts` saves stills at film seconds (optionally from an inspection camera `seconds@x,y,z:tx,ty,tz`); `play.ts` presses Play in the real Viewer, logs the clock and refusals and can record the page. Stills do not replace watching playback.
+`capture.ts` saves stills at film seconds (optionally from an inspection camera `seconds@x,y,z:tx,ty,tz`); `play.ts` presses Play in the real Viewer, logs the clock and refusals and can record the page. Add `?rig=1` to the Viewer URL (for example `http://127.0.0.1:5199/?rig=1`) to draw every joint as a point and every bone as a stick over the figures. Stills do not replace watching playback.
 
 ## Check and export
 

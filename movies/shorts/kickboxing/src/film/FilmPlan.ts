@@ -110,7 +110,7 @@ export namespace FilmPlan {
   /**
    * The delivered camera at a film second.
    *
-   * @evidence contracts/common.md#implementation-and-ownership During the bout the camera stands on A's left of the fighting axis (the same side throughout), 5.1 m out and 1.9 m up, looking at the pair centre; it drifts slowly along that side. From 143 s it eases into a fixed wide view that holds the kick, fall, neutral corner, count and celebration without a cut.
+   * @evidence contracts/common.md#implementation-and-ownership During the bout the camera stands inside the ropes on A's left of the fighting axis (the same side throughout), 2.75 m out at chest height, so the pair fills most of the frame and no rope crosses it; it drifts slowly along that side and is held 2.9 m from ring centre at most. From 143 s it eases over eight seconds into the aftermath's side-on view, which holds the kick, fall, neutral corner, count and celebration without a cut.
    * @evidence contracts/common.md#authoring-interface Finite seconds in [0, 180]; returns a fresh camera.
    */
   export function camera(seconds: number): Camera {
@@ -119,19 +119,22 @@ export namespace FilmPlan {
     const [cx, cz, axis] = Blocking.geography(Math.min(seconds, koSeconds));
     const side: Vec3.Value = Vec3.rotateY([0, 0, 1], axis);
     const along: Vec3.Value = Vec3.rotateY([1, 0, 0], axis);
-    const drift: number = 0.45 * Math.sin(seconds / 17);
+    const drift: number = 0.35 * Math.sin(seconds / 17);
+    const offset: Vec3.Value = Vec3.add(
+      Vec3.scale(side, 2.75),
+      Vec3.scale(along, 0.25 + drift),
+    );
+    const inside = (value: number): number =>
+      Math.max(-2.9, Math.min(2.9, value));
     const bout: { position: Vec3.Value; target: Vec3.Value } = {
-      position: Vec3.add(
-        [cx, 2.55, cz],
-        Vec3.add(Vec3.scale(side, 4.7), Vec3.scale(along, 0.35 + drift)),
-      ),
-      target: [cx, 0.98, cz],
+      position: [inside(cx + offset[0]), 1.55, inside(cz + offset[2])],
+      target: [cx, 1.0, cz],
     };
 
-    // Wide view framed on the fallen fighter and the neutral corner (owned by the aftermath).
+    // Side-on view of the fallen fighter and the neutral corner (owned by the aftermath).
     const wide: { position: Vec3.Value; target: Vec3.Value } =
       Aftermath.wideCamera;
-    const k: number = Ease.smoother((seconds - 143) / 6);
+    const k: number = Ease.smoother((seconds - 143) / 8);
     return {
       shotId:
         seconds < 143 ? "ringside-continuous" : "knockout-and-count-unbroken",
@@ -145,7 +148,7 @@ export namespace FilmPlan {
         number,
         number,
       ],
-      fovDegrees: Ease.lerp(42, 50, k),
+      fovDegrees: Ease.lerp(48, 62, k),
     };
   }
 }

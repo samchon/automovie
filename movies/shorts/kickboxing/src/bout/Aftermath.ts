@@ -19,6 +19,9 @@ export namespace Aftermath {
     [2.35, 2.35],
   ];
 
+  /** Farthest camera offset from ring centre that stays inside the ropes, metres. */
+  const INSIDE: number = 2.9;
+
   /** Knockout second. */
   const KO: number = BoutScript.finish.at;
 
@@ -69,35 +72,36 @@ export namespace Aftermath {
   ];
 
   /**
-   * Wide view of the knockout, the fall, the neutral corner and the count: framed on a
-   * point 38% of the way from B's fall toward A's corner, from beyond the fall on the
-   * side opposite the corner, offset toward the bout camera's side. World metres;
-   * FilmPlan eases into it from 143 s.
+   * Side-on view of the knockout, the fall, the neutral corner and the count: framed on a
+   * point 42% of the way from B's fall to A's corner (the referee works on B's far side)
+   * from the side of that line facing the bout
+   * camera, so both men stand at a similar depth and neither shrinks into the distance.
+   * Kept inside the ropes. World metres; FilmPlan eases into it from 143 s.
    */
   export const wideCamera: { position: Vec3.Value; target: Vec3.Value } =
     (() => {
       const focus: Vec3.Value = [
-        Ease.lerp(fallenHips[0], corner[0], 0.38),
-        0.6,
-        Ease.lerp(fallenHips[1], corner[1], 0.38),
+        Ease.lerp(fallenHips[0], corner[0], 0.42),
+        0.75,
+        Ease.lerp(fallenHips[1], corner[1], 0.42),
       ];
-      const back: Vec3.Value = Vec3.normalize([
-        fallenHips[0] - corner[0],
+      const line: Vec3.Value = Vec3.normalize([
+        corner[0] - fallenHips[0],
         0,
-        fallenHips[1] - corner[1],
+        corner[1] - fallenHips[1],
       ]);
-      const across: Vec3.Value = Vec3.normalize([-back[2], 0, back[0]]);
+      const across: Vec3.Value = [-line[2], 0, line[0]];
       const bout: Vec3.Value = Vec3.rotateY([0, 0, 1], pair.axis);
       const toward: Vec3.Value =
         Vec3.dot(across, bout) >= 0 ? across : Vec3.scale(across, -1);
+      const inside = (value: number): number =>
+        Math.max(-INSIDE, Math.min(INSIDE, value));
       return {
-        position: Vec3.add(
-          Vec3.add(
-            Vec3.add(focus, Vec3.scale(back, 4.6)),
-            Vec3.scale(toward, 2.2),
-          ),
-          [0, 2.7, 0],
-        ),
+        position: [
+          inside(focus[0] + toward[0] * 3),
+          focus[1] + 1.7,
+          inside(focus[2] + toward[2] * 3),
+        ],
         target: focus,
       };
     })();
