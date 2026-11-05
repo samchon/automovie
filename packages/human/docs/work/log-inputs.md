@@ -2,6 +2,18 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 leg plane and actual-source checkpoint (2026-11-05 09:02:21 +09:00, Get-Date)
+
+Root requested a read-only comparison after the production median counterexamples. Followed current BodyLaneInterim/LegLaws/LegWalk/WalkPart into the actual jointed-frame owner; separately read the retained guide/profile/axis/centre-line route, active W/D and lateral-split readers, their point-mean helper, current pure bones and recovered historical q reader. The law audit now separates horizontal support tables, declared area centroids, actual arithmetic point means, old rig AP fractions and current mechanical normal planes. The eight-guide extraction reader was not recovered; the existing W/D reader is not falsely substituted for it.
+
+Directly read both completed 25181 median failures and their actual scalar/frame records. Production and isolated crossings are 0.3494654944832405 and 0.40280219894508207 mm. The production witness's tilt reduces its inward Z projection by about 0.196 mm relative to the same fixed centre/scalar with a unit Z direction. The plane transfer therefore remains a provenance contributor, not a demonstrated sole cause or instruction to make the leg parallel. Knot clamps do not establish the entire interpolated world half-space. Sent the full datum/cause distinctions to root and BODY together; no coefficient, geometry, source API, private extraction or new execution was introduced.
+
+Read HEAD's actual caliper helper/caller, canonical source conversion and independent maximum observer. Directly compared the entire 34-row diagnostic JSON with 1328: identical, 13072 characters or 13097 with its printed prefix. The 25181 HEAD result supports the chosen fixed-graph source maximum, not anatomical region certification, skin or reference approval. Read the subsequent TrunkMassPlacement/Build/MassPart save and returned the exact AP-axis premise for the amplitude difference; that save is not relabelled as the earlier round's tested source. HEAD also received the public neck-plane/base-course distinction and the premises/limits of its proposed F0/world-up/circle convention. SHIN plot and still-needed neck/toe source scratch remain preserved.
+
+Only this log and law-definition-audit are changed in this checkpoint. Source values, expressions, APIs, other workers' files and ongoing executions are untouched.
+
+At 09:06 a further direct source read found ViewSection.bare/radius delegated to ViewConic.create/radius, saved by its owner at 08:56:31. The audit distinguishes this pending representation from the earlier polar-quintic correction and from the completed 25181 source epoch; no prior result is promoted to a pass of the new source.
+
 ## #3062 shoulder and toe datum batch (2026-11-05 08:36:51 +09:00, Get-Date)
 
 BODY requested one complete comparison of its bideltoid/GH placement alternative. Read actual public/resolver/ArmInterim/Walk/Bones/TrunkLandmarks, the active UPPER_ARM reader and centre/shape helpers, retained DeltoidSpan/ArmRows, arm.md, the de Leva/Rab records and the independent AR test. The active reader uses arithmetic means of loop points and inferred segment arc lengths, not area centroids or measured bone axes. Retained 0.3H/1.026G belongs to a distinct row separate from the trunk and does not locate the anatomical deltoid maximum. Returned the fixed-family, measuring-pose and domain premises for the input-derived GH placement proxy, including the unchanged AR projection, without choosing a coefficient or geometry.
