@@ -2,6 +2,22 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 completed source evidence and length-policy review (2026-11-05 10:27:29 +09:00, Get-Date)
+
+Directly read all 62 Frame36619 outcomes and the HEAD failure payload: runner 10:05:20, 57/62 in 101508 ms, exit 1, with filesystem log LastWriteTime 10:07:14 kept separate from process reaping. Independently checked both production/isolated medial observations and all ten public-tape rows, then read the actual tape observer. The audit records their source-section scope and the separate HEAD auricle endpoint failure; the numerical results do not establish original extraction, regional/horizontal measurement, final skin or visual acceptance. No duplicate test, Human generation or private reading ran.
+
+Read the initial exact-five length proposal, followed root's rejection of legacy narrowing, then directly read all final six paths and the original HEAD wrapper. The internal shared GL8 owner now separates new strict source admission from old cubic finite-final behavior, with independent large-control/subnormal questions. Returned one stale public JSDoc ownership phrase to SourceQueries without editing its source. The NIST reading matrix names the exact formulas/text actually read. Frame36619 omits the new length question; no new unit or HEAD length-consumer PASS is claimed. Existing watch cycles test10:25:04 and debug10:24:30 were directly read complete without diagnostics at10:26:45; those are dated compile observations, not future/current package acceptance.
+
+Only the existing ANSUR note, law audit and this log change. The tilted-cylinder/base-family reasoning remains conditional on actual source functions, fixed chart/domain and named proxy lineage. No coefficient, geometry, API, new source file or execution changed. Both neck handbook PNGs and the SHIN plot remain preserved for their users.
+
+## #3062 retained leg profile and neck-plane design (2026-11-05 10:06:39 +09:00, Get-Date)
+
+Directly read the new LegLaws table loop, ILaw.intermediate handoff and actual LegWalk/BodyLane consumer, plus the complete retained LegGirth declaration and old of implementation. Only raw THIGH rows supply the new shape anchors; the old C1 interpolator/skin is not called. Recorded the table's own sampled-row-maximum denominator and its transfer to public thigh G, distinct from the q reader's verified old rig/plane and the still-unrecovered girth extraction method. The public five sites remain separate. Source LastWriteTime 09:55:46.393 postdates 29178; that earlier result is not used as validation of the new rows.
+
+HEAD selected an axis-centred retained-mean site for its proposed tilted neck cylinder. Derived its normal circle and horizontal ellipse, finite-band extent, front-versus-centre height relation and scale units. Read the actual native quarter/curvature owners before connecting the ellipse condition, while keeping binary64/loft/contact separate. Also identified that endpoint chain-rule jets cannot make a sin-squared angle composition exactly affine in physical height. m's originating skin or mean-course datum must remain explicit; neither is a measured thyroid axis. Returned these premises to HEAD without adding a geometry, coefficient, execution or gate. The same-source base course retains its independent full 3D-length requirement.
+
+Only the existing ANSUR source note, law audit and this log change. No completed new numerical or visual result is claimed, and the two neck PNGs/SHIN plot remain preserved for their users.
+
 ## #3062 actual neck adapter and execution-time correction (2026-11-05 09:42:52 +09:00, Get-Date)
 
 Read the saved NeckConstruction in full, its NeckSource diff and actual BodyLaw caller, then compared the engine's parameterJet and normalized-knot-jet definitions. Corrected this worker's ambiguous current-adapter description in the ANSUR note: the adapter now restricts the composed head.mass source and delegates to engine ViewLoft, rather than generating another harmonic skin. The harmonic scaffold remains a placement/C7/interval dependency. F0/world-up/circular-tape closure remains a proposal, not a result of that migration.
