@@ -27,6 +27,8 @@ interface Controls {
   shaftQuaternion?: THREE.Quaternion;
   orientation?: THREE.Quaternion;
   shaftFrames?: Partial<Record<"left" | "right", THREE.Quaternion>>;
+  /** A sole fixed grip determines the unsupported root from actual posed FK. */
+  reachSupport?: { side: "left" | "right"; amount: number };
 }
 
 /**
@@ -153,6 +155,20 @@ export function createRider(parameters: IAutoMovieHumanParameters, team: number,
     object.updateMatrixWorld(true);
     let fitted: IAutoMovieHumanPose = pose;
     let error: number = 0;
+    if (options.reachSupport) {
+      const side: "left" | "right" = options.reachSupport.side;
+      const target: THREE.Vector3 | undefined = contacts[side];
+      if (!target) throw new Error("A reach support requires its owned grip target");
+      const seed: AutoMovieHumanSkeleton.IOutput = evaluate(pose);
+      const hand: THREE.Vector3 = object.localToWorld(new THREE.Vector3(...joint(seed, `${side}Hand`).position));
+      // The unsupported body has a free translation. Its actual posed hand,
+      // not a radial reach envelope, fixes that translation at the held shaft.
+      // Existing C2 slip/load weights blend ownership at the two boundaries;
+      // swing, body turn, anatomical dimensions and public ROM remain intact.
+      const rootWorld: THREE.Vector3 = object.getWorldPosition(new THREE.Vector3()).addScaledVector(target.clone().sub(hand), options.reachSupport.amount);
+      object.position.copy(object.parent ? object.parent.worldToLocal(rootWorld) : rootWorld);
+      object.updateMatrixWorld(true);
+    }
     const bodySupport: NonNullable<Controls["supports"]>[number] | undefined = options.supports?.find((s: NonNullable<Controls["supports"]>[number]): boolean => s.region === "body");
     if (bodySupport) {
 
@@ -191,6 +207,10 @@ export function createRider(parameters: IAutoMovieHumanParameters, team: number,
     for (const side of ["left", "right"] as const) {
       const target: THREE.Vector3 | undefined = contacts[side];
       if (!target) continue;
+      // A fully owned sole grip is already exact by rigid root placement.
+      // Do not solve a different arm pose and move its endpoint off that pivot.
+      // The actual final FK residual below remains unsuppressed.
+      if (options.reachSupport?.side === side && options.reachSupport.amount === 1) continue;
       if (fitted.arms?.[side]?.elbow?.flexion === undefined) {
 
         // A slightly bent starting elbow avoids the straight-chain singularity
@@ -198,6 +218,19 @@ export function createRider(parameters: IAutoMovieHumanParameters, team: number,
         fitted = { ...fitted, arms: { left: fitted.arms?.left ?? {}, right: fitted.arms?.right ?? {}, [side]: { ...fitted.arms?.[side], elbow: { ...fitted.arms?.[side]?.elbow, flexion: 40 } } } };
       }
       const position: THREE.Vector3 = object.worldToLocal(target.clone());
+      // A support is a positional goal, not an authored elbow-angle goal.
+      // Measured two-link reach supplies one well-bent initial pose; public
+      // ClinicalIk still owns all fitting, coupled channels and original ROM.
+      const seed: AutoMovieHumanSkeleton.IOutput = evaluate(fitted);
+      const shoulder: THREE.Vector3 = new THREE.Vector3(...joint(seed, `${side}UpperArm`).position);
+      const elbow: THREE.Vector3 = new THREE.Vector3(...joint(seed, `${side}LowerArm`).position);
+      const hand: THREE.Vector3 = new THREE.Vector3(...joint(seed, `${side}Hand`).position);
+      const upper: number = shoulder.distanceTo(elbow);
+      const lower: number = elbow.distanceTo(hand);
+      const cosine: number = (shoulder.distanceToSquared(position) - upper * upper - lower * lower) / (2 * upper * lower);
+      const bounds: ReturnType<typeof AutoMovieHumanRigControls.bounds> = AutoMovieHumanRigControls.bounds(AutoMovieHumanRigControls.channel(`arms.${side}.elbow.flexion`), fitted);
+      const bend: number = Math.max(bounds.minimum, Math.min(bounds.maximum, Math.max(10, Math.acos(Math.max(-1, Math.min(1, cosine))) * 180 / Math.PI)));
+      fitted = { ...fitted, arms: { left: fitted.arms?.left ?? {}, right: fitted.arms?.right ?? {}, [side]: { ...fitted.arms?.[side], elbow: { ...fitted.arms?.[side]?.elbow, flexion: bend } } } };
       let residual: number = Number.POSITIVE_INFINITY;
       const targets: AutoMovieHumanClinicalIk.ITarget[] = [{ bone: `${side}Hand`, position: [position.x, position.y, position.z] }];
       if (side === "left") for (const support of supports.filter((s: { region: string }): boolean => s.region === "left")) {

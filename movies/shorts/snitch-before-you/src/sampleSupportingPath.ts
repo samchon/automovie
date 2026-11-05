@@ -15,21 +15,21 @@ export function sampleSupportingPath(id: string, seconds: number): { position: T
   const role: string = id.slice(2);
   const n: number = Number(role[1]);
   let position: THREE.Vector3;
-  let velocity: THREE.Vector3 = new THREE.Vector3();
-  let acceleration: THREE.Vector3 = new THREE.Vector3();
-  const reaction: number = smooth(seconds, 38, 40).p;
+  const velocity: THREE.Vector3 = new THREE.Vector3();
+  const acceleration: THREE.Vector3 = new THREE.Vector3();
+  const reaction: number = smooth(seconds, 38.6, 40.6).p;
   let yaw: number = (green ? 0 : Math.PI) * (1 - reaction) + 0.25 * reaction;
   if (role === "K") {
     const s: Phase = smooth(seconds, 40, 51);
     position = new THREE.Vector3(green ? -10 + 68 * s.p : -150, green ? 40 - 8 * s.p : 40, green ? 8 - 10 * s.p : 0);
     if (green) { velocity.set(68 * s.v, -8 * s.v, -10 * s.v); acceleration.set(68 * s.a, -8 * s.a, -10 * s.a); }
-    yaw = green ? Math.PI * (1 - smooth(seconds, 38, 39.6).p) : Math.PI;
+    yaw = green ? Math.PI * (1 - smooth(seconds, 35.8, 38).p) : Math.PI;
   } else {
     if (!Number.isInteger(n) || n < 1 || n > (role[0] === "C" ? 3 : 2)) throw new Error("Unknown supporting role");
-    const b: number = Math.max(0, Math.min(2, seconds - 38));
-    const stop: number = seconds < 38 ? seconds : 38 + b - b * b / 4;
-    const sd: number = seconds < 38 ? 1 : seconds < 40 ? 1 - b / 2 : 0;
-    const sdd: number = seconds >= 38 && seconds < 40 ? -0.5 : 0;
+    const b: number = Math.max(0, Math.min(2, seconds - 38.6));
+    const stop: number = seconds < 38.6 ? seconds : 38.6 + b - b * b / 4;
+    const sd: number = seconds < 38.6 ? 1 : seconds < 40.6 ? 1 - b / 2 : 0;
+    const sdd: number = seconds >= 38.6 && seconds < 40.6 ? -0.5 : 0;
     const angle: number = stop * 0.25 + n;
     position = new THREE.Vector3(role[0] === "C" ? [-52, -44, -60][n - 1]! + (green ? 0 : 4) + Math.sin(angle) * 4 : -30 - n * 35 + (green ? 0 : 7), 32 + n * 2, role[0] === "C" ? 8 + n * 5 + (green ? 0 : 3) : 28 + n * 4);
     if (role[0] === "C") { velocity.x = Math.cos(angle) * sd; acceleration.x = -0.25 * Math.sin(angle) * sd * sd + Math.cos(angle) * sdd; }

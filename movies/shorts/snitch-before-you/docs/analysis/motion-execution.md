@@ -1,3 +1,9 @@
+# Current motion completion
+
+The current held-root revision is complete as actual60s silent MP4 plus four actual causal segments. [Current files, checks and limits](motion-dynamics-final.md), [actual artifacts](motion-dynamics-artifacts.json), [exact prompt bindings](motion-dynamics-prompt-bindings.json) and [the actual encoded review](../review/motion-dynamics-delivery.md) own the current handoff. The earlier667-source/output431d842 material below remains historical and is not renewed acceptance.
+
+## Historical first encoded motion epoch
+
 # Actual motion execution
 
 ## Scope and observation boundary

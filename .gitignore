@@ -58,3 +58,4 @@ test/.shots/
 /test/.native-build-evidence/
 /test/.reference-provenance-quarantine/
 /test/.reference-static-20261022-0435/
+/.cache/human-paper-calibration/

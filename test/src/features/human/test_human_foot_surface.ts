@@ -28,144 +28,148 @@ import { nclose, throwsError } from "../internal/predicates";
  */
 export function test_human_foot_surface(): void {
   const defects: string[] = [];
-  for (const name of ["f1", "m1", "tall", "short"]) {
-    const person: HumanPeople.IPerson = HumanPeople.person(name);
-    const source: Foot.IOutput = Foot.derive(person.body, 0.001);
-    const doubled: Foot.IOutput = Foot.derive(person.body, 0.002);
-    for (const side of ["left", "right"] as const) {
-      const own: Foot.ISide = source[side];
-      const joint: (part: string) => AutoMovieHumanSkeletonLaw.IBone = (
-        part: string,
-      ): AutoMovieHumanSkeletonLaw.IBone =>
-        person.body.skeleton!.find(
-          (bone: AutoMovieHumanSkeletonLaw.IBone): boolean =>
-            bone.bone === `${side}${part}`,
-        )!;
-      const actual: (landmark: Foot.Landmark) => Foot.Vector = (
-        landmark: Foot.Landmark,
-      ): Foot.Vector => {
-        const address: Foot.ILandmark = own.landmarks[landmark];
-        return own[address.module].courses[address.course]!.points[
-          address.point
-        ]!;
-      };
-      const heel: Foot.Vector = actual("plantarHeel");
-      const medial: Foot.Vector = actual("medialBall");
-      const lateral: Foot.Vector = actual("lateralBall");
-      const ankle: Foot.Vector = joint("Foot").position;
-      const toward: Foot.Vector = joint("Foot").toward;
-      if (
-        !(
-          (heel[0] - ankle[0] / 1000) * (toward[0] - ankle[0]) +
-            (heel[2] - ankle[2] / 1000) * (toward[2] - ankle[2]) <
-          0
-        )
-      )
-        defects.push(`${name}/${side}: heel is not posterior to its ankle`);
-      if (!nclose(heel[1], 0, 0.002))
-        defects.push(`${name}/${side}: neutral plantar heel height ${heel[1]}`);
-      if (
-        !(
-          medial[1] <= joint("HalluxProximal").position[1] / 1000 &&
-          lateral[1] <= joint("Toe5Proximal").position[1] / 1000
-        )
-      )
-        defects.push(
-          `${name}/${side}: ball samples are not plantar to their MTP centres`,
-        );
-      if (!((side === "left" ? 1 : -1) * (lateral[2] - medial[2]) > 0))
-        defects.push(`${name}/${side}: medial/lateral ball order`);
-      const hindSeam: Foot.ICourse = own.hindfoot.courses.at(-1)!;
-      const frontSeam: Foot.ICourse = own.forefoot.courses[0]!;
-      for (let point: number = 0; point < hindSeam.points.length; point++)
-        for (let axis: number = 0; axis < 3; axis++)
-          if (
-            !nclose(
-              hindSeam.points[point]![axis]!,
-              frontSeam.points[point]![axis]!,
-              0,
-            )
+  for (const name of ["f1", "m1", "f-tall", "m-short"]) {
+    try {
+      const person: HumanPeople.IPerson = HumanPeople.person(name);
+      const source: Foot.IOutput = Foot.derive(person.body, 0.001);
+      const doubled: Foot.IOutput = Foot.derive(person.body, 0.002);
+      for (const side of ["left", "right"] as const) {
+        const own: Foot.ISide = source[side];
+        const joint: (part: string) => AutoMovieHumanSkeletonLaw.IBone = (
+          part: string,
+        ): AutoMovieHumanSkeletonLaw.IBone =>
+          person.body.skeleton!.find(
+            (bone: AutoMovieHumanSkeletonLaw.IBone): boolean =>
+              bone.bone === `${side}${part}`,
+          )!;
+        const actual: (landmark: Foot.Landmark) => Foot.Vector = (
+          landmark: Foot.Landmark,
+        ): Foot.Vector => {
+          const address: Foot.ILandmark = own.landmarks[landmark];
+          return own[address.module].courses[address.course]!.points[
+            address.point
+          ]!;
+        };
+        const heel: Foot.Vector = actual("plantarHeel");
+        const medial: Foot.Vector = actual("medialBall");
+        const lateral: Foot.Vector = actual("lateralBall");
+        const ankle: Foot.Vector = joint("Foot").position;
+        const toward: Foot.Vector = joint("Foot").toward;
+        if (
+          !(
+            (heel[0] - ankle[0] / 1000) * (toward[0] - ankle[0]) +
+              (heel[2] - ankle[2] / 1000) * (toward[2] - ankle[2]) <
+            0
           )
-            defects.push(`${name}/${side}: independently changed Midfoot seam`);
-      for (const module of ["hindfoot", "forefoot"] as const)
-        own[module].courses.forEach(
-          (course: Foot.ICourse, courseIndex: number): void => {
-            const chain: IAutoMovieHumanLoftChain = person.body.chains.find(
-              (item: IAutoMovieHumanLoftChain): boolean =>
-                item.name === course.chain,
-            )!;
-            const measured: Foot.Vector[] = AutoMovieHumanLoftChain.ring(
-              chain,
-              course.stationMm,
-              course.sourcePhases,
-            );
-            const scaled: Foot.ICourse =
-              doubled[side][module].courses[courseIndex]!;
+        )
+          defects.push(`${name}/${side}: heel is not posterior to its ankle`);
+        if (!nclose(heel[1], 0, 0.002))
+          defects.push(`${name}/${side}: neutral plantar heel height ${heel[1]}`);
+        if (
+          !(
+            medial[1] <= joint("HalluxProximal").position[1] / 1000 &&
+            lateral[1] <= joint("Toe5Proximal").position[1] / 1000
+          )
+        )
+          defects.push(
+            `${name}/${side}: ball samples are not plantar to their MTP centres`,
+          );
+        if (!((side === "left" ? 1 : -1) * (lateral[2] - medial[2]) > 0))
+          defects.push(`${name}/${side}: medial/lateral ball order`);
+        const hindSeam: Foot.ICourse = own.hindfoot.courses.at(-1)!;
+        const frontSeam: Foot.ICourse = own.forefoot.courses[0]!;
+        for (let point: number = 0; point < hindSeam.points.length; point++)
+          for (let axis: number = 0; axis < 3; axis++)
             if (
-              course.points.length < 8 ||
-              course.points.length !== measured.length ||
-              !(course.depth > 0 && course.breadth > 0)
+              !nclose(
+                hindSeam.points[point]![axis]!,
+                frontSeam.points[point]![axis]!,
+                0,
+              )
+            )
+              defects.push(`${name}/${side}: independently changed Midfoot seam`);
+        for (const module of ["hindfoot", "forefoot"] as const)
+          own[module].courses.forEach(
+            (course: Foot.ICourse, courseIndex: number): void => {
+              const chain: IAutoMovieHumanLoftChain = person.body.chains.find(
+                (item: IAutoMovieHumanLoftChain): boolean =>
+                  item.name === course.chain,
+              )!;
+              const measured: Foot.Vector[] = AutoMovieHumanLoftChain.ring(
+                chain,
+                course.stationMm,
+                course.sourcePhases,
+              );
+              const scaled: Foot.ICourse =
+                doubled[side][module].courses[courseIndex]!;
+              if (
+                course.points.length < 8 ||
+                course.points.length !== measured.length ||
+                !(course.depth > 0 && course.breadth > 0)
+              )
+                defects.push(
+                  `${name}/${side}/${course.chain}: source course health`,
+                );
+              for (let point: number = 0; point < measured.length; point++)
+                for (let axis: number = 0; axis < 3; axis++)
+                  if (
+                    !nclose(
+                      course.points[point]![axis]!,
+                      measured[point]![axis]! / 1000,
+                      1e-12,
+                    ) ||
+                    !nclose(
+                      scaled.points[point]![axis]!,
+                      2 * course.points[point]![axis]!,
+                      1e-12,
+                    )
+                  )
+                    defects.push(
+                      `${name}/${side}/${course.chain}/${course.stationMm}: moved source point or wrong metre scaling`,
+                    );
+              if (
+                !nclose(scaled.depth, 2 * course.depth, 1e-12) ||
+                !nclose(scaled.breadth, 2 * course.breadth, 1e-12)
+              )
+                defects.push(`${name}/${side}: changed dimension scaling`);
+            },
+          );
+        for (const chain of person.body.chains.filter(
+          (item: IAutoMovieHumanLoftChain): boolean =>
+            item.name === `foot.${side}` ||
+            item.name === `forefoot.${side}.1` ||
+            item.name === `forefoot.${side}.2`,
+        ))
+          for (const layer of chain.layers)
+            if (
+              ![...own.hindfoot.courses, ...own.forefoot.courses].some(
+                (course: Foot.ICourse): boolean =>
+                  course.chain === chain.name && course.stationMm === layer.y,
+              )
             )
               defects.push(
-                `${name}/${side}/${course.chain}: source course health`,
+                `${name}/${side}/${chain.name}/${layer.y}: omitted canonical station`,
               );
-            for (let point: number = 0; point < measured.length; point++)
-              for (let axis: number = 0; axis < 3; axis++)
-                if (
-                  !nclose(
-                    course.points[point]![axis]!,
-                    measured[point]![axis]! / 1000,
-                    1e-12,
-                  ) ||
-                  !nclose(
-                    scaled.points[point]![axis]!,
-                    2 * course.points[point]![axis]!,
-                    1e-12,
-                  )
-                )
-                  defects.push(
-                    `${name}/${side}/${course.chain}/${course.stationMm}: moved source point or wrong metre scaling`,
-                  );
-            if (
-              !nclose(scaled.depth, 2 * course.depth, 1e-12) ||
-              !nclose(scaled.breadth, 2 * course.breadth, 1e-12)
-            )
-              defects.push(`${name}/${side}: changed dimension scaling`);
-          },
-        );
-      for (const chain of person.body.chains.filter(
-        (item: IAutoMovieHumanLoftChain): boolean =>
-          item.name === `foot.${side}` ||
-          item.name === `forefoot.${side}.1` ||
-          item.name === `forefoot.${side}.2`,
-      ))
-        for (const layer of chain.layers)
+        for (const landmark of [
+          "plantarHeel",
+          "medialBall",
+          "lateralBall",
+        ] as const)
           if (
-            ![...own.hindfoot.courses, ...own.forefoot.courses].some(
-              (course: Foot.ICourse): boolean =>
-                course.chain === chain.name && course.stationMm === layer.y,
-            )
+            !nclose(own.support.landmarkHeights[landmark], actual(landmark)[1], 0)
           )
-            defects.push(
-              `${name}/${side}/${chain.name}/${layer.y}: omitted canonical station`,
-            );
-      for (const landmark of [
-        "plantarHeel",
-        "medialBall",
-        "lateralBall",
-      ] as const)
+            defects.push(`${name}/${side}/${landmark}: false source height`);
+      }
+      for (const scale of [0, -1, NaN, Infinity])
         if (
-          !nclose(own.support.landmarkHeights[landmark], actual(landmark)[1], 0)
+          !throwsError((): void => {
+            Foot.derive(person.body, scale);
+          })
         )
-          defects.push(`${name}/${side}/${landmark}: false source height`);
+          defects.push(`${name}: admitted invalid physical scale ${scale}`);
+    } catch (error) {
+      defects.push(`${name}: ${String(error)}`);
     }
-    for (const scale of [0, -1, NaN, Infinity])
-      if (
-        !throwsError((): void => {
-          Foot.derive(person.body, scale);
-        })
-      )
-        defects.push(`${name}: admitted invalid physical scale ${scale}`);
   }
   TestValidator.equals(
     "anatomical source foot and actual landmark identity",

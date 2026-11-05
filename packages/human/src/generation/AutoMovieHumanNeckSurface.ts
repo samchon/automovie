@@ -9,7 +9,9 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * The display band starts at the shoulder envelope's top mean height and uses
  * the public neck-length input as its requested height. This is an explicit
  * display convention, not a recovered menton or clinical neck landmark.
- * Continuous source centre-height selects its intermediate and upper courses;
+ * The first bracketed centre-height crossing along the canonical neck-to-crown
+ * source path selects each intermediate and upper course. Later folds under
+ * the chin may revisit that height without changing the selected course;
  * a tilted course is not a horizontal surface cut. The
  * skeleton's radii, joint centres and clinical pose channels remain separate.
  * Two further actual head courses retain the existing one-third/two-thirds
@@ -17,7 +19,7 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * direction replaces their source shape. Both sides are sampled from the
  * prepared full outline without an independent reflection or fit.
  *
- * @evidence contracts/common.md#principled-implementation Actual source courses preserve the prepared exterior inside a requested-length display band; centre-height crossings assume no hidden reversal within a principal interval.
+ * @evidence contracts/common.md#principled-implementation Actual source courses preserve the prepared exterior inside a requested-length display band. Canonical neck-to-crown path order selects the first bracketed crossing; a later under-chin fold is not an ambiguous anatomy. The scan retains its stated limitation on hidden reversals inside a principal interval.
  * @evidence contracts/common.md#clear-and-simple-design One producer owns source addresses, measurements and the small display copy; the polygon consumer receives points rather than fitting another neck.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The prepared body supplies every physical point; public targets, skeletal radii and head bevel dimensions do not resize them.
  * @evidence contracts/common.md#meaningful-documentation The namespace distinguishes source courses, display conventions, physical units and clinical measurements.
@@ -168,14 +170,16 @@ export namespace AutoMovieHumanNeckSurface {
    *
    * Principal intervals only bracket the continuous centre-height root; their
    * spacing never selects the resulting station. Bisection resolves a bracket
-   * to 1e-6 calibration mm in height or station. The neck centre path must cross
-   * each neck target once within head/head.lower and each head target once in
-   * the head chains, without an interior reversal that
-   * hides further crossings inside one principal interval. Endpoint brackets
-   * do not prove that premise for arbitrary source curves. Missing or multiple
-   * detected crossings are refused rather than clamped or replaced by a
-   * skeletal radius. Tangential contacts without a crossing are outside this
-   * display convention.
+   * to 1e-6 calibration mm in height or station. The source path runs through
+   * head, head.lower, head.middle and head.upper in anatomical order, regardless
+   * of their storage order. Its first bracketed crossing owns a display height;
+   * later crossings in a folded lower-head centre path do not change it. This
+   * is a path sampling convention, not a unique inverse of world height.
+   * Principal endpoint brackets cannot detect a reversal wholly inside one
+   * interval, so arbitrary curves hiding their first crossing that way remain
+   * outside this sampler's contract. A missing bracketed target still refuses
+   * instead of clamping or substituting a skeletal radius. Tangential contacts
+   * without a crossing are outside this display convention.
    *
    * The actual lower ring supplies its mean world height. Public neck length
    * defines only the display band's requested height; it neither resizes the
@@ -197,7 +201,7 @@ export namespace AutoMovieHumanNeckSurface {
    * @param publicTargetCircumferenceMm Public physical mm, separate from source C.
    * @param publicLengthMm Public physical mm defining the display band height.
    *
-   * @evidence contracts/common.md#principled-implementation The actual shoulder-top mean height and public neck length define an explicit display band; continuous Loft.axis crossings select actual source courses, with the stated crossing limitations.
+   * @evidence contracts/common.md#principled-implementation The actual shoulder-top mean height and public neck length define an explicit display band; the first continuous Loft.axis crossing bracketed along the canonical anatomical path selects each actual course, with the stated intra-interval limitation.
    * @evidence contracts/common.md#clear-and-simple-design The function coordinates existing loft evaluation and returns six small sections and a terminal point without another calibration, anatomical landmark detector or rig path.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No fixture address, circumference adjustment, head-bevel clamp or skeletal-radius fallback supplies geometry; requested-length display sampling is explicitly distinguished from anatomical recovery.
    * @evidence contracts/common.md#meaningful-documentation The comment states the display convention, numerical tolerance, crossing premise, units, costs and unsupported cases.
@@ -245,9 +249,10 @@ export namespace AutoMovieHumanNeckSurface {
       scale,
     );
 
-    const chains: IAutoMovieHumanLoftChain[] = body.chains.filter(
-      (chain: IAutoMovieHumanLoftChain): boolean =>
-        chain.name === "head" || chain.name === "head.lower",
+    const chains: IAutoMovieHumanLoftChain[] = ["head", "head.lower"].flatMap(
+      (name: string): IAutoMovieHumanLoftChain[] => body.chains.filter(
+        (chain: IAutoMovieHumanLoftChain): boolean => chain.name === name,
+      ),
     );
     const length: number = publicLengthMm / 1000 / scale;
     const middleHeight: number = lowerHeight + length / 2;
@@ -300,12 +305,14 @@ export namespace AutoMovieHumanNeckSurface {
         "Head exterior display requires its source crown above the neck",
       );
 
-    const headChains: IAutoMovieHumanLoftChain[] = body.chains.filter(
-      (chain: IAutoMovieHumanLoftChain): boolean =>
-        ["head", "head.lower", "head.middle", "head.upper"].includes(
-          chain.name,
+    const headChains: IAutoMovieHumanLoftChain[] = [
+      ...chains,
+      ...["head.middle", "head.upper"].flatMap(
+        (name: string): IAutoMovieHumanLoftChain[] => body.chains.filter(
+          (chain: IAutoMovieHumanLoftChain): boolean => chain.name === name,
         ),
-    );
+      ),
+    ];
     const headSections: [ISection, ISection] = [1, 2].map(
       (index: number): ISection => {
         const height: number =
@@ -365,46 +372,32 @@ interface ICourse {
 }
 
 /**
- * Resolve a bracketed crossing of an actual centre path and a world height.
- * Adjacent principal intervals may report the same endpoint; that one address
- * is retained once. Distinct chain addresses remain distinct and are refused
- * as ambiguous, even when their heights happen to agree.
+ * Follow the canonical anatomical path to its first bracketed world-height
+ * crossing. Its source address owns the display course even if a later fold
+ * revisits that height. Adjacent intervals and shared chain endpoints cannot
+ * duplicate a result because the traversal stops at its first source course.
  *
- * @evidence contracts/common.md#principled-implementation Sign-changing principal intervals bracket continuous Loft.axis height; bisection resolves their addresses without station/world-height identity.
- * @evidence contracts/common.md#clear-and-simple-design One local search returns one source address and refuses missing or multiple detected roots.
+ * @evidence contracts/common.md#principled-implementation Ordered principal intervals bracket continuous Loft.axis height; bisection resolves the first encountered address without station/world-height identity or a global monotonicity assumption.
+ * @evidence contracts/common.md#clear-and-simple-design One local traversal returns the first anatomical source address and refuses an absent bracketed height.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Interval endpoints only bracket roots; the function never chooses a nearest layer or clamps an absent target.
- * @evidence contracts/common.md#meaningful-documentation The comment and derive contract state shared-endpoint deduplication, ambiguity and the unproved hidden-reversal limitation.
- * @evidence contracts/performance.md#efficient-algorithms The search scans L intervals with at most 64 evaluations for each sign-changing interval; its endpoint list is bounded by detected crossings.
+ * @evidence contracts/common.md#meaningful-documentation The comment and derive contract state canonical path ownership, first-bracket selection and the remaining intra-interval limitation.
+ * @evidence contracts/performance.md#efficient-algorithms The search scans at most L intervals and performs at most 64 bisections on the first sign-changing interval, with constant temporary storage.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work This synchronous single-target search coordinates no requests, phases or external effects.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Root references remain in the local array until return or throw; no chain reference enters the returned display descriptor.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The one returned temporary address borrows its chain until section copying; no root list, body or chain reference enters the display descriptor.
  */
 function course(
   chains: readonly IAutoMovieHumanLoftChain[],
   height: number,
 ): ICourse {
-  const roots: ICourse[] = [];
-  const add: (chain: IAutoMovieHumanLoftChain, station: number) => void = (
-    chain: IAutoMovieHumanLoftChain,
-    station: number,
-  ): void => {
-    if (
-      !roots.some(
-        (root: ICourse): boolean =>
-          root.chain === chain && Math.abs(root.station - station) <= 1e-6,
-      )
-    )
-      roots.push({ chain, station });
-  };
-
   for (const chain of chains)
     for (let i: number = 1; i < chain.layers.length; ++i) {
       let lo: number = chain.layers[i - 1]!.y;
       let hi: number = chain.layers[i]!.y;
       let a: number = AutoMovieHumanLoftChain.axis(chain, lo)[1] - height;
       const b: number = AutoMovieHumanLoftChain.axis(chain, hi)[1] - height;
-      if (Math.abs(a) <= 1e-6) add(chain, lo);
-      if (Math.abs(b) <= 1e-6) add(chain, hi);
-      if (Math.abs(a) <= 1e-6 || Math.abs(b) <= 1e-6 || a * b >= 0) continue;
+      if (Math.abs(a) <= 1e-6) return { chain, station: lo };
+      if (Math.abs(b) <= 1e-6) return { chain, station: hi };
+      if (a * b >= 0) continue;
 
       // A source interval brackets the target; no world-Y/station identity is used.
       for (let iteration: number = 0; iteration < 64; ++iteration) {
@@ -422,12 +415,8 @@ function course(
           a = value;
         }
       }
-      add(chain, (lo + hi) / 2);
+      return { chain, station: (lo + hi) / 2 };
     }
 
-  if (roots.length !== 1)
-    throw new Error(
-      `Exterior display height ${height} has ${roots.length} source crossings`,
-    );
-  return roots[0]!;
+  throw new Error(`Exterior display height ${height} has no source crossing`);
 }

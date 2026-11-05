@@ -7,30 +7,30 @@ import ffmpeg from "ffmpeg-static";
  * Derive frame-exact causal inputs from the completed silent whole hint.
  *
  * @evidence contracts/common.md#implementation-and-ownership Consumes the actual whole encode without changing its bytes, trims four nonoverlapping ranges, reencodes rather than copying GOP boundaries, fully decodes every result, and records measured frame counts plus retained file identities. Never submits provider requests.
- * @evidence contracts/common.md#authoring-interface Run from this production after scripts/render.ts succeeds. Requires local ffmpeg-static and output/motion-hint.mp4. Output MP4s remain locally retained ignored media; the tracked JSON receipt contains actual commands, probe text, byte counts and hashes. A failed decode/count throws instead of certifying a clip.
+ * @evidence contracts/common.md#authoring-interface Run after the current-revision scripts/render.ts succeeds. Consumes output/motion-dynamics/motion-hint.mp4 and preserves older output media. Current MP4s remain locally retained; tracked motion-dynamics-artifacts.json contains actual commands, byte counts and full decode. A failed decode/count throws.
  */
 export async function prepareVideoHandoff(): Promise<void> {
   const binary: string = ffmpeg ?? "";
   if (!binary) throw new Error("ffmpeg-static is unavailable");
   const fps: number = 24;
-  const whole: string = "output/motion-hint.mp4";
+  const whole: string = "output/motion-dynamics/motion-hint.mp4";
   const ranges: [string, number, number][] = [
     ["snitch-pursuit-and-overreach", 0, 552],
     ["a-prize-within-reach", 552, 840],
     ["two-broom-rescue-transfer", 840, 1272],
     ["what-she-caught-instead", 1272, 1440],
   ];
-  await mkdir("output/segments", { recursive: true });
+  await mkdir("output/motion-dynamics/segments", { recursive: true });
   await mkdir("docs/analysis", { recursive: true });
   const records: object[] = [];
   const source: object = await inspect(whole, 1440);
   for (const [name, start, end] of ranges) {
-    const output: string = `output/segments/${name}.mp4`;
+    const output: string = `output/motion-dynamics/segments/${name}.mp4`;
     const args: string[] = ["-y", "-i", whole, "-vf", `trim=start_frame=${start}:end_frame=${end},setpts=PTS-STARTPTS`, "-an", "-c:v", "libx264", "-crf", "18", "-pix_fmt", "yuv420p", "-r", String(fps), "-movflags", "+faststart", output];
     await execute(args);
     records.push({ name, globalSeconds: [start / fps, end / fps], globalFramesInclusive: [start, end - 1], localFramesInclusive: [0, end - start - 1], encodeArguments: args, ...await inspect(output, end - start) });
   }
-  await writeFile("docs/analysis/video-artifacts.json", JSON.stringify({ status: "Actual silent whole and causal segments; no external generation", measuredAt: new Date().toISOString(), fps, source, segments: records }, null, 2) + "\n");
+  await writeFile("docs/analysis/motion-dynamics-artifacts.json", JSON.stringify({ status: "Actual repaired current-source silent whole and causal segments; earlier revision retained; no external generation", measuredAt: new Date().toISOString(), fps, source, segments: records }, null, 2) + "\n");
 
   /** Fully decode one actual file and reject a missing/truncated frame extent. */
   async function inspect(path: string, expected: number): Promise<{ path: string; bytes: number; sha256: string; decodedFrames: number; decodeArguments: string[]; observedProfile: string }> {

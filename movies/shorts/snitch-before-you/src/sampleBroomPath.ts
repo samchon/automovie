@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { flightActions } from "./flightActions";
 
 /**
  * Evaluate the two metric broom trajectories and their common force/frame law.
@@ -17,28 +18,31 @@ export function sampleBroomPath(kind: "carina" | "old", seconds: number): {
 } {
   if (!Number.isFinite(seconds)) throw new Error("Broom path requires finite seconds");
   const t: number = Math.max(0, Math.min(60, seconds));
+  const actions: ReturnType<typeof flightActions> = flightActions();
   let x: Scalar = sum({ p: -80 + 7 * t, v: 7, a: 0 }, pulse(t, 6, 12, 18, 3.2));
   let y: Scalar = { p: 32.2, v: 0, a: 0 };
   let z: Scalar = { p: kind === "carina" ? -5.15 : -6, v: 0, a: 0 };
   const delay: number = kind === "carina" ? 0.5 : 0;
-  z = sum(z, scaled(step(t - delay, 8, 10.5), -1.8), scaled(step(t - delay, 10.5, 13.5), 2.8), scaled(step(t - delay, 13.5, 17), -1));
+  z = sum(z, scaled(step(t - delay, 8, 10.5), -3.0), scaled(step(t - delay, 10.5, 13.5), 4.2), scaled(step(t - delay, 13.5, 17), -1.2));
 
-  if (kind === "old" && t >= 44.3) {
-    x = sum({ p: -80 + 7 * t, v: 7, a: 0 }, scaled(integral(t, 44.3, 49.3), -5.5));
+  if (kind === "old" && t >= actions.oldRelease) {
+    x = sum({ p: -80 + 7 * t, v: 7, a: 0 }, scaled(integral(t, actions.oldRelease, actions.oldRelease + 5), -5.5));
     // No autonomous climb/sideways steering after the last rider releases it.
     z = { p: -6, v: 0, a: 0 };
   }
   if (kind === "carina") {
-    x = sum(x, scaled(integral(t, 49.5, 53), -4));
+    x = sum(x, scaled(integral(t, ...actions.recovery.act), -4));
     if (t < 23) {
       x = sum(x, pulse(t, 3.5, 5, 8, 1.2), scaled(step(t, 8, 14), -1.1));
     } else {
-      const approach: Scalar = step(t, 35, 40.5);
-      const load: Scalar = step(t, 43, 45.2);
-      const recovery: Scalar = step(t, 49.5, 53);
+      const approach: Scalar = step(t, ...actions.approach.act);
+      const load: Scalar = step(t, actions.newLeft, actions.newRight);
+      const recovery: Scalar = step(t, ...actions.recovery.act);
       x = sum(x, { p: -1.1, v: 0, a: 0 }, scaled(approach, 1.6));
-      y = sum(y, scaled(approach, -0.75), scaled(load, -0.23), scaled(recovery, 0.65));
-      z = sum(z, scaled(approach, -0.35), scaled(step(t, 44.3, 46.5), 0.4));
+      y = sum(y, scaled(step(t, 35, 36.2), -0.75), scaled(load, -0.23), scaled(recovery, 0.65));
+      // Draw the seat ahead before nudging the empty rear wood toward him;
+      // simultaneous lateral convergence would invade the occupied bodies.
+      z = sum(z, scaled(step(t, 38.5, 41), -0.35), scaled(step(t, 44.3, 46.5), 0.4));
     }
   }
   const position: THREE.Vector3 = new THREE.Vector3(x.p, y.p, z.p);

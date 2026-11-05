@@ -10,17 +10,17 @@ import config from "../render.config";
 /**
  * Export the running viewer once and retain its actual capture/encode observations.
  *
- * @evidence contracts/common.md#implementation-and-ownership Public Render owns exact-time capture, one encode and cleanup. This command checks the actual served immutable HTML/JS before and after capture, retains the scene's actual model inputs through public prepare, and guards current production source identities. The candidate Human source epoch is distinct from later workspace library changes.
- * @evidence contracts/common.md#authoring-interface Serve the retained motion-bundle-supporting-designs with Vite preview on5203, set CHROME_PATH to installed Chrome, then pnpm render. The documented capture URL must serve the admitted HTML/JS bytes. The report is technical capture evidence, not playback or generated-film approval.
+ * @evidence contracts/common.md#implementation-and-ownership Public Render owns exact-time capture, one encode and cleanup. This command checks the actual served immutable HTML/JS before and after capture, retains the scene's actual model inputs through public prepare, and guards current production source identities. The observed Human source epoch is distinct from any later workspace library changes.
+ * @evidence contracts/common.md#authoring-interface Serve the retained motion-bundle-dynamics-clearance with Vite preview on5206, set CHROME_PATH to installed Chrome, then pnpm render. The documented capture URL must serve the admitted HTML/JS bytes. Old667-source outputs are retained separately; the report proves this current-source revision only.
  */
 export async function render(): Promise<void> {
   if (config.chromeExecutable.length === 0)
     throw new Error(
       "Set CHROME_PATH to an installed Chrome or Chromium executable",
     );
-  const inputs: string[] = ["src/main.ts", "src/createProduction.ts", "src/createFlightScene.ts", "src/createRider.ts", "src/supportingPlayerDesign.ts", "src/createBroom.ts", "src/humanParameters.ts", "src/sampleFlight.ts", "src/sampleWholeFlight.ts", "src/sampleReleasedBroom.ts", "src/motionPhase.ts", "src/shaftPoint.ts", "src/durationSeconds.ts", "scripts/render.ts", "render.config.ts", "index.html", "docs/body/screenplay/snitch-before-you.md"];
+  const inputs: string[] = ["src/main.ts", "src/createProduction.ts", "src/createFlightScene.ts", "src/createRider.ts", "src/supportingPlayerDesign.ts", "src/createBroom.ts", "src/humanParameters.ts", "src/sampleFlight.ts", "src/sampleWholeFlight.ts", "src/sampleReleasedBroom.ts", "src/sampleBroomPath.ts", "src/sampleSupportingPath.ts", "src/createBallFlights.ts", "src/flightActions.ts", "src/ridingPose.ts", "src/riderMassProxy.ts", "src/motionPhase.ts", "src/shaftPoint.ts", "src/durationSeconds.ts", "scripts/render.ts", "render.config.ts", "index.html", "docs/body/screenplay/snitch-before-you.md"];
   const before: Record<string, string> = await identities();
-  const bundle = JSON.parse(await readFile("docs/analysis/motion-bundle.json", "utf8")) as { files: { path: string; sha256: string }[] };
+  const bundle: { files: { path: string; sha256: string }[] } = JSON.parse(await readFile("docs/analysis/motion-dynamics-bundle.json", "utf8"));
   const servedBefore: Record<string, string> = await servedIdentities();
   let runtimeInputs: unknown;
   const result: IAutoMovieViewerVideoResult = await renderViewerVideo({
@@ -36,9 +36,9 @@ export async function render(): Promise<void> {
           loadedMs: performance.getEntriesByType("navigation").map((entry: PerformanceEntry): number => (entry as PerformanceNavigationTiming).domContentLoadedEventEnd)[0],
         } };
       }, undefined);
-      const observed = runtimeInputs as { diagnostics: { scope?: string; riders?: number; brooms?: number }; readiness: { clock?: string; width?: number; height?: number; seek?: string; contextLost?: boolean } };
+      const observed = runtimeInputs as { diagnostics: { scope?: string; implementationRevision?: string; riders?: number; brooms?: number }; readiness: { clock?: string; width?: number; height?: number; seek?: string; contextLost?: boolean } };
       const actual = observed.diagnostics;
-      if (actual?.scope !== "whole 0–60 second motion hint" || actual.riders !== 14 || actual.brooms !== 14) throw new Error("Capture did not enter the admitted whole fourteen-rider scene");
+      if (actual?.scope !== "whole 0–60 second motion hint" || actual.implementationRevision !== "visible-action-completion-held-root-clearance" || actual.riders !== 14 || actual.brooms !== 14) throw new Error("Capture did not enter the admitted whole fourteen-rider scene revision");
       const ready = observed.readiness;
       if (ready.clock !== "0.00 / 60.00 s" || ready.width !== 720 || ready.height !== 1280 || ready.seek !== "function" || ready.contextLost !== false) throw new Error("Frozen capture page is not ready at the admitted clock/raster/context");
       return {};
@@ -56,7 +56,7 @@ export async function render(): Promise<void> {
   if (JSON.stringify(before) !== JSON.stringify(after)) throw new Error("Production source changed during whole capture; output is not an admitted stable revision");
   if (JSON.stringify(servedBefore) !== JSON.stringify(servedAfter)) throw new Error("Served bundle changed during whole capture");
   await writeFile(
-    "docs/analysis/whole-capture.json",
+    "docs/analysis/motion-dynamics-capture.json",
     JSON.stringify({ ...result, captureUrl: config.url, servedBundle: servedBefore, actualInitialScene: runtimeInputs, productionSourceInputs: before, soundtrack: "none; silent motion hint" }, null, 2),
   );
 
