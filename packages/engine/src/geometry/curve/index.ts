@@ -19,6 +19,7 @@ export * from "./AutoMovieClampedTailField64";
 export * from "./AutoMovieCubicOval64";
 export * from "./generateAutoMovieSupportCurve64";
 export * from "./measureAutoMovieCubicCurveLength64";
+export * from "./measureAutoMovieCurveLength64";
 export * from "./IAutoMovieContourLoft64";
 export * from "./IAutoMovieCurveGrid64";
 export * from "./AutoMovieContourLoftCurves64";
