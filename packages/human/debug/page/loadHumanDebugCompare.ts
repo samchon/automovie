@@ -7,7 +7,7 @@ import { HumanDebugReferencePieces } from "../compare/HumanDebugReferencePieces"
 import { HumanDebugViewCurves } from "../compare/HumanDebugViewCurves";
 import { HumanDebugViewDeviation } from "../compare/HumanDebugViewDeviation";
 import { HumanDebugViewParts } from "../compare/HumanDebugViewParts";
-import { HumanDebugViewPartsCache } from "../compare/HumanDebugViewPartsCache";
+import { HUMAN_DEBUG_VIEW_PARTS } from "../compare/HUMAN_DEBUG_VIEW_PARTS";
 import type { IHumanDebugReferencePack } from "../contracts/IHumanDebugReferencePack";
 import type { IHumanDebugPerson } from "../people/IHumanDebugPerson";
 import { HumanDebugReferenceFiles } from "./HumanDebugReferenceFiles";
@@ -16,9 +16,6 @@ import type { IHumanDebugSubject } from "./IHumanDebugSubject";
 
 /** Height between the reference sections the comparison keeps, mm. */
 const STEP: number = 1;
-
-/** One loaded page retains only the latest person's comparison construction. */
-const VIEW_PARTS: HumanDebugViewPartsCache = new HumanDebugViewPartsCache();
 
 /**
  * Load the view comparison: one reference person from the private pack as the underlay, and over
@@ -67,7 +64,7 @@ export async function loadHumanDebugCompare(
       ? await HumanDebugReferenceMeshFiles(reference.id)
       : null;
   const read: number = performance.now();
-  const built: HumanDebugViewParts.IOutput = VIEW_PARTS.get(
+  const built: HumanDebugViewParts.IOutput = HUMAN_DEBUG_VIEW_PARTS.get(
     person.alias,
     person.parameters,
   );
@@ -118,7 +115,7 @@ export async function loadHumanDebugCompare(
     materials: [],
     parts: underlay.parts,
   };
-  const round = (n: number): number => Math.round(n * 10) / 10;
+  const round: (n: number) => number = (n: number): number => Math.round(n * 10) / 10;
   return {
     key: {
       person: person.alias,

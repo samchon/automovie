@@ -106,6 +106,7 @@ A piece is one file under `debug/pieces/` exporting one `IHumanDebugPiece` and l
 | Piece | Shows |
 | --- | --- |
 | `chains:<globs>` | the named chains lofted alone from the person's calibration, such as `chains:leg.left` |
+| `source.parts:<globs>` | actual current-person source parts lofted together before final joins, without whole-person calibration; default `trunk`. The registry includes `trunk`, `arm.left,thumb.left` and `arm.right,thumb.right` for batch inspection; direct piece requests accept other part-name globs |
 | `region:<region>` | the chains of one region of `HUMAN_DEBUG_REGIONS` (head, neck, trunk, shoulder, arm, hand, leg, foot), both sides; its provenance lists chains no region names |
 | `web:<hand\|foot>` | the region's web patches (`AutoMovieHumanBodyWeb`) lofted with their parents and children alone, the web-grouped interval of each chain with its lips and columns |
 | `timing` | milliseconds per generation stage (calibrate, surface, split, construction, skin chart, rig) and per skin chart group; each chain's layers and phases; the raw skin pieces |
@@ -125,6 +126,14 @@ A piece is one file under `debug/pieces/` exporting one `IHumanDebugPiece` and l
 | `hair.guides[:<every>]` | the scalp hair the production hair stage builds on the generated figure at the bind: head and ear skin, `human.hair.cards` and `human.hair.scalp` as parts, every `<every>`-th guide (default all) as a curve `human.construction.hair.<left\|right>/g<root>` (left for a canonical root, right for its mirror); it generates the whole figure, so it takes minutes |
 
 A chain end whose parent chain is not lofted closes as a flat fan at its axis: that lid is the cut, not anatomy.
+
+`source.parts` shares the reference comparison's one latest source-definition cache. It selects the last actual `HumanDebugViewParts` result per name and passes its existing `loft.chain` to `HumanDebugChainLoft`; it does not call `person.calibration`, `AutoMovieHuman.prepare` or final realization. Only the selected chains receive raw surface/construction tessellation. Source exceptions propagate, an empty usable selection throws with available names and diagnostics, and unavailable or unmatched requested parts remain explicit in provenance. `body.parts` remains a fixed-input construction diagnostic and is not a substitute for these current-person parts.
+
+The source piece's `observation.stage=prejoin-part-loft` and `finalRealization=not-run` distinguish it from ordinary final output. `treeParts`, `studies`, `definitionOnlyParts` and `unavailableParts` retain their different meanings; `sourceObservation`, `sourceRecords` and original source `diagnostics` stay available. Selecting several parts displays their actual relative placements together, without joining their overlapping surfaces. The source-to-person scale is applied once to the new document's points about the floor before the ordinary mm-to-m adapter; chain frames/sources, normals and indices are unchanged. A piece has no rig pose.
+
+For a selected hand and thumb, use `person=f1&piece=source.parts:arm.left,thumb.left&parts=none&curves=arm.left/*,thumb.left/*&labels=0&viewLabels=0`. These are the generated sections, axes and guides, not original `view.*` outlines. Start a new page source with `keep=0`, then keep that round with `keep=1`. Frame the curves in perspective and retain explicit `az`, `el`, `target` and `dist` from its camera receipt, converting receipt metres to URL millimetres. With that same piece and camera, restore `parts=arm.left/*,thumb.left/*` for the default-clay overlap, then set `curves=none` for the surface alone. Repeat individual and neighbour selections from the needed directions. A raw loft or its fan lid proves no final merge, trimmed skin or anatomical acceptance.
+
+For a readable net, select existing principal section ids, the axis and a few fixed-phase `g<j>` guides from the current inventory; this filters display without changing layer count, coefficients or phase sampling. The registered left-hand example's full-snapshot batch uses `pieces=source.parts*arm.left*`. Batch `pieces` globs select registry examples; an arbitrary `piece=source.parts:<globs>` on the image or interactive route does not add a batch entry, and batch `piece` does not override that entry list. Image provenance headers may truncate, so do not describe an arbitrary dynamic request as a complete saved batch snapshot.
 
 ## View comparison
 
