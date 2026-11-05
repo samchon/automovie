@@ -1,17 +1,27 @@
 import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
 
+import type { IFilm } from "./IFilm";
+import type { IFilmProduction } from "./IFilmProduction";
 import { clampProductionSeconds } from "./clampProductionSeconds";
-import { createProduction } from "./createProduction";
-import { durationSeconds } from "./durationSeconds";
+import { films } from "./films";
+import { selectFilm } from "./selectFilm";
 
-const production: ReturnType<typeof createProduction> = createProduction();
+const query: URLSearchParams = new URLSearchParams(location.search);
+const film: IFilm = selectFilm(films, query.get("film")).film;
+const durationSeconds: number = film.durationSeconds;
+const status: HTMLOutputElement =
+  document.querySelector<HTMLOutputElement>("#clock")!;
+const production: IFilmProduction = await film.create(
+  (message: string): void => {
+    status.value = message;
+  },
+);
 const canvas: HTMLCanvasElement =
   document.querySelector<HTMLCanvasElement>("#view")!;
 const slider: HTMLInputElement =
   document.querySelector<HTMLInputElement>("#seek")!;
 const clock: HTMLOutputElement =
   document.querySelector<HTMLOutputElement>("#clock")!;
-const query: URLSearchParams = new URLSearchParams(location.search);
 const capture: boolean = query.get("capture") === "1";
 const width: number = Number(query.get("w") ?? 1280);
 const height: number = Number(query.get("h") ?? 720);
@@ -76,10 +86,6 @@ const host: IAutoMovieViewerHandle = mountViewer(
 
 /**
  * Draw and publish the exact production clock through the mounted Viewer.
- *
- * Completes scene placement and drawing before publishing actual seconds to
- * Viewer observers. Playback and the public seek hook share this renderer and
- * camera.
  */
 function draw(): void {
   production.seek(seconds);
@@ -92,11 +98,6 @@ function draw(): void {
 
 /**
  * Complete an exact-time frame before browser capture reads its pixels.
- *
- * Finite clamped seconds drive the same draw as playback. Ordinary seek pauses
- * playback; inspection seeks during an owned freeze preserve desired play state
- * for release. Exposed as __afSeek(seconds); throws on nonfinite input and returns
- * after drawing.
  */
 function seek(time: number): void {
   const target: number = clampProductionSeconds(time, durationSeconds);

@@ -4,7 +4,7 @@ Turn the commissioned shots or accepted takes into the complete delivered video.
 
 ## Assemble
 
-Every screenplay unit reaches the edit through the shots that cite it under [source layout](../development/layout.md); resolve missing, duplicated or omitted material before rendering the whole work. A generated film consumes [accepted takes](generation.md), a hint or direct 3D film its programmed scene output, and control channels keep their meaning through [conditioning](conditioning.md).
+Each screenplay file becomes one film in `src/films/`, and every screenplay unit reaches it through the shots that cite it under [source layout](../development/layout.md); resolve missing, duplicated or omitted material before rendering. Render one film at a time with `npm run render -- --film <name>`. A generated film consumes [accepted takes](generation.md), a hint or direct 3D film its programmed scene output, and control channels keep their meaning through [conditioning](conditioning.md).
 
 Give the edit one timeline owner. Choose shots, order, in/out points, transitions and pauses from the audience experience, keeping required performance and information. [Motion timing](../motion/timeline.md) owns frame schedules and replay; [audio](../audio/SKILL.md) supplies accepted recordings, and sound, captions and mouth motion are placed against those exact performances. A new take, trim, speed change or cut requires rechecking its timing and neighbors.
 

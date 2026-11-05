@@ -28,8 +28,6 @@
     "lint.config.ts",
     "evidence.config.ts",
     "vite.config.ts",
-    "render.config.ts",
-    "scripts",
     "src",
     "test"
   ]
