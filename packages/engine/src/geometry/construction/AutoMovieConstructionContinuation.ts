@@ -1,4 +1,6 @@
+import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
+import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
@@ -46,7 +48,7 @@ export namespace AutoMovieConstructionContinuation {
    * @param partEnd The part's shared end.
    * @returns The part chain, or the premise the pair breaks.
    *
-   * @evidence contracts/common.md#principled-implementation Replaces one part endpoint by the host boundary, reindexing/reflection and station-derivative signs for reversed ends; geometric C2 additionally requires complete consistent source jets from the admitted loft.
+   * @evidence contracts/common.md#principled-implementation Copies the actual host boundary station jets, clears its old coefficient-coordinate ownership and clears a moved frame datum; reverse ends additionally reindex/reflect phase and derivative signs. Geometric C2 requires complete consistent boundary jets.
    * @evidence contracts/common.md#clear-and-simple-design Admission and endpoint selection surround one local layer transform, then a shallow chain/layer-list copy.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects non-spline bases, different orders and selected pole ends; nonempty well-formed layers and derivative completeness remain caller premises rather than independently certified here.
    * @evidence contracts/common.md#meaningful-documentation Gives the four end-pair direction rules, phase reversal, derivative signs and premise-string result.
@@ -64,7 +66,11 @@ export namespace AutoMovieConstructionContinuation {
       return "both chains must carry spline sections";
     if (host.order !== part.order)
       return `the host's sections have ${host.order} control points and the part's ${part.order}`;
-    const closed = (
+    /** A real pole cannot serve as an open continuation ring. */
+    const closed: (
+      chain: IAutoMovieLoftChain,
+      end: "bottom" | "top",
+    ) => boolean = (
       chain: IAutoMovieLoftChain,
       end: "bottom" | "top",
     ): boolean => chain.pole?.end === end || chain.opposite?.end === end;
@@ -76,6 +82,8 @@ export namespace AutoMovieConstructionContinuation {
       hostEnd === "bottom"
         ? host.layers[0]!
         : host.layers[host.layers.length - 1]!;
+    AutoMovieLoftFrameSource.validate(source);
+    AutoMovieLoftCoefficientSource.controls(host, source.y);
     const index: number = partEnd === "bottom" ? 0 : part.layers.length - 1;
     const layer: IAutoMovieLoftChain.ILayer = transform(
       source,
@@ -102,10 +110,17 @@ export namespace AutoMovieConstructionContinuation {
         frame: l.frame ?? AutoMovieLoftFrame.horizontal(l.y),
       };
       delete copy.view;
+      delete copy.coefficientSource;
+      if (y !== l.y) delete copy.frameSource;
       return copy;
     }
     // Control point m of the part is control point -m of the host.
-    const points = (c: readonly number[], kx: number, kz: number): number[] => {
+    /** Reindex the periodic control row into the reversed chart without observing geometry. */
+    const points: (c: readonly number[], kx: number, kz: number) => number[] = (
+      c: readonly number[],
+      kx: number,
+      kz: number,
+    ): number[] => {
       const out: number[] = new Array<number>(2 * n);
       for (let m: number = 0; m < n; m++) {
         const j: number = (n - m) % n;
@@ -114,12 +129,22 @@ export namespace AutoMovieConstructionContinuation {
       }
       return out;
     };
-    const values = (c: readonly number[], k: number): number[] =>
+    /** Scalar lift controls follow the same phase reversal and explicit normal sign. */
+    const values: (c: readonly number[], k: number) => number[] = (
+      c: readonly number[],
+      k: number,
+    ): number[] =>
       Array.from(
         { length: n },
         (_: unknown, m: number): number => k * c[(n - m) % n]!,
       );
-    const frame = (
+    /** Value and derivative frame records follow their separate station/chart signs. */
+    const frame: (
+      f: AutoMovieLoftFrame.IFrame,
+      ko: number,
+      ku: number,
+      kv: number,
+    ) => AutoMovieLoftFrame.IFrame = (
       f: AutoMovieLoftFrame.IFrame,
       ko: number,
       ku: number,

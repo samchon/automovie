@@ -1,9 +1,14 @@
-import type { IAutoMovieConstructionParallelAxis } from "@automovie/interface";
+import type {
+  AutoMovieConstructionOutlineParameter,
+  IAutoMovieConstructionParallelAxis,
+} from "@automovie/interface";
 
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import type { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
+import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
+import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
@@ -23,7 +28,10 @@ export namespace AutoMovieViewParallelAxis {
    *
    * The weak identity lookup reuses the authored record without searching, sampling or rebuilding an interpolation. It contains only axes actually prepared from their declarations. Each live factory axis retains one copied declaration; a dead weak key releases that metadata. Public from/source own this serialization contract.
    */
-  const DECLARATIONS: WeakMap<AutoMovieViewAxis.IAxis, IAutoMovieConstructionParallelAxis> = new WeakMap();
+  const DECLARATIONS: WeakMap<
+    AutoMovieViewAxis.IAxis,
+    IAutoMovieConstructionParallelAxis
+  > = new WeakMap();
 
   /**
    * Three source coordinates of an origin in world millimetres.
@@ -54,31 +62,91 @@ export namespace AutoMovieViewParallelAxis {
    * @evidence contracts/common.md#clear-and-simple-design Returns an ordinary source axis or the original basis/coordinate admission failure.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not normalize an invalid basis or silently replace a failed coordinate; a later unrepresentable scalar query throws its original source failure for the caller to report.
    * @evidence contracts/common.md#meaningful-documentation Defines authored station, basis admission and source failure behavior.
-   * @evidence contracts/performance.md#efficient-algorithms Preparation is linear in the total coordinate knots; each frame reads three value-only source curves and copies two directions.
-   * @evidence contracts/performance.md#reuse-equivalent-work Copies each direction and prepares each source once for the returned immutable axis.
+   * @evidence contracts/performance.md#efficient-algorithms Preparation is linear in coordinate knots; at reads three value-only curves, while jet reads three value/parameter-jet records and constant coordinate transfers.
+   * @evidence contracts/performance.md#reuse-equivalent-work Copies directions and prepares each source once; each analytic query reuses its source reading's value instead of reading all coordinates a second time.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Closure lifetime owns the two three-component direction copies and three source preparations; each returned frame owns its vectors.
    */
-  export function create(origin: IOrigin, u: AutoMovieSolidVector.Vec3, v: AutoMovieSolidVector.Vec3): AutoMovieViewAxis.IAxis | string {
+  export function create(
+    origin: IOrigin,
+    u: AutoMovieSolidVector.Vec3,
+    v: AutoMovieSolidVector.Vec3,
+  ): AutoMovieViewAxis.IAxis | string {
     const U: AutoMovieSolidVector.Vec3 = [...u];
     const V: AutoMovieSolidVector.Vec3 = [...v];
     const tolerance: number = 64 * Number.EPSILON;
-    if (![...U, ...V].every(Number.isFinite) || Math.abs(Math.hypot(...U) - 1) > tolerance || Math.abs(Math.hypot(...V) - 1) > tolerance || Math.abs(U[0] * V[0] + U[1] * V[1] + U[2] * V[2]) > tolerance)
+    if (
+      ![...U, ...V].every(Number.isFinite) ||
+      Math.abs(Math.hypot(...U) - 1) > tolerance ||
+      Math.abs(Math.hypot(...V) - 1) > tolerance ||
+      Math.abs(U[0] * V[0] + U[1] * V[1] + U[2] * V[2]) > tolerance
+    )
       return "parallel chart directions must be finite, unit and perpendicular";
     const curves: AutoMovieViewOutline.IOutline[] = [];
     for (const coordinate of ["x", "y", "z"] as const) {
-      const source: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(origin[coordinate]);
-      if ("detail" in source) return `parallel origin ${coordinate}: ${source.detail}`;
+      const source:
+        | AutoMovieViewOutline.IOutline
+        | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+        origin[coordinate],
+      );
+      if ("detail" in source)
+        return `parallel origin ${coordinate}: ${source.detail}`;
       curves.push(source);
     }
+    const at: (station: number) => AutoMovieLoftFrame.IFrame = (
+      station: number,
+    ): AutoMovieLoftFrame.IFrame => {
+      const point: AutoMovieSolidVector.Vec3 = [0, 0, 0];
+      for (let c: number = 0; c < 3; c++) {
+        const value: number | string = AutoMovieViewOutline.value(
+          curves[c]!,
+          station,
+        );
+        if (typeof value === "string")
+          throw new Error(`parallel origin ${c}: ${value}`);
+        point[c] = value;
+      }
+      return { origin: point, u: [...U], v: [...V] };
+    };
     return {
-      at: (station: number): AutoMovieLoftFrame.IFrame => {
+      at,
+      jet: (
+        station: number,
+        parameter?: AutoMovieConstructionOutlineParameter,
+      ): AutoMovieViewAxisJet.IJet | null => {
         const point: AutoMovieSolidVector.Vec3 = [0, 0, 0];
+        const first: AutoMovieSolidVector.Vec3 = [0, 0, 0];
+        const second: AutoMovieSolidVector.Vec3 = [0, 0, 0];
         for (let c: number = 0; c < 3; c++) {
-          const value: number | string = AutoMovieViewOutline.value(curves[c]!, station);
-          if (typeof value === "string") throw new Error(`parallel origin ${c}: ${value}`);
-          point[c] = value;
+          const reading: AutoMovieViewOutline.IReading | string =
+            AutoMovieViewOutline.at(curves[c]!, station);
+          if (typeof reading === "string") {
+            const value: number | string = AutoMovieViewOutline.value(
+              curves[c]!,
+              station,
+            );
+            if (typeof value === "string")
+              throw new Error(`parallel origin ${c}: ${value}`);
+            return null;
+          }
+          const transfer: [number, number] | null =
+            AutoMovieViewParameter.transferJet(
+              curves[c]!.parameter,
+              parameter,
+              station,
+            );
+          if (transfer === null) return null;
+          point[c] = reading.value;
+          first[c] = reading.parameterJet[0] * transfer[0];
+          second[c] =
+            reading.parameterJet[1] * transfer[0] * transfer[0] +
+            reading.parameterJet[0] * transfer[1];
         }
-        return { origin: point, u: [...U], v: [...V] };
+        if (![...first, ...second].every(Number.isFinite)) return null;
+        return AutoMovieViewAxisJet.fixed(
+          { origin: point, u: [...U], v: [...V] },
+          first,
+          second,
+        );
       },
     };
   }
@@ -94,10 +162,16 @@ export namespace AutoMovieViewParallelAxis {
    * @evidence contracts/performance.md#reuse-equivalent-work Retains the original declaration on the prepared axis so serialization does not reevaluate its course.
    * @evidence contracts/performance.md#bound-retention-and-release-resources One copied declaration belongs to each live axis through a WeakMap key; failed preparations retain nothing and dead axes release their metadata.
    */
-  export function from(declaration: IAutoMovieConstructionParallelAxis): AutoMovieViewAxis.IAxis | string {
+  export function from(
+    declaration: IAutoMovieConstructionParallelAxis,
+  ): AutoMovieViewAxis.IAxis | string {
     const original: IAutoMovieConstructionParallelAxis = copy(declaration);
     const axis: AutoMovieViewAxis.IAxis | string = create(
-      { x: AutoMovieViewOutline.scale(original.origin.x, 1000, 1000), y: AutoMovieViewOutline.scale(original.origin.y, 1000, 1000), z: AutoMovieViewOutline.scale(original.origin.z, 1000, 1000) },
+      {
+        x: AutoMovieViewOutline.scale(original.origin.x, 1000, 1000),
+        y: AutoMovieViewOutline.scale(original.origin.y, 1000, 1000),
+        z: AutoMovieViewOutline.scale(original.origin.z, 1000, 1000),
+      },
       [original.u.x, original.u.y, original.u.z],
       [original.v.x, original.v.y, original.v.z],
     );
@@ -116,8 +190,11 @@ export namespace AutoMovieViewParallelAxis {
    * @evidence contracts/performance.md#reuse-equivalent-work Uses the retained authoritative source; it does not rerun interpolation or frame transport.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh declaration owned by the caller; the WeakMap retains no strong axis key.
    */
-  export function source(axis: AutoMovieViewAxis.IAxis): IAutoMovieConstructionParallelAxis | null {
-    const original: IAutoMovieConstructionParallelAxis | undefined = DECLARATIONS.get(axis);
+  export function source(
+    axis: AutoMovieViewAxis.IAxis,
+  ): IAutoMovieConstructionParallelAxis | null {
+    const original: IAutoMovieConstructionParallelAxis | undefined =
+      DECLARATIONS.get(axis);
     return original === undefined ? null : copy(original);
   }
 
@@ -126,7 +203,18 @@ export namespace AutoMovieViewParallelAxis {
    *
    * Copies every coordinate knot list, parameter record and basis to isolate retained metadata and returned declarations from caller mutation. No numeric input is fitted, sampled or replaced. O(n) copying in coordinate knot count produces fresh caller-owned curves and fixed-size basis records; it cannot alias an earlier mutable ownership copy.
    */
-  function copy(declaration: IAutoMovieConstructionParallelAxis): IAutoMovieConstructionParallelAxis {
-    return { type: "parallel", origin: { x: AutoMovieViewOutline.scale(declaration.origin.x, 1, 1), y: AutoMovieViewOutline.scale(declaration.origin.y, 1, 1), z: AutoMovieViewOutline.scale(declaration.origin.z, 1, 1) }, u: { ...declaration.u }, v: { ...declaration.v } };
+  function copy(
+    declaration: IAutoMovieConstructionParallelAxis,
+  ): IAutoMovieConstructionParallelAxis {
+    return {
+      type: "parallel",
+      origin: {
+        x: AutoMovieViewOutline.scale(declaration.origin.x, 1, 1),
+        y: AutoMovieViewOutline.scale(declaration.origin.y, 1, 1),
+        z: AutoMovieViewOutline.scale(declaration.origin.z, 1, 1),
+      },
+      u: { ...declaration.u },
+      v: { ...declaration.v },
+    };
   }
 }

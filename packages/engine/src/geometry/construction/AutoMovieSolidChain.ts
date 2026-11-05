@@ -51,7 +51,15 @@ export namespace AutoMovieSolidChain {
    * and between layers the twin is the C2 surface through them.
    *
    * @param chain The chain; never modified.
-   * @returns The twin, which {@link surface} accepts.
+   * @returns The twin; an unavailable actual-source boundary jet still prevents regular surface admission.
+   *
+   * @evidence contracts/common.md#principled-implementation Keeps already carried jets, supplies exact horizontal plane derivatives to unframed regular coefficient jets, or prepares ordinary fields while preserving explicit axis/parameter sources.
+   * @evidence contracts/common.md#clear-and-simple-design One adapter preserves the chain definition before surface admission.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not respline an explicit source into another geometry or fabricate an unavailable source boundary 2-jet; final surface admission can still fail.
+   * @evidence contracts/common.md#meaningful-documentation States borrowed input, new-layer ownership and regular-jet premises; the existing surviving-layer domain remains unchanged.
+   * @evidence contracts/performance.md#efficient-algorithms Carried inputs return after one presence scan; other inputs copy layers and run only the needed ordinary field solves.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses already carried/source-owned derivatives and shares unchanged chain data.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the original chain or a caller-owned twin with shared unchanged fields; no additional cache or handle is retained.
    */
   export function framed(chain: IAutoMovieLoftChain): IAutoMovieLoftChain {
     if (AutoMovieLoftJet.carries(chain)) return chain;

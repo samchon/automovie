@@ -1,6 +1,8 @@
 import type { AutoMovieHarmonicCurve } from "./AutoMovieHarmonicCurve";
 import type { AutoMovieLoftChain } from "./AutoMovieLoftChain";
+import type { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
+import type { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import type { AutoMovieLoftParameter } from "./AutoMovieLoftParameter";
 import type { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
@@ -9,10 +11,10 @@ import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
  * Principal-layer data of one chain, as published by the observation fitter
  * and consumed by {@link AutoMovieLoftChain}.
  *
- * @evidence contracts/common.md#principled-implementation A chain is its principal layers with their station jets, the data every reading of the loft is a function of.
+ * @evidence contracts/common.md#principled-implementation Principal values, station jets and optional explicit axis/parameter source records determine every reading; no hidden bind registry changes geometry.
  * @evidence contracts/common.md#clear-and-simple-design One record of layers and the chain's basis, order, rule, samples and poles.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Optional jets are absent rather than zero-filled, so a reader knows which rule applies.
- * @evidence contracts/common.md#meaningful-documentation States every field, its unit and what its absence means.
+ * @evidence contracts/common.md#meaningful-documentation States field units, absence, actual-axis ownership, numeric-copy equivalence, immutable cache premises and callable-source serialization limits.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; its readers' costs are on `AutoMovieLoftChain`.
  * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data record; reuse lives in its readers' caches.
  * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The record's size is its layers', owned by its producer.
@@ -107,7 +109,17 @@ export interface IAutoMovieLoftChain {
   };
 }
 export namespace IAutoMovieLoftChain {
-  /** One principal layer: a shape event of the chain. */
+  /**
+   * A principal section value and its explicit station/source interpolation data.
+   *
+   * @evidence contracts/common.md#principled-implementation Values and station jets define ordinary Hermite spans; optional common pole-coordinate derivatives and actual-axis records state the supported source interpolation directly.
+   * @evidence contracts/common.md#clear-and-simple-design Section, lift, frame and their derivative/source fields remain one immutable layer datum.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Missing jets are not zero-filled, invalid retained axis data is not silently resplined and source metadata is explicitly removed or transformed at a changed boundary.
+   * @evidence contracts/common.md#meaningful-documentation Members distinguish mm station derivatives, parameter derivatives, raw view metadata and the callable source's lifetime/copy limits.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This stored input/result type executes no interpolation.
+   * @evidence contracts/performance.md#reuse-equivalent-work Adjacent intervals share one layer's values and jets; actual-axis records share their immutable prepared axis.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources A layer owns coefficient/derivative arrays and fixed frame snapshots, sharing optional axis and pole endpoint preparation until its last caller releases it.
+   */
   export interface ILayer {
     /**
      * Station of the layer along the chain in mm, strictly increasing over
@@ -118,6 +130,12 @@ export namespace IAutoMovieLoftChain {
 
     /** Section plane of the layer; absent means horizontal at height `y`. */
     frame?: AutoMovieLoftFrame.IFrame;
+
+    /** Actual immutable axis and independent value/station-jet snapshot. Equal-value copies preserve it; a changed datum must explicitly remove or re-express it. Callable source records cannot be restored by JSON; rebuild them from the authored tree. Null station jets preserve finite source values but do not qualify that boundary for a regular solid 2-jet. */
+    frameSource?: AutoMovieLoftFrameSource.ISource;
+
+    /** Direct coefficient derivatives in a common closing root/angle coordinate, with finite virtual zero-pole data. The existing coefficients remain the values; absent/different maps select the ordinary station-Hermite boundary. This is a new principal-coefficient interpolant, not a guarantee of original scalar/fullness fidelity between layers. */
+    coefficientSource?: AutoMovieLoftCoefficientSource.ISource;
 
     /**
      * Section coefficients in mm, in the layout of the chain's basis
@@ -151,7 +169,8 @@ export namespace IAutoMovieLoftChain {
     liftCurvatures?: number[];
 
     /**
-     * Second station derivative of every coefficient. When both layers of
+     * Second station derivative of every coefficient. Without common explicit
+     * coefficientSource data, when both layers of
      * an interval carry it, the interval is the quintic Hermite of their
      * values, slopes and these (`AutoMovieStationHermite`); absent,
      * the cubic Hermite of values and slopes.
@@ -160,7 +179,8 @@ export namespace IAutoMovieLoftChain {
 
     /**
      * Station derivatives of the layer's plane, its origin and both axes
-     * component by component. When both layers of an interval carry them,
+     * component by component. Matching actual frameSource records own the
+     * intermediate frame instead. Otherwise, when both interval layers carry them,
      * the plane is the Hermite of the two planes' components, its axes not
      * renormalised, so it moves C2 with the coefficients; absent, the
      * rotation Hermite of `AutoMovieLoftFrame.interpolate`.
@@ -181,7 +201,17 @@ export namespace IAutoMovieLoftChain {
     view?: IAutoMovieLoftChain.IView;
   }
 
-  /** What a view-lofted layer was drawn from. */
+  /**
+   * The raw view-section inputs retained for a generated layer.
+   *
+   * @evidence contracts/common.md#principled-implementation Box, shoulders and guide curvatures describe the admitted section before final phase/station interpolation.
+   * @evidence contracts/common.md#clear-and-simple-design Three four-entry arrays preserve the section owner's quantities without another shape representation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Raw conic data does not certify final Cartesian spline fidelity, convexity or geometric G2 at a pole.
+   * @evidence contracts/common.md#meaningful-documentation Members state signed directions, quarter indexing and mm/inverse-mm units.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This metadata type performs no section solve.
+   * @evidence contracts/performance.md#reuse-equivalent-work Audits and display reuse the actual section's input metadata.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The containing layer owns twelve scalar entries, with no process resource or global retention.
+   */
   export interface IView {
     /** Half extents of the box from the axis along `+u`, `+v`, `-u` and `-v`, mm, positive. */
     extents: [number, number, number, number];

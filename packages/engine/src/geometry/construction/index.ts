@@ -12,6 +12,7 @@ export * from "./AutoMovieIllinois";
 export * from "./AutoMovieLoftChain";
 export * from "./AutoMovieLoftContract";
 export * from "./AutoMovieLoftFrame";
+export * from "./AutoMovieLoftFrameSource";
 export * from "./AutoMovieLoftJet";
 export * from "./AutoMovieLoftParameter";
 export * from "./AutoMovieLoftRelief";

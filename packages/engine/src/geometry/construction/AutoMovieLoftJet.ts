@@ -1,7 +1,10 @@
-import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
+import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
+import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
+import { AutoMovieLoftRelief } from "./AutoMovieLoftRelief";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
+import type { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
@@ -11,8 +14,9 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * A chain expanded with its jets (every layer carrying its plane, the
  * plane's station derivatives and the coefficients' second derivatives)
  * is, between two layers, `P(s, t) = o(s) + x(s, t) u(s) + z(s, t) v(s)`
- * with every factor a quintic in station and the section a periodic cubic
- * B-spline in phase (the redesign plan's section 2), plus a lift along
+ * with coefficient Hermite factors in physical station or a declared pole
+ * coordinate, actual analytic frames or the existing component-plane fit,
+ * and the unchanged periodic cubic phase spline, plus a lift along
  * `w = v x u` and its reliefs along their axes. Each derivative is then the
  * product rule over those factors, each factor's derivative exact:
  *
@@ -98,17 +102,13 @@ export namespace AutoMovieLoftJet {
    *
    * @evidence contracts/common.md#principled-implementation Combines the station Hermite and periodic cubic section jets with the written product rule, then adds lift and relief derivatives.
    * @evidence contracts/common.md#clear-and-simple-design Station preparation is shared; phase evaluation still uses the existing spline jet reader.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps the Hermite summation order, phase wrapping, interval bounds and returned vector ownership; no sampled derivative replaces a jet.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps ordinary Hermite summation, phase wrapping, regular-layer bounds and returned vector ownership; explicit cap data changes only coefficient weights and actual-axis records supply their own frame derivatives.
    * @evidence contracts/common.md#meaningful-documentation States station and phase units and the surface product rule above.
    * @evidence contracts/performance.md#efficient-algorithms On a spline, a phase fills at most four previously unread controls in three derivative rows, including lift when present; array allocation remains linear in order.
    * @evidence contracts/performance.md#reuse-equivalent-work Station weights, frame and lift directions are prepared once, and each visited control is combined once while its station remains cached.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Uses the weak-key eight-station insertion cache and returns fresh mutable jet vectors, never a cached output jet.
    */
-  export function at(
-    chain: IAutoMovieLoftChain,
-    s: number,
-    t: number,
-  ): IJet {
+  export function at(chain: IAutoMovieLoftChain, s: number, t: number): IJet {
     // The station's part (its section coefficients and plane with their two
     // station derivatives) is the same for every phase, so the last stations
     // read per chain are kept; a chain is never changed once built.
@@ -157,7 +157,14 @@ export namespace AutoMovieLoftJet {
       p[k] = o[0]![k]! + u0 * q0[0] + w0 * q0[1];
       ds[k] = o[1]![k]! + u0 * q1[0] + u1 * q0[0] + w0 * q1[1] + w1 * q0[1];
       dt[k] = u0 * q0[2] + w0 * q0[3];
-      dss[k] = o[2]![k]! + u0 * q2[0] + 2 * u1 * q1[0] + u2 * q0[0] + w0 * q2[1] + 2 * w1 * q1[1] + w2 * q0[1];
+      dss[k] =
+        o[2]![k]! +
+        u0 * q2[0] +
+        2 * u1 * q1[0] +
+        u2 * q0[0] +
+        w0 * q2[1] +
+        2 * w1 * q1[1] +
+        w2 * q0[1];
       dst[k] = u0 * q1[2] + u1 * q0[2] + w0 * q1[3] + w1 * q0[3];
       dtt[k] = u0 * q0[4] + w0 * q0[5];
     }
@@ -221,14 +228,18 @@ export namespace AutoMovieLoftJet {
   const RECENT: number = 8;
 
   /** The kept stations, by chain. */
-  const STATIONS: WeakMap<IAutoMovieLoftChain, { s: number; station: IStation }[]> = new WeakMap();
+  const STATIONS: WeakMap<
+    IAutoMovieLoftChain,
+    { s: number; station: IStation }[]
+  > = new WeakMap();
 
   /** A station's part of a jet, kept for the chain's last stations. */
   function stationOf(chain: IAutoMovieLoftChain, s: number): IStation {
-    let kept: { s: number; station: IStation }[] | undefined = STATIONS.get(chain);
+    let kept: { s: number; station: IStation }[] | undefined =
+      STATIONS.get(chain);
     if (kept === undefined) STATIONS.set(chain, (kept = []));
     for (const entry of kept) if (entry.s === s) return entry.station;
-    const [lo, hi] = AutoMovieLoftChain.bracket(chain, s);
+    const [lo, hi]: [number, number] = AutoMovieLoftChain.bracket(chain, s);
     const a: IAutoMovieLoftChain.ILayer = chain.layers[lo]!;
     const b: IAutoMovieLoftChain.ILayer = chain.layers[hi]!;
     const H: number = b.y - a.y;
@@ -238,43 +249,83 @@ export namespace AutoMovieLoftJet {
     );
 
     // Section coefficients and plane, each with its two station derivatives.
-    const ca: AutoMovieStationHermite.IEnd = {
+    const source: AutoMovieLoftCoefficientSource.IControls | null =
+      AutoMovieLoftCoefficientSource.controls(chain, s);
+    const coefficientWeights: number[][] =
+      source === null
+        ? w
+        : [0, 1, 2].map((order: number): number[] =>
+            AutoMovieLoftCoefficientSource.weights(source, order as 0 | 1 | 2),
+          );
+    const ca: AutoMovieStationHermite.IEnd = source?.a ?? {
       value: a.coefficients,
       slope: a.slopes,
       curvature: a.curvatures!,
     };
-    const cb: AutoMovieStationHermite.IEnd = {
+    const cb: AutoMovieStationHermite.IEnd = source?.b ?? {
       value: b.coefficients,
       slope: b.slopes,
       curvature: b.curvatures!,
     };
     const n: number = chain.order;
-    const lazy: boolean = chain.basis === "spline" && Number.isInteger(n) && n > 0 &&
-      a.coefficients.length === 2 * n && b.coefficients.length === 2 * n &&
-      liftFits(a, n) && liftFits(b, n);
-    const c: number[][] = w.map((x: number[]): number[] => lazy
-      ? new Array<number>(2 * n)
-      : AutoMovieStationHermite.combine(ca, cb, x));
-    const fa: AutoMovieStationHermite.IEnd = AutoMovieStationHermite.frameEnd(a);
-    const fb: AutoMovieStationHermite.IEnd = AutoMovieStationHermite.frameEnd(b);
-    const f: number[][] = w.map((x: number[]): number[] =>
-      AutoMovieStationHermite.combine(fa, fb, x),
+    const lazy: boolean =
+      chain.basis === "spline" &&
+      Number.isInteger(n) &&
+      n > 0 &&
+      a.coefficients.length === 2 * n &&
+      b.coefficients.length === 2 * n &&
+      liftFits(a, n) &&
+      liftFits(b, n);
+    const c: number[][] = coefficientWeights.map((x: number[]): number[] =>
+      lazy
+        ? new Array<number>(2 * n)
+        : AutoMovieStationHermite.combine(ca, cb, x),
     );
-    const station: IStation = { a: ca, b: cb, weights: w, c, f };
+    const actual: AutoMovieViewAxisJet.IJet | null =
+      AutoMovieLoftFrameSource.actual(a, b, s);
+    let f: number[][];
+    if (actual !== null)
+      f = [actual.value, actual.first, actual.second].map(
+        (value: AutoMovieViewAxisJet.IJet["value"]): number[] => [
+          ...value.origin,
+          ...value.u,
+          ...value.v,
+        ],
+      );
+    else {
+      const fa: AutoMovieStationHermite.IEnd =
+        AutoMovieStationHermite.frameEnd(a);
+      const fb: AutoMovieStationHermite.IEnd =
+        AutoMovieStationHermite.frameEnd(b);
+      f = w.map((x: number[]): number[] =>
+        AutoMovieStationHermite.combine(fa, fb, x),
+      );
+    }
+    const station: IStation = {
+      a: ca,
+      b: cb,
+      weights: coefficientWeights,
+      c,
+      f,
+    };
     if (lazy) station.filled = new Uint8Array(n);
     if (a.lift !== undefined || b.lift !== undefined) {
       const zero: number[] = new Array<number>(n).fill(0);
-      const quintic: boolean = a.liftCurvatures !== undefined && b.liftCurvatures !== undefined;
+      const quintic: boolean =
+        a.liftCurvatures !== undefined && b.liftCurvatures !== undefined;
       const ea: AutoMovieStationHermite.IEnd = {
-        value: a.lift ?? zero, slope: a.liftSlopes ?? zero,
+        value: a.lift ?? zero,
+        slope: a.liftSlopes ?? zero,
         ...(quintic ? { curvature: a.liftCurvatures! } : {}),
       };
       const eb: AutoMovieStationHermite.IEnd = {
-        value: b.lift ?? zero, slope: b.liftSlopes ?? zero,
+        value: b.lift ?? zero,
+        slope: b.liftSlopes ?? zero,
         ...(quintic ? { curvature: b.liftCurvatures! } : {}),
       };
       const weights: number[][] = [0, 1, 2].map((order: number): number[] =>
-        AutoMovieStationHermite.weights(u, H, order as 0 | 1 | 2, quintic));
+        AutoMovieStationHermite.weights(u, H, order as 0 | 1 | 2, quintic),
+      );
       const rows: number[][] = weights.map((x: number[]): number[] => {
         if (lazy) return new Array<number>(2 * n);
         const row: number[] = AutoMovieStationHermite.combine(ea, eb, x);
@@ -282,11 +333,21 @@ export namespace AutoMovieLoftJet {
       });
       const U: V[] = f.map((x: number[]): V => [x[3]!, x[4]!, x[5]!]);
       const W: V[] = f.map((x: number[]): V => [x[6]!, x[7]!, x[8]!]);
-      station.lift = { a: ea, b: eb, weights, c: rows, directions: [
-        cross(W[0]!, U[0]!),
-        sum(cross(W[1]!, U[0]!), cross(W[0]!, U[1]!)),
-        sum(cross(W[2]!, U[0]!), scale(cross(W[1]!, U[1]!), 2), cross(W[0]!, U[2]!)),
-      ] };
+      station.lift = {
+        a: ea,
+        b: eb,
+        weights,
+        c: rows,
+        directions: [
+          cross(W[0]!, U[0]!),
+          sum(cross(W[1]!, U[0]!), cross(W[0]!, U[1]!)),
+          sum(
+            cross(W[2]!, U[0]!),
+            scale(cross(W[1]!, U[1]!), 2),
+            cross(W[0]!, U[2]!),
+          ),
+        ],
+      };
     }
     kept.unshift({ s, station });
     if (kept.length > RECENT) kept.pop();
@@ -295,9 +356,11 @@ export namespace AutoMovieLoftJet {
 
   /** Keep malformed lift layouts on the old doubled-row path; this does not reject an input. */
   function liftFits(layer: IAutoMovieLoftChain.ILayer, n: number): boolean {
-    return (layer.lift === undefined || layer.lift.length === n) &&
+    return (
+      (layer.lift === undefined || layer.lift.length === n) &&
       (layer.liftSlopes === undefined || layer.liftSlopes.length === n) &&
-      (layer.liftCurvatures === undefined || layer.liftCurvatures.length === n);
+      (layer.liftCurvatures === undefined || layer.liftCurvatures.length === n)
+    );
   }
 
   /** Fill the same periodic support read by SplineCurve.jet, without changing its arithmetic. */
@@ -324,11 +387,20 @@ export namespace AutoMovieLoftJet {
   }
 
   /** One component, in exactly StationHermite.combine's left-associated summation order. */
-  function scalar(a: AutoMovieStationHermite.IEnd, b: AutoMovieStationHermite.IEnd, w: readonly number[], k: number): number {
-    return w[0]! * a.value[k]! + w[1]! * a.slope[k]! +
+  function scalar(
+    a: AutoMovieStationHermite.IEnd,
+    b: AutoMovieStationHermite.IEnd,
+    w: readonly number[],
+    k: number,
+  ): number {
+    return (
+      w[0]! * a.value[k]! +
+      w[1]! * a.slope[k]! +
       (a.curvature === undefined ? 0 : w[2]! * a.curvature[k]!) +
       (b.curvature === undefined ? 0 : w[3]! * b.curvature[k]!) +
-      w[4]! * b.slope[k]! + w[5]! * b.value[k]!;
+      w[4]! * b.slope[k]! +
+      w[5]! * b.value[k]!
+    );
   }
 
   /**
@@ -374,7 +446,12 @@ function lift(
   jet.p = sum(jet.p, scale(w0, h[0]![0]));
   jet.s = sum(jet.s, scale(w0, h[1]![0]), scale(w1, h[0]![0]));
   jet.t = sum(jet.t, scale(w0, h[0]![2]));
-  jet.ss = sum(jet.ss, scale(w0, h[2]![0]), scale(w1, 2 * h[1]![0]), scale(w2, h[0]![0]));
+  jet.ss = sum(
+    jet.ss,
+    scale(w0, h[2]![0]),
+    scale(w1, 2 * h[1]![0]),
+    scale(w2, h[0]![0]),
+  );
   jet.st = sum(jet.st, scale(w0, h[1]![2]), scale(w1, h[0]![2]));
   jet.tt = sum(jet.tt, scale(w0, h[0]![4]));
 }
@@ -393,5 +470,9 @@ function scale(v: readonly number[], k: number): V {
 
 /** Cross product. */
 function cross(a: V, b: V): V {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  return [
+    a[1] * b[2] - a[2] * b[1],
+    a[2] * b[0] - a[0] * b[2],
+    a[0] * b[1] - a[1] * b[0],
+  ];
 }

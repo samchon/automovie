@@ -1,12 +1,13 @@
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import type { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
+import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 
 /**
  * The station rule along a chain and the copy of a shared layer (rule J3).
  *
- * Along a chain every coefficient follows the natural cubic spline through
- * its values at the layers: among all twice-differentiable functions through
+ * Ordinary chain coefficients follow the natural cubic spline through
+ * their values at the layers: among all twice-differentiable functions through
  * them, the one of least `integral f''^2`, continuous in its second
  * derivative at every layer. Each layer carries the spline's first and
  * second derivatives as its `slopes` and `curvatures`, so its intervals take
@@ -14,12 +15,15 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
  * is C2 at every layer whatever the derivatives a layer carries. Three-point
  * slopes, as `AutoMovieHumanHorizontalChain.build` gives, leave the cubic
  * spans meeting at a corner in curvature, a line at every layer.
+ * Explicit pole-coordinate coefficient data and actual-axis frame data keep
+ * their producer's station jets instead. Their source records remain part of
+ * the chain's geometry and must remain immutable with the principal values.
  *
  * A layer shared with another chain is the owner's: the neighbour copies the
  * owner's layer and its derivatives, signed into its own station direction
  * ({@link copy}), and keeps them through the solve.
  *
- * @evidence contracts/common.md#principled-implementation A chain's station jets come from the natural spline of each field through its layers, so the chain is C2 in station by construction.
+ * @evidence contracts/common.md#principled-implementation Ordinary fields receive natural-spline jets; explicit coefficient/frame sources retain their actual regular-station jets. Shared endpoint jets make their Hermite boundaries C2 under compatible finite producer premises.
  * @evidence contracts/common.md#clear-and-simple-design One function makes a chain continuous, keeping the layers a caller names.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Layers too close for a stable spline are refused by the station contract, not merged.
  * @evidence contracts/common.md#meaningful-documentation States which fields get jets, which layers are kept and the station premise.
@@ -207,12 +211,12 @@ export namespace AutoMovieSeamStation {
    * @param keep Indices of layers whose derivatives are owned elsewhere.
    * @returns A copy whose layers carry slopes and curvatures (and plane jets when framed).
    *
-   * @evidence contracts/common.md#principled-implementation Admits station spacing and solves natural-cubic coefficient/optional lift/plane derivatives; kept boundary derivatives are preserved, so intervals touching a kept jet follow that jet rather than an unmodified global natural spline.
+   * @evidence contracts/common.md#principled-implementation Admits station spacing, preserves explicit coefficient and actual-frame sources, and solves natural-cubic ordinary fields; kept/mixed-source boundaries retain their published endpoint jets rather than being globally resplined.
    * @evidence contracts/common.md#clear-and-simple-design One coordinator owns spacing, field preparation and selective layer replacement while curvatures/slopes own the tridiagonal mathematics.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects kept layers without coefficient curvatures and nonfinite new coefficient jets; lifted/framed field widths and remaining jet completeness are producer premises, not silently repaired.
    * @evidence contracts/common.md#meaningful-documentation States unchanged principal values, kept-layer identity, optional field behavior and the new layer-table return.
    * @evidence contracts/performance.md#efficient-algorithms O(LW) field work/output plus O(L) keep/station storage; each field's natural solve is linear, though elimination factors are rebuilt per component.
-   * @evidence contracts/performance.md#reuse-equivalent-work Coefficient and plane slopes reuse their curvature tables; lift slopes prepare theirs once, while shared input fields and kept layer objects remain the original values.
+   * @evidence contracts/performance.md#reuse-equivalent-work Wholly source-owned coefficient/frame tables skip redundant natural solves; ordinary slopes reuse their curvature solve, lift prepares once and kept layer objects remain shared.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned chain owns new derivative arrays and shares kept layers/other chain fields; temporary station, value and solver tables are not retained by the module.
    */
   export function continuous(
@@ -228,11 +232,17 @@ export namespace AutoMovieSeamStation {
       ),
     );
     const kept: Set<number> = new Set(keep);
-    const values: number[][] = rows.map(
-      (l: IAutoMovieLoftChain.ILayer): number[] => [...l.coefficients],
+    const coefficientSources: boolean = rows.every(
+      (l: IAutoMovieLoftChain.ILayer): boolean =>
+        l.coefficientSource !== undefined,
     );
-    const cM: number[][] = curvatures(t, values);
-    const cS: number[][] = slopes(t, values, cM);
+    const values: number[][] = coefficientSources
+      ? []
+      : rows.map((l: IAutoMovieLoftChain.ILayer): number[] => [
+          ...l.coefficients,
+        ]);
+    const cM: number[][] = coefficientSources ? [] : curvatures(t, values);
+    const cS: number[][] = coefficientSources ? [] : slopes(t, values, cM);
 
     // A lift absent on a layer is zero there, as the chain reads it.
     const lifted: boolean = rows.some(
@@ -250,11 +260,16 @@ export namespace AutoMovieSeamStation {
     const framed: boolean = rows.every(
       (l: IAutoMovieLoftChain.ILayer): boolean => l.frame !== undefined,
     );
-    const planes: number[][] = framed
+    const planeSpline: boolean =
+      framed &&
+      rows.some(
+        (l: IAutoMovieLoftChain.ILayer): boolean => l.frameSource === undefined,
+      );
+    const planes: number[][] = planeSpline
       ? rows.map((l: IAutoMovieLoftChain.ILayer): number[] => flat(l.frame!))
       : [];
-    const pM: number[][] = framed ? curvatures(t, planes) : [];
-    const pS: number[][] = framed ? slopes(t, planes, pM) : [];
+    const pM: number[][] = planeSpline ? curvatures(t, planes) : [];
+    const pS: number[][] = planeSpline ? slopes(t, planes, pM) : [];
 
     return {
       ...chain,
@@ -263,6 +278,7 @@ export namespace AutoMovieSeamStation {
           l: IAutoMovieLoftChain.ILayer,
           k: number,
         ): IAutoMovieLoftChain.ILayer => {
+          AutoMovieLoftFrameSource.validate(l);
           if (kept.has(k)) {
             if (l.curvatures === undefined)
               throw new Error(
@@ -270,22 +286,30 @@ export namespace AutoMovieSeamStation {
               );
             return l;
           }
+          const coefficientSlopes: number[] =
+            l.coefficientSource === undefined ? cS[k]! : l.slopes;
+          const coefficientCurvatures: number[] | undefined =
+            l.coefficientSource === undefined ? cM[k]! : l.curvatures;
+          if (coefficientCurvatures === undefined)
+            throw new Error(
+              "A retained coefficient source carries no station curvatures",
+            );
           AutoMovieLoftContract.jet(
-            `${chain.name} layer ${k} slopes`,
-            cS[k]!,
+            chain.name + " layer " + k + " slopes",
+            coefficientSlopes,
             AutoMovieLoftContract.FINITE,
           );
           AutoMovieLoftContract.jet(
-            `${chain.name} layer ${k} curvatures`,
-            cM[k]!,
+            chain.name + " layer " + k + " curvatures",
+            coefficientCurvatures,
             AutoMovieLoftContract.FINITE,
           );
           return {
             ...l,
-            slopes: cS[k]!,
-            curvatures: cM[k]!,
+            slopes: coefficientSlopes,
+            curvatures: coefficientCurvatures,
             ...(lifted ? { lift: lifts[k]!, liftSlopes: lS[k]! } : {}),
-            ...(framed
+            ...(planeSpline && l.frameSource === undefined
               ? { frameSlopes: unflat(pS[k]!), frameCurvatures: unflat(pM[k]!) }
               : {}),
           };
