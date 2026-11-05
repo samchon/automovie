@@ -33,6 +33,8 @@ import { HumanPeople } from "../../../internal/HumanPeople";
  * local and closed-domain stationary posterior calipers preserve public L.
  * 3. Nasal, lip, c-j/sa-sba and own eye chords keep their definitions;
  * closed-lip contacts and primary Bernstein upper curves agree through spans.
+ * Tilted lobule X support is a source-coordinate diagnostic, not a new
+ * anatomical measurement expectation.
  * 4. Actual declarations replay at three physical scales. Independent eye
  * studies remain outside the tree; the horizontal head section is diagnostic,
  * not the anatomical tape. The separate neck-source unit owns adapter spans,
@@ -227,6 +229,30 @@ export function test_human_head_source_curves(): void {
   const noseCurve: AutoMovieViewCurves.ICurve = prepared.get("nose")!.curves[0]!;
   const farthest: number = Math.max(...samples(noseCurve.outline!).map((s: number): number => point(nose.name, "front.positive", s)[0]));
   check("nose support past pronasale", Math.max(0, farthest - prn[0]), 0);
+
+  // Diagnose the tilted lobule on its actual source, not an ideal ellipse.
+  // World X is this construction's coordinate, not a new anatomical oracle.
+  try {
+    const lobule: IAutoMovieViewPart = byName.get("nose.lobule")!;
+    const node: IAutoMovieConstructionView = production.get(lobule.name)!;
+    if (node.axis.type !== "straight" || node.axis.v.x !== 0) throw new Error("Lobule X support requires its actual straight chart with v.x=0");
+    const valueScale: number = node.axis.u.x;
+    const edge: AutoMovieViewCurves.ICurve = prepared.get(lobule.name)!.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === (valueScale >= 0 ? "front.positive" : "front.negative"))!;
+    if (edge.outline === null) throw new Error("Lobule X support has no admitted original outline");
+    const slope: number = node.axis.v.y * node.axis.u.z - node.axis.v.z * node.axis.u.y;
+    const candidates: number[] | string = AutoMovieViewOutline.supportStations(edge.outline, slope, valueScale);
+    if (typeof candidates === "string") throw new Error(candidates);
+    const readings: { station: number; radius: number; point: [number, number, number] }[] = candidates.map((station: number): { station: number; radius: number; point: [number, number, number] } => {
+      const reading: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(edge, lobule.axis, station);
+      if (typeof reading === "string") throw new Error(reading);
+      return { station, radius: Math.abs(reading.scalar.value), point: reading.point };
+    });
+    const maximum: { station: number; radius: number; point: [number, number, number] } = readings.reduce((a: { station: number; radius: number; point: [number, number, number] }, b: { station: number; radius: number; point: [number, number, number] }): { station: number; radius: number; point: [number, number, number] } => b.point[0] > a.point[0] ? b : a);
+    console.log(`lobule actual source X support: ${JSON.stringify({ prn, axis: node.axis, domain: edge.outline.domain, edge: edge.name, slope, valueScale, maximum, beyondPrn: maximum.point[0] - prn[0], readings, scope: "numerical source critical candidates and closed boundaries for this fixed chart; not an anatomical orientation, curvature, entire nasal-group or final-skin proof" })}`);
+  } catch (error) {
+    findings.push(`lobule actual source X support unavailable: ${String(error)}`);
+    console.log(findings.at(-1));
+  }
   const sto: [number, number, number] = [plan.landmarks.stomion[0], plan.stomion, 0];
   check("upper ls-sto", distance(point("lip.upper", "front.positive", 0), sto), inputs.head.face.mouth.upperVermilionHeight * bodyScale);
   check("lower sto-li", distance(point("lip.lower", "front.negative", 0), sto), inputs.head.face.mouth.lowerVermilionHeight * bodyScale);
