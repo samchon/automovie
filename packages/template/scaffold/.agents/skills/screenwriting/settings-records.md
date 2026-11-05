@@ -8,6 +8,14 @@ Give each independently used subject one file, with inseparable attributes kept 
 
 A group may share a file while it functions as one subject; give a member its own owner when individual speech, choice, reaction or relationship requires it. Incidental participants need their consequential role and recognizable attributes; central or recurring subjects need the depth their actual use demands.
 
+## Scene coverage
+
+Before closing settings, backcast each planned scene into findable coverage of its visible and audible people or groups, places, objects, effects and environmental sources, including unnamed extras and off-screen sources. Existing brief, settings records and scene references can provide this coverage. Where navigation is insufficient, use a concise map linking subjects to fact owners and later scene uses, kept with the brief or current production analysis. Any map is navigation and a completeness check rather than a second copy of the facts.
+
+Give a repeated group the count or bounded population, roles, recognition cues, occupied zones and access or movement limits needed to stage it. Establish available entrances and routes, meaningful prop quantities, initial resting places or custody, and operating constraints. Treatments, scripts or a direct-short screenplay chooses actual arrivals, departures, transfers and resulting states. A location can own its inseparable surfaces and furnishings; use a separate record when an object needs independent use or control. Shared background grammar is sufficient for incidental forms, while a consequential place, prop or sound source needs a usable definition. Exact unseen inventories and individual biographies for a collective are unnecessary.
+
+Compare this coverage with the activity and experience actually commissioned, not only the cast the draft happened to name. Sparse geometry changes representation, not which participants or equipment the activity requires. Explain a deliberate empty or private setting through its adopted occupancy and access conditions; do not reduce a populated activity to a private demonstration merely to avoid its supporting population. Return a changed scope to its instruction owner. The next author must be able to find what is present, what remains outside the view, and what legitimately does not exist without inventing the scene.
+
 ## Character sections
 
 Give the file one H1 naming its subject and stable, explicitly anchored H2s for independently cited decisions. Write the identity, appearance and voice, drives and limits, relationships, knowledge and consequential state variants the work needs. A short complete profile may need one H2. Attach sources, adopted inventions and uncertainty to the facts they qualify.
