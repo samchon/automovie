@@ -20,13 +20,15 @@ import { AutoMovieHumanHeadSectionConstraints } from "./AutoMovieHumanHeadSectio
  *   degrees) to the cervical point C, whose depth from the gnathion is the
  *   lower face's height over the lower vertical height-depth ratio
  *   (Sn-Gn' / C-Gn' = 1.2; Legan and Burstone 1980), and under C the neck's
- *   front standing plumb, since the back's slope from the trunk ring is
- *   the trapezius' and carried the front behind the axis; B, the median back profile
+ *   front handed over from its adopted conic-template band. The retained
+ *   posterior skin secant defines that band's pose proxy, not a measured
+ *   neck axis. B, the median back profile
  *   (`AutoMovieHumanHeadBackProfile`), down the nape to the neck ring.
  * - Front view: L, the head's front-view silhouette, one outline through
  *   the vertex, the eurion's level (half the head breadth), the tragion's
  *   (half the cranial base width t-t), the gonion's (half go-go) and the
- *   neck ring (the neck tape's radius).
+ *   neck's original radius source, whose normal plane and named base course
+ *   have distinct measurement definitions.
  * - Axis: parallel level planes whose source origin drifts from the neck
  *   centre to the skull's centre. An axis leaning to the neck tilted
  *   the sections under the tragion, so the lowest ran from behind the ear to
@@ -44,7 +46,8 @@ import { AutoMovieHumanHeadSectionConstraints } from "./AutoMovieHumanHeadSectio
  * merged under the head met it along the nape and the jaw's underside,
  * where the two skins are one, and traced no clean loop. A submental line
  * carried on below C put P within a few millimetres of the axis and turned
- * the sections concave; the neck's front under C keeps them convex.
+ * the sections concave. Its lower supports now come directly from one
+ * radius source; the C2 world-profile handover begins above the band.
  * Legan and Burstone's clinical constructed Gn' is the intersection of
  * Sn-Pg' and C-Me' (1980, p745, Fig1 landmark definitions). It is distinct
  * from the contour Gn used by the public FaceBase face-height input. The
@@ -73,13 +76,17 @@ export namespace AutoMovieHumanHeadMassPart {
   export function of(plan: IAutoMovieHumanHeadLayout, faceExponent?: number, bottom?: number): IAutoMovieViewPart {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
     const g: number = m.glabella[1];
+    const neck: typeof plan.neck.curves = plan.neck.curves;
+    const preparedRadius: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure | null = neck === undefined ? null : AutoMovieViewOutline.create(neck.radius);
+    if (preparedRadius !== null && "detail" in preparedRadius) throw new Error(`Head neck radius: ${preparedRadius.detail}`);
+    const radius: AutoMovieViewOutline.IOutline | null = preparedRadius;
 
     // The bottom: open at the neck's base, inside the trunk the head mass
     // and its neck are merged onto; the neck is this part's lower stretch.
     // It reaches a neck radius under the neck base, so the trunk's open top
     // stands inside it and the trunk crosses it there: opening at the neck
     // base itself, the head met the trunk nowhere and the body left it out.
-    const throat: number = Math.min((bottom ?? plan.y0) - plan.neck.radius, cervical(plan)[1] - SPACING);
+    const throat: number = neck?.bottom ?? Math.min((bottom ?? plan.y0) - plan.neck.radius, cervical(plan)[1] - SPACING);
     const top: number = plan.vertex - g;
 
     // The sites the outlines carry knots at, by station: the profile's
@@ -89,6 +96,7 @@ export namespace AutoMovieHumanHeadMassPart {
     // height, the axis being near vertical).
     const sites: [string, number][] = [
       ["throat", throat],
+      ...(neck === undefined ? [] : [...neck.radius.knots.map((k: IAutoMovieViewPart.IKnot): [string, number] => [k.site, k.station]), ...neck.height.knots.slice(0, -1).map((k: IAutoMovieViewPart.IKnot): [string, number] => [k.site, k.value])]),
       ["cervical", cervical(plan)[1]],
       ["cervicale", plan.neck.backLevel],
       ["menton", plan.menton],
@@ -107,7 +115,7 @@ export namespace AutoMovieHumanHeadMassPart {
     ];
     sites.sort((a: [string, number], b: [string, number]): number => a[1] - b[1]);
     const knotted: [string, number][] = sites.filter(
-      (site: [string, number], i: number): boolean => i === 0 || site[1] - sites[i - 1]![1] > 0.5,
+      (site: [string, number], i: number): boolean => i === 0 || site[1] > sites[i - 1]![1],
     );
 
     // Layers: every site and as many even steps between as keep them within
@@ -126,7 +134,8 @@ export namespace AutoMovieHumanHeadMassPart {
     const coordinate: (component: 0 | 1 | 2) => IAutoMovieViewPart.IOutline = (component: 0 | 1 | 2): IAutoMovieViewPart.IOutline => ({
       knots: stations.map((station: number, i: number): IAutoMovieViewPart.IKnot => ({ site: `head.axis.${i}`, station, value: component === 0 ? centreAt(plan, station) : component === 1 ? station : 0, ...(component === 0 && station >= m.tragion[1] ? { jet: { first: 0, second: 0 } } : {}) })),
     });
-    const axis: AutoMovieViewAxis.IAxis = AutoMovieHumanHeadSourceAxis.of({ x: coordinate(0), y: coordinate(1), z: coordinate(2) }, [1, 0, 0], [0, 0, 1]);
+    const axis: AutoMovieViewAxis.IAxis = AutoMovieHumanHeadSourceAxis.of({ x: neck?.centre ?? coordinate(0), y: coordinate(1), z: coordinate(2) }, [1, 0, 0], [0, 0, 1]);
+    const profile: AutoMovieHumanHeadBackProfile.IProfile = AutoMovieHumanHeadVault.backProfile(plan);
 
     // Named caliper points constrain the actual section at their own X/Y.
     // A lateral maximum at the axis is not that point's breadth.
@@ -134,7 +143,7 @@ export namespace AutoMovieHumanHeadMassPart {
     const face: number = shoulder(faceExponent ?? AutoMovieHumanHeadPrior.PRIOR.frame.plan);
     const extentsAt: (y: number) => [number, number, number, number] = (y: number): [number, number, number, number] => {
       const centre: number = axis.at(y).origin[0];
-      return [median(plan, y) - centre, plan.breadth / 2, centre - AutoMovieHumanHeadBackProfile.at(AutoMovieHumanHeadVault.backProfile(plan), y), plan.breadth / 2];
+      return [median(plan, y, axis, radius) - centre, plan.breadth / 2, centre - AutoMovieHumanHeadBackProfile.at(profile, y), plan.breadth / 2];
     };
     const widths: number[] = [m.gonion, m.zygion].map((site: [number, number], i: number): number => AutoMovieHumanHeadSectionConstraints.lateral(extentsAt(site[1]), [face, vault, vault, face], site[0] - axis.at(site[1]).origin[0], i === 0 ? plan.mandibularWidth : plan.faceWidth));
     const frontal: number = AutoMovieHumanHeadSectionConstraints.frontal(extentsAt(g), vault, m.frontal[0] - axis.at(g).origin[0], plan.frontalWidth);
@@ -142,7 +151,8 @@ export namespace AutoMovieHumanHeadMassPart {
       if (y >= g) return plan.breadth / 2 * AutoMovieHumanHeadVault.cranialWidth(plan, y);
       if (y >= m.zygion[1]) return widths[1]! + (plan.breadth / 2 - widths[1]!) * smooth((y - m.zygion[1]) / (g - m.zygion[1]));
       if (y >= m.gonion[1]) return widths[0]! + (widths[1]! - widths[0]!) * smooth((y - m.gonion[1]) / (m.zygion[1] - m.gonion[1]));
-      return plan.neck.radius + (widths[0]! - plan.neck.radius) * smooth((y - plan.y0) / (m.gonion[1] - plan.y0));
+      const lower: number = neck?.band[1] ?? plan.y0;
+      return plan.neck.radius + (widths[0]! - plan.neck.radius) * smooth((y - lower) / (m.gonion[1] - lower));
     };
 
     // Every layer's plane and the outlines' values there, so each outline
@@ -154,19 +164,35 @@ export namespace AutoMovieHumanHeadMassPart {
     const left: IAutoMovieViewPart.IKnot[] = [];
     const right: IAutoMovieViewPart.IKnot[] = [];
     const named: Map<number, string> = new Map(knotted.map(([site, station]: [string, number]): [number, string] => [station, site]));
+    const rootSpan: number = Math.sqrt(plan.vertex - first);
     for (const [k, station] of stations.entries()) {
       const site: string = named.get(station) ?? `head.${k}`;
       const frame: AutoMovieLoftFrame.IFrame = axis.at(station);
       const atPole: boolean = site === "vertex";
-      const p: number = atPole ? 0 : median(plan, station) - frame.origin[0];
-      const b: number = atPole ? 0 : frame.origin[0] - AutoMovieHumanHeadBackProfile.at(AutoMovieHumanHeadVault.backProfile(plan), station);
-      const l: number = atPole ? 0 : widthAt(frame.origin[1]);
+      const radial: AutoMovieViewOutline.IReading | string | null = radius !== null && station <= neck!.band[1] ? AutoMovieViewOutline.at(radius, station) : null;
+      if (typeof radial === "string") throw new Error(`Head neck radial source: ${radial}`);
+      const p: number = atPole ? 0 : radial === null ? median(plan, station, axis, radius) - frame.origin[0] : neck!.extents[0] * radial.value / neck!.lateral;
+      const b: number = atPole ? 0 : radial === null ? frame.origin[0] - AutoMovieHumanHeadBackProfile.at(profile, station) : neck!.extents[2] * radial.value / neck!.lateral;
+      const l: number = atPole ? 0 : radial === null ? widthAt(frame.origin[1]) : radial.value;
       if (!atPole && ![p, b, l].every((value: number): boolean => value > 0 && Number.isFinite(value)))
         throw new Error(`Head source ${site}@${station}: level axis is outside front/back/side supports [${p},${b},${l}]`);
       front.push({ site, station, value: p });
       back.push({ site, station, value: -b });
       left.push({ site, station, value: l });
       right.push({ site, station, value: -l });
+      if (radial !== null) {
+        const first: number = radial.parameterJet[0] * rootSpan;
+        const second: number = radial.parameterJet[1] * rootSpan * rootSpan;
+        front.at(-1)!.jet = { first: neck!.extents[0] * first / neck!.lateral, second: neck!.extents[0] * second / neck!.lateral };
+        back.at(-1)!.jet = { first: -neck!.extents[2] * first / neck!.lateral, second: -neck!.extents[2] * second / neck!.lateral };
+        left.at(-1)!.jet = { first, second };
+        right.at(-1)!.jet = { first: -first, second: -second };
+      }
+      if (neck !== undefined && station === cervical(plan)[1]) {
+        const turn: ReturnType<NonNullable<AutoMovieViewAxis.IAxis["jet"]>> = axis.jet?.(station, { type: "root", end: "top", pole: plan.vertex }) ?? null;
+        if (turn === null) throw new Error("Clinical C has no regular source-origin parameter jet");
+        front.at(-1)!.jet = { first: -turn.first.origin[0] * rootSpan, second: -turn.second.origin[0] * rootSpan * rootSpan };
+      }
     }
     if (front.length) {
       front[front.length - 1]!.value = 0;
@@ -185,7 +211,8 @@ export namespace AutoMovieHumanHeadMassPart {
     });
     const faceDeparture: IAutoMovieViewPart.IOutline = {
       knots: [
-        { site: knotted[0]![0], station: first, value: face - vault },
+        { site: knotted[0]![0], station: first, value: neck === undefined ? face - vault : 0 },
+        ...(neck === undefined ? [] : [{ site: "neck.cylinder.upper", station: neck.band[1], value: 0 }]),
         { site: "gonion", station: m.gonion[1], value: face - vault },
         { site: "zygion", station: m.zygion[1], value: face - vault },
         { site: "nasion", station: plan.nasion, value: face - vault },
@@ -204,7 +231,7 @@ export namespace AutoMovieHumanHeadMassPart {
       side: { positive: { knots: left, range: { minimum: 0, maximum: plan.breadth / 2 } }, negative: { knots: right, range: { minimum: -plan.breadth / 2, maximum: 0 } } },
       fullness: {
         kind: "shoulder",
-        shoulder: flatAt(vault),
+        shoulder: neck === undefined ? flatAt(vault) : { knots: [[first, AutoMovieViewSection.ELLIPSE], [neck.band[1], AutoMovieViewSection.ELLIPSE], [m.gonion[1], vault], [last, vault]].map(([station, value]: number[], i: number): IAutoMovieViewPart.IKnot => ({ site: `head.shoulder.${i}`, station: station!, value: value!, jet: { first: 0, second: 0 } })) },
         departures: [faceDeparture, flatAt(0), flatAt(0), faceDeparture],
       },
       pole: "top",
@@ -224,21 +251,28 @@ export namespace AutoMovieHumanHeadMassPart {
   }
 
   /**
-   * P with the submental line under the menton: the skin under the chin leaves
-   * the gnathion at the lower face-throat angle from the line to the
-   * subnasale (Legan and Burstone 1980, Sn-Gn'-C 100 degrees).
+   * Median support through the contour menton and separately constructed
+   * clinical C. Legan and Burstone's Sn-Gn'-C angle locates that junction;
+   * it is not a skin derivative. The adopted flat C jet and the lower
+   * band's slope define the explicit C2 profile handover.
    */
-  function median(plan: IAutoMovieHumanHeadLayout, y: number): number {
+  function median(plan: IAutoMovieHumanHeadLayout, y: number, axis: AutoMovieViewAxis.IAxis, radius: AutoMovieViewOutline.IOutline | null): number {
     if (y >= plan.menton) return AutoMovieHumanHeadMedianProfile.profileAt(plan, y);
     const c: [number, number] = cervical(plan);
     if (!(c[1] < plan.menton)) throw new Error("Head level-section neck handover requires its clinical C below menton; that ordering is not supplied by the clinical measurements alone");
-    const bottom: number = Math.min(plan.y0 - plan.neck.radius, c[1] - SPACING);
-    const front: number = plan.neck.x + plan.neck.radius;
+    const neck: typeof plan.neck.curves = plan.neck.curves;
+    if (neck !== undefined && radius !== null && y <= neck.band[1]) {
+      const r: number | string = AutoMovieViewOutline.value(radius, y);
+      if (typeof r === "string") throw new Error(`Median neck radius: ${r}`);
+      return axis.at(y).origin[0] + neck.extents[0] * r / neck.lateral;
+    }
+    const bottom: number = neck?.band[1] ?? Math.min(plan.y0 - plan.neck.radius, c[1] - SPACING);
+    const front: number = neck === undefined ? plan.neck.x + plan.neck.radius : axis.at(bottom).origin[0] + neck.extents[0];
     if (y <= bottom) return front;
     // The clinical Sn-Gn'-C angle is between landmark chords, not a skin
     // derivative. A shared flat jet is the stated geometric handover.
     const turn = AutoMovieHumanHeadMath.flat(c[0]);
-    if (y < c[1]) return AutoMovieHumanHeadMath.joined({ value: front, slope: 0, curvature: 0 }, turn, bottom, c[1], y);
+    if (y < c[1]) return AutoMovieHumanHeadMath.joined({ value: front, slope: neck?.slope ?? 0, curvature: 0 }, turn, bottom, c[1], y);
     const g: number = plan.landmarks.glabella[1];
     const top: number = plan.vertex - g;
     const d: [number, number] = AutoMovieNaturalSpline.derivative(plan.profile, plan.menton);
@@ -277,7 +311,7 @@ export namespace AutoMovieHumanHeadMassPart {
     return [gn[0] + depth * ux, gn[1] + depth * uy];
   }
 
-  /** Lower vertical height-depth ratio `Sn-Gn' / C-Gn'` (Legan and Burstone 1980). */
+  /** Sagittal segment-length ratio `Sn-Gn' / C-Gn'`, not a vertical projection (Legan and Burstone 1980). */
   export const HEIGHT_DEPTH: number = 1.2;
 
   /**

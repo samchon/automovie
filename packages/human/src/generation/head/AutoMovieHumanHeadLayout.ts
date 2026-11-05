@@ -38,6 +38,12 @@ export namespace AutoMovieHumanHeadLayout {
   export function create(source: AutoMovieHumanNeckSource.IOutput, inputs: IAutoMovieHumanHeadInputs): IAutoMovieHumanHeadLayout {
     const compiled: IAutoMovieHumanHeadCompiled = AutoMovieHumanHeadLandmarks.compile();
     const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadLandmarks.layout(compiled, inputs, source.head, source.scale, AutoMovieHumanHeadLandmarks.NONE);
+    plan.neck = { ...plan.neck, base: {
+      girth: inputs.neckBase.girth * source.scale,
+      cervicaleHeight: inputs.neckBase.cervicaleHeight * source.scale,
+      sideNeckPointHeight: inputs.neckBase.sideNeckPointHeight * source.scale,
+      suprasternaleHeight: inputs.neckBase.suprasternaleHeight * source.scale,
+    } };
     plan.vault = AutoMovieHumanHeadVault.closing(plan);
     return plan;
   }

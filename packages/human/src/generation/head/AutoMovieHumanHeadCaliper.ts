@@ -29,9 +29,9 @@ export namespace AutoMovieHumanHeadCaliper {
    * boundary equation supplied by the caliper protocol. Numerical roots are
    * candidates, not an interval certificate.
    *
-   * @evidence contracts/common.md#principled-implementation BackProfile and natural interpolation are linear in reach at fixed source knots. Two actual source records therefore define that family, and the engine reads every candidate and boundary in the same fixed calibration-mm graph.
+   * @evidence contracts/common.md#principled-implementation BackProfile and natural/shared-jet interpolation are linear in reach at fixed source knots, parameter and explicit-jet pattern. Two actual source records therefore define that family, and the engine reads every candidate and boundary in the same fixed calibration-mm graph.
    * @evidence contracts/common.md#clear-and-simple-design Returns a new layout with closed reach and its updated retained tape proxy, leaving original construction and independent observation to the existing callers.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses an unsupported frame, changed source partition, requested nonlinear range/jet admission or failed distance query rather than sampling a replacement or selecting a named point as the maximum.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses an unsupported frame, changed partition/parameter/jet pattern, nonlinear range admission or failed distance query rather than sampling a replacement or selecting a named point as the maximum.
    * @evidence contracts/common.md#meaningful-documentation States the chosen domain, linear-family premise, fixed-chart verification, numerical boundary and zero-reach bracketing member that is never emitted as a part.
    * @evidence contracts/performance.md#efficient-algorithms Two source preparations precede a bounded sixty-four-step bracket and sixty bisections on one dimension.
    * @evidence contracts/performance.md#reuse-equivalent-work The bracket and solve share the same canonical basis and target; final composition builds and lofts the result once.
@@ -43,7 +43,10 @@ export namespace AutoMovieHumanHeadCaliper {
     const shifted: Source = AutoMovieHumanHeadTree.source(AutoMovieHumanHeadMassPart.of({ ...plan, reach: 2 * plan.reach }, faceExponent, bottom));
     const first: IAutoMovieViewPart.IOutline = base.part.front.negative;
     const second: IAutoMovieViewPart.IOutline = shifted.part.front.negative;
-    if (first.range !== undefined || first.knots.some((k: IAutoMovieViewPart.IKnot): boolean => k.jet !== undefined) || first.knots.length !== second.knots.length || first.knots.some((k: IAutoMovieViewPart.IKnot, i: number): boolean => k.station !== second.knots[i]!.station || k.site !== second.knots[i]!.site)) throw new Error("Cranial caliper requires its unchanged natural posterior source partition");
+    if (first.range !== undefined || second.range !== undefined || JSON.stringify(first.parameter) !== JSON.stringify(second.parameter) || first.knots.length !== second.knots.length || first.knots.some((k: IAutoMovieViewPart.IKnot, i: number): boolean => {
+      const other: IAutoMovieViewPart.IKnot = second.knots[i]!;
+      return k.station !== other.station || k.site !== other.site || (k.jet === undefined) !== (other.jet === undefined) || (k.jet !== undefined && other.jet !== undefined && ((k.jet.first === null) !== (other.jet.first === null) || (k.jet.second === null) !== (other.jet.second === null)));
+    })) throw new Error("Cranial caliper requires its unchanged posterior partition, parameter and explicit-jet pattern without nonlinear range admission");
     const lower: number = named(base.part.front.negative, "tragion");
     const upper: number = first.knots.at(-1)!.station;
     const glabella: number = named(base.part.front.positive, "glabella");
@@ -55,7 +58,7 @@ export namespace AutoMovieHumanHeadCaliper {
 
     const maximum: (reach: number) => number = (reach: number): number => {
       const share: number = (reach - plan.reach) / plan.reach;
-      const curve: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({ ...first, knots: first.knots.map((k: IAutoMovieViewPart.IKnot, i: number): IAutoMovieViewPart.IKnot => ({ ...k, value: k.value + share * (second.knots[i]!.value - k.value) })) }, { top: upper });
+      const curve: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create({ ...first, knots: first.knots.map((k: IAutoMovieViewPart.IKnot, i: number): IAutoMovieViewPart.IKnot => ({ ...k, value: k.value + share * (second.knots[i]!.value - k.value), ...(k.jet === undefined ? {} : { jet: { first: k.jet.first === null ? null : k.jet.first + share * (second.knots[i]!.jet!.first! - k.jet.first), second: k.jet.second === null ? null : k.jet.second + share * (second.knots[i]!.jet!.second! - k.jet.second) } }) })) }, { top: upper });
       if ("detail" in curve) throw new Error(`Cranial posterior family: ${curve.detail}`);
       const candidates: number[] | string = AutoMovieViewOutline.distanceStations(curve, glabella, targetValue, [lower, upper]);
       if (typeof candidates === "string") throw new Error(`Cranial caliper: ${candidates}`);

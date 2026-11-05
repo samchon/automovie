@@ -1,4 +1,7 @@
-/** The neck ring's place and size. */
+import type { IAutoMovieHumanHeadInputs } from "./IAutoMovieHumanHeadInputs";
+import type { AutoMovieHumanHeadNeckCurves } from "./head/AutoMovieHumanHeadNeckCurves";
+
+/** Retained neck placement and the active lower-head generating sources. */
 export interface IAutoMovieHumanHeadNeck {
   /** Section mean height, distinct from the adopted posterior C7 point, calibration mm. */
   level: number;
@@ -17,4 +20,10 @@ export interface IAutoMovieHumanHeadNeck {
 
   /** That back's forward run per millimetre of height, `dx/dy`. */
   backSlope: number;
+
+  /** Base tape and resolved heights in calibration mm, scaled once by HeadLayout; absent on retired layout readers. */
+  base?: IAutoMovieHumanHeadInputs["neckBase"];
+
+  /** Actual lower-head radius/origin and named-height course, authored before the final mass. */
+  curves?: AutoMovieHumanHeadNeckCurves.IOutput;
 }

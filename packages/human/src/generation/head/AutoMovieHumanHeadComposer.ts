@@ -9,6 +9,7 @@ import { AutoMovieHumanHeadEyeParts } from "./AutoMovieHumanHeadEyeParts";
 import { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
 import { AutoMovieHumanHeadInnerParts } from "./AutoMovieHumanHeadInnerParts";
 import { AutoMovieHumanHeadMassPart } from "./AutoMovieHumanHeadMassPart";
+import { AutoMovieHumanHeadNeckCurves } from "./AutoMovieHumanHeadNeckCurves";
 import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
 
 /**
@@ -25,7 +26,7 @@ import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
  * @evidence contracts/common.md#clear-and-simple-design Owns part ordering and raw loft results; each author supplies its curves, one metre declaration supplies their actual evaluation and tree node, and the tree owns joins.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not move a part onto another surface to conceal incompatible landmarks or a failed intersection.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes anatomical placement from intersection search and states which owner constructs each representation.
- * @evidence contracts/performance.md#efficient-algorithms One engine loft per part with no parent-foot solve or rebuilt translated loft.
+ * @evidence contracts/performance.md#efficient-algorithms Bounded neck scalar solves and two bare caliper basis preparations precede one engine loft per part; no parent-foot solve or rebuilt translated loft occurs.
  * @evidence contracts/performance.md#reuse-equivalent-work Retains the authoritative view declaration for the tree and its one evaluated part/raw loft for inspection, without a second unit conversion or loft.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned views and lofts; no parent-surface map or cross-input cache is retained.
  */
@@ -52,6 +53,9 @@ export namespace AutoMovieHumanHeadComposer {
 
     /** Authoritative metre declaration from which massPart is evaluated. */
     massView: IAutoMovieConstructionView;
+
+    /** Same lower-head source/course used to author the mass; null only on a retired layout without base context. */
+    neck: AutoMovieHumanHeadNeckCurves.IOutput | null;
 
     /** Every face part, placed and lofted. */
     parts: IPlaced[];
@@ -87,7 +91,7 @@ export namespace AutoMovieHumanHeadComposer {
    * @evidence contracts/common.md#clear-and-simple-design A mass and an ordered list of features become one output record; joins remain in the tree.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A missing intersection remains a tree diagnostic; a parent-foot translation cannot hide or change it.
    * @evidence contracts/common.md#meaningful-documentation Defines the input layout, optional published places and ownership of placement versus joins.
-   * @evidence contracts/performance.md#efficient-algorithms One mass loft and one loft per feature, linear in the number of parts.
+   * @evidence contracts/performance.md#efficient-algorithms Neck source solving and two caliper basis preparations precede one mass loft and one loft per feature/study. Loft work grows with each declared part's stations and order; no full figure is built here.
    * @evidence contracts/performance.md#reuse-equivalent-work The tree borrows the exact original declaration; diagnostic readers borrow its evaluated part and single loft without rebuilding or reserializing either.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The result owns all retained views, lofts and diagnostics; no temporary host map escapes.
    */
@@ -102,7 +106,11 @@ export namespace AutoMovieHumanHeadComposer {
       places?.tragion === undefined
         ? skeleton
         : AutoMovieHumanHeadLandmarks.atTragion(skeleton, places.tragion);
-    const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadCaliper.close(placed, neckBase, places?.faceExponent);
+    const shaped: IAutoMovieHumanHeadLayout = placed.neck.base === undefined ? placed : {
+      ...placed,
+      neck: { ...placed.neck, curves: AutoMovieHumanHeadNeckCurves.of({ neck: placed.neck, base: placed.neck.base, bottom: neckBase ?? placed.y0, cervical: AutoMovieHumanHeadMassPart.cervical(placed), cranialCentre: placed.centre, tragion: placed.landmarks.tragion[1], crown: placed.vertex, spacing: AutoMovieHumanHeadMassPart.SPACING }) },
+    };
+    const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadCaliper.close(shaped, neckBase, places?.faceExponent);
     const declared: { part: IAutoMovieViewPart; view: IAutoMovieConstructionView } = AutoMovieHumanHeadTree.source(AutoMovieHumanHeadMassPart.of(plan, places?.faceExponent, neckBase));
     const massPart: IAutoMovieViewPart = declared.part;
     const mass: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(massPart);
@@ -129,7 +137,7 @@ export namespace AutoMovieHumanHeadComposer {
       diagnostics.push(...loft.diagnostics);
       return { part: source.part, view: source.view, loft };
     });
-    return { mass, massPart, massView: declared.view, parts, studies, diagnostics };
+    return { mass, massPart, massView: declared.view, neck: plan.neck.curves ?? null, parts, studies, diagnostics };
   }
 
 }
