@@ -77,8 +77,9 @@ const host: IAutoMovieViewerHandle = mountViewer(
 /**
  * Draw and publish the exact production clock through the mounted Viewer.
  *
- * @evidence contracts/common.md#implementation-and-ownership Completes original scene placement and drawing before publishing actual seconds to Viewer observers.
- * @evidence contracts/common.md#authoring-interface Called by playback and the public seek hook, sharing one renderer and camera.
+ * Completes scene placement and drawing before publishing actual seconds to
+ * Viewer observers. Playback and the public seek hook share this renderer and
+ * camera.
  */
 function draw(): void {
   production.seek(seconds);
@@ -92,8 +93,10 @@ function draw(): void {
 /**
  * Complete an exact-time frame before browser capture reads its pixels.
  *
- * @evidence contracts/common.md#implementation-and-ownership Finite clamped seconds drive the same original draw as playback. Ordinary seek pauses playback; inspection seeks during an owned freeze preserve desired play state for release.
- * @evidence contracts/common.md#authoring-interface Exposed as __afSeek(seconds); throws on nonfinite input and returns after drawing.
+ * Finite clamped seconds drive the same draw as playback. Ordinary seek pauses
+ * playback; inspection seeks during an owned freeze preserve desired play state
+ * for release. Exposed as __afSeek(seconds); throws on nonfinite input and returns
+ * after drawing.
  */
 function seek(time: number): void {
   const target: number = clampProductionSeconds(time, durationSeconds);
