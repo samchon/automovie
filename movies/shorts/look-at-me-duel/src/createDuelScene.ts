@@ -5,6 +5,9 @@ import * as THREE from "three";
 
 import type { DuelActorFrame as ActorFrame } from "./DuelActorFrame";
 import { createDuelActor } from "./createDuelActor";
+import { applyDuelImpactReaction } from "./applyDuelImpactReaction";
+import { anchorDuelHeldTurn } from "./anchorDuelHeldTurn";
+import { assertDuelReplayObservations } from "./assertDuelReplayObservations";
 import { createDuelCaption } from "./createDuelCaption";
 import { createDuelCourt } from "./createDuelCourt";
 import { createDuelCapMotion } from "./createDuelCapMotion";
@@ -19,6 +22,7 @@ import { evaluateDuelOpening } from "./evaluateDuelOpening";
 import { evaluateDuelRescue } from "./evaluateDuelRescue";
 import type { DuelRescueEntry } from "./DuelRescueEntry";
 import { evaluateDuelEnding } from "./evaluateDuelEnding";
+import { fingerprintDuelActor } from "./fingerprintDuelActor";
 import { loadDuelFrames } from "./loadDuelFrames";
 import { interpolateDuelHeelTargets } from "./interpolateDuelHeelTargets";
 import { selectDuelPalmPoint } from "./selectDuelPalmPoint";
@@ -29,10 +33,10 @@ import { solveDuelWandAim } from "./solveDuelWandAim";
 /**
  * Bake and display the actual Human opening through one deterministic 24fps path.
  *
- * @evidence contracts/common.md#implementation-and-ownership Exact adopted25second bytes retain their original source lineage and unchanged cast construction. New canonical forward states use public Human FK/IK, hard real soles/full shoe and skin floor/ROM, fixedXZ/Y-only height preference and actual-root upper goals. Real left-arm surface fits supply redirect/forearm/shoulder events before west escape. Complete bodies and wands must clear before the finite cap restraint releases; the main mass follows its own bearing/ballistic path. Only3small fragments collide with actual shield triangles. Original requests/results and causal failures remain visible and block capture. Seeking/reverse read fixed frames and pure effects; no post-solve smoothing or failed-seed promotion occurs.
- * @evidence contracts/common.md#authoring-interface Browser factory returns scene/camera, asynchronous prepare, fixed24fps seek, inspection/frame records and disposal. Supply enabled end48 or60;60 is invoked only after the48second technical ending is adopted. The accepted25second fixed input has exact bytes and unchanged cast geometry lineage; new states retain their own current source. Guards reject any unadmitted stage or incomplete whole-film capture. Captions are words, not accepted speech. Scene owns all preparation history and effects; seeking reads fixed actor samples and pure effect paths.
+ * @evidence contracts/common.md#implementation-and-ownership Exact25second input keeps its lineage. One clock authors both plans before public rig evaluation; final real sole/floor/ROM, wand and material contact checks decide each frame. Ordinary support uses fixedXZ/rootY. An unresolved ending hold fits actual palm plus unchanged soles through public Grounding, then the same supported body receives one public paired palm/wrist/wand-tip fit. Original proposals remain raw. Final measurements retain distinct grip/wand limits. No guessed route or previous-root accumulation replaces constraints. Whole-body clearance governs release; only3small fragments enter the shield. Failed final records block capture; seek reads fixed data without smoothing.
+ * @evidence contracts/common.md#authoring-interface Browser factory returns scene/camera, asynchronous prepare, fixed24fps seek, inspection/frame records and disposal. Default60 connects the complete action/ending;48 remains an explicit diagnostic interval. The accepted25second fixed input retains exact bytes and historical lineage; new states retain their current source and actual generated surface fingerprints. Whole fixed replay must match those surfaces and effects. Guards reject unresolved or incomplete capture. Captions are words, not accepted speech. Seeking reads fixed actor samples and pure effect paths.
  */
-export function createDuelScene(implementedUntil: 48 | 60 = 48): {
+export function createDuelScene(implementedUntil: 48 | 60 = 60): {
   scene: THREE.Scene;
   camera: THREE.PerspectiveCamera;
   prepare: (onProgress?: (completed: number, total: number) => void) => Promise<void>;
@@ -56,9 +60,10 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
   scene.add(camera);
   const court: ReturnType<typeof createDuelCourt> = createDuelCourt();
   scene.add(court.object);
-  const cap: ReturnType<typeof createDuelCapMotion> = createDuelCapMotion(court.cap, duelEvents.capRelease, court.bearing);
+  const cap: ReturnType<typeof createDuelCapMotion> = createDuelCapMotion(court.cap, duelEvents.capRelease, court.bearing, court.base);
   let fragments: ReturnType<typeof createDuelFragmentMotion> | undefined;
   let shieldAnchor: THREE.Vector3 | undefined;
+  let shieldRaisedAt: number | null = null;
   let capCleared: boolean = false;
   let capDecisionMade: boolean = false;
   let escapeCompletedAt: number | null = null;
@@ -74,6 +79,7 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
   const harryFeet: ReturnType<typeof createDuelFootFitter> = createDuelFootFitter(harry);
   const harryPalm: [number, number, number] = selectDuelPalmPoint(harry.drawing.parts.get("leftHand")!);
   const caption: ReturnType<typeof createDuelCaption> = createDuelCaption(camera);
+  let models: { carina: Awaited<ReturnType<typeof fingerprintDuelActor>>; harry: Awaited<ReturnType<typeof fingerprintDuelActor>> } | undefined;
   const blackGeometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(2, 2);
   const blackMaterial: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, depthTest: false, depthWrite: false });
   const black: THREE.Mesh = new THREE.Mesh(blackGeometry, blackMaterial);
@@ -85,6 +91,7 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
   const heelPlants: Partial<Record<"Carina" | "Harry", { frame: number; vectors: { left: THREE.Vector3; right: THREE.Vector3 } }>> = {};
   const failures: { frame: number; actor: string; support: string; supportError: number; aimError: number; gripError: number; clamps: number }[] = [];
   const causalFailures: { frame: number; reason: string }[] = [];
+  if (!cap.physics.floor.admitted) causalFailures.push({ frame: 0, reason: "The actual cap floor response has unresolved numerical/contact/rest diagnostics" });
   let rescueEntries: Record<"Carina" | "Harry", DuelRescueEntry> | undefined;
   let endingEntries: Record<"Carina" | "Harry", DuelRescueEntry> | undefined;
   let rescueContacts: ReturnType<typeof createDuelRescueContacts> | undefined;
@@ -105,7 +112,7 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
     }
   });
 
-  /** Direct three purposeful views without resetting any continuing actor state. */
+  /** Direct the action views without resetting any continuing actor state. */
   function cameraAt(time: number): void {
     if (time < 3.6) {
       shot = "South approach wide";
@@ -123,19 +130,22 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
       shot = time < duelEvents.retreatStart ? "Continuous held-wrist exchange" : "Retreat and deflected shot";
       const progress: number = Math.min(1, Math.max(0, (time - duelEvents.retreatStart) / (duelEvents.retreatEnd - duelEvents.retreatStart)));
       const eased: number = progress * progress * (3 - 2 * progress);
-      camera.position.set(1.2, 2.5, 5.1).lerp(new THREE.Vector3(-1.6, 3.0, 7.0), eased);
-      camera.lookAt(new THREE.Vector3(-0.2, 1.1, -0.15).lerp(new THREE.Vector3(0.65, 1.5, -1.0), eased));
+      camera.position.set(-1.6, 2.8, 6.8).lerp(new THREE.Vector3(-1.6, 3.0, 7.0), eased);
+      camera.lookAt(new THREE.Vector3(0.2, 1.1, -0.4).lerp(new THREE.Vector3(0.65, 1.5, -1.0), eased));
+    } else if (time < 30.4) {
+      shot = "Carina notices the retained cap";
+      camera.position.set(3.8, 2.4, 5.6);
+      camera.lookAt(0.55, 1.5, -0.9);
     } else if (time < 49.7) {
-      shot = time < 29 ? "Notice the retained cap" : time < 35 ? "Approach and reaching hand" : "Protective contact and west escape";
-      const first: number = THREE.MathUtils.smoothstep(time, 25, 28.8);
-      const second: number = THREE.MathUtils.smoothstep(time, 28.8, 30.4);
-      camera.position.copy(new THREE.Vector3(-1.6, 3, 7).lerp(new THREE.Vector3(-1.0, 2.3, 4.0), first).lerp(new THREE.Vector3(-2.5, 2.9, 5.8), second));
-      camera.lookAt(new THREE.Vector3(0.65, 1.5, -1.0).lerp(new THREE.Vector3(1.1, 1.75, -1.65), first).lerp(new THREE.Vector3(1.0, 1.3, -1.6), second));
+      shot = time < 35 ? "Approach and reaching hand" : "Protective contact and west escape";
+      const widen: number = THREE.MathUtils.smoothstep(time, duelEvents.escapeStart, duelEvents.escapePlanted);
+      camera.position.set(-2.5, 2.9, 5.8).lerp(new THREE.Vector3(-2.7, 3.0, 6.3), widen);
+      camera.lookAt(new THREE.Vector3(1.0, 1.3, -1.6).lerp(new THREE.Vector3(0.75, 1.3, -1.6), widen));
     } else if (time < 55.2) {
       shot = "Held forearm, question and release";
       const close: number = THREE.MathUtils.smoothstep(time, 49.7, 50.3);
-      camera.position.copy(new THREE.Vector3(-2.5, 2.9, 5.8).lerp(new THREE.Vector3(-0.9, 1.9, 2.8), close));
-      camera.lookAt(new THREE.Vector3(1.0, 1.3, -1.6).lerp(new THREE.Vector3(0.6, 1.25, -1.5), close));
+      camera.position.copy(new THREE.Vector3(-2.7, 3.0, 6.3).lerp(new THREE.Vector3(-0.9, 1.9, 2.8), close));
+      camera.lookAt(new THREE.Vector3(0.75, 1.3, -1.6).lerp(new THREE.Vector3(0.6, 1.25, -1.5), close));
     } else if (time < 58.5) {
       shot = "Carina's final challenge";
       const root: THREE.Vector3 = carina.object.position;
@@ -149,13 +159,19 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
     camera.updateMatrixWorld(true);
   }
 
-  /** Fit current support with independent posture preference, then couple the actual hands. */
-  function evaluate(actor: ReturnType<typeof createDuelActor>, feet: ReturnType<typeof createDuelFootFitter>, role: "Carina" | "Harry", time: number, previous?: ActorFrame, previousLower?: ActorFrame): ActorFrame {
-    const reference: { left: THREE.Vector3; right: THREE.Vector3 } = feet.ballReference;
+  /** Author both performers before either one is solved, from the same event snapshot. */
+  function framePlan(time: number, role: "Carina" | "Harry", reference: { left: THREE.Vector3; right: THREE.Vector3 }): { plan: ReturnType<typeof evaluateDuelOpening>; exchange?: ReturnType<typeof evaluateDuelExchange>; rescue?: ReturnType<typeof evaluateDuelRescue>; ending?: ReturnType<typeof evaluateDuelEnding> } {
     const exchange: ReturnType<typeof evaluateDuelExchange> | undefined = time > 9 && time <= 25 ? evaluateDuelExchange(time, role, reference) : undefined;
     const rescue: ReturnType<typeof evaluateDuelRescue> | undefined = time > 25 && time <= 48 ? evaluateDuelRescue(time, role, rescueEntries!, reference, rescueContacts!.meeting, rescueContacts!.events().escapeReady, escapeCompletedAt !== null && time >= escapeCompletedAt, recoveryReadyAt !== null && time >= recoveryReadyAt) : undefined;
+    if (rescue !== undefined && capCleared) rescue.pose = applyDuelImpactReaction(rescue.pose, role, time, [cap.impactSeconds, ...(fragments?.map((fragment: ReturnType<typeof createDuelFragmentMotion>[number]): number => fragment.contact.seconds) ?? [])]);
     const ending: ReturnType<typeof evaluateDuelEnding> | undefined = time > 48 ? evaluateDuelEnding(time, role, endingEntries!, reference) : undefined;
     const plan: ReturnType<typeof evaluateDuelOpening> = ending ?? rescue ?? exchange ?? evaluateDuelOpening(time, role, reference);
+    return { plan, exchange, rescue, ending };
+  }
+
+  /** Fit the already-authored frame through the shared public rig and actual support. */
+  function evaluate(actor: ReturnType<typeof createDuelActor>, feet: ReturnType<typeof createDuelFootFitter>, role: "Carina" | "Harry", time: number, authored: ReturnType<typeof framePlan>, previous?: ActorFrame, previousLower?: ActorFrame): ActorFrame {
+    const { plan, exchange, rescue, ending } = authored;
     actor.object.position.copy(plan.position);
     actor.object.rotation.set(0, plan.yaw, 0);
     let heelTargets: { left: THREE.Vector3; right: THREE.Vector3 } | undefined;
@@ -237,9 +253,8 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
   }
 
   /** Re-measure final left-contact poses without discarding original support/upper results. */
-  function finishContacts(actor: ReturnType<typeof createDuelActor>, feet: ReturnType<typeof createDuelFootFitter>, role: "Carina" | "Harry", time: number, frame: ActorFrame): ActorFrame {
+  function finishContacts(actor: ReturnType<typeof createDuelActor>, feet: ReturnType<typeof createDuelFootFitter>, frame: ActorFrame, plan: ReturnType<typeof evaluateDuelOpening>): ActorFrame {
     actor.pose(frame.pose);
-    const plan: ReturnType<typeof evaluateDuelOpening> = time <= 48 ? evaluateDuelRescue(time, role, rescueEntries!, feet.ballReference, rescueContacts!.meeting, rescueContacts!.events().escapeReady, escapeCompletedAt !== null && time >= escapeCompletedAt, recoveryReadyAt !== null && time >= recoveryReadyAt) : evaluateDuelEnding(time, role, endingEntries!, feet.ballReference);
     const support: AutoMovieHumanGrounding.IResult = feet.inspect(frame.pose, plan.left, plan.right, plan.footMode, plan.yaw, plan.heelTilt, plan.pose, undefined, "fixed-xz");
     const wrist: THREE.Vector3 = actor.point("rightHand");
     const tip: THREE.Vector3 = actor.wandTip();
@@ -305,6 +320,7 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
   /** Prepare the entire implemented interval before ordinary real-time playback. */
   async function bake(onProgress?: (completed: number, total: number) => void): Promise<void> {
     const begun: number = performance.now();
+    models = { carina: await fingerprintDuelActor(carina), harry: await fingerprintDuelActor(harry) };
     const schedule: number[] = [...frameTimes(24, implementedUntil), implementedUntil];
     const prior: { carina?: ActorFrame; harry?: ActorFrame } = {};
     const priorLower: { carina?: ActorFrame; harry?: ActorFrame } = {};
@@ -314,18 +330,23 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
       if (implementedUntil !== 60) throw new Error("Whole fixed playback requires the complete60second performance");
       const sha256: string = query.get("fixedFilmSha") ?? "";
       const loaded: Awaited<ReturnType<typeof loadDuelFrames>> = await loadDuelFrames(fixedFilm, sha256, 60);
+      if (JSON.stringify(loaded.models) !== JSON.stringify(models)) throw new Error("Fixed playback actor surfaces differ from the observed whole-film models");
       if (loaded.observations?.rescue.capCleared !== true) throw new Error("Whole fixed input lacks admitted cap-clearance observations");
       for (let index: number = 0; index < loaded.frames.length; index++) frames.set(index, loaded.frames[index]!);
       prefixSource = loaded.source;
       fixedPlayback = { path: fixedFilm, sha256, durationSeconds: 60 };
-      recordedRescue = loaded.observations.rescue;
       rescueEntries = { Carina: entry(carina, loaded.frames[600]!.carina), Harry: entry(harry, loaded.frames[600]!.harry) };
       endingEntries = { Carina: entry(carina, loaded.frames[1152]!.carina), Harry: entry(harry, loaded.frames[1152]!.harry) };
-      rescueContacts = createDuelRescueContacts({ Carina: carina, Harry: harry }, rescueEntries, { Carina: carinaFeet.ballReference, Harry: harryFeet.ballReference });
-      shieldAnchor = new THREE.Vector3(...loaded.frames[972]!.carina.wandTip);
+      rescueContacts = createDuelRescueContacts({ Carina: carina, Harry: harry }, rescueEntries);
+      const recorded: Record<string, unknown> = loaded.observations.rescue;
+      if (typeof recorded.shieldRaisedAt !== "number" || !Number.isFinite(recorded.shieldRaisedAt) || recorded.shieldRaisedAt !== Math.round(recorded.shieldRaisedAt * 24) / 24 || recorded.shieldRaisedAt < 40 || recorded.shieldRaisedAt > cap.webBreakSeconds) throw new Error("Fixed input lacks its actual shield-anchor frame");
+      shieldRaisedAt = recorded.shieldRaisedAt;
+      shieldAnchor = new THREE.Vector3(...loaded.frames[Math.round(shieldRaisedAt * 24)]!.carina.wandTip);
       court.shield.position.copy(shieldAnchor).sub(new THREE.Vector3(0, 0.9, 0));
       court.shield.updateWorldMatrix(true, false);
       fragments = createDuelFragmentMotion(court.fragments, court.shield, cap.at(cap.impactSeconds).centre, cap.impactSeconds);
+      assertDuelReplayObservations(recorded, { webBreakSeconds: cap.webBreakSeconds, capReleaseSeconds: duelEvents.capRelease, capImpactSeconds: cap.impactSeconds, capSettledSeconds: cap.settledSeconds, capPhysics: cap.physics, shieldRaisedAt, shieldAnchor: shieldAnchor.toArray(), fragments: fragments.map((item: ReturnType<typeof createDuelFragmentMotion>[number]): { contact: { seconds: number; firstIntersectionSeconds: number; centre: number[]; triangle: number }; floorSeconds: number } => ({ contact: { ...item.contact, centre: item.contact.centre.toArray() }, floorSeconds: item.floorSeconds })) });
+      recordedRescue = recorded;
       capCleared = true;
       capDecisionMade = true;
       if (typeof recordedRescue.escapeCompletedAt !== "number" || typeof recordedRescue.recoveryReadyAt !== "number" || !Number.isFinite(recordedRescue.escapeCompletedAt) || !Number.isFinite(recordedRescue.recoveryReadyAt)) throw new Error("Whole fixed input lacks measured escape and recovery events");
@@ -345,21 +366,28 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
     prior.carina = priorLower.carina = preceding.carina;
     prior.harry = priorLower.harry = preceding.harry;
     rescueEntries = { Carina: entry(carina, preceding.carina), Harry: entry(harry, preceding.harry) };
-    rescueContacts = createDuelRescueContacts({ Carina: carina, Harry: harry }, rescueEntries, { Carina: carinaFeet.ballReference, Harry: harryFeet.ballReference });
+    rescueContacts = createDuelRescueContacts({ Carina: carina, Harry: harry }, rescueEntries);
     completed = fixed.frames.length;
     onProgress?.(completed, schedule.length);
     for (let index: number = fixed.frames.length; index < schedule.length; index++) {
       const time: number = schedule[index]!;
-      let frame: { carina: ActorFrame; harry: ActorFrame } = { carina: evaluate(carina, carinaFeet, "Carina", time, prior.carina, priorLower.carina), harry: evaluate(harry, harryFeet, "Harry", time, prior.harry, priorLower.harry) };
-      const ending: ReturnType<typeof evaluateDuelEnding> | undefined = time > 48 ? evaluateDuelEnding(time, "Harry", endingEntries!, harryFeet.ballReference) : undefined;
-      frame = rescueContacts.fit(time, frame, ending === undefined ? undefined : { forearmGrip: ending.forearmGrip }, recoveryReadyAt !== null && time >= recoveryReadyAt);
-      frame.carina = finishContacts(carina, carinaFeet, "Carina", time, frame.carina);
-      frame.harry = finishContacts(harry, harryFeet, "Harry", time, frame.harry);
+      const authored: { carina: ReturnType<typeof framePlan>; harry: ReturnType<typeof framePlan> } = { carina: framePlan(time, "Carina", carinaFeet.ballReference), harry: framePlan(time, "Harry", harryFeet.ballReference) };
+      let frame: { carina: ActorFrame; harry: ActorFrame } = { carina: evaluate(carina, carinaFeet, "Carina", time, authored.carina, prior.carina, priorLower.carina), harry: evaluate(harry, harryFeet, "Harry", time, authored.harry, prior.harry, priorLower.harry) };
+      const contacted: ReturnType<ReturnType<typeof createDuelRescueContacts>["fit"]> = rescueContacts.fit(time, frame, { carina: authored.carina.rescue ?? { redirect: 0, shoulder: 0 }, harry: authored.harry.rescue ?? { reach: 0, forearmGrip: authored.harry.ending!.forearmGrip }, ending: time > 48 });
+      frame = { carina: { ...frame.carina, ...contacted.carina }, harry: { ...frame.harry, ...contacted.harry } };
+      if (authored.harry.ending !== undefined && authored.harry.ending.forearmGrip >= 0.999 && frame.harry.gripError > 0.003) {
+        frame.harry = anchorDuelHeldTurn(harry, harryFeet, frame.harry, authored.harry.ending);
+        frame.harry = { ...frame.harry, ...rescueContacts.refitHeld(frame.harry) };
+      }
+      frame.carina = finishContacts(carina, carinaFeet, frame.carina, authored.carina.plan);
+      frame.harry = finishContacts(harry, harryFeet, frame.harry, authored.harry.plan);
       frames.set(index, frame);
       if (time === 48) endingEntries = { Carina: entry(carina, frame.carina), Harry: entry(harry, frame.harry) };
       if (time >= duelEvents.escapeStart && !rescueContacts.events().escapeReady) causalFailures.push({ frame: index, reason: "West escape has no admitted redirect/forearm/shoulder contact progression" });
-      if (time >= duelEvents.escapePlanted && rescueContacts.events().escapeReady && frame.carina.bodyBounds!.max[0] < 1 && frame.harry.bodyBounds!.max[0] < 1) escapeCompletedAt ??= time;
+      if (time >= duelEvents.escapeStart && time <= duelEvents.escapePlanted && !rescueContacts.events().protectiveContactActive) causalFailures.push({ frame: index, reason: "The escape has no continuing actual shoulder/forearm contact in this frame" });
+      if (time >= duelEvents.escapePlanted && rescueContacts.events().protectiveContactActive && frame.carina.bodyBounds!.max[0] < 1 && frame.harry.bodyBounds!.max[0] < 1) escapeCompletedAt ??= time;
       if (time >= duelEvents.shieldRaised && escapeCompletedAt !== null && shieldAnchor === undefined) {
+        shieldRaisedAt = time;
         shieldAnchor = new THREE.Vector3(...frame.carina.wandTip);
         court.shield.position.copy(shieldAnchor).sub(new THREE.Vector3(0, 0.9, 0));
         court.shield.updateWorldMatrix(true, false);
@@ -368,10 +396,10 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
       }
       if (time >= cap.webBreakSeconds && !capDecisionMade) {
         capDecisionMade = true;
-        capCleared = rescueContacts.events().escapeReady && frame.carina.bodyBounds!.max[0] < 1 && frame.harry.bodyBounds!.max[0] < 1;
+        capCleared = cap.physics.floor.admitted && rescueContacts.events().protectiveContactActive && frame.carina.bodyBounds!.max[0] < 1 && frame.harry.bodyBounds!.max[0] < 1;
         if (!capCleared) causalFailures.push({ frame: index, reason: "Both complete bodies/carried wands have not cleared west ofx1 before the retaining strip breaks" });
       }
-      if (capCleared && fragments !== undefined && time >= cap.impactSeconds && fragments.every((fragment: ReturnType<typeof createDuelFragmentMotion>[number]): boolean => time >= fragment.floorSeconds)) recoveryReadyAt ??= time;
+      if (capCleared && fragments !== undefined && time >= cap.settledSeconds && fragments.every((fragment: ReturnType<typeof createDuelFragmentMotion>[number]): boolean => time >= fragment.floorSeconds)) recoveryReadyAt ??= time;
       if (time === duelEvents.shieldRaised && escapeCompletedAt === null) causalFailures.push({ frame: index, reason: "Shield preparation was not executed because both bodies had not cleared the principal fall strip" });
       if (time === 44.5 && recoveryReadyAt === null) causalFailures.push({ frame: index, reason: "Recovery was not executed because the cap/three-fragment outcome was not admitted" });
       for (const role of ["carina", "harry"] as const) {
@@ -409,10 +437,10 @@ export function createDuelScene(implementedUntil: 48 | 60 = 48): {
       display(Math.round(Math.min(implementedUntil, Math.max(0, seconds)) * 24));
     },
     inspect: (): { prepared: boolean; admitted: boolean; implementedUntil: number; [key: string]: unknown } => ({
-      prepared, admitted: prepared && failures.length === 0 && causalFailures.length === 0, implementedUntil, seconds: currentSeconds,
+      prepared, admitted: prepared && failures.length === 0 && causalFailures.length === 0, implementedUntil, seconds: currentSeconds, models,
       preparation: { completed, total: implementedUntil * 24 + 1, milliseconds: preparationMs, failedStates: failures, causalFailures, lowerCache: "Exact adopted25s fixed input followed by canonical forward preparation. Current XZ fixed/Y-only with hard actual soles/full floor/ROM; height preferred. Contacts retain actual requests and drive escape readiness. Seeking reads fixed samples; complete continuous watching remains unperformed." },
       fixedInputs: [{ ...(fixedPlayback ?? { path: "/motion/exchange-round-eleven.json", sha256: "1830bbf936660f0301848b7ff71acda72c9b588cd8949b9125b76fb1520a5404", durationSeconds: 25 }), source: prefixSource }],
-      rescue: recordedRescue ?? { events: rescueContacts?.events() ?? null, escapeCompletedAt, recoveryReadyAt, capCleared, webBreakSeconds: cap.webBreakSeconds, capReleaseSeconds: duelEvents.capRelease, capImpactSeconds: cap.impactSeconds, shieldAnchor: shieldAnchor?.toArray() ?? null, fragments: fragments?.map((item: ReturnType<typeof createDuelFragmentMotion>[number]): object => ({ contact: { ...item.contact, centre: item.contact.centre.toArray() }, floorSeconds: item.floorSeconds })) ?? null, causalFailures },
+      rescue: recordedRescue ?? { events: rescueContacts?.events() ?? null, escapeCompletedAt, recoveryReadyAt, capCleared, webBreakSeconds: cap.webBreakSeconds, capReleaseSeconds: duelEvents.capRelease, capImpactSeconds: cap.impactSeconds, capSettledSeconds: cap.settledSeconds, capPhysics: cap.physics, shieldRaisedAt, shieldAnchor: shieldAnchor?.toArray() ?? null, fragments: fragments?.map((item: ReturnType<typeof createDuelFragmentMotion>[number]): object => ({ contact: { ...item.contact, centre: item.contact.centre.toArray() }, floorSeconds: item.floorSeconds })) ?? null, causalFailures },
       camera: { shot, position: camera.position.toArray(), quaternion: camera.quaternion.toArray(), fov: camera.fov, aspect: camera.aspect },
       actors: currentFrame === null ? null : { Carina: { support: currentFrame.carina.supportStatus, reason: currentFrame.carina.supportSolve.reason, activeBounds: currentFrame.carina.supportSolve.activeBounds, root: currentFrame.carina.root, error: currentFrame.carina.supportError, floorMinimum: currentFrame.carina.floorMinimum, heelMinimum: currentFrame.carina.heelMinimum, aimError: currentFrame.carina.aimError, wandTip: currentFrame.carina.wandTip, wrist: currentFrame.carina.wrist, requestedWrist: currentFrame.carina.requestedWrist }, Harry: { support: currentFrame.harry.supportStatus, reason: currentFrame.harry.supportSolve.reason, activeBounds: currentFrame.harry.supportSolve.activeBounds, root: currentFrame.harry.root, error: currentFrame.harry.supportError, floorMinimum: currentFrame.harry.floorMinimum, heelMinimum: currentFrame.harry.heelMinimum, aimError: currentFrame.harry.aimError, gripError: currentFrame.harry.gripError, wandTip: currentFrame.harry.wandTip, palm: currentFrame.harry.palm, gripTarget: currentFrame.harry.gripTarget } },
       sound: "Unaccepted; screenplay dialogue captions only",

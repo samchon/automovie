@@ -3,6 +3,7 @@ import * as THREE from "three";
 
 import type { createDuelActor } from "./createDuelActor";
 import { createDuelGrounding } from "./createDuelGrounding";
+import type { DuelContactPoint } from "./DuelContactPoint";
 
 /** An emitted sole vertex and its neutral evaluator-frame position. */
 interface Witness {
@@ -12,21 +13,27 @@ interface Witness {
 
 /** Exact solver arguments and the separately authored body placement. */
 interface FittedSupport extends AutoMovieHumanGrounding.IResult {
-  input: { authored: IAutoMovieHumanPose; seed: IAutoMovieHumanPose; seedKind: "authored-analytic" | "admitted-leg-continuation" | "current-ankle-analytic"; predictor: "initial-oriented" | "selective-positional" | "planned-ankle"; root: AutoMovieHumanGrounding.IRoot; request: AutoMovieHumanGrounding.IRequest };
+  input: { authored: IAutoMovieHumanPose; seed: IAutoMovieHumanPose; seedKind: "authored-analytic" | "admitted-leg-continuation" | "current-ankle-analytic" | "held-contact"; predictor: "initial-oriented" | "selective-positional" | "planned-ankle" | "world-contact-root"; root: AutoMovieHumanGrounding.IRoot; request: AutoMovieHumanGrounding.IRequest };
   bodyPlan: { root: [number, number, number]; hip: [number, number, number]; ankles?: Record<"left" | "right", [number, number, number]>; horizontalReachFeasible: boolean };
   preparation: { totalIterations: number; passes: { seed: IAutoMovieHumanPose; root: AutoMovieHumanGrounding.IRoot; result: Omit<AutoMovieHumanGrounding.IResult, "output"> }[] };
+}
+
+/** Contact-derived root proposal and its actual supported public result. */
+interface AnchoredSupport extends FittedSupport {
+  anchor: { rootBefore: AutoMovieHumanGrounding.IRoot; achieved: [number, number, number]; target: [number, number, number]; delta: [number, number, number] };
 }
 
 /**
  * Fit one coherent sole, ankle orientation and body-height plan through public Human.
  *
- * @evidence contracts/common.md#implementation-and-ownership Actual sole paths, full Human/shoe floor and clinical ROM remain hard. Fixed-xz placement owns horizontal location and permits only vertical root correction; hips height is an authored soft goal, not a canonical3mm gate. Its public planar leg seed uses the same planned ankle points as the body-height plan, rather than translating a posed sole then discarding its foot orientation. Admitted prior knees supply soft continuity only. Opening's hard-hips/continuation policy is preserved. One16-update fit retains raw inputs/results; no failed seed, previous-root accumulation or post-solve smoothing is promoted. All actual heights, poses and temporal changes still require inspection.
- * @evidence contracts/common.md#authoring-interface Supply world front goals, heading, authored pose, optional admitted predecessor, optional actual settling heel points and explicit placement policy. Default hard-hips preserves opening behavior; fixed-xz keeps authored horizontal placement while preferring body height. Ball/lowest require planted endpoints; rolling/transfer keep front paths hard and heel direction soft. Settling uses actual rigid lines for ankle/body planning. supportHeight and ankle seeds are proposals, not admission. Only canonical forward preparation owns history; inspect uses identical goals and actual resulting root. Recreate for changed geometry.
+ * @evidence contracts/common.md#implementation-and-ownership Actual sole paths, full Human/shoe floor and ROM remain hard. Ordinary fixed-xz fitting permits rootY and soft hips height; authored ankle seeds and admitted knee continuity retain their separate roles. The explicit ending anchor instead derives rootXYZ from actual target-minus-achieved palm, fixes that upper pose and constrains the same palm plus unchanged foot targets in one public Grounding request. The palm fixes absolute body placement, preventing unconstrained XYZ drift. Each distinct fit retains its own16-update request/result. No route constant, failed outgoing continuation or pose smoothing is promoted.
+ * @evidence contracts/common.md#authoring-interface Ordinary fit/inspect consume world feet, heading, authored pose, optional admitted predecessor and actual settling heels. Anchor consumes the current bounded pose, original support request, real carrier-local hand point and world target. It proposes rootBefore+target-minus-achieved exactly once; the public solver must restore the original foot/floor/ROM constraints. Returned original body plan is the reserved foot plan, separately from the contact-derived input root. The scene rechecks final contact/wand at the resulting root. Only canonical forward preparation owns history; changed geometry requires a new fitter.
  */
 export function createDuelFootFitter(actor: ReturnType<typeof createDuelActor>): {
   reference: { left: THREE.Vector3; right: THREE.Vector3 };
   ballReference: { left: THREE.Vector3; right: THREE.Vector3 };
   fit: (seed: IAutoMovieHumanPose, left: THREE.Vector3, right: THREE.Vector3, mode?: "ball" | "lowest" | "rolling" | "transfer" | "settling", heading?: number, heelTilt?: number, continuation?: IAutoMovieHumanPose, heelTargets?: { left: THREE.Vector3; right: THREE.Vector3 }, placement?: "hard-hips" | "fixed-xz") => FittedSupport;
+  anchor: (pose: IAutoMovieHumanPose, prior: Omit<FittedSupport, "output">, point: DuelContactPoint, target: THREE.Vector3) => AnchoredSupport;
   inspect: (pose: IAutoMovieHumanPose, left: THREE.Vector3, right: THREE.Vector3, mode?: "ball" | "lowest" | "rolling" | "transfer" | "settling", heading?: number, heelTilt?: number, authored?: IAutoMovieHumanPose, heelTargets?: { left: THREE.Vector3; right: THREE.Vector3 }, placement?: "hard-hips" | "fixed-xz") => AutoMovieHumanGrounding.IResult;
   heelVectors: (output: Pick<AutoMovieHumanSkeleton.IOutput, "posed">, heading: number) => { left: THREE.Vector3; right: THREE.Vector3 };
   flatHeelVectors: (heading: number) => { left: THREE.Vector3; right: THREE.Vector3 };
@@ -154,6 +161,24 @@ export function createDuelFootFitter(actor: ReturnType<typeof createDuelActor>):
       const { output: _firstOutput, ...first } = result;
       const preparation: FittedSupport["preparation"] = { totalIterations: result.iterations, passes: [structuredClone({ seed: prepared, root: goals.root, result: first })] };
       return { ...result, input, bodyPlan: goals.bodyPlan, preparation };
+    },
+    anchor: (pose: IAutoMovieHumanPose, prior: Omit<FittedSupport, "output">, point: DuelContactPoint, target: THREE.Vector3): AnchoredSupport => {
+      actor.object.updateWorldMatrix(true, true);
+      const carrier: THREE.Group | undefined = actor.drawing.bones.get(point.bone);
+      if (carrier === undefined) throw new Error("Held-body anchor requires the actual registered carrier");
+      const achieved: THREE.Vector3 = carrier.localToWorld(new THREE.Vector3(...point.localPoint));
+      const delta: THREE.Vector3 = target.clone().sub(achieved);
+      const rootBefore: AutoMovieHumanGrounding.IRoot = root();
+      const proposed: AutoMovieHumanGrounding.IRoot = structuredClone(rootBefore);
+      proposed.translation = [rootBefore.translation[0] + delta.x, rootBefore.translation[1] + delta.y, rootBefore.translation[2] + delta.z];
+      // The fixed upper pose makes the hard palm constrain all three root
+      // translations. The original planted/swing witnesses and full floor
+      // stay unchanged; public leg controls restore them at that placement.
+      const request: AutoMovieHumanGrounding.IRequest = { ...structuredClone(prior.input.request), targets: [...structuredClone(prior.input.request.targets), { ...point, position: [target.x, target.y, target.z] }], rootAxes: ["x", "y", "z"] };
+      const seed: IAutoMovieHumanPose = structuredClone(pose);
+      const result: AutoMovieHumanGrounding.IResult = grounding.solve(seed, proposed, request);
+      const { output: _output, ...raw } = result;
+      return { ...result, input: { authored: structuredClone(prior.input.authored), seed, seedKind: "held-contact", predictor: "world-contact-root", root: proposed, request }, bodyPlan: structuredClone(prior.bodyPlan), preparation: { totalIterations: result.iterations, passes: [{ seed: structuredClone(seed), root: structuredClone(proposed), result: raw }] }, anchor: { rootBefore, achieved: achieved.toArray(), target: target.toArray(), delta: delta.toArray() } };
     },
     inspect: (pose: IAutoMovieHumanPose, left: THREE.Vector3, right: THREE.Vector3, mode: "ball" | "lowest" | "rolling" | "transfer" | "settling" = "lowest", heading: number = 0, heelTilt: number = 0, authored: IAutoMovieHumanPose = {}, heelTargets?: { left: THREE.Vector3; right: THREE.Vector3 }, placement: "hard-hips" | "fixed-xz" = "hard-hips"): AutoMovieHumanGrounding.IResult => {
       const goals: ReturnType<typeof plan> = plan(authored, left, right, mode, heading, heelTilt, heelTargets, placement);

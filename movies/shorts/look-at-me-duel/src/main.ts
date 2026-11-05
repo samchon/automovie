@@ -20,7 +20,7 @@ canvas.height = height;
 canvas.style.width = `${width}px`;
 canvas.style.height = `${height}px`;
 clock.value = "Preparing Human actors";
-const performanceEnd: number = Number(query.get("performanceEnd") ?? 48);
+const performanceEnd: number = Number(query.get("performanceEnd") ?? 60);
 if (performanceEnd !== 48 && performanceEnd !== 60) throw new Error("Explicit supported performance end required");
 const production: ReturnType<typeof createProduction> = createProduction(performanceEnd);
 const implementedUntil: number = production.inspect().implementedUntil;

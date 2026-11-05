@@ -9,6 +9,8 @@ import { createDuelFootFitter } from "../../../src/createDuelFootFitter";
 import { createDuelGrounding } from "../../../src/createDuelGrounding";
 import { evaluateDuelExchange } from "../../../src/evaluateDuelExchange";
 import { evaluateDuelOpening } from "../../../src/evaluateDuelOpening";
+import { fitDuelHeldWand } from "../../../src/fitDuelHeldWand";
+import type { DuelContactPoint } from "../../../src/DuelContactPoint";
 import { selectDuelPalmPoint } from "../../../src/selectDuelPalmPoint";
 import { solveDuelArmContact } from "../../../src/solveDuelArmContact";
 import { solveDuelWandAim } from "../../../src/solveDuelWandAim";
@@ -27,9 +29,14 @@ interface RollingBranchInputs {
   cases: { role: "Carina" | "Harry"; frame: number; previousFrame: number; legs: IAutoMovieHumanPose["legs"] }[];
 }
 
+/** Actual final body inputs behind both whole3 wand failures, not a cross-host FK oracle. */
+interface HeldWandInputs {
+  cases: { frame: number; root: [number, number, number]; yaw: number; pose: IAutoMovieHumanPose; palm: DuelContactPoint; forearm: [number, number, number]; wrist: [number, number, number]; aim: [number, number, number]; supportRequest: AutoMovieHumanGrounding.IRequest }[];
+}
+
 /**
  * @evidence contracts/testing.md#observable-behavior Both actual1700-female and1780-male bodies test wand binding, wrist triangles, palm IK, closed toes, full-foot floor refusal and opening hard-hips recovery. Observed turns and54→55 exercise actual support. Opening continuation preserves twist/ankle/foot; exchange uses planned-ankle seeds, hard actual front paths, fixedXZ and soft body height. All16 historical incoming-leg cases exercise current goals. The retired exact-height/heel-direction gates are not screenplay requirements; floor/ROM/tolerances remain. Raised-wand input retains its actual budget. No full-film approval is inferred.
- * @evidence contracts/testing.md#independent-cases The commissioned wand is0.30m; three arm poses expose double transforms and a fresh neutral evaluation checks seeking. Independent public FK supplies a reachable actual palm target within3mm. Actual closed triangles/ray parity inspect every sampled toe; containment failures accumulate without skipping floor-negative, recovery or actual observed turn regression cases, and both casts are attempted. Carina frame379 and Harry312/400 exercise source goal integration with real feet/hips/floor rather than assert a preferred angle as success. Attachment tolerance is1e-8m; nonfinite targets refuse.
+ * @evidence contracts/testing.md#independent-cases A0.30m wand and three arm poses expose double transforms; fresh neutral FK checks reset. Independent FK supplies a real palm target. A direct10mm root shift must lose reserved feet, while public anchor fitting must meet the hand/unchanged feet and full floor. Both actual whole3 ending inputs additionally fit palm/wrist/tip together, then independently measure all three real points, unchanged legs and original support/full floor. Their historical browser residuals are provenance, not an exact Node-FK oracle. Existing toe, negative-floor, turn/continuation and raised-wand cases remain. No preferred angle is physical success; nonfinite targets refuse.
  */
 export function test_actor_binding(): void {
   const failures: string[] = [];
@@ -116,6 +123,37 @@ function inspectActor(height: number, sex: AutoMovieHumanSex): void {
       actor.pose(recovered.pose);
       assert.equal(feet.inspect(recovered.pose, left, right, "lowest", 0, 0, { legs: { left: { knee: { flexion: 5 } }, right: { knee: { flexion: 5 } } } }).status, "admitted");
     } catch (error: unknown) { footwearFailures.push(`Physical ready recovery: ${String(error)}`); }
+    try {
+      const anchorLeft: THREE.Vector3 = feet.ballReference.left.clone();
+      const anchorRight: THREE.Vector3 = feet.ballReference.right.clone();
+      anchorLeft.y = anchorRight.y = 0;
+      actor.object.rotation.set(0, 0, 0);
+      const seed: IAutoMovieHumanPose = { legs: { left: { knee: { flexion: 20 } }, right: { knee: { flexion: 20 } } }, arms: { left: { shoulder: { flexion: 35 }, elbow: { flexion: 50 } }, right: {} } };
+      const base: ReturnType<typeof feet.fit> = feet.fit(seed, anchorLeft, anchorRight, "ball", 0, 0, undefined, undefined, "fixed-xz");
+      assert.equal(base.status, "admitted");
+      actor.object.position.set(...base.root.translation);
+      actor.drawing.setPose(base.output);
+      const before: THREE.Vector3 = actor.drawing.bones.get("leftHand")!.localToWorld(new THREE.Vector3(...palm));
+      const wanted: THREE.Vector3 = before.clone().add(new THREE.Vector3(0.008, 0, -0.006));
+      assert.ok(before.distanceTo(wanted) > 0.003);
+      const directRoot: AutoMovieHumanGrounding.IRoot = structuredClone(base.root);
+      directRoot.translation[0] += 0.008; directRoot.translation[2] -= 0.006;
+      assert.equal(clothed.solve.inspect(base.pose, directRoot, { ...base.input.request, channels: [], rootAxes: [] }).status, "unresolved", "A direct body translation alone loses the planted anchors");
+      const originalTargets: string = JSON.stringify(base.input.request.targets);
+      const held: ReturnType<typeof feet.anchor> = feet.anchor(base.pose, base, { bone: "leftHand", localPoint: palm }, wanted);
+      assert.equal(held.status, "admitted", `${held.reason}/${held.error}`);
+      assert.deepEqual(held.pose.arms, base.pose.arms, "Body placement cannot replace fixed upper controls with a proxy hand");
+      assert.equal(JSON.stringify(base.input.request.targets), originalTargets);
+      assert.deepEqual(held.input.request.targets.slice(0, base.input.request.targets.length), base.input.request.targets);
+      actor.object.position.set(...held.root.translation);
+      actor.object.quaternion.set(...held.root.rotation);
+      actor.drawing.setPose(held.output);
+      assert.ok(actor.drawing.bones.get("leftHand")!.localToWorld(new THREE.Vector3(...palm)).distanceTo(wanted) <= 0.003);
+      assert.equal(feet.inspect(held.pose, anchorLeft, anchorRight, "ball", 0, 0, seed, undefined, "fixed-xz").status, "admitted");
+      let actualFloor: number = Infinity;
+      for (const point of clothed.points) actualFloor = Math.min(actualFloor, actor.drawing.bones.get(point.bone)!.localToWorld(new THREE.Vector3(...point.localPoint)).y);
+      assert.ok(actualFloor >= -0.00001, "Every actual Human/shoe floor point remains supported after the held-body solve");
+    } catch (error: unknown) { footwearFailures.push(`Coupled held-body support: ${String(error)}`); }
     const lifted: THREE.Vector3 = left.clone();
     lifted.y = 0.04;
     const swing: ReturnType<typeof feet.fit> = feet.fit({ legs: { left: { knee: { flexion: 5 } }, right: { knee: { flexion: 5 } } } }, lifted, right);
@@ -184,6 +222,33 @@ function inspectActor(height: number, sex: AutoMovieHumanSex): void {
       } catch (error: unknown) { footwearFailures.push(`Rolling branch input: ${String(error)}`); }
     }
     if (sex === AutoMovieHumanSex.Male) {
+      const heldInputs: HeldWandInputs = JSON.parse(readFileSync(new URL("../../fixtures/held-turn-wand-inputs.json", import.meta.url), "utf8")) as HeldWandInputs;
+      for (const recorded of heldInputs.cases) {
+        try {
+          actor.object.position.set(...recorded.root);
+          actor.object.rotation.set(0, recorded.yaw, 0);
+          actor.pose(recorded.pose);
+          const fitted: ReturnType<typeof fitDuelHeldWand> = fitDuelHeldWand(actor, recorded.pose, recorded.palm, new THREE.Vector3(...recorded.forearm), new THREE.Vector3(...recorded.wrist), new THREE.Vector3(...recorded.aim));
+          actor.drawing.setPose(fitted.result.output);
+          assert.equal(fitted.input.request.targets.length, 3);
+          assert.equal(fitted.input.request.channels!.length, 12, "Paired arm ownership respects the actual public solver budget");
+          assert.equal(fitted.result.preparation.passes.length, 1);
+          assert.deepEqual(fitted.result.pose.legs, recorded.pose.legs);
+          for (const side of ["left", "right"] as const) {
+            assert.deepEqual(fitted.result.pose.arms?.[side].shoulderGirdle, recorded.pose.arms?.[side].shoulderGirdle);
+            assert.deepEqual(fitted.result.pose.arms?.[side].forearm, recorded.pose.arms?.[side].forearm);
+          }
+          assert.equal(fitted.result.output.clamped.length, 0);
+          const actualPalm: THREE.Vector3 = actor.drawing.bones.get(recorded.palm.bone)!.localToWorld(new THREE.Vector3(...recorded.palm.localPoint));
+          assert.ok(actualPalm.distanceTo(new THREE.Vector3(...recorded.forearm)) <= 0.003, `Held forearm frame${recorded.frame}`);
+          assert.ok(actor.point("rightHand").distanceTo(new THREE.Vector3(...recorded.wrist)) <= 0.002, `Right wrist frame${recorded.frame}`);
+          const tip: THREE.Vector3 = new THREE.Vector3(...recorded.wrist).add(new THREE.Vector3(...recorded.aim).sub(new THREE.Vector3(...recorded.wrist)).normalize().multiplyScalar(0.30));
+          assert.ok(actor.wandTip().distanceTo(tip) <= 0.002, `Carried tip frame${recorded.frame}`);
+          const rotation: THREE.Quaternion = actor.object.getWorldQuaternion(new THREE.Quaternion());
+          const inspected: AutoMovieHumanGrounding.IResult = clothed.solve.inspect(fitted.result.pose, { translation: [...recorded.root], rotation: rotation.toArray() }, { ...recorded.supportRequest, channels: [], rootAxes: [] });
+          assert.equal(inspected.status, "admitted", `Original soles, actual hold and full floor frame${recorded.frame}`);
+        } catch (error: unknown) { footwearFailures.push(`Final paired hands: ${String(error)}`); }
+      }
       const first: ReturnType<typeof evaluateDuelOpening> = evaluateDuelOpening(54 / 24, "Harry", feet.ballReference);
       const next: ReturnType<typeof evaluateDuelOpening> = evaluateDuelOpening(55 / 24, "Harry", feet.ballReference);
       actor.object.rotation.set(0, first.yaw, 0);

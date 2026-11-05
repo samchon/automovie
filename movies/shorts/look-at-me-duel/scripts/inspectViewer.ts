@@ -46,6 +46,7 @@ interface Inspection {
   actors: unknown;
   fixedInputs?: unknown;
   rescue?: unknown;
+  models?: unknown;
 }
 
 /** Hash every actual file in one owned source tree, retaining relative paths. */
@@ -74,7 +75,7 @@ export async function inspectViewer(): Promise<void> {
   const relative: string = path.relative(productionRoot, output);
   if (relative.startsWith("..") || path.isAbsolute(relative)) throw new Error("Inspection output must stay in this production");
   await fs.mkdir(output, { recursive: true });
-  const before: object = { production: await sourceHashes(path.join(productionRoot, "src")), human: await sourceHashes(fileURLToPath(new URL("../../../../packages/human/src/", import.meta.url))) };
+  const before: object = { production: await sourceHashes(path.join(productionRoot, "src")), human: await sourceHashes(fileURLToPath(new URL("../../../../packages/human/src/", import.meta.url))), engine: await sourceHashes(fileURLToPath(new URL("../../../../packages/engine/src/", import.meta.url))), viewer: await sourceHashes(fileURLToPath(new URL("../../../../packages/viewer/src/", import.meta.url))) };
   await fs.writeFile(path.join(output, "source-before.json"), JSON.stringify(before, null, 2));
   const url: string = process.argv[2] ?? "http://127.0.0.1:5183/";
   const hold: boolean = process.argv[4] === "--hold";
@@ -135,7 +136,7 @@ export async function inspectViewer(): Promise<void> {
       const playback: Awaited<ReturnType<typeof fs.open>> = await fs.open(bakePath, "w");
       const originals: Awaited<ReturnType<typeof fs.open>> = await fs.open(rawPath, "w");
       try {
-        const header: string = JSON.stringify({ format: "look-at-me-duel-motion-bake-v2", fps: 24, durationSeconds: inspection.implementedUntil, admitted: inspection.admitted, source: before, observedViewerUrl: url, fixedInputs: inspection.fixedInputs ?? [], observations: { rescue: inspection.rescue ?? null } });
+        const header: string = JSON.stringify({ format: "look-at-me-duel-motion-bake-v2", fps: 24, durationSeconds: inspection.implementedUntil, admitted: inspection.admitted, source: before, models: inspection.models, observedViewerUrl: url, fixedInputs: inspection.fixedInputs ?? [], observations: { rescue: inspection.rescue ?? null } });
         await playback.writeFile(header.slice(0, -1) + ',"frames":[');
         for (let index: number = 0; index <= count; index++) {
           const original: Record<string, Record<string, unknown>> = await page.evaluate((frame: number): Record<string, Record<string, unknown>> => {
@@ -234,7 +235,7 @@ export async function inspectViewer(): Promise<void> {
     failure = error instanceof Error ? error.stack ?? error.message : String(error);
     throw error;
   } finally {
-    const after: object = { production: await sourceHashes(path.join(productionRoot, "src")), human: await sourceHashes(fileURLToPath(new URL("../../../../packages/human/src/", import.meta.url))) };
+    const after: object = { production: await sourceHashes(path.join(productionRoot, "src")), human: await sourceHashes(fileURLToPath(new URL("../../../../packages/human/src/", import.meta.url))), engine: await sourceHashes(fileURLToPath(new URL("../../../../packages/engine/src/", import.meta.url))), viewer: await sourceHashes(fileURLToPath(new URL("../../../../packages/viewer/src/", import.meta.url))) };
     await fs.writeFile(path.join(output, "source-after.json"), JSON.stringify(after, null, 2));
     await fs.writeFile(path.join(output, "outcome.json"), JSON.stringify({ sourceUnchanged: JSON.stringify(before) === JSON.stringify(after), failure, inspection, errors, warnings, observationFailures, url }, null, 2));
     await browser.close();

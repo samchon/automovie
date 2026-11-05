@@ -9,6 +9,7 @@ import * as THREE from "three";
 export function createDuelCourt(): {
   object: THREE.Group;
   cap: THREE.Group;
+  base: THREE.Mesh;
   bearing: THREE.Mesh;
   upright: THREE.Mesh;
   lowerJoint: THREE.Mesh;
@@ -42,7 +43,7 @@ export function createDuelCourt(): {
   solid("bare ground", [16, 0.08, 14], [0, -0.13, 0], 0x887763);
   solid("stone court", [8, 0.10, 6], [0, -0.05, 0], 0x969b96);
   solid("low north boundary", [8, 0.45, 0.15], [0, 0.225, -3.075], 0x78817a);
-  solid("support base", [1, 0.12, 1], [1.7, 0.06, -2.3], 0x68736b);
+  const base: THREE.Mesh = solid("support base", [1, 0.12, 1], [1.7, 0.06, -2.3], 0x68736b);
   const upright: THREE.Mesh = solid("standing upright", [0.6, 2.88, 0.5], [1.7, 1.56, -2.55], 0x768079);
   const bearing: THREE.Mesh = solid("rear bearing ledge", [0.8, 0.08, 0.10], [1.7, 2.66, -2.30], 0x818a82);
   const cap: THREE.Group = new THREE.Group();
@@ -87,7 +88,7 @@ export function createDuelCourt(): {
   geometries.push(dustGeometry);
   materials.push(dustMaterial);
   return {
-    object, cap, bearing, upright, lowerJoint, upperJoint, chips, grit, fragments, dust, shield,
+    object, cap, base, bearing, upright, lowerJoint, upperJoint, chips, grit, fragments, dust, shield,
     dispose: (): void => {
       object.removeFromParent();
       object.clear();

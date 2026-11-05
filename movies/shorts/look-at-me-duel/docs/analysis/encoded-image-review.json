@@ -1,0 +1,1467 @@
+{
+  "phase": "Final artifact images first; diagnostics/lineage/handoff detail deferred until this response lock",
+  "readAt": "2026-11-05T11:21:12.687Z",
+  "method": "Every original supplied decoded PNG individually displayed through view_image at native720x1280; no Viewer substitution or contact sheet",
+  "film": {
+    "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/film.mp4",
+    "sha256": "8bbb36496e1c276a8f3571baa2011797b655074dcfecaeed0d90aa81a2ac72c3"
+  },
+  "stride": [
+    {
+      "frame": 0,
+      "seconds": 0,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0000.png",
+      "sha256": "7e0e3c4de68eac002ea6a4ecd557283861be584efa22849f32ce5887580575f5",
+      "read": true,
+      "observation": "Shared court, two uniformed figures, intact support, wands and full feet."
+    },
+    {
+      "frame": 20,
+      "seconds": 0.8333333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0001.png",
+      "sha256": "edbc8a6f170d58d509a1bc3a7b23d210c58331d3f4814c5f131aacaf27b223a4",
+      "read": true,
+      "observation": "Harry bends and takes a short preparatory step."
+    },
+    {
+      "frame": 40,
+      "seconds": 1.6666666666666667,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0002.png",
+      "sha256": "8284f7f30645583b31a26d7ab530976a1e2c6eddcd87365544361e44ffd48833",
+      "read": true,
+      "observation": "Harry continues a short bent-knee step."
+    },
+    {
+      "frame": 60,
+      "seconds": 2.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0003.png",
+      "sha256": "100591b94110a643b1b60f1bd78c6007b5c29024ee9b3bc42392d0ac328bce3f",
+      "read": true,
+      "observation": "Harry straightens in preparation."
+    },
+    {
+      "frame": 80,
+      "seconds": 3.3333333333333335,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0004.png",
+      "sha256": "ec2e8fbcc765927265d96310deb073d3d562e9d8b56ee5f224c77a7103979e81",
+      "read": true,
+      "observation": "Harry finishes preparatory placement."
+    },
+    {
+      "frame": 100,
+      "seconds": 4.166666666666667,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0005.png",
+      "sha256": "b4bd586baed8cc8aa0ebbc5dac8e31b21550ef32865b4c240862ec99c37d7e2c",
+      "read": true,
+      "observation": "Closer Harry view behind Carina; glasses and tie readable."
+    },
+    {
+      "frame": 120,
+      "seconds": 5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0006.png",
+      "sha256": "642054322c79f69caab3d412b48a26b035e3242c65ebbfbe8924ca551e6fd00b",
+      "read": true,
+      "observation": "Ready? caption; Harry raises wand."
+    },
+    {
+      "frame": 140,
+      "seconds": 5.833333333333333,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0007.png",
+      "sha256": "257e642f5ab4f46e3564f147b562f4e5cdaedb02ef6c8b8157ab9fee1d45b78d",
+      "read": true,
+      "observation": "Harry holds guard after caption."
+    },
+    {
+      "frame": 160,
+      "seconds": 6.666666666666667,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0008.png",
+      "sha256": "0720bd69e4a53455d14dbc3ace692a801270206389290fb586b620ddf24b8b29",
+      "read": true,
+      "observation": "Carina side view, full body and wand forward."
+    },
+    {
+      "frame": 180,
+      "seconds": 7.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0009.png",
+      "sha256": "a3adeecae9fd539049e424c858d8f7df1687e2b7ddb48b22049d260556550799",
+      "read": true,
+      "observation": "Are you? caption on Carina."
+    },
+    {
+      "frame": 200,
+      "seconds": 8.333333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0010.png",
+      "sha256": "dda10f356f0c495dfae66a0f28e78817827a486f0415f2734196e22c9ed0aefd",
+      "read": true,
+      "observation": "Carina challenge caption held."
+    },
+    {
+      "frame": 220,
+      "seconds": 9.166666666666666,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0011.png",
+      "sha256": "d18b2ae57ed8e902b7c8c5c3835861c118c936790f1d32914001cd1180a39017",
+      "read": true,
+      "observation": "Shared wide; Harry begins approach."
+    },
+    {
+      "frame": 240,
+      "seconds": 10,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0012.png",
+      "sha256": "fb52f8d7752f5a69d8b4c1066548eabf5a0e0033a4c5a25aa045c598c9db654f",
+      "read": true,
+      "observation": "Harry closes distance with alternating feet."
+    },
+    {
+      "frame": 260,
+      "seconds": 10.833333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0013.png",
+      "sha256": "b5eeff7d90aed0e04e9e96d51c3eecb0e3ece1a5a5c545737ccf4bbfb8ac5846",
+      "read": true,
+      "observation": "Harry enters close wand range."
+    },
+    {
+      "frame": 280,
+      "seconds": 11.666666666666666,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0014.png",
+      "sha256": "a1534282524b1cc45174dd58cc06c20df48ad131a466af0fc039d74a44fa87fc",
+      "read": true,
+      "observation": "Close figures; Carina wand arm rising."
+    },
+    {
+      "frame": 300,
+      "seconds": 12.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0015.png",
+      "sha256": "fb315872e8b85369f09ac7f9e0fccb5dff01f48872cace6f8bf5cfc0e6e1266f",
+      "read": true,
+      "observation": "Raised hands meet above; underturn starts."
+    },
+    {
+      "frame": 320,
+      "seconds": 13.333333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0016.png",
+      "sha256": "a8561cca75d024115e3be3265ab0c624fa1e27db162f99ba30cedebd758cadc1",
+      "read": true,
+      "observation": "Carina turns under raised arms; feet visible."
+    },
+    {
+      "frame": 340,
+      "seconds": 14.166666666666666,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0017.png",
+      "sha256": "f1adc4792388f42d07b4728c24429be7e01a8cf40ae34e90ddc224aac86dfae4",
+      "read": true,
+      "observation": "Rotation continues with projected shoe overlap."
+    },
+    {
+      "frame": 360,
+      "seconds": 15,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0018.png",
+      "sha256": "415652bbe603fe9e95bdd102e42ff0b054e41a1b1d38f4f189ae1093b2432bc2",
+      "read": true,
+      "observation": "Harry free hand withdraws as Carina arm stays raised."
+    },
+    {
+      "frame": 380,
+      "seconds": 15.833333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0019.png",
+      "sha256": "2d21df9425d537bccad0bff4ba5a420423d8ed23babe1477235eccde21f6c574",
+      "read": true,
+      "observation": "Carina comes facing again with bent knees."
+    },
+    {
+      "frame": 400,
+      "seconds": 16.666666666666668,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0020.png",
+      "sha256": "8873b812ed0f610100716270906dab065a9a0ff0f0d16e0ac88bf008e64eec33",
+      "read": true,
+      "observation": "Both face; Carina wand lowers and Harry free hand is low."
+    },
+    {
+      "frame": 420,
+      "seconds": 17.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0021.png",
+      "sha256": "1ca417c8069e2899a069cd58a052f49b29792e91f594746d156b2307b319fe50",
+      "read": true,
+      "observation": "Carina settles; Harry prepares retreat."
+    },
+    {
+      "frame": 440,
+      "seconds": 18.333333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0022.png",
+      "sha256": "4cc1b899a9ba6fdbc4d5ad3db8328d34e03fde1ddd26c36fb0ee6d6aafbf0996",
+      "read": true,
+      "observation": "Harry retreats diagonally, opening separation."
+    },
+    {
+      "frame": 460,
+      "seconds": 19.166666666666668,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0023.png",
+      "sha256": "a09e5a9c67f9cba786982413065405a8b806a5543a1f5ae2726fb9b8a3d4e086",
+      "read": true,
+      "observation": "Retreat continues with both full bodies."
+    },
+    {
+      "frame": 480,
+      "seconds": 20,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0024.png",
+      "sha256": "3d73fd74984b219ba871ae89d67191a911f4c1463f08be06fc71538ca30a8ac4",
+      "read": true,
+      "observation": "Harry retreats near support; feet visible."
+    },
+    {
+      "frame": 500,
+      "seconds": 20.833333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0025.png",
+      "sha256": "4d3ae9dfbabbcaeddcab9e71774217061c8afcc231cf7b73b00b27ccfa2c2c31",
+      "read": true,
+      "observation": "Opposing guards settled."
+    },
+    {
+      "frame": 520,
+      "seconds": 21.666666666666668,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0026.png",
+      "sha256": "2480ab78682c022a0d516c16eaa74e1308070f67b90cb7e7cca2bdc06f9860a6",
+      "read": true,
+      "observation": "Pre-shot guard hold."
+    },
+    {
+      "frame": 540,
+      "seconds": 22.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0027.png",
+      "sha256": "1474b88a03d0391057d15992fc4501ef185ca88dfdc4e1110fe8be5bd43424fa",
+      "read": true,
+      "observation": "Blue-white streak leaves Carina side."
+    },
+    {
+      "frame": 560,
+      "seconds": 23.333333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0028.png",
+      "sha256": "64391e7d48fca1295d9a212d667e9a6db2ecf287ddc5ea129e1ce4374b9eb7b8",
+      "read": true,
+      "observation": "Streak reaches Harry wand region with upward sweep."
+    },
+    {
+      "frame": 580,
+      "seconds": 24.166666666666668,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0029.png",
+      "sha256": "c74834d2108aeb739fafe5c1fd2394223674583d03b07724f24a5831bcb680a9",
+      "read": true,
+      "observation": "Streak gone; aftermath shared."
+    },
+    {
+      "frame": 600,
+      "seconds": 25,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0030.png",
+      "sha256": "555d9e2f77a8821aa7cbb3f6508a8f6fdb686c7b04f8d627ee2c75478fad730b",
+      "read": true,
+      "observation": "Side camera shows both whole bodies; support cropped right."
+    },
+    {
+      "frame": 620,
+      "seconds": 25.833333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0031.png",
+      "sha256": "0e94cada5b062cc66c3af7bb68a08ee3e2a0e5c33b7406d6d6159050b1a33a2b",
+      "read": true,
+      "observation": "Harry raises wand."
+    },
+    {
+      "frame": 640,
+      "seconds": 26.666666666666668,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0032.png",
+      "sha256": "e91b35e966c812b2418ebf6feaad4ba31665c160e2a6ca1f01938e522923c7e6",
+      "read": true,
+      "observation": "Harry guard with small floor chips."
+    },
+    {
+      "frame": 660,
+      "seconds": 27.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0033.png",
+      "sha256": "e18a49ba947de12bda14d7d6327ae69bed52cb957ad0f98ea7eb922b704634f8",
+      "read": true,
+      "observation": "Carina looks upward."
+    },
+    {
+      "frame": 680,
+      "seconds": 28.333333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0034.png",
+      "sha256": "9e7ccb00ee5dda0fb729645cdaaedfb612629c19499b0cea01407a0a251f29b5",
+      "read": true,
+      "observation": "Carina upward look continues."
+    },
+    {
+      "frame": 700,
+      "seconds": 29.166666666666668,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0035.png",
+      "sha256": "1299cf924e2fc7bafe6b609cbe08c83414cff3b84f25a4acc6468e560725e87f",
+      "read": true,
+      "observation": "Upward look held."
+    },
+    {
+      "frame": 720,
+      "seconds": 30,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0036.png",
+      "sha256": "a41dd18e7b3cd77f42bfaee6bc4da9bfa4a1b590d21a9a50d860f73d11a5cd4c",
+      "read": true,
+      "observation": "Carina wand lowers."
+    },
+    {
+      "frame": 740,
+      "seconds": 30.833333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0037.png",
+      "sha256": "aee228869066327bd5594079acec97923935897e8c2fd93013c56d4229bd4941",
+      "read": true,
+      "observation": "Shared wide; Carina starts approach."
+    },
+    {
+      "frame": 760,
+      "seconds": 31.666666666666668,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0038.png",
+      "sha256": "e3d9d21054e18e108540536d8af92c95ed4cdeb0e91a3a7a02ec24e4d4784819",
+      "read": true,
+      "observation": "Carina steps inward, wand low."
+    },
+    {
+      "frame": 780,
+      "seconds": 32.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0039.png",
+      "sha256": "8cd9f1592c1a57beb1c74936aa8eee0afa48b1086c50a9658a0ca70d79f9543a",
+      "read": true,
+      "observation": "Carina closes with visible foot transfers."
+    },
+    {
+      "frame": 800,
+      "seconds": 33.333333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0040.png",
+      "sha256": "57cf66f44110767695a5fe151419f568fbdeff1aed71af7e111c7ae3d5804a3a",
+      "read": true,
+      "observation": "Carina near Harry, free hand reaching."
+    },
+    {
+      "frame": 820,
+      "seconds": 34.166666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0041.png",
+      "sha256": "feb5e56ede53832e32bf27244f9c1320253922a520c1d6397842c5adfea2e284",
+      "read": true,
+      "observation": "Bodies close; arms between them."
+    },
+    {
+      "frame": 840,
+      "seconds": 35,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0042.png",
+      "sha256": "b04289904fe14ca0be62446da79f48e165995a415c26c07dc1d01328e93e039f",
+      "read": true,
+      "observation": "Harry reaching arm and Carina redirect region overlap."
+    },
+    {
+      "frame": 860,
+      "seconds": 35.833333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0043.png",
+      "sha256": "c77d17e0b2502f70b7dcc72e17d1625cbc895bce8932c6d860e7de5e52de078d",
+      "read": true,
+      "observation": "Close contact; Carina changes placement."
+    },
+    {
+      "frame": 880,
+      "seconds": 36.666666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0044.png",
+      "sha256": "be2cffd5e7e362028cbad7dcf6510a5e1610af4ee52d2879b64adb95835f078a",
+      "read": true,
+      "observation": "Carina crosses front of Harry."
+    },
+    {
+      "frame": 900,
+      "seconds": 37.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0045.png",
+      "sha256": "e4d10d2ca0b3fb7cf312723a8583130c1355f38f25dd29b8eae5ef60e690b5c9",
+      "read": true,
+      "observation": "Pair brace with bent knees."
+    },
+    {
+      "frame": 920,
+      "seconds": 38.333333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0046.png",
+      "sha256": "fb119d1b0422ccf804707c02a1ce94e31aac4c6ce9d700e05fc4fd34813dec75",
+      "read": true,
+      "observation": "Pair start moving away from support."
+    },
+    {
+      "frame": 940,
+      "seconds": 39.166666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0047.png",
+      "sha256": "1e612d401600795ed32f04b0329ae6988c9a764b68cf1a92349ab2e480b13439",
+      "read": true,
+      "observation": "Paired lateral movement, cap above."
+    },
+    {
+      "frame": 960,
+      "seconds": 40,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0048.png",
+      "sha256": "1a479df353345b86528a2622889b7183858e1011e39ed501288ebada6d4e5b01",
+      "read": true,
+      "observation": "Both move away with feet visible."
+    },
+    {
+      "frame": 980,
+      "seconds": 40.833333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0049.png",
+      "sha256": "c385c0972170e3552cd97f8c338e1ff48e53a52264156d04f556c360b757bc77",
+      "read": true,
+      "observation": "Carina wand raised and shield appears; cap still above."
+    },
+    {
+      "frame": 1000,
+      "seconds": 41.666666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0050.png",
+      "sha256": "c4cdc1b2989c2867d157823db179f6f85df3aa4ca54166ff7e6e8aae9d523a8c",
+      "read": true,
+      "observation": "Cap fallen beside base, shield between stone and pair."
+    },
+    {
+      "frame": 1020,
+      "seconds": 42.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0051.png",
+      "sha256": "bdee506b92a02b4189b493a332626f69d617788180985ef58864b84e3cc1b8b7",
+      "read": true,
+      "observation": "Small chips and fallen stone behind shield."
+    },
+    {
+      "frame": 1040,
+      "seconds": 43.333333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0052.png",
+      "sha256": "8d93cbfdb1bd00795bb44af484d196089fd55676c8918003ab9249c9393ccd72",
+      "read": true,
+      "observation": "Protection remains held."
+    },
+    {
+      "frame": 1060,
+      "seconds": 44.166666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0053.png",
+      "sha256": "96d70815f2c2e19328dd8e1ec9060cd7ce730d4bf2f18e243ee6ca60194c72d2",
+      "read": true,
+      "observation": "Shield hold."
+    },
+    {
+      "frame": 1080,
+      "seconds": 45,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0054.png",
+      "sha256": "f4a67131c34cd1456e13ae359789400703f4807786c973246bb865e9e823f770",
+      "read": true,
+      "observation": "Shield fades as bodies straighten."
+    },
+    {
+      "frame": 1100,
+      "seconds": 45.833333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0055.png",
+      "sha256": "ab7dddc320b8099b69d19a7205f1562ac29d3757d68aac0709c3eedf47f51680",
+      "read": true,
+      "observation": "Pair recover upright and shoulders separate."
+    },
+    {
+      "frame": 1120,
+      "seconds": 46.666666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0056.png",
+      "sha256": "9a4b89db5b1f82259b19766e54fb264e27f784f8c22bc8b8102b8c71c6002a53",
+      "read": true,
+      "observation": "Close held forearm recovered."
+    },
+    {
+      "frame": 1140,
+      "seconds": 47.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0057.png",
+      "sha256": "3ac00b5fdbbce190516daa5fbd17f4d6e3b781fdd8b7bf8b693d49e0ca934496",
+      "read": true,
+      "observation": "Close held standing."
+    },
+    {
+      "frame": 1160,
+      "seconds": 48.333333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0058.png",
+      "sha256": "ade2e5883345003b2b53f62305aa8883cabe7c446c653b51bca247ccbe1abd83",
+      "read": true,
+      "observation": "Harry starts body/head glance; held hand hidden."
+    },
+    {
+      "frame": 1180,
+      "seconds": 49.166666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0059.png",
+      "sha256": "d6e3e48fb9ba941aa1583f9bcdb50c3b5a01d66d219304149bc7897ece8ef85d",
+      "read": true,
+      "observation": "Harry turns down toward fallen-stone side; feet turn wider."
+    },
+    {
+      "frame": 1200,
+      "seconds": 50,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0060.png",
+      "sha256": "80916c589bf6163fe41860ccb8814d4d154d0a1c68a0380508ee32580dc2b484",
+      "read": true,
+      "observation": "Did you just save me? caption; pair face each other holding close."
+    },
+    {
+      "frame": 1220,
+      "seconds": 50.833333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0061.png",
+      "sha256": "e89cc59f93dd28b0febc8c2aec202a7867ccb5e124393757bb17d8d2a14cb4df",
+      "read": true,
+      "observation": "Closer question shot with full feet at caption edge."
+    },
+    {
+      "frame": 1240,
+      "seconds": 51.666666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0062.png",
+      "sha256": "40de797f49980fa542fdd2c38c3672ebf6a5ff56e9b9997a6a79cabc03120ab0",
+      "read": true,
+      "observation": "Caption gone; close held stance."
+    },
+    {
+      "frame": 1260,
+      "seconds": 52.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0063.png",
+      "sha256": "a94c0e48375f9b01329493ccd0edb0bfc5437630f6f4f976ddd298f187f10373",
+      "read": true,
+      "observation": "Both heads angle down toward joined hand region."
+    },
+    {
+      "frame": 1280,
+      "seconds": 53.333333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0064.png",
+      "sha256": "a0f27455dd0d36e8ecdd9d8c6b09c37b1041a08f72c0f34d3e876e3d963fe5dc",
+      "read": true,
+      "observation": "Heads return upright; held-hand region remains overlapped."
+    },
+    {
+      "frame": 1300,
+      "seconds": 54.166666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0065.png",
+      "sha256": "81276e01e643bc3872d4caa59ad553f713edcae83b38aaf1abcb1fe88642d0c8",
+      "read": true,
+      "observation": "Carina separates and steps back; Harry left arm lowers."
+    },
+    {
+      "frame": 1320,
+      "seconds": 55,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0066.png",
+      "sha256": "f9924cfde6d0d8fd7de91787b0c0a34ddff7bdb9b42c6590f680746f695cece5",
+      "read": true,
+      "observation": "Carina farther back; wand comes toward challenge position."
+    },
+    {
+      "frame": 1340,
+      "seconds": 55.833333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0067.png",
+      "sha256": "955e026d7a62ef3b609ddebd007d46ac150fbc6b0d16c8b1ba1a6ecb99e83ec4",
+      "read": true,
+      "observation": "Carina close challenge caption; Harry partly cropped."
+    },
+    {
+      "frame": 1360,
+      "seconds": 56.666666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0068.png",
+      "sha256": "3e2de2e04da73088dd89c73608b0f8824cbc32927bd5d4052b64e6ca5acb452e",
+      "read": true,
+      "observation": "Challenge caption held."
+    },
+    {
+      "frame": 1380,
+      "seconds": 57.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0069.png",
+      "sha256": "85fafa043e8c606e4c70c7b33dab6addb79919084ac30b74e9ec5a53ca24588c",
+      "read": true,
+      "observation": "Challenge caption held with facing characters."
+    },
+    {
+      "frame": 1400,
+      "seconds": 58.333333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0070.png",
+      "sha256": "9096c8ced05f5e210fc362c122e4ed0dd4834503d93b32eadb2c303df548f175",
+      "read": true,
+      "observation": "Harry raises wand in foreground; caption gone."
+    },
+    {
+      "frame": 1420,
+      "seconds": 59.166666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0071.png",
+      "sha256": "8988d08508676e211a339221ce7b05e22b2e7d521ccb179046ddeaf805532099",
+      "read": true,
+      "observation": "Shared full-body final opposing stance beside fallen stone."
+    },
+    {
+      "frame": 1439,
+      "seconds": 59.958333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/stride/frame-0072.png",
+      "sha256": "a54af0047d9c0ba6d6fa80f4ada3929b0fa7446211d5e932916d5d152aaaf9ca",
+      "read": true,
+      "observation": "Last encoded-time sample is black."
+    }
+  ],
+  "events": [
+    {
+      "frame": 215,
+      "seconds": 8.958333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0000.png",
+      "sha256": "ad63803b75a6f9fb2e8e80c5c13f4c2e4af19bac9d823e94f9af88c24b4223cc",
+      "read": true,
+      "observation": "Carina full-body guard immediately before shared-view cut."
+    },
+    {
+      "frame": 216,
+      "seconds": 9,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0001.png",
+      "sha256": "ccf860610cba2c41c047b9f2f2bc6120eb9005f2ea1c65c9fca4632bcc36f9e3",
+      "read": true,
+      "observation": "Shared full-body view after cut; Harry poised to approach."
+    },
+    {
+      "frame": 263,
+      "seconds": 10.958333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0002.png",
+      "sha256": "0cf78dfb31359a2b959902612b3fbdc1814590417738fd4370399f1b5eb22bd8",
+      "read": true,
+      "observation": "Harry takes close approach step."
+    },
+    {
+      "frame": 272,
+      "seconds": 11.333333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0003.png",
+      "sha256": "1f48502e6ef5a0a23352487d2b81ff8c7861e5d79942d0b28eadabef88a16b32",
+      "read": true,
+      "observation": "Close Harry placement near Carina."
+    },
+    {
+      "frame": 305,
+      "seconds": 12.708333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0004.png",
+      "sha256": "5f542be8062da19c8cabdf7edff5aa047743059930c73564e6f5ff82ecbfacdb",
+      "read": true,
+      "observation": "Joined raised hands and turn entry."
+    },
+    {
+      "frame": 351,
+      "seconds": 14.625,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0005.png",
+      "sha256": "8289ca31f47e92a53858cfbe31563839705657e0da33ed890b4719a4eed489ce",
+      "read": true,
+      "observation": "Carina continues underturn; full feet."
+    },
+    {
+      "frame": 364,
+      "seconds": 15.166666666666666,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0006.png",
+      "sha256": "01d8d3b5efab77353df8fb304a52eda7dd5d7f32897ef236d4801fe5089f6f9c",
+      "read": true,
+      "observation": "Raised wand arm and Harry withdrawing free hand."
+    },
+    {
+      "frame": 391,
+      "seconds": 16.291666666666668,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0007.png",
+      "sha256": "12e77af60329896ba645fd70d25904a66cb3d28cf16762d3f66b0d0fad163bed",
+      "read": true,
+      "observation": "Carina faces Harry, arm lowering."
+    },
+    {
+      "frame": 410,
+      "seconds": 17.083333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0008.png",
+      "sha256": "a113f7e83974e44b082f8831635b3f2e410d63ac0efd45de99eda2308a06bb2a",
+      "read": true,
+      "observation": "Facing pair after turn with visible feet."
+    },
+    {
+      "frame": 421,
+      "seconds": 17.541666666666668,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0009.png",
+      "sha256": "dd838f1a0ad3df8fbf3be6bab8a84bc4d784e602197eb7e1caf32c9c51b9bf82",
+      "read": true,
+      "observation": "Harry starts retreat after facing reset."
+    },
+    {
+      "frame": 485,
+      "seconds": 20.208333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0010.png",
+      "sha256": "1a8055f5dd9fd21b9fddefd332067bbed10584a222a74e57d507f49da9176c99",
+      "read": true,
+      "observation": "Harry settled farther away by support."
+    },
+    {
+      "frame": 536,
+      "seconds": 22.333333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0011.png",
+      "sha256": "577c0320b5ef261e3ed12697c3597529f13ce2b9e1840490351b7848a7537d08",
+      "read": true,
+      "observation": "Blue streak appears beyond Carina wand."
+    },
+    {
+      "frame": 560,
+      "seconds": 23.333333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0012.png",
+      "sha256": "64391e7d48fca1295d9a212d667e9a6db2ecf287ddc5ea129e1ce4374b9eb7b8",
+      "read": true,
+      "observation": "Blue streak meets Harry wand/hand region during upward response."
+    },
+    {
+      "frame": 579,
+      "seconds": 24.125,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0013.png",
+      "sha256": "ffbe38929e90fb5ddf1f6709398f50d40cdf3ecf0ec8005caa2e378e741925c8",
+      "read": true,
+      "observation": "Shared aftermath; streak gone."
+    },
+    {
+      "frame": 599,
+      "seconds": 24.958333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0014.png",
+      "sha256": "87dc2b2b4c66be5da3dd6b522ed7f52ee476b7457f9475b788a3a78ad62d668d",
+      "read": true,
+      "observation": "Last front shared frame; chips visible near Harry feet."
+    },
+    {
+      "frame": 600,
+      "seconds": 25,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0015.png",
+      "sha256": "555d9e2f77a8821aa7cbb3f6508a8f6fdb686c7b04f8d627ee2c75478fad730b",
+      "read": true,
+      "observation": "Side shared camera cut preserves facing pair."
+    },
+    {
+      "frame": 861,
+      "seconds": 35.875,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0016.png",
+      "sha256": "3f3a737175590cae233ef45dd302d3dda77d849fd78d5b458ef23b2c2ea49127",
+      "read": true,
+      "observation": "Close pair and overlapping forearm region beside cap."
+    },
+    {
+      "frame": 886,
+      "seconds": 36.916666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0017.png",
+      "sha256": "64c20690e0c869b7e2828dabbca9e6e759f0e29f8466b26e2de635ef3d94e17c",
+      "read": true,
+      "observation": "Held forearm region and Carina changing placement."
+    },
+    {
+      "frame": 905,
+      "seconds": 37.708333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0018.png",
+      "sha256": "7da8bbb44e029445cbe824ca9549e710a1b0fd834a1d775916e097cfb6cd71aa",
+      "read": true,
+      "observation": "Close brace with shoulder/head proximity."
+    },
+    {
+      "frame": 917,
+      "seconds": 38.208333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0019.png",
+      "sha256": "49f932394e5abe111b9cdb3c5402a6c7ae60c920c68ab2c441d127b8c76785a0",
+      "read": true,
+      "observation": "Pair begin moving away with knees bent."
+    },
+    {
+      "frame": 938,
+      "seconds": 39.083333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0020.png",
+      "sha256": "6897575bb407b8f58b18f8d6115446245947325ca19c7f80930c87c93aaaa610",
+      "read": true,
+      "observation": "Pair lateral movement away from support."
+    },
+    {
+      "frame": 960,
+      "seconds": 40,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0021.png",
+      "sha256": "1a479df353345b86528a2622889b7183858e1011e39ed501288ebada6d4e5b01",
+      "read": true,
+      "observation": "Both west of cap footprint in projected view; full feet."
+    },
+    {
+      "frame": 972,
+      "seconds": 40.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0022.png",
+      "sha256": "e907d310d32ea33edf85d79cb99061a3d02655bdc9152fe831de45850519f939",
+      "read": true,
+      "observation": "Shield appears between pair and support side."
+    },
+    {
+      "frame": 975,
+      "seconds": 40.625,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0023.png",
+      "sha256": "aeb6af80908e6f203cec35aeb89fc93849b202fb2a17002fdefbf2ab31ee4bec",
+      "read": true,
+      "observation": "Shield remains with cap above."
+    },
+    {
+      "frame": 981,
+      "seconds": 40.875,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0024.png",
+      "sha256": "a7a4a1a26d1ed3a215e5c4e7e272b70c7dafc64d71e7830d37d615929a3a937d",
+      "read": true,
+      "observation": "Retained cap at end of elevated stage."
+    },
+    {
+      "frame": 996,
+      "seconds": 41.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0025.png",
+      "sha256": "d4c48b96debd0242b03115ffd16a249ebd75800f1a1a137c14cc4055a702b096",
+      "read": true,
+      "observation": "Cap airborne low beside support and shield."
+    },
+    {
+      "frame": 997,
+      "seconds": 41.541666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0026.png",
+      "sha256": "1188a59d1b16c1034a8cbfe7dbe8e4c370d31145e0011378c0a26da81f6b2985",
+      "read": true,
+      "observation": "Cap continues down toward floor."
+    },
+    {
+      "frame": 998,
+      "seconds": 41.583333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0027.png",
+      "sha256": "80536bfaae464670ffc7e7b3dda630136d2ee6c5d0aca6fed1cb1da196c43bf8",
+      "read": true,
+      "observation": "Cap now lies on floor, small chips beside it."
+    },
+    {
+      "frame": 999,
+      "seconds": 41.625,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0028.png",
+      "sha256": "309bb3f731b9d790684a0eddd83c010afca142b40e8c3ba25da4e4d93151cd51",
+      "read": true,
+      "observation": "Fallen cap stays down; shield holds."
+    },
+    {
+      "frame": 1003,
+      "seconds": 41.791666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0029.png",
+      "sha256": "013cc7923dc4e5dcc81083621b907bdba35933a77b233c7f226ea0ff921a09f5",
+      "read": true,
+      "observation": "Small bright chip near shield lower region after impact."
+    },
+    {
+      "frame": 1005,
+      "seconds": 41.875,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0030.png",
+      "sha256": "be1ba4192022d959a2e1c22a7c78dabd958d6d6c6070a52e16590db6a9e86cd2",
+      "read": true,
+      "observation": "Small pieces near shield/cap as protection holds."
+    },
+    {
+      "frame": 1011,
+      "seconds": 42.125,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0031.png",
+      "sha256": "5ce771f106a6d0a257e1f2d460f3b2e72a24fd936f256b0a7cb53e651e27305a",
+      "read": true,
+      "observation": "Small pieces now at floor beside shield."
+    },
+    {
+      "frame": 1066,
+      "seconds": 44.416666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0032.png",
+      "sha256": "71691e788c88f1b8727a33274db56d16de049947fa5f933ccd9229e7cd3a36d4",
+      "read": true,
+      "observation": "Shield hold before recovery."
+    },
+    {
+      "frame": 1095,
+      "seconds": 45.625,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0033.png",
+      "sha256": "b4b3c49c6c45bc613e8fddc9d9b5ee2c7e4b5560c8ebf7eb206cbc985d21e0a3",
+      "read": true,
+      "observation": "Shield absent; bodies stand up."
+    },
+    {
+      "frame": 1103,
+      "seconds": 45.958333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0034.png",
+      "sha256": "6b05c066ba0445fb7e4bf0225fada6e501efb4d3a9fd7e2b5f2afb2197fc8c7a",
+      "read": true,
+      "observation": "Recovered upright close pair."
+    },
+    {
+      "frame": 1104,
+      "seconds": 46,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0035.png",
+      "sha256": "093014075eb6b2e68bb3d2a1adeed03a61dec51aece078b5a345655fc242ea72",
+      "read": true,
+      "observation": "Recovered close pose continues across boundary."
+    },
+    {
+      "frame": 1151,
+      "seconds": 47.958333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0036.png",
+      "sha256": "63fd82c4d1fdc0ee02d4ef89e5bf6283a8b36faba5114e15185f5c44ac7ddaa0",
+      "read": true,
+      "observation": "Close pair at end of rescue segment."
+    },
+    {
+      "frame": 1152,
+      "seconds": 48,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0037.png",
+      "sha256": "cd3297ff5054b7e4650a7fb647ca88ff3f4d75de7caef4d451136e29fce133b3",
+      "read": true,
+      "observation": "Close pair at ending entry."
+    },
+    {
+      "frame": 1166,
+      "seconds": 48.583333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0038.png",
+      "sha256": "ddd8494434a1e18b96373e38fdd4a16282150a0c6c87df7a260426ba68d17819",
+      "read": true,
+      "observation": "Harry bends/turns toward stone, wand carried; held arm occluded."
+    },
+    {
+      "frame": 1193,
+      "seconds": 49.708333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0039.png",
+      "sha256": "37c90a1c989b3667cba69aaf7e1e0aba4bdd6b8e312a72cb85260eb3ec3acf23",
+      "read": true,
+      "observation": "Harry returns facing Carina."
+    },
+    {
+      "frame": 1212,
+      "seconds": 50.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0040.png",
+      "sha256": "bb7f22f30e02b7b6547e4a7b5ef44948bdd7e982b6b05acf91c7ca47673a1380",
+      "read": true,
+      "observation": "Question caption legible in closer shot."
+    },
+    {
+      "frame": 1248,
+      "seconds": 52,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0041.png",
+      "sha256": "84d5a87189c903af75a64dde5aa8a32431faef3d2ae1fb9c4d80d79c498592f2",
+      "read": true,
+      "observation": "Both heads down toward held hands."
+    },
+    {
+      "frame": 1253,
+      "seconds": 52.208333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0042.png",
+      "sha256": "96de951430bf3e354afd1da2b7d09fa718fde734174545dbfd66306a65589bf5",
+      "read": true,
+      "observation": "Downward attention with hands overlapped."
+    },
+    {
+      "frame": 1259,
+      "seconds": 52.458333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0043.png",
+      "sha256": "7c11127e3ed2923f81c4f8a30fcb18a6ae44cfab250c7a17c387682dc2b43a41",
+      "read": true,
+      "observation": "Held region starts opening/recovering."
+    },
+    {
+      "frame": 1265,
+      "seconds": 52.708333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0044.png",
+      "sha256": "a0d40326ce4ef415e4c90ffdda19268f8a24a5dfc671fad2dc40ca42d15e9f3b",
+      "read": true,
+      "observation": "Heads start returning, arms remain close in projection."
+    },
+    {
+      "frame": 1272,
+      "seconds": 53,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0045.png",
+      "sha256": "f079200abe7c6034b278074b37644340839cabaaddaff38512ae79c1ced2c478",
+      "read": true,
+      "observation": "Heads return upright, contact region still overlapped."
+    },
+    {
+      "frame": 1277,
+      "seconds": 53.208333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0046.png",
+      "sha256": "c9944eecf697f05999412159d46b8e91fd4e0eea609cadbb0354b7f588f71538",
+      "read": true,
+      "observation": "Upright pair before Carina step back."
+    },
+    {
+      "frame": 1285,
+      "seconds": 53.541666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0047.png",
+      "sha256": "9fe50a1d5c5abd9f2183bba31a9a55d0820cbac97d677b7ddb181f27366105e1",
+      "read": true,
+      "observation": "Carina begins separating/backstep, arms parting."
+    },
+    {
+      "frame": 1313,
+      "seconds": 54.708333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0048.png",
+      "sha256": "44c55cc7fc64380e1be5c6a76039e57521c781b0e0e4139f02692dec91403df9",
+      "read": true,
+      "observation": "Pair separated; wands forward/down."
+    },
+    {
+      "frame": 1330,
+      "seconds": 55.416666666666664,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0049.png",
+      "sha256": "2e5925b91d11d9802f1e1044b4f5d4595df626a539407fc2d40d8f0f2516a0d6",
+      "read": true,
+      "observation": "Carina challenge caption legible in close shot."
+    },
+    {
+      "frame": 1382,
+      "seconds": 57.583333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0050.png",
+      "sha256": "bcb1d577f858d006ee1796b0ca3625c82a3d2db8c99774b0838221250d9208e9",
+      "read": true,
+      "observation": "Challenge caption at final held beat."
+    },
+    {
+      "frame": 1404,
+      "seconds": 58.5,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0051.png",
+      "sha256": "2e337f59b43dfa8ff2f3256983d67a17caa055b90800f0826408dc1ca9d22fb4",
+      "read": true,
+      "observation": "Shared full-body duel stance restored."
+    },
+    {
+      "frame": 1433,
+      "seconds": 59.708333333333336,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0052.png",
+      "sha256": "a5f41412505f0087d94083d402cad8652c3f8847d6b5fbf4b7410d5beea8b5c5",
+      "read": true,
+      "observation": "Final shared stance immediately before black."
+    },
+    {
+      "frame": 1434,
+      "seconds": 59.75,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/events/frame-0053.png",
+      "sha256": "a54af0047d9c0ba6d6fa80f4ada3929b0fa7446211d5e932916d5d152aaaf9ca",
+      "read": true,
+      "observation": "Intentional black after final stance."
+    }
+  ],
+  "segmentBoundaries": [
+    {
+      "frame": 0,
+      "seconds": 0,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/opening-challenge-boundary/frame-0000.png",
+      "sha256": "83072dcb5041d255fe4d5cae1daa5df39c1e40ccde0f4bfe80ce45ba937b5541",
+      "segment": "opening-challenge",
+      "read": true,
+      "observation": "Opening starts with shared court and intact elevated cap."
+    },
+    {
+      "frame": 215,
+      "seconds": 8.958333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/opening-challenge-boundary/frame-0001.png",
+      "sha256": "be766b9953c850166e220557cdca8a601f7c9f3b00707bcfeddebb5b67288f77",
+      "segment": "opening-challenge",
+      "read": true,
+      "observation": "Opening ends with Carina full-body guard."
+    },
+    {
+      "frame": 0,
+      "seconds": 0,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/wrist-turn-and-deflection-boundary/frame-0000.png",
+      "sha256": "e7a6be1cfec6b2d5fa538562c11d4cef331a93d6692618b81eb12ec72bdbce39",
+      "segment": "wrist-turn-and-deflection",
+      "read": true,
+      "observation": "Exchange starts in shared view matching next beat after opening cut."
+    },
+    {
+      "frame": 383,
+      "seconds": 15.958333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/wrist-turn-and-deflection-boundary/frame-0001.png",
+      "sha256": "fc22f003356364de7402913073045f72ca7138cef255e6f71df95195554ae43d",
+      "segment": "wrist-turn-and-deflection",
+      "read": true,
+      "observation": "Exchange ends with separated guards and chips."
+    },
+    {
+      "frame": 0,
+      "seconds": 0,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/west-lane-rescue-boundary/frame-0000.png",
+      "sha256": "6f6ff56fe2b228ea33d234465c3285e68b5b0e008839d5c77c280508a158e2c1",
+      "segment": "west-lane-rescue",
+      "read": true,
+      "observation": "Rescue starts in side view with separated guards/chips."
+    },
+    {
+      "frame": 551,
+      "seconds": 22.958333333333332,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/west-lane-rescue-boundary/frame-0001.png",
+      "sha256": "18af8f2f8e9c57c045bb1d0c5ba2aa1a473e405f1bd125efc37a2f8c5a3f99ad",
+      "segment": "west-lane-rescue",
+      "read": true,
+      "observation": "Rescue ends with recovered close pair beside fallen stone."
+    },
+    {
+      "frame": 0,
+      "seconds": 0,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/look-at-me-this-time-boundary/frame-0000.png",
+      "sha256": "8b18b8f0e1d3ccd6a2d2d2f6c7f5ed5fe5a5a08f506b3995fd76b13da3b50c8c",
+      "segment": "look-at-me-this-time",
+      "read": true,
+      "observation": "Ending starts with the same recovered close pair."
+    },
+    {
+      "frame": 287,
+      "seconds": 11.958333333333334,
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/output/review/look-at-me-this-time-boundary/frame-0001.png",
+      "sha256": "a54af0047d9c0ba6d6fa80f4ada3929b0fa7446211d5e932916d5d152aaaf9ca",
+      "segment": "look-at-me-this-time",
+      "read": true,
+      "observation": "Ending last local frame is black."
+    }
+  ],
+  "counts": {
+    "stride": 73,
+    "events": 54,
+    "boundaries": 8,
+    "total": 135
+  },
+  "imageByteHashMismatches": [],
+  "continuousSensoryWatching": false,
+  "listening": false,
+  "priorSourceAndScreenplayKnowledge": true,
+  "phase2": {
+    "method": "Read frozen handoff; hash actual bytes, decode all five MP4s once, compare preserved records. No motion solve/render/native/ASR/provider execution.",
+    "reviewedAt": "2026-11-05T11:30:31.157Z",
+    "inputs": [
+      {
+        "path": "docs/analysis/motion-artifacts.json",
+        "sha256": "1fc26db26f94ef1677f315bb8236ebd6e65546d0a61168b5a28a08522f885c1a"
+      },
+      {
+        "path": "docs/analysis/motion-capture.json",
+        "sha256": "daec5fe10768f95335ebcd09118286eef74792578e55cc64dbfe62998261aa6f"
+      },
+      {
+        "path": "docs/analysis/motion-bundle.json",
+        "sha256": "426eadec70304645401073337c808243d7cfb30f0a00e8ff1e11cb0d71bbe094"
+      },
+      {
+        "path": "docs/analysis/motion-production.md",
+        "sha256": "de12653c3ae0b4bb48dd2be97a66d539e2ac3848cac958526b211ca25697103f"
+      },
+      {
+        "path": "README.md",
+        "sha256": "aa6bb13c345272df253a2d6d545c0cede6bbfa57c7400a0cf81e66b73f11a078"
+      },
+      {
+        "path": "docs/prompts/videos/source-bindings.md",
+        "sha256": "7069572c28cfb6d745c79771e3ce8ac2b8f675d9d51fe72e11546d8900f86ba1"
+      },
+      {
+        "path": "docs/prompts/images/shared-character-references.md",
+        "sha256": "cb89e4882ccdd94fcb5d32659d9017bdb98ef101e398ffe9b8b77fc964b8303b"
+      },
+      {
+        "path": "docs/prompts/videos/opening-challenge.md",
+        "sha256": "e823d98370580dd657523b98342956b1af024638fad931e4e8a7f5df9af109bc"
+      },
+      {
+        "path": "docs/prompts/videos/opening-challenge.request.json",
+        "sha256": "e78df38ad35236c80970a46f584a9580c19a68187fd65a40cf84476461ceccd4"
+      },
+      {
+        "path": "docs/prompts/videos/wrist-turn-and-deflection.md",
+        "sha256": "23563cc3106fe1608f3168f1bd1ddc337ca709f1fe7156db4cd91551a5f0fa00"
+      },
+      {
+        "path": "docs/prompts/videos/wrist-turn-and-deflection.request.json",
+        "sha256": "0feb2323e8f2b81cdd387d3ceb174326503a0e6635f80ca1a95de520e5fab6bb"
+      },
+      {
+        "path": "docs/prompts/videos/west-lane-rescue.md",
+        "sha256": "a81f035668ed00867b99d3400c7e41f7913642b3cc969875d36141c7f108abff"
+      },
+      {
+        "path": "docs/prompts/videos/west-lane-rescue.request.json",
+        "sha256": "e8c99c20da1db167f777c7107eaf55ec6583b8688938d9812dfae138423234ce"
+      },
+      {
+        "path": "docs/prompts/videos/look-at-me-this-time.md",
+        "sha256": "4c8c7371d1b2252b2e7748e0476222febe89499935ac27733ba5929844e729cd"
+      },
+      {
+        "path": "docs/prompts/videos/look-at-me-this-time.request.json",
+        "sha256": "187b1d2716827f04d66dad6a0f9f58c925af08c9a7252c12efcbabf8fd0c3b8e"
+      }
+    ],
+    "files": [
+      {
+        "path": "output/film.mp4",
+        "bytes": 2988366,
+        "hash": "8bbb36496e1c276a8f3571baa2011797b655074dcfecaeed0d90aa81a2ac72c3",
+        "matches": true
+      },
+      {
+        "path": "output/segments/opening-challenge.mp4",
+        "bytes": 441837,
+        "hash": "5e6ea2eb5a074a14557f83e7c073c180339836a9f9ea33a2465fc2ab07279002",
+        "matches": true
+      },
+      {
+        "path": "output/segments/wrist-turn-and-deflection.mp4",
+        "bytes": 954568,
+        "hash": "e6d957b2d676fad976a9354d361637be8fa7a83117c95fec2b41f8f523c12eeb",
+        "matches": true
+      },
+      {
+        "path": "output/segments/west-lane-rescue.mp4",
+        "bytes": 768864,
+        "hash": "9f9f08374b8f428c6b6b1bc61d7e9c5fee37763de1c649beaa3c1e90d84a08fc",
+        "matches": true
+      },
+      {
+        "path": "output/segments/look-at-me-this-time.mp4",
+        "bytes": 680091,
+        "hash": "9f901758174de69904f5cec05dd436a45a8ade9a118785293697fc8b343b3fd1",
+        "matches": true
+      }
+    ],
+    "fullDecodes": [
+      {
+        "path": "output/film.mp4",
+        "exit": 0,
+        "decodedFrames": 1440,
+        "firstPts": 0,
+        "lastPts": 59.9583,
+        "maxClockError": 0.000033333333334439885,
+        "indicesContinuous": true,
+        "profile": "  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 720x1280, 396 kb/s, 24 fps, 24 tbr, 12288 tbn (default)\r",
+        "audioStream": false,
+        "matchesReceipt": true
+      },
+      {
+        "path": "output/segments/opening-challenge.mp4",
+        "exit": 0,
+        "decodedFrames": 216,
+        "firstPts": 0,
+        "lastPts": 8.95833,
+        "maxClockError": 0.00000333333333379926,
+        "indicesContinuous": true,
+        "profile": "  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 720x1280, 389 kb/s, 24 fps, 24 tbr, 12288 tbn (default)\r",
+        "audioStream": false,
+        "matchesReceipt": true
+      },
+      {
+        "path": "output/segments/wrist-turn-and-deflection.mp4",
+        "exit": 0,
+        "decodedFrames": 384,
+        "firstPts": 0,
+        "lastPts": 15.9583,
+        "maxClockError": 0.000033333333334439885,
+        "indicesContinuous": true,
+        "profile": "  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 720x1280, 474 kb/s, 24 fps, 24 tbr, 12288 tbn (default)\r",
+        "audioStream": false,
+        "matchesReceipt": true
+      },
+      {
+        "path": "output/segments/west-lane-rescue.mp4",
+        "exit": 0,
+        "decodedFrames": 552,
+        "firstPts": 0,
+        "lastPts": 22.9583,
+        "maxClockError": 0.000033333333334439885,
+        "indicesContinuous": true,
+        "profile": "  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 720x1280, 264 kb/s, 24 fps, 24 tbr, 12288 tbn (default)\r",
+        "audioStream": false,
+        "matchesReceipt": true
+      },
+      {
+        "path": "output/segments/look-at-me-this-time.mp4",
+        "exit": 0,
+        "decodedFrames": 288,
+        "firstPts": 0,
+        "lastPts": 11.9583,
+        "maxClockError": 0.000033333333334439885,
+        "indicesContinuous": true,
+        "profile": "  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(progressive), 720x1280, 450 kb/s, 24 fps, 24 tbr, 12288 tbn (default)\r",
+        "audioStream": false,
+        "matchesReceipt": true
+      }
+    ],
+    "servedBundle": [
+      {
+        "path": "assets/index-Dh3FDQmo.js",
+        "bytes": 1970361,
+        "matches": true
+      },
+      {
+        "path": "index.html",
+        "bytes": 824,
+        "matches": true
+      },
+      {
+        "path": "motion/whole-motion.json",
+        "bytes": 109758177,
+        "matches": true
+      }
+    ],
+    "creativeSourceHashes": [
+      {
+        "owner": "Project",
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\look-at-me-duel\\PROJECT.md",
+        "sha256": "b590185ea21e9e9b38f4842d3252122b85ecae894c433d01140c2c3e88430609",
+        "matches": true
+      },
+      {
+        "owner": "Brief",
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\look-at-me-duel\\docs\\instructions\\creative-brief.md",
+        "sha256": "f332dddbc43746d13ad619f3344f38dbfb9eb6da19784e25f15e9f10e7f477dc",
+        "matches": true
+      },
+      {
+        "owner": "Screenplay, duel",
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\look-at-me-duel\\docs\\body\\screenplay\\look-at-me-this-time.md",
+        "sha256": "33bc45d42c84b8bf3f745f69d9a540c608bccf25520b2901d2923ca8ec217480",
+        "matches": true
+      },
+      {
+        "owner": "Carina",
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\look-at-me-duel\\docs\\body\\settings\\carina.md",
+        "sha256": "21eaceb191b02f2def46b85d49661b5d4074d47292a43ead565f691dc9da7f99",
+        "matches": true
+      },
+      {
+        "owner": "Harry",
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\look-at-me-duel\\docs\\body\\settings\\harry.md",
+        "sha256": "b8a0e85167be101a3a9ced367edd099cb9cfa5d572b857ffad7f181545bff588",
+        "matches": true
+      },
+      {
+        "owner": "Rivalry",
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\look-at-me-duel\\docs\\body\\settings\\rivalry.md",
+        "sha256": "d12e3109593cfccfaf9d78bf2081961ace9c1057b2c809691d55909c45592826",
+        "matches": true
+      },
+      {
+        "owner": "Court",
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\look-at-me-duel\\docs\\body\\settings\\training-court.md",
+        "sha256": "e8c47a034548c3870c732c76ec20173db7d5a020490c360ae4669be6545a6ea2",
+        "matches": true
+      },
+      {
+        "owner": "Support",
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\look-at-me-duel\\docs\\body\\settings\\stone-support.md",
+        "sha256": "9e5b2db25ed1bdff4cc65c3b512ef2cb24ea86d2efdf37ceb32b65b18c0bc3e8",
+        "matches": true
+      },
+      {
+        "owner": "Wands and shield",
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\look-at-me-duel\\docs\\body\\settings\\wand-magic.md",
+        "sha256": "7d08d1fbfa0d207f71ceee2b9231e822a9d5d7ddaf2f8d5853aeb0e4aa86af8c",
+        "matches": true
+      }
+    ],
+    "requests": [
+      {
+        "name": "opening-challenge",
+        "model": "dreamina-seedance-2-5-260628",
+        "mode": "reference",
+        "duration": 9,
+        "ratio": "9:16",
+        "silent": true,
+        "video": [
+          {
+            "type": "video_url",
+            "video_url": {
+              "url": "{{SOURCE_CLIP_PUBLIC_URL}}"
+            },
+            "role": "reference_video"
+          }
+        ],
+        "otherAttachments": [],
+        "exactTextInMd": true,
+        "wordCount": 244
+      },
+      {
+        "name": "wrist-turn-and-deflection",
+        "model": "dreamina-seedance-2-5-260628",
+        "mode": "reference",
+        "duration": 16,
+        "ratio": "9:16",
+        "silent": true,
+        "video": [
+          {
+            "type": "video_url",
+            "video_url": {
+              "url": "{{SOURCE_CLIP_PUBLIC_URL}}"
+            },
+            "role": "reference_video"
+          }
+        ],
+        "otherAttachments": [],
+        "exactTextInMd": true,
+        "wordCount": 302
+      },
+      {
+        "name": "west-lane-rescue",
+        "model": "dreamina-seedance-2-5-260628",
+        "mode": "reference",
+        "duration": 23,
+        "ratio": "9:16",
+        "silent": true,
+        "video": [
+          {
+            "type": "video_url",
+            "video_url": {
+              "url": "{{SOURCE_CLIP_PUBLIC_URL}}"
+            },
+            "role": "reference_video"
+          }
+        ],
+        "otherAttachments": [],
+        "exactTextInMd": true,
+        "wordCount": 379
+      },
+      {
+        "name": "look-at-me-this-time",
+        "model": "dreamina-seedance-2-5-260628",
+        "mode": "reference",
+        "duration": 12,
+        "ratio": "9:16",
+        "silent": true,
+        "video": [
+          {
+            "type": "video_url",
+            "video_url": {
+              "url": "{{SOURCE_CLIP_PUBLIC_URL}}"
+            },
+            "role": "reference_video"
+          }
+        ],
+        "otherAttachments": [],
+        "exactTextInMd": true,
+        "wordCount": 289
+      }
+    ],
+    "selectedImageChecks": [
+      {
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\shared-characters\\media\\generated\\characters\\carina-hogwarts-uniform-reference.png",
+        "sha256": "868cc1232d330bd2ad60606aa2f686ea3cf0747eb40c4f4f8bac51ada55dad08",
+        "matches": true,
+        "role": "Optional static authority; no payload attachment or new image judgment"
+      },
+      {
+        "path": "D:\\github\\samchon\\automovie@malfoy\\movies\\shorts\\shared-characters\\media\\generated\\characters\\harry-student-reference.png",
+        "sha256": "881f896c1f0bf5dbbe318b9bec77b8c7211e9446b6be56e6d93fcfa96b5bf4c5",
+        "matches": true,
+        "role": "Optional static authority; no payload attachment or new image judgment"
+      }
+    ],
+    "sourceCaptureBakeMatch": true,
+    "sourceBundleBakeMatch": true,
+    "modelsMatch": true,
+    "captureSchedule": {
+      "count": 1440,
+      "first": 0,
+      "last": 59.958333333333336,
+      "faults": []
+    },
+    "captureCodeMismatch": [],
+    "localHandoffBrokenLinks": [],
+    "ignoredArtifacts": [
+      "output/film.mp4",
+      "output/segments/opening-challenge.mp4",
+      "output/segments/wrist-turn-and-deflection.mp4",
+      "output/segments/west-lane-rescue.mp4",
+      "output/segments/look-at-me-this-time.mp4",
+      "output/motion-bundle/index.html",
+      "public/motion/whole-round-five.json",
+      "output/review/stride/frame-0000.png"
+    ],
+    "temporaryCapturePngs": "Original scratch PNGs removed by the documented public Render lifecycle; capture hashes remain. Final MP4s and actual decoded review images exist.",
+    "nativeCleanApproval": false,
+    "providerSubmitted": false,
+    "publicUrlResolved": false
+  }
+}

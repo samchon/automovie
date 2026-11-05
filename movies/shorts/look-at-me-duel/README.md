@@ -1,6 +1,6 @@
 # Look at Me This Time
 
-An original 60-second English fan short turns Carina and Harry's practice duel into a bodily rescue. The completed authoring slice supplied seven compact settings and [the promoted audiovisual screenplay](docs/body/screenplay/look-at-me-this-time.md#duel); [PROJECT.md](PROJECT.md) owns scope and [the brief](docs/instructions/creative-brief.md) owns creative requirements. The complete-scene replacement has its own construction and naturalness reviews and exact transfer, tracked in [scene completeness](docs/analysis/scene-completeness.md) and [validation](docs/analysis/validation.md); final promoted handoff/graph acceptance is reported there separately. Predecessor proofs remain historical. The resumed commission implements the complete60-second Human polygon motion hint. The actual0–9 opening has sampled-image, source and numerical review; the first6 seconds have been encoded through public Render. The9–25 extension is authored but awaits its complete consumer round. No whole60-second film is reported yet. [Motion production](docs/analysis/motion-production.md) records actual implementation and output status.
+An actual [60-second English motion hint](output/film.mp4) now completes the private duel, rescue and renewed challenge between fifteen-year-old Hogwarts schoolmates Carina and Harry. It is a silent720×1280,H.264/yuv420p,24fps MP4 with1440 decoded frames and English captions. [Four causal clips](docs/analysis/motion-artifacts.json) cover9/16/23/12seconds; their exact English Seedance2.5 request templates are under [docs/prompts/videos](docs/prompts/videos/source-bindings.md). The [screenplay](docs/body/screenplay/look-at-me-this-time.md#duel), [Project](PROJECT.md), [motion execution](docs/analysis/motion-production.md) and [actual encoded-image review](docs/review/motion-film.md) distinguish current output, historical authoring proof and limits. No external diffusion or accepted soundtrack is claimed.
 
 The prior written/source/retention handoff was reviewed before the current student-canon repair. [Final native validation](docs/analysis/validation.md#final-promoted-result) is qualified: 83/83 units are covered, with one preserved stale construction-review fingerprint after expression transfer. That historical graph is not reported as clean, and its old approval remains with its frozen edition. Current canonical repair does not inherit that approval.
 
@@ -19,13 +19,21 @@ The repository's shared installation owner links this production's `workspace:*`
 
 ## Viewer and export
 
-The recovered task-owned host runs `pnpm run dev -- --host 127.0.0.1 --port 5183 --strictPort`; open [the Viewer](http://127.0.0.1:5183/). This explicit port overrides the generic Vite default. Play, pause and seek use the same deterministic performance as export. URL parameters `start`, `end`, `rate` and `play=1` select interval playback, for example [the opening at half speed](http://127.0.0.1:5183/?start=0&end=9&rate=0.5&play=1). Author the scene, camera, exact-time placement and asset disposal in `src/createProduction.ts`; `src/durationSeconds.ts` supplies the clock. The Viewer prepares all implemented24fps poses before allowing its real-time clock to advance. Press Play or call the public __afPrepare port; numerical failures remain visible as candidate state and prevent capture. The slider covers only the implemented interval while the denominator retains the60-second target.
+The live authored scene runs at [127.0.0.1:5183](http://127.0.0.1:5183/) with `pnpm run dev -- --host 127.0.0.1 --port 5183 --strictPort`. It prepares the full60second forward performance before Play; Pause and absolute seek use the same fixed24fps states. Candidate failures remain visible and block capture. The actual current whole round prepared1441 endpoint-inclusive states/2882 actors with zero required support, wand, grip, floor, ROM or causal failures. The separate old5184 opening preview is historical.
 
-For a later export, keep the server running and set `$env:VIEWER_URL='http://127.0.0.1:5183/?capture=1&w=720&h=1280'` before `pnpm run render`, which matches the adopted portrait render configuration. Set `CHROME_PATH` to an installed Chrome or Chromium executable. `render.config.ts` supplies raster, frame rate, destinations and optional complete soundtrack through `audioMix`. FFmpeg is supplied by `ffmpeg-static`; `FFMPEG_PATH` selects another executable. Capture mode uses the completed `__afSeek(seconds)` hook. Whole60 capture is commissioned and explicitly refuses incomplete implemented scope; no whole-film export is reported yet. An integration probe uses its explicit captureEnd query and matching short Render duration, never an invented full-film result.
+The completed capture consumed the [immutable production bundle](docs/analysis/motion-bundle.json) at5283 and its exact admitted whole cache. Serve that retained bundle, then use the public Render command:
 
-The public Render runner writes `output/film.mp4` and the command retains `output/capture-report.json`. Export requires a whole number of frames and captures actual Viewer pixels at `i / fps`, followed by one video/audio encode. Its hashes and timings describe capture; inspect continuous playback and listen to the actual sound before accepting the film.
+```powershell
+pnpm exec vite preview --host 127.0.0.1 --port 5283 --strictPort --outDir output/motion-bundle
+# In another shell with the task-local TEMP/TMP above:
+pnpm run render
+```
 
-The actual integration probe is [opening-integration.mp4](output/probes/opening-integration.mp4), with its [capture receipt](output/probes/opening-integration-capture.json):144 frames,720×1280,24fps,H.264,0–6 seconds. It includes the first camera cut and exact English caption. `pnpm exec ttsx --no-plugins -P tsconfig.json scripts/renderOpeningProbe.ts` exercises that explicitly scoped path. This is a retained integration result, not the complete film or an accepted soundtrack.
+`render.config.ts` defaults to5283; `VIEWER_URL` is an explicit override for the same sealed assets. `CHROME_PATH` and `FFMPEG_PATH` optionally select supported installed executables. The current export verifies source, model and served-file identities before/after actual1440 pixel captures and writes `output/film.mp4` plus [motion-capture.json](docs/analysis/motion-capture.json). It uses the admitted whole cache through `fixedFilm`, not an invented pilot duration. The observed exact whole SHA-256 is `8bbb36496e1c276a8f3571baa2011797b655074dcfecaeed0d90aa81a2ac72c3`.
+
+The existing tracked `scripts/prepareVideoHandoff.ts` derived four frame-exact H.264 clips without speed changes, fully decoded all five MP4s and extracted actual73 stride images,54 events and8 clip boundaries. [motion-artifacts.json](docs/analysis/motion-artifacts.json) owns profiles, presentation timestamps, hashes and commands. [Encoded image review](docs/review/motion-film.md) owns actual individual readings; [its receipt](docs/analysis/encoded-image-review.json) maps all135 observed images. This is the requested sampled-image inspection, not continuous sensory watching or listening.
+
+To recompute source motion, keep the exact adopted25second input `public/motion/exchange-round-eleven.json` (SHA-256 `1830bbf936660f0301848b7ff71acda72c9b588cd8949b9125b76fb1520a5404`) and current workspace dependencies. The successful actual whole cache is `public/motion/whole-round-five.json` (SHA-256 `45ce343706cdd7044b94c8e89f71eaf269fa6aab857e98413bb863573d3243e3`). `scripts/inspectViewer.ts` owns durable actual preparation/inspection; `scripts/sealMotionBundle.ts` seals a new fresh directory only after explicit cache-SHA/source/model checks. The retained bundle can replay its exact input; a different source epoch needs fresh preparation and dependent output checks. No separate Human library is vendored.
 
 ## Make a motion hint
 
@@ -45,9 +53,9 @@ A separately commissioned screenplay ends with its text duties; a standalone ass
 | `pnpm run evidence` | Source/test checklists and the selected path's active evidence obligations |
 | `pnpm test` | Run exported `test_*` functions under `test/features` through `tsconfig.test.json`; an empty selection fails |
 | `pnpm run format` | Source formatting |
-| `pnpm run dev -- --host 127.0.0.1 --port 5183 --strictPort` | Task-owned recovered starter Viewer |
+| `pnpm run dev -- --host 127.0.0.1 --port 5183 --strictPort` | Current full60-second source Viewer |
 | `pnpm run build` | Bundle the production Viewer |
-| `pnpm run render` | Future export with the explicit `VIEWER_URL` above |
+| `pnpm run render` | Actual whole export from the sealed5283 preview |
 
 This workspace consumes AutoMovie packages through their source exports, including CommonJS producers that use ordinary imports for types. Its consumer sets `verbatimModuleSyntax: false` so TypeScript can erase those type imports. ES modules, `isolatedModules`, strict checks, unused checks and all lint rules remain enabled; authored production code still marks type-only imports and exports with `type`. The published scaffold's separate configuration is unchanged.
 
@@ -95,7 +103,7 @@ The production skills and story contracts adapt [wrtnlabs/novels](https://github
 
 ## Student visual-casting correction
 
-The current [shared-reference index](docs/prompts/images/shared-character-references.md#shared-references) selects Harry's actual student reference and Carina's final student smirk reference. The direct user authority is [Current visual casting](PROJECT.md#current-visual-casting), targeting an apparent age of about fifteen. The earlier adult portraits remain superseded history and edit inputs, not current age authority. This earlier image-only observation predates the later canonical age and uniform repair; the current brief/profiles now own the student casting. Existing adult-designed, unheard voice probes remain historical technical candidates; student-cast age fit and soundtrack selection are pending. The current two-image selection is complete; film use and voice age fit remain unverified.
+Both actual on-screen characters follow the current fifteen-year-old Hogwarts canon. The [shared image index](docs/prompts/images/shared-character-references.md#shared-references) selects Carina’s actual Slytherin uniform reference and Harry’s student face reference; older smirk/student/adult images remain historical edit lineage. Portraits are optional creative references, not calibrated geometry or raster inputs to this render. Harry’s two uniform-image attempts failed without output, while his implemented Gryffindor clothing follows the direct instruction and canonical profile. Adult-designed voice candidates remain unaccepted for student acting/timbre and are absent from the silent movie.
 
 ## Current Hogwarts costume override
 

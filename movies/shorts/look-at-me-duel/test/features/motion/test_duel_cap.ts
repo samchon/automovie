@@ -4,10 +4,11 @@ import { OBB } from "three/examples/jsm/math/OBB.js";
 
 import { createDuelCapMotion } from "../../../src/createDuelCapMotion";
 import { createDuelCourt } from "../../../src/createDuelCourt";
+import { createDuelCapFloor } from "../../../src/createDuelCapFloor";
 
 /**
- * @evidence contracts/testing.md#observable-behavior The actual court assembly supplies cap, finite bearing, upright and upper retaining strip. Every retained24fps sample must keep the rear-region underside on the ledge's south top edge, its upper rear contact inside the retaining strip and its solid outside both supporting stones. Ballistic release is continuous, stays above the floor and ends broad-face down. Arbitrary seek order reproduces the same stopped transform. No angular fracture simulation or actor escape is claimed.
- * @evidence contracts/testing.md#independent-cases World bearing/strip bounds supply contact witnesses independently of the controller's returned transform. Three's public oriented-box narrow phase detects positive solid overlap; a1µm inset excludes surface touching. Every retained/falling sample checks both bearing and upright rather than only an isolated cap. Floor contact hasY=0 within1e-8m and orientationπ, impact follows release by less than1second, exact stopped states match, and malformed release/time refuse.
+ * @evidence contracts/testing.md#observable-behavior Actual cap/bearing/upright/base/strip supply retained contact and separated solids. Bearing exit inherits COM velocity and zero spin; free flight preserves it until tilted-corner impact. Floor and finite-base impulses determine rest rather than placing the block through its base. Reordered queries repeat the prepared response. Actor escape, calibrated materials and fracture forces are not certified.
+ * @evidence contracts/testing.md#independent-cases Actual world bounds and public OBB check retained/sliding/falling/settling geometry against bearing, upright and base with1µm inset. Finite differences protect release continuity and torque-free flight. Dense4800/9600Hz responses with the same real obstacle must agree within2mm/2mrad and expose admitted residual/stabilization/energy diagnostics. A floor-only negative control intersects the actual base, preventing a vacuous regression. Invalid release/time refuses.
  */
 export function test_duel_cap(): void {
   const court: ReturnType<typeof createDuelCourt> = createDuelCourt();
@@ -17,13 +18,15 @@ export function test_duel_cap(): void {
   const stripBounds: THREE.Box3 = new THREE.Box3().setFromObject(court.upperJoint);
   try {
     const release: number = 40.875;
-    assert.throws((): void => { createDuelCapMotion(cap, 35, court.bearing); });
-    const motion: ReturnType<typeof createDuelCapMotion> = createDuelCapMotion(cap, release, court.bearing);
+    assert.throws((): void => { createDuelCapMotion(cap, 35, court.bearing, court.base); });
+    const motion: ReturnType<typeof createDuelCapMotion> = createDuelCapMotion(cap, release, court.bearing, court.base);
     assert.deepEqual(motion.at(0).position.toArray(), [1.7, 2.7, -2.3]);
     assert.equal(motion.at(0).rotationX, 0);
     assert.ok(motion.at(38).rotationX > 0 && motion.at(38).rotationX < 0.24);
     assert.ok(motion.at(release - 1e-6).centre.distanceTo(motion.at(release + 1e-6).centre) < 1e-4);
     assert.ok(motion.impactSeconds > release && motion.impactSeconds < release + 1);
+    assert.equal(motion.physics.releaseAngularVelocity, 0);
+    assert.equal(motion.physics.floor.admitted, true, JSON.stringify(motion.physics.floor));
     const contactLocal: THREE.Vector3 = new THREE.Vector3(0, 0, bearingBounds.max.z + 2.3);
     for (let frame: number = 0; frame <= Math.floor(motion.webBreakSeconds * 24); frame++) {
       const state: ReturnType<typeof motion.at> = motion.at(frame / 24);
@@ -36,6 +39,7 @@ export function test_duel_cap(): void {
       assert.ok(stripBounds.clone().expandByScalar(1e-8).containsPoint(retained), `Upper retaining contact at${frame / 24}`);
       assertSeparated(block, court.bearing);
       assertSeparated(block, court.upright);
+      assertSeparated(block, court.base);
     }
     const fixedContact: THREE.Vector3 = new THREE.Vector3(1.7, bearingBounds.max.y, bearingBounds.max.z);
     for (let frame: number = 0; frame <= 60; frame++) {
@@ -48,6 +52,7 @@ export function test_duel_cap(): void {
       assert.ok(Math.abs(slidingContact.y) < 1e-8 && slidingContact.z >= -1e-8 && slidingContact.z <= contactLocal.z + 1e-8);
       assertSeparated(block, court.bearing);
       assertSeparated(block, court.upright);
+      assertSeparated(block, court.base);
     }
     for (const boundary of [motion.webBreakSeconds, release]) {
       const gap: number = 1e-5;
@@ -62,20 +67,58 @@ export function test_duel_cap(): void {
       cap.rotation.x = state.rotationX;
       cap.updateMatrixWorld(true);
       assert.ok(new THREE.Box3().setFromObject(cap).min.y >= -1e-8);
+      assert.equal(state.rotationX, 0.24, "No unmodelled torque accelerates the airborne block");
       assertSeparated(block, court.bearing);
       assertSeparated(block, court.upright);
+      assertSeparated(block, court.base);
     }
-    const landed: ReturnType<typeof motion.at> = motion.at(motion.impactSeconds);
+    const firstImpact: ReturnType<typeof motion.at> = motion.at(motion.impactSeconds);
+    cap.position.copy(firstImpact.position);
+    cap.rotation.x = firstImpact.rotationX;
+    cap.updateMatrixWorld(true);
+    assert.ok(Math.abs(new THREE.Box3().setFromObject(cap).min.y) < 1e-8);
+    assert.equal(firstImpact.rotationX, 0.24);
+    assert.equal(firstImpact.landed, false);
+    const velocity: THREE.Vector3 = firstImpact.centre.clone().sub(motion.at(motion.impactSeconds - 1e-6).centre).divideScalar(1e-6);
+    const baseBounds: THREE.Box3 = new THREE.Box3().setFromObject(court.base);
+    const base: NonNullable<Parameters<typeof createDuelCapFloor>[8]> = { minZ: baseBounds.min.z, maxZ: baseBounds.max.z, top: baseBounds.max.y };
+    assert.deepEqual(motion.physics.floor.staticBase, base);
+    const dense: ReturnType<typeof createDuelCapFloor> = createDuelCapFloor(firstImpact.centre, velocity, firstImpact.rotationX, 0, 0.25, 1, motion.impactSeconds, 9600, base);
+    assert.equal(dense.diagnostics.admitted, true, JSON.stringify(dense.diagnostics));
+    for (let step: number = 0; step <= 96; step++) {
+      const time: number = motion.impactSeconds + step / 48;
+      const state: ReturnType<typeof motion.at> = motion.at(time);
+      const refined: ReturnType<typeof dense.at> = dense.at(time);
+      assert.ok(state.centre.distanceTo(refined.centre) < 0.002, "Cap floor response must converge under doubled rate");
+      assert.ok(Math.abs(state.rotationX - refined.rotationX) < 0.002);
+      cap.position.copy(state.position);
+      cap.rotation.x = state.rotationX;
+      cap.updateMatrixWorld(true);
+      assert.ok(new THREE.Box3().setFromObject(cap).min.y >= -1e-8);
+      assertSeparated(block, court.bearing);
+      assertSeparated(block, court.upright);
+      assertSeparated(block, court.base);
+    }
+    const landed: ReturnType<typeof motion.at> = motion.at(motion.settledSeconds);
     cap.position.copy(landed.position);
     cap.rotation.x = landed.rotationX;
     cap.updateMatrixWorld(true);
     assert.ok(Math.abs(new THREE.Box3().setFromObject(cap).min.y) < 1e-8);
-    assert.equal(landed.rotationX, Math.PI);
+    assertSeparated(block, court.base);
+    assert.ok(motion.physics.floor.minimumBaseSeparation! >= -1e-8);
     assert.equal(landed.landed, true);
     assert.deepEqual(motion.at(60), landed);
     motion.at(0);
-    assert.deepEqual(motion.at(motion.impactSeconds), landed);
+    assert.deepEqual(motion.at(motion.settledSeconds), landed);
     assert.throws((): void => { motion.at(NaN); });
+    // The floor-only calculation is a negative control: it really occupies
+    // this existing base, so omitting the obstacle cannot pass unnoticed.
+    const floorOnly: ReturnType<typeof createDuelCapFloor> = createDuelCapFloor(firstImpact.centre, velocity, firstImpact.rotationX, 0, 0.25, 1, motion.impactSeconds);
+    const wrong: ReturnType<typeof floorOnly.at> = floorOnly.at(floorOnly.settledSeconds);
+    cap.rotation.x = wrong.rotationX;
+    cap.position.copy(wrong.centre).sub(new THREE.Vector3(0, 0.125, 0.5).applyAxisAngle(new THREE.Vector3(1, 0, 0), wrong.rotationX));
+    cap.updateMatrixWorld(true);
+    assert.throws((): void => { assertSeparated(block, court.base); });
   } finally { court.dispose(); }
 }
 

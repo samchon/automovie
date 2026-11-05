@@ -69,11 +69,13 @@ export function test_duel_rescue_goals(): void {
   assert.ok(rescue(40, "Harry").position.x + 0.3 < 1, "Second beat clears the fixture body/wand envelope");
   const court: ReturnType<typeof createDuelCourt> = createDuelCourt();
   try {
-    const cap: ReturnType<typeof createDuelCapMotion> = createDuelCapMotion(court.cap, duelEvents.capRelease, court.bearing);
+    const cap: ReturnType<typeof createDuelCapMotion> = createDuelCapMotion(court.cap, duelEvents.capRelease, court.bearing, court.base);
     assert.ok(duelEvents.escapePlanted < duelEvents.shieldRaised && duelEvents.shieldRaised < cap.webBreakSeconds && cap.webBreakSeconds < duelEvents.capRelease);
   } finally { court.dispose(); }
   assert.equal(evaluateDuelEnding(52, "Harry", entries, reference).forearmGrip, 1);
   assert.equal(evaluateDuelEnding(52.7, "Harry", entries, reference).forearmGrip, 0);
+  assert.equal(evaluateDuelEnding(53.2, "Harry", entries, reference).pose.arms!.left.elbow!.flexion, 12, "The released arm has an authored loose recovery, not a zero-weight owner switch");
+  assert.equal(evaluateDuelEnding(53.2, "Harry", entries, reference).pose.arms!.left.hand!.index!.mcpFlexion, 8, "Released fingers remain open when the backstep begins");
   assert.deepEqual(evaluateDuelEnding(53, "Carina", entries, reference).left, entries.Carina.left);
   assert.equal(evaluateDuelEnding(50, "Harry", entries, reference).line, "Did you just save me?");
   assert.equal(evaluateDuelEnding(56, "Carina", entries, reference).line, "Look at me this time.");
