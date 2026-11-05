@@ -4,10 +4,20 @@
 
 - Build the whole figure as one construction tree of the interface's construction types (`packages/interface/src/construction`). The engine's `realizeAutoMovieConstruction` realizes it once into chains, joins, trims and one skin. The Human package derives the nodes from the person's inputs and laws, and reads what the realization publishes. Lofting, joining, trimming and tessellation belong to the engine, so every person and every other form share one tested kernel.
 - Make each part a view part: three-view lofting from its own front and side outline pairs and its fullness (the top view), about its own axis. The outlines own the section's extremes, so breadth, depth and girth hold together, and a surface defect traces back to the view curves that made it.
-- Attach each protruding part to its host with a merge, which only grows the volume. Cut a recess as a diff, continue a part from its host's end, and open a fissure, nostril, mouth or ear canal as a trim. Build the host as the envelope without the protruding part, and derive each blend's width from the part's own size or curvature, so the part is built independently of its host's curves.
+- Attach each protruding part to its host with a merge, which only grows the volume. Cut a recess as a diff, continue a part from its host's end, and open a fissure, nostril, mouth or ear canal as a trim. Build the host as the envelope without the protruding part, and derive each blend's width from the part's own size or curvature, keeping each part's shape locally owned and its attachment governed by [Connections](#connections).
 - Derive every join's seed, every trim's landmarks, and every region a part starts from or is confined to from landmark curves, courses and the bind skeleton, so each follows the person rather than the surface it shapes.
 - Take a form the tree cannot express to the kernel as a general capability. Design it in the interface and self-review it, then implement it in the engine with its operator tests before any part uses it, because a part-local workaround forks the kernel and escapes its tests.
 - Publish the realized chains and body as the one source for every stage after the skin (rig, binding, appearance, garments), because a second body drifts from the first and doubles the work.
+
+## Connections
+
+Apply [Modularization](../3d-modeling/modularization.md#frames-and-connections) for general ownership and coordinate rules. One generating definition supplies both connected parts' original 2D constructions with the connection location, oriented frame, actual whole section including fullness, width and depth, station and phase directions, units, available first and second derivatives, and boundary relief. A shared joint centre or four edge values do not share the section between those extremes; independent interiors can separate when a dimension changes.
+
+Read the parent's generating section at the actual attachment station and derive the contact chord at the actual position across that section. A whole-region support maximum, an independently estimated radius or depth, reverse measurement of the output mesh, or a later fit is no substitute for that local boundary. Public measurements may constrain the source but do not themselves define its contact geometry.
+
+Keep both production consumers connected to that same generating owner; declaring a helper or sharing only placement data leaves separate shape definitions. A continuous arm-and-palm source already has one owner. An interval adapter must retain the original shape controls, fullness and available derivatives through its declared frame, unit, direction and parameter transforms. Mark a derivative the owner cannot provide as unavailable; zero would assert geometry the source has not supplied.
+
+Merge and diff combine the defined volumes; they do not establish this shared source or repair independently authored boundaries. Verify the source connection with [Shared Connections](verification.md#shared-connections), and judge the final Boolean result separately so a join failure does not justify distorting its anatomical inputs.
 
 ## Form
 

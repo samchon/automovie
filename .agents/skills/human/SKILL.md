@@ -5,7 +5,7 @@ description: Generates every Human person as one construction tree of parts loft
 
 # Human
 
-Generate every supported person from parameters by one reusable construction. Find the major anatomical centres and axes, and draw each part's front, side and top view curves from them by anatomically and scientifically sound equations, recurrences or recursions. Then compose the parts into one [construction tree](construction.md#tree), which the engine realizes into the skin.
+Generate every supported person from parameters by one reusable construction. Find the major anatomical centres and axes, and draw each part's front, side and top view curves from them by anatomically and scientifically sound equations, recurrences or recursions. Connected parts consume one [shared generating connection](construction.md#connections). Then compose the parts into one [construction tree](construction.md#tree), which the engine realizes into the skin.
 
 The tasks and their order live in the issue tracker. An explicit stop overrides every instruction here.
 
@@ -22,7 +22,7 @@ Human debugging UI and capture tooling belong in `packages/human/debug`, which t
 Work in [correction rounds](../3d-modeling/visual-debugging.md#correction-rounds) over the whole figure, using the [part-by-part transition](verification.md#curves-against-the-reference) from accepted 2D definitions to 3D inspection while gathering the round:
 
 1. Build: the code type-checks clean in its [watch](../development/validation.md#type-checking) and the figure generates.
-2. Curves: judge every part's [view curves over the reference](verification.md#curves-against-the-reference).
+2. Curves: judge every part's [view curves over the reference](verification.md#curves-against-the-reference) and its [shared connections](verification.md#shared-connections).
 3. Surfaces: sweep the whole person, its close-ups and every suspect piece once in the [inspection round](verification.md#inspection-round).
 4. Analyse: write one table of every phenomenon with its root cause, the hidden causes of the same class elsewhere, and the pieces, seams and files it touches.
 5. Fix every row in one batch under the [construction rules](construction.md), after reviewing the diff against them, and give each fixed defect a test that fails if it returns.

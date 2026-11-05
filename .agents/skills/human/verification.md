@@ -20,6 +20,12 @@ Read the actual matched part and curve ids, briefly enabling labels to establish
 
 The adopted MetaHuman model is a diagnostic reference for plausible human form, never a shape to match; deviation numbers are diagnostics too. A shape comes from the sources the Human skill's [order](SKILL.md#order) names, with its reason stated in its doc comment as [Numbers](construction.md#numbers) requires. Accept differences supported by the person's inputs and scientific or anatomical grounds, such as a calf or wrist girth or the size of the head, breasts or buttocks, and record that reason instead of fitting the reference. Investigate a departure whose reason fails, absurd form, crossings or misplaced anatomy.
 
+## Shared Connections
+
+Trace the [generating connection](construction.md#connections) into both actual production source inputs, including their declared coordinate and parameter transforms. Compare the whole section through its phases and the contact chord at the attachment, with the available derivatives and relief. Record missing support explicitly.
+
+Inspect both parts' original 2D definitions individually and with their neighbours over the reference, then follow the [inspection round](#inspection-round) through actual 3D loft curves, their default-clay overlap and clay alone at matching cameras. Read front, side, top and needed obliques of the connection. Keep source form and sharing findings separate from final merge/diff outcomes: prejoin curves or clay do not establish a successful Boolean connection.
+
 ## Inspection Round
 
 Inspect the candidate's generating curves, skin and joins following [Visual Debugging](../3d-modeling/visual-debugging.md), for the affected person and all affected parts, and compare it with the existing figure under matching camera, light, shading, size and renderer conditions in every affected region and join, including changed inputs. Expand to other people when the task requires it. Inspect each selected part alone, then with its host and neighbours, then assembled, using the [selection recipes](screenshot.md#selecting-curves-and-parts); include the realized blends so a hidden blend cannot manufacture a gap. Keep partial work visible with what is unverified marked. Every variable below is a URL variable of the [debug viewer](screenshot.md).
