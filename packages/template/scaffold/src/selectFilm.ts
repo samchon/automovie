@@ -9,7 +9,7 @@ import type { IFilm } from "./IFilm";
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment states when the name may be omitted and every refusal, and the return names the selected film.
  * @evidence contracts/development/implementation.md#principled-implementation Own-property lookup keeps inherited object keys such as toString from resolving as films, and an omitted name resolves only when one film exists, so a production with several films never plays an unintended one.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure function serves the Viewer entry and the render configuration, so both select by the same rule.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure function serves the Viewer entry and the render command, so both select by the same rule.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No film name is special-cased, and nothing falls back to the first film when the choice is ambiguous.
  * @evidence contracts/development/implementation.md#efficient-algorithms Listing the registry is linear in its film count, which is small; lookup is constant time.
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call selects from its arguments alone; there is no shared work to reuse.

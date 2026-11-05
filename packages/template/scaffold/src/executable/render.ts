@@ -1,34 +1,123 @@
+import { planViewerFrameTimes } from "@automovie/render";
 import {
   type IAutoMovieViewerVideoResult,
+  renderViewerFrames,
   renderViewerVideo,
 } from "@automovie/render/node";
+import ffmpeg from "ffmpeg-static";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import renderConfig from "../render.config";
+import type { IFilm } from "../IFilm";
+import { films } from "../films";
+import { selectFilm } from "../selectFilm";
 
 /**
- * Export one film of the running Viewer and retain its capture and encode observations.
+ * Export one film of the running Viewer as a video, or as stills of chosen frames.
  *
- * The film comes from `--film <name>` or `--film=<name>`, and may be omitted when
- * the production registers only one.
+ * `npm run render -- --film <name>` writes the whole film to
+ * `media/automovie/<film>/videos/film.mp4` with its capture report.
+ * `--from 120 --to 150 --every 20` (or `--step <seconds>`) writes every 20th
+ * frame of that range as stills, and `--at 12,30.5` writes those seconds, to
+ * `media/automovie/<film>/frames/` or `--out <dir>`, named
+ * `f<frame>-t<seconds>.png`. `--film` may be omitted while only one film exists.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The comment states that one film is exported, how it is chosen and that the report records capture, not a playback review.
- * @evidence contracts/development/implementation.md#principled-implementation The installed Render runner performs exact-time browser capture, one encode and cleanup; this command selects the film through render.config.ts and writes the runner's result beside that film's video.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The command holds argument parsing, progress output and the report; film selection belongs to selectFilm and capture to @automovie/render.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing CHROME_PATH throws instead of falling back to another browser, and an ambiguous film throws instead of exporting the first one.
- * @evidence contracts/development/implementation.md#efficient-algorithms Capture and encoding cost belong to renderViewerVideo; this command logs one progress line per 150 frames and writes one report.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The command runs one export per invocation; there is no shared work to reuse.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The Render runner owns the browser and encoder and releases them; the command holds only the returned result until the report is written.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment gives both modes, every option and its unit, the default folders and the still names.
+ * @evidence contracts/development/implementation.md#principled-implementation One parser, film selection and capture URL serve both modes, so a still and the video's frame at the same second come from the same Viewer, raster and frame grid; the installed planViewerFrameTimes plans the seconds on the film's frame rate, and the installed renderViewerVideo and renderViewerFrames capture through the Viewer's own seek hook.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The command parses arguments and composes the film registry with the installed planner and capture; capture, encoding and planning are not reimplemented here.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown option, a missing value, a missing CHROME_PATH or an ambiguous film throws instead of falling back to a guess.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Parsing is linear in the argument count; capture and encoding cost belong to the installed runners, and stills capture only the planned frames.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One Viewer load serves every frame of a run.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The installed runners release the browser and encoder on every outcome; the command keeps only the result it prints or writes.
  */
 export async function render(): Promise<void> {
-  const config: ReturnType<typeof renderConfig> = renderConfig(filmArgument());
-  if (config.chromeExecutable.length === 0)
+  const options: Map<string, string> = new Map();
+  const argv: string[] = process.argv.slice(2);
+  for (let index: number = 0; index < argv.length; index++) {
+    const [key, inline] = argv[index]!.split(/=(.*)/s) as [string, string?];
+    if (
+      ![
+        "--film",
+        "--at",
+        "--from",
+        "--to",
+        "--every",
+        "--step",
+        "--out",
+      ].includes(key)
+    )
+      throw new Error(`Unknown option ${key}`);
+    const value: string | undefined = inline ?? argv[++index];
+    if (value === undefined || value === "")
+      throw new Error(`${key} needs a value`);
+    options.set(key, value);
+  }
+  const number: (key: string) => number | undefined = (
+    key: string,
+  ): number | undefined =>
+    options.has(key) ? Number(options.get(key)) : undefined;
+
+  const selected: { name: string; film: IFilm } = selectFilm(
+    films,
+    options.get("--film") ?? null,
+  );
+  const chromeExecutable: string = process.env.CHROME_PATH ?? "";
+  if (chromeExecutable.length === 0)
     throw new Error(
       "Set CHROME_PATH to an installed Chrome or Chromium executable",
     );
+  const url: URL = new URL(process.env.VIEWER_URL ?? "http://127.0.0.1:5173/");
+  url.searchParams.set("capture", "1");
+  url.searchParams.set("w", "1280");
+  url.searchParams.set("h", "720");
+  url.searchParams.set("film", selected.name);
+
+  // Any frame option asks for stills of those frames instead of the video.
+  if (
+    ["--at", "--from", "--to", "--every", "--step"].some(
+      (key: string): boolean => options.has(key),
+    )
+  ) {
+    const stills: { file: string }[] = await renderViewerFrames({
+      url: url.href,
+      width: 1280,
+      height: 720,
+      fps: selected.film.fps,
+      times: planViewerFrameTimes({
+        fps: selected.film.fps,
+        durationSeconds: selected.film.durationSeconds,
+        at: options.get("--at")?.split(",").map(Number),
+        from: number("--from"),
+        to: number("--to"),
+        every: number("--every"),
+        step: number("--step"),
+      }),
+      outputDir:
+        options.get("--out") ?? `media/automovie/${selected.name}/frames`,
+      chromeExecutable,
+    });
+    for (const still of stills) console.log(still.file);
+    return;
+  }
+
+  const directory: string =
+    options.get("--out") ?? `media/automovie/${selected.name}/videos`;
   const result: IAutoMovieViewerVideoResult = await renderViewerVideo({
-    ...config,
+    url: url.href,
+    spec: {
+      target: "production",
+      frameFormat: { width: 1280, height: 720, fps: selected.film.fps },
+      toneMapping: "none",
+      codec: "h264",
+      pixelFormat: "yuv420p",
+      crf: 18,
+    },
+    durationSeconds: selected.film.durationSeconds,
+    frameDir: `.cache/render/${selected.name}`,
+    outputPath: path.join(directory, "film.mp4"),
+    chromeExecutable,
+    ffmpegExecutable: process.env.FFMPEG_PATH ?? ffmpeg ?? "",
+    viewSelector: "#view",
     onProgress: (progress: {
       index: number;
       timeSeconds: number;
@@ -37,22 +126,11 @@ export async function render(): Promise<void> {
       if (progress.index % 150 === 0) console.log(progress);
     },
   });
-  const directory: string = path.dirname(config.outputPath);
   await mkdir(directory, { recursive: true });
   await writeFile(
     path.join(directory, "capture-report.json"),
     JSON.stringify(result, null, 2),
   );
-}
-
-// `--film <name>` or `--film=<name>`; null leaves the choice to selectFilm.
-function filmArgument(): string | null {
-  const argv: string[] = process.argv.slice(2);
-  for (const [index, value] of argv.entries()) {
-    if (value === "--film") return argv[index + 1] ?? null;
-    if (value.startsWith("--film=")) return value.slice("--film=".length);
-  }
-  return null;
 }
 
 void render().catch((error: unknown): void => {

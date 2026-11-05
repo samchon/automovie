@@ -15,7 +15,7 @@
     "test": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.test.json test/index.ts",
     "dev": "vite",
     "build": "vite build",
-    "render": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json scripts/render.ts"
+    "render": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/render.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "{{version:archetypes}}",
