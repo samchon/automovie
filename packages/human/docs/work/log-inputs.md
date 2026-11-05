@@ -2,6 +2,16 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 normalized leg-reader metadata (2026-11-05 09:19:55 +09:00, Get-Date)
+
+Root approved the two SHANK_SPLIT/THIGH_SPLIT normalization-string corrections from the completed reader round. Saved both at 09:16:10.149 without changing numeric cells, expressions, API or source geometry; the registry remains 468 lines. The text now distinguishes arithmetic means of loop points, inferred measurement heights and the old hip proxy from measured mechanical bone centres. No new run or other-worker source barrier was added. Completed pre-save watches test09:13:45/debug09:14:08 failed on the separate NeckConstruction:69 pole-type mismatch; HEAD/root received it. At 09:19:55 the later test09:18:01/debug09:18:17 cycles were directly read complete without diagnostics. This compile evidence is bounded to those cycles, not new anatomical or visual acceptance. The completed isolated log also shows a medial midspan scalar 13.933917 mm above both bounding named values; BODY/root received that interpolation/provenance distinction without a new run or parallel-leg instruction.
+
+## #3062 neck protocol image and site dependency round (2026-11-05 09:14:47 +09:00, Get-Date)
+
+Directly reopened NeckSource.of and followed F0/y0 back to the private top-row Y harmonics rather than treating a removed harmonic chain as a removed placement prior. Returned the exact current level formula to HEAD/root; retaining that site is a declared proxy, not a newly located thyroid landmark. Rechecked public normal-plane/base-course definitions and the emitted-circle/3D-path premises without choosing a value or source geometry.
+
+Applied the PDF skill's read-only workflow to the already retained primary handbook. Rendered PDF149/150 and personally opened both complete pages, including the photographs and diagrams on printed139/140. They do not identify the neck axis with world-up or provide a numerical axis angle or thyroid-height law. Updated the source note and reading matrix to distinguish this completed image reading from the earlier text-only checkpoint and from the separate front-higher head tape. The two ordinary task-owned PNGs remain for HEAD/root's direct use; the SHIN plot also remains until source-front comparison ends. No private extraction, new fit/person, Human execution or geometry save ran.
+
 ## #3062 leg plane and actual-source checkpoint (2026-11-05 09:02:21 +09:00, Get-Date)
 
 Root requested a read-only comparison after the production median counterexamples. Followed current BodyLaneInterim/LegLaws/LegWalk/WalkPart into the actual jointed-frame owner; separately read the retained guide/profile/axis/centre-line route, active W/D and lateral-split readers, their point-mean helper, current pure bones and recovered historical q reader. The law audit now separates horizontal support tables, declared area centroids, actual arithmetic point means, old rig AP fractions and current mechanical normal planes. The eight-guide extraction reader was not recovered; the existing W/D reader is not falsely substituted for it.

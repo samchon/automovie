@@ -342,7 +342,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   /** The shank's lateral share about its bone line, ankle 0 to knee 1. */
   export const SHANK_SPLIT: ITable = {
     reading: "test_human_estimate_leg_split",
-    normalization: "share of the ankle cut to the knee; lateral share of the breadth about the ankle-to-knee centre line",
+    normalization: "share from the ankle pack cut to the inferred midpatella height; world-horizontal Z breadth split about the line between nearest ankle/knee loops' arithmetic point means, not measured bone centres",
     consumers: "leg/AutoMovieHumanLegLaws (the lateral split)",
     columns: ["lateral"],
     rows: [
@@ -361,7 +361,7 @@ export namespace AutoMovieHumanReferenceOutlines {
   /** The thigh's lateral share about the femur's line, knee 0 toward the crotch 1. */
   export const THIGH_SPLIT: ITable = {
     reading: "test_human_estimate_thigh_split",
-    normalization: "share of the knee centre toward the crotch; lateral share of the breadth about Hara's hip centre to de Leva's knee centre",
+    normalization: "share from inferred knee height toward the pack crotch; world-horizontal Z breadth split about the trochanterion/Hara hip-Z proxy to the nearest loop's arithmetic point mean at tibiale plus de Leva knee height, not a measured femoral axis",
     consumers: "leg/AutoMovieHumanLegLaws (the lateral split)",
     columns: ["lateral"],
     rows: [
