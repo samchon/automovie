@@ -45,7 +45,7 @@ export namespace AutoMovieHumanBodyLaw {
     /** Leg tapes, anatomical controls and calibration scale. */
     legs: AutoMovieHumanLegConstruction.IInputs;
     /** Arm tapes and each hand's own dimensions, calibration mm. */
-    arms: AutoMovieHumanArmConstruction.IInputs;
+    arms: AutoMovieHumanArmConstruction.IInputs & { bideltoid: number };
     /** Each foot's own dimensions, calibration mm. */
     feet: AutoMovieHumanFootConstruction.IInputs;
     /** Crotch height by the inseam definition, calibration mm. */
@@ -149,7 +149,7 @@ export namespace AutoMovieHumanBodyLaw {
 
     // The skeleton stands in the head, neck and trunk before any limb exists,
     // and the limbs are lofted on it.
-    const armInputs: AutoMovieHumanArmConstruction.IInputs = definitions.arms;
+    const armInputs: ILimbInputs["arms"] = definitions.arms;
     const footInputs: AutoMovieHumanFootConstruction.IInputs = definitions.feet;
     if (standing.trunk === undefined) throw new Error("The body definition lacks trunk landmarks");
     const anatomical: AutoMovieHumanSkeletonLaw.IOutput =
@@ -429,7 +429,7 @@ function arms(
   params: IAutoMovieHumanParameters,
   scale: number,
   sex: number,
-): AutoMovieHumanArmConstruction.IInputs {
+): AutoMovieHumanBodyLaw.ILimbInputs["arms"] {
   const measures: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(params);
   const expected: AutoMovieHumanArmConstruction.IHand =
     AutoMovieHumanArmConstruction.expected(
@@ -450,6 +450,7 @@ function arms(
     upper: measures.upperArmLength * scale,
     lower: measures.forearmLength * scale,
     bicep: measures.upperArmCircumference * scale,
+    bideltoid: measures.bideltoidBreadth * scale,
     elbow: measures.elbowCircumference * scale,
     forearm: measures.forearmCircumference * scale,
     wrist: measures.wristCircumference * scale,

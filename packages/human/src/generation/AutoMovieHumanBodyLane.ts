@@ -72,6 +72,8 @@ export namespace AutoMovieHumanBodyLane {
       /** Actual radial hand-across direction for the WJC-to-MCP3 material transition. */
       radial: Vec3;
       reach: number;
+      /** Downward upper-arm measuring convention and proximal source domain. */
+      measuring: AutoMovieHumanArmWalk.IMeasuring;
       sites: AutoMovieHumanArmWalk.ISiteLaw[];
       joints: { elbow: number; wrist: number };
       trunk: IFold;
@@ -285,7 +287,7 @@ export namespace AutoMovieHumanBodyLane {
       // The arm with its hand onto the trunk.
       const arm: IAutoMovieConstructionView | null = view(
         `arm.${name}`,
-        AutoMovieHumanArmWalk.create(`arm.${name}`, side.arm.bones, side.arm.knuckle, side.arm.reach, side.arm.sites, side.arm.joints, input.gap, side.arm.crease, side.arm.radial),
+        AutoMovieHumanArmWalk.create(`arm.${name}`, side.arm.bones, side.arm.knuckle, side.arm.reach, side.arm.sites, side.arm.joints, input.gap, side.arm.crease, side.arm.radial, side.arm.measuring),
       );
       const fingers: AutoMovieConstructionNode | null = branches(arm, side.fingers);
       if (arm !== null && fingers !== null && root !== null && trunk.trunk !== null) root = AutoMovieHumanBodyTree.join(root, fold(fingers, arm.name, trunk.trunk.name, side.arm.trunk, side.arm.trunk.radius), limits);

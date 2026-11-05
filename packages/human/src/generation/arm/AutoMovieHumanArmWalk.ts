@@ -1,7 +1,8 @@
-import type { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
+import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanWalkPart } from "../limb/AutoMovieHumanWalkPart";
 import type { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import { AutoMovieHumanJointTurn } from "../limb/AutoMovieHumanJointTurn";
+import { AutoMovieHumanArmBreadth } from "./AutoMovieHumanArmBreadth";
 
 type Vec3 = AutoMovieHumanArmBones.IBones["shoulder"];
 
@@ -11,11 +12,11 @@ type Vec3 = AutoMovieHumanArmBones.IBones["shoulder"];
  * pose, the elbow and the wrist C2 turns over their own depths (a joint
  * between nearly collinear segments is a walk station, never a merge), open
  * at its top inside the shoulder girdle, whose merge trims it, and closed at
- * the palm's distal cap by a G2 dome the fingers merge onto.
+ * the palm's distal cap by its declared pole the fingers merge onto.
  *
  * Centres: past the glenohumeral centre along the humerus by the deltoid
  * site's largest edge (so the tube's top lies inside the girdle at every
- * phase), the glenohumeral centre, the elbow centre, the wrist centre
+ * phase), the elbow centre, the wrist centre
  * (`AutoMovieHumanArmBones`, de Leva's shares), the third metacarpal's head
  * (the caller's, from the hand's joints), and the dome's tip past it by the
  * palm's distal reach. The bones' directions are the bind pose's, a rig
@@ -26,7 +27,7 @@ type Vec3 = AutoMovieHumanArmBones.IBones["shoulder"];
  * Sites: each the caller's law with its place (bone and share), its box
  * (its four edges from the bone's axis in the walk's chart) and its
  * fullness owner: the deltoid (`bideltoidBreadth`), the biceps tape midway
- * acromion to olecranon, the elbow tape at the epicondyles, the forearm's
+ * acromion to radiale as the retained olecranon-site proxy, the elbow tape at the epicondyles, the forearm's
  * greatest tape, the wrist tape at stylion, the palm's wrist crease and its
  * knuckle line (`handBreadth`, `handCircumference`).
  * The chart uses base rotation-minimizing transport through WJC. When the
@@ -36,6 +37,15 @@ type Vec3 = AutoMovieHumanArmBones.IBones["shoulder"];
  * normal plane; this is not a fixed angle or a new projection at every site.
  */
 export namespace AutoMovieHumanArmWalk {
+  /** Symmetric arms-down width and the independently placed GH, calibration mm. */
+  export interface IMeasuring {
+    /** Public maximum horizontal breadth in the deltoid region. */
+    breadth: number;
+    /** Absolute lateral GH coordinate in the neutral measuring convention. */
+    lateral: number;
+    /** Actual rigid GH-to-elbow length. */
+    humerus: number;
+  }
   /** One site's law: its name, place, box and owner. */
   export interface ISiteLaw {
     /** The measurement site, named in diagnostics. */
@@ -73,6 +83,7 @@ export namespace AutoMovieHumanArmWalk {
    * @param gap Widest spacing between layers, mm.
    * @param crease Independent public palm-crease locus, when supplied.
    * @param radial Signed hand-across direction at MCP3; its endpoint normal-plane projection defines the C2 WJC-to-MCP3 roll, held relative to the base RMF afterward. Omission retains the base frame throughout.
+   * @param measuring Production bideltoid and independently placed GH. The fixed upper segment is carried rigidly to arms-down; the proximal pole through the humeral midpoint defines this model's deltoid region. A standalone limb without torso inputs omits this width solve.
    * @returns The part, its loft and the diagnostics.
    */
   export function create(
@@ -85,31 +96,40 @@ export namespace AutoMovieHumanArmWalk {
     gap: number,
     crease?: Vec3,
     radial?: Vec3,
+    measuring?: IMeasuring,
   ): AutoMovieHumanSiteViewPart.IResult {
     const laws: ISiteLaw[] = sites;
-    const deltoid: ISiteLaw = laws[0]!;
-    const run: number = Math.max(...deltoid.edges.map(Math.abs));
+    const first: ISiteLaw = laws[0]!;
+    const run: number = Math.max(...first.edges.map(Math.abs));
     const d: number = Math.hypot(...([0, 1, 2].map((c: number): number => bones.shoulder[c]! - bones.elbow[c]!) as [number, number, number]));
     const top: Vec3 = [0, 1, 2].map((c: number): number => bones.shoulder[c]! + ((bones.shoulder[c]! - bones.elbow[c]!) * run) / d) as Vec3;
-    return AutoMovieHumanWalkPart.create({
+    const mapped = (bone: number, share: number): { bone: number; share: number } => bone < 2 ? { bone: 0, share: (bone === 0 ? share * run : run + share * d) / (run + d) } : { bone: bone - 1, share };
+    const source: AutoMovieHumanWalkPart.ISource | string = AutoMovieHumanWalkPart.source({
       name,
-      centres: [top, bones.shoulder, bones.elbow, bones.wrist, knuckle, ...(crease === undefined ? [] : [crease])],
+      centres: [top, bones.elbow, bones.wrist, knuckle, ...(crease === undefined ? [] : [crease])],
 
-      // The glenohumeral centre continues the humerus straight; the elbow and
-      // the wrist turn over half their depths each side.
-      joints: [{ half: 1 }, { half: joints.elbow / 2 }, { half: joints.wrist / 2 }, ...(crease === undefined ? [] : [{ half: AutoMovieHumanJointTurn.half(bones.wrist, knuckle, crease, reach) }])],
+      // GH remains a named point on the first straight segment, avoiding a
+      // redundant almost-collinear joint after canonical unit conversion.
+      joints: [{ half: joints.elbow / 2 }, { half: joints.wrist / 2 }, ...(crease === undefined ? [] : [{ half: AutoMovieHumanJointTurn.half(bones.wrist, knuckle, crease, reach) }])],
       u: [1, 0, 0],
       sites: [
-        ...laws.map((l: ISiteLaw): AutoMovieHumanWalkPart.ISite => ({ site: l.site, bone: l.bone, share: l.share, edges: l.edges, fullness: l.fullness })),
+        ...laws.map((l: ISiteLaw): AutoMovieHumanWalkPart.ISite => ({ site: l.site, ...mapped(l.bone, l.share), edges: l.edges, fullness: l.fullness })),
       ],
-      ...(radial === undefined ? {} : { roll: { from: { bone: 3, share: 0 }, to: { bone: 3, share: 1 }, up: radial } }),
+      ...(radial === undefined ? {} : { roll: { from: { bone: 2, share: 0 }, to: { bone: 2, share: 1 }, up: radial } }),
       tip: reach,
 
-      // The top closes in a dome inside the girdle.
+      // The proximal pole is hidden inside the girdle; final G2 is separate.
       base: true,
       order: ORDER,
       samples: ORDER,
       gap,
     });
+    const fail = (detail: string): AutoMovieHumanSiteViewPart.IResult => ({ part: null, loft: null, view: null, diagnostics: [{ producer: `view.${name}`, level: 2, contract: "shoulder source", detail }] });
+    if (typeof source === "string") return fail(source);
+    if (measuring === undefined) return AutoMovieHumanSiteViewPart.create(source.input);
+    const end: number = source.station(0, (run + measuring.humerus / 2) / (run + d));
+    if (!(end <= source.runs[0]!.end)) return fail("The selected deltoid measuring domain enters the elbow turn");
+    const normalized: AutoMovieHumanArmBreadth.IResult | string = AutoMovieHumanArmBreadth.fit(source.input, name.endsWith("left") ? "left" : "right", [0, end], measuring.breadth, measuring.lateral);
+    return typeof normalized === "string" ? fail(normalized) : AutoMovieHumanSiteViewPart.create(normalized.input);
   }
 }

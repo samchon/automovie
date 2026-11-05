@@ -3,6 +3,7 @@ import { AutoMovieHumanArmPrior } from "./AutoMovieHumanArmPrior";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanArmLaw } from "./arm/AutoMovieHumanArmLaw";
+import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
 import { AutoMovieHumanArmLayers } from "./arm/AutoMovieHumanArmLayers";
 import { AutoMovieHumanArmScye } from "./arm/AutoMovieHumanArmScye";
 import { AutoMovieHumanArmShoulder } from "./arm/AutoMovieHumanArmShoulder";
@@ -267,7 +268,8 @@ export namespace AutoMovieHumanArmConstruction {
         ? [...calibration.trunk.glenohumeral]
         : sided(AutoMovieHumanArmShoulder.glenohumeral(calibration, side, inputs.upper), sign);
     const form: IAutoMovieHumanHandForm = AutoMovieHumanHandForm.form();
-    const placed: Vec3 = AutoMovieHumanArmLaw.centreOf(centre, inputs, elbow);
+    const lawInputs: AutoMovieHumanArmLaw.IInputs = { ...inputs, acromionProjection: calibration.trunk === undefined ? AutoMovieHumanArmBones.ACROMION * inputs.upper : calibration.trunk.shoulder[1] - calibration.trunk.glenohumeral[1] };
+    const placed: Vec3 = AutoMovieHumanArmLaw.centreOf(centre, lawInputs, elbow);
     const laws: Map<string, IAutoMovieHumanArmLaw> = new Map();
     const key: string = JSON.stringify([
       side,
@@ -280,6 +282,7 @@ export namespace AutoMovieHumanArmConstruction {
       inputs.bicep,
       inputs.elbow,
       inputs.forearm,
+      lawInputs.acromionProjection,
       placed,
       ring.centre,
       ring.radius,
@@ -305,7 +308,7 @@ export namespace AutoMovieHumanArmConstruction {
             const known: string = JSON.stringify(m);
             const found: IAutoMovieHumanArmLaw | undefined = laws.get(known);
             if (found !== undefined) return found;
-            const law: IAutoMovieHumanArmLaw = AutoMovieHumanArmLaw.of(ring, inputs, m, form, placed);
+            const law: IAutoMovieHumanArmLaw = AutoMovieHumanArmLaw.of(ring, lawInputs, m, form, placed);
             laws.set(known, law);
             return law;
           },
@@ -323,6 +326,7 @@ export namespace AutoMovieHumanArmConstruction {
             inputs.bicep,
             inputs.elbow,
             inputs.forearm,
+            lawInputs.acromionProjection,
             [placed[0], placed[1], Math.abs(placed[2])],
             [ring.centre[0], ring.centre[1], Math.abs(ring.centre[2])],
             ring.radius,

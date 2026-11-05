@@ -1,6 +1,7 @@
 ﻿import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandmarks";
 
 import { AutoMovieHumanArmBones } from "./arm/AutoMovieHumanArmBones";
+import { AutoMovieHumanShoulderJoint } from "./AutoMovieHumanShoulderJoint";
 
 /**
  * The trunk's landmark heights and the rules that place them from the inputs.
@@ -46,14 +47,9 @@ export namespace AutoMovieHumanTrunkLandmarks {
   export const ACROMION: number = 0.894;
 
   /**
-   * The same retained longitudinal acromion-to-GH approximation used by
-   * ArmBones to convert acromion-radiale into joint-centre length. One
-   * straight neutral measuring convention closes that public input before
-   * rigid lengths are carried into the bind. This is not Rab's 17% rule:
-   * that paper uses A-C-joint skin markers and their separation, not lateral
-   * acromia and biacromial breadth. De Leva's source mean reconstructions
-   * differ between Table 2, Fig.1 and Table 4, so this is an approximation,
-   * not an exact individual landmark regression.
+   * Historical longitudinal approximation retained for legacy consumers.
+   * Active placement uses ShoulderJoint; actual AR conversion reads its
+   * projection rather than combining this offset with the new generic.
    */
   export const GLENOHUMERAL: number = AutoMovieHumanArmBones.ACROMION;
 
@@ -77,22 +73,21 @@ export namespace AutoMovieHumanTrunkLandmarks {
   }
 
   /**
-   * GH from the lateral-acromion point in the declared straight neutral
-   * measuring convention, inferior by ArmBones' longitudinal AR share.
-   * Medial/AP offsets remain unmeasured zero-placement conventions; this
-   * does not assert a zero clinical carrying angle. The same GH projection
-   * and EJC-to-radiale offset close neutral AR, whose joint-centre length is
-   * then carried rigidly into the bind directions.
+   * Population GH generic transferred through the authored shoulder frame.
+   * The acromion AP prior and internal neck overlap are not measured AcrLR
+   * and Acr2; ShoulderJoint names that origin/frame-transfer approximation.
    *
    * @param shoulder The shoulder point `[x, y, z]`, mm.
-   * @param upperArm Acromion-radiale length, calibration mm.
+   * @param neck Internal overlap's left lateral support, calibration mm.
+   * @param scale Calibration millimetres per publication millimetre.
    * @returns The glenohumeral centre `[x, y, z]`, mm.
    */
   export function glenohumeral(
     shoulder: readonly [number, number, number],
-    upperArm: number,
+    neck: readonly [number, number, number],
+    scale: number,
   ): [number, number, number] {
-    return [shoulder[0], shoulder[1] - GLENOHUMERAL * upperArm, shoulder[2]];
+    return AutoMovieHumanShoulderJoint.of(shoulder, neck, scale).centre;
   }
 
   /**

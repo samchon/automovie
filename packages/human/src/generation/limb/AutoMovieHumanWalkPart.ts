@@ -94,9 +94,25 @@ export namespace AutoMovieHumanWalkPart {
    * @returns The part, its loft and the diagnostics.
    */
   export function create(input: IInput): AutoMovieHumanSiteViewPart.IResult {
+    const built: ISource | string = source(input);
+    return typeof built === "string" ? { part: null, loft: null, view: null, diagnostics: [{ producer: `walk.${input.name}`, level: 2, contract: "axis", detail: built }] } : AutoMovieHumanSiteViewPart.create(built.input);
+  }
+
+  /** The identical pre-loft declaration and its authoritative course mapping. */
+  export interface ISource {
+    /** Actual input later consumed by SiteViewPart.create, calibration mm. */
+    input: AutoMovieHumanSiteViewPart.IInput;
+    /** Straight-run bounds computed from the canonical metre axis. */
+    runs: readonly AutoMovieViewAxis.IRun[];
+    /** Actual source station of a bone/share; no second axis is constructed. */
+    station: (bone: number, share: number) => number;
+  }
+
+  /** Prepare the production axis and named source once, without a section or loft. */
+  export function source(input: IInput): ISource | string {
     const producer: string = `walk.${input.name}`;
 
-    const fail = (detail: string): AutoMovieHumanSiteViewPart.IResult => ({ part: null, loft: null, view: null, diagnostics: [{ producer, level: 2, contract: "axis", detail }] });
+    const fail = (detail: string): string => `${producer}: ${detail}`;
 
     // A tip continues the last bone straight: its point is one more centre,
     // joined to the last bone with no intended turn. Canonical unit
@@ -124,7 +140,7 @@ export namespace AutoMovieHumanWalkPart {
       (s: ISite): AutoMovieHumanSiteViewPart.ISite => ({ site: s.site, station: station(centres, runs, s.bone, s.share), edges: engine(s.edges), fullness: s.fullness, ...(s.jets === undefined ? {} : { jets: engineJets(s.jets) }) }),
     );
     const end: number = runs[input.centres.length - 2]!.end;
-    return AutoMovieHumanSiteViewPart.create({
+    return { runs, station: (bone: number, share: number): number => station(centres, runs, bone, share), input: {
       name: input.name,
       axis: {
         type: "jointed",
@@ -143,7 +159,7 @@ export namespace AutoMovieHumanWalkPart {
       order: input.order,
       samples: input.samples,
       gap: input.gap,
-    });
+    } };
   }
 
   /**

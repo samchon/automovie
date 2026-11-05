@@ -72,7 +72,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
     hands: Record<"left" | "right", AutoMovieHumanHandBones.IOutput>;
 
     /** The arms' tapes and the hands' dimensions, calibration mm. */
-    arms: AutoMovieHumanArmConstruction.IInputs;
+    arms: AutoMovieHumanArmConstruction.IInputs & { bideltoid: number };
   }
 
   /** The fingers, as the skeleton and the chains name them. */
@@ -125,7 +125,8 @@ export namespace AutoMovieHumanBodyLaneInterim {
       const fold = (from: number, to: number): AutoMovieHumanBodyLane.IFold => ({ search: { phi: 0, from, to }, radius });
 
       // The arm and palm's sites from the person's tapes.
-      const arm: AutoMovieHumanArmWalk.ISiteLaw[] = AutoMovieHumanArmInterim.sites(name, input.arms, elbow, wrist, true, hand.radialCenter);
+      const humerus: number = Math.hypot(...shoulder.map((value: number, c: number): number => value - elbow[c]!));
+      const arm: AutoMovieHumanArmWalk.ISiteLaw[] = AutoMovieHumanArmInterim.sites(name, input.arms, elbow, wrist, { projection: solution.landmarks.shoulder[1] - solution.landmarks.glenohumeral[1], humerus }, true, hand.radialCenter);
       const depth = (site: string): number => {
         const s: AutoMovieHumanArmWalk.ISiteLaw | undefined = arm.find((l: AutoMovieHumanArmWalk.ISiteLaw): boolean => l.site === site);
         if (s === undefined) throw new Error(`The ${name} arm lacks its named ${site} source law`);
@@ -158,6 +159,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
           crease,
           radial: hand.frame.across,
           reach: palmDepth / 2,
+          measuring: { breadth: input.arms.bideltoid, lateral: Math.abs(shoulder[2]), humerus },
           sites: arm,
           joints: { elbow: depth("elbow"), wrist: depth("wrist") },
           trunk: fold(0, 0.4),

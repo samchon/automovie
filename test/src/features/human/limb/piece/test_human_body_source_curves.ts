@@ -25,6 +25,9 @@ import { HumanPeople } from "../../../internal/HumanPeople";
 /**
  * Original limb definitions retain their anatomical inputs and geometric
  * premises before any final body realization, joins, rig or skin emission.
+ * The standalone arm uses an explicit historical longitudinal GH projection
+ * in an origin chart, without torso bideltoid context. The separate actual
+ * production-definition question owns new GH placement and deltoid-domain B.
  *
  * Scenarios:
  * 1. Both legs and feet have finite source definitions and admit no sampled
@@ -130,11 +133,11 @@ export function test_human_body_source_curves(): void {
       if (!Number.isFinite(sourceGroupBreadth) || Math.abs(sourceGroupBreadth - inputs.feet[side].breadth) > 1e-6) defects.push(`${name}/foot.${side}: whole metatarsal source group spans ${sourceGroupBreadth} mm against public breadth ${inputs.feet[side].breadth} mm`);
 
       const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
-      const canonical: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place([0, 0, 0], unit(prior.upper), unit(prior.lower), inputs.arms.upper, inputs.arms.lower);
+      const canonical: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place([0, 0, 0], unit(prior.upper), unit(prior.lower), inputs.arms.upper, inputs.arms.lower, AutoMovieHumanArmBones.ACROMION * inputs.arms.upper);
       const arm: AutoMovieHumanArmBones.IBones = { ...canonical, shoulder: reflected(canonical.shoulder), elbow: reflected(canonical.elbow), wrist: reflected(canonical.wrist), radiale: reflected(canonical.radiale), stylion: reflected(canonical.stylion), upper: reflected(canonical.upper), lower: reflected(canonical.lower) };
       const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
       const hand: AutoMovieHumanHandBones.IOutput = AutoMovieHumanHandBones.sided(AutoMovieHumanHandBones.of(canonical.wrist, inputs.arms[side], measures.sex, scale, diagnostics), side === "left" ? 1 : -1);
-      const sites: AutoMovieHumanArmWalk.ISiteLaw[] = AutoMovieHumanArmInterim.sites(side, inputs.arms, arm.elbow, arm.wrist, true, hand.radialCenter);
+      const sites: AutoMovieHumanArmWalk.ISiteLaw[] = AutoMovieHumanArmInterim.sites(side, inputs.arms, arm.elbow, arm.wrist, { projection: arm.acromionProjection, humerus: arm.humerus }, true, hand.radialCenter);
       console.log(JSON.stringify({ person: name, part: `arm.${side}`, forearmInput: inputs.arms.forearm, sites, diagnostics }));
       if (!sites.some((site: AutoMovieHumanArmWalk.ISiteLaw): boolean => site.site === "forearm" && "girth" in site.fullness && site.fullness.girth === inputs.arms.forearm)) defects.push(`${name}/arm.${side}: maximum forearm tape owns no source site`);
       const depth = (name: string): number => {

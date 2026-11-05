@@ -1,8 +1,39 @@
 # Arm
 
+## Active shoulder source transfer
+
+The active GH is a population/frame-transfer proxy, not the lateral acromion
+or a joint center fitted from skin width. Campbell et al. 2009's generic
+[12,-49,6] physical millimetres is expressed in their acromial triad. Our
+authored AP bar and frontal acromion-to-internal-neck chord construct an
+explicit substitute frame; authored acromion AP is itself a retained prior,
+not measured AcrLR. Canonical-right placement is reflected for the left,
+and calibration scale applies once. The current input graph cannot recover
+the actual triad or an individual's GH. The complete alternatives and direct
+primary-source reading are in [the input audit](../work/body-input-source-audit.md#shoulder-joint-measuring-pose-and-source-family-alternatives).
+
+The same actual downward GH projection d closes the straight measuring
+caliper H=AR-d-.0432AR before rigid transport to bind. The biceps station
+AR/2-d remains a radiale-for-olecranon proxy. The retained .3H first free
+deltoid row and 1.026G multiplier transfer the current biceps support template;
+they do not locate the maximum or recover the unobserved proximal heads.
+Public bideltoid constrains the original outer support over the explicit
+proximal-pole-to-midshaft domain in an arms-down upper-arm frame. Its common
+source critical roots and final residual are checked independently of GH,
+bony acromial Y/Z, biceps G and the hand's original material/axis records.
+Source closure, anatomical validity, reference-overlay agreement and final
+skin attachment remain separate. Independent round84782 passes the generic
+frame/caliper convention and isolated limb sources. Coupled92580 then passes
+actual production GH/AR/acromion delivery, deltoid-domain support-plane B,
+changed-box biceps G and the original hand AST/roll connection. It does not
+make the authored frame measured AcrCS, the region an independently observed
+deltoid border, or the final skin/visual result accepted. ANSUR printed88 does
+not establish an additional exact same-Y contact requirement from its finite
+caliper blades; same-Y section width is a distinct optional model reading.
+
 Each value holds only for its cited population, posture, coordinate frame and measurement protocol.
 
-The active body source uses `BodyLaw`/`SkeletonLaw`'s pure `ArmBones` and shared `HandBones`, followed by `ArmInterim`/`ArmWalk` and `DigitInterim`/`DigitWalk`. Its original edge curves, material frame and production tree share one declaration. The reference observations and older piece graph below remain retained source material; their presence does not mean the current body emits those pieces or consumes every public measure. In particular, the current biceps-first arm source does not consume bideltoid breadth. The complete current input/measurement boundary is recorded in [the body source audit](../work/body-input-source-audit.md).
+The active body source uses `BodyLaw`/`SkeletonLaw`'s pure `ArmBones` and shared `HandBones`, followed by `ArmInterim`/`ArmWalk` and `DigitInterim`/`DigitWalk`. Its original edge curves, material frame and production tree share one declaration. The reference observations and older piece graph below remain retained source material; their presence does not mean the current body emits those pieces or consumes every public measure. The former biceps-first source had no bideltoid owner; the current explicit deltoid-domain solve is described above. The complete current input/measurement boundary is recorded in [the body source audit](../work/body-input-source-audit.md).
 
 ## Joint centres from the length inputs
 

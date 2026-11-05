@@ -43,6 +43,8 @@ export namespace AutoMovieHumanArmLaw {
   export interface IInputs {
     /** Acromion-radiale length. */
     upper: number;
+    /** Actual downward acromion-to-GH projection, calibration mm. */
+    acromionProjection: number;
 
     /** Radiale-stylion length. */
     lower: number;
@@ -119,7 +121,7 @@ export namespace AutoMovieHumanArmLaw {
   export function centreOf(centre: Vec3, inputs: IInputs, elbow?: Vec3): Vec3 {
     if (elbow === undefined) return centre;
     const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
-    const placed: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(centre, direction(prior.upper), direction(prior.lower), inputs.upper, inputs.lower);
+    const placed: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(centre, direction(prior.upper), direction(prior.lower), inputs.upper, inputs.lower, inputs.acromionProjection);
     const shift: Vec3 = sub(elbow, placed.elbow);
 
     return [centre[0] + shift[0], centre[1] + shift[1], centre[2] + shift[2]];
@@ -160,7 +162,7 @@ export namespace AutoMovieHumanArmLaw {
 
     // The bones from the placed glenohumeral centre, their lengths and directions kept.
     const at: Vec3 = centreOf(centre, inputs, elbow);
-    const bones: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(at, direction(prior.upper), direction(prior.lower), inputs.upper, inputs.lower);
+    const bones: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(at, direction(prior.upper), direction(prior.lower), inputs.upper, inputs.lower, inputs.acromionProjection);
 
     // The walk on the bones and the tube of the spans about it.
     const soft: number = (prior.softness * inputs.elbow) / TWO_PI;
@@ -173,7 +175,7 @@ export namespace AutoMovieHumanArmLaw {
     });
     const pieces: IAutoMovieHumanArmPiece[] = AutoMovieHumanArmPieces.build(pieceInputs);
     const knots: [number, number][] = AutoMovieHumanArmGirth.knots(pieces);
-    const hullKey: string = JSON.stringify([at, inputs.upper, inputs.lower, inputs.elbow]);
+    const hullKey: string = JSON.stringify([at, inputs.upper, inputs.lower, inputs.elbow, inputs.acromionProjection]);
     let hulls: Map<number, number> | undefined = HULLS.get(hullKey);
     if (hulls === undefined) HULLS.set(hullKey, (hulls = new Map()));
     const tube: AutoMovieHumanArmTube.ITube = AutoMovieHumanArmTube.build(

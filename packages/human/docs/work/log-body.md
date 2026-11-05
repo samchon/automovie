@@ -1,5 +1,136 @@
 # Body modeler log
 
+## Shoulder topic verification boundary (2026-11-05 12:54:01 +09:00, Get-Date)
+
+The approved topic has15 production paths,3 existing tests and3 documents. The18 runtime/test file hashes remain identical to the84782 invocation inventory. In particular, `test_human_arm_measurement_closure.ts` is SHA256 `7D97A5310BA6AD0B30DDFD054136503BDC0FA5BEEA0A1D1345E1B400779B24C2` and ShoulderJoint is `80E7CFCA6992BE3C1DC17EEA0A558C6A810C14DFD217C912FE7E9996A1FC7CFF`. The independent3-4-5, sides, scales and malformed-input cases belong to that executed closure function; only the separate standalone arm in `body_source_curves` retains the historical longitudinal GH without B. Actual production GH/B/G belongs to92580. The primary84782 evidence is `D:/github/samchon/AutoMovie/packages/human/.shots/body_xhigh/shoulder-independent-tests.log` and `D:/github/samchon/AutoMovie/packages/human/.shots/body_xhigh/shoulder-independent-tests-meta.json`; the latter records the invocation's `files` hashes. They are disk and execution records, not a served-module seal.
+
+The final source/caller/cache-key review preserves actual projection d in the rigid lengths, source station and all three existing solve keys. Public acromial Y/Z, AR, changed-box biceps G and hand AST/roll remain separate expectations. Final review corrected two stale historical sentences that still described bideltoid as unused or the batch as unexecuted. No geometry, selector, oracle or tolerance changed in that correction. Original shoulder visual acceptance, anatomical GH accuracy and final attachment/skin remain unfinished; the current trunk comparison is a separate correction round and supplies no shoulder visual approval.
+
+## Actual shoulder and new-neck connection complete (2026-11-05 12:10:19 +09:00, Get-Date)
+
+HEAD's coupled92580 completed4/4 in139,582ms and its owner reported natural
+exit0/reap at12:04:41. The actual program start is12:00:44. BODY definition
+passed in24,990ms; HEAD records10,210ms, source5,050ms and neck5,310ms also
+passed. All four outcome lines, BODY original-source observations and empty
+body/head diagnostic arrays were read. HEAD owns the complete additional
+head/neck metric report. This is the first connection proof for this GH/B/G
+batch, distinct from84782's isolated arm and from18597's failed new neck.
+
+| Actual production source | Observed result |
+| --- | --- |
+| GH and rigid arm | GH is[0.29119294738769597,1350.0814488847802,+/-165.9406449793975]mm; H262.17803129750007mm. The unchanged independent acromial Y/Z and neutral AR expectations pass; no B feedback places this joint. |
+| Selected deltoid support-plane B | Both original curves give418.9147789071624mm, equal to public B, over source domain[0,178.34450876337473]mm. Their source maxima are at127.80552940079515/127.80552520563634mm; .3H is not assumed to be the maximum. Fixed-chart drift is0. |
+| Biceps after changing its box | G267.77898541585705/267.7789854158571mm versus public267.77898541765603mm, within the unchanged1e-6mm expectation. The fullness solve, rather than the width solve, owns this tape. |
+| Actual hand source | Elbow/WJC/MCP/crease metre-AST centres, public radial box/short depth/cap, independent joint references and explicit WJC-to-MCP roll pass. Left/right endpoint misses are1.1443916996305594e-16/5.551115123125783e-17; replay and initial-frame misses are0. |
+| Neighbouring original sources | Regular neck boundary p/s/t/st/tt errors are0, ss3.0814879110195774e-33. New neck changes the shared breast/chest height to1270.1745528540025mm; AP depth224.36764709872318mm, public half span and metre replay remain closed. Gluteal AP identities, signed trunk hulls and both actual-production median observations+5.550534901150755mm also pass. |
+
+Definition inventory remains31 body names/36 attempts with the identical
+head subtree and raw body/head diagnostics[]. Final realization was not run.
+The current B owner is an explicitly chosen support-plane breadth over a
+transferred deltoid region in the upper-arm-down measuring chart. Directly
+reopening ANSUR printed88 and its picture did not establish a mandatory
+equal-Y contact condition; the earlier same-Y assertion is withdrawn.
+The mapped peak-height difference4.195e-6mm is not a width residual.
+Actual blade contact, anatomical domain and the authored-frame/population
+GH transfer remain model/protocol assumptions, not individual anatomy proof.
+
+The first restored viewer PNG was also opened directly:
+`.shots/debug/f1/comparison-recovery-20261105-120514/whole.left.png`.
+Comparison reports capture12:05:53.638 and source
+`d4e6f7ce0526edd08f3f760884336a4493928a07d5621511472d10116ca362d3`;
+actual selection is native `reference.head/0` plus `view.nose/front.pos`,
+not a whole-body image despite the filename. The green nasal profile is
+separated from the reference outline, which was sent to HEAD as a visual
+observation without a fitted residual. Comparison owns the next six baseline
+frames. BODY requested no extra HTTP, tab or viewer and preserves its runtime.
+BODY visual acceptance and final joined skin are still pending.
+
+## Independent shoulder and limb questions complete (2026-11-05 11:54:29 +09:00, Get-Date)
+
+Root separated the two questions that do not depend on the new neck from
+the later production connection. Session84782 was invoked at11:43:14.510,
+printed its actual program start at11:49:07 and ended naturally with exit0;
+the shell recorded11:52:46.978 and the process was reaped. The whole run is
+2/2 in185,617ms: `human_arm_measurement_closure`283ms and
+`human_body_source_curves`14,884ms. The invocation's354-second pre-banner
+interval is not figure-generation timing. No other worker or viewer was
+stopped, and no duplicate test or capture was requested.
+
+Both outcome lines, all34 observation records and all plain diagnostic
+output were inspected. There are no failure bodies and no source diagnostic
+lines. All21 selected paths had identical hashes before and after this run.
+The retained log and disk inventory are
+`.shots/body_xhigh/shoulder-independent-tests.log` and
+`shoulder-independent-tests-meta.json`; they are not a served-module seal.
+
+| Independent question | Observed scope |
+| --- | --- |
+| Generic/frame transfer | The independent3-4-5 frame signs, left/right reflection, physical-mm scaling, translation and malformed-input refusals pass. They verify the authored population-transfer convention, not individual GH anatomy. |
+| Public arm calipers | AR321.1808776855469mm and RS241.26361846923828mm exactly match their public inputs in the origin and translated measuring charts. |
+| Isolated arm/source | The new free deltoid row, one straight upper segment and original hand/digit sources admit without diagnostics. This isolated arm explicitly retains the historical longitudinal GH at an origin; it has no torso bideltoid context. |
+| Retained independent limb expectations | Bilateral isolated median observations remain+5.537488875867595mm. Five public leg tapes have maximum error about8.22e-8mm. Whole metatarsal B/L, floor, all10 distal toe depths and one pulp reach per digit pass unchanged. Maximum original-curve apex-to-declared-apex miss is2.3437142008433856e-13mm; this is not a metre-AST replay measurement. |
+
+Actual production GH placement, deltoid-domain B, changed-box biceps G and
+hand AST/roll connection still require `human_body_definition` after HEAD's
+new neck is repaired. This run does not execute that producer or HEAD.
+The restored viewer's first request63399 also produced PNG0: its complete
+response reports an unrepresentable quadrature-panel-node error in
+`measureAutoMovieCurveLength64` called by HeadNeckCurves, before the shoulder
+path. That differs from18597's earlier base-girth sign-bracket refusal.
+No substitute figure or additional capture was requested; visual and final
+skin acceptance remain absent.
+
+## Shoulder source batch saved, behavior not yet run (2026-11-05 11:27:05 +09:00, Get-Date)
+
+The final11:34:34.699 disk inventory has15 production,3 existing test and
+3 document paths. The earlier collaboration report's18-production/2-test
+count was incorrect; there was no separate18-production scope. The first
+atomic save had15 production and2 test paths, then the existing production
+definition question supplied the third test. No HandConstruction source
+file changed: its caller-owned solve key is in `AutoMovieHumanArmConstruction`
+alongside the outer build key, while ArmLaw owns the unit-hull key. All three
+keys now include the actual acromion projection. The last executable source
+save is11:30:21; later runtime/test edits clarify documentation only.
+Test11:32:05 and debug11:33:07 completed clean in the direct read, while
+test11:33:29 was pending. This inventory does not seal loaded modules or
+establish a behavioral result.
+
+The shoulder cause batch is saved across the approved21 paths:15 runtime,
+3 existing questions and3 documents. Original 2D placement and form come
+first because these exact axis/quarter declarations are the engine's final
+loft inputs; a correct source that fails in lofting is an engine-fidelity
+question, not a reason to distort anatomy. Latest reference-overlay PNGs
+remain0, with no new final f1 realization or screenshot.
+
+| Cause and contribution | Source change and independent gate |
+| --- | --- |
+| Unmeasured zero AP/medial GH convention | Campbell generic through explicit authored origin/triad transfer; independent 3-4-5 signs, physical-mm scaling, sided reflection, translations and malformed-frame cases. No B feedback places GH. |
+| Changed GH longitudinal projection with old arm conversion | One actual projection closes H=AR-d-.0432AR, active biceps station and legacy insertion consumer; public acromial Y/Z and AR/RS stay independent. |
+| Bideltoid stored without original source owner | Retained free deltoid row uses the current biceps template as a declared proxy family. Common engine original-curve critical roots over a fixed proximal-to-midshaft domain drive width, with finite bracket/positive multiplier/final residual admission. .3H is not a measured maximum. |
+| Redundant almost-collinear GH joint | One authored upper segment retains GH and elbow while distal indices move together; actual elbow/WJC/MCP/crease AST, hand roll and metre replay are checked. |
+| Separate torso attachment datum | Old cap reads actual new GH. Torso-only acromion/axilla convention stays explicit and is not adjusted to hide a join residual. Final attachment, true GH anatomy and reference-overlay acceptance remain unfinished. |
+
+No new public input, person, motion, private reading or fit was introduced.
+Runtime first saved11:17:35; final independent BODY assertions saved
+11:24:02.449. At the11:26:44.262 direct read, debug11:24:39 completed clean
+but test11:24:21 was pending; that is not a claimed current behavioral PASS.
+HEAD18597 began11:07:00 and ended0/4 with its new neck sign-bracket failure,
+before this shoulder runtime epoch. No process was stopped or duplicated.
+Next needed BODY names are `human_arm_measurement_closure`,
+`human_body_definition` and `human_body_source_curves`, in one coordinated
+include with the relevant HEAD source questions. Existing hand/foot/leg,
+acromion, AR, tape and original-source expectations remain independent.
+
+## Committed source topic and complete follow-up round (2026-11-05 10:40:26 +09:00, Get-Date)
+
+Human's exact 33-path source topic settled as `065bbd5f1de6b43915d8e5758b96c963d5904dc0`, after Frame provider `0c607d75c7db991a535efa7a3e44db23912a3794`. The commit has 1,191 insertions and 343 deletions. At 10:33:13.144, direct verification found the exact selected path set, no selected dirty path, clean committed whitespace and unchanged mode/blob, tags and ITA flags for all 10,514 outside index entries. No lock was removed or independent push made. The temporary message file was removed without force after verification. The original 36619 failures and the then-unexecuted HEAD caller classification remain in the commit body rather than being hidden by this later result.
+
+Frame naturally reaped shared round 19822 with exit 1 at its reported 10:37:35. Its program began at 10:34:54 and completed 59/63 in 147,265 ms. I read every outcome, all four complete failure bodies, the raw diagnostic arrays and the new source observations. BODY definition passed in 17,034 ms, source curves in 10,781 ms and mass in 69 ms. HEAD records passed in 2,680 ms, source in 1,823 ms and independent neck source in 979 ms; the new generic source-length primitive passed in 23 ms. The HEAD counterfactual query still records the original strict-domain refusal, while actual endpoint expectations pass. It was a caller-role correction, not a change to the source or tolerance.
+
+The remaining failures are CORE solid-body 63, chart-region 248, phase-fidelity 25 and six independent upper-perimeter findings. All four bodies were inspected; the girth case now reports finite independent perimeter discrepancies near its upper shoulder domain, not the earlier four NaN findings. They are not BODY's anatomical source failures. Production retains 31 body names, 36 attempts, the identical head subtree and empty body/head source diagnostics, with final realization not run. Actual production and isolated median observations remain respectively +5.550534901150755 and +5.537488875867595 mm, not continuous moving-frame certificates. Maximum public leg-tape source error is 8.215221214413759e-8 mm against the unchanged 1e-6 allowance. AP targets, signed caps, regular neck boundary jets, whole metatarsal source B/L/floor and hand/digit expectations add no finding. Data is retained in `.shots/body_xhigh/source-definition-round-19822.json` and `source-observations-round-19822.jsonl`.
+
+No BODY generation, CPU invocation, HTTP request or new reference PNG was started. HEAD's next neck-tape geometry is a separate later source epoch. The next shoulder inspection compares the existing GH medial/AP-zero convention, actual published joint-center alternatives, seated deltoid measurement domain and the distinct retained deltoid/biceps shape families before a source change. Original 2D placement and form remain first because these declarations are the final loft's inputs; an incorrect reproduction of correct originals belongs to CORE fidelity, not a compensating anatomical deformation.
+
 ## Source topic review and exact owner selection (2026-11-05 10:28:14 +09:00, Get-Date)
 
 The prepared Human selection has 33 unique existing paths: 21 runtime files, six tests/helpers and six documents. HEAD explicitly authorized its exact ten paths; BODY owns the other twenty source/test paths and three documents. The largest selected TypeScript file is 462 lines. The path inventory and disk hashes are retained in `.shots/body_xhigh/source-topic-33-inventory.json`; they are not loaded-module or served-dependency proof. All twenty BODY source/test hashes still match the executed 09:57:28 epoch except SiteViewPart's comment-only save at 10:24:29.7997058. That correction removes the unsupported claim that declaring any closing point certifies a final G2 dome. No executable statement, curve value, parameter, axis or test expectation changed.

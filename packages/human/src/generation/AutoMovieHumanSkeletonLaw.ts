@@ -182,7 +182,7 @@ export namespace AutoMovieHumanSkeletonLaw {
       const s: 1 | -1 = side === "left" ? 1 : -1;
       const reflected = (point: Vec3): Vec3 => [point[0], point[1], s * point[2]];
       const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
-      const bones_: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(inputs.trunk.glenohumeral, unit(prior.upper), unit(prior.lower), inputs.arms.upper, inputs.arms.lower);
+      const bones_: AutoMovieHumanArmBones.IBones = AutoMovieHumanArmBones.place(inputs.trunk.glenohumeral, unit(prior.upper), unit(prior.lower), inputs.arms.upper, inputs.arms.lower, inputs.trunk.shoulder[1] - inputs.trunk.glenohumeral[1]);
       const hand: AutoMovieHumanHandBones.IOutput = AutoMovieHumanHandBones.sided(AutoMovieHumanHandBones.of(bones_.wrist, inputs.arms[side], inputs.sex, inputs.arms.scale, root.diagnostics ?? []), s);
       hands[side] = hand;
       const elbow: Vec3 = reflected(bones_.elbow);

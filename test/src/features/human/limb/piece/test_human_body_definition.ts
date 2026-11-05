@@ -1,5 +1,5 @@
 import type { AutoMovieConstructionNode } from "@automovie/interface";
-import { AutoMovieConstructionViews, type AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewParameter, type IAutoMovieViewPart, type IAutoMovieLoftChain } from "@automovie/engine";
+import { AutoMovieConstructionViews, type AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewParameter, AutoMovieViewSection, type IAutoMovieViewPart, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanArmBones } from "../../../../../../packages/human/src/generation/arm/AutoMovieHumanArmBones";
 import { AutoMovieHumanBodyAnatomy } from "../../../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../../../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
@@ -20,9 +20,11 @@ import { HumanPeople } from "../../../internal/HumanPeople";
  *    its generating hand's material direction and identical joint references.
  * 6. The hidden trunk closure retains signed source ranges and nonzero angle-pole tangents.
  * 7. The old upper chain copies the actual neck's world boundary and all six 2-jet vectors.
+ * 8. Original arms-down deltoid-domain support closes public bideltoid while
+ *    acromial Y/Z, AR, biceps tape and the hand's source/roll remain independent.
  *
  * @evidence contracts/testing.md#behavioral-verification Calls the shared production define entry and walks its actual tree. Reads trunk GH/rigid arm for the neutral caliper, hand material identity and actual roll endpoint/replay. Every toe's actual fixed foot-plane source is replayed through the same metre AST and its frames compared before any skin realization. Both production legs' original curves and actual trunk-derived placements are observed separately from the isolated limb question. The trunk's signed hull declarations and original critical/regular readings expose inter-knot cap inversion; its actual metre replay retains value and parameter jets. The old upper/actual neck boundary is read through the engine's independent world surface 2-jet, rather than accepting a copied metadata flag.
- * @evidence contracts/testing.md#independent-expectations Anatomical names require a trunk, paired masses, arms, legs, feet, five digits per hand and five toes per foot, with the identical head subtree. Public AR closes its straight measuring convention. Hand material/roll and fixed toe planes preserve their source. Trunk positive/negative edges cannot exchange signs; a closing angle tangent points inward at the top and outward at the bottom, is nonzero, has zero second parameter derivative and no fabricated finite station jet. The same regular neck boundary must have equal p/s/t/ss/st/tt on both consumer chains within1e-9 in each field's units. Actual leg points remain in their world median half-spaces; finite interior observations can disprove but cannot certify a moving-frame span. Printed site differences are not substituted tape/course expectations.
+ * @evidence contracts/testing.md#independent-expectations Anatomical names require a trunk, paired masses, arms, legs, feet, five digits per hand and five toes per foot, with the identical head subtree. Public AR closes its straight measuring convention. Public acromial height/biacromial width remain bony named inputs, independently of the selected GH proxy. Actual outer scalar critical roots in the declared proximal-to-midshaft domain give symmetric arms-down B=2*(abs(GH.z)+radius); .3H is not the expected maximum. Actual biceps edges/fullness retain public G. Hand material/roll and fixed toe planes preserve their source. Trunk signs, nonzero closing parameter jets and regular neck p/s/t/ss/st/tt within1e-9 remain independent. Actual leg points stay in world median half-spaces; finite observations do not certify a moving span.
  * @evidence contracts/testing.md#distinguishing-cases Uses every environment-selected person's bilateral inputs and reports all omitted names/diagnoses together. Both hands query before WJC, at WJC, inside the transition, at MCP and beyond it. A range that merely flattens an incorrect pole tangent fails the nonzero closure expectation. Retaining local coefficients while dropping the translated neck frame fails the actual world boundary; singular pole derivatives are kept distinct from this regular station.
  * @evidence contracts/testing.md#execution-ownership Runs one synchronous source definition per selected person and replays only its source converter; requests no final realization, duplicate Human generation, rig, viewer, GPU, process or scratch output. Original AP mass poles are checked against public span/depth and the same trunk source site, independently of the placement solver; final tape/merge acceptance is excluded.
  */
@@ -79,6 +81,8 @@ export function test_human_body_definition(): void {
     const humerus: number = Math.hypot(...elbow.position.map((value: number, axis: number): number => value - upper.position[axis]!));
     const neutralAR: number = acromion[1] - upper.position[1] + humerus + AutoMovieHumanArmBones.RADIALE * input.arms.upper;
     if (Math.abs(neutralAR - input.arms.upper) > 1e-9) defects.push(`${name}: production trunk GH and rigid arm do not close neutral AR: ${neutralAR} instead of ${input.arms.upper} mm`);
+    const measures: ReturnType<typeof AutoMovieHumanBodyAnatomy.resolve> = AutoMovieHumanBodyAnatomy.resolve(params);
+    if (Math.abs(acromion[1] - measures.acromialHeight * input.arms.scale) > 1e-6 || Math.abs(acromion[2] - measures.biacromialBreadth * input.arms.scale / 2) > 1e-6) defects.push(`${name}: GH proxy moved the public acromion Y/Z datum`);
     for (const side of ["left", "right"] as const) {
       const hand: AutoMovieHumanBodyLaw.IDefinition["hands"]["left"] = definition.hands[side];
       for (const [digit, source] of [...Object.entries(hand.fingers), ["Thumb", hand.thumb]] as [string, typeof hand.thumb][]) {
@@ -97,6 +101,7 @@ export function test_human_body_definition(): void {
       if (source !== undefined && source.result.part !== null) {
         const part: NonNullable<AutoMovieHumanSiteViewPart.IResult["part"]> = source.result.part;
         materialFrame(`${name}/arm.${side}`, source.result, definition.hands[side].frame.across, defects);
+        shoulderSource(`${name}/arm.${side}`, source.result, side, definition, input, defects);
         const edges: number[] = [part.front.positive, part.side.positive, part.front.negative, part.side.negative].map((outline: (typeof part.front)["positive"]): number => outline.knots.find((knot: (typeof outline.knots)[number]): boolean => knot.site === "knuckles")?.value ?? NaN);
         const radialBreadth: number = edges[0]! - edges[2]!;
         const palmarDepth: number = edges[1]! - edges[3]!;
@@ -116,6 +121,56 @@ export function test_human_body_definition(): void {
     console.log(JSON.stringify({ person: name, sourceParts: [...names], sourceAttempts: definition.lane.sources.length, sameHead, stature: definition.stature, diagnostics: definition.diagnostics, headDiagnostics: definition.head.source.diagnostics, stage: "source-definition", finalRealization: "not-run" }));
   }
   if (defects.length !== 0) throw new Error(`Production source definition findings:\n${defects.join("\n")}`);
+}
+
+/** Read the actual fixed upper source, its binary64 critical candidates and biceps tape; no production normalizer output or final skin supplies an expectation. */
+function shoulderSource(name: string, source: AutoMovieHumanSiteViewPart.IResult, side: "left" | "right", definition: AutoMovieHumanBodyLaw.IDefinition, input: AutoMovieHumanBodyLaw.ILimbInputs, defects: string[]): void {
+  if (source.part === null || source.view === null) return;
+  const part: IAutoMovieViewPart = source.part;
+  const gh: (typeof definition.skeleton)[number] = definition.skeleton.find((bone: (typeof definition.skeleton)[number]): boolean => bone.bone === `${side}UpperArm`)!;
+  const elbow: (typeof definition.skeleton)[number] = definition.skeleton.find((bone: (typeof definition.skeleton)[number]): boolean => bone.bone === `${side}LowerArm`)!;
+  const start: AutoMovieLoftFrame.IFrame = part.axis.at(0);
+  const run: number = Math.hypot(...start.origin.map((value: number, c: number): number => value - gh.position[c]!));
+  const humerus: number = Math.hypot(...gh.position.map((value: number, c: number): number => value - elbow.position[c]!));
+  const end: number = run + humerus / 2;
+  const prepared: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
+  const outer: AutoMovieViewCurves.ICurve | undefined = prepared.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === (side === "left" ? "side.negative" : "side.positive"));
+  if (outer?.outline === null || outer === undefined) { defects.push(`${name}: original deltoid support unavailable`); return; }
+  const sign: number = side === "left" ? -1 : 1;
+  const stations: number[] = [0, end, ...outer.outline.knots.map((k: IAutoMovieViewPart.IKnot): number => k.station), ...AutoMovieViewOutline.criticalStations(outer.outline)].filter((station: number): boolean => station >= 0 && station <= end);
+  let radius: number = -Infinity;
+  let maximumAt: number = NaN;
+  let frameMiss: number = 0;
+  for (const station of stations) {
+    const scalar: number | string = AutoMovieViewOutline.value(outer.outline, station);
+    if (typeof scalar === "string") { defects.push(`${name}: ${scalar}`); continue; }
+    if (sign * scalar > radius) { radius = sign * scalar; maximumAt = station; }
+    const frame: AutoMovieLoftFrame.IFrame = part.axis.at(station);
+    for (const key of ["u", "v"] as const) for (let c: number = 0; c < 3; c++) frameMiss = Math.max(frameMiss, Math.abs(frame[key][c]! - start[key][c]!));
+  }
+  const breadth: number = 2 * (Math.abs(gh.position[2]) + radius);
+  if (!Number.isFinite(breadth) || Math.abs(breadth - input.arms.bideltoid) > 1e-6 || frameMiss > 1e-10) defects.push(`${name}: fixed deltoid source B ${breadth} instead of ${input.arms.bideltoid}, frame drift ${frameMiss}`);
+  if (source.view.axis.type !== "jointed" || source.view.axis.centres.length !== 6) defects.push(`${name}: redundant GH joint or hand-course centres changed`);
+  else {
+    const wrist: (typeof definition.skeleton)[number] = definition.skeleton.find((bone: (typeof definition.skeleton)[number]): boolean => bone.bone === `${side}Hand`)!;
+    for (const [index, expected] of [[1, elbow.position], [2, wrist.position], [3, definition.hands[side].knuckle], [4, definition.hands[side].crease]] as [number, [number, number, number]][]) {
+      const actual: [number, number, number] = AutoMovieConstructionViews.point(source.view.axis.centres[index]!);
+      if (actual.some((value: number, c: number): boolean => Math.abs(value - expected[c]!) > 1e-9)) defects.push(`${name}: source AST centre ${index} lost its actual elbow/WJC/MCP/crease datum`);
+    }
+  }
+  const biceps: number | undefined = part.front.positive.knots.find((k: IAutoMovieViewPart.IKnot): boolean => k.site === "biceps")?.station;
+  if (biceps === undefined || part.fullness.kind !== "shoulder") { defects.push(`${name}: biceps source tape missing`); return; }
+  const projection: number = definition.standing.trunk!.shoulder[1] - gh.position[1];
+  if (Math.abs(biceps - (run + input.arms.upper / 2 - projection)) > 1e-9) defects.push(`${name}: biceps source no longer uses its explicit half-AR station proxy`);
+  const fullness: ReturnType<typeof AutoMovieViewOutline.create> = AutoMovieViewOutline.create(part.fullness.shoulder);
+  if ("detail" in fullness) { defects.push(`${name}: ${fullness.detail}`); return; }
+  const shoulder: number | string = AutoMovieViewOutline.value(fullness, biceps);
+  const values: (number | string)[] = prepared.curves.map((curve: AutoMovieViewCurves.ICurve): number | string => curve.outline === null ? "missing edge" : AutoMovieViewOutline.value(curve.outline, biceps));
+  if (typeof shoulder === "string" || values.some((value: number | string): boolean => typeof value === "string")) { defects.push(`${name}: biceps source reading failed`); return; }
+  const edges: number[] = values as number[];
+  const girth: number = AutoMovieViewSection.length(AutoMovieViewSection.of({ extents: [edges[0]!, edges[2]!, -edges[1]!, -edges[3]!] }, [shoulder, shoulder, shoulder, shoulder]));
+  if (!Number.isFinite(girth) || Math.abs(girth - input.arms.bicep) > 1e-6) defects.push(`${name}: biceps source G ${girth} instead of ${input.arms.bicep}`);
+  console.log(JSON.stringify({ part: name, shoulderSource: { gh: gh.position, humerus, domain: [0, end], maximumAt, radius, breadth, publicB: input.arms.bideltoid, frameMiss, girth, publicG: input.arms.bicep, scope: "original fixed-frame guide support; final shoulder skin not run" } }));
 }
 
 /** Read the actual cap sources and their declared hull bounds, pole-parameter jets and metre replay. Critical/regular observations supplement the shared control-hull contract; they do not prove final loft fidelity or a general world bound. All data belongs to the existing definition. */
