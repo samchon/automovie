@@ -111,6 +111,7 @@ export namespace FighterBody {
       rotation: number;
     };
     /** Jaw opening, millimetres. */ jaw: number;
+    /** Pain wince in [0, 1]: eyes squeezed shut and brows lowered. */ wince: number;
     /** Shoulder girdle protraction/elevation per side, degrees. */ girdle: Record<
       Side,
       { protraction: number; elevation: number }

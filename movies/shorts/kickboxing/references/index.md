@@ -127,3 +127,7 @@ Complete retained media identity manifest. Original files remain unchanged. IBA/
 | private/support-study/pdf-page-6.png | 218128 | 682c3796424c77931b755ee10db547eb2e2940af16562a0e8e2140f0ab95abb6 |
 | private/support-study/pdf-page-7.png | 228393 | 27d493cbaa6f6a7dab8cbe9c24bd42ca262cbb66693e73acc26874609dfb1e45 |
 | private/support-study/riansoi-2019.pdf | 588541 | 84a7274d7190df45fb09c22d1f29be489416b0d3890263ab20f09b0a42dd04ff |
+
+## Generation receiver
+
+[Planned Seedance 2.5 handoff contract](research/seedance-2-5-handoff-contract.md) carries the sibling production's 2026-11-05 observation of the official BytePlus model, input-budget, prompt-guide and task pages, with its source record identity. No page, image or video was downloaded or retained for it; its limits support only the planned [video prompts](../docs/prompts/videos/source-bindings.md) and must be rechecked before any submission.

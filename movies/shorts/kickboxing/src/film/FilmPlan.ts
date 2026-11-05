@@ -1,5 +1,6 @@
 import { Aftermath } from "../bout/Aftermath";
 import { Blocking } from "../bout/Blocking";
+import { BoutScript } from "../bout/BoutScript";
 import { Ease } from "../rig/Ease";
 import { Vec3 } from "../rig/Vec3";
 
@@ -110,7 +111,7 @@ export namespace FilmPlan {
   /**
    * The delivered camera at a film second.
    *
-   * @evidence contracts/common.md#implementation-and-ownership During the bout the camera stands inside the ropes on A's left of the fighting axis (the same side throughout), 2.75 m out at chest height, so the pair fills most of the frame and no rope crosses it; it drifts slowly along that side and is held 2.9 m from ring centre at most. From 143 s it eases over eight seconds into the aftermath's side-on view, which holds the kick, fall, neutral corner, count and celebration without a cut.
+   * @evidence contracts/common.md#implementation-and-ownership During the bout the camera stands inside the ropes on A's left of the fighting axis (the same side throughout), 2.75 m out at chest height, so the pair fills most of the frame and no rope crosses it; it drifts slowly along that side and is held 2.9 m from ring centre at most. From 143 s it eases over eight seconds into the aftermath's side-on view, which holds the kick, fall, neutral corner, count and celebration without a cut. Every clean landing jolts the view with a damped shake of at most a few centimetres for 0.3 s.
    * @evidence contracts/common.md#authoring-interface Finite seconds in [0, 180]; returns a fresh camera.
    */
   export function camera(seconds: number): Camera {
@@ -135,15 +136,31 @@ export namespace FilmPlan {
     const wide: { position: Vec3.Value; target: Vec3.Value } =
       Aftermath.wideCamera;
     const k: number = Ease.smoother((seconds - 143) / 8);
+
+    // A clean blow jolts the whole view for a quarter second: a damped vertical
+    // shake scaled by the blow (jab lightest, kicks heavier, the knockout most).
+    let jolt: number = 0;
+    for (const action of BoutScript.actions) {
+      const tau: number = seconds - action.at;
+      if (action.defense !== "hit" || tau < 0 || tau > 0.3) continue;
+      const power: number =
+        action === BoutScript.finish
+          ? 2.5
+          : action.technique.endsWith("kick")
+            ? 1.4
+            : action.technique === "jab"
+              ? 0.5
+              : 1;
+      jolt += power * Math.exp(-tau / 0.07) * Math.sin(2 * Math.PI * 16 * tau);
+    }
+    const shake: Vec3.Value = [0, 0.012 * jolt, 0];
     return {
       shotId:
         seconds < 143 ? "ringside-continuous" : "knockout-and-count-unbroken",
-      position: [...Vec3.lerp(bout.position, wide.position, k)] as [
-        number,
-        number,
-        number,
-      ],
-      target: [...Vec3.lerp(bout.target, wide.target, k)] as [
+      position: [
+        ...Vec3.add(Vec3.lerp(bout.position, wide.position, k), shake),
+      ] as [number, number, number],
+      target: [...Vec3.add(Vec3.lerp(bout.target, wide.target, k), shake)] as [
         number,
         number,
         number,

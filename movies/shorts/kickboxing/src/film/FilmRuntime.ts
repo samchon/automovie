@@ -20,6 +20,7 @@ import { Vec3 } from "../rig/Vec3";
 import { FilmActor } from "./FilmActor";
 import { FilmEvents } from "./FilmEvents";
 import type { FilmPlan } from "./FilmPlan";
+import { ImpactEffects } from "./ImpactEffects";
 
 /**
  * The three performers on one film clock.
@@ -51,6 +52,10 @@ export class FilmRuntime {
   private contactReceipts: AudioMix.Contact[] = [];
   private refusedContacts: { actionId: string; gap: number }[] = [];
   private matReceipts: AudioMix.FloorContact[] = [];
+  /** Measured landings that drive sweat, blood, flush and glove squash. */
+  private impacts: ImpactEffects.Impact[] = [];
+  /** Sweat and blood droplets and canvas stains; the Viewer adds its object to the scene. */
+  public readonly effects: ImpactEffects = new ImpactEffects();
 
   public constructor() {
     const fighterRig: BodyRig = new BodyRig(createPersonParameters(1800, true));
@@ -142,8 +147,21 @@ export class FilmRuntime {
     let residual: number = 0;
     for (const id of ["a", "b", "referee"] as const) {
       residual = Math.max(residual, solved[id].error);
-      this.actors[id].place(solved[id].root, solved[id].pose);
+      this.actors[id].place(
+        solved[id].root,
+        solved[id].pose,
+        solved[id].frame.wince,
+      );
+      if (id !== "referee") {
+        this.actors[id].bruise(ImpactEffects.flush(this.impacts, id, t));
+        for (const side of ["left", "right"] as const)
+          this.actors[id].squash(
+            side,
+            ImpactEffects.squash(this.impacts, id, side, t),
+          );
+      }
     }
+    this.effects.update(t);
     this.residual = residual;
     this.seconds = t;
     this.lastMotionMs = performance.now() - begun;
@@ -222,7 +240,7 @@ export class FilmRuntime {
   /**
    * Measure contact and mat receipts once.
    *
-   * @evidence contracts/common.md#implementation-and-ownership For every planned contact, evaluates the film at the contact second and measures the gap between the attacking glove (sphere) or shin (segment) and the receiving glove, shin, rib point or jaw; a gap within 3.5 cm issues a receipt. B's hip and shoulder arrivals are sampled at 120 Hz. Yields between groups keep the page responsive.
+   * @evidence contracts/common.md#implementation-and-ownership For every planned contact, evaluates the film at the contact second and measures the gap between the attacking glove (sphere) or shin (segment) and the receiving glove, shin, rib capsule or jaw surface; a receipt needs the surfaces to meet (guard and shin contacts) or the weapon to sink at least 1 cm (clean hits). B's hip and shoulder arrivals are sampled at 120 Hz. Yields between groups keep the page responsive.
    * @evidence contracts/common.md#authoring-interface Resolves when all receipts are measured; progress reports completed counts.
    */
   public async prepare(
@@ -230,6 +248,7 @@ export class FilmRuntime {
   ): Promise<void> {
     const contacts: AudioMix.Contact[] = [];
     const refused: { actionId: string; gap: number }[] = [];
+    const impacts: ImpactEffects.Impact[] = [];
     const planned: BoutScript.Action[] = BoutScript.actions.filter(
       (action: BoutScript.Action): boolean =>
         FilmEvents.relation(action) !== null,
@@ -241,7 +260,7 @@ export class FilmRuntime {
     const touch: number =
       Vec3.distance(this.actors.a.glove("left"), this.actors.b.glove("left")) -
       0.19;
-    if (touch <= 0.035)
+    if (touch <= 0)
       contacts.push({
         eventId: "touch",
         actionId: "touch",
@@ -257,7 +276,12 @@ export class FilmRuntime {
       this.evaluate(action.at);
       const gap: number = this.gap(action);
       const relation = FilmEvents.relation(action)!;
-      if (gap <= 0.035)
+      // A clean hit must sink into the receiver's skin; a guard or shin contact
+      // must at least touch. No air gap counts as a landing.
+      const needed: number =
+        relation === "head" || relation === "body" ? -0.01 : 0;
+      if (gap <= needed) {
+        impacts.push(this.impact(action, relation));
         contacts.push({
           eventId: `contact:${action.id}`,
           actionId: action.id,
@@ -267,12 +291,12 @@ export class FilmRuntime {
           relation,
           provenance: `${relation} gap ${gap.toFixed(3)} m at displayed FK`,
         });
-      else refused.push({ actionId: action.id, gap });
+      } else refused.push({ actionId: action.id, gap });
 
-      // Full reaction at a touching contact (gap ≤ 3.5 cm), none beyond 6 cm.
+      // Full reaction once the surfaces meet, none beyond a 2.5 cm air gap.
       this.fighters[action.actor === "a" ? "b" : "a"].strength.set(
         action.id,
-        Math.max(0, Math.min(1, (0.06 - gap) / 0.025)),
+        Math.max(0, Math.min(1, (0.025 - gap) / 0.025)),
       );
       if (index % 8 === 7) {
         progress?.(action.id, index + 1, total);
@@ -311,6 +335,8 @@ export class FilmRuntime {
       }
     }
     this.contactReceipts = contacts;
+    this.impacts = impacts;
+    this.effects.configure(impacts);
     this.refusedContacts = refused;
     this.matReceipts = mats;
     this.ready = true;
@@ -393,7 +419,41 @@ export class FilmRuntime {
    * @evidence contracts/common.md#authoring-interface The runtime must not be evaluated afterwards.
    */
   public dispose(): void {
+    this.effects.dispose();
     for (const actor of Object.values(this.actors)) actor.dispose();
+  }
+
+  /** The landing of a measured contact at the currently displayed second. */
+  private impact(
+    action: BoutScript.Action,
+    relation: ImpactEffects.Impact["relation"],
+  ): ImpactEffects.Impact {
+    const attacker: FilmActor = this.actors[action.actor];
+    const receiver: FilmActor = this.actors[action.actor === "a" ? "b" : "a"];
+    const spec = BoutScript.specs[action.technique];
+    const kick: boolean = action.technique.endsWith("kick");
+    const point: Vec3.Value = kick
+      ? Vec3.lerp(
+          attacker.point(`${spec.side}LowerLeg`),
+          attacker.point(`${spec.side}Foot`),
+          0.7,
+        )
+      : attacker.glove(spec.side);
+    return {
+      id: action.id,
+      seconds: action.at,
+      attacker: action.actor,
+      receiver: action.actor === "a" ? "b" : "a",
+      relation,
+      side: spec.side === "left" ? "right" : "left",
+      weapon: kick ? "shin" : spec.side,
+      point,
+      direction: Vec3.normalize(
+        Vec3.sub(receiver.point("chest"), attacker.point("chest")),
+      ),
+      strength: 1,
+      finish: action === BoutScript.finish,
+    };
   }
 
   /** Gap between the attacking surface and its planned receiving surface, metres. */

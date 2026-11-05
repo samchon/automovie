@@ -92,7 +92,7 @@ export namespace BoutScript {
     [20.95, "a", "cross", "slip"],
     [22.2, "b", "jab", "cover"],
     [22.55, "b", "cross", "cover"],
-    [23.1, "a", "jab", "slip"],
+    [23.1, "a", "jab", "hit"],
     [25.0, "a", "body-kick", "hit"],
     [27.6, "b", "jab", "parry"],
     // 30–45 B answers below the guard.
@@ -104,7 +104,7 @@ export namespace BoutScript {
     [35.2, "b", "low-kick", "check"],
     [36.3, "a", "cross", "slip"],
     [37.4, "a", "uppercut", "cover"],
-    [37.95, "b", "cross", "slip"],
+    [37.95, "b", "cross", "hit"],
     [38.6, "a", "body-hook", "catch"],
     [41.6, "a", "jab", "parry"],
     // 45–60 Pressure changes hands.
@@ -119,7 +119,7 @@ export namespace BoutScript {
     [52.4, "a", "jab", "parry"],
     [52.75, "a", "cross", "cover"],
     [53.25, "b", "jab", "slip"],
-    [53.85, "b", "hook", "weave"],
+    [53.85, "b", "hook", "hit"],
     // 60–75 The body kick returns.
     [61.3, "a", "jab", "cover"],
     [61.65, "a", "cross", "cover"],
@@ -152,7 +152,7 @@ export namespace BoutScript {
     [94.0, "a", "hook", "cover"],
     [95.2, "a", "low-kick", "check"],
     [96.3, "b", "cross", "slip"],
-    [96.85, "a", "jab", "slip"],
+    [96.85, "a", "jab", "hit"],
     [98.1, "b", "body-hook", "catch"],
     // 105–120 B drives A back.
     [106.2, "b", "jab", "cover"],
@@ -165,7 +165,7 @@ export namespace BoutScript {
     [111.25, "b", "cross", "slip"],
     [112.4, "a", "jab", "slip"],
     [112.75, "a", "cross", "slip"],
-    [113.3, "b", "jab", "slip"],
+    [113.3, "b", "jab", "hit"],
     [113.75, "b", "body-cross", "hit"],
     // 120–135 A turns back into range.
     [121.4, "a", "body-cross", "catch"],
@@ -177,14 +177,14 @@ export namespace BoutScript {
     [126.55, "b", "cross", "cover"],
     [127.05, "a", "jab", "slip"],
     [128.3, "b", "cross", "slip"],
-    [128.85, "a", "jab", "slip"],
+    [128.85, "a", "jab", "hit"],
     [129.25, "a", "cross", "cover"],
     // 135–150 The kick climbs.
     [137.0, "b", "jab", "cover"],
     [137.35, "b", "cross", "cover"],
     [137.85, "a", "jab", "slip"],
     [138.7, "b", "hook", "weave"],
-    [139.3, "a", "cross", "slip"],
+    [139.3, "a", "cross", "hit"],
     [141.0, "b", "low-kick", "check"],
     [142.3, "a", "body-cross", "hit"],
     [142.9, "b", "jab", "slip"],

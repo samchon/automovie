@@ -188,6 +188,63 @@ export namespace Reaction {
       }
       case "hit": {
         if (action.technique === "high-kick") break;
+        if (BoutScript.specs[action.technique].target === "head") {
+          // A clean blow to the face: the head whips along the punch (back for a
+          // straight or uppercut, around for a hook), the trunk follows, the weight
+          // rocks back so a stagger step follows, the mouth opens and the eyes shut.
+          const hook: boolean = action.technique === "hook";
+          const uppercut: boolean = action.technique === "uppercut";
+          const power: number = action.technique === "jab" ? 0.7 : 1;
+          const k: number =
+            Ease.pulse(t, at - 0.01, at + 0.07, at + 0.55) * strength * power;
+          frame.cervical.flexion -= (uppercut ? 26 : hook ? 8 : 20) * k;
+          frame.atlas.flexion -= (uppercut ? 10 : 6) * k;
+          frame.cervical.rotation += -toward * (hook ? 20 : 7) * k;
+          frame.atlas.rotation += -toward * (hook ? 30 : 8) * k;
+          frame.cervical.lateral += -toward * (hook ? 16 : 6) * k;
+          frame.thoracic.flexion -= (uppercut ? 9 : 6) * k;
+          frame.thoracic.rotation += -toward * (hook ? 12 : 5) * k;
+          frame.shift[0] -= (hook ? 0.07 : 0.11) * k;
+          frame.shift[1] += -toward * (hook ? 0.06 : 0.02) * k;
+          frame.drop += 0.03 * k;
+          frame.jaw = Math.max(frame.jaw, 24 * k);
+          frame.wince = Math.max(
+            frame.wince,
+            Ease.pulse(t, at - 0.01, at + 0.04, at + 0.55) * strength,
+          );
+          // He is caught with the struck-side hand low: it sags off the line just
+          // before the blow and comes back up after it, while the other guard
+          // flies open with the head and closes again.
+          // The hand is handed back once it is up again, and never taken from the
+          // receiver's own answering punch after the impact.
+          const current: FighterBody.Hand = frame.hands[side];
+          const answering: boolean =
+            t > at && (current.kind === "attack" || current.kind === "swing");
+          if (t < at + 0.5 && !answering)
+            FighterBody.assign(
+              frame,
+              side,
+              {
+                kind: "catch",
+                side,
+                amount: Ease.plateau(
+                  t,
+                  at - 0.28,
+                  at - 0.08,
+                  at + 0.08,
+                  at + 0.5,
+                ),
+                low: 1,
+              },
+              Ease.ramp(t, at - 0.3, at - 0.2) *
+                (1 - Ease.ramp(t, at + 0.3, at + 0.5)),
+            );
+          const other: FighterBody.Hand =
+            frame.hands[side === "left" ? "right" : "left"];
+          if (other.kind === "guard")
+            other.tight = Math.min(other.tight, 1 - 0.8 * k);
+          break;
+        }
         const heavy: boolean = action.technique === "body-kick";
         const k: number =
           Ease.pulse(t, at - 0.01, at + 0.09, at + (heavy ? 0.85 : 0.6)) *

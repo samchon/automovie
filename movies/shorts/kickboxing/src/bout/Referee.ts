@@ -92,6 +92,7 @@ export class Referee {
       cervical: { flexion: 4, lateral: 0, rotation: 0 },
       atlas: { flexion: 2, rotation: 0 },
       jaw: RefereeCues.mouth(t),
+      wince: 0,
       girdle: {
         left: { protraction: 0, elevation: 0 },
         right: { protraction: 0, elevation: 0 },

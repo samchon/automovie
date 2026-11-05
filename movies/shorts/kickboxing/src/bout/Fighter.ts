@@ -107,6 +107,7 @@ export class Fighter {
       cervical: { flexion: 9 * fight, lateral: 0, rotation: 0 },
       atlas: { flexion: 6 * fight, rotation: 0 },
       jaw: 0,
+      wince: 0,
       girdle: {
         left: { protraction: 4 * fight, elevation: 7 * fight },
         right: { protraction: 4 * fight, elevation: 7 * fight },
@@ -238,7 +239,7 @@ export namespace Fighter {
   /**
    * Opening courtesy: both lead gloves reach and meet at 1.0 s, then withdraw.
    *
-   * @evidence contracts/common.md#implementation-and-ownership Lead glove point goal at the pair centre, 1.28 m high, offset by a glove radius per side, blended in and out around 1.0 s.
+   * @evidence contracts/common.md#implementation-and-ownership Lead glove point goal at the pair centre, 1.28 m high, 7 cm off it per side so the two gloves press together, blended in and out around 1.0 s.
    * @evidence contracts/common.md#authoring-interface Mutates the frame; no effect outside 0.45–1.55 s.
    */
   export function touch(
@@ -255,7 +256,7 @@ export namespace Fighter {
       kind: "point",
       point: Vec3.add(
         [pair.centre[0], 1.28, pair.centre[1]],
-        Vec3.scale(axis, side * 0.1),
+        Vec3.scale(axis, side * 0.07),
       ),
       amount,
     };

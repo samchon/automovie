@@ -24,6 +24,9 @@ export class FilmActor {
   /** Equipment and garment disposers. */
   private readonly equipment: (() => void)[] = [];
 
+  /** Last applied flush levels (quantized), so the palette is rebuilt only on change. */
+  private flushKey: string = "0,0,0";
+
   /** Review overlay of joint points and parent–child sticks; absent unless requested. */
   private skeleton?: {
     points: THREE.Points;
@@ -52,13 +55,29 @@ export class FilmActor {
   /**
    * Apply a solved pose at a root placement.
    *
-   * @evidence contracts/common.md#implementation-and-ownership Writes the group transform, then the pose through the shared evaluator.
-   * @evidence contracts/common.md#authoring-interface World metres and a unit quaternion; clinical degrees.
+   * @evidence contracts/common.md#implementation-and-ownership Writes the group transform, then the pose through the shared evaluator. A wince draws as squeezed eyelids and lowered brows on the cartoon face, quantized to tenths so the face is rebuilt only when it visibly changes.
+   * @evidence contracts/common.md#authoring-interface World metres and a unit quaternion; clinical degrees; wince in [0, 1].
    */
-  public place(root: BodyRig.Placement, pose: IAutoMovieHumanPose): void {
+  public place(
+    root: BodyRig.Placement,
+    pose: IAutoMovieHumanPose,
+    wince: number = 0,
+  ): void {
     this.person.object.position.set(...root.position);
     this.person.object.quaternion.set(...root.rotation);
-    this.person.pose(pose);
+    const w: number = Math.round(Math.max(0, Math.min(1, wince)) * 10) / 10;
+    this.person.pose(
+      pose,
+      w > 0
+        ? {
+            units: [
+              { unit: "eyesClosed", intensity: w, side: "both" },
+              { unit: "lidTightener", intensity: w, side: "both" },
+              { unit: "browLowerer", intensity: w, side: "both" },
+            ],
+          }
+        : undefined,
+    );
     if (this.skeleton) this.updateRig();
   }
 
@@ -138,6 +157,52 @@ export class FilmActor {
   }
 
   /**
+   * Redden struck skin: the face (head and neck) and each side of the trunk.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Mixes the base skin toward a bruised red on the head and neck by the face flush and on the chest and spine by the trunk flush; levels are quantized to eighths so the palette (which allocates materials) is rebuilt only when the colour visibly steps.
+   * @evidence contracts/common.md#authoring-interface Flush values in [0, 1] from ImpactEffects.flush.
+   */
+  public bruise(flush: { face: number; left: number; right: number }): void {
+    const step = (value: number): number =>
+      Math.round(Math.max(0, Math.min(1, value)) * 8) / 8;
+    const face: number = step(flush.face);
+    const trunk: number = step((flush.left + flush.right) / 2);
+    const key: string = `${face},${trunk}`;
+    if (key === this.flushKey) return;
+    this.flushKey = key;
+    const base: Record<string, number> = this.person.palette;
+    const colors: Record<string, number> = { ...base };
+    const mix = (color: number, amount: number): number => {
+      const from: THREE.Color = new THREE.Color(color);
+      return from.lerp(new THREE.Color(BRUISE), amount).getHex();
+    };
+    for (const bone of ["head", "neck"])
+      if (bone in base)
+        colors[bone] = mix(base[bone]!, (bone === "head" ? 0.42 : 0.25) * face);
+    for (const bone of ["chest", "spine"])
+      if (bone in base) colors[bone] = mix(base[bone]!, 0.32 * trunk);
+    this.person.drawing.setPartColors(colors);
+  }
+
+  /**
+   * Flatten a glove against what it hit.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Scales the glove mesh shorter along the forearm and wider across it, keeping its volume roughly constant.
+   * @evidence contracts/common.md#authoring-interface Squash in [0, 1]; 0 restores the glove.
+   */
+  public squash(side: "left" | "right", amount: number): void {
+    const glove: THREE.Object3D | undefined =
+      this.person.object.getObjectByName(`${side}-glove`);
+    if (!glove) return;
+    const k: number = Math.max(0, Math.min(1, amount));
+    glove.scale.set(
+      0.105 * (1 - 0.3 * k),
+      0.095 * (1 + 0.15 * k),
+      0.095 * (1 + 0.15 * k),
+    );
+  }
+
+  /**
    * World position of a bone of the current displayed pose.
    *
    * @evidence contracts/common.md#implementation-and-ownership Reads the current FK joint through the group's world matrix.
@@ -201,3 +266,6 @@ export class FilmActor {
     this.person.dispose();
   }
 }
+
+/** Bruised skin colour struck skin flushes toward. */
+const BRUISE: number = 0x9c2f36;

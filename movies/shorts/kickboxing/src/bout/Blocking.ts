@@ -54,7 +54,18 @@ export namespace Blocking {
     for (const action of BoutScript.actions) {
       const spec = BoutScript.specs[action.technique];
       const kick: boolean = action.technique.endsWith("kick");
-      const need: number = Math.max(0, BoutScript.neutralRange - spec.range);
+      // A punch that lands clean drives into the face or ribs instead of stopping
+      // at the guard, so it steps in deeper than the technique's range.
+      const deeper: number =
+        kick || action.defense !== "hit"
+          ? 0
+          : spec.target === "head"
+            ? 0.18
+            : 0.06;
+      const need: number = Math.max(
+        0,
+        BoutScript.neutralRange - spec.range + deeper,
+      );
 
       // A kick steps in first and only then unloads the leg; a punch's step lands just
       // before the fist so the rear foot has followed by contact. The attacker steps

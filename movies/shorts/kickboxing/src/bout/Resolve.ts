@@ -19,7 +19,7 @@ const GLOVE: number = 0.095;
  * checking shin → reactive parries, which meet the attacking glove's goal.
  * No step reads a solved limb, so there is no circular dependency.
  *
- * @evidence contracts/common.md#implementation-and-ownership Contact is built in by construction: a covered punch's glove centre stops one glove diameter short of the covering glove along the punch line; a body shot stops a glove radius off the rib point; a kick centres the shin on its target. Evaded punches extend through the nominal head line. The measured gaps after solving are reported separately as contact receipts.
+ * @evidence contracts/common.md#implementation-and-ownership Contact is built in by construction and never stops at the surface: a covered punch presses its glove about 2 cm into the covering glove, a parry presses into the incoming glove, a clean punch sinks into the ribs or 5 cm into the cheek, and a kick drives its shin through the struck surface. Evaded punches extend through the nominal head line. The measured gaps after solving are reported separately as contact receipts.
  * @evidence contracts/common.md#authoring-interface `frames` maps performer ids to frames; `rigs` supplies each body. Fighters are "a" and "b"; any other id (the referee) only uses placement, point and pose intents.
  */
 export namespace Resolve {
@@ -265,7 +265,7 @@ export namespace Resolve {
         if (!incoming) return base;
         const push: number = side === "right" ? -1 : 1;
         const meet: Vec3.Value = Vec3.add(
-          Vec3.add(incoming.point, Vec3.scale(c.left, push * GLOVE * 1.7)),
+          Vec3.add(incoming.point, Vec3.scale(c.left, push * GLOVE * 1.5)),
           Vec3.scale(c.forward, -0.02),
         );
         return lerpGoal(base, { point: meet }, hand.amount);
@@ -429,11 +429,11 @@ export namespace Resolve {
               passive(o, receiver).point,
               Vec3.scale(o.left, receiver === "right" ? -0.05 : 0.05),
             ),
-            GLOVE * 1.95,
+            GLOVE * 1.8,
           );
         if (action.technique === "uppercut") {
           // Rise into the underside of the covering glove, a quarter of the way in
-          // from it toward the midline, touching it whatever the guard's width.
+          // from it toward the midline, pressing into it whatever the guard's width.
           const mid: Vec3.Value = Vec3.lerp(
             passive(o, "left").point,
             passive(o, "right").point,
@@ -441,11 +441,11 @@ export namespace Resolve {
           );
           return Vec3.add(Vec3.lerp(passive(o, receiver).point, mid, 0.25), [
             0,
-            -GLOVE,
+            -GLOVE * 1.6,
             0,
           ]);
         }
-        return along(passive(o, receiver).point, GLOVE * 1.95);
+        return along(passive(o, receiver).point, GLOVE * 1.8);
       }
       case "parry":
         return Vec3.add(
@@ -455,8 +455,31 @@ export namespace Resolve {
             Vec3.scale(c.forward, 0.02),
           ),
         );
-      case "hit":
-        return along(ribs(o, receiver), GLOVE + 0.012);
+      case "hit": {
+        if (BoutScript.specs[action.technique].target === "head") {
+          // The struck jaw-side point on the face turned toward the attacker; the
+          // glove drives 5 cm into the cheek rather than stopping at it.
+          const toward: Vec3.Value = Vec3.sub(c.root.position, o.trunk.head);
+          const forward: Vec3.Value = Vec3.normalize([toward[0], 0, toward[2]]);
+          const left: Vec3.Value = Vec3.rotateY(
+            [0, 0, 1],
+            Vec3.heading(forward),
+          );
+          const jaw: Vec3.Value = Vec3.add(
+            o.trunk.head,
+            Vec3.add(
+              Vec3.add(
+                Vec3.scale(forward, 0.06),
+                Vec3.scale(left, receiver === "left" ? 0.07 : -0.07),
+              ),
+              [0, -0.05, 0],
+            ),
+          );
+          return along(jaw, GLOVE - 0.05);
+        }
+        // The glove sinks about 2 cm into the ribs.
+        return along(ribs(o, receiver), GLOVE - 0.025);
+      }
       case "check":
       case "slip":
       case "weave": {
@@ -513,7 +536,7 @@ export namespace Resolve {
         action.defense === "check" && checking?.aim
           ? Vec3.add(
               Vec3.lerp(checking.aim.point, checking.point, 0.3),
-              Vec3.scale(toward, 0.09),
+              Vec3.scale(toward, 0.08),
             )
           : Vec3.add(
               Vec3.add(o.trunk.hipJoints[receiver], [0, -0.22, 0]),
@@ -526,7 +549,7 @@ export namespace Resolve {
               passive(o, receiver).point,
               Vec3.add([0, -0.1, 0], Vec3.scale(toward, 0.1)),
             )
-          : Vec3.add(ribs(o, receiver), Vec3.scale(toward, 0.06));
+          : Vec3.add(ribs(o, receiver), Vec3.scale(toward, 0.02));
     else
       target = Vec3.add(
         Vec3.add(
@@ -539,7 +562,7 @@ export namespace Resolve {
             [0, -0.05, 0],
           ),
         ),
-        Vec3.scale(toward, 0.06),
+        Vec3.scale(toward, 0.02),
       );
     const standing = (placement: Foot.Placement): Strike.Leg => {
       const ankle: Vec3.Value = Foot.goals(placement, c.rig.footVector).ankle;

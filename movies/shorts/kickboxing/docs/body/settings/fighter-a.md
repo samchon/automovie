@@ -14,4 +14,4 @@ Foot pressure, pelvis and trunk rotation carry his punches. His lead hand can re
 
 ## Conduct and sound {#limits}
 
-A reads B's guard, changes range and counters during B's recovery. His short effort exhales accompany attacks; his breathing deepens as the round proceeds. He obeys the referee, stops attacking on a knockdown and remains in the assigned neutral corner until the result. His celebration uses raised gloves, turning, quick supported steps and excited breath while leaving B clear.
+A reads B's guard, changes range and counters during B's recovery. His short effort exhales accompany attacks; his breathing deepens as the round proceeds. A received blow moves his head, neck and trunk as connected parts. Each clean blow sinks into his skin and throws sweat off it; a clean face blow also draws blood from his nose or mouth. Struck skin reddens and stays marked for the rest of the bout. He obeys the referee, stops attacking on a knockdown and remains in the assigned neutral corner until the result. His celebration uses raised gloves, turning, quick supported steps and excited breath while leaving B clear.

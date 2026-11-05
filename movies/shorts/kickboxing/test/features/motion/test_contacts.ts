@@ -5,7 +5,7 @@ import { FilmEvents } from "../../../src/film/FilmEvents";
 import { FilmRuntime } from "../../../src/film/FilmRuntime";
 
 /**
- * Every planned contact of the screenplay is realized by displayed geometry, and the fall reaches the canvas hip first.
+ * Every planned contact of the screenplay is realized by displayed geometry, with no air gap: clean hits sink into the receiver's skin and guard or shin contacts press into what they meet. The fall reaches the canvas hip first.
  *
  * @evidence contracts/testing.md#observable-behavior Runs FilmRuntime.prepare, which measures each planned contact at its film second from the solved FK, and the mat arrivals of B's fall.
  * @evidence contracts/testing.md#independent-cases The planned set comes from the screenplay table (every answer except slips and weaves touches), so the expected receipt count is independent of the runtime; the screenplay orders the fall right hip, then shoulder, both inside the second after the 150 s kick.

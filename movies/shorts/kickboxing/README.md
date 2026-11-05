@@ -39,4 +39,8 @@ The film export contract is 1280×720, 30 fps, exactly 5,400 frames and 180 seco
 
 Reusable motion modules own timing, variation, continuation, support and contact response. The film sequence selects actions and independent actor routes rather than duplicating their poses. Gloves follow the actual hands. Hit sounds and impact-dependent reactions require actual contact receipts; authored target names do not establish a hit. Public Engine observations expose the displayed geometry and their finite-sampling limits.
 
+## Video-generation prompts
+
+`docs/prompts/videos/` holds planned, unsubmitted video-diffusion requests that restyle the render segment by segment; [source bindings](docs/prompts/videos/source-bindings.md) lists the twelve segments covering 0–180 seconds, their sources and the receiving contract. Each segment record names its planned clip, cut from the whole render as `output/segments/<record-name>.mp4`, and its payload template under `payloads/`. `output/` and `media/generated/` are ignored by Git: a checkout receives prompts, not media. Record each exported clip's or generated take's retained locator, digest and restoration requirement in its request record under [generation records](.agents/skills/production/generation-records.md#keep-small-records-in-git-and-large-bytes-retrievable).
+
 Scaffold skills and story contracts adapt [wrtnlabs/novels](https://github.com/wrtnlabs/novels/tree/13c60af339cc6f97dda67e40be055c94aa9bb144/packages/template/scaffold/.agents/skills), retaining its [MIT notice](.agents/skills/LICENSE.novels).

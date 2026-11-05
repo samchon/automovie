@@ -11,8 +11,8 @@ The fresh context `/root/kickboxing_facade_review/closing_manuscript_review/fres
 
 | Actual current body | SHA256 | H2 anchors |
 | --- | --- | --- |
-| `docs/body/settings/fighter-a.md` | `08db04a8c80b346f42b7c2fb14de380bdec9edfebce94148b232460bc4532e41` | identity, stance, limits |
-| `docs/body/settings/fighter-b.md` | `694ea8aaeb5e14903da43eee75c45e4cf2050f7290bb572437a9137d2d55ac05` | identity, stance, response |
+| `docs/body/settings/fighter-a.md` | `7eb4e57abb7d86ccce9360bc750654e0cc637d014b67a3ab283c45b0ee6812a2` | identity, stance, limits |
+| `docs/body/settings/fighter-b.md` | `b9c9a8b3b3e0e66a7bf8e3410519f954bf935266b6ed7e4929f9994cce3cef17` | identity, stance, response |
 | `docs/body/settings/referee.md` | `b4b722a515d1d2d5b3e88b24ca9e80fe494e1a3f4b98121ddd7993e3a8caec40` | identity, authority |
 | `docs/body/settings/ring.md` | `dd257f0c7a983b0b668cf5c9f5cde2ee461e39b594825efc752693b9fa8734ff` | space, light, rules |
 
@@ -30,10 +30,10 @@ Protect A's red/warm identity, B's cyan/navy/dark identity, independent official
 | --- | --- |
 | `fighter-a.md#identity` | `#5ec3edf` |
 | `fighter-a.md#stance` | `#4174d0e` |
-| `fighter-a.md#limits` | `#6328b09` |
+| `fighter-a.md#limits` | `#77de27b` |
 | `fighter-b.md#identity` | `#21cd1e8` |
 | `fighter-b.md#stance` | `#ebf08c9` |
-| `fighter-b.md#response` | `#af50e20` |
+| `fighter-b.md#response` | `#596c58a` |
 | `referee.md#identity` | `#9e96130` |
 | `referee.md#authority` | `#732702e` |
 | `ring.md#space` | `#cddade6` |
