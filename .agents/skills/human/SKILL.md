@@ -41,7 +41,7 @@ Finish the anatomical neutral and the bind before any other pose: every motion s
 - [Construction](construction.md): the construction tree, its parts and how they consume inputs.
 - [Testing](testing.md): which tests to write, how to write and run them.
 - [Verification](verification.md): the reference overlay, the inspection round and the render audit.
-- [Screenshot](screenshot.md): the viewer, its routes and the reference sources.
+- [Screenshot](screenshot.md): the viewer, selection recipes, [inspection packets](screenshot.md#inspection-packets) and reference sources.
 - [Workspace](workspace.md): references and ignored paths.
 
 Tell the user only what you checked.

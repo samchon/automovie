@@ -13,7 +13,7 @@ The debug viewer shows a generated Human, as the whole figure or one piece of it
 | `debug/pieces/` | The piece registry (`HUMAN_DEBUG_PIECES`) and one file per piece, with sub-folders by region |
 | `debug/page/` | The page: subject loading, view, shading, curves, stage, controls, compile panel |
 | `debug/compare/` | The view comparison: the recorded view parts, their curves, the reference's underlay, its cuts and the deviations |
-| `debug/capture/` | The capture CLI, a client of the image route |
+| `debug/capture/` | The image-route capture CLI and the inspection-plan client of the batch route |
 
 ## Running
 
@@ -220,6 +220,8 @@ Invoke-RestMethod "http://127.0.0.1:5197/human-debug/batch/m2.json?round=r1-feet
 ```
 
 ## Capture CLI
+
+For a single f1 plan covering whole, individual original curves, available rings, explicit neighbour groups and matched raw loft/clay passes, use the [inspection packet guide](../../../.agents/skills/human/screenshot.md#inspection-packets). It owns the working command, plan format, output index/manifest, source and camera checks, and resume/failure rules. The image-route CLI below remains useful for arbitrary manual shots.
 
 `debug/capture/human-debug-capture.ts` saves shots of the image route as files. It draws nothing itself:
 

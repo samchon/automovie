@@ -80,6 +80,52 @@ Repeat each selection with `camera=front`, `left`, `top`, `back`, `bottom` and n
 
 The image receipt preserves headers and the canonical query; its provenance header can be truncated, so use the batch snapshot for full diagnostics, matched ids and camera placement. To continue the confirmed frozen round, a single reference selection can use `/human-debug/batch/f1.json?round=<unique-name>&pieces=whole&cameras=left&reference=f1&part=nose&curves=view.nose/front.pos&views=front&axis=0&keep=1&fresh=<unique-nonce>`; keep the same reference style and regions as that round. If this batch starts a new source round instead, set `keep=0` for its first frame. Open its saved PNG and read `snapshot.shown`, `snapshot.camera`, provenance and source before making the [judgment](verification.md).
 
+## Inspection Packets
+
+Use `debug/capture/HumanDebugInspection.ts` for a planned f1 inspection through the existing batch route. Coordinate the shared viewer first. Save this data as `packages/human/.shots/inspection/f1/plan.json`, choosing a fresh `id` for each source round:
+
+```json
+{
+  "version": 1,
+  "id": "f1-toe-review",
+  "person": "f1",
+  "parts": [{
+    "name": "toe.left.1",
+    "outlineCameras": {
+      "front.pos": "left", "front.neg": "left",
+      "side.pos": "top", "side.neg": "top", "axis": "three-quarter"
+    },
+    "topCamera": "front"
+  }],
+  "groups": [{ "id": "left-forefoot", "parts": ["foot.left", "toe.left.1", "toe.left.2"] }],
+  "final": false,
+  "size": 1100
+}
+```
+
+Run from the repository root with the two existing compile collectors clean:
+
+```powershell
+$env:AUTOMOVIE_HUMAN_PEOPLE = 'f1'
+$inspectionTemp = [IO.Path]::GetFullPath('packages/human/.shots/inspection/runtime-temp')
+if (-not (Test-Path -LiteralPath $inspectionTemp)) { New-Item -ItemType Directory -Path $inspectionTemp | Out-Null }
+$env:TEMP = $inspectionTemp
+$env:TMP = $inspectionTemp
+node_modules\.bin\ttsx.CMD --no-cache -P packages/human/tsconfig.debug.scripts.json packages/human/debug/capture/HumanDebugInspection.ts --plan packages/human/.shots/inspection/f1/plan.json
+```
+
+The default whole block has eight reference views, four original-curve overlays and four directions of each raw pass: generated loft curves alone, curves over default clay, and clay alone. Directions are front, left, top and back. Each selected part adds its five original outlines/axis separately, every available `top.<k>` once, its four-view original overlay and the raw three passes. Explicit `groups` add the four-view original neighbour overlay and raw three passes. Top observations use `referenceStyle=loft` with both the original ring and reference section curves selected; other original overlays use reference clay. Framing probes are separate auxiliary frames, not completed reference comparisons.
+
+Set `allParts: true` to enumerate the actual `observation.treeParts` instead of listing every name. `parts` then supplies overrides and explicit unavailable requests; studies and definition-only parts are not silently added. Groups remain explicit because the tool does not infer a trustworthy dependency closure. Available rings come from inventory, not a fixed count. Keep the small selected-part plan when investigating a local change rather than multiplying every curve by every camera. `cameras` and `referenceCameras` may replace their default named lists. `final: true` appends ordinary prepared Boolean clay after these blocks; it is expensive, optional, and separate from raw prejoin inspection.
+
+The tool measures visible original-curve bounds without reference meshes. Each whole, part and group scope reuses its framing for its original overlays and matching raw three passes. Each individual curve gets its own ROI and one original overlay or reference-section observation; raw passes use the part/group directions rather than that individual camera. Camera overrides use existing names; without one, an individual curve uses the widest box projection among front, left and top. That visibility heuristic does not establish an anatomical view or reveal every bend. Inspect needed reverse and high/low obliques with the selection recipes when the packet leaves depth or endpoints unreadable. URL angles are degrees; snapshot angles are radians. The checker models the existing orbit's finite pole guard and checks actual position, target, up and projection as well as direction, so matching pass names alone cannot validate an intended side view.
+
+The command prints the absolute `index.html`, `plan.json` and `manifest.json` directory under `packages/human/.shots/inspection/f1/<id>/`. The index navigates parts, individual curves, cameras and stages and links unchanged batch PNGs and full adjacent snapshots under `.shots/debug/f1/`; preserve both directories. Manifest rows distinguish `pending`, `done`, `failed` and `unavailable`, with actual IDs/camera/source, hashes, notices and diagnostics in the linked full receipts. Request/response bodies and original failures remain under `responses/`; atomic `progress/` rows survive between block checkpoints. `done` means protocol checks passed, not that anyone accepted the shape. Personally open every cited image and apply [verification](verification.md).
+
+Reference style, reference range and deviation scope stay fixed within each original block; raw visibility changes reuse one `source.parts:tree` document. Both consume the existing single source-definition cache. The first frame uses `keep=0`, subsequent frames `keep=1`. The manifest records subject loads separately from PNG reuse and does not sum repeated provenance timings. Resolved input values/digest are explicitly unavailable; the typed input file and reference bytes have separate identities. A disk hash still does not certify every served transformed dependency.
+
+Append `--resume` to the same command to verify completed artifacts and request only pending rows. The plan, output path, typed input/reference bytes, eight-file controller digest, current disk inventory and resident page source must still match. A modified controller or source requires a new packet; keep older images as historical evidence. An interrupted admitted frame finishes before a requested stop takes effect. Orphaned batch output is preserved rather than overwritten. Failed producer families are not retried; camera/ROI validation failures do not become producer failures. Any failed or unavailable row makes the command exit nonzero. After a geometry change, explicitly select affected parts and neighbours in a new packet; old images are not current-source verification.
+
 ## References
 
 Reference outputs live in `test/.shots/<alias>/`, selected by `test/.shots/manifest.json`: `captures.json` indexes the original photographs, `recovery/screenshots/index.json` the Recovery renders, and `hermite-curves.json.gz` holds the saved curves. The view comparison reads the private section pack under `.references/curves/<alias>/`.

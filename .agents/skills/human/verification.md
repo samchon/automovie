@@ -12,6 +12,8 @@ A part is only as right as the view curves it is lofted from, so complete the cu
 
 A changed host or frame reopens the original-curve comparison of every affected neighbour.
 
+For repeatable evidence, use the [inspection packet](screenshot.md#inspection-packets), then judge its individual curves, reference-section overlays and explicit neighbour groups before accepting the whole overview. Its automatically framed named camera is a visibility aid; a curve that remains edge-on, hidden or unsupported still needs the reverse or oblique reading. A completed row or packet is capture coverage, not a 2D form or shared-connection pass.
+
 The reference comparison observes the production source definition before final realization. Read its `observation`, original `diagnostics` and `sourceRecords`: tree membership, unconnected studies, definition-only parts and unavailable results mean different things. Inspect studies as studies; their visible curves do not prove they belong to the generated skin. `finalRealization: not-run` is no final calibration, join or rig pass. A source with no admitted loft sections can still have original outlines to inspect.
 
 Completing the observation round is not 2D acceptance. Gather every misplaced, malformed, missing or unexplained curve and its cause, correct the affected original 2D definitions in one batch, and repeat their complete individual and grouped reference comparison until placement and form hold or each departure has its sourced reason. As soon as a part reaches that state, proceed to its [3D inspection](#inspection-round) with its neighbours; unrelated parts need not be complete. A surface-first repair can conceal the wrong input the algorithm received.
@@ -40,6 +42,8 @@ Inspect the candidate's generating curves, skin and joins following [Visual Debu
 5. Write every finding, with its cause, into the round's findings table.
 
 The reference comparison shows the reference skin and the inputs to lofting, not the generated person's skin. Use the ordinary person or piece view for the three 3D passes above. A missing or culled surface cannot be accepted from its view curves.
+
+The packet's `source.parts:tree` passes are the actual placed chains before joining, with `finalRealization: not-run` and actual pose null. Read them as raw loft curves, their default-clay overlap and raw clay at matching cameras; subtractive operands remain positive raw surfaces. Keep these findings separate from the optional ordinary Boolean-clay block and its final diagnostics. Neither raw surface availability nor an empty source diagnostic list proves successful final merge/diff or skin.
 
 ## Render Audit
 
