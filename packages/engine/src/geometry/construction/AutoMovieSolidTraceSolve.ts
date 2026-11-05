@@ -9,18 +9,18 @@ type Vec4 = [number, number, number, number];
 type IJet = IAutoMovieSolidSurface.IJet;
 type IPoint = AutoMovieSolidIntersection.IPoint;
 type ILaw = AutoMovieSolidTraceLaw.ILaw;
-const { combine, cross, dot, norm, sub } = AutoMovieSolidVector;
+const { combine, cross, dot, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
 
 /**
  * The meeting points of an intersection trace (`AutoMovieSolidIntersection`): Newton's method on the four equations `A(s, phi) = B(y, theta)` and the parameter law, on one host face or across an atlas's faces where the host point leaves one, each point's first and second rates in `t` by the implicit function theorem, and the continuation step from one point to the next with its halving.
  *
- * @evidence contracts/common.md#principled-implementation Each traced point solves the four meeting equations by Newton, its rates come from the implicit function theorem, and continuation halves a step that fails or jumps.
+ * @evidence contracts/common.md#principled-implementation Each traced point solves the four meeting equations by Newton, its rates come from the implicit function theorem, and continuation halves rejected proposals and may double a low-defect accepted proposal before checking the next one.
  * @evidence contracts/common.md#clear-and-simple-design Solve on an atlas, solve on a face, advance and shift.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Checked failed solves/halving exhaustion return null, but raw law and mm position residuals are combined without dimensional scaling, and advance has no explicit accepted-step/progress guard.
- * @evidence contracts/common.md#meaningful-documentation States the equations, the face switches and the halving rule.
- * @evidence contracts/performance.md#efficient-algorithms Each face attempt has at most 40 Newton iterations with up to 20 backtracking trials, plus polishing/rate solves; continuation's accepted substep count is separate from its failed-halving bound.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Checked failed solves, consecutive-halving/work exhaustion and unrepresentable parameter progress return null. Raw law and mm position residuals remain combined without dimensional scaling; no failed trace becomes a fabricated curve.
+ * @evidence contracts/common.md#meaningful-documentation States the equations, face switches, dyadic proposal policy and separate numerical/work failure boundaries.
+ * @evidence contracts/performance.md#efficient-algorithms Each advance permits at most 1024 meeting candidates including accepted and rejected ones. Each candidate has up to five face attempts of at most 40 Newton iterations with 20 backtracking trials, plus polishing/rate solves; surface/law callback cost remains part of that work.
  * @evidence contracts/performance.md#reuse-equivalent-work Both implicit rate systems reuse the same Jacobian values, but the generic solver separately copies and eliminates it for each right-hand side.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Holds one iterate and returns one point.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds a constant number of local iterates and returns one point; the candidate budget bounds internal attempts, not time spent in caller-supplied callbacks.
  */
 export namespace AutoMovieSolidTraceSolve {
   /** Newton steps per solve. */
@@ -112,11 +112,11 @@ export namespace AutoMovieSolidTraceSolve {
     let x: Vec4 = [guess[0], guess[1], guess[2], guess[3]];
     let a: IJet = part.jet(x[0], x[1]);
     let b: IJet = host.jet(x[2], x[3]);
-    const residual = (aj: IJet, bj: IJet, xs: Vec4): number[] => [
+    const residual: (aj: IJet, bj: IJet, xs: Vec4) => number[] = (aj: IJet, bj: IJet, xs: Vec4): number[] => [
       ...sub(aj.p, bj.p),
       law.g(aj.p, xs[1], t),
     ];
-    const size = (r: number[]): number => Math.hypot(...r);
+    const size: (r: number[]) => number = (r: number[]): number => Math.hypot(...r);
     let r: number[] = residual(a, b, x);
     let gap: number = size(r);
 
@@ -267,7 +267,7 @@ export namespace AutoMovieSolidTraceSolve {
 
   /**
    * Continue from a point to a target parameter by predicted and corrected
-   * steps, halving a step that fails or jumps.
+   * steps, halving a rejected proposal and recovering a low-defect step.
    *
    * @param part The part's surface.
    * @param host The host's faces.
@@ -275,20 +275,27 @@ export namespace AutoMovieSolidTraceSolve {
    * @param from The point to continue from.
    * @param target The parameter to reach.
    * @param tolerance Largest gap accepted, mm.
-   * @returns The point at the target, or null when a step is halved
-   *   {@link HALVINGS} times without landing.
+   * @returns The point at the target, or null after more than {@link HALVINGS}
+   *   consecutive failed halvings, 1024 meeting candidates, or a proposed
+   *   parameter that cannot make finite representable progress.
    *
-   * Accepted substeps do not increase the reduced step again. The failure
-   * counter does not cap successful substeps, and a parameter addition that
-   * rounds back to the current value has no explicit progress check.
+   * The next proposal may double when the corrected world defect uses at most
+   * one eighth of the existing acceptance allowance. That is a bounded
+   * proposal heuristic, not a third-order error guarantee for a C2 surface;
+   * every candidate still passes the same predictor/corrector acceptance test.
+   * The original interval caps growth and each accepted point restarts the
+   * consecutive-failure counter. The 1024-candidate protection is a product
+   * work budget, not a geometric sufficiency condition or a wall-time bound.
+   * Different accepted substeps can change rounding or expose a budget failure
+   * without changing the source surfaces, Newton residual or tolerance.
    *
-   * @evidence contracts/common.md#principled-implementation Uses second-order chart/world prediction and a corrected meeting, accepting when its world deviation from prediction fits the relative step/tolerance test; a rejected attempt halves the parameter step.
-   * @evidence contracts/common.md#clear-and-simple-design One current point, step and cumulative failure counter drive continuation through the shared atlas solver.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed attempts exhaust HALVINGS, but accepted substeps have no explicit count cap or floating-point progress guard; representable forward parameter progress remains an unresolved termination premise.
-   * @evidence contracts/common.md#meaningful-documentation Gives predicted/corrected behavior and explicitly separates failed-halving limits from successful-substep work and progress.
-   * @evidence contracts/performance.md#efficient-algorithms Work is proportional to all accepted and rejected full meeting solves, not merely 24 halvings; reduced steps persist after success, so many accepted solves can remain and no universal cost bound is claimed.
-   * @evidence contracts/performance.md#reuse-equivalent-work The current point's first/second chart rates and world jets supply the next predictor without retracing its preceding segment.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Holds only a constant number of iterates/prediction arrays locally, but a nonprogressing synchronous loop would keep that call live; no task handle or cancellation mechanism is acquired here.
+   * @evidence contracts/common.md#principled-implementation Uses the same second-order chart/world prediction, corrected meeting and relative world-defect/tolerance acceptance. A low-defect accepted point permits a checked dyadic proposal recovery; this follows adaptive predictor/corrector continuation without assuming C3 source jets.
+   * @evidence contracts/common.md#clear-and-simple-design One current point, signed proposal and consecutive-rejection counter remain local; one candidate counter bounds successful and failed solves together.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither the residual nor the branch-distance allowance is relaxed. Nonfinite/nonadvancing parameters, failed halvings and the explicit work budget return null rather than publishing a partial endpoint; callback exceptions still propagate.
+   * @evidence contracts/common.md#meaningful-documentation States the recovery heuristic, unchanged tolerance, rounding-policy difference and the distinction between representable progress, convergence and a product work budget.
+   * @evidence contracts/performance.md#efficient-algorithms At most 1024 shared atlas solves are attempted, including accepted substeps and rejected proposals. Low-defect recovery avoids retaining an unnecessarily small step through easier regions; each solve still includes all face, Newton, line-search, law and surface-callback costs.
+   * @evidence contracts/performance.md#reuse-equivalent-work The current point's first/second chart rates and world jets supply the next predictor. The already measured world defect also selects the next proposal without evaluating another surface or adding a cache.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only a constant number of local iterates/prediction arrays survive each iteration; success/null/throw releases call-local state. The attempt limit cannot bound an independently blocking callback, and no task handle is acquired.
    */
   export function advance(
     part: IAutoMovieSolidSurface,
@@ -299,10 +306,14 @@ export namespace AutoMovieSolidTraceSolve {
     tolerance: number,
   ): IPoint | null {
     let current: IPoint = from;
-    let h: number = target - from.t;
+
+    /** Signed original interval, also the maximum recovered proposal. */
+    const span: number = target - from.t;
+    let h: number = span;
     let halvings: number = 0;
 
-    while (current.t !== target) {
+    /** Every accepted or rejected meeting candidate spends the same product work budget. */
+    for (let attempt: number = 0; current.t !== target && attempt < 1024; attempt++) {
       const step: number =
         Math.abs(target - current.t) < Math.abs(h) ? target - current.t : h;
       const x0: Vec4 = [current.s, current.phi, current.y, current.theta];
@@ -317,6 +328,7 @@ export namespace AutoMovieSolidTraceSolve {
       ]);
       const t: number =
         Math.abs(target - current.t - step) === 0 ? target : current.t + step;
+      if (!Number.isFinite(t) || t === current.t) return null;
       const next: IPoint | null = solve(
         part,
         host,
@@ -327,17 +339,26 @@ export namespace AutoMovieSolidTraceSolve {
         tolerance,
       );
       const length: number = norm(sub(predicted, current.point));
-      if (
-        next !== null &&
-        norm(sub(next.point, predicted)) <= 0.25 * length + 10 * tolerance
-      ) {
+
+      /** The unchanged world-space predictor allowance, in mm. */
+      const allowance: number = 0.25 * length + 10 * tolerance;
+
+      /** A missing correction is rejected; a present one keeps the original defect norm. */
+      const defect: number = next === null ? Infinity : norm(sub(next.point, predicted));
+      if (next !== null && defect <= allowance) {
         current = next;
+        halvings = 0;
+
+        // Recovery proposes a larger step; its own corrected result must still pass.
+        h = defect <= allowance / 8
+          ? Math.sign(step) * Math.min(Math.abs(span), 2 * Math.abs(step))
+          : step;
         continue;
       }
       if (++halvings > HALVINGS) return null;
       h = step / 2;
     }
-    return current;
+    return current.t === target ? current : null;
   }
 
   /**
