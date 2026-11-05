@@ -1,5 +1,13 @@
 # Conic section worker log
 
+## Total projective-reading cost correction (2026-11-05 15:06 +09:00)
+
+After the previous topic settled, PERF found one missed public cost answer: Hermite.radius said at most64 total projective readings. Directly read locate and its endpoint, bracket, loop and final-geometry calls in one round. An interior query performs two bracket readings, at most64 bisection readings and one final reading, at most67 total; an endpoint performs one. The existing64-bisection limit itself is accurate and remains unchanged. The related namespace/locate cost answers now state both counts, and the radius reuse description explicitly identifies the final reading.
+
+This follow-up changes comments and this record only. It changes no implementation, signature, admission, iteration limit, test, input, expectation or tolerance. No numerical regression, f1 profile, generation or physical runtime module deletion is performed. The prior87923 work observation and numerical results remain tied to their recorded implementation epoch; this later comment-save epoch is separate. Exact-path settlement retains full foreign index flags and attribution, with remote push still owned by the supervisor.
+
+The actual comment save is15:08:16.2438019; the file remains374 physical lines. PERF directly read the complete follow-up diff at15:09:08 and found no additional issue. File-scoped Evidence4951 completed/reaped with exit0 and its complete report has no diagnostic; the unchanged seven public declarations retain their existing selection. Diff checking passes and no formatter or numerical execution is repeated. After reaping that sole owned process, verified the absolute runtime-cost-doc-static root, its11 entries and absence of reparse points, removed it without Force and confirmed absence. Main/PERF reported no competing Git writer before the exact two-path settlement.
+
 ## Query-local reuse passed in joint87923 (2026-11-05)
 
 Read the complete joint log at14:46:40: actual program Start14:41:31,41/42 questions passed in198653 ms. Main owned this normal f1/no-cache invocation with its absolute TEMP=TMP. Its existing exit record directly reports exit1 at14:45:08.1622109; Main separately reported that write_stdin's completed result had been reaped before its14:45:19.651 clock confirmation. This worker launched no duplicate functional test, profile, generation or viewer operation.

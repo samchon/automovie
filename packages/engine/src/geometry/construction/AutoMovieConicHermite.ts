@@ -31,7 +31,7 @@ import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
  * @evidence contracts/common.md#clear-and-simple-design One prepared short arc owns its deficit coordinates, weights and native/angular bounds; the quarter owner composes it with the unchanged conic.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source extent, shoulder or specimen is fitted; this is a controlled conic approximation, not exact preservation of the whole conic.
  * @evidence contracts/common.md#meaningful-documentation States the weight derivation, convexity/error premises, vanishing-support C2 argument and numerical representation limit.
- * @evidence contracts/performance.md#efficient-algorithms Preparation is constant work; a query inside an end support uses at most64 monotone log-odds bisections and fixed-size homogeneous geometric readings.
+ * @evidence contracts/performance.md#efficient-algorithms Preparation is constant work; an interior end-support query uses two bracket readings, at most64 log-odds bisection readings and one final projective reading, at most67 in total. An endpoint uses one reading.
  * @evidence contracts/performance.md#reuse-equivalent-work Prepared controls/weights serve all radius and native-arclength readers.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each caller owns one fixed-size patch; no global source or query cache exists.
  */
@@ -282,10 +282,10 @@ export namespace AutoMovieConicHermite {
    * Polar jet on this admitted end's closed angular interval.
    *
    * @evidence contracts/common.md#principled-implementation Inverts the positive rational curve in log(t/(1-t)), reading normalized homogeneous monomials. Positive pair sums give the tangent and positive triple determinants give curvature; polar derivatives follow their geometric law without a singular native clock.
-   * @evidence contracts/common.md#clear-and-simple-design One projective reading owns point, ray residual, tangent and curvature; the unchanged interior conic uses its existing evaluator.
+   * @evidence contracts/common.md#clear-and-simple-design The final projective reading owns point, ray residual, tangent and curvature; the unchanged interior conic uses its existing evaluator.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No input or output clamp is used. A nonfinite or outside-support query, unbracketed ray or residual beyond the stated roundoff scale remains nonfinite.
    * @evidence contracts/common.md#meaningful-documentation Local angles are radians; the log bracket derives from binary64's finite exponent span and admitted weights. The residual floor scales with logarithmic arithmetic, not an empirical shape allowance.
-   * @evidence contracts/performance.md#efficient-algorithms At most64 fixed-size projective point readings, six tangent pairs and four curvature triples; midpoint exhaustion terminates earlier.
+   * @evidence contracts/performance.md#efficient-algorithms An interior query uses two bracket point readings, at most64 bisection point readings and one final projective point, at most67 readings in total; an endpoint uses one. Final geometry uses at most six tangent pairs and four curvature triples; midpoint exhaustion terminates earlier.
    * @evidence contracts/performance.md#reuse-equivalent-work The final normalized homogeneous logs serve point, tangent and curvature without another inverse or curvature solve.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps only the local scalar bracket and final fixed-size jet.
    */
@@ -303,7 +303,7 @@ export namespace AutoMovieConicHermite {
    * @evidence contracts/common.md#clear-and-simple-design Source readers consume the final clock or endpoint position without another inverse.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A null clock is never interpreted as an interior parameter; outside, unbracketed or unresolved rays remain null.
    * @evidence contracts/common.md#meaningful-documentation The descriptor uses the selected end chart; the quarter owner applies reflection once.
-   * @evidence contracts/performance.md#efficient-algorithms At most64 numeric-only bisections and one final geometry reading.
+   * @evidence contracts/performance.md#efficient-algorithms Two bracket point readings and at most64 numeric-only bisection point readings precede one final projective reading, at most67 in total; endpoints read once.
    * @evidence contracts/performance.md#reuse-equivalent-work Final projective probabilities serve tangent and positive curvature triples.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The returned numeric record holds no source, algebra table or cache.
    */
