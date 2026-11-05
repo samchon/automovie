@@ -13,7 +13,7 @@ Start with the user's goal and the actual authoring or production failure. Disti
 
 Keep the scaffold production-neutral and usable without repository operating skills. Adopt work-specific genre, language, voice and delivery decisions in the production's own instructions, project context or work contracts. Upstream novel workflows can inform ownership and review, but prose interiority, mobile reading, serial rewards and their distribution commands do not define film production.
 
-The [project contract](../project/SKILL.md) fixes AutoMovie's purpose. Preserve its complete deterministic motion hint, with separately commissioned screenplay, asset, direct 3D film and generated film routes. Use the production [task router](../../../packages/template/scaffold/.agents/skills/production/SKILL.md) and [screenwriting router](../../../packages/template/scaffold/.agents/skills/screenwriting/SKILL.md) to find actual owners rather than copy their layer definitions here.
+The [project contract](../project/SKILL.md) fixes AutoMovie's purpose. Preserve its complete deterministic motion hint, with separately commissioned screenplay, asset, direct 3D film and generated film routes. Use the production [task router](../../../packages/template/scaffold/.agents/skills/production/SKILL.md) and [story router](../../../packages/template/scaffold/.agents/skills/story/SKILL.md) to find actual owners rather than copy their layer definitions here.
 
 Use [primary research routes](references.md) to find relevant originals and record their support and limits; a source's existence or another medium's successful example does not establish improvement here.
 
