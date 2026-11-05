@@ -1,17 +1,21 @@
 import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
 
+import type { IFilm } from "./IFilm";
+import type { IFilmProduction } from "./IFilmProduction";
 import { clampProductionSeconds } from "./clampProductionSeconds";
-import { createProduction } from "./createProduction";
-import { durationSeconds } from "./durationSeconds";
+import { films } from "./films";
+import { selectFilm } from "./selectFilm";
 
-const production: ReturnType<typeof createProduction> = createProduction();
+const query: URLSearchParams = new URLSearchParams(location.search);
+const film: IFilm = selectFilm(films, query.get("film")).film;
+const durationSeconds: number = film.durationSeconds;
+const production: IFilmProduction = film.create();
 const canvas: HTMLCanvasElement =
   document.querySelector<HTMLCanvasElement>("#view")!;
 const slider: HTMLInputElement =
   document.querySelector<HTMLInputElement>("#seek")!;
 const clock: HTMLOutputElement =
   document.querySelector<HTMLOutputElement>("#clock")!;
-const query: URLSearchParams = new URLSearchParams(location.search);
 const capture: boolean = query.get("capture") === "1";
 const width: number = Number(query.get("w") ?? 1280);
 const height: number = Number(query.get("h") ?? 720);
@@ -76,14 +80,6 @@ const host: IAutoMovieViewerHandle = mountViewer(
 
 /**
  * Draw and publish the exact production clock through the mounted Viewer.
- *
- * @evidence contracts/development/implementation.md#principled-implementation Each frame calls the production's seek with the current seconds before rendering, then publishes those seconds to Viewer observers.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Playback and the public seek hook share this one draw path, renderer and camera.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No time or frame is drawn by a separate path.
- * @evidence contracts/development/common.md#meaningful-documentation The comment states that it draws and publishes the exact production clock.
- * @evidence contracts/development/implementation.md#efficient-algorithms One seek and one render per frame; cost follows the production's seek and the scene's draw.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The mounted renderer and camera serve every frame.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources It allocates nothing beyond the clock label string; the host and production own the renderer and scene.
  */
 function draw(): void {
   production.seek(seconds);
@@ -96,14 +92,6 @@ function draw(): void {
 
 /**
  * Complete an exact-time frame before browser capture reads its pixels.
- *
- * @evidence contracts/development/implementation.md#principled-implementation The requested time passes through clampProductionSeconds and drives the same draw as playback; an ordinary seek pauses playback, while a seek during an owned capture freeze keeps the desired play state for release.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure The slider and the exposed __afSeek hook use this one function.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Capture uses the same draw as playback rather than a capture-only path.
- * @evidence contracts/development/common.md#meaningful-documentation The comment states that the frame is complete before capture reads pixels; nonfinite input throws through the clamp.
- * @evidence contracts/development/implementation.md#efficient-algorithms One clamp and one draw per call.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Seeks reuse the playback draw path rather than a separate one.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources It updates the module's clock fields only; nothing else is retained.
  */
 function seek(time: number): void {
   const target: number = clampProductionSeconds(time, durationSeconds);

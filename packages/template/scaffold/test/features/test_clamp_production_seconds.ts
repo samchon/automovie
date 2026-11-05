@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { clampProductionSeconds } from "../../../src/clampProductionSeconds";
+import { clampProductionSeconds } from "../../src/clampProductionSeconds";
 
 /**
  * Pin the closed time interval used by actual Viewer seek and redraw completion.
