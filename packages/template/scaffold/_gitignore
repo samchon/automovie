@@ -1,9 +1,13 @@
 node_modules/
 lib/
 dist/
+/docs/review/
 /docs/revision/
 /docs/naturalness/
-/references/private/
+/docs/prompts/**/payloads/
+/references/
+/media/
+/output/
 *.log
 .DS_Store
 .wiki/

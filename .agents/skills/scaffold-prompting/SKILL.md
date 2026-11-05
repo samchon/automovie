@@ -15,6 +15,6 @@ Keep the scaffold production-neutral and usable without repository operating ski
 
 The [project contract](../project/SKILL.md) fixes AutoMovie's purpose. Preserve its complete deterministic motion hint, with separately commissioned screenplay, asset, direct 3D film and generated film routes. Use the production [task router](../../../packages/template/scaffold/.agents/skills/production/SKILL.md) and [screenwriting router](../../../packages/template/scaffold/.agents/skills/screenwriting/SKILL.md) to find actual owners rather than copy their layer definitions here.
 
-Retain the [upstream notice](../../../packages/template/scaffold/.agents/skills/LICENSE.novels) when adapting its material. Use [primary research routes](references.md) to find relevant originals and record their support and limits; a source's existence or another medium's successful example does not establish improvement here.
+Use [primary research routes](references.md) to find relevant originals and record their support and limits; a source's existence or another medium's successful example does not establish improvement here.
 
 Hand the change to [scaffold](../scaffold/SKILL.md) for distribution and project ownership checks, and implementation to [development](../development/SKILL.md). This skill adds no creative pass, graph stage, publication authority or automatic migration of existing productions.

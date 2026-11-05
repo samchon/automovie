@@ -6,7 +6,7 @@ Use this guide for sustained writing, review or media work, including an explici
 
 Read the current instructions, bodies, source, outputs and existing run record before assigning work. Follow relevant Git history, original review findings and failed logs when they explain a repeated failure or missing handoff. Distinguish old approval, current author work, independent review and actual media acceptance. An installed instruction's current bytes do not prove an earlier run used them.
 
-Keep one concise current [analysis record](layout.md#source-ownership) linking the scope, exact inputs, active roles and process identities, observations, unresolved causes and next action. Link the existing evidence; retain raw logs and temporary comparisons in ignored `.cache/`, excluding credentials and private transcripts. Current review judgments belong in the direct review mirror, with past tracked judgments in Git.
+Keep one concise current run record in ignored `.cache/` ([source ownership](layout.md#source-ownership)) linking the scope, exact inputs, active roles and process identities, observations, unresolved causes and next action. Link the existing evidence; retain raw logs and temporary comparisons in ignored `.cache/`, excluding credentials and private transcripts. Current review judgments belong in the direct review mirror, with past tracked judgments in Git.
 
 ## Execute and support
 
