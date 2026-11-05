@@ -2,6 +2,10 @@
 
 The input and laws worker's log for campaign #3044: #3045 and the published laws that replace the priors fitted on the references.
 
+## #3062 reference interpretation clarification (2026-11-05 12:28:28 +09:00, Get-Date)
+
+Confirmed the owner's latest criterion with BODY and HEAD: the small-sample weighted MetaHuman serves diagnostic comparison, while measurement definitions, applicable published evidence and explicit generating assumptions determine how differences are judged. Kept authored input closure, cohort limitations and actual source/placement errors distinct from reference proximity. Added the same criterion to this audit's introduction. No new shape target, coefficient, research scope, source/test change, execution or Git mutation was introduced. The preceding completed source-course document batch settled as ba41e459237a845eddf46cc6b8d8967d10119082; its slot was returned after verification at 12:22:58.575 with all 10573 foreign stage/tag/full-debug-flag records unchanged, own paths clean, attribution and show-check passing, and push 0.
+
 ## #3062 completed shared source-course result (2026-11-05 12:16:31 +09:00, Get-Date)
 
 Directly read all 301 lines/67882 bytes of HEAD92580 in four bounded character ranges after first locating its completion footer. Actual runner 12:00:44, four-question pass in 139582 ms and file modification 12:03:04 are separate visible events; process exit/reaping is not claimed directly observed here. The canonical normal/base G, named C7, actual source membership/axis jets and adapter replay pass, as do production shoulder fixed-domain B and changed-box biceps G. The audit records their independent numeric observations and the differing bilateral maximum stations. Head/body diagnostics and head/neck findings are empty; final realization and new PNG remain outside the run.
