@@ -10,6 +10,10 @@ Establish the required exchange, reaction and resulting state in a coherent spac
 
 A renamed clip, uninvoked function, copied angle sequence or altered outcome cannot establish the intended action. Explicit stylization is judged against its adopted promise rather than an invented realism requirement.
 
+## Is the performance built from studied, reusable motion modules? {#modular-performance}
+
+Does each movement family come from a module that the whole film and later films can reuse, driven by data and tested on its own? Compare the module's timing, reach, distance, sequencing and spatial behavior with the [performance study](../production/research.md#performance-study) values it cites, and check that the screenplay's choreography reaches it as data rather than as per-shot adjustments. A one-off fitting system for one film, a motion invented without a cited study, a module without tests, or a participant whose movement nobody authored fails. An explicitly stylized performance is judged against its adopted promise, not against realism.
+
 ## Do required contacts and constraints survive the performance? {#contacts-and-constraints}
 
 Inspect every consequential support, grasp, impact, attachment and release through the complete affected motion and actual consumer. Compare positions, sliding, penetration, reach, limits, support transfer and subsequent state with the chosen contract and meaningful independent tolerances. Confirm the required bodies/effectors and objects were actually checked; missing targets, sampled-only checks and numerical admission have their stated limits. Use supported solver feedback in the executed performance, preserve residual warnings and refused results, and distinguish kinematic, physical and observed-appearance claims. A good average or one successful key pose cannot prove a sustained interaction.

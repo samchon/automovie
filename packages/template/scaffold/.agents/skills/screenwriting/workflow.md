@@ -27,7 +27,7 @@ Read current parent bodies and reviews when starting, resuming or changing a sou
 
 | Submitted layer | Required parent |
 | --- | --- |
-| Settings | Adopted instructions, material and discovered work requirements |
+| Settings | Adopted instructions, material, discovered work requirements and, for a specialist performance, its completed [performance study](../production/research.md#performance-study) |
 | Treatments | Completed settings construction |
 | Scripts | Completed treatments construction |
 | Screenplay in long work | Completed treatments and scripts construction, including scripts expression |

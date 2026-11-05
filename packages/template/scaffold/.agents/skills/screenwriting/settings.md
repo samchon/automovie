@@ -10,6 +10,8 @@ Use the adopted [layout](../production/layout.md#source-ownership), with one H1 
 
 On the long route, maintain the settings outline as a finding guide: domain H2s and file H3s in reading order, explaining what to find and why it belongs there. Each file entry uses its H1 and an explicit anchor formed from the settings-relative path by removing `.md` and replacing `/` with `--`; each settings file cites its entry. Update navigation with the records as part of settings completion. Existing layouts and any adopted migration follow [layout ownership](../production/layout.md#project-ownership-and-customization).
 
+A performer of a practiced activity needs its studied vocabulary, not a rank or adjective: repertoire, preferred sequences and setups, movement and spatial habits, defensive or responsive patterns, tempo and the skill markers of the depicted level, each citing the [performance study](../production/research.md#performance-study). Give the same specificity to officials, partners and other participants whose movement the scenes will show.
+
 User-fixed interpretations are canon for this production. Research open facts using [production research](../production/research.md) under [usable facts and their limits](../contracts/story/shared/principles/settings.md#usable-facts), attaching support and uncertainty to their owner. Report a conflict between an instruction and its source without silently changing canon. Open supplied reference images before deciding appearance; work contracts own adopted style and form.
 
 Complete facts, explanation, organization and document correction in [construction](workflow.md#construction); settings has no separate expression pass. Repair missing facts here and propagate changes through [upstream repair](repair.md).
