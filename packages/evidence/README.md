@@ -12,7 +12,9 @@ import { createEvidenceConfig } from "@automovie/evidence";
 export default createEvidenceConfig({ location: import.meta.dirname });
 ```
 
-The default selects exported source types/functions under `src/**/*.ts` against `.agents/skills/contracts/common.md`, and exported test functions under `test/**/test_*.ts` against `contracts/testing.md`. It selects no narrative. Location is the absolute project directory; native Evidence resolves selected inputs relative to the authored configuration.
+The default selects exported source types, interfaces and classes under `src/**/*.ts` against `.agents/skills/contracts/development/design.md`, exported source functions and class methods against `contracts/development/implementation.md`, and exported test functions under `test/**/test_*.ts` against `contracts/development/testing.md`; every one of them also answers `contracts/development/common.md`. It selects no narrative. Location is the absolute project directory; native Evidence resolves selected inputs relative to the authored configuration.
+
+A production whose checklists predate that layout keeps them by passing `claims: createEngineeringClaims({ common: null, design: "contracts/common.md", implementation: "contracts/common.md", tests: "contracts/testing.md" })`.
 
 Add narrative when commissioned:
 
@@ -28,6 +30,18 @@ export default createEvidenceConfig({
 ```
 
 Use `short` for direct screenplay, `short-with-settings` for compact canon plus screenplay, and `long` for settings → treatments → scripts → screenplay. Unspecified stages remain disabled drafts. Scripts completes content and expression within construction; screenplay alone has a separate naturalness pass. An omitted outline stage follows settings. Complete work is the default scope; an explicitly commissioned first-part pilot selects its exact part.
+
+Turn on the performance research and the production's own development contracts when the commission needs them:
+
+```ts
+export default createEvidenceConfig({
+  location: import.meta.dirname,
+  research: "evidence",
+  development: { assets: "evidence", motion: "evidence", shots: "evidence" },
+});
+```
+
+`research` holds each study in `docs/research/` (apart from its index) to the story research principles, answered in `docs/evidence/construction/files/research/` under an H1 naming the study. `development.motion` holds exported functions under `src/motion/` to `contracts/development/motion.md`, and each cites the study it follows; every study must be cited. `development.assets` holds exported functions under `src/assets/` to `contracts/development/assets.md`. `development.shots` holds exported functions under `src/shots/` to `contracts/development/shots.md`, and each cites the screenplay H2s it executes; every screenplay H2 must be executed. Omitted stages stay disabled.
 
 ## Native checking
 

@@ -1,6 +1,6 @@
 import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
-/** Every test scenario answers the testing checklist. */
+/** Every test scenario answers the shared documentation and testing checklists. */
 export default {
   severity: "error",
   claims: [
@@ -12,7 +12,10 @@ export default {
       reference: {
         type: "markdown",
         root: "../.agents/skills",
-        files: ["contracts/testing.md"],
+        files: [
+          "contracts/development/common.md",
+          "contracts/development/testing.md",
+        ],
         symbol: "h2",
         checklist: true,
       },

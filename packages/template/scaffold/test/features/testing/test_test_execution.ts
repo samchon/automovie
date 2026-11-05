@@ -9,8 +9,11 @@ import { assessTestExecution } from "../../helpers/assessTestExecution";
  * 1. Zero and long elapsed durations pass when the assertion succeeds.
  * 2. Assertion failures, invalid timestamps and reversed timestamps fail.
  *
- * @evidence contracts/testing.md#observable-behavior Calls the runner's assessment function with literal execution records and asserts acceptance and elapsed milliseconds, catching discarded assertion errors, invalid timing acceptance or an invented duration threshold; no test process is spawned.
- * @evidence contracts/testing.md#independent-cases Literal UTC instants independently yield zero and 60000 milliseconds; an Error is always a failure, malformed start/end and reversed timing yield null. Process exit and DynamicExecutor import behavior are source-reviewed rather than simulated by replacing globals.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment lists the two scenarios, accepted elapsed durations and failed records, and the runner status each pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the runner's assessment function with literal execution records and asserts the pass state and elapsed milliseconds; a discarded assertion error, accepted invalid timing or an invented duration limit fails.
+ * @evidence contracts/development/testing.md#independent-expectations Expected elapsed times are the differences between literal UTC instants, zero and 60000 milliseconds; an Error is a failure by the runner's definition.
+ * @evidence contracts/development/testing.md#distinguishing-cases Cases cover zero and long elapsed time, an assertion failure, malformed start and end instants and reversed timing. Process exit and DynamicExecutor import belong to the runner source.
+ * @evidence contracts/development/testing.md#execution-ownership A pure unit test with literal records, discovered by test/index.ts as an exported test_ function; it spawns no process.
  */
 export function test_test_execution(): void {
   const started_at: string = "2026-01-01T00:00:00.000Z";

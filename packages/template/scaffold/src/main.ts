@@ -77,8 +77,13 @@ const host: IAutoMovieViewerHandle = mountViewer(
 /**
  * Draw and publish the exact production clock through the mounted Viewer.
  *
- * @evidence contracts/common.md#implementation-and-ownership Completes original scene placement and drawing before publishing actual seconds to Viewer observers.
- * @evidence contracts/common.md#authoring-interface Called by playback and the public seek hook, sharing one renderer and camera.
+ * @evidence contracts/development/implementation.md#principled-implementation Each frame calls the production's seek with the current seconds before rendering, then publishes those seconds to Viewer observers.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Playback and the public seek hook share this one draw path, renderer and camera.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No time or frame is drawn by a separate path.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states that it draws and publishes the exact production clock.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One seek and one render per frame; cost follows the production's seek and the scene's draw.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The mounted renderer and camera serve every frame.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources It allocates nothing beyond the clock label string; the host and production own the renderer and scene.
  */
 function draw(): void {
   production.seek(seconds);
@@ -92,8 +97,13 @@ function draw(): void {
 /**
  * Complete an exact-time frame before browser capture reads its pixels.
  *
- * @evidence contracts/common.md#implementation-and-ownership Finite clamped seconds drive the same original draw as playback. Ordinary seek pauses playback; inspection seeks during an owned freeze preserve desired play state for release.
- * @evidence contracts/common.md#authoring-interface Exposed as __afSeek(seconds); throws on nonfinite input and returns after drawing.
+ * @evidence contracts/development/implementation.md#principled-implementation The requested time passes through clampProductionSeconds and drives the same draw as playback; an ordinary seek pauses playback, while a seek during an owned capture freeze keeps the desired play state for release.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The slider and the exposed __afSeek hook use this one function.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Capture uses the same draw as playback rather than a capture-only path.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states that the frame is complete before capture reads pixels; nonfinite input throws through the clamp.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One clamp and one draw per call.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work Seeks reuse the playback draw path rather than a separate one.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources It updates the module's clock fields only; nothing else is retained.
  */
 function seek(time: number): void {
   const target: number = clampProductionSeconds(time, durationSeconds);
