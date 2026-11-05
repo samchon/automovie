@@ -1,6 +1,6 @@
 # Motion
 
-Each exported function under `src/motion/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md). A movement family is one folder there: an action or technique family, locomotion and footwork, responses and reactions, contact and collision, or a secondary participant such as an official. Each function cites the performance study it follows as `@evidence docs/research/<study>.md <the section and values it uses>`, and every study is followed by some function.
+Each exported function under `src/motion/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md). A movement family is one folder there: an action or technique family, locomotion and footwork, responses and reactions, contact and collision, the visible consequences of contact such as marks, sweat, blood and flushed skin, camera behavior, or a secondary participant such as an official. Each function cites the performance study it follows as `@evidence docs/research/<study>.md <the section and values it uses>`, and every study is followed by some function.
 
 ## Is the motion built from its performance study? {#studied-performance}
 

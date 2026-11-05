@@ -13,7 +13,7 @@ Commit instructions, creative bodies and evidence answers. Review, naturalness a
 | `docs/body/settings/outline/index.md` | Domain and file navigation without duplicating facts |
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
 | `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
-| `docs/body/screenplay/<film>.md` for a short | Complete final audiovisual text; long work preserves its script partition |
+| `docs/body/screenplay/<film>.md`, or `NNN-part/NNN-episode.md` for several videos | Complete final audiovisual text, one file per delivered video, whose name the film and its media reuse; long work preserves its script partition |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files, including `files/research/` for the performance studies |
 | Ignored `docs/review/{draft,final}/<layer>/<relative-file>.md` | Current independent unit reviews mirroring the actual body or working edition |
 | Ignored `docs/review/{draft,final}/<layer>/verdict/index.md` | Current complete-population verdict, findings and author decisions |

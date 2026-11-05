@@ -4,4 +4,4 @@ Unless the commission adopts another form, use conventional screenplay blocks: a
 
 H1 and H2 headings are navigation and evidence units; they prescribe neither shot boundaries nor duration. A long continuous scene may use H3 subheadings for meaningful shifts of action under H2 scene headings.
 
-The screenplay decides the complete visible and audible action, speech, reactions, timing and result; implementation precision lives in the code that consumes it under [source layout](../../development/layout.md). Read the blocks as a continuous sequence, each entry following the preceding exit; final duration comes from the performed action, speech, pauses and edit.
+The screenplay decides the complete visible and audible action, speech, reactions, timing and result for every beat; the code under [source layout](../../development/layout.md) only transcribes the exact values it determines. Read the blocks as a continuous sequence, each entry following the preceding exit; final duration comes from the performed action, speech, pauses and edit.

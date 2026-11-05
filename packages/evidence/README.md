@@ -37,11 +37,16 @@ Turn on the performance research and the production's own development contracts 
 export default createEvidenceConfig({
   location: import.meta.dirname,
   research: "evidence",
-  development: { assets: "evidence", motion: "evidence", shots: "evidence" },
+  development: {
+    assets: "evidence",
+    motion: "evidence",
+    shots: "evidence",
+    films: "evidence",
+  },
 });
 ```
 
-`research` holds each study in `docs/research/` (apart from its index) to the story research principles, answered in `docs/evidence/construction/files/research/` under an H1 naming the study. `development.motion` holds exported functions under `src/motion/` to `contracts/development/motion.md`, and each cites the study it follows; every study must be cited. `development.assets` holds exported functions under `src/assets/` to `contracts/development/assets.md`. `development.shots` holds exported functions under `src/shots/` to `contracts/development/shots.md`, and each cites the screenplay H2s it executes; every screenplay H2 must be executed. Omitted stages stay disabled.
+`research` holds each study in `docs/research/` (apart from its index) to the story research principles, answered in `docs/evidence/construction/files/research/` under an H1 naming the study. `development.motion` holds exported functions under `src/motion/` to `contracts/development/motion.md`, and each cites the study it follows; every study must be cited. `development.assets` holds exported functions under `src/assets/` to `contracts/development/assets.md`. `development.shots` holds exported functions under `src/shots/` to `contracts/development/shots.md`, and each cites the screenplay H2s it executes; every screenplay H2 must be executed. `development.films` holds exported functions under `src/films/` to `contracts/development/films.md`, and each cites the screenplay file it delivers; every screenplay file must become a film. Omitted stages stay disabled.
 
 ## Native checking
 
