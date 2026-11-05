@@ -34,18 +34,25 @@ export namespace AutoMovieHumanHeadNeckCurves {
   export interface IInputs {
     /** Retained mean, C7 posterior point, circle-equivalent lateral scale and posterior skin secant. */
     neck: IAutoMovieHumanHeadNeck;
+
     /** Public base target and three resolved heights, already scaled once. */
     base: IAutoMovieHumanHeadInputs["neckBase"];
+
     /** Existing internal overlap mean, distinct from the base course. */
     bottom: number;
+
     /** Existing clinical neck/submental junction, not a thyroid landmark. */
     cervical: readonly [number, number];
+
     /** Existing cranial origin, fixed from the tragion to the crown. */
     cranialCentre: number;
+
     /** Existing named tragion height. */
     tragion: number;
+
     /** Crown/pole height and original root-parameter owner. */
     crown: number;
+
     /** Existing source's evaluation spacing; also retains its internal overlap margin. */
     spacing: number;
   }
@@ -64,30 +71,43 @@ export namespace AutoMovieHumanHeadNeckCurves {
   export interface IOutput {
     /** Original radius in the mass's crown-root parameter; only its lower domain is authored here. */
     radius: IAutoMovieViewPart.IOutline;
+
     /** Full-domain physical-station origin X, affine throughout the lower cylinder. */
     centre: IAutoMovieViewPart.IOutline;
+
     /** Base height in the finite course clock [0,baseClock], with four C2 quarters. */
     height: IAutoMovieViewPart.IOutline;
+
     /** Whole mass's lower source boundary. */
     bottom: number;
+
     /** Inclusive constant-template band, in world height. */
     band: readonly [number, number];
+
     /** Adopted mean-axis plane origin, not a geometric centroid or palpated skin landmark. */
     planeOrigin: readonly [number, number, number];
+
     /** Unit axis normal to that plane, from the retained pose slope. */
     planeNormal: readonly [number, number, number];
+
     /** Retained circle-equivalent lateral scale; the actual normal section is not assumed circular. */
     lateral: number;
+
     /** Constant horizontal supports, front/left/back/right, calibration mm. */
     extents: readonly [number, number, number, number];
+
     /** Actual conic cut's normal-plane metric measurement, not an error certificate. */
     normalMeasured: ReturnType<typeof measureAutoMovieCurveLength64>;
+
     /** Retained posterior-skin secant adopted as the lower origin's slope. */
     slope: number;
+
     /** Course parameter's finite domain length; a clock, not an extra anatomical distance. */
     baseClock: number;
+
     /** Chosen positive lower-radius root in the stated family. */
     baseRadius: number;
+
     /** Actual numerical measurement and K/K2 observation, not an error certificate. */
     measured: ReturnType<typeof measureAutoMovieCurveLength64>;
   }
