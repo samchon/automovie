@@ -20,7 +20,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 | Exact request | [payloads/touch-into-the-first-counter.json](payloads/touch-into-the-first-counter.json), 4821 bytes, raw LF SHA-256 `4d2213ec0128e7285cb7bdff8d45043feb7db75d95268940f5259b091a03bc32` |
 | Exact prompt length | 791 English whitespace-delimited words |
 
-The single 15-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../references/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
+The single 15-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../docs/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
 
 ## Creative source mapping {#sources}
 

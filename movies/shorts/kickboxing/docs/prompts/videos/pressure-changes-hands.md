@@ -20,7 +20,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 | Exact request | [payloads/pressure-changes-hands.json](payloads/pressure-changes-hands.json), 4752 bytes, raw LF SHA-256 `b58beeac486497623591c8e59494041eec46eed4cb3bcbe3b31e8363c2625553` |
 | Exact prompt length | 783 English whitespace-delimited words |
 
-The single 15-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../references/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
+The single 15-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../docs/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
 
 ## Creative source mapping {#sources}
 

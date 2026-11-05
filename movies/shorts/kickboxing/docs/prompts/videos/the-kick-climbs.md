@@ -20,7 +20,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 | Exact request | [payloads/the-kick-climbs.json](payloads/the-kick-climbs.json), 4645 bytes, raw LF SHA-256 `8d889af088c416bbbfa67e505c7ca0ac1f0c25f7549386bb2159bc537fe56f47` |
 | Exact prompt length | 763 English whitespace-delimited words |
 
-The single 12-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../references/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
+The single 12-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../docs/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
 
 ## Creative source mapping {#sources}
 

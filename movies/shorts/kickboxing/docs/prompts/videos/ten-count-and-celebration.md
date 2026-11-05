@@ -20,7 +20,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 | Exact request | [payloads/ten-count-and-celebration.json](payloads/ten-count-and-celebration.json), 5036 bytes, raw LF SHA-256 `2d33d6e8a130c35b02d579aa5cd534446b5d5e20c0fb36d7c1a60f50ee5eb257` |
 | Exact prompt length | 850 English whitespace-delimited words |
 
-The single 23-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../references/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
+The single 23-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../docs/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
 
 ## Creative source mapping {#sources}
 

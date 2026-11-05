@@ -20,7 +20,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 | Exact request | [payloads/b-drives-a-back.json](payloads/b-drives-a-back.json), 4576 bytes, raw LF SHA-256 `1c541b5be9917149971e2ae7f98a8370055c01347aa2cd2ff8de2ce23e7bea5f` |
 | Exact prompt length | 749 English whitespace-delimited words |
 
-The single 15-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../references/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
+The single 15-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../docs/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
 
 ## Creative source mapping {#sources}
 

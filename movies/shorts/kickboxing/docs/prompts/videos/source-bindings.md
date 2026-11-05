@@ -42,7 +42,7 @@ Raw SHA-256 over the LF working-tree bytes read for this preparation (the reposi
 | [Referee cues](../../../src/bout/RefereeCues.ts) | `74f312dbf7b8b141d5af17b20b60d6115fc8646b12f6b834dbaf647d20fb938b` |
 | [Received-blow reaction and wince](../../../src/bout/Reaction.ts) | `33a8c8f7a8f7247a423927dfd5957f229849c6fab80bd92beb08de2f8d395d57` |
 | [Face channels (wince)](../../../src/bout/FighterBody.ts) | `01958134ec3ddaf5427251e1b8a6844638caf3b49aeee1d295cd54ee625b7587` |
-| [Receiver contract](../../../references/research/seedance-2-5-handoff-contract.md) | `5e0961b22d0e836e9936b294fdf757d79b276b53349a7f1f7dc4726999066ebc` |
+| [Receiver contract](../../../docs/research/seedance-2-5-handoff-contract.md) | `5e0961b22d0e836e9936b294fdf757d79b276b53349a7f1f7dc4726999066ebc` |
 
 ## Shared bases {#shared-bases}
 
@@ -66,7 +66,7 @@ Raw SHA-256 over the LF working-tree bytes read for this preparation (the reposi
 
 ## Receiving contract and reference roles {#receiving-contract}
 
-The [carried Seedance 2.5 contract](../../../references/research/seedance-2-5-handoff-contract.md) owns the documented model, mode and input limits. This production did not reopen the official pages, so every limit needs a fresh check before submission. Each payload plans `dreamina-seedance-2-5-260628` in reference mode, one `reference_video`, `ratio` 16:9, `duration` equal to the clip seconds and `generate_audio: false`. No `watermark` field is supplied, and the provider default is unverified. No image or audio reference is attached: no reference image of A, B or the referee exists, and face-input permission is unverified. The provider's content policy for blood in generated video is also unverified.
+The [carried Seedance 2.5 contract](../../../docs/research/seedance-2-5-handoff-contract.md) owns the documented model, mode and input limits. This production did not reopen the official pages, so every limit needs a fresh check before submission. Each payload plans `dreamina-seedance-2-5-260628` in reference mode, one `reference_video`, `ratio` 16:9, `duration` equal to the clip seconds and `generate_audio: false`. No `watermark` field is supplied, and the provider default is unverified. No image or audio reference is attached: no reference image of A, B or the referee exists, and face-input permission is unverified. The provider's content policy for blood in generated video is also unverified.
 
 The prompts map performers by the render's visible cues: red gloves and red shorts are A, cyan gloves and navy shorts are B, and the white shirt is the referee. The polygon hint carries the head snap, wince and camera jolt, and draws sweat and blood as small droplets, blood stains on the canvas and a whole-part skin flush; the text still sets their realistic look, because the hint draws them as simple shapes and colours. Following is semantic, not frame-exact. Upload, account activation, the maximum output duration and the output frame rate remain unknown. Finishing must conform any generated take to the 30 fps film timeline and lay the deterministic soundtrack back at the segment's global offset.
 

@@ -20,7 +20,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 | Exact request | [payloads/high-kick-knockout-and-neutral-corner.json](payloads/high-kick-knockout-and-neutral-corner.json), 4987 bytes, raw LF SHA-256 `06f72fa9bc8a7f3e10b0d72ccc36174ef8a6d588d8640a46b6ac325783b32712` |
 | Exact prompt length | 830 English whitespace-delimited words |
 
-The single 10-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../references/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
+The single 10-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../docs/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
 
 ## Creative source mapping {#sources}
 
