@@ -1,0 +1,9 @@
+# Harry Potter
+
+## Identity, relationship and knowledge {#harry}
+
+Harry is Carina's Hogwarts schoolmate, about fifteen and 1.70 metres tall, with a slim build, fair skin, short untidy dark hair, a rounded face and plain round black glasses. His Gryffindor school uniform has a white pointed shirt collar, a red tie crossed by gold stripes, a charcoal V-neck knit jumper and an open black robe with dark-red lining and a small left-chest house badge. Straight charcoal trousers reach his ankles above flat black school shoes. Coarse polygon shapes retain these garment layers, glasses, hair and house colors without requiring an embroidered crest or exact actor likeness.
+
+The mid-calf robe has separate front panels and wrist-length sleeves, leaving his fingers, knees and the note exchange visible. Trousers and panels permit a wider planted stance, knee flexion, a hip hinge and a backward step without sweeping the paper or concealing contact. He carries nothing and has ordinary human movement and balance. His youthful male voice is middle pitched, softly rough, lightly resonant and conversational, with ordinary contemporary British pronunciation, unhurried replies and no imitated film actor.
+
+They know each other as schoolmates and address each other by surname when guarded. Their familiar rivalry permits dry replies, but neither has authority over the other's time or body. Carina would like to invite him out and expects her attempt may sound foolish; Harry is willing to hear an invitation and may accept or refuse. Neither begins with a romantic commitment. Harry cannot know a rehearsal he has not heard or read hidden writing. Carina cannot know a person has entered behind her until she hears or sees him. An accidental forehead touch creates brief surprise and mild embarrassment, not injury or a new obligation. Polite distance and a clear offered hand allow a voluntary note exchange.

@@ -1,0 +1,9 @@
+{
+  "frozenSha256": "8311399a3850b43494cdb57a8d0c0ee785df2ff8cc2cf14cf6108c98633def70",
+  "workingSha256": "6c02da63ebdec46d08812280ea510b66f50d918606fb6e0adbf8b5423b1375bb",
+  "promotedSha256": "e6573c8b01e79de3633584f7e6a97549d4d64b3c5604aaca628b1fe7f6a76c84",
+  "promotedEqualsCommentFreeWorking": true,
+  "frozenUnchanged": true,
+  "constructionReview": "closed against frozen original; never renewed here",
+  "naturalnessReview": "belongs to the unchanged reviewed working edition"
+}

@@ -24,7 +24,7 @@
  * @evidence contracts/performance.md#bound-retention-and-release-resources The import record retains its getter and one bigint counter for the reactor lifetime; individual views allocate no separate linear-memory bytes.
  */
 export function createAutoMovieQuadraticHost(
-  memory: () => WebAssembly.Memory,
+  memory: () => { readonly buffer: ArrayBuffer },
 ): {
   clock_time_get(id: number, _precision: bigint, address: number): number;
   random_get(address: number, length: number): number;

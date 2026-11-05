@@ -1,0 +1,11 @@
+# The training court
+
+## Court, access and clear space {#court-and-support}
+
+This invented outdoor court is an unstaffed practice space on the Hogwarts grounds, used voluntarily by the two schoolmates outside a lesson, public match or supervised assessment. Carina and Harry are its only occupants. No spectator, instructor, other trainee, animal or off-screen speaking participant belongs to this session. Its unobstructed south approach permits their arrival and departure; nothing requires a gatekeeper or an unseen class. The support's concealed weakness is an unexpected failure during this session, not a hazard the students knowingly chose as a training target.
+
+The level dry floor is eight metres east to west and six metres south to north, made of rough, medium-grey stone. For staging coordinates its centre is x=0, y=0 at floor height z=0; positive x is east and positive y is north. These coordinates are authoring notation, not painted floor marks. A weathered grey stone boundary, 0.45 metres high and 0.15 metres thick, runs along the eight-metre north edge, beyond y=3. The south, east and west edges remain open and level with muted brown bare earth. At least two metres of that empty ground beyond the open edges can be shown without introducing another structure or person. There is no furniture, door, training target or concealed obstruction.
+
+The single [damaged stone support](stone-support.md#support) occupies the north-east part of the court. Its base spans x=1.2 to 2.2 and y=1.8 to 2.8. The clear court west of x=1.0 is the escape lane: neither another object nor a bystander may occupy the pair's route into it. Whole bodies and trailing wands must clear that line before the main block descends; lowering heads beneath a shield is not clearance. The screenplay owns the actual starting positions, retreat, approach and evacuation within this layout.
+
+Pale daylight from the south-west keeps faces, hands and feet legible. A light open-air breeze supplies a soft steady rustle without a visible source object; it does not move the masonry or alter anyone's footing. Footsteps scrape and tap on the rough stone. There is no rain, slippery patch, crowd sound, off-screen call or diegetic music. The surrounding bare ground and low boundary are quiet surfaces, not additional hazards.

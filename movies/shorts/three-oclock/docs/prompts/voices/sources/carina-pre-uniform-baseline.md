@@ -1,0 +1,7 @@
+# Carina Malfoy
+
+## Identity and performance baseline {#carina}
+
+Carina is an invented female reinterpretation of Draco Malfoy for this fan scene, a school-age peer of Harry at about sixteen. She is about 1.66 metres tall, slim and fair-skinned, with a narrow face and straight pale-blond hair ending above her shoulders. The polygon figure uses a dark charcoal torso and legs with a muted green chest band; these color blocks suggest school clothes rather than detailed fabric. Her empty left hand can balance her, while her right hand carries the [invitation note](note.md#note). Her shoes remain flat and stable on dry paving. She has ordinary human reach, balance and strength; magic does not move her or the note.
+
+She is used to giving brisk instructions when watched, but asking for company exposes her to refusal. She can abandon a rehearsal or leave freely. She does not threaten Harry, claim his agreement before he gives it, or interpret an accidental touch as permission for closer contact. Her voice is youthful, female, middle-to-upper pitched, clear and lightly bright, with contemporary British pronunciation. Rehearsal commands have clipped ends; direct vulnerability lowers her volume and slows the last few words. She retains intelligible consonants rather than shouting or adopting a caricatured aristocratic accent. Her bilateral relationship and knowledge boundary are owned by [Harry's record](harry.md#harry).

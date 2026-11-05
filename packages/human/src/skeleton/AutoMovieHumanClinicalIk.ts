@@ -93,7 +93,7 @@ export namespace AutoMovieHumanClinicalIk {
       /** Actual value, in descriptor degrees or metres. */ value: number;
       /** Exact nonnegative interval distance in the same units. */ violation: number;
     }[];
-    /** Every original interval holds at the final FK; this does not certify global feasibility. */
+    /** Every original interval holds up to local Float64 projection roundoff. Raw violations remain reported; this does not certify global feasibility. */
     constraintsSatisfied: boolean;
   }
   /**
@@ -221,12 +221,12 @@ export namespace AutoMovieHumanClinicalIk {
       };
     let output: AutoMovieHumanSkeleton.IProjection = apply();
     let residual: number[] = errors(output, request.targets);
-    let measured: number[] = measure(output, pose, constraints);
+    let measured: Measurement = measure(output, pose, constraints);
     let count: number = 0;
     for (
       ;
       count < limit &&
-      (maximum(residual) > tolerance || violation(measured, constraints) > 0);
+      (maximum(residual) > tolerance || !satisfied(measured, constraints));
       count++
     ) {
       const previous: number[] = [...values];
@@ -263,7 +263,7 @@ export namespace AutoMovieHumanClinicalIk {
           const backward: number = Math.min(0.15, value - interval.minimum);
           const step: number = forward >= backward ? forward : -backward;
           if (Math.abs(step) < 1e-10) {
-            constraintDerivatives.push(measured.map((): number => 0));
+            constraintDerivatives.push(measured.values.map((): number => 0));
             return residual.map((): number => 0);
           }
           values[column] = value + step;
@@ -271,9 +271,9 @@ export namespace AutoMovieHumanClinicalIk {
           const moved: number[] = errors(candidate, request.targets);
           const applied: number = values[column]! - value;
           constraintDerivatives.push(
-            measure(candidate, pose, constraints).map(
+            measure(candidate, pose, constraints).values.map(
               (v: number, i: number): number =>
-                Math.abs(applied) < 1e-10 ? 0 : (v - measured[i]!) / applied,
+                Math.abs(applied) < 1e-10 ? 0 : (v - measured.values[i]!) / applied,
             ),
           );
           return moved.map((v: number, i: number): number =>
@@ -312,7 +312,7 @@ export namespace AutoMovieHumanClinicalIk {
               derivatives,
               residual,
               constraintDerivatives,
-              measured,
+              measured.values,
               constraints,
               previous,
               intervals,
@@ -337,7 +337,7 @@ export namespace AutoMovieHumanClinicalIk {
         });
         const candidate: AutoMovieHumanSkeleton.IProjection = apply();
         const next: number[] = errors(candidate, request.targets);
-        const nextMeasured: number[] = measure(candidate, pose, constraints);
+        const nextMeasured: Measurement = measure(candidate, pose, constraints);
         const nextViolation: number = violation(nextMeasured, constraints);
         const nextCost: number = next.reduce(
           (sum: number, v: number): number => sum + v * v,
@@ -378,7 +378,7 @@ export namespace AutoMovieHumanClinicalIk {
     residual = errors(complete, request.targets);
     measured = measure(complete, pose, constraints);
     const constraintValues: { value: number; violation: number }[] =
-      measured.map(
+      measured.values.map(
         (value: number, i: number): { value: number; violation: number } => ({
           value,
           violation: distance(value, constraints[i]!),
@@ -390,10 +390,7 @@ export namespace AutoMovieHumanClinicalIk {
       error: maximum(residual),
       iterations: count,
       constraintValues,
-      constraintsSatisfied: constraintValues.every(
-        (item: { value: number; violation: number }): boolean =>
-          item.violation === 0,
-      ),
+      constraintsSatisfied: satisfied(measured, constraints),
     };
   }
 }
@@ -482,22 +479,36 @@ function bonePoint(
   );
 }
 
+/** Raw scalar readings and a separate arithmetic uncertainty, never a physical contact allowance. */
+interface Measurement {
+  /** Original values used by finite differences, QP rows and public diagnostics. */
+  values: number[];
+  /** Local Float64 projection error envelopes; channel readings remain exact. */
+  roundoff: number[];
+}
+
 /** Actual FK values; moving origins and moving line directions share one snapshot. */
 function measure(
   output: AutoMovieHumanSkeleton.IProjection,
   pose: IAutoMovieHumanPose,
   constraints: readonly AutoMovieHumanClinicalIk.IConstraint[],
-): number[] {
-  return constraints.map(
+): Measurement {
+  const roundoff: number[] = [];
+  const values: number[] = constraints.map(
     (item: AutoMovieHumanClinicalIk.IConstraint): number => {
-      if (item.kind === "channel") return read(pose, item.channel);
+      if (item.kind === "channel") {
+        roundoff.push(0);
+        return read(pose, item.channel);
+      }
       const origin: Controls.MetrePoint = pointAt(output, item.line.origin);
+      const end: Controls.MetrePoint = pointAt(output, item.line.end);
+      const point: Controls.MetrePoint = pointAt(output, item.point);
       const axis: Controls.MetrePoint = Math3D.sub(
-        pointAt(output, item.line.end),
+        end,
         origin,
       );
       const offset: Controls.MetrePoint = Math3D.sub(
-        pointAt(output, item.point),
+        point,
         origin,
       );
       const length: number = Math.hypot(...axis);
@@ -515,9 +526,57 @@ function measure(
       );
       if (!Number.isFinite(value))
         throw new Error("Clinical IK line-offset arithmetic is not finite");
+      roundoff.push(projectionRoundoff(
+        pointMagnitude(output, item.line.origin) +
+          pointMagnitude(output, item.line.end) +
+          pointMagnitude(output, item.point),
+        offset, item.normal, length,
+      ));
       return value;
     },
   );
+  return { values, roundoff };
+}
+
+/**
+ * Bound only numerical equivalence of the original rigid-point projection.
+ * Three point transforms use at most177 scalar quaternion/add operations;
+ * differences, normalization and the two projections fit within a conservative
+ * 256-rounding envelope. Normalization contributes its inverse-span condition.
+ * The operands, not a metre/degree tolerance, set the scale. If the line loses
+ * more than half Float64's relative precision, no roundoff admission is granted.
+ * This does not bound an evaluator's anatomical error or change an interval.
+ */
+function projectionRoundoff(
+  magnitude: number,
+  offset: Controls.MetrePoint,
+  normal: Controls.MetrePoint,
+  length: number,
+): number {
+  const unit: number = Number.EPSILON / 2;
+  const gamma: number = (256 * unit) / (1 - 256 * unit);
+  const condition: number = (gamma * magnitude) / length;
+  if (!Number.isFinite(condition) || condition > Math.sqrt(unit)) return 0;
+  const displacement: number = offset.reduce((sum: number, value: number): number => sum + Math.abs(value), 0);
+  const normalMagnitude: number = normal.reduce((sum: number, value: number): number => sum + Math.abs(value), 0);
+  const allowance: number = gamma * normalMagnitude *
+    (magnitude + displacement + (2 * magnitude * displacement) / length);
+  return Number.isFinite(allowance) ? allowance : 0;
+}
+
+/** Absolute transform-operand magnitude retains cancellation that a final world point would hide. */
+function pointMagnitude(
+  output: AutoMovieHumanSkeleton.IProjection,
+  point: AutoMovieHumanClinicalIk.IBonePoint,
+): number {
+  const placement: AutoMovieHumanSkeleton.IPlacement = output.posed.find(
+    (row: AutoMovieHumanSkeleton.IPlacement): boolean => row.bone === point.bone,
+  )!;
+  const position: number = placement.position.reduce((sum: number, value: number): number => sum + Math.abs(value), 0);
+  if (point.localPoint === undefined) return position;
+  const quaternion: number = placement.rotation.reduce((sum: number, value: number): number => sum + Math.abs(value), 0);
+  const local: number = point.localPoint.reduce((sum: number, value: number): number => sum + Math.abs(value), 0);
+  return position + quaternion * quaternion * local;
 }
 
 /** Nonnegative physical interval distance, with no acceptance-band relaxation. */
@@ -532,14 +591,27 @@ function distance(
   );
 }
 
-/** Squared violation merit is used only until all original intervals hold. */
+/** Compare original interval readings directly so positive subnormal violations cannot vanish by squaring. */
+function satisfied(
+  measured: Measurement,
+  constraints: readonly AutoMovieHumanClinicalIk.IConstraint[],
+): boolean {
+  return measured.values.every(
+    (value: number, i: number): boolean =>
+      distance(value, constraints[i]!) <= measured.roundoff[i]!,
+  );
+}
+
+/** Squared violation merit preserves a positive floor when its square would underflow. */
 function violation(
-  values: number[],
+  measured: Measurement,
   constraints: readonly AutoMovieHumanClinicalIk.IConstraint[],
 ): number {
-  return values.reduce(
-    (sum: number, value: number, i: number): number =>
-      sum + distance(value, constraints[i]!) ** 2,
+  return measured.values.reduce(
+    (sum: number, value: number, i: number): number => {
+      const raw: number = distance(value, constraints[i]!);
+      return sum + (raw <= measured.roundoff[i]! ? 0 : Math.max(Number.MIN_VALUE, raw * raw));
+    },
     0,
   );
 }

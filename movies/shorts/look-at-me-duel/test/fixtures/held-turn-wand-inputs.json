@@ -1,0 +1,629 @@
+{
+  "status": "Read-only extraction of completed actual whole3 cache; original measurements retained, no new solve",
+  "sourceBake": {
+    "path": "public/motion/whole-round-three.json",
+    "sha256": "cdf5457bd94eba4f50f1244922b465aeaea545bbfad5d5f1f2444c03704942d9"
+  },
+  "role": "Harry",
+  "heightMillimetres": 1780,
+  "cases": [
+    {
+      "frame": 1165,
+      "root": [
+        0.5901502678486839,
+        0.027810729955078346,
+        -1.4286524193536505
+      ],
+      "yaw": 4.67073372156852,
+      "pose": {
+        "arms": {
+          "left": {
+            "elbow": {
+              "flexion": 42.970373389871604
+            },
+            "hand": {
+              "index": {
+                "mcpFlexion": 58,
+                "pipFlexion": 78,
+                "dipFlexion": 35
+              },
+              "middle": {
+                "mcpFlexion": 58,
+                "pipFlexion": 78,
+                "dipFlexion": 35
+              },
+              "ring": {
+                "mcpFlexion": 58,
+                "pipFlexion": 78,
+                "dipFlexion": 35
+              },
+              "little": {
+                "mcpFlexion": 58,
+                "pipFlexion": 78,
+                "dipFlexion": 35
+              },
+              "thumb": {
+                "cmcOpposition": 35,
+                "mcpFlexion": 20
+              }
+            },
+            "shoulderGirdle": {
+              "elevation": -4.624224762068116,
+              "upwardRotation": -10,
+              "protraction": -15
+            },
+            "shoulder": {
+              "flexion": -60,
+              "abduction": -40,
+              "rotation": -29.12624163530654
+            },
+            "forearm": {
+              "pronation": 9.610294681056567
+            },
+            "wrist": {
+              "flexion": 9.865958871482414,
+              "radialDeviation": 8.246031058395804
+            }
+          },
+          "right": {
+            "shoulder": {
+              "flexion": 10.253551226257574,
+              "abduction": -18.43142115587857,
+              "rotation": -9.205872151204135
+            },
+            "elbow": {
+              "flexion": 62.08889856897635
+            },
+            "hand": {
+              "thumb": {
+                "cmcOpposition": 35,
+                "mcpFlexion": 25
+              },
+              "index": {
+                "mcpFlexion": 65,
+                "pipFlexion": 65,
+                "dipFlexion": 35
+              },
+              "middle": {
+                "mcpFlexion": 65,
+                "pipFlexion": 65,
+                "dipFlexion": 35
+              },
+              "ring": {
+                "mcpFlexion": 65,
+                "pipFlexion": 65,
+                "dipFlexion": 35
+              },
+              "little": {
+                "mcpFlexion": 65,
+                "pipFlexion": 65,
+                "dipFlexion": 35
+              }
+            },
+            "shoulderGirdle": {
+              "elevation": -10,
+              "upwardRotation": -3.162824760140227,
+              "protraction": 15
+            },
+            "forearm": {
+              "pronation": -41.06510645673972
+            },
+            "wrist": {
+              "flexion": -2.5086486105338563,
+              "radialDeviation": -12.475776056307973
+            }
+          }
+        },
+        "neck": {
+          "atlantoAxial": {
+            "rotation": -33.67407193072687
+          },
+          "cervical": {
+            "rotation": -14.602221579218059,
+            "flexion": 34.07185035150881
+          },
+          "atlantoOccipital": {
+            "flexion": 9.734814386145374
+          }
+        },
+        "legs": {
+          "left": {
+            "hip": {
+              "flexion": 1.8792165842476074,
+              "abduction": 3.4693365720552007,
+              "rotation": 0.6867315784696527
+            },
+            "knee": {
+              "flexion": 10.50056808282626
+            },
+            "ankle": {
+              "dorsiflexion": 2.614527625121321
+            },
+            "foot": {
+              "subtalarInversion": 2.216798505183853
+            }
+          },
+          "right": {
+            "hip": {
+              "flexion": 15.029914526325992,
+              "abduction": 3.2706375354284822,
+              "rotation": 1.290993206401218
+            },
+            "knee": {
+              "flexion": 19.862912498759428
+            },
+            "ankle": {
+              "dorsiflexion": -2.0013915200293737
+            },
+            "foot": {
+              "subtalarInversion": -3.630142273166326
+            }
+          }
+        },
+        "spine": {
+          "thoracic": {
+            "rotation": -38.939257544581494
+          }
+        }
+      },
+      "palm": {
+        "bone": "leftHand",
+        "localPoint": [
+          0.08783578127622604,
+          0.005977213382720947,
+          0.0403093583881855
+        ]
+      },
+      "forearm": [
+        0.3009961447300235,
+        1.0912551066728284,
+        -1.7642585148554966
+      ],
+      "wrist": [
+        0.7395900746395052,
+        1.0577470131479845,
+        -1.171956028925603
+      ],
+      "aim": [
+        0.7104398252356858,
+        0.7577470131479845,
+        -0.4725632473216641
+      ],
+      "original": {
+        "aimError": 0.002169795733596137,
+        "gripError": 0.00299917454965307,
+        "supportError": 0.002080617355201466
+      },
+      "supportRequest": {
+        "targets": [
+          {
+            "bone": "leftSubtalar",
+            "localPoint": [
+              0.2190701961517334,
+              -0.08472944796085358,
+              0.060910362750291824
+            ],
+            "position": [
+              0.4177891039770238,
+              0,
+              -1.2463263751112013
+            ]
+          },
+          {
+            "bone": "rightSubtalar",
+            "localPoint": [
+              0.2190701961517334,
+              -0.08472944796085358,
+              -0.060910362750291824
+            ],
+            "position": [
+              0.7398134431716286,
+              0.007663814563712826,
+              -1.1128271078596792
+            ]
+          },
+          {
+            "bone": "leftHand",
+            "localPoint": [
+              0.08783578127622604,
+              0.005977213382720947,
+              0.0403093583881855
+            ],
+            "position": [
+              0.3009961447300235,
+              1.0912551066728284,
+              -1.7642585148554966
+            ]
+          }
+        ],
+        "softTargets": [
+          {
+            "bone": "leftSubtalar",
+            "localPoint": [
+              -0.06313740462064743,
+              -0.08472944796085358,
+              -0.02592437155544758
+            ],
+            "position": [
+              0.4300405470030736,
+              0.025053272805177808,
+              -1.540271330300401
+            ]
+          },
+          {
+            "bone": "rightSubtalar",
+            "localPoint": [
+              -0.06313740462064743,
+              -0.08472944796085358,
+              0.02592437155544758
+            ],
+            "position": [
+              0.7520648803116702,
+              0.03271708736889063,
+              -1.406772063294204
+            ]
+          },
+          {
+            "bone": "hips",
+            "position": [
+              0.5879330698659263,
+              0.9466430897236165,
+              -1.3986730627877868
+            ]
+          },
+          {
+            "bone": "leftLowerLeg",
+            "position": [
+              0.463572263325155,
+              0.5356862363905913,
+              -1.3870034631616732
+            ]
+          },
+          {
+            "bone": "rightLowerLeg",
+            "position": [
+              0.7070262738868142,
+              0.5500722911874304,
+              -1.2845166764817098
+            ]
+          }
+        ],
+        "channels": [
+          "legs.left.hip.flexion",
+          "legs.left.hip.abduction",
+          "legs.left.hip.rotation",
+          "legs.left.knee.flexion",
+          "legs.left.ankle.dorsiflexion",
+          "legs.left.foot.subtalarInversion",
+          "legs.right.hip.flexion",
+          "legs.right.hip.abduction",
+          "legs.right.hip.rotation",
+          "legs.right.knee.flexion",
+          "legs.right.ankle.dorsiflexion",
+          "legs.right.foot.subtalarInversion"
+        ],
+        "preferred": {
+          "legs.left.knee.flexion": 5,
+          "legs.right.knee.flexion": 5
+        },
+        "rootAxes": [
+          "x",
+          "y",
+          "z"
+        ],
+        "iterations": 16,
+        "tolerance": 0.003,
+        "floorTolerance": 0.00001
+      }
+    },
+    {
+      "frame": 1166,
+      "root": [
+        0.5961317699598532,
+        0.021043911726434515,
+        -1.4190462630783751
+      ],
+      "yaw": 4.708820213009856,
+      "pose": {
+        "arms": {
+          "left": {
+            "elbow": {
+              "flexion": 40.20791121339903
+            },
+            "hand": {
+              "index": {
+                "mcpFlexion": 58,
+                "pipFlexion": 78,
+                "dipFlexion": 35
+              },
+              "middle": {
+                "mcpFlexion": 58,
+                "pipFlexion": 78,
+                "dipFlexion": 35
+              },
+              "ring": {
+                "mcpFlexion": 58,
+                "pipFlexion": 78,
+                "dipFlexion": 35
+              },
+              "little": {
+                "mcpFlexion": 58,
+                "pipFlexion": 78,
+                "dipFlexion": 35
+              },
+              "thumb": {
+                "cmcOpposition": 35,
+                "mcpFlexion": 20
+              }
+            },
+            "shoulderGirdle": {
+              "elevation": -8.500770515211938,
+              "upwardRotation": -10,
+              "protraction": -15
+            },
+            "shoulder": {
+              "flexion": -60,
+              "abduction": -40,
+              "rotation": -28.90423059716314
+            },
+            "forearm": {
+              "pronation": 12.335498378326674
+            },
+            "wrist": {
+              "flexion": 12.308473901766096,
+              "radialDeviation": 10.046102611617261
+            }
+          },
+          "right": {
+            "shoulder": {
+              "flexion": 10.317734127463726,
+              "abduction": -18.5396570858766,
+              "rotation": -9.482639518226406
+            },
+            "elbow": {
+              "flexion": 62.01744692032074
+            },
+            "hand": {
+              "thumb": {
+                "cmcOpposition": 35,
+                "mcpFlexion": 25
+              },
+              "index": {
+                "mcpFlexion": 65,
+                "pipFlexion": 65,
+                "dipFlexion": 35
+              },
+              "middle": {
+                "mcpFlexion": 65,
+                "pipFlexion": 65,
+                "dipFlexion": 35
+              },
+              "ring": {
+                "mcpFlexion": 65,
+                "pipFlexion": 65,
+                "dipFlexion": 35
+              },
+              "little": {
+                "mcpFlexion": 65,
+                "pipFlexion": 65,
+                "dipFlexion": 35
+              }
+            },
+            "shoulderGirdle": {
+              "elevation": -10,
+              "upwardRotation": -3.3099726735503743,
+              "protraction": 15
+            },
+            "forearm": {
+              "pronation": -41.11533393696725
+            },
+            "wrist": {
+              "flexion": -2.3733718798090737,
+              "radialDeviation": -12.897040023091696
+            }
+          }
+        },
+        "neck": {
+          "atlantoAxial": {
+            "rotation": -34.886402606310035
+          },
+          "cervical": {
+            "rotation": -14.96592078189301,
+            "flexion": 34.920481824417024
+          },
+          "atlantoOccipital": {
+            "flexion": 9.977280521262006
+          }
+        },
+        "legs": {
+          "left": {
+            "hip": {
+              "flexion": 0.9282782702120436,
+              "abduction": 4.470534970208972,
+              "rotation": -0.4024751031952275
+            },
+            "knee": {
+              "flexion": 11.044391712701055
+            },
+            "ankle": {
+              "dorsiflexion": 5.00357927214576
+            },
+            "foot": {
+              "subtalarInversion": 3.4341868132559323
+            }
+          },
+          "right": {
+            "hip": {
+              "flexion": 13.555357488254357,
+              "abduction": 4.208689499798176,
+              "rotation": 0.9580962253519401
+            },
+            "knee": {
+              "flexion": 16.055362212722407
+            },
+            "ankle": {
+              "dorsiflexion": -3.3484255014791966
+            },
+            "foot": {
+              "subtalarInversion": 1.6205996125352802
+            }
+          }
+        },
+        "spine": {
+          "thoracic": {
+            "rotation": -39.909122085048025
+          }
+        }
+      },
+      "palm": {
+        "bone": "leftHand",
+        "localPoint": [
+          0.08783578127622604,
+          0.005977213382720947,
+          0.0403093583881855
+        ]
+      },
+      "forearm": [
+        0.3009980014042707,
+        1.0912589319201016,
+        -1.7642603715297438
+      ],
+      "wrist": [
+        0.755237504000617,
+        1.0509801949193407,
+        -1.1682262915692938
+      ],
+      "aim": [
+        0.7527393721409844,
+        0.7509801949193406,
+        -0.46823074919976426
+      ],
+      "original": {
+        "aimError": 0.002948239703285763,
+        "gripError": 0.0021901080826631234,
+        "supportError": 0.0028055982445024776
+      },
+      "supportRequest": {
+        "targets": [
+          {
+            "bone": "leftSubtalar",
+            "localPoint": [
+              0.2190701961517334,
+              -0.08472944796085358,
+              0.060910362750291824
+            ],
+            "position": [
+              0.4177891039770238,
+              0,
+              -1.2463263751112013
+            ]
+          },
+          {
+            "bone": "rightSubtalar",
+            "localPoint": [
+              0.2190701961517334,
+              -0.08472944796085358,
+              -0.060910362750291824
+            ],
+            "position": [
+              0.7718509041011461,
+              0.000703253950526086,
+              -1.0996590222785039
+            ]
+          },
+          {
+            "bone": "leftHand",
+            "localPoint": [
+              0.08783578127622604,
+              0.005977213382720947,
+              0.0403093583881855
+            ],
+            "position": [
+              0.3009980014042707,
+              1.0912589319201016,
+              -1.7642603715297438
+            ]
+          }
+        ],
+        "softTargets": [
+          {
+            "bone": "leftSubtalar",
+            "localPoint": [
+              -0.06313740462064743,
+              -0.08472944796085358,
+              -0.02592437155544758
+            ],
+            "position": [
+              0.4188388450965891,
+              0.025675719141084862,
+              -1.540470993463844
+            ]
+          },
+          {
+            "bone": "rightSubtalar",
+            "localPoint": [
+              -0.06313740462064743,
+              -0.08472944796085358,
+              0.02592437155544758
+            ],
+            "position": [
+              0.7729006393296303,
+              0.026378973091610945,
+              -1.3938036406521706
+            ]
+          },
+          {
+            "bone": "hips",
+            "position": [
+              0.5956018001509736,
+              0.9446556804516447,
+              -1.3920579138690652
+            ]
+          },
+          {
+            "bone": "leftLowerLeg",
+            "position": [
+              0.4597375116821717,
+              0.5348160118717048,
+              -1.3792967826657554
+            ]
+          },
+          {
+            "bone": "rightLowerLeg",
+            "position": [
+              0.730302357190661,
+              0.5485972798103212,
+              -1.2850274479802073
+            ]
+          }
+        ],
+        "channels": [
+          "legs.left.hip.flexion",
+          "legs.left.hip.abduction",
+          "legs.left.hip.rotation",
+          "legs.left.knee.flexion",
+          "legs.left.ankle.dorsiflexion",
+          "legs.left.foot.subtalarInversion",
+          "legs.right.hip.flexion",
+          "legs.right.hip.abduction",
+          "legs.right.hip.rotation",
+          "legs.right.knee.flexion",
+          "legs.right.ankle.dorsiflexion",
+          "legs.right.foot.subtalarInversion"
+        ],
+        "preferred": {
+          "legs.left.knee.flexion": 5,
+          "legs.right.knee.flexion": 5
+        },
+        "rootAxes": [
+          "x",
+          "y",
+          "z"
+        ],
+        "iterations": 16,
+        "tolerance": 0.003,
+        "floorTolerance": 0.00001
+      }
+    }
+  ]
+}

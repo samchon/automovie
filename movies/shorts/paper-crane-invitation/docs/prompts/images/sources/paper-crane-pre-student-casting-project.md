@@ -1,0 +1,11 @@
+# Give It Back, Potter
+
+This independent 60-second romantic comedy short follows Carina Malfoy's attempt to retrieve a tea invitation from Harry Potter. Its physical negotiation changes into an invitation to share space. Creative owners are [the brief](docs/instructions/brief.md), compact settings, and the final screenplay.
+
+The current commission covers genuine scaffold wiring, compact settings construction, final screenplay construction and naturalness, native Evidence, independent reviews, and measured English dialogue probes through installed local VoxCPM. Motion programming, final soundtrack assembly, rendered film and diffusion output are later work. Screenplay time ranges are allocations until staging verifies them.
+
+The intended later medium is a vertical 9:16 whole motion hint with two Human polygon figures, a sparse corridor, one bench, two cups and one paper crane. Reach, pivot, yield, sitting and handoffs must carry the relationship. The source Viewer remains an operational empty scaffold, not a preview of this film.
+
+All production text, speech, visible writing and titles are English. After the existing VoxCPM installation proved absent, the user authorized installation under `D:/Program Files`; a dedicated shared runtime worker owns the isolated `D:/Program Files/VoxCPM` environment, official model download and smoke sample. This production will reuse its verified local CLI with invented generic adult voice design for timing probes. Its repeated clear-mezzo Carina and light-baritone Harry descriptions aim at the same fictional identities as the other shorts, but independent design takes do not establish stable timbre across lines or productions. Shared generated identity-reference adoption for final speech awaits listening and a later soundtrack decision. No provider substitution or real-person voice cloning is adopted. Shared workspace installation is coordinated by the Quidditch producer; this production uses workspace AutoMovie packages and owns no root lock changes.
+
+This is an original adult alternate-universe fan scene using the user-adopted Carina and Harry pairing. It claims no published fanfic biography or excerpt. No public release, commit, push or pull request is commissioned in this slice.

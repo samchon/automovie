@@ -1,0 +1,65 @@
+{
+  "decoder": "@automovie/ingest",
+  "measurements": [
+    {
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/snitch-before-you/assets/audio/probes/01-carina-taunt.wav",
+      "sha256": "e80f928585e6d78879bd67b067d094547807f388af26736e3036edc782c82c1a",
+      "frames": 76800,
+      "sampleRate": 48000,
+      "channels": 1,
+      "durationSeconds": 1.6,
+      "peak": 0.46734619140625,
+      "rms": 0.08804686589654036,
+      "saturatedSamples": 0,
+      "listening": "unverified; measurement does not establish hearing or words"
+    },
+    {
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/snitch-before-you/assets/audio/probes/02-harry-recognition.wav",
+      "sha256": "625185723ea8ab35630b4b059d42d3b11cb7f35f3738a05c4688ee850bfb7982",
+      "frames": 61440,
+      "sampleRate": 48000,
+      "channels": 1,
+      "durationSeconds": 1.28,
+      "peak": 0.202117919921875,
+      "rms": 0.021622650647400918,
+      "saturatedSamples": 0,
+      "listening": "unverified; measurement does not establish hearing or words"
+    },
+    {
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/snitch-before-you/assets/audio/probes/03-carina-reply.wav",
+      "sha256": "0e7dd911f8c02b409ddb26c9429feedd351e554d51d53159020924a263938e9f",
+      "frames": 76800,
+      "sampleRate": 48000,
+      "channels": 1,
+      "durationSeconds": 1.6,
+      "peak": 0.345428466796875,
+      "rms": 0.07306805346152262,
+      "saturatedSamples": 0,
+      "listening": "unverified; measurement does not establish hearing or words"
+    },
+    {
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/snitch-before-you/assets/audio/probes/carina-identity-reference.wav",
+      "sha256": "2375289dbc2641ad515f3b7a784870baafe658005060773e714fb33fdef65ed4",
+      "frames": 529920,
+      "sampleRate": 48000,
+      "channels": 1,
+      "durationSeconds": 11.04,
+      "peak": 0.321075439453125,
+      "rms": 0.04969456527631047,
+      "saturatedSamples": 0,
+      "listening": "unverified; measurement does not establish hearing or words"
+    },
+    {
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/snitch-before-you/assets/audio/probes/harry-identity-reference.wav",
+      "sha256": "851fdb643b79bbb005a3f58a82edb1d273754905845232d73a7d8663099b9a6c",
+      "frames": 422400,
+      "sampleRate": 48000,
+      "channels": 1,
+      "durationSeconds": 8.8,
+      "peak": 0.274139404296875,
+      "rms": 0.030913341043814917,
+      "saturatedSamples": 0,
+      "listening": "unverified; measurement does not establish hearing or words"
+    }
+  ]
+}

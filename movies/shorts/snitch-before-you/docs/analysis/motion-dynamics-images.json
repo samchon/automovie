@@ -1,0 +1,946 @@
+{
+  "source": "output/motion-dynamics/motion-hint.mp4",
+  "sourceSha256": "d60dd3df51ecd6fcf6380f09806eb92aed1f9916f3a46dc365e9500e4e41f5fa",
+  "method": "Actual encoded MP4 full-frame PNG decoding; stride20 0..1420 plus1439; event ceil to first frame on/after requested time",
+  "gridCount": 73,
+  "eventCount": 25,
+  "arguments": [
+    [
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-i",
+      "output/motion-dynamics/motion-hint.mp4",
+      "-vf",
+      "select='not(mod(n,20))+eq(n,1439)'",
+      "-fps_mode",
+      "vfr",
+      "-pix_fmt",
+      "rgb24",
+      "D:/github/samchon/automovie@malfoy/movies/shorts/snitch-before-you/.cache/motion-dynamics/encoded-final/frame-%03d.png"
+    ],
+    [
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-i",
+      "output/motion-dynamics/motion-hint.mp4",
+      "-vf",
+      "select='eq(n,68)+eq(n,471)+eq(n,569)+eq(n,584)+eq(n,600)+eq(n,660)+eq(n,761)+eq(n,836)+eq(n,852)+eq(n,924)+eq(n,972)+eq(n,1030)+eq(n,1032)+eq(n,1064)+eq(n,1068)+eq(n,1085)+eq(n,1116)+eq(n,1140)+eq(n,1164)+eq(n,1212)+eq(n,1272)+eq(n,1282)+eq(n,1340)+eq(n,1380)+eq(n,1436)'",
+      "-fps_mode",
+      "vfr",
+      "-pix_fmt",
+      "rgb24",
+      "D:/github/samchon/automovie@malfoy/movies/shorts/snitch-before-you/.cache/motion-dynamics/encoded-final/event-sequence-%03d.png"
+    ]
+  ],
+  "images": [
+    {
+      "frame": 0,
+      "filename": "frame-001.png",
+      "kind": "user stride20",
+      "seconds": 0,
+      "path": ".cache/motion-dynamics/encoded-final/frame-001.png",
+      "bytes": 92865,
+      "sha256": "af83563221f5cf46b63137267d154df720bafbfe1a71ad8b64f8a210301a28cc"
+    },
+    {
+      "frame": 20,
+      "filename": "frame-002.png",
+      "kind": "user stride20",
+      "seconds": 0.8333333333333334,
+      "path": ".cache/motion-dynamics/encoded-final/frame-002.png",
+      "bytes": 87488,
+      "sha256": "cc5f389789ae9090b9dcc318f76944699f8bf9de17c95a197cc3f7c703948266"
+    },
+    {
+      "frame": 40,
+      "filename": "frame-003.png",
+      "kind": "user stride20",
+      "seconds": 1.6666666666666667,
+      "path": ".cache/motion-dynamics/encoded-final/frame-003.png",
+      "bytes": 49995,
+      "sha256": "5512536e64249f8536c9d3fd4a06e461198bb8f5080d5504e0c2adbe8e074b0e"
+    },
+    {
+      "frame": 60,
+      "filename": "frame-004.png",
+      "kind": "user stride20",
+      "seconds": 2.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-004.png",
+      "bytes": 51972,
+      "sha256": "b9c476b8d35bec2ab249a43c1638cd59293b13548e4d3c014980d575d9a0f012"
+    },
+    {
+      "frame": 80,
+      "filename": "frame-005.png",
+      "kind": "user stride20",
+      "seconds": 3.3333333333333335,
+      "path": ".cache/motion-dynamics/encoded-final/frame-005.png",
+      "bytes": 148133,
+      "sha256": "876e2c0311705a108e1159e7fa1f497056d78d186ec41e4d8a1a8360736fc296"
+    },
+    {
+      "frame": 100,
+      "filename": "frame-006.png",
+      "kind": "user stride20",
+      "seconds": 4.166666666666667,
+      "path": ".cache/motion-dynamics/encoded-final/frame-006.png",
+      "bytes": 155099,
+      "sha256": "5e6f40b5b3c4f44992748be95132f37e494f7327582b66e4652afbc56f4ff456"
+    },
+    {
+      "frame": 120,
+      "filename": "frame-007.png",
+      "kind": "user stride20",
+      "seconds": 5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-007.png",
+      "bytes": 154398,
+      "sha256": "c2ed2152d8809d882dd67df19d0b999f7d108a270666dd36bb7190e05d5bf22a"
+    },
+    {
+      "frame": 140,
+      "filename": "frame-008.png",
+      "kind": "user stride20",
+      "seconds": 5.833333333333333,
+      "path": ".cache/motion-dynamics/encoded-final/frame-008.png",
+      "bytes": 145442,
+      "sha256": "e9197f1a9473b1cabddf197d2ea71c13f8603d1bb3e9d17397983bd2e208a8d7"
+    },
+    {
+      "frame": 160,
+      "filename": "frame-009.png",
+      "kind": "user stride20",
+      "seconds": 6.666666666666667,
+      "path": ".cache/motion-dynamics/encoded-final/frame-009.png",
+      "bytes": 148332,
+      "sha256": "9a3e3b0627687a1365d79a951125fe38d0108e118d2921d53b5936bfba5b4c92"
+    },
+    {
+      "frame": 180,
+      "filename": "frame-010.png",
+      "kind": "user stride20",
+      "seconds": 7.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-010.png",
+      "bytes": 159893,
+      "sha256": "5fd332bd68126f5f0c273586579b96826c1b5341457c0ac59e9be54ac1086efe"
+    },
+    {
+      "frame": 200,
+      "filename": "frame-011.png",
+      "kind": "user stride20",
+      "seconds": 8.333333333333334,
+      "path": ".cache/motion-dynamics/encoded-final/frame-011.png",
+      "bytes": 167330,
+      "sha256": "afe29a90e56f985687129c1d20d2707810b9dbb1d9f0e08049b442263a6714a5"
+    },
+    {
+      "frame": 220,
+      "filename": "frame-012.png",
+      "kind": "user stride20",
+      "seconds": 9.166666666666666,
+      "path": ".cache/motion-dynamics/encoded-final/frame-012.png",
+      "bytes": 162243,
+      "sha256": "c450f434d9b437f3b71f97b5cd01b0c0ed970fddbed2cc5132c89ddd7cb2208c"
+    },
+    {
+      "frame": 240,
+      "filename": "frame-013.png",
+      "kind": "user stride20",
+      "seconds": 10,
+      "path": ".cache/motion-dynamics/encoded-final/frame-013.png",
+      "bytes": 144946,
+      "sha256": "d1b97cc87ea9a9845b92bfbb29e13084605ed268261f2679db60de694a9dd1fd"
+    },
+    {
+      "frame": 260,
+      "filename": "frame-014.png",
+      "kind": "user stride20",
+      "seconds": 10.833333333333334,
+      "path": ".cache/motion-dynamics/encoded-final/frame-014.png",
+      "bytes": 150407,
+      "sha256": "526a97bb85af4552f304129c295447b47f97b8ca2cfecf6db3c75842515cd8f6"
+    },
+    {
+      "frame": 280,
+      "filename": "frame-015.png",
+      "kind": "user stride20",
+      "seconds": 11.666666666666666,
+      "path": ".cache/motion-dynamics/encoded-final/frame-015.png",
+      "bytes": 164423,
+      "sha256": "27686ca985cc165a2199f277a1f212cb315eaddd188ca4d579ac90c7dd0cd753"
+    },
+    {
+      "frame": 300,
+      "filename": "frame-016.png",
+      "kind": "user stride20",
+      "seconds": 12.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-016.png",
+      "bytes": 177999,
+      "sha256": "d8543cda095aecb9ff8d12328c78e7af9714ece330c6fb5737f631ef09f66794"
+    },
+    {
+      "frame": 320,
+      "filename": "frame-017.png",
+      "kind": "user stride20",
+      "seconds": 13.333333333333334,
+      "path": ".cache/motion-dynamics/encoded-final/frame-017.png",
+      "bytes": 175642,
+      "sha256": "b30171c34ab0c6b1f7017925153abd5576b7b5e65f4ac56bbe35fb0374d5d2d4"
+    },
+    {
+      "frame": 340,
+      "filename": "frame-018.png",
+      "kind": "user stride20",
+      "seconds": 14.166666666666666,
+      "path": ".cache/motion-dynamics/encoded-final/frame-018.png",
+      "bytes": 144210,
+      "sha256": "8c31ecc5481d310137cb4deb392cc5afc8fba8e65df5ce4a6559c32f3832aa3b"
+    },
+    {
+      "frame": 360,
+      "filename": "frame-019.png",
+      "kind": "user stride20",
+      "seconds": 15,
+      "path": ".cache/motion-dynamics/encoded-final/frame-019.png",
+      "bytes": 141848,
+      "sha256": "ea30f2cc0774ec63d7478927ddc5cca956de0c0e4573ddea8782be73033cb3ab"
+    },
+    {
+      "frame": 380,
+      "filename": "frame-020.png",
+      "kind": "user stride20",
+      "seconds": 15.833333333333334,
+      "path": ".cache/motion-dynamics/encoded-final/frame-020.png",
+      "bytes": 157793,
+      "sha256": "a6cee7d05d62ed09a6adbb7454cf13bae374204c2a7f5cba225ec986b615af7a"
+    },
+    {
+      "frame": 400,
+      "filename": "frame-021.png",
+      "kind": "user stride20",
+      "seconds": 16.666666666666668,
+      "path": ".cache/motion-dynamics/encoded-final/frame-021.png",
+      "bytes": 160313,
+      "sha256": "9d9b337b7132a00d7df36c6b99c2d933ade428248f516c27eeb0931b1a095925"
+    },
+    {
+      "frame": 420,
+      "filename": "frame-022.png",
+      "kind": "user stride20",
+      "seconds": 17.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-022.png",
+      "bytes": 158936,
+      "sha256": "e9932223907eedc212dbbc653b01f718e121c7883ae3c144d97c3e653dc21ae3"
+    },
+    {
+      "frame": 440,
+      "filename": "frame-023.png",
+      "kind": "user stride20",
+      "seconds": 18.333333333333332,
+      "path": ".cache/motion-dynamics/encoded-final/frame-023.png",
+      "bytes": 105347,
+      "sha256": "2ba44d6b49c5882351295811489d81bcce71f8659cc9e8668a8e4a383a97e832"
+    },
+    {
+      "frame": 460,
+      "filename": "frame-024.png",
+      "kind": "user stride20",
+      "seconds": 19.166666666666668,
+      "path": ".cache/motion-dynamics/encoded-final/frame-024.png",
+      "bytes": 97256,
+      "sha256": "0418e07e72d2622497880f788d4f389f001d7929f384db436e367a2e34b4c78a"
+    },
+    {
+      "frame": 480,
+      "filename": "frame-025.png",
+      "kind": "user stride20",
+      "seconds": 20,
+      "path": ".cache/motion-dynamics/encoded-final/frame-025.png",
+      "bytes": 133803,
+      "sha256": "bd6bf4d01185fb3630f3b972c76bae9d5594f2ec54d192ebfd0dab8b5e629659"
+    },
+    {
+      "frame": 500,
+      "filename": "frame-026.png",
+      "kind": "user stride20",
+      "seconds": 20.833333333333332,
+      "path": ".cache/motion-dynamics/encoded-final/frame-026.png",
+      "bytes": 156622,
+      "sha256": "ff468beba1f014264325000c7184e810727a744d23ea824d4964aca884b67284"
+    },
+    {
+      "frame": 520,
+      "filename": "frame-027.png",
+      "kind": "user stride20",
+      "seconds": 21.666666666666668,
+      "path": ".cache/motion-dynamics/encoded-final/frame-027.png",
+      "bytes": 154225,
+      "sha256": "f6fe09fa4059ea3ccfca32d50fb1b72840bf5e1eeea8e8d7415b21f247c386ff"
+    },
+    {
+      "frame": 540,
+      "filename": "frame-028.png",
+      "kind": "user stride20",
+      "seconds": 22.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-028.png",
+      "bytes": 150231,
+      "sha256": "dbf9caa675d82551ef04992937b53036ee82066f77fee36bf7a429fe54b0f595"
+    },
+    {
+      "frame": 560,
+      "filename": "frame-029.png",
+      "kind": "user stride20",
+      "seconds": 23.333333333333332,
+      "path": ".cache/motion-dynamics/encoded-final/frame-029.png",
+      "bytes": 147985,
+      "sha256": "9852babbbc7a4b5fccf9ba1ce660508936098d6cbc96d4ef3650cacdc108bcd6"
+    },
+    {
+      "frame": 580,
+      "filename": "frame-030.png",
+      "kind": "user stride20",
+      "seconds": 24.166666666666668,
+      "path": ".cache/motion-dynamics/encoded-final/frame-030.png",
+      "bytes": 146878,
+      "sha256": "c4308fb626cad47de1a8935f03ed45763b6f440cf3d2a4fa113849bd3a98eded"
+    },
+    {
+      "frame": 600,
+      "filename": "frame-031.png",
+      "kind": "user stride20",
+      "seconds": 25,
+      "path": ".cache/motion-dynamics/encoded-final/frame-031.png",
+      "bytes": 142185,
+      "sha256": "285a6a1daa3ef9dcd55c55ebc93a29b328852a262dec89b159dfa7e0f19f57c9"
+    },
+    {
+      "frame": 620,
+      "filename": "frame-032.png",
+      "kind": "user stride20",
+      "seconds": 25.833333333333332,
+      "path": ".cache/motion-dynamics/encoded-final/frame-032.png",
+      "bytes": 140189,
+      "sha256": "155bd3d7aec0bb41aa032eb0011cda011c25687d51d0ff3cb8d54174b7d52d40"
+    },
+    {
+      "frame": 640,
+      "filename": "frame-033.png",
+      "kind": "user stride20",
+      "seconds": 26.666666666666668,
+      "path": ".cache/motion-dynamics/encoded-final/frame-033.png",
+      "bytes": 140199,
+      "sha256": "ac6841cbb010f87a5add6d26746cef4c6c8c5f67d5da910555871acbc2142a7e"
+    },
+    {
+      "frame": 660,
+      "filename": "frame-034.png",
+      "kind": "user stride20",
+      "seconds": 27.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-034.png",
+      "bytes": 146716,
+      "sha256": "4cf1b00930202660117a6e921bcf48776d429a969b39a05dbd117d652cb19a1c"
+    },
+    {
+      "frame": 680,
+      "filename": "frame-035.png",
+      "kind": "user stride20",
+      "seconds": 28.333333333333332,
+      "path": ".cache/motion-dynamics/encoded-final/frame-035.png",
+      "bytes": 145620,
+      "sha256": "8f987d1f17b2dc5a1bcb829e33dbfeac8fae8db4fbc7aab31cd9e047c9de86d8"
+    },
+    {
+      "frame": 700,
+      "filename": "frame-036.png",
+      "kind": "user stride20",
+      "seconds": 29.166666666666668,
+      "path": ".cache/motion-dynamics/encoded-final/frame-036.png",
+      "bytes": 146452,
+      "sha256": "9252665cff05ba588cb0dd38840017826a938c15029e433099b857e971947793"
+    },
+    {
+      "frame": 720,
+      "filename": "frame-037.png",
+      "kind": "user stride20",
+      "seconds": 30,
+      "path": ".cache/motion-dynamics/encoded-final/frame-037.png",
+      "bytes": 139002,
+      "sha256": "919f49962d12c00c31c651832693a481d565b59fb85fc165bd3da35165c62a6a"
+    },
+    {
+      "frame": 740,
+      "filename": "frame-038.png",
+      "kind": "user stride20",
+      "seconds": 30.833333333333332,
+      "path": ".cache/motion-dynamics/encoded-final/frame-038.png",
+      "bytes": 138675,
+      "sha256": "81cb9f1fe4bbcfdaf5d8d15b0187f0aaac1d899c1a771587901a125363dd3016"
+    },
+    {
+      "frame": 760,
+      "filename": "frame-039.png",
+      "kind": "user stride20",
+      "seconds": 31.666666666666668,
+      "path": ".cache/motion-dynamics/encoded-final/frame-039.png",
+      "bytes": 151675,
+      "sha256": "69bf34ac77f6ae21622bdef550f441ebe03367032cd2e0648683726bcfe3d282"
+    },
+    {
+      "frame": 780,
+      "filename": "frame-040.png",
+      "kind": "user stride20",
+      "seconds": 32.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-040.png",
+      "bytes": 150967,
+      "sha256": "70324600a9da9f86eb22925fbdb8174e8bc70390a0ce515fa18847282939c498"
+    },
+    {
+      "frame": 800,
+      "filename": "frame-041.png",
+      "kind": "user stride20",
+      "seconds": 33.333333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-041.png",
+      "bytes": 152219,
+      "sha256": "d5d902da3c30ecbbf16c691d60a481467ef98a422065e7193d3ee94d588690b0"
+    },
+    {
+      "frame": 820,
+      "filename": "frame-042.png",
+      "kind": "user stride20",
+      "seconds": 34.166666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-042.png",
+      "bytes": 153122,
+      "sha256": "b3791f6529e4f9dff807df5307d72efa926e1cab883259ac4151f1f8b5be0268"
+    },
+    {
+      "frame": 840,
+      "filename": "frame-043.png",
+      "kind": "user stride20",
+      "seconds": 35,
+      "path": ".cache/motion-dynamics/encoded-final/frame-043.png",
+      "bytes": 139789,
+      "sha256": "40e657b6acb40818760dc2799987df1a06807666e528324117087e22220a7d60"
+    },
+    {
+      "frame": 860,
+      "filename": "frame-044.png",
+      "kind": "user stride20",
+      "seconds": 35.833333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-044.png",
+      "bytes": 151741,
+      "sha256": "31aa90adebdecb7656933a97605c3497d9249089a9389222e70bbc59b5790e20"
+    },
+    {
+      "frame": 880,
+      "filename": "frame-045.png",
+      "kind": "user stride20",
+      "seconds": 36.666666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-045.png",
+      "bytes": 118922,
+      "sha256": "547b45dd3a5b7107e4ee848a38c43d820e836690f896627d65e975d361bfe283"
+    },
+    {
+      "frame": 900,
+      "filename": "frame-046.png",
+      "kind": "user stride20",
+      "seconds": 37.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-046.png",
+      "bytes": 127859,
+      "sha256": "0088ef3ed82d129c9df1501db546f7e74d1dd7af48632d2d02220e06a59497f4"
+    },
+    {
+      "frame": 920,
+      "filename": "frame-047.png",
+      "kind": "user stride20",
+      "seconds": 38.333333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-047.png",
+      "bytes": 73470,
+      "sha256": "0169a522699eabd73d3d9d17bab1f1ee07ecf60ba74c94a503b73eca9e748fca"
+    },
+    {
+      "frame": 940,
+      "filename": "frame-048.png",
+      "kind": "user stride20",
+      "seconds": 39.166666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-048.png",
+      "bytes": 79857,
+      "sha256": "b73c1e485b0cb017bef10ff106b62d1e5217a95563f12fdf01b273936b111afd"
+    },
+    {
+      "frame": 960,
+      "filename": "frame-049.png",
+      "kind": "user stride20",
+      "seconds": 40,
+      "path": ".cache/motion-dynamics/encoded-final/frame-049.png",
+      "bytes": 110641,
+      "sha256": "d52f9d471e982cb77d4be7421b77a899053b015081c036632ce93ef98a645ce7"
+    },
+    {
+      "frame": 980,
+      "filename": "frame-050.png",
+      "kind": "user stride20",
+      "seconds": 40.833333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-050.png",
+      "bytes": 119976,
+      "sha256": "f7633329d835113ba99c1594d65a6a00d45959c114ca58fbcd72d2f47f2c4328"
+    },
+    {
+      "frame": 1000,
+      "filename": "frame-051.png",
+      "kind": "user stride20",
+      "seconds": 41.666666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-051.png",
+      "bytes": 138876,
+      "sha256": "fa497429f1a4465eea99c80b058f371bec831dd4504d3759924cf6ad43ce3a43"
+    },
+    {
+      "frame": 1020,
+      "filename": "frame-052.png",
+      "kind": "user stride20",
+      "seconds": 42.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-052.png",
+      "bytes": 147596,
+      "sha256": "1f1100e2e72afb471d4887af80c305683b24dd776feeb8f01aef14ae34e0ad46"
+    },
+    {
+      "frame": 1040,
+      "filename": "frame-053.png",
+      "kind": "user stride20",
+      "seconds": 43.333333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-053.png",
+      "bytes": 140130,
+      "sha256": "70ab4460a3f2c2f13725c30b08adc73e825935101d46becc0a2795b19bfc5625"
+    },
+    {
+      "frame": 1060,
+      "filename": "frame-054.png",
+      "kind": "user stride20",
+      "seconds": 44.166666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-054.png",
+      "bytes": 142136,
+      "sha256": "7f8e315dc9c42163005e0e303745848f69eeeec316c5b418cf1e2237ff9d741e"
+    },
+    {
+      "frame": 1080,
+      "filename": "frame-055.png",
+      "kind": "user stride20",
+      "seconds": 45,
+      "path": ".cache/motion-dynamics/encoded-final/frame-055.png",
+      "bytes": 142187,
+      "sha256": "ed2097b577a996f9519de1f1918f102e5406204288ace79e5182f89cf79cf8d4"
+    },
+    {
+      "frame": 1100,
+      "filename": "frame-056.png",
+      "kind": "user stride20",
+      "seconds": 45.833333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-056.png",
+      "bytes": 144907,
+      "sha256": "748f7714452e67d7336fb4a9673f0cf7ebe131f04166178b5958091b357dc7c4"
+    },
+    {
+      "frame": 1120,
+      "filename": "frame-057.png",
+      "kind": "user stride20",
+      "seconds": 46.666666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-057.png",
+      "bytes": 149364,
+      "sha256": "b6ba4c43e74cb270d0db18a6d1c3c6ac6cca1153a30e1bb81d7654bb8aba371c"
+    },
+    {
+      "frame": 1140,
+      "filename": "frame-058.png",
+      "kind": "user stride20",
+      "seconds": 47.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-058.png",
+      "bytes": 147851,
+      "sha256": "1c2eedc6aa50145bafee0a071ec7d13faa4b09ca5a36627b9c4a10e0c813eaa1"
+    },
+    {
+      "frame": 1160,
+      "filename": "frame-059.png",
+      "kind": "user stride20",
+      "seconds": 48.333333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-059.png",
+      "bytes": 151537,
+      "sha256": "eb130159a925cd4be4e643f92fb0a1f0db33609ce89dae409fa7a335fc677e67"
+    },
+    {
+      "frame": 1180,
+      "filename": "frame-060.png",
+      "kind": "user stride20",
+      "seconds": 49.166666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-060.png",
+      "bytes": 149827,
+      "sha256": "36430ac5640a9c0f85cbcf2b8c4bf96b951de50af425cfb5c6ffc0fd2920fb01"
+    },
+    {
+      "frame": 1200,
+      "filename": "frame-061.png",
+      "kind": "user stride20",
+      "seconds": 50,
+      "path": ".cache/motion-dynamics/encoded-final/frame-061.png",
+      "bytes": 140737,
+      "sha256": "0ae1b5823132d57fe8cf59b336af4a8fcdfd89462995e9e1c12b8069dd928dcd"
+    },
+    {
+      "frame": 1220,
+      "filename": "frame-062.png",
+      "kind": "user stride20",
+      "seconds": 50.833333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-062.png",
+      "bytes": 131748,
+      "sha256": "c2552169c99b4e94afd1721522335bc757c290860e79c88acbaf02aedfd2886e"
+    },
+    {
+      "frame": 1240,
+      "filename": "frame-063.png",
+      "kind": "user stride20",
+      "seconds": 51.666666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-063.png",
+      "bytes": 130915,
+      "sha256": "8d4ba1d536c59ad3455e7a37169c6e895cc1e63d76d3f908fa6b02794e6efaa9"
+    },
+    {
+      "frame": 1260,
+      "filename": "frame-064.png",
+      "kind": "user stride20",
+      "seconds": 52.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-064.png",
+      "bytes": 137503,
+      "sha256": "dc2886805135c2badbd4d3735055e27610ed71936d00556d6b032a6ad42decce"
+    },
+    {
+      "frame": 1280,
+      "filename": "frame-065.png",
+      "kind": "user stride20",
+      "seconds": 53.333333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-065.png",
+      "bytes": 41700,
+      "sha256": "c8b1a299424a13f8478eb50241ac7ae9deb32f7d2be4bdbcd018ec696c93dc36"
+    },
+    {
+      "frame": 1300,
+      "filename": "frame-066.png",
+      "kind": "user stride20",
+      "seconds": 54.166666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-066.png",
+      "bytes": 153522,
+      "sha256": "0e4bc29940f91f1f11babc6e61875989f8ace7cb7dba82a431edfbdf79dc5fcd"
+    },
+    {
+      "frame": 1320,
+      "filename": "frame-067.png",
+      "kind": "user stride20",
+      "seconds": 55,
+      "path": ".cache/motion-dynamics/encoded-final/frame-067.png",
+      "bytes": 164972,
+      "sha256": "b67d1ea1e86a6bbdae3d865ec1bcf66852679c90bf40491415052cf900268c6a"
+    },
+    {
+      "frame": 1340,
+      "filename": "frame-068.png",
+      "kind": "user stride20",
+      "seconds": 55.833333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-068.png",
+      "bytes": 163896,
+      "sha256": "ef892ea6280771db33f0400607a469ffeac8b9e870531b1a3f5c827ba7d3f4fd"
+    },
+    {
+      "frame": 1360,
+      "filename": "frame-069.png",
+      "kind": "user stride20",
+      "seconds": 56.666666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-069.png",
+      "bytes": 163646,
+      "sha256": "d6cd202dd4a37953c898d0fba5472e02e869dfdf0265e314e791fd3cd0146050"
+    },
+    {
+      "frame": 1380,
+      "filename": "frame-070.png",
+      "kind": "user stride20",
+      "seconds": 57.5,
+      "path": ".cache/motion-dynamics/encoded-final/frame-070.png",
+      "bytes": 166718,
+      "sha256": "3e113ac6cb790f489bb931befa0d90fcf67d53893b53a774fba7899f13c4d47b"
+    },
+    {
+      "frame": 1400,
+      "filename": "frame-071.png",
+      "kind": "user stride20",
+      "seconds": 58.333333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-071.png",
+      "bytes": 166080,
+      "sha256": "759eabbed8e7a70f4fafef675fc02026a9771d984fdd0e574fff973f9cf6c5a5"
+    },
+    {
+      "frame": 1420,
+      "filename": "frame-072.png",
+      "kind": "user stride20",
+      "seconds": 59.166666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/frame-072.png",
+      "bytes": 166471,
+      "sha256": "140f3a1420939c5939eb6802cbf6c45b413cf4d45d529033f3744e210a752ac2"
+    },
+    {
+      "frame": 1439,
+      "filename": "frame-073.png",
+      "kind": "user stride20",
+      "seconds": 59.958333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/frame-073.png",
+      "bytes": 2781,
+      "sha256": "a54af0047d9c0ba6d6fa80f4ada3929b0fa7446211d5e932916d5d152aaaf9ca"
+    },
+    {
+      "requestedSeconds": 2.8,
+      "frame": 68,
+      "filename": "event-2-8.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 2.8333333333333335,
+      "path": ".cache/motion-dynamics/encoded-final/event-2-8.png",
+      "bytes": 47898,
+      "sha256": "0c19461115e233bb75e3efdbef13af32caaf249e72b3429a446bd5d11a128e57"
+    },
+    {
+      "requestedSeconds": 19.6,
+      "frame": 471,
+      "filename": "event-19-6.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 19.625,
+      "path": ".cache/motion-dynamics/encoded-final/event-19-6.png",
+      "bytes": 137766,
+      "sha256": "e157e74612688f619914f8abacd00baa8f1fa3a70147736c8a7991155b7ccc08"
+    },
+    {
+      "requestedSeconds": 23.7,
+      "frame": 569,
+      "filename": "event-23-7.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 23.708333333333332,
+      "path": ".cache/motion-dynamics/encoded-final/event-23-7.png",
+      "bytes": 147891,
+      "sha256": "6e0dc0ef21b0f2be0bc39b685f836722243f8a35d47a70112c3add45964cb89a"
+    },
+    {
+      "requestedSeconds": 24.333333333333332,
+      "frame": 584,
+      "filename": "event-slip-head-clearance.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 24.333333333333332,
+      "path": ".cache/motion-dynamics/encoded-final/event-slip-head-clearance.png",
+      "bytes": 144801,
+      "sha256": "f6a952467dd59532966c0fcdf972776fcf7f16b2e2faba74fa067ed46fe762d8"
+    },
+    {
+      "requestedSeconds": 25,
+      "frame": 600,
+      "filename": "event-25.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 25,
+      "path": ".cache/motion-dynamics/encoded-final/event-25.png",
+      "bytes": 142185,
+      "sha256": "285a6a1daa3ef9dcd55c55ebc93a29b328852a262dec89b159dfa7e0f19f57c9"
+    },
+    {
+      "requestedSeconds": 27.5,
+      "frame": 660,
+      "filename": "event-27-5.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 27.5,
+      "path": ".cache/motion-dynamics/encoded-final/event-27-5.png",
+      "bytes": 146716,
+      "sha256": "4cf1b00930202660117a6e921bcf48776d429a969b39a05dbd117d652cb19a1c"
+    },
+    {
+      "requestedSeconds": 31.7,
+      "frame": 761,
+      "filename": "event-31-7.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 31.708333333333332,
+      "path": ".cache/motion-dynamics/encoded-final/event-31-7.png",
+      "bytes": 152132,
+      "sha256": "87c45280001daf4613ff0036f3302ecaad5f2a121ade943c289ff6d3f9da9857"
+    },
+    {
+      "requestedSeconds": 34.8,
+      "frame": 836,
+      "filename": "event-34-8.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 34.833333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/event-34-8.png",
+      "bytes": 139907,
+      "sha256": "5a9d61d396df58b0c353166fab180f03cc374ed4dca7dc485989952fb278c038"
+    },
+    {
+      "requestedSeconds": 35.5,
+      "frame": 852,
+      "filename": "event-35-5.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 35.5,
+      "path": ".cache/motion-dynamics/encoded-final/event-35-5.png",
+      "bytes": 154291,
+      "sha256": "ea89e6aadd8f5e6c932c5f05680776b040dbafe4fcb2db9a0e8003f897cab576"
+    },
+    {
+      "requestedSeconds": 38.5,
+      "frame": 924,
+      "filename": "event-38-5.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 38.5,
+      "path": ".cache/motion-dynamics/encoded-final/event-38-5.png",
+      "bytes": 74335,
+      "sha256": "f2f0917ade5a5103a045d0df5d3c24f011e4ec78cf66f4b136d8fad5b56d192d"
+    },
+    {
+      "requestedSeconds": 40.5,
+      "frame": 972,
+      "filename": "event-40-5.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 40.5,
+      "path": ".cache/motion-dynamics/encoded-final/event-40-5.png",
+      "bytes": 117118,
+      "sha256": "775111d6c514f0100364d94a56624a2d4e4b1e8e87b0a6ba377c7e326f8dd61b"
+    },
+    {
+      "requestedSeconds": 42.9,
+      "frame": 1030,
+      "filename": "event-42-9.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 42.916666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/event-42-9.png",
+      "bytes": 144663,
+      "sha256": "b958df602f6653a10827d6842f08b20af859f07d44f83f555da4c2dae9757645"
+    },
+    {
+      "requestedSeconds": 43,
+      "frame": 1032,
+      "filename": "event-43.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 43,
+      "path": ".cache/motion-dynamics/encoded-final/event-43.png",
+      "bytes": 144876,
+      "sha256": "2eea1bbd8a4b4efe618d8a755bc36b5b6e3a66d3bc8b60b0044ecbedef56454e"
+    },
+    {
+      "requestedSeconds": 44.3,
+      "frame": 1064,
+      "filename": "event-44-3.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 44.333333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/event-44-3.png",
+      "bytes": 139666,
+      "sha256": "00d57ea786c7bf5b4ac643f012f19a732e7cf7cd5a56cdca48c30e806c894557"
+    },
+    {
+      "requestedSeconds": 44.5,
+      "frame": 1068,
+      "filename": "event-44-5.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 44.5,
+      "path": ".cache/motion-dynamics/encoded-final/event-44-5.png",
+      "bytes": 143808,
+      "sha256": "2a96bc09683d8a09dfa062fcad483a0b94f6ad04e7de4dc14a0e9a0bac6ae48d"
+    },
+    {
+      "requestedSeconds": 45.2,
+      "frame": 1085,
+      "filename": "event-45-2.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 45.208333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/event-45-2.png",
+      "bytes": 143337,
+      "sha256": "3f8d00f3caca487aad6ea33bca4d8fddc2f1b0266566772423e707d552b36d50"
+    },
+    {
+      "requestedSeconds": 46.5,
+      "frame": 1116,
+      "filename": "event-46-5.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 46.5,
+      "path": ".cache/motion-dynamics/encoded-final/event-46-5.png",
+      "bytes": 149527,
+      "sha256": "3643fdc7255abd8583a11c33a138f75b89f3df0e836de0cf13906a9c498aec41"
+    },
+    {
+      "requestedSeconds": 47.5,
+      "frame": 1140,
+      "filename": "event-47-5.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 47.5,
+      "path": ".cache/motion-dynamics/encoded-final/event-47-5.png",
+      "bytes": 147851,
+      "sha256": "1c2eedc6aa50145bafee0a071ec7d13faa4b09ca5a36627b9c4a10e0c813eaa1"
+    },
+    {
+      "requestedSeconds": 48.5,
+      "frame": 1164,
+      "filename": "event-48-5.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 48.5,
+      "path": ".cache/motion-dynamics/encoded-final/event-48-5.png",
+      "bytes": 151184,
+      "sha256": "c3bd37eafc98c78488eeac540bf4ebed2d53bb4068b4746bd2d2a1ac5adb964a"
+    },
+    {
+      "requestedSeconds": 50.5,
+      "frame": 1212,
+      "filename": "event-50-5.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 50.5,
+      "path": ".cache/motion-dynamics/encoded-final/event-50-5.png",
+      "bytes": 129695,
+      "sha256": "0a57479c7b05a8ab86fcea7b862ddc1ee4c8eef5aefe9fb9d568b4e123091a18"
+    },
+    {
+      "requestedSeconds": 53,
+      "frame": 1272,
+      "filename": "event-53.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 53,
+      "path": ".cache/motion-dynamics/encoded-final/event-53.png",
+      "bytes": 141211,
+      "sha256": "365d4dd3496c388f0c682b56c7343c3ad8221200320e4890f8489ba2624cbdc5"
+    },
+    {
+      "requestedSeconds": 53.4,
+      "frame": 1282,
+      "filename": "event-53-4.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 53.416666666666664,
+      "path": ".cache/motion-dynamics/encoded-final/event-53-4.png",
+      "bytes": 42930,
+      "sha256": "e6f39d21e374f8eff5eefe5a0df77a18200d9dbc70584af311cfd3ebe5bcb762"
+    },
+    {
+      "requestedSeconds": 55.8,
+      "frame": 1340,
+      "filename": "event-55-8.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 55.833333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/event-55-8.png",
+      "bytes": 163896,
+      "sha256": "ef892ea6280771db33f0400607a469ffeac8b9e870531b1a3f5c827ba7d3f4fd"
+    },
+    {
+      "requestedSeconds": 57.5,
+      "frame": 1380,
+      "filename": "event-57-5.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 57.5,
+      "path": ".cache/motion-dynamics/encoded-final/event-57-5.png",
+      "bytes": 166718,
+      "sha256": "3e113ac6cb790f489bb931befa0d90fcf67d53893b53a774fba7899f13c4d47b"
+    },
+    {
+      "requestedSeconds": 59.8,
+      "frame": 1436,
+      "filename": "event-59-8.png",
+      "kind": "event first encoded frame at/after request",
+      "seconds": 59.833333333333336,
+      "path": ".cache/motion-dynamics/encoded-final/event-59-8.png",
+      "bytes": 2781,
+      "sha256": "a54af0047d9c0ba6d6fa80f4ada3929b0fa7446211d5e932916d5d152aaaf9ca"
+    }
+  ]
+}
