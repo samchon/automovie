@@ -14,8 +14,9 @@ import { nclose, throwsError } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Synthetic source neck/head points and an original procedural shin section
- * reach the actual registered mesh unchanged in the rest-joint-origin frame.
+ * 1. The neck and head are built from their joints alone (no skin surface): the
+ * head starts at the head joint with the neck's girth and closes on the head
+ * tip, and a procedural shin section keeps its supplied radius.
  * 2. A custom midfoot placement, a quarter-turned forearm and an actor parent
  * transform apply once to both surface and diagnostics, including paused probes.
  * 3. Palette replacement retains mesh buffers and pose, equal RGB values share
@@ -25,9 +26,9 @@ import { nclose, throwsError } from "../internal/predicates";
  * 5. Drawing disposal retires each owned geometry/material once, clears its
  * registries and makes further pose/palette updates refuse.
  *
- * @evidence contracts/testing.md#behavioral-verification Builds through the optional public entry, reads actual mesh positions/indices and bone-group world transforms, replaces palettes/poses, constructs a face on the actual front and counts native disposal events; catches redesigned source rings, lost custom bones, wrong local frames, double root/parent composition, stale diagnostics, partial invalid writes and attached-resource overreach.
- * @evidence contracts/testing.md#independent-expectations Fixture courses are eight literal phase samples; the head must contain those points minus its rest joint and a procedural shin's first point is its supplied radius along +X. A forearm probe (0.04,0,0), z quarter-turn and placement (2,3,4), followed by actor y quarter-turn and translation (1,0,0), gives world (5,3.04,-2). Palette and resource expectations use actual identities/events rather than source matching or implementation snapshots.
- * @evidence contracts/testing.md#distinguishing-cases Covers source-owned and procedural sections, custom non-humanoid foot/toe bones, nonidentity root and bone rotation, surface/diagnostic agreement, equal/different/unmatched colours, invalid pose variants, neutral/expressive face output, explicit unsupported actions, disposal repetition and post-disposal refusal; real Human inputs and hardware appearance remain the consuming host's verification.
+ * @evidence contracts/testing.md#behavioral-verification Builds through the optional public entry, reads actual mesh positions/indices and bone-group world transforms, replaces palettes/poses, constructs a face on the actual front and counts native disposal events; catches a head that ignores its joints or tip, lost custom bones, wrong local frames, double root/parent composition, stale diagnostics, partial invalid writes and attached-resource overreach.
+ * @evidence contracts/testing.md#independent-expectations The head's first ring sits at its rest joint with the neck radius 0.04 narrowed by the 0.92 display convention, its highest vertex is the head tip 0.18 m above the joint, and a procedural shin's first point is its supplied radius along +X. A forearm probe (0.04,0,0), z quarter-turn and placement (2,3,4), followed by actor y quarter-turn and translation (1,0,0), gives world (5,3.04,-2). Palette and resource expectations use actual identities/events rather than source matching or implementation snapshots.
+ * @evidence contracts/testing.md#distinguishing-cases Covers skeleton-built neck/head and procedural sections, custom non-humanoid foot/toe bones, nonidentity root and bone rotation, surface/diagnostic agreement, equal/different/unmatched colours, invalid pose variants, neutral/expressive face output, explicit unsupported actions, disposal repetition and post-disposal refusal; real Human inputs and hardware appearance remain the consuming host's verification.
  * @evidence contracts/testing.md#execution-ownership One portable CPU unit calls maintained public Viewer entries over a small synthetic descriptor, starts no Human generator, browser, renderer, process or installation, and owns its ordinary Three objects.
  */
 export function test_viewer_human_polygon(): void {
@@ -53,36 +54,15 @@ export function test_viewer_human_polygon(): void {
   const headJoint: AutoMovieHumanPolygon.IBone = input.bones.find(
     (bone: AutoMovieHumanPolygon.IBone): boolean => bone.bone === "head",
   )!;
-  const courses: AutoMovieHumanPolygon.IExteriorSection[] = [
-    input.neckSurface!.sections.at(-1)!,
-    ...input.neckSurface!.headSections,
-  ];
+  const headTip: [number, number, number] = headJoint.tip!;
+  let highest: number = -Infinity;
+  for (let i: number = 0; i < headPositions.count; i++)
+    highest = Math.max(highest, headPositions.getY(i));
   check(
-    "head uses actual source courses",
-    courses.every(
-      (
-        course: AutoMovieHumanPolygon.IExteriorSection,
-        layer: number,
-      ): boolean =>
-        course.points.every(
-          (point: [number, number, number], i: number): boolean =>
-            nclose(
-              headPositions.getX(layer * 8 + i),
-              point[0] - headJoint.position[0],
-              1e-7,
-            ) &&
-            nclose(
-              headPositions.getY(layer * 8 + i),
-              point[1] - headJoint.position[1],
-              1e-7,
-            ) &&
-            nclose(
-              headPositions.getZ(layer * 8 + i),
-              point[2] - headJoint.position[2],
-              1e-7,
-            ),
-        ),
-    ),
+    "head is built from its joints and closes on the head tip",
+    nclose(highest, headTip[1] - headJoint.position[1], 1e-7) &&
+      nclose(headPositions.getX(0), 0.04 * 0.92, 1e-7) &&
+      nclose(headPositions.getY(0), 0, 1e-7),
   );
   check(
     "head retains original crown fan population",

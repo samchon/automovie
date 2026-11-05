@@ -19,6 +19,8 @@ Track current instructions, creative bodies, evidence, reviews and concise analy
 | `docs/review/{draft,final}/<layer>/<relative-file>.md` | Current independent unit reviews mirroring the actual body or working edition |
 | `docs/review/{draft,final}/<layer>/verdict/index.md` | Current complete-population verdict, findings and author decisions |
 | `docs/analysis/*.md` | Concise current research or production analysis linking its actual inputs and observations |
+| `docs/prompts/<purpose>/<descriptive-name>.md` | Recognizably named generation requests, source bindings, attempts and links to input/output receipts under [generation records](generation-records.md) |
+| Ignored `media/generated/`, when adopted | Large generated inputs/results whose retention, availability and restoration are recorded with their request or asset |
 | `references/` | Durable research originals and useful excerpts, connected by one current `index.md` to their provenance and chosen use |
 | `src/assets/` | Representations, rigs, and reusable authored controls |
 | `src/shots/` | Deterministic staging, performance, camera and sound, including runtime shot plans |

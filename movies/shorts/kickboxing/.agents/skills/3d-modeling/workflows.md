@@ -20,6 +20,8 @@ A generated or supplied 2D image can provide appearance reference or a supported
 
 Freeze selected external bytes and their sidecars with hashes, source identity, acquisition settings, and applicable usage terms. A URL, model name, or seed alone does not identify the asset actually used. Preserve the original separately from converted, simplified, or recovered derivatives, and record which source each derivative consumes.
 
+For generated sources, create the [request record](../production/generation-records.md) before acquisition. Map requested appearance, shape and composition to their actual creative sources; its input/output and retention records follow the bytes through conversion or recovery.
+
 ## Construct And Assemble
 
 Use named dimensions and local frames for authored shapes. For a loft, keep sections, guides, and their parameter directions related through one generating definition; for another representation, retain its corresponding sketches, fields, or procedural structure. Keep defining shape independent of tessellation so a detail setting does not silently change identity or dimensions.

@@ -14,3 +14,5 @@ __pycache__/
 docs/naturalness/
 docs/revision/
 /references/private/
+/media/generated/
+/output/

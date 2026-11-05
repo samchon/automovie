@@ -1,494 +1,601 @@
-import type { AudioMix } from "../audio/AudioMix";
-import { createInspectionRing } from "../createInspectionRing";
-import { LabActor } from "../motion-lab/LabActor";
-import { FilmCounter } from "./FilmCounter";
-import { FilmEnding } from "./FilmEnding";
-import { FilmExchange } from "./FilmExchange";
-import { FilmFinish } from "./FilmFinish";
-import { FilmPlan } from "./FilmPlan";
-import { FilmRoute } from "./FilmRoute";
-import { FilmTouch } from "./FilmTouch";
+import type {
+  AutoMovieHumanSkeleton,
+  IAutoMovieHumanPose,
+} from "@automovie/human";
 
-/** One actual retained placement and its resolved audible events. */
-interface FilmClip {
-  id: string;
-  start: number;
-  end: number;
-  evaluate: (seconds: number) => void;
-  audioEvents?: () => FilmPlan.Event[];
-}
+import type { AudioMix } from "../audio/AudioMix";
+import { Aftermath } from "../bout/Aftermath";
+import { Blocking } from "../bout/Blocking";
+import { BoutScript } from "../bout/BoutScript";
+import { Fighter } from "../bout/Fighter";
+import type { FighterBody } from "../bout/FighterBody";
+import { Knockdown } from "../bout/Knockdown";
+import { Referee } from "../bout/Referee";
+import { RefereeCues } from "../bout/RefereeCues";
+import { Resolve } from "../bout/Resolve";
+import { Rhythm } from "../bout/Rhythm";
+import { createPersonParameters } from "../createPersonParameters";
+import { BodyRig } from "../rig/BodyRig";
+import { Vec3 } from "../rig/Vec3";
+import { FilmActor } from "./FilmActor";
+import { FilmEvents } from "./FilmEvents";
+import type { FilmPlan } from "./FilmPlan";
+import { ImpactEffects } from "./ImpactEffects";
 
 /**
- * The actual three-performer film assembled from reusable motion consumers.
+ * The three performers on one film clock.
  *
- * @evidence contracts/common.md#implementation-and-ownership One actor pair and one male official use the original polygon Human host. Immutable case/route entries make the sequence seekable without new rigs. Actual contact, not plan text, gates the finishing transition and complete soundtrack. Whole-film preparation compiles every placement, while live playback still reports any unsampled intermediate physical failure honestly.
- * @evidence contracts/common.md#authoring-interface Public time is absolute [0,180] seconds. Construction owns exactly three actors; prepare must complete before evaluate. Every displayed update and committed clock is atomic across all performers. Full-body collision, force, continuous motion and listening acceptance remain independent review obligations.
+ * @evidence contracts/common.md#implementation-and-ownership Every evaluation runs the same pure pipeline (fighter, knockdown, aftermath and referee frames → cross-body goal resolution → per-body IK → display), so seek, playback and export draw identical frames. Contact and mat receipts are measured once during `prepare` from the displayed FK at the planned seconds; nothing is assumed from the plan.
+ * @evidence contracts/common.md#authoring-interface `evaluate(seconds)` places all actors for a film second in [0, 180]. `prepare` must resolve before contacts, mat contacts and audio events are read. `dispose` frees all actors.
  */
 export class FilmRuntime {
-  /** Original actors mounted once by the Viewer. */
-  public readonly actors: Record<FilmPlan.ActorId, LabActor>;
-  /** Actual stage descriptor shared with the displayed ring. */
-  public readonly layout: createInspectionRing.Layout;
-  /** Successfully committed film second, separate from preparation samples. */
-  public seconds: number = 0;
-  /** Whole source sequence has been compiled; this does not claim watched acceptance. */
+  /** Displayed performers. */
+  public readonly actors: Record<FilmPlan.ActorId, FilmActor>;
+
+  /** Whether receipts have been measured. */
   public ready: boolean = false;
-  /** Last actual refused placement and its already-computed native diagnostics. */
-  public failure: object | null = null;
-  /** Elapsed source intervals; async compilation includes yields, while drawing/encoding stay separate. */
-  public readonly costs: {
-    actorConstructionMs: number;
-    sequenceCompilationMs: number;
-    lastMotionMs: number;
-  } = {
-    actorConstructionMs: 0,
-    sequenceCompilationMs: 0,
-    lastMotionMs: 0,
-  };
-  /** Finite fixed source schedule, with the actual entry retained by each consumer. */
-  private readonly clips: FilmClip[] = [];
-  /** Completed module placements own retained traces, never another actor pair. */
-  private readonly exchanges: FilmExchange[] = [];
-  /** Opponent counters retain original outgoing-arm clocks through their typed carry ports. */
-  private readonly counters: FilmCounter[] = [];
-  /** The one actual audio manifest replaces nominal onset/footstep intentions after compilation. */
-  private audioSchedule: FilmPlan.Event[] = [];
-  /** Same actual touch consumer used for every opening seek. */
-  private touch: FilmTouch | undefined;
-  /** Immutable whole-timeline contacts shared by live and exported audio. */
-  private contactReceipts: FilmExchange.Contact[] = [];
-  /** One prepared actual ending owns collapse, corner, referee and floor observations. */
-  private ending: FilmEnding | undefined;
-  /** Final connected body-hook and kick retain one actual handoff and displayed contact. */
-  private finish: FilmFinish | undefined;
-  /** Current clip identity for truthful Viewer inspection. */
-  private active: string = "unprepared";
-  /** A sticky shared preparation prevents duplicate full-film computation. */
-  private preparation: Promise<void> | undefined;
-  /** Terminal owner state prevents late async publication. */
-  private disposed: boolean = false;
 
-  /** Construct only the original polygon performers; no dense Human skin is generated. */
-  public constructor(
-    layout: createInspectionRing.Layout = createInspectionRing.layout(),
-  ) {
-    this.layout = layout;
-    const begun: number = performance.now();
-    const acquired: LabActor[] = [];
-    try {
-      const a: LabActor = new LabActor("a", "a", -0.64, 0, "left", -0.025);
-      acquired.push(a);
-      const b: LabActor = new LabActor("b", "b", 0.64, Math.PI, "left", 0.025);
-      acquired.push(b);
-      const referee: LabActor = new LabActor(
-        "referee",
-        "referee",
-        -0.6,
-        -Math.PI / 2,
-        "left",
-        -1.55,
-      );
-      acquired.push(referee);
-      this.actors = { a, b, referee };
-      this.costs.actorConstructionMs = performance.now() - begun;
-    } catch (error: unknown) {
-      for (const actor of acquired) actor.dispose();
-      throw error;
-    }
-  }
+  /** Last committed film second. */
+  public seconds: number = 0;
 
-  /**
-   * Compile the complete source once before declaring the film loaded.
-   * @evidence contracts/common.md#implementation-and-ownership Sequential compilation carries each actual accepted ending into the next entry; each completed consumer retains its own baseline for later arbitrary seek. Short event-loop yields keep the already drawn Viewer responsive. A failure restores the original three actors and exposes the refused source/actual cause; partial compilation never authorizes export or complete audio.
-   * @evidence contracts/common.md#authoring-interface Concurrent callers share one sticky Promise. Progress reports source IDs and counts, not completed video review. Disposal rejects later publication; no worker, server, renderer or media encoder is started here.
-   */
-  public prepare(
-    progress?: (id: string, completed: number, total: number) => void,
-  ): Promise<void> {
-    if (this.disposed)
-      return Promise.reject(new Error("The film runtime is disposed"));
-    this.preparation ??= this.compile(progress);
-    return this.preparation;
-  }
+  /** Worst IK residual of the last evaluation, metres. */
+  public residual: number = 0;
 
-  /** Prepare chronology from actual endpoint adoption, retaining source and failure evidence. */
-  private async compile(
-    progress?: (id: string, completed: number, total: number) => void,
-  ): Promise<void> {
-    const original: () => void = this.checkpoint();
-    const begun: number = performance.now();
-    const pair: Record<"a" | "b", LabActor> = {
-      a: this.actors.a,
-      b: this.actors.b,
-    };
-    try {
-      this.addRoutes(
-        "opening-step",
-        0,
-        0.8,
-        FilmPlan.steps.filter(
-          (step: Readonly<FilmPlan.Step>): boolean =>
-            step.start === 0 && step.actorId !== "referee",
-        ),
-      );
-      this.touch = new FilmTouch(pair);
-      const touch: FilmTouch = this.touch;
-      this.clips.push({
-        id: "opening-touch",
-        start: 0.8,
-        end: 1.55,
-        evaluate: (seconds: number): void => touch.evaluate(seconds - 0.8),
-      });
-      touch.evaluate(0.75);
-      this.contactReceipts.push(...touch.contacts());
-      this.adoptFighters();
-      let cursor: number = 1.55;
-      for (const plan of FilmPlan.exchanges.slice(0, -2)) {
-        if (this.disposed)
-          throw new Error("Film preparation was cancelled by disposal");
-        if (plan.start > cursor + 1e-9)
-          this.addRoutes(
-            `angle-before-${plan.id}`,
-            cursor,
-            plan.start,
-            FilmPlan.steps.filter(
-              (step: Readonly<FilmPlan.Step>): boolean =>
-                step.actorId !== "referee" &&
-                step.start >= cursor - 1e-9 &&
-                step.end <= plan.start + 1e-9,
-            ),
+  /** CPU cost of the last evaluation, milliseconds. */
+  public lastMotionMs: number = 0;
+
+  private readonly fighters: Record<"a" | "b", Fighter>;
+  private readonly knockdown: Knockdown;
+  private readonly referee: Referee;
+  /** Body rig of each performer (A and B share one body). */
+  public readonly rigs: Record<FilmPlan.ActorId, BodyRig>;
+  private contactReceipts: AudioMix.Contact[] = [];
+  private refusedContacts: { actionId: string; gap: number }[] = [];
+  private matReceipts: AudioMix.FloorContact[] = [];
+  /** Measured landings that drive sweat, blood, flush and glove squash. */
+  private impacts: ImpactEffects.Impact[] = [];
+  /** Sweat and blood droplets and canvas stains; the Viewer adds its object to the scene. */
+  public readonly effects: ImpactEffects = new ImpactEffects();
+
+  public constructor() {
+    const fighterRig: BodyRig = new BodyRig(createPersonParameters(1800, true));
+    const refereeRig: BodyRig = new BodyRig(
+      createPersonParameters(1780, false),
+    );
+    this.rigs = { a: fighterRig, b: fighterRig, referee: refereeRig };
+    const ko: number = BoutScript.finish.at;
+    this.fighters = {
+      a: new Fighter(
+        "a",
+        fighterRig,
+        (t: number): Fighter.Stance => {
+          if (t < Aftermath.kickEnd) return rocking("a", Blocking.pair(t).a, t);
+          return Aftermath.stance(t);
+        },
+        { start: -1, end: 180 },
+      ),
+      b: new Fighter(
+        "b",
+        fighterRig,
+        (t: number): Fighter.Stance => {
+          return rocking(
+            "b",
+            Blocking.pair(Math.min(t, ko)).b,
+            Math.min(t, ko),
           );
-        if (plan.counterOf) {
-          const previous: FilmExchange | undefined = this.exchanges.at(-1);
-          if (!previous || previous.plan.id !== plan.counterOf)
-            throw new Error(
-              "A counter must name its immediate original attack",
-            );
-          const counter: FilmCounter = new FilmCounter(previous, plan, pair);
-          const preceding: FilmClip = this.clips.at(-1)!;
-          if (counter.start <= preceding.start || counter.start > preceding.end)
-            throw new Error(
-              "The actual counter boundary lies outside its originating attack",
-            );
-          preceding.end = counter.start;
-          this.counters.push(counter);
-          this.contactReceipts.push(...counter.contacts());
-          this.clips.push({
-            id: plan.id,
-            start: counter.start,
-            end: counter.end,
-            evaluate: (seconds: number): void => counter.evaluate(seconds),
-            audioEvents: (): FilmPlan.Event[] => counter.audioEvents(),
-          });
-          counter.evaluate(counter.end);
-        } else {
-          const following: Readonly<FilmPlan.Exchange> | undefined =
-            FilmPlan.exchanges[
-              this.exchanges.length + this.counters.length + 1
-            ];
-          const exchange: FilmExchange = new FilmExchange(plan, pair, {
-            continuingCounter: following?.counterOf === plan.id,
-          });
-          this.exchanges.push(exchange);
-          this.contactReceipts.push(...exchange.contacts());
-          this.clips.push({
-            id: plan.id,
-            start: plan.start,
-            end: plan.end,
-            evaluate: (seconds: number): void => exchange.evaluate(seconds),
-            audioEvents: (): FilmPlan.Event[] => exchange.audioEvents(),
-          });
-        }
-        cursor = plan.end;
-        if (
-          !FilmPlan.exchanges[this.exchanges.length + this.counters.length]
-            ?.counterOf
-        )
-          this.adoptFighters();
-        progress?.(
-          plan.id,
-          this.exchanges.length + this.counters.length,
-          FilmPlan.exchanges.length,
-        );
-        await new Promise<void>((resolve: () => void): void => {
-          setTimeout(resolve, 0);
-        });
-      }
-      const finish: FilmFinish = new FilmFinish(
-        FilmPlan.exchanges.slice(-2),
-        pair,
-      );
-      this.finish = finish;
-      progress?.(
-        FilmPlan.exchanges.at(-1)!.id,
-        FilmPlan.exchanges.length,
-        FilmPlan.exchanges.length,
-      );
-      this.contactReceipts.push(...finish.contacts());
-      this.clips.push({
-        id: "connected-finishing-setup",
-        start: finish.start,
-        end: finish.end,
-        evaluate: (seconds: number): void => finish.evaluate(seconds),
-        audioEvents: (): FilmPlan.Event[] => finish.audioEvents(),
-      });
-      this.ending = new FilmEnding(finish, this.actors, this.layout);
-      this.clips.push(...this.ending.clips);
-      this.audioSchedule = [
-        ...FilmPlan.events
-          .filter(
-            (event: Readonly<FilmPlan.Event>): boolean =>
-              event.kind !== "attempt" && event.kind !== "step",
-          )
-          .map(
-            (event: Readonly<FilmPlan.Event>): FilmPlan.Event =>
-              structuredClone(event),
-          ),
-        ...this.clips.flatMap((clip: FilmClip): FilmPlan.Event[] =>
-          (clip.audioEvents?.() ?? []).filter(
-            (event: FilmPlan.Event): boolean =>
-              event.seconds >= clip.start - 1e-9 && event.seconds < clip.end,
-          ),
-        ),
-        ...this.ending.referee.audioEvents(),
-      ].sort(
-        (a: FilmPlan.Event, b: FilmPlan.Event): number => a.seconds - b.seconds,
-      );
-      if (this.disposed)
-        throw new Error("Film preparation was cancelled by disposal");
-      this.ready = true;
-      this.evaluate(0);
-    } catch (error: unknown) {
-      this.failure = {
-        stage: "film-compilation",
-        source: this.exchanges.at(-1)?.plan.id ?? "opening",
-        message: error instanceof Error ? error.message : String(error),
-        producerCause: error instanceof Error ? error.cause : undefined,
-        actors: Object.values(this.actors).map((actor: LabActor): object =>
-          actor.inspect(),
-        ),
-      };
-      original();
-      this.ready = false;
-      throw error;
-    } finally {
-      this.costs.sequenceCompilationMs = performance.now() - begun;
-    }
-  }
-
-  /** Carry independent actual ending poses forward without a new guard or shared root. */
-  private adoptFighters(): void {
-    this.actors.a.adopt();
-    this.actors.b.adopt();
-  }
-
-  /** Prepare a gap's explicitly named route; its nonmoving actor retains the same actual ending. */
-  private addRoutes(
-    id: string,
-    start: number,
-    end: number,
-    steps: readonly Readonly<FilmPlan.Step>[],
-  ): void {
-    const entry: (() => void)[] = Object.values(this.actors)
-      .filter((actor: LabActor): boolean => actor.id !== "referee")
-      .map((actor: LabActor): (() => void) => actor.checkpoint());
-    const routes: { actorId: FilmPlan.ActorId; route: FilmRoute }[] = steps.map(
-      (
-        step: Readonly<FilmPlan.Step>,
-      ): { actorId: FilmPlan.ActorId; route: FilmRoute } => ({
-        actorId: step.actorId,
-        route: new FilmRoute(
-          this.actors[step.actorId],
-          [...step.displacement],
-          end - start,
-        ),
+        },
+        {
+          start: -1,
+          end: 180,
+          reserved: [
+            { side: "left", start: ko, end: 181 },
+            { side: "right", start: ko, end: 181 },
+          ],
+        },
+      ),
+    };
+    this.knockdown = new Knockdown(this.fighters.b.frame(ko), fighterRig);
+    this.referee = new Referee(
+      refereeRig,
+      RefereeCues.scene((t: number): Vec3.Value => {
+        const stance: Fighter.Stance =
+          t < Aftermath.kickEnd
+            ? { ...Blocking.pair(t).a, walk: 0 }
+            : Aftermath.stance(t);
+        return [stance.origin[0], 1.6, stance.origin[1]];
       }),
     );
-    if (!routes.length) throw new Error(`Unperformed film gap ${id}`);
-    const evaluate: (seconds: number) => void = (seconds: number): void => {
-      for (const restore of entry) restore();
-      for (const route of routes) route.route.evaluate(seconds - start);
+    this.actors = {
+      a: new FilmActor("a", fighterRig, createPersonParameters(1800, true)),
+      b: new FilmActor("b", fighterRig, createPersonParameters(1800, true)),
+      referee: new FilmActor(
+        "referee",
+        refereeRig,
+        createPersonParameters(1780, false),
+      ),
     };
-    this.clips.push({
-      id,
-      start,
-      end,
-      evaluate,
-      audioEvents: (): FilmPlan.Event[] =>
-        routes.flatMap(
-          (row: {
-            actorId: FilmPlan.ActorId;
-            route: FilmRoute;
-          }): FilmPlan.Event[] =>
-            row.route.audioEvents(start, `${id}:${row.actorId}`),
-        ),
-    });
-    evaluate(end);
-    this.adoptFighters();
   }
 
   /**
-   * Evaluate one absolute time and publish only a complete admitted three-actor frame.
-   * @evidence contracts/common.md#implementation-and-ownership The retained placement restores its own actual entry before sampling. Both fighters are completed before independent referee attention is evaluated. All three actors and the committed clock roll back on any refusal; previous source checkpoints and contact receipts never change.
-   * @evidence contracts/common.md#authoring-interface Requires completed preparation and finite [0,180] seconds. The count only proceeds while the winner remains at the actual far neutral destination. No timestamp or planned pose is treated as evidence of playback, sound or whole-body collision acceptance.
+   * Frames of all performers at a film second.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Fighter frames, the aftermath overlay for A, the knockdown for B after contact and the referee frame.
+   * @evidence contracts/common.md#authoring-interface Film seconds; fresh frames.
    */
-  public evaluate(seconds: number): void {
-    if (!this.ready || this.disposed)
-      throw new Error("The complete film is not loaded");
-    if (!Number.isFinite(seconds) || seconds < 0 || seconds > 180)
-      throw new Error("Film seek must remain inside [0,180]");
-    const rollback: () => void = this.checkpoint();
-    const begun: number = performance.now();
-    try {
-      const clip: FilmClip | undefined = this.clips.find(
-        (row: FilmClip): boolean =>
-          seconds >= row.start &&
-          (seconds < row.end || (seconds === 180 && row.end === 180)),
-      );
-      if (!clip)
-        throw new Error(`No consumed film placement covers ${seconds}s`);
-      clip.evaluate(seconds);
-      const neutral: boolean =
-        Math.hypot(
-          this.actors.a.person.object.position.x - this.ending!.neutral[0],
-          this.actors.a.person.object.position.z - this.ending!.neutral[2],
-        ) < 0.05;
-      this.ending!.referee.evaluate(seconds, neutral);
-      this.seconds = seconds;
-      this.active = clip.id;
-      this.failure = null;
-      this.costs.lastMotionMs = performance.now() - begun;
-    } catch (error: unknown) {
-      const cause: object = {
-        stage: "film-evaluation",
-        seconds,
-        message: error instanceof Error ? error.message : String(error),
-        producerCause: error instanceof Error ? error.cause : undefined,
-        actors: Object.values(this.actors).map((actor: LabActor): object =>
-          actor.inspect(),
-        ),
-      };
-      rollback();
-      this.failure = cause;
-      throw error;
-    }
-  }
-
-  /**
-   * Retain the actual displayed three-actor state for an atomic camera/draw boundary.
-   * @evidence contracts/common.md#implementation-and-ownership Reuses public actor checkpoints and copies only this runtime's committed clock and active source identity. It introduces no separate pose cache or solver.
-   * @evidence contracts/common.md#authoring-interface The synchronous restore belongs to this runtime lifetime. The Viewer uses it when a camera or drawing failure follows successful motion evaluation; no new frame is certified on restoration.
-   */
-  public checkpoint(): () => void {
-    const restores: (() => void)[] = Object.values(this.actors).map(
-      (actor: LabActor): (() => void) => actor.checkpoint(),
+  public frames(t: number): Record<FilmPlan.ActorId, FighterBody.Frame> {
+    const ko: number = BoutScript.finish.at;
+    const a: FighterBody.Frame = this.fighters.a.frame(t);
+    Aftermath.apply(
+      a,
+      t,
+      (): Vec3.Value => [Aftermath.fallenHead[0], 0.2, Aftermath.fallenHead[1]],
     );
-    const seconds: number = this.seconds;
-    const active: string = this.active;
-    return (): void => {
-      for (const restore of restores) restore();
-      this.seconds = seconds;
-      this.active = active;
-    };
+    const b: FighterBody.Frame =
+      t <= ko ? this.fighters.b.frame(t) : this.knockdown.frame(t);
+    return { a, b, referee: this.referee.frame(t) };
   }
 
   /**
-   * Read all actual contacts from the same successful whole-film compilation.
-   * @evidence contracts/common.md#implementation-and-ownership Returns detached receipts rather than mutable native meshes or planned events. Partial compilation refuses so downstream media cannot turn incomplete contact evidence into a complete film.
-   * @evidence contracts/common.md#authoring-interface Receipts use absolute film seconds and exact original action IDs. Their finite query limits remain attached; missing contacts remain absent.
+   * Place every actor at a film second.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Solves three bodies (about 4 ms each) and, for B after the knockout, lifts or lowers the root so the lowest body point rests exactly on the canvas; before that, any body is only lifted, never sunk.
+   * @evidence contracts/common.md#authoring-interface Seconds in [0, 180]; throws on a non-finite input.
    */
-  public contacts(): FilmExchange.Contact[] {
-    if (!this.ready) throw new Error("Complete film contacts are unavailable");
+  public evaluate(t: number): void {
+    const begun: number = performance.now();
+    const solved: Record<FilmPlan.ActorId, FilmRuntime.Solved> = this.solve(t);
+    let residual: number = 0;
+    for (const id of ["a", "b", "referee"] as const) {
+      residual = Math.max(residual, solved[id].error);
+      this.actors[id].place(
+        solved[id].root,
+        solved[id].pose,
+        solved[id].frame.wince,
+      );
+      if (id !== "referee") {
+        this.actors[id].bruise(ImpactEffects.flush(this.impacts, id, t));
+        for (const side of ["left", "right"] as const)
+          this.actors[id].squash(
+            side,
+            ImpactEffects.squash(this.impacts, id, side, t),
+          );
+      }
+    }
+    this.effects.update(t);
+    this.residual = residual;
+    this.seconds = t;
+    this.lastMotionMs = performance.now() - begun;
+  }
+
+  /**
+   * Solve every performer for a film second without touching the display.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Frames → cross-body goals → per-body IK → FK. The ground correction uses the same FK joints and skin radii as the drawn body: any body is lifted out of the canvas, and B is settled exactly onto it once his fall has begun. Shared by the Viewer, export and the motion audit, so all three see identical motion.
+   * @evidence contracts/common.md#authoring-interface Seconds in [0, 180]; returns corrected root placements, poses, world-space FK and the requests that produced them.
+   */
+  public solve(t: number): Record<FilmPlan.ActorId, FilmRuntime.Solved> {
+    if (!Number.isFinite(t) || t < 0 || t > 180)
+      throw new Error("Film second outside [0,180]");
+    const frames: Record<FilmPlan.ActorId, FighterBody.Frame> = this.frames(t);
+    const resolved: Resolve.Output = Resolve.requests(frames, this.rigs);
+    const result = {} as Record<FilmPlan.ActorId, FilmRuntime.Solved>;
+    for (const id of ["a", "b", "referee"] as const) {
+      const request: BodyRig.Request = resolved.requests[id]!;
+      const solved: BodyRig.Result = this.rigs[id].solve(request);
+      const output: AutoMovieHumanSkeleton.IOutput = this.rigs[id].evaluate(
+        solved.pose,
+      );
+      const world = (index: number): Vec3.Value =>
+        Vec3.add(
+          request.root.position,
+          Vec3.rotate(output.posed[index]!.position, request.root.rotation),
+        );
+      let lowest: number = Infinity;
+      output.posed.forEach(
+        (_: AutoMovieHumanSkeleton.IPlacement, index: number): void => {
+          lowest = Math.min(
+            lowest,
+            world(index)[1] - Math.min(output.bones[index]?.radius ?? 0, 0.08),
+          );
+        },
+      );
+      const settle: number =
+        id === "b"
+          ? Math.max(0, Math.min(1, (t - BoutScript.finish.at - 0.45) / 0.5))
+          : 0;
+      const correction: number =
+        settle * -lowest + (1 - settle) * Math.max(0, -lowest);
+      const root: BodyRig.Placement = {
+        position: [
+          request.root.position[0],
+          request.root.position[1] + correction,
+          request.root.position[2],
+        ],
+        rotation: request.root.rotation,
+      };
+      const joints: Map<string, Vec3.Value> = new Map();
+      output.posed.forEach(
+        (placement: AutoMovieHumanSkeleton.IPlacement, index: number): void => {
+          const point: Vec3.Value = world(index);
+          joints.set(placement.bone, [
+            point[0],
+            point[1] + correction,
+            point[2],
+          ]);
+        },
+      );
+      result[id] = {
+        root,
+        pose: solved.pose,
+        error: solved.error,
+        joints,
+        request,
+        frame: frames[id],
+        radii: new Map(output.bones.map((bone) => [bone.bone, bone.radius])),
+      };
+    }
+    return result;
+  }
+
+  /**
+   * Measure contact and mat receipts once.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership For every planned contact, evaluates the film at the contact second and measures the gap between the attacking glove (sphere) or shin (segment) and the receiving glove, shin, rib capsule or jaw surface; a receipt needs the surfaces to meet (guard and shin contacts) or the weapon to sink at least 1 cm (clean hits). B's hip and shoulder arrivals are sampled at 120 Hz. Yields between groups keep the page responsive.
+   * @evidence contracts/common.md#authoring-interface Resolves when all receipts are measured; progress reports completed counts.
+   */
+  public async prepare(
+    progress?: (id: string, completed: number, total: number) => void,
+  ): Promise<void> {
+    const contacts: AudioMix.Contact[] = [];
+    const refused: { actionId: string; gap: number }[] = [];
+    const impacts: ImpactEffects.Impact[] = [];
+    const planned: BoutScript.Action[] = BoutScript.actions.filter(
+      (action: BoutScript.Action): boolean =>
+        FilmEvents.relation(action) !== null,
+    );
+    const total: number = planned.length + 2;
+
+    // Opening glove touch.
+    this.evaluate(1.0);
+    const touch: number =
+      Vec3.distance(this.actors.a.glove("left"), this.actors.b.glove("left")) -
+      0.19;
+    if (touch <= 0)
+      contacts.push({
+        eventId: "touch",
+        actionId: "touch",
+        actorId: "a",
+        targetId: "b",
+        seconds: 1.0,
+        relation: "guard",
+        provenance: `glove-glove gap ${touch.toFixed(3)} m at displayed FK`,
+      });
+    else refused.push({ actionId: "touch", gap: touch });
+    for (let index: number = 0; index < planned.length; index++) {
+      const action: BoutScript.Action = planned[index]!;
+      this.evaluate(action.at);
+      const gap: number = this.gap(action);
+      const relation = FilmEvents.relation(action)!;
+      // A clean hit must sink into the receiver's skin; a guard or shin contact
+      // must at least touch. No air gap counts as a landing.
+      const needed: number =
+        relation === "head" || relation === "body" ? -0.01 : 0;
+      if (gap <= needed) {
+        impacts.push(this.impact(action, relation));
+        contacts.push({
+          eventId: `contact:${action.id}`,
+          actionId: action.id,
+          actorId: action.actor,
+          targetId: action.actor === "a" ? "b" : "a",
+          seconds: action.at,
+          relation,
+          provenance: `${relation} gap ${gap.toFixed(3)} m at displayed FK`,
+        });
+      } else refused.push({ actionId: action.id, gap });
+
+      // Full reaction once the surfaces meet, none beyond a 2.5 cm air gap.
+      this.fighters[action.actor === "a" ? "b" : "a"].strength.set(
+        action.id,
+        Math.max(0, Math.min(1, (0.025 - gap) / 0.025)),
+      );
+      if (index % 8 === 7) {
+        progress?.(action.id, index + 1, total);
+        await new Promise<void>(
+          (resolve: () => void): void => void setTimeout(resolve, 0),
+        );
+      }
+    }
+
+    // Mat arrivals: first 120 Hz sample within 2 cm of the joint's settled height on the canvas.
+    const mats: AudioMix.FloorContact[] = [];
+    this.evaluate(BoutScript.finish.at + 4);
+    for (const [part, bone] of [
+      ["hip", "rightUpperLeg"],
+      ["shoulder", "rightUpperArm"],
+    ] as const) {
+      this.evaluate(BoutScript.finish.at + 4);
+      const rest: number = this.actors.b.point(bone)[1];
+      for (
+        let t: number = BoutScript.finish.at + 0.2;
+        t < BoutScript.finish.at + 2.5;
+        t += 1 / 120
+      ) {
+        this.evaluate(t);
+        const height: number = this.actors.b.point(bone)[1];
+        if (height <= rest + 0.02) {
+          mats.push({
+            eventId: `fall:${part}`,
+            actorId: "b",
+            seconds: t,
+            bodyPart: part,
+            provenance: `${bone} joint reached ${height.toFixed(3)} m, within 2 cm of its settled ${rest.toFixed(3)} m, at 120 Hz`,
+          });
+          break;
+        }
+      }
+    }
+    this.contactReceipts = contacts;
+    this.impacts = impacts;
+    this.effects.configure(impacts);
+    this.refusedContacts = refused;
+    this.matReceipts = mats;
+    this.ready = true;
+    progress?.("complete", total, total);
+    this.evaluate(0);
+  }
+
+  /**
+   * Measured contact receipts.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Copies the measured receipts.
+   * @evidence contracts/common.md#authoring-interface Valid after `prepare`.
+   */
+  public contacts(): AudioMix.Contact[] {
     return structuredClone(this.contactReceipts);
   }
 
   /**
-   * Read actual first hip/shoulder floor observations for conditional fall sounds.
-   * @evidence contracts/common.md#implementation-and-ownership Copies only first admitted region receipts from the same finite 60Hz actual-host collapse inspection. A nominal fall cue cannot create a missing observed region.
-   * @evidence contracts/common.md#authoring-interface Calling before complete preparation refuses. Absolute seconds retain the finite-grid limitation; these observations do not measure impact force or audible material correctness.
+   * Measured mat arrivals.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Copies the measured mat arrivals.
+   * @evidence contracts/common.md#authoring-interface Valid after `prepare`.
    */
   public floorContacts(): AudioMix.FloorContact[] {
-    if (!this.ready) throw new Error("Complete floor contacts are unavailable");
-    return this.ending!.floorContacts();
+    return structuredClone(this.matReceipts);
   }
 
   /**
-   * Read the exact actual event manifest consumed by browser and exported audio.
-   * @evidence contracts/common.md#implementation-and-ownership Resolves original module delivery clocks and actual admitted route touchdowns, then merges unchanged count, speech and conditional contact intentions. Truncated outgoing clips contribute no future route cues. It does not retarget motion or create a contact receipt.
-   * @evidence contracts/common.md#authoring-interface Requires complete preparation. All times are absolute film seconds; audio consumes this exact detached collection with contacts and floorContacts from the same source run.
+   * Complete cue list.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Builds the cue list from the same schedules and moves fall cues to their measured seconds, dropping unmeasured ones.
+   * @evidence contracts/common.md#authoring-interface Valid after `prepare`.
    */
   public audioEvents(): FilmPlan.Event[] {
-    if (!this.ready)
-      throw new Error("The actual film audio event manifest is unavailable");
-    return structuredClone(this.audioSchedule);
+    const events: FilmPlan.Event[] = FilmEvents.build({
+      steps: {
+        a: this.fighters.a.steps,
+        b: this.fighters.b.steps,
+        referee: this.referee.steps,
+      },
+    });
+    for (const event of events)
+      if (event.kind === "fall") {
+        const receipt: AudioMix.FloorContact | undefined =
+          this.matReceipts.find(
+            (item: AudioMix.FloorContact): boolean => item.eventId === event.id,
+          );
+        if (receipt) event.seconds = receipt.seconds;
+      }
+    return events.filter(
+      (event: FilmPlan.Event): boolean =>
+        event.kind !== "fall" ||
+        this.matReceipts.some(
+          (item: AudioMix.FloorContact): boolean => item.eventId === event.id,
+        ),
+    );
   }
 
   /**
-   * Read the actual displayed actors, source, costs and unresolved acceptance together.
-   * @evidence contracts/common.md#implementation-and-ownership Uses retained native actor diagnostics and the current source identity without solving another pose. Measured computation and preparation costs stay distinct from drawing, capture and encoding owned by their consumers.
-   * @evidence contracts/common.md#authoring-interface Returned data is a diagnostic snapshot. No field declares visual, audio, CCD, force or complete decoded-film approval.
+   * Summary for the Viewer's inspection panel.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Snapshot of the last evaluation and the receipt outcome.
+   * @evidence contracts/common.md#authoring-interface Plain JSON-safe object.
    */
   public inspect(): object {
     return {
-      ready: this.ready,
       seconds: this.seconds,
-      active: this.active,
-      timeline: this.clips.map((clip: FilmClip): object => ({
-        id: clip.id,
-        start: clip.start,
-        end: clip.end,
-      })),
-      compiledPlacements:
-        this.exchanges.length + this.counters.length + (this.finish ? 2 : 0),
-      plannedPlacements: FilmPlan.exchanges.length,
-      counters: this.counters.length,
-      audioEvents: this.audioSchedule.length,
-      contactCount: this.contactReceipts.length,
-      ending: this.ending?.inspect(),
-      finishing: this.finish?.inspect(),
-      costs: { ...this.costs },
-      actors: Object.values(this.actors).map((actor: LabActor): object =>
-        actor.inspect(),
-      ),
-      failure: structuredClone(this.failure),
-      limits: [
-        "Finite full-surface action/contact and collapse inspection, not full articulated CCD",
-        "Kinematic support and compliance, not force/COM proof",
-        "Continuous Viewer and listening review required",
-        "Final 5400-frame decoding and continuity acceptance required",
-      ],
+      residualMetres: this.residual,
+      lastMotionMs: this.lastMotionMs,
+      contacts: this.contactReceipts.length,
+      refusedContacts: this.refusedContacts,
+      mats: this.matReceipts,
     };
   }
 
   /**
-   * Retire only this production's retained placements and its three original actors.
-   * @evidence contracts/common.md#implementation-and-ownership Marks disposal before retiring consumers, attempts every owned actor and aggregates failures. Borrowed cases cannot dispose the same actors; no server or unrelated browser/process is owned here.
-   * @evidence contracts/common.md#authoring-interface Terminal and idempotent. A pending preparation checks disposal before publishing readiness; it cannot be restarted after disposal.
+   * Free all actors.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Disposes every actor.
+   * @evidence contracts/common.md#authoring-interface The runtime must not be evaluated afterwards.
    */
   public dispose(): void {
-    if (this.disposed) return;
-    this.disposed = true;
-    this.ready = false;
-    const errors: unknown[] = [];
-    for (const resource of [
-      ...(this.finish ? [this.finish] : []),
-      ...this.exchanges,
-      ...this.counters,
-      ...Object.values(this.actors),
-    ])
-      try {
-        resource.dispose();
-      } catch (error: unknown) {
-        errors.push(error);
-      }
-    this.clips.length = 0;
-    this.exchanges.length = 0;
-    this.counters.length = 0;
-    this.contactReceipts = [];
-    this.audioSchedule = [];
-    this.touch = undefined;
-    this.ending = undefined;
-    this.finish = undefined;
-    if (errors.length) throw new AggregateError(errors, "Film disposal failed");
+    this.effects.dispose();
+    for (const actor of Object.values(this.actors)) actor.dispose();
   }
+
+  /** The landing of a measured contact at the currently displayed second. */
+  private impact(
+    action: BoutScript.Action,
+    relation: ImpactEffects.Impact["relation"],
+  ): ImpactEffects.Impact {
+    const attacker: FilmActor = this.actors[action.actor];
+    const receiver: FilmActor = this.actors[action.actor === "a" ? "b" : "a"];
+    const spec = BoutScript.specs[action.technique];
+    const kick: boolean = action.technique.endsWith("kick");
+    const point: Vec3.Value = kick
+      ? Vec3.lerp(
+          attacker.point(`${spec.side}LowerLeg`),
+          attacker.point(`${spec.side}Foot`),
+          0.7,
+        )
+      : attacker.glove(spec.side);
+    return {
+      id: action.id,
+      seconds: action.at,
+      attacker: action.actor,
+      receiver: action.actor === "a" ? "b" : "a",
+      relation,
+      side: spec.side === "left" ? "right" : "left",
+      weapon: kick ? "shin" : spec.side,
+      point,
+      direction: Vec3.normalize(
+        Vec3.sub(receiver.point("chest"), attacker.point("chest")),
+      ),
+      strength: 1,
+      finish: action === BoutScript.finish,
+    };
+  }
+
+  /** Gap between the attacking surface and its planned receiving surface, metres. */
+  private gap(action: BoutScript.Action): number {
+    const attacker: FilmActor = this.actors[action.actor];
+    const receiver: FilmActor = this.actors[action.actor === "a" ? "b" : "a"];
+    const spec = BoutScript.specs[action.technique];
+    const struck: "left" | "right" = spec.side === "left" ? "right" : "left";
+    const kick: boolean = action.technique.endsWith("kick");
+    const weapon = (point: Vec3.Value): number => {
+      if (!kick) return Vec3.distance(attacker.glove(spec.side), point) - 0.095;
+      const knee: Vec3.Value = attacker.point(`${spec.side}LowerLeg`);
+      const ankle: Vec3.Value = attacker.point(`${spec.side}Foot`);
+      return segment(point, knee, ankle) - 0.055;
+    };
+    switch (action.defense) {
+      case "check": {
+        const knee: Vec3.Value = receiver.point("leftLowerLeg");
+        const ankle: Vec3.Value = receiver.point("leftFoot");
+        const kneeA: Vec3.Value = attacker.point(`${spec.side}LowerLeg`);
+        const ankleA: Vec3.Value = attacker.point(`${spec.side}Foot`);
+        let best: number = Infinity;
+        for (let i: number = 0; i <= 10; i++)
+          best = Math.min(
+            best,
+            segment(Vec3.lerp(kneeA, ankleA, i / 10), knee, ankle),
+          );
+        return best - 0.11;
+      }
+      case "hit": {
+        if (spec.target === "head") {
+          // The struck jaw-side surface point in the frame the face looks along (toward
+          // the attacker), the same point the kick aims at in Resolve.
+          const toward: Vec3.Value = Vec3.sub(
+            attacker.point("hips"),
+            receiver.point("head"),
+          );
+          const forward: Vec3.Value = Vec3.normalize([toward[0], 0, toward[2]]);
+          const left: Vec3.Value = Vec3.rotateY(
+            [0, 0, 1],
+            Vec3.heading(forward),
+          );
+          const jaw: Vec3.Value = Vec3.add(
+            receiver.point("head"),
+            Vec3.add(
+              Vec3.add(
+                Vec3.scale(forward, 0.06),
+                Vec3.scale(left, struck === "left" ? 0.07 : -0.07),
+              ),
+              [0, -0.05, 0],
+            ),
+          );
+          return weapon(jaw);
+        }
+        const chest: Vec3.Value = receiver.point("chest");
+        const hips: Vec3.Value = receiver.point("hips");
+        let best: number = Infinity;
+        for (let i: number = 0; i <= 10; i++)
+          best = Math.min(best, weapon(Vec3.lerp(hips, chest, i / 10)));
+        return best - 0.14;
+      }
+      case "parry":
+      case "cover":
+      case "catch":
+      case "block":
+      case "slip":
+      case "weave": {
+        if (action.technique === "uppercut")
+          return (
+            Math.min(
+              weapon(receiver.glove("left")),
+              weapon(receiver.glove("right")),
+            ) - 0.095
+          );
+        if (kick) {
+          const forearm: Vec3.Value = Vec3.lerp(
+            receiver.point(`${struck}LowerArm`),
+            receiver.point(`${struck}Hand`),
+            0.5,
+          );
+          return Math.min(
+            weapon(receiver.glove(struck)) - 0.095,
+            weapon(forearm) - 0.05,
+          );
+        }
+        return weapon(receiver.glove(struck)) - 0.095;
+      }
+    }
+  }
+}
+
+/**
+ * Types of {@link FilmRuntime}.
+ */
+export namespace FilmRuntime {
+  /**
+   * One solved performer.
+   *
+   * @evidence contracts/common.md#implementation-and-ownership Plain solve result shared by display and audit.
+   * @evidence contracts/common.md#authoring-interface World metres; joints keyed by Human bone id.
+   */
+  export interface Solved {
+    /** Root placement after ground correction. */ root: BodyRig.Placement;
+    /** Solved clinical pose. */ pose: IAutoMovieHumanPose;
+    /** Worst primary IK residual, metres. */ error: number;
+    /** World joint centres by bone id, after ground correction. */ joints: Map<
+      string,
+      Vec3.Value
+    >;
+    /** Skin radius of the segment leaving each joint, metres. */ radii: Map<
+      string,
+      number
+    >;
+    /** The IK request (goals before ground correction). */ request: BodyRig.Request;
+    /** The authored frame. */ frame: FighterBody.Frame;
+  }
+}
+
+/** A fighter's bout stance with the live rhythm's rocking added. */
+function rocking(
+  id: "a" | "b",
+  frame: Blocking.Frame,
+  t: number,
+): Fighter.Stance {
+  const [forward, left] = Rhythm.stance(id, t);
+  const offset: Vec3.Value = Vec3.rotateY([forward, 0, left], frame.heading);
+  return {
+    origin: [frame.origin[0] + offset[0], frame.origin[1] + offset[2]],
+    heading: frame.heading,
+    walk: 0,
+  };
+}
+
+/** Distance from a point to a segment. */
+function segment(point: Vec3.Value, a: Vec3.Value, b: Vec3.Value): number {
+  const ab: Vec3.Value = Vec3.sub(b, a);
+  const u: number = Math.max(
+    0,
+    Math.min(
+      1,
+      Vec3.dot(Vec3.sub(point, a), ab) / Math.max(1e-12, Vec3.dot(ab, ab)),
+    ),
+  );
+  return Vec3.distance(point, Vec3.add(a, Vec3.scale(ab, u)));
 }

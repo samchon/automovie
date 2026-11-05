@@ -1,6 +1,6 @@
 # Fighter A current construction review
 
-Reviewed actual `docs/body/settings/fighter-a.md`, SHA256 `08db04a8c80b346f42b7c2fb14de380bdec9edfebce94148b232460bc4532e41`. Every current H2 is mirrored below. This is a new current-body construction judgment with the independent reading, population comparison and limits in `verdict/index.md`.
+Reviewed actual `docs/body/settings/fighter-a.md`, SHA256 `7eb4e57abb7d86ccce9360bc750654e0cc637d014b67a3ab283c45b0ee6812a2`. Every current H2 is mirrored below. This is a new current-body construction judgment with the independent reading, population comparison and limits in `verdict/index.md`.
 
 ## Identity {#identity}
 
@@ -34,9 +34,11 @@ Preserve those functions through subsequent realization. No additional fragile a
 
 ## Conduct and sound {#limits}
 
+Amendment, impact consequences: the section now states that a clean blow sinks into the skin and throws sweat, a clean face blow also draws blood from the nose or mouth, and struck skin reddens and stays marked. These are visible consequences of the screenplay's landed blows, consistent with the existing connected head/neck/trunk response, and they claim no injury mechanism.
+
 <!--
 @evidence fighter-a.md#limits The entire actual current settings H2 is usable and specific under its selected common/settings questions, with canon and decision ownership checked against the complete parents.
-@evidenceReview fighter-a.md#limits #6328b09 New current-body judgment after whole independent rereading and the completed semantic author audit; clean within the declared manuscript scope. Actual native identity is from native-012-metadata.json and its raw diagnostic, not prior approval.
+@evidenceReview fighter-a.md#limits #77de27b New current-body judgment after whole independent rereading and the completed semantic author audit; clean within the declared manuscript scope. Actual native identity is from native-012-metadata.json and its raw diagnostic, not prior approval.
 @evidence shared/principles/review.md#independent-reading The fresh current reader locked this H2's exact quotation, body locator and recipient effect before parent/contract/author reading, then reread the actual promoted five-file scope and made new unit/population judgments. First-reading and promoted-reading identities are recorded in verdict/index.md. The quotation below is actual current support; no old unit verdict is carried.
 @evidence shared/principles/review.md#literal-and-class-audit All 5 selected answers were compared with their complete host, actual target and parent/source support after creative judgment. The body-derived inventory and independent factual comparison preceded answer rows. Whole negative scopes and nearby predicate/condition specificity were checked. No supported creative or statement finding or unresolved author objection remains. Screenplay-only named-failure duties are not imposed as settings criteria; actual runtime and media acceptance remain separate.
 -->

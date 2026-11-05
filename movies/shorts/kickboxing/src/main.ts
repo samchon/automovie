@@ -8,11 +8,10 @@ import { FilmPlan } from "./film/FilmPlan";
 import { FilmRuntime } from "./film/FilmRuntime";
 import { FilmTransport } from "./film/FilmTransport";
 import { mountFilmControls } from "./film/mountFilmControls";
-import { prepareFilmSources } from "./film/prepareFilmSources";
 import "./style.css";
 
 /** Immutable source identity; the existing static review server is never edited here. */
-const version: string = "modular-bout-012";
+const version: string = "keyframed-bout-001";
 /** The one document mount owns controls and the actual viewport. */
 const app: HTMLElement | null = document.getElementById("app");
 if (!app) throw new Error("Missing production mount");
@@ -215,9 +214,7 @@ controls.addEventListener("change", (): void => {
 function place(seconds: number): void {
   if (!runtime?.ready || !state.ready)
     throw new Error("The complete film has not loaded");
-  const checkpointStarted: number = performance.now();
-  const rollback: () => void = runtime.checkpoint();
-  frameCosts.checkpointMs = performance.now() - checkpointStarted;
+  frameCosts.checkpointMs = 0;
   const position: THREE.Vector3 = camera.position.clone();
   const rotation: THREE.Quaternion = camera.quaternion.clone();
   const fov: number = camera.fov;
@@ -246,7 +243,6 @@ function place(seconds: number): void {
         "The full source is loaded. Independent moving-picture and listening review remain required.";
     }
   } catch (error: unknown) {
-    rollback();
     camera.position.copy(position);
     camera.quaternion.copy(rotation);
     camera.fov = fov;
@@ -299,24 +295,32 @@ const bootstrap: Promise<void> = (async (): Promise<void> => {
       throw new Error(
         "URL requires 0 <= start < end <= 180 and speed .25, .5 or 1",
       );
-    runtime = new FilmRuntime(ring.layout);
+    runtime = new FilmRuntime();
+    scene.add(runtime.effects.object);
     for (const actor of Object.values(runtime.actors)) {
       scene.add(actor.person.object);
-      actor.person.object.traverse((object: THREE.Object3D): void => {
-        if (object instanceof THREE.Mesh) object.castShadow = true;
-      });
+      // Review-only skeleton overlay (joint points and sticks): `?rig=1`.
+      if (params.get("rig") === "1") actor.showRig();
     }
     dirty = true;
-    await prepareFilmSources(
-      runtime,
-      audio,
+    const sourceStarted: number = performance.now();
+    await runtime.prepare(
       (id: string, completed: number, total: number): void => {
         element("#status").textContent =
-          `Preparing actual sequence ${completed}/${total}: ${id}`;
+          `Measuring contacts ${completed}/${total}: ${id}`;
       },
-      preparationCosts,
-      (): boolean => closed,
     );
+    preparationCosts.sourceMs = performance.now() - sourceStarted;
+    if (closed) throw new Error("The Viewer closed during preparation");
+    const audioStarted: number = performance.now();
+    audio.configure(
+      runtime.audioEvents(),
+      runtime.contacts(),
+      runtime.floorContacts(),
+    );
+    await audio.prepare();
+    preparationCosts.audioMs = performance.now() - audioStarted;
+    if (closed) throw new Error("The Viewer closed during preparation");
     transport = new FilmTransport(audio, place);
     transport.sound = !capture && element<HTMLInputElement>("#sound").checked;
     state.eventCount = runtime.audioEvents().length;
@@ -382,6 +386,20 @@ async function seek(seconds: number): Promise<void> {
   }
 }
 state.seek = seek;
+
+/** Review-only inspection camera: "x,y,z:tx,ty,tz" in world metres; the delivered camera is unchanged. */
+Reflect.set(window, "__kickboxingView", (value: string): void => {
+  const [position, target] = value
+    .split(":")
+    .map((part: string): number[] => part.split(",").map(Number));
+  if (position?.length !== 3 || target?.length !== 3)
+    throw new Error("View is x,y,z:tx,ty,tz");
+  camera.position.set(position[0]!, position[1]!, position[2]!);
+  camera.fov = 40;
+  camera.lookAt(target[0]!, target[1]!, target[2]!);
+  camera.updateProjectionMatrix();
+  draw(transport?.seconds ?? 0);
+});
 Reflect.set(window, "__afSeek", seek);
 state.contacts = (): unknown[] => {
   if (!state.ready || !runtime)

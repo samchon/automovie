@@ -5,6 +5,7 @@ import {
   type IAutoMovieHumanPose,
 } from "@automovie/human";
 import {
+  type AutoMovieHumanCartoon,
   type AutoMovieHumanPolygon,
   buildHumanCartoonFace,
   buildHumanPolygon,
@@ -29,10 +30,12 @@ export class InspectionPerson {
   public output: AutoMovieHumanSkeleton.IOutput;
   /** Fixed neutral geometry used to measure anatomical reach independently. */
   public readonly neutral: AutoMovieHumanSkeleton.IOutput;
+  /** Base part colours (skin and outfit) before any flush; outfits replace it. */
+  public palette: Record<string, number>;
   /** Separately owned cartoon face attached to the real head bone. */
   private face: ReturnType<typeof buildHumanCartoonFace>;
   /** Current public head articulation signature; unchanged faces reuse their owned drawing. */
-  private facePose: string = "{}";
+  private facePose: string = "[{},null]";
   /** Increases whenever the actual face mesh population is replaced. */
   public geometryRevision: number = 0;
 
@@ -46,12 +49,7 @@ export class InspectionPerson {
     color: number,
     prepared?: AutoMovieHumanSkeleton.PoseEvaluator,
   ) {
-    this.evaluate =
-      prepared ??
-      AutoMovieHumanSkeleton.prepare(parameters, {
-        neckSurface: true,
-        footSurface: true,
-      });
+    this.evaluate = prepared ?? AutoMovieHumanSkeleton.prepare(parameters);
     this.neutral = this.evaluate({});
     this.output = this.neutral;
     const colors: Record<string, number> = Object.fromEntries(
@@ -62,6 +60,7 @@ export class InspectionPerson {
         ],
       ),
     );
+    this.palette = colors;
     this.drawing = buildHumanPolygon(this.neutral, { partColors: colors });
     try {
       this.face = buildHumanCartoonFace(this.drawing.head);
@@ -79,23 +78,32 @@ export class InspectionPerson {
    * @evidence contracts/common.md#implementation-and-ownership The public evaluator produces the complete pose; the drawing consumes that output once without a second FK or hand placement.
    * @evidence contracts/common.md#authoring-interface The input uses clinical degrees. Out-of-range requests remain observable in output.clamped; no root adjustment or contact claim is made.
    */
-  public pose(pose: IAutoMovieHumanPose): void {
+  public pose(
+    pose: IAutoMovieHumanPose,
+    expression?: AutoMovieHumanCartoon.IExpression,
+  ): void {
     this.output = this.evaluate(pose);
     this.drawing.setPose(this.output);
-    this.prepareFace(pose);
+    this.prepareFace(pose, expression);
     this.object.updateWorldMatrix(true, true);
   }
 
   /**
    * Refresh the requested rigid head attachments before capturing physical geometry.
    * @evidence contracts/common.md#implementation-and-ownership Rebuilds the same displayed face once for a changed head pose and advances its population revision. A full-body floor query can capture that exact population before solving without another FK.
-   * @evidence contracts/common.md#authoring-interface Pose uses admitted public head units; this changes owned face geometry only. The next pose application uses the same face and updates its real carrier matrices.
+   * @evidence contracts/common.md#authoring-interface Pose uses admitted public head units and an optional cartoon expression (FACS units); this changes owned face geometry only. The next pose application uses the same face and updates its real carrier matrices.
    */
-  public prepareFace(pose: IAutoMovieHumanPose): void {
-    const signature: string = JSON.stringify(pose.head ?? {});
+  public prepareFace(
+    pose: IAutoMovieHumanPose,
+    expression?: AutoMovieHumanCartoon.IExpression,
+  ): void {
+    const signature: string = JSON.stringify([
+      pose.head ?? {},
+      expression ?? null,
+    ]);
     if (signature !== this.facePose) {
       const next: ReturnType<typeof buildHumanCartoonFace> =
-        buildHumanCartoonFace(this.drawing.head, undefined, pose.head);
+        buildHumanCartoonFace(this.drawing.head, expression, pose.head);
       this.face.object.removeFromParent();
       this.face.dispose();
       this.face = next;

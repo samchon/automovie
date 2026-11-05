@@ -36,6 +36,7 @@ export function addInspectionOutfit(
             ? 0xb98367
             : 0x75523f;
   }
+  person.palette = colors;
   person.drawing.setPartColors(colors);
   const geometry: THREE.BufferGeometry[] = [];
   const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial({
