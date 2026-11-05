@@ -6,7 +6,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 
 | Field | Planned value |
 | --- | --- |
-| Local clip | `media/automovie/videos/segments/fighting-for-the-center.mp4`, pending export from the re-exported whole render |
+| Local clip | `media/automovie/kickboxing/videos/segments/fighting-for-the-center.mp4`, pending export from the re-exported whole render |
 | Whole-render global interval | [90, 105) seconds |
 | Local interval | [0, 15) seconds |
 | Global included frames at 30 fps | 2700–3149 |
@@ -28,7 +28,7 @@ The single 15-second video stays below the carried 30-second / 10-video aggregat
 
 Literal basis: “sweat and a thread of blood fly from B's nose”
 
-[BoutScript](../../../src/bout/BoutScript.ts), raw SHA-256 `860798c2df95b5ab6971aa87160bff6c23213c9af887d8914ea84c4314540ef7`, supplies the contact or closest-pass second of every exchange in the interval. Local seconds in the prompt are these values minus 90:
+[BoutScript](../../../src/shots/kickboxing/ring-bout/BoutScript.ts), raw SHA-256 `860798c2df95b5ab6971aa87160bff6c23213c9af887d8914ea84c4314540ef7`, supplies the contact or closest-pass second of every exchange in the interval. Local seconds in the prompt are these values minus 90:
 
 | Row id | Global s | Local s | Attacker, technique → answer |
 | --- | ---: | ---: | --- |
@@ -42,7 +42,7 @@ Literal basis: “sweat and a thread of blood fly from B's nose”
 | `x078-a-jab` | 96.85 | 6.85 | A, jab → hit |
 | `x079-b-body-hook` | 98.1 | 8.1 | B, body-hook → catch |
 
-Clean landings in this clip, each with a camera jolt from [FilmPlan](../../../src/film/FilmPlan.ts): `x078-a-jab` at local 6.85 s. Face landings (`x078-a-jab`) add the screenplay's blood spray and the hint's half-second wince from [Reaction](../../../src/bout/Reaction.ts). The opening sentence of the action paragraph states the skin marks accumulated from earlier landings, following the screenplay's “Every landed blow sinks into what it meets: gloves flatten against gloves, ribs and faces, sweat flies off struck skin, and skin stays reddened where it was hit.”
+Clean landings in this clip, each with a camera jolt from [FilmPlan](../../../src/shots/kickboxing/ring-bout/FilmPlan.ts): `x078-a-jab` at local 6.85 s. Face landings (`x078-a-jab`) add the screenplay's blood spray and the hint's half-second wince from [Reaction](../../../src/motion/reactions/Reaction.ts). The opening sentence of the action paragraph states the skin marks accumulated from earlier landings, following the screenplay's “Every landed blow sinks into what it meets: gloves flatten against gloves, ribs and faces, sweat flies off struck skin, and skin stays reddened where it was hit.”
 
 The text supplies live-action identities, ring, light, impact detail and finish; the reference clip supplies movement, contact, camera and timing. These roles are semantic guidance, not a tested generator result or exact-frame following.
 
@@ -66,4 +66,4 @@ Keep realistic human anatomy, closed fists inside the gloves and the gloves on t
 
 ## Output and retention boundary {#retention}
 
-Availability: the source clip does not yet exist, and no input or output bytes are retained for this request. After export, add the clip's measured duration, frames, profile, bytes, SHA-256 and first/last-frame observations here, with the whole render's identity, keeping this planned epoch. A future submission becomes its own attributable attempt with the exact sent payload, job ID and retained outputs under [generation records](../../../.agents/skills/production/generation-records.md). Large files stay in ignored `media/automovie/videos/segments/` or `media/diffusion/videos/`; Git keeps these records, not the media.
+Availability: the source clip does not yet exist, and no input or output bytes are retained for this request. After export, add the clip's measured duration, frames, profile, bytes, SHA-256 and first/last-frame observations here, with the whole render's identity, keeping this planned epoch. A future submission becomes its own attributable attempt with the exact sent payload, job ID and retained outputs under [generation records](../../../.agents/skills/production/generation-records.md). Large files stay in ignored `media/automovie/kickboxing/videos/segments/` or `media/diffusion/videos/`; Git keeps these records, not the media.

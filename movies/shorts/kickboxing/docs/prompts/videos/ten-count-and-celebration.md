@@ -6,7 +6,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 
 | Field | Planned value |
 | --- | --- |
-| Local clip | `media/automovie/videos/segments/ten-count-and-celebration.mp4`, pending export from the re-exported whole render |
+| Local clip | `media/automovie/kickboxing/videos/segments/ten-count-and-celebration.mp4`, pending export from the re-exported whole render |
 | Whole-render global interval | [157, 180) seconds |
 | Local interval | [0, 23) seconds |
 | Global included frames at 30 fps | 4710–5399 |
@@ -28,13 +28,13 @@ The single 23-second video stays below the carried 30-second / 10-video aggregat
 
 Literal basis: “Drops of blood mark the canvas beside his face.” “B is still down.”
 
-[BoutScript](../../../src/bout/BoutScript.ts), raw SHA-256 `860798c2df95b5ab6971aa87160bff6c23213c9af887d8914ea84c4314540ef7`, supplies the contact or closest-pass second of every exchange in the interval. Local seconds in the prompt are these values minus 157:
+[BoutScript](../../../src/shots/kickboxing/ring-bout/BoutScript.ts), raw SHA-256 `860798c2df95b5ab6971aa87160bff6c23213c9af887d8914ea84c4314540ef7`, supplies the contact or closest-pass second of every exchange in the interval. Local seconds in the prompt are these values minus 157:
 
 This segment contains no exchange row.
 
 This clip contains no clean landing and no camera jolt; it carries the accumulated skin marks and canvas blood drops. The opening sentence of the action paragraph states the skin marks accumulated from earlier landings, following the screenplay's “Every landed blow sinks into what it meets: gloves flatten against gloves, ribs and faces, sweat flies off struck skin, and skin stays reddened where it was hit.”
 
-Non-exchange timing comes from [FilmPlan](../../../src/film/FilmPlan.ts) (count 157–167 s, decision 167.6 s, celebration 168.1 s, end bell 170.1 s) and [referee cues](../../../src/bout/RefereeCues.ts) (counts at 158–167 s, crouch from 169 s). The bell and spoken words stay in the deterministic soundtrack; the prompt asks only for visible mouth and hand performance. The canvas drops persist from the knockout, as the screenplay's “Drops of blood mark the canvas beside his face.” requires.
+Non-exchange timing comes from [FilmPlan](../../../src/shots/kickboxing/ring-bout/FilmPlan.ts) (count 157–167 s, decision 167.6 s, celebration 168.1 s, end bell 170.1 s) and [referee cues](../../../src/motion/referee/RefereeCues.ts) (counts at 158–167 s, crouch from 169 s). The bell and spoken words stay in the deterministic soundtrack; the prompt asks only for visible mouth and hand performance. The canvas drops persist from the knockout, as the screenplay's “Drops of blood mark the canvas beside his face.” requires.
 
 The text supplies live-action identities, ring, light, impact detail and finish; the reference clip supplies movement, contact, camera and timing. These roles are semantic guidance, not a tested generator result or exact-frame following.
 
@@ -56,4 +56,4 @@ Keep realistic human anatomy, closed fists inside the gloves and the gloves on t
 
 ## Output and retention boundary {#retention}
 
-Availability: the source clip does not yet exist, and no input or output bytes are retained for this request. After export, add the clip's measured duration, frames, profile, bytes, SHA-256 and first/last-frame observations here, with the whole render's identity, keeping this planned epoch. A future submission becomes its own attributable attempt with the exact sent payload, job ID and retained outputs under [generation records](../../../.agents/skills/production/generation-records.md). Large files stay in ignored `media/automovie/videos/segments/` or `media/diffusion/videos/`; Git keeps these records, not the media.
+Availability: the source clip does not yet exist, and no input or output bytes are retained for this request. After export, add the clip's measured duration, frames, profile, bytes, SHA-256 and first/last-frame observations here, with the whole render's identity, keeping this planned epoch. A future submission becomes its own attributable attempt with the exact sent payload, job ID and retained outputs under [generation records](../../../.agents/skills/production/generation-records.md). Large files stay in ignored `media/automovie/kickboxing/videos/segments/` or `media/diffusion/videos/`; Git keeps these records, not the media.

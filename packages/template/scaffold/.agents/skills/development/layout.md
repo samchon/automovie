@@ -15,6 +15,7 @@ Each source folder follows the path of the document it realizes, so the code and
 | `src/films/<film>.ts`, registered in `src/films/index.ts` | One delivered video: its shots in order, transitions, sound placement and delivery profile, as data | The screenplay file `<film>` names, under the [films contract](../contracts/development/films.md) |
 | `src/integrations/`, when needed | Provider or local-tool integration code | The generation requests in `docs/prompts/` |
 | `src/*.ts` | The Viewer entry, which mounts the film its `film` parameter selects, and the film types and selector | Nothing |
+| `src/executable/` | Commands run with Node, such as `render`, which exports a film as video or stills of chosen frames | Nothing |
 | `test/features/<same path>/` | Unit tests of the source folder at the same path | Nothing |
 | `public/` | Small fixed browser inputs; audio and video belong in [media](../production/media.md) | Nothing |
 | Runtime `README.md` and `.env.example` | Nonsecret setup, commands, environment-variable names, and example configuration | Nothing |

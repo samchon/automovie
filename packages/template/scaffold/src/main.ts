@@ -9,7 +9,13 @@ import { selectFilm } from "./selectFilm";
 const query: URLSearchParams = new URLSearchParams(location.search);
 const film: IFilm = selectFilm(films, query.get("film")).film;
 const durationSeconds: number = film.durationSeconds;
-const production: IFilmProduction = film.create();
+const status: HTMLOutputElement =
+  document.querySelector<HTMLOutputElement>("#clock")!;
+const production: IFilmProduction = await film.create(
+  (message: string): void => {
+    status.value = message;
+  },
+);
 const canvas: HTMLCanvasElement =
   document.querySelector<HTMLCanvasElement>("#view")!;
 const slider: HTMLInputElement =

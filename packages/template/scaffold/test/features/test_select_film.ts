@@ -21,6 +21,7 @@ export function test_select_film(): void {
     durationSeconds: number,
   ): IFilm => ({
     durationSeconds,
+    fps: 30,
     create: (): never => {
       throw new Error("not mounted in this test");
     },

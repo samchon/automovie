@@ -8,7 +8,7 @@ import type { IFilmProduction } from "../IFilmProduction";
  * film per screenplay file, each composing its shots.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment states the starter's length and that each screenplay file replaces it with a film composing its shots.
- * @evidence contracts/development/implementation.md#principled-implementation The film returns a fresh scene and camera per mount, and its seek updates world matrices for the requested second, so playback, seeking and capture draw the same state.
+ * @evidence contracts/development/implementation.md#principled-implementation The film resolves a fresh scene and camera per mount without loading anything, and its seek updates world matrices for the requested second, so playback, seeking and capture draw the same state.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The film holds only its length and scene assembly; the Viewer entry owns display and the render owns capture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The starter contains no story, motion or special case; its camera and background are neutral defaults.
  * @evidence contracts/development/implementation.md#efficient-algorithms Each seek updates world matrices once, linear in the scene's object count, which is zero here.
@@ -18,7 +18,8 @@ import type { IFilmProduction } from "../IFilmProduction";
 export function starter(): IFilm {
   return {
     durationSeconds: 15,
-    create: (): IFilmProduction => {
+    fps: 30,
+    create: async (): Promise<IFilmProduction> => {
       const scene: THREE.Scene = new THREE.Scene();
       scene.background = new THREE.Color(0x17202c);
       const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
