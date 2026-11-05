@@ -16,7 +16,7 @@ import { AutoMovieHumanBodySurface } from "../../../../../packages/human/src/gen
 import type { AutoMovieHumanOralCavity } from "../../../../../packages/human/src/generation/AutoMovieHumanOralCavity";
 import { AutoMovieHumanOralCavityAttempt } from "../../../../../packages/human/src/generation/AutoMovieHumanOralCavityAttempt";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { AutoMovieLoftContract } from "@automovie/engine";
+import type { AutoMovieLoftContract, AutoMovieSolidBody, IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftAperture } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftAperture";
 import { AutoMovieHumanRig } from "../../../../../packages/human/src/skeleton/AutoMovieHumanRig";
@@ -31,7 +31,7 @@ import { HumanDebugSourceHash } from "../../../../../packages/human/debug/server
 import { HumanPrepareProfileReport as Report } from "../../internal/HumanPrepareProfileReport";
 
 /**
- * Read one cold staged Human generation, not the entire public prepare wrapper.
+ * Read one cold staged Human generation or only its normal calibration.
  *
  * The stages use normal APIs without replacing foreign exports. State/cache key
  * assembly and admission performed by public prepare are outside this reading.
@@ -39,33 +39,49 @@ import { HumanPrepareProfileReport as Report } from "../../internal/HumanPrepare
  * timing. Stage CPU/wall and memory values include failed work; heap readings
  * are boundaries, not peaks. Mesh strings, sets, hashes and report/source-map
  * processing occur after sampling stops and are timed separately.
+ * AUTOMOVIE_HUMAN_PROFILE_STAGE=calibrate ends after the normal body law;
+ * leaving it unset keeps the complete staged pipeline. Neither mode measures
+ * public prepare's admission/cache wrapper or certifies a valid finished skin.
  *
  * Scenarios:
  * 1. Portable synthetic work/cleanup failures preserve the original error and
  *    release/disconnect despite secondary failures; no person is generated.
  * 2. The explicitly selected HumanPeople names each run once in the shared
- *    generation slot. This campaign selects only f1; no saved shape is used.
+ *    generation slot, through calibration only when explicitly selected.
+ *    This campaign selects only f1; no saved shape is used.
  *
- * @evidence contracts/testing.md#behavioral-verification Samples normal generation APIs and records actual stage boundaries, diagnostics, errors and bound mesh payloads. Synthetic failures assert original-error identity, failed-stage recording and cleanup continuation; generation measurements have no pass threshold.
+ * @evidence contracts/testing.md#behavioral-verification Samples normal generation APIs and records actual stage boundaries, diagnostics, errors and available calibration or bound mesh payloads. Explicit calibration selection stops before surface, appearance and binding; the default retains the complete staged run. Synthetic failures assert original-error identity, failed-stage recording, cleanup continuation and scope validation; generation measurements have no pass threshold.
  * @evidence contracts/testing.md#independent-expectations Synthetic sentinel errors and owned probe/release callbacks independently expose masking or leaked cleanup. CPU, clocks and memory come from Node; the mesh digest describes emitted payloads without being a geometry oracle. Sampling, boundary-memory and partial loaded-script hash limitations are recorded.
- * @evidence contracts/testing.md#distinguishing-cases Exercises primary work failure plus failing stop/release/disconnect, cleanup-only failure, successful and throwing timed stages, and one selected cold generation including partial failure output. Does not prove public prepare wrapper equivalence, peak heap, visual correctness or speedup versus another shape.
+ * @evidence contracts/testing.md#distinguishing-cases Exercises primary work failure plus failing stop/release/disconnect, cleanup-only failure, successful and throwing timed stages, absent/explicit/invalid observation scope, and one selected cold generation including partial failure output. Calibration-only output has one timed calibration and no later mesh/appearance/binding stage. Does not prove public prepare wrapper equivalence, peak heap, visual correctness or speedup versus another shape.
  * @evidence contracts/testing.md#execution-ownership One discoverable async CPU reading owns portable failure cases and the requested generation. It uses the existing absolute Environment/GenerationSlot acquire/finally release and inspector Session, with no browser, GPU, foreign-export replacement or new runner.
  */
 export async function test_human_prepare_profile(): Promise<void> {
+  const scope: Scope = scopeOf(process.env[STAGE_VARIABLE]);
   await failureCases();
   const listed: string | undefined = process.env[HumanPeople.SET_VARIABLE];
   const names: string[] = listed !== undefined && listed !== "" ? HumanPeople.names() : [HumanPeople.names()[0]!];
   const folder: string = path.join(ROOT, "packages", "human", ".shots", "profile", Report.stamp(new Date()));
   fs.mkdirSync(folder, { recursive: true });
-  for (const name of names) await profileOne(name, folder);
+  for (const name of names) await profileOne(name, folder, scope);
 }
 
 /** Repository root. */
 const ROOT: string = path.resolve(__dirname, "..", "..", "..", "..", "..");
 /** Optional exact function counting; it changes timings and defaults off. */
 const CALLS_VARIABLE: string = "AUTOMOVIE_HUMAN_PROFILE_CALLS";
+/** Optional observation boundary; only the explicit calibrate value is supported. */
+const STAGE_VARIABLE: string = "AUTOMOVIE_HUMAN_PROFILE_STAGE";
 /** Sampling interval in microseconds. */
 const SAMPLING: number = 1000;
+/** The observer's stopping point, without a production mode or geometry change. */
+type Scope = "pipeline" | "calibrate";
+
+/** Empty configuration preserves the pipeline; an unknown explicit boundary is an error. */
+function scopeOf(value: string | undefined): Scope {
+  if (value === undefined || value === "") return "pipeline";
+  if (value === "calibrate") return "calibrate";
+  throw new Error(`${STAGE_VARIABLE} accepts only calibrate or an unset value`);
+}
 
 /** Partial output retained only through this reading and its report. */
 interface IRun {
@@ -74,6 +90,7 @@ interface IRun {
   /** Available only after calibration returned. */ diagnostics?: AutoMovieLoftContract.IDiagnostic[];
   /** Bound parts, available only after binding returned. */ parts?: IAutoMovieModelPart[];
   /** Dressing materials, available after the staged run returned. */ materials?: IAutoMovieMaterial[];
+  /** Calibration-only output retained until post-sampling counts are written. */ calibration?: IAutoMovieHumanBodyCalibration;
 }
 /** The narrow normal inspector seam, also exercised by owned synthetic callbacks. */
 interface IProbe {
@@ -167,7 +184,7 @@ function connect(): IProbe {
 }
 
 /** Profile one selected person and save partial data before rethrowing its original error. */
-async function profileOne(name: string, folder: string): Promise<void> {
+async function profileOne(name: string, folder: string, scope: Scope): Promise<void> {
   const environment: ReturnType<typeof HumanDebugEnvironment> = HumanDebugEnvironment(path.join(ROOT, "packages", "human"));
   if (!path.isAbsolute(environment.slotRoot)) throw new Error("The shared generation slot root must be absolute");
   const params: IAutoMovieHumanParameters = HumanPeople.params(name);
@@ -184,8 +201,8 @@ async function profileOne(name: string, folder: string): Promise<void> {
     slot = await HumanDebugGenerationSlot.acquire(environment.slotRoot, environment.slots, "prepare profile " + name);
     slotWaitMs = performance.now() - waiting;
     try { sourceBefore = await HumanDebugSourceHash(environment); } catch (error) { result.observerErrors.push(error); }
-    console.log(JSON.stringify({ person: name, pid: process.pid, phase: "before-generation", atUtc: new Date().toISOString(), slotWaitMs, sourceBefore, counting, samplingMicroseconds: SAMPLING, memory: process.memoryUsage() }));
-    observed = await observe(connect, (): void => run(params, result), (): void => slot!.release(), counting);
+    console.log(JSON.stringify({ person: name, pid: process.pid, phase: "before-generation", atUtc: new Date().toISOString(), slotWaitMs, sourceBefore, scope, counting, samplingMicroseconds: SAMPLING, memory: process.memoryUsage() }));
+    observed = await observe(connect, (): void => run(params, result, scope), (): void => slot!.release(), counting);
   } catch (error) { failure(observed, error, false); }
   finally {
     // Covers an error before observe acquired its cleanup responsibility.
@@ -200,19 +217,26 @@ async function profileOne(name: string, folder: string): Promise<void> {
   const observerStarted: number = performance.now();
   try {
     const geometry: ReturnType<typeof Report.geometry> | null = result.parts === undefined ? null : Report.geometry(result.parts);
-    const lines: string[] = Report.format(name, result.stages, observed.profile, observed.coverage, observed.scripts);
+    const lines: string[] = Report.format(name, result.stages, observed.profile, observed.coverage, observed.scripts, scope === "calibrate" ? "calibration stage only" : "cold staged pipeline");
     if (result.parts !== undefined) lines.push("", ...Report.meshes(result.parts));
     lines.push("", "=== skin overlays ===", ...(result.materials ?? []).flatMap((m: IAutoMovieMaterial): string[] =>
       (m.overlays ?? []).map((o: IAutoMovieMaterialOverlay): string => `${m.id} overlay ${o.blend} ${typeof o.baseColorTexture === "string" ? o.baseColorTexture : o.baseColorTexture.asset}`)));
     const metadata: object = {
-      person: name, pid: process.pid, observedUtc: new Date().toISOString(), scope: "normal API cold staged pipeline; not the entire public prepare wrapper",
+      person: name, pid: process.pid, observedUtc: new Date().toISOString(), scope: scope === "calibrate" ? "normal API cold BodyLaw.calibrate only; no Human surface, appearance or binding" : "normal API cold staged pipeline; not the entire public prepare wrapper",
       slotWaitMs, sourceBefore, sourceAfter, sourceStable: sourceBefore !== null && sourceAfter !== null && sourceBefore === sourceAfter, counting, samplingMicroseconds: SAMPLING,
       stages: result.stages, failed: observed.failed, error: observed.failed ? errorText(observed.error) : null,
       cleanupErrors: observed.cleanup.map(errorText), observerErrors: result.observerErrors.map(errorText), diagnostics: result.diagnostics ?? null,
+      calibration: result.calibration === undefined ? null : {
+        chains: result.calibration.chains.length,
+        layers: result.calibration.chains.reduce((sum: number, chain: IAutoMovieLoftChain): number => sum + chain.layers.length, 0),
+        coefficientScalars: result.calibration.chains.reduce((sum: number, chain: IAutoMovieLoftChain): number => sum + chain.layers.reduce((total: number, layer: IAutoMovieLoftChain.ILayer): number => total + layer.coefficients.length, 0), 0),
+        publishedBodies: result.calibration.bodies?.length ?? 0,
+        publishedFaces: (result.calibration.bodies ?? []).reduce((sum: number, body: AutoMovieSolidBody.IPublished): number => sum + body.faces.length, 0),
+      },
       geometry, memoryAfterPostSamplingObservers: process.memoryUsage(), reportPreparationMs: performance.now() - observerStarted,
       sampledScripts: [...observed.scripts].map(([id, script]: [string, Report.IScript]): object => ({ id, sha256: script.sha256 })),
       scriptErrors: observed.scriptErrors, scriptObservationMs: observed.scriptObservationMs,
-      limits: "Boundary heap is not peak heap. Sampling includes timing/memory/logging overhead. Disk hashes do not prove loaded transforms; script hashes cover only inspector scripts read from sampled/counting IDs. Mesh tally/hash/report and script mapping are outside sampling; reportPreparationMs excludes script mapping and file writes. No visual or historical speed comparison.",
+      limits: "Boundary heap is not peak heap. Sampling includes timing/memory/logging overhead; precise coverage, when enabled, changes optimized execution. Disk hashes do not prove loaded transforms; script hashes cover only inspector scripts read from sampled/counting IDs. Calibration/mesh tally/hash/report and script mapping are outside sampling; reportPreparationMs excludes script mapping and file writes. Calibration return or a small payload does not prove complete/valid anatomy. No visual or historical speed comparison.",
     };
     lines.push("", "=== observation metadata ===", JSON.stringify(metadata, null, 2));
     console.log(lines.join("\n"));
@@ -254,6 +278,12 @@ function timer(stages: Report.IStage[], observerErrors: unknown[]): ITimer {
 
 /** Work failure plus secondary cleanup failures must not mask it or skip another release. */
 async function failureCases(): Promise<void> {
+  TestValidator.equals("unset observation keeps the pipeline", scopeOf(undefined), "pipeline");
+  TestValidator.equals("empty observation keeps the pipeline", scopeOf(""), "pipeline");
+  TestValidator.equals("explicit calibration boundary", scopeOf("calibrate"), "calibrate");
+  let refused: boolean = false;
+  try { scopeOf("surface"); } catch { refused = true; }
+  TestValidator.predicate("unknown observation boundary is refused", refused);
   const primary: Error = new Error("synthetic stage");
   const stop: Error = new Error("synthetic stop");
   const release: Error = new Error("synthetic release");
@@ -300,7 +330,7 @@ function errorText(error: unknown): string {
 }
 
 /** Run the stages of `AutoMovieHuman.prepare` in its order, timing each. */
-function run(params: IAutoMovieHumanParameters, result: IRun): void {
+function run(params: IAutoMovieHumanParameters, result: IRun, scope: Scope): void {
   const timed: ITimer = timer(result.stages, result.observerErrors);
   const height: number = AutoMovieHumanBodyAnatomy.resolve(params).stature;
 
@@ -308,6 +338,10 @@ function run(params: IAutoMovieHumanParameters, result: IRun): void {
   const law: AutoMovieHumanBodyLaw.IOutput = timed("body law (calibrate)", (): AutoMovieHumanBodyLaw.IOutput => AutoMovieHumanBodyLaw.calibrate(params));
   const calibration: IAutoMovieHumanBodyCalibration = law.body;
   result.diagnostics = [...(calibration.diagnostics ?? [])];
+  if (scope === "calibrate") {
+    result.calibration = calibration;
+    return;
+  }
   const scale: number = height / calibration.stature / 1000;
   const ends: [number, number, number][] = law.vermilion.spans.flatMap((s: { start: [number, number, number]; end: [number, number, number] }): [number, number, number][] => [s.start, s.end]);
   const box: [[number, number, number], [number, number, number]] = [

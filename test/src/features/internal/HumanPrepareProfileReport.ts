@@ -53,12 +53,13 @@ export namespace HumanPrepareProfileReport {
    * Missing sampling data leaves the observed stage boundaries in the report.
    * Recursive totals count only a function's outermost entries; script maps may
    * be partial, so unmapped locations retain their generated line numbers.
+   * The title names the caller's actual observation boundary, not skin validity.
    */
-  export function format(name: string, stages: IStage[], profile: IProfile | undefined, coverage: IScriptCoverage[], scripts: Map<string, IScript>): string[] {
+  export function format(name: string, stages: IStage[], profile: IProfile | undefined, coverage: IScriptCoverage[], scripts: Map<string, IScript>, title: string = "cold staged pipeline"): string[] {
     const out: string[] = [];
     const wall: number = stages.reduce((s: number, x: IStage): number => s + x.wall, 0);
     const work: number = stages.reduce((s: number, x: IStage): number => s + x.cpu, 0);
-    out.push(`=== ${name}: cold staged pipeline (wall ${ms(wall)} ms, thread CPU ${ms(work)} ms, cpu clock ${typeof process.threadCpuUsage === "function" ? "thread" : "process"}) ===`);
+    out.push(`=== ${name}: ${title} (wall ${ms(wall)} ms, thread CPU ${ms(work)} ms, cpu clock ${typeof process.threadCpuUsage === "function" ? "thread" : "process"}) ===`);
     out.push(row(["stage", "wall ms", "cpu ms", "wall %"], [34, 12, 12, 8]));
     for (const s of stages) out.push(row([s.label, ms(s.wall), ms(s.cpu), pct(s.wall, wall)], [34, 12, 12, 8]));
 
