@@ -37,6 +37,9 @@ export interface IAutoMovieHumanTrunkViews {
    * neck's merge covers.
    */
   sites: IAutoMovieHumanTrunkViews.ISite[];
+
+  /** Retained back observations between named sites, calibration mm. TrunkViews.of omits rows at named heights; direct callers must supply noncolliding heights or the scalar owner refuses. Absent for independently authored standalone views. */
+  backProfile?: { site: string; y: number; back: number }[];
 }
 export namespace IAutoMovieHumanTrunkViews {
   /** One site's knots. */
