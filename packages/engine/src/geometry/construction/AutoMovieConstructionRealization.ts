@@ -8,12 +8,12 @@ import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
- * What {@link realizeAutoMovieConstruction} reads besides the tree, and what it returns: every view part's chain, every join's traced curve and blend, every trim, the body of trimmed faces and its one tessellated skin, with the premises the tree could not keep.
+ * What {@link realizeAutoMovieConstruction} reads besides the tree, and what it returns: every view part's chain, every join's traced curve and blend, every trim and the body of trimmed faces, with the premises the tree could not keep. The default result includes one tessellated skin; an explicit `skin: false` request returns null there.
  *
  * The tree is in metres; the kernel works in millimetres, so the owning view, seed, width and trim adapters convert physical lengths at their input boundaries. The chains, surfaces, joins, trims and body are the kernel's own records and stay in millimetres, as their declarations state; the skin's positions are returned in metres, the tree's unit. Any node may be the root: a subtree realizes alone, with its own diagnostics.
  *
  * @evidence contracts/common.md#principled-implementation Publishes the realized operator records so a consumer reads the chain/curve/blend used by the skin; physical lengths change units at the relevant authoring-to-kernel adapters rather than through a second geometry representation.
- * @evidence contracts/common.md#clear-and-simple-design One option, the chord tolerance, and one result record grouped by node kind; the skin is three flat arrays and an owner list, the form every viewer and test reads.
+ * @evidence contracts/common.md#clear-and-simple-design The physical chord and optional skin request share one options record; the default and explicitly unskinned result types preserve the same operator records without making the default mesh nullable.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Carries no field for a specific part, fixture or caller; a node left out by a broken premise is absent from its list and named in `diagnostics`, never replaced by a fallback shape.
  * @evidence contracts/common.md#meaningful-documentation States each field's content, order and unit, the unit change at entry, the root rule and the effect of a broken premise.
  * @evidenceExclude contracts/performance.md#efficient-algorithms A type with no runtime body; the realization's cost is answered on `realizeAutoMovieConstruction`.
@@ -25,16 +25,19 @@ export namespace AutoMovieConstructionRealization {
    * Requested realization controls, with lengths in the tree's metres.
    *
    * @evidence contracts/common.md#principled-implementation The chord field expresses the requested physical tessellation tolerance independently of kernel millimetre coordinates.
-   * @evidence contracts/common.md#clear-and-simple-design One length-valued option exposes the current realization requirement without unrelated rendering settings.
+   * @evidence contracts/common.md#clear-and-simple-design One physical tolerance and one optional boolean distinguish operator realization from its final skin, without unrelated rendering settings.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts This type does not certify achieved geometric error; realization's positivity check and the emitter's finite midpoint/phase/depth criterion do not prove a continuous maximum bound.
-   * @evidence contracts/common.md#meaningful-documentation States requested tolerance meaning, metres and positive range; the evidence distinguishes a requested bound from its verification.
+   * @evidence contracts/common.md#meaningful-documentation States requested tolerance meaning, metres, positive range and the default-on skin request; disabling the skin preserves chord admission, grid preparation and the chord-derived trim solve tolerance.
    * @evidenceExclude contracts/performance.md#efficient-algorithms The option record executes no tessellation algorithm.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work This scalar option coordinates no requests or cache.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns one scalar field and no acquired handle or retained output population.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns at most two scalar fields and no acquired handle or retained output population.
    */
   export interface IProps {
     /** The skin's chord tolerance: the largest distance between a triangle and the surface it stands for, metres, positive. */
     chord: number;
+
+    /** Draw and return the final skin unless false; operator records, boundary publication, diagnostics and chord-derived work remain requested in either mode. */
+    skin?: boolean;
   }
 
   /**
@@ -126,4 +129,21 @@ export namespace AutoMovieConstructionRealization {
     /** Every premise the tree could not keep, in the order met; empty for a clean construction. */
     diagnostics: IAutoMovieConstructionDiagnostic[];
   }
+
+  /**
+   * Explicitly unskinned operator realization, with the same units and records as IRealization.
+   * Null means final tessellation was not requested, not that an empty mesh passed its checks.
+   *
+   * @evidence contracts/common.md#principled-implementation Reuses the normal chain, surface, join, trim, boundary-body and diagnostic fields while representing the omitted final skin explicitly.
+   * @evidence contracts/common.md#clear-and-simple-design One result variant changes only mesh to null; the existing default IRealization keeps its required IMesh field.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts This result does not certify tessellation, closedness or a complete valid shape, and it retains every reported operator failure rather than returning a placeholder skin.
+   * @evidence contracts/common.md#meaningful-documentation States null's request meaning and preserves the normal record units, order and diagnostic semantics.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This type performs no realization or tessellation; the owning function describes which work is omitted.
+   * @evidence contracts/performance.md#reuse-equivalent-work The caller receives the actual retained operator and boundary records instead of rebuilding them from a discarded skin.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the retained chains, surfaces, trace/blend/trim closures, boundaries and diagnostics; their populations are input-dependent, but no final skin buffers or acquired task handle are transferred.
+   */
+  export type IWithoutSkin = Omit<IRealization, "mesh"> & {
+    /** Final skin not requested; this is not an empty tessellated mesh. */
+    mesh: null;
+  };
 }

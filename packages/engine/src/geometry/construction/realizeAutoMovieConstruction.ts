@@ -31,28 +31,55 @@ import type { IAutoMovieSolidAtlas } from "./IAutoMovieSolidAtlas";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
+/** Realize operator and boundary records with no final skin when explicitly requested. */
+export function realizeAutoMovieConstruction(
+  construction: IAutoMovieConstruction,
+  props: AutoMovieConstructionRealization.IProps & {
+    /** Omit only the final skin. */
+    skin: false;
+  },
+): AutoMovieConstructionRealization.IWithoutSkin;
+
+/** Realize the normal required mesh when the skin request is omitted or true. */
+export function realizeAutoMovieConstruction(
+  construction: IAutoMovieConstruction,
+  props: AutoMovieConstructionRealization.IProps & {
+    /** Draw the final skin, also the default when omitted. */
+    skin?: true;
+  },
+): AutoMovieConstructionRealization.IRealization;
+
+/** A runtime boolean request returns either result; callers must distinguish mesh from null. */
+export function realizeAutoMovieConstruction(
+  construction: IAutoMovieConstruction,
+  props: AutoMovieConstructionRealization.IProps,
+): AutoMovieConstructionRealization.IRealization | AutoMovieConstructionRealization.IWithoutSkin;
+
 /**
  * Realize a construction tree: loft every view part from its views, apply every join, continuation and trim in the tree's order (each host before what is built on it, a part's own subtree before the node that attaches it), and draw the body of trimmed faces as one skin that shares every boundary between its faces.
  *
  * A node whose premise breaks is left out with its diagnostic: a view part's broken station leaves that station out, a join or a continuation that cannot keep its premises leaves its part's whole subtree out and its host standing as it was, and a trim that cannot keep its premises leaves its face uncut, so every admitted tree realizes. Admission runs before any work and refuses the whole call by throwing: a chord tolerance that is not positive, a node outside the closed union, a name used twice, or a seed, continuation or trim naming a face that is not a view part (or, where a blend may serve, a join) of the right subtree. A trim's feet are solved to a thousandth of the chord tolerance. A face's open end closes on its pole by a fan; an end with neither a pole nor a shared ring stays open.
  *
  * @evidence contracts/common.md#principled-implementation One recursive walk applies the operators the tree names in the tree's own containment order, and each operator is the kernel's (view loft, intersection trace, rails, blend, trim, body, zip), so the realization adds no geometry of its own; a broken node is rolled back to the state before its part was built, which is what leaving it out means.
- * @evidence contracts/common.md#clear-and-simple-design A tree and a chord tolerance in, one record out; the subtree rule lets any node be realized and checked alone.
+ * @evidence contracts/common.md#clear-and-simple-design One walk serves both skin requests; overloads preserve a required default mesh, explicit false narrows to null, and a runtime boolean returns their union.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts A broken premise leaves its node out and names it; nothing is retried with relaxed tolerances or replaced by a primitive.
- * @evidence contracts/common.md#meaningful-documentation States the walk's order, the leave-out rule for each node kind, the admission refusals, the trim's foot tolerance, the end closure and the result's units through its type.
- * @evidence contracts/performance.md#efficient-algorithms Each view part is lofted once and each join traced by its operator once (twice when a width law reads the traced curve); the skin is drawn once from the finished body, its stations bisected only where a band departs from its sections by more than the chord.
+ * @evidence contracts/common.md#meaningful-documentation States walk/rollback/admission, units and closure; skin false omits draw, pole fans and metre mesh copying, not chord admission, station/phase preparation, trim solving or shared boundary vertices. Unskinned output does not certify final skin geometry.
+ * @evidence contracts/performance.md#efficient-algorithms View lofts and joins retain their original work, including twice tracing when a width law reads the curve. Skin false avoids final face tessellation/fans and O(V+T+F) output copying, while retaining grid preparation and boundary publication; no measured wall-time saving is asserted.
  * @evidence contracts/performance.md#reuse-equivalent-work A face's surface is built once and shared by every join, trim and the skin that reads it.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Retains only the records the result returns and one copy of the trim cycles per open join for its rollback, released when that join settles.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The call owns body grids, boundary mesh and open rollback snapshots; returned records transfer their transitive lifetime to the caller. Skin false creates no final grid/fan skin or metre copies, but joins/continuations/trims still need boundary vertices. No cache or background handle is added.
  * @param construction The tree, metres and radians.
- * @param props The skin's chord tolerance.
+ * @param props Positive chord tolerance and default-on final skin request.
  * @returns The realization.
  */
 export function realizeAutoMovieConstruction(
   construction: IAutoMovieConstruction,
   props: AutoMovieConstructionRealization.IProps,
-): AutoMovieConstructionRealization.IRealization {
+): AutoMovieConstructionRealization.IRealization | AutoMovieConstructionRealization.IWithoutSkin {
   if (!(props.chord > 0)) throw new Error(`realizeAutoMovieConstruction: chord ${props.chord} m is not positive`);
   AutoMovieConstructionAdmission.admit(construction.root);
+
+  /** The call's request, read once without changing construction admission. */
+  const withSkin: boolean = props.skin !== false;
   const S: number = AutoMovieConstructionViews.SCALE;
   const chord: number = props.chord * S;
   const body: AutoMovieSolidBody.IBody = AutoMovieSolidBody.create(construction.name, []);
@@ -234,17 +261,22 @@ export function realizeAutoMovieConstruction(
   };
 
   walk(construction.root);
-  const open: number[][][] = AutoMovieSolidBody.draw(body);
-  AutoMovieConstructionSkin.close(body, state, open);
+  if (withSkin) {
+    const open: number[][][] = AutoMovieSolidBody.draw(body);
+    AutoMovieConstructionSkin.close(body, state, open);
+  }
   const published: AutoMovieSolidBody.IPublished = AutoMovieSolidBody.publish(body);
-  return {
+
+  /** Shared result fields in their original order, before either mesh variant. */
+  const records: Omit<AutoMovieConstructionRealization.IRealization, "mesh" | "diagnostics"> = {
     name: construction.name,
     chains: state.chainList,
     surfaces: [...state.chainSurfaces, ...state.blendSurfaces],
     joins: state.joins,
     trims: state.trims,
     body: published,
-    mesh: AutoMovieConstructionSkin.mesh(body),
-    diagnostics: state.diagnostics,
   };
+  return withSkin
+    ? { ...records, mesh: AutoMovieConstructionSkin.mesh(body), diagnostics: state.diagnostics }
+    : { ...records, mesh: null, diagnostics: state.diagnostics };
 }
