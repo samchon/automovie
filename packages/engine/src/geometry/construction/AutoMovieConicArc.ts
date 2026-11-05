@@ -1,10 +1,12 @@
+import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
+import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 
 /**
  * The positive rational quadratic from (a,0) through corner (a,b) to (0,b), with middle weight w=r/(1-r). It is evaluated as that conic, without a polar polynomial approximation.
  *
  * @evidence contracts/common.md#principled-implementation Uses the rational quadratic and its analytic native-to-polar chain rule. The positive ray intersection is solved by a cancellation-avoiding quadratic in t/(1-t), with reflected evaluation near the other endpoint.
- * @evidence contracts/common.md#clear-and-simple-design One owner provides native guides, exact polar readings and conservative real-arithmetic bounds required by local curvature correction.
+ * @evidence contracts/common.md#clear-and-simple-design One numeric adapter provides native guides and polar readings; the shared ArcField kernel owns point and positive velocity arithmetic.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No aspect-specific shape, sampled fitting or reversed triangle is used; finite representability remains a caller admission premise.
  * @evidence contracts/common.md#meaningful-documentation States source weight, endpoints, angle units, derivatives and the difference between exact conic formulas and binary64 observations.
  * @evidence contracts/performance.md#efficient-algorithms Native/ray evaluation and bounds take constant arithmetic, with no iterative ray search.
@@ -12,6 +14,43 @@ import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
  * @evidence contracts/performance.md#bound-retention-and-release-resources All temporary pairs and returned fixed-size readings are invocation-local; no global data is retained.
  */
 export namespace AutoMovieConicArc {
+  /**
+   * One numeric ray location shared with source derivative readers.
+   *
+   * @evidence contracts/common.md#principled-implementation One selected native/projective clock and its geometric reading identify the actual source point.
+   * @evidence contracts/common.md#clear-and-simple-design Quadratic and G2 adapters share one location record.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A descriptor does not claim source derivatives or retain a source callback.
+   * @evidence contracts/common.md#meaningful-documentation Point and tangent use the original quarter chart; radial derivatives increase polar angle; reverse identifies the chosen end chart.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This record performs no algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Its consumer reuses the supplied inverse result.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fixed numeric arrays without cached sources.
+   */
+  export interface IRay {
+    /** Physical point in the original quarter chart. */
+    point: readonly [number, number];
+
+    /** Unit tangent in increasing original polar direction. */
+    tangent: readonly [number, number];
+
+    /** Actual radial phase jet. */
+    radial: AutoMoviePolarSector.Jet;
+
+    /** Logarithm of positive geometric curvature. */
+    logCurvature: number;
+
+    /** Selected first-half quadratic parameter, or null for a cubic. */
+    native: number | null;
+
+    /** Selected cubic log odds, or null at an endpoint or quadratic. */
+    clock: number | null;
+
+    /** Explicit endpoint identity; a null clock never implies an interior parameter. */
+    position: "first" | "interior" | "last";
+
+    /** Selected chart was reflected from the original quarter. */
+    reverse: boolean;
+  }
+
   /**
    * Endpoint geometric curvature at extent a across extent b.
    *
@@ -24,8 +63,12 @@ export namespace AutoMovieConicArc {
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns one number and retains nothing.
    */
   export function curvature(a: number, b: number, r: number): number {
-    const w: number = r / (1 - r);
-    return a / (2 * w * w * b * b);
+    return AutoMovieConicArcField.curvature(
+      AutoMovieConicFieldJet.NUMBER,
+      a,
+      b,
+      r,
+    );
   }
 
   /**
@@ -49,7 +92,10 @@ export namespace AutoMovieConicArc {
     if (phi === Math.PI / 2) return 1;
     const A: number = a * Math.sin(phi);
     const B: number = b * Math.cos(phi);
-    const w: number = r / (1 - r);
+    const w: number = AutoMovieConicArcField.weight(
+      AutoMovieConicFieldJet.NUMBER,
+      r,
+    );
     return A <= B ? half(A / B, w) : 1 - half(B / A, w);
   }
 
@@ -74,7 +120,10 @@ export namespace AutoMovieConicArc {
     const scale: number = Math.max(a, b);
     const A: number = a / scale;
     const B: number = b / scale;
-    const w: number = r / (1 - r);
+    const w: number = AutoMovieConicArcField.weight(
+      AutoMovieConicFieldJet.NUMBER,
+      r,
+    );
     if (t === 0)
       return {
         angle: start,
@@ -140,25 +189,14 @@ export namespace AutoMovieConicArc {
     r: number,
     phi: number,
   ): AutoMoviePolarSector.Jet {
-    if (phi === Math.PI / 2) {
-      const endpoint: AutoMoviePolarSector.IGuide = guide(b, a, r, 0);
-      return [endpoint.value, 0, endpoint.curvature];
-    }
-    const A: number = a * Math.sin(phi);
-    const B: number = b * Math.cos(phi);
-    const w: number = r / (1 - r);
-    const forward: boolean = A <= B;
-    const g: AutoMoviePolarSector.IGuide = forward
-      ? guide(a, b, r, half(A / B, w))
-      : guide(b, a, r, half(B / A, w));
-    return [g.value, forward ? g.slope : -g.slope, g.curvature];
+    return locate(a, b, r, phi)?.radial ?? [NaN, NaN, NaN];
   }
 
   /**
    * Cartesian-to-polar analytic chain rule on a regular positive ray.
    *
    * @evidence contracts/common.md#principled-implementation Differentiates rho=|C| and phi=atan2(y,x) twice and divides by the positive native angular speed.
-   * @evidence contracts/common.md#clear-and-simple-design One conversion serves quadratic conics and rational cubic G2 ends.
+   * @evidence contracts/common.md#clear-and-simple-design One standalone conversion supports explicit native-jet inspection; production G2 rays use projective geometric readings.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A nonpositive/nonfinite angular speed produces a nonfinite jet rather than a replacement derivative.
    * @evidence contracts/common.md#meaningful-documentation The input is [x,y,x_t,y_t,x_tt,y_tt]; the output differentiates radius in radians.
    * @evidence contracts/performance.md#efficient-algorithms Constant scalar arithmetic.
@@ -222,13 +260,14 @@ export namespace AutoMovieConicArc {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one number and retains no source.
    */
   export function speed(a: number, b: number, r: number, t: number): number {
-    const s: number = 1 - t;
-    const w: number = r / (1 - r);
-    const D: number = s * s + 2 * w * t * s + t * t;
-    return Math.hypot(
-      (2 * a * t * (s + w * t)) / D / D,
-      (2 * b * s * (t + w * s)) / D / D,
+    const velocity: readonly [number, number] = AutoMovieConicArcField.velocity(
+      AutoMovieConicFieldJet.NUMBER,
+      a,
+      b,
+      AutoMovieConicArcField.weight(AutoMovieConicFieldJet.NUMBER, r),
+      t,
     );
+    return Math.hypot(...velocity);
   }
 
   /** Stable positive quadratic root in a ratio no greater than one; the result is the first-half native parameter. */
@@ -240,11 +279,94 @@ export namespace AutoMovieConicArc {
 
   /** Positive native rational point; callers own the finite positive extents, weight and unit parameter premise. */
   function point(a: number, b: number, w: number, t: number): [number, number] {
-    const s: number = 1 - t;
-    const D: number = s * s + 2 * w * t * s + t * t;
     return [
-      (a * (s * s + 2 * w * t * s)) / D,
-      (b * (2 * w * t * s + t * t)) / D,
+      ...AutoMovieConicArcField.evaluate(
+        AutoMovieConicFieldJet.NUMBER,
+        a,
+        b,
+        w,
+        t,
+      ).point,
     ];
+  }
+
+  /**
+   * Locate a rational-quadratic ray once for numeric and source readers.
+   *
+   * @evidence contracts/common.md#principled-implementation The cancellation-avoiding native inverse selects the nearest endpoint; positive rational velocity fixes tangent and curvature.
+   * @evidence contracts/common.md#clear-and-simple-design Returns the existing phase jet and the identical fixed native clock.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampled curve or clock derivative supplies source partials.
+   * @evidence contracts/common.md#meaningful-documentation Local phi is in[0,pi/2]; invalid numerical geometry returns null.
+   * @evidence contracts/performance.md#efficient-algorithms Constant inverse and native geometry arithmetic.
+   * @evidence contracts/performance.md#reuse-equivalent-work The source reader consumes this descriptor without another ray solve.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed-size numeric data escapes.
+   */
+  export function locate(
+    a: number,
+    b: number,
+    r: number,
+    phi: number,
+  ): IRay | null {
+    if (!(Number.isFinite(phi) && phi >= 0 && phi <= Math.PI / 2)) return null;
+
+    const A: number = a * Math.sin(phi);
+    const B: number = b * Math.cos(phi);
+    const w: number = AutoMovieConicArcField.weight(
+      AutoMovieConicFieldJet.NUMBER,
+      r,
+    );
+    const reverse: boolean = phi === Math.PI / 2 || A > B;
+    const t: number =
+      phi === Math.PI / 2 ? 0 : half(reverse ? B / A : A / B, w);
+    const first: number = reverse ? b : a;
+    const second: number = reverse ? a : b;
+    const guideValue: AutoMoviePolarSector.IGuide = guide(first, second, r, t);
+    const geometry: AutoMovieConicArcField.IGeometry<number> =
+      AutoMovieConicArcField.orient(
+        AutoMovieConicFieldJet.NUMBER,
+        AutoMovieConicArcField.evaluate(
+          AutoMovieConicFieldJet.NUMBER,
+          first,
+          second,
+          w,
+          t,
+        ),
+        reverse,
+      );
+    const scale: number = Math.max(first, second);
+    const x: number = first / scale;
+    const y: number = second / scale;
+    const u: number = 1 - t;
+    const denominator: number = u * u + 2 * w * t * u + t * t;
+    const v: number = Math.hypot(x * t * (u + w * t), y * u * (t + w * u));
+    const logCurvature: number =
+      Math.log(x) +
+      Math.log(y) +
+      Math.log(w) +
+      3 * Math.log(denominator) -
+      Math.log(2) -
+      3 * Math.log(v) -
+      Math.log(scale);
+    const radial: AutoMoviePolarSector.Jet = [
+      guideValue.value,
+      reverse ? -guideValue.slope : guideValue.slope,
+      guideValue.curvature,
+    ];
+    if (
+      ![...geometry.point, ...geometry.tangent, ...radial, logCurvature].every(
+        Number.isFinite,
+      )
+    )
+      return null;
+
+    return {
+      ...geometry,
+      radial,
+      logCurvature,
+      native: t,
+      clock: null,
+      position: t === 0 ? "first" : "interior",
+      reverse,
+    };
   }
 }

@@ -1,4 +1,5 @@
 import { AutoMovieConicArc } from "./AutoMovieConicArc";
+import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieIllinois } from "./AutoMovieIllinois";
 import type { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
@@ -114,6 +115,7 @@ export namespace AutoMovieViewSection {
   export interface ISolved {
     /** Actual source section, an admitted outside-request endpoint, or null without finite admitted reach/estimate. A nonnull result can retain an unresolved-residual diagnostic. */
     section: ISection | null;
+
     /** Explicit reach/source/residual diagnostic; empty only after measured residual admission. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
@@ -122,7 +124,7 @@ export namespace AutoMovieViewSection {
    * Shared positive guide curvatures, inverse millimetres.
    *
    * @evidence contracts/common.md#principled-implementation Each guide uses the smaller of its two rational endpoint curvatures a/(2w^2*b^2), retaining the published guide law.
-   * @evidence contracts/common.md#clear-and-simple-design One owner delegates the rational law to ConicArc.
+   * @evidence contracts/common.md#clear-and-simple-design Delegates to the shared NUMBER quarter policy in ViewConic; ArcField owns the rational endpoint law.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No aspect or output observation changes a guide curvature.
    * @evidence contracts/common.md#meaningful-documentation States the smaller-adjacent law and inverse-length units.
    * @evidence contracts/performance.md#efficient-algorithms Four fixed formula pairs.
@@ -133,14 +135,11 @@ export namespace AutoMovieViewSection {
     box: IBox,
     shoulders: Quarters<number>,
   ): Quarters<number> {
-    const e: Quarters<number> = box.extents;
-    return [0, 1, 2, 3].map((g: number): number => {
-      const before: number = (g + 3) % 4;
-      return Math.min(
-        AutoMovieConicArc.curvature(e[g]!, e[before]!, shoulders[before]!),
-        AutoMovieConicArc.curvature(e[g]!, e[(g + 1) % 4]!, shoulders[g]!),
-      );
-    }) as Quarters<number>;
+    return AutoMovieViewConic.curvatures(
+      AutoMovieConicFieldJet.NUMBER,
+      box.extents,
+      shoulders,
+    );
   }
 
   /**

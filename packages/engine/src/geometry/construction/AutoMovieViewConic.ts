@@ -1,4 +1,6 @@
 import { AutoMovieConicArc } from "./AutoMovieConicArc";
+import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
+import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieConicHermite } from "./AutoMovieConicHermite";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 
@@ -21,6 +23,31 @@ import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
  */
 export namespace AutoMovieViewConic {
   /**
+   * Selected quarter location, preserving the source's actual numeric clock.
+   *
+   * @evidence contracts/common.md#principled-implementation Extends the shared numeric ray with the exact quarter and raw/G2 selection.
+   * @evidence contracts/common.md#clear-and-simple-design One descriptor is consumed by fixed-clock field readers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No second inverse, implicit fallback or invented endpoint clock is hidden.
+   * @evidence contracts/common.md#meaningful-documentation Angle is original-quarter local; distance is selected-end local; point and tangent are already restored to the original chart.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This data record performs no algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The same descriptor supplies numeric and differentiated reads.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed numeric fields survive.
+   */
+  export interface IRay extends AutoMovieConicArc.IRay {
+    /** Original quarter index in[0,3]. */
+    quarter: number;
+
+    /** Actual selected source piece. */
+    kind: "conic" | "start" | "end";
+
+    /** Original quarter-local polar angle, radians. */
+    angle: number;
+
+    /** Small angular distance in the selected end chart, radians. */
+    distance: number;
+  }
+
+  /**
    * One source quarter and its disjoint initial/final C2 supports.
    *
    * @evidence contracts/common.md#principled-implementation The positive extents/shoulder identify the original conic; each optional end holds its distinct convex G2 approximation and native boundary.
@@ -31,24 +58,27 @@ export namespace AutoMovieViewConic {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Data coordinates no requests; create owns preparation reuse.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Its section owns the fixed-size record.
    */
-  export interface IQuarter {
+  export interface IQuarter<T = number> {
     /** First and second positive half extents, millimetres. */
-    extents: readonly [number, number];
+    extents: readonly [T, T];
 
     /** Original conic shoulder in (0,1). */
-    shoulder: number;
+    shoulder: T;
 
     /** Optional initial convex G2 end; null preserves the exact quadratic. */
-    start: AutoMovieConicHermite.IPatch | null;
+    start: AutoMovieConicHermite.IPatch<T> | null;
 
     /** Optional reflected final convex G2 end, with the same ownership. */
-    end: AutoMovieConicHermite.IPatch | null;
+    end: AutoMovieConicHermite.IPatch<T> | null;
 
-    /** Original quadratic parameters of the bounded native-turn partition. */
+    /** Original quadratic native-turn partition in create; empty in geometry-only prepareGeometry. */
     parameters: readonly number[];
 
     /** Shared radial second derivatives at the two zero-slope main guides, millimetres. */
-    guides: readonly [number, number];
+    guides: readonly [T, T];
+
+    /** Shared geometric guide curvatures; auxiliary branch jets at a tie are not derivatives of min. */
+    curvatures: readonly [T, T];
   }
 
   /**
@@ -62,9 +92,9 @@ export namespace AutoMovieViewConic {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Preparation and radius callers own reuse.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns at most four quarter records and one diagnostic string.
    */
-  export interface ICurve {
+  export interface ICurve<T = number> {
     /** Four source quarters on success; empty on admission failure. */
-    quarters: readonly IQuarter[];
+    quarters: readonly IQuarter<T>[];
 
     /** Original admission rule and numbers, or null. */
     failure: string | null;
@@ -86,30 +116,73 @@ export namespace AutoMovieViewConic {
     shoulders: readonly number[],
     curvatures: readonly number[],
   ): ICurve {
+    const curve: ICurve = prepareGeometry(
+      AutoMovieConicFieldJet.NUMBER,
+      extents,
+      shoulders,
+      curvatures,
+    );
+
+    // Geometry-only field preparation never pays for these numerical observations.
+    for (const arc of curve.quarters)
+      arc.parameters = Array.from(
+        { length: 17 },
+        (_: unknown, i: number): number =>
+          i === 0
+            ? 0
+            : i === 16
+              ? 1
+              : turned(arc.extents[0], arc.extents[1], arc.shoulder, i / 16),
+      );
+    return curve;
+  }
+
+  /**
+   * Prepare only quarter geometry in the supplied scalar algebra.
+   *
+   * @evidence contracts/common.md#principled-implementation The same positive input admission and G2 preparation serves NUMBER and source Hessians.
+   * @evidence contracts/common.md#clear-and-simple-design Geometry preparation is separate from the numeric adapter's native-turn partition.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No observation partition, length quadrature or girth solve is performed.
+   * @evidence contracts/common.md#meaningful-documentation Supplied curvatures are the chosen original guide policy; their tie jets remain auxiliary branch jets.
+   * @evidence contracts/performance.md#efficient-algorithms Eight constant-size end preparations.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each prepared end is shared by numeric projection and source readings.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Four fixed-size records and empty partition arrays are caller-owned.
+   */
+  export function prepareGeometry<T>(
+    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    extents: readonly T[],
+    shoulders: readonly T[],
+    curvatures: readonly T[],
+  ): ICurve<T> {
     if (
       extents.length !== 4 ||
       shoulders.length !== 4 ||
       curvatures.length !== 4 ||
-      !extents.every((v: number): boolean => Number.isFinite(v) && v > 0) ||
-      !shoulders.every(
-        (v: number): boolean => Number.isFinite(v) && v > 0 && v < 1,
+      !extents.every(
+        (v: T): boolean => Number.isFinite(ops.value(v)) && ops.value(v) > 0,
       ) ||
-      !curvatures.every((v: number): boolean => Number.isFinite(v) && v > 0)
+      !shoulders.every(
+        (v: T): boolean =>
+          Number.isFinite(ops.value(v)) && ops.value(v) > 0 && ops.value(v) < 1,
+      ) ||
+      !curvatures.every(
+        (v: T): boolean => Number.isFinite(ops.value(v)) && ops.value(v) > 0,
+      )
     )
       return {
         quarters: [],
         failure:
           "conic quarters need four finite positive extents/curvatures and shoulders inside (0,1)",
       };
-    const quarters: IQuarter[] = [];
+    const quarters: IQuarter<T>[] = [];
     for (let q: number = 0; q < 4; q++) {
-      const a: number = extents[q]!;
-      const b: number = extents[(q + 1) % 4]!;
-      const r: number = shoulders[q]!;
-      const start: AutoMovieConicHermite.IPatch | string | null =
-        AutoMovieConicHermite.create(a, b, r, curvatures[q]!);
-      const end: AutoMovieConicHermite.IPatch | string | null =
-        AutoMovieConicHermite.create(b, a, r, curvatures[(q + 1) % 4]!);
+      const a: T = extents[q]!;
+      const b: T = extents[(q + 1) % 4]!;
+      const r: T = shoulders[q]!;
+      const start: AutoMovieConicHermite.IPatch<T> | string | null =
+        AutoMovieConicHermite.prepare(ops, a, b, r, curvatures[q]!);
+      const end: AutoMovieConicHermite.IPatch<T> | string | null =
+        AutoMovieConicHermite.prepare(ops, b, a, r, curvatures[(q + 1) % 4]!);
       if (typeof start === "string" || typeof end === "string")
         return {
           quarters: [],
@@ -119,27 +192,26 @@ export namespace AutoMovieViewConic {
       // A positive local support can be smaller than one global-angle ulp.
       // It is still a valid rational piece: keep its native length and exact
       // guide jet. A rounded global query outside it reads the original conic.
-      const guides: [number, number] = [
-        a - curvatures[q]! * a * a,
-        b - curvatures[(q + 1) % 4]! * b * b,
+      const guides: [T, T] = [
+        ops.subtract(a, ops.multiply(ops.multiply(curvatures[q]!, a), a)),
+        ops.subtract(
+          b,
+          ops.multiply(ops.multiply(curvatures[(q + 1) % 4]!, b), b),
+        ),
       ];
-      if (!guides.every(Number.isFinite))
+      if (!guides.every((v: T): boolean => Number.isFinite(ops.value(v))))
         return {
           quarters: [],
           failure: `quarter ${q}: shared guide jet is not finitely representable`,
         };
-      const parameters: readonly number[] = Array.from(
-        { length: 17 },
-        (_: unknown, i: number): number =>
-          i === 0 ? 0 : i === 16 ? 1 : turned(a, b, r, i / 16),
-      );
       quarters.push({
         extents: [a, b],
         shoulder: r,
         start,
         end,
         guides,
-        parameters,
+        parameters: [],
+        curvatures: [curvatures[q]!, curvatures[(q + 1) % 4]!],
       });
     }
     return { quarters, failure: null };
@@ -157,7 +229,23 @@ export namespace AutoMovieViewConic {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one three-number jet and retains no query state.
    */
   export function radius(curve: ICurve, phi: number): AutoMoviePolarSector.Jet {
-    if (curve.failure !== null || !Number.isFinite(phi)) return [NaN, NaN, NaN];
+    return read(curve, phi)?.radial ?? [NaN, NaN, NaN];
+  }
+
+  /**
+   * Numeric quarter and selected-piece location for one periodic polar query.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the existing signed small-distance lookup and one native or log-odds inverse.
+   * @evidence contracts/common.md#clear-and-simple-design The numeric radius adapter and source reader consume one branch descriptor.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Tiny negative phases retain their small end distance; no trigonometric reconstruction is needed by the source lift.
+   * @evidence contracts/common.md#meaningful-documentation Angle is the original quarter-local angle; distance is the selected end's small local angle; reflection is already in point/tangent/radial.
+   * @evidence contracts/performance.md#efficient-algorithms One quarter lookup and at most64 numeric-only bisections.
+   * @evidence contracts/performance.md#reuse-equivalent-work The descriptor reuses one final point, tangent, radial jet and curvature reading.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed numeric data escapes; no preparation or cache is retained.
+   */
+  export function read(curve: ICurve, phi: number): IRay | null {
+    if (curve.failure !== null || !Number.isFinite(phi)) return null;
+
     const turn: number = 2 * Math.PI;
     const quarter: number = Math.PI / 2;
     const remainder: number = phi % turn;
@@ -175,22 +263,150 @@ export namespace AutoMovieViewConic {
     const local: number = reflected ? quarter - distance : distance;
     const toEnd: number = reflected ? distance : quarter - local;
     const arc: IQuarter = curve.quarters[q]!;
-    if (local === 0) return [arc.extents[0], 0, arc.guides[0]];
-    if (arc.start !== null && local < arc.start.angle)
-      return AutoMovieConicHermite.radius(arc.start, local);
-    if (arc.end !== null && toEnd < arc.end.angle) {
-      const jet: AutoMoviePolarSector.Jet = AutoMovieConicHermite.radius(
-        arc.end,
-        toEnd,
+    let kind: IRay["kind"] = "conic";
+    let ray: AutoMovieConicArc.IRay | null;
+    if (local !== 0 && arc.start !== null && local < arc.start.angle) {
+      kind = "start";
+      ray = AutoMovieConicHermite.locate(arc.start, local);
+    } else if (local !== 0 && arc.end !== null && toEnd < arc.end.angle) {
+      kind = "end";
+      const selected: AutoMovieConicArc.IRay | null =
+        AutoMovieConicHermite.locate(arc.end, toEnd);
+      ray =
+        selected === null
+          ? null
+          : {
+              ...selected,
+              ...AutoMovieConicArcField.orient(
+                AutoMovieConicFieldJet.NUMBER,
+                selected,
+                true,
+              ),
+              radial: [
+                selected.radial[0],
+                -selected.radial[1],
+                selected.radial[2],
+              ],
+              reverse: true,
+            };
+    } else
+      ray = AutoMovieConicArc.locate(
+        arc.extents[0],
+        arc.extents[1],
+        arc.shoulder,
+        local,
       );
-      return [jet[0], -jet[1], jet[2]];
-    }
-    return AutoMovieConicArc.radius(
-      arc.extents[0],
-      arc.extents[1],
-      arc.shoulder,
-      local,
-    );
+    if (ray === null) return null;
+
+    if (local === 0)
+      ray = {
+        ...ray,
+        radial: [arc.extents[0], 0, arc.guides[0]],
+        logCurvature: Math.log(arc.curvatures[0]),
+      };
+    return {
+      ...ray,
+      quarter: q,
+      kind,
+      angle: local,
+      distance: ray.reverse ? toEnd : local,
+    };
+  }
+
+  /**
+   * Original smaller-adjacent guide policy in the supplied scalar algebra.
+   *
+   * @evidence contracts/common.md#principled-implementation Each guide selects the smaller rational endpoint curvature by its primal value.
+   * @evidence contracts/common.md#clear-and-simple-design One policy serves numeric ViewSection and differentiated geometry preparation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts At a tie the selected auxiliary tuple is not advertised as a derivative of min.
+   * @evidence contracts/common.md#meaningful-documentation The returned four entries use inverse source length units; the whole geometric field owns tie limits.
+   * @evidence contracts/performance.md#efficient-algorithms Eight constant-size endpoint calculations.
+   * @evidence contracts/performance.md#reuse-equivalent-work All specializations share the same rational curvature formula.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns four caller-owned scalars.
+   */
+  export function curvatures<T>(
+    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    extents: readonly T[],
+    shoulders: readonly T[],
+  ): [T, T, T, T] {
+    return [0, 1, 2, 3].map((g: number): T => {
+      const before: number = (g + 3) % 4;
+      const a: T = AutoMovieConicArcField.curvature(
+        ops,
+        extents[g]!,
+        extents[before]!,
+        shoulders[before]!,
+      );
+      const b: T = AutoMovieConicArcField.curvature(
+        ops,
+        extents[g]!,
+        extents[(g + 1) % 4]!,
+        shoulders[g]!,
+      );
+      return Number.isNaN(ops.value(a)) || Number.isNaN(ops.value(b))
+        ? ops.constant(NaN)
+        : ops.value(a) <= ops.value(b)
+          ? a
+          : b;
+    }) as [T, T, T, T];
+  }
+
+  /**
+   * Project prepared algebra-valued geometry to numeric lookup data.
+   *
+   * @evidence contracts/common.md#principled-implementation Projects primal controls and weights from the same preparation rather than preparing another source.
+   * @evidence contracts/common.md#clear-and-simple-design One numeric view of the prepared field supplies branch selection and the sole inverse.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No principal reinterpolation, length solve or native-turn partition is introduced.
+   * @evidence contracts/common.md#meaningful-documentation The projection copies numeric values and retains no algebra table or source tuples.
+   * @evidence contracts/performance.md#efficient-algorithms Four quarters and at most eight fixed-size patches.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses every already prepared source control.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Fresh numeric records are caller-owned and structured-cloneable.
+   */
+  export function primal<T>(
+    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    curve: ICurve<T>,
+  ): ICurve {
+    return {
+      failure: curve.failure,
+      quarters: curve.quarters.map(
+        (arc: IQuarter<T>): IQuarter => ({
+          extents: [ops.value(arc.extents[0]), ops.value(arc.extents[1])],
+          shoulder: ops.value(arc.shoulder),
+          start: projectedPatch(ops, arc.start),
+          end: projectedPatch(ops, arc.end),
+          parameters: [...arc.parameters],
+          guides: [ops.value(arc.guides[0]), ops.value(arc.guides[1])],
+          curvatures: [
+            ops.value(arc.curvatures[0]),
+            ops.value(arc.curvatures[1]),
+          ],
+        }),
+      ),
+    };
+  }
+
+  /** Copy one prepared patch's primal values; no preparation formula is repeated. */
+  function projectedPatch<T>(
+    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    patch: AutoMovieConicHermite.IPatch<T> | null,
+  ): AutoMovieConicHermite.IPatch | null {
+    return patch === null
+      ? null
+      : {
+          extent: ops.value(patch.extent),
+          deficit: ops.value(patch.deficit),
+          height: ops.value(patch.height),
+          native: ops.value(patch.native),
+          angle: patch.angle,
+          curvature: ops.value(patch.curvature),
+          points: patch.points.map(
+            (point: readonly [T, T]): readonly [number, number] => [
+              ops.value(point[0]),
+              ops.value(point[1]),
+            ],
+          ),
+          weights: patch.weights.map((weight: T): number => ops.value(weight)),
+        };
   }
 
   /**
@@ -246,7 +462,10 @@ export namespace AutoMovieViewConic {
     const scale: number = Math.max(a, b);
     const A: number = a / scale;
     const B: number = b / scale;
-    const w: number = r / (1 - r);
+    const w: number = AutoMovieConicArcField.weight(
+      AutoMovieConicFieldJet.NUMBER,
+      r,
+    );
     const target: number = share * Math.PI;
     let low: number = 0;
     let high: number = 1;

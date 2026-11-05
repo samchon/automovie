@@ -1,4 +1,7 @@
-import { AutoMovieConicArc } from "./AutoMovieConicArc";
+import type { AutoMovieConicArc } from "./AutoMovieConicArc";
+import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
+import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
+import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 
 /**
@@ -44,30 +47,30 @@ export namespace AutoMovieConicHermite {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Data schedules no work.
    * @evidence contracts/performance.md#bound-retention-and-release-resources The containing source quarter owns these fixed-size arrays.
    */
-  export interface IPatch {
+  export interface IPatch<T = number> {
     /** First support extent, in the source length unit. */
-    extent: number;
+    extent: T;
 
     /** Positive x deficit at the far endpoint, same length unit. */
-    deficit: number;
+    deficit: T;
 
     /** Positive y at the far endpoint, same length unit. */
-    height: number;
+    height: T;
 
     /** Far endpoint in the original quadratic's native parameter. */
-    native: number;
+    native: T;
 
     /** Far endpoint polar angle, radians. */
     angle: number;
 
     /** Shared geometric start curvature, inverse source length. */
-    curvature: number;
+    curvature: T;
 
     /** Four controls [x deficit / deficit, y / height]. */
-    points: readonly (readonly [number, number])[];
+    points: readonly (readonly [T, T])[];
 
     /** Four positive rational weights; create normalizes the outer weights to one. */
-    weights: readonly number[];
+    weights: readonly T[];
   }
 
   /**
@@ -87,61 +90,121 @@ export namespace AutoMovieConicHermite {
     r: number,
     shared: number,
   ): IPatch | string | null {
-    const own: number = AutoMovieConicArc.curvature(a, b, r);
+    return prepare(AutoMovieConicFieldJet.NUMBER, a, b, r, shared);
+  }
+
+  /**
+   * Prepare the same rational G2 end in NUMBER or source-Hessian algebra.
+   *
+   * @evidence contracts/common.md#principled-implementation Original quadratic subdivision, degree elevation and the fixed-polygon curvature-ratio law are shared verbatim across scalar representations.
+   * @evidence contracts/common.md#clear-and-simple-design The numeric create adapter delegates to this sole preparation owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Primal admission selects a branch without claiming auxiliary min-curvature branch jets are derivatives at a tie.
+   * @evidence contracts/common.md#meaningful-documentation Angle is a primal lookup bound; native support and rational controls retain supplied source derivatives.
+   * @evidence contracts/performance.md#efficient-algorithms Constant-size preparation; no length, native-turn partition or cache work occurs.
+   * @evidence contracts/performance.md#reuse-equivalent-work Prepared controls serve both numeric and differentiated fixed-clock readings.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed-size scalar/tuple records or a named string escape.
+   */
+  export function prepare<T>(
+    ops: AutoMovieConicFieldJet.IAlgebra<T>,
+    a: T,
+    b: T,
+    r: T,
+    shared: T,
+  ): IPatch<T> | string | null {
+    const own: T = AutoMovieConicArcField.curvature(ops, a, b, r);
     if (
       ![a, b, own, shared].every(
-        (v: number): boolean => Number.isFinite(v) && v > 0,
+        (value: T): boolean =>
+          Number.isFinite(ops.value(value)) && ops.value(value) > 0,
       ) ||
-      !(r > 0 && r < 1 && shared <= own)
+      !(
+        ops.value(r) > 0 &&
+        ops.value(r) < 1 &&
+        ops.value(shared) <= ops.value(own)
+      )
     )
       return "G2 conic end needs finite positive extents/curvatures and shared curvature no greater than own";
-    if (shared === own) return null;
-    const tau: number = shared / own;
-    const contrast: number = (own - shared) / own;
-    const scale: number = Math.hypot(a, b);
-    const A: number = a / scale;
-    const B: number = b / scale;
-    const budget: number = (1e-7 * A * B) / (A + B);
-    const x: number = Math.sqrt(budget / 4);
-    const T: number = (x / (1 + 2 * x)) * contrast;
-    const s: number = 1 - T;
-    const w: number = r / (1 - r);
-    const D: number = s * s + 2 * w * T * s + T * T;
-    const firstWeight: number = s + w * T;
-    const middle: number = firstWeight / Math.sqrt(D);
-    const divisor: number = 1 + 2 * middle;
-    const elevated: number = divisor / 3;
-    const p: number = (w * D) / (firstWeight * (2 * w * s + T));
-    const root: number = Math.cbrt(tau);
-    const deficit: number = (a * T * T) / D;
-    const height: number = (b * T * (2 * w * s + T)) / D;
-    const points: readonly (readonly [number, number])[] = [
-      [0, 0],
-      [0, (2 * middle * p) / divisor],
-      [1 / divisor, (2 * middle * p + 1) / divisor],
-      [1, 1],
+    if (ops.value(shared) === ops.value(own)) return null;
+
+    const one: T = ops.constant(1);
+    const two: T = ops.constant(2);
+    const tau: T = ops.divide(shared, own);
+    const contrast: T = ops.divide(ops.subtract(own, shared), own);
+    const scale: T = AutoMovieConicArcField.norm(ops, a, b);
+    const A: T = ops.divide(a, scale);
+    const B: T = ops.divide(b, scale);
+    const budget: T = ops.divide(
+      ops.multiply(ops.multiply(ops.constant(1e-7), A), B),
+      ops.add(A, B),
+    );
+    const x: T = ops.sqrt(ops.divide(budget, ops.constant(4)));
+    const native: T = ops.multiply(
+      ops.divide(x, ops.add(one, ops.multiply(two, x))),
+      contrast,
+    );
+    const u: T = ops.subtract(one, native);
+    const w: T = AutoMovieConicArcField.weight(ops, r);
+    const middleTerm: T = ops.multiply(
+      ops.multiply(ops.multiply(two, w), native),
+      u,
+    );
+    const denominator: T = ops.add(
+      ops.add(ops.multiply(u, u), middleTerm),
+      ops.multiply(native, native),
+    );
+    const firstWeight: T = ops.add(u, ops.multiply(w, native));
+    const middle: T = ops.divide(firstWeight, ops.sqrt(denominator));
+    const divisor: T = ops.add(one, ops.multiply(two, middle));
+    const elevated: T = ops.divide(divisor, ops.constant(3));
+    const vertical: T = ops.add(ops.multiply(ops.multiply(two, w), u), native);
+    const p: T = ops.divide(
+      ops.multiply(w, denominator),
+      ops.multiply(firstWeight, vertical),
+    );
+    const root: T = ops.cbrt(tau);
+    const deficit: T = ops.divide(
+      ops.multiply(ops.multiply(a, native), native),
+      denominator,
+    );
+    const height: T = ops.divide(
+      ops.multiply(ops.multiply(b, native), vertical),
+      denominator,
+    );
+    const weightedP: T = ops.multiply(ops.multiply(two, middle), p);
+    const points: readonly (readonly [T, T])[] = [
+      [ops.constant(0), ops.constant(0)],
+      [ops.constant(0), ops.divide(weightedP, divisor)],
+      [ops.divide(one, divisor), ops.divide(ops.add(weightedP, one), divisor)],
+      [one, one],
     ];
-    const weights: readonly number[] = [
-      1,
-      elevated / (root * root),
-      elevated / root,
-      1,
+    const weights: readonly T[] = [
+      one,
+      ops.divide(elevated, ops.multiply(root, root)),
+      ops.divide(elevated, root),
+      one,
     ];
-    const angle: number = Math.atan2(height, a - deficit);
+    const angle: number = Math.atan2(
+      ops.value(height),
+      ops.value(ops.subtract(a, deficit)),
+    );
     if (
-      ![T, deficit, height, angle, ...weights].every(
-        (v: number): boolean => Number.isFinite(v) && v > 0,
+      ![native, deficit, height, ...weights].every(
+        (value: T): boolean =>
+          Number.isFinite(ops.value(value)) && ops.value(value) > 0,
       ) ||
-      !points.flat().every(Number.isFinite) ||
+      !(Number.isFinite(angle) && angle > 0) ||
+      !points
+        .flat()
+        .every((value: T): boolean => Number.isFinite(ops.value(value))) ||
       !(
-        p > 0 &&
-        p < 1 &&
-        points[1]![1] > 0 &&
-        points[1]![1] < points[2]![1] &&
-        points[2]![1] < 1 &&
-        points[2]![0] > 0 &&
-        points[2]![0] < 1 &&
-        deficit < a
+        ops.value(p) > 0 &&
+        ops.value(p) < 1 &&
+        ops.value(points[1]![1]) > 0 &&
+        ops.value(points[1]![1]) < ops.value(points[2]![1]) &&
+        ops.value(points[2]![1]) < 1 &&
+        ops.value(points[2]![0]) > 0 &&
+        ops.value(points[2]![0]) < 1 &&
+        ops.value(deficit) < ops.value(a)
       )
     )
       return "G2 conic end has no finite positive native/angular extent or rational weights";
@@ -149,7 +212,7 @@ export namespace AutoMovieConicHermite {
       extent: a,
       deficit,
       height,
-      native: T,
+      native,
       angle,
       curvature: shared,
       points,
@@ -230,41 +293,72 @@ export namespace AutoMovieConicHermite {
     patch: IPatch,
     angle: number,
   ): AutoMoviePolarSector.Jet {
+    return locate(patch, angle)?.radial ?? [NaN, NaN, NaN];
+  }
+
+  /**
+   * Locate a G2 ray once, preserving explicit endpoint identities.
+   *
+   * @evidence contracts/common.md#principled-implementation The unchanged bounded log-odds inverse uses the shared NUMBER projective point; positive geometry supplies phase jets and log curvature.
+   * @evidence contracts/common.md#clear-and-simple-design Source readers consume the final clock or endpoint position without another inverse.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A null clock is never interpreted as an interior parameter; outside, unbracketed or unresolved rays remain null.
+   * @evidence contracts/common.md#meaningful-documentation The descriptor uses the selected end chart; the quarter owner applies reflection once.
+   * @evidence contracts/performance.md#efficient-algorithms At most64 numeric-only bisections and one final geometry reading.
+   * @evidence contracts/performance.md#reuse-equivalent-work Final projective probabilities serve tangent and positive curvature triples.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The returned numeric record holds no source, algebra table or cache.
+   */
+  export function locate(
+    patch: IPatch,
+    angle: number,
+  ): AutoMovieConicArc.IRay | null {
     if (!(Number.isFinite(angle) && angle >= 0 && angle <= patch.angle))
-      return [NaN, NaN, NaN];
-    if (angle === 0)
-      return [
-        patch.extent,
-        0,
-        patch.extent - patch.curvature * patch.extent * patch.extent,
-      ];
-    if (angle === patch.angle) return endpoint(patch);
+      return null;
+
+    const ops: AutoMovieConicFieldJet.IAlgebra<number> =
+      AutoMovieConicFieldJet.NUMBER;
     const weightLogs: number[] = patch.weights.map(Math.log);
-    if (!weightLogs.every(Number.isFinite)) return [NaN, NaN, NaN];
+    if (!weightLogs.every(Number.isFinite)) return null;
+
+    if (angle === 0 || angle === patch.angle) {
+      const position: "first" | "last" = angle === 0 ? "first" : "last";
+      const reading: AutoMovieConicHermiteField.IProjective<number> =
+        AutoMovieConicHermiteField.projective(
+          ops,
+          patch,
+          weightLogs,
+          null,
+          position,
+        );
+      return AutoMovieConicHermiteField.ray(patch, reading, null, position);
+    }
     const span: number =
       Math.log(Number.MAX_VALUE) -
       Math.log(Number.MIN_VALUE) +
       Math.max(...weightLogs.map(Math.abs));
     let lo: number = -span;
     let hi: number = span;
-    const below: IProjective = projective(patch, weightLogs, lo);
-    const above: IProjective = projective(patch, weightLogs, hi);
+    const below: AutoMovieConicHermiteField.IProjective<number> =
+      AutoMovieConicHermiteField.projective(ops, patch, weightLogs, lo);
+    const above: AutoMovieConicHermiteField.IProjective<number> =
+      AutoMovieConicHermiteField.projective(ops, patch, weightLogs, hi);
     if (
       !(
         Math.atan2(below.point[1], below.point[0]) <= angle &&
         angle <= Math.atan2(above.point[1], above.point[0])
       )
     )
-      return [NaN, NaN, NaN];
+      return null;
     for (let i: number = 0; i < 64; i++) {
       const middle: number = (lo + hi) / 2;
       if (middle === lo || middle === hi) break;
-      const reading: IProjective = projective(patch, weightLogs, middle);
+      const reading: AutoMovieConicHermiteField.IProjective<number> =
+        AutoMovieConicHermiteField.projective(ops, patch, weightLogs, middle);
       if (Math.atan2(reading.point[1], reading.point[0]) < angle) lo = middle;
       else hi = middle;
     }
     const clock: number = (lo + hi) / 2;
-    const reading: IProjective = projective(patch, weightLogs, clock);
+    const reading: AutoMovieConicHermiteField.IProjective<number> =
+      AutoMovieConicHermiteField.projective(ops, patch, weightLogs, clock);
     const residual: number = Math.abs(
       Math.atan2(reading.point[1], reading.point[0]) - angle,
     );
@@ -273,161 +367,8 @@ export namespace AutoMovieConicHermite {
       Number.EPSILON *
       (1 + Math.abs(clock) + Math.max(...weightLogs.map(Math.abs))) *
       patch.angle;
-    if (!(Number.isFinite(residual) && residual <= floor))
-      return [NaN, NaN, NaN];
-    return geometry(patch, reading);
-  }
+    if (!(Number.isFinite(residual) && residual <= floor)) return null;
 
-  /** Point and normalized log homogeneous monomials at one projective clock. */
-  interface IProjective {
-    /** Physical point in the original quarter's chart. */
-    point: readonly [number, number];
-
-    /** Four log probabilities, retaining terms below exp's underflow range. */
-    logs: readonly number[];
-  }
-
-  /** Positive Bernstein monomials in u=t/(1-t); the common (1-t)^3 cancels. */
-  function projective(
-    patch: IPatch,
-    weights: readonly number[],
-    clock: number,
-  ): IProjective {
-    const raw: number[] = weights.map(
-      (w: number, i: number): number =>
-        w + (i === 1 || i === 2 ? Math.log(3) : 0) + i * clock,
-    );
-    const normalizer: number = logSum(raw);
-    const logs: number[] = raw.map((v: number): number => v - normalizer);
-    const pivot: number = raw.indexOf(Math.max(...raw));
-    const base: readonly [number, number] = patch.points[pivot]!;
-    const value: [number, number] = [base[0], base[1]];
-    for (let i: number = 0; i < 4; i++) {
-      const probability: number = Math.exp(logs[i]!);
-      value[0] += probability * (patch.points[i]![0] - base[0]);
-      value[1] += probability * (patch.points[i]![1] - base[1]);
-    }
-    return {
-      point: [patch.extent - patch.deficit * value[0], patch.height * value[1]],
-      logs,
-    };
-  }
-
-  /**
-   * Positive pair sums differentiate a rational barycentric mean. For a triple
-   * i<j<k, the homogeneous determinant coefficient is
-   * (j-i)(k-i)(k-j)*det(Pi,Pj,Pk). The fixed elevated polygon's four positive
-   * physical triangle areas are deficit*height times [y1*x2,y1,y1,y1*x2].
-   * Keeping these sums logarithmic avoids subtracting parallel large native
-   * derivatives or discarding very small geometric curvature.
-   */
-  function geometry(
-    patch: IPatch,
-    reading: IProjective,
-  ): AutoMoviePolarSector.Jet {
-    const xs: number[] = [];
-    const ys: number[] = [];
-    for (let i: number = 0; i < 4; i++)
-      for (let j: number = i + 1; j < 4; j++) {
-        const coefficient: number =
-          reading.logs[i]! + reading.logs[j]! + Math.log(j - i);
-        const dx: number = patch.points[j]![0] - patch.points[i]![0];
-        const dy: number = patch.points[j]![1] - patch.points[i]![1];
-        if (dx > 0) xs.push(coefficient + Math.log(dx));
-        if (dy > 0) ys.push(coefficient + Math.log(dy));
-      }
-    const lx: number = Math.log(patch.deficit) + logSum(xs);
-    const ly: number = Math.log(patch.height) + logSum(ys);
-    const scale: number = Math.max(lx, ly);
-    const speed: number =
-      scale + Math.log(Math.hypot(Math.exp(lx - scale), Math.exp(ly - scale)));
-    const area: number =
-      Math.log(patch.deficit) +
-      Math.log(patch.height) +
-      Math.log(patch.points[1]![1]);
-    const small: number = Math.log(patch.points[2]![0]);
-    const determinants: number[] = [];
-    for (let missing: number = 0; missing < 4; missing++) {
-      const indices: number[] = [0, 1, 2, 3].filter(
-        (i: number): boolean => i !== missing,
-      );
-      const i: number = indices[0]!;
-      const j: number = indices[1]!;
-      const k: number = indices[2]!;
-      determinants.push(
-        reading.logs[i]! +
-          reading.logs[j]! +
-          reading.logs[k]! +
-          Math.log((j - i) * (k - i) * (k - j)) +
-          area +
-          (missing === 0 || missing === 3 ? small : 0),
-      );
-    }
-    return polarGeometry(
-      reading.point,
-      lx,
-      ly,
-      logSum(determinants) - 3 * speed,
-    );
-  }
-
-  /** Finite endpoint geometry uses the same polygon and rational endpoint law. */
-  function endpoint(patch: IPatch): AutoMoviePolarSector.Jet {
-    const point: readonly [number, number] = [
-      patch.extent - patch.deficit,
-      patch.height,
-    ];
-    const lx: number =
-      Math.log(patch.deficit) + Math.log(1 - patch.points[2]![0]);
-    const ly: number =
-      Math.log(patch.height) + Math.log(1 - patch.points[2]![1]);
-    const scale: number = Math.max(lx, ly);
-    const edge: number =
-      scale + Math.log(Math.hypot(Math.exp(lx - scale), Math.exp(ly - scale)));
-    const curvature: number =
-      Math.log(2 / 3) +
-      Math.log(patch.weights[3]!) +
-      Math.log(patch.weights[1]!) -
-      2 * Math.log(patch.weights[2]!) +
-      Math.log(patch.deficit) +
-      Math.log(patch.height) +
-      Math.log(patch.points[1]![1]) +
-      Math.log(patch.points[2]![0]) -
-      3 * edge;
-    return polarGeometry(point, lx, ly, curvature);
-  }
-
-  /** Polar slope and second derivative from tangent direction and geometric curvature. */
-  function polarGeometry(
-    point: readonly [number, number],
-    lx: number,
-    ly: number,
-    curvature: number,
-  ): AutoMoviePolarSector.Jet {
-    const scale: number = Math.max(lx, ly);
-    const tx: number = -Math.exp(lx - scale);
-    const ty: number = Math.exp(ly - scale);
-    const rho: number = Math.hypot(...point);
-    const dot: number = (point[0] / rho) * tx + (point[1] / rho) * ty;
-    const cross: number = (point[0] / rho) * ty - (point[1] / rho) * tx;
-    if (!(Number.isFinite(cross) && cross > 0)) return [NaN, NaN, NaN];
-    const ratio: number = dot / cross;
-    return [
-      rho,
-      rho * ratio,
-      rho *
-        (1 +
-          2 * ratio * ratio -
-          Math.exp(curvature + Math.log(rho)) * (1 + ratio * ratio) ** 1.5),
-    ];
-  }
-
-  /** Logarithm of a positive sum, with an empty sum represented by -Infinity. */
-  function logSum(values: readonly number[]): number {
-    if (values.length === 0) return -Infinity;
-    const largest: number = Math.max(...values);
-    let total: number = 0;
-    for (const value of values) total += Math.exp(value - largest);
-    return largest + Math.log(total);
+    return AutoMovieConicHermiteField.ray(patch, reading, clock, "interior");
   }
 }
