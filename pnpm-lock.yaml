@@ -471,6 +471,250 @@ importers:
         specifier: catalog:vite
         version: 5.4.21(@types/node@22.20.5)
 
+  movies/shorts/look-at-me-duel:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:*
+        version: link:../../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
+      '@automovie/human':
+        specifier: workspace:*
+        version: link:../../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:*
+        version: link:../../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:*
+        version: link:../../../packages/interface
+      '@automovie/recovery':
+        specifier: workspace:*
+        version: link:../../../packages/recovery
+      '@automovie/render':
+        specifier: workspace:*
+        version: link:../../../packages/render
+      '@automovie/viewer':
+        specifier: workspace:*
+        version: link:../../../packages/viewer
+      three:
+        specifier: ^0.186.0
+        version: 0.186.0
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:*
+        version: link:../../../packages/evidence
+      '@nestia/e2e':
+        specifier: ^12.1.0
+        version: 12.1.0
+      '@ttsc/lint':
+        specifier: ^0.35.0
+        version: 0.35.0(ttsc@0.35.0(typescript@7.0.2))
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.20.5
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      '@wrtnlabs/evidence':
+        specifier: ^0.8.2
+        version: 0.8.2(ttsc@0.35.0(typescript@7.0.2))
+      ffmpeg-static:
+        specifier: ^5.2.0
+        version: 5.3.0
+      ttsc:
+        specifier: ^0.35.0
+        version: 0.35.0(typescript@7.0.2)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.21(@types/node@22.20.5)
+
+  movies/shorts/paper-crane-invitation:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:*
+        version: link:../../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
+      '@automovie/human':
+        specifier: workspace:*
+        version: link:../../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:*
+        version: link:../../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:*
+        version: link:../../../packages/interface
+      '@automovie/recovery':
+        specifier: workspace:*
+        version: link:../../../packages/recovery
+      '@automovie/render':
+        specifier: workspace:*
+        version: link:../../../packages/render
+      '@automovie/viewer':
+        specifier: workspace:*
+        version: link:../../../packages/viewer
+      three:
+        specifier: ^0.186.0
+        version: 0.186.0
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:*
+        version: link:../../../packages/evidence
+      '@nestia/e2e':
+        specifier: ^12.1.0
+        version: 12.1.0
+      '@ttsc/lint':
+        specifier: ^0.35.0
+        version: 0.35.0(ttsc@0.35.0(typescript@7.0.2))
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.20.5
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      '@wrtnlabs/evidence':
+        specifier: ^0.8.2
+        version: 0.8.2(ttsc@0.35.0(typescript@7.0.2))
+      ffmpeg-static:
+        specifier: ^5.2.0
+        version: 5.3.0
+      ttsc:
+        specifier: ^0.35.0
+        version: 0.35.0(typescript@7.0.2)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.21(@types/node@22.20.5)
+
+  movies/shorts/snitch-before-you:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:*
+        version: link:../../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
+      '@automovie/human':
+        specifier: workspace:*
+        version: link:../../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:*
+        version: link:../../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:*
+        version: link:../../../packages/interface
+      '@automovie/recovery':
+        specifier: workspace:*
+        version: link:../../../packages/recovery
+      '@automovie/render':
+        specifier: workspace:*
+        version: link:../../../packages/render
+      '@automovie/viewer':
+        specifier: workspace:*
+        version: link:../../../packages/viewer
+      three:
+        specifier: ^0.186.0
+        version: 0.186.0
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:*
+        version: link:../../../packages/evidence
+      '@nestia/e2e':
+        specifier: ^12.1.0
+        version: 12.1.0
+      '@ttsc/lint':
+        specifier: ^0.35.0
+        version: 0.35.0(ttsc@0.35.0(typescript@7.0.2))
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.20.5
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      '@wrtnlabs/evidence':
+        specifier: ^0.8.2
+        version: 0.8.2(ttsc@0.35.0(typescript@7.0.2))
+      ffmpeg-static:
+        specifier: ^5.2.0
+        version: 5.3.0
+      ttsc:
+        specifier: ^0.35.0
+        version: 0.35.0(typescript@7.0.2)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.21(@types/node@22.20.5)
+
+  movies/shorts/three-oclock:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:*
+        version: link:../../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
+      '@automovie/human':
+        specifier: workspace:*
+        version: link:../../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:*
+        version: link:../../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:*
+        version: link:../../../packages/interface
+      '@automovie/recovery':
+        specifier: workspace:*
+        version: link:../../../packages/recovery
+      '@automovie/render':
+        specifier: workspace:*
+        version: link:../../../packages/render
+      '@automovie/viewer':
+        specifier: workspace:*
+        version: link:../../../packages/viewer
+      three:
+        specifier: ^0.186.0
+        version: 0.186.0
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:*
+        version: link:../../../packages/evidence
+      '@nestia/e2e':
+        specifier: ^12.1.0
+        version: 12.1.0
+      '@ttsc/lint':
+        specifier: ^0.35.0
+        version: 0.35.0(ttsc@0.35.0(typescript@7.0.2))
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.20.5
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      '@wrtnlabs/evidence':
+        specifier: ^0.8.2
+        version: 0.8.2(ttsc@0.35.0(typescript@7.0.2))
+      ffmpeg-static:
+        specifier: ^5.2.0
+        version: 5.3.0
+      ttsc:
+        specifier: ^0.35.0
+        version: 0.35.0(typescript@7.0.2)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.21(@types/node@22.20.5)
+
   packages/archetypes:
     dependencies:
       '@automovie/engine':
