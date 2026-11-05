@@ -14,53 +14,48 @@ type Vec3 = AutoMovieSolidVector.Vec3;
 type IRibbon = AutoMovieSolidRibbon.IRibbon;
 
 /** Shared vector operations preserve the existing arithmetic and allocation owners. */
-const { combine, cross, dot, norm, sub }: Pick<
+const {
+  combine,
+  cross,
+  dot,
+  norm,
+  sub,
+}: Pick<
   typeof AutoMovieSolidVector,
   "combine" | "cross" | "dot" | "norm" | "sub"
 > = AutoMovieSolidVector;
 
 /**
- * The composition the solid merge and the solid diff share: the intersection
- * curve, the two rails on the kept sides and the G2 blend between them, as
- * exact functions of the curve's parameter.
+ * Compose merge or diff from an intersection, kept-side rails and analytic
+ * ribbons. At parameter t in radians, the host ribbon starts a column at w=0
+ * and the part ribbon ends it at w=1; their cross speeds use the rail chord.
  *
- * Every evaluation at a curve parameter `t` (the part's phase, or the angle
- * about the footprint's axis; `AutoMovieSolidIntersection.Parameter`)
- * corrects the curve there by Newton
- * (`AutoMovieSolidIntersection.ICurve.at`), solves both rails from it
- * (`AutoMovieSolidRail.at`) and reads both ribbons from the surfaces
- * (`AutoMovieSolidRibbon.of`), so the blend is a smooth function of
- * `t` wherever the curve and the width laws are; nothing is interpolated
- * between traced points. The host's ribbon starts the blend (`w = 0`) leaving
- * the host past its rail toward the curve; the part's ends it (`w = 1`)
- * arriving along the part's offset direction on its kept side (its station
- * line under the phase parameter). Each ribbon's scale
- * is the chord between the rails over its cross derivative's length (as
- * `AutoMovieHumanLimbRootStrip`), so the column runs at chord speed at both
- * ends.
+ * Admission reads sampled rails/domains, strict proper chart crossings only
+ * on a single host face, and nine fold shares per column. These observations
+ * do not certify continuous unfolding, simple multi-face rails or final mesh
+ * topology. A supplied curve skips tracing and its diagnostics; its provenance
+ * and prior admission remain unresolved at the pretracing caller.
  *
- * The owner publishes the rails once: the host's as a loop in its chart (its
- * trim), the part's as its first station per phase (its untrimmed start), and
- * the blend's edge columns are those same points, so host, blend and part are
- * tessellated from shared points.
- *
- * Checks, each a diagnostic and a null join: the curve traces one closed loop
- * transversally; every traced point has both rails, each inside its surface's
- * declared domain (a chain's layers); the host's rail loop does
- * not cross itself in the chart (a width past the rail's radius of curvature
- * folds it); the blend's normal does not reverse along any column (a fold of
- * the blend between the rails).
- *
- * @evidence contracts/common.md#principled-implementation A join composes the trace, the rails at the declared chords and the G2 blend columns, and checks each premise (simple rail, unfolded blend, domains) before it is published.
- * @evidence contracts/common.md#clear-and-simple-design One input record, one create function with the keep side, one result.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts A broken premise returns no join; widths are never shrunk to pass.
- * @evidence contracts/common.md#meaningful-documentation States each premise, its check and the readings of the published join.
- * @evidence contracts/performance.md#efficient-algorithms For N traced points, checks read O(N) columns and fixed fold shares plus an O(N^2) crossing scan; each uncached parameter may invoke curve correction and a rail solve.
- * @evidence contracts/performance.md#reuse-equivalent-work Rails, including null failures, are cached by exact numeric parameter. Columns and ribbons are rebuilt and reread surface jets on each request; no claim of once-only column preparation is made.
- * @evidence contracts/performance.md#bound-retention-and-release-resources The returned join retains its curve, width/surface closures and parameter-to-rail Map until released. Arbitrarily many distinct queried parameters can grow that Map without an explicit bound; check arrays themselves are call-local.
+ * @evidence contracts/common.md#principled-implementation Composes the original trace, kept-side chord rails and boundary 2-jets; local G2 ribbon matching does not certify the published interpolated skin.
+ * @evidence contracts/common.md#clear-and-simple-design One request and creation path serve merge and diff, publishing four readers over shared source dependencies.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Sampled checks preserve failures without shrinking widths; supplied curves skip trace diagnostics, and finite fold/crossing checks leave continuous and multi-face gaps.
+ * @evidence contracts/common.md#meaningful-documentation States parameter units, boundary order, sampled acceptance and the supplied-curve diagnostic boundary.
+ * @evidence contracts/performance.md#efficient-algorithms For C observations, checks include O(C) columns and fixed fold shares plus an O(C²) crossing scan; uncached readers include curve/rail solver costs.
+ * @evidence contracts/performance.md#reuse-equivalent-work Map numeric keys reuse rails and null failures; columns rebuild four source-jet reads, and width queries read their live laws without memoization.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returned readers retain curve/input/atlas dependencies and an unbounded distinct-parameter rail Map until the join is dropped.
  */
 export namespace AutoMovieSolidJoin {
-  /** A composed join. */
+  /**
+   * A composed contact and its readers; t is the curve's radian parameter.
+   *
+   * @evidence contracts/common.md#principled-implementation The curve, keep side and analytic boundary readers describe one composed contact under regular source-jet premises.
+   * @evidence contracts/common.md#clear-and-simple-design One result separates its captured curve and four readers from later blend publication.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The G2 literal declares boundary matching; the record proves no continuous unfolding, manifold mesh or mutation safety.
+   * @evidence contracts/common.md#meaningful-documentation Readers distinguish rail failure, fresh column data, borrowed chart loops and live chord laws.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The record executes no solver or admission; its readers and create own those costs.
+   * @evidence contracts/performance.md#reuse-equivalent-work All readers share the original curve and exact numeric-key rail cache; columns and width values are not cached.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Retains four closures, original input/atlas/curve data and every distinct cached rail/null without an enforced population bound.
+   */
   export interface IJoin {
     /** The intersection curve. */
     curve: AutoMovieSolidIntersection.ICurve;
@@ -69,24 +64,60 @@ export namespace AutoMovieSolidJoin {
     keep: AutoMovieSolidRail.Keep;
 
     /**
-     * The continuity the merged skin keeps across both rails: G2, because the
-     * blend copies each surface's whole parametric 2-jet along its rail
-     * (`AutoMovieSolidBlend`).
+     * Declared G2 boundary continuity under regular compatible source/width
+     * jets; sampled admission and later publication do not certify the whole skin.
      */
     continuity: "G2";
 
-    /** The rails at a part phase, or null where a solve fails there. */
+    /**
+     * Read the rails at finite curve parameter t in radians, or null on a local solve failure.
+     *
+     * @evidence contracts/common.md#principled-implementation Corrects the same curve at t and solves kept-side chord rails on its actual surface jets.
+     * @evidence contracts/common.md#clear-and-simple-design One Map lookup precedes curve correction and rail preparation on a miss.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts Finite queries and unchanged source/law data remain premises; cached nulls are reused and callback throws propagate.
+     * @evidence contracts/common.md#meaningful-documentation States curve-parameter units and nullable failure rather than assuming every mode uses part phase.
+     * @evidence contracts/performance.md#efficient-algorithms A hit uses expected constant lookup work; a miss includes the existing continuation and rail-solver callback costs.
+     * @evidence contracts/performance.md#reuse-equivalent-work Map key equality reuses rails including null; it supplies no invalidation after input or cached-record mutation.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources Each new numeric key retains its rail/null for the join lifetime; no size limit, eviction or release hook exists.
+     */
     rail(t: number): AutoMovieSolidRail.IRail | null;
 
-    /** The blend column's two ribbons at a part phase, host first, or null where the rails fail. */
+    /**
+     * Read host-first and part-last boundary ribbons at radian parameter t; null means no rail.
+     *
+     * @evidence contracts/common.md#principled-implementation Uses the original cached rail and source 2-jets, scaling cross derivatives by rail chord over source cross-speed.
+     * @evidence contracts/common.md#clear-and-simple-design One rail read feeds the same host/part ribbon builder and analytic host outward vector.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts Nonzero regular cross-speeds remain premises; no zero-speed substitute, new finite guard or mesh normal is supplied.
+     * @evidence contracts/common.md#meaningful-documentation States parameter, host/part order, borrowed rail, fresh ribbons and null result.
+     * @evidence contracts/performance.md#efficient-algorithms Includes the rail read and four surface jet calls in ribbon preparation; columns are rebuilt for each request.
+     * @evidence contracts/performance.md#reuse-equivalent-work Reuses only the rail cache, not prior ribbon/column objects or their source-jet evaluations.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns fresh ribbons/outward data while the returned column borrows a cached rail; the join keeps no column cache.
+     */
     column(t: number): IColumn | null;
 
-    /** The host's rail as a chart loop `[y, theta]` at `count` uniform parameters from the seed's, or null where a rail fails between the traced points. */
+    /**
+     * Sample the host chart loop at count uniform radian parameters from the seed, or null on a failed rail.
+     *
+     * @evidence contracts/common.md#principled-implementation Reads the host preimage of each original uniformly parameterized rail in traversal order.
+     * @evidence contracts/common.md#clear-and-simple-design One ordered loop returns chart tuples without introducing a second geometric approximation owner.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts A positive finite integral count is a caller premise; no count guard or continuous simplicity certificate is added.
+     * @evidence contracts/common.md#meaningful-documentation States chart coordinates, uniform seed-relative samples and early null; chart tuples are borrowed from cached rails.
+     * @evidence contracts/performance.md#efficient-algorithms For C requested samples, performs C rail reads with their hit/miss costs and O(C) output references.
+     * @evidence contracts/performance.md#reuse-equivalent-work Repeated parameters share the rail cache; the returned tuples are the same mutable host arrays, not detached copies.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the output container while its tuples alias cached rails; distinct samples can grow the join cache without bound.
+     */
     loop(count: number): [number, number][] | null;
 
     /**
-     * The declared chords at a curve parameter, mm: the width laws read there,
-     * the part's null where its rail is one fixed station.
+     * Read current chord laws at radian t, in mm; part is null for a fixed station.
+     *
+     * @evidence contracts/common.md#principled-implementation Reads host then varying part chord from the original laws, preserving the fixed-station null distinction.
+     * @evidence contracts/common.md#clear-and-simple-design One small record separates authored chord values from rail geometry and station coordinates.
+     * @evidence contracts/common.md#prohibited-implementation-shortcuts No positivity or finiteness admission occurs here; changed laws can disagree with already cached rails.
+     * @evidence contracts/common.md#meaningful-documentation States t in radians, chord values in mm and the part-null meaning.
+     * @evidence contracts/performance.md#efficient-algorithms Calls the host law and at most one part law, plus a fixed result allocation; arbitrary callback costs remain included.
+     * @evidenceExclude contracts/performance.md#reuse-equivalent-work Reads live laws on every call without memoizing widths or rebuilding previously cached rails.
+     * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns one scalar record; the reader retains its original input dependency but no query history.
      */
     widths(t: number): { host: number; part: number | null };
   }
@@ -116,7 +147,17 @@ export namespace AutoMovieSolidJoin {
     outward: Vec3;
   }
 
-  /** What a join needs. */
+  /**
+   * Borrowed surfaces, trace request and width laws for one kept-side join.
+   *
+   * @evidence contracts/common.md#principled-implementation Names the periodic part, host atlas, trace seed/parameter and original mm chord or fixed-station width inputs.
+   * @evidence contracts/common.md#clear-and-simple-design One request shares authored geometry and optional pretraced curve without a consumer-local join implementation.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Supplied curves bypass trace diagnostics/provenance checks; actual preliminary tracing currently forwards nonnull curves without their grazing diagnostics.
+   * @evidence contracts/common.md#meaningful-documentation Members state radian parameters, mm lengths, optional defaults and the original curve-match requirement.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The record runs no trace, rail solve or admission algorithm.
+   * @evidence contracts/performance.md#reuse-equivalent-work A matching supplied curve can avoid retracing, but unchanged sources/laws and complete prior admission are not enforced by the type.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Published readers retain original input, callbacks and surface/curve dependencies; later mutation has no rail-cache invalidation.
+   */
   export interface IInput {
     /** The attached part or cutter, `v` periodic. */
     part: IAutoMovieSolidSurface;
@@ -128,18 +169,16 @@ export namespace AutoMovieSolidJoin {
     seed: AutoMovieSolidIntersection.IInput["seed"];
 
     /**
-     * The curve's parameter; absent, the part's phase. Under the angle
-     * parameter the part's rail leaves the curve square to it in the part's
-     * chart (`AutoMovieSolidRail` mode `square`), so a part lying along
-     * its host is trimmed round its footprint; the widths are then laws of the
-     * angle.
+     * The curve parameter, defaulting to phase. Phase uses a station rail;
+     * both angle and arc use the original square rail direction in the part's
+     * chart. Width laws use that same curve parameter in radians.
      */
     parameter?: AutoMovieSolidIntersection.Parameter;
 
     /** Traced points over one turn, at least 8. */
     count: number;
 
-    /** Largest gap accepted on the curve, mm. */
+    /** Intended mm meeting tolerance; the existing solver also includes the unscaled law residual. */
     tolerance: number;
 
     /** Least angle between the tangent planes along the curve, radians. */
@@ -162,12 +201,22 @@ export namespace AutoMovieSolidJoin {
     };
   }
 
-  /** A join's result. */
+  /**
+   * The nullable contact and its ordered observed diagnostics.
+   *
+   * @evidence contracts/common.md#principled-implementation Pairs the original nullable join with diagnostics from the path actually executed.
+   * @evidence contracts/common.md#clear-and-simple-design One record separates reported rejection from a published contact and its retained readers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts It does not recover skipped supplied-curve diagnostics, certify all premises or convert thrown callbacks to results.
+   * @evidence contracts/common.md#meaningful-documentation States null on a reported failed check and ownership of the returned diagnostic list.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This result performs no trace or admission work.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The record coordinates no computation; create owns trace reuse and rail caching.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns diagnostics and any join; retaining a join retains its original source graph and unbounded rail Map.
+   */
   export interface IResult {
     /** The join, or null when a check fails. */
     join: IJoin | null;
 
-    /** Every broken premise. */
+    /** Diagnostics observed by this execution path, in order. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
   }
 
@@ -177,11 +226,18 @@ export namespace AutoMovieSolidJoin {
   /**
    * Compose a join.
    *
-   * @param input The surfaces, seed, limits and width laws.
-   * @param keep `outside` for a merge, `inside` for a diff.
-   * @returns The join and its diagnostics.
-   */
-  export function create(
+   * @param input Borrowed surfaces, seed, trace limits and live width laws.
+   * @param keep outside for a merge, inside for a diff.
+   * @returns The contact or null with observed diagnostics; callback exceptions propagate.
+   *
+   * @evidence contracts/common.md#principled-implementation Composes the trace or supplied curve, chord rails and analytic ribbons, then performs the original sampled domain/crossing/fold checks.
+   * @evidence contracts/common.md#clear-and-simple-design One operation owns admission order and returned closures while trace, rail, ribbon and blend owners retain their numerical methods.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A supplied curve suppresses its trace diagnostics; multi-face crossing and unsampled fold/domain behavior remain unchecked, with no width shrink or numerical repair.
+   * @evidence contracts/common.md#meaningful-documentation States borrowed callbacks, supplied-curve admission gap, observed failures, units and result lifetime.
+   * @evidence contracts/performance.md#efficient-algorithms C sampled columns include cached/missed rail solves and fixed fold shares; the single-face strict crossing scan is O(C²).
+   * @evidence contracts/performance.md#reuse-equivalent-work Caches rails and nulls at Map-equivalent parameters; neighbouring fold columns and ribbons are deliberately rebuilt.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only successful returned readers retain the local Map/input/curve/atlas; keys are unbounded and no resource handle is acquired.
+   */ export function create(
     input: IInput,
     keep: AutoMovieSolidRail.Keep,
   ): IResult {
@@ -219,8 +275,10 @@ export namespace AutoMovieSolidJoin {
     // parameters (the traced points' and the columns', bitwise the same values), and callers only read them.
     const rails: Map<number, AutoMovieSolidRail.IRail | null> = new Map();
 
-    /** Exact parameter identity reuses a rail or its null solve failure for this join's lifetime. */
-    const rail: IJoin["rail"] = (t: number): AutoMovieSolidRail.IRail | null => {
+    /** Map numeric-key equality reuses a rail or null failure for this join's lifetime. */
+    const rail: IJoin["rail"] = (
+      t: number,
+    ): AutoMovieSolidRail.IRail | null => {
       const known: AutoMovieSolidRail.IRail | null | undefined = rails.get(t);
       if (known !== undefined) return known;
       const p: AutoMovieSolidIntersection.IPoint | null = curve.at(t);
@@ -250,7 +308,7 @@ export namespace AutoMovieSolidJoin {
         : ribbons(input.part, host.faces[r.hostFace]!, r);
     };
 
-    /** Read the host rail loop at the caller's uniform phase population. */
+    /** Read the host rail loop at uniform curve parameters from the seed. */
     const loop: IJoin["loop"] = (count: number): [number, number][] | null => {
       const out: [number, number][] = [];
       for (let i: number = 0; i < count; i++) {
@@ -327,7 +385,6 @@ export namespace AutoMovieSolidJoin {
       }
     }
 
-
     /** Read the original chord laws; a fixed-station part has no varying part chord. */
     const widths: IJoin["widths"] = (
       t: number,
@@ -342,14 +399,10 @@ export namespace AutoMovieSolidJoin {
   }
 
   /**
-   * The two edge ribbons of a column from its rails.
-   *
-   * @param part The part.
-   * @param host The host face the rail lies on.
-   * @param rail The rails.
-   * @returns The column.
-   */
-  function ribbons(
+   * Build host-first and part-last ribbons from the rail's preimages and the
+   * two source jets, scaled to their chord. Returns the original rail and
+   * host-oriented outward vector; nonzero cross-speeds remain a premise.
+   */ function ribbons(
     part: IAutoMovieSolidSurface,
     host: IAutoMovieSolidSurface,
     rail: AutoMovieSolidRail.IRail,
@@ -394,18 +447,11 @@ export namespace AutoMovieSolidJoin {
   }
 
   /**
-   * Where a closed chart polygon crosses itself, if it does: every pair of
-   * non-adjacent edges tested by the signs of their orientations. The
-   * polygon's points number the traced points, so the quadratic scan is the
-   * trace's own size.
-   *
-   * @param points The polygon, in order.
-   * @param closed Whether its last point joins its first: false for a loop
-   *   that winds round the host's periodic phase, whose chart points run
-   *   once across the period instead of enclosing a region.
-   * @returns A description of the first crossing, or null when simple.
-   */
-  function crossed(
+   * Scan ordered nonadjacent chart edges for strict proper crossings.
+   * points supplies the polygon; closed includes its closing edge, while a
+   * winding chart path omits it. Returns the first description or null;
+   * collinear overlap and touching edges do not count as crossings here.
+   */ function crossed(
     points: readonly [number, number][],
     closed: boolean,
   ): string | null {
