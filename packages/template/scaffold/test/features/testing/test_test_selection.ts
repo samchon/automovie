@@ -10,8 +10,11 @@ import { selectTestFiles } from "../../helpers/selectTestFiles";
  * 2. Unknown, valueless, blank, positional and unmatched terms throw.
  * 3. Empty discovery and excluding every selected file throw.
  *
- * @evidence contracts/testing.md#observable-behavior Calls the runner's selection helper on supplied names and compares exact selected basenames and refusal paths, catching widened selection and ignored invalid options without filesystem or process access.
- * @evidence contracts/testing.md#independent-cases Literal filenames and explicit expected subsets define substring semantics, repeated and equals-form groups, input immutability, singleton, empty and malformed requests. Actual discovery/import behavior stays with the runner's installed DynamicExecutor contract and source review.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment lists the three scenarios, default and grouped selection, malformed options and empty or fully excluded selection, and the selection rule each pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the runner's selection helper on supplied basenames and compares the exact selected set or the thrown refusal; widened selection or an ignored invalid option fails.
+ * @evidence contracts/development/testing.md#independent-expectations Expected subsets follow from literal filenames and the runner's substring include and exclude semantics.
+ * @evidence contracts/development/testing.md#distinguishing-cases Cases cover default selection, repeated and equals-form include groups with exclusion, exclusion alone, a singleton, duplicate basenames, an unchanged input array, each malformed option, unmatched terms, excluding every match and empty discovery. Discovery and import belong to DynamicExecutor.
+ * @evidence contracts/development/testing.md#execution-ownership A pure unit test with in-memory names, discovered by test/index.ts as an exported test_ function; it reads no file system and starts no process.
  */
 export function test_test_selection(): void {
   const names: string[] = ["test_jab.ts", "test_cross.ts", "test_kick.ts"];

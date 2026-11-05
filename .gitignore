@@ -4,6 +4,7 @@
 .models/
 .wiki/
 .references/
+.codex/
 
 node_modules/
 packages/cli/.cache/
@@ -54,3 +55,6 @@ test/.shots/
 /test/.native-build-evidence/
 /test/.reference-provenance-quarantine/
 /test/.reference-static-20261022-0435/
+
+# ttsx entry configurations left beside a package
+.ttsx-entry.*.tsconfig.json

@@ -9,8 +9,11 @@ import { clampProductionSeconds } from "../../../src/clampProductionSeconds";
  * 1. Interior values and both endpoints remain exact; outside times hit a bound.
  * 2. Nonfinite time and nonpositive or nonfinite duration fail admission.
  *
- * @evidence contracts/testing.md#observable-behavior Calls the same pure clamp imported by main.ts and asserts time preservation, endpoint bounds and input refusals; detects a wrong endpoint, inverted bound or silent invalid time. Browser controls and rendering are separate Viewer checks.
- * @evidence contracts/testing.md#independent-cases Literal zero and fifteen-second bounds define expectations; interior 2.125 is exactly representable and preserved, so these assertions need no fitted tolerance. Cases include adjacent out-of-range times, each nonfinite time and zero, negative and nonfinite durations; no host is started.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment lists the two scenarios, preserved and bounded times and refused inputs, and the clamp behavior each pins.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the clamp that main.ts imports and asserts preserved interior and endpoint times, bounded outside times and thrown refusals; a wrong endpoint, inverted bound or silently admitted invalid time fails.
+ * @evidence contracts/development/testing.md#independent-expectations Expected values come from the closed interval from zero to a literal fifteen-second duration; 2.125 is exactly representable, so equality needs no tolerance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Cases cover times just outside each end, both ends, one interior time, each nonfinite time, and zero, negative and nonfinite durations. Browser controls and drawing belong to Viewer review.
+ * @evidence contracts/development/testing.md#execution-ownership A pure unit test with in-memory numbers, discovered by test/index.ts as an exported test_ function; it starts no Viewer, browser or render.
  */
 export function test_clamp_production_seconds(): void {
   for (const [seconds, expected] of [

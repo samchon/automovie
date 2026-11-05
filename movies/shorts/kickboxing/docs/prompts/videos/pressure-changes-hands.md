@@ -6,7 +6,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 
 | Field | Planned value |
 | --- | --- |
-| Local clip | `output/segments/pressure-changes-hands.mp4`, pending export from the re-exported whole render |
+| Local clip | `media/automovie/videos/segments/pressure-changes-hands.mp4`, pending export from the re-exported whole render |
 | Whole-render global interval | [45, 60) seconds |
 | Local interval | [0, 15) seconds |
 | Global included frames at 30 fps | 1350–1799 |
@@ -20,7 +20,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 | Exact request | [payloads/pressure-changes-hands.json](payloads/pressure-changes-hands.json), 4752 bytes, raw LF SHA-256 `b58beeac486497623591c8e59494041eec46eed4cb3bcbe3b31e8363c2625553` |
 | Exact prompt length | 783 English whitespace-delimited words |
 
-The single 15-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../references/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
+The single 15-second video stays below the carried 30-second / 10-video aggregate, and its raster, rate and container follow the [carried contract](../../../docs/research/seedance-2-5-handoff-contract.md). The maximum generated-output duration is unknown there and must be confirmed before submission. Native audio is disabled. No first/last-frame role is mixed with reference mode.
 
 ## Creative source mapping {#sources}
 
@@ -69,4 +69,4 @@ Keep realistic human anatomy, closed fists inside the gloves and the gloves on t
 
 ## Output and retention boundary {#retention}
 
-Availability: the source clip does not yet exist, and no input or output bytes are retained for this request. After export, add the clip's measured duration, frames, profile, bytes, SHA-256 and first/last-frame observations here, with the whole render's identity, keeping this planned epoch. A future submission becomes its own attributable attempt with the exact sent payload, job ID and retained outputs under [generation records](../../../.agents/skills/production/generation-records.md). Large files stay in ignored `output/segments/` or `media/generated/`; Git keeps these records, not the media.
+Availability: the source clip does not yet exist, and no input or output bytes are retained for this request. After export, add the clip's measured duration, frames, profile, bytes, SHA-256 and first/last-frame observations here, with the whole render's identity, keeping this planned epoch. A future submission becomes its own attributable attempt with the exact sent payload, job ID and retained outputs under [generation records](../../../.agents/skills/production/generation-records.md). Large files stay in ignored `media/automovie/videos/segments/` or `media/diffusion/videos/`; Git keeps these records, not the media.

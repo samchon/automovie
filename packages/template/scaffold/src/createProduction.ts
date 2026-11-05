@@ -4,8 +4,13 @@ import * as THREE from "three";
  * Create the production's scene and deterministic performance. Replace the empty
  * scene with authored assets; seek must fully place every displayed object.
  *
- * @evidence contracts/common.md#implementation-and-ownership The production owns scene content and exact-time placement; the shared Viewer owns display and Render owns capture. The empty starter has no authored story or motion.
- * @evidence contracts/common.md#authoring-interface Returns the scene, camera, exact-time seek and resource disposal. Seconds use the duration shared by src/durationSeconds.ts and render.config.ts.
+ * @evidence contracts/development/implementation.md#principled-implementation Seek places every displayed object for an exact second and then updates world matrices, so playback, seeking and capture draw the same state; the starter scene holds no authored objects.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The production owns scene content and exact-time placement; the shared Viewer owns display and Render owns capture.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The starter contains no story, motion or special case; its camera and background are neutral defaults that authored work replaces.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states that seek must fully place every displayed object and that authored assets replace the empty scene; the returned fields are the scene, camera, seek and disposal.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Seek updates world matrices once per call, linear in the scene's object count; the starter scene is empty.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One scene and camera serve every seek; nothing is rebuilt per second.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The production owns the scene, camera and their resources; dispose clears the scene, and main.ts calls it on pagehide.
  */
 export function createProduction(): {
   scene: THREE.Scene;

@@ -1,18 +1,46 @@
-import type { IEvidenceConfig } from "@wrtnlabs/evidence";
+import { type IEvidenceConfig } from "@wrtnlabs/evidence";
 
-/** Maintained types and functions answer the repository's implementation duties. */
+const files: string[] = ["src/**/*.ts"];
+
+/** Every exported declaration answers the shared documentation checklist, types the design checklist and functions the implementation checklist. */
 export default {
   severity: "error",
   claims: [
     {
-      name: "evidence declarations",
+      name: "evidence documentation",
       type: "typescript",
-      files: ["src/**/*.ts"],
+      files,
       symbol: ["type", "function"],
       reference: {
         type: "markdown",
         root: "../../.agents/skills",
-        files: ["contracts/common.md", "contracts/performance.md"],
+        files: ["contracts/development/common.md"],
+        symbol: "h2",
+        checklist: true,
+      },
+    },
+    {
+      name: "evidence types",
+      type: "typescript",
+      files,
+      symbol: "type",
+      reference: {
+        type: "markdown",
+        root: "../../.agents/skills",
+        files: ["contracts/development/design.md"],
+        symbol: "h2",
+        checklist: true,
+      },
+    },
+    {
+      name: "evidence functions",
+      type: "typescript",
+      files,
+      symbol: "function",
+      reference: {
+        type: "markdown",
+        root: "../../.agents/skills",
+        files: ["contracts/development/implementation.md"],
         symbol: "h2",
         checklist: true,
       },

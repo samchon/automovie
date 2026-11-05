@@ -1,5 +1,6 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
+import type { IAutoMovieDevelopmentProps } from "./IAutoMovieDevelopmentProps";
 import type { IAutoMovieNarrativeProps } from "./IAutoMovieNarrativeProps";
 
 /**
@@ -22,4 +23,10 @@ export interface IAutoMovieEvidenceConfigProps {
 
   /** Omit for ordinary coding and standalone assets; provide for video writing. */
   narrative?: IAutoMovieNarrativeProps;
+
+  /** Asset, motion and shot development contracts; omitted stages stay disabled. */
+  development?: IAutoMovieDevelopmentProps;
+
+  /** Performance studies answer the story research principles when `"evidence"`; disabled by default. */
+  research?: "disabled" | "evidence";
 }

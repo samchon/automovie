@@ -9,8 +9,13 @@ import config from "../render.config";
 /**
  * Export the running viewer once and retain its actual capture/encode observations.
  *
- * @evidence contracts/common.md#implementation-and-ownership The public Render runner owns exact-time browser capture, single encoding and cleanup; this production command owns configuration and the retained report.
- * @evidence contracts/common.md#authoring-interface Run npm run dev, set CHROME_PATH to installed Chrome, then npm run render. The report is technical capture evidence, not a playback review.
+ * @evidence contracts/development/implementation.md#principled-implementation The installed Render runner performs exact-time browser capture, one encode and cleanup; this command supplies render.config.ts and writes the runner's result to media/automovie/videos/capture-report.json.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The command holds configuration, progress output and the report; capture belongs to @automovie/render.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A missing CHROME_PATH throws instead of falling back to another browser.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states that the command exports the running Viewer once and retains its capture and encode observations; the report records capture, not a playback review.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Capture and encoding cost belong to renderViewerVideo; this command logs one progress line per 150 frames and writes one report.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The command runs one export per invocation; there is no shared work to reuse.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The Render runner owns the browser and encoder and releases them; the command holds only the returned result until the report is written.
  */
 export async function render(): Promise<void> {
   if (config.chromeExecutable.length === 0)
@@ -28,7 +33,7 @@ export async function render(): Promise<void> {
     },
   });
   await writeFile(
-    "output/capture-report.json",
+    "media/automovie/videos/capture-report.json",
     JSON.stringify(result, null, 2),
   );
 }
