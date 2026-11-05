@@ -1,0 +1,21 @@
+# Hogwarts uniform reference review
+
+## Actual result and scope {#scope}
+
+Independent reviewer `/root/shared_character_images/student_images_review` inspected the saved Carina uniform PNG before reading the new payloads or author observations. The wardrobe direction was already known, so this was not a wholly blind observation. This review covers only the new uniform acquisition records and current consumer tuple; the earlier student review and acquisition checks remain historical and were not repeated.
+
+Carina visibly wears a white shirt, green/silver striped tie, gray V-neck knit, dark knee-length pleated skirt, opaque black tights, flat school shoes and an open black robe with green lining and a left-chest serpent-style crest. The result immediately reads as a Slytherin student uniform. Pale shoulder-length hair, youthful face, slightly lifted chin, small confident smile, slight build, full-body standing pose and gray studio remain recognizable. Both hands and feet are visible, without a clear composition or anatomy defect requiring another generation. Identity continuity is a visual impression, not pixel equality; exact age and exact official emblem reproduction are unproven. The supervising parent selected this Carina result.
+
+Carina's [actual PNG](../../media/generated/characters/carina-hogwarts-uniform-reference.png) is 1,781,233 bytes, 1024 by 1536, 8-bit RGB PNG, raw SHA-256 `868cc1232d330bd2ad60606aa2f686ea3cf0747eb40c4f4f8bac51ada55dad08`. Its saved tool original has the same bytes and digest.
+
+No Harry uniform image was returned or inspected. Both recorded identical attempts failed at output moderation with separate request IDs and no output locator; the specific reason remains unknown. There was no altered prompt, further retry, alternate provider or fallback. His retained student PNG remains a face/identity reference and does not show the requested Gryffindor uniform. This episode acquired one output from three calls. Under the subsequent user direction, generated references are optional creative aids; the missing image does not block canonical completeness, movie implementation or delivery, and requires no new generation.
+
+## Records, retention and closure {#closure}
+
+The reviewer read both new canonical records, exact payloads, the direct uniform-instruction source and [uniform receipt](../analysis/uniform-character-image-receipts.json). Raw hashes of the new source and two requests matched. Each payload identifies the actual retained edit input; both input byte identities and recorded source-record hashes matched. The successful workspace/tool output identities and PNG headers matched. Small new records remain unignored; the generated PNG is ignored and locally retained. No old population, Git round trip, native Evidence cycle or runtime test was rerun.
+
+The user supplies the Hogwarts-uniform requirement; the supervisor supplies the concrete Slytherin/Gryffindor garment interpretation. No external costume image or actor photograph was submitted. Prior source snapshots and request epochs remain historical. The earlier casting-only manuscript boundary is not a permanent requirement to preserve adult ages or old clothes; current settings/body alignment belongs to each production owner and is outside this acquisition review.
+
+One copied retention paragraph incorrectly directed preservation of a nonexistent Harry output. The owner corrected both records together: Harry retains actual inputs and failed-attempt records without an invented output; Carina records her completed copy and retained original. Those corrected paragraphs were directly confirmed. Final metadata closure found README plus all four actual production indexes in `currentConsumers`, no pending consumer, and the same Carina-uniform/Harry-student paths throughout. Each index distinguishes Harry's absent uniform image from the costume requirement. No record-consistency finding remains in this scope.
+
+Exact media remains local-only, with no verified durable archive or restoration test. Another checkout must obtain retained inputs/results and verify their digests; regeneration creates new candidates. This review establishes no calibrated costume geometry, Human clothing implementation, staged or temporal continuity, voice fit, video compatibility, finished-film acceptance or redistribution rights.

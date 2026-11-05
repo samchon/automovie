@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "reconstruction": "Recorded after generation from retained manifests, runtime snapshot, WAV bytes, decoder measurements, CLI save logs and the producer's execution record. Not a contemporaneous source snapshot.",
+  "historicalUnknowns": {
+    "sourceFileDigestsAtSubmission": null,
+    "submissionTimestamps": null,
+    "originalFullCommandLiteralOnDisk": null,
+    "providerInternalPayloadOrPromptRewrite": null
+  },
+  "payloadOwner": {
+    "path": "references/audio/synthesis-commands.json",
+    "sha256": "5d32d7f5326cb0365356485aac692f086f19c743d13f79738d901ea82632435b",
+    "owns": "Seven exact submitted text/control strings, speaker, requested output, observed exit status and supplementary raw log locator. No request/job ID was returned by this local CLI."
+  },
+  "runtimeOwner": {
+    "path": "references/audio/voxcpm-runtime.json",
+    "sha256": "2fff87bbddcfd03cbb2bfd05511f00640960a181078159e3e514642381b625b3",
+    "owns": "Executable, package, model/checkpoint revision and digest receipt, common nonsecret parameters/environment, seed support, copied neutral anchor text/control and technical setup receipts."
+  },
+  "measurementOwner": {
+    "path": "references/audio/dialogue-measurements.json",
+    "sha256": "ee33dcf1825d9591e8e06f14dadc45b5b0c5387c4039d43084713e6e50d87c60",
+    "owns": "Observed fixed-byte digests, decoded frames, mono 48000 Hz format, duration, peak, RMS and zero saturated samples. Measurements do not establish words or listening acceptance."
+  },
+  "reconstructedCloneArgv": [
+    "D:/Program Files/VoxCPM/venv/Scripts/voxcpm.exe",
+    "clone", "--text", "<payloadOwner entry.text>",
+    "--reference-audio", "<absolute path to speaker anchor below>",
+    "--control", "<payloadOwner entry.control>",
+    "--model-path", "<runtimeOwner.model>",
+    "--device", "cpu", "--no-optimize", "--no-denoiser",
+    "--cfg-value", "2", "--inference-timesteps", "10",
+    "--output", "<absolute production path to payloadOwner entry.file>"
+  ],
+  "reconstructedCommandLimit": "Argument fields and order reconstruct the producer's seven official clone invocations. This is not a persisted original shell transcript or an observed internal provider payload. No negative/system/role prompt, crop, trim, resample, time-matched control, seed or remote job ID was supplied.",
+  "restoration": {
+    "availability": "locally retained only",
+    "archive": "no durable archive or restore test verified",
+    "freshCheckout": "WAV bytes are unavailable from Git. Obtain the retained originals from the production owner and restore all nine exact relative paths below, then verify SHA256 against this inventory and the measurement owner. Access needs the owner's local files; no public or credential-bearing locator is claimed.",
+    "anchorFallback": "Both anchor originals also remain in D:/Program Files/VoxCPM/samples under their identity-reference names. Verify their exact digests before copying them to the production paths. They cannot restore the seven generated dialogue takes.",
+    "retention": "Keep all nine bytes while these request, timing and review records depend on them. No byte was deleted, moved, regenerated, trimmed or time-stretched in this migration. Regeneration is a new candidate, never restoration of the same result."
+  },
+  "artifacts": [
+    { "id": "carina-reference", "role": "input copied from generated neutral setup anchor", "file": "references/audio/anchors/carina-reference.wav", "original": "D:/Program Files/VoxCPM/samples/carina-identity-reference.wav", "bytes": 1059884, "sha256": "2375289dbc2641ad515f3b7a784870baafe658005060773e714fb33fdef65ed4", "frames": 529920, "durationSeconds": 11.04, "promptRecord": "docs/prompts/voices/carina-and-harry-voice-references.md#carina-reference" },
+    { "id": "harry-reference", "role": "input copied from generated neutral setup anchor", "file": "references/audio/anchors/harry-reference.wav", "original": "D:/Program Files/VoxCPM/samples/harry-identity-reference.wav", "bytes": 844844, "sha256": "851fdb643b79bbb005a3f58a82edb1d273754905845232d73a7d8663099b9a6c", "frames": 422400, "durationSeconds": 8.8, "promptRecord": "docs/prompts/voices/carina-and-harry-voice-references.md#harry-reference" },
+    { "id": "rehearsed-opening", "role": "generated dialogue timing candidate", "file": "references/audio/probes/01-carina-saturday.wav", "input": "carina-reference", "payloadEntry": 0, "bytes": 215084, "sha256": "7a1c6bb6bb104792822111f68b9275e135d334b71179b35377f9d421e3c11770", "frames": 107520, "durationSeconds": 2.24, "promptRecord": "docs/prompts/voices/three-oclock-dialogues.md#rehearsed-opening" },
+    { "id": "rehearsed-command", "role": "generated dialogue timing candidate", "file": "references/audio/probes/02-carina-command.wav", "input": "carina-reference", "payloadEntry": 1, "bytes": 291884, "sha256": "287915968146ac6a7a4471a887fe223b2be420def53c777751ccf05c4d450d58", "frames": 145920, "durationSeconds": 3.04, "promptRecord": "docs/prompts/voices/three-oclock-dialogues.md#rehearsed-command" },
+    { "id": "honest-invitation", "role": "generated dialogue timing candidate", "file": "references/audio/probes/03-carina-invitation.wav", "input": "carina-reference", "payloadEntry": 2, "bytes": 215084, "sha256": "c7f87bcd969a5218776c99df1eb0d749b2e69b3bbcb55b66b31f770329952be7", "frames": 107520, "durationSeconds": 2.24, "promptRecord": "docs/prompts/voices/three-oclock-dialogues.md#honest-invitation" },
+    { "id": "harry-accepts", "role": "generated dialogue timing candidate", "file": "references/audio/probes/04-harry-acceptance.wav", "input": "harry-reference", "payloadEntry": 3, "bytes": 76844, "sha256": "64faf5e63ce0fa8d05c5b9f73aacd5a1bb82669141b2e4e292911377a4f8b593", "frames": 38400, "durationSeconds": 0.8, "promptRecord": "docs/prompts/voices/three-oclock-dialogues.md#harry-accepts" },
+    { "id": "caught-rehearsing", "role": "generated dialogue timing candidate", "file": "references/audio/probes/05-carina-discovered.wav", "input": "carina-reference", "payloadEntry": 4, "bytes": 122924, "sha256": "3c1ec56ef72afeae7141ed592620687090b3cb84990ec2a97356b8f116c252be", "frames": 61440, "durationSeconds": 1.28, "promptRecord": "docs/prompts/voices/three-oclock-dialogues.md#caught-rehearsing" },
+    { "id": "appointment-time", "role": "generated dialogue timing candidate", "file": "references/audio/probes/06-carina-time.wav", "input": "carina-reference", "payloadEntry": 5, "bytes": 276524, "sha256": "fe42c608fe35cb497605dc586631d228e06774550681268dbd3e3b934ce40869", "frames": 138240, "durationSeconds": 2.88, "promptRecord": "docs/prompts/voices/three-oclock-dialogues.md#appointment-time" },
+    { "id": "heard-you", "role": "generated dialogue timing candidate", "file": "references/audio/probes/07-harry-heard.wav", "input": "harry-reference", "payloadEntry": 6, "bytes": 215084, "sha256": "75cff8e7f5be0154c93791f675e9f769e2c62f653a8bd17aa8723afcf0554ca8", "frames": 107520, "durationSeconds": 2.24, "promptRecord": "docs/prompts/voices/three-oclock-dialogues.md#heard-you" }
+  ],
+  "currentSourceCorrespondence": {
+    "epoch": "Historical scene-completeness authoring handoff before student-image and canonical uniform alignment. Former promoted scene and brief remain at .cache/canonical-alignment/predecessor/ with original relative paths; these observed raw identities are not the changed current body hashes.",
+    "relationship": "Checked after the scene-completeness replacement and exact expression transfer; not a generation-time input identity or a new synthesis request.",
+    "promptRecord": "docs/prompts/voices/three-oclock-dialogues.md#current-source-correspondence",
+    "promoted": { "path": "docs/body/screenplay/three-oclock.md#courtyard-invitation", "rawSha256": "e6573c8b01e79de3633584f7e6a97549d4d64b3c5604aaca628b1fe7f6a76c84" },
+    "frozen": { "path": "docs/revision/screenplay/three-oclock.md#courtyard-invitation", "rawSha256": "8311399a3850b43494cdb57a8d0c0ee785df2ff8cc2cf14cf6108c98633def70", "availability": "locally retained ignored workflow input" },
+    "working": { "path": "docs/naturalness/screenplay/three-oclock.md#courtyard-invitation", "rawSha256": "6c02da63ebdec46d08812280ea510b66f50d918606fb6e0adbf8b5423b1375bb", "availability": "locally retained ignored workflow input" },
+    "project": { "path": "docs/prompts/images/sources/three-oclock-pre-student-casting-project.md#three-oclock", "canonicalPathAtObservation": "PROJECT.md#three-oclock", "rawSha256": "f29acb24afb0f0a511206cecaeb88c33410cd7d6715f654645a14cd50ef6b355" },
+    "brief": { "path": "docs/instructions/brief.md#motion", "rawSha256": "755e720e17cd98baf95f856325f2b1cc89ed6b30f3e24990c8ea0c0c7872f863" },
+    "comparedPayloadEntries": [0, 1, 2, 3, 4, 5, 6],
+    "result": "All exact words, speakers, order and five provisional windows remain; hero voice baselines are byte-identical. Spatial/support presentation changed without any new audio request or media mutation.",
+    "historicalBoundary": "Original launch source hashes and timestamps remain null. The first retrospective predecessor identities in the prompt record and its verified local predecessor manifest are preserved, not replaced by these later values. Shared image requests retain their own actual pre-call snapshots."
+  },
+  "laterVisualCasting": "PROJECT.md#current-visual-casting directly adopts the user's about-fifteen Hogwarts-student and uniform instruction in current canonical source. The older about-sixteen voice-source profiles remain exact aliases at docs/prompts/voices/sources/{carina,harry}-pre-uniform-baseline.md. Historical adult-designed anchor requests, WAVs and launch unknowns stay unchanged. Teenage acting/age fit and soundtrack acceptance remain pending; no audio was regenerated.",
+  "status": "All nine locally retained bytes match earlier public-decoder measurements; all seven dialogue CLI runs exited 0. Candidates remain unheard and transcript/identity/performance-unverified. No soundtrack or film consumer adopts them.",
+  "consumer": "Measurement only: movies/shorts/snitch-before-you/scripts/measureSpeechProbes.ts decoded the two anchors and seven probes through public @automovie/ingest. Source/render/test code has no WAV or audioMix binding. Documentation consumers are references/index.md, docs/analysis/dialogue-timing.md, README.md and the scoped generation handoff."
+}

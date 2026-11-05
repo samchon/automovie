@@ -1,0 +1,23 @@
+# Shared character images
+
+This asset-only collection supplies one current student reference per person to the four shorts. The user corrected both characters' visual age to approximately fifteen. Follow [PROJECT](PROJECT.md#identity-boundary) for current visual casting versus historical manuscript and voice facts. Historical source snapshots do not freeze future canon; each production owns the newly authorized settings/body alignment to the current age and uniform requirements.
+
+| Person | Current request and source mapping | Selected local bytes |
+| --- | --- | --- |
+| Carina Malfoy | [Carina Hogwarts uniform](docs/prompts/images/carina-hogwarts-uniform-reference.md) | media/generated/characters/carina-hogwarts-uniform-reference.png |
+| Harry Potter | [Harry student identity only](docs/prompts/images/harry-student-reference.md) | media/generated/characters/harry-student-reference.png |
+
+Both retained current images are 1024 by 1536 pixels. The user requested Hogwarts uniforms; the parent directly viewed and selected Carina in Slytherin uniform, preserving her cute proud smile. Harry remains a face/identity reference only: both identical Gryffindor-uniform requests were rejected by the provider without an image. The [uniform receipt](docs/analysis/uniform-character-image-receipts.json) owns this partial acquisition and current selection; [Harry uniform request](docs/prompts/images/harry-hogwarts-uniform-reference.md) preserves both failures. No further retry or fallback was used. Generated reference images are optional creative aids under the subsequent user direction; this missing optional image is not a film, canonical-completeness or delivery blocker. The [final Carina revision receipt](docs/analysis/carina-student-smirk-receipt.json) preserves the previous two-person selection and Carina charm edit. The [student receipt](docs/analysis/student-character-image-receipts.json) preserves the earlier age-replacement attempts and unchanged selected Harry. Carina now has the user-requested cute, pretty youthful face and a small proud smile; the first Carina student output is retained as a superseded intermediate/edit input. Younger faces/builds read as teenage students; the independent impression allows mid-to-late teens and some young-adult ambiguity rather than proving a precise fifteen years. Static portraits establish neither calibrated geometry nor finished-film appearance or video-model compatibility.
+
+| Production adoption | Scope |
+| --- | --- |
+| [Snitch Before You](../snitch-before-you/docs/prompts/images/shared-cast-references.md) | Current visual casting from the user correction; local variants separately owned. |
+| [Give It Back, Potter](../paper-crane-invitation/docs/prompts/images/shared-character-references.md) | Current visual casting from the user correction; local variants separately owned. |
+| [Look at Me This Time](../look-at-me-duel/docs/prompts/images/shared-character-references.md) | Current visual casting from the user correction; local variants separately owned. |
+| [Three O'Clock](../three-oclock/docs/prompts/images/shared-character-references.md) | Current visual casting from the user correction; local variants separately owned. |
+
+The uniform receipt distinguishes completed from pending current index updates. The later uniform request supersedes the prior Carina selection; earlier status/selection language remains historical. Earlier receipt current/selected/pending language describes its historical acquisition stage, not the current registry. Productions reuse the same two PNGs and canonical requests without local generation or copies. Adult-designed voice candidates remain historical technical probes; teenage voice fit and soundtrack adoption are unverified.
+
+Earlier [Carina](docs/prompts/images/carina-character-reference.md) and [Harry](docs/prompts/images/harry-character-reference.md) adult records, exact payloads, eight source snapshots, [receipt](docs/analysis/character-image-receipts.json) and PNGs remain historical acquisition evidence and required edit inputs. They are superseded as current visual casting, not deleted or rewritten. Snapshot relative links preserve their original context; use each original record's live locator for navigation.
+
+Generated images are locally retained and Git ignored. Small requests, payloads, sources and receipts are unignored working-tree source intended for Git preservation; no commit was made. Narrow .gitattributes rules preserve exact submitted payloads and source snapshots through Git storage and checkout. A fresh checkout must obtain retained PNGs and verify SHA-256. No durable archive or successful restoration test exists; a prompt or regeneration cannot restore these exact bytes.

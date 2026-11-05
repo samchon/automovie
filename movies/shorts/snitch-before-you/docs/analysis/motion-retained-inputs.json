@@ -1,0 +1,115 @@
+{
+  "observedAt": "2026-11-04T19:35:53.275Z",
+  "media": [
+    {
+      "path": "output/motion-hint.mp4",
+      "bytes": 3426994,
+      "sha256": "431d842d5ff29dc0bf377c6fbada075d5ec12e1cb1563f94575d49958e74d798",
+      "matchesReceipt": true,
+      "ignored": true,
+      "tracked": false
+    },
+    {
+      "path": "output/segments/snitch-pursuit-and-overreach.mp4",
+      "bytes": 1431697,
+      "sha256": "1d8288747b4642ed5561da13ab17fffe389a92a77dd0883e39dfb7919a692a84",
+      "matchesReceipt": true,
+      "ignored": true,
+      "tracked": false
+    },
+    {
+      "path": "output/segments/a-prize-within-reach.mp4",
+      "bytes": 646601,
+      "sha256": "5971f828d8e9b064467c03d26be835f7fd1b894f320bec2c98ecbaf29e5a03b9",
+      "matchesReceipt": true,
+      "ignored": true,
+      "tracked": false
+    },
+    {
+      "path": "output/segments/two-broom-rescue-transfer.mp4",
+      "bytes": 1176614,
+      "sha256": "112fdf1bfd3a67bff5c4e584750987de9e55cff836377251589951ebda9f5593",
+      "matchesReceipt": true,
+      "ignored": true,
+      "tracked": false
+    },
+    {
+      "path": "output/segments/what-she-caught-instead.mp4",
+      "bytes": 144451,
+      "sha256": "88bbbf03b39a5fddc82965579b6e781fcd59c2f3eb29e9cc491a953677cc148f",
+      "matchesReceipt": true,
+      "ignored": true,
+      "tracked": false
+    }
+  ],
+  "smallRecords": [
+    {
+      "path": "docs/analysis/video-artifacts.json",
+      "ignored": false
+    },
+    {
+      "path": "docs/analysis/whole-capture.json",
+      "ignored": false
+    },
+    {
+      "path": "docs/analysis/motion-validation.json",
+      "ignored": false
+    },
+    {
+      "path": "docs/prompts/videos/snitch-pursuit-and-overreach.md",
+      "ignored": false
+    },
+    {
+      "path": "docs/prompts/videos/a-prize-within-reach.md",
+      "ignored": false
+    },
+    {
+      "path": "docs/prompts/videos/two-broom-rescue-transfer.md",
+      "ignored": false
+    },
+    {
+      "path": "docs/prompts/videos/what-she-caught-instead.md",
+      "ignored": false
+    },
+    {
+      "path": "docs/prompts/videos/payloads/snitch-pursuit-and-overreach.json",
+      "ignored": false
+    },
+    {
+      "path": "docs/prompts/videos/payloads/a-prize-within-reach.json",
+      "ignored": false
+    },
+    {
+      "path": "docs/prompts/videos/payloads/two-broom-rescue-transfer.json",
+      "ignored": false
+    },
+    {
+      "path": "docs/prompts/videos/payloads/what-she-caught-instead.json",
+      "ignored": false
+    }
+  ],
+  "oldWavs": [
+    {
+      "path": "assets/audio/probes/01-carina-taunt.wav",
+      "unchanged": true
+    },
+    {
+      "path": "assets/audio/probes/02-harry-recognition.wav",
+      "unchanged": true
+    },
+    {
+      "path": "assets/audio/probes/03-carina-reply.wav",
+      "unchanged": true
+    },
+    {
+      "path": "assets/audio/probes/carina-identity-reference.wav",
+      "unchanged": true
+    },
+    {
+      "path": "assets/audio/probes/harry-identity-reference.wav",
+      "unchanged": true
+    }
+  ],
+  "oldSelectedDeliveryUnchanged": true,
+  "retention": "Actual output/bundles/WAVs local-only; no durable archive verified. Git source or regeneration cannot restore exact media."
+}

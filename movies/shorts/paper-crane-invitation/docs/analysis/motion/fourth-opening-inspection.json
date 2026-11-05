@@ -1,0 +1,77 @@
+{
+  "status": "rejected-opening-candidate",
+  "implemented": [
+    0,
+    9
+  ],
+  "wholeFilm": false,
+  "checks": [
+    {
+      "stage": "lint",
+      "exit": 0,
+      "log": ".cache/video-production/fourth-batch-lint.log"
+    },
+    {
+      "stage": "evidence",
+      "exit": 0,
+      "log": ".cache/video-production/fourth-batch-evidence.log"
+    },
+    {
+      "stage": "test",
+      "exit": 1,
+      "log": ".cache/video-production/fourth-batch-test.log"
+    },
+    {
+      "stage": "build",
+      "exit": 0,
+      "log": ".cache/video-production/fourth-batch-build.log"
+    }
+  ],
+  "sourceIdentity": ".cache/video-production/fourth-source-identity.json",
+  "changedDuringRound": [],
+  "bundle": {
+    "path": ".cache/video-production/fourth-failed-bundle/assets/index-CHE24mF1.js",
+    "bytes": 1929207,
+    "sha256": "5ecf06926d1de2cb2c19e1c75bd71cb0adced9b449e89e470fdb11045ef8c508"
+  },
+  "actual": {
+    "completeFrames": 217,
+    "numericFailureFrames": 145,
+    "structuralFailures": 0,
+    "cSupportMaximum": 0.002750692275972602,
+    "hSupportMaximum": 0.004917767370502973,
+    "cWristMaximum": 0.00476529423345776,
+    "hWristMaximum": 0.004783188466894305,
+    "sourceFootProjectionMaximum": 0,
+    "sourceModels": [
+      5700,
+      5884
+    ],
+    "playbackRaf": 517,
+    "playbackDistinctFrameIndices": 217,
+    "pauseStable": true,
+    "seek": 4,
+    "consoleErrors": 0,
+    "continuousAudiencePerception": "unverified; actual normal-speed UI playback and consequential paused pixels were observed, not continuous video perception"
+  },
+  "causes": [
+    {
+      "id": "contact-definition",
+      "phenomenon": "Opposing actual material points occupy different tangent-plane positions; raw pair distance5.1–9.5mm rejected all four CPU hand cases and5.5mm rejected145owned film frames",
+      "repair": "Retain raw pair distance as telemetry; independently require actual finite paper faces/bounds, opposing normals, separating margin, zero tab-interior skin intersections and same3mm surface-contact precision. Do not pass by renaming raw gap."
+    },
+    {
+      "id": "test-discrimination",
+      "phenomenon": "Source review found reach regression applies same legs before reaching; skirt endpoint population does not establish wrap edge adjacency",
+      "repair": "Use different unapplied leg seed for reach; require a triangle sharing both wrap endpoints."
+    }
+  ],
+  "sourceReview": ".cache/video-production/review/opening-fourth-source.md",
+  "viewerData": ".cache/video-production/viewer/fourth-opening-warm.json",
+  "viewerImages": ".cache/video-production/viewer/fourth-opening-{000,036,101,144,150,170,180,212,216}.png",
+  "preservedLimits": [
+    "Only0–9implemented; no whole or segment MP4 encoded",
+    "Naturalness remains open; protected construction unchanged",
+    "Teen voice acting/listening not accepted"
+  ]
+}

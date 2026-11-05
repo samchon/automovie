@@ -1,0 +1,3 @@
+# Retained request receipts are hashed as raw bytes, including their original CRLF.
+/references/audio/synthesis-commands.json -text
+/references/audio/voxcpm-runtime.json -text

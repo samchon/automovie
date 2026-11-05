@@ -1,0 +1,119 @@
+{
+  "scope": "Actual normal source verification after new cycle transfer-helper and evidence-config changes",
+  "checks": [
+    {
+      "command": "pnpm run lint",
+      "exitCode": 0,
+      "startedAtUtc": "2026-11-04T12:39:07.1327480Z",
+      "elapsedSeconds": 90.91,
+      "log": ".cache/scene-completeness/lint-final.txt"
+    },
+    {
+      "command": "pnpm run test",
+      "exitCode": 0,
+      "startedAtUtc": "2026-11-04T12:40:38.0724010Z",
+      "elapsedSeconds": 11.388,
+      "log": ".cache/scene-completeness/test-final.txt"
+    },
+    {
+      "command": "pnpm run build",
+      "exitCode": 0,
+      "startedAtUtc": "2026-11-04T12:40:49.4612220Z",
+      "elapsedSeconds": 12.917,
+      "log": ".cache/scene-completeness/build-final.txt"
+    }
+  ],
+  "inputFiles": [
+    {
+      "path": "../../../packages/evidence/src/narrative/stripNaturalnessComments.ts",
+      "sha256": "c83310832faee12b4720d9aaab08c5ff71107fb5982c4b8ee0e7bb54976e8233"
+    },
+    {
+      "path": "../../../pnpm-lock.yaml",
+      "sha256": "b0a9f374dd3943f84c6e2d34af1c69657511e9b617e76ba2ddf206a64ecc1115"
+    },
+    {
+      "path": "../../../pnpm-workspace.yaml",
+      "sha256": "c52d269840883571b0cec74e22781687ca0eb17f3b0f51cfbf4a336cbcd44780"
+    },
+    {
+      "path": "evidence.config.ts",
+      "sha256": "ef16e9081419584d749736d7bb9d019224aa1c6e32b10c66cfb263f50be984cd"
+    },
+    {
+      "path": "lint.config.ts",
+      "sha256": "727926847abdbe37cb4c746682774f73ce58475b0355f47c79928c696c33f70e"
+    },
+    {
+      "path": "package.json",
+      "sha256": "3b7ed750a8280053f95071c774b0020f39eecd37482274b865c17e3136c743ae"
+    },
+    {
+      "path": "render.config.ts",
+      "sha256": "3f2011ecb192bd3de1ecf5faae99ff244237f31d79f29671acd1c420ce968c41"
+    },
+    {
+      "path": "scripts/render.ts",
+      "sha256": "bdc539530dd240ac44dd59af740081006cb40589a67036e126c4241026c3dd24"
+    },
+    {
+      "path": "scripts/transferScreenplay.ts",
+      "sha256": "d980b1bb8812d7ca179d0687a5ea74e7a8a411079c41c7cbdc4d5f7280569dd6"
+    },
+    {
+      "path": "src/clampProductionSeconds.ts",
+      "sha256": "9d6ea30e24fc4791f001caecb6107d8ea7383a487712ee7f96fa5010c9cf0ca4"
+    },
+    {
+      "path": "src/createProduction.ts",
+      "sha256": "83d3e11ea7e3af42c832c339adb96823942075dcc6a0c0ee7259006509c8236c"
+    },
+    {
+      "path": "src/durationSeconds.ts",
+      "sha256": "5c6bd74e33c53c3f291391a61c8fa39aa3afe1e068a56c5fd6db533e5356d2da"
+    },
+    {
+      "path": "src/main.ts",
+      "sha256": "f5a6bcb366a32c0fc8a9bf246ab69e1c7baf69de1bad850f2fe9db1bf522df2b"
+    },
+    {
+      "path": "test/features/clock/test_clamp_production_seconds.ts",
+      "sha256": "23b05668cb46d13655b6a412a2296e6cb26175504d8d2e018f5864d2c9665a02"
+    },
+    {
+      "path": "test/features/testing/test_test_execution.ts",
+      "sha256": "9beafa6093ff26362bf061888bffd96589582842a4310f1eb66940b6934ae559"
+    },
+    {
+      "path": "test/features/testing/test_test_selection.ts",
+      "sha256": "96f880ff7d5a1691a6d00773605522f5cfc45700334d245ca30b47980849a9f0"
+    },
+    {
+      "path": "test/helpers/assessTestExecution.ts",
+      "sha256": "542cd85ec191ab993348f1b63147ebd661aad65301795a3b9cc598fae89ee19c"
+    },
+    {
+      "path": "test/helpers/selectTestFiles.ts",
+      "sha256": "9985e1c8e1a9f628bac32476258f0033a462ad53cdf57d74a5ebb7f6c3b7e111"
+    },
+    {
+      "path": "test/index.ts",
+      "sha256": "67e2c7335ca15fa816f88a7b77242aa274f563a1b1478b109eb40cb0d286c784"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "b2397ec981baf72a82b124bdfd7273932854bc955d460d7523413a941941bcb7"
+    },
+    {
+      "path": "tsconfig.test.json",
+      "sha256": "f790aa679c19237136a96401807b7a1c40e787bcfcc95adb13c2d27959bbe8de"
+    },
+    {
+      "path": "vite.config.ts",
+      "sha256": "ae96dbc159bc3e2f00c29e06bc43ab2ce228d4cdbd70d87c2dbdb9e25740e52f"
+    }
+  ],
+  "inputsUnchangedDuringRound": true,
+  "changedInputs": [],
+  "dependencyLimit": "This manifest captures production program/config files, lock/workspace files and the consumed public strip helper. It does not snapshot all transitive installed or workspace source bytes; do not carry it across a later dependency/source change merely because package versions match."
+}

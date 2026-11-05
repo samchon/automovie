@@ -1,0 +1,74 @@
+{
+  "checkedAt": "2026-11-04T13:24:05.2609567Z",
+  "media": [
+    {
+      "path": "assets/audio/probes/01-carina-taunt.wav",
+      "bytes": 153644,
+      "sha256": "e80f928585e6d78879bd67b067d094547807f388af26736e3036edc782c82c1a"
+    },
+    {
+      "path": "assets/audio/probes/02-harry-recognition.wav",
+      "bytes": 122924,
+      "sha256": "625185723ea8ab35630b4b059d42d3b11cb7f35f3738a05c4688ee850bfb7982"
+    },
+    {
+      "path": "assets/audio/probes/03-carina-reply.wav",
+      "bytes": 153644,
+      "sha256": "0e7dd911f8c02b409ddb26c9429feedd351e554d51d53159020924a263938e9f"
+    },
+    {
+      "path": "assets/audio/probes/carina-identity-reference.wav",
+      "bytes": 1059884,
+      "sha256": "2375289dbc2641ad515f3b7a784870baafe658005060773e714fb33fdef65ed4"
+    },
+    {
+      "path": "assets/audio/probes/harry-identity-reference.wav",
+      "bytes": 844844,
+      "sha256": "851fdb643b79bbb005a3f58a82edb1d273754905845232d73a7d8663099b9a6c"
+    },
+    {
+      "path": "../shared-characters/media/generated/characters/carina-reference.png",
+      "bytes": 1956120,
+      "sha256": "ac4532a5ccf24983da713bd583a3a78865348754be5ee5d4db35660d105dc1a9"
+    },
+    {
+      "path": "../shared-characters/media/generated/characters/harry-reference.png",
+      "bytes": 1949680,
+      "sha256": "ca90414aa540259d8649a07e80cd72e0d14e0bd9124495f6b337603b79e33023"
+    }
+  ],
+  "comparisonIdentityOwner": "docs/analysis/expression-transfer.json and .cache/generation-record-audit/delivered-binding-closure.json independently verify frozen/working/body exact identities",
+  "deliveredBodySha256": "21d77cc7702612f8e2984bc7ae5a81cfa4cc76679b200a5004103eeaf0671cd2",
+  "ignoredMediaCount": 7,
+  "trackedMediaCount": 0,
+  "selectedSmallRecordsNotIgnored": [
+    "docs/prompts/voices/quidditch-rescue-dialogue.md",
+    "docs/prompts/voices/carina-and-harry-voice-references.md",
+    "docs/prompts/images/shared-cast-references.md",
+    "assets/audio/probes/provenance.json",
+    "assets/audio/probes/measurements.json",
+    "assets/audio/probes/runtime-source.json",
+    "docs/analysis/generation-handoff.md",
+    "docs/analysis/final-source-checks.json",
+    "docs/analysis/generation-instruction-adoption.json",
+    ".gitattributes",
+    ".automovie/scaffold-state.json"
+  ],
+  "programInputCount": 20,
+  "programInputsStillMatch": true,
+  "runtimeAttributePath": "movies/shorts/snitch-before-you/assets/audio/probes/runtime-source.json",
+  "runtimeRawGitObject": "0f71e93c16c64ade49fe91616468b77abd2b7bd7",
+  "runtimeFilteredGitObject": "0f71e93c16c64ade49fe91616468b77abd2b7bd7",
+  "earlierProbe": {
+    "method": "Absolute Windows --path context",
+    "observedFilteredObject": "de5af431c85196abb622cdb659ca45345e4f37d7",
+    "outcome": "Probe threw; complete diagnosis found Git attribute path context, not changed source bytes or attributes",
+    "capture": "Actual failed tool output retained in chat; no separate original status receipt captured"
+  },
+  "viewer": {
+    "url": "http://127.0.0.1:5201/",
+    "httpStatus": 200,
+    "listenerProcess": 32408,
+    "scope": "Empty starter HTTP readiness only; prior actual controls evidence retained separately"
+  }
+}

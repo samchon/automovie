@@ -1,0 +1,23 @@
+# Replacement screenplay construction inspection
+
+## Actual parents and submitted scope
+
+The whole one-H2 replacement scene consumes the five adopted brief H2s and seven compact settings records, whose current unfiltered settings closure passed 32/32 units with zero diagnostics. It starts at voluntary practice and ends with renewed mutual attention. There is no treatment or script population. The prior completed scene, frozen/working editions, evidence and reviews remain historical actual-byte snapshots under `.cache/scene-completeness/predecessor`; their approvals are not reused.
+
+## Whole author inspection and protected continuity
+
+The complete author reading covered the opening view, competitive wrist exchange, shot and deflection, lower-joint damage and upper retention, perception, approach, lateral evacuation, planted preparation, main-mass release/impact, residual shield, dust and debris, recovery and four preserved lines. A single initial language correction batch clarified the opening view's relation to the open court, the performers' distance and the physical fragments as the source of ticks. No parent fact or spoken line changed in that wording batch.
+
+The two adults remain the only participants. Their original right-hand wands remain with them; Harry's free left hand grips and releases in the first exchange, follows the forearm during cooperative movement and releases at Carina's later gaze. The main block descends into vacated space, not onto a magical load-bearing surface. Feet plant only in the clear west lane; the shield is a residual three-fragment response. The upright stays standing, the main cap remains one block, chips and fragments settle, grit stops and dust thins. The ending keeps rivalry and unresolved personal interest without a confession or an added danger.
+
+## Independent construction inspection
+
+A fresh body-only reader receives only the current screenplay for phase 1 and must lock a literal quotation with locator before phase-2 parents/contracts or author evidence are supplied. A separate isolated classifier tested every sentence, every paragraph's parent differentiation and the complete inherited-value inventory against actual brief/settings and selected construction definitions, without author evidence or other judgments. Its complete 77-sentence/11-notation initial table found no supported named failure. A scoped four-row comparison with the verified predecessor then confirmed the existing dialogue strings, speakers, punctuation and order without repeating the stable initial tests.
+
+The first creative reader also completed a whole-parent comparison with no supported construction finding, but an unnecessary author expectation phrase in its phase-2 handoff was immediately withdrawn and preserved in the record. That inspection is retained without being used as closing approval. A separate fresh closing context received only the annotation-free body for phase 1; its exact quote/body/lock receipt was directly verified before phase-2 paths were supplied. It then locked a complete zero-finding creative judgment before receiving author evidence or other classification results. Its initial local structural-visualization hesitation remains in the record with the complete related passages and the selected definition's boundary; it was not erased by a parent explanation.
+
+The later complete 27-answer audit found one statement error: the audiovisual-realization answer compressed grinding into the warning list before Carina's perception. The body actually puts her upward look and lowered wand before the upper-contact grind and rush. The author separated those stages in that answer without changing the scene or parents; independent correction confirmation and native closure follow. The reviewer also verified all 132 predecessor snapshot entries by existence, byte size and raw SHA, all four retained candidate WAV identities and the actual classification/source-value coverage. The body SHA256 remains `f400010669871120d07c2b5ef20c73f04cf51bb49042ef77869f3c21caa82b5d`. Construction has 21 unit and six population answers with its evidence stage active. Raw locks and audit records remain in `.cache/scene-completeness`; activation is not approval.
+
+## Execution limits
+
+The existing four WAV container durations remain 4.80, 0.64, 1.28 and 1.28 seconds; the takes are unchanged and unheard. Provisional windows do not establish contact speed, block timing, simultaneous shield response, intelligibility or a 60-second film. Neither the new settings closure nor this author reading establishes geometry, motion, rendered visibility, accepted sound or video-to-video behavior.

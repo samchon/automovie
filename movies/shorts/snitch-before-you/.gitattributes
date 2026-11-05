@@ -1,0 +1,2 @@
+# Preserve the exact copied generation-runtime receipt and its recorded raw SHA-256.
+/assets/audio/probes/runtime-source.json -text

@@ -1,0 +1,95 @@
+{
+  "recordedUtc": "2026-11-05T01:04:45.532Z",
+  "scope": "Actual encoded opening0–9 seconds ONLY. Whole60second motion hint and3causal clips remain unfinished.",
+  "artifact": {
+    "path": "output/opening-directed-paper.mp4",
+    "bytes": 450552,
+    "sha256": "3626839176751ba4d26cbf872da98e2e9f5b4ef3c186e72df6cf0fc98f380371",
+    "mimeType": "video/mp4",
+    "format": {
+      "width": 720,
+      "height": 1280,
+      "fps": 24,
+      "codec": "H264 High",
+      "pixelFormat": "yuv420p",
+      "durationSeconds": 9,
+      "encodedFrames": 216
+    },
+    "formatEvidence": ".cache/video-production/render-round/encoded/decode-and-samples.log"
+  },
+  "source": {
+    "manifest": ".cache/video-production/render-round/source-before.json",
+    "manifestSha256": "0506e1edcdb4c223e7a9c0286cc3e3bab32d83600860fbb4dea697f9601fd874",
+    "frozenBundle": ".cache/video-production/render-round/bundle-identity.json",
+    "bundleSha256": "51c29f594b7d12fe7378ea61cd9832f699bcf6aa7b48e2e6662185022b742763",
+    "viewerUrl": "http://127.0.0.1:5415/?capture=1&w=720&h=1280",
+    "command": "pnpm run render --duration 9 --name opening-directed-paper"
+  },
+  "capture": {
+    "report": "output/opening-directed-paper-capture-report.json",
+    "reportSha256": "e2b6aa84a0bdd47c2a2166b8abfac40f7c9a4ab260a625ca3f919573e86fa59f",
+    "actualState": "output/opening-directed-paper-human-frames.json",
+    "actualStateSha256": "831443646be36d02d8eb6d58230b252c560df261c689986f08ab4ea987174edc",
+    "encodedFrames": 216,
+    "firstTime": 0,
+    "lastTime": 8.958333333333334,
+    "preparedStates": 217,
+    "numericalFailures": 0,
+    "structuralFailures": 0
+  },
+  "decode": {
+    "exit": 0,
+    "frames": 216,
+    "lastPresentationSeconds": 8.958333,
+    "probeDurationSeconds": 9,
+    "log": ".cache/video-production/render-round/encoded/decode-and-samples.log"
+  },
+  "samples": [
+    {
+      "frame": 0,
+      "seconds": 0,
+      "path": ".cache/video-production/render-round/encoded/pose-001.png"
+    },
+    {
+      "frame": 36,
+      "seconds": 1.5,
+      "path": ".cache/video-production/render-round/encoded/pose-002.png"
+    },
+    {
+      "frame": 120,
+      "seconds": 5,
+      "path": ".cache/video-production/render-round/encoded/pose-003.png"
+    },
+    {
+      "frame": 144,
+      "seconds": 6,
+      "path": ".cache/video-production/render-round/encoded/pose-004.png"
+    },
+    {
+      "frame": 176,
+      "seconds": 7.333333333333333,
+      "path": ".cache/video-production/render-round/encoded/pose-005.png"
+    },
+    {
+      "frame": 212,
+      "seconds": 8.833333333333334,
+      "path": ".cache/video-production/render-round/encoded/pose-006.png"
+    },
+    {
+      "frame": 215,
+      "seconds": 8.958333333333334,
+      "path": ".cache/video-production/render-round/encoded/pose-007.png"
+    }
+  ],
+  "observations": {
+    "samplePixels": "Producer directly inspected all7 decoded samples; silhouettes/cups/bench/flight/receiving hand are present. Paper remains small or edge-on in master/catch views; independent visual closing pending.",
+    "controls": ".cache/video-production/role-round/viewer/controls.json",
+    "playProgress": ".cache/video-production/role-round/viewer/play-progression.json",
+    "method": "Existing actual-frame/control/geometry method plus actual encoded artifact; no continuous watching or audio acceptance claimed."
+  },
+  "history": {
+    "failedMediaRecorder": ".cache/video-production/role-round/viewer/recording-probe.json",
+    "retired": true
+  },
+  "retention": "Actual MP4, capture report/state and original frames locally retained/ignored; this small receipt is Git-eligible. No verified external archive."
+}

@@ -1,0 +1,53 @@
+{
+  "decoder": "@automovie/ingest",
+  "measurements": [
+    {
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/public/audio/dialogue-candidates/01-harry-ready.wav",
+      "sha256": "9d816160c036bba94fdab438d18a762047ea8fef6395a59c98d4cc286e6930bd",
+      "frames": 230400,
+      "sampleRate": 48000,
+      "channels": 1,
+      "durationSeconds": 4.8,
+      "peak": 0.23681640625,
+      "rms": 0.00949158811779983,
+      "saturatedSamples": 0,
+      "listening": "unverified; measurement does not establish hearing or words"
+    },
+    {
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/public/audio/dialogue-candidates/02-carina-are-you.wav",
+      "sha256": "725eeb8168945ef9eb98a5456079418d70ee4231125f9a4d1990d1e8a35cd7cc",
+      "frames": 30720,
+      "sampleRate": 48000,
+      "channels": 1,
+      "durationSeconds": 0.64,
+      "peak": 0.259552001953125,
+      "rms": 0.06447849156352951,
+      "saturatedSamples": 0,
+      "listening": "unverified; measurement does not establish hearing or words"
+    },
+    {
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/public/audio/dialogue-candidates/03-harry-save-me.wav",
+      "sha256": "b614971c2f9020f35c18a0bb5bb964de74e3ea878150b9678950bbed405ac794",
+      "frames": 61440,
+      "sampleRate": 48000,
+      "channels": 1,
+      "durationSeconds": 1.28,
+      "peak": 0.118804931640625,
+      "rms": 0.017248696914029187,
+      "saturatedSamples": 0,
+      "listening": "unverified; measurement does not establish hearing or words"
+    },
+    {
+      "path": "D:/github/samchon/automovie@malfoy/movies/shorts/look-at-me-duel/public/audio/dialogue-candidates/04-carina-look-at-me.wav",
+      "sha256": "ffa792cb6cec14b2557eb13401dcf99305624775e76bf1f9fba2641b8058cd94",
+      "frames": 61440,
+      "sampleRate": 48000,
+      "channels": 1,
+      "durationSeconds": 1.28,
+      "peak": 0.239349365234375,
+      "rms": 0.04067012751008401,
+      "saturatedSamples": 0,
+      "listening": "unverified; measurement does not establish hearing or words"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# Harry Potter
+
+## Identity, relationship and knowledge {#harry}
+
+Harry is Carina's school-age peer, about sixteen and 1.70 metres tall, with a slim build, fair skin, short untidy dark hair, a rounded face and plain round black glasses. His polygon figure has a charcoal torso and legs with a muted red chest band. The glasses, hair and band distinguish him from [Carina](carina.md#carina); precise facial likeness and elaborate robes are outside this short's needs. He carries nothing and has ordinary human movement and balance. His youthful male voice is middle pitched, softly rough, lightly resonant and conversational, with ordinary contemporary British pronunciation, unhurried replies and no imitated film actor.
+
+They know each other as schoolmates and address each other by surname when guarded. Their familiar rivalry permits dry replies, but neither has authority over the other's time or body. Carina would like to invite him out and expects her attempt may sound foolish; Harry is willing to hear an invitation and may accept or refuse. Neither begins with a romantic commitment. Harry cannot know a rehearsal he has not heard or read hidden writing. Carina cannot know a person has entered behind her until she hears or sees him. An accidental forehead touch creates brief surprise and mild embarrassment, not injury or a new obligation. Polite distance and a clear offered hand allow a voluntary note exchange.

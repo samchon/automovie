@@ -1,0 +1,15 @@
+# Three O'Clock creative brief
+
+## Promise and source boundary {#promise}
+
+Make one 60-second romantic comedy about Carina Malfoy's failed rehearsal becoming a real invitation to Harry Potter. Both are Hogwarts students about fifteen, as required by the user's current correction: Carina wears the Slytherin uniform and Harry the Gryffindor uniform. This is an original fan scene adopted from the conversation, not an adaptation of a verified passage. Only the two named people participate. The ending closes the invitation while leaving the future outing unseen. The title names the time she finally manages to give him. English is the sole document, dialogue, caption and title language; use ordinary contemporary British English without imitation accents or borrowed film performances.
+
+## Motion and realization {#motion}
+
+The commissioned whole motion hint uses Human polygon figures, a sparse background and very simple props. Recognizable Hogwarts collars, striped house ties, knit jumpers, open robes, school bottoms and flat shoes remain visible even when built from simple meshes. Make the comedy legible through repeated approaches, a handover that retracts, simultaneous bending and stopping, a gentle forehead bump, then a successful handoff. Wide and medium views must show the connected bodies and note; small smiles may support the action but cannot carry it alone. Keep robe fronts and cuffs clear of hands, the grounded note and the bent knees. The motion hint can constrain spatial timing, contact and object ownership for video-to-video; superiority to direct diffusion remains unverified. Avoid acrobatics, injury comedy, crowds and magical solutions.
+
+The user's scene-completeness expansion requires the used place, bench, wall, entrance, ground and audible environment to have findable definitions and actual scene use. A quiet off-route school recess with a consistent after-lessons occupancy variant preserves this private two-person comedy; no passing student is required to enact its activity. Use that actual place basis rather than an unexplained empty public square or an instruction to add background later. The exact same seven dialogue utterances, note interaction and ending remain fixed in this replacement scope.
+
+## Invitation and audience access {#invitation}
+
+Carina wants company and may retreat from embarrassment; Harry accepts without trapping, mocking or demanding disclosure. Begin with two rehearsals to an empty bench. On the third, Harry appears in the visible background without Carina noticing and replies to her vulnerable invitation. Preserve the failed note transfer, accidental gentle bump, shared aborted second bend, Harry stepping back, and Carina finally placing the note in his offered hand. End with separate touches to their foreheads and smiles neither sees. The audience knows Harry is there before Carina does. Comprehension must follow the offered paper and acceptance rather than depend on reading small handwriting. Use no narration, explanatory captions or music to announce the feelings.
