@@ -5,3 +5,5 @@ For a model or visual export, inspect it through the recipient's intended consum
 For standalone audio, use [audio acquisition and listening](../audio/acquisition.md) on the actual delivered files; picture is required only when video is commissioned.
 
 Confirm the deliverable includes its fixed inputs and provenance, source entry, dependencies, commands, outputs, usage rights or attribution and remaining limitations. Distinguish observed supported controls from untested promises. A mesh import, fit or local preview alone cannot establish that the delivered export and recipient path work.
+
+For generated assets, compare [request records](../production/generation-records.md) with their exact creative sources, submitted inputs, actual output bytes and consumer. Check retained availability separately from Git tracking and distinguish a reconstructed historical request from a contemporaneous record.

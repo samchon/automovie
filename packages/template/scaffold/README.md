@@ -21,7 +21,7 @@ Run `npm run dev`, then open [the Viewer](http://127.0.0.1:5173/). Play, pause a
 
 Keep the server running, set `CHROME_PATH` to an installed Chrome or Chromium executable, then run `npm run render`. `render.config.ts` supplies the capture URL, raster, frame rate, destinations and optional complete soundtrack through `audioMix`. FFmpeg is supplied by `ffmpeg-static`; `FFMPEG_PATH` selects another executable. `VIEWER_URL` selects another running host. Capture mode uses `?capture=1&w=1280&h=720` and the completed `__afSeek(seconds)` hook.
 
-The public Render runner writes `output/film.mp4` and the command retains `output/capture-report.json`. Export requires a whole number of frames and captures actual Viewer pixels at `i / fps`, followed by one video/audio encode. Its hashes and timings describe capture; inspect continuous playback and listen to the actual sound before accepting the film.
+The public Render runner writes `output/film.mp4` and the command retains `output/capture-report.json`. The export directory is ignored by Git; preserve its nonsecret capture receipt or sufficient measurements in tracked `docs/analysis/` and record the output's retained locator and digest under [media retention](.agents/skills/production/generation-records.md#keep-small-records-in-git-and-large-bytes-retrievable). Export requires a whole number of frames and captures actual Viewer pixels at `i / fps`, followed by one video/audio encode. Its hashes and timings describe capture; inspect continuous playback and listen to the actual sound before accepting the film.
 
 ## Make a motion hint
 
@@ -54,6 +54,7 @@ The project uses ES modules with `verbatimModuleSyntax` and `isolatedModules`: m
 - `.agents/skills` holds eight task entry points, their directly linked resources and contracts. `AGENTS.md` groups creation, implementation/evidence and assessment; `screenwriting` selects its current stage, rewriting, evidence or repair procedure.
 - `PROJECT.md` holds the project overview, commissioned scope, current choices, constraints and setup authority.
 - `docs/instructions` holds creative writing requirements; other `docs` locations hold bodies, working editions, evidence and reviews when needed. [Layout and intake](.agents/skills/production/layout.md) explains their owners.
+- `docs/prompts/<purpose>/<descriptive-name>.md` tracks recognizably named generation requests, their creative sources and input/output receipts. Use plural purpose folders and subject-and-intent names such as `voices/quidditch-dialogues.md`, keeping provider request/job IDs inside the record. Follow [generation records](.agents/skills/production/generation-records.md) before image, audio, mesh or video generation. Large bytes can use ignored `media/generated/`; keep their retained locator, digest and restoration requirements in the records because Git exclusion and prompts do not preserve accepted media.
 - `src` holds executable source and actual host entries, with optional provider or local-tool code in `src/integrations`; `test` holds tests and their runner; `public` holds retained fixed media.
 - Runtime README instructions and `.env.example` hold nonsecret setup and variable names. Keep actual secrets in ignored local `.env`.
 - `evidence.config.ts` selects duties through installed `@automovie/evidence`; `pnpm evidence` evaluates the selected native graph.
