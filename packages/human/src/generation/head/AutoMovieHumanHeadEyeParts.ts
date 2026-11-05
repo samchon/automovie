@@ -20,13 +20,13 @@ import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
  * that diameter study. Vertical/lateral placement uses the same own-side
  * pupil datum as the fissure, rather than adding a separate globe rise.
  *
- * @evidence contracts/common.md#principled-implementation Draws each outside globe from the primary table's three external dimensions, explicitly separating an ellipsoid approximation from measured diameters and placement conventions.
+ * @evidence contracts/common.md#principled-implementation Uses three external globe dimensions and the published upper-lid cubic, with independent public canthus/separation constraints. The same affine map places the photographic pupil; ellipsoid, lower-margin and AP-placement conventions remain explicit.
  * @evidence contracts/common.md#clear-and-simple-design Publishes four independent view parts for source-curve inspection; it neither constructs lids nor joins globes into skin.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no f1 geometry, retina diameter, keratometric radius or inferred refraction; emmetropia is an explicit reference convention.
- * @evidence contracts/common.md#meaningful-documentation Gives the external measurement sites, AP inclusion of cornea, units and unverified placement boundary.
- * @evidence contracts/performance.md#efficient-algorithms Two bounded globe-site lists and two bounded fissure-site lists, with lofting delegated to the engine.
- * @evidence contracts/performance.md#reuse-equivalent-work One declared outside-diameter table supplies the three views of both globes.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned views and retains only a six-number immutable diameter table.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no f1 fit, retina/keratometric substitution, fabricated lid thickness or realized-opening claim; emmetropia and lower/MRD transfer are declared conventions.
+ * @evidence contracts/common.md#meaningful-documentation Gives external measurement sites, cornea-inclusive AP, exact cubic parameter/jet meaning, template pupil and the independent-study boundary.
+ * @evidence contracts/performance.md#efficient-algorithms One bounded pupil inversion, two thirteen-site globes and two bounded fissure-site lists supply original views; the engine owns interpolation and lofting.
+ * @evidence contracts/performance.md#reuse-equivalent-work Both margins and their source axis use linear combinations of the identical primary controls; the own-side pupil also places its globe.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned source records and retains fixed immutable diameter data, without a global person, source image or prepared callback.
  */
 export namespace AutoMovieHumanHeadEyeParts {
   /**
@@ -45,13 +45,13 @@ export namespace AutoMovieHumanHeadEyeParts {
   /**
    * Draw both external globes and fissures in their shared pupil frames, calibration mm.
    *
-   * @evidence contracts/common.md#principled-implementation Front and side globe curves are the same ellipsoid's sections about its AP axis; the own-side fissure supplies the globe's pupil height and lateral position.
-   * @evidence contracts/common.md#clear-and-simple-design Builds views only, leaving realization and eye-tree connection until source curves have been inspected.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not replace the independently authored fissure dimensions with globe diameters or publish a lid that has not been drawn.
-   * @evidence contracts/common.md#meaningful-documentation States the original view frame, units, placement convention and numerical interpolation boundary.
-   * @evidence contracts/performance.md#efficient-algorithms Fixed thirteen sites per globe and four outline arrays.
-   * @evidence contracts/performance.md#reuse-equivalent-work The same stations and radii supply all four support curves.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources All arrays and frame functions belong to the returned four parts.
+   * @evidence contracts/common.md#principled-implementation Fixes en-ex as a 3D chord and en-en between shared-height nasal endpoints, maps the source photo's pupil by the same affine function as the upper cubic, and closes supplied pupil-aligned margin separation with the stated MRD split. Each outside globe uses its three external dimensions in that own-side pupil frame.
+   * @evidence contracts/common.md#clear-and-simple-design Publishes two globe and two fissure views only. Common cubic controls define each fissure's parallel origin and signed guides; realization and lid/tree connection remain separate.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Imports published controls directly; there is no private FISSURE completion, reference fit, fake lid thickness or substitution of globe diameters for supplied fissure dimensions.
+   * @evidence contracts/common.md#meaningful-documentation States endpoint mapping, exact normalized cubic jets, template pupil, lower-curve convention, outside diameters, AP allowance and unconnected-study scope.
+   * @evidence contracts/performance.md#efficient-algorithms One bounded sixty-step source-pupil inversion and two thirteen-site globes precede at most thirty-four fissure evaluation sites per side. Three value/first/second-jet knots declare each cubic without a sampled refit.
+   * @evidence contracts/performance.md#reuse-equivalent-work Linear combinations of the same four controls supply upper/lower guides and origin; the resulting own-side pupil places its globe. No cross-input cache changes identity or invalidation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources All source arrays and frame functions belong to the returned four parts; no person, source image or asynchronous handle is retained globally.
    */
   export function of(plan: IAutoMovieHumanHeadLayout): IAutoMovieViewPart[] {
     const k: number = plan.scale;
@@ -101,14 +101,6 @@ export namespace AutoMovieHumanHeadEyeParts {
    * upper margin and origin share the affine-mapped cubic's parameter;
    * the lower residual is a parabola in that parameter, not a photographed
    * lower-lid course.
-   *
-   * @evidence contracts/common.md#principled-implementation Fixes en-ex as a 3D chord and en-en between shared-height nasal endpoints, maps the source photo's actual pupil origin with the same affine function as its upper cubic, then closes the supplied pupil separation with the separately stated MRD split.
-   * @evidence contracts/common.md#clear-and-simple-design Affine control mapping supplies one common cubic parameter for the original upper/lower guides and their parallel-plane origin.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Imports the published controls directly; no private FISSURE completion, reference fit, fake lid thickness or realized-opening claim.
-   * @evidence contracts/common.md#meaningful-documentation Names the endpoint mapping, lower-curve convention, pupil metric and cutter-only meaning.
-   * @evidence contracts/performance.md#efficient-algorithms One bounded sixty-step inversion locates the source pupil. Three exact value/jet knots declare each cubic; section-evaluation stations do not refit it.
-   * @evidence contracts/performance.md#reuse-equivalent-work Linear combinations of the same four controls supply the frame origin and both supporting curves.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns call-owned source views and retains no person or source image.
    */
   function openings(plan: IAutoMovieHumanHeadLayout, seat: number): { part: IAutoMovieViewPart; pupil: [number, number, number] }[] {
     const controls: readonly (readonly [number, number])[] = AutoMovieHumanReferenceOutlines.SHIN_UPPER_LID[plan.sex === 1 ? "female" : "male"];

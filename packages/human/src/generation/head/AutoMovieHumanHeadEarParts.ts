@@ -24,6 +24,14 @@ import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
  * declared modelling conventions, not individual survey predictions.
  * Zhu's female depth means are not a sex-specific law for all adults.
  * Tragus, antitragus, canal trim and lining remain unbuilt requirements.
+ *
+ * @evidence contracts/common.md#principled-implementation Authors each side from its own public dimensions and actual source plate. The helix centreline is offset inside the declared outer rim, while the antihelix and crura retain an explicit nonzero fork. Concha size/depth keep their distinct primary definitions and stated placement conventions.
+ * @evidence contracts/common.md#clear-and-simple-design One plate per side supplies the four relief courses and conchal frame; the production tree owns their joins.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no reference fit, unused forward-centre correction, fake cartilage thickness or parent-foot relocation. Plate chords and sampled guide bounds do not certify whole-ear extrema or joined skin.
+ * @evidence contracts/common.md#meaningful-documentation Names public measurements, retained breadth scaling, normal/placement conventions and the still-unbuilt tragal/canal anatomy.
+ * @evidence contracts/performance.md#efficient-algorithms Two fixed-size side assemblies perform original-head orientation/scalp reads and a bounded helix-source solve before returning twelve features; all lofts remain the composer's work.
+ * @evidence contracts/performance.md#reuse-equivalent-work All courses on one side share the same plate and prepared plate guide; there is no cross-input cache or second ear assembly.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The composer owns the returned views and join metadata. Source preparations and course-solve temporaries remain call-local, with no global figure retention.
  */
 export namespace AutoMovieHumanHeadEarParts {
   /** Depth of a part's base inside its parent, mm. */
@@ -33,8 +41,17 @@ export namespace AutoMovieHumanHeadEarParts {
    * Both auricles and their parts.
    *
    * @param plan The landmark skeleton.
+   * @param mass The actual original head source shared by this composition.
    * @param ears The two auricles' inputs, world mm.
    * @param tops Each auricle's top height, calibration mm, from its published place over the tragion.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the source plate's c-j/p2/sa-sba frame for each own-side ear. The helix offset uses its existing circular section radius and an engine natural-source height bound; the conchal rim projects its long direction into its own plane.
+   * @evidence contracts/common.md#clear-and-simple-design Keeps plate placement, four ridge courses and one conchal cut together while returning their original views and explicit parents for the tree.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no anatomical radius, reference displacement, endpoint clamp, private spline or post-join relocation. Failed source preparation remains an error.
+   * @evidence contracts/common.md#meaningful-documentation Documents units, own-side inputs, original plate/relief roles, source-envelope scope and unresolved joins; helper prose explains the offset without claiming final attachment.
+   * @evidence contracts/performance.md#efficient-algorithms Each side makes fixed-size orientation/scalp reads and course arrays, with at most sixty-four helix-control bisections using the engine's bounded scalar extrema query. Head-source preparation cost follows its knot count; no head is lofted here.
+   * @evidence contracts/performance.md#reuse-equivalent-work One frame/plate and prepared guide serve every relief on that side. The helix solve uses the same cumulative-chord/natural-source convention as the emitted ridge axis.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned feature sources belong to the caller. Only their small course/source records survive; temporary preparations and callbacks have no global owner or cache.
    */
   export function of(
     plan: IAutoMovieHumanHeadLayout,
@@ -106,14 +123,6 @@ export namespace AutoMovieHumanHeadEarParts {
    * source control then solves the exact natural-axis height bound T-R;
    * this is a public anatomical envelope, never a reference or mesh fit.
    * Original guide observations still judge the whole resulting course.
-   *
-   * @evidence contracts/common.md#principled-implementation Places the circular ridge inside its supplied rim and bounds its original natural course against the selected superaurale height minus that same radius.
-   * @evidence contracts/common.md#clear-and-simple-design One source-control solve uses the engine's actual scalar owner and the ridge's cumulative-chord parameter.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no radius, skin patch, reference displacement, endpoint clamp or new spline implementation.
-   * @evidence contracts/common.md#meaningful-documentation Separates outer boundary, offset centreline, prior radius and source-envelope constraint from final join success.
-   * @evidence contracts/performance.md#efficient-algorithms At most sixty-four fixed-size scalar preparations and bounded-degree critical-point reads; no loft or mesh is used by the solve.
-   * @evidence contracts/performance.md#reuse-equivalent-work Uses the same engine natural source and cumulative chord convention as the ridge axis.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned small course survives; scalar preparations are call-local.
    */
   function insetHelix(boundary: [number, number, number][], plate: AutoMovieHumanHeadEarPlate.IOutput, radius: number): [number, number, number][] {
     const middle: number = (plate.top + plate.bottom) / 2;
