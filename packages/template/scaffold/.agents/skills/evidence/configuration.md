@@ -1,15 +1,17 @@
 # Evidence configuration
 
-Make the graph select the work and respondents that can establish the requested deliverable. Read the adopted requirements and [contracts](SKILL.md), then choose the route, population, and owners under [scope](scope.md). A screenplay, a film-generation hint, a finished film, and a standalone asset have different output observations; selecting one does not claim a later deliverable exists.
+Make `evidence.config.ts` select the work the commission actually has. Read the installed `@automovie/evidence` README and types for its options and `@wrtnlabs/evidence` for selectors and annotations; do not copy their factories or document their API here.
 
-Read the installed `@automovie/evidence` README, public types, and JSDoc before changing the production's `evidence.config.ts`. They own supported options, native graph composition and checking behavior. Installed `@wrtnlabs/evidence` documentation owns native selectors, annotations, addresses, and fingerprints. Use those APIs rather than copying a factory or maintaining local API instructions.
+## Engineering
 
-Choose `mode: "short-with-settings"` for a short with separately authored compact canon: enable settings and screenplay construction as their complete drafts become ready and screenplay naturalness for its expression edition. Treatments, scripts and outline remain disabled. Plain `short` has no settings stage; do not activate one by inference from file presence.
+Keep the default engineering claims: every source declaration and test answers its [development contracts](../contracts/development/SKILL.md). Turn on `development: { assets, motion, shots }` as each of `src/assets/`, `src/motion/` and `src/shots/` gains its first function, so motion cites the studies it follows and shots cite the screenplay units they execute.
 
-Keep one production configuration object and retain its engineering baseline when adding narrative duties. Bind each work or language requirement to its actual respondent population, layer and pass. Align questions, hosts, actual parents and the [current direct review mirror](../production/layout.md#source-ownership); narrowing a selector cannot repair the work.
+## Story
 
-Scripts expression questions and population obligations use scripts construction and its body, including additional work contracts with `pass: "draft"`. Only screenplay expression revision uses `pass: "final"` and its naturalness stage. A contract directory named `naturalness` does not select its respondent pass. Long screenplay consumes approved treatments and scripts construction; neither `naturalness.scripts` nor an alternate scripts-source tuple is supported.
+Choose the mode from the route [workflow](../story/workflow.md#route-and-parents) adopted: `long`, `short` or `short-with-settings`. Enable each layer's construction and the screenplay's naturalness stage as its complete draft becomes ready; a stage is never activated by file presence. Set `research: "evidence"` once the performance studies exist. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
 
-For a scope or layout change, inspect all affected populations and relationships together, including material outside a pilot and separately selected engineering duties. Resolve ownership before changing selections. [Upstream repair](../screenwriting/repair.md) owns changes that touch closed narrative proof or scope; preserve its boundary when updating the graph.
+Scripts expression and population questions use scripts construction with `pass: "draft"`; only screenplay expression uses `pass: "final"`. A contract folder named `naturalness` does not choose its pass.
 
-Hand a consistent configuration to [source, asset and delivery evidence](answering.md) for those answers, or [narrative evidence](../screenwriting/evidence/writing.md) for creative work. Narrative [writing workflow](../screenwriting/workflow.md) owns construction submission and pass checks, and [rewriting procedure](../screenwriting/rewriting/procedure.md) owns expression transfer; media [finishing](../production/finishing.md) owns the actual assembled output. Configuration and mechanical coverage grant neither creative approval nor output acceptance.
+## Changing the graph
+
+Inspect every affected population and relationship together, including those outside a pilot and the engineering claims. Closed narrative work keeps its boundary under [upstream repair](../story/correction/repair.md#closed-passes). Narrowing a selector cannot repair the work.

@@ -8,9 +8,12 @@ Apply [Modularization](modularization.md) to direct placement and rebuilds alike
 
 ## Source
 
-1. Use the model or service the user chooses, local or paid.
-2. Save the generated file with the model, version, seed, prompt, and inputs that produced it. The saved file, not the prompt, is the reproducible source.
-3. Treat the source as approximate: views of one generation disagree, and hidden sides are invented.
+1. Use the model or service the user chooses, local or paid, choosing between a generated mesh, multiview acquisition with recovery, or a 3D service by the control the asset needs.
+2. Freeze the selected file and its sidecars with their hashes, the model, version, seed, prompt, inputs, acquisition settings and usage terms. The frozen file, not the prompt, is the reproducible source; a URL, model name or seed alone does not identify it.
+3. Keep the original apart from converted, simplified or recovered derivatives, and record which source each derivative consumes.
+4. Treat the source as approximate: views of one generation disagree, and hidden sides are invented.
+
+A generated 2D image can serve as appearance reference; it supplies no geometry until an image-to-geometry method turns it into a source.
 
 ## Placement Or Rebuild
 
@@ -24,7 +27,7 @@ Recover or rebuild when the required editing, parameter control, deformation or 
 2. For a fixed mesh, follow [Recovery](recovery.md) to extract and reconstruct its numerical shape. Image-only sources need a separate image-to-geometry method before mesh recovery applies.
 3. When the asset must vary, derive the shared dimensions and formulas under [Crafting](crafting.md); recovered source coefficients alone do not establish parameter behavior.
 4. Remove the baked lighting from its texture and split it into the renderer's material channels.
-5. Rig a moving asset on the engine's skeleton for its kind, treating any generated rig or weights as a first guess.
+5. Rig a moving asset on the engine's skeleton for its kind under [Rigging](rigging.md), treating any generated rig or weights as a first guess.
 
 ## Verification
 
