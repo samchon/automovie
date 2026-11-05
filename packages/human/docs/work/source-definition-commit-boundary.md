@@ -1,12 +1,12 @@
-# Current source-definition commit boundary
+# Atomic source-definition commit boundary
 
-This is the exact 88-path whole-file selection requested by the supervisor, who authorized BODY as the single Git writer. Both modelers reconciled the current source and completed its coupled question round; this document itself is not a commit, isolated committed-tree compile result or new visual acceptance. CORE's original-source/jet/range/material-roll/affine-support APIs are already committed prerequisites. No compatibility overload or temporary alternate builder is proposed merely to make a smaller commit.
+This is the exact 88-path whole-file selection requested by the supervisor, who authorized BODY as the single Git writer. It settled as `c64b249f6c08c109ba0c852d91d8bfcf8c5f1e02`; the exact path selection, attribution and unchanged outside index were directly verified at 2026-11-05 08:10:51 +09:00. Both modelers reconciled that source and completed its coupled question round, with the failures and limits below. This document is not an isolated committed-tree compile result or new visual acceptance. CORE's original-source/jet/range/material-roll/affine-support APIs are committed prerequisites. Later toe-depth and head-caliper changes are separate source snapshots, not retroactive results of this topic. No compatibility overload or temporary alternate builder was added merely to make a smaller commit.
 
 ## Why the model boundary is atomic
 
-Committed BodyLaw calls the old HeadConstruction and passes a neck chain to HeadLane/NeckConstruction. The current HEAD APIs require NeckSource and required HeadInputs context. Current BodyLaw also calls BodyLane.define/realize and SkeletonLaw.define, shares the actual pure hand records and publishes the real head source composition. BodyLane consumes HeadLane.skeleton and the new toe declaration; LaneInterim consumes the shared foot definition. Therefore the current HEAD runtime files, BODY source files and shared calibration contract cannot each be committed independently as whole files while keeping the committed tree compilable.
+Before that atomic commit, committed BodyLaw called the old HeadConstruction and passed a neck chain to HeadLane/NeckConstruction. The new HEAD APIs require NeckSource and required HeadInputs context. The replaced BodyLaw also calls BodyLane.define/realize and SkeletonLaw.define, shares the actual pure hand records and publishes the real head source composition. BodyLane consumes HeadLane.skeleton and the new toe declaration; LaneInterim consumes the shared foot definition. Therefore those HEAD runtime files, BODY source files and shared calibration contract could not each be committed independently as whole files while keeping the committed tree compilable.
 
-The existing committed debug HeadParts and ViewParts are actual callers of the old chain-based head layout. They must move with that API. Comparison's current ViewParts output also makes raw loft nullable and changes source/diagnostic ownership. Its old Curves/Deviation/loader consumers cannot compile against that output unchanged. The current whole-file viewer closure consequently reaches native/reference/cache, subject/mount, page-work and camera/control consumers. Splitting those files further would require a separate semantic edit, not simply selecting paths.
+The old committed debug HeadParts and ViewParts were actual callers of the chain-based head layout and moved with that API. Comparison's replaced ViewParts output also makes raw loft nullable and changes source/diagnostic ownership. Its old Curves/Deviation/loader consumers cannot compile against that output unchanged. That whole-file viewer closure consequently reached native/reference/cache, subject/mount, page-work and camera/control consumers. Splitting those files further would have required a separate semantic edit, not simply selecting paths.
 
 ## BODY-owned production source paths
 
@@ -151,3 +151,65 @@ At the 08:05:29 observation all 78 selected runtime/test file hashes were unchan
 HTTP server, boot-marker and Vite configuration changes belong to PERF's separate operational topic: they do not change the model API. BODY's `AutoMovieHumanFootSurface.ts`/`AutoMovieHumanFootCourse.ts` and their foot-preparation/surface tests are an optional rigid-display reader migration, not the original-source definition. The two final-body diagnostic tests and pending final anatomy, joins, rig and viewer acceptance are not declared verified by the source-only topic. Commentary-only source notes and the audit/logs may follow their owning topic.
 
 The proposed order is committed CORE prerequisites, one atomic Human production-source plus required actual-consumer topic, then PERF's independent server/operational and BODY's optional display-reader topics. Each owner stages only its explicitly agreed paths; a single reviewed combined path manifest is necessary for the atomic commit, with explicit `--only` and Codex co-authorship. No worker should commit another owner's staged content by using a bare commit command. The supervisor coordinates that combined boundary and push timing. The GPU/proof dependency does not prohibit source-only commits, but no new reference frame, valid whole f1, final skin or overall campaign completion is claimed.
+
+## Next source topic under inspection, separate from c64b249f6c
+
+This selection was exercised by shared round 36619, launched by Frame at its reported 2026-11-05 10:02:51.413 +09:00. The round completed 57/62 in 101,508 ms and was naturally reaped with exit 1. All results, all five failure bodies and the raw source observations were read. BODY's last source save remains 09:57:28.8664026. The two modelers' actual raw neck and the old trunk receiver must move together: BodyLaw passes the identical head mass into NeckConstruction, while the old upper chain requires its frame-relative coefficient interpretation and world boundary jets. Final realization and current reference PNG acceptance remain absent.
+
+BODY definition, source curves and mass passed, as did HEAD records and independent neck-source checks. The actual cap sign/range, nonzero root-parameter jets, neck boundary product rule, retained intermediate thigh rows, public leg tapes and previous hand/foot expectations added no finding. The unchanged moving-frame median checks now observe positive clearance; their finite source observations are not an interval certificate. HEAD source retained one auricle endpoint-domain query failure. The four other failures belong to CORE's solid-body, extreme-girth, chart-region and phase-fidelity questions. None is converted into a whole-shape or final-skin pass by the empty definition diagnostics.
+
+HEAD explicitly authorized its exact ten paths for this topic after reading the completed round. Its additional test caller classification was reported at 10:15:10: the original counterfactual query and strict domain are preserved, with either a point or its original error stored as context. That post-round test change is unexecuted and is not retroactively covered by 36619. The actual public endpoint expectation is unchanged. No future neck-circle, named-course or three-dimensional tape geometry is part of this selection.
+
+The 10:28:14 review confirmed 33 unique existing paths and a maximum selected TypeScript size of 462 lines. BODY's only post-round source difference is SiteViewPart's 10:24:29.7997058 comment correction: a declared closing point alone does not certify final-surface G2. All executable statements and expectations retain the completed BODY epoch. The reviewed inventory is `.shots/body_xhigh/source-topic-33-inventory.json`, with disk hashes only. Test 10:25:04 and debug 10:24:30 completed clean; their newer 10:27:38 cycles were still pending at that observation.
+
+Frame owns the required provider export in `packages/engine/src/geometry/construction/index.ts`; that exact public namespace connection must settle before the Human consumer. It is not authority to include other staged engine files. No new private import, validator copy or compatibility overload is proposed.
+
+BODY's seventeen runtime and three test paths are:
+
+```text
+packages/human/src/generation/AutoMovieHumanBodyLane.ts
+packages/human/src/generation/AutoMovieHumanBodyLaneInterim.ts
+packages/human/src/generation/AutoMovieHumanTrunkChains.ts
+packages/human/src/generation/AutoMovieHumanTrunkNeckSeat.ts
+packages/human/src/generation/foot/AutoMovieHumanFootInterim.ts
+packages/human/src/generation/leg/AutoMovieHumanLegLaws.ts
+packages/human/src/generation/leg/AutoMovieHumanLegWalk.ts
+packages/human/src/generation/limb/AutoMovieHumanMassPart.ts
+packages/human/src/generation/limb/AutoMovieHumanSiteViewPart.ts
+packages/human/src/generation/trunk/AutoMovieHumanMassInterim.ts
+packages/human/src/generation/trunk/AutoMovieHumanTrunkBuild.ts
+packages/human/src/generation/trunk/AutoMovieHumanTrunkInterim.ts
+packages/human/src/generation/trunk/AutoMovieHumanTrunkLaws.ts
+packages/human/src/generation/trunk/AutoMovieHumanTrunkMassPlacement.ts
+packages/human/src/generation/trunk/AutoMovieHumanTrunkTape.ts
+packages/human/src/generation/trunk/AutoMovieHumanTrunkViewPart.ts
+packages/human/src/generation/trunk/AutoMovieHumanTrunkViews.ts
+test/src/features/human/limb/piece/test_human_body_definition.ts
+test/src/features/human/limb/piece/test_human_body_source_curves.ts
+test/src/features/human/limb/piece/test_human_limb_piece_mass.ts
+```
+
+HEAD supplied four runtime/shared paths and three test/helper paths:
+
+```text
+packages/human/src/generation/AutoMovieHumanBodyLaw.ts
+packages/human/src/generation/AutoMovieHumanNeckConstruction.ts
+packages/human/src/generation/AutoMovieHumanNeckSource.ts
+packages/human/src/generation/head/AutoMovieHumanHeadSectionConstraints.ts
+test/src/features/human/limb/piece/test_human_head_source_curves.ts
+test/src/features/human/limb/piece/test_human_neck_source_curves.ts
+test/src/features/internal/HumanHeadSourceSection.ts
+```
+
+The six owner documents are:
+
+```text
+packages/human/docs/work/log-body.md
+packages/human/docs/work/body-input-source-audit.md
+packages/human/docs/work/source-definition-commit-boundary.md
+packages/human/docs/work/log-head.md
+packages/human/docs/work/head-input-delivery-audit.md
+packages/human/docs/techniques/head-pieces.md
+```
+
+This is 33 Human paths: 21 runtime paths, six tests/helpers and six documents, with the Frame provider kept separately. BODY owns its twenty source/test paths and three documents; HEAD explicitly agreed to its seven source/test paths and three documents. It excludes the optional legacy FootSurface/FootCourse/final-body tests, PERF's skin:false consumer/operational changes and every other owner's staged topic. BODY is the proposed single exact-path writer after the Frame prerequisite settles and the supervisor assigns the short Git slot. No staging or commit of this selection has started.

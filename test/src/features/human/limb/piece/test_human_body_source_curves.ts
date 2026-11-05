@@ -1,7 +1,8 @@
-import { type AutoMovieLoftContract, AutoMovieViewCurves, AutoMovieViewOutline, type IAutoMovieViewPart } from "@automovie/engine";
+import { type AutoMovieLoftContract, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
 import { AutoMovieHumanBodyAnatomy } from "../../../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../../../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanFootPrior } from "../../../../../../packages/human/src/generation/AutoMovieHumanFootPrior";
+import { AutoMovieHumanFootPlaces } from "../../../../../../packages/human/src/generation/AutoMovieHumanFootPlaces";
 import { AutoMovieHumanLegPrior } from "../../../../../../packages/human/src/generation/AutoMovieHumanLegPrior";
 import { AutoMovieHumanArmBones } from "../../../../../../packages/human/src/generation/arm/AutoMovieHumanArmBones";
 import { AutoMovieHumanArmInterim } from "../../../../../../packages/human/src/generation/arm/AutoMovieHumanArmInterim";
@@ -32,9 +33,14 @@ import { HumanPeople } from "../../../internal/HumanPeople";
  *    actual source curves; a declared skin apex receives its pulp only once.
  * 3. Every finding retains the actual frame and material coordinate, so a
  *    sampled counterexample is not confused with a proof of a whole span.
+ * 4. Intermediate thigh-profile rows retain all five original public tape identities.
+ *    Their independent expected girths are the resolved public thigh,
+ *    lower-thigh, knee, calf and ankle inputs, each within the section
+ *    owner's existing 1e-6 mm solve boundary; the retained profile cannot
+ *    supply an expected tape or replace its named source station.
  *
- * @evidence contracts/testing.md#behavioral-verification Reads production limbInputs, pure joint definitions, one actual shared foot/toe record and the ArmWalk, LegWalk, FootPart, ToePart and DigitWalk builders. Collects omitted sources, original-source diagnostics, median/floor/length counterexamples, whole metatarsal group breadth, lost root identity, public ball mismatch, absent forearm ownership and extra pulp reach before failing once. Group support independently reads the emitted original curves and actual declared affine axis through engine critical queries; it never calls the production normalizer.
- * @evidence contracts/testing.md#independent-expectations Legs stay in their world median half-spaces, standing foot/toe curves stay above floor0, public ball length owns the first root's along place, every digit retains source curves, and an apex receives pulp only once. Foot L includes all toe guides. The entire metatarsal group closes unchanged public B within 1e-6 mm; its bare host retains its own subset support metadata. Multiplying only public B by 1.25 scales every across source by 1.25 and preserves along, Y, named sites, source jets and ranges within the existing 1e-9 mm frame-replay allowance. Forearm girth owns its named site. No reference residual is fitted.
+ * @evidence contracts/testing.md#behavioral-verification Reads production limbInputs, pure joint definitions, one actual shared foot/toe record and the ArmWalk, LegWalk, FootPart, ToePart and DigitWalk builders. Collects every source/median/floor/length/group-breadth/root/ball/forearm/pulp finding before failing once. Group support reads emitted original curves/axes, never the normalizer. Each distal toe depth is checked separately from the aggregate envelope. All five public leg tapes are read through the actual original edges/fullness after retained intermediate shape rows are inserted.
+ * @evidence contracts/testing.md#independent-expectations Legs stay in their world median half-spaces, standing foot/toe curves stay above floor0, public ball length owns the first root's along place, every digit retains source curves, and an apex receives pulp only once. Foot L includes all toe guides. The entire metatarsal group closes unchanged public B within 1e-6 mm; its bare host retains its own subset support metadata. Multiplying only public B by 1.25 scales every across source by 1.25 and preserves along, Y, named sites, source jets and ranges within the existing 1e-9 mm frame-replay allowance. Each distal toe depth is its retained individual D/B ratio times the original per-L across-gap width, not the greatest dorsum of all toes; this verifies a declared proxy transfer, not anatomical validation. Forearm girth owns its named site. No reference residual is fitted.
  * @evidence contracts/testing.md#distinguishing-cases Both sides and every digit use environment-selected HumanPeople.names. Fixed up/across planes, actual two-endpoint affine origins and the foot-along region permit slope-plus-edge critical queries including the pole-angle sine term; sampled world points add counterexamples without supplying normalization. Binary64 critical candidates are not interval certification, and a moving-frame sampled pass proves no continuous bound. Reference overlays still own placement acceptance.
  * @evidence contracts/testing.md#execution-ownership This synchronous CPU test resolves only public inputs and source parts; it does not call HumanPeople.person, realize a composed body, emit skin, start a process or use a viewer/GPU.
  */
@@ -65,6 +71,7 @@ export function test_human_body_source_curves(): void {
       if (!(calf.edges[0] < -calf.edges[2])) defects.push(`${name}/leg.${side}: calf whole-skin support does not stand behind its bone`);
       const leg: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanLegWalk.create(`leg.${side}`, bones, law, 3.5);
       read(`${name}/leg.${side}`, leg, defects);
+      legTapes(`${name}/leg.${side}`, leg, measures, scale, defects);
       const medial: ICounterexample | undefined = worstAll(leg, 2, sign, defects);
       console.log(JSON.stringify({ person: name, part: `leg.${side}`, sidePositive: leg.part?.side.positive.knots, sideNegative: leg.part?.side.negative.knots, medial }));
       if (medial !== undefined && medial.value < -1e-6) defects.push(`${name}/leg.${side}: world medial curve crosses the median by ${-medial.value} mm at station ${medial.station}`);
@@ -88,11 +95,20 @@ export function test_human_body_source_curves(): void {
       const footProjection: IProjection = projected(foot, footInput, defects);
       if (footProjection.minimum !== undefined) metatarsalSamples.push(footProjection.minimum);
       if (footProjection.maximum !== undefined) metatarsalSamples.push(footProjection.maximum);
-      for (const attachment of footSource.toes) {
+      for (const [index, attachment] of footSource.toes.entries()) {
         const toe: AutoMovieHumanToePart.IInput = attachment.part;
         if (toe.centres[1] !== attachment.root) defects.push(`${name}/${toe.name}: generating root lost its source-record identity`);
         const result: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanToePart.create(toe);
         read(`${name}/${toe.name}`, result, defects);
+        const patterns: typeof AutoMovieHumanFootPlaces.TOES = AutoMovieHumanFootPlaces.TOES;
+        const gaps: number[] = [];
+        if (index > 0) gaps.push(Math.abs(patterns[index]!.across - patterns[index - 1]!.across));
+        if (index + 1 < patterns.length) gaps.push(Math.abs(patterns[index + 1]!.across - patterns[index]!.across));
+        const expectedDepth: number = AutoMovieHumanFootPrior.PRIOR.toes[index]!.depth * gaps.reduce((sum: number, value: number): number => sum + value, 0) / gaps.length * inputs.feet[side].length;
+        const upperEnd: number | undefined = result.part?.front.positive.knots.find((k: IAutoMovieViewPart.IKnot): boolean => k.site === "end")?.value;
+        const lowerEnd: number | undefined = result.part?.front.negative.knots.find((k: IAutoMovieViewPart.IKnot): boolean => k.site === "end")?.value;
+        const actualDepth: number = (upperEnd ?? NaN) - (lowerEnd ?? NaN);
+        if (!Number.isFinite(actualDepth) || Math.abs(actualDepth - expectedDepth) > 1e-9) defects.push(`${name}/${toe.name}: distal source depth ${actualDepth} mm does not retain its individual aspect/packing definition ${expectedDepth} mm`);
         if (result.part !== null) for (const point of [...toe.centres, toe.apex]) {
           const station: number = point.reduce((sum: number, value: number, axis: number): number => sum + (value - toe.centres[0]![axis]!) * toe.along[axis]!, 0);
           const actual: Vec3 = result.part.axis.at(station).origin;
@@ -101,7 +117,7 @@ export function test_human_body_source_curves(): void {
         }
         const toeFloor: ICounterexample | undefined = worstAll(result, 1, 1, defects);
         if (toeFloor !== undefined && toeFloor.value < -1e-6) defects.push(`${name}/${toe.name}: original toe curve crosses the floor by ${-toeFloor.value} mm at station ${toeFloor.station}`);
-        console.log(JSON.stringify({ person: name, part: toe.name, generatingRoot: attachment.root, generatedApex: attachment.apex, toeFloor }));
+        console.log(JSON.stringify({ person: name, part: toe.name, generatingRoot: attachment.root, generatedApex: attachment.apex, distalSourceDepth: actualDepth, retainedAspectDepth: expectedDepth, proximalOverlapDepth: toe.law("base").depth, toeFloor }));
         const projection: IProjection = projected(result, footInput, defects);
         foremost = Math.max(foremost, projection.foremost);
         if (projection.minimum !== undefined) metatarsalSamples.push(projection.minimum);
@@ -168,6 +184,29 @@ function transverseFamily(base: AutoMovieHumanFootInterim.IDefinition, changed: 
       for (const q of [0, 1, 2, 3] as const) if (Math.abs(b.edges[q] - a.edges[q] * (q % 2 === 1 ? ratio : 1)) > 1e-9) defects.push(`${before.name}/${a.site}: edge ${q} violates the common across-only family`);
     }
   }
+}
+
+/** Read all five public tape sections from the actual four source edges and fullness. Expected girths come directly from public resolved inputs, not the intermediate profile or box solver; extra rows cannot replace a public identity. Source sections are distinct from final joined skin. */
+function legTapes(name: string, result: AutoMovieHumanSiteViewPart.IResult, measures: IAutoMovieHumanBodyMeasures, scale: number, defects: string[]): void {
+  const part: IAutoMovieViewPart | null = result.part;
+  if (part === null || part.fullness.kind !== "shoulder") return;
+  const shoulder: ReturnType<typeof AutoMovieViewOutline.create> = AutoMovieViewOutline.create(part.fullness.shoulder);
+  if ("detail" in shoulder) { defects.push(`${name}: tape fullness ${shoulder.detail}`); return; }
+  const expected: Record<string, number> = { thigh: measures.thighCircumference, lowerThigh: measures.lowerThighCircumference, knee: measures.kneeCircumference, calf: measures.calfCircumference, ankle: measures.ankleCircumference };
+  const curves: AutoMovieViewCurves.ICurve[] = AutoMovieViewCurves.create(part).curves;
+  const rows: { site: string; girth: number; expected: number }[] = [];
+  for (const [site, girth] of Object.entries(expected)) {
+    const station: number | undefined = part.front.positive.knots.find((knot: IAutoMovieViewPart.IKnot): boolean => knot.site === site)?.station;
+    if (station === undefined) { defects.push(`${name}: public tape ${site} was omitted`); continue; }
+    const r: number | string = AutoMovieViewOutline.value(shoulder, station);
+    const values: (number | string)[] = curves.map((curve: AutoMovieViewCurves.ICurve): number | string => curve.outline === null ? "missing edge" : AutoMovieViewOutline.value(curve.outline, station));
+    if (typeof r === "string" || values.some((value: number | string): boolean => typeof value === "string")) { defects.push(`${name}/${site}: public tape source is unavailable`); continue; }
+    const edges: number[] = values as number[];
+    const actual: number = AutoMovieViewSection.length(AutoMovieViewSection.of({ extents: [edges[0]!, edges[2]!, -edges[1]!, -edges[3]!] }, [r, r, r, r]));
+    if (!Number.isFinite(actual) || Math.abs(actual - girth * scale) > 1e-6) defects.push(`${name}/${site}: original tape ${actual} mm instead of public ${girth * scale} mm`);
+    rows.push({ site, girth: actual, expected: girth * scale });
+  }
+  console.log(JSON.stringify({ source: name, publicTapeSources: rows, intermediateSites: part.front.positive.knots.filter((knot: IAutoMovieViewPart.IKnot): boolean => knot.site.startsWith("shape.")), scope: "original sections, not final skin" }));
 }
 
 /** Source-frame point, in calibration mm. */

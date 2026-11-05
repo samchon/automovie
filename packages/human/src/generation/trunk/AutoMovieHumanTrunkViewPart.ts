@@ -1,4 +1,4 @@
-import type { AutoMovieLoftContract } from "@automovie/engine";
+import { type AutoMovieLoftContract, AutoMovieViewParameter, type IAutoMovieViewPart } from "@automovie/engine";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import type { IAutoMovieConstructionKnot, IAutoMovieConstructionLevelAxis } from "@automovie/interface";
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
@@ -29,6 +29,12 @@ import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
  * quarters lands. A head supplies a top pole inside its neck volume: the
  * trunk closes there before the merge trims its hidden dome away. An open
  * neck ring alone gives the fold no host surface above the intersection.
+ * With that internal cap, signed scalar hull ranges keep opposite outlines
+ * apart on the entire closed span. Its top source tangent is the secant from
+ * the last neck radius to the pole in the shared angle parameter, with zero
+ * second parameter derivative. It is nonzero; a range filter must not flatten
+ * a wrong-way pole tangent to zero. Physical station derivatives remain
+ * singular there, and this source condition is not a final-surface G2 proof.
  */
 export namespace AutoMovieHumanTrunkViewPart {
   /** The trunk's chain name. */
@@ -66,7 +72,7 @@ export namespace AutoMovieHumanTrunkViewPart {
    * @param top Optional top pole inside the head. Without a head, the last section remains open for standalone inspection.
    * @returns The part, its loft and the diagnostics; generation keeps going on a null loft, whose diagnostics say why.
    *
-   * @evidence contracts/common.md#principled-implementation The named outline knots keep their measured values. A supplied top adds a zero-radius pole through the existing engine dome operator, so the head merge has host surface beyond its crossing instead of reading an open end outside its domain.
+   * @evidence contracts/common.md#principled-implementation Named values and the derived pole/axis remain fixed. Signed scalar hulls author noncrossing closed-span edges; the top secant and zero second derivative are normalized angle jets, not finite physical-station jets. This supplies an internal cap without certifying final-surface G2.
    * @evidence contracts/common.md#clear-and-simple-design Converts the trunk's anatomical view record into the shared body view builder; the optional pole is an internal closure point owned by the head/trunk connection.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The pole has no person selector or fitted position; its caller derives it from the neck section and the head's defining axis. Malformed sites and a closure outside its station order produce diagnostics.
    * @evidence contracts/common.md#meaningful-documentation States the anatomical/chart mapping, source of the hidden pole, standalone open-end behavior and failure publication.
@@ -94,6 +100,17 @@ export namespace AutoMovieHumanTrunkViewPart {
         diagnostics: [{ producer: `view.${NAME}`, level: 2, contract: "top closure", detail: `top [${top.x}, ${top.y}] mm must be finite and above the last neck site at ${last.y} mm` }],
       };
 
+    // The hidden cap's nonzero tangent is authored in normalized angle tau.
+    // The shared map owns theta; no physical station jet is fabricated at a pole.
+    let poleJets: AutoMovieHumanSiteViewPart.IInput["poleJets"] = undefined;
+    if (top !== undefined) {
+      const theta: number = AutoMovieViewParameter.at({ type: "angle", bottom: views.perineum.y, top: top.y }, last.y);
+      const secant: number = -Math.PI / (Math.PI - theta);
+      const depth: number = (last.front - last.back) / 2;
+      const jet = (edge: number): IAutoMovieViewPart.IKnot["jet"] => ({ first: edge * secant, second: 0 });
+      poleJets = { top: [jet(depth), jet(last.half), jet(-depth), jet(-last.half)] };
+    }
+
     return AutoMovieHumanSiteViewPart.create({
       name: NAME,
       axis: level([
@@ -106,6 +123,7 @@ export namespace AutoMovieHumanTrunkViewPart {
         return { site: s.site, station: s.y, edges: [depth, s.half, -depth, -s.half], fullness: s.fullness };
       }),
       pole: top === undefined ? { end: "bottom", station: views.perineum.y } : { end: "both", bottom: views.perineum.y, top: top.y },
+      ...(top === undefined ? {} : { poleJets, ranges: [{ minimum: 0, maximum: null }, { minimum: 0, maximum: null }, { minimum: null, maximum: 0 }, { minimum: null, maximum: 0 }] as NonNullable<AutoMovieHumanSiteViewPart.IInput["ranges"]> }),
       order: ORDER,
       samples: SAMPLES,
       gap: GAP,

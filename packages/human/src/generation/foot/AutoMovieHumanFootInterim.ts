@@ -38,8 +38,13 @@ type Vec3 = [number, number, number];
  * or the one gap at either end, since the toes fill the
  * forefoot side by side. Root depth reads the actual foot's whole vertical
  * dorsal support at its station, not surface contact at the root's across
- * place; using it as proximal toe depth remains a generating proxy. Distal depth retains the outline table at the toe's middle beyond
- * the bare foot's cap. A fixed-height level axis and absolute plantar edge
+ * place; using it as proximal toe depth remains a generating overlap proxy.
+ * Distal depth belongs to the individual toe: the retained FootPrior D/B
+ * ratio times its across-gap breadth in the original per-L pattern, before
+ * the common transverse scale. That ratio's extraction site is unverified,
+ * and its transfer to this foot-axis chart is a modelling proxy. The FOOT
+ * dorsum envelope includes all toes and cannot supply an individual depth.
+ * A fixed-height level axis and absolute plantar edge
  * preserve floor contact while these depths change. The midpoint and hidden inner start are generating stations,
  * not measured phalangeal joint centres; the latter remains owed.
  */
@@ -184,7 +189,6 @@ export namespace AutoMovieHumanFootInterim {
     const sign: number = foot.side === "left" ? 1 : -1;
     const lateral: Vec3 = [-sign * foot.along[2], 0, sign * foot.along[0]];
     const L: number = foot.length;
-    const T: typeof AutoMovieHumanReferenceOutlines = AutoMovieHumanReferenceOutlines;
     const tips: readonly { tip: number; across: number }[] = AutoMovieHumanFootPlaces.TOES;
     // A maximum of population means need not equal the mean's unit maximum.
     // Treat this retained pattern as relative toe lengths, then let public
@@ -199,10 +203,15 @@ export namespace AutoMovieHumanFootInterim {
     for (const drop of cascade.slice(1)) stations.push(stations.at(-1)! - drop * L / AutoMovieHumanFootPrior.CASCADE_FOOT);
     return tips.map((t: { tip: number; across: number }, k: number): IToe => {
       const gaps: number[] = [k > 0 ? t.across - tips[k - 1]!.across : null, k + 1 < tips.length ? tips[k + 1]!.across - t.across : null].filter((g: number | null): g is number => g !== null);
-      const breadth: number = (gaps.reduce((a: number, g: number): number => a + Math.abs(g), 0) / gaps.length) * transverse;
+      const gap: number = gaps.reduce((a: number, g: number): number => a + Math.abs(g), 0) / gaps.length;
+      const breadth: number = gap * transverse;
       const terminal: number = t.tip / longest;
-      const middle: number = (stations[k]! / L + terminal) / 2;
-      const distalDepth: number = (T.at(T.FOOT, "dorsum", middle) - Math.max(0, T.at(T.FOOT, "plantar", middle))) * L;
+
+      // The original toe pattern is normalized by L. Apply the retained
+      // individual aspect before the group's across-only kappa, so changing
+      // public B does not move the floor, cap stations or the Y family.
+      // This is a source choice, not a recovered individual measurement.
+      const distalDepth: number = AutoMovieHumanFootPrior.PRIOR.toes[k]!.depth * gap * L;
       const rootDepth: number = sourceValue(dorsalSource, stations[k]!) + foot.height;
       if (!(rootDepth > 0 && distalDepth > 0)) throw new Error(`The ${foot.side} toe ${k + 1} needs positive defining depths`);
       // The axis remains level while the two absolute dorsal edges vary.

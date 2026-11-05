@@ -5,7 +5,8 @@ import { AutoMovieHumanNeckPrior } from "./AutoMovieHumanNeckPrior";
 /**
  * The retained neck's generating records, before any chain is constructed.
  * The head needs their mean, adopted posterior C7 point and endpoint jet;
- * the transitional trunk adapter still samples their original harmonic rows.
+ * the transitional trunk adapter now evaluates the composed mass instead of
+ * constructing another skin from these original harmonic rows.
  * Their private shape and XZ perimeter normalization are not a published
  * infrathyroid plane or a closed three-dimensional base-tape construction.
  *
@@ -42,9 +43,9 @@ export namespace AutoMovieHumanNeckSource {
     bottom: [number, number, number];
     /** Calibration mm per world mm supplied by the body input boundary. */
     scale: number;
-    /** Original periodic row controls; only the transitional chain adapter uses these. */
+    /** Retained phase resolution for projected normalization and the transitional engine chain. */
     order: number;
-    /** Original emitted row density; not the density of the head's view curves. */
+    /** Retained chain display density; not the density of the head's view curves. */
     samples: number;
   }
 

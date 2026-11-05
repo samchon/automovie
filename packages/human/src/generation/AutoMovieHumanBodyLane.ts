@@ -61,7 +61,7 @@ export namespace AutoMovieHumanBodyLane {
   /** One side's limbs and extremities. */
   export interface ISide {
     /** The leg's bones and its sites' laws. */
-    leg: { bones: Pick<AutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">; law: (site: string) => AutoMovieHumanLegWalk.ISiteLaw; trunk: IFold; foot: IFold };
+    leg: { bones: Pick<AutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">; law: AutoMovieHumanLegWalk.ILaw; trunk: IFold; foot: IFold };
 
     /** The arm's bones, the palm's last centre and reach, its sites' laws and joints, its fold onto the trunk. */
     arm: {

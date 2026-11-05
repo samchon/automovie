@@ -4,7 +4,6 @@ import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import type { IAutoMovieHumanTrunkSolution } from "../IAutoMovieHumanTrunkSolution";
-import { AutoMovieHumanTrunkLandmarks } from "../AutoMovieHumanTrunkLandmarks";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
 
@@ -78,7 +77,7 @@ export namespace AutoMovieHumanTrunkInterim {
       };
     };
     const seat: IAutoMovieHumanTrunkSolution["seat"] = solution.seat;
-    const chest: number = AutoMovieHumanTrunkLandmarks.at(crotch, top, AutoMovieHumanTrunkLandmarks.CHEST);
+    const chest: number = solution.landmarks.bustPoint[1];
     const gap: number = AutoMovieHumanTrunkViewPart.GAP;
     // The old table's upper breadth includes arms in its horizontal
     // envelope. Torso-only source landmarks instead use the shoulder point

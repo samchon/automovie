@@ -1,4 +1,4 @@
-import { AutoMovieConstructionViews, AutoMovieLoftChain, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewSection, type IAutoMovieLoftChain, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieConstructionViews, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
 import type { AutoMovieConstructionAxis, AutoMovieConstructionFullness, AutoMovieConstructionNode, IAutoMovieConstructionOutline, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,6 +19,7 @@ import { AutoMovieHumanHeadLayout } from "../../../../../../packages/human/src/g
 import { AutoMovieHumanHeadMassPart } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadMassPart";
 import { AutoMovieHumanHeadSectionConstraints } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadSectionConstraints";
 import type { IAutoMovieHumanParameters } from "../../../../../../packages/human/src/structures/IAutoMovieHumanParameters";
+import { HumanHeadSourceSection } from "../../../internal/HumanHeadSourceSection";
 import { HumanPeople } from "../../../internal/HumanPeople";
 
 /**
@@ -33,8 +34,9 @@ import { HumanPeople } from "../../../internal/HumanPeople";
  * 3. Nasal, lip, c-j/sa-sba and own eye chords keep their definitions;
  * closed-lip contacts and primary Bernstein upper curves agree through spans.
  * 4. Actual declarations replay at three physical scales. Independent eye
- * studies remain outside the tree; horizontal sections and harmonic path
- * lengths are diagnostic observations, not substituted anatomical tapes.
+ * studies remain outside the tree; the horizontal head section is diagnostic,
+ * not the anatomical tape. The separate neck-source unit owns adapter spans,
+ * quarter/length preservation and the two neck-course observations.
  *
  * @evidence contracts/testing.md#behavioral-verification Reads the production lane's composed original views through the engine's shared source owner, independently of surviving loft sections and of final skin realization.
  * @evidence contracts/testing.md#independent-expectations Public Euclidean distances, cervicale/stature/head height, coincident closed-lip contacts and direct Bernstein evaluation of the primary upper-lid controls are the oracles. Their calibration scale comes independently from the body's resolved input boundary, never from the head scale being checked. The 1e-8 mm bound permits numerical conversion only, not anatomical displacement. The photo pupil's (0,0) uses the contour's same affine map, not the endpoint chord; this remains a template-based 3D placement. Constant AP is checked relative to an endpoint, not as an independently measured global seat.
@@ -45,7 +47,6 @@ export function test_human_head_source_curves(): void {
   const params: IAutoMovieHumanParameters = HumanPeople.params("f1");
   const inputs: IAutoMovieHumanHeadInputs = AutoMovieHumanBodyLaw.headInputs(params);
   const bodyScale: number = AutoMovieHumanBodyLaw.limbInputs(params).legs.scale;
-  const neck: IAutoMovieLoftChain = AutoMovieHumanBodyLaw.neckRing(params);
   const neckSource: AutoMovieHumanNeckSource.IOutput = AutoMovieHumanNeckSource.of(inputs, bodyScale);
   const lane: AutoMovieHumanHeadLane.IOutput = AutoMovieHumanHeadLane.create(inputs, AutoMovieHumanBodyAnatomy.sexOf(params), neckSource);
   const original: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadLayout.create(neckSource, inputs);
@@ -68,11 +69,17 @@ export function test_human_head_source_curves(): void {
   // support. These are geometry fixtures, not another person's generation.
   const diagonal: number = 10 * Math.SQRT1_2;
   const ellipse: [number, number, number, number] = [AutoMovieViewSection.ELLIPSE, AutoMovieViewSection.ELLIPSE, AutoMovieViewSection.ELLIPSE, AutoMovieViewSection.ELLIPSE];
-  check("circle anterior shoulder", AutoMovieHumanHeadSectionConstraints.frontal([10, 10, 10, 10], ellipse[0], diagonal, diagonal), Math.SQRT2 - 1, "ratio");
-  check("circle named anterior width", AutoMovieHumanHeadSectionConstraints.lateral([10, 9, 10, 9], ellipse, diagonal, diagonal), 10);
-  check("circle named posterior width", AutoMovieHumanHeadSectionConstraints.lateral([10, 9, 10, 9], ellipse, -diagonal, diagonal), 10);
-  check("circle dimension scaling", AutoMovieHumanHeadSectionConstraints.lateral([20, 18, 20, 18], ellipse, 2 * diagonal, 2 * diagonal), 20);
-  check("width at actual axis", AutoMovieHumanHeadSectionConstraints.lateral([10, 9, 10, 9], ellipse, 0, 6), 6);
+  const analytic: { name: string; run: () => number; expected: number; unit?: string }[] = [
+    { name: "circle anterior shoulder", run: (): number => AutoMovieHumanHeadSectionConstraints.frontal([10, 10, 10, 10], ellipse[0], diagonal, diagonal), expected: Math.SQRT2 - 1, unit: "ratio" },
+    { name: "circle named anterior width", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 9, 10, 9], ellipse, diagonal, diagonal), expected: 10 },
+    { name: "circle named posterior width", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 9, 10, 9], ellipse, -diagonal, diagonal), expected: 10 },
+    { name: "circle dimension scaling", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([20, 18, 20, 18], ellipse, 2 * diagonal, 2 * diagonal), expected: 20 },
+    { name: "width at actual axis", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 9, 10, 9], ellipse, 0, 6), expected: 6 },
+  ];
+  for (const sample of analytic) {
+    try { check(sample.name, sample.run(), sample.expected, sample.unit); }
+    catch (error) { findings.push(`${sample.name}: ${String(error)}`); }
+  }
   const invalid: { name: string; run: () => number }[] = [
     { name: "outside sagittal support", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 10, 10, 10], ellipse, 11, 3) },
     { name: "degenerate support", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 0, 10, 10], ellipse, 2, 3) },
@@ -199,39 +206,10 @@ export function test_human_head_source_curves(): void {
     check("actual posterior cranial maximum caliper", maximum, inputs.head.length * bodyScale);
     console.log(`head maximum cranial caliper: ${JSON.stringify({ domain: [cranialStart, cranialEnd], candidates: stations.length, glabella, maximumPoint, maximum, scope: "actual original source; closed retained cranial-base-to-crown domain and numerical critical candidates, not an anatomical region certificate or final skin" })}`);
   }
-  for (const [name, height] of [
-    ["retained mean-site proxy", plan.y0],
-    ["resolved cervicale", inputs.neckBase.cervicaleHeight * bodyScale],
-    ["resolved side neck", inputs.neckBase.sideNeckPointHeight * bodyScale],
-    ["resolved suprasternale", inputs.neckBase.suprasternaleHeight * bodyScale],
-    ["glabella horizontal counterfactual", plan.landmarks.glabella[1]],
-  ] as const) {
-    try {
-      console.log(`head source section observation: ${JSON.stringify({ name, height, ...sectionObservation(mass, massSource, height), inputNeck: inputs.neck * bodyScale, inputBase: inputs.neckBase.girth * bodyScale, inputHead: inputs.head.circumference * bodyScale, scope: "original horizontal source section only; neither the public infrathyroid site, the named 3D base course nor ANSUR oblique head tape is established" })}`);
-    } catch (error) {
-      findings.push(`${name} original section observation: ${String(error)}`);
-      console.log(findings.at(-1));
-    }
-  }
-  for (const [index, row] of neckSource.rows.entries()) {
-    const reads: { count: number; xz: number; spatial: number; minimumY: number; maximumY: number }[] = [neckSource.order, 2048].map((count: number): { count: number; xz: number; spatial: number; minimumY: number; maximumY: number } => {
-      let previous: [number, number, number] = AutoMovieHumanNeckSource.point(row, 0);
-      let xz: number = 0;
-      let spatial: number = 0;
-      let minimumY: number = previous[1];
-      let maximumY: number = previous[1];
-      for (let i: number = 1; i <= count; i++) {
-        const next: [number, number, number] = AutoMovieHumanNeckSource.point(row, 2 * Math.PI * i / count);
-        xz += Math.hypot(next[0] - previous[0], next[2] - previous[2]);
-        spatial += distance(next, previous);
-        minimumY = Math.min(minimumY, next[1]); maximumY = Math.max(maximumY, next[1]);
-        previous = next;
-      }
-      return { count, xz, spatial, minimumY, maximumY };
-    });
-    console.log(`neck original row observation: ${JSON.stringify({ index, sourceMean: row.origin, reads, scope: "original private harmonic authoring row; sampled path lengths are neither a public planar tape nor a named base-course oracle" })}`);
-  }
-  const nape: [number, number, number] = AutoMovieLoftChain.point(neck, neck.layers[neck.layers.length - 1]!.y, Math.PI);
+  try {
+    console.log(`head source section observation: ${JSON.stringify({ name: "glabella horizontal counterfactual", height: plan.landmarks.glabella[1], ...HumanHeadSourceSection.of(mass, massSource, plan.landmarks.glabella[1]), inputHead: inputs.head.circumference * bodyScale, scope: "original horizontal source only; not the ANSUR oblique maximum head tape" })}`);
+  } catch (error) { findings.push(`head horizontal section: ${String(error)}`); }
+  const nape: [number, number, number] = [neckSource.head.back, neckSource.head.backLevel, 0];
   check("adopted posterior cervicale height", nape[1] / bodyScale, inputs.neckBase.cervicaleHeight);
   check("head mass shares actual posterior cervicale", distance(point("head.mass", "front.negative", plan.neck.backLevel), nape), 0);
   check("actual head mass stature", point("head.mass", "front.positive", last("head.mass"))[1] / bodyScale, inputs.height);
@@ -281,8 +259,17 @@ export function test_human_head_source_curves(): void {
     const ear: AutoMovieHumanHeadEarFrame.IFrame = AutoMovieHumanHeadEarFrame.of(plan, lane.source.massPart, sign, inputs.head.earPair[side], expectedTop);
     const plate: AutoMovieHumanHeadEarPlate.IOutput = AutoMovieHumanHeadEarPlate.of(plan, lane.source.massPart, ear, side);
     const auricle: string = `auricle.${side}`;
-    const queriedUpper: [number, number, number] = point(auricle, "front.positive", ear.top);
-    const queriedLower: [number, number, number] = point(auricle, "front.positive", ear.bottom);
+    // These unchanged authoring-height queries are counterfactuals, not
+    // actual source sites. A unit-round-trip can place one outside the
+    // declared domain; retain that exact refusal instead of inventing a
+    // point or charging the diagnostic as a failed required source read.
+    const query: (station: number) => [number, number, number] | string = (station: number): [number, number, number] | string => {
+      const curve: AutoMovieViewCurves.ICurve = prepared.get(auricle)!.curves.find((c: AutoMovieViewCurves.ICurve): boolean => c.name === "front.positive")!;
+      const reading: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, byName.get(auricle)!.axis, station);
+      return typeof reading === "string" ? reading : reading.point;
+    };
+    const queriedUpper: [number, number, number] | string = query(ear.top);
+    const queriedLower: [number, number, number] | string = query(ear.bottom);
     // Sa/sba are the actual named source endpoints. Their independent
     // expectations remain public T/L. The old input-height queries below
     // are retained as counterfactual interior-cap observations, not renamed
@@ -297,7 +284,7 @@ export function test_human_head_source_curves(): void {
     const node: IAutoMovieConstructionView = production.get(auricle)!;
     // Observe both paths without substituting either query or weakening an
     // expectation. The source declaration and public T/L remain distinct.
-    console.log(`ear endpoint context ${side}: ${JSON.stringify({ public: { top: expectedTop, length: inputs.head.earPair[side].length * bodyScale }, authoringHeights: { bottom: ear.bottom, top: ear.top }, metre: { radial: [node.front.positive.knots[0], node.front.positive.knots.at(-1)], axis: node.axis }, actual: { lowerStation, upperStation, parameter: actual.front.positive.parameter, radialKnots: [actual.front.positive.knots[0], actual.front.positive.knots.at(-1)], lower: actualLower, upper: actualUpper, length: distance(actualUpper, actualLower), topDelta: actualUpper[1] - expectedTop, topQueryGap: distance(queriedUpper, actualUpper), bottomQueryGap: distance(queriedLower, actualLower), queriedUpper, queriedLower } })}`);
+    console.log(`ear endpoint context ${side}: ${JSON.stringify({ public: { top: expectedTop, length: inputs.head.earPair[side].length * bodyScale }, authoringHeights: { bottom: ear.bottom, top: ear.top }, metre: { radial: [node.front.positive.knots[0], node.front.positive.knots.at(-1)], axis: node.axis }, actual: { lowerStation, upperStation, parameter: actual.front.positive.parameter, radialKnots: [actual.front.positive.knots[0], actual.front.positive.knots.at(-1)], lower: actualLower, upper: actualUpper, length: distance(actualUpper, actualLower), topDelta: actualUpper[1] - expectedTop, topQueryGap: typeof queriedUpper === "string" ? queriedUpper : distance(queriedUpper, actualUpper), bottomQueryGap: typeof queriedLower === "string" ? queriedLower : distance(queriedLower, actualLower), queriedUpper, queriedLower } })}`);
     const c: [number, number, number] = point(auricle, "front.negative", plate.attachment);
     const j: [number, number, number] = point(auricle, "front.positive", plate.posterior);
     check(`${side} ear c-j`, distance(c, j), inputs.head.earPair[side].breadth * bodyScale);
@@ -393,31 +380,6 @@ function samples(outline: AutoMovieViewOutline.IOutline): number[] {
 /** Euclidean metric of the public landmark protocols, mm. */
 function distance(a: readonly number[], b: readonly number[]): number {
   return Math.hypot(...a.map((v: number, i: number): number => v - b[i]!));
-}
-
-/** Original section geometry, without a loft, pose, mesh read or tape-site substitution. */
-function sectionObservation(part: IAutoMovieViewPart, source: AutoMovieViewCurves.IResult, height: number): { extents: [number, number, number, number]; shoulders: [number, number, number, number]; perimeter: number; fault: string | null } {
-  const scalar: (outline: IAutoMovieViewPart.IOutline) => number = (outline: IAutoMovieViewPart.IOutline): number => {
-    const prepared: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(outline);
-    if ("detail" in prepared) throw new Error(`Original section observation: ${prepared.detail}`);
-    const value: number | string = AutoMovieViewOutline.value(prepared, height);
-    if (typeof value === "string") throw new Error(`Original section observation: ${value}`);
-    return value;
-  };
-  const edge: (name: AutoMovieViewCurves.ICurve["name"]) => number = (name: AutoMovieViewCurves.ICurve["name"]): number => {
-    const outline: AutoMovieViewOutline.IOutline | null = source.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === name)?.outline ?? null;
-    if (outline === null) throw new Error(`Original section observation has no ${name} source`);
-    const value: number | string = AutoMovieViewOutline.value(outline, height);
-    if (typeof value === "string") throw new Error(`Original section observation: ${value}`);
-    return value;
-  };
-  if (part.fullness.kind !== "shoulder") throw new Error("This head inspection observes only its current declared shoulder owner");
-  const common: number = scalar(part.fullness.shoulder);
-  const departures: readonly IAutoMovieViewPart.IOutline[] | undefined = part.fullness.departures;
-  const shoulders: [number, number, number, number] = [0, 1, 2, 3].map((index: number): number => common + (departures === undefined ? 0 : scalar(departures[index]!))) as [number, number, number, number];
-  const extents: [number, number, number, number] = [edge("front.positive"), edge("side.positive"), -edge("front.negative"), -edge("side.negative")];
-  const section: AutoMovieViewSection.ISection = AutoMovieViewSection.bare({ extents }, shoulders);
-  return { extents, shoulders, perimeter: AutoMovieViewSection.length(section), fault: AutoMovieViewSection.fault(section) };
 }
 
 /** Read the actual production nodes, without reconstructing a declaration from its decoded source. */

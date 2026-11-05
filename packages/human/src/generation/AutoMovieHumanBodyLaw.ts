@@ -93,7 +93,7 @@ export namespace AutoMovieHumanBodyLaw {
     hands: Record<"left" | "right", AutoMovieHumanHandBones.IOutput>;
     /** Stature in the calibration's millimetres. */
     stature: number;
-    /** The actual neck chain on which this head was composed. */
+    /** Engine-evaluated internal interval of this head's actual source, for remaining trunk readers. */
     neckChain: IAutoMovieLoftChain;
     /** Anatomy and source assembly diagnostics; final joins have not run. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
@@ -121,12 +121,14 @@ export namespace AutoMovieHumanBodyLaw {
       inputs,
     );
     const neckSource: AutoMovieHumanNeckSource.IOutput = AutoMovieHumanNeckSource.of(head, inputs.scale);
-    const neckRing: IAutoMovieLoftChain = AutoMovieHumanNeckConstruction.generate(neckSource);
 
     // The one head lane owns its construction, eyes and attachments. The
     // eye frames now use its orbit socket definition; this deliberately
     // changes the old globe seat, rather than preserving a second head.
     const headLane: AutoMovieHumanHeadLane.IOutput = AutoMovieHumanHeadLane.create(head, AutoMovieHumanBodyAnatomy.sexOf(params), neckSource);
+    const neck: AutoMovieHumanNeckConstruction.IOutput = AutoMovieHumanNeckConstruction.generate(headLane.source.massPart, neckSource);
+    if (neck.loft.chain === null) throw new Error(`The actual head-source neck interval made no chain: ${JSON.stringify(neck.loft.diagnostics)}`);
+    const neckRing: IAutoMovieLoftChain = neck.loft.chain;
     const headed: IAutoMovieHumanBodyCalibration = {
       stature: headLane.stature,
       chains: [neckRing],
@@ -135,7 +137,7 @@ export namespace AutoMovieHumanBodyLaw {
       apertures: [],
       eyes: headLane.eyes,
       head: headLane.landmarks,
-      diagnostics: AutoMovieHumanBodyBox.diagnose(AutoMovieHumanBodyAnatomy.resolve(params)),
+      diagnostics: [...AutoMovieHumanBodyBox.diagnose(AutoMovieHumanBodyAnatomy.resolve(params)), ...neck.loft.diagnostics],
     };
     const crotchHeight: number = definitions.crotch;
     const standing: IAutoMovieHumanBodyCalibration =
@@ -243,21 +245,6 @@ export namespace AutoMovieHumanBodyLaw {
     if (name === "masculineFeminine") return AutoMovieHumanBodyAnatomy.sexCoordinate(measures);
     if (name === "fat") return AutoMovieHumanBodyAnatomy.adiposity(measures);
     return 0;
-  }
-
-  /**
-   * The neck ring chain under the head, as {@link calibrate} builds it: the
-   * chain the head lane stands on (`AutoMovieHumanHeadLane`), which the
-   * figure no longer publishes.
-   *
-   * @param params Public input.
-   * @returns The neck ring chain, world mm.
-   */
-  export function neckRing(params: IAutoMovieHumanParameters): IAutoMovieLoftChain {
-    const height: number = statureOf(params);
-    const inputs: AutoMovieHumanLegConstruction.IInputs = tapes(params, height);
-    const head: IAutoMovieHumanHeadInputs = headInputs(params);
-    return AutoMovieHumanNeckConstruction.generate(AutoMovieHumanNeckSource.of(head, inputs.scale));
   }
 
   /**

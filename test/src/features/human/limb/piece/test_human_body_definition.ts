@@ -1,5 +1,5 @@
 import type { AutoMovieConstructionNode } from "@automovie/interface";
-import { AutoMovieConstructionViews, type AutoMovieLoftFrame, type IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieConstructionViews, type AutoMovieLoftFrame, AutoMovieLoftJet, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewParameter, type IAutoMovieViewPart, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanArmBones } from "../../../../../../packages/human/src/generation/arm/AutoMovieHumanArmBones";
 import { AutoMovieHumanBodyAnatomy } from "../../../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
 import { AutoMovieHumanBodyLaw } from "../../../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
@@ -18,11 +18,13 @@ import { HumanPeople } from "../../../internal/HumanPeople";
  * 4. Stature, neck and original diagnostics remain available without a rig or final skin.
  * 5. The actual trunk GH and arm lengths close neutral AR; each digit retains
  *    its generating hand's material direction and identical joint references.
+ * 6. The hidden trunk closure retains signed source ranges and nonzero angle-pole tangents.
+ * 7. The old upper chain copies the actual neck's world boundary and all six 2-jet vectors.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the shared production define entry and walks its actual tree. Reads trunk GH/rigid arm for the neutral caliper, hand material identity and actual roll endpoint/replay. Every toe's actual fixed foot-plane source is replayed through the same metre AST and its frames compared before any skin realization.
- * @evidence contracts/testing.md#independent-expectations Anatomical names require a trunk, paired masses, arms, legs, feet, five digits per hand and five toes per foot, with the identical head subtree. Public AR closes its straight measuring convention. Hand joints/directions retain their actual source; MCP radial direction is its signed normal projection, while roll preserves origins and initial RMF. Toe source planes keep world up and fixed foot-across even when their origin drifts, and metre AST reconstruction preserves those actual frames.
- * @evidence contracts/testing.md#distinguishing-cases Uses every environment-selected person's bilateral inputs, permits the defined absence of male breast masses and reports all omitted names and diagnoses together. Both hands query before WJC, at WJC, inside the transition, at MCP and beyond it; finite endpoint and replay errors have separate tolerances.
- * @evidence contracts/testing.md#execution-ownership Runs one synchronous source definition per selected person and replays only its source converter; requests no final realization, duplicate Human generation, rig, viewer, GPU, process or scratch output.
+ * @evidence contracts/testing.md#behavioral-verification Calls the shared production define entry and walks its actual tree. Reads trunk GH/rigid arm for the neutral caliper, hand material identity and actual roll endpoint/replay. Every toe's actual fixed foot-plane source is replayed through the same metre AST and its frames compared before any skin realization. Both production legs' original curves and actual trunk-derived placements are observed separately from the isolated limb question. The trunk's signed hull declarations and original critical/regular readings expose inter-knot cap inversion; its actual metre replay retains value and parameter jets. The old upper/actual neck boundary is read through the engine's independent world surface 2-jet, rather than accepting a copied metadata flag.
+ * @evidence contracts/testing.md#independent-expectations Anatomical names require a trunk, paired masses, arms, legs, feet, five digits per hand and five toes per foot, with the identical head subtree. Public AR closes its straight measuring convention. Hand material/roll and fixed toe planes preserve their source. Trunk positive/negative edges cannot exchange signs; a closing angle tangent points inward at the top and outward at the bottom, is nonzero, has zero second parameter derivative and no fabricated finite station jet. The same regular neck boundary must have equal p/s/t/ss/st/tt on both consumer chains within1e-9 in each field's units. Actual leg points remain in their world median half-spaces; finite interior observations can disprove but cannot certify a moving-frame span. Printed site differences are not substituted tape/course expectations.
+ * @evidence contracts/testing.md#distinguishing-cases Uses every environment-selected person's bilateral inputs and reports all omitted names/diagnoses together. Both hands query before WJC, at WJC, inside the transition, at MCP and beyond it. A range that merely flattens an incorrect pole tangent fails the nonzero closure expectation. Retaining local coefficients while dropping the translated neck frame fails the actual world boundary; singular pole derivatives are kept distinct from this regular station.
+ * @evidence contracts/testing.md#execution-ownership Runs one synchronous source definition per selected person and replays only its source converter; requests no final realization, duplicate Human generation, rig, viewer, GPU, process or scratch output. Original AP mass poles are checked against public span/depth and the same trunk source site, independently of the placement solver; final tape/merge acceptance is excluded.
  */
 export function test_human_body_definition(): void {
   const defects: string[] = [];
@@ -57,8 +59,19 @@ export function test_human_body_definition(): void {
     if (!sameHead) defects.push(`${name}: the production tree does not contain its generating head root by identity`);
     if (!(definition.stature > 0 && Number.isFinite(definition.stature))) defects.push(`${name}: definition stature is not finite and positive`);
     if (definition.neckChain.layers.length === 0) defects.push(`${name}: the generating neck chain is empty`);
+    else neckBoundary(name, definition, defects);
     for (const source of definition.lane.sources) if (source.result.part === null && source.result.diagnostics.length === 0) defects.push(`${name}: unavailable ${source.name} lost its original diagnosis`);
     for (const source of definition.lane.sources) if (source.name.startsWith("toe.")) toeFrame(`${name}/${source.name}`, source.result, defects);
+    for (const source of definition.lane.sources) if (source.name === "leg.left" || source.name === "leg.right") productionMedian(`${name}/${source.name}`, source.result, source.name === "leg.left" ? 1 : -1, defects);
+    const trunk: IAutoMovieViewPart | null | undefined = definition.lane.sources.filter((source: AutoMovieHumanSiteViewPart.ISource): boolean => source.name === "trunk").at(-1)?.result.part;
+    if (trunk !== null && trunk !== undefined) {
+      const sites: { site: string; station: number; points: (AutoMovieViewCurves.IReading | string)[] }[] = [];
+      const curves: AutoMovieViewCurves.ICurve[] = AutoMovieViewCurves.create(trunk).curves;
+      for (const knot of trunk.front.positive.knots) sites.push({ site: knot.site, station: knot.station, points: curves.map((curve: AutoMovieViewCurves.ICurve): AutoMovieViewCurves.IReading | string => AutoMovieViewCurves.at(curve, trunk.axis, knot.station)) });
+      console.log(JSON.stringify({ person: name, trunkSiteAudit: { originalSites: sites, oldLandmarks: definition.standing.trunk, publicResolved: AutoMovieHumanBodyAnatomy.resolve(params) } }));
+      massApex(name, definition, trunk, params, defects);
+      trunkSpan(name, definition.lane.sources.filter((source: AutoMovieHumanSiteViewPart.ISource): boolean => source.name === "trunk").at(-1)!.result, defects);
+    }
     const input: AutoMovieHumanBodyLaw.ILimbInputs = AutoMovieHumanBodyLaw.limbInputs(params);
     const upper: (typeof definition.skeleton)[number] = definition.skeleton.find((bone: (typeof definition.skeleton)[number]): boolean => bone.bone === "leftUpperArm")!;
     const elbow: (typeof definition.skeleton)[number] = definition.skeleton.find((bone: (typeof definition.skeleton)[number]): boolean => bone.bone === "leftLowerArm")!;
@@ -103,6 +116,136 @@ export function test_human_body_definition(): void {
     console.log(JSON.stringify({ person: name, sourceParts: [...names], sourceAttempts: definition.lane.sources.length, sameHead, stature: definition.stature, diagnostics: definition.diagnostics, headDiagnostics: definition.head.source.diagnostics, stage: "source-definition", finalRealization: "not-run" }));
   }
   if (defects.length !== 0) throw new Error(`Production source definition findings:\n${defects.join("\n")}`);
+}
+
+/** Read the actual cap sources and their declared hull bounds, pole-parameter jets and metre replay. Critical/regular observations supplement the shared control-hull contract; they do not prove final loft fidelity or a general world bound. All data belongs to the existing definition. */
+function trunkSpan(name: string, source: AutoMovieHumanSiteViewPart.IResult, defects: string[]): void {
+  if (source.part === null || source.view === null) return;
+  const part: IAutoMovieViewPart = source.part;
+  const replay: IAutoMovieViewPart | string = AutoMovieConstructionViews.part(source.view);
+  if (typeof replay === "string") { defects.push(`${name}: trunk source replay: ${replay}`); return; }
+  const originals: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
+  const copies: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(replay);
+  for (const diagnostic of [...originals.diagnostics, ...copies.diagnostics]) defects.push(`${name}: trunk original/replay ${diagnostic.contract}: ${diagnostic.detail}`);
+  for (const curve of originals.curves) {
+    const sign: 1 | -1 = curve.name.endsWith("positive") ? 1 : -1;
+    const outline: AutoMovieViewOutline.IOutline | null = curve.outline;
+    const copied: AutoMovieViewCurves.ICurve = copies.curves.find((candidate: AutoMovieViewCurves.ICurve): boolean => candidate.name === curve.name)!;
+    if (outline === null || copied.outline === null) { defects.push(`${name}/${curve.name}: missing cap source`); continue; }
+    const declared: IAutoMovieViewPart.IOutline = curve.name === "front.positive" ? part.front.positive : curve.name === "front.negative" ? part.front.negative : curve.name === "side.positive" ? part.side.positive : part.side.negative;
+    if (part.pole !== "both" || outline.hermite === undefined || (sign === 1 ? declared.range?.minimum !== 0 || declared.range.maximum !== null : declared.range?.maximum !== 0 || declared.range.minimum !== null)) defects.push(`${name}/${curve.name}: no declared signed whole-span hull`);
+    const [start, end]: readonly [number, number] = outline.domain;
+    const stations: Set<number> = new Set([...outline.knots.map((knot: IAutoMovieViewPart.IKnot): number => knot.station), ...AutoMovieViewOutline.criticalStations(outline)]);
+    for (let index: number = 1; index < 128; index++) stations.add(start + (end - start) * index / 128);
+    let minimum: number = Infinity;
+    let replayMiss: number = 0;
+    for (const station of stations) {
+      const reading: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, part.axis, station);
+      if (typeof reading === "string") { defects.push(`${name}/${curve.name}: ${reading}`); continue; }
+      minimum = Math.min(minimum, sign * reading.scalar.value);
+      const copiedStation: number = AutoMovieViewParameter.station(copied.outline.parameter, reading.scalar.parameter);
+      const repeated: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(copied, replay.axis, copiedStation);
+      if (typeof repeated === "string") defects.push(`${name}/${curve.name}: aligned replay ${repeated}`);
+      else replayMiss = Math.max(replayMiss, Math.hypot(...repeated.point.map((value: number, axis: number): number => value - reading.point[axis]!)), ...repeated.scalar.parameterJet.map((value: number, axis: number): number => Math.abs(value - reading.scalar.parameterJet[axis]!)));
+    }
+    for (const station of [start, end]) {
+      const reading: AutoMovieViewOutline.IReading | string = AutoMovieViewOutline.at(outline, station);
+      if (typeof reading === "string" || reading.stationJet !== null || reading.stationJetStatus !== "singular-pole" || !(sign * reading.parameterJet[0] * (station === start ? 1 : -1) > 0) || Math.abs(reading.parameterJet[1]) > 1e-9) defects.push(`${name}/${curve.name}: invalid nonzero root tangent or fabricated physical pole jet at ${station}`);
+    }
+    if (minimum < -1e-9 || replayMiss > 1e-9) defects.push(`${name}/${curve.name}: signed source minimum ${minimum}, actual metre replay miss ${replayMiss}`);
+    console.log(JSON.stringify({ person: name, source: `trunk.${curve.name}`, signedMinimum: minimum, replayMiss, scope: "original signed hull and parameter jets, not final surface G2" }));
+  }
+}
+
+/** Compare the two actual regular boundary readers, including frame/lift product-rule terms. This retains the neck as owner; it does not compare the new source to retired harmonic skin or certify the intervening old trunk. No extra body or loft is built. */
+function neckBoundary(name: string, definition: AutoMovieHumanBodyLaw.IDefinition, defects: string[]): void {
+  const neck: IAutoMovieLoftChain = definition.neckChain;
+  const upper: IAutoMovieLoftChain | undefined = definition.standing.chains.find((chain: IAutoMovieLoftChain): boolean => chain.name === "upper");
+  if (upper === undefined || !AutoMovieLoftJet.carries(neck) || !AutoMovieLoftJet.carries(upper)) { defects.push(`${name}: actual neck/upper regular 2-jets are unavailable`); return; }
+  const station: number = neck.layers[0]!.y;
+  if (upper.layers.at(-1)!.y !== station || upper.layers.at(-1)!.frameSource !== neck.layers[0]!.frameSource) defects.push(`${name}: neck boundary lost its station or actual frame owner`);
+  const miss: Record<keyof AutoMovieLoftJet.IJet, number> = { p: 0, s: 0, t: 0, ss: 0, st: 0, tt: 0 };
+  for (let index: number = 0; index < 64; index++) {
+    const phase: number = 2 * Math.PI * index / 64;
+    const expected: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(neck, station, phase);
+    const actual: AutoMovieLoftJet.IJet = AutoMovieLoftJet.at(upper, station, phase);
+    for (const field of ["p", "s", "t", "ss", "st", "tt"] as const) miss[field] = Math.max(miss[field], Math.hypot(...actual[field].map((value: number, axis: number): number => value - expected[field][axis]!)));
+  }
+  if (Object.values(miss).some((value: number): boolean => !Number.isFinite(value) || value > 1e-9)) defects.push(`${name}: actual neck boundary world 2-jet mismatch ${JSON.stringify(miss)}`);
+  console.log(JSON.stringify({ person: name, regularNeckBoundary: { station, miss }, scope: "same actual boundary, not public base tape or retired-skin equivalence" }));
+}
+
+/**
+ * Each actual source pole retains its public AP target on the same level as
+ * the trunk's tape. Whole-depth is read from the original opposite trunk
+ * guide to that pole; bilateral breast Z is the public half span. Fixed AP
+ * section planes make the closed mass's station endpoints its AP supports,
+ * independently of its radial curves. No final union or attachment is read.
+ */
+function massApex(name: string, definition: AutoMovieHumanBodyLaw.IDefinition, trunk: IAutoMovieViewPart, params: ReturnType<typeof HumanPeople.params>, defects: string[]): void {
+  const measures: ReturnType<typeof AutoMovieHumanBodyAnatomy.resolve> = AutoMovieHumanBodyAnatomy.resolve(params);
+  const scale: number = AutoMovieHumanBodyLaw.limbInputs(params).legs.scale;
+  const curves: AutoMovieViewCurves.ICurve[] = AutoMovieViewCurves.create(trunk).curves;
+  for (const kind of ["breast", "gluteal"] as const) {
+    if (kind === "breast" && measures.sex !== AutoMovieHumanSex.Female) continue;
+    const site: string = kind === "breast" ? "chest" : "buttock";
+    const station: number | undefined = trunk.front.positive.knots.find((knot: IAutoMovieViewPart.IKnot): boolean => knot.site === site)?.station;
+    if (station === undefined) { defects.push(`${name}: mass ${kind} has no common ${site} source site`); continue; }
+    const opposite: AutoMovieViewCurves.ICurve = curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === (kind === "breast" ? "front.negative" : "front.positive"))!;
+    const wall: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(opposite, trunk.axis, station);
+    if (typeof wall === "string") { defects.push(`${name}/${kind}: opposite source guide failed: ${wall}`); continue; }
+    for (const side of ["left", "right"] as const) {
+      const source: AutoMovieHumanSiteViewPart.ISource | undefined = definition.lane.sources.filter((attempt: AutoMovieHumanSiteViewPart.ISource): boolean => attempt.name === `${kind}.${side}`).at(-1);
+      if (source?.result.part === null || source?.result.part === undefined) { defects.push(`${name}/${kind}.${side}: actual mass source is unavailable`); continue; }
+      const part: IAutoMovieViewPart = source.result.part;
+      const last: number = part.stations.at(-1)!;
+      const apex: [number, number, number] = part.axis.at(last).origin;
+      const frame: AutoMovieLoftFrame.IFrame = part.axis.at(last);
+      const depth: number = kind === "breast" ? apex[0] - wall.point[0] : wall.point[0] - apex[0];
+      const expected: number = (kind === "breast" ? measures.chestDepth : measures.buttockDepth) * scale;
+      const replay: IAutoMovieViewPart | string = source.result.view === null ? "missing actual view" : AutoMovieConstructionViews.part(source.result.view);
+      const replayMiss: number = typeof replay === "string" ? Infinity : Math.hypot(...replay.axis.at(last).origin.map((value: number, axis: number): number => value - apex[axis]!));
+      if (!apex.every(Number.isFinite) || Math.abs(apex[1] - station) > 1e-9 || Math.abs(depth - expected) > 1e-9 || frame.u[0] !== 0 || frame.v[0] !== 0 || replayMiss > 1e-9) defects.push(`${name}/${kind}.${side}: source AP apex/site/depth/replay does not retain its original definition`);
+      if (kind === "breast" && Math.abs(apex[2] - (side === "left" ? 1 : -1) * measures.bustPointWidth * scale / 2) > 1e-9) defects.push(`${name}/${kind}.${side}: actual source apex does not retain public half bust-point span`);
+      console.log(JSON.stringify({ person: name, part: `${kind}.${side}`, originalApex: apex, tapeSite: station, oppositeGuide: wall.point, originalDepth: depth, publicDepth: expected, replayMiss, scope: "original AP support, not final union or tape" }));
+    }
+  }
+}
+
+/**
+ * Read each production leg's four original guides in its actual world frame,
+ * retaining the most medial counterexample and its owning scalar/frame.
+ * Named and scalar-critical stations plus sixteen subdivisions per source
+ * knot interval provide counterexamples only, not a continuous half-space
+ * proof. This reads the already generated source and creates no new limb,
+ * fit, final surface, rig or renderer; arrays die with this synchronous call.
+ */
+function productionMedian(name: string, source: AutoMovieHumanSiteViewPart.IResult, sign: 1 | -1, defects: string[]): void {
+  if (source.part === null) return;
+  const part: IAutoMovieViewPart = source.part;
+  let minimum: { value: number; curve: string; reading: AutoMovieViewCurves.IReading } | undefined;
+  const prepared: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
+  for (const diagnostic of prepared.diagnostics) defects.push(`${name}: original ${diagnostic.contract}: ${diagnostic.detail}`);
+  for (const curve of prepared.curves) {
+    if (curve.outline === null) continue;
+    const stations: Set<number> = new Set([...curve.outline.knots.map((knot: IAutoMovieViewPart.IKnot): number => knot.station), ...AutoMovieViewOutline.criticalStations(curve.outline)]);
+    for (let index: number = 0; index + 1 < curve.outline.knots.length; index++) {
+      const start: number = curve.outline.knots[index]!.station;
+      const end: number = curve.outline.knots[index + 1]!.station;
+      for (let sample: number = 1; sample < 16; sample++) stations.add(start + (end - start) * sample / 16);
+    }
+    for (const station of stations) {
+      const reading: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, part.axis, station);
+      if (typeof reading === "string") defects.push(`${name}/${curve.name}: original median reading failed: ${reading}`);
+      else {
+        const value: number = sign * reading.point[2];
+        if (!Number.isFinite(value)) defects.push(`${name}/${curve.name}: original median coordinate is not finite at ${station} mm`);
+        if (minimum === undefined || value < minimum.value) minimum = { value, curve: curve.name, reading };
+      }
+    }
+  }
+  if (minimum !== undefined && minimum.value < -1e-6) defects.push(`${name}: production world medial curve crosses the median by ${-minimum.value} mm at ${minimum.reading.scalar.station} mm`);
+  console.log(JSON.stringify({ part: name, placementScope: "actual-production-trunk", originalMedian: minimum }));
 }
 
 /** Observe the actual toe's fixed observation planes and their metre AST replay at endpoints and intermediate stations; this does not realize a skin or certify its cap smoothness. */

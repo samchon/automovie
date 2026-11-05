@@ -32,6 +32,9 @@ import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
 export namespace AutoMovieHumanTrunkLaws {
   /** The values still owed by laws, calibration mm. */
   export interface IPending {
+    /** One shared chest/bust-apex height; retained course-placement proxy, calibration mm. */
+    chest: number;
+
     /** Cervicale's forward place in the body frame. */
     cervicale: number;
 
@@ -58,6 +61,7 @@ export namespace AutoMovieHumanTrunkLaws {
     const T: typeof AutoMovieHumanReferenceOutlines = AutoMovieHumanReferenceOutlines;
     const scaled = (b: { breadth: number; depth: number }): AutoMovieHumanTrunkViews.IBox => ({ breadth: b.breadth * scale, depth: b.depth * scale });
     return {
+      chest: pending.chest,
       back: (y: number): number =>
         pending.cervicale + (y >= top ? profile.at(y / scale)[0] * scale : T.at(T.TRUNK, "back", (y - crotch) / (top - crotch)) * stature),
       lumbar: (girth: number): AutoMovieHumanTrunkViews.IBox => scaled(AutoMovieHumanLumbarSection.box(measures, girth / scale)),

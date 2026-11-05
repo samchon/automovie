@@ -6,6 +6,7 @@ import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanLegBones } from "./AutoMovieHumanLegBones";
 import { AutoMovieHumanLegMassPrior } from "./AutoMovieHumanLegMassPrior";
 import { AutoMovieHumanSuprapatella } from "../AutoMovieHumanSuprapatella";
+import { AutoMovieHumanLegGirth } from "./AutoMovieHumanLegGirth";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import type { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
 
@@ -39,6 +40,13 @@ import type { AutoMovieHumanLegWalk } from "./AutoMovieHumanLegWalk";
  *   estimated from the private reference set; no published source), the
  *   lateral side `+Z` on the left leg and `-Z` on the right (J6). The tape
  *   owns the fullness at its site.
+ * - Intermediate thigh shape: the retained LegGirth.THIGH normalized girth
+ *   rows between the public thigh and lower-thigh sites are placed on the
+ *   current hip-to-knee height span. The same box/split owners read them for
+ *   all four edges. Only that existing table is consumed, not its old C1
+ *   girth interpolator or old skin. This preserves a declared aggregate
+ *   proxy instead of allowing the sparse five-site/pole spline to invent
+ *   the intervening bulge; continuous world admission remains separate.
  */
 export namespace AutoMovieHumanLegLaws {
   /** ANSUR II midpatella height over stature, women and men (`docs/sources/ansur-ii.md`). Measured. */
@@ -64,7 +72,7 @@ export namespace AutoMovieHumanLegLaws {
     ankle: number,
     crotch: number,
     side: "left" | "right",
-  ): (site: string) => AutoMovieHumanLegWalk.ISiteLaw {
+  ): AutoMovieHumanLegWalk.ILaw {
     const female: boolean = measures.sex === AutoMovieHumanSex.Female;
     const patella: number = MIDPATELLA[female ? 0 : 1] * measures.stature * scale;
     const hip: number = AutoMovieHumanLegBones.HIP * measures.stature * scale;
@@ -101,10 +109,23 @@ export namespace AutoMovieHumanLegLaws {
       calf: law(AutoMovieHumanLegSites.calf(measures, malleolus / scale, patella / scale) * scale, measures.calfCircumference * scale),
       ankle: law(ankle, measures.ankleCircumference * scale),
     };
-    return (site: string): AutoMovieHumanLegWalk.ISiteLaw => {
+    // Retained four-reference thigh-girth ratios author intermediate shape
+    // at their hip-to-knee shares. They are not new public tapes or proof
+    // that the old rig/horizontal profile is anatomical on this bone-normal
+    // chart. Existing public thigh and lower-thigh sites take precedence.
+    const intermediate: string[] = [];
+    for (const [share, ratio] of AutoMovieHumanLegGirth.THIGH) {
+      const height: number = hip + share * (knee - hip);
+      if (!(height < laws.thigh!.height && height > laws.lowerThigh!.height)) continue;
+      const site: string = `shape.thigh.${share}`;
+      laws[site] = law(height, ratio * measures.thighCircumference * scale);
+      intermediate.push(site);
+    }
+    const resolve: AutoMovieHumanLegWalk.ILaw = (site: string): AutoMovieHumanLegWalk.ISiteLaw => {
       const found: AutoMovieHumanLegWalk.ISiteLaw | undefined = laws[site];
       if (found === undefined) throw new Error(`No leg law at the site ${site}`);
       return found;
     };
+    return Object.assign(resolve, { intermediate });
   }
 }

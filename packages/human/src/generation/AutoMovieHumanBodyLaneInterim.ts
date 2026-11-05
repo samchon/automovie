@@ -100,6 +100,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
     const ankles: number = (bone("leftFoot").position[0] + bone("rightFoot").position[0]) / 2;
     const placed: { cervicale: number; perineum: number } = AutoMovieHumanTrunkInterim.places(measures, input.scale, ankles);
     const pending = (upper: AutoMovieHumanTrunkViews.ILaws["upper"]): AutoMovieHumanTrunkLaws.IPending => ({
+      chest: solution.landmarks.bustPoint[1],
       cervicale: placed.cervicale,
       perineum: placed.perineum,
       upper,
@@ -188,7 +189,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
           gluteal: AutoMovieHumanMassInterim.glutealAmplitude(measures, input.scale),
         }),
         tapes: { chest: measures.chestCircumference * input.scale, hip: measures.hipCircumference * input.scale },
-        breast: AutoMovieHumanMassInterim.breast(solution, measures, input.scale, radius),
+        breast: AutoMovieHumanMassInterim.breast(measures, input.scale, laws, radius),
         gluteal: AutoMovieHumanMassInterim.gluteal(solution, measures, input.scale, laws, radius),
       },
       sides: { left: side("left"), right: side("right") },

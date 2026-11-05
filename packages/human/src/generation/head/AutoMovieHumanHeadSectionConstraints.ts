@@ -21,7 +21,7 @@ export namespace AutoMovieHumanHeadSectionConstraints {
    * Lateral extent that puts a named point at its supplied half breadth.
    * The fixed forward coordinate is relative to the actual section origin.
    *
-   * @evidence contracts/common.md#principled-implementation Solves the original section radius on the ray through the independent named point, changing only the two equal lateral supports.
+   * @evidence contracts/common.md#principled-implementation Solves the original section radius on the ray through the independent named point, changing only the two equal lateral supports. Bisection requires a finite continuous residual on its bracket; basic input bounds alone do not certify the engine's representable G2 domain, and every failed evaluation is exposed.
    * @evidence contracts/common.md#clear-and-simple-design Returns one lateral source value before any loft or tree is constructed.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No whole-ring half-width is substituted for the width at another forward datum.
    * @evidence contracts/common.md#meaningful-documentation States local forward coordinate, target half breadth and preserved quarter inputs.
@@ -53,7 +53,7 @@ export namespace AutoMovieHumanHeadSectionConstraints {
    * the actual engine section, including its shared-curvature construction,
    * determines the result. This does not claim that its raw loft is admitted.
    *
-   * @evidence contracts/common.md#principled-implementation Solves the actual section radius at the independent ft ray, retaining posterior shoulder inputs and four cranial supports. Shared guide curvature can change the posterior spans, which remain part of the complete observation round.
+   * @evidence contracts/common.md#principled-implementation Solves the actual section radius at the independent ft ray, retaining posterior shoulder inputs and four cranial supports. The rational weight only initializes the bracket; it does not prove the engine's full representable G2 domain or residual continuity. Failed evaluations remain explicit. Shared guide curvature can change posterior spans, which remain part of the complete observation round.
    * @evidence contracts/common.md#clear-and-simple-design Returns the common anterior shoulder for the symmetric two front quarters.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not narrow the full cranial breadth or credit the retired radial taper as active delivery.
    * @evidence contracts/common.md#meaningful-documentation Distinguishes the rational bracket from the engine-owned curve and separate convexity admission.
@@ -90,11 +90,11 @@ export namespace AutoMovieHumanHeadSectionConstraints {
   function radius(extents: Extents, shoulders: Extents, angle: number): number {
     const section: AutoMovieViewSection.ISection = AutoMovieViewSection.bare({ extents }, shoulders);
     const value: number = AutoMovieViewSection.radius(section, angle)[0];
-    if (!(Number.isFinite(value) && value > 0)) throw new Error("Head point constraint reached a nonfinite original section");
+    if (!(Number.isFinite(value) && value > 0)) throw new Error(`Head point constraint reached a nonfinite original section: box=[${extents}], shoulders=[${shoulders}], angle=${angle}, radius=${value}, source=${AutoMovieViewSection.fault(section)}`);
     return value;
   }
 
-  /** Positive open conic parameters define the continuous residual; convexity remains a separate engine admission. */
+  /** Basic finite input bounds only. Actual positive curvature, representable G2 end domains and convexity remain separate engine premises; these bounds do not prove residual continuity. */
   function admit(extents: Extents, shoulders: Extents): void {
     if (!extents.every((value: number): boolean => Number.isFinite(value) && value > 0) || !shoulders.every((value: number): boolean => Number.isFinite(value) && value > 0 && value < 1)) throw new Error("Head point constraints require finite positive supports and shoulders inside (0,1)");
   }

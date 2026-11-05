@@ -25,16 +25,20 @@ const { add, cross, dot, scale, sub, unit } = AutoMovieSolidVector;
  * frame, never fixed per mass. A caller whose target is the skin's extreme
  * along the depth asks for the normal levelled (`IInput.level`): the finished
  * skin's normal there is level, while the base under it may slope (the
- * sacrum's line under the buttock, the upper chest under the breast).
+ * sacrum's line under the buttock, the upper chest under the breast). An
+ * explicit original-source frame instead fixes its wall point and axis;
+ * the host jet then supplies only the embedding estimate. An anatomical AP
+ * extreme can keep its declared Y/Z rather than following the base's oblique
+ * normal or a sampled closest point.
  *
  * Views. The footprint is the box at the host's surface (station 0): four
  * edges from the centre, each a law of the caller's (the breast's from the
  * inframammary fold, the second rib, the sternal edge and the anterior
  * axillary line). The profile is the share of each edge left at each share of
  * the amplitude, one knot per station of the caller's profile law, down to the
- * apex's pole at the amplitude. The amplitude is an outline difference from
- * inputs (the chest's depth less the chest wall's, the buttock's less the
- * waist's), so no measure is counted twice.
+ * apex's pole at the amplitude. The caller owns the distance from the same
+ * original wall point to its declared apex. Whole-depth differences at
+ * different heights do not independently define that local projection.
  *
  * Embedding. The part starts inside its host so that every phase's station
  * line crosses the host within the part's layers: the host's surface falls
@@ -75,6 +79,9 @@ export namespace AutoMovieHumanMassPart {
      * Absent, the axis is the host's normal.
      */
     level?: boolean;
+
+    /** Optional original-source wall point in calibration mm and unit anatomical axis. The host jet then supplies embedding curvature only; its sampled position/normal does not move the visible source placement. */
+    sourceFrame?: { origin: Vec3; normal: Vec3 };
 
     /** The caller's lateral direction, which picks the side `+v` takes; any vector off the up direction. */
     lateral: Vec3;
@@ -122,9 +129,11 @@ export namespace AutoMovieHumanMassPart {
     const raw: Vec3 | null = unit(cross(j.u, j.v));
     if (raw === null) return fail(`the host's chart degenerates at [${input.centre.join(", ")}]`);
     const normal: Vec3 = scale(raw, input.host.orientation);
-    const levelled: Vec3 | null = input.level === true ? unit([normal[0], 0, normal[2]]) : normal;
-    if (levelled === null) return fail("the host's normal stands vertical, so it has no level direction");
+    const levelled: Vec3 | null = input.sourceFrame !== undefined ? unit(input.sourceFrame.normal) : input.level === true ? unit([normal[0], 0, normal[2]]) : normal;
+    if (levelled === null) return fail("the requested mass axis has no finite nonzero direction");
     const n: Vec3 = levelled;
+    const origin: Vec3 = input.sourceFrame?.origin ?? j.p;
+    if (!origin.every(Number.isFinite)) return fail("the source wall origin is not finite");
     const u: Vec3 | null = unit(sub(input.up, scale(n, dot(input.up, n))));
     if (u === null) return fail("the up direction lies along the host's normal");
     const v: Vec3 = cross(u, n);
@@ -199,7 +208,7 @@ export namespace AutoMovieHumanMassPart {
     ];
     return AutoMovieHumanSiteViewPart.create({
       name: input.name,
-      axis: { type: "straight", origin: AutoMovieHumanConstructionView.point(sub(j.p, scale(n, embed))), u: AutoMovieHumanConstructionView.direction(u), v: AutoMovieHumanConstructionView.direction(v) },
+      axis: { type: "straight", origin: AutoMovieHumanConstructionView.point(sub(origin, scale(n, embed))), u: AutoMovieHumanConstructionView.direction(u), v: AutoMovieHumanConstructionView.direction(v) },
       sites,
       pole: { end: "top", station: embed + input.amplitude },
       order: input.order,

@@ -1,4 +1,5 @@
-import { AutoMovieIllinois, type AutoMovieLoftContract, AutoMovieViewSection, type IAutoMovieSolidSurface } from "@automovie/engine";
+import { AutoMovieIllinois, type AutoMovieLoftContract, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import type { IAutoMovieConstructionView } from "@automovie/interface";
 
 /**
  * The trunk base's fullness at a tape site whose tape wraps the merged skin:
@@ -8,19 +9,15 @@ import { AutoMovieIllinois, type AutoMovieLoftContract, AutoMovieViewSection, ty
  * masses; the base's common conic shoulder there is the root that puts that
  * hull's perimeter at the tape (#3047).
  *
- * The cut of the union at height `y` is the base's section there (its box and
- * shoulder, `AutoMovieViewSection`) and each mass's own level cut. A mass
- * is lofted along its host's normal, so its level cut is no chain section:
- * each of its station lines is sampled, every sign change of
- * `p_y(s, phi) - y` is refined by the Illinois rule, and every sample on the
- * plane is kept (a level mass cut at its own centre's height has whole
- * station lines and its apex in the plane); a line that never reaches `y`
- * adds no point. Only the convex hull's perimeter is read, so a mass point inside the
- * base's section leaves it unchanged; the hull of curve points sampled this
- * densely falls short of the true hull's perimeter by about
- * `L h^2 kappa^2 / 24` (`h` the spacing, `kappa` the curvature), under 0.01 mm
- * at the trunk's sizes. The union's merge blends are not in the cut: they
- * lie in the folds, inside the hull.
+ * The source cut at height y contains the base's original section and the
+ * masses' original side curves. The actual straight AP declaration has
+ * world-Y up and a constant axis height equal to this site. Its horizontal
+ * cut is therefore exactly the two +/-v source loci, including the pole;
+ * no intermediate loft or final skin supplies the cut. Each edge contributes
+ * its named/scalar-critical points and 64 station intervals, while the base
+ * retains 512 angular samples. Their polygon hull perimeter is a numerical
+ * approximation, not an exact continuous-tape or final-merge certificate.
+ * Unsupported charts or another cutting level retain a source diagnostic.
  *
  * The perimeter rises with the base's shoulder (the base's section grows
  * outward and the masses stay), so the root is bracketed by the base box's
@@ -30,11 +27,10 @@ import { AutoMovieIllinois, type AutoMovieLoftContract, AutoMovieViewSection, ty
 export namespace AutoMovieHumanTrunkTape {
   /** A mass at the site. */
   export interface IMass {
-    /** Its surface, `u` its station, `v` its phase. */
-    surface: IAutoMovieSolidSurface;
-
-    /** Its first and last station, mm. */
-    stations: [number, number];
+    /** Identical original source, calibration mm. */
+    part: IAutoMovieViewPart;
+    /** Its actual production declaration, used to admit the fixed AP chart. */
+    view: IAutoMovieConstructionView;
   }
 
   /** What the solve reads. */
@@ -51,7 +47,7 @@ export namespace AutoMovieHumanTrunkTape {
     /** The base's box at the site. */
     box: AutoMovieViewSection.IBox;
 
-    /** The masses whose level cuts the tape also wraps. */
+    /** The original masses whose common-level side cuts the tape also wraps. */
     masses: IMass[];
 
     /** The tape, mm. */
@@ -63,7 +59,7 @@ export namespace AutoMovieHumanTrunkTape {
 
   /** The solved shoulder and its diagnostics. */
   export interface IResult {
-    /** The base's common shoulder, or null when the box admits none. */
+    /** The base's common shoulder, or null when its source/reach/root is not admitted. */
     shoulder: number | null;
 
     /** One diagnostic for a tape outside the reach or a box without a valid section. */
@@ -81,8 +77,14 @@ export namespace AutoMovieHumanTrunkTape {
     if (reach === null)
       return { shoulder: null, diagnostics: [{ producer: input.producer, level: 2, contract: "tape", detail: `the box [${input.box.extents.join(", ")}] mm admits no valid section` }] };
 
-    // The masses' cuts do not change with the base's shoulder: read them once.
-    const cuts: [number, number][] = input.masses.flatMap((m: IMass): [number, number][] => cut(m, input.y));
+    // At the common AP-axis level, the exact cut loci are the original side
+    // curves. Their sampled hull remains an approximation, not a skin read.
+    const cuts: [number, number][] = [];
+    for (const mass of input.masses) {
+      const points: [number, number][] | string = cut(mass, input.y);
+      if (typeof points === "string") return { shoulder: null, diagnostics: [{ producer: input.producer, level: 2, contract: "source tape cut", detail: points }] };
+      cuts.push(...points);
+    }
     const perimeter = (r: number): number => {
       const section: AutoMovieViewSection.ISection = AutoMovieViewSection.of(input.box, [r, r, r, r]);
       const points: [number, number][] = Array.from({ length: PHASES }, (_: unknown, i: number): [number, number] => {
@@ -96,6 +98,7 @@ export namespace AutoMovieHumanTrunkTape {
     const [lo, hi] = reach.shoulder;
     const low: number = perimeter(lo);
     const high: number = perimeter(hi);
+    if (![low, high, input.tape].every(Number.isFinite)) return { shoulder: null, diagnostics: [{ producer: input.producer, level: 2, contract: "source tape reach", detail: `nonfinite sampled-hull reach [${low}, ${high}] or tape ${input.tape} mm at ${input.y} mm` }] };
     const outside = (end: number, girth: number): IResult => ({
       shoulder: end,
       diagnostics: [{ producer: input.producer, level: 2, contract: "tape", detail: `the tape ${input.tape} mm lies outside the merged skin's reach [${low}, ${high}] mm at ${input.y} mm; the base keeps the shoulder ${end} (girth ${girth} mm)` }],
@@ -103,63 +106,43 @@ export namespace AutoMovieHumanTrunkTape {
     if (input.tape <= low) return outside(lo, low);
     if (input.tape >= high) return outside(hi, high);
     const r: number | null = AutoMovieIllinois.root((s: number): number => perimeter(s) - input.tape, lo, hi, 1e-6, 100);
-    return r === null ? outside(lo, low) : { shoulder: r, diagnostics: [] };
+    const residual: number = r === null ? NaN : perimeter(r) - input.tape;
+    if (r === null || !Number.isFinite(r) || !Number.isFinite(residual) || Math.abs(residual) > 1e-6) return { shoulder: null, diagnostics: [{ producer: input.producer, level: 2, contract: "source tape root", detail: `sampled-hull shoulder ${r} has residual ${residual} mm against tape ${input.tape} mm at ${input.y} mm; the bounded root estimate is not accepted as convergence` }] };
+    return { shoulder: r, diagnostics: [] };
   }
 
   /**
-   * A mass's level cut at a height: on each phase, the station where its
-   * surface stands at that height, by the Illinois rule along the station
-   * line.
+   * A mass's central level cut from its original side curves. The actual
+   * straight AP declaration and world-Y up prove that this level intersects
+   * each source section on its +/-v guides; no loft surface or phase search
+   * supplies these points. A changed plane is refused, not silently omitted.
    *
    * @param mass The mass.
    * @param y The height, mm.
-   * @returns The cut's points `[x, z]`, mm.
+   * @returns Original-curve samples `[x,z]`, mm, or the unsupported premise.
    */
-  function cut(mass: IMass, y: number): [number, number][] {
+  function cut(mass: IMass, y: number): [number, number][] | string {
     const out: [number, number][] = [];
-    const [s0, s1] = mass.stations;
-    const point = (s: number, phi: number): [number, number] => {
-      const p: readonly number[] = mass.surface.jet(s, phi).p;
-      return [p[0]!, p[2]!];
-    };
-    // Every station line's samples, read station by station so a station's
-    // part of the surface jet serves all its phases: `[x, y, z]` per sample.
-    const samples: Float64Array = new Float64Array(3 * (LINE_SAMPLES + 1) * PHASES);
-    for (let k: number = 0; k <= LINE_SAMPLES; k++) {
-      const s: number = k === 0 ? s0 : s0 + ((s1 - s0) * k) / LINE_SAMPLES;
-      for (let i: number = 0; i < PHASES; i++) {
-        const p: readonly number[] = mass.surface.jet(s, (2 * Math.PI * i) / PHASES).p;
-        samples.set([p[0]!, p[1]!, p[2]!], 3 * (k * PHASES + i));
-      }
-    }
-    for (let i: number = 0; i < PHASES; i++) {
-      const phi: number = (2 * Math.PI * i) / PHASES;
-      const height = (s: number): number => mass.surface.jet(s, phi).p[1] - y;
-      const at = (k: number): number => 3 * (k * PHASES + i);
-
-      // A station line may cross the plane more than once, or lie in it (a
-      // mass whose axis is level, cut at its own centre's height), and the
-      // apex's pole stands on it: sample the line, refine every sign change,
-      // and keep every sample that lies on the plane.
-      let a: number = s0;
-      let fa: number = samples[at(0) + 1]! - y;
-      if (Math.abs(fa) <= ON_PLANE) out.push([samples[at(0)]!, samples[at(0) + 2]!]);
-      for (let k: number = 1; k <= LINE_SAMPLES; k++) {
-        const b: number = s0 + ((s1 - s0) * k) / LINE_SAMPLES;
-        const fb: number = samples[at(k) + 1]! - y;
-        if (Math.abs(fb) <= ON_PLANE) out.push([samples[at(k)]!, samples[at(k) + 2]!]);
-        else if (fa * fb < 0 && Math.abs(fa) > ON_PLANE) {
-          const s: number | null = AutoMovieIllinois.root(height, a, b, 1e-6, 100);
-          if (s !== null) out.push(point(s, phi));
-        }
-        a = b;
-        fa = fb;
+    const axis: IAutoMovieConstructionView["axis"] = mass.view.axis;
+    if (axis.type !== "straight" || axis.u.x !== 0 || axis.u.y !== 1 || axis.u.z !== 0 || axis.v.x !== 0 || axis.v.y !== 0 || Math.abs(axis.v.z) !== 1 || Math.abs(axis.origin.y * 1000 - y) > ON_PLANE) return `${mass.part.name}: tape needs the actual fixed AP chart at the common generating level`;
+    const prepared: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(mass.part);
+    if (prepared.diagnostics.length !== 0) return `${mass.part.name}: ${JSON.stringify(prepared.diagnostics)}`;
+    for (const curve of prepared.curves) {
+      if (!curve.name.startsWith("side.")) continue;
+      if (curve.outline === null) return `${mass.part.name}: unavailable original tape edge ${curve.name}`;
+      const [s0, s1]: readonly [number, number] = curve.outline.domain;
+      const stations: Set<number> = new Set([...curve.outline.knots.map((knot: IAutoMovieViewPart.IKnot): number => knot.station), ...AutoMovieViewOutline.criticalStations(curve.outline)]);
+      for (let sample: number = 0; sample <= LINE_SAMPLES; sample++) stations.add(s0 + (s1 - s0) * sample / LINE_SAMPLES);
+      for (const station of stations) {
+        const point: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, mass.part.axis, station);
+        if (typeof point === "string") return `${mass.part.name}: ${point}`;
+        out.push([point.point[0], point.point[2]]);
       }
     }
     return out;
   }
 
-  /** Samples along each mass station line for its crossings. */
+  /** Intervals along each original mass side edge; the resulting hull is sampled, not a continuous perimeter certificate. */
   const LINE_SAMPLES: number = 64;
 
   /** Height off the plane under which a sample lies on it, mm. */

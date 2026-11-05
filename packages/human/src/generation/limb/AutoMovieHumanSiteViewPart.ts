@@ -13,7 +13,8 @@ import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView
  * (the extremes along `+u`, `+v`, `-u`, `-v`), and what owns the fullness: a
  * taut-tape girth or a sourced conic shoulder. Every outline is the natural
  * cubic spline of its knots (the operator's), so each published measure is a
- * knot and the outline is C2 between.
+ * knot and the outline is C2 between. Explicit jets/ranges select the shared
+ * C2 quintic owner instead of the default natural cubic.
  *
  * Fullness by ownership. A tape's site gets its common conic shoulder solved
  * on that site's box by the Illinois rule on the taut-tape girth
@@ -65,8 +66,11 @@ export namespace AutoMovieHumanSiteViewPart {
     /** The sites by strictly rising station, at least two besides a pole. */
     sites: ISite[];
 
-    /** Closing points, each a G2 dome where every edge meets the axis: the station below the first site (`bottom`), above the last (`top`), or both (the foot's heel and forefoot cap). Absent, both ends are open sections. */
+    /** Closing points where every edge meets the axis, below the first site (`bottom`), above the last (`top`), or both. The shared root/angle parameter owns endpoint regularity; a closing point alone does not certify a final G2 surface. Absent, both ends are open sections. */
     pole?: { end: "bottom" | "top"; station: number } | { end: "both"; bottom: number; top: number };
+
+    /** Optional closing-knot jets, in the whole source's normalized root/angle parameter and edge-value units. A physical station derivative at a pole remains singular. */
+    poleJets?: { bottom?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IKnot["jet"]>; top?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IKnot["jet"]> };
 
     /** Sourced departures of each quarter's shoulder, knots by station; absent means none. */
     departures?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>;
@@ -136,6 +140,7 @@ export namespace AutoMovieHumanSiteViewPart {
     const pole: IInput["pole"] = input.pole;
     const bottom: number | null = pole === undefined || pole.end === "top" ? null : pole.end === "both" ? pole.bottom : pole.station;
     const top: number | null = pole === undefined || pole.end === "bottom" ? null : pole.end === "both" ? pole.top : pole.station;
+    if ((input.poleJets?.bottom !== undefined && bottom === null) || (input.poleJets?.top !== undefined && top === null)) return fail("pole jets", "closing-knot jets require the corresponding declared pole");
     if (bottom !== null && !(bottom < sites[0]!.station)) return fail("pole", `the bottom pole at ${bottom} mm does not lie below the first site`);
     if (top !== null && !(top > sites[sites.length - 1]!.station)) return fail("pole", `the top pole at ${top} mm does not lie above the last site`);
 
@@ -195,11 +200,11 @@ export namespace AutoMovieHumanSiteViewPart {
    * @evidence contracts/performance.md#reuse-equivalent-work Both consumers use this owner, so a changed source field cannot silently be dropped by a parallel conversion.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns an owned declaration with no cache or source-result lifetime beyond its caller.
    */
-  export function outline(input: Pick<IInput, "sites" | "pole" | "ranges">, quarter: 0 | 1 | 2 | 3): IAutoMovieViewPart.IOutline {
+  export function outline(input: Pick<IInput, "sites" | "pole" | "poleJets" | "ranges">, quarter: 0 | 1 | 2 | 3): IAutoMovieViewPart.IOutline {
     const knots: IAutoMovieViewPart.IKnot[] = input.sites.map((site: ISite): IAutoMovieViewPart.IKnot => ({ site: site.site, station: site.station, value: site.edges[quarter], ...(site.jets?.[quarter] === undefined ? {} : { jet: site.jets[quarter] }) }));
     const pole: IInput["pole"] = input.pole;
-    if (pole !== undefined && pole.end !== "top") knots.unshift({ site: "bottom pole", station: pole.end === "both" ? pole.bottom : pole.station, value: 0 });
-    if (pole !== undefined && pole.end !== "bottom") knots.push({ site: "top pole", station: pole.end === "both" ? pole.top : pole.station, value: 0 });
+    if (pole !== undefined && pole.end !== "top") knots.unshift({ site: "bottom pole", station: pole.end === "both" ? pole.bottom : pole.station, value: 0, ...(input.poleJets?.bottom?.[quarter] === undefined ? {} : { jet: input.poleJets.bottom[quarter] }) });
+    if (pole !== undefined && pole.end !== "bottom") knots.push({ site: "top pole", station: pole.end === "both" ? pole.top : pole.station, value: 0, ...(input.poleJets?.top?.[quarter] === undefined ? {} : { jet: input.poleJets.top[quarter] }) });
     const range: IAutoMovieViewPart.IOutline["range"] = input.ranges?.[quarter];
     return { knots, ...(range === undefined ? {} : { range }) };
   }

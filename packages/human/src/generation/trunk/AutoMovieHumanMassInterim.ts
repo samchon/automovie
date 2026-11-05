@@ -8,13 +8,14 @@ import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
 
 /**
  * The trunk masses' laws: the left breast and gluteal mass, their footprints
- * and amplitudes from the reference set's mass footprints
+ * and bare-wall setbacks from the reference set's mass footprints
  * (`AutoMovieHumanReferenceOutlines.BREAST_FOOTPRINT`, `GLUTEAL_FOOTPRINT`,
  * per stature, estimated from the private reference set: no published source
  * gives a mass's base on its wall; the owner's rule follows the reference
- * where data is short), their profiles today's dome. The base under each mass
- * stands the amplitude behind the mass's point (`AutoMovieHumanTrunkViews`),
- * so the point keeps its published depth.
+ * where data is short), their profiles today's dome. Public width/depth and
+ * the shared generating height define each AP apex; the actual local wall
+ * source then defines its projection. The retained wall setback is not that
+ * local projection, and the old relief's displaced X/Z is not reused.
  */
 export namespace AutoMovieHumanMassInterim {
   /**
@@ -32,13 +33,15 @@ export namespace AutoMovieHumanMassInterim {
   );
 
   /**
-   * The breast's amplitude, calibration mm: the reference set's projection
+   * The breast's retained bare-wall setback, calibration mm: the reference set's projection
    * of the bust point over the chest wall's line, per stature; none for a
-   * man (the reading finds no mass on the men's chests).
+   * man (the reading finds no mass on the men's chests). It sizes the bare
+   * wall only; the actual mass amplitude is the AP apex minus its own local
+   * source wall, not this difference between whole-depth boxes.
    *
    * @param measures The person's measures, world mm.
    * @param scale Calibration millimetres per world millimetre.
-   * @returns The amplitude, mm, zero where there is no breast.
+   * @returns The retained bare-wall setback, mm, zero where there is no breast.
    */
   export function breastAmplitude(measures: IAutoMovieHumanBodyMeasures, scale: number): number {
     if (measures.sex !== AutoMovieHumanSex.Female) return 0;
@@ -46,43 +49,43 @@ export namespace AutoMovieHumanMassInterim {
   }
 
   /**
-   * The gluteal mass's amplitude, calibration mm: the reference set's
+   * The gluteal mass's retained bare-wall setback, calibration mm: the reference set's
    * projection of the buttock's most posterior point over the sacral wall's
-   * line, per stature, women and men apart.
+   * line, per stature, women and men apart. Actual mass amplitude is solved
+   * separately from the declared posterior apex and its local source wall.
    *
    * @param measures The person's measures, world mm.
    * @param scale Calibration millimetres per world millimetre.
-   * @returns The amplitude, mm.
+   * @returns The retained bare-wall setback, mm.
    */
   export function glutealAmplitude(measures: IAutoMovieHumanBodyMeasures, scale: number): number {
     return glutealTable(measures).values.amplitude * measures.stature * scale;
   }
 
   /**
-   * The left breast's law: its axis through today's bust point
-   * (`IAutoMovieHumanTrunkLandmarks.bustPoint`), its four edges and amplitude
-   * the reference set's footprint scaled by stature, its profile today's
-   * dome. The table's lateral edge is where the skin falls back by the
+   * The left breast's law: the AP apex at the same height as the chest tape,
+   * its Z exactly half the public bust-point width and its X the back source
+   * plus whole chest depth. The old relieved point's displaced X/Z is not
+   * transferred. Its four footprint edges retain the reference ratios and
+   * its profile today's dome. The table's lateral edge is where the skin falls back by the
    * amplitude, so it is the base's near bound (the chest wall curves away
    * beyond it). None for a man.
    *
-   * @param solution The old trunk's solve, for the bust point.
    * @param measures The person's measures, world mm.
    * @param scale Calibration millimetres per world millimetre.
+   * @param laws The shared source height and back line, calibration mm.
    * @param fold The fold's radius, calibration mm.
    * @returns The law, or null where there is no breast.
    */
-  export function breast(solution: IAutoMovieHumanTrunkSolution, measures: IAutoMovieHumanBodyMeasures, scale: number, fold: number): AutoMovieHumanTrunkBuild.IMassLaw | null {
-    const amplitude: number = breastAmplitude(measures, scale);
-    if (!(amplitude > 0)) return null;
+  export function breast(measures: IAutoMovieHumanBodyMeasures, scale: number, laws: AutoMovieHumanTrunkViews.ILaws, fold: number): AutoMovieHumanTrunkBuild.IMassLaw | null {
+    if (measures.sex !== AutoMovieHumanSex.Female) return null;
     const v: AutoMovieHumanReferenceOutlines.IFootprint["values"] = AutoMovieHumanReferenceOutlines.BREAST_FOOTPRINT.values;
     const s: number = measures.stature * scale;
-    const p: [number, number, number] = solution.landmarks.bustPoint;
+    const y: number = laws.chest;
     return {
-      target: [p[0], p[1], p[2]],
+      target: [laws.back(y) + measures.chestDepth * scale, y, measures.bustPointWidth * scale / 2],
       up: [0, 1, 0],
       footprint: [v.up * s, v.lateral * s, v.down * s, v.medial * s],
-      amplitude,
       profile: DOME,
       shoulder: Math.SQRT2 - 1,
       fold,
@@ -92,13 +95,13 @@ export namespace AutoMovieHumanMassInterim {
   /**
    * The left gluteal mass's law: its target the gluteal apex (the trunk's
    * back line at the buttock point's height, `AutoMovieHumanTrunkLaws`),
-   * across at today's apex share of the half width
-   * (`AutoMovieHumanGlutealDome.LATERAL`), its four edges and amplitude the
+   * across at today's apex share of the same public hip half breadth
+   * (`AutoMovieHumanGlutealDome.LATERAL`), its four edges from the
    * reference set's footprint for the sex scaled by stature, the lower edge
    * held above the crotch (the gluteal fold ends the mass there; the women's
    * lower edge spreads nearly as wide as its mean), its profile today's dome.
    *
-   * @param solution The old trunk's solve, for the heights and the half width.
+   * @param solution The old trunk's solve, for the retained buttock/crotch heights only.
    * @param measures The person's measures, world mm.
    * @param scale Calibration millimetres per world millimetre.
    * @param laws The trunk's laws, for the back line.
@@ -112,17 +115,15 @@ export namespace AutoMovieHumanMassInterim {
     laws: AutoMovieHumanTrunkViews.ILaws,
     fold: number,
   ): AutoMovieHumanTrunkBuild.IMassLaw | null {
-    const amplitude: number = glutealAmplitude(measures, scale);
-    if (!(amplitude > 0)) return null;
+    if (!(glutealAmplitude(measures, scale) > 0)) return null;
     const l: IAutoMovieHumanTrunkSolution["landmarks"] = solution.landmarks;
     const v: AutoMovieHumanReferenceOutlines.IFootprint["values"] = glutealTable(measures).values;
     const s: number = measures.stature * scale;
-    const width: number = solution.column.at(l.buttock).width;
+    const width: number = measures.hipBreadth * scale / 2;
     return {
       target: [laws.back(l.buttock), l.buttock, AutoMovieHumanGlutealDome.LATERAL * width],
       up: [0, 1, 0],
       footprint: [v.up * s, v.lateral * s, Math.min(v.down * s, l.buttock - l.crotch), v.medial * s],
-      amplitude,
       profile: DOME,
       shoulder: Math.SQRT2 - 1,
       fold,

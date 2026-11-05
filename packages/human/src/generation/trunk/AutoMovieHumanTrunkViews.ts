@@ -12,8 +12,10 @@ import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
  * Sources, site by site:
  *
  * - Heights: the crotch (the caller's, ISO 8559-1 5.7.6), the buttock point
- *   and the chest point as ANSUR II shares of the crotch-to-cervicale span
- *   (`AutoMovieHumanTrunkLandmarks`, measured there); the natural waist at
+ *   as an ANSUR II share of the crotch-to-cervicale span
+ *   (`AutoMovieHumanTrunkLandmarks`, measured there); the chest at the caller's
+ *   same generating bust-apex height (currently an old course-placement proxy,
+ *   not a second independent survey site); the natural waist at
  *   the person's `waistHeight` (the 1988 Army survey's natural waist, where
  *   its breadth and depth are taken); the top hip
  *   midway between the waist and the hip (ISO 8559-1 5.3.12); the
@@ -31,9 +33,10 @@ import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
  *   site's base depth.
  *
  * The base is drawn without its protrusions (#3047): the caller gives each
- * mass's amplitude, and the base stands it behind the mass's point, so the
- * point keeps the published depth. At the chest the base's depth is the
- * chest depth less the breast's amplitude (the whole chest depth for a man,
+ * mass's retained wall setback. This fixes the bare median box, not the local
+ * amplitude at the mass's transverse place. The actual original wall/AP-apex
+ * difference supplies that amplitude in the assembly. At the chest the base's
+ * depth is chest depth less the setback (the whole chest depth for a man,
  * whose chest carries none). At the buttock the caller's back line is the
  * gluteal apex (`ILaws.back`, the median section's back extreme), so the
  * base's back stands the gluteal amplitude in front of it and its front the
@@ -59,6 +62,9 @@ export namespace AutoMovieHumanTrunkViews {
 
   /** The laws the views read beyond the published measures, each a pure function of the person in calibration millimetres. */
   export interface ILaws {
+    /** Shared chest/bust-apex height from the generating placement, calibration mm; the interim caller still transfers its old course solve. */
+    chest: number;
+
     /** The back's forward place at a height, mm: the median section's back extreme, the gluteal apex at the buttock. */
     back(y: number): number;
 
@@ -82,7 +88,7 @@ export namespace AutoMovieHumanTrunkViews {
    * @param crotch The crotch's height, calibration mm.
    * @param scale Calibration millimetres per world millimetre.
    * @param laws The laws beyond the measures, in calibration mm.
-   * @param amplitudes The breast's and the gluteal mass's amplitudes, calibration mm: the base stands each behind its mass's point, so the point keeps the published chest and buttock depths.
+   * @param amplitudes Retained breast/gluteal wall setbacks, calibration mm; actual local mass projections are separately owned by source wall and AP apex.
    * @returns The perineum and the sites by rising height.
    */
   export function of(measures: IAutoMovieHumanBodyMeasures, crotch: number, scale: number, laws: ILaws, amplitudes: { breast: number; gluteal: number }): IAutoMovieHumanTrunkViews {
@@ -95,7 +101,7 @@ export namespace AutoMovieHumanTrunkViews {
     // Heights of the published sites.
     const buttock: number = at(AutoMovieHumanTrunkLandmarks.BUTTOCK);
     const waist: number = measures.waistHeight * scale;
-    const chest: number = at(AutoMovieHumanTrunkLandmarks.CHEST);
+    const chest: number = laws.chest;
     const fold: number = chest - AutoMovieHumanTrunkLandmarks.FOLD_DROP * (cervicale - crotch);
     const topHip: number = (buttock + waist) / 2;
 
