@@ -1,7 +1,9 @@
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
+import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import type { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
 import { AutoMovieViewSectionField } from "./AutoMovieViewSectionField";
+import { AutoMovieViewSectionReading } from "./AutoMovieViewSectionReading";
 
 /** Local value/phase-only capability, requiring no physical station derivative. */
 type Phase = { p: [number, number]; t: [number, number]; tt: [number, number] };
@@ -22,6 +24,8 @@ interface Direction {
 
 /**
  * Cartesian readings of the original native scalar generating field.
+ * Explicit numeric rejection uses the internal admission error; exceptions
+ * raised by input getters are not intercepted or reclassified here.
  *
  * @evidence contracts/common.md#principled-implementation Shared native geometry and radial source2 produce Cartesian phase/station derivatives by the analytic polar product rule.
  * @evidence contracts/common.md#clear-and-simple-design Separate phase-only and physical-total2 station factories share one primal direction conversion.
@@ -56,7 +60,9 @@ export namespace AutoMovieLoftSectionNative {
         AutoMovieViewConic.curvatures(ops, inputs.extents, inputs.shoulders),
       );
     if (geometry.failure !== null)
-      throw new Error(`Native value source: ${geometry.failure}`);
+      throw new AutoMovieLoftAdmissionError(
+        `Native value source: ${geometry.failure}`,
+      );
     return (phi: number): Phase => {
       const ray: AutoMovieViewConic.IRay = locate(geometry, phi);
       const at: Direction = direction(ray);
@@ -72,8 +78,8 @@ export namespace AutoMovieLoftSectionNative {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Never forms source3/4 or a rectangular jet; invalid required inputs/outputs fail without a curve fallback.
    * @evidence contracts/common.md#meaningful-documentation Source derivatives use physical station mm; the ray's already restored quarter owns phase orientation.
    * @evidence contracts/performance.md#efficient-algorithms Fixed station AD preparation plus one numeric inverse and one selected AD reading per phase.
-   * @evidence contracts/performance.md#reuse-equivalent-work readRay reuses the exact descriptor that supplies the Cartesian point, avoiding a second inverse.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources Prepared AD/numeric data belongs to the returned closure; outputs own fresh vectors and no query cache is retained.
+   * @evidence contracts/performance.md#reuse-equivalent-work The private copied preparation reuses successful metadata validation across phases and the same descriptor supplies its point; failures and exceptions are not retained.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Prepared AD/numeric data and one validation bit belong to the existing caller-owned closure; outputs own fresh vectors and no global cache is retained.
    */
   export function jet(
     inputs: AutoMovieLoftViewRead.IJets,
@@ -81,13 +87,26 @@ export namespace AutoMovieLoftSectionNative {
     const source: ReturnType<typeof AutoMovieViewSectionField.prepare> =
       AutoMovieViewSectionField.prepare(inputs.extents, inputs.shoulders);
     if (source.kind === "failure")
-      throw new Error(`Native physical source2: ${source.detail}`);
+      throw new AutoMovieLoftAdmissionError(
+        `Native physical source2: ${source.detail}`,
+      );
+
+    /** Successful metadata validation of these unexposed, copied numeric records. */
+    let verified: boolean = false;
     return (phi: number): Jet => {
       const ray: AutoMovieViewConic.IRay = locate(source.geometry, phi);
+      const fault: string | null = verified
+        ? null
+        : AutoMovieViewSectionReading.validate(source);
+      if (fault === null) verified = true;
       const radial: ReturnType<typeof AutoMovieViewSectionField.readRay> =
-        AutoMovieViewSectionField.readRay(source, ray);
+        fault === null
+          ? AutoMovieViewSectionReading.evaluate(source, ray)
+          : { kind: "failure", detail: fault };
       if ("kind" in radial)
-        throw new Error(`Native physical source2: ${radial.detail}`);
+        throw new AutoMovieLoftAdmissionError(
+          `Native physical source2: ${radial.detail}`,
+        );
       const at: Direction = direction(ray);
       const value: Phase = polarPhase(at, [radial[0], radial[2], radial[5]]);
       return admit({
@@ -113,7 +132,9 @@ function locate(
     phi,
   );
   if (ray === null)
-    throw new Error("The native source has no admitted finite phase reading.");
+    throw new AutoMovieLoftAdmissionError(
+      "The native source has no admitted finite phase reading.",
+    );
   return ray;
 }
 
@@ -130,7 +151,9 @@ function direction(ray: AutoMovieViewConic.IRay): Direction {
           : [z, -x];
   const size: number = Math.hypot(p[0], p[1]);
   if (!(Number.isFinite(size) && size > 0))
-    throw new Error("The native primal point has no finite positive norm.");
+    throw new AutoMovieLoftAdmissionError(
+      "The native primal point has no finite positive norm.",
+    );
   const radial: [number, number] = [p[0] / size, p[1] / size];
   return { p, radial, turn: [-radial[1], radial[0]] };
 }
@@ -141,7 +164,9 @@ function polarPhase(
   radial: readonly [number, number, number],
 ): Phase {
   if (!radial.every(Number.isFinite))
-    throw new Error("The native radial phase jet is not finite.");
+    throw new AutoMovieLoftAdmissionError(
+      "The native radial phase jet is not finite.",
+    );
   return admit({
     p: [...at.p],
     t: [
@@ -163,7 +188,7 @@ function admit<T extends Phase>(out: T): T {
         Array.isArray(row) && row.every(Number.isFinite),
     )
   )
-    throw new Error(
+    throw new AutoMovieLoftAdmissionError(
       "The native field has no finite requested Cartesian reading.",
     );
   return out;
