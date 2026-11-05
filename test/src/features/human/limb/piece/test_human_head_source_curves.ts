@@ -13,6 +13,7 @@ import { AutoMovieHumanReferenceOutlines } from "../../../../../../packages/huma
 import type { IAutoMovieHumanHeadInputs } from "../../../../../../packages/human/src/generation/IAutoMovieHumanHeadInputs";
 import type { IAutoMovieHumanHeadLayout } from "../../../../../../packages/human/src/generation/IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadEarFrame } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadEarFrame";
+import { AutoMovieHumanHeadDome } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadDome";
 import { AutoMovieHumanHeadEarPlate } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadEarPlate";
 import { AutoMovieHumanHeadLane } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanHeadLayout } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadLayout";
@@ -35,13 +36,15 @@ import { HumanPeople } from "../../../internal/HumanPeople";
  * closed-lip contacts and primary Bernstein upper curves agree through spans.
  * Tilted lobule X support is a source-coordinate diagnostic, not a new
  * anatomical measurement expectation.
+ * A shallow declared ellipse preserves its geometric equation, and actual
+ * alar source supports preserve the prior's vertical n-prn ratio units.
  * 4. Actual declarations replay at three physical scales. Independent eye
  * studies remain outside the tree; the horizontal head section is diagnostic,
  * not the anatomical tape. The separate neck-source unit owns adapter spans,
  * quarter/length preservation and the two neck-course observations.
  *
  * @evidence contracts/testing.md#behavioral-verification Reads the production lane's composed original views through the engine's shared source owner, independently of surviving loft sections and of final skin realization.
- * @evidence contracts/testing.md#independent-expectations Public Euclidean distances, cervicale/stature/head height, coincident closed-lip contacts and direct Bernstein evaluation of the primary upper-lid controls are the oracles. Their calibration scale comes independently from the body's resolved input boundary, never from the head scale being checked. The 1e-8 mm bound permits numerical conversion only, not anatomical displacement. The photo pupil's (0,0) uses the contour's same affine map, not the endpoint chord; this remains a template-based 3D placement. Constant AP is checked relative to an endpoint, not as an independently measured global seat.
+ * @evidence contracts/testing.md#independent-expectations Public Euclidean distances, cervicale/stature/head height, coincident closed-lip contacts and direct Bernstein evaluation of the primary upper-lid controls are the oracles. A stated ellipse equation distinguishes profile preservation from the removed quartic workaround; retained vertical n-prn ratio units distinguish alar transfer from mixed denominators without inventing new anatomical measurements. Calibration scale comes independently from the body's resolved input boundary. The 1e-8 mm bound permits numerical conversion only, not anatomical displacement. The photo pupil's (0,0) uses the contour's same affine map, not the endpoint chord; this remains a template-based 3D placement. Constant AP is relative to an endpoint, not an independently measured global seat.
  * @evidence contracts/testing.md#distinguishing-cases Both asymmetric f1 sides, source poles, scalar extrema and between-knot positions distinguish a correct knot list from a coherent original curve and neighbour frame. Actual declaration replay at factors 0.5, 1 and 2 distinguishes a preserved source axis/parameter from a sampled minimal course; these are unit-scaled copies of f1, not another person.
  * @evidence contracts/testing.md#execution-ownership One discoverable synchronous CPU unit reached by --include human_head_source_curves builds only f1's head; it uses no host, browser, GPU or final body realization and reports all findings before failing.
  */
@@ -82,6 +85,19 @@ export function test_human_head_source_curves(): void {
     try { check(sample.name, sample.run(), sample.expected, sample.unit); }
     catch (error) { findings.push(`${sample.name}: ${String(error)}`); }
   }
+
+  // A shallow ellipse must keep its declared conic, independently of joins.
+  try {
+    const cap: IAutoMovieViewPart = AutoMovieHumanHeadDome.of({ name: "profile-contract", origin: [0, 0, 0], outward: [1, 0, 0], along: [0, 1, 0], extents: [10, 8, 10, 8], height: 4, profile: 2, shoulder: AutoMovieViewSection.ELLIPSE, host: 20 });
+    const base: number = cap.stations[AutoMovieHumanHeadDome.STEM]!;
+    const station: number = (base + cap.stations[cap.stations.length - 1]!) / 2;
+    const source: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(cap);
+    const edge: AutoMovieViewCurves.ICurve = source.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === "front.positive")!;
+    const reading: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(edge, cap.axis, station);
+    if (typeof reading === "string") throw new Error(reading);
+    check("declared shallow elliptical source", (reading.scalar.value / 10) ** 2 + ((station - base) / 4) ** 2, 1, "ratio");
+    findings.push(...source.diagnostics.map((diagnostic: AutoMovieViewCurves.IResult["diagnostics"][number]): string => `shallow ellipse: ${diagnostic.detail}`));
+  } catch (error) { findings.push(`declared shallow ellipse: ${String(error)}`); }
   const invalid: { name: string; run: () => number }[] = [
     { name: "outside sagittal support", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 10, 10, 10], ellipse, 11, 3) },
     { name: "degenerate support", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 0, 10, 10], ellipse, 2, 3) },
@@ -225,6 +241,18 @@ export function test_human_head_source_curves(): void {
   check("nasal n-sn chord", Math.hypot(plan.landmarks.nasion[0] - plan.landmarks.subnasale[0], plan.landmarks.nasion[1] - plan.landmarks.subnasale[1]), inputs.head.face.nose.height * bodyScale);
   check("nasal sn-prn chord", Math.hypot(prn[0] - plan.landmarks.subnasale[0], prn[1] - plan.landmarks.subnasale[1]), inputs.head.face.nose.protrusion * bodyScale);
   check("ala al-al chord", distance(point("nose.ala.left", "front.positive", last("nose.ala.left")), point("nose.ala.right", "front.positive", last("nose.ala.right"))), inputs.head.face.nose.width * bodyScale);
+
+  // Prior.ala defines vertical ratios from n to prn, not the n-sn chord.
+  const alarSpan: number = plan.nasion - plan.tip;
+  for (const side of ["left", "right"]) {
+    const name: string = `nose.ala.${side}`;
+    const ala: IAutoMovieViewPart = byName.get(name)!;
+    const base: number = ala.stations[AutoMovieHumanHeadDome.STEM]!;
+    const centre: [number, number, number] = ala.axis.at(base).origin;
+    check(`${side} alar centre vertical ratio`, (centre[1] - plan.subnasale) / alarSpan, AutoMovieHumanHeadPrior.PRIOR.face.ala[2]!, "ratio");
+    check(`${side} alar upper vertical ratio`, (point(name, "front.positive", base)[1] - centre[1]) / alarSpan, AutoMovieHumanHeadPrior.PRIOR.face.ala[3]!, "ratio");
+    check(`${side} alar lower vertical ratio`, (centre[1] - point(name, "front.negative", base)[1]) / alarSpan, AutoMovieHumanHeadPrior.PRIOR.face.ala[4]!, "ratio");
+  }
   const nose: IAutoMovieViewPart = byName.get("nose")!;
   const noseCurve: AutoMovieViewCurves.ICurve = prepared.get("nose")!.curves[0]!;
   const farthest: number = Math.max(...samples(noseCurve.outline!).map((s: number): number => point(nose.name, "front.positive", s)[0]));

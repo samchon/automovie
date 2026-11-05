@@ -19,16 +19,34 @@ import { AutoMovieHumanHeadLipPart } from "./AutoMovieHumanHeadLipPart";
  * | upper and lower lip | own Euclidean vermilion chord, shared contact and source Cupid's bow (`AutoMovieHumanHeadLipPart`) | merge |
  * | orbit, each side | a dome cutter over the fissure's place on the head mass's own section (`AutoMovieHumanHeadMassPart.frontAt`): the fissure's length and height, back to the lid margin (`face.eyeRecess` behind the nasion's skin) | diff |
  *
- * Each dome's stem sinks twice the sagitta its host's radius leaves under
- * its footprint (`AutoMovieHumanHeadDome.sagitta`), so its base lies inside
- * the host. The brow ridge, forehead eminence, malar eminence, cheek and
+ * Each dome's stem extends twice the estimated host sagitta behind its cap
+ * base (`AutoMovieHumanHeadDome.sagitta`). This local estimate does not prove
+ * whole-footprint containment or a successful intersection. The brow ridge, forehead eminence, malar eminence, cheek and
  * chin pad have no part: P already passes their skin, or no law gives their
  * projection over the head mass. The original mass itself owns the supplied
  * zygion width; an outward dome cannot narrow an already wider flank. Each part's own
  * laws (#3053 to #3056) refine these.
+ *
+ * @evidence contracts/common.md#principled-implementation Places the nose, lips and own-side orbital cutters from their actual source landmarks and head-mass section reads. Sagitta and the nasion-profile eye seat remain construction estimates, with intersection and opening checks owned downstream.
+ * @evidence contracts/common.md#clear-and-simple-design Returns one fixed feature list with parent, operator and search metadata; the part owners define the curves and HeadTree defines their joins.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No native reference fit or post-join relocation enters this assembly. The inset floor, recess and profile choices remain declared conventions rather than measured tissue thickness or containment proofs.
+ * @evidence contracts/common.md#meaningful-documentation Distinguishes original features, orbital cutters, estimated embedding and unfinished openings from a completed skin.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed nose, two lips and two orbit sources use bounded section/radius reads and Dome's fixed station count; no body realization or reference scan occurs here.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each feature is constructed once and its original source is returned for Composer; the paired orbits use their own input fields through the same builder.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned views and metadata. This namespace holds only scalar constants and functions, with no retained figure, cache or handle.
  */
 export namespace AutoMovieHumanHeadFeatures {
-  /** A part, its join and its seed. */
+  /**
+   * One original part and the metadata its tree join consumes.
+   *
+   * @evidence contracts/common.md#principled-implementation Keeps the actual source/declaration, parent/operator, world-mm seed, size and optional phase/share search together without changing geometry at the join boundary.
+   * @evidence contracts/common.md#clear-and-simple-design One record serves Composer and HeadTree for both top-level and nested features.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A seed/search is an authored join request, not proof of a host crossing or successful blend.
+   * @evidence contracts/common.md#meaningful-documentation Fields state units, borrowed original-view identity, defaults and the distinction between search metadata and geometry.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A data contract runs no algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A data contract coordinates no execution.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A data contract acquires no runtime resources; the containing composition owns its records.
+   */
   export interface IFeature {
     /** The part's views. */
     part: IAutoMovieViewPart;
@@ -67,7 +85,17 @@ export namespace AutoMovieHumanHeadFeatures {
     search?: { phase: number; from: number; to: number };
   }
 
-  /** Depth of a part's base inside the head mass, mm. */
+  /**
+   * Existing nominal inward embedding allowance, calibration mm.
+   *
+   * @evidence contracts/common.md#principled-implementation Declares the retained 3 mm allowance separately from the host-sagitta estimate and actual intersection checks.
+   * @evidence contracts/common.md#clear-and-simple-design One scalar serves this feature assembly.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The allowance is not measured tissue thickness, a person branch or a response to a failed join.
+   * @evidence contracts/common.md#meaningful-documentation States its nominal embedding role and calibration units.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A scalar constant chooses no algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A scalar constant coordinates no work.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A scalar constant retains no resources.
+   */
   export const INSET: number = 3;
 
   /**
@@ -76,6 +104,14 @@ export namespace AutoMovieHumanHeadFeatures {
    * @param plan The landmark skeleton.
    * @param mass The identical head-mass source whose origin, outlines and fullness place its neighbours.
    * @returns The parts, both sides of a pair each built in its own frame.
+   *
+   * @evidence contracts/common.md#principled-implementation Reads the actual mass's nasal forward fall and each orbital front/radius, authors the same public nasal/lip sources, and retains each eye's own dimensions in an inward recess cutter.
+   * @evidence contracts/common.md#clear-and-simple-design Builds one nose, two lips and two orbit records; each source owner and the tree's join owner retain their separate jobs.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads no native mesh or join result. The 3 mm floor and profile/recess seat are explicit modelling choices, not certified containment or an eyelid opening.
+   * @evidence contracts/common.md#meaningful-documentation Identifies actual mass ownership, calibration-mm placement and original-source output; join metadata does not certify realized skin.
+   * @evidence contracts/performance.md#efficient-algorithms Fixed five-feature work uses bounded source-section/radius queries and fixed-size source construction; no complete body or reference is realized here.
+   * @evidence contracts/performance.md#reuse-equivalent-work The supplied mass is borrowed for placement rather than rebuilt, and every source is returned once for Composer's retained declaration/loft.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returned views and metadata belong to the caller; temporary arrays and the local orbit builder add no cache, background work or retained external handle.
    */
   export function of(plan: IAutoMovieHumanHeadLayout, mass: IAutoMovieViewPart): IFeature[] {
     const k: number = plan.scale;

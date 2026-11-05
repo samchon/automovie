@@ -11,7 +11,7 @@ import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
  *
  * | Part | Parent | Join | Size from |
  * | --- | --- | --- | --- |
- * | tip lobule | nose | merge | round, as wide as the tip ball's breadth (`face.tipBall[2]` half nose widths) about the pronasale |
+ * | tip lobule | nose | merge | elliptical cap, as wide as the tip ball's breadth (`face.tipBall[2]` half nose widths), closing at pronasale |
  * | ala, each side | nose | merge | the alar lobule (`face.ala`) beside the subnasale at half `nose.width` |
  * | nostril, each side | nose | diff | the nostril's size and centre in the base (`face.nostrilSize`, `face.nostrilCentre`) |
  * | philtral groove | head mass | diff | the philtrum's depth and half width (`face.philtrum`), subnasale to labrale superius |
@@ -19,13 +19,33 @@ import type { AutoMovieHumanHeadFeatures } from "./AutoMovieHumanHeadFeatures";
  * | helix, antihelix, concha, each side | auricle | merge, diff | drawn in the ear's own frame (`AutoMovieHumanHeadEarParts`) |
  *
  * Nasal sizes retain declared prior ratios of the supplied nasal triangle.
+ * Alar centre and upper/lower heights use the prior's vertical n-prn span;
+ * projected long supports preserve those heights in the tilted nasal frame.
  * Philtrum uses the actual source Sn-ls chord. The labiomental depth is
  * perpendicular to the actual source Li-Pg line (Legan/Burstone 1980),
  * with its midpoint and footprint still geometric placement conventions.
  * These raw cutters establish neither a through opening nor a lining.
+ *
+ * @evidence contracts/common.md#principled-implementation Uses the supplied nasal triangle, retained ratio units and actual lip landmarks. Alar height ratios keep their vertical n-prn denominator when mapped into the tilted footprint; these ratios and cutter axes remain geometric conventions.
+ * @evidence contracts/common.md#clear-and-simple-design Places a fixed set of inner views and returns their explicit parent/join metadata; Dome owns the shared cap source.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No native-mesh fit, parent relocation or kernel-grazing profile change determines these sources. Existing positive-size floors and embedding allowances remain declared construction conventions.
+ * @evidence contracts/common.md#meaningful-documentation States source units, prior denominators, tilted-frame projection, raw-cutter scope and unfinished openings/lining.
+ * @evidence contracts/performance.md#efficient-algorithms A fixed seven-feature assembly uses constant vector arithmetic and Dome's fixed station count, without realizing the body.
+ * @evidence contracts/performance.md#reuse-equivalent-work One nasal frame and shared source lip sites serve the related parts; each returned view is authored once per call.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned feature arrays. Temporary vectors and constants are call-local, with no retained figure cache or handles.
  */
 export namespace AutoMovieHumanHeadInnerParts {
-  /** Depth of an inner part's base inside its parent, mm. */
+  /**
+   * Depth of an inner part's base inside its parent, mm.
+   *
+   * @evidence contracts/common.md#principled-implementation Declares the existing 1.5 mm embedding allowance, not measured tissue thickness.
+   * @evidence contracts/common.md#clear-and-simple-design One allowance serves the inner-part constructors.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The allowance is independent of person, mesh and join outcome.
+   * @evidence contracts/common.md#meaningful-documentation Names its embedding role and calibration millimetres.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms A scalar constant selects no algorithm.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work A scalar constant coordinates no computation.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources A scalar constant owns no retained population or handles.
+   */
   export const INSET: number = 1.5;
 
   /**
@@ -33,6 +53,14 @@ export namespace AutoMovieHumanHeadInnerParts {
    *
    * @param plan The landmark skeleton.
    * @returns The parts, each naming its parent.
+   *
+   * @evidence contracts/common.md#principled-implementation Preserves Euclidean source landmarks, al-al apices and the retained alar vertical n-prn ratios; dividing by the nasal unit direction's Y component converts height to local long support.
+   * @evidence contracts/common.md#clear-and-simple-design Shares one nasal frame and returns the explicit inner-part list for Composer, leaving joins to the tree.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not fit a reference or shift a part after placement. The retained ratios, floors, embedding allowance and cutter axes are conventions rather than anatomical measurements.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes alar ratio units, cap placement and the still-unrealized openings and lining.
+   * @evidence contracts/performance.md#efficient-algorithms Fixed-count vector arithmetic and seven fixed-size Dome sources dominate; no parent search, body realization or reference scan occurs.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses nasal directions and the original lip sites within this assembly; each view is produced once and borrowed by Composer.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns caller-owned views and metadata, with call-local vectors and no cache, task or handle ownership.
    */
   export function of(plan: IAutoMovieHumanHeadLayout): AutoMovieHumanHeadFeatures.IFeature[] {
     const m: IAutoMovieHumanHeadLandmarks = plan.landmarks;
@@ -40,7 +68,7 @@ export namespace AutoMovieHumanHeadInnerParts {
     const prior: AutoMovieHumanHeadPrior.IPrior = AutoMovieHumanHeadPrior.PRIOR;
     const f: AutoMovieHumanHeadPrior.IFace = prior.face;
     const out: AutoMovieHumanHeadFeatures.IFeature[] = [];
-    const NH: number = plan.nasion - plan.subnasale;
+    const alarSpan: number = plan.nasion - plan.tip;
     const nasalForward: number = m.pronasale[0] - m.subnasale[0];
 
     // The nose's frame: up along the dorsum's chord, forward square to it.
@@ -54,10 +82,14 @@ export namespace AutoMovieHumanHeadInnerParts {
     for (const sign of [1, -1] as const) {
       const side: string = sign > 0 ? "left" : "right";
       const half: number = f.ala[5]! * plan.noseWidth;
+
       // The lateral apex is alare. Both sides share x/y, so these two
       // apices are exactly the supplied Euclidean al-al width apart.
-      const centre: [number, number, number] = [m.subnasale[0] + f.nostrilCentre[0]! * nasalForward, m.subnasale[1] + f.ala[2]! * (m.pronasale[1] - m.subnasale[1]), sign * (plan.noseWidth - half)];
-      out.push(part(`nose.ala.${side}`, "nose", "merge", sub(centre, [0, 0, sign * INSET]), [0, 0, sign], up, [f.ala[3]! * NH, half, f.ala[4]! * NH, half], INSET + half, centre, plan.noseWidth));
+      const centre: [number, number, number] = [m.subnasale[0] + f.nostrilCentre[0]! * nasalForward, m.subnasale[1] + f.ala[2]! * alarSpan, sign * (plan.noseWidth - half)];
+
+      // Prior.ala's half-heights are vertical n-prn ratios. A tilted local
+      // support contributes only up.y of its length to that vertical span.
+      out.push(part(`nose.ala.${side}`, "nose", "merge", sub(centre, [0, 0, sign * INSET]), [0, 0, sign], up, [f.ala[3]! * alarSpan / up[1], half, f.ala[4]! * alarSpan / up[1], half], INSET + half, centre, plan.noseWidth));
       const nostril: [number, number, number] = [m.subnasale[0] + f.nostrilCentre[0]! * nasalForward, m.subnasale[1], sign * f.nostrilCentre[1]! * plan.noseWidth];
       out.push(
         part(`nose.nostril.${side}`, "nose", "diff", [nostril[0], nostril[1] - INSET, nostril[2]], [0, 1, 0], [1, 0, 0],
