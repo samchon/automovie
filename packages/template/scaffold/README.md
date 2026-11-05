@@ -21,7 +21,7 @@ Run `npm run dev`, then open [the Viewer](http://127.0.0.1:5173/). Play, pause a
 
 Keep the server running, set `CHROME_PATH` to an installed Chrome or Chromium executable, then run `npm run render`. `render.config.ts` supplies the capture URL, raster, frame rate, destinations and optional complete soundtrack through `audioMix`. FFmpeg is supplied by `ffmpeg-static`; `FFMPEG_PATH` selects another executable. `VIEWER_URL` selects another running host. Capture mode uses `?capture=1&w=1280&h=720` and the completed `__afSeek(seconds)` hook.
 
-The public Render runner writes `output/film.mp4` and the command retains `output/capture-report.json`. Export requires a whole number of frames and captures actual Viewer pixels at `i / fps`, followed by one video/audio encode. Its hashes and timings describe capture; inspect continuous playback and listen to the actual sound before accepting the film.
+The public Render runner writes `media/automovie/videos/film.mp4` and the command retains `media/automovie/videos/capture-report.json`. Export requires a whole number of frames and captures actual Viewer pixels at `i / fps`, followed by one video/audio encode. Its hashes and timings describe capture; inspect continuous playback and listen to the actual sound before accepting the film.
 
 ## Make a motion hint
 

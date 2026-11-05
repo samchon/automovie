@@ -17,7 +17,7 @@ export default {
   },
   durationSeconds,
   frameDir: ".cache/render",
-  outputPath: "output/film.mp4",
+  outputPath: "media/automovie/videos/film.mp4",
   chromeExecutable: process.env.CHROME_PATH ?? "",
   ffmpegExecutable: process.env.FFMPEG_PATH ?? ffmpeg ?? "",
   viewSelector: "#view",

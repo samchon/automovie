@@ -28,7 +28,7 @@ export async function render(): Promise<void> {
     },
   });
   await writeFile(
-    "output/capture-report.json",
+    "media/automovie/videos/capture-report.json",
     JSON.stringify(result, null, 2),
   );
 }

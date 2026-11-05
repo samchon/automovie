@@ -75,7 +75,7 @@ The prompts map performers by the render's visible cues: red gloves and red shor
 The local whole render `output/kickboxing.mp4` (43373664 bytes, raw SHA-256 `a2734d644188dc389333f6d80c0f2fbf0b8e0ff50bd622112dd22bcd12dd6124`, 1280×720, 30 fps, 180 s, H.264 with AAC) was last written 2026-11-05T04:49:59.505Z. It predates the current source revision (`src/film/FilmPlan.ts` last written 2026-11-05T06:26:16.949Z), so it is not the source of these segments. Re-export the whole film from the revision committed with these records using the [README render command](../../../README.md#check-and-export). Then cut each segment with this planned, unexecuted command:
 
 ```powershell
-ffmpeg -i output/kickboxing.mp4 -ss <start> -t <seconds> -an -c:v libx264 -pix_fmt yuv420p -r 30 output/segments/<record-name>.mp4
+ffmpeg -i media/automovie/videos/kickboxing.mp4 -ss <start> -t <seconds> -an -c:v libx264 -pix_fmt yuv420p -r 30 media/automovie/videos/segments/<record-name>.mp4
 ```
 
 Seeking after the input keeps the cut frame-accurate. Each clip must decode to exactly 30 × seconds frames. Record its bytes, SHA-256, probe, first/last-frame check and the whole render's identity in its request record before any upload.

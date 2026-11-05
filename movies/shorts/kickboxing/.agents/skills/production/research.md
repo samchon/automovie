@@ -16,9 +16,9 @@ Distinguish reported measurements, directly observed features, your inference an
 
 ## Retain usable local references
 
-Actually save the useful permitted originals and selected reference images, PDF pages, figures, recordings or clips in the ignored local [reference archive](layout.md#source-ownership) `references/`, then open the saved files to verify their content. Preserve enough surrounding pages or connected phases to interpret an excerpt. Keep originals identifiable and distinguish crops, annotations, conversions and other derivatives; retain the original locator and transformation used. A URL or an empty index is not a retained reference.
+Actually save the useful permitted originals and selected reference images, PDF pages, figures, recordings or clips in the [reference archive](layout.md#source-ownership) `references/`, then open the saved files to verify their content. Preserve enough surrounding pages or connected phases to interpret an excerpt. Keep originals identifiable and distinguish crops, annotations, conversions and other derivatives; retain the original locator and transformation used. A URL or an empty index is not a retained reference.
 
-Maintain one current index in `docs/research/index.md` linking each local file to its creator, title, original URL, edition or retrieval date, page/figure/time locator, content identity, rights and required attribution. State the specific feature or claim it supports, its limits and the settings, asset, controller, sound or shot decision that uses it. Record unavailable downloads honestly and retain other permitted useful evidence. Originals stay out of Git whatever their license, so the repository never redistributes them; public access alone grants no redistribution rights.
+Maintain one current index in `docs/research/index.md` linking each local file to its creator, title, original URL, edition or retrieval date, page/figure/time locator, content identity, rights and required attribution. State the specific feature or claim it supports, its limits and the settings, asset, controller, sound or shot decision that uses it. Record unavailable downloads honestly and retain other permitted useful evidence. Keep restricted or rights-unconfirmed material in ignored `references/private/`; public access alone grants no redistribution rights.
 
 ## Apply and verify the decision
 

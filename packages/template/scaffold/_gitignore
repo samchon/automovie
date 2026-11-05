@@ -5,9 +5,10 @@ dist/
 /docs/revision/
 /docs/naturalness/
 /docs/prompts/**/payloads/
-/references/
-/media/
-/output/
+/references/private/
+/media/automovie/
+/media/*/audios/
+/media/*/videos/
 *.log
 .DS_Store
 .wiki/

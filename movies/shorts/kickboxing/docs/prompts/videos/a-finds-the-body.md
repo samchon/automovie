@@ -6,7 +6,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 
 | Field | Planned value |
 | --- | --- |
-| Local clip | `output/segments/a-finds-the-body.mp4`, pending export from the re-exported whole render |
+| Local clip | `media/automovie/videos/segments/a-finds-the-body.mp4`, pending export from the re-exported whole render |
 | Whole-render global interval | [15, 30) seconds |
 | Local interval | [0, 15) seconds |
 | Global included frames at 30 fps | 450–899 |
@@ -70,4 +70,4 @@ Keep realistic human anatomy, closed fists inside the gloves and the gloves on t
 
 ## Output and retention boundary {#retention}
 
-Availability: the source clip does not yet exist, and no input or output bytes are retained for this request. After export, add the clip's measured duration, frames, profile, bytes, SHA-256 and first/last-frame observations here, with the whole render's identity, keeping this planned epoch. A future submission becomes its own attributable attempt with the exact sent payload, job ID and retained outputs under [generation records](../../../.agents/skills/production/generation-records.md). Large files stay in ignored `output/segments/` or `media/generated/`; Git keeps these records, not the media.
+Availability: the source clip does not yet exist, and no input or output bytes are retained for this request. After export, add the clip's measured duration, frames, profile, bytes, SHA-256 and first/last-frame observations here, with the whole render's identity, keeping this planned epoch. A future submission becomes its own attributable attempt with the exact sent payload, job ID and retained outputs under [generation records](../../../.agents/skills/production/generation-records.md). Large files stay in ignored `media/automovie/videos/segments/` or `media/diffusion/videos/`; Git keeps these records, not the media.
