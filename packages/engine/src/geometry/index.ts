@@ -1,6 +1,9 @@
 /** Geometry operations and their contracts, also re-exported by the engine root. */
 export * from "./curve";
 export * from "./construction";
+export * from "./construction/AutoMovieLoftSectionNative";
+export * from "./construction/AutoMovieLoftViewRead";
+export * from "./construction/AutoMovieLoftViewSource";
 export * from "./createAutoMovieEllipticLoftAtlas";
 export * from "./realizeAutoMovieConvexSupportLoft";
 export * from "./evaluateAutoMovieSupportSection";

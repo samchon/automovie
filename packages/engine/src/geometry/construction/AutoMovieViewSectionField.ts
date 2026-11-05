@@ -150,26 +150,89 @@ export namespace AutoMovieViewSectionField {
       return failure(
         "The original section has no admitted numeric ray reading.",
       );
-    const quarter: AutoMovieViewConic.IQuarter<Source> =
-      prepared.source.quarters[ray.quarter]!;
-    let reading: AutoMovieConicArcField.IReading | Failure;
-    if (ray.kind === "conic")
-      reading = AutoMovieConicArcField.read(
-        quarter.extents,
-        quarter.shoulder,
-        ray,
-      );
-    else {
-      const patch: AutoMovieConicHermite.IPatch<Source> | null =
-        ray.kind === "start" ? quarter.start : quarter.end;
-      if (patch === null)
-        return failure(
-          "The selected G2 piece has no corresponding source preparation.",
-        );
-      reading = AutoMovieConicHermiteField.read(patch, ray);
-    }
-    return reading.kind === "failure" ? reading : lift(reading);
+    return evaluate(prepared, ray);
   }
+
+  /**
+   * Read source2 from the caller's one numeric descriptor of this same preparation.
+   *
+   * The caller must obtain ray from prepared.geometry, without another geometry,
+   * phase rewrap or reflection. This keeps its primal point/direction available
+   * to Cartesian consumers without repeating the numeric inverse.
+   *
+   * @evidence contracts/common.md#principled-implementation The same validated source-dispatch/lift reads the actual fixed clock selected by the caller's same-geometry numeric descriptor.
+   * @evidence contracts/common.md#clear-and-simple-design This entry separates numeric lookup from source partial evaluation while sharing their existing authority.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts A malformed present source/descriptor fails; no inverse, different phase, extra reflection or fallback curve is introduced.
+   * @evidence contracts/common.md#meaningful-documentation States the same-prepared-geometry caller premise and retained primal-point purpose explicitly.
+   * @evidence contracts/performance.md#efficient-algorithms One source validation and one selected AD evaluation, with zero inverse iterations in this entry.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the already selected numeric ray and its phase jet/curvature in the existing geometric lift.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh radial tuple or named failure and retains no descriptor/history/cache.
+   */
+  export function readRay(
+    prepared: IPrepared,
+    ray: AutoMovieViewConic.IRay,
+  ): IRadialJet | Failure {
+    const fault: string | null = validate(prepared);
+    return fault === null ? evaluate(prepared, ray) : failure(fault);
+  }
+}
+
+/** One shared fixed-clock source dispatch follows an admitted same-geometry ray. */
+function evaluate(
+  prepared: AutoMovieViewSectionField.IPrepared,
+  ray: AutoMovieViewConic.IRay,
+): AutoMovieViewSectionField.IRadialJet | Failure {
+  if (
+    ray === null ||
+    ray === undefined ||
+    !Number.isInteger(ray.quarter) ||
+    ray.quarter < 0 ||
+    ray.quarter >= 4 ||
+    (ray.kind !== "conic" && ray.kind !== "start" && ray.kind !== "end") ||
+    !Array.isArray(ray.point) ||
+    ray.point.length !== 2 ||
+    !ray.point.every(Number.isFinite) ||
+    !Array.isArray(ray.tangent) ||
+    ray.tangent.length !== 2 ||
+    !ray.tangent.every(Number.isFinite) ||
+    !Array.isArray(ray.radial) ||
+    ray.radial.length !== 3 ||
+    !ray.radial.every(Number.isFinite) ||
+    !Number.isFinite(ray.logCurvature) ||
+    !Number.isFinite(ray.angle) ||
+    !Number.isFinite(ray.distance) ||
+    typeof ray.reverse !== "boolean" ||
+    (ray.position !== "first" &&
+      ray.position !== "interior" &&
+      ray.position !== "last") ||
+    (ray.kind === "conic" &&
+      (ray.native === null || !Number.isFinite(ray.native))) ||
+    (ray.kind !== "conic" &&
+      ray.position === "interior" &&
+      (ray.clock === null || !Number.isFinite(ray.clock)))
+  )
+    return failure(
+      "The section field has no supported same-geometry numeric ray descriptor.",
+    );
+  const quarter: AutoMovieViewConic.IQuarter<Source> =
+    prepared.source.quarters[ray.quarter]!;
+  let reading: AutoMovieConicArcField.IReading | Failure;
+  if (ray.kind === "conic")
+    reading = AutoMovieConicArcField.read(
+      quarter.extents,
+      quarter.shoulder,
+      ray,
+    );
+  else {
+    const patch: AutoMovieConicHermite.IPatch<Source> | null =
+      ray.kind === "start" ? quarter.start : quarter.end;
+    if (patch === null)
+      return failure(
+        "The selected G2 piece has no corresponding source preparation.",
+      );
+    reading = AutoMovieConicHermiteField.read(patch, ray);
+  }
+  return reading.kind === "failure" ? reading : lift(reading);
 }
 
 /** Convert a numerical premise into the shared explicit failure record. */
