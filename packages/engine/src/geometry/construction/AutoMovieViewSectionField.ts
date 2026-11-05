@@ -2,6 +2,7 @@ import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import type { AutoMovieConicHermite } from "./AutoMovieConicHermite";
 import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
+import { AutoMovieConicPreparation } from "./AutoMovieConicPreparation";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
 
 /** Source Hessian used by the shared conic algebra. */
@@ -83,8 +84,8 @@ export namespace AutoMovieViewSectionField {
    * @evidence contracts/common.md#clear-and-simple-design One admission and one shared factory return explicit source and numeric records.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Rejects unavailable derivatives and nonpositive regular extents; does not re-solve a named-site girth, clamp a shoulder or fit layers.
    * @evidence contracts/common.md#meaningful-documentation The namespace states same-station units, effective-shoulder ownership and the separate finite-value/pole capability.
-   * @evidence contracts/performance.md#efficient-algorithms Eight fixed source tuples and four constant-size quarters; no native-turn partition, length integration or cache is prepared.
-   * @evidence contracts/performance.md#reuse-equivalent-work The numeric geometry is projected from the already prepared AD controls rather than prepared again.
+   * @evidence contracts/performance.md#efficient-algorithms Eight copied station tuples, eight own endpoint curvatures and four constant-size quarters; no native-turn partition, length integration or cache is prepared.
+   * @evidence contracts/performance.md#reuse-equivalent-work This fixed pure AD invocation reuses its eight own endpoint curvatures for end assembly; numeric geometry projects the same prepared controls.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns owned numeric/tuple records with no retained input arrays or algebra table.
    */
   export function prepare(
@@ -111,13 +112,8 @@ export namespace AutoMovieViewSectionField {
       AutoMovieConicFieldJet.AD;
     const e: Source[] = extents.map(AutoMovieConicFieldJet.fromStation);
     const r: Source[] = shoulders.map(AutoMovieConicFieldJet.fromStation);
-    const k: [Source, Source, Source, Source] = AutoMovieViewConic.curvatures(
-      ops,
-      e,
-      r,
-    );
     const source: AutoMovieViewConic.ICurve<Source> =
-      AutoMovieViewConic.prepareGeometry(ops, e, r, k);
+      AutoMovieConicPreparation.source(e, r);
     if (source.failure !== null) return failure(source.failure);
     return {
       kind: "prepared",

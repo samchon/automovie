@@ -2,6 +2,7 @@ import { AutoMovieConicArc } from "./AutoMovieConicArc";
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieConicHermite } from "./AutoMovieConicHermite";
+import { AutoMovieConicPreparation } from "./AutoMovieConicPreparation";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 
 /**
@@ -154,67 +155,12 @@ export namespace AutoMovieViewConic {
     shoulders: readonly T[],
     curvatures: readonly T[],
   ): ICurve<T> {
-    if (
-      extents.length !== 4 ||
-      shoulders.length !== 4 ||
-      curvatures.length !== 4 ||
-      !extents.every(
-        (v: T): boolean => Number.isFinite(ops.value(v)) && ops.value(v) > 0,
-      ) ||
-      !shoulders.every(
-        (v: T): boolean =>
-          Number.isFinite(ops.value(v)) && ops.value(v) > 0 && ops.value(v) < 1,
-      ) ||
-      !curvatures.every(
-        (v: T): boolean => Number.isFinite(ops.value(v)) && ops.value(v) > 0,
-      )
-    )
-      return {
-        quarters: [],
-        failure:
-          "conic quarters need four finite positive extents/curvatures and shoulders inside (0,1)",
-      };
-    const quarters: IQuarter<T>[] = [];
-    for (let q: number = 0; q < 4; q++) {
-      const a: T = extents[q]!;
-      const b: T = extents[(q + 1) % 4]!;
-      const r: T = shoulders[q]!;
-      const start: AutoMovieConicHermite.IPatch<T> | string | null =
-        AutoMovieConicHermite.prepare(ops, a, b, r, curvatures[q]!);
-      const end: AutoMovieConicHermite.IPatch<T> | string | null =
-        AutoMovieConicHermite.prepare(ops, b, a, r, curvatures[(q + 1) % 4]!);
-      if (typeof start === "string" || typeof end === "string")
-        return {
-          quarters: [],
-          failure: `quarter ${q}: ${typeof start === "string" ? start : end}`,
-        };
-
-      // A positive local support can be smaller than one global-angle ulp.
-      // It is still a valid rational piece: keep its native length and exact
-      // guide jet. A rounded global query outside it reads the original conic.
-      const guides: [T, T] = [
-        ops.subtract(a, ops.multiply(ops.multiply(curvatures[q]!, a), a)),
-        ops.subtract(
-          b,
-          ops.multiply(ops.multiply(curvatures[(q + 1) % 4]!, b), b),
-        ),
-      ];
-      if (!guides.every((v: T): boolean => Number.isFinite(ops.value(v))))
-        return {
-          quarters: [],
-          failure: `quarter ${q}: shared guide jet is not finitely representable`,
-        };
-      quarters.push({
-        extents: [a, b],
-        shoulder: r,
-        start,
-        end,
-        guides,
-        parameters: [],
-        curvatures: [curvatures[q]!, curvatures[(q + 1) % 4]!],
-      });
-    }
-    return { quarters, failure: null };
+    return AutoMovieConicPreparation.geometry(
+      ops,
+      extents,
+      shoulders,
+      curvatures,
+    );
   }
 
   /**
@@ -329,26 +275,7 @@ export namespace AutoMovieViewConic {
     extents: readonly T[],
     shoulders: readonly T[],
   ): [T, T, T, T] {
-    return [0, 1, 2, 3].map((g: number): T => {
-      const before: number = (g + 3) % 4;
-      const a: T = AutoMovieConicArcField.curvature(
-        ops,
-        extents[g]!,
-        extents[before]!,
-        shoulders[before]!,
-      );
-      const b: T = AutoMovieConicArcField.curvature(
-        ops,
-        extents[g]!,
-        extents[(g + 1) % 4]!,
-        shoulders[g]!,
-      );
-      return Number.isNaN(ops.value(a)) || Number.isNaN(ops.value(b))
-        ? ops.constant(NaN)
-        : ops.value(a) <= ops.value(b)
-          ? a
-          : b;
-    }) as [T, T, T, T];
+    return AutoMovieConicPreparation.curvatures(ops, extents, shoulders);
   }
 
   /**

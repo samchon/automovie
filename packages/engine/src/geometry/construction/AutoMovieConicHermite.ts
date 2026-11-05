@@ -2,6 +2,7 @@ import type { AutoMovieConicArc } from "./AutoMovieConicArc";
 import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
+import { AutoMovieConicPreparation } from "./AutoMovieConicPreparation";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 
 /**
@@ -97,7 +98,7 @@ export namespace AutoMovieConicHermite {
    * Prepare the same rational G2 end in NUMBER or source-Hessian algebra.
    *
    * @evidence contracts/common.md#principled-implementation Original quadratic subdivision, degree elevation and the fixed-polygon curvature-ratio law are shared verbatim across scalar representations.
-   * @evidence contracts/common.md#clear-and-simple-design The numeric create adapter delegates to this sole preparation owner.
+   * @evidence contracts/common.md#clear-and-simple-design The numeric adapter computes own curvature here and delegates to the shared internal end formula.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Primal admission selects a branch without claiming auxiliary min-curvature branch jets are derivatives at a tie.
    * @evidence contracts/common.md#meaningful-documentation Angle is a primal lookup bound; native support and rational controls retain supplied source derivatives.
    * @evidence contracts/performance.md#efficient-algorithms Constant-size preparation; no length, native-turn partition or cache work occurs.
@@ -112,112 +113,7 @@ export namespace AutoMovieConicHermite {
     shared: T,
   ): IPatch<T> | string | null {
     const own: T = AutoMovieConicArcField.curvature(ops, a, b, r);
-    if (
-      ![a, b, own, shared].every(
-        (value: T): boolean =>
-          Number.isFinite(ops.value(value)) && ops.value(value) > 0,
-      ) ||
-      !(
-        ops.value(r) > 0 &&
-        ops.value(r) < 1 &&
-        ops.value(shared) <= ops.value(own)
-      )
-    )
-      return "G2 conic end needs finite positive extents/curvatures and shared curvature no greater than own";
-    if (ops.value(shared) === ops.value(own)) return null;
-
-    const one: T = ops.constant(1);
-    const two: T = ops.constant(2);
-    const tau: T = ops.divide(shared, own);
-    const contrast: T = ops.divide(ops.subtract(own, shared), own);
-    const scale: T = AutoMovieConicArcField.norm(ops, a, b);
-    const A: T = ops.divide(a, scale);
-    const B: T = ops.divide(b, scale);
-    const budget: T = ops.divide(
-      ops.multiply(ops.multiply(ops.constant(1e-7), A), B),
-      ops.add(A, B),
-    );
-    const x: T = ops.sqrt(ops.divide(budget, ops.constant(4)));
-    const native: T = ops.multiply(
-      ops.divide(x, ops.add(one, ops.multiply(two, x))),
-      contrast,
-    );
-    const u: T = ops.subtract(one, native);
-    const w: T = AutoMovieConicArcField.weight(ops, r);
-    const middleTerm: T = ops.multiply(
-      ops.multiply(ops.multiply(two, w), native),
-      u,
-    );
-    const denominator: T = ops.add(
-      ops.add(ops.multiply(u, u), middleTerm),
-      ops.multiply(native, native),
-    );
-    const firstWeight: T = ops.add(u, ops.multiply(w, native));
-    const middle: T = ops.divide(firstWeight, ops.sqrt(denominator));
-    const divisor: T = ops.add(one, ops.multiply(two, middle));
-    const elevated: T = ops.divide(divisor, ops.constant(3));
-    const vertical: T = ops.add(ops.multiply(ops.multiply(two, w), u), native);
-    const p: T = ops.divide(
-      ops.multiply(w, denominator),
-      ops.multiply(firstWeight, vertical),
-    );
-    const root: T = ops.cbrt(tau);
-    const deficit: T = ops.divide(
-      ops.multiply(ops.multiply(a, native), native),
-      denominator,
-    );
-    const height: T = ops.divide(
-      ops.multiply(ops.multiply(b, native), vertical),
-      denominator,
-    );
-    const weightedP: T = ops.multiply(ops.multiply(two, middle), p);
-    const points: readonly (readonly [T, T])[] = [
-      [ops.constant(0), ops.constant(0)],
-      [ops.constant(0), ops.divide(weightedP, divisor)],
-      [ops.divide(one, divisor), ops.divide(ops.add(weightedP, one), divisor)],
-      [one, one],
-    ];
-    const weights: readonly T[] = [
-      one,
-      ops.divide(elevated, ops.multiply(root, root)),
-      ops.divide(elevated, root),
-      one,
-    ];
-    const angle: number = Math.atan2(
-      ops.value(height),
-      ops.value(ops.subtract(a, deficit)),
-    );
-    if (
-      ![native, deficit, height, ...weights].every(
-        (value: T): boolean =>
-          Number.isFinite(ops.value(value)) && ops.value(value) > 0,
-      ) ||
-      !(Number.isFinite(angle) && angle > 0) ||
-      !points
-        .flat()
-        .every((value: T): boolean => Number.isFinite(ops.value(value))) ||
-      !(
-        ops.value(p) > 0 &&
-        ops.value(p) < 1 &&
-        ops.value(points[1]![1]) > 0 &&
-        ops.value(points[1]![1]) < ops.value(points[2]![1]) &&
-        ops.value(points[2]![1]) < 1 &&
-        ops.value(points[2]![0]) > 0 &&
-        ops.value(points[2]![0]) < 1 &&
-        ops.value(deficit) < ops.value(a)
-      )
-    )
-      return "G2 conic end has no finite positive native/angular extent or rational weights";
-    return {
-      extent: a,
-      deficit,
-      height,
-      native,
-      angle,
-      curvature: shared,
-      points,
-      weights,
-    };
+    return AutoMovieConicPreparation.end(ops, a, b, r, shared, own);
   }
 
   /**
