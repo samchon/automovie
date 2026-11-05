@@ -1,5 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
-import type { IAutoMovieHumanRelief } from "../../network/IAutoMovieHumanRelief";
+import type { AutoMovieLoftContract, IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanLegReliefWindow } from "./AutoMovieHumanLegReliefWindow";
 import { AutoMovieHumanLegReliefWindows } from "./AutoMovieHumanLegReliefWindows";
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
@@ -30,9 +29,9 @@ export namespace AutoMovieHumanLegReliefs {
     girth: (s: number) => number,
     span: readonly [number, number],
     crotchReach?: number,
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [],
+    diagnostics: AutoMovieLoftContract.IDiagnostic[] = [],
     furrow?: number,
-  ): IAutoMovieHumanRelief[] {
+  ): IAutoMovieLoftRelief[] {
     const centre: (w: AutoMovieHumanLegReliefWindow.IWindow) => number = (w: AutoMovieHumanLegReliefWindow.IWindow): number =>
       w.anchor === "crotch" && furrow !== undefined && furrow > span[0] && furrow < span[1]
         ? furrow
@@ -42,7 +41,7 @@ export namespace AutoMovieHumanLegReliefs {
     return AutoMovieHumanLegReliefWindows.ALL.filter((w: AutoMovieHumanLegReliefWindow.IWindow): boolean => {
       const at: number = centre(w);
       return at > span[0] && at < span[1];
-    }).flatMap((w: AutoMovieHumanLegReliefWindow.IWindow): IAutoMovieHumanRelief[] => {
+    }).flatMap((w: AutoMovieHumanLegReliefWindow.IWindow): IAutoMovieLoftRelief[] => {
       const at: number = centre(w);
       try {
         return [AutoMovieHumanLegReliefWindow.create(w, { bones, radius: girth(at) / (2 * Math.PI), at })];

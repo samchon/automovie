@@ -16,7 +16,7 @@
     "dev": "vite --host 127.0.0.1 --port 5199 --strictPort",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5198 --strictPort",
-    "render": "ttsx -P tsconfig.json src/render.ts"
+    "render": "ttsx -P tsconfig.json src/executable/render.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
@@ -30,9 +30,9 @@
   },
   "devDependencies": {
     "@automovie/evidence": "workspace:^",
-    "@ttsc/lint": "^0.35.0",
+    "@ttsc/lint": "^0.36.2",
     "@types/node": "^22.19.17",
-    "ttsc": "^0.35.0",
+    "ttsc": "^0.36.2",
     "typescript": "^7.0.2",
     "@wrtnlabs/evidence": "^0.8.2",
     "vite": "catalog:vite",

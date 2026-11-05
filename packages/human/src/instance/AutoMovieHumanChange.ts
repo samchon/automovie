@@ -156,12 +156,13 @@ export namespace AutoMovieHumanChange {
 /**
  * Appearance leaves that reach only a material or an image: the strand and
  * fabric colours select material colours, oiliness and wrinkles the skin
- * material's specular and relief scale, and freckles, moles and acne the
- * seeded marks image.
+ * material's specular and relief scale, freckles, moles and acne the
+ * seeded marks image, and the brows' colour, thickness and density their
+ * images over the skin's texture.
  */
 const MATERIAL: readonly RegExp[] = [
   /^appearance\.hair\.color$/,
-  /^appearance\.browPair\.(left|right)\.color$/,
+  /^appearance\.browPair\.(left|right)\.(color|thickness|density)$/,
   /^appearance\.lashPair\.(left|right)\.color$/,
   /^appearance\.underwear\.color$/,
   /^appearance\.skin\.(oiliness|wrinkles)$/,

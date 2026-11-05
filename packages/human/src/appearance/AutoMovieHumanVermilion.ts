@@ -68,10 +68,12 @@ export namespace AutoMovieHumanVermilion {
               1,
               Math.max(0, ((p[1] - a[1]) * dy + (p[2] - a[2]) * dz) / length),
             );
-      nearest = Math.min(
-        nearest,
-        Math.hypot(p[1] - a[1] - t * dy, p[2] - a[2] - t * dz),
-      );
+      // The distance is at least its larger leg, so a segment whose larger
+      // leg already reaches the nearest cannot lower it.
+      const ey: number = p[1] - a[1] - t * dy;
+      const ez: number = p[2] - a[2] - t * dz;
+      if (!(Math.max(Math.abs(ey), Math.abs(ez)) >= nearest))
+        nearest = Math.min(nearest, Math.hypot(ey, ez));
       if (
         a[1] > p[1] !== b[1] > p[1] &&
         p[2] < a[2] + ((p[1] - a[1]) * dz) / dy

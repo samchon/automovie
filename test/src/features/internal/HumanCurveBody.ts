@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { HumanCurveFinding } from "./HumanCurveFinding";
 import { HumanCurveChain } from "./HumanCurveChain";
 import { HumanCurveEar } from "./HumanCurveEar";
@@ -110,8 +110,8 @@ export namespace HumanCurveBody {
         }
       }
     };
-    const chains: IAutoMovieHumanLoftChain[] = body.chains.filter(
-      (c: IAutoMovieHumanLoftChain): boolean => generated.test(c.name),
+    const chains: IAutoMovieLoftChain[] = body.chains.filter(
+      (c: IAutoMovieLoftChain): boolean => generated.test(c.name),
     );
     for (const chain of chains) {
       auditChain(chain, report);

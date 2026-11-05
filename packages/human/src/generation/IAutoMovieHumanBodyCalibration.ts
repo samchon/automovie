@@ -1,6 +1,5 @@
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract, AutoMovieSolidBody, AutoMovieSolidMesh, IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import type { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandmarks";
@@ -33,7 +32,7 @@ export interface IAutoMovieHumanBodyCalibration {
   stature: number;
 
   /** All chains of the tree. */
-  chains: IAutoMovieHumanLoftChain[];
+  chains: IAutoMovieLoftChain[];
 
   /** Branch events, at most one per chain end. */
   events: IAutoMovieHumanBodyCalibration.IEvent[];
@@ -56,7 +55,7 @@ export interface IAutoMovieHumanBodyCalibration {
    * diagnostics. A calibration built by hand, as a part viewer's or a test's,
    * may leave it out.
    */
-  diagnostics?: AutoMovieHumanLoftContract.IDiagnostic[];
+  diagnostics?: AutoMovieLoftContract.IDiagnostic[];
 
   /**
    * Chains rooted in a closed loop on another chain's surface (an auricle on
@@ -64,6 +63,24 @@ export interface IAutoMovieHumanBodyCalibration {
    * means none.
    */
   appendages?: IAutoMovieHumanBodyCalibration.IAppendage[];
+
+  /**
+   * Solid merges and diffs drawn by the solid tessellation
+   * (`AutoMovieHumanBodySurfaceSolids`): each a join's blend published as a
+   * chain between a host chain and a part chain. Every chain a merge names is
+   * drawn as a trimmed face, not by events or rings. Absent means none.
+   */
+  merges?: IAutoMovieHumanBodyCalibration.IMerge[];
+
+  /**
+   * Solids built as bodies of trimmed faces (`AutoMovieSolidBody`):
+   * merges onto merged hosts, whose rails cross faces, published with
+   * `AutoMovieSolidBody.publish`. Every face is a chain of `chains`
+   * (the blends included) and is drawn by the solid tessellation
+   * (`AutoMovieHumanBodySurfaceSolids`), not by events or rings. Absent means
+   * none.
+   */
+  bodies?: AutoMovieSolidBody.IPublished[];
 
   /**
    * The bind skeleton the limbs were lofted on, placed before any limb skin
@@ -140,6 +157,67 @@ export namespace IAutoMovieHumanBodyCalibration {
       "left" | "right",
       { superius: [number, number, number]; inferius: [number, number, number] }
     >;
+  }
+
+  /**
+   * One solid join as published data: its blend chain
+   * (`AutoMovieSolidBlendChain`) and the two rails as trim loops of
+   * their faces, column `k` of each loop at the blend's phase `2 pi k / n`.
+   */
+  export interface IMerge {
+    /** The blend chain's name, in `chains`. */
+    blend: string;
+
+    /** The host chain's name: the face the whole host rail lies on, unless `hostChains` names each column's. */
+    host: string;
+
+    /**
+     * The host chain of each column of `hostLoop`, for a rail that crosses the
+     * faces of a merged body (`AutoMovieSolidBody`): column `k`'s chart
+     * point lies on chain `hostChains[k]`. Absent, every column is on `host`.
+     */
+    hostChains?: string[];
+
+    /** The part chain's name. */
+    part: string;
+
+    /** The blend chain's station span, mm. */
+    length: number;
+
+    /** The host's rail as a trim of the host's face. */
+    hostLoop: AutoMovieSolidMesh.ILoopChart;
+
+    /** The part's rail as a trim of the part's face. */
+    partLoop: AutoMovieSolidMesh.ILoopChart;
+
+    /** The host's chart direction at each column toward and past its rail, of unit world speed (`AutoMovieSolidBlendChain.IBlend.across`). */
+    across: [number, number][];
+
+    /**
+     * The part's chart direction at each column toward and past its rail, of
+     * unit world speed (`AutoMovieSolidBlendChain.IBlend.partAcross`):
+     * along its station under the phase parameter, square to the curve under
+     * the angle. Absent, the station direction `sigma`.
+     */
+    partAcross?: [number, number][];
+
+    /** The intersection curve's point at each column, mm (`AutoMovieSolidBlendChain.IBlend.curve`). Absent on an entry built before it was published. */
+    curve?: [number, number, number][];
+
+    /** The declared chords at each column, mm (`AutoMovieSolidBlendChain.IBlend.widths`). */
+    widths?: { host: number[]; part: (number | null)[] };
+
+    /** The kind of the curve's parameter: `phase`, `angle` or `arc` (`AutoMovieSolidBlendChain.IBlend.parameter`). */
+    parameter?: "phase" | "angle" | "arc";
+
+    /** The part's kept side in its station (`AutoMovieSolidBlendChain.IBlend.sigma`). */
+    sigma: 1 | -1;
+
+    /** Rows of the blend between its rails, at least 1. */
+    rows: number;
+
+    /** Whether the join is a diff, whose part face (the cutter's wall) faces into the cutter. Absent, a merge. */
+    diff?: boolean;
   }
 
   /**

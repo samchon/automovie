@@ -4,7 +4,7 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanScalpHair } from "../structures/appearance/IAutoMovieHumanScalpHair";
 import { AutoMovieHumanHairCard } from "./AutoMovieHumanHairCard";
@@ -90,7 +90,7 @@ export namespace AutoMovieHumanHairStage {
     params: IAutoMovieHumanParameters,
     body: IAutoMovieHumanAppearanceBody,
     hair: IAutoMovieHumanScalpHair,
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[],
+    diagnostics: AutoMovieLoftContract.IDiagnostic[],
   ): IOutput | null {
     try {
       return realise(params, body, hair);

@@ -2,7 +2,7 @@ import { AutoMovieHumanBodyConstruction } from "../../src/generation/AutoMovieHu
 import { AutoMovieHumanBodySurface } from "../../src/generation/AutoMovieHumanBodySurface";
 import type { IAutoMovieHumanBodyCalibration } from "../../src/generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanLoftMesh } from "../../src/lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../../src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IHumanDebugDocument } from "../contracts/IHumanDebugDocument";
 import { HumanDebugPattern } from "../contracts/HumanDebugPattern";
 import { HumanDebugTubeCentreline } from "./HumanDebugTubeCentreline";
@@ -50,7 +50,7 @@ export namespace HumanDebugChainLoft {
 
     // Parts in chain order, then interval order, so the part list reads as the body does.
     const order: Map<string, number> = new Map(
-      subset.chains.map((c: IAutoMovieHumanLoftChain, k: number): [string, number] => [c.name, k]),
+      subset.chains.map((c: IAutoMovieLoftChain, k: number): [string, number] => [c.name, k]),
     );
     pieces.sort(
       (a: AutoMovieHumanLoftMesh.IPiece, b: AutoMovieHumanLoftMesh.IPiece): number =>
@@ -113,7 +113,7 @@ export namespace HumanDebugChainLoft {
       provenance: {
         producer: "HumanDebugChainLoft",
         globs: [...globs],
-        lofted: subset.chains.map((c: IAutoMovieHumanLoftChain): string => c.name),
+        lofted: subset.chains.map((c: IAutoMovieLoftChain): string => c.name),
         nonFinite: broken,
         chains,
         orphans,
@@ -133,13 +133,13 @@ export namespace HumanDebugChainLoft {
     calibration: IAutoMovieHumanBodyCalibration,
     owned: (name: string) => boolean,
   ): IAutoMovieHumanBodyCalibration {
-    const chains: IAutoMovieHumanLoftChain[] = calibration.chains.filter(
-      (c: IAutoMovieHumanLoftChain): boolean => owned(c.name),
+    const chains: IAutoMovieLoftChain[] = calibration.chains.filter(
+      (c: IAutoMovieLoftChain): boolean => owned(c.name),
     );
     if (chains.length === 0)
       throw new Error(
         "No chain matches; chains are " +
-          calibration.chains.map((c: IAutoMovieHumanLoftChain): string => c.name).join(", "),
+          calibration.chains.map((c: IAutoMovieLoftChain): string => c.name).join(", "),
       );
     return {
       ...calibration,

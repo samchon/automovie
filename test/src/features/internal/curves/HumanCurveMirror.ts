@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
 import { HumanAnatomyMirror } from "../HumanAnatomyMirror";
@@ -29,7 +29,7 @@ export namespace HumanCurveMirror {
     for (const chain of body.chains) {
       if (!chain.name.includes(".left")) continue;
       const other: string = chain.name.replace(".left", ".right");
-      if (!body.chains.some((c: IAutoMovieHumanLoftChain): boolean => c.name === other)) continue;
+      if (!body.chains.some((c: IAutoMovieLoftChain): boolean => c.name === other)) continue;
       const a: number[] = read(chain.name).girth;
       const b: number[] = read(other).girth;
       const n: number = Math.min(a.length, b.length);

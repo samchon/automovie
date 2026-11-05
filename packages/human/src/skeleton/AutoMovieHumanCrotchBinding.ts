@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBindingLimb } from "./IAutoMovieHumanBindingLimb";
 import type { IAutoMovieHumanBindingPlane } from "./IAutoMovieHumanBindingPlane";
 import { AutoMovieHumanLimbCapsule } from "./AutoMovieHumanLimbCapsule";
@@ -52,7 +52,7 @@ export namespace AutoMovieHumanCrotchBinding {
     let low: number = Infinity;
     if (trunk !== undefined)
       for (const layer of trunk.layers)
-        for (const p of AutoMovieHumanLoftChain.ring(trunk, layer.y, PHASES))
+        for (const p of AutoMovieLoftChain.ring(trunk, layer.y, PHASES))
           if (Math.abs(p[2]) < BAND) low = Math.min(low, p[1]);
     return low * scale;
   }

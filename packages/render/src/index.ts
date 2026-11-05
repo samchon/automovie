@@ -27,6 +27,7 @@ export * from "./IAutoMovieSequenceRenderTransitionSpan";
 export * from "./IAutoMovieSequenceRenderFrame";
 export * from "./IAutoMovieSequenceRenderPlan";
 export * from "./planSequenceRender";
+export * from "./planViewerFrameTimes";
 export * from "./IAutoMovieSequenceRenderAdapters";
 export * from "./IAutoMovieSequenceRenderResult";
 export * from "./IAutoMovieSequenceRenderAndSeeRequest";

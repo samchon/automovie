@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanCurveRing } from "./HumanCurveRing";
 import { HumanCurveVector } from "./HumanCurveVector";
 import { HumanCurveConstants } from "./HumanCurveConstants";
@@ -21,17 +20,17 @@ export namespace HumanCurveEar {
    * fraction of the rim's own thickness.
    */
   export function auditEar(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     report: (r: string, rule: string, w: string, v: number, l: number, p?: readonly number[]) => void,
   ): void {
     const name: string = chain.name;
     const fine: number[] = uniform(EAR_PHASES);
     const stations: number[] = chain.layers.flatMap(
-      (l: IAutoMovieHumanLoftChain.ILayer, k: number): number[] =>
+      (l: IAutoMovieLoftChain.ILayer, k: number): number[] =>
         k === 0 ? [l.y] : [(chain.layers[k - 1]!.y + l.y) / 2, l.y],
     );
     const rings: V3[][] = stations.map((s: number): V3[] =>
-      AutoMovieHumanLoftChain.ring(chain, s, fine),
+      AutoMovieLoftChain.ring(chain, s, fine),
     );
     const perimeters: number[] = rings.map(perimeter);
 

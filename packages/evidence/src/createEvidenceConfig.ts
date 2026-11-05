@@ -2,7 +2,9 @@ import type { IEvidenceClaim, IEvidenceConfig } from "@wrtnlabs/evidence";
 import path from "node:path";
 
 import type { IAutoMovieEvidenceConfigProps } from "./IAutoMovieEvidenceConfigProps";
+import { createDevelopmentContractClaims } from "./createDevelopmentContractClaims";
 import { createEngineeringClaims } from "./createEngineeringClaims";
+import { createResearchClaims } from "./createResearchClaims";
 import { createProductionConfig } from "./narrative/createProductionConfig";
 
 /**
@@ -25,6 +27,8 @@ export function createEvidenceConfig(
     props.claims === undefined
       ? createEngineeringClaims()
       : structuredClone(props.claims);
+  claims.push(...createDevelopmentContractClaims(props.development ?? {}));
+  if (props.research === "evidence") claims.push(...createResearchClaims());
   if (props.narrative === undefined) return { severity: "error", claims };
 
   return createProductionConfig({

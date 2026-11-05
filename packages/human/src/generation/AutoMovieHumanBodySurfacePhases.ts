@@ -1,6 +1,5 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
@@ -15,7 +14,7 @@ export namespace AutoMovieHumanBodySurfacePhases {
    */
   export function ownPhases(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
   ): number[] {
     const uniform: number[] = Array.from(
       { length: target.samples },
@@ -58,7 +57,7 @@ export namespace AutoMovieHumanBodySurfacePhases {
    */
   export function webPhases(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     spacing: number,
   ): number[] {
     const out: number[] = [];
@@ -68,7 +67,7 @@ export namespace AutoMovieHumanBodySurfacePhases {
         event.direction === "down"
           ? target.layers[0]!.y
           : target.layers[target.layers.length - 1]!.y;
-      const at: (t: number) => [number, number, number] = AutoMovieHumanLoftChain.sampler(target, s);
+      const at: (t: number) => [number, number, number] = AutoMovieLoftChain.sampler(target, s);
       const pairs: Map<string, [number, number]> = new Map();
       for (const split of event.splits)
         split.arcs.forEach((arc: [number, number], k: number): void => {
@@ -113,11 +112,11 @@ export namespace AutoMovieHumanBodySurfacePhases {
    */
   export function inheritedPhases(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     station: number,
     ring: readonly number[],
   ): number[] {
-    const outline: [number, number][] = AutoMovieHumanLoftChain.local(
+    const outline: [number, number][] = AutoMovieLoftChain.local(
       target,
       station,
       ring.map((v: number): [number, number, number] =>
@@ -125,13 +124,13 @@ export namespace AutoMovieHumanBodySurfacePhases {
       ),
     );
     // Dense samples of the chain's own section at this station.
-    const c: number[] = AutoMovieHumanLoftChain.coefficients(target, station);
+    const c: number[] = AutoMovieLoftChain.coefficients(target, station);
     const n: number = Math.max(1024, 8 * target.order);
     const curve: [number, number][] = Array.from(
       { length: n },
       (_: unknown, k: number): [number, number] => {
         const p: [number, number, number, number] =
-          AutoMovieHumanLoftChain.section(target, c, (2 * Math.PI * k) / n);
+          AutoMovieLoftChain.section(target, c, (2 * Math.PI * k) / n);
         return [p[0], p[1]];
       },
     );

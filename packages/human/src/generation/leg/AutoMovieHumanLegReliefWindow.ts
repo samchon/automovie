@@ -1,5 +1,4 @@
-import { AutoMovieHumanRelief } from "../../network/AutoMovieHumanRelief";
-import type { IAutoMovieHumanRelief } from "../../network/IAutoMovieHumanRelief";
+import { AutoMovieLoftRelief, type IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
 
 /**
@@ -87,7 +86,7 @@ export namespace AutoMovieHumanLegReliefWindow {
    * @param input The joints and the local radius.
    * @returns The relief on the chart (station in mm, phase in radians) with its net scaled so the evaluated height at the centre is `height` radii.
    */
-  export function create(window: IWindow, input: IInput): IAutoMovieHumanRelief {
+  export function create(window: IWindow, input: IInput): IAutoMovieLoftRelief {
     if (!(input.radius > 0)) throw new Error(`The ${window.name} window needs a positive local radius`);
     const n: number = COUNT;
     const centre: number = input.at ?? AutoMovieHumanLegStations.heightAt(input.bones, window.segment, window.share);
@@ -104,10 +103,10 @@ export namespace AutoMovieHumanLegReliefWindow {
         const inner: boolean = i >= 3 && i <= n - 4 && j >= 3 && j <= n - 4;
         heights.push(inner ? bump((i - 1) / (n - 3), 0.5) * bump((j - 1) / (n - 3), 0.5) : 0);
       }
-    const unit: IAutoMovieHumanRelief = { name: window.name, stations, phases, axis: window.axis, rows: n, columns: n, heights };
+    const unit: IAutoMovieLoftRelief = { name: window.name, stations, phases, axis: window.axis, rows: n, columns: n, heights };
 
     // Scale the net so the evaluated height at the centre is the declared one.
-    const reached: number = AutoMovieHumanRelief.height(unit, centre, first + window.halfAngle)[0];
+    const reached: number = AutoMovieLoftRelief.height(unit, centre, first + window.halfAngle)[0];
     const gain: number = reached > 0 ? (window.height * input.radius) / reached : 0;
     return { ...unit, heights: heights.map((h: number): number => h * gain) };
   }

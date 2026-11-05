@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+import type { IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
 import type { IAutoMovieHumanTrunkFeature } from "./IAutoMovieHumanTrunkFeature";
 
@@ -29,7 +29,7 @@ export namespace AutoMovieHumanBreastRelief {
    * @param input The dome, the base and the phase map.
    * @returns The left and the right window.
    */
-  export function create(input: IInput): IAutoMovieHumanRelief[] {
+  export function create(input: IInput): IAutoMovieLoftRelief[] {
     const dome: IAutoMovieHumanTrunkFeature = input.dome;
     const o: [number, number, number] = dome.frame.origin;
 
@@ -43,7 +43,7 @@ export namespace AutoMovieHumanBreastRelief {
       (o[1] - stations[0]) / (stations[1] - stations[0]),
       (input.phaseOf(o[2]) - phases[0]) / (phases[1] - phases[0]),
     ];
-    const left: IAutoMovieHumanRelief = AutoMovieHumanTrunkReliefNet.fromFeature(
+    const left: IAutoMovieLoftRelief = AutoMovieHumanTrunkReliefNet.fromFeature(
       "trunk.breast.left",
       dome,
       { stations, phases, apex },

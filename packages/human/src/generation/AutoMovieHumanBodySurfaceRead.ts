@@ -1,13 +1,12 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanSurfaceContext as IContext } from "./IAutoMovieHumanSurfaceContext";
 
 /** The body surface's readers: a chain by name, a ring's vertices, an end's height and the interval and circular arithmetic of phases. */
 export namespace AutoMovieHumanBodySurfaceRead {
   /** Calibration chain by name; a missing chain is a calibration defect. */
-  export function chain(context: IContext, name: string): IAutoMovieHumanLoftChain {
-    const found: IAutoMovieHumanLoftChain | undefined =
+  export function chain(context: IContext, name: string): IAutoMovieLoftChain {
+    const found: IAutoMovieLoftChain | undefined =
       context.chains.get(name);
     if (found === undefined)
       throw new Error(`Calibration lacks the ${name} chain`);
@@ -19,7 +18,7 @@ export namespace AutoMovieHumanBodySurfaceRead {
    * the principal interval containing the band's middle height.
    */
   export function interval(
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     lower: number,
     upper: number,
   ): string {
@@ -43,7 +42,7 @@ export namespace AutoMovieHumanBodySurfaceRead {
 
   /** Height of a chain's bottom or top principal layer in mm. */
   export function endHeight(
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     end: "bottom" | "top",
   ): number {
     return end === "bottom"
@@ -58,7 +57,7 @@ export namespace AutoMovieHumanBodySurfaceRead {
    */
   export function ringVertices(
     context: IContext,
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     station: number,
     phases: readonly number[],
   ): number[] {
@@ -66,7 +65,7 @@ export namespace AutoMovieHumanBodySurfaceRead {
     for (const t of phases) context.coordinates.push(chain, station, t);
     return AutoMovieHumanLoftMesh.vertices(
       context.mesh,
-      AutoMovieHumanLoftChain.ring(target, station, phases),
+      AutoMovieLoftChain.ring(target, station, phases),
     );
   }
 }

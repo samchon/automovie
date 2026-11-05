@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanRelief } from "../../network/IAutoMovieHumanRelief";
+import type { IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 import type { AutoMovieHumanFootBody } from "./AutoMovieHumanFootBody";
 import type { AutoMovieHumanFootFrame } from "./AutoMovieHumanFootFrame";
@@ -37,7 +37,7 @@ export namespace AutoMovieHumanFootMalleolus {
     body: AutoMovieHumanFootBody.IBody,
     sign: 1 | -1,
     side: "left" | "right",
-  ): IAutoMovieHumanRelief {
+  ): IAutoMovieLoftRelief {
     const m: { height: number; prominence: number; radius: number } = AutoMovieHumanFootPrior.PRIOR.malleoli[which];
     const place: AutoMovieHumanFootMalleolusWindow.IPlace = AutoMovieHumanFootMalleolusWindow.of({
       frame,

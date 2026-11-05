@@ -1,7 +1,7 @@
 import type { IAutoMovieHumanHandDigit } from "./IAutoMovieHumanHandDigit";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-import { AutoMovieHumanNaturalSpline } from "../../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 
 type Vec3 = AutoMovieHumanHandVector.Vec3;
 const { sub, dot, norm, unit, cross, TWO_PI }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
@@ -15,9 +15,9 @@ export namespace AutoMovieHumanHandDigitLaw {
   /** A digit's line at a length from its root. */
   export function linePoint(d: IAutoMovieHumanHandDigit, s: number): Vec3 {
     return [
-      AutoMovieHumanNaturalSpline.evaluate(d.line[0]!, s),
-      AutoMovieHumanNaturalSpline.evaluate(d.line[1]!, s),
-      AutoMovieHumanNaturalSpline.evaluate(d.line[2]!, s),
+      AutoMovieNaturalSpline.evaluate(d.line[0]!, s),
+      AutoMovieNaturalSpline.evaluate(d.line[1]!, s),
+      AutoMovieNaturalSpline.evaluate(d.line[2]!, s),
     ];
   }
 
@@ -69,9 +69,9 @@ export namespace AutoMovieHumanHandDigitLaw {
     const lengths: number[] = [0];
     for (let i: number = 1; i < points.length; i++)
       lengths.push(lengths[i - 1]! + norm(sub(points[i]!, points[i - 1]!)));
-    const line: AutoMovieHumanNaturalSpline.ISpline[] = [0, 1, 2].map(
-      (c: number): AutoMovieHumanNaturalSpline.ISpline =>
-        AutoMovieHumanNaturalSpline.create(
+    const line: AutoMovieNaturalSpline.ISpline[] = [0, 1, 2].map(
+      (c: number): AutoMovieNaturalSpline.ISpline =>
+        AutoMovieNaturalSpline.create(
           lengths,
           points.map((p: Vec3): number => p[c]!),
         ),

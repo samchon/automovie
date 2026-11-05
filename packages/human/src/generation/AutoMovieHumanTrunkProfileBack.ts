@@ -1,4 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 import type { IAutoMovieHumanTrunkKey } from "./IAutoMovieHumanTrunkKey";
 
 /**
@@ -33,13 +33,13 @@ export namespace AutoMovieHumanTrunkProfileBack {
    */
   export function create(keys: readonly IAutoMovieHumanTrunkKey[]): IProfile {
     const used: IAutoMovieHumanTrunkKey[] = keys.filter((k: IAutoMovieHumanTrunkKey): boolean => k.back !== null);
-    const spline: AutoMovieHumanNaturalSpline.ISpline = AutoMovieHumanNaturalSpline.create(
+    const spline: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(
       used.map((k: IAutoMovieHumanTrunkKey): number => k.y),
       used.map((k: IAutoMovieHumanTrunkKey): number => k.back!),
     );
 
     return {
-      at: (y: number): number => AutoMovieHumanNaturalSpline.evaluate(spline, y),
+      at: (y: number): number => AutoMovieNaturalSpline.evaluate(spline, y),
       marks: used.map((k: IAutoMovieHumanTrunkKey): [number, number] => [k.y, k.back!]),
     };
   }

@@ -2,7 +2,7 @@ import { HUMAN_DEBUG_REGIONS } from "../contracts/HUMAN_DEBUG_REGIONS";
 import { HumanDebugPattern } from "../contracts/HumanDebugPattern";
 import type { IHumanDebugDocument } from "../contracts/IHumanDebugDocument";
 import type { IHumanDebugPerson } from "../people/IHumanDebugPerson";
-import type { IAutoMovieHumanLoftChain } from "../../src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanDebugChainLoft } from "./HumanDebugChainLoft";
 import type { IHumanDebugPiece } from "./IHumanDebugPiece";
 
@@ -36,7 +36,7 @@ export const HumanDebugPieceRegion: IHumanDebugPiece = {
         piece: "region:" + argument,
         person: person.alias,
         unassigned: calibration.chains
-          .map((chain: IAutoMovieHumanLoftChain): string => chain.name)
+          .map((chain: IAutoMovieLoftChain): string => chain.name)
           .filter(
             (name: string): boolean =>
               !every.some((glob: string): boolean => HumanDebugPattern.expression(glob).test(name)),

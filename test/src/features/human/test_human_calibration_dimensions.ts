@@ -2,7 +2,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import type { AutoMovieHumanMouth } from "../../../../packages/human/src/generation/AutoMovieHumanMouth";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { f1 } from "../../../../packages/playground/src/human-parameters/f1";
 import { nclose } from "../internal/predicates";
@@ -118,7 +118,7 @@ export function test_human_calibration_dimensions(): void {
     ])
       if (
         !output.body.chains.some(
-          (chain: IAutoMovieHumanLoftChain): boolean => chain.name === name,
+          (chain: IAutoMovieLoftChain): boolean => chain.name === name,
         )
       )
         defects.push(`${scenario}/${name}: required anatomical chain`);

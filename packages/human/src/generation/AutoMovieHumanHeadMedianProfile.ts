@@ -1,4 +1,4 @@
-import { AutoMovieHumanNaturalSpline } from "../lofting/AutoMovieHumanNaturalSpline";
+import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import type { IAutoMovieHumanHeadLayout } from "./IAutoMovieHumanHeadLayout";
 
@@ -19,7 +19,7 @@ export namespace AutoMovieHumanHeadMedianProfile {
     return (
       plan.centre +
       (plan.length / 2) * AutoMovieHumanHeadMath.crownShare(y, g, plan.vertex - g) +
-      AutoMovieHumanNaturalSpline.evaluate(plan.profile, y)
+      AutoMovieNaturalSpline.evaluate(plan.profile, y)
     );
   }
 }

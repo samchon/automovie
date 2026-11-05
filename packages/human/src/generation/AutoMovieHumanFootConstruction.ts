@@ -1,5 +1,4 @@
-import type { AutoMovieHumanLoftContract } from "../lofting/AutoMovieHumanLoftContract";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { AutoMovieLoftContract, IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanFootPrior } from "./AutoMovieHumanFootPrior";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanFootBody } from "./foot/AutoMovieHumanFootBody";
@@ -78,7 +77,7 @@ export namespace AutoMovieHumanFootConstruction {
       ...calibration,
       chains: [
         ...calibration.chains,
-        ...feet.flatMap((f: IFoot): IAutoMovieHumanLoftChain[] => f.chains),
+        ...feet.flatMap((f: IFoot): IAutoMovieLoftChain[] => f.chains),
       ],
       events: [
         ...calibration.events,
@@ -135,7 +134,7 @@ export namespace AutoMovieHumanFootConstruction {
 
   /** One side's chains, events and poles. */
   interface IFoot {
-    chains: IAutoMovieHumanLoftChain[];
+    chains: IAutoMovieLoftChain[];
     events: IAutoMovieHumanBodyCalibration.IEvent[];
     poles: IAutoMovieHumanBodyCalibration.IPole[];
     nails: IAutoMovieHumanBodyCalibration.INail[];
@@ -148,7 +147,7 @@ export namespace AutoMovieHumanFootConstruction {
    * @param side Which side.
    * @param diagnostics The list a degraded piece records into.
    */
-  function foot(d: IDimensions, side: "left" | "right", diagnostics: AutoMovieHumanLoftContract.IDiagnostic[]): IFoot {
+  function foot(d: IDimensions, side: "left" | "right", diagnostics: AutoMovieLoftContract.IDiagnostic[]): IFoot {
     const sign: 1 | -1 = side === "left" ? 1 : -1;
     const prior: AutoMovieHumanFootPrior.IPrior = AutoMovieHumanFootPrior.PRIOR;
     const centres: AutoMovieHumanFootBones.ICentres = AutoMovieHumanFootBones.of(d, 1);
@@ -177,7 +176,7 @@ export namespace AutoMovieHumanFootConstruction {
           AutoMovieHumanFootMalleolus.of("lateral", k, body, sign, side),
           AutoMovieHumanFootMalleolus.of("medial", k, body, sign, side),
         ]),
-        ...toes.map((t: AutoMovieHumanFootToeSpan.IToe): IAutoMovieHumanLoftChain => AutoMovieHumanFootToeChain.of(t, name(t.name), sign)),
+        ...toes.map((t: AutoMovieHumanFootToeSpan.IToe): IAutoMovieLoftChain => AutoMovieHumanFootToeChain.of(t, name(t.name), sign)),
       ],
       events: [
         {

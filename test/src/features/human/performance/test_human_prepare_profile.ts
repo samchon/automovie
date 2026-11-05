@@ -1,4 +1,4 @@
-import type { IAutoMovieModelPart } from "@automovie/interface";
+import type { IAutoMovieMaterial, IAutoMovieMaterialOverlay, IAutoMovieModelPart } from "@automovie/interface";
 import fs from "node:fs";
 import inspector from "node:inspector";
 import path from "node:path";
@@ -16,7 +16,7 @@ import { AutoMovieHumanBodySurface } from "../../../../../packages/human/src/gen
 import type { AutoMovieHumanOralCavity } from "../../../../../packages/human/src/generation/AutoMovieHumanOralCavity";
 import { AutoMovieHumanOralCavityAttempt } from "../../../../../packages/human/src/generation/AutoMovieHumanOralCavityAttempt";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { AutoMovieHumanLoftContract } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanLoftAperture } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftAperture";
 import { AutoMovieHumanRig } from "../../../../../packages/human/src/skeleton/AutoMovieHumanRig";
@@ -32,8 +32,9 @@ import { HumanPeople } from "../../internal/HumanPeople";
  * Node inspector's sampling CPU profiler and its function call counter, and
  * prints the stage table, the sub-stages of the body law and the surface read
  * from the profile's call tree, the files and functions with the most self
- * and total time, the most called functions, and the call paths that make the
- * hottest functions hot. The raw `.cpuprofile` and the printed report are kept
+ * and total time, the most called functions, each stage's own hottest
+ * functions by self time, and the call paths that make the hottest functions
+ * hot. The raw `.cpuprofile` and the printed report are kept
  * under `packages/human/.shots/profile/<yyyyMMdd-HHmm>/`.
  *
  * Scenarios:
@@ -69,6 +70,12 @@ const SAMPLING: number = 1000;
 /** Rows per table. */
 const TOP: number = 30;
 
+/** Rows per stage in the per-stage table. */
+const STAGE_TOP: number = 12;
+
+/** This file as the profile's places name it, where `timed` and the stage closures live. */
+const FILE: string = "test_human_prepare_profile.ts";
+
 /** Sub-stages read from the call tree: a label, the function and its file. */
 const SUBSTAGES: [string, string, string][] = [
   ["law: neck chain", "generate", "AutoMovieHumanNeckConstruction.ts"],
@@ -93,8 +100,8 @@ const SUSPECTS: string[] = [
   "AutoMovieHumanTrunkSolver.ts",
   "AutoMovieHumanNeutralShoulder.ts",
   "AutoMovieHumanSeam.ts",
-  "AutoMovieHumanStationHermite.ts",
-  "AutoMovieHumanLoftChain.ts",
+  "AutoMovieStationHermite.ts",
+  "AutoMovieLoftChain.ts",
   "AutoMovieHumanBodySurfaceLoft.ts",
 ];
 
@@ -175,7 +182,7 @@ function run(params: IAutoMovieHumanParameters): { stages: IStage[]; tally: stri
     ...AutoMovieHumanBodyConstruction.generate(calibration, surface.construction),
     ...AutoMovieHumanBodyConstruction.paths([{ id: law.vermilion.chain + "/" + law.vermilion.name.replaceAll(".", "_"), points: vermilion.points, closed: true }]),
   ]);
-  const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...(calibration.diagnostics ?? [])];
+  const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...(calibration.diagnostics ?? [])];
   const opening: IAutoMovieHumanLoftAperture | undefined = calibration.apertures.find((a: IAutoMovieHumanLoftAperture): boolean => a.name === "mouth");
   const interior: AutoMovieHumanOralCavity.IOutput | null = timed("mouth interior", (): AutoMovieHumanOralCavity.IOutput | null =>
     calibration.mouth === undefined || opening === undefined ? null : AutoMovieHumanOralCavityAttempt.attempt(surface.rims.get(opening.name), calibration.mouth, scale, diagnostics),
@@ -209,7 +216,11 @@ function run(params: IAutoMovieHumanParameters): { stages: IStage[]; tally: stri
   const parts: IAutoMovieModelPart[] = [...body, ...appearance.parts];
   timed("binding (rig dress)", (): IAutoMovieModelPart[] => AutoMovieHumanShapeStages.bind(parts, shape, dressed.coordinates));
   timed("pose evaluator", (): AutoMovieHumanSkeleton.PoseEvaluator => AutoMovieHumanSkeleton.prepare(params, { calibration }));
-  return { stages, tally: meshes(parts) };
+  // The skin material's overlays (seeded marks, painted brows) by image.
+  const overlays: string[] = dressed.materials.flatMap((m: IAutoMovieMaterial): string[] =>
+    (m.overlays ?? []).map((o: IAutoMovieMaterialOverlay): string => `${m.id} overlay ${o.blend} ${typeof o.baseColorTexture === "string" ? o.baseColorTexture : o.baseColorTexture.asset}`),
+  );
+  return { stages, tally: [...meshes(parts), "", "=== skin overlays ===", ...overlays] };
 }
 
 /** This thread's CPU time, milliseconds; the process's where the thread clock is missing. */
@@ -310,6 +321,33 @@ function report(name: string, stages: IStage[], profile: IProfile, coverage: ISc
   out.push("", `=== top ${TOP} functions by call count ===`);
   for (const [k, v] of [...calls.entries()].sort((a: [string, number], b: [string, number]): number => b[1] - a[1]).slice(0, TOP))
     out.push(row([v.toLocaleString("en-US"), selfBy.has(k) ? `${ms(selfBy.get(k)!)} ms self` : "", k], [16, 16, 0]));
+
+  // Each stage's own hottest functions: a sample's self time belongs to the
+  // stage closure `timed` called above it (named by its line in `run`).
+  const stageOf: Map<number, string | null> = new Map<number, string | null>();
+  const stage = (id: number): string | null => {
+    const known: string | null | undefined = stageOf.get(id);
+    if (known !== undefined) return known;
+    const up: number | undefined = parent.get(id);
+    const found: string | null = up === undefined ? null : byId.get(up)!.callFrame.functionName === "timed" && place.get(up)!.file === FILE ? key(id) : stage(up);
+    stageOf.set(id, found);
+    return found;
+  };
+  const byStage: Map<string, Map<string, number>> = new Map<string, Map<string, number>>();
+  for (const n of profile.nodes) {
+    const s: string | null = stage(n.id);
+    const v: number = self.get(n.id) ?? 0;
+    if (s === null || v === 0) continue;
+    let m: Map<string, number> | undefined = byStage.get(s);
+    if (m === undefined) byStage.set(s, (m = new Map<string, number>()));
+    add(m, key(n.id), v);
+  }
+  out.push("", `=== each stage's top ${STAGE_TOP} functions by self time (stage closure in run, then ms, %, function file:line) ===`);
+  for (const [s, m] of [...byStage.entries()].sort((a: [string, Map<string, number>], b: [string, Map<string, number>]): number => Number(a[0].split(":").pop()) - Number(b[0].split(":").pop()))) {
+    const total: number = [...m.values()].reduce((x: number, y: number): number => x + y, 0);
+    out.push(`- ${s}: ${ms(total)} ms sampled`);
+    for (const [k, v] of [...m.entries()].sort((a: [string, number], b: [string, number]): number => b[1] - a[1]).slice(0, STAGE_TOP)) out.push(row(["", ms(v), pct(v, total), k], [4, 12, 8, 0]));
+  }
 
   // The call paths that carry the hottest functions' self time.
   out.push("", "=== call paths of the 8 hottest functions by self time (innermost first, project frames) ===");

@@ -14,4 +14,5 @@ export * from "./trimProductionAudioPresentation";
 export * from "./capture/index.js";
 export * from "./IAutoMovieViewerVideoOptions";
 export * from "./IAutoMovieViewerVideoResult";
+export * from "./renderViewerFrames";
 export * from "./renderViewerVideo";

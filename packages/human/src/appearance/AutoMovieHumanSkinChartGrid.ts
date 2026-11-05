@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * One chain's texture chart on its own parameters: a grid over its stations
@@ -27,7 +26,7 @@ export namespace AutoMovieHumanSkinChartGrid {
   /** A chain's chart grid. */
   export interface IGrid {
     /** The chain. */
-    chain: IAutoMovieHumanLoftChain;
+    chain: IAutoMovieLoftChain;
 
     /** Lowest station, mm. */
     from: number;
@@ -62,11 +61,11 @@ export namespace AutoMovieHumanSkinChartGrid {
    * @param below The meridian length the chain below carries at this chain's first station, as a function of `u`; null for a chain that starts the chart.
    */
   export function create(
-    chain: IAutoMovieHumanLoftChain,
+    chain: IAutoMovieLoftChain,
     reference: readonly [number, number, number],
     below: ((u: number) => number) | null,
   ): IGrid {
-    const ys: number[] = chain.layers.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y);
+    const ys: number[] = chain.layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
     const from: number = Math.min(...ys);
     const to: number = Math.max(...ys);
     let girth: number = 0;
@@ -79,7 +78,7 @@ export namespace AutoMovieHumanSkinChartGrid {
     const v: Float64Array = new Float64Array(stations * phases);
     const perimeter: Float64Array = new Float64Array(stations);
     for (let k: number = 0; k < stations; k++) {
-      const point: (t: number) => [number, number, number] = AutoMovieHumanLoftChain.sampler(chain, from + k * step);
+      const point: (t: number) => [number, number, number] = AutoMovieLoftChain.sampler(chain, from + k * step);
       for (let j: number = 0; j < phases; j++) points.set(point((2 * Math.PI * j) / phases), 3 * (k * phases + j));
       perimeter[k] = arcs(points, k, phases, reference, u);
       for (let j: number = 0; j < phases; j++) {
@@ -167,9 +166,9 @@ export namespace AutoMovieHumanSkinChartGrid {
     let s: number = grid.from + grid.step * Math.floor(best / grid.phases);
     let t: number = (2 * Math.PI * (best % grid.phases)) / grid.phases;
     for (let k: number = 0; k < 8; k++) {
-      const q: [number, number, number] = AutoMovieHumanLoftChain.point(grid.chain, s, t);
-      const qs: [number, number, number] = AutoMovieHumanLoftChain.point(grid.chain, Math.min(highest, s + 0.05), t);
-      const qt: [number, number, number] = AutoMovieHumanLoftChain.point(grid.chain, s, t + 1e-3);
+      const q: [number, number, number] = AutoMovieLoftChain.point(grid.chain, s, t);
+      const qs: [number, number, number] = AutoMovieLoftChain.point(grid.chain, Math.min(highest, s + 0.05), t);
+      const qt: [number, number, number] = AutoMovieLoftChain.point(grid.chain, s, t + 1e-3);
       const ds: number[] = [0, 1, 2].map((c: number): number => (qs[c]! - q[c]!) / Math.max(1e-9, Math.min(highest, s + 0.05) - s));
       const dt: number[] = [0, 1, 2].map((c: number): number => (qt[c]! - q[c]!) / 1e-3);
       const r: number[] = [0, 1, 2].map((c: number): number => p[c]! - q[c]!);
@@ -227,8 +226,8 @@ export namespace AutoMovieHumanSkinChartGrid {
   }
 
   /** A section's perimeter by 128 of its points, mm. */
-  function ringLength(chain: IAutoMovieHumanLoftChain, y: number): number {
-    const point: (t: number) => [number, number, number] = AutoMovieHumanLoftChain.sampler(chain, y);
+  function ringLength(chain: IAutoMovieLoftChain, y: number): number {
+    const point: (t: number) => [number, number, number] = AutoMovieLoftChain.sampler(chain, y);
     let length: number = 0;
     let last: [number, number, number] = point(0);
     for (let k: number = 1; k <= 128; k++) {

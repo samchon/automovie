@@ -1,7 +1,6 @@
 import { HumanInputs } from "../HumanInputs";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanAnatomy } from "../HumanAnatomy";
 import { HumanPeople } from "../HumanPeople";
 
@@ -11,7 +10,7 @@ type V3 = HumanAnatomy.V3;
  * Profiles of a person's composed lofting chains: each chain, as the body law
  * delivers it, evaluated at every station a fixed step apart, layers and
  * mid-sections alike, by the chain's own public evaluator
- * (`AutoMovieHumanLoftChain.ring`). Each station gives the section's taut-tape
+ * (`AutoMovieLoftChain.ring`). Each station gives the section's taut-tape
  * girth and its centroid, in the input's millimetres, so a rule reads a
  * person's girth profile along a chain against that person's own tapes.
  *
@@ -70,7 +69,7 @@ export namespace HumanCurveRings {
    * @throws {Error} When the body carries no chain of that name.
    */
   export function of(body: IAutoMovieHumanBodyCalibration, chain: string, k: number): IProfile {
-    const c: IAutoMovieHumanLoftChain | undefined = body.chains.find((x: IAutoMovieHumanLoftChain): boolean => x.name === chain);
+    const c: IAutoMovieLoftChain | undefined = body.chains.find((x: IAutoMovieLoftChain): boolean => x.name === chain);
     if (c === undefined) throw new Error(`the body has no chain named ${chain}`);
     const first: number = c.layers[0]!.y;
     const last: number = c.layers[c.layers.length - 1]!.y;
@@ -81,7 +80,7 @@ export namespace HumanCurveRings {
     const count: number = Math.max(1, Math.round((last - first) / step));
     for (let i: number = 0; i <= count; i++) {
       const s: number = first + ((last - first) * i) / count;
-      const ring: V3[] = AutoMovieHumanLoftChain.ring(c, s, PHASES) as V3[];
+      const ring: V3[] = AutoMovieLoftChain.ring(c, s, PHASES) as V3[];
       out.stations.push(s * k);
       out.girth.push(taut(ring) * k);
       out.centre.push(A.scale(mean(ring), k));
@@ -91,8 +90,8 @@ export namespace HumanCurveRings {
 
   /** The girth of a ring at one station, input mm, for a made defect read at a known layer. */
   export function girthAt(body: IAutoMovieHumanBodyCalibration, chain: string, station: number, k: number): number {
-    const c: IAutoMovieHumanLoftChain = body.chains.find((x: IAutoMovieHumanLoftChain): boolean => x.name === chain)!;
-    return taut(AutoMovieHumanLoftChain.ring(c, station, PHASES) as V3[]) * k;
+    const c: IAutoMovieLoftChain = body.chains.find((x: IAutoMovieLoftChain): boolean => x.name === chain)!;
+    return taut(AutoMovieLoftChain.ring(c, station, PHASES) as V3[]) * k;
   }
 
   /**

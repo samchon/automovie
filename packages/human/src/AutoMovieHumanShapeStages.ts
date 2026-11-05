@@ -10,7 +10,7 @@ import type { AutoMovieHumanOralCavity } from "./generation/AutoMovieHumanOralCa
 import { AutoMovieHumanOralCavityAttempt } from "./generation/AutoMovieHumanOralCavityAttempt";
 import type { IAutoMovieHumanBodyCalibration } from "./generation/IAutoMovieHumanBodyCalibration";
 import { AutoMovieHumanStateAdmission } from "./instance/AutoMovieHumanStateAdmission";
-import type { AutoMovieHumanLoftContract } from "./lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "./lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanHermiteCurve } from "./lofting/IAutoMovieHumanHermiteCurve";
 import type { IAutoMovieHumanLoftAperture } from "./lofting/IAutoMovieHumanLoftAperture";
@@ -48,7 +48,7 @@ export namespace AutoMovieHumanShapeStages {
     interior: AutoMovieHumanOralCavity.IOutput | null;
 
     /** Contracts optional pieces broke, each piece replaced by its base. */
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+    diagnostics: AutoMovieLoftContract.IDiagnostic[];
 
     /** Construction parts in model metres. */
     construction: IAutoMovieModelPart[];
@@ -210,7 +210,7 @@ export namespace AutoMovieHumanShapeStages {
     // The mouth's interior behind the `mouth` opening's rim; a rim that
     // breaks its contract leaves the mouth closed and is recorded, after what
     // the body law's pieces recorded.
-    const diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [...(calibration.diagnostics ?? [])];
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...(calibration.diagnostics ?? [])];
     const opening: IAutoMovieHumanLoftAperture | undefined = calibration.apertures.find(
       (a: IAutoMovieHumanLoftAperture): boolean => a.name === "mouth",
     );

@@ -1,5 +1,4 @@
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
-import { AutoMovieHumanSplineCurve } from "../../lofting/AutoMovieHumanSplineCurve";
+import { type AutoMovieLoftFrame, AutoMovieSplineCurve } from "@automovie/engine";
 import type { AutoMovieHumanLegAxis } from "./AutoMovieHumanLegAxis";
 import { AutoMovieHumanLegSampling } from "./AutoMovieHumanLegSampling";
 import type { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
@@ -23,7 +22,7 @@ export namespace AutoMovieHumanLegReflection {
    * @param f The canonical frame.
    * @param sign 1 for the left side, -1 for the right.
    */
-  export function placed(f: AutoMovieHumanLegAxis.IFrame, sign: 1 | -1): AutoMovieHumanLoftFrame.IFrame {
+  export function placed(f: AutoMovieHumanLegAxis.IFrame, sign: 1 | -1): AutoMovieLoftFrame.IFrame {
     return {
       origin: [f.origin[0], f.origin[1], sign * f.origin[2]],
       u: [f.u[0], f.u[1], sign * f.u[2]],
@@ -42,8 +41,8 @@ export namespace AutoMovieHumanLegReflection {
     const read: (m: number) => Vec3 = (m: number): Vec3 => local[sign === 1 ? m : (order - m) % order]!;
     const samples: Vec3[] = local.map((_: Vec3, m: number): Vec3 => read(m));
     return {
-      coefficients: AutoMovieHumanSplineCurve.interpolate(samples.map((p: Vec3): [number, number] => [p[0], sign * p[1]])),
-      lift: AutoMovieHumanSplineCurve.interpolate(samples.map((p: Vec3): [number, number] => [p[2], 0])).slice(0, order),
+      coefficients: AutoMovieSplineCurve.interpolate(samples.map((p: Vec3): [number, number] => [p[0], sign * p[1]])),
+      lift: AutoMovieSplineCurve.interpolate(samples.map((p: Vec3): [number, number] => [p[2], 0])).slice(0, order),
     };
   }
 }

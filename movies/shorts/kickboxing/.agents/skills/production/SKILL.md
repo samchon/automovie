@@ -19,8 +19,9 @@ Choose the production task directly:
 | Coordinate sustained work, inspect runs or resume a stopped handoff | [Campaign execution](campaign.md) |
 | Organize source, supplied material and consumers | [Layout and intake](layout.md) |
 | Research a decision and retain its original references | [Production research](research.md) |
+| Record generated requests, their creative sources and media retention | [Generation records](generation-records.md) |
 | Prepare a whole motion hint and aligned control channels | [Conditioning handoff](conditioning.md) |
-| Use a selected generator and adopt its actual video takes | [Video generation](generation.md) |
+| Prepare requests for a selected generator or adopt its actual video takes | [Video generation](generation.md) |
 | Assemble shots/takes, wire the real host, encode and hand off | [Editing and finishing](finishing.md) |
 
 Consume the specialists' accepted performance, assets and sound in the actual edit. Implement missing source capability through [development](../development/SKILL.md) and reconnect its consumer before proceeding. [Review](../review/SKILL.md) judges the work; [delivery review](../review/delivery.md) accepts the actual commissioned artifact.

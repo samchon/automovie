@@ -43,6 +43,9 @@ export namespace IHumanDebugDocument {
 
     /** Points in the part's coordinate space. */
     points: Point[];
+
+    /** Its own default colour `rrggbb` over its kind's, such as a compared part's; `curveColor` still wins. */
+    colour?: string;
   }
 
   /** One emitted surface patch. */

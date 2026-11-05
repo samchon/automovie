@@ -1,18 +1,22 @@
 import { tags } from "typia";
 
+import type { IAutoMovieHumanBodyAnatomy } from "./IAutoMovieHumanBodyAnatomy";
+
 /**
  * One arm, measured hanging at the side.
+ *
+ * A measure `IAutoMovieHumanBodyAnatomy` also declares (the right side there) takes its range from that declaration, so no measure has two ranges.
  */
 export interface IAutoMovieHumanArmIdentity {
   /**
    * Acromion-radiale length: the acromion to the upper palpable edge of the radial head, millimetres. It is markedly shorter with the arm abducted, because the acromion moves toward the radiale, so it is taken hanging.
    */
-  upperArmLength: number & tags.Minimum<50> & tags.Maximum<600>;
+  upperArmLength: NonNullable<IAutoMovieHumanBodyAnatomy["upperArmLength"]>;
 
   /**
    * Radiale-stylion length: the radial head to the tip of the radial styloid process, millimetres.
    */
-  forearmLength: number & tags.Minimum<40> & tags.Maximum<500>;
+  forearmLength: NonNullable<IAutoMovieHumanBodyAnatomy["forearmLength"]>;
 
   /**
    * Hand length: the wrist crease at stylion to the tip of the middle finger, millimetres (ANSUR II hand length; women 181.1, SD 10.1, men 193.3, SD 9.9).
@@ -37,13 +41,13 @@ export interface IAutoMovieHumanArmIdentity {
   /**
    * Relaxed upper arm circumference midway between acromion and olecranon, arm hanging, millimetres.
    */
-  upperArmCircumference: number & tags.Minimum<80> & tags.Maximum<800>;
+  upperArmCircumference: NonNullable<IAutoMovieHumanBodyAnatomy["upperArmCircumference"]>;
 
   /** Relaxed maximum forearm circumference, below the elbow, millimetres. */
-  forearmCircumference: number & tags.Minimum<70> & tags.Maximum<600>;
+  forearmCircumference: NonNullable<IAutoMovieHumanBodyAnatomy["forearmCircumference"]>;
 
   /** Wrist circumference over the radial styloid, millimetres. */
-  wristCircumference: number & tags.Minimum<50> & tags.Maximum<300>;
+  wristCircumference: NonNullable<IAutoMovieHumanBodyAnatomy["wristCircumference"]>;
 
   /**
    * Carrying angle: the angle in the frontal plane between the long axes of the arm and the forearm with the elbow fully extended and the forearm supinated, degrees, positive for valgus, the forearm turned away from the body. Slightly varus at birth (-1.5), 6 degrees at 2 to 6 years and 11 from 15 on, in 921 Thai children measured with a goniometer, and larger in girls (8.5 against 6.9 over all ages; Kaewpornsawan et al. 2018, Siriraj Med J 70(4):284-288).

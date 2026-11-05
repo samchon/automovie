@@ -1,6 +1,6 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieHumanLoftParameter } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftParameter";
+import { AutoMovieLoftParameter } from "@automovie/engine";
 import { nclose } from "../internal/predicates";
 
 /**
@@ -39,7 +39,7 @@ export function test_human_loft_phase_endpoint(): void {
               ...base[(i + start) % 4]!,
             ],
           );
-          const phases: number[] = AutoMovieHumanLoftParameter.phases(
+          const phases: number[] = AutoMovieLoftParameter.phases(
             rule,
             polygon,
           );

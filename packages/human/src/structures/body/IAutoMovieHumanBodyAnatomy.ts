@@ -90,6 +90,14 @@ export interface IAutoMovieHumanBodyAnatomy {
   /** Thigh girth: horizontal at the widest part of the thigh below the gluteal fold (ISO 8559-1 5.3.20; ANSUR 1988 proximal thigh circumference, just below the gluteal furrow). ANSUR 1988: 580.3 (45.1) and 596.5 (49.3). */
   thighCircumference?: number & tags.Minimum<120> & tags.Maximum<1300>;
 
+  /**
+   * Lower thigh circumference: at suprapatella, the upper border of the
+   * patella, perpendicular to the thigh's axis, standing (ANSUR II lower thigh
+   * circumference). It is the thigh's tape just above the knee. ANSUR II:
+   * 400.7 (35.2) and 409.3 (31.9).
+   */
+  lowerThighCircumference?: number & tags.Minimum<80> & tags.Maximum<900>;
+
   /** Knee girth: horizontal at mid-patella (ISO 8559-1 5.3.22; ANSUR 1988 knee circumference). ANSUR 1988: 365.2 (23.3) and 386.4 (22.1). */
   kneeCircumference?: number & tags.Minimum<80> & tags.Maximum<900>;
 
@@ -144,10 +152,95 @@ export interface IAutoMovieHumanBodyAnatomy {
 
   /**
    * Chest breadth: across the rib cage under the arms at the chest
-   * circumference's level, tissue compressed, by caliper (ANSUR II chest
-   * breadth). ANSUR 1988: 279.6 (19.7) and 321.5 (25.5).
+   * circumference's level, by beam caliper at the maximum point of quiet
+   * respiration (ANSUR 1988 chest breadth), the front outline's knot there.
+   * ANSUR 1988: 279.6 (19.7) and 321.5 (25.5). ANSUR II takes its chest
+   * breadth at maximum inspiration with tissue compressed, a different
+   * measure: 577 of its 4,082 men have a chest girth above the box of that
+   * breadth and their chest depth, against none in ANSUR 1988
+   * (`test_human_survey_box_consistency`).
    */
   chestBreadth?: number & tags.Minimum<150> & tags.Maximum<500>;
+
+  /**
+   * Chest depth: horizontal, from the most anterior point of the chest, the
+   * bust in women, to the back, at the chest circumference's level, standing
+   * (ANSUR 1988 and ANSUR II chest depth). With the chest breadth it is the
+   * chest's box, the side outline's knot at that level. ANSUR 1988: 239.4
+   * (21.1) and 243.2 (21.5); ANSUR II: 247.4 and
+   * 253.8 (means).
+   */
+  chestDepth?: number & tags.Minimum<30> & tags.Maximum<700>;
+
+  /**
+   * Natural waist height: the level of the waist circumference above the
+   * standing surface (ANSUR 1988 waist height, natural indentation: the
+   * torso's greatest lateral indentation, or midway between the tenth rib and
+   * iliocristale where none is clear). The waist breadth and depth are taken
+   * at this level. ANSUR 1988: 1056.5 (51.7) and 1127.1 (52.0), at or just
+   * above the tenth rib (1044 and 1121) and 74 and 68 mm above the navel.
+   */
+  waistHeight?: number & tags.Minimum<150> & tags.Maximum<1600>;
+
+  /**
+   * Waist breadth: the torso's horizontal breadth at the natural waist, the
+   * waist circumference's level, standing, tissue uncompressed; the front
+   * outline's knot there. No survey takes it at this level: ANSUR 1988 and
+   * ANSUR II take the waist breadth at the navel (ANSUR II: 299.9 and 326.4,
+   * means), so the default is a derivation: the navel section's
+   * breadth-on-girth law (ANSUR 1988) at the natural waist girth, 268.0 (20.6)
+   * and 302.1 (23.6) at the surveyed natural girths.
+   */
+  waistBreadth?: number & tags.Minimum<40> & tags.Maximum<800>;
+
+  /**
+   * Waist depth: horizontal, abdomen to back, at the natural waist, the waist
+   * circumference's level, standing; the side outline's knot there. No survey
+   * takes it at this level (ANSUR II at the navel: 213.0 and 237.8, means), so
+   * the default is the navel section's depth-on-girth law (ANSUR 1988) at the
+   * natural waist girth, 185.6 (17.5) and 220.0 (20.5) at the surveyed natural
+   * girths.
+   */
+  waistDepth?: number & tags.Minimum<30> & tags.Maximum<800>;
+
+  /**
+   * Hip breadth: the maximum horizontal breadth across the hips, between the
+   * most lateral points of the buttocks, standing, soft tissue included (ISO
+   * 7250-1 6.1.12 hip breadth, standing; ANSUR 1988 and ANSUR II hip breadth).
+   * It is the front outline's knot at its own widest level. ANSUR 1988:
+   * 342.7 (22.4) and 341.8 (20.3); ANSUR II: 353.8
+   * (26.7) and 345.7 (24.2).
+   */
+  hipBreadth?: number & tags.Minimum<80> & tags.Maximum<800>;
+
+  /**
+   * Buttock depth: horizontal, from the abdomen to the buttocks' maximum
+   * posterior protrusion, at the buttock circumference's level, standing
+   * (ANSUR 1988 and ANSUR II buttock depth). It is the side outline's knot at
+   * that level. ANSUR 1988: 227.1 (21.0) and 248.6 (20.7); ANSUR II: 232.9
+   * (24.3) and 245.8 (26.5).
+   */
+  buttockDepth?: number & tags.Minimum<30> & tags.Maximum<800>;
+
+  /**
+   * Bideltoid breadth: the maximum horizontal breadth across the deltoid
+   * muscles, upper arms hanging against the sides, a soft-tissue breadth
+   * (ISO 7250-1 6.2.8; ANSUR 1988 and ANSUR II bideltoid breadth, seated). It
+   * is the arms' lateral outline at the deltoids, the shoulder width the front
+   * view shows; bideltoid over hip breadth is 1.28 in ANSUR II women and 1.48
+   * in men, the outline's V-taper. ANSUR 1988: 432.6 (22.6) and 491.8
+   * (25.9); ANSUR II: 450.3 (28.7) and 510.4 (32.5).
+   */
+  bideltoidBreadth?: number & tags.Minimum<90> & tags.Maximum<900>;
+
+  /**
+   * Bicristal breadth: between the highest palpable points of the two iliac
+   * crests, tissue firmly compressed, a bony breadth by caliper (ANSUR II
+   * bicristal breadth; ANSUR 1988 takes none). It places the iliac crests in
+   * the skeleton and is not a knot of the skin's outline. ANSUR II: 273.3
+   * (22.3) and 275.4 (17.5).
+   */
+  bicristalBreadth?: number & tags.Minimum<50> & tags.Maximum<500>;
 
   /**
    * Humerus biepicondylar breadth: between the medial and lateral epicondyles
@@ -203,12 +296,53 @@ export interface IAutoMovieHumanBodyAnatomy {
   ballOfFootLength?: number & tags.Minimum<100> & tags.Maximum<300>;
 
   /**
+   * Ball-of-foot circumference: the girth of the foot over the first and fifth
+   * metatarsal heads, standing (ANSUR II ball of foot circumference). It wraps
+   * the forefoot's section at the metatarsal heads, so it fixes the forefoot's
+   * fullness with the foot breadth there. ANSUR II: 228.1 (11.8) and 252.0
+   * (12.9).
+   */
+  ballOfFootCircumference?: number & tags.Minimum<120> & tags.Maximum<400>;
+
+  /**
+   * Heel-ankle circumference: the girth round the back of the heel and over
+   * the front of the ankle at the instep's crease, standing (ANSUR II heel
+   * ankle circumference); the foot's diagonal girth, which bounds the dorsum's
+   * height at the ankle's front. ANSUR II: 310.3 (15.3) and 343.5 (16.6).
+   */
+  heelAnkleCircumference?: number & tags.Minimum<180> & tags.Maximum<500>;
+
+  /**
+   * Instep length: the back of the heel to the instep's highest point, along
+   * the foot's axis, standing (ANSUR 1988 instep length). It places the
+   * dorsum's crest. ANSUR 1988: 179.4 (9.6) and 196.0 (10.5).
+   */
+  instepLength?: number & tags.Minimum<90> & tags.Maximum<300>;
+
+  /**
    * Gluteal furrow height: the lowest point of the gluteal fold above the
    * standing surface (ANSUR 1988 gluteal furrow height). The ISO 8559-1
    * 5.3.20 thigh girth is sought just below this level. ANSUR 1988: 744.3
    * (43.0) and 814.4 (45.6).
    */
   glutealFurrowHeight?: number & tags.Minimum<350> & tags.Maximum<1200>;
+
+  /**
+   * Crotch length: from the navel's level at the front midline, down over the
+   * skin through the crotch and up the back midline to the same level
+   * (ANSUR II crotch length, omphalion). With its posterior part it places the
+   * perineum along the trunk's median section. ANSUR II: 620.8 (42.4) and
+   * 622.3 (46.7).
+   */
+  crotchLength?: number & tags.Minimum<250> & tags.Maximum<1400>;
+
+  /**
+   * Posterior crotch length: the crotch length's part from the crotch point
+   * up the back midline to the navel's level (ANSUR II crotch length,
+   * posterior, omphalion); less than the crotch length. ANSUR II: 341.9 (28.6)
+   * and 355.9 (29.5), 0.551 (SD 0.033) and 0.573 (0.037) of the crotch length.
+   */
+  posteriorCrotchLength?: number & tags.Minimum<120> & tags.Maximum<800>;
 
   /**
    * Thumb breadth: the maximum breadth of the thumb at its interphalangeal

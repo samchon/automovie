@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanRelief } from "../network/IAutoMovieHumanRelief";
+import type { IAutoMovieLoftRelief } from "@automovie/engine";
 import { AutoMovieHumanSternalNotchProfile } from "./AutoMovieHumanSternalNotchProfile";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 import { AutoMovieHumanTrunkReliefNet } from "./AutoMovieHumanTrunkReliefNet";
@@ -59,7 +59,7 @@ export namespace AutoMovieHumanSternalNotch {
     at: AutoMovieHumanTrunkFeatureFrame.IFrame,
     base: AutoMovieHumanTrunkReliefNet.Base,
     halfPhase: number,
-  ): IAutoMovieHumanRelief {
+  ): IAutoMovieLoftRelief {
     const P: typeof AutoMovieHumanSternalNotchProfile = AutoMovieHumanSternalNotchProfile;
     const y: number = at.origin[1];
 

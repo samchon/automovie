@@ -1,7 +1,6 @@
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
+import type { AutoMovieLoftFrame, IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanHandDigit } from "./IAutoMovieHumanHandDigit";
 import type { IAutoMovieHumanHandFinger } from "./IAutoMovieHumanHandFinger";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanDigitStations } from "./AutoMovieHumanDigitStations";
 import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
@@ -36,7 +35,7 @@ export namespace AutoMovieHumanHandDigitChain {
     f: IAutoMovieHumanHandFinger,
     side: "left" | "right",
     sign: 1 | -1,
-  ): IAutoMovieHumanLoftChain {
+  ): IAutoMovieLoftChain {
     const prior: AutoMovieHumanArmPrior.IHandPrior = AutoMovieHumanArmPrior.PRIOR.hand;
     const source: AutoMovieHumanArmPrior.IDigit = prior.digits[index]!;
     const at = (s: number): Vec3 => f.line.at(s);
@@ -61,7 +60,7 @@ export namespace AutoMovieHumanHandDigitChain {
       const g = grid[i]!;
       return AutoMovieHumanLimbFrame.carry(g.u, g.n, normalAt(s));
     };
-    const sample = (s: number): { ring: Vec3[]; frame: AutoMovieHumanLoftFrame.IFrame } => ({
+    const sample = (s: number): { ring: Vec3[]; frame: AutoMovieLoftFrame.IFrame } => ({
       ring: f.ring(s),
       frame: AutoMovieHumanLimbFrame.frame(at(s), normalAt(s), axisAt(s)),
     });
@@ -72,8 +71,8 @@ export namespace AutoMovieHumanHandDigitChain {
     const along: number[] = [0];
     for (let k: number = 1; k < own.length; k++)
       along.push(along[k - 1]! + norm(sub(own[k]!.frame.origin, own[k - 1]!.frame.origin)));
-    const layers: IAutoMovieHumanLoftChain.ILayer[] = ordered.map(
-      (s: number, k: number): IAutoMovieHumanLoftChain.ILayer => {
+    const layers: IAutoMovieLoftChain.ILayer[] = ordered.map(
+      (s: number, k: number): IAutoMovieLoftChain.ILayer => {
         const here = own[k]!;
         const mine: AutoMovieHumanLimbFrame.ISample = {
           station: along[k]!,

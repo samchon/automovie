@@ -6,7 +6,7 @@ import type { IAutoMovieHumanHandForm } from "./IAutoMovieHumanHandForm";
 import type { IAutoMovieHumanHandMeasures } from "./IAutoMovieHumanHandMeasures";
 import type { IAutoMovieHumanHandScales } from "./IAutoMovieHumanHandScales";
 import type { IAutoMovieHumanHandWrist } from "./IAutoMovieHumanHandWrist";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanBodySurface } from "../AutoMovieHumanBodySurface";
 import { AutoMovieHumanHandDigitChain } from "./AutoMovieHumanHandDigitChain";
@@ -77,9 +77,9 @@ export namespace AutoMovieHumanHandSkinTargets {
       const { measures, law, joints } = solve(hand, given, circumference, wristTape, makeArm, targets, calibration.diagnostics);
       const map = (q: readonly [number, number, number]): Vec3 => handPoint(q, measures, law.wrist);
       const fingers: IAutoMovieHumanHandFinger[] = digitsOf(hand, measures, law, joints);
-      const chains: IAutoMovieHumanLoftChain[] = [
+      const chains: IAutoMovieLoftChain[] = [
         palmOf(hand, map, "left", 1),
-        ...hand.digits.slice(1).map((d: IAutoMovieHumanHandDigit, i: number): IAutoMovieHumanLoftChain => fingerOf(d, i + 1, fingers[i + 1]!, "left", 1)),
+        ...hand.digits.slice(1).map((d: IAutoMovieHumanHandDigit, i: number): IAutoMovieLoftChain => fingerOf(d, i + 1, fingers[i + 1]!, "left", 1)),
       ];
       const mesh = AutoMovieHumanBodySurface.generate({
         ...calibration,

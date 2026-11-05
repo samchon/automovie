@@ -1,8 +1,7 @@
 import { AutoMovieHumanBodySurface } from "../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
-import { AutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanLoftMesh } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import type { HumanCurveFinding } from "./HumanCurveFinding";
 import { HumanCurveVector } from "./HumanCurveVector";
 import { HumanCurveConstants } from "./HumanCurveConstants";
@@ -65,7 +64,7 @@ export namespace HumanCurveHand {
     const mesh: AutoMovieHumanLoftMesh.IContext = AutoMovieHumanBodySurface.generate({
       ...body,
       chains: body.chains.filter(
-        (c: IAutoMovieHumanLoftChain): boolean => owned.test(c.name),
+        (c: IAutoMovieLoftChain): boolean => owned.test(c.name),
       ),
       events: body.events.filter(
         (e: IAutoMovieHumanBodyCalibration.IEvent): boolean => owned.test(e.parent),
@@ -172,19 +171,19 @@ export namespace HumanCurveHand {
     body: IAutoMovieHumanBodyCalibration,
     owned: RegExp,
   ): IHumanCurveFinding[] {
-    const find: (name: string) => IAutoMovieHumanLoftChain = (name: string): IAutoMovieHumanLoftChain =>
-      body.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === name)!;
+    const find: (name: string) => IAutoMovieLoftChain = (name: string): IAutoMovieLoftChain =>
+      body.chains.find((c: IAutoMovieLoftChain): boolean => c.name === name)!;
 
     // A web's children start apart from the parent's ring by design; the mesh
     // rules read the web between them.
     return body.events
       .filter((e: IAutoMovieHumanBodyCalibration.IEvent): boolean => owned.test(e.parent) && e.web !== true)
       .flatMap((event: IAutoMovieHumanBodyCalibration.IEvent): IHumanCurveFinding[] => {
-        const parent: IAutoMovieHumanLoftChain = find(event.parent);
+        const parent: IAutoMovieLoftChain = find(event.parent);
         const end: number = parent.layers[0]!.y;
         return event.splits.flatMap((split: IAutoMovieHumanBodyCalibration.ISplit): IHumanCurveFinding[] => {
-          const child: IAutoMovieHumanLoftChain = find(split.child);
-          const own: V3[] = AutoMovieHumanLoftChain.ring(
+          const child: IAutoMovieLoftChain = find(split.child);
+          const own: V3[] = AutoMovieLoftChain.ring(
             child,
             child.layers[child.layers.length - 1]!.y,
             uniform(720),
@@ -193,7 +192,7 @@ export namespace HumanCurveHand {
           let at: V3 = [0, 0, 0];
           for (const [from, to] of split.arcs) {
             const span: number = to >= from ? to - from : to + 2 * Math.PI - from;
-            for (const p of AutoMovieHumanLoftChain.ring(
+            for (const p of AutoMovieLoftChain.ring(
               parent,
               end,
               Array.from(

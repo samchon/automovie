@@ -1,5 +1,5 @@
 import type { IAutoMovieHumanBodyCalibration } from "../../../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanLoftChain } from "../../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { HumanCurveMirror } from "../../../internal/curves/HumanCurveMirror";
 import { HumanCurveRingAudit } from "../../../internal/curves/HumanCurveRingAudit";
 import { HumanCurveRings } from "../../../internal/curves/HumanCurveRings";
@@ -48,27 +48,27 @@ function made(): string[] {
   const p: HumanPeople.IPerson = HumanPeople.person("f1");
   const k: number = HumanCurveRings.scale(p);
   const fail: (label: string, copy: IAutoMovieHumanBodyCalibration, chain: string, rule: string) => void = (label: string, copy: IAutoMovieHumanBodyCalibration, chain: string, rule: string): void => {
-    const rows: IRow[] = HumanCurveRingAudit.rows("f1", { ...copy, chains: copy.chains.filter((c: IAutoMovieHumanLoftChain): boolean => c.name === chain) }, (name: string): HumanCurveRings.IProfile => HumanCurveRings.of(copy, name, k));
+    const rows: IRow[] = HumanCurveRingAudit.rows("f1", { ...copy, chains: copy.chains.filter((c: IAutoMovieLoftChain): boolean => c.name === chain) }, (name: string): HumanCurveRings.IProfile => HumanCurveRings.of(copy, name, k));
     if (!rows.some((r: IRow): boolean => r.site.endsWith(`(${rule})`) && !HumanAnatomyAudit.passes(r))) out.push(`made ${label}: no failing ${rule} row on ${chain}`);
   };
 
   // A layer duplicated 0.5 mm above itself.
   const crowded: IAutoMovieHumanBodyCalibration = structuredClone(p.body);
-  const leg: IAutoMovieHumanLoftChain = crowded.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "leg.left")!;
+  const leg: IAutoMovieLoftChain = crowded.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "leg.left")!;
   leg.layers.splice(6, 0, { ...structuredClone(leg.layers[5]!), y: leg.layers[5]!.y + 0.5 });
   fail("duplicated layer", crowded, "leg.left", "CUR-2");
 
   // A shank layer swollen 10 percent.
   const swollen: IAutoMovieHumanBodyCalibration = structuredClone(p.body);
-  const layer: IAutoMovieHumanLoftChain.ILayer = swollen.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "leg.left")!.layers[5]!;
+  const layer: IAutoMovieLoftChain.ILayer = swollen.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "leg.left")!.layers[5]!;
   layer.coefficients = layer.coefficients.map((v: number): number => 1.1 * v);
   layer.slopes = layer.slopes.map((v: number): number => 1.1 * v);
   fail("swollen layer", swollen, "leg.left", "CUR-3");
 
   // One control point of a finger layer reflected through the plane's origin, both its coordinates.
   const hooked: IAutoMovieHumanBodyCalibration = structuredClone(p.body);
-  const finger: IAutoMovieHumanLoftChain = hooked.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "finger.left.middle")!;
-  const mid: IAutoMovieHumanLoftChain.ILayer = finger.layers[Math.floor(finger.layers.length / 2)]!;
+  const finger: IAutoMovieLoftChain = hooked.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "finger.left.middle")!;
+  const mid: IAutoMovieLoftChain.ILayer = finger.layers[Math.floor(finger.layers.length / 2)]!;
   const N: number = finger.order;
   if (finger.basis !== "spline") out.push("made hooked ring: finger.left.middle is not a spline chain, so a control point cannot be moved alone");
   else {
@@ -79,7 +79,7 @@ function made(): string[] {
 
   // One right shank layer swollen 5 percent, its left twin untouched.
   const lopsided: IAutoMovieHumanBodyCalibration = structuredClone(p.body);
-  const right: IAutoMovieHumanLoftChain.ILayer = lopsided.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "leg.right")!.layers[5]!;
+  const right: IAutoMovieLoftChain.ILayer = lopsided.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "leg.right")!.layers[5]!;
   right.coefficients = right.coefficients.map((v: number): number => 1.05 * v);
   right.slopes = right.slopes.map((v: number): number => 1.05 * v);
   const mirrored: IRow[] = HumanCurveMirror.rows("f1", lopsided, p.params, (name: string): HumanCurveRings.IProfile => HumanCurveRings.of(lopsided, name, k));

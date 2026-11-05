@@ -1,5 +1,4 @@
-import type { AutoMovieHumanLoftFrame } from "../../lofting/AutoMovieHumanLoftFrame";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import type { AutoMovieLoftFrame, IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanHandSide } from "../hand/AutoMovieHumanHandSide";
@@ -33,7 +32,7 @@ export namespace AutoMovieHumanArmLayers {
    * @param sign 1 for the left, -1 for the right.
    * @returns The chain.
    */
-  export function of(law: IAutoMovieHumanArmLaw, side: "left" | "right", sign: 1 | -1): IAutoMovieHumanLoftChain {
+  export function of(law: IAutoMovieHumanArmLaw, side: "left" | "right", sign: 1 | -1): IAutoMovieLoftChain {
     const prior: AutoMovieHumanArmPrior.IArm = AutoMovieHumanArmPrior.PRIOR.arm;
     const order: number = prior.order;
     const phases: number[] = Array.from({ length: order }, (_: unknown, m: number): number => (TWO_PI * m) / order);
@@ -56,21 +55,21 @@ export namespace AutoMovieHumanArmLayers {
     };
 
     // A section in its own frame, its origin the centre of its ring.
-    const sample = (q: number): { ring: Vec3[]; frame: AutoMovieHumanLoftFrame.IFrame } => {
+    const sample = (q: number): { ring: Vec3[]; frame: AutoMovieLoftFrame.IFrame } => {
       const points: Vec3[] = ring(q);
       const n: Vec3 = law.normal(q);
       const c: Vec3 = [mean(points, 0), mean(points, 1), mean(points, 2)];
       const o: Vec3 = sub(c, scale(n, dot(sub(c, law.anchor(q)), n)));
       return { ring: points, frame: AutoMovieHumanLimbFrame.frame(o, n, axisAt(q)) };
     };
-    const samples: { ring: Vec3[]; frame: AutoMovieHumanLoftFrame.IFrame }[] = layers.map(sample);
+    const samples: { ring: Vec3[]; frame: AutoMovieLoftFrame.IFrame }[] = layers.map(sample);
     const stations: number[] = [0];
     for (let k: number = 1; k < samples.length; k++) stations.push(stations[k - 1]! + norm(sub(samples[k]!.frame.origin, samples[k - 1]!.frame.origin)));
 
-    const made: IAutoMovieHumanLoftChain.ILayer[] = layers.map((q: number, k: number): IAutoMovieHumanLoftChain.ILayer => {
-      const own: { ring: Vec3[]; frame: AutoMovieHumanLoftFrame.IFrame } = samples[k]!;
+    const made: IAutoMovieLoftChain.ILayer[] = layers.map((q: number, k: number): IAutoMovieLoftChain.ILayer => {
+      const own: { ring: Vec3[]; frame: AutoMovieLoftFrame.IFrame } = samples[k]!;
       const at = (dq: number): AutoMovieHumanLimbFrame.ISample => {
-        const s: { ring: Vec3[]; frame: AutoMovieHumanLoftFrame.IFrame } = sample(q + dq);
+        const s: { ring: Vec3[]; frame: AutoMovieLoftFrame.IFrame } = sample(q + dq);
         const step: number = norm(sub(s.frame.origin, own.frame.origin));
         return {
           station: stations[k]! + Math.sign(dq) * step,

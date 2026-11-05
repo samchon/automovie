@@ -7,9 +7,14 @@ import type {
 
 import type { IAutoMovieHumanBodyCalibration } from "../generation/IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanSkinAppearance } from "../structures/appearance/IAutoMovieHumanSkinAppearance";
+import { AutoMovieHumanBodyApertures } from "../generation/AutoMovieHumanBodyApertures";
+import type { AutoMovieHumanEyelid } from "../generation/AutoMovieHumanEyelid";
+import type { IAutoMovieHumanAppearance } from "../structures/appearance/IAutoMovieHumanAppearance";
+import type { IAutoMovieHumanBrowAppearance } from "../structures/appearance/IAutoMovieHumanBrowAppearance";
+import { AutoMovieHumanEyebrowTone } from "./AutoMovieHumanEyebrowTone";
 import { AutoMovieHumanNail } from "./AutoMovieHumanNail";
 import { AutoMovieHumanSkinChart } from "./AutoMovieHumanSkinChart";
 import { AutoMovieHumanSkinImage } from "./AutoMovieHumanSkinImage";
@@ -54,6 +59,10 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  *   emission, sheen or relief, roughness 0.9 and specular intensity 0.1.
  *   The renderer casts no shadow, so the skin material's emission, sheen and
  *   specular lobe lit the pocket walls as bright streaks.
+ * - Brows: each requested brow (`appearance.browPair`) painted by
+ *   `AutoMovieHumanEyebrowTone` as an image over the head chart's layout,
+ *   laid over the skin's colour by its coverage (`replace`, roughness 0.5),
+ *   after the seeded marks.
  *
  * Inputs: `pigmentation.{melanin, eumelaninShare, haemoglobin}`, shifted
  * milky for a woman (`AutoMovieHumanBodyAnatomy.resolve`'s sex) through
@@ -88,7 +97,7 @@ export namespace AutoMovieHumanSkin {
     scale: number;
 
     /** The calibration's chains in mm, which the nail plates lie on. */
-    chains: readonly IAutoMovieHumanLoftChain[];
+    chains: readonly IAutoMovieLoftChain[];
 
     /** The nail plates' windows on their digit chains. */
     nails: readonly IAutoMovieHumanBodyCalibration.INail[];
@@ -321,6 +330,46 @@ export namespace AutoMovieHumanSkin {
         },
       ];
       images.push(marks.image);
+    }
+
+    // Brows: colour painted into the skin's texture over the head chart, no
+    // hair geometry (`AutoMovieHumanEyebrowTone`); each laid over the skin's
+    // own colour by its coverage, after the marks.
+    const brows: IAutoMovieHumanAppearance["browPair"] | undefined = props.params.appearance?.browPair;
+    if (brows !== undefined) {
+      const lids: Map<string, AutoMovieHumanEyelid.ILid> = new Map();
+      for (const prepared of AutoMovieHumanBodyApertures.prepare(props.apertures, props.eyes))
+        if (prepared.lid !== null) lids.set(prepared.lid.name, prepared.lid);
+      for (const side of ["left", "right"] as const) {
+        const brow: IAutoMovieHumanBrowAppearance | undefined = brows[side];
+        const lid: AutoMovieHumanEyelid.ILid | undefined = lids.get(`eye.${side}`);
+        if (brow === undefined || lid === undefined) continue;
+        const painted: AutoMovieHumanEyebrowTone.IImage | null = AutoMovieHumanEyebrowTone.paint(AutoMovieHumanEyebrowTone.create(lid, brow, side), pieces);
+        if (painted === null) continue;
+        (material.overlays ??= []).push({
+          baseColorTexture: {
+            asset: painted.image.id,
+            texCoord: 0,
+            coordinateSource: "surface-metres",
+            colorSpace: "srgb",
+            transform: {
+              offset: { x: -painted.origin[0] / painted.span[0], y: -painted.origin[1] / painted.span[1] },
+              scale: { x: 1 / (painted.span[0] * props.scale), y: 1 / (painted.span[1] * props.scale) },
+              rotationDeg: 0,
+            },
+            sampler: {
+              wrapS: "clamp",
+              wrapT: "clamp",
+              minFilter: "linearMipmapLinear",
+              magFilter: "linear",
+            },
+          },
+          blend: "replace",
+          roughness: 0.5,
+          strength: 1,
+        });
+        images.push(painted.image);
+      }
     }
 
     const byName: Map<string, AutoMovieHumanSkinChart.IOutput> = new Map(

@@ -1,5 +1,5 @@
 import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanBodyApertures } from "./AutoMovieHumanBodyApertures";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanSurfaceBoundary } from "./IAutoMovieHumanSurfaceBoundary";
@@ -9,7 +9,7 @@ export interface IAutoMovieHumanSurfaceContext {
   /** Skin buffers shared by all chains, in calibration millimetres. */
   mesh: AutoMovieHumanLoftMesh.IContext;
   /** Calibration chains indexed by their source graph identity. */
-  chains: Map<string, IAutoMovieHumanLoftChain>;
+  chains: Map<string, IAutoMovieLoftChain>;
   /** Parent/child contact events. */
   events: IAutoMovieHumanBodyCalibration.IEvent[];
   /** Calibrated poles indexed by chain name and end. */
@@ -40,18 +40,30 @@ export interface IAutoMovieHumanSurfaceContext {
       appendage?: IAutoMovieHumanBodyCalibration.IAppendage;
       opening?: AutoMovieHumanBodyApertures.IPrepared;
       loop: [number, number][];
+      /**
+       * For an opening whose trim spans two chains, the key of the one hole
+       * both chains leave their cells in (`AutoMovieHumanApertureSpan.key`).
+       */
+      span?: string;
     }[]
   >;
   /** Root end ring of every appendage chain, in its own phases, once lofted. */
   ends: Map<string, { ring: number[]; phases: readonly number[] }>;
   /**
-   * Cells a base left out inside its root loops, by base chain name: each
-   * cell's four corner vertices in ring order, and every corner's chart
-   * point.
+   * Cells a base left out inside its root loops, by base chain name, or by
+   * the span key of an opening whose trim spans two chains: each cell's
+   * corner vertices in ring order, and every corner's chart point and chain.
    */
   holes: Map<
     string,
-    { cells: [number, number, number, number][]; charts: Map<number, [number, number]> }
+    {
+      /** Left-out cells: a band's quads and a zipper's triangles, corners in ring order. */
+      cells: number[][];
+      /** Every corner's chart point on its own chain. */
+      charts: Map<number, [number, number]>;
+      /** Every corner's chain, which a hole spanning two chains needs to read its charts. */
+      owners: Map<number, string>;
+    }
   >;
   /**
    * The rim of every opening closed from its trim loop, by the opening's name:

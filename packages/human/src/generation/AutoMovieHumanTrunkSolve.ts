@@ -1,4 +1,4 @@
-﻿import { AutoMovieHumanStationHermite } from "../lofting/AutoMovieHumanStationHermite";
+import { AutoMovieStationHermite } from "@automovie/engine";
 
 /**
  * The small numerical rules the trunk's solves share: the bisection of a
@@ -113,7 +113,7 @@ export namespace AutoMovieHumanTrunkSolve {
     const u: number = (y - y0) / H;
     const ends: number[] = [a.value, a.slope, a.curvature, b.curvature, b.slope, b.value];
     const read = (order: 0 | 1 | 2): number => {
-      const w: number[] = AutoMovieHumanStationHermite.weights(u, H, order, true);
+      const w: number[] = AutoMovieStationHermite.weights(u, H, order, true);
 
       return w.reduce((s: number, weight: number, k: number): number => s + weight * ends[k]!, 0);
     };

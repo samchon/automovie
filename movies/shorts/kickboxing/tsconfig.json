@@ -35,7 +35,6 @@
     "lint.config.ts",
     "evidence.config.ts",
     "src",
-    "scripts",
     "test"
   ]
 }

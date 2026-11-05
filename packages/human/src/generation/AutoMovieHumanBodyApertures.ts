@@ -1,17 +1,10 @@
 import { AutoMovieHumanLoftAperture } from "../lofting/AutoMovieHumanLoftAperture";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
-import { AutoMovieHumanApertureHoles } from "./AutoMovieHumanApertureHoles";
-import { AutoMovieHumanBodyApertureIslands } from "./AutoMovieHumanBodyApertureIslands";
 import { AutoMovieHumanEyelid } from "./AutoMovieHumanEyelid";
-import { AutoMovieHumanEyelidSurface } from "./AutoMovieHumanEyelidSurface";
-import type { IAutoMovieHumanApertureEdge } from "./IAutoMovieHumanApertureEdge";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
-import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
 
-/** Openings and their refinement, clipping, and shared skin boundaries. */
+/** Openings prepared once: their margins, cut outlines and lids, and the rows refined near them. */
 export namespace AutoMovieHumanBodyApertures {
   /** An aperture with its margin and projected cut outline evaluated once. */
   export interface IPrepared {
@@ -29,6 +22,13 @@ export namespace AutoMovieHumanBodyApertures {
      * lies behind it; null for any other opening.
      */
     lid: AutoMovieHumanEyelid.ILid | null;
+
+    /**
+     * The points the skin is cut along, whose projection is {@link outline}:
+     * the margin, or for an eye the lid band's outer edge, one point per lid
+     * sample.
+     */
+    edge: AutoMovieHumanLoftAperture.Point[];
   }
 
   /** Station spacing where a chain's rings pass near an opening, mm. */
@@ -79,6 +79,7 @@ export namespace AutoMovieHumanBodyApertures {
           aperture,
           outline: AutoMovieHumanLoftAperture.outline(aperture, margin),
           lid: null,
+          edge: margin,
         };
 
       // An eye is cut out to the lid band's outer edge.
@@ -86,24 +87,15 @@ export namespace AutoMovieHumanBodyApertures {
         aperture,
         globe,
       );
+      const edge: AutoMovieHumanLoftAperture.Point[] = lid.samples.map(
+        (s: AutoMovieHumanEyelid.ISample): AutoMovieHumanLoftAperture.Point =>
+          AutoMovieHumanEyelid.add(s.contact, AutoMovieHumanEyelid.scale(s.outward, AutoMovieHumanEyelid.rule.band)),
+      );
       return {
         aperture,
-        outline: AutoMovieHumanLoftAperture.outline(
-          aperture,
-          lid.samples.map(
-            (
-              s: AutoMovieHumanEyelid.ISample,
-            ): AutoMovieHumanLoftAperture.Point =>
-              AutoMovieHumanEyelid.add(
-                s.contact,
-                AutoMovieHumanEyelid.scale(
-                  s.outward,
-                  AutoMovieHumanEyelid.rule.band,
-                ),
-              ),
-          ),
-        ),
+        outline: AutoMovieHumanLoftAperture.outline(aperture, edge),
         lid,
+        edge,
       };
     });
   }
@@ -121,13 +113,13 @@ export namespace AutoMovieHumanBodyApertures {
    */
   export function detail(
     boxes: readonly [[number, number, number], [number, number, number]][],
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     heights: readonly number[],
     phases: readonly number[],
   ): number[] {
     if (!boxes.length) return [...heights];
     const near: (s: number) => boolean = (s: number): boolean =>
-      AutoMovieHumanLoftChain.ring(target, s, phases).some(
+      AutoMovieLoftChain.ring(target, s, phases).some(
         (p: [number, number, number]): boolean =>
           boxes.some(
             ([lo, hi]: [
@@ -160,13 +152,13 @@ export namespace AutoMovieHumanBodyApertures {
    */
   export function refine(
     apertures: readonly IPrepared[],
-    target: IAutoMovieHumanLoftChain,
+    target: IAutoMovieLoftChain,
     heights: readonly number[],
     phases: readonly number[],
   ): number[] {
     if (!apertures.length) return [...heights];
     const near: (s: number) => boolean = (s: number): boolean =>
-      AutoMovieHumanLoftChain.ring(target, s, phases).some(
+      AutoMovieLoftChain.ring(target, s, phases).some(
         (p: [number, number, number]): boolean =>
           apertures.some(
             (a: IPrepared): boolean =>
@@ -174,23 +166,11 @@ export namespace AutoMovieHumanBodyApertures {
           ),
       );
 
-    // Between two rows a skin point near an opening rises by at most half
-    // the opening's own thickness (`AutoMovieHumanApertureHoles`), so every
-    // column crosses it in at least two rows and no row bridges it: a tilted
-    // section's front points rise faster than its station.
-    const half: number[] = apertures.map((a: IPrepared): number => AutoMovieHumanApertureHoles.thickness(a.outline) / 2);
-    const count = (a: number, b: number): number => {
-      const lo: [number, number, number][] = AutoMovieHumanLoftChain.ring(target, a, phases);
-      const hi: [number, number, number][] = AutoMovieHumanLoftChain.ring(target, b, phases);
-      let steps: number = Math.ceil((b - a) / SPACING);
-      for (let i: number = 0; i < lo.length; i++)
-        apertures.forEach((p: IPrepared, k: number): void => {
-          if (half[k]! > 0 && AutoMovieHumanLoftAperture.signed(p.outline, lo[i]!, REACH) < REACH)
-            steps = Math.max(steps, Math.ceil(Math.abs(hi[i]![1] - lo[i]![1]) / half[k]!));
-        });
-      return steps;
-    };
-    return split(heights, near, count);
+    // Rows near an opening at the spacing: the opening is a trim loop in its
+    // base's chart, so no row has to resolve a slit's thickness as the cut by
+    // position once needed; rows at half a thin slit's thickness multiplied
+    // the rows near it without bound.
+    return split(heights, near);
   }
 
   /**
@@ -216,224 +196,5 @@ export namespace AutoMovieHumanBodyApertures {
       out.push(b);
     }
     return out;
-  }
-
-  /**
-   * Cut the eyes out of the skin and close them with their lids: the one
-   * opening still cut by position, because an eye's lid band crosses the ring
-   * between two head chains; every other opening is a trim loop on its base
-   * chain (`AutoMovieHumanApertureBase`).
-   *
-   * Each vertex takes the least {@link AutoMovieHumanLoftAperture.signed}
-   * distance over the openings' cut outlines. Every triangle is clipped at
-   * its zero level: vertices on the opening side are dropped, and each edge
-   * the outline crosses gets one new vertex on its original edge and
-   * shared by the two triangles of the edge, so the cut skin stays
-   * connected and its open edge lies on the outline.
-   *
-   * The open edges of an eye form a loop on the lid band's outer edge,
-   * which {@link AutoMovieHumanEyelidSurface} continues into the lid.
-   * Pieces of skin the outline cuts off inside an opening are dropped.
-   * New triangles take the group of the skin triangle on the open edge they
-   * continue, so they render with the skin they belong to.
-   *
-   * @param mesh Skin buffers with groups; triangles counter-clockwise from
-   *   outside.
-   * @param apertures Prepared openings.
-   */
-  export function cut(
-    mesh: AutoMovieHumanLoftMesh.IContext,
-    apertures: readonly IPrepared[],
-  ): IAutoMovieHumanConstructionPath[] {
-    if (!apertures.length) return [];
-
-    // Signed distance and owning opening of every original vertex.
-    const count: number = mesh.positions.length / 3;
-    const value: number[] = new Array<number>(count).fill(Infinity);
-    const owner: number[] = new Array<number>(count).fill(-1);
-    for (let v: number = 0; v < count; v++) {
-      const p: AutoMovieHumanLoftAperture.Point = [
-        mesh.positions[3 * v]!,
-        mesh.positions[3 * v + 1]!,
-        mesh.positions[3 * v + 2]!,
-      ];
-      apertures.forEach((a: IPrepared, i: number): void => {
-        const d: number = AutoMovieHumanLoftAperture.signed(
-          a.outline,
-          p,
-          2 * REACH,
-        );
-        if (d < value[v]!) {
-          value[v] = d;
-          owner[v] = i;
-        }
-      });
-    }
-
-    // Margin vertices: originals exactly on the outline, and edge
-    // crossings. A crossing remembers the kept vertex of its edge, from
-    // which the skin's slope across the outline is read.
-    const margin: Map<number, number> = new Map();
-    for (let v: number = 0; v < count; v++)
-      if (value[v] === 0) margin.set(v, owner[v]!);
-    const crossings: Map<number, number> = new Map();
-    /** One shared root on each original edge; projection never moves retained skin. */
-    const crossing: (p: number, q: number) => number = (
-      p: number,
-      q: number,
-    ): number => {
-      // A far vertex (infinite distance) next to the opening places the
-      // crossing at the opening's side.
-      let f: number = Number.isFinite(value[p]!)
-        ? value[p]! / (value[p]! - value[q]!)
-        : 1;
-      // A crossing within rounding of an edge's end is that end, which then
-      // lies on the outline.
-      const side: number = owner[value[p]! < 0 ? p : q]!;
-      if (f <= 1e-9) {
-        margin.set(p, side);
-        return p;
-      }
-      if (f >= 1 - 1e-9) {
-        if (Number.isFinite(value[p]!)) margin.set(q, side);
-        return q;
-      }
-      const key: number = Math.min(p, q) * count + Math.max(p, q);
-      const found: number | undefined = crossings.get(key);
-      if (found !== undefined) return found;
-
-      // Signed Euclidean distance is nonlinear along a triangle edge. A
-      // secant crossing need not lie on the cut outline and gives adjacent
-      // profile columns different band widths. Bracket the actual root on
-      // the original edge, retaining its triangle's position authority.
-      let lower: number = 0;
-      let upper: number = 1;
-      const negative: boolean = value[p]! < 0;
-      for (let iteration: number = 0; iteration < 40; iteration++) {
-        f = (lower + upper) / 2;
-        const probe: AutoMovieHumanLoftAperture.Point = [0, 1, 2].map(
-          (axis: number): number =>
-            mesh.positions[3 * p + axis]! +
-            f * (mesh.positions[3 * q + axis]! - mesh.positions[3 * p + axis]!),
-        ) as AutoMovieHumanLoftAperture.Point;
-        const signed: number = AutoMovieHumanLoftAperture.signed(
-          apertures[side]!.outline,
-          probe,
-          2 * REACH,
-        );
-        if (signed < 0 === negative) lower = f;
-        else upper = f;
-      }
-      const index: number = mesh.positions.length / 3;
-      const linear: AutoMovieHumanLoftAperture.Point = [0, 1, 2].map(
-        (axis: number): number =>
-          mesh.positions[3 * p + axis]! +
-          f * (mesh.positions[3 * q + axis]! - mesh.positions[3 * p + axis]!),
-      ) as AutoMovieHumanLoftAperture.Point;
-      // Keep the crossing on its original triangle edge. Moving it in the
-      // projection plane can reverse a retained triangle and detaches the
-      // boundary from the surface whose transverse derivative we consume.
-      mesh.positions.push(linear[0], linear[1], linear[2]);
-      crossings.set(key, index);
-      margin.set(index, side);
-      return index;
-    };
-
-    // Clip group by group, keeping the side where the distance is not
-    // negative, and fan the kept polygon.
-    const indices: number[] = [];
-    const groups: { name: string; start: number }[] = [];
-    const faces: string[] = [];
-    mesh.groups.forEach(
-      (g: { name: string; start: number }, k: number): void => {
-        const end: number = mesh.groups[k + 1]?.start ?? mesh.indices.length;
-        groups.push({ name: g.name, start: indices.length });
-        for (let t: number = g.start; t < end; t += 3) {
-          const corners: number[] = [
-            mesh.indices[t]!,
-            mesh.indices[t + 1]!,
-            mesh.indices[t + 2]!,
-          ];
-          const polygon: number[] = [];
-          corners.forEach((p: number, i: number): void => {
-            const q: number = corners[(i + 1) % 3]!;
-            const keep: boolean = value[p]! >= 0;
-            if (keep) polygon.push(p);
-            if (keep !== value[q]! >= 0) polygon.push(crossing(p, q));
-          });
-          const kept: number[] = polygon.filter(
-            (v: number, i: number): boolean =>
-              v !== polygon[(i + polygon.length - 1) % polygon.length],
-          );
-          for (let i: number = 1; i + 1 < kept.length; i++) {
-            indices.push(kept[0]!, kept[i]!, kept[i + 1]!);
-            faces.push(g.name);
-          }
-        }
-      },
-    );
-
-    // The outline can cut a sliver of skin off inside an opening (on m2 six
-    // triangles 0.6 mm round beside the right medial canthus), whose own
-    // boundary would be a second margin loop; such islands are dropped.
-    const total: number = mesh.positions.length / 3;
-    AutoMovieHumanBodyApertureIslands.islands(indices, faces, groups, total);
-
-    // Open margin edges per opening: directed edges whose reverse no
-    // triangle uses, with the group of their triangle.
-    const directed: Set<number> = new Set();
-    for (let t: number = 0; t < indices.length; t += 3)
-      for (let i: number = 0; i < 3; i++)
-        directed.add(indices[t + i]! * total + indices[t + ((i + 1) % 3)]!);
-    const open: IAutoMovieHumanApertureEdge[][] = apertures.map(
-      (): IAutoMovieHumanApertureEdge[] => [],
-    );
-    for (let t: number = 0; t < indices.length; t += 3)
-      for (let i: number = 0; i < 3; i++) {
-        const u: number = indices[t + i]!;
-        const v: number = indices[t + ((i + 1) % 3)]!;
-        if (directed.has(v * total + u)) continue;
-        const a: number | undefined = margin.get(u);
-        if (a === undefined || a !== margin.get(v)) continue;
-        open[a]!.push({
-          u,
-          v,
-          inside: indices[t + ((i + 2) % 3)]!,
-          name: faces[t / 3]!,
-        });
-      }
-
-    // Close each opening, collecting its triangles by group.
-    const added: Map<string, number[]> = new Map();
-    /** Group continuation triangles with the skin edge that owns them. */
-    const emit: (name: string, ...corners: number[]) => void = (
-      name: string,
-      ...corners: number[]
-    ): void => {
-      const list: number[] = added.get(name) ?? [];
-      list.push(...corners);
-      added.set(name, list);
-    };
-    const construction: IAutoMovieHumanConstructionPath[] = [];
-    apertures.forEach((prepared: IPrepared, a: number): void => {
-      if (prepared.lid !== null)
-        construction.push(
-          ...AutoMovieHumanEyelidSurface.generate(
-            mesh,
-            prepared,
-            prepared.lid,
-            open[a]!,
-            emit,
-          ),
-        );
-    });
-    for (const [name, list] of added) {
-      groups.push({ name, start: indices.length });
-      indices.push(...list);
-    }
-
-    mesh.indices = indices;
-    mesh.groups = groups;
-    return construction;
   }
 }

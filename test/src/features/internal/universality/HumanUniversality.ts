@@ -2,9 +2,8 @@ import { AutoMovieHuman } from "../../../../../packages/human/src/AutoMovieHuman
 import { AutoMovieHumanBodyLaw } from "../../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanBodySurface } from "../../../../../packages/human/src/generation/AutoMovieHumanBodySurface";
 import { AutoMovieHumanLoftAperture } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftAperture";
-import type { AutoMovieHumanLoftContract } from "../../../../../packages/human/src/lofting/AutoMovieHumanLoftContract";
+import type { AutoMovieLoftContract, IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanLoftAperture } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import type { IAutoMovieHumanParameters } from "../../../../../packages/human/src/structures/IAutoMovieHumanParameters";
 import { HumanCurveCollapse } from "../curves/HumanCurveCollapse";
 import type { HumanAnatomyAudit } from "../HumanAnatomyAudit";
@@ -65,7 +64,7 @@ export namespace HumanUniversality {
   }
 
   /** One diagnostic as one line of findings. */
-  export function line(d: AutoMovieHumanLoftContract.IDiagnostic): string {
+  export function line(d: AutoMovieLoftContract.IDiagnostic): string {
     return `${d.producer} (level ${d.level}) ${d.contract}: ${d.detail}`;
   }
 
@@ -89,8 +88,8 @@ export namespace HumanUniversality {
       return { person: name, failed: "body law", message: (error as Error).message, flung: [], rim: [], diagnostics: [] };
     }
     const flung: HumanAnatomyAudit.IRow[] = law.body.chains
-      .filter((c: IAutoMovieHumanLoftChain): boolean => HumanCurveCollapse.CHAINS.test(c.name))
-      .map((c: IAutoMovieHumanLoftChain, k: number): HumanAnatomyAudit.IRow => HumanCurveCollapse.boxed(name, law.body.stature, c, k))
+      .filter((c: IAutoMovieLoftChain): boolean => HumanCurveCollapse.CHAINS.test(c.name))
+      .map((c: IAutoMovieLoftChain, k: number): HumanAnatomyAudit.IRow => HumanCurveCollapse.boxed(name, law.body.stature, c, k))
       .filter((r: HumanAnatomyAudit.IRow): boolean => r.value > 0);
     let surface: ISurface;
     try {
@@ -107,7 +106,7 @@ export namespace HumanUniversality {
       opening !== undefined && (surface.rims.get(opening.name)?.length ?? 0) < 3 ? "the skin closed no mouth trim loop" : "";
 
     // The whole figure along the public path, every recorded diagnostic.
-    let diagnostics: AutoMovieHumanLoftContract.IDiagnostic[];
+    let diagnostics: AutoMovieLoftContract.IDiagnostic[];
     try {
       diagnostics = AutoMovieHuman.diagnose(params);
     } catch (error) {
@@ -181,8 +180,8 @@ export namespace HumanUniversality {
     // The head chains' layer spacing within 3 mm of stomion, the contact line's midline height.
     const stomion: number = seam === undefined ? NaN : seam.contact[0]!;
     for (const name of ["head.lower", "head.middle"]) {
-      const c: IAutoMovieHumanLoftChain | undefined = law.body.chains.find((x: IAutoMovieHumanLoftChain): boolean => x.name === name);
-      const ys: number[] = (c?.layers ?? []).map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y).filter((y: number): boolean => Math.abs(y - stomion) <= 3);
+      const c: IAutoMovieLoftChain | undefined = law.body.chains.find((x: IAutoMovieLoftChain): boolean => x.name === name);
+      const ys: number[] = (c?.layers ?? []).map((l: IAutoMovieLoftChain.ILayer): number => l.y).filter((y: number): boolean => Math.abs(y - stomion) <= 3);
       out.push(`${name} layers within 3 mm of stomion (${stomion.toFixed(2)}): ${ys.map((y: number): string => y.toFixed(3)).join(" ") || "none"}; gaps ${ys.slice(1).map((y: number, i: number): string => (y - ys[i]!).toFixed(3)).join(" ") || "-"}`);
     }
     return out;

@@ -13,7 +13,7 @@ import ts from "typescript-compiler";
  * brow piece), except that a level-1 suffix decides first. Shared types and
  * mathematics, which every level reads, are level 0: `structures/`,
  * `typings/`, the loft mathematics of `lofting/` and the merge operators the
- * document names as shared mathematics (`AutoMovieHumanSeam`, `AutoMovieHumanSeamKnot`, `AutoMovieHumanSeamUnion`, `AutoMovieHumanSeamCarve`, `AutoMovieHumanLoftContract`, the splines),
+ * document names as shared mathematics (`AutoMovieHumanSeam`, `AutoMovieHumanSeamKnot`, `AutoMovieHumanSeamUnion`, `AutoMovieHumanSeamCarve`, `AutoMovieLoftContract`, the splines),
  * procedural noise (`...Noise`) and every interface file `I...`, a declared record of what a level publishes, which as an importer
  * is not judged, since it declares a record and computes nothing. A file
  * whose name carries no mark is unclassified and its edges are not judged.

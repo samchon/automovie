@@ -3,7 +3,7 @@ import type { IAutoMovieHumanWeb } from "./IAutoMovieHumanWeb";
 import type { IAutoMovieHumanWebCrests } from "./IAutoMovieHumanWebCrests";
 import type { IAutoMovieHumanWebInput } from "./IAutoMovieHumanWebInput";
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
-import { AutoMovieHumanLoftChain } from "../../lofting/AutoMovieHumanLoftChain";
+import { AutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
 
@@ -27,13 +27,13 @@ export namespace AutoMovieHumanWebCrest {
     const { mesh, parent, down } = input;
     const position = (v: number): Vec3 => AutoMovieHumanLoftMesh.position(mesh, v);
     const sp: number = down ? parent.layers[0]!.y : parent.layers[parent.layers.length - 1]!.y;
-    const onParent: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(parent, sp);
-    const inParent: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(parent, sp + (down ? H : -H));
+    const onParent: (t: number) => Vec3 = AutoMovieLoftChain.sampler(parent, sp);
+    const inParent: (t: number) => Vec3 = AutoMovieLoftChain.sampler(parent, sp + (down ? H : -H));
     const outward = (t: number): Vec3 => unit(sub(onParent(t), inParent(t)));
     // The parent's station curve at a phase, leaving its ring outward: its
     // first and second derivatives by the one-sided three-point rule, the jet
     // a column copies so it leaves the parent G2 (`AutoMovieHumanSeam`, J1).
-    const deepParent: (t: number) => Vec3 = AutoMovieHumanLoftChain.sampler(parent, sp + (down ? 2 * H : -2 * H));
+    const deepParent: (t: number) => Vec3 = AutoMovieLoftChain.sampler(parent, sp + (down ? 2 * H : -2 * H));
     const parentJet = (t: number): IAutoMovieHumanSeam.IArcJet => leaving(onParent(t), inParent(t), deepParent(t), -1);
 
     // The webs: every pair of pinches two children part at.

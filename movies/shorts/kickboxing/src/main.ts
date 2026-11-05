@@ -2,17 +2,18 @@ import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-import { MovieAudio } from "./audio/MovieAudio";
-import { createInspectionRing } from "./createInspectionRing";
-import { FilmPlan } from "./film/FilmPlan";
-import { FilmRuntime } from "./film/FilmRuntime";
-import { FilmTransport } from "./film/FilmTransport";
-import { mountFilmControls } from "./film/mountFilmControls";
-import { prepareFilmSources } from "./film/prepareFilmSources";
+import type { IFilm } from "./IFilm";
+import type { IFilmProduction } from "./IFilmProduction";
+import { films } from "./films";
+import { FilmTransport } from "./runtime/FilmTransport";
+import { mountFilmControls } from "./runtime/mountFilmControls";
+import { selectFilm } from "./selectFilm";
+import { FilmPlan } from "./shots/kickboxing/ring-bout/FilmPlan";
+import type { MovieAudio } from "./sound/MovieAudio";
 import "./style.css";
 
 /** Immutable source identity; the existing static review server is never edited here. */
-const version: string = "modular-bout-012";
+const version: string = "keyframed-bout-001";
 /** The one document mount owns controls and the actual viewport. */
 const app: HTMLElement | null = document.getElementById("app");
 if (!app) throw new Error("Missing production mount");
@@ -46,44 +47,41 @@ if (capture) {
   element(".viewport").style.cssText =
     `width:${width}px;height:${height}px;min-height:0`;
 }
-/** One original scene is borrowed by public Viewer and Render capture. */
-const scene: THREE.Scene = new THREE.Scene();
-scene.background = new THREE.Color(0x10151e);
-/** The same physical camera performs ordinary playback and capture. */
-const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
-  43,
-  1,
-  0.02,
-  80,
-);
+/**
+ * The film the `film` parameter names, or the only film when it is omitted. A
+ * refused name is shown on the page and in the public state that review and
+ * export tools read, instead of leaving them waiting for readiness.
+ */
+const selected: { name: string; film: IFilm } = ((): {
+  name: string;
+  film: IFilm;
+} => {
+  try {
+    return selectFilm(films, params.get("film"));
+  } catch (error: unknown) {
+    const message: string =
+      error instanceof Error ? error.message : String(error);
+    element("#status").textContent = `Request refused: ${message}`;
+    const refused: object = {
+      ready: false,
+      stage: "film-refused",
+      error: message,
+    };
+    Reflect.set(window, "__kickboxingFilm", refused);
+    Reflect.set(window, "__kickboxing", refused);
+    throw error;
+  }
+})();
+/** The mounted film; absent until its preparation completes. */
+let production: IFilmProduction | undefined;
+/** Public Viewer handle, mounted on the prepared film's scene and camera. */
+let handle: IAutoMovieViewerHandle | undefined;
 /** Native inspection controls own no film clock. */
-const controls: OrbitControls = new OrbitControls(camera, element("#view"));
-controls.enableDamping = false;
-controls.enabled = false;
-scene.add(new THREE.HemisphereLight(0xe2efff, 0x635c53, 2.1));
-/** Fixed overhead source for this one actual scene. */
-const light: THREE.DirectionalLight = new THREE.DirectionalLight(0xfff2dc, 3);
-light.position.set(2, 7, 4);
-light.castShadow = true;
-light.shadow.mapSize.set(1024, 1024);
-Object.assign(light.shadow.camera, {
-  left: -4,
-  right: 4,
-  top: 4,
-  bottom: -4,
-  near: 0.1,
-  far: 15,
-});
-scene.add(light);
-/** Visible ring and its same actual staging descriptor. */
-const ring: createInspectionRing.Result = createInspectionRing();
-scene.add(ring.object);
-/** One complete native soundtrack, separately owned from film motion. */
-const audio: MovieAudio = new MovieAudio();
-/** Source runtime is created after healthy scenery has drawn. */
-let runtime: FilmRuntime | undefined;
+let controls: OrbitControls | undefined;
 /** The only play/seek clock; absent until full preparation succeeds. */
 let transport: FilmTransport | undefined;
+/** Release of the review controls once they are mounted. */
+let disposeControls: (() => void) | undefined;
 /** Completed original draws, separate from idle RAF observation. */
 let frames: number = 0;
 /** Last CPU submission cost, not a GPU completion measurement. */
@@ -110,9 +108,9 @@ const frameCosts: {
 let dirty: boolean = true;
 /** Document lifetime cancels late asynchronous readiness. */
 let closed: boolean = false;
-/** Actual producer stage distinguishes motion, camera and original draw refusals. */
+/** Actual producer stage distinguishes placement and original draw refusals. */
 let producerFailure: {
-  stage: "motion" | "camera" | "draw";
+  stage: "placement" | "draw";
   message: string;
 } | null = null;
 /** Source and audio preparation are measured separately from startup and encoding. */
@@ -123,6 +121,7 @@ const preparationCosts: { sourceMs: number; audioMs: number } = {
 /** Truthful public state exists even when actual preparation refuses. */
 const state: {
   version: string;
+  film: string;
   durationSeconds: number;
   fps: number;
   frameCount: number;
@@ -138,9 +137,10 @@ const state: {
   audioManifest?: () => MovieAudio.Manifest;
 } = {
   version,
-  durationSeconds: 180,
-  fps: 30,
-  frameCount: 5400,
+  film: selected.name,
+  durationSeconds: selected.film.durationSeconds,
+  fps: selected.film.fps,
+  frameCount: selected.film.durationSeconds * selected.film.fps,
   eventCount: 0,
   ready: false,
   stage: "preparing",
@@ -148,95 +148,68 @@ const state: {
 Reflect.set(window, "__kickboxingFilm", state);
 Reflect.set(window, "__kickboxing", state);
 
-/** Adopt the source camera independently of prior inspection or seek history. */
-function filmCamera(seconds: number): void {
-  const view: FilmPlan.Camera = FilmPlan.camera(seconds);
-  camera.position.set(...view.position);
-  camera.fov = view.fovDegrees;
-  camera.lookAt(new THREE.Vector3(...view.target));
-  camera.updateProjectionMatrix();
-  controls.target.set(...view.target);
+/** Require the prepared film rather than drawing a fallback. */
+function requireProduction(): IFilmProduction {
+  if (!production || !handle)
+    throw new Error("The complete film has not loaded");
+  return production;
 }
-filmCamera(0);
+
+/** Adopt the delivered camera for a second, independent of inspection history. */
+function filmCamera(seconds: number): void {
+  const film: IFilmProduction = requireProduction();
+  film.seek(seconds);
+  controls?.target.copy(film.cameraTarget(seconds));
+  dirty = true;
+}
 
 /** Draw the actual scene before publishing its completed exact film time. */
 function draw(seconds: number): void {
+  const film: IFilmProduction = requireProduction();
   const begun: number = performance.now();
   try {
-    handle.renderer.render(scene, camera);
+    handle!.renderer.render(film.scene, film.camera);
   } finally {
     drawMs = performance.now() - begun;
   }
   frames++;
   const publicationStarted: number = performance.now();
-  handle.completeFrame(seconds);
+  handle!.completeFrame(seconds);
   frameCosts.completionPublishMs = performance.now() - publicationStarted;
   element<HTMLOutputElement>("#time").value =
-    `${seconds.toFixed(2)} / 180.00 s`;
+    `${seconds.toFixed(2)} / ${selected.film.durationSeconds.toFixed(2)} s`;
   element<HTMLInputElement>("#seek").value = String(seconds);
   dirty = false;
 }
 
-/** Keep scenery and the Viewer alive when a requested motion refuses. */
-const handle: IAutoMovieViewerHandle = mountViewer(
-  element("#view"),
-  scene,
-  camera,
-  (): boolean => {
-    try {
-      if (transport?.playing) transport.tick();
-      if (dirty) draw(transport?.seconds ?? 0);
-    } catch (error: unknown) {
-      report(error);
-    }
-    return true;
-  },
-  {
-    pixelRatio: 1,
-    preserveDrawingBuffer: true,
-    freezeCompleted: (): ((resume: boolean) => void) =>
-      transport?.freeze() ?? ((_resume: boolean): void => {}),
-    redrawCompleted: (seconds: number): void => {
-      if (transport) {
-        transport.seek(seconds);
-      } else if (seconds === 0) {
-        draw(0);
-      } else throw new Error("The complete film has not loaded");
-    },
-  },
-);
-handle.renderer.shadowMap.enabled = true;
-handle.renderer.shadowMap.type = THREE.PCFShadowMap;
-controls.addEventListener("change", (): void => {
-  if (controls.enabled) dirty = true;
-});
-
-/** Complete source, camera and original drawing as one successful producer operation. */
+/** Complete the film's placement and the original drawing as one producer operation. */
 function place(seconds: number): void {
-  if (!runtime?.ready || !state.ready)
-    throw new Error("The complete film has not loaded");
-  const checkpointStarted: number = performance.now();
-  const rollback: () => void = runtime.checkpoint();
-  frameCosts.checkpointMs = performance.now() - checkpointStarted;
-  const position: THREE.Vector3 = camera.position.clone();
-  const rotation: THREE.Quaternion = camera.quaternion.clone();
-  const fov: number = camera.fov;
-  const target: THREE.Vector3 = controls.target.clone();
-  let stage: "motion" | "camera" | "draw" = "motion";
+  const film: IFilmProduction = requireProduction();
+  if (!state.ready) throw new Error("The complete film has not loaded");
+  frameCosts.checkpointMs = 0;
+  const inspecting: boolean = !capture && controls?.enabled === true;
+  const position: THREE.Vector3 = film.camera.position.clone();
+  const rotation: THREE.Quaternion = film.camera.quaternion.clone();
+  const fov: number = film.camera.fov;
+  let stage: "placement" | "draw" = "placement";
   try {
-    const motionStarted: number = performance.now();
+    const placementStarted: number = performance.now();
     try {
-      runtime.evaluate(seconds);
+      film.seek(seconds);
     } finally {
-      frameCosts.motionAndNativeMatricesMs = performance.now() - motionStarted;
+      frameCosts.motionAndNativeMatricesMs =
+        performance.now() - placementStarted;
     }
-    stage = "camera";
+
+    // The inspection camera keeps its own view while the performance moves.
     const cameraStarted: number = performance.now();
-    try {
-      if (capture || !controls.enabled) filmCamera(seconds);
-    } finally {
-      frameCosts.cameraMs = performance.now() - cameraStarted;
-    }
+    if (inspecting) {
+      film.camera.position.copy(position);
+      film.camera.quaternion.copy(rotation);
+      film.camera.fov = fov;
+      film.camera.updateProjectionMatrix();
+    } else controls?.target.copy(film.cameraTarget(seconds));
+    frameCosts.cameraMs = performance.now() - cameraStarted;
     stage = "draw";
     draw(seconds);
     producerFailure = null;
@@ -246,12 +219,10 @@ function place(seconds: number): void {
         "The full source is loaded. Independent moving-picture and listening review remain required.";
     }
   } catch (error: unknown) {
-    rollback();
-    camera.position.copy(position);
-    camera.quaternion.copy(rotation);
-    camera.fov = fov;
-    controls.target.copy(target);
-    camera.updateProjectionMatrix();
+    film.camera.position.copy(position);
+    film.camera.quaternion.copy(rotation);
+    film.camera.fov = fov;
+    film.camera.updateProjectionMatrix();
     producerFailure = {
       stage,
       message: error instanceof Error ? error.message : String(error),
@@ -280,46 +251,103 @@ function requireTransport(): FilmTransport {
   return transport;
 }
 
-/** Resolve actual source, shared audio and initial placement once for every consumer. */
+/** Prepare the selected film once, then mount it for every consumer. */
 const bootstrap: Promise<void> = (async (): Promise<void> => {
   try {
     await new Promise<void>((resolve: () => void): void => {
       requestAnimationFrame((): void => resolve());
     });
     if (closed) throw new Error("The Viewer closed during preparation");
+    const duration: number = selected.film.durationSeconds;
     const start: number = readSeconds("start", 0);
-    const end: number = readSeconds("end", 180);
+    const end: number = readSeconds("end", duration);
     const speed: number = readSeconds("speed", 1);
     if (
       ![0.25, 0.5, 1].includes(speed) ||
       start < 0 ||
-      end > 180 ||
+      end > duration ||
       start >= end
     )
       throw new Error(
-        "URL requires 0 <= start < end <= 180 and speed .25, .5 or 1",
+        `URL requires 0 <= start < end <= ${duration} and speed .25, .5 or 1`,
       );
-    runtime = new FilmRuntime(ring.layout);
-    for (const actor of Object.values(runtime.actors)) {
-      scene.add(actor.person.object);
-      actor.person.object.traverse((object: THREE.Object3D): void => {
-        if (object instanceof THREE.Mesh) object.castShadow = true;
-      });
-    }
-    dirty = true;
-    await prepareFilmSources(
-      runtime,
-      audio,
-      (id: string, completed: number, total: number): void => {
-        element("#status").textContent =
-          `Preparing actual sequence ${completed}/${total}: ${id}`;
+
+    // The film prepares its scene, contacts and soundtrack; sound decoding
+    // starts after contact measurement, which splits the two costs.
+    const sourceStarted: number = performance.now();
+    let audioStarted: number | null = null;
+    const film: IFilmProduction = await selected.film.create(
+      (message: string): void => {
+        if (message === "Decoding the soundtrack") {
+          audioStarted = performance.now();
+          preparationCosts.sourceMs = audioStarted - sourceStarted;
+        }
+        element("#status").textContent = message;
       },
-      preparationCosts,
-      (): boolean => closed,
     );
-    transport = new FilmTransport(audio, place);
+    preparationCosts.audioMs =
+      audioStarted === null ? 0 : performance.now() - audioStarted;
+    if (closed) {
+      film.dispose();
+      throw new Error("The Viewer closed during preparation");
+    }
+    production = film;
+
+    // Review-only skeleton overlay (joint points and sticks): `?rig=1`.
+    if (params.get("rig") === "1")
+      for (const actor of Object.values(film.runtime.actors)) actor.showRig();
+    handle = mountViewer(
+      element("#view"),
+      film.scene,
+      film.camera,
+      (): boolean => {
+        try {
+          if (transport?.playing) transport.tick();
+          if (dirty && state.ready) draw(transport?.seconds ?? 0);
+        } catch (error: unknown) {
+          report(error);
+        }
+        return true;
+      },
+      {
+        pixelRatio: 1,
+        preserveDrawingBuffer: true,
+        freezeCompleted: (): ((resume: boolean) => void) =>
+          transport?.freeze() ?? ((_resume: boolean): void => {}),
+        redrawCompleted: (seconds: number): void => {
+          if (transport) transport.seek(seconds);
+          else throw new Error("The complete film has not loaded");
+        },
+      },
+    );
+    handle.renderer.shadowMap.enabled = true;
+    handle.renderer.shadowMap.type = THREE.PCFShadowMap;
+    controls = new OrbitControls(film.camera, element("#view"));
+    controls.enableDamping = false;
+    controls.enabled = false;
+    controls.target.copy(film.cameraTarget(0));
+    controls.addEventListener("change", (): void => {
+      if (controls?.enabled) dirty = true;
+    });
+    disposeControls = mountFilmControls({
+      root: app,
+      capture,
+      version,
+      controls,
+      transport: (): FilmTransport | undefined => transport,
+      ready: (): boolean => state.ready,
+      inspect: (): object => state.inspect!(),
+      requireTransport,
+      seek,
+      filmCamera,
+      invalidate: (): void => {
+        dirty = true;
+      },
+      report,
+    });
+    transport = new FilmTransport(film.audio, place);
     transport.sound = !capture && element<HTMLInputElement>("#sound").checked;
-    state.eventCount = runtime.audioEvents().length;
+    state.eventCount = film.runtime.audioEvents().length;
     state.ready = true;
     state.stage = "loaded-awaiting-independent-playback-review";
     transport.setInterval(start, end);
@@ -331,6 +359,7 @@ const bootstrap: Promise<void> = (async (): Promise<void> => {
       element<HTMLButtonElement | HTMLInputElement>(selector).disabled = false;
     element("#status").textContent =
       "The full source is loaded. Moving-picture, listening and final decoded export acceptance require actual review.";
+    transport.seek(start);
     if (params.get("play") === "1" && !capture)
       void transport.play().catch(report);
   } catch (error: unknown) {
@@ -354,10 +383,10 @@ function readSeconds(name: string, fallback: number): number {
 }
 
 /**
- * Await original preparation, then complete the actual source/camera/draw seek.
+ * Await original preparation, then complete the actual placement and draw.
  * Render awaits the same preparation and uses the original transport producer.
- * Seconds are finite [0,180]; failures reject and successful completion follows
- * the original actual draw. Source waiting and placement intervals stay separate.
+ * Seconds are finite and within the film; failures reject and successful
+ * completion follows the original draw. Waiting and placement stay separate.
  */
 async function seek(seconds: number): Promise<void> {
   const started: number = performance.now();
@@ -367,7 +396,7 @@ async function seek(seconds: number): Promise<void> {
     } finally {
       frameCosts.seekPreparationAwaitMs = performance.now() - started;
     }
-    if (capture) {
+    if (capture && controls) {
       controls.enabled = false;
       element<HTMLInputElement>("#orbit").checked = false;
     }
@@ -382,31 +411,48 @@ async function seek(seconds: number): Promise<void> {
   }
 }
 state.seek = seek;
+
+/** Review-only inspection camera: "x,y,z:tx,ty,tz" in world metres; the delivered camera is unchanged. */
+Reflect.set(window, "__kickboxingView", (value: string): void => {
+  const camera: THREE.PerspectiveCamera = requireProduction().camera;
+  const [position, target] = value
+    .split(":")
+    .map((part: string): number[] => part.split(",").map(Number));
+  if (position?.length !== 3 || target?.length !== 3)
+    throw new Error("View is x,y,z:tx,ty,tz");
+  camera.position.set(position[0]!, position[1]!, position[2]!);
+  camera.fov = 40;
+  camera.lookAt(target[0]!, target[1]!, target[2]!);
+  camera.updateProjectionMatrix();
+  draw(transport?.seconds ?? 0);
+});
 Reflect.set(window, "__afSeek", seek);
 state.contacts = (): unknown[] => {
-  if (!state.ready || !runtime)
+  if (!state.ready || !production)
     throw new Error("Full film contacts are unavailable");
-  return runtime.contacts();
+  return production.runtime.contacts();
 };
 state.floorContacts = (): unknown[] => {
-  if (!state.ready || !runtime)
+  if (!state.ready || !production)
     throw new Error("Full film floor receipts are unavailable");
-  return runtime.floorContacts();
+  return production.runtime.floorContacts();
 };
 state.audioEvents = (): FilmPlan.Event[] => {
-  if (!state.ready || !runtime)
+  if (!state.ready || !production)
     throw new Error("The actual audio event manifest is unavailable");
-  return runtime.audioEvents();
+  return production.runtime.audioEvents();
 };
 state.audioManifest = (): MovieAudio.Manifest => {
-  if (!state.ready) throw new Error("The full soundtrack is unavailable");
-  return audio.manifest();
+  if (!state.ready || !production)
+    throw new Error("The full soundtrack is unavailable");
+  return production.audio.manifest();
 };
 state.inspect = (): object => ({
   version,
+  film: selected.name,
   stage: state.stage,
   ready: state.ready,
-  film: runtime?.inspect(),
+  runtime: production?.runtime.inspect(),
   transport: transport
     ? {
         seconds: transport.seconds,
@@ -417,30 +463,35 @@ state.inspect = (): object => ({
         error: transport.error,
       }
     : null,
-  camera: {
-    mode: controls.enabled ? "inspection" : "film",
-    position: camera.position.toArray(),
-    rotation: camera.quaternion.toArray(),
-    fov: camera.fov,
-    planned: FilmPlan.camera(transport?.seconds ?? 0),
-  },
-  renderer: {
-    frames,
-    drawSubmissionMs: drawMs,
-    calls: handle.renderer.info.render.calls,
-    triangles: handle.renderer.info.render.triangles,
-    error: producerFailure?.stage === "draw" ? producerFailure.message : null,
-  },
+  camera: production
+    ? {
+        mode: controls?.enabled ? "inspection" : "film",
+        position: production.camera.position.toArray(),
+        rotation: production.camera.quaternion.toArray(),
+        fov: production.camera.fov,
+        planned: FilmPlan.camera(transport?.seconds ?? 0),
+      }
+    : null,
+  renderer: handle
+    ? {
+        frames,
+        drawSubmissionMs: drawMs,
+        calls: handle.renderer.info.render.calls,
+        triangles: handle.renderer.info.render.triangles,
+        error:
+          producerFailure?.stage === "draw" ? producerFailure.message : null,
+      }
+    : null,
   producerFailure: structuredClone(producerFailure),
   preparationCosts: { ...preparationCosts },
   frameCosts: {
     ...frameCosts,
     motionBoundary:
-      "FilmRuntime evaluation includes actual clinical fitting, FK, actor pose and world-matrix updates; actor costs describe each last apply and are not frame aggregates",
+      "Film placement includes the runtime's clinical fitting, FK, actor pose, world-matrix updates and the delivered camera; actor costs describe each last apply and are not frame aggregates",
     drawBoundary:
       "CPU renderer submission; GPU completion, pixel readback and encoding are separate Render-owner costs",
   },
-  audio: audio.diagnostics(),
+  audio: production?.audio.diagnostics() ?? null,
   acceptance: {
     continuousViewing: "not-reviewed",
     listening: "not-reviewed",
@@ -448,22 +499,6 @@ state.inspect = (): object => ({
   },
 });
 
-const disposeControls: () => void = mountFilmControls({
-  root: app,
-  capture,
-  version,
-  controls,
-  transport: (): FilmTransport | undefined => transport,
-  ready: (): boolean => state.ready,
-  inspect: (): object => state.inspect!(),
-  requireTransport,
-  seek,
-  filmCamera,
-  invalidate: (): void => {
-    dirty = true;
-  },
-  report,
-});
 window.addEventListener(
   "pagehide",
   (): void => {
@@ -471,12 +506,10 @@ window.addEventListener(
     transport?.pause();
     const errors: unknown[] = [];
     for (const dispose of [
-      (): void => audio.dispose(),
-      (): void => runtime?.dispose(),
-      (): void => handle.stop(),
-      (): void => controls.dispose(),
-      disposeControls,
-      (): void => ring.dispose(),
+      (): void => production?.dispose(),
+      (): void => handle?.stop(),
+      (): void => controls?.dispose(),
+      (): void => disposeControls?.(),
     ])
       try {
         dispose();

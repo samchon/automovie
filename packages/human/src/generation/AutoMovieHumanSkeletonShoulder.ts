@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanSkeletonChain } from "./AutoMovieHumanSkeletonChain";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -25,7 +24,7 @@ export namespace AutoMovieHumanSkeletonShoulder {
    * not follow the shoulders, which the construction places from the head down.
    */
   export function shoulder(
-    upper: IAutoMovieHumanLoftChain,
+    upper: IAutoMovieLoftChain,
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
     elbow: Vec3,
@@ -34,7 +33,7 @@ export namespace AutoMovieHumanSkeletonShoulder {
     const s: number = side === "left" ? 1 : -1;
     const radius: number = rootRadius(upper, calibration, side);
     const deltoid = (y: number): Vec3 => {
-      const cap: Vec3[] = AutoMovieHumanLoftChain.ring(
+      const cap: Vec3[] = AutoMovieLoftChain.ring(
         upper,
         Math.min(stop(upper), Math.max(start(upper), y)),
         PHASES,
@@ -65,7 +64,7 @@ export namespace AutoMovieHumanSkeletonShoulder {
 
   /** Girth radius of the arm's root: its arc of the shoulder ring, closed. */
   export function rootRadius(
-    upper: IAutoMovieHumanLoftChain,
+    upper: IAutoMovieLoftChain,
     calibration: IAutoMovieHumanBodyCalibration,
     side: "left" | "right",
   ): number {
@@ -80,7 +79,7 @@ export namespace AutoMovieHumanSkeletonShoulder {
       )!
       .arcs.flatMap(([from, to]: [number, number]): Vec3[] => {
         const span: number = to >= from ? to - from : to + 2 * Math.PI - from;
-        return AutoMovieHumanLoftChain.ring(
+        return AutoMovieLoftChain.ring(
           upper,
           upper.layers[0]!.y,
           Array.from(

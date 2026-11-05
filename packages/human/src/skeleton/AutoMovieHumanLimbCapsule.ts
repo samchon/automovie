@@ -42,9 +42,15 @@ export namespace AutoMovieHumanLimbCapsule {
     p: Math3D.Vector,
     limb: IAutoMovieHumanBindingLimb,
   ): number {
-    const d: Math3D.Vector = Math3D.sub(limb.to, limb.from);
-    const e: Math3D.Vector = Math3D.sub(p, limb.from);
-    const squared: number = d[0] * d[0] + d[1] * d[1] + d[2] * d[2];
+    // Componentwise, without a vector per call: this runs per skin sample
+    // and per limb.
+    const d0: number = limb.to[0] - limb.from[0];
+    const d1: number = limb.to[1] - limb.from[1];
+    const d2: number = limb.to[2] - limb.from[2];
+    const e0: number = p[0] - limb.from[0];
+    const e1: number = p[1] - limb.from[1];
+    const e2: number = p[2] - limb.from[2];
+    const squared: number = d0 * d0 + d1 * d1 + d2 * d2;
 
     // The share of the segment the point projects to, clamped onto it.
     const f: number =
@@ -52,10 +58,10 @@ export namespace AutoMovieHumanLimbCapsule {
         ? 0
         : Math.max(
             0,
-            Math.min(1, (e[0] * d[0] + e[1] * d[1] + e[2] * d[2]) / squared),
+            Math.min(1, (e0 * d0 + e1 * d1 + e2 * d2) / squared),
           );
     return (
-      Math.hypot(e[0] - f * d[0], e[1] - f * d[1], e[2] - f * d[2]) -
+      Math.hypot(e0 - f * d0, e1 - f * d1, e2 - f * d2) -
       (limb.near + (limb.far - limb.near) * f * f * f)
     );
   }

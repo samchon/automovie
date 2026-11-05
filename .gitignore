@@ -4,6 +4,7 @@
 .models/
 .wiki/
 .references/
+.codex/
 
 node_modules/
 packages/cli/.cache/
@@ -29,10 +30,6 @@ packages/*/src/**/*.js
 packages/*/src/**/*.js.map
 # declarations emitted beside a source are compiler output, just like JavaScript.
 packages/*/src/**/*.d.ts
-# repository instructions the scaffold mirrors; packages/template/build/syncScaffoldInstructions.ts
-# regenerates them on prepare and build, and its SHARED destinations must match these paths
-packages/template/scaffold/.agents/skills/development/repair.md
-packages/template/scaffold/.agents/skills/development/writing.md
 # the scaffold nests a whole project, so its own sources need the same rule
 packages/template/scaffold/src/**/*.js
 packages/template/scaffold/src/**/*.js.map
@@ -58,4 +55,6 @@ test/.shots/
 /test/.native-build-evidence/
 /test/.reference-provenance-quarantine/
 /test/.reference-static-20261022-0435/
-/.cache/human-paper-calibration/
+
+# ttsx entry configurations left beside a package
+.ttsx-entry.*.tsconfig.json

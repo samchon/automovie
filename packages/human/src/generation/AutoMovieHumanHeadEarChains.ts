@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanEarConstruction } from "./AutoMovieHumanEarConstruction";
 import { AutoMovieHumanHeadEarFree } from "./AutoMovieHumanHeadEarFree";
 import { AutoMovieHumanHeadEarHelix } from "./AutoMovieHumanHeadEarHelix";
@@ -23,7 +23,7 @@ export namespace AutoMovieHumanHeadEarChains {
   /** One ear's chains with their own events and poles. */
   export interface IChains {
     /** The lobe, helix, rim and pocket chains. */
-    chains: IAutoMovieHumanLoftChain[];
+    chains: IAutoMovieLoftChain[];
 
     /** The helix's split into the rim and the pocket. */
     events: IAutoMovieHumanBodyCalibration.IEvent[];

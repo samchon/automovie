@@ -1,6 +1,6 @@
 import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHermiteCurve";
 import type { IAutoMovieHumanLoftAperture } from "../lofting/IAutoMovieHumanLoftAperture";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import type { IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanMouth } from "./AutoMovieHumanMouth";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 
@@ -18,7 +18,7 @@ export interface IAutoMovieHumanHeadGenerated {
   stature: number;
 
   /** The head's three chains and the ears' chains. */
-  chains: IAutoMovieHumanLoftChain[];
+  chains: IAutoMovieLoftChain[];
 
   /** The head's splits at the ears' lower and upper ends, and the ears' own. */
   events: IAutoMovieHumanBodyCalibration.IEvent[];

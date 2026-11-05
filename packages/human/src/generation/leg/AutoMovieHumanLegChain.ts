@@ -1,7 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../../lofting/AutoMovieHumanLoftChain";
-import { AutoMovieHumanLoftContract } from "../../lofting/AutoMovieHumanLoftContract";
-import { AutoMovieHumanSeamStation } from "../../lofting/AutoMovieHumanSeamStation";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, AutoMovieLoftContract, AutoMovieSeamStation, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanLegConstruction } from "../AutoMovieHumanLegConstruction";
 import type { AutoMovieHumanSkeletonLaw } from "../AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
@@ -60,8 +57,8 @@ export namespace AutoMovieHumanLegChain {
     side: "left" | "right",
     inputs: AutoMovieHumanLegConstruction.IInputs,
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[],
-    diagnostics: AutoMovieHumanLoftContract.IDiagnostic[] = [],
-  ): IAutoMovieHumanLoftChain {
+    diagnostics: AutoMovieLoftContract.IDiagnostic[] = [],
+  ): IAutoMovieLoftChain {
     const sign: 1 | -1 = side === "left" ? 1 : -1;
     const bones: AutoMovieHumanLegAxis.IJoints = joints(skeleton, side, sign);
     const heights: AutoMovieHumanLegStations.IBones = { hip: bones.hip[1], knee: bones.knee[1], ankle: bones.ankle[1] };
@@ -106,7 +103,7 @@ export namespace AutoMovieHumanLegChain {
       knee: bones.knee[1],
       mass: [...rows(AutoMovieHumanLegMassPrior.THIGH, bones.hip[1], bones.knee[1]), ...rows(AutoMovieHumanLegMassPrior.SHANK, bones.knee[1], bones.ankle[1])],
     });
-    const trunk: IAutoMovieHumanLoftChain = calibration.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === "trunk")!;
+    const trunk: IAutoMovieLoftChain = calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === "trunk")!;
     const placed: number[] = AutoMovieHumanLegStations.layers({
       bottom: s0,
       top: s1,
@@ -147,13 +144,13 @@ export namespace AutoMovieHumanLegChain {
     // The root strip from the foot's ankle ring, which the foot owns, with the
     // foot's jet up across the ring (its chain read at the leg's phases a run
     // under its top layer), to the law's own section at the ankle reach.
-    const foot: IAutoMovieHumanLoftChain = calibration.chains.find((c: IAutoMovieHumanLoftChain): boolean => c.name === `foot.${side}`)!;
+    const foot: IAutoMovieLoftChain = calibration.chains.find((c: IAutoMovieLoftChain): boolean => c.name === `foot.${side}`)!;
     const footTop: number = foot.layers[foot.layers.length - 1]!.y;
     const footRows: Map<number, Vec3[]> = new Map<number, Vec3[]>();
     const footAt: (run: number) => Vec3[] = (run: number): Vec3[] => {
       let found: Vec3[] | undefined = footRows.get(run);
       if (found === undefined)
-        footRows.set(run, (found = AutoMovieHumanLoftChain.ring(foot, footTop + run, AutoMovieHumanLegSampling.PHASES).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]])));
+        footRows.set(run, (found = AutoMovieLoftChain.ring(foot, footTop + run, AutoMovieHumanLegSampling.PHASES).map((p: Vec3): Vec3 => [p[0], p[1], sign * p[2]])));
       return found;
     };
     const ankleReach: number = law.ankleReach;
@@ -176,7 +173,7 @@ export namespace AutoMovieHumanLegChain {
     const section: (s: number) => AutoMovieHumanLegSection.ISection = (s: number): AutoMovieHumanLegSection.ISection =>
       AutoMovieHumanLegSection.of(law, frames, centre, strip.ring, ankle.ring, s);
     const last: number = stations.length - 1;
-    const built: (IAutoMovieHumanLoftChain.ILayer | null)[] = stations.map((s: number, k: number): IAutoMovieHumanLoftChain.ILayer | null => {
+    const built: (IAutoMovieLoftChain.ILayer | null)[] = stations.map((s: number, k: number): IAutoMovieLoftChain.ILayer | null => {
       const here: AutoMovieHumanLegSection.ISection = section(s);
 
       // The station derivative of every point.
@@ -206,10 +203,10 @@ export namespace AutoMovieHumanLegChain {
       // layer is recorded and takes its nearest valid neighbour's row.
       const where: string = `leg.${side} layer ${k} at ${s.toFixed(2)} mm`;
       try {
-        AutoMovieHumanLoftContract.jet(`${where} coefficients`, values.coefficients, AutoMovieHumanLoftContract.FINITE);
-        AutoMovieHumanLoftContract.jet(`${where} lift`, values.lift, AutoMovieHumanLoftContract.FINITE);
-        AutoMovieHumanLoftContract.jet(`${where} slopes`, slopes.coefficients, AutoMovieHumanLoftContract.FINITE);
-        AutoMovieHumanLoftContract.jet(`${where} lift slopes`, slopes.lift, AutoMovieHumanLoftContract.FINITE);
+        AutoMovieLoftContract.jet(`${where} coefficients`, values.coefficients, AutoMovieLoftContract.FINITE);
+        AutoMovieLoftContract.jet(`${where} lift`, values.lift, AutoMovieLoftContract.FINITE);
+        AutoMovieLoftContract.jet(`${where} slopes`, slopes.coefficients, AutoMovieLoftContract.FINITE);
+        AutoMovieLoftContract.jet(`${where} lift slopes`, slopes.lift, AutoMovieLoftContract.FINITE);
       } catch (error) {
         diagnostics.push({ producer: `leg.${side}`, level: 2, contract: "a leg layer's values and slopes are finite", detail: error instanceof Error ? error.message : String(error) });
         return null;
@@ -224,7 +221,7 @@ export namespace AutoMovieHumanLegChain {
         liftSlopes: slopes.lift,
       };
     });
-    const layers: IAutoMovieHumanLoftChain.ILayer[] = neighboured(built, stations);
+    const layers: IAutoMovieLoftChain.ILayer[] = neighboured(built, stations);
 
     // The two rings' layers carry their own second derivatives, one-sided
     // into the leg (second order over CURVE_STEP), so the chain can be made
@@ -241,13 +238,13 @@ export namespace AutoMovieHumanLegChain {
       );
       return AutoMovieHumanLegReflection.sided(second, sign).coefficients;
     };
-    const loose: IAutoMovieHumanLoftChain = {
+    const loose: IAutoMovieLoftChain = {
       name: `leg.${side}`,
       basis: "spline",
       order: AutoMovieHumanLegSampling.ORDER,
       rule: "polar",
       samples: AutoMovieHumanLegSampling.SAMPLES,
-      layers: layers.map((l: IAutoMovieHumanLoftChain.ILayer, k: number): IAutoMovieHumanLoftChain.ILayer =>
+      layers: layers.map((l: IAutoMovieLoftChain.ILayer, k: number): IAutoMovieLoftChain.ILayer =>
         k === 0 ? { ...l, curvatures: curvature(0) } : k === last ? { ...l, curvatures: curvature(1) } : l,
       ),
     };
@@ -255,7 +252,7 @@ export namespace AutoMovieHumanLegChain {
     // A chain the station spline cannot carry stays joined by its slopes,
     // and the broken contract is recorded.
     try {
-      return AutoMovieHumanSeamStation.continuous(loose, [0, last]);
+      return AutoMovieSeamStation.continuous(loose, [0, last]);
     } catch (error) {
       diagnostics.push({
         producer: `leg.${side}`,
@@ -293,21 +290,21 @@ export namespace AutoMovieHumanLegChain {
    * @param stations The placed stations, mm.
    * @param diagnostics The list a broken contract is recorded in.
    */
-  export function kept(producer: string, stations: readonly number[], diagnostics: AutoMovieHumanLoftContract.IDiagnostic[]): number[] {
+  export function kept(producer: string, stations: readonly number[], diagnostics: AutoMovieLoftContract.IDiagnostic[]): number[] {
     try {
-      AutoMovieHumanLoftContract.stations(producer, stations, AutoMovieHumanLoftContract.LEAST_LAYER_GAP);
+      AutoMovieLoftContract.stations(producer, stations, AutoMovieLoftContract.LEAST_LAYER_GAP);
       return [...stations];
     } catch (error) {
       diagnostics.push({
         producer,
         level: 2,
-        contract: `layers finite and at least ${AutoMovieHumanLoftContract.LEAST_LAYER_GAP} mm apart`,
+        contract: `layers finite and at least ${AutoMovieLoftContract.LEAST_LAYER_GAP} mm apart`,
         detail: error instanceof Error ? error.message : String(error),
       });
     }
     // The two rings are the chain's ends and stay; a row too near the top
     // ring gives way to it.
-    const gap: number = AutoMovieHumanLoftContract.LEAST_LAYER_GAP;
+    const gap: number = AutoMovieLoftContract.LEAST_LAYER_GAP;
     const top: number = stations[stations.length - 1]!;
     const out: number[] = [];
     for (const s of stations.slice(0, -1)) if (Number.isFinite(s) && (out.length === 0 || s - out[out.length - 1]! >= gap)) out.push(s);
@@ -325,10 +322,10 @@ export namespace AutoMovieHumanLegChain {
    * @param stations Their stations, mm.
    * @throws When no layer is valid, since no neighbour can then stand in.
    */
-  export function neighboured(built: readonly (IAutoMovieHumanLoftChain.ILayer | null)[], stations: readonly number[]): IAutoMovieHumanLoftChain.ILayer[] {
-    const valid: number[] = built.flatMap((l: IAutoMovieHumanLoftChain.ILayer | null, k: number): number[] => (l === null ? [] : [k]));
+  export function neighboured(built: readonly (IAutoMovieLoftChain.ILayer | null)[], stations: readonly number[]): IAutoMovieLoftChain.ILayer[] {
+    const valid: number[] = built.flatMap((l: IAutoMovieLoftChain.ILayer | null, k: number): number[] => (l === null ? [] : [k]));
     if (valid.length === 0) throw new Error("No leg layer keeps its contract");
-    return built.map((l: IAutoMovieHumanLoftChain.ILayer | null, k: number): IAutoMovieHumanLoftChain.ILayer => {
+    return built.map((l: IAutoMovieLoftChain.ILayer | null, k: number): IAutoMovieLoftChain.ILayer => {
       if (l !== null) return l;
       const near: number = valid.reduce((a: number, b: number): number => (Math.abs(b - k) < Math.abs(a - k) ? b : a));
       return { ...built[near]!, y: stations[k]! };

@@ -1,6 +1,5 @@
-import type { AutoMovieHumanNaturalSpline } from "../../lofting/AutoMovieHumanNaturalSpline";
+import type { AutoMovieNaturalSpline, IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanPolarSection } from "../../lofting/AutoMovieHumanPolarSection";
-import type { IAutoMovieHumanLoftChain } from "../../lofting/IAutoMovieHumanLoftChain";
 import type { AutoMovieHumanLegConstruction } from "../AutoMovieHumanLegConstruction";
 import type { AutoMovieHumanSkeletonLaw } from "../AutoMovieHumanSkeletonLaw";
 import type { IAutoMovieHumanBodyCalibration } from "../IAutoMovieHumanBodyCalibration";
@@ -30,7 +29,7 @@ export namespace AutoMovieHumanLegStand {
     inputs: AutoMovieHumanLegConstruction.IInputs,
     skeleton?: readonly AutoMovieHumanSkeletonLaw.IBone[],
   ): IAutoMovieHumanBodyCalibration {
-    const axis: AutoMovieHumanNaturalSpline.ISpline[] = AutoMovieHumanLegLaw.axisCurves();
+    const axis: AutoMovieNaturalSpline.ISpline[] = AutoMovieHumanLegLaw.axisCurves();
     const moves: Map<"left" | "right", [number, number]> = new Map(
       (["left", "right"] as const).map((side: "left" | "right"): ["left" | "right", [number, number]] => {
         const sign: 1 | -1 = side === "left" ? 1 : -1;
@@ -53,7 +52,7 @@ export namespace AutoMovieHumanLegStand {
     ): Vec3 => [p[0] + d[0], p[1], p[2] + d[1]];
     return {
       ...calibration,
-      chains: calibration.chains.map((c: IAutoMovieHumanLoftChain): IAutoMovieHumanLoftChain => {
+      chains: calibration.chains.map((c: IAutoMovieLoftChain): IAutoMovieLoftChain => {
         const side: "left" | "right" | null = owner(c.name);
         if (side === null) return c;
         const d: [number, number] = moves.get(side)!;
@@ -61,7 +60,7 @@ export namespace AutoMovieHumanLegStand {
           ...c,
           ...(c.pole === undefined ? {} : { pole: { ...c.pole, point: shift(c.pole.point, d) } }),
           layers: c.layers.map(
-            (l: IAutoMovieHumanLoftChain.ILayer): IAutoMovieHumanLoftChain.ILayer =>
+            (l: IAutoMovieLoftChain.ILayer): IAutoMovieLoftChain.ILayer =>
               l.frame === undefined ? l : { ...l, frame: { ...l.frame, origin: shift(l.frame.origin, d) } },
           ),
         };

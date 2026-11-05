@@ -1,6 +1,5 @@
 import { AutoMovieHumanFaceTone } from "./AutoMovieHumanFaceTone";
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import type { AutoMovieHumanSkinChart } from "./AutoMovieHumanSkinChart";
 import type { AutoMovieHumanSkinTone } from "./AutoMovieHumanSkinTone";
 import { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
@@ -92,8 +91,8 @@ export namespace AutoMovieHumanSkinChartSites {
       if (list === undefined) pieces.set(chain, [piece]);
       else list.push(piece);
     }
-    const chains: Map<string, IAutoMovieHumanLoftChain[]> = new Map(
-      input.chains.map((c: IAutoMovieHumanLoftChain): [string, IAutoMovieHumanLoftChain[]] => [c.name, [c]]),
+    const chains: Map<string, IAutoMovieLoftChain[]> = new Map(
+      input.chains.map((c: IAutoMovieLoftChain): [string, IAutoMovieLoftChain[]] => [c.name, [c]]),
     );
 
     const hands: Map<"left" | "right", IHand> = new Map();
@@ -101,24 +100,24 @@ export namespace AutoMovieHumanSkinChartSites {
     const soles: Map<"left" | "right", number> = new Map();
     const toes: Array<[Vec3, number]> = [];
     for (const side of ["left", "right"] as const) {
-      const of: (prefix: string) => IAutoMovieHumanLoftChain[] = (
+      const of: (prefix: string) => IAutoMovieLoftChain[] = (
         prefix: string,
-      ): IAutoMovieHumanLoftChain[] =>
+      ): IAutoMovieLoftChain[] =>
         [...chains.entries()]
           .filter(
-            ([name]: [string, IAutoMovieHumanLoftChain[]]): boolean =>
+            ([name]: [string, IAutoMovieLoftChain[]]): boolean =>
               name.startsWith(prefix),
           )
           .flatMap(
             ([, list]: [
               string,
-              IAutoMovieHumanLoftChain[],
-            ]): IAutoMovieHumanLoftChain[] => list,
+              IAutoMovieLoftChain[],
+            ]): IAutoMovieLoftChain[] => list,
           );
-      const palm: IAutoMovieHumanLoftChain[] = of(`hand.${side}.`);
-      const thumb: IAutoMovieHumanLoftChain[] = of(`thumb.${side}`);
-      const fingers: IAutoMovieHumanLoftChain[] = of(`finger.${side}.`);
-      const arm: IAutoMovieHumanLoftChain[] =
+      const palm: IAutoMovieLoftChain[] = of(`hand.${side}.`);
+      const thumb: IAutoMovieLoftChain[] = of(`thumb.${side}`);
+      const fingers: IAutoMovieLoftChain[] = of(`finger.${side}.`);
+      const arm: IAutoMovieLoftChain[] =
         chains.get(`arm.${side}`) ?? [];
       if (palm.length !== 0 && thumb.length !== 0 && fingers.length !== 0) {
         const hand: Vec3 = mean(palm);
@@ -173,7 +172,7 @@ export namespace AutoMovieHumanSkinChartSites {
           spread: 0.07 * length,
         });
       }
-      const foot: IAutoMovieHumanLoftChain[] =
+      const foot: IAutoMovieLoftChain[] =
         chains.get(`foot.${side}`) ?? [];
       if (foot.length !== 0) {
         let lo: number = Infinity;
@@ -201,16 +200,16 @@ export namespace AutoMovieHumanSkinChartSites {
     // largest distance of their points from it.
     const ears: Array<[Vec3, number]> = [];
     for (const side of ["left", "right"] as const) {
-      const ear: IAutoMovieHumanLoftChain[] = [...chains.entries()]
+      const ear: IAutoMovieLoftChain[] = [...chains.entries()]
         .filter(
-          ([name]: [string, IAutoMovieHumanLoftChain[]]): boolean =>
+          ([name]: [string, IAutoMovieLoftChain[]]): boolean =>
             name.startsWith("ear.") && name.endsWith(`.${side}`),
         )
         .flatMap(
           ([, list]: [
             string,
-            IAutoMovieHumanLoftChain[],
-          ]): IAutoMovieHumanLoftChain[] => list,
+            IAutoMovieLoftChain[],
+          ]): IAutoMovieLoftChain[] => list,
         );
       if (ear.length === 0) continue;
       const centre: Vec3 = mean(ear);
@@ -246,14 +245,14 @@ export namespace AutoMovieHumanSkinChartSites {
    * @param chain The chain, mm
    * @returns The sample points
    */
-  function samples(chain: IAutoMovieHumanLoftChain): Vec3[] {
-    const ys: number[] = chain.layers.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y);
+  function samples(chain: IAutoMovieLoftChain): Vec3[] {
+    const ys: number[] = chain.layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
     const from: number = Math.min(...ys);
     const to: number = Math.max(...ys);
     const count: number = Math.max(1, Math.ceil((to - from) / STEP));
     const phases: number[] = Array.from({ length: AROUND }, (_: unknown, j: number): number => (2 * Math.PI * j) / AROUND);
     const out: Vec3[] = [];
-    for (let k: number = 0; k <= count; k++) out.push(...(AutoMovieHumanLoftChain.ring(chain, from + ((to - from) * k) / count, phases) as Vec3[]));
+    for (let k: number = 0; k <= count; k++) out.push(...(AutoMovieLoftChain.ring(chain, from + ((to - from) * k) / count, phases) as Vec3[]));
     return out;
   }
 
@@ -263,7 +262,7 @@ export namespace AutoMovieHumanSkinChartSites {
    * @param chains Chains in mm
    * @returns Centroid
    */
-  function mean(chains: readonly IAutoMovieHumanLoftChain[]): Vec3 {
+  function mean(chains: readonly IAutoMovieLoftChain[]): Vec3 {
     const c: Vec3 = [0, 0, 0];
     let n: number = 0;
     for (const chain of chains)
@@ -282,11 +281,11 @@ export namespace AutoMovieHumanSkinChartSites {
    * @param chains One chain
    * @returns First-layer and last-layer axis points
    */
-  function extremes(chains: readonly IAutoMovieHumanLoftChain[]): [Vec3, Vec3] {
-    const chain: IAutoMovieHumanLoftChain = chains[0]!;
+  function extremes(chains: readonly IAutoMovieLoftChain[]): [Vec3, Vec3] {
+    const chain: IAutoMovieLoftChain = chains[0]!;
     return [
-      AutoMovieHumanLoftChain.axis(chain, chain.layers[0]!.y) as Vec3,
-      AutoMovieHumanLoftChain.axis(chain, chain.layers[chain.layers.length - 1]!.y) as Vec3,
+      AutoMovieLoftChain.axis(chain, chain.layers[0]!.y) as Vec3,
+      AutoMovieLoftChain.axis(chain, chain.layers[chain.layers.length - 1]!.y) as Vec3,
     ];
   }
 
@@ -296,8 +295,8 @@ export namespace AutoMovieHumanSkinChartSites {
    * @param chains One chain
    * @returns Mean radius in mm
    */
-  function meanRadius(chains: readonly IAutoMovieHumanLoftChain[]): number {
-    const chain: IAutoMovieHumanLoftChain = chains[0]!;
+  function meanRadius(chains: readonly IAutoMovieLoftChain[]): number {
+    const chain: IAutoMovieLoftChain = chains[0]!;
     const points: Vec3[] = samples(chain);
     let sum: number = 0;
     for (let k: number = 0; k < points.length; k += AROUND) {

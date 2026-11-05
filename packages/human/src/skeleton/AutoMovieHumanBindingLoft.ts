@@ -1,5 +1,4 @@
-import { AutoMovieHumanLoftChain } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import { AutoMovieLoftChain, type IAutoMovieLoftChain } from "@automovie/engine";
 import { AutoMovieHumanBindingQuantize } from "./AutoMovieHumanBindingQuantize";
 
 /**
@@ -52,7 +51,7 @@ export namespace AutoMovieHumanBindingLoft {
    * @param count Rig bones, the length of a pull table.
    */
   export function create(
-    chains: readonly IAutoMovieHumanLoftChain[],
+    chains: readonly IAutoMovieLoftChain[],
     scale: number,
     read: Reader,
     count: number,
@@ -72,7 +71,7 @@ export namespace AutoMovieHumanBindingLoft {
     };
     return {
       at: (c: number, station: number, phase: number): [number, number][] | null => {
-        const chain: IAutoMovieHumanLoftChain | undefined = chains[c];
+        const chain: IAutoMovieLoftChain | undefined = chains[c];
         if (chain === undefined || !Number.isFinite(station)) return null;
         const grid: IGrid = grids[c] ?? (grids[c] = gridOf(chain));
         const u: number = Math.min(grid.stations - 1, Math.max(0, (station - grid.from) / grid.step));
@@ -93,7 +92,12 @@ export namespace AutoMovieHumanBindingLoft {
             add(grid, node(grid, i, j), (1 - fu) / grid.phases);
             add(grid, node(grid, i + 1, j), fu / grid.phases);
           }
-        const top: [number, number][] = AutoMovieHumanBindingQuantize.strongest(sum);
+        let top: [number, number][];
+        try {
+          top = AutoMovieHumanBindingQuantize.strongest(sum, touched);
+        } catch (error) {
+          throw new TypeError(`${(error as Error).message}: chain ${chain.name} at station ${station}, phase ${phase}`);
+        }
         for (const slot of touched) sum[slot] = 0;
         touched.length = 0;
         return top;
@@ -104,7 +108,7 @@ export namespace AutoMovieHumanBindingLoft {
   /** One chain's grid. */
   interface IGrid {
     /** The chain. */
-    chain: IAutoMovieHumanLoftChain;
+    chain: IAutoMovieLoftChain;
 
     /** Lowest station, mm. */
     from: number;
@@ -126,6 +130,9 @@ export namespace AutoMovieHumanBindingLoft {
 
     /** Each node's pulls of those bones. */
     weights: Float32Array;
+
+    /** Each row's section sampler, made on the row's first read and shared by its nodes. */
+    rows: Map<number, (t: number) => [number, number, number]>;
   }
 
   /** The node at a station row and phase column. */
@@ -138,8 +145,8 @@ export namespace AutoMovieHumanBindingLoft {
    * highest layer, and round each row as many nodes as SPACING millimetres
    * fit round its largest section.
    */
-  function gridOf(chain: IAutoMovieHumanLoftChain): IGrid {
-    const ys: number[] = chain.layers.map((l: IAutoMovieHumanLoftChain.ILayer): number => l.y);
+  function gridOf(chain: IAutoMovieLoftChain): IGrid {
+    const ys: number[] = chain.layers.map((l: IAutoMovieLoftChain.ILayer): number => l.y);
     const from: number = Math.min(...ys);
     const to: number = Math.max(...ys);
     const stations: number = Math.max(2, Math.ceil((to - from) / SPACING) + 1);
@@ -157,12 +164,13 @@ export namespace AutoMovieHumanBindingLoft {
       done: new Uint8Array(nodes),
       slots: new Int16Array(nodes * KEPT).fill(-1),
       weights: new Float32Array(nodes * KEPT),
+      rows: new Map(),
     };
   }
 
   /** A section's perimeter by a polygon of 64 of its points, mm. */
-  function perimeter(chain: IAutoMovieHumanLoftChain, y: number): number {
-    const point: (t: number) => [number, number, number] = AutoMovieHumanLoftChain.sampler(chain, y);
+  function perimeter(chain: IAutoMovieLoftChain, y: number): number {
+    const point: (t: number) => [number, number, number] = AutoMovieLoftChain.sampler(chain, y);
     let length: number = 0;
     let last: [number, number, number] = point(0);
     for (let k: number = 1; k <= 64; k++) {
@@ -177,7 +185,9 @@ export namespace AutoMovieHumanBindingLoft {
   function fill(grid: IGrid, n: number, scale: number, read: Reader): void {
     const i: number = Math.floor(n / grid.phases);
     const j: number = n % grid.phases;
-    const p: [number, number, number] = AutoMovieHumanLoftChain.ring(grid.chain, grid.from + i * grid.step, [(2 * Math.PI * j) / grid.phases])[0]!;
+    let row: ((t: number) => [number, number, number]) | undefined = grid.rows.get(i);
+    if (row === undefined) grid.rows.set(i, (row = AutoMovieLoftChain.sampler(grid.chain, grid.from + i * grid.step)));
+    const p: [number, number, number] = row((2 * Math.PI * j) / grid.phases);
     const pulls: Float64Array = read([p[0] * scale, p[1] * scale, p[2] * scale]);
     let kept: number = 0;
     for (let slot: number = 0; slot < pulls.length; slot++) {
