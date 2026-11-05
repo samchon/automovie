@@ -331,8 +331,6 @@ export async function test_template_evidence_package(): Promise<void> {
         " * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call computes from its argument alone.",
         " * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Nothing is allocated or retained.",
         " * @evidence contracts/development/motion.md#studied-performance The half-stance step is the study's observed value.",
-        " * @evidence contracts/development/motion.md#reusable-module Stance width is the parameter.",
-        " * @evidence contracts/development/motion.md#computed-contacts The function places no contact; the planted foot stays with its caller.",
         " * @evidence contracts/development/motion.md#deterministic-evaluation The result depends only on its argument.",
         ...citation,
         " */",
