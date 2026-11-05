@@ -1,37 +1,15 @@
 # Audio acquisition
 
-Audio generation and recording happen outside deterministic replay; installed package contracts own admitted audio formats and mixing capabilities. Read the installed packages' READMEs, public types, and this production's host before wiring acquisition output into a render. The presence of a decoder or mixer does not establish that this project's delivery entry point uses it.
-
-Apply the chosen output and sound scope from [production decisions](../production/profile.md). Required sound can accompany a commissioned motion hint or finished direct 3D film; neither route requires a particular provider. Keep API/local choices and setup authority there, actual setup/run commands in README, variable names in .env.example, secrets in a Git-ignored .env, and integration implementation in source. A saved environment file alone does not wire the host.
+Audio generation and recording happen outside deterministic replay. Read the installed packages' contracts for admitted formats and mixing, and this production's host, before wiring audio into a render; a decoder's presence does not mean the delivery entry uses it. Setup and secrets follow [source layout](../development/layout.md).
 
 ## Choose a source
 
-Use the user's supplied assets or chosen provider first. Follow [production research](../production/research.md) when studying reference sounds or source claims. When no source is chosen, compare the options against the required language, performance, privacy, cost, available hardware, and turnaround; no provider is required by this scaffold.
-
-| Source | When it fits | Operational reference |
-| --- | --- | --- |
-| Existing recording or licensed library | The required performance or sound already exists | Its owner and usage terms |
-| Hosted speech or audio service | Its voices, language support, or managed operation fit the production | That provider's current documentation and the user's configured account |
-| Local generation | The user wants local control and has suitable hardware and setup time | The selected tool's current installation and usage documentation |
-
-Use existing connectors, command-line tools, and provider interfaces before adding acquisition code. Keep credentials outside production source and asset records.
-
-Check each asset's actual license against commercial use, adaptation, attribution and the intended delivery. Permission to synchronize sound with a film differs from permission to publish its raw files in source, a library or a template. A free download does not establish either right.
+Use the user's supplied recordings or chosen provider first, and [research](../story/planning/research.md) reference sounds when needed. Otherwise compare an existing recording or licensed library, a hosted speech or audio service, and local generation against the required language, performance, privacy, cost, hardware and turnaround, using existing connectors and command-line tools before writing acquisition code. Check each asset's license for commercial use, adaptation, attribution and delivery; permission to synchronize sound with a film differs from permission to publish its raw files, and a free download grants neither.
 
 ## Adopt a take
 
-For generated audio, the [generation record](../production/generation-records.md) owns the exact request, source bindings and attempt history. Link it from the asset receipt and actual consumer rather than duplicate its fields. Its retention rules apply to original recordings, voice references and edited takes even when the large files are ignored by Git.
+Keep accepted bytes in [media](../production/media.md) with their creator, source, license, attribution, content digest and generation settings; a regeneration is a new take until reviewed, and a seed does not preserve accepted bytes. Convert to the installed decoder's admitted format while keeping the original. Measure durations and trims from the accepted bytes, place dialogue, captions, mouth motion, cuts and cues against them, and when a line does not fit, edit the take, script or shot intentionally and listen to the result.
 
-Keep accepted bytes in project-owned asset storage with access allowed by their license; use public assets only when redistribution is permitted. Record the creator, source and license links, required attribution, content digest, and generation or edit settings alongside the production's asset records. A regeneration becomes a new take until reviewed; a seed alone does not preserve the accepted bytes.
+## Listen
 
-Use the installed decoder's admitted format when converting a provider's output; its public contract owns codec, channel, and sample-rate support. Preserve the original and identify edited derivatives and the bytes entering the render. Measure durations and trims from those bytes rather than text length or requested synthesis duration.
-
-Place dialogue, captions, mouth motion, cuts, and sound cues against the accepted performance and the production's clock. When a line does not fit, choose an intentional edit to the take, script, or shot; verify any time fitting by listening to its result. Keep recognition or alignment output tied to the accepted take, since editing its bytes can invalidate those timings.
-
-## Listen and trace failures
-
-Listen to each adopted take for the intended words, pronunciation, performance, and unwanted noise. For the commissioned artifact, listen to the actual delivered audio for intelligibility, clipping, missing cues, transitions and the ending. Include picture and synchronization checks when video is part of that output. A waveform, timing report, successful render, or procedural stand-in does not establish that the intended recording is audible.
-
-Inspect the actual delivery path when an asset is missing or the result differs from the accepted take. Fix acquisition, asset identity, timing, or host wiring at its owner, and review the affected delivery together. State which takes and delivered sections were heard and what remains unchecked.
-
-Use [delivery review](../review/delivery.md) for final assembled acceptance and handoff; these listening checks supply the audio observations it needs.
+Listen to each adopted take for words, pronunciation, performance and noise, and to the delivered audio, with picture when video is commissioned, for intelligibility, clipping, missing cues, transitions and the ending. A waveform, timing report or successful render does not establish that the intended recording is audible. Fix acquisition, identity, timing or wiring at its owner, and state which takes and sections were heard.

@@ -1,11 +1,21 @@
-# Recover a fixed source independently
+# Mesh Recovery
 
-Use this branch when the chosen workflow needs independently reconstructed editable geometry; direct use of an admitted original remains a separate valid choice.
+Use `@automovie/recovery` to observe a fixed external mesh, save its curve or surface coefficients, and regenerate an internal model through AutoMovie's engine, interface and viewer. Recover when the asset needs editing or regeneration its source cannot supply; using an admitted original directly remains a separate valid choice.
 
-Read the installed Recovery documentation for supported observations, registration, units, saved representations, and diagnostic meanings. Bind the observation to exact source bytes, selected components, evaluated pose, and the applied transform; convert coordinate conventions at a named boundary. Keep that registration fixed while judging the result.
+## Observe And Save
 
-Save the recovered coefficients and relationships, then reconstruct from those saved artifacts alone. Derive the reconstructed surface and displayed construction from the same representation. Original vertices, faces, and normals cannot serve as an undisclosed fallback for a claim of independent reconstruction; retaining the original as a directly used asset is a separate valid choice.
+Read the installed `@automovie/recovery` README, public types and JSDoc for inputs, supported operations, saved formats and diagnostic meanings. Run through its public API or the installed `automovie-recovery` commands, using `--help` for invocation.
 
-Compare the source and reconstruction under matched camera, scale, pose, and lighting conditions. Distinguish a reconstructed surface from lines displayed over the original source. Inspect diagnostics and uncovered regions alongside the render, because a completed observation or a small fitting residual does not establish usable appearance or motion. Limited observations justify only the shape and views they support.
+Prepare evaluated triangles under the package's coordinate, unit, pose and face-orientation contracts. Bind the observation to the exact source bytes, selected components, evaluated pose and applied transform, converting coordinate conventions at one named boundary, and keep that registration fixed for comparison.
 
-Use [rendered-use inspection](inspection.md) to verify the chosen representation through its actual consumer.
+Extract observations algorithmically and fit compact coefficients, preserving their parameterization, continuation and shared boundary relationships. Follow [Lofting](lofting.md) for section families.
+
+## Generate Independently
+
+Reconstruct from the saved representation alone through the installed recovery API and AutoMovie's engine/interface model path. Never use original positions, topology or normal fields as a reconstruction fallback. Derive the surface and displayed construction from the same coefficients.
+
+## Compare And Correct
+
+Load the newly reconstructed model and its generating construction in the actual viewer. Show the fixed source and result side by side under matching view and render conditions, deriving each mesh's normals from its own geometry. Lines drawn over the source do not show an independently reconstructed surface.
+
+Follow [Visual Debugging](visual-debugging.md) for inspection and correction rounds. Trace deviations through preparation, observation, fitting, correspondence, generation and display, then correct their causes. Judge the actual reconstructed result, including missing and uncovered regions and visible defects, alongside package diagnostics; a completed command or numerical fit alone does not establish fidelity. Limited observations justify only the shape and views they support.
