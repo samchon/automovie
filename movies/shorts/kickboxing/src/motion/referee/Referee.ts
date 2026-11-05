@@ -1,10 +1,10 @@
+import { Blocking } from "../defense/Blocking";
+import { Fighter } from "../fighter/Fighter";
+import { FighterBody } from "../fighter/FighterBody";
+import { Footsteps } from "../footwork/Footsteps";
 import type { BodyRig } from "../rig/BodyRig";
 import type { Foot } from "../rig/Foot";
 import { Vec3 } from "../rig/Vec3";
-import { Blocking } from "./Blocking";
-import { Fighter } from "./Fighter";
-import { FighterBody } from "./FighterBody";
-import { Footsteps } from "./Footsteps";
 import { RefereeCues } from "./RefereeCues";
 
 /**

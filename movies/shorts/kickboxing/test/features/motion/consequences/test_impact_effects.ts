@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { ImpactEffects } from "../../../src/film/ImpactEffects";
+import { ImpactEffects } from "../../../../src/motion/consequences/ImpactEffects";
 
 /**
  * Landed blows throw sweat and blood, stain the canvas, flush the struck skin and squash the glove, identically on every evaluation.

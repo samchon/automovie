@@ -1,15 +1,15 @@
 import { frameTimes } from "@automovie/render";
 import assert from "node:assert/strict";
 
-import { FilmExportPlan } from "../../../src/export/FilmExportPlan";
-import { FilmPlan } from "../../../src/film/FilmPlan";
+import { FilmExportPlan } from "../../../../src/runtime/export/FilmExportPlan";
+import { FilmPlan } from "../../../../src/shots/kickboxing/ring-bout/FilmPlan";
 
 /**
  * Keep the exported schedule on the same complete programme as the Viewer.
  *
  * Scenarios:
  * 1. Public Render schedules exactly 5400 samples over [0,180), matching every FilmPlan frame.
- * 2. URL construction preserves an immutable build entry and selected model, replacing draft range and autoplay.
+ * 2. URL construction preserves an immutable build entry and selected model, names the film, and replaces draft range and autoplay.
  * 3. Unprepared and stale fifteen-second clocks refuse, as do nonlocal or non-HTTP routes.
  *
  * @evidence contracts/testing.md#observable-behavior Executes the public Render frame scheduler, consumed FilmPlan frame function and actual export URL/admission helpers. It catches a disconnected draft clock, sample rounding or changed artifact route without inspecting source strings. No browser, GPU, server or encoder runs.
@@ -26,7 +26,8 @@ export function test_film_export_plan(): void {
   for (const host of ["127.0.0.1", "localhost", "[::1]"]) {
     const result: URL = new URL(
       FilmExportPlan.url(
-        `http://${host}:5211/inspect-011.html?start=5&end=15&speed=.25&play=1&model=polygon`,
+        `http://${host}:5211/inspect-011.html?start=5&end=15&speed=.25&play=1&model=polygon&film=draft`,
+        "kickboxing",
       ),
     );
     assert.equal(result.pathname, "/inspect-011.html");
@@ -37,6 +38,7 @@ export function test_film_export_plan(): void {
     assert.equal(result.searchParams.get("w"), "1280");
     assert.equal(result.searchParams.get("h"), "720");
     assert.equal(result.searchParams.has("play"), false);
+    assert.equal(result.searchParams.get("film"), "kickboxing");
   }
   const clock: {
     ready: boolean;
@@ -59,5 +61,5 @@ export function test_film_export_plan(): void {
     "file:///viewer.html",
     "invalid",
   ])
-    assert.throws((): string => FilmExportPlan.url(route));
+    assert.throws((): string => FilmExportPlan.url(route, "kickboxing"));
 }

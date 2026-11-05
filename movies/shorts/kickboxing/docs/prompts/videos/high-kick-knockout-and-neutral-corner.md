@@ -6,7 +6,7 @@ Status: complete planned English prompt and unsubmitted payload template. Segmen
 
 | Field | Planned value |
 | --- | --- |
-| Local clip | `media/automovie/videos/segments/high-kick-knockout-and-neutral-corner.mp4`, pending export from the re-exported whole render |
+| Local clip | `media/automovie/kickboxing/videos/segments/high-kick-knockout-and-neutral-corner.mp4`, pending export from the re-exported whole render |
 | Whole-render global interval | [147, 157) seconds |
 | Local interval | [0, 10) seconds |
 | Global included frames at 30 fps | 4410–4709 |
@@ -28,16 +28,16 @@ The single 10-second video stays below the carried 30-second / 10-video aggregat
 
 Literal basis: “At 150.000, A's lower left shin strikes the right side of B's jaw and head.” “The shin sinks into B's face; sweat and blood burst from it and spatter the canvas.” “Drops of blood mark the canvas beside his face.”
 
-[BoutScript](../../../src/bout/BoutScript.ts), raw SHA-256 `860798c2df95b5ab6971aa87160bff6c23213c9af887d8914ea84c4314540ef7`, supplies the contact or closest-pass second of every exchange in the interval. Local seconds in the prompt are these values minus 147:
+[BoutScript](../../../src/shots/kickboxing/ring-bout/BoutScript.ts), raw SHA-256 `860798c2df95b5ab6971aa87160bff6c23213c9af887d8914ea84c4314540ef7`, supplies the contact or closest-pass second of every exchange in the interval. Local seconds in the prompt are these values minus 147:
 
 | Row id | Global s | Local s | Attacker, technique → answer |
 | --- | ---: | ---: | --- |
 | `x111-a-body-hook` | 148.9 | 1.9 | A, body-hook → catch |
 | `x112-a-high-kick` | 150 | 3 | A, high-kick → hit |
 
-Clean landings in this clip, each with a camera jolt from [FilmPlan](../../../src/film/FilmPlan.ts): `x112-a-high-kick` at local 3 s. Face landings (`x112-a-high-kick`) add the screenplay's blood spray and the hint's half-second wince from [Reaction](../../../src/bout/Reaction.ts). The opening sentence of the action paragraph states the skin marks accumulated from earlier landings, following the screenplay's “Every landed blow sinks into what it meets: gloves flatten against gloves, ribs and faces, sweat flies off struck skin, and skin stays reddened where it was hit.”
+Clean landings in this clip, each with a camera jolt from [FilmPlan](../../../src/shots/kickboxing/ring-bout/FilmPlan.ts): `x112-a-high-kick` at local 3 s. Face landings (`x112-a-high-kick`) add the screenplay's blood spray and the hint's half-second wince from [Reaction](../../../src/motion/reactions/Reaction.ts). The opening sentence of the action paragraph states the skin marks accumulated from earlier landings, following the screenplay's “Every landed blow sinks into what it meets: gloves flatten against gloves, ribs and faces, sweat flies off struck skin, and skin stays reddened where it was hit.”
 
-Non-exchange timing comes from [Aftermath](../../../src/bout/Aftermath.ts) (corner walk 152.3–156.8 s, kick recovery and the side-on wide view) and [referee cues](../../../src/bout/RefereeCues.ts) ("down" at 150.55 s, "neutral" at 152.0 s); the screenplay places B's hip, shoulder and settled side at about 151.0, 151.25 and 151.6 s. FilmPlan gives the knockout the strongest jolt (power 2.5 against 1.4 for other kicks).
+Non-exchange timing comes from [Aftermath](../../../src/motion/reactions/Aftermath.ts) (corner walk 152.3–156.8 s, kick recovery and the side-on wide view) and [referee cues](../../../src/motion/referee/RefereeCues.ts) ("down" at 150.55 s, "neutral" at 152.0 s); the screenplay places B's hip, shoulder and settled side at about 151.0, 151.25 and 151.6 s. FilmPlan gives the knockout the strongest jolt (power 2.5 against 1.4 for other kicks).
 
 The text supplies live-action identities, ring, light, impact detail and finish; the reference clip supplies movement, contact, camera and timing. These roles are semantic guidance, not a tested generator result or exact-frame following.
 
@@ -59,4 +59,4 @@ Keep realistic human anatomy, closed fists inside the gloves and the gloves on t
 
 ## Output and retention boundary {#retention}
 
-Availability: the source clip does not yet exist, and no input or output bytes are retained for this request. After export, add the clip's measured duration, frames, profile, bytes, SHA-256 and first/last-frame observations here, with the whole render's identity, keeping this planned epoch. A future submission becomes its own attributable attempt with the exact sent payload, job ID and retained outputs under [generation records](../../../.agents/skills/production/generation-records.md). Large files stay in ignored `media/automovie/videos/segments/` or `media/diffusion/videos/`; Git keeps these records, not the media.
+Availability: the source clip does not yet exist, and no input or output bytes are retained for this request. After export, add the clip's measured duration, frames, profile, bytes, SHA-256 and first/last-frame observations here, with the whole render's identity, keeping this planned epoch. A future submission becomes its own attributable attempt with the exact sent payload, job ID and retained outputs under [generation records](../../../.agents/skills/production/generation-records.md). Large files stay in ignored `media/automovie/kickboxing/videos/segments/` or `media/diffusion/videos/`; Git keeps these records, not the media.

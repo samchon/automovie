@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
-import { AudioMix } from "../../../src/audio/AudioMix";
-import { AudioPcm } from "../../../src/audio/AudioPcm";
-import { MovieAudioAssets } from "../../../src/audio/MovieAudioAssets";
-import type { FilmPlan } from "../../../src/film/FilmPlan";
+import type { FilmPlan } from "../../../src/shots/kickboxing/ring-bout/FilmPlan";
+import { AudioMix } from "../../../src/sound/AudioMix";
+import { AudioPcm } from "../../../src/sound/AudioPcm";
+import { MovieAudioAssets } from "../../../src/sound/MovieAudioAssets";
 
 /**
  * Impacts require exact participants and receipts; actual arrival replaces intent.

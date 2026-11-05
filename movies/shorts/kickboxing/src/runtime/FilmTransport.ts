@@ -1,5 +1,5 @@
-import type { MovieAudio } from "../audio/MovieAudio";
-import { FilmPlan } from "./FilmPlan";
+import { FilmPlan } from "../shots/kickboxing/ring-bout/FilmPlan";
+import type { MovieAudio } from "../sound/MovieAudio";
 
 /**
  * One authoritative clock for actual film placement, browser sound and capture freezes.

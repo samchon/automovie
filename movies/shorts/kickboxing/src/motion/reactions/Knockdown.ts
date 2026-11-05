@@ -1,10 +1,10 @@
+import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
+import { FighterBody } from "../fighter/FighterBody";
 import type { BodyRig } from "../rig/BodyRig";
 import { Ease } from "../rig/Ease";
 import { Foot } from "../rig/Foot";
 import { Vec3 } from "../rig/Vec3";
 import { Aftermath } from "./Aftermath";
-import { BoutScript } from "./BoutScript";
-import { FighterBody } from "./FighterBody";
 
 /**
  * B's knockdown, the failed attempts to rise and the remaining stillness.

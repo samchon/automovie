@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 
-import type { MovieAudio } from "../../../src/audio/MovieAudio";
-import { FilmTransport } from "../../../src/film/FilmTransport";
+import { FilmTransport } from "../../../src/runtime/FilmTransport";
+import type { MovieAudio } from "../../../src/sound/MovieAudio";
 
 /**
  * Exercise successful-clock publication, atomic refusal and asynchronous cancellation.

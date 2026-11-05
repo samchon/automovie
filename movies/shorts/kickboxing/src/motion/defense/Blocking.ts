@@ -1,5 +1,5 @@
+import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 import { Ease } from "../rig/Ease";
-import { BoutScript } from "./BoutScript";
 
 /**
  * Where each fighter stands and faces during the bout, before footsteps and body motion.

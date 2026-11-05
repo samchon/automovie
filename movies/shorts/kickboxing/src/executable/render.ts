@@ -1,6 +1,10 @@
-import type { IAutoMovieHeadlessPage } from "@automovie/render";
+import {
+  type IAutoMovieHeadlessPage,
+  planViewerFrameTimes,
+} from "@automovie/render";
 import {
   type IAutoMovieViewerVideoResult,
+  renderViewerFrames,
   renderViewerVideo,
 } from "@automovie/render/node";
 import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
@@ -9,17 +13,21 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
 
-import type { AudioMix } from "./audio/AudioMix";
-import { renderFilmAudioMix } from "./audio/renderFilmAudioMix";
-import { FilmExportPlan } from "./export/FilmExportPlan";
-import { decodeFilm } from "./export/decodeFilm";
-import { FilmPlan } from "./film/FilmPlan";
+import type { IFilm } from "../IFilm";
+import { films } from "../films";
+import { FilmExportPlan } from "../runtime/export/FilmExportPlan";
+import { decodeFilm } from "../runtime/export/decodeFilm";
+import { selectFilm } from "../selectFilm";
+import { FilmPlan } from "../shots/kickboxing/ring-bout/FilmPlan";
+import type { AudioMix } from "../sound/AudioMix";
+import { renderFilmAudioMix } from "../sound/renderFilmAudioMix";
 
 /**
- * Export the inspected whole Viewer once, using its actual contacts and identical soundtrack.
+ * Export one film of the inspected Viewer as a video with its actual contacts and
+ * identical soundtrack, or as stills of chosen frames.
  *
  * @evidence contracts/common.md#implementation-and-ownership Public Render owns one browser, completed seek captures at i/30, encoding and frame-scratch cleanup. This caller owns a fresh exclusive audio scratch directory, removed after success, failure or cancellation without touching prior paths. Same-page preparation reads actual full-timeline events, contact receipts and audio identity, then shared AudioMix writes byte-identical WAV. Actual foot landings and attack onsets replace nominal timing in both consumers; identity mismatch refuses before capture. Final decode checks all 5400 video frames, audio samples and exact 180-second presentations. Failed final artifacts remain distinguishable by the rejected command and available receipts; only the temporary WAV is always released.
- * @evidence contracts/common.md#authoring-interface Run pnpm render with the exact inspected local Viewer URL and optional MP4 path; default output/kickboxing.mp4. CHROME_PATH/CHROME, FFMPEG_PATH and FFPROBE_PATH may override installed executables. Sidecars retain source URL, actual contacts/audio identity, capture and encode timings and complete decode receipts. The command grants no picture, listening or physical acceptance.
+ * @evidence contracts/common.md#authoring-interface Run pnpm render --film kickboxing with an optional inspected local Viewer URL (VIEWER_URL or port 5199 by default) to write media/automovie/<film>/videos/<film>.mp4, or --out <dir>; adding --at seconds or a --from/--to range with --every frames or --step seconds writes those frames as stills to media/automovie/<film>/frames/ or --out instead. CHROME_PATH/CHROME, FFMPEG_PATH and FFPROBE_PATH may override installed executables. Sidecars retain source URL, actual contacts/audio identity, capture and encode timings and complete decode receipts. The command grants no picture, listening or physical acceptance.
  */
 export async function render(): Promise<void> {
   /** Serializable facts read from the actual capture page, including fixed audio identity. */
@@ -48,12 +56,83 @@ export async function render(): Promise<void> {
     inspect: () => unknown;
   };
 
-  const requested: string | undefined = process.argv[2];
-  if (requested === undefined)
-    throw new Error("Supply the exact inspected whole-film Viewer URL");
-  const url: string = FilmExportPlan.url(requested);
+  // Options select the film and, for stills, their frames; a lone positional
+  // argument names the inspected Viewer URL.
+  const options: Map<string, string> = new Map();
+  const positional: string[] = [];
+  const argv: string[] = process.argv.slice(2);
+  for (let index: number = 0; index < argv.length; index++) {
+    const [key, inline] = argv[index]!.split(/=(.*)/s) as [string, string?];
+    if (!key.startsWith("--")) {
+      positional.push(argv[index]!);
+      continue;
+    }
+    if (
+      ![
+        "--film",
+        "--at",
+        "--from",
+        "--to",
+        "--every",
+        "--step",
+        "--out",
+      ].includes(key)
+    )
+      throw new Error(`Unknown option ${key}`);
+    const value: string | undefined = inline ?? argv[++index];
+    if (value === undefined || value === "")
+      throw new Error(`${key} needs a value`);
+    options.set(key, value);
+  }
+  if (positional.length > 1)
+    throw new Error("Give at most one Viewer URL; use --out for the folder");
+  const number: (key: string) => number | undefined = (
+    key: string,
+  ): number | undefined =>
+    options.has(key) ? Number(options.get(key)) : undefined;
+  const selected: { name: string; film: IFilm } = selectFilm(
+    films,
+    options.get("--film") ?? null,
+  );
+  const film: string = selected.name;
+  const url: string = FilmExportPlan.url(
+    positional[0] ?? process.env.VIEWER_URL ?? "http://127.0.0.1:5199/",
+    film,
+  );
+
+  // Any frame option asks for stills of those frames instead of the video.
+  if (
+    ["--at", "--from", "--to", "--every", "--step"].some(
+      (key: string): boolean => options.has(key),
+    )
+  ) {
+    const stills: { file: string }[] = await renderViewerFrames({
+      url,
+      width: 1280,
+      height: 720,
+      fps: selected.film.fps,
+      times: planViewerFrameTimes({
+        fps: selected.film.fps,
+        durationSeconds: selected.film.durationSeconds,
+        at: options.get("--at")?.split(",").map(Number),
+        from: number("--from"),
+        to: number("--to"),
+        every: number("--every"),
+        step: number("--step"),
+      }),
+      outputDir: options.get("--out") ?? `media/automovie/${film}/frames`,
+      chromeExecutable:
+        process.env.CHROME_PATH ??
+        process.env.CHROME ??
+        DEFAULT_CHROME_EXECUTABLE,
+      seekFunction: "__afSeek",
+    });
+    for (const still of stills) console.log(still.file);
+    return;
+  }
   const outputPath: string = path.resolve(
-    process.argv[3] ?? "output/kickboxing.mp4",
+    options.get("--out") ?? `media/automovie/${film}/videos`,
+    `${film}.mp4`,
   );
   const ffmpegExecutable: string = process.env.FFMPEG_PATH ?? ffmpeg ?? "";
   const ffprobeExecutable: string =
@@ -62,7 +141,7 @@ export async function render(): Promise<void> {
   if (ffmpegExecutable.length === 0 || ffprobeExecutable.length === 0)
     throw new Error("Installed FFmpeg and FFprobe executables are required");
   await mkdir(path.dirname(outputPath), { recursive: true });
-  const frameDir: string = path.resolve(".cache/render");
+  const frameDir: string = path.resolve(`.cache/render/${film}`);
   await mkdir(frameDir, { recursive: true });
   const audioScratch: string = await mkdtemp(
     path.join(frameDir, "film-audio-"),

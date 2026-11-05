@@ -1,4 +1,4 @@
-import type { FilmPlan } from "../film/FilmPlan";
+import type { FilmPlan } from "../shots/kickboxing/ring-bout/FilmPlan";
 import { AudioMix } from "./AudioMix";
 import { AudioPcm } from "./AudioPcm";
 import { MovieAudioAssets } from "./MovieAudioAssets";

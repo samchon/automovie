@@ -1,4 +1,4 @@
-import { FilmPlan } from "../film/FilmPlan";
+import { FilmPlan } from "../../shots/kickboxing/ring-bout/FilmPlan";
 
 /**
  * Exact whole-film capture controls shared with the actual Viewer programme.
@@ -11,9 +11,9 @@ export namespace FilmExportPlan {
    * Select the complete programme and exact export raster without autoplay.
    *
    * @evidence contracts/common.md#implementation-and-ownership URL parsing preserves the precise artifact path and unrelated consumer options. Explicit clock/raster parameters align the Viewer with Render; autoplay is removed because each capture awaits the public completed seek hook.
-   * @evidence contracts/common.md#authoring-interface The returned fresh URL uses 1280 by 720, native speed, start zero and FilmPlan.duration. Only HTTP loopback addresses are admitted, keeping this production command on its inspected local host.
+   * @evidence contracts/common.md#authoring-interface The returned fresh URL names the film and uses 1280 by 720, native speed, start zero and FilmPlan.duration. Only HTTP loopback addresses are admitted, keeping this production command on its inspected local host.
    */
-  export function url(requested: string): string {
+  export function url(requested: string, film: string): string {
     const result: URL = new URL(requested);
     if (
       result.protocol !== "http:" ||
@@ -28,6 +28,7 @@ export namespace FilmExportPlan {
       start: "0",
       end: String(FilmPlan.duration),
       speed: "1",
+      film,
     }))
       result.searchParams.set(key, value);
     result.searchParams.delete("play");

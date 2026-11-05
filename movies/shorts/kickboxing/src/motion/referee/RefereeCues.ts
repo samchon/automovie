@@ -1,9 +1,9 @@
+import { Blocking } from "../defense/Blocking";
+import type { Fighter } from "../fighter/Fighter";
+import type { FighterBody } from "../fighter/FighterBody";
+import { Aftermath } from "../reactions/Aftermath";
 import { Ease } from "../rig/Ease";
 import { Vec3 } from "../rig/Vec3";
-import { Aftermath } from "./Aftermath";
-import { Blocking } from "./Blocking";
-import type { Fighter } from "./Fighter";
-import type { FighterBody } from "./FighterBody";
 
 /**
  * The referee's spoken cues, gestures, gaze and post-knockout positions.

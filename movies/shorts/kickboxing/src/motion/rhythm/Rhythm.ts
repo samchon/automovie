@@ -1,6 +1,6 @@
+import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
+import type { FighterBody } from "../fighter/FighterBody";
 import { Ease } from "../rig/Ease";
-import { BoutScript } from "./BoutScript";
-import type { FighterBody } from "./FighterBody";
 
 /**
  * The live rhythm of a fighter between and around scripted exchanges.

@@ -1,4 +1,4 @@
-import type { FilmPlan } from "../film/FilmPlan";
+import type { FilmPlan } from "../shots/kickboxing/ring-bout/FilmPlan";
 
 /**
  * One deterministic event-to-sample soundtrack for the Viewer and final export.

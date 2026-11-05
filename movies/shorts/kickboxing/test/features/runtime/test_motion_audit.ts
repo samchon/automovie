@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 
-import { FilmRuntime } from "../../../src/film/FilmRuntime";
-import { MotionAudit } from "../../../src/film/MotionAudit";
+import { FilmRuntime } from "../../../src/runtime/FilmRuntime";
+import { MotionAudit } from "../../../src/runtime/MotionAudit";
 
 /**
  * The whole three-minute performance keeps its bodies supported, separated and continuous.

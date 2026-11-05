@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 
-import { Footsteps } from "../../../src/bout/Footsteps";
-import type { Foot } from "../../../src/rig/Foot";
+import { Footsteps } from "../../../../src/motion/footwork/Footsteps";
+import type { Foot } from "../../../../src/motion/rig/Foot";
 
 /**
  * Footsteps follow a moving stance with alternating, bounded, supported steps.

@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 
-import { BoutScript } from "../../../src/bout/BoutScript";
-import { FilmEvents } from "../../../src/film/FilmEvents";
-import { FilmRuntime } from "../../../src/film/FilmRuntime";
+import { FilmEvents } from "../../../src/runtime/FilmEvents";
+import { FilmRuntime } from "../../../src/runtime/FilmRuntime";
+import { BoutScript } from "../../../src/shots/kickboxing/ring-bout/BoutScript";
 
 /**
  * Every planned contact of the screenplay is realized by displayed geometry, with no air gap: clean hits sink into the receiver's skin and guard or shin contacts press into what they meet. The fall reaches the canvas hip first.

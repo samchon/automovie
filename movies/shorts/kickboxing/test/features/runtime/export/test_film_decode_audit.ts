@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { FilmDecodeAudit } from "../../../src/export/FilmDecodeAudit";
+import { FilmDecodeAudit } from "../../../../src/runtime/export/FilmDecodeAudit";
 
 /**
  * Distinguish exact continuous decoded presentation from merely having a file.

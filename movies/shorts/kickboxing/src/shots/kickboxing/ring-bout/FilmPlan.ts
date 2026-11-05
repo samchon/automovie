@@ -1,8 +1,8 @@
-import { Aftermath } from "../bout/Aftermath";
-import { Blocking } from "../bout/Blocking";
-import { BoutScript } from "../bout/BoutScript";
-import { Ease } from "../rig/Ease";
-import { Vec3 } from "../rig/Vec3";
+import { Blocking } from "../../../motion/defense/Blocking";
+import { Aftermath } from "../../../motion/reactions/Aftermath";
+import { Ease } from "../../../motion/rig/Ease";
+import { Vec3 } from "../../../motion/rig/Vec3";
+import { BoutScript } from "./BoutScript";
 
 /**
  * Film-wide clock, event vocabulary and the delivered camera.

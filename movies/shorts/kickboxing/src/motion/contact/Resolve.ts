@@ -1,11 +1,11 @@
+import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
+import { FighterBody } from "../fighter/FighterBody";
+import { Reaction } from "../reactions/Reaction";
 import type { BodyRig } from "../rig/BodyRig";
 import { Ease } from "../rig/Ease";
 import { Foot } from "../rig/Foot";
 import { Vec3 } from "../rig/Vec3";
-import { BoutScript } from "./BoutScript";
-import { FighterBody } from "./FighterBody";
-import { Reaction } from "./Reaction";
-import { Strike } from "./Strike";
+import { Strike } from "../striking/Strike";
 
 /** Glove sphere radius used when two gloves or a glove and a body meet, metres. */
 const GLOVE: number = 0.095;

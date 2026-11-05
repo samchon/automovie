@@ -6,7 +6,7 @@ Complete [issue 3040](https://github.com/samchon/automovie/issues/3040) under th
 
 ## Direction {#direction}
 
-Keep one continuous English H2 ring scene, with meaningful H3 action/exchange groups, short present-tense action and separate speaker/dialogue blocks. This heading hierarchy is the adopted repository format; it does not introduce new scenes or time jumps. Change pressure, angle and initiative across the round; do not loop the first minute. Body and glancing contacts interrupt breath and guard without early knockdowns. Body attacks establish the low defensive response; the final left body hook draws the right guard down before the connected left high kick. The consumed [FilmPlan](../../src/film/FilmPlan.ts) supplies precise action placements, camera and event timing; its runtime realizes the decided support, contact and recovery.
+Keep one continuous English H2 ring scene, with meaningful H3 action/exchange groups, short present-tense action and separate speaker/dialogue blocks. This heading hierarchy is the adopted repository format; it does not introduce new scenes or time jumps. Change pressure, angle and initiative across the round; do not loop the first minute. Body and glancing contacts interrupt breath and guard without early knockdowns. Body attacks establish the low defensive response; the final left body hook draws the right guard down before the connected left high kick. The consumed [FilmPlan](../../src/shots/kickboxing/ring-bout/FilmPlan.ts) supplies precise action placements, camera and event timing; its runtime realizes the decided support, contact and recovery.
 
 ## Image and sound {#presentation}
 

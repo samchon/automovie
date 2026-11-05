@@ -1,7 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import type { FilmPlan } from "../film/FilmPlan";
+import type { FilmPlan } from "../shots/kickboxing/ring-bout/FilmPlan";
 import { AudioMix } from "./AudioMix";
 import { AudioPcm } from "./AudioPcm";
 import type { MovieAudio } from "./MovieAudio";

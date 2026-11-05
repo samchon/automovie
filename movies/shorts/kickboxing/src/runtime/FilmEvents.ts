@@ -1,9 +1,9 @@
-import type { AudioMix } from "../audio/AudioMix";
-import { BoutScript } from "../bout/BoutScript";
-import type { Footsteps } from "../bout/Footsteps";
-import { RefereeCues } from "../bout/RefereeCues";
-import { Strike } from "../bout/Strike";
-import { FilmPlan } from "./FilmPlan";
+import type { Footsteps } from "../motion/footwork/Footsteps";
+import { RefereeCues } from "../motion/referee/RefereeCues";
+import { Strike } from "../motion/striking/Strike";
+import { BoutScript } from "../shots/kickboxing/ring-bout/BoutScript";
+import { FilmPlan } from "../shots/kickboxing/ring-bout/FilmPlan";
+import type { AudioMix } from "../sound/AudioMix";
 
 /**
  * The complete cue list of the film: bells, referee voice, contacts, misses, footsteps, breath and falls.

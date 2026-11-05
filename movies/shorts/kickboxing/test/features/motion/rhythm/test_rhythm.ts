@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 
-import { BoutScript } from "../../../src/bout/BoutScript";
-import { Rhythm } from "../../../src/bout/Rhythm";
+import { Rhythm } from "../../../../src/motion/rhythm/Rhythm";
+import { BoutScript } from "../../../../src/shots/kickboxing/ring-bout/BoutScript";
 
 /**
  * The live rhythm keeps fighters busy between exchanges, stays out of the scripted ones and is deterministic.

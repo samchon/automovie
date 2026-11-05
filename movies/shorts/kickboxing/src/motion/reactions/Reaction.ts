@@ -1,6 +1,6 @@
+import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
+import { FighterBody } from "../fighter/FighterBody";
 import { Ease } from "../rig/Ease";
-import { BoutScript } from "./BoutScript";
-import { FighterBody } from "./FighterBody";
 
 /**
  * The receiver's answer to one attack: defence, evasion or hit reaction.

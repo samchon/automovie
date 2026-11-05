@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import * as THREE from "three";
 
-import { createInspectionRing } from "../../../src/createInspectionRing";
+import { createInspectionRing } from "../../../../src/assets/ring/createInspectionRing";
 
 /**
  * Check the source-owned ring dimensions and corner meaning without a scene host.

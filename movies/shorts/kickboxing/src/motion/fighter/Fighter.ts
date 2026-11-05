@@ -1,14 +1,14 @@
+import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
+import { Blocking } from "../defense/Blocking";
+import { Footsteps } from "../footwork/Footsteps";
+import { Reaction } from "../reactions/Reaction";
+import { Rhythm } from "../rhythm/Rhythm";
 import type { BodyRig } from "../rig/BodyRig";
 import { Ease } from "../rig/Ease";
 import type { Foot } from "../rig/Foot";
 import { Vec3 } from "../rig/Vec3";
-import { Blocking } from "./Blocking";
-import { BoutScript } from "./BoutScript";
+import { Strike } from "../striking/Strike";
 import { FighterBody } from "./FighterBody";
-import { Footsteps } from "./Footsteps";
-import { Reaction } from "./Reaction";
-import { Rhythm } from "./Rhythm";
-import { Strike } from "./Strike";
 
 /**
  * One orthodox fighter's authored frame at any film second.

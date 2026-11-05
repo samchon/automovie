@@ -1,6 +1,6 @@
+import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 import { Ease } from "../rig/Ease";
 import { Vec3 } from "../rig/Vec3";
-import { BoutScript } from "./BoutScript";
 
 /**
  * Timing and limb paths of one attack, independent of who receives it.

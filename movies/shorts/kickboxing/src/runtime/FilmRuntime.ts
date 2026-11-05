@@ -3,24 +3,24 @@ import type {
   IAutoMovieHumanPose,
 } from "@automovie/human";
 
-import type { AudioMix } from "../audio/AudioMix";
-import { Aftermath } from "../bout/Aftermath";
-import { Blocking } from "../bout/Blocking";
-import { BoutScript } from "../bout/BoutScript";
-import { Fighter } from "../bout/Fighter";
-import type { FighterBody } from "../bout/FighterBody";
-import { Knockdown } from "../bout/Knockdown";
-import { Referee } from "../bout/Referee";
-import { RefereeCues } from "../bout/RefereeCues";
-import { Resolve } from "../bout/Resolve";
-import { Rhythm } from "../bout/Rhythm";
-import { createPersonParameters } from "../createPersonParameters";
-import { BodyRig } from "../rig/BodyRig";
-import { Vec3 } from "../rig/Vec3";
-import { FilmActor } from "./FilmActor";
+import { FilmActor } from "../assets/person/FilmActor";
+import { createPersonParameters } from "../assets/person/createPersonParameters";
+import { ImpactEffects } from "../motion/consequences/ImpactEffects";
+import { Resolve } from "../motion/contact/Resolve";
+import { Blocking } from "../motion/defense/Blocking";
+import { Fighter } from "../motion/fighter/Fighter";
+import type { FighterBody } from "../motion/fighter/FighterBody";
+import { Aftermath } from "../motion/reactions/Aftermath";
+import { Knockdown } from "../motion/reactions/Knockdown";
+import { Referee } from "../motion/referee/Referee";
+import { RefereeCues } from "../motion/referee/RefereeCues";
+import { Rhythm } from "../motion/rhythm/Rhythm";
+import { BodyRig } from "../motion/rig/BodyRig";
+import { Vec3 } from "../motion/rig/Vec3";
+import { BoutScript } from "../shots/kickboxing/ring-bout/BoutScript";
+import type { FilmPlan } from "../shots/kickboxing/ring-bout/FilmPlan";
+import type { AudioMix } from "../sound/AudioMix";
 import { FilmEvents } from "./FilmEvents";
-import type { FilmPlan } from "./FilmPlan";
-import { ImpactEffects } from "./ImpactEffects";
 
 /**
  * The three performers on one film clock.

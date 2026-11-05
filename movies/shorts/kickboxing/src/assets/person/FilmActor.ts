@@ -5,11 +5,11 @@ import type {
 } from "@automovie/human";
 import * as THREE from "three";
 
-import { InspectionPerson } from "../InspectionPerson";
-import { addInspectionGloves } from "../addInspectionGloves";
-import { addInspectionOutfit } from "../addInspectionOutfit";
-import type { BodyRig } from "../rig/BodyRig";
-import { Vec3 } from "../rig/Vec3";
+import type { BodyRig } from "../../motion/rig/BodyRig";
+import { Vec3 } from "../../motion/rig/Vec3";
+import { InspectionPerson } from "./InspectionPerson";
+import { addInspectionGloves } from "./addInspectionGloves";
+import { addInspectionOutfit } from "./addInspectionOutfit";
 
 /**
  * One displayed performer: the original Human polygon, its equipment and its world placement.

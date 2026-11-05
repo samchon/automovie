@@ -1,7 +1,7 @@
-import { BoutScript } from "../bout/BoutScript";
-import { Reaction } from "../bout/Reaction";
-import { Strike } from "../bout/Strike";
-import { Vec3 } from "../rig/Vec3";
+import { Reaction } from "../motion/reactions/Reaction";
+import { Vec3 } from "../motion/rig/Vec3";
+import { Strike } from "../motion/striking/Strike";
+import { BoutScript } from "../shots/kickboxing/ring-bout/BoutScript";
 import type { FilmRuntime } from "./FilmRuntime";
 
 /**

@@ -1,9 +1,9 @@
 import type { IAutoMovieHumanPose } from "@automovie/human";
 
+import type { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 import type { BodyRig } from "../rig/BodyRig";
 import type { Foot } from "../rig/Foot";
 import { Vec3 } from "../rig/Vec3";
-import type { BoutScript } from "./BoutScript";
 
 /**
  * One performer's authored body for a single frame, before limb goals are solved.
