@@ -14,3 +14,5 @@ Make the asset serve the commissioned instance, motion hint, or direct 3D film, 
 Read [independent recovery](recovery.md) when editable reconstruction is required. Read [rigging and deformation](rigging.md) for skeletons, weights, rest/bind interpretation and attachments, and [primary research](research.md) when studying appearance, form or material, or selecting external geometry or rig acquisition.
 
 Installed APIs own data formats and callable behavior; completed generation, fitting, compilation, or tests alone establish no visual result. Use [delivery review](../review/delivery.md) for final assembled acceptance or asset handoff.
+
+When acquiring generated images, meshes or other visual inputs, follow [generation records](../production/generation-records.md) for exact prompts, settings/brief/screenplay bindings, reference bytes and retained outputs.

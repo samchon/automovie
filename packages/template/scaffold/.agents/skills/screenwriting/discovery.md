@@ -2,6 +2,8 @@
 
 Compare adopted instructions, references, assets, research, delegated choices, and current work across the entire selected population. Break instructions into consequential elements before bulk writing and assign each to its existing owner or a missing one. A genre label or general reading of the brief does not establish coverage. Apply discovery questions in [story contracts](../contracts/story/index.md), including for a short's direct screenplay route.
 
+Check the commissioned activity's required people, place, equipment and environmental sources through [scene coverage](settings-records.md#scene-coverage), including background and off-screen participation. An author's narrower cast or empty setting is not authority to remove a required population from the request.
+
 Keep facts and constraints in settings, event and release decisions in their narrative layer, and production-specific judgment in `.agents/skills/contracts/story/work`. A new question records a distinct requirement, its narrowest honest respondent population, an observable desired difference, a representative failure, and the basis for requiring it. Group requirements judged together and reuse existing owners rather than adding parallel versions of the same rule.
 
 Discover both requirements and positively chosen form: what a setting record, event document, scene, or final audiovisual unit presents or withholds, how it guides its recipient, and which recurring conventions matter. Naming a style is insufficient; identify the visible difference and repair boundary that preserves intent. Keep incidental conditions off unrelated units.

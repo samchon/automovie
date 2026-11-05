@@ -8,6 +8,8 @@ dist/
 .DS_Store
 .wiki/
 .cache/
+/media/generated/
+/output/
 .env
 .env.*
 !.env.example

@@ -2,6 +2,7 @@ import {
   createEngineeringClaims,
   createEvidenceConfig,
 } from "@automovie/evidence";
+import { scaffoldAssetDirectory } from "@automovie/template";
 import {
   EvidenceChecker,
   type IEvidenceCheckAnalysis,
@@ -23,13 +24,27 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 3. An additional ordinary native claim exposes its missing answer.
  * 4. Default claim objects remain independent across calls.
  * 5. An omitted outline stage follows activated settings and rejects an unanswered outline principle.
+ * 6. The actual shipped starter passes its unchanged default engineering graph.
  *
- * @evidence contracts/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage and outline stage inheritance.
- * @evidence contracts/testing.md#independent-expectations Four explicitly authored engineering answers satisfy the shipped two-question source/test checklists; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection and independent default objects.
- * @evidence contracts/testing.md#execution-ownership Runs in-process through workspace source exports with temporary files beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
+ * @evidence contracts/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage and outline stage inheritance; also checks the shipped scaffold's actual source and tests under those same default claims, rejecting annotations on unsupported hosts.
+ * @evidence contracts/testing.md#independent-expectations Four explicitly authored engineering answers satisfy the shipped two-question source/test checklists; an unrelated unfinished story creates no engineering obligation. The starter must meet its own exported type/function defaults without annotations on private helpers or a numeric constant. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection and independent default objects. The actual shipped starter covers private callbacks and an exported numeric constant beside selected public functions without widening the selectors.
+ * @evidence contracts/testing.md#execution-ownership Runs in-process through workspace source exports, reads the shipped scaffold without modifying it and owns temporary authored data beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
  */
 export async function test_template_evidence_package(): Promise<void> {
+  const scaffold: string = scaffoldAssetDirectory();
+  const starter: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+    createEvidenceConfigPlan(
+      createEvidenceConfig({ location: scaffold }),
+      path.join(scaffold, "evidence.config.ts"),
+    ),
+  );
+  assert.equal(
+    starter.report.success,
+    true,
+    JSON.stringify(starter.report.diagnostics),
+  );
+
   const cache: string = path.resolve(
     __dirname,
     "../../../../packages/template/.cache",

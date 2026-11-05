@@ -9,6 +9,7 @@ Keep each relationship with the source, accepted asset or edit that actually use
 | Actual owner | Establish |
 | --- | --- |
 | Asset or rig | Used settings facts and screenplay role; fixed source/derivative identity; meaningful dimensions, controls and admitted rig interpretation |
+| Generation request | Exact submitted fields and their creative source bindings; actual input/output identities, attempts, retained bytes and consuming asset/shot/edit under [generation records](../production/generation-records.md) |
 | Motion or performance | Required action/result; actual asset/rig; accepted clip/controller; timing, contacts and constraints with current observations |
 | Executable shot | Source screenplay units, invoked assets/performance and camera/sound decisions, with its actual time range and output |
 | Edit | Included shots/takes, trims/order/transitions, sound/captions and retained required material |

@@ -20,6 +20,8 @@ Check each asset's actual license against commercial use, adaptation, attributio
 
 ## Adopt a take
 
+For generated audio, the [generation record](../production/generation-records.md) owns the exact request, source bindings and attempt history. Link it from the asset receipt and actual consumer rather than duplicate its fields. Its retention rules apply to original recordings, voice references and edited takes even when the large files are ignored by Git.
+
 Keep accepted bytes in project-owned asset storage with access allowed by their license; use public assets only when redistribution is permitted. Record the creator, source and license links, required attribution, content digest, and generation or edit settings alongside the production's asset records. A regeneration becomes a new take until reviewed; a seed alone does not preserve the accepted bytes.
 
 Use the installed decoder's admitted format when converting a provider's output; its public contract owns codec, channel, and sample-rate support. Preserve the original and identify edited derivatives and the bytes entering the render. Measure durations and trims from those bytes rather than text length or requested synthesis duration.
