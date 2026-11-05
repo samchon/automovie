@@ -76,6 +76,15 @@ export namespace AutoMovieConicHermiteField {
     const largest: number = Math.max(
       ...values.map((value: T): number => ops.value(value)),
     );
+    return sumAtMaximum(ops, values, largest);
+  }
+
+  /** Preserve the ordered log-sum arithmetic while reusing an already read primal gauge. */
+  function sumAtMaximum<T>(
+    ops: Algebra<T>,
+    values: readonly T[],
+    largest: number,
+  ): T {
     const gauge: T = ops.constant(largest);
     let sum: T = ops.constant(0);
     for (const value of values)
@@ -91,7 +100,7 @@ export namespace AutoMovieConicHermiteField {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Endpoint identity is never inferred from a rounded native t or null clock.
    * @evidence contracts/common.md#meaningful-documentation Interior clock is constant with respect to s,p; endpoint points follow their prepared source controls.
    * @evidence contracts/performance.md#efficient-algorithms Four monomials and fixed-size barycentric sums.
-   * @evidence contracts/performance.md#reuse-equivalent-work The resulting normalized logs serve the final direction and numeric curvature.
+   * @evidence contracts/performance.md#reuse-equivalent-work One primal maximum supplies the normalization gauge and pivot; normalized logs serve the final direction and numeric curvature.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only a point and at most four log scalars escape.
    */
   export function projective<T>(
@@ -117,14 +126,11 @@ export namespace AutoMovieConicHermiteField {
           ops.constant((i === 1 || i === 2 ? Math.log(3) : 0) + i * clock),
         ),
     );
-    const normalizer: T = logSum(ops, raw);
+    const primals: number[] = raw.map((value: T): number => ops.value(value));
+    const maximum: number = Math.max(...primals);
+    const pivot: number = primals.indexOf(maximum);
+    const normalizer: T = sumAtMaximum(ops, raw, maximum);
     const logs: T[] = raw.map((value: T): T => ops.subtract(value, normalizer));
-    const maximum: number = Math.max(
-      ...raw.map((value: T): number => ops.value(value)),
-    );
-    const pivot: number = raw.findIndex(
-      (value: T): boolean => ops.value(value) === maximum,
-    );
     const base: readonly [T, T] = patch.points[pivot]!;
     let x: T = base[0];
     let y: T = base[1];

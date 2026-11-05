@@ -1,6 +1,10 @@
 import type { AutoMoviePolarSector } from "@automovie/engine";
 
+import { AutoMovieConicArc } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArc";
+import { AutoMovieConicArcField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicArcField";
+import { AutoMovieConicFieldJet } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicFieldJet";
 import { AutoMovieConicHermite } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermite";
+import { AutoMovieConicHermiteField } from "../../../../../packages/engine/src/geometry/construction/AutoMovieConicHermiteField";
 import { ConstructionConicOracle } from "../../internal/construction/ConstructionConicOracle";
 
 /**
@@ -18,14 +22,23 @@ import { ConstructionConicOracle } from "../../internal/construction/Constructio
  *    an arithmetic observation, not an interval certificate for every input.
  * 4. Outside/nonfinite angles remain nonfinite. The independent reader rejects
  *    a made0.01-scale slope error with its unchanged2e-9 comparison limit.
+ * 5. A query-local operation table bounds primal reads by four projective
+ *    terms in NUMBER and AD. Ordered public log-sum readings retain all log
+ *    components exactly; raw rays retain physical evaluation, tangent, radial
+ *    guide and fresh-array results across reciprocal/scaled extreme shoulders.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls the production Hermite.radius on exact conics with projectively changed clocks and on actual admitted G2 ends; reads all three polar components, support endpoints, finite/count failures and convexity.
- * @evidence contracts/testing.md#independent-expectations The fixed ellipse controls are homogeneous degree elevation of [(a,0),(a,b),(0,b)] with weight1/sqrt(2). The identity weight_i*k^i follows by direct substitution of t=k*v/(1-v+k*v). Closed-form ellipse jets come from the implicit ellipse oracle; no production inverse, tangent or homogeneous determinant supplies those answers.
- * @evidence contracts/testing.md#distinguishing-cases Includes42 ellipse boxes, reciprocal/scaled shapes, seven clocks including both extreme directions, exact and near endpoints, actual tiny-curvature-ratio ends, invalid queries and a made slope error. Native t bisection loses these projective cases despite unchanged geometry.
+ * @evidence contracts/testing.md#behavioral-verification Calls the production Hermite.radius on exact conics with projectively changed clocks and on actual admitted G2 ends; reads all three polar components, support endpoints, finite/count failures and convexity. Query-owned algebra counts observe projective primal work without replacing globals; raw rays are checked against physical kernel and public guide readings.
+ * @evidence contracts/testing.md#independent-expectations The fixed ellipse controls are homogeneous degree elevation of [(a,0),(a,b),(0,b)] with weight1/sqrt(2). The identity weight_i*k^i follows by direct substitution of t=k*v/(1-v+k*v). Closed-form ellipse jets come from the implicit ellipse oracle; no production inverse, tangent or homogeneous determinant supplies those answers. Exact public-log and physical-kernel comparisons separately pin arithmetic compatibility; they are not independent geometry oracles.
+ * @evidence contracts/testing.md#distinguishing-cases Includes42 ellipse boxes, reciprocal/scaled shapes, seven clocks including both extreme directions, exact and near endpoints, actual tiny-curvature-ratio ends, invalid queries and a made slope error. Native t bisection loses these projective cases despite unchanged geometry. A repeated max/pivot traversal exceeds the four-read work budget; fewer reads remain allowed. Exact log and physical-point comparisons distinguish reordered normalization or restoration.
  * @evidence contracts/testing.md#execution-ownership Discoverable synchronous CPU question through --include construction_conic_projective; creates no person, browser, host, fixture or GPU work and joins the shared construction round.
  */
 export function test_construction_conic_projective(): void {
   const failures: string[] = [];
+  const work: { projective: number; primalReads: number; raw: number } = {
+    projective: 0,
+    primalReads: 0,
+    raw: 0,
+  };
   const w: number = Math.SQRT1_2;
   const u: number = (1 + 2 * w) / 3;
   const q: number = (2 * w) / (1 + 2 * w);
@@ -60,6 +73,7 @@ export function test_construction_conic_projective(): void {
             ],
             weights: [1, u * k, u * k * k, k ** 3],
           };
+          projectiveReuse(patch, failures, work);
           for (const share of angles) {
             const angle: number = share * patch.angle;
             ConstructionConicOracle.compare(
@@ -124,8 +138,193 @@ export function test_construction_conic_projective(): void {
   );
   if (red.length === 0)
     failures.push("a made0.01 slope error passed the projective reader");
+  rawReuse(failures, work);
+  console.log({ conicReuseWork: work });
   if (failures.length !== 0)
     throw new Error(
       `${failures.length} conic projective findings:\n${failures.join("\n")}`,
     );
+}
+
+/** Count actual primal reads while retaining the original public ordered log-sum as an arithmetic regression seam. */
+function projectiveCheck<T>(
+  ops: AutoMovieConicFieldJet.IAlgebra<T>,
+  patch: AutoMovieConicHermite.IPatch<T>,
+  clock: number,
+  components: (value: T) => readonly number[],
+  failures: string[],
+  work: { projective: number; primalReads: number },
+): void {
+  let reads: number = 0;
+  const counted: AutoMovieConicFieldJet.IAlgebra<T> = {
+    ...ops,
+    value: (value: T): number => {
+      reads++;
+      return ops.value(value);
+    },
+  };
+  const weights: T[] = patch.weights.map((value: T): T => ops.log(value));
+  const actual: AutoMovieConicHermiteField.IProjective<T> =
+    AutoMovieConicHermiteField.projective(counted, patch, weights, clock);
+  const raw: T[] = weights.map(
+    (value: T, i: number): T =>
+      ops.add(
+        value,
+        ops.constant((i === 1 || i === 2 ? Math.log(3) : 0) + i * clock),
+      ),
+  );
+  const normalizer: T = AutoMovieConicHermiteField.logSum(ops, raw);
+  work.projective++;
+  work.primalReads += reads;
+  if (reads > 4) failures.push(`projective primal reads ${reads}, budget4`);
+  for (let i: number = 0; i < 4; i++) {
+    const expected: readonly number[] = components(
+      ops.subtract(raw[i]!, normalizer),
+    );
+    const value: readonly number[] = components(actual.logs[i]!);
+    if (
+      value.some((v: number, j: number): boolean => !Object.is(v, expected[j]))
+    )
+      failures.push(`ordered projective logs changed at ${clock}/${i}`);
+  }
+  const next: AutoMovieConicHermiteField.IProjective<T> =
+    AutoMovieConicHermiteField.projective(ops, patch, weights, clock);
+  if (actual.point === next.point || actual.logs === next.logs)
+    failures.push("projective queries shared mutable result arrays");
+}
+
+/** Extreme projective weights exercise the same normalization in scalar and source-Hessian algebras. */
+function projectiveReuse(
+  patch: AutoMovieConicHermite.IPatch,
+  failures: string[],
+  work: { projective: number; primalReads: number },
+): void {
+  const ops: AutoMovieConicFieldJet.IAlgebra<AutoMovieConicFieldJet.IJet> =
+    AutoMovieConicFieldJet.AD;
+  const source: AutoMovieConicHermite.IPatch<AutoMovieConicFieldJet.IJet> = {
+    ...patch,
+    extent: ops.constant(patch.extent),
+    deficit: ops.constant(patch.deficit),
+    height: ops.constant(patch.height),
+    native: ops.constant(patch.native),
+    curvature: ops.constant(patch.curvature),
+    points: patch.points.map(
+      (
+        p: readonly [number, number],
+      ): readonly [
+        AutoMovieConicFieldJet.IJet,
+        AutoMovieConicFieldJet.IJet,
+      ] => [ops.constant(p[0]), ops.constant(p[1])],
+    ),
+    weights: patch.weights.map(
+      (v: number, i: number): AutoMovieConicFieldJet.IJet => [
+        v,
+        v * ((i + 1) / 8),
+        v * ((i - 1) / 16),
+        v / 32,
+        v / 64,
+        -v / 128,
+      ],
+    ),
+  };
+  for (const clock of [-700, 0, 700]) {
+    projectiveCheck(
+      AutoMovieConicFieldJet.NUMBER,
+      patch,
+      clock,
+      (value: number): readonly number[] => [value],
+      failures,
+      work,
+    );
+    projectiveCheck(
+      ops,
+      source,
+      clock,
+      (value: AutoMovieConicFieldJet.IJet): readonly number[] => value,
+      failures,
+      work,
+    );
+  }
+}
+
+/** Reuse must preserve the old physical evaluation's binary64 point/T and the guide's radial arithmetic. */
+function rawReuse(failures: string[], work: { raw: number }): void {
+  for (const aspect of [0.001, 1, 1000])
+    for (const scale of [0.001, 1, 1000])
+      for (const r of [1e-12, 0.05, Math.SQRT2 - 1, 0.9, 1 - Number.EPSILON])
+        for (const phi of [
+          0,
+          1e-12,
+          0.3,
+          Math.PI / 4,
+          Math.PI / 2 - 1e-12,
+          Math.PI / 2,
+        ]) {
+          const a: number = aspect * scale;
+          const b: number = scale;
+          const ray: AutoMovieConicArc.IRay | null = AutoMovieConicArc.locate(
+            a,
+            b,
+            r,
+            phi,
+          );
+          if (ray === null || ray.native === null) {
+            failures.push(`raw reuse lost finite ray ${a}/${b}/${r}/${phi}`);
+            continue;
+          }
+          const first: number = ray.reverse ? b : a;
+          const second: number = ray.reverse ? a : b;
+          const geometry: AutoMovieConicArcField.IGeometry<number> =
+            AutoMovieConicArcField.orient(
+              AutoMovieConicFieldJet.NUMBER,
+              AutoMovieConicArcField.evaluate(
+                AutoMovieConicFieldJet.NUMBER,
+                first,
+                second,
+                AutoMovieConicArcField.weight(AutoMovieConicFieldJet.NUMBER, r),
+                ray.native,
+              ),
+              ray.reverse,
+            );
+          const guide: AutoMoviePolarSector.IGuide = AutoMovieConicArc.guide(
+            first,
+            second,
+            r,
+            ray.native,
+          );
+          const expected: number[] = [
+            ...geometry.point,
+            ...geometry.tangent,
+            guide.value,
+            ray.reverse ? -guide.slope : guide.slope,
+            guide.curvature,
+          ];
+          const actual: number[] = [
+            ...ray.point,
+            ...ray.tangent,
+            ...ray.radial,
+          ];
+          if (
+            actual.some(
+              (v: number, i: number): boolean => !Object.is(v, expected[i]),
+            )
+          )
+            failures.push(
+              `raw normalized/physical arithmetic changed ${a}/${b}/${r}/${phi}`,
+            );
+          const next: AutoMovieConicArc.IRay | null = AutoMovieConicArc.locate(
+            a,
+            b,
+            r,
+            phi,
+          );
+          if (
+            next === null ||
+            ray.point === next.point ||
+            ray.tangent === next.tangent ||
+            ray.radial === next.radial
+          )
+            failures.push("raw ray queries shared mutable result arrays");
+          work.raw++;
+        }
 }

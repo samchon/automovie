@@ -31,7 +31,7 @@ import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
  * @evidence contracts/common.md#clear-and-simple-design One prepared short arc owns its deficit coordinates, weights and native/angular bounds; the quarter owner composes it with the unchanged conic.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No source extent, shoulder or specimen is fitted; this is a controlled conic approximation, not exact preservation of the whole conic.
  * @evidence contracts/common.md#meaningful-documentation States the weight derivation, convexity/error premises, vanishing-support C2 argument and numerical representation limit.
- * @evidence contracts/performance.md#efficient-algorithms Preparation is constant work; a rare end-support ray uses at most64 monotone log-odds bisections and fixed-size homogeneous geometric readings.
+ * @evidence contracts/performance.md#efficient-algorithms Preparation is constant work; a query inside an end support uses at most64 monotone log-odds bisections and fixed-size homogeneous geometric readings.
  * @evidence contracts/performance.md#reuse-equivalent-work Prepared controls/weights serve all radius and native-arclength readers.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Each caller owns one fixed-size patch; no global source or query cache exists.
  */

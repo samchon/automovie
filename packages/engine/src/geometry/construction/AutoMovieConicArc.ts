@@ -10,7 +10,7 @@ import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No aspect-specific shape, sampled fitting or reversed triangle is used; finite representability remains a caller admission premise.
  * @evidence contracts/common.md#meaningful-documentation States source weight, endpoints, angle units, derivatives and the difference between exact conic formulas and binary64 observations.
  * @evidence contracts/performance.md#efficient-algorithms Native/ray evaluation and bounds take constant arithmetic, with no iterative ray search.
- * @evidenceExclude contracts/performance.md#reuse-equivalent-work Pure scalar geometry schedules no effectful work; the section owner retains its prepared rational ends.
+ * @evidence contracts/performance.md#reuse-equivalent-work Each ray shares one normalized point/tangent evaluation with its guide; the section owner retains prepared rational ends.
  * @evidence contracts/performance.md#bound-retention-and-release-resources All temporary pairs and returned fixed-size readings are invocation-local; no global data is retained.
  */
 export namespace AutoMovieConicArc {
@@ -107,7 +107,7 @@ export namespace AutoMovieConicArc {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no neighbour differences or sampled interpolant; unrepresentable arithmetic remains nonfinite for section admission.
    * @evidence contracts/common.md#meaningful-documentation States native parameter, angular offset and the radial jet meaning.
    * @evidence contracts/performance.md#efficient-algorithms Constant quotient/chain-rule arithmetic.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work One pure point reading has no effectful work to coordinate.
+   * @evidence contracts/performance.md#reuse-equivalent-work The internal guide formula consumes the same normalized point that a ray location uses for its physical point and tangent.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Temporary fixed-size pairs and the returned guide belong to this query.
    */
   export function guide(
@@ -138,11 +138,31 @@ export namespace AutoMovieConicArc {
         slope: 0,
         curvature: (B - (B * B * B) / (2 * w * w * A * A)) * scale,
       };
+    const geometry: AutoMovieConicArcField.IGeometry<number> =
+      AutoMovieConicArcField.evaluate(
+        AutoMovieConicFieldJet.NUMBER,
+        A,
+        B,
+        w,
+        t,
+      );
+    return interiorGuide(A, B, w, t, start, scale, geometry.point);
+  }
+
+  /** Read the existing polar quotient arithmetic from an already evaluated normalized interior point. */
+  function interiorGuide(
+    A: number,
+    B: number,
+    w: number,
+    t: number,
+    start: number,
+    scale: number,
+    C: readonly [number, number],
+  ): AutoMoviePolarSector.IGuide {
     const s: number = 1 - t;
     const D: number = s * s + 2 * w * t * s + t * t;
     const D1: number = -2 * s + 2 * w * (1 - 2 * t) + 2 * t;
     const D2: number = 4 - 4 * w;
-    const C: [number, number] = point(A, B, w, t);
     const N1: [number, number] = [
       -2 * s * A + 2 * w * (1 - 2 * t) * A,
       2 * w * (1 - 2 * t) * B + 2 * t * B,
@@ -277,19 +297,6 @@ export namespace AutoMovieConicArc {
     return u / (1 + u);
   }
 
-  /** Positive native rational point; callers own the finite positive extents, weight and unit parameter premise. */
-  function point(a: number, b: number, w: number, t: number): [number, number] {
-    return [
-      ...AutoMovieConicArcField.evaluate(
-        AutoMovieConicFieldJet.NUMBER,
-        a,
-        b,
-        w,
-        t,
-      ).point,
-    ];
-  }
-
   /**
    * Locate a rational-quadratic ray once for numeric and source readers.
    *
@@ -298,7 +305,7 @@ export namespace AutoMovieConicArc {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No sampled curve or clock derivative supplies source partials.
    * @evidence contracts/common.md#meaningful-documentation Local phi is in[0,pi/2]; invalid numerical geometry returns null.
    * @evidence contracts/performance.md#efficient-algorithms Constant inverse and native geometry arithmetic.
-   * @evidence contracts/performance.md#reuse-equivalent-work The source reader consumes this descriptor without another ray solve.
+   * @evidence contracts/performance.md#reuse-equivalent-work One normalized point/tangent evaluation serves the guide and physical geometry; the source reader consumes its descriptor without another ray solve.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed-size numeric data escapes.
    */
   export function locate(
@@ -320,22 +327,30 @@ export namespace AutoMovieConicArc {
       phi === Math.PI / 2 ? 0 : half(reverse ? B / A : A / B, w);
     const first: number = reverse ? b : a;
     const second: number = reverse ? a : b;
-    const guideValue: AutoMoviePolarSector.IGuide = guide(first, second, r, t);
-    const geometry: AutoMovieConicArcField.IGeometry<number> =
-      AutoMovieConicArcField.orient(
-        AutoMovieConicFieldJet.NUMBER,
-        AutoMovieConicArcField.evaluate(
-          AutoMovieConicFieldJet.NUMBER,
-          first,
-          second,
-          w,
-          t,
-        ),
-        reverse,
-      );
     const scale: number = Math.max(first, second);
     const x: number = first / scale;
     const y: number = second / scale;
+    const normalized: AutoMovieConicArcField.IGeometry<number> =
+      AutoMovieConicArcField.evaluate(
+        AutoMovieConicFieldJet.NUMBER,
+        x,
+        y,
+        w,
+        t,
+      );
+    const guideValue: AutoMoviePolarSector.IGuide =
+      t === 0
+        ? guide(first, second, r, t)
+        : interiorGuide(x, y, w, t, 0, scale, normalized.point);
+    const geometry: AutoMovieConicArcField.IGeometry<number> =
+      AutoMovieConicArcField.orient(
+        AutoMovieConicFieldJet.NUMBER,
+        {
+          point: [normalized.point[0] * scale, normalized.point[1] * scale],
+          tangent: normalized.tangent,
+        },
+        reverse,
+      );
     const u: number = 1 - t;
     const denominator: number = u * u + 2 * w * t * u + t * t;
     const v: number = Math.hypot(x * t * (u + w * t), y * u * (t + w * u));
