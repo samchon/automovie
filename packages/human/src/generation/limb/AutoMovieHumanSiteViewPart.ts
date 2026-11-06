@@ -13,7 +13,8 @@ import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView
  * (the extremes along `+u`, `+v`, `-u`, `-v`), and what owns the fullness: a
  * taut-tape girth or a sourced conic shoulder. Every outline is the natural
  * cubic spline of its knots (the operator's), so each published measure is a
- * knot and the outline is C2 between.
+ * knot and the outline is C2 between. Explicit jets/ranges select the shared
+ * C2 quintic owner instead of the default natural cubic.
  *
  * Fullness by ownership. A tape's site gets its common conic shoulder solved
  * on that site's box by the Illinois rule on the taut-tape girth
@@ -49,6 +50,9 @@ export namespace AutoMovieHumanSiteViewPart {
 
     /** A taut-tape girth (mm) solved on the site's box, or a sourced conic shoulder in `(0, 1)`. */
     fullness: { girth: number } | { shoulder: number };
+
+    /** Optional four edge jets in the whole source's normalized parameter, each with its edge value's units. */
+    jets?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IKnot["jet"]>;
   }
 
   /** What a part is built from. */
@@ -62,11 +66,17 @@ export namespace AutoMovieHumanSiteViewPart {
     /** The sites by strictly rising station, at least two besides a pole. */
     sites: ISite[];
 
-    /** Closing points, each a G2 dome where every edge meets the axis: the station below the first site (`bottom`), above the last (`top`), or both (the foot's heel and forefoot cap). Absent, both ends are open sections. */
+    /** Closing points where every edge meets the axis, below the first site (`bottom`), above the last (`top`), or both. The shared root/angle parameter owns endpoint regularity; a closing point alone does not certify a final G2 surface. Absent, both ends are open sections. */
     pole?: { end: "bottom" | "top"; station: number } | { end: "both"; bottom: number; top: number };
+
+    /** Optional closing-knot jets, in the whole source's normalized root/angle parameter and edge-value units. A physical station derivative at a pole remains singular. */
+    poleJets?: { bottom?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IKnot["jet"]>; top?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IKnot["jet"]> };
 
     /** Sourced departures of each quarter's shoulder, knots by station; absent means none. */
     departures?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline>;
+
+    /** Optional sufficient scalar bounds for the four closed edge spans; these do not impose a moving world-plane constraint. */
+    ranges?: IAutoMovieViewPart.IQuarters<IAutoMovieViewPart.IOutline["range"]>;
 
     /** Control points of every section, a multiple of 4. */
     order: number;
@@ -91,6 +101,14 @@ export namespace AutoMovieHumanSiteViewPart {
 
     /** Every broken premise. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
+  }
+
+  /** An actual named builder result, retained even when part or loft admission failed. */
+  export interface ISource {
+    /** The requested anatomical name, also available when the result has no part. */
+    name: string;
+    /** The identical result produced by the source builder; no replacement loft is made. */
+    result: IResult;
   }
 
   /**
@@ -122,6 +140,7 @@ export namespace AutoMovieHumanSiteViewPart {
     const pole: IInput["pole"] = input.pole;
     const bottom: number | null = pole === undefined || pole.end === "top" ? null : pole.end === "both" ? pole.bottom : pole.station;
     const top: number | null = pole === undefined || pole.end === "bottom" ? null : pole.end === "both" ? pole.top : pole.station;
+    if ((input.poleJets?.bottom !== undefined && bottom === null) || (input.poleJets?.top !== undefined && top === null)) return fail("pole jets", "closing-knot jets require the corresponding declared pole");
     if (bottom !== null && !(bottom < sites[0]!.station)) return fail("pole", `the bottom pole at ${bottom} mm does not lie below the first site`);
     if (top !== null && !(top > sites[sites.length - 1]!.station)) return fail("pole", `the top pole at ${top} mm does not lie above the last site`);
 
@@ -146,7 +165,6 @@ export namespace AutoMovieHumanSiteViewPart {
       if (top !== null) out.push({ site: "top pole", station: top, value: atTop });
       return { knots: out };
     };
-    const edge = (q: 0 | 1 | 2 | 3): IAutoMovieViewPart.IOutline => knots((s: ISite): number => s.edges[q], 0, 0);
     const stationList: number[] = sites.map((s: ISite): number => s.station);
     if (bottom !== null) stationList.unshift(bottom);
     if (top !== null) stationList.push(top);
@@ -154,8 +172,8 @@ export namespace AutoMovieHumanSiteViewPart {
       name: input.name,
       axis: frame,
       stations: subdivide(stationList, input.gap),
-      front: { positive: edge(0), negative: edge(2) },
-      side: { positive: edge(1), negative: edge(3) },
+      front: { positive: outline(input, 0), negative: outline(input, 2) },
+      side: { positive: outline(input, 1), negative: outline(input, 3) },
       fullness: {
         kind: "shoulder",
         shoulder: knots((_: ISite, k: number): number => shoulders[k]!, shoulders[0]!, shoulders[shoulders.length - 1]!),
@@ -168,6 +186,27 @@ export namespace AutoMovieHumanSiteViewPart {
     const loft: AutoMovieViewLoft.IResult = AutoMovieViewLoft.create(part);
     diagnostics.push(...loft.diagnostics);
     return { part, loft, view: AutoMovieHumanConstructionView.of(part, input.axis), diagnostics };
+  }
+
+  /**
+   * The identical original edge used by construction and input-dimension
+   * solves, before any fullness, section or loft is realized.
+   *
+   * @evidence contracts/common.md#principled-implementation Copies the same named signed edge, authored jets, scalar range and zero closing knots that create supplies to the shared engine source owner.
+   * @evidence contracts/common.md#clear-and-simple-design One edge conversion is shared by actual construction and source-only metric queries.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads defining sites only; no final section, sampled polygon or replacement spline supplies an edge.
+   * @evidence contracts/common.md#meaningful-documentation Separates original scalar declaration from section/fullness realization and preserves normalized-jet units.
+   * @evidence contracts/performance.md#efficient-algorithms Copies n knots and at most two poles in O(n) time and space; it runs no loft or girth solve.
+   * @evidence contracts/performance.md#reuse-equivalent-work Both consumers use this owner, so a changed source field cannot silently be dropped by a parallel conversion.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns an owned declaration with no cache or source-result lifetime beyond its caller.
+   */
+  export function outline(input: Pick<IInput, "sites" | "pole" | "poleJets" | "ranges">, quarter: 0 | 1 | 2 | 3): IAutoMovieViewPart.IOutline {
+    const knots: IAutoMovieViewPart.IKnot[] = input.sites.map((site: ISite): IAutoMovieViewPart.IKnot => ({ site: site.site, station: site.station, value: site.edges[quarter], ...(site.jets?.[quarter] === undefined ? {} : { jet: site.jets[quarter] }) }));
+    const pole: IInput["pole"] = input.pole;
+    if (pole !== undefined && pole.end !== "top") knots.unshift({ site: "bottom pole", station: pole.end === "both" ? pole.bottom : pole.station, value: 0, ...(input.poleJets?.bottom?.[quarter] === undefined ? {} : { jet: input.poleJets.bottom[quarter] }) });
+    if (pole !== undefined && pole.end !== "bottom") knots.push({ site: "top pole", station: pole.end === "both" ? pole.top : pole.station, value: 0, ...(input.poleJets?.top?.[quarter] === undefined ? {} : { jet: input.poleJets.top[quarter] }) });
+    const range: IAutoMovieViewPart.IOutline["range"] = input.ranges?.[quarter];
+    return { knots, ...(range === undefined ? {} : { range }) };
   }
 
   /**

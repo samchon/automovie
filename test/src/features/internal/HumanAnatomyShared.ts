@@ -424,7 +424,7 @@ export namespace HumanAnatomyShared {
     const points: V3[] = A.vertices(skin, chains)
       .filter((_: V3, i: number): boolean => i % 4 === 0)
       .map((p: V3): V3 => [p[0], p[1], -p[2]]);
-    const d: number[] = A.distances(skin, points, 6);
+    const d: number[] = A.distances(skin, points);
     let worst: number = 0;
     for (const x of d) if (Number.isFinite(x)) worst = Math.max(worst, x);
     return [{ person: name, site: `${label}: mirror image off the other side's skin, mm`, value: worst, low: 0, high: MIRROR, unit: "mm" }];

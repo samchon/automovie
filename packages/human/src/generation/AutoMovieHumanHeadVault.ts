@@ -1,3 +1,5 @@
+import { AutoMovieViewOutline } from "@automovie/engine";
+
 import { AutoMovieHumanHeadBackProfile } from "./AutoMovieHumanHeadBackProfile";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
@@ -6,12 +8,12 @@ import type { IAutoMovieHumanHeadLayout } from "./IAutoMovieHumanHeadLayout";
 import type { IAutoMovieHumanHeadSection } from "./IAutoMovieHumanHeadSection";
 
 /**
- * The cranium: its front apex falling behind the face from the glabella to the
- * zygion, its back apex (the median back profile B from the opisthocranion to
- * the neck), its half width from the eurion to the cranial base at the
- * tragion, the exponent of its plan that closes the head circumference, and
- * its outline along a ray of a section (a super-ellipse about the skull's
- * centre). Skull centre, vertex and the landmarks are its inputs.
+ * Retained analytic cranial templates and section-gauge helpers: front and
+ * back median profiles, cranial half width and a bounded horizontal Lame
+ * tape proxy. The production mass declares its original curves separately;
+ * HeadCaliper closes their posterior maximum distance. Neither this proxy
+ * exponent nor the older radial gauge closes the actual oblique head tape.
+ * Skull centre, vertex and the generating landmarks are the inputs.
  */
 export namespace AutoMovieHumanHeadVault {
   /**
@@ -80,8 +82,9 @@ export namespace AutoMovieHumanHeadVault {
 
   /**
    * The cranium's back apex behind its centre at a height: the median back
-   * profile from the neck ring over the opisthocranion, which stands the head
-   * length from the glabella at the nasion's height.
+   * template from the neck ring over its horizontal-tangent reference.
+   * The production caliper closes the actual emitted source's maximum
+   * chord, rather than requiring its maximizer to stand at that reference.
    */
   export function cranialBack(plan: IAutoMovieHumanHeadLayout, y: number): number {
     return plan.centre - AutoMovieHumanHeadBackProfile.at(backProfile(plan), y);
@@ -89,12 +92,21 @@ export namespace AutoMovieHumanHeadVault {
 
   /** The back profile's owners for a person. */
   export function backProfile(plan: IAutoMovieHumanHeadLayout): AutoMovieHumanHeadBackProfile.IProfile {
+    let ring: AutoMovieHumanHeadBackProfile.IProfile["ring"] = { y: plan.neck.backLevel, x: plan.neck.back, slope: plan.neck.backSlope };
+    if (plan.neck.curves !== undefined) {
+      const neck: NonNullable<typeof plan.neck.curves> = plan.neck.curves;
+      const source: AutoMovieViewOutline.IOutline | AutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(neck.centre);
+      if ("detail" in source) throw new Error(`Neck posterior origin: ${source.detail}`);
+      const value: number | string = AutoMovieViewOutline.value(source, neck.band[1]);
+      if (typeof value === "string") throw new Error(`Neck posterior origin: ${value}`);
+      ring = { y: neck.band[1], x: value - neck.extents[2], slope: neck.slope };
+    }
     return {
       centre: plan.centre,
       reach: plan.reach,
       occiput: plan.landmarks.occiput,
       vertex: plan.vertex,
-      ring: { y: plan.y0, x: plan.neck.back, slope: plan.neck.backSlope },
+      ring,
     };
   }
 
@@ -126,10 +138,11 @@ export namespace AutoMovieHumanHeadVault {
   /**
    * The vault's exponent for a layout: the super-ellipse through the glabella
    * and the cranium's back at the glabella's height, as wide as the head's
-   * breadth, whose perimeter is the layout's head tape.
+   * breadth. This retained horizontal Lame proxy precedes conic-quarter
+   * conversion and is not the public oblique maximum-tape closure.
    *
    * @param plan The layout, its `vault` not yet solved.
-   * @returns The exponent that closes the head circumference.
+   * @returns The bounded exponent of that retained proxy.
    */
   export function closing(plan: IAutoMovieHumanHeadLayout): number {
     const g: number = plan.landmarks.glabella[1];
@@ -138,8 +151,9 @@ export namespace AutoMovieHumanHeadVault {
   }
 
   /**
-   * Exponent of the super-ellipse of a length and a breadth whose perimeter is
-   * a tape: the vault's squareness closes the head circumference.
+   * Bounded exponent of the horizontal super-ellipse proxy for a tape.
+   * Bisection stays in [1.6,6]; an unattainable target approaches an end.
+   * This does not close the actual conic or the anatomical oblique course.
    */
   export function vaultPower(length: number, breadth: number, tape: number): number {
     const a: number = length / 2;

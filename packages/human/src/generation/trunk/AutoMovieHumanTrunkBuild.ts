@@ -1,9 +1,10 @@
-import { type AutoMovieLoftContract, AutoMovieSolidFoot, type AutoMovieSolidVector, type IAutoMovieLoftChain, type IAutoMovieSolidSurface } from "@automovie/engine";
+import { type AutoMovieLoftContract, type AutoMovieSolidVector, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
 import type { IAutoMovieConstructionView } from "@automovie/interface";
 import type { AutoMovieHumanBodyTree } from "../AutoMovieHumanBodyTree";
 import { AutoMovieHumanMassPart } from "../limb/AutoMovieHumanMassPart";
 import type { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkTape } from "./AutoMovieHumanTrunkTape";
+import { AutoMovieHumanTrunkMassPlacement } from "./AutoMovieHumanTrunkMassPlacement";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 import type { IAutoMovieHumanTrunkViews } from "./IAutoMovieHumanTrunkViews";
 
@@ -13,7 +14,10 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * The trunk subtree built and joined (#3047): the base lofted from its views,
  * the breasts and the gluteal masses as parts of their own on it, the base's
  * fullness at the chest and the buttock solved on the merged skin, and each
- * mass merged onto the base along its fold.
+ * mass merged onto the base along its fold. Each declared AP apex fixes its
+ * own height, transverse place and full-body front/back target. The original
+ * trunk section at that Y/Z supplies the local wall, so actual amplitude is
+ * their AP difference, not a whole-depth difference at another place.
  *
  * Order. The masses stand on the base's surface and the chest and hip tapes
  * wrap base and masses together, so the build closes the two in two passes:
@@ -21,22 +25,23 @@ type Vec3 = AutoMovieSolidVector.Vec3;
  * the two shoulders solved on the hull of the base's section and the masses'
  * level cuts (`AutoMovieHumanTrunkTape`), then the base again with them and
  * the masses again on it. A mass's place reads only the base's outlines near
- * its centre, which the shoulder moves little, so the second pass closes the
- * tapes to the rounding of the first.
+ * its centre, so a changed shoulder can change local projection. This retains
+ * the existing two-pass tape construction; it does not establish final-union
+ * tape closure. AP apex coordinates remain fixed in both source passes.
  *
  * Masses. Each side is the same construction from the left side's law
  * mirrored (J6): the target point and the up direction reflected in the
  * median plane, the footprint and profile kept in their up, lateral, down
  * and medial naming, and the side's lateral direction (+Z on the left, -Z on
  * the right) handed to the part, which reads off its own frame which chart
- * side is lateral. Each stands on the base at the foot of its target (the
- * bust point, the buttock's most posterior point), along the base's normal levelled
- * there.
+ * side is lateral. The original-source wall point and AP axis pass to the
+ * mass builder directly; the loft's jet only estimates internal embedding.
+ * A source-to-loft discrepancy does not move the apex to conceal it.
  *
  * Folds. Each mass is a fold onto the base for the body's construction tree
  * (`AutoMovieHumanBodyTree`), its seed searched along the mass's lower station
- * line (the footprint's lower edge) from inside the base out, its fold radius the caller's fat
- * layer, its width capped at half its smallest footprint edge (a fillet wider
+ * line (the footprint's lower edge) from inside the base out, its fold radius
+ * the caller's declared join softness, its width capped at half its smallest footprint edge (a fillet wider
  * than that swallows the mass) and at the gap from its footprint's medial edge
  * to the median plane (beyond it the pair's rails cross: the cleavage and the
  * cleft are corners the two-part merge does not close, operator gap 3). A
@@ -45,7 +50,7 @@ type Vec3 = AutoMovieSolidVector.Vec3;
 export namespace AutoMovieHumanTrunkBuild {
   /** A mass's law on the left side, in calibration mm. */
   export interface IMassLaw {
-    /** The world point the mass's axis passes through, on the left. */
+    /** Declared AP skin apex on the left, calibration mm; its height and transverse place must not move during wall placement. */
     target: Vec3;
 
     /** The up direction of its footprint. */
@@ -54,16 +59,13 @@ export namespace AutoMovieHumanTrunkBuild {
     /** Footprint edges at the base, along up, lateral, down and medial, mm. */
     footprint: [number, number, number, number];
 
-    /** Apex height over the base, mm: an outline difference from inputs. */
-    amplitude: number;
-
     /** Profile: shares of the amplitude with the shares of the edges left there, as `AutoMovieHumanMassPart`. */
     profile: AutoMovieHumanMassPart.IInput["profile"];
 
     /** Sourced conic shoulder of its sections. */
     shoulder: number;
 
-    /** The fold's radius under it: its fat layer, mm. */
+    /** Declared geometric join radius, mm; the current interim caller derives operational softness from sampling pitch, not fat thickness. */
     fold: number;
   }
 
@@ -71,6 +73,9 @@ export namespace AutoMovieHumanTrunkBuild {
   export interface IInput {
     /** The base's views (`AutoMovieHumanTrunkViews.of`). */
     views: IAutoMovieHumanTrunkViews;
+
+    /** Hidden closure on the head mass's axis, inside its neck. Absent for a standalone trunk whose last neck section stays open. */
+    top?: AutoMovieHumanTrunkViewPart.ITop;
 
     /** The tapes that wrap the merged skin, mm: the chest over the breasts, the hip over the gluteal masses. */
     tapes: { chest: number; hip: number };
@@ -92,16 +97,13 @@ export namespace AutoMovieHumanTrunkBuild {
 
     /** Every broken premise. */
     diagnostics: AutoMovieLoftContract.IDiagnostic[];
+
+    /** Actual builder results in production order, including both tape passes and failed admissions. */
+    sources: AutoMovieHumanSiteViewPart.ISource[];
   }
 
   /** Section controls and ring phases of a mass. */
   const MASS_ORDER: number = 128;
-
-  /**
-   * Largest gap accepted on a fold's curve and foot, mm: far under the
-   * sections' own representation error (about 0.01 mm).
-   */
-  const TOLERANCE: number = 1e-6;
 
   /**
    * Build the trunk subtree.
@@ -111,15 +113,17 @@ export namespace AutoMovieHumanTrunkBuild {
    */
   export function create(input: IInput): IOutput {
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
-    const out = (trunk: IAutoMovieConstructionView | null, masses: AutoMovieHumanBodyTree.IFold[]): IOutput => ({ trunk, masses, diagnostics });
+    const sources: AutoMovieHumanSiteViewPart.ISource[] = [];
+    const out = (trunk: IAutoMovieConstructionView | null, masses: AutoMovieHumanBodyTree.IFold[]): IOutput => ({ trunk, masses, diagnostics, sources });
 
     // Pass 1: the base with the ellipse's shoulders, the masses on it.
-    const first: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(input.views);
-    if (first.loft === null || first.loft.surface === null) {
+    const first: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(input.views, input.top);
+    sources.push({ name: AutoMovieHumanTrunkViewPart.NAME, result: first });
+    if (first.part === null || first.loft === null || first.loft.surface === null) {
       diagnostics.push(...first.diagnostics);
       return out(null, []);
     }
-    const masses1: IMass[] = masses(input, first.loft.surface, []);
+    const masses1: IMass[] = masses(input, first.part, first.loft.surface, [], sources);
 
     // The tapes over the merged skin set the base's shoulders at the chest and
     // the buttock; the base again with them.
@@ -134,22 +138,23 @@ export namespace AutoMovieHumanTrunkBuild {
           y: s.y,
           origin: [(s.front + s.back) / 2, 0],
           box: { extents: [depth, s.half, depth, s.half] },
-          masses: masses1.filter((m: IMass): boolean => m.kind === kind).map((m: IMass): AutoMovieHumanTrunkTape.IMass => ({ surface: m.surface, stations: m.stations })),
+          masses: masses1.filter((m: IMass): boolean => m.kind === kind).map((m: IMass): AutoMovieHumanTrunkTape.IMass => ({ part: m.source, view: m.view })),
           tape: kind === "breast" ? input.tapes.chest : input.tapes.hip,
         });
         diagnostics.push(...tape.diagnostics);
         return tape.shoulder === null ? s : { ...s, fullness: { shoulder: tape.shoulder } };
       }),
     };
-    const base: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(solved);
+    const base: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanTrunkViewPart.create(solved, input.top);
+    sources.push({ name: AutoMovieHumanTrunkViewPart.NAME, result: base });
     diagnostics.push(...base.diagnostics);
     const host: IAutoMovieSolidSurface | null = base.loft?.surface ?? null;
-    if (base.view === null || host === null) return out(null, []);
+    if (base.part === null || base.view === null || host === null) return out(null, []);
 
     // Pass 2: the masses on the solved base, each a fold onto it whose seed
     // is searched along the mass's lower station line (phase pi, the
     // footprint's lower edge) from inside the base out to the apex.
-    const folds: AutoMovieHumanBodyTree.IFold[] = masses(input, host, diagnostics).map(
+    const folds: AutoMovieHumanBodyTree.IFold[] = masses(input, base.part, host, diagnostics, sources).map(
       (m: IMass): AutoMovieHumanBodyTree.IFold => ({
         part: m.view,
         partFace: m.chain.name,
@@ -173,11 +178,8 @@ export namespace AutoMovieHumanTrunkBuild {
     /** Its chain. */
     chain: IAutoMovieLoftChain;
 
-    /** Its surface. */
-    surface: IAutoMovieSolidSurface;
-
-    /** Its first and last station, mm. */
-    stations: [number, number];
+    /** Identical original view part, used by source tape cuts. */
+    source: IAutoMovieViewPart;
 
     /** Its view node. */
     view: IAutoMovieConstructionView;
@@ -190,11 +192,13 @@ export namespace AutoMovieHumanTrunkBuild {
    * Both sides of every mass on a base.
    *
    * @param input The laws.
+   * @param part The identical original trunk source used for wall placement.
    * @param host The base's surface.
    * @param diagnostics Where a failed mass is recorded; a pass that only reads the masses for the tapes passes a list it drops.
+   * @param sources The actual source results, including failed and intermediate tape-pass attempts.
    * @returns The masses that built.
    */
-  function masses(input: IInput, host: IAutoMovieSolidSurface, diagnostics: AutoMovieLoftContract.IDiagnostic[]): IMass[] {
+  function masses(input: IInput, part: IAutoMovieViewPart, host: IAutoMovieSolidSurface, diagnostics: AutoMovieLoftContract.IDiagnostic[], sources: AutoMovieHumanSiteViewPart.ISource[]): IMass[] {
     const out: IMass[] = [];
     const pairs: ["breast" | "gluteal", IMassLaw | null][] = [
       ["breast", input.breast],
@@ -213,37 +217,38 @@ export namespace AutoMovieHumanTrunkBuild {
       for (const side of ["left", "right"] as const) {
         const own: IMassLaw = side === "left" ? law : mirror(law);
         const name: string = `${kind}.${side}`;
-        const foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(host, own.target, guess(own.target), TOLERANCE);
-        if (foot === null) {
-          diagnostics.push({ producer: `mass.${name}`, level: 3, contract: "centre", detail: `no foot of the target [${own.target.join(", ")}] on the base` });
+        const placement: AutoMovieHumanTrunkMassPlacement.IPlacement | string = AutoMovieHumanTrunkMassPlacement.of(part, own.target, kind === "breast" ? 1 : -1);
+        if (typeof placement === "string") {
+          const failed: AutoMovieHumanSiteViewPart.IResult = { part: null, loft: null, view: null, diagnostics: [{ producer: `mass.${name}`, level: 3, contract: "source placement", detail: placement }] };
+          sources.push({ name, result: failed });
+          diagnostics.push(...failed.diagnostics);
           continue;
         }
         const built: AutoMovieHumanSiteViewPart.IResult = AutoMovieHumanMassPart.create({
           name,
           host,
-          centre: [foot.u, foot.v],
+          centre: placement.centre,
+          sourceFrame: { origin: placement.origin, normal: placement.normal },
           up: own.up,
-          level: true,
           lateral: [0, 0, side === "left" ? 1 : -1],
           footprint: own.footprint,
-          amplitude: own.amplitude,
+          amplitude: placement.amplitude,
           profile: own.profile,
           shoulder: own.shoulder,
           order: MASS_ORDER,
           samples: MASS_ORDER,
           gap: AutoMovieHumanTrunkViewPart.GAP,
         });
+        sources.push({ name, result: built });
         diagnostics.push(...built.diagnostics);
         if (built.loft?.chain === null || built.loft?.chain === undefined || built.loft.surface === null || built.part === null) continue;
-            if (built.view === null) continue;
-        const stations: number[] = built.part.stations;
+        if (built.view === null) continue;
         out.push({
           kind,
           law: own,
           chain: built.loft.chain,
-          surface: built.loft.surface,
+          source: built.part,
           view: built.view,
-          stations: [stations[0]!, stations[stations.length - 1]!],
           cap: Math.min(Math.min(...own.footprint) / 2, clearance),
         });
       }
@@ -263,18 +268,4 @@ export namespace AutoMovieHumanTrunkBuild {
     return { ...law, target: flip(law.target), up: flip(law.up) };
   }
 
-  /**
-   * The base's chart guess for a world point: its height as the station and
-   * its polar angle about the vertical through the body frame's origin as the
-   * phase (the base is level, `u` +X and `v` +Z). Its axis stands within a
-   * few centimetres of that vertical, so the guess falls in the target's
-   * region and the foot's Newton steps close the rest.
-   *
-   * @param p The point.
-   * @returns `[station, phase]`.
-   */
-  function guess(p: Vec3): [number, number] {
-    const phase: number = Math.atan2(p[2], p[0]);
-    return [p[1], phase < 0 ? phase + 2 * Math.PI : phase];
-  }
 }

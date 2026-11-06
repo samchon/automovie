@@ -4,7 +4,6 @@ import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import type { IAutoMovieHumanTrunkSolution } from "../IAutoMovieHumanTrunkSolution";
-import { AutoMovieHumanTrunkLandmarks } from "../AutoMovieHumanTrunkLandmarks";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 import type { AutoMovieHumanTrunkViews } from "./AutoMovieHumanTrunkViews";
 
@@ -34,19 +33,14 @@ export namespace AutoMovieHumanTrunkInterim {
   }
 
   /**
-   * The trunk's sites above the chest: one at every station of the trunk
-   * outline table (`AutoMovieHumanReferenceOutlines.TRUNK`, estimated from
-   * the private reference set: no published source carries the upper
-   * trunk's outline) between the chest site and the neck seat, a layer
-   * spacing clear of both (`AutoMovieHumanTrunkViewPart.GAP`; a closer site
-   * leaves a thin interval the station rule prints as a ring). Two sites
-   * alone (the axilla and the shoulder point) left the natural spline to
-   * bridge the shoulders' near-level top to the neck, and it overshot into
-   * lobes over the shoulders; the table's stations carry that slope knot by
-   * knot. Each takes, at its share of crotch to cervicale, the half breadth, the front and
-   * the back forward of cervicale's back point, each per stature, and the
-   * shoulder the mean of the front and back quarters' (the table's 0 chord
-   * to 1 box is the conic shoulder). The last site is the neck seat, the
+   * Torso-only axilla and acromion boundaries above the chest. The old
+   * table's upper half-breadth includes the arms, so the shoulder's
+   * public biacromial breadth supplies the acromion's lateral place; an upper-arm
+   * circle radius medial to it defines the axilla attachment convention.
+   * Front/back and quadrant fullness retain the existing outline table.
+   * These anatomical knots do not by themselves bound the natural cubic
+   * spans: their slope/curvature and reference comparison remain required.
+   * The last site is the neck seat, the
    * neck's bottom ring, where the trunk takes the neck's ring by the head's
    * down event: its half width and its front and back midline points are the
    * ring's own (`AutoMovieHumanTrunkNeckSeat`), so the trunk's top meets the
@@ -83,22 +77,31 @@ export namespace AutoMovieHumanTrunkInterim {
       };
     };
     const seat: IAutoMovieHumanTrunkSolution["seat"] = solution.seat;
-    const chest: number = AutoMovieHumanTrunkLandmarks.at(crotch, top, AutoMovieHumanTrunkLandmarks.CHEST);
+    const chest: number = solution.landmarks.bustPoint[1];
     const gap: number = AutoMovieHumanTrunkViewPart.GAP;
-    const stations: number[] = T.TRUNK.rows
-      .filter((r: AutoMovieHumanReferenceOutlines.IRow): boolean => r.values["halfBreadth"] !== undefined)
-      .map((r: AutoMovieHumanReferenceOutlines.IRow): number => crotch + r.share * (top - crotch))
-      .filter((y: number): boolean => y > chest + gap && y < seat.y - gap);
+    // The old table's upper breadth includes arms in its horizontal
+    // envelope. Torso-only source landmarks instead use the shoulder point
+    // set at public biacromial/2, and an axilla one upper-arm
+    // circle radius medial to it. The latter is an explicit geometric
+    // attachment convention, not a newly fitted anatomical ratio.
+    const shoulder: [number, number, number] = solution.landmarks.shoulder;
+    const radius: number = measures.upperArmCircumference * scale / (2 * Math.PI);
+    const upper: AutoMovieHumanTrunkViews.ILaws["upper"] = [
+      { ...table("axilla", measures.axillaHeight * scale), half: shoulder[2] - radius },
+      { ...table("acromion", shoulder[1]), half: shoulder[2] },
+    ].filter((site: AutoMovieHumanTrunkViews.ILaws["upper"][number]): boolean => site.y > chest + gap && site.y < seat.y - gap);
     return [
-      ...stations.map((y: number): AutoMovieHumanTrunkViews.ILaws["upper"][number] => table(`upper ${((y - crotch) / (top - crotch)).toFixed(2)}`, y)),
+      ...upper,
       { site: "neck", y: seat.y, half: seat.width, front: seat.front[0], back: seat.back[0], shoulder: table("neck", seat.y).shoulder },
     ];
   }
 
   /**
    * Interim accessor: every fold's radius, the old crotch fold's softness
-   * (`AutoMovieHumanTrunkInguinalFold.softness`). Owed law: the subcutaneous
-   * layer at each fold.
+   * (`AutoMovieHumanTrunkInguinalFold.softness`): 1.25 times the larger of
+   * sampling pitch and MAX_GAP. This is operational join softness, not a
+   * measured fat thickness or an anatomical rolling radius. A source-owned
+   * attachment chord and angle would define a geometric fillet separately.
    *
    * @param solution The old trunk's solve.
    * @returns The radius, calibration mm.

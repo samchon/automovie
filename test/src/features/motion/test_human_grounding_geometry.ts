@@ -68,9 +68,12 @@ export function test_human_grounding_geometry(): void {
       new THREE.Vector3(...start).distanceTo(new THREE.Vector3(...target)) <
         1e-10,
     );
+    /** The original non-target floor red proof, evaluated once before solving. */
+    const initiallyBelowFloor: boolean =
+      minimum(before, root, feet) < -0.002;
     TestValidator.predicate(
       "actual non-target foot vertices begin below floor",
-      minimum(before, root, feet) < -0.002,
+      initiallyBelowFloor,
     );
     const solve: ReturnType<typeof AutoMovieHumanGrounding.prepare> =
       AutoMovieHumanGrounding.prepare(evaluate, feet);

@@ -13,7 +13,7 @@ The debug viewer shows a generated Human, as the whole figure or one piece of it
 | `debug/pieces/` | The piece registry (`HUMAN_DEBUG_PIECES`) and one file per piece, with sub-folders by region |
 | `debug/page/` | The page: subject loading, view, shading, curves, stage, controls, compile panel |
 | `debug/compare/` | The view comparison: the recorded view parts, their curves, the reference's underlay, its cuts and the deviations |
-| `debug/capture/` | The capture CLI, a client of the image route |
+| `debug/capture/` | The image-route capture CLI and the inspection-plan client of the batch route |
 
 ## Running
 
@@ -27,7 +27,7 @@ The first command serves the viewer on `http://127.0.0.1:5197`. `AUTOMOVIE_HUMAN
 
 Vite strips types and checks none; the compile collector checks them. The viewer draws from the type-stripped source whatever the collector reports and shows its state: the compile panel and, while the latest cycle (`/human-debug/compiler.json`) has not passed, a notice name the cycle, and the image and batch routes carry it in `x-human-compile`.
 
-An open page keeps the source it loaded until it is reloaded by hand or by a capture's own request: Vite's update socket is off (`server.hmr: false`), so a save reaches no page, and the watcher still invalidates the served modules, so a reload loads the saved source. A frame stays bound to the source its page loaded. The file watcher ignores `.shots`, `docs`, `dev`, `lib` and Markdown. Vite restarts the server when its configuration file or a module the configuration imports changes (`vite.config.ts`, `debug/server`, `debug/contracts`, `debug/poses`); a restart closes the capture session and its page. The compile panel reads `/human-debug/compiler.json` when the page loads, when the panel is opened, and every 3 s while a compile blocks generation.
+An open page keeps its evaluated modules until it is reloaded by hand or by a capture's own request: Vite's update socket is off (`server.hmr: false`), so a save reaches no page. Reloading requests modules from the running server; when investigating stale workspace dependencies, compare their actual served exports/bytes with disk rather than treating a disk hash as proof of transformed-module freshness. The file watcher ignores `.shots`, `docs`, `dev`, `lib` and Markdown. With HMR disabled, do not assume configuration or imported server code restarted the running server. After its queue and in-flight request are empty, use `r` then Enter in its existing Vite terminal and confirm the new capture session actually loaded the change before requesting a frame. A page reload alone does not replace the server's capture-session implementation. The compile panel reads `/human-debug/compiler.json` when it mounts and whenever it opens; subject loading also reads the latest cycle. None of these reads blocks generation.
 
 ## The page
 
@@ -37,7 +37,7 @@ The page generates its subject itself, with the modules it loaded:
 
 - The whole figure is `AutoMovieHuman.prepare` of the person's typed inputs, generated once per person and page load and shown in its pose, by default the anatomical neutral. `HumanDebugPose` poses it with the production rig: an `AutoMovieHumanInstance` gives each bone's local transform under the pose and at the bind, and the engine's `skinAutoMovieMesh` moves every bound part with the binding's own method, so a pose that translates a bone (a folded scapula or atlas) moves it too. `pose=bind` shows the skin as generated. Its construction tubes ride the same binding and return as the curves they were swept along, so the whole figure and a piece draw curves through the same tube renderer and options.
 - Each whole-figure load writes one `[human-debug timing]` line (prepare, pose, curves and textures milliseconds; evaluate and skin for a pose) to the console, which the server log repeats, and the same numbers to the provenance.
-- A piece builds from the person's typed inputs and the current production code, and reads no file.
+- A piece uses its registered builder and reads no file. Most read the person's typed inputs or calibration; `body.parts` instead uses declared fixed diagnostic inputs. A piece that calls `person.calibration()` first runs the whole production calibration, even when its displayed output is a small component.
 
 ## URL variables
 
@@ -88,10 +88,10 @@ The page generates its subject itself, with the modules it loaded:
 | `ui` | `1` | `0` hides the sidebar and compile panel |
 | `axes` | `0` | `1` body axes at the focus box corner |
 | `reference` | none | `f1`, `f2`, `m1`, `m2`: the view comparison against that reference person (see below) |
-| `referenceStyle` | `clay` | `clay` (a surface between its sections), `loft` (its section curves) |
+| `referenceStyle` | `clay` | `clay` (compatible native f1 mesh, otherwise section walls), `loft` (section curves) |
 | `referenceOpacity` | `0.35` | the reference clay's opacity, (0, 1] |
-| `referencePart` | `*` | reference pieces drawn: region globs (`trunk`, `head`, `arm.left`, `hand.right`, `leg.left`, `foot.right`, or the pack's labels `leg_l` ...) draw a region whole, compared part globs (`nose`, `breast.left`, `lid.*`) draw the reference only within that part's box plus 15 mm, `none` draws none |
-| `part` | `*` | compared part patterns over part names (`leg.left`, `head.*`), `none` |
+| `referencePart` | `*` | reference pieces drawn: native `head`/`body` or section-pack region globs (`trunk`, `head`, `arm.left`, `leg_l`, ...) select those regions whole; compared-part globs (`nose`, `breast.left`, `lid.*`) use their displayed-curve boxes plus 15 mm; `none` draws none |
+| `part` | `*` | compared part patterns over part names (`leg.left`, `head.*`), also scoping numerical deviation; `none` selects none |
 | `views` | `front,side,top` | subset of `front,side,top`, `none` |
 | `axis` | `1` | `0` hides the compared parts' axes |
 | `legend` | `1` | `0` hides the comparison's legend |
@@ -101,14 +101,16 @@ Framing fits the focus box with a 15 percent margin from the camera's direction 
 
 ## Pieces
 
-A piece is one file under `debug/pieces/` exporting one `IHumanDebugPiece` and listed once in `HUMAN_DEBUG_PIECES`. Its `build(person, argument)` makes a component document (`IHumanDebugDocument`) from the person's typed inputs and the production code only. Each part of the document is one thing to judge alone, so the part list can show, hide and colour it. `arguments` lists the arguments the batch render opens the piece with.
+A piece is one file under `debug/pieces/` exporting one `IHumanDebugPiece` and listed once in `HUMAN_DEBUG_PIECES`. Its `build(person, argument)` makes a component document (`IHumanDebugDocument`) with the input scope below. Each part of the document is one thing to judge alone, so the part list can show, hide and colour it. `arguments` lists the arguments the batch render opens the piece with. A fixed or analytic diagnostic piece is not an observation of the generated person's corresponding anatomy.
 
 | Piece | Shows |
 | --- | --- |
 | `chains:<globs>` | the named chains lofted alone from the person's calibration, such as `chains:leg.left` |
+| `source.parts:<globs>` | actual current-person source parts lofted together before final joins, without whole-person calibration; default `trunk`. Reserved `tree` selects exactly the production tree's current names, excluding studies and definition-only parts. The registry includes `tree`, `trunk`, `arm.left,thumb.left` and `arm.right,thumb.right` for batch inspection; direct piece requests accept other part-name globs |
 | `region:<region>` | the chains of one region of `HUMAN_DEBUG_REGIONS` (head, neck, trunk, shoulder, arm, hand, leg, foot), both sides; its provenance lists chains no region names |
 | `web:<hand\|foot>` | the region's web patches (`AutoMovieHumanBodyWeb`) lofted with their parents and children alone, the web-grouped interval of each chain with its lips and columns |
 | `timing` | milliseconds per generation stage (calibrate, surface, split, construction, skin chart, rig) and per skin chart group; each chain's layers and phases; the raw skin pieces |
+| `body.parts[:trunk\|finger\|limb]` | standalone raw lofts from `HumanDebugBodyFixtures`, ignoring the selected person's inputs; default `trunk` |
 | `trunk.landmarks` | the trunk solve's landmark heights and points as markers, and the column's axis |
 | `trunk.chains[:trunk\|upper]` | the `trunk` and `upper` chains built by the trunk solve alone (`AutoMovieHumanTrunkFixed`) and lofted alone |
 | `shoulder.outline` | the left shoulder's frontal outline pieces: trapezius line, cap fillet, arm edge |
@@ -119,39 +121,56 @@ A piece is one file under `debug/pieces/` exporting one `IHumanDebugPiece` and l
 | `foot.arcs` | the five section pieces, each swept alone between its guides |
 | `foot.body` | the body from its sections and the five toes from their spans, before lofting |
 | `foot.loft` | the left foot and toes lofted alone from the foot construction |
+| `web.saddle` | two seam patches over an analytic translational surface sized from the person's second toe; boundary curves and a comparison grid |
+| `head.parts[:all\|mass\|parts\|composed\|nose\|nose.alone]` | `mass`/`parts`/`nose.alone` are raw lofts; `all` adds the realization's chain and blend lofts; `composed` is the realized head and `nose` its head-mass/nose merge. Reads public head inputs and the shared pure neck source without whole-person calibration; default `all` |
 | `hair.guides[:<every>]` | the scalp hair the production hair stage builds on the generated figure at the bind: head and ear skin, `human.hair.cards` and `human.hair.scalp` as parts, every `<every>`-th guide (default all) as a curve `human.construction.hair.<left\|right>/g<root>` (left for a canonical root, right for its mirror); it generates the whole figure, so it takes minutes |
 
 A chain end whose parent chain is not lofted closes as a flat fan at its axis: that lid is the cut, not anatomy.
+
+`source.parts` shares the reference comparison's one latest source-definition cache. It selects the last actual `HumanDebugViewParts` result per name and passes its existing `loft.chain` to `HumanDebugChainLoft`; it does not call `person.calibration`, `AutoMovieHuman.prepare` or final realization. Only the selected chains receive raw surface/construction tessellation. Source exceptions propagate, an empty usable selection throws with available names and diagnostics, and unavailable or unmatched requested parts remain explicit in provenance. `body.parts` remains a fixed-input construction diagnostic and is not a substitute for these current-person parts.
+
+The source piece's `observation.stage=prejoin-part-loft` and `finalRealization=not-run` distinguish it from ordinary final output. `treeParts`, `studies`, `definitionOnlyParts` and `unavailableParts` retain their different meanings; `sourceObservation`, `sourceRecords` and original source `diagnostics` stay available. Selecting several parts displays their actual relative placements together, without joining their overlapping surfaces. The source-to-person scale is applied once to the new document's points about the floor before the ordinary mm-to-m adapter; chain frames/sources, normals and indices are unchanged. A piece has no rig pose.
+
+For a selected hand and thumb, use `person=f1&piece=source.parts:arm.left,thumb.left&parts=none&curves=arm.left/*,thumb.left/*&labels=0&viewLabels=0`. These are the generated sections, axes and guides, not original `view.*` outlines. Start a new page source with `keep=0`, then keep that round with `keep=1`. Frame the curves in perspective and retain explicit `az`, `el`, `target` and `dist` from its camera receipt, converting receipt metres to URL millimetres. With that same piece and camera, restore `parts=arm.left/*,thumb.left/*` for the default-clay overlap, then set `curves=none` for the surface alone. Repeat individual and neighbour selections from the needed directions. A raw loft or its fan lid proves no final merge, trimmed skin or anatomical acceptance.
+
+For a readable net, select existing principal section ids, the axis and a few fixed-phase `g<j>` guides from the current inventory; this filters display without changing layer count, coefficients or phase sampling. The registered left-hand example's full-snapshot batch uses `pieces=source.parts*arm.left*`. Batch `pieces` globs select registry examples; an arbitrary `piece=source.parts:<globs>` on the image or interactive route does not add a batch entry, and batch `piece` does not override that entry list. Image provenance headers may truncate, so do not describe an arbitrary dynamic request as a complete saved batch snapshot.
+
+For the whole production tree before joins, use `piece=source.parts:tree` or the single-entry batch filter `pieces=source.parts*tree`. The selection reads `sourceObservation.treeParts`, not `*`, so it neither adds unconnected studies nor fixes a person's part count. Provenance `selection=production-tree`, selected names and unavailable tree lofts state its coverage. Use `parts=none;curves=*;curveWidth=0.08;labels=0;viewLabels=0` for every generated section, axis and guide, then `parts=*;curves=none` for the default clay of those same raw lofts. Omit `reference`; retain the same explicit perspective camera for each pair. These assembled prejoin operands have no Boolean joins, clothing or rigged pose and are not the final realized skin. Subtractive operands also appear as positive raw surfaces; no Boolean difference is applied.
 
 ## View comparison
 
 `reference=<id>` turns the page into the view comparison: one reference person of the private pack drawn as an underlay, and over it, in that person's own frame, the 2D view curves of every part the current source builds from the inputs of `person` (the reference itself when `person` is unset). It answers whether each part's views stand where the reference's skin is. `piece` and `pose` are not read.
 
 - The pack is the checkout's git-ignored `.references/curves/<id>/` (f1, f2, m1, m2). The page reads its horizontal sections at run time through Vite's file serving (`HumanDebugReferenceFiles`), thinned to one section per millimetre of height; nothing of it enters the repository, and a checkout without it answers that no pack is present.
-- `referenceStyle=clay` draws the reference as a translucent stack of its sections, each loop a wall reaching halfway to its neighbours (`HumanDebugReferenceModel`), at `referenceOpacity`; its silhouette from the front and the side is the sections' extremes. `loft` draws its section loops as grey curves, the style for the top view, where the walls stand edge on. The clay's parts are `human.skin.reference.<region>/0` (`trunk`, `head`, `arm_l`, `hand_r`, `leg_l`, `foot_r`, ...), so `focus=reference.head*` frames a close-up. `referencePart` limits the reference to some regions, or to the boxes of some compared parts (`HumanDebugReferencePieces`); unset, it is drawn whole.
-- The parts are every view part `AutoMovieHumanBodyLaw.calibrate` lofts (trunk, breasts, gluteal masses, legs, arms, hands, digits, feet, toes) and every part the head composer lofts (head mass, neck, face and ear parts), each recorded as the engine's view operator received it (`HumanDebugViewTap`). Each part has one colour, listed in the legend (`legend=1`). Per station of its loft the part's frame places its box: the front outline pair is `human.construction.view.<part>/front.pos` and `front.neg`, the side pair `side.pos` and `side.neg`, the top the section rings at the part's knot stations `top.<k>`, and the axis `axis`. `part`, `views` and `axis` choose which are drawn; `curveColor`, `curveWidth` and `thick` apply as usual.
-- The provenance's `deviation` lists every part worst first, each row `name_E<largest edge deviation>_<mean>_<share>pc_<edge>_<place along the axis>pc_<site>_B<mean signed +u>_<+v>_<-u>_<-v>_T<largest touch distance>_<mean>_R<largest section distance>_<mean>`, in mm (`HumanDebugViewDeviation`): an edge is an outline minus the reference's extreme on that side, cut by the part's own section plane, where the reference's skin surrounds the axis (`E-` where it does not, as for a face part on the head); a touch distance is from a box touch point to the nearest cut skin; a section distance is from the built section to it. It is a diagnostic, never a target.
+- `referenceStyle=clay` adopts f1's private `test/.shots/f1/reference-model.json` when compatible: its native static `head` and `body` become `human.skin.reference.head/0` and `human.skin.reference.body/0`. Coordinates, vertices and retained triangle indices stay in the original metre frame, with normals derived by the ordinary viewer. `referencePart=body` selects that body whole; other source-part crops exclude original triangles unless all three vertices pass their displayed-curve box, without clipping or capping. Cropping can lose boundary triangles, and unused vertices remain in bounds. Native `body` is not remapped to pack regions.
+- An absent or incompatible native artifact leaves an explicit notice and the existing translucent section walls (`HumanDebugReferenceModel`), at `referenceOpacity`. Those fallback parts are `human.skin.reference.<region>/0` (`trunk`, `head`, `arm_l`, ...); missing support and the wall reach cap can leave gaps. `loft` always draws the sampled pack as grey curves. `referencePart` chooses exact whole regions or the displayed source curves' boxes (`HumanDebugReferencePieces`); unset, it keeps the whole reference. `referenceDisplay` separates displayed source/hash/bounds and excluded-triangle counts from deviation's independently sampled section source.
+- `HumanDebugViewParts` reads the actual results explicitly returned by `AutoMovieHumanBodyLaw.define`: body builder records and the same head composer's `head.source`, without replacing an engine method or repeating the head. The ordinary calibration realizes this same production definition; this comparison does not run final joins, skin or rig checks. `observation` identifies `source-definition` / `finalRealization: not-run`, tree parts, unconnected studies, definition-only and unavailable names. `sourceRecords` preserves every body attempt and its original diagnostics; a failed last result cannot display an earlier success instead.
+- Each part has one colour (`legend=1`). `human.construction.view.<part>/front.pos`, `front.neg`, `side.pos` and `side.neg` read the shared original outline evaluator in the actual axis frame, independently of section admission. Display points include knots, scalar extrema, finite poles and declared stations with subdivisions; this is no world-curve error bound. `axis` is the actual source axis. `top.<k>` is raw admitted fullness at front-positive source knot index `k`, not the final loft; missing non-pole sections are diagnosed without renumbering. `part`, `views`, `axis` and curve controls select these ids. Read `curveProducers`, `sourceCurveDiagnostics` and source hash in the full snapshot; an older resident can still use the former surviving-section display.
+- `deviation` retains the compact `name_E..._B..._T..._R...` rows in person mm (`HumanDebugViewDeviation`), scoped by the existing `part` globs; `part=*` requests the whole table. Part scope belongs to page subject identity while equivalent source construction remains cached. `deviationScope` reports selected names, complete/partial/unavailable measurement coverage, missing support and an empty selection. Complete refers only to that selected diagnostic work. E/B use 10 mm linkage and 9/12 angle-sector coverage, proving neither closure nor containment; T/R use nearest kept projected segments, not exact 3D skin error. No value is an anatomical acceptance target.
+- Provenance `milliseconds` separates pack/native reads, source generation, original-curve arrays, reference display/flattening and selected deviation work. `work` counts source curves/points, reference segments, selected raw/support stations and actual cut/distance queries. Native source identity and diagnostic scope precede large diagnostic payloads, but the full batch snapshot remains authoritative when the header is truncated. GPU completion is not timed by these loader fields.
 
 Examples, one URL a frame:
 
 ```text
 /debug.html?reference=f1&camera=front&ortho=1
 /human-debug/images/f1-side.png?reference=f1&camera=left&ortho=1&w=1000&h=1400
-/human-debug/images/f1-legs.png?reference=f1&part=leg.*,foot.*&views=front&camera=front&ortho=1&focus=reference.leg_*&legend=0
+/human-debug/images/f1-legs.png?reference=f1&part=leg.*,foot.*&views=front&camera=front&ortho=1&parts=reference.body*&legend=0
 /human-debug/images/f1-top.png?reference=f1&referenceStyle=loft&camera=top&ortho=1
 /human-debug/images/f1-head.png?reference=f1&part=head.*,nose*,lip.*&referenceStyle=loft&camera=three
 /human-debug/images/f1-nose.png?reference=f1&part=nose*&referencePart=nose*&camera=left&ortho=1
 ```
 
+The legs example selects the native body's mesh. With section fallback, use `parts=reference.leg_*,reference.foot_*` instead; inspect the actual `referenceDisplay` and matched ids before interpreting either frame.
+
 ## Image route
 
-`GET /human-debug/images/<name>.png?<variables>&fresh=<nonce>` answers the PNG of the page's `#viewport` drawn with those variables. `keep=1` draws on the source the page has loaded even if files were saved since, so a series of frames shares one generation; `x-human-source-sha256` then names that loaded source. `<name>` is any file name of letters, digits, `.`, `_` and `-`; it labels the request and plays no part in the frame. `ui` is forced to `0`. An unset `w` or `h` becomes 1200, so a frame's size is fixed by its URL. A variable the parser rejects answers HTTP 400 with every notice.
+`GET /human-debug/images/<name>.png?<variables>&fresh=<nonce>` answers the PNG of the page's `#viewport` drawn with those variables. `keep=1` draws on the source the page has loaded even if files were saved since, so a series of frames shares one generation. `x-human-source-sha256` records the disk source inventory checked when that page loaded; served transformed dependencies require separate verification. `<name>` is any file name of letters, digits, `.`, `_` and `-`; it labels the request and plays no part in the frame. `ui` is forced to `0`. An unset `w` or `h` becomes 1200, so a frame's size is fixed by its URL. A variable the parser rejects answers HTTP 400 with every notice.
 
 | Header | Meaning |
 | --- | --- |
-| `x-human-source-sha256` | hash of the source the page's modules were loaded from |
+| `x-human-source-sha256` | disk source hash checked around page loading; transformed dependency freshness is qualified below |
 | `x-human-cache` | `new-requested-frame` when drawn for this request, `existing-png` when a kept frame answered |
-| `x-human-load-attempts` | page loads it took; above 1 means saves interrupted loading |
+| `x-human-load-attempts` | source/module attempts; above 1 means an earlier attempt failed and was retried |
 | `x-human-png-sha256` | SHA-256 of the PNG bytes |
 | `x-human-captured-utc` | UTC time the PNG was taken |
 | `x-human-query` | canonical variables the page drew |
@@ -172,14 +191,16 @@ Invoke-WebRequest "$base/f1-foot-top.png?person=f1&piece=foot.loft&camera=top&cu
 Invoke-WebRequest "$base/f1-hand-seam.png?person=f1&piece=chains:hand.left*,finger.left.*,thumb.left*&camera=bottom&shade=curvature&fresh=a6" -OutFile f1-hand-seam.png
 ```
 
-A frame is bound to one source:
+A frame records the source identity checked around page loading:
 
 1. Before the page loads, the session hashes the source. The page reads the hash itself once all its modules have evaluated, before it generates anything, and the two must be equal.
 2. The capture page gets no Vite update socket, so saves made afterwards cannot reach its modules.
-3. A later frame reuses the page while the disk still hashes the same. Otherwise the page loads again on the newer bytes.
-4. A save between the two hashes, or a module graph that fails to load for a moment (the module script's error marker in `debug.html`), is retried after 3 s times the attempt, up to eight attempts. A frame that still fails answers HTTP 503 with `retry-after`.
+3. A later frame reuses the page while the disk still hashes the same. Otherwise it reloads; `keep=1` deliberately retains its evaluated modules instead.
+4. A save between the two hashes or a transient module-fetch failure is retried after 3 s times the attempt, up to eight attempts. A frame that still fails answers HTTP 503 with `retry-after`. A boot or mount error preserves its original cause and fails as initialization rather than retrying as a source change.
 
 Any other failure answers HTTP 500 with its cause, which the server log repeats with the page's own stack.
+
+These hash checks detect disk changes during loading; they do not independently hash Vite's cached transformed dependency bytes. A stale server graph can therefore violate the intended source correspondence. Repair that public module graph and verify its real consumer before accepting a visual result; a matching hash alone cannot establish it.
 
 A frame that changes the person or the piece generates in the page. A frame that changes only the pose re-poses the person's prepared body, kept for the page's lifetime, in seconds; the session's subject key is the person and the piece, so such a frame takes no generation slot. While it does, the session holds one of the machine's generation slots, which are shared with every viewer and probe. A slot is the directory `.shots/locks/generation/slot-<n>`, at most two run at once, and `AUTOMOVIE_HUMAN_SLOTS` and `AUTOMOVIE_HUMAN_SLOT_ROOT` change the count and the directory. The session admits 16 requests at a time and serializes them on one resident headless Chrome page. It keeps up to 256 MiB of PNGs, so a repeated URL without a new `fresh` nonce answers `existing-png`. Changing the person takes minutes; options on the same subject take seconds.
 
@@ -200,10 +221,12 @@ Invoke-RestMethod "http://127.0.0.1:5197/human-debug/batch/m2.json?round=r1-feet
 
 ## Capture CLI
 
+For a single f1 plan covering whole, individual original curves, available rings, explicit neighbour groups and matched raw loft/clay passes, use the [inspection packet guide](../../../.agents/skills/human/screenshot.md#inspection-packets). It owns the working command, plan format, output index/manifest, source and camera checks, and resume/failure rules. The image-route CLI below remains useful for arbitrary manual shots.
+
 `debug/capture/human-debug-capture.ts` saves shots of the image route as files. It draws nothing itself:
 
 ```powershell
-node_modules\.bin\ttsx.CMD -P packages\human\tsconfig.debug.scripts.json packages\human\debug\capture\human-debug-capture.ts --out packages\human\.shots\<you>\<round> --base "person=f1;piece=foot.loft" --shot "front:camera=front" --shot "top:camera=top;curves=none"
+node_modules\.bin\ttsx.CMD -P packages\human\tsconfig.debug.scripts.json packages\human\debug\capture\human-debug-capture.ts --out packages\human\.shots\<you>\<round> --base "person=f1;piece=foot.loft;keep=1" --shot "front:camera=front;keep=0" --shot "top:camera=top;curves=none"
 ```
 
 Run it from the repository root.
@@ -211,22 +234,24 @@ Run it from the repository root.
 - `--base` is the search text every shot starts from, and each `--shot <name>:<text>` replaces its variables. `;` stands for `&`, because the Windows shim of ttsx reads `&` as a command separator.
 - `--origin` names another viewer.
 - Each shot asks a new frame (a unique `fresh` nonce) and is kept as `<name>.png` only when the route answers `new-requested-frame` and the received bytes hash to `x-human-png-sha256`. `receipt.json` lists every kept shot: its file, URL, SHA-256 and the response headers, the source hash and capture time among them.
-- `keep=1` in a shot's text draws it on the page's loaded source, so a series of people shares one source while files are saved.
+- Start a new source round with `keep=0`, as the first shot above overrides the base; `keep=1` keeps that page's source for the remaining shots while files are saved. Inspect the receipt and intended source before accepting the round. Neither value verifies cached transformed dependency freshness.
 - A failed shot keeps no PNG, adds one line with its cause to `<person>-FAILED.txt`, and the run goes on; the program then exits with code 1.
 - The page's work on a frame always ends, with the frame or with a failure that names the stage the frame was in (navigating, loading the modules and generating, applying options, taking the screenshot):
   - `Human debug page crashed` at once when Chrome's renderer dies, most often out of JavaScript memory in a generation; the crash dump is under the browser profile's `Crashpad/reports`;
   - `Human debug page closed` or `Human debug Chrome disconnected` at once;
   - `Human debug frame exceeded its budget of 960 s` with the page's JavaScript stack, read by pausing its debugger; the budget is twice the slowest whole-person generation measured (481 s);
-  - `Human debug page stalled` with the requests it still waits on, when the page does no main-thread work for a minute: the server reads its task time every 5 s (Chrome's `Performance.getMetrics`, `debug/server/HumanDebugStall.ts`, proven by `test_human_debug_stall`).
+  - `Human debug page stalled` with the requests it still waits on, when mounted-page ready/apply work does no main-thread work for a minute: the server reads its task time every 5 s (Chrome's `Performance.getMetrics`, `debug/server/HumanDebugStall.ts`, proven by `test_human_debug_stall`). Cold module mounting keeps the frame deadline without this generation observer.
 
   Each closes the page, so the generation slot is released and the next frame loads a fresh page. A cause about the page's own generation (a crash, a stack in `src`) belongs to the generator; a stall or a hang without such a cause is a viewer defect to trace before any visual claim.
 - A request whose client leaves before its frame starts is dropped from the queue. `status.json` names the running frame's stage and every queued request with its wait, and the server log names what a new request is queued behind.
-- A subject that throws in the page fails its frame with the page's whole stack. Every address in it is rewritten through Vite's source map of that module to the TypeScript file, line and column, relative to `packages/human` (`src/generation/<file>.ts:<line>:<column>`); an address without a map keeps the served numbers and is marked `(unmapped)`. A page whose modules do not load (a missing import, a syntax error) fails with every module the server refused, each with Vite's message and the file, line and column it names. The same text is the HTTP 500 body, the server log's `[human-debug]` line, and an entry of `status.json`'s `failures` (the latest eight, newest first, with time, options and stage). While the compile gate answers 503 or 409 the shot is asked again after `retry-after`, for up to 30 minutes. Requests carry no timeout, since changing the person takes minutes.
+- A subject that throws in the page fails its frame with the page's whole stack. Every address in it is rewritten through Vite's source map of that module to the TypeScript file, line and column, relative to `packages/human` (`src/generation/<file>.ts:<line>:<column>`); an address without a map keeps the served numbers and is marked `(unmapped)`. Initialization errors preserve their original cause. A transient module-load failure includes recorded refused modules (up to eight), with Vite's message and source location when available. The same text is the HTTP failure body, the server log's `[human-debug]` line, and an entry of `status.json`'s `failures` (the latest eight, newest first, with time, options and stage). While the route answers 503 for a source-change retry, the CLI asks again after `retry-after`, for up to 30 minutes; compile state is information, not a generation gate. Requests carry no timeout, since changing the person takes minutes.
 
-The owner's evidence set, each reference person from the front, the left and the back on one source:
+Stack mapping uses the server's current transforms. A save after the page loaded can therefore map against newer text; retain the original failure and source identity when interpreting its location.
+
+The current campaign's f1 evidence set starts a new source round, then continues from the front to the left and back on that source:
 
 ```powershell
-node_modules\.bin\ttsx.CMD -P packages\human\tsconfig.debug.scripts.json packages\human\debug\capture\human-debug-capture.ts --out packages\human\.shots\owner\<yyyyMMdd-HHmm> --base "curves=none;w=900;h=1500;keep=1" --shot "f1-front:person=f1;camera=front" --shot "f1-left:person=f1;camera=left" --shot "f1-back:person=f1;camera=back" --shot "f2-front:person=f2;camera=front" --shot "f2-left:person=f2;camera=left" --shot "f2-back:person=f2;camera=back" --shot "m1-front:person=m1;camera=front" --shot "m1-left:person=m1;camera=left" --shot "m1-back:person=m1;camera=back" --shot "m2-front:person=m2;camera=front" --shot "m2-left:person=m2;camera=left" --shot "m2-back:person=m2;camera=back"
+node_modules\.bin\ttsx.CMD -P packages\human\tsconfig.debug.scripts.json packages\human\debug\capture\human-debug-capture.ts --out packages\human\.shots\owner\<yyyyMMdd-HHmm> --base "person=f1;curves=none;w=900;h=1500;keep=1" --shot "f1-front:camera=front;keep=0" --shot "f1-left:camera=left" --shot "f1-back:camera=back"
 ```
 
 ## Diagnostics

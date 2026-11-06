@@ -35,9 +35,9 @@ export interface IHumanDebugSnapshot {
   loadMilliseconds: number | null;
 
   /**
-   * Source hash the server reported when the page's modules had all loaded, before anything was
-   * generated; null when the page could not read it. Every static import has evaluated by then and
-   * the page loads no module later, so this names the bytes every frame of the page was drawn from.
+   * Server's disk source inventory hash requested during mounting before the first subject is
+   * generated; null when that read failed. Capture compares it with the pre-load disk
+   * hash. Freshness of served transformed dependencies requires separate verification.
    */
   source: string | null;
 }

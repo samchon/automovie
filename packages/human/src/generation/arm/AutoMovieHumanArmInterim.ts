@@ -3,6 +3,7 @@ import type { AutoMovieHumanArmConstruction } from "../AutoMovieHumanArmConstruc
 import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanArmBones } from "./AutoMovieHumanArmBones";
 import type { AutoMovieHumanArmWalk } from "./AutoMovieHumanArmWalk";
+import { AutoMovieHumanDeltoidSpan } from "./AutoMovieHumanDeltoidSpan";
 
 type Vec3 = [number, number, number];
 
@@ -14,15 +15,24 @@ type Vec3 = [number, number, number];
  * each times the site's published tape, and each tape owns its fullness.
  *
  * Sites:
- * - the biceps midway acromion to olecranon (from the glenohumeral centre,
- *   `(1/2 - ACROMION) / (1 - ACROMION - RADIALE)` of the humerus, de Leva's
- *   shares in `AutoMovieHumanArmBones`), the upper arm's table at half its
- *   length;
+ * - the first free deltoid row at .3H, with retained girth multiplier1.026;
+ *   its box uses the current biceps template as an explicit family transfer,
+ *   not the older polar ArmRows or a claim that .3H is the maximum;
+ * - the biceps at the retained half-acromion-radiale station proxy (from
+ *   GH, `(AR/2 - actualGHProjection)/H`).
+ *   Radiale is not olecranon: the published acromion-to-olecranon midpoint
+ *   needs its own landmark offset. The upper-arm shape table is read at half;
  * - the elbow at its centre;
+ * - the greatest forearm tape at the existing reference estimate of 0.215
+ *   elbow-to-stylion (an observed location, not the measurement definition);
  * - the wrist at stylion (`STYLION_WRIST` short of the wrist centre);
- * - the knuckles at the third metacarpal's head: the hand's breadth across,
- *   and the depth whose inscribed ellipse runs the hand's tape. No published
- *   source splits the palm's depth about the bone, so it is split evenly.
+ * - the knuckles at the third metacarpal's head: breadth along the retained
+ *   radial u, depth along palmar/dorsal v. The source table's anterior is
+ *   body-forward projected normal to the axis; in this thumb-forward bind
+ *   it is radial, not palm-normal (estimate_arm_sections and anatomy/arm).
+ *   The depth's centred ellipse runs the hand's tape; the final asymmetric
+ *   source box has its own tape owner. Depth splits evenly, while the caller
+ *   preserves the breadth-centre offset of the same MCP packing.
  *
  * The walk's chart `v` (`t x u`) is lateral on the left arm and medial on the
  * right, so each side takes its lateral and medial extents on its own side.
@@ -35,11 +45,15 @@ export namespace AutoMovieHumanArmInterim {
    * @param inputs The arm's tapes and the hands' dimensions, calibration mm.
    * @param elbow The elbow centre.
    * @param wrist The wrist centre.
+   * @param placement Actual GH projection and rigid humerus from the same production skeleton, calibration mm.
+   * @param crease Include the independent public palm-crease course.
+   * @param radialCenter The palm breadth-centre offset from MCP3 along radial u, mm; zero for a caller without the source hand record.
    * @returns The site laws.
    */
-  export function sites(side: "left" | "right", inputs: AutoMovieHumanArmConstruction.IInputs, elbow: Vec3, wrist: Vec3): AutoMovieHumanArmWalk.ISiteLaw[] {
+  export function sites(side: "left" | "right", inputs: AutoMovieHumanArmConstruction.IInputs, elbow: Vec3, wrist: Vec3, placement: { projection: number; humerus: number }, crease: boolean = false, radialCenter: number = 0): AutoMovieHumanArmWalk.ISiteLaw[] {
     const T: typeof AutoMovieHumanReferenceOutlines = AutoMovieHumanReferenceOutlines;
-    const biceps: number = (1 / 2 - AutoMovieHumanArmBones.ACROMION) / (1 - AutoMovieHumanArmBones.ACROMION - AutoMovieHumanArmBones.RADIALE);
+    const biceps: number = (inputs.upper / 2 - placement.projection) / placement.humerus;
+    if (!(biceps > AutoMovieHumanDeltoidSpan.ROOT && biceps < 1)) throw new Error("The retained biceps midpoint must follow the first free deltoid source row inside the humerus");
     const forearm: number = Math.hypot(wrist[0] - elbow[0], wrist[1] - elbow[1], wrist[2] - elbow[2]);
     const box = (table: AutoMovieHumanReferenceOutlines.ITable, share: number, girth: number): [number, number, number, number] => {
       const read = (column: string): number => T.at(table, column, share) * girth;
@@ -50,11 +64,15 @@ export namespace AutoMovieHumanArmInterim {
     };
     const hand: AutoMovieHumanArmConstruction.IHand = side === "left" ? inputs.left : inputs.right;
     const depth: number = ellipseDepth(hand.breadth, inputs.circumference);
+    const palm: [number, number, number, number] = [hand.breadth / 2 + radialCenter, depth / 2, -hand.breadth / 2 + radialCenter, -depth / 2];
     return [
+      { site: "deltoid", bone: 1, share: AutoMovieHumanDeltoidSpan.ROOT, edges: box(T.UPPER_ARM, 0.5, AutoMovieHumanDeltoidSpan.ROOT_GIRTH * inputs.bicep), fullness: { girth: AutoMovieHumanDeltoidSpan.ROOT_GIRTH * inputs.bicep } },
       { site: "biceps", bone: 1, share: biceps, edges: box(T.UPPER_ARM, 0.5, inputs.bicep), fullness: { girth: inputs.bicep } },
       { site: "elbow", bone: 2, share: 0, edges: box(T.FOREARM, 1, inputs.elbow), fullness: { girth: inputs.elbow } },
+      { site: "forearm", bone: 2, share: 0.215 * (1 - AutoMovieHumanArmBones.STYLION_WRIST / forearm), edges: box(T.FOREARM, 1 - 0.215, inputs.forearm), fullness: { girth: inputs.forearm } },
       { site: "wrist", bone: 2, share: 1 - AutoMovieHumanArmBones.STYLION_WRIST / forearm, edges: box(T.FOREARM, 0, inputs.wrist), fullness: { girth: inputs.wrist } },
-      { site: "knuckles", bone: 3, share: 1, edges: [depth / 2, hand.breadth / 2, -depth / 2, -hand.breadth / 2], fullness: { girth: inputs.circumference } },
+      { site: "knuckles", bone: 3, share: 1, edges: [...palm], fullness: { girth: inputs.circumference } },
+      ...(crease ? [{ site: "crease", bone: 4, share: 1, edges: [...palm] as [number, number, number, number], fullness: { shoulder: Math.SQRT2 - 1 } }] : []),
     ];
   }
 

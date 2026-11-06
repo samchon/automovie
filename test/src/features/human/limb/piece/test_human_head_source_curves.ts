@@ -1,0 +1,464 @@
+import { AutoMovieConstructionViews, AutoMovieViewCurves, AutoMovieViewOutline, AutoMovieViewSection, type IAutoMovieViewPart } from "@automovie/engine";
+import type { AutoMovieConstructionAxis, AutoMovieConstructionFullness, AutoMovieConstructionNode, IAutoMovieConstructionOutline, IAutoMovieConstructionView, IAutoMovieVector3 } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { AutoMovieHumanBodyAnatomy } from "../../../../../../packages/human/src/generation/AutoMovieHumanBodyAnatomy";
+import { AutoMovieHumanBodyLaw } from "../../../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
+import { AutoMovieHumanHeadArcs } from "../../../../../../packages/human/src/generation/AutoMovieHumanHeadArcs";
+import { AutoMovieHumanHeadLandmarks } from "../../../../../../packages/human/src/generation/AutoMovieHumanHeadLandmarks";
+import { AutoMovieHumanHeadPrior } from "../../../../../../packages/human/src/generation/AutoMovieHumanHeadPrior";
+import { AutoMovieHumanNeckSource } from "../../../../../../packages/human/src/generation/AutoMovieHumanNeckSource";
+import { AutoMovieHumanEarPlace } from "../../../../../../packages/human/src/generation/AutoMovieHumanEarPlace";
+import { AutoMovieHumanReferenceOutlines } from "../../../../../../packages/human/src/generation/AutoMovieHumanReferenceOutlines";
+import type { IAutoMovieHumanHeadInputs } from "../../../../../../packages/human/src/generation/IAutoMovieHumanHeadInputs";
+import type { IAutoMovieHumanHeadLayout } from "../../../../../../packages/human/src/generation/IAutoMovieHumanHeadLayout";
+import { AutoMovieHumanHeadEarFrame } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadEarFrame";
+import { AutoMovieHumanHeadDome } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadDome";
+import { AutoMovieHumanHeadEarPlate } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadEarPlate";
+import { AutoMovieHumanHeadLane } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadLane";
+import { AutoMovieHumanHeadLayout } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadLayout";
+import { AutoMovieHumanHeadMassPart } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadMassPart";
+import { AutoMovieHumanHeadSectionConstraints } from "../../../../../../packages/human/src/generation/head/AutoMovieHumanHeadSectionConstraints";
+import type { IAutoMovieHumanParameters } from "../../../../../../packages/human/src/structures/IAutoMovieHumanParameters";
+import { HumanHeadSourceSection } from "../../../internal/HumanHeadSourceSection";
+import { HumanPeople } from "../../../internal/HumanPeople";
+
+/**
+ * Original head curves must keep the public measurement sites and share
+ * their neighbours' actual frames through spans, before any skin join.
+ *
+ * Scenarios:
+ * 1. Original signed edges retain finite orthonormal frames at knots,
+ * isolated scalar extrema and span middles, including both asymmetric sides.
+ * 2. Public cranial breadth and ft/zy/go widths reach actual source points;
+ * local and closed-domain stationary posterior calipers preserve public L.
+ * 3. Nasal, lip, c-j/sa-sba and own eye chords keep their definitions;
+ * closed-lip contacts and primary Bernstein upper curves agree through spans.
+ * Tilted lobule X support is a source-coordinate diagnostic, not a new
+ * anatomical measurement expectation.
+ * A shallow declared ellipse preserves its geometric equation, and actual
+ * alar source supports preserve the prior's vertical n-prn ratio units.
+ * 4. Actual declarations replay at three physical scales. Independent eye
+ * studies remain outside the tree; the horizontal head section is diagnostic,
+ * not the anatomical tape. The separate neck-source unit owns adapter spans,
+ * quarter/length preservation and the two neck-course observations.
+ *
+ * @evidence contracts/testing.md#behavioral-verification Reads the production lane's composed original views through the engine's shared source owner, independently of surviving loft sections and of final skin realization.
+ * @evidence contracts/testing.md#independent-expectations Public Euclidean distances, cervicale/stature/head height, coincident closed-lip contacts and direct Bernstein evaluation of the primary upper-lid controls are the oracles. A stated ellipse equation distinguishes profile preservation from the removed quartic workaround; retained vertical n-prn ratio units distinguish alar transfer from mixed denominators without inventing new anatomical measurements. Calibration scale comes independently from the body's resolved input boundary. The 1e-8 mm bound permits numerical conversion only, not anatomical displacement. The photo pupil's (0,0) uses the contour's same affine map, not the endpoint chord; this remains a template-based 3D placement. Constant AP is relative to an endpoint, not an independently measured global seat.
+ * @evidence contracts/testing.md#distinguishing-cases Both asymmetric f1 sides, source poles, scalar extrema and between-knot positions distinguish a correct knot list from a coherent original curve and neighbour frame. Actual declaration replay at factors 0.5, 1 and 2 distinguishes a preserved source axis/parameter from a sampled minimal course; these are unit-scaled copies of f1, not another person.
+ * @evidence contracts/testing.md#execution-ownership One discoverable synchronous CPU unit reached by --include human_head_source_curves builds only f1's head; it uses no host, browser, GPU or final body realization and reports all findings before failing.
+ */
+export function test_human_head_source_curves(): void {
+  const params: IAutoMovieHumanParameters = HumanPeople.params("f1");
+  const inputs: IAutoMovieHumanHeadInputs = AutoMovieHumanBodyLaw.headInputs(params);
+  const bodyScale: number = AutoMovieHumanBodyLaw.limbInputs(params).legs.scale;
+  const neckSource: AutoMovieHumanNeckSource.IOutput = AutoMovieHumanNeckSource.of(inputs, bodyScale);
+  const lane: AutoMovieHumanHeadLane.IOutput = AutoMovieHumanHeadLane.create(inputs, AutoMovieHumanBodyAnatomy.sexOf(params), neckSource);
+  const original: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadLayout.create(neckSource, inputs);
+  const tragion: number = original.vertex - AutoMovieHumanHeadArcs.tragionDrop(inputs.head, AutoMovieHumanBodyAnatomy.sexOf(params)) * original.scale;
+  const plan: IAutoMovieHumanHeadLayout = AutoMovieHumanHeadLandmarks.atTragion(original, tragion);
+  const parts: IAutoMovieViewPart[] = [lane.source.massPart, ...lane.source.parts.map((p: AutoMovieHumanHeadLane.IOutput["source"]["parts"][number]): IAutoMovieViewPart => p.feature.part), ...lane.source.studies.map((p: AutoMovieHumanHeadLane.IOutput["source"]["studies"][number]): IAutoMovieViewPart => p.part)];
+  const findings: string[] = [];
+  const prepared: Map<string, AutoMovieViewCurves.IResult> = new Map();
+  const byName: Map<string, IAutoMovieViewPart> = new Map(parts.map((part: IAutoMovieViewPart): [string, IAutoMovieViewPart] => [part.name, part]));
+  const production: Map<string, IAutoMovieConstructionView> = new Map();
+  collect(lane.root, production);
+  // Studies have original declarations, but are explicitly outside the skin tree.
+  for (const study of lane.source.studies) production.set(study.part.name, study.view);
+  const check: (name: string, actual: number, expected: number, unit?: string) => void = (name: string, actual: number, expected: number, unit: string = "mm"): void => {
+    console.log(`${name}: actual=${actual}, expected=${expected}, delta=${actual - expected} ${unit}`);
+    if (!Number.isFinite(actual) || Math.abs(actual - expected) > 1e-8) findings.push(`${name}: ${actual} instead of ${expected}`);
+  };
+
+  // An analytic circle distinguishes a named point from an entire lateral
+  // support. These are geometry fixtures, not another person's generation.
+  const diagonal: number = 10 * Math.SQRT1_2;
+  const ellipse: [number, number, number, number] = [AutoMovieViewSection.ELLIPSE, AutoMovieViewSection.ELLIPSE, AutoMovieViewSection.ELLIPSE, AutoMovieViewSection.ELLIPSE];
+  const analytic: { name: string; run: () => number; expected: number; unit?: string }[] = [
+    { name: "circle anterior shoulder", run: (): number => AutoMovieHumanHeadSectionConstraints.frontal([10, 10, 10, 10], ellipse[0], diagonal, diagonal), expected: Math.SQRT2 - 1, unit: "ratio" },
+    { name: "circle named anterior width", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 9, 10, 9], ellipse, diagonal, diagonal), expected: 10 },
+    { name: "circle named posterior width", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 9, 10, 9], ellipse, -diagonal, diagonal), expected: 10 },
+    { name: "circle dimension scaling", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([20, 18, 20, 18], ellipse, 2 * diagonal, 2 * diagonal), expected: 20 },
+    { name: "width at actual axis", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 9, 10, 9], ellipse, 0, 6), expected: 6 },
+  ];
+  for (const sample of analytic) {
+    try { check(sample.name, sample.run(), sample.expected, sample.unit); }
+    catch (error) { findings.push(`${sample.name}: ${String(error)}`); }
+  }
+
+  // A shallow ellipse must keep its declared conic, independently of joins.
+  try {
+    const cap: IAutoMovieViewPart = AutoMovieHumanHeadDome.of({ name: "profile-contract", origin: [0, 0, 0], outward: [1, 0, 0], along: [0, 1, 0], extents: [10, 8, 10, 8], height: 4, profile: 2, shoulder: AutoMovieViewSection.ELLIPSE, host: 20 });
+    const base: number = cap.stations[AutoMovieHumanHeadDome.STEM]!;
+    const station: number = (base + cap.stations[cap.stations.length - 1]!) / 2;
+    const source: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(cap);
+    const edge: AutoMovieViewCurves.ICurve = source.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === "front.positive")!;
+    const reading: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(edge, cap.axis, station);
+    if (typeof reading === "string") throw new Error(reading);
+    check("declared shallow elliptical source", (reading.scalar.value / 10) ** 2 + ((station - base) / 4) ** 2, 1, "ratio");
+    findings.push(...source.diagnostics.map((diagnostic: AutoMovieViewCurves.IResult["diagnostics"][number]): string => `shallow ellipse: ${diagnostic.detail}`));
+  } catch (error) { findings.push(`declared shallow ellipse: ${String(error)}`); }
+  const invalid: { name: string; run: () => number }[] = [
+    { name: "outside sagittal support", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 10, 10, 10], ellipse, 11, 3) },
+    { name: "degenerate support", run: (): number => AutoMovieHumanHeadSectionConstraints.lateral([10, 0, 10, 10], ellipse, 2, 3) },
+    { name: "closed shoulder limit", run: (): number => AutoMovieHumanHeadSectionConstraints.frontal([10, 10, 10, 10], 1, diagonal, diagonal) },
+    { name: "frontal point below convex chord", run: (): number => AutoMovieHumanHeadSectionConstraints.frontal([10, 10, 10, 10], ellipse[0], 2, 2) },
+  ];
+  for (const sample of invalid) {
+    let rejected: boolean = false;
+    try { sample.run(); } catch { rejected = true; }
+    if (!rejected) findings.push(`section constraint accepted ${sample.name}`);
+  }
+  for (const part of parts) {
+    const source: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(part);
+    prepared.set(part.name, source);
+    findings.push(...source.diagnostics.map((d: AutoMovieViewCurves.IResult["diagnostics"][number]): string => `${part.name}: ${d.contract}: ${d.detail}`));
+    let count: number = 0;
+    let worstSign: number = 0;
+    let worstBasis: number = 0;
+    for (const curve of source.curves) {
+      if (curve.outline === null) continue;
+      for (const station of samples(curve.outline)) {
+        const read: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, part.axis, station);
+        count++;
+        if (typeof read === "string") { findings.push(`${part.name}/${curve.name}: ${read}`); continue; }
+        const { u, v } = read.frame;
+        worstBasis = Math.max(worstBasis, Math.abs(Math.hypot(...u) - 1), Math.abs(Math.hypot(...v) - 1), Math.abs(u.reduce((sum: number, x: number, i: number): number => sum + x * v[i]!, 0)));
+        worstSign = Math.max(worstSign, curve.name.endsWith("positive") ? -read.scalar.value : read.scalar.value);
+      }
+    }
+    console.log(`source ${part.name}: readings=${count}, signViolation=${worstSign}, basisError=${worstBasis}`);
+    if (worstSign > 1e-8) findings.push(`${part.name}: supporting outline crosses its axis by ${worstSign} mm`);
+    if (worstBasis > 1e-10) findings.push(`${part.name}: source frame basis error ${worstBasis}`);
+    for (const factor of [0.5, 1, 2]) {
+      const originalNode: IAutoMovieConstructionView | undefined = production.get(part.name);
+      if (originalNode === undefined) { findings.push(`${part.name}: no actual production/study declaration`); continue; }
+      const replayNode: IAutoMovieConstructionView = scale(originalNode, factor);
+      const replay: IAutoMovieViewPart | string = AutoMovieConstructionViews.part(replayNode);
+      if (typeof replay === "string") { findings.push(`${part.name} replay x${factor}: ${replay}`); continue; }
+      const replayed: AutoMovieViewCurves.IResult = AutoMovieViewCurves.create(replay);
+      let worstReplay: number = 0;
+      let worstContext: { edge: string; station: number; before: AutoMovieViewCurves.IReading; after: AutoMovieViewCurves.IReading } | null = null;
+      for (const [index, curve] of source.curves.entries()) {
+        if (curve.outline === null) continue;
+        for (const station of samples(curve.outline)) {
+          const before: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, part.axis, station);
+          const after: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(replayed.curves[index]!, replay.axis, station * factor);
+          if (typeof before === "string" || typeof after === "string") { findings.push(`${part.name}/${curve.name} x${factor}: ${typeof before === "string" ? before : typeof after === "string" ? after : "unreadable source"}`); continue; }
+          const gap: number = distance(before.point.map((x: number): number => x * factor), after.point);
+          if (gap > worstReplay) { worstReplay = gap; worstContext = { edge: curve.name, station, before, after }; }
+        }
+      }
+      check(`${part.name} original-to-tree x${factor}`, worstReplay, 0);
+      if (worstReplay > 1e-8 && worstContext !== null) {
+        const alignedStation: number = ((worstContext.station * 0.001) * factor) * 1000;
+        const aligned: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(replayed.curves.find((c: AutoMovieViewCurves.ICurve): boolean => c.name === worstContext!.edge)!, replay.axis, alignedStation);
+        const alignedGap: number | string = typeof aligned === "string" ? aligned : distance(worstContext.before.point.map((x: number): number => x * factor), aligned.point);
+        console.log(`head replay context ${part.name} x${factor}: ${JSON.stringify({ sourceDomain: [part.stations[0], part.stations.at(-1)], declaredMetreDomain: [originalNode.stations[0], originalNode.stations.at(-1)], scaledMetreDomain: [replayNode.stations[0], replayNode.stations.at(-1)], replayDomain: [replay.stations[0], replay.stations.at(-1)], ...worstContext, alignedStation, aligned, alignedGap })}`);
+      }
+    }
+  }
+  /** Actual original edge point; an unreadable edge is retained as a finding. */
+  const point: (name: string, edge: AutoMovieViewCurves.ICurve["name"], station: number) => [number, number, number] = (name: string, edge: AutoMovieViewCurves.ICurve["name"], station: number): [number, number, number] => {
+    const part: IAutoMovieViewPart | undefined = byName.get(name);
+    const curve: AutoMovieViewCurves.ICurve | undefined = prepared.get(name)?.curves.find((c: AutoMovieViewCurves.ICurve): boolean => c.name === edge);
+    if (part === undefined || curve === undefined) { findings.push(`missing ${name}/${edge}`); return [NaN, NaN, NaN]; }
+    const read: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, part.axis, station);
+    if (typeof read === "string") { findings.push(`${name}/${edge}: ${read}`); return [NaN, NaN, NaN]; }
+    return read.point;
+  };
+  const last: (name: string) => number = (name: string): number => byName.get(name)!.stations.at(-1)!;
+  const mass: IAutoMovieViewPart = lane.source.massPart;
+  const massSource: AutoMovieViewCurves.IResult = prepared.get("head.mass")!;
+  const sideGuides: AutoMovieViewCurves.ICurve[] = massSource.curves.filter((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === "side.positive" || curve.name === "side.negative");
+  const cranialBottom: number = Math.max(last("auricle.left"), last("auricle.right"));
+  const sideMaxima: number[] = sideGuides.map((curve: AutoMovieViewCurves.ICurve): number => Math.max(...[cranialBottom, ...samples(curve.outline!).filter((station: number): boolean => station >= cranialBottom)].map((station: number): number => {
+    const read: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, mass.axis, station);
+    if (typeof read === "string") { findings.push(`cranial breadth: ${read}`); return NaN; }
+    return Math.abs(read.point[2]);
+  })));
+  console.log(`cranial breadth observation: ${JSON.stringify({ domain: [cranialBottom, last("head.mass")], rule: "source region above both emitted auricular upper endpoints, excluding face and neck", sideMaxima })}`);
+  check("original cranial guide maximum eu-eu", sideMaxima[0]! + sideMaxima[1]!, inputs.head.length * inputs.head.cephalicIndex * bodyScale / 100);
+  for (const [name, site, expected] of [
+    ["frontotemporale ft-ft", plan.landmarks.frontal, inputs.head.minimumFrontalWidth],
+    ["planned zygion zy-zy", plan.landmarks.zygion, inputs.head.faceWidth],
+    ["planned gonion go-go", plan.landmarks.gonion, inputs.head.mandibularWidth],
+  ] as const) {
+    try {
+      const left: [number, number, number] = AutoMovieHumanHeadMassPart.sideAt(mass, site[1], site[0], 1);
+      const right: [number, number, number] = AutoMovieHumanHeadMassPart.sideAt(mass, site[1], site[0], -1);
+      console.log(`head width source ${name}: ${JSON.stringify({ site, left, right, source: "actual bare head source at its generating named X/Y; no completed skin or pose transform", zygomaPresent: byName.has("zygoma.left") || byName.has("zygoma.right") })}`);
+      check(name, distance(left, right), expected * bodyScale);
+    } catch (error) {
+      findings.push(`${name} original source observation: ${String(error)}`);
+      console.log(findings.at(-1));
+    }
+  }
+  const glabella: [number, number, number] = point("head.mass", "front.positive", plan.landmarks.glabella[1]);
+  const caliper: { height: number; back: [number, number, number]; distance: number }[] = [-2, -1, 0, 1, 2].map((offset: number): { height: number; back: [number, number, number]; distance: number } => {
+    const height: number = plan.nasion + offset * bodyScale;
+    const back: [number, number, number] = point("head.mass", "front.negative", height);
+    return { height, back, distance: distance(glabella, back) };
+  });
+  console.log(`head local cranial caliper: ${JSON.stringify({ glabella, selectedHeight: plan.nasion, publicLength: inputs.head.length * bodyScale, readings: caliper, scope: "local cranial neighbourhood of the existing selected point; not a full-vault maximum or a neck-inclusive domain" })}`);
+  check("local cranial caliper exceeds public maximum", Math.max(0, ...caliper.map((reading: { distance: number }): number => reading.distance - inputs.head.length * bodyScale)), 0);
+  const posterior: AutoMovieViewOutline.IOutline = massSource.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === "front.negative")!.outline!;
+  const cranialStart: number = mass.front.negative.knots.find((k: IAutoMovieViewPart.IKnot): boolean => k.site === "tragion")!.station;
+  const cranialEnd: number = last("head.mass");
+  const graphOrigin: number = mass.axis.at(glabella[1]).origin[0];
+  const distanceStations: number[] | string = AutoMovieViewOutline.distanceStations(posterior, glabella[1], glabella[0] - graphOrigin, [cranialStart, cranialEnd]);
+  if (typeof distanceStations === "string") findings.push(`actual posterior caliper query: ${distanceStations}`);
+  else {
+    const stations: number[] = [...new Set([...distanceStations, ...samples(posterior).filter((station: number): boolean => station >= cranialStart && station <= cranialEnd)])];
+    let maximum: number = 0;
+    let maximumPoint: [number, number, number] = [NaN, NaN, NaN];
+    let frameError: number = 0;
+    for (const station of stations) {
+      const back: [number, number, number] = point("head.mass", "front.negative", station);
+      const origin: [number, number, number] = mass.axis.at(station).origin;
+      frameError = Math.max(frameError, Math.abs(origin[0] - graphOrigin), Math.abs(origin[1] - station), Math.abs(origin[2]));
+      const chord: number = distance(glabella, back);
+      if (chord > maximum) { maximum = chord; maximumPoint = back; }
+    }
+    check("actual posterior fixed caliper chart", frameError, 0);
+    check("actual posterior cranial maximum caliper", maximum, inputs.head.length * bodyScale);
+    console.log(`head maximum cranial caliper: ${JSON.stringify({ domain: [cranialStart, cranialEnd], candidates: stations.length, glabella, maximumPoint, maximum, scope: "actual original source; closed retained cranial-base-to-crown domain and numerical critical candidates, not an anatomical region certificate or final skin" })}`);
+  }
+  try {
+    console.log(`head source section observation: ${JSON.stringify({ name: "glabella horizontal counterfactual", height: plan.landmarks.glabella[1], ...HumanHeadSourceSection.of(mass, massSource, plan.landmarks.glabella[1]), inputHead: inputs.head.circumference * bodyScale, scope: "original horizontal source only; not the ANSUR oblique maximum head tape" })}`);
+  } catch (error) { findings.push(`head horizontal section: ${String(error)}`); }
+  const nape: [number, number, number] = [neckSource.head.back, neckSource.head.backLevel, 0];
+  check("adopted posterior cervicale height", nape[1] / bodyScale, inputs.neckBase.cervicaleHeight);
+  check("head mass shares actual posterior cervicale", distance(point("head.mass", "front.negative", plan.neck.backLevel), nape), 0);
+  check("actual head mass stature", point("head.mass", "front.positive", last("head.mass"))[1] / bodyScale, inputs.height);
+  check("actual menton-vertex height", (point("head.mass", "front.positive", last("head.mass"))[1] - point("head.mass", "front.positive", plan.menton)[1]) / bodyScale, inputs.head.height);
+  const prn: [number, number, number] = [plan.landmarks.pronasale[0], plan.landmarks.pronasale[1], 0];
+  check("public n-Gn contour chord", distance([...plan.landmarks.nasion, 0], [...plan.landmarks.gnathion, 0]), inputs.head.faceHeight * bodyScale);
+  check("actual mass n-Gn contour chord", distance(point("head.mass", "front.positive", plan.nasion), point("head.mass", "front.positive", plan.landmarks.gnathion[1])), inputs.head.faceHeight * bodyScale);
+  check("published nasion is generating n", distance(lane.landmarks.nasion, [...plan.landmarks.nasion, 0]), 0);
+  check("nose original pronasale", distance(point("nose", "front.positive", plan.tip), prn), 0);
+  check("lobule original apex", distance(point("nose.lobule", "front.positive", last("nose.lobule")), prn), 0);
+  check("nasal n-sn chord", Math.hypot(plan.landmarks.nasion[0] - plan.landmarks.subnasale[0], plan.landmarks.nasion[1] - plan.landmarks.subnasale[1]), inputs.head.face.nose.height * bodyScale);
+  check("nasal sn-prn chord", Math.hypot(prn[0] - plan.landmarks.subnasale[0], prn[1] - plan.landmarks.subnasale[1]), inputs.head.face.nose.protrusion * bodyScale);
+  check("ala al-al chord", distance(point("nose.ala.left", "front.positive", last("nose.ala.left")), point("nose.ala.right", "front.positive", last("nose.ala.right"))), inputs.head.face.nose.width * bodyScale);
+
+  // Prior.ala defines vertical ratios from n to prn, not the n-sn chord.
+  const alarSpan: number = plan.nasion - plan.tip;
+  for (const side of ["left", "right"]) {
+    const name: string = `nose.ala.${side}`;
+    const ala: IAutoMovieViewPart = byName.get(name)!;
+    const base: number = ala.stations[AutoMovieHumanHeadDome.STEM]!;
+    const centre: [number, number, number] = ala.axis.at(base).origin;
+    check(`${side} alar centre vertical ratio`, (centre[1] - plan.subnasale) / alarSpan, AutoMovieHumanHeadPrior.PRIOR.face.ala[2]!, "ratio");
+    check(`${side} alar upper vertical ratio`, (point(name, "front.positive", base)[1] - centre[1]) / alarSpan, AutoMovieHumanHeadPrior.PRIOR.face.ala[3]!, "ratio");
+    check(`${side} alar lower vertical ratio`, (centre[1] - point(name, "front.negative", base)[1]) / alarSpan, AutoMovieHumanHeadPrior.PRIOR.face.ala[4]!, "ratio");
+  }
+  const nose: IAutoMovieViewPart = byName.get("nose")!;
+  const noseCurve: AutoMovieViewCurves.ICurve = prepared.get("nose")!.curves[0]!;
+  const farthest: number = Math.max(...samples(noseCurve.outline!).map((s: number): number => point(nose.name, "front.positive", s)[0]));
+  check("nose support past pronasale", Math.max(0, farthest - prn[0]), 0);
+
+  // Diagnose the tilted lobule on its actual source, not an ideal ellipse.
+  // World X is this construction's coordinate, not a new anatomical oracle.
+  try {
+    const lobule: IAutoMovieViewPart = byName.get("nose.lobule")!;
+    const node: IAutoMovieConstructionView = production.get(lobule.name)!;
+    if (node.axis.type !== "straight" || node.axis.v.x !== 0) throw new Error("Lobule X support requires its actual straight chart with v.x=0");
+    const valueScale: number = node.axis.u.x;
+    const edge: AutoMovieViewCurves.ICurve = prepared.get(lobule.name)!.curves.find((curve: AutoMovieViewCurves.ICurve): boolean => curve.name === (valueScale >= 0 ? "front.positive" : "front.negative"))!;
+    if (edge.outline === null) throw new Error("Lobule X support has no admitted original outline");
+    const slope: number = node.axis.v.y * node.axis.u.z - node.axis.v.z * node.axis.u.y;
+    const candidates: number[] | string = AutoMovieViewOutline.supportStations(edge.outline, slope, valueScale);
+    if (typeof candidates === "string") throw new Error(candidates);
+    const readings: { station: number; radius: number; point: [number, number, number] }[] = candidates.map((station: number): { station: number; radius: number; point: [number, number, number] } => {
+      const reading: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(edge, lobule.axis, station);
+      if (typeof reading === "string") throw new Error(reading);
+      return { station, radius: Math.abs(reading.scalar.value), point: reading.point };
+    });
+    const maximum: { station: number; radius: number; point: [number, number, number] } = readings.reduce((a: { station: number; radius: number; point: [number, number, number] }, b: { station: number; radius: number; point: [number, number, number] }): { station: number; radius: number; point: [number, number, number] } => b.point[0] > a.point[0] ? b : a);
+    console.log(`lobule actual source X support: ${JSON.stringify({ prn, axis: node.axis, domain: edge.outline.domain, edge: edge.name, slope, valueScale, maximum, beyondPrn: maximum.point[0] - prn[0], readings, scope: "numerical source critical candidates and closed boundaries for this fixed chart; not an anatomical orientation, curvature, entire nasal-group or final-skin proof" })}`);
+  } catch (error) {
+    findings.push(`lobule actual source X support unavailable: ${String(error)}`);
+    console.log(findings.at(-1));
+  }
+  const sto: [number, number, number] = [plan.landmarks.stomion[0], plan.stomion, 0];
+  check("upper ls-sto", distance(point("lip.upper", "front.positive", 0), sto), inputs.head.face.mouth.upperVermilionHeight * bodyScale);
+  check("lower sto-li", distance(point("lip.lower", "front.negative", 0), sto), inputs.head.face.mouth.lowerVermilionHeight * bodyScale);
+  check("mouth ch-ch", distance(point("lip.upper", "front.positive", -plan.mouthWidth), point("lip.upper", "front.positive", plan.mouthWidth)), inputs.head.face.mouth.width * bodyScale);
+  const contacts: number[] = [...new Set(["lip.upper", "lip.lower"].flatMap((name: string): number[] => prepared.get(name)!.curves.flatMap((c: AutoMovieViewCurves.ICurve): number[] => c.outline === null ? [] : samples(c.outline))))];
+  check("closed lips whole-span contact", Math.max(...contacts.map((s: number): number => distance(point("lip.upper", "front.negative", s), point("lip.lower", "front.positive", s)))), 0);
+  const actualLs: [number, number, number] = point("lip.upper", "front.positive", 0);
+  const actualLi: [number, number, number] = point("lip.lower", "front.negative", 0);
+  const philtrum: AutoMovieHumanHeadLane.IOutput["source"]["parts"][number] = lane.source.parts.find((p: AutoMovieHumanHeadLane.IOutput["source"]["parts"][number]): boolean => p.feature.part.name === "philtrum")!;
+  const sulcus: AutoMovieHumanHeadLane.IOutput["source"]["parts"][number] = lane.source.parts.find((p: AutoMovieHumanHeadLane.IOutput["source"]["parts"][number]): boolean => p.feature.part.name === "sulcus.mentolabial")!;
+  check("philtrum shares actual ls/sn", distance(philtrum.feature.seed, [(actualLs[0] + plan.landmarks.subnasale[0]) / 2, (actualLs[1] + plan.landmarks.subnasale[1]) / 2, 0]), 0);
+  check("sulcus shares actual li/Pg", distance(sulcus.feature.seed, [(actualLi[0] + plan.landmarks.pogonion[0]) / 2, (actualLi[1] + plan.landmarks.pogonion[1]) / 2, 0]), 0);
+  const c: [number, number] = AutoMovieHumanHeadMassPart.cervical(plan);
+  const sn: [number, number] = plan.landmarks.subnasale;
+  const pg: [number, number] = plan.landmarks.pogonion;
+  const me: [number, number] = plan.landmarks.menton;
+  const along: [number, number] = [sn[0] - pg[0], sn[1] - pg[1]];
+  const under: [number, number] = [me[0] - c[0], me[1] - c[1]];
+  const t: number = ((c[0] - pg[0]) * under[1] - (c[1] - pg[1]) * under[0]) / (along[0] * under[1] - along[1] * under[0]);
+  const clinical: [number, number] = [pg[0] + t * along[0], pg[1] + t * along[1]];
+  const toSn: [number, number] = [sn[0] - clinical[0], sn[1] - clinical[1]];
+  const toC: [number, number] = [c[0] - clinical[0], c[1] - clinical[1]];
+  check("clinical Sn-Gn'-C angle", Math.acos((toSn[0] * toC[0] + toSn[1] * toC[1]) / (Math.hypot(...toSn) * Math.hypot(...toC))) * 180 / Math.PI, 100, "degrees");
+  check("clinical Sn-Gn'/C-Gn' ratio", Math.hypot(...toSn) / Math.hypot(...toC), 1.2, "ratio");
+  console.log(`clinical C=${JSON.stringify(c)}, clinical Gn'=${JSON.stringify(clinical)}, public contour Gn=${JSON.stringify(plan.landmarks.gnathion)}`);
+  check("selected tragion t-n norm", Math.hypot(plan.landmarks.tragion[0] - plan.landmarks.nasion[0], tragion - plan.nasion, AutoMovieHumanHeadPrior.PRIOR.frame.base * plan.breadth / 2), AutoMovieHumanHeadPrior.PRIOR.frame.tragion * inputs.head.length * bodyScale);
+  for (const side of ["left", "right"] as const) {
+    const sign: 1 | -1 = side === "left" ? 1 : -1;
+    const expectedTop: number = tragion + AutoMovieHumanEarPlace.aboveTragion(inputs.head.earPair[side], AutoMovieHumanBodyAnatomy.sexOf(params)) * bodyScale;
+    const ear: AutoMovieHumanHeadEarFrame.IFrame = AutoMovieHumanHeadEarFrame.of(plan, lane.source.massPart, sign, inputs.head.earPair[side], expectedTop);
+    const plate: AutoMovieHumanHeadEarPlate.IOutput = AutoMovieHumanHeadEarPlate.of(plan, lane.source.massPart, ear, side);
+    const auricle: string = `auricle.${side}`;
+    // These unchanged authoring-height queries are counterfactuals, not
+    // actual source sites. A unit-round-trip can place one outside the
+    // declared domain; retain that exact refusal instead of inventing a
+    // point or charging the diagnostic as a failed required source read.
+    const query: (station: number) => [number, number, number] | string = (station: number): [number, number, number] | string => {
+      const curve: AutoMovieViewCurves.ICurve = prepared.get(auricle)!.curves.find((c: AutoMovieViewCurves.ICurve): boolean => c.name === "front.positive")!;
+      const reading: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, byName.get(auricle)!.axis, station);
+      return typeof reading === "string" ? reading : reading.point;
+    };
+    const queriedUpper: [number, number, number] | string = query(ear.top);
+    const queriedLower: [number, number, number] | string = query(ear.bottom);
+    // Sa/sba are the actual named source endpoints. Their independent
+    // expectations remain public T/L. The old input-height queries below
+    // are retained as counterfactual interior-cap observations, not renamed
+    // as those endpoints after a one-ULP unit conversion.
+    const upper: [number, number, number] = point(auricle, "front.positive", plate.top);
+    const lower: [number, number, number] = point(auricle, "front.positive", plate.bottom);
+    const actual: IAutoMovieViewPart = byName.get(auricle)!;
+    const upperStation: number = actual.front.positive.knots.at(-1)!.station;
+    const lowerStation: number = actual.front.positive.knots[0]!.station;
+    const actualUpper: [number, number, number] = point(auricle, "front.positive", upperStation);
+    const actualLower: [number, number, number] = point(auricle, "front.positive", lowerStation);
+    const node: IAutoMovieConstructionView = production.get(auricle)!;
+    // Observe both paths without substituting either query or weakening an
+    // expectation. The source declaration and public T/L remain distinct.
+    console.log(`ear endpoint context ${side}: ${JSON.stringify({ public: { top: expectedTop, length: inputs.head.earPair[side].length * bodyScale }, authoringHeights: { bottom: ear.bottom, top: ear.top }, metre: { radial: [node.front.positive.knots[0], node.front.positive.knots.at(-1)], axis: node.axis }, actual: { lowerStation, upperStation, parameter: actual.front.positive.parameter, radialKnots: [actual.front.positive.knots[0], actual.front.positive.knots.at(-1)], lower: actualLower, upper: actualUpper, length: distance(actualUpper, actualLower), topDelta: actualUpper[1] - expectedTop, topQueryGap: typeof queriedUpper === "string" ? queriedUpper : distance(queriedUpper, actualUpper), bottomQueryGap: typeof queriedLower === "string" ? queriedLower : distance(queriedLower, actualLower), queriedUpper, queriedLower } })}`);
+    const c: [number, number, number] = point(auricle, "front.negative", plate.attachment);
+    const j: [number, number, number] = point(auricle, "front.positive", plate.posterior);
+    check(`${side} ear c-j`, distance(c, j), inputs.head.earPair[side].breadth * bodyScale);
+    check(`${side} ear sa-sba`, distance(upper, lower), inputs.head.earPair[side].length * bodyScale);
+    check(`${side} actual superaurale height`, upper[1], expectedTop);
+    check(`${side} ear c-j perpendicular sa-sba`, Math.abs(j.reduce((sum: number, value: number, i: number): number => sum + (value - c[i]!) * (upper[i]! - lower[i]!), 0)) / distance(upper, lower), 0);
+    check(`${side} actual c on original scalp`, distance(c, AutoMovieHumanHeadMassPart.sideAt(lane.source.massPart, c[1], c[0], sign)), 0);
+    const rim: [number, number, number] = point(auricle, "front.positive", tragion);
+    const scalp: [number, number, number] = AutoMovieHumanHeadMassPart.sideAt(lane.source.massPart, rim[1], rim[0], sign);
+    check(`${side} actual scalp-rim protrusion`, distance(rim, scalp), inputs.head.earPair[side].protrusion * bodyScale);
+    let heightEscape: number = 0;
+    for (const curve of prepared.get(auricle)!.curves) if (curve.outline !== null) for (const station of samples(curve.outline)) {
+      const read: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, byName.get(auricle)!.axis, station);
+      if (typeof read === "string") { findings.push(`${auricle} extremum: ${read}`); continue; }
+      heightEscape = Math.max(heightEscape, read.point[1] - upper[1], lower[1] - read.point[1]);
+      heightEscape = Math.max(heightEscape, Math.abs(read.frame.u[1]), Math.abs(read.frame.v[1]));
+    }
+    check(`${side} sa-sba bounds all original guides/planes`, heightEscape, 0);
+    let rolledEscape: number = 0;
+    let rolledContext: { part: string; curve: string; station: number; point: [number, number, number] } | null = null;
+    for (const ridge of parts.filter((part: IAutoMovieViewPart): boolean => part.name.startsWith("ear.") && part.name.endsWith(`.${side}`) && !part.name.startsWith("ear.concha"))) for (const curve of prepared.get(ridge.name)!.curves) if (curve.outline !== null) for (const station of samples(curve.outline)) {
+      const read: AutoMovieViewCurves.IReading | string = AutoMovieViewCurves.at(curve, ridge.axis, station);
+      if (typeof read === "string") { findings.push(`${ridge.name} envelope: ${read}`); continue; }
+      const escape: number = Math.max(read.point[1] - expectedTop, ear.bottom - read.point[1]);
+      if (escape > rolledEscape) { rolledEscape = escape; rolledContext = { part: ridge.name, curve: curve.name, station, point: read.point }; }
+    }
+    console.log(`ear rolled-source envelope ${side}: ${JSON.stringify({ observedEscape: rolledEscape, context: rolledContext, expectedTop, expectedBottom: ear.bottom, scope: "original signed guides at knots/scalar extrema/span middles; not a complete world-extrema proof or final skin" })}`);
+    check(`${side} rolled original guide envelope`, rolledEscape, 0);
+    let fork: [number, number, number] | undefined;
+    for (const name of ["ear.antihelix", "ear.crus.superior", "ear.crus.inferior"]) {
+      const ridge: IAutoMovieViewPart = byName.get(`${name}.${side}`)!;
+      const knot: IAutoMovieViewPart.IKnot | undefined = ridge.front.positive.knots.find((k: IAutoMovieViewPart.IKnot): boolean => k.site === `ear.fork.${side}`);
+      if (knot === undefined) { findings.push(`${ridge.name}: missing regular fork port`); continue; }
+      const origin: [number, number, number] = ridge.axis.at(knot.station).origin;
+      if (fork === undefined) fork = origin;
+      check(`${ridge.name} shared fork`, distance(origin, fork), 0);
+      const edges: AutoMovieViewCurves.ICurve["name"][] = ["front.positive", "front.negative", "side.positive", "side.negative"];
+      const supports: number[] = edges.map((edge: AutoMovieViewCurves.ICurve["name"]): number => distance(point(ridge.name, edge, knot.station), origin));
+      if (!supports.every((value: number): boolean => Number.isFinite(value) && value > 0)) findings.push(`${ridge.name}: fork port has a zero/nonfinite section [${supports}]`);
+    }
+    const controls: readonly (readonly [number, number])[] = AutoMovieHumanReferenceOutlines.SHIN_UPPER_LID[plan.sex === 1 ? "female" : "male"];
+    const pupilShare: number = -controls[0]![0] / (controls[3]![0] - controls[0]![0]);
+    const tilt: number = Math.atan2(controls[0]![1] - controls[3]![1], controls[3]![0] - controls[0]![0]);
+    const original: (t: number, coordinate: 0 | 1) => number = (t: number, coordinate: 0 | 1): number => controls.reduce((sum: number, p: readonly [number, number], i: number): number => sum + [1, 3, 3, 1][i]! * (1 - t) ** (3 - i) * t ** i * p[coordinate], 0);
+    let a: number = 0;
+    let b: number = 1;
+    for (let i: number = 0; i < 60; i++) { const t: number = (a + b) / 2; if (original(t, 0) < 0) a = t; else b = t; }
+    const pupil: number = (a + b) / 2;
+    const end: number = last(`fissure.${side}`);
+    const at: (t: number) => number = (t: number): number => t === 0 ? 0 : t === 1 ? end : end * Math.sin(Math.PI * t / 2) ** 2;
+    const span: number = plan[side].length * Math.cos(tilt);
+    const rise: number = plan[side].length * Math.sin(tilt);
+    const pupilZ: number = sign * (plan[side].inner + (1 - pupilShare) * span);
+    check(`${side} eye en-ex`, distance(point(`fissure.${side}`, "front.positive", end), point(`fissure.${side}`, "front.positive", 0)), inputs.head.face.eyePair[side].palpebralFissureLength * bodyScale);
+    const above: [number, number, number] = point(`fissure.${side}`, "front.positive", at(pupil));
+    const below: [number, number, number] = point(`fissure.${side}`, "front.negative", at(pupil));
+    check(`${side} eye Ps-Pi`, distance(above, below), inputs.head.face.eyePair[side].palpebralFissureHeight * bodyScale);
+    const globe: IAutoMovieViewPart = byName.get(`globe.${side}`)!;
+    const centre: [number, number, number] = globe.axis.at(0).origin;
+    const pupilY: number = (5.2 * above[1] + 3.5 * below[1]) / 8.7;
+    check(`${side} eye globe/pupil lateral frame`, centre[2], pupilZ);
+    check(`${side} eye globe/pupil vertical frame`, centre[1], pupilY);
+
+    // This independent Bernstein read comes from the primary controls,
+    // not the authored jets, prepared spline or an output snapshot.
+    const residual: (t: number) => number = (t: number): number => {
+      const s: number = (original(t, 0) - controls[0]![0]) / (controls[3]![0] - controls[0]![0]);
+      return original(t, 1) - ((1 - s) * controls[0]![1] + s * controls[3]![1]);
+    };
+    const gain: number = inputs.head.face.eyePair[side].palpebralFissureHeight * bodyScale / (original(pupil, 1) * (1 + 5.2 / 3.5));
+    const nasalY: number = plan.eye - ((plan.left.length + plan.right.length) / 4) * Math.sin(tilt);
+    const chordPupil: number = (1 - pupilShare) * controls[0]![1] + pupilShare * controls[3]![1];
+    check(`${side} eye affine photo pupil origin`, centre[1], nasalY + (1 - pupilShare) * rise - gain * chordPupil);
+    const forward: number = point(`fissure.${side}`, "front.positive", 0)[0];
+    const gaps: number[] = [0, pupil].flatMap((start: number, index: number): number[] => Array.from({ length: 9 }, (_: unknown, i: number): number => start + ((index === 0 ? pupil : 1) - start) * i / 8)).map((t: number): number => {
+      const s: number = (original(t, 0) - controls[0]![0]) / (controls[3]![0] - controls[0]![0]);
+      return distance(point(`fissure.${side}`, "front.positive", at(t)), [forward, nasalY + (1 - s) * rise + gain * residual(t), sign * (plan[side].inner + (1 - s) * span)]);
+    });
+    check(`${side} eye original Bernstein upper spans`, Math.max(...gaps), 0);
+  }
+  check("eyes en-en", distance(point("fissure.left", "front.positive", last("fissure.left")), point("fissure.right", "front.positive", last("fissure.right"))), inputs.head.face.intercanthalWidth * bodyScale);
+  console.log(`head source diagnostics: ${JSON.stringify(lane.source.diagnostics)}`);
+  console.log(`head source findings: ${JSON.stringify(findings)}`);
+  TestValidator.predicate(findings.join("\n"), findings.length === 0);
+}
+
+/** All original knots, scalar extrema and each source span's middle. */
+function samples(outline: AutoMovieViewOutline.IOutline): number[] {
+  const knots: number[] = outline.knots.map((k: IAutoMovieViewPart.IKnot): number => k.station);
+  return [...new Set([...knots, ...AutoMovieViewOutline.criticalStations(outline), ...knots.slice(1).map((s: number, i: number): number => (s + knots[i]!) / 2)])].sort((a: number, b: number): number => a - b);
+}
+
+/** Euclidean metric of the public landmark protocols, mm. */
+function distance(a: readonly number[], b: readonly number[]): number {
+  return Math.hypot(...a.map((v: number, i: number): number => v - b[i]!));
+}
+
+/** Read the actual production nodes, without reconstructing a declaration from its decoded source. */
+function collect(node: AutoMovieConstructionNode, views: Map<string, IAutoMovieConstructionView>): void {
+  if (node.type === "view") views.set(node.name, node);
+  else {
+    collect(node.host, views);
+    if (node.type !== "trim") collect(node.part, views);
+  }
+}
+
+/** Scale one actual f1 declaration, including every coordinate parameter, without changing its shape or chart basis. */
+function scale(view: IAutoMovieConstructionView, factor: number): IAutoMovieConstructionView {
+  const curve: (o: IAutoMovieConstructionOutline, values: boolean) => IAutoMovieConstructionOutline = (o: IAutoMovieConstructionOutline, values: boolean): IAutoMovieConstructionOutline => AutoMovieViewOutline.scale(o, factor, values ? factor : 1);
+  const vector: (v: IAutoMovieVector3) => IAutoMovieVector3 = (v: IAutoMovieVector3): IAutoMovieVector3 => ({ x: v.x * factor, y: v.y * factor, z: v.z * factor });
+  let axis: AutoMovieConstructionAxis;
+  if (view.axis.type === "parallel") axis = { ...view.axis, origin: { x: curve(view.axis.origin.x, true), y: curve(view.axis.origin.y, true), z: curve(view.axis.origin.z, true) } };
+  else if (view.axis.type === "straight") axis = { ...view.axis, origin: vector(view.axis.origin) };
+  else if (view.axis.type === "level") axis = { ...view.axis, origin: view.axis.origin === null ? null : { x: curve(view.axis.origin.x, true), z: curve(view.axis.origin.z, true) } };
+  else if (view.axis.type === "curved") axis = { ...view.axis, step: view.axis.step * factor, knots: view.axis.knots.map((k: { station: number; point: IAutoMovieVector3 }): { station: number; point: IAutoMovieVector3 } => ({ station: k.station * factor, point: vector(k.point) })) };
+  else throw new Error(`Head source replay does not claim support for axis ${view.axis.type}`);
+  const quarters: (q: readonly [IAutoMovieConstructionOutline, IAutoMovieConstructionOutline, IAutoMovieConstructionOutline, IAutoMovieConstructionOutline]) => [IAutoMovieConstructionOutline, IAutoMovieConstructionOutline, IAutoMovieConstructionOutline, IAutoMovieConstructionOutline] = (q: readonly [IAutoMovieConstructionOutline, IAutoMovieConstructionOutline, IAutoMovieConstructionOutline, IAutoMovieConstructionOutline]): [IAutoMovieConstructionOutline, IAutoMovieConstructionOutline, IAutoMovieConstructionOutline, IAutoMovieConstructionOutline] => [curve(q[0], false), curve(q[1], false), curve(q[2], false), curve(q[3], false)];
+  let fullness: AutoMovieConstructionFullness;
+  if (view.fullness.type === "girth") fullness = { ...view.fullness, girth: curve(view.fullness.girth, true), departures: view.fullness.departures === null ? null : quarters(view.fullness.departures) };
+  else if (view.fullness.type === "shoulder") fullness = { ...view.fullness, shoulder: curve(view.fullness.shoulder, false), departures: view.fullness.departures === null ? null : quarters(view.fullness.departures) };
+  else fullness = { ...view.fullness, shoulders: quarters(view.fullness.shoulders) };
+  return { ...view, axis, stations: view.stations.map((s: number): number => s * factor), front: { positive: curve(view.front.positive, true), negative: curve(view.front.negative, true) }, side: { positive: curve(view.side.positive, true), negative: curve(view.side.negative, true) }, fullness };
+}

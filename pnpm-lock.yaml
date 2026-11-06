@@ -2165,9 +2165,19 @@ packages:
       svelte:
         optional: true
 
+  '@ttsc/darwin-arm64@0.35.0':
+    resolution: {integrity: sha512-jImQaOfyib4mWZPdO0S2mQD2sg560E4JfuEn0XLt28FMYuLf/XZS2pKPCHApUGmMZNnAMMPY+vR42BfMNEE30g==}
+    cpu: [arm64]
+    os: [darwin]
+
   '@ttsc/darwin-arm64@0.36.2':
     resolution: {integrity: sha512-Qbck749YyeDliSQN11fDZicoF2ugKsdMuLhMnZKQ5jVTlCDtxTESj+DEfPVRjrI1O8+VPZZ1ktWYNT3M+RBTAg==}
     cpu: [arm64]
+    os: [darwin]
+
+  '@ttsc/darwin-x64@0.35.0':
+    resolution: {integrity: sha512-K/WgsI3jAtC32AH6ooI/S5rnOcKQD59eQWkddcAUssBGyC/DrQAWKuGGdu7AMHPtYO3GBbMXYHaFIfSp//qFPQ==}
+    cpu: [x64]
     os: [darwin]
 
   '@ttsc/darwin-x64@0.36.2':
@@ -2180,19 +2190,39 @@ packages:
     peerDependencies:
       '@ttsc/lint': '>=0.31.0'
 
+  '@ttsc/lint@0.35.0':
+    resolution: {integrity: sha512-+CACdZFE2nad4LB5kahdnOuwPGPZSKjZeqR5A6yemTd0+Slw6m8tUDnoCHWecYCmQObMR85ME7N7W/E6Ow4v+A==}
+    peerDependencies:
+      ttsc: ^0.35.0
+
   '@ttsc/lint@0.36.2':
     resolution: {integrity: sha512-AZ5JnM8M1inN5z3azGcQ5kqW53XuBlM1A1zIEIRyTSCGenIG0wyAeYO2OieQVmqa4hgaDAfN84+y2UHX0fdW5A==}
     peerDependencies:
       ttsc: ^0.36.2
+
+  '@ttsc/linux-arm64@0.35.0':
+    resolution: {integrity: sha512-mLTPpP1v7MJIt3eXs5pGwRtYvPTEUTJwoz2kqpSegm7ilP+0wfHJMLzFKT3u8JoXngoIH6aJXSCQPnRwZpsvxw==}
+    cpu: [arm64]
+    os: [linux]
 
   '@ttsc/linux-arm64@0.36.2':
     resolution: {integrity: sha512-qtQvYVYwNOTOOgbHl8WVAdwPMGGrPiGmaaaXtD6AP5orP5j6HYQFpEPKFJUiWL8MnJV4Sed1hJgIgLeeXveQIA==}
     cpu: [arm64]
     os: [linux]
 
+  '@ttsc/linux-arm@0.35.0':
+    resolution: {integrity: sha512-uoUDKTF1tOxvasJ/s5wp+tfPMuEQmYFsU0d7tBPXOp33mO4llcvHXx2xVMTx2LNjWzRJU5eWwIG2Xi/lmPPvsg==}
+    cpu: [arm]
+    os: [linux]
+
   '@ttsc/linux-arm@0.36.2':
     resolution: {integrity: sha512-f2gn8X+M4vvQh4GLf8aeQTBmbqtbEvj2K4FdMWZFpUvVCJ/1pk84w6HowGaHYX9JZaLjnSzm5wxg5br874hJCA==}
     cpu: [arm]
+    os: [linux]
+
+  '@ttsc/linux-x64@0.35.0':
+    resolution: {integrity: sha512-/e3p+5RDmL0saFBz3GsqVvVm63o1tkKDbsXdICckZpOfDNDL9fiAlvCuIzjZN1yS6qTtoL0IgeOeRv7O2QBikg==}
+    cpu: [x64]
     os: [linux]
 
   '@ttsc/linux-x64@0.36.2':
@@ -2205,9 +2235,19 @@ packages:
     peerDependencies:
       ttsc: ^0.36.2
 
+  '@ttsc/win32-arm64@0.35.0':
+    resolution: {integrity: sha512-w1DF3IVvLm+H/7UOWTAXpqFCubt/fw38xY05picjkGwkH+px6RtmxWDziuEyEF867Zk4svMs/LsUiaHW7UCqNg==}
+    cpu: [arm64]
+    os: [win32]
+
   '@ttsc/win32-arm64@0.36.2':
     resolution: {integrity: sha512-K8f5s5tKLXBfF4x8KCZhFsgVXxv/WpbAus7s1YptX2oJkX3Gj2ePW8Ft1N2axFT2JOv4l45DqcZqzDAte89VFA==}
     cpu: [arm64]
+    os: [win32]
+
+  '@ttsc/win32-x64@0.35.0':
+    resolution: {integrity: sha512-qHZHjHLfHI+WVV24nW5FZXoAionqwAFInKdlyJPrCSSafoeygPSNIG20xqhXY5RfupFo67Vc4lGEGyhFormq3Q==}
+    cpu: [x64]
     os: [win32]
 
   '@ttsc/win32-x64@0.36.2':
@@ -3062,6 +3102,13 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
+  ttsc@0.35.0:
+    resolution: {integrity: sha512-UOmTFENYp8vQ0NpDmXe3U9+zXqJP0++urgDtx2q8HcBk4UFeD1O+uYkaxykKUQxlPGJtJidOMKIa3YBM5Bnrcg==}
+    engines: {node: '>=22.15.0'}
+    hasBin: true
+    peerDependencies:
+      typescript: '>=6.0.0 || >=7.1.0-0'
+
   ttsc@0.36.2:
     resolution: {integrity: sha512-PHrhee2UsDqUFBzMYOfcMHy1os9oCGUYAbZzyVHGOPDKapYDiN7kBSlX18UVHPE4eUgJ0XBzZuhbjDyWBKvwmA==}
     engines: {node: '>=22.15.0'}
@@ -3759,7 +3806,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@ttsc/darwin-arm64@0.35.0':
+    optional: true
+
   '@ttsc/darwin-arm64@0.36.2':
+    optional: true
+
+  '@ttsc/darwin-x64@0.35.0':
     optional: true
 
   '@ttsc/darwin-x64@0.36.2':
@@ -3773,14 +3826,27 @@ snapshots:
       '@typia/utils': 15.2.2
       yaml: 2.9.0
 
+  '@ttsc/lint@0.35.0(ttsc@0.35.0(typescript@7.0.2))':
+    dependencies:
+      ttsc: 0.35.0(typescript@7.0.2)
+
   '@ttsc/lint@0.36.2(ttsc@0.36.2(typescript@7.0.2))':
     dependencies:
       ttsc: 0.36.2(typescript@7.0.2)
 
+  '@ttsc/linux-arm64@0.35.0':
+    optional: true
+
   '@ttsc/linux-arm64@0.36.2':
     optional: true
 
+  '@ttsc/linux-arm@0.35.0':
+    optional: true
+
   '@ttsc/linux-arm@0.36.2':
+    optional: true
+
+  '@ttsc/linux-x64@0.35.0':
     optional: true
 
   '@ttsc/linux-x64@0.36.2':
@@ -3793,7 +3859,13 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
+  '@ttsc/win32-arm64@0.35.0':
+    optional: true
+
   '@ttsc/win32-arm64@0.36.2':
+    optional: true
+
+  '@ttsc/win32-x64@0.35.0':
     optional: true
 
   '@ttsc/win32-x64@0.36.2':
@@ -3911,6 +3983,18 @@ snapshots:
   '@typia/utils@15.2.2':
     dependencies:
       '@typia/interface': 15.2.2
+
+  '@wrtnlabs/evidence@0.8.2(ttsc@0.35.0(typescript@7.0.2))':
+    dependencies:
+      '@prisma/prisma-schema-wasm': 7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356
+      '@typia/interface': 15.1.0
+      '@typia/utils': 15.1.0
+      tstl: 3.0.0
+      typia: 15.1.0(ttsc@0.35.0(typescript@7.0.2))
+      web-tree-sitter: 0.27.0
+      yaml: 2.9.0
+    transitivePeerDependencies:
+      - ttsc
 
   '@wrtnlabs/evidence@0.8.2(ttsc@0.36.2(typescript@7.0.2))':
     dependencies:
@@ -4671,6 +4755,21 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
+  ttsc@0.35.0(typescript@7.0.2):
+    dependencies:
+      acorn: 8.16.0
+      cjs-module-lexer: 2.2.1
+      typescript: 7.0.2
+    optionalDependencies:
+      '@ttsc/darwin-arm64': 0.35.0
+      '@ttsc/darwin-x64': 0.35.0
+      '@ttsc/linux-arm': 0.35.0
+      '@ttsc/linux-arm64': 0.35.0
+      '@ttsc/linux-x64': 0.35.0
+      '@ttsc/win32-arm64': 0.35.0
+      '@ttsc/win32-x64': 0.35.0
+      fsevents: 2.3.3
+
   ttsc@0.36.2(typescript@7.0.2):
     dependencies:
       acorn: 8.16.0
@@ -4714,6 +4813,14 @@ snapshots:
       '@typescript/typescript-sunos-x64': 7.0.2
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
+
+  typia@15.1.0(ttsc@0.35.0(typescript@7.0.2)):
+    dependencies:
+      '@typia/interface': 15.1.0
+      '@typia/utils': 15.1.0
+      randexp: 0.5.3
+    optionalDependencies:
+      ttsc: 0.35.0(typescript@7.0.2)
 
   typia@15.1.0(ttsc@0.36.2(typescript@7.0.2)):
     dependencies:

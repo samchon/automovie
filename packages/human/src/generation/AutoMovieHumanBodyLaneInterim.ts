@@ -1,4 +1,4 @@
-import type { IAutoMovieLoftChain } from "@automovie/engine";
+import type { AutoMovieLoftContract, IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
 import type { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
@@ -12,6 +12,7 @@ import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures"
 import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolution";
 import { AutoMovieHumanArmInterim } from "./arm/AutoMovieHumanArmInterim";
 import type { AutoMovieHumanArmWalk } from "./arm/AutoMovieHumanArmWalk";
+import type { AutoMovieHumanHandBones } from "./hand/AutoMovieHumanHandBones";
 import { AutoMovieHumanFootInterim } from "./foot/AutoMovieHumanFootInterim";
 import { AutoMovieHumanLegSites } from "./AutoMovieHumanLegSites";
 import { AutoMovieHumanLegLaws } from "./leg/AutoMovieHumanLegLaws";
@@ -67,9 +68,11 @@ export namespace AutoMovieHumanBodyLaneInterim {
 
     /** The bind skeleton. */
     skeleton: readonly AutoMovieHumanSkeletonLaw.IBone[];
+    /** Actual sided hand joints and material directions already used by the skeleton. */
+    hands: Record<"left" | "right", AutoMovieHumanHandBones.IOutput>;
 
     /** The arms' tapes and the hands' dimensions, calibration mm. */
-    arms: AutoMovieHumanArmConstruction.IInputs;
+    arms: AutoMovieHumanArmConstruction.IInputs & { bideltoid: number };
   }
 
   /** The fingers, as the skeleton and the chains name them. */
@@ -82,6 +85,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
    * @returns The body lane's input.
    */
   export function of(input: IInput): AutoMovieHumanBodyLane.IInput {
+    const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [];
     const measures: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(input.params);
     const solution: IAutoMovieHumanTrunkSolution = AutoMovieHumanTrunkSolver.solve({ inputs: input.trunk, stature: input.stature, crotch: input.crotch, neck: input.neck });
     const radius: number = AutoMovieHumanTrunkInterim.foldRadius(solution);
@@ -96,6 +100,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
     const ankles: number = (bone("leftFoot").position[0] + bone("rightFoot").position[0]) / 2;
     const placed: { cervicale: number; perineum: number } = AutoMovieHumanTrunkInterim.places(measures, input.scale, ankles);
     const pending = (upper: AutoMovieHumanTrunkViews.ILaws["upper"]): AutoMovieHumanTrunkLaws.IPending => ({
+      chest: solution.landmarks.bustPoint[1],
       cervicale: placed.cervicale,
       perineum: placed.perineum,
       upper,
@@ -114,31 +119,33 @@ export namespace AutoMovieHumanBodyLaneInterim {
       const shoulder: Vec3 = bone(`${name}UpperArm`).position;
       const elbow: Vec3 = bone(`${name}LowerArm`).position;
       const wrist: Vec3 = bone(`${name}Hand`).position;
-      const knuckle: Vec3 = bone(`${name}MiddleProximal`).position;
+      const hand: AutoMovieHumanHandBones.IOutput = input.hands[name];
+      const knuckle: Vec3 = hand.knuckle;
+      const crease: Vec3 = hand.crease;
       const fold = (from: number, to: number): AutoMovieHumanBodyLane.IFold => ({ search: { phi: 0, from, to }, radius });
 
       // The arm and palm's sites from the person's tapes.
-      const arm: AutoMovieHumanArmWalk.ISiteLaw[] = AutoMovieHumanArmInterim.sites(name, input.arms, elbow, wrist);
+      const humerus: number = Math.hypot(...shoulder.map((value: number, c: number): number => value - elbow[c]!));
+      const arm: AutoMovieHumanArmWalk.ISiteLaw[] = AutoMovieHumanArmInterim.sites(name, input.arms, elbow, wrist, { projection: solution.landmarks.shoulder[1] - solution.landmarks.glenohumeral[1], humerus }, true, hand.radialCenter);
       const depth = (site: string): number => {
         const s: AutoMovieHumanArmWalk.ISiteLaw | undefined = arm.find((l: AutoMovieHumanArmWalk.ISiteLaw): boolean => l.site === site);
-        return s === undefined ? 0 : s.edges[0] - s.edges[2];
+        if (s === undefined) throw new Error(`The ${name} arm lacks its named ${site} source law`);
+        return s.edges[0] - s.edges[2];
       };
+      const palm: AutoMovieHumanArmWalk.ISiteLaw = arm.find((site: AutoMovieHumanArmWalk.ISiteLaw): boolean => site.site === "knuckles")!;
+      const palmDepth: number = palm.edges[1] - palm.edges[3];
       const branch = (walk: AutoMovieHumanDigitWalk.IInput): AutoMovieHumanBodyLane.IDigit => ({ digit: walk, fold: { search: { phi: 0, from: 0, to: 0.5 }, radius: walk.law("base").breadth / 2 } });
+      const foot: AutoMovieHumanFootInterim.IDefinition = AutoMovieHumanFootInterim.define(name, input.feet[name], ankle, measures, input.scale);
+      diagnostics.push(...foot.diagnostics);
 
-      // The back of the hand: square to the knuckle line (index to little)
-      // and the middle finger, on the side away from the body's median plane,
-      // where the hanging hand's back faces.
-      const across: Vec3 = sub(bone(`${name}IndexProximal`).position, bone(`${name}LittleProximal`).position);
-      const along: Vec3 = sub(bone(`${name}MiddleIntermediate`).position, knuckle);
-      const normal: Vec3 = unit([across[1] * along[2] - across[2] * along[1], across[2] * along[0] - across[0] * along[2], across[0] * along[1] - across[1] * along[0]]);
-      const dorsal: Vec3 = normal[2] * (name === "left" ? 1 : -1) >= 0 ? normal : [-normal[0], -normal[1], -normal[2]];
+      // The source hand owns these material directions. A cross product of
+      // unequal metacarpals and an already flexed middle phalanx would
+      // reconstruct a different frame and then lend it to every digit.
       const handLength: number = (name === "left" ? input.arms.left : input.arms.right).length / input.scale;
       const finger = (f: "Index" | "Middle" | "Ring" | "Little", digit: 2 | 3 | 4 | 5): AutoMovieHumanBodyLane.IDigit => {
-        const distal: AutoMovieHumanSkeletonLaw.IBone = bone(`${name}${f}Distal`);
-        const centres: Vec3[] = [bone(`${name}${f}Proximal`).position, bone(`${name}${f}Intermediate`).position, distal.position, distal.tip ?? distal.position];
-        return branch(AutoMovieHumanDigitInterim.finger(`finger.${name}.${f.toLowerCase()}`, centres, dorsal, measures.sex, handLength, digit, input.scale));
+        const source: AutoMovieHumanHandBones.IDigit = hand.fingers[f];
+        return branch(AutoMovieHumanDigitInterim.finger(`finger.${name}.${f.toLowerCase()}`, source.centres, source.dorsal, measures.sex, handLength, digit, input.scale));
       };
-      const thumb: AutoMovieHumanSkeletonLaw.IBone = bone(`${name}ThumbDistal`);
       return {
         leg: {
           bones: { hip, knee, ankle },
@@ -149,19 +156,22 @@ export namespace AutoMovieHumanBodyLaneInterim {
         arm: {
           bones: { shoulder, elbow, wrist },
           knuckle,
-          reach: depth("knuckles") / 2,
+          crease,
+          radial: hand.frame.across,
+          reach: palmDepth / 2,
+          measuring: { breadth: input.arms.bideltoid, lateral: Math.abs(shoulder[2]), humerus },
           sites: arm,
           joints: { elbow: depth("elbow"), wrist: depth("wrist") },
           trunk: fold(0, 0.4),
         },
-        foot: AutoMovieHumanFootInterim.of(name, input.feet[name], ankle, measures, input.scale),
+        foot: foot.foot,
         fingers: [
           ...FINGERS.map((f: "Index" | "Middle" | "Ring" | "Little", k: number): AutoMovieHumanBodyLane.IDigit => finger(f, (k + 2) as 2 | 3 | 4 | 5)),
           branch(
             AutoMovieHumanDigitInterim.finger(
               `thumb.${name}`,
-              [bone(`${name}ThumbMetacarpal`).position, bone(`${name}ThumbProximal`).position, thumb.position, thumb.tip ?? thumb.position],
-              dorsal,
+              hand.thumb.centres,
+              hand.thumb.dorsal,
               measures.sex,
               handLength,
               1,
@@ -169,18 +179,19 @@ export namespace AutoMovieHumanBodyLaneInterim {
             ),
           ),
         ],
-        toes: AutoMovieHumanFootInterim.toes(name, input.feet[name], ankle, measures, input.scale).map(branch),
+        toes: foot.toes.map((source: AutoMovieHumanFootInterim.IToe): AutoMovieHumanBodyLane.IToe => ({ toe: source.part, fold: { search: { phi: 0, from: 0, to: 0.5 }, radius: source.part.law("base").breadth / 2 } })),
       };
     };
 
     return {
+      diagnostics,
       trunk: {
         views: AutoMovieHumanTrunkViews.of(measures, input.crotch, input.scale, laws, {
           breast: AutoMovieHumanMassInterim.breastAmplitude(measures, input.scale),
           gluteal: AutoMovieHumanMassInterim.glutealAmplitude(measures, input.scale),
         }),
         tapes: { chest: measures.chestCircumference * input.scale, hip: measures.hipCircumference * input.scale },
-        breast: AutoMovieHumanMassInterim.breast(solution, measures, input.scale, radius),
+        breast: AutoMovieHumanMassInterim.breast(measures, input.scale, laws, radius),
         gluteal: AutoMovieHumanMassInterim.gluteal(solution, measures, input.scale, laws, radius),
       },
       sides: { left: side("left"), right: side("right") },
@@ -188,14 +199,4 @@ export namespace AutoMovieHumanBodyLaneInterim {
     };
   }
 
-  /** a - b. */
-  function sub(a: readonly number[], b: readonly number[]): Vec3 {
-    return [a[0]! - b[0]!, a[1]! - b[1]!, a[2]! - b[2]!];
-  }
-
-  /** a / |a|. */
-  function unit(a: Vec3): Vec3 {
-    const n: number = Math.hypot(a[0], a[1], a[2]);
-    return n > 0 ? [a[0] / n, a[1] / n, a[2] / n] : [0, 0, 1];
-  }
 }

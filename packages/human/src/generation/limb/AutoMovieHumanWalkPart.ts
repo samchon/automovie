@@ -1,6 +1,7 @@
-import { type AutoMovieSolidVector, AutoMovieViewAxis } from "@automovie/engine";
+import { AutoMovieConstructionViews, type AutoMovieSolidVector, AutoMovieViewAxis } from "@automovie/engine";
 import { AutoMovieHumanConstructionView } from "./AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "./AutoMovieHumanSiteViewPart";
+import { AutoMovieHumanJointTurn } from "./AutoMovieHumanJointTurn";
 
 type Vec3 = AutoMovieSolidVector.Vec3;
 
@@ -38,6 +39,8 @@ export namespace AutoMovieHumanWalkPart {
 
     /** A tape solved on the site's box, or a sourced shoulder. */
     fullness: AutoMovieHumanSiteViewPart.ISite["fullness"];
+    /** Optional normalized-parameter edge jets, in the same chart as edges. */
+    jets?: AutoMovieHumanSiteViewPart.ISite["jets"];
   }
 
   /** What a walk part is built from. */
@@ -48,7 +51,7 @@ export namespace AutoMovieHumanWalkPart {
     /** The joint centres, proximal first, at least two (one bone). */
     centres: Vec3[];
 
-    /** Each interior joint's turn half length, mm: its skin depth. */
+    /** Each interior joint's turn half arclength, mm; distinct from its bend radius. */
     joints: { half: number }[];
 
     /** The chart's `u` on the first bone (dorsal on a digit, anterior on a limb). */
@@ -56,6 +59,11 @@ export namespace AutoMovieHumanWalkPart {
 
     /** The sites, by rising place along the walk. */
     sites: ISite[];
+    /** Optional scalar closed-span bounds in the caller's chart; these impose no moving world-plane constraint. */
+    ranges?: AutoMovieHumanSiteViewPart.IInput["ranges"];
+
+    /** Optional material-frame transition between actual bone/share positions; signed up is projected into the endpoint's normal plane by the engine. */
+    roll?: { from: { bone: number; share: number }; to: { bone: number; share: number }; up: Vec3 };
 
     /**
      * Whether the walk closes at its first centre in a G2 dome: the base of a
@@ -86,44 +94,72 @@ export namespace AutoMovieHumanWalkPart {
    * @returns The part, its loft and the diagnostics.
    */
   export function create(input: IInput): AutoMovieHumanSiteViewPart.IResult {
+    const built: ISource | string = source(input);
+    return typeof built === "string" ? { part: null, loft: null, view: null, diagnostics: [{ producer: `walk.${input.name}`, level: 2, contract: "axis", detail: built }] } : AutoMovieHumanSiteViewPart.create(built.input);
+  }
+
+  /** The identical pre-loft declaration and its authoritative course mapping. */
+  export interface ISource {
+    /** Actual input later consumed by SiteViewPart.create, calibration mm. */
+    input: AutoMovieHumanSiteViewPart.IInput;
+    /** Straight-run bounds computed from the canonical metre axis. */
+    runs: readonly AutoMovieViewAxis.IRun[];
+    /** Actual source station of a bone/share; no second axis is constructed. */
+    station: (bone: number, share: number) => number;
+  }
+
+  /** Prepare the production axis and named source once, without a section or loft. */
+  export function source(input: IInput): ISource | string {
     const producer: string = `walk.${input.name}`;
 
-    const fail = (detail: string): AutoMovieHumanSiteViewPart.IResult => ({ part: null, loft: null, view: null, diagnostics: [{ producer, level: 2, contract: "axis", detail }] });
+    const fail = (detail: string): string => `${producer}: ${detail}`;
 
     // A tip continues the last bone straight: its point is one more centre,
-    // joined to the last bone with no turn over a quarter of the shorter of
-    // the two (a straight joint sets back by its half length, which must stay
-    // inside both segments).
+    // joined to the last bone with no intended turn. Canonical unit
+    // conversion may leave a tiny nonzero angle; use the same geometric
+    // bend-radius conversion as every other digit joint, rather than
+    // reserving a fixed quarter segment for that numerical angle.
     const last: Vec3 = input.centres[input.centres.length - 1]!;
     const before: Vec3 = input.centres[input.centres.length - 2]!;
     const length: number = Math.hypot(last[0] - before[0], last[1] - before[1], last[2] - before[2]);
     if (!(length > 0)) return fail(`the last bone of ${input.centres.length} centres has no length`);
     const tip: number = input.tip ?? 0;
-    const centres: Vec3[] = tip > 0 ? [...input.centres, [0, 1, 2].map((c: number): number => last[c]! + ((last[c]! - before[c]!) * tip) / length) as Vec3] : [...input.centres];
-    const halves: number[] = [...input.joints.map((j: { half: number }): number => j.half), ...(tip > 0 ? [Math.min(tip, length) / 4] : [])];
+    const raw: Vec3[] = tip > 0 ? [...input.centres, [0, 1, 2].map((c: number): number => last[c]! + ((last[c]! - before[c]!) * tip) / length) as Vec3] : [...input.centres];
+    // The tree's metre record is authoritative for both the runs and the
+    // reconstructed axis. A second mm-to-m conversion need not be bit-identical.
+    const positions: ReturnType<typeof AutoMovieHumanConstructionView.point>[] = raw.map(AutoMovieHumanConstructionView.point);
+    const centres: Vec3[] = positions.map(AutoMovieConstructionViews.point);
+    const metreHalves: number[] = [...input.joints.map((j: { half: number }): number => j.half), ...(tip > 0 ? [AutoMovieHumanJointTurn.half(before, last, raw.at(-1)!, Math.min(tip, length))] : [])].map((half: number): number => half * AutoMovieHumanConstructionView.METRES);
+    const halves: number[] = metreHalves.map((half: number): number => half * 1000);
     const runs: AutoMovieViewAxis.IRun[] | string = AutoMovieViewAxis.runs(centres, halves);
     if (typeof runs === "string") return fail(runs);
 
     // Each site's station from its bone and share, then its edges in the
     // engine's chart.
     const sites: AutoMovieHumanSiteViewPart.ISite[] = input.sites.map(
-      (s: ISite): AutoMovieHumanSiteViewPart.ISite => ({ site: s.site, station: station(centres, runs, s.bone, s.share), edges: engine(s.edges), fullness: s.fullness }),
+      (s: ISite): AutoMovieHumanSiteViewPart.ISite => ({ site: s.site, station: station(centres, runs, s.bone, s.share), edges: engine(s.edges), fullness: s.fullness, ...(s.jets === undefined ? {} : { jets: engineJets(s.jets) }) }),
     );
     const end: number = runs[input.centres.length - 2]!.end;
-    return AutoMovieHumanSiteViewPart.create({
+    return { runs, station: (bone: number, share: number): number => station(centres, runs, bone, share), input: {
       name: input.name,
       axis: {
         type: "jointed",
-        centres: centres.map(AutoMovieHumanConstructionView.point),
-        halves: halves.map((h: number): number => h * AutoMovieHumanConstructionView.METRES),
+        centres: positions,
+        halves: metreHalves,
         up: AutoMovieHumanConstructionView.direction(input.u),
+        ...(input.roll === undefined ? {} : { roll: {
+          from: station(centres, runs, input.roll.from.bone, input.roll.from.share) * AutoMovieHumanConstructionView.METRES,
+          to: station(centres, runs, input.roll.to.bone, input.roll.to.share) * AutoMovieHumanConstructionView.METRES,
+          up: AutoMovieHumanConstructionView.direction(input.roll.up),
+        } }),
       },
       sites,
+      ...(input.ranges === undefined ? {} : { ranges: engineRanges(input.ranges) }),
       ...pole(input, tip > 0 ? runs[runs.length - 1]!.end : end),
       order: input.order,
       samples: input.samples,
       gap: input.gap,
-    });
+    } };
   }
 
   /**
@@ -170,6 +206,18 @@ export namespace AutoMovieHumanWalkPart {
    */
   function engine(e: readonly [number, number, number, number]): [number, number, number, number] {
     return [e[0], -e[3], e[2], -e[1]];
+  }
+
+  /** Carry derivatives of the same signed edges through the side-pair reflection; their normalized parameter is unchanged. */
+  function engineJets(jets: NonNullable<ISite["jets"]>): NonNullable<AutoMovieHumanSiteViewPart.ISite["jets"]> {
+    const neg = (jet: (typeof jets)[number]): (typeof jets)[number] => jet === undefined ? undefined : { first: jet.first === null ? null : -jet.first, second: jet.second === null ? null : -jet.second };
+    return [jets[0], neg(jets[3]), jets[2], neg(jets[1])];
+  }
+
+  /** Negating a side edge exchanges its scalar bounds as well as their signs. */
+  function engineRanges(ranges: NonNullable<IInput["ranges"]>): NonNullable<AutoMovieHumanSiteViewPart.IInput["ranges"]> {
+    const neg = (range: (typeof ranges)[number]): (typeof ranges)[number] => range === undefined ? undefined : { minimum: range.maximum === null ? null : -range.maximum, maximum: range.minimum === null ? null : -range.minimum };
+    return [ranges[0], neg(ranges[3]), ranges[2], neg(ranges[1])];
   }
 
   /**

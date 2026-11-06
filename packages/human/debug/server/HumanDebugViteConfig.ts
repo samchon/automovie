@@ -17,16 +17,19 @@ const ENVIRONMENT: IHumanDebugEnvironment = HumanDebugEnvironment(DIRECTORY);
  *
  * A page keeps the source it loaded until it is reloaded by hand or by a capture's own request:
  * Vite's update socket is off (`server.hmr: false`), so a save reaches no open page, and the
- * watcher still invalidates the served modules, so a reload loads the saved source. The watcher covers the
- * files the server serves, never the evidence and compiler folders a capture writes into. Vite
- * restarts the server itself when its configuration file or a module the configuration imports
- * changes (`vite.config.ts`, `debug/server`, `debug/contracts`, `debug/poses`).
+ * a reload requests modules from the running server. Its watcher is intended to invalidate served
+ * files, but disk hash equality does not prove workspace dependency transforms are fresh; compare
+ * actual served exports/bytes when investigating that boundary. The watcher ignores evidence and
+ * compiler folders a capture writes into. In the installed
+ * Vite 5.4, `hmr: false` also suppresses the config-change server-restart handler. Page-module
+ * invalidation therefore does not reload the server's CaptureSession implementation; server code
+ * needs a normal server restart, separately from a page reload.
  *
  * Vite strips the types and checks none; the viewer's collector, `ttsc --noEmit --watch -p
  * tsconfig.debug.json`, checks them, and the page and the image and batch routes report its latest
  * cycle.
- * Each port gets its own dependency cache, under the repository's `node_modules` so that its
- * rewrites never reach the collectors' watch on the package, and several viewers run side by side.
+ * The dependency cache is scoped by port under the repository's `node_modules`, outside the
+ * collectors' package watch. The shared workflow uses the single viewer on port 5197.
  */
 export const HumanDebugViteConfig: UserConfig = defineConfig({
   root: DIRECTORY,
@@ -40,8 +43,8 @@ export const HumanDebugViteConfig: UserConfig = defineConfig({
     port: ENVIRONMENT.port,
     strictPort: true,
     open: false,
-    // No update socket: a save reloads no open page; a reload by hand or a
-    // capture's own request loads the saved source.
+    // No update socket: a save reloads no open page; a manual or capture reload
+    // requests the running server's modules, whose transform freshness is a separate boundary.
     hmr: false,
     fs: { allow: [ENVIRONMENT.repository] },
     watch: { ignored: ["**/.tmp/**", "**/.shots/**", "**/.ttsc/**", "**/dev/**", "**/lib/**", "**/docs/**", "**/*.md"] },

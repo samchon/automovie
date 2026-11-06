@@ -36,7 +36,7 @@ export interface IAutoMovieHumanHeadLandmarks {
   /** Gonion, `[x, y]`, before the jaw is built. */
   gonion: P2;
 
-  /** Opisthocranion's height. */
+  /** Retained posterior profile's horizontal-tangent reference height; the maximum-caliper point is found on the actual source and need not be here. */
   occiput: number;
 }
 

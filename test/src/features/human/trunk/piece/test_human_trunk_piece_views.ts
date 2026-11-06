@@ -1,6 +1,11 @@
+import {
+  AutoMovieLoftChain,
+  AutoMovieViewSection,
+  type IAutoMovieLoftChain,
+} from "@automovie/engine";
+
 import { AutoMovieHumanTrunkViewPart } from "../../../../../../packages/human/src/generation/trunk/AutoMovieHumanTrunkViewPart";
 import type { IAutoMovieHumanTrunkViews } from "../../../../../../packages/human/src/generation/trunk/IAutoMovieHumanTrunkViews";
-import { AutoMovieLoftChain, AutoMovieViewSection, type IAutoMovieLoftChain } from "@automovie/engine";
 
 /**
  * The trunk base lofted from its views holds every view knot at its site: the
@@ -18,43 +23,68 @@ export function test_human_trunk_piece_views(): void {
 
   // Green on both made people.
   for (const person of PEOPLE) {
-    const result: AutoMovieHumanTrunkViewPart.IResult = AutoMovieHumanTrunkViewPart.create(person.views);
-    if (result.diagnostics.length !== 0) failures.push(`${person.name}: diagnostics ${JSON.stringify(result.diagnostics)}`);
+    const result: AutoMovieHumanTrunkViewPart.IResult =
+      AutoMovieHumanTrunkViewPart.create(person.views);
+    if (result.diagnostics.length !== 0)
+      failures.push(
+        `${person.name}: diagnostics ${JSON.stringify(result.diagnostics)}`,
+      );
     const chain: IAutoMovieLoftChain | null = result.loft?.chain ?? null;
     if (chain === null) {
       failures.push(`${person.name}: no chain`);
       continue;
     }
-    failures.push(...read(person.name, chain, person.views).map((r: IRow): string => r.finding).filter((f: string): boolean => f !== ""));
+    failures.push(
+      ...read(person.name, chain, person.views)
+        .map((r: IRow): string => r.finding)
+        .filter((f: string): boolean => f !== ""),
+    );
   }
 
   // Red proof: views moved by 1 mm at three sites must fail exactly those rows.
   const base: IPerson = PEOPLE[0]!;
   const moved: IAutoMovieHumanTrunkViews = {
     ...base.views,
-    sites: base.views.sites.map((s: IAutoMovieHumanTrunkViews.ISite): IAutoMovieHumanTrunkViews.ISite =>
-      s.site === "waist"
-        ? { ...s, half: s.half + 1 }
-        : s.site === "chest"
-          ? { ...s, front: s.front + 1 }
-          : s.site === "buttock" && "girth" in s.fullness
-            ? { ...s, fullness: { girth: s.fullness.girth + 1 } }
-            : s,
+    sites: base.views.sites.map(
+      (s: IAutoMovieHumanTrunkViews.ISite): IAutoMovieHumanTrunkViews.ISite =>
+        s.site === "waist"
+          ? { ...s, half: s.half + 1 }
+          : s.site === "chest"
+            ? { ...s, front: s.front + 1 }
+            : s.site === "buttock" && "girth" in s.fullness
+              ? { ...s, fullness: { girth: s.fullness.girth + 1 } }
+              : s,
     ),
   };
-  const movedChain: IAutoMovieLoftChain | null = AutoMovieHumanTrunkViewPart.create(moved).loft?.chain ?? null;
-  if (movedChain === null) failures.push("red proof: the moved views made no chain");
+  const movedChain: IAutoMovieLoftChain | null =
+    AutoMovieHumanTrunkViewPart.create(moved).loft?.chain ?? null;
+  if (movedChain === null)
+    failures.push("red proof: the moved views made no chain");
   else {
     const red: string[] = read(base.name, movedChain, base.views)
       .filter((r: IRow): boolean => r.finding !== "")
       .map((r: IRow): string => r.key);
-    const expected: string[] = ["waist half", "waist right half", "chest front", "buttock girth"];
-    if (red.length !== expected.length || !expected.every((k: string): boolean => red.includes(k)))
-      failures.push(`red proof: a 1 mm move failed [${red.join(", ")}], expected exactly [${expected.join(", ")}]`);
+    const expected: string[] = [
+      "waist half",
+      "waist right half",
+      "chest front",
+      "buttock girth",
+    ];
+    if (
+      red.length !== expected.length ||
+      !expected.every((k: string): boolean => red.includes(k))
+    )
+      failures.push(
+        `red proof: a 1 mm move failed [${red.join(", ")}], expected exactly [${expected.join(", ")}]`,
+      );
   }
 
   // Refused cases: reported, never thrown.
-  const refuse = (name: string, views: IAutoMovieHumanTrunkViews, lofts: boolean): void => {
+  const refuse = (
+    name: string,
+    views: IAutoMovieHumanTrunkViews,
+    lofts: boolean,
+  ): void => {
     let result: AutoMovieHumanTrunkViewPart.IResult;
     try {
       result = AutoMovieHumanTrunkViewPart.create(views);
@@ -62,24 +92,64 @@ export function test_human_trunk_piece_views(): void {
       failures.push(`${name}: threw ${String(error)}`);
       return;
     }
-    if (result.diagnostics.length === 0) failures.push(`${name}: no diagnostic`);
-    if ((result.loft?.chain !== null && result.loft?.chain !== undefined) !== lofts) failures.push(`${name}: chain ${lofts ? "missing" : "made"}`);
+    if (result.diagnostics.length === 0)
+      failures.push(`${name}: no diagnostic`);
+    if (
+      (result.loft?.chain !== null && result.loft?.chain !== undefined) !==
+      lofts
+    )
+      failures.push(`${name}: chain ${lofts ? "missing" : "made"}`);
   };
   const sites: IAutoMovieHumanTrunkViews.ISite[] = base.views.sites;
-  refuse("a site below the perineum", { ...base.views, sites: [{ ...sites[0]!, y: base.views.perineum.y - 5 }, ...sites.slice(1)] }, false);
-  refuse("a back before its front", { ...base.views, sites: sites.map((s: IAutoMovieHumanTrunkViews.ISite): IAutoMovieHumanTrunkViews.ISite => (s.site === "waist" ? { ...s, back: s.front + 10 } : s)) }, false);
+  refuse(
+    "a site below the perineum",
+    {
+      ...base.views,
+      sites: [
+        { ...sites[0]!, y: base.views.perineum.y - 5 },
+        ...sites.slice(1),
+      ],
+    },
+    false,
+  );
+  refuse(
+    "a back before its front",
+    {
+      ...base.views,
+      sites: sites.map(
+        (
+          s: IAutoMovieHumanTrunkViews.ISite,
+        ): IAutoMovieHumanTrunkViews.ISite =>
+          s.site === "waist" ? { ...s, back: s.front + 10 } : s,
+      ),
+    },
+    false,
+  );
   refuse(
     "a tape under its box's rhombus",
     {
       ...base.views,
-      sites: sites.map((s: IAutoMovieHumanTrunkViews.ISite): IAutoMovieHumanTrunkViews.ISite =>
-        s.site === "waist" ? { ...s, fullness: { girth: 2 * Math.hypot(2 * s.half, s.front - s.back) - 20 } } : s,
+      sites: sites.map(
+        (
+          s: IAutoMovieHumanTrunkViews.ISite,
+        ): IAutoMovieHumanTrunkViews.ISite =>
+          s.site === "waist"
+            ? {
+                ...s,
+                fullness: {
+                  girth: 2 * Math.hypot(2 * s.half, s.front - s.back) - 20,
+                },
+              }
+            : s,
       ),
     },
     true,
   );
 
-  if (failures.length !== 0) throw new Error(`${failures.length} trunk view part findings:\n${failures.join("\n")}`);
+  if (failures.length !== 0)
+    throw new Error(
+      `${failures.length} trunk view part findings:\n${failures.join("\n")}`,
+    );
 }
 
 /** Largest departure of a reading from its knot, mm: the emitted section's interpolation error and more (see the evidence). */
@@ -106,35 +176,83 @@ interface IRow {
  * @param views The knots expected.
  * @returns One row per reading.
  */
-function read(name: string, chain: IAutoMovieLoftChain, views: IAutoMovieHumanTrunkViews): IRow[] {
+function read(
+  name: string,
+  chain: IAutoMovieLoftChain,
+  views: IAutoMovieHumanTrunkViews,
+): IRow[] {
   const rows: IRow[] = [];
-  const phases: number[] = Array.from({ length: PHASES }, (_: unknown, i: number): number => (2 * Math.PI * i) / PHASES);
+  const phases: number[] = Array.from(
+    { length: PHASES },
+    (_: unknown, i: number): number => (2 * Math.PI * i) / PHASES,
+  );
   const row = (key: string, value: number, expected: number): void => {
     const off: number = value - expected;
-    rows.push({ key, finding: Math.abs(off) <= LIMIT ? "" : `${name} ${key}: ${value.toFixed(3)} mm against ${expected.toFixed(3)} mm (${off.toFixed(3)})` });
+    rows.push({
+      key,
+      finding:
+        Math.abs(off) <= LIMIT
+          ? ""
+          : `${name} ${key}: ${value.toFixed(3)} mm against ${expected.toFixed(3)} mm (${off.toFixed(3)})`,
+    });
   };
   for (const s of views.sites) {
-    const ring: [number, number, number][] = AutoMovieLoftChain.ring(chain, s.y, phases);
-    const xs: number[] = ring.map((p: [number, number, number]): number => p[0]);
-    const zs: number[] = ring.map((p: [number, number, number]): number => p[2]);
+    const ring: [number, number, number][] = AutoMovieLoftChain.ring(
+      chain,
+      s.y,
+      phases,
+    );
+    const xs: number[] = ring.map(
+      (p: [number, number, number]): number => p[0],
+    );
+    const zs: number[] = ring.map(
+      (p: [number, number, number]): number => p[2],
+    );
     row(`${s.site} half`, Math.max(...zs), s.half);
     row(`${s.site} right half`, -Math.min(...zs), s.half);
     row(`${s.site} front`, Math.max(...xs), s.front);
     row(`${s.site} back`, Math.min(...xs), s.back);
-    if ("girth" in s.fullness) row(`${s.site} girth`, hull(ring.map((p: [number, number, number]): [number, number] => [p[0], p[2]])), s.fullness.girth);
+    if ("girth" in s.fullness)
+      row(
+        `${s.site} girth`,
+        hull(
+          ring.map((p: [number, number, number]): [number, number] => [
+            p[0],
+            p[2],
+          ]),
+        ),
+        s.fullness.girth,
+      );
   }
 
   // The bottom closes: the chain carries its pole at the perineum, and the
   // rings shrink toward it, each nearer ring reaching less far from it.
-  const pole: [number, number, number] | undefined = chain.pole?.end === "bottom" ? chain.pole.point : undefined;
+  const pole: [number, number, number] | undefined =
+    chain.pole?.end === "bottom" ? chain.pole.point : undefined;
   const at: [number, number, number] = [views.perineum.x, views.perineum.y, 0];
-  if (pole === undefined || Math.hypot(pole[0] - at[0], pole[1] - at[1], pole[2] - at[2]) > 1e-6)
-    rows.push({ key: "perineum", finding: `${name} perineum: pole ${JSON.stringify(chain.pole)} is not the bottom pole at ${JSON.stringify(at)}` });
+  if (
+    pole === undefined ||
+    Math.hypot(pole[0] - at[0], pole[1] - at[1], pole[2] - at[2]) > 1e-6
+  )
+    rows.push({
+      key: "perineum",
+      finding: `${name} perineum: pole ${JSON.stringify(chain.pole)} is not the bottom pole at ${JSON.stringify(at)}`,
+    });
   const reach = (y: number): number =>
-    Math.max(...AutoMovieLoftChain.ring(chain, y, phases).map((p: [number, number, number]): number => Math.hypot(p[0] - at[0], p[2] - at[2])));
-  const reaches: number[] = [1, 5, views.sites[0]!.y - views.perineum.y].map((d: number): number => reach(views.perineum.y + d));
+    Math.max(
+      ...AutoMovieLoftChain.ring(chain, y, phases).map(
+        (p: [number, number, number]): number =>
+          Math.hypot(p[0] - at[0], p[2] - at[2]),
+      ),
+    );
+  const reaches: number[] = [1, 5, views.sites[0]!.y - views.perineum.y].map(
+    (d: number): number => reach(views.perineum.y + d),
+  );
   if (!(reaches[0]! < reaches[1]! && reaches[1]! < reaches[2]!))
-    rows.push({ key: "perineum", finding: `${name} perineum: rings 1 mm, 5 mm and at the lowest site reach ${reaches.map((r: number): string => r.toFixed(3)).join(", ")} mm, not shrinking toward the pole` });
+    rows.push({
+      key: "perineum",
+      finding: `${name} perineum: rings 1 mm, 5 mm and at the lowest site reach ${reaches.map((r: number): string => r.toFixed(3)).join(", ")} mm, not shrinking toward the pole`,
+    });
   return rows;
 }
 
@@ -146,18 +264,32 @@ function read(name: string, chain: IAutoMovieLoftChain, views: IAutoMovieHumanTr
  * @returns The hull's perimeter, mm.
  */
 function hull(points: readonly [number, number][]): number {
-  const sorted: [number, number][] = [...points].sort((a: [number, number], b: [number, number]): number => a[0] - b[0] || a[1] - b[1]);
-  const turn = (o: [number, number], a: [number, number], b: [number, number]): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const sorted: [number, number][] = [...points].sort(
+    (a: [number, number], b: [number, number]): number =>
+      a[0] - b[0] || a[1] - b[1],
+  );
+  const turn = (
+    o: [number, number],
+    a: [number, number],
+    b: [number, number],
+  ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
   const half = (list: [number, number][]): [number, number][] => {
     const out: [number, number][] = [];
     for (const p of list) {
-      while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0) out.pop();
+      while (
+        out.length >= 2 &&
+        turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
+      )
+        out.pop();
       out.push(p);
     }
     out.pop();
     return out;
   };
-  const h: [number, number][] = [...half(sorted), ...half([...sorted].reverse())];
+  const h: [number, number][] = [
+    ...half(sorted),
+    ...half([...sorted].reverse()),
+  ];
   let length: number = 0;
   for (let i: number = 0; i < h.length; i++) {
     const a: [number, number] = h[i]!;
@@ -201,11 +333,33 @@ function ellipse(half: number, depth: number): number {
  */
 function person(
   name: string,
-  m: { crotch: number; buttock: number; waist: number; chest: number; axilla: number; acromion: number; cervicale: number; hip: number; buttockDepth: number; waistBreadth: number; waistDepth: number; chestBreadth: number; chestDepth: number; biacromial: number },
+  m: {
+    crotch: number;
+    buttock: number;
+    waist: number;
+    chest: number;
+    axilla: number;
+    acromion: number;
+    cervicale: number;
+    hip: number;
+    buttockDepth: number;
+    waistBreadth: number;
+    waistDepth: number;
+    chestBreadth: number;
+    chestDepth: number;
+    biacromial: number;
+  },
 ): IPerson {
   // Made forward places of the mid-depth (the posture's forward and backward
   // lean) and a made fuller tape at the chest, inside its box's reach.
-  const site = (siteName: string, y: number, half: number, depth: number, centre: number, fullness: IAutoMovieHumanTrunkViews.ISite["fullness"]): IAutoMovieHumanTrunkViews.ISite => ({
+  const site = (
+    siteName: string,
+    y: number,
+    half: number,
+    depth: number,
+    centre: number,
+    fullness: IAutoMovieHumanTrunkViews.ISite["fullness"],
+  ): IAutoMovieHumanTrunkViews.ISite => ({
     site: siteName,
     y,
     half,
@@ -214,18 +368,36 @@ function person(
     fullness,
   });
   const chestHalf: number = m.chestBreadth / 2;
-  const fuller: number = (ellipse(chestHalf, m.chestDepth) + 2 * (2 * chestHalf + m.chestDepth)) / 3;
+  const fuller: number =
+    (2 * ellipse(chestHalf, m.chestDepth) +
+      2 * (2 * chestHalf + m.chestDepth)) /
+    3;
   return {
     name,
     views: {
       perineum: { y: m.crotch, x: -10 },
       sites: [
-        site("buttock", m.buttock, m.hip / 2, m.buttockDepth, -20, { girth: ellipse(m.hip / 2, m.buttockDepth) }),
-        site("waist", m.waist, m.waistBreadth / 2, m.waistDepth, 0, { girth: ellipse(m.waistBreadth / 2, m.waistDepth) }),
+        site("buttock", m.buttock, m.hip / 2, m.buttockDepth, -20, {
+          girth: ellipse(m.hip / 2, m.buttockDepth),
+        }),
+        site("waist", m.waist, m.waistBreadth / 2, m.waistDepth, 0, {
+          girth: ellipse(m.waistBreadth / 2, m.waistDepth),
+        }),
         site("chest", m.chest, chestHalf, m.chestDepth, 10, { girth: fuller }),
-        site("axilla", m.axilla, chestHalf, 0.9 * m.chestDepth, 5, { shoulder: AutoMovieViewSection.ELLIPSE }),
-        site("acromion", m.acromion, m.biacromial / 2 + 5, 0.55 * m.chestDepth, -10, { shoulder: 0.5 }),
-        site("top", m.cervicale + 40, 55, 110, -5, { shoulder: AutoMovieViewSection.ELLIPSE }),
+        site("axilla", m.axilla, chestHalf, 0.9 * m.chestDepth, 5, {
+          shoulder: AutoMovieViewSection.ELLIPSE,
+        }),
+        site(
+          "acromion",
+          m.acromion,
+          m.biacromial / 2 + 5,
+          0.55 * m.chestDepth,
+          -10,
+          { shoulder: 0.5 },
+        ),
+        site("top", m.cervicale + 40, 55, 110, -5, {
+          shoulder: AutoMovieViewSection.ELLIPSE,
+        }),
       ],
     },
   };

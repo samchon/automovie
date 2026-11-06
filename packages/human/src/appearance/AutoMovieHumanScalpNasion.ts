@@ -6,10 +6,12 @@ import type { AutoMovieHumanSkinVector } from "./AutoMovieHumanSkinVector";
 /**
  * The soft-tissue nasion on the front midline skin, the origin of the
  * forehead height tr-n. The head publishes it (`calibration.head.nasion`,
- * by its own definition: the deepest midline point between the glabella and
- * 6 mm under the eye line); on a calibration without it, it is the front
- * midline skin at the menton plus the face height n-gn, the head's own
- * input. The published point is read as given, never corrected here.
+ * the same nasofrontal landmark that owns the generating n-sn distance,
+ * distinct from the deepest nasofrontal point, sellion). On a legacy
+ * calibration without it, the fallback approximates its height by menton
+ * plus the supplied n-gn distance; that approximation is not an exact
+ * reconstruction of the three-dimensional n-gn chord. A published point
+ * is read as given, never corrected here.
  */
 export namespace AutoMovieHumanScalpNasion {
   /**

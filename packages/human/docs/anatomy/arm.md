@@ -1,17 +1,50 @@
 # Arm
 
+## Active shoulder source transfer
+
+The active GH is a population/frame-transfer proxy, not the lateral acromion
+or a joint center fitted from skin width. Campbell et al. 2009's generic
+[12,-49,6] physical millimetres is expressed in their acromial triad. Our
+authored AP bar and frontal acromion-to-internal-neck chord construct an
+explicit substitute frame; authored acromion AP is itself a retained prior,
+not measured AcrLR. Canonical-right placement is reflected for the left,
+and calibration scale applies once. The current input graph cannot recover
+the actual triad or an individual's GH. The complete alternatives and direct
+primary-source reading are in [the input audit](../work/body-input-source-audit.md#shoulder-joint-measuring-pose-and-source-family-alternatives).
+
+The same actual downward GH projection d closes the straight measuring
+caliper H=AR-d-.0432AR before rigid transport to bind. The biceps station
+AR/2-d remains a radiale-for-olecranon proxy. The retained .3H first free
+deltoid row and 1.026G multiplier transfer the current biceps support template;
+they do not locate the maximum or recover the unobserved proximal heads.
+Public bideltoid constrains the original outer support over the explicit
+proximal-pole-to-midshaft domain in an arms-down upper-arm frame. Its common
+source critical roots and final residual are checked independently of GH,
+bony acromial Y/Z, biceps G and the hand's original material/axis records.
+Source closure, anatomical validity, reference-overlay agreement and final
+skin attachment remain separate. Independent round84782 passes the generic
+frame/caliper convention and isolated limb sources. Coupled92580 then passes
+actual production GH/AR/acromion delivery, deltoid-domain support-plane B,
+changed-box biceps G and the original hand AST/roll connection. It does not
+make the authored frame measured AcrCS, the region an independently observed
+deltoid border, or the final skin/visual result accepted. ANSUR printed88 does
+not establish an additional exact same-Y contact requirement from its finite
+caliper blades; same-Y section width is a distinct optional model reading.
+
 Each value holds only for its cited population, posture, coordinate frame and measurement protocol.
+
+The active body source uses `BodyLaw`/`SkeletonLaw`'s pure `ArmBones` and shared `HandBones`, followed by `ArmInterim`/`ArmWalk` and `DigitInterim`/`DigitWalk`. Its original edge curves, material frame and production tree share one declaration. The reference observations and older piece graph below remain retained source material; their presence does not mean the current body emits those pieces or consumes every public measure. The former biceps-first source had no bideltoid owner; the current explicit deltoid-domain solve is described above. The complete current input/measurement boundary is recorded in [the body source audit](../work/body-input-source-audit.md).
 
 ## Joint centres from the length inputs
 
-De Leva 1996 Table 2 ([de-leva-1996](../sources/de-leva-1996.md)) places the shoulder centre 33.7 (F) / 34.5 (M) mm distal of the acromion and the elbow centre 13.9 / 14.3 mm proximal of radiale, both read off acromion-radiale with the arm adducted, and the wrist centre 1.5 mm distal of stylion. Over Table 4's adducted acromion-radiale (322.7 / 330.5 mm) the two offsets are one share for both sexes:
+De Leva 1996 Table 2 ([de-leva-1996](../sources/de-leva-1996.md)) places the shoulder centre 33.7 (F) / 34.5 (M) mm distal of the acromion and the elbow centre 13.9 / 14.3 mm proximal of radiale, and the wrist centre 1.5 mm distal of stylion. The retained AR denominators 322.7 / 330.5 mm are reconstructed from Table 4 joint-centre lengths plus Table 2 landmark offsets; they are not Table 4's stated acromion-radiale measurements. The paper's Upper arm text instead states AR 324.1 / 331.8 mm, and Fig.1 has further differing mean offsets. The following ratios are therefore retained approximations, not exact individual regressions:
 
 | Offset | Women | Men | Rule |
 | --- | --- | --- | --- |
 | shoulder centre below the acromion | 33.7 / 322.7 = 0.10443 | 34.5 / 330.5 = 0.10439 | 0.1044 AR |
 | elbow centre above radiale | 13.9 / 322.7 = 0.04307 | 14.3 / 330.5 = 0.04327 | 0.0432 AR |
 
-In the hanging arm the four points are collinear, so the humerus' joint-centre length is `(1 - 0.1044 - 0.0432) AR = 0.8524 AR`, and the forearm's is `0.0432 AR + RS + 1.5 mm`. Grade: derived. Scaling the offsets with the segment, as the shares do, extends them to children (inference; see [skeleton](skeleton.md)).
+In the model's declared straight neutral measuring convention, the four longitudinal projections are collinear. The same GH placement and offsets then close the public axis-parallel AR caliper: GH lies `0.1044 AR` below the measured acromion, the humerus is `(1 - 0.1044 - 0.0432) AR = 0.8524 AR`, and radiale is `0.0432 AR` past the elbow centre. The forearm's joint-centre length is `0.0432 AR + RS + 1.5 mm`. These rigid lengths are carried into the bind; this is not a claim that every person's clinical carrying angle is zero. Grade: geometric closure under retained approximations and a placement convention. Scaling the offsets with the segment extends them to children as an inference (see [skeleton](skeleton.md)).
 
 ## Reference observations (f1, f2, m1, m2)
 

@@ -138,7 +138,7 @@ export namespace IAutoMovieHumanBodyCalibration {
     dorsal: [number, number, number];
   }
 
-  /** Head landmarks on the skin, `[x, y, z]` calibration millimetres. */
+  /** Head-owned attachment sites from its generating profile and eye margins, `[x, y, z]` calibration millimetres; these sites alone do not certify the realized skin. */
   export interface IHeadLandmarks {
     /** Vertex, the crown's highest point on the midline. */
     vertex: [number, number, number];
@@ -149,11 +149,11 @@ export namespace IAutoMovieHumanBodyCalibration {
     /** Soft-tissue nasion. */
     nasion: [number, number, number];
 
-    /** Exocanthion of each eye, the right one the left's reflection. */
+    /** Lateral extreme of each eye's own planned margin, using that side's inputs. */
     exocanthion: Record<"left" | "right", [number, number, number]>;
 
-    /** Ear roots, otobasion superius and inferius, each side. */
-    otobasion: Record<
+    /** Actual ear roots, otobasion superius and inferius; absent until the realized ear module publishes its shared attachment boundary. */
+    otobasion?: Record<
       "left" | "right",
       { superius: [number, number, number]; inferius: [number, number, number] }
     >;

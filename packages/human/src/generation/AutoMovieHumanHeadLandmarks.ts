@@ -1,7 +1,7 @@
 import { AutoMovieNaturalSpline } from "@automovie/engine";
 import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
 import type { IAutoMovieHumanHeadIdentity } from "../structures/head/IAutoMovieHumanHeadIdentity";
-import type { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
+import type { IAutoMovieHumanHeadInputs } from "./IAutoMovieHumanHeadInputs";
 import { AutoMovieHumanHeadMath } from "./AutoMovieHumanHeadMath";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 import { AutoMovieHumanHeadNose } from "./AutoMovieHumanHeadNose";
@@ -15,10 +15,11 @@ import type { IAutoMovieHumanHeadNeck } from "./IAutoMovieHumanHeadNeck";
  * The head's landmark skeleton. From the neck ring and the public head inputs
  * it places, by their Farkas definitions and published relations, the
  * landmarks of the midline and beside it, and the stations and sizes the other
- * pieces read (`IAutoMovieHumanHeadLayout`), before any skin exists. The
- * measures an input names are then solved on the skin by
- * `AutoMovieHumanHeadSolve`, each moving the one key that owns it, and the
- * layout is made again with those corrections.
+ * pieces read (`IAutoMovieHumanHeadLayout`), before any skin exists. Public
+ * Euclidean chords close in the generating landmark plan; independent
+ * source-curve observers check their actual downstream points. The retired
+ * radial head pass still accepts its correction record, but is not the
+ * production view lane's source or calibration loop.
  */
 export namespace AutoMovieHumanHeadLandmarks {
   /** Prepare a prior's curves. */
@@ -53,11 +54,11 @@ export namespace AutoMovieHumanHeadLandmarks {
 
   /**
    * The person's landmarks, stations and sizes from the neck ring and the
-   * inputs, before the passes that solve them on the skin.
+   * inputs, before any view part, loft or skin join is constructed.
    */
   export function layout(
     compiled: IAutoMovieHumanHeadCompiled,
-    inputs: AutoMovieHumanHeadConstruction.IInputs,
+    inputs: Pick<IAutoMovieHumanHeadInputs, "head" | "height" | "sex" | "fat">,
     neck: IAutoMovieHumanHeadNeck,
     scale: number,
     fix: IAutoMovieHumanHeadCorrections = NONE,
@@ -70,7 +71,7 @@ export namespace AutoMovieHumanHeadLandmarks {
     const k: number = scale;
     const head: IAutoMovieHumanHeadIdentity = inputs.head;
     const y0: number = neck.level;
-    const menton: number = y0 + r.neck * inputs.neckLength * k;
+    const menton: number = (inputs.height - head.height) * k;
     const vertex: number = menton + head.height * k;
     const FH: number = head.faceHeight * k;
     const NH: number = head.face.nose.height * k;
@@ -94,18 +95,25 @@ export namespace AutoMovieHumanHeadLandmarks {
     // gnathion, the chin's turn at 45 degrees between the pogonion and the
     // menton; the subnasale the nasal height under the nasion; the stomion a
     // third of the way from the subnasale to the menton.
-    let n: number = menton + FH;
-    let sn: number = n - NH;
-    let sto: number = sn;
-    let pg: number = menton;
-    for (let i: number = 0; i < 8; i++) {
-      sn = n - Math.sqrt(Math.max(1, NH * NH - (snx - nx) ** 2)) + fix.subnasale;
-      sto = sn - p.lip * (sn - menton);
-      pg = menton + p.chin * (sto - menton);
-      const turn: number = pg - menton;
-      const gn: P2 = [pgx - (1 - Math.SQRT1_2) * turn, menton + (1 - Math.SQRT1_2) * turn];
-      n = gn[1] + Math.sqrt(Math.max(1, FH * FH - (nx - gn[0]) ** 2)) + fix.nasion;
-    }
+    // Close the same two Euclidean chords algebraically. An eight-step
+    // fixed point updated n after sn and left n-sn one iteration behind.
+    const nasalRiseSquared: number = NH * NH - (snx - nx) ** 2;
+    if (!(nasalRiseSquared > 0)) throw new Error("Head nasal height cannot span its generating sagittal endpoints");
+    const nasalRise: number = Math.sqrt(nasalRiseSquared);
+    const chinShare: number = (1 - Math.SQRT1_2) * p.chin * (1 - p.lip);
+    const offset: number = nx - pgx;
+    const rise: number = nasalRise - fix.subnasale - fix.nasion;
+    const a: number = chinShare * chinShare + (1 - chinShare) ** 2;
+    const b: number = 2 * (offset * chinShare + rise * (1 - chinShare));
+    const c: number = offset * offset + rise * rise - FH * FH;
+    const discriminant: number = b * b - 4 * a * c;
+    if (!(discriminant >= 0)) throw new Error("Head face height cannot span its generating nasion and gnathion");
+    const root: number = Math.sqrt(discriminant);
+    const lower: number = b >= 0 ? (-2 * c) / (b + root) : (-b + root) / (2 * a);
+    const sn: number = menton + lower;
+    const n: number = sn + nasalRise - fix.subnasale;
+    const sto: number = sn - p.lip * (sn - menton);
+    const pg: number = menton + p.chin * (sto - menton);
     const eye: number = n - fissure / 2;
     const g: number = n + p.glabella * FH;
 
@@ -132,6 +140,7 @@ export namespace AutoMovieHumanHeadLandmarks {
     const sl: P2 = [0, (li[1] + pg) / 2];
     sl[0] = li[0] + ((pgx - li[0]) * (li[1] - sl[1])) / (li[1] - pg) - p.sulcus * q;
     const turn: number = pg - menton;
+    const contourGn: P2 = [pgx - (1 - Math.SQRT1_2) * turn, menton + (1 - Math.SQRT1_2) * turn];
 
     // The midline profile: the vault's ellipse about the glabella's height,
     // continued under it by its own curvature, plus a natural spline of the
@@ -142,6 +151,7 @@ export namespace AutoMovieHumanHeadLandmarks {
     // `[height, forward place]` of each landmark of the profile.
     const knots: P2[] = [
       [menton, pgx - turn],
+      [contourGn[1], contourGn[0]],
       [pg, pgx],
       [sl[1], sl[0]],
       [sto, base(sto)],
@@ -257,7 +267,7 @@ export namespace AutoMovieHumanHeadLandmarks {
         stomion: [base(sto), sto],
         pogonion: [pgx, pg],
         menton: [pgx - turn, menton],
-        gnathion: [pgx - (1 - Math.SQRT1_2) * turn, menton + (1 - Math.SQRT1_2) * turn],
+        gnathion: contourGn,
         tragion,
         zygion,
         frontal,
@@ -269,6 +279,29 @@ export namespace AutoMovieHumanHeadLandmarks {
     for (const side of ["left", "right"] as const)
       [plan[side].span, plan[side].place] = canthi(plan[side], prior.face, plan.scale);
     return plan;
+  }
+
+  /**
+   * Place the selected tragion height and retained t-n norm together.
+   * The base half-width is the prior's declared t-t construction; the
+   * selected drop law must not replace Y after X closed a different chord.
+   * Zygion retains its declared share of that same forward depth.
+   *
+   * @evidence contracts/common.md#principled-implementation Solves the retained three-dimensional t-n chord with the actual selected height and cranial-base half-width.
+   * @evidence contracts/common.md#clear-and-simple-design One immutable layout update supplies every downstream head curve.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No reference fit, stale-height X solve or compensating offset is retained; an impossible chord throws.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes the retained norm and base-width convention from an individually measured tragion.
+   * @evidence contracts/performance.md#efficient-algorithms One square root and a fixed-size layout copy.
+   * @evidence contracts/performance.md#reuse-equivalent-work Composer and standalone readers use this same placement operation.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the returned layout; no generated geometry or global cache is retained.
+   */
+  export function atTragion(plan: IAutoMovieHumanHeadLayout, height: number): IAutoMovieHumanHeadLayout {
+    const frame: AutoMovieHumanHeadPrior.IFrame = AutoMovieHumanHeadPrior.PRIOR.frame;
+    const squared: number = (frame.tragion * plan.length) ** 2 - (frame.base * plan.breadth / 2) ** 2 - (plan.nasion - height) ** 2;
+    if (!(Number.isFinite(height) && squared > 0)) throw new Error("Selected tragion height cannot span the retained t-n norm and base width");
+    const depth: number = Math.sqrt(squared);
+    const x: number = plan.landmarks.nasion[0] - depth;
+    return { ...plan, landmarks: { ...plan.landmarks, tragion: [x, height], zygion: [x + frame.arch * depth, plan.landmarks.zygion[1]] } };
   }
 }
 

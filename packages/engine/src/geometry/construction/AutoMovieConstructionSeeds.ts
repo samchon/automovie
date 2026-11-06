@@ -12,15 +12,15 @@ const { norm, scale, solve3, sub } = AutoMovieSolidVector;
 /**
  * A join's seed record as the trace's seed (`AutoMovieSolidIntersection.IInput.seed`), in millimetres.
  *
- * A point seed is its two chart points. A search seed walks the part face's station line at its phase between its two shares, one step per span between the part chain's consecutive stations, takes each step's foot on the host face and solves the meeting `P(s, phase) = H(y, theta)` for `(s, y, theta)` by Newton's method from it; the first meeting whose station lies between the shares is the seed.
+ * A point seed is its two chart points. A search seed walks the part face's station line at its phase between its two shares, takes each step's foot on the host face and solves `P(s, phase) = H(y, theta)` for `(s, y, theta)` by safeguarded Newton. The first locally converged meeting inside the part shares and the actual host domain is the seed. This bounded local search does not certify every crossing or geometric absence.
  *
- * @evidence contracts/common.md#principled-implementation A search seed is the crossing of one station line of the part with the host, a three-unknown meeting solved by Newton from each step's foot, so the seed lies on the true intersection whatever stations the loft produced.
- * @evidence contracts/common.md#clear-and-simple-design A point seed maps directly; a search walks the stated shares at the chain's own layer stations, one foot and one Newton solve per step.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The search stays on the stated station line between the stated shares and reports a miss; it never scans the whole surface or falls back to a point.
+ * @evidence contracts/common.md#principled-implementation A search uses Armijo-backtracked Newton meeting solves on one fixed-phase part line from endpoint/interior-layer starts, accepting the original mm residual only inside the part shares and actual host domain. This does not prove exhaustive intersection discovery.
+ * @evidence contracts/common.md#clear-and-simple-design Point conversion is direct; search preparation and candidate iteration delegate coarse foot initialization and the three-unknown meeting solve to local helpers.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts The phase stays fixed and solver iterates may read extensions, but a returned search meeting must be owned by the requested ranges. No point or source is clamped, no sampled point replaces a meeting, and bounded failure is not reported as proof of no crossing. The entire traced loop still needs its own domain checks.
  * @evidence contracts/common.md#meaningful-documentation States both seed kinds, the walk, its steps, the solve and the failure message.
- * @evidence contracts/performance.md#efficient-algorithms Steps equal the chain's layers in the range; each step costs one foot (with a coarse grid start only when no earlier foot exists) and at most STEPS Newton iterations.
- * @evidence contracts/performance.md#reuse-equivalent-work Each step's foot starts from the previous step's foot, so the grid search runs once per seed in the usual case.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Keeps one guess and one iterate; returns the seed and retains nothing.
+ * @evidence contracts/performance.md#efficient-algorithms Each endpoint/interior-layer candidate has at most one 544-point grid, two 60-step foot attempts and one meeting solve with at most 40 Newton updates and 20 trials per update. Surface callback cost remains part of that bounded work.
+ * @evidence contracts/performance.md#reuse-equivalent-work A successful foot warm-starts the next candidate; a failed cold start is not repeated. Accepted trial jets and residuals supply the next Newton update, while each different cold candidate can still rebuild its grid.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Holds O(L) interior/candidate station arrays plus local guesses/iterates for L layers; only a seed record or error string escapes and no cache is retained.
  */
 export namespace AutoMovieConstructionSeeds {
   /** Newton steps of one meeting solve. */
@@ -28,6 +28,12 @@ export namespace AutoMovieConstructionSeeds {
 
   /** Stations and phases of the coarse grid a step's first foot starts from. */
   export const GRID: [number, number] = [16, 32];
+
+  /** Twenty trial steps, starting at full weight, bound local safeguarding work; exhaustion is not a global absence result. */
+  const BACKTRACKINGS: number = 20;
+
+  /** Conventional Armijo sufficient-decrease factor, matching PETSc SNESLINESEARCHBT's documented default rather than an anatomical fit. */
+  const DECREASE: number = 1e-4;
 
   /**
    * The trace's seed.
@@ -39,6 +45,18 @@ export namespace AutoMovieConstructionSeeds {
    * @param face The host face's index in the host atlas.
    * @param tolerance Largest gap accepted at the meeting, mm.
    * @returns The seed, or the premise the search broke.
+   *
+   * Point mode converts chart lengths without checking a meeting. Search
+   * mode is a finite local search; its failure names nonconvergence or
+   * inadmissible meetings rather than certifying absence of every crossing.
+   *
+   * @evidence contracts/common.md#principled-implementation Converts point stations from metres to mm or tries fixed-phase Armijo-Newton meetings from share endpoints/interior layers, accepting the original residual tolerance, part share interval and actual host.domain.
+   * @evidence contracts/common.md#clear-and-simple-design One seed-kind dispatch preserves direct point authoring while search owns candidate order, warm starts and the first accepted local meeting.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Search admits distinct shares in [0,1], preserves candidate order and never clamps solver points. An out-of-domain meeting leaves later candidates available. Iterates may use extensions, and the complete downstream trace retains its independent domain checks; exhausting local starts is not a no-intersection proof.
+   * @evidence contracts/common.md#meaningful-documentation Gives metre input, mm surface/layer/tolerance units, candidate direction, point-mode meaning and the bounded-search failure limit.
+   * @evidence contracts/performance.md#efficient-algorithms For M<=L+2 candidates, work is O(L+M*(G+2F+N*B)) callback/constant-system steps, G=544 grid points, F=60 foot steps, N=40 Newton updates and B=20 trials, plus one initial meeting jet pair. No complete source or surface sampling is introduced.
+   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the last successful foot as the next chart guess and retains one accepted meeting jet pair/residual between updates. A distinct cold fallback follows only a failed warm guess; no grid, source or effect is cached across requests.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Interior/ordered station arrays and current numerical jets have call lifetime; only the selected seed's chart scalars/face index or error string is returned.
    */
   export function create(
     seed: AutoMovieConstructionSeed,
@@ -49,47 +67,117 @@ export namespace AutoMovieConstructionSeeds {
     tolerance: number,
   ): AutoMovieSolidIntersection.IInput["seed"] | string {
     const S: number = AutoMovieConstructionViews.SCALE;
-    if (seed.type === "point") return { phi: seed.part[1], s: seed.part[0] * S, y: seed.host[0] * S, theta: seed.host[1], face };
-    if (!(seed.from >= 0 && seed.from <= 1 && seed.to >= 0 && seed.to <= 1 && seed.from !== seed.to)) return `search shares ${seed.from} and ${seed.to} must lie in [0, 1] and differ`;
+    if (seed.type === "point")
+      return {
+        phi: seed.part[1],
+        s: seed.part[0] * S,
+        y: seed.host[0] * S,
+        theta: seed.host[1],
+        face,
+      };
+    if (
+      !(
+        seed.from >= 0 &&
+        seed.from <= 1 &&
+        seed.to >= 0 &&
+        seed.to <= 1 &&
+        seed.from !== seed.to
+      )
+    )
+      return `search shares ${seed.from} and ${seed.to} must lie in [0, 1] and differ`;
     const first: number = layers[0]!;
     const last: number = layers[layers.length - 1]!;
     const a: number = first + seed.from * (last - first);
     const b: number = first + seed.to * (last - first);
     const low: number = Math.min(a, b);
     const high: number = Math.max(a, b);
-    const inside: number[] = layers.filter((s: number): boolean => s > low && s < high);
-    const steps: number[] = a < b ? [a, ...inside, b] : [a, ...inside.reverse(), b];
+    const inside: number[] = layers.filter(
+      (s: number): boolean => s > low && s < high,
+    );
+    const steps: number[] =
+      a < b ? [a, ...inside, b] : [a, ...inside.reverse(), b];
 
     let guess: [number, number] | null = null;
     for (const s of steps) {
       const p: Vec3 = part.jet(s, seed.phase).p;
       const start: [number, number] = guess ?? nearest(host, p);
-      const foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(host, p, start, tolerance) ?? AutoMovieSolidFoot.of(host, p, nearest(host, p), tolerance);
+      let foot: AutoMovieSolidFoot.IFoot | null = AutoMovieSolidFoot.of(host, p, start, tolerance);
+      if (foot === null && guess !== null) {
+        const cold: [number, number] = nearest(host, p);
+        if (cold[0] !== start[0] || cold[1] !== start[1]) foot = AutoMovieSolidFoot.of(host, p, cold, tolerance);
+      }
       if (foot === null) continue;
       guess = [foot.u, foot.v];
-      const met: Vec3 | null = meet(part, host, seed.phase, [s, foot.u, foot.v], tolerance);
-      if (met !== null && met[0] >= low && met[0] <= high) return { phi: seed.phase, s: met[0], y: met[1], theta: met[2], face };
+      const met: Vec3 | null = meet(
+        part,
+        host,
+        seed.phase,
+        [s, foot.u, foot.v],
+        tolerance,
+      );
+      const domain: [number, number] | undefined = host.domain;
+      if (met !== null && met[0] >= low && met[0] <= high && (domain === undefined || (met[1] >= domain[0] && met[1] <= domain[1])))
+        return { phi: seed.phase, s: met[0], y: met[1], theta: met[2], face };
     }
-    return `the part's station line at phase ${seed.phase} meets the host nowhere between stations ${a} and ${b} mm`;
+    return `no admissible meeting converged from ${steps.length} local starts on the part's station line at phase ${seed.phase} between stations ${a} and ${b} mm; this bounded search does not prove no crossing`;
   }
 
-  /** Newton's method on `P(s, phase) - H(y, theta) = 0`. */
-  function meet(part: IAutoMovieSolidSurface, host: IAutoMovieSolidSurface, phase: number, x0: Vec3, tolerance: number): Vec3 | null {
+  /**
+   * Armijo-Newton on the original physical residual P(s,phase)-H(y,theta).
+   *
+   * For the exact Newton direction, the directional derivative of |F|^2/2 is -|F|^2. The equivalent gap test avoids squaring mm residuals: gapTrial <= gap*sqrt(1-2*c*alpha). Halving alpha keeps the geometry unchanged and follows the sufficient-decrease policy documented at https://petsc.org/release/manualpages/SNES/SNESLINESEARCHBT/. Forty updates and twenty trials per update are finite work limits, not a convergence certificate. Current and accepted trial jets are used before another query of their producer, and only constant-size local state survives between updates.
+   */
+  function meet(
+    part: IAutoMovieSolidSurface,
+    host: IAutoMovieSolidSurface,
+    phase: number,
+    x0: Vec3,
+    tolerance: number,
+  ): Vec3 | null {
     let x: Vec3 = [...x0];
+    if (!x.every(Number.isFinite)) return null;
+    let p: IAutoMovieSolidSurface.IJet = part.jet(x[0], phase);
+    let h: IAutoMovieSolidSurface.IJet = host.jet(x[1], x[2]);
+    let f: Vec3 = sub(p.p, h.p);
+    let gap: number = norm(f);
+    if (!Number.isFinite(gap)) return null;
     for (let k: number = 0; k < STEPS; k++) {
-      const p: IAutoMovieSolidSurface.IJet = part.jet(x[0], phase);
-      const h: IAutoMovieSolidSurface.IJet = host.jet(x[1], x[2]);
-      const f: Vec3 = sub(p.p, h.p);
-      if (norm(f) <= tolerance) return x;
-      const dx: Vec3 | null = solve3(p.u, scale(h.u, -1), scale(h.v, -1), scale(f, -1));
+      if (gap <= tolerance) return x;
+      const dx: Vec3 | null = solve3(
+        p.u,
+        scale(h.u, -1),
+        scale(h.v, -1),
+        scale(f, -1),
+      );
       if (dx === null || !dx.every(Number.isFinite)) return null;
-      x = [x[0] + dx[0], x[1] + dx[1], x[2] + dx[2]];
+      let weight: number = 1;
+      let moved: boolean = false;
+      for (let trial: number = 0; trial < BACKTRACKINGS; trial++, weight /= 2) {
+        const next: Vec3 = [x[0] + weight * dx[0], x[1] + weight * dx[1], x[2] + weight * dx[2]];
+        if (!next.every(Number.isFinite)) continue;
+        const partJet: IAutoMovieSolidSurface.IJet = part.jet(next[0], phase);
+        const hostJet: IAutoMovieSolidSurface.IJet = host.jet(next[1], next[2]);
+        const residual: Vec3 = sub(partJet.p, hostJet.p);
+        const distance: number = norm(residual);
+        if (!(distance <= gap * Math.sqrt(1 - 2 * DECREASE * weight))) continue;
+        x = next;
+        p = partJet;
+        h = hostJet;
+        f = residual;
+        gap = distance;
+        moved = true;
+        break;
+      }
+      if (!moved) return null;
     }
-    return null;
+    return gap <= tolerance ? x : null;
   }
 
   /** The chart point of a coarse grid over the surface's domain nearest a world point. */
-  function nearest(surface: IAutoMovieSolidSurface, p: Readonly<Vec3>): [number, number] {
+  function nearest(
+    surface: IAutoMovieSolidSurface,
+    p: Readonly<Vec3>,
+  ): [number, number] {
     const [u0, u1]: [number, number] = surface.domain ?? [0, 1];
     const period: number = surface.period ?? 1;
     let best: [number, number] = [u0, 0];

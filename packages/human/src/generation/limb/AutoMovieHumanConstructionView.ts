@@ -1,8 +1,7 @@
-import type { IAutoMovieViewPart } from "@automovie/engine";
+import { AutoMovieViewOutline, type IAutoMovieViewPart } from "@automovie/engine";
 import type {
   AutoMovieConstructionAxis,
   AutoMovieConstructionFullness,
-  IAutoMovieConstructionKnot,
   IAutoMovieConstructionOutline,
   IAutoMovieConstructionOutlinePair,
   IAutoMovieConstructionView,
@@ -64,18 +63,20 @@ export namespace AutoMovieHumanConstructionView {
   }
 
   /**
-   * A curve of lengths in metres.
+   * A complete length-valued source curve in metres, retaining its parameter,
+   * scalar range and jets with respect to the normalized source parameter.
+   * Those jets have the value's units; they are not station derivatives.
    *
    * @param outline The curve, millimetres of station and value.
    * @returns The curve, metres.
    */
   export function length(outline: IAutoMovieViewPart.IOutline): IAutoMovieConstructionOutline {
-    return { knots: outline.knots.map((k: IAutoMovieViewPart.IKnot): IAutoMovieConstructionKnot => ({ site: k.site, station: k.station * METRES, value: k.value * METRES })) };
+    return AutoMovieViewOutline.scale(outline, METRES, METRES);
   }
 
-  /** A curve of shares, its stations in metres. */
+  /** A complete share-valued curve: station/parameter lengths change units; values, normalized-parameter jets and ranges keep theirs. */
   function share(outline: IAutoMovieViewPart.IOutline): IAutoMovieConstructionOutline {
-    return { knots: outline.knots.map((k: IAutoMovieViewPart.IKnot): IAutoMovieConstructionKnot => ({ site: k.site, station: k.station * METRES, value: k.value })) };
+    return AutoMovieViewOutline.scale(outline, METRES, 1);
   }
 
   /** A view's two edges in metres. */

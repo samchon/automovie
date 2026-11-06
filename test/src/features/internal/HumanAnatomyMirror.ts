@@ -197,7 +197,7 @@ export namespace HumanAnatomyMirror {
     }
 
     let worst: number = 0;
-    for (const d of A.distances(skin, points, 6)) if (Number.isFinite(d)) worst = Math.max(worst, d);
+    for (const d of A.distances(skin, points)) if (Number.isFinite(d)) worst = Math.max(worst, d);
     return worst;
   }
 }

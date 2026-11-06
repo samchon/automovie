@@ -9,7 +9,7 @@ import type { IAutoMovieLoftRelief } from "./IAutoMovieLoftRelief";
  * The three outer rings of control points being zero, the height and its
  * first and second derivatives vanish at and beyond the window's edge.
  *
- * @evidence contracts/common.md#principled-implementation A relief is a height over a window of the chain's chart with a smooth falloff, added along the surface normal, so features ride on their host's surface.
+ * @evidence contracts/common.md#principled-implementation A tensor-product cubic field gives height and analytic chart derivatives, including an optional station shift; chain readers apply that scalar along the relief's declared fixed axis.
  * @evidence contracts/common.md#clear-and-simple-design One height function of station and phase per relief record.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Outside its window a relief is exactly zero; it never moves the host elsewhere.
  * @evidence contracts/common.md#meaningful-documentation States the window, the falloff and the height's derivatives.
@@ -27,6 +27,14 @@ export namespace AutoMovieLoftRelief {
    * @param t Base phase, radians, any real value.
    * @returns `[d, dd/ds, dd/dt]` in mm, mm per mm and mm per radian; zero
    *   outside the window.
+   *
+   * @evidence contracts/common.md#principled-implementation Evaluates the local uniform cubic tensor-product basis and station/phase chain-rule factors; a shift delegates to the full mapped jet. Valid positive spans, dimensions and zero boundary control rings are producer premises.
+   * @evidence contracts/common.md#clear-and-simple-design The first-order reader avoids second derivatives for unshifted reliefs and shares jet's mapped semantics when a shift exists.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Outside-window height is exactly zero; no sample difference or shape-specific displacement replaces the authored field.
+   * @evidence contracts/common.md#meaningful-documentation Names chart units, the three returned orders and window behavior; the namespace identifies the zero-control-ring falloff premise.
+   * @evidence contracts/performance.md#efficient-algorithms Reads at most 16 controls for an unshifted field; shifted work is bounded by jet's two local field reads, independent of total net size.
+   * @evidence contracts/performance.md#reuse-equivalent-work One pair of basis/first-derivative arrays supplies height and both partials; the shift branch reuses its single full-jet result.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Allocates fixed-size basis/result arrays for the call and returns a fresh triple; the relief/net is not retained.
    */
   export function height(
     relief: IAutoMovieLoftRelief,
@@ -79,6 +87,14 @@ export namespace AutoMovieLoftRelief {
    * ```
    *
    * @returns `[h, h_s, h_t, h_ss, h_st, h_tt]`; zero outside the window.
+   *
+   * @evidence contracts/common.md#principled-implementation Applies the written first/second-order chain rule to d(s+D(s,t),t), with both fields evaluated from the same local cubic basis and admitted relief layout.
+   * @evidence contracts/common.md#clear-and-simple-design One private field reader owns tensor-product partials while this function owns composition with the station map.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Derivatives come from basis polynomials and chain rule; absence of shift means the identity map, without fitting or finite-difference compensation.
+   * @evidence contracts/common.md#meaningful-documentation Gives all six return orders and the full station-map derivative equations, including mixed and second-phase terms.
+   * @evidence contracts/performance.md#efficient-algorithms Evaluates one height field and at most one shift field, each reading 16 controls, with constant work/storage independent of net dimensions.
+   * @evidence contracts/performance.md#reuse-equivalent-work Each field visit accumulates every partial from its one support; the shift's six values serve all composition terms.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Local basis and six-number field arrays die with the call; only the fresh six-number mapped jet escapes.
    */
   export function jet(
     relief: IAutoMovieLoftRelief,
@@ -118,8 +134,14 @@ export namespace AutoMovieLoftRelief {
     if (s <= s0 || s >= s1 || offset >= span) return [0, 0, 0, 0, 0, 0];
     const su: number = (relief.rows - 3) / (s1 - s0);
     const sv: number = (relief.columns - 3) / span;
-    const [iu, wu, du, eu] = second(((s - s0) / (s1 - s0)) * (relief.rows - 3), relief.rows);
-    const [iv, wv, dv, ev] = second((offset / span) * (relief.columns - 3), relief.columns);
+    const [iu, wu, du, eu] = second(
+      ((s - s0) / (s1 - s0)) * (relief.rows - 3),
+      relief.rows,
+    );
+    const [iv, wv, dv, ev] = second(
+      (offset / span) * (relief.columns - 3),
+      relief.columns,
+    );
     const out: number[] = [0, 0, 0, 0, 0, 0];
     for (let a: number = 0; a < 4; a++)
       for (let b: number = 0; b < 4; b++) {
@@ -134,7 +156,17 @@ export namespace AutoMovieLoftRelief {
     return out;
   }
 
-  /** Phase width of the window, radians, in `(0, 2 pi]`. */
+  /**
+   * Phase width of a finite window, radians, in `(0, 2 pi]`; equal endpoints mean one turn.
+   *
+   * @evidence contracts/common.md#principled-implementation Reduces the endpoint difference modulo a turn and interprets zero remainder as the full periodic window.
+   * @evidence contracts/common.md#clear-and-simple-design One shared width calculation keeps wrapping semantics identical in the first/second-order field readers.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Equal or whole-turn-separated endpoints deliberately mean a full turn; nonfinite phase inputs are not independently admitted here.
+   * @evidence contracts/common.md#meaningful-documentation States radians, positive finite-window range and the equal-endpoint interpretation.
+   * @evidence contracts/performance.md#efficient-algorithms Constant arithmetic reads two endpoints and allocates no collection.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This scalar width calculation coordinates no cross-call field preparation.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a number without retaining the relief or any handle.
+   */
   export function width(relief: IAutoMovieLoftRelief): number {
     const w: number = wrap(relief.phases[1] - relief.phases[0]);
     return w === 0 ? 2 * Math.PI : w;

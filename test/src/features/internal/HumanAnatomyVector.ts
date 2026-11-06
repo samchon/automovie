@@ -87,30 +87,53 @@ export namespace HumanAnatomyVector {
     return sum;
   }
 
-  /** Exact distance from a point to a triangle (Ericson 2005, closest point by Voronoi regions). */
+  /**
+   * Distance to a closed triangle, including a triangle collapsed to a segment
+   * or point. An interior plane projection gives the perpendicular distance;
+   * otherwise the closest point lies on one of the three closed edges.
+   *
+   * @evidence contracts/common.md#principled-implementation Minimizes Euclidean distance over the triangle's face and boundary. Oriented edge half-planes admit the plane projection without a cancellation-prone Gram determinant. A zero cross product uses closed-segment minima, and a zero-length segment uses its point; no area epsilon flattens a thin face. Inputs are finite coordinates in ordinary body millimetres, not an exact-arithmetic predicate for unrepresentable coordinate differences or products.
+   * @evidence contracts/common.md#clear-and-simple-design One face decision and one three-edge boundary pass cover ordinary, thin, collinear and repeated-vertex triangles without separate fixture-dependent paths.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No triangle is dropped and no NaN is replaced with a guessed distance. Degeneracy follows zero geometric extent rather than a query horizon or fitted tolerance.
+   * @evidence contracts/common.md#meaningful-documentation States the closed-set interpretation, units, numerical premise and why face and edge minima suffice.
+   * @evidence contracts/performance.md#efficient-algorithms Constant work and scratch per triangle: one scaled normal, at most three side tests and three segment projections. It avoids the fourth-order dot-product determinants that lose thin faces.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work This pure leaf calculation receives one point and three vertices and coordinates no repeated requests; the surface index owns hierarchy reuse.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources All vectors and scalars are call-local; the function retains no geometry, query or external resource.
+   */
   export function triangleDistance(p: V3, a: V3, b: V3, c: V3): number {
     const ab: V3 = sub(b, a);
     const ac: V3 = sub(c, a);
-    const ap: V3 = sub(p, a);
-    const d1: number = dot(ab, ap);
-    const d2: number = dot(ac, ap);
-    if (d1 <= 0 && d2 <= 0) return dist(p, a);
-    const bp: V3 = sub(p, b);
-    const d3: number = dot(ab, bp);
-    const d4: number = dot(ac, bp);
-    if (d3 >= 0 && d4 <= d3) return dist(p, b);
-    const vc: number = d1 * d4 - d3 * d2;
-    if (vc <= 0 && d1 >= 0 && d3 <= 0) return dist(p, add(a, scale(ab, d1 / (d1 - d3))));
-    const cp: V3 = sub(p, c);
-    const d5: number = dot(ab, cp);
-    const d6: number = dot(ac, cp);
-    if (d6 >= 0 && d5 <= d6) return dist(p, c);
-    const vb: number = d5 * d2 - d1 * d6;
-    if (vb <= 0 && d2 >= 0 && d6 <= 0) return dist(p, add(a, scale(ac, d2 / (d2 - d6))));
-    const va: number = d3 * d6 - d5 * d4;
-    if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) return dist(p, add(b, scale(sub(c, b), (d4 - d3) / (d4 - d3 + (d5 - d6)))));
-    const denom: number = 1 / (va + vb + vc);
-    return dist(p, add(a, add(scale(ab, vb * denom), scale(ac, vc * denom))));
+    const extent: number = Math.max(Math.abs(ab[0]), Math.abs(ab[1]), Math.abs(ab[2]), Math.abs(ac[0]), Math.abs(ac[1]), Math.abs(ac[2]));
+    if (extent === 0) return dist(p, a);
+    const normal: V3 = cross([ab[0] / extent, ab[1] / extent, ab[2] / extent], [ac[0] / extent, ac[1] / extent, ac[2] / extent]);
+    const length: number = Math.hypot(...normal);
+    const vertices: [V3, V3, V3] = [a, b, c];
+    if (length > 0) {
+      const n: V3 = [normal[0] / length, normal[1] / length, normal[2] / length];
+      let inside: boolean = true;
+
+      // A component normal to the plane contributes zero to each oriented
+      // side test, so the point need not be projected and reconstructed.
+      for (let edge: number = 0; edge < 3; edge++) {
+        const start: V3 = vertices[edge]!;
+        if (dot(cross(sub(vertices[(edge + 1) % 3]!, start), sub(p, start)), n) < 0) inside = false;
+      }
+      if (inside) return Math.abs(dot(sub(p, a), n));
+    }
+    let nearest: number = Infinity;
+    for (let edge: number = 0; edge < 3; edge++) {
+      const start: V3 = vertices[edge]!;
+      const direction: V3 = sub(vertices[(edge + 1) % 3]!, start);
+      const delta: V3 = sub(p, start);
+      const edgeLength: number = Math.hypot(...direction);
+      if (edgeLength === 0) nearest = Math.min(nearest, Math.hypot(...delta));
+      else {
+        const unitEdge: V3 = [direction[0] / edgeLength, direction[1] / edgeLength, direction[2] / edgeLength];
+        const along: number = Math.max(0, Math.min(edgeLength, dot(delta, unitEdge)));
+        nearest = Math.min(nearest, Math.hypot(delta[0] - along * unitEdge[0], delta[1] - along * unitEdge[1], delta[2] - along * unitEdge[2]));
+      }
+    }
+    return nearest;
   }
 
   /** Rotate a vector by a unit quaternion `[x, y, z, w]`. */

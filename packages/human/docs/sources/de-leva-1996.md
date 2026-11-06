@@ -46,7 +46,9 @@ Longitudinal offset of each joint centre from a palpable landmark, positive prox
 | Knee | 35.0 | 35.0 | Tibiale | Tibiale-sphyrion |
 | Ankle | -12.6 | -12.6 | Sphyrion | Tibiale-sphyrion |
 
-Table 1 notes that acromion-radiale measured with the arm abducted 90 degrees (235.9 F, 244.8 M mm) is markedly shorter than with the arm adducted, because the acromion moves toward the radiale: a joint centre placed at a fixed offset below the acromion only holds in the adducted rest posture. Table 2 marks the shoulder and elbow offsets as estimated for the adducted arm; adducted acromion-radiale is therefore the Table 4 shoulder-to-elbow length plus both offsets, 322.7 (F) and 330.5 (M) mm, and the abducted length is 0.731 and 0.741 of it (Table 1 also lists radiale-stylion 247.1 / 251.3 and stylion-dactylion 172.0 / 189.9 mm).
+Table 1's abducted acromion-radiale is 235.9 / 244.8 mm. The Upper arm paragraph on p. 1229 explicitly gives estimated adducted lengths 324.1 / 331.8 mm. The former note's 322.7 / 330.5 came from adding Table 4's joint length and Table 2's offsets; those sums are not the paper's stated adducted length. Figure 1 also uses male elbow offset 15.6 mm where Table 2's AR row gives 14.3 mm. These values must not be silently combined as one consistent collinear chain or converted into a fitted correction.
+
+Campaign #3062 directly reopened rendered pp. 1225-1229, including Tables 1-4, Figure 1 and the Upper arm paragraph. An offset along a segment does not independently give a 3D shoulder location. The separate shoulder/length closure and current consumer limits are recorded in the [law audit](../work/law-definition-audit.md#arm-measurement-closure).
 
 ## Limits
 

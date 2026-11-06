@@ -31,11 +31,21 @@ const { combine } = AutoMovieSolidVector;
  * @evidence contracts/common.md#prohibited-implementation-shortcuts The derivatives are the surface's own jets along the square direction.
  * @evidence contracts/common.md#meaningful-documentation States the three fields and their scale.
  * @evidence contracts/performance.md#efficient-algorithms One surface jet per ribbon.
- * @evidence contracts/performance.md#reuse-equivalent-work The rail's jet is reused for the ribbon.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Three vectors per ribbon.
+ * @evidence contracts/performance.md#reuse-equivalent-work One newly read surface jet supplies the point and both across derivatives; no earlier rail jet is passed into this function.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources The result borrows that jet's point vector and owns two computed derivative vectors; no module cache retains it.
  */
 export namespace AutoMovieSolidRibbon {
-  /** A surface's jet across a rail at one point. */
+  /**
+   * Surface point and two across derivatives for a fixed chart direction/scale.
+   *
+   * @evidence contracts/common.md#principled-implementation These three vectors are the endpoint data of the surface restriction S(r+w*a*d) used by a boundary-matching blend.
+   * @evidence contracts/common.md#clear-and-simple-design Point, first and second derivative fields expose the transverse jet without storing another surface evaluator.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The type does not certify transversality, smooth variation along the rail or G2 continuity of a whole blended surface.
+   * @evidence contracts/common.md#meaningful-documentation Gives mm point units and derivative orders relative to the blend cross parameter.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms The interface executes no jet reading or blend construction.
+   * @evidence contracts/performance.md#reuse-equivalent-work A blend can reuse these already evaluated endpoint data across its cross-parameter readings while the record stays unchanged.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The retaining caller holds three vector references; point may alias a surface jet, and no population or handle is retained by the type.
+   */
   export interface IRibbon {
     /** The rail's point, mm. */
     point: Vec3;
@@ -57,8 +67,23 @@ export namespace AutoMovieSolidRibbon {
    * @param dv The cross direction's second chart component.
    * @param a The scale of the cross parameter: chart units of `d` per unit `w`.
    * @returns The ribbon.
+   *
+   * @evidence contracts/common.md#principled-implementation Applies the directional first/second chain rule to S(r+w*a*d) with chart direction and scale held fixed at this rail reading.
+   * @evidence contracts/common.md#clear-and-simple-design One surface jet and two weighted vector sums produce exactly the three boundary fields.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses analytic surface partials without finite differences or a fabricated normal; regular jets and a transverse direction for a regular blend remain caller premises.
+   * @evidence contracts/common.md#meaningful-documentation Gives chart parameters/direction, cross scale and the complete derivative formulas above.
+   * @evidence contracts/performance.md#efficient-algorithms One surface-jet callback and fixed-size vector arithmetic take constant additional work and storage.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same newly fetched jet supplies point, first and second fields; this function does not reuse a previously fetched caller jet or coordinate requests.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the jet's point reference and two fresh derivative triples; temporary weighted-term arrays are call-local and no cache is owned.
    */
-  export function of(surface: IAutoMovieSolidSurface, u: number, v: number, du: number, dv: number, a: number): IRibbon {
+  export function of(
+    surface: IAutoMovieSolidSurface,
+    u: number,
+    v: number,
+    du: number,
+    dv: number,
+    a: number,
+  ): IRibbon {
     const j: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
     return {
       point: j.p,

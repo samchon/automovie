@@ -42,6 +42,24 @@ export namespace AutoMovieHumanLegWalk {
     girth: number;
   }
 
+  /**
+   * Public tape laws and optional retained shape rows of the same source.
+   *
+   * @evidence contracts/common.md#principled-implementation Keeps the five public sites distinct from normalized profile rows that author their intervening shape.
+   * @evidence contracts/common.md#clear-and-simple-design A callable lookup and optional names preserve existing callers without a parallel curve owner.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Intermediate names do not become new measurements or sampled mesh readback.
+   * @evidence contracts/common.md#meaningful-documentation Distinguishes published site identities from retained placement/shape proxies.
+   * @evidenceExclude contracts/performance.md#efficient-algorithms This callable data contract executes no interpolation.
+   * @evidence contracts/performance.md#reuse-equivalent-work One law supplies public and intermediate sites to the same construction.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns the lookup and its finite list for one source definition.
+   */
+  export interface ILaw {
+    /** A named calibration-mm site from the same resolved inputs. */
+    (site: string): ISiteLaw;
+    /** Retained intermediate shape names; the public SITES remain separately identifiable. */
+    intermediate?: readonly string[];
+  }
+
   /** The sites, from the hip down. */
   export const SITES: readonly string[] = ["thigh", "lowerThigh", "knee", "calf", "ankle"];
 
@@ -53,11 +71,11 @@ export namespace AutoMovieHumanLegWalk {
    *
    * @param name The chain's name, `leg.left` or `leg.right`.
    * @param bones The side's hip, knee and ankle centres (`AutoMovieHumanLegBones.of`, reflected for the right).
-   * @param law Each site's law, by the names of {@link SITES}.
+   * @param law Each public site's law by SITES, with optional named intermediate rows of that same retained source profile.
    * @param gap Widest spacing between layers, mm.
    * @returns The part, its loft and the diagnostics.
    */
-  export function create(name: string, bones: Pick<AutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">, law: (site: string) => ISiteLaw, gap: number): AutoMovieHumanSiteViewPart.IResult {
+  export function create(name: string, bones: Pick<AutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">, law: ILaw, gap: number): AutoMovieHumanSiteViewPart.IResult {
     const laws: ISiteLaw[] = SITES.map((s: string): ISiteLaw => law(s));
     const reach = (l: ISiteLaw): number => Math.max(...l.edges.map(Math.abs));
     const along = (from: Vec3, to: Vec3, by: number): Vec3 => {
@@ -82,9 +100,12 @@ export namespace AutoMovieHumanLegWalk {
       const z: number = from[2] + share * (to[2] - from[2]);
       return z > 0 ? [edges[0], edges[1], edges[2], Math.max(edges[3], -z)] : z < 0 ? [edges[0], Math.min(edges[1], -z), edges[2], edges[3]] : edges;
     };
-    const sites: AutoMovieHumanWalkPart.ISite[] = [
-      ...SITES.map((s: string, k: number): AutoMovieHumanWalkPart.ISite => ({ site: s, ...place(laws[k]!.height), edges: median(laws[k]!.height, laws[k]!.edges), fullness: { girth: laws[k]!.girth } })),
-    ];
+    // The retained profile rows constrain the source shape itself, instead
+    // of reading that profile at five sites and replacing it by a sparse
+    // angle spline influenced by the two hidden poles. Public tapes remain
+    // their own unaltered sites. The intermediate rows are not measurements.
+    const placed: { site: string; law: ISiteLaw }[] = [...SITES, ...(law.intermediate ?? [])].map((site: string): { site: string; law: ISiteLaw } => ({ site, law: law(site) })).sort((a: { law: ISiteLaw }, b: { law: ISiteLaw }): number => b.law.height - a.law.height);
+    const sites: AutoMovieHumanWalkPart.ISite[] = placed.map((site: { site: string; law: ISiteLaw }): AutoMovieHumanWalkPart.ISite => ({ site: site.site, ...place(site.law.height), edges: median(site.law.height, site.law.edges), fullness: { girth: site.law.girth } }));
     const knee: ISiteLaw = laws[SITES.indexOf("knee")]!;
     return AutoMovieHumanWalkPart.create({
       name,

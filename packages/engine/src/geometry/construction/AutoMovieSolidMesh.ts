@@ -40,8 +40,8 @@ const { cross, dot, norm, scale, sub } = AutoMovieSolidVector;
  * @evidence contracts/common.md#clear-and-simple-design One mesh record; face, seam, close and bridge add triangles to it.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Triangles are turned outward by the face's orientation, never by a guessed winding.
  * @evidence contracts/common.md#meaningful-documentation States the grid, the loops' kinds, the zipper and the outward rule.
- * @evidence contracts/performance.md#efficient-algorithms Linear in grid cells and loop vertices per face.
- * @evidence contracts/performance.md#reuse-equivalent-work Owners are registered once per surface and grid jets evaluated once per vertex.
+ * @evidence contracts/performance.md#efficient-algorithms Classification is O(V(S+L)) for V grid points, S trim edges and L loops; cycle matching and zipping add their own scans.
+ * @evidence contracts/performance.md#reuse-equivalent-work Owners are registered once per surface, grid jets once per vertex, and unchanged numerical trim data once per face.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Flat number arrays hold the mesh; per-face scratch ends with the face.
  */
 export namespace AutoMovieSolidMesh {
@@ -237,6 +237,14 @@ export namespace AutoMovieSolidMesh {
    * @param input The face.
    * @returns The open ends' boundary cycles (vertex indices), the face's
    *   untrimmed first and last stations, for the caller to close or join.
+   *
+   * @evidence contracts/common.md#principled-implementation Keeps the same grid, point metric, parity and zipper; preparation changes no coordinates or topology.
+   * @evidence contracts/common.md#clear-and-simple-design One face-local classifier reuses unchanged numerical loop values after all grid jets have been evaluated.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves jet evaluation order, cell decisions, full segment minima and margin arithmetic; live accessor inputs keep their original path.
+   * @evidence contracts/common.md#meaningful-documentation IFace states chart/grid ownership; numerical preparation is limited to this synchronous call and preserves existing parity boundary ties.
+   * @evidence contracts/performance.md#efficient-algorithms Classification remains O(V(S+L)); O(S+L) preparation removes repeated invariant calculations without assuming a fixed positive metric.
+   * @evidence contracts/performance.md#reuse-equivalent-work A fresh classifier is owned by each face, so cycle edits and rollback cannot reuse an older identity cache.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Jets/grid state are O(V), prepared loop scratch O(S+L); all remain local to this face call and no global cache retains them.
    */
   export function face(mesh: IMesh, input: IFace): number[][] {
     const { surface, stations, phases, loops }: IFace = input;
@@ -250,6 +258,10 @@ export namespace AutoMovieSolidMesh {
     const jets: IAutoMovieSolidSurface.IJet[][] = stations.map((u: number): IAutoMovieSolidSurface.IJet[] =>
       phases.map((v: number): IAutoMovieSolidSurface.IJet => surface.jet(u, v)),
     );
+    const period: PropertyDescriptor | undefined = Object.getOwnPropertyDescriptor(surface, "period");
+    const classify: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> | undefined =
+      period === undefined ? ("period" in surface ? undefined : AutoMovieSolidMeshLoop.prepare(loops, undefined))
+        : "value" in period ? AutoMovieSolidMeshLoop.prepare(loops, period.value as number | undefined) : undefined;
     const kept: boolean[][] = stations.map((u: number, i: number): boolean[] =>
       phases.map((v: number, j: number): boolean => {
         const du: number = Math.min(...[stations[i - 1], stations[i + 1]].filter((x: number | undefined): x is number => x !== undefined).map((x: number): number => Math.abs(x - u)));
@@ -257,7 +269,7 @@ export namespace AutoMovieSolidMesh {
         const dv: number = Math.abs(vNext - v);
         const j0: IAutoMovieSolidSurface.IJet = jets[i]![j]!;
         const margin: number = 0.5 * Math.min(norm(j0.u) * du, norm(j0.v) * dv);
-        return loops.every((l: ILoop): boolean => AutoMovieSolidMeshLoop.keeps(l, u, v, j0, margin, surface.period));
+        return classify === undefined ? loops.every((l: ILoop): boolean => AutoMovieSolidMeshLoop.keeps(l, u, v, j0, margin, surface.period)) : classify(u, v, j0, margin);
       }),
     );
 
