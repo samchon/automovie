@@ -39,6 +39,7 @@ Finish the anatomical neutral and the bind before any other pose: every motion s
 ## Files
 
 - [Construction](construction.md): the construction tree, its parts and how they consume inputs.
+- [Original 2D Curves](curves.md): anatomical sketch scaffolds, visible controls, representation choices and exact parameter-aware conversions.
 - [Testing](testing.md): which tests to write, how to write and run them.
 - [Verification](verification.md): the reference overlay, the inspection round and the render audit.
 - [Screenshot](screenshot.md): the viewer, selection recipes, [inspection packets](screenshot.md#inspection-packets) and reference sources.

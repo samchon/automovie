@@ -41,6 +41,7 @@ A topology or chart edit invalidates affected addresses and bindings; a changed 
 
 ## Form
 
+- Author original curves through the [2D sketch and control workflow](curves.md), then keep that same source authoritative through composition and lofting.
 - Build both sides through one canonical construction and a declared reflection, including boundary maps, derivatives and orientation.
 - Keep anatomical controls and relative frames in named modules under a common body frame, with common mathematics in shared modules. Independent controls and deformation regions do not require independent lofts.
 - Build limb and digit sources in their declared bone-relative frames. A continuous source may cross several bones while retaining each anatomical joint datum.
