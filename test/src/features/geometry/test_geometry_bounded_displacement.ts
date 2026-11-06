@@ -13,7 +13,7 @@ import { throwsError } from "../internal/throwsError";
  * optima are intersections of axis bounds or the diagonal y=x in two variables.
  *
  * Scenarios:
- * 1. Already-clear input returns the exact zero minimum without a native solve.
+ * 1. Already-clear input returns the exact zero minimum without a numerical solve.
  * 2. Grouped x/y requirements take two rounds; a one-round budget refuses.
  * 3. Negative coefficients activate a previously clear row and produce (1,1).
  * 4. A lower requirement beyond the cap reports infeasibility. Invalid budgets,
@@ -22,7 +22,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/testing.md#behavioral-verification Executes the bounded contact scheduler and checks travel against independent minima, all-row residual limits, grouped round counts and zero-solve status; infeasible, exhausted and malformed problems must refuse rather than admit a partial solution.
  * @evidence contracts/testing.md#independent-expectations Intersections of x/y lower bounds give (1,2), and x>=1 with y>=x gives (1,1) under the positive diagonal objective. An empty constraint set minimizes at zero without a numerical solve. The retained 1e-6 travel and 1e-7 row tolerances bound numerical agreement, not exact solver arithmetic or geometric safety.
  * @evidence contracts/testing.md#distinguishing-cases Covers empty rows, grouped additions, an initially satisfied row activated later, one-round exhaustion, infeasible caps, residual nonconvergence and invalid tolerances/budgets/masses/caps/indices. Independent-variable elimination and tiny couplings belong to bounded-independent.
- * @evidence contracts/testing.md#execution-ownership The named geometry entry is a CPU/WebAssembly solver integration test: active constraints reach the engine's pinned Clarabel reactor through the actual quadratic source, whereas the zero case bypasses it. It installs no consumer, builds no native artifact and starts no external process, browser or GPU; it registers no extra cases.
+ * @evidence contracts/testing.md#execution-ownership The named portable unit entry reaches the actual scheduler and engine-owned TypeScript homogeneous QP solver for active constraints, while the exact zero case bypasses numerical iteration. It installs no consumer, builds no native artifact and starts no process, browser or GPU; it registers no extra cases.
  */
 export function test_geometry_bounded_displacement(): void {
   const solve: (input: {

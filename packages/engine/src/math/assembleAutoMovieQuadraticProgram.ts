@@ -6,7 +6,7 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
 
 /**
  * Admits a sparse-row quadratic program and lays its constraint matrix out in
- * the compressed sparse column form the native kernel reads.
+ * the compressed sparse column form the engine numerical kernel reads.
  *
  * Admission is `admitAutoMovieQuadraticProgram`, so an inadmissible program
  * throws before anything is built. Column `c` holds its nonzeros at
@@ -20,7 +20,7 @@ import { solveAutoMovieQuadraticProgram } from "./solveAutoMovieQuadraticProgram
  *   `upper` are new arrays, while `diagonal`, `linear` and `initial` are the
  *   caller's own arrays, so mutating them later changes the assembled program.
  *
- * @evidence contracts/common.md#principled-implementation The textbook two-pass transpose of a row-wise sparse matrix into compressed columns: count each column's entries, prefix-sum the counts into column pointers, then scatter rows in ascending order through a per-column cursor, which leaves every column sorted by row as the CSC format the Clarabel bridge passes to `CscMatrix` requires; admission first guarantees in-range unique indices, so the cursors never collide or leave a gap.
+ * @evidence contracts/common.md#principled-implementation The textbook two-pass transpose counts each column's entries, prefix-sums its pointers and scatters rows in ascending order through a per-column cursor; admission guarantees in-range unique indices, so the engine's conic assembly receives sorted CSC without collisions or gaps.
  * @evidence contracts/common.md#clear-and-simple-design Admission lives in `admitAutoMovieQuadraticProgram` because the displacement solvers, refinement and the garment fit must check a whole program they never assemble, and this function only adds the layout, which `solveAutoMovieQuadraticProgram` alone needs before calling the kernel.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Every row is laid out the same way and no coefficient is dropped, rescaled or merged, including exact zeros; the only substitution is a null endpoint becoming the kernel's documented unbounded sentinel.
  * @evidence contracts/common.md#meaningful-documentation States that admission runs first and throws, the column pointer layout and row order, that exact zeros stay, the sentinel for null endpoints, and which returned arrays are new and which are the caller's own.

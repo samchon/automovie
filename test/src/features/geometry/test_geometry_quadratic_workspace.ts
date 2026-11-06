@@ -6,118 +6,68 @@ import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/predicates";
 
 /**
- * A synchronous numerical workspace retains fresh heap access across native
- * memory growth and recovers after a caller exception. This scenario creates
- * its own module instance, so no earlier solver call supplies the tested state.
+ * TypeScript numerical borrows own fresh aligned state and release access after
+ * every callback outcome. This preserves the former transport's ownership and
+ * refusal responsibilities without assuming a native allocator or growing heap.
  *
  * Scenarios:
- * 1. A small valid workspace stores a known binary-exact value. Zero, negative,
- *    fractional and out-of-wasm32 counts are refused beside that valid input.
- * 2. A request beyond the native addressable allocation refuses without calling
- *    its body, and a subsequent small request remains usable.
- * 3. A workspace larger than the initial heap forces actual memory growth; both
- *    floating and integer views address the newly allocated range correctly.
- * 4. A callback exception propagates through cleanup; the next caller can write
- *    and read its independently owned workspace normally.
+ * 1. Eight and odd-nine byte borrows expose one aligned buffer and its last byte;
+ *    invalid, fractional, nonfinite and over-limit counts refuse before entry.
+ * 2. A larger borrow exposes its full requested extent; later borrows start at
+ *    zero and never retain prior numeric state or an earlier caller's mutations.
+ * 3. Recursive borrowing refuses, while a different owner remains independent.
+ * 4. Getter access after return refuses; callback failure propagates its identity
+ *    and releases the owner for the next independent borrow.
  *
- * @evidence contracts/testing.md#behavioral-verification Borrows actual numerical reactor workspaces, asserting double alignment, odd final-byte access, named invalid-byte refusals, allocation refusal before its tracked callback executes, fresh float/int views after forced growth, exception propagation and subsequent successful use. It catches stale views or broken recovery while permitting the owner's retained high-water memory.
- * @evidence contracts/testing.md#independent-expectations The wasm32 byte contract excludes nonpositive, fractional, nonfinite and greater-than-32-bit requests; the original maximal request cannot be allocated. Binary-exact 1.25/2.5 and authored integer/byte sentinels supply independent reads, and a request larger than initial capacity must grow memory. Recovery observes usable allocation but does not directly measure every freed byte or prove allocator lifetime beyond these calls.
- * @evidence contracts/testing.md#distinguishing-cases Preserves eight/odd-nine-byte success, six invalid byte counts, allocation failure with unentered body, actual growth, both element views, callback failure and recovery after each refusal. Numerical solve status and deterministic WASI services have separate owners.
- * @evidence contracts/testing.md#execution-ownership The discoverable named entry is CPU/WebAssembly integration that creates its own pinned reactor instance and invokes its actual allocator. It installs no consumer, builds no native artifact and starts no external process, browser or GPU; it owns all existing cases without dynamic registration.
+ * @evidence contracts/testing.md#behavioral-verification Borrows the actual TypeScript iterate owner and checks alignment, shared typed views, odd-byte extent, invalid-count no-entry, large extent, zeroed next state, independent owners, reentry refusal, expired getters and recovery after the original callback exception.
+ * @evidence contracts/testing.md#independent-expectations Positive integer byte counts at most 2^32-1 define admission, float64 alignment rounds nine to sixteen bytes, and fresh ArrayBuffers are zero initialized. Binary-exact 1.25/2.5 and integer/byte sentinels supply independent values. Released getters refuse, while deliberately retained ordinary typed views remain valid caller references and cannot mutate a later independent allocation.
+ * @evidence contracts/testing.md#distinguishing-cases Covers eight/odd-nine/65553 bytes, six invalid counts, same-owner nested refusal beside different-owner success, normal/exception release and retained-view isolation. Sparse factor and mathematical result tests own numerical correctness; no impossible native allocation is assumed after transport retirement.
+ * @evidence contracts/testing.md#execution-ownership The discoverable named unit entry directly calls portable TypeScript workspace ownership without a native artifact, WebAssembly instance, process, browser or GPU; all cases are local.
  */
 export function test_geometry_quadratic_workspace(): void {
-  const memory: ReturnType<typeof createAutoMovieQuadraticMemory> =
-    createAutoMovieQuadraticMemory();
-  const readValue: () => number = (): number =>
-    memory.withWorkspace(
-      8,
-      (heap: IAutoMovieQuadraticHeap, address: number): number => {
-        heap.floats[address / 8] = 1.25;
-        return heap.floats[address / 8];
-      },
-    );
-  TestValidator.predicate(
-    "binary-exact workspace value",
-    nclose(readValue(), 1.25, 0),
-  );
-  memory.withWorkspace(
-    9,
-    (heap: IAutoMovieQuadraticHeap, address: number): void => {
-      TestValidator.equals(
-        "odd byte count retains double alignment",
-        address % 8,
-        0,
-      );
-      const bytes: Uint8Array = new Uint8Array(heap.floats.buffer);
-      bytes[address + 8] = 123;
-      TestValidator.equals(
-        "odd allocation retains last byte",
-        bytes[address + 8],
-        123,
-      );
-    },
-  );
-  for (const count of [0, -1, 1.25, NaN, Infinity, 0x100000000])
-    TestValidator.predicate(
-      "invalid byte domain",
-      throwsError(
-        (): number => memory.withWorkspace(count, (): number => 0),
-        "wasm32 byte count",
-      ),
-    );
+  const owner: ReturnType<typeof createAutoMovieQuadraticMemory> = createAutoMovieQuadraticMemory();
+  const other: ReturnType<typeof createAutoMovieQuadraticMemory> = createAutoMovieQuadraticMemory();
+  let retained: IAutoMovieQuadraticHeap | undefined;
+  let view: Float64Array | undefined;
+  owner.withWorkspace(8, (heap: IAutoMovieQuadraticHeap, address: number): void => {
+    TestValidator.equals("aligned zero byte address", address, 0);
+    TestValidator.predicate("fresh numerical state", nclose(heap.floats[0], 0, 0));
+    heap.floats[0] = 1.25;
+    retained = heap;
+    view = heap.floats;
+    TestValidator.predicate("binary-exact numerical value", nclose(heap.floats[0], 1.25, 0));
+    TestValidator.predicate("views share one buffer", heap.floats.buffer === heap.integers.buffer);
+  });
+  TestValidator.predicate("released getter refuses", throwsError((): Float64Array => retained!.floats, "borrow has ended"));
+  owner.withWorkspace(9, (heap: IAutoMovieQuadraticHeap): void => {
+    TestValidator.equals("odd byte alignment", heap.floats.byteLength, 16);
+    const bytes: Uint8Array = new Uint8Array(heap.floats.buffer);
+    bytes[8] = 123;
+    TestValidator.equals("last requested byte exists", bytes[8], 123);
+  });
   let entered: boolean = false;
-  TestValidator.predicate(
-    "unallocatable native request",
-    throwsError(
-      (): void =>
-        memory.withWorkspace(0xffffffff, (): void => {
-          entered = true;
-        }),
-      "allocation failed",
-    ),
-  );
-  TestValidator.equals("refused body is not called", entered, false);
-  TestValidator.predicate(
-    "allocation refusal leaves owner usable",
-    nclose(readValue(), 1.25, 0),
-  );
-  const initialCapacity: number = memory.withWorkspace(
-    8,
-    (heap: IAutoMovieQuadraticHeap): number => heap.floats.byteLength,
-  );
-  const grownCapacity: number = memory.withWorkspace(
-    initialCapacity + 16,
-    (heap: IAutoMovieQuadraticHeap, address: number): number => {
-      heap.floats[address / 8] = 2.5;
-      heap.integers[address / 4 + 2] = 12345;
-      TestValidator.predicate(
-        "fresh float view after growth",
-        nclose(heap.floats[address / 8], 2.5, 0),
-      );
-      TestValidator.equals(
-        "fresh integer view after growth",
-        heap.integers[address / 4 + 2],
-        12345,
-      );
-      return heap.floats.byteLength;
-    },
-  );
-  TestValidator.predicate(
-    "native memory really grew",
-    grownCapacity > initialCapacity,
-  );
-  TestValidator.predicate(
-    "callback exception propagates",
-    throwsError(
-      (): never =>
-        memory.withWorkspace(8, (): never => {
-          throw new Error("workspace callback");
-        }),
-      "workspace callback",
-    ),
-  );
-  TestValidator.predicate(
-    "callback failure leaves owner usable",
-    nclose(readValue(), 1.25, 0),
-  );
+  for (const count of [0, -1, 1.25, NaN, Infinity, 0x100000000])
+    TestValidator.predicate("invalid byte domain", throwsError((): void => owner.withWorkspace(count, (): void => { entered = true; }), "integer byte count"));
+  TestValidator.equals("invalid request never enters callback", entered, false);
+  owner.withWorkspace(65553, (heap: IAutoMovieQuadraticHeap): void => {
+    TestValidator.predicate("requested extent is resident", heap.floats.byteLength >= 65553);
+    heap.integers[16384] = 12345;
+    TestValidator.equals("large view reaches requested range", heap.integers[16384], 12345);
+    TestValidator.predicate("same-owner recursive borrow refuses", throwsError((): void => owner.withWorkspace(8, (): void => {}), "already borrowed"));
+    other.withWorkspace(8, (independent: IAutoMovieQuadraticHeap): void => {
+      independent.floats[0] = 2.5;
+      TestValidator.predicate("different owner remains usable", nclose(independent.floats[0], 2.5, 0));
+    });
+  });
+  const failure: Error = new Error("workspace callback");
+  let propagated: unknown;
+  try { owner.withWorkspace(8, (): never => { throw failure; }); }
+  catch (error) { propagated = error; }
+  TestValidator.predicate("callback error identity", propagated === failure);
+  view![0] = 999;
+  owner.withWorkspace(8, (heap: IAutoMovieQuadraticHeap): void => {
+    TestValidator.predicate("failure and old view retain no state", nclose(heap.floats[0], 0, 0));
+    heap.floats[0] = 2.5;
+    TestValidator.predicate("owner recovers", nclose(heap.floats[0], 2.5, 0));
+  });
 }

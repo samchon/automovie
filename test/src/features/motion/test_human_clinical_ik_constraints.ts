@@ -17,9 +17,10 @@ import { throwsError } from "../internal/throwsError";
  * 2. Selected-channel bounds intersect ROM; infeasible geometry retains its actual residuals.
  * 3. Sparse channels/descriptors and malformed constraints refuse before any FK capability runs.
  * 4. Moving/rotated lines, descriptor ownership and degenerate lines have independent checks.
+ * 5. Positive and negative blocked channel goals preserve the strict applied twelve-degree cap.
  *
- * @evidence contracts/testing.md#behavioral-verification Calls public ClinicalIk with channel and line-offset constraints, checking literal endpoint distance, independent FK plane values, final receipts, ownership and prepared selection. A post-hoc shape test with an unconstrained fit cannot pass the initially satisfied endpoint case.
- * @evidence contracts/testing.md#independent-expectations The fixture's line is parallel to X, its translated origin depends on elbow degrees, and the local point's signed Y offset equals shoulder degrees divided by100. Consequently offset at least .05 and endpoint X1.2 can coexist with shoulder at least5 and elbow (20-shoulder)/1.1; a ninety-degree fixture rotation gives the same scalar in X with normal [-1,0,0].
+ * @evidence contracts/testing.md#behavioral-verification Calls public ClinicalIk with channel and line-offset constraints, checking literal endpoint distance, independent FK plane values, final receipts, ownership and prepared selection. Both signs of an unreachable single-step channel goal must retain the strict actual pose-difference cap. A post-hoc shape test with an unconstrained fit cannot pass the initially satisfied endpoint case.
+ * @evidence contracts/testing.md#independent-expectations The fixture's line is parallel to X, its translated origin depends on elbow degrees, and the local point's signed Y offset equals shoulder degrees divided by100. Consequently offset at least .05 and endpoint X1.2 can coexist with shoulder at least5 and elbow (20-shoulder)/1.1; a ninety-degree fixture rotation gives the same scalar in X with normal [-1,0,0]. Neither goal40 nor goal-40 is within twelve degrees of seed4.6, so one update retains an unresolved interval while the actual applied difference remains at most12 without an epsilon allowance.
  * @evidence contracts/testing.md#distinguishing-cases Covers lower/upper/channel intervals, moving origins, local offsets, plain/prepared parity, target-already-met restoration, impossible line bounds, zero-length lines, missing constraint bones, sparse populations, nonunit normals, unselected channels and disjoint ROM. Existing anatomical units retain actual clinical axes and conditional ROM coverage.
  * @evidence contracts/testing.md#execution-ownership One synchronous root unit uses arithmetic FK, the existing Engine QP kernel and portable assertions. It launches no process, browser, renderer, model generation or installation; the complete canonical root invocation owns compilation and execution evidence.
  */
@@ -192,14 +193,15 @@ export function test_human_clinical_ik_constraints(): void {
       impossible.constraintValues[0]!.violation > 0 &&
       impossible.iterations <= 16,
   );
+  for (const goal of [40, -40]) {
   const blocked: Ik.IResult = Ik.solve(plain, seed, {
     ...request,
     constraints: [
       {
         kind: "channel",
         channel: "arms.left.shoulder.flexion",
-        minimum: 40,
-        maximum: 40,
+        minimum: goal,
+        maximum: goal,
       },
     ],
     iterations: 1,
@@ -207,11 +209,12 @@ export function test_human_clinical_ik_constraints(): void {
   TestValidator.predicate(
     "channel interval cannot bypass the original step cap",
     !blocked.constraintsSatisfied &&
-      blocked.pose.arms!.left.shoulder!.flexion! -
-        seed.arms!.left.shoulder!.flexion! <=
+      Math.abs(blocked.pose.arms!.left.shoulder!.flexion! -
+        seed.arms!.left.shoulder!.flexion!) <=
         12 &&
       blocked.error > request.tolerance!,
   );
+  }
 
   let calls: number = 0;
   const forbidden: Skeleton.PoseEvaluator = Object.assign(
