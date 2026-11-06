@@ -1,15 +1,15 @@
 ---
 name: human
-description: Generates every Human person as one construction tree of parts lofted from their front, side and top view curves and realized by the engine, judged in the viewer against the reference overlay and confirmed by tests that cross-check the generated skin against anatomy and its inputs. Use with 3d-modeling for Human geometry, the Human viewer or its renders.
+description: Generates every Human person from anatomical view curves composed into shared source domains and realized by the engine, judged in the viewer against the reference overlay and confirmed by tests that cross-check the generated skin against anatomy and its inputs. Use with 3d-modeling for Human geometry, the Human viewer or its renders.
 ---
 
 # Human
 
-Generate every supported person from parameters by one reusable construction. Find the major anatomical centres and axes, and draw each part's front, side and top view curves from them by anatomically and scientifically sound equations, recurrences or recursions. Connected parts consume one [shared generating connection](construction.md#connections). Then compose the parts into one [construction tree](construction.md#tree), which the engine realizes into the skin.
+Generate every supported person from parameters by one reusable construction. Find the major anatomical centres and axes, and draw the regions' front, side and top view curves from them by anatomically and scientifically sound equations, recurrences or recursions. Compose compatible original 2D definitions into shared generating domains before lofting, with [shared boundaries](construction.md#connections) for the remaining connections. The [construction tree](construction.md#tree) keeps logical anatomical identities independently of its surface decomposition, and the engine realizes it into the skin.
 
 The tasks and their order live in the issue tracker. An explicit stop overrides every instruction here.
 
-Human debugging UI and capture tooling belong in `packages/human/debug`, which the published library does not ship. Playground owns the ordinary parameter editor, and the generic viewer supplies rendering without Human-specific features. Keep those boundaries so development diagnostics do not become runtime dependencies.
+Human browser debugging UI and HTTP capture clients belong in `packages/human/debug`. Direct Node image and measurement entries belong in `packages/human/src/executable`, use the Human package's `tsconfig.json` and run through its `node:*` scripts with `ttsx --no-plugins`. Shared pure source and display adapters belong in `src/inspection`; keep Node file access and native Canvas imports in executable modules so browser and ordinary Human consumers need neither. Playground owns the ordinary parameter editor, and the generic viewer supplies rendering without Human-specific features.
 
 ## Done When
 
@@ -21,14 +21,14 @@ Human debugging UI and capture tooling belong in `packages/human/debug`, which t
 
 Work in [correction rounds](../3d-modeling/visual-debugging.md#correction-rounds) over the whole figure, using the [part-by-part transition](verification.md#curves-against-the-reference) from accepted 2D definitions to 3D inspection while gathering the round:
 
-1. Build: the code type-checks clean in its [watch](../development/validation.md#type-checking) and the figure generates.
+1. Build: keep changed code compiling in its [watch](../development/validation.md#type-checking) and execute the [selected producer with its required dependencies](verification.md#curves-against-the-reference).
 2. Curves: judge every part's [view curves over the reference](verification.md#curves-against-the-reference) and its [shared connections](verification.md#shared-connections).
 3. Surfaces: sweep the whole person, its close-ups and every suspect piece once in the [inspection round](verification.md#inspection-round).
 4. Analyse: write one table of every phenomenon with its root cause, the hidden causes of the same class elsewhere, and the pieces, seams and files it touches.
 5. Fix every row in one batch under the [construction rules](construction.md), after reviewing the diff against them, and give each fixed defect a test that fails if it returns.
 6. Confirm with the [tests](testing.md), and record what the round taught in the Human package's documentation.
 
-Fix in one batch by default, because fixes chosen together see each other. Fix one cause alone first only when the batch would break together in a chain, or a local fix is clearly the safer step, and say which in the round's table.
+Use the inspection and repair order in [AGENTS.md](../../../AGENTS.md).
 
 When a construction resists, do not force it: research how the problem is solved elsewhere, generate alternatives, compare them on the frames and the numbers, and move to the better one; a round that only retries the same idea is lost.
 
