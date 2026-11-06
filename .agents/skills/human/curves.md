@@ -2,6 +2,18 @@
 
 Author the shape through anatomical points, construction lines and visible curve controls before composing its source or judging its loft. Choose a convenient authoring representation; changing a polynomial basis alone preserves its shape and cannot repair wrong datums, domains or boundary conditions.
 
+## Generate From Parameters
+
+Resolve anatomical inputs, relative datums and shared geometric definitions once. Each original curve constructs its local controls directly from those inputs and pure reusable laws. Its definition must not require another anatomical part's completed curves, a loft, a mesh or final realization. Related parts consume the same generating definition under their declared frame maps; neither fits its boundary to the other's completed output. [Connections](construction.md#connections) owns the complete boundary contract.
+
+Keep measurement inversion explicit in the shared constraint owner. A numerical solve may evaluate its candidate mathematical definition, but it must not construct other parts or lofts to obtain that definition. Reuse unchanged scalar preparations, sections and trial inputs. Curve construction and point evaluation do not silently launch an inverse solve, calibration or whole-figure preparation.
+
+Expose available original definitions separately from an unresolved constraint result. Inspection may read that declared candidate with its actual diagnostics and unresolved state; a consumer requiring closed constraints receives the solve result or its refusal. Neither path substitutes a prior successful figure or labels an unresolved candidate as solved.
+
+Keep reference mesh and recovered-curve loading in inspection or recovery. Generation reads anatomical inputs and documented general laws or population priors, not a person's reference geometry. State whether a value is supplied, derived from a law or estimated by a prior; independently estimated dimensions are not automatically compatible boundaries. Derive coefficients and offsets from the declared construction rather than person selectors, copied coordinates or per-part corrections.
+
+Measure control construction, shared constraint solving, local curve evaluation, actual loft generation, tessellation/binding and rendering separately. Split process startup, module/input loading, display sampling and PNG encoding/writing from those geometric stages. Compare cold, unchanged-input and dimension-edit work at the same boundary. Investigate repeated preparation and nested solves from their actual calls and timings; moving work outside a timer or returning cached, partial or failed output does not establish a faster constructor.
+
 ## Start With A Sketch
 
 1. Declare the anatomical plane, local origin, axes, units, actual domain and parameter. Place the measured landmarks, widths, heights, extrema and shared boundary from their generating owners. Keep direct shape controls separate from locked measurements under [Construction](construction.md#parametric-identity-and-binding).
