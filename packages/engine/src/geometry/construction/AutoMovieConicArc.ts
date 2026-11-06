@@ -2,11 +2,23 @@ import { AutoMovieConicArcField } from "./AutoMovieConicArcField";
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 
+/** The unchanged nearest-end inverse and physical normalization, without geometry. */
+interface Inverse {
+  /** Selected native clock. */ t: number;
+  /** Selected chart reflection. */ reverse: boolean;
+  /** First physical extent. */ first: number;
+  /** Second physical extent. */ second: number;
+  /** Physical normalization scale. */ scale: number;
+  /** First normalized extent. */ x: number;
+  /** Second normalized extent. */ y: number;
+  /** Positive rational weight. */ w: number;
+}
+
 /**
  * The positive rational quadratic from (a,0) through corner (a,b) to (0,b), with middle weight w=r/(1-r). It is evaluated as that conic, without a polar polynomial approximation.
  *
  * @evidence contracts/common.md#principled-implementation Uses the rational quadratic and its analytic native-to-polar chain rule. The positive ray intersection is solved by a cancellation-avoiding quadratic in t/(1-t), with reflected evaluation near the other endpoint.
- * @evidence contracts/common.md#clear-and-simple-design One numeric adapter provides native guides and polar readings; the shared ArcField kernel owns point and positive velocity arithmetic.
+ * @evidence contracts/common.md#clear-and-simple-design Numeric point and full-ray adapters share one nearest-end inverse; ArcField owns their identical point and the full reader's positive velocity arithmetic.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No aspect-specific shape, sampled fitting or reversed triangle is used; finite representability remains a caller admission premise.
  * @evidence contracts/common.md#meaningful-documentation States source weight, endpoints, angle units, derivatives and the difference between exact conic formulas and binary64 observations.
  * @evidence contracts/performance.md#efficient-algorithms Native/ray evaluation and bounds take constant arithmetic, with no iterative ray search.
@@ -314,22 +326,9 @@ export namespace AutoMovieConicArc {
     r: number,
     phi: number,
   ): IRay | null {
-    if (!(Number.isFinite(phi) && phi >= 0 && phi <= Math.PI / 2)) return null;
-
-    const A: number = a * Math.sin(phi);
-    const B: number = b * Math.cos(phi);
-    const w: number = AutoMovieConicArcField.weight(
-      AutoMovieConicFieldJet.NUMBER,
-      r,
-    );
-    const reverse: boolean = phi === Math.PI / 2 || A > B;
-    const t: number =
-      phi === Math.PI / 2 ? 0 : half(reverse ? B / A : A / B, w);
-    const first: number = reverse ? b : a;
-    const second: number = reverse ? a : b;
-    const scale: number = Math.max(first, second);
-    const x: number = first / scale;
-    const y: number = second / scale;
+    const selected: Inverse | null = inverse(a, b, r, phi);
+    if (selected === null) return null;
+    const { t, reverse, first, second, scale, x, y, w }: Inverse = selected;
     const normalized: AutoMovieConicArcField.IGeometry<number> =
       AutoMovieConicArcField.evaluate(
         AutoMovieConicFieldJet.NUMBER,
@@ -373,7 +372,6 @@ export namespace AutoMovieConicArc {
       )
     )
       return null;
-
     return {
       ...geometry,
       radial,
@@ -383,5 +381,63 @@ export namespace AutoMovieConicArc {
       position: t === 0 ? "first" : "interior",
       reverse,
     };
+  }
+
+  /**
+   * Same inverse and physical point, without tangent or polar derivatives.
+   *
+   * @evidence contracts/common.md#principled-implementation Shares the stable reflected quadratic inverse and ArcField point arithmetic with locate.
+   * @evidence contracts/common.md#clear-and-simple-design One value capability omits full-ray geometry after selecting the same native clock.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves physical normalization and sign/swap; does not substitute a guide coordinate or promise uncomputed derivatives.
+   * @evidence contracts/common.md#meaningful-documentation Angles use radians and returned coordinates use source lengths; nonfinite points or invalid angles return null.
+   * @evidence contracts/performance.md#efficient-algorithms Constant inverse and point work, without velocity, polar2 or logarithmic curvature.
+   * @evidence contracts/performance.md#reuse-equivalent-work Uses the same inverse and generic point owner as the full reader.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources One local inverse record and a fresh coordinate pair have no retained cache.
+   */
+  export function point(
+    a: number,
+    b: number,
+    r: number,
+    phi: number,
+  ): readonly [number, number] | null {
+    const selected: Inverse | null = inverse(a, b, r, phi);
+    if (selected === null) return null;
+    const local: readonly [number, number] = AutoMovieConicArcField.point(
+      AutoMovieConicFieldJet.NUMBER,
+      selected.x,
+      selected.y,
+      selected.w,
+      selected.t,
+    );
+    const x: number = local[0] * selected.scale;
+    const y: number = local[1] * selected.scale;
+    if (![x, y].every(Number.isFinite)) return null;
+    return selected.reverse ? [y, x] : [x, y];
+  }
+
+  /** Preserve every inverse and normalization operation used by locate. */
+  function inverse(
+    a: number,
+    b: number,
+    r: number,
+    phi: number,
+  ): Inverse | null {
+    if (!(Number.isFinite(phi) && phi >= 0 && phi <= Math.PI / 2)) return null;
+
+    const A: number = a * Math.sin(phi);
+    const B: number = b * Math.cos(phi);
+    const w: number = AutoMovieConicArcField.weight(
+      AutoMovieConicFieldJet.NUMBER,
+      r,
+    );
+    const reverse: boolean = phi === Math.PI / 2 || A > B;
+    const t: number =
+      phi === Math.PI / 2 ? 0 : half(reverse ? B / A : A / B, w);
+    const first: number = reverse ? b : a;
+    const second: number = reverse ? a : b;
+    const scale: number = Math.max(first, second);
+    const x: number = first / scale;
+    const y: number = second / scale;
+    return { t, reverse, first, second, scale, x, y, w };
   }
 }

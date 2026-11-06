@@ -5,6 +5,13 @@ import { AutoMovieConicHermiteField } from "./AutoMovieConicHermiteField";
 import { AutoMovieConicPreparation } from "./AutoMovieConicPreparation";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 
+/** A final projective reading of the unchanged bounded numeric inverse. */
+interface Located {
+  /** Same final point/log probabilities. */ reading: AutoMovieConicHermiteField.IProjective<number>;
+  /** Null only for an explicit endpoint. */ clock: number | null;
+  /** Explicit selected position. */ position: "first" | "interior" | "last";
+}
+
 /**
  * Convex rational cubic G2 Hermite interpolation of a short conic end.
  *
@@ -207,6 +214,40 @@ export namespace AutoMovieConicHermite {
     patch: IPatch,
     angle: number,
   ): AutoMovieConicArc.IRay | null {
+    const selected: Located | null = locateReading(patch, angle);
+    return selected === null
+      ? null
+      : AutoMovieConicHermiteField.ray(
+          patch,
+          selected.reading,
+          selected.clock,
+          selected.position,
+        );
+  }
+
+  /**
+   * Same admitted ray inverse and projective point without full geometry.
+   *
+   * @evidence contracts/common.md#principled-implementation Shares the endpoint identities, log-odds bracket, bisections and final residual with locate.
+   * @evidence contracts/common.md#clear-and-simple-design Only the final tangent/curvature conversion is omitted by the value capability.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No iteration, floor, weight normalization, reflection or point arithmetic changes; uncomputed phase jets are not promised.
+   * @evidence contracts/common.md#meaningful-documentation Returns fresh physical end-chart coordinates or null on invalid angle, unresolved inverse or nonfinite point.
+   * @evidence contracts/performance.md#efficient-algorithms The same at most67 projective readings omit the final six tangent pairs and four curvature triples.
+   * @evidence contracts/performance.md#reuse-equivalent-work The exact inverse and final projective point are shared with the full reader.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Local bracket/reading records die after the fresh pair is returned; no query cache.
+   */
+  export function point(
+    patch: IPatch,
+    angle: number,
+  ): readonly [number, number] | null {
+    const selected: Located | null = locateReading(patch, angle);
+    return selected !== null && selected.reading.point.every(Number.isFinite)
+      ? selected.reading.point
+      : null;
+  }
+
+  /** The original inverse, including its exact endpoint and residual policy. */
+  function locateReading(patch: IPatch, angle: number): Located | null {
     if (!(Number.isFinite(angle) && angle >= 0 && angle <= patch.angle))
       return null;
 
@@ -225,7 +266,7 @@ export namespace AutoMovieConicHermite {
           null,
           position,
         );
-      return AutoMovieConicHermiteField.ray(patch, reading, null, position);
+      return { reading, clock: null, position };
     }
     const span: number =
       Math.log(Number.MAX_VALUE) -
@@ -265,6 +306,6 @@ export namespace AutoMovieConicHermite {
       patch.angle;
     if (!(Number.isFinite(residual) && residual <= floor)) return null;
 
-    return AutoMovieConicHermiteField.ray(patch, reading, clock, "interior");
+    return { reading, clock, position: "interior" };
   }
 }

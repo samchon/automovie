@@ -1,21 +1,66 @@
 import { AutoMovieConicArc } from "./AutoMovieConicArc";
+import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import type { AutoMovieConicHermite } from "./AutoMovieConicHermite";
 import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
 import type { AutoMovieViewSection } from "./AutoMovieViewSection";
 
+/** Prepared source and measured length, before inspection-only observations. */
+type Source = Pick<
+  AutoMovieViewSection.ISection,
+  "box" | "shoulders" | "guides" | "conics" | "girth"
+>;
+
 /**
- * Measures and diagnoses the actual conic/G2 section without replacing it.
+ * Prepares, measures and diagnoses the actual conic/G2 source without replacing it.
  *
  * @evidence contracts/common.md#principled-implementation Measures short convex rational ends by chord/control-polygon enclosures and the unchanged quadratic interiors by native quadrature; finite measurement is part of range admission.
  * @evidence contracts/common.md#clear-and-simple-design Native arclength and source diagnostics share one measurement owner, while ViewSection owns input/fullness solving.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No coarse quadrature fallback, sampled replacement curve or changed convexity threshold is accepted.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes geometric end enclosures with floating arithmetic from the interior quadrature's estimated error; neither is called an interval certificate.
- * @evidence contracts/performance.md#efficient-algorithms Interior quadrature and each of at most eight end enclosures visit at most 8192 panels; fault retains96 polar observations per quarter.
+ * @evidence contracts/performance.md#efficient-algorithms Interior quadrature and each of at most eight end enclosures visit at most 8192 panels; fault reads at most 97 polar observations per quarter, 388 in total.
  * @evidence contracts/performance.md#reuse-equivalent-work Prepared native partitions and admitted end records serve every measurement without another source construction.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Scratch domains/panels are invocation-owned and bounded; no global source cache is retained.
  */
 export namespace AutoMovieViewSectionConic {
+  /**
+   * Prepare shared guides and the retained native quadrature partition.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the existing NUMBER shared-curvature policy and four-quarter factory in the original operand/order sequence.
+   * @evidence contracts/common.md#clear-and-simple-design A measured-source record lets internal length/fault readers omit unused public inspection observations.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Native partitions, source failures and original support/shoulder values remain unchanged; no incomplete public section is returned.
+   * @evidence contracts/common.md#meaningful-documentation Girth zero is unevaluated, guides use mm/angular orders, and ViewSection attaches public knots/fullness/diagonals.
+   * @evidence contracts/performance.md#efficient-algorithms Fixed quarter work plus the original 60 interior native-turn parameters at 60 bisections each; no inspection radius queries occur here.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same source serves length, all 388 candidate fault readings and final observation decoration.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only caller-owned fixed source/guide/native-partition records escape; no cache is retained.
+   */
+  export function prepare(
+    box: AutoMovieViewSection.IBox,
+    shoulders: AutoMovieViewSection.ISection["shoulders"],
+  ): Source {
+    const e: AutoMovieViewSection.ISection["shoulders"] = box.extents;
+    const kappa: AutoMovieViewSection.ISection["shoulders"] =
+      AutoMovieViewConic.curvatures(
+        AutoMovieConicFieldJet.NUMBER,
+        box.extents,
+        shoulders,
+      );
+    const guides: AutoMovieViewSection.ISection["guides"] = [0, 1, 2, 3].map(
+      (g: number): AutoMoviePolarSector.IGuide => ({
+        angle: g * (Math.PI / 2),
+        value: e[g]!,
+        slope: 0,
+        curvature: e[g]! - kappa[g]! * e[g]! * e[g]!,
+      }),
+    ) as AutoMovieViewSection.ISection["guides"];
+    const conics: AutoMovieViewConic.ICurve = AutoMovieViewConic.create(
+      e,
+      shoulders,
+      kappa,
+    );
+    return { box, shoulders: [...shoulders], guides, conics, girth: 0 };
+  }
+
   /**
    * Actual native-piece arclength in the section's length unit.
    *
@@ -27,7 +72,9 @@ export namespace AutoMovieViewSectionConic {
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses prepared controls/native partitions; child quadrature panels reuse their coarse integrals.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Eight local quadratic-half domains and bounded invocation-owned subdivision stacks die on return or failure.
    */
-  export function length(section: AutoMovieViewSection.ISection): number {
+  export function length(
+    section: Pick<AutoMovieViewSection.ISection, "conics">,
+  ): number {
     if (section.conics.failure !== null) return NaN;
     const domains: IDomain[] = [];
     let total: number = 0;
@@ -136,7 +183,9 @@ export namespace AutoMovieViewSectionConic {
    * @evidence contracts/performance.md#reuse-equivalent-work Reads the section's prepared source without rebuilding its quarters.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one string or null and retains no input.
    */
-  export function fault(section: AutoMovieViewSection.ISection): string | null {
+  export function fault(
+    section: Pick<AutoMovieViewSection.ISection, "conics" | "box" | "girth">,
+  ): string | null {
     if (section.conics.failure !== null) return section.conics.failure;
     if (!Number.isFinite(section.girth))
       return "the actual native arclength has no admitted finite quadrature";

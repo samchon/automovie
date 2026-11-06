@@ -7,10 +7,10 @@
  * as dense as the surface needs while the independent numbers stay few.
  *
  * @evidence contracts/common.md#principled-implementation The natural cubic spline is the C2 interpolant of least bending, with zero end curvature, so a few named values carry a whole curve.
- * @evidence contracts/common.md#clear-and-simple-design One prepared record and evaluate and derivative functions.
+ * @evidence contracts/common.md#clear-and-simple-design One prepared record serves value-only, derivative-only and combined readers through the same polynomial owners.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Beyond the ends the reader explicitly chooses straight end-tangent extension rather than clamping; zero endpoint curvature alone does not define exterior behavior.
  * @evidence contracts/common.md#meaningful-documentation States the end condition, the extrapolation and the derivatives returned.
- * @evidence contracts/performance.md#efficient-algorithms The tridiagonal system is solved in linear time; evaluation scans the knots once.
+ * @evidence contracts/performance.md#efficient-algorithms The tridiagonal solve is O(N); each query locates its interval in O(log N), and read shares that lookup across value and derivatives.
  * @evidence contracts/performance.md#reuse-equivalent-work Knot curvatures are solved once and reused by every evaluation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Retains the knots and one curvature array.
  */
@@ -81,22 +81,21 @@ export namespace AutoMovieNaturalSpline {
    * end tangent by this reader's explicit extension rule.
    *
    * @evidence contracts/common.md#principled-implementation Reads the cubic determined by adjacent values and curvatures, and explicitly extends the first/last tangent outside the knot range.
-   * @evidence contracts/common.md#clear-and-simple-design One interval scan and scalar polynomial serve interpolation and the two extrapolation branches.
+   * @evidence contracts/common.md#clear-and-simple-design One lower-bound interval lookup and the shared value polynomial serve interpolation and both tangent extensions.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Extrapolation is a declared linear extension, not a claim that the boundary cubic stays linear outside its interval; inputs are not clamped.
    * @evidence contracts/common.md#meaningful-documentation States the outside-range rule; ISpline specifies increasing unchanged knots and matching prepared curvatures.
-   * @evidence contracts/performance.md#efficient-algorithms Interval lookup scans at most N-1 knots and polynomial evaluation is constant work; this reader owns no binary-search index.
+   * @evidence contracts/performance.md#efficient-algorithms Binary lookup is O(log N), followed by constant scalar arithmetic; value-only queries allocate no derivative tuple or search index.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the prepared knot curvatures and reads only one interval's coefficients; repeated query locations are not cached.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Returns a scalar and retains no input, buffer or handle.
    */
   export function evaluate(spline: ISpline, x: number): number {
-    const { xs, ys, curvatures } = spline;
-    const n: number = xs.length;
-    let k: number = n - 2;
-    for (let i: number = 0; i + 1 < n; i++)
-      if (x <= xs[i + 1]!) {
-        k = i;
-        break;
-      }
+    const k: number = interval(spline.xs, x);
+    return valueAt(spline, x, k);
+  }
+
+  /** Same polynomial and tangent arithmetic at an already selected span. */
+  function valueAt(spline: ISpline, x: number, k: number): number {
+    const { xs, ys, curvatures }: ISpline = spline;
     const h: number = xs[k + 1]! - xs[k]!;
     const t: number = x - xs[k]!;
     const slope: number =
@@ -134,19 +133,23 @@ export namespace AutoMovieNaturalSpline {
    * @evidence contracts/common.md#clear-and-simple-design Returns the two derivative orders together after one interval lookup.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses exact polynomial derivatives rather than finite differences; the local parameter clamp implements the documented exterior tangent.
    * @evidence contracts/common.md#meaningful-documentation Gives derivative formulas, tuple order and the outside-knot behavior.
-   * @evidence contracts/performance.md#efficient-algorithms O(N) interval scan followed by constant arithmetic and a two-number output.
+   * @evidence contracts/performance.md#efficient-algorithms One O(log N) lower-bound lookup precedes constant arithmetic and a fresh derivative pair.
    * @evidence contracts/performance.md#reuse-equivalent-work Both derivatives share the interval width, local parameter, secant and prepared curvatures.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only the fresh two-number result escapes; the spline is not mutated or retained.
    */
   export function derivative(spline: ISpline, x: number): [number, number] {
-    const { xs, ys, curvatures } = spline;
+    const k: number = interval(spline.xs, x);
+    return derivativeAt(spline, x, k);
+  }
+
+  /** Same derivative and exterior arithmetic at an already selected span. */
+  function derivativeAt(
+    spline: ISpline,
+    x: number,
+    k: number,
+  ): [number, number] {
+    const { xs, ys, curvatures }: ISpline = spline;
     const n: number = xs.length;
-    let k: number = n - 2;
-    for (let i: number = 0; i + 1 < n; i++)
-      if (x <= xs[i + 1]!) {
-        k = i;
-        break;
-      }
     const h: number = xs[k + 1]! - xs[k]!;
     const t: number = Math.min(h, Math.max(0, x - xs[k]!));
     const slope: number =
@@ -161,5 +164,35 @@ export namespace AutoMovieNaturalSpline {
         ? curvatures[k]! + ((curvatures[k + 1]! - curvatures[k]!) * t) / h
         : 0,
     ];
+  }
+
+  /**
+   * Value and first/second derivatives with one shared interval lookup.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the same value and derivative polynomial owners after a lower-bound search on admitted increasing knots.
+   * @evidence contracts/common.md#clear-and-simple-design A combined query serves Outline.at while scalar evaluate remains value-only.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Exact-knot left ties, NaN's last interval and straight exterior tangents retain their existing arithmetic; no cursor or clamp is added.
+   * @evidence contracts/common.md#meaningful-documentation Returns [value,first,second] in the selected parameter; borrowed spline arrays must remain unchanged.
+   * @evidence contracts/performance.md#efficient-algorithms One O(log N) lookup and constant polynomial work replace two linear scans.
+   * @evidence contracts/performance.md#reuse-equivalent-work Both existing polynomial readers share the selected span without caching query history.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources A fresh three-number tuple and local derivative pair are call-owned; nothing is retained.
+   */
+  export function read(spline: ISpline, x: number): [number, number, number] {
+    const k: number = interval(spline.xs, x);
+    const value: number = valueAt(spline, x, k);
+    const jet: [number, number] = derivativeAt(spline, x, k);
+    return [value, jet[0], jet[1]];
+  }
+
+  /** First span whose right knot is >=x; failed comparisons retain the old last-span NaN policy. */
+  function interval(xs: readonly number[], x: number): number {
+    let lo: number = 0;
+    let hi: number = xs.length - 2;
+    while (lo < hi) {
+      const middle: number = lo + Math.floor((hi - lo) / 2);
+      if (x <= xs[middle + 1]!) hi = middle;
+      else lo = middle + 1;
+    }
+    return lo;
   }
 }

@@ -190,34 +190,15 @@ export namespace AutoMovieViewConic {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed numeric data escapes; no preparation or cache is retained.
    */
   export function read(curve: ICurve, phi: number): IRay | null {
-    if (curve.failure !== null || !Number.isFinite(phi)) return null;
-
-    const turn: number = 2 * Math.PI;
-    const quarter: number = Math.PI / 2;
-    const remainder: number = phi % turn;
-    const index: number = Math.min(
-      3,
-      Math.floor(Math.abs(remainder) / quarter),
-    );
-    const distance: number = Math.abs(remainder) - index * quarter;
-    const reflected: boolean = remainder < 0 && distance !== 0;
-    const q: number = reflected
-      ? 3 - index
-      : remainder < 0
-        ? (4 - index) % 4
-        : index;
-    const local: number = reflected ? quarter - distance : distance;
-    const toEnd: number = reflected ? distance : quarter - local;
-    const arc: IQuarter = curve.quarters[q]!;
-    let kind: IRay["kind"] = "conic";
+    const selected: Selection | null = selection(curve, phi);
+    if (selected === null) return null;
+    const { q, local, toEnd, arc, kind }: Selection = selected;
     let ray: AutoMovieConicArc.IRay | null;
-    if (local !== 0 && arc.start !== null && local < arc.start.angle) {
-      kind = "start";
-      ray = AutoMovieConicHermite.locate(arc.start, local);
-    } else if (local !== 0 && arc.end !== null && toEnd < arc.end.angle) {
-      kind = "end";
+    if (kind === "start") {
+      ray = AutoMovieConicHermite.locate(arc.start!, local);
+    } else if (kind === "end") {
       const selected: AutoMovieConicArc.IRay | null =
-        AutoMovieConicHermite.locate(arc.end, toEnd);
+        AutoMovieConicHermite.locate(arc.end!, toEnd);
       ray =
         selected === null
           ? null
@@ -257,6 +238,79 @@ export namespace AutoMovieViewConic {
       angle: local,
       distance: ray.reverse ? toEnd : local,
     };
+  }
+
+  /**
+   * Value-only location in the identical selected quarter and source piece.
+   *
+   * @evidence contracts/common.md#principled-implementation Shares the signed periodic lookup and each piece's exact numeric inverse/point kernel with read.
+   * @evidence contracts/common.md#clear-and-simple-design A point and quarter tag suffice for Cartesian values without a fabricated ray jet.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves tiny negative end distances, physical restoration and one end reflection; no guide override replaces coordinates.
+   * @evidence contracts/common.md#meaningful-documentation Coordinates remain in the original local quarter; the consumer applies its quarter rotation once. Invalid source/query/point returns null.
+   * @evidence contracts/performance.md#efficient-algorithms One piece selection and the unchanged bounded inverse omit unused tangent, radial2 and curvature work.
+   * @evidence contracts/performance.md#reuse-equivalent-work The same private selection serves full and point readers.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns a fresh pair/tag with no retained source or phase state.
+   */
+  export function point(
+    curve: ICurve,
+    phi: number,
+  ): Pick<IRay, "point" | "quarter"> | null {
+    const selected: Selection | null = selection(curve, phi);
+    if (selected === null) return null;
+    const { q, local, toEnd, arc, kind }: Selection = selected;
+    const p: readonly [number, number] | null =
+      kind === "conic"
+        ? AutoMovieConicArc.point(
+            arc.extents[0],
+            arc.extents[1],
+            arc.shoulder,
+            local,
+          )
+        : AutoMovieConicHermite.point(
+            kind === "start" ? arc.start! : arc.end!,
+            kind === "start" ? local : toEnd,
+          );
+    return p === null
+      ? null
+      : { point: kind === "end" ? [p[1], p[0]] : p, quarter: q };
+  }
+
+  /** Numeric branch data shared before either capability performs its inverse. */
+  interface Selection {
+    /** Original quarter. */ q: number;
+    /** Original-quarter angle. */ local: number;
+    /** Distance to its final end. */ toEnd: number;
+    /** Selected source quarter. */ arc: IQuarter;
+    /** Actual rational piece. */ kind: IRay["kind"];
+  }
+
+  /** Preserve the existing signed small-distance arithmetic and branch boundaries. */
+  function selection(curve: ICurve, phi: number): Selection | null {
+    if (curve.failure !== null || !Number.isFinite(phi)) return null;
+    const turn: number = 2 * Math.PI;
+    const quarter: number = Math.PI / 2;
+    const remainder: number = phi % turn;
+    const index: number = Math.min(
+      3,
+      Math.floor(Math.abs(remainder) / quarter),
+    );
+    const distance: number = Math.abs(remainder) - index * quarter;
+    const reflected: boolean = remainder < 0 && distance !== 0;
+    const q: number = reflected
+      ? 3 - index
+      : remainder < 0
+        ? (4 - index) % 4
+        : index;
+    const local: number = reflected ? quarter - distance : distance;
+    const toEnd: number = reflected ? distance : quarter - local;
+    const arc: IQuarter = curve.quarters[q]!;
+    const kind: IRay["kind"] =
+      local !== 0 && arc.start !== null && local < arc.start.angle
+        ? "start"
+        : local !== 0 && arc.end !== null && toEnd < arc.end.angle
+          ? "end"
+          : "conic";
+    return { q, local, toEnd, arc, kind };
   }
 
   /**

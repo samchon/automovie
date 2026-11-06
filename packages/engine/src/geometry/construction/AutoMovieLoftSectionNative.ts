@@ -1,6 +1,7 @@
 import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import type { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
+import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 import { AutoMovieViewConic } from "./AutoMovieViewConic";
 import { AutoMovieViewSectionField } from "./AutoMovieViewSectionField";
 import { AutoMovieViewSectionReading } from "./AutoMovieViewSectionReading";
@@ -28,7 +29,7 @@ interface Direction {
  * raised by input getters are not intercepted or reclassified here.
  *
  * @evidence contracts/common.md#principled-implementation Shared native geometry and radial source2 produce Cartesian phase/station derivatives by the analytic polar product rule.
- * @evidence contracts/common.md#clear-and-simple-design Separate phase-only and physical-total2 station factories share one primal direction conversion.
+ * @evidence contracts/common.md#clear-and-simple-design Radial, Cartesian Point0, phase and physical-total2 factories share numeric geometry and primal coordinate owners while requiring only their declared outputs.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses the same numeric ray once, preserves raw negative phases and applies no second reflection, coordinate fit or missing derivative.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes fixed local-quarter geometry, global polar phase and physical station derivatives.
  * @evidence contracts/performance.md#efficient-algorithms Fixed four-quarter station preparation precedes one numeric inverse per phase; AD only evaluates the selected source piece after that inverse.
@@ -50,15 +51,7 @@ export namespace AutoMovieLoftSectionNative {
   export function phase(
     inputs: AutoMovieLoftViewRead.IValues,
   ): (phi: number) => Phase {
-    const ops: AutoMovieConicFieldJet.IAlgebra<number> =
-      AutoMovieConicFieldJet.NUMBER;
-    const geometry: AutoMovieViewConic.ICurve =
-      AutoMovieViewConic.prepareGeometry(
-        ops,
-        inputs.extents,
-        inputs.shoulders,
-        AutoMovieViewConic.curvatures(ops, inputs.extents, inputs.shoulders),
-      );
+    const geometry: AutoMovieViewConic.ICurve = prepare(inputs);
     if (geometry.failure !== null)
       throw new AutoMovieLoftAdmissionError(
         `Native value source: ${geometry.failure}`,
@@ -67,6 +60,61 @@ export namespace AutoMovieLoftSectionNative {
       const ray: AutoMovieViewConic.IRay = locate(geometry, phi);
       const at: Direction = direction(ray);
       return polarPhase(at, ray.radial);
+    };
+  }
+
+  /**
+   * Prepare the existing radial phase jet without inspection partitions.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the same NUMBER curvature, G2 preparation and radius evaluator as ViewSection.bare/radius.
+   * @evidence contracts/common.md#clear-and-simple-design A radial-only factory serves scalar constraints without constructing observations or measures.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Retains the original radius arithmetic and NaN tuple on source/query failure; it does not obtain radius from a reconstructed point.
+   * @evidence contracts/common.md#meaningful-documentation Inputs are positive extent/shoulder values and outputs are mm per angular derivative order; required failure diagnostics remain caller-owned.
+   * @evidence contracts/performance.md#efficient-algorithms Fixed geometry preparation and one existing radius query; no native-turn partition, samples or length work.
+   * @evidence contracts/performance.md#reuse-equivalent-work The closure reuses its one prepared source at every requested angle.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Caller-owned fixed geometry and fresh radial tuples retain no global cache.
+   */
+  export function radial(
+    inputs: AutoMovieLoftViewRead.IValues,
+  ): (phi: number) => AutoMoviePolarSector.Jet {
+    const geometry: AutoMovieViewConic.ICurve = prepare(inputs);
+    return (phi: number): AutoMoviePolarSector.Jet =>
+      AutoMovieViewConic.radius(geometry, phi);
+  }
+
+  /**
+   * Prepare exactly the finite Cartesian value capability of the native source.
+   *
+   * @evidence contracts/common.md#principled-implementation Same admitted NUMBER geometry and shared raw/G2 inverse produce the identical physically restored primal coordinates.
+   * @evidence contracts/common.md#clear-and-simple-design Point0 is separate from phase/physical2 and never fabricates those derivative fields.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Preserves source admission, small negative phases, signed quarter rotation, inverse residual and positive finite norm; uncomputed derivatives are not asserted available.
+   * @evidence contracts/common.md#meaningful-documentation Returns a fresh local mm pair; invalid geometry/query raises the same admission-error family, and collapsed poles remain the caller's explicit capability.
+   * @evidence contracts/performance.md#efficient-algorithms Fixed preparation precedes one unchanged inverse and point reading, omitting tangent/polar2/log-curvature work.
+   * @evidence contracts/performance.md#reuse-equivalent-work The caller-owned closure retains one immutable station preparation across phases.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Only fixed source geometry is retained until the closure is released; every point is fresh.
+   */
+  export function point(
+    inputs: AutoMovieLoftViewRead.IValues,
+  ): (phi: number) => [number, number] {
+    const geometry: AutoMovieViewConic.ICurve = prepare(inputs);
+    if (geometry.failure !== null)
+      throw new AutoMovieLoftAdmissionError(
+        `Native value source: ${geometry.failure}`,
+      );
+    return (phi: number): [number, number] => {
+      const ray: Pick<AutoMovieViewConic.IRay, "point" | "quarter"> | null =
+        AutoMovieViewConic.point(geometry, phi);
+      if (ray === null)
+        throw new AutoMovieLoftAdmissionError(
+          "The native source has no admitted finite phase reading.",
+        );
+      const p: [number, number] = cartesian(ray);
+      const size: number = Math.hypot(p[0], p[1]);
+      if (!(Number.isFinite(size) && size > 0))
+        throw new AutoMovieLoftAdmissionError(
+          "The native primal point has no finite positive norm.",
+        );
+      return p;
     };
   }
 
@@ -122,6 +170,20 @@ export namespace AutoMovieLoftSectionNative {
   }
 }
 
+/** The shared geometry-only preparation preserves NUMBER operation and input order. */
+function prepare(
+  inputs: AutoMovieLoftViewRead.IValues,
+): AutoMovieViewConic.ICurve {
+  const ops: AutoMovieConicFieldJet.IAlgebra<number> =
+    AutoMovieConicFieldJet.NUMBER;
+  return AutoMovieViewConic.prepareGeometry(
+    ops,
+    inputs.extents,
+    inputs.shoulders,
+    AutoMovieViewConic.curvatures(ops, inputs.extents, inputs.shoulders),
+  );
+}
+
 /** Forward the raw requested phase to its one numeric owner, including tiny negative distances. */
 function locate(
   geometry: AutoMovieViewConic.ICurve,
@@ -140,15 +202,7 @@ function locate(
 
 /** Quarter rotations are exact sign/swaps; the native inverse has already restored its own reflection. */
 function direction(ray: AutoMovieViewConic.IRay): Direction {
-  const [x, z]: readonly [number, number] = ray.point;
-  const p: [number, number] =
-    ray.quarter === 0
-      ? [x, z]
-      : ray.quarter === 1
-        ? [-z, x]
-        : ray.quarter === 2
-          ? [-x, -z]
-          : [z, -x];
+  const p: [number, number] = cartesian(ray);
   const size: number = Math.hypot(p[0], p[1]);
   if (!(Number.isFinite(size) && size > 0))
     throw new AutoMovieLoftAdmissionError(
@@ -156,6 +210,20 @@ function direction(ray: AutoMovieViewConic.IRay): Direction {
     );
   const radial: [number, number] = [p[0] / size, p[1] / size];
   return { p, radial, turn: [-radial[1], radial[0]] };
+}
+
+/** Preserve the exact quarter sign/swaps, including signed zero, for both capabilities. */
+function cartesian(
+  ray: Pick<AutoMovieViewConic.IRay, "point" | "quarter">,
+): [number, number] {
+  const [x, z]: readonly [number, number] = ray.point;
+  return ray.quarter === 0
+    ? [x, z]
+    : ray.quarter === 1
+      ? [-z, x]
+      : ray.quarter === 2
+        ? [-x, -z]
+        : [z, -x];
 }
 
 /** Exactly value/phase/phase2 of rho*er; physical source partials are not required here. */

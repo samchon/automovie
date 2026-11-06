@@ -8,6 +8,16 @@ type Algebra<T> = AutoMovieConicFieldJet.IAlgebra<T>;
 /** Actual source partials [value,s,p,ss,sp,pp]. */
 type Jet = AutoMovieConicFieldJet.IJet;
 
+/** Invocation-local normalized positive Bernstein terms, before velocity work. */
+interface Basis<T> {
+  /** Normalized first extent. */ a: T;
+  /** Normalized second extent. */ b: T;
+  /** Frozen primal scaling gauge. */ gauge: T;
+  /** First coordinate numerator basis. */ left: T;
+  /** Second coordinate numerator basis. */ right: T;
+  /** Shared positive rational denominator. */ denominator: T;
+}
+
 /**
  * Shared rational-quadratic algebra and fixed-clock source readings.
  *
@@ -15,7 +25,7 @@ type Jet = AutoMovieConicFieldJet.IJet;
  * @evidence contracts/common.md#clear-and-simple-design Numeric source adapters and source-jet readers use one operation kernel.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No native-clock finite differences, source reinterpolation or source cache is present.
  * @evidence contracts/common.md#meaningful-documentation Source coordinates are s,p; angular derivatives remain the supplied primal ray reading.
- * @evidence contracts/performance.md#efficient-algorithms Constant-size arithmetic prepares one point and tangent at the already selected native parameter.
+ * @evidence contracts/performance.md#efficient-algorithms Constant-size arithmetic reads an already selected native clock; the Point0 capability omits velocity and tangent work.
  * @evidence contracts/performance.md#reuse-equivalent-work Every component of the source reading shares that one native evaluation.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only invocation-owned fixed-size tuples escape; operation tables and sources are not retained.
  */
@@ -218,6 +228,41 @@ export namespace AutoMovieConicArcField {
     w: T,
     t: T,
   ): IGeometry<T> {
+    const basis: Basis<T> = pointBasis(ops, a, b, w, t);
+    const speed: readonly [T, T] = velocity(ops, basis.a, basis.b, w, t);
+    const length: T = norm(ops, speed[0], speed[1]);
+    return {
+      point: restorePoint(ops, basis),
+      tangent: [
+        ops.divide(ops.subtract(ops.constant(0), speed[0]), length),
+        ops.divide(speed[1], length),
+      ],
+    };
+  }
+
+  /**
+   * Original Cartesian point without preparing velocity or a unit tangent.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the identical normalized Bernstein terms and physical restoration as evaluate in either scalar algebra.
+   * @evidence contracts/common.md#clear-and-simple-design The point capability shares two private arithmetic kernels with the full geometry reader.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts No radius/trigonometric reconstruction, endpoint substitution or invented derivative is returned.
+   * @evidence contracts/common.md#meaningful-documentation Coordinates use source length units; the supplied native parameter may carry source derivatives.
+   * @evidence contracts/performance.md#efficient-algorithms Constant point arithmetic omits the velocity, norm and tangent divisions.
+   * @evidence contracts/performance.md#reuse-equivalent-work One normalized basis supplies both coordinates; full evaluate preserves its original algebra-call order.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources One fixed local basis and a fresh coordinate pair are call-owned; nothing is cached.
+   */
+  export function point<T>(
+    ops: Algebra<T>,
+    a: T,
+    b: T,
+    w: T,
+    t: T,
+  ): readonly [T, T] {
+    return restorePoint(ops, pointBasis(ops, a, b, w, t));
+  }
+
+  /** Preserve the original pre-velocity operation order and normalization. */
+  function pointBasis<T>(ops: Algebra<T>, a: T, b: T, w: T, t: T): Basis<T> {
     const scale: number = Math.max(
       Math.abs(ops.value(a)),
       Math.abs(ops.value(b)),
@@ -233,18 +278,21 @@ export namespace AutoMovieConicArcField {
     const left: T = ops.add(ops.multiply(s, s), middle);
     const right: T = ops.add(middle, ops.multiply(t, t));
     const denominator: T = ops.add(left, ops.multiply(t, t));
-    const speed: readonly [T, T] = velocity(ops, A, B, w, t);
-    const length: T = norm(ops, speed[0], speed[1]);
-    return {
-      point: [
-        ops.multiply(ops.divide(ops.multiply(A, left), denominator), gauge),
-        ops.multiply(ops.divide(ops.multiply(B, right), denominator), gauge),
-      ],
-      tangent: [
-        ops.divide(ops.subtract(ops.constant(0), speed[0]), length),
-        ops.divide(speed[1], length),
-      ],
-    };
+    return { a: A, b: B, gauge, left, right, denominator };
+  }
+
+  /** The same final point operations occur after velocity work in evaluate. */
+  function restorePoint<T>(ops: Algebra<T>, basis: Basis<T>): readonly [T, T] {
+    return [
+      ops.multiply(
+        ops.divide(ops.multiply(basis.a, basis.left), basis.denominator),
+        basis.gauge,
+      ),
+      ops.multiply(
+        ops.divide(ops.multiply(basis.b, basis.right), basis.denominator),
+        basis.gauge,
+      ),
+    ];
   }
 
   /**

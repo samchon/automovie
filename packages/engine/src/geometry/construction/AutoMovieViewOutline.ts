@@ -3,10 +3,11 @@ import type { AutoMovieConstructionOutlineParameter } from "@automovie/interface
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieViewHermite } from "./AutoMovieViewHermite";
+import { AutoMovieViewOutlineRead } from "./AutoMovieViewOutlineRead";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
+import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 import { distanceAutoMovieViewOutline } from "./distanceAutoMovieViewOutline";
 import { supportAutoMovieViewOutline } from "./supportAutoMovieViewOutline";
-import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
 
 /**
  * The scalar source shared by lofting, origin placement and inspection: a default natural cubic or explicitly requested C2 quintic knot jets/range, in station or a selected root-distance/angle parameter. A closing part supplies its pole parameter by default and separately requires zero radial knots.
@@ -17,7 +18,7 @@ import type { IAutoMovieViewPart } from "./IAutoMovieViewPart";
  * @evidence contracts/common.md#clear-and-simple-design One admission function and one reading function serve both construction and source-curve inspection.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Refuses malformed knots, missing zero pole knots and readings beyond a pole; no knot sorting, range clamp or finite derivative is invented at a singular endpoint.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes the input curve from the final loft and station derivatives from parameter derivatives at a pole.
- * @evidence contracts/performance.md#efficient-algorithms Preparation uses the linear natural solve and optional linear Hermite preparation. Value/jet queries scan natural knots or binary-search a prepared quintic span; critical inspection visits the source once with bounded-degree root work.
+ * @evidence contracts/performance.md#efficient-algorithms Preparation uses the linear natural solve and optional linear Hermite preparation. Value/jet queries use O(log N) binary lookup for either source; combined natural readings share one interval lookup. Critical inspection visits the source once with bounded-degree root work.
  * @evidence contracts/performance.md#reuse-equivalent-work Prepares natural curvatures and any requested quintic coefficients once for all scalar, jet and critical-station queries.
  * @evidence contracts/performance.md#bound-retention-and-release-resources A source owns one knot copy, natural spline and optional O(n) Hermite jets/coefficients; no global cache retains a part.
  */
@@ -119,10 +120,19 @@ export namespace AutoMovieViewOutline {
     stationJet: readonly [number, number] | null;
 
     /** Why the station jet is present or absent; a finite source point is not discarded for an unrepresentable derivative. */
-    stationJetStatus: "regular" | "singular-pole" | "singular-parameter" | "nonfinite";
+    stationJetStatus:
+      | "regular"
+      | "singular-pole"
+      | "singular-parameter"
+      | "nonfinite";
 
     /** Knot-span location, parameter-tangent extension, radial closing pole, or a nonclosing singular parameter endpoint. */
-    location: "interior" | "endpoint" | "extension" | "pole" | "parameter-endpoint";
+    location:
+      | "interior"
+      | "endpoint"
+      | "extension"
+      | "pole"
+      | "parameter-endpoint";
   }
 
   /**
@@ -136,42 +146,141 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/performance.md#reuse-equivalent-work Stores one spline whose curvature solve is reused by every value, jet and critical-station reading of the copied inputs.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns O(n) copied knots and spline arrays; temporary parameter arrays belong to that preparation and no global state retains the source.
    */
-  export function create(outline: IAutoMovieViewPart.IOutline, ends: Readonly<IEnds> = {}): IOutline | IFailure {
-    const knots: IAutoMovieViewPart.IKnot[] = outline.knots.map((k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({ ...k, ...(k.jet === undefined ? {} : { jet: { ...k.jet } }) }));
-    const xs: number[] = knots.map((k: IAutoMovieViewPart.IKnot): number => k.station);
+  export function create(
+    outline: IAutoMovieViewPart.IOutline,
+    ends: Readonly<IEnds> = {},
+  ): IOutline | IFailure {
+    const knots: IAutoMovieViewPart.IKnot[] = outline.knots.map(
+      (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({
+        ...k,
+        ...(k.jet === undefined ? {} : { jet: { ...k.jet } }),
+      }),
+    );
+    const xs: number[] = knots.map(
+      (k: IAutoMovieViewPart.IKnot): number => k.station,
+    );
     const gap: number = AutoMovieLoftContract.splineGap(xs);
-    if (knots.length < 2 || !knots.every((k: IAutoMovieViewPart.IKnot, i: number): boolean => Number.isFinite(k.station) && Number.isFinite(k.value) && (i === 0 || (k.station > xs[i - 1]! && k.station - xs[i - 1]! >= gap))))
-      return { contract: "outline", detail: `knots ${knots.map((k: IAutoMovieViewPart.IKnot): string => `${k.site}@${k.station}=${k.value}`).join(", ")} are not at least two finite values by strictly increasing station` };
+    if (
+      knots.length < 2 ||
+      !knots.every(
+        (k: IAutoMovieViewPart.IKnot, i: number): boolean =>
+          Number.isFinite(k.station) &&
+          Number.isFinite(k.value) &&
+          (i === 0 ||
+            (k.station > xs[i - 1]! && k.station - xs[i - 1]! >= gap)),
+      )
+    )
+      return {
+        contract: "outline",
+        detail: `knots ${knots.map((k: IAutoMovieViewPart.IKnot): string => `${k.site}@${k.station}=${k.value}`).join(", ")} are not at least two finite values by strictly increasing station`,
+      };
     for (const end of ["bottom", "top"] as const) {
       const tip: number | undefined = ends[end];
       if (tip === undefined) continue;
-      const knot: IAutoMovieViewPart.IKnot = end === "bottom" ? knots[0]! : knots[knots.length - 1]!;
+      const knot: IAutoMovieViewPart.IKnot =
+        end === "bottom" ? knots[0]! : knots[knots.length - 1]!;
       if (!Number.isFinite(tip) || knot.station !== tip || knot.value !== 0)
-        return { contract: "pole knot", detail: `its ${end} knot ${knot.site}@${knot.station}=${knot.value} is not 0 at the finite pole station ${tip}` };
+        return {
+          contract: "pole knot",
+          detail: `its ${end} knot ${knot.site}@${knot.station}=${knot.value} is not 0 at the finite pole station ${tip}`,
+        };
     }
-    if (ends.bottom !== undefined && ends.top !== undefined && !(ends.top > ends.bottom)) return { contract: "pole knot", detail: "the top pole does not stand above the bottom pole" };
-    const inferred: AutoMovieConstructionOutlineParameter | undefined = ends.bottom !== undefined && ends.top !== undefined ? { type: "angle", bottom: ends.bottom, top: ends.top } : ends.bottom !== undefined ? { type: "root", end: "bottom", pole: ends.bottom } : ends.top !== undefined ? { type: "root", end: "top", pole: ends.top } : undefined;
-    const chosen: AutoMovieConstructionOutlineParameter | undefined | string = AutoMovieViewParameter.prepare(outline.parameter ?? inferred);
-    if (typeof chosen === "string") return { contract: "outline", detail: chosen };
+    if (
+      ends.bottom !== undefined &&
+      ends.top !== undefined &&
+      !(ends.top > ends.bottom)
+    )
+      return {
+        contract: "pole knot",
+        detail: "the top pole does not stand above the bottom pole",
+      };
+    const inferred: AutoMovieConstructionOutlineParameter | undefined =
+      ends.bottom !== undefined && ends.top !== undefined
+        ? { type: "angle", bottom: ends.bottom, top: ends.top }
+        : ends.bottom !== undefined
+          ? { type: "root", end: "bottom", pole: ends.bottom }
+          : ends.top !== undefined
+            ? { type: "root", end: "top", pole: ends.top }
+            : undefined;
+    const chosen: AutoMovieConstructionOutlineParameter | undefined | string =
+      AutoMovieViewParameter.prepare(outline.parameter ?? inferred);
+    if (typeof chosen === "string")
+      return { contract: "outline", detail: chosen };
     if (inferred !== undefined && outline.parameter !== undefined) {
-      const same: boolean = inferred.type === "angle" ? chosen?.type === "angle" && chosen.bottom === inferred.bottom && chosen.top === inferred.top : chosen?.type === "root" && chosen.end === inferred.end && chosen.pole === inferred.pole;
-      if (!same) return { contract: "pole parameter", detail: "the explicit source parameter does not match the closing part's pole parameter" };
+      const same: boolean =
+        inferred.type === "angle"
+          ? chosen?.type === "angle" &&
+            chosen.bottom === inferred.bottom &&
+            chosen.top === inferred.top
+          : chosen?.type === "root" &&
+            chosen.end === inferred.end &&
+            chosen.pole === inferred.pole;
+      if (!same)
+        return {
+          contract: "pole parameter",
+          detail:
+            "the explicit source parameter does not match the closing part's pole parameter",
+        };
     }
-    const parameters: number[] = xs.map((s: number): number => AutoMovieViewParameter.at(chosen, s));
-    if (!parameters.every((s: number, i: number): boolean => Number.isFinite(s) && (i === 0 || (s > parameters[i - 1]! && Number.isFinite(s - parameters[i - 1]!))))) return { contract: "outline", detail: "source parameters do not increase by finite intervals through the source knots" };
-    const spline: AutoMovieNaturalSpline.ISpline = AutoMovieNaturalSpline.create(parameters, knots.map((k: IAutoMovieViewPart.IKnot): number => k.value));
-    if (!spline.curvatures.every(Number.isFinite)) return { contract: "outline", detail: "the source spline has a nonfinite parameter curvature" };
+    const parameters: number[] = xs.map((s: number): number =>
+      AutoMovieViewParameter.at(chosen, s),
+    );
+    if (
+      !parameters.every(
+        (s: number, i: number): boolean =>
+          Number.isFinite(s) &&
+          (i === 0 ||
+            (s > parameters[i - 1]! &&
+              Number.isFinite(s - parameters[i - 1]!))),
+      )
+    )
+      return {
+        contract: "outline",
+        detail:
+          "source parameters do not increase by finite intervals through the source knots",
+      };
+    const spline: AutoMovieNaturalSpline.ISpline =
+      AutoMovieNaturalSpline.create(
+        parameters,
+        knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
+      );
+    if (!spline.curvatures.every(Number.isFinite))
+      return {
+        contract: "outline",
+        detail: "the source spline has a nonfinite parameter curvature",
+      };
     for (let i: number = 0; i + 1 < parameters.length; i++) {
       const h: number = parameters[i + 1]! - parameters[i]!;
       const m0: number = spline.curvatures[i]!;
       const m1: number = spline.curvatures[i + 1]!;
-      if (![h * (m1 - m0) / 2, h * m0, (knots[i + 1]!.value - knots[i]!.value) / h - h * (2 * m0 + m1) / 6].every(Number.isFinite))
-        return { contract: "outline", detail: `source interval ${i} has unrepresentable cubic derivative coefficients` };
+      if (
+        ![
+          (h * (m1 - m0)) / 2,
+          h * m0,
+          (knots[i + 1]!.value - knots[i]!.value) / h - (h * (2 * m0 + m1)) / 6,
+        ].every(Number.isFinite)
+      )
+        return {
+          contract: "outline",
+          detail: `source interval ${i} has unrepresentable cubic derivative coefficients`,
+        };
     }
-    const requested: boolean = outline.range !== undefined || knots.some((k: IAutoMovieViewPart.IKnot): boolean => k.jet !== undefined);
-    const hermite: AutoMovieViewHermite.ICurve | string | undefined = requested ? AutoMovieViewHermite.create(spline, knots, outline.range) : undefined;
-    if (typeof hermite === "string") return { contract: "outline", detail: hermite };
-    return { knots, domain: [xs[0]!, xs[xs.length - 1]!], ends: { ...ends }, parameter: chosen, spline, ...(hermite === undefined ? {} : { hermite }) };
+    const requested: boolean =
+      outline.range !== undefined ||
+      knots.some((k: IAutoMovieViewPart.IKnot): boolean => k.jet !== undefined);
+    const hermite: AutoMovieViewHermite.ICurve | string | undefined = requested
+      ? AutoMovieViewHermite.create(spline, knots, outline.range)
+      : undefined;
+    if (typeof hermite === "string")
+      return { contract: "outline", detail: hermite };
+    return {
+      knots,
+      domain: [xs[0]!, xs[xs.length - 1]!],
+      ends: { ...ends },
+      parameter: chosen,
+      spline,
+      ...(hermite === undefined ? {} : { hermite }),
+    };
   }
 
   /**
@@ -186,12 +295,22 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Natural spans return at most two roots; requested quintics can retain near-zero partition candidates, bounded by fifteen observations per span. No list is cached globally.
    */
   export function criticalStations(outline: IOutline): number[] {
-    if (outline.hermite !== undefined) return AutoMovieViewHermite.critical(outline.hermite).map((x: number): number => AutoMovieViewParameter.station(outline.parameter, x)).filter(Number.isFinite);
+    if (outline.hermite !== undefined)
+      return AutoMovieViewHermite.critical(outline.hermite)
+        .map((x: number): number =>
+          AutoMovieViewParameter.station(outline.parameter, x),
+        )
+        .filter(Number.isFinite);
     const { xs, ys, curvatures } = outline.spline;
     const stations: number[] = [];
     for (let i: number = 0; i + 1 < xs.length; i++) {
       const h: number = xs[i + 1]! - xs[i]!;
-      const raw: [number, number, number] = [h * (curvatures[i + 1]! - curvatures[i]!) / 2, h * curvatures[i]!, (ys[i + 1]! - ys[i]!) / h - h * (2 * curvatures[i]! + curvatures[i + 1]!) / 6];
+      const raw: [number, number, number] = [
+        (h * (curvatures[i + 1]! - curvatures[i]!)) / 2,
+        h * curvatures[i]!,
+        (ys[i + 1]! - ys[i]!) / h -
+          (h * (2 * curvatures[i]! + curvatures[i + 1]!)) / 6,
+      ];
       const scale: number = Math.max(...raw.map(Math.abs));
       if (scale === 0) continue;
       const [a, b, c]: number[] = raw.map((x: number): number => x / scale);
@@ -201,15 +320,20 @@ export namespace AutoMovieViewOutline {
       } else {
         const discriminant: number = b! * b! - 4 * a! * c!;
         if (discriminant < 0) continue;
-        const q: number = -(b! + (b! < 0 ? -1 : 1) * Math.sqrt(discriminant)) / 2;
+        const q: number =
+          -(b! + (b! < 0 ? -1 : 1) * Math.sqrt(discriminant)) / 2;
         if (q === 0) roots.push(-b! / (2 * a!));
         else roots.push(q / a!, c! / q);
       }
-      for (const root of roots) if (root > 0 && root < 1) {
-        const x: number = xs[i]! + root * h;
-        const s: number = AutoMovieViewParameter.station(outline.parameter, x);
-        if (Number.isFinite(s)) stations.push(s);
-      }
+      for (const root of roots)
+        if (root > 0 && root < 1) {
+          const x: number = xs[i]! + root * h;
+          const s: number = AutoMovieViewParameter.station(
+            outline.parameter,
+            x,
+          );
+          if (Number.isFinite(s)) stations.push(s);
+        }
     }
     return [...new Set(stations)].sort((a: number, b: number): number => a - b);
   }
@@ -225,7 +349,12 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses this admitted source's natural/Hermite preparation and parameter inverse.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns only caller-owned station candidates or a failure string; retains no new state.
    */
-  export function supportStations(outline: IOutline, slope: number, valueScale: number = 1, domain: readonly [number, number] = outline.domain): number[] | string {
+  export function supportStations(
+    outline: IOutline,
+    slope: number,
+    valueScale: number = 1,
+    domain: readonly [number, number] = outline.domain,
+  ): number[] | string {
     return supportAutoMovieViewOutline(outline, slope, valueScale, domain);
   }
 
@@ -240,8 +369,18 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the admitted natural/Hermite coefficients and the exact source parameter inverse.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns an invocation-owned station list or failure string and retains no new state.
    */
-  export function distanceStations(outline: IOutline, targetStation: number, targetValue: number, domain: readonly [number, number]): number[] | string {
-    return distanceAutoMovieViewOutline(outline, targetStation, targetValue, domain);
+  export function distanceStations(
+    outline: IOutline,
+    targetStation: number,
+    targetValue: number,
+    domain: readonly [number, number],
+  ): number[] | string {
+    return distanceAutoMovieViewOutline(
+      outline,
+      targetStation,
+      targetValue,
+      domain,
+    );
   }
 
   /**
@@ -251,15 +390,12 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/common.md#clear-and-simple-design A scalar or explicit failure avoids constructing a jet record for lofting.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Out-of-domain and nonfinite values remain failures; no range or endpoint-neighbour clamp is applied.
    * @evidence contracts/common.md#meaningful-documentation States the value-only use and the shared source semantics.
-   * @evidence contracts/performance.md#efficient-algorithms One O(n) natural scan or O(log n) prepared-quintic search, with no derivative scan, arrays or reading record on a successful query.
+   * @evidence contracts/performance.md#efficient-algorithms One O(log n) natural or prepared-quintic lookup, with no derivative work, arrays or reading record on a successful query.
    * @evidence contracts/performance.md#reuse-equivalent-work Reuses the admitted spline and shared parameter/value helpers; changing knots requires a new preparation.
    * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Retains nothing and returns a scalar or failure string.
    */
   export function value(outline: IOutline, station: number): number | string {
-    const x: number = AutoMovieViewParameter.at(outline.parameter, station);
-    if (!Number.isFinite(x)) return `station ${station} is not finite inside the source parameter domain`;
-    const y: number = valueAt(outline, station, x);
-    return Number.isFinite(y) ? y : `station ${station} has a nonfinite source value`;
+    return AutoMovieViewOutlineRead.value(outline, station);
   }
 
   /**
@@ -269,28 +405,12 @@ export namespace AutoMovieViewOutline {
    * @evidence contracts/common.md#clear-and-simple-design One qualified reading supplies both parameter and station jets; value serves callers needing only a scalar.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Pole station jets are absent, overflowing jets are named nonfinite, and a finite value is retained; no finite-difference derivative or substituted point is used.
    * @evidence contracts/common.md#meaningful-documentation Documents derivative units, pole status and source versus final-loft meaning.
-   * @evidence contracts/performance.md#efficient-algorithms Two O(n) natural scans or O(log n) quintic searches supply value and derivatives; callers needing only a scalar avoid this derivative work.
-   * @evidence contracts/performance.md#reuse-equivalent-work Reuses the source curvature solve and the shared parameter/value helpers; no mutable evaluation cache is introduced.
+   * @evidence contracts/performance.md#efficient-algorithms One combined O(log n) natural lookup or two O(log n) quintic searches supply value and derivatives. An exact pole keeps its input zero and only reads parameter derivatives.
+   * @evidence contracts/performance.md#reuse-equivalent-work Natural value and derivatives share a selected interval; all readers retain the original curvature/parameter preparation without a mutable query cache.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one fixed-size reading and jets, retaining no previous query.
    */
   export function at(outline: IOutline, station: number): IReading | string {
-    const { bottom, top } = outline.ends;
-    const x: number = AutoMovieViewParameter.at(outline.parameter, station);
-    if (!Number.isFinite(x)) return `station ${station} is not finite inside the source parameter domain`;
-    const pole: boolean = station === bottom || station === top;
-    const value: number = valueAt(outline, station, x);
-    const jet: [number, number] = outline.hermite === undefined ? AutoMovieNaturalSpline.derivative(outline.spline, x) : AutoMovieViewHermite.derivative(outline.hermite, x);
-    if (!Number.isFinite(value) || !jet.every(Number.isFinite)) return `station ${station} has a nonfinite source value or parameter jet`;
-    const change: [number, number] | null = AutoMovieViewParameter.jet(outline.parameter, station);
-    let stationJet: [number, number] | null = null;
-    let stationJetStatus: IReading["stationJetStatus"] = pole ? "singular-pole" : "singular-parameter";
-    if (change !== null && !pole) {
-      stationJet = [jet[0] * change[0], jet[1] * change[0] * change[0] + jet[0] * change[1]];
-      stationJetStatus = stationJet.every(Number.isFinite) ? "regular" : "nonfinite";
-      if (stationJetStatus === "nonfinite") stationJet = null;
-    }
-    const [lo, hi] = outline.domain;
-    return { station, parameter: x, value, parameterJet: jet, stationJet, stationJetStatus, location: pole ? "pole" : change === null ? "parameter-endpoint" : station < lo || station > hi ? "extension" : station === lo || station === hi ? "endpoint" : "interior" };
+    return AutoMovieViewOutlineRead.at(outline, station);
   }
 
   /**
@@ -304,20 +424,76 @@ export namespace AutoMovieViewOutline {
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work Converts one record once, with no effectful work to share.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns fresh source knots and a copied parameter; no input object is retained.
    */
-  export function scale(outline: IAutoMovieViewPart.IOutline, stationScale: number, valueScale: number): IAutoMovieViewPart.IOutline {
-    if (!(Number.isFinite(stationScale) && stationScale > 0 && Number.isFinite(valueScale))) throw new Error("outline unit conversion needs finite factors and a positive station scale");
-    const p: AutoMovieConstructionOutlineParameter | undefined = outline.parameter;
-    const converted: AutoMovieConstructionOutlineParameter | undefined = p === undefined ? undefined : p.type === "root" ? { ...p, pole: p.pole * stationScale } : { ...p, bottom: p.bottom * stationScale, top: p.top * stationScale };
-    const range: IAutoMovieViewPart.IOutline["range"] = outline.range === undefined ? undefined : valueScale >= 0 ? { minimum: outline.range.minimum === null ? null : outline.range.minimum * valueScale, maximum: outline.range.maximum === null ? null : outline.range.maximum * valueScale } : { minimum: outline.range.maximum === null ? null : outline.range.maximum * valueScale, maximum: outline.range.minimum === null ? null : outline.range.minimum * valueScale };
-    return { knots: outline.knots.map((k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({ site: k.site, station: k.station * stationScale, value: k.value * valueScale, ...(k.jet === undefined ? {} : { jet: { first: k.jet.first === null ? null : k.jet.first * valueScale, second: k.jet.second === null ? null : k.jet.second * valueScale } }) })), ...(converted === undefined ? {} : { parameter: converted }), ...(range === undefined ? {} : { range }) };
-  }
-
-  /**
-   * Source value at an already admitted query parameter; pole zeros are source input rather than evaluated cancellation.
-   *
-   * Returns the checked zero input only at an exact closing pole; nearby points read the same prepared natural or requested quintic source. It keeps value and at on the same point, uses the already admitted parameter, performs an O(n) natural scan or O(log n) quintic search, and retains no state.
-   */
-  function valueAt(outline: IOutline, station: number, x: number): number {
-    return station === outline.ends.bottom || station === outline.ends.top ? 0 : outline.hermite === undefined ? AutoMovieNaturalSpline.evaluate(outline.spline, x) : AutoMovieViewHermite.value(outline.hermite, x);
+  export function scale(
+    outline: IAutoMovieViewPart.IOutline,
+    stationScale: number,
+    valueScale: number,
+  ): IAutoMovieViewPart.IOutline {
+    if (
+      !(
+        Number.isFinite(stationScale) &&
+        stationScale > 0 &&
+        Number.isFinite(valueScale)
+      )
+    )
+      throw new Error(
+        "outline unit conversion needs finite factors and a positive station scale",
+      );
+    const p: AutoMovieConstructionOutlineParameter | undefined =
+      outline.parameter;
+    const converted: AutoMovieConstructionOutlineParameter | undefined =
+      p === undefined
+        ? undefined
+        : p.type === "root"
+          ? { ...p, pole: p.pole * stationScale }
+          : {
+              ...p,
+              bottom: p.bottom * stationScale,
+              top: p.top * stationScale,
+            };
+    const range: IAutoMovieViewPart.IOutline["range"] =
+      outline.range === undefined
+        ? undefined
+        : valueScale >= 0
+          ? {
+              minimum:
+                outline.range.minimum === null
+                  ? null
+                  : outline.range.minimum * valueScale,
+              maximum:
+                outline.range.maximum === null
+                  ? null
+                  : outline.range.maximum * valueScale,
+            }
+          : {
+              minimum:
+                outline.range.maximum === null
+                  ? null
+                  : outline.range.maximum * valueScale,
+              maximum:
+                outline.range.minimum === null
+                  ? null
+                  : outline.range.minimum * valueScale,
+            };
+    return {
+      knots: outline.knots.map(
+        (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({
+          site: k.site,
+          station: k.station * stationScale,
+          value: k.value * valueScale,
+          ...(k.jet === undefined
+            ? {}
+            : {
+                jet: {
+                  first: k.jet.first === null ? null : k.jet.first * valueScale,
+                  second:
+                    k.jet.second === null ? null : k.jet.second * valueScale,
+                },
+              }),
+        }),
+      ),
+      ...(converted === undefined ? {} : { parameter: converted }),
+      ...(range === undefined ? {} : { range }),
+    };
   }
 }
