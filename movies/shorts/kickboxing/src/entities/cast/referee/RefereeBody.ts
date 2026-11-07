@@ -140,7 +140,8 @@ export class RefereeBody {
     frame: { origin: IAutoMovieVector3; facing: { x: number; z: number }; feet: Record<"left" | "right", IAutoMovieVector3> },
   ): { output: AutoMovieHumanSkeleton.IOutput; root: { position: IAutoMovieVector3; rotation: IAutoMovieQuaternion }; segments: Record<string, P.ITransform> } {
     const heading: number = Math.atan2(-frame.facing.z, frame.facing.x);
-    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading + posture.yaw);
+    // The engine's axis-angle takes degrees.
+    const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, ((heading + posture.yaw) * 180) / Math.PI);
     const position: IAutoMovieVector3 = Vector3.add(frame.origin, { x: 0, y: -posture.drop, z: 0 });
     const world = (p: IAutoMovieVector3): [number, number, number] => {
       const w: IAutoMovieVector3 = Vector3.add(frame.origin, Quaternion.rotateVector(rotation, p));

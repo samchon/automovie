@@ -341,16 +341,18 @@ export namespace FighterBody {
     facing: { x: number; z: number },
   ): { floor: IAutoMovieVector3; rotation: IAutoMovieQuaternion; position: IAutoMovieVector3 } {
     const heading: number = Math.atan2(-facing.z, facing.x);
-    const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading);
+    // The engine's axis-angle takes degrees.
+    const degrees = (radians: number): number => (radians * 180) / Math.PI;
+    const yaw: IAutoMovieQuaternion = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees(heading));
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(yaw, { x: 1, y: 0, z: 0 });
     const left: IAutoMovieVector3 = Quaternion.rotateVector(yaw, { x: 0, y: 0, z: 1 });
     const floor: IAutoMovieVector3 = Vector3.add(origin, Vector3.add(Vector3.scale(forward, posture.shift.forward), Vector3.scale(left, posture.shift.left)));
     const rotation: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
-        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, heading + posture.yaw),
+        Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, degrees(heading + posture.yaw)),
         Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -posture.pitch),
-          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -posture.roll),
+          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, degrees(-posture.pitch)),
+          Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, degrees(-posture.roll)),
         ),
       ),
     );

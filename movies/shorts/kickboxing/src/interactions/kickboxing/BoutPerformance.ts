@@ -144,6 +144,7 @@ export class BoutPerformance {
         },
         seconds,
         iterations: BoutPerformance.ITERATIONS,
+        approachWeight: BoutPerformance.APPROACH_WEIGHT,
       });
       if (result.active) segments = blend(segments, result.targets, ease(weight));
     }
@@ -158,7 +159,10 @@ export class BoutPerformance {
       surface: { bone: weapon.bone, localPoint: weapon.localPoint, localDirection: weapon.localDirection },
       target: { subject: receiver.id, region: strike.region },
       ...(strike.spec.line === "descending" ? { approach: Vector3.normalize({ x: 0, y: -1, z: 0 }) } : {}),
-      lock: strike.outcome === "landed" ? "freeze" : "track",
+      // The strike committed its path at launch or chamber in the shape; a
+      // touching outcome means the region is there at contact, so the fit
+      // tracks it through the contact window.
+      lock: "track",
     };
   }
 
@@ -221,6 +225,9 @@ export namespace BoutPerformance {
 
   /** Cached seconds kept before the caches are cleared. */
   export const CACHE: number = 4096;
+
+  /** Metres of residual the fit trades per unit of approach-direction difference: a centimetre, so reaching the region outweighs the arrival angle the shape already set. */
+  export const APPROACH_WEIGHT: number = 0.01;
 
   /** Relational fit budget, within the engine's limit. */
   export const ITERATIONS: number = 64;
