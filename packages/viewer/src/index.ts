@@ -128,3 +128,4 @@ export * from "./updateAutoMovieComparisonCamera.js";
 export { createAutoMoviePerformanceOverlay } from "./createAutoMoviePerformanceOverlay.js";
 export { createAutoMovieSurfaceAppearance } from "./createAutoMovieSurfaceAppearance.js";
 export { createAutoMoviePhysicalPoseAdapter } from "./createAutoMoviePhysicalPoseAdapter.js";
+export * from "./audio/index.js";
