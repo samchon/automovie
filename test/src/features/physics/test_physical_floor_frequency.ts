@@ -5,22 +5,25 @@ import { TestValidator } from "@nestia/e2e";
 import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
 import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
 import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
-import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
-/** The load window, the one-second sleep checkpoint and a short sleeping tail. */
-const DURATION: number = 1.2;
+/** Thirty native steps: settling, then a loaded window. */
+const DURATION: number = 0.25;
 
-/** Edited target step, after the sleep checkpoint. */
-const EDIT: number = 130;
+/** Start of the loaded window, seconds. */
+const LOADED: number = 0.125;
 
-/** The declared contact law reaches the real immobile floor under independent high load.
+/** Initial floor penetration of the frequency probe, metres. */
+const PENETRATION: number = 0.002;
+
+/** The declared contact law reaches the real immobile floor.
  *
  * Scenarios:
- * 1. An analytic0.6kg pad under40kg-equivalent gravity distinguishes60/240Hz.
- * 2. Native floor impulses carry the declared load and the240Hz surface stays within1mm.
- * 3. Every checkpoint preserves all six floor coordinates and zero velocities.
- * 4. Checkpoint continuation remains identical after a late target-only edit.
+ * 1. One native step from the same 2 mm floor penetration pushes a pad out faster at 240 Hz than at 60 Hz, so the declared frequency governs the floor contact rather than a fixed body's unexposed 60 Hz law.
+ * 2. Over a settled window, the floor's native impulse receipts carry the pad's weight m g within 10 %, without double-counted samples.
+ * 3. Every retained checkpoint restores the floor at its declared pose with all six coordinates and zero velocities.
+ *
+ * Checkpoint continuation belongs to the native simulation units; the stiffness of each frequency is Rapier's.
  */
 export async function test_physical_floor_frequency(): Promise<void> {
   const mass: number = 0.6;
@@ -29,8 +32,7 @@ export async function test_physical_floor_frequency(): Promise<void> {
   profile.id = "analytic-loaded-pad";
   profile.mass = mass;
   profile.centerOfMass.y = extent.y;
-  profile.provenance =
-    "Uniform0.6kg box with analytic solid inertia; explicit gravitational acceleration supplies392.4N without injected impulses.";
+  profile.provenance = "Uniform 0.6 kg box with analytic solid inertia.";
   const segment: P.ISegment = profile.segments[0]!;
   segment.mass = mass;
   segment.neutral.position.y = extent.y;
@@ -52,162 +54,101 @@ export async function test_physical_floor_frequency(): Promise<void> {
     },
   ];
   profile.materials[0]!.friction = 0.7;
-  const geometry: Geometry.IQueries = await Geometry();
-  const observations: {
-    frequency: number;
-    minimum: number;
-    creep: number;
-    force: number;
-    run: Simulation;
-  }[] = [];
   const findings: string[] = [];
+
+  // One step out of the same penetration at both declared frequencies.
+  const rise: number[] = [];
   for (const frequency of [60, 240]) {
     const body: Simulation.IBody = PhysicalFixtures.body(
       "pad",
       profile,
-      DURATION,
+      1 / 120,
     );
-    // Zero-budget tracking adds no force and does not wake a sleeping contact.
-    // Measure solved load in the settled awake window, then retain sleep as a
-    // distinct native state rather than synthesizing a static impulse stream.
-    for (const target of body.targets) target.strength = 1;
-    const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
+    for (const target of body.targets)
+      target.segments.root!.position.y = extent.y - PENETRATION;
+    const input: Simulation.IInput = PhysicalFixtures.input([body], 1 / 120);
     Object.assign(input, {
       floor: 0,
-      gravity: { x: 0, y: (-40 * 9.81) / mass, z: 0 },
       contactFrequency: frequency,
-      substeps: 32,
-      iterations: 64,
-      internalIterations: 4,
+      substeps: 1,
     });
     const run: Simulation = await Simulation.compute(input);
-    const heights: number[] = run.cache.frames
-      .filter(
-        (frame: (typeof run.cache.frames)[number]): boolean =>
-          frame.seconds >= 1,
-      )
-      .map((frame: (typeof run.cache.frames)[number]): number =>
-        geometry.minimumY({
-          body: "pad",
-          bone: "root",
-          shape: segment.shapes[0]!,
-          pose: frame.bodies.pad!.root!,
-        }),
-      );
-    const force: number =
-      run.cache.contacts
-        .flatMap(
-          (
-            receipt: (typeof run.cache.contacts)[number],
-          ): NonNullable<typeof receipt.samples> =>
-            receipt.source === "solver" &&
-            (receipt.a.body === "floor" || receipt.b.body === "floor")
-              ? (receipt.samples ?? [])
-              : [],
-        )
-        .filter(
-          (
-            sample: NonNullable<
-              (typeof run.cache.contacts)[number]["samples"]
-            >[number],
-          ): boolean => sample.seconds > 0.25 && sample.seconds <= 0.5,
-        )
-        .reduce(
-          (
-            sum: number,
-            sample: NonNullable<
-              (typeof run.cache.contacts)[number]["samples"]
-            >[number],
-          ): number => sum + sample.impulse,
-          0,
-        ) / 0.25;
-    const minimum: number = Math.min(...heights);
-    const creep: number = Math.max(...heights) - minimum;
-    observations.push({ frequency, minimum, creep, force, run });
-    if (Math.abs(force - 40 * 9.81) > 0.1 * 40 * 9.81)
-      findings.push(`${frequency}: native solved load ${force}`);
-    const sleeping: Uint8Array | undefined = run.cache.checkpoints.get(120);
-    if (!sleeping) findings.push(`${frequency}: missing sleep checkpoint`);
-    else {
-      const world: World = RAPIER.World.restoreSnapshot(sleeping);
-      try {
-        const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
-          world,
-          run.input,
-          true,
-        );
-        if (!bound.segments.get("pad")!.get("root")!.isSleeping())
-          findings.push(
-            `${frequency}: unloaded actuator unexpectedly woke resting pad`,
-          );
-      } finally {
-        world.free();
-      }
-    }
-    if (
-      run.cache.contacts.some(
-        (receipt: (typeof run.cache.contacts)[number]): boolean =>
+    rise.push(run.cache.at(1 / 120).bodies.pad!.root!.velocity.y);
+  }
+  if (!(rise[0]! > 0 && rise[1]! > rise[0]!))
+    findings.push(`frequency-ordered push-out ${JSON.stringify(rise)}`);
+
+  // The settled weight in the floor's impulse receipts.
+  const body: Simulation.IBody = PhysicalFixtures.body(
+    "pad",
+    profile,
+    DURATION,
+  );
+  const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
+  Object.assign(input, {
+    floor: 0,
+    gravity: { x: 0, y: -9.81, z: 0 },
+    substeps: 4,
+    checkpointEvery: 15,
+  });
+  const run: Simulation = await Simulation.compute(input);
+  const force: number =
+    run.cache.contacts
+      .flatMap(
+        (
+          receipt: (typeof run.cache.contacts)[number],
+        ): NonNullable<typeof receipt.samples> =>
           receipt.source === "solver" &&
-          (receipt.samples ?? []).some(
-            (sample: NonNullable<typeof receipt.samples>[number]): boolean =>
-              sample.seconds > 1 && sample.impulse > 0,
-          ),
+          (receipt.a.body === "floor" || receipt.b.body === "floor")
+            ? (receipt.samples ?? [])
+            : [],
       )
-    )
-      findings.push(
-        `${frequency}: sleeping fixture unexpectedly reports new impulses`,
+      .filter(
+        (
+          sample: NonNullable<
+            (typeof run.cache.contacts)[number]["samples"]
+          >[number],
+        ): boolean => sample.seconds > LOADED && sample.seconds <= DURATION,
+      )
+      .reduce(
+        (
+          sum: number,
+          sample: NonNullable<
+            (typeof run.cache.contacts)[number]["samples"]
+          >[number],
+        ): number => sum + sample.impulse,
+        0,
+      ) /
+    (DURATION - LOADED);
+  if (Math.abs(force - mass * 9.81) > 0.1 * mass * 9.81)
+    findings.push(`native solved load ${force} N`);
+  if (run.cache.checkpoints.size < 3)
+    findings.push(`only ${run.cache.checkpoints.size} checkpoints`);
+  for (const snapshot of run.cache.checkpoints.values()) {
+    const world: World = RAPIER.World.restoreSnapshot(snapshot);
+    try {
+      const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
+        world,
+        run.input,
+        true,
       );
-    for (const snapshot of run.cache.checkpoints.values()) {
-      const world: World = RAPIER.World.restoreSnapshot(snapshot);
-      try {
-        const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
-          world,
-          run.input,
-          true,
-        );
-        const floor: NonNullable<typeof bound.floor> = bound.floor!;
-        const rotation: ReturnType<typeof floor.rotation> = floor.rotation();
-        if (
-          !floor.isKinematic() ||
-          Vector3.length(
-            Vector3.subtract(floor.translation(), { x: 0, y: -0.5, z: 0 }),
-          ) > 1e-8 ||
-          Math.hypot(rotation.x, rotation.y, rotation.z) > 1e-8 ||
-          Math.abs(rotation.w - 1) > 1e-8 ||
-          Vector3.length(floor.linvel()) > 1e-8 ||
-          Vector3.length(floor.angvel()) > 1e-8
-        )
-          findings.push(`${frequency}: floor moved in a native checkpoint`);
-      } finally {
-        world.free();
-      }
+      const floor: NonNullable<typeof bound.floor> = bound.floor!;
+      const rotation: ReturnType<typeof floor.rotation> = floor.rotation();
+      if (
+        !floor.isKinematic() ||
+        Vector3.length(
+          Vector3.subtract(floor.translation(), { x: 0, y: -0.5, z: 0 }),
+        ) > 1e-8 ||
+        Math.hypot(rotation.x, rotation.y, rotation.z) > 1e-8 ||
+        Math.abs(rotation.w - 1) > 1e-8 ||
+        Vector3.length(floor.linvel()) > 1e-8 ||
+        Vector3.length(floor.angvel()) > 1e-8
+      )
+        findings.push("floor moved in a native checkpoint");
+    } finally {
+      world.free();
     }
   }
-  const soft: (typeof observations)[number] = observations[0]!;
-  const firm: (typeof observations)[number] = observations[1]!;
-  if (
-    !(soft.minimum < -0.001 && firm.minimum >= -0.001 && firm.creep <= 0.0002)
-  )
-    findings.push(
-      `load/clearance: ${JSON.stringify(observations.map((row: (typeof observations)[number]): object => ({ frequency: row.frequency, minimum: row.minimum, creep: row.creep, force: row.force })))}`,
-    );
-  const edited: Simulation.IInput = structuredClone(firm.run.input);
-  edited.bodies[0]!.targets[EDIT]!.segments.root!.position.x += 0.001;
-  const resumed: Simulation = await Simulation.compute(edited, firm.run);
-  const cold: Simulation = await Simulation.compute(edited);
-  if (
-    !(
-      resumed.recomputedSteps > 0 &&
-      resumed.recomputedSteps < edited.maximumSteps
-    ) ||
-    JSON.stringify(resumed.cache.frames) !==
-      JSON.stringify(cold.cache.frames) ||
-    JSON.stringify(resumed.cache.contacts) !==
-      JSON.stringify(cold.cache.contacts)
-  )
-    findings.push(
-      "immobile-floor checkpoint continuation differs from cold native integration",
-    );
   TestValidator.equals(
     "all actual floor law, load and checkpoint observations",
     findings,

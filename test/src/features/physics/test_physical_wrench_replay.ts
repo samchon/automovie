@@ -1,117 +1,116 @@
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMoviePhysicalPlayback as Playback } from "../../../../packages/engine/src/physics/AutoMoviePhysicalPlayback";
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { PhysicalFixtures } from "../internal/PhysicalFixtures";
-import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
-import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
+import type { AutoMoviePhysicalPlayback as Playback } from "../../../../packages/engine/src/physics/AutoMoviePhysicalPlayback";
+import type { AutoMoviePhysicsCache as Cache } from "../../../../packages/engine/src/physics/AutoMoviePhysicsCache";
+import { admitPhysicalPlaybackMetadata } from "../../../../packages/engine/src/physics/admitPhysicalPlaybackMetadata";
 
-/** Virtual support demand remains distinguishable from achieved native contact force through restart and solver-free playback.
+/** Replayed virtual support predictions keep requested minus allocated equal to their residual, independent of an archive's integrity trailer.
  *
  * Scenarios:
- * 1. Unsupported weight compensation retains requested force and zero allocated force without inventing an impulse.
- * 2. An edited suffix resumes exact allocation diagnostics from a native checkpoint.
- * 3. Binary replay retains those predictions and rejects inconsistent integrity-valid residual metadata.
+ * 1. An unsupported prediction, full residual and zero allocation, is admitted.
+ * 2. A partial allocation whose residual is the exact difference is admitted, also at the 64-ulp rounding bound.
+ * 3. A residual one newton off, or past the rounding bound, is refused as inconsistent.
+ * 4. A negative or fractional witness count, and two predictions at one instant, are refused as malformed.
+ *
+ * The allocation law itself belongs to `test_physical_support_wrench`, and binary transport to `test_physical_playback_archive`.
  */
-export async function test_physical_wrench_replay(): Promise<void> {
-  const body: Simulation.IBody = PhysicalSupportFixtures.body(
-    PhysicalModelFixtures.quadrupod(),
-    1,
-  );
-  body.actuation = "internal";
-  body.compensateGravity = true;
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 1);
-  Object.assign(input, {
-    gravity: { x: 0, y: -9.81, z: 0 },
-    substeps: 4,
-    iterations: 16,
-  });
-  const baseline: Simulation = await Simulation.compute(input);
-  TestValidator.predicate(
-    "unsupported demand remains a prediction with residual",
-    baseline.cache.supportWrenches.some(
-      (entry: (typeof baseline.cache.supportWrenches)[number]): boolean =>
-        entry.pointCount === 0 &&
-        entry.requested.force.y > 0 &&
-        entry.allocated.force.y === 0 &&
-        entry.residual.force.y === entry.requested.force.y,
-    ),
-  );
-  TestValidator.predicate(
-    "the allocation creates no floor contact receipt",
-    !baseline.cache.contacts.some(
-      (receipt: (typeof baseline.cache.contacts)[number]): boolean =>
-        receipt.a.body === "floor" || receipt.b.body === "floor",
-    ),
-  );
-  const changed: Simulation.IInput = structuredClone(input);
-  changed.impulses.push({
-    step: 90,
-    body: body.id,
-    bone: "body",
-    impulse: { x: 0.1, y: 0, z: 0 },
-    point: { x: 0, y: 0.8, z: 0 },
-  });
-  const fresh: Simulation = await Simulation.compute(changed);
-  const resumed: Simulation = await Simulation.compute(changed, baseline);
-  TestValidator.equals(
-    "allocation diagnostics resume exactly",
-    JSON.stringify(resumed.cache.supportWrenches),
-    JSON.stringify(fresh.cache.supportWrenches),
-  );
-  const bytes: Uint8Array = await Playback.encode(fresh.cache, 2_000_000);
-  const playback: Playback = await Playback.decode(
-    bytes,
-    fresh.cache.identity,
-    { maximumBytes: 2_000_000, maximumFrames: 121, maximumSegments: 13 },
-  );
-  TestValidator.equals(
-    "predictions survive binary replay",
-    JSON.stringify(playback.supportWrenches),
-    JSON.stringify(fresh.cache.supportWrenches),
-  );
-  const metadataBytes: number = new DataView(
-    bytes.buffer,
-    bytes.byteOffset,
-  ).getUint32(4, true);
-  const header: Playback.IHeader = JSON.parse(
-    new TextDecoder().decode(bytes.subarray(8, 8 + metadataBytes)),
-  );
-  header.supportWrenches[0]!.residual.force.y += 1;
-  const changedMetadata: Uint8Array = new TextEncoder().encode(
-    JSON.stringify(header),
-  );
-  const oldOffset: number = Math.ceil((8 + metadataBytes) / 8) * 8;
-  const newOffset: number = Math.ceil((8 + changedMetadata.length) / 8) * 8;
-  const malformed: Uint8Array<ArrayBuffer> = new Uint8Array(
-    newOffset + bytes.length - oldOffset,
-  );
-  new DataView(malformed.buffer).setUint32(0, 0x414d5031, true);
-  new DataView(malformed.buffer).setUint32(4, changedMetadata.length, true);
-  malformed.set(changedMetadata, 8);
-  malformed.set(bytes.subarray(oldOffset, bytes.length - 32), newOffset);
-  malformed.set(
-    new Uint8Array(
-      await crypto.subtle.digest(
-        "SHA-256",
-        malformed.subarray(0, malformed.length - 32),
-      ),
-    ),
-    malformed.length - 32,
-  );
-  let refused: boolean = false;
-  try {
-    await Playback.decode(malformed, fresh.cache.identity, {
-      maximumBytes: 2_000_000,
-      maximumFrames: 121,
-      maximumSegments: 13,
-    });
-  } catch (error) {
-    refused =
-      error instanceof Error && error.message.includes("allocation residual");
+export function test_physical_wrench_replay(): void {
+  const unsupported: Cache.ISupportWrench = wrench(0, 0, [100, 0], [0, 0]);
+  const partial: Cache.ISupportWrench = wrench(1 / 120, 4, [100, 2], [60, 0.5]);
+  const verdicts: [string, Cache.ISupportWrench[], string | null][] = [
+    ["unsupported prediction", [unsupported], null],
+    ["partial allocation", [unsupported, partial], null],
+    [
+      "rounding at the bound",
+      [nudge(partial, 32 * Number.EPSILON * 100)],
+      null,
+    ],
+    [
+      "false residual",
+      [nudge(partial, 1)],
+      "Inconsistent physical playback allocation residual",
+    ],
+    [
+      "residual past rounding",
+      [nudge(partial, 128 * Number.EPSILON * 100)],
+      "Inconsistent physical playback allocation residual",
+    ],
+    [
+      "negative witness count",
+      [{ ...partial, pointCount: -1 }],
+      "Malformed physical playback support-wrench prediction",
+    ],
+    [
+      "fractional witness count",
+      [{ ...partial, pointCount: 1.5 }],
+      "Malformed physical playback support-wrench prediction",
+    ],
+    [
+      "repeated instant",
+      [partial, partial],
+      "Malformed physical playback support-wrench prediction",
+    ],
+  ];
+  const failures: string[] = [];
+  for (const [label, supportWrenches, expected] of verdicts) {
+    let refusal: string | null = null;
+    try {
+      admitPhysicalPlaybackMetadata({ ...header(), supportWrenches });
+    } catch (error: unknown) {
+      refusal = error instanceof Error ? error.message : String(error);
+    }
+    if (refusal !== expected)
+      failures.push(`${label}: ${refusal ?? "admitted"}`);
   }
-  TestValidator.predicate(
-    "an integrity trailer cannot authorize a false residual",
-    refused,
-  );
+  TestValidator.equals("support-wrench replay admission", failures, []);
+}
+
+/** A one-body, one-segment archive header with no contacts and initial dynamic ownership. */
+function header(): Playback.IHeader {
+  return {
+    format: 1,
+    protocol: "unit",
+    identity: "unit",
+    duration: 1,
+    rate: 120,
+    segments: [["body", "root"]],
+    contacts: [],
+    recovery: {},
+    ownership: [{ body: "body", bone: "root", seconds: 0, kind: "dynamic" }],
+    supportWrenches: [],
+  };
+}
+
+/** A vertical force and yaw-moment prediction with its exact residual. */
+function wrench(
+  seconds: number,
+  pointCount: number,
+  requested: [number, number],
+  allocated: [number, number],
+): Cache.ISupportWrench {
+  const of: (value: [number, number]) => Cache.ISupportWrench["requested"] = (
+    value: [number, number],
+  ): Cache.ISupportWrench["requested"] => ({
+    force: { x: 0, y: value[0], z: 0 },
+    torque: { x: 0, y: value[1], z: 0 },
+  });
+  return {
+    body: "body",
+    seconds,
+    origin: { x: 0, y: 1, z: 0 },
+    requested: of(requested),
+    allocated: of(allocated),
+    residual: of([requested[0] - allocated[0], requested[1] - allocated[1]]),
+    pointCount,
+  };
+}
+
+/** The same prediction with its vertical force residual moved by `delta` newtons. */
+function nudge(
+  entry: Cache.ISupportWrench,
+  delta: number,
+): Cache.ISupportWrench {
+  const copy: Cache.ISupportWrench = structuredClone(entry);
+  copy.residual.force.y += delta;
+  return copy;
 }

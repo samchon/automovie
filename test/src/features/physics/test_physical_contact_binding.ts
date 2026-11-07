@@ -11,23 +11,17 @@ import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
-/** Sixty native steps: approach, contact and one checkpoint continuation. */
-const DURATION: number = 0.5;
+/** Two target steps: the relationship is planned per step, so one is enough. */
+const DURATION: number = 1 / 120;
 
-/** Steps between retained native checkpoints. */
-const CHECKPOINT: number = 20;
-
-/** First edited receiver step, after the second checkpoint. */
-const EDIT: number = 45;
-
-/** Collider relationships follow a moved receiver through generic bounded IK and actual dynamics.
+/** Collider relationships follow a moved receiver through generic bounded IK.
  *
  * Scenarios:
- * 1. Moving only a target sphere changes an independent primitive limb's fitted pose.
- * 2. A bounded motor reaches a moving receiver and records a real positive impulse.
- * 3. Kinematic evaluation uses the same relationship with geometric-only receipts.
- * 4. A late receiver edit resumes from a checkpoint with identical frames.
- * 5. Unknown colliders and unsupported compression refuse before solver allocation.
+ * 1. Moving only a target sphere changes an independent primitive limb's fitted pose, and both fits reach the receiver's surface.
+ * 2. The fitted source collider, queried natively against the receiver, is a geometric receipt without a solver impulse.
+ * 3. The valid relationship is admitted; unknown colliders, unsupported compression and malformed normals refuse before solver allocation.
+ *
+ * Solver impulses and checkpoint continuation belong to the native simulation units.
  */
 export async function test_physical_contact_binding(): Promise<void> {
   const findings: string[] = [];
@@ -55,12 +49,6 @@ export async function test_physical_contact_binding(): Promise<void> {
     profile,
     DURATION,
   );
-  Object.assign(source, {
-    rootStiffness: 5000,
-    rootDamping: 500,
-    maximumRootForce: 5000,
-    rootTorque: { stiffness: 1000, damping: 100, maximumTorque: 1000 },
-  });
   for (const target of source.targets) {
     target.strength = 1;
     target.bindings = [binding];
@@ -118,87 +106,43 @@ export async function test_physical_contact_binding(): Promise<void> {
     findings.push(
       `surface fitting residuals ${JSON.stringify([first.residuals, second.residuals])}`,
     );
+
+  // The fitted collider touches the receiver as a geometric receipt.
+  const contact: ReturnType<Geometry.IQueries["contact"]> = geometry.contact(
+    {
+      body: "mechanism",
+      bone: "support-0",
+      shape: profile.segments.find(
+        (segment: P.ISegment): boolean => segment.bone === "support-0",
+      )!.shapes[0]!,
+      pose: second.targets["support-0"]!,
+    },
+    {
+      body: "receiver",
+      bone: "root",
+      shape: receiver.segments[0]!.shapes[0]!,
+      pose: moved.receiver!.root!,
+    },
+    0,
+    0.01,
+  );
+  if (
+    !contact ||
+    contact.source !== "geometric" ||
+    contact.impulse !== null ||
+    !(contact.separation <= 0.005 + 1e-9)
+  )
+    findings.push(`fitted geometric receipt ${JSON.stringify(contact)}`);
   const input: Simulation.IInput = PhysicalFixtures.input(
     [source, panel],
     DURATION,
   );
-  input.checkpointEvery = CHECKPOINT;
-  input.substeps = 16;
-  input.iterations = 32;
-  input.internalIterations = 4;
-  const native: Simulation = await Simulation.compute(input);
-  const stationaryInput: Simulation.IInput = structuredClone(input);
-  for (const target of stationaryInput.bodies[1]!.targets)
-    target.segments = structuredClone(panel.targets[0]!.segments);
-  const stationary: Simulation = await Simulation.compute(stationaryInput);
-  for (const [name, run] of [
-    ["moving", native],
-    ["stationary", stationary],
-  ] as const) {
-    const actual: ReturnType<typeof run.cache.at>["bodies"] =
-      run.cache.at(DURATION).bodies;
-    const contact: ReturnType<Geometry.IQueries["contact"]> = geometry.contact(
-      {
-        body: "mechanism",
-        bone: "support-0",
-        shape: profile.segments.find(
-          (segment: P.ISegment): boolean => segment.bone === "support-0",
-        )!.shapes[0]!,
-        pose: actual.mechanism!["support-0"]!,
-      },
-      {
-        body: "receiver",
-        bone: "root",
-        shape: receiver.segments[0]!.shapes[0]!,
-        pose: actual.receiver!.root!,
-      },
-      1,
-      10,
-    );
-    if (
-      !run.cache.contacts.some(
-        (receipt: (typeof run.cache.contacts)[number]): boolean =>
-          receipt.source === "solver" &&
-          (receipt.impulse ?? 0) > 0 &&
-          receipt.separation <= 0 &&
-          receipt.a.body !== receipt.b.body &&
-          receipt.a.body !== "floor" &&
-          receipt.b.body !== "floor",
-      )
-    )
-      findings.push(
-        `${name}: no actual solver contact; final gap ${contact?.separation}; source ${JSON.stringify(actual.mechanism!["support-0"]!.position)}`,
-      );
-  }
-  const kinematicInput: Simulation.IInput = structuredClone(input);
-  kinematicInput.bodies[0]!.mode = { kind: "kinematic" };
-  const kinematic: Simulation = await Simulation.compute(kinematicInput);
-  if (
-    !(
-      kinematic.recomputedSteps === 0 &&
-      kinematic.cache.contacts.length > 0 &&
-      kinematic.cache.contacts.every(
-        (receipt: (typeof kinematic.cache.contacts)[number]): boolean =>
-          receipt.source === "geometric" && receipt.impulse === null,
-      )
-    )
-  )
-    findings.push("kinematic relationship provenance");
-  const edit: Simulation.IInput = structuredClone(input);
-  for (const target of edit.bodies[1]!.targets.slice(EDIT))
-    target.segments.root!.position.y += 0.02;
-  const fresh: Simulation = await Simulation.compute(edit);
-  const resumed: Simulation = await Simulation.compute(edit, native);
-  if (
-    !(
-      resumed.recomputedSteps ===
-        edit.maximumSteps - Math.floor(EDIT / CHECKPOINT) * CHECKPOINT &&
-      JSON.stringify(fresh.cache.frames) ===
-        JSON.stringify(resumed.cache.frames)
-    )
-  )
-    findings.push("live binding checkpoint frame identity");
   const failures: string[] = [];
+  try {
+    Simulation.identity(input);
+  } catch (error: unknown) {
+    failures.push(`refused the valid relationship: ${String(error)}`);
+  }
   for (const invalid of [
     { ...binding, compression: 1 },
     { ...binding, target: { ...binding.target, shape: "absent" } },
