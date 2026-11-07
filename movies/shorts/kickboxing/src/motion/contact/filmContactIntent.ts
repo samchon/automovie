@@ -40,7 +40,7 @@ export function filmContactIntent(
             ? `${receiverSide}LowerLeg`
             : spec.target === "leg"
               ? `${receiverSide}UpperLeg`
-              : "chest",
+              : "spine",
   };
 }
 
@@ -48,8 +48,8 @@ export function filmContactIntent(
 const SURFACE: Readonly<Record<BoutTechnique.Surface, string>> = {
   fist: "Hand",
   shin: "LowerLeg",
-  instep: "Foot",
-  sole: "Foot",
+  instep: "Midfoot",
+  sole: "Midfoot",
   knee: "LowerLeg",
 };
 

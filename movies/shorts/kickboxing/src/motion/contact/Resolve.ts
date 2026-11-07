@@ -11,6 +11,7 @@ import type { FilmBodyRig as BodyRig } from "../rig/FilmBodyRig";
 import { FilmVector as Vec3 } from "../rig/FilmVector";
 import { Foot } from "../rig/Foot";
 import { Strike } from "../striking/Strike";
+import { filmContactIntent } from "./filmContactIntent";
 import { filmGuard as guard } from "./filmGuard";
 import { filmKickApproaches } from "./filmKickApproaches";
 import { filmRibPoint as ribs } from "./filmRibPoint";
@@ -19,6 +20,9 @@ import { resolveKickGoal } from "./resolveKickGoal";
 
 /** Glove sphere radius used when two gloves or a glove and a body meet, metres. */
 const GLOVE: number = 0.095;
+
+/** Depth a landing glove is aimed into the struck surface: past the audit's 1 cm landing compression. */
+const SINK: number = 0.02;
 
 /**
  * Turns every performer's frame into IK requests, resolving goals that depend on the other body.
@@ -69,6 +73,8 @@ export namespace Resolve {
     left: Vec3.Value;
     arms: Partial<Record<"left" | "right", BodyRig.Goal>>;
     legs: Partial<Record<"left" | "right", BodyRig.Goal>>;
+    /** Exact collider queries, when prepared. */
+    geometry?: Geometry.IQueries;
   }
 
   /**
@@ -154,6 +160,7 @@ export namespace Resolve {
         left: Vec3.rotateY([0, 0, 1], frame.heading),
         arms: {},
         legs: {},
+        ...(options.geometry ? { geometry: options.geometry } : {}),
       };
     }
 
@@ -429,6 +436,12 @@ export namespace Resolve {
         );
       case "hit":
       case "none": {
+        // With prepared geometry the glove sinks into the receiver's actual
+        // collider of the struck region, the same surface the audit measures.
+        if (o.geometry) {
+          const intent: filmContactIntent.IIntent = filmContactIntent(action);
+          return along(surface(o, intent.targetBone, shoulder), GLOVE - SINK);
+        }
         if (BoutScript.specs[action.technique].target === "head") {
           // The struck jaw-side point on the face turned toward the attacker; the
           // glove drives 5 cm into the cheek rather than stopping at it.
@@ -468,6 +481,23 @@ export namespace Resolve {
         );
       }
     }
+  }
+
+  /** Closest point of a receiver segment's actual colliders to a point. */
+  function surface(o: Context, bone: string, from: Vec3.Value): Vec3.Value {
+    let best: Vec3.Value | undefined;
+    for (const segment of o.rig.profile.segments)
+      if (segment.bone === bone)
+        for (const shape of segment.shapes) {
+          const point: Vec3.Value = Vec3.tuple(
+            o.geometry!.project(
+              { body: o.id, bone, shape, pose: o.trunk.segments[bone]! },
+              Vec3.vector(from),
+            ),
+          );
+          if (!best || Vec3.distance(point, from) < Vec3.distance(best, from)) best = point;
+        }
+    return best ?? o.trunk.chest;
   }
 
   /**
