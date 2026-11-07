@@ -1,4 +1,4 @@
-import { type AutoMovieLoftContract, type AutoMovieLoftFrame, AutoMovieSolidFoot, AutoMovieViewLoft, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
+import { type AutoMovieLoftContract, type AutoMovieLoftFrame, AutoMovieSolidFoot, type AutoMovieViewAxis, AutoMovieViewLoft, type IAutoMovieLoftChain, type IAutoMovieSolidSurface, type IAutoMovieViewPart } from "@automovie/engine";
 import type { IAutoMovieHumanEar } from "../../structures/head/IAutoMovieHumanEar";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadEarParts } from "./AutoMovieHumanHeadEarParts";
@@ -154,12 +154,15 @@ export namespace AutoMovieHumanHeadComposer {
     const a: AutoMovieLoftFrame.IFrame = part.axis.at(part.stations[0]!);
     const level: boolean = a.u[0] === 1 && a.v[2] === 1 && Math.abs(a.origin[1] - part.stations[0]!) < 1e-9;
     const by: readonly number[] = level ? [offset[0]!, 0, offset[2]!] : offset;
+    // A rigid translation moves every origin and leaves every derivative.
+    const carry = (f: AutoMovieLoftFrame.IFrame): AutoMovieLoftFrame.IFrame => ({ ...f, origin: [f.origin[0] + by[0]!, f.origin[1] + by[1]!, f.origin[2] + by[2]!] });
     return {
       ...part,
       axis: {
-        at: (station: number): AutoMovieLoftFrame.IFrame => {
-          const f: AutoMovieLoftFrame.IFrame = part.axis.at(station);
-          return { ...f, origin: [f.origin[0] + by[0]!, f.origin[1] + by[1]!, f.origin[2] + by[2]!] };
+        at: (station: number): AutoMovieLoftFrame.IFrame => carry(part.axis.at(station)),
+        jet: (station: number): AutoMovieViewAxis.IJet => {
+          const jet: AutoMovieViewAxis.IJet = part.axis.jet(station);
+          return { ...jet, frame: carry(jet.frame) };
         },
       },
     };
