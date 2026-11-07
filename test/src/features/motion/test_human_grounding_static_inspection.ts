@@ -202,9 +202,9 @@ export function test_human_grounding_static_inspection(): void {
   );
 
   TestValidator.predicate(
-    "fit still requires at least one clinical control",
+    "fit still requires an angular or root control",
     throwsError(
-      (): unknown => inspect(pose, root, request),
+      (): unknown => inspect(pose, root, { ...request, rootAxes: [] }),
       "Grounding controls",
     ),
   );

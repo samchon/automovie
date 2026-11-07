@@ -1,16 +1,19 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
-import { Ease } from "../rig/Ease";
+import { BoutTechnique } from "../choreography/BoutTechnique";
+import { BoutRing } from "../footwork/BoutRing";
 
 /**
  * Where each fighter stands and faces during the bout, before footsteps and body motion.
  *
- * The pair shares a slowly drifting centre and axis (BoutScript.geography).
+ * The pair shares the centre and axis the ring-generalship laws derive (BoutRing).
  * Each fighter's stance origin sits on that axis at half the neutral range,
  * displaced toward the opponent by its own attack advance: an attacker steps
  * into the range its technique needs, then returns. Both advances are smooth,
  * so the footstep generator turns them into discrete supported steps.
  *
- * @evidence contracts/common.md#implementation-and-ownership Closed-form in film time (Catmull–Rom geography plus plateau envelopes per attack), so any second evaluates without history and seek equals playback. When both fighters close at once (a counter during the other's recovery) their combined closing is capped at the deeper single need, so the pair is never closer than the attack in flight needs.
+ * @evidence contracts/common.md#implementation-and-ownership Pure in film time (the precomputed ring-generalship track plus plateau envelopes per attack), so any second evaluates without history and seek equals playback. When both fighters close at once (a counter during the other's recovery) their combined closing is capped at the deeper single need, so the pair is never closer than the attack in flight needs.
  * @evidence contracts/common.md#authoring-interface Returns world X/Z metres and headings in radians (three.js sign, 0 faces +X). Valid for the exchanges up to the knockout; the aftermath owns later placement.
  */
 export namespace Blocking {
@@ -21,11 +24,10 @@ export namespace Blocking {
    * @evidence contracts/common.md#authoring-interface Origin is world X/Z metres; heading is radians facing the opponent.
    */
   export interface Frame {
-    /** World X/Z of the stance origin, metres. */ origin: readonly [
-      number,
-      number,
-    ];
-    /** World heading toward the opponent, radians. */ heading: number;
+    /** World X/Z of the stance origin, metres. */
+    origin: readonly [number, number];
+    /** World heading toward the opponent, radians. */
+    heading: number;
   }
 
   /**
@@ -35,11 +37,16 @@ export namespace Blocking {
    * @evidence contracts/common.md#authoring-interface World X/Z metres and radians; distance is the stance-origin separation in metres.
    */
   export interface Pair {
-    /** Fighter A. */ a: Frame;
-    /** Fighter B. */ b: Frame;
-    /** Pair centre, world X/Z metres. */ centre: readonly [number, number];
-    /** World heading from A toward B, radians. */ axis: number;
-    /** Stance-origin distance, metres. */ distance: number;
+    /** Fighter A. */
+    a: Frame;
+    /** Fighter B. */
+    b: Frame;
+    /** Pair centre, world X/Z metres. */
+    centre: readonly [number, number];
+    /** World heading from A toward B, radians. */
+    axis: number;
+    /** Stance-origin distance, metres. */
+    distance: number;
   }
 
   /**
@@ -53,7 +60,7 @@ export namespace Blocking {
     const advance: Record<BoutScript.Fighter, number> = { a: 0, b: 0 };
     for (const action of BoutScript.actions) {
       const spec = BoutScript.specs[action.technique];
-      const kick: boolean = action.technique.endsWith("kick");
+      const kick: boolean = BoutScript.specs[action.technique].limb === "leg";
       // A punch that lands clean drives into the face or ribs instead of stopping
       // at the guard, so it steps in deeper than the technique's range.
       const deeper: number =
@@ -120,28 +127,31 @@ export namespace Blocking {
   }
 
   /**
-   * Smooth geography [centre X, centre Z, axis] by Catmull–Rom interpolation of the keys.
+   * Pair centre and axis [centre X, centre Z, axis] from the ring-generalship
+   * laws applied to the composed exchanges.
    *
-   * @evidence contracts/common.md#implementation-and-ownership Uniform Catmull–Rom interpolation of the authored keys, clamped at both ends.
+   * @evidence contracts/common.md#implementation-and-ownership Samples the precomputed ring-generalship track; seek and playback read the same samples.
    * @evidence contracts/common.md#authoring-interface Film seconds in; returns [centre X, centre Z, axis heading] in metres and radians.
    */
   export function geography(t: number): readonly [number, number, number] {
-    const keys = BoutScript.geography;
-    if (t <= keys[0]![0]) return [keys[0]![1], keys[0]![2], keys[0]![3]];
-    const last = keys[keys.length - 1]!;
-    if (t >= last[0]) return [last[1], last[2], last[3]];
-    let i: number = 0;
-    while (keys[i + 1]![0] < t) i++;
-    const k0 = keys[Math.max(0, i - 1)]!;
-    const k1 = keys[i]!;
-    const k2 = keys[i + 1]!;
-    const k3 = keys[Math.min(keys.length - 1, i + 2)]!;
-    const u: number = (t - k1[0]) / (k2[0] - k1[0]);
-    const result: number[] = [];
-    for (const c of [1, 2, 3] as const)
-      result.push(catmull(k0[c], k1[c], k2[c], k3[c], u));
-    return [result[0]!, result[1]!, result[2]!];
+    const state: BoutRing.IState = BoutRing.sample(TRACK, 0, t);
+    return [state.centre[0], state.centre[1], state.axis];
   }
+
+  /** The bout's ring-generalship track from the bell to one second past the knockout. */
+  export const TRACK: readonly BoutRing.IState[] = Object.freeze(
+    BoutRing.simulate({
+      spans: BoutRing.spans(BoutScript.actions, BoutScript.groups, BoutScript.TOUCHED),
+      busy: BoutScript.actions.map((action: BoutScript.Action): readonly [number, number] => [
+        action.at - BoutScript.specs[action.technique].windup,
+        action.at + BoutTechnique.HOLD + action.parameters.recovery,
+      ]),
+      origin: 0,
+      end: BoutScript.KNOCKOUT + 1,
+      range: BoutScript.neutralRange,
+      initial: { centre: [0, 0], axis: 0 },
+    }),
+  );
 
   /** Opening stance-origin distance before the first exchange, metres. */
   function opening(t: number): number {
@@ -155,23 +165,4 @@ export namespace Blocking {
       Ease.smooth((t - 1.15) / 0.75),
     );
   }
-}
-
-/** Uniform Catmull–Rom segment between p1 and p2. */
-function catmull(
-  p0: number,
-  p1: number,
-  p2: number,
-  p3: number,
-  u: number,
-): number {
-  const u2: number = u * u;
-  const u3: number = u2 * u;
-  return (
-    0.5 *
-    (2 * p1 +
-      (-p0 + p2) * u +
-      (2 * p0 - 5 * p1 + 4 * p2 - p3) * u2 +
-      (-p0 + 3 * p1 - 3 * p2 + p3) * u3)
-  );
 }

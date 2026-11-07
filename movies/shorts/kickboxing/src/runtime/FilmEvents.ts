@@ -1,4 +1,5 @@
-import type { Footsteps } from "../motion/footwork/Footsteps";
+import { filmContactIntent } from "../motion/contact/filmContactIntent";
+import type { BoutFootsteps as Footsteps } from "../motion/footwork/BoutFootsteps";
 import { RefereeCues } from "../motion/referee/RefereeCues";
 import { Strike } from "../motion/striking/Strike";
 import { BoutScript } from "../shots/kickboxing/ring-bout/BoutScript";
@@ -21,22 +22,7 @@ export namespace FilmEvents {
   export function relation(
     action: BoutScript.Action,
   ): AudioMix.Contact["relation"] | null {
-    switch (action.defense) {
-      case "slip":
-      case "weave":
-        return null;
-      case "check":
-        return "shin-check";
-      case "hit":
-        return BoutScript.specs[action.technique].target === "head"
-          ? "head"
-          : "body";
-      case "parry":
-      case "cover":
-      case "catch":
-      case "block":
-        return "guard";
-    }
+    return filmContactIntent(action).relation;
   }
 
   /**
@@ -46,7 +32,7 @@ export namespace FilmEvents {
    * @evidence contracts/common.md#authoring-interface Film seconds; contact ids are `contact:<action id>`.
    */
   export function build(input: {
-    steps: Readonly<Record<FilmPlan.ActorId, Footsteps>>;
+    steps: Readonly<Record<FilmPlan.ActorId, Pick<Footsteps, "steps">>>;
   }): FilmPlan.Event[] {
     const events: FilmPlan.Event[] = [
       { id: "ambience", seconds: 0, kind: "ambience", actorId: "referee" },
@@ -139,10 +125,14 @@ export namespace FilmEvents {
     }
     for (const [actor, schedule] of Object.entries(input.steps) as [
       FilmPlan.ActorId,
-      Footsteps,
+      Pick<Footsteps, "steps">,
     ][])
       for (const step of schedule.steps)
-        if (step.end > 0 && step.end < FilmPlan.duration)
+        if (
+          step.kind === "swing" &&
+          step.end > 0 &&
+          step.end < FilmPlan.duration
+        )
           events.push({
             id: `step:${actor}:${step.side}:${step.end.toFixed(4)}`,
             seconds: step.end,

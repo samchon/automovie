@@ -1,11 +1,17 @@
+import {
+  type IAutoMovieLoftChain as IAutoMovieHumanLoftChain,
+  AutoMovieLoftChain as Loft,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
-import { AutoMovieHumanSex, AutoMovieHumanSkeleton as Skeleton, type IAutoMovieHumanParameters } from "../../../../packages/human/src";
+import {
+  AutoMovieHumanSex,
+  type IAutoMovieHumanParameters,
+  AutoMovieHumanSkeleton as Skeleton,
+} from "../../../../packages/human/src";
 import { AutoMovieHumanBodyLaw } from "../../../../packages/human/src/generation/AutoMovieHumanBodyLaw";
 import type { AutoMovieHumanFootSurface as Foot } from "../../../../packages/human/src/generation/AutoMovieHumanFootSurface";
 import type { IAutoMovieHumanBodyCalibration } from "../../../../packages/human/src/generation/IAutoMovieHumanBodyCalibration";
-import { AutoMovieHumanLoftChain as Loft } from "../../../../packages/human/src/lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../../../../packages/human/src/lofting/IAutoMovieHumanLoftChain";
 import { HumanPeople } from "../internal/HumanPeople";
 import { nclose } from "../internal/predicates";
 
@@ -51,58 +57,125 @@ export function test_human_foot_defaults(): void {
         neckSurface: true,
         footSurface: true,
       })({});
-      const body: IAutoMovieHumanBodyCalibration = AutoMovieHumanBodyLaw.calibrate(params).body;
-      if (output.neckSurface === undefined || output.footSurface === undefined) {
+      const body: IAutoMovieHumanBodyCalibration =
+        AutoMovieHumanBodyLaw.calibrate(params).body;
+      if (
+        output.neckSurface === undefined ||
+        output.footSurface === undefined
+      ) {
         defects.push(`${label}: missing requested exterior`);
         continue;
       }
       for (const side of ["left", "right"] as const) {
         const foot: Foot.ISide = output.footSurface[side];
-        const courses: Foot.ICourse[] = [...foot.hindfoot.courses, ...foot.forefoot.courses];
+        const courses: Foot.ICourse[] = [
+          ...foot.hindfoot.courses,
+          ...foot.forefoot.courses,
+        ];
         const chain: IAutoMovieHumanLoftChain = body.chains.find(
-          (item: IAutoMovieHumanLoftChain): boolean => item.name === `foot.${side}`,
+          (item: IAutoMovieHumanLoftChain): boolean =>
+            item.name === `foot.${side}`,
         )!;
-        if (foot.hindfoot.bone !== `${side}Subtalar` || foot.forefoot.bone !== `${side}Midfoot` ||
-            foot.hindfoot.courses.length < 2 || foot.forefoot.courses.length < 2)
+        if (
+          foot.hindfoot.bone !== `${side}Subtalar` ||
+          foot.forefoot.bone !== `${side}Midfoot` ||
+          foot.hindfoot.courses.length < 2 ||
+          foot.forefoot.courses.length < 2
+        )
           defects.push(`${label}/${side}: lost articulated foot module`);
         for (const layer of chain.layers)
-          if (!courses.some((course: Foot.ICourse): boolean => course.chain === chain.name && course.stationMm === layer.y))
-            defects.push(`${label}/${side}/${layer.y}: missing principal foot station`);
+          if (
+            !courses.some(
+              (course: Foot.ICourse): boolean =>
+                course.chain === chain.name && course.stationMm === layer.y,
+            )
+          )
+            defects.push(
+              `${label}/${side}/${layer.y}: missing principal foot station`,
+            );
         for (const course of courses) {
           if (course.chain !== chain.name) {
             defects.push(`${label}/${side}: source outside its own foot fan`);
             continue;
           }
-          const actual: Foot.Vector[] = Loft.ring(chain, course.stationMm, course.sourcePhases);
+          const actual: Foot.Vector[] = Loft.ring(
+            chain,
+            course.stationMm,
+            course.sourcePhases,
+          );
           for (let index: number = 0; index < actual.length; index++)
             for (let axis: number = 0; axis < 3; axis++)
-              if (!nclose(course.points[index]![axis]!, actual[index]![axis]! / 1000, 1e-12))
-                defects.push(`${label}/${side}/${course.stationMm}: changed source geometry`);
+              if (
+                !nclose(
+                  course.points[index]![axis]!,
+                  actual[index]![axis]! / 1000,
+                  1e-12,
+                )
+              )
+                defects.push(
+                  `${label}/${side}/${course.stationMm}: changed source geometry`,
+                );
         }
 
         // A dense independent scan can disprove a mislabeled course without
         // reproducing the source's phase bracketing or optimization method.
-        for (const [landmark, bone] of [["medialBall", "HalluxProximal"], ["lateralBall", "Toe5Proximal"]] as const) {
-          const centre: Foot.Vector = output.bones.find((item: Skeleton.IBone): boolean => item.bone === `${side}${bone}`)!.position;
+        for (const [landmark, bone] of [
+          ["medialBall", "HalluxProximal"],
+          ["lateralBall", "Toe5Proximal"],
+        ] as const) {
+          const centre: Foot.Vector = output.bones.find(
+            (item: Skeleton.IBone): boolean => item.bone === `${side}${bone}`,
+          )!.position;
           const address: Foot.ILandmark = foot.landmarks[landmark];
-          const point: Foot.Vector = foot[address.module].courses[address.course]!.points[address.point]!;
-          const distance: number = Math.hypot(...point.map((value: number, axis: number): number => value - centre[axis]!));
+          const point: Foot.Vector =
+            foot[address.module].courses[address.course]!.points[
+              address.point
+            ]!;
+          const distance: number = Math.hypot(
+            ...point.map(
+              (value: number, axis: number): number => value - centre[axis]!,
+            ),
+          );
           let bound: number = Infinity;
           for (const course of foot.forefoot.courses) {
-            const sample: (phase: number) => Foot.Vector = Loft.sampler(chain, course.stationMm);
+            const sample: (phase: number) => Foot.Vector = Loft.sampler(
+              chain,
+              course.stationMm,
+            );
             for (let phase: number = 0; phase < 256; phase++) {
-              const candidate: Foot.Vector = sample((2 * Math.PI * phase) / 256).map((value: number): number => value / 1000) as Foot.Vector;
+              const candidate: Foot.Vector = sample(
+                (2 * Math.PI * phase) / 256,
+              ).map((value: number): number => value / 1000) as Foot.Vector;
               if (candidate[1] <= centre[1])
-                bound = Math.min(bound, Math.hypot(...candidate.map((value: number, axis: number): number => value - centre[axis]!)));
+                bound = Math.min(
+                  bound,
+                  Math.hypot(
+                    ...candidate.map(
+                      (value: number, axis: number): number =>
+                        value - centre[axis]!,
+                    ),
+                  ),
+                );
             }
           }
-          if (address.module !== "forefoot" || point[1] > centre[1] || !Number.isFinite(distance) || distance > bound + 1e-7)
-            defects.push(`${label}/${side}/${landmark}: wrong plantar metatarsal course`);
+          if (
+            address.module !== "forefoot" ||
+            point[1] > centre[1] ||
+            !Number.isFinite(distance) ||
+            distance > bound + 1e-7
+          )
+            defects.push(
+              `${label}/${side}/${landmark}: wrong plantar metatarsal course`,
+            );
         }
       }
     } catch (error) {
       defects.push(`${label}: ${String(error)}`);
     }
   }
-  TestValidator.equals("public default anatomy preserves actual complete foot exteriors", defects, []);
+  TestValidator.equals(
+    "public default anatomy preserves actual complete foot exteriors",
+    defects,
+    [],
+  );
 }

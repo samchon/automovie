@@ -9,7 +9,7 @@ import type { MovieAudio } from "../sound/MovieAudio";
  */
 export class FilmTransport {
   /** Successfully displayed absolute film second. */
-  public seconds: number = 0;
+  public seconds: number;
   /** One native clock is active only while this is true. */
   public playing: boolean = false;
   /** Audible review preference; silent capture never starts a source. */
@@ -18,6 +18,8 @@ export class FilmTransport {
   public error: string | null = null;
   /** Closed interval used by playback and keyboard review. */
   public interval: [number, number] = [0, FilmPlan.duration];
+  /** Actual source availability; review bounds cannot expand it. */
+  public readonly available: readonly [number, number];
   /** Validated local multiplier, independent of the output frame schedule. */
   private rate: number = 1;
   /** One wall-time anchor, milliseconds. */
@@ -31,7 +33,19 @@ export class FilmTransport {
   public constructor(
     private readonly audio: Pick<MovieAudio, "play" | "pause" | "diagnostics">,
     private readonly place: (seconds: number) => void,
-  ) {}
+    available: readonly [number, number] = [0, FilmPlan.duration],
+  ) {
+    if (
+      !available.every(Number.isFinite) ||
+      available[0] < 0 ||
+      available[1] > FilmPlan.duration ||
+      available[0] >= available[1]
+    )
+      throw new Error("Invalid available film interval");
+    this.available = Object.freeze([...available] as [number, number]);
+    this.seconds = available[0];
+    this.interval = [...available];
+  }
 
   /** Current validated film-seconds-per-wall-second multiplier; reading advances no clock. */
   public get speed(): number {
@@ -94,8 +108,14 @@ export class FilmTransport {
    * @evidence contracts/common.md#authoring-interface Arbitrary full-film seek is supported after preparation; interval bounds control playback rather than prohibit inspection elsewhere. Invalid input changes nothing; failed placement retains the previous time and stores its error.
    */
   public seek(seconds: number): void {
-    if (!Number.isFinite(seconds) || seconds < 0 || seconds > FilmPlan.duration)
-      throw new Error("Film seek must remain inside [0,180]");
+    if (
+      !Number.isFinite(seconds) ||
+      seconds < this.available[0] ||
+      seconds > this.available[1]
+    )
+      throw new Error(
+        `Film seek must remain inside [${this.available[0]},${this.available[1]}]`,
+      );
     this.pause();
     try {
       this.place(seconds);
@@ -150,11 +170,13 @@ export class FilmTransport {
     if (
       !Number.isFinite(start) ||
       !Number.isFinite(end) ||
-      start < 0 ||
-      end > 180 ||
+      start < this.available[0] ||
+      end > this.available[1] ||
       end <= start
     )
-      throw new Error("Review interval must satisfy 0 <= start < end <= 180");
+      throw new Error(
+        `Review interval must remain inside [${this.available[0]},${this.available[1]}]`,
+      );
     this.seek(start);
     this.interval = [start, end];
   }

@@ -17,7 +17,7 @@ import { selectTestFiles } from "../../helpers/selectTestFiles";
  * @evidence contracts/development/testing.md#execution-ownership A pure unit test with in-memory names, discovered by test/index.ts as an exported test_ function; it reads no file system and starts no process.
  */
 export function test_test_selection(): void {
-  const names: string[] = ["test_jab.ts", "test_cross.ts", "test_kick.ts"];
+  const names: string[] = ["test_walk.ts", "test_turn.ts", "test_lift.ts"];
   TestValidator.equals(
     "default selection",
     [...selectTestFiles([], names)],
@@ -27,16 +27,16 @@ export function test_test_selection(): void {
     "include union and exclusion",
     [
       ...selectTestFiles(
-        ["--include", "jab", "cross", "--include=kick", "--exclude", "cross"],
+        ["--include", "walk", "turn", "--include=lift", "--exclude", "turn"],
         names,
       ),
     ],
-    ["test_jab.ts", "test_kick.ts"],
+    ["test_walk.ts", "test_lift.ts"],
   );
   TestValidator.equals(
     "exclude only",
-    [...selectTestFiles(["--exclude=kick"], names)],
-    ["test_jab.ts", "test_cross.ts"],
+    [...selectTestFiles(["--exclude=lift"], names)],
+    ["test_walk.ts", "test_turn.ts"],
   );
   TestValidator.equals(
     "singleton",
@@ -45,27 +45,27 @@ export function test_test_selection(): void {
   );
   TestValidator.equals(
     "duplicate basenames share selection",
-    [...selectTestFiles(["--include=jab"], ["test_jab.ts", "test_jab.ts"])],
-    ["test_jab.ts"],
+    [...selectTestFiles(["--include=walk"], ["test_walk.ts", "test_walk.ts"])],
+    ["test_walk.ts"],
   );
   TestValidator.equals("input unchanged", names, [
-    "test_jab.ts",
-    "test_cross.ts",
-    "test_kick.ts",
+    "test_walk.ts",
+    "test_turn.ts",
+    "test_lift.ts",
   ]);
 
   for (const argv of [
     ["--unknown"],
-    ["jab"],
+    ["walk"],
     ["--include"],
     ["--exclude"],
     ["--include="],
     ["--include", " "],
-    ["--include=-jab"],
-    ["--include", "--exclude=kick"],
+    ["--include=-walk"],
+    ["--include", "--exclude=lift"],
     ["--include=missing"],
     ["--exclude=missing"],
-    ["--include=jab", "--exclude=jab"],
+    ["--include=walk", "--exclude=walk"],
   ])
     TestValidator.error(
       `invalid selection ${JSON.stringify(argv)}`,

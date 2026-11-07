@@ -1,5 +1,6 @@
 import type * as THREE from "three";
 
+import type { BoutPlaybackRuntime } from "./physics/BoutPlaybackRuntime";
 import type { FilmRuntime } from "./runtime/FilmRuntime";
 import type { MovieAudio } from "./sound/MovieAudio";
 
@@ -21,7 +22,9 @@ export interface IFilmProduction {
   audio: MovieAudio;
 
   /** Prepared performance whose receipts the Viewer publishes. */
-  runtime: FilmRuntime;
+  runtime: FilmRuntime | BoutPlaybackRuntime;
+  /** Admitted closed interval of available absolute film seconds. A bounded review archive never supplies frames outside it. */
+  available: readonly [number, number];
 
   /**
    * Places the performance and the delivered camera for an exact film second.

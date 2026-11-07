@@ -197,15 +197,16 @@
     }
   },
   "dependencies": {
-    "@automovie/interface": "workspace:^"
+    "@automovie/interface": "workspace:^",
+    "@dimforge/rapier3d-compat": "0.21.0"
   },
   "devDependencies": {
-    "rimraf": "catalog:utils",
-    "ttsc": "catalog:samchon",
-    "typescript": "catalog:typescript",
+    "@ttsc/evidence": "catalog:samchon",
     "@ttsc/lint": "catalog:samchon",
     "@wrtnlabs/evidence": "catalog:samchon",
-    "@ttsc/evidence": "catalog:samchon"
+    "rimraf": "catalog:utils",
+    "ttsc": "catalog:samchon",
+    "typescript": "catalog:typescript"
   },
   "typesVersions": {
     "*": {

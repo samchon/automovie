@@ -45,4 +45,6 @@ export interface IAutoMovieEffectParticle {
    * past its lifetime is not emitted.
    */
   ageRatio: number;
+  /** Optional fixed world surface normal for settled particles; absent means billboard. */
+  normal?: IAutoMovieVector3;
 }

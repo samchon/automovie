@@ -1,12 +1,14 @@
-import type {
-  AutoMovieHumanSkeleton,
-  IAutoMovieHumanParameters,
-  IAutoMovieHumanPose,
+import {
+  AutoMovieHumanPhysicalPose,
+  type AutoMovieHumanSkeleton,
+  type IAutoMovieHumanParameters,
+  type IAutoMovieHumanPose,
 } from "@automovie/human";
+import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import * as THREE from "three";
 
-import type { BodyRig } from "../../motion/rig/BodyRig";
-import { Vec3 } from "../../motion/rig/Vec3";
+import type { FilmBodyRig as BodyRig } from "../../motion/rig/FilmBodyRig";
+import { FilmVector as Vec3 } from "../../motion/rig/FilmVector";
 import { InspectionPerson } from "./InspectionPerson";
 import { addInspectionGloves } from "./addInspectionGloves";
 import { addInspectionOutfit } from "./addInspectionOutfit";
@@ -27,7 +29,7 @@ export class FilmActor {
   /** Last applied flush levels (quantized), so the palette is rebuilt only on change. */
   private flushKey: string = "0,0,0";
 
-  /** Review overlay of joint points and parent–child sticks; absent unless requested. */
+  /** Joint points and parent–child sticks, allocated on first display and reused when toggled. */
   private skeleton?: {
     points: THREE.Points;
     sticks: THREE.LineSegments;
@@ -45,7 +47,11 @@ export class FilmActor {
     this.equipment.push(addInspectionOutfit(this.person, id));
     if (id !== "referee")
       this.equipment.push(
-        addInspectionGloves(this.person, id === "a" ? 0xd8262f : 0x2ad0dc),
+        addInspectionGloves(
+          this.person,
+          id === "a" ? 0xd8262f : 0x2ad0dc,
+          rig.profile,
+        ),
       );
     this.person.object.traverse((object: THREE.Object3D): void => {
       if (object instanceof THREE.Mesh) object.castShadow = true;
@@ -65,20 +71,59 @@ export class FilmActor {
   ): void {
     this.person.object.position.set(...root.position);
     this.person.object.quaternion.set(...root.rotation);
-    const w: number = Math.round(Math.max(0, Math.min(1, wince)) * 10) / 10;
-    this.person.pose(
-      pose,
-      w > 0
-        ? {
-            units: [
-              { unit: "eyesClosed", intensity: w, side: "both" },
-              { unit: "lidTightener", intensity: w, side: "both" },
-              { unit: "browLowerer", intensity: w, side: "both" },
-            ],
-          }
-        : undefined,
-    );
+    this.person.pose(pose, this.expression(wince));
     if (this.skeleton) this.updateRig();
+  }
+
+  /** Show actual solved bone origins without fitting inverse kinematics or moving a simulated root. */
+  public physical(
+    segments: Readonly<Record<string, P.ITransform>>,
+    pose: IAutoMovieHumanPose,
+    wince: number = 0,
+  ): void {
+    const reference: AutoMovieHumanSkeleton.IOutput = this.rig.evaluate(pose);
+    const completed: Record<string, P.ITransform> =
+      AutoMovieHumanPhysicalPose.complete({ reference, segments });
+    const output: AutoMovieHumanSkeleton.IOutput = {
+      ...reference,
+      posed: reference.posed.map(
+        (
+          placement: AutoMovieHumanSkeleton.IPlacement,
+        ): AutoMovieHumanSkeleton.IPlacement => {
+          const transform: P.ITransform = completed[placement.bone]!;
+          return {
+            ...placement,
+            position: [
+              transform.position.x,
+              transform.position.y,
+              transform.position.z,
+            ],
+            rotation: [
+              transform.rotation.x,
+              transform.rotation.y,
+              transform.rotation.z,
+              transform.rotation.w,
+            ],
+          };
+        },
+      ),
+    };
+    this.person.physical(output, pose, this.expression(wince));
+    if (this.skeleton) this.updateRig();
+  }
+
+  /** One expression owner for clinical and cached carriers; it changes no bone transform. */
+  private expression(wince: number): Parameters<InspectionPerson["pose"]>[1] {
+    const w: number = Math.round(Math.max(0, Math.min(1, wince)) * 10) / 10;
+    return w > 0
+      ? {
+          units: [
+            { unit: "eyesClosed", intensity: w, side: "both" },
+            { unit: "lidTightener", intensity: w, side: "both" },
+            { unit: "browLowerer", intensity: w, side: "both" },
+          ],
+        }
+      : undefined;
   }
 
   /**
@@ -86,15 +131,23 @@ export class FilmActor {
    * joint to its parent, always on top, for motion review.
    *
    * @evidence contracts/common.md#implementation-and-ownership Reads the same FK output the polygon is drawn from (body-frame joint placements under the actor group), so the sticks show exactly what the solver produced. One point cloud and one line set per actor, rewritten in place on every placement.
-   * @evidence contracts/common.md#authoring-interface Idempotent; review-only, the delivered film never calls it. `dispose` frees it.
+   * The polygon viewer enables this by default. Hiding reuses the same buffers;
+   * dispose releases their geometry and materials.
    */
-  public showRig(): void {
-    if (this.skeleton) return;
+  public showRig(visible: boolean = true): void {
+    if (this.skeleton) {
+      this.skeleton.points.visible = visible;
+      this.skeleton.sticks.visible = visible;
+      return;
+    }
+    if (!visible) return;
     const output: AutoMovieHumanSkeleton.IOutput = this.person.output;
     const pairs: (readonly [string, string])[] = output.bones
       .filter((bone) => bone.parent !== null)
       .map((bone) => [bone.parent!, bone.bone] as const);
-    const overlay = (material: THREE.Material): THREE.Material => {
+    const overlay: (material: THREE.Material) => THREE.Material = (
+      material: THREE.Material,
+    ): THREE.Material => {
       material.depthTest = false;
       material.transparent = true;
       return material;
@@ -130,21 +183,21 @@ export class FilmActor {
 
   /** Rewrite the overlay from the current FK output. */
   private updateRig(): void {
-    const rig = this.skeleton!;
+    const rig: NonNullable<FilmActor["skeleton"]> = this.skeleton!;
     const posed: Map<string, readonly number[]> = new Map(
       this.person.output.posed.map((placement) => [
         placement.bone,
         placement.position,
       ]),
     );
-    const points = rig.points.geometry.getAttribute(
+    const points: THREE.BufferAttribute = rig.points.geometry.getAttribute(
       "position",
     ) as THREE.BufferAttribute;
     this.person.output.posed.forEach((placement, index: number): void => {
       points.setXYZ(index, ...(placement.position as [number, number, number]));
     });
     points.needsUpdate = true;
-    const sticks = rig.sticks.geometry.getAttribute(
+    const sticks: THREE.BufferAttribute = rig.sticks.geometry.getAttribute(
       "position",
     ) as THREE.BufferAttribute;
     rig.pairs.forEach(([parent, child], index: number): void => {
@@ -163,7 +216,7 @@ export class FilmActor {
    * @evidence contracts/common.md#authoring-interface Flush values in [0, 1] from ImpactEffects.flush.
    */
   public bruise(flush: { face: number; left: number; right: number }): void {
-    const step = (value: number): number =>
+    const step: (value: number) => number = (value: number): number =>
       Math.round(Math.max(0, Math.min(1, value)) * 8) / 8;
     const face: number = step(flush.face);
     const trunk: number = step((flush.left + flush.right) / 2);
@@ -172,7 +225,10 @@ export class FilmActor {
     this.flushKey = key;
     const base: Record<string, number> = this.person.palette;
     const colors: Record<string, number> = { ...base };
-    const mix = (color: number, amount: number): number => {
+    const mix: (color: number, amount: number) => number = (
+      color: number,
+      amount: number,
+    ): number => {
       const from: THREE.Color = new THREE.Color(color);
       return from.lerp(new THREE.Color(BRUISE), amount).getHex();
     };
@@ -213,18 +269,17 @@ export class FilmActor {
   }
 
   /**
-   * World centre of a glove (past the wrist along the forearm), metres.
+   * World centre of the actual posed glove attachment, metres.
    *
-   * @evidence contracts/common.md#implementation-and-ownership Hand joint plus 6.5 cm along the forearm, matching the glove mesh offset.
+   * @evidence contracts/common.md#implementation-and-ownership Reads the declared glove attachment through its actual drawn world transform, including Hand rotation and actor placement.
    * @evidence contracts/common.md#authoring-interface World metres.
    */
   public glove(side: "left" | "right"): Vec3.Value {
-    const hand: Vec3.Value = this.point(`${side}Hand`);
-    const elbow: Vec3.Value = this.point(`${side}LowerArm`);
-    return Vec3.add(
-      hand,
-      Vec3.scale(Vec3.normalize(Vec3.sub(hand, elbow)), 0.065),
-    );
+    const glove: THREE.Object3D | undefined =
+      this.person.object.getObjectByName(`${side}-glove`);
+    if (!glove) throw new Error(`Missing actual ${this.id}/${side} glove`);
+    const point: THREE.Vector3 = glove.getWorldPosition(new THREE.Vector3());
+    return [point.x, point.y, point.z];
   }
 
   /**

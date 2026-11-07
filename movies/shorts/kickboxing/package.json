@@ -16,7 +16,8 @@
     "dev": "vite --host 127.0.0.1 --port 5199 --strictPort",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5198 --strictPort",
-    "render": "ttsx -P tsconfig.json src/executable/render.ts"
+    "render": "ttsx -P tsconfig.json src/executable/render.ts",
+    "physics": "ttsx -P tsconfig.json src/executable/physics.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "workspace:^",
@@ -30,16 +31,16 @@
   },
   "devDependencies": {
     "@automovie/evidence": "workspace:^",
-    "@ttsc/lint": "^0.36.2",
+    "@ttsc/lint": "^0.36.0",
     "@types/node": "^22.19.17",
-    "ttsc": "^0.36.2",
-    "typescript": "^7.0.2",
+    "@types/three": "catalog:three",
     "@wrtnlabs/evidence": "^0.8.2",
-    "vite": "catalog:vite",
+    "ffmpeg-static": "^5.2.0",
+    "ffprobe-static": "^3.1.0",
     "playwright-core": "catalog:media",
     "three": "catalog:three",
-    "@types/three": "catalog:three",
-    "ffmpeg-static": "^5.2.0",
-    "ffprobe-static": "^3.1.0"
+    "ttsc": "^0.36.0",
+    "typescript": "^7.0.2",
+    "vite": "catalog:vite"
   }
 }

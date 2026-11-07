@@ -14,3 +14,10 @@ export { AutoMovieHumanRigControls } from "./skeleton/AutoMovieHumanRigControls"
 export { AutoMovieHumanLegIk } from "./skeleton/AutoMovieHumanLegIk";
 export { AutoMovieHumanSupportFrame } from "./skeleton/AutoMovieHumanSupportFrame";
 export { AutoMovieHumanGrounding } from "./skeleton/AutoMovieHumanGrounding";
+export { AutoMovieHumanPhysicalProfile } from "./skeleton/AutoMovieHumanPhysicalProfile";
+export { AutoMovieHumanPhysicalPose } from "./skeleton/AutoMovieHumanPhysicalPose";
+export { AutoMovieHumanContactAppearance } from "./appearance/AutoMovieHumanContactAppearance";
+export * from "./skeleton/AutoMovieHumanLimbIk";
+export { AutoMovieHumanPhysicalFootPoints } from "./skeleton/AutoMovieHumanPhysicalFootPoints";
+export { AutoMovieHumanPhysicalSupports } from "./skeleton/AutoMovieHumanPhysicalSupports";
+export { AutoMovieHumanPhysicalBracing } from "./skeleton/AutoMovieHumanPhysicalBracing";

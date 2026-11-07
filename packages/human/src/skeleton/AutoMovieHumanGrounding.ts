@@ -11,6 +11,7 @@ import { AutoMovieHumanRigControls as Controls } from "./AutoMovieHumanRigContro
 import type { AutoMovieHumanSkeleton as Skeleton } from "./AutoMovieHumanSkeleton";
 import { AutoMovieHumanSkeletonMath as M } from "./AutoMovieHumanSkeletonMath";
 import type { AutoMovieHumanSupportFrame as Frame } from "./AutoMovieHumanSupportFrame";
+import { AutoMovieHumanTargetPoint as TargetPoint } from "./AutoMovieHumanTargetPoint";
 
 /** Joint clinical/root fitting retains actual sole and whole-foot floor constraints. */
 export namespace AutoMovieHumanGrounding {
@@ -26,7 +27,7 @@ export namespace AutoMovieHumanGrounding {
   export interface IRequest {
     /** World-metre target coordinates; every target keeps its exact bone-local witness. */ targets: readonly Ik.ITarget[];
     /** Expressive world-metre goals optimized only while hard support remains admitted. */ softTargets?: readonly Ik.ITarget[];
-    /** Clinical angular controls admitted by the canonical Human catalogue; inspect permits an empty set for a fixed pose. */ channels: readonly Controls.DegreeChannel[];
+    /** Clinical angular controls; an empty set fits only the selected root axes. Inspection also permits no controls. */ channels: readonly Controls.DegreeChannel[];
     /** Soft angular preferences, subordinate to actual point/floor constraints; omitted knees prefer the supplied seed. */ preferred?: Readonly<
       Partial<Record<Controls.DegreeChannel, number>>
     >;
@@ -213,7 +214,16 @@ export namespace AutoMovieHumanGrounding {
       const floorTolerance: number = request.floorTolerance ?? 0.000001;
       const soft: readonly Ik.ITarget[] = request.softTargets ?? [];
       if (
-        (!inspect && !paths.length) ||
+        request.targets.some(
+          (target: Ik.ITarget): boolean =>
+            target?.weight !== undefined && target.weight !== 1,
+        )
+      )
+        throw new Error(
+          "Hard support targets require unit weight; use softTargets for weighted preferences",
+        );
+      if (
+        (!inspect && !paths.length && !directions.length) ||
         paths.length > 32 ||
         new Set(paths).size !== paths.length ||
         new Set(directions).size !== directions.length ||
@@ -231,7 +241,9 @@ export namespace AutoMovieHumanGrounding {
           (target: Ik.ITarget): boolean =>
             target === null ||
             typeof target !== "object" ||
-            !Controls.isJoint(target.bone) ||
+            !TargetPoint.valid(target) ||
+            (target.weight !== undefined &&
+              (!Number.isFinite(target.weight) || target.weight <= 0)) ||
             !finiteTuple(target.position, 3) ||
             (target.localPoint !== undefined &&
               !finiteTuple(target.localPoint, 3)),
@@ -272,6 +284,9 @@ export namespace AutoMovieHumanGrounding {
             ...groups.keys(),
             ...request.targets.map((target: Ik.ITarget): string => target.bone),
             ...soft.map((target: Ik.ITarget): string => target.bone),
+            ...[...request.targets, ...soft].flatMap(
+              (target: Ik.ITarget): string[] => TargetPoint.references(target),
+            ),
           ]);
         } catch (error: unknown) {
           throw new Error(`Grounding bone absent or invalid: ${String(error)}`);
@@ -368,22 +383,13 @@ export namespace AutoMovieHumanGrounding {
         const at: Map<string, Skeleton.IPlacement> = placements();
         const residual: number[] = request.targets.flatMap(
           (target: Ik.ITarget): number[] =>
-            M.sub(
-              world(at, root, {
-                bone: target.bone,
-                localPoint: target.localPoint ?? [0, 0, 0],
-              }),
-              target.position,
-            ),
+            M.sub(world(at, root, target), target.position),
         );
         const expressive: number[] = soft.flatMap(
           (target: Ik.ITarget): number[] =>
-            M.sub(
-              world(at, root, {
-                bone: target.bone,
-                localPoint: target.localPoint ?? [0, 0, 0],
-              }),
-              target.position,
+            M.times(
+              M.sub(world(at, root, target), target.position),
+              Math.sqrt(target.weight ?? 1),
             ),
         );
         const low: number = minimum();
@@ -401,8 +407,10 @@ export namespace AutoMovieHumanGrounding {
           supportError,
           softError: Math.max(
             0,
-            ...soft.map((_: Ik.ITarget, index: number): number =>
-              Math.hypot(...expressive.slice(index * 3, index * 3 + 3)),
+            ...soft.map(
+              (target: Ik.ITarget, index: number): number =>
+                Math.hypot(...expressive.slice(index * 3, index * 3 + 3)) /
+                Math.sqrt(target.weight ?? 1),
             ),
           ),
           error: Math.max(supportError, floor - low, 0),
@@ -445,10 +453,7 @@ export namespace AutoMovieHumanGrounding {
                       ],
                       rotation: root.rotation,
                     },
-                    {
-                      bone: target.bone,
-                      localPoint: target.localPoint ?? [0, 0, 0],
-                    },
+                    target,
                   )[1],
                 0,
               ) / request.targets.length
@@ -1022,16 +1027,11 @@ function boundedDelta(
 function world(
   placements: Map<string, Skeleton.IPlacement>,
   root: AutoMovieHumanGrounding.IRoot,
-  point: Frame.IPoint,
+  point: TargetPoint.IPoint,
 ): M.Vector {
-  const bone: Skeleton.IPlacement | undefined = placements.get(point.bone);
-  if (!bone) throw new Error(`Grounding bone absent: ${point.bone}`);
   return M.add(
     root.translation,
-    M.rotate(
-      root.rotation,
-      M.add(bone.position, M.rotate(bone.rotation, point.localPoint)),
-    ),
+    M.rotate(root.rotation, TargetPoint.resolve(placements, point)),
   );
 }
 /** Read only a caller-selected canonical angular leaf. */

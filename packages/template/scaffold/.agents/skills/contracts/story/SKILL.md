@@ -1,23 +1,23 @@
 ---
 name: contracts-story
-description: Maps the story checklists, from performance research and settings through treatments, scripts and the final screenplay to naturalness, discovery and review, onto their unit and population respondents. Use before selecting, answering or citing a story contract item.
+description: Maps the story checklists, from research and settings through treatments, scripts and the final screenplay to naturalness, discovery and review, onto their unit and population respondents. Use before selecting, answering or citing a story contract item.
 ---
 
 # Story contracts
 
-Long films and series retain settings → treatments → scripts → final screenplay. Scripts receives content and expression assessment together in construction, with discovery and independent review. Final screenplay retains construction and its separate expression revision, evidence and independent review. A short work may begin directly at final screenplay or first complete compact settings without treatments, scripts or an outline; it still receives those screenplay responsibilities. Standalone asset work has no narrative population. An explicit user waiver may change the path; document its actual scope without claiming an omitted stage passed.
+Long films and series retain settings → treatments → scripts → final screenplay. Scripts receives content and expression assessment together in construction, with discovery and independent review. Final screenplay retains construction and its separate expression revision, evidence and independent review. A short completes its settings, then writes the final screenplay without treatments, scripts or an outline, and still receives those screenplay responsibilities. Standalone asset work has no narrative population. An explicit user waiver may change the path; document its actual scope without claiming an omitted stage passed.
 
 Each checklist H2 asks its named respondent a question. Principles apply to an authored H2, obligations to one document for a complete declared population, discovery to the inspected scope's discovery result, and review questions to review records. Do not make every scene testify for an entire film or attach a conditional requirement to unrelated hosts. The evidence configuration owns the actual selected populations and relationships; installed Evidence APIs own its mechanics.
 
 | Family | Unit or record questions | Complete-population questions |
 | --- | --- | --- |
 | Shared ownership | [Common principles](shared/principles/common.md) | [Common obligations](shared/obligations/common.md) |
-| Performance research | [Studied practice and sources](shared/principles/research.md), answered by each study | |
+| Research | [Studied practice and sources](shared/principles/research.md), answered by each study | |
 | Settings | [Usable records and boundaries](shared/principles/settings.md) | [World, scope, people, and audiovisual consistency](shared/obligations/settings.md) |
 | Settings index | [Reference groups](shared/principles/index.md) | [Whole-index navigation](shared/obligations/index.md) |
 | Treatments | [Decided events and information](shared/principles/treatments.md) | [Whole event design and handoff](shared/obligations/treatments.md) |
 | Scripts | [Executable scenes and staging](shared/principles/scripts.md) | [Partition and complete execution](shared/obligations/scripts.md) |
-| Final screenplay | [Audiovisual realization](shared/principles/screenplay.md) | [Delivery and version accountability](shared/obligations/screenplay.md) |
+| Final screenplay | [Audiovisual realization and beat decisions](shared/principles/screenplay.md) | [Delivery and version accountability](shared/obligations/screenplay.md) |
 | Narrative | [Progression and layer contribution](shared/principles/narratives.md) | [Continuity, promises, and distribution](shared/obligations/narratives.md) |
 | Actual speech | [Speakers and action order](shared/principles/realized.md) | [Finished voice distribution](shared/naturalness/obligations/realized.md) |
 | Independent review | [Grounded reading and literal audit](shared/principles/review.md) | [Complete rounds and verdict](shared/obligations/review.md) |

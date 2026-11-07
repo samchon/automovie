@@ -1,28 +1,47 @@
+import {
+  AutoMovieEnvelope as Ease,
+  type preparePhysicalGeometry as Geometry,
+  projectPhysicalSupportReach,
+} from "@automovie/engine";
+
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
+import { BoutDefense as Reaction } from "../defense/BoutDefense";
 import { FighterBody } from "../fighter/FighterBody";
-import { Reaction } from "../reactions/Reaction";
-import type { BodyRig } from "../rig/BodyRig";
-import { Ease } from "../rig/Ease";
+import type { FilmBodyRig as BodyRig } from "../rig/FilmBodyRig";
+import { FilmVector as Vec3 } from "../rig/FilmVector";
 import { Foot } from "../rig/Foot";
-import { Vec3 } from "../rig/Vec3";
 import { Strike } from "../striking/Strike";
+import { filmContactIntent } from "./filmContactIntent";
+import { filmGuard as guard } from "./filmGuard";
+import { filmKickApproaches } from "./filmKickApproaches";
+import { filmRibPoint as ribs } from "./filmRibPoint";
+import { resolveCheckGoal } from "./resolveCheckGoal";
+import { resolveKickGoal } from "./resolveKickGoal";
 
 /** Glove sphere radius used when two gloves or a glove and a body meet, metres. */
 const GLOVE: number = 0.095;
+
+/** Depth a landing glove is aimed into the struck surface: past the audit's 1 cm landing compression. */
+const SINK: number = 0.02;
 
 /**
  * Turns every performer's frame into IK requests, resolving goals that depend on the other body.
  *
  * Order: trunks (actual and nominal) → passive hands (guard, cover, catch,
- * block, counterbalance) and passive legs (placements, checks) → attacks,
+ * block, forward post) and passive legs (placements, checks) → attacks,
  * which aim at the opponent's nominal head line, passive gloves, ribs or
  * checking shin → reactive parries, which meet the attacking glove's goal.
- * No step reads a solved limb, so there is no circular dependency.
+ * Supplied receiver geometry belongs to one completed scene snapshot; staging never reads a half-updated opponent.
  *
- * @evidence contracts/common.md#implementation-and-ownership Contact is built in by construction and never stops at the surface: a covered punch presses its glove about 2 cm into the covering glove, a parry presses into the incoming glove, a clean punch sinks into the ribs or 5 cm into the cheek, and a kick drives its shin through the struck surface. Evaded punches extend through the nominal head line. The measured gaps after solving are reported separately as contact receipts.
+ * @evidence contracts/common.md#implementation-and-ownership This resolver authors limb goals; collider bindings and shared fitting own achieved geometry. Punches retain their authored compression hints. Kicks aim a provider-derived shin witness at the actual receiver and declare reach through shared staging. An authored goal cannot qualify a solver contact receipt.
  * @evidence contracts/common.md#authoring-interface `frames` maps performer ids to frames; `rigs` supplies each body. Fighters are "a" and "b"; any other id (the referee) only uses placement, point and pose intents.
  */
 export namespace Resolve {
+  /** Existing movie travel/work policy, shared by support fitting and receiver-relative preparation. */
+  const ROOT_PROJECTION: Omit<
+    Parameters<typeof projectPhysicalSupportReach>[0],
+    "supports"
+  > = { maximumTranslation: 0.35, iterations: 8, tolerance: 0.001 };
   /**
    * Requests and the attack goals used for contact measurement.
    *
@@ -30,25 +49,32 @@ export namespace Resolve {
    * @evidence contracts/common.md#authoring-interface Requests keyed by performer id; heads in world metres.
    */
   export interface Output {
-    /** IK request per performer. */ requests: Record<string, BodyRig.Request>;
-    /** Head joint per performer after placement, world metres. */ heads: Record<
-      string,
-      Vec3.Value
-    >;
+    /** IK request per performer. */
+    requests: Record<string, BodyRig.Request>;
+    /** Head joint per performer after placement, world metres. */
+    heads: Record<string, Vec3.Value>;
+    /** Actual bounded staging projection and any remaining seed preference, separate from achieved contact. */
+    approach: Record<string, ReturnType<typeof projectPhysicalSupportReach>>;
   }
 
   /** Per-performer derived geometry. */
   interface Context {
+    /** Actual actor identity in the same scene snapshot. */
+    id: string;
     frame: FighterBody.Frame;
     rig: BodyRig;
     root: BodyRig.Placement;
     pose: ReturnType<typeof FighterBody.pose>;
     trunk: BodyRig.Trunk;
+    /** Authored FK already evaluated for this frame and root. */
+    authored: BodyRig.Trunk;
     nominal: BodyRig.Trunk;
     forward: Vec3.Value;
     left: Vec3.Value;
     arms: Partial<Record<"left" | "right", BodyRig.Goal>>;
     legs: Partial<Record<"left" | "right", BodyRig.Goal>>;
+    /** Exact collider queries, when prepared. */
+    geometry?: Geometry.IQueries;
   }
 
   /**
@@ -60,11 +86,13 @@ export namespace Resolve {
   export function requests(
     frames: Record<string, FighterBody.Frame>,
     rigs: Record<string, BodyRig>,
+    trunks?: Readonly<Record<string, BodyRig.Trunk>>,
+    options: { geometry?: Geometry.IQueries; approach?: boolean } = {},
   ): Output {
     const contexts: Record<string, Context> = {};
     for (const [id, frame] of Object.entries(frames)) {
       const rig: BodyRig = rigs[id]!;
-      const pose = FighterBody.pose(frame);
+      const pose: ReturnType<typeof FighterBody.pose> = FighterBody.pose(frame);
       let root: BodyRig.Placement = FighterBody.placement(frame);
       let trunk: BodyRig.Trunk = rig.trunk(pose, root);
 
@@ -73,21 +101,32 @@ export namespace Resolve {
       // (the rest is left for the hip's extension limit in a driving rear leg), so
       // planted feet never slide or lift because the authored body overran them.
       const reach: number = 0.95 * (rig.legLengths[0] + rig.legLengths[1]);
-      const pull: Vec3.Value = (["left", "right"] as const).reduce(
-        (sum: Vec3.Value, side: "left" | "right"): Vec3.Value => {
+      const supports: Parameters<
+        typeof projectPhysicalSupportReach
+      >[0]["supports"] = (["left", "right"] as const).flatMap(
+        (
+          side: "left" | "right",
+        ): Parameters<
+          typeof projectPhysicalSupportReach
+        >[0]["supports"][number][] => {
           const leg: FighterBody.Leg = frame.legs[side];
-          if (leg.kind !== "place") return sum;
+          if (leg.kind !== "place") return [];
           const ankle: Vec3.Value = Foot.goals(
             leg.placement,
             rig.footVector,
           ).ankle;
-          const offset: Vec3.Value = Vec3.sub(ankle, trunk.hipJoints[side]);
-          const excess: number = Vec3.length(offset) - reach;
-          return excess > 0
-            ? Vec3.add(sum, Vec3.scale(Vec3.normalize(offset), excess))
-            : sum;
+          return [
+            {
+              origin: Vec3.vector(trunk.hipJoints[side]),
+              target: Vec3.vector(ankle),
+              radius: reach,
+            },
+          ];
         },
-        [0, 0, 0],
+      );
+      const pull: Vec3.Value = Vec3.tuple(
+        projectPhysicalSupportReach({ supports, ...ROOT_PROJECTION })
+          .translation,
       );
       if (Vec3.length(pull) > 0) {
         root = {
@@ -109,21 +148,34 @@ export namespace Resolve {
           })
         : trunk;
       contexts[id] = {
+        id,
         frame,
         rig,
         root,
         pose,
-        trunk,
-        nominal,
+        trunk: trunks?.[id] ?? trunk,
+        authored: trunk,
+        nominal: evading ? nominal : (trunks?.[id] ?? trunk),
         forward: Vec3.rotateY([1, 0, 0], frame.heading),
         left: Vec3.rotateY([0, 0, 1], frame.heading),
         arms: {},
         legs: {},
+        ...(options.geometry ? { geometry: options.geometry } : {}),
       };
     }
 
+    const approach: Output["approach"] = filmKickApproaches(
+      contexts,
+      ROOT_PROJECTION,
+      {
+        actualTrunks: trunks !== undefined,
+        enabled: options.approach !== false,
+        geometry: options.geometry,
+      },
+    );
+
     // Three stages, because goals depend on each other across bodies: passive hands
-    // (guard, catch, swing, point) first; then attacks, which aim at the opponent's
+    // (guard, catch, forward post, point) first; then attacks, which aim at the opponent's
     // passive geometry; then parries, which meet the attacking glove. A blended hand
     // (an interrupted action handing over to the next) resolves in the latest stage
     // any of its parts needs.
@@ -145,7 +197,8 @@ export namespace Resolve {
           if (stage === 0) {
             const leg: FighterBody.Leg = c.frame.legs[side];
             if (leg.kind === "place") c.legs[side] = placed(c, leg.placement);
-            else if (leg.kind === "check") c.legs[side] = check(c, side, leg);
+            else if (leg.kind === "check")
+              c.legs[side] = resolveCheckGoal(c, side, leg);
             else if (leg.kind === "point")
               c.legs[side] = {
                 point: leg.ankle,
@@ -156,7 +209,12 @@ export namespace Resolve {
           } else if (stage === 1 && opponent) {
             const leg: FighterBody.Leg = c.frame.legs[side];
             if (leg.kind === "kick")
-              c.legs[side] = kick(c, opponent, side, leg);
+              c.legs[side] = resolveKickGoal(
+                c,
+                opponent,
+                leg,
+                options.geometry,
+              );
           }
         }
       }
@@ -167,7 +225,7 @@ export namespace Resolve {
       requests[id] = { root: c.root, pose: c.pose, arms: c.arms, legs: c.legs };
       heads[id] = c.trunk.head;
     }
-    return { requests, heads };
+    return { requests, heads, approach };
   }
 
   /**
@@ -181,35 +239,6 @@ export namespace Resolve {
       Vec3.add(trunk.head, Vec3.scale(forward, 0.075)),
       [0, 0.06, 0],
     );
-  }
-
-  /** Guard glove goal relative to the head, with elbows tucked. */
-  function guard(
-    c: Context,
-    side: "left" | "right",
-    tight: number,
-    reach: number = 0,
-  ): BodyRig.Goal {
-    const lead: boolean = side === "left";
-    const f: number = (lead ? Ease.lerp(0.27, 0.18, tight) : 0.14) + reach;
-    const u: number = lead
-      ? Ease.lerp(-0.05, 0.0, tight)
-      : Ease.lerp(-0.07, -0.02, tight);
-    const l: number = lead
-      ? Ease.lerp(0.07, 0.09, tight)
-      : Ease.lerp(-0.13, -0.11, tight);
-    const point: Vec3.Value = Vec3.add(
-      c.trunk.head,
-      Vec3.add(
-        Vec3.add(Vec3.scale(c.forward, f), [0, u, 0]),
-        Vec3.scale(c.left, l),
-      ),
-    );
-    const elbow: Vec3.Value = Vec3.add(
-      c.trunk.shoulders[side],
-      Vec3.add(Vec3.scale(c.forward, 0.1), [0, -0.24, 0]),
-    );
-    return { point, aim: { bone: "elbow", point: elbow, weight: 0.25 } };
   }
 
   /** Latest resolution stage a hand intent (or any part of a blend) needs. */
@@ -228,15 +257,13 @@ export namespace Resolve {
   ): BodyRig.Goal | undefined {
     switch (hand.kind) {
       case "guard":
-        return guard(c, side, hand.tight, hand.reach ?? 0);
+        return guard(c, side, hand.tight, hand.extension ?? 0, hand.reach ?? 0);
       case "catch":
         return lerpGoal(
           guard(c, side, 0),
           catchGoal(c, side, hand.low),
           hand.amount,
         );
-      case "swing":
-        return lerpGoal(guard(c, side, 0), swingGoal(c, side), hand.amount);
       case "point": {
         const goal: BodyRig.Goal = {
           point: hand.point,
@@ -304,60 +331,12 @@ export namespace Resolve {
     return { point, aim: { bone: "elbow", point: elbow, weight: 0.5 } };
   }
 
-  /** Counterbalancing arm swung down and back beside the hip during a kick. */
-  function swingGoal(c: Context, side: "left" | "right"): BodyRig.Goal {
-    const sign: number = side === "left" ? 1 : -1;
-    return {
-      point: Vec3.add(
-        c.trunk.hipJoints[side],
-        Vec3.add(
-          Vec3.add(Vec3.scale(c.forward, -0.18), [0, 0.05, 0]),
-          Vec3.scale(c.left, 0.2 * sign),
-        ),
-      ),
-    };
-  }
-
   /** Ankle and ball goals of a placed foot. */
   function placed(c: Context, placement: Foot.Placement): BodyRig.Goal {
     const goals: Foot.Goals = Foot.goals(placement, c.rig.footVector);
     return {
       point: goals.ankle,
       aim: { bone: "ball", point: goals.ball, weight: 0.7 },
-    };
-  }
-
-  /** Lead leg raised with the shin turned out against a low kick. */
-  function check(
-    c: Context,
-    side: "left" | "right",
-    leg: Extract<FighterBody.Leg, { kind: "check" }>,
-  ): BodyRig.Goal {
-    const from: Foot.Goals = Foot.goals(leg.from, c.rig.footVector);
-    const to: Foot.Goals = Foot.goals(leg.to, c.rig.footVector);
-    const k: number = leg.amount;
-    const ground: Vec3.Value = Vec3.lerp(
-      from.ankle,
-      to.ankle,
-      Ease.smoother(leg.progress),
-    );
-    const ankle: Vec3.Value = Vec3.add(
-      ground,
-      Vec3.add(
-        Vec3.add([0, 0.3 * k, 0], Vec3.scale(c.forward, 0.06 * k)),
-        Vec3.scale(c.left, 0.04 * k),
-      ),
-    );
-    const knee: Vec3.Value = Vec3.add(
-      c.trunk.hipJoints[side],
-      Vec3.add(
-        Vec3.add(Vec3.scale(c.forward, 0.34), [0, -0.2, 0]),
-        Vec3.scale(c.left, 0.1),
-      ),
-    );
-    return {
-      point: ankle,
-      aim: { bone: "knee", point: knee, weight: 0.7 * k },
     };
   }
 
@@ -381,13 +360,13 @@ export namespace Resolve {
       extension,
     );
     const hook: boolean =
-      action.technique === "hook" || action.technique === "body-hook";
+      BoutScript.specs[action.technique].shape === "hook";
     const elbow: Vec3.Value = hook
       ? Vec3.add(
           Vec3.add(shoulder, Vec3.scale(outward, 0.22)),
           Vec3.add(Vec3.scale(c.forward, 0.12), [
             0,
-            action.technique === "hook" ? -0.02 : -0.16,
+            BoutScript.specs[action.technique].target === "head" ? -0.02 : -0.16,
             0,
           ]),
         )
@@ -423,7 +402,7 @@ export namespace Resolve {
       case "cover":
       case "catch":
       case "block": {
-        if (action.technique === "hook")
+        if (BoutScript.specs[action.technique].shape === "hook" && BoutScript.specs[action.technique].target === "head")
           return along(
             Vec3.add(
               passive(o, receiver).point,
@@ -431,7 +410,7 @@ export namespace Resolve {
             ),
             GLOVE * 1.8,
           );
-        if (action.technique === "uppercut") {
+        if (BoutScript.specs[action.technique].shape === "uppercut") {
           // Rise into the underside of the covering glove, a quarter of the way in
           // from it toward the midline, pressing into it whatever the guard's width.
           const mid: Vec3.Value = Vec3.lerp(
@@ -455,7 +434,14 @@ export namespace Resolve {
             Vec3.scale(c.forward, 0.02),
           ),
         );
-      case "hit": {
+      case "hit":
+      case "none": {
+        // With prepared geometry the glove sinks into the receiver's actual
+        // collider of the struck region, the same surface the audit measures.
+        if (o.geometry) {
+          const intent: filmContactIntent.IIntent = filmContactIntent(action);
+          return along(surface(o, intent.targetBone, shoulder), GLOVE - SINK);
+        }
         if (BoutScript.specs[action.technique].target === "head") {
           // The struck jaw-side point on the face turned toward the attacker; the
           // glove drives 5 cm into the cheek rather than stopping at it.
@@ -482,8 +468,9 @@ export namespace Resolve {
       }
       case "check":
       case "slip":
-      case "weave": {
-        if (action.technique === "hook")
+      case "weave":
+      case "lean": {
+        if (BoutScript.specs[action.technique].shape === "hook" && BoutScript.specs[action.technique].target === "head")
           return Vec3.add(
             nominalFace,
             Vec3.scale(o.left, receiver === "right" ? -0.14 : 0.14),
@@ -496,100 +483,29 @@ export namespace Resolve {
     }
   }
 
+  /** Closest point of a receiver segment's actual colliders to a point. */
+  function surface(o: Context, bone: string, from: Vec3.Value): Vec3.Value {
+    let best: Vec3.Value | undefined;
+    for (const segment of o.rig.profile.segments)
+      if (segment.bone === bone)
+        for (const shape of segment.shapes) {
+          const point: Vec3.Value = Vec3.tuple(
+            o.geometry!.project(
+              { body: o.id, bone, shape, pose: o.trunk.segments[bone]! },
+              Vec3.vector(from),
+            ),
+          );
+          if (!best || Vec3.distance(point, from) < Vec3.distance(best, from)) best = point;
+        }
+    return best ?? o.trunk.chest;
+  }
+
   /**
    * A receiver's glove goal for aiming: its resolved passive goal, or its guard
    * when that hand is itself attacking or parrying (not yet resolved this frame).
    */
   function passive(o: Context, side: "left" | "right"): BodyRig.Goal {
     return o.arms[side] ?? guard(o, side, 0);
-  }
-
-  /** Rib surface point on one side of a performer. */
-  function ribs(o: Context, side: "left" | "right"): Vec3.Value {
-    const sign: number = side === "left" ? 1 : -1;
-    return Vec3.add(
-      o.trunk.chest,
-      Vec3.add(
-        Vec3.add(Vec3.scale(o.forward, 0.07), [0, -0.17, 0]),
-        Vec3.scale(o.left, 0.13 * sign),
-      ),
-    );
-  }
-
-  /** Kicking leg goals against the opponent's resolved geometry. */
-  function kick(
-    c: Context,
-    o: Context,
-    side: "left" | "right",
-    leg: Extract<FighterBody.Leg, { kind: "kick" }>,
-  ): BodyRig.Goal {
-    const action: BoutScript.Action = leg.action;
-    const receiver: "left" | "right" = Reaction.struck(action);
-    const swing: Vec3.Value = Vec3.scale(c.left, side === "right" ? 1 : -1);
-    const toward: Vec3.Value = Vec3.normalize(
-      Vec3.sub(c.trunk.hips, o.trunk.hips),
-    );
-    let target: Vec3.Value;
-    if (action.technique === "low-kick") {
-      const checking: BodyRig.Goal | undefined = o.legs.left;
-      target =
-        action.defense === "check" && checking?.aim
-          ? Vec3.add(
-              Vec3.lerp(checking.aim.point, checking.point, 0.3),
-              Vec3.scale(toward, 0.08),
-            )
-          : Vec3.add(
-              Vec3.add(o.trunk.hipJoints[receiver], [0, -0.22, 0]),
-              Vec3.scale(toward, 0.09),
-            );
-    } else if (action.technique === "body-kick")
-      target =
-        action.defense === "block"
-          ? Vec3.add(
-              passive(o, receiver).point,
-              Vec3.add([0, -0.1, 0], Vec3.scale(toward, 0.1)),
-            )
-          : Vec3.add(ribs(o, receiver), Vec3.scale(toward, 0.02));
-    else
-      target = Vec3.add(
-        Vec3.add(
-          o.trunk.head,
-          Vec3.add(
-            Vec3.add(
-              Vec3.scale(o.forward, 0.06),
-              Vec3.scale(o.left, receiver === "right" ? -0.07 : 0.07),
-            ),
-            [0, -0.05, 0],
-          ),
-        ),
-        Vec3.scale(toward, 0.02),
-      );
-    const standing = (placement: Foot.Placement): Strike.Leg => {
-      const ankle: Vec3.Value = Foot.goals(placement, c.rig.footVector).ankle;
-      return {
-        ankle,
-        knee: Vec3.add(
-          ankle,
-          Vec3.add([0, 0.43, 0], Vec3.scale(c.forward, 0.08)),
-        ),
-      };
-    };
-    const goals: Strike.Leg = Strike.kick(action, c.frame.time, {
-      hip: c.trunk.hipJoints[side],
-      forward: c.forward,
-      swing,
-      target,
-      start: standing(leg.from),
-      land: standing(leg.to),
-    });
-    return {
-      point: goals.ankle,
-      aim: {
-        bone: "knee",
-        point: goals.knee,
-        weight: action.technique === "high-kick" ? 0.5 : 0.85,
-      },
-    };
   }
 
   /** Blend two goals (point and aim). */

@@ -5,6 +5,7 @@ import type { AutoMoviePolarSector } from "./AutoMoviePolarSector";
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
+import type { AutoMovieViewAxis } from "./AutoMovieViewAxis";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
@@ -24,8 +25,9 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
  * periodic cubic B-spline through its points at `order` uniform polar
  * angles, so each guide is a knot and its point is the outline's value; the
  * layers are made C2 in station by the natural spline of every coefficient
- * and of the plane (`AutoMovieSeamStation.continuous`), so every layer
- * carries the jets a solid operator reads.
+ * (`AutoMovieSeamStation.continuous`) and carry the axis's own plane
+ * derivatives (`AutoMovieViewAxis.IAxis.jet`), so every layer carries the
+ * jets a solid operator reads.
  *
  * Continuity it publishes: C2 in phase (the periodic cubic B-spline) and C2
  * in station (the quintic station rule with the natural spline's curvatures),
@@ -118,6 +120,22 @@ export namespace AutoMovieViewLoft {
       if (closes.length === 2) return Math.acos(Math.min(1, Math.max(-1, 1 - (2 * (s - first)) / (last - first))));
       if (closes.length === 1) return (closes[0] === "bottom" ? 1 : -1) * Math.sqrt(Math.abs(s - tips[0]!));
       return s;
+    };
+    // Station derivatives of sigma: 1 / (2 |sigma|) and -1 / (4 sigma^3) for
+    // one pole; (2 / L) / sqrt(1 - x^2) and -(4 / L^2) x / (1 - x^2)^(3/2)
+    // for two, with x = 1 - 2 (s - s_0) / L.
+    const sigmaJet = (s: number): [number, number] => {
+      if (closes.length === 2) {
+        const L: number = last - first;
+        const x: number = 1 - (2 * (s - first)) / L;
+        const w: number = 1 - x * x;
+        return [2 / L / Math.sqrt(w), (-4 / (L * L)) * (x / Math.pow(w, 1.5))];
+      }
+      if (closes.length === 1) {
+        const g: number = sigma(s);
+        return [1 / (2 * Math.abs(g)), -1 / (4 * g * g * g)];
+      }
+      return [1, 0];
     };
     const curve = (name: string, outline: IAutoMovieViewPart.IOutline, closing: boolean = false): ((s: number) => number) | null => {
       const xs: number[] = outline.knots.map((k: IAutoMovieViewPart.IKnot): number => k.station);
@@ -273,7 +291,7 @@ export namespace AutoMovieViewLoft {
     const poles: { end: "bottom" | "top"; point: [number, number, number] }[] = closes.map(
       (end: "bottom" | "top", k: number): { end: "bottom" | "top"; point: [number, number, number] } => ({ end, point: [...part.axis.at(tips[k]!).origin] }),
     );
-    const chain: IAutoMovieLoftChain = AutoMovieSeamStation.continuous({
+    const solved: IAutoMovieLoftChain = AutoMovieSeamStation.continuous({
       name: part.name,
       basis: "spline",
       order: N,
@@ -283,6 +301,40 @@ export namespace AutoMovieViewLoft {
       ...(poles[0] !== undefined ? { pole: poles[0] } : {}),
       ...(poles[1] !== undefined ? { opposite: poles[1] } : {}),
     });
+
+    // Toward a pole a section's coefficients go as the root of the distance,
+    // which no cubic in station follows; they are smooth in sigma. Their
+    // jets are the natural spline's in sigma carried to station by the chain
+    // rule, c' = c_sigma sigma' and c'' = c_sigma2 sigma'^2 + c_sigma sigma''.
+    const capped: { slopes: number[][]; curvatures: number[][] } | null = closes.length === 0 ? null : (() => {
+      const t: number[] = layers.map((l: IAutoMovieLoftChain.ILayer): number => sigma(l.y));
+      const values: number[][] = layers.map((l: IAutoMovieLoftChain.ILayer): number[] => l.coefficients);
+      const M: number[][] = AutoMovieSeamStation.curvatures(t, values);
+      const S: number[][] = AutoMovieSeamStation.slopes(t, values, M);
+      return {
+        slopes: S.map((row: number[], k: number): number[] => row.map((c: number): number => c * sigmaJet(layers[k]!.y)[0])),
+        curvatures: M.map((row: number[], k: number): number[] => {
+          const [d1, d2]: [number, number] = sigmaJet(layers[k]!.y);
+          return row.map((c2: number, i: number): number => c2 * d1 * d1 + S[k]![i]! * d2);
+        }),
+      };
+    })();
+
+    // The planes move by the axis's own derivatives: a natural spline through
+    // the layer planes would ring across a jointed turn into the straight
+    // runs, where the axis is exactly linear.
+    const chain: IAutoMovieLoftChain = {
+      ...solved,
+      layers: solved.layers.map((layer: IAutoMovieLoftChain.ILayer, k: number): IAutoMovieLoftChain.ILayer => {
+        const jet: AutoMovieViewAxis.IJet = part.axis.jet(layer.y);
+        return {
+          ...layer,
+          ...(capped === null ? {} : { slopes: capped.slopes[k]!, curvatures: capped.curvatures[k]! }),
+          frameSlopes: jet.slope,
+          frameCurvatures: jet.curvature,
+        };
+      }),
+    };
     const surface: IAutoMovieSolidSurface | null = AutoMovieSolidChain.surface(chain);
     if (surface === null) report("solid surface", "the chain does not read as a solid surface (no jets or a degenerate middle section)");
     return { chain, surface, sections, diagnostics, continuity: CONTINUITY };

@@ -1,9 +1,10 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
 import { Blocking } from "../defense/Blocking";
 import type { Fighter } from "../fighter/Fighter";
 import type { FighterBody } from "../fighter/FighterBody";
 import { Aftermath } from "../reactions/Aftermath";
-import { Ease } from "../rig/Ease";
-import { Vec3 } from "../rig/Vec3";
+import { FilmVector as Vec3 } from "../rig/FilmVector";
 
 /**
  * The referee's spoken cues, gestures, gaze and post-knockout positions.
@@ -245,9 +246,12 @@ export namespace RefereeCues {
    * @evidence contracts/common.md#authoring-interface World X/Z metres; `a` returns A's head in world metres.
    */
   export interface Scene {
-    /** B's hips at rest, world X/Z. */ fallenHips: readonly [number, number];
-    /** B's head at rest, world X/Z. */ fallenHead: readonly [number, number];
-    /** A's corner point, world X/Z. */ corner: readonly [number, number];
+    /** B's hips at rest, world X/Z. */
+    fallenHips: readonly [number, number];
+    /** B's head at rest, world X/Z. */
+    fallenHead: readonly [number, number];
+    /** A's corner point, world X/Z. */
+    corner: readonly [number, number];
     /**
      * A's head at a second, world metres.
      *
@@ -256,7 +260,8 @@ export namespace RefereeCues {
      */
     a: (t: number) => Vec3.Value;
 
-    /** Wide camera position after the knockout, world metres; he stands on B's far side from it. */ camera: Vec3.Value;
+    /** Wide camera position after the knockout, world metres; he stands on B's far side from it. */
+    camera: Vec3.Value;
   }
 
   /**

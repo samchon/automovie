@@ -10,7 +10,7 @@ Compare central and peripheral development: settings and treatments need suffici
 
 ## Are layer boundaries and work-wide choices consistent? {#layer-boundaries}
 
-Identify the semantic owners: settings establishes world facts, appearance and baseline constraints; treatments events, event time and place and reveal order; scripts partition, scene execution, staged audiovisual state and meaningful view; final screenplay finished emphasis, image-sound relations, transitions and temporal experience. A direct short owns necessary facts and choices in its actual brief and screenplay, with separately adopted compact settings where present, rather than invented skipped stages.
+Identify the semantic owners: settings establishes world facts, appearance and baseline constraints; treatments events, event time and place and reveal order; scripts partition, scene execution, staged audiovisual state and meaningful view; final screenplay finished emphasis, image-sound relations, transitions and temporal experience. A short without treatments and scripts gives their event and execution decisions to its screenplay, never to invented skipped stages.
 
 Give language, audience, variants, registers, code-switching, access rules and expressive form one identifiable instruction or work-contract owner; character voice remains a world property. Preserve declared nonstandard forms and their audience context. Report downstream inventions, duplicated authority and planning language replacing a layer's output, then repair the earliest owner and consumers. Layout and adapter mechanics do not decide these boundaries.
 

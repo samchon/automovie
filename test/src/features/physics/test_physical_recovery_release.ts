@@ -1,0 +1,123 @@
+import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import RAPIER, { type RigidBody, type World } from "@dimforge/rapier3d-compat";
+import { TestValidator } from "@nestia/e2e";
+
+import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
+import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
+import { advancePhysicalBalance as Balance } from "../../../../packages/engine/src/physics/advancePhysicalBalance";
+import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
+import { trackPhysicalWorld } from "../../../../packages/engine/src/physics/trackPhysicalWorld";
+import { PhysicalFixtures } from "../internal/PhysicalFixtures";
+import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
+import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
+
+/** Exhausted recovery clears every new force, while real reacquired support restores effort.
+ *
+ * Scenarios:
+ * 1. A retained endpoint offset cannot leak fresh world force after repeated withdrawal.
+ * 2. Actual native floor contacts clear a previous failed-landing latch without a special bracing policy.
+ */
+export async function test_physical_recovery_release(): Promise<void> {
+  await RAPIER.init();
+  const profile: P = PhysicalModelFixtures.quadrupod();
+  const body: Simulation.IBody = PhysicalSupportFixtures.body(profile, 1);
+  const input: Simulation.IInput = PhysicalFixtures.input([body], 1);
+  Object.assign(input, {
+    gravity: { x: 0, y: -9.81, z: 0 },
+    substeps: 4,
+    internalIterations: 1,
+    contactTolerance: 0.0001,
+    contactFrequency: 240,
+  });
+  const world: World = new RAPIER.World(input.gravity);
+  try {
+    world.timestep = 1 / 480;
+    world.integrationParameters.normalizedPredictionDistance = 0;
+    world.integrationParameters.normalizedAllowedLinearError =
+      input.contactTolerance!;
+    world.integrationParameters.contact_natural_frequency =
+      input.contactFrequency!;
+    const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
+      world,
+      input,
+      false,
+    );
+    const state: Balance.IState = {
+      last: "unrecoverable",
+      failedLanding: true,
+      lostSince: 0,
+      steps: [],
+      offsets: { "support-0": { x: 0.1, y: 0, z: 0 } },
+    };
+    for (const seconds of [0.9, 0.91]) {
+      trackPhysicalWorld(
+        world,
+        input,
+        bound,
+        120,
+        new Map(),
+        [],
+        { [body.id]: state },
+        [],
+        seconds,
+      );
+      TestValidator.predicate(
+        "every released substep clears new recovery force",
+        [...bound.segments.get(body.id)!.values()].every(
+          (rigid: RigidBody): boolean =>
+            Vector3.length(rigid.userForce()) === 0 &&
+            Vector3.length(rigid.userTorque()) === 0,
+        ),
+      );
+    }
+  } finally {
+    world.free();
+  }
+  const floorInput: Simulation.IInput = structuredClone(input);
+  floorInput.floor = 0;
+  const landed: World = new RAPIER.World(floorInput.gravity);
+  try {
+    landed.timestep = 1 / 480;
+    landed.integrationParameters.normalizedPredictionDistance = 0;
+    landed.integrationParameters.normalizedAllowedLinearError =
+      floorInput.contactTolerance!;
+    landed.integrationParameters.contact_natural_frequency =
+      floorInput.contactFrequency!;
+    const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
+      landed,
+      floorInput,
+      false,
+    );
+    for (let step: number = 0; step < 4; step++) landed.step();
+    const state: Balance.IState = {
+      last: "unrecoverable",
+      failedLanding: true,
+      lostSince: 0,
+      steps: [],
+      offsets: {},
+    };
+    const result: ReturnType<typeof Balance> = Balance({
+      world: landed,
+      body: body.id,
+      profile,
+      segments: bound.segments.get(body.id)!,
+      colliders: bound.colliders,
+      contacts: [],
+      policy: body.balance!,
+      state,
+      targets: body.targets[0]!.segments,
+      seconds: 4 / 480,
+      dt: 1 / 480,
+      gravity: 9.81,
+      floor: 0,
+    });
+    TestValidator.predicate(
+      "real support restores bounded effort after an earlier failure",
+      result.state.last === "supported" &&
+        result.state.failedLanding === undefined &&
+        result.rootStrength === 1,
+    );
+  } finally {
+    landed.free();
+  }
+}

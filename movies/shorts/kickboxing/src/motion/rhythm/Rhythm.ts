@@ -1,6 +1,7 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 import type { FighterBody } from "../fighter/FighterBody";
-import { Ease } from "../rig/Ease";
 
 /**
  * The live rhythm of a fighter between and around scripted exchanges.

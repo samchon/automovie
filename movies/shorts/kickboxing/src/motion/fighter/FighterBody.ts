@@ -1,9 +1,9 @@
 import type { IAutoMovieHumanPose } from "@automovie/human";
 
 import type { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
-import type { BodyRig } from "../rig/BodyRig";
+import type { FilmBodyRig as BodyRig } from "../rig/FilmBodyRig";
+import { FilmVector as Vec3 } from "../rig/FilmVector";
 import type { Foot } from "../rig/Foot";
-import { Vec3 } from "../rig/Vec3";
 
 /**
  * One performer's authored body for a single frame, before limb goals are solved.
@@ -32,11 +32,10 @@ export namespace FighterBody {
    * @evidence contracts/common.md#authoring-interface Points are world metres; amounts are blend weights in [0, 1] from the guard.
    */
   export type Hand =
-    | { kind: "guard"; tight: number; reach?: number }
+    | { kind: "guard"; tight: number; extension?: number; reach?: number }
     | { kind: "catch"; side: Side; amount: number; low: number }
     | { kind: "attack"; action: BoutScript.Action; extension: number }
     | { kind: "parry"; action: BoutScript.Action; amount: number }
-    | { kind: "swing"; amount: number }
     | { kind: "blend"; from: Hand; to: Hand; weight: number }
     | {
         kind: "point";
@@ -78,63 +77,66 @@ export namespace FighterBody {
    * @evidence contracts/common.md#authoring-interface Degrees for joints, radians for heading and turn, metres for drop, shift and lift.
    */
   export interface Frame {
-    /** Film second this frame describes. */ time: number;
-    /** Stance origin, world X/Z metres. */ origin: [number, number];
-    /** Stance heading, radians. */ heading: number;
-    /** Body yaw relative to the heading, radians (orthodox guard ≈ 0.55). */ turn: number;
-    /** Lowering of the body origin, metres. */ drop: number;
-    /** Body origin offset [forward, left] in the heading frame, metres. */ shift: [
-      number,
-      number,
-    ];
-    /** Pelvis tilt/obliquity/rotation, degrees. */ pelvis: {
+    /** Film second this frame describes. */
+    time: number;
+    /** Stance origin, world X/Z metres. */
+    origin: [number, number];
+    /** Stance heading, radians. */
+    heading: number;
+    /** Body yaw relative to the heading, radians (orthodox guard ≈ 0.55). */
+    turn: number;
+    /** Lowering of the body origin, metres. */
+    drop: number;
+    /** Body origin offset [forward, left] in the heading frame, metres. */
+    shift: [number, number];
+    /** Pelvis tilt/obliquity/rotation, degrees. */
+    pelvis: {
       tilt: number;
       obliquity: number;
       rotation: number;
     };
-    /** Thoracic flexion/lateral/rotation, degrees. */ thoracic: {
+    /** Thoracic flexion/lateral/rotation, degrees. */
+    thoracic: {
       flexion: number;
       lateral: number;
       rotation: number;
     };
-    /** Lumbar flexion/lateral, degrees. */ lumbar: {
+    /** Lumbar flexion/lateral, degrees. */
+    lumbar: {
       flexion: number;
       lateral: number;
     };
-    /** Cervical flexion/lateral/rotation, degrees. */ cervical: {
+    /** Cervical flexion/lateral/rotation, degrees. */
+    cervical: {
       flexion: number;
       lateral: number;
       rotation: number;
     };
-    /** Head nod and turn on the atlas, degrees. */ atlas: {
+    /** Head nod and turn on the atlas, degrees. */
+    atlas: {
       flexion: number;
       rotation: number;
     };
-    /** Jaw opening, millimetres. */ jaw: number;
-    /** Pain wince in [0, 1]: eyes squeezed shut and brows lowered. */ wince: number;
-    /** Shoulder girdle protraction/elevation per side, degrees. */ girdle: Record<
-      Side,
-      { protraction: number; elevation: number }
-    >;
+    /** Jaw opening, millimetres. */
+    jaw: number;
+    /** Pain wince in [0, 1]: eyes squeezed shut and brows lowered. */
+    wince: number;
+    /** Shoulder girdle protraction/elevation per side, degrees. */
+    girdle: Record<Side, { protraction: number; elevation: number }>;
     /** Evasive components: lateral lean (deg, + left), forward duck (deg), extra drop (m), lateral shift (m, + left). */
     evade: { lateral: number; flexion: number; drop: number; shift: number };
-    /** Extra whole-body rotation after the yaw (knockdown), quaternion. */ roll: readonly [
-      number,
-      number,
-      number,
-      number,
-    ];
-    /** Extra world offset of the body origin (knockdown), metres. */ lift: Vec3.Value;
-    /** Hand intents. */ hands: Record<Side, Hand>;
-    /** Foot intents. */ legs: Record<Side, Leg>;
-    /** Authored arm channels used when a hand is in `pose` mode, or as solver priors. */ arms: Record<
-      Side,
-      NonNullable<IAutoMovieHumanPose["arms"]>["left"]
-    >;
-    /** Authored leg channel priors and `pose` mode values. */ legPose: Record<
-      Side,
-      NonNullable<IAutoMovieHumanPose["legs"]>["left"]
-    >;
+    /** Extra whole-body rotation after the yaw (knockdown), quaternion. */
+    roll: readonly [number, number, number, number];
+    /** Extra world offset of the body origin (knockdown), metres. */
+    lift: Vec3.Value;
+    /** Hand intents. */
+    hands: Record<Side, Hand>;
+    /** Foot intents. */
+    legs: Record<Side, Leg>;
+    /** Authored arm channels used when a hand is in `pose` mode, or as solver priors. */
+    arms: Record<Side, NonNullable<IAutoMovieHumanPose["arms"]>["left"]>;
+    /** Authored leg channel priors and `pose` mode values. */
+    legPose: Record<Side, NonNullable<IAutoMovieHumanPose["legs"]>["left"]>;
   }
 
   /**
@@ -169,7 +171,7 @@ export namespace FighterBody {
         ],
         frame.lift,
       ),
-      rotation: multiply(q, frame.roll),
+      rotation: Vec3.multiply(q, frame.roll),
     };
   }
 
@@ -290,17 +292,4 @@ export namespace FighterBody {
 /** Clamp to a closed range. */
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
-}
-
-/** Hamilton product a * b. */
-function multiply(
-  a: readonly [number, number, number, number],
-  b: readonly [number, number, number, number],
-): [number, number, number, number] {
-  return [
-    a[3] * b[0] + a[0] * b[3] + a[1] * b[2] - a[2] * b[1],
-    a[3] * b[1] - a[0] * b[2] + a[1] * b[3] + a[2] * b[0],
-    a[3] * b[2] + a[0] * b[1] - a[1] * b[0] + a[2] * b[3],
-    a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2],
-  ];
 }

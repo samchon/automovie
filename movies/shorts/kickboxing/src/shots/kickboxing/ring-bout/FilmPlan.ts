@@ -1,13 +1,14 @@
-import { Blocking } from "../../../motion/defense/Blocking";
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
 import { Aftermath } from "../../../motion/reactions/Aftermath";
-import { Ease } from "../../../motion/rig/Ease";
-import { Vec3 } from "../../../motion/rig/Vec3";
+import { FilmVector as Vec3 } from "../../../motion/rig/FilmVector";
+import { BoutCamera } from "./BoutCamera";
 import { BoutScript } from "./BoutScript";
 
 /**
  * Film-wide clock, event vocabulary and the delivered camera.
  *
- * @evidence contracts/common.md#implementation-and-ownership One immutable namespace shared by the Viewer, the soundtrack and export. The camera is closed-form in film time (it follows the smoothed ring geography, never the fighters' instantaneous positions), so seek, playback and capture frame identically.
+ * @evidence contracts/common.md#implementation-and-ownership One immutable namespace shared by the Viewer, the soundtrack and export. The bout camera is a precomputed relational operator (BoutCamera) sampled by film time, so seek, playback and capture frame identically.
  * @evidence contracts/common.md#authoring-interface Seconds on the film clock, 30 output frames per second, world metres with +Y up. The bout's exchanges live in BoutScript; this namespace owns only timing constants, the event shape and the camera.
  */
 export namespace FilmPlan {
@@ -35,6 +36,9 @@ export namespace FilmPlan {
   /** A's celebration begins. */
   export const celebrationSeconds: number = 168.1;
 
+  /** The camera finishes widening into the knockout view. */
+  const WIDENED: number = 151;
+
   /** The match-ending bell. */
   export const endBellSeconds: number = 170.1;
 
@@ -53,9 +57,12 @@ export namespace FilmPlan {
    * @evidence contracts/common.md#authoring-interface Film seconds; optional fields depend on the kind.
    */
   export interface Event {
-    /** Stable cue identity shared by Viewer and export. */ id: string;
-    /** Film second. */ seconds: number;
-    /** Kind of cue. */ kind:
+    /** Stable cue identity shared by Viewer and export. */
+    id: string;
+    /** Film second. */
+    seconds: number;
+    /** Kind of cue. */
+    kind:
       | "bell"
       | "touch"
       | "attempt"
@@ -69,18 +76,33 @@ export namespace FilmPlan {
       | "fall"
       | "ambience"
       | "breath";
-    /** Acting performer. */ actorId: ActorId;
-    /** Receiving performer. */ targetId?: ActorId;
-    /** Exact action identity. */ actionId?: string;
-    /** Requested contact relation; the measured receipt must agree. */ relation?:
-      | "guard"
-      | "body"
-      | "head"
-      | "shin-check";
-    /** Spoken count in [1, 10]. */ count?: number;
-    /** Referee phrase. */ speech?: "fight" | "down" | "neutral" | "decision";
-    /** Audible window, seconds. */ durationSeconds?: number;
-    /** Action whose measured contact gates this cue. */ requiresContact?: string;
+    /** Acting performer. */
+    actorId: ActorId;
+    /** Receiving performer. */
+    targetId?: ActorId;
+    /** Exact action identity. */
+    actionId?: string;
+    /** Requested contact relation; the measured receipt must agree. */
+    relation?: "guard" | "body" | "head" | "shin-check";
+    /** Spoken count in [1, 10]. */
+    count?: number;
+    /** Referee phrase. */
+    speech?: "fight" | "down" | "neutral" | "decision";
+    /** Audible window, seconds. */
+    durationSeconds?: number;
+    /** Action whose measured contact gates this cue. */
+    requiresContact?: string;
+    /** Actual foot/floor arrival and its control owner; geometric arrivals carry no solved impulse claim. */
+    footfall?: {
+      source: "solver" | "geometric";
+      ownership: "authored" | "return" | "dynamic";
+      /** Absolute actual measurement/landing time used by the authoritative ownership sampler. */ ownershipSeconds: number;
+      bone: string;
+      contactSeconds: number;
+      confirmedSeconds: number;
+      receiptIds: string[];
+      /** Exact substep confirmation, when a recovery landed inside the receipt's containing cache interval. */ recoverySeconds?: number;
+    };
   }
 
   /**
@@ -90,10 +112,14 @@ export namespace FilmPlan {
    * @evidence contracts/common.md#authoring-interface World metres; vertical field of view in degrees.
    */
   export interface Camera {
-    /** Edit identity. */ shotId: string;
-    /** World camera centre, metres. */ position: [number, number, number];
-    /** World look-at point, metres. */ target: [number, number, number];
-    /** Vertical field of view, degrees. */ fovDegrees: number;
+    /** Edit identity. */
+    shotId: string;
+    /** World camera centre, metres. */
+    position: [number, number, number];
+    /** World look-at point, metres. */
+    target: [number, number, number];
+    /** Vertical field of view, degrees. */
+    fovDegrees: number;
   }
 
   /**
@@ -111,25 +137,17 @@ export namespace FilmPlan {
   /**
    * The delivered camera at a film second.
    *
-   * @evidence contracts/common.md#implementation-and-ownership During the bout the camera stands inside the ropes on A's left of the fighting axis (the same side throughout), 2.75 m out at chest height, so the pair fills most of the frame and no rope crosses it; it drifts slowly along that side and is held 2.9 m from ring centre at most. From 143 s it eases over eight seconds into the aftermath's side-on view, which holds the kick, fall, neutral corner, count and celebration without a cut. Every clean landing jolts the view with a damped shake of at most a few centimetres for 0.3 s.
+   * @evidence contracts/common.md#implementation-and-ownership During the bout BoutCamera keeps a side view of both fighters from across their line opposite the referee, wide while they reset, medium while an exchange is live and pushed in on clean landings, orbiting and following with operator lag inside the ropes. From 143 s it eases over eight seconds into the aftermath's side-on view, which holds the kick, fall, neutral corner, count and celebration without a cut. Every clean landing jolts the view with a damped shake of at most a few centimetres for 0.3 s.
    * @evidence contracts/common.md#authoring-interface Finite seconds in [0, 180]; returns a fresh camera.
    */
   export function camera(seconds: number): Camera {
     if (!Number.isFinite(seconds) || seconds < 0 || seconds > duration)
       throw new Error("Camera time is outside the film");
-    const [cx, cz, axis] = Blocking.geography(Math.min(seconds, koSeconds));
-    const side: Vec3.Value = Vec3.rotateY([0, 0, 1], axis);
-    const along: Vec3.Value = Vec3.rotateY([1, 0, 0], axis);
-    const drift: number = 0.35 * Math.sin(seconds / 17);
-    const offset: Vec3.Value = Vec3.add(
-      Vec3.scale(side, 2.75),
-      Vec3.scale(along, 0.25 + drift),
-    );
-    const inside = (value: number): number =>
-      Math.max(-2.9, Math.min(2.9, value));
+    // The relational bout camera until the widening completes.
+    const live: BoutCamera.IState = BoutCamera.at(Math.min(seconds, WIDENED), WIDENED);
     const bout: { position: Vec3.Value; target: Vec3.Value } = {
-      position: [inside(cx + offset[0]), 1.55, inside(cz + offset[2])],
-      target: [cx, 1.0, cz],
+      position: live.position,
+      target: live.target,
     };
 
     // Side-on view of the fallen fighter and the neutral corner (owned by the aftermath).
@@ -146,9 +164,9 @@ export namespace FilmPlan {
       const power: number =
         action === BoutScript.finish
           ? 2.5
-          : action.technique.endsWith("kick")
+          : BoutScript.specs[action.technique].limb === "leg"
             ? 1.4
-            : action.technique === "jab"
+            : BoutScript.specs[action.technique].windup <= BoutScript.specs.jab.windup
               ? 0.5
               : 1;
       jolt += power * Math.exp(-tau / 0.07) * Math.sin(2 * Math.PI * 16 * tau);
@@ -156,7 +174,7 @@ export namespace FilmPlan {
     const shake: Vec3.Value = [0, 0.012 * jolt, 0];
     return {
       shotId:
-        seconds < 143 ? "ringside-continuous" : "knockout-and-count-unbroken",
+        seconds < 143 ? `ringside-${live.size}` : "knockout-and-count-unbroken",
       position: [
         ...Vec3.add(Vec3.lerp(bout.position, wide.position, k), shake),
       ] as [number, number, number],
@@ -165,7 +183,7 @@ export namespace FilmPlan {
         number,
         number,
       ],
-      fovDegrees: Ease.lerp(48, 62, k),
+      fovDegrees: Ease.lerp(live.fov, 62, k),
     };
   }
 }

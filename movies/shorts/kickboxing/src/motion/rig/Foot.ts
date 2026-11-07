@@ -1,5 +1,6 @@
-import { Ease } from "./Ease";
-import { Vec3 } from "./Vec3";
+import { AutoMovieStepPlanner as Planner } from "@automovie/engine";
+
+import { FilmVector as Vec3 } from "./FilmVector";
 
 /**
  * Converts a foot placement on the canvas into ankle and ball goals for {@link BodyRig}.
@@ -10,6 +11,9 @@ import { Vec3 } from "./Vec3";
 export namespace Foot {
   /** Height of the ball joint above the canvas when the foot is flat, metres (Human neutral). */
   export const BALL_HEIGHT: number = 0.014;
+
+  /** Retained authored heel-pitch arch at swing apex, radians; this is the film's style rather than a universal stepping law. */
+  export const SWING_PITCH: number = 0.25;
 
   /**
    * One foot on or above the canvas.
@@ -38,8 +42,10 @@ export namespace Foot {
    * @evidence contracts/common.md#authoring-interface World metres.
    */
   export interface Goals {
-    /** Ankle joint centre, world metres. */ ankle: Vec3.Value;
-    /** Ball of the foot, world metres. */ ball: Vec3.Value;
+    /** Ankle joint centre, world metres. */
+    ankle: Vec3.Value;
+    /** Ball of the foot, world metres. */
+    ball: Vec3.Value;
   }
 
   /**
@@ -80,17 +86,23 @@ export namespace Foot {
     u: number,
     height: number,
   ): Placement {
-    const k: number = Ease.smoother(u);
+    const placed: Planner.IPlacement = Planner.swing(
+      {
+        point: [...from.ball],
+        yaw: from.yaw,
+        pitch: from.heel,
+        clearance: from.lift,
+      },
+      { point: [...to.ball], yaw: to.yaw, pitch: to.heel, clearance: to.lift },
+      u,
+      height,
+      SWING_PITCH,
+    );
     return {
-      ball: [
-        Ease.lerp(from.ball[0], to.ball[0], k),
-        Ease.lerp(from.ball[1], to.ball[1], k),
-      ],
-      yaw: Ease.angle(from.yaw, to.yaw, k),
-      heel:
-        Ease.lerp(from.heel, to.heel, k) +
-        0.25 * Math.sin(Math.PI * Ease.unit(u)),
-      lift: height * Math.sin(Math.PI * Ease.unit(u)),
+      ball: placed.point,
+      yaw: placed.yaw,
+      heel: placed.pitch,
+      lift: placed.clearance,
     };
   }
 }

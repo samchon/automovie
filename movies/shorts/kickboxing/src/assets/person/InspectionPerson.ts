@@ -88,6 +88,20 @@ export class InspectionPerson {
     this.object.updateWorldMatrix(true, true);
   }
 
+  /** Apply completed clinical frames from shared physical playback directly to the original polygon. */
+  public physical(
+    output: AutoMovieHumanSkeleton.IOutput,
+    pose: IAutoMovieHumanPose,
+    expression?: AutoMovieHumanCartoon.IExpression,
+  ): void {
+    this.output = output;
+    this.object.position.set(0, 0, 0);
+    this.object.quaternion.identity();
+    this.drawing.setPose(output);
+    this.prepareFace(pose, expression);
+    this.object.updateWorldMatrix(true, true);
+  }
+
   /**
    * Refresh the requested rigid head attachments before capturing physical geometry.
    * @evidence contracts/common.md#implementation-and-ownership Rebuilds the same displayed face once for a changed head pose and advances its population revision. A full-body floor query can capture that exact population before solving without another FK.

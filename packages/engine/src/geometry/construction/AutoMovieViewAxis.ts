@@ -19,10 +19,11 @@ function unit(a: Vec3): Vec3 {
  * axes `u` and `v` orthonormal in the plane, and the axis direction their
  * frame normal `v x u` (up for a horizontal layer, as
  * `IAutoMovieLoftChain.ILayer.lift` reads it). The operator reads the
- * frame at every layer station and the chain carries the planes' station
- * derivatives by the natural spline of their components
- * (`AutoMovieSeamStation.continuous`), which is exact for a straight
- * axis (a linear origin and constant axes).
+ * frame at every layer station together with the plane's exact first and
+ * second station derivatives ({@link IAxis.jet}), so the chain's quintic
+ * station rule reproduces a straight run exactly and follows a turn or a
+ * curve by its own derivatives, rather than by a natural spline through the
+ * layer planes, which rings across a jointed turn into the straight runs.
  *
  * Five axes:
  *
@@ -59,7 +60,35 @@ export namespace AutoMovieViewAxis {
      * @returns Origin on the axis and orthonormal chart axes, world mm.
      */
     at(station: number): AutoMovieLoftFrame.IFrame;
+
+    /**
+     * The section plane at a station with its exact station derivatives.
+     *
+     * @param station Station along the part, mm.
+     * @returns The plane and the first and second derivatives of its origin and chart axes.
+     */
+    jet(station: number): IJet;
   }
+
+  /** A section plane with its first and second station derivatives, component by component. */
+  export interface IJet {
+    /** The plane, as {@link IAxis.at} reads it. */
+    frame: AutoMovieLoftFrame.IFrame;
+
+    /** First station derivatives of the origin and axes, per mm. */
+    slope: AutoMovieLoftFrame.IFrame;
+
+    /** Second station derivatives of the origin and axes, per mm squared. */
+    curvature: AutoMovieLoftFrame.IFrame;
+  }
+
+  /** A plane of three components, copied. */
+  function plane(origin: Vec3, u: Vec3, v: Vec3): AutoMovieLoftFrame.IFrame {
+    return { origin: [...origin], u: [...u], v: [...v] };
+  }
+
+  /** The zero derivative of a component. */
+  const STILL: Vec3 = [0, 0, 0];
 
   /** One knot of a curved axis. */
   export interface IAxisKnot {
@@ -80,11 +109,17 @@ export namespace AutoMovieViewAxis {
    */
   export function straight(origin: Vec3, u: Vec3, v: Vec3): IAxis {
     const w: Vec3 = cross(v, u);
+    const at = (station: number): AutoMovieLoftFrame.IFrame => ({
+      origin: add(origin, scale(w, station)),
+      u: [...u],
+      v: [...v],
+    });
     return {
-      at: (station: number): AutoMovieLoftFrame.IFrame => ({
-        origin: add(origin, scale(w, station)),
-        u: [...u],
-        v: [...v],
+      at,
+      jet: (station: number): IJet => ({
+        frame: at(station),
+        slope: plane(w, STILL, STILL),
+        curvature: plane(STILL, STILL, STILL),
       }),
     };
   }
@@ -117,12 +152,22 @@ export namespace AutoMovieViewAxis {
       );
     const sx: AutoMovieNaturalSpline.ISpline = spline(x);
     const sz: AutoMovieNaturalSpline.ISpline = spline(z);
+    const at = (station: number): AutoMovieLoftFrame.IFrame => ({
+      origin: [AutoMovieNaturalSpline.evaluate(sx, station), station, AutoMovieNaturalSpline.evaluate(sz, station)],
+      u: [1, 0, 0],
+      v: [0, 0, 1],
+    });
     return {
-      at: (station: number): AutoMovieLoftFrame.IFrame => ({
-        origin: [AutoMovieNaturalSpline.evaluate(sx, station), station, AutoMovieNaturalSpline.evaluate(sz, station)],
-        u: [1, 0, 0],
-        v: [0, 0, 1],
-      }),
+      at,
+      jet: (station: number): IJet => {
+        const [x1, x2]: [number, number] = AutoMovieNaturalSpline.derivative(sx, station);
+        const [z1, z2]: [number, number] = AutoMovieNaturalSpline.derivative(sz, station);
+        return {
+          frame: at(station),
+          slope: plane([x1, 1, z1], STILL, STILL),
+          curvature: plane([x2, 0, z2], STILL, STILL),
+        };
+      },
     };
   }
 
@@ -162,30 +207,63 @@ export namespace AutoMovieViewAxis {
     const lu: number = Math.hypot(u0[0], u0[1], u0[2]);
     if (!(lu > 1e-9 * Math.hypot(up[0], up[1], up[2]))) return "up lies along the first segment";
     const first: Vec3 = scale(u0, 1 / lu);
+    const walk = (station: number): IWalk => {
+      // Walk the segments and turns up to the station.
+      let point: Vec3 = [...centres[0]!];
+      let u: Vec3 = first;
+      let tangent: Vec3 = directions[0]!;
+      let at: number = 0;
+      for (let i: number = 0; i < turns.length; i++) {
+        const t: ITurn = turns[i]!;
+        if (station <= t.start) break;
+        point = add(point, scale(tangent, t.start - at));
+        at = t.start;
+        const share: number = Math.min(2 * t.half, station - at);
+        if (t.angle > 0) {
+          point = add(point, integrate(tangent, t, share));
+          const x: number = share / (2 * t.half);
+          const turned: number = t.angle * smoothstep(x);
+          u = rotate(u, t.axis, turned);
+          tangent = rotate(tangent, t.axis, turned);
 
+          // Inside the turn the angle's station rate and its derivative: the
+          // smoothstep's 30 x^2 (1 - x)^2 and 60 x (1 - x) (1 - 2 x) over 2 h.
+          if (share < 2 * t.half)
+            return {
+              point,
+              u,
+              tangent,
+              axis: t.axis,
+              rate: (t.angle * 30 * x * x * (1 - x) * (1 - x)) / (2 * t.half),
+              acceleration: (t.angle * 60 * x * (1 - x) * (1 - 2 * x)) / (4 * t.half * t.half),
+            };
+        } else point = add(point, scale(tangent, share));
+        at += share;
+        if (share < 2 * t.half) return { point, u, tangent, axis: STILL, rate: 0, acceleration: 0 };
+      }
+      return { point: add(point, scale(tangent, station - at)), u, tangent, axis: STILL, rate: 0, acceleration: 0 };
+    };
     return {
       at: (station: number): AutoMovieLoftFrame.IFrame => {
-        // Walk the segments and turns up to the station.
-        let point: Vec3 = [...centres[0]!];
-        let u: Vec3 = first;
-        let tangent: Vec3 = directions[0]!;
-        let at: number = 0;
-        for (let i: number = 0; i < turns.length; i++) {
-          const t: ITurn = turns[i]!;
-          if (station <= t.start) break;
-          point = add(point, scale(tangent, t.start - at));
-          at = t.start;
-          const share: number = Math.min(2 * t.half, station - at);
-          if (t.angle > 0) {
-            point = add(point, integrate(tangent, t, share));
-            const turned: number = t.angle * smoothstep(share / (2 * t.half));
-            u = rotate(u, t.axis, turned);
-            tangent = rotate(tangent, t.axis, turned);
-          } else point = add(point, scale(tangent, share));
-          at += share;
-          if (share < 2 * t.half) return frame(point, u, tangent);
-        }
-        return frame(add(point, scale(tangent, station - at)), u, tangent);
+        const w: IWalk = walk(station);
+        return frame(w.point, w.u, w.tangent);
+      },
+      jet: (station: number): IJet => {
+        // A vector turning about a fixed unit axis k at rate a and angular
+        // acceleration b has derivatives a (k x r) and
+        // b (k x r) + a^2 k x (k x r); the origin's derivative is the tangent.
+        const w: IWalk = walk(station);
+        const d1 = (r: Vec3): Vec3 => scale(cross(w.axis, r), w.rate);
+        const d2 = (r: Vec3): Vec3 => add(scale(cross(w.axis, r), w.acceleration), scale(cross(w.axis, cross(w.axis, r)), w.rate * w.rate));
+        const t1: Vec3 = d1(w.tangent);
+        const t2: Vec3 = d2(w.tangent);
+        const u1: Vec3 = d1(w.u);
+        const u2: Vec3 = d2(w.u);
+        return {
+          frame: frame(w.point, w.u, w.tangent),
+          slope: plane(w.tangent, u1, add(cross(u1, w.tangent), cross(w.u, t1))),
+          curvature: plane(t1, u2, add(add(cross(u2, w.tangent), scale(cross(u1, t1), 2)), cross(w.u, t2))),
+        };
       },
     };
   }
@@ -305,6 +383,27 @@ export namespace AutoMovieViewAxis {
       s += 2 * t.half;
     }
     return { directions, lengths, turns };
+  }
+
+  /** A jointed course read at one station. */
+  interface IWalk {
+    /** The axis point, mm. */
+    point: Vec3;
+
+    /** The chart's first axis. */
+    u: Vec3;
+
+    /** The unit tangent. */
+    tangent: Vec3;
+
+    /** The current turn's unit axis, zero on a straight run. */
+    axis: Vec3;
+
+    /** The turned angle's station rate, radians per mm, zero on a straight run. */
+    rate: number;
+
+    /** Its station derivative, radians per mm squared. */
+    acceleration: number;
   }
 
   /** One turn of a jointed axis. */
@@ -428,18 +527,44 @@ export namespace AutoMovieViewAxis {
       return c2 > 0 ? sub(rL, scale(v2, (2 / c2) * dot(v2, rL))) : rL;
     };
 
+    const at = (station: number): AutoMovieLoftFrame.IFrame => {
+      // March from the first knot in equal steps no longer than `step`,
+      // so a station's frame depends on the station alone.
+      const span: number = station - s0;
+      const n: number = Math.max(1, Math.ceil(Math.abs(span) / step));
+      const h: number = span / n;
+      let r: Vec3 = u0;
+      for (let i: number = 0; i < n; i++) r = reflect(s0 + i * h, r, h);
+      const t: Vec3 = tangent(station);
+      const ru: Vec3 = unit(sub(r, scale(t, dot(r, t))));
+      return { origin: point(station), u: ru, v: cross(ru, t) };
+    };
     return {
-      at: (station: number): AutoMovieLoftFrame.IFrame => {
-        // March from the first knot in equal steps no longer than `step`,
-        // so a station's frame depends on the station alone.
-        const span: number = station - s0;
-        const n: number = Math.max(1, Math.ceil(Math.abs(span) / step));
-        const h: number = span / n;
-        let r: Vec3 = u0;
-        for (let i: number = 0; i < n; i++) r = reflect(s0 + i * h, r, h);
-        const t: Vec3 = tangent(station);
-        const ru: Vec3 = unit(sub(r, scale(t, dot(r, t))));
-        return { origin: point(station), u: ru, v: cross(ru, t) };
+      at,
+      jet: (station: number): IJet => {
+        // With g = p', a = p'', j = p^(3) and L = |g|: t' = P a / L for
+        // P = I - t t, and t'' = (P j - t (t' . a) - 2 t' (t . a)) / L. A
+        // rotation minimizing frame has u' = -(u . t') t, so
+        // u'' = -(u . t'') t - (u . t') t'; v = u x t gives v' = u x t' and
+        // v'' = u x t'' - (u . t') t x t'.
+        const f: AutoMovieLoftFrame.IFrame = at(station);
+        const jets: [number, number][] = splines.map((p: AutoMovieNaturalSpline.ISpline): [number, number] => AutoMovieNaturalSpline.derivative(p, station));
+        const g: Vec3 = jets.map((d: [number, number]): number => d[0]) as Vec3;
+        const a: Vec3 = jets.map((d: [number, number]): number => d[1]) as Vec3;
+        const j: Vec3 = splines.map((p: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.jerk(p, station)) as Vec3;
+        const L: number = Math.hypot(g[0], g[1], g[2]);
+        const t: Vec3 = scale(g, 1 / L);
+        const project = (x: Vec3): Vec3 => sub(x, scale(t, dot(t, x)));
+        const t1: Vec3 = scale(project(a), 1 / L);
+        const t2: Vec3 = scale(sub(sub(project(j), scale(t, dot(t1, a))), scale(t1, 2 * dot(t, a))), 1 / L);
+        const u: Vec3 = f.u;
+        const u1: Vec3 = scale(t, -dot(u, t1));
+        const u2: Vec3 = sub(scale(t, -dot(u, t2)), scale(t1, dot(u, t1)));
+        return {
+          frame: f,
+          slope: plane(g, u1, cross(u, t1)),
+          curvature: plane(a, u2, sub(cross(u, t2), scale(cross(t, t1), dot(u, t1)))),
+        };
       },
     };
   }
