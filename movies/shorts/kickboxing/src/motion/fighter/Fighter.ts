@@ -65,9 +65,9 @@ export class Fighter {
         });
       }
     for (const action of this.answers)
-      if (action.defense === "check") {
+      if (Fighter.checks(action)) {
         const [start, end] = Reaction.checkWindow(action);
-        busy.push({ side: "left", start, end });
+        busy.push({ side: Reaction.struck(action), start, end });
       }
     this.steps = new Footsteps({
       start: input.start,
@@ -75,7 +75,7 @@ export class Fighter {
       desired: (t: number): Record<Footsteps.Side, Foot.Placement> =>
         Fighter.feet(this.stance(t)),
       heading: (t: number): number => this.stance(t).heading,
-      busy,
+      busy: Fighter.merge(busy),
       duration: 0.18,
       threshold: 0.055,
       overlap: 0.05,
@@ -177,17 +177,22 @@ export class Fighter {
     if (state.phase !== "busy")
       return { kind: "place", placement: { ...state.placement } };
     const step: Footsteps.Step = state.step!;
+    // A reservation may join overlapping windows of one leg; the action whose
+    // own window contains this second owns the leg.
+    const within = (window: readonly [number, number]): boolean => t >= window[0] && t <= window[1];
     const kick: BoutScript.Action | undefined = this.attacks.find(
       (a: BoutScript.Action): boolean =>
         BoutScript.specs[a.technique].limb === "leg" &&
-        Math.abs(Strike.window(a)[0] - step.start) < 1e-6,
+        BoutScript.specs[a.technique].side === side &&
+        within(Strike.window(a)),
     );
     if (kick)
       return { kind: "kick", action: kick, from: step.from, to: step.to };
     const check: BoutScript.Action | undefined = this.answers.find(
       (a: BoutScript.Action): boolean =>
-        a.defense === "check" &&
-        Math.abs(Reaction.checkWindow(a)[0] - step.start) < 1e-6,
+        Fighter.checks(a) &&
+        Reaction.struck(a) === side &&
+        within(Reaction.checkWindow(a)),
     );
     if (check)
       return {
@@ -218,6 +223,22 @@ export namespace Fighter {
     heading: number;
     /** 0 = fighting stance, 1 = upright walking stance. */
     walk: number;
+  }
+
+  /** Join overlapping reservations of the same leg into one support window. */
+  export function merge(busy: readonly Footsteps.Busy[]): Footsteps.Busy[] {
+    const merged: Footsteps.Busy[] = [];
+    for (const item of [...busy].sort((x: Footsteps.Busy, y: Footsteps.Busy): number => x.start - y.start)) {
+      const last: Footsteps.Busy | undefined = merged.findLast((value: Footsteps.Busy): boolean => value.side === item.side);
+      if (last && item.start <= last.end) last.end = Math.max(last.end, item.end);
+      else merged.push({ ...item });
+    }
+    return merged;
+  }
+
+  /** Whether the receiver lifts a shin check against an action: he chose the check and the strike did not go unanswered. */
+  export function checks(action: BoutScript.Action): boolean {
+    return action.answer.family === "check" && action.outcome !== "ignored";
   }
 
   /**

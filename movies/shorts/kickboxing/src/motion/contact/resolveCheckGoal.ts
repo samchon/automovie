@@ -14,6 +14,8 @@ export function resolveCheckGoal(
   const from: Foot.Goals = Foot.goals(leg.from, context.rig.footVector);
   const to: Foot.Goals = Foot.goals(leg.to, context.rig.footVector);
   const amount: number = leg.amount;
+  // The checking knee turns out toward its own side.
+  const outward: V.Value = V.scale(context.left, side === "left" ? 1 : -1);
   const ground: V.Value = V.lerp(
     from.ankle,
     to.ankle,
@@ -23,14 +25,14 @@ export function resolveCheckGoal(
     ground,
     V.add(
       V.add([0, 0.3 * amount, 0], V.scale(context.forward, 0.06 * amount)),
-      V.scale(context.left, 0.04 * amount),
+      V.scale(outward, 0.04 * amount),
     ),
   );
   const knee: V.Value = V.add(
     context.trunk.hipJoints[side],
     V.add(
       V.add(V.scale(context.forward, 0.34), [0, -0.2, 0]),
-      V.scale(context.left, 0.1),
+      V.scale(outward, 0.1),
     ),
   );
   return {

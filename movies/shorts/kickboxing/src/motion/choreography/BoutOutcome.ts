@@ -75,6 +75,28 @@ export namespace BoutOutcome {
     return progress >= GLANCE ? "glancing" : "clean";
   }
 
+  /**
+   * Second the receiver is free again after answering. A worked answer
+   * recovers by its own spec; a landed strike stuns by region; a bitten feint
+   * holds until the feint has returned plus the receiver's own reaction delay;
+   * an ignored feint never occupied him.
+   */
+  export function release(
+    technique: BoutTechnique.Name,
+    intent: BoutAnswer.IIntent,
+    outcome: Class,
+    contact: number,
+    begin: number,
+  ): number {
+    const spec: BoutTechnique.ISpec = BoutTechnique.get(technique);
+    const answer: BoutAnswer.ISpec = BoutAnswer.get(intent.family);
+    if (outcome === "bit")
+      return contact + BoutTechnique.HOLD + spec.recovery + Math.max(0, begin - (contact - spec.windup)) + answer.recover;
+    if (outcome === "ignored") return contact;
+    if (outcome === "clean" || outcome === "glancing") return contact + BoutAnswer.STUN[spec.target];
+    return contact + answer.recover;
+  }
+
   /** Interval of the answer's set fraction at contact that produces `required` for a contact strike, or null when no timing can. Feints are decided by `reacted` instead. */
   export function progressFor(technique: BoutTechnique.Name, intent: BoutAnswer.IIntent, required: Class): readonly [number, number] | null {
     if (!applies(technique, intent)) return required === "clean" ? [0, 1] : null;

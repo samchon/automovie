@@ -140,6 +140,7 @@ export namespace Strike {
       impact: Leg;
       start: Leg;
       land: Leg;
+      over?: Leg;
     },
   ): Leg {
     const spec = BoutScript.specs[action.technique];
@@ -166,16 +167,12 @@ export namespace Strike {
           ankle: Vec3.lerp(chamber.ankle, impact.ankle, contact),
         };
 
-      // A descending kick turns over the guard: the knee climbs above the
-      // impact by one shank length, so the instep and lower shin come down onto
-      // the target instead of sweeping across it.
-      const shank: number = Vec3.distance(impact.knee, impact.ankle);
-      const apex: Leg = {
-        knee: Vec3.add(impact.knee, [0, shank, 0]),
-        ankle: Vec3.add(impact.ankle, [0, shank, 0]),
-      };
-      const climb: Leg = blend(chamber, apex, Math.min(1, 2 * contact));
-      return contact < 0.5 ? climb : blend(apex, impact, 2 * contact - 1);
+      // A descending kick climbs over the receiver's head first, then the
+      // lower leg comes down onto the target.
+      const over: Leg = input.over ?? impact;
+      return contact < 0.5
+        ? blend(chamber, over, 2 * contact)
+        : blend(over, impact, 2 * contact - 1);
     }
     if (t < action.at + HOLD) return impact;
     const rechamber: number = action.at + HOLD + recovery * 0.5;

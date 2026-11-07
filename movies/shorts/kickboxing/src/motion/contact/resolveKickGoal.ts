@@ -33,6 +33,7 @@ export function resolveKickGoal(
   const goals: Strike.Leg = Strike.kick(leg.action, source.frame.time, {
     chamber: delivery.chamber,
     impact: delivery.impact,
+    ...(delivery.over ? { over: delivery.over } : {}),
     start: standing(leg.from),
     land: standing(leg.to),
   });
@@ -41,7 +42,13 @@ export function resolveKickGoal(
     aim: {
       bone: "knee",
       point: goals.knee,
-      weight: BoutScript.specs[leg.action.technique].target === "head" ? 0.5 : 0.85,
+      // The turned-over knee is the question-mark kick's defining shape.
+      weight:
+        BoutScript.specs[leg.action.technique].shape === "question-mark"
+          ? 1
+          : BoutScript.specs[leg.action.technique].target === "head"
+            ? 0.5
+            : 0.85,
     },
   };
 }

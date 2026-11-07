@@ -189,7 +189,7 @@ export namespace BoutChoreography {
         const parameters: IParameters = admit(value.name, technique, intent, required, start, free, draw, options.extents);
         const at: number = own.attack(technique, start, parameters.recovery);
         const outcome: BoutOutcome.Class = classify(technique, intent, at, parameters);
-        other.answer(answer, side, release(technique, answer, outcome, start, at, parameters.begin));
+        other.answer(answer, side, BoutOutcome.release(name, intent, outcome, at, parameters.begin));
         lastContact = Math.max(lastContact, at);
         performed.push({ at, actor: phrase.actor, technique: name, answer: intent, outcome, exchange: value.name, parameters });
       }
@@ -317,25 +317,6 @@ export namespace BoutChoreography {
     parameters: IParameters,
   ): BoutOutcome.Class {
     return BoutOutcome.decide(technique.name, intent, parameters.progress, parameters.begin < contact + technique.recovery);
-  }
-
-  /**
-   * Second the receiver is free again. A worked answer recovers by its own
-   * spec; a landed strike stuns by region; a bitten feint holds until the
-   * feint has returned plus the receiver's own reaction delay.
-   */
-  function release(
-    technique: BoutTechnique.ISpec,
-    answer: BoutAnswer.ISpec,
-    outcome: BoutOutcome.Class,
-    launch: number,
-    contact: number,
-    begin: number,
-  ): number {
-    if (outcome === "bit") return contact + BoutTechnique.HOLD + technique.recovery + Math.max(0, begin - launch) + answer.recover;
-    if (outcome === "ignored") return contact;
-    if (outcome === "clean" || outcome === "glancing") return contact + BoutAnswer.STUN[technique.target];
-    return contact + answer.recover;
   }
 
   /** Assign stable ids and combination ids in film order. */

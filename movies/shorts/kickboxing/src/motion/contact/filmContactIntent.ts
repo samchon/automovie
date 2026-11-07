@@ -1,3 +1,4 @@
+import type { BoutTechnique } from "../choreography/BoutTechnique";
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 
 /** One semantic weapon and receiving region shared by seed authoring, collider binding and event classification. This film chooses shin roundhouses and a forearm body shield; legal alternatives in other kickboxing styles do not silently change its declared technique. */
@@ -27,7 +28,7 @@ export function filmContactIntent(
     receiverSide,
     kick,
     relation,
-    sourceBone: `${side}${kick ? "LowerLeg" : "Hand"}`,
+    sourceBone: `${side}${SURFACE[spec.surface]}`,
     targetBone:
       relation === "head" || (relation === null && spec.target === "head")
         ? spec.feature === "jaw-neck"
@@ -36,12 +37,21 @@ export function filmContactIntent(
         : relation === "guard"
           ? `${receiverSide}${kick ? "LowerArm" : "Hand"}`
           : relation === "shin-check"
-            ? "leftLowerLeg"
+            ? `${receiverSide}LowerLeg`
             : spec.target === "leg"
               ? `${receiverSide}UpperLeg`
               : "chest",
   };
 }
+
+/** Provider segment carrying each registered striking surface. */
+const SURFACE: Readonly<Record<BoutTechnique.Surface, string>> = {
+  fist: "Hand",
+  shin: "LowerLeg",
+  instep: "Foot",
+  sole: "Foot",
+  knee: "LowerLeg",
+};
 
 /** Movie semantics carry no pose, numerical solver or contact receipt. */
 export namespace filmContactIntent {

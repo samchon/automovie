@@ -1,3 +1,7 @@
+import {
+  type preparePhysicalGeometry as Geometry,
+  preparePhysicalGeometry,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanSkeleton,
   IAutoMovieHumanPose,
@@ -57,6 +61,10 @@ export class FilmRuntime {
   private matReceipts: AudioMix.FloorContact[] = [];
   /** Measured landings that drive sweat, blood, flush and glove squash. */
   private impacts: ImpactEffects.Impact[] = [];
+  /** Exact collider queries shared by kick goals and the contact audit; prepared once. */
+  private geometry: Geometry.IQueries | undefined;
+  /** Solved bodies of the last evaluation. */
+  private last: Record<FilmPlan.ActorId, FilmRuntime.Solved> | undefined;
   /** Sweat and blood droplets and canvas stains; the Viewer adds its object to the scene. */
   public readonly effects: ImpactEffects = new ImpactEffects();
 
@@ -151,6 +159,7 @@ export class FilmRuntime {
   public evaluate(t: number): void {
     const begun: number = performance.now();
     const solved: Record<FilmPlan.ActorId, FilmRuntime.Solved> = this.solve(t);
+    this.last = solved;
     let residual: number = 0;
     for (const id of ["a", "b", "referee"] as const) {
       residual = Math.max(residual, solved[id].error);
@@ -184,7 +193,9 @@ export class FilmRuntime {
     if (!Number.isFinite(t) || t < 0 || t > 180)
       throw new Error("Film second outside [0,180]");
     const frames: Record<FilmPlan.ActorId, FighterBody.Frame> = this.frames(t);
-    const resolved: Resolve.Output = Resolve.requests(frames, this.rigs);
+    const resolved: Resolve.Output = Resolve.requests(frames, this.rigs, undefined, {
+      geometry: this.geometry,
+    });
     const result: Record<FilmPlan.ActorId, FilmRuntime.Solved> = {} as Record<
       FilmPlan.ActorId,
       FilmRuntime.Solved
@@ -252,12 +263,13 @@ export class FilmRuntime {
   /**
    * Measure contact and mat receipts once.
    *
-   * @evidence contracts/common.md#implementation-and-ownership For every planned contact, evaluates the film at the contact second and measures the gap between the attacking glove (sphere) or shin (segment) and the receiving glove, shin, rib capsule or jaw surface; a receipt needs the surfaces to meet (guard and shin contacts) or the weapon to sink at least 1 cm (clean hits). B's hip and shoulder arrivals are sampled at 120 Hz. Yields between groups keep the page responsive.
+   * @evidence contracts/common.md#implementation-and-ownership For every planned contact, evaluates the film at the contact second and measures the signed separation between the declared colliders of the striking surface and of the receiving region the computed outcome promises (glove and forearm, checking shin, ribs, head or the jaw–neck feature); a receipt needs the surfaces to meet (guard and shin contacts) or the weapon to sink at least 1 cm (clean hits). B's hip and shoulder arrivals are sampled at 120 Hz. Yields between groups keep the page responsive.
    * @evidence contracts/common.md#authoring-interface Resolves when all receipts are measured; progress reports completed counts.
    */
   public async prepare(
     progress?: (id: string, completed: number, total: number) => void,
   ): Promise<void> {
+    this.geometry = await preparePhysicalGeometry();
     await prepareLegacyBoutResponses(
       this,
       (contacts: readonly BoutFormulaResponse.IContact[]): void => {
@@ -294,7 +306,14 @@ export class FilmRuntime {
     for (let index: number = 0; index < planned.length; index++) {
       const action: BoutScript.Action = planned[index]!;
       this.evaluate(action.at);
-      const gap: number = FilmContactMeasure.gap(this.actors, action);
+      const gap: number = FilmContactMeasure.gap(
+        {
+          a: { rig: this.rigs.a, pose: this.last!.a.pose, root: this.last!.a.root },
+          b: { rig: this.rigs.b, pose: this.last!.b.pose, root: this.last!.b.root },
+        },
+        action,
+        this.geometry,
+      );
       const relation: AudioMix.Contact["relation"] =
         FilmEvents.relation(action)!;
       // A clean hit must sink into the receiver's skin; a guard or shin contact

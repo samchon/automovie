@@ -153,8 +153,9 @@ export namespace BoutTechnique {
     "high-kick": roundKick("high-kick", "right", "head", 0.44, 0.5, 0.8),
     "switch-kick": roundKick("switch-kick", "left", "body", 0.42, 0.45, 0.9),
     // The head version of the question-mark kick: the knee turns over the
-    // guard and the instep and distal shin descend behind the ear.
-    "brazilian-kick": roundKick("brazilian-kick", "right", "head", 0.5, 0.52, 0.82, {
+    // guard and the instep and distal shin descend behind the ear. The folded
+    // leg spans less than the extended high kick, so it is thrown from closer.
+    "brazilian-kick": roundKick("brazilian-kick", "right", "head", 0.5, 0.52, 0.7, {
       disguise: "body-kick",
       feature: "jaw-neck",
       surface: "instep",

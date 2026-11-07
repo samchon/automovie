@@ -276,9 +276,10 @@ export namespace BoutComposition {
           ["cross", cover(), "blocked"],
           ["body-hook", block(), "blocked"],
           "settle",
-          // B reads the familiar body-kick chamber and commits his left arm to
-          // his ribs; the kick lands because that read is wrong.
-          ["brazilian-kick", block("committed", "body-kick"), "clean"],
+          // B's habit: when A's right knee rises he reads the familiar body
+          // kick and drops his left arm to his ribs; the kick lands because
+          // that read is wrong.
+          ["brazilian-kick", block("reactive", "body-kick"), "clean"],
         ),
       ),
     ),
