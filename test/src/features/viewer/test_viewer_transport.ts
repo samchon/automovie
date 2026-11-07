@@ -60,23 +60,23 @@ export async function test_viewer_transport(): Promise<void> {
   );
 
   // Superseded and refused sound.
-  let release: () => void = (): void => {};
+  let release: (value: undefined) => void = (): void => {};
   const audible: AutoMovieViewerTransport = new AutoMovieViewerTransport({
     place: (): void => {},
     available: [0, 1],
     fps: 30,
     now: (): number => wall,
     audio: {
-      play: (): Promise<void> =>
-        new Promise<void>(
-          (resolve: () => void): void => void (release = resolve),
-        ),
+      play: (): Promise<undefined> =>
+        new Promise<undefined>((resolve: (value: undefined) => void): void => {
+          release = resolve;
+        }),
       pause: (): void => {},
     },
   });
   const pending: Promise<void> = audible.play();
   audible.pause();
-  release();
+  release(undefined);
   await pending;
   const silent: AutoMovieViewerTransport = new AutoMovieViewerTransport({
     place: (): void => {},
