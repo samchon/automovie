@@ -1,6 +1,6 @@
 # Authored motion and physical reactions
 
-This study selects the ownership boundary for the polygon bout. Ordinary movement keeps authored support and placement; selected reacting regions become dynamic, and the finishing fall requires an actual qualifying contact. This matches issue 3083's staging contract. It does not qualify the failed full-body simulation or excuse the independent standing-controller failure. The [reference index](index.md#physical-handoff-supplement-2026-11-07) records retained originals and their identities.
+This study selects the ownership boundary for the polygon bout. Ordinary movement keeps authored support and placement; selected reacting regions become dynamic, and the finishing fall requires an actual qualifying contact. This matches issue 3083's staging contract. It does not qualify the failed full-body simulation or excuse the independent standing-controller failure. The [reference index](../index.md#physical-handoff-supplement-2026-11-07) records retained originals and their identities.
 
 ## What the sources establish
 

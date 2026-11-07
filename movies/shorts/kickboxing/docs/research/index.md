@@ -1,6 +1,6 @@
 # Kickboxing reference archive
 
-The original 2026-11-03 archive contains 44 media files: three original PDFs, one selected-page PDF extract, 39 images and one original public instructional MP4. The 2026-11-06 guard supplement below adds one PDF and three page images. Every retained image was opened locally. The original MP4 was sampled at named timestamps, not continuously watched or listened to. These references inform choreography and rig constraints; they are not runtime assets, measured film acceptance or continuous video review. Read the [technique guide](techniques.md) with its current [kick-guard decision](kick-guard.md).
+The original 2026-11-03 archive contains 44 media files: three original PDFs, one selected-page PDF extract, 39 images and one original public instructional MP4. The 2026-11-06 guard supplement below adds one PDF and three page images. Every retained image was opened locally. The original MP4 was sampled at named timestamps, not continuously watched or listened to. These references inform choreography and rig constraints; they are not runtime assets, measured film acceptance or continuous video review. Read the [technique guide](kickboxing/techniques.md) with its current [kick-guard decision](kickboxing/kick-guard.md).
 
 `private/` contains copyrighted or rights-unconfirmed material for the user's local research, is ignored by git and must not be published or copied to `public/`. `licensed/` contains the confirmed CC BY 4.0 PLOS material with attribution below; its presence does not adopt it into the film. No login, paywall or access restriction was bypassed. Network bytes are retained as supplied; IBA/support page PNGs are CPU rasterizations and PLOS PNGs are original embedded figure images extracted from the unchanged source PDF. England Boxing p.85 is a one-page extract from its official manual, with a complete1600px page raster and two unchanged native336x333 embedded JPEG photographs. The Skarbowsky JPEG is the original1280x720 branded promotional poster. No photograph was cropped, enhanced or otherwise edited. MP4 frames are CPU-decoded full-resolution 1280x720 PNGs; original timestamps in seconds identify each sample, not frame-accurate contact times.
 
@@ -73,7 +73,7 @@ All images below are individually opened full-size samples from CHAN. The black-
 
 ## Construction use and evidence boundary
 
-The film's chosen stepped left-glove touch needs independently supported feet and a following-foot landing, not copying a ceremony photograph. Its punches/body defenses require actual knee/pelvis/root-level intent to survive endpoint fitting. The body-shield lesson reads the already retained Chan08–11s samples from the blue-shirted defender’s side; exact arm contact is obscured. Named outside-slip photos and the high-shield poster add distinct response shapes, while complete photographic punch-defense and high-shield cycles remain unavailable. Its low/check/body/high-kick phases need own-side anatomical hip/knee/ankle frames, distinct check versus kick foot orientation, forefoot-pivot versus whole-foot contact, actual receiver geometry and recoil/landing continuity. The images inform these relations; perspective images cannot supply calibrated joint degrees, force, pressure or a full-cycle proof. The durable [technique guide](techniques.md) explains each start, trigger, support transfer, attack/response/recovery and generic Human-control constraint, with direct local image links. Current film barrier/root-cause details also remain in the ignored `.cache/kickboxing3040/reference-atlas.md` and `reference-study.md` at the repository root.
+The film's chosen stepped left-glove touch needs independently supported feet and a following-foot landing, not copying a ceremony photograph. Its punches/body defenses require actual knee/pelvis/root-level intent to survive endpoint fitting. The body-shield lesson reads the already retained Chan08–11s samples from the blue-shirted defender’s side; exact arm contact is obscured. Named outside-slip photos and the high-shield poster add distinct response shapes, while complete photographic punch-defense and high-shield cycles remain unavailable. Its low/check/body/high-kick phases need own-side anatomical hip/knee/ankle frames, distinct check versus kick foot orientation, forefoot-pivot versus whole-foot contact, actual receiver geometry and recoil/landing continuity. The images inform these relations; perspective images cannot supply calibrated joint degrees, force, pressure or a full-cycle proof. The durable [technique guide](kickboxing/techniques.md) explains each start, trigger, support transfer, attack/response/recovery and generic Human-control constraint, with direct local image links. Current film barrier/root-cause details also remain in the ignored `.cache/kickboxing3040/reference-atlas.md` and `reference-study.md` at the repository root.
 
 The retained Evolve pixels close the earlier remote-image access gap. The new CHAN sampled sequence adds full-body support/lift/delivery/paired defensive lift/recoil/replant evidence for one cooperative low-kick exchange. It does not provide synchronized multiview, measured contact, a high-kick/check full cycle or continuous-video evidence. The GLORY low-kick article remains a useful original coaching text; its available cover download was a256px blurred thumbnail and was rejected/deleted. WAKO's institutional brochure was useful for the atlas's source-discrimination audit but was not retained here as a technical sequence. No reference clip was continuously watched or listened to, and no production runtime output was produced.
 
@@ -130,7 +130,7 @@ Complete retained media identity manifest. Original files remain unchanged. IBA/
 
 ## Kick-guard supplement, 2026-11-06
 
-Ruerngsa, Charuad and Cartmell, *Muay Thai: The Art of Fighting*, [original PDF](https://www.singto.co.uk/Techniques/artoffightingebook.pdf), pp.98–100, supports the [current guard decision](kick-guard.md). The source identifies itself as a draft and states restrictive reuse terms; it is retained only in ignored private research. No publication or asset redistribution is authorized. The actual PDF and all three full-page rasters were opened locally. Poppler produced the PNGs at 1400 px maximum dimension; font-substitution warnings were emitted, and the inspected pages are readable. They supply text and an isolated photograph, without calibrated motion or continuous phase evidence.
+Ruerngsa, Charuad and Cartmell, *Muay Thai: The Art of Fighting*, [original PDF](https://www.singto.co.uk/Techniques/artoffightingebook.pdf), pp.98–100, supports the [current guard decision](kickboxing/kick-guard.md). The source identifies itself as a draft and states restrictive reuse terms; it is retained only in ignored private research. No publication or asset redistribution is authorized. The actual PDF and all three full-page rasters were opened locally. Poppler produced the PNGs at 1400 px maximum dimension; font-substitution warnings were emitted, and the inspected pages are readable. They supply text and an isolated photograph, without calibrated motion or continuous phase evidence.
 
 | Local file | Bytes | SHA-256 |
 | --- | ---: | --- |
@@ -143,7 +143,7 @@ The synthesis also distinguishes original coaching prose by Aaron Swenson and Tr
 
 ## Physical-control supplement, 2026-11-06
 
-Yin, Loken and van de Panne, *SIMBICON: Simple Biped Locomotion Control*, SIGGRAPH 2007, [original university PDF](https://www.cs.ubc.ca/~van/papers/2007-siggraph-simbicon.pdf), Section 3 and Figure 3, supports the [physical-control method study](physical-control.md). The original and the complete third page are retained in ignored private research; redistribution rights have not been established. Poppler rendered page 3 at 1400 px maximum dimension, and the saved page was opened and its equations and diagrams inspected. The source describes biped locomotion, without qualifying this film's kicks or supplying its controller gains.
+Yin, Loken and van de Panne, *SIMBICON: Simple Biped Locomotion Control*, SIGGRAPH 2007, [original university PDF](https://www.cs.ubc.ca/~van/papers/2007-siggraph-simbicon.pdf), Section 3 and Figure 3, supports the [physical-control method study](physics/physical-control.md). The original and the complete third page are retained in ignored private research; redistribution rights have not been established. Poppler rendered page 3 at 1400 px maximum dimension, and the saved page was opened and its equations and diagrams inspected. The source describes biped locomotion, without qualifying this film's kicks or supplying its controller gains.
 
 | Local file | Bytes | SHA-256 |
 | --- | ---: | --- |
@@ -154,11 +154,11 @@ The study also reads Drake's original signed-distance contract and its pinned di
 
 ## Generation receiver
 
-[Planned Seedance 2.5 handoff contract](seedance-2-5-handoff-contract.md) carries the sibling production's 2026-11-05 observation of the official BytePlus model, input-budget, prompt-guide and task pages, with its source record identity. No page, image or video was downloaded or retained for it; its limits support only the planned [video prompts](../../docs/prompts/videos/source-bindings.md) and must be rechecked before any submission.
+[Planned Seedance 2.5 handoff contract](video-generation/seedance-2-5-handoff-contract.md) carries the sibling production's 2026-11-05 observation of the official BytePlus model, input-budget, prompt-guide and task pages, with its source record identity. No page, image or video was downloaded or retained for it; its limits support only the planned [video prompts](../../docs/prompts/videos/source-bindings.md) and must be rechecked before any submission.
 
 ## Physical-handoff supplement, 2026-11-07
 
-The [handoff study](physical-handoff.md) uses the following original HTML files, fetched on 2026-11-07 and reopened locally to inspect the relevant passages. These are text/API references, not motion captures or measured production results. Redistribution rights have not been established; the unchanged originals remain in ignored private research. Rapier's guide identifies JavaScript 0.21, matching installed 0.21.0. Epic's animation guide identifies Unreal 5.8, while UE-72912 explicitly concerns historical 4.20/4.21. Unity's retained impulse page selects 6000.0. The original URLs and exact section locators appear in the study.
+The [handoff study](physics/physical-handoff.md) uses the following original HTML files, fetched on 2026-11-07 and reopened locally to inspect the relevant passages. These are text/API references, not motion captures or measured production results. Redistribution rights have not been established; the unchanged originals remain in ignored private research. Rapier's guide identifies JavaScript 0.21, matching installed 0.21.0. Epic's animation guide identifies Unreal 5.8, while UE-72912 explicitly concerns historical 4.20/4.21. Unity's retained impulse page selects 6000.0. The original URLs and exact section locators appear in the study.
 
 | Local original | Bytes | SHA-256 |
 | --- | ---: | --- |
@@ -170,7 +170,7 @@ The [handoff study](physical-handoff.md) uses the following original HTML files,
 
 ## Guard-constraint supplement, 2026-11-07
 
-The [guard feasibility study](physical-handoff.md#guard-feasibility-and-simultaneous-constraints) reads Drake's original relative-point and geometry-distance API, Russ Tedrake's differential IK notes and TRAC-IK's own algorithm and collision limitations. The original pages below were fetched and reopened locally on 2026-11-07. These are robotics method references, not measured kickboxing motion or a replacement for actual consumer verification. Retained originals remain in ignored private research; their original URLs and section locators appear in the study.
+The [guard feasibility study](physics/physical-handoff.md#guard-feasibility-and-simultaneous-constraints) reads Drake's original relative-point and geometry-distance API, Russ Tedrake's differential IK notes and TRAC-IK's own algorithm and collision limitations. The original pages below were fetched and reopened locally on 2026-11-07. These are robotics method references, not measured kickboxing motion or a replacement for actual consumer verification. Retained originals remain in ignored private research; their original URLs and section locators appear in the study.
 
 | Local original | Bytes | SHA-256 |
 | --- | ---: | --- |
@@ -181,8 +181,32 @@ The [guard feasibility study](physical-handoff.md#guard-feasibility-and-simultan
 
 The same retained MIT chapter was reread at its full-extension Jacobian example, and the Northwestern transcript was fetched and reopened locally for the bounded seed study. The author's UCSD IK survey PDF returned a gateway error and then timed out; search excerpts from that survey are not used as an inspected derivation or implementation decision.
 
+## Studies {#studies}
+
+| Study | Owns |
+| --- | --- |
+| [Technique laws](kickboxing/techniques.md#laws) | Punch and kick timing, reach, surfaces, defenses and the kick guard |
+| [Exchanges](kickboxing/exchanges.md) | Combinations, defense, feints, habits, the outcome table and activity targets |
+| [Brazilian kick](kickboxing/brazilian-kick.md) | The finishing kick's law and its earlier measurement on the rig |
+| [Rules](kickboxing/rules.md) | Legal actions, the knockdown count and medical limits |
+| [Ring generalship](kickboxing/ring-generalship.md) | Footwork laws and targets |
+| [Kick guard](kickboxing/kick-guard.md) | The owner's guard choice during kicks |
+| [Referee mechanics](officiating/referee.md) | Positioning, signals, knockdown procedure and targets |
+| [Fight coverage](cinematography/fight-coverage.md) | The camera law and its targets |
+| [Physical control](physics/physical-control.md), [physical handoff](physics/physical-handoff.md) | Physics integration studies of the earlier runtime |
+| [Seedance handoff](video-generation/seedance-2-5-handoff-contract.md) | The planned video-generation receiver |
+
+## Timing sources, 2026-11-08 {#timing-sources}
+
+Read from their original public pages on 2026-11-08; no media was retained.
+
+- Piorkowski, Lees and Barton (2011), *Single maximal versus combination punch kinematics*, Sports Biomechanics 10(1):1–11, [author manuscript](https://knowledge.lancashire.ac.uk/3757/1/piorkowski-et-al-2011-punch-kinematics.pdf), Results: combination contact-to-contact times. Author manuscript; rights not established; cited, not retained.
+- Stanley, Thomson, Smith and Lamb (2018), *An analysis of the three-dimensional kinetics and kinematics of maximal effort punches among amateur boxers*, International Journal of Performance Analysis in Sport 18(5):835–854, [DOI](https://doi.org/10.1080/24748668.2018.1525651), abstract: jab delivery time. The full text was not accessible.
+- Gavagan and Sayers (2017), PLOS ONE 12(8):e0182645, [article](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0182645), Results: Muay Thai roundhouse execution and phase times. CC BY 4.0, already retained under `licensed/plos`.
+- Bohannon (1997), *Comfortable and maximum walking speed of adults aged 20–79 years*, Age and Ageing 26(1):15–19, [DOI](https://doi.org/10.1093/ageing/26.1.15): comfortable walking speed of men in their twenties, cited for the referee's walking limit from the published abstract.
+
 ## Championship exchanges, 2026-11-07
 
-The bout's combinations, feints, checks, clinch rule and Brazilian-kick finish follow the web sources cited in [championship exchanges](championship-exchanges.md). No media was retained for that study.
+The bout's combinations, feints, checks, clinch rule and Brazilian-kick finish follow the web sources cited in [championship exchanges](kickboxing/exchanges.md). No media was retained for that study.
 
-The ring-generalship footwork, referee positioning and fight-coverage laws, with the measurable targets the movie's unit tests check, follow the sources cited in [ring craft](ring-craft.md). The finish's reachability on the real rig is measured in [Brazilian kick feasibility](brazilian-kick-feasibility.md). No media was retained for either study; the officiating manual and the time-motion paper were read from their original public PDFs.
+The ring-generalship footwork, referee positioning and fight-coverage laws, with the measurable targets the movie's unit tests check, follow the sources cited in [ring craft](kickboxing/ring-generalship.md). The finish's reachability on the real rig is measured in [Brazilian kick feasibility](kickboxing/brazilian-kick.md). No media was retained for either study; the officiating manual and the time-motion paper were read from their original public PDFs.
