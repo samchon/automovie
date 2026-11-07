@@ -144,8 +144,13 @@ export namespace AutoMovieViewAxis {
    * @param z The origin's `z` knots by strictly increasing height, mm.
    * @returns The axis; past the end knots each offset continues straight.
    */
-  export function level(x: readonly IAxisKnot1[], z: readonly IAxisKnot1[]): IAxis {
-    const spline = (knots: readonly IAxisKnot1[]): AutoMovieNaturalSpline.ISpline =>
+  export function level(
+    x: readonly IAxisKnot1[],
+    z: readonly IAxisKnot1[],
+  ): IAxis {
+    const spline = (
+      knots: readonly IAxisKnot1[],
+    ): AutoMovieNaturalSpline.ISpline =>
       AutoMovieNaturalSpline.create(
         knots.map((k: IAxisKnot1): number => k.station),
         knots.map((k: IAxisKnot1): number => k.value),
@@ -153,15 +158,25 @@ export namespace AutoMovieViewAxis {
     const sx: AutoMovieNaturalSpline.ISpline = spline(x);
     const sz: AutoMovieNaturalSpline.ISpline = spline(z);
     const at = (station: number): AutoMovieLoftFrame.IFrame => ({
-      origin: [AutoMovieNaturalSpline.evaluate(sx, station), station, AutoMovieNaturalSpline.evaluate(sz, station)],
+      origin: [
+        AutoMovieNaturalSpline.evaluate(sx, station),
+        station,
+        AutoMovieNaturalSpline.evaluate(sz, station),
+      ],
       u: [1, 0, 0],
       v: [0, 0, 1],
     });
     return {
       at,
       jet: (station: number): IJet => {
-        const [x1, x2]: [number, number] = AutoMovieNaturalSpline.derivative(sx, station);
-        const [z1, z2]: [number, number] = AutoMovieNaturalSpline.derivative(sz, station);
+        const [x1, x2]: [number, number] = AutoMovieNaturalSpline.derivative(
+          sx,
+          station,
+        );
+        const [z1, z2]: [number, number] = AutoMovieNaturalSpline.derivative(
+          sz,
+          station,
+        );
         return {
           frame: at(station),
           slope: plane([x1, 1, z1], STILL, STILL),
@@ -199,13 +214,18 @@ export namespace AutoMovieViewAxis {
    * @param up The chart's first axis at the first segment.
    * @returns The axis, or the broken admission rule.
    */
-  export function jointed(centres: readonly Vec3[], halves: readonly number[], up: Vec3): IAxis | string {
+  export function jointed(
+    centres: readonly Vec3[],
+    halves: readonly number[],
+    up: Vec3,
+  ): IAxis | string {
     const c: ICourse | string = course(centres, halves);
     if (typeof c === "string") return c;
     const { directions, turns }: ICourse = c;
     const u0: Vec3 = sub(up, scale(directions[0]!, dot(up, directions[0]!)));
     const lu: number = Math.hypot(u0[0], u0[1], u0[2]);
-    if (!(lu > 1e-9 * Math.hypot(up[0], up[1], up[2]))) return "up lies along the first segment";
+    if (!(lu > 1e-9 * Math.hypot(up[0], up[1], up[2])))
+      return "up lies along the first segment";
     const first: Vec3 = scale(u0, 1 / lu);
     const walk = (station: number): IWalk => {
       // Walk the segments and turns up to the station.
@@ -235,13 +255,23 @@ export namespace AutoMovieViewAxis {
               tangent,
               axis: t.axis,
               rate: (t.angle * 30 * x * x * (1 - x) * (1 - x)) / (2 * t.half),
-              acceleration: (t.angle * 60 * x * (1 - x) * (1 - 2 * x)) / (4 * t.half * t.half),
+              acceleration:
+                (t.angle * 60 * x * (1 - x) * (1 - 2 * x)) /
+                (4 * t.half * t.half),
             };
         } else point = add(point, scale(tangent, share));
         at += share;
-        if (share < 2 * t.half) return { point, u, tangent, axis: STILL, rate: 0, acceleration: 0 };
+        if (share < 2 * t.half)
+          return { point, u, tangent, axis: STILL, rate: 0, acceleration: 0 };
       }
-      return { point: add(point, scale(tangent, station - at)), u, tangent, axis: STILL, rate: 0, acceleration: 0 };
+      return {
+        point: add(point, scale(tangent, station - at)),
+        u,
+        tangent,
+        axis: STILL,
+        rate: 0,
+        acceleration: 0,
+      };
     };
     return {
       at: (station: number): AutoMovieLoftFrame.IFrame => {
@@ -254,15 +284,30 @@ export namespace AutoMovieViewAxis {
         // b (k x r) + a^2 k x (k x r); the origin's derivative is the tangent.
         const w: IWalk = walk(station);
         const d1 = (r: Vec3): Vec3 => scale(cross(w.axis, r), w.rate);
-        const d2 = (r: Vec3): Vec3 => add(scale(cross(w.axis, r), w.acceleration), scale(cross(w.axis, cross(w.axis, r)), w.rate * w.rate));
+        const d2 = (r: Vec3): Vec3 =>
+          add(
+            scale(cross(w.axis, r), w.acceleration),
+            scale(cross(w.axis, cross(w.axis, r)), w.rate * w.rate),
+          );
         const t1: Vec3 = d1(w.tangent);
         const t2: Vec3 = d2(w.tangent);
         const u1: Vec3 = d1(w.u);
         const u2: Vec3 = d2(w.u);
         return {
           frame: frame(w.point, w.u, w.tangent),
-          slope: plane(w.tangent, u1, add(cross(u1, w.tangent), cross(w.u, t1))),
-          curvature: plane(t1, u2, add(add(cross(u2, w.tangent), scale(cross(u1, t1), 2)), cross(w.u, t2))),
+          slope: plane(
+            w.tangent,
+            u1,
+            add(cross(u1, w.tangent), cross(w.u, t1)),
+          ),
+          curvature: plane(
+            t1,
+            u2,
+            add(
+              add(cross(u2, w.tangent), scale(cross(u1, t1), 2)),
+              cross(w.u, t2),
+            ),
+          ),
         };
       },
     };
@@ -307,14 +352,23 @@ export namespace AutoMovieViewAxis {
    * @param halves Each interior centre's turn half length, mm.
    * @returns The runs, or the broken admission rule.
    */
-  export function runs(centres: readonly Vec3[], halves: readonly number[]): IRun[] | string {
+  export function runs(
+    centres: readonly Vec3[],
+    halves: readonly number[],
+  ): IRun[] | string {
     const c: ICourse | string = course(centres, halves);
     if (typeof c === "string") return c;
     return c.lengths.map((length: number, i: number): IRun => {
       const before: number = i >= 1 ? c.turns[i - 1]!.setback : 0;
       const after: number = i < c.turns.length ? c.turns[i]!.setback : 0;
-      const start: number = i === 0 ? 0 : c.turns[i - 1]!.start + 2 * c.turns[i - 1]!.half;
-      return { from: before, to: length - after, start, end: start + length - before - after };
+      const start: number =
+        i === 0 ? 0 : c.turns[i - 1]!.start + 2 * c.turns[i - 1]!.half;
+      return {
+        from: before,
+        to: length - after,
+        start,
+        end: start + length - before - after,
+      };
     });
   }
 
@@ -331,10 +385,14 @@ export namespace AutoMovieViewAxis {
   }
 
   /** The course through the centres, or the broken admission rule. */
-  function course(centres: readonly Vec3[], halves: readonly number[]): ICourse | string {
+  function course(
+    centres: readonly Vec3[],
+    halves: readonly number[],
+  ): ICourse | string {
     const m: number = centres.length;
     if (m < 2) return `${m} centres, at least two needed`;
-    if (halves.length !== m - 2) return `${halves.length} half lengths for ${m - 2} interior centres`;
+    if (halves.length !== m - 2)
+      return `${halves.length} half lengths for ${m - 2} interior centres`;
     const directions: Vec3[] = [];
     const lengths: number[] = [];
     for (let i: number = 0; i + 1 < m; i++) {
@@ -354,11 +412,19 @@ export namespace AutoMovieViewAxis {
       const b: Vec3 = directions[i]!;
       const c: number = Math.max(-1, Math.min(1, dot(a, b)));
       const angle: number = Math.acos(c);
-      if (!(angle < Math.PI - 1e-9)) return `segments ${i - 1} and ${i} are opposite`;
+      if (!(angle < Math.PI - 1e-9))
+        return `segments ${i - 1} and ${i} are opposite`;
       const n: Vec3 = cross(a, b);
       const ln: number = Math.hypot(n[0], n[1], n[2]);
       const axis: Vec3 = ln > 0 ? scale(n, 1 / ln) : [0, 0, 0];
-      const turn: ITurn = { centre: i, half: h, angle: ln > 0 ? angle : 0, axis, setback: h, start: 0 };
+      const turn: ITurn = {
+        centre: i,
+        half: h,
+        angle: ln > 0 ? angle : 0,
+        axis,
+        setback: h,
+        start: 0,
+      };
       if (turn.angle > 0) {
         const displacement: Vec3 = integrate(a, turn, 2 * h);
         // D = d (a + b): read d along the bisector a + b.
@@ -370,7 +436,8 @@ export namespace AutoMovieViewAxis {
     for (let i: number = 0; i + 1 < m; i++) {
       const before: number = i >= 1 ? turns[i - 1]!.setback : 0;
       const after: number = i + 1 < m - 1 ? turns[i]!.setback : 0;
-      if (!(before + after < lengths[i]!)) return `the turns' set-backs ${before} and ${after} overrun segment ${i} of length ${lengths[i]}`;
+      if (!(before + after < lengths[i]!))
+        return `the turns' set-backs ${before} and ${after} overrun segment ${i} of length ${lengths[i]}`;
     }
 
     // Arclength of each turn's start.
@@ -428,7 +495,11 @@ export namespace AutoMovieViewAxis {
   }
 
   /** The plane square to a tangent, its first axis `u` and `v = u x t`. */
-  function frame(origin: Vec3, u: Vec3, tangent: Vec3): AutoMovieLoftFrame.IFrame {
+  function frame(
+    origin: Vec3,
+    u: Vec3,
+    tangent: Vec3,
+  ): AutoMovieLoftFrame.IFrame {
     return { origin, u: [...u], v: cross(u, tangent) };
   }
 
@@ -442,7 +513,10 @@ export namespace AutoMovieViewAxis {
   function rotate(a: Vec3, axis: Vec3, angle: number): Vec3 {
     const c: number = Math.cos(angle);
     const s: number = Math.sin(angle);
-    return add(add(scale(a, c), scale(cross(axis, a), s)), scale(axis, dot(axis, a) * (1 - c)));
+    return add(
+      add(scale(a, c), scale(cross(axis, a), s)),
+      scale(axis, dot(axis, a) * (1 - c)),
+    );
   }
 
   /** Gauss-Legendre nodes and weights on `[-1, 1]`, ten points. */
@@ -474,7 +548,10 @@ export namespace AutoMovieViewAxis {
       for (const [x, w] of GAUSS) {
         const sigma: number = width * (p + (x + 1) / 2);
         const turned: number = turn.angle * smoothstep(sigma / (2 * turn.half));
-        sum = add(sum, scale(rotate(tangent, turn.axis, turned), (w * width) / 2));
+        sum = add(
+          sum,
+          scale(rotate(tangent, turn.axis, turned), (w * width) / 2),
+        );
       }
     return sum;
   }
@@ -491,7 +568,11 @@ export namespace AutoMovieViewAxis {
    * @returns The axis; stations past the end knots continue the spline's
    *   straight end tangents.
    */
-  export function minimal(knots: readonly IAxisKnot[], u: Vec3, step: number): IAxis {
+  export function minimal(
+    knots: readonly IAxisKnot[],
+    u: Vec3,
+    step: number,
+  ): IAxis {
     const stations: number[] = knots.map((k: IAxisKnot): number => k.station);
     const splines: AutoMovieNaturalSpline.ISpline[] = [0, 1, 2].map(
       (c: number): AutoMovieNaturalSpline.ISpline =>
@@ -501,9 +582,16 @@ export namespace AutoMovieViewAxis {
         ),
     );
     const point = (s: number): Vec3 =>
-      splines.map((p: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.evaluate(p, s)) as Vec3;
+      splines.map((p: AutoMovieNaturalSpline.ISpline): number =>
+        AutoMovieNaturalSpline.evaluate(p, s),
+      ) as Vec3;
     const tangent = (s: number): Vec3 =>
-      unit(splines.map((p: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.derivative(p, s)[0]) as Vec3);
+      unit(
+        splines.map(
+          (p: AutoMovieNaturalSpline.ISpline): number =>
+            AutoMovieNaturalSpline.derivative(p, s)[0],
+        ) as Vec3,
+      );
 
     // The frame at the first knot: u square to the tangent there.
     const s0: number = stations[0]!;
@@ -548,22 +636,35 @@ export namespace AutoMovieViewAxis {
         // u'' = -(u . t'') t - (u . t') t'; v = u x t gives v' = u x t' and
         // v'' = u x t'' - (u . t') t x t'.
         const f: AutoMovieLoftFrame.IFrame = at(station);
-        const jets: [number, number][] = splines.map((p: AutoMovieNaturalSpline.ISpline): [number, number] => AutoMovieNaturalSpline.derivative(p, station));
+        const jets: [number, number][] = splines.map(
+          (p: AutoMovieNaturalSpline.ISpline): [number, number] =>
+            AutoMovieNaturalSpline.derivative(p, station),
+        );
         const g: Vec3 = jets.map((d: [number, number]): number => d[0]) as Vec3;
         const a: Vec3 = jets.map((d: [number, number]): number => d[1]) as Vec3;
-        const j: Vec3 = splines.map((p: AutoMovieNaturalSpline.ISpline): number => AutoMovieNaturalSpline.jerk(p, station)) as Vec3;
+        const j: Vec3 = splines.map(
+          (p: AutoMovieNaturalSpline.ISpline): number =>
+            AutoMovieNaturalSpline.jerk(p, station),
+        ) as Vec3;
         const L: number = Math.hypot(g[0], g[1], g[2]);
         const t: Vec3 = scale(g, 1 / L);
         const project = (x: Vec3): Vec3 => sub(x, scale(t, dot(t, x)));
         const t1: Vec3 = scale(project(a), 1 / L);
-        const t2: Vec3 = scale(sub(sub(project(j), scale(t, dot(t1, a))), scale(t1, 2 * dot(t, a))), 1 / L);
+        const t2: Vec3 = scale(
+          sub(sub(project(j), scale(t, dot(t1, a))), scale(t1, 2 * dot(t, a))),
+          1 / L,
+        );
         const u: Vec3 = f.u;
         const u1: Vec3 = scale(t, -dot(u, t1));
         const u2: Vec3 = sub(scale(t, -dot(u, t2)), scale(t1, dot(u, t1)));
         return {
           frame: f,
           slope: plane(g, u1, cross(u, t1)),
-          curvature: plane(a, u2, sub(cross(u, t2), scale(cross(t, t1), dot(u, t1)))),
+          curvature: plane(
+            a,
+            u2,
+            sub(cross(u, t2), scale(cross(t, t1), dot(u, t1))),
+          ),
         };
       },
     };

@@ -88,7 +88,9 @@ export namespace AutoMovieNaturalSpline {
       ys[k]! +
       t *
         (slope +
-          t * (curvatures[k]! / 2 + (t * (curvatures[k + 1]! - curvatures[k]!)) / (6 * h)))
+          t *
+            (curvatures[k]! / 2 +
+              (t * (curvatures[k + 1]! - curvatures[k]!)) / (6 * h)))
     );
   }
 
@@ -118,8 +120,12 @@ export namespace AutoMovieNaturalSpline {
       (h * (2 * curvatures[k]! + curvatures[k + 1]!)) / 6;
     const inside: boolean = x >= xs[0]! && x <= xs[n - 1]!;
     return [
-      slope + curvatures[k]! * t + ((curvatures[k + 1]! - curvatures[k]!) * t * t) / (2 * h),
-      inside ? curvatures[k]! + ((curvatures[k + 1]! - curvatures[k]!) * t) / h : 0,
+      slope +
+        curvatures[k]! * t +
+        ((curvatures[k + 1]! - curvatures[k]!) * t * t) / (2 * h),
+      inside
+        ? curvatures[k]! + ((curvatures[k + 1]! - curvatures[k]!) * t) / h
+        : 0,
     ];
   }
 

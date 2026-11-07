@@ -153,9 +153,14 @@ export namespace AutoMovieSolidMesh {
    * @returns Its owner index.
    */
   export function owner(mesh: IMesh, surface: IAutoMovieSolidSurface): number {
-    const known: number = mesh.owners.findIndex((o: IOwner): boolean => o.name === surface.name);
+    const known: number = mesh.owners.findIndex(
+      (o: IOwner): boolean => o.name === surface.name,
+    );
     if (known >= 0) return known;
-    mesh.owners.push({ name: surface.name, point: (a: number, b: number): Vec3 => surface.jet(a, b).p });
+    mesh.owners.push({
+      name: surface.name,
+      point: (a: number, b: number): Vec3 => surface.jet(a, b).p,
+    });
     return mesh.owners.length - 1;
   }
 
@@ -197,17 +202,25 @@ export namespace AutoMovieSolidMesh {
     const partOwner: number = owner(mesh, seam.part);
     const blendOwner: number = owner(mesh, seam.blend);
     const count: number = seam.hostLoop.chart.length;
-    const grid: number[][] = seam.hostLoop.chart.map((h: [number, number], k: number): number[] => {
-      const phase: number = (2 * Math.PI * k) / count;
-      const p: [number, number] = seam.partLoop.chart[k]!;
-      const ids: number[] = [vertex(mesh, seam.host.jet(h[0], h[1]).p, hostOwner, h[0], h[1])];
-      for (let i: number = 1; i < seam.rows; i++) {
-        const s: number = (seam.length * i) / seam.rows;
-        ids.push(vertex(mesh, seam.blend.jet(s, phase).p, blendOwner, s, phase));
-      }
-      ids.push(vertex(mesh, seam.part.jet(p[0], p[1]).p, partOwner, p[0], p[1]));
-      return ids;
-    });
+    const grid: number[][] = seam.hostLoop.chart.map(
+      (h: [number, number], k: number): number[] => {
+        const phase: number = (2 * Math.PI * k) / count;
+        const p: [number, number] = seam.partLoop.chart[k]!;
+        const ids: number[] = [
+          vertex(mesh, seam.host.jet(h[0], h[1]).p, hostOwner, h[0], h[1]),
+        ];
+        for (let i: number = 1; i < seam.rows; i++) {
+          const s: number = (seam.length * i) / seam.rows;
+          ids.push(
+            vertex(mesh, seam.blend.jet(s, phase).p, blendOwner, s, phase),
+          );
+        }
+        ids.push(
+          vertex(mesh, seam.part.jet(p[0], p[1]).p, partOwner, p[0], p[1]),
+        );
+        return ids;
+      },
+    );
 
     // The blend's quads, turned to the host's outward side at the tested quad's column.
     const triangles: [number, number, number][] = [];
@@ -220,13 +233,22 @@ export namespace AutoMovieSolidMesh {
         triangles.push([a, b, c], [a, c, d]);
       }
     emit(mesh, triangles, (t: number): Vec3 => {
-      const h: [number, number] = seam.hostLoop.chart[Math.floor(t / (2 * seam.rows))]!;
+      const h: [number, number] =
+        seam.hostLoop.chart[Math.floor(t / (2 * seam.rows))]!;
       return outward(seam.host, h[0], h[1]);
     });
 
     return {
-      host: { kind: seam.hostLoop.kind, vertices: grid.map((g: number[]): number => g[0]!), chart: seam.hostLoop.chart },
-      part: { kind: seam.partLoop.kind, vertices: grid.map((g: number[]): number => g[seam.rows]!), chart: seam.partLoop.chart },
+      host: {
+        kind: seam.hostLoop.kind,
+        vertices: grid.map((g: number[]): number => g[0]!),
+        chart: seam.hostLoop.chart,
+      },
+      part: {
+        kind: seam.partLoop.kind,
+        vertices: grid.map((g: number[]): number => g[seam.rows]!),
+        chart: seam.partLoop.chart,
+      },
     };
   }
 
@@ -248,17 +270,28 @@ export namespace AutoMovieSolidMesh {
     const cellsV: number = periodic ? nv : nv - 1;
 
     // Each grid vertex's surface jet once, and whether it is kept.
-    const jets: IAutoMovieSolidSurface.IJet[][] = stations.map((u: number): IAutoMovieSolidSurface.IJet[] =>
-      phases.map((v: number): IAutoMovieSolidSurface.IJet => surface.jet(u, v)),
+    const jets: IAutoMovieSolidSurface.IJet[][] = stations.map(
+      (u: number): IAutoMovieSolidSurface.IJet[] =>
+        phases.map(
+          (v: number): IAutoMovieSolidSurface.IJet => surface.jet(u, v),
+        ),
     );
     const kept: boolean[][] = stations.map((u: number, i: number): boolean[] =>
       phases.map((v: number, j: number): boolean => {
-        const du: number = Math.min(...[stations[i - 1], stations[i + 1]].filter((x: number | undefined): x is number => x !== undefined).map((x: number): number => Math.abs(x - u)));
-        const vNext: number = phases[j + 1] ?? (periodic ? phases[0]! + surface.period! : phases[j - 1]!);
+        const du: number = Math.min(
+          ...[stations[i - 1], stations[i + 1]]
+            .filter((x: number | undefined): x is number => x !== undefined)
+            .map((x: number): number => Math.abs(x - u)),
+        );
+        const vNext: number =
+          phases[j + 1] ??
+          (periodic ? phases[0]! + surface.period! : phases[j - 1]!);
         const dv: number = Math.abs(vNext - v);
         const j0: IAutoMovieSolidSurface.IJet = jets[i]![j]!;
         const margin: number = 0.5 * Math.min(norm(j0.u) * du, norm(j0.v) * dv);
-        return loops.every((l: ILoop): boolean => AutoMovieSolidMeshLoop.keeps(l, u, v, j0, margin, surface.period));
+        return loops.every((l: ILoop): boolean =>
+          AutoMovieSolidMeshLoop.keeps(l, u, v, j0, margin, surface.period),
+        );
       }),
     );
 
@@ -268,7 +301,13 @@ export namespace AutoMovieSolidMesh {
       const key: number = i * nv + (j % nv);
       const known: number | undefined = ids.get(key);
       if (known !== undefined) return known;
-      const created: number = vertex(mesh, jets[i]![j % nv]!.p, id, stations[i]!, phases[j % nv]!);
+      const created: number = vertex(
+        mesh,
+        jets[i]![j % nv]!.p,
+        id,
+        stations[i]!,
+        phases[j % nv]!,
+      );
       ids.set(key, created);
       return created;
     };
@@ -278,13 +317,26 @@ export namespace AutoMovieSolidMesh {
     for (let i: number = 0; i + 1 < nu; i++)
       for (let j: number = 0; j < cellsV; j++) {
         const j1: number = (j + 1) % nv;
-        if (!(kept[i]![j]! && kept[i + 1]![j]! && kept[i + 1]![j1]! && kept[i]![j1]!)) continue;
+        if (
+          !(
+            kept[i]![j]! &&
+            kept[i + 1]![j]! &&
+            kept[i + 1]![j1]! &&
+            kept[i]![j1]!
+          )
+        )
+          continue;
         const a: number = at(i, j);
         const b: number = at(i + 1, j);
         const c: number = at(i + 1, j1);
         const d: number = at(i, j1);
         triangles.push([a, b, c], [a, c, d]);
-        for (const [p, q] of [[a, b], [b, c], [c, d], [d, a]] as [number, number][]) {
+        for (const [p, q] of [
+          [a, b],
+          [b, c],
+          [c, d],
+          [d, a],
+        ] as [number, number][]) {
           const reverse: string = `${q},${p}`;
           if (edges.has(reverse)) edges.delete(reverse);
           else edges.add(`${p},${q}`);
@@ -294,7 +346,12 @@ export namespace AutoMovieSolidMesh {
         chart.set(c, [stations[i + 1]!, phases[j1]!]);
         chart.set(d, [stations[i]!, phases[j1]!]);
       }
-    emit(mesh, triangles, (surface.orientation === 1) !== (input.inverted === true) ? 1 : -1, true);
+    emit(
+      mesh,
+      triangles,
+      (surface.orientation === 1) !== (input.inverted === true) ? 1 : -1,
+      true,
+    );
 
     // The drawn cells' boundary as cycles: each boundary edge's start maps
     // to its end, so following it walks one cycle.
@@ -323,20 +380,35 @@ export namespace AutoMovieSolidMesh {
       let best: number = -1;
       let distance: number = Infinity;
       open.forEach((cycle: number[], k: number): void => {
-        const d: number = AutoMovieSolidMeshLoop.nearest(loop, cycle.map((v: number): [number, number] => chart.get(v)!), surface.period);
+        const d: number = AutoMovieSolidMeshLoop.nearest(
+          loop,
+          cycle.map((v: number): [number, number] => chart.get(v)!),
+          surface.period,
+        );
         if (d < distance) {
           distance = d;
           best = k;
         }
       });
       if (best < 0) continue;
-      const cycle: number[] = AutoMovieSolidMeshLoop.aligned(mesh, loop.vertices, open.splice(best, 1)[0]!);
+      const cycle: number[] = AutoMovieSolidMeshLoop.aligned(
+        mesh,
+        loop.vertices,
+        open.splice(best, 1)[0]!,
+      );
       const band: [number, number, number][] = AutoMovieSolidZip.band(
-        { vertices: loop.vertices, angles: AutoMovieSolidMeshLoop.arc(mesh, loop.vertices) },
+        {
+          vertices: loop.vertices,
+          angles: AutoMovieSolidMeshLoop.arc(mesh, loop.vertices),
+        },
         { vertices: cycle, angles: AutoMovieSolidMeshLoop.arc(mesh, cycle) },
       );
       const sign: number = input.inverted === true ? -1 : 1;
-      emit(mesh, band, (k: number): Vec3 => scale(facing(mesh, surface, band[k]!), sign));
+      emit(
+        mesh,
+        band,
+        (k: number): Vec3 => scale(facing(mesh, surface, band[k]!), sign),
+      );
     }
     return open;
   }
@@ -357,15 +429,45 @@ export namespace AutoMovieSolidMesh {
    * @param periodic Whether the face is periodic in phase.
    * @returns The stations to draw, strictly increasing.
    */
-  function separated(stations: readonly number[], loops: readonly ILoop[], periodic: boolean): number[] {
-    const reach = (kind: ILoop["kind"], pick: (a: number, b: number) => number, from: number): number =>
-      loops.filter((l: ILoop): boolean => l.kind === kind).reduce((x: number, l: ILoop): number => l.chart.reduce((y: number, c: [number, number]): number => pick(y, c[0]), x), from);
+  function separated(
+    stations: readonly number[],
+    loops: readonly ILoop[],
+    periodic: boolean,
+  ): number[] {
+    const reach = (
+      kind: ILoop["kind"],
+      pick: (a: number, b: number) => number,
+      from: number,
+    ): number =>
+      loops
+        .filter((l: ILoop): boolean => l.kind === kind)
+        .reduce(
+          (x: number, l: ILoop): number =>
+            l.chart.reduce(
+              (y: number, c: [number, number]): number => pick(y, c[0]),
+              x,
+            ),
+          from,
+        );
     const low: number = reach("start", Math.max, -Infinity);
     const high: number = reach("end", Math.min, Infinity);
-    if (!periodic || !Number.isFinite(low) || !Number.isFinite(high) || !(high > low)) return [...stations];
-    if (stations.filter((s: number): boolean => s > low && s < high).length >= 3) return [...stations];
-    const added: number[] = [1, 2, 3].map((k: number): number => low + ((high - low) * k) / 4).filter((s: number): boolean => !stations.includes(s));
-    return [...stations, ...added].sort((a: number, b: number): number => a - b);
+    if (
+      !periodic ||
+      !Number.isFinite(low) ||
+      !Number.isFinite(high) ||
+      !(high > low)
+    )
+      return [...stations];
+    if (
+      stations.filter((s: number): boolean => s > low && s < high).length >= 3
+    )
+      return [...stations];
+    const added: number[] = [1, 2, 3]
+      .map((k: number): number => low + ((high - low) * k) / 4)
+      .filter((s: number): boolean => !stations.includes(s));
+    return [...stations, ...added].sort(
+      (a: number, b: number): number => a - b,
+    );
   }
 
   /**
@@ -378,10 +480,19 @@ export namespace AutoMovieSolidMesh {
    * @param surface The face they close.
    * @param inverted Whether the face is a diff's cutter (`IFace.inverted`).
    */
-  export function close(mesh: IMesh, triangles: readonly [number, number, number][], surface: IAutoMovieSolidSurface, inverted: boolean): void {
+  export function close(
+    mesh: IMesh,
+    triangles: readonly [number, number, number][],
+    surface: IAutoMovieSolidSurface,
+    inverted: boolean,
+  ): void {
     if (triangles.length === 0) return;
     const sign: number = inverted ? -1 : 1;
-    emit(mesh, triangles, (k: number): Vec3 => scale(facing(mesh, surface, triangles[k]!), sign));
+    emit(
+      mesh,
+      triangles,
+      (k: number): Vec3 => scale(facing(mesh, surface, triangles[k]!), sign),
+    );
   }
 
   /**
@@ -398,7 +509,12 @@ export namespace AutoMovieSolidMesh {
    * @param out The outward normal of the face near the band.
    * @returns The triangles, outward.
    */
-  export function bridge(mesh: IMesh, ring: readonly number[], cycle: readonly number[], out: Readonly<Vec3>): [number, number, number][] {
+  export function bridge(
+    mesh: IMesh,
+    ring: readonly number[],
+    cycle: readonly number[],
+    out: Readonly<Vec3>,
+  ): [number, number, number][] {
     const turned: number[] = AutoMovieSolidMeshLoop.aligned(mesh, ring, cycle);
     const band: [number, number, number][] = AutoMovieSolidZip.band(
       { vertices: [...ring], angles: AutoMovieSolidMeshLoop.arc(mesh, ring) },
@@ -409,7 +525,15 @@ export namespace AutoMovieSolidMesh {
       const n: Vec3 = normal(mesh, t);
       if (norm(n) > norm(best)) best = n;
     }
-    return dot(best, out) < 0 ? band.map(([a, b, c]: [number, number, number]): [number, number, number] => [a, c, b]) : band;
+    return dot(best, out) < 0
+      ? band.map(
+          ([a, b, c]: [number, number, number]): [number, number, number] => [
+            a,
+            c,
+            b,
+          ],
+        )
+      : band;
   }
 
   /**
@@ -434,7 +558,13 @@ export namespace AutoMovieSolidMesh {
    * @param b Its owner coordinate `v`.
    * @returns Its index.
    */
-  export function vertex(mesh: IMesh, p: Readonly<Vec3>, owner: number, a: number, b: number): number {
+  export function vertex(
+    mesh: IMesh,
+    p: Readonly<Vec3>,
+    owner: number,
+    a: number,
+    b: number,
+  ): number {
     mesh.positions.push(p[0], p[1], p[2]);
     mesh.coordinates.push(owner, a, b);
     return mesh.positions.length / 3 - 1;
@@ -456,27 +586,39 @@ export namespace AutoMovieSolidMesh {
    * @param sign A face's orientation (`known`), or the outward normal at a triangle of the set.
    * @param known Whether `sign` is the orientation itself.
    */
-  function emit(mesh: IMesh, triangles: readonly [number, number, number][], sign: number | ((t: number) => Vec3), known: boolean = false): void {
+  function emit(
+    mesh: IMesh,
+    triangles: readonly [number, number, number][],
+    sign: number | ((t: number) => Vec3),
+    known: boolean = false,
+  ): void {
     let flip: boolean;
     if (known || typeof sign === "number") flip = (sign as number) < 0;
     else {
       let best: number = -1;
       let size: number = 0;
-      triangles.forEach((t: readonly [number, number, number], k: number): void => {
-        const n: number = norm(normal(mesh, t));
-        if (n > size) {
-          size = n;
-          best = k;
-        }
-      });
+      triangles.forEach(
+        (t: readonly [number, number, number], k: number): void => {
+          const n: number = norm(normal(mesh, t));
+          if (n > size) {
+            size = n;
+            best = k;
+          }
+        },
+      );
       flip = best >= 0 && dot(normal(mesh, triangles[best]!), sign(best)) < 0;
     }
-    for (const [a, b, c] of triangles) mesh.indices.push(...(flip ? [a, c, b] : [a, b, c]));
+    for (const [a, b, c] of triangles)
+      mesh.indices.push(...(flip ? [a, c, b] : [a, b, c]));
   }
 
   /** A triangle's unnormalised normal. */
   function normal(mesh: IMesh, t: readonly [number, number, number]): Vec3 {
-    const p = (k: number): Vec3 => [mesh.positions[3 * k]!, mesh.positions[3 * k + 1]!, mesh.positions[3 * k + 2]!];
+    const p = (k: number): Vec3 => [
+      mesh.positions[3 * k]!,
+      mesh.positions[3 * k + 1]!,
+      mesh.positions[3 * k + 2]!,
+    ];
     return cross(sub(p(t[1]), p(t[0])), sub(p(t[2]), p(t[0])));
   }
 
@@ -485,10 +627,18 @@ export namespace AutoMovieSolidMesh {
    * normals at its corners' chart points on that face, so a corner on a
    * pole, where the chart's normal vanishes, leaves the others to decide.
    */
-  function facing(mesh: IMesh, surface: IAutoMovieSolidSurface, t: readonly [number, number, number]): Vec3 {
+  function facing(
+    mesh: IMesh,
+    surface: IAutoMovieSolidSurface,
+    t: readonly [number, number, number],
+  ): Vec3 {
     const n: Vec3 = [0, 0, 0];
     for (const v of t) {
-      const o: Vec3 = outward(surface, mesh.coordinates[3 * v + 1]!, mesh.coordinates[3 * v + 2]!);
+      const o: Vec3 = outward(
+        surface,
+        mesh.coordinates[3 * v + 1]!,
+        mesh.coordinates[3 * v + 2]!,
+      );
       const l: number = norm(o);
       if (l > 0) for (let c: number = 0; c < 3; c++) n[c] = n[c]! + o[c]! / l;
     }
@@ -496,10 +646,17 @@ export namespace AutoMovieSolidMesh {
   }
 
   /** A surface's outward normal at a chart point. */
-  function outward(surface: IAutoMovieSolidSurface, u: number, v: number): Vec3 {
+  function outward(
+    surface: IAutoMovieSolidSurface,
+    u: number,
+    v: number,
+  ): Vec3 {
     const j: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
     const n: Vec3 = cross(j.u, j.v);
-    return [n[0] * surface.orientation, n[1] * surface.orientation, n[2] * surface.orientation];
+    return [
+      n[0] * surface.orientation,
+      n[1] * surface.orientation,
+      n[2] * surface.orientation,
+    ];
   }
-
 }

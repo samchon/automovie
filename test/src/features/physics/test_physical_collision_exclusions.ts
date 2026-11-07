@@ -6,6 +6,9 @@ import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/
 import type { AutoMoviePhysicsCache } from "../../../../packages/engine/src/physics/AutoMoviePhysicsCache";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
+/** Twelve native steps. */
+const DURATION: number = 0.1;
+
 /** Declared overlapping pivot neighbours exert no spurious self-contact impulse.
  *
  * Scenarios:
@@ -64,10 +67,13 @@ export async function test_physical_collision_exclusions(): Promise<void> {
       reason: "Fixture's intentionally overlapping pivot solids.",
     },
   ];
+  // Twelve steps: an admitted overlap separates within a few steps, and a
+  // checkpoint every four steps gives the late impulse a restored world.
   const input: Simulation.IInput = PhysicalFixtures.input(
-    [PhysicalFixtures.body("rig", profile, 2)],
-    2,
+    [PhysicalFixtures.body("rig", profile, DURATION)],
+    DURATION,
   );
+  input.checkpointEvery = 4;
   const excluded: Simulation = await Simulation.compute(input);
   const includedInput: Simulation.IInput = structuredClone(input);
   includedInput.bodies[0]!.profile.collisionExclusions = [];
@@ -75,7 +81,7 @@ export async function test_physical_collision_exclusions(): Promise<void> {
   const drift: (run: Simulation) => number = (run: Simulation): number =>
     Vector3.length(
       Vector3.subtract(
-        run.cache.at(2).bodies.rig!.tip!.position,
+        run.cache.at(DURATION).bodies.rig!.tip!.position,
         tip.neutral.position,
       ),
     );
@@ -89,7 +95,7 @@ export async function test_physical_collision_exclusions(): Promise<void> {
   );
   const edited: Simulation.IInput = structuredClone(input);
   edited.impulses.push({
-    step: 200,
+    step: 9,
     body: "rig",
     bone: "tip",
     point: tip.neutral.position,

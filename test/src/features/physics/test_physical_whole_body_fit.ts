@@ -42,10 +42,11 @@ export function test_physical_whole_body_fit(): void {
   const hip: P.IJoint = rerooted.joints.find(
     (joint: P.IJoint): boolean => joint.id === "leftUpperLeg",
   )!;
-  TestValidator.equals("inverted path", changed.sort(), [
-    "leftLowerLeg",
-    "leftUpperLeg",
-  ]);
+  TestValidator.equals(
+    "inverted path",
+    changed.sort((a: string, b: string): number => a.localeCompare(b)),
+    ["leftLowerLeg", "leftUpperLeg"],
+  );
   TestValidator.predicate(
     "inverted hip",
     hip.parent === "leftUpperLeg" &&
