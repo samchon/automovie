@@ -9,7 +9,8 @@ import type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
  * at the previous part's end; a parallel group starts every part at its own
  * start and ends at the latest end; `at` starts its part at the named
  * anchor's contact instant (its start when the timing gives no contact) plus
- * the offset. For each intent the production's `timing` gives its duration
+ * the offset, and the walk continues after the later of the cursor and that
+ * part's end. For each intent the production's `timing` gives its duration
  * and optional contact offset, then `outcome` and `state` read the entries
  * placed so far, so an outcome may depend on earlier state. The result is
  * deeply frozen; the same composition and laws give the same schedule.

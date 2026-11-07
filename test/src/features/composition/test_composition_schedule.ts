@@ -14,7 +14,7 @@ import { resolveAutoMovieSchedule } from "../../../../packages/engine/src/compos
 /** Intents compose immutably, resolve on the film clock with the production's laws, and are read, judged and measured without rewriting.
  *
  * Scenarios:
- * 1. `next` and `with` return new chains and leave the original unchanged; a trailing sequence flattens.
+ * 1. `next` and `with` return new chains of the caller's class and leave the original unchanged; a trailing sequence flattens.
  * 2. A sequence places parts end to start, a parallel group ends with its longest part, and `at` starts an answer at its anchor's contact plus the offset.
  * 3. Outcome and state laws read the entries placed before them; a missing anchor and a duplicate anchor are refused.
  * 4. Evaluation is pure and seekable: active entries with their phase, and each subject's latest ended state.
@@ -36,12 +36,25 @@ export function test_composition_schedule(): void {
   const chained: AutoMovieChain = first
     .next(act("a", "turn"))
     .next(act("a", "reach"));
+  // A production subclass keeps its vocabulary after every combinator.
+  class Performer extends AutoMovieChain {
+    public turn(): Performer {
+      return this.next({ subject: "a", capability: "turn" });
+    }
+  }
+  const own: Performer = new Performer(first.node)
+    .turn()
+    .with(act("b", "watch"))
+    .turn();
   TestValidator.predicate(
-    "immutable flattening chain",
+    "immutable flattening chain of the subclass",
     first.node.kind === "intent" &&
       chained.node.kind === "sequence" &&
       chained.node.parts.length === 3 &&
-      Object.isFrozen(chained),
+      own instanceof Performer &&
+      own.node.kind === "sequence" &&
+      own.node.parts.length === 2 &&
+      own.node.parts[0]!.kind === "parallel",
   );
 
   // a: reach (1 s, contact 0.4) -> turn (0.5 s) -> reach; b answers at r1 + 0.1.
