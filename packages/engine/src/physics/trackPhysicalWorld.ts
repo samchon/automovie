@@ -18,6 +18,7 @@ import { configurePhysicalJointMotor } from "./configurePhysicalJointMotor";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { physicalGravityTorques } from "./physicalGravityTorques";
+import { physicalJointEffort } from "./physicalJointEffort";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { readPhysicalScene } from "./readPhysicalScene";
 import { releasePhysicalTracking } from "./releasePhysicalTracking";
@@ -424,14 +425,17 @@ export function trackPhysicalWorld(
               recovery[body.id]?.offsets[limb.bone] !== undefined) &&
             limb.chain.includes(joint.child),
         ) ?? false;
-      const strength: number =
-        (target.jointStrength && Object.hasOwn(target.jointStrength, joint.id)
-          ? target.jointStrength[joint.id]!
-          : effort.strength) *
-        (moving ? (body.balance!.jointStrength ?? 1) : 1) *
-        ((softened.get(`${body.id}/${joint.child}`) ?? -Infinity) >= seconds
-          ? body.complianceStrength
-          : 1);
+      const strength: number = physicalJointEffort({
+        effort: effort.strength,
+        override:
+          target.jointStrength && Object.hasOwn(target.jointStrength, joint.id)
+            ? target.jointStrength[joint.id]!
+            : undefined,
+        recovery: moving ? (body.balance!.jointStrength ?? 1) : undefined,
+        softenedUntil: softened.get(`${body.id}/${joint.child}`),
+        seconds,
+        compliance: body.complianceStrength,
+      });
       const desiredVelocity: IAutoMovieVector3 = Quaternion.rotateVector(
         Quaternion.inverse(desiredParent),
         Vector3.subtract(

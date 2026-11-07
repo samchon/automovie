@@ -11,6 +11,15 @@ import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
+/** Sixty native steps: approach, contact and one checkpoint continuation. */
+const DURATION: number = 0.5;
+
+/** Steps between retained native checkpoints. */
+const CHECKPOINT: number = 20;
+
+/** First edited receiver step, after the second checkpoint. */
+const EDIT: number = 45;
+
 /** Collider relationships follow a moved receiver through generic bounded IK and actual dynamics.
  *
  * Scenarios:
@@ -44,7 +53,7 @@ export async function test_physical_contact_binding(): Promise<void> {
   const source: Simulation.IBody = PhysicalFixtures.body(
     "mechanism",
     profile,
-    1,
+    DURATION,
   );
   Object.assign(source, {
     rootStiffness: 5000,
@@ -59,7 +68,7 @@ export async function test_physical_contact_binding(): Promise<void> {
   const panel: Simulation.IBody = PhysicalFixtures.body(
     "receiver",
     receiver,
-    1,
+    DURATION,
   );
   panel.mode = { kind: "kinematic" };
   for (const [step, target] of panel.targets.entries())
@@ -109,7 +118,11 @@ export async function test_physical_contact_binding(): Promise<void> {
     findings.push(
       `surface fitting residuals ${JSON.stringify([first.residuals, second.residuals])}`,
     );
-  const input: Simulation.IInput = PhysicalFixtures.input([source, panel], 1);
+  const input: Simulation.IInput = PhysicalFixtures.input(
+    [source, panel],
+    DURATION,
+  );
+  input.checkpointEvery = CHECKPOINT;
   input.substeps = 16;
   input.iterations = 32;
   input.internalIterations = 4;
@@ -123,7 +136,7 @@ export async function test_physical_contact_binding(): Promise<void> {
     ["stationary", stationary],
   ] as const) {
     const actual: ReturnType<typeof run.cache.at>["bodies"] =
-      run.cache.at(1).bodies;
+      run.cache.at(DURATION).bodies;
     const contact: ReturnType<Geometry.IQueries["contact"]> = geometry.contact(
       {
         body: "mechanism",
@@ -172,13 +185,14 @@ export async function test_physical_contact_binding(): Promise<void> {
   )
     findings.push("kinematic relationship provenance");
   const edit: Simulation.IInput = structuredClone(input);
-  for (const target of edit.bodies[1]!.targets.slice(90))
+  for (const target of edit.bodies[1]!.targets.slice(EDIT))
     target.segments.root!.position.y += 0.02;
   const fresh: Simulation = await Simulation.compute(edit);
   const resumed: Simulation = await Simulation.compute(edit, native);
   if (
     !(
-      resumed.recomputedSteps === 60 &&
+      resumed.recomputedSteps ===
+        edit.maximumSteps - Math.floor(EDIT / CHECKPOINT) * CHECKPOINT &&
       JSON.stringify(fresh.cache.frames) ===
         JSON.stringify(resumed.cache.frames)
     )

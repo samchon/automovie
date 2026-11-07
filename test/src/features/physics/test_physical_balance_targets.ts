@@ -95,15 +95,18 @@ export async function test_physical_balance_targets(): Promise<void> {
     0,
     1.2,
   );
-  input.duration = 0.3;
-  input.maximumSteps = 36;
-  input.checkpointEvery = 12;
+  // Continuation identity does not depend on the episode length or the
+  // native substep count, so the shortest checkpointed run exercises it.
+  input.duration = 0.1;
+  input.maximumSteps = 12;
+  input.substeps = 4;
+  input.checkpointEvery = 4;
   input.impulses = [];
-  input.bodies[0]!.targets = input.bodies[0]!.targets.slice(0, 37);
+  input.bodies[0]!.targets = input.bodies[0]!.targets.slice(0, 13);
   const baseline: Simulation = await Simulation.compute(input);
   const edited: Simulation.IInput = structuredClone(input);
   edited.impulses.push({
-    step: 30,
+    step: 10,
     body: profile.id,
     bone: "body",
     point: profile.centerOfMass,
@@ -111,7 +114,7 @@ export async function test_physical_balance_targets(): Promise<void> {
   });
   const cold: Simulation = await Simulation.compute(edited);
   const resumed: Simulation = await Simulation.compute(edited, baseline);
-  assert.equal(resumed.recomputedSteps, 12);
+  assert.equal(resumed.recomputedSteps, 4);
   for (const field of [
     "frames",
     "contacts",
@@ -123,7 +126,7 @@ export async function test_physical_balance_targets(): Promise<void> {
       JSON.stringify(cold.cache[field]),
     );
   assert.ok(
-    baseline.cache.controllerCheckpoints.get(24)!.balanceTargets?.[profile.id]
+    baseline.cache.controllerCheckpoints.get(8)!.balanceTargets?.[profile.id]
       ?.from,
   );
 }

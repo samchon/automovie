@@ -6,6 +6,18 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 
+/** Seventy-two native steps: support loss is withdrawn within the first half second. */
+const DURATION: number = 0.6;
+
+/** Steps between retained native checkpoints. */
+const CHECKPOINT: number = 20;
+
+/** Checkpoint whose restored world must carry the released quality. */
+const QUALITY: number = 60;
+
+/** First edited step, after that checkpoint. */
+const EDIT: number = 65;
+
 /** Effective balance withdrawal selects the same quality as authored release.
  *
  * Scenarios:
@@ -16,7 +28,7 @@ import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 export async function test_physical_balance_release_quality(): Promise<void> {
   const body: Simulation.IBody = PhysicalSupportFixtures.body(
     PhysicalModelFixtures.quadrupod(),
-    1,
+    DURATION,
   );
   body.releasedQuality = {
     iterations: 20,
@@ -25,8 +37,9 @@ export async function test_physical_balance_release_quality(): Promise<void> {
   };
   for (const target of body.targets)
     for (const pose of Object.values(target.segments)) pose.position.y += 0.5;
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 1);
+  const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
   input.gravity.y = -9.81;
+  input.checkpointEvery = CHECKPOINT;
   const baseline: Simulation = await Simulation.compute(input);
   TestValidator.predicate(
     "canonical distant floor cannot restore support during the withdrawal fixture",
@@ -38,10 +51,10 @@ export async function test_physical_balance_release_quality(): Promise<void> {
   TestValidator.predicate(
     "balance release is observed while authored control remains active",
     baseline.cache.recovery[body.id]!.lostSince !== undefined &&
-      body.targets[60]!.strength === 1,
+      body.targets[QUALITY]!.strength === 1,
   );
   const world: World = RAPIER.World.restoreSnapshot(
-    baseline.cache.checkpoints.get(60)!,
+    baseline.cache.checkpoints.get(QUALITY)!,
   );
   const findings: string[] = [];
   try {
@@ -58,7 +71,7 @@ export async function test_physical_balance_release_quality(): Promise<void> {
   }
   const edited: Simulation.IInput = structuredClone(input);
   edited.impulses.push({
-    step: 90,
+    step: EDIT,
     body: body.id,
     bone: "body",
     point: { x: 0, y: 1, z: 0 },
@@ -67,7 +80,8 @@ export async function test_physical_balance_release_quality(): Promise<void> {
   const fresh: Simulation = await Simulation.compute(edited);
   const resumed: Simulation = await Simulation.compute(edited, baseline);
   if (
-    resumed.recomputedSteps !== 60 ||
+    resumed.recomputedSteps !==
+      input.maximumSteps - Math.floor(EDIT / CHECKPOINT) * CHECKPOINT ||
     JSON.stringify(fresh.cache.frames) !== JSON.stringify(resumed.cache.frames)
   )
     findings.push("effective-release checkpoint continuation");

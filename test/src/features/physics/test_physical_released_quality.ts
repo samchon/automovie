@@ -5,7 +5,34 @@ import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
-/** Native per-island quality survives checkpoints and is withdrawn when authored control returns. */
+/** Twenty-four native steps cover release, return and one continuation. */
+const DURATION: number = 0.2;
+
+/** Steps between retained native checkpoints. */
+const CHECKPOINT: number = 4;
+
+/** Step where authored strength returns. */
+const RETURN: number = 12;
+
+/** Step of the impulse that the released body receives. */
+const IMPULSE: number = 3;
+
+/** Checkpoint inside the release, carrying the released budget. */
+const RELEASED: number = 8;
+
+/** Checkpoint after the return, with the budget withdrawn. */
+const RETURNED: number = 16;
+
+/** First edited step, inside the release after its checkpoint. */
+const EDIT: number = 9;
+
+/** Native per-island quality survives checkpoints and is withdrawn when authored control returns.
+ *
+ * Scenarios:
+ * 1. A released sphere and an articulation under reflex joint effort carry the declared extra solver budget in a restored checkpoint.
+ * 2. Returned authored strength withdraws that budget in a later checkpoint.
+ * 3. An edited impulse resumes from the last checkpoint and matches a fresh computation exactly.
+ */
 export async function test_physical_released_quality(): Promise<void> {
   for (const reflex of [false, true]) {
     const body: Simulation.IBody = PhysicalFixtures.body(
@@ -13,7 +40,7 @@ export async function test_physical_released_quality(): Promise<void> {
       reflex
         ? PhysicalModelFixtures.stickman().profile
         : PhysicalFixtures.sphere(),
-      2,
+      DURATION,
     );
     const root: string = body.profile.segments.find(
       (segment: (typeof body.profile.segments)[number]): boolean =>
@@ -33,13 +60,14 @@ export async function test_physical_released_quality(): Promise<void> {
       },
     });
     for (const [step, target] of body.targets.entries())
-      target.strength = step < 120 ? 0 : 1;
+      target.strength = step < RETURN ? 0 : 1;
     if (reflex)
       for (const target of body.targets)
         target.jointStrength = { [body.profile.joints[0]!.id]: 0.2 };
-    const input: Simulation.IInput = PhysicalFixtures.input([body], 2);
+    const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
+    input.checkpointEvery = CHECKPOINT;
     input.impulses.push({
-      step: 30,
+      step: IMPULSE,
       body: body.id,
       bone: root,
       point: { x: 0, y: 1, z: 0 },
@@ -48,8 +76,8 @@ export async function test_physical_released_quality(): Promise<void> {
     const baseline: Simulation = await Simulation.compute(input);
     const findings: string[] = [];
     for (const [step, expected] of [
-      [60, [8, 7]],
-      [180, [0, 0]],
+      [RELEASED, [8, 7]],
+      [RETURNED, [0, 0]],
     ] as const) {
       const world: World = RAPIER.World.restoreSnapshot(
         baseline.cache.checkpoints.get(step)!,
@@ -69,7 +97,7 @@ export async function test_physical_released_quality(): Promise<void> {
     }
     const edited: Simulation.IInput = structuredClone(input);
     edited.impulses.push({
-      step: 90,
+      step: EDIT,
       body: body.id,
       bone: root,
       point: { x: 0, y: 1, z: 0 },
@@ -78,7 +106,8 @@ export async function test_physical_released_quality(): Promise<void> {
     const fresh: Simulation = await Simulation.compute(edited);
     const resumed: Simulation = await Simulation.compute(edited, baseline);
     if (
-      resumed.recomputedSteps !== 180 ||
+      resumed.recomputedSteps !==
+        input.maximumSteps - Math.floor(EDIT / CHECKPOINT) * CHECKPOINT ||
       JSON.stringify(resumed.cache.frames) !==
         JSON.stringify(fresh.cache.frames)
     )

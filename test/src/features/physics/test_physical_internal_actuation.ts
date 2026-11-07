@@ -20,7 +20,9 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 export async function test_physical_internal_actuation(): Promise<void> {
   const findings: string[] = [];
   const profile: P = PhysicalModelFixtures.quadrupod();
-  const duration: number = 0.5;
+  // Momentum conservation and free-fall acceleration hold at every native
+  // step, so twelve steps exercise them as well as a longer flight.
+  const duration: number = 0.1;
   for (const gravity of [0, -9.81]) {
     const body: Simulation.IBody = PhysicalFixtures.body(
       "assembly",

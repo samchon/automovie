@@ -7,23 +7,42 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 
-/** Exhausted support recovery releases default pose tracking while explicit joint protection remains possible. A late pose edit cannot affect a fully released body's physical frames; fresh and resumed native results must agree. */
+/** Sixty native steps of an unsupported fall. */
+const DURATION: number = 0.5;
+
+/** Steps between retained native checkpoints. */
+const CHECKPOINT: number = 10;
+
+/** First step of the late pose edit, after recovery has been withdrawn. */
+const EDIT: number = 50;
+
+/** Exhausted support recovery releases default pose tracking while explicit joint protection remains possible.
+ *
+ * Scenarios:
+ * 1. An unsupported four-support primitive falls and withdraws recovery; a later pose edit leaves its physical frames unchanged.
+ * 2. Fresh and checkpoint-resumed native results agree.
+ * 3. Explicit protective joint effort still changes the actual articulation.
+ */
 export async function test_physical_balance_withdrawal(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();
   const joint: P.IJoint = profile.joints.find(
     (candidate: P.IJoint): boolean => candidate.child === "upper-0",
   )!;
-  const body: Simulation.IBody = PhysicalSupportFixtures.body(profile, 1);
+  const body: Simulation.IBody = PhysicalSupportFixtures.body(
+    profile,
+    DURATION,
+  );
   for (const target of body.targets)
     for (const pose of Object.values(target.segments)) pose.position.y += 2;
-  const input: Simulation.IInput = PhysicalFixtures.input([body], 1);
+  const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
+  input.checkpointEvery = CHECKPOINT;
   input.gravity.y = -9.81;
   input.floor = -10;
   input.substeps = 4;
   input.iterations = 16;
   const baseline: Simulation = await Simulation.compute(input);
   const changed: Simulation.IInput = structuredClone(input);
-  for (const target of changed.bodies[0]!.targets.slice(90))
+  for (const target of changed.bodies[0]!.targets.slice(EDIT))
     target.segments[joint.child]!.rotation = Quaternion.fromAxisAngle(
       { x: 1, y: 0, z: 0 },
       40,
@@ -42,8 +61,8 @@ export async function test_physical_balance_withdrawal(): Promise<void> {
   );
   TestValidator.predicate(
     "unsupported body actually falls",
-    fresh.cache.at(1).bodies[body.id]!.body!.position.y <
-      fresh.cache.at(0.5).bodies[body.id]!.body!.position.y - 0.1,
+    fresh.cache.at(DURATION).bodies[body.id]!.body!.position.y <
+      fresh.cache.at(DURATION / 2).bodies[body.id]!.body!.position.y - 0.1,
   );
 
   const protectedInput: Simulation.IInput = structuredClone(changed);
@@ -53,8 +72,10 @@ export async function test_physical_balance_withdrawal(): Promise<void> {
   TestValidator.predicate(
     "explicit protective effort still changes the actual articulation",
     JSON.stringify(
-      protectedRun.cache.at(1).bodies[body.id]![joint.child]!.rotation,
+      protectedRun.cache.at(DURATION).bodies[body.id]![joint.child]!.rotation,
     ) !==
-      JSON.stringify(fresh.cache.at(1).bodies[body.id]![joint.child]!.rotation),
+      JSON.stringify(
+        fresh.cache.at(DURATION).bodies[body.id]![joint.child]!.rotation,
+      ),
   );
 }

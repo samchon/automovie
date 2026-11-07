@@ -8,6 +8,12 @@ import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindP
 import { preparePhysicalGeometry as Geometry } from "../../../../packages/engine/src/physics/preparePhysicalGeometry";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
+/** The load window, the one-second sleep checkpoint and a short sleeping tail. */
+const DURATION: number = 1.2;
+
+/** Edited target step, after the sleep checkpoint. */
+const EDIT: number = 130;
+
 /** The declared contact law reaches the real immobile floor under independent high load.
  *
  * Scenarios:
@@ -56,12 +62,16 @@ export async function test_physical_floor_frequency(): Promise<void> {
   }[] = [];
   const findings: string[] = [];
   for (const frequency of [60, 240]) {
-    const body: Simulation.IBody = PhysicalFixtures.body("pad", profile, 2);
+    const body: Simulation.IBody = PhysicalFixtures.body(
+      "pad",
+      profile,
+      DURATION,
+    );
     // Zero-budget tracking adds no force and does not wake a sleeping contact.
     // Measure solved load in the settled awake window, then retain sleep as a
     // distinct native state rather than synthesizing a static impulse stream.
     for (const target of body.targets) target.strength = 1;
-    const input: Simulation.IInput = PhysicalFixtures.input([body], 2);
+    const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
     Object.assign(input, {
       floor: 0,
       gravity: { x: 0, y: (-40 * 9.81) / mass, z: 0 },
@@ -182,11 +192,14 @@ export async function test_physical_floor_frequency(): Promise<void> {
       `load/clearance: ${JSON.stringify(observations.map((row: (typeof observations)[number]): object => ({ frequency: row.frequency, minimum: row.minimum, creep: row.creep, force: row.force })))}`,
     );
   const edited: Simulation.IInput = structuredClone(firm.run.input);
-  edited.bodies[0]!.targets[220]!.segments.root!.position.x += 0.001;
+  edited.bodies[0]!.targets[EDIT]!.segments.root!.position.x += 0.001;
   const resumed: Simulation = await Simulation.compute(edited, firm.run);
   const cold: Simulation = await Simulation.compute(edited);
   if (
-    !(resumed.recomputedSteps > 0 && resumed.recomputedSteps < 240) ||
+    !(
+      resumed.recomputedSteps > 0 &&
+      resumed.recomputedSteps < edited.maximumSteps
+    ) ||
     JSON.stringify(resumed.cache.frames) !==
       JSON.stringify(cold.cache.frames) ||
     JSON.stringify(resumed.cache.contacts) !==

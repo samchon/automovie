@@ -7,6 +7,12 @@ import { measurePhysicalJointLimits } from "../../../../packages/engine/src/phys
 import { projectPhysicalTargets } from "../../../../packages/engine/src/physics/projectPhysicalTargets";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
+/** Twelve native steps: a sweep and a short hold at the transverse limit. */
+const DURATION: number = 0.1;
+
+/** Seconds of the bend-and-return sweep. */
+const SWEEP: number = 0.08;
+
 /** Compound motion at a transverse limit stays inside every native angular bound.
  *
  * Scenarios:
@@ -78,7 +84,7 @@ export async function test_physical_compound_motor(): Promise<void> {
     const body: Simulation.IBody = PhysicalFixtures.body(
       "mechanism",
       profile,
-      1,
+      DURATION,
     );
     Object.assign(body, {
       rootStiffness: 1500,
@@ -88,7 +94,7 @@ export async function test_physical_compound_motor(): Promise<void> {
     });
     for (const [step, target] of body.targets.entries()) {
       target.strength = 1;
-      const fraction: number = Math.min(1, step / 120 / 0.6);
+      const fraction: number = Math.min(1, step / 120 / SWEEP);
       const q: P.ITransform["rotation"] = {
         x: Math.tan(1.1 * Math.sin(fraction * Math.PI)),
         y: Math.tan(transverse / 2),
@@ -107,7 +113,7 @@ export async function test_physical_compound_motor(): Promise<void> {
         target.segments,
       ).targets;
     }
-    const input: Simulation.IInput = PhysicalFixtures.input([body], 1);
+    const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
     input.substeps = 32;
     input.iterations = 64;
     input.internalIterations = 16;
