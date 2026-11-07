@@ -19,3 +19,4 @@ export * from "./renderViewerVideo";
 export { recordViewerPlayback } from "./recordViewerPlayback";
 export { writeViewerFrameSheet } from "./writeViewerFrameSheet";
 export * from "./mixAutoMovieAudioCues";
+export * from "./decodeAutoMovieDelivery";

@@ -8,3 +8,7 @@ export * from "./IAutoMovieProductionVideoProfile";
 export * from "./productionOpusDescription";
 export * from "./resolveProductionPngProfile";
 export * from "./resolveProductionVideoProfile";
+export * from "./assertAutoMovieCaptureClock";
+export * from "./auditAutoMovieDecodedFrames";
+export * from "./auditAutoMovieEncodedPresentation";
+export * from "./planAutoMovieCaptureUrl";
