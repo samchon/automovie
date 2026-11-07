@@ -45,7 +45,7 @@ export namespace AutoMovieHumanClinicalIkInput {
      * vertex cannot be represented by attaching it to just one of its bones.
      */
     localPoint?: Controls.MetrePoint;
-    /** Derived glove centres or support landmarks, from the same FK. */
+    /** Derived hand-effector centres or support landmarks, from the same FK. */
     witness?: TargetPoint.IWitness;
     /** Positive residual scale; defaults to one. Error stays in unweighted metres. */
     weight?: number;

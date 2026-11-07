@@ -1,10 +1,10 @@
 # Physical performance campaign
 
-Campaign #3083 starts from baseline `727496d82`. Complete and merge the Engine/packages work in #3089, then open the kickboxing follow-up. Kickboxing continues in parallel. No element issue is closed before its actual acceptance and delivery.
+Campaign #3083 starts from baseline `727496d82`. By the owner's ruling, the Engine/packages work and the kickboxing film are delivered together in one pull request, #3089, from one checkout. No element issue is closed before its actual acceptance and delivery.
 
-The owner requested a handoff on 2026-11-07. Both workers stopped. The `codex/physical-performance-handoff` preservation branch retains the unfinished v24 package correction and movie work together; it must not be merged wholesale into the package-only PR. Numerical verification of v24 remains unexecuted. The last completed numerical results below belong to v23 and do not qualify the latest coordinate-dependency correction.
+The v24 package correction from the `codex/physical-performance-handoff` preservation branch was transferred and verified, and its three measured defects were repaired as v25 (see [v25 qualification](#v25-qualification)). The v23 history below is retained as history; it does not qualify the current source.
 
-Automated verification is unit-only. The owner excluded new Evidence tags and migration, repeated tarball checks, generated-project/SDK tests, HTTP/browser/CLI integration harnesses and new Template tests. Campaign-created Template verification code, isolated installations, archives and captures have been removed: eight source harnesses, one debug configuration and eight fixture roots, followed by their stale compiled harnesses and captures. No new Template unit files remain, and baseline Template units are unchanged. Actual Viewer observation and MP4 inspection remain production work.
+Automated verification is unit-only: direct, millisecond-scale logic units. Scenario harnesses, multi-second rollouts, Human figure generation, hardcoded golden values, monkey-patching and end-to-end tests do not qualify a change and are removed. The owner excluded new Evidence tags and migration, repeated tarball checks, generated-project/SDK tests, HTTP/browser/CLI integration harnesses and new Template tests. Campaign-created Template verification code, isolated installations, archives and captures have been removed: eight source harnesses, one debug configuration and eight fixture roots, followed by their stale compiled harnesses and captures. No new Template unit files remain, and baseline Template units are unchanged. Actual Viewer observation and MP4 inspection remain production work.
 
 Workspace package entries resolve public source; their `lib` entries belong to `publishConfig`. A successful normal package build is a separate static check, not a reason to wait for `lib` before using fixed source in the movie.
 
@@ -19,6 +19,16 @@ Workspace package entries resolve public source; their `lib` entries belong to `
 - The kicking-side hand posts forward near the head, and the opposite hand protects it. The same semantics apply on either side.
 
 ## Current source and qualification
+
+### v25 qualification
+
+Round 1 ran the transferred v24 source: 136 of 146 normal functions passed in 38 minutes, and both balance matrices failed. The matrices completed in 911 s, against 2637 s for v23, which measures the coordinate-dependency reuse. Three product defects were confirmed and repaired; the cache protocol is `automovie.physical-cache.v25`.
+
+- Rapier 0.21's wasm-bindgen error handler swallows an exception thrown inside a narrow-phase visitor, so the native f32 transfer guard failed silently. `visitPhysicalNative` rethrows the first visitor failure after the native call returns. Contact, support and compliance collection use it.
+- Spherical interpolation left a norm error near 1e-13 in its general branch, and incremental pose composition accumulated it. `Quaternion.slerp` and `setPhysicalTargetJointRotation` now normalize.
+- A warm support seed alone trapped the bounded balance fit in a poor solution that every later replan inherited. This caused about 65 foot reversals per second in quiet Human stance, measured with all variants in one process. `choosePhysicalSupportFit` fits from both the authored and the warm seed: admissibility is the fit's own tolerance, continuity decides among admissible fits, and ties keep the authored fit. `resolvePhysicalSupportRedundancy` returns null-space and near-singular directions to the authored posture within that tolerance.
+
+The long balance matrices are knife-edge: a roundoff-only change moved a recovery episode's final height from 0.348 m to 1.601 m. Their episode labels are therefore not a qualification target. The matrices, multi-second scenario rollouts and every Human-generating physics test were removed together with their helpers and the Human-generating benchmark tools. Engine verification uses primitive and generic profiles only. The Human physical provider's mapping units belong to Human and are recorded as follow-up work there. Balance robustness under large disturbances remains an open quality limitation, not a claim of this change.
 
 The current v23 source is published as `dcb93876374f8aa615098a1d261d076cf1a160fb` in draft package PR #3089. It contains 168 changed package TypeScript files at SHA-256 `35f860d67a74124bd3e0a09f69f8d0ca71471a643da2dc736c0427ad54fd3943`. Its normal 12-package build passes in 361.094 s. Round105 completes all 137 normal functions and both balance functions, including all 13 episodes. Normal units pass 132/137; failures are three established old Human construction failures, strict four-support quiet contact and the new native-transfer unit's missing expected rejection. Both balance functions fail. Starting and ending package and complete 786-file unit-source digests match; the latter is `dc8c436af83b2d2d770d6b7e4fa0accc0f90dda0e99b64155b43a6d62a26fa84`. There is no selection loss, duplication, budget stop or surviving owned numerical process. These results do not qualify recovery, the reference benchmark or the complete movie.
 
@@ -91,9 +101,7 @@ The earlier mass-property, geometry-budget and input findings remain recorded on
 
 Run the affected direct-function units through the normal test entry. They cover the current controller, providers, geometry, modes, archive admission, checkpoint replay, effects and rendering-resource seams. No browser, HTTP fixture, child CLI, generated project or installed tarball is an automated acceptance test. Template verification fixtures and their dedicated debug graph are removed. The retained Render acquisition unit uses an owned asynchronous resource callback, without launching a browser.
 
-The normal round has a 7200 s total deadline and a 6 GiB sampled total owned-process family limit, including the actual Node process. Actual Node OS lifetime peak remains separately limited to 2 GiB. The former 4 GiB family limit left only 1228800 bytes above the observed v21 peak; the change is declared before execution for the expanded unit/import graph. It is not a 6 GiB allowance plus another 2 GiB. Source remains fixed during each complete round.
-
-After strict quiet and recovery qualification, the independent reference measures Simulation.compute directly on three actual Humans for 180 s at 120 Hz. Its compute limit remains 3600 s and actual process RSS 2 GiB, with unchanged floor, ROM, anchor and tracking quality gates. Provider/target preparation, actual compute, encoding and observation costs are reported separately.
+Each unit is a direct logic unit that finishes in milliseconds to a few seconds. The round's total runtime is measured against the number of functions, not against an hours-long deadline. The former three-Human reference benchmark generated Human figures, so it was removed with the other Human-generating tools; Engine cost is measured through primitive units.
 
 Complete every inspection round, collect all failures and their causes, apply one combined repair, then verify the next complete round. No known failure is deferred or hidden by selecting fewer assertions.
 

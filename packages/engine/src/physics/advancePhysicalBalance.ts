@@ -98,7 +98,7 @@ export function advancePhysicalBalance(input: {
   }
   if (state.swing && input.unavailable?.includes(state.swing.bone)) {
     // Authored motion now owns this endpoint. A recovery request cannot keep
-    // replacing a kick or scheduled swing, nor count its cancellation as a fall.
+    // replacing an authored limb action or scheduled swing, nor count its cancellation as a fall.
     resolveSwing("cancelled");
     state.swing = undefined;
     state.outsideSince = undefined;
@@ -438,7 +438,7 @@ export namespace advancePhysicalBalance {
       offset?: IAutoMovieVector3;
       rootOffset?: IAutoMovieVector3;
     }[];
-    /** An authored swing/kick takes back an endpoint's accepted recovery placement. */ handoffs?: {
+    /** An authored limb swing or strike takes back an endpoint's accepted recovery placement. */ handoffs?: {
       bone: string;
       seconds: number;
     }[];

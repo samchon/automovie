@@ -7,11 +7,11 @@ import type { AutoMovieHumanSkeleton as Skeleton } from "./AutoMovieHumanSkeleto
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
 import { solveAutoMovieHumanClinicalIkGroups as solveGroups } from "./solveAutoMovieHumanClinicalIkGroups";
 
-/** World-space Human ankle/glove goals with analytic hinge seeding and explicit synchronized clinical fitting. */
+/** World-space Human ankle/hand-effector goals with analytic hinge seeding and explicit synchronized clinical fitting. */
 export namespace AutoMovieHumanLimbIk {
   /** Literal world target and an optional second anatomical witness. */
   export interface IGoal {
-    /** Ankle or glove centre in world metres. */ point: Controls.MetrePoint;
+    /** Ankle or hand-effector centre in world metres. */ point: Controls.MetrePoint;
     /** Secondary aim, fitted without blocking primary convergence. */ aim?: {
       /** Mid-metatarsal, tibial or elbow landmark. */ bone:
         | "ball"
@@ -31,10 +31,10 @@ export namespace AutoMovieHumanLimbIk {
     /** Ankle goals; absent limbs preserve authored channels. */ legs?: Partial<
       Record<Controls.Side, IGoal>
     >;
-    /** Glove goals; absent limbs preserve authored channels. */ arms?: Partial<
+    /** Hand-effector goals; absent limbs preserve authored channels. */ arms?: Partial<
       Record<Controls.Side, IGoal>
     >;
-    /** Glove extension beyond the wrist along the actual forearm ray, metres; defaults to zero. */ gloveOffset?: number;
+    /** Held or worn hand-effector extension beyond the wrist along the actual forearm ray, metres; defaults to zero. */ handOffset?: number;
     /** Optional degree intervals narrower than clinical ROM, keyed by canonical channel. */ limits?: Partial<
       Record<
         Controls.DegreeChannel,
@@ -67,13 +67,13 @@ export namespace AutoMovieHumanLimbIk {
         });
       if (
         Math.abs(Math.hypot(...request.root.rotation) - 1) > 1e-6 ||
-        !Number.isFinite(request.gloveOffset ?? 0) ||
-        (request.gloveOffset ?? 0) < 0 ||
+        !Number.isFinite(request.handOffset ?? 0) ||
+        (request.handOffset ?? 0) < 0 ||
         (request.symmetricSeedSide !== undefined &&
           !["left", "right"].includes(request.symmetricSeedSide))
       )
         throw new Error(
-          "Invalid Human limb root, glove extent or symmetric seed side",
+          "Invalid Human limb root, hand-effector extent or symmetric seed side",
         );
       const pose: IAutoMovieHumanPose = AutoMovieHumanStateAdmission.pose(
         request.pose,
@@ -105,12 +105,12 @@ export namespace AutoMovieHumanLimbIk {
             {
               bone: end,
               position: local(goal.point),
-              ...(!leg && (request.gloveOffset ?? 0) > 0
+              ...(!leg && (request.handOffset ?? 0) > 0
                 ? {
                     witness: {
                       kind: "ray" as const,
                       from: Controls.joint(`${side}LowerArm`),
-                      distance: request.gloveOffset!,
+                      distance: request.handOffset!,
                     },
                   }
                 : {}),
@@ -176,7 +176,7 @@ export namespace AutoMovieHumanLimbIk {
             distance(
               neutral.get(middle)!.position,
               neutral.get(neutralEnd)!.position,
-            ) + (leg ? 0 : (request.gloveOffset ?? 0));
+            ) + (leg ? 0 : (request.handOffset ?? 0));
           const d: number = Math.min(
             a + b - 0.0001,
             Math.max(
