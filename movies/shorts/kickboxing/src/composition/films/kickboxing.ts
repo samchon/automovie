@@ -1,20 +1,9 @@
-import { AutoMovieComposition } from "@automovie/engine";
+import type { AutoMovieComposition } from "@automovie/engine";
 
 import type { IFilm } from "../../IFilm";
 import type { IFilmProduction } from "../../IFilmProduction";
 import { RingStage } from "../scenes/kickboxing/RingStage";
-import { aFinishesWithTheLeg } from "../scenes/kickboxing/a-finishes-with-the-leg/aFinishesWithTheLeg";
-import { aSetsTheTrap } from "../scenes/kickboxing/a-sets-the-trap/aSetsTheTrap";
-import { aWeathersIt } from "../scenes/kickboxing/a-weathers-it/aWeathersIt";
-import { bLongestCombination } from "../scenes/kickboxing/b-longest-combination/bLongestCombination";
-import { bPlaysTheLongGame } from "../scenes/kickboxing/b-plays-the-long-game/bPlaysTheLongGame";
-import { downAndTheCount } from "../scenes/kickboxing/down-and-the-count/downAndTheCount";
-import { feintsFindTheOpenings } from "../scenes/kickboxing/feints-find-the-openings/feintsFindTheOpenings";
-import { knockoutAndCelebration } from "../scenes/kickboxing/knockout-and-celebration/knockoutAndCelebration";
-import { pressureChangesHands } from "../scenes/kickboxing/pressure-changes-hands/pressureChangesHands";
-import { readingEachOther } from "../scenes/kickboxing/reading-each-other/readingEachOther";
-import { theBodyKickLands } from "../scenes/kickboxing/the-body-kick-lands/theBodyKickLands";
-import { theBrazilianKick } from "../scenes/kickboxing/the-brazilian-kick/theBrazilianKick";
+import { composeKickboxing } from "./composeKickboxing";
 
 /**
  * The kickboxing film of `docs/body/screenplay/kickboxing.md`: the twelve
@@ -39,24 +28,7 @@ export function kickboxing(): IFilm {
     fps: 30,
     create: async (progress?: (message: string) => void): Promise<IFilmProduction> => {
       const stage: RingStage = new RingStage();
-      const cast = stage.cast;
-      const composition: AutoMovieComposition = AutoMovieComposition.parallel(
-        AutoMovieComposition.sequence(
-          readingEachOther(cast),
-          aFinishesWithTheLeg(cast),
-          bPlaysTheLongGame(cast),
-          pressureChangesHands(cast),
-          theBodyKickLands(cast),
-          feintsFindTheOpenings(cast),
-          bLongestCombination(cast),
-          aWeathersIt(cast),
-          aSetsTheTrap(cast),
-          theBrazilianKick(cast),
-          downAndTheCount(cast),
-          knockoutAndCelebration(cast),
-        ),
-        AutoMovieComposition.at("bell-open", cast.camera.holdFinish(duration - 143), 143),
-      );
+      const composition: AutoMovieComposition = composeKickboxing(stage.cast, duration);
       const mounted: RingStage.IMounted = await stage.mount(composition, duration, "kickboxing", progress);
       return {
         scene: mounted.scene,

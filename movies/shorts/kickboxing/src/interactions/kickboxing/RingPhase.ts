@@ -83,7 +83,7 @@ export namespace RingPhase {
 
   function isReset(part: AutoMovieComposition): boolean {
     return part.kind === "parallel" && part.parts.length > 0 && part.parts.every((p) => {
-      if (p.kind !== "intent") return false;
+      if (p.kind !== "intent" || p.intent.capability !== "move") return false;
       const action: KickboxingAction.IAction = KickboxingAction.read(p.intent);
       return action.kind === "move" && action.steps === PLACEHOLDER;
     });

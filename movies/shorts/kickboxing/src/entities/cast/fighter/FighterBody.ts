@@ -108,7 +108,9 @@ export class FighterBody {
         skin: "skin",
         materials: [
           { id: "skin", friction: 0.7, restitution: 0, compliance: 0, damping: 0 },
-          { id: "glove", friction: 0.4, restitution: 0, compliance: 0.0002, damping: 0.02 },
+          // The kinematic performance measures contact geometrically, so the
+          // glove's padding is not simulated as compliance.
+          { id: "glove", friction: 0.4, restitution: 0, compliance: 0, damping: 0 },
         ],
       },
       skeleton,

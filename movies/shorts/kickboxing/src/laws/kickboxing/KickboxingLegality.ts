@@ -23,12 +23,14 @@ export namespace KickboxingLegality {
   const TOUCH: number = 1e-6;
 
   const strike = (entry: IAutoMovieSchedule.IEntry): Extract<KickboxingAction.IAction, { kind: "strike" }> | null => {
+    if (entry.intent.capability !== "strike") return null;
     const action: KickboxingAction.IAction = KickboxingAction.read(entry.intent);
     return action.kind === "strike" ? action : null;
   };
 
   /** The limbs an entry occupies. */
   const limbs = (entry: IAutoMovieSchedule.IEntry): string[] => {
+    if (entry.intent.capability !== "strike" && entry.intent.capability !== "answer") return [];
     const action: KickboxingAction.IAction = KickboxingAction.read(entry.intent);
     if (action.kind === "strike") {
       const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[action.technique];
@@ -54,6 +56,7 @@ export namespace KickboxingLegality {
       check: (entry: IAutoMovieSchedule.IEntry, schedule: IAutoMovieSchedule): string | null => {
         if (strike(entry) === null) return null;
         const fall: IAutoMovieSchedule.IEntry | undefined = schedule.entries.find((other) => {
+          if (other.intent.capability !== "phase") return false;
           const action: KickboxingAction.IAction = KickboxingAction.read(other.intent);
           return action.kind === "phase" && action.phase === "fall" && other.subject !== entry.subject;
         });

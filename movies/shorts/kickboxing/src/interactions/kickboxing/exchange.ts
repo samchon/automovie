@@ -72,7 +72,7 @@ export function exchange(
   const range: number = KickboxingRange.combination(
     self.body.measure,
     other.body.measure,
-    techniques.filter((t) => !t.startsWith("feint")),
+    techniques,
   );
   const first = KickboxingAction.read(anchored[0]!);
   const seconds: number = first.kind === "strike" ? KickboxingTiming.delivery(first.technique) : 0;

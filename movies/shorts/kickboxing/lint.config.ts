@@ -16,6 +16,10 @@ const elements = [
   { type: "interactions", pattern: "src/interactions/**" },
   { type: "entities", pattern: "src/entities/**" },
   { type: "laws", pattern: "src/laws/**" },
+  // Logic units and their helpers may reach every source folder.
+  { type: "tests", pattern: "test/**" },
+  // In this monorepo the installed packages resolve to their workspace source.
+  { type: "packages", pattern: "packages/**" },
 ];
 
 /** Source correctness, formatting and dependency direction; checklist answers run through `npm run evidence`. */
@@ -56,24 +60,29 @@ export default {
         elements,
         default: "disallow",
         rules: [
-          { from: "host", allow: ["host", "films"] },
+          { from: "host", allow: ["packages", "host", "films"] },
           {
             from: "executable",
-            allow: ["executable", "host", "films", "integrations"],
+            allow: ["packages", "executable", "host", "films", "integrations"],
           },
-          { from: "integrations", allow: ["integrations"] },
-          { from: "films", allow: ["films", "scenes", "host"] },
+          { from: "integrations", allow: ["packages", "integrations"] },
+          { from: "films", allow: ["packages", "films", "scenes", "host"] },
           {
             from: "scenes",
-            allow: ["scenes", "consequences", "interactions", "entities"],
+            allow: ["packages", "scenes", "consequences", "interactions", "entities"],
           },
           {
             from: "consequences",
-            allow: ["consequences", "interactions", "entities", "laws"],
+            allow: ["packages", "consequences", "interactions", "entities", "laws"],
           },
-          { from: "interactions", allow: ["interactions", "entities", "laws"] },
-          { from: "entities", allow: ["entities", "laws"] },
-          { from: "laws", allow: ["laws"] },
+          { from: "interactions", allow: ["packages", "interactions", "entities", "laws"] },
+          { from: "entities", allow: ["packages", "entities", "laws"] },
+          { from: "laws", allow: ["packages", "laws"] },
+          {
+            from: "tests",
+            allow: ["tests", "packages", "host", "executable", "films", "scenes", "consequences", "interactions", "entities", "laws"],
+          },
+          { from: "packages", allow: ["packages"] },
         ],
       },
     ],
