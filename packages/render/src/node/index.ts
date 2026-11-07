@@ -16,3 +16,5 @@ export * from "./IAutoMovieViewerVideoOptions";
 export * from "./IAutoMovieViewerVideoResult";
 export * from "./renderViewerFrames";
 export * from "./renderViewerVideo";
+export { recordViewerPlayback } from "./recordViewerPlayback";
+export { writeViewerFrameSheet } from "./writeViewerFrameSheet";

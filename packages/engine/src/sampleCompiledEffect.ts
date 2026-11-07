@@ -21,7 +21,7 @@ import { mixSeed } from "./math/mixSeed";
  * @evidence contracts/common.md#clear-and-simple-design Viewer instanced effects and shot runtime sampling share one compiled v1 sampler while recipe compilation owns validation and source-derived budgets.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Fixed-step quotient allowance and index-quarter thinning are stated clock and LOD conventions, not fixture-specific recovery; invalid direct inputs are not silently admitted here.
  * @evidence contracts/common.md#meaningful-documentation Documents scheduling independence, half-open cue time, admitted-input premise, quotient allowance, LOD thinning and the distinction between candidate storage and output budget.
- * @evidence contracts/performance.md#efficient-algorithms Work and temporary indexes scale with burst plus regular spawns in the maximum-lifetime window, while returned live records stop at maxParticles; a large burst can allocate more candidates than that cap.
+ * @evidence contracts/performance.md#efficient-algorithms Ordinary work and candidate indexes use the maximum-lifetime window; retained stains scan the complete recipe-bounded emission history. Returned records stop at maxParticles, independently of candidate storage.
  * @evidence contracts/performance.md#reuse-equivalent-work Each particle identity reuses stable random domains but each time sample recomputes its live population; no mutable recipe equivalence is assumed across frames.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Candidate and thinned index arrays are call-local; output owns its particle positions and bounded live records, and no GPU object or recipe reference is retained.
  */
@@ -53,13 +53,16 @@ export const sampleCompiledEffect: (
     emissionElapsed * recipe.emission.rate + 1e-9,
   );
   const maximumLifetime: number = recipe.particle.lifetime.max;
-  const earliestRegular: number = Math.max(
-    0,
-    Math.floor(
-      Math.max(0, sampledTime - effect.start - maximumLifetime) *
-        recipe.emission.rate,
-    ),
-  );
+  const earliestRegular: number =
+    recipe.motion.ballistic?.retainStains === true
+      ? 0
+      : Math.max(
+          0,
+          Math.floor(
+            Math.max(0, sampledTime - effect.start - maximumLifetime) *
+              recipe.emission.rate,
+          ),
+        );
   const candidates: number[] = [
     ...Array.from(
       { length: recipe.emission.burst },
@@ -88,8 +91,12 @@ export const sampleCompiledEffect: (
       recipe.particle.lifetime.max,
       effectValue(effect.seed, index, 0x6c696665),
     );
-    if (age < 0 || age >= lifetime) continue;
-    const ageRatio: number = age / lifetime;
+    if (
+      age < 0 ||
+      (age >= lifetime && recipe.motion.ballistic?.retainStains !== true)
+    )
+      continue;
+    const ageRatio: number = Math.min(1, age / lifetime);
     const initial: { x: number; y: number; z: number } = {
       x: interpolate(
         effect.bounds.min.x,
@@ -111,6 +118,44 @@ export const sampleCompiledEffect: (
       effectValue(effect.seed, index, 0x74757262) * Math.PI * 2;
     const turbulenceSpeed: number =
       recipe.motion.turbulence * effectValue(effect.seed, index, 0x73706565);
+    const velocity: { x: number; y: number; z: number } = {
+      x: recipe.motion.wind.x + Math.cos(turbulenceAngle) * turbulenceSpeed,
+      y: recipe.motion.wind.y + recipe.motion.rise,
+      z: recipe.motion.wind.z + Math.sin(turbulenceAngle) * turbulenceSpeed,
+    };
+    const ballistic: IAutoMovieEffectRecipe["motion"]["ballistic"] =
+      recipe.motion.ballistic;
+    if (ballistic?.velocitySpread)
+      for (const [axis, domain] of [
+        ["x", 0x76737078],
+        ["y", 0x76737079],
+        ["z", 0x7673707a],
+      ] as const)
+        velocity[axis] +=
+          (effectValue(effect.seed, index, domain) * 2 - 1) *
+          ballistic.velocitySpread[axis];
+    const landing: number =
+      ballistic === undefined
+        ? Infinity
+        : initial.y < ballistic.floor
+          ? 0
+          : ballistic.gravity > 0
+            ? (velocity.y +
+                Math.sqrt(
+                  velocity.y ** 2 +
+                    2 * ballistic.gravity * (initial.y - ballistic.floor),
+                )) /
+              ballistic.gravity
+            : velocity.y < 0
+              ? (ballistic.floor - initial.y) / velocity.y
+              : Infinity;
+    const settled: boolean = age >= landing;
+    // Retention preserves a stain formed by a live particle. An airborne
+    // particle that expired before landing cannot reappear on a later seek.
+    if (age >= lifetime && landing >= lifetime) continue;
+    if (age >= lifetime && !settled) continue;
+    if (settled && ballistic?.retainStains !== true) continue;
+    const travel: number = Math.min(age, landing);
     const opacity: number =
       interpolate(
         recipe.particle.opacity.min,
@@ -118,27 +163,29 @@ export const sampleCompiledEffect: (
         effectValue(effect.seed, index, 0x6f706163),
       ) *
       intensity *
-      Math.sin(Math.PI * ageRatio);
+      (settled || recipe.particle.opacity.envelope === "constant"
+        ? 1
+        : Math.sin(Math.PI * ageRatio));
     particles.push({
       index,
       position: {
-        x:
-          initial.x +
-          (recipe.motion.wind.x + Math.cos(turbulenceAngle) * turbulenceSpeed) *
-            age,
-        y: initial.y + (recipe.motion.wind.y + recipe.motion.rise) * age,
-        z:
-          initial.z +
-          (recipe.motion.wind.z + Math.sin(turbulenceAngle) * turbulenceSpeed) *
-            age,
+        x: initial.x + velocity.x * travel,
+        y: settled
+          ? ballistic!.floor
+          : initial.y +
+            velocity.y * travel -
+            0.5 * (ballistic?.gravity ?? 0) * travel ** 2,
+        z: initial.z + velocity.z * travel,
       },
-      size: interpolate(
-        recipe.particle.size.min,
-        recipe.particle.size.max,
-        effectValue(effect.seed, index, 0x73697a65),
-      ),
+      size:
+        interpolate(
+          recipe.particle.size.min,
+          recipe.particle.size.max,
+          effectValue(effect.seed, index, 0x73697a65),
+        ) * (settled ? (ballistic?.stainSizeMultiplier ?? 1) : 1),
       opacity,
       ageRatio,
+      ...(settled ? { normal: { x: 0, y: 1, z: 0 } } : {}),
     });
     if (particles.length === recipe.budget.maxParticles) break;
   }

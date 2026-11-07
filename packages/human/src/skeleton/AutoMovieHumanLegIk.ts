@@ -3,6 +3,7 @@ import type { AutoMovieHumanClinicalIk as ClinicalIk } from "./AutoMovieHumanCli
 import { AutoMovieHumanPoseChannels } from "./AutoMovieHumanPoseChannels";
 import type { AutoMovieHumanSkeleton as Skeleton } from "./AutoMovieHumanSkeleton";
 import { AutoMovieHumanSkeletonMath as Math3D } from "./AutoMovieHumanSkeletonMath";
+import { AutoMovieHumanTargetPoint as TargetPoint } from "./AutoMovieHumanTargetPoint";
 
 /** Analytical clinical leg seeds measured from the same body's public Human FK. */
 export namespace AutoMovieHumanLegIk {
@@ -45,6 +46,7 @@ export namespace AutoMovieHumanLegIk {
       target === null ||
       typeof target !== "object" ||
       !finitePoint(target.position) ||
+      !TargetPoint.valid(target) ||
       (target.localPoint !== undefined && !finitePoint(target.localPoint))
     )
       throw new Error(
@@ -69,6 +71,18 @@ export namespace AutoMovieHumanLegIk {
       visited.add(ancestor);
       ancestor = bones.get(ancestor)!.parent;
     }
+    for (const witness of TargetPoint.references(target)) {
+      let owner: string | null = witness;
+      const traversed: Set<string> = new Set();
+      while (owner !== foot) {
+        if (owner === null || traversed.has(owner) || !bones.has(owner))
+          throw new Error(
+            "Human foot-point seed witness must belong to the selected Foot subtree",
+          );
+        traversed.add(owner);
+        owner = bones.get(owner)!.parent;
+      }
+    }
     const carrier: Skeleton.IPlacement = placement(current, target.bone);
     if (
       !finitePoint(carrier.position) ||
@@ -81,9 +95,15 @@ export namespace AutoMovieHumanLegIk {
       throw new Error(
         "Human foot-point seed requires an actual unit posed bone frame",
       );
-    const point: Math3D.Vector = Math3D.add(
-      carrier.position,
-      Math3D.rotate(carrier.rotation, target.localPoint ?? [0, 0, 0]),
+    const point: Math3D.Vector = TargetPoint.resolve(
+      new Map(
+        current.posed.map(
+          (
+            item: (typeof current.posed)[number],
+          ): [string, Skeleton.IPlacement] => [item.bone, item],
+        ),
+      ),
+      target,
     );
     const ankle: Math3D.Vector = placement(current, foot).position;
     const goal: Math3D.Vector = Math3D.add(

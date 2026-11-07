@@ -23,6 +23,18 @@ Keep the server running, set `CHROME_PATH` to an installed Chrome or Chromium ex
 
 The public Render runner writes `media/automovie/<film>/videos/film.mp4` and the command retains `capture-report.json` beside it, so each film's renders stay apart. Export requires a whole number of frames and captures actual Viewer pixels at `i / fps`, followed by one video/audio encode. Its hashes and timings describe capture; inspect continuous playback and listen to the actual sound before accepting the film.
 
+## Physical performance review
+
+Declare each scene's default and each body's override as `kinematic`, `simulated` or `exaggerated`, following the installed Engine contracts. Kinematic performance uses authored targets, geometric contact receipts and formula reactions. Simulated performance uses admitted physical profiles, bounded tracking and solved contacts; exaggerated performance additionally records its impulse, gravity and compliance factors and their production reason. Keep screenplay outcomes as audit requirements in every mode. A failed contact or fall audit fails the performance; changing the screenplay to conceal it is not a repair.
+
+The installed Engine owns numerical profiles, deterministic simulation, checkpoints, geometric measurements and audits. Its README and public declarations own their syntax. Retain the sampled inputs and cached state identity used by playback and export. Supply `IFilmProduction.performance` from that same displayed state to enable shared inspection overlays; the starter's empty scene supplies no physical data.
+
+Run `npm run review:setup` once to install Playwright's matching recording FFmpeg, and set `CHROME_PATH` to an installed Chrome or Chromium executable. Run `npm run review -- still <viewer-url> <duration-seconds>` for a still, `npm run review -- sheet <viewer-url> <duration-seconds>` for frames every twenty film frames and their sheet, or `npm run review -- playback <viewer-url> <observation-seconds>` for actual Play-button playback. An optional final directory overrides `media/automovie/frames/review/` or `media/automovie/videos/review/`. Add `at=<seconds>` to a still URL. A sheet's JSON index maps each cell to its source and film second. Playback records the actual displayed clock and browser errors and a silent browser video; inspect the picture and listen to the production's soundtrack separately.
+
+URL parameters `rig=1` and `contacts=1` enable the review skeleton and contact mean-force vectors in newtons, using each cached sample's impulse divided by its duration. `view=x,y,z:tx,ty,tz` selects a static inspection camera in world metres. These review URLs leave the ordinary delivered route unchanged. Omit review parameters for delivered captures, and compare the same source revision, film seconds and camera when judging a correction. Numerical success and a written capture receipt do not establish visible performance.
+
+For an adopted simulated performance, export `createPhysicalInput()` from a Node input module and run `npm run physics -- src/films/createPhysicalInput.ts public/performance.amphys`. The command computes the fixed-step performance once and writes the binary archive and its JSON manifest. An optional final argument limits archive bytes; the default is 256 MiB. Browser film creation loads the archive through `AutoMoviePhysicalPlayback.decode` with the expected identity from the current authored input and explicit byte/frame/segment limits, then seek, playback and capture read `playback.at(seconds)`. A hash copied only from the downloaded manifest cannot establish that the performance matches current source. Regenerate and recheck the archive after changing physical inputs. Installed Engine types and README own the input, checkpoint and solver-quality contracts.
+
 ## Make a motion hint
 
 1. Adopt the request, output boundary and operating choices, including the intended execution/capture path, in [PROJECT.md](PROJECT.md) through [project context](.agents/skills/production/profile.md). Make routine choices within the user's delegation and keep creative requirements with their owners.
@@ -43,6 +55,7 @@ A separately commissioned screenplay ends with its text duties; a standalone ass
 | `npm run format` | Source formatting |
 | `npm run dev` | Actual production Viewer on `127.0.0.1:5173` |
 | `npm run build` | Bundle the production Viewer |
+| `npm run physics -- <input-module.ts> <output.amphys> [maximum-bytes]` | Precompute an adopted physical performance outside the browser |
 | `npm run render -- --film <name>` | Export one film of the running Viewer |
 | `npm run render -- --film <name> --from <s> --to <s> --every <frames>` | Write stills of one film's frames, or `--at <s,…>` seconds, into `--out <dir>` (default `media/automovie/<film>/frames/`) |
 

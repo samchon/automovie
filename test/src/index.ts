@@ -8,6 +8,16 @@ import { assessScenarioExecution } from "./scenarioExecution";
 import { prepareScenarioFilter } from "./scenarioSelection";
 
 async function main(): Promise<void> {
+  // Static dependencies have loaded; selected unit discovery and execution
+  // follow this owned-process marker. Compiler/launcher time remains separate.
+  console.log(
+    JSON.stringify({
+      stage: "entry",
+      pid: process.pid,
+      started: new Date().toISOString(),
+      phase: "after-static-imports-before-unit-discovery",
+    }),
+  );
   console.log("---------------------------------------------------");
   console.log("AutoMovie Test Program");
   console.log("Start", new Date().toLocaleString("en-US"));
@@ -71,8 +81,11 @@ async function main(): Promise<void> {
   // timer, a pool, a socket) kept passing runs alive on a shared machine
   // after their result. The handles still open are named so their owner can
   // be traced.
-  const open: string[] = process.getActiveResourcesInfo().filter((kind: string): boolean => kind !== "TTYWrap");
-  if (open.length !== 0) console.log(chalk.gray(`open handles at the end: ${open.join(", ")}`));
+  const open: string[] = process
+    .getActiveResourcesInfo()
+    .filter((kind: string): boolean => kind !== "TTYWrap");
+  if (open.length !== 0)
+    console.log(chalk.gray(`open handles at the end: ${open.join(", ")}`));
   process.exit(0);
 }
 

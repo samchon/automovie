@@ -1,3 +1,8 @@
+import type { AutoMoviePhysicsCache } from "@automovie/engine";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
 /**
@@ -14,6 +19,20 @@ export interface IFilmProduction {
 
   /** Camera the Viewer renders through; shots move it in `seek`. */
   camera: THREE.PerspectiveCamera;
+
+  /** Optional shared physical review source, used only when a review overlay is requested. */
+  performance?: {
+    /** Scene ids and profiles for the displayed bodies. */
+    bodies: { id: string; profile: IAutoMoviePhysicalProfile }[];
+    /** Exact world state used by the current displayed frame. */
+    frame: () => AutoMoviePhysicsCache.IFrame;
+    /** Actual geometric or solved contact episodes. */
+    contacts: () => readonly IAutoMovieContactReceipt[];
+    /** Explicit simultaneous contact-overlay budget. */
+    maximumContacts: number;
+    /** Inspection vector length per newton of step-mean force. */
+    metresPerNewton: number;
+  };
 
   /**
    * Places every displayed object and the camera for an exact film second.

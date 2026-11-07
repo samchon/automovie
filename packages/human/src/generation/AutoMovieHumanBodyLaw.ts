@@ -1,27 +1,27 @@
-﻿import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHermiteCurve";
+﻿import type { IAutoMovieLoftChain } from "@automovie/engine";
+
+import type { IAutoMovieHumanHermiteCurve } from "../lofting/IAutoMovieHumanHermiteCurve";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import type { IAutoMovieHumanExtremityDimensions } from "../structures/body/IAutoMovieHumanExtremityDimensions";
 import type { IAutoMovieHumanLegIdentity } from "../structures/body/IAutoMovieHumanLegIdentity";
-import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
-import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
-import { AutoMovieHumanBodyBox } from "./AutoMovieHumanBodyBox";
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanArmConstruction } from "./AutoMovieHumanArmConstruction";
+import { AutoMovieHumanBodyAnatomy } from "./AutoMovieHumanBodyAnatomy";
+import { AutoMovieHumanBodyBox } from "./AutoMovieHumanBodyBox";
 import { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
 import { AutoMovieHumanBodyLaneInterim } from "./AutoMovieHumanBodyLaneInterim";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
+import { AutoMovieHumanHeadAnatomy } from "./AutoMovieHumanHeadAnatomy";
 import { AutoMovieHumanHeadConstruction } from "./AutoMovieHumanHeadConstruction";
-import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanHeadPrior } from "./AutoMovieHumanHeadPrior";
 import { AutoMovieHumanLegConstruction } from "./AutoMovieHumanLegConstruction";
-import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeight";
 import { AutoMovieHumanNeckConstruction } from "./AutoMovieHumanNeckConstruction";
+import { AutoMovieHumanSkeletonLaw } from "./AutoMovieHumanSkeletonLaw";
 import { AutoMovieHumanTrunkConstruction } from "./AutoMovieHumanTrunkConstruction";
-
-import type { IAutoMovieLoftChain } from "@automovie/engine";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
-import { AutoMovieHumanHeadAnatomy } from "./AutoMovieHumanHeadAnatomy";
+import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
+import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeight";
 
 /**
  * The law from the public parameters to the body the generator lofts.
@@ -59,13 +59,14 @@ export namespace AutoMovieHumanBodyLaw {
       params,
       inputs,
     );
-    const neckRing: IAutoMovieLoftChain = AutoMovieHumanNeckConstruction.generate({
-      top: AutoMovieHumanHeadConstruction.seat(head),
-      neck: head.neck,
-      neckBase: trunkInputs.neckBase,
-      sex: inputs.sex,
-      scale: inputs.scale,
-    });
+    const neckRing: IAutoMovieLoftChain =
+      AutoMovieHumanNeckConstruction.generate({
+        top: AutoMovieHumanHeadConstruction.seat(head),
+        neck: head.neck,
+        neckBase: trunkInputs.neckBase,
+        sex: inputs.sex,
+        scale: inputs.scale,
+      });
 
     // Interim: the old head assembly gives the trunk solve its neck chain and
     // the eye globes; the figure's head is the head lane's subtree, realized
@@ -83,7 +84,9 @@ export namespace AutoMovieHumanBodyLaw {
           // A contradiction among the person's trunk measures is reported at
           // the input (`AutoMovieHumanBodyBox.diagnose`); the figure is still
           // made, each section at the nearest end of its box's range.
-          diagnostics: AutoMovieHumanBodyBox.diagnose(AutoMovieHumanBodyAnatomy.resolve(params)),
+          diagnostics: AutoMovieHumanBodyBox.diagnose(
+            AutoMovieHumanBodyAnatomy.resolve(params),
+          ),
         },
         LIPS,
         head,
@@ -117,14 +120,20 @@ export namespace AutoMovieHumanBodyLaw {
     const neck: IAutoMovieLoftChain | undefined = headed.body.chains.find(
       (c: IAutoMovieLoftChain): boolean => c.name === "head",
     );
-    if (neck === undefined) throw new Error("The body lane stands under the neck chain `head`");
+    if (neck === undefined)
+      throw new Error("The body lane stands under the neck chain `head`");
 
     // The body lane: every body part from its views, joined by solid merges
     // (#3047 to #3051), the trunk taking the neck's bottom ring by the head's
     // down event at its far end.
     // The head: its construction subtree (`AutoMovieHumanHeadLane`) on the
     // neck ring, merged onto the trunk inside the body's one realization.
-    const headLane: AutoMovieHumanHeadLane.IOutput = AutoMovieHumanHeadLane.create(head, AutoMovieHumanBodyAnatomy.sexOf(params), neckRing);
+    const headLane: AutoMovieHumanHeadLane.IOutput =
+      AutoMovieHumanHeadLane.create(
+        head,
+        AutoMovieHumanBodyAnatomy.sexOf(params),
+        neckRing,
+      );
     const lane: AutoMovieHumanBodyLane.IOutput = AutoMovieHumanBodyLane.create({
       ...AutoMovieHumanBodyLaneInterim.of({
         params,
@@ -165,6 +174,13 @@ export namespace AutoMovieHumanBodyLaw {
     };
   }
 
+  /** Resolve the same foot dimensions as construction, in world millimetres, without generating skin. */
+  export function footDimensions(
+    params: IAutoMovieHumanParameters,
+  ): AutoMovieHumanFootConstruction.IInputs {
+    return feet(params, tapes(params, statureOf(params)));
+  }
+
   /**
    * A shape prior's coordinate, derived from the person's measures: the shape
    * priors were fitted on three coordinates with no published definition, which
@@ -178,9 +194,14 @@ export namespace AutoMovieHumanBodyLaw {
    * @param name The coordinate.
    * @returns Its value, -1 to 1.
    */
-  export function slider(params: IAutoMovieHumanParameters, name: "fat" | "muscularity" | "masculineFeminine"): number {
-    const measures: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(params);
-    if (name === "masculineFeminine") return AutoMovieHumanBodyAnatomy.sexCoordinate(measures);
+  export function slider(
+    params: IAutoMovieHumanParameters,
+    name: "fat" | "muscularity" | "masculineFeminine",
+  ): number {
+    const measures: IAutoMovieHumanBodyMeasures =
+      AutoMovieHumanBodyAnatomy.resolve(params);
+    if (name === "masculineFeminine")
+      return AutoMovieHumanBodyAnatomy.sexCoordinate(measures);
     if (name === "fat") return AutoMovieHumanBodyAnatomy.adiposity(measures);
     return 0;
   }
@@ -193,7 +214,9 @@ export namespace AutoMovieHumanBodyLaw {
    * @param params Public input.
    * @returns The neck ring chain, world mm.
    */
-  export function neckRing(params: IAutoMovieHumanParameters): IAutoMovieLoftChain {
+  export function neckRing(
+    params: IAutoMovieHumanParameters,
+  ): IAutoMovieLoftChain {
     const height: number = statureOf(params);
     const inputs: AutoMovieHumanLegConstruction.IInputs = tapes(params, height);
     const head: AutoMovieHumanHeadConstruction.IInputs = headInputs(params);
@@ -215,7 +238,9 @@ export namespace AutoMovieHumanBodyLaw {
    * @param params Public input.
    * @returns The head construction's inputs, world mm.
    */
-  export function headInputs(params: IAutoMovieHumanParameters): AutoMovieHumanHeadConstruction.IInputs {
+  export function headInputs(
+    params: IAutoMovieHumanParameters,
+  ): AutoMovieHumanHeadConstruction.IInputs {
     const height: number = statureOf(params);
 
     return {
@@ -238,7 +263,10 @@ export namespace AutoMovieHumanBodyLaw {
  * 256-control shoulder ring (`AutoMovieHumanTrunkGuides.KNOT.anteriorAxillary`,
  * `AutoMovieHumanTrunkGuides.KNOT.posteriorAxillary`).
  */
-const ARM_ARC: readonly [number, number] = [(2 * Math.PI * 46) / 256, (2 * Math.PI * 94) / 256];
+const ARM_ARC: readonly [number, number] = [
+  (2 * Math.PI * 46) / 256,
+  (2 * Math.PI * 94) / 256,
+];
 
 /** Shared rings of the trunk: the rest come with their chains. */
 const EVENTS: IAutoMovieHumanBodyCalibration.IEvent[] = [
@@ -306,8 +334,7 @@ function crotch(
     ankleHeight:
       feet === undefined
         ? expected
-        : ((feet.left.ankleHeight + feet.right.ankleHeight) / 2) *
-          inputs.scale,
+        : ((feet.left.ankleHeight + feet.right.ankleHeight) / 2) * inputs.scale,
   });
 }
 
@@ -324,10 +351,15 @@ function crotch(
  * @returns The neck length, mm.
  */
 function neckLength(params: IAutoMovieHumanParameters, height: number): number {
-  const menton: number = height - AutoMovieHumanHeadAnatomy.resolve(params).height;
-  const cervicale: number = AutoMovieHumanBodyAnatomy.resolve(params).cervicaleHeight;
+  const menton: number =
+    height - AutoMovieHumanHeadAnatomy.resolve(params).height;
+  const cervicale: number =
+    AutoMovieHumanBodyAnatomy.resolve(params).cervicaleHeight;
 
-  return Math.max(0, (menton - cervicale) / AutoMovieHumanHeadPrior.PRIOR.ratios.neck);
+  return Math.max(
+    0,
+    (menton - cervicale) / AutoMovieHumanHeadPrior.PRIOR.ratios.neck,
+  );
 }
 
 /** The person's stature, mm. */
@@ -346,8 +378,11 @@ function tapes(
   stature: number,
 ): AutoMovieHumanLegConstruction.IInputs {
   const scale: number = stature / statureOf(params);
-  const measures: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(params);
-  const free: (name: "fat" | "muscularity" | "masculineFeminine") => number = (name: "fat" | "muscularity" | "masculineFeminine"): number => AutoMovieHumanBodyLaw.slider(params, name);
+  const measures: IAutoMovieHumanBodyMeasures =
+    AutoMovieHumanBodyAnatomy.resolve(params);
+  const free: (name: "fat" | "muscularity" | "masculineFeminine") => number = (
+    name: "fat" | "muscularity" | "masculineFeminine",
+  ): number => AutoMovieHumanBodyLaw.slider(params, name);
   return {
     calf: measures.calfCircumference * scale,
     knee: measures.kneeCircumference * scale,
@@ -362,10 +397,19 @@ function tapes(
 }
 
 /** One foot's given measures, or none. */
-type FootGiven = Pick<IAutoMovieHumanLegIdentity, "footLength" | "footBreadth" | "ankleHeight"> | undefined;
+type FootGiven =
+  | Pick<
+      IAutoMovieHumanLegIdentity,
+      "footLength" | "footBreadth" | "ankleHeight"
+    >
+  | undefined;
 
 /** One hand's given measures, or none. */
-type HandGiven = IAutoMovieHumanExtremityDimensions["hands"] extends infer P ? (P extends { left: infer H } ? H | undefined : never) : never;
+type HandGiven = IAutoMovieHumanExtremityDimensions["hands"] extends infer P
+  ? P extends { left: infer H }
+    ? H | undefined
+    : never
+  : never;
 
 /**
  * The person's foot dimensions in calibration millimetres. A side without
@@ -381,7 +425,11 @@ function feet(
       inputs.sex,
       inputs.scale,
     );
-  const side: (given: FootGiven) => AutoMovieHumanFootConstruction.IDimensions = (given: FootGiven): AutoMovieHumanFootConstruction.IDimensions =>
+  const side: (
+    given: FootGiven,
+  ) => AutoMovieHumanFootConstruction.IDimensions = (
+    given: FootGiven,
+  ): AutoMovieHumanFootConstruction.IDimensions =>
     given === undefined
       ? expected
       : {
@@ -403,7 +451,8 @@ function column(
   params: IAutoMovieHumanParameters,
   inputs: AutoMovieHumanLegConstruction.IInputs,
 ): AutoMovieHumanTrunkConstruction.IInputs {
-  const anatomy: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(params);
+  const anatomy: IAutoMovieHumanBodyMeasures =
+    AutoMovieHumanBodyAnatomy.resolve(params);
 
   return {
     hip: inputs.hip,
@@ -439,14 +488,17 @@ function arms(
   scale: number,
   sex: number,
 ): AutoMovieHumanArmConstruction.IInputs {
-  const measures: IAutoMovieHumanBodyMeasures = AutoMovieHumanBodyAnatomy.resolve(params);
+  const measures: IAutoMovieHumanBodyMeasures =
+    AutoMovieHumanBodyAnatomy.resolve(params);
   const expected: AutoMovieHumanArmConstruction.IHand =
     AutoMovieHumanArmConstruction.expected(
       statureOf(params),
       measures.handCircumference,
       scale,
     );
-  const side: (given: HandGiven) => AutoMovieHumanArmConstruction.IHand = (given: HandGiven): AutoMovieHumanArmConstruction.IHand =>
+  const side: (given: HandGiven) => AutoMovieHumanArmConstruction.IHand = (
+    given: HandGiven,
+  ): AutoMovieHumanArmConstruction.IHand =>
     given === undefined
       ? expected
       : {

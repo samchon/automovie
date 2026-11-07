@@ -43,6 +43,9 @@ export const buildInstancedEffect: (
     transparent: true,
     depthTest: true,
     depthWrite: false,
+    polygonOffset: effect.recipe.motion.ballistic?.retainStains === true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: -1,
     vertexShader: `
       attribute float automovieOpacity;
       varying float vAutomovieOpacity;
@@ -92,6 +95,9 @@ export const buildInstancedEffect: (
   const matrix: THREE.Matrix4 = new THREE.Matrix4();
   const scale: THREE.Vector3 = new THREE.Vector3();
   const cameraQuaternion: THREE.Quaternion = new THREE.Quaternion();
+  const surfaceQuaternion: THREE.Quaternion = new THREE.Quaternion();
+  const planeNormal: THREE.Vector3 = new THREE.Vector3(0, 0, 1);
+  const surfaceNormal: THREE.Vector3 = new THREE.Vector3();
   return {
     object: mesh,
     stats,
@@ -118,7 +124,16 @@ export const buildInstancedEffect: (
               particle.position.y,
               particle.position.z,
             ),
-            cameraQuaternion,
+            particle.normal
+              ? surfaceQuaternion.setFromUnitVectors(
+                  planeNormal,
+                  surfaceNormal.set(
+                    particle.normal.x,
+                    particle.normal.y,
+                    particle.normal.z,
+                  ),
+                )
+              : cameraQuaternion,
             scale,
           );
           mesh.setMatrixAt(index, matrix);
