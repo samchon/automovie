@@ -236,11 +236,11 @@ B steps back out of range and comes back with a jab feint. A's right glove rises
 
 ### Check and counter {#s03-b05}
 
-A turns his right shin into B's lead leg. B raises his left knee and checks it, then fires a cross from the check; A slips outside it and both men step out of range.
+A jabs into B's gloves and turns his right shin into B's lead leg behind it. B raises his left knee and checks it, then fires a cross from the check; A slips outside it and both men step out of range.
 
 - Cast: [Fighter A](../settings/cast/fighter-a.md#weapons), [Fighter B](../settings/cast/fighter-b.md#defense)
-- Intent: A kicks low; B checks and counters with a cross; A slips.
-- Outcome: Checked; evaded.
+- Intent: A jabs and kicks low; B covers and checks, then counters with a cross; A slips.
+- Outcome: Blocked, checked; evaded.
 - Consequence: No new mark.
 - Space: Both step out to kicking distance and circle.
 - Camera: medium, then wide.
@@ -438,11 +438,11 @@ A pushes a left teep into B's stomach to restore distance. B walks through it be
 
 ### Check and land {#s06-b04}
 
-B kicks low with his right leg. A checks it with the raised lead shin, lands, and lands again: his jab pops B's head back before his cross meets B's closed gloves.
+B jabs into A's gloves and kicks low with his right leg behind it. A checks it with the raised lead shin, lands, and lands again: his jab pops B's head back before his cross meets B's closed gloves.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#weapons), [Fighter A](../settings/cast/fighter-a.md#defense)
-- Intent: B kicks low; A checks and counters with jab and cross; B is late for the jab and covers the cross.
-- Outcome: Checked; landed, blocked.
+- Intent: B jabs and kicks low; A covers and checks, then counters with jab and cross; B is late for the jab and covers the cross.
+- Outcome: Blocked, checked; landed, blocked.
 - Consequence: B's head snaps back; no new mark.
 - Space: Both hold the open ring, then step out.
 - Camera: medium, then wide.
@@ -677,11 +677,11 @@ B jabs to cover his retreat; A slips it. A digs a left hook into B's body, and B
 
 ### The camera widens {#s10-b03}
 
-At 143 seconds the camera begins widening into the side-on view of the finish. B jabs and crosses; A parries the jab, slips outside the cross and turns a right kick into B's body. B's left arm drops early and blocks it.
+At 143 seconds the camera begins widening into the side-on view of the finish. B jabs and crosses; A parries the jab and slips outside the cross, then answers with a cross into B's gloves and a right kick into B's body behind it. B's left arm drops early and blocks it.
 
 - Cast: [Fighter B](../settings/cast/fighter-b.md#weapons), [Fighter A](../settings/cast/fighter-a.md#weapons)
-- Intent: B jabs and crosses; A parries and slips, then kicks the body; B drops his arm onto it.
-- Outcome: Parried, evaded; blocked.
+- Intent: B jabs and crosses; A parries and slips, then answers with cross and body kick; B covers and drops his arm onto the kick.
+- Outcome: Parried, evaded; blocked, blocked.
 - Consequence: No new mark; B's tell shows once more.
 - Space: Both hold the open ring.
 - Camera: widening from medium to the wide side-on view of the finish.
