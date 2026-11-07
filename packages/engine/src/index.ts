@@ -36,6 +36,7 @@ export * from "./IAutoMovieWorldBlock";
 export * from "./analysis";
 export * from "./assertWorldPlacements";
 export * from "./autoMovieModelGaits";
+export * from "./composition";
 export * from "./composeFormationHeroTransform";
 export * from "./constants";
 export * from "./createAutoMovieSourceOracle";
