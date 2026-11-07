@@ -1,3 +1,5 @@
+import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+
 import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysicalSimulation";
 import type { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
 import { bindPhysicalKinematicFrame } from "./bindPhysicalKinematicFrame";
@@ -13,6 +15,12 @@ export async function computePhysicalKinematicFrames(
   progress?: (completed: number, total: number) => void,
 ): Promise<void> {
   const count: number = Math.round(input.duration * input.rate);
+  const profiles: Record<string, P> = Object.fromEntries(
+    input.bodies.map((body: Simulation.IBody): [string, P] => [
+      body.id,
+      body.profile,
+    ]),
+  );
   for (const body of input.bodies)
     for (const segment of body.profile.segments)
       cache.ownership.push({
@@ -45,6 +53,7 @@ export async function computePhysicalKinematicFrames(
             cache.frames.at(-1),
             geometry,
             cache.contacts,
+            profiles,
           )
         : frame,
     );

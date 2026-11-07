@@ -18,7 +18,7 @@ import { samplePhysicalOwnership } from "./samplePhysicalOwnership";
  */
 export class AutoMoviePhysicsCache {
   /** Native controller, target-fitting and ownership policy epoch, included in content identity. */
-  public static readonly protocol: string = "automovie.physical-cache.v23";
+  public static readonly protocol: string = "automovie.physical-cache.v25";
   /** Stored with replay data so incompatible checkpoints never resume. */
   public readonly protocol: string = AutoMoviePhysicsCache.protocol;
   /** Frame zero followed by every completed fixed step. */

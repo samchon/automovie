@@ -12,6 +12,7 @@ import type {
 
 import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
 import { physicalSupportPoint } from "./physicalSupportPoint";
+import { visitPhysicalNative } from "./visitPhysicalNative";
 
 /** Read touching upward native floor constraints before recent positive surface impulses. Native points retain their actual combined friction; receipt-only compliant contacts use the declared average with the floor's friction 0.7. No projected sole or future contact is invented. */
 export function collectPhysicalSupports(input: {
@@ -33,14 +34,24 @@ export function collectPhysicalSupports(input: {
       let loaded: boolean = false;
       for (const [handle, identity] of input.colliders)
         if (identity.body === input.body && patches.includes(identity.bone)) {
-          input.world.narrowPhase.contactPairsWith(
-            handle,
+          visitPhysicalNative(
+            (visitor: (other: number) => void): void =>
+              input.world.narrowPhase.contactPairsWith(handle, visitor),
             (other: number): void => {
               if (input.colliders.get(other)?.body !== "floor") return;
-              input.world.narrowPhase.contactPair(
-                handle,
-                other,
-                input.world.bodies,
+              visitPhysicalNative(
+                (
+                  visitor: (
+                    manifold: TempContactManifold,
+                    flipped: boolean,
+                  ) => void,
+                ): void =>
+                  input.world.narrowPhase.contactPair(
+                    handle,
+                    other,
+                    input.world.bodies,
+                    visitor,
+                  ),
                 (manifold: TempContactManifold, flipped: boolean): void => {
                   if (manifold.normal().y * (flipped ? -1 : 1) >= -0.5) return;
                   for (let i: number = 0; i < manifold.numContacts(); i++)

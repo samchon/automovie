@@ -8,10 +8,15 @@ import type { AutoMoviePhysicsCache } from "./AutoMoviePhysicsCache";
 import type { IAutoMoviePhysicalHandoff } from "./IAutoMoviePhysicalHandoff";
 import type { PhysicalTargetInterval } from "./PhysicalTargetInterval";
 import type { preparePhysicalGeometry } from "./preparePhysicalGeometry";
+import type { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";
 import type { solvePhysicalCompliantContacts as solveCompliance } from "./solvePhysicalCompliantContacts";
 
 /** Solver handles are transient and rebuilt in creation order after snapshot restore. */
 export interface IAutoMoviePhysicalBinding {
+  /** Admitted immutable providers shared by fits within this run. */ profiles: Record<
+    string,
+    P
+  >;
   /** Immobile position-kinematic floor; omitted only while native binding is being constructed. */ floor?: RigidBody;
   /** Scene/body segment keys to live rigid bodies. */ bodies: Map<
     string,
@@ -66,7 +71,35 @@ export interface IAutoMoviePhysicalBinding {
     string,
     P.ISegment[]
   >;
+  /** Immutable profile parent joints, indexed once per binding. */ jointByChild: Map<
+    string,
+    Map<string, P.IJoint>
+  >;
+  /** Exact descendant lists compiled once for related-branch coordinate updates. */ descendants: Map<
+    string,
+    Map<string, readonly string[]>
+  >;
+  /** Balance posture ownership and required ancestors, compiled once. */ posture: Map<
+    string,
+    ReadonlySet<string>
+  >;
+  /** Endpoint-owned descendants with and without an active balance posture. */ supportCoordinates: Map<
+    string,
+    { all: ReadonlySet<string>; disjoint: ReadonlySet<string> }
+  >;
+  /** Dynamic selections are reused only for admitted immutable target arrays. */ selection: Map<
+    string,
+    {
+      /** Owned target-array identity. */ source: readonly string[] | undefined;
+      /** Explicit whole-body authored mode. */ kinematic: boolean;
+      /** Run-owned segment selection. */ bones: Set<string>;
+    }
+  >;
   /** Initialized convex queries shared by collider-relative tracking. */ geometry?: preparePhysicalGeometry.IQueries;
+  /** Authored interval coefficients rebuilt from admitted targets after restore. */ authoredTargets: Map<
+    string,
+    samplePhysicalAuthoredTargets.IPlan
+  >;
   /** Fitted interval endpoints; native substeps interpolate one coherent moving reference instead of holding its first sample. */ contactTargets: Map<
     string,
     PhysicalTargetInterval.IPlan

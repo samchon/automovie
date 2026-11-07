@@ -15,10 +15,14 @@ import { advancePhysicalOwnership } from "./advancePhysicalOwnership";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
 import { configurePhysicalBodyQuality } from "./configurePhysicalBodyQuality";
 import { configurePhysicalJointMotor } from "./configurePhysicalJointMotor";
+import { copyPhysicalTarget } from "./copyPhysicalTarget";
+import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { physicalGravityTorques } from "./physicalGravityTorques";
 import { physicalSupportPoint } from "./physicalSupportPoint";
+import { readPhysicalScene } from "./readPhysicalScene";
 import { releasePhysicalTracking } from "./releasePhysicalTracking";
-import { samplePhysicalTarget } from "./samplePhysicalTarget";
+import { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";
+import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
 import { trackPhysicalBalanceTargets } from "./trackPhysicalBalanceTargets";
 import { trackPhysicalContactTargets } from "./trackPhysicalContactTargets";
@@ -39,6 +43,7 @@ export function trackPhysicalWorld(
   seconds: number,
 ): void {
   const dt: number = world.timestep;
+  let scene: ReturnType<typeof readPhysicalScene> | undefined;
   for (const body of input.bodies) {
     const target: AutoMoviePhysicalSimulation.ITarget =
       samplePhysicalTrackingTarget(
@@ -48,45 +53,44 @@ export function trackPhysicalWorld(
         seconds,
         bound.contactReleased,
       );
-    const fraction: number = Math.max(
-      0,
-      Math.min(1, seconds * input.rate - (step - 1)),
-    );
-    const goals: Record<
+    // Fully dynamic withdrawal has no authored pose authority. Retain native
+    // contacts, passive constraints and force cleanup without rebuilding goals.
+    if (
+      body.mode.kind !== "kinematic" &&
+      target.strength === 0 &&
+      target.dynamicSegments === undefined &&
+      bound.dynamic.get(body.id)?.size === body.profile.segments.length &&
+      !hasPhysicalHandoff(bound.handoffs.get(body.id)) &&
+      !Object.values(target.jointStrength ?? {}).some(
+        (strength: number): boolean => strength > 0,
+      )
+    ) {
+      if (!bound.released.has(body.id))
+        releasePhysicalTracking(world, input, body, bound);
+      continue;
+    }
+    const authoredGoals: Record<
       string,
       ReturnType<typeof samplePhysicalTarget>
-    > = Object.fromEntries(
-      body.profile.segments.map(
-        (
-          segment: (typeof body.profile.segments)[number],
-        ): [string, ReturnType<typeof samplePhysicalTarget>] => [
-          segment.bone,
-          samplePhysicalTarget(
-            body.targets[step - 1]!.segments[segment.bone]!,
-            target.segments[segment.bone]!,
-            fraction,
-            input.rate,
-          ),
-        ],
-      ),
+    > = samplePhysicalAuthoredTargets(
+      body,
+      target,
+      bound,
+      step,
+      seconds,
+      input.rate,
     );
-    const root: P.ISegment = body.profile.segments.find(
-      (segment: (typeof body.profile.segments)[number]): boolean =>
-        !body.profile.joints.some(
-          (joint: (typeof body.profile.joints)[number]): boolean =>
-            joint.child === segment.bone,
-        ),
-    )!;
+    const root: P.ISegment = bound.order.get(body.id)![0]!;
     const earlyFit: boolean =
       body.mode.kind === "kinematic" ||
       target.dynamicSegments !== undefined ||
-      Object.keys(bound.handoffs.get(body.id) ?? {}).length > 0;
-    const authoredGoals: typeof goals = structuredClone(goals);
+      hasPhysicalHandoff(bound.handoffs.get(body.id));
+    const goals: typeof authoredGoals = { ...authoredGoals };
     const rootIntent: ReturnType<typeof samplePhysicalTarget> = structuredClone(
       authoredGoals[root.bone]!,
     );
     if (earlyFit)
-      trackPhysicalContactTargets(
+      scene = trackPhysicalContactTargets(
         input,
         body,
         target,
@@ -95,6 +99,8 @@ export function trackPhysicalWorld(
         goals,
         seconds,
         recovery[body.id]?.revision ?? 0,
+        scene,
+        recovery[body.id],
       );
     const dynamic: Set<string> = advancePhysicalOwnership({
       body,
@@ -105,6 +111,7 @@ export function trackPhysicalWorld(
       nativeRate: input.rate * input.substeps!,
     });
     const rootDynamic: boolean = dynamic.has(root.bone);
+    if (scene) scene = readPhysicalScene(bound, scene, body.id);
     for (const segment of body.profile.segments) {
       const rigid: RigidBody = bound.bodies.get(`${body.id}/${segment.bone}`)!;
       rigid.resetForces(false);
@@ -255,10 +262,13 @@ export function trackPhysicalWorld(
         rigid.setAdditionalPgsIterations(0);
       }
     configurePhysicalBodyQuality(bound, input, body, effort.strength === 0);
-    const endpointGoals: typeof goals = structuredClone(authoredGoals);
+    const endpointGoals: typeof goals = { ...authoredGoals };
     for (const limb of body.balance?.pattern.limbs ?? []) {
       const point: IAutoMovieVector3 | undefined = assessment?.goals[limb.bone];
-      if (point)
+      if (point) {
+        endpointGoals[limb.bone] = copyPhysicalTarget(
+          endpointGoals[limb.bone]!,
+        );
         endpointGoals[limb.bone]!.pose.position = Vector3.add(
           endpointGoals[limb.bone]!.pose.position,
           Vector3.subtract(
@@ -269,6 +279,7 @@ export function trackPhysicalWorld(
             ),
           ),
         );
+      }
     }
     if (assessment?.state.rootOffset)
       rootIntent.pose.position = Vector3.add(
@@ -276,11 +287,13 @@ export function trackPhysicalWorld(
         assessment.state.rootOffset,
       );
     if (assessment?.state.rootOffset)
-      for (const goal of Object.values(goals))
-        goal.pose.position = Vector3.add(
+      for (const [bone, goal] of Object.entries(goals)) {
+        goals[bone] = copyPhysicalTarget(goal);
+        goals[bone]!.pose.position = Vector3.add(
           goal.pose.position,
           assessment.state.rootOffset,
         );
+      }
     if (assessment && body.balance) {
       const lowering: ReturnType<typeof trackPhysicalBalanceTargets> =
         trackPhysicalBalanceTargets({
@@ -350,24 +363,9 @@ export function trackPhysicalWorld(
       seconds,
       dt,
     });
-    const posture: Set<string> = new Set(
-      assessment
-        ? body.balance!.pattern.limbs.flatMap(
-            (
-              limb: AdvanceBalance.IPolicy["pattern"]["limbs"][number],
-            ): string[] => limb.chain,
-          )
-        : [],
-    );
-    if (body.supportTracking && (body.supportTracking.iterations ?? 24) > 0) {
-      for (let pass: number = 0; pass < body.profile.joints.length; pass++) {
-        const size: number = posture.size;
-        for (const joint of body.profile.joints)
-          if (posture.has(joint.child)) posture.add(joint.parent);
-        if (posture.size === size) break;
-      }
-      posture.delete(root.bone);
-    }
+    const posture: ReadonlySet<string> = assessment
+      ? bound.posture.get(body.id)!
+      : NO_POSTURE;
     trackPhysicalRootSupportTargets({
       body,
       bound,
@@ -386,7 +384,7 @@ export function trackPhysicalWorld(
       },
     });
     if (!earlyFit)
-      trackPhysicalContactTargets(
+      scene = trackPhysicalContactTargets(
         input,
         body,
         effort,
@@ -395,6 +393,8 @@ export function trackPhysicalWorld(
         goals,
         seconds,
         assessment?.state.revision ?? 0,
+        scene,
+        assessment?.state,
       );
     for (const joint of body.profile.joints) {
       if (!dynamic.has(joint.child)) continue;
@@ -474,3 +474,6 @@ export function trackPhysicalWorld(
     }
   }
 }
+
+/** No balance posture is excluded when that controller is inactive. */
+const NO_POSTURE: ReadonlySet<string> = new Set();

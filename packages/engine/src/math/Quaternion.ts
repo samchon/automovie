@@ -298,7 +298,9 @@ export namespace Quaternion {
    * @param a Unit rotation at `t = 0`.
    * @param b Unit rotation at `t = 1`.
    * @param t Interpolation parameter.
-   * @returns A new quaternion, unit length for unit inputs.
+   * @returns A new unit quaternion; both branches normalize, because the
+   *   arccosine near the switch threshold leaves the spherical weights
+   *   inexact.
    *
    * @evidence contracts/common.md#principled-implementation Shoemake's slerp, `sin((1 − t)θ)/sin θ · a + sin(tθ)/sin θ · b` with `θ` the angle between the operands, after negating `b` when `a · b < 0` so the path takes the shorter of the two arcs that represent the same rotation pair.
    * @evidence contracts/common.md#clear-and-simple-design One function with the near-parallel branch inside, because every caller, clip and motion sampling, driver blending and iterative IK, needs the same guarded interpolation.
@@ -306,7 +308,7 @@ export namespace Quaternion {
    * @evidence contracts/common.md#meaningful-documentation States the endpoints, the shorter-arc choice, the near-parallel threshold with its angle and why it exists, extrapolation outside `[0, 1]`, and when the result is unit length.
    * @evidenceExclude contracts/performance.md#efficient-algorithms One dot product, one arccosine and three sines in constant time, with no algorithm to choose.
    * @evidenceExclude contracts/performance.md#reuse-equivalent-work A pure function of two rotations and a parameter that coordinates no work across calls.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The general spherical branch allocates one result; the near-parallel branch additionally creates a temporary linear quaternion for normalization, without retaining either endpoint.
+   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources Each branch creates one temporary weighted quaternion and returns its normalized copy, without retaining either endpoint.
    */
   export const slerp: (
     a: IAutoMovieQuaternion,
@@ -343,11 +345,13 @@ export namespace Quaternion {
     const sin: number = Math.sin(theta);
     const wa: number = Math.sin((1 - t) * theta) / sin;
     const wb: number = Math.sin(t * theta) / sin;
-    return {
+    // acos loses relative accuracy as cos approaches the switch threshold, so
+    // the weights alone leave a norm error near 1e-13; normalize like nlerp.
+    return normalize({
       x: a.x * wa + bx * wb,
       y: a.y * wa + by * wb,
       z: a.z * wa + bz * wb,
       w: a.w * wa + bw * wb,
-    };
+    });
   };
 }

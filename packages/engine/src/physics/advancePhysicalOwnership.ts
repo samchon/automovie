@@ -11,6 +11,8 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 import type { IAutoMoviePhysicalHandoff as Handoff } from "./IAutoMoviePhysicalHandoff";
 import { PhysicalRotationVector as Rotation } from "./PhysicalRotationVector";
 import { assertPhysicalNativeMotion } from "./assertPhysicalNativeMotion";
+import { copyPhysicalTarget } from "./copyPhysicalTarget";
+import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { isPhysicalNativeNumber as scalar } from "./isPhysicalNativeNumber";
 import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalSupportPoint } from "./physicalSupportPoint";
@@ -38,14 +40,32 @@ export function advancePhysicalOwnership(input: {
   const seconds: number = input.tick / input.nativeRate;
   const previousSeconds: number = (input.tick - 1) / input.nativeRate;
   const dt: number = 1 / input.nativeRate;
-  const selected: Set<string> = new Set(
-    input.body.mode.kind === "kinematic"
-      ? []
-      : (input.target.dynamicSegments ??
-          input.body.profile.segments.map(
-            (segment: P.ISegment): string => segment.bone,
-          )),
-  );
+  let selection: ReturnType<typeof input.bound.selection.get> =
+    input.bound.selection.get(input.body.id);
+  const kinematic: boolean = input.body.mode.kind === "kinematic";
+  if (
+    !selection ||
+    selection.source !== input.target.dynamicSegments ||
+    selection.kinematic !== kinematic ||
+    (input.target.dynamicSegments !== undefined &&
+      !Object.isFrozen(input.target.dynamicSegments))
+  ) {
+    selection = {
+      source: input.target.dynamicSegments,
+      kinematic,
+      bones: new Set(
+        kinematic
+          ? []
+          : (input.target.dynamicSegments ??
+              input.body.profile.segments.map(
+                (segment: P.ISegment): string => segment.bone,
+              )),
+      ),
+    };
+    input.bound.selection.set(input.body.id, selection);
+  }
+  const selected: Set<string> = selection.bones;
+  let owned: Set<string> | undefined;
   const segments: Map<string, RigidBody> = input.bound.segments.get(
     input.body.id,
   )!;
@@ -56,9 +76,10 @@ export function advancePhysicalOwnership(input: {
   const ordered: readonly P.ISegment[] = input.bound.order.get(input.body.id)!;
   input.bound.dynamic.set(input.body.id, selected);
   if (
-    selected.size === previous.size &&
-    [...selected].every((bone: string): boolean => previous.has(bone)) &&
-    !Object.keys(transitions).length
+    (selected === previous ||
+      (selected.size === previous.size &&
+        [...selected].every((bone: string): boolean => previous.has(bone)))) &&
+    !hasPhysicalHandoff(transitions)
   ) {
     for (const segment of ordered)
       if (!selected.has(segment.bone)) author(segment);
@@ -84,34 +105,45 @@ export function advancePhysicalOwnership(input: {
       ],
     ),
   );
-  const authored: Record<
-    string,
-    ReturnType<typeof samplePhysicalTarget>
-  > = structuredClone(input.goals);
+  const authored: Record<string, ReturnType<typeof samplePhysicalTarget>> = {
+    ...input.goals,
+  };
+  const entering: Set<string> = new Set();
+  for (const segment of ordered)
+    if (
+      !selected.has(segment.bone) &&
+      segments.get(segment.bone)!.isDynamic()
+    ) {
+      entering.add(segment.bone);
+      const parent: string | undefined = input.bound.jointByChild
+        .get(input.body.id)!
+        .get(segment.bone)?.parent;
+      if (parent !== undefined) entering.add(parent);
+    }
   const before: Record<
     string,
     ReturnType<typeof samplePhysicalTarget>
   > = Object.fromEntries(
-    Object.entries(authored).map(
-      ([bone, goal]: [string, ReturnType<typeof samplePhysicalTarget>]): [
-        string,
-        ReturnType<typeof samplePhysicalTarget>,
-      ] => [
-        bone,
-        {
-          ...goal,
-          pose: {
-            position: Vector3.subtract(
-              goal.pose.position,
-              Vector3.scale(goal.velocity, dt),
-            ),
-            rotation: Quaternion.multiply(
-              Rotation.exp(Vector3.scale(goal.angularVelocity, -dt)),
-              goal.pose.rotation,
-            ),
+    [...entering].map(
+      (bone: string): [string, ReturnType<typeof samplePhysicalTarget>] => {
+        const goal: ReturnType<typeof samplePhysicalTarget> = authored[bone]!;
+        return [
+          bone,
+          {
+            ...goal,
+            pose: {
+              position: Vector3.subtract(
+                goal.pose.position,
+                Vector3.scale(goal.velocity, dt),
+              ),
+              rotation: Quaternion.multiply(
+                Rotation.exp(Vector3.scale(goal.angularVelocity, -dt)),
+                goal.pose.rotation,
+              ),
+            },
           },
-        },
-      ],
+        ];
+      },
     ),
   );
   for (const segment of ordered) {
@@ -140,10 +172,11 @@ export function advancePhysicalOwnership(input: {
       }
       continue;
     }
-    const joint: P.IJoint | undefined = input.body.profile.joints.find(
-      (joint: P.IJoint): boolean => joint.child === bone,
-    );
+    const joint: P.IJoint | undefined = input.bound.jointByChild
+      .get(input.body.id)!
+      .get(bone);
     const parent: string | undefined = joint?.parent;
+    writable(bone);
     if (rigid.isDynamic()) {
       const solved: ReturnType<typeof relative> = relative(
         actual[bone]!,
@@ -321,10 +354,10 @@ export function advancePhysicalOwnership(input: {
   /** Bone origins follow the same fixed pivots as colliders, including angular transport velocity. */
   function author(segment: P.ISegment): void {
     const bone: string = segment.bone;
-    const goal: ReturnType<typeof samplePhysicalTarget> = input.goals[bone]!;
-    const joint: P.IJoint | undefined = input.body.profile.joints.find(
-      (joint: P.IJoint): boolean => joint.child === bone,
-    );
+    const goal: ReturnType<typeof samplePhysicalTarget> = writable(bone);
+    const joint: P.IJoint | undefined = input.bound.jointByChild
+      .get(input.body.id)!
+      .get(bone);
     if (joint) {
       const parent: ReturnType<typeof samplePhysicalTarget> =
         input.goals[joint.parent]!;
@@ -349,6 +382,15 @@ export function advancePhysicalOwnership(input: {
       );
     }
     write(segment, joint);
+  }
+
+  /** Detach only coordinates this ownership pass actually changes. */
+  function writable(bone: string): ReturnType<typeof samplePhysicalTarget> {
+    if (!owned?.has(bone)) {
+      input.goals[bone] = copyPhysicalTarget(input.goals[bone]!);
+      (owned ??= new Set()).add(bone);
+    }
+    return input.goals[bone]!;
   }
 
   /** Validate the same actual collider/display trajectory before passing it through the native f32 boundary. */

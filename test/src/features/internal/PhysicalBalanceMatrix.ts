@@ -109,7 +109,8 @@ export namespace PhysicalBalanceMatrix {
             state.steps.find(
               (candidate: (typeof state.steps)[number]): boolean =>
                 candidate.bone === landing.bone &&
-                candidate.end <= landing.seconds,
+                candidate.resolved?.status === "landed" &&
+                candidate.resolved.seconds === landing.seconds,
             );
           if (
             !step ||

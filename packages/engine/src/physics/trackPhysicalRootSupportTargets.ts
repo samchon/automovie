@@ -38,27 +38,36 @@ export function trackPhysicalRootSupportTargets(input: {
     )
   )
     return;
-  const selected: Set<string> = new Set(
-    policy.pattern.limbs
-      .filter(
-        (limb: (typeof policy.pattern.limbs)[number]): boolean =>
-          !limb.chain.some((bone: string): boolean => input.excluded.has(bone)),
-      )
-      .flatMap((limb: (typeof policy.pattern.limbs)[number]): string[] =>
-        limb.chain.filter((bone: string): boolean =>
-          body.profile.joints.some(
-            (joint: P.IJoint): boolean => joint.child === bone,
-          ),
-        ),
-      ),
-  );
+  const prepared: NonNullable<ReturnType<typeof bound.supportCoordinates.get>> =
+    bound.supportCoordinates.get(body.id)!;
+  const selected: ReadonlySet<string> =
+    input.excluded.size === 0
+      ? prepared.all
+      : input.excluded === bound.posture.get(body.id)
+        ? prepared.disjoint
+        : new Set(
+            policy.pattern.limbs
+              .filter(
+                (limb: (typeof policy.pattern.limbs)[number]): boolean =>
+                  !limb.chain.some((bone: string): boolean =>
+                    input.excluded.has(bone),
+                  ),
+              )
+              .flatMap(
+                (
+                  limb: (typeof policy.pattern.limbs)[number],
+                ): readonly string[] =>
+                  limb.chain
+                    .filter((bone: string): boolean =>
+                      bound.jointByChild.get(body.id)!.has(bone),
+                    )
+                    .flatMap(
+                      (bone: string): readonly string[] =>
+                        bound.descendants.get(body.id)!.get(bone)!,
+                    ),
+              ),
+          );
   if (!selected.size) return;
-  for (let pass: number = 0; pass < body.profile.joints.length; pass++) {
-    const size: number = selected.size;
-    for (const joint of body.profile.joints)
-      if (selected.has(joint.parent)) selected.add(joint.child);
-    if (selected.size === size) break;
-  }
   let planned: ReturnType<typeof bound.supportPlanned.get> =
     bound.supportPlanned.get(body.id);
   if (planned?.step !== input.step || planned.revision !== input.revision) {

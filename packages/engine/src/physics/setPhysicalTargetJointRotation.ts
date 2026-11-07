@@ -37,6 +37,10 @@ export function setPhysicalTargetJointRotation(
       pivot,
       Quaternion.rotateVector(rotation, Vector3.subtract(pose.position, pivot)),
     );
-    pose.rotation = Quaternion.multiply(rotation, pose.rotation);
+    // Incremental fits compose onto accepted poses instead of rebuilding
+    // from one seed, so renormalize to keep roundoff from accumulating.
+    pose.rotation = Quaternion.normalize(
+      Quaternion.multiply(rotation, pose.rotation),
+    );
   }
 }

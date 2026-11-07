@@ -21,6 +21,14 @@ export function bindPhysicalWorld(
   restored: boolean,
 ): Bound {
   const bound: Bound = {
+    profiles: Object.fromEntries(
+      input.bodies.map(
+        (body: AutoMoviePhysicalSimulation.IBody): [string, P] => [
+          body.id,
+          body.profile,
+        ],
+      ),
+    ),
     bodies: new Map(),
     joints: new Map(),
     colliders: new Map(),
@@ -35,9 +43,15 @@ export function bindPhysicalWorld(
     planned: new Map(),
     supportPlanned: new Map(),
     contactTargets: new Map(),
+    authoredTargets: new Map(),
     segments: new Map(),
     gravityOrder: new Map(),
     order: new Map(),
+    jointByChild: new Map(),
+    descendants: new Map(),
+    posture: new Map(),
+    supportCoordinates: new Map(),
+    selection: new Map(),
   };
   const bodies: RigidBody[] = [];
   const colliders: Collider[] = [];
@@ -61,6 +75,13 @@ export function bindPhysicalWorld(
     const dynamic: Set<string> = new Set();
     bound.segments.set(body.id, local);
     bound.dynamic.set(body.id, dynamic);
+    const parents: Map<string, P.IJoint> = new Map(
+      body.profile.joints.map((joint: P.IJoint): [string, P.IJoint] => [
+        joint.child,
+        joint,
+      ]),
+    );
+    bound.jointByChild.set(body.id, parents);
     for (const segment of body.profile.segments) {
       const target: P.ITransform = body.targets[0]!.segments[segment.bone]!;
       const factor: number =
@@ -298,6 +319,72 @@ export function bindPhysicalWorld(
             )!,
         ),
     ]);
+  }
+  for (const body of input.bodies) {
+    const parents: Map<string, P.IJoint> = bound.jointByChild.get(body.id)!;
+    const posture: Set<string> = new Set(
+      body.balance?.pattern.limbs.flatMap(
+        (
+          limb: NonNullable<typeof body.balance>["pattern"]["limbs"][number],
+        ): string[] => limb.chain,
+      ) ?? [],
+    );
+    if (body.supportTracking && (body.supportTracking.iterations ?? 24) > 0) {
+      for (const bone of [...posture]) {
+        let parent: string | undefined = parents.get(bone)?.parent;
+        while (parent !== undefined) {
+          posture.add(parent);
+          parent = parents.get(parent)?.parent;
+        }
+      }
+      posture.delete(bound.order.get(body.id)![0]!.bone);
+    }
+    bound.posture.set(body.id, posture);
+    const descendants: Map<string, readonly string[]> = new Map();
+    const children: Map<string, string[]> = new Map();
+    for (const joint of body.profile.joints) {
+      const list: string[] = children.get(joint.parent) ?? [];
+      list.push(joint.child);
+      children.set(joint.parent, list);
+    }
+    for (const segment of [...bound.order.get(body.id)!].reverse())
+      descendants.set(segment.bone, [
+        segment.bone,
+        ...(children.get(segment.bone) ?? []).flatMap(
+          (bone: string): readonly string[] => descendants.get(bone)!,
+        ),
+      ]);
+    bound.descendants.set(body.id, descendants);
+    const select: (excluded: ReadonlySet<string>) => ReadonlySet<string> = (
+      excluded: ReadonlySet<string>,
+    ): ReadonlySet<string> =>
+      new Set(
+        (body.supportTracking?.pattern.limbs ?? [])
+          .filter(
+            (
+              limb: NonNullable<
+                typeof body.supportTracking
+              >["pattern"]["limbs"][number],
+            ): boolean =>
+              !limb.chain.some((bone: string): boolean => excluded.has(bone)),
+          )
+          .flatMap(
+            (
+              limb: NonNullable<
+                typeof body.supportTracking
+              >["pattern"]["limbs"][number],
+            ): readonly string[] =>
+              limb.chain
+                .filter((bone: string): boolean => parents.has(bone))
+                .flatMap(
+                  (bone: string): readonly string[] => descendants.get(bone)!,
+                ),
+          ),
+      );
+    bound.supportCoordinates.set(body.id, {
+      all: select(new Set()),
+      disjoint: select(posture),
+    });
   }
   // The finite cuboid avoids the pinned SDK's inconsistent half-space queries.
   // Rapier 0.21's JS frequency setter configures dynamic-contact softness only;
