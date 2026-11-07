@@ -1,4 +1,4 @@
-import type { IFilm } from "../IFilm";
+import type { IFilm } from "../../IFilm";
 import { starter } from "./starter";
 
 /**

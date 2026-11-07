@@ -4,7 +4,7 @@ Make `evidence.config.ts` select the work the commission actually has. Read the 
 
 ## Engineering
 
-Keep the default engineering claims: every source declaration and test answers its [development contracts](../contracts/development/SKILL.md). Turn on `development: { assets, motion, shots, films }` as each of `src/assets/`, `src/motion/`, `src/shots/` and `src/films/` gains its first function, so motion cites the studies it follows, shots cite the screenplay units they execute and films cite the screenplay files they deliver.
+Keep the default engineering claims: every source declaration and test answers its [development contracts](../contracts/development/SKILL.md). Turn on `development: { entities, behaviors, composition }` as `src/entities/`, the behavior folders and `src/composition/` gain their first declaration, so behaviors cite the studies they follow, scenes cite the screenplay scenes and beats they realize and films cite the screenplay files they deliver.
 
 ## Story
 

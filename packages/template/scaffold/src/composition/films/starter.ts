@@ -1,13 +1,13 @@
 import * as THREE from "three";
 
-import type { IFilm } from "../IFilm";
-import type { IFilmProduction } from "../IFilmProduction";
+import type { IFilm } from "../../IFilm";
+import type { IFilmProduction } from "../../IFilmProduction";
 
 /**
  * The empty starter film: a fifteen-second neutral scene. Replace it with one
- * film per screenplay file, each composing its shots.
+ * film per screenplay file, each composing its scenes.
  *
- * @evidence contracts/development/common.md#meaningful-documentation The comment states the starter's length and that each screenplay file replaces it with a film composing its shots.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment states the starter's length and that each screenplay file replaces it with a film composing its scenes.
  * @evidence contracts/development/implementation.md#principled-implementation The film resolves a fresh scene and camera per mount without loading anything, and its seek updates world matrices for the requested second, so playback, seeking and capture draw the same state.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure The film holds only its length and scene assembly; the Viewer entry owns display and the render owns capture.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The starter contains no story, motion or special case; its camera and background are neutral defaults.

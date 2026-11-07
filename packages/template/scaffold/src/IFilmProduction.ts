@@ -17,7 +17,7 @@ export interface IFilmProduction {
   /** Scene the Viewer renders, owned by this mount. */
   scene: THREE.Scene;
 
-  /** Camera the Viewer renders through; shots move it in `seek`. */
+  /** Camera the Viewer renders through; camera entities move it in `seek`. */
   camera: THREE.PerspectiveCamera;
 
   /** Optional shared physical review source, used only when a review overlay is requested. */

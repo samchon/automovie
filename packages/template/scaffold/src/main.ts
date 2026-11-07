@@ -7,7 +7,7 @@ import {
 import type { IFilm } from "./IFilm";
 import type { IFilmProduction } from "./IFilmProduction";
 import { clampProductionSeconds } from "./clampProductionSeconds";
-import { films } from "./films";
+import { films } from "./composition/films";
 import { selectFilm } from "./selectFilm";
 
 const query: URLSearchParams = new URLSearchParams(location.search);

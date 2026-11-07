@@ -9,17 +9,19 @@ Commit instructions, creative bodies and evidence answers. Review, naturalness a
 | Location, when used | Owns |
 | --- | --- |
 | `docs/instructions/*.md` | Creative requirements, source boundaries and identified delegated writing choices |
-| `docs/body/settings/<domain>/<subject>.md` | Canon facts, baseline states, and constraints with stable H2 identities, one file per subject grouped into the domains the work needs, such as characters, places and objects |
+| `docs/body/settings/<domain>/<subject>.md` | One subject's requirements, one file per subject, with H2 facets and H3 requirement anchors, in the domains `world`, `cast`, `crowds`, `props`, `sets`, `cinematography` and `sound` |
 | `docs/body/settings/outline/index.md` | Domain and file navigation without duplicating facts |
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
 | `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
 | `docs/body/screenplay/<film>.md`, or `NNN-part/NNN-episode.md` for several videos | Complete final audiovisual text, one file per delivered video, whose name the film and its media reuse; long work preserves its script partition |
+| `docs/research/index.md`, `docs/research/<discipline>/<topic>.md` | The source index and the studies of each practice: laws, outcome tables and measurable targets, under [research](planning/research.md) |
+| `docs/acceptance/<film>.md` | The film's tracked acceptance checklist and its observed results, under [delivery review](../review/delivery.md) |
 | `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files, including `files/research/` for the performance studies |
 | Ignored `docs/review/{draft,final}/<layer>/<relative-file>.md` | Current independent unit reviews mirroring the actual body or working edition |
 | Ignored `docs/review/{draft,final}/<layer>/verdict/index.md` | Current complete-population verdict, findings and author decisions |
 | Ignored `docs/naturalness/`, `docs/revision/` | Frozen and working screenplay editions retained while their cycle needs them |
 
-Project context lives in [PROJECT.md](../production/profile.md), performance studies in `docs/research/` under [research](planning/research.md), and generation requests under [media](../production/media.md).
+Project context lives in [PROJECT.md](../production/profile.md) and generation requests under [media](../production/media.md).
 
 A part can be an act, release block, or another division suited to the format. An episode file can hold a suitable sequence in a continuous film; its filename does not force an episodic release. Narrative partition and [source organization](../development/layout.md) are separate choices.
 

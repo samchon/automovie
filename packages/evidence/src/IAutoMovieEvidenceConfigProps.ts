@@ -24,7 +24,7 @@ export interface IAutoMovieEvidenceConfigProps {
   /** Omit for ordinary coding and standalone assets; provide for video writing. */
   narrative?: IAutoMovieNarrativeProps;
 
-  /** Asset, motion, shot and film development contracts; omitted stages stay disabled. */
+  /** Entity, behavior and composition development contracts; omitted stages stay disabled. */
   development?: IAutoMovieDevelopmentProps;
 
   /** Performance studies answer the story research principles when `"evidence"`; disabled by default. */

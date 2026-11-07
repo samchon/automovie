@@ -12,9 +12,9 @@ Give each independently used subject one file in the domain the work needs, such
 
 User-fixed interpretations are canon. Research open facts through [research](../planning/research.md), attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon. Generation parameters and rendering controls belong to the code; an implementation choice becomes canon only through an adopted decision.
 
-## Realized assets {#realized-assets}
+## Realized entities {#realized-entities}
 
-A record whose subject appears on screen links what realizes it at its own domain path, so a reader and a reviewer see the subject beside the facts it must meet: from `docs/body/settings/characters/fighter-a.md`, embed `![Fighter A, front](../../../../media/diffusion/images/characters/fighter-a-front.png)` and, once it exists, link `[Fighter A asset](../../../../src/assets/characters/fighter-a/)`. When the image or asset and the record disagree, repair whichever is wrong; a link never changes a fact.
+A record whose subject appears on screen links what realizes it, so a reader and a reviewer see the subject beside the requirements it must meet: from `docs/body/settings/cast/fighter-a.md`, embed `![Fighter A, front](../../../../media/diffusion/images/cast/fighter-a-front.png)` and, once it exists, link `[Fighter A entity](../../../../src/entities/cast/fighter-a/)`. When the image or entity and the record disagree, repair whichever is wrong; a link never changes a requirement.
 
 ## Outline and changes
 

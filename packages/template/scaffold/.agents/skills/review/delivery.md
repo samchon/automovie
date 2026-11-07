@@ -8,7 +8,7 @@ Check the required [passes and handoff](../story/workflow.md#completion), and lo
 
 ## Video
 
-Watch the whole assembled artifact as an audience that has not read its plans, and lock that response before opening the screenplay or code, covering the opening, ending, middle and every join. A whole-video hint contains the programmed main scenes and the complete timeline, and carries staging, identity, camera, action and timing at its adopted representation; stick figures and coarse meshes can do that. Inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Every screenplay unit reaches the picture through the shots that cite it; a function name or citation proves neither invocation nor visibility.
+Watch the whole assembled artifact as an audience that has not read its plans, and lock that response before opening the screenplay or code, covering the opening, ending, middle and every join. A whole-video hint contains the programmed main scenes and the complete timeline, and carries staging, identity, camera, action and timing at its adopted representation; stick figures and coarse meshes can do that. Inspect contacts, support, facing, reactions, occlusion and continuity through the motion. Every screenplay beat reaches the picture through the scene that cites it; a function name or citation proves neither invocation nor visibility.
 
 Check control channels against the [conditioning handoff](../production/conditioning.md) at matched frames, and a selected generator's actual accepted inputs and outputs under [generation](../production/generation.md). A finished direct 3D or generated film is judged by its own picture and sound for preserved action, identity, continuity and audience effect, not by its conditioning.
 
@@ -16,7 +16,7 @@ Take runtime from performed and measured timing, never page or word count, and r
 
 ## Assets
 
-Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [visual debugging](../3d-modeling/visual-debugging.md) at the uses [asset work](../development/assets.md#inspect-and-hand-off) sets. Listen to standalone audio as delivered. A mesh import, fit or local preview does not establish that the delivered export works for its recipient.
+Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [visual debugging](../3d-modeling/visual-debugging.md) at the uses [entity work](../development/entities.md#inspect-and-hand-off) sets. Listen to standalone audio as delivered. A mesh import, fit or local preview does not establish that the delivered export works for its recipient.
 
 ## Record and repair
 
