@@ -8,7 +8,7 @@ Does the behavior take its shape priors in the performer's own body frame, its t
 
 ## Does it resolve relations rather than positions? {#relational-goals}
 
-Does the behavior aim at the counterpart's actual body or collider region with an approach direction, timing window and a stated choice to freeze or track the target, bending the technique's shape prior to that relation by fitting rather than reading absolute coordinates, offsets or tuned joint angles? Does an interaction decide the outcome class from the composed intents by its research outcome table first, then let geometry realize and audit it, so a geometric miss fails the audit instead of silently changing the outcome? A consequence such as sweat, blood, dust or a sound cue follows only from a computed outcome.
+Does the behavior aim at the counterpart's actual body or collider region with an approach direction, timing window and a stated choice to freeze or track the target, bending the technique's shape prior to that relation by fitting rather than reading absolute coordinates, offsets or tuned joint angles? Does an interaction decide the outcome class from the composed intents by its research outcome table first, then let geometry realize and audit it, so a geometric miss fails the audit instead of silently changing the outcome? A consequence such as sweat, a scuff, dust or a sound cue follows only from a computed outcome.
 
 ## Does it evaluate the same at every second? {#deterministic-evaluation}
 

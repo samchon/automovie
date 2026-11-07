@@ -11,18 +11,18 @@ The H1 names the film, each H2 is a scene and each H3 a beat, every heading with
 Directly under the scene heading, a breakdown list names by settings link everything the scene's beats use, in these categories: cast, crowds, props, sets, wardrobe and makeup state, effects, sound, camera and lighting. Each beat's action and dialogue blocks end with its beat record:
 
 ```markdown
-### Fighter A feints the right knee {#s03-b04}
+### Mara cues the lift {#s03-b04}
 
 <action and dialogue blocks>
 
-- Cast: [Fighter A](../settings/cast/fighter-a.md#knee-feint), [Fighter B](../settings/cast/fighter-b.md#drops-left-arm)
-- Intent: A feints a right knee to draw B's left guard; B reads it as a real knee.
-- Outcome: B's guard drops, as [the guard table](../../research/kickboxing/guard.md#outcomes) allows for a read feint.
-- Consequence: A lands balanced on the lead foot; B's left arm sits below the shoulder; no mark.
-- Space: A circles left off the ropes toward the centre; B turns to keep A square; the referee steps out to the near corner.
+- Cast: [Mara](../settings/cast/mara.md#lead-hand), [Jun](../settings/cast/jun.md#hesitates-before-jumps)
+- Intent: Mara cues a lift with a press of her hand; Jun reads it a beat late.
+- Outcome: the lift lands short, as [the partnering table](../../research/dance/lifts.md#outcomes) allows for a late read.
+- Consequence: Mara braces under Jun's weight; Jun lands off balance; Jun's sleeve tears at the seam.
+- Space: the pair drifts from centre stage toward the downstage wing; the conductor turns to follow them.
 - Camera: medium two-shot, eye level, slow push in.
-- Sound: dialogue none; foley glove leather and foot pivots; ambience crowd murmur; effects none; music BI pulse continues.
-- Continuity: B's left eyebrow cut from s02-b07 still bleeds.
+- Sound: dialogue none; foley shoe scuffs and fabric; ambience hall air; effects none; music VI the on-stage quartet continues.
+- Continuity: Jun's left shoe, loosened in s02-b07, is still untied.
 ```
 
 Music names its usage: `BI` background instrumental, `BV` background vocal, `VI` visual instrumental and `VV` visual vocal, a source the picture shows. A layer with nothing in it says `none`, because silence is a decision. Breakdown and beat records are notation, like scene headings: expression review does not judge them as prose, and the expression pass rewrites the blocks around them and keeps their decisions.

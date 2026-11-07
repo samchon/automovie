@@ -4,11 +4,11 @@ Write down everything about the world, its people, places and objects that later
 
 ## Records
 
-Give each subject one file in its domain under the [document layout](../layout.md): one H1 naming the subject, an H2 per facet and an H3 per fact with an explicit anchor such as `{#drops-left-arm}`. Later layers cite a fact by its file path and anchor, so never reuse or renumber one. Write each facet below, or `N/A` with its reason, because a missing facet and a deliberate omission must stay distinguishable.
+Give each subject one file in its domain under the [document layout](../layout.md): one H1 naming the subject, an H2 per facet and an H3 per fact with an explicit anchor such as `{#hesitates-before-jumps}`. Later layers cite a fact by its file path and anchor, so never reuse or renumber one. Write each facet below, or `N/A` with its reason, because a missing facet and a deliberate omission must stay distinguishable.
 
 | Domain | Facets |
 | --- | --- |
-| `world` | Rules of the world and of any practice shown, such as a sport's ruleset and its legal targets; time of day, weather and season defaults; tone |
+| `world` | Rules of the world and of any practice shown, such as a sport's or ceremony's rules; time of day, weather and season defaults; tone |
 | `cast` | Identity; body and model sheet, with the views and proportions that keep the subject recognizable; wardrobe, makeup and wounds by story day; carried props; movement style, named as Laban effort combinations such as direct, sudden and strong; repertoire and proficiency; habits, tells and mannerisms, each with what triggers it, how the body responds and how quickly and reliably it happens; speech, its lexicon, rhythm, tics and voice; values, worldview, super-objective and each scene's objective with its psychological gesture; relationships; knowledge; state changes over story time |
 | `crowds` | Number, arrangement, makeup and what the crowd does, watches and reacts to throughout |
 | `props` | Form, material and markings; how people hold, use or ride it; state changes; vehicles and animals included |
@@ -16,7 +16,7 @@ Give each subject one file in its domain under the [document layout](../layout.m
 | `cinematography` | The look: lens kit, framing grammar, camera movement style, lighting style and grade |
 | `sound` | Ambience and music palettes; voices belong to the cast |
 
-User-fixed interpretations are canon. Research open facts through [research](../planning/research.md), attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon. Embed a subject's canon images from `media/diffusion/images/<domain>/`, such as `![Fighter A, front](../../../../media/diffusion/images/cast/fighter-a-front.png)` in `docs/body/settings/cast/fighter-a.md`; when an image and the text disagree, repair whichever is wrong.
+User-fixed interpretations are canon. Research open facts through [research](../planning/research.md), attaching support and uncertainty to the facts they qualify, and report a conflict between an instruction and its source instead of changing canon. Embed a subject's canon images from `media/diffusion/images/<domain>/`, such as `![Mara, front](../../../../media/diffusion/images/cast/mara-front.png)` in `docs/body/settings/cast/mara.md`; when an image and the text disagree, repair whichever is wrong.
 
 ## Outline and changes
 
