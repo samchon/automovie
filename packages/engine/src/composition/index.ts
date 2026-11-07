@@ -8,6 +8,7 @@ export type { IAutoMovieIntent } from "./IAutoMovieIntent";
 export type { IAutoMovieRelationalGoal } from "./IAutoMovieRelationalGoal";
 export type { IAutoMovieSchedule } from "./IAutoMovieSchedule";
 export type { IAutoMovieZone } from "./IAutoMovieZone";
+export * from "./measureAutoMovieContact";
 export * from "./measureAutoMovieSchedule";
 export * from "./resolveAutoMovieFraming";
 export * from "./resolveAutoMovieOutcome";
