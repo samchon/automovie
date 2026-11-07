@@ -4,7 +4,7 @@
 
 ### Canvas and ropes {#canvas}
 
-A fictional indoor ring with a six-metre square fighting area inside four ropes, on a 6.4-metre pale matte canvas. Padded posts stand outside the fighting area at the four corners. A dark apron separates the canvas from the surrounding darkness. A fighter standing at the ropes can touch them with an outstretched glove.
+A fictional indoor ring with a six-metre square fighting area inside four ropes, on a 6.4-metre pale matte canvas raised a metre above the arena floor. The ropes run at 40, 70, 100 and 130 cm above the canvas, the conventional boxing-ring heights, between padded posts that stand outside the fighting area at the four corners and rise a little above the top rope. A dark apron separates the canvas from the surrounding darkness. A fighter standing at the ropes can touch them with an outstretched glove.
 
 ## Zones and landmarks {#zones}
 

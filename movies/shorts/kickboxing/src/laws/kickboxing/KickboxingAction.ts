@@ -67,6 +67,12 @@ export namespace KickboxingAction {
         lead: number;
       }
     | {
+        /** A defense a capability offers before an exchange pairs it with an attack. */
+        kind: "defend";
+        /** The answer. */
+        answer: Answer;
+      }
+    | {
         /** A ring movement. */
         kind: "move";
         /** The movement. */
@@ -116,7 +122,7 @@ export namespace KickboxingAction {
     if (
       typeof action !== "object" ||
       action === null ||
-      !["strike", "answer", "move", "touch", "phase"].includes(
+      !["strike", "answer", "defend", "move", "touch", "phase"].includes(
         (action as { kind?: unknown }).kind as string,
       )
     )

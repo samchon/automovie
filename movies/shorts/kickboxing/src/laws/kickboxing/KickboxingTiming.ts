@@ -186,6 +186,8 @@ export namespace KickboxingTiming {
           duration: action.lead + answerTail(action.answer, action.against),
           contact: action.lead,
         };
+      case "defend":
+        throw new Error(`An unpaired ${action.answer} has no timing; an exchange pairs it first`);
       case "move":
         return { duration: action.steps * STEP_PERIOD };
       case "touch":
