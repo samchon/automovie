@@ -20,17 +20,14 @@ A received strike moves his head, neck, trunk and legs as connected parts. He gi
 
 ### Repertoire {#repertoire}
 
-B is a counter-puncher who likes long combinations and the low kick. His preferred sequences are jab–cross–left hook, jab–cross–liver hook–right low kick and the switch kick. He feints the low kick with a dragged rear foot and turns the hip, then throws the real kick or a cross. He takes the centre with double jabs and closes into the clinch for one knee.
+B is a counter-puncher who enjoys long combinations and the low kick. He favours jab, cross and left hook; jab, cross, a hook to the liver and a right low kick behind it; and the switch kick. He sells a low kick by dragging his rear foot and turning his hip, then throws the real kick or a cross. He takes the centre behind a double jab and closes into the clinch for a single knee.
 
 ### Habits and tells {#tells}
 
-Each habit is written as trigger → response (reaction class).
+Whenever A's right knee rises, B drops his left elbow to his ribs, expecting the body kick. He learned it from the body kicks A lands and repeats, and it decides the bout: A's body-kick feint and his Brazilian kick both exploit it. A pump jab makes B's right glove jump toward it.
 
-- A's right knee rises → B drops his left elbow to his ribs for the body kick he expects (reactive, read as a body kick). This habit decides the bout: A's body-kick feint and the Brazilian kick both exploit it.
-- A pump jab → his right glove reacts toward it (reactive).
-- After his own checked low kick → he stays on the kicking leg a beat too long (late). A punishes this in 105–120.
-- Pressed toward the ropes → he circles off toward his open side rather than covering up (anticipated).
+After his own low kick is checked, B stays on the kicking leg a beat too long. When he feels the ropes behind him, he circles out toward the open side instead of covering up.
 
 ### Values and speech {#values}
 
-B is confident and rhythmic. He likes to set the pace and answer every exchange. He does not speak during the round. His voice is limited to effort exhales, a grunt when the body takes a strike, and breathing that stays audible on the canvas.
+B is confident and rhythmic. He likes to set the pace and to answer every exchange. He says nothing during the round. His voice is limited to effort exhales, a grunt when his body takes a blow, and breathing that stays audible on the canvas.

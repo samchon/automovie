@@ -20,17 +20,14 @@ A reads B's guard, changes range and counters during B's recovery. His short eff
 
 ### Repertoire {#repertoire}
 
-A fights as a Dutch-style pressure kicker. His preferred combinations finish with a kick: jab–cross–hook–right low kick, jab–cross–body hook–right low kick and jab–cross–right body kick. His counters come from the check, the slip outside the cross and the pivot off the line. He keeps one rare weapon in reserve: the right Brazilian (question-mark) kick from the same chamber as his body kick. He uses the clinch only to throw a single immediate knee and then releases, as GLORY requires.
+A fights as a Dutch-style pressure kicker. He prefers combinations that finish with a kick: jab, cross, hook and a right low kick; jab, cross, a hook to the body and the low kick; or jab, cross and a right kick to the body. He counters from his checking leg, from a slip outside the cross and by pivoting off the line. He keeps one rare weapon in reserve, the right Brazilian kick, thrown from the same chamber as his body kick. He enters the clinch only to throw a single knee and lets go at once.
 
 ### Habits and tells {#tells}
 
-Each habit is written as trigger → response (reaction class).
+When B drags his rear foot and turns his hip as if to kick low, A lifts his lead leg to check without waiting to see the kick. B uses this against him with the low-kick feint. A pump jab at his eyes draws his right glove up to meet it.
 
-- B's rear hip turns with a dragged rear foot → A lifts his left check (reactive). B exploits this habit with the low-kick feint.
-- A pump jab at his eyes → his right glove rises to parry (reactive).
-- After landing a combination → A exits on an angle with a lead-foot pivot instead of backing straight out (committed habit).
-- When B gives ground straight back → A cuts across to the side B is circling toward rather than chasing (anticipated).
+After landing a combination, A steps out on an angle, pivoting on his lead foot, rather than backing straight out. When B gives ground straight back, A does not chase him: he cuts across toward the side B is circling to.
 
 ### Values and speech {#values}
 
-A is patient and methodical. He builds patterns on purpose and cashes them in late. He does not speak during the round. His voice is limited to effort exhales, breathing and the wordless shout of his celebration.
+A is patient and methodical. He builds his patterns on purpose and cashes them in late. He says nothing during the round. Short effort exhales and his breathing are his only sounds until the wordless shout of his celebration.

@@ -16,13 +16,6 @@ The contest adopts relevant [GLORY v2.2 principles](../../research/technique.md#
 
 ## Zones and landmarks {#zones}
 
-The rope line lies 3.1 m from ring centre on every side.
+The centre of the canvas is the ground both fighters want; taking it back is a beat of its own. Around it lies open ring, where they circle and trade. Near the ropes, a body length and two short steps from them, a fighter starts to feel trapped and circles out toward the side with more room. The red and cyan corners belong to the fighters' teams. The two light-padded neutral corners are where the referee sends a fighter after a knockdown, always the one farthest from the fallen man.
 
-| Zone | Definition |
-| --- | --- |
-| Centre | Within one metre of the middle of the canvas. Retaking it is a stated beat. |
-| Open ring | Between the centre and the rope zone. |
-| Rope zone | Within 0.95 m of a rope line: the 0.45 m body margin plus two 0.25 m footwork steps. A fighter here circles off toward the side with more room. |
-| Corners | Red and cyan corners, plus two light-padded neutral corners. After the knockdown, A goes to the neutral corner farthest from B's fall. |
-
-[Ring craft](../../research/ring-craft.md#footwork) records the footwork laws that move the fighters through these zones.
+[Ring craft](../../research/ring-craft.md#footwork) records the coaching sources behind this movement.
