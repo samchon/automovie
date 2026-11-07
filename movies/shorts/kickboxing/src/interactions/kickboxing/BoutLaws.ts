@@ -1,4 +1,5 @@
 import {
+  checkAutoMovieLegality,
   type IAutoMovieIntent,
   type IAutoMovieSchedule,
   resolveAutoMovieOutcome,
@@ -7,11 +8,14 @@ import {
 } from "@automovie/engine";
 
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
+import { KickboxingLegality } from "../../laws/kickboxing/KickboxingLegality";
 import { KickboxingOutcome } from "../../laws/kickboxing/KickboxingOutcome";
 import { KickboxingRange } from "../../laws/kickboxing/KickboxingRange";
 import { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
+import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
 import { KnockdownCount } from "../../laws/officiating/KnockdownCount";
+import { RefereePosition } from "../../laws/officiating/RefereePosition";
 import type { Fighter } from "../../entities/cast/fighter/Fighter";
 import type { IRingCast } from "./IRingCast";
 import { boutTiming } from "./boutTiming";
@@ -67,7 +71,14 @@ export namespace BoutLaws {
         const opponent: Fighter = mover === cast.a ? cast.b : cast.a;
         const from: RingFootwork.IPoint = latest(context.entries, mover.id, entry.start) ?? start[mover.id]!;
         const against: RingFootwork.IPoint = latest(context.entries, opponent.id, entry.start) ?? start[opponent.id]!;
-        const ring: RingFootwork.IRing = { half: cast.ring.half, margin: StanceShape.margin(mover.body.measure), step: StanceShape.step(mover.body.measure) };
+        // Walking to the corner and the victory steps are ordinary walking at a
+        // comfortable speed, not the fighting stance's short steps.
+        const walking: boolean = action.movement === "corner" || action.movement === "celebrate";
+        const ring: RingFootwork.IRing = {
+          half: cast.ring.half,
+          margin: StanceShape.margin(mover.body.measure),
+          step: walking ? RefereePosition.SPEED * KickboxingTiming.STEP_PERIOD : StanceShape.step(mover.body.measure),
+        };
         const target: RingFootwork.IPoint | undefined =
           action.movement === "corner"
             ? floor(KnockdownCount.corner(corners(cast), against))
@@ -77,6 +88,16 @@ export namespace BoutLaws {
         return { origin: RingFootwork.move(action, from, against, ring, target) };
       },
     });
+  }
+
+  /**
+   * The legality violations of a resolved schedule under the bout's rules.
+   *
+   * @param schedule The schedule.
+   * @returns One text per violation; empty when legal.
+   */
+  export function check(schedule: IAutoMovieSchedule): string[] {
+    return checkAutoMovieLegality(schedule, KickboxingLegality.rules).map((v) => `${v.rule}: ${v.detail}`);
   }
 
   /**

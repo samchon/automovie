@@ -1,13 +1,15 @@
 import { AutoMovieChain } from "@automovie/engine";
 import * as THREE from "three";
 
+import { CoverageLaw } from "../../../laws/cinematography/CoverageLaw";
+
 /**
  * The one camera inside the ring: its lens, the Three camera the Viewer
  * renders through, and the screenplay's camera decision as an intent. Where
  * it looks is the coverage interaction's work at every second.
  *
  * ```ts
- * const camera = new RingCamera(40);
+ * const camera = new RingCamera();
  * camera.holdFinish(37); // widen into the finish view and hold it
  * ```
  *
@@ -21,13 +23,9 @@ export class RingCamera {
   /** The rendered camera. */
   public readonly camera: THREE.PerspectiveCamera;
 
-  /**
-   * Build the camera.
-   *
-   * @param fieldOfView Vertical field of view, degrees, from the coverage law.
-   */
-  public constructor(fieldOfView: number) {
-    this.camera = new THREE.PerspectiveCamera(fieldOfView, 16 / 9, 0.05, 80);
+  /** Build the camera with the coverage law's lens on the 16:9 delivery frame. */
+  public constructor() {
+    this.camera = new THREE.PerspectiveCamera((CoverageLaw.FIELD_OF_VIEW * 180) / Math.PI, 16 / 9, 0.05, 80);
   }
 
   /**

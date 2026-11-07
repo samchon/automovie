@@ -5,6 +5,7 @@ import type { KickboxingTechnique } from "../../../laws/kickboxing/KickboxingTec
 import { FighterBody } from "./FighterBody";
 import { FighterChain } from "./FighterChain";
 import { FighterFigure } from "./FighterFigure";
+import type { IFighterBody } from "./IFighterBody";
 import type { IFighterProfile } from "./IFighterProfile";
 
 /**
@@ -33,7 +34,7 @@ export class Fighter {
   public readonly profile: IFighterProfile;
 
   /** His body. */
-  public readonly body: FighterBody;
+  public readonly body: IFighterBody;
 
   private readonly vocabulary: ReadonlySet<string>;
 
@@ -42,11 +43,12 @@ export class Fighter {
    *
    * @param profile His settings record.
    * @param shared Another fighter with identical body controls whose prepared skeleton is reused.
+   * @param body A body realizing the same settings without the Human figure, for logic units.
    */
-  public constructor(profile: IFighterProfile, shared?: Fighter) {
+  public constructor(profile: IFighterProfile, shared?: Fighter, body?: IFighterBody) {
     this.id = profile.id;
     this.profile = profile;
-    this.body = new FighterBody(profile, shared?.body);
+    this.body = body ?? new FighterBody(profile, shared?.body instanceof FighterBody ? shared.body : undefined);
     this.vocabulary = new Set<string>([...profile.repertoire, ...profile.defenses]);
     Object.freeze(this);
   }
@@ -162,6 +164,7 @@ export class Fighter {
    * @returns A new figure owned by the caller.
    */
   public figure(): FighterFigure {
+    if (!(this.body instanceof FighterBody)) throw new Error(`${this.id}'s body has no Human figure`);
     return new FighterFigure(this.profile, this.body);
   }
 }

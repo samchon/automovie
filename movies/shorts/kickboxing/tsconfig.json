@@ -34,6 +34,7 @@
   "include": [
     "lint.config.ts",
     "evidence.config.ts",
+    "vite.config.ts",
     "src",
     "test"
   ]

@@ -83,6 +83,8 @@ export namespace KickboxingAction {
         steps: number;
         /** For `approach`: stance-origin distance to reach, metres. */
         range?: number;
+        /** For a step-in riding a strike's delivery: the seconds it takes instead of the stepping cadence. */
+        seconds?: number;
       }
     | {
         /** The opening glove touch. */

@@ -189,7 +189,7 @@ export namespace KickboxingTiming {
       case "defend":
         throw new Error(`An unpaired ${action.answer} has no timing; an exchange pairs it first`);
       case "move":
-        return { duration: action.steps * STEP_PERIOD };
+        return { duration: action.seconds ?? action.steps * STEP_PERIOD };
       case "touch":
         return { duration: action.seconds, contact: action.reach };
       case "phase":

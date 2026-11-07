@@ -45,7 +45,7 @@ export namespace RefereePerformance {
     track: RefereeTrack.ITrack,
     seconds: number,
   ): ReturnType<RefereeBody["place"]> & { jaw: number } {
-    const body: RefereeBody = cast.referee.body;
+    const body = cast.referee.body;
     const measure = body.measure;
     const here = RefereeTrack.at(track, seconds);
     const facing = unit({ x: here.look.x - here.point.x, z: here.look.z - here.point.z });

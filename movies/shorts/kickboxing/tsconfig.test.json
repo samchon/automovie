@@ -8,9 +8,5 @@
       }
     ]
   },
-  "include": [
-    "src/physics/virtual.d.ts",
-    "test/index.ts",
-    "test/features"
-  ]
+  "include": ["test/index.ts", "test/internal", "test/features"]
 }

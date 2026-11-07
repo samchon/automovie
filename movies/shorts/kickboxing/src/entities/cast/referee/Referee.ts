@@ -24,11 +24,15 @@ export class Referee {
   public readonly id: string = "referee";
 
   /** His body. */
-  public readonly body: RefereeBody;
+  public readonly body: Pick<RefereeBody, "measure" | "profile" | "place">;
 
-  /** Build the referee. */
-  public constructor() {
-    this.body = new RefereeBody();
+  /**
+   * Build the referee.
+   *
+   * @param body A body realizing his settings without the Human figure, for logic units.
+   */
+  public constructor(body?: Pick<RefereeBody, "measure" | "profile" | "place">) {
+    this.body = body ?? new RefereeBody();
     Object.freeze(this);
   }
 
@@ -51,6 +55,7 @@ export class Referee {
    * @returns A new figure owned by the caller.
    */
   public figure(): RefereeFigure {
+    if (!(this.body instanceof RefereeBody)) throw new Error("The referee's body has no Human figure");
     return new RefereeFigure(this.body);
   }
 }
