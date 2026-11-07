@@ -56,6 +56,7 @@ export * from "./measureAutoMovieGeometry";
 export * from "./mergeAutoMovieSubjectContributions";
 export * from "./perform";
 export * from "./physics";
+export * from "./random";
 export * from "./placeFormationSlot";
 export * from "./productionRuntimeModelId";
 export * from "./productionRuntimeSkeletonId";
