@@ -30,8 +30,8 @@ export namespace Strike {
     recovery: number;
   }
 
-  /** Hold at full extension after contact, seconds. */
-  export const HOLD: number = 0.035;
+  /** Hold at full extension after contact, seconds; registered once with the techniques. */
+  const HOLD: number = BoutTechnique.HOLD;
 
   /**
    * First and last active second of an action.

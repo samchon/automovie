@@ -29,7 +29,7 @@ export class FilmBodyRig {
   /** Neutral shoulder-to-glove reach on each actual anatomical side, metres. */
   public readonly armReach: Record<Controls.Side, number>;
   /** Actual equipment centre beyond the wrist, shared by this film's symmetric gloves, metres. */
-  public readonly gloveOffset: number;
+  public readonly handOffset: number;
   /** Neutral ankle-to-ball displacement, metres. */
   public readonly footVector: V.Value;
   /** Neutral ball-to-sole height derived from the actual physical foot boxes, metres. */
@@ -127,7 +127,7 @@ export class FilmBodyRig {
       V.distance(at("leftUpperLeg").position, at("leftLowerLeg").position),
       V.distance(at("leftLowerLeg").position, at("leftFoot").position),
     ];
-    this.gloveOffset = equipment.length
+    this.handOffset = equipment.length
       ? V.length(V.tuple(equipment[0]!.shape.transform.position))
       : 0;
     this.armReach = Object.fromEntries(
@@ -142,7 +142,7 @@ export class FilmBodyRig {
               at(`${side}LowerArm`).position,
               at(`${side}Hand`).position,
             ) +
-            this.gloveOffset,
+            this.handOffset,
         ],
       ),
     ) as Record<Controls.Side, number>;
@@ -207,7 +207,7 @@ export class FilmBodyRig {
       },
       legs: goals(request.legs),
       arms: goals(request.arms),
-      handOffset: this.gloveOffset,
+      handOffset: this.handOffset,
       limits: FilmBodyRig.limits,
     });
   }
