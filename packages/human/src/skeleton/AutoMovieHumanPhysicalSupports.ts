@@ -10,7 +10,7 @@ import type { AutoMovieHumanSkeleton as Skeleton } from "./AutoMovieHumanSkeleto
 /** Human ball witnesses, sole patches and anatomical chains. A flat foot uses its complete forefoot face; a raised heel uses the front transverse edge of the declared rigid envelope, because this approximation omits independent physical toes. */
 export function AutoMovieHumanPhysicalSupports(
   profile: P,
-  reference: Skeleton.IOutput,
+  reference: Pick<Skeleton.IOutput, "posed">,
   raisedHeels: readonly ("left" | "right")[] = [],
 ): IAutoMovieFootfallPattern {
   const at: (bone: string) => Skeleton.IPlacement = (

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
@@ -7,19 +7,21 @@ import type {
 import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanFootBones } from "../generation/foot/AutoMovieHumanFootBones";
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
+import type { IAutoMovieHumanPhysicalSource as Source } from "./IAutoMovieHumanPhysicalSource";
 
 /**
  * A declared box approximation of the canonical foot envelope, split at the
  * actual midfoot landmark. Length, breadth, heel and sole come from the same
  * foot dimensions and frame as construction, including each side's measures.
  * It is a collision envelope, not a claim that the absent skin was generated.
+ * The box is returned in world terms at the neutral pose; the physical mapping
+ * localizes it into the owning bone's frame.
  */
 export function AutoMovieHumanPhysicalFootShape(
   parameters: IAutoMovieHumanParameters,
   bone: string,
   neutral: ReadonlyMap<string, P.ITransform>,
-  material: string,
-): P.IShape {
+): Source.IBox {
   const side: "left" | "right" = bone.startsWith("left") ? "left" : "right";
   const sign: number = side === "left" ? 1 : -1;
   const dimensions: ReturnType<typeof AutoMovieHumanBodyLaw.footDimensions> =
@@ -65,30 +67,19 @@ export function AutoMovieHumanPhysicalFootShape(
     0.5,
     reference.frame.H / 2,
   );
-  const orientation: P.ITransform["rotation"] = {
-    x: 0,
-    y: -Math.sin(Math.atan2(axis.z, axis.x) / 2),
-    z: 0,
-    w: Math.cos(Math.atan2(axis.z, axis.x) / 2),
-  };
-  const inverse: P.ITransform["rotation"] = Quaternion.inverse(
-    neutral.get(bone)!.rotation,
-  );
   return {
-    id: "surface",
     kind: "box",
-    material,
+    center,
+    rotation: {
+      x: 0,
+      y: -Math.sin(Math.atan2(axis.z, axis.x) / 2),
+      z: 0,
+      w: Math.cos(Math.atan2(axis.z, axis.x) / 2),
+    },
     halfExtents: {
       x: ((to - from) * reference.frame.L) / 2000,
       y: reference.frame.H / 2000,
       z: reference.frame.B / 2000,
-    },
-    transform: {
-      position: Quaternion.rotateVector(
-        inverse,
-        Vector3.subtract(center, neutral.get(bone)!.position),
-      ),
-      rotation: Quaternion.multiply(inverse, orientation),
     },
   };
 }
