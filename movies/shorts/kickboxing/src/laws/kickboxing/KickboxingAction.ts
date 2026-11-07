@@ -65,6 +65,8 @@ export namespace KickboxingAction {
         against: KickboxingTechnique.Name;
         /** Seconds from the answered strike's launch to its contact. */
         lead: number;
+        /** Anchor id of the answered strike. */
+        strike: string;
       }
     | {
         /** A defense a capability offers before an exchange pairs it with an attack. */
