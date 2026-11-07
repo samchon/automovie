@@ -20,6 +20,7 @@ import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { physicalGravityTorques } from "./physicalGravityTorques";
 import { physicalJointEffort } from "./physicalJointEffort";
 import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
 import { readPhysicalScene } from "./readPhysicalScene";
 import { releasePhysicalTracking } from "./releasePhysicalTracking";
 import { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";
@@ -58,13 +59,10 @@ export function trackPhysicalWorld(
     // contacts, passive constraints and force cleanup without rebuilding goals.
     if (
       body.mode.kind !== "kinematic" &&
-      target.strength === 0 &&
+      physicalTrackingWithdrawn(target) &&
       target.dynamicSegments === undefined &&
       bound.dynamic.get(body.id)?.size === body.profile.segments.length &&
-      !hasPhysicalHandoff(bound.handoffs.get(body.id)) &&
-      !Object.values(target.jointStrength ?? {}).some(
-        (strength: number): boolean => strength > 0,
-      )
+      !hasPhysicalHandoff(bound.handoffs.get(body.id))
     ) {
       if (!bound.released.has(body.id))
         releasePhysicalTracking(world, input, body, bound);
@@ -134,12 +132,7 @@ export function trackPhysicalWorld(
       configurePhysicalBodyQuality(bound, input, body, false);
       continue;
     }
-    if (
-      target.strength === 0 &&
-      !Object.values(target.jointStrength ?? {}).some(
-        (strength: number): boolean => strength > 0,
-      )
-    ) {
+    if (physicalTrackingWithdrawn(target)) {
       releasePhysicalTracking(world, input, body, bound);
       continue;
     }
@@ -244,12 +237,7 @@ export function trackPhysicalWorld(
       ...target,
       strength: target.strength * balance,
     };
-    if (
-      effort.strength === 0 &&
-      !Object.values(effort.jointStrength ?? {}).some(
-        (strength: number): boolean => strength > 0,
-      )
-    ) {
+    if (physicalTrackingWithdrawn(effort)) {
       releasePhysicalTracking(world, input, body, bound);
       continue;
     }

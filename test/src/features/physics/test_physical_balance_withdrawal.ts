@@ -1,81 +1,73 @@
-import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
-import { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
-import { PhysicalFixtures } from "../internal/PhysicalFixtures";
-import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
-import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
+import { physicalBalanceExhaustion } from "../../../../packages/engine/src/physics/physicalBalanceExhaustion";
+import { physicalTrackingWithdrawn } from "../../../../packages/engine/src/physics/physicalTrackingWithdrawn";
 
-/** Sixty native steps of an unsupported fall. */
-const DURATION: number = 0.5;
-
-/** Steps between retained native checkpoints. */
-const CHECKPOINT: number = 10;
-
-/** First step of the late pose edit, after recovery has been withdrawn. */
-const EDIT: number = 50;
-
-/** Exhausted support recovery releases default pose tracking while explicit joint protection remains possible.
+/** Exhausted support recovery withdraws default tracking, while explicit joint protection keeps its own effort.
  *
  * Scenarios:
- * 1. An unsupported four-support primitive falls and withdraws recovery; a later pose edit leaves its physical frames unchanged.
- * 2. Fresh and checkpoint-resumed native results agree.
- * 3. Explicit protective joint effort still changes the actual articulation.
+ * 1. The first unrecoverable tick opens the loss clock; later unrecoverable ticks keep its start.
+ * 2. Recovery is exhausted exactly when the clock reaches the policy duration, not one tick earlier.
+ * 3. A recoverable tick closes the clock, and a failed landing exhausts at once.
+ * 4. Zero effective strength withdraws tracking; a positive explicit joint strength keeps it, a zero one does not.
+ * 5. Any positive body strength keeps tracking.
  */
-export async function test_physical_balance_withdrawal(): Promise<void> {
-  const profile: P = PhysicalModelFixtures.quadrupod();
-  const joint: P.IJoint = profile.joints.find(
-    (candidate: P.IJoint): boolean => candidate.child === "upper-0",
-  )!;
-  const body: Simulation.IBody = PhysicalSupportFixtures.body(
-    profile,
-    DURATION,
-  );
-  for (const target of body.targets)
-    for (const pose of Object.values(target.segments)) pose.position.y += 2;
-  const input: Simulation.IInput = PhysicalFixtures.input([body], DURATION);
-  input.checkpointEvery = CHECKPOINT;
-  input.gravity.y = -9.81;
-  input.floor = -10;
-  input.substeps = 4;
-  input.iterations = 16;
-  const baseline: Simulation = await Simulation.compute(input);
-  const changed: Simulation.IInput = structuredClone(input);
-  for (const target of changed.bodies[0]!.targets.slice(EDIT))
-    target.segments[joint.child]!.rotation = Quaternion.fromAxisAngle(
-      { x: 1, y: 0, z: 0 },
-      40,
-    );
-  const fresh: Simulation = await Simulation.compute(changed);
-  const resumed: Simulation = await Simulation.compute(changed, baseline);
+export function test_physical_balance_withdrawal(): void {
+  const duration: number = 0.25;
+  const opened: ReturnType<typeof physicalBalanceExhaustion> =
+    physicalBalanceExhaustion({ unrecoverable: true, seconds: 1, duration });
+  TestValidator.equals("loss clock opens", opened, {
+    lostSince: 1,
+    exhausted: false,
+  });
   TestValidator.equals(
-    "a pose edit after complete recovery withdrawal has no physical effect",
-    JSON.stringify(fresh.cache.frames),
-    JSON.stringify(baseline.cache.frames),
+    "loss clock keeps its start one tick before the duration",
+    physicalBalanceExhaustion({
+      unrecoverable: true,
+      lostSince: 1,
+      seconds: 1.24,
+      duration,
+    }),
+    { lostSince: 1, exhausted: false },
   );
   TestValidator.equals(
-    "restored passive articulation retains native frame identity",
-    JSON.stringify(resumed.cache.frames),
-    JSON.stringify(fresh.cache.frames),
+    "recovery is exhausted at the duration",
+    physicalBalanceExhaustion({
+      unrecoverable: true,
+      lostSince: 1,
+      seconds: 1.25,
+      duration,
+    }),
+    { lostSince: 1, exhausted: true },
   );
-  TestValidator.predicate(
-    "unsupported body actually falls",
-    fresh.cache.at(DURATION).bodies[body.id]!.body!.position.y <
-      fresh.cache.at(DURATION / 2).bodies[body.id]!.body!.position.y - 0.1,
+  TestValidator.equals(
+    "a recoverable tick closes the clock",
+    physicalBalanceExhaustion({
+      unrecoverable: false,
+      lostSince: 1,
+      seconds: 2,
+      duration,
+    }),
+    { lostSince: undefined, exhausted: false },
   );
-
-  const protectedInput: Simulation.IInput = structuredClone(changed);
-  for (const target of protectedInput.bodies[0]!.targets)
-    target.jointStrength = { [joint.id]: 1 };
-  const protectedRun: Simulation = await Simulation.compute(protectedInput);
-  TestValidator.predicate(
-    "explicit protective effort still changes the actual articulation",
-    JSON.stringify(
-      protectedRun.cache.at(DURATION).bodies[body.id]![joint.child]!.rotation,
-    ) !==
-      JSON.stringify(
-        fresh.cache.at(DURATION).bodies[body.id]![joint.child]!.rotation,
-      ),
+  TestValidator.equals(
+    "a failed landing exhausts at once",
+    physicalBalanceExhaustion({
+      unrecoverable: false,
+      failedLanding: true,
+      seconds: 2,
+      duration,
+    }),
+    { lostSince: undefined, exhausted: true },
+  );
+  TestValidator.equals(
+    "tracking withdrawal decisions",
+    [
+      physicalTrackingWithdrawn({ strength: 0 }),
+      physicalTrackingWithdrawn({ strength: 0, jointStrength: { knee: 1 } }),
+      physicalTrackingWithdrawn({ strength: 0, jointStrength: { knee: 0 } }),
+      physicalTrackingWithdrawn({ strength: 1e-9 }),
+    ],
+    [true, false, true, false],
   );
 }

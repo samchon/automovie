@@ -14,6 +14,7 @@ import { AutoMovieStepPlanner as Planner } from "./AutoMovieStepPlanner";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
 import { physicalBalanceBracing } from "./physicalBalanceBracing";
+import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
 import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
@@ -296,18 +297,22 @@ export function advancePhysicalBalance(input: {
       ),
     );
   }
-  if (state.last === "unrecoverable") state.lostSince ??= input.seconds;
-  else state.lostSince = undefined;
+  const exhaustion: ReturnType<typeof physicalBalanceExhaustion> =
+    physicalBalanceExhaustion({
+      unrecoverable: state.last === "unrecoverable",
+      lostSince: state.lostSince,
+      failedLanding: state.failedLanding,
+      seconds: input.seconds,
+      duration: input.policy.duration,
+    });
+  state.lostSince = exhaustion.lostSince;
   if (state.rootOffset)
     for (const limb of input.policy.pattern.limbs)
       goals[limb.bone] ??= Vector3.add(
         authored(limb.bone),
         state.offsets[limb.bone] ?? { x: 0, y: 0, z: 0 },
       );
-  const exhausted: boolean =
-    state.failedLanding === true ||
-    (state.lostSince !== undefined &&
-      input.seconds - state.lostSince >= input.policy.duration);
+  const exhausted: boolean = exhaustion.exhausted;
   if (input.policy.bracing) {
     const effort: ReturnType<typeof physicalBalanceBracing> =
       physicalBalanceBracing({

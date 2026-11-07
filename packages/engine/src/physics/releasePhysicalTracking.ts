@@ -4,6 +4,7 @@ import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysi
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { configurePhysicalBodyQuality } from "./configurePhysicalBodyQuality";
 import { configurePhysicalJointMotor } from "./configurePhysicalJointMotor";
+import { physicalReleasedQuality } from "./physicalReleasedQuality";
 
 /** Withdraw all default actuator effort once, preserving passive damping, native constraints and warm starts. The caller verifies that no explicit protective joint remains active. */
 export function releasePhysicalTracking(
@@ -29,17 +30,17 @@ export function releasePhysicalTracking(
       targetVelocity: { x: 0, y: 0, z: 0 },
       strength: 0,
     });
+  const budget: ReturnType<typeof physicalReleasedQuality> =
+    physicalReleasedQuality({
+      quality: body.releasedQuality,
+      released: true,
+      iterations: input.iterations,
+      internalIterations: input.internalIterations!,
+    });
   for (const rigid of bound.segments.get(body.id)!.values()) {
     if (body.releasedQuality && !body.releasedQuality.duringReflex) {
-      rigid.setAdditionalSolverIterations(
-        Math.max(0, body.releasedQuality.iterations - input.iterations),
-      );
-      rigid.setAdditionalPgsIterations(
-        Math.max(
-          0,
-          body.releasedQuality.internalIterations - input.internalIterations!,
-        ),
-      );
+      rigid.setAdditionalSolverIterations(budget.solver);
+      rigid.setAdditionalPgsIterations(budget.pgs);
     }
     rigid.resetForces(false);
     rigid.resetTorques(false);
