@@ -129,3 +129,4 @@ export { createAutoMoviePerformanceOverlay } from "./createAutoMoviePerformanceO
 export { createAutoMovieSurfaceAppearance } from "./createAutoMovieSurfaceAppearance.js";
 export { createAutoMoviePhysicalPoseAdapter } from "./createAutoMoviePhysicalPoseAdapter.js";
 export * from "./audio/index.js";
+export * from "./transport/index.js";
