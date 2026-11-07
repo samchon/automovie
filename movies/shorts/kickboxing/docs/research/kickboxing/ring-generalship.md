@@ -30,6 +30,7 @@ Both stances hold their ground while a strike is in flight; footwork resumes at 
 
 - A step is at most half the fighter's stance length, so the following foot can restore the stance without crossing (IBA). The stance length is measured on the fighter's own body.
 - Film choice: two steps per second between exchanges, a walking cadence. No source in this archive measures fighters' step cadence; Ouergui's low-intensity phases of 2.3 ± 0.8 s ([exchanges](exchanges.md#activity)) bound how long a footwork phase lasts, not its cadence.
+- Kicking distance, where both fighters reset between exchanges, is the [range](techniques.md#reach) of the longest kick, the teep: from there no strike lands without a step in.
 - A stance origin stays inside the ropes by the fighter's shoulder half-width plus his glove, measured on his body. The rope zone is that margin plus two steps, the distance in which a retreating fighter has two steps left.
 
 ## Measurable targets {#targets}
