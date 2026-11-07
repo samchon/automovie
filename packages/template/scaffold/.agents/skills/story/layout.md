@@ -9,7 +9,7 @@ Commit instructions, creative bodies and evidence answers. Review, naturalness a
 | Location, when used | Owns |
 | --- | --- |
 | `docs/instructions/*.md` | Creative requirements, source boundaries and identified delegated writing choices |
-| `docs/body/settings/<domain>/<subject>.md` | One subject's requirements, one file per subject, with H2 facets and H3 requirement anchors, in the domains `world`, `cast`, `crowds`, `props`, `sets`, `cinematography` and `sound` |
+| `docs/body/settings/<domain>/<subject>.md` | One subject's facts, one file per subject, with H2 facets and anchored H3 facts, in the domains `world`, `cast`, `crowds`, `props`, `sets`, `cinematography` and `sound` |
 | `docs/body/settings/outline/index.md` | Domain and file navigation without duplicating facts |
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
 | `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |

@@ -8,7 +8,7 @@ Does each cited beat reach the picture and soundtrack with its cast, intent, out
 
 ## Does it only compose? {#composition-only}
 
-Does the declaration only combine entity capabilities and interaction entry points through the installed time-scoped combinators, in the fluent chain such as `a.jab().cross().then(b.slip())`, and place absolute time only at the screenplay's anchors? A calculation, constant, coordinate, direct law import, URL parameter, archive load or runtime selection here is a capability missing from its owner: add it there, because logic written into one scene cannot be reused or tested.
+Does the declaration only combine entity capabilities and interaction entry points through the installed time-scoped combinators and their fluent chain, and place absolute time only at the screenplay's anchors? A calculation, constant, coordinate, direct law import, URL parameter, archive load or runtime selection here is a capability missing from its owner: add it there, because logic written into one scene cannot be reused or tested.
 
 ## Is every presence alive and every target met? {#living-scene}
 

@@ -8,7 +8,7 @@ One folder owns each responsibility, and the folders follow the chain from setti
 
 | Location | Owns | Realizes, under |
 | --- | --- | --- |
-| `src/entities/<kind>/<subject>/`, with `<kind>` one of `cast`, `crowds`, `props`, `sets`, `cameras`, `lights` | One subject: its public entry class `<Subject>.ts` and the fragments it composes, such as body, look, rig, wardrobe, habits or affordances | Its settings record's requirements, [entities](../contracts/development/entities.md) |
+| `src/entities/<kind>/<subject>/`, with `<kind>` one of `cast`, `crowds`, `props`, `sets`, `cameras`, `lights` | One subject: its public entry class `<Subject>.ts` and the fragments it composes, such as body, look, rig, wardrobe, habits or affordances | Its settings record's facts, [entities](../contracts/development/entities.md) |
 | `src/laws/<discipline>/` | Pure laws of a practice: shape priors, timing windows, reach, legality, outcome tables and variation ranges | `docs/research/<discipline>/`, [behaviors](../contracts/development/behaviors.md) |
 | `src/interactions/<discipline>/` | Relations between entities by role: alignment, timing and rule-first outcomes, including how cameras and lights follow the action | Research and world rules, behaviors |
 | `src/consequences/effects/`, `src/consequences/sound/` | What computed outcomes leave: sweat, blood, dust and other marks, and impact, foley and reaction cues | Research, behaviors |
@@ -26,7 +26,7 @@ Settings domains map onto code: cast, crowds, props and sets become entities of 
 
 ## How the parts work together
 
-An entity is constructed from its settings requirements and composes small fragments; its methods are capabilities that return intent records. A scene chains those capabilities in a sentence-like call such as `a.jab().cross().then(b.slip())`, and the installed combinators place the chains in time; interactions then align the participants, derive timing from the laws and decide outcomes from the outcome tables, and consequences follow from those outcomes. The whole composition resolves once into a frozen schedule, and every film second is a pure function of that schedule. Logic lives in pure laws the methods call, so a unit test needs no mock, and state such as fatigue or a learned habit is an explicit snapshot computed at resolution. This object shell over a functional core is the production's own style; installed packages keep theirs.
+An entity is constructed from its settings facts and composes small fragments; its methods are capabilities that return intent records. A scene chains those capabilities in a sentence-like call such as `a.jab().cross().then(b.slip())`, and the installed combinators place the chains in time; interactions then align the participants, derive timing from the laws and decide outcomes from the outcome tables, and consequences follow from those outcomes. The whole composition resolves once into a frozen schedule, and every film second is a pure function of that schedule. Logic lives in pure laws the methods call, so a unit test needs no mock. This object shell over a functional core is the production's own style; installed packages keep theirs.
 
 ## Dependencies and files
 

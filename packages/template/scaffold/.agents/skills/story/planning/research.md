@@ -1,6 +1,6 @@
 # Research
 
-Study everything the film must show truthfully before the screenplay decides it or code programs it: each practice, the conduct of officials and crowds, and how the genre is actually shot and heard. A technique invented without research, an illegal target, one-axis movement, an idle official and a static camera are what skipping it produced. The study answers the [research principles](../../contracts/story/shared/principles/research.md); settings parameters, screenplay beats and every [behavior](../../motion/SKILL.md) cite it, and no behavior, camera or staging code exists before the study it cites.
+Study everything the film must show truthfully before the screenplay decides it or code programs it: each practice, the conduct of officials and crowds, and how the genre is actually shot and heard. The study answers the [research principles](../../contracts/story/shared/principles/research.md); settings, screenplay beats and every [behavior](../../motion/SKILL.md) cite it.
 
 ## Performance study {#performance-study}
 

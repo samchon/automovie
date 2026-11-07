@@ -15,13 +15,14 @@ Directly under the scene heading, a breakdown list names by settings link everyt
 
 <action and dialogue blocks>
 
-- Cast: [Fighter A](../settings/cast/fighter-a.md#knee-feint), [Fighter B](../settings/cast/fighter-b.md#hab-drops-left-arm)
+- Cast: [Fighter A](../settings/cast/fighter-a.md#knee-feint), [Fighter B](../settings/cast/fighter-b.md#drops-left-arm)
 - Intent: A feints a right knee to draw B's left guard; B reads it as a real knee.
 - Outcome: B's guard drops, as [the guard table](../../research/kickboxing/guard.md#outcomes) allows for a read feint.
 - Consequence: A lands balanced on the lead foot; B's left arm sits below the shoulder; no mark.
+- Space: A circles left off the ropes toward the centre; B turns to keep A square; the referee steps out to the near corner.
 - Camera: medium two-shot, eye level, slow push in.
 - Sound: dialogue none; foley glove leather and foot pivots; ambience crowd murmur; effects none; music BI pulse continues.
 - Continuity: B's left eyebrow cut from s02-b07 still bleeds.
 ```
 
-Music names its usage: `BI` background instrumental, `BV` background vocal, `VI` visual instrumental and `VV` visual vocal, a source the picture shows. A layer with nothing in it says `none`, because silence is a decision. Breakdown and beat records are notation, like scene headings: the expression pass rewrites the blocks around them and keeps their decisions.
+Music names its usage: `BI` background instrumental, `BV` background vocal, `VI` visual instrumental and `VV` visual vocal, a source the picture shows. A layer with nothing in it says `none`, because silence is a decision. Breakdown and beat records are notation, like scene headings: expression review does not judge them as prose, and the expression pass rewrites the blocks around them and keeps their decisions.

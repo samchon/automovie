@@ -13,7 +13,7 @@ Every respondent here answers in its own doc comment, citing an item as `contrac
 | [Design](design.md) | Each exported type, interface, type alias and class |
 | [Implementation](implementation.md) | Each exported function and class method |
 | [Testing](testing.md) | Each exported test function |
-| [Entities](entities.md) | Each exported declaration under `src/entities/`, which also cites the settings requirements it realizes |
+| [Entities](entities.md) | Each exported declaration under `src/entities/`, which also cites the settings facts it realizes |
 | [Behaviors](behaviors.md) | Each exported function and method under `src/laws/`, `src/interactions/` and `src/consequences/`, which also cites the research it follows |
 | [Composition](composition.md) | Each exported function and method under `src/composition/`, which also cites the screenplay scenes, beats or file it realizes |
 

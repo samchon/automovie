@@ -1,8 +1,8 @@
 # Testing
 
-Give each module millisecond-scale pure logic unit tests for its behavioral contract, with explicit in-memory inputs and expectations taken from the settings requirements, the research laws and targets, or another independent reference. Installed packages own their validation APIs.
+Give each module millisecond-scale pure logic unit tests for its behavioral contract, with explicit in-memory inputs and expectations taken from the settings facts, the research laws and targets, or another independent reference. Installed packages own their validation APIs.
 
-Test what the chain promises: that each research outcome table is consistent and every screenplay outcome is one it permits, that a composition is legal, that each scene's resolved schedule yields its screenplay outcome classes and meets the research's measurable targets, that relational goals reach the counterpart's actual region, that every seed keeps the outcome classes, and that a resolved state hashes the same on every run. A film that regresses to single actions, one-axis movement, an idle participant or a static camera fails one of these tests.
+Test what the chain promises: that each research outcome table is consistent and every screenplay outcome is one it permits, that a composition is legal, that each scene's resolved schedule yields its screenplay outcome classes and meets the research's measurable targets, that relational goals reach the counterpart's actual region, that every seed keeps the outcome classes, and that a resolved state hashes the same on every run.
 
 Do not write end-to-end tests, long simulations, tests that generate figures, monkey-patched globals or internals, golden or hard-coded expected outputs, or recorded fixtures: they are slow, freeze defects, or prove only that the code repeats itself. A test that needs a person uses a polygon figure. Viewer playback, rendering, decoding and listening are production acceptance, recorded against the film's checklist in `docs/acceptance/<film>.md` under [delivery review](../review/delivery.md), not tests. Test generated geometry as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) describes.
 
