@@ -6,7 +6,7 @@ Choose the commissioned route from the request, project context, adopted instruc
 
 | Layer | Owns | Hands onward |
 | --- | --- | --- |
-| [Settings](layers/settings.md) | World facts, baseline states, characters, relationships, places, objects, knowledge boundaries and sensory conditions | Usable facts with conditions, uncertainty, sources and one owner |
+| [Settings](layers/settings.md) | Requirements for the world, cast, crowds, props, sets, cinematography and sound, with baseline states, relationships and knowledge boundaries | Singular, verifiable requirements with stable addresses, sources and one owner |
 | [Treatments](layers/treatments.md) | Events, causes, choices, consequences, setup and payoff, and information release | A progression that needs no invented decisive event |
 | [Scripts](layers/scripts.md) | Partition and fully executed scenes: speech, action, reactions, performance, stage, light, sound and view | Playable scenes for the final screenplay |
 | [Final screenplay](layers/screenplay.md) | The audience's image, sound, attention, duration, juxtaposition and transitions | Complete production text the scenes realize |
@@ -15,18 +15,17 @@ Choose the commissioned route from the request, project context, adopted instruc
 
 Commissioned video follows one traceable chain: settings, research, screenplay, laws and entities with their tests, scene composition, then the film. Each link cites the addresses of the one above it, so no code exists without a cited basis and no requirement stays unrealized; a later link can only realize what an earlier one decided, and motion written before the screenplay settles its action is fitted to guesses.
 
-Long work runs settings → treatments → scripts → screenplay construction, then screenplay naturalness; only the final screenplay has a separate expression pass. A short enters the screenplay from its brief (`short`) or after compact settings (`short-with-settings`), keeping expression, evidence and review without empty treatment, script or outline files. Asset-only work has no narrative passes, and only an explicit user waiver omits screenplay naturalness. Choose form and scale through [direction](planning/direction.md); complete work is the default.
+Every film has settings, because code realizes their requirements and cannot cite what was never written; a facet that does not apply says so with its reason. Long work runs settings → treatments → scripts → screenplay construction, then screenplay naturalness; only the final screenplay has a separate expression pass. A short runs settings → screenplay (`short-with-settings`), keeping expression, evidence and review without empty treatment, script or outline files. Asset-only work has no narrative passes, and only an explicit user waiver omits screenplay naturalness. Choose form and scale through [direction](planning/direction.md); complete work is the default.
 
 ## Construction
 
 | Submitted layer | Required parent |
 | --- | --- |
-| Settings | Adopted instructions, discovered requirements and any completed [performance study](planning/research.md#performance-study) |
+| Settings | Adopted instructions and discovered requirements; the [research](planning/research.md) the settings commission completes their parameters |
 | Treatments | Completed settings |
 | Scripts | Completed treatments |
 | Screenplay, long work | Completed treatments and scripts, including scripts expression |
-| Screenplay, direct short | The request, adopted constraints and any completed performance study |
-| Screenplay, compact short | Completed compact settings, the brief and the studies the settings cite |
+| Screenplay, short | Completed settings, the brief and the research the settings cite |
 
 Inherit through actual parents, repairing a missing handoff rather than bypassing it, and run [discovery](planning/discovery.md) before bulk settings.
 

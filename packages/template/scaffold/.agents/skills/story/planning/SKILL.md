@@ -1,6 +1,6 @@
 ---
 name: story-planning
-description: Settles what the writing must serve before any layer is written: adopted requirements, direction, performance research and uncovered work requirements. Use before settings or a short's screenplay, or when a requirement changes.
+description: Settles what the writing must serve before any layer is written: adopted requirements, direction, performance research and uncovered work requirements. Use before settings, or when a requirement changes.
 ---
 
 # Planning
