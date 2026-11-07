@@ -9,10 +9,12 @@ import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysi
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import type { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
+import { choosePhysicalSupportFit } from "./choosePhysicalSupportFit";
+import { physicalBalanceReference } from "./physicalBalanceReference";
 import { physicalRecoverySupportGoals } from "./physicalRecoverySupportGoals";
 import { planPhysicalBalanceTargets } from "./planPhysicalBalanceTargets";
 import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
-import { samplePhysicalTarget } from "./samplePhysicalTarget";
+import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 import { warmPhysicalSupportTargets } from "./warmPhysicalSupportTargets";
 
 /** Balance owns a coherent support posture independently of optional Cartesian endpoint actuators. Fitted interval poses and twists travel together; actual stationary stance takes priority over an incompatible authored-root posture. */
@@ -59,64 +61,28 @@ export function trackPhysicalBalanceTargets(input: {
       bone: input.root.bone,
       pose: { position: base.translation(), rotation: base.rotation() },
     };
-    const start: number =
-      (Math.round(
-        input.seconds * input.settings.rate * input.settings.substeps!,
-      ) -
-        1) /
-      (input.settings.rate * input.settings.substeps!);
-    const completed: Record<string, P.ITransform> | undefined =
-      previous?.step === input.step
-        ? Object.fromEntries(
-            Object.entries(
-              Interval.sample(previous, start, input.settings.rate),
-            ).map(
-              ([bone, goal]: [
-                string,
-                ReturnType<typeof samplePhysicalTarget>,
-              ]): [string, P.ITransform] => [bone, goal.pose],
-            ),
-          )
-        : previous?.step === input.step - 1
-          ? previous.targets
-          : undefined;
-    const before: Record<string, P.ITransform> =
-      previous?.step === input.step
-        ? Object.fromEntries(
-            body.profile.segments.map(
-              (segment: P.ISegment): [string, P.ITransform] => [
-                segment.bone,
-                samplePhysicalTarget(
-                  body.targets[input.step - 1]!.segments[segment.bone]!,
-                  input.target.segments[segment.bone]!,
-                  Math.max(
-                    0,
-                    Math.min(1, start * input.settings.rate - (input.step - 1)),
-                  ),
-                  input.settings.rate,
-                ).pose,
-              ],
-            ),
-          )
-        : body.targets[input.step - 1]!.segments;
+    // A fresh fit restarts from the authored posture; a warm fit continues
+    // the completed reference. The fit's own contract chooses between them.
+    const nativeRate: number = input.settings.rate * input.settings.substeps!;
+    const reference: ReturnType<typeof physicalBalanceReference> =
+      physicalBalanceReference({
+        body,
+        target: input.target,
+        previous,
+        step: input.step,
+        start: (Math.round(input.seconds * nativeRate) - 1) / nativeRate,
+        rate: input.settings.rate,
+      });
     const planted: string[] = input.planted.filter(
       (bone: string): boolean =>
         !input.target.unavailableSupports?.includes(bone),
     );
-    const seed: Record<string, P.ITransform> | undefined = completed
-      ? warmPhysicalSupportTargets({
-          order: bound.order.get(body.id)!,
-          joints: bound.jointByChild.get(body.id)!,
-          descendants: bound.descendants.get(body.id)!,
-          selected: bound.posture.get(body.id)!,
-          targets,
-          before,
-          previous: completed,
-          pattern: policy.pattern,
-          planted: new Set(planted),
-        })
-      : undefined;
-    const result: ReturnType<typeof planPhysicalBalanceTargets> =
+    const tolerance: number = policy.targetTolerance ?? 0.001;
+    const fit: (
+      seed?: Record<string, P.ITransform>,
+    ) => ReturnType<typeof planPhysicalBalanceTargets> = (
+      seed?: Record<string, P.ITransform>,
+    ): ReturnType<typeof planPhysicalBalanceTargets> =>
       planPhysicalBalanceTargets({
         profile: body.profile,
         pattern: policy.pattern,
@@ -129,14 +95,47 @@ export function trackPhysicalBalanceTargets(input: {
         floor: input.settings.floor,
         maximumRootDrop: policy.maximumRootDrop ?? 0.15,
         iterations: policy.iterations ?? 24,
-        tolerance: policy.targetTolerance ?? 0.001,
+        tolerance,
+      });
+    const posture: ReadonlySet<string> = bound.posture.get(body.id)!;
+    const joints: ReadonlyMap<string, P.IJoint> = bound.jointByChild.get(
+      body.id,
+    )!;
+    const result: ReturnType<typeof planPhysicalBalanceTargets> =
+      choosePhysicalSupportFit({
+        candidates: [
+          fit(),
+          ...(reference
+            ? [
+                fit(
+                  warmPhysicalSupportTargets({
+                    order: bound.order.get(body.id)!,
+                    joints,
+                    descendants: bound.descendants.get(body.id)!,
+                    selected: posture,
+                    targets,
+                    before: reference.before,
+                    previous: reference.completed,
+                    pattern: policy.pattern,
+                    planted: new Set(planted),
+                    tolerance,
+                  }),
+                ),
+              ]
+            : []),
+        ],
+        tolerance,
+        reference: reference?.completed,
+        joints: [...posture]
+          .map((bone: string): P.IJoint | undefined => joints.get(bone))
+          .filter((joint: P.IJoint | undefined): joint is P.IJoint => !!joint),
       });
     const interval: Interval.IPlan = Interval.plan({
       step: input.step,
       revision,
       seconds: input.seconds,
       rate: input.settings.rate,
-      nativeRate: input.settings.rate * input.settings.substeps!,
+      nativeRate,
       previous,
       initial: rebasePhysicalTargets(
         body.targets[input.step - 1]!.segments,

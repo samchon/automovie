@@ -210,6 +210,7 @@ export async function test_physical_runtime_dependencies(): Promise<void> {
         ],
       },
       planted: new Set(),
+      tolerance: 1e-9,
     });
     const angle: number = (40 * Math.PI) / 180;
     TestValidator.predicate(

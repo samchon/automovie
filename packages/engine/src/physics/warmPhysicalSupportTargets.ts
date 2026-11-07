@@ -4,6 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
+import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { resolvePhysicalSupportRedundancy } from "./resolvePhysicalSupportRedundancy";
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
@@ -31,6 +32,7 @@ export function warmPhysicalSupportTargets(input: {
   >;
   /** Support endpoints and witnesses defining the fit task. */ pattern: IAutoMovieFootfallPattern;
   /** Endpoints whose floor witnesses are planted in this fit. */ planted: ReadonlySet<string>;
+  /** The support fit's metre residual tolerance, bounding how far returning posture may move the task. */ tolerance: number;
 }): Record<string, P.ITransform> {
   const targets: Record<string, P.ITransform> = { ...input.targets };
   const owned: Set<string> = new Set();
@@ -41,10 +43,12 @@ export function warmPhysicalSupportTargets(input: {
       joint,
       Quaternion.multiply(
         Quaternion.multiply(
-          rotation(input.targets, joint),
-          Quaternion.inverse(rotation(input.before, joint)),
+          physicalJointRelativeRotation(input.targets, joint),
+          Quaternion.inverse(
+            physicalJointRelativeRotation(input.before, joint),
+          ),
         ),
-        rotation(input.previous, joint),
+        physicalJointRelativeRotation(input.previous, joint),
       ),
     );
     const descendants: readonly string[] = input.descendants.get(joint.child)!;
@@ -63,25 +67,7 @@ export function warmPhysicalSupportTargets(input: {
     pattern: input.pattern,
     planted: input.planted,
     authored: input.targets,
+    tolerance: input.tolerance,
     seed: targets,
   });
-}
-
-/** Read the same parent/child joint frames used by the native motor owner. */
-function rotation(
-  poses: Readonly<Record<string, P.ITransform>>,
-  joint: P.IJoint,
-): P.ITransform["rotation"] {
-  return Quaternion.multiply(
-    Quaternion.inverse(
-      Quaternion.multiply(
-        poses[joint.parent]!.rotation,
-        joint.parentFrame.rotation,
-      ),
-    ),
-    Quaternion.multiply(
-      poses[joint.child]!.rotation,
-      joint.childFrame.rotation,
-    ),
-  );
 }

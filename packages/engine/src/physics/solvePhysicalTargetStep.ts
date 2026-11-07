@@ -1,4 +1,5 @@
 import { decomposeAutoMovieSingularMatrix } from "../math/decomposeAutoMovieSingularMatrix";
+import { physicalSingularBudget } from "./physicalSingularBudget";
 
 /**
  * Damped least-squares target update with an active set at box boundaries.
@@ -68,11 +69,7 @@ export function solvePhysicalTargetStep(input: {
       free.map((index: number): number => input.columns[index]![row]!),
     );
     const decomposition: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-      decomposeAutoMovieSingularMatrix(design, {
-        maxEntries: 65536,
-        maxSweeps: 64,
-        orthogonalityTolerance: 1e-10,
-      });
+      decomposeAutoMovieSingularMatrix(design, physicalSingularBudget);
     for (let column: number = 0; column < free.length; column++) {
       const singular: number = decomposition.singularValues[column]!;
       const projection: number = decomposition.leftColumns[column]!.reduce(

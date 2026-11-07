@@ -5,6 +5,8 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { decomposeAutoMovieSingularMatrix } from "../math/decomposeAutoMovieSingularMatrix";
+import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
+import { physicalSingularBudget } from "./physicalSingularBudget";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
@@ -19,17 +21,21 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  * least-squares fit, whose steps never leave the row space. Carried forward
  * from step to step, such a change accumulates under root sway. This applies
  * Liégeois's redundancy resolution once to the seed: the coordinate difference
- * to the admitted authored posture is projected onto the null space of the
- * support-task Jacobian, Δθ = (I − VᵣVᵣᵀ)(θ_authored − θ_seed), so the
- * row-space (task) content stays warm and the null space returns to authored.
- * The task moves only to second order; the subsequent bounded fit corrects it.
+ * to the admitted authored posture is split along the right singular
+ * directions of the support-task Jacobian. Directions are returned to authored
+ * from the smallest linearized task effect upward while the root-sum-square of
+ * those effects stays within the fit's own residual tolerance; the remaining
+ * directions keep the warm task-space choice. The null space therefore always
+ * returns, and a near-singular row (whose singular value is small but whose
+ * task effect is second order) does not hold a first-order posture offset.
+ * The subsequent bounded fit corrects the task within the same tolerance.
  *
  * Coordinates are the native independent twist coordinates
  * θ = 2 atan(q_axis / w) owned by {@link projectPhysicalJointRotation}. The
  * Jacobian uses central differences with the error-optimal step ε^(1/3); its
- * truncation and rounding noise is of relative order ε^(2/3), which is the
- * singular-value cutoff that separates numerical null directions from the
- * row space. ROM projection follows the update.
+ * truncation and rounding noise is of relative order ε^(2/3), far below the
+ * tolerance budget, so numerically null directions always return. ROM
+ * projection follows the update.
  */
 export function resolvePhysicalSupportRedundancy(input: {
   /** Parent-first, run-owned tree order. */ order: readonly P.ISegment[];
@@ -47,10 +53,13 @@ export function resolvePhysicalSupportRedundancy(input: {
   /** Current authored placements, the null-space anchor. */ authored: Readonly<
     Record<string, P.ITransform>
   >;
+  /** The fit's own metre residual early-out; returned directions may move the task by at most this much. */ tolerance: number;
   /** Warm seed placements; borrowed, never mutated. */ seed: Readonly<
     Record<string, P.ITransform>
   >;
 }): Record<string, P.ITransform> {
+  if (!(input.tolerance > 0) || !Number.isFinite(input.tolerance))
+    throw new Error("Invalid support redundancy tolerance");
   const coordinates: { joint: P.IJoint; axis: P.IAxis }[] = [];
   for (const segment of input.order) {
     const joint: P.IJoint | undefined = input.joints.get(segment.bone);
@@ -66,14 +75,20 @@ export function resolvePhysicalSupportRedundancy(input: {
   const seed: number[] = coordinates.map(
     ({ joint, axis }: { joint: P.IJoint; axis: P.IAxis }): number =>
       angle(
-        projectPhysicalJointRotation(joint, relative(input.seed, joint)),
+        projectPhysicalJointRotation(
+          joint,
+          physicalJointRelativeRotation(input.seed, joint),
+        ),
         axis,
       ),
   );
   const authored: number[] = coordinates.map(
     ({ joint, axis }: { joint: P.IJoint; axis: P.IAxis }): number =>
       angle(
-        projectPhysicalJointRotation(joint, relative(input.authored, joint)),
+        projectPhysicalJointRotation(
+          joint,
+          physicalJointRelativeRotation(input.authored, joint),
+        ),
         axis,
       ),
   );
@@ -100,35 +115,45 @@ export function resolvePhysicalSupportRedundancy(input: {
     columns.map((column: number[]): number => column[row]!),
   );
   const decomposition: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(design, {
-      maxEntries: 65536,
-      maxSweeps: 64,
-      orthogonalityTolerance: 1e-10,
-    });
-  const largest: number = Math.max(0, ...decomposition.singularValues);
-  const cutoff: number =
-    largest *
-    Math.max(
-      decomposition.relativeNullCutoff,
-      Number.EPSILON ** (2 / 3) * Math.max(design.length, coordinates.length),
-    );
-
-  // Remove every row-space component of the authored difference.
-  const update: number[] = [...difference];
-  if (largest > 0)
-    decomposition.singularValues.forEach(
-      (singular: number, column: number): void => {
-        if (!(singular > cutoff)) return;
-        const basis: number[] = decomposition.rightColumns[column]!;
-        const projection: number = basis.reduce(
+    decomposeAutoMovieSingularMatrix(design, physicalSingularBudget);
+  // Each right singular direction k moves the linearized task by
+  // sigma_k * |v_k . d| along an orthonormal left direction, so returning a
+  // set of directions moves it by the root-sum-square of their effects.
+  // Return the cheapest directions first while that stays within the fit's
+  // own residual tolerance; numerical-null directions cost nothing.
+  const effects: { column: number; projection: number; effect: number }[] =
+    decomposition.singularValues.map(
+      (
+        singular: number,
+        column: number,
+      ): { column: number; projection: number; effect: number } => {
+        const projection: number = decomposition.rightColumns[column]!.reduce(
           (sum: number, component: number, index: number): number =>
             sum + component * difference[index]!,
           0,
         );
-        for (let index: number = 0; index < update.length; index++)
-          update[index] = update[index]! - basis[index]! * projection;
+        return { column, projection, effect: Math.abs(singular * projection) };
       },
     );
+  effects.sort(
+    (a: (typeof effects)[number], b: (typeof effects)[number]): number =>
+      a.effect - b.effect || a.column - b.column,
+  );
+  let spent: number = 0;
+  const update: number[] = [...difference];
+  for (const entry of effects) {
+    const total: number = Math.hypot(spent, entry.effect);
+    if (total <= input.tolerance) {
+      spent = total;
+      continue;
+    }
+
+    // This and every costlier direction keep the warm task-space choice.
+    const basis: number[] = decomposition.rightColumns[entry.column]!;
+    for (let index: number = 0; index < update.length; index++)
+      update[index] = update[index]! - basis[index]! * entry.projection;
+    spent = Infinity;
+  }
   const values: number[] = seed.map(
     (value: number, index: number): number => value + update[index]!,
   );
@@ -221,25 +246,6 @@ export function resolvePhysicalSupportRedundancy(input: {
     }
     return Quaternion.normalize({ ...tangent, w: 1 });
   }
-}
-
-/** Parent-frame to child-frame joint rotation, as the native motor owner reads it. */
-function relative(
-  poses: Readonly<Record<string, P.ITransform>>,
-  joint: P.IJoint,
-): P.ITransform["rotation"] {
-  return Quaternion.multiply(
-    Quaternion.inverse(
-      Quaternion.multiply(
-        poses[joint.parent]!.rotation,
-        joint.parentFrame.rotation,
-      ),
-    ),
-    Quaternion.multiply(
-      poses[joint.child]!.rotation,
-      joint.childFrame.rotation,
-    ),
-  );
 }
 
 /** Independent twist coordinate of one admitted joint rotation. */

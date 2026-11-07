@@ -16,9 +16,10 @@ import { vclose } from "../internal/vclose";
 /** A warm support seed keeps the previous fit's task-space choice while its support-task null space returns to the authored posture.
  *
  * Scenarios:
- * 1. Null-space carry: a straight four-support leg whose previous fit hides an x-axis zig-zag (hip +α, knee −2α, ankle +α) that leaves the endpoint fixed to first order. The pivot heights 1, 0.55 and 0.1 m make Σ αᵢ(hᵢ − y) vanish for the endpoint at 0.05 m, so the analytic null direction is independent of the solver. The seed returns to the authored coordinates to second order. Red: a seed that transports the whole previous correction keeps the 2α knee offset.
+ * 1. Null-space carry: a straight four-support leg whose previous fit hides an x-axis zig-zag (hip +α, knee −2α, ankle +α) that leaves the endpoint fixed to first order. The pivot heights 1, 0.55 and 0.1 m make Σ αᵢ(hᵢ − y) vanish for the endpoint at 0.05 m, so the analytic null direction is independent of the solver. At the bent seed the endpoint-height row has a singular value of order α but a task effect of order α², so the seed returns to the authored coordinates. Red: a seed that transports the whole previous correction, or a rank-cutoff projection, keeps a knee offset of order α.
  * 2. Task-space carry: a previous hip rotation that moves the endpoint keeps that endpoint to second order, while the seed differs from the previous fit because the hip rotation's null component returns. Red: projecting the whole difference to authored moves the endpoint by about 1.9 mm.
- * 3. Non-redundant carry: when only the hip's two coordinates are fitted, no null space exists and the previous coordinates are retained exactly, preserving the chosen bend branch.
+ * 3. Non-redundant carry: when only the hip's two coordinates are fitted, no null space exists and a task-moving previous hip rotation is retained exactly, preserving the chosen bend branch.
+ * 4. Tolerance budget: a 0.5 mrad previous hip rotation moves the endpoint by about 0.48 mm, within the fit's 1 mm tolerance, so returning it is cheaper than the fit already accepts and the seed returns fully to authored. Red: a rank cutoff keeps it because its singular value is large.
  */
 export function test_physical_support_redundancy(): void {
   const profile: P = PhysicalModelFixtures.quadrupod();
@@ -97,6 +98,18 @@ export function test_physical_support_redundancy(): void {
       Math.abs(angle(branch, "lower-0")) <= 1e-12,
   );
 
+  // 4. A previous correction cheaper than the fit tolerance returns fully.
+  const small: Record<string, P.ITransform> = warm(
+    pose({ "upper-0": 0.0005 }),
+    chain,
+  );
+  TestValidator.predicate(
+    "a sub-tolerance task correction returns to authored",
+    chain.every(
+      (bone: string): boolean => Math.abs(angle(small, bone)) <= 1e-12,
+    ),
+  );
+
   /** World support endpoint of the tested limb. */
   function endpoint(
     poses: Readonly<Record<string, P.ITransform>>,
@@ -119,6 +132,7 @@ export function test_physical_support_redundancy(): void {
       previous,
       pattern,
       planted: new Set(),
+      tolerance: 1e-3,
     });
   }
 
