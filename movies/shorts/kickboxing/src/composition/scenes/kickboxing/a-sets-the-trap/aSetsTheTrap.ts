@@ -29,10 +29,10 @@ export function aSetsTheTrap(cast: IRingCast): AutoMovieComposition {
     RingPhase.reset([a, "press"], [b, "give"]),
     exchange(cast, "s09-b01", a.jab().feintBodyKick().cross(), b.cover().next(b.tell("feint-body-kick")).take()),
     RingPhase.reset([a, "circle"]),
-    then(exchange(cast, "s09-b02", b.jab().cross().hook(), a.parry().slip().roll()), exchange(cast, "s09-b02c", a.cross(), b.cover(), false)),
+    then(exchange(cast, "s09-b02", b.jab().cross().hook(), a.parry().slip().roll()), exchange(cast, "s09-b02c", a.cross(), b.cover())),
     RingPhase.reset([b, "circle"]),
     exchange(cast, "s09-b03", a.jab().cross().bodyKick(), b.cover().cover().next(b.tell("body-kick"))),
     RingPhase.reset([a, "circle"], [b, "circle"]),
-    then(exchange(cast, "s09-b04", b.feintLowKick().cross(), a.tell("feint-low-kick").take()), exchange(cast, "s09-b04c", a.jab().cross(), b.parry().slip(), false)),
+    then(exchange(cast, "s09-b04", b.feintLowKick().cross(), a.tell("feint-low-kick").take()), exchange(cast, "s09-b04c", a.jab().cross(), b.parry().slip())),
   ]);
 }

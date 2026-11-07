@@ -51,8 +51,15 @@ export namespace CoverageLaw {
    * @evidence docs/research/cinematography/fight-coverage.md#law The sizes and the side-on bearing.
    */
   export function goal(size: Size, subjects: readonly string[], bearing: number): IAutoMovieFramingGoal {
-    return { subjects, fill: FILL[size], bearing, elevation: ELEVATION, fieldOfView: FIELD_OF_VIEW };
+    // Wide sizes frame people spread along the floor, so their share is of
+    // the 16:9 frame's width: the horizontal field of view sets the distance.
+    const across: boolean = size === "wide" || size === "finish";
+    const fieldOfView: number = across ? 2 * Math.atan(Math.tan(FIELD_OF_VIEW / 2) * ASPECT) : FIELD_OF_VIEW;
+    return { subjects, fill: FILL[size], bearing, elevation: ELEVATION, fieldOfView };
   }
+
+  /** Delivery frame aspect, width over height. */
+  export const ASPECT: number = 16 / 9;
 
   /**
    * The side-on bearing across the fighters' line, on the side away from the referee.

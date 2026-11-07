@@ -82,11 +82,9 @@ export class FighterFigure {
       this.owned.push(sphere);
       const mesh: THREE.Mesh = new THREE.Mesh(sphere, glove);
       mesh.name = `${side}-glove`;
+      // The hand group moves by the same placement as the physical segment,
+      // so the collider's segment-local offset is the mesh's local position.
       mesh.position.set(shape.transform.position.x, shape.transform.position.y, shape.transform.position.z);
-      // The drawing's hand group is at the hand joint in its bind frame; the
-      // collider offset is in the physical segment frame, rotated from it.
-      const placement = body.neutral.posed.find((p) => p.bone === `${side}Hand`)!;
-      mesh.position.applyQuaternion(new THREE.Quaternion(...placement.rotation));
       this.figure.drawing.bones.get(`${side}Hand`)!.add(mesh);
     }
     this.object.traverse((o: THREE.Object3D): void => {

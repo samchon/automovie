@@ -15,8 +15,8 @@ import { exchange } from "../../../../interactions/kickboxing/exchange";
  *
  * Concretization: the screenplay leaves the order of the resets' movements
  * open; each reset circles toward the movers' lead sides, and the teep and
- * every counter are thrown from where the previous exchange left the
- * fighters, without a step-in.
+ * every counter steps in on its first strike from where the previous
+ * exchange left the fighters.
  *
  * @param cast The cast.
  * @returns The scene's composition, filling its fifteen seconds.
@@ -39,12 +39,12 @@ export function readingEachOther(cast: IRingCast): AutoMovieComposition {
       b.touch(1, 1.55),
     ),
     RingPhase.reset([a, "circle"], [b, "circle"]),
-    then(exchange(cast, "s01-b03", a.feintJab(), b.tell("feint-jab")), exchange(cast, "s01-b03c", b.teep(), a.take(), false)),
+    then(exchange(cast, "s01-b03", a.feintJab(), b.tell("feint-jab")), exchange(cast, "s01-b03c", b.teep(), a.take())),
     RingPhase.reset([a, "circle"]),
-    then(exchange(cast, "s01-b04", a.jab().cross().hook(), b.parry().cover().roll()), exchange(cast, "s01-b04c", b.hook().cross(), a.roll().sway(), false)),
+    then(exchange(cast, "s01-b04", a.jab().cross().hook(), b.parry().cover().roll()), exchange(cast, "s01-b04c", b.hook().cross(), a.roll().sway())),
     RingPhase.reset([b, "circle"]),
-    then(exchange(cast, "s01-b05", b.jab().lowKick(), a.cover().check()), exchange(cast, "s01-b05c", a.jab().cross(), b.parry().slip(), false)),
+    then(exchange(cast, "s01-b05", b.jab().lowKick(), a.cover().check()), exchange(cast, "s01-b05c", a.jab().cross(), b.parry().slip())),
     RingPhase.reset([a, "circle"], [b, "circle"]),
-    then(exchange(cast, "s01-b06", b.feintJab().jab(), a.tell("feint-jab").slip()), exchange(cast, "s01-b06c", a.bodyCross(), b.elbowBlock(), false)),
+    then(exchange(cast, "s01-b06", b.feintJab().jab(), a.tell("feint-jab").slip()), exchange(cast, "s01-b06c", a.bodyCross(), b.elbowBlock())),
   ]);
 }

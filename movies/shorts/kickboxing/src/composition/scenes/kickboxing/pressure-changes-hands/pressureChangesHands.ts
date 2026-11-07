@@ -30,11 +30,11 @@ export function pressureChangesHands(cast: IRingCast): AutoMovieComposition {
     RingPhase.reset([b, "centre"], [a, "give"]),
     exchange(cast, "s04-b01", b.jab().jab(), a.cover().cover()),
     RingPhase.reset([a, "circle"]),
-    then(exchange(cast, "s04-b02", b.jab().cross().hook(), a.parry().slip().roll()), exchange(cast, "s04-b02c", a.uppercut(), b.take(), false)),
+    then(exchange(cast, "s04-b02", b.jab().cross().hook(), a.parry().slip().roll()), exchange(cast, "s04-b02c", a.uppercut(), b.take())),
     RingPhase.reset([b, "press"], [a, "give"]),
     exchange(cast, "s04-b03", b.clinchKnee(), a.take()),
     RingPhase.reset([a, "pivot"]),
-    then(exchange(cast, "s04-b04", b.jab().cross(), a.slip().cover()), exchange(cast, "s04-b04c", a.hook(), b.take(), false)),
+    then(exchange(cast, "s04-b04", b.jab().cross(), a.slip().cover()), exchange(cast, "s04-b04c", a.hook(), b.take())),
     RingPhase.reset([a, "circle"]),
     exchange(cast, "s04-b05", a.jab().cross().bodyHook().lowKick(), b.cover().cover().elbowBlock().take()),
   ]);

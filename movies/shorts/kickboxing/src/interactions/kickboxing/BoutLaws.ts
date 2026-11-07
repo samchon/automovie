@@ -130,8 +130,13 @@ export namespace BoutLaws {
         const opponent: string = subject === cast.a.id ? cast.b.id : cast.a.id;
         const about: RingFootwork.IPoint = latest(schedule.entries, opponent, entry.start) ?? start[opponent]!;
         const share: number = (seconds - entry.start) / (entry.end - entry.start);
+        // An arc between two points inside the ropes can bulge past them; the
+        // fighter stays inside by his margin.
+        const fighter: Fighter = subject === cast.a.id ? cast.a : cast.b;
+        const limit: number = cast.ring.half - StanceShape.margin(fighter.body.measure);
+        const p: RingFootwork.IPoint = RingFootwork.along(action.movement, before, (entry.state as IState).origin, about, share);
         return {
-          point: RingFootwork.along(action.movement, before, (entry.state as IState).origin, about, share),
+          point: { x: Math.max(-limit, Math.min(limit, p.x)), z: Math.max(-limit, Math.min(limit, p.z)) },
           moving: { entry, share, from: before, about },
         };
       }
@@ -153,13 +158,13 @@ export namespace BoutLaws {
   }
 
   /**
-   * Kicking distance: the range of the rear body kick, where both fighters reset between exchanges.
+   * Kicking distance: the range of the longest kick, the teep, where both fighters reset between exchanges.
    *
    * @param cast The cast.
    * @returns Metres.
    */
   export function kicking(cast: IRingCast): number {
-    return KickboxingRange.of(cast.a.body.measure, cast.b.body.measure, "body-kick");
+    return KickboxingRange.of(cast.a.body.measure, cast.b.body.measure, "teep");
   }
 
   function fighter(cast: IRingCast, id: string): Fighter {

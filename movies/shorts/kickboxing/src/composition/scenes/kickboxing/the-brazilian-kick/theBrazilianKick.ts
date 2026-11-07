@@ -30,11 +30,11 @@ export function theBrazilianKick(cast: IRingCast): AutoMovieComposition {
   return RingPhase.fill(
     15,
     [
-      then(exchange(cast, "s10-b01", b.jab().cross().hook().lowKick(), a.parry().slip().roll().check()), exchange(cast, "s10-b01c", a.cross(), b.take(), false)),
+      then(exchange(cast, "s10-b01", b.jab().cross().hook().lowKick(), a.parry().slip().roll().check()), exchange(cast, "s10-b01c", a.cross(), b.take())),
       RingPhase.reset([a, "circle"], [b, "circle"]),
-      then(exchange(cast, "s10-b02", b.jab(), a.slip()), exchange(cast, "s10-b02c", a.bodyHook().lowKick(), b.elbowBlock().check(), false)),
+      then(exchange(cast, "s10-b02", b.jab(), a.slip()), exchange(cast, "s10-b02c", a.bodyHook().lowKick(), b.elbowBlock().check())),
       RingPhase.reset([b, "give"], [a, "press"]),
-      then(exchange(cast, "s10-b03", b.jab().cross(), a.parry().slip()), exchange(cast, "s10-b03c", a.cross().bodyKick(), b.cover().next(b.tell("body-kick")), false)),
+      then(exchange(cast, "s10-b03", b.jab().cross(), a.parry().slip()), exchange(cast, "s10-b03c", a.cross().bodyKick(), b.cover().next(b.tell("body-kick")))),
       RingPhase.reset([a, "circle"]),
       exchange(cast, "s10-b04", a.jab().cross().bodyHook().brazilianKick(), b.cover().cover().elbowBlock().next(b.tell("brazilian-kick"))),
     ],

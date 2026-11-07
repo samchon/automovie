@@ -79,7 +79,7 @@ export namespace RefereeTrack {
         target = goal.point;
         look = { x: (a.x + b.x) / 2, z: (a.z + b.z) / 2 };
       }
-      current = RefereePosition.walk(current, target, k === 0 ? 0 : STEP);
+      current = RefereePosition.walk(current, around(current, target, a, b, ring.step + measure.armReach), k === 0 ? 0 : STEP);
       points.push(current);
       looks.push(look);
     }
@@ -110,6 +110,22 @@ export namespace RefereeTrack {
       return action.kind === "phase" && action.phase === "fall";
     });
     return fall ? fall.start : Infinity;
+  }
+
+  /**
+   * The next point toward a target on the other side of the fighters' line:
+   * past the end of their segment nearer to him, a step and an arm's reach
+   * beyond the fighter there, so he goes around and never between them.
+   */
+  function around(current: RingFootwork.IPoint, target: RingFootwork.IPoint, a: RingFootwork.IPoint, b: RingFootwork.IPoint, clearance: number): RingFootwork.IPoint {
+    const ux: number = b.x - a.x;
+    const uz: number = b.z - a.z;
+    const side = (p: RingFootwork.IPoint): number => Math.sign(ux * (p.z - a.z) - uz * (p.x - a.x));
+    if (side(current) === side(target) || side(current) === 0) return target;
+    const length: number = Math.hypot(ux, uz) || 1;
+    const end: RingFootwork.IPoint = Math.hypot(current.x - a.x, current.z - a.z) <= Math.hypot(current.x - b.x, current.z - b.z) ? a : b;
+    const outward: number = end === a ? -1 : 1;
+    return { x: end.x + (outward * ux * clearance) / length, z: end.z + (outward * uz * clearance) / length };
   }
 
   function clinch(schedule: IAutoMovieSchedule, t: number): boolean {

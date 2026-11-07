@@ -30,8 +30,8 @@ export function feintsFindTheOpenings(cast: IRingCast): AutoMovieComposition {
     RingPhase.reset([b, "press"], [a, "give"]),
     exchange(cast, "s06-b02", b.jab().cross().hook().highKick(), a.parry().slip().roll().highBlock()),
     RingPhase.reset([a, "give"]),
-    then(exchange(cast, "s06-b03", a.teep(), b.take()), exchange(cast, "s06-b03b", b.jab(), a.slip()), exchange(cast, "s06-b03c", a.bodyCross(), b.take(), false)),
+    then(exchange(cast, "s06-b03", a.teep(), b.take()), exchange(cast, "s06-b03b", b.jab(), a.slip()), exchange(cast, "s06-b03c", a.bodyCross(), b.take())),
     RingPhase.reset([a, "circle"], [b, "circle"]),
-    then(exchange(cast, "s06-b04", b.jab().lowKick(), a.cover().check()), exchange(cast, "s06-b04c", a.jab().cross(), b.take().cover(), false)),
+    then(exchange(cast, "s06-b04", b.jab().lowKick(), a.cover().check()), exchange(cast, "s06-b04c", a.jab().cross(), b.take().cover())),
   ]);
 }

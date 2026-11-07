@@ -20,5 +20,6 @@ export function test_coverage_law(): void {
   assert.ok(Math.abs(Math.abs(bearing) - Math.PI) < 1e-9);
   const share = CoverageLaw.follow(step);
   assert.ok(share > 0 && share < 1 && CoverageLaw.follow(2 * step) > share);
-  assert.equal(CoverageLaw.goal("wide", ["a"], 0).fieldOfView, CoverageLaw.FIELD_OF_VIEW);
+  assert.equal(CoverageLaw.goal("medium", ["a"], 0).fieldOfView, CoverageLaw.FIELD_OF_VIEW);
+  assert.ok(CoverageLaw.goal("wide", ["a"], 0).fieldOfView > CoverageLaw.FIELD_OF_VIEW);
 }

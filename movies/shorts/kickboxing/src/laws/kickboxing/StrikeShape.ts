@@ -46,6 +46,12 @@ export namespace StrikeShape {
     turnover: Math.PI / 2,
   };
 
+  /** Whole-body lean away from the Brazilian kick at the turnover, radians: the trunk "leans back" read as thirty degrees. */
+  const TURNOVER_ROLL: number = Math.PI / 6;
+
+  /** Pelvis obliquity of the turnover, degrees: half the channel's forty-five-degree hike range read as the hip rolling over. */
+  const TURNOVER_HIKE: number = 22;
+
   /** Hip flexion of the round-kick chamber, degrees, by level: thigh toward the target height (PLOS Fig. 3 chamber). */
   const CHAMBER_HIP: Readonly<Record<KickboxingTechnique.Level, number>> = {
     leg: 45,
@@ -238,8 +244,14 @@ export namespace StrikeShape {
     const forward: { point: IAutoMovieVector3 } = {
       point: { x: measure.armReach * 0.75, y: head, z: sign * measure.headRadius },
     };
+    // The turnover rolls the hips over: the body leans away from the kick and
+    // the kicking hip rises (brazilian-kick.md#law), up to the pelvis's
+    // obliquity range's half.
+    const over: number = turnover ? Math.max(reach, lift * 0.5) : 0;
     const kicked: IBoutPosture = {
       ...guard,
+      roll: guard.roll + sign * TURNOVER_ROLL * over,
+      pelvis: { ...guard.pelvis, obliquity: guard.pelvis.obliquity + TURNOVER_HIKE * over },
       yaw: guard.yaw + sign * turn,
       thoracic: { ...guard.thoracic, lateralFlexion: guard.thoracic.lateralFlexion - sign * lean },
       hands: { ...guard.hands, [side]: forward },

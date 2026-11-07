@@ -25,7 +25,6 @@ import type { IRingCast } from "./IRingCast";
  * @param id The beat's anchor, a stable prefix for the strike anchors.
  * @param attack The attacker's chain of strikes and feints.
  * @param defense The receiver's chain of answers, one per strike.
- * @param approach Whether he steps in first; a counter thrown from where the last exchange left him does not.
  * @returns The exchange's composition.
  * @throws When the counts differ, a chain mixes subjects or a part is not of its kind.
  * @evidence docs/research/kickboxing/techniques.md#defenses A defense begins at the attack's launch and completes by its contact.
@@ -38,7 +37,6 @@ export function exchange(
   id: string,
   attack: { readonly node: AutoMovieComposition },
   defense: { readonly node: AutoMovieComposition },
-  approach: boolean = true,
 ): AutoMovieComposition {
   const strikes: IAutoMovieIntent[] = flatten(attack.node);
   const answers: IAutoMovieIntent[] = flatten(defense.node);
@@ -79,7 +77,7 @@ export function exchange(
   return AutoMovieComposition.parallel(
     AutoMovieComposition.sequence(...anchored),
     ...aligned,
-    ...(approach ? [KickboxingAction.intent(attacker, { kind: "move", movement: "approach", steps: APPROACH_STEPS, range, seconds })] : []),
+    KickboxingAction.intent(attacker, { kind: "move", movement: "approach", steps: APPROACH_STEPS, range, seconds }),
   );
 }
 

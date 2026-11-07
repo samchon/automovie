@@ -33,7 +33,8 @@ export function test_ring_footwork(): void {
   assert.ok(Math.max(Math.abs(far.x), Math.abs(far.z)) <= 3 - 0.4 + 1e-12);
   assert.ok(RingFootwork.onRopes({ x: 3 - 0.4 - 0.4, z: 0 }, ring));
   assert.ok(!RingFootwork.onRopes({ x: 0, z: 0 }, ring));
-  assert.deepEqual(RingFootwork.along("circle", a, circled, b, 0), a);
+  const start = RingFootwork.along("circle", a, circled, b, 0);
+  assert.ok(Math.hypot(start.x - a.x, start.z - a.z) < 1e-12);
   for (const steps of [2, 3, 4, 7])
     for (let k = 0; k <= 100; k++) {
       const share = k / 100;

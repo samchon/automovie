@@ -29,10 +29,10 @@ export function theBodyKickLands(cast: IRingCast): AutoMovieComposition {
     RingPhase.reset([a, "pivot"]),
     exchange(cast, "s05-b01", a.jab().cross().bodyKick(), b.cover().cover().take()),
     RingPhase.reset([a, "circle"], [b, "circle"]),
-    then(exchange(cast, "s05-b02", b.switchKick().jab().cross(), a.elbowBlock().slip().parry()), exchange(cast, "s05-b02c", a.hook(), b.cover(), false)),
+    then(exchange(cast, "s05-b02", b.switchKick().jab().cross(), a.elbowBlock().slip().parry()), exchange(cast, "s05-b02c", a.hook(), b.cover())),
     RingPhase.reset([a, "circle"]),
     exchange(cast, "s05-b03", a.jab().cross().bodyKick(), b.cover().cover().next(b.tell("body-kick"))),
     RingPhase.reset([b, "circle"]),
-    then(exchange(cast, "s05-b04", b.jab().bodyCross().hook(), a.cover().elbowBlock().roll()), exchange(cast, "s05-b04c", a.cross(), b.slip(), false)),
+    then(exchange(cast, "s05-b04", b.jab().bodyCross().hook(), a.cover().elbowBlock().roll()), exchange(cast, "s05-b04c", a.cross(), b.slip())),
   ]);
 }

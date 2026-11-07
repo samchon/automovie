@@ -130,7 +130,10 @@ export class RingStage {
       camera: view,
       schedule,
       violations,
-      findings: measured.findings,
+      findings: measured.findings.map((finding: string): string => {
+        const receipt = measured.receipts.find((r) => finding.startsWith(`${r.anchor}:`));
+        return receipt ? `${finding}; closest ${receipt.separation.toFixed(3)} m at ${receipt.seconds.toFixed(3)} s` : finding;
+      }),
       receipts: measured.receipts,
       cues,
       seek,

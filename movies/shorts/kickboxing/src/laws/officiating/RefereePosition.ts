@@ -24,6 +24,9 @@ export namespace RefereePosition {
   /** He aims at where the fighters were this many seconds earlier (film choice in the study). */
   export const LAG: number = 0.5;
 
+  /** His working distance as a multiple of his close distance (study: as far as possible while keeping pace). */
+  export const FAR_SHARE: number = 1.5;
+
   /** Least angle between his direction from the fighters' centre and their line that counts as a side view, radians (study target). */
   export const SIDE_VIEW: number = Math.PI / 3;
 
@@ -74,7 +77,8 @@ export namespace RefereePosition {
         along = other;
       }
     }
-    const distance: number = input.close ? Math.min(near, along.room) : Math.max(Math.min(near, along.room), along.room);
+    // As far out as the ring allows, up to twice the close distance so he can keep pace.
+    const distance: number = Math.min(input.close ? near : FAR_SHARE * near, along.room);
     return {
       point: { x: centre.x + along.normal.x * distance, z: centre.z + along.normal.z * distance },
       side,

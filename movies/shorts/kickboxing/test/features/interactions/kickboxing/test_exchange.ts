@@ -16,7 +16,7 @@ import { polygonCast } from "../../../internal/polygonCast";
  * Scenarios: every answer of a four-strike exchange shares its strike's
  * contact second and carries its anchor; outcomes are parried, blocked,
  * evaded, checked; the step-in rides the first strike and ends at the
- * combination's range; a counter has no step-in; a mismatched count or a
+ * combination's range, ending at the first strike's contact; a mismatched count or a
  * foreign answer refuses; a phase lasts exactly its window, and with a last
  * anchor its contact lands exactly at the window's end; an overfull phase
  * refuses.
@@ -40,8 +40,9 @@ export function test_exchange(): void {
   const end = BoutLaws.origin(schedule, "a", schedule.duration, cast).point;
   const other = BoutLaws.origin(schedule, "b", schedule.duration, cast).point;
   assert.ok(Math.abs(Math.hypot(end.x - other.x, end.z - other.z) - range) < 1e-9);
-  const counter = resolveAutoMovieSchedule(exchange(cast, "y", b.jab(), a.slip(), false), { timing: boutTiming });
-  assert.ok(!counter.entries.some((e) => e.intent.capability === "move"));
+  const counter = resolveAutoMovieSchedule(exchange(cast, "y", b.jab(), a.slip()), { timing: boutTiming });
+  const step = counter.entries.find((e) => e.intent.capability === "move")!;
+  assert.ok(Math.abs(step.end - counter.entries.find((e) => e.intent.capability === "strike")!.contact!) < 1e-12);
   assert.throws(() => exchange(cast, "z", a.jab().cross(), b.parry()));
   assert.throws(() => exchange(cast, "z", a.jab(), a.parry()));
   const phase = RingPhase.fill(15, [RingPhase.reset([a, "circle"]), exchange(cast, "p", a.jab().cross(), b.parry().slip())]);

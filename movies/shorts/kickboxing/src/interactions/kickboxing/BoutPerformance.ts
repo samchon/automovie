@@ -169,8 +169,13 @@ export class BoutPerformance {
       spec.limb === "arm"
         ? ["chest", `${spec.side}Shoulder`, `${spec.side}UpperArm`, `${spec.side}LowerArm`, `${spec.side}Hand`]
         : [`${spec.side}UpperLeg`, `${spec.side}LowerLeg`, `${spec.side}Foot`];
+    // The trunk leans into a punch; a kick also bends the support leg, except
+    // the descending kick, whose turnover the shape already placed and whose
+    // fit only rolls the pelvis and trunk over the held, turning support foot.
     const chain: string[] =
-      spec.limb === "leg" ? [`${support}LowerLeg`, `${support}UpperLeg`, "hips", "spine"] : ["spine"];
+      spec.limb === "leg" && spec.line !== "descending"
+        ? [`${support}LowerLeg`, `${support}UpperLeg`, "hips", "spine"]
+        : ["hips", "spine"];
     return {
       profile: fighter.body.profile,
       pose,
@@ -218,7 +223,7 @@ export namespace BoutPerformance {
   export const CACHE: number = 4096;
 
   /** Relational fit budget, within the engine's limit. */
-  export const ITERATIONS: number = 32;
+  export const ITERATIONS: number = 64;
 
   /** One fighter's displayed body. */
   export interface IBody extends FighterBody.IPlaced {

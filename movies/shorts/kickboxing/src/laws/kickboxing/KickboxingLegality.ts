@@ -100,12 +100,15 @@ export namespace KickboxingLegality {
       check: (entry: IAutoMovieSchedule.IEntry, schedule: IAutoMovieSchedule): string | null => {
         const own: string[] = limbs(entry);
         if (own.length === 0) return null;
+        // An answer holds its limb from the attack's launch to its contact; its
+        // return to the guard can carry on into the next answer of that limb.
+        const busy = (e: IAutoMovieSchedule.IEntry): number => (e.intent.capability === "answer" ? (e.contact ?? e.end) : e.end);
         const clash = schedule.entries.find(
           (other) =>
             other.index > entry.index &&
             other.subject === entry.subject &&
-            other.start < entry.end - TOUCH &&
-            entry.start < other.end - TOUCH &&
+            other.start < busy(entry) - TOUCH &&
+            entry.start < busy(other) - TOUCH &&
             limbs(other).some((limb: string): boolean => own.includes(limb)),
         );
         return clash ? `entries ${entry.index} and ${clash.index} use one limb at once` : null;

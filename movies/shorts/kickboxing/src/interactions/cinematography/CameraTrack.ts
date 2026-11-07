@@ -108,10 +108,13 @@ export namespace CameraTrack {
       bearing = bearing === undefined ? side : size === "finish" && t > finish ? bearing : CoverageLaw.orbit(bearing, side, STEP);
       const frame = resolveAutoMovieFraming(CoverageLaw.goal(size, subjects, bearing), spheres);
       const limit: number = cast.ring.half - LENS_MARGIN;
+      const x: number = Math.max(-limit, Math.min(limit, frame.position.x));
+      const z: number = Math.max(-limit, Math.min(limit, frame.position.z));
+      // A lens held back by the ropes keeps the law's elevation from where it stands.
       const wantedPosition: IAutoMovieVector3 = {
-        x: Math.max(-limit, Math.min(limit, frame.position.x)),
-        y: frame.position.y,
-        z: Math.max(-limit, Math.min(limit, frame.position.z)),
+        x,
+        y: frame.target.y + Math.hypot(x - frame.target.x, z - frame.target.z) * Math.tan(CoverageLaw.ELEVATION),
+        z,
       };
       const follow: number = k === 0 ? 1 : CoverageLaw.follow(STEP);
       position = position === undefined ? wantedPosition : lerp(position, wantedPosition, follow);

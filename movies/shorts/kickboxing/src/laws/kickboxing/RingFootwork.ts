@@ -84,6 +84,10 @@ export namespace RingFootwork {
   ): IPoint {
     const length: number = action.steps * ring.step;
     const toward: IPoint = unit(sub(opponent, mover));
+    // A fighter feeling the ropes behind him circles out toward the open side
+    // instead of giving more ground or circling along them.
+    if ((action.movement === "give" || action.movement === "circle") && onRopes(mover, ring))
+      return escape(mover, opponent, length, ring);
     // Own left of a fighter facing `toward` with y up: forward x up.
     const left: IPoint = { x: -toward.z, z: toward.x };
     switch (action.movement) {
@@ -95,7 +99,7 @@ export namespace RingFootwork {
           ring,
         );
       case "escape":
-        return clamp(orbit(mover, opponent, length, roomier(mover, opponent, ring)), ring);
+        return escape(mover, opponent, length, ring);
       case "give":
         return clamp(
           add(mover, scale(add(scale(toward, -Math.cos(GIVE_ANGLE)), scale(left, Math.sin(GIVE_ANGLE))), length)),
@@ -201,6 +205,13 @@ export namespace RingFootwork {
     // offset seen from above (y up), so the angle decreases for side +1.
     const angle: number = Math.atan2(r.z, r.x) - (side * arc) / radius;
     return { x: opponent.x + radius * Math.cos(angle), z: opponent.z + radius * Math.sin(angle) };
+  }
+
+  /** Circle out of the rope zone: around the opponent toward the roomier side, half the path toward the centre (film reading of "circles out toward the open side"). */
+  function escape(mover: IPoint, opponent: IPoint, length: number, ring: IRing): IPoint {
+    const around: IPoint = orbit(mover, opponent, length / 2, roomier(mover, opponent, ring));
+    const inward: IPoint = unit(scale(around, -1));
+    return clamp(add(around, scale(inward, Math.min(length / 2, Math.hypot(around.x, around.z)))), ring);
   }
 
   /** The circling side with more room: +1 for the mover's left, -1 for his right. */

@@ -11,8 +11,8 @@ import { exchange } from "../../../../interactions/kickboxing/exchange";
  * A's pump jab draws B's glove and his body shot meets B's elbows.
  *
  * Concretization: between beats the pair circles, then B gives ground on the
- * diagonal while A cuts across, as the beats' space says; the counters are
- * thrown without a step-in.
+ * diagonal while A cuts across, as the beats' space says; the counters step in on
+ * their first strike.
  *
  * @param cast The cast.
  * @returns The scene's composition, filling its fifteen seconds.
@@ -27,13 +27,13 @@ export function aFinishesWithTheLeg(cast: IRingCast): AutoMovieComposition {
   const { a, b } = cast;
   const then = AutoMovieComposition.sequence;
   return RingPhase.fill(15, [
-    then(exchange(cast, "s02-b01", b.jab(), a.slip()), exchange(cast, "s02-b01c", a.jab(), b.take(), false)),
+    then(exchange(cast, "s02-b01", b.jab(), a.slip()), exchange(cast, "s02-b01c", a.jab(), b.take())),
     RingPhase.reset([a, "circle"], [b, "circle"]),
     exchange(cast, "s02-b02", a.jab().cross().hook().lowKick(), b.parry().cover().cover().take()),
     RingPhase.reset([b, "give"], [a, "press"]),
-    then(exchange(cast, "s02-b03", b.jab().cross(), a.parry().slip()), exchange(cast, "s02-b03c", a.bodyHook(), b.take(), false)),
+    then(exchange(cast, "s02-b03", b.jab().cross(), a.parry().slip()), exchange(cast, "s02-b03c", a.bodyHook(), b.take())),
     RingPhase.reset([a, "circle"]),
-    then(exchange(cast, "s02-b04", b.teep(), a.parry()), exchange(cast, "s02-b04c", b.jab(), a.slip(), false)),
+    then(exchange(cast, "s02-b04", b.teep(), a.parry()), exchange(cast, "s02-b04c", b.jab(), a.slip())),
     RingPhase.reset([a, "press"], [b, "give"]),
     exchange(cast, "s02-b05", a.feintJab().bodyCross(), b.tell("feint-jab").elbowBlock()),
   ]);
