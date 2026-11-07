@@ -1,104 +1,127 @@
-
 # Kickboxing
 
-A 180-second continuous ring scene. Compact settings define [A](../settings/fighter-a.md), [B](../settings/fighter-b.md), the [male referee](../settings/referee.md) and the [ring](../settings/ring.md). The consumed [FilmPlan](../../../src/film/FilmPlan.ts) realizes these action groups, their event clock and the delivered camera. Times below are staging decisions; playback and the final decoded film establish their realization.
+A 180-second continuous ring scene. Compact settings define [A](../settings/fighter-a.md), [B](../settings/fighter-b.md), the [male referee](../settings/referee.md) and the [ring](../settings/ring.md). Both men fight at championship level: their punches arrive in combinations that finish with a kick, they feint to move the other's guard, they check low kicks and fire back from the check, and they meet combinations with a parry, a slip, a roll and a block in turn. The [championship exchange research](../../research/championship-exchanges.md) records the source patterns. The consumed [BoutScript](../../../src/shots/kickboxing/ring-bout/BoutScript.ts) transcribes every exchange below, and the [FilmPlan](../../../src/shots/kickboxing/ring-bout/FilmPlan.ts) owns the event clock and the delivered camera. Times are staging decisions; playback and the final decoded film establish their realization.
 
 ## INT. KICKBOXING RING - NIGHT {#ring-bout}
 
-### 0–15: Touch Into the First Counter
+### 0–15: Reading Each Other
 
 The bell rings. A, in red, faces B, in cyan gloves and navy shorts. Both are powerful adult men. A slightly elevated ringside view keeps their heads, gloves and bare feet together. The white-shirted male referee stands clear behind their line, looking between them. His right palm rises beside his shoulder, then sweeps down.
 
 REFEREE
 Fight!
 
-They advance separately, lead foot landing before the rear foot follows. Their left gloves meet at 1.000 as their right hands protect their cheeks. Fingers remain closed inside the gloves. They withdraw the touching hands and regain striking distance by 1.550. The referee steps back, accepts weight on the rear foot and follows with the other, keeping both fighters in view.
+They advance separately, lead foot landing before the rear foot follows. Their left gloves meet at 1.000 as their right hands protect their cheeks. They withdraw the touching hands and regain kicking distance by 1.550. The referee steps back, accepts weight on the rear foot and follows with the other, keeping both fighters in view.
 
-B brushes A's jab aside with his right glove. As A's left hand returns, the rear hip and shoulder drive his cross into B's raised left glove and forearm. A's left glove continues toward his cheek. B jabs while A's right glove is still returning; A slips outside the incoming fist. A turns into a left hook; B bends through knees and hips, carrying his head beneath its arc. B rises into a cross that passes A's slipping head.
+A flicks his lead glove halfway out and snaps it back. B's right glove jumps toward it, finds nothing and settles beside his cheek. B lifts his lead knee and pushes the sole into A's stomach. A's hips give backward with the teep and he resets on two separate steps.
 
-A turns on his left forefoot and sends his right shin low. B loads the right leg and turns his raised left shin into it. A folds the kicking knee as B lowers the check. B's jab-cross meets A's closed guard. A's counter jab misses B's outside slip; B hooks over A's shallow weave. A comes up with a right cross as B's hook withdraws. B slips outside it; A then lowers through his legs and drives a right straight into B's left ribs. The glove flattens as it sinks into the flesh and sweat sprays off his side. B's trunk gives with a clipped exhale; his elbow closes over the struck side, where the skin begins to redden.
+A comes in behind a stiff jab. B's right glove turns it aside; A's cross follows into B's raised left glove and forearm, and A rolls his weight straight into a left hook. B bends through knees and hips and carries his head beneath its arc. He rises out of that dip already throwing: his own left hook passes over A's ducking head, and his cross stops a hand's width short of A's chin as A sways his upper body back over the rear foot.
 
-Every landed blow sinks into what it meets: gloves flatten against gloves, ribs and faces, sweat flies off struck skin, and skin stays reddened where it was hit. Dry glove taps, the heavier checked-shin knock and the body thud separate the exchanges. Breaths and short canvas scuffs continue between them. Returning limbs and small independent distance steps connect the attacks; neither man waits in a shared idle pose.
+B steps in behind a jab that A takes on his closed gloves, then turns his right shin low. A unloads the lead leg, raises the left knee with the toes pulled up and meets B's shin with his own. The shins knock hard. A sets the foot down and fires from that same landing: jab into B's parry, cross past B's head as B slips outside it.
 
-### 15–30: A Finds the Body
+They circle. B flicks a jab feint; A's right glove twitches. B's real jab follows and A slips outside it, then sinks a right straight into B's stomach. B's elbows drop together and the fist lands on his forearms.
 
-B shifts the line with a short supported angle step. A turns to follow instead of sliding sideways with him. B jabs against A's compact right-glove parry, then crosses into A's raised left glove and forearm. A answers with a jab while B's cross withdraws. B slips outside it; A then drives a cross past B's outside slip. B's counter jab also misses as A moves his head off the line.
+Glove taps, the checked-shin knock, the thud of a sole on skin, short canvas scuffs and breaths separate the exchanges. Small independent steps and returning limbs connect the attacks; neither man waits in a shared idle pose.
 
-A stays low enough to swing a left hook into B's right ribs. His left knee bends with the level change; his rear leg and turning pelvis carry the strike. The glove buries itself in B's side and throws off a fan of sweat. B exhales, restores the elbow and jabs into A's cover. A's cross goes past B's slip. B fires another jab-cross into the closed head guard; A returns a jab while B's right hand is recovering. It lands flush on B's face and flattens against his cheek; sweat and a thin spray of blood leave his nose and mouth. His head snaps back, his eyes squeeze shut and his guard opens for an instant before he resets it.
+### 15–30: A Finishes With the Leg
 
-A draws the right knee forward, releases his left heel and turns the hips into a right body kick. B's late near arm leaves the side exposed. The shin sinks into the body with a burst of sweat; B folds slightly through knees and trunk with a breath knocked short. A flexes the knee to clear B before lowering the foot. B restores his head guard while taking a short rear-foot-first adjustment. A lands, receives his weight and follows without crossing his feet.
+B jabs. A slips outside the fist and answers before it returns; his own jab snaps B's forehead back and throws sweat off it.
 
-The camera drifts along the same side of the ring. Both bodies remain visible through the two body impacts and the kick's complete return.
+A then commits to a full combination: jab into B's parry, cross into the raised guard, a left hook onto B's right glove. The hook pushes B's weight onto his lead leg. Before B can lift it, A's right shin swings low into the outside of B's left thigh. The kick lands with a heavy slap and sinks into the muscle; B's left knee dips and he hops back on the rear foot to rebalance.
 
-### 30–45: B Answers Below the Guard
+B answers at once with jab-cross. A turns the jab across his body with his right glove, slips outside the cross and drives a left hook into B's right ribs, over the liver. The glove buries itself and throws off a fan of sweat. B's breath leaves him in a grunt and his right elbow clamps down.
 
-A takes a small angle step as B tracks him with a separate foot placement. B's jab meets A's parry. A drives a right cross while B's left glove is returning; B slips outside the incoming fist. B lowers through the legs and turns a right straight into A's left ribs. The glove sinks in and sweat flies off A's side. A gives through his trunk, closes the left elbow and throws a jab past B's slipping head.
+B pushes a left teep at A's stomach to make room. A's right forearm sweeps it aside and turns B half a step. B covers the retreat with a jab; A slips it and stays in range.
 
-B's left hook passes over A's curved weave. A's pelvis lowers between his feet; he clears the hook before rising. B turns into a right low kick. A loads his rear leg and raises his left shin, toes up, into the incoming shin. B folds his right knee clear and replants the rear foot as A sets his left down. After both landings A crosses; B slips outside it.
+A flicks the jab feint again. B's right glove rises toward it. A's real attack is a right straight to the stomach, and B's elbows close over it just in time.
 
-A rises through his legs into a short left uppercut. B's joined gloves stop it below his chin; his head stays behind the protection. B crosses while A's uppercut returns, and the fist catches A square on the face and flattens against his cheek; sweat and a spray of blood leave his mouth. A's head whips back, his mouth opens and he rocks onto his rear foot before the guard closes again. A turns the returning left side into a body hook. B brings his right glove down before the right ribs, keeping the left hand beside his cheek. A's glove stops against the receiving glove. A retracts, B returns the right hand toward his cheek, and they move apart by their own short steps, still facing one another.
+### 30–45: B Plays the Long Game
+
+B drags his rear foot forward and turns his hip as if to kick low. A lifts his lead leg to check — nothing arrives. As A's left foot comes down and takes weight, B's real right low kick lands on that same thigh. A's lead knee buckles a few centimetres and he shifts his weight back.
+
+B follows behind a jab that A catches on his right glove and a cross that A takes on the left forearm. A rolls under the left hook that comes next. B finishes with a right low kick, and this time A is ready: his lead shin rises and the kick clacks off it. A plants and answers immediately with a cross that grazes B's high guard.
+
+A doubles his jab. The first lands on B's gloves; the second finds his nose and flattens against his face. Sweat and a thin spray of blood leave B's nose. His eyes squeeze shut for an instant and his guard tightens.
+
+B steps back out of range, shakes the left leg once and comes back with a jab feint. A's right glove rises to parry it. B dips under that glove and buries a left hook in A's right side. A's elbow drops over the ribs too late and he exhales hard.
+
+A turns his right shin into B's lead leg. B raises his left knee and checks it. B fires from the check with a cross; A slips outside it and both men step out of range.
 
 ### 45–60: Pressure Changes Hands
 
-B takes the initiative, pressing behind a jab-cross into A's high guard. A gives ground rear foot first, brings the lead foot after it, and answers with a jab while B's cross returns. B slips outside the incoming fist. B bends his left arm into an uppercut that meets A's chin-level gloves. A's cross goes past B's outside slip.
+B takes the centre and walks A back with a double jab into his gloves. A gives ground rear foot first. B throws jab-cross-left hook: A parries the jab, slips the cross and rolls under the hook. A comes up from the roll with a short left uppercut that splits B's gloves and snaps his chin up.
 
-B delivers a right low kick. A lifts a left shin check from a loaded right leg, then replaces the lead foot. He lowers through that landing and drives a right body straight into B's exposed left side. Sweat sprays from the struck ribs. B exhales and recoils through the trunk. His immediate counter jab misses A's head as A slips and keeps his left glove protecting the opposite cheek.
+B lunges forward, wraps both gloves behind A's head and drives a right knee into A's stomach. A's trunk folds around the knee with a grunt. B lets go at once and steps back. The referee moves closer, watching B's hands.
 
-A's jab meets B's right-glove parry; the following cross meets B's raised left glove and forearm. B jabs before A's right hand reaches his cheek; A slips outside the fist. B adds a left hook. A's weave starts too late: the hook cracks across the right side of his face and turns his head and shoulders with it, throwing sweat and a streak of blood off his cheek. He staggers half a step, eyes shut, and brings both gloves back to his cheeks. B takes a separate short recovery step to keep punching distance. The referee adjusts behind their open side, watching the head paths and replanted feet.
+A pivots off the line instead of backing straight up. B chases him with jab-cross; A slips the jab and catches the cross on his left glove. As B's weight keeps coming forward, A pivots on his lead foot and hooks across it. The hook lands on B's jaw and turns his head. B staggers half a step, gets his feet back under him and brings both gloves up.
 
-### 60–75: The Body Kick Returns
+A follows behind jab-cross into B's high guard and a left hook to the body that B's right elbow blocks. The body hook draws B's weight onto his lead leg again, and A's right shin finds the outside of that thigh with another heavy slap. B's leg gives a little before he resets.
 
-A steps to change the approach line and attacks behind a jab-cross. B closes his head guard, then jabs into A's returning cross. A slips outside the fist. A's left body hook meets B's right glove lowered before his ribs; B's left glove stays beside his cheek. B returns the right hand while crossing at A's head; A slips outside and stays available to turn back.
+### 60–75: The Body Kick Lands
 
-A unloads his right leg, turns on his left forefoot and whips a right kick into B's left body side, the shin sinking deep and spraying sweat. B's arm arrives late. His knees and trunk yield together with a sharp breath. A folds the knee clear and returns the foot behind his lead leg. B closes during the recovery, then drives a cross once A can support the returning stance. A slips; his answering jab passes B's own outside slip.
+A steps to change the approach line and throws jab-cross to the head. B covers high. A's right knee lifts to waist height and his shin whips into B's left ribs below the raised elbow. The kick lands deep and sprays sweat. B's knees and trunk yield together with a sharp breath. A folds the knee clear and returns the foot behind his lead leg.
 
-B's left hook lands on A's right glove. A's forearm gives a little with it, then recovers beside the cheek. A crosses while B's hook returns; B slips outside it. A retrieves the right hand and jabs as B tracks his changing range. B parries that jab compactly, keeping the other glove beside his face. Separate foot landings interrupt the friction sound; the body kick's dull impact has already decayed.
+B switches his feet in a quick hop and kicks with his left leg at A's right side. A's right forearm and elbow meet the shin, and he steps away from its force. B follows with jab-cross; A slips outside the jab and parries the cross down. A returns a left hook that B stops on his right glove.
 
-### 75–90: Counters Between the Hands
+A repeats the pattern: jab, cross, right kick to the body. This time B drops his left elbow early and the shin bangs against his forearm. B's left hand stays low for a moment after the block before it returns to his cheek.
 
-A changes the angle before B's jab-cross. His right glove brushes the jab aside; his left glove and forearm receive the cross beside his cheek. He jabs while B's cross returns; B slips outside it. B lowers through his knees and lands a right straight on A's left body side, sinking in with a spray of sweat. A's breath breaks. He pulls the elbow home and jabs past B's slip.
+B answers with a jab into A's gloves, a right straight that A's left elbow takes on the ribs and a left hook that A rolls under. A comes up throwing a cross; B slips outside it.
 
-B sends a right low kick. A establishes rear-leg support and turns the raised lead shin into it. A's lead foot returns before his cross meets B's cover. B immediately jabs back; A shifts his head outside the incoming glove instead of waiting for B to finish recovering.
+### 75–90: Feints Find the Openings
 
-A turns that support into a left body hook beneath B's right elbow. Sweat jumps off the struck ribs. B gives through his trunk with an exhale and crosses while A's hook withdraws. A slips outside it. B retrieves and jabs; A slips from that new line as well. The glove passes his cheek without an impact sound. A's head returns above his base as B retracts. Their different short exit steps change the separation between them.
+A flicks a jab feint at B's eyes. B's right glove reacts. A turns his right hip as if to kick low, and B lifts his lead leg to check. While B stands on one leg, A drives a right straight through the middle of his guard. It lands on B's face and pushes him back over his supporting foot. Sweat sprays. B hops to recover his stance.
 
-### 90–105: Fighting for the Center
+B comes forward with jab, cross, left hook and right high kick. A parries the jab, slips the cross, rolls under the hook and raises his left forearm and glove tight against the side of his head. The shin cracks against the arm; A's head stays behind it, and he slides a step sideways with the force.
 
-A jabs into B's parry. B crosses while A's left glove is still returning; A slips outside the fist. A drops the level of his right straight. B lowers his left glove before the ribs and catches the incoming fist, keeping the right hand at his cheek. B's counter jab misses A's outside slip.
+A pushes a left teep into B's stomach to restore distance. B walks through it behind a jab; A slips the jab and drives a right straight into B's body. B exhales and his left elbow closes over the struck side.
 
-A hooks the head. B receives it on his right glove, then repositions that hand beside the cheek as A unloads the right leg for a low kick. B's left shin check meets it. A folds and replaces the right foot as B replants his left. After both landings, B drives a cross; A moves his head off the line. A jabs while B's cross returns and snaps B's head back with it; sweat and a thread of blood fly from B's nose. A retrieves the lead hand with his feet still staggered.
+B kicks low with his right leg. A checks it with the raised lead shin, lands, and lands again: his jab pops B's head back before his cross meets B's closed gloves.
 
-B lowers and hooks toward A's right ribs. A drops his right glove into the path while his left stays beside his face; the gloves meet with a dry thump. B retrieves the left arm while his rear foot follows a small exit turn. A follows with a distinct lead-foot placement and returning rear foot. Their breathing is deeper now. The camera keeps the space between their feet readable as the referee walks around their open flank.
+### 90–105: B's Longest Combination
 
-### 105–120: B Drives A Back
+B commits to his longest combination: a jab, a cross, a left hook to A's liver and a right low kick behind it. A blocks the jab on his gloves, parries the cross, takes the liver hook on his lowered right elbow, then lifts his left shin and checks the low kick. From the check he fires back with jab-cross. B slips outside the jab and then outside the cross.
 
-A angles away; B follows behind a jab-cross into the closed head guard. A takes a short rear-foot-first step and jabs while B's cross returns; B slips outside the fist. B's left body hook meets A's right glove lowered before his ribs. A brings that hand back through the cross past B's slipping head.
+B comes up from the second slip with a left hook to A's head, and it lands. A's head turns with it and sweat and a streak of blood fly off his cheek. He staggers half a step, eyes shut, and brings both gloves back to his cheeks. B follows with cross and hook; A covers tightly and both punches land on his gloves and forearms.
 
-B's right knee chambers for a body kick. His left forefoot turns as the hips open; the right shin drives into A's exposed left side and sprays sweat off it. A recoils through knees and trunk, exhales and restores the near forearm. B folds the kicking leg clear before landing. A jabs into B's parry, then moves outside B's counter cross.
+A pivots away, gets his feet back under him and pushes a left teep into B's stomach. B stops short. The referee adjusts behind their open side, watching the head paths and replanted feet.
 
-A jabs as B slips to his own right outside the lead hand. As the jab returns and A crosses, B transfers through bent knees to his own left, taking his head outside the rear glove's line. Both punches pass and return; B stays within a short counter step. He jabs while A's right hand withdraws, and the glove pops A's face back with a spray of sweat and blood; B's following right straight finds A's left ribs. A lowers his elbow over the impact and gives a short breath. He takes an angle step out of B's forward path; B turns after him, feet still separated.
+B resumes the pressure with a jab and a cross into A's guard and turns a right kick into A's body. A lowers his left elbow onto the kick and the shin thuds against it. A answers with jab-cross; B parries the jab and slips the cross.
 
-### 120–135: A Turns Back Into Range
+### 105–120: A Weathers It and Answers
 
-A sends a right straight toward B's body. B lowers his left glove to catch it before the ribs, keeping the right hand at his cheek. B jabs while A's right hand withdraws. A slips outside it, keeping his weight available for the next turn. A's left body hook reaches beneath B's right elbow and sinks in, throwing sweat. B exhales and turns with it, then crosses past A's slipping head.
+B presses with jab, cross and uppercut. A parries the jab, catches the cross on his glove and takes the uppercut on his joined gloves. B goes to the body with a left hook; A drops his elbow onto it. B kicks low once more; A checks it and B's shin knocks hard against the raised leg. B lands and stays on that leg a beat too long.
 
-A lifts and turns a right body kick into B's braced left forearm. The shin meets the arm; A bends the knee clear, turns back over his planted left forefoot and lowers the right foot behind it before accepting weight. B enters with a jab into A's right-glove parry, then crosses into the left glove and forearm raised beside A's cheek. A's counter jab misses B's outside slip.
+A punishes the beat. His left hook digs into B's liver and sweat jumps off the ribs. A second left hook goes to the head and B blocks it on his glove. A's right cross follows and lands on B's face, popping his head back with a spray of sweat and blood. B covers and moves away on short steps.
 
-B crosses back. A moves his head off the line and jabs while B's cross withdraws. The jab lands on B's already reddened face and his head jerks back with a fresh spray of sweat and blood; A follows with a cross against B's closed head guard. B's knees receive the pressure while his gloves remain between fist and face. They recover through short independent steps. The referee turns his gaze from the withdrawing right glove to their feet, then back to the next entry.
+A follows, wraps both gloves behind B's head and drives a right knee into his stomach, then lets go. B grunts and folds over the knee before straightening behind his guard.
 
-### 135–150: The Kick Climbs
+B regroups with a jab feint; A's right glove reacts. B's right straight goes to A's body and A's left elbow blocks it. A answers with jab-cross; B slips the jab and covers the cross.
 
-B comes forward with a jab-cross into A's head guard. A jabs while B's cross returns; B slips outside the fist. B turns a left hook across the head line; A carries his head beneath it through a shallow weave, rises and lands a right cross flush on B's face; the glove flattens against it and blood sprays from B's nose. B's head snaps back, his eyes squeeze shut and his guard opens for a moment.
+### 120–135: A Sets the Trap
 
-B delivers a right low kick into A's left shin check. Both fold and replace the raised legs. A uses the restored lead support to lower a right straight into B's left body side, sinking it in with a spray of sweat. B's breath catches. He closes the elbow and returns a jab; A slips outside it. A turns a left body hook into B's low right guard. The guard receives the glove and stays lowered as A withdraws the left hand. Both men are flushed now; B's cheeks and left ribs are darkest where the blows have landed.
+A walks B down behind a jab and lifts his right knee as if to throw the body kick again. B drops his left elbow to his ribs. A sets the foot down without kicking and throws a right cross over the lowered arm. It lands on the left side of B's face. B's head turns and his left hand comes back up to his cheek.
 
-A sets both feet down, receives the weight and continues directly from the withdrawing hook. He loads the right leg and lifts his left knee toward B's lowered right guard. His right forefoot turns with the heel free; pelvis and chest rotate as the left knee rises above the body line. His right glove protects his cheek while the left hand continues its return. The lower left leg extends toward the exposed head. B tries to recover his right guard toward the temple, continuing from its low position.
+B returns jab-cross-left hook. A parries, slips and rolls them in turn and comes up from the roll with a cross that B blocks.
 
-At 150.000, A's lower left shin strikes the right side of B's jaw and head. A short, heavy crack. The shin sinks into B's face; sweat and blood burst from it and spatter the canvas. The camera has widened gradually since 143, keeping the supporting foot, head contact, referee and open canvas together. It holds this view through the fall and count.
+A throws jab, cross, right body kick. B drops his left arm and blocks the kick on his forearm and elbow. A's right shin rebounds; he lowers the foot behind him and accepts the weight. Each time A's right knee has risen, B's left glove has left his cheek.
+
+B drags his rear foot as if to kick low. A lifts his check. As A's foot comes back down, B's right cross lands on his face, turning his head and drawing sweat off his cheek. A answers with jab-cross; B parries the jab and slips the cross.
+
+### 135–150: The Brazilian Kick
+
+B comes forward with jab, cross, left hook and right low kick. A parries the jab, slips the cross, rolls under the hook and checks the low kick on his left shin. From the check A fires a cross that lands on B's face; blood sprays from B's nose. B's head snaps back, his eyes squeeze shut and his guard opens for a moment before he resets it.
+
+B jabs to cover his retreat; A slips it. A digs a left hook into B's body, and B's right elbow drops onto it. A's right shin follows low into B's lead thigh; B checks it, and both men replant.
+
+The camera begins widening at 143. B jabs and crosses; A parries the jab, slips outside the cross and turns a right kick into B's body. B's left arm drops early and blocks it.
+
+A comes in behind jab and cross into B's high guard and a left hook to the body that B's right elbow stops. A sets both feet and takes his weight on the left leg. His right knee rises in the same chamber as every body kick, the shin folded beneath it. B's left elbow drops toward his ribs. A's left heel turns toward B and his hips roll over: the right knee climbs above B's shoulder line and turns across, and the folded lower leg snaps open and drops like a slingshot over B's lowered left arm. Through the chamber, delivery and return, A's right glove reaches forward at his own head line and his left glove protects his cheek.
+
+At 150.000, the top of A's right foot and the lower end of his shin come down behind B's left ear, where the jaw meets the neck. A short, heavy crack. The instep sinks into the side of B's head and neck; sweat bursts from it and a spray of blood from his mouth spatters the canvas. The wide view keeps the supporting foot, head contact, referee and open canvas together. It holds this view through the fall and count.
 
 ### 150–165: Down and the Count
 
-B's head turns, then his neck and chest follow. His right knee folds and his pelvis drops toward his right side. A flexes the kicking knee, withdraws the shin clear of B and lowers the foot under his own body. His hands return; he makes no further attack.
+The downward blow drives B's head toward his right shoulder; his neck and chest follow. His right knee folds and his pelvis drops toward his right side. A flexes the kicking knee, draws the foot back clear of B and lowers it under his own body. His hands return; he makes no further attack.
 
 The referee calls and marks the knockdown with his hand, advancing outside the falling body's path.
 

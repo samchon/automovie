@@ -1,12 +1,14 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 import { Blocking } from "../defense/Blocking";
-import { Footsteps } from "../footwork/Footsteps";
-import { Reaction } from "../reactions/Reaction";
+import { BoutDefense as Reaction } from "../defense/BoutDefense";
+import { BoutFootsteps as Footsteps } from "../footwork/BoutFootsteps";
+import { BoutFormulaResponse } from "../reactions/BoutFormulaResponse";
 import { Rhythm } from "../rhythm/Rhythm";
-import type { BodyRig } from "../rig/BodyRig";
-import { Ease } from "../rig/Ease";
+import type { FilmBodyRig as BodyRig } from "../rig/FilmBodyRig";
+import { FilmVector as Vec3 } from "../rig/FilmVector";
 import type { Foot } from "../rig/Foot";
-import { Vec3 } from "../rig/Vec3";
 import { Strike } from "../striking/Strike";
 import { FighterBody } from "./FighterBody";
 
@@ -31,15 +33,21 @@ export class Fighter {
   /** Opponent attacks this fighter answers. */
   public readonly answers: readonly BoutScript.Action[];
 
-  /** Measured contact strength in [0, 1] of each answered action; unmeasured actions count as landed. */
-  public readonly strength: Map<string, number> = new Map();
+  /** Explicit comparison response authority; support scheduling never selects physical acting. */
+  public readonly response: BoutFormulaResponse;
 
   public constructor(
     public readonly id: BoutScript.Fighter,
     public readonly rig: BodyRig,
     private readonly stance: (t: number) => Fighter.Stance,
-    input: { start: number; end: number; reserved?: readonly Footsteps.Busy[] },
+    input: {
+      start: number;
+      end: number;
+      reserved?: readonly Footsteps.Busy[];
+      physical?: boolean;
+    },
   ) {
+    this.response = new BoutFormulaResponse(id);
     this.attacks = BoutScript.actions.filter(
       (a: BoutScript.Action): boolean => a.actor === id,
     );
@@ -48,7 +56,7 @@ export class Fighter {
     );
     const busy: Footsteps.Busy[] = [...(input.reserved ?? [])];
     for (const action of this.attacks)
-      if (action.technique.endsWith("kick")) {
+      if (BoutScript.specs[action.technique].limb === "leg") {
         const [start, end] = Strike.window(action);
         busy.push({
           side: BoutScript.specs[action.technique].side,
@@ -71,6 +79,7 @@ export class Fighter {
       duration: 0.18,
       threshold: 0.055,
       overlap: 0.05,
+      physical: input.physical,
       height: 0.05,
       lead: "left",
     });
@@ -82,7 +91,7 @@ export class Fighter {
    * @evidence contracts/common.md#implementation-and-ownership Starts from the blended guard/walk base, adds breathing and a light rhythmic bounce, then every active own attack and every active answer; finally turns the neck so the face keeps tracking the opponent despite trunk rotation.
    * @evidence contracts/common.md#authoring-interface Returns a fresh frame owned by the caller.
    */
-  public frame(t: number): FighterBody.Frame {
+  public frame(t: number, responseSeconds: number = t): FighterBody.Frame {
     const stance: Fighter.Stance = this.stance(t);
     const fight: number = 1 - stance.walk;
     const phase: number = this.id === "a" ? 0 : 1.7;
@@ -146,8 +155,7 @@ export class Fighter {
       const envelope: Strike.Envelope = Strike.envelope(action, t);
       if (envelope.active) Fighter.attack(frame, action, envelope, t);
     }
-    for (const action of this.answers)
-      Reaction.apply(frame, action, t, this.strength.get(action.id) ?? 1);
+    for (const action of this.answers) Reaction.apply(frame, action, t);
 
     // Keep the face toward the opponent: what the trunk does not turn, the neck turns.
     const needed: number =
@@ -159,6 +167,7 @@ export class Fighter {
       -40,
       Math.min(40, needed - Math.max(-20, Math.min(20, needed * 0.4))),
     );
+    this.response.apply(frame, responseSeconds);
     return frame;
   }
 
@@ -170,7 +179,7 @@ export class Fighter {
     const step: Footsteps.Step = state.step!;
     const kick: BoutScript.Action | undefined = this.attacks.find(
       (a: BoutScript.Action): boolean =>
-        a.technique.endsWith("kick") &&
+        BoutScript.specs[a.technique].limb === "leg" &&
         Math.abs(Strike.window(a)[0] - step.start) < 1e-6,
     );
     if (kick)
@@ -203,9 +212,12 @@ export namespace Fighter {
    * @evidence contracts/common.md#authoring-interface Origin in world X/Z metres, heading in radians, walk weight in [0, 1].
    */
   export interface Stance {
-    /** World X/Z metres. */ origin: readonly [number, number];
-    /** Heading toward the opponent (or walking direction), radians. */ heading: number;
-    /** 0 = fighting stance, 1 = upright walking stance. */ walk: number;
+    /** World X/Z metres. */
+    origin: readonly [number, number];
+    /** Heading toward the opponent (or walking direction), radians. */
+    heading: number;
+    /** 0 = fighting stance, 1 = upright walking stance. */
+    walk: number;
   }
 
   /**
@@ -216,7 +228,10 @@ export namespace Fighter {
    */
   export function feet(stance: Stance): Record<Footsteps.Side, Foot.Placement> {
     const w: number = stance.walk;
-    const local = (
+    const local: (
+      fight: readonly [number, number, number, number],
+      walk: readonly [number, number, number, number],
+    ) => Foot.Placement = (
       fight: readonly [number, number, number, number],
       walk: readonly [number, number, number, number],
     ): Foot.Placement => {
@@ -247,7 +262,7 @@ export namespace Fighter {
     id: BoutScript.Fighter,
     t: number,
   ): void {
-    const amount: number = Ease.plateau(t, 0.45, 0.92, 1.08, 1.55);
+    const amount: number = touchWeight(t);
     if (amount <= 0) return;
     const pair: Blocking.Pair = Blocking.pair(1.0);
     const axis: Vec3.Value = Vec3.rotateY([1, 0, 0], pair.axis);
@@ -261,6 +276,11 @@ export namespace Fighter {
       amount,
     };
     frame.girdle.left.protraction += 8 * amount;
+  }
+
+  /** Common authored approach, contact and withdrawal phase for the opening glove touch. */
+  export function touchWeight(seconds: number): number {
+    return Ease.plateau(seconds, 0.45, 0.92, 1.08, 1.55);
   }
 
   /**
@@ -280,21 +300,36 @@ export namespace Fighter {
     // Hips and trunk arrive before the fist.
     const b: number = Math.min(1, e * 1.3);
     const side: Footsteps.Side = BoutScript.specs[action.technique].side;
-    const pivot = (foot: Footsteps.Side, yaw: number, heel: number): void => {
+    const pivot: (foot: Footsteps.Side, yaw: number, heel: number) => void = (
+      foot: Footsteps.Side,
+      yaw: number,
+      heel: number,
+    ): void => {
       const leg: FighterBody.Leg = frame.legs[foot];
       if (leg.kind === "place") {
         leg.placement.yaw += yaw;
         leg.placement.heel = Math.max(leg.placement.heel, heel);
       }
     };
-    switch (action.technique) {
-      case "jab":
+    // A feint performs the leading fraction of the technique it shows; the
+    // envelope already caps its extension at that fraction.
+    const spec: (typeof BoutScript.specs)[BoutScript.Technique] =
+      BoutScript.specs[action.technique];
+    const shown: (typeof BoutScript.specs)[BoutScript.Technique] = spec.shows
+      ? BoutScript.specs[spec.shows.of]
+      : spec;
+    if (shown.limb === "leg") {
+      kick(frame, action, t);
+      return;
+    }
+    switch (`${shown.shape}/${shown.side}/${shown.target}`) {
+      case "straight/left/head":
         frame.turn += 0.12 * b;
         frame.shift[0] += 0.05 * b;
         frame.thoracic.rotation -= 6 * b;
         frame.girdle.left.protraction += 13 * e;
         break;
-      case "cross":
+      case "straight/right/head":
         frame.turn -= 0.72 * b;
         frame.shift[0] += 0.045 * b;
         frame.thoracic.rotation += 14 * b;
@@ -302,21 +337,21 @@ export namespace Fighter {
         frame.hands.left = { kind: "guard", tight: 0.6 * e };
         pivot("right", -0.6 * e, 0.32 + 0.3 * e);
         break;
-      case "hook":
+      case "hook/left/head":
         frame.turn += 0.5 * b;
         frame.thoracic.rotation -= 14 * b;
         frame.drop += 0.03 * b;
         frame.shift[0] -= 0.02 * e;
         pivot("left", 0.55 * e, 0.3 * e);
         break;
-      case "uppercut":
+      case "uppercut/left/head":
         frame.drop +=
           0.07 * Math.sin(Math.PI * envelope.windup) * (1 - envelope.recovery);
         frame.turn += 0.25 * e;
         frame.thoracic.flexion -= 6 * e;
         pivot("left", 0.35 * e, 0.25 * e);
         break;
-      case "body-cross":
+      case "straight/right/body":
         frame.drop += 0.15 * b;
         frame.turn -= 0.55 * b;
         frame.thoracic.rotation += 10 * b;
@@ -326,7 +361,7 @@ export namespace Fighter {
         frame.hands.left = { kind: "guard", tight: 0.7 * e };
         pivot("right", -0.5 * e, 0.32 + 0.25 * e);
         break;
-      case "body-hook":
+      case "hook/left/body":
         frame.drop += 0.14 * b;
         frame.turn += 0.42 * b;
         frame.thoracic.rotation -= 10 * b;
@@ -334,11 +369,8 @@ export namespace Fighter {
         frame.lumbar.lateral += 9 * e;
         pivot("left", 0.5 * e, 0.3 * e);
         break;
-      case "low-kick":
-      case "body-kick":
-      case "high-kick":
-        kick(frame, action, t);
-        return;
+      default:
+        throw new Error(`No registered punch drive for ${action.technique}`);
     }
     const [begin] = Strike.window(action);
     FighterBody.assign(
@@ -353,35 +385,26 @@ export namespace Fighter {
     );
   }
 
-  /** Roundhouse trunk, pivot and counterbalancing arm. */
+  /** Roundhouse trunk, pivot and forward protective arm. */
   function kick(
     frame: FighterBody.Frame,
     action: BoutScript.Action,
     t: number,
   ): void {
-    const [start, end] = Strike.window(action);
-    const k: number = Ease.plateau(
-      t,
-      start,
-      action.at - 0.12,
-      action.at + 0.12,
-      end,
-    );
+    const [start] = Strike.window(action);
+    const k: number = Strike.kickGuardWeight(action, t);
     const right: boolean = BoutScript.specs[action.technique].side === "right";
     const sign: number = right ? -1 : 1;
-    const scale: number =
-      action.technique === "high-kick"
-        ? 1
-        : action.technique === "body-kick"
-          ? 0.75
-          : 0.5;
+    // Trunk drive grows with the target height the leg must reach; a push kick
+    // or knee drives straight through and turns the hips least.
+    const spec: (typeof BoutScript.specs)[BoutScript.Technique] =
+      BoutScript.specs[action.technique];
+    const reach: number = { leg: 0.5, body: 0.75, head: 1 }[spec.target];
+    const scale: number = spec.line === "arc" || spec.line === "descending" ? reach : 0.3;
     const support: Footsteps.Side = right ? "left" : "right";
     const lean: number =
-      action.technique === "high-kick"
-        ? 1
-        : action.technique === "body-kick"
-          ? 0.6
-          : 0.25;
+      (spec.line === "arc" || spec.line === "descending" ? 1 : 0.4) *
+      { leg: 0.25, body: 0.6, head: 1 }[spec.target];
     // Human's hip abduction stops at 40°, so the lead-leg head kick keeps the stance's
     // own hip turn and raises the leg through flexion toward the front-side diagonal.
     frame.turn += sign * (right ? 1.1 + 0.4 * scale : -0.2) * k;
@@ -429,16 +452,26 @@ export namespace Fighter {
         (right ? 0.35 + 0.25 * lean : 0.42) * k,
       );
     }
+    // The registered guard rule: a round kick extends the kicking-side glove
+    // along the own head line and keeps the other guarding; a clinch knee
+    // reaches both gloves forward to the opponent's head; a push kick keeps
+    // both gloves at the cheeks.
+    const reachForward: Record<"kicking" | "other", number> =
+      spec.guard === "forward"
+        ? { kicking: k, other: 0 }
+        : spec.guard === "clinch"
+          ? { kicking: k, other: k }
+          : { kicking: 0, other: 0 };
     FighterBody.assign(
       frame,
       right ? "left" : "right",
-      { kind: "guard", tight: 0.8 * k },
+      { kind: "guard", tight: 0.8 * k, extension: reachForward.other },
       Ease.ramp(t, start, start + 0.1),
     );
     FighterBody.assign(
       frame,
       right ? "right" : "left",
-      { kind: "swing", amount: k },
+      { kind: "guard", tight: 0.8 * k, extension: reachForward.kicking },
       Ease.ramp(t, start, start + 0.1),
     );
     frame.jaw = Math.max(

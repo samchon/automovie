@@ -4,16 +4,21 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import type { IFilm } from "./IFilm";
 import type { IFilmProduction } from "./IFilmProduction";
+import type { IFilmViewerState } from "./IFilmViewerState";
 import { films } from "./films";
 import { FilmTransport } from "./runtime/FilmTransport";
+import { bindFilmMediaInspection } from "./runtime/bindFilmMediaInspection";
+import { configureFilmReview } from "./runtime/configureFilmReview";
+import { createFilmInspectionView } from "./runtime/createFilmInspectionView";
 import { mountFilmControls } from "./runtime/mountFilmControls";
 import { selectFilm } from "./selectFilm";
 import { FilmPlan } from "./shots/kickboxing/ring-bout/FilmPlan";
-import type { MovieAudio } from "./sound/MovieAudio";
 import "./style.css";
 
-/** Immutable source identity; the existing static review server is never edited here. */
-const version: string = "keyframed-bout-001";
+/** Initial presentation mode; a loaded archive replaces this label with its admitted manifest mode. */
+const version: string = new URLSearchParams(location.search).has("physics")
+  ? "cached performance review"
+  : "authored motion";
 /** The one document mount owns controls and the actual viewport. */
 const app: HTMLElement | null = document.getElementById("app");
 if (!app) throw new Error("Missing production mount");
@@ -28,6 +33,13 @@ function element<T extends HTMLElement>(selector: string): T {
 
 /** Capture dimensions and review bounds have one URL owner. */
 const params: URLSearchParams = new URLSearchParams(location.search);
+element("#orbit")
+  .closest("label")!
+  .insertAdjacentHTML(
+    "afterend",
+    '<label><input id="rig" type="checkbox"/>Rig points and sticks</label>',
+  );
+element<HTMLInputElement>("#rig").checked = params.get("rig") !== "0";
 /** Capture consumes the exact same scene and delivered camera. */
 const capture: boolean =
   params.get("cap") === "1" || params.get("capture") === "1";
@@ -119,23 +131,7 @@ const preparationCosts: { sourceMs: number; audioMs: number } = {
   audioMs: 0,
 };
 /** Truthful public state exists even when actual preparation refuses. */
-const state: {
-  version: string;
-  film: string;
-  durationSeconds: number;
-  fps: number;
-  frameCount: number;
-  eventCount: number;
-  ready: boolean;
-  stage: string;
-  error?: string;
-  seek?: (seconds: number) => Promise<void>;
-  inspect?: () => object;
-  contacts?: () => unknown[];
-  floorContacts?: () => unknown[];
-  audioEvents?: () => FilmPlan.Event[];
-  audioManifest?: () => MovieAudio.Manifest;
-} = {
+const state: IFilmViewerState = {
   version,
   film: selected.name,
   durationSeconds: selected.film.durationSeconds,
@@ -177,7 +173,7 @@ function draw(seconds: number): void {
   handle!.completeFrame(seconds);
   frameCosts.completionPublishMs = performance.now() - publicationStarted;
   element<HTMLOutputElement>("#time").value =
-    `${seconds.toFixed(2)} / ${selected.film.durationSeconds.toFixed(2)} s`;
+    `${seconds.toFixed(2)} s · available ${film.available[0]} to ${film.available[1]} s`;
   element<HTMLInputElement>("#seek").value = String(seconds);
   dirty = false;
 }
@@ -216,7 +212,7 @@ function place(seconds: number): void {
     if (state.error) {
       delete state.error;
       element("#status").textContent =
-        "The full source is loaded. Independent moving-picture and listening review remain required.";
+        "The available source interval is loaded. Independent moving-picture and listening review remain required.";
     }
   } catch (error: unknown) {
     film.camera.position.copy(position);
@@ -258,20 +254,6 @@ const bootstrap: Promise<void> = (async (): Promise<void> => {
       requestAnimationFrame((): void => resolve());
     });
     if (closed) throw new Error("The Viewer closed during preparation");
-    const duration: number = selected.film.durationSeconds;
-    const start: number = readSeconds("start", 0);
-    const end: number = readSeconds("end", duration);
-    const speed: number = readSeconds("speed", 1);
-    if (
-      ![0.25, 0.5, 1].includes(speed) ||
-      start < 0 ||
-      end > duration ||
-      start >= end
-    )
-      throw new Error(
-        `URL requires 0 <= start < end <= ${duration} and speed .25, .5 or 1`,
-      );
-
     // The film prepares its scene, contacts and soundtrack; sound decoding
     // starts after contact measurement, which splits the two costs.
     const sourceStarted: number = performance.now();
@@ -292,10 +274,22 @@ const bootstrap: Promise<void> = (async (): Promise<void> => {
       throw new Error("The Viewer closed during preparation");
     }
     production = film;
+    const { start, end, speed }: ReturnType<typeof configureFilmReview> =
+      configureFilmReview(app, film, params);
+    state.available = film.available;
 
-    // Review-only skeleton overlay (joint points and sticks): `?rig=1`.
-    if (params.get("rig") === "1")
-      for (const actor of Object.values(film.runtime.actors)) actor.showRig();
+    // Polygon figures expose their actual joints and sticks by default.
+    const showRig: () => void = (): void => {
+      const visible: boolean = element<HTMLInputElement>("#rig").checked;
+      if ("showReview" in film.runtime)
+        film.runtime.showReview(visible, params.get("forces") === "1");
+      else
+        for (const actor of Object.values(film.runtime.actors))
+          actor.showRig(visible);
+      dirty = true;
+    };
+    showRig();
+    element<HTMLInputElement>("#rig").onchange = showRig;
     handle = mountViewer(
       element("#view"),
       film.scene,
@@ -325,7 +319,7 @@ const bootstrap: Promise<void> = (async (): Promise<void> => {
     controls = new OrbitControls(film.camera, element("#view"));
     controls.enableDamping = false;
     controls.enabled = false;
-    controls.target.copy(film.cameraTarget(0));
+    controls.target.copy(film.cameraTarget(start));
     controls.addEventListener("change", (): void => {
       if (controls?.enabled) dirty = true;
     });
@@ -345,20 +339,17 @@ const bootstrap: Promise<void> = (async (): Promise<void> => {
       },
       report,
     });
-    transport = new FilmTransport(film.audio, place);
+    transport = new FilmTransport(film.audio, place, film.available);
     transport.sound = !capture && element<HTMLInputElement>("#sound").checked;
     state.eventCount = film.runtime.audioEvents().length;
     state.ready = true;
     state.stage = "loaded-awaiting-independent-playback-review";
     transport.setInterval(start, end);
     transport.speed = speed;
-    element<HTMLInputElement>("#start").value = String(start);
-    element<HTMLInputElement>("#end").value = String(end);
-    element<HTMLSelectElement>("#speed").value = String(speed);
     for (const selector of ["#play", "#pause", "#seek"])
       element<HTMLButtonElement | HTMLInputElement>(selector).disabled = false;
     element("#status").textContent =
-      "The full source is loaded. Moving-picture, listening and final decoded export acceptance require actual review.";
+      "The available source interval is loaded. Moving-picture, listening and final decoded export acceptance require actual review.";
     transport.seek(start);
     if (params.get("play") === "1" && !capture)
       void transport.play().catch(report);
@@ -371,16 +362,6 @@ const bootstrap: Promise<void> = (async (): Promise<void> => {
   }
 })();
 void bootstrap.catch((): void => {});
-
-/** Reject empty query values instead of silently converting them to zero. */
-function readSeconds(name: string, fallback: number): number {
-  const text: string | null = params.get(name);
-  if (text !== null && !text.trim())
-    throw new Error(`URL ${name} must contain seconds`);
-  const value: number = text === null ? fallback : Number(text);
-  if (!Number.isFinite(value)) throw new Error(`URL ${name} must be finite`);
-  return value;
-}
 
 /**
  * Await original preparation, then complete the actual placement and draw.
@@ -413,45 +394,23 @@ async function seek(seconds: number): Promise<void> {
 state.seek = seek;
 
 /** Review-only inspection camera: "x,y,z:tx,ty,tz" in world metres; the delivered camera is unchanged. */
-Reflect.set(window, "__kickboxingView", (value: string): void => {
-  const camera: THREE.PerspectiveCamera = requireProduction().camera;
-  const [position, target] = value
-    .split(":")
-    .map((part: string): number[] => part.split(",").map(Number));
-  if (position?.length !== 3 || target?.length !== 3)
-    throw new Error("View is x,y,z:tx,ty,tz");
-  camera.position.set(position[0]!, position[1]!, position[2]!);
-  camera.fov = 40;
-  camera.lookAt(target[0]!, target[1]!, target[2]!);
-  camera.updateProjectionMatrix();
-  draw(transport?.seconds ?? 0);
-});
+Reflect.set(
+  window,
+  "__kickboxingView",
+  createFilmInspectionView(
+    requireProduction,
+    draw,
+    (): number => requireTransport().seconds,
+  ),
+);
 Reflect.set(window, "__afSeek", seek);
-state.contacts = (): unknown[] => {
-  if (!state.ready || !production)
-    throw new Error("Full film contacts are unavailable");
-  return production.runtime.contacts();
-};
-state.floorContacts = (): unknown[] => {
-  if (!state.ready || !production)
-    throw new Error("Full film floor receipts are unavailable");
-  return production.runtime.floorContacts();
-};
-state.audioEvents = (): FilmPlan.Event[] => {
-  if (!state.ready || !production)
-    throw new Error("The actual audio event manifest is unavailable");
-  return production.runtime.audioEvents();
-};
-state.audioManifest = (): MovieAudio.Manifest => {
-  if (!state.ready || !production)
-    throw new Error("The full soundtrack is unavailable");
-  return production.audio.manifest();
-};
+bindFilmMediaInspection(state, (): IFilmProduction | undefined => production);
 state.inspect = (): object => ({
   version,
   film: selected.name,
   stage: state.stage,
   ready: state.ready,
+  available: state.available,
   runtime: production?.runtime.inspect(),
   transport: transport
     ? {

@@ -16,9 +16,12 @@ export namespace MovieAudioAssets {
    * @evidence contracts/common.md#authoring-interface URL is a Vite-resolved browser asset URL or Node file URL. sha256 is lowercase hexadecimal. Decoded arrays are mono at 48 kHz with amplitude normalized by the public decoder.
    */
   export interface Asset {
-    /** Stable lookup identity. */ id: AudioMix.Source;
-    /** Actual consumer-specific location of the same fixed file. */ url: string;
-    /** Complete playback derivative byte identity. */ sha256: string;
+    /** Stable lookup identity. */
+    id: AudioMix.Source;
+    /** Actual consumer-specific location of the same fixed file. */
+    url: string;
+    /** Complete playback derivative byte identity. */
+    sha256: string;
   }
 
   /** Explicit URLs let Vite copy the same retained derivatives into its build. */

@@ -1,7 +1,7 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
 import * as THREE from "three";
 
-import { Ease } from "../rig/Ease";
-import { Vec3 } from "../rig/Vec3";
+import { FilmVector as Vec3 } from "../rig/FilmVector";
 
 /**
  * What a landed blow leaves behind: sweat and blood thrown from the struck
@@ -158,21 +158,28 @@ export namespace ImpactEffects {
    * @evidence contracts/common.md#authoring-interface World metres; `direction` is the unit travel of the blow; `side` is the receiver's struck side; `weapon` is the attacker's glove side, or "shin".
    */
   export interface Impact {
-    /** Action identity (seeds the spray). */ id: string;
-    /** Contact second. */ seconds: number;
-    /** Striking performer. */ attacker: "a" | "b";
-    /** Struck performer. */ receiver: "a" | "b";
-    /** Measured receiving surface. */ relation:
-      | "head"
-      | "body"
-      | "guard"
-      | "shin-check";
-    /** Receiver's struck side. */ side: "left" | "right";
-    /** Striking glove side, or the shin. */ weapon: "left" | "right" | "shin";
-    /** Contact point, world metres. */ point: Vec3.Value;
-    /** Unit direction of the blow. */ direction: Vec3.Value;
-    /** Measured contact strength in [0, 1]. */ strength: number;
-    /** The finishing blow throws the most. */ finish: boolean;
+    /** Action identity (seeds the spray). */
+    id: string;
+    /** Contact second. */
+    seconds: number;
+    /** Striking performer. */
+    attacker: "a" | "b";
+    /** Struck performer. */
+    receiver: "a" | "b";
+    /** Measured receiving surface. */
+    relation: "head" | "body" | "guard" | "shin-check";
+    /** Receiver's struck side. */
+    side: "left" | "right";
+    /** Striking glove side, or the shin. */
+    weapon: "left" | "right" | "shin";
+    /** Contact point, world metres. */
+    point: Vec3.Value;
+    /** Unit direction of the blow. */
+    direction: Vec3.Value;
+    /** Measured contact strength in [0, 1]. */
+    strength: number;
+    /** The finishing blow throws the most. */
+    finish: boolean;
   }
 
   /**
@@ -182,17 +189,20 @@ export namespace ImpactEffects {
    * @evidence contracts/common.md#authoring-interface Film seconds and world metres; `stain` is [x, z, radius] where blood lands.
    */
   export interface Droplet {
-    /** Sweat or blood. */ kind: "sweat" | "blood";
-    /** Release second. */ start: number;
-    /** Second it lands or fades. */ end: number;
-    /** Release point. */ origin: Vec3.Value;
-    /** Release velocity, metres per second. */ velocity: Vec3.Value;
-    /** Drawn radius, metres. */ radius: number;
-    /** Canvas stain left on landing. */ stain?: readonly [
-      number,
-      number,
-      number,
-    ];
+    /** Sweat or blood. */
+    kind: "sweat" | "blood";
+    /** Release second. */
+    start: number;
+    /** Second it lands or fades. */
+    end: number;
+    /** Release point. */
+    origin: Vec3.Value;
+    /** Release velocity, metres per second. */
+    velocity: Vec3.Value;
+    /** Drawn radius, metres. */
+    radius: number;
+    /** Canvas stain left on landing. */
+    stain?: readonly [number, number, number];
   }
 
   /**

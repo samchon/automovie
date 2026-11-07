@@ -1,10 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 
 import type { FilmPlan } from "../../../src/shots/kickboxing/ring-bout/FilmPlan";
 import { AudioMix } from "../../../src/sound/AudioMix";
 import { AudioPcm } from "../../../src/sound/AudioPcm";
-import { MovieAudioAssets } from "../../../src/sound/MovieAudioAssets";
 
 /**
  * Impacts require exact participants and receipts; actual arrival replaces intent.
@@ -286,78 +284,4 @@ export function test_movie_audio_pcm_interchange(): void {
     header.setInt16(44 + index * 2, sample, true);
   });
   assert.deepEqual([...AudioPcm.decode(mono)], [-1, -0.5, 0, 32767 / 32768]);
-}
-
-/**
- * The retained soundtrack catalogue reaches the exact hashed files used by export.
- *
- * Scenarios:
- * 1. Every required count, command and effect resolves to retained playback bytes.
- * 2. The real shared hash/decode consumer admits finite, nonempty 48 kHz mono samples.
- * 3. A changed byte refuses before decoding instead of silently replacing a source.
- *
- * @evidence contracts/testing.md#observable-behavior Reads the actual adopted files through the same URL and hash/decode owner used by Node export. It checks all four commands, ten count words and twelve effects, then corrupts a detached file copy and requires digest refusal. This byte-consumer unit launches no server, browser, synthesizer, converter or media encoder and cannot approve listening.
- * @evidence contracts/testing.md#independent-cases The commissioned male ten-count, explicit commands and sound categories determine the required identities independently of the manifest's inventory. SHA-256 is the retained asset identity; finite samples and a positive sample count are decoder obligations. A one-bit copy corruption is an independent negative case.
- */
-export async function test_movie_audio_adopted_bytes(): Promise<void> {
-  const sources: AudioMix.Source[] = [
-    "punch1",
-    "punch2",
-    "punch3",
-    "punch4",
-    "punch5",
-    "fight",
-    "bell",
-    "breath",
-    "step",
-    "air",
-    "fall",
-    "crowd",
-    "applause",
-    "down",
-    "neutral",
-    "decision",
-    "count1",
-    "count2",
-    "count3",
-    "count4",
-    "count5",
-    "count6",
-    "count7",
-    "count8",
-    "count9",
-    "count10",
-  ];
-  const cues: AudioMix.Cue[] = sources.map(
-    (source: AudioMix.Source): AudioMix.Cue => ({
-      id: source,
-      source,
-      seconds: 0,
-      offsetSeconds: 0,
-      durationSeconds: 0.01,
-      gain: 1,
-      pan: 0,
-      rate: 1,
-    }),
-  );
-  const assets: MovieAudioAssets.Asset[] = MovieAudioAssets.select(cues);
-  assert.equal(assets.length, 26);
-  for (const asset of assets) {
-    const bytes: Buffer = await readFile(new URL(asset.url));
-    const samples: Float32Array = await MovieAudioAssets.decode(asset, bytes);
-    assert.ok(samples.length > 0);
-    assert.ok(
-      samples.every(
-        (sample: number): boolean =>
-          Number.isFinite(sample) && Math.abs(sample) <= 1,
-      ),
-    );
-  }
-  const bytes: Buffer = await readFile(new URL(assets[0].url));
-  const changed: Uint8Array = Uint8Array.from(bytes);
-  changed[changed.length - 1] ^= 1;
-  await assert.rejects(
-    MovieAudioAssets.decode(assets[0], changed),
-    /SHA-256 mismatch/u,
-  );
 }

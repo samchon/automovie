@@ -1,6 +1,8 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
+import { BoutAnswer } from "../choreography/BoutAnswer";
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 import { FighterBody } from "../fighter/FighterBody";
-import { Ease } from "../rig/Ease";
 
 /**
  * The receiver's answer to one attack: defence, evasion or hit reaction.
@@ -173,6 +175,16 @@ export namespace Reaction {
         frame.turn += -0.08 * direction * k;
         break;
       }
+      case "lean": {
+        // A lean-back extends the trunk to its clinical extension limit at
+        // the closest pass, the same reach the outcome resolver measured.
+        const answer: BoutAnswer.ISpec = BoutAnswer.get("lean");
+        const k: number = Ease.pulse(t, at - answer.lead, at, at + answer.recover + answer.lead);
+        frame.evade.flexion -= TRUNK_EXTENSION * k;
+        break;
+      }
+      case "none":
+        break;
       case "weave": {
         const start: number = at - 0.32;
         const end: number = at + 0.4;
@@ -187,14 +199,14 @@ export namespace Reaction {
         break;
       }
       case "hit": {
-        if (action.technique === "high-kick") break;
+        if (action === BoutScript.finish) break;
         if (BoutScript.specs[action.technique].target === "head") {
           // A clean blow to the face: the head whips along the punch (back for a
           // straight or uppercut, around for a hook), the trunk follows, the weight
           // rocks back so a stagger step follows, the mouth opens and the eyes shut.
-          const hook: boolean = action.technique === "hook";
-          const uppercut: boolean = action.technique === "uppercut";
-          const power: number = action.technique === "jab" ? 0.7 : 1;
+          const hook: boolean = BoutScript.specs[action.technique].shape === "hook";
+          const uppercut: boolean = BoutScript.specs[action.technique].shape === "uppercut";
+          const power: number = BoutScript.specs[action.technique].windup <= BoutScript.specs.jab.windup ? 0.7 : 1;
           const k: number =
             Ease.pulse(t, at - 0.01, at + 0.07, at + 0.55) * strength * power;
           frame.cervical.flexion -= (uppercut ? 26 : hook ? 8 : 20) * k;
@@ -219,7 +231,9 @@ export namespace Reaction {
           // receiver's own answering punch after the impact.
           const current: FighterBody.Hand = frame.hands[side];
           const answering: boolean =
-            t > at && (current.kind === "attack" || current.kind === "swing");
+            t > at &&
+            (current.kind === "attack" ||
+              (current.kind === "guard" && (current.extension ?? 0) > 0));
           if (t < at + 0.5 && !answering)
             FighterBody.assign(
               frame,
@@ -245,7 +259,7 @@ export namespace Reaction {
             other.tight = Math.min(other.tight, 1 - 0.8 * k);
           break;
         }
-        const heavy: boolean = action.technique === "body-kick";
+        const heavy: boolean = BoutScript.specs[action.technique].limb === "leg" && BoutScript.specs[action.technique].target === "body";
         const k: number =
           Ease.pulse(t, at - 0.01, at + 0.09, at + (heavy ? 0.85 : 0.6)) *
           strength;
@@ -275,3 +289,6 @@ export namespace Reaction {
     }
   }
 }
+
+/** AAOS normal trunk extension, degrees; shared with the outcome geometry's backward evasion. */
+const TRUNK_EXTENSION: number = 25;

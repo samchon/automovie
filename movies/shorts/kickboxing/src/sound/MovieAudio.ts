@@ -308,14 +308,22 @@ export namespace MovieAudio {
    * @evidence contracts/common.md#authoring-interface sha256 hashes the complete PCM16 WAV; cueDigest hashes UTF-8 JSON of the ordered cue list. Peak is pre-quantization normalized amplitude and must not exceed one.
    */
   export interface Manifest {
-    /** Exact film seconds. */ durationSeconds: 180;
-    /** Adopted samples per second. */ sampleRate: 48000;
-    /** Stereo channels. */ channels: 2;
-    /** Complete PCM16 WAV content identity. */ sha256: string;
-    /** Canonical ordered cue JSON identity. */ cueDigest: string;
-    /** Measured pre-quantization peak. */ peak: number;
-    /** Exact resolved audible requests. */ cues: AudioMix.Cue[];
-    /** Fixed derivative identities. */ assets: {
+    /** Exact film seconds. */
+    durationSeconds: 180;
+    /** Adopted samples per second. */
+    sampleRate: 48000;
+    /** Stereo channels. */
+    channels: 2;
+    /** Complete PCM16 WAV content identity. */
+    sha256: string;
+    /** Canonical ordered cue JSON identity. */
+    cueDigest: string;
+    /** Measured pre-quantization peak. */
+    peak: number;
+    /** Exact resolved audible requests. */
+    cues: AudioMix.Cue[];
+    /** Fixed derivative identities. */
+    assets: {
       id: AudioMix.Source;
       sha256: string;
     }[];

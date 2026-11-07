@@ -1,5 +1,6 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
-import { Ease } from "../rig/Ease";
 
 /**
  * Where each fighter stands and faces during the bout, before footsteps and body motion.
@@ -21,11 +22,10 @@ export namespace Blocking {
    * @evidence contracts/common.md#authoring-interface Origin is world X/Z metres; heading is radians facing the opponent.
    */
   export interface Frame {
-    /** World X/Z of the stance origin, metres. */ origin: readonly [
-      number,
-      number,
-    ];
-    /** World heading toward the opponent, radians. */ heading: number;
+    /** World X/Z of the stance origin, metres. */
+    origin: readonly [number, number];
+    /** World heading toward the opponent, radians. */
+    heading: number;
   }
 
   /**
@@ -35,11 +35,16 @@ export namespace Blocking {
    * @evidence contracts/common.md#authoring-interface World X/Z metres and radians; distance is the stance-origin separation in metres.
    */
   export interface Pair {
-    /** Fighter A. */ a: Frame;
-    /** Fighter B. */ b: Frame;
-    /** Pair centre, world X/Z metres. */ centre: readonly [number, number];
-    /** World heading from A toward B, radians. */ axis: number;
-    /** Stance-origin distance, metres. */ distance: number;
+    /** Fighter A. */
+    a: Frame;
+    /** Fighter B. */
+    b: Frame;
+    /** Pair centre, world X/Z metres. */
+    centre: readonly [number, number];
+    /** World heading from A toward B, radians. */
+    axis: number;
+    /** Stance-origin distance, metres. */
+    distance: number;
   }
 
   /**
@@ -53,7 +58,7 @@ export namespace Blocking {
     const advance: Record<BoutScript.Fighter, number> = { a: 0, b: 0 };
     for (const action of BoutScript.actions) {
       const spec = BoutScript.specs[action.technique];
-      const kick: boolean = action.technique.endsWith("kick");
+      const kick: boolean = BoutScript.specs[action.technique].limb === "leg";
       // A punch that lands clean drives into the face or ribs instead of stopping
       // at the guard, so it steps in deeper than the technique's range.
       const deeper: number =
