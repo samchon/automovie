@@ -239,9 +239,10 @@ export namespace AutoMovieSolidMesh {
    *   untrimmed first and last stations, for the caller to close or join.
    */
   export function face(mesh: IMesh, input: IFace): number[][] {
-    const { surface, stations, phases, loops }: IFace = input;
+    const { surface, phases, loops }: IFace = input;
     const id: number = owner(mesh, surface);
     const periodic: boolean = surface.period !== undefined;
+    const stations: number[] = separated(input.stations, loops, periodic);
     const nu: number = stations.length;
     const nv: number = phases.length;
     const cellsV: number = periodic ? nv : nv - 1;
@@ -338,6 +339,33 @@ export namespace AutoMovieSolidMesh {
       emit(mesh, band, (k: number): Vec3 => scale(facing(mesh, surface, band[k]!), sign));
     }
     return open;
+  }
+
+  /**
+   * A periodic face's grid stations with full rings kept between its start
+   * and end loops. Each loop is zipped to its own drawn-cell boundary, which
+   * exists only when the kept cells keep at least one complete ring between
+   * the loops. A later rail that crosses a blend dips its end loop to within
+   * a grid row of the start loop, the kept cells break into one C-shaped
+   * region with a single boundary, and the end loop is left unzipped, a hole
+   * in the skin. Where fewer than three stations lie strictly between the
+   * start loops' highest and the end loops' lowest station, three are added
+   * at the quarters of that gap; elsewhere the stations are as given.
+   *
+   * @param stations The face's grid stations, strictly increasing.
+   * @param loops Its trim loops.
+   * @param periodic Whether the face is periodic in phase.
+   * @returns The stations to draw, strictly increasing.
+   */
+  function separated(stations: readonly number[], loops: readonly ILoop[], periodic: boolean): number[] {
+    const reach = (kind: ILoop["kind"], pick: (a: number, b: number) => number, from: number): number =>
+      loops.filter((l: ILoop): boolean => l.kind === kind).reduce((x: number, l: ILoop): number => l.chart.reduce((y: number, c: [number, number]): number => pick(y, c[0]), x), from);
+    const low: number = reach("start", Math.max, -Infinity);
+    const high: number = reach("end", Math.min, Infinity);
+    if (!periodic || !Number.isFinite(low) || !Number.isFinite(high) || !(high > low)) return [...stations];
+    if (stations.filter((s: number): boolean => s > low && s < high).length >= 3) return [...stations];
+    const added: number[] = [1, 2, 3].map((k: number): number => low + ((high - low) * k) / 4).filter((s: number): boolean => !stations.includes(s));
+    return [...stations, ...added].sort((a: number, b: number): number => a - b);
   }
 
   /**
