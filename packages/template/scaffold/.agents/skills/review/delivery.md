@@ -12,7 +12,7 @@ Watch the whole assembled artifact as an audience that has not read its plans, a
 
 Check control channels against the [conditioning handoff](../production/conditioning.md) at matched frames, and a selected generator's actual accepted inputs and outputs under [generation](../production/generation.md). A finished direct 3D or generated film is judged by its own picture and sound for preserved action, identity, continuity and audience effect, not by its conditioning.
 
-Take runtime from performed and measured timing, never page or word count, and review sound with picture under [audio listening](../audio/acquisition.md); a changed voice take can change reactions, captions and shot lengths. Measure the delivered file's profile and synchronization through actual playback in the intended consumer, as [finishing](../production/finishing.md) records them; an encoder exit or a matching nominal duration is not playback.
+Record the checklist and its observations in `docs/acceptance/<film>.md`: every scene and beat seen, on-model entities, contacts, presences, camera, sound and continuity, so a later revision is accepted against the same list. Take runtime from performed and measured timing, never page or word count, and review sound with picture under [audio listening](../audio/acquisition.md); a changed voice take can change reactions, captions and shot lengths. Measure the delivered file's profile and synchronization through actual playback in the intended consumer, as [finishing](../production/finishing.md) records them; an encoder exit or a matching nominal duration is not playback.
 
 ## Assets
 
@@ -20,4 +20,4 @@ Inspect a model or visual export through its intended consumer, required views a
 
 ## Record and repair
 
-Record the revision, media and output identities, completed checks, observations and unverified limits, and confirm the handoff carries its fixed inputs, provenance, commands, rights and attribution. Repair media findings through their owners under [finishing](../production/finishing.md#repair-and-deliver) and inspect the affected output again; narrative changes follow [upstream repair](../story/correction/repair.md). A published revision states its original edition, changed meaning and the notice its recipients need.
+Record the revision, media and output identities, completed checks, observations and unverified limits, recheck [production coverage](../contracts/story/shared/discovery/common.md#production-coverage), and confirm the handoff carries its fixed inputs, provenance, commands, rights and attribution. Repair media findings through their owners under [finishing](../production/finishing.md#repair-and-deliver) and inspect the affected output again; narrative changes follow [upstream repair](../story/correction/repair.md). A published revision states its original edition, changed meaning and the notice its recipients need.

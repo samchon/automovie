@@ -1,17 +1,17 @@
 # Research
 
-Study what the film must show truthfully before the layer that decides it: a physical performance before settings and screenplay, and an appearance, behavior, sound or technique before the record or code that uses it. Invented motion and appearance come from skipping this step. The study answers the [research principles](../../contracts/story/shared/principles/research.md), and settings, screenplay and [motion](../../motion/SKILL.md) cite it.
+Study everything the film must show truthfully before the screenplay decides it or code programs it: each practice, the conduct of officials and crowds, and how the genre is actually shot and heard. A technique invented without research, an illegal target, one-axis movement, an idle official and a static camera are what skipping it produced. The study answers the [research principles](../../contracts/story/shared/principles/research.md); settings parameters, screenplay beats and every [behavior](../../motion/SKILL.md) cite it, and no behavior, camera or staging code exists before the study it cites.
 
 ## Performance study {#performance-study}
 
-When the screen dwells on a physical performance, such as a sport, fight, dance, craft or procedure, the conduct of officials, or an everyday handling, gait or reach, study real practice at the depicted level. An invented action studies its closest real analogue and states where it departs. Capture what the next authors need to write and program the practice without inventing it, as the research principles ask.
+Study real practice at the depicted level, such as a sport, fight, dance, craft or procedure, an everyday handling, gait or reach, and the broadcast or film practice of shooting it. An invented action studies its closest real analogue and states where it departs. Record what code and screenplay need without inventing anything: each technique's law (its shape prior in the performer's own body frame, timing windows, reach, contact surfaces and legal targets), the outcome table of which intent combinations can yield which outcome classes, the observed patterns of top-level performance such as combinations, spatial strategy and officials' positioning, and measurable targets a composed scene must meet, such as combination share, actions per minute, lateral versus linear movement, official repositioning and shot-change cadence.
 
 ## Sources
 
-Use originals: rules, coaching and training texts, measured studies, official documentation and footage of qualified practitioners; search results only locate them. Read each passage in context and watch footage at normal speed through its connected phases. Keep each value with its unit, method and conditions, cross-check disputed claims, and record what stays unavailable.
+Use originals: rulebooks, coaching and training texts, measured studies, analyses of real top-level performances and productions, official documentation and footage of qualified practitioners; search results only locate them. Read each passage in context and watch footage at normal speed through its connected phases. Keep each value with its unit, method and conditions, cross-check disputed claims, and record what stays unavailable.
 
-Save permitted originals in `references/`, rights-unconfirmed ones in ignored `references/private/` and footage in ignored `media/acquired/videos/`, then open the saved files. Keep one `docs/research/index.md` naming each original's creator, URL, retrieval date, locator, rights and use, and write each study in `docs/research/<study>.md`. A URL or an empty index is not a retained source.
+Save permitted originals in `references/`, rights-unconfirmed ones in ignored `references/private/` and footage in ignored `media/acquired/videos/`, then open the saved files. Keep one `docs/research/index.md` naming each original's creator, URL, retrieval date, locator, rights and use, and write each study in `docs/research/<discipline>/<topic>.md`. A URL or an empty index is not a retained source.
 
 ## Use
 
-Test the adopted values in the real asset, motion or sound and watch the result. The study informs the work; [review](../../review/SKILL.md) judges what it produced.
+Test the adopted values in the real entity, behavior or sound and watch the result. The study informs the work; [review](../../review/SKILL.md) judges what it produced.

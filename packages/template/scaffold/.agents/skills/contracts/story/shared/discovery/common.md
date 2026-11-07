@@ -13,3 +13,7 @@ Inspect language independently of that general result: regional, period, social,
 ## Does each adopted requirement live at its canonical owner? {#canonical-realization}
 
 Inspect the whole population for adopted requirements left only in guide prose, selectors, status notes or repeated explanations. Name each semantic destination and affected population, consolidate authority without changing meaning, and update affected consumers. Follow the [closed-pass boundary](../../../../story/correction/repair.md#closed-passes) for evidence and reviews. A selector or discovery answer cannot supply a missing creative decision; create work-specific subtrees only for actual adopted requirements.
+
+## Does every production element have an owner, a basis and a question? {#production-coverage}
+
+Inspect the settings, research, screenplay, source and, after delivery review, the acceptance record for an element kind no source folder owns, a behavior, camera or staging choice no research supports, a failure no contract asks about, and a skill, folder or instruction the work needed but lacked. Answer each finding by adopting a work-specific contract or folder, by recording a scaffold candidate with the evidence that motivated it, which stays local until other productions show the same need, or by recording its absence with the inspected scope and reason. Recheck after settings, after research, before composition and after delivery review, because each checkpoint exposes kinds the previous one could not see; an unchecked checkpoint stays open.
