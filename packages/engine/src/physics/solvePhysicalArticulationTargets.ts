@@ -17,7 +17,10 @@ export function solvePhysicalArticulationTargets(input: {
   ) => number[];
   /** Optional witness model refreshed at each accepted configuration, used only for Jacobian probes. Nonlinear acceptance always uses measure. */ linearize?: (
     poses: Readonly<Record<string, P.ITransform>>,
-  ) => (probe: Readonly<Record<string, P.ITransform>>) => number[];
+  ) => (
+    probe: Readonly<Record<string, P.ITransform>>,
+    moved?: ReadonlySet<string>,
+  ) => number[];
   /** Positive update budget, at most 64. */ iterations: number;
   /** Positive metre residual early-out. */ tolerance: number;
 }): { targets: Record<string, P.ITransform>; residual: number } {
@@ -67,14 +70,24 @@ export function solvePhysicalArticulationTargets(input: {
   );
   if (coordinates.length > 64)
     throw new Error("Articulated target coordinate budget exceeded");
+  const children: Map<string, string[]> = new Map();
+  for (const joint of input.profile.joints) {
+    const branch: string[] = children.get(joint.parent) ?? [];
+    branch.push(joint.child);
+    children.set(joint.parent, branch);
+  }
+  const subtrees: Map<string, string[]> = new Map();
   const descendants: Map<string, string[]> = new Map(
-    joints.map((joint: P.IJoint): [string, string[]] => {
-      const bones: Set<string> = new Set([joint.child]);
-      for (let pass: number = 0; pass < input.profile.segments.length; pass++)
-        for (const candidate of input.profile.joints)
-          if (bones.has(candidate.parent)) bones.add(candidate.child);
-      return [joint.id, [...bones]];
-    }),
+    joints.map((joint: P.IJoint): [string, string[]] => [
+      joint.id,
+      subtree(joint.child),
+    ]),
+  );
+  const movedByJoint: Map<P.IJoint, ReadonlySet<string>> = new Map(
+    joints.map((joint: P.IJoint): [P.IJoint, ReadonlySet<string>] => [
+      joint,
+      new Set(descendants.get(joint.id)!),
+    ]),
   );
   let values: number[] = coordinates.map(
     ({ joint, axis }: { joint: P.IJoint; axis: P.IAxis }): number => {
@@ -108,14 +121,16 @@ export function solvePhysicalArticulationTargets(input: {
     coordinates.length;
     iteration++
   ) {
-    const model: (poses: Readonly<Record<string, P.ITransform>>) => number[] =
-      input.linearize?.(targets) ?? measure;
+    const model: (
+      poses: Readonly<Record<string, P.ITransform>>,
+      moved?: ReadonlySet<string>,
+    ) => number[] = input.linearize?.(targets) ?? measure;
     const baseline: number[] = model(targets);
     if (baseline.length !== errors.length || !baseline.every(Number.isFinite))
       throw new Error("Invalid articulated target linearization");
     const columns: number[][] = coordinates.map(
       (
-        { axis }: { joint: P.IJoint; axis: P.IAxis },
+        { joint, axis }: { joint: P.IJoint; axis: P.IAxis },
         index: number,
       ): number[] => {
         const step: number =
@@ -125,7 +140,10 @@ export function solvePhysicalArticulationTargets(input: {
         if (step === 0) return errors.map((): number => 0);
         const probe: number[] = [...values];
         probe[index] = probe[index]! + step;
-        const residual: number[] = model(build(probe));
+        const residual: number[] = model(
+          build(probe, targets, values),
+          movedByJoint.get(joint),
+        );
         if (
           residual.length !== errors.length ||
           !residual.every(Number.isFinite)
@@ -169,7 +187,11 @@ export function solvePhysicalArticulationTargets(input: {
             ),
           ),
       );
-      const poses: Record<string, P.ITransform> = build(candidate);
+      const poses: Record<string, P.ITransform> = build(
+        candidate,
+        targets,
+        values,
+      );
       const residual: number[] = measure(poses);
       if (Math.hypot(...residual) >= before) continue;
       values = candidate;
@@ -187,10 +209,51 @@ export function solvePhysicalArticulationTargets(input: {
   }
   return { targets, residual: Math.hypot(...errors) };
 
-  /** Reconstruct each candidate through shared anchor-preserving subtree motion. */
-  function build(parameters: readonly number[]): Record<string, P.ITransform> {
-    const poses: Record<string, P.ITransform> = structuredClone(input.targets);
+  /** Compile each actual tree branch once for this admitted profile invocation. */
+  function subtree(bone: string): string[] {
+    const previous: string[] | undefined = subtrees.get(bone);
+    if (previous) return previous;
+    const result: string[] = [
+      bone,
+      ...(children.get(bone) ?? []).flatMap(
+        (child: string): string[] => subtree(child),
+      ),
+    ];
+    subtrees.set(bone, result);
+    return result;
+  }
+
+  /** Admit the seed once, then own only branches changed from the accepted pose. The shared setter replaces vectors on mutable pose shells, so unchanged accepted branches remain borrowed and untouched. */
+  function build(
+    parameters: readonly number[],
+    base?: Readonly<Record<string, P.ITransform>>,
+    previous?: readonly number[],
+  ): Record<string, P.ITransform> {
+    const changed: Set<P.IJoint> = new Set(
+      coordinates.flatMap(
+        (
+          coordinate: (typeof coordinates)[number],
+          index: number,
+        ): P.IJoint[] =>
+          previous === undefined || parameters[index] !== previous[index]
+            ? [coordinate.joint]
+            : [],
+      ),
+    );
+    const poses: Record<string, P.ITransform> = base
+      ? { ...base }
+      : structuredClone(input.targets);
+    if (base) {
+      const owned: Set<string> = new Set();
+      for (const joint of changed)
+        for (const bone of descendants.get(joint.id)!)
+          if (!owned.has(bone)) {
+            poses[bone] = { ...base[bone]! };
+            owned.add(bone);
+          }
+    }
     for (const joint of joints) {
+      if (base && !changed.has(joint)) continue;
       const relative: P.ITransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
       for (let index: number = 0; index < coordinates.length; index++)
         if (coordinates[index]!.joint === joint)

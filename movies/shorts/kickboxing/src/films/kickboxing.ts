@@ -1,11 +1,13 @@
-import * as THREE from "three";
+import type * as THREE from "three";
 
 import type { IFilm } from "../IFilm";
 import type { IFilmProduction } from "../IFilmProduction";
-import { createInspectionRing } from "../assets/ring/createInspectionRing";
+import { BoutPlaybackRuntime } from "../physics/BoutPlaybackRuntime";
+import { loadBoutPhysicalPlayback } from "../physics/loadBoutPhysicalPlayback";
 import { FilmRuntime } from "../runtime/FilmRuntime";
 import { FilmPlan } from "../shots/kickboxing/ring-bout/FilmPlan";
 import { MovieAudio } from "../sound/MovieAudio";
+import { createKickboxingScene } from "./createKickboxingScene";
 
 /**
  * The three-minute kickboxing bout of `docs/body/screenplay/kickboxing.md`:
@@ -22,44 +24,48 @@ export function kickboxing(): IFilm {
     create: async (
       progress?: (message: string) => void,
     ): Promise<IFilmProduction> => {
-      const scene: THREE.Scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x10151e);
-      scene.add(new THREE.HemisphereLight(0xe2efff, 0x635c53, 2.1));
-      const light: THREE.DirectionalLight = new THREE.DirectionalLight(
-        0xfff2dc,
-        3,
-      );
-      light.position.set(2, 7, 4);
-      light.castShadow = true;
-      light.shadow.mapSize.set(1024, 1024);
-      Object.assign(light.shadow.camera, {
-        left: -4,
-        right: 4,
-        top: 4,
-        bottom: -4,
-        near: 0.1,
-        far: 15,
-      });
-      scene.add(light);
-      const ring: createInspectionRing.Result = createInspectionRing();
-      scene.add(ring.object);
-      const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(
-        43,
-        1,
-        0.02,
-        80,
-      );
+      const stage: createKickboxingScene.IStage = createKickboxingScene();
+      const scene: THREE.Scene = stage.scene;
+      const camera: THREE.PerspectiveCamera = stage.camera;
 
       // The runtime evaluates the ring-bout shot; its contacts are measured
       // once from the displayed bodies before sound is built from them.
-      const runtime: FilmRuntime = new FilmRuntime();
+      const params: URLSearchParams = new URLSearchParams(location.search);
+      const physical: string | null = params.get("physics");
+      if (physical !== null && !/^[a-z][a-z0-9-]*$/.test(physical))
+        throw new Error("Invalid physical archive name");
+      const loaded:
+        | Awaited<ReturnType<typeof loadBoutPhysicalPlayback>>
+        | undefined = physical
+        ? await loadBoutPhysicalPlayback(
+            `/.physical/${physical}.amphys`,
+            (await import("virtual:bout-physical-source")).default,
+          )
+        : undefined;
+      const runtime: FilmRuntime | BoutPlaybackRuntime = loaded
+        ? new BoutPlaybackRuntime(
+            loaded.playback,
+            loaded.startSeconds,
+            undefined,
+            loaded.mode,
+            loaded.formulaResponses,
+          )
+        : new FilmRuntime();
       scene.add(runtime.effects.object);
+      if (runtime instanceof BoutPlaybackRuntime) {
+        runtime.effects.camera = camera;
+        scene.add(runtime.overlay.object);
+      }
       for (const actor of Object.values(runtime.actors))
         scene.add(actor.person.object);
-      await runtime.prepare(
-        (id: string, completed: number, total: number): void =>
-          progress?.(`Measuring contacts ${completed}/${total}: ${id}`),
-      );
+      const prepared: (id: string, completed: number, total: number) => void = (
+        id: string,
+        completed: number,
+        total: number,
+      ): void => progress?.(`Inspecting outcomes ${completed}/${total}: ${id}`);
+      if (runtime instanceof BoutPlaybackRuntime)
+        await runtime.prepare(prepared, params.get("review") === "1");
+      else await runtime.prepare(prepared);
       progress?.("Decoding the soundtrack");
       const audio: MovieAudio = new MovieAudio();
       audio.configure(
@@ -69,31 +75,27 @@ export function kickboxing(): IFilm {
       );
       await audio.prepare();
 
-      const view: (seconds: number) => void = (seconds: number): void => {
-        const planned: FilmPlan.Camera = FilmPlan.camera(seconds);
-        camera.position.set(...planned.position);
-        camera.fov = planned.fovDegrees;
-        camera.lookAt(new THREE.Vector3(...planned.target));
-        camera.updateProjectionMatrix();
-      };
-      view(0);
+      const available: readonly [number, number] = loaded
+        ? [loaded.startSeconds, loaded.startSeconds + loaded.playback.duration]
+        : [0, FilmPlan.duration];
+      stage.placeCamera(available[0]);
       return {
+        available,
         scene,
         camera,
         audio,
         runtime,
         seek: (seconds: number): void => {
+          stage.placeCamera(seconds);
           runtime.evaluate(seconds);
-          view(seconds);
         },
-        cameraTarget: (seconds: number): THREE.Vector3 =>
-          new THREE.Vector3(...FilmPlan.camera(seconds).target),
+        cameraTarget: (seconds: number): THREE.Vector3 => stage.target(seconds),
         dispose: (): void => {
           const errors: unknown[] = [];
           for (const release of [
             (): void => audio.dispose(),
             (): void => runtime.dispose(),
-            (): void => ring.dispose(),
+            (): void => stage.dispose(),
           ])
             try {
               release();

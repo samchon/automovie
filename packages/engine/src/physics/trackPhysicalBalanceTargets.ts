@@ -9,11 +9,11 @@ import type { AutoMoviePhysicalSimulation as Simulation } from "./AutoMoviePhysi
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import type { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalRecoverySupportGoals } from "./physicalRecoverySupportGoals";
 import { planPhysicalBalanceTargets } from "./planPhysicalBalanceTargets";
 import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
-import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
-import type { samplePhysicalTarget } from "./samplePhysicalTarget";
+import { samplePhysicalTarget } from "./samplePhysicalTarget";
+import { warmPhysicalSupportTargets } from "./warmPhysicalSupportTargets";
 
 /** Balance owns a coherent support posture independently of optional Cartesian endpoint actuators. Fitted interval poses and twists travel together; actual stationary stance takes priority over an incompatible authored-root posture. */
 export function trackPhysicalBalanceTargets(input: {
@@ -39,49 +39,83 @@ export function trackPhysicalBalanceTargets(input: {
   const revision: number = input.state.revision ?? 0;
   if (planned?.step !== input.step || planned.revision !== revision) {
     const previous: typeof planned = planned;
-    const targets: Record<string, P.ITransform> = structuredClone(
-      input.target.segments,
-    );
-    for (const pose of Object.values(targets))
-      if (input.state.rootOffset)
-        pose.position = Vector3.add(pose.position, input.state.rootOffset);
-    const endpoints: Record<string, IAutoMovieVector3> = Object.fromEntries(
-      policy.pattern.limbs.map(
-        (
-          limb: (typeof policy.pattern.limbs)[number],
-        ): [string, IAutoMovieVector3] => {
-          const point: IAutoMovieVector3 = physicalSupportPoint(
-            input.target.segments[limb.bone]!,
-            limb.localPoint,
-          );
-          return [
-            limb.bone,
-            input.state.swing?.bone === limb.bone
-              ? samplePhysicalRecoveryGoal({
-                  swing: input.state.swing,
-                  point,
-                  velocity: { x: 0, y: 0, z: 0 },
-                  height: policy.height,
-                  seconds: input.step / input.settings.rate,
-                }).point
-              : Vector3.add(
-                  point,
-                  input.state.offsets[limb.bone] ?? { x: 0, y: 0, z: 0 },
-                ),
-          ];
-        },
-      ),
-    );
+    const targets: Record<string, P.ITransform> = { ...input.target.segments };
+    if (input.state.rootOffset)
+      for (const [bone, pose] of Object.entries(targets))
+        targets[bone] = {
+          ...pose,
+          position: Vector3.add(pose.position, input.state.rootOffset),
+        };
+    const endpoints: Record<string, IAutoMovieVector3> =
+      physicalRecoverySupportGoals(
+        body,
+        input.target,
+        policy.pattern,
+        input.state,
+        input.step / input.settings.rate,
+      );
     const base: RigidBody = bound.segments.get(body.id)!.get(input.root.bone)!;
     const root: { bone: string; pose: P.ITransform } = {
       bone: input.root.bone,
       pose: { position: base.translation(), rotation: base.rotation() },
     };
+    const start: number =
+      (Math.round(
+        input.seconds * input.settings.rate * input.settings.substeps!,
+      ) -
+        1) /
+      (input.settings.rate * input.settings.substeps!);
+    const completed: Record<string, P.ITransform> | undefined =
+      previous?.step === input.step
+        ? Object.fromEntries(
+            Object.entries(
+              Interval.sample(previous, start, input.settings.rate),
+            ).map(
+              ([bone, goal]: [
+                string,
+                ReturnType<typeof samplePhysicalTarget>,
+              ]): [string, P.ITransform] => [bone, goal.pose],
+            ),
+          )
+        : previous?.step === input.step - 1
+          ? previous.targets
+          : undefined;
+    const before: Record<string, P.ITransform> =
+      previous?.step === input.step
+        ? Object.fromEntries(
+            body.profile.segments.map(
+              (segment: P.ISegment): [string, P.ITransform] => [
+                segment.bone,
+                samplePhysicalTarget(
+                  body.targets[input.step - 1]!.segments[segment.bone]!,
+                  input.target.segments[segment.bone]!,
+                  Math.max(
+                    0,
+                    Math.min(1, start * input.settings.rate - (input.step - 1)),
+                  ),
+                  input.settings.rate,
+                ).pose,
+              ],
+            ),
+          )
+        : body.targets[input.step - 1]!.segments;
+    const seed: Record<string, P.ITransform> | undefined = completed
+      ? warmPhysicalSupportTargets({
+          order: bound.order.get(body.id)!,
+          joints: bound.jointByChild.get(body.id)!,
+          descendants: bound.descendants.get(body.id)!,
+          selected: bound.posture.get(body.id)!,
+          targets,
+          before,
+          previous: completed,
+        })
+      : undefined;
     const result: ReturnType<typeof planPhysicalBalanceTargets> =
       planPhysicalBalanceTargets({
         profile: body.profile,
         pattern: policy.pattern,
         targets,
+        seed,
         goals: endpoints,
         root,
         intent: targets[input.root.bone]!,

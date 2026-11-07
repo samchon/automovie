@@ -14,17 +14,17 @@ import type { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeome
  * CalcDistanceDerivatives (bdcd5ff, distance_constraint_utilities.cc). Native
  * signed distance remains the nonlinear merit; this model neither moves a
  * body nor reports clearance or an impulse. Inactive pairs have a zero row.
+ * A supplied measurement must belong to these exact colliders and poses; null
+ * retains the already measured inactive pair without querying it again.
  */
 export function linearizePhysicalSeparation(
   geometry: Geometry.IQueries,
   a: Geometry.ICollider,
   b: Geometry.ICollider,
+  measured?: ReturnType<Geometry.IQueries["contact"]>,
 ): (first: P.ITransform, second: P.ITransform) => number {
-  const receipt: ReturnType<Geometry.IQueries["contact"]> = geometry.contact(
-    a,
-    b,
-    0,
-  );
+  const receipt: ReturnType<Geometry.IQueries["contact"]> =
+    measured === undefined ? geometry.contact(a, b, 0) : measured;
   if (!receipt || receipt.separation >= 0) return (): number => 0;
   const first: IAutoMovieVector3 = Vector3.subtract(
     receipt.point,

@@ -21,6 +21,9 @@ export function planPhysicalBalanceTargets(input: {
     bone: string;
     pose: P.ITransform;
   };
+  /** Previous correction carried through current authored coordinates; original goals and root intent remain authoritative. */ seed?: Readonly<
+    Record<string, P.ITransform>
+  >;
   /** Independent authored/recovery root intent used only to derive its lowering request. */ intent?: P.ITransform;
   /** Recovery and planted world endpoint goals. */ goals: Readonly<
     Record<string, IAutoMovieVector3>
@@ -33,7 +36,7 @@ export function planPhysicalBalanceTargets(input: {
 }): ReturnType<typeof planPhysicalSupportTargets> {
   const original: P.ITransform = input.targets[input.root.bone]!;
   const targets: Record<string, P.ITransform> = rebasePhysicalTargets(
-    input.targets,
+    input.seed ?? input.targets,
     input.root.bone,
     input.root.pose,
   );

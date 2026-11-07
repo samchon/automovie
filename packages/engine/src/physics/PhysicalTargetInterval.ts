@@ -1,6 +1,7 @@
 import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
 
-import { samplePhysicalTarget } from "./samplePhysicalTarget";
+import { preparePhysicalTargetSampler } from "./preparePhysicalTargetSampler";
+import type { samplePhysicalTarget } from "./samplePhysicalTarget";
 
 /** Shared interval clock and coherent pose/twist sampling for every fitted target owner. */
 export namespace PhysicalTargetInterval {
@@ -73,14 +74,59 @@ export namespace PhysicalTargetInterval {
       string,
       ReturnType<typeof samplePhysicalTarget>
     > = Object.create(null);
+    const portion: number = fraction(plan, seconds, rate);
+    const speed: number = 1 / (plan.step / rate - plan.start);
+    let compiled: ReturnType<typeof MOTIONS.get> = MOTIONS.get(plan);
+    if (
+      !compiled ||
+      compiled.speed !== speed ||
+      compiled.from !== plan.from ||
+      compiled.targets !== plan.targets
+    ) {
+      compiled = {
+        speed,
+        from: plan.from,
+        targets: plan.targets,
+        bones: new Map(),
+      };
+      MOTIONS.set(plan, compiled);
+    }
     for (const [bone, pose] of Object.entries(plan.targets))
-      if (selection === undefined || selection.has(bone))
-        result[bone] = samplePhysicalTarget(
-          plan.from[bone]!,
-          pose,
-          fraction(plan, seconds, rate),
-          1 / (plan.step / rate - plan.start),
-        );
+      if (selection === undefined || selection.has(bone)) {
+        let motion: ReturnType<typeof compiled.bones.get> =
+          compiled.bones.get(bone);
+        if (
+          !motion ||
+          motion.before !== plan.from[bone] ||
+          motion.after !== pose
+        ) {
+          motion = {
+            before: plan.from[bone]!,
+            after: pose,
+            sample: preparePhysicalTargetSampler(plan.from[bone]!, pose, speed),
+          };
+          compiled.bones.set(bone, motion);
+        }
+        result[bone] = motion.sample(portion);
+      }
     return result;
   }
 }
+
+/** Weak lifetime follows transient plans; scalar-checked samplers never trust mutable pose identity alone. Functions remain outside checkpoint-serializable plans. */
+const MOTIONS: WeakMap<
+  PhysicalTargetInterval.IPlan,
+  {
+    speed: number;
+    from: PhysicalTargetInterval.IPlan["from"];
+    targets: PhysicalTargetInterval.IPlan["targets"];
+    bones: Map<
+      string,
+      {
+        before: P.ITransform;
+        after: P.ITransform;
+        sample: ReturnType<typeof preparePhysicalTargetSampler>;
+      }
+    >;
+  }
+> = new WeakMap();

@@ -11,12 +11,14 @@ import { Blocking } from "../motion/defense/Blocking";
 import { Fighter } from "../motion/fighter/Fighter";
 import type { FighterBody } from "../motion/fighter/FighterBody";
 import { Aftermath } from "../motion/reactions/Aftermath";
+import type { BoutFormulaResponse } from "../motion/reactions/BoutFormulaResponse";
 import { Knockdown } from "../motion/reactions/Knockdown";
 import { Referee } from "../motion/referee/Referee";
 import { RefereeCues } from "../motion/referee/RefereeCues";
 import { Rhythm } from "../motion/rhythm/Rhythm";
-import { BodyRig } from "../motion/rig/BodyRig";
-import { Vec3 } from "../motion/rig/Vec3";
+import { FilmBodyRig as BodyRig } from "../motion/rig/FilmBodyRig";
+import { FilmVector as Vec3 } from "../motion/rig/FilmVector";
+import { prepareLegacyBoutResponses } from "../physics/prepareLegacyBoutResponses";
 import { BoutScript } from "../shots/kickboxing/ring-bout/BoutScript";
 import type { FilmPlan } from "../shots/kickboxing/ring-bout/FilmPlan";
 import type { AudioMix } from "../sound/AudioMix";
@@ -58,7 +60,10 @@ export class FilmRuntime {
   public readonly effects: ImpactEffects = new ImpactEffects();
 
   public constructor() {
-    const fighterRig: BodyRig = new BodyRig(createPersonParameters(1800, true));
+    const fighterRig: BodyRig = new BodyRig(
+      createPersonParameters(1800, true),
+      true,
+    );
     const refereeRig: BodyRig = new BodyRig(
       createPersonParameters(1780, false),
     );
@@ -132,6 +137,7 @@ export class FilmRuntime {
     );
     const b: FighterBody.Frame =
       t <= ko ? this.fighters.b.frame(t) : this.knockdown.frame(t);
+    if (t > ko) this.fighters.b.response.apply(b, t);
     return { a, b, referee: this.referee.frame(t) };
   }
 
@@ -178,14 +184,19 @@ export class FilmRuntime {
       throw new Error("Film second outside [0,180]");
     const frames: Record<FilmPlan.ActorId, FighterBody.Frame> = this.frames(t);
     const resolved: Resolve.Output = Resolve.requests(frames, this.rigs);
-    const result = {} as Record<FilmPlan.ActorId, FilmRuntime.Solved>;
+    const result: Record<FilmPlan.ActorId, FilmRuntime.Solved> = {} as Record<
+      FilmPlan.ActorId,
+      FilmRuntime.Solved
+    >;
     for (const id of ["a", "b", "referee"] as const) {
       const request: BodyRig.Request = resolved.requests[id]!;
       const solved: BodyRig.Result = this.rigs[id].solve(request);
       const output: AutoMovieHumanSkeleton.IOutput = this.rigs[id].evaluate(
         solved.pose,
       );
-      const world = (index: number): Vec3.Value =>
+      const world: (index: number) => Vec3.Value = (
+        index: number,
+      ): Vec3.Value =>
         Vec3.add(
           request.root.position,
           Vec3.rotate(output.posed[index]!.position, request.root.rotation),
@@ -246,6 +257,14 @@ export class FilmRuntime {
   public async prepare(
     progress?: (id: string, completed: number, total: number) => void,
   ): Promise<void> {
+    await prepareLegacyBoutResponses(
+      this,
+      (contacts: readonly BoutFormulaResponse.IContact[]): void => {
+        for (const fighter of Object.values(this.fighters))
+          fighter.response.configure("kinematic", contacts);
+      },
+      progress,
+    );
     const contacts: AudioMix.Contact[] = [];
     const refused: { actionId: string; gap: number }[] = [];
     const impacts: ImpactEffects.Impact[] = [];
@@ -275,7 +294,8 @@ export class FilmRuntime {
       const action: BoutScript.Action = planned[index]!;
       this.evaluate(action.at);
       const gap: number = this.gap(action);
-      const relation = FilmEvents.relation(action)!;
+      const relation: AudioMix.Contact["relation"] =
+        FilmEvents.relation(action)!;
       // A clean hit must sink into the receiver's skin; a guard or shin contact
       // must at least touch. No air gap counts as a landing.
       const needed: number =
@@ -293,11 +313,6 @@ export class FilmRuntime {
         });
       } else refused.push({ actionId: action.id, gap });
 
-      // Full reaction once the surfaces meet, none beyond a 2.5 cm air gap.
-      this.fighters[action.actor === "a" ? "b" : "a"].strength.set(
-        action.id,
-        Math.max(0, Math.min(1, (0.025 - gap) / 0.025)),
-      );
       if (index % 8 === 7) {
         progress?.(action.id, index + 1, total);
         await new Promise<void>(
@@ -403,6 +418,13 @@ export class FilmRuntime {
    */
   public inspect(): object {
     return {
+      mode: "authored",
+      bodyResponse: {
+        authority: "geometric comparison formula",
+        contacts:
+          this.fighters.a.response.contactCount +
+          this.fighters.b.response.contactCount,
+      },
       seconds: this.seconds,
       residualMetres: this.residual,
       lastMotionMs: this.lastMotionMs,
@@ -430,7 +452,8 @@ export class FilmRuntime {
   ): ImpactEffects.Impact {
     const attacker: FilmActor = this.actors[action.actor];
     const receiver: FilmActor = this.actors[action.actor === "a" ? "b" : "a"];
-    const spec = BoutScript.specs[action.technique];
+    const spec: (typeof BoutScript.specs)[BoutScript.Technique] =
+      BoutScript.specs[action.technique];
     const kick: boolean = action.technique.endsWith("kick");
     const point: Vec3.Value = kick
       ? Vec3.lerp(
@@ -460,10 +483,13 @@ export class FilmRuntime {
   private gap(action: BoutScript.Action): number {
     const attacker: FilmActor = this.actors[action.actor];
     const receiver: FilmActor = this.actors[action.actor === "a" ? "b" : "a"];
-    const spec = BoutScript.specs[action.technique];
+    const spec: (typeof BoutScript.specs)[BoutScript.Technique] =
+      BoutScript.specs[action.technique];
     const struck: "left" | "right" = spec.side === "left" ? "right" : "left";
     const kick: boolean = action.technique.endsWith("kick");
-    const weapon = (point: Vec3.Value): number => {
+    const weapon: (point: Vec3.Value) => number = (
+      point: Vec3.Value,
+    ): number => {
       if (!kick) return Vec3.distance(attacker.glove(spec.side), point) - 0.095;
       const knee: Vec3.Value = attacker.point(`${spec.side}LowerLeg`);
       const ankle: Vec3.Value = attacker.point(`${spec.side}Foot`);
@@ -556,19 +582,20 @@ export namespace FilmRuntime {
    * @evidence contracts/common.md#authoring-interface World metres; joints keyed by Human bone id.
    */
   export interface Solved {
-    /** Root placement after ground correction. */ root: BodyRig.Placement;
-    /** Solved clinical pose. */ pose: IAutoMovieHumanPose;
-    /** Worst primary IK residual, metres. */ error: number;
-    /** World joint centres by bone id, after ground correction. */ joints: Map<
-      string,
-      Vec3.Value
-    >;
-    /** Skin radius of the segment leaving each joint, metres. */ radii: Map<
-      string,
-      number
-    >;
-    /** The IK request (goals before ground correction). */ request: BodyRig.Request;
-    /** The authored frame. */ frame: FighterBody.Frame;
+    /** Root placement after ground correction. */
+    root: BodyRig.Placement;
+    /** Solved clinical pose. */
+    pose: IAutoMovieHumanPose;
+    /** Worst primary IK residual, metres. */
+    error: number;
+    /** World joint centres by bone id, after ground correction. */
+    joints: Map<string, Vec3.Value>;
+    /** Skin radius of the segment leaving each joint, metres. */
+    radii: Map<string, number>;
+    /** The IK request (goals before ground correction). */
+    request: BodyRig.Request;
+    /** The authored frame. */
+    frame: FighterBody.Frame;
   }
 }
 

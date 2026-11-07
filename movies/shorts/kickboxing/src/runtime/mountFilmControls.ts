@@ -178,7 +178,10 @@ export function mountFilmControls(
             ? clock.interval[0]
             : event.key === "End"
               ? clock.interval[1]
-              : Math.max(0, Math.min(180, clock.seconds + delta!)),
+              : Math.max(
+                  clock.available[0],
+                  Math.min(clock.available[1], clock.seconds + delta!),
+                ),
         ).catch(report);
       }
     },
@@ -207,41 +210,53 @@ export namespace mountFilmControls {
    * Times use absolute film seconds. requireTransport refuses unloaded scenes; seek resolves only after the actual original draw completes.
    */
   export interface Context {
-    /** This one mounted production document. */ root: HTMLElement;
-    /** Capture permanently uses the delivered camera. */ capture: boolean;
-    /** Stable current immutable build identity. */ version: string;
-    /** Borrowed native inspection camera controls. */ controls: OrbitControls;
+    /** This one mounted production document. */
+    root: HTMLElement;
+    /** Capture permanently uses the delivered camera. */
+    capture: boolean;
+    /** Stable current immutable build identity. */
+    version: string;
+    /** Borrowed native inspection camera controls. */
+    controls: OrbitControls;
     /** Current actual transport, absent during preparation.
      * Reads the same live host reference rather than retaining a stale pre-preparation clock.
      * Undefined means no loaded transport; the control must not synthesize one.
-     */ transport: () => FilmTransport | undefined;
+     */
+    transport: () => FilmTransport | undefined;
     /** Original readiness fact.
      * Reads the actual producer's current readiness without inferring success from a button or displayed initial pose.
      * False prevents keyboard action; full preparation and source failures belong to the host.
-     */ ready: () => boolean;
+     */
+    ready: () => boolean;
     /** Actual current inspection snapshot.
      * Delegates to the original producer's actual state and diagnostics without computing another pose.
      * Returns diagnostic data only; the control displays it without turning it into acceptance.
-     */ inspect: () => object;
+     */
+    inspect: () => object;
     /** Require the actual loaded clock.
      * The host refuses an absent or unloaded source before any action can evaluate a fallback.
      * Returns a borrowed live transport; ownership and disposal stay with the host.
-     */ requireTransport: () => FilmTransport;
+     */
+    requireTransport: () => FilmTransport;
     /** The same original producer used by public capture.
      * Awaits original preparation and completes real source, camera and draw through the same host operation.
      * Seconds are absolute [0,180]; actual source or draw failures reject and retain the previous committed frame.
-     */ seek: (seconds: number) => Promise<void>;
+     */
+    seek: (seconds: number) => Promise<void>;
     /** Adopt the shared delivered camera.
      * Resolves the original FilmPlan camera at the supplied same film second instead of exporting a user's inspection view.
      * Finite film seconds select a view; this operation does not advance motion or certify visibility.
-     */ filmCamera: (seconds: number) => void;
+     */
+    filmCamera: (seconds: number) => void;
     /** Request one actual guide redraw.
      * Invalidates the single existing Viewer producer rather than starting another animation loop.
      * The host draws on its own next frame; invalidation alone publishes no completed observation.
-     */ invalidate: () => void;
+     */
+    invalidate: () => void;
     /** Display and retain the exact actual refusal.
      * Routes failures to the same host error path that pauses sound and preserves the last completed scene and clock.
      * Accepts an unknown thrown value; it does not swallow the producer failure into an apparent successful action.
-     */ report: (error: unknown) => void;
+     */
+    report: (error: unknown) => void;
   }
 }

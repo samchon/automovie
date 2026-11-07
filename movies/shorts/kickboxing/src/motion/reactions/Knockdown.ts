@@ -1,9 +1,10 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 import { FighterBody } from "../fighter/FighterBody";
-import type { BodyRig } from "../rig/BodyRig";
-import { Ease } from "../rig/Ease";
+import type { FilmBodyRig as BodyRig } from "../rig/FilmBodyRig";
+import { FilmVector as Vec3 } from "../rig/FilmVector";
 import { Foot } from "../rig/Foot";
-import { Vec3 } from "../rig/Vec3";
 import { Aftermath } from "./Aftermath";
 
 /**

@@ -1,10 +1,10 @@
 import { Blocking } from "../defense/Blocking";
 import { Fighter } from "../fighter/Fighter";
 import { FighterBody } from "../fighter/FighterBody";
-import { Footsteps } from "../footwork/Footsteps";
-import type { BodyRig } from "../rig/BodyRig";
+import { BoutFootsteps as Footsteps } from "../footwork/BoutFootsteps";
+import type { FilmBodyRig as BodyRig } from "../rig/FilmBodyRig";
+import { FilmVector as Vec3 } from "../rig/FilmVector";
 import type { Foot } from "../rig/Foot";
-import { Vec3 } from "../rig/Vec3";
 import { RefereeCues } from "./RefereeCues";
 
 /**
@@ -25,9 +25,10 @@ export class Referee {
   public constructor(
     public readonly rig: BodyRig,
     private readonly scene: RefereeCues.Scene,
+    physical: boolean = false,
   ) {
     this.steps = new Footsteps({
-      start: -1,
+      start: physical ? 0 : -1,
       end: 180,
       desired: (t: number): Record<Footsteps.Side, Foot.Placement> =>
         Fighter.feet(this.stance(t)),
@@ -36,6 +37,7 @@ export class Referee {
       duration: 0.28,
       threshold: 0.08,
       overlap: 0,
+      physical,
       height: 0.06,
       lead: "left",
     });

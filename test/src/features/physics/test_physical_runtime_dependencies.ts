@@ -1,0 +1,239 @@
+import type { IAutoMoviePhysicalProfile as P } from "@automovie/interface";
+import RAPIER, { type World } from "@dimforge/rapier3d-compat";
+import { TestValidator } from "@nestia/e2e";
+import assert from "node:assert/strict";
+
+import { Quaternion } from "../../../../packages/engine/src/math/Quaternion";
+import { Vector3 } from "../../../../packages/engine/src/math/Vector3";
+import type { AutoMoviePhysicalSimulation as Simulation } from "../../../../packages/engine/src/physics/AutoMoviePhysicalSimulation";
+import { PhysicalTargetInterval as Interval } from "../../../../packages/engine/src/physics/PhysicalTargetInterval";
+import { bindPhysicalWorld } from "../../../../packages/engine/src/physics/bindPhysicalWorld";
+import { copyPhysicalTarget } from "../../../../packages/engine/src/physics/copyPhysicalTarget";
+import { preparePhysicalTargetSampler } from "../../../../packages/engine/src/physics/preparePhysicalTargetSampler";
+import { readPhysicalScene } from "../../../../packages/engine/src/physics/readPhysicalScene";
+import { samplePhysicalAuthoredTargets } from "../../../../packages/engine/src/physics/samplePhysicalAuthoredTargets";
+import { samplePhysicalTarget } from "../../../../packages/engine/src/physics/samplePhysicalTarget";
+import { setPhysicalTargetJointRotation } from "../../../../packages/engine/src/physics/setPhysicalTargetJointRotation";
+import { solvePhysicalChainTarget } from "../../../../packages/engine/src/physics/solvePhysicalChainTarget";
+import { warmPhysicalSupportTargets } from "../../../../packages/engine/src/physics/warmPhysicalSupportTargets";
+import { PhysicalFixtures } from "../internal/PhysicalFixtures";
+import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
+import { qclose } from "../internal/qclose";
+import { vclose } from "../internal/vclose";
+
+/** Run-owned coordinate reuse preserves transform dependencies and caller ownership.
+ *
+ * Scenarios:
+ * 1. Prepared coefficients match the original arithmetic, detect in-place edits, and return independent mutable vectors.
+ * 2. Fitted intervals invalidate replaced/edited endpoints and altered interval clocks.
+ * 3. One real native scene refresh owns only changed transforms; prior snapshots and unchanged branches survive.
+ * 4. A transformed support branch carries its prior local correction through an authored turn without moving unrelated ancestors.
+ * 5. Direct support-chain fitting detaches its written descendants while preserving an unrelated root and the input snapshot.
+ */
+export async function test_physical_runtime_dependencies(): Promise<void> {
+  const before: P.ITransform = {
+    position: { x: 0.3, y: -0.2, z: 1 },
+    rotation: Quaternion.fromAxisAngle({ x: 1, y: 2, z: 3 }, 31),
+  };
+  const after: P.ITransform = {
+    position: { x: 1, y: 2, z: 3 },
+    rotation: Quaternion.fromAxisAngle({ x: 2, y: -1, z: 1 }, 74),
+  };
+  const sample: ReturnType<typeof preparePhysicalTargetSampler> =
+    preparePhysicalTargetSampler(before, after, 120);
+  for (const fraction of [0, 0.125, 0.5, 1]) {
+    const expected: ReturnType<typeof samplePhysicalTarget> =
+      samplePhysicalTarget(before, after, fraction, 120);
+    const actual: typeof expected = sample(fraction);
+    TestValidator.predicate(
+      "prepared world motion matches the original sampler",
+      vclose(actual.pose.position, expected.pose.position, 1e-13) &&
+        qclose(actual.pose.rotation, expected.pose.rotation, 1e-13) &&
+        vclose(actual.velocity, expected.velocity, 1e-13) &&
+        vclose(actual.angularVelocity, expected.angularVelocity, 1e-13),
+    );
+  }
+  sample(0.5).velocity.x = 12345;
+  after.position.y += 0.7;
+  after.rotation = Quaternion.fromAxisAngle({ x: 1, y: -1, z: 2 }, 18);
+  const expected: ReturnType<typeof samplePhysicalTarget> =
+    samplePhysicalTarget(before, after, 0.5, 120);
+  TestValidator.predicate(
+    "value edits and returned-vector mutation cannot stale coefficients",
+    vclose(sample(0.5).velocity, expected.velocity) &&
+      vclose(sample(0.5).angularVelocity, expected.angularVelocity),
+  );
+  const copied: typeof expected = copyPhysicalTarget(expected);
+  copied.pose.position = { x: 9, y: 8, z: 7 };
+  assert.notEqual(copied.pose.position, expected.pose.position);
+
+  const interval: Interval.IPlan = {
+    step: 1,
+    revision: 0,
+    start: 0,
+    from: { root: before },
+    targets: { root: after },
+  };
+  Interval.sample(interval, 1 / 240, 120);
+  interval.targets.root!.position.x += 0.4;
+  interval.start = 1 / 960;
+  const intervalExpected: typeof expected = samplePhysicalTarget(
+    before,
+    after,
+    Interval.fraction(interval, 1 / 240, 120),
+    1 / (1 / 120 - interval.start),
+  );
+  const intervalActual: typeof expected = Interval.sample(
+    interval,
+    1 / 240,
+    120,
+  ).root!;
+  TestValidator.predicate(
+    "interval value and clock changes invalidate motion",
+    vclose(intervalActual.pose.position, intervalExpected.pose.position) &&
+      vclose(intervalActual.velocity, intervalExpected.velocity),
+  );
+
+  await RAPIER.init();
+  const world: World = new RAPIER.World({ x: 0, y: 0, z: 0 });
+  try {
+    const profile: P = PhysicalPointFixtures.profile();
+    const body: Simulation.IBody = PhysicalFixtures.body(
+      "assembly",
+      profile,
+      1 / 120,
+    );
+    const input: Simulation.IInput = PhysicalFixtures.input([body], 1 / 120);
+    const bound: ReturnType<typeof bindPhysicalWorld> = bindPhysicalWorld(
+      world,
+      input,
+      false,
+    );
+    const scene: ReturnType<typeof readPhysicalScene> =
+      readPhysicalScene(bound);
+    const original: string = JSON.stringify(scene);
+    bound.segments
+      .get(body.id)!
+      .get("carrier")!
+      .setTranslation({ x: 0.4, y: 1, z: 0 }, true);
+    const updated: typeof scene = readPhysicalScene(bound, scene, body.id);
+    assert.equal(JSON.stringify(scene), original);
+    assert.notEqual(updated.assembly!.carrier, scene.assembly!.carrier);
+    assert.equal(updated.assembly!.source, scene.assembly!.source);
+    assert.equal(readPhysicalScene(bound, updated, body.id), updated);
+    body.targets[1]!.segments.root!.position.x = 0.1;
+    const first: ReturnType<typeof samplePhysicalAuthoredTargets> =
+      samplePhysicalAuthoredTargets(
+        body,
+        body.targets[1]!,
+        bound,
+        1,
+        1 / 240,
+        120,
+      );
+    body.targets[1]!.segments.root!.position.x = 0.2;
+    const second: typeof first = samplePhysicalAuthoredTargets(
+      body,
+      body.targets[1]!,
+      bound,
+      1,
+      1 / 240,
+      120,
+    );
+    TestValidator.predicate(
+      "authored target edits invalidate only their interval values",
+      vclose(first.root!.velocity, { x: 12, y: 0, z: 0 }) &&
+        vclose(second.root!.velocity, { x: 24, y: 0, z: 0 }),
+    );
+
+    const global: P.ITransform["rotation"] = Quaternion.fromAxisAngle(
+      { x: 1, y: 2, z: -1 },
+      37,
+    );
+    const root: P.ITransform["position"] = { x: 0.2, y: 2, z: -0.7 };
+    const poses: Record<string, P.ITransform> = Object.fromEntries(
+      profile.segments.map((segment: P.ISegment): [string, P.ITransform] => [
+        segment.bone,
+        {
+          position: Vector3.add(
+            root,
+            Quaternion.rotateVector(
+              global,
+              Vector3.subtract(
+                segment.neutral.position,
+                profile.segments[0]!.neutral.position,
+              ),
+            ),
+          ),
+          rotation: { ...global },
+        },
+      ]),
+    );
+    const prior: typeof poses = structuredClone(poses);
+    const current: typeof poses = structuredClone(poses);
+    const joint: P.IJoint = profile.joints[0]!;
+    setPhysicalTargetJointRotation(
+      prior,
+      joint,
+      bound.descendants.get(body.id)!.get("carrier")!,
+      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 30),
+    );
+    setPhysicalTargetJointRotation(
+      current,
+      joint,
+      bound.descendants.get(body.id)!.get("carrier")!,
+      Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 10),
+    );
+    const unchanged: string = JSON.stringify({ poses, current, prior });
+    const warmed: typeof poses = warmPhysicalSupportTargets({
+      order: bound.order.get(body.id)!,
+      joints: bound.jointByChild.get(body.id)!,
+      descendants: bound.descendants.get(body.id)!,
+      selected: new Set(["carrier"]),
+      targets: current,
+      before: poses,
+      previous: prior,
+    });
+    const angle: number = (40 * Math.PI) / 180;
+    TestValidator.predicate(
+      "prior local correction follows authored rotation in a transformed frame",
+      qclose(
+        warmed.carrier!.rotation,
+        Quaternion.multiply(
+          global,
+          Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 40),
+        ),
+      ) &&
+        vclose(
+          warmed.source!.position,
+          Vector3.add(
+            root,
+            Quaternion.rotateVector(global, {
+              x: Math.cos(angle),
+              y: Math.sin(angle),
+              z: 0,
+            }),
+          ),
+          1e-12,
+        ),
+    );
+    assert.equal(warmed.root, current.root);
+    const fitted: ReturnType<typeof solvePhysicalChainTarget> =
+      solvePhysicalChainTarget({
+        profile,
+        chain: ["carrier", "source"],
+        targets: current,
+        goal: warmed.source!.position,
+        iterations: 24,
+        tolerance: 1e-8,
+      });
+    TestValidator.predicate(
+      "support-chain COW retains exact transformed endpoint fitting",
+      vclose(fitted.targets.source!.position, warmed.source!.position, 1e-8),
+    );
+    assert.equal(fitted.targets.root, current.root);
+    assert.equal(JSON.stringify({ poses, current, prior }), unchanged);
+  } finally {
+    world.free();
+  }
+}

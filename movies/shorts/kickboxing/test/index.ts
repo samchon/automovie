@@ -2,13 +2,26 @@ import { readdir } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-/** Program entry after static builtin imports; command preparation precedes this boundary. */
+import { readMovieTestSelection } from "./internal/readMovieTestSelection";
+
+/** Program body entry after its static imports; compiler and loader preparation precede this boundary. */
 const mainEnteredEpochMs: number = Date.now();
 /** Monotonic program interval, independent of epoch clock adjustments. */
 const runnerStarted: number = performance.now();
+console.log(
+  JSON.stringify({
+    stage: "main-entered",
+    pid: process.pid,
+    parentPid: process.ppid,
+    epochMs: mainEnteredEpochMs,
+  }),
+);
 
 /** Discover portable cases, finish every selected function and report one complete round. */
 async function main(): Promise<void> {
+  const selection: readMovieTestSelection.ISelection = readMovieTestSelection(
+    process.argv.slice(2),
+  );
   const discoveryStarted: number = performance.now();
   const root: string = path.join(import.meta.dirname, "features");
   const files: string[] = (await readdir(root, { recursive: true }))
@@ -25,39 +38,59 @@ async function main(): Promise<void> {
     ms: number;
     error?: string;
   }[] = [];
-  const selection: string | undefined = process.argv.includes("--include")
-    ? process.argv[process.argv.indexOf("--include") + 1]
-    : undefined;
-  if (process.argv.includes("--include") && !selection)
-    throw new Error("--include requires a test file or function substring");
   for (const entry of files) {
+    if (!selection.acceptFile(entry)) continue;
     const file: string = path.join(root, entry);
     try {
       const importStarted: number = performance.now();
+      console.log(
+        JSON.stringify({
+          stage: "import-start",
+          file: entry,
+          epochMs: Date.now(),
+        }),
+      );
       let module: Record<string, unknown>;
       try {
         module = await import(pathToFileURL(file).href);
+        const milliseconds: number = performance.now() - importStarted;
         fileImports.push({
           file: entry,
-          milliseconds: performance.now() - importStarted,
+          milliseconds,
           ok: true,
         });
+        console.log(
+          JSON.stringify({
+            stage: "import-end",
+            file: entry,
+            milliseconds,
+            ok: true,
+          }),
+        );
       } catch (error: unknown) {
+        const milliseconds: number = performance.now() - importStarted;
         fileImports.push({
           file: entry,
-          milliseconds: performance.now() - importStarted,
+          milliseconds,
           ok: false,
         });
+        console.error(
+          JSON.stringify({
+            stage: "import-end",
+            file: entry,
+            milliseconds,
+            ok: false,
+            error:
+              error instanceof Error
+                ? (error.stack ?? error.message)
+                : String(error),
+          }),
+        );
         throw error;
       }
       for (const [name, value] of Object.entries(module)) {
         if (!name.startsWith("test_") || typeof value !== "function") continue;
-        if (
-          selection &&
-          !entry.includes(selection) &&
-          !name.includes(selection)
-        )
-          continue;
+        if (!selection.acceptCase(entry, name)) continue;
         const begun: number = performance.now();
         console.log(`RUN ${entry}#${name}`);
         try {
@@ -72,16 +105,25 @@ async function main(): Promise<void> {
             `PASS ${name} ${(performance.now() - begun).toFixed(2)} ms`,
           );
         } catch (error: unknown) {
+          const message: string =
+            error instanceof Error
+              ? (error.stack ?? error.message)
+              : String(error);
           results.push({
             file: entry,
             test: name,
             ok: false,
             ms: performance.now() - begun,
-            error:
-              error instanceof Error
-                ? (error.stack ?? error.message)
-                : String(error),
+            error: message,
           });
+          console.error(
+            JSON.stringify({
+              stage: "case-error",
+              file: entry,
+              test: name,
+              error: message,
+            }),
+          );
           console.log(
             `FAIL ${name} ${(performance.now() - begun).toFixed(2)} ms`,
           );

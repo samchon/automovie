@@ -1,6 +1,6 @@
 # Kickboxing reference archive
 
-Current source index, acquired and locally inspected on 2026-11-03 by technique_reference under the user's explicit request to retain research images. This archive contains 44 media files: three original PDFs, one selected-page PDF extract, 39 images and one original public instructional MP4, plus this index and the [actionable technique guide](techniques.md). Every retained image was opened locally. The MP4 was sampled at named timestamps, not continuously watched or listened to. These references inform choreography and rig constraints; they are not runtime assets, measured film acceptance or continuous video review.
+The original 2026-11-03 archive contains 44 media files: three original PDFs, one selected-page PDF extract, 39 images and one original public instructional MP4. The 2026-11-06 guard supplement below adds one PDF and three page images. Every retained image was opened locally. The original MP4 was sampled at named timestamps, not continuously watched or listened to. These references inform choreography and rig constraints; they are not runtime assets, measured film acceptance or continuous video review. Read the [technique guide](techniques.md) with its current [kick-guard decision](kick-guard.md).
 
 `private/` contains copyrighted or rights-unconfirmed material for the user's local research, is ignored by git and must not be published or copied to `public/`. `licensed/` contains the confirmed CC BY 4.0 PLOS material with attribution below; its presence does not adopt it into the film. No login, paywall or access restriction was bypassed. Network bytes are retained as supplied; IBA/support page PNGs are CPU rasterizations and PLOS PNGs are original embedded figure images extracted from the unchanged source PDF. England Boxing p.85 is a one-page extract from its official manual, with a complete1600px page raster and two unchanged native336x333 embedded JPEG photographs. The Skarbowsky JPEG is the original1280x720 branded promotional poster. No photograph was cropped, enhanced or otherwise edited. MP4 frames are CPU-decoded full-resolution 1280x720 PNGs; original timestamps in seconds identify each sample, not frame-accurate contact times.
 
@@ -128,6 +128,55 @@ Complete retained media identity manifest. Original files remain unchanged. IBA/
 | private/support-study/pdf-page-7.png | 228393 | 27d493cbaa6f6a7dab8cbe9c24bd42ca262cbb66693e73acc26874609dfb1e45 |
 | private/support-study/riansoi-2019.pdf | 588541 | 84a7274d7190df45fb09c22d1f29be489416b0d3890263ab20f09b0a42dd04ff |
 
+## Kick-guard supplement, 2026-11-06
+
+Ruerngsa, Charuad and Cartmell, *Muay Thai: The Art of Fighting*, [original PDF](https://www.singto.co.uk/Techniques/artoffightingebook.pdf), pp.98–100, supports the [current guard decision](kick-guard.md). The source identifies itself as a draft and states restrictive reuse terms; it is retained only in ignored private research. No publication or asset redistribution is authorized. The actual PDF and all three full-page rasters were opened locally. Poppler produced the PNGs at 1400 px maximum dimension; font-substitution warnings were emitted, and the inspected pages are readable. They supply text and an isolated photograph, without calibrated motion or continuous phase evidence.
+
+| Local file | Bytes | SHA-256 |
+| --- | ---: | --- |
+| [Original PDF](../../references/private/kick-guard/muay-thai-art-of-fighting.pdf) | 6402222 | beea3ce4753cecadc36658384c6779fb6bcb4f42195370b160d9f4cf8c0735d2 |
+| [Page98](../../references/private/kick-guard/manual-098.png) | 468755 | 3b38e030583f1cd796a2fca4bf0174f51c44051adc5e2a2af99ca936208d7c7b |
+| [Page99](../../references/private/kick-guard/manual-099.png) | 246743 | 8c622e1106c33cb78fc5d4e7459e4b14a4df582bd2622733a0cff92770df1eaa |
+| [Page100](../../references/private/kick-guard/manual-100.png) | 167269 | 19420fb5cc117ca8b53858d1484c0b1bf320ce8c5b1b4ddc6f3cb3e1abfa8d86 |
+
+The synthesis also distinguishes original coaching prose by Aaron Swenson and Trevor Wittman's publisher, and the existing Gavagan/Sayers measured study. Those web pages were read without retaining a second copy. Wittman's embedded video failed with player error153; the ordinary YouTube watch page reports members-only access, so no video was acquired or viewed. No restriction was bypassed. Their original URLs, sections and use limits are recorded in the synthesis.
+
+## Physical-control supplement, 2026-11-06
+
+Yin, Loken and van de Panne, *SIMBICON: Simple Biped Locomotion Control*, SIGGRAPH 2007, [original university PDF](https://www.cs.ubc.ca/~van/papers/2007-siggraph-simbicon.pdf), Section 3 and Figure 3, supports the [physical-control method study](physical-control.md). The original and the complete third page are retained in ignored private research; redistribution rights have not been established. Poppler rendered page 3 at 1400 px maximum dimension, and the saved page was opened and its equations and diagrams inspected. The source describes biped locomotion, without qualifying this film's kicks or supplying its controller gains.
+
+| Local file | Bytes | SHA-256 |
+| --- | ---: | --- |
+| [Original PDF](../../references/private/physical-control/simbicon-2007.pdf) | 854724 | 7856d939bcbdb6bd05dcacd1e769e2c45f3a870014572978911f37da891851b8 |
+| [Full page 3](../../references/private/physical-control/simbicon-03.png) | 418106 | 7b60aea991ee9e815d6586b9793b4eef2ce5ed6de2221fae4b22184fef52731f |
+
+The study also reads Drake's original signed-distance contract and its pinned distance-derivative implementation, with exact URLs and function locator in the synthesis. Those web sources were read without retaining a second copy. The old CMU lateral-balance PDF URL returned 404, and its current repository PDF timed out; its abstract alone is not used as implementation evidence. The TrajOpt repository PDF could not be opened reliably, so search snippets are not treated as an inspected derivation.
+
 ## Generation receiver
 
 [Planned Seedance 2.5 handoff contract](seedance-2-5-handoff-contract.md) carries the sibling production's 2026-11-05 observation of the official BytePlus model, input-budget, prompt-guide and task pages, with its source record identity. No page, image or video was downloaded or retained for it; its limits support only the planned [video prompts](../../docs/prompts/videos/source-bindings.md) and must be rechecked before any submission.
+
+## Physical-handoff supplement, 2026-11-07
+
+The [handoff study](physical-handoff.md) uses the following original HTML files, fetched on 2026-11-07 and reopened locally to inspect the relevant passages. These are text/API references, not motion captures or measured production results. Redistribution rights have not been established; the unchanged originals remain in ignored private research. Rapier's guide identifies JavaScript 0.21, matching installed 0.21.0. Epic's animation guide identifies Unreal 5.8, while UE-72912 explicitly concerns historical 4.20/4.21. Unity's retained impulse page selects 6000.0. The original URLs and exact section locators appear in the study.
+
+| Local original | Bytes | SHA-256 |
+| --- | ---: | --- |
+| [Rapier rigid bodies](../../references/private/physical-handoff/rapier-rigid-bodies.html) | 221894 | a10a88166b693a440d8a0082dba4d103c040243609fe0b51b87bf91995e47a77 |
+| [Rapier collision detection](../../references/private/physical-handoff/rapier-collision-detection.html) | 33953 | 83c67b53b0dede1ac198059440aab4cd05ced64ef79391570fa88600a3804e75 |
+| [Epic physics-driven animation](../../references/private/physical-handoff/unreal-physics-driven-animation.html) | 62406 | 9e644eef7e8abbef07f00634dd76c5343c94e1de78fa88fe7d6bbba1d37bcd5a |
+| [Epic UE-72912](../../references/private/physical-handoff/unreal-ue-72912.html) | 11056 | d0acb32e048fe71c4c3b356614d0a4d5baf7467719fbdffd661e88673006fdf9 |
+| [Unity Collision.impulse](../../references/private/physical-handoff/unity-collision-impulse.html) | 855814 | b81d3c9e4bc6241012c573e999d47c769565ec84cc94a66fbc67160a4f60798c |
+
+## Guard-constraint supplement, 2026-11-07
+
+The [guard feasibility study](physical-handoff.md#guard-feasibility-and-simultaneous-constraints) reads Drake's original relative-point and geometry-distance API, Russ Tedrake's differential IK notes and TRAC-IK's own algorithm and collision limitations. The original pages below were fetched and reopened locally on 2026-11-07. These are robotics method references, not measured kickboxing motion or a replacement for actual consumer verification. Retained originals remain in ignored private research; their original URLs and section locators appear in the study.
+
+| Local original | Bytes | SHA-256 |
+| --- | ---: | --- |
+| [Drake inverse kinematics](../../references/private/physical-handoff/drake-inverse-kinematics-2026-11-07.html) | 94694 | a56dffc2f9cca9a4d809a0b0ab77b91917bca6d5e046fc8d6ed91f40fef8a51e |
+| [MIT differential IK notes](../../references/private/physical-handoff/mit-differential-ik-2026-11-07.html) | 98625 | bd643338bc918e1f2c3d07c2d388d0eadcd4ee6af0c0b1296f66fa42e191e188 |
+| [TRAC-IK README](../../references/private/physical-handoff/trac-ik-readme-2026-11-07.md) | 6866 | 49cb5defb41d8f6eddd48350aa439460befee6b088726ae6d9e0eebf9eb88630 |
+| [Modern Robotics numerical IK transcript](../../references/private/physical-handoff/modern-robotics-ik-2026-11-07.html) | 70304 | 0d107098b7049b93b5136cc3955a87139f478f16b447a4dc984c5afb2a703aa7 |
+
+The same retained MIT chapter was reread at its full-extension Jacobian example, and the Northwestern transcript was fetched and reopened locally for the bounded seed study. The author's UCSD IK survey PDF returned a gateway error and then timed out; search excerpts from that survey are not used as an inspected derivation or implementation decision.

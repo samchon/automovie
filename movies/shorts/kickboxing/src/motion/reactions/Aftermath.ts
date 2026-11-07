@@ -1,9 +1,10 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 import { Blocking } from "../defense/Blocking";
 import type { Fighter } from "../fighter/Fighter";
 import type { FighterBody } from "../fighter/FighterBody";
-import { Ease } from "../rig/Ease";
-import { Vec3 } from "../rig/Vec3";
+import { FilmVector as Vec3 } from "../rig/FilmVector";
 
 /**
  * Places everything after the knockout: where B falls, A's route to the

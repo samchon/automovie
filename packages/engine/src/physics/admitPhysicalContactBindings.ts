@@ -1,5 +1,6 @@
 import type {
   IAutoMoviePhysicalContactBinding as Binding,
+  IAutoMovieFootfallPattern,
   IAutoMoviePhysicalProfile as P,
   IAutoMoviePhysicalPointBound as PointBound,
 } from "@automovie/interface";
@@ -132,8 +133,38 @@ export function admitPhysicalContactBindings(
         0,
       )
     : 0;
-  const endpoints: number =
-    (body.supportTracking?.pattern.limbs.length ?? 0) * 3;
+  const supportRows: Map<string, IAutoMovieFootfallPattern["limbs"][number]> =
+    new Map(
+      [body.balance?.pattern, body.supportTracking?.pattern]
+        .filter(
+          (
+            pattern: IAutoMovieFootfallPattern | undefined,
+          ): pattern is IAutoMovieFootfallPattern => pattern !== undefined,
+        )
+        .flatMap(
+          (
+            pattern: IAutoMovieFootfallPattern,
+          ): IAutoMovieFootfallPattern["limbs"] => pattern.limbs,
+        )
+        .map(
+          (
+            limb: IAutoMovieFootfallPattern["limbs"][number],
+          ): [string, IAutoMovieFootfallPattern["limbs"][number]] => [
+            JSON.stringify([
+              limb.bone,
+              limb.localPoint,
+              limb.contacts,
+              limb.floorPoints,
+            ]),
+            limb,
+          ],
+        ),
+    );
+  const endpoints: number = [...supportRows.values()].reduce(
+    (sum: number, limb: IAutoMovieFootfallPattern["limbs"][number]): number =>
+      sum + 4 + (limb.floorPoints?.length ?? 0),
+    0,
+  );
   const rows: number =
     shapes.length +
     self +

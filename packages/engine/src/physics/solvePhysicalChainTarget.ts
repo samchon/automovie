@@ -15,6 +15,7 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
  * This changes motor targets, never solved bodies. Each angular update stays
  * inside its source-derived box limit and rotates the complete child subtree.
  * The returned residual explicitly retains an unreachable endpoint goal.
+ * Unchanged branches are borrowed; every written pose shell is detached first.
  */
 export function solvePhysicalChainTarget(input: {
   /** Admitted physical tree and angular coordinates. */ profile: P;
@@ -37,25 +38,33 @@ export function solvePhysicalChainTarget(input: {
     ![input.goal.x, input.goal.y, input.goal.z].every(Number.isFinite)
   )
     throw new Error("Invalid physical chain target or work budget");
-  const targets: Record<string, P.ITransform> = structuredClone(input.targets);
+  const targets: Record<string, P.ITransform> = { ...input.targets };
+  const owned: Set<string> = new Set();
+  const parents: Map<string, P.IJoint> = new Map();
+  const children: Map<string, string[]> = new Map();
+  for (const joint of input.profile.joints) {
+    parents.set(joint.child, joint);
+    const list: string[] = children.get(joint.parent) ?? [];
+    list.push(joint.child);
+    children.set(joint.parent, list);
+  }
   const endpoint: string = input.chain.at(-1)!;
   const joints: P.IJoint[] = input.chain
-    .map((bone: string): P.IJoint | undefined =>
-      input.profile.joints.find(
-        (joint: (typeof input.profile.joints)[number]): boolean =>
-          joint.child === bone,
-      ),
-    )
+    .map((bone: string): P.IJoint | undefined => parents.get(bone))
     .filter(
       (joint: P.IJoint | undefined): joint is P.IJoint => joint !== undefined,
     )
     .reverse();
   const descendants: Map<string, string[]> = new Map(
     joints.map((joint: (typeof joints)[number]): [string, string[]] => {
-      const bones: Set<string> = new Set([joint.child]);
-      for (let pass: number = 0; pass < input.profile.segments.length; pass++)
-        for (const candidate of input.profile.joints)
-          if (bones.has(candidate.parent)) bones.add(candidate.child);
+      const bones: Set<string> = new Set();
+      const pending: string[] = [joint.child];
+      while (pending.length) {
+        const bone: string = pending.pop()!;
+        if (bones.has(bone)) continue;
+        bones.add(bone);
+        pending.push(...(children.get(bone) ?? []));
+      }
       return [joint.id, [...bones]];
     }),
   );
@@ -143,6 +152,11 @@ export function solvePhysicalChainTarget(input: {
       joint,
       candidate,
     );
+    for (const bone of descendants.get(joint.id)!)
+      if (!owned.has(bone)) {
+        targets[bone] = { ...targets[bone]! };
+        owned.add(bone);
+      }
     setPhysicalTargetJointRotation(
       targets,
       joint,

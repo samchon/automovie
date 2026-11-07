@@ -1,6 +1,7 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 import { FighterBody } from "../fighter/FighterBody";
-import { Ease } from "../rig/Ease";
 
 /**
  * The receiver's answer to one attack: defence, evasion or hit reaction.
@@ -219,7 +220,9 @@ export namespace Reaction {
           // receiver's own answering punch after the impact.
           const current: FighterBody.Hand = frame.hands[side];
           const answering: boolean =
-            t > at && (current.kind === "attack" || current.kind === "swing");
+            t > at &&
+            (current.kind === "attack" ||
+              (current.kind === "guard" && (current.extension ?? 0) > 0));
           if (t < at + 0.5 && !answering)
             FighterBody.assign(
               frame,

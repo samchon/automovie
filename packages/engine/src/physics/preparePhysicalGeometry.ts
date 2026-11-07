@@ -6,7 +6,9 @@ import RAPIER from "@dimforge/rapier3d-compat";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { isPhysicalNativeNumber } from "./isPhysicalNativeNumber";
 import { physicalNativeShape } from "./physicalNativeShape";
+import { physicalNativeVector } from "./physicalNativeVector";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 
 /**
@@ -59,6 +61,9 @@ export async function preparePhysicalGeometry(): Promise<preparePhysicalGeometry
         return null;
       const first: P.ITransform = place(a.pose, a.shape.transform);
       const second: P.ITransform = place(b.pose, b.shape.transform);
+      const search: number = prediction + rounding;
+      if (!isPhysicalNativeNumber(search))
+        throw new Error("Derived native contact prediction exceeds f32 range");
       const measured: RAPIER.ShapeContact | null = physicalNativeShape(
         a.shape,
       ).contactShape(
@@ -67,9 +72,12 @@ export async function preparePhysicalGeometry(): Promise<preparePhysicalGeometry
         physicalNativeShape(b.shape),
         second.position,
         second.rotation,
-        prediction,
+        search,
       );
       if (!measured) return null;
+      if (!isPhysicalNativeNumber(measured.distance))
+        throw new Error("Nonfinite native geometric contact distance");
+      if (measured.distance > prediction) return null;
       return {
         id: `geometry:${a.body}/${a.bone}/${a.shape.id}:${b.body}/${b.bone}/${b.shape.id}:${seconds}`,
         source: "geometric",
@@ -87,11 +95,10 @@ export async function preparePhysicalGeometry(): Promise<preparePhysicalGeometry
           shape: b.shape.id,
           material: b.shape.material,
         },
-        point: Vector3.scale(
-          Vector3.add(measured.point1, measured.point2),
-          0.5,
+        point: physicalNativeVector(
+          Vector3.scale(Vector3.add(measured.point1, measured.point2), 0.5),
         ),
-        normal: { ...measured.normal1 },
+        normal: physicalNativeVector({ ...measured.normal1 }),
         impulse: null,
         separation: measured.distance,
         compression: Math.max(0, -measured.distance),
@@ -106,12 +113,14 @@ export async function preparePhysicalGeometry(): Promise<preparePhysicalGeometry
     ): P.ITransform["position"] => {
       const pose: P.ITransform = place(collider.pose, collider.shape.transform);
       return {
-        ...physicalNativeShape(collider.shape).projectPoint(
-          pose.position,
-          pose.rotation,
-          point,
-          false,
-        ).point,
+        ...physicalNativeVector(
+          physicalNativeShape(collider.shape).projectPoint(
+            pose.position,
+            pose.rotation,
+            physicalNativeVector(point),
+            false,
+          ).point,
+        ),
       };
     },
   };
@@ -147,11 +156,15 @@ export namespace preparePhysicalGeometry {
 
 /** Compose bone and local shape transforms in the same world frame. */
 function place(parent: P.ITransform, local: P.ITransform): P.ITransform {
-  return {
+  const result: P.ITransform = {
     position: Vector3.add(
       parent.position,
       Quaternion.rotateVector(parent.rotation, local.position),
     ),
     rotation: Quaternion.multiply(parent.rotation, local.rotation),
   };
+  physicalNativeVector(result.position);
+  if (!Object.values(result.rotation).every(isPhysicalNativeNumber))
+    throw new Error("Derived native shape rotation exceeds f32 range");
+  return result;
 }

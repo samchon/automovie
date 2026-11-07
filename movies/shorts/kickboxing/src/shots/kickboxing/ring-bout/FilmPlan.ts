@@ -1,7 +1,8 @@
+import { AutoMovieEnvelope as Ease } from "@automovie/engine";
+
 import { Blocking } from "../../../motion/defense/Blocking";
 import { Aftermath } from "../../../motion/reactions/Aftermath";
-import { Ease } from "../../../motion/rig/Ease";
-import { Vec3 } from "../../../motion/rig/Vec3";
+import { FilmVector as Vec3 } from "../../../motion/rig/FilmVector";
 import { BoutScript } from "./BoutScript";
 
 /**
@@ -53,9 +54,12 @@ export namespace FilmPlan {
    * @evidence contracts/common.md#authoring-interface Film seconds; optional fields depend on the kind.
    */
   export interface Event {
-    /** Stable cue identity shared by Viewer and export. */ id: string;
-    /** Film second. */ seconds: number;
-    /** Kind of cue. */ kind:
+    /** Stable cue identity shared by Viewer and export. */
+    id: string;
+    /** Film second. */
+    seconds: number;
+    /** Kind of cue. */
+    kind:
       | "bell"
       | "touch"
       | "attempt"
@@ -69,18 +73,33 @@ export namespace FilmPlan {
       | "fall"
       | "ambience"
       | "breath";
-    /** Acting performer. */ actorId: ActorId;
-    /** Receiving performer. */ targetId?: ActorId;
-    /** Exact action identity. */ actionId?: string;
-    /** Requested contact relation; the measured receipt must agree. */ relation?:
-      | "guard"
-      | "body"
-      | "head"
-      | "shin-check";
-    /** Spoken count in [1, 10]. */ count?: number;
-    /** Referee phrase. */ speech?: "fight" | "down" | "neutral" | "decision";
-    /** Audible window, seconds. */ durationSeconds?: number;
-    /** Action whose measured contact gates this cue. */ requiresContact?: string;
+    /** Acting performer. */
+    actorId: ActorId;
+    /** Receiving performer. */
+    targetId?: ActorId;
+    /** Exact action identity. */
+    actionId?: string;
+    /** Requested contact relation; the measured receipt must agree. */
+    relation?: "guard" | "body" | "head" | "shin-check";
+    /** Spoken count in [1, 10]. */
+    count?: number;
+    /** Referee phrase. */
+    speech?: "fight" | "down" | "neutral" | "decision";
+    /** Audible window, seconds. */
+    durationSeconds?: number;
+    /** Action whose measured contact gates this cue. */
+    requiresContact?: string;
+    /** Actual foot/floor arrival and its control owner; geometric arrivals carry no solved impulse claim. */
+    footfall?: {
+      source: "solver" | "geometric";
+      ownership: "authored" | "return" | "dynamic";
+      /** Absolute actual measurement/landing time used by the authoritative ownership sampler. */ ownershipSeconds: number;
+      bone: string;
+      contactSeconds: number;
+      confirmedSeconds: number;
+      receiptIds: string[];
+      /** Exact substep confirmation, when a recovery landed inside the receipt's containing cache interval. */ recoverySeconds?: number;
+    };
   }
 
   /**
@@ -90,10 +109,14 @@ export namespace FilmPlan {
    * @evidence contracts/common.md#authoring-interface World metres; vertical field of view in degrees.
    */
   export interface Camera {
-    /** Edit identity. */ shotId: string;
-    /** World camera centre, metres. */ position: [number, number, number];
-    /** World look-at point, metres. */ target: [number, number, number];
-    /** Vertical field of view, degrees. */ fovDegrees: number;
+    /** Edit identity. */
+    shotId: string;
+    /** World camera centre, metres. */
+    position: [number, number, number];
+    /** World look-at point, metres. */
+    target: [number, number, number];
+    /** Vertical field of view, degrees. */
+    fovDegrees: number;
   }
 
   /**

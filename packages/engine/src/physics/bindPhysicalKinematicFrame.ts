@@ -18,13 +18,13 @@ export function bindPhysicalKinematicFrame(
   previous: Cache.IFrame | undefined,
   geometry: Geometry.IQueries,
   contacts: IAutoMovieContactReceipt[],
-): Cache.IFrame {
-  const profiles: Record<string, P> = Object.fromEntries(
+  profiles: Record<string, P> = Object.fromEntries(
     input.bodies.map((body: Simulation.IBody): [string, P] => [
       body.id,
       body.profile,
     ]),
-  );
+  ),
+): Cache.IFrame {
   const actual: Cache.IFrame["bodies"] = frame.bodies;
   const bodies: Cache.IFrame["bodies"] = { ...actual };
   for (const body of input.bodies) {
@@ -43,7 +43,15 @@ export function bindPhysicalKinematicFrame(
       bindings: target.bindings ?? [],
       pointBounds: target.pointBounds,
       selfAvoidance: body.selfAvoidance,
-      supports: physicalContactSupportGoals(body, target, target.segments),
+      supports: physicalContactSupportGoals(
+        body,
+        target,
+        input.floor,
+        input.contactTolerance!,
+        step / input.rate,
+        input.rate,
+        step,
+      ),
       geometry,
       floor: input.floor - input.contactTolerance!,
     }).targets;

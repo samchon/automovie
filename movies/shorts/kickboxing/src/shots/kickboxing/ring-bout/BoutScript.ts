@@ -59,11 +59,16 @@ export namespace BoutScript {
    * @evidence contracts/common.md#authoring-interface `at` is the film second of contact or closest pass; wind-up and recovery come from `specs`.
    */
   export interface Action {
-    /** Stable identity shared with sound cues and contact receipts. */ id: string;
-    /** Film second of contact or closest pass. */ at: number;
-    /** Attacker. */ actor: Fighter;
-    /** Technique. */ technique: Technique;
-    /** Receiver's answer. */ defense: Defense;
+    /** Stable identity shared with sound cues and contact receipts. */
+    id: string;
+    /** Film second of contact or closest pass. */
+    at: number;
+    /** Attacker. */
+    actor: Fighter;
+    /** Technique. */
+    technique: Technique;
+    /** Receiver's answer. */
+    defense: Defense;
   }
 
   /** Raw rows: [at, attacker, technique, defense]. */

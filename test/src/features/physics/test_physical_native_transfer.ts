@@ -29,7 +29,13 @@ export async function test_physical_native_transfer(): Promise<void> {
       PhysicalFixtures.sphere(0.1, compliance),
       1 / 120,
     );
-    for (const target of body.targets) target.segments.root!.position.y = 0.09;
+    // The full dynamic selection carries the declared incoming trajectory's
+    // one metre/second velocity at startup. An initial overlap alone does not
+    // prove that a positive native impulse reached the transfer guard.
+    for (const [index, target] of body.targets.entries()) {
+      target.dynamicSegments = ["root"];
+      target.segments.root!.position.y = 0.09 - index / 120;
+    }
     body.mode = {
       kind: "exaggerated",
       gravity: 1,
@@ -43,6 +49,20 @@ export async function test_physical_native_transfer(): Promise<void> {
     input.gravity.y = -9.81;
     input.substeps = 1;
     Simulation.identity(input);
+    const control: Simulation.IInput = structuredClone(input);
+    const controlMode: (typeof control.bodies)[number]["mode"] =
+      control.bodies[0]!.mode;
+    if (controlMode.kind === "exaggerated") controlMode.impulse = 1;
+    const observed: Simulation = await Simulation.compute(control);
+    TestValidator.predicate(
+      `real positive ${compliance === 0 ? "rigid" : "compliant"} floor transfer precedes the gain boundary`,
+      observed.cache.contacts.some(
+        (receipt: (typeof observed.cache.contacts)[number]): boolean =>
+          receipt.source === "solver" &&
+          (receipt.impulse ?? 0) > 0 &&
+          (receipt.a.body === "floor" || receipt.b.body === "floor"),
+      ),
+    );
     await assert.rejects(Simulation.compute(input), /Derived native vector/);
   }
   const stiff: Simulation.IBody = PhysicalFixtures.body(
@@ -50,7 +70,10 @@ export async function test_physical_native_transfer(): Promise<void> {
     PhysicalFixtures.sphere(0.1, 0.001),
     1 / 120,
   );
-  for (const target of stiff.targets) target.segments.root!.position.y = 0.09;
+  for (const [index, target] of stiff.targets.entries()) {
+    target.dynamicSegments = ["root"];
+    target.segments.root!.position.y = 0.09 - index / 120;
+  }
   stiff.mode = {
     kind: "exaggerated",
     gravity: 1,

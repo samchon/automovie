@@ -39,17 +39,20 @@ export namespace AudioMix {
    * @evidence contracts/common.md#authoring-interface Seconds are absolute film seconds, participant identities must match the planned event, and relation names the measured receiving surface. This structural input does not independently remeasure geometry.
    */
   export interface Contact {
-    /** Source-plan contact event. */ eventId: string;
-    /** Actual attacking action. */ actionId: string;
-    /** Attacker. */ actorId: FilmPlan.ActorId;
-    /** Receiver. */ targetId: FilmPlan.ActorId;
-    /** Actual first contact on the film clock. */ seconds: number;
-    /** Measured receiving surface. */ relation:
-      | "guard"
-      | "body"
-      | "head"
-      | "shin-check";
-    /** Actual runtime query and its limits. */ provenance: string;
+    /** Source-plan contact event. */
+    eventId: string;
+    /** Actual attacking action. */
+    actionId: string;
+    /** Attacker. */
+    actorId: FilmPlan.ActorId;
+    /** Receiver. */
+    targetId: FilmPlan.ActorId;
+    /** Actual first contact on the film clock. */
+    seconds: number;
+    /** Measured receiving surface. */
+    relation: "guard" | "body" | "head" | "shin-check";
+    /** Actual runtime query and its limits. */
+    provenance: string;
   }
 
   /**
@@ -59,11 +62,16 @@ export namespace AudioMix {
    * @evidence contracts/common.md#authoring-interface Event id matches a fall request, seconds use the absolute film clock and provenance states the actual query and sampling limitation. The mixer does not infer a ground strike from a falling pose.
    */
   export interface FloorContact {
-    /** Matching fall event identity. */ eventId: string;
-    /** Falling actor. */ actorId: FilmPlan.ActorId;
-    /** Measured arrival on the film clock. */ seconds: number;
-    /** Distinct region arriving at the mat. */ bodyPart: "hip" | "shoulder";
-    /** Actual query and finite-sampling limitations. */ provenance: string;
+    /** Matching fall event identity. */
+    eventId: string;
+    /** Falling actor. */
+    actorId: FilmPlan.ActorId;
+    /** Measured arrival on the film clock. */
+    seconds: number;
+    /** Distinct region arriving at the mat. */
+    bodyPart: "hip" | "shoulder";
+    /** Actual query and finite-sampling limitations. */
+    provenance: string;
   }
 
   /**
@@ -73,15 +81,26 @@ export namespace AudioMix {
    * @evidence contracts/common.md#authoring-interface Seconds, offsetSeconds and durationSeconds are seconds; gain is linear amplitude, pan is [-1,1], and rate is source seconds per film second. Duration describes film time after rate conversion.
    */
   export interface Cue {
-    /** Unique schedule identity. */ id: string;
-    /** Absolute audible onset. */ seconds: number;
-    /** Fixed retained sample identity. */ source: Source;
-    /** Offset into the prepared PCM recording. */ offsetSeconds: number;
-    /** Audible duration on the film clock. */ durationSeconds: number;
-    /** Linear amplitude before the fixed master. */ gain: number;
-    /** Equal-power stereo position. */ pan: number;
-    /** Source samples per output sample. */ rate: number;
-    /** Required actual contact identity for an impact, otherwise absent. */ contactId?: string;
+    /** Unique schedule identity. */
+    id: string;
+    /** Absolute audible onset. */
+    seconds: number;
+    /** Fixed retained sample identity. */
+    source: Source;
+    /** Offset into the prepared PCM recording. */
+    offsetSeconds: number;
+    /** Audible duration on the film clock. */
+    durationSeconds: number;
+    /** Linear amplitude before the fixed master. */
+    gain: number;
+    /** Equal-power stereo position. */
+    pan: number;
+    /** Source samples per output sample. */
+    rate: number;
+    /** Required actual contact identity for an impact, otherwise absent. */
+    contactId?: string;
+    /** Replayable foot arrival provenance from the same actual displayed state. */
+    footfall?: FilmPlan.Event["footfall"];
   }
 
   /**
@@ -165,6 +184,9 @@ export namespace AudioMix {
           pan,
           rate,
           ...(contactId === undefined ? {} : { contactId }),
+          ...(event.footfall === undefined
+            ? {}
+            : { footfall: structuredClone(event.footfall) }),
         });
       };
       if (event.kind === "contact" || event.kind === "touch") {
@@ -215,6 +237,29 @@ export namespace AudioMix {
       } else if (event.kind === "attempt" || event.kind === "miss")
         add("air", 0.15, event.kind === "miss" ? 0.12 : 0.06);
       else if (event.kind === "step") {
+        const arrival: FilmPlan.Event["footfall"] = event.footfall;
+        if (
+          arrival &&
+          (!["solver", "geometric"].includes(arrival.source) ||
+            !["authored", "return", "dynamic"].includes(arrival.ownership) ||
+            (arrival.source === "solver") !==
+              (arrival.ownership === "dynamic") ||
+            !arrival.bone.trim() ||
+            !Number.isFinite(arrival.contactSeconds) ||
+            arrival.contactSeconds < 0 ||
+            arrival.contactSeconds > event.seconds ||
+            !Number.isFinite(arrival.ownershipSeconds) ||
+            arrival.ownershipSeconds < arrival.contactSeconds ||
+            arrival.ownershipSeconds > event.seconds ||
+            arrival.confirmedSeconds !== event.seconds ||
+            (arrival.recoverySeconds !== undefined &&
+              (!Number.isFinite(arrival.recoverySeconds) ||
+                arrival.recoverySeconds > event.seconds)) ||
+            !arrival.receiptIds.length ||
+            new Set(arrival.receiptIds).size !== arrival.receiptIds.length ||
+            arrival.receiptIds.some((id: string): boolean => !id.trim()))
+        )
+          throw new Error(`Invalid footfall provenance: ${event.id}`);
         const variation: number =
           [...event.id].reduce(
             (sum: number, character: string): number =>

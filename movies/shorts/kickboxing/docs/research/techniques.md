@@ -100,7 +100,7 @@ For a head-height attack, [Skarbowsky’s original publisher](https://dynamicstr
 **Phase constraints:**
 
 1. **Preparation/chamber:** Establish support before lifting the other foot. Hip flexion/abduction and knee flexion place the thigh and compact the distal leg; avoid an isolated knee hinge with a motionless pelvis.
-2. **Turn and delivery:** Couple pelvis/hip rotation, support-foot yaw and permitted heel release. The support knee follows a plausible leg plane. Let the shin approach the actual target while the free arm guards and the other arm may balance. A bent knee can remain at delivery; extension is not an instruction to lock it.
+2. **Turn and delivery:** Couple pelvis/hip rotation, support-foot yaw and permitted heel release. The support knee follows a plausible leg plane. Under the owner's [current guard choice](kick-guard.md), extend the kicking-side hand forward at the protective head line and retain the opposite glove at the head. Keep that protection during recoil and replant. A bent knee can remain at delivery; extension is not an instruction to lock it.
 3. **Impact:** Author the receiving forearm/rib/guard region and the attacking shin surface separately. Recompute both witnesses after all FK/root solves. The target residual, mesh clearance and visible reaction are different evidence.
 4. **Recoil:** Clear the receiver and recover the knee/hip path rather than teleporting the foot backward through the target. Preserve balance and hand recovery through the transition.
 5. **Landing/stance:** Replant in an available stagger, settle support and reconnect the next step or punch. Fig.3 alone does not show landing; Chan's later selected frames provide that missing phase for this body-kick demonstration.

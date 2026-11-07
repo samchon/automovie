@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 
 import { createPersonParameters } from "../../../../src/assets/person/createPersonParameters";
-import { BodyRig } from "../../../../src/motion/rig/BodyRig";
+import { FilmBodyRig as BodyRig } from "../../../../src/motion/rig/FilmBodyRig";
+import { FilmVector as Vec3 } from "../../../../src/motion/rig/FilmVector";
 import { Foot } from "../../../../src/motion/rig/Foot";
-import { Vec3 } from "../../../../src/motion/rig/Vec3";
 
 /**
  * The limb solver reaches reachable goals in a turned, lowered fighting stance and stays bounded otherwise.

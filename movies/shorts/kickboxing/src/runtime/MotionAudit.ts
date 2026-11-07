@@ -1,5 +1,5 @@
 import { Reaction } from "../motion/reactions/Reaction";
-import { Vec3 } from "../motion/rig/Vec3";
+import { FilmVector as Vec3 } from "../motion/rig/FilmVector";
 import { Strike } from "../motion/striking/Strike";
 import { BoutScript } from "../shots/kickboxing/ring-bout/BoutScript";
 import type { FilmRuntime } from "./FilmRuntime";
@@ -19,9 +19,12 @@ export namespace MotionAudit {
    * @evidence contracts/common.md#authoring-interface Value units depend on the field; seconds are film seconds.
    */
   export interface Worst {
-    /** Measured value. */ value: number;
-    /** Film second. */ seconds: number;
-    /** What was measured. */ label: string;
+    /** Measured value. */
+    value: number;
+    /** Film second. */
+    seconds: number;
+    /** What was measured. */
+    label: string;
   }
 
   /**
@@ -31,17 +34,28 @@ export namespace MotionAudit {
    * @evidence contracts/common.md#authoring-interface Metres, m/s and degrees as named.
    */
   export interface Report {
-    /** Samples evaluated. */ samples: number;
-    /** Planted-foot ankle goal error of the fighters. */ plantedFoot: Worst;
-    /** Planted-foot ankle goal error of the referee. */ refereeFoot: Worst;
-    /** Any other limb goal error (gloves, kicks, lying limbs). */ freeLimb: Worst;
-    /** Planted foot ball distance from its body root (feet left behind). */ footSpread: Worst;
-    /** Trunk/head joint speed. */ trunkSpeed: Worst;
-    /** Hand/foot joint speed. */ limbSpeed: Worst;
-    /** Trunk or head interpenetration between A and B. */ bodyOverlap: Worst;
-    /** Limb interpenetration outside any scripted strike/defence window. */ limbOverlap: Worst;
-    /** Lowest body point below the canvas (positive = below). */ canvas: Worst;
-    /** Smallest knee flexion of a planted fighting-stance leg, degrees. */ straightKnee: Worst;
+    /** Samples evaluated. */
+    samples: number;
+    /** Planted-foot ankle goal error of the fighters. */
+    plantedFoot: Worst;
+    /** Planted-foot ankle goal error of the referee. */
+    refereeFoot: Worst;
+    /** Any other limb goal error (gloves, kicks, lying limbs). */
+    freeLimb: Worst;
+    /** Planted foot ball distance from its body root (feet left behind). */
+    footSpread: Worst;
+    /** Trunk/head joint speed. */
+    trunkSpeed: Worst;
+    /** Hand/foot joint speed. */
+    limbSpeed: Worst;
+    /** Trunk or head interpenetration between A and B. */
+    bodyOverlap: Worst;
+    /** Limb interpenetration outside any scripted strike/defence window. */
+    limbOverlap: Worst;
+    /** Lowest body point below the canvas (positive = below). */
+    canvas: Worst;
+    /** Smallest knee flexion of a planted fighting-stance leg, degrees. */
+    straightKnee: Worst;
   }
 
   /**
@@ -209,11 +223,16 @@ export namespace MotionAudit {
 
   /** A body capsule between two joints. */
   interface Capsule {
-    /** Part name. */ name: string;
-    /** Segment start, world metres. */ from: Vec3.Value;
-    /** Segment end, world metres. */ to: Vec3.Value;
-    /** Radius, metres. */ radius: number;
-    /** Trunk or head (never allowed to overlap). */ trunk: boolean;
+    /** Part name. */
+    name: string;
+    /** Segment start, world metres. */
+    from: Vec3.Value;
+    /** Segment end, world metres. */
+    to: Vec3.Value;
+    /** Radius, metres. */
+    radius: number;
+    /** Trunk or head (never allowed to overlap). */
+    trunk: boolean;
   }
 
   /** Capsules of one solved body. */

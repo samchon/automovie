@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 
-import { Footsteps } from "../../../../src/motion/footwork/Footsteps";
+import { BoutFootsteps as Footsteps } from "../../../../src/motion/footwork/BoutFootsteps";
 import type { Foot } from "../../../../src/motion/rig/Foot";
 
 /**
@@ -95,11 +95,24 @@ export function test_footsteps(): void {
     height: 0.06,
     lead: "left",
   });
-  for (const step of reserved.steps)
+  for (const step of reserved.steps.filter(
+    (entry: Footsteps.Step): boolean => entry.kind === "swing",
+  ))
     assert.ok(
       step.end <= 2 || step.start >= 2.6,
       "a foot swung during another foot's reservation",
     );
+  assert.equal(
+    reserved.steps.filter(
+      (step: Footsteps.Step): boolean =>
+        step.kind === "busy" &&
+        step.side === "right" &&
+        step.start === 2 &&
+        step.end === 2.6,
+    ).length,
+    1,
+    "the reservation remains explicit metadata rather than a scheduled swing",
+  );
   assert.equal(reserved.at("right", 2.3).phase, "busy");
   assert.ok(
     Math.abs(
