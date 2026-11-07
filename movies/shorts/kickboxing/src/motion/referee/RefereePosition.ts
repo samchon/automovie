@@ -71,7 +71,12 @@ export namespace RefereePosition {
     return V.lerp(track[low]!, track[low + 1]!, index - low);
   }
 
-  /** Simulate his ground position at {@link BoutRing.STEP} from a start point. */
+  /**
+   * Simulate his ground position at {@link BoutRing.STEP} from a start point.
+   * He moves around the pair's centre, never through it: his bearing from
+   * the centre turns toward the desired side and his distance toward the
+   * desired distance, together no faster than walking speed.
+   */
   export function simulate(pairs: readonly IPair[], start: V.Value): V.Value[] {
     const positions: V.Value[] = [start];
     let side: number = sideOf(pairs[0]!, start);
@@ -79,11 +84,24 @@ export namespace RefereePosition {
     for (const pair of pairs.slice(1)) {
       // Keep his side of the line unless that side has no room left.
       if (reach(pair, side) < NEAR && reach(pair, -side) > reach(pair, side)) side = -side;
-      const wanted: V.Value = desired(pair, side);
-      const delta: V.Value = V.sub(wanted, position);
-      const distance: number = V.length(delta);
-      const travel: number = Math.min(distance, WALK * BoutRing.STEP, (distance * BoutRing.STEP) / LAG);
-      position = inside(distance > 0 ? V.add(position, V.scale(delta, travel / distance)) : position);
+      const centre: V.Value = V.lerp(pair.a, pair.b, 0.5);
+      const wanted: V.Value = V.sub(desired(pair, side), centre);
+      const current: V.Value = V.sub(position, centre);
+      const radius: number = Math.max(NEAR, V.length([current[0], 0, current[2]]));
+      const bearing: number = Math.atan2(current[2], current[0]);
+      const turn: number = Math.atan2(Math.sin(Math.atan2(wanted[2], wanted[0]) - bearing), Math.cos(Math.atan2(wanted[2], wanted[0]) - bearing));
+      const change: number = V.length(wanted) - radius;
+      const lag: number = Math.min(1, BoutRing.STEP / LAG);
+      let arc: number = turn * radius * lag;
+      let out: number = change * lag;
+      const travel: number = Math.hypot(arc, out);
+      const limit: number = WALK * BoutRing.STEP;
+      if (travel > limit) {
+        arc *= limit / travel;
+        out *= limit / travel;
+      }
+      const angle: number = bearing + arc / radius;
+      position = inside(V.add(centre, [Math.cos(angle) * (radius + out), 0, Math.sin(angle) * (radius + out)]));
       positions.push(position);
     }
     return positions;

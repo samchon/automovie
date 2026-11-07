@@ -184,3 +184,5 @@ The same retained MIT chapter was reread at its full-extension Jacobian example,
 ## Championship exchanges, 2026-11-07
 
 The bout's combinations, feints, checks, clinch rule and Brazilian-kick finish follow the web sources cited in [championship exchanges](championship-exchanges.md). No media was retained for that study.
+
+The ring-generalship footwork, referee positioning and fight-coverage laws, with the measurable targets the movie's unit tests check, follow the sources cited in [ring craft](ring-craft.md). The finish's reachability on the real rig is measured in [Brazilian kick feasibility](brazilian-kick-feasibility.md). No media was retained for either study; the officiating manual and the time-motion paper were read from their original public PDFs.

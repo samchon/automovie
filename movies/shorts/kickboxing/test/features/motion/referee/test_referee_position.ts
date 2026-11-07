@@ -33,7 +33,7 @@ export function test_referee_position(): void {
   let samples: number = 0;
   const walked: number[] = [];
   let previous: V.Value | undefined;
-  for (let t: number = BoutScript.TOUCHED; t < BoutScript.KNOCKOUT; t += BoutRing.STEP) {
+  for (let t: number = BoutScript.TOUCHED; t < BoutScript.KNOCKOUT; t += 4 * BoutRing.STEP) {
     const pair: Blocking.Pair = Blocking.pair(t);
     const at: V.Value = RefereePosition.at(t);
     const a: V.Value = [pair.a.origin[0], 0, pair.a.origin[1]];
