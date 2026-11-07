@@ -8,7 +8,7 @@ Use the user's supplied recordings or chosen provider first, and [research](../s
 
 ## Adopt a take
 
-Keep accepted bytes in [media](../production/media.md) with their creator, source, license, attribution, content digest and generation settings; a regeneration is a new take until reviewed, and a seed does not preserve accepted bytes. Convert to the installed decoder's admitted format while keeping the original. Keep an accepted music take's tempo map and cue sheet beside it: they are the anchors the screenplay's music events and the scenes' timing cite. Measure durations and trims from the accepted bytes, place dialogue, captions, mouth motion, cuts and cues against them, and when a line does not fit, edit the take, script or shot intentionally and listen to the result.
+Keep accepted bytes in [media](../production/media.md) with their creator, source, license, attribution, content digest and generation settings; a regeneration is a new take until reviewed, and a seed does not preserve accepted bytes. Convert to the installed decoder's admitted format while keeping the original. Keep an accepted music take's tempo map and cue sheet beside it: they are the anchors the screenplay's music events and the scenes' timing cite. Measure durations and trims from the accepted bytes, place dialogue, captions, cuts and cues against them, and when a line does not fit, edit the take, script or shot intentionally and listen to the result.
 
 ## Listen
 
