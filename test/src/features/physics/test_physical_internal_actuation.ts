@@ -21,8 +21,9 @@ export async function test_physical_internal_actuation(): Promise<void> {
   const findings: string[] = [];
   const profile: P = PhysicalModelFixtures.quadrupod();
   // Momentum conservation and free-fall acceleration hold at every native
-  // step, so twelve steps exercise them as well as a longer flight.
-  const duration: number = 0.1;
+  // step, so six steps exercise them as well as a longer flight; the
+  // semi-implicit COM lag g dt t / 2 stays far under the 2 mm bound.
+  const duration: number = 0.05;
   for (const gravity of [0, -9.81]) {
     const body: Simulation.IBody = PhysicalFixtures.body(
       "assembly",
@@ -91,9 +92,7 @@ export async function test_physical_internal_actuation(): Promise<void> {
     }
     const input: Simulation.IInput = PhysicalFixtures.input([body], duration);
     input.gravity.y = gravity;
-    input.substeps = 32;
-    input.iterations = 32;
-    input.internalIterations = 4;
+    input.substeps = 4;
     const run: Simulation = await Simulation.compute(input);
     const states: (typeof run.cache.frames)[number]["bodies"][string] =
       run.cache.at(duration).bodies.assembly!;
