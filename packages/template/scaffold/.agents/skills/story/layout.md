@@ -14,9 +14,9 @@ Commit instructions, creative bodies and evidence answers. Review, naturalness a
 | `docs/body/treatments/NNN-event.md` | Flat ordered events, causes, consequences, and information release |
 | `docs/body/scripts/NNN-part/NNN-episode.md` | Executable scenes and release partition, with part indexes |
 | `docs/body/screenplay/<film>.md`, or `NNN-part/NNN-episode.md` for several videos | Complete final audiovisual text, one file per delivered video, whose name the film and its media reuse; long work preserves its script partition |
-| `docs/research/index.md`, `docs/research/<discipline>/<topic>.md` | The source index and the studies of each practice: laws, outcome tables and measurable targets, under [research](planning/research.md) |
+| `docs/research/index.md`, `docs/research/<discipline>/<topic>.md` | The source index and the studies of each practice and style: laws, outcome tables and measurable targets, under [research](planning/research.md) |
 | `docs/acceptance/<film>.md` | The film's tracked acceptance checklist and its observed results, under [delivery review](../review/delivery.md) |
-| `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files, including `files/research/` for the performance studies |
+| `docs/evidence/construction/{units,files}/<layer>/...` | Separate construction answers for units and whole files, including `files/research/` for the research studies |
 | Ignored `docs/review/{draft,final}/<layer>/<relative-file>.md` | Current independent unit reviews mirroring the actual body or working edition |
 | Ignored `docs/review/{draft,final}/<layer>/verdict/index.md` | Current complete-population verdict, findings and author decisions |
 | Ignored `docs/naturalness/`, `docs/revision/` | Frozen and working screenplay editions retained while their cycle needs them |

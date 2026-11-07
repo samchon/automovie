@@ -8,7 +8,7 @@ Keep the default engineering claims: every source declaration and test answers i
 
 ## Story
 
-Choose the mode from the route [workflow](../story/workflow.md#route-and-parents) adopted: `long`, or `short-with-settings` for a short. Enable each layer's construction and the screenplay's naturalness stage as its complete draft becomes ready; a stage is never activated by file presence. Set `research: "evidence"` once the performance studies exist. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
+Choose the mode from the route [workflow](../story/workflow.md#route-and-parents) adopted: `long`, or `short-with-settings` for a short. Enable each layer's construction and the screenplay's naturalness stage as its complete draft becomes ready; a stage is never activated by file presence. Set `research: "evidence"` once the research studies exist. Complete work is the default scope; a pilot follows [scope expansion](../story/correction/repair.md#scope-expansion).
 
 Scripts expression and population questions use scripts construction with `pass: "draft"`; only screenplay expression uses `pass: "final"`. A contract folder named `naturalness` does not choose its pass.
 

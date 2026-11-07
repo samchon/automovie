@@ -1,6 +1,6 @@
 ---
 name: contracts-story
-description: Maps the story checklists, from performance research and settings through treatments, scripts and the final screenplay to naturalness, discovery and review, onto their unit and population respondents. Use before selecting, answering or citing a story contract item.
+description: Maps the story checklists, from research and settings through treatments, scripts and the final screenplay to naturalness, discovery and review, onto their unit and population respondents. Use before selecting, answering or citing a story contract item.
 ---
 
 # Story contracts
@@ -12,12 +12,12 @@ Each checklist H2 asks its named respondent a question. Principles apply to an a
 | Family | Unit or record questions | Complete-population questions |
 | --- | --- | --- |
 | Shared ownership | [Common principles](shared/principles/common.md) | [Common obligations](shared/obligations/common.md) |
-| Performance research | [Studied practice and sources](shared/principles/research.md), answered by each study | |
+| Research | [Studied practice and sources](shared/principles/research.md), answered by each study | |
 | Settings | [Usable records and boundaries](shared/principles/settings.md) | [World, scope, people, and audiovisual consistency](shared/obligations/settings.md) |
 | Settings index | [Reference groups](shared/principles/index.md) | [Whole-index navigation](shared/obligations/index.md) |
 | Treatments | [Decided events and information](shared/principles/treatments.md) | [Whole event design and handoff](shared/obligations/treatments.md) |
 | Scripts | [Executable scenes and staging](shared/principles/scripts.md) | [Partition and complete execution](shared/obligations/scripts.md) |
-| Final screenplay | [Audiovisual realization](shared/principles/screenplay.md) | [Delivery and version accountability](shared/obligations/screenplay.md) |
+| Final screenplay | [Audiovisual realization and beat decisions](shared/principles/screenplay.md) | [Delivery and version accountability](shared/obligations/screenplay.md) |
 | Narrative | [Progression and layer contribution](shared/principles/narratives.md) | [Continuity, promises, and distribution](shared/obligations/narratives.md) |
 | Actual speech | [Speakers and action order](shared/principles/realized.md) | [Finished voice distribution](shared/naturalness/obligations/realized.md) |
 | Independent review | [Grounded reading and literal audit](shared/principles/review.md) | [Complete rounds and verdict](shared/obligations/review.md) |
