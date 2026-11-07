@@ -14,10 +14,13 @@ Ouergui et al. timed 45 elite bouts from two WAKO world championships ([Time-mot
 
 The study counts steps, slides, bounces, turns and feints as low-intensity activity. Movement between attacks therefore fills about half of the fight.
 
+Romanenko analysed 161 bouts from the 2022 WAKO World Championship and the 2023 European Championship, with 39 semifinal and final bouts compared statistically ([Comparative analysis of competitive activity in ring disciplines of kickboxing](https://journals.uran.ua/martial_arts/article/download/341569/330356/795080), Martial Arts 4(38), 2025, CC BY 4.0). In K1, as in the other ring disciplines, series are mostly built from punches, and kicks prepare or finish them. Short two-strike combinations dominate, and in K1 the mixed punch–kick and kick–punch sequences are typical. The extracted text reports single-to-series strike ratios of 0.50:1 and 0.48:1, so about two thirds of all strikes are thrown in series. The Ukrainian body text did not extract legibly, so this page does not attribute those two ratios to particular disciplines.
+
 Adopted targets for the composed bout:
 
 - Exchanges separated by resets whose mean lies inside one standard deviation of 3.4 s.
-- At least 75% of strikes are thrown inside combinations of two or more, and at least 85% of exchanges contain a combination, following the Dutch combination style in [championship exchanges](championship-exchanges.md#combinations). The exceptions are single counters, the teep that resets range and the clinch knee, which GLORY limits to one strike.
+- At least 75% of strikes are thrown inside combinations of two or more, and at least 85% of exchanges contain a combination, following the Dutch combination style in [championship exchanges](championship-exchanges.md#combinations). This is deliberately denser than the roughly two thirds observed in championship bouts, because the film compresses a championship round into 150 seconds of action. The exceptions are single counters, the teep that resets range and the clinch knee, which GLORY limits to one strike.
+- Kicks prepare or finish a combination rather than standing alone, except checks, teeps and the clinch knee.
 
 ## Ring generalship and footwork {#footwork}
 
