@@ -7,8 +7,7 @@ import { BoutComposition } from "./BoutComposition";
 /**
  * The performed bout every motion, contact, sound and audit module reads: the
  * screenplay {@link BoutComposition} performed for the film seed, with each
- * computed outcome's visible answer, plus the ring geography the camera and
- * stance follow.
+ * computed outcome's visible answer and the neutral range the stance keeps.
  */
 export namespace BoutScript {
   /** End of the opening glove touch, film seconds. */
@@ -56,31 +55,6 @@ export namespace BoutScript {
 
   /** Registered technique timing, reach and target, read by every motion module. */
   export const specs: Readonly<Record<Technique, BoutTechnique.ISpec>> = BoutTechnique.registry;
-
-  /**
-   * Ring geography: [film second, centre X, centre Z, axis angle].
-   *
-   * The axis angle is the world heading from A toward B (0 = +X). The pair
-   * drifts and turns slowly; camera framing follows these keys.
-   */
-  export const geography: readonly (readonly [
-    number,
-    number,
-    number,
-    number,
-  ])[] = [
-    [0, 0, 0, 0],
-    [15, 0.35, 0.25, 0.25],
-    [30, 0.1, -0.35, -0.2],
-    [45, -0.4, -0.1, 0.15],
-    [60, -0.2, 0.3, 0.35],
-    [75, 0.3, 0.1, -0.1],
-    [90, 0.2, -0.4, -0.35],
-    [105, -0.1, 0.0, 0.0],
-    [120, -0.6, 0.15, 0.3],
-    [135, -0.1, 0.2, 0.05],
-    [150, 0.05, -0.1, -0.15],
-  ];
 
   /**
    * Stance-origin distance when neither fighter is attacking, metres: outside

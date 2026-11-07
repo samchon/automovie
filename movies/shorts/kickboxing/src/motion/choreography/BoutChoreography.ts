@@ -27,9 +27,25 @@ export namespace BoutChoreography {
     /** Moves in order. */ readonly moves: readonly Move[];
   }
 
+  /**
+   * Where the exchange takes the pair in the ring, a screenplay beat realized
+   * by the ring-generalship laws for the fighter who moves: `circle` he
+   * circles off toward his lead side; `press` he walks the other back and
+   * cuts off the ring; `pivot` he pivots off the line onto an angle; `center`
+   * he retakes the centre of the ring.
+   */
+  export type Ring = "circle" | "press" | "pivot" | "center";
+
+  /** One ring beat and the fighter whose footwork carries it. */
+  export interface IRing {
+    /** Movement law. */ readonly beat: Ring;
+    /** Fighter who moves. */ readonly actor: Fighter;
+  }
+
   /** Phrases that answer one another without a reset, under a stable name that keys its variation. */
   export interface IExchange {
     /** Stable unique name. */ readonly name: string;
+    /** Ring beat of the reset into it and of the exchange itself; without one, the opener's receiver circles off. */ readonly ring?: IRing;
     /** Spread scale of this exchange's variation, multiplied with the film scale. */ readonly scale: number;
     /** Opening phrase first; each later phrase starts when its actor is free. */ readonly phrases: readonly IPhrase[];
   }
@@ -84,6 +100,11 @@ export namespace BoutChoreography {
   /** Phrases that answer one another, under a stable name. */
   export function exchange(name: string, ...phrases: IPhrase[]): IExchange {
     return { name, scale: 1, phrases };
+  }
+
+  /** The same exchange with the ring beat the screenplay states. */
+  export function ring(beat: Ring, actor: Fighter, value: IExchange): IExchange {
+    return { ...value, ring: { beat, actor } };
   }
 
   /** The same exchange with its variation spread scaled. */

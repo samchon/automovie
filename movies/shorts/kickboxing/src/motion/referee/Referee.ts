@@ -6,14 +6,16 @@ import type { FilmBodyRig as BodyRig } from "../rig/FilmBodyRig";
 import { FilmVector as Vec3 } from "../rig/FilmVector";
 import type { Foot } from "../rig/Foot";
 import { RefereeCues } from "./RefereeCues";
+import { RefereePosition } from "./RefereePosition";
 
 /**
  * The visible referee: position, walking steps, gaze and officiating gestures.
  *
- * During the bout he keeps about two metres from the fighting axis on the side
- * away from the camera, so he stays in frame behind the exchanges and never
- * crosses the fighters' paths. After the knockdown he follows the cue table
- * in {@link RefereeCues}.
+ * During the bout {@link RefereePosition} moves him continuously with the
+ * pair: a side view across their line, as far out as the ring allows,
+ * closing in on the ropes and in the clinch, in an officiating stance with
+ * both hands ready. After the knockdown he follows the cue table in
+ * {@link RefereeCues}.
  *
  * @evidence contracts/common.md#implementation-and-ownership Same footstep generator and IK as the fighters, with an upright walking stance (feet parallel, 0.42 s steps). Gestures are authored arm channels blended by smooth envelopes; gaze is a neck turn toward a world point. Closed-form in film time.
  * @evidence contracts/common.md#authoring-interface `frame(t)` returns an ordinary performer frame. World metres, radians for headings, degrees for joints.
@@ -46,7 +48,7 @@ export class Referee {
   /**
    * Where the referee stands and faces.
    *
-   * @evidence contracts/common.md#implementation-and-ownership Keeps 2.05 m from the fighting axis on the far side with a slow sway, then hands the same position to the post-knockout cue table for continuity.
+   * @evidence contracts/common.md#implementation-and-ownership Samples his officiating track (side view across the fighters' line, as far as the ring allows, closer on the ropes and in the clinch, at walking pace), then hands the same position to the post-knockout cue table for continuity.
    * @evidence contracts/common.md#authoring-interface Film seconds; world X/Z metres and radians, always walking.
    */
   public stance(t: number): Fighter.Stance {
@@ -57,14 +59,10 @@ export class Referee {
         this.stance(RefereeCues.knockdownStart - 1e-6).origin,
       );
     const pair: Blocking.Pair = Blocking.pair(t);
-    const away: Vec3.Value = Vec3.rotateY([0, 0, -1], pair.axis);
-    const sway: number = 0.5 * Math.sin(t / 7.3);
-    const along: Vec3.Value = Vec3.rotateY([sway, 0, 0], pair.axis);
-    const x: number = pair.centre[0] + away[0] * 2.05 + along[0];
-    const z: number = pair.centre[1] + away[2] * 2.05 + along[2];
+    const at: Vec3.Value = RefereePosition.at(t);
     return {
-      origin: [x, z],
-      heading: Vec3.heading([pair.centre[0] - x, 0, pair.centre[1] - z]),
+      origin: [at[0], at[2]],
+      heading: Vec3.heading([pair.centre[0] - at[0], 0, pair.centre[1] - at[2]]),
       walk: 1,
     };
   }
@@ -77,6 +75,9 @@ export class Referee {
    */
   public frame(t: number): FighterBody.Frame {
     const stance: Fighter.Stance = this.stance(t);
+    // Officiating stance while the fighters work: knees soft, both hands
+    // ready in front of the waist to step in and separate.
+    const ready: number = t < RefereeCues.knockdownStart ? 1 : 0;
     const frame: FighterBody.Frame = {
       time: t,
       origin: [stance.origin[0], stance.origin[1]],
@@ -106,21 +107,21 @@ export class Referee {
       legs: { left: this.leg("left", t), right: this.leg("right", t) },
       arms: {
         left: {
-          shoulder: { flexion: 6, abduction: 2, rotation: 10 },
-          elbow: { flexion: 14 },
+          shoulder: { flexion: 6 + 22 * ready, abduction: 2, rotation: 10 },
+          elbow: { flexion: 14 + 60 * ready },
           forearm: { pronation: 30 },
           hand: relaxed(),
         },
         right: {
-          shoulder: { flexion: 6, abduction: 2, rotation: 10 },
-          elbow: { flexion: 14 },
+          shoulder: { flexion: 6 + 22 * ready, abduction: 2, rotation: 10 },
+          elbow: { flexion: 14 + 60 * ready },
           forearm: { pronation: 30 },
           hand: relaxed(),
         },
       },
       legPose: {
-        left: { knee: { flexion: 8 } },
-        right: { knee: { flexion: 8 } },
+        left: { knee: { flexion: 8 + 10 * ready } },
+        right: { knee: { flexion: 8 + 10 * ready } },
       },
     };
     RefereeCues.gesture(frame, t, this.scene);

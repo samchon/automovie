@@ -1,5 +1,6 @@
 import { AutoMovieEnvelope as Ease } from "@automovie/engine";
 
+import { BoutTechnique } from "../choreography/BoutTechnique";
 import { BoutScript } from "../../shots/kickboxing/ring-bout/BoutScript";
 import { Blocking } from "../defense/Blocking";
 import { BoutDefense as Reaction } from "../defense/BoutDefense";
@@ -428,7 +429,17 @@ export namespace Fighter {
       { leg: 0.25, body: 0.6, head: 1 }[spec.target];
     // Human's hip abduction stops at 40°, so the lead-leg head kick keeps the stance's
     // own hip turn and raises the leg through flexion toward the front-side diagonal.
-    frame.turn += sign * (right ? 1.1 + 0.4 * scale : -0.2) * k;
+    // A disguised kick shares its chamber, then turns over: from the chamber
+    // key to contact the question-mark prior replaces the roundhouse prior.
+    const over: number =
+      spec.shape === "question-mark"
+        ? Ease.ramp(t, action.at - spec.windup * (1 - BoutTechnique.CHAMBER), action.at) *
+          (1 - Ease.ramp(t, action.at + BoutTechnique.HOLD, action.at + BoutTechnique.HOLD + action.parameters.recovery * 0.5))
+        : 0;
+    // The roundhouse turns the hips square to the line so abduction carries the
+    // leg; the question-mark keeps half that turn so hip flexion lifts the knee
+    // toward the target and the folded shank turns over it.
+    frame.turn += sign * (right ? 1.1 + 0.4 * scale : -0.2) * k * (1 - 0.5 * over);
     // The support hip admits only 20° of adduction, so a lead-leg head kick tilts the
     // pelvis moderately and lifts the leg through hip flexion and abduction instead.
     frame.pelvis.obliquity += sign * (8 + (right ? 45 : 14) * lean) * k;
@@ -449,9 +460,9 @@ export namespace Fighter {
     const kicking: "left" | "right" = BoutScript.specs[action.technique].side;
     frame.legPose[kicking] = {
       hip: {
-        flexion: Ease.lerp(20, 60, k),
-        abduction: Ease.lerp(0, 36, k),
-        rotation: Ease.lerp(0, -25, k),
+        flexion: Ease.lerp(Ease.lerp(20, 60, k), 105, over),
+        abduction: Ease.lerp(Ease.lerp(0, 36, k), 10, over),
+        rotation: Ease.lerp(Ease.lerp(0, -25, k), 0, over),
       },
       knee: { flexion: Ease.lerp(25, 70, k) },
     };

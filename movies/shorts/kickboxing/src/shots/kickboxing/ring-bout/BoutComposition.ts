@@ -1,7 +1,7 @@
 import { BoutAnswer } from "../../../motion/choreography/BoutAnswer";
 import { BoutChoreography } from "../../../motion/choreography/BoutChoreography";
 
-const { combo, exchange, group, finale } = BoutChoreography;
+const { combo, exchange, group, finale, ring } = BoutChoreography;
 const { cover, block, catch: catches, parry, check, slip, weave, lean, none } = BoutAnswer.intents;
 
 /**
@@ -34,21 +34,21 @@ export namespace BoutComposition {
         combo("a", ["feint-jab", parry("reactive"), "bit"]),
         combo("b", ["teep", block("late"), "clean"]),
       ),
-      exchange(
+      ring("press", "a", exchange(
         "a-first-three",
         combo("a", ["jab", parry(), "deflected"], ["cross", cover(), "blocked"], ["hook", weave(), "missed"]),
         combo("b", ["hook", weave(), "missed"], ["cross", lean(), "missed"]),
-      ),
-      exchange(
+      )),
+      ring("pivot", "b", exchange(
         "b-first-low-kick",
         combo("b", ["jab", cover(), "blocked"], ["low-kick", check(), "checked"]),
         combo("a", ["jab", parry(), "deflected"], ["cross", slip(), "missed"]),
-      ),
-      exchange(
+      )),
+      ring("circle", "a", exchange(
         "b-feint-into-jab",
         combo("b", ["feint-jab", parry("reactive"), "bit"], ["jab", slip(), "missed"]),
         combo("a", ["body-cross", block(), "blocked"]),
-      ),
+      )),
     ),
     group(
       15,
@@ -58,7 +58,7 @@ export namespace BoutComposition {
         combo("b", ["jab", slip(), "missed"]),
         combo("a", ["jab", cover("reactive"), "clean"]),
       ),
-      exchange(
+      ring("press", "a", exchange(
         "a-dutch-low-kick",
         combo(
           "a",
@@ -67,23 +67,23 @@ export namespace BoutComposition {
           ["hook", cover(), "blocked"],
           ["low-kick", check("late"), "clean"],
         ),
-      ),
-      exchange(
+      )),
+      ring("pivot", "a", exchange(
         "a-liver-counter",
         combo("b", ["jab", parry(), "deflected"], ["cross", slip(), "missed"]),
         combo("a", ["body-hook", block("late"), "clean"]),
-      ),
-      exchange("b-teep-reset", combo("b", ["teep", parry(), "deflected"], ["jab", slip(), "missed"])),
-      exchange("a-feint-to-body", combo("a", ["feint-jab", parry("reactive"), "bit"], ["body-cross", block(), "blocked"])),
+      )),
+      ring("center", "b", exchange("b-teep-reset", combo("b", ["teep", parry(), "deflected"], ["jab", slip(), "missed"]))),
+      ring("press", "a", exchange("a-feint-to-body", combo("a", ["feint-jab", parry("reactive"), "bit"], ["body-cross", block(), "blocked"]))),
     ),
     group(
       30,
       45,
-      exchange(
+      ring("press", "b", exchange(
         "b-low-kick-feint",
         combo("b", ["feint-low-kick", check("reactive"), "bit"], ["low-kick", check("late"), "clean"]),
-      ),
-      exchange(
+      )),
+      ring("press", "b", exchange(
         "b-four-to-the-check",
         combo(
           "b",
@@ -93,31 +93,31 @@ export namespace BoutComposition {
           ["low-kick", check(), "checked"],
         ),
         combo("a", ["cross", cover(), "blocked"]),
-      ),
+      )),
       exchange("a-double-jab", combo("a", ["jab", cover(), "blocked"], ["jab", cover("late"), "clean"])),
-      exchange("b-feint-under", combo("b", ["feint-jab", parry("reactive"), "bit"], ["body-hook", block("late"), "clean"])),
-      exchange(
+      ring("pivot", "b", exchange("b-feint-under", combo("b", ["feint-jab", parry("reactive"), "bit"], ["body-hook", block("late"), "clean"]))),
+      ring("circle", "b", exchange(
         "a-checked-low-kick",
         combo("a", ["low-kick", check(), "checked"]),
         combo("b", ["cross", slip(), "missed"]),
-      ),
+      )),
     ),
     group(
       45,
       60,
-      exchange("b-double-jab", combo("b", ["jab", cover(), "blocked"], ["jab", cover(), "blocked"])),
-      exchange(
+      ring("center", "b", exchange("b-double-jab", combo("b", ["jab", cover(), "blocked"], ["jab", cover(), "blocked"]))),
+      ring("press", "b", exchange(
         "b-pressure-and-knee",
         combo("b", ["jab", parry(), "deflected"], ["cross", slip(), "missed"], ["hook", weave(), "missed"]),
         combo("a", ["uppercut", cover("late"), "clean"]),
         combo("b", ["knee", none(), "clean"]),
-      ),
-      exchange(
+      )),
+      ring("pivot", "a", exchange(
         "a-check-hook",
         combo("b", ["jab", slip(), "missed"], ["cross", catches(), "blocked"]),
         combo("a", ["hook", cover("late"), "clean"]),
-      ),
-      exchange(
+      )),
+      ring("press", "a", exchange(
         "a-hoost-low-kick",
         combo(
           "a",
@@ -126,34 +126,34 @@ export namespace BoutComposition {
           ["body-hook", block(), "blocked"],
           ["low-kick", check("late"), "clean"],
         ),
-      ),
+      )),
     ),
     group(
       60,
       75,
-      exchange(
+      ring("pivot", "a", exchange(
         "a-body-kick-lands",
         combo("a", ["jab", cover(), "blocked"], ["cross", cover(), "blocked"], ["body-kick", block("late"), "clean"]),
-      ),
-      exchange(
+      )),
+      ring("circle", "a", exchange(
         "b-switch-kick",
         combo("b", ["switch-kick", block(), "blocked"], ["jab", slip(), "missed"], ["cross", parry(), "deflected"]),
         combo("a", ["hook", cover(), "blocked"]),
-      ),
-      exchange(
+      )),
+      ring("press", "a", exchange(
         "a-body-kick-blocked",
         combo("a", ["jab", cover(), "blocked"], ["cross", cover(), "blocked"], ["body-kick", block(), "blocked"]),
-      ),
-      exchange(
+      )),
+      ring("pivot", "b", exchange(
         "b-answers-to-the-body",
         combo("b", ["jab", cover(), "blocked"], ["body-cross", block(), "blocked"], ["hook", weave(), "missed"]),
         combo("a", ["cross", slip(), "missed"]),
-      ),
+      )),
     ),
     group(
       75,
       90,
-      exchange(
+      ring("center", "a", exchange(
         "a-double-feint",
         combo(
           "a",
@@ -161,8 +161,8 @@ export namespace BoutComposition {
           ["feint-low-kick", check("reactive"), "bit"],
           ["cross", cover("reactive"), "clean"],
         ),
-      ),
-      exchange(
+      )),
+      ring("press", "b", exchange(
         "b-high-kick",
         combo(
           "b",
@@ -171,23 +171,23 @@ export namespace BoutComposition {
           ["hook", weave(), "missed"],
           ["high-kick", block(), "blocked"],
         ),
-      ),
-      exchange(
+      )),
+      ring("center", "a", exchange(
         "a-teep-and-body",
         combo("a", ["teep", block("late"), "clean"]),
         combo("b", ["jab", slip(), "missed"]),
         combo("a", ["body-cross", block("late"), "clean"]),
-      ),
-      exchange(
+      )),
+      ring("pivot", "a", exchange(
         "a-counter-from-check",
         combo("b", ["low-kick", check(), "checked"]),
         combo("a", ["jab", cover("reactive"), "clean"], ["cross", cover(), "blocked"]),
-      ),
+      )),
     ),
     group(
       90,
       105,
-      exchange(
+      ring("press", "b", exchange(
         "b-longest-combination",
         combo(
           "b",
@@ -198,18 +198,18 @@ export namespace BoutComposition {
         ),
         combo("a", ["jab", slip(), "missed"], ["cross", slip(), "missed"]),
         combo("b", ["hook", cover("late"), "clean"], ["cross", cover(), "blocked"], ["hook", cover(), "blocked"]),
-      ),
-      exchange("a-teep-stops-pressure", combo("a", ["teep", block("late"), "clean"])),
-      exchange(
+      )),
+      ring("pivot", "a", exchange("a-teep-stops-pressure", combo("a", ["teep", block("late"), "clean"]))),
+      ring("press", "b", exchange(
         "b-body-kick-blocked",
         combo("b", ["jab", cover(), "blocked"], ["cross", cover(), "blocked"], ["body-kick", block(), "blocked"]),
         combo("a", ["jab", parry(), "deflected"], ["cross", slip(), "missed"]),
-      ),
+      )),
     ),
     group(
       105,
       120,
-      exchange(
+      ring("press", "b", exchange(
         "a-punishes-the-beat",
         combo(
           "b",
@@ -220,55 +220,55 @@ export namespace BoutComposition {
           ["low-kick", check(), "checked"],
         ),
         combo("a", ["body-hook", block("late"), "clean"], ["hook", cover(), "blocked"], ["cross", cover("late"), "clean"]),
-      ),
-      exchange("a-clinch-knee", combo("a", ["knee", none(), "clean"])),
-      exchange(
+      )),
+      ring("press", "a", exchange("a-clinch-knee", combo("a", ["knee", none(), "clean"]))),
+      ring("circle", "b", exchange(
         "b-regroups",
         combo("b", ["feint-jab", parry("reactive"), "bit"], ["body-cross", block(), "blocked"]),
         combo("a", ["jab", slip(), "missed"], ["cross", cover(), "blocked"]),
-      ),
+      )),
     ),
     group(
       120,
       135,
-      exchange(
+      ring("press", "a", exchange(
         "a-body-kick-feint",
         combo("a", ["jab", cover(), "blocked"], ["feint-body-kick", block("reactive"), "bit"], ["cross", cover("late"), "clean"]),
-      ),
-      exchange(
+      )),
+      ring("pivot", "a", exchange(
         "b-three-answered",
         combo("b", ["jab", parry(), "deflected"], ["cross", slip(), "missed"], ["hook", weave(), "missed"]),
         combo("a", ["cross", cover(), "blocked"]),
-      ),
-      exchange(
+      )),
+      ring("press", "a", exchange(
         "a-third-body-kick",
         combo("a", ["jab", cover(), "blocked"], ["cross", cover(), "blocked"], ["body-kick", block(), "blocked"]),
-      ),
-      exchange(
+      )),
+      ring("center", "b", exchange(
         "b-feint-into-cross",
         combo("b", ["feint-low-kick", check("reactive"), "bit"], ["cross", cover("reactive"), "clean"]),
         combo("a", ["jab", parry(), "deflected"], ["cross", slip(), "missed"]),
-      ),
+      )),
     ),
     finale(
       135,
       KNOCKOUT,
-      exchange(
+      ring("press", "b", exchange(
         "a-cross-from-check",
         combo("b", ["jab", parry(), "deflected"], ["cross", slip(), "missed"], ["hook", weave(), "missed"], ["low-kick", check(), "checked"]),
         combo("a", ["cross", cover("reactive"), "clean"]),
-      ),
-      exchange(
+      )),
+      ring("pivot", "a", exchange(
         "a-body-and-leg",
         combo("b", ["jab", slip(), "missed"]),
         combo("a", ["body-hook", block(), "blocked"], ["low-kick", check(), "checked"]),
-      ),
-      exchange(
+      )),
+      ring("circle", "a", exchange(
         "b-arm-drops-early",
         combo("b", ["jab", parry(), "deflected"], ["cross", slip(), "missed"]),
         combo("a", ["body-kick", block("committed"), "blocked"]),
-      ),
-      exchange(
+      )),
+      ring("center", "a", exchange(
         "a-brazilian-kick",
         combo(
           "a",
@@ -281,7 +281,7 @@ export namespace BoutComposition {
           // that read is wrong.
           ["brazilian-kick", block("reactive", "body-kick"), "clean"],
         ),
-      ),
+      )),
     ),
   ]);
 }
