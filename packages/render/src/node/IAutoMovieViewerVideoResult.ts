@@ -1,4 +1,5 @@
 import type { IAutoMovieRenderResult } from "../IAutoMovieRenderResult";
+import type { IAutoMovieViewerFrameCacheReport } from "./cache/IAutoMovieViewerFrameCacheReport";
 
 /**
  * Actual capture/encode observations; this result grants no editorial acceptance.
@@ -38,4 +39,7 @@ export interface IAutoMovieViewerVideoResult extends IAutoMovieRenderResult {
 
   /** Last 64 KiB of encoder stderr, decoded as UTF-8. */
   encoderLog: string;
+
+  /** Frame cache counts; present only when `cacheDirectory` was supplied. Reused frames' `captureMs` measure the cache copy. */
+  frameCache?: IAutoMovieViewerFrameCacheReport;
 }

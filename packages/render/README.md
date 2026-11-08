@@ -24,4 +24,19 @@ The runner captures exactly `durationSeconds * fps` frames at `i / fps`, refusin
 
 Optional `prepare(page)` runs once on the already loaded capture page before frame zero, exposing its public evaluation transport and accepting a prepared `audioMix` path. Preparation failure prevents capture and encoding; the result reports its wall time separately as `prepareMs`.
 
+## Resume from cached frames
+
+Pass `cacheDirectory` (an ignored path such as `.cache/frames/<film>`, one per output) to keep every captured PNG between runs. The page then also publishes `__afFrameDigest(seconds)` (renamed by `frameDigestFunction`): a side-effect-free function returning a nonempty string that changes whenever anything that could change that frame's pixels changes, typically a hash of the scene state the production places at that second plus the identity of the assets and code that draw it. Each frame's key is the engine artifact key of stage `render.viewer-frame`:
+
+- toolchain: `@automovie/render`, `@automovie/viewer` and `@automovie/engine` versions, digests of the Render and Viewer `src` trees (capture and drawing code, since a workspace never bumps versions), the browser build and the WebGL unmasked vendor/renderer;
+- inputs: URL, width, height, device scale factor, view and hide selectors, seek hook, the frame's `seconds` and the page's `state` digest.
+
+Before frame zero the runner reads every digest in one page call and plans which frames are stored. Stored frames whose bytes still match their recorded SHA-256 are copied; the rest are captured and stored immediately, so an interrupted run resumes where it stopped. `cacheVerifyEvery: n` recaptures every n-th reused frame and replaces any entry whose pixels differ, reporting it as `mismatched`: a nonzero count means the digest misses an input or the page draws nondeterministically. The encoder always consumes the full merged frame sequence with unchanged arguments. After success, entries the run did not reference are deleted; the result's `frameCache` reports the counts. Deleting the directory only costs recapture.
+
+## Cache any deterministic stage
+
+`createAutoMovieDirectoryArtifactStore(directory)` is the same store for any other deterministic stage: compose a key with the engine's `composeAutoMovieArtifactKey` (stage, its implementation version, toolchain identities, declared inputs), then `resolveAutoMovieArtifact(store, key, compute)` reads a verified entry or computes and stores it; `encodeAutoMovieArtifactJson` and `decodeAutoMovieArtifactJson` carry plain data exactly. Declare an upstream stage's returned `digest` as a downstream input, so an upstream recomputation that yields the same bytes leaves the downstream key unchanged. `collect` deletes unreferenced, old or oversized entries.
+
+A browser page reaches the same directory through its development server: mount `createAutoMovieArtifactMiddleware(store)` (from `@automovie/render/node`) under a prefix such as `/__automovie/artifacts`, and give the page `createAutoMovieHttpArtifactStore("/__automovie/artifacts")` (from `@automovie/render`). The headless capture browser reaches it too, so the Viewer and every render share one cache. `digestAutoMovieSourceTree([dir])` digests a package's source for the toolchain of a stage whose code changes without a version bump, for example passed to the page through a Vite `define`.
+
 The generated scaffold's `render.config.ts` and `scripts/render.ts` are the minimal consumer. Capture and encoding report technical observations; actual playback and sound review remain the production's responsibility.

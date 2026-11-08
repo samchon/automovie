@@ -20,3 +20,8 @@ export { recordViewerPlayback } from "./recordViewerPlayback";
 export { writeViewerFrameSheet } from "./writeViewerFrameSheet";
 export * from "./mixAutoMovieAudioCues";
 export * from "./decodeAutoMovieDelivery";
+export * from "./cache/IAutoMovieDirectoryArtifactStore";
+export * from "./cache/IAutoMovieViewerFrameCacheReport";
+export * from "./cache/createAutoMovieDirectoryArtifactStore";
+export * from "./cache/createAutoMovieArtifactMiddleware";
+export * from "./cache/digestAutoMovieSourceTree";

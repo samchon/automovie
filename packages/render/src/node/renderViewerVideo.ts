@@ -17,9 +17,13 @@ import {
 
 import type { IAutoMovieRenderResult } from "../IAutoMovieRenderResult";
 import type { IAutoMovieHeadlessCaptureSession } from "../headlessCapture/IAutoMovieHeadlessCaptureSession";
+import { frameTimes } from "../frameTimes";
 import { createHeadlessCaptureAdapter } from "../headlessCapture/createHeadlessCaptureAdapter";
 import type { IAutoMovieViewerVideoOptions } from "./IAutoMovieViewerVideoOptions";
 import type { IAutoMovieViewerVideoResult } from "./IAutoMovieViewerVideoResult";
+import type { IAutoMovieViewerFrameCacheReport } from "./cache/IAutoMovieViewerFrameCacheReport";
+import { cacheViewerCaptureSession } from "./cache/cacheViewerCaptureSession";
+import { createAutoMovieDirectoryArtifactStore } from "./cache/createAutoMovieDirectoryArtifactStore";
 import { planViewerVideo } from "./planViewerVideo";
 import { renderViewerVideoSession } from "./renderViewerVideoSession";
 import { runViewerVideoEncoder } from "./runViewerVideoEncoder";
@@ -27,6 +31,12 @@ import { runViewerVideoEncoder } from "./runViewerVideoEncoder";
 /**
  * Export actual completed Viewer pixels at i/fps, then encode them once with optional sound.
  * Captured dimensions must already match the spec. No playback or review is inferred.
+ *
+ * With `cacheDirectory`, frames whose key (see `cacheViewerCaptureSession`) is
+ * stored are copied from the cache instead of captured, every captured frame
+ * is stored as soon as it is written, and after a successful encode the
+ * entries this run did not reference are deleted; the result's `frameCache`
+ * reports the counts. Encoding always consumes the complete merged sequence.
  *
  * @evidence contracts/common.md#principled-implementation Admission precedes allocation; the public headless adapter awaits the real viewer seek, then renderVideo supplies the half-open i/fps schedule. PNG IHDR dimensions reject accidental canvas/HUD scaling before encoding. The original frame schedule and explicit audio mapping drive one FFmpeg process.
  * @evidence contracts/common.md#clear-and-simple-design Render owns browser/session/scratch/encoder lifetime while Viewer owns completed hook and pixel transport. Production callers keep their scene identity, editorial acceptance and sound design.
@@ -103,13 +113,8 @@ export async function renderViewerVideo(
       if (message.type() === "error") recordError(message.text());
     });
     let capturedBytes: number = 0;
-    session = await createHeadlessCaptureAdapter({
-      page,
-      url: options.url,
-      viewSelector: options.viewSelector,
-      hideSelector: options.hideSelector,
-      seekFunction: options.seekFunction,
-      writeFrame: async (file: string, bytes: Uint8Array): Promise<void> => {
+    const writeFrame: (file: string, bytes: Uint8Array) => Promise<void> =
+      async (file: string, bytes: Uint8Array): Promise<void> => {
         options.signal?.throwIfAborted();
         const png: Buffer = Buffer.from(
           bytes.buffer,
@@ -137,8 +142,54 @@ export async function renderViewerVideo(
           bytes: bytes.length,
           captureMs: 0,
         });
-      },
+      };
+    session = await createHeadlessCaptureAdapter({
+      page,
+      url: options.url,
+      viewSelector: options.viewSelector,
+      hideSelector: options.hideSelector,
+      seekFunction: options.seekFunction,
+      writeFrame,
     });
+
+    // The optional frame cache wraps the session: it reads frame digests from
+    // the prepared page at the first frame and stores every captured PNG.
+    let finishCache:
+      | (() => Promise<IAutoMovieViewerFrameCacheReport>)
+      | undefined;
+    if (options.cacheDirectory !== undefined) {
+      const cached: ReturnType<typeof cacheViewerCaptureSession> =
+        cacheViewerCaptureSession({
+          session,
+          page,
+          store: await createAutoMovieDirectoryArtifactStore(
+            options.cacheDirectory,
+          ),
+          times: frameTimes(
+            options.spec.frameFormat.fps,
+            options.durationSeconds,
+          ),
+          digestFunction: options.frameDigestFunction ?? "__afFrameDigest",
+          browser: browser.version(),
+          inputs: {
+            url: options.url,
+            width: String(options.spec.frameFormat.width),
+            height: String(options.spec.frameFormat.height),
+            deviceScaleFactor: "1",
+            viewSelector: options.viewSelector ?? "#view",
+            hideSelector: JSON.stringify(
+              options.hideSelector === undefined
+                ? "#clips"
+                : options.hideSelector,
+            ),
+            seekFunction: options.seekFunction ?? "__afSeek",
+          },
+          write: writeFrame,
+          verifyEvery: options.cacheVerifyEvery,
+        });
+      session = cached.session;
+      finishCache = cached.finish;
+    }
     let encodeMs: number = 0;
     let prepareMs: number = 0;
     let encoderLog: string = "";
@@ -193,8 +244,11 @@ export async function renderViewerVideo(
     options.signal?.throwIfAborted();
     await rename(partial, options.outputPath);
     partial = undefined;
+    const frameCache: IAutoMovieViewerFrameCacheReport | undefined =
+      await finishCache?.();
     completed = {
       ...result,
+      ...(frameCache === undefined ? {} : { frameCache }),
       encodeArgs: admitted.args,
       captures,
       capturedBytes,
