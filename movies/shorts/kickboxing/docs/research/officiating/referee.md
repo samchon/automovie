@@ -20,10 +20,11 @@ The manual's stance keeps the knees soft and the hands ready. Commands are brief
 
 ## Knockdown {#knockdown}
 
-At a knockdown he sends the standing boxer to the farthest neutral corner, keeps him in view while counting and stops the count if he leaves. The count follows the [rules](../kickboxing/rules.md#knockdown). Law: the farthest neutral corner is the neutral corner farthest from the fallen fighter; the referee counts from a point beside the fallen fighter that keeps that corner in his view.
+At a knockdown he sends the standing boxer to the farthest neutral corner, keeps him in view while counting and stops the count if he leaves. The count follows the [rules](../kickboxing/rules.md#knockdown). Law: the farthest neutral corner is the neutral corner farthest from the fallen fighter; the referee counts from a point beside the fallen fighter that keeps that corner in his view. He stands a step clear of the lying body, never over it, on the far side of the body from the standing fighter, so that facing the fallen man keeps the corner inside the central 120° of his binocular field ([Spector, Clinical Methods, ch. 116: visual fields](https://www.ncbi.nlm.nih.gov/books/NBK220/)), and his hands, signalling over the body, stay in the open; he walks around the body, never across it.
 
 ## Measurable targets {#targets}
 
 - A side view of the fighters' line for at least 90% of the bout: the angle between his direction from their centre and their line is at least 60°.
 - He never stands between the fighters.
 - He keeps moving: at least 1 m of walking in every fifteen-second phase of the bout.
+- From the knockdown he is never closer than one of his steps to the lying body, and from the count on he faces the fallen fighter with the standing fighter within 60° of his facing.

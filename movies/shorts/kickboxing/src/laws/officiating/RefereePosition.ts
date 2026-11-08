@@ -1,3 +1,4 @@
+import type { KnockdownShape } from "../kickboxing/KnockdownShape";
 import type { RingFootwork } from "../kickboxing/RingFootwork";
 
 /**
@@ -7,7 +8,10 @@ import type { RingFootwork } from "../kickboxing/RingFootwork";
  * fighter when they work on the ropes or in a clinch; when his side runs out
  * of room he goes around instead of between them. He walks toward the point
  * at no more than a comfortable walking speed and aims at where the fighters
- * were half a second earlier.
+ * were half a second earlier. Over a fallen fighter he stands a step clear
+ * of the lying body on the far side of it from the standing fighter, so
+ * facing the fallen man keeps the other in view, and he never steps onto
+ * the body on the way.
  *
  * ```ts
  * const goal = RefereePosition.goal({ a, b, side, close, ring, reach });
@@ -16,6 +20,7 @@ import type { RingFootwork } from "../kickboxing/RingFootwork";
  *
  * @evidence docs/research/officiating/referee.md#positioning Desired point, perimeter, closing, going around, walking speed 1.39 m/s and the half-second follow.
  * @evidence docs/body/settings/cast/referee.md#positioning Side-on across the line, never between them.
+ * @evidence docs/research/officiating/referee.md#knockdown Beside the fallen fighter, the standing fighter and the corner in view.
  */
 export namespace RefereePosition {
   /** Comfortable walking speed of men in their twenties, m/s (Bohannon 1997). */
@@ -178,6 +183,114 @@ export namespace RefereePosition {
     const px: number = a.x + ux * t - referee.x;
     const pz: number = a.z + uz * t - referee.z;
     return Math.hypot(px, pz) < width;
+  }
+
+  /** Half the central visual field he keeps both men in, radians: the 120-degree binocular field (study). */
+  export const FIELD: number = Math.PI / 3;
+
+  /**
+   * Where he attends a fallen fighter: on the line from the standing
+   * fighter through the lying body's centre, beyond the body by a step, so
+   * facing the fallen man keeps the standing one straight ahead.
+   *
+   * @param body The lying body's floor capsule.
+   * @param standing The standing fighter's point.
+   * @param step His step, the clearance he keeps, metres.
+   * @returns His point.
+   * @evidence docs/research/officiating/referee.md#knockdown Beside the fallen fighter with the other in view.
+   */
+  export function attend(
+    body: KnockdownShape.IFootprint,
+    standing: RingFootwork.IPoint,
+    step: number,
+  ): RingFootwork.IPoint {
+    const centre: RingFootwork.IPoint = {
+      x: (body.from.x + body.to.x) / 2,
+      z: (body.from.z + body.to.z) / 2,
+    };
+    const dx: number = centre.x - standing.x;
+    const dz: number = centre.z - standing.z;
+    const length: number = Math.hypot(dx, dz) || 1;
+    const u: RingFootwork.IPoint = { x: dx / length, z: dz / length };
+    // Out along u until the body is a step away: the gap grows with distance.
+    const far: number =
+      Math.hypot(body.to.x - body.from.x, body.to.z - body.from.z) / 2 +
+      body.radius +
+      step;
+    let low: number = 0;
+    let high: number = far;
+    for (let k: number = 0; k < BISECTIONS; k++) {
+      const mid: number = (low + high) / 2;
+      const p: RingFootwork.IPoint = {
+        x: centre.x + u.x * mid,
+        z: centre.z + u.z * mid,
+      };
+      if (gap(p, body) < step) low = mid;
+      else high = mid;
+    }
+    return { x: centre.x + u.x * high, z: centre.z + u.z * high };
+  }
+
+  /**
+   * A point kept at least a step off the lying body: inside that clearance
+   * it moves straight out to it, so his walk goes around the body.
+   *
+   * @param point His next point.
+   * @param body The lying body's floor capsule.
+   * @param step The clearance.
+   * @returns The point, or its push to the clearance.
+   * @evidence docs/body/screenplay/kickboxing.md#s11-b01 He advances outside the falling body's path.
+   */
+  export function clear(
+    point: RingFootwork.IPoint,
+    body: KnockdownShape.IFootprint,
+    step: number,
+  ): RingFootwork.IPoint {
+    const near: RingFootwork.IPoint = closest(point, body);
+    const dx: number = point.x - near.x;
+    const dz: number = point.z - near.z;
+    const d: number = Math.hypot(dx, dz);
+    const wanted: number = body.radius + step;
+    if (d >= wanted) return point;
+    if (d === 0) return point;
+    return { x: near.x + (dx / d) * wanted, z: near.z + (dz / d) * wanted };
+  }
+
+  /**
+   * The gap between a point and the lying body's surface.
+   *
+   * @param point A floor point.
+   * @param body The lying body's floor capsule.
+   * @returns Metres; negative over the body.
+   * @evidence docs/research/officiating/referee.md#knockdown A step clear of the fallen fighter.
+   */
+  export function gap(
+    point: RingFootwork.IPoint,
+    body: KnockdownShape.IFootprint,
+  ): number {
+    const near: RingFootwork.IPoint = closest(point, body);
+    return Math.hypot(point.x - near.x, point.z - near.z) - body.radius;
+  }
+
+  /** Halvings of the attending distance: below a millimetre over a ring's span. */
+  const BISECTIONS: number = 32;
+
+  /** The closest point of the body's axis to a point. */
+  function closest(
+    point: RingFootwork.IPoint,
+    body: KnockdownShape.IFootprint,
+  ): RingFootwork.IPoint {
+    const ux: number = body.to.x - body.from.x;
+    const uz: number = body.to.z - body.from.z;
+    const length2: number = ux * ux + uz * uz || 1;
+    const t: number = Math.max(
+      0,
+      Math.min(
+        1,
+        ((point.x - body.from.x) * ux + (point.z - body.from.z) * uz) / length2,
+      ),
+    );
+    return { x: body.from.x + ux * t, z: body.from.z + uz * t };
   }
 
   /** Distance from a point along a unit direction to the margin inside the ropes. */

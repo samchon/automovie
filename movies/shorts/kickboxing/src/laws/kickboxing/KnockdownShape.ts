@@ -109,6 +109,45 @@ export namespace KnockdownShape {
   }
 
   /**
+   * The floor the lying body covers: a capsule from his pelvis over his
+   * stance origin toward the right side he falls on, as long as pelvis to
+   * head, as wide as his bent knees reach forward (a thigh), which is wider
+   * than his chest's depth.
+   *
+   * @param measure His measure.
+   * @param origin His stance origin when he falls.
+   * @param facing His facing when he falls.
+   * @returns The floor capsule's axis ends and radius, metres.
+   * @evidence docs/body/screenplay/kickboxing.md#s11-b01 On his right side with bent knees and arms.
+   */
+  export function footprint(
+    measure: IFighterMeasure,
+    origin: { x: number; z: number },
+    facing: { x: number; z: number },
+  ): IFootprint {
+    // His right is -Z of his own frame facing +X.
+    const right: { x: number; z: number } = { x: facing.z, z: -facing.x };
+    const length: number = measure.head - measure.hip;
+    return {
+      from: { x: origin.x, z: origin.z },
+      to: { x: origin.x + right.x * length, z: origin.z + right.z * length },
+      radius: measure.thigh,
+    };
+  }
+
+  /** A floor capsule. */
+  export interface IFootprint {
+    /** Axis start on the floor. */
+    from: { x: number; z: number };
+
+    /** Axis end on the floor. */
+    to: { x: number; z: number };
+
+    /** Radius, metres. */
+    radius: number;
+  }
+
+  /**
    * A failed attempt to rise at a share of its course: the left forearm braces,
    * the chest rises through it, trembles, and lowers again.
    *

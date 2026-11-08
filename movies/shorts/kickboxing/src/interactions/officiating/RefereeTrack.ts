@@ -1,13 +1,10 @@
-import {
-  type IAutoMovieSchedule,
-  resolveAutoMovieZone,
-} from "@automovie/engine";
+import type { IAutoMovieSchedule } from "@automovie/engine";
 
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
+import { KnockdownShape } from "../../laws/kickboxing/KnockdownShape";
 import { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
-import { KnockdownCount } from "../../laws/officiating/KnockdownCount";
 import { RefereePosition } from "../../laws/officiating/RefereePosition";
 import { BoutLaws } from "../kickboxing/BoutLaws";
 import type { IRingCast } from "../kickboxing/IRingCast";
@@ -16,9 +13,11 @@ import type { IRingCast } from "../kickboxing/IRingCast";
  * The referee's path through the whole film, resolved once from the
  * schedule at a fixed step: while the fighters work he walks toward his
  * positioning law's point for where they were half a second earlier, closing
- * in on the ropes and in clinches; from the knockdown he walks to a point
- * beside the fallen fighter that keeps the far neutral corner in view. Every
- * second reads the resolved path, so playback, seeking and capture agree.
+ * in on the ropes and in clinches; from the knockdown he walks around the
+ * lying body, never closer than a step, to the point a step beyond it from
+ * the standing fighter, and faces the fallen man with the other ahead of
+ * him. Every second reads the resolved path, so playback, seeking and
+ * capture agree.
  *
  * ```ts
  * const track = RefereeTrack.resolve(cast, schedule, 180);
@@ -26,7 +25,7 @@ import type { IRingCast } from "../kickboxing/IRingCast";
  * ```
  *
  * @evidence docs/research/officiating/referee.md#positioning The positioning law, walking speed and follow.
- * @evidence docs/research/officiating/referee.md#knockdown Beside the fallen fighter, the corner in view.
+ * @evidence docs/research/officiating/referee.md#knockdown A step clear of the fallen fighter, the standing fighter and the corner in view.
  * @evidence docs/body/settings/cast/referee.md#closing He closes in on the ropes and in clinches.
  */
 export namespace RefereeTrack {
@@ -64,6 +63,7 @@ export namespace RefereeTrack {
     const fall: number = fallStart(schedule);
     const origin = (id: string, s: number): RingFootwork.IPoint =>
       BoutLaws.origin(schedule, id, Math.max(0, s), cast).point;
+    const body: KnockdownShape.IFootprint = footprint(cast, schedule, fall);
     let side: 1 | -1 = 1;
     const start = RefereePosition.goal({
       a: origin(cast.a.id, 0),
@@ -83,23 +83,13 @@ export namespace RefereeTrack {
       let target: RingFootwork.IPoint;
       let look: RingFootwork.IPoint;
       if (t >= fall) {
-        const fallen: RingFootwork.IPoint = origin(cast.b.id, fall);
-        const corner: RingFootwork.IPoint = KnockdownCount.corner(
-          corners(cast),
-          fallen,
-        );
-        const toward: RingFootwork.IPoint = unit({
-          x: corner.x - fallen.x,
-          z: corner.z - fallen.z,
-        });
-        // Beside the fallen fighter, a step and an arm's reach off him on the
-        // corner side, so both stay in view.
-        const away: number = ring.step + measure.armReach;
-        target = {
-          x: fallen.x + toward.z * away + toward.x * away * 0.5,
-          z: fallen.z - toward.x * away + toward.z * away * 0.5,
+        // A step clear of the lying body, beyond it from the standing
+        // fighter, facing the fallen man with the other ahead of him.
+        target = RefereePosition.attend(body, a, ring.step);
+        look = {
+          x: (body.from.x + body.to.x) / 2,
+          z: (body.from.z + body.to.z) / 2,
         };
-        look = fallen;
       } else {
         const close: boolean =
           RingFootwork.onRopes(a, ring) ||
@@ -117,11 +107,18 @@ export namespace RefereeTrack {
         target = goal.point;
         look = { x: (a.x + b.x) / 2, z: (a.z + b.z) / 2 };
       }
-      current = RefereePosition.walk(
-        current,
-        around(current, target, a, b, ring.step + measure.armReach),
-        k === 0 ? 0 : STEP,
-      );
+      current =
+        t >= fall
+          ? RefereePosition.clear(
+              RefereePosition.walk(current, target, STEP),
+              body,
+              ring.step,
+            )
+          : RefereePosition.walk(
+              current,
+              around(current, target, a, b, ring.step + measure.armReach),
+              k === 0 ? 0 : STEP,
+            );
       points.push(current);
       looks.push(look);
     }
@@ -157,6 +154,30 @@ export namespace RefereeTrack {
       point: lerp(track.points[i]!, track.points[j]!),
       look: lerp(track.looks[i]!, track.looks[j]!),
     };
+  }
+
+  /**
+   * The floor the fallen fighter's lying body covers, from his origin and
+   * facing when he falls (toward his opponent then).
+   *
+   * @param cast The cast.
+   * @param schedule The schedule.
+   * @param fall The fall's start.
+   * @returns The footprint; a point at B's origin when nobody falls.
+   */
+  export function footprint(
+    cast: IRingCast,
+    schedule: IAutoMovieSchedule,
+    fall: number,
+  ): KnockdownShape.IFootprint {
+    const at: number = Number.isFinite(fall) ? fall : 0;
+    const fallen = BoutLaws.origin(schedule, cast.b.id, at, cast).point;
+    const opponent = BoutLaws.origin(schedule, cast.a.id, at, cast).point;
+    return KnockdownShape.footprint(
+      cast.b.body.measure,
+      fallen,
+      unit({ x: opponent.x - fallen.x, z: opponent.z - fallen.z }),
+    );
   }
 
   /** The start of the knockdown fall, or infinity. */
@@ -209,16 +230,6 @@ export namespace RefereeTrack {
         KickboxingTechnique.table[action.technique].family === "knee"
       );
     });
-  }
-
-  function corners(
-    cast: IRingCast,
-  ): [RingFootwork.IPoint, RingFootwork.IPoint] {
-    const p = (name: string): RingFootwork.IPoint => {
-      const z = resolveAutoMovieZone(cast.ring.zones, "neutral-corners", name);
-      return { x: z.x, z: z.z };
-    };
-    return [p("north-east"), p("south-west")];
   }
 
   function unit(v: RingFootwork.IPoint): RingFootwork.IPoint {
