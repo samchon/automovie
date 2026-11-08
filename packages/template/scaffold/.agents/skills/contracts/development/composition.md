@@ -1,6 +1,6 @@
 # Composition
 
-Each exported function and method under `src/composition/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md). A scene in `src/composition/scenes/<film>/<scene>/` cites each screenplay scene or beat it realizes as `@evidence docs/body/screenplay/<film>.md#<anchor> <what it realizes>`, and a film in `src/composition/films/` cites its screenplay file; every scene, beat and screenplay file is realized, and an `OMITTED` one is covered by an `@evidenceExclude` on the scene that would have realized it.
+Each exported function and method under `src/composition/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md). A scene in `src/composition/scenes/<film>/<scene>/` cites each screenplay scene or beat it realizes as `@evidence docs/body/screenplay/<film>.md#<anchor> <what it realizes>`, and a film in `src/composition/films/` cites its screenplay file; every scene, beat and screenplay file is realized, and an `OMITTED` one is covered by an `@evidenceExclude` on the scene that would have realized it, or on a neighboring scene when the whole scene is omitted.
 
 ## Does it realize every screenplay decision it cites? {#screenplay-realization}
 

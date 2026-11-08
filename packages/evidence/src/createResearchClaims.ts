@@ -1,7 +1,7 @@
 import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 
 /**
- * Creates the claim that holds performance studies to the story research
+ * Creates the claim that holds research studies to the story research
  * principles.
  *
  * Each study in `docs/research/`, apart from its index, answers every item of
@@ -21,7 +21,7 @@ import type { IEvidenceClaim } from "@wrtnlabs/evidence";
 export function createResearchClaims(): IEvidenceClaim[] {
   return [
     {
-      name: "performance studies",
+      name: "research studies",
       type: "markdown",
       files: ["docs/research/**/*.md", "!docs/research/index.md"],
       evidenceFiles: ["docs/evidence/construction/files/research/**/*.md"],

@@ -1,6 +1,6 @@
 # Behaviors
 
-Each exported function and method under `src/laws/`, `src/interactions/` and `src/consequences/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md). It cites the research it follows as `@evidence docs/research/<discipline>/<topic>.md#<section> <the law and values it uses>`, and every study is followed by some behavior.
+Each exported function and method under `src/laws/`, `src/interactions/` and `src/consequences/` answers these items in its doc comment, beside [common](common.md) and [implementation](implementation.md). It cites the research it follows as `@evidence docs/research/<discipline>/<topic>.md <the section, law and values it uses>`, and every study is followed by some behavior.
 
 ## Is it built from the research laws it cites? {#studied-laws}
 

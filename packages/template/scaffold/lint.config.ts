@@ -3,8 +3,9 @@ import type { ITtscLintConfig } from "@ttsc/lint";
 /**
  * Source elements in dependency order: the host and commands enter films,
  * films compose scenes, scenes call consequences, interactions and entities,
- * and every behavior rests on laws. An import against that direction, into an
- * unknown folder, or of `Math.random` fails lint.
+ * and every behavior rests on laws; tests and their helpers may reach every
+ * source folder. An import against that direction, into an unknown folder, or
+ * of `Math.random` fails lint.
  */
 const elements = [
   { type: "host", pattern: "src/*.ts" },
@@ -16,6 +17,7 @@ const elements = [
   { type: "interactions", pattern: "src/interactions/**" },
   { type: "entities", pattern: "src/entities/**" },
   { type: "laws", pattern: "src/laws/**" },
+  { type: "tests", pattern: "test/**" },
 ];
 
 /** Source correctness, formatting and dependency direction; checklist answers run through `npm run evidence`. */
@@ -74,6 +76,21 @@ export default {
           { from: "interactions", allow: ["interactions", "entities", "laws"] },
           { from: "entities", allow: ["entities", "laws"] },
           { from: "laws", allow: ["laws"] },
+          {
+            from: "tests",
+            allow: [
+              "tests",
+              "host",
+              "executable",
+              "integrations",
+              "films",
+              "scenes",
+              "consequences",
+              "interactions",
+              "entities",
+              "laws",
+            ],
+          },
         ],
       },
     ],

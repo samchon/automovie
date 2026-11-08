@@ -27,6 +27,6 @@ export interface IAutoMovieEvidenceConfigProps {
   /** Entity, behavior and composition development contracts; omitted stages stay disabled. */
   development?: IAutoMovieDevelopmentProps;
 
-  /** Performance studies answer the story research principles when `"evidence"`; disabled by default. */
+  /** Research studies answer the story research principles when `"evidence"`; disabled by default. */
   research?: "disabled" | "evidence";
 }

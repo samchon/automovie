@@ -8,6 +8,9 @@ import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import { films } from "../composition/films";
+import { selectFilm } from "../selectFilm";
+
 /** Shared installed review tools; captures the running production through its real host. */
 async function main(): Promise<void> {
   const [kind, url, duration, output]: string[] = process.argv.slice(2);
@@ -28,6 +31,7 @@ async function main(): Promise<void> {
     path.join(
       "media",
       "automovie",
+      selectFilm(films, new URL(url).searchParams.get("film")).name,
       kind === "playback" ? "videos" : "frames",
       "review",
     );
