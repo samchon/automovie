@@ -126,6 +126,9 @@ export function test_strike_shape(): void {
     lead: 0.4,
     seconds: 0.4,
     scale: 1,
+    onset: 0,
+    ready: 0.4,
+    coverage: 1,
   })!;
   assert.ok(slip.shift.left < 0, "outside a jab is the receiver's right");
   assert.equal(
@@ -138,6 +141,9 @@ export function test_strike_shape(): void {
       lead: 0.4,
       seconds: 2,
       scale: 1,
+      onset: 0,
+      ready: 0.4,
+      coverage: 1,
     }),
     null,
   );

@@ -45,24 +45,60 @@ export interface IFighterProfile {
   /** Answers he uses. */
   defenses: readonly KickboxingAction.Answer[];
 
-  /** Trigger-to-response habits, by settings anchor. */
+  /** His habits as rules, by settings anchor. */
   habits: readonly IFighterProfile.IHabit[];
 }
 
 /** Companion types of {@link IFighterProfile}. */
 export namespace IFighterProfile {
-  /** A habit: when the opponent shows a trigger, he gives a response, at a speed and reliability. */
-  export interface IHabit {
+  /** A habit of the settings, as a rule over what he sees or does. */
+  export type IHabit = ITell | ILinger;
+
+  /**
+   * A tell: when the opponent's technique shows the features he reads, he
+   * gives a response, complete by the kick's chamber key or by the contact.
+   */
+  export interface ITell {
+    /** Rule kind. */
+    kind: "tell";
+
     /** The settings fact's anchor, such as `drops-left-arm`. */
     id: string;
 
-    /** The opponent's techniques that trigger it: what he sees. */
-    trigger: readonly KickboxingTechnique.Name[];
+    /** What he reads in the opponent's technique; every stated feature must match. */
+    sees: {
+      /** The throwing limb. */
+      limb?: "arm" | "leg";
+      /** The opponent's throwing side. */
+      side?: KickboxingTechnique.Side;
+      /** Height bands of the technique; a knee chambered above the hip rises for body and head kicks. */
+      levels?: readonly KickboxingTechnique.Level[];
+      /** Performance families, such as `feint`. */
+      families?: readonly KickboxingTechnique.Family[];
+    };
 
     /** The answer he gives. */
     response: KickboxingAction.Answer;
 
+    /** When the answer is complete: the chamber key for a tell to the rising knee; the contact otherwise. */
+    ready?: "chamber";
+
     /** Share of triggers that draw it, in [0, 1]. */
     reliability: number;
+  }
+
+  /** A linger: after his own technique meets a given outcome he stays on the limb a beat before returning it. */
+  export interface ILinger {
+    /** Rule kind. */
+    kind: "linger";
+
+    /** The settings fact's anchor, such as `stays-on-leg`. */
+    id: string;
+
+    /** His techniques it follows: the limb and height band. */
+    after: { limb: "arm" | "leg"; level: KickboxingTechnique.Level };
+
+    /** The outcome of the opponent's answer that draws it. */
+    outcome: string;
   }
 }

@@ -1,7 +1,8 @@
 import { AutoMovieChain } from "@automovie/engine";
 
 import { KickboxingAction } from "../../../laws/kickboxing/KickboxingAction";
-import type { KickboxingTechnique } from "../../../laws/kickboxing/KickboxingTechnique";
+import { KickboxingTechnique } from "../../../laws/kickboxing/KickboxingTechnique";
+import { KickboxingVariation } from "../../../laws/kickboxing/KickboxingVariation";
 import { FighterBody } from "./FighterBody";
 import { FighterChain } from "./FighterChain";
 import { FighterFigure } from "./FighterFigure";
@@ -21,7 +22,8 @@ import type { IFighterProfile } from "./IFighterProfile";
  * ```
  *
  * @evidence docs/body/settings/cast/fighter-a.md#weapons Capabilities are limited to the repertoire.
- * @evidence docs/body/settings/cast/fighter-b.md#drops-left-arm `tell` answers a trigger with the habit of the settings.
+ * @evidence docs/body/settings/cast/fighter-b.md#drops-left-arm `tell` answers what he reads with the habit rule of the settings: B's left elbow drops by the chamber whenever A's right knee rises.
+ * @evidence docs/body/settings/cast/fighter-b.md#stays-on-leg `lingers` keeps B on his checked kicking leg a beat too long.
  * @evidence docs/body/settings/cast/fighter-a.md#opponent The glove touch and obedience in the corner.
  * @evidence docs/body/settings/cast/fighter-a.md#through-bout The celebration.
  * @evidence docs/body/settings/cast/fighter-b.md#through-bout The fall, the failed attempts and lying still.
@@ -172,15 +174,24 @@ export class Fighter {
   }
 
   /**
-   * His habitual answer to a technique he sees, from his settings habits.
+   * His habitual answer to a technique he sees: the first tell of his
+   * settings whose rule reads the technique's limb, side, height band and
+   * family, complete by the time the rule states.
    *
    * @param seen The opponent's technique.
    * @returns The chain with the habit's answer.
-   * @throws When no habit triggers on it.
+   * @throws When no tell reads it.
    */
   public tell(seen: KickboxingTechnique.Name): FighterChain {
-    const habit: IFighterProfile.IHabit | undefined = this.profile.habits.find(
-      (h) => h.trigger.includes(seen),
+    const spec: KickboxingTechnique.ISpec = KickboxingTechnique.table[seen];
+    const habit: IFighterProfile.ITell | undefined = this.profile.habits.find(
+      (h): h is IFighterProfile.ITell =>
+        h.kind === "tell" &&
+        (h.sees.limb === undefined || h.sees.limb === spec.limb) &&
+        (h.sees.side === undefined || h.sees.side === spec.side) &&
+        (h.sees.levels === undefined || h.sees.levels.includes(spec.level)) &&
+        (h.sees.families === undefined ||
+          h.sees.families.includes(spec.family)),
     );
     if (!habit) throw new Error(`${this.id} has no habit triggered by ${seen}`);
     return new FighterChain(
@@ -190,9 +201,35 @@ export class Fighter {
         KickboxingAction.intent(this.id, {
           kind: "defend",
           answer: habit.response,
+          ...(habit.ready === undefined ? {} : { ready: habit.ready }),
         }),
       ),
     );
+  }
+
+  /**
+   * Seconds he stays on a limb after his own technique met an outcome,
+   * before returning it: one spread of the measured kick recoil when a
+   * linger habit of his settings follows that technique and outcome, the
+   * longest stay that still replants inside the recoil's measured range.
+   *
+   * @param technique His technique.
+   * @param outcome The opponent's answer's outcome.
+   * @returns Seconds; zero without a linger.
+   */
+  public lingers(technique: KickboxingTechnique.Name, outcome: string): number {
+    const spec: KickboxingTechnique.ISpec =
+      KickboxingTechnique.table[technique];
+    return this.profile.habits.some(
+      (h) =>
+        h.kind === "linger" &&
+        h.after.limb === spec.limb &&
+        h.after.level === spec.level &&
+        h.outcome === outcome &&
+        spec.family !== "feint",
+    )
+      ? KickboxingVariation.RECOIL_SPREAD
+      : 0;
   }
 
   /**

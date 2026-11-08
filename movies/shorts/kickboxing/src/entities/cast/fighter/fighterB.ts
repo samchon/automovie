@@ -14,8 +14,9 @@ import type { IFighterProfile } from "./IFighterProfile";
  * @evidence docs/body/settings/cast/fighter-b.md#kit His kit.
  * @evidence docs/body/settings/cast/fighter-b.md#weapons His repertoire, including the switch kick, the high kick and the clinch knee.
  * @evidence docs/body/settings/cast/fighter-b.md#defense Parry, cover, body block, slips, rolls and the check.
- * @evidence docs/body/settings/cast/fighter-b.md#drops-left-arm Whenever A's right knee rises he drops his left elbow, every time once learned.
+ * @evidence docs/body/settings/cast/fighter-b.md#drops-left-arm Whenever A's right knee rises (a right body or head kick, or its feint) he drops his left elbow by the chamber, every time once learned.
  * @evidence docs/body/settings/cast/fighter-b.md#chases-pump His right glove jumps to a pump jab, every time.
+ * @evidence docs/body/settings/cast/fighter-b.md#stays-on-leg After his checked low kick he stays on the kicking leg a beat too long.
  */
 export const fighterB: IFighterProfile = Object.freeze<IFighterProfile>({
   id: "b",
@@ -94,16 +95,25 @@ export const fighterB: IFighterProfile = Object.freeze<IFighterProfile>({
   ],
   habits: [
     {
+      kind: "tell",
       id: "drops-left-arm",
-      trigger: ["body-kick", "feint-body-kick", "brazilian-kick"],
+      sees: { limb: "leg", side: "right", levels: ["body", "head"] },
       response: "elbow-block",
+      ready: "chamber",
       reliability: 1,
     },
     {
+      kind: "tell",
       id: "chases-pump",
-      trigger: ["feint-jab"],
+      sees: { families: ["feint"], limb: "arm" },
       response: "parry",
       reliability: 1,
+    },
+    {
+      kind: "linger",
+      id: "stays-on-leg",
+      after: { limb: "leg", level: "leg" },
+      outcome: "checked",
     },
   ],
 });

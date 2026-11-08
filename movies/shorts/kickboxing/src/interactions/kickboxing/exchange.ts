@@ -81,6 +81,7 @@ export function exchange(
           against: strike.technique,
           lead,
           strike: `${id}/${k}`,
+          ...(action.ready === undefined ? {} : { ready: action.ready }),
         }),
         -lead,
       );
@@ -97,13 +98,17 @@ export function exchange(
   return AutoMovieComposition.parallel(
     AutoMovieComposition.sequence(...anchored),
     ...aligned,
-    KickboxingAction.intent(attacker, {
-      kind: "move",
-      movement: "approach",
-      steps: APPROACH_STEPS,
-      range,
-      seconds,
-    }),
+    KickboxingAction.intent(
+      attacker,
+      {
+        kind: "move",
+        movement: "approach",
+        steps: APPROACH_STEPS,
+        range,
+        seconds,
+      },
+      `${id}/approach`,
+    ),
   );
 }
 

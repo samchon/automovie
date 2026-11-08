@@ -94,14 +94,16 @@ export const fighterA: IFighterProfile = Object.freeze<IFighterProfile>({
   ],
   habits: [
     {
+      kind: "tell",
       id: "checks-drag",
-      trigger: ["feint-low-kick"],
+      sees: { families: ["feint"], limb: "leg", levels: ["leg"] },
       response: "check",
       reliability: 1,
     },
     {
+      kind: "tell",
       id: "answers-pump",
-      trigger: ["feint-jab"],
+      sees: { families: ["feint"], limb: "arm" },
       response: "parry",
       reliability: 1,
     },

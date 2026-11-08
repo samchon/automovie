@@ -21,10 +21,11 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * 158.000 to 167.000; the knockout signal at 167.600, the victory at 168.100
  * and the match-ending bell at 170.100; B drops his left arm to every rising
  * right knee of A after the first landed body kick and never before it;
- * resolving the same composition twice gives the same entries.
+ * resolving the same composition with the same seed twice gives the same
+ * entries.
  */
 export function test_kickboxing_schedule(): void {
-  const { schedule } = polygonFilm();
+  const { schedule, seed } = polygonFilm();
   assert.deepEqual(BoutLaws.check(schedule), []);
   assert.ok(!schedule.entries.some((e) => e.outcome === "illegal"));
   const near = (a: number | undefined, b: number): void =>
@@ -126,7 +127,7 @@ export function test_kickboxing_schedule(): void {
   const hash = (s: IAutoMovieSchedule): string =>
     createHash("sha256").update(JSON.stringify(s)).digest("hex");
   assert.equal(
-    hash(BoutLaws.resolve(cast, composeKickboxing(cast, 180))),
+    hash(BoutLaws.resolve(cast, composeKickboxing(cast, 180), seed)),
     hash(schedule),
   );
 }

@@ -38,7 +38,7 @@ export function test_fighter_chain(): void {
   assert.throws(() => a.switchKick());
   assert.throws(() => b.brazilianKick());
   assert.deepEqual(actions(b.tell("brazilian-kick").node), [
-    { kind: "defend", answer: "elbow-block" },
+    { kind: "defend", answer: "elbow-block", ready: "chamber" },
   ]);
   assert.deepEqual(actions(a.tell("feint-low-kick").node), [
     { kind: "defend", answer: "check" },

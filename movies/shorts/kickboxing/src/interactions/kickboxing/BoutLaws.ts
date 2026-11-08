@@ -13,6 +13,7 @@ import { KickboxingLegality } from "../../laws/kickboxing/KickboxingLegality";
 import { KickboxingOutcome } from "../../laws/kickboxing/KickboxingOutcome";
 import { KickboxingRange } from "../../laws/kickboxing/KickboxingRange";
 import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
+import { KickboxingVariation } from "../../laws/kickboxing/KickboxingVariation";
 import { RingFootwork } from "../../laws/kickboxing/RingFootwork";
 import { StanceShape } from "../../laws/kickboxing/StanceShape";
 import { KnockdownCount } from "../../laws/officiating/KnockdownCount";
@@ -24,12 +25,13 @@ import { boutTiming } from "./boutTiming";
  * The bout's schedule laws for the engine's resolver: timing from the
  * timing laws, each answer's outcome from the outcome table, and each
  * fighter's stance origin after every movement from the footwork law,
- * relative to the opponent's origin at the movement's start. The state is
- * the explicit snapshot every later second reads; nothing is integrated
- * during playback.
+ * relative to the opponent's origin at the movement's start, and each
+ * strike's, answer's and step-in's seeded variation from the film seed and
+ * the entry's stable anchor. The state is the explicit snapshot every later
+ * second reads; nothing is integrated during playback.
  *
  * ```ts
- * const schedule = BoutLaws.resolve(cast, composition);
+ * const schedule = BoutLaws.resolve(cast, composition, "kickboxing");
  * BoutLaws.origin(schedule, "a", 12.5); // A's stance origin then
  * ```
  *
@@ -39,10 +41,19 @@ import { boutTiming } from "./boutTiming";
  * @evidence docs/body/settings/sets/ring.md#corners Fighters start near centre on their own sides.
  */
 export namespace BoutLaws {
-  /** A fighter's state after an entry. */
+  /** The state an entry leaves: a movement's stance origin, or the seeded variation of a strike or answer. */
   export interface IState {
-    /** His stance origin on the floor. */
-    origin: RingFootwork.IPoint;
+    /** After a movement: his stance origin on the floor. */
+    origin?: RingFootwork.IPoint;
+
+    /** For a strike: its drawn contact offset and recoil. */
+    strike?: KickboxingVariation.IStrike;
+
+    /** For an answer: its drawn lateness and coverage. */
+    answer?: KickboxingVariation.IAnswer;
+
+    /** For a step-in: the drawn angle, radians, between its first direction and the straight line to where it lands. */
+    angle?: number;
   }
 
   /**
@@ -50,11 +61,13 @@ export namespace BoutLaws {
    *
    * @param cast The cast.
    * @param composition The film's composition.
+   * @param seed The film seed every seeded variation derives from.
    * @returns The frozen schedule.
    */
   export function resolve(
     cast: IRingCast,
     composition: Parameters<typeof resolveAutoMovieSchedule>[0],
+    seed: string,
   ): IAutoMovieSchedule {
     const start: Record<string, RingFootwork.IPoint> = initial(cast);
     return resolveAutoMovieSchedule(composition, {
@@ -78,10 +91,34 @@ export namespace BoutLaws {
         entry: IAutoMovieSchedule.IEntry,
         context: resolveAutoMovieSchedule.IContext,
       ): IState | undefined => {
-        if (entry.intent.capability !== "move") return undefined;
+        if (
+          entry.intent.capability !== "move" &&
+          entry.intent.capability !== "strike" &&
+          entry.intent.capability !== "answer"
+        )
+          return undefined;
         const action: KickboxingAction.IAction = KickboxingAction.read(
           entry.intent,
         );
+        if (action.kind === "strike")
+          return {
+            strike: KickboxingVariation.strike(
+              seed,
+              entry.intent.anchor ?? `${entry.subject}@${entry.start}`,
+              action.technique,
+              fighter(cast, entry.subject).body.measure,
+            ),
+          };
+        if (action.kind === "answer")
+          return {
+            answer: KickboxingVariation.answer(
+              seed,
+              action.strike,
+              action.answer,
+              ready(action),
+              fighter(cast, entry.subject).body.measure,
+            ),
+          };
         if (action.kind !== "move") return undefined;
         const mover: Fighter = fighter(cast, entry.subject);
         const opponent: Fighter = mover === cast.a ? cast.b : cast.a;
@@ -112,11 +149,46 @@ export namespace BoutLaws {
                   ),
                 )
               : undefined;
+        const moved: RingFootwork.IPoint = RingFootwork.move(
+          action,
+          from,
+          against,
+          ring,
+          target,
+        );
+        if (action.movement !== "approach" || entry.intent.anchor === undefined)
+          return { origin: moved };
+        // The step-in leaves on a line off the direct one by its drawn angle
+        // and lands where the footwork law puts it, so the range never varies.
         return {
-          origin: RingFootwork.move(action, from, against, ring, target),
+          origin: moved,
+          angle: KickboxingVariation.approach(
+            seed,
+            entry.intent.anchor,
+            mover.body.measure,
+            action.range ??
+              Math.hypot(moved.x - against.x, moved.z - against.z),
+          ),
         };
       },
     });
+  }
+
+  /**
+   * Seconds from the answered strike's launch by which an answer is
+   * complete: the strike's contact, or for a habit that fires on the rising
+   * knee, the kick's chamber key when that comes first.
+   *
+   * @param action The answer.
+   * @returns Seconds from the launch.
+   * @evidence docs/body/settings/cast/fighter-b.md#drops-left-arm The elbow is down by the time the knee reaches its chamber.
+   */
+  export function ready(
+    action: Extract<KickboxingAction.IAction, { kind: "answer" }>,
+  ): number {
+    return action.ready === "chamber"
+      ? Math.min(action.lead, KickboxingTiming.KICK_CHAMBER)
+      : action.lead;
   }
 
   /**
@@ -158,9 +230,12 @@ export namespace BoutLaws {
     const start: Record<string, RingFootwork.IPoint> = initial(cast);
     let before: RingFootwork.IPoint = start[subject]!;
     for (const entry of schedule.entries) {
-      if (entry.subject !== subject || entry.state === undefined) continue;
+      const moved: RingFootwork.IPoint | undefined = (
+        entry.state as IState | undefined
+      )?.origin;
+      if (entry.subject !== subject || moved === undefined) continue;
       if (entry.end <= seconds) {
-        before = (entry.state as IState).origin;
+        before = moved;
         continue;
       }
       if (entry.start <= seconds) {
@@ -178,13 +253,24 @@ export namespace BoutLaws {
         const fighter: Fighter = subject === cast.a.id ? cast.a : cast.b;
         const limit: number =
           cast.ring.half - StanceShape.margin(fighter.body.measure);
-        const p: RingFootwork.IPoint = RingFootwork.along(
+        const straight: RingFootwork.IPoint = RingFootwork.along(
           action.movement,
           before,
-          (entry.state as IState).origin,
+          moved,
           about,
           share,
         );
+        // A step-in's drawn angle bows its path to one side: the bow's
+        // tangent at the start makes that angle with the straight line.
+        const angle: number = (entry.state as IState).angle ?? 0;
+        const dx: number = moved.x - before.x;
+        const dz: number = moved.z - before.z;
+        const bow: number =
+          (Math.tan(angle) / Math.PI) * Math.sin(Math.PI * share);
+        const p: RingFootwork.IPoint = {
+          x: straight.x - dz * bow,
+          z: straight.z + dx * bow,
+        };
         return {
           point: {
             x: Math.max(-limit, Math.min(limit, p.x)),
@@ -240,7 +326,7 @@ export namespace BoutLaws {
     for (const entry of entries)
       if (
         entry.subject === subject &&
-        entry.state !== undefined &&
+        (entry.state as IState | undefined)?.origin !== undefined &&
         entry.end <= seconds + 1e-9 &&
         (found === undefined || entry.end >= found.end)
       )

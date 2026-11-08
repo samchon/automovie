@@ -96,6 +96,12 @@ export namespace StrikeShape {
 
     /** For the clinch knee: the receiver's head-back point in the attacker's root frame. */
     clinch?: IAutoMovieVector3;
+
+    /** A kick's drawn return to the replant, seconds, inside the measured recoil; the measured recoil when absent. */
+    recoil?: number;
+
+    /** Seconds the kicking leg stays out after contact before its return: a habit's linger; none when absent. */
+    hold?: number;
   }
 
   /**
@@ -140,10 +146,15 @@ export namespace StrikeShape {
     if (t >= end) return null;
     // Kicks follow keys: launch, chamber key, impact, back to chamber, replant.
     const phase: "out" | "back" = t <= delivery ? "out" : "back";
+    const hold: number = input.hold ?? 0;
+    const recoil: number = Math.min(
+      input.recoil ?? KickboxingTiming.KICK_RECOIL,
+      KickboxingTiming.KICK_RECOIL - hold,
+    );
     const progress: number =
       t <= delivery
         ? t / delivery
-        : (t - delivery) / KickboxingTiming.KICK_RECOIL;
+        : Math.max(0, Math.min(1, (t - delivery - hold) / recoil));
     return family(input, shown, 1, phase, progress);
   }
 

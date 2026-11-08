@@ -27,6 +27,7 @@ import { RingLights } from "../../../entities/lights/ring-lights/RingLights";
 import { Bell } from "../../../entities/props/bell/Bell";
 import { Ring } from "../../../entities/sets/ring/Ring";
 import { CameraTrack } from "../../../interactions/cinematography/CameraTrack";
+import { FinishSight } from "../../../interactions/cinematography/FinishSight";
 import { BoutLaws } from "../../../interactions/kickboxing/BoutLaws";
 import { BoutPerformance } from "../../../interactions/kickboxing/BoutPerformance";
 import { ContactReceipts } from "../../../interactions/kickboxing/ContactReceipts";
@@ -82,7 +83,11 @@ export class RingStage {
   ): Promise<RingStage.IMounted> {
     const cast: IRingCast = this.cast;
     progress?.("Resolving the schedule");
-    const schedule: IAutoMovieSchedule = BoutLaws.resolve(cast, composition);
+    const schedule: IAutoMovieSchedule = BoutLaws.resolve(
+      cast,
+      composition,
+      seed,
+    );
     const violations: string[] = BoutLaws.check(schedule);
     const queries = await preparePhysicalGeometry();
     const performance: BoutPerformance = new BoutPerformance(
@@ -96,12 +101,25 @@ export class RingStage {
       schedule,
       duration,
     );
+    const sight: FinishSight.Reader = FinishSight.colliders(
+      cast,
+      schedule,
+      referee,
+      performance,
+      queries,
+    );
     const camera: CameraTrack.ISample[] = CameraTrack.resolve(
       cast,
       schedule,
       referee,
       duration,
+      sight,
     );
+    // The visibility law's audit on the delivered lens and the displayed colliders.
+    const finishing = CameraTrack.strike(schedule);
+    const clearance: number | undefined = finishing
+      ? CameraTrack.clearance(camera, sight(finishing))
+      : undefined;
     progress?.("Measuring contacts");
     const measured = ContactReceipts.measure(
       cast,
@@ -178,14 +196,23 @@ export class RingStage {
       camera: view,
       schedule,
       violations,
-      findings: measured.findings.map((finding: string): string => {
-        const receipt = measured.receipts.find((r) =>
-          finding.startsWith(`${r.anchor}:`),
-        );
-        return receipt
-          ? `${finding}; closest ${receipt.separation.toFixed(3)} m at ${receipt.seconds.toFixed(3)} s`
-          : finding;
-      }),
+      findings: [
+        ...measured.findings.map((finding: string): string => {
+          const receipt = measured.receipts.find((r) =>
+            finding.startsWith(`${r.anchor}:`),
+          );
+          return receipt
+            ? `${finding}; closest ${receipt.separation.toFixed(3)} m at ${receipt.seconds.toFixed(3)} s`
+            : finding;
+        }),
+        ...(clearance !== undefined && !(clearance > 0)
+          ? [
+              `${finishing!.intent.anchor}: occluded from the delivered camera by ${(-clearance).toFixed(3)} m`,
+            ]
+          : []),
+      ],
+      measures:
+        clearance === undefined ? {} : { "finish-clearance": clearance },
       receipts: measured.receipts,
       cues,
       seek,
@@ -247,8 +274,11 @@ export namespace RingStage {
     /** Legality violations of the schedule. */
     violations: string[];
 
-    /** Outcome audit findings against the measured contacts. */
+    /** Outcome audit findings against the measured contacts, and the finish's visibility audit. */
     findings: string[];
+
+    /** Named measurements of the mount, such as the finish's sight clearance in metres. */
+    measures: Record<string, number>;
 
     /** Measured contacts. */
     receipts: ContactReceipts.IReceipt[];

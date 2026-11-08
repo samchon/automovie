@@ -32,6 +32,7 @@ export function test_exchange(): void {
       a.jab().cross().hook().lowKick(),
       b.parry().cover().roll().check(),
     ),
+    "test",
   );
   const strikes = schedule.entries.filter(
     (e) => e.intent.capability === "strike",

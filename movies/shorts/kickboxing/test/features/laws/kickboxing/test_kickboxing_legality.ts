@@ -18,7 +18,9 @@ export function test_kickboxing_legality(): void {
   const cast = polygonCast();
   const { a, b } = cast;
   const rules = (part: AutoMovieComposition): string[] =>
-    BoutLaws.check(BoutLaws.resolve(cast, part)).map((v) => v.split(":")[0]!);
+    BoutLaws.check(BoutLaws.resolve(cast, part, "test")).map(
+      (v) => v.split(":")[0]!,
+    );
   assert.deepEqual(
     rules(
       exchange(cast, "x", a.jab().cross().lowKick(), b.parry().cover().check()),

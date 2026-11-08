@@ -155,6 +155,7 @@ export namespace FighterPosture {
                 guard.yaw,
               )
             : undefined;
+        const drawn = (entry.state as BoutLaws.IState | undefined)?.strike;
         const struck: IBoutPosture | null = StrikeShape.posture({
           measure,
           guard,
@@ -164,12 +165,18 @@ export namespace FighterPosture {
           seconds: t,
           target,
           ...(clinch ? { clinch } : {}),
+          ...(drawn ? { recoil: drawn.recoil } : {}),
+          hold: fighter.lingers(
+            action.technique,
+            answered(schedule, entry.intent.anchor) ?? "",
+          ),
         });
         if (struck) posture = merge(posture, struck, guard, rest);
       } else if (action.kind === "answer") {
         if (seconds >= entry.end) continue;
         const scale: number = action.answer === "take" ? REACTION_SCALE : 1;
-        const answered: IBoutPosture | null = DefenseShape.posture({
+        const drawn = (entry.state as BoutLaws.IState | undefined)?.answer;
+        const shaped: IBoutPosture | null = DefenseShape.posture({
           measure,
           guard,
           rest,
@@ -178,8 +185,11 @@ export namespace FighterPosture {
           lead: action.lead,
           seconds: t,
           scale,
+          onset: drawn?.lateness ?? 0,
+          ready: BoutLaws.ready(action),
+          coverage: drawn?.coverage ?? 1,
         });
-        if (answered) posture = merge(posture, answered, guard, rest);
+        if (shaped) posture = merge(posture, shaped, guard, rest);
       } else if (action.kind === "touch") {
         if (seconds >= entry.end) continue;
         const reach: number = Math.min(
@@ -262,6 +272,19 @@ export namespace FighterPosture {
     return KickboxingAction.read(entry.intent);
   }
 
+  /** The outcome of the answer to a strike anchor. */
+  function answered(
+    schedule: IAutoMovieSchedule,
+    anchor: string | undefined,
+  ): string | undefined {
+    if (anchor === undefined) return undefined;
+    return schedule.entries.find((e) => {
+      if (e.intent.capability !== "answer") return false;
+      const action = KickboxingAction.read(e.intent);
+      return action.kind === "answer" && action.strike === anchor;
+    })?.outcome;
+  }
+
   function phaseEntry(
     schedule: IAutoMovieSchedule,
     subject: string,
@@ -326,7 +349,7 @@ export namespace FighterPosture {
     const { entry, share, from, about } = here.moving;
     const action = KickboxingAction.read(entry.intent);
     if (action.kind !== "move") throw new Error("unreachable");
-    const to: RingFootwork.IPoint = (entry.state as BoutLaws.IState).origin;
+    const to: RingFootwork.IPoint = (entry.state as BoutLaws.IState).origin!;
     const first: "left" | "right" = StepPattern.leading(from, to, facing);
     const along = (s: number): RingFootwork.IPoint =>
       BoutLaws.origin(

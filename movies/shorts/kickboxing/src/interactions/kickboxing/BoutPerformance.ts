@@ -16,6 +16,7 @@ import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingDefense } from "../../laws/kickboxing/KickboxingDefense";
 import { KickboxingOutcome } from "../../laws/kickboxing/KickboxingOutcome";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
+import type { BoutLaws } from "./BoutLaws";
 import { FighterPosture } from "./FighterPosture";
 import type { IRingCast } from "./IRingCast";
 
@@ -24,7 +25,8 @@ import type { IRingCast } from "./IRingCast";
  * fitted by his limbs against the floor, then every touching strike's weapon
  * bent onto the receiver's actual region by the engine's relational fit from
  * the held support foot, weighted in over the last quarter of the delivery
- * and out over the first quarter of the return, and finally the fallen
+ * and out over the first quarter of the return, landing at the strike's
+ * drawn point along the region's surface, and finally the fallen
  * fighter settled onto the canvas by his lowest collider. Every second is a
  * pure function of the schedule; results are cached by second.
  *
@@ -204,6 +206,7 @@ export class BoutPerformance {
             receiver,
             strike.spec,
             (s: number) => this.prior(receiver.id, s).segments,
+            BoutPerformance.landing(receiver, strike),
           ),
         },
         seconds,
@@ -250,6 +253,9 @@ export class BoutPerformance {
     fighter: Fighter,
     spec: KickboxingTechnique.ISpec,
     pose: (s: number) => Record<string, P.ITransform>,
+    regions: Readonly<
+      Record<string, resolveAutoMovieRelationalGoal.IRegion>
+    > = fighter.body.regions,
   ): resolveAutoMovieRelationalGoal.IBody {
     const support: "left" | "right" =
       spec.limb === "leg" ? KickboxingTechnique.opposite(spec.side) : "left";
@@ -273,7 +279,7 @@ export class BoutPerformance {
     return {
       profile: fighter.body.profile,
       pose,
-      regions: fighter.body.regions,
+      regions,
       support: () => ({
         bone: `${support}Midfoot`,
         localPoint: fighter.body.weapons[`sole-${support}`]!.localPoint,
@@ -367,6 +373,42 @@ export namespace BoutPerformance {
 
     /** The answer's entry. */
     answer: IAutoMovieSchedule.IEntry;
+  }
+
+  /**
+   * The receiver's regions with the struck one moved along its surface by
+   * the strike's drawn contact offset: tangent to the region's outward
+   * direction, along the bone's own long axis where that axis is not the
+   * outward one, so the point stays on the region.
+   *
+   * @param receiver The receiver.
+   * @param strike The touching strike.
+   * @returns The regions the relational fit reads.
+   */
+  export function landing(
+    receiver: Fighter,
+    strike: ITouch,
+  ): Readonly<Record<string, resolveAutoMovieRelationalGoal.IRegion>> {
+    const drawn = (strike.entry.state as BoutLaws.IState | undefined)?.strike;
+    const region = receiver.body.regions[strike.region];
+    if (!drawn || !region || drawn.point === 0) return receiver.body.regions;
+    const out: IAutoMovieVector3 = Vector3.normalize(region.localPoint);
+    const axis: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+    const along: IAutoMovieVector3 = Vector3.subtract(
+      axis,
+      Vector3.scale(out, Vector3.dot(axis, out)),
+    );
+    if (Vector3.length(along) < 1e-6) return receiver.body.regions;
+    return {
+      ...receiver.body.regions,
+      [strike.region]: {
+        bone: region.bone,
+        localPoint: Vector3.add(
+          region.localPoint,
+          Vector3.scale(Vector3.normalize(along), drawn.point),
+        ),
+      },
+    };
   }
 
   /**

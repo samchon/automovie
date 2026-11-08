@@ -13,11 +13,13 @@ import { blendPosture } from "./blendPosture";
  * limb closes the attacked corridor, or the body leaves the punch's line, and
  * everything returns to the guard after the attack. A landed blow (`take`)
  * moves the struck region away from the blow and shows strain on the face.
- * The engagement rises from the attack's launch to its contact, holds while a
+ * The engagement rises from the answer's onset, the attack's launch plus its
+ * drawn lateness, to the instant its class needs it complete (the contact,
+ * or a habit's earlier instant), up to its drawn coverage; it holds while a
  * feint returns and falls over the answer's own return.
  *
  * ```ts
- * DefenseShape.posture({ measure, guard, rest, answer, attack, lead, seconds, scale });
+ * DefenseShape.posture({ measure, guard, rest, answer, attack, lead, seconds, scale, onset, ready, coverage });
  * ```
  *
  * @evidence docs/research/kickboxing/techniques.md#defenses The body-frame shape of each defense.
@@ -68,6 +70,15 @@ export namespace DefenseShape {
 
     /** Strength of a landed blow's reaction in [0, 1], drawn by the caller within the variation law. */
     scale: number;
+
+    /** Seconds after the attack's launch the answer starts moving: its drawn lateness. */
+    onset: number;
+
+    /** Seconds after the attack's launch by which the answer is complete: the contact, or a habit's earlier instant. */
+    ready: number;
+
+    /** Share of the full defensive shape reached, drawn by the caller within the variation law. */
+    coverage: number;
   }
 
   /**
@@ -94,15 +105,15 @@ export namespace DefenseShape {
         ? t < input.lead
           ? 0
           : 1 - ease((t - input.lead) / tail)
-        : t < input.lead
-          ? ease(t / input.lead)
+        : t < input.ready
+          ? ease((t - input.onset) / (input.ready - input.onset))
           : t < input.lead + hold
             ? 1
             : 1 - ease((t - input.lead - hold) / (tail - hold));
     return blendPosture(
       input.guard,
       shape(input, KickboxingTechnique.performed(spec)),
-      engagement,
+      engagement * (input.answer === "take" ? 1 : input.coverage),
       input.rest,
     );
   }

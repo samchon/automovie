@@ -2,6 +2,7 @@ import type { IAutoMovieSchedule } from "@automovie/engine";
 
 import { composeKickboxing } from "../../src/composition/films/composeKickboxing";
 import { CameraTrack } from "../../src/interactions/cinematography/CameraTrack";
+import { FinishSight } from "../../src/interactions/cinematography/FinishSight";
 import { BoutLaws } from "../../src/interactions/kickboxing/BoutLaws";
 import type { IRingCast } from "../../src/interactions/kickboxing/IRingCast";
 import { RefereeTrack } from "../../src/interactions/officiating/RefereeTrack";
@@ -14,6 +15,7 @@ export function polygonFilm(): polygonFilm.IFilm {
   const schedule: IAutoMovieSchedule = BoutLaws.resolve(
     cast,
     composeKickboxing(cast, DURATION),
+    SEED,
   );
   const referee: RefereeTrack.ITrack = RefereeTrack.resolve(
     cast,
@@ -25,8 +27,9 @@ export function polygonFilm(): polygonFilm.IFilm {
     schedule,
     referee,
     DURATION,
+    FinishSight.volumes(cast, schedule, referee),
   );
-  cached = { cast, schedule, referee, camera, duration: DURATION };
+  cached = { cast, schedule, referee, camera, duration: DURATION, seed: SEED };
   return cached;
 }
 
@@ -39,8 +42,12 @@ export namespace polygonFilm {
     referee: RefereeTrack.ITrack;
     camera: CameraTrack.ISample[];
     duration: number;
+    seed: string;
   }
 }
+
+/** The film seed the production mounts with: the film's name. */
+const SEED: string = "kickboxing";
 
 /** The film's running time, seconds (screenplay). */
 const DURATION: number = 180;

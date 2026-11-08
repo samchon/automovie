@@ -67,12 +67,16 @@ export namespace KickboxingAction {
         lead: number;
         /** Anchor id of the answered strike. */
         strike: string;
+        /** When a habit fires it: complete by the kick's chamber key instead of the contact. */
+        ready?: "chamber";
       }
     | {
         /** A defense a capability offers before an exchange pairs it with an attack. */
         kind: "defend";
         /** The answer. */
         answer: Answer;
+        /** When a habit fires it: complete by the kick's chamber key instead of the contact. */
+        ready?: "chamber";
       }
     | {
         /** A ring movement. */
