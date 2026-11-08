@@ -442,3 +442,12 @@ export { planPhysicalContactTargets } from "./physics/planPhysicalContactTargets
 export { samplePhysicalRecoverySupport } from "./physics/samplePhysicalRecoverySupport";
 export { physicalJointChain } from "./physics/physicalJointChain";
 export { samplePhysicalOwnership } from "./physics/samplePhysicalOwnership";
+export type { IAutoMovieArtifactKey } from "./cache/IAutoMovieArtifactKey";
+export type { IAutoMovieArtifactStore } from "./cache/IAutoMovieArtifactStore";
+export type { IAutoMovieArtifactPlan } from "./cache/IAutoMovieArtifactPlan";
+export type { IAutoMovieArtifactResolution } from "./cache/IAutoMovieArtifactResolution";
+export { composeAutoMovieArtifactKey } from "./cache/composeAutoMovieArtifactKey";
+export { planAutoMovieArtifacts } from "./cache/planAutoMovieArtifacts";
+export { resolveAutoMovieArtifact } from "./cache/resolveAutoMovieArtifact";
+export { encodeAutoMovieArtifactJson } from "./cache/encodeAutoMovieArtifactJson";
+export { decodeAutoMovieArtifactJson } from "./cache/decodeAutoMovieArtifactJson";
