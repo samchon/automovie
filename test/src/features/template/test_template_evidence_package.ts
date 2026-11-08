@@ -23,11 +23,12 @@ import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture
  * 3. An additional ordinary native claim exposes its missing answer.
  * 4. Default claim objects remain independent across calls.
  * 5. An omitted outline stage follows activated settings and rejects an unanswered outline principle.
- * 6. Enabled research and motion stages require each study's detached answers and each motion function's answers, and a motion function must cite its study.
+ * 6. Enabled research and behavior stages require each study's detached answers and each law's answers, and a law must cite its study.
+ * 7. An enabled composition stage requires every screenplay beat realized: a scene citing one of two beats fails, and citing their scene covers both.
  *
  * @evidence contracts/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage and outline stage inheritance.
  * @evidence contracts/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass.
- * @evidence contracts/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection, independent default objects, and a movement family's detached answers with and without its study citation.
+ * @evidence contracts/testing.md#distinguishing-cases Contrasts missing and complete engineering answers, a type answering the design checklist against one answering the implementation checklist, coding and explicit narrative, additional native requirements, inherited outline stages, relative location rejection, independent default objects, a law's answers with and without its study citation, and a scene citing one beat against one citing the whole scene.
  * @evidence contracts/testing.md#execution-ownership Runs in-process through workspace source exports with temporary files beneath the existing monorepo cache so normal ancestor dependency resolution finds already linked compiler packages. It installs no consumer, starts no process/browser/GPU, and removes its owned fixtures in finally.
  */
 export async function test_template_evidence_package(): Promise<void> {
@@ -276,10 +277,11 @@ export async function test_template_evidence_package(): Promise<void> {
       JSON.stringify(unanswered.report.diagnostics),
     );
 
-    // A study answers the story research principles; a motion function answers
-    // its development contract and must cite the study it follows.
+    // A study answers the story research principles; a law answers the
+    // behaviors contract and must cite the study it follows.
     for (const file of [
-      "development/motion.md",
+      "development/behaviors.md",
+      "development/composition.md",
       "story/shared/principles/research.md",
     ])
       ProductionWorkflowFixture.write(
@@ -297,18 +299,18 @@ export async function test_template_evidence_package(): Promise<void> {
     ProductionWorkflowFixture.write(
       production,
       "docs/research/index.md",
-      "# Research\n\n- [Footwork](footwork.md)\n",
+      "# Research\n\n- [Lead step](footwork/lead-step.md)\n",
     );
     ProductionWorkflowFixture.write(
       production,
-      "docs/research/footwork.md",
-      "# Footwork\n\nA lead step covers half a stance length before the rear foot follows.\n",
+      "docs/research/footwork/lead-step.md",
+      "# Lead step\n\nA lead step covers half a stance length before the rear foot follows.\n",
     );
     ProductionWorkflowFixture.write(
       production,
-      "docs/evidence/construction/files/research/footwork.md",
+      "docs/evidence/construction/files/research/footwork/lead-step.md",
       [
-        "# docs/research/footwork.md",
+        "# docs/research/footwork/lead-step.md",
         "",
         "## @evidence shared/principles/research.md#depicted-practice",
         "",
@@ -320,31 +322,35 @@ export async function test_template_evidence_package(): Promise<void> {
         "",
       ].join("\n"),
     );
+    const implementation: string[] = [
+      " * @evidence contracts/development/implementation.md#principled-implementation The method follows its cited source.",
+      " * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression with no state.",
+      " * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Nothing is tuned or special-cased.",
+      " * @evidence contracts/development/implementation.md#efficient-algorithms One operation costs constant time.",
+      " * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call computes from its arguments alone.",
+      " * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Nothing is allocated or retained.",
+    ];
     const step = (citation: string[]): string =>
       [
         "/** Lead step length for a stance width, in meters.",
         " * @evidence contracts/development/common.md#meaningful-documentation The comment names the quantity and its unit.",
-        " * @evidence contracts/development/implementation.md#principled-implementation Half the stance width, as the study observes.",
-        " * @evidence contracts/development/implementation.md#clear-and-simple-structure One expression with no state.",
-        " * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The ratio comes from the study, not from a tuned shot.",
-        " * @evidence contracts/development/implementation.md#efficient-algorithms One division costs constant time.",
-        " * @evidence contracts/development/implementation.md#reuse-equivalent-work Each call computes from its argument alone.",
-        " * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Nothing is allocated or retained.",
-        " * @evidence contracts/development/motion.md#studied-performance The half-stance step is the study's observed value.",
-        " * @evidence contracts/development/motion.md#deterministic-evaluation The result depends only on its argument.",
+        ...implementation,
+        " * @evidence contracts/development/behaviors.md#studied-laws The half-stance step is the study's observed value.",
+        " * @evidence contracts/development/behaviors.md#relational-goals The length is relative to the performer's own stance.",
+        " * @evidence contracts/development/behaviors.md#deterministic-evaluation The result depends only on its argument.",
         ...citation,
         " */",
         "export function stepLength(stance: number): number { return stance / 2; }",
       ].join("\n");
     ProductionWorkflowFixture.write(
       production,
-      "src/motion/footwork/stepLength.ts",
+      "src/laws/footwork/stepLength.ts",
       step([]),
     );
     const staged: IEvidenceConfig = createEvidenceConfig({
       location: production,
       research: "evidence",
-      development: { motion: "evidence" },
+      development: { behaviors: "evidence" },
     });
     const stagedFile: string = path.join(production, "evidence.config.ts");
     const uncited: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
@@ -353,9 +359,9 @@ export async function test_template_evidence_package(): Promise<void> {
     assert.equal(uncited.report.success, false);
     ProductionWorkflowFixture.write(
       production,
-      "src/motion/footwork/stepLength.ts",
+      "src/laws/footwork/stepLength.ts",
       step([
-        " * @evidence docs/research/footwork.md The lead step covers half a stance length.",
+        " * @evidence docs/research/footwork/lead-step.md The lead step covers half a stance length.",
       ]),
     );
     const cited: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
@@ -365,6 +371,67 @@ export async function test_template_evidence_package(): Promise<void> {
       cited.report.success,
       true,
       JSON.stringify(cited.report.diagnostics),
+    );
+
+    // A scene must realize every screenplay scene and beat, citing a beat or
+    // its whole scene; a film must deliver its screenplay file.
+    ProductionWorkflowFixture.write(
+      production,
+      "docs/body/screenplay/bout.md",
+      "# Bout\n\n## Ring {#s01}\n\n### Feint {#s01-b01}\n\nA feints.\n\n### Kick {#s01-b02}\n\nA kicks.\n",
+    );
+    const compose = (name: string, citation: string): string =>
+      [
+        `/** Composes ${name}.`,
+        " * @evidence contracts/development/common.md#meaningful-documentation The comment names what is composed.",
+        ...implementation,
+        " * @evidence contracts/development/composition.md#screenplay-realization The cited decisions are composed.",
+        " * @evidence contracts/development/composition.md#composition-only Only capabilities are combined.",
+        " * @evidence contracts/development/composition.md#living-scene Every presence keeps its role behavior.",
+        citation,
+        " */",
+        `export function ${name}(): string { return "${name}"; }`,
+      ].join("\n");
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/films/bout.ts",
+      compose(
+        "bout",
+        " * @evidence docs/body/screenplay/bout.md The film delivers the bout.",
+      ),
+    );
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/bout/ring/ring.ts",
+      compose(
+        "ring",
+        " * @evidence docs/body/screenplay/bout.md#s01-b01 The scene realizes the feint.",
+      ),
+    );
+    const composed: IEvidenceConfig = createEvidenceConfig({
+      location: production,
+      research: "evidence",
+      development: { behaviors: "evidence", composition: "evidence" },
+    });
+    const partial: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+      createEvidenceConfigPlan(composed, stagedFile),
+    );
+    assert.equal(partial.report.success, false);
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/bout/ring/ring.ts",
+      compose(
+        "ring",
+        " * @evidence docs/body/screenplay/bout.md#s01 The scene realizes both beats.",
+      ),
+    );
+    const whole: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+      createEvidenceConfigPlan(composed, stagedFile),
+    );
+    assert.equal(
+      whole.report.success,
+      true,
+      JSON.stringify(whole.report.diagnostics),
     );
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

@@ -6,6 +6,7 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { physicalModelRestTransforms } from "./physicalModelRestTransforms";
 import { primitiveCentroid } from "./primitiveCentroid";
 import { primitiveVolume } from "./primitiveVolume";
 
@@ -15,8 +16,10 @@ import { primitiveVolume } from "./primitiveVolume";
  * {@link IAutoMovieBody.centerOfMass} is left `null`.
  *
  * Uniform density is assumed: each primitive part contributes its analytic
- * solid volume (scaled by its part transform) at its transformed centroid. Mesh
- * parts and zero-volume primitives (a plane, or a non-positive scale)
+ * solid volume (scaled by its part transform) at its transformed centroid.
+ * Attached parts are carried by their bone's neutral model-frame transform.
+ * Skeleton rest scale is omitted consistently with the engine's pose FK.
+ * Mesh parts and zero-volume primitives (a plane, or a non-positive scale)
  * contribute nothing. Returns `null` when the model has no primitive volume to
  * weigh (a mesh-only or all-degenerate model), which is the caller's signal
  * that `centerOfMass` must be declared explicitly.
@@ -37,16 +40,29 @@ export const deriveCenterOfMass: (
 ): IAutoMovieVector3 | null => {
   let total: number = 0;
   let weighted: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const bones: ReturnType<typeof physicalModelRestTransforms> =
+    physicalModelRestTransforms(model);
   for (const part of model.parts) {
     if (part.geometry.type !== "primitive") continue;
     const transform: IAutoMovieTransform = part.transform ?? IDENTITY;
     const volume: number =
       primitiveVolume(part.geometry.shape) * scaleVolume(transform);
     if (volume <= 0) continue;
-    const centroid: IAutoMovieVector3 = applyTransform(
+    let centroid: IAutoMovieVector3 = applyTransform(
       transform,
       primitiveCentroid(part.geometry.shape),
     );
+    if (part.attachedBone !== null && part.attachedBone !== undefined) {
+      const bone: ReturnType<typeof bones.get> = bones.get(part.attachedBone);
+      if (!bone)
+        throw new Error(
+          `Center of mass references missing bone ${part.attachedBone}`,
+        );
+      centroid = Vector3.add(
+        bone.position,
+        Quaternion.rotateVector(bone.rotation, centroid),
+      );
+    }
     weighted = Vector3.add(weighted, Vector3.scale(centroid, volume));
     total += volume;
   }

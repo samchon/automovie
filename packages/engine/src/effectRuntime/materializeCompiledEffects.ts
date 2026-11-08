@@ -10,6 +10,7 @@ import {
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 import { compareCodeUnits } from "../text/compareCodeUnits";
+import { admitEffectTransport } from "./admitEffectTransport";
 
 /**
  * Materialize effect cues into builder-owned deterministic streams.
@@ -28,7 +29,7 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  */
 export function materializeCompiledEffects(
   props: {
-    world: IAutoMovieWorldDesign;
+    world: Pick<IAutoMovieWorldDesign, "effectRecipes" | "effectZones">;
     fixedStepSeconds: number;
     cues: readonly IAutoMovieShotEffectCue[];
   } & (
@@ -64,6 +65,7 @@ export function materializeCompiledEffects(
       const recipe: IAutoMovieEffectRecipe | undefined =
         zone === undefined ? undefined : recipes.get(zone.recipe);
       if (zone === undefined || recipe === undefined) return [];
+      admitEffectTransport(recipe);
       const seedDigest: string = autoMovieRenderDigest(
         canonicalizeAutoMovieJson(
           props.seedOwner === undefined

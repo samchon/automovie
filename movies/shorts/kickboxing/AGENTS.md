@@ -29,20 +29,26 @@ Stop only when nothing can move without the user or a destructive or outward-fac
 
 ## Skills
 
-Read [PROJECT.md](PROJECT.md) for the adopted scope, then enter the requested task directly. Screenwriting selects only the current writing task; review, graph configuration and media production have their own entry points.
+Read [PROJECT.md](PROJECT.md) for the adopted scope, then enter the requested task directly. Story selects only the current writing task; review, graph configuration and media production have their own entry points.
 
 ### Creation
 
-- [production](.agents/skills/production/SKILL.md): starting, resuming, restructuring, or delivering a production, including project context, working files, video generation, editing, encoding and handoff.
-- [screenwriting](.agents/skills/screenwriting/SKILL.md): planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair. Its task table selects the needed documents.
-- [3d-modeling](.agents/skills/3d-modeling/SKILL.md): creating, importing, recovering, or inspecting asset representations, geometry, rigs, and authored controls.
-- [motion](.agents/skills/motion/SKILL.md): programmed performance, staging, physical responses, frame-time evaluation and motion verification.
+- [production](.agents/skills/production/SKILL.md): starting, resuming, restructuring, or delivering a production, including project context, media, conditioning, video generation, editing, encoding and handoff.
+- [story](.agents/skills/story/SKILL.md): studying a performance before writing it, and planning, writing, continuing or revising a brief, settings, treatments, scripts, final screenplay, expression pass, narrative evidence or cause-based repair. Its parts route to the needed documents.
+- [3d-modeling](.agents/skills/3d-modeling/SKILL.md): creating, importing, recovering, or inspecting asset representations, geometry, rigs, and authored controls; [entity work](.agents/skills/development/entities.md) sets what the commission needs from them.
+- [motion](.agents/skills/motion/SKILL.md): programmed performance from researched laws, staging, camera, physical responses, frame-time evaluation and motion verification.
 - [audio](.agents/skills/audio/SKILL.md): choosing or acquiring speech, music, or effects, aligning sound, and checking the final mix.
 
 ### Implementation and evidence
 
-- [development](.agents/skills/development/SKILL.md): production implementation, integrations, behavioral tests and technical documentation.
-- [evidence](.agents/skills/evidence/SKILL.md): requirements, question ownership, evidence answers, graph configuration, scope and actual parent relationships.
+- [development](.agents/skills/development/SKILL.md): production implementation, integrations and behavioral tests.
+- [evidence](.agents/skills/evidence/SKILL.md): adopting requirements, configuring the evidence graph and answering source and test contracts.
+- [contracts](.agents/skills/contracts/SKILL.md): the checklists each respondent answers; read before selecting, answering or citing a contract item.
+
+### Writing
+
+- [documentation](.agents/skills/documentation/SKILL.md): writing a README, technical document, evidence prose or doc comment; creative bodies follow story.
+- [prompting](.agents/skills/prompting/SKILL.md): changing `AGENTS.md`, `CLAUDE.md`, or a skill.
 
 ### Assessment
 

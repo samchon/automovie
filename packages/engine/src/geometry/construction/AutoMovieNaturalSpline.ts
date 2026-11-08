@@ -88,7 +88,9 @@ export namespace AutoMovieNaturalSpline {
       ys[k]! +
       t *
         (slope +
-          t * (curvatures[k]! / 2 + (t * (curvatures[k + 1]! - curvatures[k]!)) / (6 * h)))
+          t *
+            (curvatures[k]! / 2 +
+              (t * (curvatures[k + 1]! - curvatures[k]!)) / (6 * h)))
     );
   }
 
@@ -118,8 +120,34 @@ export namespace AutoMovieNaturalSpline {
       (h * (2 * curvatures[k]! + curvatures[k + 1]!)) / 6;
     const inside: boolean = x >= xs[0]! && x <= xs[n - 1]!;
     return [
-      slope + curvatures[k]! * t + ((curvatures[k + 1]! - curvatures[k]!) * t * t) / (2 * h),
-      inside ? curvatures[k]! + ((curvatures[k + 1]! - curvatures[k]!) * t) / h : 0,
+      slope +
+        curvatures[k]! * t +
+        ((curvatures[k + 1]! - curvatures[k]!) * t * t) / (2 * h),
+      inside
+        ? curvatures[k]! + ((curvatures[k + 1]! - curvatures[k]!) * t) / h
+        : 0,
     ];
+  }
+
+  /**
+   * Third derivative at x of the same piecewise cubic as {@link evaluate}:
+   * constant `(M_{k+1} - M_k) / h` on the interval {@link derivative} reads,
+   * zero beyond the end knots.
+   *
+   * @param spline The spline.
+   * @param x Abscissa.
+   * @returns `S^(3)(x)`.
+   */
+  export function jerk(spline: ISpline, x: number): number {
+    const { xs, curvatures } = spline;
+    const n: number = xs.length;
+    if (!(x >= xs[0]! && x <= xs[n - 1]!)) return 0;
+    let k: number = n - 2;
+    for (let i: number = 0; i + 1 < n; i++)
+      if (x <= xs[i + 1]!) {
+        k = i;
+        break;
+      }
+    return (curvatures[k + 1]! - curvatures[k]!) / (xs[k + 1]! - xs[k]!);
   }
 }

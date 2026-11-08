@@ -1,9 +1,13 @@
-import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
+import {
+  type IAutoMovieViewerHandle,
+  createAutoMoviePerformanceOverlay,
+  mountViewer,
+} from "@automovie/viewer";
 
 import type { IFilm } from "./IFilm";
 import type { IFilmProduction } from "./IFilmProduction";
 import { clampProductionSeconds } from "./clampProductionSeconds";
-import { films } from "./films";
+import { films } from "./composition/films";
 import { selectFilm } from "./selectFilm";
 
 const query: URLSearchParams = new URLSearchParams(location.search);
@@ -18,6 +22,48 @@ const production: IFilmProduction = await film.create(
 );
 const canvas: HTMLCanvasElement =
   document.querySelector<HTMLCanvasElement>("#view")!;
+const reviewRequested: boolean =
+  query.get("rig") === "1" || query.get("contacts") === "1";
+if (reviewRequested && !production.performance)
+  throw new Error("This film has no physical review source");
+const overlay:
+  | ReturnType<typeof createAutoMoviePerformanceOverlay>
+  | undefined =
+  reviewRequested && production.performance
+    ? createAutoMoviePerformanceOverlay(production.performance)
+    : undefined;
+if (overlay) {
+  production.scene.add(overlay.object);
+  overlay.show(query.get("rig") === "1", query.get("contacts") === "1");
+}
+const inspection: IFilmProduction["camera"] | undefined = query.has("view")
+  ? production.camera.clone()
+  : undefined;
+if (inspection) {
+  const coordinates: number[][] = query
+    .get("view")!
+    .split(":")
+    .map((part: string): number[] => part.split(",").map(Number));
+  if (
+    coordinates.length !== 2 ||
+    coordinates.some(
+      (point: number[]): boolean =>
+        point.length !== 3 || !point.every(Number.isFinite),
+    )
+  )
+    throw new Error("Inspection view must be x,y,z:tx,ty,tz in metres");
+  inspection.position.set(
+    coordinates[0]![0]!,
+    coordinates[0]![1]!,
+    coordinates[0]![2]!,
+  );
+  inspection.lookAt(
+    coordinates[1]![0]!,
+    coordinates[1]![1]!,
+    coordinates[1]![2]!,
+  );
+  inspection.updateProjectionMatrix();
+}
 const slider: HTMLInputElement =
   document.querySelector<HTMLInputElement>("#seek")!;
 const clock: HTMLOutputElement =
@@ -89,7 +135,12 @@ const host: IAutoMovieViewerHandle = mountViewer(
  */
 function draw(): void {
   production.seek(seconds);
-  host.renderer.render(production.scene, production.camera);
+  if (overlay && production.performance)
+    overlay.update(
+      production.performance.frame(),
+      production.performance.contacts(),
+    );
+  host.renderer.render(production.scene, inspection ?? production.camera);
   host.completeFrame(seconds);
   slider.value = String(seconds);
   clock.value = `${seconds.toFixed(2)} / ${durationSeconds.toFixed(2)} s`;
@@ -122,7 +173,11 @@ window.addEventListener(
     try {
       host.stop();
     } finally {
-      production.dispose();
+      try {
+        overlay?.dispose();
+      } finally {
+        production.dispose();
+      }
     }
   },
   { once: true },

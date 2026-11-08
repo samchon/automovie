@@ -21,7 +21,9 @@ export function selectFilm(
 ): { name: string; film: IFilm } {
   const names: string[] = Object.keys(films);
   if (names.length === 0)
-    throw new Error("No film is registered in src/films/index.ts");
+    throw new Error(
+      "No film is registered in src/composition/films/index.ts",
+    );
   if (name === null || name === "") {
     if (names.length === 1) return { name: names[0]!, film: films[names[0]!]! };
     throw new Error(

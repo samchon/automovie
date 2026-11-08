@@ -1,72 +1,52 @@
+import { planViewerFrameTimes } from "@automovie/render";
 import {
-  type IAutoMovieHeadlessPage,
-  planViewerFrameTimes,
-} from "@automovie/render";
-import {
-  type IAutoMovieViewerVideoResult,
+  decodeAutoMovieDelivery,
+  mixAutoMovieAudioCues,
   renderViewerFrames,
   renderViewerVideo,
+  type IAutoMovieViewerVideoResult,
 } from "@automovie/render/node";
-import { DEFAULT_CHROME_EXECUTABLE } from "@automovie/render/node/chrome";
 import ffmpeg from "ffmpeg-static";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
-import { createRequire } from "node:module";
+import ffprobe from "ffprobe-static";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import type { IFilm } from "../IFilm";
-import { films } from "../films";
-import { FilmExportPlan } from "../runtime/export/FilmExportPlan";
-import { decodeFilm } from "../runtime/export/decodeFilm";
+import { films } from "../composition/films";
 import { selectFilm } from "../selectFilm";
-import { FilmPlan } from "../shots/kickboxing/ring-bout/FilmPlan";
-import type { AudioMix } from "../sound/AudioMix";
-import { renderFilmAudioMix } from "../sound/renderFilmAudioMix";
 
 /**
- * Export one film of the inspected Viewer as a video with its actual contacts and
- * identical soundtrack, or as stills of chosen frames.
+ * Export one film of the running Viewer as a video, or as stills of chosen frames.
  *
- * @evidence contracts/common.md#implementation-and-ownership Public Render owns one browser, completed seek captures at i/30, encoding and frame-scratch cleanup. This caller owns a fresh exclusive audio scratch directory, removed after success, failure or cancellation without touching prior paths. Same-page preparation reads actual full-timeline events, contact receipts and audio identity, then shared AudioMix writes byte-identical WAV. Actual foot landings and attack onsets replace nominal timing in both consumers; identity mismatch refuses before capture. Final decode checks all 5400 video frames, audio samples and exact 180-second presentations. Failed final artifacts remain distinguishable by the rejected command and available receipts; only the temporary WAV is always released.
- * @evidence contracts/common.md#authoring-interface Run pnpm render --film kickboxing with an optional inspected local Viewer URL (VIEWER_URL or port 5199 by default) to write media/automovie/<film>/videos/<film>.mp4, or --out <dir>; adding --at seconds or a --from/--to range with --every frames or --step seconds writes those frames as stills to media/automovie/<film>/frames/ or --out instead. CHROME_PATH/CHROME, FFMPEG_PATH and FFPROBE_PATH may override installed executables. Sidecars retain source URL, actual contacts/audio identity, capture and encode timings and complete decode receipts. The command grants no picture, listening or physical acceptance.
+ * `npm run render -- --film <name>` writes the whole film to
+ * `media/automovie/<film>/videos/film.mp4` with its capture report.
+ * `--from 120 --to 150 --every 20` (or `--step <seconds>`) writes every 20th
+ * frame of that range as stills, and `--at 12,30.5` writes those seconds, to
+ * `media/automovie/<film>/frames/` or `--out <dir>`, named
+ * `f<frame>-t<seconds>.png`. `--film` may be omitted while only one film exists.
+ * A bare `http://...` argument selects the running Viewer, as `VIEWER_URL`
+ * does; the default is this production's Viewer at 127.0.0.1:5199. The video
+ * mode mixes the page's own soundtrack cues into the encode and then decodes
+ * the delivered file completely, writing `decode-report.json` beside it.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation The comment gives both modes, every option and its unit, the default folders and the still names.
+ * @evidence contracts/development/implementation.md#principled-implementation One parser, film selection and capture URL serve both modes, so a still and the video's frame at the same second come from the same Viewer, raster and frame grid; the installed planViewerFrameTimes plans the seconds on the film's frame rate, and the installed renderViewerVideo and renderViewerFrames capture through the Viewer's own seek hook.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure The command parses arguments and composes the film registry with the installed planner and capture; capture, encoding and planning are not reimplemented here.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts An unknown option, a missing value, a missing CHROME_PATH or an ambiguous film throws instead of falling back to a guess.
+ * @evidence contracts/development/implementation.md#efficient-algorithms Parsing is linear in the argument count; capture and encoding cost belong to the installed runners, and stills capture only the planned frames.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work One Viewer load serves every frame of a run.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The installed runners release the browser and encoder on every outcome; the command keeps only the result it prints or writes.
  */
 export async function render(): Promise<void> {
-  /** Serializable facts read from the actual capture page, including fixed audio identity. */
-  type Observation = {
-    ready: boolean;
-    durationSeconds: number;
-    fps: number;
-    frameCount: number;
-    eventCount: number;
-    events: FilmPlan.Event[];
-    contacts: AudioMix.Contact[];
-    floorContacts: AudioMix.FloorContact[];
-    audio: { sha256: string; cueDigest: string; assets: unknown };
-    inspection: unknown;
-  };
-
-  /** Public methods on the prepared host; their results cross the evaluation transport. */
-  type Host = Omit<
-    Observation,
-    "events" | "contacts" | "floorContacts" | "audio" | "inspection"
-  > & {
-    audioEvents: () => Observation["events"];
-    contacts: () => Observation["contacts"];
-    floorContacts: () => Observation["floorContacts"];
-    audioManifest: () => Observation["audio"];
-    inspect: () => unknown;
-  };
-
-  // Options select the film and, for stills, their frames; a lone positional
-  // argument names the inspected Viewer URL.
   const options: Map<string, string> = new Map();
-  const positional: string[] = [];
   const argv: string[] = process.argv.slice(2);
+  let viewer: string | undefined;
   for (let index: number = 0; index < argv.length; index++) {
-    const [key, inline] = argv[index]!.split(/=(.*)/s) as [string, string?];
-    if (!key.startsWith("--")) {
-      positional.push(argv[index]!);
+    if (/^https?:\/\//.test(argv[index]!)) {
+      viewer = argv[index]!;
       continue;
     }
+    const [key, inline] = argv[index]!.split(/=(.*)/s) as [string, string?];
     if (
       ![
         "--film",
@@ -84,21 +64,27 @@ export async function render(): Promise<void> {
       throw new Error(`${key} needs a value`);
     options.set(key, value);
   }
-  if (positional.length > 1)
-    throw new Error("Give at most one Viewer URL; use --out for the folder");
   const number: (key: string) => number | undefined = (
     key: string,
   ): number | undefined =>
     options.has(key) ? Number(options.get(key)) : undefined;
+
   const selected: { name: string; film: IFilm } = selectFilm(
     films,
     options.get("--film") ?? null,
   );
-  const film: string = selected.name;
-  const url: string = FilmExportPlan.url(
-    positional[0] ?? process.env.VIEWER_URL ?? "http://127.0.0.1:5199/",
-    film,
+  const chromeExecutable: string = process.env.CHROME_PATH ?? "";
+  if (chromeExecutable.length === 0)
+    throw new Error(
+      "Set CHROME_PATH to an installed Chrome or Chromium executable",
+    );
+  const url: URL = new URL(
+    viewer ?? process.env.VIEWER_URL ?? "http://127.0.0.1:5199/",
   );
+  url.searchParams.set("capture", "1");
+  url.searchParams.set("w", "1280");
+  url.searchParams.set("h", "720");
+  url.searchParams.set("film", selected.name);
 
   // Any frame option asks for stills of those frames instead of the video.
   if (
@@ -107,7 +93,7 @@ export async function render(): Promise<void> {
     )
   ) {
     const stills: { file: string }[] = await renderViewerFrames({
-      url,
+      url: url.href,
       width: 1280,
       height: 720,
       fps: selected.film.fps,
@@ -120,193 +106,98 @@ export async function render(): Promise<void> {
         every: number("--every"),
         step: number("--step"),
       }),
-      outputDir: options.get("--out") ?? `media/automovie/${film}/frames`,
-      chromeExecutable:
-        process.env.CHROME_PATH ??
-        process.env.CHROME ??
-        DEFAULT_CHROME_EXECUTABLE,
-      seekFunction: "__afSeek",
+      outputDir:
+        options.get("--out") ?? `media/automovie/${selected.name}/frames`,
+      chromeExecutable,
     });
     for (const still of stills) console.log(still.file);
     return;
   }
-  const outputPath: string = path.resolve(
-    options.get("--out") ?? `media/automovie/${film}/videos`,
-    `${film}.mp4`,
+
+  const directory: string =
+    options.get("--out") ?? `media/automovie/${selected.name}/videos`;
+  const result: IAutoMovieViewerVideoResult = await renderViewerVideo({
+    url: url.href,
+    spec: {
+      target: "production",
+      frameFormat: { width: 1280, height: 720, fps: selected.film.fps },
+      toneMapping: "none",
+      codec: "h264",
+      pixelFormat: "yuv420p",
+      crf: 18,
+    },
+    durationSeconds: selected.film.durationSeconds,
+    frameDir: `.cache/render/${selected.name}`,
+    // Frames whose page digest is unchanged are reused from the last run;
+    // every fiftieth reused frame is recaptured to prove the digest whole.
+    cacheDirectory: `.cache/frames/${selected.name}`,
+    cacheVerifyEvery: 50,
+    outputPath: path.join(directory, "film.mp4"),
+    chromeExecutable,
+    ffmpegExecutable: process.env.FFMPEG_PATH ?? ffmpeg ?? "",
+    viewSelector: "#view",
+    prepare: async (page): Promise<{ audioMix?: string }> => {
+      const soundtrack = (await page.evaluate(
+        (): unknown =>
+          (
+            window as unknown as { __afSoundtrack: () => unknown }
+          ).__afSoundtrack(),
+        undefined,
+      )) as
+        | {
+            cues: { asset: string; seconds: number; gain: number }[];
+            assets: Record<string, string>;
+          }
+        | undefined;
+      if (!soundtrack) return {};
+      const mixed = await mixAutoMovieAudioCues({
+        sampleRate: SAMPLE_RATE,
+        durationSeconds: selected.film.durationSeconds,
+        assets: Object.fromEntries(
+          Object.entries(soundtrack.assets).map(([id, file]) => [
+            id,
+            path.resolve(file),
+          ]),
+        ),
+        cues: soundtrack.cues,
+        outputPath: path.resolve(
+          `.cache/render/${selected.name}/soundtrack.wav`,
+        ),
+      });
+      return { audioMix: mixed.path };
+    },
+    onProgress: (progress: {
+      index: number;
+      timeSeconds: number;
+      bytes: number;
+    }): void => {
+      if (progress.index % 150 === 0) console.log(progress);
+    },
+  });
+  if (result.frameCache) console.log({ frameCache: result.frameCache });
+  await mkdir(directory, { recursive: true });
+  await writeFile(
+    path.join(directory, "capture-report.json"),
+    JSON.stringify(result, null, 2),
   );
-  const ffmpegExecutable: string = process.env.FFMPEG_PATH ?? ffmpeg ?? "";
-  const ffprobeExecutable: string =
-    process.env.FFPROBE_PATH ??
-    (createRequire(import.meta.url)("ffprobe-static") as { path: string }).path;
-  if (ffmpegExecutable.length === 0 || ffprobeExecutable.length === 0)
-    throw new Error("Installed FFmpeg and FFprobe executables are required");
-  await mkdir(path.dirname(outputPath), { recursive: true });
-  const frameDir: string = path.resolve(`.cache/render/${film}`);
-  await mkdir(frameDir, { recursive: true });
-  const audioScratch: string = await mkdtemp(
-    path.join(frameDir, "film-audio-"),
+  const decoded = await decodeAutoMovieDelivery({
+    outputPath: path.join(directory, "film.mp4"),
+    ffmpegExecutable: process.env.FFMPEG_PATH ?? ffmpeg ?? "",
+    ffprobeExecutable: process.env.FFPROBE_PATH ?? ffprobe.path,
+    frameCount: Math.round(selected.film.durationSeconds * selected.film.fps),
+    fps: selected.film.fps,
+    width: 1280,
+    height: 720,
+    sampleRate: SAMPLE_RATE,
+  });
+  await writeFile(
+    path.join(directory, "decode-report.json"),
+    JSON.stringify(decoded, null, 2),
   );
-  let audio: Awaited<ReturnType<typeof renderFilmAudioMix>> | undefined;
-  let audioEvents: readonly FilmPlan.Event[] | undefined;
-  let contactReceipts: readonly AudioMix.Contact[] | undefined;
-  let floorContactReceipts: readonly AudioMix.FloorContact[] | undefined;
-  let viewerObservation: unknown;
-  let failure: { error: unknown } | undefined;
-  const controller: AbortController = new AbortController();
-  const abort: () => void = (): void =>
-    controller.abort(new Error("Film export interrupted"));
-  process.once("SIGINT", abort);
-  process.once("SIGTERM", abort);
-  try {
-    const result: IAutoMovieViewerVideoResult = await renderViewerVideo({
-      url,
-      durationSeconds: FilmPlan.duration,
-      frameDir,
-      outputPath,
-      chromeExecutable: process.env.CHROME_PATH ?? DEFAULT_CHROME_EXECUTABLE,
-      ffmpegExecutable,
-      spec: {
-        target: "kickboxing",
-        frameFormat: { fps: FilmPlan.fps, width: 1280, height: 720 },
-        toneMapping: "none",
-        codec: "h264",
-        pixelFormat: "yuv420p",
-        crf: 18,
-      },
-      viewSelector: "#view",
-      hideSelector: null,
-      maxFrames: FilmPlan.frames,
-      signal: controller.signal,
-      prepare: async (
-        page: Pick<IAutoMovieHeadlessPage, "evaluate">,
-      ): Promise<{ audioMix: string }> => {
-        const observed: unknown = await page.evaluate(
-          async (): Promise<unknown> => {
-            const globals: Record<string, unknown> =
-              globalThis as unknown as Record<string, unknown>;
-            const seek: unknown = globals.__afSeek;
-            if (typeof seek !== "function")
-              throw new Error("Viewer completed seek hook is unavailable");
-            await seek(0);
-            const host: Host = globals.__kickboxingFilm as Host;
-            if (!host || !host.ready)
-              throw new Error(
-                "Whole-film runtime and soundtrack are not prepared",
-              );
-            return {
-              ready: host.ready,
-              durationSeconds: host.durationSeconds,
-              fps: host.fps,
-              frameCount: host.frameCount,
-              eventCount: host.eventCount,
-              events: host.audioEvents(),
-              contacts: host.contacts(),
-              floorContacts: host.floorContacts(),
-              audio: host.audioManifest(),
-              inspection: host.inspect(),
-            };
-          },
-          null,
-        );
-        if (observed === null || typeof observed !== "object")
-          throw new Error("Viewer preparation returned no observation");
-        const host: Observation = observed as Observation;
-        FilmExportPlan.assertClock(host);
-        if (
-          !Array.isArray(host.events) ||
-          host.events.length === 0 ||
-          host.eventCount !== host.events.length ||
-          !Array.isArray(host.contacts) ||
-          !Array.isArray(host.floorContacts) ||
-          !host.audio
-        )
-          throw new Error("Viewer programme or audio manifest is incomplete");
-        audioEvents = host.events;
-        contactReceipts = host.contacts;
-        floorContactReceipts = host.floorContacts;
-        viewerObservation = host.inspection;
-        audio = await renderFilmAudioMix({
-          events: audioEvents,
-          contacts: contactReceipts,
-          floorContacts: floorContactReceipts,
-          outputPath: path.join(audioScratch, "mix.wav"),
-        });
-        if (
-          audio.sha256 !== host.audio.sha256 ||
-          audio.cueDigest !== host.audio.cueDigest ||
-          JSON.stringify(audio.assets) !== JSON.stringify(host.audio.assets)
-        )
-          throw new Error(
-            "Viewer and exported soundtrack bytes or cue/source identities differ",
-          );
-        return { audioMix: audio.path };
-      },
-      onProgress: (progress: {
-        index: number;
-        timeSeconds: number;
-        bytes: number;
-      }): void => {
-        if (progress.index % 150 === 0) console.log(JSON.stringify(progress));
-      },
-    });
-    await writeFile(
-      `${outputPath}.capture.json`,
-      JSON.stringify(
-        {
-          url,
-          clock: {
-            durationSeconds: FilmPlan.duration,
-            fps: FilmPlan.fps,
-            frameCount: FilmPlan.frames,
-          },
-          audio:
-            audio === undefined
-              ? undefined
-              : {
-                  ...audio,
-                  path: undefined,
-                  inputLifetime:
-                    "Exclusive temporary WAV, released by the export operation's finally block",
-                },
-          audioEvents,
-          contactReceipts,
-          floorContactReceipts,
-          viewerObservation,
-          result,
-          review:
-            "Capture and decoding do not establish picture, listening or physical acceptance",
-        },
-        null,
-        2,
-      ),
-    );
-    await decodeFilm({
-      outputPath,
-      ffmpegExecutable,
-      ffprobeExecutable,
-      frameCount: FilmPlan.frames,
-      fps: FilmPlan.fps,
-      width: 1280,
-      height: 720,
-      signal: controller.signal,
-    });
-  } catch (error: unknown) {
-    failure = { error };
-    throw error;
-  } finally {
-    process.removeListener("SIGINT", abort);
-    process.removeListener("SIGTERM", abort);
-    try {
-      await rm(audioScratch, { recursive: true });
-    } catch (cleanup: unknown) {
-      throw new AggregateError(
-        [...(failure === undefined ? [] : [failure.error]), cleanup],
-        "Film audio scratch cleanup failed",
-      );
-    }
-  }
-  console.log(outputPath);
 }
+
+/** Soundtrack sample rate, Hz: the 48 kHz of the production's audio sources. */
+const SAMPLE_RATE: number = 48000;
 
 void render().catch((error: unknown): void => {
   console.error(error);

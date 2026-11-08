@@ -1,49 +1,91 @@
+import type { AutoMoviePhysicsCache } from "@automovie/engine";
+import type {
+  IAutoMovieContactReceipt,
+  IAutoMoviePhysicalProfile,
+} from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { FilmRuntime } from "./runtime/FilmRuntime";
-import type { MovieAudio } from "./sound/MovieAudio";
-
 /**
- * A mounted film: its scene, delivered camera, exact-time performance and the
- * prepared soundtrack and receipts the Viewer publishes for export and review.
+ * A mounted film's scene, camera and exact-time performance.
  *
- * @evidence contracts/common.md#implementation-and-ownership One seek places the motion and the delivered camera for a second, so playback, seeking and capture draw the same state; the soundtrack and runtime receipts come from the same preparation, so picture and sound share one event set.
- * @evidence contracts/common.md#authoring-interface Read scene and camera to draw, call seek for an exact second, read audio and runtime for playback, export receipts and inspection, and call dispose once when the page closes.
+ * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
+ * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The members the Viewer entry reads to draw, seek, publish and release a film; the soundtrack and report are optional for films without sound or audits.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists.
  */
 export interface IFilmProduction {
   /** Scene the Viewer renders, owned by this mount. */
   scene: THREE.Scene;
 
-  /** The delivered film camera; seek moves it to the planned view. */
+  /** Camera the Viewer renders through; camera entities move it in `seek`. */
   camera: THREE.PerspectiveCamera;
 
-  /** Prepared soundtrack, played by the transport and mixed by the render. */
-  audio: MovieAudio;
+  /** Optional shared physical review source, used only when a review overlay is requested. */
+  performance?: {
+    /** Scene ids and profiles for the displayed bodies. */
+    bodies: { id: string; profile: IAutoMoviePhysicalProfile }[];
+    /** Exact world state used by the current displayed frame. */
+    frame: () => AutoMoviePhysicsCache.IFrame;
+    /** Actual geometric or solved contact episodes. */
+    contacts: () => readonly IAutoMovieContactReceipt[];
+    /** Explicit simultaneous contact-overlay budget. */
+    maximumContacts: number;
+    /** Inspection vector length per newton of step-mean force. */
+    metresPerNewton: number;
+  };
 
-  /** Prepared performance whose receipts the Viewer publishes. */
-  runtime: FilmRuntime;
+  /** The soundtrack's cues, from the same preparation as the picture; the render mixes them and the Viewer may play them. */
+  soundtrack?: {
+    /** Cues in film seconds with linear gains. */
+    cues: readonly { asset: string; seconds: number; gain: number }[];
+    /** Production-relative WAV path of every asset. */
+    assets: Readonly<Record<string, string>>;
+  };
+
+  /** Inspection report of the mount: legality violations and audit findings, empty when clean, and named measurements. */
+  report?: {
+    violations: readonly string[];
+    findings: readonly string[];
+    measures?: Readonly<Record<string, number>>;
+  };
 
   /**
-   * Places the performance and the delivered camera for an exact film second.
+   * Places every displayed object and the camera for an exact film second.
    *
-   * @evidence contracts/common.md#implementation-and-ownership The film evaluates its runtime and adopts the planned camera, so every consumer draws the same frame.
-   * @evidence contracts/common.md#authoring-interface Call with a finite second within the film; the next draw shows that second.
+   * @evidence contracts/development/common.md#meaningful-documentation States that the call places every displayed object and the camera for one exact second.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the film that implements it answers.
    */
   seek(seconds: number): void;
 
   /**
-   * Planned camera target at a film second, for inspection controls.
+   * Everything that decides the pixels drawn at an exact film second, as
+   * text, without placing anything: the identity of the code that draws and
+   * the state `seek` would place. Absent when the code's identity is unknown.
    *
-   * @evidence contracts/common.md#implementation-and-ownership The film reads its planned camera; nothing moves.
-   * @evidence contracts/common.md#authoring-interface Returns a fresh vector in world metres.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the film that implements it answers.
    */
-  cameraTarget(seconds: number): THREE.Vector3;
+  digest?(seconds: number): string;
 
   /**
-   * Releases the soundtrack, performance and scenery.
+   * Releases the scene's resources when the Viewer page closes.
    *
-   * @evidence contracts/common.md#implementation-and-ownership The film owns the soundtrack, runtime and ring and releases them together, reporting every failure.
-   * @evidence contracts/common.md#authoring-interface Call once when the page closes; it throws an aggregate of release failures.
+   * @evidence contracts/development/common.md#meaningful-documentation States what the call releases and when.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A signature has no body; the film that implements it answers.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A signature has no body; the film that implements it answers.
    */
   dispose(): void;
 }

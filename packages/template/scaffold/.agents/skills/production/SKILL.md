@@ -1,6 +1,6 @@
 ---
 name: production
-description: Keeps the project's scope and setup and carries the work after motion, conditioning, video generation, editing, encoding and handoff, to the delivered artifact. Use for project context, sustained runs, media, instruction sync and finishing; story, development, motion and audio own their own work.
+description: Keeps the project's scope and setup and carries the work after motion, conditioning, video generation, editing, encoding and handoff, to the delivered artifact. Use for project context, sustained runs, stage caches, media, instruction sync and finishing; story, development, motion and audio own their own work.
 ---
 
 # Production
@@ -13,6 +13,7 @@ Writing and research belong to [story](../story/SKILL.md), code and assets to [d
 | --- | --- |
 | Establish scope, decisions and setup authority | [Project context](profile.md) |
 | Run, observe or resume sustained work | [Campaign execution](campaign.md) |
+| Cache and resume expensive stages, and scope iteration renders | [Stage caches](stages.md) |
 | Save generated, acquired and pipeline media and their requests | [Media](media.md) |
 | Sync instructions or change the layout | [Ownership and customization](customization.md) |
 | Prepare the whole motion hint and its control channels | [Conditioning handoff](conditioning.md) |

@@ -36,7 +36,10 @@
     "scaffold/_gitignore",
     "src",
     "package.json",
-    "LICENSE"
+    "LICENSE",
+    "!**/node_modules/**",
+    "!**/.cache/**",
+    "!**/.git/**"
   ],
   "publishConfig": {
     "access": "public",

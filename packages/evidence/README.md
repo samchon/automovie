@@ -31,22 +31,21 @@ export default createEvidenceConfig({
 
 Use `short` for direct screenplay, `short-with-settings` for compact canon plus screenplay, and `long` for settings → treatments → scripts → screenplay. Unspecified stages remain disabled drafts. Scripts completes content and expression within construction; screenplay alone has a separate naturalness pass. An omitted outline stage follows settings. Complete work is the default scope; an explicitly commissioned first-part pilot selects its exact part.
 
-Turn on the performance research and the production's own development contracts when the commission needs them:
+Turn on the research and the production's own development contracts when the commission needs them:
 
 ```ts
 export default createEvidenceConfig({
   location: import.meta.dirname,
   research: "evidence",
   development: {
-    assets: "evidence",
-    motion: "evidence",
-    shots: "evidence",
-    films: "evidence",
+    entities: "evidence",
+    behaviors: "evidence",
+    composition: "evidence",
   },
 });
 ```
 
-`research` holds each study in `docs/research/` (apart from its index) to the story research principles, answered in `docs/evidence/construction/files/research/` under an H1 naming the study. `development.motion` holds exported functions under `src/motion/` to `contracts/development/motion.md`, and each cites the study it follows; every study must be cited. `development.assets` holds exported functions under `src/assets/` to `contracts/development/assets.md`. `development.shots` holds exported functions under `src/shots/` to `contracts/development/shots.md`, and each cites the screenplay H2s it executes; every screenplay H2 must be executed. `development.films` holds exported functions under `src/films/` to `contracts/development/films.md`, and each cites the screenplay file it delivers; every screenplay file must become a film. Omitted stages stay disabled.
+`research` holds each study in `docs/research/` (apart from its index) to the story research principles, answered in `docs/evidence/construction/files/research/` under an H1 naming the study. `development.entities` holds exported types, classes, functions and methods under `src/entities/` to `contracts/development/entities.md`. `development.behaviors` holds exported functions and methods under `src/laws/`, `src/interactions/` and `src/consequences/` to `contracts/development/behaviors.md`, and each cites the study it follows; every study must be cited. `development.composition` holds exported functions and methods under `src/composition/` to `contracts/development/composition.md`: scenes in `src/composition/scenes/` cite the screenplay scenes (H2) and beats (H3) they realize, and every one must be realized; films in `src/composition/films/` cite the screenplay file they deliver, and every screenplay file must become a film. Omitted stages stay disabled.
 
 ## Native checking
 

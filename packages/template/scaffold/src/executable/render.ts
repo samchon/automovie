@@ -9,7 +9,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import type { IFilm } from "../IFilm";
-import { films } from "../films";
+import { films } from "../composition/films";
 import { selectFilm } from "../selectFilm";
 
 /**

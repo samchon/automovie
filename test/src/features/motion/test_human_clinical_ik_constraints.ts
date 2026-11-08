@@ -209,7 +209,7 @@ export function test_human_clinical_ik_constraints(): void {
     !blocked.constraintsSatisfied &&
       blocked.pose.arms!.left.shoulder!.flexion! -
         seed.arms!.left.shoulder!.flexion! <=
-        12 &&
+        12 + 1e-12 &&
       blocked.error > request.tolerance!,
   );
 

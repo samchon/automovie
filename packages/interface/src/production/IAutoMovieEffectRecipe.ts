@@ -13,7 +13,7 @@ export interface IAutoMovieEffectRecipe {
   id: string;
 
   /** Supported primitive effect family. */
-  kind: "fog" | "smoke" | "dust";
+  kind: "fog" | "smoke" | "dust" | "spray";
 
   /** Explicit nonnegative safe-integer deterministic seed. */
   seed: number;
@@ -42,7 +42,13 @@ export interface IAutoMovieEffectRecipe {
     color: string;
 
     /** Inclusive alpha range from zero through one. */
-    opacity: { min: number; max: number };
+    opacity: {
+      min: number;
+      max: number;
+      /** Alpha over a live particle's lifetime; defaults to the original sine envelope. */ envelope?:
+        | "sine"
+        | "constant";
+    };
   };
 
   /** Bounded deterministic transport. */
@@ -55,6 +61,20 @@ export interface IAutoMovieEffectRecipe {
 
     /** Finite maximum lateral velocity deviation in metres per second, within `[0, 50]`. */
     turbulence: number;
+
+    /** Optional ballistic transport; omission preserves the original v1 stream. */
+    ballistic?: {
+      /** Nonnegative downward acceleration, m/s². */
+      gravity: number;
+      /** Horizontal landing plane, world metres. */
+      floor: number;
+      /** Keep particles which land before their lifetime expires as floor-facing stains through the cue end. */
+      retainStains: boolean;
+      /** Independent world-axis initial velocity half-ranges, m/s, each 0..50; omission adds no spread. */
+      velocitySpread?: IAutoMovieVector3;
+      /** Landed billboard size multiplier, (0,16]; omission retains its airborne size. */
+      stainSizeMultiplier?: number;
+    };
   };
 
   /** Hard runtime and LOD budgets. */

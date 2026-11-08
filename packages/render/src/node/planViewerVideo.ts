@@ -82,6 +82,18 @@ export function planViewerVideo(options: IAutoMovieViewerVideoOptions): {
   ])
     if (value.trim().length === 0)
       throw new Error("Viewer video paths must be nonempty");
+  if (
+    (options.cacheDirectory !== undefined &&
+      options.cacheDirectory.trim().length === 0) ||
+    (options.cacheVerifyEvery !== undefined &&
+      !(
+        Number.isSafeInteger(options.cacheVerifyEvery) &&
+        options.cacheVerifyEvery > 0
+      ))
+  )
+    throw new Error(
+      "Viewer video cacheDirectory must be nonempty and cacheVerifyEvery a positive integer",
+    );
   if (options.audioMix !== undefined && options.audioMix.trim().length === 0)
     throw new Error("Viewer video audioMix must be nonempty when supplied");
   const base: string[] = ffmpegArgs(

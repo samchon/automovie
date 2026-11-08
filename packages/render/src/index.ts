@@ -51,3 +51,5 @@ export * from "./guidePassFramePattern";
 export * from "./IAutoMovieGuidePassOutput";
 export * from "./normalizeGuidePasses";
 export * from "./planGuidePassOutputs";
+export * from "./audio";
+export * from "./cache/createAutoMovieHttpArtifactStore";

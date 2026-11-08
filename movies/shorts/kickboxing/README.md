@@ -1,49 +1,46 @@
 # Kickboxing
 
-A 180-second direct 3D kickboxing film using the original Human polygon figures. The [settings](docs/body/settings), [screenplay](docs/body/screenplay/kickboxing.md) [BoutScript](src/shots/kickboxing/ring-bout/BoutScript.ts) exchange table and [FilmPlan](src/shots/kickboxing/ring-bout/FilmPlan.ts) clock and camera define the performance. The film is registered as `kickboxing` in [src/films](src/films/index.ts); it composes the ring and person assets in `src/assets/`, the movement families in `src/motion/` and the sound in `src/sound/`, evaluated by `src/runtime/`. Source implementation, physical acceptance, browser viewing, listening and final-media acceptance remain distinct checks.
+A 180-second AutoMovie production: one championship-level kickboxing round filmed as a single take, finished by A's right Brazilian kick at 150 seconds, the real-time ten-count and A's celebration. [PROJECT.md](PROJECT.md) holds the commission and scope; the [screenplay](docs/body/screenplay/kickboxing.md) decides every exchange.
 
 ## Run
 
-Use the workspace's Node.js 22.23.2 toolchain and installed pnpm dependencies:
+Use Node.js 22.23.2 or later from the repository workspace.
 
-```powershell
-pnpm --filter kickboxing build
-pnpm --filter kickboxing preview
-```
-
-The configured preview address is `http://127.0.0.1:5198/`. Keep one task server running; a review may instead use an explicitly published immutable build on its recorded URL. Open that exact entry when comparing a reviewed version.
-
-For development, `pnpm --filter kickboxing dev` serves the same Viewer at `http://127.0.0.1:5199/`.
-
-Use Play, Pause and Seek to inspect the shared film clock. URL parameters `start`, `end` and `speed` select a review interval, for example `?start=135&end=165&speed=.25`. Sound requires a user gesture. Inspect each fifteen-second interval before joining it to the next, then watch the complete 0–180 sequence at normal speed. A refused action or preparation error remains a failed performance check.
-
-## Review tools
-
-```powershell
-pnpm --filter kickboxing render --film kickboxing --from 135 --to 165 --every 20 --out media/automovie/kickboxing/frames/review
-pnpm --filter kickboxing render --film kickboxing --at 2.5,150
-pnpm --filter kickboxing exec ttsx -P tsconfig.json src/executable/play.ts http://127.0.0.1:5199/ 30 media/automovie/kickboxing/frames/playback
-```
-
-`render` with `--at` seconds or a `--from`/`--to` range and `--every` frames (or `--step` seconds) saves those frames as `f<frame>-t<seconds>.png` stills through the Viewer's own seek, into `--out` or `media/automovie/kickboxing/frames/`; the Viewer's `__kickboxingView` hook still sets an inspection camera by hand. `play.ts` presses Play in the real Viewer, logs the clock and refusals and can record the page. Add `?rig=1` to the Viewer URL (for example `http://127.0.0.1:5199/?rig=1`) to draw every joint as a point and every bone as a stick over the figures. Stills do not replace watching playback.
-
-## Check and export
-
-```powershell
+```bash
+pnpm --filter kickboxing dev     # Viewer at http://127.0.0.1:5199/
 pnpm --filter kickboxing lint
+pnpm --filter kickboxing build
 pnpm --filter kickboxing test
-pnpm --filter kickboxing evidence
-pnpm --filter kickboxing render --film kickboxing http://127.0.0.1:5198/
 ```
 
-The film export contract is 1280×720, 30 fps, exactly 5,400 frames and 180 seconds, with the same delivered camera and retained sound mix as the Viewer. The export owner writes capture and complete-decode receipts beside the output. An available command or produced MP4 does not establish successful decoding, contact review or audiovisual acceptance; those require the current run's actual results.
+Mounting the film prepares two Human skeletons (the fighters share one) and measures every contact, which takes minutes on a loaded machine; the status line reports progress. `?rig=1` shows the review skeleton of all three bodies; `?film=kickboxing&start=140&end=160&rate=0.5&play=1` plays an interval.
 
-Reusable motion modules own timing, variation, continuation, support and contact response. The film sequence selects actions and independent actor routes rather than duplicating their poses. Gloves follow the actual hands. Hit sounds and impact-dependent reactions require actual contact receipts; authored target names do not establish a hit. Public Engine observations expose the displayed geometry and their finite-sampling limits.
+## Render
+
+With the Viewer running and `CHROME_PATH` set to Chrome or Chromium:
+
+```bash
+pnpm --filter kickboxing render --film kickboxing http://127.0.0.1:5199/
+pnpm --filter kickboxing render --film kickboxing --at 61.2,150 http://127.0.0.1:5199/?rig=1
+```
+
+The video mode captures 5400 frames at 1280x720 and 30 fps, mixes the page's own soundtrack cues from `media/automovie/kickboxing/audios/` into the encode, writes `media/automovie/kickboxing/videos/film.mp4` with `capture-report.json`, then decodes the whole file and writes `decode-report.json`. Still mode writes PNGs to `media/automovie/kickboxing/frames/` or `--out`.
+
+## Source
+
+The source follows the scaffold's [layout](.agents/skills/development/layout.md):
+
+| Folder | Owns |
+| --- | --- |
+| `src/laws/kickboxing`, `officiating`, `cinematography` | Pure laws from the research: technique table and timing, defenses and the outcome table, legality, range, footwork and steps, body-frame shapes, the referee's positioning and signals, the count, the coverage law |
+| `src/entities` | Fighters A and B from their settings records (one `Fighter` class, two profiles), the referee, the ring, the camera, the lights and the bell; capabilities return intent chains such as `a.jab().cross().hook().lowKick()` |
+| `src/interactions` | Exchanges that align answers to strikes, phases that fill a screenplay window, the schedule laws, the fighters' performance with the engine's relational fit onto actual colliders, contact receipts and audits, the referee's and camera's tracks |
+| `src/consequences` | Marks, sweat and blood spray, and sound cues, only from measured contacts |
+| `src/composition` | Twelve scene compositions, one per screenplay scene, the ring stage and the film |
+| `test/features` | Millisecond logic units mirroring those paths, on polygon-man bodies |
+
+Production acceptance (Viewer, stills, render, decode, listening) is recorded in [docs/acceptance/kickboxing.md](docs/acceptance/kickboxing.md).
 
 ## Video-generation prompts
 
-Git holds text only. Audio, video, archives and downloaded originals stay in ignored folders, and the committed text identifies each one: acquired sound libraries in `media/acquired/audios/`, VoxCPM speech in `media/diffusion/audios/` and the converted cues the film plays in `media/automovie/kickboxing/audios/` (all listed with source, license and digest in [the media manifest](media/manifest.json)), video clips in `media/diffusion/videos/`, debugging stills and renders in `media/automovie/kickboxing/frames/` and `media/automovie/kickboxing/videos/`, research originals in `references/` (indexed in [docs/research](docs/research/index.md)), and review and revision records in `docs/review/`, `docs/naturalness/` and `docs/revision/`. A fresh checkout has no sound until those audio files are restored from the manifest's sources.
-
-`docs/prompts/videos/` holds planned, unsubmitted video-diffusion requests that restyle the render segment by segment; [source bindings](docs/prompts/videos/source-bindings.md) lists the twelve segments covering 0–180 seconds, their sources and the receiving contract. Each segment record names its planned clip, cut from the whole render as `media/automovie/videos/segments/<record-name>.mp4`; its JSON payload under `payloads/` is rebuilt from the record and ignored. A checkout receives prompts, not media. Record each exported clip's or generated take's retained locator, digest and restoration requirement in its request record under [generation records](.agents/skills/production/generation-records.md#keep-small-records-in-git-and-large-bytes-retrievable).
-
-Scaffold skills and story contracts adapt [wrtnlabs/novels](https://github.com/wrtnlabs/novels/tree/13c60af339cc6f97dda67e40be055c94aa9bb144/packages/template/scaffold/.agents/skills), retaining its [MIT notice](.agents/skills/LICENSE.novels).
+[Video prompts](docs/prompts/videos/source-bindings.md) prepare restyling requests for a video generator from the rendered motion. They authorize no upload, generation or paid call.

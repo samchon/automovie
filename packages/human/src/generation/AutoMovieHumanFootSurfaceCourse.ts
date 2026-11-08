@@ -1,5 +1,8 @@
-import { AutoMovieHumanLoftChain as Loft } from "../lofting/AutoMovieHumanLoftChain";
-import type { IAutoMovieHumanLoftChain } from "../lofting/IAutoMovieHumanLoftChain";
+import {
+  type IAutoMovieLoftChain as IAutoMovieHumanLoftChain,
+  AutoMovieLoftChain as Loft,
+} from "@automovie/engine";
+
 import type { AutoMovieHumanFootSurface as Foot } from "./AutoMovieHumanFootSurface";
 import { AutoMovieHumanFootGeometry as G } from "./foot/AutoMovieHumanFootGeometry";
 
@@ -19,11 +22,11 @@ export function AutoMovieHumanFootSurfaceCourse(
   );
   const centre: Foot.Vector = G.scale(Loft.axis(chain, station), scale);
   const frame: ReturnType<typeof Loft.frame> = Loft.frame(chain, station);
-  const u: number[] = points.map(
-    (point: Foot.Vector): number => G.dot(G.sub(point, centre), frame.u),
+  const u: number[] = points.map((point: Foot.Vector): number =>
+    G.dot(G.sub(point, centre), frame.u),
   );
-  const v: number[] = points.map(
-    (point: Foot.Vector): number => G.dot(G.sub(point, centre), frame.v),
+  const v: number[] = points.map((point: Foot.Vector): number =>
+    G.dot(G.sub(point, centre), frame.v),
   );
   const lengths: number[] = points.map(
     (point: Foot.Vector, index: number): number =>
@@ -33,7 +36,10 @@ export function AutoMovieHumanFootSurfaceCourse(
     (sum: number, length: number): number => sum + length,
     0,
   );
-  if (!(total > 0) || !points.every((point: Foot.Vector): boolean => point.every(Number.isFinite)))
+  if (
+    !(total > 0) ||
+    !points.every((point: Foot.Vector): boolean => point.every(Number.isFinite))
+  )
     throw new Error("Foot source course is collapsed or nonfinite");
 
   let travelled: number = 0;
