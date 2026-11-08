@@ -15,8 +15,6 @@
 
 The [generated production workflow](scaffold/README.md#make-a-motion-hint) carries the screenplay into programmed performance, camera staging, requested conditioning channels, the actual capture host, whole edit and inspected output. Long work retains settings, treatments, scripts, final screenplay, with scripts expression completed in construction and a separate screenplay naturalness pass; a short can enter at final screenplay. Low-cost representations can carry accurate motion; Human is optional. Stills or pilot clips cannot complete a whole motion hint, while separately commissioned text, assets, direct 3D films and post-diffusion films retain their actual boundaries.
 
-Production skills and story contracts adapt [wrtnlabs/novels](https://github.com/wrtnlabs/novels/tree/13c60af339cc6f97dda67e40be055c94aa9bb144/packages/template/scaffold/.agents/skills).
-
 The installed project-root `PROJECT.md` owns adopted scope, delivery method, representation, tools, runtime and setup authority. Creative instructions stay under `docs/instructions`. Runtime READMEs and `.env.example` hold nonsecret setup and variable names; actual secrets remain in ignored local `.env`. Optional integration code belongs under `src/integrations`.
 
 ## Public API

@@ -2,7 +2,7 @@
 
 ## Adopted source and the boundary of creative input {#adopted-source}
 
-The user adopted the instructions and settings in `wrtnlabs/wrtn-novels/novels/napoleon-imperator` as input for the video production. The source is retained in the [intake manifest](../references/intake-manifest.json), `docs/references/novels/instructions`, and `docs/references/novels/settings`. The original treatments, scripts, and prose are neither read as creative input nor transferred. This production creates its own event design, dialogue, and audiovisual expression from the adopted instructions and canon. Approval, evidence, and review statements in the source do not approve this production.
+The user adopted the original instructions and settings as input for the video production. The source is retained in the [intake manifest](../references/intake-manifest.json), `docs/references/novels/instructions`, and `docs/references/novels/settings`. The original treatments, scripts, and prose are neither read as creative input nor transferred. This production creates its own event design, dialogue, and audiovisual expression from the adopted instructions and canon. Approval, evidence, and review statements in the source do not approve this production.
 
 ## Title and historical premise {#title-and-history}
 
