@@ -473,56 +473,7 @@ export namespace AutoMovieViewAxis {
       const ru: Vec3 = projectUnitDirection(r, t);
       return { origin: point(station), u: ru, v: cross(ru, t) };
     };
-    return {
-      at,
-      jet: (
-        station: number,
-        parameter?: AutoMovieConstructionOutlineParameter,
-      ): AutoMovieViewAxisJet.IJet | null => {
-        // With g = p', a = p'', j = p^(3) and L = |g|: t' = P a / L for
-        // P = I - t t, and t'' = (P j - t (t' . a) - 2 t' (t . a)) / L. A
-        // rotation minimizing frame has u' = -(u . t') t, so
-        // u'' = -(u . t'') t - (u . t') t'; v = u x t gives v' = u x t' and
-        // v'' = u x t'' - (u . t') t x t'.
-        const f: AutoMovieLoftFrame.IFrame = at(station);
-        const jets: [number, number][] = splines.map(
-          (p: AutoMovieNaturalSpline.ISpline): [number, number] =>
-            AutoMovieNaturalSpline.derivative(p, station),
-        );
-        const g: Vec3 = jets.map((d: [number, number]): number => d[0]) as Vec3;
-        const a: Vec3 = jets.map((d: [number, number]): number => d[1]) as Vec3;
-        const j: Vec3 = splines.map(
-          (p: AutoMovieNaturalSpline.ISpline): number =>
-            AutoMovieNaturalSpline.jerk(p, station),
-        ) as Vec3;
-        const L: number = Math.hypot(g[0], g[1], g[2]);
-        if (!(L > 0) || !Number.isFinite(L)) return null;
-        const t: Vec3 = scale(g, 1 / L);
-        const project: (x: Vec3) => Vec3 = (x: Vec3): Vec3 =>
-          sub(x, scale(t, dot(t, x)));
-        const t1: Vec3 = scale(project(a), 1 / L);
-        const t2: Vec3 = scale(
-          sub(sub(project(j), scale(t, dot(t1, a))), scale(t1, 2 * dot(t, a))),
-          1 / L,
-        );
-        const u: Vec3 = f.u;
-        const u1: Vec3 = scale(t, -dot(u, t1));
-        const u2: Vec3 = sub(scale(t, -dot(u, t2)), scale(t1, dot(u, t1)));
-        return AutoMovieViewAxisJet.parameter(
-          {
-            value: f,
-            first: { origin: [...g], u: u1, v: cross(u, t1) },
-            second: {
-              origin: [...a],
-              u: u2,
-              v: sub(cross(u, t2), scale(cross(t, t1), dot(u, t1))),
-            },
-          },
-          parameter,
-          station,
-        );
-      },
-    };
+    return { at };
   }
 
   /**

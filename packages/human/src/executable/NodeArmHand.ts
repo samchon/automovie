@@ -12,6 +12,7 @@ import { AutoMovieHumanArmViewCurves } from "../generation/arm/AutoMovieHumanArm
 import { AutoMovieHumanArmViewLoft } from "../generation/arm/AutoMovieHumanArmViewLoft";
 import { AutoMovieHumanHandDigits } from "../generation/hand/AutoMovieHumanHandDigits";
 import { AutoMovieHumanHandFingerTree } from "../generation/hand/AutoMovieHumanHandFingerTree";
+import { AutoMovieHumanHandPorts } from "../generation/hand/AutoMovieHumanHandPorts";
 import { HumanNodeInput } from "./HumanNodeInput";
 import { HumanNodePaths } from "./HumanNodePaths";
 import { NodeArmDraw } from "./NodeArmDraw";
@@ -43,10 +44,9 @@ export namespace NodeArmHand {
     const joined: AutoMovieHumanHandFingerTree.IOutput = AutoMovieHumanHandFingerTree.create(arm, digits, inputs.tapes.breadth);
     const realized: number = performance.now();
     // The palm's digit ports (AutoMovieHumanHandPorts) for f1_integration's known-port bands.
-    const { AutoMovieHumanHandPorts } = await import("../generation/hand/AutoMovieHumanHandPorts");
     const chain = loft.loft?.chain ?? null;
-    const ports = chain === null ? [] : AutoMovieHumanHandPorts.create(chain, digits);
-    console.log(JSON.stringify({ ports: ports.map((p) => ({ name: p.name, rail: Number(p.rail.toFixed(2)), centre: p.centre.map((x: number): number => Number(x.toFixed(4))), semi: p.semi.map((x: number): number => Number(x.toFixed(4))), girth: Number(p.girth.toFixed(2)), perimeter: Number(p.perimeter.toFixed(2)), gap: Number(p.gap.toFixed(2)) })) }));
+    const ports: ReturnType<typeof AutoMovieHumanHandPorts.create> = chain === null ? [] : AutoMovieHumanHandPorts.create(chain, digits);
+    console.log(JSON.stringify({ ports: ports.map((p: ReturnType<typeof AutoMovieHumanHandPorts.create>[number]) => ({ name: p.name, rail: Number(p.rail.toFixed(2)), centre: p.centre.map((x: number): number => Number(x.toFixed(4))), semi: p.semi.map((x: number): number => Number(x.toFixed(4))), girth: Number(p.girth.toFixed(2)), perimeter: Number(p.perimeter.toFixed(2)), gap: Number(p.gap.toFixed(2)) })) }));
     const diagnostics: AutoMovieLoftContract.IDiagnostic[] = [...joined.diagnostics];
     const triangles: [V3, V3, V3][] = [];
     if (joined.tree !== null) {
