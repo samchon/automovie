@@ -4,7 +4,9 @@ Study everything the film must show truthfully before the screenplay decides it 
 
 ## Performance study {#performance-study}
 
-Study real practice at the depicted level, such as a sport, fight, dance, craft or procedure, an everyday handling, gait or reach, and the broadcast or film practice of shooting it. An invented action studies its closest real analogue and states where it departs. Record what code and screenplay need without inventing anything: each technique's law (its shape prior in the performer's own body frame, timing windows, reach, contact surfaces and what the rules allow), the outcome table of which intent combinations can yield which outcome classes, the observed patterns of top-level performance such as phrasing, spatial strategy and how officials or bystanders move, and measurable targets a composed scene must meet, such as actions per minute, phrase length, lateral versus linear movement, idle time per presence and shot-change cadence.
+Study real practice at the depicted level, such as a sport, fight, dance, craft or procedure, an everyday handling, gait or reach, and the broadcast or film practice of shooting it. An invented action studies its closest real analogue and states where it departs. Record what code and screenplay need without inventing anything: each technique's law (its shape prior in the performer's own body frame, timing windows, reach, contact surfaces, how the body travels to deliver it from the distance where it starts, and what the rules allow), the outcome table of which intent combinations can yield which outcome classes, the observed patterns of top-level performance such as phrasing, distance kept between actions, spatial strategy and how officials or bystanders move, and measurable targets for what a viewer sees and hears, such as distance by phase, posture, footwork, action speed and rate, phrase length, lateral versus linear movement, idle time per presence, shot-change cadence and dialogue audibility.
+
+Take values from the depicted discipline and level, as ranges with their measurement method. A value borrowed from another discipline, or a single reading of an adjective such as "slightly bent", states its translation and must be confirmed against footage of the depicted practice.
 
 ## Sources
 
@@ -14,4 +16,4 @@ Save permitted originals in `references/`, rights-unconfirmed ones in ignored `r
 
 ## Use
 
-Test the adopted values in the real entity, behavior or sound and watch the result. The study informs the work; [review](../../review/SKILL.md) judges what it produced.
+Test the adopted values in the real entity, behavior or sound and watch the result beside the footage. The study informs the work; [delivery review](../../review/delivery.md) measures its targets on the picture and sound and judges what it produced.
