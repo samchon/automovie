@@ -8,6 +8,7 @@ import { KickboxingRange } from "../../laws/kickboxing/KickboxingRange";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
 import type { BoutPerformance } from "./BoutPerformance";
 import type { IRingCast } from "./IRingCast";
+import { PictureTargets } from "./PictureTargets";
 
 /**
  * The research's targets measured where the viewer meets them: on the
@@ -300,12 +301,10 @@ export namespace PictureMeasures {
     return result;
   }
 
-  /** Frame width over height of the delivery: the render's 1280 x 720. */
-  export const ASPECT: number = 1280 / 720;
-
   /**
    * The picture measures of the mounted film, read from the displayed
-   * fighters' segments and the delivered camera track.
+   * fighters' segments and the delivered camera track, each ranged measure
+   * with its research range beside it ({@link PictureTargets.annotate}).
    *
    * @param cast The cast.
    * @param schedule The schedule.
@@ -347,7 +346,7 @@ export namespace PictureMeasures {
         right: joint(subject, "rightHand", seconds),
       },
     });
-    return film({
+    const measured: Record<string, number> = film({
       schedule,
       duration,
       finish: {
@@ -357,7 +356,7 @@ export namespace PictureMeasures {
       limits: {
         close: KickboxingRange.clinch(cast.a.body.measure, cast.b.body.measure),
         fieldOfView: CoverageLaw.FIELD_OF_VIEW,
-        aspect: ASPECT,
+        aspect: CoverageLaw.ASPECT,
       },
       read: (seconds: number) => {
         const shot = CameraTrack.at(camera, seconds);
@@ -368,6 +367,10 @@ export namespace PictureMeasures {
       },
       joint,
     });
+    return PictureTargets.annotate(
+      measured,
+      PictureTargets.of(cast.a.body.measure, cast.b.body.measure),
+    );
   }
 
   /**

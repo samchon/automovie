@@ -10,6 +10,7 @@ import { BoutLaws } from "../kickboxing/BoutLaws";
 import type { IRingCast } from "../kickboxing/IRingCast";
 import { RefereeTrack } from "../officiating/RefereeTrack";
 import type { FinishSight } from "./FinishSight";
+import { RopeLens } from "./RopeLens";
 
 /**
  * The camera's path through the film, resolved once at a fixed step: the
@@ -406,8 +407,7 @@ export namespace CameraTrack {
       scene.receiver,
       scene.contact,
     );
-    const reach: number =
-      cast.referee.body.measure.shoulder + cast.referee.body.measure.armReach;
+    const reach: number = overhead(cast);
     const base = lens(
       { bearing: open, elevation: CoverageLaw.ELEVATION },
       scene.seconds,
@@ -439,45 +439,25 @@ export namespace CameraTrack {
       }
   }
 
-  /** A framing goal's lens, held inside the ropes at the goal's elevation from where it stands, and whether the ropes held it back. */
+  /** A framing goal's lens held inside the ropes by {@link RopeLens.hold}. */
   function place(
     cast: IRingCast,
     goal: ReturnType<typeof CoverageLaw.goal>,
     spheres: Record<string, { center: IAutoMovieVector3; radius: number }>,
-  ): {
-    position: IAutoMovieVector3;
-    target: IAutoMovieVector3;
-    clamped: boolean;
-  } {
-    const frame = resolveAutoMovieFraming(goal, spheres);
-    const limit: number = cast.ring.half - LENS_MARGIN;
-    const x: number = Math.max(-limit, Math.min(limit, frame.position.x));
-    const z: number = Math.max(-limit, Math.min(limit, frame.position.z));
-    const run: number = Math.hypot(x - frame.target.x, z - frame.target.z);
-    // When the ropes stop the dolly short of the framing distance, the lens
-    // cranes up until it is that far from the target again, so the framed
-    // subjects still fit wherever the footwork has taken them.
-    const needed: number = Math.hypot(
-      frame.position.x - frame.target.x,
-      frame.position.y - frame.target.y,
-      frame.position.z - frame.target.z,
+  ): RopeLens.IHeld {
+    return RopeLens.hold(
+      resolveAutoMovieFraming(goal, spheres),
+      cast.ring.half - LENS_MARGIN,
+      goal.elevation,
+      overhead(cast),
     );
-    const clamped: boolean = x !== frame.position.x || z !== frame.position.z;
-    const rise: number = clamped
-      ? Math.max(
-          run * Math.tan(goal.elevation),
-          Math.sqrt(Math.max(0, needed * needed - run * run)),
-        )
-      : run * Math.tan(goal.elevation);
-    return {
-      position: {
-        x,
-        y: frame.target.y + rise,
-        z,
-      },
-      target: frame.target,
-      clamped,
-    };
+  }
+
+  /** The highest lens an operator in the ring holds overhead: shoulder height plus arm reach of the referee's adult build. */
+  function overhead(cast: IRingCast): number {
+    return (
+      cast.referee.body.measure.shoulder + cast.referee.body.measure.armReach
+    );
   }
 
   function floor(sphere: { center: IAutoMovieVector3 }): {
