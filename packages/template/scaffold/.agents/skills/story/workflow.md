@@ -36,6 +36,6 @@ Inherit through actual parents, repairing a missing handoff rather than bypassin
 
 ## Completion
 
-Run `pnpm evidence` and read its whole report; a passing graph shows the recorded relationships, and review judges the creative result. Whole-work completion needs the selected passes, a current closing review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../review/delivery.md) of any commissioned media.
+Run `npm run evidence` and read its whole report; a passing graph shows the recorded relationships, and review judges the creative result. Whole-work completion needs the selected passes, a current closing review, passing unfiltered validation, the compiler and source checks and required tests, and [delivery review](../review/delivery.md) of any commissioned media.
 
 A manuscript with its closing review may be delivered with its revision and named remaining diagnostics, but that is not fully validated completion. A creative defect, missing parent, pending transfer, unfinished review or unverified media blocks its completion, and until review finishes the result is a draft. Changes to completed layers follow [closed passes](correction/repair.md#closed-passes).

@@ -22,8 +22,8 @@ Every delivery claim after the first follows a side-by-side comparison with the 
 
 ## Assets
 
-Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [visual debugging](../3d-modeling/visual-debugging.md) at the uses [entity work](../development/entities.md#inspect-and-hand-off) sets. Listen to standalone audio as delivered. A mesh import, fit or local preview does not establish that the delivered export works for its recipient.
+Inspect a model or visual export through its intended consumer, required views and promised controls, and its shape, contact, deformation and motion by [visual debugging](../3d-modeling/visual-debugging.md) at the uses [entity work](../development/entities.md#inspect-and-hand-off) sets. Listen to standalone audio as delivered.
 
 ## Record and repair
 
-Record the revision, media and output identities, completed checks, observations and unverified limits, recheck [production coverage](../contracts/story/shared/discovery/common.md#production-coverage), and confirm the handoff carries its fixed inputs, provenance, commands, rights and attribution. Repair media findings through their owners under [finishing](../production/finishing.md#repair-and-deliver) and inspect the affected output again; narrative changes follow [upstream repair](../story/correction/repair.md). A published revision states its original edition, changed meaning and the notice its recipients need.
+Record the revision, media and output identities, completed checks, observations and unverified limits, recheck [production coverage](../contracts/story/shared/discovery/common.md#production-coverage), and confirm the handoff carries its fixed inputs, provenance, commands, rights and attribution. Repair media findings through their owners under [finishing](../production/finishing.md#repair-and-deliver) and inspect the affected output again; narrative changes follow [upstream repair](../story/correction/repair.md).

@@ -14,4 +14,4 @@ Scripts expression and population questions use scripts construction with `pass:
 
 ## Changing the graph
 
-Inspect every affected population and relationship together, including those outside a pilot and the engineering claims. Closed narrative work keeps its boundary under [upstream repair](../story/correction/repair.md#closed-passes). Narrowing a selector cannot repair the work.
+Inspect every affected population and relationship together, including those outside a pilot and the engineering claims. Closed narrative work keeps its boundary under [upstream repair](../story/correction/repair.md#closed-passes).

@@ -8,7 +8,7 @@ Keep each stage's result as a content-addressed artifact in an ignored folder un
 
 Record each stage's input and output digests. A rerun reuses a stage whose key is unchanged once its stored artifact matches the recorded output digest, and recomputes only stages whose key changed; a recomputed output whose digest is unchanged stops recomputation of the stages after it, the early cutoff of [Build Systems à la Carte](https://www.microsoft.com/en-us/research/wp-content/uploads/2018/03/build-systems.pdf). A captured frame is reusable only as a pure function of the resolved state and frame index under [frame evaluation](../motion/timeline.md#separate-sampling-from-retained-state), and a physics bake resumes only from a complete checkpoint under [physical feedback](../motion/physics.md).
 
-Supply these digests through the installed caches, such as the render frame cache, the prepared-figure cache, the stage-artifact helper and the engine's physics checkpoints, rather than writing a cache in the production; a missing capability is repaired at its package owner under [development](../development/SKILL.md).
+Supply these digests through the installed caches, such as the render frame cache, the prepared-figure cache, the stage-artifact helper and the engine's physics checkpoints, rather than writing a cache in the production; [development](../development/SKILL.md) adds a missing one at its package owner.
 
 ## Check and clean the caches
 

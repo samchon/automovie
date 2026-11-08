@@ -1,6 +1,6 @@
 # Edit, render and hand off
 
-Turn the composed scenes or accepted takes into the complete delivered video. Read [project context](profile.md), the actual source and media and the installed runtime documentation; a schedule or encoder argument list is not an executed render.
+Turn the composed scenes or accepted takes into the complete delivered video. Read [project context](profile.md), the actual source and media and the installed runtime documentation.
 
 ## Assemble
 
