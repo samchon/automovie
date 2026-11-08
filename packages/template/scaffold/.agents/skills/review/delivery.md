@@ -16,9 +16,9 @@ Record the checklist, its observations and the [measures](#measure-and-compare) 
 
 ## Measure and compare {#measure-and-compare}
 
-Measure the research's targets for what a viewer sees and hears where the viewer meets them: on the displayed bodies and camera at frames sampled across the whole film, and on the decoded delivery audio. The resolved schedule only plans them.
+Review the picture densely before any delivery claim, so a flaw anywhere in the film reaches you before its audience: cut the film into 10-second review segments and inspect each one's 200 evenly spaced stills on labelled contact sheets of 50, which `npm run review -- sheet` writes for the URL's `start`–`end`. Repeat the pass on every segment a fix touches. Measure the research's targets for what a viewer sees and hears where the viewer meets them: on the displayed bodies and camera in those stills, and on the decoded delivery audio; the resolved schedule only plans them.
 
-Every delivery claim after the first follows a side-by-side comparison with the previous delivery, as review tools compare versions ([Flow Production Tracking](https://help.autodesk.com/cloudhelp/ENU/SG-Tutorials/files/SG_Tutorials_tu_collaborative_review_html.html)): a contact sheet of the whole film at matched times, and the measures beside it. A regression holds delivery until it is repaired or the owner accepts it.
+Every delivery claim after the first also sets each segment's sheets and measures beside the previous delivery's at matched times, as review tools compare versions ([Flow Production Tracking](https://help.autodesk.com/cloudhelp/ENU/SG-Tutorials/files/SG_Tutorials_tu_collaborative_review_html.html)). A regression holds delivery until it is repaired or the owner accepts it.
 
 ## Assets
 
