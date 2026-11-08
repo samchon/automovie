@@ -2,6 +2,26 @@
 
 A Human test cross-checks the generated person against anatomy, geometry and its own inputs. A test that recomputes the construction's formulas passes whatever they are.
 
+Every Human test is a pure-logic unit test that finishes in under one second.
+- It calls one law, solver or operator on small made inputs.
+- It checks the result against an expectation derived independently: a closed form, a published definition, or a geometric identity.
+- It contains no hardcoded expected values copied from a run's output, and no monkey-patching or stubbing of the code under test.
+- It does not build a whole person, loft or realize a body, or produce skin end to end.
+- It reads no reference body: no registered reference mesh, no reference comparison, and no expectation taken from a reference.
+
+Anatomical order relations are the main universal detectors, because they hold for any person:
+- girth order along each limb: wrist below forearm maximum, ankle minimum below calf maximum below knee below thigh;
+- neck below neck base, and waist below hip and bust;
+- ordered landmark heights;
+- one maximum per muscle belly;
+- a monotone taper between landmarks;
+- the axis inside its section;
+- mirror symmetry.
+
+Universal defect detectors are kept and completed. These find an error in any sculpted surface whatever its parameters: open or non-manifold edges, flipped triangles, self-intersection, folds, crease radius, non-simple sections, seam and port continuity, slivers, and curvature ripples. Each detector has a unit test that is red on a made defect and green on a correct shape. The figure's build report runs every detector on each render.
+
+Whole-figure inspection belongs to the viewer and the capture tools, not to tests. The levels and audits below apply only in that form: as unit tests of the law or operator that guarantees each property.
+
 ## Levels
 
 Test the geometry as 3D modeling's [Crafting](../3d-modeling/crafting.md#tests) describes. Test the mechanism once where it lives and the figure as a whole, so a defect of shared mathematics is found once and a part's change rewrites no test.

@@ -18,11 +18,30 @@ For repeatable evidence, use the [inspection packet](screenshot.md#inspection-pa
 
 The reference comparison observes the production source definition before final realization. Read its `observation`, original `diagnostics` and `sourceRecords`: tree membership, unconnected studies, definition-only parts and unavailable results mean different things. Inspect studies as studies; their visible curves do not prove they belong to the generated skin. Distinguish the original interpolation support from the actual part domain, and verify that displayed curves and top rings lie in that domain. `finalRealization: not-run` is no final calibration, join or rig pass. A source with no admitted loft sections can still have original outlines to inspect.
 
-Completing the observation round is not 2D acceptance. Gather every misplaced, malformed, missing or unexplained curve and its cause, correct the affected original 2D definitions in one batch, and repeat their complete individual and grouped reference comparison until placement and form hold or each departure has its sourced reason. As soon as a part reaches that state, proceed to its [3D inspection](#inspection-round) with its neighbours; unrelated parts need not be complete. A surface-first repair can conceal the wrong input the algorithm received.
+Completing the observation round is not 2D acceptance. Measure every curve's deviation from the registered reference as a table: maximum and mean in mm at sampled stations, guides and section diagonals both. Investigate every deviation beyond a few millimetres to its cause in the code, trace and published sources, and write the predicted numeric effect of each fix before changing anything. Correct the affected original 2D definitions in one batch, and repeat their complete individual and grouped reference comparison until placement and form hold. A citation does not excuse a departure. When a population law or published norm misses the person's reference, the law is the wrong one, or it is applied by the wrong definition, frame or population. Find that cause, or take the person's own value by the published definition as a measured input with a receipt. A re-measured table that misses a prediction means the investigation was incomplete. Investigate again; do not patch the visible symptom and re-render to see what happens. As soon as a part reaches that state, proceed to its [3D inspection](#inspection-round) with its neighbours; unrelated parts need not be complete. A surface-first repair can conceal the wrong input the algorithm received.
 
 Read the actual matched part and curve ids, briefly enabling labels to establish identity and then hiding them when they obscure the shape. Record missing parts, empty selections and unsupported comparisons explicitly; a palm incorporated in an arm's walk needs inspection there, and an absent digit is not a passed digit. For each curve record the observed departure, its direction and scale where measurable, the camera and reference conditions, and the input, law, frame or construction choice responsible. Use one frozen source for the inspection round and personally open every frame cited.
 
-The adopted MetaHuman model is a diagnostic reference for plausible human form, never a shape to match; deviation numbers are diagnostics too. A shape comes from the sources the Human skill's [order](SKILL.md#order) names, with its reason stated in its doc comment as [Numbers](construction.md#numbers) requires. Accept differences supported by the person's inputs and scientific or anatomical grounds, such as a calf or wrist girth or the size of the head, breasts or buttocks, and record that reason instead of fitting the reference. Investigate a departure whose reason fails, absurd form, crossings or misplaced anatomy.
+## Steps One And Two
+
+The [three steps](SKILL.md#three-steps) define the work; these are the gates of the first two.
+
+- Step 1 passes when every traced line lies on the reference in every view, and same-camera clay renders of each part and of the reference mesh agree at every standard and oblique angle. A curve overlay alone does not show volume.
+- Step 2 passes when the re-based coordinates return to the reference pose exactly.
+- Both steps also need the joints realized, the anatomical order detectors passing and the surface-integrity detectors passing.
+
+The reference mesh has hatching, holes and saw-toothed slices, so an extracted knot is accepted only after it is checked against the reference in the viewer.
+
+A defect visible in a frame must be removable in one batch. Before each batch, inventory every visible defect of the whole figure in every view and close-up, and assign each defect a cause and an owner. Research whether a better or more certain method exists than the current one, and adopt it when it does. A defect left out of the inventory is an incomplete investigation.
+
+## Published Values
+
+In step 3, a published value enters only in one of two ways:
+
+- as a relation in the source's own covariates, evaluated at this person's values: a regression, a ratio to a girth or length, or the subgroup matching the person's sex, build, fat and muscularity;
+- as the person's own measurement, taken by the source's definition.
+
+A sample's plain mean or median describes the average subject, not this person. Before using a source, read the parameters the reference was authored with: its body controls, such as height, fat, masculine-feminine and muscularity, beside its measured girths and lengths. State in the comment which covariate values select the relation. A difference left by a population default is unfinished work, not an accepted reason.
 
 ## Review And Supervision
 
@@ -32,7 +51,29 @@ The modeler inspects the actual originals and submits each completed region with
 
 A verdict names the exact source version, curve, physical interval and personally inspected views. Use pass, fail or unobserved only for that scope. A material-clock guide is not an anatomical plane cut, and neither accepts an uninspected section piece, loop or complete part. Require plausible basic form and placement over the reference; unexplained spikes, bulges, indentations or crossings remain defects even when calipers, continuity checks or tests pass. Completed captures and numerical residuals are not visual acceptance.
 
-At each campaign audit interval and worker report, compare the actual work history and current diff with every applicable skill rule and every initial or subsequent task instruction given to that worker. Trace parameter-to-curve calls, the shared generating owners and their production consumers, inverse solves, actual stage costs, repeated work and unresolved shape findings. Check whether code changes removed the reported cause. Counts of processes, files, tests or images cannot replace this inspection. Verify current claims against newly read source bytes; preserve earlier observations with their original scope. Stop a worker on a violation, state the rule and required correction, and resume the authorized work after correction. Keep other workers and active runs progressing under their exact reader lifetimes.
+### Supervisor Audit
+
+While workers build, the supervisor's only work is this audit, run as a scheduled loop at the interval the owner set. The supervisor audits and does not design fixes or add steps to the owner's plan, because each added judgment has cost the owner hours of rework. The scheduled prompt names this section and its four steps in full.
+
+Each audit runs these steps in order:
+
+1. **Liveness.** Confirm that every worker is running: its transcript grew since the last audit and its run has not ended. Resume a stopped worker at once, and relaunch it on its current brief if the resume is refused. An interrupt of the supervisor's turn can stop background workers, and only an explicit owner order stops one, so the supervisor restarts without asking; an idle campaign spends the owner's time and usage for nothing.
+2. **Violations.** Read each worker's transcript, saves and runs since the last audit, and the shared watch logs. Compare them with every applicable skill rule and every task instruction given to that worker:
+   - each save compiles, and its watch cycle is read before the next action;
+   - one batch per cause, with predicted numbers written first;
+   - no edit-and-re-render loops;
+   - original 2D lines before infrastructure;
+   - bases written in the comments;
+   - independent tests proven red and green;
+   - the file ownership the campaign assigned.
+
+   Trace the changed calls to their shared owners and production consumers, and check that the change removed the reported cause; counts of processes, files, tests or images do not replace this. Stop a worker on a violation, quote the broken rule with the correction, resume the authorized work after the correction, and check it at the next audit.
+3. **Research.** Name the largest shape deviation visible in the newest frames against the reference, and research that deviation in primary sources: anthropometry, imaging studies, anatomical tables, and the surface-construction literature for the method in use. Send the worker the concrete values or methods, their sources and how each applies. Know the construction method's classical limits before writing a brief (level sections against a horizontal floor, branches, a pole under a port) and order their standard remedies in it, because a limit found through a refusal costs a fix-and-revert cycle. A worker's statement that no source exists is a claim to verify.
+4. **Claims.** Treat every worker claim since the last audit as unproven, such as "fixed", "passes", "matches within N mm", "sourced", "debt" or "not my file". Open the cited frames, read the cited code, and recompute the cited numbers from logs, manifests and receipts. Record each as held or false, keep earlier observations with their original scope, and warn the worker on a false or unverifiable claim. A cited basis that leaves a visible deviation from the reference does not justify it, and a part drawn alone does not prove the joined body.
+
+A worker blocked by a refusal researches the standard method itself and reports the block together with that method and its sources.
+
+Report each audit to the owner with the claims and their verdicts, the violations warned, the research sent and the frames inspected. Relay a worker's claim only after opening its frame, because an unverified relay sends the campaign in the wrong direction.
 
 ## Shared Connections
 
@@ -64,7 +105,7 @@ The packet's `source.parts:tree` passes are the actual placed chains before join
 - Capture only after the generated output changes, and show only new frames.
 - After a figure changes, the whole-person minimum is fresh front, left and top original curves over its reference with `viewLabels=0`, plus final skin from the same three cameras with `curves=none` and underwear hidden. Inspect these six frames yourself and retain the source and camera receipts. They accompany a shape claim; unavailable final skin remains unverified.
 - Include back, oblique, individual and neighbour views and the raw three-pass inspection required by the affected geometry; the whole-person minimum does not replace those readings.
-- Capture a round with the batch route or the capture CLI, which keep each PNG's exact bytes with a receipt of its headers under `packages/human/.shots/`, in a round directory of your own.
+- Capture a round through the [one-shot capture](screenshot.md) for Node images, or through the viewer's batch route or capture CLI for viewer-only conditions. Each keeps every PNG's exact bytes with its receipt under `packages/human/.shots/`, in a round directory of your own.
 - Check each file's SHA-256 against its `x-human-png-sha256` header.
 - Open every PNG.
 - If a capture fails, stop visual claims that depend on it and repair the viewer and capture path first.
