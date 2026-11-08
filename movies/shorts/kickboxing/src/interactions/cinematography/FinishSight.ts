@@ -106,8 +106,14 @@ export namespace FinishSight {
       // The weapon descends over the receiver's defending arm, so that arm
       // belongs to the watched event with the weapon itself.
       const guarding: string[] = defending(schedule, entry, receiver, spec);
+      // The kick guard's forward arm reaches along the head line over the
+      // kicking leg on its own side (techniques.md#guard-during-kicks), so it
+      // travels with the watched leg as part of the striking form.
+      const reaching: string[] =
+        spec.limb === "leg" ? arm(striker, spec.side, false) : [];
       const carriers: string[] = [
         ...weapons.map((b) => `${striker.id}.${b}`),
+        ...reaching.map((b) => `${striker.id}.${b}`),
         ...guarding.map((b) => `${receiver.id}.${b}`),
       ];
       const watched: SightLaw.IWatched[] = descent(contact).flatMap(
@@ -246,15 +252,19 @@ export namespace FinishSight {
       !["elbow-block", "cover", "parry", "high-block"].includes(action.answer)
     )
       return [];
-    const side: string = KickboxingTechnique.opposite(spec.side);
-    return receiver.body.profile.segments
+    return arm(receiver, KickboxingTechnique.opposite(spec.side), true);
+  }
+
+  /** A fighter's arm segments on a side: the forearm and hand, with the upper arm when asked. */
+  function arm(fighter: Fighter, side: string, upper: boolean): string[] {
+    const segment: RegExp = upper
+      ? /^(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Pinky)/
+      : /^(LowerArm|Hand|Thumb|Index|Middle|Ring|Pinky)/;
+    return fighter.body.profile.segments
       .map((s: P.ISegment) => s.bone)
       .filter(
         (bone: string) =>
-          bone.startsWith(side) &&
-          /^(UpperArm|LowerArm|Hand|Thumb|Index|Middle|Ring|Pinky)/.test(
-            bone.slice(side.length),
-          ),
+          bone.startsWith(side) && segment.test(bone.slice(side.length)),
       );
   }
 

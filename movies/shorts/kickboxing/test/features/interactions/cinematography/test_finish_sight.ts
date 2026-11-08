@@ -4,7 +4,9 @@ import assert from "node:assert/strict";
 
 import { CameraTrack } from "../../../../src/interactions/cinematography/CameraTrack";
 import { FinishVolumes } from "../../../../src/interactions/cinematography/FinishVolumes";
+import { BoutLaws } from "../../../../src/interactions/kickboxing/BoutLaws";
 import { FighterPosture } from "../../../../src/interactions/kickboxing/FighterPosture";
+import { RefereeTrack } from "../../../../src/interactions/officiating/RefereeTrack";
 import { CoverageLaw } from "../../../../src/laws/cinematography/CoverageLaw";
 import { SightLaw } from "../../../../src/laws/cinematography/SightLaw";
 import { TurnoverShape } from "../../../../src/laws/kickboxing/TurnoverShape";
@@ -20,7 +22,8 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * finish view keeps that leg (knee, shin and ankle over the descent) and
  * the struck region clear of every body and inside the frame from the lens
  * the track delivers at the contact, and holds the wide view on that side
- * through the fall, the count and the celebration; the lens stands on the
+ * with all three men in frame through the fall, the count and the
+ * celebration; the lens stands on the
  * open side of the attacker–receiver line; the same
  * lens mirrored onto the closed side is occluded by the receiver, so the
  * measurement can fail; the open side lies where the contact is and views
@@ -105,6 +108,24 @@ export function test_finish_sight(): void {
     const s = CameraTrack.at(camera, t);
     assert.equal(s.size, "finish", `finish size at ${t}`);
     assert.ok(side(s.position) * side(scene.contact) > 0, `open side at ${t}`);
+    // ... and keeps all three men inside the delivered frame.
+    const men = [
+      ...[cast.a, cast.b].map((f) => ({
+        ...BoutLaws.origin(schedule, f.id, t, cast).point,
+        y: f.body.measure.head / 2,
+      })),
+      { ...RefereeTrack.at(referee, t).point, y: ma.head / 2 },
+    ].map((p) => ({ point: { x: p.x, y: p.y, z: p.z }, seconds: t, carriers: [] }));
+    assert.ok(
+      SightLaw.framed(
+        s.position,
+        s.target,
+        { ...scene, watched: men },
+        CoverageLaw.FIELD_OF_VIEW,
+        CoverageLaw.ASPECT,
+      ) > 0,
+      `all three men in frame at ${t}`,
+    );
   }
   const open = SightLaw.open({ x: -1, z: 0 }, { x: 1, z: 0 }, { x: 1, z: 1 });
   assert.ok(Math.abs(open) < 1e-12, "contact on +z gives the +z bearing");

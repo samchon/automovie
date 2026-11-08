@@ -244,8 +244,11 @@ export namespace CameraTrack {
       run(view, opening, last, { ...before }, samples);
       return samples;
     };
-    // The first candidate whose own lens is clear and whose delivered lens,
-    // after the orbit and the operator's lag, is clear and frames the blow.
+    // The first candidate whose own lens is clear, whose delivered lens,
+    // after the orbit and the operator's lag, is clear and frames the blow,
+    // and whose hold keeps all three men in frame; failing the last, the
+    // first that frames the blow.
+    let fallback: ISample[] | undefined;
     for (const view of candidates(
       cast,
       scene,
@@ -259,13 +262,42 @@ export namespace CameraTrack {
     )) {
       const trial: ISample[] = [...prefix];
       run(view, opening, contact, { ...before }, trial);
-      if (clearance(trial, scene) > 0 && framing(trial, scene) > 0)
-        return finishWith(view);
+      if (!(clearance(trial, scene) > 0 && framing(trial, scene) > 0)) continue;
+      // The wide view must also keep all three men inside the delivered
+      // frame through the fall, the count and the celebration.
+      const full: ISample[] = finishWith(view);
+      if (
+        hold.every((t: number): boolean => {
+          const lens: ISample = at(full, t);
+          const state = states.get(t) ?? spheres(t);
+          return (
+            SightLaw.framed(
+              lens.position,
+              lens.target,
+              {
+                ...scene,
+                watched: wide.map((id: string) => ({
+                  point: state[id]!.center,
+                  seconds: t,
+                  carriers: [],
+                })),
+              },
+              CoverageLaw.FIELD_OF_VIEW,
+              CoverageLaw.ASPECT,
+            ) > 0
+          );
+        })
+      )
+        return full;
+      fallback ??= full;
     }
-    return finishWith({
-      bearing: SightLaw.open(scene.attacker, scene.receiver, scene.contact),
-      elevation: CoverageLaw.ELEVATION,
-    });
+    return (
+      fallback ??
+      finishWith({
+        bearing: SightLaw.open(scene.attacker, scene.receiver, scene.contact),
+        elevation: CoverageLaw.ELEVATION,
+      })
+    );
   }
 
   /**
