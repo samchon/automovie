@@ -1,0 +1,717 @@
+{
+  "input": ".cache/motion-dynamics/whole-observations.json",
+  "inputSha256": "77b88d14c47738ffb46667a7335163d9cb28d834cfd85ab223900f7031aeec5d",
+  "measuredAt": "2026-11-05T06:24:17.395Z",
+  "samples": 1441,
+  "extrema": {
+    "groundClearance": {
+      "value": 29.93420621192412,
+      "seconds": 46.375,
+      "label": "displayed point-mass segment proxy"
+    },
+    "carinaReactionPerKg": {
+      "value": 12.272692544980636,
+      "seconds": 11,
+      "label": "actual point-mass COM acceleration minus gravity"
+    },
+    "harryReactionPerKg": {
+      "value": 12.85854149361484,
+      "seconds": 25.208333333333332,
+      "label": "actual point-mass COM acceleration minus gravity"
+    },
+    "wristResidual": {
+      "value": 0.22886890744346505,
+      "seconds": 44.541666666666664,
+      "label": "actual displayed wrist"
+    },
+    "oldShaftHeadClearance": {
+      "value": 0.004215568089646182,
+      "seconds": 24.583333333333332,
+      "label": "visible head spheres versus old shaft capsule"
+    },
+    "bodyClearance": {
+      "value": -0.06145900523583281,
+      "seconds": 48,
+      "label": "torso/head capsule proxy"
+    },
+    "platformSpeed": {
+      "value": 11.794666290004221,
+      "seconds": 45.5,
+      "label": "analytic platform derivative"
+    },
+    "platformAcceleration": {
+      "value": 3.353680418215973,
+      "seconds": 20.375,
+      "label": "analytic platform derivative"
+    },
+    "liftFrameResidual": {
+      "value": 2.240145354958912e-16,
+      "seconds": 13.416666666666666,
+      "label": "actual analytic lift and shared platform normal"
+    },
+    "bootBristleClearance": {
+      "value": 0.41735044115957065,
+      "seconds": 48.958333333333336,
+      "label": "conservative boot capsule"
+    },
+    "bearingResidual": {
+      "value": 0.0034581052973051848,
+      "seconds": 46.5,
+      "label": "left forearm hook"
+    },
+    "carinaConstraintMomentPerKg": {
+      "value": 2.68318677097847,
+      "seconds": 11,
+      "label": "required support wrench under declared proxy, not muscle capacity"
+    },
+    "harryConstraintMomentPerKg": {
+      "value": 6.165290869862633,
+      "seconds": 25.166666666666668,
+      "label": "required support wrench under declared proxy, not muscle capacity"
+    },
+    "carrierForcePerKg": {
+      "value": 12.121181758745356,
+      "seconds": 5,
+      "label": "Harry/Carina mass ratio0.8,broom ratio0.05"
+    }
+  },
+  "failures": [
+    {
+      "gate": "wristResidual",
+      "seconds": 23.666666666666668,
+      "value": 0.05165649145649713
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 23.708333333333332,
+      "value": 0.016261584513997524
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 25,
+      "value": 0.019653087007933515
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 25.041666666666668,
+      "value": 0.04094195767018226
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 25.083333333333332,
+      "value": 0.05635320755944961
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 25.125,
+      "value": 0.07347767186141257
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 25.208333333333332,
+      "value": 0.09886730228889634
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26,
+      "value": 0.02569866756198721
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26.041666666666668,
+      "value": 0.01501890807334105
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26.333333333333332,
+      "value": 0.02016410125345558
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26.375,
+      "value": 0.020163973227312195
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26.416666666666668,
+      "value": 0.021126411651681856
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26.458333333333332,
+      "value": 0.021750248682987552
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26.5,
+      "value": 0.021966243110161286
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26.541666666666668,
+      "value": 0.021758431014476932
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26.583333333333332,
+      "value": 0.021158894704287338
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26.625,
+      "value": 0.02024590491302759
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 26.666666666666668,
+      "value": 0.01999667356243384
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 27.041666666666668,
+      "value": 0.01955378751483374
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 27.083333333333332,
+      "value": 0.028116643420038303
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 28,
+      "value": 0.025841861207360806
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 28.041666666666668,
+      "value": 0.019205911215186368
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 29.041666666666668,
+      "value": 0.016139431778080377
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 29.083333333333332,
+      "value": 0.021062446416255945
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 29.125,
+      "value": 0.026157635212838287
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 29.916666666666668,
+      "value": 0.03193445989403642
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 29.958333333333332,
+      "value": 0.027251019046427526
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 30,
+      "value": 0.022714372029033245
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 30.041666666666668,
+      "value": 0.018538280262658795
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.083333333333332,
+      "value": 0.0157853438608643
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.125,
+      "value": 0.01878273833758499
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.166666666666668,
+      "value": 0.021616994310429637
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.208333333333332,
+      "value": 0.02447394018436209
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.25,
+      "value": 0.027222191226907663
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.291666666666668,
+      "value": 0.02976540156815392
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.333333333333332,
+      "value": 0.0320309285358376
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.75,
+      "value": 0.030586084689382852
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.791666666666668,
+      "value": 0.02844629331270262
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.833333333333332,
+      "value": 0.02611490811952391
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.875,
+      "value": 0.02366215446440634
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.916666666666668,
+      "value": 0.02117124473139546
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 31.958333333333332,
+      "value": 0.01874236464330453
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 32,
+      "value": 0.016154943765483258
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.208333333333336,
+      "value": 0.015895283275015045
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.25,
+      "value": 0.017149023926800466
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.291666666666664,
+      "value": 0.018443553355224174
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.333333333333336,
+      "value": 0.01944437051103151
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.375,
+      "value": 0.020282844250663873
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.416666666666664,
+      "value": 0.020951366618324557
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.458333333333336,
+      "value": 0.021429162514481133
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.5,
+      "value": 0.02170315649578346
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.541666666666664,
+      "value": 0.021767460707194992
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.583333333333336,
+      "value": 0.021622994152532996
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.625,
+      "value": 0.021277198606728092
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.666666666666664,
+      "value": 0.020743831444031198
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.708333333333336,
+      "value": 0.020042828463803317
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.75,
+      "value": 0.019200236230103983
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.791666666666664,
+      "value": 0.018185320388923187
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.833333333333336,
+      "value": 0.016963186788259702
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 33.875,
+      "value": 0.015810178117783028
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 35.458333333333336,
+      "value": 0.015175782837960132
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 35.5,
+      "value": 0.01545090055018863
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 35.541666666666664,
+      "value": 0.015633603903001572
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 35.583333333333336,
+      "value": 0.015716186696385796
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 35.625,
+      "value": 0.015696868120869418
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 35.666666666666664,
+      "value": 0.01557933194961228
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 35.708333333333336,
+      "value": 0.01537228271258595
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 35.75,
+      "value": 0.015088993443924597
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 44.541666666666664,
+      "value": 0.22886890744346505
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.083333333333336,
+      "value": 0.04438718975083365
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.125,
+      "value": 0.0773256528146295
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.166666666666664,
+      "value": 0.09664680649343162
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.208333333333336,
+      "value": 0.0996965093927141
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.25,
+      "value": 0.09702264521519859
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.291666666666664,
+      "value": 0.09382772023927662
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.333333333333336,
+      "value": 0.09007700857573722
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.375,
+      "value": 0.08574795095533558
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.416666666666664,
+      "value": 0.08083139979514402
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.458333333333336,
+      "value": 0.07533282125499079
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.5,
+      "value": 0.06927357830468511
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.541666666666664,
+      "value": 0.06083890173502387
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.583333333333336,
+      "value": 0.04877447959669043
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.625,
+      "value": 0.03442056938627777
+    },
+    {
+      "gate": "wristResidual",
+      "seconds": 45.666666666666664,
+      "value": 0.01887002643584091
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 46.625,
+      "value": 0.002958980601178385
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 46.666666666666664,
+      "value": 0.005725975574745024
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 46.708333333333336,
+      "value": 0.008422060761763828
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 46.75,
+      "value": 0.011039065725853114
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 46.791666666666664,
+      "value": 0.01356956020211586
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 46.833333333333336,
+      "value": 0.01600682693517852
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 46.875,
+      "value": 0.018344806545708914
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 46.916666666666664,
+      "value": 0.020578015379755732
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 46.958333333333336,
+      "value": 0.022701438812565755
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47,
+      "value": 0.02471040410265768
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.041666666666664,
+      "value": 0.02665960298496467
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.083333333333336,
+      "value": 0.028603626251061942
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.125,
+      "value": 0.030537799720459058
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.166666666666664,
+      "value": 0.03245743950397406
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.208333333333336,
+      "value": 0.03435787693767395
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.25,
+      "value": 0.036234483200586476
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.291666666666664,
+      "value": 0.0380826934051397
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.333333333333336,
+      "value": 0.0398980299693486
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.375,
+      "value": 0.041676125103441375
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.416666666666664,
+      "value": 0.043412742265360404
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.458333333333336,
+      "value": 0.0451037964639156
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.5,
+      "value": 0.04674537330825457
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.541666666666664,
+      "value": 0.04833374672494378
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.583333333333336,
+      "value": 0.049865395281989966
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.625,
+      "value": 0.051337017076082736
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.666666666666664,
+      "value": 0.05274554315603791
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.708333333333336,
+      "value": 0.05408814946679025
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.75,
+      "value": 0.05536226731189525
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.791666666666664,
+      "value": 0.05656559233987629
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.833333333333336,
+      "value": 0.057696092069890514
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.875,
+      "value": 0.05875201197642743
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.916666666666664,
+      "value": 0.05973188015961928
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 47.958333333333336,
+      "value": 0.06063451062937364
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 48,
+      "value": 0.06145900523583281
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 48.041666666666664,
+      "value": 0.061077049258746685
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 48.083333333333336,
+      "value": 0.058468338114800567
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 48.125,
+      "value": 0.053795980169359214
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 48.166666666666664,
+      "value": 0.04722547137961869
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 48.208333333333336,
+      "value": 0.038924834389183705
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 48.25,
+      "value": 0.029064887236658843
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 48.291666666666664,
+      "value": 0.01781962039994056
+    },
+    {
+      "gate": "bodyPenetration",
+      "seconds": 48.333333333333336,
+      "value": 0.005366649380435795
+    }
+  ],
+  "assumptions": [
+    "Unit-mass disclosed FK point proxy, not measured teen anatomy",
+    "Mass ratios0.8/1/1.2 and broom0.05 are sensitivity assumptions",
+    "Forces/moments are inverse-dynamics demands, not forward dynamics or injury safety",
+    "12m/s,5m/s²,2.5g are adopted magical actuator budgets",
+    "24Hz finite differences and capsule surfaces do not prove all intervening peaks or cloth collisions"
+  ]
+}

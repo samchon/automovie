@@ -1,0 +1,221 @@
+{
+  "check": "Current adopted instruction identities after shared-reference reuse, scene completeness and exact-byte guard",
+  "checkedAt": "2026-11-04T11:52:20.1071832Z",
+  "digestConvention": "SHA-256 of UTF-8 text after CRLF to LF; no trim",
+  "resources": 17,
+  "allMatchBundled": true,
+  "allMatchStoredDigest": true,
+  "runs": [
+    {
+      "name": "sync-check",
+      "receipt": ".cache/generation-records/sync-check.log",
+      "status": {
+        "exitCode": 1,
+        "completedAt": null,
+        "observation": "Original check log explicitly records Exit status 1; no separate timestamp/status JSON was captured."
+      }
+    },
+    {
+      "name": "sync-apply",
+      "receipt": ".cache/generation-records/sync-apply-status.json",
+      "status": {
+        "exitCode": 0,
+        "completedAt": "2026-11-04T10:16:39.8872155Z",
+        "operation": "instruction-only sync apply"
+      }
+    },
+    {
+      "name": "sync-naming-check",
+      "receipt": ".cache/generation-records/sync-naming-check-status.json",
+      "status": {
+        "operation": "latest descriptive plural naming sync check",
+        "exitCode": 1,
+        "completedAt": "2026-11-04T10:24:49.34424Z"
+      }
+    },
+    {
+      "name": "sync-naming-apply",
+      "receipt": ".cache/generation-records/sync-naming-apply-status.json",
+      "status": {
+        "exitCode": 0,
+        "completedAt": "2026-11-04T10:28:17.6977678Z",
+        "operation": "latest descriptive plural naming instruction sync apply"
+      }
+    },
+    {
+      "name": "sync-completeness-check",
+      "receipt": ".cache/generation-records/sync-completeness-check-status.json",
+      "status": {
+        "exitCode": 1,
+        "completedAt": "2026-11-04T10:53:38.2003675Z",
+        "operation": "Final combined shared-reference reuse and scene-completeness instruction check; official no-plugins CLI"
+      }
+    },
+    {
+      "name": "sync-completeness-apply",
+      "receipt": ".cache/generation-records/sync-completeness-apply-status.json",
+      "status": {
+        "exitCode": 0,
+        "completedAt": "2026-11-04T10:55:55.8414115Z",
+        "operation": "Final combined shared-reference reuse and scene-completeness instruction apply; official no-plugins CLI"
+      }
+    },
+    {
+      "name": "sync-byte-guard-check",
+      "receipt": ".cache/generation-records/sync-byte-guard-check-status.json",
+      "status": {
+        "exitCode": 1,
+        "completedAt": "2026-11-04T11:49:24.8639412Z",
+        "operation": "Instruction-only check for later discovered immutable payload byte/EOL guard"
+      }
+    },
+    {
+      "name": "sync-byte-guard-apply",
+      "receipt": ".cache/generation-records/sync-byte-guard-apply-status.json",
+      "status": {
+        "exitCode": 0,
+        "completedAt": "2026-11-04T11:50:10.6570589Z",
+        "operation": "Instruction-only apply for later discovered immutable payload byte/EOL guard"
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": ".agents/skills/3d-modeling/SKILL.md",
+      "installedLfSha256": "1425adc5891feb40d40c99b43a8a6e85c357c4b7793ab2c9d92abfab66187e3e",
+      "bundledLfSha256": "1425adc5891feb40d40c99b43a8a6e85c357c4b7793ab2c9d92abfab66187e3e",
+      "storedDigest": "1425adc5891feb40d40c99b43a8a6e85c357c4b7793ab2c9d92abfab66187e3e",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/3d-modeling/workflows.md",
+      "installedLfSha256": "8e140809e6fbc575e4b2087e5814d988e51298f3efc7e0c9d447af9eb355f62f",
+      "bundledLfSha256": "8e140809e6fbc575e4b2087e5814d988e51298f3efc7e0c9d447af9eb355f62f",
+      "storedDigest": "8e140809e6fbc575e4b2087e5814d988e51298f3efc7e0c9d447af9eb355f62f",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/audio/SKILL.md",
+      "installedLfSha256": "5c51447d9a21f155074a6a8a2f755b614733d24db62ed08c70fcfe5fff3849ce",
+      "bundledLfSha256": "5c51447d9a21f155074a6a8a2f755b614733d24db62ed08c70fcfe5fff3849ce",
+      "storedDigest": "5c51447d9a21f155074a6a8a2f755b614733d24db62ed08c70fcfe5fff3849ce",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/audio/acquisition.md",
+      "installedLfSha256": "2496dd088a4a62c633449b56d10ca5b4d9a88920c348d626d0e1da9329e7c15f",
+      "bundledLfSha256": "2496dd088a4a62c633449b56d10ca5b4d9a88920c348d626d0e1da9329e7c15f",
+      "storedDigest": "2496dd088a4a62c633449b56d10ca5b4d9a88920c348d626d0e1da9329e7c15f",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/evidence/execution.md",
+      "installedLfSha256": "00c3cfb8ea81226fffce9d2d235bcc125fa8ddab9204eeddd68cd7637f81fb4d",
+      "bundledLfSha256": "00c3cfb8ea81226fffce9d2d235bcc125fa8ddab9204eeddd68cd7637f81fb4d",
+      "storedDigest": "00c3cfb8ea81226fffce9d2d235bcc125fa8ddab9204eeddd68cd7637f81fb4d",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/production/SKILL.md",
+      "installedLfSha256": "ae4f8ab9dc586ba5b10c397daeb50719fcd0a3d2326901c236795c8b2ce60c2a",
+      "bundledLfSha256": "ae4f8ab9dc586ba5b10c397daeb50719fcd0a3d2326901c236795c8b2ce60c2a",
+      "storedDigest": "ae4f8ab9dc586ba5b10c397daeb50719fcd0a3d2326901c236795c8b2ce60c2a",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/production/conditioning.md",
+      "installedLfSha256": "4949e6d99c8f54fb6065d1f2cd32359aa5670d2cdcaa025326c1b8fa1c4b7719",
+      "bundledLfSha256": "4949e6d99c8f54fb6065d1f2cd32359aa5670d2cdcaa025326c1b8fa1c4b7719",
+      "storedDigest": "4949e6d99c8f54fb6065d1f2cd32359aa5670d2cdcaa025326c1b8fa1c4b7719",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/production/finishing.md",
+      "installedLfSha256": "9542a7ca71541776b86c0b099d97ce5fa82da73533ca797b0e74ea74327def19",
+      "bundledLfSha256": "9542a7ca71541776b86c0b099d97ce5fa82da73533ca797b0e74ea74327def19",
+      "storedDigest": "9542a7ca71541776b86c0b099d97ce5fa82da73533ca797b0e74ea74327def19",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/production/generation-records.md",
+      "installedLfSha256": "a4abf6a411b636387b3a652c10c33acc2eb094ea396a772622b7834ba5b8a8b5",
+      "bundledLfSha256": "a4abf6a411b636387b3a652c10c33acc2eb094ea396a772622b7834ba5b8a8b5",
+      "storedDigest": "a4abf6a411b636387b3a652c10c33acc2eb094ea396a772622b7834ba5b8a8b5",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/production/generation.md",
+      "installedLfSha256": "bef4b3c7de0a19b292ecb4e6940f27ca79515860314fdc00eec40bcb1f5f6a73",
+      "bundledLfSha256": "bef4b3c7de0a19b292ecb4e6940f27ca79515860314fdc00eec40bcb1f5f6a73",
+      "storedDigest": "bef4b3c7de0a19b292ecb4e6940f27ca79515860314fdc00eec40bcb1f5f6a73",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/production/layout.md",
+      "installedLfSha256": "2aab56b5c63c28b654f49b593d5eb92afbdab58f8ec36597f0166d284cbf309c",
+      "bundledLfSha256": "2aab56b5c63c28b654f49b593d5eb92afbdab58f8ec36597f0166d284cbf309c",
+      "storedDigest": "2aab56b5c63c28b654f49b593d5eb92afbdab58f8ec36597f0166d284cbf309c",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/review/assets.md",
+      "installedLfSha256": "f553d38e9d8106409db968515a55d7dc6d1b1277187415bb2fefd549dcf18a84",
+      "bundledLfSha256": "f553d38e9d8106409db968515a55d7dc6d1b1277187415bb2fefd549dcf18a84",
+      "storedDigest": "f553d38e9d8106409db968515a55d7dc6d1b1277187415bb2fefd549dcf18a84",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/review/delivery.md",
+      "installedLfSha256": "5ab6ef7dcc256db26534345bf71fe981e5f3d3507a7678a2ba9a1768dc520fb7",
+      "bundledLfSha256": "5ab6ef7dcc256db26534345bf71fe981e5f3d3507a7678a2ba9a1768dc520fb7",
+      "storedDigest": "5ab6ef7dcc256db26534345bf71fe981e5f3d3507a7678a2ba9a1768dc520fb7",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/screenwriting/discovery.md",
+      "installedLfSha256": "33b548de230761a078e1668f4a029c1caa403e2b7d8f5b8856133f516d009f4b",
+      "bundledLfSha256": "33b548de230761a078e1668f4a029c1caa403e2b7d8f5b8856133f516d009f4b",
+      "storedDigest": "33b548de230761a078e1668f4a029c1caa403e2b7d8f5b8856133f516d009f4b",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/screenwriting/screenplay.md",
+      "installedLfSha256": "2bfcf82fc1870b9aad06ac0a571e7dbc17d32f205d219bcd146ca8b2688aa0e8",
+      "bundledLfSha256": "2bfcf82fc1870b9aad06ac0a571e7dbc17d32f205d219bcd146ca8b2688aa0e8",
+      "storedDigest": "2bfcf82fc1870b9aad06ac0a571e7dbc17d32f205d219bcd146ca8b2688aa0e8",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/screenwriting/settings-records.md",
+      "installedLfSha256": "0afff2fd51cc5d6563934093fcdfba4ac21f8bf6c874b91b0c98d8519ad33f65",
+      "bundledLfSha256": "0afff2fd51cc5d6563934093fcdfba4ac21f8bf6c874b91b0c98d8519ad33f65",
+      "storedDigest": "0afff2fd51cc5d6563934093fcdfba4ac21f8bf6c874b91b0c98d8519ad33f65",
+      "matchesBundle": true,
+      "matchesState": true
+    },
+    {
+      "path": ".agents/skills/screenwriting/settings.md",
+      "installedLfSha256": "aad840288030725ddfda73e43b88636678c0629b67bb60b50cd0dd650e04e2ad",
+      "bundledLfSha256": "aad840288030725ddfda73e43b88636678c0629b67bb60b50cd0dd650e04e2ad",
+      "storedDigest": "aad840288030725ddfda73e43b88636678c0629b67bb60b50cd0dd650e04e2ad",
+      "matchesBundle": true,
+      "matchesState": true
+    }
+  ],
+  "protectedContracts": "Assets/delivery and settings/screenplay obligations manually compared/adopted separately; not overwritten by sync"
+}

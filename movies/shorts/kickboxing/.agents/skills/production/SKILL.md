@@ -1,26 +1,22 @@
 ---
 name: production
-description: Coordinates the commissioned asset, screenplay, whole motion hint or finished film from intake through execution and delivery. Use for production scope, setup, video generation, editing, encoding and handoff; specialist skills own writing, assets, motion and sound.
+description: Keeps the project's scope and setup and carries the work after motion, conditioning, video generation, editing, encoding and handoff, to the delivered artifact. Use for project context, sustained runs, media, instruction sync and finishing; story, development, motion and audio own their own work.
 ---
 
 # Production
 
-Carry the commissioned experience through its actual inputs, performance and delivered artifact. Read the request, project-root [PROJECT.md](../../../PROJECT.md), current source and outputs; use [project context](profile.md) to adopt the output boundary, fixed choices and setup authority. Resolve routine choices within delegation and continue independent work while a nonblocking choice remains open.
+Carry the commission from its adopted scope to the delivered artifact. Read the request and [project context](profile.md) first: a screenplay, an asset, a whole motion hint, a direct 3D film and a generated film each have their own recipient and acceptance, and stills or pilot clips never complete a whole-video commission.
 
-Use [screenwriting](../screenwriting/SKILL.md) for narrative work; an asset-only task has no narrative pipeline. Adopt applicable [delivery questions](../contracts/delivery.md) through [Evidence](../evidence/SKILL.md). A screenplay, whole motion hint, finished direct 3D film and generated film have different recipients and acceptance boundaries.
-
-For commissioned video, [motion](../motion/SKILL.md) programs the main scenes' performance and staging for the complete edit. Simple figures and coarse objects can carry it; choose representations through [3D modeling](../3d-modeling/SKILL.md) and commissioned sound through [audio](../audio/SKILL.md). A motion hint needs no finished diffusion film, and a requested direct 3D film needs no diffusion step. Stills and pilot clips cannot complete a whole-video commission.
-
-Choose the production task directly:
+Writing and research belong to [story](../story/SKILL.md), code and assets to [development](../development/SKILL.md), performance to [motion](../motion/SKILL.md) and sound to [audio](../audio/SKILL.md), in the [writing order](../story/workflow.md#route-and-parents). This skill keeps the project and the work after motion:
 
 | Task | Read |
 | --- | --- |
 | Establish scope, decisions and setup authority | [Project context](profile.md) |
-| Coordinate sustained work, inspect runs or resume a stopped handoff | [Campaign execution](campaign.md) |
-| Organize source, supplied material and consumers | [Layout and intake](layout.md) |
-| Research a decision and retain its original references | [Production research](research.md) |
-| Prepare a whole motion hint and aligned control channels | [Conditioning handoff](conditioning.md) |
-| Use a selected generator and adopt its actual video takes | [Video generation](generation.md) |
-| Assemble shots/takes, wire the real host, encode and hand off | [Editing and finishing](finishing.md) |
+| Run, observe or resume sustained work | [Campaign execution](campaign.md) |
+| Save generated, acquired and pipeline media and their requests | [Media](media.md) |
+| Sync instructions or change the layout | [Ownership and customization](customization.md) |
+| Prepare the whole motion hint and its control channels | [Conditioning handoff](conditioning.md) |
+| Generate video and adopt its takes | [Video generation](generation.md) |
+| Assemble, encode and hand off | [Editing and finishing](finishing.md) |
 
-Consume the specialists' accepted performance, assets and sound in the actual edit. Implement missing source capability through [development](../development/SKILL.md) and reconnect its consumer before proceeding. [Review](../review/SKILL.md) judges the work; [delivery review](../review/delivery.md) accepts the actual commissioned artifact.
+[Review](../review/SKILL.md) judges the work, and [delivery review](../review/delivery.md) accepts the commissioned artifact.

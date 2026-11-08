@@ -15,7 +15,10 @@
     "test": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.test.json test/index.ts",
     "dev": "vite",
     "build": "vite build",
-    "render": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json scripts/render.ts"
+    "render": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/render.ts",
+    "review": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/review.ts",
+    "review:setup": "playwright install ffmpeg",
+    "physics": "ttsx --cache-dir node_modules/.cache/ttsc -P tsconfig.json src/executable/physics.ts"
   },
   "dependencies": {
     "@automovie/archetypes": "{{version:archetypes}}",
@@ -29,6 +32,7 @@
     "three": "{{version:three}}"
   },
   "devDependencies": {
+    "playwright": "{{version:playwright}}",
     "@nestia/e2e": "{{version:nestiaE2e}}",
     "@automovie/evidence": "{{version:evidence}}",
     "@ttsc/lint": "{{version:ttscLint}}",

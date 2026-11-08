@@ -34,7 +34,7 @@ export const decodeDataUri: (uri: string, path: string) => Uint8Array = (
         bytes[index] = binary.charCodeAt(index);
       return bytes;
     }
-    const encoder: TextEncoder = new TextEncoder();
+    const encoder: InstanceType<typeof TextEncoder> = new TextEncoder();
     const chunks: Uint8Array[] = [];
     let literal: number = 0;
     for (let index: number = 0; index < payload.length; ++index) {

@@ -1,0 +1,22 @@
+{
+  "model": "dreamina-seedance-2-5-260628",
+  "content": [
+    {
+      "type": "text",
+      "text": "Create a restrained cinematic fantasy epilogue using @Video1 as the sole coarse 3D motion and camera reference. Preserve its twelve-second pauses, eye lines, contact release, step and ending. Carina is the approximately fifteen-year-old pale-blond Slytherin girl in a white collar, green-and-silver tie, charcoal knitwear, open dark robe, charcoal skirt, grey knee socks and closed black shoes. Harry is the approximately fifteen-year-old dark-haired Gryffindor boy with round glasses, white collar, burgundy-and-gold tie, charcoal knitwear, open dark robe, trousers and closed black shoes. Their mild interest remains age-appropriate and understated.\n\nBegin in the rescue's exact continuing placement. Harry's left hand still holds Carina's right forearm; neither has lost the right-hand wand. He looks from the fallen stone to her. Preserve the exact English caption Did you just save me? at his question beat. Carina looks down at his hand. He follows that gaze and releases, without a grab, recoil or new attack. Her arm stays briefly where he let go.\n\nShe steps back into the clear court, sets her feet and raises her wand between them. Harry turns fully toward her with his wand initially low. Preserve the exact English caption Look at me this time. and its direct competitive, slightly personal invitation. He meets her eyes and raises his wand. Hold both figures facing one another, with the one fallen cap and residual debris still behind him, then follow the reference's cut to black.\n\nKeep hands, feet and the release readable; natural human proportions and simple clothing must preserve those relationships. Keep the same pale daylight, sparse court, low boundary and empty background. Add no kiss, new character, new hazard or extra dialogue. Keep audio silent. The video supplies semantic performance and camera reference, not strict frame or speech guarantees."
+    },
+    {
+      "type": "video_url",
+      "video_url": {
+        "url": "{{SOURCE_CLIP_PUBLIC_URL}}"
+      },
+      "role": "reference_video"
+    }
+  ],
+  "omni_reference_task_type": "reference",
+  "generate_audio": false,
+  "ratio": "9:16",
+  "duration": 12,
+  "watermark": true
+}
+

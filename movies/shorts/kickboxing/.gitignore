@@ -11,6 +11,11 @@ dist/
 __pycache__/
 .venv/
 .tmp/
-docs/naturalness/
-docs/revision/
+/docs/review/
+/docs/naturalness/
+/docs/revision/
+/docs/prompts/**/payloads/
 /references/private/
+/media/automovie/
+/media/*/audios/
+/media/*/videos/

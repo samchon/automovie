@@ -195,4 +195,21 @@ export namespace AutoMovieNaturalSpline {
     }
     return lo;
   }
+
+  /**
+   * Third derivative at x of the same piecewise cubic as {@link evaluate}:
+   * constant `(M_{k+1} - M_k) / h` on the interval {@link derivative} reads,
+   * zero beyond the end knots.
+   *
+   * @param spline The spline.
+   * @param x Abscissa.
+   * @returns `S^(3)(x)`.
+   */
+  export function jerk(spline: ISpline, x: number): number {
+    const { xs, curvatures }: ISpline = spline;
+    const n: number = xs.length;
+    if (!(x >= xs[0]! && x <= xs[n - 1]!)) return 0;
+    const k: number = interval(xs, x);
+    return (curvatures[k + 1]! - curvatures[k]!) / (xs[k + 1]! - xs[k]!);
+  }
 }

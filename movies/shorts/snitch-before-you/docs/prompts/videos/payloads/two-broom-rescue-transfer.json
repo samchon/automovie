@@ -1,0 +1,23 @@
+{
+  "model": "dreamina-seedance-2-5-260628",
+  "content": [
+    {
+      "type": "text",
+      "text": "Edit @Video 1 into a coherent cinematic live-action-style fan scene. Use the reference video's visible performance, positions, support, object possession, camera direction and timing as semantic guidance, not as a guarantee of identical frames. Replace only the blond, nape-tied girl riding beside the glasses-wearing lead with Carina Malfoy, an approximately fifteen-year-old Slytherin student: fair skin, youthful narrow face, pale platinum hair tied at the nape, a cute, pretty appearance and a small proud smile. Replace the coarse dark-haired boy with Harry Potter, an approximately fifteen-year-old Gryffindor student: youthful face, tousled black hair, round dark glasses and a small forehead scar. Keep their white collars, grey V-neck knitwear, black school robes and black school shoes; Carina has a green-and-silver tie and green robe lining, Harry a red-and-gold tie and red lining. Their lower robe panels stay secured at the waist for safe riding. Carina's pleated skirt retains an opaque riding underlayer; Harry wears charcoal trousers. Keep the same two lead identities throughout. Twelve anonymous school players, including short pale-haired field players, retain their own identities and coarse silhouettes on their own brooms where visible. Keep their faces distinct from both leads. Keep a sunlit pale-blue sky, open green lawn, simple pale hoop goals and sparse surroundings, with consistent soft daylight. Do not add spectators, buildings, rescue equipment, a wand rescue, a kiss or a victory. Preserve one uncaught gold winged Snitch, one red Quaffle, two dark Bludgers, fourteen brooms, four Beater bats and six hoop goals; never duplicate a consequential object. Follow the approach and one brief closer Keeper reaction at global38–39.8seconds, then return to the two leads before either hand changes support. Keep the complete hand/body transfer and recovery from global43 to53seconds in one continuous readable three-quarter view. Carina abandons the still-unheld Snitch, descends from Harry's left, matches his velocity and places her empty rear shaft at his lower-chest height. Keep her seated, controlling the front of her broom. Harry takes that rear shaft with his LEFT hand before his RIGHT hand releases the old broom; only then does the right hand join the new grip. Make both shafts and the hand change clear. Do not turn this into a wrist-to-wrist catch or a one-arm pull-up. The transferred weight dips her broom. Harry draws the wood against his lower ribs, hooks his left forearm over it, swings his left thigh across behind her and rolls into a rear straddle, clearing the bristles. Both recover into stable shared flight. Keep the old broom gliding riderless, slowing and clearing above/to Harry's right, and the uncaught Snitch escaping toward the distant goals. The distant green Keeper notices, signals the field, approaches too late to replace Carina and yields outside the transfer corridor; Chasers stop passing and hold the Quaffle while Beaters keep both Bludgers north. End with both riders securely seated on one broom. No dialogue is added."
+    },
+    {
+      "type": "video_url",
+      "video_url": {
+        "url": "{{SOURCE_CLIP_PUBLIC_URL}}"
+      },
+      "role": "reference_video"
+    }
+  ],
+  "omni_reference_task_type": "edit",
+  "ratio": "adaptive",
+  "duration": -1,
+  "resolution": "720p",
+  "output_format": "mp4",
+  "generate_audio": false,
+  "watermark": true
+}

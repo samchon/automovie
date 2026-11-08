@@ -54,13 +54,13 @@ catalogs:
       specifier: ^12.1.0
       version: 12.1.0
     '@ttsc/evidence':
-      specifier: ^0.36.3
+      specifier: ^0.36.0
       version: 0.36.3
     '@ttsc/lint':
-      specifier: ^0.36.3
+      specifier: ^0.36.0
       version: 0.36.3
     '@ttsc/unplugin':
-      specifier: ^0.36.3
+      specifier: ^0.36.0
       version: 0.36.3
     '@wrtnlabs/evidence':
       specifier: ^0.8.2
@@ -69,7 +69,7 @@ catalogs:
       specifier: ^3.0.0
       version: 3.0.0
     ttsc:
-      specifier: ^0.36.3
+      specifier: ^0.36.0
       version: 0.36.3
     typia:
       specifier: ^15.3.0
@@ -438,8 +438,8 @@ importers:
         specifier: workspace:^
         version: link:../../../packages/evidence
       '@ttsc/lint':
-        specifier: ^0.36.2
-        version: 0.36.2(ttsc@0.36.2(typescript@7.0.2))
+        specifier: ^0.36.0
+        version: 0.36.3(ttsc@0.36.3(typescript@7.0.2))
       '@types/node':
         specifier: ^22.19.17
         version: 22.20.5
@@ -448,7 +448,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: ^0.8.2
-        version: 0.8.2(ttsc@0.36.2(typescript@7.0.2))
+        version: 0.8.2(ttsc@0.36.3(typescript@7.0.2))
       ffmpeg-static:
         specifier: ^5.2.0
         version: 5.3.0
@@ -462,13 +462,257 @@ importers:
         specifier: catalog:three
         version: 0.186.0
       ttsc:
-        specifier: ^0.36.2
-        version: 0.36.2(typescript@7.0.2)
+        specifier: ^0.36.0
+        version: 0.36.3(typescript@7.0.2)
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
       vite:
         specifier: catalog:vite
+        version: 5.4.21(@types/node@22.20.5)
+
+  movies/shorts/look-at-me-duel:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:*
+        version: link:../../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
+      '@automovie/human':
+        specifier: workspace:*
+        version: link:../../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:*
+        version: link:../../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:*
+        version: link:../../../packages/interface
+      '@automovie/recovery':
+        specifier: workspace:*
+        version: link:../../../packages/recovery
+      '@automovie/render':
+        specifier: workspace:*
+        version: link:../../../packages/render
+      '@automovie/viewer':
+        specifier: workspace:*
+        version: link:../../../packages/viewer
+      three:
+        specifier: ^0.186.0
+        version: 0.186.0
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:*
+        version: link:../../../packages/evidence
+      '@nestia/e2e':
+        specifier: ^12.1.0
+        version: 12.1.0
+      '@ttsc/lint':
+        specifier: ^0.35.0
+        version: 0.35.0(ttsc@0.35.0(typescript@7.0.2))
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.20.5
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      '@wrtnlabs/evidence':
+        specifier: ^0.8.2
+        version: 0.8.2(ttsc@0.35.0(typescript@7.0.2))
+      ffmpeg-static:
+        specifier: ^5.2.0
+        version: 5.3.0
+      ttsc:
+        specifier: ^0.35.0
+        version: 0.35.0(typescript@7.0.2)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.21(@types/node@22.20.5)
+
+  movies/shorts/paper-crane-invitation:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:*
+        version: link:../../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
+      '@automovie/human':
+        specifier: workspace:*
+        version: link:../../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:*
+        version: link:../../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:*
+        version: link:../../../packages/interface
+      '@automovie/recovery':
+        specifier: workspace:*
+        version: link:../../../packages/recovery
+      '@automovie/render':
+        specifier: workspace:*
+        version: link:../../../packages/render
+      '@automovie/viewer':
+        specifier: workspace:*
+        version: link:../../../packages/viewer
+      three:
+        specifier: ^0.186.0
+        version: 0.186.0
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:*
+        version: link:../../../packages/evidence
+      '@nestia/e2e':
+        specifier: ^12.1.0
+        version: 12.1.0
+      '@ttsc/lint':
+        specifier: ^0.35.0
+        version: 0.35.0(ttsc@0.35.0(typescript@7.0.2))
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.20.5
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      '@wrtnlabs/evidence':
+        specifier: ^0.8.2
+        version: 0.8.2(ttsc@0.35.0(typescript@7.0.2))
+      ffmpeg-static:
+        specifier: ^5.2.0
+        version: 5.3.0
+      ttsc:
+        specifier: ^0.35.0
+        version: 0.35.0(typescript@7.0.2)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.21(@types/node@22.20.5)
+
+  movies/shorts/snitch-before-you:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:*
+        version: link:../../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
+      '@automovie/human':
+        specifier: workspace:*
+        version: link:../../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:*
+        version: link:../../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:*
+        version: link:../../../packages/interface
+      '@automovie/recovery':
+        specifier: workspace:*
+        version: link:../../../packages/recovery
+      '@automovie/render':
+        specifier: workspace:*
+        version: link:../../../packages/render
+      '@automovie/viewer':
+        specifier: workspace:*
+        version: link:../../../packages/viewer
+      three:
+        specifier: ^0.186.0
+        version: 0.186.0
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:*
+        version: link:../../../packages/evidence
+      '@nestia/e2e':
+        specifier: ^12.1.0
+        version: 12.1.0
+      '@ttsc/lint':
+        specifier: ^0.35.0
+        version: 0.35.0(ttsc@0.35.0(typescript@7.0.2))
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.20.5
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      '@wrtnlabs/evidence':
+        specifier: ^0.8.2
+        version: 0.8.2(ttsc@0.35.0(typescript@7.0.2))
+      ffmpeg-static:
+        specifier: ^5.2.0
+        version: 5.3.0
+      ttsc:
+        specifier: ^0.35.0
+        version: 0.35.0(typescript@7.0.2)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.21(@types/node@22.20.5)
+
+  movies/shorts/three-oclock:
+    dependencies:
+      '@automovie/archetypes':
+        specifier: workspace:*
+        version: link:../../../packages/archetypes
+      '@automovie/engine':
+        specifier: workspace:*
+        version: link:../../../packages/engine
+      '@automovie/human':
+        specifier: workspace:*
+        version: link:../../../packages/human
+      '@automovie/ingest':
+        specifier: workspace:*
+        version: link:../../../packages/ingest
+      '@automovie/interface':
+        specifier: workspace:*
+        version: link:../../../packages/interface
+      '@automovie/recovery':
+        specifier: workspace:*
+        version: link:../../../packages/recovery
+      '@automovie/render':
+        specifier: workspace:*
+        version: link:../../../packages/render
+      '@automovie/viewer':
+        specifier: workspace:*
+        version: link:../../../packages/viewer
+      three:
+        specifier: ^0.186.0
+        version: 0.186.0
+    devDependencies:
+      '@automovie/evidence':
+        specifier: workspace:*
+        version: link:../../../packages/evidence
+      '@nestia/e2e':
+        specifier: ^12.1.0
+        version: 12.1.0
+      '@ttsc/lint':
+        specifier: ^0.35.0
+        version: 0.35.0(ttsc@0.35.0(typescript@7.0.2))
+      '@types/node':
+        specifier: ^22.19.17
+        version: 22.20.5
+      '@types/three':
+        specifier: ^0.186.0
+        version: 0.186.0
+      '@wrtnlabs/evidence':
+        specifier: ^0.8.2
+        version: 0.8.2(ttsc@0.35.0(typescript@7.0.2))
+      ffmpeg-static:
+        specifier: ^5.2.0
+        version: 5.3.0
+      ttsc:
+        specifier: ^0.35.0
+        version: 0.35.0(typescript@7.0.2)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vite:
+        specifier: ^5.4.10
         version: 5.4.21(@types/node@22.20.5)
 
   packages/archetypes:
@@ -532,6 +776,9 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
+      '@dimforge/rapier3d-compat':
+        specifier: 0.21.0
+        version: 0.21.0
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
@@ -589,18 +836,12 @@ importers:
         specifier: catalog:samchon
         version: 15.3.0(ttsc@0.36.3(typescript@7.0.2))
     devDependencies:
-      '@automovie/recovery':
-        specifier: workspace:^
-        version: link:../recovery
       '@automovie/render':
         specifier: workspace:^
         version: link:../render
       '@automovie/viewer':
         specifier: workspace:^
         version: link:../viewer
-      '@napi-rs/canvas':
-        specifier: 1.0.1
-        version: 1.0.1
       '@playwright/mcp':
         specifier: catalog:media
         version: 0.0.84
@@ -1004,6 +1245,9 @@ importers:
         specifier: catalog:samchon
         version: 15.3.0(ttsc@0.36.3(typescript@7.0.2))
     devDependencies:
+      '@dimforge/rapier3d-compat':
+        specifier: 0.21.0
+        version: 0.21.0
       '@ttsc/evidence':
         specifier: catalog:samchon
         version: 0.36.3(@ttsc/lint@0.36.3(ttsc@0.36.3(typescript@7.0.2)))
@@ -1178,6 +1422,9 @@ packages:
 
   '@dimforge/rapier3d-compat@0.12.0':
     resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
+
+  '@dimforge/rapier3d-compat@0.21.0':
+    resolution: {integrity: sha512-tCl1HPGwOhn5aCQbgqWbOH+Nx/5fnr3IPAnzQuR7zIhC/raqi2yxC6LhvZqjdI2El5hQgY5RDAwDrAjAi2FdPA==}
 
   '@emnapi/runtime@1.11.3':
     resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
@@ -1736,76 +1983,6 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@napi-rs/canvas-android-arm64@1.0.1':
-    resolution: {integrity: sha512-d7ZCwJsgH4QNG50C7HQeVRsRG1gRDa1UeDUb1jEcqgLuiEJp6GVbGiZkFXPlmt0dEs2QHRQCPJoOv+bOkSQR/w==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [android]
-
-  '@napi-rs/canvas-darwin-arm64@1.0.1':
-    resolution: {integrity: sha512-ppyVSzIHsVldc3B++mdh03ed0Q0hoVR2QDG9O/wEUR0PurJKwDEEYV87uBQDpbSumJBfLEINDndsOPzQj71qEQ==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@napi-rs/canvas-darwin-x64@1.0.1':
-    resolution: {integrity: sha512-/BlXif9VOzf/WP32g9zxl612dO0KLvwqplBFqfRcyr3PyR5fhPrilTuJxSBq3zkwCKGKy82JsoPd2JeQI/HBlA==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@napi-rs/canvas-linux-arm-gnueabihf@1.0.1':
-    resolution: {integrity: sha512-JTGq93/Pje+iSNVjL+ggB0+pqEfu7nXvQGrHTvugz+Lp08wCDa5rjov4JeEljGDk16/inVBU9sp4N9f0/+o+9A==}
-    engines: {node: '>= 10'}
-    cpu: [arm]
-    os: [linux]
-
-  '@napi-rs/canvas-linux-arm64-gnu@1.0.1':
-    resolution: {integrity: sha512-i74zqEh5yFmYwHkszFo+4EH4l5ATD4bSlJG21iW2j5kpqiN2b0WN9SG/xdq2O60MjZK0ZLSu3a/Z3aQAsmDQ5A==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@napi-rs/canvas-linux-arm64-musl@1.0.1':
-    resolution: {integrity: sha512-COqBxybXcKb6gNgEhjh04rPHrpsJB+n/5+p4ySPgQWl0i+xVNYHn4rvzCtUBIFqOgY6HEJ9UaP6c4W9EMwzfpQ==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@napi-rs/canvas-linux-riscv64-gnu@1.0.1':
-    resolution: {integrity: sha512-1vdAZGpD85lMUo7K3qtEdoIWeMc0xcpUD5PagK3fVcMSdf8dkSL5bg/KE4Rwv5NF+PYx4plrgfn0KRMOqdKtwA==}
-    engines: {node: '>= 10'}
-    cpu: [riscv64]
-    os: [linux]
-
-  '@napi-rs/canvas-linux-x64-gnu@1.0.1':
-    resolution: {integrity: sha512-W/iC2qJZGqKKQJ0JrNo3QkhoAy/PvzlmdYLW8Yz5/L6XgT5d7t26dnqgP2rCbL58P3CbPw7ES0Rz8OG0gn7JeQ==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-
-  '@napi-rs/canvas-linux-x64-musl@1.0.1':
-    resolution: {integrity: sha512-a5mmIVwxF92UGUe+1c7Ap32ZRnApbRMnQC/KgYyFB0AXZShBCHVGaURq+BDkiV7jvHhVwvvAP0Q/3aWNhqgVZg==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-
-  '@napi-rs/canvas-win32-arm64-msvc@1.0.1':
-    resolution: {integrity: sha512-rVnDhVvcXlqcHMsgnxxhZgdRkRIqVBlx+FJwSAHi4VbWWwsowvV5ldFEecEHD2+Ac/IL3fNWF/LB5CZTghNwRA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [win32]
-
-  '@napi-rs/canvas-win32-x64-msvc@1.0.1':
-    resolution: {integrity: sha512-UMstkP/nZHbithgdSJv1EvYVrYhdao5B5N3szMVU2i5/b6ijMcVPXOEyrk0QXl0iPjv8Hkoow+Tap+MiOxppOQ==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [win32]
-
-  '@napi-rs/canvas@1.0.1':
-    resolution: {integrity: sha512-mPD43G7pXbQhIGa7z4IpT/vXm1jbF8cBM1oY5UqjL8LSaTCNGhNi2Lidc/0+LwKbNiqbv/Tq0JlBRwKu+LW3iw==}
-    engines: {node: '>= 10'}
-
   '@nestia/e2e@12.1.0':
     resolution: {integrity: sha512-WjhNi9YGBDPEq5ik8ApgTPxI6RxezzWdvDiBx7hmqnhEKqzdHxGD5T+aleuNkJdvKYPrSdS0crDynLfe+38fMw==}
 
@@ -1997,8 +2174,8 @@ packages:
       svelte:
         optional: true
 
-  '@ttsc/darwin-arm64@0.36.2':
-    resolution: {integrity: sha512-Qbck749YyeDliSQN11fDZicoF2ugKsdMuLhMnZKQ5jVTlCDtxTESj+DEfPVRjrI1O8+VPZZ1ktWYNT3M+RBTAg==}
+  '@ttsc/darwin-arm64@0.35.0':
+    resolution: {integrity: sha512-jImQaOfyib4mWZPdO0S2mQD2sg560E4JfuEn0XLt28FMYuLf/XZS2pKPCHApUGmMZNnAMMPY+vR42BfMNEE30g==}
     cpu: [arm64]
     os: [darwin]
 
@@ -2007,8 +2184,8 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
-  '@ttsc/darwin-x64@0.36.2':
-    resolution: {integrity: sha512-YqA71ZEu9OXo8kjs0t0hAJOgGzGaNFbxQkcG9uSsR07IeFgyisFg9bX5HBWPr/5fNqJRIa+MNWoR8vEiijjdVQ==}
+  '@ttsc/darwin-x64@0.35.0':
+    resolution: {integrity: sha512-K/WgsI3jAtC32AH6ooI/S5rnOcKQD59eQWkddcAUssBGyC/DrQAWKuGGdu7AMHPtYO3GBbMXYHaFIfSp//qFPQ==}
     cpu: [x64]
     os: [darwin]
 
@@ -2022,18 +2199,18 @@ packages:
     peerDependencies:
       '@ttsc/lint': '>=0.31.0'
 
-  '@ttsc/lint@0.36.2':
-    resolution: {integrity: sha512-AZ5JnM8M1inN5z3azGcQ5kqW53XuBlM1A1zIEIRyTSCGenIG0wyAeYO2OieQVmqa4hgaDAfN84+y2UHX0fdW5A==}
+  '@ttsc/lint@0.35.0':
+    resolution: {integrity: sha512-+CACdZFE2nad4LB5kahdnOuwPGPZSKjZeqR5A6yemTd0+Slw6m8tUDnoCHWecYCmQObMR85ME7N7W/E6Ow4v+A==}
     peerDependencies:
-      ttsc: ^0.36.2
+      ttsc: ^0.35.0
 
   '@ttsc/lint@0.36.3':
     resolution: {integrity: sha512-yPp4RzgLGcozk7JtQumknN9YVVJbSg7LAX+EW3w6jNAyBCeYaJC1Eef183TQkQGzH+oW5BBMvw6dWg49SpcHKQ==}
     peerDependencies:
       ttsc: ^0.36.3
 
-  '@ttsc/linux-arm64@0.36.2':
-    resolution: {integrity: sha512-qtQvYVYwNOTOOgbHl8WVAdwPMGGrPiGmaaaXtD6AP5orP5j6HYQFpEPKFJUiWL8MnJV4Sed1hJgIgLeeXveQIA==}
+  '@ttsc/linux-arm64@0.35.0':
+    resolution: {integrity: sha512-mLTPpP1v7MJIt3eXs5pGwRtYvPTEUTJwoz2kqpSegm7ilP+0wfHJMLzFKT3u8JoXngoIH6aJXSCQPnRwZpsvxw==}
     cpu: [arm64]
     os: [linux]
 
@@ -2042,8 +2219,8 @@ packages:
     cpu: [arm64]
     os: [linux]
 
-  '@ttsc/linux-arm@0.36.2':
-    resolution: {integrity: sha512-f2gn8X+M4vvQh4GLf8aeQTBmbqtbEvj2K4FdMWZFpUvVCJ/1pk84w6HowGaHYX9JZaLjnSzm5wxg5br874hJCA==}
+  '@ttsc/linux-arm@0.35.0':
+    resolution: {integrity: sha512-uoUDKTF1tOxvasJ/s5wp+tfPMuEQmYFsU0d7tBPXOp33mO4llcvHXx2xVMTx2LNjWzRJU5eWwIG2Xi/lmPPvsg==}
     cpu: [arm]
     os: [linux]
 
@@ -2052,8 +2229,8 @@ packages:
     cpu: [arm]
     os: [linux]
 
-  '@ttsc/linux-x64@0.36.2':
-    resolution: {integrity: sha512-eyJ/fAfqFBXaHeHk4eh4HKiPQgMhOjcsWV7PGVUs9Ex2IU1hlgPL0VZr0w2zELIXQ1vusfOZdwJRFyTtrLCM1g==}
+  '@ttsc/linux-x64@0.35.0':
+    resolution: {integrity: sha512-/e3p+5RDmL0saFBz3GsqVvVm63o1tkKDbsXdICckZpOfDNDL9fiAlvCuIzjZN1yS6qTtoL0IgeOeRv7O2QBikg==}
     cpu: [x64]
     os: [linux]
 
@@ -2067,8 +2244,8 @@ packages:
     peerDependencies:
       ttsc: ^0.36.3
 
-  '@ttsc/win32-arm64@0.36.2':
-    resolution: {integrity: sha512-K8f5s5tKLXBfF4x8KCZhFsgVXxv/WpbAus7s1YptX2oJkX3Gj2ePW8Ft1N2axFT2JOv4l45DqcZqzDAte89VFA==}
+  '@ttsc/win32-arm64@0.35.0':
+    resolution: {integrity: sha512-w1DF3IVvLm+H/7UOWTAXpqFCubt/fw38xY05picjkGwkH+px6RtmxWDziuEyEF867Zk4svMs/LsUiaHW7UCqNg==}
     cpu: [arm64]
     os: [win32]
 
@@ -2077,8 +2254,8 @@ packages:
     cpu: [arm64]
     os: [win32]
 
-  '@ttsc/win32-x64@0.36.2':
-    resolution: {integrity: sha512-sKrXyXo/RboAGpiwKVgT30/5uriBJXz7R6QwCq8uQXTDi2yco7tpJTni3WLPuuRh84ZhP+xQQdZo+g47GvsBSA==}
+  '@ttsc/win32-x64@0.35.0':
+    resolution: {integrity: sha512-qHZHjHLfHI+WVV24nW5FZXoAionqwAFInKdlyJPrCSSafoeygPSNIG20xqhXY5RfupFo67Vc4lGEGyhFormq3Q==}
     cpu: [x64]
     os: [win32]
 
@@ -2940,8 +3117,8 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  ttsc@0.36.2:
-    resolution: {integrity: sha512-PHrhee2UsDqUFBzMYOfcMHy1os9oCGUYAbZzyVHGOPDKapYDiN7kBSlX18UVHPE4eUgJ0XBzZuhbjDyWBKvwmA==}
+  ttsc@0.35.0:
+    resolution: {integrity: sha512-UOmTFENYp8vQ0NpDmXe3U9+zXqJP0++urgDtx2q8HcBk4UFeD1O+uYkaxykKUQxlPGJtJidOMKIa3YBM5Bnrcg==}
     engines: {node: '>=22.15.0'}
     hasBin: true
     peerDependencies:
@@ -3172,6 +3349,8 @@ snapshots:
       parse-cache-control: 1.0.1
 
   '@dimforge/rapier3d-compat@0.12.0': {}
+
+  '@dimforge/rapier3d-compat@0.21.0': {}
 
   '@emnapi/runtime@1.11.3':
     dependencies:
@@ -3516,53 +3695,6 @@ snapshots:
   '@koromix/koffi-win32-x64@3.2.1':
     optional: true
 
-  '@napi-rs/canvas-android-arm64@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas-darwin-arm64@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas-darwin-x64@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas-linux-arm-gnueabihf@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas-linux-arm64-gnu@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas-linux-arm64-musl@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas-linux-riscv64-gnu@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas-linux-x64-gnu@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas-linux-x64-musl@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas-win32-arm64-msvc@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas-win32-x64-msvc@1.0.1':
-    optional: true
-
-  '@napi-rs/canvas@1.0.1':
-    optionalDependencies:
-      '@napi-rs/canvas-android-arm64': 1.0.1
-      '@napi-rs/canvas-darwin-arm64': 1.0.1
-      '@napi-rs/canvas-darwin-x64': 1.0.1
-      '@napi-rs/canvas-linux-arm-gnueabihf': 1.0.1
-      '@napi-rs/canvas-linux-arm64-gnu': 1.0.1
-      '@napi-rs/canvas-linux-arm64-musl': 1.0.1
-      '@napi-rs/canvas-linux-riscv64-gnu': 1.0.1
-      '@napi-rs/canvas-linux-x64-gnu': 1.0.1
-      '@napi-rs/canvas-linux-x64-musl': 1.0.1
-      '@napi-rs/canvas-win32-arm64-msvc': 1.0.1
-      '@napi-rs/canvas-win32-x64-msvc': 1.0.1
-
   '@nestia/e2e@12.1.0': {}
 
   '@nodelib/fs.scandir@2.1.5':
@@ -3691,13 +3823,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@ttsc/darwin-arm64@0.36.2':
+  '@ttsc/darwin-arm64@0.35.0':
     optional: true
 
   '@ttsc/darwin-arm64@0.36.3':
     optional: true
 
-  '@ttsc/darwin-x64@0.36.2':
+  '@ttsc/darwin-x64@0.35.0':
     optional: true
 
   '@ttsc/darwin-x64@0.36.3':
@@ -3711,27 +3843,27 @@ snapshots:
       '@typia/utils': 15.2.2
       yaml: 2.9.0
 
-  '@ttsc/lint@0.36.2(ttsc@0.36.2(typescript@7.0.2))':
+  '@ttsc/lint@0.35.0(ttsc@0.35.0(typescript@7.0.2))':
     dependencies:
-      ttsc: 0.36.2(typescript@7.0.2)
+      ttsc: 0.35.0(typescript@7.0.2)
 
   '@ttsc/lint@0.36.3(ttsc@0.36.3(typescript@7.0.2))':
     dependencies:
       ttsc: 0.36.3(typescript@7.0.2)
 
-  '@ttsc/linux-arm64@0.36.2':
+  '@ttsc/linux-arm64@0.35.0':
     optional: true
 
   '@ttsc/linux-arm64@0.36.3':
     optional: true
 
-  '@ttsc/linux-arm@0.36.2':
+  '@ttsc/linux-arm@0.35.0':
     optional: true
 
   '@ttsc/linux-arm@0.36.3':
     optional: true
 
-  '@ttsc/linux-x64@0.36.2':
+  '@ttsc/linux-x64@0.35.0':
     optional: true
 
   '@ttsc/linux-x64@0.36.3':
@@ -3744,13 +3876,13 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  '@ttsc/win32-arm64@0.36.2':
+  '@ttsc/win32-arm64@0.35.0':
     optional: true
 
   '@ttsc/win32-arm64@0.36.3':
     optional: true
 
-  '@ttsc/win32-x64@0.36.2':
+  '@ttsc/win32-x64@0.35.0':
     optional: true
 
   '@ttsc/win32-x64@0.36.3':
@@ -3875,13 +4007,13 @@ snapshots:
     dependencies:
       '@typia/interface': 15.3.0
 
-  '@wrtnlabs/evidence@0.8.2(ttsc@0.36.2(typescript@7.0.2))':
+  '@wrtnlabs/evidence@0.8.2(ttsc@0.35.0(typescript@7.0.2))':
     dependencies:
       '@prisma/prisma-schema-wasm': 7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356
       '@typia/interface': 15.1.0
       '@typia/utils': 15.1.0
       tstl: 3.0.0
-      typia: 15.1.0(ttsc@0.36.2(typescript@7.0.2))
+      typia: 15.1.0(ttsc@0.35.0(typescript@7.0.2))
       web-tree-sitter: 0.27.0
       yaml: 2.9.0
     transitivePeerDependencies:
@@ -4646,19 +4778,19 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  ttsc@0.36.2(typescript@7.0.2):
+  ttsc@0.35.0(typescript@7.0.2):
     dependencies:
       acorn: 8.16.0
       cjs-module-lexer: 2.2.1
       typescript: 7.0.2
     optionalDependencies:
-      '@ttsc/darwin-arm64': 0.36.2
-      '@ttsc/darwin-x64': 0.36.2
-      '@ttsc/linux-arm': 0.36.2
-      '@ttsc/linux-arm64': 0.36.2
-      '@ttsc/linux-x64': 0.36.2
-      '@ttsc/win32-arm64': 0.36.2
-      '@ttsc/win32-x64': 0.36.2
+      '@ttsc/darwin-arm64': 0.35.0
+      '@ttsc/darwin-x64': 0.35.0
+      '@ttsc/linux-arm': 0.35.0
+      '@ttsc/linux-arm64': 0.35.0
+      '@ttsc/linux-x64': 0.35.0
+      '@ttsc/win32-arm64': 0.35.0
+      '@ttsc/win32-x64': 0.35.0
       fsevents: 2.3.3
 
   ttsc@0.36.3(typescript@7.0.2):
@@ -4705,13 +4837,13 @@ snapshots:
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
 
-  typia@15.1.0(ttsc@0.36.2(typescript@7.0.2)):
+  typia@15.1.0(ttsc@0.35.0(typescript@7.0.2)):
     dependencies:
       '@typia/interface': 15.1.0
       '@typia/utils': 15.1.0
       randexp: 0.5.3
     optionalDependencies:
-      ttsc: 0.36.2(typescript@7.0.2)
+      ttsc: 0.35.0(typescript@7.0.2)
 
   typia@15.1.0(ttsc@0.36.3(typescript@7.0.2)):
     dependencies:

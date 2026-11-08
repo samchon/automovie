@@ -1,7 +1,5 @@
 import type * as THREE from "three";
 
-import type { AutoMovieHumanPolygonFoot } from "./AutoMovieHumanPolygonFoot.js";
-
 /**
  * Structural inputs and actual drawing handles for the original polygon
  * mannequin. Human's public skeleton output is structurally assignable; no
@@ -33,12 +31,6 @@ export namespace AutoMovieHumanPolygon {
 
     /** Evaluated placements in the body frame, including custom joints. */
     posed: IPlacement[];
-
-    /** Prepared exterior courses and crown required for neck/head drawing. */
-    readonly neckSurface?: Readonly<IExterior>;
-
-    /** Optional source-owned articulated foot exterior; omission retains legacy modules. */
-    readonly footSurface?: Readonly<AutoMovieHumanPolygonFoot.IInput>;
   }
 
   /**
@@ -92,71 +84,6 @@ export namespace AutoMovieHumanPolygon {
   }
 
   /**
-   * One sampled original exterior course with its display correspondence.
-   *
-   * @evidence contracts/common.md#principled-implementation Actual registered points own the surface; depth/breadth are full metric extents, source phases record samples and display coordinates only join polygon rings.
-   * @evidence contracts/common.md#clear-and-simple-design Keeps the renderer's consumed geometric subset separate from optional generator provenance.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Scalar measurements never replace or resize the supplied source points.
-   * @evidence contracts/common.md#meaningful-documentation Distinguishes physical extents, registered points, source phases and projected polygon correspondence.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This source record executes no algorithm.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work The renderer consumes existing sampled courses.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources The input owns ordinary arrays and no renderer resource.
-   */
-  export interface IExteriorSection {
-    /** Registered source course centre, metres. */
-    centre: [number, number, number];
-
-    /** Full forward-axis extent of the source course, metres. */
-    depth: number;
-
-    /** Full lateral extent of the source course, metres. */
-    breadth: number;
-
-    /** Actual source samples in registered body metres. */
-    points: [number, number, number][];
-
-    /** Material phases at the actual source samples, radians. */
-    sourcePhases: number[];
-
-    /** Projected polygon arclength coordinates used only for display joining. */
-    displayCoordinates: number[];
-  }
-
-  /**
-   * The prepared source neck/head courses required by the original drawing.
-   *
-   * @evidence contracts/common.md#principled-implementation Preserves source courses and a crown point instead of reconstructing a head from a skeletal radius.
-   * @evidence contracts/common.md#clear-and-simple-design Carries only the exterior geometry consumed by polygon rendering.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts No dense replacement model or fixture coordinates enter this contract.
-   * @evidence contracts/common.md#meaningful-documentation States metric units and course/crown semantics.
-   * @evidenceExclude contracts/performance.md#efficient-algorithms This descriptor performs no computation.
-   * @evidenceExclude contracts/performance.md#reuse-equivalent-work Exterior sampling remains generator-owned and reusable.
-   * @evidenceExclude contracts/performance.md#bound-retention-and-release-resources This descriptor owns no native resources.
-   */
-  export interface IExterior {
-    /** Source coordinates are in metres. */
-    units: "metres";
-
-    /** Source sample phases, radians. */
-    phases: number[];
-
-    /** Prepared lower-to-upper neck courses. */
-    sections: IExteriorSection[];
-
-    /** The original two head courses above the neck attachment. */
-    headSections: [IExteriorSection, IExteriorSection];
-
-    /** Source crown terminal point rather than an invented terminal ring. */
-    crown: {
-      /** The drawing requires the top pole. */
-      end: "top" | "bottom";
-
-      /** Actual source terminal point in body metres. */
-      point: [number, number, number];
-    };
-  }
-
-  /**
    * Actual rigid polygon drawing and its owned resource lifetime.
    *
    * @evidence contracts/common.md#principled-implementation Registries expose actual mesh and flat bone groups; local vertices and probe points equal registered rest points minus that bone's rest joint, then the group's evaluated placement and actor parent transform apply once.
@@ -185,24 +112,6 @@ export namespace AutoMovieHumanPolygon {
 
     /** Surface and diagnostic groups sharing each emitted bone placement. */
     bindings: ReadonlyMap<string, readonly THREE.Object3D[]>;
-
-    /** Actual source-named emitted vertices when footSurface was supplied. */
-    readonly plantarLandmarks?: Readonly<
-      Record<
-        "left" | "right",
-        Readonly<
-          Record<
-            AutoMovieHumanPolygonFoot.Landmark,
-            AutoMovieHumanPolygonFoot.IEmittedLandmark
-          >
-        >
-      >
-    >;
-
-    /** Full-foot initial placed reference, including toes; setPose does not redefine it. */
-    readonly plantarSupport?: Readonly<
-      Record<"left" | "right", AutoMovieHumanPolygonFoot.IPlantarSupport>
-    >;
 
     /** Actual head group and its emitted, unposed local polygon extent. */
     head: {

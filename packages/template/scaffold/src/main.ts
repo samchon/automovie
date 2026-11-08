@@ -1,17 +1,73 @@
-import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
+import {
+  type IAutoMovieViewerHandle,
+  createAutoMoviePerformanceOverlay,
+  mountViewer,
+} from "@automovie/viewer";
 
+import type { IFilm } from "./IFilm";
+import type { IFilmProduction } from "./IFilmProduction";
 import { clampProductionSeconds } from "./clampProductionSeconds";
-import { createProduction } from "./createProduction";
-import { durationSeconds } from "./durationSeconds";
+import { films } from "./composition/films";
+import { selectFilm } from "./selectFilm";
 
-const production: ReturnType<typeof createProduction> = createProduction();
+const query: URLSearchParams = new URLSearchParams(location.search);
+const film: IFilm = selectFilm(films, query.get("film")).film;
+const durationSeconds: number = film.durationSeconds;
+const status: HTMLOutputElement =
+  document.querySelector<HTMLOutputElement>("#clock")!;
+const production: IFilmProduction = await film.create(
+  (message: string): void => {
+    status.value = message;
+  },
+);
 const canvas: HTMLCanvasElement =
   document.querySelector<HTMLCanvasElement>("#view")!;
+const reviewRequested: boolean =
+  query.get("rig") === "1" || query.get("contacts") === "1";
+if (reviewRequested && !production.performance)
+  throw new Error("This film has no physical review source");
+const overlay:
+  | ReturnType<typeof createAutoMoviePerformanceOverlay>
+  | undefined =
+  reviewRequested && production.performance
+    ? createAutoMoviePerformanceOverlay(production.performance)
+    : undefined;
+if (overlay) {
+  production.scene.add(overlay.object);
+  overlay.show(query.get("rig") === "1", query.get("contacts") === "1");
+}
+const inspection: IFilmProduction["camera"] | undefined = query.has("view")
+  ? production.camera.clone()
+  : undefined;
+if (inspection) {
+  const coordinates: number[][] = query
+    .get("view")!
+    .split(":")
+    .map((part: string): number[] => part.split(",").map(Number));
+  if (
+    coordinates.length !== 2 ||
+    coordinates.some(
+      (point: number[]): boolean =>
+        point.length !== 3 || !point.every(Number.isFinite),
+    )
+  )
+    throw new Error("Inspection view must be x,y,z:tx,ty,tz in metres");
+  inspection.position.set(
+    coordinates[0]![0]!,
+    coordinates[0]![1]!,
+    coordinates[0]![2]!,
+  );
+  inspection.lookAt(
+    coordinates[1]![0]!,
+    coordinates[1]![1]!,
+    coordinates[1]![2]!,
+  );
+  inspection.updateProjectionMatrix();
+}
 const slider: HTMLInputElement =
   document.querySelector<HTMLInputElement>("#seek")!;
 const clock: HTMLOutputElement =
   document.querySelector<HTMLOutputElement>("#clock")!;
-const query: URLSearchParams = new URLSearchParams(location.search);
 const capture: boolean = query.get("capture") === "1";
 const width: number = Number(query.get("w") ?? 1280);
 const height: number = Number(query.get("h") ?? 720);
@@ -76,13 +132,15 @@ const host: IAutoMovieViewerHandle = mountViewer(
 
 /**
  * Draw and publish the exact production clock through the mounted Viewer.
- *
- * @evidence contracts/common.md#implementation-and-ownership Completes original scene placement and drawing before publishing actual seconds to Viewer observers.
- * @evidence contracts/common.md#authoring-interface Called by playback and the public seek hook, sharing one renderer and camera.
  */
 function draw(): void {
   production.seek(seconds);
-  host.renderer.render(production.scene, production.camera);
+  if (overlay && production.performance)
+    overlay.update(
+      production.performance.frame(),
+      production.performance.contacts(),
+    );
+  host.renderer.render(production.scene, inspection ?? production.camera);
   host.completeFrame(seconds);
   slider.value = String(seconds);
   clock.value = `${seconds.toFixed(2)} / ${durationSeconds.toFixed(2)} s`;
@@ -91,9 +149,6 @@ function draw(): void {
 
 /**
  * Complete an exact-time frame before browser capture reads its pixels.
- *
- * @evidence contracts/common.md#implementation-and-ownership Finite clamped seconds drive the same original draw as playback. Ordinary seek pauses playback; inspection seeks during an owned freeze preserve desired play state for release.
- * @evidence contracts/common.md#authoring-interface Exposed as __afSeek(seconds); throws on nonfinite input and returns after drawing.
  */
 function seek(time: number): void {
   const target: number = clampProductionSeconds(time, durationSeconds);
@@ -118,7 +173,11 @@ window.addEventListener(
     try {
       host.stop();
     } finally {
-      production.dispose();
+      try {
+        overlay?.dispose();
+      } finally {
+        production.dispose();
+      }
     }
   },
   { once: true },

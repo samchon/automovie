@@ -125,3 +125,8 @@ export * from "./createViewerFrameControl.js";
 export * from "./createViewerViewportResize.js";
 export * from "./redrawViewerCompletedFrame.js";
 export * from "./updateAutoMovieComparisonCamera.js";
+export { createAutoMoviePerformanceOverlay } from "./createAutoMoviePerformanceOverlay.js";
+export { createAutoMovieSurfaceAppearance } from "./createAutoMovieSurfaceAppearance.js";
+export { createAutoMoviePhysicalPoseAdapter } from "./createAutoMoviePhysicalPoseAdapter.js";
+export * from "./audio/index.js";
+export * from "./transport/index.js";

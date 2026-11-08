@@ -1,0 +1,239 @@
+import type { IAutoMovieSchedule } from "@automovie/engine";
+
+import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
+import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
+import { KnockdownShape } from "../../laws/kickboxing/KnockdownShape";
+import { RingFootwork } from "../../laws/kickboxing/RingFootwork";
+import { StanceShape } from "../../laws/kickboxing/StanceShape";
+import { RefereePosition } from "../../laws/officiating/RefereePosition";
+import { BoutLaws } from "../kickboxing/BoutLaws";
+import type { IRingCast } from "../kickboxing/IRingCast";
+
+/**
+ * The referee's path through the whole film, resolved once from the
+ * schedule at a fixed step: while the fighters work he walks toward his
+ * positioning law's point for where they were half a second earlier, closing
+ * in on the ropes and in clinches; from the knockdown he walks around the
+ * lying body, never closer than a step, to the point a step beyond it from
+ * the standing fighter, and faces the fallen man with the other ahead of
+ * him. Every second reads the resolved path, so playback, seeking and
+ * capture agree.
+ *
+ * ```ts
+ * const track = RefereeTrack.resolve(cast, schedule, 180);
+ * RefereeTrack.at(track, 12.4); // { point, look }
+ * ```
+ *
+ * @evidence docs/research/officiating/referee.md#positioning The positioning law, walking speed and follow.
+ * @evidence docs/research/officiating/referee.md#knockdown A step clear of the fallen fighter, the standing fighter and the corner in view.
+ * @evidence docs/body/settings/cast/referee.md#closing He closes in on the ropes and in clinches.
+ */
+export namespace RefereeTrack {
+  /** Resolution step, seconds: one frame of the 30 fps film. */
+  export const STEP: number = 1 / 30;
+
+  /** A resolved path. */
+  export interface ITrack {
+    /** Positions at every step from zero. */
+    points: readonly RingFootwork.IPoint[];
+
+    /** Points he looks toward at every step. */
+    looks: readonly RingFootwork.IPoint[];
+  }
+
+  /**
+   * Resolve the path.
+   *
+   * @param cast The cast.
+   * @param schedule The schedule.
+   * @param duration Film seconds to resolve.
+   * @returns The path.
+   */
+  export function resolve(
+    cast: IRingCast,
+    schedule: IAutoMovieSchedule,
+    duration: number,
+  ): ITrack {
+    const measure = cast.referee.body.measure;
+    const ring: RingFootwork.IRing = {
+      half: cast.ring.half,
+      margin: StanceShape.margin(measure),
+      step: StanceShape.step(measure),
+    };
+    const fall: number = fallStart(schedule);
+    const origin = (id: string, s: number): RingFootwork.IPoint =>
+      BoutLaws.origin(schedule, id, Math.max(0, s), cast).point;
+    const body: KnockdownShape.IFootprint = footprint(cast, schedule, fall);
+    let side: 1 | -1 = 1;
+    const start = RefereePosition.goal({
+      a: origin(cast.a.id, 0),
+      b: origin(cast.b.id, 0),
+      side,
+      close: false,
+      ring,
+      reach: measure.armReach,
+    });
+    let current: RingFootwork.IPoint = start.point;
+    const points: RingFootwork.IPoint[] = [];
+    const looks: RingFootwork.IPoint[] = [];
+    for (let k: number = 0; k * STEP <= duration + 1e-9; k++) {
+      const t: number = k * STEP;
+      const a: RingFootwork.IPoint = origin(cast.a.id, t - RefereePosition.LAG);
+      const b: RingFootwork.IPoint = origin(cast.b.id, t - RefereePosition.LAG);
+      let target: RingFootwork.IPoint;
+      let look: RingFootwork.IPoint;
+      if (t >= fall) {
+        // A step clear of the lying body, beyond it from the standing
+        // fighter, facing the fallen man with the other ahead of him.
+        target = RefereePosition.attend(body, a, ring.step);
+        look = {
+          x: (body.from.x + body.to.x) / 2,
+          z: (body.from.z + body.to.z) / 2,
+        };
+      } else {
+        const close: boolean =
+          RingFootwork.onRopes(a, ring) ||
+          RingFootwork.onRopes(b, ring) ||
+          clinch(schedule, t);
+        const goal = RefereePosition.goal({
+          a,
+          b,
+          side,
+          close,
+          ring,
+          reach: measure.armReach,
+        });
+        side = goal.side;
+        target = goal.point;
+        look = { x: (a.x + b.x) / 2, z: (a.z + b.z) / 2 };
+      }
+      current =
+        t >= fall
+          ? RefereePosition.clear(
+              RefereePosition.walk(current, target, STEP),
+              body,
+              ring.step,
+            )
+          : RefereePosition.walk(
+              current,
+              around(current, target, a, b, ring.step + measure.armReach),
+              k === 0 ? 0 : STEP,
+            );
+      points.push(current);
+      looks.push(look);
+    }
+    return { points, looks };
+  }
+
+  /**
+   * The referee's position and look point at a second.
+   *
+   * @param track The resolved path.
+   * @param seconds Film seconds.
+   * @returns Interpolated position and look point.
+   */
+  export function at(
+    track: ITrack,
+    seconds: number,
+  ): { point: RingFootwork.IPoint; look: RingFootwork.IPoint } {
+    const f: number = Math.max(
+      0,
+      Math.min(track.points.length - 1, seconds / STEP),
+    );
+    const i: number = Math.floor(f);
+    const j: number = Math.min(track.points.length - 1, i + 1);
+    const w: number = f - i;
+    const lerp = (
+      p: RingFootwork.IPoint,
+      q: RingFootwork.IPoint,
+    ): RingFootwork.IPoint => ({
+      x: p.x + (q.x - p.x) * w,
+      z: p.z + (q.z - p.z) * w,
+    });
+    return {
+      point: lerp(track.points[i]!, track.points[j]!),
+      look: lerp(track.looks[i]!, track.looks[j]!),
+    };
+  }
+
+  /**
+   * The floor the fallen fighter's lying body covers, from his origin and
+   * facing when he falls (toward his opponent then).
+   *
+   * @param cast The cast.
+   * @param schedule The schedule.
+   * @param fall The fall's start.
+   * @returns The footprint; a point at B's origin when nobody falls.
+   */
+  export function footprint(
+    cast: IRingCast,
+    schedule: IAutoMovieSchedule,
+    fall: number,
+  ): KnockdownShape.IFootprint {
+    const at: number = Number.isFinite(fall) ? fall : 0;
+    const fallen = BoutLaws.origin(schedule, cast.b.id, at, cast).point;
+    const opponent = BoutLaws.origin(schedule, cast.a.id, at, cast).point;
+    return KnockdownShape.footprint(
+      cast.b.body.measure,
+      fallen,
+      unit({ x: opponent.x - fallen.x, z: opponent.z - fallen.z }),
+    );
+  }
+
+  /** The start of the knockdown fall, or infinity. */
+  export function fallStart(schedule: IAutoMovieSchedule): number {
+    const fall = schedule.entries.find((e) => {
+      if (e.intent.capability !== "phase") return false;
+      const action = KickboxingAction.read(e.intent);
+      return action.kind === "phase" && action.phase === "fall";
+    });
+    return fall ? fall.start : Infinity;
+  }
+
+  /**
+   * The next point toward a target on the other side of the fighters' line:
+   * past the end of their segment nearer to him, a step and an arm's reach
+   * beyond the fighter there, so he goes around and never between them.
+   */
+  function around(
+    current: RingFootwork.IPoint,
+    target: RingFootwork.IPoint,
+    a: RingFootwork.IPoint,
+    b: RingFootwork.IPoint,
+    clearance: number,
+  ): RingFootwork.IPoint {
+    const ux: number = b.x - a.x;
+    const uz: number = b.z - a.z;
+    const side = (p: RingFootwork.IPoint): number =>
+      Math.sign(ux * (p.z - a.z) - uz * (p.x - a.x));
+    if (side(current) === side(target) || side(current) === 0) return target;
+    const length: number = Math.hypot(ux, uz) || 1;
+    const end: RingFootwork.IPoint =
+      Math.hypot(current.x - a.x, current.z - a.z) <=
+      Math.hypot(current.x - b.x, current.z - b.z)
+        ? a
+        : b;
+    const outward: number = end === a ? -1 : 1;
+    return {
+      x: end.x + (outward * ux * clearance) / length,
+      z: end.z + (outward * uz * clearance) / length,
+    };
+  }
+
+  function clinch(schedule: IAutoMovieSchedule, t: number): boolean {
+    return schedule.entries.some((e) => {
+      if (e.intent.capability !== "strike" || e.start > t || e.end < t)
+        return false;
+      const action = KickboxingAction.read(e.intent);
+      return (
+        action.kind === "strike" &&
+        KickboxingTechnique.table[action.technique].family === "knee"
+      );
+    });
+  }
+
+  function unit(v: RingFootwork.IPoint): RingFootwork.IPoint {
+    const l: number = Math.hypot(v.x, v.z);
+    return l === 0 ? { x: 1, z: 0 } : { x: v.x / l, z: v.z / l };
+  }
+}

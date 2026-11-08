@@ -14,7 +14,7 @@ Read the complete result after detailed repairs to check whether the goal and pr
 
 ## Follow the production handoff
 
-Trace a proposed instruction through the actual brief or parents, author's decision, contract respondent, repair owner and next consumer. Use the production's [writing workflow](../../../packages/template/scaffold/.agents/skills/screenwriting/workflow.md), [execution traceability](../../../packages/template/scaffold/.agents/skills/evidence/execution.md) and [delivery review](../../../packages/template/scaffold/.agents/skills/review/delivery.md) for those boundaries.
+Trace a proposed instruction through the actual brief or parents, author's decision, contract respondent, repair owner and next consumer. Use the production's [writing workflow](../../../packages/template/scaffold/.agents/skills/story/workflow.md), [source layout](../../../packages/template/scaffold/.agents/skills/development/layout.md) and [delivery review](../../../packages/template/scaffold/.agents/skills/review/delivery.md) for those boundaries.
 
 A whole hint must still reach coded performance, usable camera staging, the complete edit and observed output. Preserve identities, contacts, timing and requested controls at low cost before detail upgrades. Inspect audiovisual expression as a plan at screenplay time and the actual captured, heard and encoded result at media delivery; neither observation establishes the other.
 

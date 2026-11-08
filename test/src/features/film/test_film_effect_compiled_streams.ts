@@ -82,7 +82,7 @@ export function test_film_effect_compiled_streams(): void {
         ): {
           id: string;
           zone: string;
-          kind: "fog" | "smoke" | "dust";
+          kind: IAutoMovieCompiledEffect["kind"];
           event: string | null | undefined;
           window: number[];
           step: number;

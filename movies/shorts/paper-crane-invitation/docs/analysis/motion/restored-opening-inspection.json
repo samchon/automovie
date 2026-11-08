@@ -1,0 +1,83 @@
+{
+  "status": "rejected candidate; full round completed",
+  "humanTree": "d7e5838cf39cd34c053236cc6d80382b39490d92b30352f9e0137741202636fe",
+  "models": [
+    {
+      "vertices": 5862,
+      "footSamples": 1120,
+      "maximumFootProjectionError": 0
+    },
+    {
+      "vertices": 5974,
+      "footSamples": 1120,
+      "maximumFootProjectionError": 0
+    }
+  ],
+  "measurements": {
+    "carina": {
+      "unresolved": 40,
+      "maxSupportError": 0.00983081882037996,
+      "minFloor": -1.1243515341853583e-17,
+      "maxWristError": 0.016085479473531165,
+      "reasons": [
+        "converged",
+        "bound-or-stagnated",
+        "budget-exhausted",
+        "constraints-violated"
+      ],
+      "maxIterations": 16
+    },
+    "harry": {
+      "unresolved": 0,
+      "maxSupportError": 0.004535976182734404,
+      "minFloor": -1.3118846287074604e-17,
+      "maxWristError": 0.004783188466894326,
+      "reasons": [
+        "converged"
+      ],
+      "maxIterations": 16
+    },
+    "grip": {
+      "maxGap": 0.028949408341007055,
+      "maxError": 0.02015283871314352
+    },
+    "frameIssues": 185
+  },
+  "checks": {
+    "lint": 2,
+    "evidence": 0,
+    "test": 1,
+    "build": 0
+  },
+  "sourceReview": ".cache/video-production/review/opening-second-repair-source.md",
+  "actualControls": {
+    "interleaving": {
+      "seekBlocked": true,
+      "extentRejected": true
+    },
+    "pauseStable": true,
+    "seekClock": "4.00 / 60.00 s · implemented 0–9 s only",
+    "graphics": {
+      "width": 720,
+      "height": 1280,
+      "contextLost": false,
+      "renderer": "ANGLE (AMD, AMD Radeon(TM) 8060S Graphics (0x00001586) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    "uniquePlayedFrames": 217,
+    "normalPlaybackMilliseconds": 8963.90000000596,
+    "pixelReplayEqual": true,
+    "postRetirementSeekRejected": false
+  },
+  "causes": [
+    "S1 fitted thumb cmcFlexion is dropped on application",
+    "S2/S3 render receipt and execFile promisification types",
+    "S4 cache count omits structurally failing frame path",
+    "S5 host outer acquisition and terminal seek ownership",
+    "S6 segment failure publication can leave stale accepted metadata",
+    "C1 Carina lunge straight-leg seed/overlong wrist goal remains unresolved40frames; Harryall217supportpasses",
+    "V1 split thigh shells read as trousers/short robe rather than skirt/knee robe",
+    "V2 second cup occluded at first master, crane flight ends too close to missed hand"
+  ],
+  "continuousMotionPerception": false,
+  "encodedVideo": "not executed; candidate fails technical admission"
+}

@@ -1,0 +1,663 @@
+{
+  "provenance": {
+    "source": "exchange-round-nine/viewer/original-frame-traces.jsonl",
+    "sha256": "ebfd9127f2788e89a26d099a2dd6e804caabf3660071dc4ffebbb18cecf47b32",
+    "scope": "Original last-admitted numerical leg inputs at all16 failed actor states. These are historical inputs, not new expected poses or current goal feasibility certificates."
+  },
+  "cases": [
+    {
+      "role": "Harry",
+      "frame": 235,
+      "previousFrame": 234,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": 14.228379379473267,
+            "abduction": -0.21062255407968025,
+            "rotation": 1.346734500455528
+          },
+          "knee": {
+            "flexion": 23.690197371256474
+          },
+          "ankle": {
+            "dorsiflexion": 7.328611966123508
+          },
+          "foot": {
+            "subtalarInversion": -0.11289141642568026
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": -3.01136818708497,
+            "abduction": 9.843975362316215,
+            "rotation": -44.9999999611787
+          },
+          "knee": {
+            "flexion": 3.4746607951459625
+          },
+          "ankle": {
+            "dorsiflexion": 13.249999946360331
+          },
+          "foot": {
+            "subtalarInversion": 4.999999823461339
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 236,
+      "previousFrame": 234,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": 14.228379379473267,
+            "abduction": -0.21062255407968025,
+            "rotation": 1.346734500455528
+          },
+          "knee": {
+            "flexion": 23.690197371256474
+          },
+          "ankle": {
+            "dorsiflexion": 7.328611966123508
+          },
+          "foot": {
+            "subtalarInversion": -0.11289141642568026
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": -3.01136818708497,
+            "abduction": 9.843975362316215,
+            "rotation": -44.9999999611787
+          },
+          "knee": {
+            "flexion": 3.4746607951459625
+          },
+          "ankle": {
+            "dorsiflexion": 13.249999946360331
+          },
+          "foot": {
+            "subtalarInversion": 4.999999823461339
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 240,
+      "previousFrame": 239,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": -6.571011302296014,
+            "abduction": 4.66284132203284,
+            "rotation": -43.529396437862225
+          },
+          "knee": {
+            "flexion": 4.312815915468623
+          },
+          "ankle": {
+            "dorsiflexion": 13.096347352957158
+          },
+          "foot": {
+            "subtalarInversion": 4.218483660336239
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": 10.222760400850259,
+            "abduction": 16.42207574123029,
+            "rotation": -43.47868398351383
+          },
+          "knee": {
+            "flexion": 13.111927217346944
+          },
+          "ankle": {
+            "dorsiflexion": 7.549585450789801
+          },
+          "foot": {
+            "subtalarInversion": 4.935919800603639
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 241,
+      "previousFrame": 239,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": -6.571011302296014,
+            "abduction": 4.66284132203284,
+            "rotation": -43.529396437862225
+          },
+          "knee": {
+            "flexion": 4.312815915468623
+          },
+          "ankle": {
+            "dorsiflexion": 13.096347352957158
+          },
+          "foot": {
+            "subtalarInversion": 4.218483660336239
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": 10.222760400850259,
+            "abduction": 16.42207574123029,
+            "rotation": -43.47868398351383
+          },
+          "knee": {
+            "flexion": 13.111927217346944
+          },
+          "ankle": {
+            "dorsiflexion": 7.549585450789801
+          },
+          "foot": {
+            "subtalarInversion": 4.935919800603639
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 242,
+      "previousFrame": 239,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": -6.571011302296014,
+            "abduction": 4.66284132203284,
+            "rotation": -43.529396437862225
+          },
+          "knee": {
+            "flexion": 4.312815915468623
+          },
+          "ankle": {
+            "dorsiflexion": 13.096347352957158
+          },
+          "foot": {
+            "subtalarInversion": 4.218483660336239
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": 10.222760400850259,
+            "abduction": 16.42207574123029,
+            "rotation": -43.47868398351383
+          },
+          "knee": {
+            "flexion": 13.111927217346944
+          },
+          "ankle": {
+            "dorsiflexion": 7.549585450789801
+          },
+          "foot": {
+            "subtalarInversion": 4.935919800603639
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 243,
+      "previousFrame": 239,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": -6.571011302296014,
+            "abduction": 4.66284132203284,
+            "rotation": -43.529396437862225
+          },
+          "knee": {
+            "flexion": 4.312815915468623
+          },
+          "ankle": {
+            "dorsiflexion": 13.096347352957158
+          },
+          "foot": {
+            "subtalarInversion": 4.218483660336239
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": 10.222760400850259,
+            "abduction": 16.42207574123029,
+            "rotation": -43.47868398351383
+          },
+          "knee": {
+            "flexion": 13.111927217346944
+          },
+          "ankle": {
+            "dorsiflexion": 7.549585450789801
+          },
+          "foot": {
+            "subtalarInversion": 4.935919800603639
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 244,
+      "previousFrame": 239,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": -6.571011302296014,
+            "abduction": 4.66284132203284,
+            "rotation": -43.529396437862225
+          },
+          "knee": {
+            "flexion": 4.312815915468623
+          },
+          "ankle": {
+            "dorsiflexion": 13.096347352957158
+          },
+          "foot": {
+            "subtalarInversion": 4.218483660336239
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": 10.222760400850259,
+            "abduction": 16.42207574123029,
+            "rotation": -43.47868398351383
+          },
+          "knee": {
+            "flexion": 13.111927217346944
+          },
+          "ankle": {
+            "dorsiflexion": 7.549585450789801
+          },
+          "foot": {
+            "subtalarInversion": 4.935919800603639
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 245,
+      "previousFrame": 239,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": -6.571011302296014,
+            "abduction": 4.66284132203284,
+            "rotation": -43.529396437862225
+          },
+          "knee": {
+            "flexion": 4.312815915468623
+          },
+          "ankle": {
+            "dorsiflexion": 13.096347352957158
+          },
+          "foot": {
+            "subtalarInversion": 4.218483660336239
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": 10.222760400850259,
+            "abduction": 16.42207574123029,
+            "rotation": -43.47868398351383
+          },
+          "knee": {
+            "flexion": 13.111927217346944
+          },
+          "ankle": {
+            "dorsiflexion": 7.549585450789801
+          },
+          "foot": {
+            "subtalarInversion": 4.935919800603639
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 246,
+      "previousFrame": 239,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": -6.571011302296014,
+            "abduction": 4.66284132203284,
+            "rotation": -43.529396437862225
+          },
+          "knee": {
+            "flexion": 4.312815915468623
+          },
+          "ankle": {
+            "dorsiflexion": 13.096347352957158
+          },
+          "foot": {
+            "subtalarInversion": 4.218483660336239
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": 10.222760400850259,
+            "abduction": 16.42207574123029,
+            "rotation": -43.47868398351383
+          },
+          "knee": {
+            "flexion": 13.111927217346944
+          },
+          "ankle": {
+            "dorsiflexion": 7.549585450789801
+          },
+          "foot": {
+            "subtalarInversion": 4.935919800603639
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 255,
+      "previousFrame": 254,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": 33.48258060149888,
+            "abduction": 15.193685969612028,
+            "rotation": -37.30018616150813
+          },
+          "knee": {
+            "flexion": 48.13373947768279
+          },
+          "ankle": {
+            "dorsiflexion": -2.19488570754204
+          },
+          "foot": {
+            "subtalarInversion": 4.819601987328309
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": -9.842991185943346,
+            "abduction": 4.494613702043277,
+            "rotation": -43.5
+          },
+          "knee": {
+            "flexion": 0.3381532826575267
+          },
+          "ankle": {
+            "dorsiflexion": 12.378013550377316
+          },
+          "foot": {
+            "subtalarInversion": 3.883011937740633
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 256,
+      "previousFrame": 254,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": 33.48258060149888,
+            "abduction": 15.193685969612028,
+            "rotation": -37.30018616150813
+          },
+          "knee": {
+            "flexion": 48.13373947768279
+          },
+          "ankle": {
+            "dorsiflexion": -2.19488570754204
+          },
+          "foot": {
+            "subtalarInversion": 4.819601987328309
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": -9.842991185943346,
+            "abduction": 4.494613702043277,
+            "rotation": -43.5
+          },
+          "knee": {
+            "flexion": 0.3381532826575267
+          },
+          "ankle": {
+            "dorsiflexion": 12.378013550377316
+          },
+          "foot": {
+            "subtalarInversion": 3.883011937740633
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 257,
+      "previousFrame": 254,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": 33.48258060149888,
+            "abduction": 15.193685969612028,
+            "rotation": -37.30018616150813
+          },
+          "knee": {
+            "flexion": 48.13373947768279
+          },
+          "ankle": {
+            "dorsiflexion": -2.19488570754204
+          },
+          "foot": {
+            "subtalarInversion": 4.819601987328309
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": -9.842991185943346,
+            "abduction": 4.494613702043277,
+            "rotation": -43.5
+          },
+          "knee": {
+            "flexion": 0.3381532826575267
+          },
+          "ankle": {
+            "dorsiflexion": 12.378013550377316
+          },
+          "foot": {
+            "subtalarInversion": 3.883011937740633
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 258,
+      "previousFrame": 254,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": 33.48258060149888,
+            "abduction": 15.193685969612028,
+            "rotation": -37.30018616150813
+          },
+          "knee": {
+            "flexion": 48.13373947768279
+          },
+          "ankle": {
+            "dorsiflexion": -2.19488570754204
+          },
+          "foot": {
+            "subtalarInversion": 4.819601987328309
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": -9.842991185943346,
+            "abduction": 4.494613702043277,
+            "rotation": -43.5
+          },
+          "knee": {
+            "flexion": 0.3381532826575267
+          },
+          "ankle": {
+            "dorsiflexion": 12.378013550377316
+          },
+          "foot": {
+            "subtalarInversion": 3.883011937740633
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 259,
+      "previousFrame": 254,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": 33.48258060149888,
+            "abduction": 15.193685969612028,
+            "rotation": -37.30018616150813
+          },
+          "knee": {
+            "flexion": 48.13373947768279
+          },
+          "ankle": {
+            "dorsiflexion": -2.19488570754204
+          },
+          "foot": {
+            "subtalarInversion": 4.819601987328309
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": -9.842991185943346,
+            "abduction": 4.494613702043277,
+            "rotation": -43.5
+          },
+          "knee": {
+            "flexion": 0.3381532826575267
+          },
+          "ankle": {
+            "dorsiflexion": 12.378013550377316
+          },
+          "foot": {
+            "subtalarInversion": 3.883011937740633
+          }
+        }
+      }
+    },
+    {
+      "role": "Harry",
+      "frame": 260,
+      "previousFrame": 254,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": 33.48258060149888,
+            "abduction": 15.193685969612028,
+            "rotation": -37.30018616150813
+          },
+          "knee": {
+            "flexion": 48.13373947768279
+          },
+          "ankle": {
+            "dorsiflexion": -2.19488570754204
+          },
+          "foot": {
+            "subtalarInversion": 4.819601987328309
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": -9.842991185943346,
+            "abduction": 4.494613702043277,
+            "rotation": -43.5
+          },
+          "knee": {
+            "flexion": 0.3381532826575267
+          },
+          "ankle": {
+            "dorsiflexion": 12.378013550377316
+          },
+          "foot": {
+            "subtalarInversion": 3.883011937740633
+          }
+        }
+      }
+    },
+    {
+      "role": "Carina",
+      "frame": 294,
+      "previousFrame": 293,
+      "legs": {
+        "left": {
+          "hip": {
+            "flexion": 20.510001614047297,
+            "abduction": -3.0252896573928223,
+            "rotation": -0.4259684658537386
+          },
+          "knee": {
+            "flexion": 20.093663226830927
+          },
+          "ankle": {
+            "dorsiflexion": -2.478982461057527
+          },
+          "foot": {
+            "hallux": {
+              "mtpFlexion": -5
+            },
+            "second": {
+              "mtpFlexion": -5
+            },
+            "third": {
+              "mtpFlexion": -5
+            },
+            "fourth": {
+              "mtpFlexion": -5
+            },
+            "fifth": {
+              "mtpFlexion": -5
+            },
+            "subtalarInversion": -2.983154886093941
+          }
+        },
+        "right": {
+          "hip": {
+            "flexion": -16.292250584835482,
+            "abduction": -5.622634930058048,
+            "rotation": 44.99999108375154
+          },
+          "knee": {
+            "flexion": -1.2999998330575413
+          },
+          "ankle": {
+            "dorsiflexion": 13.249999913319591
+          },
+          "foot": {
+            "hallux": {
+              "mtpFlexion": -5
+            },
+            "second": {
+              "mtpFlexion": -5
+            },
+            "third": {
+              "mtpFlexion": -5
+            },
+            "fourth": {
+              "mtpFlexion": -5
+            },
+            "fifth": {
+              "mtpFlexion": -5
+            },
+            "subtalarInversion": -0.40628303539592703
+          }
+        }
+      }
+    }
+  ]
+}

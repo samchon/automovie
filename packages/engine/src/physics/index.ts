@@ -22,3 +22,5 @@ export * from "./segmentSphere";
 export * from "./solveBallisticLaunch";
 export * from "./solveMovingLaunch";
 export * from "./suggestCollisionResponse";
+export * from "./fitPhysicalWholeBodyTarget";
+export * from "./rerootPhysicalProfile";

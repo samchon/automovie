@@ -1,0 +1,23 @@
+{
+  "model": "dreamina-seedance-2-5-260628",
+  "content": [
+    {
+      "type": "text",
+      "text": "Edit @Video 1 into a coherent cinematic live-action-style fan scene. Use the reference video's visible performance, positions, support, object possession, camera direction and timing as semantic guidance, not as a guarantee of identical frames. Replace only the blond, nape-tied girl riding beside the glasses-wearing lead with Carina Malfoy, an approximately fifteen-year-old Slytherin student: fair skin, youthful narrow face, pale platinum hair tied at the nape, a cute, pretty appearance and a small proud smile. Replace the coarse dark-haired boy with Harry Potter, an approximately fifteen-year-old Gryffindor student: youthful face, tousled black hair, round dark glasses and a small forehead scar. Keep their white collars, grey V-neck knitwear, black school robes and black school shoes; Carina has a green-and-silver tie and green robe lining, Harry a red-and-gold tie and red lining. Their lower robe panels stay secured at the waist for safe riding. Carina's pleated skirt retains an opaque riding underlayer; Harry wears charcoal trousers. Keep the same two lead identities throughout. Twelve anonymous school players, including short pale-haired field players, retain their own identities and coarse silhouettes on their own brooms where visible. Keep their faces distinct from both leads. Keep a sunlit pale-blue sky, open green lawn, simple pale hoop goals and sparse surroundings, with consistent soft daylight. Do not add spectators, buildings, rescue equipment, a wand rescue, a kiss or a victory. Preserve one uncaught gold winged Snitch, one red Quaffle, two dark Bludgers, fourteen brooms, four Beater bats and six hoop goals; never duplicate a consequential object. During local seconds 0–8, establish active passing and marking in the northern field, then follow the two opposing Seekers racing east. Carina edges ahead, turns toward Harry and delivers the competitive English line, \"You lose today, Potter.\" Harry draws level. During seconds 8–23, follow the Snitch between the southern and middle eastern goal uprights, beneath the rings; Harry banks first and gains while Carina follows. End with Harry reaching farther toward the evasive Snitch while his right hand still controls his own shaft, ready to lose seated support in the next segment. Keep the same lawn and goal geography through camera changes. No catch occurs. The exact English line belongs to the final local soundtrack; this planned visual edit requests no generated audio."
+    },
+    {
+      "type": "video_url",
+      "video_url": {
+        "url": "{{SOURCE_CLIP_PUBLIC_URL}}"
+      },
+      "role": "reference_video"
+    }
+  ],
+  "omni_reference_task_type": "edit",
+  "ratio": "adaptive",
+  "duration": -1,
+  "resolution": "720p",
+  "output_format": "mp4",
+  "generate_audio": false,
+  "watermark": true
+}

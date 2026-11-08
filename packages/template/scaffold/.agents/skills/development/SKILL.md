@@ -1,17 +1,17 @@
 ---
 name: development
-description: Implements and tests production source, integrations, dependencies and commands. Use for code or host changes and behavioral tests; documentation owns technical writing and screenwriting owns creative bodies.
+description: Implements and tests production source, integrations, dependencies and commands. Use for code or host changes and behavioral tests; documentation owns technical writing and story owns creative bodies.
 ---
 
 # Development
 
-Read the production's current source and the installed package APIs before choosing an implementation. Divide behavior into cohesive responsibilities with explicit inputs, outputs, units, state ownership and failure conditions, so each part can be changed and checked independently. Reuse existing capabilities and give each module meaningful [unit tests](testing.md) against its behavioral contract, covering input boundaries, timing or retained state, and numerical error where applicable; then verify their composition through the actual consumer. Keep authored controls close to the assets, shots, and edit they control, with one owner for shared values. External acquisition produces fixed inputs before playback.
-
-A missing installed capability belongs with its package owner, and [campaign execution](../production/campaign.md) keeps the blocked handoff and its repair attributable. Explicit instruction sync updates guidance, not source or contracts.
+Read the production's current source and the installed package APIs before choosing an implementation. Divide behavior into responsibilities with explicit inputs, outputs and state owners, give each module [unit tests](testing.md), then verify their composition through the actual consumer. Search the installed packages before writing a capability: a behavior several productions use is extended in its package and imported, because a second copy diverges at its first repair. A missing capability is repaired at its package owner, and [campaign execution](../production/campaign.md) keeps that handoff attributable.
 
 - Read [Repair](repair.md) when changing existing behavior or fixing a defect.
-- Answer the [contracts](../evidence/SKILL.md) selected for the declarations you change.
+- Answer the [contracts](../contracts/SKILL.md) of the declarations you change: design for types, implementation for functions, and entities, behaviors or composition for the declarations under `src/entities/`, `src/laws/`, `src/interactions/`, `src/consequences/` or `src/composition/`.
 - Read [testing](testing.md) when choosing behavioral checks.
-- Write READMEs, evidence prose and doc comments with [documentation](../documentation/SKILL.md), answer the [Authoring interface](../contracts/common.md#authoring-interface) question in a public declaration's comment, and write instructions with [prompting](../prompting/SKILL.md). Creative bodies follow the production's adopted language, voice and form under [story contracts](../contracts/story/index.md) in place of those writing rules, keeping fixed quotations and creative choices such as purposeful repetition, nonstandard speech and punctuation.
+- Read [stage caches](../production/stages.md) when adding or changing an expensive stage.
+- Read [source layout](layout.md) when placing source, tests or runtime setup, or adding a subject, practice or scene.
+- Write READMEs, evidence prose and doc comments with [documentation](../documentation/SKILL.md). A production module's doc comment is the next agent's manual: beyond the [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) item, it shows one short composition example, states the invariants it keeps, and cites what it realizes. Write instructions with [prompting](../prompting/SKILL.md). Creative bodies follow the production's adopted language, voice and form under [story contracts](../contracts/story/SKILL.md) in place of those writing rules, keeping fixed quotations and creative choices such as purposeful repetition, nonstandard speech and punctuation.
 
-Finish a source change with `npm run lint`, `npm run evidence`, and `npm test`. Verify the affected consumer through [review](../review/SKILL.md), including actual renders and playback for audiovisual changes. Gather the whole round before repairing its findings.
+While editing, keep one `npm run lint -- --watch` running and read compile errors from it instead of rerunning a build. Finish a source change with `npm run lint`, `npm run evidence` and `npm test`, then verify the affected consumer through [review](../review/SKILL.md), including actual renders and playback for audiovisual changes.

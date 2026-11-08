@@ -1,16 +1,19 @@
 ---
 name: 3d-modeling
-description: Builds, imports, and upgrades production asset representations and verifies their rendered use. Use when choosing sources, geometry, rigs, materials, detail options, or local visual inspection; motion owns scene performance.
+description: Defines how 3D assets are crafted from formulas, recovered from fixed sources, or placed from generated meshes, how they are rigged, and how visual changes are verified. Use before changing geometry, rigs, assets, viewer behavior, materials, lighting, or motion, and before claiming a visual change works.
 ---
 
 # 3D Modeling
 
-Make the asset serve the commissioned instance, motion hint, or direct 3D film, including its required controls and rendering budget. Read adopted [production decisions](../production/profile.md); instance-only work does not require a screenplay or whole film. Read the production's brief and current source, then the installed package documentation for the capabilities the task needs.
+An asset is reproducible, rigged when it moves, and judged on screen. The project's own instructions set what each asset must show and control; read them before choosing a source. The user chooses whether to craft a form, recover it from fixed source geometry, or place an eligible generated mesh:
 
-1. When choosing or changing an asset source or representation, read [asset workflows](workflows.md). Keep the user's chosen workflow unless an observed capability limit prevents it.
-2. Start newly authored instances with coarse low-cost representations and verify their form and controls. For animated work, validate programmed performance through [motion](../motion/SKILL.md) before upgrading selected assets through project-owned detail options. Establish source and control ownership before authoring geometry. Use the [asset questions](../contracts/assets.md) for review; [contracts](../evidence/SKILL.md) decides whether to select formal evidence and which units answer it.
-3. Before claiming a visible result, follow [rendered-use inspection](inspection.md) through the actual consumer. Gather the complete affected inspection round before correcting its causes together, then repeat that round.
+- Read [Crafting](crafting.md) when building or changing a form from dimensions and formulas.
+- Read [Lofting](lofting.md) when building or fitting a form from related sections and guides.
+- Read [Recovery](recovery.md) before extracting curves or surfaces from a fixed mesh, reconstructing saved coefficients, or judging a reverse render.
+- Read [Diffusion](diffusion.md) when a diffusion model's image or mesh is the source of a form.
+- Read [Modularization](modularization.md) when defining parts, groups, placements, or shared boundaries, whatever the asset's source.
+- Read [Rigging](rigging.md) when an asset needs a new or changed skeleton, skin, attachment or deformation control.
+- Read [Research](research.md) when selecting external geometry or rig acquisition.
+- Read [Visual Debugging](visual-debugging.md) before planning a correction or judging any visual result.
 
-Read [independent recovery](recovery.md) when editable reconstruction is required. Read [rigging and deformation](rigging.md) for skeletons, weights, rest/bind interpretation and attachments, and [primary research](research.md) when studying appearance, form or material, or selecting external geometry or rig acquisition.
-
-Installed APIs own data formats and callable behavior; completed generation, fitting, compilation, or tests alone establish no visual result. Use [delivery review](../review/delivery.md) for final assembled acceptance or asset handoff.
+Package documentation owns data formats and callable behavior. Completed generation, fitting, compilation or tests establish no visual result.

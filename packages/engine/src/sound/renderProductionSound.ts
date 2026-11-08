@@ -11,6 +11,9 @@ import {
 import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
 import { productionFrameIntervalToGridTicks } from "../film/productionFrameIntervalToGridTicks";
 import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
+import type { IAutoMovieRandom } from "../random/IAutoMovieRandom";
+import { createAutoMovieRandom } from "../random/createAutoMovieRandom";
+import { deriveAutoMovieSeed } from "../random/deriveAutoMovieSeed";
 import { IAutoMovieRenderedProductionSound } from "./IAutoMovieRenderedProductionSound";
 import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInteriorAcousticResponse";
 import { productionSoundEventTone } from "./productionSoundEventTone";
@@ -585,14 +588,18 @@ const edgeEnvelope: (index: number, length: number, edge: number) => number = (
   edge: number,
 ): number => Math.min(1, index / edge, (length - index) / edge);
 
-/** Derive one stateless signed noise sample by fixed 32bit multiply/xorshift operations over seed and sample index; this seed stream is not content identity. */
+/** Each cue seed's pinned counter-based stream, keyed once. */
+const noiseStreams: Map<number, IAutoMovieRandom> = new Map();
+
+/** One stateless signed noise sample in (-1, 1): the cue seed's pinned Philox stream (`createAutoMovieRandom`) read at the sample index; this seed stream is not content identity. */
 const seededNoise: (seed: number, index: number) => number = (
   seed: number,
   index: number,
 ): number => {
-  let value: number = (seed ^ Math.imul(index + 1, 0x9e3779b1)) >>> 0;
-  value ^= value << 13;
-  value ^= value >>> 17;
-  value ^= value << 5;
-  return ((value >>> 0) / 0x7fffffff - 1) * 0.999999;
+  let stream: IAutoMovieRandom | undefined = noiseStreams.get(seed);
+  if (stream === undefined) {
+    stream = createAutoMovieRandom(deriveAutoMovieSeed(String(seed), "noise"));
+    noiseStreams.set(seed, stream);
+  }
+  return (2 * stream.float(index) - 1) * 0.999999;
 };

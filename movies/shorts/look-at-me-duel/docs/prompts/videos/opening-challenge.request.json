@@ -1,0 +1,22 @@
+{
+  "model": "dreamina-seedance-2-5-260628",
+  "content": [
+    {
+      "type": "text",
+      "text": "Create a cinematic live-action-style fantasy practice scene using @Video1 as the sole coarse 3D motion and camera reference. Preserve its two performers, choreography, spatial relationships, cuts and deliberate pauses. The pale-haired performer is Carina Malfoy, about fifteen, with a cute youthful face, shoulder-length pale-blond hair, a small proud smile and a Slytherin uniform: white collar, green-and-silver striped tie, charcoal knitwear, open dark knee-length robe, charcoal skirt, opaque grey knee socks and closed black shoes. The dark-haired performer is Harry Potter, about fifteen, with untidy dark hair, round glasses, white collar, burgundy-and-gold Gryffindor tie, charcoal knitwear, open dark robe, charcoal trousers and closed black shoes. Each keeps one plain dark wooden wand in the right hand.\n\nIn this nine-second scene, follow the reference's short springy circle, Carina's forefoot pivot, her distinct leading-foot plant and both wand raises. Keep the establishing view of both whole people, the low north boundary, open brown ground and projecting cap behind Harry. Preserve the subsequent Harry challenge view and Carina reply view; keep her complete wand and supported feet readable. Retain only the exact English captions Ready? and Are you? at the reference's corresponding beats, below the action.\n\nUse pale south-west daylight, rough grey stone and a sparse private training court. There are no bystanders, referee, target or extra obstacles. Natural human proportions and simple moving school clothing should carry the same contact-free preparation. Keep audio silent. This request uses semantic motion reference rather than a guarantee of identical frames."
+    },
+    {
+      "type": "video_url",
+      "video_url": {
+        "url": "{{SOURCE_CLIP_PUBLIC_URL}}"
+      },
+      "role": "reference_video"
+    }
+  ],
+  "omni_reference_task_type": "reference",
+  "generate_audio": false,
+  "ratio": "9:16",
+  "duration": 9,
+  "watermark": true
+}
+

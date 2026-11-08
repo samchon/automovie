@@ -1,0 +1,26 @@
+{
+  "scope": "One final source-check round after current helper JSDoc links and final evidence configuration",
+  "inputs": "docs/analysis/final-source-inputs.json",
+  "inputCount": 20,
+  "sourceChangedDuringRound": [],
+  "results": [
+    {
+      "command": "pnpm --filter snitch-before-you run lint",
+      "exitCode": 0,
+      "startedAt": "2026-11-04T13:00:55.7190688Z",
+      "completedAt": "2026-11-04T13:02:09.7979780Z"
+    },
+    {
+      "command": "pnpm --filter snitch-before-you run test",
+      "exitCode": 0,
+      "startedAt": "2026-11-04T13:02:09.8368383Z",
+      "completedAt": "2026-11-04T13:02:20.6040165Z"
+    },
+    {
+      "command": "pnpm --filter snitch-before-you run build",
+      "exitCode": 0,
+      "startedAt": "2026-11-04T13:02:20.6084328Z",
+      "completedAt": "2026-11-04T13:02:37.3537977Z"
+    }
+  ]
+}

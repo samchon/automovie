@@ -6,4 +6,4 @@
 
 She has an interest in preserving her kingdom. Distinguish later judgments of jealousy and betrayal from recorded actions. Select additional exact body and voice details from the individual record’s work decisions.
 
-Basis: relevant statements and work decisions in the [retained individual record](../../../references/novels/settings/050-people/013-caroline-bonaparte.md#caroline-bonaparte).
+Basis: relevant statements and work decisions in the retained individual record.

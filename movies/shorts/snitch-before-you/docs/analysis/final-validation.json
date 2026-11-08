@@ -1,0 +1,63 @@
+{
+  "scope": "Current fourteen-rider screenplay, genuine timing probes and reused static character references; no implemented film",
+  "observedNativeStatus": "complete",
+  "nativeExitCode": 1,
+  "strictValidationSuccess": false,
+  "counts": {
+    "claims": 26,
+    "activeClaims": 26,
+    "obligations": 51,
+    "activeObligations": 51,
+    "incompleteObligations": 0,
+    "units": 89,
+    "coveredUnits": 89,
+    "missingUnits": 0,
+    "errors": 1,
+    "warnings": 0
+  },
+  "diagnostics": [
+    {
+      "code": "graph-stale-review",
+      "severity": "error",
+      "message": "Claim 21 ('screenplay construction review H2 units keep a current review of their draft H2') reference 1: @evidenceReview for 'snitch-before-you.md#airborne-race' names '#008f5f6', but the current scope fingerprint is '#757c334'.",
+      "repair": "Review the cited content again and replace the fingerprint with '#757c334', or correct the acknowledgement if it no longer applies.",
+      "claim": 20,
+      "reference": 0,
+      "location": {
+        "file": "D:/github/samchon/automovie@malfoy/movies/shorts/snitch-before-you/docs/review/draft/screenplay/snitch-before-you.md",
+        "range": {
+          "start": {
+            "offset": 496,
+            "line": 6,
+            "column": 1
+          },
+          "end": {
+            "offset": 796,
+            "line": 7,
+            "column": 1
+          }
+        }
+      },
+      "hostId": "markdown:file:2248149864:29836347532345565:comment:117",
+      "target": "snitch-before-you.md#airborne-race"
+    }
+  ],
+  "nativeReport": ".cache/scene-completeness/final-native.json",
+  "nativeReportSha256": "f18103f48a62093475857f48eefbe153b3aa70f257ba33e9b1704a25e2ae741f",
+  "nativeStatusReceipt": ".cache/scene-completeness/final-native-status.json",
+  "evaluatedDeliveryCarrierSha256": "56051a7de9853f9567e850cb6639ab19217d0608ee8d1fc0a63cf0112f41488e",
+  "currentDeliveryReviewSha256": "024942c6f283adc4cb8b2a806cd417aeeef4f082a0f3d04436233a1f05ef6ee1",
+  "deliveryResult": "Independent qualified screenplay handoff accepted; final observer recorded strict native failure without renewing closed construction approval",
+  "closedProofDisposition": "Preserve frozen construction7ee, original#008f5f6 and actual current#757c334 diagnostic. Naturalness#57ed373/pretransfer0 and exact promoted body21d are separate accepted inputs.",
+  "sourceChecks": "docs/analysis/final-source-checks.json",
+  "retainedInputs": "docs/analysis/final-retained-inputs.json",
+  "cleanup": "docs/analysis/final-cleanup.json",
+  "unperformed": [
+    "Human motion and physical/camera execution",
+    "Film rendering/export and achieved60-second runtime",
+    "Video-to-video generation",
+    "Voice listening/transcript/acting acceptance",
+    "Soundtrack mixing/subtitle edit",
+    "Durable archive restoration"
+  ]
+}

@@ -33,10 +33,19 @@ function projectUnitDirection(a: Vec3, tangent: Vec3): Vec3 {
  * quintic-angle turns. Each analytic owner provides derivatives of that same
  * frame in station or an explicitly selected pole coordinate.
  *
- * Minimal transport supplies numerical frame values through Wang, Juttler,
- * Zheng and Liu's double-reflection method (ACM TOG 27(1), 2008), with its
- * stated regular-curve and positive-step premises. It does not supply an exact
- * frame jet. Each builder below owns its station, orientation and admission rule.
+ * A section lies square to the part's axis: its origin on the axis, its chart
+ * axes `u` and `v` orthonormal in the plane, and the axis direction their
+ * frame normal `v x u` (up for a horizontal layer, as
+ * `IAutoMovieLoftChain.ILayer.lift` reads it). Where an axis supplies
+ * {@link IAxis.jet}, the operator reads the plane's first and second station
+ * derivatives, so the chain's quintic station rule reproduces a straight run
+ * exactly and follows a turn or a curve by its own derivatives.
+ *
+ * Minimal transport supplies frame values through Wang, Juttler, Zheng and
+ * Liu's double-reflection method (ACM TOG 27(1), 2008), with its stated
+ * regular-curve and positive-step premises; its jet differentiates the
+ * rotation-minimizing frame law (`u' = -(u . t') t`) at the transported value.
+ * Each builder below owns its station, orientation and admission rule.
  *
  * @evidence contracts/common.md#principled-implementation Reads each declared plane law directly: affine or level origins, analytic jointed turns, or numerical minimal transport. Level plane normals need not follow the drifting origin's tangent.
  * @evidence contracts/common.md#clear-and-simple-design One axis interface and one builder per axis kind.
@@ -450,18 +459,68 @@ export namespace AutoMovieViewAxis {
       return AutoMovieAxisDirection.reflect(rL, v2, c2);
     };
 
+    const at: (station: number) => AutoMovieLoftFrame.IFrame = (
+      station: number,
+    ): AutoMovieLoftFrame.IFrame => {
+      // March from the first knot in equal steps no longer than `step`,
+      // so a station's frame depends on the station alone.
+      const span: number = station - s0;
+      const n: number = Math.max(1, Math.ceil(Math.abs(span) / step));
+      const h: number = span / n;
+      let r: Vec3 = u0;
+      for (let i: number = 0; i < n; i++) r = reflect(s0 + i * h, r, h);
+      const t: Vec3 = tangent(station);
+      const ru: Vec3 = projectUnitDirection(r, t);
+      return { origin: point(station), u: ru, v: cross(ru, t) };
+    };
     return {
-      at: (station: number): AutoMovieLoftFrame.IFrame => {
-        // March from the first knot in equal steps no longer than `step`,
-        // so a station's frame depends on the station alone.
-        const span: number = station - s0;
-        const n: number = Math.max(1, Math.ceil(Math.abs(span) / step));
-        const h: number = span / n;
-        let r: Vec3 = u0;
-        for (let i: number = 0; i < n; i++) r = reflect(s0 + i * h, r, h);
-        const t: Vec3 = tangent(station);
-        const ru: Vec3 = projectUnitDirection(r, t);
-        return { origin: point(station), u: ru, v: cross(ru, t) };
+      at,
+      jet: (
+        station: number,
+        parameter?: AutoMovieConstructionOutlineParameter,
+      ): AutoMovieViewAxisJet.IJet | null => {
+        // With g = p', a = p'', j = p^(3) and L = |g|: t' = P a / L for
+        // P = I - t t, and t'' = (P j - t (t' . a) - 2 t' (t . a)) / L. A
+        // rotation minimizing frame has u' = -(u . t') t, so
+        // u'' = -(u . t'') t - (u . t') t'; v = u x t gives v' = u x t' and
+        // v'' = u x t'' - (u . t') t x t'.
+        const f: AutoMovieLoftFrame.IFrame = at(station);
+        const jets: [number, number][] = splines.map(
+          (p: AutoMovieNaturalSpline.ISpline): [number, number] =>
+            AutoMovieNaturalSpline.derivative(p, station),
+        );
+        const g: Vec3 = jets.map((d: [number, number]): number => d[0]) as Vec3;
+        const a: Vec3 = jets.map((d: [number, number]): number => d[1]) as Vec3;
+        const j: Vec3 = splines.map(
+          (p: AutoMovieNaturalSpline.ISpline): number =>
+            AutoMovieNaturalSpline.jerk(p, station),
+        ) as Vec3;
+        const L: number = Math.hypot(g[0], g[1], g[2]);
+        if (!(L > 0) || !Number.isFinite(L)) return null;
+        const t: Vec3 = scale(g, 1 / L);
+        const project: (x: Vec3) => Vec3 = (x: Vec3): Vec3 =>
+          sub(x, scale(t, dot(t, x)));
+        const t1: Vec3 = scale(project(a), 1 / L);
+        const t2: Vec3 = scale(
+          sub(sub(project(j), scale(t, dot(t1, a))), scale(t1, 2 * dot(t, a))),
+          1 / L,
+        );
+        const u: Vec3 = f.u;
+        const u1: Vec3 = scale(t, -dot(u, t1));
+        const u2: Vec3 = sub(scale(t, -dot(u, t2)), scale(t1, dot(u, t1)));
+        return AutoMovieViewAxisJet.parameter(
+          {
+            value: f,
+            first: { origin: [...g], u: u1, v: cross(u, t1) },
+            second: {
+              origin: [...a],
+              u: u2,
+              v: sub(cross(u, t2), scale(cross(t, t1), dot(u, t1))),
+            },
+          },
+          parameter,
+          station,
+        );
       },
     };
   }

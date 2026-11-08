@@ -66,6 +66,37 @@ export interface IAutoMovieViewerVideoOptions {
   /** Completed seek-hook global; defaults to __afSeek. */
   seekFunction?: string;
 
+  /**
+   * Directory of the persistent frame cache; omitted captures every frame.
+   *
+   * Use an ignored, disposable path such as `.cache/frames/<film>`, one per
+   * rendered output, and one render at a time per directory. The page must
+   * publish `frameDigestFunction`. Frames whose key is stored are reused,
+   * captured frames are stored immediately (an interrupted run resumes where
+   * it stopped), and entries the successful run did not reference are deleted.
+   */
+  cacheDirectory?: string;
+
+  /**
+   * Page function returning one frame's state digest; defaults to
+   * `__afFrameDigest`. Read only with `cacheDirectory`.
+   *
+   * The page calls it as `fn(seconds)` for every frame before capture; it
+   * returns (or resolves to) a nonempty string that changes whenever anything
+   * that could change that frame's pixels changes: the scene state placed at
+   * that second, the assets and code drawing it, fonts. It must not move the
+   * scene. Frame time, raster, route, selectors, hooks, package versions,
+   * browser build and GL renderer are added by the renderer.
+   */
+  frameDigestFunction?: string;
+
+  /**
+   * Recapture every n-th reused frame and compare its PNG with the cached one;
+   * a difference replaces the entry and counts as `mismatched`. Omitted
+   * verifies nothing. Read only with `cacheDirectory`.
+   */
+  cacheVerifyEvery?: number;
+
   /** Per-browser operation timeout in milliseconds; defaults to 240000. */
   timeoutMs?: number;
 

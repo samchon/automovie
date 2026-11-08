@@ -7,7 +7,7 @@ description: Repairs, implements, tests, and validates automovie source, tests, 
 
 ## Contracts
 
-Every maintained declaration answers, in its doc comment, the [contracts](../contracts/SKILL.md) checklists its package selects. Production types and functions select [`common.md`](../contracts/common.md) and [`performance.md`](../contracts/performance.md), except in `interface`, which selects only `common.md`. Tests select [`testing.md`](../contracts/testing.md). `human` selects none until its rebuild declares completion, then both production checklists at once.
+Every maintained declaration answers, in its doc comment, the [contracts](../contracts/SKILL.md) checklists its package selects, always including [`common.md`](../contracts/development/common.md). Production types and classes select [`design.md`](../contracts/development/design.md); functions and methods select [`implementation.md`](../contracts/development/implementation.md). Tests select [`testing.md`](../contracts/development/testing.md). `human` selects none until its rebuild declares completion, then its production checklists at once.
 
 ## Types And Files
 
@@ -17,7 +17,7 @@ A source file has fewer than 500 lines and exports one symbol named after it, ba
 
 ## Comments And Layout
 
-Write code for the agent who changes it next. Give every declaration a JSDoc comment written to the contracts [Meaningful documentation](../contracts/common.md#meaningful-documentation) chapter, including in a package that selects no checklist.
+Write code for the agent who changes it next. Give every declaration a JSDoc comment written to the contracts [Meaningful documentation](../contracts/development/common.md#meaningful-documentation) chapter, including in a package that selects no checklist.
 
 Inside a body, separate the logical steps with blank lines so each step reads as one paragraph of code, and open each step whose purpose the code does not make obvious with a comment saying what it does and why. Precede every comment inside a block with a blank line unless it opens the block, so a comment never sits directly under code. A comment gives the intent, premise, or reason the code cannot show, not a paraphrase of the code.
 

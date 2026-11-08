@@ -1,7 +1,10 @@
 # Source and evidence review
 
-Read the complete requested implementation and follow its actual callers, inputs, consumers, error paths and affected checks. Apply selected [source and testing questions](../evidence/SKILL.md) to their entire respondents, using [answer verification](../evidence/answering.md). A passing checker establishes recorded coverage, not the truth of an answer or an observed result.
+Read the whole requested change with its callers, inputs, consumers, error paths and tests, then check it against the [development contracts](../contracts/development/SKILL.md) its declarations answer.
 
-For measurable behavior, inspect meaningful expectations and tolerances and run the checks that reach the actual consumer through [development](../development/SKILL.md) and [testing](../development/testing.md). Collect the complete inspection round before repairing causes together under [source repair](../development/repair.md). Include behavior that must remain unchanged and report host or platform checks that could not run.
+- **Answers are true.** Each answer states what the code actually does, cites what it actually follows (the settings fact an entity realizes, the study a behavior follows, the screenplay beat a scene realizes), and claims no behavior, measurement or limit the code does not have. A passing graph shows only that answers exist.
+- **Behavior is principled.** Values come from a requirement, study, measurement or named parameter, with no constant tuned to one case, baked or fitted result, gap-hiding tolerance or special-cased consumer.
+- **Tests verify behavior.** Each test exercises the behavior with independent expectations and distinguishing cases, and no test only checks repository arrangement.
+- **The consumer works.** Run the checks that reach the actual consumer and include behavior that must stay unchanged; visual, performance and listening results come from the running host through [visual debugging](../3d-modeling/visual-debugging.md), [motion](../motion/SKILL.md) and [audio](../audio/SKILL.md).
 
-Use [3D inspection](../3d-modeling/inspection.md), [motion](../motion/SKILL.md) and [audio](../audio/SKILL.md) for actual visual, performance and listening observations. [Execution traceability](../evidence/execution.md) separates those claims from closed narrative proof. Final artifact acceptance uses [delivery review](delivery.md); a requested read-only estimate uses [estimation](estimation.md) and grants no approval. Identify self-review and independent review honestly, preserving failed results and unobserved limits.
+Report host or platform checks that could not run, and keep self-review labeled as self-review. Repairs go to [development](../development/SKILL.md).

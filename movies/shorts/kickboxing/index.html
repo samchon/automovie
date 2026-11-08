@@ -2,12 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <link rel="icon" href="data:," />
-    <title>Kickboxing · Three-minute modular film</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kickboxing</title>
+    <style>
+      body { margin: 0; background: #111820; color: #eef3fa; font: 14px system-ui; }
+      canvas { display: block; }
+      #clips { display: flex; align-items: center; gap: 12px; padding: 12px; }
+      #seek { width: 40vw; }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <canvas id="view"></canvas>
+    <nav id="clips"><button id="play">Play</button><button id="pause">Pause</button><input id="seek" type="range" min="0" step="0.01" value="0" aria-label="Film time" /><output id="clock"></output></nav>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

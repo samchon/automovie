@@ -1,0 +1,43 @@
+/**
+ * Production-specific development contracts a commissioned film turns on.
+ *
+ * Each stage selects the exported declarations of its source folders against
+ * one checklist under `.agents/skills/contracts/development/`, answered in
+ * their doc comments: entities in `src/entities/` answer `entities.md`, laws,
+ * interactions and consequences in `src/laws/`, `src/interactions/` and
+ * `src/consequences/` answer `behaviors.md` and cite the research they follow,
+ * and scenes and films in `src/composition/` answer `composition.md` and cite
+ * the screenplay scenes, beats and files they realize. An omitted stage stays
+ * `"disabled"`, so ordinary coding and narrative-only work owe none of them.
+ *
+ * @evidence contracts/common.md#principled-implementation One stage per contract mirrors the scaffold's development contracts, so a commission enables exactly the duties its code can establish.
+ * @evidence contracts/common.md#clear-and-simple-design Three optional fields with the narrative stage vocabulary; folders, populations and references belong to the claim factory.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts No stage is implied by file presence; an absent field is disabled.
+ * @evidence contracts/common.md#meaningful-documentation The comment names each stage's respondents, their citations and the disabled default.
+ * @evidence contracts/performance.md#efficient-algorithms This erased interface chooses no algorithm; the claim factory owns composition.
+ * @evidence contracts/performance.md#reuse-equivalent-work This erased interface coordinates no computation or retained cache.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources This erased interface owns no handles, tasks or resource lifetime.
+ */
+export interface IAutoMovieDevelopmentProps {
+  /**
+   * Types, classes, functions and methods under `src/entities/` answer
+   * `contracts/development/entities.md`.
+   */
+  entities?: "disabled" | "evidence";
+
+  /**
+   * Functions and methods under `src/laws/`, `src/interactions/` and
+   * `src/consequences/` answer `contracts/development/behaviors.md` and cite
+   * studies in `docs/research/`; every study must be cited by some declaration.
+   */
+  behaviors?: "disabled" | "evidence";
+
+  /**
+   * Functions and methods under `src/composition/scenes/` answer
+   * `contracts/development/composition.md` and cite screenplay scenes and
+   * beats, every one of which must be cited; those under
+   * `src/composition/films/` answer it and cite the screenplay file they
+   * deliver, every one of which must be cited.
+   */
+  composition?: "disabled" | "evidence";
+}
