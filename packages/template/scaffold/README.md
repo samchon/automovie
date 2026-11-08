@@ -47,7 +47,7 @@ A separately commissioned screenplay ends with its text duties; a standalone ass
 
 | Command | Purpose |
 | --- | --- |
-| `npm run lint` | TypeScript and source correctness |
+| `npm run lint` | TypeScript and source correctness; `npm run lint -- --watch` keeps one checker reporting compile errors while you edit |
 | `npm run evidence` | Source/test checklists and the selected path's active evidence obligations |
 | `npm test` | Run exported `test_*` functions under `test/features` through `tsconfig.test.json`; an empty selection fails |
 | `npm run format` | Source formatting |
