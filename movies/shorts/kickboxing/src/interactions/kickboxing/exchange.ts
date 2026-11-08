@@ -28,6 +28,7 @@ import type { IRingCast } from "./IRingCast";
  * @throws When the counts differ, a chain mixes subjects or a part is not of its kind.
  * @evidence docs/research/kickboxing/techniques.md#defenses A defense begins at the attack's launch and completes by its contact.
  * @evidence docs/research/kickboxing/techniques.md#reach Each strike enters to its own range; the attacker exits to outside range.
+ * @evidence docs/research/kickboxing/ring-generalship.md#exit The exit steps off the line toward the side the combination finished on.
  * @evidence docs/research/kickboxing/exchanges.md#combinations Strikes chain at the combination intervals.
  * @evidence docs/research/kickboxing/ring-generalship.md#movements Range: each strike's entry, then the step back out.
  */
@@ -131,15 +132,20 @@ export function exchange(
       );
     },
   );
-  // After the last strike the attacker steps straight back out to outside
-  // range in one push-off beat, the front foot driving him out and the other
-  // following; straight back along the line keeps him clear of the referee
-  // standing side-on, and the resets take the angles.
+  // After the last strike the attacker steps off the line back out to
+  // outside range in one push-off beat, toward the side he finished on: a
+  // lead-hand or lead-leg finish to the lead side, a rear finish to the rear
+  // side (ring-generalship.md#exit). The referee keeps his own clearance on
+  // his track.
+  const last: KickboxingTechnique.ISpec = KickboxingTechnique.performed(
+    KickboxingTechnique.table[techniques[techniques.length - 1]!],
+  );
   const exit: IAutoMovieIntent = KickboxingAction.intent(attacker, {
     kind: "move",
     movement: "separate",
     steps: ENTRY_STEPS,
     range: cycle.exit,
+    side: last.side,
     seconds: KickboxingTiming.STEP_PERIOD,
   });
   return AutoMovieComposition.parallel(

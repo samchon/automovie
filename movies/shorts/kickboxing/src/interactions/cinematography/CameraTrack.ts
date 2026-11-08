@@ -21,7 +21,8 @@ import { RopeLens } from "./RopeLens";
  * each man is framed where he stands and one operator's lag ahead, so the
  * following lens keeps his path; the bearing orbits toward side-on, opposite
  * the referee, at no more than the law's rate; the framing comes from the
- * subjects' bounding spheres by the engine; the lens stays inside the ropes.
+ * subjects' bounding spheres by the engine; the lens works from the apron
+ * outside the ropes, as a fight's handheld operators do.
  * From the screenplay's finish decision the camera widens to hold A, B and
  * the referee, turning at the orbit rate to the view the visibility law
  * chooses for the finishing strike: the open side's side-on view, or the
@@ -43,9 +44,6 @@ import { RopeLens } from "./RopeLens";
 export namespace CameraTrack {
   /** Resolution step, seconds: one frame of the film. */
   export const STEP: number = 1 / 30;
-
-  /** Clearance of the lens inside the rope line, metres: a camera operator's body depth (film choice). */
-  const LENS_MARGIN: number = 0.3;
 
   /** Id suffix of a subject's sphere one operator's lag ahead. */
   const AHEAD: string = "-ahead";
@@ -151,6 +149,7 @@ export namespace CameraTrack {
       FinishHold.margin(
         place(
           cast,
+          "finish",
           CoverageLaw.goal("finish", everyone, bearing, elevation),
           framed,
         ),
@@ -236,6 +235,7 @@ export namespace CameraTrack {
         s.elevation = CoverageLaw.orbit(s.elevation, aim.elevation, STEP);
         const wantedFrame = place(
           cast,
+          s.size,
           CoverageLaw.goal(s.size, subjects, s.bearing, s.elevation),
           framed,
         );
@@ -243,7 +243,10 @@ export namespace CameraTrack {
         s.position =
           s.position === undefined
             ? wantedFrame.position
-            : lerp(s.position, wantedFrame.position, follow);
+            : RopeLens.onApron(
+                lerp(s.position, wantedFrame.position, follow),
+                cast.ring,
+              );
         s.target =
           s.target === undefined
             ? wantedFrame.target
@@ -294,11 +297,12 @@ export namespace CameraTrack {
       (v: SightLaw.IView, t: number) =>
         place(
           cast,
+          "finish",
           CoverageLaw.goal("finish", wide, v.bearing, v.elevation),
           states.get(t) ?? spheres(t),
         ),
       hold,
-      overhead(cast),
+      CoverageLaw.WIDE_HEIGHT - cast.ring.platform,
       CoverageLaw.ORBIT * STEP,
     )) {
       const trial: ISample[] = [...prefix];
@@ -419,17 +423,24 @@ export namespace CameraTrack {
       : undefined;
   }
 
-  /** A framing goal's lens held inside the ropes by {@link RopeLens.hold}. */
+  /** A framing goal's lens held on the apron by {@link RopeLens.hold}. */
   function place(
     cast: IRingCast,
+    size: CoverageLaw.Size,
     goal: ReturnType<typeof CoverageLaw.goal>,
     spheres: Record<string, { center: IAutoMovieVector3; radius: number }>,
   ): RopeLens.IHeld {
+    // The wide sizes are the wide camera's, standing anywhere outside the
+    // ropes up to its distance and height; the closer sizes are handheld on
+    // the apron, no higher than the operator holds the camera.
+    const far: boolean = size === "wide" || size === "finish";
     return RopeLens.hold(
       resolveAutoMovieFraming(goal, spheres),
-      cast.ring.half - LENS_MARGIN,
+      far
+        ? { half: cast.ring.half, canvasHalf: CoverageLaw.WIDE_DISTANCE }
+        : cast.ring,
       goal.elevation,
-      overhead(cast),
+      far ? CoverageLaw.WIDE_HEIGHT - cast.ring.platform : overhead(cast),
     );
   }
 

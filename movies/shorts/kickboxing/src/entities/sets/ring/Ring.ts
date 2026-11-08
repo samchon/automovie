@@ -15,7 +15,7 @@ import { RingFigure } from "./RingFigure";
  * resolveAutoMovieZone(ring.zones, "neutral-corners", "north-east");
  * ```
  *
- * @evidence docs/body/settings/sets/ring.md#canvas A six-metre fighting square inside the ropes on a 6.4-metre canvas; ropes at 40, 70, 100 and 130 cm.
+ * @evidence docs/body/settings/sets/ring.md#canvas A six-metre fighting square inside the ropes on a 7.2-metre canvas, its 0.6 m apron the operators' strip; ropes at 40, 70, 100 and 130 cm.
  * @evidence docs/body/settings/sets/ring.md#centre The centre the fighters fight for.
  * @evidence docs/body/settings/sets/ring.md#corners The red and cyan corners, diagonally opposite.
  * @evidence docs/body/settings/sets/ring.md#neutral-corners The two light neutral corners.
@@ -24,8 +24,8 @@ export class Ring {
   /** Half the side of the fighting square inside the ropes, metres. */
   public readonly half: number = 3;
 
-  /** Half the side of the canvas, metres. */
-  public readonly canvasHalf: number = 3.2;
+  /** Half the side of the canvas, metres: the fighting square plus the 0.6 m apron outside the ropes where the camera operators work. */
+  public readonly canvasHalf: number = 3.6;
 
   /** Canvas height above the arena floor, metres. */
   public readonly platform: number = 1;

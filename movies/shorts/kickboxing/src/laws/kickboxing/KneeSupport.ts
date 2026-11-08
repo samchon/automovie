@@ -6,8 +6,9 @@ import { StanceShape } from "./StanceShape";
 /**
  * A standing figure never locks both knees: wherever he holds his weight on
  * his feet, the root sinks until his supporting knees keep their least bend.
- * Upright, at least one supporting knee keeps {@link UPRIGHT}; in the
- * fighting stance both keep {@link STANCE}. Flight, the kicking leg's swing,
+ * Upright, at least one supporting knee takes the weight at {@link LOADED},
+ * so it never falls under {@link UPRIGHT}; in the fighting stance both keep
+ * {@link STANCE}. Flight, the kicking leg's swing,
  * a jump and a fall, carry no weight and are exempt.
  *
  * ```ts
@@ -20,10 +21,20 @@ import { StanceShape } from "./StanceShape";
 export namespace KneeSupport {
   /**
    * Least knee flexion of an upright supporting leg, degrees: the knee meets
-   * the floor about 5° flexed and stays flexed through stance (Perry and
-   * Burnfield 2010, Gait Analysis, chapter 5).
+   * the floor about 5° flexed and never extends fully through stance (Perry
+   * and Burnfield 2010, Gait Analysis, chapter 5). The picture measure holds
+   * every standing frame to it.
    */
   export const UPRIGHT: number = 5;
+
+  /**
+   * Knee flexion an upright figure takes its weight on, degrees: the about
+   * 15° of the loading response (Perry and Burnfield 2010, chapter 5). The
+   * law sinks the root to it rather than to {@link UPRIGHT}: near a straight
+   * leg a millimetre of hip height is several degrees of knee, so a target at
+   * the floor itself would straighten under any fitting error.
+   */
+  export const LOADED: number = 15;
 
   /** Least flexion of each knee in the fighting stance, degrees: the lower bound of the translated stance range. */
   export const STANCE: number = StanceShape.KNEE_FLEXION_RANGE[0];

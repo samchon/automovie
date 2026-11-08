@@ -1,17 +1,19 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
- * A resolved framing held inside the ropes by an operator in the ring. The
- * lens keeps its floor position inside the square the ropes leave it and
- * its elevation above the target; when the ropes stop the dolly short of the
- * framing distance, the operator raises the camera toward that distance from
- * the target, but never above the height he can hold it overhead.
+ * A resolved framing held on the apron, the strip outside the ropes where a
+ * fight's handheld operators stand: never inside the fighting square, never
+ * beyond the canvas edge. A framing that wants the lens inside the ropes
+ * backs out along its own sightline to the rope line; one that wants it
+ * beyond the canvas stops at the edge and the operator raises the camera
+ * toward the framing distance, but never above the height he can hold it
+ * overhead.
  *
  * ```ts
- * RopeLens.hold(resolveAutoMovieFraming(goal, spheres), ring.half - margin, goal.elevation, overhead);
+ * RopeLens.hold(resolveAutoMovieFraming(goal, spheres), ring, goal.elevation, overhead);
  * ```
  *
- * @evidence docs/research/cinematography/fight-coverage.md#targets The lens stays inside the ropes; medium and wide shots frame both fighters' whole bodies.
+ * @evidence docs/research/cinematography/fight-coverage.md#practice Handheld operators work from the apron outside the ropes; nobody films from inside the fighting square.
  * @evidence docs/research/cinematography/fight-coverage.md#law The camera rises no higher than an operator can hold it overhead.
  */
 export namespace RopeLens {
@@ -23,29 +25,52 @@ export namespace RopeLens {
     /** Look-at point, world metres. */
     target: IAutoMovieVector3;
 
-    /** Whether the ropes held the lens back from the framing's position. */
+    /** Whether the canvas edge held the lens back from the framing's position. */
     clamped: boolean;
   }
 
+  /** The apron's inner and outer edges: the rope line and the canvas edge, as half sides of their squares about the ring's centre. */
+  export interface IApron {
+    /** Half the side of the fighting square inside the ropes, metres. */
+    half: number;
+
+    /** Half the side of the canvas, metres. */
+    canvasHalf: number;
+  }
+
   /**
-   * The lens of a framing held inside the ropes.
+   * The lens of a framing held on the apron.
    *
    * @param frame The resolved framing's position and target.
-   * @param limit Greatest floor coordinate the lens may take on either axis, metres.
+   * @param apron The rope line and canvas edge.
    * @param elevation The framing's elevation above the target, radians.
-   * @param overhead Greatest lens height a rope stop may raise it to, metres: the operator's overhead reach.
+   * @param overhead Greatest lens height a canvas stop may raise it to, metres: the operator's overhead reach.
    * @returns The held lens.
    */
   export function hold(
     frame: { position: IAutoMovieVector3; target: IAutoMovieVector3 },
-    limit: number,
+    apron: IApron,
     elevation: number,
     overhead: number,
   ): IHeld {
-    const x: number = Math.max(-limit, Math.min(limit, frame.position.x));
-    const z: number = Math.max(-limit, Math.min(limit, frame.position.z));
-    const run: number = Math.hypot(x - frame.target.x, z - frame.target.z);
+    const limit: number = apron.canvasHalf;
+    let x: number = Math.max(-limit, Math.min(limit, frame.position.x));
+    let z: number = Math.max(-limit, Math.min(limit, frame.position.z));
     const clamped: boolean = x !== frame.position.x || z !== frame.position.z;
+    if (Math.max(Math.abs(x), Math.abs(z)) < apron.half) {
+      // Back out along the floor sightline until the lens meets the ropes.
+      const dx: number = x - frame.target.x;
+      const dz: number = z - frame.target.z;
+      const l: number = Math.hypot(dx, dz) || 1;
+      const ux: number = l === 0 ? 1 : dx / l;
+      const uz: number = l === 0 ? 0 : dz / l;
+      const exit = (p: number, u: number): number =>
+        u > 0 ? (apron.half - p) / u : u < 0 ? (-apron.half - p) / u : Infinity;
+      const s: number = Math.min(exit(x, ux), exit(z, uz));
+      x += ux * s;
+      z += uz * s;
+    }
+    const run: number = Math.hypot(x - frame.target.x, z - frame.target.z);
     const needed: number = Math.hypot(
       frame.position.x - frame.target.x,
       frame.position.y - frame.target.y,
@@ -66,5 +91,23 @@ export namespace RopeLens {
       target: frame.target,
       clamped,
     };
+  }
+
+  /**
+   * A lens point kept on the apron: a point the operator's follow has carried
+   * inside the ropes steps back to the nearest rope side.
+   *
+   * @param p The point.
+   * @param apron The rope line and canvas edge.
+   * @returns The point on the apron.
+   */
+  export function onApron(
+    p: IAutoMovieVector3,
+    apron: IApron,
+  ): IAutoMovieVector3 {
+    if (Math.max(Math.abs(p.x), Math.abs(p.z)) >= apron.half) return p;
+    return Math.abs(p.x) >= Math.abs(p.z)
+      ? { ...p, x: (p.x < 0 ? -1 : 1) * apron.half }
+      : { ...p, z: (p.z < 0 ? -1 : 1) * apron.half };
   }
 }

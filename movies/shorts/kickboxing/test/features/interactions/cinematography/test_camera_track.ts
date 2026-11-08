@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 
 import { CameraTrack } from "../../../../src/interactions/cinematography/CameraTrack";
+import { CoverageLaw } from "../../../../src/laws/cinematography/CoverageLaw";
 import { polygonFilm } from "../../../internal/polygonFilm";
 
 /**
@@ -9,7 +10,8 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  * Scenarios, with the study's thresholds (docs/research/cinematography/
  * fight-coverage.md#targets): the camera moves for at least 60% of the film;
  * the mean interval between size changes before the finish lies between 2
- * and 8 s; the lens stays inside the ropes; from 143 s the size is the
+ * and 8 s; the lens never stands inside the ropes nor beyond the wide
+ * camera's distance; from 143 s the size is the
  * finish view to the end.
  */
 export function test_camera_track(): void {
@@ -29,8 +31,13 @@ export function test_camera_track(): void {
       moving++;
     if (b.size !== a.size && k * CameraTrack.STEP < 143)
       changes.push(k * CameraTrack.STEP);
+    const out: number = Math.max(
+      Math.abs(b.position.x),
+      Math.abs(b.position.z),
+    );
     assert.ok(
-      Math.max(Math.abs(b.position.x), Math.abs(b.position.z)) < cast.ring.half,
+      out >= cast.ring.half - 1e-9 && out <= CoverageLaw.WIDE_DISTANCE + 1e-9,
+      `lens inside the ropes or beyond the wide camera at ${k * CameraTrack.STEP}`,
     );
     if (k * CameraTrack.STEP >= 143.1) assert.equal(b.size, "finish");
   }

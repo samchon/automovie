@@ -102,7 +102,7 @@ export namespace RefereePerformance {
         KneeSupport.drop(
           measure,
           KneeSupport.legs(measure, rest(feet, origin, facing), posture.shift),
-          KneeSupport.UPRIGHT,
+          KneeSupport.LOADED,
           "one",
         ),
       ),

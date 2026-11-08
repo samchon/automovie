@@ -103,20 +103,22 @@ export namespace FinishHold {
   /**
    * How well a lens frames every man whole: the least normalized margin of
    * the top and bottom of each one's bounding sphere inside the delivered
-   * frame, and of each man's distance beyond the nearest the lens can hold
-   * him whole, his sphere's radius over the sine of the half field of view.
+   * frame. Both ends inside the vertical field of view bound each man's
+   * distance from below by his sphere's radius over the tangent of the half
+   * field of view, the nearest the lens can hold him whole, so a man at the
+   * lens never frames.
    *
    * @param lens The lens.
    * @param spheres Each man's bounding sphere.
    * @param scene The finish scene the frame test reads.
-   * @returns Positive when every man is in frame and far enough; negative otherwise.
+   * @returns Positive when every man is in frame whole; negative otherwise.
    */
   export function margin(
     lens: Pick<ILens, "position" | "target">,
     spheres: readonly { center: IAutoMovieVector3; radius: number }[],
     scene: SightLaw.IScene,
   ): number {
-    const framed: number = SightLaw.framed(
+    return SightLaw.framed(
       lens.position,
       lens.target,
       {
@@ -132,19 +134,6 @@ export namespace FinishHold {
       CoverageLaw.FIELD_OF_VIEW,
       CoverageLaw.ASPECT,
     );
-    const near: number = Math.min(
-      ...spheres.map((s) => {
-        const least: number =
-          s.radius / Math.sin(CoverageLaw.FIELD_OF_VIEW / 2);
-        const d: number = Math.hypot(
-          s.center.x - lens.position.x,
-          s.center.y - lens.position.y,
-          s.center.z - lens.position.z,
-        );
-        return (d - least) / least;
-      }),
-    );
-    return Math.min(framed, near);
   }
 
   /**

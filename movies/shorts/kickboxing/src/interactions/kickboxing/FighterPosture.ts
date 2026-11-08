@@ -129,6 +129,8 @@ export namespace FighterPosture {
       guard.yaw,
     );
     let posture: IBoutPosture = guard;
+    // The turnover rises onto a straightened support (brazilian-kick.md#law).
+    let rising: boolean = false;
     for (const entry of schedule.entries) {
       if (entry.subject !== subject || entry.start > seconds) continue;
       const action = read(entry);
@@ -177,7 +179,10 @@ export namespace FighterPosture {
             answered(schedule, entry.intent.anchor) ?? "",
           ),
         });
-        if (struck) posture = merge(posture, struck, guard, rest);
+        if (struck) {
+          posture = merge(posture, struck, guard, rest);
+          rising ||= spec.line === "descending";
+        }
       } else if (action.kind === "answer") {
         if (seconds >= entry.end) continue;
         const scale: number = action.answer === "take" ? REACTION_SCALE : 1;
@@ -236,23 +241,45 @@ export namespace FighterPosture {
     if (seconds < after && !corner)
       posture = GuardRhythm.apply(posture, measure, schedule, subject, seconds);
     // Standing, the supporting knees keep their least bend: both in the
-    // fighting stance, at least one upright in the corner and the celebration.
-    // A kick's or check's raised leg carries no weight and the fall is exempt.
-    if (
-      seconds < after &&
-      posture.feet.left === null &&
-      posture.feet.right === null
-    ) {
+    // fighting stance; at least one upright in the corner and the
+    // celebration, and the support knee under a raised kicking or checking
+    // leg, which itself carries no weight. The fall is exempt.
+    if (seconds < after && !rising) {
+      const raised: boolean =
+        posture.feet.left !== null || posture.feet.right !== null;
       const upright: boolean =
-        corner || movedTo(schedule, subject, seconds, ["celebrate"]);
+        raised || corner || movedTo(schedule, subject, seconds, ["celebrate"]);
+      // The planted feet in the root frame of the final body turn.
+      const turn: number = posture.yaw - guard.yaw;
+      const c: number = Math.cos(turn);
+      const s: number = Math.sin(turn);
+      const planted = (side: "left" | "right"): IAutoMovieVector3 | null =>
+        posture.feet[side] !== null
+          ? null
+          : {
+              x: rest[side].x * c - rest[side].z * s,
+              y: rest[side].y,
+              z: rest[side].x * s + rest[side].z * c,
+            };
       posture = {
         ...posture,
         drop: Math.max(
           posture.drop,
           KneeSupport.drop(
             measure,
-            KneeSupport.legs(measure, rest, posture.shift),
-            upright ? KneeSupport.UPRIGHT : KneeSupport.STANCE,
+            KneeSupport.legs(
+              measure,
+              { left: planted("left"), right: planted("right") },
+              posture.shift,
+            ),
+            // A kick's support knee keeps the upright floor, the turnover's
+            // rise onto a straightened support excepted; standing upright
+            // takes the weight at the loading-response bend.
+            raised
+              ? KneeSupport.UPRIGHT
+              : upright
+                ? KneeSupport.LOADED
+                : KneeSupport.STANCE,
             upright ? "one" : "both",
           ),
         ),

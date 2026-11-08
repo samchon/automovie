@@ -1,3 +1,4 @@
+import { Vector3 } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { IBoutPosture } from "../kickboxing/IBoutPosture";
@@ -15,6 +16,7 @@ import { blendPosture } from "../kickboxing/blendPosture";
  * ```
  *
  * @evidence docs/research/officiating/referee.md#signals Soft knees, hands ready; "Fight!" palm rising and sweeping down; pointing for "Down!" and the neutral corner; counting fingers; both hands sweeping across to end the contest.
+ * @evidence docs/research/officiating/referee.md#count One downward arm motion per counted second toward the fallen man; the winner's hand raised.
  * @evidence docs/body/settings/cast/referee.md#signals The film's signals.
  * @evidence docs/body/settings/cast/referee.md#after-result The shallow supported crouch beside B.
  */
@@ -31,6 +33,18 @@ export namespace RefereeShape {
 
   /** Knee flexion of the officiating stance, degrees: "soft knees", read as half the fighters' stance bend. */
   const SOFT_KNEES: number = StanceShape.KNEE_FLEXION / 2;
+
+  /** Share of each counted second in which the counting arm rises, before its downward motion (referee.md#count: one downward motion per second). */
+  const COUNT_RISE: number = 0.3;
+
+  /** How far below the shoulder the counting arm ends, as a share of its reach: pointing down at the man on the canvas. */
+  const COUNT_DROP: number = 0.4;
+
+  /** Height of a raised hand above the shoulder, as a share of the arm's reach: the arm nearly upright. */
+  const RAISE_HEIGHT: number = 0.85;
+
+  /** Forward reach of a raised hand toward its subject, as a share of the arm's reach. */
+  const RAISE_REACH: number = 0.3;
 
   /** Knee flexion of the crouch beside B, degrees: "shallow supported crouch", read as a quarter of the knee range. */
   const CROUCH_KNEES: number = 35;
@@ -123,25 +137,44 @@ export namespace RefereeShape {
       }
       case "down":
       case "neutral-corner":
-      case "winner":
         signal = { ...base, hands: { ...base.hands, right: out(-1, 0) } };
         break;
-      case "count": {
-        // One downward beat of the counting hand per number.
-        const beat: number = Math.sin(Math.PI * s);
+      case "winner":
+        // He raises the winner's hand: his arm goes up toward the winner,
+        // the hand above his own head (referee.md#count).
         signal = {
           ...base,
           hands: {
             ...base.hands,
             right: {
               point: {
-                x: reach * 0.7,
-                y: shoulder + measure.headRadius * beat,
-                z: -measure.shoulderHalfWidth * 0.5,
+                x: toward.x * reach * RAISE_REACH,
+                y: shoulder + reach * RAISE_HEIGHT,
+                z: -measure.shoulderHalfWidth + toward.z * reach * RAISE_REACH,
               },
             },
           },
         };
+        break;
+      case "count": {
+        // One downward motion of the arm per number, toward the fallen man:
+        // up beside the head in the first part of the second, then down
+        // pointing at him (referee.md#count).
+        const lift: number = Math.min(1, s / COUNT_RISE);
+        const fall: number =
+          s <= COUNT_RISE ? 0 : (s - COUNT_RISE) / (1 - COUNT_RISE);
+        const up: IAutoMovieVector3 = {
+          x: toward.x * reach * 0.3,
+          y: shoulder + reach * RAISE_HEIGHT,
+          z: -measure.shoulderHalfWidth + toward.z * reach * 0.3,
+        };
+        const down: IAutoMovieVector3 = out(-1, -reach * COUNT_DROP).point;
+        const rest: IAutoMovieVector3 = base.hands.right.point;
+        const at: IAutoMovieVector3 =
+          fall === 0
+            ? Vector3.lerp(rest, up, lift)
+            : Vector3.lerp(up, down, fall);
+        signal = { ...base, hands: { ...base.hands, right: { point: at } } };
         break;
       }
       case "knockout": {

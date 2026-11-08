@@ -85,8 +85,10 @@ export namespace KickboxingAction {
         movement: Movement;
         /** Whole steps it takes. */
         steps: number;
-        /** For `approach`: stance-origin distance to reach, metres. */
+        /** For `approach` and `separate`: stance-origin distance to reach, metres. */
         range?: number;
+        /** For `separate`: the own side the exit steps off the opponent's line to. */
+        side?: "left" | "right";
         /** For a step-in riding a strike's delivery: the seconds it takes instead of the stepping cadence. */
         seconds?: number;
       }

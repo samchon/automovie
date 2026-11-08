@@ -26,6 +26,10 @@ The [IBA Coaches Manual](https://www.iba.sport/wp-content/uploads/2018/07/AIBA-C
 
 Both stances hold their ground while a strike is in flight; footwork resumes at the strike's replant.
 
+## Exit {#exit}
+
+Coaches teach stepping off the line after a combination, toward the side it finished on: a lead-hand finish pivots or steps to the lead side, a rear-hand finish slides out to the rear side, the guard staying up and a safety jab covering the way back to the outside ([Easton BJJ/Kickboxing: focus of the week](https://eastonbjj.com/news/focus-of-the-week-12516-2/), [Easton: focus of the week 6/20/16](https://eastonbjj.com/move-of-the-week/focus-of-the-week-62016/), [Fighters Only, issue 133](https://fightersonly.com/article/ext/38168/Issue+133/1)). Straight back keeps a fighter on his opponent's line and reads as backing up. The film's exit lands at outside range one step off the line toward the last strike's side: the arc whose chord is one step on the circle of the exit range.
+
 ## Stance {#stance}
 
 Kickboxing and Muay Thai coaching describe the stance in words, not angles ([ONE Championship: mastering the Muay Thai stance](https://www.onefc.com/lifestyle/muay-thai-stance/), [LowKickMMA: Muay Thai stance](https://www.lowkickmma.com/muay-thai-stance), [Evolve MMA: common footwork mistakes in Muay Thai](https://evolve-mma.com/blog/commons-footwork-mistakes-in-muay-thai/)). The film translates them into ranges:

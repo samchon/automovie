@@ -64,6 +64,11 @@ export namespace RefereeTrack {
     const origin = (id: string, s: number): RingFootwork.IPoint =>
       BoutLaws.origin(schedule, id, Math.max(0, s), cast).point;
     const body: KnockdownShape.IFootprint = footprint(cast, schedule, fall);
+    // Over the fallen fighter his feet, not only his origin, keep a step
+    // clear of the lying body: a step beyond his own stance half-width and
+    // half a foot.
+    const clearance: number =
+      ring.step + measure.hipHalfWidth + measure.foot / 2;
     let side: 1 | -1 = 1;
     const start = RefereePosition.goal({
       a: origin(cast.a.id, 0),
@@ -85,7 +90,7 @@ export namespace RefereeTrack {
       if (t >= fall) {
         // A step clear of the lying body, beyond it from the standing
         // fighter, facing the fallen man with the other ahead of him.
-        target = RefereePosition.attend(body, a, ring.step);
+        target = RefereePosition.attend(body, a, clearance);
         look = {
           x: (body.from.x + body.to.x) / 2,
           z: (body.from.z + body.to.z) / 2,
@@ -112,7 +117,7 @@ export namespace RefereeTrack {
           ? RefereePosition.clear(
               RefereePosition.walk(current, target, STEP),
               body,
-              ring.step,
+              clearance,
             )
           : RefereePosition.walk(
               current,

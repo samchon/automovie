@@ -73,6 +73,17 @@ export namespace CoverageLaw {
     };
   }
 
+  /**
+   * Farthest standpoint of the wide camera from the ring's centre, metres:
+   * broadcast boxing's wide camera stands about 15 m away (SVG, HBO boxing
+   * at Yankee Stadium). The wide and finish sizes may stand anywhere outside
+   * the ropes up to it; the closer sizes are the apron's handheld work.
+   */
+  export const WIDE_DISTANCE: number = 15;
+
+  /** Highest wide-camera lens above the arena floor, metres: about 7.5 m (SVG, HBO boxing at Yankee Stadium). */
+  export const WIDE_HEIGHT: number = 7.5;
+
   /** Delivery frame aspect, width over height. */
   export const ASPECT: number = 16 / 9;
 
