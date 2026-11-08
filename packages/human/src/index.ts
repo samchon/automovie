@@ -22,3 +22,4 @@ export { AutoMovieHumanPhysicalFootPoints } from "./skeleton/AutoMovieHumanPhysi
 export { AutoMovieHumanPhysicalSupports } from "./skeleton/AutoMovieHumanPhysicalSupports";
 export { AutoMovieHumanPhysicalBracing } from "./skeleton/AutoMovieHumanPhysicalBracing";
 export { resolveAutoMovieHumanCalibration } from "./generation/resolveAutoMovieHumanCalibration";
+export { autoMovieHumanCalibrationKey } from "./generation/autoMovieHumanCalibrationKey";

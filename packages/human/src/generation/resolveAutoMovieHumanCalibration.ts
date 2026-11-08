@@ -1,7 +1,6 @@
 import {
   type IAutoMovieArtifactResolution,
   type IAutoMovieArtifactStore,
-  composeAutoMovieArtifactKey,
   decodeAutoMovieArtifactJson,
   encodeAutoMovieArtifactJson,
   resolveAutoMovieArtifact,
@@ -10,6 +9,7 @@ import {
 import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
 import { AutoMovieHumanBodyLaw } from "./AutoMovieHumanBodyLaw";
 import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
+import { autoMovieHumanCalibrationKey } from "./autoMovieHumanCalibrationKey";
 
 /**
  * The body calibration of one parameter set, read from an artifact store or
@@ -24,8 +24,7 @@ import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibr
  * artifact JSON (including `-0` and non-finite numbers); its `diagnostics`
  * list is a copy, not shared with a later calibration.
  *
- * The key is stage `human.body-calibration` at this module's version, the
- * caller's toolchain and the parameters' exact JSON text. Human's package
+ * The key is `autoMovieHumanCalibrationKey(params, toolchain)`. Human's package
  * version never changes inside a workspace, so put the identity of the code
  * that calibrates into `toolchain`, for example
  * `{ "@automovie/human#src": <digestAutoMovieSourceTree of human/src> }`
@@ -54,16 +53,7 @@ export async function resolveAutoMovieHumanCalibration(
 ): Promise<IAutoMovieHumanBodyCalibration> {
   const resolved: IAutoMovieArtifactResolution = await resolveAutoMovieArtifact(
     options.store,
-    composeAutoMovieArtifactKey({
-      stage: "human.body-calibration",
-      version: VERSION,
-      toolchain: options.toolchain,
-      inputs: {
-        parameters: new TextDecoder().decode(
-          encodeAutoMovieArtifactJson(params),
-        ),
-      },
-    }),
+    autoMovieHumanCalibrationKey(params, options.toolchain),
     async (): Promise<Uint8Array> =>
       encodeAutoMovieArtifactJson(AutoMovieHumanBodyLaw.calibrate(params).body),
   );
@@ -71,6 +61,3 @@ export async function resolveAutoMovieHumanCalibration(
     resolved.bytes,
   );
 }
-
-/** Stage version; bump when the stored calibration's meaning or shape changes. */
-const VERSION: string = "1";
