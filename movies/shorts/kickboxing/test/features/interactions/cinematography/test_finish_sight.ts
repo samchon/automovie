@@ -10,10 +10,10 @@ import { polygonFilm } from "../../../internal/polygonFilm";
  *
  * Scenarios (docs/research/cinematography/fight-coverage.md#targets): the
  * finish view keeps the Brazilian kick's struck region and its descending
- * striking surface clear of every body from the lens the track delivers at
- * the contact, and holds the wide view on that side through the fall, the
- * count and the celebration; the
- * lens stands on the open side of the attacker–receiver line; the same
+ * striking surface clear of every body and inside the frame from the lens
+ * the track delivers at the contact, and holds the wide view on that side
+ * through the fall, the count and the celebration; the lens stands on the
+ * open side of the attacker–receiver line; the same
  * lens mirrored onto the closed side is occluded by the receiver, so the
  * measurement can fail; the open side lies where the contact is and views
  * are ordered nearest it first.
@@ -27,6 +27,8 @@ export function test_finish_sight(): void {
   const lens = CameraTrack.at(camera, scene.seconds);
   const clearance = CameraTrack.clearance(camera, scene);
   assert.ok(clearance > 0, `finish occluded by ${-clearance} m`);
+  const framing = CameraTrack.framing(camera, scene);
+  assert.ok(framing > 0, `finish outside the frame by ${-framing}`);
   // The lens is on the contact's side of the line.
   const side = (p: { x: number; z: number }): number =>
     (scene.receiver.x - scene.attacker.x) * (p.z - scene.attacker.z) -

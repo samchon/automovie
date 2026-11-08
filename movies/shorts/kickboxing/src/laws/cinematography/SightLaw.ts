@@ -159,6 +159,44 @@ export namespace SightLaw {
   }
 
   /**
+   * How far inside the delivered frame the watched points fall: each point
+   * projected through the lens looking from `eye` at `target`, as the least
+   * normalized margin to the frame's edge over all points (1 at the centre,
+   * 0 on an edge, negative outside or behind the lens).
+   *
+   * @param eye The lens point.
+   * @param target The look-at point.
+   * @param scene The finish scene.
+   * @param fieldOfView The lens's vertical field of view, radians.
+   * @param aspect The frame's width over height.
+   * @returns The least margin; positive means every watched point is in frame.
+   * @evidence docs/research/cinematography/fight-coverage.md#targets The striking surface and contact are inside the delivered frame.
+   */
+  export function framed(
+    eye: IAutoMovieVector3,
+    target: IAutoMovieVector3,
+    scene: IScene,
+    fieldOfView: number,
+    aspect: number,
+  ): number {
+    const forward: IAutoMovieVector3 = unit(sub(target, eye));
+    const right: IAutoMovieVector3 = unit(cross(forward, { x: 0, y: 1, z: 0 }));
+    const up: IAutoMovieVector3 = cross(right, forward);
+    const tanY: number = Math.tan(fieldOfView / 2);
+    const tanX: number = tanY * aspect;
+    let least: number = Infinity;
+    for (const w of scene.watched) {
+      const d: IAutoMovieVector3 = sub(w.point, eye);
+      const depth: number = dot(d, forward);
+      if (depth <= 0) return -1;
+      const x: number = dot(d, right) / depth / tanX;
+      const y: number = dot(d, up) / depth / tanY;
+      least = Math.min(least, 1 - Math.abs(x), 1 - Math.abs(y));
+    }
+    return least;
+  }
+
+  /**
    * Separation between a segment and a capsule, metres; negative inside.
    *
    * @param from Segment start.
@@ -250,6 +288,22 @@ export namespace SightLaw {
 
   function sub(p: IAutoMovieVector3, q: IAutoMovieVector3): IAutoMovieVector3 {
     return { x: p.x - q.x, y: p.y - q.y, z: p.z - q.z };
+  }
+
+  function cross(
+    p: IAutoMovieVector3,
+    q: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return {
+      x: p.y * q.z - p.z * q.y,
+      y: p.z * q.x - p.x * q.z,
+      z: p.x * q.y - p.y * q.x,
+    };
+  }
+
+  function unit(p: IAutoMovieVector3): IAutoMovieVector3 {
+    const l: number = Math.hypot(p.x, p.y, p.z) || 1;
+    return { x: p.x / l, y: p.y / l, z: p.z / l };
   }
 
   function dot(p: IAutoMovieVector3, q: IAutoMovieVector3): number {

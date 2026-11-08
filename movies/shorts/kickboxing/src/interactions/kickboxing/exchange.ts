@@ -2,7 +2,7 @@ import { AutoMovieComposition, type IAutoMovieIntent } from "@automovie/engine";
 
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingRange } from "../../laws/kickboxing/KickboxingRange";
-import type { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
+import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
 import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
 import type { IRingCast } from "./IRingCast";
 
@@ -95,9 +95,47 @@ export function exchange(
   const first = KickboxingAction.read(anchored[0]!);
   const seconds: number =
     first.kind === "strike" ? KickboxingTiming.delivery(first.technique) : 0;
+  // A later kick that needs more room than the combination's range takes it
+  // while it chambers: the support foot slides back to that kick's own range,
+  // as the Brazilian kick's turnover opens the distance its instep needs.
+  // Punches never step back inside a combination.
+  const room: AutoMovieComposition[] = anchored.flatMap(
+    (intent: IAutoMovieIntent, k: number): AutoMovieComposition[] => {
+      const strike = KickboxingAction.read(intent);
+      if (k === 0 || strike.kind !== "strike") return [];
+      const spec: KickboxingTechnique.ISpec =
+        KickboxingTechnique.table[strike.technique];
+      if (spec.limb !== "leg" || spec.shows) return [];
+      const own: number = KickboxingRange.of(
+        self.body.measure,
+        other.body.measure,
+        strike.technique,
+      );
+      if (own <= range) return [];
+      const lead: number = KickboxingTiming.delivery(
+        strike.technique,
+        strike.follows,
+      );
+      const chamber: number = Math.min(lead, KickboxingTiming.KICK_CHAMBER);
+      return [
+        AutoMovieComposition.at(
+          `${id}/${k}`,
+          KickboxingAction.intent(attacker, {
+            kind: "move",
+            movement: "separate",
+            steps: APPROACH_STEPS,
+            range: own,
+            seconds: chamber,
+          }),
+          -lead,
+        ),
+      ];
+    },
+  );
   return AutoMovieComposition.parallel(
     AutoMovieComposition.sequence(...anchored),
     ...aligned,
+    ...room,
     KickboxingAction.intent(
       attacker,
       {

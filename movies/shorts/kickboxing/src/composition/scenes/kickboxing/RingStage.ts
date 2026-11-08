@@ -117,8 +117,12 @@ export class RingStage {
     );
     // The visibility law's audit on the delivered lens and the displayed colliders.
     const finishing = CameraTrack.strike(schedule);
-    const clearance: number | undefined = finishing
-      ? CameraTrack.clearance(camera, sight(finishing))
+    const watched = finishing ? sight(finishing) : undefined;
+    const clearance: number | undefined = watched
+      ? CameraTrack.clearance(camera, watched)
+      : undefined;
+    const framing: number | undefined = watched
+      ? CameraTrack.framing(camera, watched)
       : undefined;
     progress?.("Measuring contacts");
     const measured = ContactReceipts.measure(
@@ -210,9 +214,16 @@ export class RingStage {
               `${finishing!.intent.anchor}: occluded from the delivered camera by ${(-clearance).toFixed(3)} m`,
             ]
           : []),
+        ...(framing !== undefined && !(framing > 0)
+          ? [
+              `${finishing!.intent.anchor}: outside the delivered frame by ${(-framing).toFixed(3)}`,
+            ]
+          : []),
       ],
       measures:
-        clearance === undefined ? {} : { "finish-clearance": clearance },
+        clearance === undefined || framing === undefined
+          ? {}
+          : { "finish-clearance": clearance, "finish-in-frame": framing },
       receipts: measured.receipts,
       cues,
       seek,

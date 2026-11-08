@@ -52,9 +52,14 @@ export namespace KickboxingRange {
       case "punch":
         return REACH_SHARE * attacker.armReach + attacker.gloveRadius + depth;
       case "round-kick":
+        // The shin lands with its lower part; the instep lands with the
+        // top of the foot, a whole shank and half a foot beyond the knee.
         return (
           REACH_SHARE *
-            (attacker.thigh + StrikeShape.SHIN_SHARE * attacker.shank) +
+            (attacker.thigh +
+              (spec.surface === "instep"
+                ? attacker.shank + attacker.foot / 2
+                : StrikeShape.SHIN_SHARE * attacker.shank)) +
           depth
         );
       case "push-kick":
