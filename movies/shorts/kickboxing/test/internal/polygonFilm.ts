@@ -2,7 +2,7 @@ import type { IAutoMovieSchedule } from "@automovie/engine";
 
 import { composeKickboxing } from "../../src/composition/films/composeKickboxing";
 import { CameraTrack } from "../../src/interactions/cinematography/CameraTrack";
-import { FinishSight } from "../../src/interactions/cinematography/FinishSight";
+import { FinishVolumes } from "../../src/interactions/cinematography/FinishVolumes";
 import { BoutLaws } from "../../src/interactions/kickboxing/BoutLaws";
 import type { IRingCast } from "../../src/interactions/kickboxing/IRingCast";
 import { RefereeTrack } from "../../src/interactions/officiating/RefereeTrack";
@@ -27,7 +27,7 @@ export function polygonFilm(): polygonFilm.IFilm {
     schedule,
     referee,
     DURATION,
-    FinishSight.volumes(cast, schedule, referee),
+    FinishVolumes.volumes(cast, schedule, referee),
   );
   cached = { cast, schedule, referee, camera, duration: DURATION, seed: SEED };
   return cached;

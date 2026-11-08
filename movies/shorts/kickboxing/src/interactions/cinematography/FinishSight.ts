@@ -10,17 +10,13 @@ import type {
 } from "@automovie/interface";
 
 import type { Fighter } from "../../entities/cast/fighter/Fighter";
-import { FighterBody } from "../../entities/cast/fighter/FighterBody";
 import { CoverageLaw } from "../../laws/cinematography/CoverageLaw";
 import { SightLaw } from "../../laws/cinematography/SightLaw";
-import type { IFighterMeasure } from "../../laws/kickboxing/IFighterMeasure";
 import { KickboxingAction } from "../../laws/kickboxing/KickboxingAction";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
 import { KickboxingTiming } from "../../laws/kickboxing/KickboxingTiming";
-import { TurnoverShape } from "../../laws/kickboxing/TurnoverShape";
 import { BoutLaws } from "../kickboxing/BoutLaws";
 import type { BoutPerformance } from "../kickboxing/BoutPerformance";
-import { FighterPosture } from "../kickboxing/FighterPosture";
 import type { IRingCast } from "../kickboxing/IRingCast";
 import { RefereePerformance } from "../officiating/RefereePerformance";
 import { RefereeTrack } from "../officiating/RefereeTrack";
@@ -30,9 +26,9 @@ import { RefereeTrack } from "../officiating/RefereeTrack";
  * points (the striking surface over the descent from the chamber key to
  * contact, and the struck region at contact) and the occluders around them.
  * `colliders` reads the displayed bodies' declared colliders through the
- * engine's native contact query, the film's own verification; `volumes`
- * reads measure-derived capsules at the schedule's floor points, so logic
- * units resolve the same law in milliseconds without posing a body.
+ * engine's native contact query, the film's own verification;
+ * `FinishVolumes` resolves the same law from the shape laws and measure
+ * capsules for the logic units.
  *
  * ```ts
  * const sight = FinishSight.colliders(cast, schedule, referee, performance, queries);
@@ -164,181 +160,13 @@ export namespace FinishSight {
   }
 
   /**
-   * The scene from the shape laws and measure-derived capsules, so logic
-   * units resolve the law in milliseconds without posing a body. The struck
-   * region lies on the receiver's head on its side, a head radius and a
-   * half below its top and lowered by his posture's drop at that instant;
-   * the watched striking leg is the striker's commanded leg at every frame
-   * of the descent: the knee aim, the shin's middle and the ankle goal,
-   * where the instep and distal shin meet, from his posture placed at its
-   * floor frame. Each body occludes as a leg capsule from ankle to hip, a
-   * torso capsule whose cap reaches the shoulder line and a head-and-neck
-   * capsule from the shoulder line to the head centre; the volumes carry no
-   * arms, so the receiver's defending arm never occludes, as in `colliders`.
+   * The finishing strike, its fighters, technique and contact second.
    *
    * @param cast The cast.
-   * @param schedule The schedule.
-   * @param referee The referee's resolved path.
-   * @returns The reader.
+   * @param entry The finishing strike's entry.
+   * @returns The striker, receiver, technique and contact.
    */
-  export function volumes(
-    cast: IRingCast,
-    schedule: IAutoMovieSchedule,
-    referee: RefereeTrack.ITrack,
-  ): Reader {
-    return (entry: IAutoMovieSchedule.IEntry): SightLaw.IScene => {
-      const { striker, receiver, contact } = finish(cast, entry);
-      const struck = region(cast, schedule, entry);
-      const watched: SightLaw.IWatched[] = descent(contact).flatMap(
-        (seconds: number): SightLaw.IWatched[] => {
-          const leg: ILeg = FinishSight.leg(cast, schedule, entry, seconds);
-          return [leg.knee, leg.shin, leg.ankle].map((point) => ({
-            point,
-            seconds,
-            carriers: [],
-          }));
-        },
-      );
-      watched.push({ point: struck(contact), seconds: contact, carriers: [] });
-      const bodies = (
-        seconds: number,
-      ): { a: IAutoMovieVector3; b: IAutoMovieVector3; radius: number }[] => {
-        const r = RefereeTrack.at(referee, seconds).point;
-        return [
-          ...capsules(
-            floor(cast, schedule, striker.id, seconds),
-            striker.body.measure,
-          ),
-          ...capsules(
-            floor(cast, schedule, receiver.id, seconds),
-            receiver.body.measure,
-          ),
-          ...capsules(r, cast.referee.body.measure),
-        ];
-      };
-      return {
-        contact: struck(contact),
-        attacker: floor(cast, schedule, striker.id, contact),
-        receiver: floor(cast, schedule, receiver.id, contact),
-        seconds: contact,
-        watched,
-        neighbourhood: receiver.body.measure.headRadius,
-        separation: (from, to, seconds): number =>
-          Math.min(
-            ...bodies(seconds).map((c) =>
-              SightLaw.capsule(from, to, c.a, c.b, c.radius),
-            ),
-          ),
-      };
-    };
-  }
-
-  /** The striker's commanded kicking leg in the world, metres. */
-  export interface ILeg {
-    /** The kicking hip joint. */
-    hip: IAutoMovieVector3;
-
-    /** The knee aim. */
-    knee: IAutoMovieVector3;
-
-    /** The ankle goal. */
-    ankle: IAutoMovieVector3;
-
-    /** The middle of the shin, between the knee and the ankle. */
-    shin: IAutoMovieVector3;
-  }
-
-  /**
-   * The finishing kick's commanded leg at a second: the striker's shape-law
-   * posture, its strike aimed at the region `volumes` reads, placed at his
-   * floor frame by the root the performance poses him from.
-   *
-   * @param cast The cast.
-   * @param schedule The schedule.
-   * @param entry The finishing strike.
-   * @param seconds Film seconds.
-   * @returns The leg in the world.
-   */
-  export function leg(
-    cast: IRingCast,
-    schedule: IAutoMovieSchedule,
-    entry: IAutoMovieSchedule.IEntry,
-    seconds: number,
-  ): ILeg {
-    const { striker, spec } = finish(cast, entry);
-    const struck = region(cast, schedule, entry);
-    const posed = FighterPosture.at(
-      cast,
-      schedule,
-      striker.id,
-      seconds,
-      (_subject: string, _region: string, at: number) => struck(at),
-    );
-    const lifted = posed.posture.feet[spec.side];
-    if (lifted === null || lifted.knee === undefined)
-      throw new Error("The finishing kick lifts its leg");
-    const root = FighterBody.root(
-      posed.posture,
-      posed.frame.origin,
-      posed.frame.facing,
-    );
-    const world = (p: IAutoMovieVector3): IAutoMovieVector3 =>
-      Vector3.add(root.floor, Quaternion.rotateVector(root.rotation, p));
-    const m: IFighterMeasure = striker.body.measure;
-    const knee: IAutoMovieVector3 = world(lifted.knee);
-    const ankle: IAutoMovieVector3 = world(lifted.point);
-    return {
-      hip: world({
-        x: 0,
-        y:
-          (spec.line === "descending" ? TurnoverShape.hip(m) : m.hip) -
-          posed.posture.drop,
-        z: (spec.side === "left" ? 1 : -1) * m.hipHalfWidth,
-      }),
-      knee,
-      ankle,
-      shin: Vector3.lerp(knee, ankle, 0.5),
-    };
-  }
-
-  /**
-   * The struck region of the measure-derived scene at a second: on the
-   * receiver's head on the struck side, a head radius out from its centre
-   * line toward that side, a head radius and a half below its top and
-   * lowered by his posture's drop.
-   */
-  function region(
-    cast: IRingCast,
-    schedule: IAutoMovieSchedule,
-    entry: IAutoMovieSchedule.IEntry,
-  ): (seconds: number) => IAutoMovieVector3 {
-    const { striker, receiver, spec } = finish(cast, entry);
-    const m: IFighterMeasure = receiver.body.measure;
-    // The receiver's left is +Z of his own frame facing +X.
-    const sign: number = KickboxingTechnique.region(spec).endsWith("-left")
-      ? 1
-      : -1;
-    return (seconds: number): IAutoMovieVector3 => {
-      const a = floor(cast, schedule, striker.id, seconds);
-      const b = floor(cast, schedule, receiver.id, seconds);
-      const ahead = unit({ x: a.x - b.x, z: a.z - b.z });
-      const drop: number = FighterPosture.at(
-        cast,
-        schedule,
-        receiver.id,
-        seconds,
-        null,
-      ).posture.drop;
-      return {
-        x: b.x - ahead.z * sign * m.headRadius,
-        y: m.head - 1.5 * m.headRadius - drop,
-        z: b.z + ahead.x * sign * m.headRadius,
-      };
-    };
-  }
-
-  /** The strike, its fighters and its contact. */
-  function finish(
+  export function finish(
     cast: IRingCast,
     entry: IAutoMovieSchedule.IEntry,
   ): {
@@ -361,8 +189,13 @@ export namespace FinishSight {
     };
   }
 
-  /** The frames of the descent: from the chamber key to impact, one frame apart. */
-  function descent(contact: number): number[] {
+  /**
+   * The frames of the descent: from the chamber key to impact, one frame apart.
+   *
+   * @param contact The contact second.
+   * @returns Film seconds.
+   */
+  export function descent(contact: number): number[] {
     const frame: number = RefereeTrack.STEP;
     const span: number =
       KickboxingTiming.KICK_IMPACT - KickboxingTiming.KICK_CHAMBER;
@@ -373,31 +206,22 @@ export namespace FinishSight {
     );
   }
 
-  function floor(
+  /**
+   * A fighter's stance origin on the floor at a second.
+   *
+   * @param cast The cast.
+   * @param schedule The schedule.
+   * @param id The fighter's id.
+   * @param seconds Film seconds.
+   * @returns The floor point.
+   */
+  export function floor(
     cast: IRingCast,
     schedule: IAutoMovieSchedule,
     id: string,
     seconds: number,
   ): { x: number; z: number } {
     return BoutLaws.origin(schedule, id, seconds, cast).point;
-  }
-
-  /** A body's measure capsules at a floor point. */
-  function capsules(
-    p: { x: number; z: number },
-    m: IFighterMeasure,
-  ): { a: IAutoMovieVector3; b: IAutoMovieVector3; radius: number }[] {
-    const at = (y: number): IAutoMovieVector3 => ({ x: p.x, y, z: p.z });
-    return [
-      { a: at(m.ankle), b: at(m.hip), radius: m.hipHalfWidth },
-      {
-        a: at(m.hip),
-        b: at(m.shoulder - m.shoulderHalfWidth),
-        radius: m.shoulderHalfWidth,
-      },
-      // The head on its neck: as wide as the head from the shoulder line up.
-      { a: at(m.shoulder), b: at(m.head), radius: m.headRadius },
-    ];
   }
 
   /**
@@ -499,9 +323,4 @@ export namespace FinishSight {
 
   /** Lines of the 1280x720 delivery frame. */
   const FRAME_LINES: number = 720;
-
-  function unit(v: { x: number; z: number }): { x: number; z: number } {
-    const l: number = Math.hypot(v.x, v.z);
-    return l === 0 ? { x: 1, z: 0 } : { x: v.x / l, z: v.z / l };
-  }
 }

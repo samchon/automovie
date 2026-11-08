@@ -3,8 +3,9 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
 import assert from "node:assert/strict";
 
 import { CameraTrack } from "../../../../src/interactions/cinematography/CameraTrack";
-import { FinishSight } from "../../../../src/interactions/cinematography/FinishSight";
+import { FinishVolumes } from "../../../../src/interactions/cinematography/FinishVolumes";
 import { FighterPosture } from "../../../../src/interactions/kickboxing/FighterPosture";
+import { CoverageLaw } from "../../../../src/laws/cinematography/CoverageLaw";
 import { SightLaw } from "../../../../src/laws/cinematography/SightLaw";
 import { TurnoverShape } from "../../../../src/laws/kickboxing/TurnoverShape";
 import { polygonFilm } from "../../../internal/polygonFilm";
@@ -30,17 +31,25 @@ export function test_finish_sight(): void {
   const finishing = CameraTrack.strike(schedule);
   assert.ok(finishing, "the finish view names its strike");
   assert.ok(Math.abs(finishing.contact! - 150) < 1e-9, "contact at 150");
-  const scene = FinishSight.volumes(cast, schedule, referee)(finishing);
+  const scene = FinishVolumes.volumes(cast, schedule, referee)(finishing);
   // The kick reads as a Brazilian kick: the striker's leg reaches the
   // region from a knee raised over the receiver's sunk shoulder line, at a
   // leg's range rather than chest to chest, and the instep comes down.
   const ma = cast.a.body.measure;
   const mb = cast.b.body.measure;
-  const leg = FinishSight.leg(cast, schedule, finishing, scene.seconds);
+  const leg = FinishVolumes.leg(cast, schedule, finishing, scene.seconds);
   const length = (p: IAutoMovieVector3, q: IAutoMovieVector3): number =>
     Vector3.length(Vector3.subtract(p, q));
+  const lens = CameraTrack.at(camera, scene.seconds);
+  // Two computations of one length agree within a pixel of the delivered
+  // frame at the lens's distance from the contact.
+  const pixel: number =
+    (2 *
+      length(lens.position, scene.contact) *
+      Math.tan(CoverageLaw.FIELD_OF_VIEW / 2)) /
+    FRAME_LINES;
   assert.ok(
-    length(leg.knee, leg.hip) <= ma.thigh + 0.01,
+    length(leg.knee, leg.hip) <= ma.thigh + pixel,
     `knee ${length(leg.knee, leg.hip)} m from the hip, beyond the thigh`,
   );
   assert.ok(
@@ -55,17 +64,16 @@ export function test_finish_sight(): void {
       scene.attacker.x - scene.receiver.x,
       scene.attacker.z - scene.receiver.z,
     ) >=
-      TurnoverShape.range(ma, mb) - 0.01,
+      TurnoverShape.range(ma, mb) - pixel,
     "a leg apart at the contact",
   );
-  const before = FinishSight.leg(
+  const before = FinishVolumes.leg(
     cast,
     schedule,
     finishing,
     scene.seconds - CameraTrack.STEP,
   );
   assert.ok(before.ankle.y > leg.ankle.y, "the instep comes down");
-  const lens = CameraTrack.at(camera, scene.seconds);
   const clearance = CameraTrack.clearance(camera, scene);
   assert.ok(clearance > 0, `finish occluded by ${-clearance} m`);
   const framing = CameraTrack.framing(camera, scene);
@@ -104,3 +112,6 @@ export function test_finish_sight(): void {
   assert.deepEqual(views[0], { bearing: 0, elevation: 0.1 });
   assert.ok(views.every((v) => v.elevation <= 0.2 + 1e-12));
 }
+
+/** Lines of the 1280x720 delivery frame. */
+const FRAME_LINES: number = 720;

@@ -7,7 +7,8 @@ import {
 
 import type { Fighter } from "../../entities/cast/fighter/Fighter";
 import { KickboxingTechnique } from "../../laws/kickboxing/KickboxingTechnique";
-import { BoutPerformance } from "./BoutPerformance";
+import type { BoutPerformance } from "./BoutPerformance";
+import { TouchingStrikes } from "./TouchingStrikes";
 import type { IRingCast } from "./IRingCast";
 
 /**
@@ -79,7 +80,7 @@ export namespace ContactReceipts {
     const frame: number = 1 / 30;
     for (const striker of [cast.a, cast.b]) {
       const receiver: Fighter = striker === cast.a ? cast.b : cast.a;
-      for (const touch of BoutPerformance.touching(schedule, striker.id)) {
+      for (const touch of TouchingStrikes.touching(schedule, striker.id)) {
         let best: measureAutoMovieContact.IResult | undefined;
         let when: number = touch.entry.contact!;
         const contacts: auditAutoMovieOutcome.IContact[] = [];

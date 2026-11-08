@@ -46,6 +46,9 @@ export namespace StrikeShape {
     head: Math.PI / 3,
   };
 
+  /** Share of the arm's reach the kicking-side glove holds forward at the head line: three quarters, the extended guard read from the PLOS impact frame. */
+  const GUARD_REACH: number = 0.75;
+
   /** Hip flexion of the round-kick chamber, degrees, by level: thigh toward the target height (PLOS Fig. 3 chamber). */
   const CHAMBER_HIP: Readonly<Record<KickboxingTechnique.Level, number>> = {
     leg: 45,
@@ -262,11 +265,10 @@ export namespace StrikeShape {
           }
         : folded;
     let foot: { point: IAutoMovieVector3; knee: IAutoMovieVector3 };
+    // The chamber's rise from the planted foot is the posture's own blend
+    // from the guard by the lift, so the goal is the chamber itself.
     if (phase === "out" && progress <= chamberShare)
-      foot = {
-        point: Vector3.lerp(rest, chamber.point, ease(progress / chamberShare)),
-        knee: chamber.knee,
-      };
+      foot = { point: chamber.point, knee: chamber.knee };
     else if (phase === "out") {
       // The descending kick's knee climbs while the folded lower leg rises
       // over the target, then the foot drops onto it from above
@@ -307,16 +309,32 @@ export namespace StrikeShape {
     // lumbar spine flexing back over the kick to keep the head up.
     const lean: number = turnover ? 0 : LEAN[spec.level] * drive;
     // The kicking-side glove reaches forward along the head line toward the
-    // receiver, the head lowered as the turnover tilts the trunk back; the
-    // other guards the cheek.
+    // receiver: from the head, carried back as the turnover tilts the trunk,
+    // straight ahead at its height, as far as the arm reaches from its
+    // shoulder along that ray; the other guards the chin.
     const tilt: number = (TurnoverShape.TILT * over * Math.PI) / 180;
     const forward: { point: IAutoMovieVector3 } = {
-      point: local({
-        x: measure.armReach * 0.75,
-        y:
-          measure.hip + (measure.head - measure.hip) * Math.cos(tilt) - drop,
-        z: sign * measure.headRadius,
-      }),
+      point: local(
+        reachAlong(
+          {
+            x: -(measure.head - measure.hip) * Math.sin(tilt),
+            y:
+              measure.hip +
+              (measure.head - measure.hip) * Math.cos(tilt) -
+              drop,
+            z: sign * measure.headRadius,
+          },
+          {
+            x: -(measure.shoulder - measure.hip) * Math.sin(tilt),
+            y:
+              measure.hip +
+              (measure.shoulder - measure.hip) * Math.cos(tilt) -
+              drop,
+            z: sign * measure.shoulderHalfWidth,
+          },
+          measure.armReach * GUARD_REACH,
+        ),
+      ),
     };
     const kicked: IBoutPosture = {
       ...guard,
@@ -470,6 +488,24 @@ export namespace StrikeShape {
         Vector3.scale(Vector3.normalize(shank), measure.shank),
       ),
     };
+  }
+
+  /**
+   * The point on the forward ray from `head` (along +X, the facing toward
+   * the receiver) whose distance from `shoulder` is `reach`: the glove held
+   * forward at the head line as far as the arm reaches, never folded back
+   * into the face.
+   */
+  function reachAlong(
+    head: IAutoMovieVector3,
+    shoulder: IAutoMovieVector3,
+    reach: number,
+  ): IAutoMovieVector3 {
+    const p: IAutoMovieVector3 = Vector3.subtract(head, shoulder);
+    // |p + s·x̂| = reach, the forward root.
+    const s: number =
+      -p.x + Math.sqrt(Math.max(0, p.x * p.x - Vector3.dot(p, p) + reach * reach));
+    return { x: head.x + s, y: head.y, z: head.z };
   }
 
   /** A guard-frame point in the frame of a body turned further by `angle` about +Y (right-handed). */

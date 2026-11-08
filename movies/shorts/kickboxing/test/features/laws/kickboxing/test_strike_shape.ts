@@ -90,13 +90,16 @@ export function test_strike_shape(): void {
         seconds,
         target: { x: 0.8, y: 1.2, z: 0 },
       })!;
-      // Forward toward the receiver: the glove read back in the guard's
-      // frame, before the kick's turn of the body.
+      // Forward toward the receiver, ahead of the head by more than a head
+      // radius: the glove read back in the guard's frame, before the kick's
+      // turn of the body, against the head carried back by the pelvic tilt.
       const turn: number = p.yaw - guard.yaw;
+      const tilt: number =
+        ((guard.pelvis.tilt - p.pelvis.tilt) * Math.PI) / 180;
       const glove = p.hands[side].point;
       assert.ok(
         glove.x * Math.cos(turn) + glove.z * Math.sin(turn) >
-          guard.hands[side].point.x,
+          -(measure.head - measure.hip) * Math.sin(tilt) + measure.headRadius,
         `${name} ${side} glove forward at ${seconds}`,
       );
       assert.ok(
