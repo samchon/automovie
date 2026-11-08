@@ -10,7 +10,7 @@ import { CoverageLaw } from "../../../laws/cinematography/CoverageLaw";
  *
  * ```ts
  * const camera = new RingCamera();
- * camera.holdFinish(37); // widen into the finish view and hold it
+ * camera.holdFinish(37, "s10-b04/3"); // widen into the finish view and hold it
  * ```
  *
  * @evidence docs/body/settings/cinematography/ring-coverage.md#one-camera One camera, one take, a normal-to-short-telephoto lens.
@@ -37,16 +37,26 @@ export class RingCamera {
    * Widen into the finish view and hold it.
    *
    * @param seconds How long it holds, to the end of the film.
+   * @param keep The finishing strike's anchor, whose surface, contact and descending path the view keeps visible.
    * @param anchor Optional anchor id.
    * @returns The chain.
    */
-  public holdFinish(seconds: number, anchor?: string): AutoMovieChain {
+  public holdFinish(
+    seconds: number,
+    keep: string,
+    anchor?: string,
+  ): AutoMovieChain {
     return AutoMovieChain.of({
       subject: this.id,
       capability: "frame",
       ...(anchor === undefined ? {} : { anchor }),
       parameters: Object.freeze({
-        action: Object.freeze({ kind: "frame", size: "finish", seconds }),
+        action: Object.freeze({
+          kind: "frame",
+          size: "finish",
+          seconds,
+          keep,
+        }),
       }),
     });
   }

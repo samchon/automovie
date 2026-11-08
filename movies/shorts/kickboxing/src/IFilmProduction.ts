@@ -42,8 +42,12 @@ export interface IFilmProduction {
     assets: Readonly<Record<string, string>>;
   };
 
-  /** Inspection report of the mount: legality violations and outcome audit findings, empty when clean. */
-  report?: { violations: readonly string[]; findings: readonly string[] };
+  /** Inspection report of the mount: legality violations and audit findings, empty when clean, and named measurements. */
+  report?: {
+    violations: readonly string[];
+    findings: readonly string[];
+    measures?: Readonly<Record<string, number>>;
+  };
 
   /**
    * Places every displayed object and the camera for an exact film second.

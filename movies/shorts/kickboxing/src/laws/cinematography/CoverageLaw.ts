@@ -5,7 +5,8 @@ import type { IAutoMovieFramingGoal } from "@automovie/engine";
  * fighters' line from the side away from the referee, wide while they reset,
  * medium while an exchange is live and pushed in on a clean landing; each
  * size holds at least 2.4 s, the camera orbits at no more than 0.9 rad/s and
- * follows with an operator's lag; at the finish it widens and holds.
+ * follows with an operator's lag; at the finish it widens and holds, from the
+ * open side the visibility law chooses.
  *
  * ```ts
  * CoverageLaw.goal("medium", ["a", "b"], bearing); // a framing goal
@@ -47,6 +48,7 @@ export namespace CoverageLaw {
    * @param size The size.
    * @param subjects The framed subjects' ids.
    * @param bearing Bearing from the subjects' centre to the camera, radians.
+   * @param elevation Lens elevation, radians; the law's ringside eye line unless the finish's visibility law raises it.
    * @returns The framing goal the engine resolves into a camera.
    * @evidence docs/research/cinematography/fight-coverage.md#law The sizes and the side-on bearing.
    */
@@ -54,6 +56,7 @@ export namespace CoverageLaw {
     size: Size,
     subjects: readonly string[],
     bearing: number,
+    elevation: number = ELEVATION,
   ): IAutoMovieFramingGoal {
     // Wide sizes frame people spread along the floor, so their share is of
     // the 16:9 frame's width: the horizontal field of view sets the distance.
@@ -65,7 +68,7 @@ export namespace CoverageLaw {
       subjects,
       fill: FILL[size],
       bearing,
-      elevation: ELEVATION,
+      elevation,
       fieldOfView,
     };
   }

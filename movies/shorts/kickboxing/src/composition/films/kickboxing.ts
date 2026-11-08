@@ -51,7 +51,11 @@ export function kickboxing(): IFilm {
           metresPerNewton: 0.001,
         },
         soundtrack: { cues: mounted.cues, assets: RingStage.SOUND },
-        report: { violations: mounted.violations, findings: mounted.findings },
+        report: {
+          violations: mounted.violations,
+          findings: mounted.findings,
+          measures: mounted.measures,
+        },
         seek: mounted.seek,
         dispose: mounted.dispose,
       };

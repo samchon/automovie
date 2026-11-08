@@ -29,6 +29,7 @@ import { theBrazilianKick } from "../scenes/kickboxing/the-brazilian-kick/theBra
  * @returns The composition.
  * @evidence docs/body/screenplay/kickboxing.md Every scene in screenplay order, one continuous take.
  * @evidence docs/body/screenplay/kickboxing.md#s10-b03 The camera begins widening at 143 s and holds to the end.
+ * @evidence docs/body/screenplay/kickboxing.md#s10-b04 The wide view keeps the kick's contact in sight.
  */
 export function composeKickboxing(
   cast: RingStage["cast"],
@@ -51,7 +52,7 @@ export function composeKickboxing(
     ),
     AutoMovieComposition.at(
       "bell-open",
-      cast.camera.holdFinish(duration - FINISH_VIEW),
+      cast.camera.holdFinish(duration - FINISH_VIEW, FINISH_STRIKE),
       FINISH_VIEW,
     ),
   );
@@ -59,3 +60,6 @@ export function composeKickboxing(
 
 /** The screenplay's anchor for the camera's widening into the finish view, seconds. */
 const FINISH_VIEW: number = 143;
+
+/** The Brazilian kick's strike anchor (scene 10, beat 4, fourth strike), which the finish view keeps visible. */
+const FINISH_STRIKE: string = "s10-b04/3";

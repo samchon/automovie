@@ -24,7 +24,7 @@ The camera behaves like a ringside operator: it moves only when the action gives
 
 ### The finish {#finish}
 
-From the last exchange before the finish, the camera widens into a side-on view that holds the kick, the fall, the neutral corner, the count and A's celebration to the end without a cut.
+From the last exchange before the finish, the camera widens into a side-on view that holds the kick, the fall, the neutral corner, the count and A's celebration to the end without a cut. It takes that view from the kick's open side, where the kicking leg comes down onto B, so neither fighter's body hides the shin, the foot or the place it lands.
 
 ## Lighting style {#lighting}
 
